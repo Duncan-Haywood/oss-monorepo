@@ -59,5 +59,19 @@ test("the inline script imports only exported local names and every element it u
     const mod = await import(`./${m[2]}`);
     for (const name of m[1].split(",").map((s) => s.trim())) assert.ok(name in mod, `${m[2]} exports ${name}`);
   }
+  // modules loaded on a button's first press: every name a handler takes from one is exported by it
+  const lazy = new Map([...script.matchAll(/const (\w+) = onDemand\(\(\) => import\("\.\/([^"]+)"\)\)/g)].map((m) => [m[1], m[2]]));
+  assert.ok(lazy.size >= 10, "on-demand modules");
+  const used = new Set();
+  for (const m of script.matchAll(/const \{([^}]+)\} = await (\w+)\(\)|\(await (\w+)\(\)\)\.(\w+)/g)) {
+    const loader = m[2] || m[3], names = m[1] ? m[1].split(",").map((s) => s.trim()) : [m[4]];
+    assert.ok(lazy.has(loader), `${loader} is an onDemand loader`);
+    used.add(loader);
+    const mod = await import(`./${lazy.get(loader)}`);
+    for (const name of names) assert.ok(name in mod, `${lazy.get(loader)} exports ${name}`);
+  }
+  for (const loader of lazy.keys()) assert.ok(used.has(loader), `${loader} is used`);
+  // and nothing still calls a lazy module's export without loading it first: no bare static import of them either
+  for (const f of lazy.values()) assert.ok(!script.includes(`from "./${f}"`), `${f} is not also imported statically`);
   for (const m of script.matchAll(/\$\("#([\w-]+)/g)) assert.ok(html.includes(`id="${m[1]}"`), `#${m[1]}`);
 });

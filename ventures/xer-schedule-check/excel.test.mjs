@@ -201,6 +201,7 @@ test("the CLI writes the workbook and refuses Microsoft Project XML", () => {
 test("the page offers the download", () => {
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
   assert.match(html, /id="xlsx-download">Download for Excel \(\.xlsx\)</);
-  assert.match(html, /import \{ xerToXlsx, xlsxSummary \} from "\.\/excel\.mjs"/);
+  assert.match(html, /const excelModule = onDemand\(\(\) => import\("\.\/excel\.mjs"\)\)/);
+  assert.match(html, /const \{ xerToXlsx, xlsxSummary \} = await excelModule\(\)/);
   assert.match(html, /record\("converted_to_excel"\)/);
 });

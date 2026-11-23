@@ -528,25 +528,15 @@
     import { narrative, narrativeText, narrativeHtml } from "./narrative.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     import { mspdiText, msprojectSummary } from "./msproject.mjs";
-    import { xerToXlsx, xlsxSummary } from "./excel.mjs";
-    import { dragAnalysis, dragCsv, dragTableHtml } from "./drag.mjs";
-    import { gao, gaoCsv, gaoHtml, gaoTableHtml, overallLine } from "./gao.mjs";
-    import { crashAnalysis, crashCsv, crashTableHtml } from "./crash.mjs";
-    import { p6XerText, p6xerSummary } from "./p6xer.mjs";
     import { reviewHtml, reviewItems, windowsFor } from "./report.mjs";
     import { riskAnalysisAsync, riskCsv, parseRanges, parseRisks, parseBranches, branchRows } from "./risk.mjs";
     import { udfFields, guessRangeFields, rangesFromUdf, udfRangeNote } from "./udf-ranges.mjs";
     import { formatDate } from "./xer.mjs";
     import { levelAsync, levelCsv } from "./level.mjs";
     import { windows, windowsCsv } from "./windows.mjs";
-    import { exampleSeries } from "./example-series.mjs";
     import { schedule } from "./cpm.mjs";
     import { floatPaths, floatPathsCsv, finishActivity } from "./floatpaths.mjs";
-    import { calendarSlack, calendarSlackCsv } from "./calslack.mjs";
-    import { milestoneCalendars, milestoneCalendarsCsv } from "./milestones.mjs";
-    import { timeImpact, timeImpactCsv, timeImpactHtml, EXAMPLE_FRAGNET } from "./tia.mjs";
     import { collapsedAsBuilt, collapsedCsv, collapsedTableHtml, EXAMPLE_DELAYS } from "./collapse.mjs";
-    import { asPlannedVsAsBuilt, asPlannedCsv, asPlannedTableHtml, delaySteps } from "./asplanned.mjs";
     import { xerText } from "./xer.mjs";
     import { earnedValue, earnedValueCsv, sCurveCsv, sCurveSvg } from "./evm.mjs";
     import { earnedValueSeries, earnedValueSeriesCsv } from "./evmseries.mjs";
@@ -554,6 +544,19 @@
     import { lookahead, lookaheadCsv, lookaheadHtml } from "./lookahead.mjs";
     import { constraintLogCsv, EXAMPLE_LOG, pastLabel } from "./constraints.mjs";
     import { gantt, ganttSvg, ganttHtml, ganttCsv, visibleRows, ganttLegend, codeTypes, groupsPhrase } from "./gantt.mjs";
+
+    // Modules only a button uses load on its first press (memoised; a failed load is retried next press).
+    const onDemand = (load) => { let p = null; return () => (p ??= load().catch((e) => { p = null; throw e; })); };
+    const p6xerModule = onDemand(() => import("./p6xer.mjs"));
+    const excelModule = onDemand(() => import("./excel.mjs"));
+    const gaoModule = onDemand(() => import("./gao.mjs"));
+    const crashModule = onDemand(() => import("./crash.mjs"));
+    const dragModule = onDemand(() => import("./drag.mjs"));
+    const exampleSeriesModule = onDemand(() => import("./example-series.mjs"));
+    const calslackModule = onDemand(() => import("./calslack.mjs"));
+    const milestonesModule = onDemand(() => import("./milestones.mjs"));
+    const tiaModule = onDemand(() => import("./tia.mjs"));
+    const asplannedModule = onDemand(() => import("./asplanned.mjs"));
 
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
@@ -670,9 +673,10 @@
         $("#p6-types-status").textContent = `${(x.tables.UDFTYPE || []).length} user-defined field type(s) read from ${f.name}.`;
       } catch (err) { $("#p6-types-status").textContent = `${f.name} does not look like an XER: ${err.message}`; }
     });
-    $("#p6-xer").addEventListener("click", () => {
+    $("#p6-xer").addEventListener("click", async () => {
       if (!xer || xer.format !== "mspdi" || !loadedText) return;
       try {
+        const { p6XerText, p6xerSummary } = await p6xerModule();
         const r = p6XerText(loadedText, { projectId: $("#p6-id").value.trim(), deadlines: $("#p6-deadlines").checked, typesFrom: p6TypesFrom, interim: $("#p6-no-interim").checked ? "skip" : "keep" });
         save(new Blob([r.bytes], { type: "text/plain" }), `${fileName}.xer`);
         $("#p6-out").innerHTML = `<p class="note">${esc(r.project.id)}: ${esc(p6xerSummary(r))}.</p>${r.warnings.length ? `<div class="warnbox"><strong>What to know before importing</strong><ul>${r.warnings.map((w) => `<li>${esc(w)}</li>`).join("")}</ul></div>` : ""}`;
@@ -686,6 +690,7 @@
       const out = $("#xlsx-out");
       out.innerHTML = `<p class="note">Writing the workbook...</p>`;
       try {
+        const { xerToXlsx, xlsxSummary } = await excelModule();
         const r = await xerToXlsx(xer, { projId: last ? last.project.id : null, raw: $("#xlsx-raw").checked });
         save(new Blob([r.bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${fileName}.xlsx`);
         out.innerHTML = `<p class="note">${esc(xlsxSummary(r.summary))}.</p>${r.warnings.length ? `<div class="warnbox"><ul>${r.warnings.map((w) => `<li>${esc(w)}</li>`).join("")}</ul></div>` : ""}`;
@@ -731,10 +736,11 @@
     });
     // ---- calendar slack
     let lastCs = null;
-    $("#cs-run").addEventListener("click", () => {
+    $("#cs-run").addEventListener("click", async () => {
       if (!xer || !last) return;
       const st = $("#cs-status");
       try {
+        const { calendarSlack } = await calslackModule();
         const r = calendarSlack(xer, { projId: last.project.id });
         lastCs = r;
         if (!r.activities.length) {
@@ -752,14 +758,15 @@
     });
     // ---- milestone calendars
     let lastTia = null;
-    $("#tia-example").addEventListener("click", () => { $("#tia-frag").value = EXAMPLE_FRAGNET; });
+    $("#tia-example").addEventListener("click", async () => { $("#tia-frag").value = (await tiaModule()).EXAMPLE_FRAGNET; });
     $("#tia-file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) $("#tia-frag").value = await f.text(); });
-    $("#tia-run").addEventListener("click", () => {
+    $("#tia-run").addEventListener("click", async () => {
       const st = $("#tia-status");
       if (!xer || !last) { st.textContent = "Open a schedule first (or load the example above)."; return; }
       const text = $("#tia-frag").value.trim();
       if (!text) { st.textContent = "Write or paste a fragnet first, or press Example fragnet."; return; }
       try {
+        const { timeImpact } = await tiaModule();
         const r = timeImpact(xer, text, { projId: last.project.id, expectedFinish: !$("#tia-noexp").checked });
         lastTia = r;
         const d = r.finish.delayDays;
@@ -780,8 +787,8 @@
         $("#tia-out").innerHTML = "";
       }
     });
-    $("#tia-print").addEventListener("click", () => { if (!lastTia) return; save(new Blob([timeImpactHtml(lastTia)], { type: "text/html" }), `${fileName}-time-impact.html`); record("findings_downloaded"); });
-    $("#tia-csv").addEventListener("click", () => { if (!lastTia) return; save(new Blob([timeImpactCsv(lastTia)], { type: "text/csv" }), `${fileName}-time-impact.csv`); record("findings_downloaded"); });
+    $("#tia-print").addEventListener("click", async () => { if (!lastTia) return; const { timeImpactHtml } = await tiaModule(); save(new Blob([timeImpactHtml(lastTia)], { type: "text/html" }), `${fileName}-time-impact.html`); record("findings_downloaded"); });
+    $("#tia-csv").addEventListener("click", async () => { if (!lastTia) return; const { timeImpactCsv } = await tiaModule(); save(new Blob([timeImpactCsv(lastTia)], { type: "text/csv" }), `${fileName}-time-impact.csv`); record("findings_downloaded"); });
     $("#tia-xer").addEventListener("click", () => { if (!lastTia) return; save(new Blob([xerText(lastTia.impactedXer)], { type: "text/plain" }), `${fileName}-impacted.xer`); record("findings_downloaded"); });
     let lastCab = null;
     $("#cab-example").addEventListener("click", () => { $("#cab-list").value = EXAMPLE_DELAYS; });
@@ -813,10 +820,11 @@
       try { apabBase = parseSchedule(decodeXer(new Uint8Array(await f.arrayBuffer()))); $("#apab-status").textContent = `Baseline ${f.name} read.`; }
       catch (err) { apabBase = null; $("#apab-status").textContent = `This does not look like an XER or Microsoft Project XML file: ${err.message}`; }
     });
-    $("#apab-run").addEventListener("click", () => {
+    $("#apab-run").addEventListener("click", async () => {
       const st = $("#apab-status");
       if (!xer || !last) { st.textContent = "Open the final update first (or load the example above)."; return; }
       try {
+        const { asPlannedVsAsBuilt, asPlannedTableHtml, delaySteps } = await asplannedModule();
         const base = apabBase || (fileName === "office-fitout-example" ? parseXer(EXAMPLE_PREV_XER) : null);
         const r = asPlannedVsAsBuilt(xer, base, { projId: last.project.id });
         lastApab = r;
@@ -830,7 +838,7 @@
         $("#apab-out").innerHTML = "";
       }
     });
-    $("#apab-csv").addEventListener("click", () => { if (!lastApab) return; save(new Blob([asPlannedCsv(lastApab)], { type: "text/csv" }), `${fileName}-as-planned-vs-as-built.csv`); record("findings_downloaded"); });
+    $("#apab-csv").addEventListener("click", async () => { if (!lastApab) return; const { asPlannedCsv } = await asplannedModule(); save(new Blob([asPlannedCsv(lastApab)], { type: "text/csv" }), `${fileName}-as-planned-vs-as-built.csv`); record("findings_downloaded"); });
     let lastGao = null, gaoBase = null;
     $("#gao-base").addEventListener("change", async (e) => {
       const f = e.target.files[0];
@@ -838,10 +846,11 @@
       try { gaoBase = parseSchedule(decodeXer(new Uint8Array(await f.arrayBuffer()))); $("#gao-status").textContent = `Baseline ${f.name} read; press Score against the GAO guide.`; }
       catch (err) { gaoBase = null; $("#gao-status").textContent = `The baseline does not read as an XER or Microsoft Project XML file: ${err.message}`; }
     });
-    $("#gao-run").addEventListener("click", () => {
+    $("#gao-run").addEventListener("click", async () => {
       const st = $("#gao-status");
       if (!xer || !last) { st.textContent = "Open a schedule first (or load the example above)."; return; }
       try {
+        const { gao, gaoTableHtml, overallLine } = await gaoModule();
         const r = gao(xer, { projId: last.project.id, report: last, baseline: gaoBase });
         lastGao = r;
         st.innerHTML = `<b>${esc(overallLine(r))}</b> ${esc(r.testsPassed)} of ${esc(r.testsTotal)} file tests pass${r.baseline ? "; practice 10 scored against the baseline" : ""}. Ratings are the share of each practice's tests passed, not an auditor's judgment.`;
@@ -850,15 +859,16 @@
         record("gao_scored");
       } catch (e) { st.textContent = `Could not run: ${e.message}`; $("#gao-out").innerHTML = ""; }
     });
-    $("#gao-print").addEventListener("click", () => { if (!lastGao) return; save(new Blob([gaoHtml(lastGao)], { type: "text/html" }), `${fileName}-gao-scorecard.html`); record("findings_downloaded"); });
-    $("#gao-csv").addEventListener("click", () => { if (!lastGao) return; save(new Blob([gaoCsv(lastGao)], { type: "text/csv" }), `${fileName}-gao-scorecard.csv`); record("findings_downloaded"); });
+    $("#gao-print").addEventListener("click", async () => { if (!lastGao) return; const { gaoHtml } = await gaoModule(); save(new Blob([gaoHtml(lastGao)], { type: "text/html" }), `${fileName}-gao-scorecard.html`); record("findings_downloaded"); });
+    $("#gao-csv").addEventListener("click", async () => { if (!lastGao) return; const { gaoCsv } = await gaoModule(); save(new Blob([gaoCsv(lastGao)], { type: "text/csv" }), `${fileName}-gao-scorecard.csv`); record("findings_downloaded"); });
     let lastDrag = null;
     $("#drag-run").addEventListener("click", () => {
       const st = $("#drag-status");
       if (!xer || !last) { st.textContent = "Open a schedule first (or load the example above)."; return; }
       st.textContent = "Rescheduling once per longest-path activity...";
-      setTimeout(() => {
+      setTimeout(async () => {
         try {
+          const { dragAnalysis, dragTableHtml } = await dragModule();
           const c = $("#drag-cost").value;
           const r = dragAnalysis(xer, { projId: last.project.id, costPerDay: c === "" ? null : Number(c) });
           lastDrag = r;
@@ -870,14 +880,15 @@
         } catch (e) { st.textContent = `Could not run: ${e.message}`; $("#drag-out").innerHTML = ""; }
       }, 20);
     });
-    $("#drag-csv").addEventListener("click", () => { if (!lastDrag) return; save(new Blob([dragCsv(lastDrag)], { type: "text/csv" }), `${fileName}-critical-path-drag.csv`); record("findings_downloaded"); });
+    $("#drag-csv").addEventListener("click", async () => { if (!lastDrag) return; const { dragCsv } = await dragModule(); save(new Blob([dragCsv(lastDrag)], { type: "text/csv" }), `${fileName}-critical-path-drag.csv`); record("findings_downloaded"); });
     let lastCrash = null;
     $("#crash-run").addEventListener("click", () => {
       const st = $("#crash-status");
       if (!xer || !last) { st.textContent = "Open a schedule first (or load the example above)."; return; }
       st.textContent = "Finding the cheapest cut and rescheduling, step by step...";
-      setTimeout(() => {
+      setTimeout(async () => {
         try {
+          const { crashAnalysis, crashTableHtml } = await crashModule();
           const tg = $("#crash-target").value, c = $("#drag-cost").value, data = $("#crash-data").value.trim(), mx = $("#crash-max").value;
           const r = crashAnalysis(xer, { projId: last.project.id, targetDays: tg === "" ? null : Number(tg), costPerDay: c === "" ? null : Number(c), data: data || null, maxFraction: mx === "" ? 0.25 : Number(mx) / 100, maxRuns: 400 });
           lastCrash = r;
@@ -889,12 +900,13 @@
         } catch (e) { st.textContent = `Could not run: ${e.message}`; $("#crash-out").innerHTML = ""; }
       }, 20);
     });
-    $("#crash-csv").addEventListener("click", () => { if (!lastCrash) return; save(new Blob([crashCsv(lastCrash)], { type: "text/csv" }), `${fileName}-acceleration-steps.csv`); record("findings_downloaded"); });
+    $("#crash-csv").addEventListener("click", async () => { if (!lastCrash) return; const { crashCsv } = await crashModule(); save(new Blob([crashCsv(lastCrash)], { type: "text/csv" }), `${fileName}-acceleration-steps.csv`); record("findings_downloaded"); });
     let lastMc = null;
-    $("#mc-run").addEventListener("click", () => {
+    $("#mc-run").addEventListener("click", async () => {
       if (!xer || !last) return;
       const st = $("#mc-status");
       try {
+        const { milestoneCalendars } = await milestonesModule();
         const r = milestoneCalendars(xer, { projId: last.project.id });
         lastMc = r;
         const fin = r.finishes.map((f) => f.moved ? `the finish moves from ${f.finish} to ${f.finish24}` : "the finish does not move").join("; ");
@@ -912,7 +924,7 @@
         record("milestone_calendars_run");
       } catch (e) { st.textContent = `Could not check milestone calendars: ${e.message}`; }
     });
-    $("#mc-csv").addEventListener("click", () => { if (!lastMc) return; save(new Blob([milestoneCalendarsCsv(lastMc)], { type: "text/csv" }), `${fileName}-milestone-calendars.csv`); record("findings_downloaded"); });
+    $("#mc-csv").addEventListener("click", async () => { if (!lastMc) return; const { milestoneCalendarsCsv } = await milestonesModule(); save(new Blob([milestoneCalendarsCsv(lastMc)], { type: "text/csv" }), `${fileName}-milestone-calendars.csv`); record("findings_downloaded"); });
     // ---- earned value
     let lastEv = null;
     $("#ev-run").addEventListener("click", () => {
@@ -947,7 +959,7 @@
     });
     $("#ev-csv").addEventListener("click", () => { if (!lastEv) return; save(new Blob([earnedValueCsv(lastEv)], { type: "text/csv" }), `${fileName}-earned-value.csv`); record("findings_downloaded"); });
     $("#ev-curve").addEventListener("click", () => { if (!lastEv) return; save(new Blob([sCurveCsv(lastEv)], { type: "text/csv" }), `${fileName}-s-curve.csv`); record("findings_downloaded"); });
-    $("#cs-csv").addEventListener("click", () => { if (!lastCs) return; save(new Blob([calendarSlackCsv(lastCs)], { type: "text/csv" }), `${fileName}-calendar-slack.csv`); record("findings_downloaded"); });
+    $("#cs-csv").addEventListener("click", async () => { if (!lastCs) return; const { calendarSlackCsv } = await calslackModule(); save(new Blob([calendarSlackCsv(lastCs)], { type: "text/csv" }), `${fileName}-calendar-slack.csv`); record("findings_downloaded"); });
     $("#fp-csv").addEventListener("click", () => { if (!lastFp) return; save(new Blob([floatPathsCsv(lastFp)], { type: "text/csv" }), `${fileName}-float-paths-${lastFp.target.code}.csv`); record("findings_downloaded"); });
     // ---- Gantt chart
     let lastGantt = null, ganttBase = null, ganttBaseName = "";
@@ -1240,7 +1252,8 @@
       $("#win-status").textContent = `Scheduling ${files.length} updates...`;
       setTimeout(() => { if (runWindows(list)) record("windows_analysed"); }, 20);
     });
-    $("#load-example-series").addEventListener("click", () => {
+    $("#load-example-series").addEventListener("click", async () => {
+      const { exampleSeries } = await exampleSeriesModule();
       if (runWindows(exampleSeries(), "Example: four invented monthly updates of an office fit-out with planted changes (paint re-estimated in May, board and tape running long in June), not a real project.")) record("example_loaded");
     });
     $("#win-download").addEventListener("click", () => { if (!lastWin) return; save(new Blob([windowsCsv(lastWin)], { type: "text/csv" }), `${(lastWin.project || "project").replace(/[^\w.-]+/g, "-")}-windows.csv`); record("findings_downloaded"); });
