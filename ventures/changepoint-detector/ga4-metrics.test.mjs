@@ -216,7 +216,7 @@ test('a tag broken on half the pages and a sign-up form that stops working: the 
   assert.equal((text.match(/Changes on record: 1\./g) ?? []).length, 3, 'one change per column, no false ones');
 });
 
-test('the self-deploy workflow fetches Analytics metrics, watches three columns, never commits the CSV', async () => {
+test('the self-deploy workflow fetches Analytics metrics, watches four columns (page views too), never commits the CSV', async () => {
   const today = new Date().toISOString().slice(0, 10);
   const s = await standIn(property({ from: addDays(today, -500), to: today }), { today });
   try {
@@ -239,7 +239,7 @@ test('the self-deploy workflow fetches Analytics metrics, watches three columns,
     assert.ok(!JSON.stringify(result.steps).includes('PRIVATE KEY'), 'the key is never printed');
     git(dev, 'pull', '-q', '--rebase');
     const st = JSON.parse(readFileSync(join(dev, 'watch-state.json'), 'utf8'));
-    assert.deepEqual(Object.keys(st.columns ?? st).filter((k) => ['sessions', 'activeUsers', 'keyEvents'].includes(k)).sort(), ['activeUsers', 'keyEvents', 'sessions']);
+    assert.deepEqual(Object.keys(st.columns ?? st).filter((k) => ['sessions', 'activeUsers', 'screenPageViews', 'keyEvents'].includes(k)).sort(), ['activeUsers', 'keyEvents', 'screenPageViews', 'sessions']);
     assert.equal(git(dev, 'ls-files', 'data/ga4.csv').trim(), '', 'the CSV is not committed');
   } finally { await s.close(); }
 });

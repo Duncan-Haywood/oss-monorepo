@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVPfVwK7mpuNFRm4Zk8",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...)",
+  "input_sha256": "0c205c8dd85c6aca752a84bcb7732da2c6108cc978592ce61cf06f10a91f1c08",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T21:57:16Z",
+  "ended": "2026-11-23T22:04:37Z",
+  "wall_minutes": 15.06,
+  "tokens_in": 6714571,
+  "tokens_out": 28902,
+  "cost_usd": 2.8818,
+  "tool_calls": 57,
+  "task": "Deepen (flagship 4) changepoint-detector: PostHog users and GA4 activeUsers under a partial snippet loss",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18489",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "venture-preflight's check_cli_entry flagged the new eval's file:// entry guard; switched to pathToFileURL"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/eval/visitor-columns.mjs",
+      "issue": "the eval this run copied from has no entry guard, so copying its pattern plus a hand-written file:// guard tripped check_cli_entry; a shared eval helper for the person-by-person generator would avoid both the copy and the trap"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-ga4-alerts-missed-a-lost-tag.md",
+    "ventures/changepoint-detector/README.md (PostHog users and GA4 activeUsers under a snippet loss)"
+  ],
+  "goal": "flagship depth: make the self-deploy metric watch hear a lost analytics tag on GA4 and PostHog",
+  "notes": "Pre-registered rule committed (PR's second commit) before the first 40-seed run. Result: count default heard people falling on 0/40 (PostHog) and 0-1/40 (GA4 sessions); middle setting 37-40/40; GA4 page views 40/40 with 0 false dates; all V1-V3 and P1-P2 pass. Shipped: middle default for PostHog and GA4 in deploy/watch-metric.yml, GA4 also watches screenPageViews. Local checks: node --test on the 5 touched test files 31/31 pass; run_venture_tests.py changepoint-detector: 1152 tests ok (426 s); venture-preflight: clean (after the entry-guard fix); check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c7d0c02b-513e-59ac-9595-ab8dc5b2d878",
+    "transcripts": 1,
+    "first": "2026-11-23T21:57:16Z",
+    "last": "2026-11-23T22:12:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 108,
+        "output": 28902,
+        "thinking": 4082,
+        "cache_read": 6591329,
+        "cache_write_5m": 0,
+        "cache_write_1h": 123134,
+        "api_equivalent_usd": 2.8818,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 108,
+      "output": 28902,
+      "thinking": 4082,
+      "cache_read": 6591329,
+      "cache_write_5m": 0,
+      "cache_write_1h": 123134,
+      "api_equivalent_usd": 2.8818,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 52,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.06,
+      "active_minutes": 15.06,
+      "model_minutes": 4.44,
+      "tool_minutes": 10.63,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design and pre-register a simulation, run it, change two workflow defaults with tests and docs, write a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 208.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

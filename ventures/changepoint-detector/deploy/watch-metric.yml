@@ -174,7 +174,8 @@ jobs:
             WEEKLY_DEFAULT="--columns clicks,impressions --detector drift"
           elif [ -f data/ga4.csv ]; then
             METRIC_CSV=data/ga4.csv
-            W="--columns sessions:poisson,activeUsers:poisson,keyEvents:poisson"
+            # middle setting, page views watched: README "PostHog users and GA4 activeUsers under a snippet loss"
+            W="--columns $(cols 'sessions|activeUsers|screenPageViews|keyEvents') $MIDDLE"
             WEEKLY_DEFAULT="--columns sessions,keyEvents --detector drift"
           elif [ -f data/plausible.csv ]; then
             METRIC_CSV=data/plausible.csv
@@ -183,7 +184,8 @@ jobs:
             WEEKLY_DEFAULT="--columns visitors --detector drift"
           elif [ -f data/posthog.csv ]; then
             METRIC_CSV=data/posthog.csv
-            W="--columns $(cols 'event_.*|users')"
+            # middle setting: README "PostHog users and GA4 activeUsers under a snippet loss"
+            W="--columns $(cols 'event_.*|users') $MIDDLE"
             WEEKLY_DEFAULT="--columns users --detector drift"
           elif [ -f data/umami.csv ]; then
             METRIC_CSV=data/umami.csv
