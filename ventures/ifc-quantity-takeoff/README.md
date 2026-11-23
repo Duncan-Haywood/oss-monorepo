@@ -93,6 +93,21 @@ checked against the engine by `guides.test.mjs`):
   (Tulpstraat, 12 commits, 2024), the step that renamed "My Storey" had
   listed all 28 matched elements as changed; now 24, with 4 unchanged
   ([eval/revision-diff-tulpstraat-2026-11-23.md](eval/revision-diff-tulpstraat-2026-11-23.md)).
+  A material has no GlobalId, so the report groups every material change
+  by **material swap** (before -> after, with the elements' count, classes,
+  volume and area): one line to price per re-specification, not one per
+  element. When the two files keep their STEP ids (a tool that edits the
+  file in place, such as BlenderBIM: at least 3 elements matched by
+  GlobalId and 80% of them keeping their own id), an IfcMaterial or a
+  layer, profile or constituent set whose name changed under one id is
+  listed as **material renamed**, and each element changed only by that is
+  marked "same material entity, renamed"; like a type, it stays a change.
+  A re-export renumbers the file (Revit, Aalseth: 0 to 2% of matched
+  elements keep their id), so no rename is claimed there. On Tulpstraat
+  the 17 walls and slab listed as "Unknown -> brick/baksteen" were one
+  material and one layer set renamed, no element re-assigned; on Aalseth's
+  last step 30 material changes read as 14 swap lines
+  ([eval/revision-diff-materials-2026-11-23.md](eval/revision-diff-materials-2026-11-23.md)).
 - **Faulty units repaired, and said so.** A unit named INCH, FOOT, SQUARE
   FOOT and so on whose declared factor is not that unit (a 2014 Revit export
   declares its inch as 3.6576 m, 144 inches, which makes every volume 3

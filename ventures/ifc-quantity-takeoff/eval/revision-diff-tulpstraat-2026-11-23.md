@@ -34,7 +34,7 @@ says what the author did, which gives a rough answer to check against.
 |---|---|---|---|
 | 1 -> 2 | "get rid of couch" | 1 IfcFurniture removed, 28 unchanged | yes |
 | 2 -> 3 | "add void" | 1 element's volume and area changed, 2 more furniture removed | yes (the void); the furniture is not in the message |
-| 3 -> 4 | "add drawing" | window, stair, WC added; 17 walls' material "Unknown" -> "brick" | the material is real: material #67 was renamed `Unknown` -> `baksteen` and a layer set "brick" assigned |
+| 3 -> 4 | "add drawing" | window, stair, WC added; 17 walls' material "Unknown" -> "brick" | the material is real: material #67 was renamed `Unknown` -> `baksteen` and the walls' existing layer set #68 named "brick" (corrected 2026-11-23: nothing was re-assigned, eval/revision-diff-materials-2026-11-23.md) |
 | 4 -> 5 | "add brick and rowlocks" | 7 added (plinth, rowlock courses, fanlight, masonry), 1 slab removed, interior walls re-typed to 50 mm (volumes halved) | yes, **but** see below |
 | 5 -> 6 | "add brick facade" | 1 masonry wall replaced, 1 typeless placeholder wall removed | yes |
 | 6 -> 7 | "added beams" | 29 beams, 8 party walls, 5 roofs added; 2 side facades removed | yes (beams); the walls and roofs are not in the message |

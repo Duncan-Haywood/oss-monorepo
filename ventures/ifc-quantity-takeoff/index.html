@@ -816,7 +816,8 @@
       ["New GlobalId, same element", s.byTag + s.byGeometry, s.byTag + s.byGeometry ? "warn" : ""],
       ["Parts and hosts paired", s.merged + s.split],
       ["Replaced in place", s.replacedInPlace, s.replacedInPlace ? "warn" : ""],
-      ["Storeys / types renamed", `${s.storeysRenamed} / ${s.typesRenamed}`],
+      ["Storeys / types / materials renamed", `${s.storeysRenamed} / ${s.typesRenamed} / ${s.materialsRenamed ?? 0}`],
+      ["Material swaps", s.materialSwaps ?? 0, s.materialSwaps ? "warn" : ""],
     ].map(([k, v, c]) => `<div class="card">${esc(k)}<b class="${c || ""}">${esc(v)}</b></div>`).join("");
     $("diff-out").hidden = false;
     renderDelta();
@@ -843,7 +844,7 @@
     const out = [];
     const what = (c) => [
       ...Object.entries(c.quantities).map(([k, q]) => `${k} ${sgn(q.delta, 4)}`),
-      ...Object.entries(c.attributes).map(([k, v]) => `${k}: ${v.before ?? "(none)"} \u2192 ${v.after ?? "(none)"}${v.sameTypeObject ? " (same type GlobalId: renamed or re-specified)" : ""}`),
+      ...Object.entries(c.attributes).map(([k, v]) => `${k}: ${v.before ?? "(none)"} \u2192 ${v.after ?? "(none)"}${v.sameTypeObject ? " (same type GlobalId: renamed or re-specified)" : ""}${v.sameMaterialEntity ? " (same material entity, renamed)" : ""}`),
       ...(c.moved ? [`moved ${c.moved.distance.toFixed(3)} m`] : []),
       ...(c.reshaped ? ["box resized"] : []),
       ...(howText(c.how) ? [howText(c.how)] : []),
@@ -852,6 +853,9 @@
     for (const [k, label, cls] of [["storey", "Storey renamed", "IfcBuildingStorey"], ["type", "Type renamed", "type"]]) {
       for (const r of diff.renames[k]) out.push([label, { name: r.after, globalId: r.globalId, ifcClass: cls, storey: k === "storey" ? r.after : "" }, `${r.before ?? "(none)"} \u2192 ${r.after ?? "(none)"}, same GlobalId (${r.elements} element${r.elements === 1 ? "" : "s"}, ${k === "storey" ? "not counted as changed" : "each still listed as a type change"})`, ""]);
     }
+    // a material has no GlobalId: renamed in place is told by its STEP id, and only when the file kept its ids
+    for (const r of diff.renames.material || []) out.push(["Material renamed", { name: r.after, globalId: `#${r.entityId}`, ifcClass: r.entity, storey: "" }, `${r.before ?? "(none)"} \u2192 ${r.after ?? "(none)"}, same entity in a file edited in place (${r.elements} element${r.elements === 1 ? "" : "s"}, each still listed as a material change)`, ""]);
+    for (const m of diff.materialSwaps || []) out.push(["Material swap", { name: `${m.before ?? "(none)"} \u2192 ${m.after ?? "(none)"}`, globalId: "", ifcClass: Object.keys(m.classes).join(" / "), storey: "" }, `${m.elements} element${m.elements === 1 ? "" : "s"}, ${m.volume.toFixed(3)} m\u00b3, ${m.area.toFixed(2)} m\u00b2${m.renamedInPlace ? (m.renamedInPlace === m.elements ? "; all the same material renamed" : `; ${m.renamedInPlace} the same material renamed`) : ""}`, "warn"]);
     for (const c of diff.changed) out.push([c.how === "place" ? "Replaced in place" : "Changed", c.b, what(c), "warn"]);
     for (const c of diff.unchanged) if (howText(c.how)) out.push(["Same element", c.b, howText(c.how), ""]);
     for (const g of diff.groups) out.push([g.kind === "merged" ? "Parts \u2192 host" : "Host \u2192 parts", g.after.length === 1 ? g.after[0] : g.before[0], `${g.before.length} \u2192 ${g.after.length} elements, volume ${g.volumeBefore.toFixed(3)} \u2192 ${g.volumeAfter.toFixed(3)} m\u00b3`, ""]);
