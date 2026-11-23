@@ -915,6 +915,20 @@ arXiv:2403.01068's) often enough to keep that under about 0.05 N. One seed; stat
 
 ![Each pose's bias rating against its drift rating, and drift-gate coverage against the drift bound](experiments/m70_drift/figure.png)
 
+**Milestone 71: how long may a press wait after the force sensor is re-zeroed?** Each press gets an **exact drift
+allowance**, a = min<sub>k</sub>(0.03 &minus; Y<sub>k</sub> &minus; B||J<sub>k</sub>||)/||S<sub>k</sub>||, computed from two
+frozen per-pose tables (milestone 69's J and milestone 70's S) with no measurement at press time. On 8 new held-out
+loads (seed 71) at a 0.4 N bias bound, the frozen tables predict every planned press to 1.3e-14 mm (H276 held) and the
+frozen drift gate passes no press over spec (H277 held). The allowance is tight both ways: **at 0.9 a none of 504
+presses leaves 0.03 mm; at 1.1 a all 503 do** (H278, H279 held). It is one number per pose: median 0.102 N (G1) and
+0.147 N (H1), **weakest 0.041 N (G1, top-height poses) and 0.091 N (H1, lowest poses)** (H280 held). Divided by a
+drift rate it is a re-zero interval: at 0.1 N/h, every **25 minutes (G1) and 55 minutes (H1)** for the weakest pose,
+5 and 11 minutes at 0.5 N/h (rates swept; no drift figure for this sensor class was found). Because J(p | r) =
+S<sub>p</sub> &minus; S<sub>r</sub> while the drift term is S<sub>p</sub> d, the calibration pose cannot change the
+drift term: only re-zeroing (or a running bias estimate) acts on it. One seed; statics; B = 0.4 N only.
+
+![Each press's drift allowance, and the worst row just under and just over it](experiments/m71_allowance/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

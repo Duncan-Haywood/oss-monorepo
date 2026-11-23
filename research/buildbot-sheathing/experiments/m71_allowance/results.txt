@@ -1,0 +1,60 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 71: a frozen drift table and an exact per-press drift allowance, held-out section R (8 loads, seed 71; milestone 70's S table and milestone 69's two-pose J table, frozen; B = 0.4 N; drift 0.9 a0, 1.1 a0 and 0.1 N aimed jointly along the worst row, both signs; milestone 65's chain sized to B + delta; spec 0.03 mm per row)
+
+## A. Frozen tables: robot | poses in the S table | planned presses | max |s0 - (J e_r + S d)| mm
+  g1 | 15 | 702 | 1.27e-14
+  h1 | 19 | 890 | 8.73e-15
+
+## B. By robot and drift: robot | drift | balance-envelope cases | planned | over spec | worst mm | gate passed (Y + B||J|| + delta||S|| <= spec, frozen tables) | gate passed over spec | worst passed mm | planned with Y = 0 on every row | of those over spec | of those inside spec (min mm)
+  g1 | 0.9a | 234 | 234 | 0 | 0.0293 | 218 | 0 | 0.0293 | 213 | 0 | 213 (0.0270)
+  g1 | 1.1a | 234 | 234 | 234 | 0.0330 | 0 | 0 | 0.0000 | 213 | 213 | 0 (-)
+  g1 | 0.1 | 234 | 234 | 106 | 0.0404 | 128 | 0 | 0.0298 | 214 | 89 | 125 (0.0131)
+  h1 | 0.9a | 304 | 295 | 0 | 0.0291 | 295 | 0 | 0.0291 | 291 | 0 | 291 (0.0270)
+  h1 | 1.1a | 304 | 295 | 295 | 0.0330 | 0 | 0 | 0.0000 | 290 | 290 | 0 (-)
+  h1 | 0.1 | 304 | 300 | 32 | 0.0309 | 268 | 0 | 0.0297 | 298 | 32 | 266 (0.0106)
+
+## C. Drift allowance a = min_k (0.03 - Y_k - B||J_k||)/||S_k|| per press (Y from the 0.9 a0 presses, larger of the two signs): robot | presses | presses with Y > 0 | min N | 10th pct | median | 90th pct | max
+  g1 | 117 | 8 | 0.0415 | 0.0439 | 0.1023 | 0.2133 | 0.2293
+  h1 | 148 | 0 | 0.0909 | 0.0982 | 0.1474 | 0.2459 | 0.2838
+
+## D. Longest wait after a re-zero, minutes = 60 a / rate (rate swept, not sourced): robot | rate N/h | weakest press | 10th pct | median
+  g1 | 0.01 | 248.8 | 263.6 | 613.6
+  g1 | 0.02 | 124.4 | 131.8 | 306.8
+  g1 | 0.05 | 49.8 | 52.7 | 122.7
+  g1 | 0.1 | 24.9 | 26.4 | 61.4
+  g1 | 0.2 | 12.4 | 13.2 | 30.7
+  g1 | 0.5 | 5.0 | 5.3 | 12.3
+  h1 | 0.01 | 545.3 | 589.1 | 884.6
+  h1 | 0.02 | 272.6 | 294.5 | 442.3
+  h1 | 0.05 | 109.1 | 117.8 | 176.9
+  h1 | 0.1 | 54.5 | 58.9 | 88.5
+  h1 | 0.2 | 27.3 | 29.5 | 44.2
+  h1 | 0.5 | 10.9 | 11.8 | 17.7
+
+## E. Gate-passed presses over spec: 0
+
+## F. 1.1 a0 presses with Y = 0 and no flip left inside spec: 0
+
+## G. Hypotheses (registered in LOG.md before this run)
+H276 (the frozen tables predict every planned press's no-flip rows, J e_r + S d, to 1e-6 mm, both robots): largest difference 1.27e-14 -> held
+H277 (the frozen-table drift gate passes no press over spec, every drift, both robots): 0 over -> held
+H278 (the allowance is safe: no 0.9 a0 press with Y = 0 and no flip is over spec): G1 0, H1 0 -> held
+H279 (the allowance is tight: every 1.1 a0 press with Y = 0 and no flip is over spec): inside spec G1 0 of 213, H1 0 of 290 -> held
+H280 (the median allowance at B 0.4 N is within 25% of section Q's, 0.102 N G1 and 0.150 N H1): G1 0.1023 (1.00), H1 0.1474 (0.98) -> held
+
+(run time 2993 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

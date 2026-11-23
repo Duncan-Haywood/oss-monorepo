@@ -918,6 +918,16 @@ gate Y<sub>k</sub> + B||J<sub>k</sub>|| + &delta;||S<sub>k</sub>|| &le; 0.03 mm 
 0.4 N and &delta; = 0.05, 0.1 and 0.2 N. Its coverage at B = 0.4 N is 77.9%, 55.8% and 14.2% on the G1 and 99.0%,
 88.3% and 25.3% on the H1 at the three drift bounds, and the weakest per-pose drift rating is 0.162 N (G1) and
 0.189 N (H1).
+Both tables can be frozen (milestone 71, a fifteenth held-out set of 8 loads, seed 71, B = 0.4 N): milestone 69's J
+and milestone 70's S, read from tables, predict the no-flip rows of every planned press to 1.3 &times;
+10<sup>&minus;14</sup> mm, and the frozen drift gate passes no press over spec, with coverage at &delta; = 0.1 N of
+54.7% (G1) and 88.2% (H1). Read backwards, the gate gives each press a drift allowance
+a = min<sub>k</sub>(0.03 &minus; Y<sub>k</sub> &minus; B||J<sub>k</sub>||)/||S<sub>k</sub>||, and the allowance is exact:
+with the drift aimed along the binding row, none of 213 G1 and 291 H1 presses with Y = 0 leaves the spec at 0.9 a and
+all 213 and 290 do at 1.1 a. The allowance is one number per pose, median 0.102 N (G1) and 0.147 N (H1), weakest
+0.041 N and 0.091 N; at a drift rate of 0.1 N/h (swept from 0.01 to 0.5 N/h, not sourced) the weakest pose needs a
+re-zero within 25 minutes (G1) and 55 minutes (H1). Since J(p | r) = S<sub>p</sub> &minus; S<sub>r</sub> and the drift
+term is S<sub>p</sub> d, no choice of calibration pose changes the drift term.
 
 ### 5.12 What the remedies cost (milestone 13)
 
