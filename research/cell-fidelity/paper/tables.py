@@ -18,6 +18,11 @@ and the gates that decide when to use it (7w, 7x, 7y), on the four committed set
 f = 10 and f = 30, rebuilt from the fold rows in gate7x's and gate7y's summaries, with Wilson intervals,
 the six-set paired difference against theta (sign test, the same set bootstrap as sets7p), a per-set
 view, and 7y's post-hoc per-set oracle.
+
+Table 3, seventh column (added after 7za had reported; descriptive, no new hypothesis): 7z's
+`Marquis2019` plating cell at f = 30 (five folds, every rule and gate from 7za's summary, its oracle
+pick from 7za), and the seven-set pooling (committed + both f = 30 cells + Marquis2019 at f = 30, 35
+folds) with the same paired statistics; 7za's stored seven-set pairs are the control.
 """
 import json
 import math
@@ -199,7 +204,9 @@ def fmt(table, ins, pool, pair):
 
 # ---------- Table 3: the corrected forecast and its gates (7w to 7y) ----------
 
-CONDS = (("four", "committed sets (20 folds)"), ("f30", "tuned f = 30 (10)"), ("f10", "tuned f = 10 (10)"))
+CONDS = (("four", "committed sets (20 folds)"), ("f30", "tuned f = 30 (10)"), ("f10", "tuned f = 10 (10)"),
+         ("m30", "Marquis2019 f = 30 (5; 7za)"))
+SEVEN = ("four", "f30", "m30")
 CRULES = (("U", "uniform run length (7h)"), ("theta", "straight forecast + triage (7h)"),
           ("thetaC", "corrected, no gate (7w)"), ("thetaH", "corrected, honest margin (7x)"),
           ("thetaN", "out-of-fold error gate (7x)"), ("thetaP", "plating-share gate (7y)"),
@@ -208,9 +215,13 @@ CRULES = (("U", "uniform run length (7h)"), ("theta", "straight forecast + triag
 
 def corrected_folds():
     """{cond: {rule: [fold rows]}}; thetaC from gate7x (its replay of 7w/7v), the rest from gate7y."""
-    x, y = load("gate7x"), load("gate7y")
+    x, y, z = load("gate7x"), load("gate7y"), load("marq7za")
     F = {}
     for c, _ in CONDS:
+        if c == "m30":  # 7za: every rule and gate, fixed before the cell existed, on 7z's new cell
+            F[c] = {r: z["folds"][r] for r in ("theta", "U", "thetaC", "thetaH", "thetaN", "thetaP", "thetaD")}
+            F[c]["oracle"] = list(F[c][z["oracle"]])
+            continue
         F[c] = {r: y[c]["folds"][r] for r in ("theta", "U", "thetaH", "thetaN", "thetaP", "thetaD")}
         F[c]["thetaC"] = x[c]["folds"]["thetaC"]
         pick = y["oracle"][c]  # per set: the rule (theta or thetaH) with the better held-out outcome
@@ -246,7 +257,11 @@ def corrected():
     tot = {c: {r: agg(F[c][r]) for r, _ in CRULES} for c, _ in CONDS}
     six = {r: F["four"][r] + F["f30"][r] for r, _ in CRULES}
     tot["six"] = {r: agg(six[r]) for r, _ in CRULES}
+    seven = {r: [f for c in SEVEN for f in F[c][r]] for r, _ in CRULES}
+    tot["seven"] = {r: agg(seven[r]) for r, _ in CRULES}
     pair6 = {r: pair_stats(six[r], six["theta"]) for r, _ in CRULES if r != "theta"}
+    pair7 = {r: pair_stats(seven[r], seven["theta"]) for r, _ in CRULES if r != "theta"}
+    pair7u = {r: pair_stats(seven[r], seven["U"]) for r, _ in CRULES if r != "U"}
     pair4 = {r: pair_stats(F["four"][r], F["four"]["theta"]) for r, _ in CRULES if r != "theta"}
     per = {}
     for c, _ in CONDS:
@@ -256,7 +271,9 @@ def corrected():
     for a, b in (("thetaP", "thetaN"), ("thetaD", "thetaH"), ("thetaN", "thetaH"), ("thetaC", "thetaH")):
         same[f"{a}={b}"] = {c: sum(1 for r in paired(F[c][a], F[c][b]) if r["d"] == 0 and r["met_a"] == r["met_b"])
                             for c, _ in CONDS}
-    return dict(total=tot, pair_six=pair6, pair_four=pair4, per=per, same=same, oracle=load("gate7y")["oracle"])
+    oracle = dict(load("gate7y")["oracle"], m30={"Marquis2019": load("marq7za")["oracle"]})
+    return dict(total=tot, pair_six=pair6, pair_seven=pair7, pair_seven_u=pair7u, pair_four=pair4, per=per,
+                same=same, oracle=oracle)
 
 
 def fmt_corrected(C):
@@ -288,7 +305,7 @@ def fmt_corrected(C):
                  f"{q['cheaper']}/{q['dearer']}  p = {q['sign_p']:.3f}")
     o += ["", "Folds where two rules make the same decision (same cycles, same met flag), committed / f = 30 / f = 10:"]
     for k, v in C["same"].items():
-        o.append(f"  {k:15s} {v['four']:2d}/20  {v['f30']:2d}/10  {v['f10']:2d}/10")
+        o.append(f"  {k:15s} {v['four']:2d}/20  {v['f30']:2d}/10  {v['f10']:2d}/10  (Marquis2019 f = 30: {v['m30']}/5)")
     o += ["",
           "Per set: target met / 5 and mean DFN cycles per design; oracle = the rule 7y's hindsight pick chose.",
           f"{'condition:set':24s}" + "".join(f"{r:>12s}" for r in ("U", "theta", "thetaC", "thetaN", "thetaP", "thetaD"))
@@ -298,7 +315,31 @@ def fmt_corrected(C):
         cells = "".join(f"{row[r]['met']:>4d}/5 {row[r]['cycles']:5.1f}"
                         for r in ("U", "theta", "thetaC", "thetaN", "thetaP", "thetaD"))
         o.append(f"{key:24s}{cells}{C['oracle'][c][st]:>8s}")
+    o += fmt_seven(C)
     return "\n".join(o) + "\n"
+
+
+def fmt_seven(C):
+    """Table 3's seventh column: 7z's Marquis2019 plating cell at f = 30 (7za) and the seven-set pooling."""
+    T = C["total"]
+    o = ["",
+         "Table 3, seventh set-condition (7za, added after it reported): Marquis2019 at f = 30, a cell built after",
+         "every rule and gate above was fixed, and the seven set-conditions (committed + both f = 30 cells +",
+         "Marquis2019 f = 30; 35 folds). Met / folds with Wilson 95%, mean DFN cycles per design, and the paired",
+         "seven-set difference against theta and against U (set bootstrap 95%, cheaper/dearer, sign p).",
+         f"{'rule':6s} {'Marq f=30':>9s} {'cyc':>5s} {'seven':>6s} {'Wilson 95%':>11s} {'cyc':>5s}  "
+         f"{'rule - theta':>12s} {'set boot 95%':>17s} {'ch/de':>6s} {'p':>6s}  {'rule - U':>8s} {'set boot 95%':>17s} {'ch/de':>6s} {'p':>7s}"]
+    for r, _ in CRULES:
+        m, s7 = T["m30"][r], T["seven"][r]
+        w = f"{s7['wilson'][0]:.2f}-{s7['wilson'][1]:.2f}"
+        def cell(q):
+            return (f"{q['mean']:+8.2f} {q['boot'][0]:+7.2f} to {q['boot'][1]:+6.2f} "
+                    f"{q['cheaper']:>2d}/{q['dearer']:<3d} {q['sign_p']:6.3f}")
+        t = cell(C["pair_seven"][r]).rjust(51) if r != "theta" else f"{'(reference)':>12s}{'':39s}"
+        u = cell(C["pair_seven_u"][r]) if r != "U" else f"{'(reference)':>8s}"
+        o.append(f"{r:6s} {m['met']:6d}/{m['n']:<2d} {m['cycles']:5.1f} {s7['met']:3d}/{s7['n']:<2d} {w:>11s} "
+                 f"{s7['cycles']:5.1f}  {t}  {u}")
+    return o
 
 
 def main():
