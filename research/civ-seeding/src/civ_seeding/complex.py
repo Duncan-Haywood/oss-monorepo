@@ -14,6 +14,11 @@ Each household draws one uniform U per simulation.
   share theta of its neighbours has adopted. theta = None (or > 1) is I.
 * heterogeneous threshold (H, mu, kappa; milestone 28): as T, but each household draws its own
   theta_i ~ Beta(mu * kappa, (1 - mu) * kappa) per simulation (mean mu; kappa -> infinity is T).
+* homophily (L, sigma, rho; milestone 29): as I (no contagion through adoption), but each
+  household's logit carries a latent propensity sigma * z_i, z_i = (e_i + rho (W e)_i) / norm_i
+  with e iid N(0, 1) per simulation and W the row-normalised adjacency, scaled to unit variance
+  per household. Neighbours share part of their propensity, so adoption is correlated along ties
+  without passing through them (McPherson et al. 2001; Shalizi and Thomas 2011).
 
 Moments: the five BCDJ moments of `bcdj.moments` plus take-up among households with exactly
 1, 2 and 3+ adopting neighbours (`moments_ext`, eight in all).
@@ -28,7 +33,7 @@ from . import bcdj
 def simulate(v: bcdj.Village, beta, qN: float, qP: float, S: int, rng,
              gamma: float = 0.0, theta: float | None = None, seeds=None,
              return_informed: bool = False, delta: float = 0.0, shift=None,
-             theta_beta=None):
+             theta_beta=None, latent=None):
     """S runs; returns an n x S 0/1 adoption matrix (and informed matrix if asked).
 
     seeds: optional bool n-vector of initially informed households (default: leaders).
@@ -38,7 +43,9 @@ def simulate(v: bcdj.Village, beta, qN: float, qP: float, S: int, rng,
     village-level random effect on the base adoption rate (one draw per village and run).
     theta_beta: optional (mu, kappa); each household draws theta_i ~ Beta(mu kappa, (1 - mu)
     kappa) once per simulation, after U, so the other families' random streams are unchanged.
-    Overrides theta."""
+    Overrides theta.
+    latent: optional (sigma, rho), the homophily family's network-correlated latent propensity
+    added to every household's logit, drawn after U and theta_i (other streams unchanged)."""
     n = v.n
     base = beta[0] + delta + v.Z @ beta[1:]
     if shift is not None:
@@ -56,6 +63,8 @@ def simulate(v: bcdj.Village, beta, qN: float, qP: float, S: int, rng,
         mu, kappa = theta_beta
         th = np.maximum(rng.beta(mu * kappa, (1 - mu) * kappa, (n, S)), 1e-9)
         use_theta = True
+    if latent is not None:
+        base = (base if base.ndim == 2 else base[:, None]) + latent_field(v, *latent, S, rng)
     for _ in range(v.T):
         informed |= contagious
         if gamma != 0.0 or use_theta:
@@ -75,6 +84,17 @@ def simulate(v: bcdj.Village, beta, qN: float, qP: float, S: int, rng,
     if return_informed:
         return adopted.astype(float), informed.astype(float)
     return adopted.astype(float)
+
+
+def latent_field(v: bcdj.Village, sigma: float, rho: float, S: int, rng) -> np.ndarray:
+    """n x S network-correlated propensity: sigma (e + rho W e) / sqrt(1 + rho^2 sum_j W_ij^2),
+    W the row-normalised adjacency (an isolated row is zero), e iid N(0, 1). Each household has
+    variance sigma^2; two neighbours i, j are positively correlated for rho > 0."""
+    deg = v.A.sum(1)
+    W = v.A / np.maximum(deg, 1)[:, None]
+    e = rng.standard_normal((v.n, S))
+    norm = np.sqrt(1 + rho ** 2 * (W ** 2).sum(1))
+    return sigma * (e + rho * (W @ e)) / norm[:, None]
 
 
 def moments_ext(v: bcdj.Village, Y: np.ndarray) -> np.ndarray:
