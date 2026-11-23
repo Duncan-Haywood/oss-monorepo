@@ -35,6 +35,7 @@ PARTS = HERE / "results_costphase_parts"
 OUT = HERE / "results_costphase"
 ARMS = {"F": {}, "K1": {"kmargin": 0.05, "k_first": "skip"}}
 CP_MARGIN = vlin.MARGIN  # rule CS (run_slackcap.py) sets {**MARGIN, "cap": True} and its own PARTS
+CP_FALLBACK = None  # rule CF (run_fallback.py) sets {**MARGIN, "cap": True}: used only on an empty margined QP
 
 
 def part(arm, split, name, kind):
@@ -59,7 +60,7 @@ def _phase(p, hist, warm, split, out):
     t = time.time()
     _pg, _vg, c, recs = vlin.cost_phase(p, cl["pg"], cl["vg"], cl, margin=CP_MARGIN, analytic=True,
                                         screen=split == "held", solver="clarabel", warm=warm,
-                                        warm_check=split == "held")
+                                        warm_check=split == "held", fallback=CP_FALLBACK)
     out.update(cp_secs=time.time() - t, cp_cost=c["cost"], cp_rounds=recs,
                cp_accepted=sum(r["status"] == "accepted" for r in recs), cp_clean=bool(c["clean"]))
     return out

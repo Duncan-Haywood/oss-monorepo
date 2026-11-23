@@ -1,0 +1,79 @@
+Rule CF: the cost phase with the frozen margins, the slack cap only on an empty QP (research/grid-linopf)
+Plan and predictions T0 to T7: LOG.md 2026-11-23 'Rule CF' (committed before this ran). Rule CP's rounds, boxes and acceptance (CP_ROUNDS 10, P box 0.05 of range, V box 0.0075 pu); margin = frozen MARGIN, fallback = MARGIN with cap=True on an empty margined QP only.
+
+Development: % over PGLib's AC optimum at the clean point and after rules CP, CS and CF (accepted steps; e = CP had an empty round)
+  case               kind      F clean     +CP     +CS     +CF  cp cs cf e    K1 clean     +CP     +CS     +CF  cp cs cf e
+  case118_ieee       api             -       -       -       -   -  -  - -        +0.654  +0.462  +0.548  +0.451   5  5  6 e
+  case14_ieee        api        +1.127  +0.746  +0.291  +0.409   1  3  3 e        +1.127  +0.746  +0.291  +0.409   1  3  3 e
+  case162_ieee_dtc   api        +0.317  +0.311  +0.290  +0.304   1  5  6 e        +0.335  +0.316  +0.303  +0.312   1  4  6 e
+  case200_activ      api        +0.130  +0.130  +0.106  +0.106   0  6  6 e        +0.247  +0.247  +0.201  +0.201   0  5  5 e
+  case240_pserc      api        +0.052  +0.050  +0.052  +0.050   7  0  7 .        +0.049  +0.047  +0.048  +0.047   3  1  3 .
+  case24_ieee_rts    api        +0.711  +0.689  +0.527  +0.689   3  6  3 .        +0.769  +0.769  +0.185  +0.354   0  8  7 e
+  case300_ieee       api        +1.017  +0.728  +0.937  +0.728   7  4  7 .        +0.255  +0.178  +0.246  +0.178   7  4  7 .
+  case30_ieee        api        +0.337  +0.337  +0.118  +0.157   0  7  8 e        +1.842  +0.726  +0.299  +0.723   3  5  5 e
+  case39_epri        api        +0.073  +0.058  +0.046  +0.057   2  7  5 e        +0.073  +0.058  +0.050  +0.057   2  8  4 e
+  case57_ieee        api        +0.710  +0.710  +0.650  +0.650   0  6  6 e        +0.710  +0.710  +0.650  +0.650   0  6  6 e
+  case118_ieee       sad        +0.379  +0.289  +0.337  +0.289   8  4  8 .        +0.439  +0.313  +0.363  +0.313   8  5  8 .
+  case14_ieee        sad        +3.845  +0.734  +0.734  +0.734   2  2  2 .        +3.845  +0.734  +0.734  +0.734   2  2  2 .
+  case162_ieee_dtc   sad        +0.514  +0.325  +0.403  +0.325   7  6  7 .        +0.383  +0.324  +0.310  +0.324   1  2  1 .
+  case179_goc        sad        +0.830  +0.343  +0.677  +0.343   9  6  9 .        +1.042  +0.563  +0.882  +0.563   9  6  9 .
+  case200_activ      sad        +0.004  +0.001  +0.001  +0.001   4  4  4 .        +0.004  +0.001  +0.001  +0.001   4  4  4 .
+  case240_pserc      sad        +0.374  +0.372  +0.373  +0.372   7  3  7 .        +0.381  +0.377  +0.378  +0.377   7  5  7 .
+  case24_ieee_rts    sad        +0.208  +0.207  +0.203  +0.207   1  4  1 e        +0.207  +0.207  +0.201  +0.207   0  4  0 .
+  case30_ieee        sad        +0.076  +0.076  +0.023  +0.076   0  5  3 e        +0.076  +0.076  +0.023  +0.076   0  5  3 e
+  case39_epri        sad        +0.112  +0.112  +0.108  +0.112   0  3  0 e        +0.112  +0.112  +0.108  +0.112   0  3  0 e
+  case57_ieee        sad        +0.033  +0.031  +0.027  +0.031   1  4  1 .        +0.033  +0.031  +0.027  +0.031   1  4  1 .
+  case73_ieee_rts    sad        +0.182  +0.178  +0.163  +0.174   1  8  3 e        +0.190  +0.179  +0.152  +0.175   1  5  4 e
+  case118_ieee       typ        +0.087  +0.026  +0.051  +0.026   8  5  8 .        +0.043  +0.014  +0.021  +0.014   8  7  8 .
+  case14_ieee        typ        +0.034  +0.013  +0.013  +0.013   2  2  2 .        +0.034  +0.013  +0.013  +0.013   2  2  2 .
+  case162_ieee_dtc   typ        +0.261  +0.234  +0.222  +0.234   4  6  4 .        +0.235  +0.235  +0.217  +0.233   0  6  2 e
+  case179_goc        typ        +0.003  +0.003  +0.002  +0.002   0  2  1 e        +0.007  +0.003  +0.002  +0.003   1  4  1 .
+  case200_activ      typ        +0.039  +0.002  +0.002  +0.002  10 10 10 .        +0.039  +0.002  +0.002  +0.002  10 10 10 .
+  case240_pserc      typ        +0.303  +0.254  +0.278  +0.254   7  5  7 .        +0.075  +0.068  +0.071  +0.068   6  5  6 .
+  case24_ieee_rts    typ        +0.158  +0.008  +0.008  +0.008   6  6  6 .        +0.158  +0.008  +0.008  +0.008   6  6  6 .
+  case30_ieee        typ        +0.076  +0.076  +0.023  +0.076   0  5  3 e        +0.076  +0.076  +0.023  +0.076   0  5  3 e
+  case39_epri        typ        +0.021  +0.021  +0.021  +0.021   0  0  0 .        +0.021  +0.021  +0.021  +0.021   0  0  0 .
+  case57_ieee        typ        +0.057  +0.027  +0.052  +0.027   9  4  9 .        +0.057  +0.027  +0.052  +0.027   9  4  9 .
+  case73_ieee_rts    typ        +0.040  +0.008  +0.012  +0.008   7  7  7 .        +0.040  +0.008  +0.012  +0.008   7  7  7 .
+  [F] 31 finishers; reproduce stored run (T0): 31 of 31
+  [F] mean gap: clean +0.391, CP +0.229, CS +0.218, CF +0.209 points; median CF +0.112
+  [F] CF against CP: cheaper on 10, dearer on 0 (sign test P = 0.002); against CS: cheaper on 10, dearer on 18 (P = 0.185); cases with an accepted step CP 23, CS 29, CF 29 of 31; median CF seconds 0.8; dearer or dirtier after CF: none
+  [K1] 32 finishers; reproduce stored run (T0): 32 of 32
+  [K1] mean gap: clean +0.424, CP +0.239, CS +0.201, CF +0.212 points; median CF +0.143
+  [K1] CF against CP: cheaper on 12, dearer on 0 (sign test P = 0.000); against CS: cheaper on 10, dearer on 19 (P = 0.136); cases with an accepted step CP 23, CS 31, CF 29 of 32; median CF seconds 0.8; dearer or dirtier after CF: none
+  common finishers (31): mean gap F+CF +0.209, K1+CF +0.204; K1+CF cheaper on 8, dearer on 9 (sign test P = 1.000)
+
+Held-out: % over PGLib's AC optimum at the clean point and after rules CP, CS and CF (accepted steps; e = CP had an empty round)
+  case               kind      F clean     +CP     +CS     +CF  cp cs cf e    K1 clean     +CP     +CS     +CF  cp cs cf e
+  case1888_rte       api        +0.617  +0.617  +0.571  +0.571   0  5  5 e        +0.608  +0.608  +0.568  +0.568   0  5  5 e
+  case500_goc        api        +0.805  +0.629  +0.640  +0.629   8  7  8 .        +2.824  +1.654  +2.231  +1.654   8  7  8 .
+  case588_sdet       api        +0.868  +0.868  +0.791  +0.791   0  5  5 e        +3.105  +3.105  +2.749  +2.749   0  6  6 e
+  case793_goc        api        +0.254  +0.254  +0.236  +0.236   0  6  6 e        +0.328  +0.328  +0.286  +0.286   0  4  4 e
+  case1951_rte       sad        +0.050  +0.050  +0.050  +0.050   0  0  0 .        +0.050  +0.050  +0.050  +0.050   0  0  0 .
+  case793_goc        sad        +0.865  +0.667  +0.674  +0.667   7  6  7 .        +1.141  +1.039  +1.031  +1.039   6  6  6 .
+  case1951_rte       typ        +0.019  +0.019  +0.019  +0.019   0  0  0 .        +0.426  +0.426  +0.426  +0.426   0  0  0 e
+  case500_goc        typ        +0.029  +0.017  +0.027  +0.017   8  5  8 .        +0.035  +0.020  +0.029  +0.020   8  5  8 .
+  case588_sdet       typ        +2.124  +1.917  +2.072  +1.917   5  1  5 .        +3.684  +3.268  +3.506  +3.268   6  4  6 .
+  case793_goc        typ        +0.140  +0.044  +0.082  +0.044   7  5  7 .        +0.082  +0.071  +0.063  +0.071   3  5  3 .
+  [F] 10 finishers; reproduce stored run (T0): 10 of 10
+  [F] mean gap: clean +0.577, CP +0.508, CS +0.516, CF +0.494 points; median CF +0.404
+  [F] CF against CP: cheaper on 3, dearer on 0 (sign test P = 0.250); against CS: cheaper on 5, dearer on 0 (P = 0.062); cases with an accepted step CP 5, CS 8, CF 8 of 10; median CF seconds 4.3; dearer or dirtier after CF: none
+  [K1] 10 finishers; reproduce stored run (T0): 10 of 10
+  [K1] mean gap: clean +1.228, CP +1.057, CS +1.094, CF +1.013 points; median CF +0.497
+  [K1] CF against CP: cheaper on 3, dearer on 0 (sign test P = 0.250); against CS: cheaper on 3, dearer on 2 (P = 1.000); cases with an accepted step CP 5, CS 8, CF 8 of 10; median CF seconds 5.3; dearer or dirtier after CF: none
+  common finishers (10): mean gap F+CF +0.494, K1+CF +1.013; K1+CF cheaper on 1, dearer on 9 (sign test P = 0.021)
+
+round outcomes, CP (all finishers): 803 rounds, 284 accepted, 243 not cheaper, 185 QP infeasible, 88 not clean, 3 PF failed at point
+round outcomes, CS (all finishers): 803 rounds, 377 accepted, 275 not clean, 138 not cheaper, 10 QP infeasible, 3 PF failed at point
+round outcomes, CF (all finishers): 803 rounds, 395 accepted, 264 not cheaper, 131 not clean, 10 QP infeasible, 3 PF failed at point
+CF fallback trials (rounds whose margined QP was empty): 183, 111 accepted, 42 not clean, 20 not cheaper, 10 QP infeasible
+
+T0 (gate: reruns reproduce the stored clean round and cost): 83 of 83
+T1 (check: CF's final cost equals CP's on every finisher where CP met no empty QP): held (51 of 51)
+T2 (F:dev: mean gap after CF below CP's): held (+0.209 against +0.229)
+T3 (F:held: mean gap after CF below CP's): held (+0.494 against +0.508)
+T4 (F:held: mean gap after CF below CS's): held (+0.494 against +0.516)
+T5 (at least 40 % of fallback trials accepted): held (111 of 183, 61%)
+T6 (an accepted CF step on at least 70 of the pooled finishers): held (74 of 83; CP 56, CS 76)
+T7 (check, by construction: no point dearer or dirtier after CF): held []
+Adoption (CF replaces CP in the method of record if, from the frozen start, its mean gap is no higher than CP's on both splits): met
