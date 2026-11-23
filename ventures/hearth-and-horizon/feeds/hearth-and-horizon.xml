@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Fifth Priest</title>
+      <link>https://example.invalid/hearth-and-horizon/the-fifth-priest.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-fifth-priest.html</guid>
+      <pubDate>Mon, 23 Nov 2026 12:00:00 GMT</pubDate>
+      <description>An Iowa deanery's agent divides a hundred penitents at four minutes each by a hundred minutes and asks for four priests. The Advent penance service runs to twenty past nine with a line down the side aisle. Erlang's 1917 telephone formula says why a queue at full load never settles, the door count says the average hid a rush fourteen priests deep, and a retired monsignor of eighty-eight says where the rush comes from. Setting: Carroll and Breda, Carroll County, Iowa, Monday 1 December to Tuesday 16 December 2053. Read the full text at https://example.invalid/hearth-and-horizon/the-fifth-priest.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>An Iowa deanery's agent divides a hundred penitents at four minutes each by a hundred minutes and asks for four priests. The Advent penance service runs to twenty past nine with a line down the side aisle. Erlang's 1917 telephone formula says why a queue at full load never settles, the door count says the average hid a rush fourteen priests deep, and a retired monsignor of eighty-eight says where the rush comes from.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The First Click</title>
       <link>https://example.invalid/hearth-and-horizon/the-first-click.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-first-click.html</guid>

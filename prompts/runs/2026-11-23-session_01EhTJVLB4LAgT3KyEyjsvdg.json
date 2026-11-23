@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVLB4LAgT3KyEyjsvdg",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support products; merge when done)",
+  "input_sha256": "e4a3e7a17f446f0eaa59faa5ccd9a3acae14f792e3d61e0442a9ec5380052eef",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T22:07:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 18487,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "bible_done.mjs moves the Done entry verbatim (just title/place/year); the numbers DONE.md asks for had to be added by hand after the move. The Hearth & Horizon 'Next up' list was down to one proposal, so this run added a replacement (newsvendor)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (581 MB of 400 MB), so text only, as the prompt directs; no podcast episode.",
+      "did": "text, pages, feeds, post",
+      "result": "story live on next build without audio"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Creative track. Project: Hearth & Horizon (headline shelf). Piece: the-fifth-priest ('The Fifth Priest', Erlang C and a penance-service rush, Carroll County, Iowa, 2053; ~5,300 words incl. note). Claimed in BIBLE.md via draft PR #18487 before drafting; searched open PRs for all three proposals first. Numbers: Erlang C recomputed (5 servers 0.554/2.22 min, 6 0.285/0.57, 7 0.135/0.18); rush scenarios by a 4,000-evening exponential-service simulation (Thursday 4 priests mean 24/longest 48 min; 6 priests 10/25; Tuesday stagger+6 3.8/13.5). Weekdays checked (2053-11-30 Sun, 12-01 Mon, 12-11 Thu, 12-14 Sun, 12-16 Tue). Adversarial re-read fixed: clicker totals, a 15-vs-20-minute slip, which priests heard Tuesday, Denison service date, the agent claiming to know waits. Added replacement proposal 'The cakes that sold out at three' (newsvendor, 0.75 fractile -> 137). Verification: node --test in ventures/hearth-and-horizon 21/21; run_workflow_locally --for-changes 9/9 selected workflows passed (uses: steps, cross-review and pages deploy not run locally). Post: docs/posts/2026-11-23-four-priests-worth-of-work-is-not-enough-priests.md.",
+  "corrections": [],
+  "redteam": null
+}
