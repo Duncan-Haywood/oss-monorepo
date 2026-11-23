@@ -7,6 +7,12 @@
 // 0.1%. A disagreement is put down to the first of:
 //   ifcopenshell-over-box  IfcOpenShell's volume is larger than the brep's
 //                          bounding box: no solid can be, so its figure is wrong
+//   ifcopenshell-turned    IfcOpenShell's mesh has faces turned the wrong way
+//                          (directed edges not paired with their reverse,
+//                          eval/pole-faces-2026-11-22.md) and the same
+//                          triangles, turned to agree, enclose this tool's
+//                          volume within 0.5% (an inscribed mesh's 0.02-0.3%);
+//                          needs breps.json written with the orientation check
 //   overlapping-pieces     the shell is in pieces whose boxes overlap (lumps
 //                          an exporter wrote as one shell); summed here, each
 //                          overlap counts once per piece (the reading's note)
@@ -42,23 +48,28 @@ for (const [id, e] of E) {
   let s;
   try { s = geo.item(id); } catch (err) { notRead[err.message] = (notRead[err.message] || 0) + 1; continue; }
   counts.read++; g.read++;
-  const v = Math.abs(solidVolume(s)), q = ref[id] == null ? null : Math.abs(ref[id]);
+  // a plain number, or {volume, turned, unpaired, pieces} when IfcOpenShell's
+  // mesh has directed edges without a reverse (eval/ifcopenshell-volumes.py)
+  const r = ref[id];
+  const v = Math.abs(solidVolume(s)), q = r == null ? null : Math.abs(typeof r === "object" ? r.volume : r);
+  const qt = r != null && typeof r === "object" ? Math.abs(r.turned) : null;
   if (q == null) { why["not built by IfcOpenShell"] = (why["not built by IfcOpenShell"] || 0) + 1; continue; }
   if (Math.abs(v - q) <= 1e-3 * q || Math.abs(v - q) < 1e-12) { counts.agree++; g.agree++; continue; }
   const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
   for (const f of geo.advancedShellLoops(e.args[0])) for (const l of f) for (const p of l) for (let k = 0; k < 3; k++) { lo[k] = Math.min(lo[k], p[k]); hi[k] = Math.max(hi[k], p[k]); }
   const box = (hi[0] - lo[0]) * (hi[1] - lo[1]) * (hi[2] - lo[2]);
   const reason = q > box * 1.001 ? "ifcopenshell-over-box"
+    : qt != null && Math.abs(v - qt) <= 5e-3 * qt ? "ifcopenshell-turned"
     : s.notes.some((n) => /pieces that may overlap/.test(n)) ? "overlapping-pieces"
     : !s.shells && !s.terms.length ? "not-closed"
     : "unexplained";
   why[reason] = (why[reason] || 0) + 1;
-  left.push({ id, reason, v, q, box, surfaces });
+  left.push({ id, reason, v, q, qt, unpaired: r?.unpaired, box, surfaces });
 }
 console.log(`${file.split("/").pop()}: ${counts.breps} advanced breps, read ${counts.read}, agree within 0.1% ${counts.agree}`);
 for (const [k, g] of Object.entries(bySurface)) console.log(`  faces on ${k}: ${g.breps} breps, read ${g.read}, agree ${g.agree}`);
 console.log(`  disagreements: ${Object.entries(why).map(([k, n]) => `${k} ${n}`).join(", ") || "none"}`);
 console.log(`  not read: ${Object.entries(notRead).map(([k, n]) => `${n} x ${k}`).join(", ") || "none"}`);
-const order = ["unexplained", "not-closed", "overlapping-pieces", "ifcopenshell-over-box"];
+const order = ["unexplained", "not-closed", "overlapping-pieces", "ifcopenshell-turned", "ifcopenshell-over-box"];
 left.sort((a, b) => order.indexOf(a.reason) - order.indexOf(b.reason));
-for (const x of left.slice(0, listN)) console.log(`    #${x.id} ${x.reason}: here ${x.v.toPrecision(5)} IfcOpenShell ${x.q.toPrecision(5)} box ${x.box.toPrecision(4)} (${x.surfaces})`);
+for (const x of left.slice(0, listN)) console.log(`    #${x.id} ${x.reason}: here ${x.v.toPrecision(5)} IfcOpenShell ${x.q.toPrecision(5)}${x.qt != null ? ` (turned ${x.qt.toPrecision(5)}, ${x.unpaired} edges unpaired)` : ""} box ${x.box.toPrecision(4)} (${x.surfaces})`);
