@@ -42,6 +42,10 @@
     {
       "file": "research/verifiable-training-mechanisms/README.md",
       "issue": "the 'runs 33 tests' line is stale (102 test functions now); not fixed here"
+    },
+    {
+      "file": "research/verifiable-training-mechanisms/src/vtm/collusion.py",
+      "issue": "test_reproduce.test_matches_verifier_bribery failed on main: PR #18315 restored research/verifier-bribery with its 2026-11-13 quality-audit correction (threshold also bounded by a checking-pays stake), which vtm's collusion_proof_stake lacked; ported the correction in this PR"
     }
   ],
   "deviations": [
@@ -57,7 +61,7 @@
     "research/verifiable-training-mechanisms/LOG.md (milestone 90 pre-registration and outcome)"
   ],
   "goal": null,
-  "notes": "Milestone 90 pre-registered (LOG commit pushed before the run), 1,280 runs on fresh test seeds 200-239, ~16 min on 4 CPUs. Q1, Q2, Q4, Q7, Q8 held; Q3, Q5, Q6, Q9 refuted. Local checks: pytest tests/test_arbiter_audit.py tests/test_precision_forgery.py 10 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; programme_check ok; check_posts ok.",
+  "notes": "Milestone 90 pre-registered (LOG commit pushed before the run), 1,280 runs on fresh test seeds 200-239, ~16 min on 4 CPUs. Q1, Q2, Q4, Q7, Q8 held; Q3, Q5, Q6, Q9 refuted. Local checks: pytest tests/test_arbiter_audit.py tests/test_precision_forgery.py 10 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; programme_check ok; check_posts ok. Fixed vtm.collusion_proof_stake to match verifier-bribery's corrected threshold; run_workflow_locally --for-changes: research tests PASS; review bots and pages deploy jobs deferred to PR CI.",
   "corrections": [],
   "redteam": null,
   "usage": {
