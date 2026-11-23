@@ -1228,3 +1228,69 @@ test("bendsInPlan: a quarter-arc wall bends, a straight one and one with a round
   const P = planeAreas(box).map((p) => p.area).sort((a, b) => a - b);
   assert.deepEqual(P.map((x) => +x.toFixed(9)), [0.5, 0.5, 0.75, 0.75, 6, 6]);
 });
+
+// ArchiCAD measures a drawn profile with its arcs as 45-degree chords and a
+// round column as a circumscribed 20-gon (eval/archicad-polygon-sections-2026-11-23.md)
+const polygonFile = (storedNotch, storedColumn) => `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC2X3'));ENDSEC;DATA;
+#1=IFCPROJECT('0YvctVUKr0kugbFTf53P9L',$,'p',$,$,$,$,$,#2);
+#2=IFCUNITASSIGNMENT((#3));
+#3=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);
+#10=IFCCARTESIANPOINT((0.,0.,0.));
+#11=IFCAXIS2PLACEMENT3D(#10,$,$);
+#12=IFCLOCALPLACEMENT($,#11);
+#13=IFCAXIS2PLACEMENT2D(#10,$);
+#16=IFCDIRECTION((0.,0.,1.));
+#100=IFCCARTESIANPOINT((-20.,0.));
+#101=IFCCARTESIANPOINT((20.,0.));
+#102=IFCCARTESIANPOINT((20.,20.));
+#103=IFCCARTESIANPOINT((10.,20.));
+#104=IFCCARTESIANPOINT((-10.,20.));
+#105=IFCCARTESIANPOINT((-20.,20.));
+#106=IFCCARTESIANPOINT((0.,20.));
+#107=IFCAXIS2PLACEMENT2D(#106,$);
+#108=IFCCIRCLE(#107,10.);
+#109=IFCPOLYLINE((#100,#101,#102,#103));
+#110=IFCTRIMMEDCURVE(#108,(#103,IFCPARAMETERVALUE(0.)),(#104,IFCPARAMETERVALUE(180.)),.F.,.CARTESIAN.);
+#111=IFCPOLYLINE((#104,#105,#100));
+#112=IFCCOMPOSITECURVESEGMENT(.CONTINUOUS.,.T.,#109);
+#113=IFCCOMPOSITECURVESEGMENT(.CONTINUOUS.,.T.,#110);
+#114=IFCCOMPOSITECURVESEGMENT(.CONTINUOUS.,.T.,#111);
+#115=IFCCOMPOSITECURVE((#112,#113,#114),.F.);
+#116=IFCARBITRARYCLOSEDPROFILEDEF(.AREA.,'sill with a round groove',#115);
+#117=IFCEXTRUDEDAREASOLID(#116,#11,#16,1000.);
+#118=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#117));
+#119=IFCPRODUCTDEFINITIONSHAPE($,$,(#118));
+#120=IFCCOVERING('1YvctVUKr0kugbFTf53P9A',$,'sill',$,$,#12,#119,$,$);
+#121=IFCQUANTITYVOLUME('Net Volume',$,$,${storedNotch});
+#122=IFCELEMENTQUANTITY('2YvctVUKr0kugbFTf53P9A',$,'ArchiCADQuantities',$,$,(#121));
+#123=IFCRELDEFINESBYPROPERTIES('3YvctVUKr0kugbFTf53P9A',$,$,$,(#120),#122);
+#130=IFCCIRCLEPROFILEDEF(.AREA.,'',#13,100.);
+#131=IFCEXTRUDEDAREASOLID(#130,#11,#16,2700.);
+#132=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#131));
+#133=IFCPRODUCTDEFINITIONSHAPE($,$,(#132));
+#134=IFCCOLUMN('1YvctVUKr0kugbFTf53P9B',$,'D200',$,$,#12,#133,$);
+#135=IFCQUANTITYVOLUME('NetVolume',$,$,${storedColumn});
+#136=IFCELEMENTQUANTITY('2YvctVUKr0kugbFTf53P9B',$,'BaseQuantities',$,$,(#135));
+#137=IFCRELDEFINESBYPROPERTIES('3YvctVUKr0kugbFTf53P9B',$,$,$,(#134),#136);
+ENDSEC;END-ISO-10303-21;`;
+
+test("explanations: a stored volume on arcs as 45-degree chords or a circumscribed 20-gon is polygon-section, inside or outside the 2% (ArchiCAD)", () => {
+  // the groove (half circle r 10) as 4 chords: 800 - 4 x 50 sin 45 deg, against 800 - 50 pi
+  const exactNotch = (800 - 50 * Math.PI) * 1e-6, chordNotch = (800 - 200 * Math.sin(Math.PI / 4)) * 1e-6;
+  // C20's D200: 20 x 0.1^2 x tan 9 deg x 2.7, stored as 0.0855275977753
+  const column = 20 * 0.01 * Math.tan(Math.PI / 20) * 2.7;
+  close(column, 0.0855275977753, 1e-12);
+  const [sill, col] = takeoff(parseStep(polygonFile(chordNotch, column))).rows;
+  for (const r of [sill, col]) {
+    assert.equal(r.check.net.agree, r === col, r.name); // 2.4% and 0.8%: the groove is outside, the column inside the 2%
+    assert.equal(r.check.net.reason, "polygon-section", r.name);
+    assert.equal(r.trustStored, false);
+    assert.equal(rowQuantities(r).volumeSource, "computed");
+  }
+  assert.equal(sill.check.net.section, "arcs as 45-degree chords");
+  assert.equal(col.check.net.section, "circles as circumscribed 20-gons");
+  close(sill.computed.gross / exactNotch, 1, 1e-4); // the engine draws arcs as 1-degree chords
+  // a stored figure near but not on the polygon (0.05% off it) is a plain agreement
+  const [s2, c2] = takeoff(parseStep(polygonFile(exactNotch * 1.0005, column * 1.0005))).rows;
+  for (const r of [s2, c2]) { assert.equal(r.check.net.agree, true); assert.equal(r.check.net.reason, undefined); assert.equal(r.trustStored, true); }
+});

@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVMdRcKTHrsXfFeWf5j",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...)",
+  "input_sha256": "0c205c8dd85c6aca752a84bcb7732da2c6108cc978592ce61cf06f10a91f1c08",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T02:14:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "league-schedule-generator (flagship 9): the ChessHouse r8 pairing-bye miss",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": 18346,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "the plain route drew research; the scheduled brief asks for revenue products, so routed with --task (ventures/1) as prompt.md allows",
+      "did": "ventures track",
+      "result": "flagship slice landed"
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "claimed a two-result round-check search; the investigation showed ChessHouse r8 was a bye-weight bug, not results, so fixed that instead and left the two-result search parked in NEXT.md (no measured round needs it)",
+      "did": "retitled the PR to the fix",
+      "result": "byes 39 -> 40 of 42"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-swiss-bye-weighed-against-the-wrong-field.md",
+    "ventures/league-schedule-generator/eval/swiss-bye-bracket.txt"
+  ],
+  "goal": "deepen a flagship: Swiss pairer matches arbiters' byes",
+  "notes": "Bracket-mode bye order weight was 1000*fromBottom/v over the whole field (v~170), so near-free; now from the bracket's bottom, scaled 0..1000 like orderA. Eval before/after (node eval/swiss-vs-published.mjs on gbtami/swisspairing @193ad99, old code in a scratch copy, run side by side): only two rows changed: ChessHouse r8 bye condition 82->84/84 boards, bye matched; Budapest B r4 open condition 25->23/39, bye lost (open seats 4 players who did not play; bye condition stays 39/39). Played condition unchanged 51/54, 4,892 boards. node --test swiss.test.mjs 24/24 pass; new test fails on the old code (23/24). check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}

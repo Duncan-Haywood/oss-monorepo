@@ -15,3 +15,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-21) referee crews 2026-11-20 (tournament-referees.mjs: clubs, hours, caps, ejection chain; CP-SAT check, eval/referee-exact.txt)
 - (moved 2026-11-21) alternating A/B weeks 2026-11-21 (eval/practice-exact.txt)
 - (moved 2026-11-22) 3-game nights (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits
+- (moved 2026-11-23) Swiss page 2026-11-22 (swiss-pairing.html, 51/54 real rounds exact; page checks a round, round-check.mjs)

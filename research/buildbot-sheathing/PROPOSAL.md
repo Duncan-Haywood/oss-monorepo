@@ -589,6 +589,15 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    is one number per pose, median 0.102 N (G1) and 0.147 N (H1), weakest 0.041 and 0.091 N (H280 held); at a swept
    0.1 N/h drift rate, a re-zero every 25 (G1) and 55 (H1) minutes. The drift term S_p d does not depend on the
    calibration pose, so only re-zeroing acts on it. Next: a sourced drift rate; a re-zero plan; dynamics.
+72. **A re-zero plan for a wall** (done 2026-11-23, `experiments/m72_rezero/`, offline): re-zeroing as late as each
+   press's allowance permits is optimal for any fixed order (proof in `rezero.py`; brute force agrees on 2,000 random
+   instances, H281 held); press order changes no count (H282 held). On a 100-sheet wall the G1's lift bands started
+   at the bottom of the grip range double its weakest used allowance (0.044 to 0.096 N) and halve its re-zeros at no
+   extra moves; the H1 needs five stops for a gain (H284 refuted in part); the clock schedule from the weakest table
+   pose costs the H1 1.50 to 1.75 times more re-zeros on 1,000 sheets (H283 refuted on the 100-sheet wall at slow
+   rates). At 0.1 N/h and 15 s a re-zero the plan costs 0.9% (G1) and 0.3% (H1) of the cycle (H286 held); every nail
+   at the best pose does not pay for its lift moves (H285, H287 held). Next: a random-walk or temperature drift
+   model; a sourced drift trace; dynamics.
 
 ## Target venue
 

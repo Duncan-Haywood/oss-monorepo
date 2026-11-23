@@ -664,6 +664,10 @@ limits add 251 to 286 working days to every run (P80 729.8 -> 1,005.3 days).
 Not yet compared with a commercial tool's levelled
 risk run (no public file carries one).
 
+Guide (2026-11-23): `how-to-run-a-monte-carlo-schedule-risk-analysis-on-a-p6-schedule.html`;
+its worked example (500 runs, seed 1, the page's defaults) is checked against the engine in
+`guides.test.mjs`.
+
 ## Probabilistic branches in the time impact analysis (2026-11-22)
 
 A fragnet is written as if the delay event will go one way. Often it will
@@ -712,6 +716,9 @@ plain TIA of that outcome's rows does, the expectation equals the weighted
 sum 48 of 48, the single result is the most likely branches 48 of 48
 (eval/tia-branches-2026-11-22.md). Not yet run on a real job's fragnet with
 alternatives; a TIA exhibit with branches is the next thing to read.
+
+Guide (2026-11-23): `how-to-run-a-time-impact-analysis-on-a-p6-schedule.html`; its worked
+example (the built-in fragnet) is checked against the engine in `guides.test.mjs`.
 
 ## Monthly schedule narrative (2026-11-22)
 
