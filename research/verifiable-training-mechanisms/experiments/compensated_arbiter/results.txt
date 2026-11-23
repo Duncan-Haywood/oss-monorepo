@@ -1,0 +1,102 @@
+Milestone 92. Plain against Kahan-compensated SGD, float32 reorder arbiter, rule Q(0.95,10,C80) (milestone 91's
+selected rule, applied unchanged). Calibration seeds 100-179 (each worker's own honest runs); control 300-339
+(milestone 91's holdout); fresh 400-439. 3,000 segments per cell and set; 'worst' = least-convicted zone of 15.
+Arms: plain_w (milestone 91), kahan_w (Kahan weights only, ablation), kahan_wc (compensated weights w - c).
+
+U1 control: plain_w on seeds 300-339 equals milestone 91's holdout figures for Q(0.95,10,C80), every cheat and cell: True
+
+Diagnosis (calibration seeds): honest median statistic per zone (zones 0, 4, 7, 10, 12, 13, 14) and zone 14 / median of zones 0-4
+  cosine  plain_w  4.06e-06 8.81e-06 1.20e-05 1.72e-05 2.51e-05 3.46e-05 2.83e-05 | 4.00
+  cosine  kahan_w  1.79e-06 3.51e-06 4.81e-06 7.42e-06 1.13e-05 1.36e-05 4.66e-07 | 0.17
+  cosine  kahan_wc 8.25e-07 9.60e-07 9.61e-07 9.05e-07 8.45e-07 8.14e-07 8.30e-07 | 0.90
+  step    plain_w  4.23e-06 8.58e-06 1.16e-05 1.53e-05 1.60e-05 1.59e-05 1.60e-05 | 2.19
+  step    kahan_w  1.92e-06 3.40e-06 4.73e-06 6.77e-06 6.75e-06 6.69e-06 6.73e-06 | 2.31
+  step    kahan_wc 8.05e-07 9.51e-07 9.66e-07 9.19e-07 9.22e-07 9.20e-07 9.26e-07 | 1.02
+  warmcos plain_w  4.65e-06 8.13e-06 1.11e-05 1.59e-05 2.27e-05 3.21e-05 2.69e-05 | 4.18
+  warmcos kahan_w  2.30e-06 3.15e-06 4.36e-06 6.66e-06 1.06e-05 1.26e-05 1.08e-06 | 0.42
+  warmcos kahan_wc 7.54e-07 9.57e-07 9.62e-07 9.12e-07 8.52e-07 8.18e-07 8.31e-07 | 0.92
+  sgdr    plain_w  4.10e-06 1.17e-05 9.34e-06 1.10e-05 1.59e-05 2.16e-05 3.31e-05 | 4.26
+  sgdr    kahan_w  1.78e-06 4.88e-06 3.46e-06 4.26e-06 6.77e-06 9.38e-06 9.57e-06 | 3.10
+  sgdr    kahan_wc 8.27e-07 9.09e-07 9.46e-07 9.76e-07 9.25e-07 8.62e-07 8.38e-07 | 0.93
+
+control 300-339: honest convictions (of 3,000) | f16_1 mean, worst zone (index) | bf16_1 mean, worst | smallest mean over f16/bf16 q >= 1; arms plain_w || kahan_w || kahan_wc
+  cosine   1 | 0.951 0.360 (14) | 0.987 0.800 | 0.951  ||   1 | 0.983 0.750 (14) | 0.994 0.915 | 0.983  ||   0 | 0.991 0.865 (14) | 1.000 1.000 | 0.991
+  step     1 | 1.000 0.995 ( 7) | 1.000 1.000 | 1.000  ||   0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000  ||   0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  warmcos  2 | 0.944 0.245 (14) | 0.987 0.805 | 0.944  ||   0 | 0.984 0.765 (14) | 0.995 0.920 | 0.984  ||   0 | 0.993 0.900 (14) | 1.000 1.000 | 0.993
+  sgdr     1 | 0.918 0.220 (14) | 0.987 0.810 | 0.918  ||   0 | 0.965 0.530 (14) | 0.994 0.905 | 0.965  ||   0 | 0.993 0.890 (14) | 1.000 1.000 | 0.993
+
+FRESH 400-439: honest convictions (of 3,000) | f16_1 mean, worst zone (index) | bf16_1 mean, worst | smallest mean over f16/bf16 q >= 1; arms plain_w || kahan_w || kahan_wc
+  cosine   0 | 0.947 0.335 (14) | 0.987 0.805 | 0.947  ||   1 | 0.984 0.755 (14) | 0.993 0.900 | 0.984  ||   1 | 0.990 0.850 (14) | 1.000 1.000 | 0.990
+  step     0 | 1.000 0.995 ( 7) | 1.000 1.000 | 1.000  ||   0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000  ||   0 | 1.000 1.000 ( 0) | 1.000 1.000 | 1.000
+  warmcos  0 | 0.941 0.190 (14) | 0.987 0.805 | 0.941  ||   3 | 0.984 0.755 (14) | 0.994 0.910 | 0.984  ||   2 | 0.989 0.840 (14) | 1.000 1.000 | 0.989
+  sgdr     1 | 0.925 0.200 (14) | 0.988 0.820 | 0.925  ||   0 | 0.966 0.540 (14) | 0.993 0.890 | 0.966  ||   0 | 0.990 0.850 (14) | 1.000 1.000 | 0.990
+
+FRESH, f16_1 conviction per zone (0..14), plain_w then kahan_wc:
+  cosine  plain_w  1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 0.98 0.89 0.34
+  cosine  kahan_wc 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 0.85
+  step    plain_w  1.00 1.00 1.00 1.00 1.00 1.00 1.00 0.99 1.00 1.00 1.00 1.00 1.00 1.00 1.00
+  step    kahan_wc 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00
+  warmcos plain_w  1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 0.99 0.99 0.94 0.19
+  warmcos kahan_wc 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 0.84
+  sgdr    plain_w  1.00 1.00 1.00 1.00 1.00 1.00 0.97 0.69 1.00 1.00 1.00 1.00 1.00 1.00 0.20
+  sgdr    kahan_wc 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 1.00 0.85
+
+Declared after reading: FRESH per-segment conviction, segments 70-74 (zone 14), and the last step's
+learning rate as a share of its segment's mean; then the smallest per-segment rate over segments 0-73
+  cosine  lr share 0.798 0.744 0.651 0.458 0.007
+  cosine  plain_w  f16_1: 0.150 0.250 0.375 0.900 0.000 | min over 0-73 0.150
+  cosine  plain_w  f16_2: 0.625 0.775 0.925 0.975 0.050 | min over 0-73 0.625
+  cosine  plain_w  f16_5: 1.000 1.000 1.000 1.000 0.950 | min over 0-73 1.000
+  cosine  kahan_wc f16_1: 1.000 1.000 1.000 1.000 0.250 | min over 0-73 1.000
+  cosine  kahan_wc f16_2: 1.000 1.000 1.000 1.000 1.000 | min over 0-73 1.000
+  cosine  kahan_wc f16_5: 1.000 1.000 1.000 1.000 1.000 | min over 0-73 1.000
+  step    lr share 1.000 1.000 1.000 1.000 1.000
+  step    plain_w  f16_1: 1.000 1.000 1.000 1.000 1.000 | min over 0-73 0.975
+  step    plain_w  f16_2: 1.000 1.000 1.000 1.000 1.000 | min over 0-73 1.000
+  step    plain_w  f16_5: 1.000 1.000 1.000 1.000 1.000 | min over 0-73 1.000
+  step    kahan_wc f16_1: 1.000 1.000 1.000 1.000 1.000 | min over 0-73 1.000
+  step    kahan_wc f16_2: 1.000 1.000 1.000 1.000 1.000 | min over 0-73 1.000
+  step    kahan_wc f16_5: 1.000 1.000 1.000 1.000 1.000 | min over 0-73 1.000
+  warmcos lr share 0.798 0.744 0.651 0.458 0.007
+  warmcos plain_w  f16_1: 0.050 0.075 0.175 0.650 0.000 | min over 0-73 0.050
+  warmcos plain_w  f16_2: 0.450 0.650 0.850 0.975 0.025 | min over 0-73 0.450
+  warmcos plain_w  f16_5: 1.000 1.000 1.000 1.000 0.900 | min over 0-73 1.000
+  warmcos kahan_wc f16_1: 1.000 1.000 1.000 1.000 0.200 | min over 0-73 1.000
+  warmcos kahan_wc f16_2: 1.000 1.000 1.000 1.000 1.000 | min over 0-73 1.000
+  warmcos kahan_wc f16_5: 1.000 1.000 1.000 1.000 1.000 | min over 0-73 1.000
+  sgdr    lr share 0.800 0.745 0.652 0.458 0.007
+  sgdr    plain_w  f16_1: 0.200 0.275 0.275 0.250 0.000 | min over 0-73 0.200
+  sgdr    plain_w  f16_2: 0.650 0.725 0.800 1.000 0.050 | min over 0-73 0.650
+  sgdr    plain_w  f16_5: 1.000 1.000 1.000 1.000 0.950 | min over 0-73 1.000
+  sgdr    kahan_wc f16_1: 1.000 1.000 1.000 1.000 0.250 | min over 0-73 1.000
+  sgdr    kahan_wc f16_2: 1.000 1.000 1.000 1.000 1.000 | min over 0-73 1.000
+  sgdr    kahan_wc f16_5: 1.000 1.000 1.000 1.000 1.000 | min over 0-73 1.000
+
+FRESH, other cheats, mean conviction plain_w / kahan_wc: skip1, skip2, sub63_20, sub56_20
+  cosine  0.997/1.000  1.000/1.000  1.000/1.000  1.000/1.000
+  step    1.000/1.000  1.000/1.000  1.000/1.000  1.000/1.000
+  warmcos 0.997/1.000  1.000/1.000  1.000/1.000  1.000/1.000
+  sgdr    1.000/1.000  1.000/1.000  1.000/1.000  1.000/1.000
+
+FRESH, mean held-out loss, plain | kahan | relative difference
+  cosine  0.08907 | 0.08907 | +0.0032%
+  step    0.08986 | 0.08986 | -0.0002%
+  warmcos 0.08902 | 0.08902 | +0.0001%
+  sgdr    0.08951 | 0.08951 | -0.0001%
+
+Predictions
+  U1 held
+  U2 REFUTED (zone 14 / zones 0-4 honest median: plain_w 2.19 to 4.26, kahan_wc 0.90 to 1.02)
+  U3 REFUTED (fresh worst-zone f16_1: kahan_wc 0.840 to 1.000; plain_w 0.335, 0.995, 0.190, 0.200)
+  U4 held (fresh honest convictions, kahan_wc: largest 2 per cell, 3 of 12,000; plain_w 1)
+  U5 held (fresh kahan_wc smallest mean over f16/bf16 q >= 1 0.989; bf16_1 worst zone 1.000)
+  U6 held (fresh kahan_w worst-zone f16_1: 0.755, 1.000, 0.755, 0.540)
+  U7 held (largest relative loss difference 0.0032%)
+  U8 held (smallest kahan_wc minus plain_w mean over skip1, skip2, sub63_20, sub56_20: +0.000)
+  Failure line (kahan_wc worst-zone f16_1 < 0.8 in some cell): not met
+
+== Figure table: FRESH, worst-zone f16_1 conviction per cell; plain_w, kahan_w, kahan_wc
+  cosine 0.335 0.755 0.850
+  step 0.995 1.000 1.000
+  warmcos 0.190 0.755 0.840
+  sgdr 0.200 0.540 0.850

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 358" role="img" aria-label="Horizontal bar chart, one row per learning-rate schedule: share of segments convicted in the least-convicted zone by the float32 arbiter, for plain SGD, Kahan-compensated SGD compared on weights only, and Kahan-compensated SGD compared on compensated weights; values are in results.txt">
+<rect width="640" height="358" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Worst-zone conviction of one forged float16 step under plain SGD, fresh seeds (200 segments per zone)</text>
+<line x1="84.0" x2="84.0" y1="74" y2="314" stroke="#ddd"/><text x="84.0" y="330" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<line x1="189.5" x2="189.5" y1="74" y2="314" stroke="#ddd"/><text x="189.5" y="330" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="295.0" x2="295.0" y1="74" y2="314" stroke="#ddd"/><text x="295.0" y="330" text-anchor="middle" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="400.6" x2="400.6" y1="74" y2="314" stroke="#ddd"/><text x="400.6" y="330" text-anchor="middle" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="506.1" x2="506.1" y1="74" y2="314" stroke="#ddd"/><text x="506.1" y="330" text-anchor="middle" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="611.6" x2="611.6" y1="74" y2="314" stroke="#ddd"/><text x="611.6" y="330" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<line x1="84.0" x2="84.0" y1="74" y2="314" stroke="#555"/>
+<text x="347.8" y="348" text-anchor="middle" font-family="sans-serif" font-size="12">share convicted in the worst zone</text>
+<text x="76" y="108.0" text-anchor="end" font-family="sans-serif" font-size="12">SGD cosine</text>
+<rect x="84.0" y="80" width="176.7" height="13" fill="#c0392b"/>
+<text x="264.7" y="90" font-family="sans-serif" font-size="10">0.34</text>
+<rect x="84.0" y="96" width="398.3" height="13" fill="#1f6fb2"/>
+<text x="486.3" y="106" font-family="sans-serif" font-size="10">0.76</text>
+<rect x="84.0" y="112" width="448.5" height="13" fill="#2e8b57"/>
+<text x="536.5" y="122" font-family="sans-serif" font-size="10">0.85</text>
+<text x="76" y="168.0" text-anchor="end" font-family="sans-serif" font-size="12">SGD step</text>
+<rect x="84.0" y="140" width="525.0" height="13" fill="#c0392b"/>
+<text x="613.0" y="150" font-family="sans-serif" font-size="10">0.99</text>
+<rect x="84.0" y="156" width="527.6" height="13" fill="#1f6fb2"/>
+<text x="615.6" y="166" font-family="sans-serif" font-size="10">1.00</text>
+<rect x="84.0" y="172" width="527.6" height="13" fill="#2e8b57"/>
+<text x="615.6" y="182" font-family="sans-serif" font-size="10">1.00</text>
+<text x="76" y="228.0" text-anchor="end" font-family="sans-serif" font-size="12">SGD warmcos</text>
+<rect x="84.0" y="200" width="100.2" height="13" fill="#c0392b"/>
+<text x="188.2" y="210" font-family="sans-serif" font-size="10">0.19</text>
+<rect x="84.0" y="216" width="398.3" height="13" fill="#1f6fb2"/>
+<text x="486.3" y="226" font-family="sans-serif" font-size="10">0.76</text>
+<rect x="84.0" y="232" width="443.2" height="13" fill="#2e8b57"/>
+<text x="531.2" y="242" font-family="sans-serif" font-size="10">0.84</text>
+<text x="76" y="288.0" text-anchor="end" font-family="sans-serif" font-size="12">SGD sgdr</text>
+<rect x="84.0" y="260" width="105.5" height="13" fill="#c0392b"/>
+<text x="193.5" y="270" font-family="sans-serif" font-size="10">0.20</text>
+<rect x="84.0" y="276" width="284.9" height="13" fill="#1f6fb2"/>
+<text x="372.9" y="286" font-family="sans-serif" font-size="10">0.54</text>
+<rect x="84.0" y="292" width="448.5" height="13" fill="#2e8b57"/>
+<text x="536.5" y="302" font-family="sans-serif" font-size="10">0.85</text>
+<rect x="84" y="32" width="14" height="10" fill="#c0392b"/><text x="104" y="41" font-family="sans-serif" font-size="11">plain SGD, weights (milestone 91)</text>
+<rect x="322.6" y="32" width="14" height="10" fill="#1f6fb2"/><text x="342.6" y="41" font-family="sans-serif" font-size="11">Kahan SGD, weights only</text>
+<rect x="84" y="46" width="14" height="10" fill="#2e8b57"/><text x="104" y="55" font-family="sans-serif" font-size="11">Kahan SGD, weights minus compensation</text>
+</svg>
