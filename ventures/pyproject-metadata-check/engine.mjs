@@ -600,8 +600,9 @@ function commonLicense(text) {
 }
 
 function guessFromClassifiers(cls) {
-  const map = { "License :: OSI Approved :: MIT License": "MIT", "License :: OSI Approved :: Apache Software License": "Apache-2.0", "License :: OSI Approved :: BSD License": "BSD-3-Clause", "License :: OSI Approved :: ISC License (ISCL)": "ISC", "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)": "MPL-2.0", "License :: OSI Approved :: GNU General Public License v3 (GPLv3)": "GPL-3.0-only", "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)": "GPL-3.0-or-later", "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)": "LGPL-3.0-only", "License :: OSI Approved :: The Unlicense (Unlicense)": "Unlicense" };
-  for (const c of cls) if (map[c]) return ` such as "${map[c]}"`;
+  // Keyed on the classifier's tail, which identifies it in PyPI's list.
+  const map = [["MIT License", "MIT"], ["Apache Software License", "Apache-2.0"], [":: BSD License", "BSD-3-Clause"], ["(ISCL)", "ISC"], ["(MPL 2.0)", "MPL-2.0"], ["(GPLv3)", "GPL-3.0-only"], ["(GPLv3+)", "GPL-3.0-or-later"], ["(LGPLv3)", "LGPL-3.0-only"], ["(Unlicense)", "Unlicense"]];
+  for (const c of cls) for (const [tail, id] of map) if (c.startsWith("License :: OSI Approved") && c.endsWith(tail)) return ` such as "${id}"`;
   return "";
 }
 
