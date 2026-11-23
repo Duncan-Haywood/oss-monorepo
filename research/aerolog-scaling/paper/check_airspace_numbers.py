@@ -317,6 +317,17 @@ CHECKS = [
     ('fresh_tail3_results.txt', 'seed clashes with the old, first- and second-fresh layouts: 0', '24 fresh layouts (11bc, 192 draws'),
     ('fresh_tail3_results.txt', '# H8 -> refuted', '11bc seven of eight'),
     ('fresh_tail3_results.txt', '# H1 -> held', '11bc seven of eight'),
+    # 11bd Chicago transfer
+    ('chicago_transfer_results.txt', 'S6     median 1.0000  p90 1.0047', '1.0047, 1.0038, 1.0139 and 1.0063'),
+    ('chicago_transfer_results.txt', 'S6     median 1.0000  p90 1.0038', '1.0047, 1.0038, 1.0139 and 1.0063'),
+    ('chicago_transfer_results.txt', 'S6     median 1.0014  p90 1.0139', '1.0047, 1.0038, 1.0139 and 1.0063'),
+    ('chicago_transfer_results.txt', 'S6     median 1.0000  p90 1.0063', '1.0047, 1.0038, 1.0139 and 1.0063'),
+    ('chicago_transfer_results.txt', 'p_CHI (in-sample N budget) 0.06049 against frozen 0.02716 (ratio 2.23)', '0.06049 (2.23 times'),
+    ('chicago_transfer_results.txt', 'N mean cost 1.0096 frozen, 1.0078 at p_CHI', '0.0018 in mean cost'),
+    ('chicago_transfer_results.txt', 'S6 worst draw over all 192 draws: 1.2932', '**1.2932**'),
+    ('chicago_transfer_results.txt', 'leak 1:0 / 2:0 / 3:1.4e-05 / 4:0.18 / 5:0.029 / 6:0.024', '0.18 at 4 bands, 0.029 at 5, 0.024 at 6'),
+    ('chicago_transfer_results.txt', '# C2 -> refuted', 'six held'),
+    ('chicago_transfer_posthoc_results.txt', 'Chicago (11bd)      16  2.0  | 1.0063  1.2932  | 1.0039       1.0190', 'brings that draw to 1.0000'),
 ]
 
 

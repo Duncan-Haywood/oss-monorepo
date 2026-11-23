@@ -1,0 +1,27 @@
+# 11bd post hoc (NOT pre-registered): S6 window about the most-bands budget (as tested) and about the first-crossing budget; frozen p_N = 0.02716
+# set                  M   s    | S6 p90   S6 max  | S6-first p90  max    | draws where k differs  | worse  better
+  NYC old (11ax)      12  1.0  | 1.0081  1.0242  | 1.0081       1.0242  |   3 of  96             |   0      0
+  NYC old (11ax)      12  2.0  | 1.0016  1.0211  | 1.0016       1.0211  |   2 of  96             |   0      0
+  NYC old (11ax)      16  1.0  | 1.0124  1.0371  | 1.0124       1.0371  |   0 of  96             |   0      0
+  NYC old (11ax)      16  2.0  | 1.0079  1.0271  | 1.0079       1.0271  |   3 of  96             |   0      0
+  NYC old (11ax)      all       | mean 1.0024 max 1.0371 | mean 1.0024 max 1.0371
+  NYC fresh 1 (11ba)  12  1.0  | 1.0137  1.0269  | 1.0137       1.0269  |   0 of  48             |   0      0
+  NYC fresh 1 (11ba)  12  2.0  | 1.0015  1.0489  | 1.0015       1.0489  |   1 of  48             |   0      0
+  NYC fresh 1 (11ba)  16  1.0  | 1.0080  1.0255  | 1.0080       1.0255  |   0 of  48             |   0      0
+  NYC fresh 1 (11ba)  16  2.0  | 1.0004  1.0120  | 1.0004       1.0120  |   0 of  48             |   0      0
+  NYC fresh 1 (11ba)  all       | mean 1.0020 max 1.0489 | mean 1.0020 max 1.0489
+  NYC fresh 2 (11bb)  12  1.0  | 1.0028  1.0129  | 1.0028       1.0129  |   2 of  48             |   0      0
+  NYC fresh 2 (11bb)  12  2.0  | 1.0000  1.0154  | 1.0000       1.0154  |   1 of  48             |   0      0
+  NYC fresh 2 (11bb)  16  1.0  | 1.0150  1.0326  | 1.0150       1.0326  |   1 of  48             |   0      0
+  NYC fresh 2 (11bb)  16  2.0  | 1.0044  1.0377  | 1.0044       1.0377  |   0 of  48             |   0      0
+  NYC fresh 2 (11bb)  all       | mean 1.0018 max 1.0377 | mean 1.0018 max 1.0377
+  NYC fresh 3 (11bc)  12  1.0  | 1.0055  1.0168  | 1.0055       1.0168  |   1 of  48             |   0      0
+  NYC fresh 3 (11bc)  12  2.0  | 1.0000  1.0070  | 1.0000       1.0070  |   0 of  48             |   0      0
+  NYC fresh 3 (11bc)  16  1.0  | 1.0133  1.0198  | 1.0133       1.0198  |   0 of  48             |   0      0
+  NYC fresh 3 (11bc)  16  2.0  | 1.0092  1.0447  | 1.0092       1.0447  |   2 of  48             |   0      0
+  NYC fresh 3 (11bc)  all       | mean 1.0021 max 1.0447 | mean 1.0021 max 1.0447
+  Chicago (11bd)      12  1.0  | 1.0047  1.0124  | 1.0047       1.0124  |   1 of  48             |   0      0
+  Chicago (11bd)      12  2.0  | 1.0038  1.0186  | 1.0038       1.0186  |   0 of  48             |   0      0
+  Chicago (11bd)      16  1.0  | 1.0139  1.0204  | 1.0139       1.0204  |   0 of  48             |   0      0
+  Chicago (11bd)      16  2.0  | 1.0063  1.2932  | 1.0039       1.0190  |   3 of  48             |   0      1
+  Chicago (11bd)      all       | mean 1.0036 max 1.2932 | mean 1.0020 max 1.0204
