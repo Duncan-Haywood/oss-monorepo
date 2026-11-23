@@ -611,24 +611,7 @@
     import { planFromDxf } from "./dxf.mjs";
     import { loadIfcEngine, openingSizes } from "./ifcwasm.mjs";
     import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength, restoreSketch, fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners } from "./sketch.mjs";
-    import { drawingSetHtml } from "./drawings.mjs";
-    import { layoutOpeningSchedule, openingScheduleCsv } from "./openingschedule.mjs";
-    import { drawingSetPdf } from "./pdf.mjs";
     import { panelMaxError, panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
-    import { sheathe, defaultSheathing, nailerCuts } from "./sheathing.mjs";
-    import { layoutFloor, floorCuts, floorText } from "./floor.mjs";
-    import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
-    import { layoutFoundation, foundationText } from "./foundation.mjs";
-    import { layoutDrywall, drywallText } from "./drywall.mjs";
-    import { layoutInsulation, insulationText } from "./insulation.mjs";
-    import { layoutTrim, trimText } from "./trim.mjs";
-    import { layoutSiding, sidingText } from "./siding.mjs";
-    import { layoutEaves, eavesText } from "./eaves.mjs";
-    import { layoutGutters, guttersText } from "./gutters.mjs";
-    import { layoutDormer, layoutShedDormer, dormerText } from "./dormer.mjs";
-    import { layoutDeck, deckText } from "./deck.mjs";
-    import { layoutStair, linkStairReaction, layoutStairWithLanding, layoutWinders, winderText, stairCuts, stairText, landingCuts, landingText, STAIR_LIMITS } from "./stairs.mjs";
-    import { layoutFasteners, fastenerText } from "./fasteners.mjs";
     import { budget, budgetCsv, priceSheet } from "./budget.mjs";
     import { proposal, proposalText, proposalHtml } from "./bidletter.mjs";
     import { bidPackageHtml } from "./bidpackage.mjs";
@@ -640,6 +623,68 @@
     import { schedule, scheduleText, sampleSchedule, resolveRates } from "./schedule.mjs";
     import { resolveHeaders } from "./headers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    // The plan sections below (sheathing, floor, roof, stair, deck, foundation, finishes) are
+    // most of the page's code and the example plan uses none of them, so each
+    // module is fetched the first time a plan needs it: run() asks needSections()
+    // and, when one is missing, loads it and runs again
+    // (docs/history/wall-framing-page-perf-2026-11-23.md).
+    let sheathe, defaultSheathing, nailerCuts, layoutFloor, floorCuts, floorText, layoutRoof, roofCuts, roofText, layoutFoundation, foundationText, layoutDrywall, drywallText, layoutInsulation, insulationText, layoutTrim, trimText, layoutSiding, sidingText, layoutEaves, eavesText, layoutGutters, guttersText, layoutDormer, layoutShedDormer, dormerText, layoutDeck, deckText, layoutStair, linkStairReaction, layoutStairWithLanding, layoutWinders, winderText, stairCuts, stairText, landingCuts, landingText, STAIR_LIMITS, layoutFasteners, fastenerText;
+    const SECTION_IMPORT = {
+      sheathing: () => import("./sheathing.mjs"),
+      floor: () => import("./floor.mjs"),
+      roof: () => import("./roof.mjs"),
+      foundation: () => import("./foundation.mjs"),
+      drywall: () => import("./drywall.mjs"),
+      insulation: () => import("./insulation.mjs"),
+      trim: () => import("./trim.mjs"),
+      siding: () => import("./siding.mjs"),
+      eaves: () => import("./eaves.mjs"),
+      gutters: () => import("./gutters.mjs"),
+      dormer: () => import("./dormer.mjs"),
+      deck: () => import("./deck.mjs"),
+      stairs: () => import("./stairs.mjs"),
+      fasteners: () => import("./fasteners.mjs"),
+    };
+    const SECTION_BIND = {
+      sheathing: (m) => ({ sheathe, defaultSheathing, nailerCuts } = m),
+      floor: (m) => ({ layoutFloor, floorCuts, floorText } = m),
+      roof: (m) => ({ layoutRoof, roofCuts, roofText } = m),
+      foundation: (m) => ({ layoutFoundation, foundationText } = m),
+      drywall: (m) => ({ layoutDrywall, drywallText } = m),
+      insulation: (m) => ({ layoutInsulation, insulationText } = m),
+      trim: (m) => ({ layoutTrim, trimText } = m),
+      siding: (m) => ({ layoutSiding, sidingText } = m),
+      eaves: (m) => ({ layoutEaves, eavesText } = m),
+      gutters: (m) => ({ layoutGutters, guttersText } = m),
+      dormer: (m) => ({ layoutDormer, layoutShedDormer, dormerText } = m),
+      deck: (m) => ({ layoutDeck, deckText } = m),
+      stairs: (m) => ({ layoutStair, linkStairReaction, layoutStairWithLanding, layoutWinders, winderText, stairCuts, stairText, landingCuts, landingText, STAIR_LIMITS } = m),
+      fasteners: (m) => ({ layoutFasteners, fastenerText } = m),
+    };
+    const sectionLoaded = new Set(), sectionLoading = new Map();
+    let sectionRerun = null;
+    // The section modules this plan needs that are not loaded yet, in the order run() uses them.
+    function needSections(plan) {
+      const need = ["foundation", "drywall", "deck", "floor", "roof", "stairs", "insulation", "trim", "siding", "eaves", "gutters", "dormer", "fasteners"].filter((k) => plan[k]);
+      if (plan.floor || plan.deck?.stairs) need.push("stairs"); // linkStairReaction, and a deck's own stair
+      if ($("#sheath").checked) need.push("sheathing"); // off by default; every sheathe() call sits behind this box
+      return [...new Set(need)].filter((k) => !sectionLoaded.has(k));
+    }
+    // Load the missing sections once, then run again; a failed fetch is reported and retried on the next run.
+    function loadSectionsThenRun(keys) {
+      if (sectionRerun) return;
+      sectionRerun = Promise.all(keys.map((k) => {
+        if (!sectionLoading.has(k)) sectionLoading.set(k, SECTION_IMPORT[k]().then((m) => { SECTION_BIND[k](m); sectionLoaded.add(k); }, (e) => { sectionLoading.delete(k); throw e; }));
+        return sectionLoading.get(k);
+      })).then(() => { sectionRerun = null; run(); }, (e) => {
+        sectionRerun = null;
+        $("#errors").innerHTML = `<ul><li>${esc(`Part of the takeoff could not load (${e instanceof Error ? e.message : String(e)}). Check the connection and run the takeoff again.`)}</li></ul>`;
+      });
+    }
+    // Download-only modules load on the button press.
+    async function lib(path) {
+      try { return await import(path); } catch (e) { $("#status").textContent = `Could not load ${path.slice(2)} (${e instanceof Error ? e.message : String(e)}). Check the connection and try again.`; return null; }
+    }
 
     const $ = (sel) => document.querySelector(sel);
     const KEY = "wall-framing-takeoff-plan";
@@ -1296,6 +1341,7 @@
       $("#errors").innerHTML = "";
       if (bad.length) { $("#errors").innerHTML = `<ul>${bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return false; }
       { const ex = /** @type {any} */ (expandSteppedWalls(plan)); if (!ex.ok) { $("#errors").innerHTML = `<ul>${ex.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return false; } plan = ex.plan; }
+      { const missing = needSections(plan); if (missing.length) { loadSectionsThenRun(missing); return false; } }
       let result, nailers = [], floor = null, stairs = null, deck = null, floorExtra = [], roof = null, foundation = null, drywall = null;
       try {
         if (plan.foundation) {
@@ -1596,15 +1642,17 @@
     // 0 = whole walls; a size outside 6 in to 100 ft is refused (the engine throws on it), never passed on.
     function panelMaxIn() { const v = Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0); return v > 0 && panelMaxError(v) ? -1 : v; }
     function panelMaxOk() { if (panelMaxIn() < 0) { $("#status").textContent = "Longest shop panel: " + panelMaxError(Math.max(0, parseLength($("#panelMax").value.trim() || "0") || 0)) + "."; return false; } return true; }
-    $("#drawingsPdf").addEventListener("click", () => { if (run() && last && panelMaxOk()) { download("wall-drawings.pdf", "application/pdf", drawingSetPdf(last.result, last.plan, { panelMax: panelMaxIn() })); record("drawings_pdf_downloaded"); } });
-    $("#openingsCsvBtn").addEventListener("click", () => {
+    $("#drawingsPdf").addEventListener("click", async () => { if (run() && last && panelMaxOk()) { const at = last, panelMax = panelMaxIn(), m = await lib("./pdf.mjs"); if (!m) return; download("wall-drawings.pdf", "application/pdf", m.drawingSetPdf(at.result, at.plan, { panelMax })); record("drawings_pdf_downloaded"); } });
+    $("#openingsCsvBtn").addEventListener("click", async () => {
       if (!run() || !last) return;
-      const sch = layoutOpeningSchedule(last.plan.openingSchedule || {}, last.plan);
+      const at = last, m = await lib("./openingschedule.mjs"); if (!m) return;
+      const { layoutOpeningSchedule, openingScheduleCsv } = m;
+      const sch = layoutOpeningSchedule(at.plan.openingSchedule || {}, at.plan);
       if (!sch.ok) { $("#errors").innerHTML = `<ul>${sch.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>`; return; }
       if (!sch.rows.length) { $("#errors").innerHTML = "<ul><li>No doors or windows in the plan, so there is no schedule to download.</li></ul>"; return; }
       download("door-window-schedule.csv", "text/csv", openingScheduleCsv(sch)); record("openings_csv_downloaded");
     });
-    $("#drawings").addEventListener("click", () => { if (run() && last && panelMaxOk()) { download("wall-drawings.html", "text/html", drawingSetHtml(last.result, last.plan, { panelMax: panelMaxIn(), sheathPsf: Math.max(0, parseFloat($("#sheathPsf").value) || 0), panelSheets: $("#panelSheets").checked })); record("drawings_downloaded"); } });
+    $("#drawings").addEventListener("click", async () => { if (run() && last && panelMaxOk()) { const at = last, opts = { panelMax: panelMaxIn(), sheathPsf: Math.max(0, parseFloat($("#sheathPsf").value) || 0), panelSheets: $("#panelSheets").checked }, m = await lib("./drawings.mjs"); if (!m) return; download("wall-drawings.html", "text/html", m.drawingSetHtml(at.result, at.plan, opts)); record("drawings_downloaded"); } });
     $("#panelOrderBtn").addEventListener("click", () => {
       if (!run() || !last) return;
       const panelMax = panelMaxIn();

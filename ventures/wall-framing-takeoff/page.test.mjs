@@ -57,13 +57,39 @@ test("every static control has a label, and generated rows label their inputs", 
 
 test("the module script imports only local files, its names exist, and it parses", async () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./bidletter.mjs", "./bidlevel.mjs", "./bidpackage.mjs", "./budget.mjs", "./checkout.mjs", "./compare.mjs", "./deck.mjs", "./dormer.mjs", "./drawings.mjs", "./drywall.mjs", "./dxf.mjs", "./eaves.mjs", "./engine.mjs", "./fasteners.mjs", "./floor.mjs", "./foundation.mjs", "./gutters.mjs", "./headers.mjs", "./ifcwasm.mjs", "./insulation.mjs", "./licence.mjs", "./openingschedule.mjs", "./panels.mjs", "./pdf.mjs", "./roof.mjs", "./schedule.mjs", "./sensitivity.mjs", "./sheathing.mjs", "./siding.mjs", "./sketch.mjs", "./stairs.mjs", "./stepwall.mjs", "./trim.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./bidletter.mjs", "./bidlevel.mjs", "./bidpackage.mjs", "./budget.mjs", "./checkout.mjs", "./compare.mjs", "./dxf.mjs", "./engine.mjs", "./headers.mjs", "./ifcwasm.mjs", "./licence.mjs", "./panels.mjs", "./schedule.mjs", "./sensitivity.mjs", "./sketch.mjs", "./stepwall.mjs", "./usage.mjs"]);
   const names = html.match(/import \{([^}]+)\} from "\.\/engine\.mjs"/)[1].split(",").map((s) => s.trim());
   const engine = await import("./engine.mjs");
   for (const name of names) assert.ok(name in engine, name);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
   assert.doesNotThrow(() => new Function(src.replace(/^\s*import .*$/gm, "")));
   assert.doesNotMatch(page("engine.mjs"), /^\s*import\s/m);
+});
+
+test("plan-section modules load on the first run that needs them, and bind what they export", async () => {
+  const html = page("index.html");
+  const imports = [...html.match(/const SECTION_IMPORT = \{([\s\S]*?)\n    \};/)[1].matchAll(/(\w+): \(\) => import\("\.\/(\w+)\.mjs"\)/g)].map((m) => [m[1], m[2]]);
+  const binds = Object.fromEntries([...html.match(/const SECTION_BIND = \{([\s\S]*?)\n    \};/)[1].matchAll(/(\w+): \(m\) => \(\{ ([^}]+) \} = m\)/g)].map((m) => [m[1], m[2].split(",").map((x) => x.trim())]));
+  const declared = html.match(/\n    let (sheathe, [^;]+);/)[1].split(",").map((x) => x.trim());
+  assert.equal(imports.length, 14);
+  assert.deepEqual(imports.map(([k]) => k).sort(), Object.keys(binds).sort());
+  assert.deepEqual(Object.values(binds).flat().sort(), [...declared].sort(), "every declared name is bound by exactly one module");
+  const need = html.match(/const need = \[([^\]]+)\]/)[1].match(/"(\w+)"/g).map((x) => x.slice(1, -1));
+  for (const [key, file] of imports) {
+    assert.ok(need.includes(key) || (key === "sheathing" && /if \(\$\("#sheath"\)\.checked\) need\.push\("sheathing"\)/.test(html)), `needSections asks for ${key}`);
+    assert.doesNotMatch(html, new RegExp(`from "\\./${file}\\.mjs"`), `${file}.mjs is not imported statically`);
+    const mod = await import(`./${file}.mjs`);
+    for (const name of binds[key]) assert.ok(name in mod, `${file}.mjs exports ${name}`);
+  }
+  // run() checks before it calls any of them, and a failed fetch is shown and retried
+  assert.match(html, /plan = ex\.plan; \}\n      \{ const missing = needSections\(plan\); if \(missing\.length\) \{ loadSectionsThenRun\(missing\); return false; \} \}/);
+  assert.match(html, /\(e\) => \{ sectionLoading\.delete\(k\); throw e; \}/);
+  // the download-only modules load on the press and export what the handlers call
+  for (const [file, names] of [["pdf", ["drawingSetPdf"]], ["drawings", ["drawingSetHtml"]], ["openingschedule", ["layoutOpeningSchedule", "openingScheduleCsv"]]]) {
+    assert.match(html, new RegExp(`await lib\\("\\./${file}\\.mjs"\\)`));
+    const mod = await import(`./${file}.mjs`);
+    for (const n of names) assert.ok(n in mod, `${file}.mjs exports ${n}`);
+  }
 });
 
 test("every element the script looks up exists on the page", () => {
@@ -806,7 +832,8 @@ test('index links one hop to the permit-packet-preflight sibling', async () => {
 test("the door and window schedule button is on the page and writes the schedule CSV", () => {
   const html = page("index.html");
   assert.match(html, /id="openingsCsvBtn"/);
-  assert.match(html, /layoutOpeningSchedule\(last\.plan\.openingSchedule \|\| \{\}, last\.plan\)/);
+  assert.match(html, /const \{ layoutOpeningSchedule, openingScheduleCsv \} = m;/);
+  assert.match(html, /layoutOpeningSchedule\(at\.plan\.openingSchedule \|\| \{\}, at\.plan\)/);
   assert.match(html, /download\("door-window-schedule\.csv", "text\/csv", openingScheduleCsv\(sch\)\)/);
 });
 
