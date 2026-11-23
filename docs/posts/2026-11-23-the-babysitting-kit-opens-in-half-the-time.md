@@ -3,7 +3,7 @@ title: "The babysitting kit now opens in about half the time"
 seo_title: "Babysitting Business Kit loads 42% faster on a slow phone"
 date: 2026-11-23
 tags: [performance, babysitting-business-kit, web]
-description: "The app has 19 tabs and opens on one. Loading each tab's code the first time it opens cut the page from 240 kB to 103 kB and a throttled load from 2.2 s to 1.3 s."
+description: "The app has 19 tabs and opens on one. Loading each tab's code the first time it opens cut the page from 240 to 103 kB and a throttled load from 2.2 s to 1.3 s."
 ---
 
 The [Babysitting Business Kit](../../ventures/babysitting-business-kit/) is a
