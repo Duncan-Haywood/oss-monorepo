@@ -90,6 +90,8 @@
 // four characteristics as the average of their practices, and the activities
 // behind every failed test; --baseline scores practice 10 against the
 // baseline project's XER.
+// node cli.mjs schedule.xer --progress [--csv progress.csv] [--ahead-points 30] [--rate-factor 1.5] [--overrun-factor 1.5] [--json] [--project CODE]
+//   progress review: physical/units % against time spent and remaining duration (progress.mjs)
 // node cli.mjs schedule.xer --calendars [--csv calendars.csv] [--no-what-if] [--json] [--project CODE]
 // Calendar review (calreview.mjs): holidays that stop before the work does
 // (with how far the finish moves when the missing years get the calendar's
@@ -204,10 +206,11 @@ import { crashAnalysis, crashText, crashCsv } from "./crash.mjs";
 import { gao, gaoText, gaoCsv, gaoHtml } from "./gao.mjs";
 import { redundantLogic, redundantText, redundantCsv, dropLinksText } from "./redundant.mjs";
 import { calendarReview, calendarText, calendarCsv } from "./calreview.mjs";
+import { progressReview, progressText, progressCsv } from "./progress.mjs";
 import { xerBytes } from "./xer.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--collapse", "--as-planned", "--as-built-xer", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks", "--excel", "--drag-cost", "--max-runs", "--crash-target", "--crash-data", "--crash-max", "--cleaned", "--to-xer"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--collapse", "--as-planned", "--as-built-xer", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks", "--excel", "--drag-cost", "--max-runs", "--crash-target", "--crash-data", "--crash-max", "--cleaned", "--to-xer", "--ahead-points", "--rate-factor", "--overrun-factor"];
 // Print and exit only once stdout has taken it all: to a pipe, process.exit()
 // straight after a write cuts the output off at 64 KB (a --json report of a
 // large file).
@@ -454,6 +457,14 @@ if (args.includes("--calendars")) {
   const r = calendarReview(xer, { projId, whatIf: !args.includes("--no-what-if") });
   if (opt("--csv")) writeFileSync(opt("--csv"), calendarCsv(r));
   await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : calendarText(r));
+  process.exit(0);
+}
+if (args.includes("--progress")) {
+  const o = {};
+  for (const [flag, key] of [["--ahead-points", "aheadPoints"], ["--rate-factor", "rateFactor"], ["--overrun-factor", "overrunFactor"]]) if (opt(flag) !== undefined) o[key] = Number(opt(flag));
+  const r = progressReview(xer, { projId, opts: o });
+  if (opt("--csv")) writeFileSync(opt("--csv"), progressCsv(r));
+  await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : progressText(r));
   process.exit(0);
 }
 if (args.includes("--redundant")) {

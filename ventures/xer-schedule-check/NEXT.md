@@ -110,3 +110,4 @@
 - (2026-11-22) UDF types from the original XER 2026-11-22 (--types-from; CCA 13,174/13,174 typed, was 7,104; eval/udf-types-from-2026-11-22.md), text UDFs back as text UDFs not codes (28,850 values, eval/udf-type-hints-2026-11-22.md)
 - (2026-11-22) next an open in desktop Excel
 - (2026-11-23) next a real branch register
+- (2026-11-23) Progress review (progress.mjs, eval/progress-review-2026-11-23.md): still open: activity steps (TASKPROC: physical % from step weights when PROJECT.step_complete_flag is on; 0 TASKPROC rows in 21 public files, so it waits for one); the flags new this month in the update comparison and the written review; a guide page ("how to check percent complete in a P6 update"); a real owner's reviewer's list to set the thresholds.
