@@ -20,6 +20,8 @@ const GUIDES = [
   "how-to-find-critical-path-drag-in-a-p6-schedule.html",
   "how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html",
   "how-to-run-a-collapsed-as-built-delay-analysis.html",
+  "how-to-run-a-time-impact-analysis-on-a-p6-schedule.html",
+  "how-to-run-a-monte-carlo-schedule-risk-analysis-on-a-p6-schedule.html",
 ];
 
 test("every guide is linked from the tool page, the sitemap and llms.txt", () => {
@@ -53,7 +55,7 @@ test("each guide: canonical, title and description lengths, FAQ markup equals th
 
 test("the buttons the guides name exist on the tool page", () => {
   const index = page("index.html");
-  for (const label of ["Load an example schedule", "Load an example pair of updates", "Download for Microsoft Project (.xml)", "write activity code descriptions too", "Download for Excel (.xlsx)", "Run collapsed as-built", "Example delay list"]) {
+  for (const label of ["Load an example schedule", "Load an example pair of updates", "Download for Microsoft Project (.xml)", "write activity code descriptions too", "Download for Excel (.xlsx)", "Run collapsed as-built", "Example delay list", "Example fragnet", "Run time impact analysis", "Printable exhibit (HTML)", "Impacted schedule (XER)", "without expected finish dates", "Finish date risk (Monte Carlo)", "Run the risk analysis"]) {
     assert.ok(index.includes(label), label);
   }
 });
@@ -166,4 +168,54 @@ test("the collapsed as-built guide's worked example equals collapsedAsBuilt() on
   assert.equal(by.Contractor.earlierDays, 0);
   assert.equal(r.concurrentDays, 0);
   for (const s of ["22 of 22", "2026-07-27", "3 as-built gaps", "9 of 9 days of gap", "2026-07-14", "5 of 5 days"]) assert.ok(html.includes(s), s);
+});
+
+test("the time impact analysis guide's worked example equals timeImpact() on the built-in example", async () => {
+  const html = page("how-to-run-a-time-impact-analysis-on-a-p6-schedule.html");
+  const { EXAMPLE_FRAGNET } = await import("./tia.mjs");
+  writeFileSync(join(dir, "fragnet.csv"), EXAMPLE_FRAGNET);
+  const r = cli(join(dir, "cur.xer"), "--tia", join(dir, "fragnet.csv"));
+  assert.equal(r.finish.base.slice(0, 10), "2026-07-27");
+  assert.equal(r.finish.impacted.slice(0, 10), "2026-08-07");
+  assert.equal(r.finish.delayDays, 9);
+  const ev = Object.fromEntries(r.byEvent.map((e) => [e.event, e]));
+  assert.equal(ev["CO-03 MEP layout"].delayDays, 3);
+  assert.equal(ev["CO-03 MEP layout"].finish.slice(0, 10), "2026-07-30");
+  assert.equal(ev["Late hardware approval"].delayDays, 9);
+  assert.equal(r.overlapDays, 3);
+  const m = r.milestones.find((x) => x.code === "M1210");
+  assert.equal(m.delayDays, 15);
+  assert.equal(m.base.slice(0, 10), "2026-07-17");
+  assert.deepEqual(r.drivingPath, ["A1030", "A1040", "A1170", "A1200", "M1210"]);
+  assert.deepEqual(r.summary, { activitiesLessFloat: 14, nowCritical: 6, nowNegative: 7, fragnetActivities: 3, madeLonger: 1 });
+  for (const s of ["<td>2026-07-30</td><td>3</td>", "<td>2026-08-07</td><td>9</td>", "add up to 12 working days", "3 days of the change order", "15 working days, from 2026-07-17 to 2026-08-07", "Fourteen activities give up float, six become critical and seven go negative", "12 working days of redesign and 5 of re-approval", "25 working days longer"]) assert.ok(html.includes(s), s);
+  assert.match(EXAMPLE_FRAGNET, /F110,Redesign level 2 MEP rough-in,12,/);
+  assert.match(EXAMPLE_FRAGNET, /F120,Re-approve level 2 MEP drawings,5,/);
+  assert.match(EXAMPLE_FRAGNET, /A1040,,\+25,/);
+  assert.match(EXAMPLE_FRAGNET, /2026-04-08/);
+});
+
+test("the schedule risk guide's worked example equals the risk run on the built-in example (page defaults: 500 runs, seed 1)", () => {
+  const html = page("how-to-run-a-monte-carlo-schedule-risk-analysis-on-a-p6-schedule.html");
+  const day = (m) => new Date(m * 60000).toISOString().slice(0, 10);
+  const r = cli(join(dir, "cur.xer"), "--risk", "500");
+  assert.equal(r.seed, 1);
+  assert.deepEqual(r.range, { min: 0.9, likely: 1, max: 1.25 });
+  for (const p of r.percentiles) assert.ok(html.includes(`<tr><td>P${p.p}</td><td>${day(p.date)}</td><td>${p.overDeterministic}</td></tr>`), `P${p.p}`);
+  assert.equal(Math.round(r.pDeterministic * 100), 2);
+  assert.equal(Math.round(r.pMustFinish * 100), 92);
+  assert.match(html, /met in only 2% of runs, and the must-finish date in 92%/);
+  const a = Object.fromEntries(r.activities.map((x) => [x.code, x]));
+  assert.equal(Math.round(a.A1130.criticality * 100), 53);
+  assert.equal(a.A1130.deterministicCritical, false);
+  assert.equal(Math.round(a.A1120.criticality * 100), 47);
+  assert.equal(a.A1120.deterministicCritical, true);
+  assert.match(html, /level 2 drives the finish in 53% of runs and level 1 in 47%/);
+  const c = cli(join(dir, "cur.xer"), "--risk", "500", "--correlation", "0.5");
+  const p = (x, n) => x.percentiles.find((q) => q.p === n);
+  assert.equal(p(c, 50).overDeterministic, 2.1);
+  assert.equal(day(p(c, 80).date), "2026-08-03");
+  assert.equal(p(c, 80).overDeterministic, 4.1);
+  assert.equal(Math.round(c.pMustFinish * 100), 79);
+  for (const s of ["still 2.1 working days late", "the P80 becomes 2026-08-03, 4.1 working days late", "falls to 79%"]) assert.ok(html.includes(s), s);
 });

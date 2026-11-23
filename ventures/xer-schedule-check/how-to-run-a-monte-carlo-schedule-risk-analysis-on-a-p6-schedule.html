@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Run A Monte Carlo Schedule Risk Analysis On A P6 XER</title>
+  <meta name="description" content="P50 and P80 finish dates, the chance of meeting the must-finish date and a criticality index from a P6 XER: free Monte Carlo schedule risk in your browser.">
+  <meta property="og:title" content="How To Run A Monte Carlo Schedule Risk Analysis On A P6 XER">
+  <meta property="og:description" content="Run a P6 schedule hundreds of times with uncertain durations and read the P50 and P80 finish, the odds of the contract date, and what drives it.">
+  <link rel="canonical" href="./how-to-run-a-monte-carlo-schedule-risk-analysis-on-a-p6-schedule.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a Monte Carlo schedule risk analysis?","acceptedAnswer":{"@type":"Answer","text":"The schedule is computed hundreds or thousands of times, each time with every open activity's remaining duration drawn from a range instead of the single number the file holds. The spread of finish dates gives the chance of meeting any date, written as P-values: the P80 date is met or beaten in 80% of runs. AACE International's Recommended Practice 57R-09 describes the method."}},{"@type":"Question","name":"Why is the P50 later than the CPM date when the most likely durations equal the file's?","acceptedAnswer":{"@type":"Answer","text":"Two reasons. Ranges are usually skewed, since work runs late more easily than early, so the average duration is longer than the most likely one. And where several paths meet, the finish waits for the latest of them: each path can be on time half the time while all of them together are on time much less often. That second effect is called merge bias, and only a run of the whole network shows it."}},{"@type":"Question","name":"What is the criticality index?","acceptedAnswer":{"@type":"Answer","text":"The share of runs in which an activity was on the path that drove the finish. An activity at 100% drives it in every run; one at 50% drives it half the time. Work that the single CPM driving path leaves out but that drives the finish in a large share of runs is near-critical, and is where a schedule review should look next."}},{"@type":"Question","name":"Where do the ranges come from?","acceptedAnswer":{"@type":"Answer","text":"The XER holds one duration per activity, so the default range (90%, 100% and 125% of the remaining duration) is an assumption, not data. Replace it with ranges from the people doing the work, pasted one activity per line, or read them from user-defined fields in the file. Results are only as good as the ranges."}},{"@type":"Question","name":"What does correlation do?","acceptedAnswer":{"@type":"Answer","text":"With correlation at 0 every activity is drawn independently, so overruns and underruns cancel out across a long path and the spread of finishes is narrow. In real jobs the same causes (weather, a slow crew, a design problem) push many activities the same way. Raising correlation widens the spread: both the early and the late dates move away from the middle."}},{"@type":"Question","name":"Is the schedule uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every run is computed in your browser tab. There is no server, account or upload."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.58; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.08; color: #163a59; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; color: #163a59; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a8c; }
+    code { background: #e6ecf1; padding: 1px 4px; border-radius: 4px; font-size: .92em; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d7e0e8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e5b66; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: #1d5a8c; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .88rem; color: #4e5b66; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4e5b66; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; XER Schedule Check</a></p>
+  <h1>How to run a Monte Carlo schedule risk analysis on a P6 schedule</h1>
+  <p>A P6 schedule gives one finish date, and says nothing about how likely it is. A lender's monitor, an owner deciding how much contingency to hold, or a contractor pricing liquidated damages needs the odds: the date there is an even chance of meeting, the date there is an 80% chance of meeting, and the chance of making the contract date. A Monte Carlo schedule risk analysis gives them by running the schedule many times with uncertain durations. The desktop tools that do it are priced per seat for risk specialists; this one runs on the XER in the browser, with the same schedule engine that matches P6's dates.</p>
+  <p><a class="cta" href="./#risk">Open the free schedule check</a> (open the XER, then go to Finish date risk)</p>
+  <h2>Steps</h2>
+  <ol>
+    <li>Export the current update from P6 as XER and open it on the <a href="./">tool page</a>. Read the DCMA findings first: open logic and hard constraints distort a risk run as much as they distort the CPM dates.</li>
+    <li>In <b>Finish date risk (Monte Carlo)</b>, set the range (optimistic, most likely and pessimistic as percentages of each open activity's remaining duration), or paste one line per activity, <code>activity ID, optimistic, most likely, pessimistic</code> in working days, from the people doing the work. If the file keeps three-point durations in user-defined fields, pick them instead.</li>
+    <li>Set the correlation and the number of runs, and choose whether each run is levelled against the file's resource limits. Press <b>Run the risk analysis</b>.</li>
+    <li>Read the P10, P50, P80 and P90 dates, the chance of meeting the forecast and the must-finish date, and the criticality index. Download the drivers as CSV.</li>
+  </ol>
+  <h2>A worked example</h2>
+  <p>On the built-in example (an invented office fit-out whose forecast finish is 2026-07-27 and whose must-finish date is 2026-07-31; press Load an example schedule), the default range of 90%, 100% and 125% over 500 runs with independent draws gives:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Result</th><th>Date</th><th>Working days past the forecast</th></tr></thead>
+    <tbody>
+      <tr><td>P10</td><td>2026-07-28</td><td>0.7</td></tr>
+      <tr><td>P50</td><td>2026-07-30</td><td>2.1</td></tr>
+      <tr><td>P80</td><td>2026-07-31</td><td>3.3</td></tr>
+      <tr><td>P90</td><td>2026-07-31</td><td>3.8</td></tr>
+    </tbody>
+  </table></div>
+  <p>The forecast date is met in only 2% of runs, and the must-finish date in 92%. The forecast is the date every activity hits its most likely duration at once, which almost never happens when overruns are allowed to be larger than underruns. The criticality index shows the other thing the single date hides: the two board-and-tape activities run in parallel, and while the CPM driving path goes through level 1, level 2 drives the finish in 53% of runs and level 1 in 47%. A recovery plan that only watches level 1 misses half the risk.</p>
+  <p>Raise the correlation to 0.5 and the middle barely moves (the P50 is still 2.1 working days late) but the spread widens: the P80 becomes 2026-08-03, 4.1 working days late and past the must-finish date, and the chance of meeting the must-finish date falls to 79%.</p>
+  <h2>Risk events and branches</h2>
+  <p>Durations that vary are one kind of uncertainty; events that may or may not happen are another. Paste a risk register (an ID, its probability, a minimum, most likely and maximum delay in working days, and the activities it hits) and each run decides whether each event happens. The tool ranks the events by how far they move the finish and shows the dates with and without them on the same draws, so the difference is the events alone. Probabilistic branches (one path or another, each with its probability) go in the same way.</p>
+  <h2>How it was tested</h2>
+  <p>On six public P6 files (versions 5.0 to 24.12, up to 13,653 open activities varied), a run with zero-width ranges gave the recomputed CPM finish to the minute in every run, so the sampled schedule is the same one that matches P6's own dates. Certain risk events with fixed delays, planted on up to 40 activities per file, gave exactly the finish of adding the same delay to the activity directly, and the dates without the events equalled a run with no register on the same seed. Runs are seeded, so the same inputs give the same answer. On the three largest files the P50 landed 7% to 19% past the CPM finish under the default range, well beyond the range's own skew: merge bias. The full results are in the project's eval folder.</p>
+  <h2>Things to know</h2>
+  <ul>
+    <li><b>The default range is an assumption.</b> The tool says so on every run. A risk result built on it is a sensitivity check of the logic, not a forecast; ranges from the people doing the work make it one.</li>
+    <li><b>Bad logic gives confident nonsense.</b> Long activities that should be level of effort, open ends and hard constraints all bend the result. One public file landed 224 working days late at P50 because 23 three-year support activities were modelled as ordinary tasks in parallel to the finish.</li>
+    <li><b>Resource limits change the answer.</b> The CPM dates assume unlimited crews. Level every run against the file's limits, and the tool also schedules each run without levelling on the same draws, so the gap is what the crew limits cost.</li>
+  </ul>
+  <h2>Questions</h2>
+  <h3>What is a Monte Carlo schedule risk analysis?</h3>
+  <p>The schedule is computed hundreds or thousands of times, each time with every open activity's remaining duration drawn from a range instead of the single number the file holds. The spread of finish dates gives the chance of meeting any date, written as P-values: the P80 date is met or beaten in 80% of runs. AACE International's Recommended Practice 57R-09 describes the method.</p>
+  <h3>Why is the P50 later than the CPM date when the most likely durations equal the file's?</h3>
+  <p>Two reasons. Ranges are usually skewed, since work runs late more easily than early, so the average duration is longer than the most likely one. And where several paths meet, the finish waits for the latest of them: each path can be on time half the time while all of them together are on time much less often. That second effect is called merge bias, and only a run of the whole network shows it.</p>
+  <h3>What is the criticality index?</h3>
+  <p>The share of runs in which an activity was on the path that drove the finish. An activity at 100% drives it in every run; one at 50% drives it half the time. Work that the single CPM driving path leaves out but that drives the finish in a large share of runs is near-critical, and is where a schedule review should look next.</p>
+  <h3>Where do the ranges come from?</h3>
+  <p>The XER holds one duration per activity, so the default range (90%, 100% and 125% of the remaining duration) is an assumption, not data. Replace it with ranges from the people doing the work, pasted one activity per line, or read them from user-defined fields in the file. Results are only as good as the ranges.</p>
+  <h3>What does correlation do?</h3>
+  <p>With correlation at 0 every activity is drawn independently, so overruns and underruns cancel out across a long path and the spread of finishes is narrow. In real jobs the same causes (weather, a slow crew, a design problem) push many activities the same way. Raising correlation widens the spread: both the early and the late dates move away from the middle.</p>
+  <h3>Is the schedule uploaded?</h3>
+  <p>No. Every run is computed in your browser tab. There is no server, account or upload.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-run-a-dcma-14-point-schedule-assessment.html">How to run a DCMA 14-point schedule assessment, check by check</a></li>
+    <li><a href="./how-to-open-an-xer-file-without-primavera-p6.html">How to open an XER file without Primavera P6</a></li>
+    <li><a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">How to convert a P6 XER file to Microsoft Project</a></li>
+    <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
+    <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
+    <li><a href="./how-to-convert-an-xer-file-to-excel.html">How to convert a Primavera P6 XER file to Excel</a></li>
+    <li><a href="./how-to-find-critical-path-drag-in-a-p6-schedule.html">How to find critical path drag in a P6 schedule</a></li>
+    <li><a href="./how-to-run-a-collapsed-as-built-delay-analysis.html">How to run a collapsed as-built delay analysis</a></li>
+    <li><a href="./how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html">How to assess a schedule against the GAO Schedule Assessment Guide</a></li>
+    <li><a href="./how-to-run-a-time-impact-analysis-on-a-p6-schedule.html">How to run a time impact analysis on a P6 schedule</a></li>
+  </ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or scheduling advice; the contract and a qualified scheduler decide. The example project is invented.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera, Microsoft or the Defense Contract Management Agency. Product names are trademarks of their owners and are named only to describe file formats.</p>
+    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

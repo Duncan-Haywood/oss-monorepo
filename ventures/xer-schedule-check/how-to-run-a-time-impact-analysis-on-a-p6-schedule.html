@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Run A Time Impact Analysis On A P6 Schedule</title>
+  <meta name="description" content="Insert a delay fragnet into a P6 update and see how far the finish moves, event by event, with concurrent days shown: free time impact analysis in your browser.">
+  <meta property="og:title" content="How To Run A Time Impact Analysis On A P6 Schedule">
+  <meta property="og:description" content="Write the delay as a fragnet, insert it into the update in force, and read how far the finish and each milestone move.">
+  <link rel="canonical" href="./how-to-run-a-time-impact-analysis-on-a-p6-schedule.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a time impact analysis?","acceptedAnswer":{"@type":"Answer","text":"A prospective delay analysis. The delay event is written as a fragnet, a small network of the activities it added or lengthened, tied into the logic where the event touched the work. The fragnet is inserted into the schedule update in force just before the event, the schedule is recomputed, and the difference between the finish before and after is the delay the event caused. AACE International's Recommended Practice 52R-06 describes it, and its forensic form is MIP 3.7 in 29R-03."}},{"@type":"Question","name":"What is a fragnet?","acceptedAnswer":{"@type":"Answer","text":"A fragment of a network: the new activities a delay event brings with it (a change notice, a redesign, a re-approval), each with a duration in working days, what it follows and what it holds up. An existing activity the event made longer can be in the fragnet too, as added days on its own row."}},{"@type":"Question","name":"Which schedule update should the fragnet go into?","acceptedAnswer":{"@type":"Answer","text":"The last accepted update before the event, with its data date at or just before the event began. Putting it into a later update mixes the event with progress and other changes that happened after it; putting it into the baseline ignores what had already slipped."}},{"@type":"Question","name":"What does each event alone mean?","acceptedAnswer":{"@type":"Answer","text":"With two or more events in one fragnet, the tool also runs each event on its own. If the delays alone add up to more than the delay with all of them in, the difference is time two events took on the same path at the same time. The tool reports it as overlap; whether that is concurrent delay under a contract is for the parties."}},{"@type":"Question","name":"Does it decide whether an extension of time is due?","acceptedAnswer":{"@type":"Answer","text":"No. It measures how far the modelled finish and milestones move. Entitlement depends on the contract, the notices given and the facts, and is for the parties, an expert or a tribunal."}},{"@type":"Question","name":"Is the schedule uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The XER and the fragnet are read and rescheduled in your browser tab. There is no server, account or upload."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.58; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.08; color: #163a59; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; color: #163a59; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a8c; }
+    code { background: #e6ecf1; padding: 1px 4px; border-radius: 4px; font-size: .92em; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d7e0e8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e5b66; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: #1d5a8c; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .88rem; color: #4e5b66; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4e5b66; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; XER Schedule Check</a></p>
+  <h1>How to run a time impact analysis on a P6 schedule</h1>
+  <p>A contractor asking for more time, or an owner's rep reviewing the request, needs one number they can both check: how far did this event move the finish? A time impact analysis answers it by modelling the event. You write what the event added to the work as a fragnet, insert it into the schedule update that was in force when it happened, and recompute. Scheduling consultants charge for that model, and P6 can build it only for someone with a seat and the time to wire the activities in by hand. This tool inserts the fragnet into a copy of the XER, schedules it with the file's own calendars, logic and options, and writes the exhibit.</p>
+  <p><a class="cta" href="./#tia">Open the free schedule check</a> (open the update, then go to Time impact analysis)</p>
+  <h2>Steps</h2>
+  <ol>
+    <li>Export from P6, as XER, the last accepted update before the event, with its data date at or just before the event began.</li>
+    <li>Open it on the <a href="./">tool page</a> and write the fragnet, one row per activity: <code>Activity ID</code>, <code>Name</code>, <code>Duration</code> in working days, <code>Predecessors</code> and <code>Successors</code> (<code>A1030</code>, <code>A1030 SS</code>, <code>F110 FS+2</code>, several separated by <code>;</code>), and optionally <code>Not before</code> (the date the event happened) and <code>Event</code>. A row with an existing activity ID and <code>+10</code> as its duration makes that activity 10 working days longer. Paste it from a spreadsheet or open a CSV.</li>
+    <li>Press <b>Run time impact analysis</b>. Read the finish before and after, each milestone's movement, the float every activity gave up, and, with two or more events, each event alone.</li>
+    <li>Download the <b>Printable exhibit (HTML)</b> for the request, the CSV, and the <b>Impacted schedule (XER)</b> to import into P6 and confirm the dates there.</li>
+  </ol>
+  <h2>A worked example</h2>
+  <p>On the built-in example (an invented office fit-out with its data date on 2026-04-06; press Load an example schedule, then Example fragnet), two events go in at once. CO-03 is an owner change to the level 2 MEP layout: a notice after the submittal review, not before 2026-04-08, then 12 working days of redesign and 5 of re-approval before the level 2 rough-in can start. The other is a late hardware approval that makes door and hardware procurement 25 working days longer.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Run</th><th>Last activity finishes</th><th>Working days later</th></tr></thead>
+    <tbody>
+      <tr><td>The update as submitted</td><td>2026-07-27</td><td></td></tr>
+      <tr><td>CO-03 MEP layout alone</td><td>2026-07-30</td><td>3</td></tr>
+      <tr><td>Late hardware approval alone</td><td>2026-08-07</td><td>9</td></tr>
+      <tr><td>Both events</td><td>2026-08-07</td><td>9</td></tr>
+    </tbody>
+  </table></div>
+  <p>Alone the two events add up to 12 working days; together they cost 9, so 3 days of the change order's delay sit on time the hardware delay had already taken. The tool reports those 3 days as overlap. Substantial completion, the milestone the contract dates, moves further than the last activity: 15 working days, from 2026-07-17 to 2026-08-07, because the hardware now drives it through the door hanging and the punch list. Fourteen activities give up float, six become critical and seven go negative against the project's must-finish date of 2026-07-31.</p>
+  <h2>When the event can go more than one way</h2>
+  <p>A resubmittal can come back approved or rejected; a test can pass or need rework. Add <code>Branch group</code>, <code>Branch</code> and <code>Probability</code> columns: rows that share a group are alternatives, the same activity ID can sit on two branches with different durations, and every combination is scheduled. The result gives the expected delay, the P50 and P80, and the delay if each branch happens, so a request can say what the event costs if the resubmittal is rejected as well as what it costs on balance.</p>
+  <h2>How it was tested</h2>
+  <p>No public job publishes its fragnets with P6's answer, so fragnets were planted in six public P6 files (versions 5.0 to 24.12, up to 16,000 activities) where the right answer was known another way. A zero-day milestone between two activities already linked moved nothing 120 of 120 times. A new activity inserted after an activity gave the same finish, milestones and successor start as making that activity longer by the same days 115 of 115 times, and the impacted XER read back and scheduled again gave the same finish 115 of 115 times. An activity made longer moved the finish by its days less its float on the path to the finish 112 of 120 times; the 8 others had a different calendar, a constraint or an expected finish date on the path, which the simple arithmetic leaves out and the schedule does not. Each outcome of a branched fragnet equalled a plain run of that outcome's rows 244 of 244 times. The full results are in the project's eval folder.</p>
+  <h2>Things to know</h2>
+  <ul>
+    <li><b>Expected finish dates can hide a delay.</b> If the project schedules with expected finish dates, P6 shortens an activity to keep its date, and a delay upstream disappears into it. The tool names every activity that absorbed the delay this way; tick <b>without expected finish dates</b> to run both schedules without them.</li>
+    <li><b>Some added days reach nothing.</b> Days added to a milestone are refused, since a milestone has no duration. An activity whose successors are tied only to its start passes nothing on when it is longer, and the tool says so.</li>
+    <li><b>The model is only as good as the update.</b> Open logic, hard constraints or stale progress in the update move the answer. Read the DCMA findings on the same file before relying on the delay.</li>
+  </ul>
+  <h2>Questions</h2>
+  <h3>What is a time impact analysis?</h3>
+  <p>A prospective delay analysis. The delay event is written as a fragnet, a small network of the activities it added or lengthened, tied into the logic where the event touched the work. The fragnet is inserted into the schedule update in force just before the event, the schedule is recomputed, and the difference between the finish before and after is the delay the event caused. AACE International's Recommended Practice 52R-06 describes it, and its forensic form is MIP 3.7 in 29R-03.</p>
+  <h3>What is a fragnet?</h3>
+  <p>A fragment of a network: the new activities a delay event brings with it (a change notice, a redesign, a re-approval), each with a duration in working days, what it follows and what it holds up. An existing activity the event made longer can be in the fragnet too, as added days on its own row.</p>
+  <h3>Which schedule update should the fragnet go into?</h3>
+  <p>The last accepted update before the event, with its data date at or just before the event began. Putting it into a later update mixes the event with progress and other changes that happened after it; putting it into the baseline ignores what had already slipped.</p>
+  <h3>What does each event alone mean?</h3>
+  <p>With two or more events in one fragnet, the tool also runs each event on its own. If the delays alone add up to more than the delay with all of them in, the difference is time two events took on the same path at the same time. The tool reports it as overlap; whether that is concurrent delay under a contract is for the parties.</p>
+  <h3>Does it decide whether an extension of time is due?</h3>
+  <p>No. It measures how far the modelled finish and milestones move. Entitlement depends on the contract, the notices given and the facts, and is for the parties, an expert or a tribunal.</p>
+  <h3>Is the schedule uploaded?</h3>
+  <p>No. The XER and the fragnet are read and rescheduled in your browser tab. There is no server, account or upload.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-run-a-dcma-14-point-schedule-assessment.html">How to run a DCMA 14-point schedule assessment, check by check</a></li>
+    <li><a href="./how-to-open-an-xer-file-without-primavera-p6.html">How to open an XER file without Primavera P6</a></li>
+    <li><a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">How to convert a P6 XER file to Microsoft Project</a></li>
+    <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
+    <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
+    <li><a href="./how-to-convert-an-xer-file-to-excel.html">How to convert a Primavera P6 XER file to Excel</a></li>
+    <li><a href="./how-to-find-critical-path-drag-in-a-p6-schedule.html">How to find critical path drag in a P6 schedule</a></li>
+    <li><a href="./how-to-run-a-collapsed-as-built-delay-analysis.html">How to run a collapsed as-built delay analysis</a></li>
+    <li><a href="./how-to-run-a-monte-carlo-schedule-risk-analysis-on-a-p6-schedule.html">How to run a Monte Carlo schedule risk analysis on a P6 schedule</a></li>
+    <li><a href="./how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html">How to assess a schedule against the GAO Schedule Assessment Guide</a></li>
+  </ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or scheduling advice; the contract and a qualified scheduler decide. The example project and its delay events are invented.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera, Microsoft or the Defense Contract Management Agency. Product names are trademarks of their owners and are named only to describe file formats.</p>
+    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>
