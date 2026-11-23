@@ -1,0 +1,47 @@
+# eval/swiss-bye-bracket.txt, 2026-11-23: the pairing bye priced from the bottom of its own bracket
+# Data: gbtami/swisspairing benchmarks/fixtures @ 193ad99 (MIT; fetch with eval/swiss-vs-published-fetch.sh)
+#
+# The miss: spring_2026_chesshouse round 8, condition bye. Arbiters: bye 160, 128-153, 158-155.
+# Pairer before: bye 128, 158-153, 160-155 (82 of 84 boards). Last bracket (1 point): MDP 152 (1.5),
+# then 128 139 153 155 158 160 in seed order; 153 has had a bye; 152 takes 139; the remainder
+# 128 153 | 155 158 160 has 128-155 as a rematch and 128 v 158/160 as strong clashes (all three want
+# white), so FIDE's Dutch order needs an exchange: 153<->158 (gap 2, the lower S1 player) gives
+# 128-153, 158-155, bye 160, the arbiters' round; the pairer's round needs 128<->155 (gap 2, the
+# higher S1 player). Both rounds have one mild colour miss (153) and no repeat floats.
+#
+# Cause: stage A of bracketMate (swiss.mjs) charged the bye 1000 x (places from the bottom of the
+# whole field) / v. With v = 170 the bye at 128 cost 29 against the 0..700 Dutch-order costs of the
+# boards it freed. Now 1000 x (places from the bottom of the bracket) / (bracket size - 1):
+# 128 costs 833, and the arbiters' round wins (1,400 against 1,683).
+# Forcing the bye off 128 (byeBlocked) before the change already gave 84 of 84 boards and bye 160.
+#
+# node eval/swiss-vs-published.mjs <fixtures> --json rows.jsonl, before and after, rows that changed:
+#   spring_2026_chesshouse r8 bye:          boards 82 -> 84 of 84, bye false -> true
+#   budapest_spring_festival_2026_group_b_2250 r4 open: boards 25 -> 23 of 39, bye true -> false
+#     (open seats 4 players the arbiters left out of the round, so its bracket is not the real one;
+#      with the real field, condition bye, round 4 stays 39 of 39 with the arbiters' bye 80)
+# Played condition unchanged: 51 of 54 chess-results rounds exact, 4,892 boards; lichess unchanged.
+# Byes: 39 -> 40 of 42; exact bye-condition rounds 24 -> 25.
+# Left: Budapest A r8 (82 v our 90): one result, round 4's 90 v 82 read as 1-0, explains it
+# (eval/swiss-result-flip.txt); 82 has 1.5 and 90 1.0 on the file's results, so no bye rule gives 82.
+# Test: swiss.test.mjs, "the pairing bye in the last bracket" (an 11-player reduction of the same
+# shape; bye D under the new pricing, A under the old, which fails it).
+#
+# After, the summary of node eval/swiss-vs-published.mjs <fixtures>:
+== condition: played
+aeroflot_open_2026                                   rounds   9 (err 0)  exact   9  board recall 1.000 (739/739)  rounds 2+: recall 1.000, colour 1.000 (576/576)  all colour 1.000
+budapest_spring_festival_2026_group_a_2200           rounds   9 (err 0)  exact   9  board recall 1.000 (452/452)  rounds 2+: recall 1.000, colour 1.000 (352/352)  all colour 1.000
+budapest_spring_festival_2026_group_b_2250           rounds   9 (err 0)  exact   8  board recall 0.937 (325/347)  rounds 2+: recall 1.000, colour 1.000 (270/270)  all colour 1.000
+international_chessopen_graz_2026_a                  rounds   9 (err 0)  exact   7  board recall 0.860 (1041/1210)  rounds 2+: recall 0.966, colour 1.000 (910/910)  all colour 1.000
+prague_international_chess_festival_2026_d           rounds   9 (err 0)  exact   9  board recall 1.000 (1560/1560)  rounds 2+: recall 1.000, colour 1.000 (1223/1223)  all colour 1.000
+spring_2026_chesshouse                               rounds   9 (err 0)  exact   9  board recall 1.000 (775/775)  rounds 2+: recall 1.000, colour 1.000 (606/606)  all colour 1.000
+2026.02.14_cY3wR140_weekly-agca-prize-50-dollars     rounds  13 (err 0)  exact   0  board recall 0.503 (311/618)  rounds 2+: recall 0.555, colour 1.000 (302/302)  all colour 0.981
+2026.02.28_KQYWuizM_weekly-agca-prize-50-dollars     rounds  11 (err 0)  exact   1  board recall 0.618 (277/448)  rounds 2+: recall 0.695, colour 0.993 (265/267)  all colour 0.982
+2026.03.03_7TYuxURK_bullet-increment                 rounds  14 (err 0)  exact   8  board recall 0.871 (101/116)  rounds 2+: recall 0.888, colour 0.989 (94/95)  all colour 0.990
+ALL chess-results                                    rounds  54 (err 0)  exact  51  board recall 0.962 (4892/5083)  rounds 2+: recall 0.992, colour 1.000 (3937/3937)  all colour 1.000
+ALL lichess                                          rounds  38 (err 0)  exact   9  board recall 0.583 (689/1182)  rounds 2+: recall 0.642, colour 0.995 (661/664)  all colour 0.983
+
+== pairing bye, condition bye (played + the bye recipient): same bye 40 of 42, exact 25
+  budapest_spring_festival_2026_group_a_2200 r8: published bye 82, pairer 90
+  international_chessopen_graz_2026_a r1: published bye 218, pairer 275
+
