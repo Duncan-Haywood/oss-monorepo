@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "PR CI 'validate' (portfolio-validate) failed once: the new usage.mjs opt-out switch was not listed in platform/privacy/optout-switches.txt; fixed with python3 platform/ci/sync_tree_counts.py. run_workflow_locally --for-changes had deferred portfolio-validate to PR CI (content-only diff), so it was not caught locally."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,6 +41,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "unwired_checks.py is mentioned only through run_venture_tests' trailing note; it caught two real issues (CSV formula guard, fragile CLI entry guard) that the venture suite did not, so a new-venture checklist should name it."
+    },
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "issue": "A new venture must run python3 platform/ci/sync_tree_counts.py (optout-switches.txt); nothing in the new-venture path says so and run_workflow_locally --for-changes defers portfolio-validate, so it surfaces only in PR CI."
     }
   ],
   "deviations": [],

@@ -786,6 +786,7 @@ ventures/npm-deployment-evidence/usage.js
 ventures/npm-lifecycle-script-check/usage.mjs
 ventures/npm-lockfile-duplicates-check/usage.mjs
 ventures/npm-provenance-check/usage.mjs
+ventures/npm-publish-contents/usage.mjs
 ventures/nsa-idr-offer-calculator/usage.mjs
 ventures/nua-employer-stock-calculator/usage.mjs
 ventures/ny-llc-transparency-act-tracker/usage.mjs
