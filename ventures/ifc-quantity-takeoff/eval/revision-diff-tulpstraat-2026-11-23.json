@@ -1,0 +1,1013 @@
+[
+ {
+  "before": "01-b15946e.ifc",
+  "after": "02-aa96583.ifc",
+  "summary": {
+   "before": 29,
+   "after": 28,
+   "matched": 28,
+   "byGlobalId": 28,
+   "byTag": 0,
+   "byGeometry": 0,
+   "replacedInPlace": 0,
+   "unchanged": 28,
+   "changed": 0,
+   "quantityChanged": 0,
+   "attributeChanged": 0,
+   "moved": 0,
+   "reshaped": 0,
+   "added": 0,
+   "removed": 1,
+   "merged": 0,
+   "split": 0,
+   "duplicateGlobalIds": {
+    "before": 0,
+    "after": 0
+   },
+   "storeysRenamed": 0,
+   "typesRenamed": 0,
+   "renamedOnly": 0
+  },
+  "gidOnly": {
+   "added": 0,
+   "removed": 1
+  },
+  "what": {},
+  "reid": {},
+  "replaced": [],
+  "renames": {
+   "storey": [],
+   "type": []
+  },
+  "groups": [],
+  "added": {},
+  "removed": {
+   "IfcFurniture": 1
+  },
+  "moves": {},
+  "boqByClass": [
+   {
+    "class": "IfcFurniture",
+    "count": [
+     3,
+     2
+    ],
+    "volume": [
+     0.7271998034820719,
+     0.7271998034820719
+    ]
+   }
+  ]
+ },
+ {
+  "before": "02-aa96583.ifc",
+  "after": "03-63861be.ifc",
+  "summary": {
+   "before": 28,
+   "after": 26,
+   "matched": 26,
+   "byGlobalId": 26,
+   "byTag": 0,
+   "byGeometry": 0,
+   "replacedInPlace": 0,
+   "unchanged": 25,
+   "changed": 1,
+   "quantityChanged": 1,
+   "attributeChanged": 0,
+   "moved": 0,
+   "reshaped": 0,
+   "added": 0,
+   "removed": 2,
+   "merged": 0,
+   "split": 0,
+   "duplicateGlobalIds": {
+    "before": 0,
+    "after": 0
+   },
+   "storeysRenamed": 0,
+   "typesRenamed": 0,
+   "renamedOnly": 0
+  },
+  "gidOnly": {
+   "added": 0,
+   "removed": 2
+  },
+  "what": {
+   "quantity: volume": 1,
+   "quantity: area": 1
+  },
+  "reid": {},
+  "replaced": [],
+  "renames": {
+   "storey": [],
+   "type": []
+  },
+  "groups": [],
+  "added": {},
+  "removed": {
+   "IfcFurniture": 2
+  },
+  "moves": {},
+  "boqByClass": [
+   {
+    "class": "IfcFurniture",
+    "count": [
+     2,
+     0
+    ],
+    "volume": [
+     0.7271998034820719,
+     0
+    ]
+   },
+   {
+    "class": "IfcWall",
+    "count": [
+     16,
+     16
+    ],
+    "volume": [
+     10.093300499138845,
+     9.866051212258352
+    ]
+   }
+  ]
+ },
+ {
+  "before": "03-63861be.ifc",
+  "after": "04-47080f1.ifc",
+  "summary": {
+   "before": 26,
+   "after": 29,
+   "matched": 26,
+   "byGlobalId": 26,
+   "byTag": 0,
+   "byGeometry": 0,
+   "replacedInPlace": 0,
+   "unchanged": 9,
+   "changed": 17,
+   "quantityChanged": 1,
+   "attributeChanged": 17,
+   "moved": 0,
+   "reshaped": 0,
+   "added": 3,
+   "removed": 0,
+   "merged": 0,
+   "split": 0,
+   "duplicateGlobalIds": {
+    "before": 0,
+    "after": 0
+   },
+   "storeysRenamed": 0,
+   "typesRenamed": 0,
+   "renamedOnly": 0
+  },
+  "gidOnly": {
+   "added": 3,
+   "removed": 0
+  },
+  "what": {
+   "attribute: material": 17,
+   "quantity: volume": 1,
+   "quantity: area": 1
+  },
+  "reid": {},
+  "replaced": [],
+  "renames": {
+   "storey": [],
+   "type": []
+  },
+  "groups": [],
+  "added": {
+   "IfcWindow": 1,
+   "IfcStair": 1,
+   "IfcSanitaryTerminal": 1
+  },
+  "removed": {},
+  "moves": {},
+  "boqByClass": [
+   {
+    "class": "IfcSanitaryTerminal",
+    "count": [
+     0,
+     1
+    ],
+    "volume": [
+     0,
+     0.03400765472321952
+    ]
+   },
+   {
+    "class": "IfcStair",
+    "count": [
+     0,
+     1
+    ],
+    "volume": [
+     0,
+     0.18366362633809852
+    ]
+   },
+   {
+    "class": "IfcWall",
+    "count": [
+     16,
+     16
+    ],
+    "volume": [
+     9.866051212258352,
+     9.812051291586666
+    ]
+   },
+   {
+    "class": "IfcWindow",
+    "count": [
+     2,
+     3
+    ],
+    "volume": [
+     0.07460999406583231,
+     0.08793749399669093
+    ]
+   }
+  ]
+ },
+ {
+  "before": "04-47080f1.ifc",
+  "after": "05-1173c48.ifc",
+  "summary": {
+   "before": 29,
+   "after": 35,
+   "matched": 28,
+   "byGlobalId": 28,
+   "byTag": 0,
+   "byGeometry": 0,
+   "replacedInPlace": 0,
+   "unchanged": 4,
+   "changed": 24,
+   "quantityChanged": 20,
+   "attributeChanged": 18,
+   "moved": 1,
+   "reshaped": 18,
+   "added": 7,
+   "removed": 1,
+   "merged": 0,
+   "split": 0,
+   "duplicateGlobalIds": {
+    "before": 0,
+    "after": 0
+   },
+   "storeysRenamed": 1,
+   "typesRenamed": 1,
+   "renamedOnly": 4
+  },
+  "gidOnly": {
+   "added": 7,
+   "removed": 1
+  },
+  "what": {
+   "quantity: volume": 19,
+   "quantity: area": 9,
+   "attribute: name": 8,
+   "attribute: type": 17,
+   "reshaped": 18,
+   "quantity: length": 2,
+   "attribute: material": 15,
+   "moved": 1
+  },
+  "reid": {},
+  "replaced": [],
+  "renames": {
+   "storey": [
+    {
+     "globalId": "04vbjRRgXDWOc9F5HsiQf4",
+     "before": "My Storey",
+     "after": "00_begane_grond",
+     "elements": 34
+    }
+   ],
+   "type": [
+    {
+     "globalId": "3s6Cf9sGb2Rx1hMXDaCRM5",
+     "before": "TYPEX",
+     "after": "buitengevel",
+     "elements": 8
+    }
+   ]
+  },
+  "groups": [],
+  "added": {
+   "IfcWall": 5,
+   "IfcStair": 1,
+   "IfcWindow": 1
+  },
+  "removed": {
+   "IfcSlab": 1
+  },
+  "moves": {
+   "-0.00, 0.00, 0.58": 1
+  },
+  "boqByClass": [
+   {
+    "class": "IfcDoor",
+    "count": [
+     7,
+     7
+    ],
+    "volume": [
+     0.514724034401989,
+     0.5190015019060136
+    ]
+   },
+   {
+    "class": "IfcSlab",
+    "count": [
+     1,
+     0
+    ],
+    "volume": [
+     3.5412518262865564,
+     0
+    ]
+   },
+   {
+    "class": "IfcStair",
+    "count": [
+     1,
+     2
+    ],
+    "volume": [
+     0.18366362633809852,
+     0.41160712546921313
+    ]
+   },
+   {
+    "class": "IfcWall",
+    "count": [
+     16,
+     21
+    ],
+    "volume": [
+     9.812051291586666,
+     17.12009386491987
+    ]
+   },
+   {
+    "class": "IfcWindow",
+    "count": [
+     3,
+     4
+    ],
+    "volume": [
+     0.08793749399669093,
+     0.10477449132111455
+    ]
+   }
+  ]
+ },
+ {
+  "before": "05-1173c48.ifc",
+  "after": "06-81d9751.ifc",
+  "summary": {
+   "before": 35,
+   "after": 34,
+   "matched": 33,
+   "byGlobalId": 33,
+   "byTag": 0,
+   "byGeometry": 0,
+   "replacedInPlace": 0,
+   "unchanged": 33,
+   "changed": 0,
+   "quantityChanged": 0,
+   "attributeChanged": 0,
+   "moved": 0,
+   "reshaped": 0,
+   "added": 1,
+   "removed": 2,
+   "merged": 0,
+   "split": 0,
+   "duplicateGlobalIds": {
+    "before": 0,
+    "after": 0
+   },
+   "storeysRenamed": 0,
+   "typesRenamed": 0,
+   "renamedOnly": 0
+  },
+  "gidOnly": {
+   "added": 1,
+   "removed": 2
+  },
+  "what": {},
+  "reid": {},
+  "replaced": [],
+  "renames": {
+   "storey": [],
+   "type": []
+  },
+  "groups": [],
+  "added": {
+   "IfcWall": 1
+  },
+  "removed": {
+   "IfcWall": 2
+  },
+  "moves": {},
+  "boqByClass": [
+   {
+    "class": "IfcWall",
+    "count": [
+     21,
+     20
+    ],
+    "volume": [
+     17.12009386491987,
+     9.178272492873994
+    ]
+   }
+  ]
+ },
+ {
+  "before": "06-81d9751.ifc",
+  "after": "07-de6ad25.ifc",
+  "summary": {
+   "before": 34,
+   "after": 74,
+   "matched": 32,
+   "byGlobalId": 32,
+   "byTag": 0,
+   "byGeometry": 0,
+   "replacedInPlace": 0,
+   "unchanged": 32,
+   "changed": 0,
+   "quantityChanged": 0,
+   "attributeChanged": 0,
+   "moved": 0,
+   "reshaped": 0,
+   "added": 42,
+   "removed": 2,
+   "merged": 0,
+   "split": 0,
+   "duplicateGlobalIds": {
+    "before": 0,
+    "after": 0
+   },
+   "storeysRenamed": 0,
+   "typesRenamed": 0,
+   "renamedOnly": 0
+  },
+  "gidOnly": {
+   "added": 42,
+   "removed": 2
+  },
+  "what": {},
+  "reid": {},
+  "replaced": [],
+  "renames": {
+   "storey": [],
+   "type": []
+  },
+  "groups": [],
+  "added": {
+   "IfcBeam": 29,
+   "IfcWall": 8,
+   "IfcRoof": 5
+  },
+  "removed": {
+   "IfcWall": 2
+  },
+  "moves": {},
+  "boqByClass": [
+   {
+    "class": "IfcBeam",
+    "count": [
+     0,
+     29
+    ],
+    "volume": [
+     0,
+     2.135041548885196
+    ]
+   },
+   {
+    "class": "IfcRoof",
+    "count": [
+     0,
+     5
+    ],
+    "volume": [
+     0,
+     5.296835613355367
+    ]
+   },
+   {
+    "class": "IfcWall",
+    "count": [
+     20,
+     26
+    ],
+    "volume": [
+     9.178272492873994,
+     15.207433258522935
+    ]
+   }
+  ]
+ },
+ {
+  "before": "07-de6ad25.ifc",
+  "after": "08-5ca209b.ifc",
+  "summary": {
+   "before": 74,
+   "after": 64,
+   "matched": 60,
+   "byGlobalId": 60,
+   "byTag": 0,
+   "byGeometry": 0,
+   "replacedInPlace": 0,
+   "unchanged": 57,
+   "changed": 3,
+   "quantityChanged": 2,
+   "attributeChanged": 1,
+   "moved": 0,
+   "reshaped": 2,
+   "added": 2,
+   "removed": 8,
+   "merged": 2,
+   "split": 0,
+   "duplicateGlobalIds": {
+    "before": 0,
+    "after": 0
+   },
+   "storeysRenamed": 0,
+   "typesRenamed": 0,
+   "renamedOnly": 0
+  },
+  "gidOnly": {
+   "added": 4,
+   "removed": 14
+  },
+  "what": {
+   "quantity: volume": 2,
+   "quantity: area": 2,
+   "reshaped": 2,
+   "attribute: storey": 1
+  },
+  "reid": {},
+  "replaced": [],
+  "renames": {
+   "storey": [],
+   "type": []
+  },
+  "groups": [
+   {
+    "kind": "merged",
+    "before": [
+     "IfcWall Wall",
+     "IfcWall Wall",
+     "IfcWall Wall"
+    ],
+    "after": [
+     "IfcWall Wall"
+    ],
+    "volumeBefore": 2.0157431491643143,
+    "volumeAfter": 2.0157427510227426
+   },
+   {
+    "kind": "merged",
+    "before": [
+     "IfcWall Wall",
+     "IfcWall Wall",
+     "IfcWall Wall"
+    ],
+    "after": [
+     "IfcWall Wall"
+    ],
+    "volumeBefore": 2.009417422065379,
+    "volumeAfter": 2.0294167408910306
+   }
+  ],
+  "added": {
+   "IfcWall": 2
+  },
+  "removed": {
+   "IfcWall": 5,
+   "IfcWindow": 2,
+   "IfcDoor": 1
+  },
+  "moves": {},
+  "boqByClass": [
+   {
+    "class": "IfcDoor",
+    "count": [
+     7,
+     6
+    ],
+    "volume": [
+     0.5190015019060136,
+     0.4555920017183304
+    ]
+   },
+   {
+    "class": "IfcRoof",
+    "count": [
+     5,
+     5
+    ],
+    "volume": [
+     5.296835613355367,
+     5.36133520980888
+    ]
+   },
+   {
+    "class": "IfcWall",
+    "count": [
+     26,
+     19
+    ],
+    "volume": [
+     15.207433258522935,
+     16.480184677329508
+    ]
+   },
+   {
+    "class": "IfcWindow",
+    "count": [
+     4,
+     2
+    ],
+    "volume": [
+     0.10477449132111455,
+     0.05063249696377477
+    ]
+   }
+  ]
+ },
+ {
+  "before": "08-5ca209b.ifc",
+  "after": "09-e0b3fb5.ifc",
+  "summary": {
+   "before": 64,
+   "after": 56,
+   "matched": 49,
+   "byGlobalId": 49,
+   "byTag": 0,
+   "byGeometry": 0,
+   "replacedInPlace": 0,
+   "unchanged": 44,
+   "changed": 5,
+   "quantityChanged": 5,
+   "attributeChanged": 0,
+   "moved": 0,
+   "reshaped": 5,
+   "added": 7,
+   "removed": 15,
+   "merged": 0,
+   "split": 0,
+   "duplicateGlobalIds": {
+    "before": 0,
+    "after": 0
+   },
+   "storeysRenamed": 0,
+   "typesRenamed": 0,
+   "renamedOnly": 0
+  },
+  "gidOnly": {
+   "added": 7,
+   "removed": 15
+  },
+  "what": {
+   "quantity: volume": 5,
+   "reshaped": 5,
+   "quantity: area": 1
+  },
+  "reid": {},
+  "replaced": [],
+  "renames": {
+   "storey": [],
+   "type": []
+  },
+  "groups": [],
+  "added": {
+   "IfcBeam": 7
+  },
+  "removed": {
+   "IfcBeam": 14,
+   "IfcWall": 1
+  },
+  "moves": {},
+  "boqByClass": [
+   {
+    "class": "IfcBeam",
+    "count": [
+     29,
+     22
+    ],
+    "volume": [
+     2.135041548885196,
+     1.7138764626132645
+    ]
+   },
+   {
+    "class": "IfcWall",
+    "count": [
+     19,
+     18
+    ],
+    "volume": [
+     16.480184677329508,
+     40.69449515231188
+    ]
+   }
+  ]
+ },
+ {
+  "before": "09-e0b3fb5.ifc",
+  "after": "10-8b33053.ifc",
+  "summary": {
+   "before": 56,
+   "after": 30,
+   "matched": 25,
+   "byGlobalId": 25,
+   "byTag": 0,
+   "byGeometry": 0,
+   "replacedInPlace": 0,
+   "unchanged": 16,
+   "changed": 9,
+   "quantityChanged": 4,
+   "attributeChanged": 9,
+   "moved": 0,
+   "reshaped": 4,
+   "added": 5,
+   "removed": 31,
+   "merged": 0,
+   "split": 0,
+   "duplicateGlobalIds": {
+    "before": 0,
+    "after": 0
+   },
+   "storeysRenamed": 0,
+   "typesRenamed": 0,
+   "renamedOnly": 0
+  },
+  "gidOnly": {
+   "added": 5,
+   "removed": 31
+  },
+  "what": {
+   "quantity: volume": 4,
+   "quantity: area": 2,
+   "attribute: name": 3,
+   "reshaped": 4,
+   "quantity: length": 1,
+   "attribute: storey": 7
+  },
+  "reid": {},
+  "replaced": [],
+  "renames": {
+   "storey": [],
+   "type": []
+  },
+  "groups": [],
+  "added": {
+   "IfcBeam": 3,
+   "IfcFooting": 2
+  },
+  "removed": {
+   "IfcWall": 14,
+   "IfcDoor": 6,
+   "IfcRoof": 5,
+   "IfcWindow": 2,
+   "IfcStair": 2,
+   "IfcSanitaryTerminal": 1,
+   "IfcBeam": 1
+  },
+  "moves": {},
+  "boqByClass": [
+   {
+    "class": "IfcBeam",
+    "count": [
+     22,
+     24
+    ],
+    "volume": [
+     1.7138764626132645,
+     1.8700387921541188
+    ]
+   },
+   {
+    "class": "IfcDoor",
+    "count": [
+     6,
+     0
+    ],
+    "volume": [
+     0.4555920017183304,
+     0
+    ]
+   },
+   {
+    "class": "IfcFooting",
+    "count": [
+     0,
+     2
+    ],
+    "volume": [
+     0,
+     6.526797382068879
+    ]
+   },
+   {
+    "class": "IfcRoof",
+    "count": [
+     5,
+     0
+    ],
+    "volume": [
+     5.36133520980888,
+     0
+    ]
+   },
+   {
+    "class": "IfcSanitaryTerminal",
+    "count": [
+     1,
+     0
+    ],
+    "volume": [
+     0.03400765472321952,
+     0
+    ]
+   },
+   {
+    "class": "IfcStair",
+    "count": [
+     2,
+     0
+    ],
+    "volume": [
+     0.41160712546921313,
+     0
+    ]
+   },
+   {
+    "class": "IfcWall",
+    "count": [
+     18,
+     4
+    ],
+    "volume": [
+     40.69449515231188,
+     28.89346965708112
+    ]
+   },
+   {
+    "class": "IfcWindow",
+    "count": [
+     2,
+     0
+    ],
+    "volume": [
+     0.05063249696377477,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "before": "10-8b33053.ifc",
+  "after": "11-6cd5e57.ifc",
+  "summary": {
+   "before": 30,
+   "after": 31,
+   "matched": 30,
+   "byGlobalId": 30,
+   "byTag": 0,
+   "byGeometry": 0,
+   "replacedInPlace": 0,
+   "unchanged": 27,
+   "changed": 3,
+   "quantityChanged": 0,
+   "attributeChanged": 2,
+   "moved": 1,
+   "reshaped": 0,
+   "added": 1,
+   "removed": 0,
+   "merged": 0,
+   "split": 0,
+   "duplicateGlobalIds": {
+    "before": 0,
+    "after": 0
+   },
+   "storeysRenamed": 0,
+   "typesRenamed": 0,
+   "renamedOnly": 0
+  },
+  "gidOnly": {
+   "added": 1,
+   "removed": 0
+  },
+  "what": {
+   "attribute: name": 2,
+   "attribute: material": 1,
+   "moved": 1
+  },
+  "reid": {},
+  "replaced": [],
+  "renames": {
+   "storey": [],
+   "type": []
+  },
+  "groups": [],
+  "added": {
+   "IfcBeam": 1
+  },
+  "removed": {},
+  "moves": {
+   "0.00, -0.15, 0.00": 1
+  },
+  "boqByClass": [
+   {
+    "class": "IfcBeam",
+    "count": [
+     24,
+     25
+    ],
+    "volume": [
+     1.8700387921541188,
+     1.9520388187639541
+    ]
+   },
+   {
+    "class": "IfcWall",
+    "count": [
+     4,
+     4
+    ],
+    "volume": [
+     28.89346965708112,
+     28.893468213325136
+    ]
+   }
+  ]
+ },
+ {
+  "before": "11-6cd5e57.ifc",
+  "after": "12-071fe94.ifc",
+  "summary": {
+   "before": 31,
+   "after": 32,
+   "matched": 31,
+   "byGlobalId": 31,
+   "byTag": 0,
+   "byGeometry": 0,
+   "replacedInPlace": 0,
+   "unchanged": 31,
+   "changed": 0,
+   "quantityChanged": 0,
+   "attributeChanged": 0,
+   "moved": 0,
+   "reshaped": 0,
+   "added": 1,
+   "removed": 0,
+   "merged": 0,
+   "split": 0,
+   "duplicateGlobalIds": {
+    "before": 0,
+    "after": 0
+   },
+   "storeysRenamed": 0,
+   "typesRenamed": 0,
+   "renamedOnly": 0
+  },
+  "gidOnly": {
+   "added": 1,
+   "removed": 0
+  },
+  "what": {},
+  "reid": {},
+  "replaced": [],
+  "renames": {
+   "storey": [],
+   "type": []
+  },
+  "groups": [],
+  "added": {
+   "IfcSlab": 1
+  },
+  "removed": {},
+  "moves": {},
+  "boqByClass": [
+   {
+    "class": "IfcSlab",
+    "count": [
+     0,
+     1
+    ],
+    "volume": [
+     0,
+     3.0340005604027884
+    ]
+   }
+  ]
+ }
+]

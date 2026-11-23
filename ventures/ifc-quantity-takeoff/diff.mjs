@@ -39,6 +39,17 @@
 // the 25 window records listed as removed or added were 11 windows re-placed
 // this way (eval/replaced-in-place-2026-11-22.md).
 //
+// A storey renamed between revisions keeps its own GlobalId. Its elements
+// are not changed by that: the rename is listed once, in `renames.storey`,
+// and the pairing steps take a renamed storey as the same storey. On the
+// Tulpstraat house's BlenderBIM series the step that renamed "My Storey" to
+// "00_begane_grond" had listed all 28 matched elements as changed, 4 of them
+// for the storey's name alone (eval/revision-diff-tulpstraat-2026-11-23.md).
+// A type whose name changed under one GlobalId is listed in `renames.type`
+// but stays a change on its elements (`sameTypeObject` on the attribute):
+// Revit keeps the GlobalId when a type is re-specified or swapped (Lake
+// Kegonsa: "5.125x6" glulam to "HSS3.500X0.203" steel), and that is priced.
+//
 // `boqDelta` sums each revision by the same grouping as the bill of
 // quantities and subtracts: the lines an estimator prices for a change order.
 
@@ -54,6 +65,33 @@ const relDiff = (a, b) => {
   const d = Math.abs(a - b), m = Math.max(Math.abs(a), Math.abs(b));
   return m === 0 ? 0 : d / m;
 };
+
+// The GlobalIds only ever remove a change: a re-export may regenerate a
+// storey's or type's GlobalId (the Lake Kegonsa exporter switch did), so the
+// same name under a new GlobalId still counts as the same storey or type.
+const REF_GID = { storey: "storeyGlobalId", type: "typeGlobalId" };
+/** A storey's or type's name changed while its GlobalId held. */
+const isRename = (k, a, b) => Object.hasOwn(REF_GID, k) && (a[k] ?? null) !== (b[k] ?? null) && !!a[REF_GID[k]] && a[REF_GID[k]] === b[REF_GID[k]];
+/** Same storey: the same name, or a renamed one (same GlobalId). */
+const sameStorey = (a, b) => (a.storey ?? null) === (b.storey ?? null) || isRename("storey", a, b);
+
+/**
+ * Storeys and types whose name differs between the revisions under one
+ * GlobalId, each with the number of later elements on or of it.
+ */
+function findRenames(A, B) {
+  const out = {};
+  for (const k of ["storey", "type"]) {
+    const g = REF_GID[k];
+    const before = new Map(), after = new Map();
+    for (const r of A) if (r[g] && r[k] != null && !before.has(r[g])) before.set(r[g], r[k]);
+    for (const r of B) if (r[g] && r[k] != null) { const e = after.get(r[g]); if (e) e.elements++; else after.set(r[g], { name: r[k], elements: 1 }); }
+    out[k] = [];
+    for (const [gid, e] of after) if (before.has(gid) && before.get(gid) !== e.name) out[k].push({ globalId: gid, before: before.get(gid), after: e.name, elements: e.elements });
+    out[k].sort((x, y) => String(x.after).localeCompare(String(y.after)));
+  }
+  return out;
+}
 
 const boxCentre = (b) => [(b[0] + b[3]) / 2, (b[1] + b[4]) / 2, (b[2] + b[5]) / 2];
 const boxSize = (b) => [b[3] - b[0], b[4] - b[1], b[5] - b[2]];
@@ -90,7 +128,12 @@ function compareRows(a, b, tol, moveTol) {
     if (relDiff(qa[k], qb[k]) > tol && Math.abs((qa[k] ?? 0) - (qb[k] ?? 0)) > absTol) quantities[k] = { before: qa[k], after: qb[k], delta: (qb[k] ?? 0) - (qa[k] ?? 0) };
   }
   const attributes = {};
-  for (const k of ATTRS) if ((a[k] ?? null) !== (b[k] ?? null)) attributes[ATTR_LABEL[k]] = { before: a[k] ?? null, after: b[k] ?? null };
+  const renamed = {};
+  for (const k of ATTRS) {
+    if ((a[k] ?? null) === (b[k] ?? null)) continue;
+    if (k === "storey" && isRename(k, a, b)) renamed[ATTR_LABEL[k]] = { before: a[k] ?? null, after: b[k] ?? null };
+    else attributes[ATTR_LABEL[k]] = { before: a[k] ?? null, after: b[k] ?? null, ...(k === "type" && isRename(k, a, b) ? { sameTypeObject: true } : {}) };
+  }
   // moved: the box kept its size and its centre shifted; reshaped: the box
   // changed size (a wall made longer shifts its centre too, but did not move)
   let moved = null, reshaped = null;
@@ -103,7 +146,7 @@ function compareRows(a, b, tol, moveTol) {
       if (d > moveTol) moved = { distance: d, by: cb.map((v, i) => v - ca[i]) };
     }
   }
-  return { quantities, attributes, moved, reshaped, before: qa, after: qb };
+  return { quantities, attributes, renamed, moved, reshaped, before: qa, after: qb };
 }
 
 /**
@@ -172,7 +215,7 @@ export function diffTakeoffs(rowsA, rowsB, opts = {}) {
     for (const one of [...ones]) {
       const v = volOf(one);
       if (!one.box || v == null || !(v > 0)) continue;
-      const inside = [...many].filter((m) => m.box && volOf(m) != null && (m.storey ?? null) === (one.storey ?? null) && pointInside(boxCentre(m.box), one.box, moveTol));
+      const inside = [...many].filter((m) => m.box && volOf(m) != null && sameStorey(m, one) && pointInside(boxCentre(m.box), one.box, moveTol));
       if (inside.length < 2) continue;
       const sum = inside.reduce((s, m) => s + volOf(m), 0);
       if (relDiff(sum, v) > groupTol) continue;
@@ -189,10 +232,10 @@ export function diffTakeoffs(rowsA, rowsB, opts = {}) {
   if (placeOverlap > 0) {
     // volumes within a quarter: a swapped window type differs by a few
     // percent; a host and its thickest layer by a third or more
-    const placeFits = (a, b) => a.ifcClass === b.ifcClass && a.box && b.box && (a.storey ?? null) === (b.storey ?? null) && boxIoU(a.box, b.box) >= placeOverlap && relDiff(volOf(a), volOf(b)) <= 0.25;
+    const placeFits = (a, b) => a.ifcClass === b.ifcClass && a.box && b.box && sameStorey(a, b) && boxIoU(a.box, b.box) >= placeOverlap && relDiff(volOf(a), volOf(b)) <= 0.25;
     // another unpaired element of the class centred inside the box on the
     // other side is the mark of parts and their host, not of a swap
-    const crowded = (one, others, self) => [...others].some((o) => o !== self && o.ifcClass === one.ifcClass && o.box && (o.storey ?? null) === (one.storey ?? null) && pointInside(boxCentre(o.box), one.box, 0));
+    const crowded = (one, others, self) => [...others].some((o) => o !== self && o.ifcClass === one.ifcClass && o.box && sameStorey(o, one) && pointInside(boxCentre(o.box), one.box, 0));
     const cand = new Map();
     for (const a of freeA) { if (!a.box) continue; const c = [...freeB].filter((b) => placeFits(a, b)); if (c.length === 1) cand.set(a, c[0]); }
     for (const [a, b] of cand) {
@@ -213,8 +256,9 @@ export function diffTakeoffs(rowsA, rowsB, opts = {}) {
   }
   const added = [...freeB], removed = [...freeA];
   const reid = pairs.filter((p) => p.how === "tag" || p.how === "geometry");
+  const renames = findRenames(A, B);
   return {
-    changed, unchanged, added, removed, groups,
+    changed, unchanged, added, removed, groups, renames,
     summary: {
       before: A.length, after: B.length,
       matched: pairs.length - pairs.filter((p) => p.how === "place").length, byGlobalId: pairs.filter((p) => p.how === "globalId").length, byTag: reid.filter((p) => p.how === "tag").length, byGeometry: reid.filter((p) => p.how === "geometry").length,
@@ -227,6 +271,8 @@ export function diffTakeoffs(rowsA, rowsB, opts = {}) {
       added: added.length, removed: removed.length,
       merged: groups.filter((g) => g.kind === "merged").length, split: groups.filter((g) => g.kind === "split").length,
       duplicateGlobalIds: { before: dupCount(A), after: dupCount(B) },
+      storeysRenamed: renames.storey.length, typesRenamed: renames.type.length,
+      renamedOnly: unchanged.filter((c) => Object.keys(c.renamed).length).length,
     },
   };
 }
@@ -291,10 +337,13 @@ export function changesCsv(d) {
   const head = ["Change", "GlobalId before", "GlobalId after", "Class", "Name", "Type", "Storey", "Matched by", "What changed", "Volume m3 before", "Volume m3 after", "Area m2 before", "Area m2 after", "Length m before", "Length m after", "Weight kg before", "Weight kg after", "Moved m"];
   const out = [head.map(csvCell).join(",")];
   const qcells = (qa, qb) => QTY.flatMap((k) => [qa?.[k] ?? null, qb?.[k] ?? null]);
+  for (const [k, label, cls] of [["storey", "storey renamed", "IfcBuildingStorey"], ["type", "type renamed", "(type)"]]) {
+    for (const r of d.renames?.[k] || []) out.push([label, r.globalId, r.globalId, cls, r.after, k === "type" ? r.after : "", k === "storey" ? r.after : "", "same GlobalId", `name: ${r.before ?? "(none)"} -> ${r.after ?? "(none)"} (${r.elements} element${r.elements === 1 ? "" : "s"}; ${k === "storey" ? "not counted as changed" : "each still listed as a type change"})`, ...qcells(null, null), null].map(csvCell).join(","));
+  }
   for (const c of d.changed) {
     const what = [
       ...Object.entries(c.quantities).map(([k, q]) => `${k} ${q.delta > 0 ? "+" : ""}${Math.round(q.delta * 1e4) / 1e4}`),
-      ...Object.entries(c.attributes).map(([k, v]) => `${k}: ${v.before ?? "(none)"} -> ${v.after ?? "(none)"}`),
+      ...Object.entries(c.attributes).map(([k, v]) => `${k}: ${v.before ?? "(none)"} -> ${v.after ?? "(none)"}${v.sameTypeObject ? " (same type GlobalId: renamed or re-specified)" : ""}`),
       ...(c.moved ? [`moved ${Math.round(c.moved.distance * 1000) / 1000} m`] : []),
       ...(c.reshaped ? [`box ${c.reshaped.before.map((v) => Math.round(v * 1000) / 1000).join(" x ")} -> ${c.reshaped.after.map((v) => Math.round(v * 1000) / 1000).join(" x ")} m`] : []),
     ].join("; ");

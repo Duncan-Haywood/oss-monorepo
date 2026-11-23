@@ -85,6 +85,14 @@ checked against the engine by `guides.test.mjs`):
   house, 22 of the 25 window records the report had listed as removed or added were 11
   windows re-placed or swapped for another type;
   [eval/replaced-in-place-2026-11-22.md](eval/replaced-in-place-2026-11-22.md)).
+  A storey renamed in place (same GlobalId) is listed once as **storey
+  renamed**, not as a storey change on every element on it; a type renamed
+  under one GlobalId is listed too but stays a type change, because Revit
+  keeps a type's GlobalId when it is re-specified (glulam "5.125x6" to steel
+  "HSS3.500X0.203" on Lake Kegonsa). On a BlenderBIM series of a real house
+  (Tulpstraat, 12 commits, 2024), the step that renamed "My Storey" had
+  listed all 28 matched elements as changed; now 24, with 4 unchanged
+  ([eval/revision-diff-tulpstraat-2026-11-23.md](eval/revision-diff-tulpstraat-2026-11-23.md)).
 - **Faulty units repaired, and said so.** A unit named INCH, FOOT, SQUARE
   FOOT and so on whose declared factor is not that unit (a 2014 Revit export
   declares its inch as 3.6576 m, 144 inches, which makes every volume 3
