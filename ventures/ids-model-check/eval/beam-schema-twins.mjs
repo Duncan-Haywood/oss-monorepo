@@ -6,6 +6,7 @@
 // reading is within 2% in one schema and not in another.
 //   node eval/beam-schema-twins.mjs 2X3.ifc 4.ifc 4X3.ifc [--json out.json]
 import { readFileSync, writeFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 import { parseStep } from "../../ifc-quantity-takeoff/step.mjs";
 import { readUnits } from "../../ifc-quantity-takeoff/qto.mjs";
 import { measureModel } from "../geometry-quantities.mjs";
@@ -50,7 +51,7 @@ export async function readings(path) {
 }
 
 const ok = (v) => v && v.geo != null && Math.abs(v.geo - v.stored) / v.stored <= 0.02;
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const files = await Promise.all(args.map(readings));
   const labels = args.map((f) => f.split("/").pop());
   const out = [];
