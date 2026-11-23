@@ -1014,6 +1014,25 @@ class StartHereTests(unittest.TestCase):
         self.assertIn("not the first", item_rank_note(next(
             f"s{n}" for n in range(50) if item_rank(f"s{n}") > 1)))
 
+    def test_open_items_number_buildable_then_marked_next_phrases(self):
+        # Seven records, 2026-11-22..23: "take the third open item" could not
+        # be counted in a run-on `next:`; --venture now prints a numbered list.
+        from allocate import open_items, item_rank_note
+        items = open_items(
+            "Public samples (a; b). Interpolated encode 2026-11-17; HDR+ bursts: prep",
+            "History (x; next on whitened bins); Next: the H 25 card raw; a Project open "
+            "of those rows; open: a real PA file, CDAR set. More open items: NEXT.md.")
+        self.assertEqual(items, [
+            ("buildable", "Public samples (a; b)"),
+            ("buildable", "Interpolated encode 2026-11-17"),
+            ("buildable", "HDR+ bursts: prep"),
+            ("next", "on whitened bins"),
+            ("next", "the H 25 card raw"),
+            ("next", "a real PA file, CDAR set"),
+        ])
+        self.assertEqual(open_items(None, None), [])
+        self.assertIn("numbered `items:` list", item_rank_note("abc"))
+
 
 class DateGateTests(unittest.TestCase):
     """A `buildable:` item dated after today is not buildable yet (2026-11-18:
