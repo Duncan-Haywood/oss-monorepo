@@ -1,0 +1,66 @@
+{
+ "counts": {
+  "bolted": {
+   "full": 128,
+   "full-O": 130,
+   "full-M": 142,
+   "full-W": 139,
+   "full-G": 145,
+   "full-S": 129,
+   "full-Y": 12,
+   "quiet": 9,
+   "quiet+O": 10,
+   "quiet+M": 9,
+   "quiet+W": 9,
+   "quiet+G": 11,
+   "quiet+S": 11,
+   "quiet+Y": 135
+  },
+  "1.25x": {
+   "full": 535,
+   "full-O": 363,
+   "full-M": 529,
+   "full-W": 532,
+   "full-G": 512,
+   "full-S": 534,
+   "full-Y": 572,
+   "quiet": 205,
+   "quiet+O": 510,
+   "quiet+M": 243,
+   "quiet+W": 208,
+   "quiet+G": 398,
+   "quiet+S": 317,
+   "quiet+Y": 155
+  },
+  "retrained": {
+   "full": 31,
+   "full-O": 0,
+   "full-M": 31,
+   "full-W": 31,
+   "full-G": 31,
+   "full-S": 30,
+   "full-Y": 31,
+   "quiet": 0,
+   "quiet+O": 28,
+   "quiet+M": 0,
+   "quiet+W": 0,
+   "quiet+G": 0,
+   "quiet+S": 1,
+   "quiet+Y": 0
+  }
+ },
+ "verdicts": {
+  "DK0": true,
+  "DK1": true,
+  "DK2": true,
+  "DK3": true,
+  "DK4": false,
+  "DK5": false,
+  "DK6": false,
+  "DK7": true
+ },
+ "DK7": {
+  "ratio_median": 1.0188911197368256,
+  "alive": 631
+ }
+}
