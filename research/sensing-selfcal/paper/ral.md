@@ -267,7 +267,11 @@ scatter, the bar is honest (three-window rms z 1.09) but too wide for a symmetri
 stale focal length below 8.5% at five windows. Scored by worst regret over a simulated staleness of up to 10%,
 the rule that serves a robot is asymmetric: adopt the five-window pool unless it lies within half its sd of the
 held value (worst regret 0.42 points, always adopting 1.17, the 2-sd gate 3.33), and it is the rule chosen in
-every fold that leaves one sequence out.
+every fold that leaves one sequence out. The same rule carries over to c<sub>y</sub> but not to c<sub>x</sub> or
+the distortion, which the windows put 0.6&ndash;1.7 px low at 200 px from the centre in every sequence. Scored by
+where rays land over 50&ndash;250 px, adopting f alone onto a held distortion stays minimax (worst regret 0.48 px,
+against 0.63 for adopting the windows' distortion too), and a held distortion off by 50% still leaves less error
+(1.51 px) than adopting the windows' f and distortion together (2.09 px).
 
 ## IX. Recommendations
 
@@ -293,6 +297,8 @@ every fold that leaves one sequence out.
    random-effects pooling), not from one solve's covariance.
 8. **Update a held focal length asymmetrically.** From five pooled windows, replace it unless the pool lies
    within half its sd; never gate the update on a symmetric 2-sd change test.
+9. **Self-calibrate f and c<sub>y</sub>; hold c<sub>x</sub> and the distortion from a target calibration,** and
+   score updates by where rays land, not by k<sub>1</sub>.
 
 ## X. Limitations
 

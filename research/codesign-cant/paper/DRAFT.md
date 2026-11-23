@@ -363,9 +363,13 @@ against 24.7° (ratio 1.09, IQR 1.03-1.25), and raising the limit to 30° scales
 is proportional to the limit, each flight has a critical limit at which the cycle reaches the 60°
 divergence angle. The 1.25× designs' median is 45.5°: 285 of 640 predicted dead at 45° against 535
 simulated, and 595 at 59° against 560. Bolted-on designs: 586 at 30° against 588. The count misses
-near the knee (bolted-on at 20°: 4 predicted, 128 simulated) but the ranking holds (AUC 0.870), consistent
-with the start offset, wind step and noise, which the single-sinusoid model leaves out, pushing flights
-over early. The analysis also bounds what the certificate can promise. Above 20° it is no longer
+near the knee (bolted-on at 20°: 4 predicted, 128 simulated) but the ranking holds (AUC 0.870). An
+excitation ablation places the gap outside the describing function (milestone 7ak): with the start offset,
+wind, turbulence, sensor noise and yaw steps all switched off, bolted-on designs crash on 9 of 640 at 20°
+(AUC 0.999, amplitude within 2%) and the on-ceiling tunes on 0 of 640 at 45°. One factor carries each gap,
+and it is not the wind. For the bolted-on designs it is the ±30° yaw steps (alone 135 crashes, without them 12),
+acting through the attitude-priority mixer: an ideal mixer gives 16. For the 1.25× and on-ceiling designs it
+is the 0.5 m start offset (alone 510 and 28; `m7ak_excite/stats.txt`). The analysis also bounds what the certificate can promise. Above 20° it is no longer
 necessary: at 45°, 29 of the on-ceiling tunes' 31 deaths occur at plants the linear model calls stable,
 large-signal transients with no cycle to predict. The margin, not a describing-function check, is
 what keeps a design safe at every limit.

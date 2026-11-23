@@ -82,7 +82,7 @@ class CorrectedTable(unittest.TestCase):
     def test_every_rule_covers_the_same_folds(self):
         for c, _ in t.CONDS:
             keys = {(f["set"], f["pool"]) for f in self.F[c]["theta"]}
-            self.assertEqual(len(keys), 20 if c == "four" else 10)
+            self.assertEqual(len(keys), {"four": 20, "m30": 5}.get(c, 10))
             for r, _ in t.CRULES:
                 self.assertEqual({(f["set"], f["pool"]) for f in self.F[c][r]}, keys, (c, r))
                 self.assertEqual(len(self.F[c][r]), len(keys), (c, r))
@@ -124,6 +124,33 @@ class CorrectedTable(unittest.TestCase):
         same = self.C["same"]
         self.assertEqual((same["thetaP=thetaN"]["four"], same["thetaP=thetaN"]["f30"]), (20, 10))
         self.assertEqual((same["thetaD=thetaH"]["four"], same["thetaD=thetaH"]["f30"]), (20, 10))
+
+    def test_marquis_column_matches_7za(self):
+        z = t.load("marq7za")["total"]
+        for r in ("theta", "U", "thetaC", "thetaH", "thetaN", "thetaP", "thetaD"):
+            got = self.C["total"]["m30"][r]
+            self.assertEqual(got["met"], z[r]["met"], r)
+            self.assertAlmostEqual(got["cycles"], z[r]["cycles"], places=9, msg=r)
+        self.assertEqual(self.C["total"]["m30"]["oracle"]["met"], self.C["total"]["m30"]["thetaH"]["met"])
+
+    def test_seven_set_pairs_match_7za(self):
+        z = t.load("marq7za")["seven"]["pair"]
+        for key, q in (("thetaP-theta", self.C["pair_seven"]["thetaP"]), ("thetaD-theta", self.C["pair_seven"]["thetaD"]),
+                       ("thetaN-theta", self.C["pair_seven"]["thetaN"]), ("thetaH-theta", self.C["pair_seven"]["thetaH"]),
+                       ("thetaP-U", self.C["pair_seven_u"]["thetaP"])):
+            ref = z[key]
+            self.assertAlmostEqual(q["mean"], ref["mean"], places=9, msg=key)
+            self.assertAlmostEqual(q["boot"][0], ref["boot"][0], places=9, msg=key)
+            self.assertAlmostEqual(q["boot"][1], ref["boot"][1], places=9, msg=key)
+            self.assertEqual((q["cheaper"], q["dearer"]), (ref["cheaper"], ref["dearer"]), key)
+
+    def test_seven_set_totals_cover_35_folds(self):
+        T = self.C["total"]["seven"]
+        for r, _ in t.CRULES:
+            self.assertEqual(T[r]["n"], 35, r)
+        self.assertEqual((T["theta"]["met"], T["U"]["met"], T["thetaP"]["met"]), (30, 33, 31))
+        for r, q in self.C["pair_seven"].items():
+            self.assertAlmostEqual(q["mean"], T[r]["cycles"] - T["theta"]["cycles"], places=9, msg=r)
 
 
 if __name__ == "__main__":

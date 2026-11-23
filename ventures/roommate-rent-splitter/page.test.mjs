@@ -78,3 +78,7 @@ test("the guide's worked example is the engine's answer", () => {
 test("footer links the estate item divider, its fair-division sibling", () => {
   assert.match(page("index.html"), /href="\.\.\/estate-item-divider\/"/);
 });
+
+test("footer links the group expense settle-up tool for shared bills", () => {
+  assert.match(page("index.html"), /href="\.\.\/group-expense-settle-up\/"/);
+});

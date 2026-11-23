@@ -1,4 +1,4 @@
-# Results: the ten-cycle fade forecast and DFN-cycle triage (design pools 5zk to 7h; corrected forecast 7v to 7y)
+# Results: the ten-cycle fade forecast and DFN-cycle triage (design pools 5zk to 7h; corrected forecast 7v to 7za)
 
 Draft results section of the `cell-fidelity` paper (target: *Journal of Power Sources* or *Journal of
 The Electrochemical Society*; `PROPOSAL.md`, "Target venue"). Produced with AI assistance (Claude).
@@ -131,7 +131,7 @@ Three findings carry the paper.
    not the score, is what makes the rule hold; with four training pools it settles the extension at 50
    cycles by itself (H288: the free-K1 and K1 = 50 rules pick the same policy on every set).
 
-## 4.7 Correcting the ten-cycle forecast, and when to (7v to 7y)
+## 4.7 Correcting the ten-cycle forecast, and when to (7v to 7za)
 
 Milestone 7c fitted a correction to the ten-cycle forecast: the drift multiplier m of each design, predicted
 by the ten-cycle observable (O1 to O3) that ranks best with it on the training pools. Milestones 7v to 7y put
@@ -177,6 +177,33 @@ Four findings, all descriptive (no hypothesis is tested in this section):
 4. **At f = 10 the correction is cheap but unreliable.** The corrected rules cost 15.8 to 23.8 cycles per
    design against &theta;'s 32.8 and meet 6 of 10 folds against 7 (U meets 8). `Mohtat2020` at f = 10 is the
    hardest condition in the programme: no rule meets more than 3 of its 5 folds.
+
+**Seventh set-condition (7za; Table 3's last column, regenerated after 7za reported).** 7z built a new
+plating cell (`Marquis2019` at f = 30) after every rule and gate in Table 3 had been fixed, and its drift
+runs the other way (median m 1.29, the forecast under-predicts). `paper/tables.py` adds it from 7za's fold
+rows and pools it with the six set-conditions (35 folds); 7za's stored seven-set pairs recur to 1e-9.
+
+| rule | `Marquis2019` f = 30 met | cycles | seven met | Wilson 95% | cycles | seven: &minus; &theta; | set boot 95% | ch / de | sign p | seven: &minus; U | set boot 95% | ch / de |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| U | 4/5 | 44.0 | 33/35 | 0.81&ndash;0.98 | 45.1 | +2.32 | &minus;2.48 to +6.86 | 11 / 19 | 0.20 | reference | | |
+| &theta; | 2/5 | 34.8 | 30/35 | 0.71&ndash;0.94 | 42.8 | reference | | | | &minus;2.32 | &minus;6.86 to +2.48 | 19 / 11 |
+| &theta;C | 2/5 | 15.9 | 28/35 | 0.64&ndash;0.90 | 30.8 | &minus;12.06 | &minus;25.07 to &minus;0.34 | 16 / 7 | 0.093 | &minus;14.38 | &minus;24.54 to &minus;4.69 | 24 / 4 |
+| &theta;H, &theta;D | 4/5 | 14.6 | 31/35 | 0.74&ndash;0.95 | 31.7 | &minus;11.17 | &minus;24.70 to +1.07 | 15 / 8 | 0.21 | &minus;13.49 | &minus;25.02 to &minus;3.79 | 23 / 4 |
+| &theta;N, &theta;P | 4/5 | 14.6 | 31/35 | 0.74&ndash;0.95 | 30.9 | &minus;11.96 | &minus;25.00 to +0.12 | 15 / 5 | 0.041 | &minus;14.28 | &minus;25.02 to &minus;4.42 | 25 / 4 |
+| oracle | 4/5 | 14.6 | 33/35 | 0.81&ndash;0.98 | 29.8 | &minus;13.03 | &minus;25.48 to &minus;2.88 | 15 / 0 | 6e&minus;5 | &minus;15.35 | &minus;25.09 to &minus;5.95 | 29 / 4 |
+
+5. **Out of sample, the plating-cell saving recurs and the gates still collapse.** On `Marquis2019` every
+   gate switches the correction on, so &theta;P = &theta;N = &theta;D = &theta;H fold for fold (5 of 5), and
+   they meet 4 of 5 folds at 14.6 cycles, as many as U at a third of its cycles. The leaky ungated rule
+   &theta;C agrees with &theta;H on only 1 of 5 folds there and meets 2.
+6. **Against the uniform run length, every corrected rule's seven-set interval excludes zero** (&minus;13.5
+   to &minus;14.4 cycles per design; upper ends &minus;3.8 to &minus;4.7; 23 to 25 folds cheaper, 4 dearer),
+   at 28 to 31 folds met against U's 33. **Against triage alone, none of the deployable rules with an honest
+   margin does** (&theta;N, &theta;P: upper end +0.12). The one corrected interval against &theta; that lies
+   below zero is the leaky &theta;C's (&minus;25.07 to &minus;0.34), and it buys that with two fewer folds met
+   (28 against 30); it is not a recommendation.
+7. The hindsight oracle reaches &minus;13.03 against &theta; with no fold dearer, so on seven conditions the
+   deployable gates recover 92% of the per-set ceiling (&minus;11.96 / &minus;13.03), up from 89% on six.
 
 For a practitioner this is the conditional step of the recipe (section 5.1): correct the ten-cycle forecast
 only when the cell is known in advance to be plating-limited with large one-directional drift, and otherwise

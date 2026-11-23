@@ -41,7 +41,7 @@
 ## buildingSMART IFC4.3 samples (landed 2026-11-22, eval/bsi-samples-2026-11-22.md)
 
 - Cant: `segmented-reference-curve` is buildingSMART's own IfcSegmentedReferenceCurve sample (an alignment with cant, no element on it). Read it in alignment.mjs and check its stations against IfcOpenShell, then place parts on it.
-- Swept disks have no faces: the model view does not draw a bar and its world box is empty. A tube mesh for display (keeping the exact pi r^2 L volume).
+- (landed 2026-11-23, eval/bar-tubes-2026-11-23.md) Swept disks drawn as tubes and boxed (bSI bar boxes 0 to 35 of 35). Left: instance identical bars in a Tekla group (SENDA-E-O's 6,478 bars drop to 3 sides to fit 600k triangles); swept disks outside rebar (handrails, pipes) not looked for; a hollow tube's bore.
 - `IfcGridPlacement` offsets are read as offset curves to the left of each axis's direction (IfcOffsetCurve2D's sense); IfcOpenShell 0.9 builds no grid-placed element to check against. Find a public model with offset grid placements.
 
 ## Bar schedule (landed 2026-11-22, eval/rebar-schedule-2026-11-22.md)

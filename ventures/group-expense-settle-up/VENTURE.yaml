@@ -1,0 +1,68 @@
+name: group-expense-settle-up
+description: >-
+  Free browser group expense splitter with no app and no account: log who paid
+  what in any currency, split equally, by shares, exact amounts or percent,
+  several payers, payments already made, and get the fewest payments that
+  square everyone up (exact search over subsets for up to 20 people with a
+  balance), or largest-to-largest, or pay back directly. Share link holding the
+  whole list, mark paid, CSV. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-23 in an explore-track session. duplicate_check.py: top row
+# roommate-rent-splitter at 0.25 (a different question: rent for rooms of
+# different sizes); screened-out.md has no expense-splitting row; no venture
+# settles group debts.
+#
+# Why this niche: "split expenses with friends", "trip expense calculator" and
+# "who owes who" are evergreen searches that spike in holiday and travel
+# seasons. The incumbent expense-sharing apps want an account per person, and
+# their free tiers carry ads and limits that change over time. A no-account
+# page that does the arithmetic properly (cents that add up, currencies, an
+# exact fewest-payments search rather than the usual greedy rule) and shares by
+# link is a real wedge, and a natural lead magnet for travel or household
+# products.
+#
+# First visitor: whoever holds the receipts after a group trip, a bachelor or
+# bachelorette weekend, a shared holiday house or a club outing.
+#
+# Liability boundary: arithmetic on amounts and rates the visitor types. No
+# payments are made, no accounts, nothing stored server-side; the share link
+# carries the list and is readable by anyone who holds it (said on the page).
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; later a
+# paid self-hosted "group ledger" with sync, or travel and card referrals.
+
+hypotheses:
+  - claim: >-
+      Visitors who load or type a trip will reach a settlement and share it,
+      measured as the share of settled events followed by link_made or copied
+      (local counters only, no reading yet, added 2026-11-23).
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      On real groups the exact search finds fewer payments than
+      largest-to-largest often enough to mention, measured by the
+      fewer_than_greedy counter against settled (local only, no reading yet).
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a settlement that does not square the group to the cent, or a split whose parts do not add back to the bill.
+
+links:
+  production: https://marisstella.app/group-expense-settle-up/
+  analytics: null

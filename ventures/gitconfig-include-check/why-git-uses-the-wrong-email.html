@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23245b4f'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E@%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Is Git Using the Wrong Email? Six Ways includeIf Fails</title>
+  <meta name="description" content="Six reasons [includeIf] does not switch your git email in work repositories: a gitdir: pattern without a trailing slash, the include above [user], a typo in the condition, a missing file, a symlinked folder and onbranch: on a detached HEAD. Each checked against git.">
+  <meta property="og:title" content="Why is git using the wrong email? Six ways includeIf fails">
+  <meta property="og:description" content="The trailing slash, the order of the blocks, typos, missing files, symlinks and detached HEADs: what git does with each, and the fix.">
+  <link rel="canonical" href="./why-git-uses-the-wrong-email.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does includeIf gitdir:~/work not match my work repositories?", "acceptedAnswer": {"@type": "Answer", "text": "Without a trailing slash the pattern has to equal the whole path of a repository's .git folder, so gitdir:~/work only matches a repository whose .git folder is ~/work itself. Write gitdir:~/work/ and git adds ** after the slash, which matches every repository below ~/work."}}, {"@type": "Question", "name": "Why does git use my personal email even though the work include matched?", "acceptedAnswer": {"@type": "Answer", "text": "Because git reads ~/.gitconfig from top to bottom and the last value of user.email wins. If the [includeIf] block comes before your [user] section, the personal address is read after the work one and replaces it. Put the [includeIf] blocks at the end of the file."}}, {"@type": "Question", "name": "How do I see where git got user.email from?", "acceptedAnswer": {"@type": "Answer", "text": "Run git config --show-origin --get-all user.email inside the repository. It prints every value with the file it came from, in reading order; the last line is the one git uses. git config --list --show-origin --show-scope shows everything."}}]}</script>
+  <style>
+    :root { font: 17px/1.6 system-ui, sans-serif; color: #17231f; background: #f2f6f4; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    a { color: #1d6b58; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); line-height: 1.12; color: #183f36; }
+    h2 { font-size: 1.2rem; margin-top: 30px; color: #183f36; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    code { font: .9em ui-monospace, Menlo, Consolas, monospace; background: #e3ece8; padding: 1px 4px; border-radius: 4px; }
+    pre { background: #142b25; color: #eefaf5; padding: 14px; border-radius: 10px; overflow-x: auto; font: 13.5px/1.5 ui-monospace, Menlo, Consolas, monospace; }
+    pre code { background: none; padding: 0; }
+    .note, footer { font-size: .86rem; color: #4b5c56; }
+    footer { margin-top: 36px; border-top: 1px solid #d5e1dc; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="./">gitconfig includeIf checker</a> · guide</p>
+  <h1>Why is git using the wrong email? Six ways includeIf fails</h1>
+  <p>The usual setup keeps a personal address in <code>~/.gitconfig</code> and switches to a work address, signing key or SSH command for repositories under <code>~/work/</code> with an <code>[includeIf]</code> block. When it fails, git says nothing: the condition is false, or the file is missing, or a later line wins, and you find out from a commit with the wrong name on it. Every case below was run against git 2.43; the <a href="./">checker</a> finds all six from your pasted files.</p>
+  <p>First, ask git where the value came from. Inside the repository:</p>
+  <pre><code>git config --show-origin --get-all user.email
+git rev-parse --absolute-git-dir      # the path gitdir: is compared with</code></pre>
+  <p>The last line printed is the value git uses.</p>
+
+  <h2>1. No trailing slash</h2>
+  <pre><code>[includeIf "gitdir:~/work"]
+	path = ~/.gitconfig-work</code></pre>
+  <p><code>gitdir:</code> is compared with the repository's <code>.git</code> folder, for example <code>/home/sam/work/api/.git</code>. <code>~/work</code> becomes <code>/home/sam/work</code>, which has to match that whole path, and does not. A trailing slash makes git add <code>**</code>: <code>gitdir:~/work/</code> becomes <code>/home/sam/work/**</code> and matches every repository below it. The same trap catches <code>gitdir:~/work/api</code>: that names the work tree, not its <code>.git</code> folder. Write <code>gitdir:~/work/api/</code>.</p>
+
+  <h2>2. The include comes before the setting it should override</h2>
+  <pre><code>[includeIf "gitdir:~/work/"]
+	path = ~/.gitconfig-work
+[user]
+	email = sam@personal.example</code></pre>
+  <p>The include is read where it is written, and later values win. Here the work address is read first and the personal one replaces it. <code>git config --show-origin --get-all user.email</code> shows both, the work one first. Move every <code>[includeIf]</code> block to the end of <code>~/.gitconfig</code>.</p>
+
+  <h2>3. A condition git does not know</h2>
+  <p>The prefixes are case-sensitive and exact: <code>gitdir:</code>, <code>gitdir/i:</code>, <code>onbranch:</code> and <code>hasconfig:remote.*.url:</code>. <code>[includeIf "GitDir:~/work/"]</code> is an unknown condition, and git treats unknown conditions as false without a warning. So is <code>hasconfig:remote.origin.url:</code>: only the literal <code>remote.*.url</code> is supported. A space is kept as part of the pattern, so <code>[includeIf "gitdir: ~/work/"]</code> starts with a space, no longer starts with <code>~</code>, gets <code>**/</code> put in front and matches nothing.</p>
+
+  <h2>4. The file is not where the path says</h2>
+  <p>If the file named by <code>path =</code> does not exist, git skips it silently. A relative path is relative to the file the line is in, not to your current folder, and git does not expand variables: <code>path = $HOME/.gitconfig-work</code> looks for a folder literally called <code>$HOME</code>. Use <code>~/</code>. A key other than <code>path</code> under <code>[includeIf]</code> (<code>file =</code>, <code>paths =</code>) is stored and ignored.</p>
+
+  <h2>5. The folder is reached through a symlink</h2>
+  <p>If <code>~/work</code> is a link to <code>/mnt/data/work</code>, <code>gitdir:~/work/</code> works in some places and not others. git first tries the real path, <code>/mnt/data/work/api/.git</code>, then the path as typed, but it only knows the typed path when it runs in the top folder of the repository from a shell that changed into it through the link. We checked this with git 2.43: in the top folder the include applied; in a subfolder, and with <code>git -C</code>, it did not. Editors, hooks and GUIs usually see the real path. Add a second block for the real location:</p>
+  <pre><code>[includeIf "gitdir:/mnt/data/work/"]
+	path = ~/.gitconfig-work</code></pre>
+
+  <h2>6. onbranch: on a detached HEAD</h2>
+  <p><code>onbranch:</code> compares the short branch name (<code>main</code>, not <code>refs/heads/main</code>; a trailing slash matches everything below, so <code>onbranch:feature/</code> covers <code>feature/a/b</code>). With no branch checked out, which is how most CI systems check out a commit or a pull request and what happens during <code>git bisect</code> or a rebase, every <code>onbranch:</code> include is skipped. Settings CI depends on belong in an unconditional file.</p>
+
+  <h2>Two more that surprise people</h2>
+  <p><strong>Linked worktrees.</strong> A worktree made with <code>git worktree add ~/scratch/fix</code> keeps its <code>.git</code> folder inside the main repository, at <code>~/work/api/.git/worktrees/fix</code>. <code>gitdir:</code> sees that path, so where the main repository lives decides, not where the worktree is.</p>
+  <p><strong>A broken line stops every command.</strong> A syntax error in an included file (an unclosed quote, a <code>[section</code> with no bracket, an unknown escape like <code>\q</code>) makes every git command in a matching repository fail with <code>fatal: bad config line N in file F</code>. An include chain more than ten files deep, a file that includes itself among them, fails with <code>exceeded maximum include depth</code>.</p>
+
+  <h2>Questions</h2>
+  <h3>Why does includeIf gitdir:~/work not match my work repositories?</h3>
+  <p>Without a trailing slash the pattern has to equal the whole path of a repository's .git folder, so gitdir:~/work only matches a repository whose .git folder is ~/work itself. Write gitdir:~/work/ and git adds ** after the slash, which matches every repository below ~/work.</p>
+  <h3>Why does git use my personal email even though the work include matched?</h3>
+  <p>Because git reads ~/.gitconfig from top to bottom and the last value of user.email wins. If the [includeIf] block comes before your [user] section, the personal address is read after the work one and replaces it. Put the [includeIf] blocks at the end of the file.</p>
+  <h3>How do I see where git got user.email from?</h3>
+  <p>Run git config --show-origin --get-all user.email inside the repository. It prints every value with the file it came from, in reading order; the last line is the one git uses. git config --list --show-origin --show-scope shows everything.</p>
+
+  <p><a href="./">Check your own files with the gitconfig includeIf checker</a>. It runs in your browser and nothing is uploaded.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This guide and the tool are provided free and as-is, without warranty of any kind. It is not legal, security or professional advice. The behaviour described was observed with git 2.43 on Linux; check your own with <code>git config --show-origin</code>.</p>
+  <p><strong>Independent.</strong> Not affiliated with or endorsed by the Git project, GitHub, GitLab or any other vendor. Git is a trademark of the Software Freedom Conservancy.</p>
+  <p class="support">Free and open source under an MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>

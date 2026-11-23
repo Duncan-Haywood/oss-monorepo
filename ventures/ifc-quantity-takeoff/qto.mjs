@@ -21,7 +21,7 @@ import { applyRule, ruleActive, ruleLabel } from "./measure.mjs";
 import { assignUniformat, uniformatLabel } from "./uniformat.mjs";
 import { roomGeometry, checkRoom, roomLabel, assignRooms, footprintSolid, deductOpenings, connectionArea, OPENING_CLASS } from "./rooms.mjs";
 import { planRect, roofFaces, assignEnvelope, assignRailingSides } from "./envelope.mjs";
-import { Geometry, Unresolved, det, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, surfaceArea, planeAreas, bendsInPlan, curvedFaces, prismAxis, thinnestNormal, solidExtent } from "./geom.mjs";
+import { Geometry, Unresolved, det, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, surfaceArea, planeAreas, bendsInPlan, curvedFaces, prismAxis, thinnestNormal, solidExtent, barExtent } from "./geom.mjs";
 
 const NOT_ELEMENTS = new Set([
   "IFCPROJECT", "IFCSITE", "IFCBUILDING", "IFCBUILDINGSTOREY", "IFCSPACE", "IFCOPENINGELEMENT", "IFCOPENINGSTANDARDCASE",
@@ -1274,7 +1274,10 @@ function worldBox(body, W, f) {
   for (let i = 0; i < 3; i++) {
     const d = [W[4 * i], W[4 * i + 1], W[4 * i + 2]];
     const len = Math.hypot(...d);
-    const [a, b] = solidExtent(body, d);
+    let [a, b] = solidExtent(body, d);
+    // a swept disk (a bar drawn along its path) has no faces: its box is
+    // where the tube along the path reaches
+    if (body.bars) { const [c, e] = barExtent(body.bars, d); a = Math.min(a, c); b = Math.max(b, e); }
     if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
     lo.push((a * len + W[4 * i + 3]) * f);
     hi.push((b * len + W[4 * i + 3]) * f);

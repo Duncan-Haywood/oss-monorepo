@@ -361,17 +361,19 @@ class NoiseFromFrameFlagTests(unittest.TestCase):
 
 
 class NoiseReadTests(unittest.TestCase):
-    """``--noise-read mpcws`` (opt-in, 2026-11-23, eval/hdrplus-joint-check-j4-2026-11-23.md): Bayer only, its own
+    """``--noise-read mpcws`` (the default since 2026-11-23, eval/hdrplus-joint-check-j4-2026-11-23.md and
+    eval/camera-drawn-mpcws-2026-11-23.md): Bayer only, its own
     colour ramp, and exactly the shipped read where the ``mpcws`` read collapses."""
 
-    def test_flag_and_setting_default_ship(self):
+    def test_flag_and_setting_default_mpcws(self):
         from shootflow.cli import _build_parser
         from shootflow.raw_develop import DevelopSettings
 
         p = _build_parser()
-        self.assertEqual(p.parse_args(["develop", "x.dng", "--out", "o"]).noise_read, "ship")
+        self.assertEqual(p.parse_args(["develop", "x.dng", "--out", "o"]).noise_read, "mpcws")
+        self.assertEqual(p.parse_args(["develop", "x.dng", "--out", "o", "--noise-read", "ship"]).noise_read, "ship")
         self.assertEqual(p.parse_args(["develop", "x.dng", "--out", "o", "--noise-read", "mpcws"]).noise_read, "mpcws")
-        self.assertEqual(DevelopSettings().noise_read, "ship")
+        self.assertEqual(DevelopSettings().noise_read, "mpcws")  # the default since 2026-11-23
 
     @unittest.skipUnless(has_numpy(), "numpy not installed")
     def test_read_rules(self):
@@ -471,12 +473,14 @@ class DevelopNoiseAwareTests(unittest.TestCase):
         self.assertEqual(frep.demosaic, "directional")
         self.assertTrue(any("NoiseProfile" in n and "--no-noise-from-frame" in n for n in frep.notes), frep.notes)
         self.assertEqual(list(fpx), list(dpx2))
-        # --noise-read mpcws (opt-in): a developed image, the default bytes unchanged
+        # --noise-read mpcws (the default since 2026-11-23, eval/camera-drawn-mpcws-2026-11-23.md): the default bytes
         _, _, mpx, mrep = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware", noise_read="mpcws")
         self.assertEqual(mrep.demosaic, "noise-aware")
         self.assertEqual(len(mpx), len(epx))
-        _, _, spx, _ = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware", noise_read="ship")
-        self.assertEqual(list(spx), list(epx))
+        self.assertEqual(list(mpx), list(epx))  # the default is the mpcws read
+        _, _, spx, srep = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware", noise_read="ship")
+        self.assertEqual(srep.demosaic, "noise-aware")
+        self.assertEqual(len(spx), len(epx))
         _, _, _, hfrep = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware", half=True)
         self.assertEqual(hfrep.demosaic, "noise-aware")
         # A file with a profile ignores the flag either way: the profile drives the blend.

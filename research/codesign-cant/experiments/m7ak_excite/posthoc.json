@@ -1,0 +1,22 @@
+[
+ {
+  "arm": "full",
+  "probe": "ideal",
+  "dead": 16
+ },
+ {
+  "arm": "full",
+  "probe": "yaw10",
+  "dead": 19
+ },
+ {
+  "arm": "quiet+Y",
+  "probe": "ideal",
+  "dead": 13
+ },
+ {
+  "arm": "quiet+Y",
+  "probe": "yaw10",
+  "dead": 24
+ }
+]

@@ -585,7 +585,11 @@ eval/cobie-placement-point-2026-11-23.md), 1,068 the same, 95 another and 64
 blank. Since a fix to the room test the same day (a flat, zero-volume piece in
 a room's solid had emptied the room or swollen it to its box: 29 of 852 rooms
 in 12 files, eval/cobie-flat-pieces-2026-11-23.md), 1,218 the same (99.3%), 9
-another and none blank; doors and windows 821 of 869 exactly. On Duplex,
+another and none blank; doors and windows 821 of 869 exactly. Of the 20 given a
+room the file does not name, all 20 are the file's slip (2026-11-23,
+eval/door-extra-room-2026-11-23.md: dental_clinic bounds its 18 bounded windows
+to the roof space outside only, never the office they are in), so an opening
+the file bounds on one side now takes the room geometry finds on the other. On Duplex,
 IfcOpenShell's ifcfm writes the same counts of floors, rooms, zones, types and
 components, and the QC of its workbook finds the 38 components it leaves at
 `n/a`.

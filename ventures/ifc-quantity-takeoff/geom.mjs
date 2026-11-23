@@ -244,7 +244,7 @@ function transformSolid(s, m) {
   if (s.bars) {
     const k = Math.cbrt(Math.abs(det(m)));
     const lin = [m[0], m[1], m[2], 0, m[4], m[5], m[6], 0, m[8], m[9], m[10], 0];
-    out.bars = s.bars.map((b) => ({ radius: b.radius * k, segs: b.segs.map((g) => g.kind === "arc"
+    out.bars = s.bars.map((b) => ({ radius: b.radius * k, ...(b.tube ? { tube: true } : {}), segs: b.segs.map((g) => g.kind === "arc"
       ? { ...g, a: apply(m, g.a), b: apply(m, g.b), c: apply(m, g.c), r: g.r * k, n: mulS(unit(apply(lin, g.n)) ?? g.n, det(m) < 0 ? -1 : 1), length: g.length * k }
       : { ...g, a: apply(m, g.a), b: apply(m, g.b), length: g.length * k }) }));
   }
@@ -335,6 +335,58 @@ export function* solidPoints(s) {
   for (const t of s.terms) for (const f of t.faces) yield* f;
   if (s.shells) for (const sh of s.shells) for (const f of sh.loops) yield* f;
   if (s.loose) for (const f of s.loose) yield* f;
+}
+
+/**
+ * A bar's centreline as a polyline: line pieces by their ends, arcs cut into
+ * chords turning at most `maxTurn` radians each, repeated points dropped.
+ * For drawing a swept disk (it has no faces) and finding where it is.
+ * @param {object[]} segs path3 pieces ({kind: "line", a, b} or {kind: "arc", a, c, n, angle})
+ */
+export function barPolyline(segs, maxTurn = Math.PI / 12) {
+  const pts = [];
+  const push = (p) => {
+    const q = pts[pts.length - 1];
+    if (!q || Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]) > 1e-9 * (1 + Math.hypot(...p))) pts.push(p);
+  };
+  for (const g of segs) {
+    if (!(g.length > 0)) continue;
+    if (g.kind === "arc") {
+      const u = sub(g.a, g.c), v = cross(g.n, u);
+      const n = Math.max(1, Math.ceil(Math.abs(g.angle) / maxTurn));
+      for (let i = 0; i <= n; i++) {
+        const t = (g.angle * i) / n;
+        push(add(g.c, add(mulS(u, Math.cos(t)), mulS(v, Math.sin(t)))));
+      }
+    } else { push(g.a); push(g.b); }
+  }
+  return pts;
+}
+
+/**
+ * Smallest and largest n.x over swept-disk bars (`tube` bars): each piece of
+ * the centreline widened by the disk's reach along n, r * sqrt(1 - (t.n)^2).
+ * Arcs are read as their chords. [Infinity, -Infinity] when there is none.
+ */
+export function barExtent(bars, n) {
+  const nn = unit(n);
+  let lo = Infinity, hi = -Infinity;
+  for (const b of bars || []) {
+    if (!b.tube) continue;
+    const P = barPolyline(b.segs);
+    for (let i = 0; i + 1 < P.length; i++) {
+      const t = unit(sub(P[i + 1], P[i]));
+      if (!t) continue;
+      const c = dot(t, nn);
+      const reach = b.radius * Math.sqrt(Math.max(0, 1 - c * c));
+      for (const p of [P[i], P[i + 1]]) {
+        const d = dot(p, nn);
+        lo = Math.min(lo, d - reach);
+        hi = Math.max(hi, d + reach);
+      }
+    }
+  }
+  return [lo, hi];
 }
 
 /** Smallest and largest n.x over a solid's polyhedral terms and faceted shells. */
@@ -1373,7 +1425,7 @@ export class Geometry {
         // the directrix's length: a reinforcing bar's cut length (qto memberLength)
         out.sweepLength = len;
         // the bar's path and radius, for the bar schedule (rebar.mjs)
-        out.bars = [{ radius: r, segs }];
+        out.bars = [{ radius: r, segs, tube: true }];
         return out;
       }
       case "IFCREVOLVEDAREASOLID": {
