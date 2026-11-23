@@ -31,6 +31,16 @@ k<sub>1</sub>, k<sub>2</sub>, k<sub>3</sub> model: `python3 src/foldcheck.py --f
 reports the Kinect's board fit folding at 380.8 px against a 415.7 px corner (exit 1). Run it before trusting a two-term
 calibration near the image edge; milestone 3zd found such a fit 14&ndash;17 px off there.
 
+**Milestone 3ze headline** (do the camera calibrations that ship with open-source SLAM and VIO systems fold inside their own image?):
+**no, none of 14.** Across 55 example configs of ORB-SLAM2/3, VINS-Mono/Fusion, OpenVINS and Kimera-VIO (70 cameras; 14 distinct non-zero
+pinhole radial-tangential calibrations: TUM RGB-D, EuRoC, KAIST, RealSense and the authors' rigs), no radial model folds before its image
+corner, and OpenCV's `undistortPoints` &rarr; `projectPoints` round trip at the four corners is within 0.13 px on every one. On this project's
+own two-term Kinect board fit, which folds at 381 px against a 416 px corner, the same round trip is off by up to 38 px, silently. So the
+fold is a guard for one's own two-term fits of strongly distorted lenses, and a corner round trip catches it with no new code. One of four
+predictions held, two untestable. [Log](LOG.md).
+
+![smallest slope of the radial distortion map inside the image for 14 published SLAM/VIO calibrations and the project's folding Kinect fit](experiments/m3ze_fleet/fleet.png)
+
 **Milestone 3zd headline** (does "update the focal length, keep the held lens distortion" survive at the image edge, 250&ndash;400 px?):
 **only if the held distortion is valid out to the corner.** Against TUM's calibration, the one reference that does not fold before the
 corner on either camera, the Kinect's two-term board and target-free distortions (folding at 381 and 403 px) sit 14&ndash;17 px off across
@@ -1233,6 +1243,8 @@ default: with the transferred factor the rule made a harmful adoption in 1.4% of
 
 ```
 pip install numpy scipy opencv-python-headless matplotlib pytest
+python3 experiments/m3ze_fleet/fetch.py      # milestone 3ze, 55 SLAM/VIO configs from raw.githubusercontent.com; calibs.json (committed)
+python3 experiments/m3ze_fleet/analyse.py    # seconds; summary.json, results.txt, fleet.png
 python3 experiments/m3t_poolprior/analyse.py   # milestone 3t, analysis of saved solves, <1 s; summary.json, poolprior.png
 python3 experiments/m3w_update/analyse.py    # milestone 3w, analysis of saved solves, <1 s; summary.json, update.png
 python3 experiments/m3x_loso/analyse.py      # milestone 3x, leave-one-sequence-out, <1 s; summary.json, loso.png
@@ -1366,6 +1378,11 @@ python3 paper/check_short.py               # seconds; every number in the letter
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3ze: none of 14 distinct calibrations shipped with five open-source SLAM/VIO systems folds inside its image (OpenCV's corner
+round trip within 0.13 px on all; up to 38 px on the project's folding Kinect fit). Next: the paper's Recommendation 9 narrowed to "check your
+own two-term fits" with the corner round trip as the tool-native test; a wider corpus (ROS `camera_info` files, dataset calibration
+releases, OpenCV's rational model); the three-term board refit and feature radii when the TUM host answers.
 
 After milestone 3zd: at the image edge (250&ndash;400 px, truth TUM) holding the distortion is safe only when the held model does not
 fold inside the image; the Kinect's two-term references fold at 381 and 403 px and cost 14&ndash;17 px at the edge, where adopting the
