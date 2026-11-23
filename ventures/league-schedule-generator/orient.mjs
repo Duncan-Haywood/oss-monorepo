@@ -29,7 +29,7 @@
 // back in and branches on pairs (README "Fewest breaks of a home-and-away season, proved"). Pure
 // functions, no DOM, seeded.
 
-import { mulberry32 } from "./calc.mjs";
+import { mulberry32 } from "./rng.mjs";
 import { MINPLUS_WASM } from "./wasm/minplus-wasm.mjs";
 
 // minPlusStep's elimination steps in WebAssembly (wasm/minplus.c, README "minPlusStep in

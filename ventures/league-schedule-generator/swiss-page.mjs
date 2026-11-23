@@ -2,7 +2,7 @@
 // The pairing itself is swiss.mjs (FIDE Dutch, bracket by bracket); this file reads the player
 // list (optionally with ratings), turns a round's board results into result lines the pairer
 // reads (calc.mjs parseSwissResults), and pairs the next round with the checks the page shows.
-import { parseSwissResults, validateSwiss, swissRounds } from "./calc.mjs";
+import { parseSwissResults, validateSwiss, swissRounds } from "./swiss-system.mjs";
 import { swissPairings, swissStandings } from "./swiss.mjs";
 
 /**

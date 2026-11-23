@@ -16,7 +16,9 @@
 // between two games at the same time) for any official whose own club made it through.
 // validateReferees re-checks every hard rule from the output alone.
 
-import { parseTime, mulberry32, csvCell } from "./calc.mjs";
+import { parseTime } from "./dates.mjs";
+import { mulberry32 } from "./rng.mjs";
+import { csvCell } from "./outputs.mjs";
 import { dayRef, resolveTeams, hhmm } from "./tournament.mjs";
 
 const DAY = 1440;

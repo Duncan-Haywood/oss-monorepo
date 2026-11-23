@@ -9,7 +9,9 @@
 // A team name used in two divisions needs the division first ("U12 Boys: Hawks 2-1 Owls") or a
 // line with only the division's name above a block of its results.
 
-import { parseResults, readPlayoffLine, playBracket, standings, tieBreakNotes, parsePointSystem, csvCell } from "./calc.mjs";
+import { parseResults, standings, tieBreakNotes, parsePointSystem } from "./standings.mjs";
+import { readPlayoffLine, playBracket } from "./brackets.mjs";
+import { csvCell } from "./outputs.mjs";
 import { divisionGames } from "./tournament.mjs";
 
 const norm = (s) => String(s).replace(/\s+/g, " ").trim().toLowerCase();

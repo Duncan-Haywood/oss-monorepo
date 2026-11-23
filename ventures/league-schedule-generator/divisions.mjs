@@ -7,7 +7,14 @@
 //   3. a team plays at the same venue as on its previous night where it can (fewer trips).
 // Each division keeps the circle-method round robin of calc.mjs (home/away balance and byes), so only
 // the dates, courts and times are decided here.
-import { csvCell, csvRows, roundRobin, relabelPlan, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, tieBreakNotes, standingsCsv, parsePointSystem, playoffBracket, seedOrder, bracketText, weeklyUpdate, playoffRace, remainingFixtures, raceText, forfeitReport } from "./calc.mjs";
+import { csvCell, htmlEsc, icsEscape, icsFold, icsAlarm, standingsCsv } from "./outputs.mjs";
+import { csvRows, relabelPlan, parseTimes, parseNameList, parseCourtClosures, courtClosedOn, forfeitReport } from "./schedule.mjs";
+import { roundRobin } from "./rounds.mjs";
+import { mulberry32 } from "./rng.mjs";
+import { parseDate, parseDateList, parseWeekdays, dayIso, dayOfWeek, dayLabel } from "./dates.mjs";
+import { parseOfficials } from "./officials.mjs";
+import { parseResults, standings, tieBreakNotes, parsePointSystem, weeklyUpdate, playoffRace, remainingFixtures, raceText } from "./standings.mjs";
+import { playoffBracket, seedOrder, bracketText } from "./brackets.mjs";
 
 const MAX_NIGHTS = 800;
 const W_CLASH = 1000;

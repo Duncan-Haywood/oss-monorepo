@@ -10,7 +10,7 @@
 // Pure functions: server.mjs keeps the pool in its state file (state.subs) and passes `games` (from
 // upcomingGames) in. The pool is keyed by match day (days since 1970-01-01, UTC), and days that are no
 // longer upcoming are pruned on every write, so the state file stays as small as the next few nights.
-import { dayLabel } from "./calc.mjs";
+import { dayLabel } from "./dates.mjs";
 import { cleanName, recordAvailability, teamAnswers, MAX_NAME } from "./availability.mjs";
 
 export const MAX_SUBS = 40; // per night: more than any rec league's sub list, small enough to bound the state file

@@ -21,7 +21,9 @@
 //    when the field is likely to be watching it).
 //  - A tie on the cut line (two teams level on points and holes won across two flights) is
 //    named, not broken: the standings' own order decides and the line says so.
-import { playoffBracket, dayLabel, csvCell } from "./calc.mjs";
+import { playoffBracket } from "./brackets.mjs";
+import { dayLabel } from "./dates.mjs";
+import { csvCell } from "./outputs.mjs";
 import { slotLabels, whereName } from "./golf.mjs";
 
 const FLIGHT_NAMES = "ABCDEFGH";

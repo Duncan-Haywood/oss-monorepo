@@ -16,7 +16,8 @@
 //   series; a tie splits them. Against the Vacancy (an odd league) a team bowls against its own
 //   par: the sum, over its lineup, of each spot's average plus handicap (blind spots: blindScore).
 import { VACANCY } from "./bowling.mjs";
-import { csvCell, dayLabel } from "./calc.mjs";
+import { csvCell } from "./outputs.mjs";
+import { dayLabel } from "./dates.mjs";
 
 export const RECAP_DEFAULTS = Object.freeze({
   gamesPerNight: 3, teamSize: 4, handicapPct: 90, basis: 220, maxHandicap: null,

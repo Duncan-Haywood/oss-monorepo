@@ -19,7 +19,11 @@
 // teams are known only on the night. They take a week but do not advance the round robin and are
 // left out of the lane counts.
 
-import { roundRobin, dayLabel, dayIso, csvCell, parseTeams, mulberry32 } from "./calc.mjs";
+import { roundRobin } from "./rounds.mjs";
+import { dayLabel, dayIso } from "./dates.mjs";
+import { csvCell } from "./outputs.mjs";
+import { parseTeams } from "./names.mjs";
+import { mulberry32 } from "./rng.mjs";
 import { LANE_TABLE } from "./bowling-lane-table.mjs";
 import { LANE_SHAPES } from "./bowling-avoid-shapes.mjs";
 

@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKiSEtJXdELHoqUhgeG",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T03:18:59Z",
+  "ended": "2026-11-23T03:33:23Z",
+  "wall_minutes": 22.29,
+  "tokens_in": 17336606,
+  "tokens_out": 60876,
+  "cost_usd": 6.1583,
+  "tool_calls": 120,
+  "task": "league-schedule-generator (flagship 9, allocate.py row 4): split calc.mjs by feature, quality audit r87's last open defect",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18358",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "Twice regenerated the modules (finer cuts to free more pages) while the full venture suite was running in the background against the same files; stopped and restarted it both times. Start long suites only once the layout is final.",
+    "First repoint script matched ^(\\s*)import, which swallowed a preceding blank line into the indent and doubled blank lines between the new imports; caught by reading bowling.mjs, fixed to [ \\t]* and re-run from a clean checkout."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/NEXT.md",
+      "issue": "Every flagship `next:` item for this venture needs a real league's input; the only buildable open item was a code-craft line from the r87 audit buried in NEXT.md, and two of that audit's other defects listed there as open were already fixed (h2h set scoring, night tie-break test) without being marked done."
+    },
+    {
+      "file": "ventures/league-schedule-generator/deploy.test.mjs",
+      "issue": "The Dockerfile test read only server.mjs's own imports, so it could not see a module missing from the image one import deeper; now followed transitively."
+    },
+    {
+      "file": "platform/ci/check_csv_formula_guard.py",
+      "issue": "Counts any exported *Csv function as a writer, so blackoutsFromCsv (reads a CSV) flagged the new schedule.mjs; the reader prefixes it skips (parse/read/load...) miss the '<thing>FromCsv' shape."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Deepen-a-flagship asks for 'a hard business or engineering problem, not polish'. Every open next: item needs outside input, so I took the audit's refactor, and judged it worth a run because with no bundler the 4,195-line module was a real page-weight cost on every one-format page.",
+      "did": "Split calc.mjs into 15 feature modules, kept calc.mjs as a re-exporting barrel with identical names, and repointed satellite modules.",
+      "result": "Eight pages load 67-93% less gzip code (Americano 215 -> 17 kB); index.html +10 kB (5%), stated in the README and post."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-one-import-cost-a-phone-200-kb.md",
+    "ventures/league-schedule-generator/README.md (One file became fifteen)",
+    "ventures/league-schedule-generator/NEXT.md"
+  ],
+  "goal": "Deepen flagship league-schedule-generator; close quality audit r87's open code-craft defect",
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py league-schedule-generator: ok, 970 tests, 0 failed (377.5 s). page.test.mjs re-run after the final guard change: 63 pass, 0 fail. node platform/pages/venture-preflight.mjs league-schedule-generator: first run failed check_csv_formula_guard (blackoutsFromCsv, a reader, counted as an exporter in schedule.mjs) and check_page_lists (hand-kept list of 8 pages in the new guard); fixed (comment pointing at csvCell; guard now reads the folder), re-run: preflight clean. Equivalence: every one of the 142 exports of the old calc.mjs vs the new barrel compared by toString() and JSON value: 0 differ. Headless Chromium load of 10 pages: 0 console/page errors; index.html builds the example season. Mutation: dropping pools.mjs from the Dockerfile fails the new deploy.test (the old one passed it). Page weight (eval/page-weight.txt, gzip per file): Americano night 215->17 kB, balanced teams 221->16, box league 219->36, practice 222->39, Swiss 213->40, weekend tournament 237->61, bowling 253->74, golf 270->90, multi-division 251->217, index 215->225.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1375e054-9cda-5622-a49a-cfa21ec440dc",
+    "transcripts": 1,
+    "first": "2026-11-23T03:18:59Z",
+    "last": "2026-11-23T03:41:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 115,
+        "input": 230,
+        "output": 60876,
+        "thinking": 16414,
+        "cache_read": 17147580,
+        "cache_write_5m": 0,
+        "cache_write_1h": 188796,
+        "api_equivalent_usd": 6.1583,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 115,
+      "input": 230,
+      "output": 60876,
+      "thinking": 16414,
+      "cache_read": 17147580,
+      "cache_write_5m": 0,
+      "cache_write_1h": 188796,
+      "api_equivalent_usd": 6.1583,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 120,
+    "tools": {
+      "Bash": 109,
+      "TaskStop": 4,
+      "ToolSearch": 3,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.29,
+      "active_minutes": 16.76,
+      "model_minutes": 12.81,
+      "tool_minutes": 3.95,
+      "waiting_on_human_minutes": 5.53,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior JS engineer splitting a 4,195-line module with a dependency-graph script, repointing 27 importers, writing two guard tests and measuring page weight",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 162.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

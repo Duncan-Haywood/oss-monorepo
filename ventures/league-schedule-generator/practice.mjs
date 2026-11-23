@@ -27,7 +27,8 @@
 //
 // Nothing here touches the DOM, storage or the network.
 
-import { parseTime, csvCell, icsEscape, icsFold } from "./calc.mjs";
+import { parseTime } from "./dates.mjs";
+import { csvCell, icsEscape, icsFold } from "./outputs.mjs";
 
 export const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 export const MAX_TEAMS = 300;

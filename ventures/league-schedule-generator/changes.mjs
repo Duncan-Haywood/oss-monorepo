@@ -4,7 +4,7 @@
 // moved, were cancelled or were added gets one email listing only those games. Past games are ignored.
 // The browser page already offers paste-ready notices for rainouts (calc.mjs changeNotices); this
 // covers any edit, and sends them on the organiser's own SMTP only when they tick the box. Zero dependencies.
-import { dayLabel } from "./calc.mjs";
+import { dayLabel } from "./dates.mjs";
 
 export const MAX_CHANGES_LISTED = 40; // per email; a rebuilt season is summarised, not listed in full
 

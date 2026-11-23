@@ -4,7 +4,8 @@
 // per team (their games only, with home/away and a bye marked) and a rules/notes page. The schedule
 // itself is never gated; this is presentation. Pure and self-contained: no network, every typed
 // string escaped, the logo accepted only as a raster data: URL.
-import { dayLabel, htmlEsc } from "./calc.mjs";
+import { dayLabel } from "./dates.mjs";
+import { htmlEsc } from "./outputs.mjs";
 
 /** @param {string} c */
 export function safeColor(c) { return /^#[0-9a-fA-F]{6}$/.test(String(c || "")) ? String(c) : "#1f4e5f"; }

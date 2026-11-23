@@ -21,7 +21,10 @@
 
 // CSV cells go through csvCell (calc.mjs), the formula-injection guard: a cell starting =, +, -, @,
 // tab or CR gets an apostrophe so a team name never runs as a spreadsheet formula.
-import { roundRobin, dayLabel, dayIso, csvCell, parseTeams, parseTime } from "./calc.mjs";
+import { roundRobin } from "./rounds.mjs";
+import { dayLabel, dayIso, parseTime } from "./dates.mjs";
+import { csvCell } from "./outputs.mjs";
+import { parseTeams } from "./names.mjs";
 import { hungarian } from "./bowling.mjs";
 import { TEE_TABLE, TEE_OUT_OF_REACH } from "./golf-tee-table.mjs";
 

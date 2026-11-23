@@ -13,7 +13,8 @@
 // adding an official later does not reshuffle games people were already told about.
 // Zero dependencies.
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { parseOfficials, dayOfWeek, dayLabel } from "./calc.mjs";
+import { parseOfficials } from "./officials.mjs";
+import { dayOfWeek, dayLabel } from "./dates.mjs";
 
 export const LATE_DAYS = 2; // a game given back with fewer days' notice is flagged to the organiser
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);

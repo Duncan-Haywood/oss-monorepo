@@ -12,7 +12,7 @@
 // searches for a round robin with a low COE and, after that, as few home/away breaks as it can.
 // Pure functions, seeded, no DOM, so the page, the CLI and the tests share it.
 
-import { mulberry32 } from "./calc.mjs";
+import { mulberry32 } from "./rng.mjs";
 import { leastBreaks, floorTable, pairLeastBreaks, FLOOR_PRICED_MAX_MATCHES } from "./orient.mjs";
 
 /**

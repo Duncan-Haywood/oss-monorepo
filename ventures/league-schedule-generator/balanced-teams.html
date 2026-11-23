@@ -109,7 +109,7 @@
 </footer>
 <script type="module">
   import { parsePlayers, balanceTeams, checkTeams, teamsCsv, teamsText, parseTeamsCsv, addLateSignups } from "./teams.mjs";
-  import { encodeFields, sampleFields } from "./calc.mjs";
+  import { encodeFields, sampleFields } from "./share.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
