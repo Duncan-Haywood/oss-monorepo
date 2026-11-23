@@ -736,6 +736,47 @@ identity pair reports nothing; eval/narrative-check-2026-11-22.md). Not yet read
 scheduler or owner's reviewer; the hotel file had no driving work due in the window, so its
 3 runs plant nothing. Guide: `how-to-write-a-monthly-construction-schedule-narrative.html`.
 
+## Collapsed as-built: the "but for" date (2026-11-23)
+
+`collapse.mjs`, `--collapse delays.csv [--csv collapse.csv] [--xer collapsed.xer] [--as-built-xer model.xer]`
+(or `--as-built` with no list), and the page's **Collapsed as-built** section: the retrospective
+delay method of AACE RP 29R-03, MIP 3.8 (modelled, subtractive, single simulation) and MIP 3.9
+(the same, one group at a time). Where the time impact analysis adds a delay to the update in force
+before it happened, this starts from what happened. The final update becomes a CPM model that lands
+every activity on its actual dates: actual durations on each activity's calendar, the file's logic,
+and where an activity started later than its logic needed, that wait (an *as-built gap*) added to
+every lag into it, so the predecessor that drove it stays tight and the others keep their slack.
+Then the listed delays come out (activity ID; working days, blank for the whole activity; `gap` to
+take the days out of the wait before the activity instead of its duration; party; event) and the
+model is recomputed: the finish with all of them out, with each party's out ("but for the owner" is
+the date the contractor would have finished on its own), with each event's out, and the concurrent
+days (parties alone minus all together). With no list it lists the gaps, where unrecorded delays
+usually sit, with any constraint the file holds on that activity. The collapsed schedule and the
+model download as XERs for P6.
+
+Rules the model follows, each found by a planted case that failed without it (eval below):
+time the successor's calendar cannot work is not a wait (a Saturday between a six-day predecessor
+and a Sunday-to-Thursday successor, Expressway file); an activity that ran long only because a
+finish-to-finish link held its finish keeps its planned duration and the link holds the finish
+(hotel file, SS+60 d / FF+60 d pairs); as-late-as-possible activities stay ALAP, and their successors
+read gaps from their early dates, as P6's forward pass does (hotel file, 20 ALAP activities); a
+start constraint in the file whose date is on or before the actual start is kept as
+start-on-or-after (the example's inspection booked for 2026-05-18: without it, taking out an
+upstream slip slid the inspection earlier than the city allowed), and when that date is what held
+the activity, the gap stays on the date, so `gap` moves the date. Progress, expected finish dates
+and other constraints are removed; the model starts at the first actual start with nothing done.
+
+How it was checked (`eval/collapse-check.mjs`, `eval/collapse-check-2026-11-23.md`): each public
+file's main project finished as planned by status.mjs, with and without planted slips (1 to 3
+activities in progress part-way through, 1 to 30 working days each) and planted waits (a
+start-on-or-after hold 1 to 30 days past an activity's early start), so the "but for" date is the
+run without them. Six files, seed 2, 10 plants each: as exported the model lands 21,404 of
+21,422 activities on their dates (CCA 15,831 of 15,849) and every finish matches; finished as
+planned, taking out exactly the planted slips gave back the finish without them 60 of 60 times,
+planted waits taken out of the gap 60 of 60, the collapsed XER read back 60 of 60 (seed 1 on
+five files: 50/50 each). 7 unit tests in `collapse.test.mjs`; the guide's worked example is
+checked against the engine in `guides.test.mjs`.
+
 ## GAO Schedule Assessment Guide scorecard (2026-11-23)
 
 `gao.mjs`, `--gao [--baseline baseline.xer] [--csv gao.csv] [--html gao.html]`, and the page's
@@ -880,6 +921,7 @@ button drifts. Search impressions not measured yet.
 | A narrative written by hand each month from P6 layouts and last month's report | Whatever the scheduler copies across; slow, and easy to miss a change the owner's reviewer will find | The draft narrative from the two XERs: status, critical path, work done and missed, every change with a fill-in for its reason, float, next period, free and in the browser |
 | Paid XER viewers (desktop readers sold per seat or per year) or asking the contractor for a PDF of their layout | Show the activities and bars from an XER without P6; a PDF is whatever layout the contractor chose | The WBS tree and bars in a browser tab, free, with level of effort and WBS summary dates as P6 gives them (305 of 305 on the public files), the baseline bar and finish variance per activity, critical or longest-path colouring, printable and as CSV |
 | A schedule-quality trend from a paid analytics subscription, or a spreadsheet of each month's DCMA scores kept by hand | Per-update quality scores and float trends, per project or per seat, or whatever the scheduler copies across | The DCMA points, critical counts and driving-path churn for every update at once, BEI against the first update rather than the planned dates P6 resets, what newly fails each month by activity, and the activities losing float with months to zero, free in the browser |
+| A collapsed as-built built by hand by a claims consultant (actual durations typed in, "as-built lags" set link by link until the dates line up, delays deleted, rescheduled in P6), billed by the hour | A model that may or may not reproduce the as-built dates, often not shown; a week of expert time per analysis | The model from the final XER in seconds, with a count of how many activities it lands on their as-built dates; the but-for finish by party and by event and the concurrent days; every as-built gap listed; the model and the collapsed schedule as XERs to check in P6 |
 | A GAO Schedule Assessment Guide review done by hand (layouts filtered practice by practice), or a paid analytics product's GAO metric library | An auditor's or scheduler's afternoon per update; a per-seat licence | The ten practices scored from the XER, every test with its threshold and the activities behind each failure, practice 10 against the real baseline file, a printable scorecard and CSV, free in the browser |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
 | P6 Professional's own schedule check | Built into P6 for people who hold a P6 licence | Works for the many who receive XER files without a P6 seat: owners, lenders, subcontractors, claims consultants |
@@ -890,7 +932,7 @@ button drifts. Search impressions not measured yet.
 for schedule review. The written review (PDF via print) now ships free.
 Natural paid paths, each needing the owner: a branded or white-label review for
 consultancies; a period-by-period windows analysis across a whole
-project's updates for delay claims; and the review itself as a service.
+project's updates for delay claims; a collapsed as-built exhibit for a claim; and the review itself as a service.
 
 ## How it works
 
@@ -956,6 +998,7 @@ project's updates for delay claims; and the review itself as a service.
   float and the driving path. Level of effort and WBS summary activities are
   left out of the network.
 - `floatpaths.mjs`: the longest path (every driving branch into the project
+- `collapse.mjs` `collapsedAsBuilt(xer, delays, { projId })` returns `{ project, asBuilt: { start, finish, modelFinish, activities, reproduced, misses, gaps: [{ code, name, days, after, constraint, onPath }], outOfSequence, drivingPath }, all: { finish, earlierDays, drivingPath }, milestones, byParty, byEvent, concurrentDays, rows, warnings, asBuiltXer, collapsedXer }`; `parseDelays(text)`, `asBuiltModel(xer)`, `collapsedText(r)`, `collapsedCsv(r)`, `collapsedTableHtml(r)`. CLI: `node cli.mjs final.xer --collapse delays.csv [--csv] [--xer collapsed.xer] [--as-built-xer model.xer] [--json]` or `--as-built`.
   finish, compared with the flag P6 stores on each activity) and multiple float
   paths to any one activity. Relative float is total float computed as if that
   activity were the only finish: a backward pass from its early finish over its
@@ -1041,6 +1084,7 @@ node cli.mjs schedule.xer --gantt [--baseline baseline.xer] [--html gantt.html] 
 node cli.mjs schedule.xer --level [--crew 2] [--within-float] [--curves] [--csv levelled.csv] [--json]   # resource levelling
 node cli.mjs this-month.xer --previous last-month.xer [--json] [--csv changes.csv] [--project CODE]
 node cli.mjs update.xer --tia fragnet.csv [--csv impact.csv] [--html tia.html] [--xer impacted.xer] [--event NAME] [--by NAME] [--json]   # time impact analysis
+node cli.mjs final.xer --collapse delays.csv [--csv collapse.csv] [--xer collapsed.xer] [--as-built-xer model.xer] [--json]   # collapsed as-built (but-for)
 node cli.mjs --windows jan.xer feb.xer mar.xer apr.xer [--json] [--csv windows.csv] [--project CODE]
 node cli.mjs --trend jan.xer feb.xer mar.xer apr.xer [--json] [--csv trend.csv] [--project CODE]   # schedule health trend
 ```

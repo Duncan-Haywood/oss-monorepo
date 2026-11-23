@@ -14,6 +14,7 @@ Free and open source (MIT). Screening metrics on the user's own file, not schedu
 - [How to review a contractor's monthly P6 schedule update](https://marisstella.app/xer-schedule-check/how-to-review-a-contractors-p6-schedule-update.html)
 - [How to write a monthly construction schedule narrative](https://marisstella.app/xer-schedule-check/how-to-write-a-monthly-construction-schedule-narrative.html): drafts the contractor's narrative from last month's and this month's XER; causes and reasons left as fill-ins
 - [How to find critical path drag in a P6 schedule](https://marisstella.app/xer-schedule-check/how-to-find-critical-path-drag-in-a-p6-schedule.html): which critical activity is worth accelerating; drag and drag cost for every longest-path activity and lag
+- [How to run a collapsed as-built delay analysis](https://marisstella.app/xer-schedule-check/how-to-run-a-collapsed-as-built-delay-analysis.html): take delays out of a finished P6 schedule and read the but-for finish, by party and event (AACE 29R-03 MIP 3.8/3.9)
 - [How to assess a schedule against the GAO Schedule Assessment Guide](https://marisstella.app/xer-schedule-check/how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html): the ten GAO-16-89G best practices scored from the XER, each test with its threshold and the activities behind every failure
 
 ## For agents

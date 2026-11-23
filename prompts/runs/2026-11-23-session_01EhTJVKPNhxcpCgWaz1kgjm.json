@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVKPNhxcpCgWaz1kgjm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T01:19:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship xer-schedule-check: collapsed as-built (AACE 29R-03 MIP 3.8/3.9) but-for delay analysis",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": 18340,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here row was photo-editing; its buildable items are noise-tuning sweeps three sessions judged spent and raw.pixls.us was refused again. Took xer-schedule-check (flagship 13), whose next items all wanted outside inputs, and built a new analysis instead.",
+      "did": "collapsed as-built in collapse.mjs",
+      "result": "shipped with planted-delay eval"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-collapsed-as-built-but-for-date-from-an-xer.md",
+    "ventures/xer-schedule-check/how-to-run-a-collapsed-as-built-delay-analysis.html"
+  ],
+  "goal": null,
+  "notes": "collapse.mjs builds an as-built CPM model from a final XER and subtracts listed delays. Six public P6 files as exported: model lands 21,404 of 21,422 activities on their dates, every finish matches. Planted slips/waits on files finished as planned: seed 2, six files 60/60 slips, 60/60 waits, 60/60 XER round trips (seed 1, five files: 50/50 each). Preflight caught a missing CSV formula guard in collapse.mjs; fixed. Four model rules came from planted misses: calendar-aware gaps (Expressway Sun-Thu successor), FF-held finishes keep planned duration only when a start link is also tight (hotel SS/FF+60d; CCA as exported went 12,441 -> 15,831 of 15,849 after the start-link condition and a same-working-instant comparison), ALAP successors read from early dates, file start constraints kept as start-on-or-after dates. Venture tests passed locally.",
+  "corrections": [],
+  "redteam": null
+}

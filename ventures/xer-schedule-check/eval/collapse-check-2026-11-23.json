@@ -1,0 +1,1976 @@
+{
+ "seed": 2,
+ "plants": 10,
+ "totals": {
+  "c0": [
+   6,
+   6
+  ],
+  "c0acts": [
+   21404,
+   21422
+  ],
+  "c1": [
+   5,
+   6
+  ],
+  "c1acts": [
+   21404,
+   21422
+  ],
+  "c2": [
+   6,
+   6
+  ],
+  "c3": [
+   60,
+   60
+  ],
+  "c3b": [
+   60,
+   60
+  ],
+  "c4": [
+   60,
+   60
+  ]
+ },
+ "files": [
+  {
+   "file": "CCA_R03_dt_24Oct11SC.xer",
+   "project": "CCA R03 dt 24Oct11SC",
+   "misses": [],
+   "asExported": {
+    "activities": 15849,
+    "reproduced": 15831,
+    "finishMatches": true,
+    "gaps": 994,
+    "outOfSequence": 3092,
+    "firstMisses": [
+     {
+      "code": "CGLTR26026C0",
+      "start": "2011-06-09 13:07",
+      "finish": "2011-10-31 17:00",
+      "modelStart": "2011-06-09 13:00",
+      "modelFinish": "2011-10-31 16:53"
+     },
+     {
+      "code": "CGLTR01005C0",
+      "start": "2011-11-01 08:00",
+      "finish": "2011-11-17 17:00",
+      "modelStart": "2011-10-31 16:53",
+      "modelFinish": "2011-11-17 16:53"
+     },
+     {
+      "code": "IR8M123013C0",
+      "start": "2011-09-05 00:00",
+      "finish": "2011-12-15 10:24",
+      "modelStart": "2011-09-17 10:24",
+      "modelFinish": "2011-12-15 10:24"
+     },
+     {
+      "code": "UP3OS26002C0",
+      "start": "2011-05-15 00:00",
+      "finish": "2011-10-09 09:12",
+      "modelStart": "2011-09-15 09:12",
+      "modelFinish": "2011-10-09 09:12"
+     },
+     {
+      "code": "UP3MT27004C0",
+      "start": "2011-09-05 00:00",
+      "finish": "2011-10-18 11:12",
+      "modelStart": "2011-10-10 11:12",
+      "modelFinish": "2011-10-18 11:12"
+     }
+    ]
+   },
+   "model": {
+    "activities": 15849,
+    "reproduced": 15831,
+    "finishMatches": true,
+    "gaps": 994,
+    "outOfSequence": 3092,
+    "firstMisses": [
+     {
+      "code": "CGLTR26026C0",
+      "start": "2011-06-09 13:07",
+      "finish": "2011-10-31 17:00",
+      "modelStart": "2011-06-09 13:00",
+      "modelFinish": "2011-10-31 16:53"
+     },
+     {
+      "code": "CGLTR01005C0",
+      "start": "2011-11-01 08:00",
+      "finish": "2011-11-17 17:00",
+      "modelStart": "2011-10-31 16:53",
+      "modelFinish": "2011-11-17 16:53"
+     },
+     {
+      "code": "IR8M123013C0",
+      "start": "2011-09-05 00:00",
+      "finish": "2011-12-15 10:24",
+      "modelStart": "2011-09-17 10:24",
+      "modelFinish": "2011-12-15 10:24"
+     },
+     {
+      "code": "UP3OS26002C0",
+      "start": "2011-05-15 00:00",
+      "finish": "2011-10-09 09:12",
+      "modelStart": "2011-09-15 09:12",
+      "modelFinish": "2011-10-09 09:12"
+     },
+     {
+      "code": "UP3MT27004C0",
+      "start": "2011-09-05 00:00",
+      "finish": "2011-10-18 11:12",
+      "modelStart": "2011-10-10 11:12",
+      "modelFinish": "2011-10-18 11:12"
+     }
+    ]
+   },
+   "plants": [
+    {
+     "dataDate": "2012-02-16 08:32",
+     "slips": [
+      {
+       "code": "GP1PA23009C0",
+       "days": 18
+      },
+      {
+       "code": "D04ER05501C0",
+       "days": 30
+      },
+      {
+       "code": "T10TR23009C0",
+       "days": 9
+      }
+     ],
+     "slippedFinish": "2013-06-22 16:59",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "15831/15849"
+    },
+    {
+     "dataDate": "2012-03-20 13:15",
+     "slips": [
+      {
+       "code": "T19RK23017C0",
+       "days": 26
+      },
+      {
+       "code": "CGLE126005C0",
+       "days": 24
+      },
+      {
+       "code": "S06AC09501C0",
+       "days": 19
+      }
+     ],
+     "slippedFinish": "2013-06-22 16:59",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "15831/15849"
+    },
+    {
+     "dataDate": "2012-08-14 10:58",
+     "slips": [
+      {
+       "code": "T19M226007C0",
+       "days": 28
+      }
+     ],
+     "slippedFinish": "2013-06-22 16:59",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "15831/15849"
+    },
+    {
+     "dataDate": "2012-04-08 11:40",
+     "slips": [
+      {
+       "code": "PP3BM23001C10",
+       "days": 18
+      },
+      {
+       "code": "PP1BE26002C0",
+       "days": 3
+      },
+      {
+       "code": "TVT3314239C0",
+       "days": 6
+      }
+     ],
+     "slippedFinish": "2013-06-22 16:59",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "15831/15849"
+    },
+    {
+     "dataDate": "2012-10-06 09:49",
+     "slips": [
+      {
+       "code": "PP3BP26012C20",
+       "days": 20
+      }
+     ],
+     "slippedFinish": "2013-06-22 16:59",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "15831/15849"
+    },
+    {
+     "dataDate": "2012-10-01 15:23",
+     "slips": [
+      {
+       "code": "DP2LO09503C0",
+       "days": 22
+      },
+      {
+       "code": "PP3CP11006C10",
+       "days": 18
+      },
+      {
+       "code": "DP3SR11001C0",
+       "days": 12
+      }
+     ],
+     "slippedFinish": "2013-06-22 16:59",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "15830/15849"
+    },
+    {
+     "dataDate": "2012-11-17 08:10",
+     "slips": [
+      {
+       "code": "T20R109701C0",
+       "days": 28
+      },
+      {
+       "code": "T15PA09503C0",
+       "days": 28
+      }
+     ],
+     "slippedFinish": "2013-07-10 15:02",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "earlierDays": 15.8,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "15830/15849"
+    },
+    {
+     "dataDate": "2012-03-26 11:54",
+     "slips": [
+      {
+       "code": "S07TR09903C0",
+       "days": 14
+      }
+     ],
+     "slippedFinish": "2013-06-22 16:59",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "15831/15849"
+    },
+    {
+     "dataDate": "2012-02-15 09:41",
+     "slips": [
+      {
+       "code": "T09M221119C0",
+       "days": 27
+      },
+      {
+       "code": "D04CO04435C0",
+       "days": 24
+      }
+     ],
+     "slippedFinish": "2013-06-22 16:59",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "15831/15849"
+    },
+    {
+     "dataDate": "2012-11-14 08:15",
+     "slips": [
+      {
+       "code": "T12PA09503C0",
+       "days": 20
+      }
+     ],
+     "slippedFinish": "2013-06-22 16:59",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "15831/15849"
+    }
+   ],
+   "waits": [
+    {
+     "code": "T21CO04403C0",
+     "days": 3,
+     "heldFinish": "2013-06-22 16:59",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "taken": 3,
+     "ok": true
+    },
+    {
+     "code": "CP3M121132C0",
+     "days": 2,
+     "heldFinish": "2013-06-22 16:59",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "taken": 2,
+     "ok": true
+    },
+    {
+     "code": "DGLPA09903C0",
+     "days": 21,
+     "heldFinish": "2013-06-22 16:59",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "taken": 21,
+     "ok": true
+    },
+    {
+     "code": "S08TR26005C0",
+     "days": 9,
+     "heldFinish": "2013-06-22 16:59",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "taken": 9,
+     "ok": true
+    },
+    {
+     "code": "T15P105503C0",
+     "days": 14,
+     "heldFinish": "2013-06-22 16:59",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "taken": 14,
+     "ok": true
+    },
+    {
+     "code": "GP2AB26005C0",
+     "days": 13,
+     "heldFinish": "2013-06-22 16:59",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "taken": 13,
+     "ok": true
+    },
+    {
+     "code": "T16P122029C0",
+     "days": 21,
+     "heldFinish": "2013-07-17 16:59",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "taken": 21,
+     "ok": true
+    },
+    {
+     "code": "GP1PA08709C0",
+     "days": 18,
+     "heldFinish": "2013-06-22 16:59",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "taken": 18,
+     "ok": true
+    },
+    {
+     "code": "I08PA23008C0",
+     "days": 6,
+     "heldFinish": "2013-06-22 16:59",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "taken": 6,
+     "ok": true
+    },
+    {
+     "code": "PP1CE09601C0",
+     "days": 24,
+     "heldFinish": "2013-06-22 16:59",
+     "butFor": "2013-06-22 16:59",
+     "want": "2013-06-22 16:59",
+     "taken": 24,
+     "ok": true
+    }
+   ],
+   "seconds": 207.7
+  },
+  {
+   "file": "Expressway_Project.xer",
+   "project": "BEW3",
+   "misses": [],
+   "asExported": {
+    "activities": 823,
+    "reproduced": 823,
+    "finishMatches": true,
+    "gaps": 0,
+    "outOfSequence": 0,
+    "firstMisses": []
+   },
+   "model": {
+    "activities": 823,
+    "reproduced": 823,
+    "finishMatches": true,
+    "gaps": 0,
+    "outOfSequence": 0,
+    "firstMisses": []
+   },
+   "plants": [
+    {
+     "dataDate": "2015-01-30 14:23",
+     "slips": [
+      {
+       "code": "BEW/PR/FC/1130",
+       "days": 21
+      }
+     ],
+     "slippedFinish": "2016-09-18 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "earlierDays": 21,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "823/823"
+    },
+    {
+     "dataDate": "2015-05-04 10:33",
+     "slips": [
+      {
+       "code": "BEW/PR/FC/1110",
+       "days": 20
+      },
+      {
+       "code": "BEW/PR/FC/1230",
+       "days": 27
+      }
+     ],
+     "slippedFinish": "2016-09-25 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "earlierDays": 28,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "823/823"
+    },
+    {
+     "dataDate": "2014-12-08 16:47",
+     "slips": [
+      {
+       "code": "BEW/PR/FC/1170",
+       "days": 20
+      },
+      {
+       "code": "BEW/PR/FC/1220",
+       "days": 12
+      },
+      {
+       "code": "BEW/PR/FC/1200",
+       "days": 27
+      }
+     ],
+     "slippedFinish": "2016-09-25 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "earlierDays": 28,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "823/823"
+    },
+    {
+     "dataDate": "2015-01-11 11:20",
+     "slips": [
+      {
+       "code": "BEW/PR/FC/1190",
+       "days": 18
+      },
+      {
+       "code": "BEW/PR/FC/1140",
+       "days": 15
+      }
+     ],
+     "slippedFinish": "2016-09-15 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "earlierDays": 18,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "823/823"
+    },
+    {
+     "dataDate": "2014-04-12 13:39",
+     "slips": [
+      {
+       "code": "BEW/PR/FC/1130",
+       "days": 22
+      },
+      {
+       "code": "BEW/PR/FC/1060",
+       "days": 17
+      }
+     ],
+     "slippedFinish": "2016-09-19 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "earlierDays": 22,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "823/823"
+    },
+    {
+     "dataDate": "2014-11-19 13:43",
+     "slips": [
+      {
+       "code": "BEW/PR/FC/1240",
+       "days": 1
+      }
+     ],
+     "slippedFinish": "2016-08-29 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "earlierDays": 1,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "823/823"
+    },
+    {
+     "dataDate": "2014-05-26 10:30",
+     "slips": [
+      {
+       "code": "BEW/PR/FC/1050",
+       "days": 28
+      },
+      {
+       "code": "BEW/PR/FC/1170",
+       "days": 28
+      }
+     ],
+     "slippedFinish": "2016-09-25 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "earlierDays": 28,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "823/823"
+    },
+    {
+     "dataDate": "2015-09-06 13:40",
+     "slips": [
+      {
+       "code": "BEW/PR/FC/1170",
+       "days": 5
+      },
+      {
+       "code": "BEW/PR/FC/1110",
+       "days": 13
+      },
+      {
+       "code": "BEW/PR/FC/1090",
+       "days": 22
+      }
+     ],
+     "slippedFinish": "2016-09-19 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "earlierDays": 22,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "823/823"
+    },
+    {
+     "dataDate": "2015-07-08 09:57",
+     "slips": [
+      {
+       "code": "BEW/PR/FC/1090",
+       "days": 19
+      }
+     ],
+     "slippedFinish": "2016-09-18 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "earlierDays": 21,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "823/823"
+    },
+    {
+     "dataDate": "2014-04-17 08:55",
+     "slips": [
+      {
+       "code": "BEW/PR/FC/1200",
+       "days": 10
+      }
+     ],
+     "slippedFinish": "2016-09-07 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "earlierDays": 10,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "823/823"
+    }
+   ],
+   "waits": [
+    {
+     "code": "BEW/1270",
+     "days": 18,
+     "heldFinish": "2016-08-28 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "taken": 12.2,
+     "ok": true
+    },
+    {
+     "code": "BEW/MO/EF/1030",
+     "days": 26,
+     "heldFinish": "2016-08-28 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "taken": 26,
+     "ok": true
+    },
+    {
+     "code": "BEW/1670",
+     "days": 25,
+     "heldFinish": "2016-08-28 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "taken": 18.2,
+     "ok": true
+    },
+    {
+     "code": "BEW/1170",
+     "days": 27,
+     "heldFinish": "2016-08-28 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "taken": 18,
+     "ok": true
+    },
+    {
+     "code": "BEW/MO/SS/1010",
+     "days": 16,
+     "heldFinish": "2016-08-28 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "taken": 16,
+     "ok": true
+    },
+    {
+     "code": "BEW/DE/DS/1420",
+     "days": 28,
+     "heldFinish": "2016-08-28 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "taken": 28,
+     "ok": true
+    },
+    {
+     "code": "BEW/1770",
+     "days": 15,
+     "heldFinish": "2016-08-28 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "taken": 11,
+     "ok": true
+    },
+    {
+     "code": "BEW/DE/DS/1410",
+     "days": 23,
+     "heldFinish": "2016-08-28 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "taken": 23,
+     "ok": true
+    },
+    {
+     "code": "BEW/1810",
+     "days": 1,
+     "heldFinish": "2016-08-28 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "taken": 0.2,
+     "ok": true
+    },
+    {
+     "code": "BEW/1830",
+     "days": 12,
+     "heldFinish": "2016-08-28 17:00",
+     "butFor": "2016-08-28 17:00",
+     "want": "2016-08-28 17:00",
+     "taken": 8.2,
+     "ok": true
+    }
+   ],
+   "seconds": 14.3
+  },
+  {
+   "file": "example_xer_file.xer",
+   "project": "DEMO-001",
+   "misses": [],
+   "asExported": {
+    "activities": 425,
+    "reproduced": 425,
+    "finishMatches": true,
+    "gaps": 9,
+    "outOfSequence": 1,
+    "firstMisses": []
+   },
+   "model": {
+    "activities": 425,
+    "reproduced": 425,
+    "finishMatches": true,
+    "gaps": 9,
+    "outOfSequence": 1,
+    "firstMisses": []
+   },
+   "plants": [
+    {
+     "dataDate": "2026-11-04 11:03",
+     "slips": [
+      {
+       "code": "A10590",
+       "days": 12
+      },
+      {
+       "code": "A10540",
+       "days": 5
+      }
+     ],
+     "slippedFinish": "2027-05-06 16:59",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "425/425"
+    },
+    {
+     "dataDate": "2026-10-19 10:02",
+     "slips": [
+      {
+       "code": "A10290",
+       "days": 14
+      }
+     ],
+     "slippedFinish": "2027-05-06 16:59",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "425/425"
+    },
+    {
+     "dataDate": "2026-12-01 14:55",
+     "slips": [
+      {
+       "code": "A10310.1",
+       "days": 6
+      }
+     ],
+     "slippedFinish": "2027-05-06 16:59",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "425/425"
+    },
+    {
+     "dataDate": "2026-11-04 13:14",
+     "slips": [
+      {
+       "code": "A10590",
+       "days": 28
+      },
+      {
+       "code": "A10970.5",
+       "days": 2
+      }
+     ],
+     "slippedFinish": "2027-05-06 16:59",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "425/425"
+    },
+    {
+     "dataDate": "2026-10-23 10:28",
+     "slips": [
+      {
+       "code": "A10690",
+       "days": 4
+      }
+     ],
+     "slippedFinish": "2027-05-12 16:59",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "earlierDays": 4,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "425/425"
+    },
+    {
+     "dataDate": "2027-01-13 10:15",
+     "slips": [
+      {
+       "code": "A11040.2",
+       "days": 28
+      },
+      {
+       "code": "A10550.2",
+       "days": 23
+      }
+     ],
+     "slippedFinish": "2027-05-28 17:00",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "earlierDays": 15,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "425/425"
+    },
+    {
+     "dataDate": "2026-12-14 13:29",
+     "slips": [
+      {
+       "code": "A15460",
+       "days": 27
+      }
+     ],
+     "slippedFinish": "2027-05-06 16:59",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "425/425"
+    },
+    {
+     "dataDate": "2026-12-16 16:56",
+     "slips": [
+      {
+       "code": "A10600",
+       "days": 1
+      },
+      {
+       "code": "A11000",
+       "days": 14
+      },
+      {
+       "code": "A10320.1",
+       "days": 21
+      }
+     ],
+     "slippedFinish": "2027-05-06 16:59",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "425/425"
+    },
+    {
+     "dataDate": "2026-09-14 15:40",
+     "slips": [
+      {
+       "code": "A15501",
+       "days": 11
+      }
+     ],
+     "slippedFinish": "2027-05-06 16:59",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "425/425"
+    },
+    {
+     "dataDate": "2026-12-14 10:18",
+     "slips": [
+      {
+       "code": "A10310.3",
+       "days": 24
+      },
+      {
+       "code": "A15482",
+       "days": 25
+      },
+      {
+       "code": "A14240",
+       "days": 2
+      }
+     ],
+     "slippedFinish": "2027-05-06 16:59",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "425/425"
+    }
+   ],
+   "waits": [
+    {
+     "code": "A10550.2",
+     "days": 8,
+     "heldFinish": "2027-05-06 17:00",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "taken": 8,
+     "ok": true
+    },
+    {
+     "code": "E10407",
+     "days": 27,
+     "heldFinish": "2027-05-06 16:59",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "taken": 27,
+     "ok": true
+    },
+    {
+     "code": "F1040",
+     "days": 18,
+     "heldFinish": "2027-05-06 16:59",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "taken": 18,
+     "ok": true
+    },
+    {
+     "code": "A15555",
+     "days": 7,
+     "heldFinish": "2027-05-06 16:59",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "taken": 7,
+     "ok": true
+    },
+    {
+     "code": "A12720",
+     "days": 16,
+     "heldFinish": "2027-05-06 16:59",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "taken": 16,
+     "ok": true
+    },
+    {
+     "code": "A11040.4",
+     "days": 17,
+     "heldFinish": "2027-05-06 16:59",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "taken": 17,
+     "ok": true
+    },
+    {
+     "code": "A14130.1",
+     "days": 25,
+     "heldFinish": "2027-05-11 14:12",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "taken": 25,
+     "ok": true
+    },
+    {
+     "code": "A10570",
+     "days": 28,
+     "heldFinish": "2027-06-04 17:00",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "taken": 28,
+     "ok": true
+    },
+    {
+     "code": "A10560.1",
+     "days": 17,
+     "heldFinish": "2027-05-19 17:00",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "taken": 17,
+     "ok": true
+    },
+    {
+     "code": "D10333.2",
+     "days": 2,
+     "heldFinish": "2027-05-06 16:59",
+     "butFor": "2027-05-06 16:59",
+     "want": "2027-05-06 16:59",
+     "taken": 2,
+     "ok": true
+    }
+   ],
+   "seconds": 4.1
+  },
+  {
+   "file": "hotel-project.xer",
+   "project": "HBTF-2",
+   "misses": [],
+   "asExported": {
+    "activities": 4217,
+    "reproduced": 4217,
+    "finishMatches": true,
+    "gaps": 2,
+    "outOfSequence": 0,
+    "firstMisses": []
+   },
+   "model": {
+    "activities": 4217,
+    "reproduced": 4217,
+    "finishMatches": true,
+    "gaps": 2,
+    "outOfSequence": 0,
+    "firstMisses": []
+   },
+   "plants": [
+    {
+     "dataDate": "2013-05-26 08:03",
+     "slips": [
+      {
+       "code": "HCEWAFZ1030",
+       "days": 22
+      },
+      {
+       "code": "HCFWB2Z2018",
+       "days": 10
+      },
+      {
+       "code": "HCFWB3Z4017",
+       "days": 22
+      }
+     ],
+     "slippedFinish": "2014-08-06 16:00",
+     "butFor": "2014-07-23 16:00",
+     "want": "2014-07-23 16:00",
+     "earlierDays": 12,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "4216/4217"
+    },
+    {
+     "dataDate": "2013-09-19 08:08",
+     "slips": [
+      {
+       "code": "HCFWB1Z5009",
+       "days": 6
+      },
+      {
+       "code": "HEPSAFI0160",
+       "days": 6
+      }
+     ],
+     "slippedFinish": "2014-07-23 16:00",
+     "butFor": "2014-07-23 16:00",
+     "want": "2014-07-23 16:00",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "4217/4217"
+    },
+    {
+     "dataDate": "2013-07-17 11:40",
+     "slips": [
+      {
+       "code": "HEPSAAL0070",
+       "days": 9
+      },
+      {
+       "code": "HEPSAME1050",
+       "days": 3
+      },
+      {
+       "code": "HCFWB3Z5010",
+       "days": 29
+      }
+     ],
+     "slippedFinish": "2014-07-23 16:00",
+     "butFor": "2014-07-23 16:00",
+     "want": "2014-07-23 16:00",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "4217/4217"
+    },
+    {
+     "dataDate": "2013-03-30 12:23",
+     "slips": [
+      {
+       "code": "HCFWGFZ2010",
+       "days": 18
+      },
+      {
+       "code": "HCFWB1Z1001",
+       "days": 8
+      },
+      {
+       "code": "HCFWB4Z6003",
+       "days": 13
+      }
+     ],
+     "slippedFinish": "2014-07-24 08:37",
+     "butFor": "2014-07-24 08:37",
+     "want": "2014-07-24 08:37",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "4217/4217"
+    },
+    {
+     "dataDate": "2013-08-18 11:39",
+     "slips": [
+      {
+       "code": "HCFWF4Z4136",
+       "days": 7
+      },
+      {
+       "code": "HCFWGFZ4617",
+       "days": 11
+      }
+     ],
+     "slippedFinish": "2014-07-23 16:00",
+     "butFor": "2014-07-23 16:00",
+     "want": "2014-07-23 16:00",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "4217/4217"
+    },
+    {
+     "dataDate": "2013-03-30 08:33",
+     "slips": [
+      {
+       "code": "HCSWB2Z6100",
+       "days": 9
+      }
+     ],
+     "slippedFinish": "2014-07-23 16:00",
+     "butFor": "2014-07-23 16:00",
+     "want": "2014-07-23 16:00",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "4217/4217"
+    },
+    {
+     "dataDate": "2013-04-13 09:26",
+     "slips": [
+      {
+       "code": "HCSDAMEP020",
+       "days": 12
+      },
+      {
+       "code": "HCEWAFZ1010",
+       "days": 22
+      }
+     ],
+     "slippedFinish": "2014-07-23 16:00",
+     "butFor": "2014-07-23 16:00",
+     "want": "2014-07-23 16:00",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "4217/4217"
+    },
+    {
+     "dataDate": "2013-08-31 08:59",
+     "slips": [
+      {
+       "code": "HCMEPSSCO010",
+       "days": 22
+      }
+     ],
+     "slippedFinish": "2014-07-23 16:00",
+     "butFor": "2014-07-23 16:00",
+     "want": "2014-07-23 16:00",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "4217/4217"
+    },
+    {
+     "dataDate": "2013-07-04 11:04",
+     "slips": [
+      {
+       "code": "HCFWF4Z4137",
+       "days": 23
+      },
+      {
+       "code": "HCFWGFZ4607",
+       "days": 4
+      },
+      {
+       "code": "HCFWF1Z1035",
+       "days": 16
+      }
+     ],
+     "slippedFinish": "2014-07-23 16:00",
+     "butFor": "2014-07-23 16:00",
+     "want": "2014-07-23 16:00",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "4217/4217"
+    },
+    {
+     "dataDate": "2013-11-09 14:25",
+     "slips": [
+      {
+       "code": "HCFWB2Z3026",
+       "days": 7
+      },
+      {
+       "code": "HCFWF5Z1135",
+       "days": 22
+      }
+     ],
+     "slippedFinish": "2014-07-23 16:00",
+     "butFor": "2014-07-23 16:00",
+     "want": "2014-07-23 16:00",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "4217/4217"
+    }
+   ],
+   "waits": [
+    {
+     "code": "HCMEPSSAV060",
+     "days": 7,
+     "heldFinish": "2014-07-23 16:00",
+     "butFor": "2014-07-23 16:00",
+     "want": "2014-07-23 16:00",
+     "taken": 7,
+     "ok": true
+    },
+    {
+     "code": "HCSWB2Z6150",
+     "days": 4,
+     "heldFinish": "2014-07-23 16:00",
+     "butFor": "2014-07-23 16:00",
+     "want": "2014-07-23 16:00",
+     "taken": 4,
+     "ok": true
+    },
+    {
+     "code": "HCFWF5Z5189",
+     "days": 5,
+     "heldFinish": "2014-07-23 16:00",
+     "butFor": "2014-07-23 16:00",
+     "want": "2014-07-23 16:00",
+     "taken": 5,
+     "ok": true
+    },
+    {
+     "code": "HCFWF5Z4278",
+     "days": 2,
+     "heldFinish": "2014-07-23 16:00",
+     "butFor": "2014-07-23 16:00",
+     "want": "2014-07-23 16:00",
+     "taken": 2,
+     "ok": true
+    },
+    {
+     "code": "HCFWB2Z1015",
+     "days": 21,
+     "heldFinish": "2014-07-23 16:00",
+     "butFor": "2014-07-23 16:00",
+     "want": "2014-07-23 16:00",
+     "taken": 21,
+     "ok": true
+    },
+    {
+     "code": "HCERDA000",
+     "days": 23,
+     "heldFinish": "2014-07-23 16:00",
+     "butFor": "2014-07-23 16:00",
+     "want": "2014-07-23 16:00",
+     "taken": 23,
+     "ok": true
+    },
+    {
+     "code": "HCFWF3Z2097",
+     "days": 15,
+     "heldFinish": "2014-07-23 16:00",
+     "butFor": "2014-07-23 16:00",
+     "want": "2014-07-23 16:00",
+     "taken": 15,
+     "ok": true
+    },
+    {
+     "code": "HCSWSSZ4520",
+     "days": 6,
+     "heldFinish": "2014-07-23 16:00",
+     "butFor": "2014-07-23 16:00",
+     "want": "2014-07-23 16:00",
+     "taken": 6,
+     "ok": true
+    },
+    {
+     "code": "HCFWB2Z1007",
+     "days": 24,
+     "heldFinish": "2014-07-23 16:00",
+     "butFor": "2014-07-23 16:00",
+     "want": "2014-07-23 16:00",
+     "taken": 24,
+     "ok": true
+    },
+    {
+     "code": "HCSWB1Z3100",
+     "days": 15,
+     "heldFinish": "2014-08-06 16:00",
+     "butFor": "2014-07-23 16:00",
+     "want": "2014-07-23 16:00",
+     "taken": 15,
+     "ok": true
+    }
+   ],
+   "seconds": 29.2
+  },
+  {
+   "file": "sample.xer",
+   "project": "Task SE",
+   "misses": [],
+   "asExported": {
+    "activities": 42,
+    "reproduced": 42,
+    "finishMatches": true,
+    "gaps": 0,
+    "outOfSequence": 0,
+    "firstMisses": []
+   },
+   "model": {
+    "activities": 42,
+    "reproduced": 42,
+    "finishMatches": true,
+    "gaps": 0,
+    "outOfSequence": 0,
+    "firstMisses": []
+   },
+   "plants": [
+    {
+     "dataDate": "2021-05-03 10:11",
+     "slips": [
+      {
+       "code": "A2010",
+       "days": 28
+      }
+     ],
+     "slippedFinish": "2021-11-16 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "earlierDays": 28,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "42/42"
+    },
+    {
+     "dataDate": "2021-06-03 12:41",
+     "slips": [
+      {
+       "code": "A2050",
+       "days": 24
+      }
+     ],
+     "slippedFinish": "2021-11-10 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "earlierDays": 24,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "42/42"
+    },
+    {
+     "dataDate": "2021-05-20 14:55",
+     "slips": [
+      {
+       "code": "A2030",
+       "days": 1
+      }
+     ],
+     "slippedFinish": "2021-10-08 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "earlierDays": 1,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "42/42"
+    },
+    {
+     "dataDate": "2021-07-08 15:02",
+     "slips": [
+      {
+       "code": "A3040",
+       "days": 23
+      }
+     ],
+     "slippedFinish": "2021-11-09 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "earlierDays": 23,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "42/42"
+    },
+    {
+     "dataDate": "2021-04-27 09:15",
+     "slips": [
+      {
+       "code": "A2000",
+       "days": 4
+      }
+     ],
+     "slippedFinish": "2021-10-13 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "earlierDays": 4,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "42/42"
+    },
+    {
+     "dataDate": "2021-07-05 14:11",
+     "slips": [
+      {
+       "code": "A3040",
+       "days": 25
+      }
+     ],
+     "slippedFinish": "2021-11-11 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "earlierDays": 25,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "42/42"
+    },
+    {
+     "dataDate": "2021-07-13 11:57",
+     "slips": [
+      {
+       "code": "A3050",
+       "days": 29
+      }
+     ],
+     "slippedFinish": "2021-11-17 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "earlierDays": 29,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "42/42"
+    },
+    {
+     "dataDate": "2021-05-14 14:23",
+     "slips": [
+      {
+       "code": "A2030",
+       "days": 27
+      }
+     ],
+     "slippedFinish": "2021-11-15 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "earlierDays": 27,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "42/42"
+    },
+    {
+     "dataDate": "2021-05-21 12:04",
+     "slips": [
+      {
+       "code": "A2040",
+       "days": 25
+      }
+     ],
+     "slippedFinish": "2021-11-11 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "earlierDays": 25,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "42/42"
+    },
+    {
+     "dataDate": "2021-04-27 08:57",
+     "slips": [
+      {
+       "code": "A2000",
+       "days": 10
+      }
+     ],
+     "slippedFinish": "2021-10-21 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "earlierDays": 10,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "42/42"
+    }
+   ],
+   "waits": [
+    {
+     "code": "A1010",
+     "days": 17,
+     "heldFinish": "2021-11-01 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "taken": 17,
+     "ok": true
+    },
+    {
+     "code": "A2000",
+     "days": 15,
+     "heldFinish": "2021-10-28 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "taken": 15,
+     "ok": true
+    },
+    {
+     "code": "A5050",
+     "days": 26,
+     "heldFinish": "2021-11-12 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "taken": 26,
+     "ok": true
+    },
+    {
+     "code": "A3030",
+     "days": 23,
+     "heldFinish": "2021-11-09 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "taken": 23,
+     "ok": true
+    },
+    {
+     "code": "A3020",
+     "days": 23,
+     "heldFinish": "2021-11-09 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "taken": 23,
+     "ok": true
+    },
+    {
+     "code": "A4030",
+     "days": 1,
+     "heldFinish": "2021-10-08 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "taken": 1,
+     "ok": true
+    },
+    {
+     "code": "A5000",
+     "days": 16,
+     "heldFinish": "2021-10-29 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "taken": 16,
+     "ok": true
+    },
+    {
+     "code": "A4040",
+     "days": 18,
+     "heldFinish": "2021-11-02 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "taken": 18,
+     "ok": true
+    },
+    {
+     "code": "A4010",
+     "days": 28,
+     "heldFinish": "2021-11-16 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "taken": 28,
+     "ok": true
+    },
+    {
+     "code": "A2020",
+     "days": 20,
+     "heldFinish": "2021-11-04 16:00",
+     "butFor": "2021-10-07 16:00",
+     "want": "2021-10-07 16:00",
+     "taken": 20,
+     "ok": true
+    }
+   ],
+   "seconds": 0.2
+  },
+  {
+   "file": "terminal-building-airport.xer",
+   "project": "TERMINAL-2",
+   "misses": [],
+   "asExported": {
+    "activities": 66,
+    "reproduced": 66,
+    "finishMatches": true,
+    "gaps": 0,
+    "outOfSequence": 0,
+    "firstMisses": []
+   },
+   "model": {
+    "activities": 66,
+    "reproduced": 66,
+    "finishMatches": true,
+    "gaps": 0,
+    "outOfSequence": 0,
+    "firstMisses": []
+   },
+   "plants": [
+    {
+     "dataDate": "2012-07-01 08:08",
+     "slips": [
+      {
+       "code": "BA-P1-50",
+       "days": 1
+      },
+      {
+       "code": "BA-P4-10",
+       "days": 10
+      }
+     ],
+     "slippedFinish": "2013-03-09 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "earlierDays": 10,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "66/66"
+    },
+    {
+     "dataDate": "2012-11-08 11:07",
+     "slips": [
+      {
+       "code": "BA-P1-150",
+       "days": 17
+      },
+      {
+       "code": "BA-P4-110",
+       "days": 16
+      },
+      {
+       "code": "BA-P3-70",
+       "days": 24
+      }
+     ],
+     "slippedFinish": "2013-03-22 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "earlierDays": 23,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "66/66"
+    },
+    {
+     "dataDate": "2012-11-07 08:57",
+     "slips": [
+      {
+       "code": "BA-P1-140",
+       "days": 6
+      },
+      {
+       "code": "BA-P3-70",
+       "days": 13
+      },
+      {
+       "code": "BA-P4-120",
+       "days": 26
+      }
+     ],
+     "slippedFinish": "2013-03-11 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "earlierDays": 12,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "66/66"
+    },
+    {
+     "dataDate": "2012-10-06 13:00",
+     "slips": [
+      {
+       "code": "BA-P4-70",
+       "days": 19
+      },
+      {
+       "code": "BA-P3-60",
+       "days": 1
+      }
+     ],
+     "slippedFinish": "2013-03-18 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "earlierDays": 19,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "66/66"
+    },
+    {
+     "dataDate": "2012-09-14 08:45",
+     "slips": [
+      {
+       "code": "BA-P1-80",
+       "days": 10
+      }
+     ],
+     "slippedFinish": "2013-02-27 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "earlierDays": 0,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "66/66"
+    },
+    {
+     "dataDate": "2012-09-05 16:14",
+     "slips": [
+      {
+       "code": "BA-P4-50",
+       "days": 5
+      },
+      {
+       "code": "BA-P1-80",
+       "days": 13
+      },
+      {
+       "code": "BA-P3-40",
+       "days": 1
+      }
+     ],
+     "slippedFinish": "2013-03-04 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "earlierDays": 5,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "66/66"
+    },
+    {
+     "dataDate": "2012-10-02 11:37",
+     "slips": [
+      {
+       "code": "BA-P1-110",
+       "days": 15
+      },
+      {
+       "code": "BA-P3-60",
+       "days": 19
+      }
+     ],
+     "slippedFinish": "2013-03-17 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "earlierDays": 18,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "66/66"
+    },
+    {
+     "dataDate": "2012-08-21 16:13",
+     "slips": [
+      {
+       "code": "BA-P4-40",
+       "days": 15
+      },
+      {
+       "code": "BA-P2-40",
+       "days": 21
+      },
+      {
+       "code": "BA-P3-40",
+       "days": 22
+      }
+     ],
+     "slippedFinish": "2013-03-20 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "earlierDays": 21,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "66/66"
+    },
+    {
+     "dataDate": "2012-11-17 10:49",
+     "slips": [
+      {
+       "code": "BA-P3-90",
+       "days": 22
+      },
+      {
+       "code": "BA-P4-100",
+       "days": 17
+      },
+      {
+       "code": "BA-P4-110",
+       "days": 5
+      }
+     ],
+     "slippedFinish": "2013-03-20 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "earlierDays": 21,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "66/66"
+    },
+    {
+     "dataDate": "2012-09-16 09:31",
+     "slips": [
+      {
+       "code": "BA-P1-100",
+       "days": 29
+      },
+      {
+       "code": "BA-P1-90",
+       "days": 11
+      },
+      {
+       "code": "BA-P3-50",
+       "days": 24
+      }
+     ],
+     "slippedFinish": "2013-03-22 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "earlierDays": 23,
+     "ok": true,
+     "xerOk": true,
+     "reproduced": "66/66"
+    }
+   ],
+   "waits": [
+    {
+     "code": "BA-P3-50",
+     "days": 23,
+     "heldFinish": "2013-03-21 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "taken": 23,
+     "ok": true
+    },
+    {
+     "code": "BA-P1-120",
+     "days": 27,
+     "heldFinish": "2013-03-26 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "taken": 27,
+     "ok": true
+    },
+    {
+     "code": "BA-P3-60",
+     "days": 22,
+     "heldFinish": "2013-03-20 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "taken": 22,
+     "ok": true
+    },
+    {
+     "code": "BA-P2-120",
+     "days": 11,
+     "heldFinish": "2013-03-10 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "taken": 11,
+     "ok": true
+    },
+    {
+     "code": "BA-P1-10",
+     "days": 21,
+     "heldFinish": "2013-03-20 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "taken": 21,
+     "ok": true
+    },
+    {
+     "code": "BA-P3-130",
+     "days": 9,
+     "heldFinish": "2013-03-07 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "taken": 9,
+     "ok": true
+    },
+    {
+     "code": "BA-P4-60",
+     "days": 8,
+     "heldFinish": "2013-03-07 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "taken": 8,
+     "ok": true
+    },
+    {
+     "code": "BA-P2-30",
+     "days": 29,
+     "heldFinish": "2013-03-03 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "taken": 29,
+     "ok": true
+    },
+    {
+     "code": "BA-P2-60",
+     "days": 18,
+     "heldFinish": "2013-02-27 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "taken": 18,
+     "ok": true
+    },
+    {
+     "code": "BA-P1-70",
+     "days": 15,
+     "heldFinish": "2013-03-14 17:00",
+     "butFor": "2013-02-27 17:00",
+     "want": "2013-02-27 17:00",
+     "taken": 15,
+     "ok": true
+    }
+   ],
+   "seconds": 0.6
+  }
+ ]
+}

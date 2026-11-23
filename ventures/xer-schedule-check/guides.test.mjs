@@ -19,6 +19,7 @@ const GUIDES = [
   "how-to-convert-an-xer-file-to-excel.html",
   "how-to-find-critical-path-drag-in-a-p6-schedule.html",
   "how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html",
+  "how-to-run-a-collapsed-as-built-delay-analysis.html",
 ];
 
 test("every guide is linked from the tool page, the sitemap and llms.txt", () => {
@@ -52,7 +53,7 @@ test("each guide: canonical, title and description lengths, FAQ markup equals th
 
 test("the buttons the guides name exist on the tool page", () => {
   const index = page("index.html");
-  for (const label of ["Load an example schedule", "Load an example pair of updates", "Download for Microsoft Project (.xml)", "write activity code descriptions too", "Download for Excel (.xlsx)"]) {
+  for (const label of ["Load an example schedule", "Load an example pair of updates", "Download for Microsoft Project (.xml)", "write activity code descriptions too", "Download for Excel (.xlsx)", "Run collapsed as-built", "Example delay list"]) {
     assert.ok(index.includes(label), label);
   }
 });
@@ -145,4 +146,24 @@ test("the GAO guide's worked example equals gao() on the built-in example", () =
   assert.equal(t.find((x) => x.id === "missed-baseline").count, 4);
   assert.equal(t.find((x) => x.id === "bei-baseline").value, "0.5");
   assert.ok(page("index.html").includes("Score against the GAO guide"));
+});
+
+test("the collapsed as-built guide's worked example equals collapsedAsBuilt() on the built-in example", async () => {
+  const html = page("how-to-run-a-collapsed-as-built-delay-analysis.html");
+  const { EXAMPLE_DELAYS } = await import("./collapse.mjs");
+  writeFileSync(join(dir, "delays.csv"), EXAMPLE_DELAYS);
+  const r = cli(join(dir, "cur.xer"), "--collapse", join(dir, "delays.csv"));
+  assert.equal(r.asBuilt.reproduced, 22);
+  assert.equal(r.asBuilt.activities, 22);
+  assert.equal(r.asBuilt.modelFinish.slice(0, 10), "2026-07-27");
+  assert.equal(r.asBuilt.gaps.length, 3);
+  assert.equal(r.asBuilt.gaps[0].code, "A1110");
+  assert.equal(r.asBuilt.gaps[0].days, 9);
+  assert.equal(r.all.finish.slice(0, 10), "2026-07-14");
+  assert.equal(r.all.earlierDays, 9);
+  const by = Object.fromEntries(r.byParty.map((p) => [p.party, p]));
+  assert.equal(by.Owner.earlierDays, 9);
+  assert.equal(by.Contractor.earlierDays, 0);
+  assert.equal(r.concurrentDays, 0);
+  for (const s of ["22 of 22", "2026-07-27", "3 as-built gaps", "9 of 9 days of gap", "2026-07-14", "5 of 5 days"]) assert.ok(html.includes(s), s);
 });
