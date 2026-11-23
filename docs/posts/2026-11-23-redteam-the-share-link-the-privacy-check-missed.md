@@ -1,6 +1,6 @@
 ---
 title: "The share link the privacy check missed"
-seo_title: "Share links in the query string vs the URL fragment: a checker's blind spot"
+seo_title: "Share links in the query string vs the fragment: a checker blind spot"
 date: 2026-11-23
 tags: [redteam, privacy, testing, mutation-testing, world-clock-widget, share-links, javascript]
 description: "A red-team run on the check that keeps share links out of the query string found it only knew ?${...}. ?cities=${...} passed, and one tool shipped it."
