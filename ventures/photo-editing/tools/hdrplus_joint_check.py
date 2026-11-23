@@ -26,6 +26,10 @@ Usage (from ``ventures/photo-editing``, numpy and rawpy installed)::
     # J3, the third draw (arm `j3`: colour ramp (0.3, 1.0), shipped luma ramp, collapse fallback; h4o):
     python tools/hdrplus_joint_check.py draw --n 240 --seed 20261124 \
         --exclude eval/hdrplus-joint-check-bursts-2026-11-22.txt eval/hdrplus-joint-check-bursts2-2026-11-22.txt > IDS3.txt
+    # J4, the fourth draw (arm `j4`: `j3` with the collapse line at 0.6):
+    python tools/hdrplus_joint_check.py draw --n 240 --seed 20261125 \
+        --exclude eval/hdrplus-joint-check-bursts-2026-11-22.txt eval/hdrplus-joint-check-bursts2-2026-11-22.txt \
+        eval/hdrplus-joint-check-bursts3-2026-11-22.txt > IDS4.txt
 """
 
 from __future__ import annotations
@@ -63,6 +67,8 @@ ARMS = (
 # J2's arm (committed before the second draw): `candidate`, except where the mpcws read collapses (under
 # COLLAPSE x the shipped read's sigma at 18% grey), where it is exactly `ship` (read and ramps)
 COLLAPSE = 0.25
+# J4 (committed in eval/hdrplus-joint-check-j3-2026-11-22.md before the fourth draw): `j3` with the line at 0.6
+COLLAPSE_J4 = 0.6
 FLOOR = 0.5  # mpcws_floor: the mpcws read, or the shipped read where mpcws reads under FLOOR x its sigma at 18% grey
 
 
@@ -137,11 +143,13 @@ def score_scene(path: Path) -> list[dict]:
     rows.append({**base, "arm": "fallback", "collapsed": col, "scores": by["ship" if col else "candidate"]})
     # J3's committed arm: `colour_only`, or exactly `ship` where the mpcws read collapses
     rows.append({**base, "arm": "j3", "collapsed": col, "scores": by["ship" if col else "colour_only"]})
+    col4 = collapsed(meta["models"], COLLAPSE_J4)
+    rows.append({**base, "arm": "j4", "collapsed": col4, "scores": by["ship" if col4 else "colour_only"]})
     return rows
 
 
-def collapsed(models: dict) -> bool:
-    return sigma18(models["mpcws"]) < COLLAPSE * sigma18(models["ship"])
+def collapsed(models: dict, line: float = COLLAPSE) -> bool:
+    return sigma18(models["mpcws"]) < line * sigma18(models["ship"])
 
 
 def score(paths) -> int:
@@ -155,18 +163,20 @@ def score(paths) -> int:
 
 # ---- judge ----
 
-JUDGED = [a[0] for a in ARMS if a[0] != "ship"] + ["fallback", "j3"]
+JUDGED = [a[0] for a in ARMS if a[0] != "ship"] + ["fallback", "j3", "j4"]
 ORACLE = "true_pick"  # J3's h4o: a burst counts only if this arm is not also over 0.1 dB under ship
 
 def judge_rows(rows: list[dict]) -> dict:
     """The committed rule (eval/hdrplus-joint-check-2026-11-22.md) on ``candidate`` against ``ship``."""
 
     t: dict = {}
-    sigma, model, collapsed_n = {}, {}, {}
+    sigma, model, collapsed_n, collapsed4 = {}, {}, {}, {}
     for r in rows:
         t.setdefault(r["burst"], {})[r["arm"]] = tuple(r["scores"])
         if r["arm"] == "fallback":
             collapsed_n[r["burst"]] = r["collapsed"]
+        if r["arm"] == "j4":
+            collapsed4[r["burst"]] = r["collapsed"]
         sigma[r["burst"]], model[r["burst"]] = r["true_sigma18"], r.get("model")
     bursts = sorted(t)
     s = np.array([sigma[b] for b in bursts])
@@ -184,7 +194,8 @@ def judge_rows(rows: list[dict]) -> dict:
     else:
         oracle_worse = np.zeros(len(bursts), bool)
     ship_lose = (sc < -0.1) | (sl < -0.1)
-    out: dict = {"bursts": len(bursts), "models": {}, "collapsed": sorted(b for b, v in collapsed_n.items() if v)}
+    out: dict = {"bursts": len(bursts), "models": {}, "collapsed": sorted(b for b, v in collapsed_n.items() if v),
+                 "collapsed_j4": sorted(b for b, v in collapsed4.items() if v)}
     judged = [a for a in JUDGED if all(a in t[b] for b in bursts)]
     for b in bursts:
         out["models"][model[b] or "?"] = out["models"].get(model[b] or "?", 0) + 1
@@ -219,9 +230,11 @@ def judge(args) -> int:
     out = judge_rows(rows)
     print(f"{out['bursts']} bursts scored; models {out['models']}")
     print(f"mpcws read collapsed (fallback to ship) on {len(out['collapsed'])}: {out['collapsed']}")
+    if out["collapsed_j4"]:
+        print(f"under the J4 line ({COLLAPSE_J4}) on {len(out['collapsed_j4'])}: {out['collapsed_j4']}")
     for arm in [a for a in JUDGED if a in out]:
         r = out[arm]
-        tag = "COMMITTED" if arm in ("candidate", "fallback", "j3") else "reported"
+        tag = "COMMITTED" if arm in ("candidate", "fallback", "j3", "j4") else "reported"
         print(f"\n## {arm} over ship ({tag})")
         print(f"  means colour {r['colour']:+.4f} luma {r['luma']:+.4f} (medians {r['median_colour']:+.4f} / "
               f"{r['median_luma']:+.4f}); thirds luma/colour "
