@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVLs77VKyLg6Shjikdn",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T07:04:30Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship league-schedule-generator: single-league page loads the carry-over search and night designs on demand",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": 18380,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-league-schedule-page-loads-season-searches-on-demand.md"
+  ],
+  "goal": "Cut the main landing page's code download without changing any season it builds",
+  "notes": "index.html 32 modules 226 kB gz -> 26 modules 110 kB gz (eval/page-weight.txt). Chromium check eval/browser-lazy-searches.txt: none of the six heavy modules fetched on load or for the example season; carry-over and doubleheader seasons load them and build; no page errors. Five example seasons identical to main's code (rounds JSON length, breaks, stats). page.test.mjs 64/64; full venture suite and venture-preflight run in background, results in the PR body.",
+  "corrections": [],
+  "redteam": null
+}
