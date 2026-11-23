@@ -1,0 +1,7 @@
+#207997: caps r 0.03500000000000001 and 0.014999999999999998 m, 0.2000 m apart
+  section areas at t 0, 1/2, 1: 0.00070601627, 0.0019611563, 0.0038438664 (circles 0.00070685835, 0.0019634954, 0.0038484510)
+  B-spline curves stand up to 0.0421 mm inside their circles
+  volume of the B-spline faces (exact):  0.0004131503
+  this tool:                             0.0004131534  0.0007%
+  circular frustum the edges describe:   0.0004136430  0.1193%
+  IfcOpenShell 0.9.0 (committed JSON):   0.0004136362  0.1176%
