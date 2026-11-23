@@ -330,13 +330,12 @@ flagships:
       at SNR 12 wb: wb bins are not on one line; eval/noise-envelope-fit-*; next on
       whitened bins); per-colour ratios + Chen's level (mpcw) default on Bayer
       2026-11-21: held +0.09 dB luma, +0.21 wb SNR 25/12, 0 new losers
-      (eval/noise-pca-whitened-level-*); gain and over-read share a cause, so this
-      set is spent (eval/noise-pca-mpcw1-*); on own ramps the oracle's 14 losses go
-      to 0; mpcws, colour ramp (0.3, 1.0), 4 blind draws
-      (eval/hdrplus-joint-check-*): J4 passed 2026-11-23, +0.08/+0.12 dB on 111,
-      --noise-read mpcws opt-in; J5 (own shot-share fallback) failed, J4's line held
-      again on 126 (eval/hdrplus-joint-check-j5-*); next a drawn-noise check on
-      camera raws. More open items: NEXT.md.
+      (eval/noise-pca-whitened-level-*); on own ramps the oracle's 14 losses go to
+      0; mpcws, colour ramp (0.3, 1.0), 4 blind draws (eval/hdrplus-joint-check-*):
+      J4 passed on 111 HDR+ bursts, J5 held it on 126; drawn noise on 11 fresh
+      camera raws passed 2026-11-23 (+0.12/+0.22 dB, eval/camera-drawn-mpcws-*), so
+      mpcws is the Bayer default; next read it against --noise-read ship on new
+      camera files. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-

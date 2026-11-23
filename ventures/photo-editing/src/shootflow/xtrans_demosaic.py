@@ -784,7 +784,9 @@ def frame_noise(c, pat, *, pct: float = FRAME_PCT, scale: float = FRAME_SCALE,
 # exactly what ships (read and ramps) where the ``mpcws`` read's sigma at 18% grey is under ``MPCWS_COLLAPSE`` x the
 # shipped read's (a partial collapse of the read). It passed its four pre-registered tests on a fourth blind draw of
 # 111 HDR+ phone bursts (+0.08 dB colour, +0.12 dB luma over what ships, none 0.1 dB worse, no new loser to
-# directional). Every burst is a 10-bit Google phone, so it stays opt-in until a drawn-noise check on camera raws.
+# directional). It passed the drawn-noise check on 11 Bayer camera raws no noise read had been scored on (76 clean-truth
+# rows: +0.12 dB colour, +0.22 dB luma, none 0.1 dB worse; eval/camera-drawn-mpcws-2026-11-23.md), so since then it
+# is ``DevelopSettings.noise_read``'s default. ``frame_noise_read``'s own default stays "ship" (what callers asked for).
 NOISE_READS = ("ship", "mpcws")
 MPCWS_COLOUR_RAMP = (0.3, 1.0)
 MPCWS_COLLAPSE = 0.6

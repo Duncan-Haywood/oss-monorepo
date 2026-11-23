@@ -1346,10 +1346,11 @@ class DevelopSettings:
     # X-Trans tiles, so it is the default since then (eval/noise-fallback-real-2026-11-17.md: every sample raw
     # that develops takes it). False keeps the old fallback to directional.
     noise_from_frame: bool = True
-    # Which frame read the noise-aware blend uses when it reads one (``xtrans_demosaic.NOISE_READS``): "ship"
-    # (default) or "mpcws" (opt-in since 2026-11-23, Bayer only, with its own colour ramp and a collapse fallback;
-    # eval/hdrplus-joint-check-j4-2026-11-23.md).
-    noise_read: str = "ship"
+    # Which frame read the noise-aware blend uses when it reads one (``xtrans_demosaic.NOISE_READS``): "mpcws"
+    # (the default since 2026-11-23, Bayer only, with its own colour ramp and a collapse fallback to "ship"; it passed
+    # on 111 real-noise HDR+ bursts, eval/hdrplus-joint-check-j4-2026-11-23.md, and on 11 camera raws with drawn
+    # noise, eval/camera-drawn-mpcws-2026-11-23.md) or "ship" (the read before, still X-Trans's).
+    noise_read: str = "mpcws"
     # Lens distortion from a lensfun database (``lens_profiles.load_db``) for files whose opcode lists
     # carry no warp of their own (or with opcodes off): lens and focal length from EXIF unless given.
     lens_db: "LensDb | None" = None

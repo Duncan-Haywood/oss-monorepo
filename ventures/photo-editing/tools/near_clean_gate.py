@@ -15,6 +15,7 @@ Usage (from ``ventures/photo-editing``)::
     PYTHONPATH=src python tools/near_clean_gate.py sweep --bayer --cards cards.json --cache /tmp/truths FILES... > rows.jsonl
     python tools/near_clean_gate.py tune rows.jsonl            # pick k (the committed rule)
     python tools/near_clean_gate.py rule rows.jsonl --k K      # the held-out test (the committed rule)
+    python tools/near_clean_gate.py drawn rows.jsonl          # sweep --ks 12 --option rows: --noise-read mpcws vs what ships
     # one sweep, both roles: --split tune for the pick, --split held for the test (rows carry split_of(body))
 """
 
@@ -36,7 +37,7 @@ def emit(row: dict) -> None:
     sys.stdout.flush()
 
 
-def arms(c, pat, b, d, model, ks, eigs=(), reads: dict | None = None) -> dict:
+def arms(c, pat, b, d, model, ks, eigs=(), reads: dict | None = None, option: bool = False) -> dict:
     """The scored arms. ``eigs``: further ``frame_noise`` arms, one per patch-PCA eigenvalue read
     (``noise_pca.EIG_READS``), named by it (eval/noise-pca-min-eigen-2026-11-19.md). ``reads``, when given,
     receives each estimated arm's sigma at 18% grey."""
@@ -59,6 +60,17 @@ def arms(c, pat, b, d, model, ks, eigs=(), reads: dict | None = None) -> dict:
         out[name] = xd.blend(b, d, q, ramp[0], ramp[1], luma_ramp=luma)
         for k in ks:
             out[f"{name}+{k:g}"] = xd.blend(b, d, xd.lift_near_detail(q, k), ramp[0], ramp[1], luma_ramp=luma)
+    if option:
+        # ``opt``: ``shootflow develop --noise-read mpcws`` as it ships (eval/hdrplus-joint-check-j4-2026-11-23.md):
+        # ``frame_noise_read``'s read and colour ramp (or exactly what ships where it falls back), the CFA's lift.
+        noise, cramp, fell_back = xd.frame_noise_read(c, pat, "mpcws")
+        cramp = cramp or ramp
+        q = xd.frame_measures(c, pat, b, d, noise=noise, blocks=True)["q_blocks"]
+        k = xd.NEAR_DETAIL[cfa]
+        out["opt"] = xd.blend(b, d, q if k is None else xd.lift_near_detail(q, k), cramp[0], cramp[1], luma_ramp=luma)
+        if reads is not None:
+            reads["opt"] = round(float(max(noise[0] * 0.18 + noise[1], 0.0) ** 0.5), 6)
+            reads["opt_fell_back"] = bool(fell_back)
     return out
 
 
@@ -73,6 +85,8 @@ def sweep(argv) -> int:
     ap.add_argument("--no-raw-grain", action="store_true", help="skip truth_grain18 (two extra LibRaw passes a file)")
     ap.add_argument("--eigs", default="", help="comma-separated further eigenvalue reads to score as arms (mp, mpc, mpcw, mpcws, mpcw1; "
                     "'mpcw.envelope' adds a line fit, noise_pca.FITS)")
+    ap.add_argument("--option", action="store_true", help="add arm 'opt': develop's --noise-read mpcws as it ships "
+                    "(eval/camera-drawn-mpcws-2026-11-23.md)")
     args = ap.parse_args(argv)
     eigs = tuple(e for e in args.eigs.split(",") if e)
     ks = tuple(float(x) for x in args.ks.split(",")) if args.ks else KS
@@ -134,7 +148,7 @@ def sweep(argv) -> int:
                     b = chk.ours_bilinear(c, pat)
                     d = directional(c, pat)
                     cps, lps, reads = {}, {}, {}
-                    for arm, arr in arms(c, pat, b, d, model, ks, eigs, reads).items():
+                    for arm, arr in arms(c, pat, b, d, model, ks, eigs, reads, args.option).items():
                         s = chk.scores(arr, truth)
                         cps[arm], lps[arm] = s["cpsnr"], s["lpsnr"]
                     emit({"layout": "bayer" if args.bayer else "xtrans", "file": name,
@@ -178,9 +192,11 @@ def load(paths, split: str | None = None, clean_truths: bool = False, gg: dict |
     ``clean_truths`` drops rows whose truth is noisier than the noise added (``clean_enough``); ``gg``
     (``gg_of``) joins ``truth_gg18`` by file and tile first."""
 
+    import gzip
+
     rows = []
     for p in paths:
-        for line in open(p):
+        for line in (gzip.open(p, "rt") if str(p).endswith(".gz") else open(p)):
             r = json.loads(line)
             if gg is not None and "tile" in r:
                 r["truth_gg18"] = gg.get((r["file"], tuple(r["tile"])))
@@ -453,10 +469,59 @@ def noisytruth(argv) -> int:
     return 0
 
 
+def drawn(argv) -> int:
+    """eval/camera-drawn-mpcws-2026-11-23.md's committed tests: arm ``opt`` (develop's ``--noise-read mpcws``)
+    against ``ship+12`` (what ships), oracle ``true+12``, on ``sweep --option`` rows with clean truths."""
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument("rows", nargs="+")
+    ap.add_argument("--all-truths", action="store_true", help="also score rows whose truth is noisier than the noise added")
+    args = ap.parse_args(argv)
+    rows = [r for r in load(args.rows, clean_truths=not args.all_truths) if "opt" in r["cpsnr"]]
+    arm, base, orc = "opt", "ship+12", "true+12"
+    dl, dc = g(rows, "l", arm, base), g(rows, "c", arm, base)
+    cells = defaultdict(list)
+    for i, r in enumerate(rows):
+        cells[(r["snr"], r["scenario"])].append(i)
+    print(f"{len(rows)} rows, {len({r['file'] for r in rows})} files; opt fell back on "
+          f"{sum(1 for r in rows if r['sigma18'].get('opt_fell_back'))}")
+    table_arms(rows, [base, arm, orc])
+    worst_cell = min((float(min(dl[ix].mean(), dc[ix].mean())), key) for key, ix in cells.items())
+    for key in sorted(cells):
+        ix = cells[key]
+        print(f"   SNR {key[0]:>5g} {key[1]:5s} n={len(ix):4d}  opt - ship: luma {dl[ix].mean():+.4f}  colour {dc[ix].mean():+.4f}")
+    lo_b, lo_a = losers(rows, base), losers(rows, arm)
+    under = [i for i in range(len(rows)) if min(dl[i], dc[i]) < -0.1]
+    oracle_under = {i for i in range(len(rows))
+                    if min(rows[i]["lpsnr"][orc] - rows[i]["lpsnr"][base], rows[i]["cpsnr"][orc] - rows[i]["cpsnr"][base]) < -0.1}
+    h4o = [i for i in under if i not in oracle_under]
+    tests = (
+        (f"h1 means luma {dl.mean():+.4f} colour {dc.mean():+.4f} >= -0.005, worst cell {worst_cell[0]:+.4f} >= -0.02",
+         dl.mean() >= -0.005 and dc.mean() >= -0.005 and worst_cell[0] >= -0.02),
+        (f"h2 losers to D {len(lo_b)} -> {len(lo_a)}, new {len(lo_a - lo_b)}: none new, no more", not (lo_a - lo_b) and len(lo_a) <= len(lo_b)),
+        (f"h3 mean luma {dl.mean():+.4f} >= +0.02", dl.mean() >= 0.02),
+        (f"h4o rows > 0.1 dB under ship where the oracle is not: {len(h4o)} (all under: {len(under)})", not h4o),
+    )
+    ok = True
+    for label, passed in tests:
+        print(("PASS " if passed else "FAIL ") + label)
+        ok &= passed
+    for i in sorted(under, key=lambda i: min(dl[i], dc[i]))[:12]:
+        r = rows[i]
+        print(f"   under: {r['file']} {r['tile']} SNR {r['snr']:g} {r['scenario']}: luma {dl[i]:+.3f} colour {dc[i]:+.3f}"
+              f" reads ship {r['sigma18'].get('ship')} opt {r['sigma18'].get('opt')} true {r.get('true_sigma18')}"
+              f"{' (oracle also under)' if i in oracle_under else ''}")
+    if args.all_truths:  # the committed judgement is on clean truths; this is a reading
+        print("reading (all truths, decides nothing):", "all four hold" if ok else "not all four hold")
+    else:
+        print("verdict:", "pass: --noise-read mpcws becomes the Bayer default" if ok else "fail: --noise-read mpcws stays opt-in")
+    return 0
+
+
 def main(argv=None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     cmd = {"sweep": sweep, "tune": tune, "rule": rule, "pick": pick, "compare": compare, "whitened": whitened,
-           "noisytruth": noisytruth}.get(argv[0] if argv else "")
+           "noisytruth": noisytruth, "drawn": drawn}.get(argv[0] if argv else "")
     if cmd is None:
         print(__doc__)
         return 2

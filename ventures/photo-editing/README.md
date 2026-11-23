@@ -1749,6 +1749,16 @@ gained on most, so the test fell back on 31 frames and gave up 0.017 dB luma off
 line passed the same draw with no burst 0.1 dB worse (+0.06 dB colour, +0.10 luma): two blind draws, 237 bursts,
 none lost. `eval/hdrplus-joint-check-j5-2026-11-23.md`.
 
+**On camera raws too: `mpcws` is the default (2026-11-23, evening).** The check the fourth draw named: the option
+against what ships on 11 Bayer camera raws no noise read had been scored on (Canon 5D Mark II, Nikon D3X, D3S and
+D4, Olympus E-3, Panasonic G1 and GF1, Pentax K200D, Sony A300 and two darktable test scenes, from the test folders
+of rawpy, OpenImageIO and darktable), with noise drawn on clean truths at four levels. The rule was committed
+before any file was scored. On 76 clean-truth rows it gains +0.22 dB luma and +0.12 colour, no row is 0.1 dB worse
+and no new row loses to directional, so all four tests pass and `shootflow develop` now reads noise this way on
+Bayer raws with no NoiseProfile. `--noise-read ship` gives the old bytes. The drawn noise follows the model the read
+assumes, so the real-noise phone bursts' +0.08 / +0.12 dB is the better guide to the size.
+`eval/camera-drawn-mpcws-2026-11-23.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,

@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKnsQqND1ieiuS1Hs2u",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T15:27:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 7) photo-editing: drawn-noise check of --noise-read mpcws on Bayer camera raws (J4 Next 1)",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18441",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "A first repo probe ran `git ls-tree --long` on blob:none clones, which lazily fetches every blob; it hung for minutes and was killed. `--name-only` is the fast listing.",
+    "Added DrawnJudge after the test file's __main__ guard; venture-preflight (check_main_guard_last.py) caught it and the guard was moved to the end."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing buildable: names raw.pixls.us and metadata-extractor-images as the camera-raw sources; the first was refused and the second is spent for noise selection (NEXT.md), so finding blind camera files took a search. The rawpy, OpenImageIO oiio-images and darktable-tests test folders (11 usable Bayer raws) are now named in eval/camera-drawn-mpcws-2026-11-23.md."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The Stop hook asks to commit untracked files while the run record is deliberately uncommitted until the PR is open and the result is known; harmless but contradicts prompt.md step 3's ordering."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-photo-editing-noise-read-default-camera-raws.md",
+    "ventures/photo-editing/eval/camera-drawn-mpcws-2026-11-23.md"
+  ],
+  "goal": "Decide, under a rule committed before scoring, whether --noise-read mpcws becomes the default on Bayer camera raws.",
+  "notes": "Rule and arm committed in 3982739 before any row. Sweep: 11 raws, 104 rows, 76 clean-truth judged; opt vs ship+12: luma +0.224, colour +0.115, worst cell -0.003, 0 losers to D, 0 rows 0.1 dB under. All four pass -> DevelopSettings.noise_read and --noise-read default 'mpcws'. All-truths reading fails h1 on SNR 200 wb (-0.046) from two noisy-truth rows where the oracle also loses. Tests: tests/test_demosaic_noise_aware.py 26 passed; tests/test_near_clean_gate_split.py 8 passed; photo-editing full suite: run_venture_tests.py 1516 tests ok (9 skipped); pytest with numpy 1507 passed, 9 skipped; venture-preflight rerun after the guard fix.",
+  "corrections": [],
+  "redteam": null
+}
