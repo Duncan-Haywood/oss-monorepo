@@ -1,0 +1,1211 @@
+{
+ "seed": 1,
+ "plants": 20,
+ "totals": {
+  "series": [
+   19,
+   19
+  ],
+  "parallel": [
+   31,
+   31
+  ],
+  "single": [
+   30,
+   30
+  ],
+  "daysAsAdded": [
+   18,
+   19
+  ]
+ },
+ "files": [
+  {
+   "file": "CCA_R03_dt_24Oct11SC.xer",
+   "project": "CCA R03 dt 24Oct11SC",
+   "open": 14270,
+   "series": [
+    {
+     "a": "T16TS01808C0",
+     "b": "T16TS01813C0",
+     "da": 6,
+     "db": 5,
+     "want": {
+      "total": 11,
+      "owner": 6,
+      "contractor": 5,
+      "concurrent": 0
+     },
+     "got": {
+      "total": 11,
+      "owner": 6,
+      "contractor": 5,
+      "concurrent": 0
+     },
+     "ok": true,
+     "daysAsAdded": true
+    }
+   ],
+   "parallel": [
+    {
+     "x": "T16P109601C0",
+     "a": 7,
+     "b": 24,
+     "want": {
+      "total": 24,
+      "owner": 0,
+      "contractor": 17,
+      "concurrent": 7
+     },
+     "got": {
+      "total": 24,
+      "owner": 0,
+      "contractor": 17,
+      "concurrent": 7
+     },
+     "ok": true
+    },
+    {
+     "x": "T16P122011C0",
+     "a": 13,
+     "b": 28,
+     "want": {
+      "total": 29,
+      "owner": 0,
+      "contractor": 16,
+      "concurrent": 13
+     },
+     "got": {
+      "total": 29,
+      "owner": 0,
+      "contractor": 16,
+      "concurrent": 13
+     },
+     "ok": true
+    },
+    {
+     "x": "T16TS01813C0",
+     "a": 14,
+     "b": 14,
+     "want": {
+      "total": 15,
+      "owner": 0,
+      "contractor": 0,
+      "concurrent": 15
+     },
+     "got": {
+      "total": 15,
+      "owner": 0,
+      "contractor": 0,
+      "concurrent": 15
+     },
+     "ok": true
+    },
+    {
+     "x": "T16P109901C0",
+     "a": 13,
+     "b": 11,
+     "want": {
+      "total": 13,
+      "owner": 2,
+      "contractor": 0,
+      "concurrent": 11
+     },
+     "got": {
+      "total": 13,
+      "owner": 2,
+      "contractor": 0,
+      "concurrent": 11
+     },
+     "ok": true
+    },
+    {
+     "x": "T16TS01808C0",
+     "a": 8,
+     "b": 4,
+     "want": {
+      "total": 9,
+      "owner": 4,
+      "contractor": 0,
+      "concurrent": 5
+     },
+     "got": {
+      "total": 9,
+      "owner": 4,
+      "contractor": 0,
+      "concurrent": 5
+     },
+     "ok": true
+    },
+    {
+     "x": "T16P101005C0",
+     "a": 29,
+     "b": 25,
+     "want": {
+      "total": 29,
+      "owner": 4,
+      "contractor": 0,
+      "concurrent": 25
+     },
+     "got": {
+      "total": 29,
+      "owner": 4,
+      "contractor": 0,
+      "concurrent": 25
+     },
+     "ok": true
+    }
+   ],
+   "single": [
+    {
+     "a": "TVT3114215C0",
+     "d": 13,
+     "delay": 0,
+     "ok": true
+    },
+    {
+     "a": "C01TS01801C0",
+     "d": 20,
+     "delay": 0,
+     "ok": true
+    },
+    {
+     "a": "DGLMR23023C0",
+     "d": 28,
+     "delay": 0,
+     "ok": true
+    },
+    {
+     "a": "PP3TS01801C0",
+     "d": 22,
+     "delay": 0,
+     "ok": true
+    },
+    {
+     "a": "T20R226015C0",
+     "d": 30,
+     "delay": 0,
+     "ok": true
+    }
+   ],
+   "seconds": 52.661
+  },
+  {
+   "file": "Expressway_Project.xer",
+   "project": "BEW3",
+   "open": 823,
+   "series": [],
+   "parallel": [
+    {
+     "x": "BEW/MO/NC/1000",
+     "a": 20,
+     "b": 20,
+     "want": {
+      "total": 21,
+      "owner": 0,
+      "contractor": 0,
+      "concurrent": 21
+     },
+     "got": {
+      "total": 21,
+      "owner": 0,
+      "contractor": 0,
+      "concurrent": 21
+     },
+     "ok": true
+    }
+   ],
+   "single": [
+    {
+     "a": "BEW/1750",
+     "d": 23,
+     "delay": 0,
+     "ok": true
+    },
+    {
+     "a": "BEW/MO/IS/1030",
+     "d": 14,
+     "delay": 0,
+     "ok": true
+    },
+    {
+     "a": "BEW/MO/SS/1010",
+     "d": 3,
+     "delay": 0,
+     "ok": true
+    },
+    {
+     "a": "BEW/PR/FC/1130",
+     "d": 1,
+     "delay": 1,
+     "ok": true
+    },
+    {
+     "a": "BEW/2010",
+     "d": 5,
+     "delay": 0,
+     "ok": true
+    }
+   ],
+   "seconds": 1.419
+  },
+  {
+   "file": "example_xer_file.xer",
+   "project": "DEMO-001",
+   "open": 404,
+   "series": [
+    {
+     "a": "A10700",
+     "b": "A10710",
+     "da": 4,
+     "db": 9,
+     "want": {
+      "total": 13,
+      "owner": 4,
+      "contractor": 9,
+      "concurrent": 0
+     },
+     "got": {
+      "total": 13,
+      "owner": 4,
+      "contractor": 9,
+      "concurrent": 0
+     },
+     "ok": true,
+     "daysAsAdded": true
+    },
+    {
+     "a": "A10740.11",
+     "b": "A10760",
+     "da": 29,
+     "db": 5,
+     "want": {
+      "total": 34,
+      "owner": 29,
+      "contractor": 5,
+      "concurrent": 0
+     },
+     "got": {
+      "total": 34,
+      "owner": 29,
+      "contractor": 5,
+      "concurrent": 0
+     },
+     "ok": true,
+     "daysAsAdded": true
+    },
+    {
+     "a": "A10780",
+     "b": "A12930",
+     "da": 23,
+     "db": 4,
+     "want": {
+      "total": 27,
+      "owner": 23,
+      "contractor": 4,
+      "concurrent": 0
+     },
+     "got": {
+      "total": 27,
+      "owner": 23,
+      "contractor": 4,
+      "concurrent": 0
+     },
+     "ok": true,
+     "daysAsAdded": true
+    },
+    {
+     "a": "A10390-1",
+     "b": "A10400",
+     "da": 12,
+     "db": 27,
+     "want": {
+      "total": 39,
+      "owner": 12,
+      "contractor": 27,
+      "concurrent": 0
+     },
+     "got": {
+      "total": 39,
+      "owner": 12,
+      "contractor": 27,
+      "concurrent": 0
+     },
+     "ok": true,
+     "daysAsAdded": true
+    },
+    {
+     "a": "A10710",
+     "b": "A10740",
+     "da": 12,
+     "db": 5,
+     "want": {
+      "total": 16,
+      "owner": 12,
+      "contractor": 4,
+      "concurrent": 0
+     },
+     "got": {
+      "total": 16,
+      "owner": 12,
+      "contractor": 4,
+      "concurrent": 0
+     },
+     "ok": true,
+     "daysAsAdded": false
+    },
+    {
+     "a": "A10390",
+     "b": "A10390-1",
+     "da": 12,
+     "db": 27,
+     "want": {
+      "total": 39,
+      "owner": 12,
+      "contractor": 27,
+      "concurrent": 0
+     },
+     "got": {
+      "total": 39,
+      "owner": 12,
+      "contractor": 27,
+      "concurrent": 0
+     },
+     "ok": true,
+     "daysAsAdded": true
+    }
+   ],
+   "parallel": [
+    {
+     "x": "A10780",
+     "a": 23,
+     "b": 30,
+     "want": {
+      "total": 30,
+      "owner": 0,
+      "contractor": 7,
+      "concurrent": 23
+     },
+     "got": {
+      "total": 30,
+      "owner": 0,
+      "contractor": 7,
+      "concurrent": 23
+     },
+     "ok": true
+    },
+    {
+     "x": "A10710",
+     "a": 9,
+     "b": 12,
+     "want": {
+      "total": 12,
+      "owner": 0,
+      "contractor": 3,
+      "concurrent": 9
+     },
+     "got": {
+      "total": 12,
+      "owner": 0,
+      "contractor": 3,
+      "concurrent": 9
+     },
+     "ok": true
+    },
+    {
+     "x": "A10390-1",
+     "a": 21,
+     "b": 27,
+     "want": {
+      "total": 27,
+      "owner": 0,
+      "contractor": 6,
+      "concurrent": 21
+     },
+     "got": {
+      "total": 27,
+      "owner": 0,
+      "contractor": 6,
+      "concurrent": 21
+     },
+     "ok": true
+    },
+    {
+     "x": "A10700",
+     "a": 9,
+     "b": 2,
+     "want": {
+      "total": 9,
+      "owner": 7,
+      "contractor": 0,
+      "concurrent": 2
+     },
+     "got": {
+      "total": 9,
+      "owner": 7,
+      "contractor": 0,
+      "concurrent": 2
+     },
+     "ok": true
+    },
+    {
+     "x": "A10390",
+     "a": 8,
+     "b": 1,
+     "want": {
+      "total": 8,
+      "owner": 7,
+      "contractor": 0,
+      "concurrent": 1
+     },
+     "got": {
+      "total": 8,
+      "owner": 7,
+      "contractor": 0,
+      "concurrent": 1
+     },
+     "ok": true
+    }
+   ],
+   "single": [
+    {
+     "a": "A11040",
+     "d": 26,
+     "delay": 5,
+     "ok": true
+    },
+    {
+     "a": "E10397",
+     "d": 9,
+     "delay": 0,
+     "ok": true
+    },
+    {
+     "a": "A15559",
+     "d": 25,
+     "delay": 0,
+     "ok": true
+    },
+    {
+     "a": "A10620.2",
+     "d": 4,
+     "delay": 1,
+     "ok": true
+    },
+    {
+     "a": "A15530",
+     "d": 7,
+     "delay": 0,
+     "ok": true
+    }
+   ],
+   "seconds": 1.722
+  },
+  {
+   "file": "hotel-project.xer",
+   "project": "HBTF-2",
+   "open": 4217,
+   "series": [],
+   "parallel": [],
+   "single": [
+    {
+     "a": "HCFWF1Z2031",
+     "d": 28,
+     "delay": 0,
+     "ok": true
+    },
+    {
+     "a": "HCFWB4Z4023",
+     "d": 4,
+     "delay": 0,
+     "ok": true
+    },
+    {
+     "a": "HCFWGFZ1005",
+     "d": 3,
+     "delay": 0,
+     "ok": true
+    },
+    {
+     "a": "HCSDSMEP020",
+     "d": 25,
+     "delay": 0,
+     "ok": true
+    },
+    {
+     "a": "HEPSAME1300",
+     "d": 5,
+     "delay": 5,
+     "ok": true
+    }
+   ],
+   "seconds": 1.184
+  },
+  {
+   "file": "sample.xer",
+   "project": "Task SE",
+   "open": 42,
+   "series": [
+    {
+     "a": "A1000",
+     "b": "A1010",
+     "da": 3,
+     "db": 25,
+     "want": {
+      "total": 28,
+      "owner": 3,
+      "contractor": 25,
+      "concurrent": 0
+     },
+     "got": {
+      "total": 28,
+      "owner": 3,
+      "contractor": 25,
+      "concurrent": 0
+     },
+     "ok": true,
+     "daysAsAdded": true
+    },
+    {
+     "a": "A4000",
+     "b": "A4010",
+     "da": 21,
+     "db": 24,
+     "want": {
+      "total": 45,
+      "owner": 21,
+      "contractor": 24,
+      "concurrent": 0
+     },
+     "got": {
+      "total": 45,
+      "owner": 21,
+      "contractor": 24,
+      "concurrent": 0
+     },
+     "ok": true,
+     "daysAsAdded": true
+    },
+    {
+     "a": "A2000",
+     "b": "A2010",
+     "da": 27,
+     "db": 26,
+     "want": {
+      "total": 53,
+      "owner": 27,
+      "contractor": 26,
+      "concurrent": 0
+     },
+     "got": {
+      "total": 53,
+      "owner": 27,
+      "contractor": 26,
+      "concurrent": 0
+     },
+     "ok": true,
+     "daysAsAdded": true
+    },
+    {
+     "a": "A3000",
+     "b": "A3010",
+     "da": 6,
+     "db": 13,
+     "want": {
+      "total": 19,
+      "owner": 6,
+      "contractor": 13,
+      "concurrent": 0
+     },
+     "got": {
+      "total": 19,
+      "owner": 6,
+      "contractor": 13,
+      "concurrent": 0
+     },
+     "ok": true,
+     "daysAsAdded": true
+    },
+    {
+     "a": "A5000",
+     "b": "A5010",
+     "da": 29,
+     "db": 23,
+     "want": {
+      "total": 52,
+      "owner": 29,
+      "contractor": 23,
+      "concurrent": 0
+     },
+     "got": {
+      "total": 52,
+      "owner": 29,
+      "contractor": 23,
+      "concurrent": 0
+     },
+     "ok": true,
+     "daysAsAdded": true
+    }
+   ],
+   "parallel": [
+    {
+     "x": "A2030",
+     "a": 28,
+     "b": 1,
+     "want": {
+      "total": 28,
+      "owner": 27,
+      "contractor": 0,
+      "concurrent": 1
+     },
+     "got": {
+      "total": 28,
+      "owner": 27,
+      "contractor": 0,
+      "concurrent": 1
+     },
+     "ok": true
+    },
+    {
+     "x": "A4010",
+     "a": 28,
+     "b": 14,
+     "want": {
+      "total": 28,
+      "owner": 14,
+      "contractor": 0,
+      "concurrent": 14
+     },
+     "got": {
+      "total": 28,
+      "owner": 14,
+      "contractor": 0,
+      "concurrent": 14
+     },
+     "ok": true
+    },
+    {
+     "x": "A2010",
+     "a": 26,
+     "b": 18,
+     "want": {
+      "total": 26,
+      "owner": 8,
+      "contractor": 0,
+      "concurrent": 18
+     },
+     "got": {
+      "total": 26,
+      "owner": 8,
+      "contractor": 0,
+      "concurrent": 18
+     },
+     "ok": true
+    },
+    {
+     "x": "A1010",
+     "a": 11,
+     "b": 11,
+     "want": {
+      "total": 11,
+      "owner": 0,
+      "contractor": 0,
+      "concurrent": 11
+     },
+     "got": {
+      "total": 11,
+      "owner": 0,
+      "contractor": 0,
+      "concurrent": 11
+     },
+     "ok": true
+    },
+    {
+     "x": "A5010",
+     "a": 4,
+     "b": 19,
+     "want": {
+      "total": 19,
+      "owner": 0,
+      "contractor": 15,
+      "concurrent": 4
+     },
+     "got": {
+      "total": 19,
+      "owner": 0,
+      "contractor": 15,
+      "concurrent": 4
+     },
+     "ok": true
+    },
+    {
+     "x": "A1030",
+     "a": 10,
+     "b": 6,
+     "want": {
+      "total": 10,
+      "owner": 4,
+      "contractor": 0,
+      "concurrent": 6
+     },
+     "got": {
+      "total": 10,
+      "owner": 4,
+      "contractor": 0,
+      "concurrent": 6
+     },
+     "ok": true
+    },
+    {
+     "x": "A4030",
+     "a": 21,
+     "b": 21,
+     "want": {
+      "total": 21,
+      "owner": 0,
+      "contractor": 0,
+      "concurrent": 21
+     },
+     "got": {
+      "total": 21,
+      "owner": 0,
+      "contractor": 0,
+      "concurrent": 21
+     },
+     "ok": true
+    },
+    {
+     "x": "A3030",
+     "a": 4,
+     "b": 23,
+     "want": {
+      "total": 23,
+      "owner": 0,
+      "contractor": 19,
+      "concurrent": 4
+     },
+     "got": {
+      "total": 23,
+      "owner": 0,
+      "contractor": 19,
+      "concurrent": 4
+     },
+     "ok": true
+    },
+    {
+     "x": "A5030",
+     "a": 7,
+     "b": 19,
+     "want": {
+      "total": 19,
+      "owner": 0,
+      "contractor": 12,
+      "concurrent": 7
+     },
+     "got": {
+      "total": 19,
+      "owner": 0,
+      "contractor": 12,
+      "concurrent": 7
+     },
+     "ok": true
+    },
+    {
+     "x": "A3010",
+     "a": 2,
+     "b": 15,
+     "want": {
+      "total": 15,
+      "owner": 0,
+      "contractor": 13,
+      "concurrent": 2
+     },
+     "got": {
+      "total": 15,
+      "owner": 0,
+      "contractor": 13,
+      "concurrent": 2
+     },
+     "ok": true
+    }
+   ],
+   "single": [
+    {
+     "a": "A2050",
+     "d": 5,
+     "delay": 5,
+     "ok": true
+    },
+    {
+     "a": "A3030",
+     "d": 27,
+     "delay": 27,
+     "ok": true
+    },
+    {
+     "a": "A2010",
+     "d": 13,
+     "delay": 13,
+     "ok": true
+    },
+    {
+     "a": "A4050",
+     "d": 22,
+     "delay": 22,
+     "ok": true
+    },
+    {
+     "a": "A5010",
+     "d": 5,
+     "delay": 5,
+     "ok": true
+    }
+   ],
+   "seconds": 0.15
+  },
+  {
+   "file": "terminal-building-airport.xer",
+   "project": "TERMINAL-2",
+   "open": 66,
+   "series": [
+    {
+     "a": "BA-P4-50",
+     "b": "BA-P4-60",
+     "da": 10,
+     "db": 8,
+     "want": {
+      "total": 18,
+      "owner": 10,
+      "contractor": 8,
+      "concurrent": 0
+     },
+     "got": {
+      "total": 18,
+      "owner": 10,
+      "contractor": 8,
+      "concurrent": 0
+     },
+     "ok": true,
+     "daysAsAdded": true
+    },
+    {
+     "a": "BA-P4-40",
+     "b": "BA-P4-50",
+     "da": 19,
+     "db": 28,
+     "want": {
+      "total": 47,
+      "owner": 19,
+      "contractor": 28,
+      "concurrent": 0
+     },
+     "got": {
+      "total": 47,
+      "owner": 19,
+      "contractor": 28,
+      "concurrent": 0
+     },
+     "ok": true,
+     "daysAsAdded": true
+    },
+    {
+     "a": "BA-P4-100",
+     "b": "BA-P4-130",
+     "da": 26,
+     "db": 11,
+     "want": {
+      "total": 37,
+      "owner": 26,
+      "contractor": 11,
+      "concurrent": 0
+     },
+     "got": {
+      "total": 37,
+      "owner": 26,
+      "contractor": 11,
+      "concurrent": 0
+     },
+     "ok": true,
+     "daysAsAdded": true
+    },
+    {
+     "a": "BA-P4-130",
+     "b": "BA-P4-140",
+     "da": 28,
+     "db": 23,
+     "want": {
+      "total": 51,
+      "owner": 28,
+      "contractor": 23,
+      "concurrent": 0
+     },
+     "got": {
+      "total": 51,
+      "owner": 28,
+      "contractor": 23,
+      "concurrent": 0
+     },
+     "ok": true,
+     "daysAsAdded": true
+    },
+    {
+     "a": "BA-P4-160",
+     "b": "BA-P4-170",
+     "da": 28,
+     "db": 25,
+     "want": {
+      "total": 53,
+      "owner": 28,
+      "contractor": 25,
+      "concurrent": 0
+     },
+     "got": {
+      "total": 53,
+      "owner": 28,
+      "contractor": 25,
+      "concurrent": 0
+     },
+     "ok": true,
+     "daysAsAdded": true
+    },
+    {
+     "a": "BA-P4-60",
+     "b": "BA-P4-70",
+     "da": 4,
+     "db": 17,
+     "want": {
+      "total": 21,
+      "owner": 4,
+      "contractor": 17,
+      "concurrent": 0
+     },
+     "got": {
+      "total": 21,
+      "owner": 4,
+      "contractor": 17,
+      "concurrent": 0
+     },
+     "ok": true,
+     "daysAsAdded": true
+    },
+    {
+     "a": "BA-P4-30",
+     "b": "BA-P4-40",
+     "da": 5,
+     "db": 23,
+     "want": {
+      "total": 28,
+      "owner": 5,
+      "contractor": 23,
+      "concurrent": 0
+     },
+     "got": {
+      "total": 28,
+      "owner": 5,
+      "contractor": 23,
+      "concurrent": 0
+     },
+     "ok": true,
+     "daysAsAdded": true
+    }
+   ],
+   "parallel": [
+    {
+     "x": "BA-P4-50",
+     "a": 21,
+     "b": 27,
+     "want": {
+      "total": 27,
+      "owner": 0,
+      "contractor": 6,
+      "concurrent": 21
+     },
+     "got": {
+      "total": 27,
+      "owner": 0,
+      "contractor": 6,
+      "concurrent": 21
+     },
+     "ok": true
+    },
+    {
+     "x": "BA-P4-80",
+     "a": 28,
+     "b": 28,
+     "want": {
+      "total": 28,
+      "owner": 0,
+      "contractor": 0,
+      "concurrent": 28
+     },
+     "got": {
+      "total": 28,
+      "owner": 0,
+      "contractor": 0,
+      "concurrent": 28
+     },
+     "ok": true
+    },
+    {
+     "x": "BA-P4-10",
+     "a": 10,
+     "b": 11,
+     "want": {
+      "total": 11,
+      "owner": 0,
+      "contractor": 1,
+      "concurrent": 10
+     },
+     "got": {
+      "total": 11,
+      "owner": 0,
+      "contractor": 1,
+      "concurrent": 10
+     },
+     "ok": true
+    },
+    {
+     "x": "BA-P2-10",
+     "a": 9,
+     "b": 9,
+     "want": {
+      "total": 9,
+      "owner": 0,
+      "contractor": 0,
+      "concurrent": 9
+     },
+     "got": {
+      "total": 9,
+      "owner": 0,
+      "contractor": 0,
+      "concurrent": 9
+     },
+     "ok": true
+    },
+    {
+     "x": "BA-P4-40",
+     "a": 6,
+     "b": 24,
+     "want": {
+      "total": 24,
+      "owner": 0,
+      "contractor": 18,
+      "concurrent": 6
+     },
+     "got": {
+      "total": 24,
+      "owner": 0,
+      "contractor": 18,
+      "concurrent": 6
+     },
+     "ok": true
+    },
+    {
+     "x": "BA-P4-60",
+     "a": 12,
+     "b": 17,
+     "want": {
+      "total": 17,
+      "owner": 0,
+      "contractor": 5,
+      "concurrent": 12
+     },
+     "got": {
+      "total": 17,
+      "owner": 0,
+      "contractor": 5,
+      "concurrent": 12
+     },
+     "ok": true
+    },
+    {
+     "x": "BA-P4-130",
+     "a": 13,
+     "b": 14,
+     "want": {
+      "total": 14,
+      "owner": 0,
+      "contractor": 1,
+      "concurrent": 13
+     },
+     "got": {
+      "total": 14,
+      "owner": 0,
+      "contractor": 1,
+      "concurrent": 13
+     },
+     "ok": true
+    },
+    {
+     "x": "BA-P4-170",
+     "a": 28,
+     "b": 6,
+     "want": {
+      "total": 28,
+      "owner": 22,
+      "contractor": 0,
+      "concurrent": 6
+     },
+     "got": {
+      "total": 28,
+      "owner": 22,
+      "contractor": 0,
+      "concurrent": 6
+     },
+     "ok": true
+    },
+    {
+     "x": "BA-P4-160",
+     "a": 23,
+     "b": 17,
+     "want": {
+      "total": 23,
+      "owner": 6,
+      "contractor": 0,
+      "concurrent": 17
+     },
+     "got": {
+      "total": 23,
+      "owner": 6,
+      "contractor": 0,
+      "concurrent": 17
+     },
+     "ok": true
+    }
+   ],
+   "single": [
+    {
+     "a": "BA-P3-80",
+     "d": 20,
+     "delay": 9,
+     "ok": true
+    },
+    {
+     "a": "BA-P4-50",
+     "d": 30,
+     "delay": 30,
+     "ok": true
+    },
+    {
+     "a": "BA-P2-140",
+     "d": 30,
+     "delay": 30,
+     "ok": true
+    },
+    {
+     "a": "BA-P1-50",
+     "d": 8,
+     "delay": 8,
+     "ok": true
+    },
+    {
+     "a": "BA-P4-100",
+     "d": 27,
+     "delay": 27,
+     "ok": true
+    }
+   ],
+   "seconds": 0.241
+  }
+ ]
+}
