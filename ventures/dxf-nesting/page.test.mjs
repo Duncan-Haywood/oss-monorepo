@@ -14,7 +14,7 @@ test("index page carries the disclaimer, privacy line, and sponsor link", () => 
 
 test("inputs have labels and the page never sends drawings anywhere", () => {
   const html = page("index.html");
-  for (const id of ["files", "skipLayers", "defaultQty", "sheetW", "sheetH", "gap", "margin", "rotations", "res", "maxSheets", "search"]) assert.match(html, new RegExp(`<label for="${id}">`));
+  for (const id of ["files", "skipLayers", "defaultQty", "sheetW", "sheetH", "gap", "margin", "rotations", "res", "maxSheets", "search", "remnantFiles", "stockList", "fullAfter"]) assert.match(html, new RegExp(`<label for="${id}">`));
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/);
   for (const f of ["job.mjs", "nest.mjs", "dxf.mjs", "geom.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon/);
 });

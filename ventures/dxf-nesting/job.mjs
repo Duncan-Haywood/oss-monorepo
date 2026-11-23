@@ -2,7 +2,7 @@
 // report, and write the sheets back out as DXF and SVG.
 
 import { parseDxf, writeDxf, previewPoints } from "./dxf.mjs";
-import { chain, partsFromLoops, rectEdges, circleEdge, polyEdges, finishPart } from "./geom.mjs";
+import { chain, partsFromLoops, rectEdges, circleEdge, polyEdges, finishPart, partRings } from "./geom.mjs";
 import { nest, verify, report, placedEdges } from "./nest.mjs";
 
 /**
@@ -72,6 +72,45 @@ export function exampleParts(tol = 0.01) {
 }
 
 /**
+ * Remnants from a DXF: each closed outline (with its cut-outs) is one
+ * remnant sheet, in the drawing's units, moved so its bounding box starts at
+ * (0, 0). Returns { ok, error, remnants: [{ name, outline, qty: 1 }], warnings }.
+ */
+export function remnantsFromDxf(text, fileName = "remnant", { tol = 0.01 } = {}) {
+  const r = partsFromDxf(text, fileName, { tol });
+  if (!r.ok) return { ok: false, error: r.error, remnants: [], warnings: r.warnings || [] };
+  const remnants = r.parts.map((p) => ({ name: p.name, outline: partRings(p.part, tol), qty: 1 }));
+  return { ok: true, remnants, warnings: r.warnings, insunits: r.insunits };
+}
+
+/**
+ * The worked example's offcut, as DXF (mm): a 1600 x 1000 sheet end with a
+ * 700 x 450 corner already cut away and a 250 mm hole where a disc came out.
+ */
+export function exampleRemnantDxf() {
+  const outer = polyEdges([[0, 0], [1600, 0], [1600, 550], [900, 550], [900, 1000], [0, 1000]]);
+  return writeDxf([{ layer: "REMNANT", edges: [...outer, circleEdge(400, 450, 125)] }], 4);
+}
+
+/**
+ * Stock lines as text, one per line: "LENGTH x WIDTH [x QTY] [name]", e.g.
+ * "1200 x 800 x 2 offcut rack A" or "2500x1250" (no quantity: unlimited).
+ * Returns { ok, error, stock }.
+ */
+export function parseStock(text) {
+  const stock = [];
+  const lines = String(text || "").split(/\r?\n/);
+  for (const [n, raw] of lines.entries()) {
+    const line = raw.replace(/#.*/, "").trim();
+    if (!line) continue;
+    const m = /^(\d+(?:\.\d+)?)\s*[x×*]\s*(\d+(?:\.\d+)?)(?:\s*[x×*]\s*(\d+))?(?:\s+(.+))?$/i.exec(line);
+    if (!m) return { ok: false, error: `Stock line ${n + 1} ("${raw.trim()}"): write it as LENGTH x WIDTH, optionally x QUANTITY and a name, e.g. 1200 x 800 x 2 offcut A.` };
+    stock.push({ w: parseFloat(m[1]), h: parseFloat(m[2]), qty: m[3] ? parseInt(m[3], 10) : Infinity, name: m[4] ? m[4].trim() : undefined });
+  }
+  return { ok: true, stock };
+}
+
+/**
  * Nest a job. items: [{ name, part, qty }]. Returns the nest, its check, the
  * report, and functions to write each sheet.
  */
@@ -92,7 +131,9 @@ export function runJob(items, opts) {
 export function sheetGroups(job, si, offsetY = 0) {
   const { result, parts } = job;
   const s = result.sheets[si];
-  const sheet = rectEdges(0, offsetY, result.sheetW, result.sheetH);
+  const sheet = s.outline
+    ? s.outline.flatMap((r) => polyEdges(r.map(([x, y]) => [x, y + offsetY])))
+    : rectEdges(0, offsetY, s.w ?? result.sheetW, s.h ?? result.sheetH);
   const cut = [], inner = [], mark = [];
   for (const pl of s.placements) {
     const e = placedEdges(parts.get(pl.id), { ...pl, ty: pl.ty + offsetY }, result.tol);
@@ -116,14 +157,18 @@ export function sheetDxf(job, si, insunits = 0) {
 export function allSheetsDxf(job, insunits = 0) {
   const { result } = job;
   const groups = [];
-  result.sheets.forEach((_, i) => groups.push(...sheetGroups(job, i, i * result.sheetH * 1.1)));
+  let y = 0;
+  result.sheets.forEach((s, i) => {
+    groups.push(...sheetGroups(job, i, y));
+    y += (s.h ?? result.sheetH) * 1.1;
+  });
   return writeDxf(groups, insunits);
 }
 
 /** SVG of one sheet, y up as in the DXF. */
 export function sheetSvg(job, si, { px = 900 } = {}) {
   const { result, parts } = job;
-  const W = result.sheetW, H = result.sheetH, s = result.sheets[si];
+  const s = result.sheets[si], W = s.w ?? result.sheetW, H = s.h ?? result.sheetH;
   const scale = px / W;
   const tol = Math.max(result.tol, W / 2000);
   const P = (pts) => pts.map(([x, y], i) => `${i ? "L" : "M"}${(x * scale).toFixed(2)} ${((H - y) * scale).toFixed(2)}`).join("");
@@ -138,16 +183,23 @@ export function sheetSvg(job, si, { px = 900 } = {}) {
     if (marks) body += `<path d="${marks}" fill="none" stroke="#b5482a" stroke-width="0.6"/>`;
   }
   const used = s.usedLength * scale;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${(W * scale).toFixed(1)} ${(H * scale).toFixed(1)}" role="img" aria-label="Sheet ${si + 1}: ${s.placements.length} parts"><rect width="${(W * scale).toFixed(1)}" height="${(H * scale).toFixed(1)}" fill="#fafbfc" stroke="#7b8794"/><rect x="${used.toFixed(1)}" width="${Math.max(0, W * scale - used).toFixed(1)}" height="${(H * scale).toFixed(1)}" fill="#eef3e6"/>${body}</svg>`;
+  const label = `Sheet ${si + 1}${s.name ? ` (${esc(s.name)})` : ""}: ${s.placements.length} parts`;
+  const open = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${(W * scale).toFixed(1)} ${(H * scale).toFixed(1)}" role="img" aria-label="${label}">`;
+  if (s.outline) {
+    // a remnant: its outline (and cut-outs) drawn as the sheet
+    const d = s.outline.map((r) => P(r) + "Z").join("");
+    return `${open}<path d="${d}" fill="#fafbfc" fill-rule="evenodd" stroke="#7b8794" stroke-width="1"/>${body}</svg>`;
+  }
+  return `${open}<rect width="${(W * scale).toFixed(1)}" height="${(H * scale).toFixed(1)}" fill="#fafbfc" stroke="#7b8794"/><rect x="${used.toFixed(1)}" width="${Math.max(0, W * scale - used).toFixed(1)}" height="${(H * scale).toFixed(1)}" fill="#eef3e6"/>${body}</svg>`;
 }
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 /** The report as CSV, one row per sheet. */
 export function reportCsv(job, unit = "") {
-  const rows = [["sheet", "parts", `used_length_${unit || "units"}`, "utilisation_pct", "utilisation_of_used_pct", `cut_length_${unit || "units"}`, "pierces", "part_counts"]];
+  const rows = [["sheet", "stock", `sheet_area_${unit || "units"}2`, "parts", `used_length_${unit || "units"}`, "utilisation_pct", "utilisation_of_used_pct", `cut_length_${unit || "units"}`, "pierces", "part_counts"]];
   for (const s of job.report.sheets) {
-    rows.push([s.sheet, s.parts, s.usedLength.toFixed(2), (s.utilisation * 100).toFixed(1), (s.utilisationOfUsed * 100).toFixed(1), s.cutLength.toFixed(1), s.pierces, Object.entries(s.counts).map(([k, v]) => `${v}x ${k}`).join("; ")]);
+    rows.push([s.sheet, s.stock ?? "", s.sheetArea.toFixed(0), s.parts, s.usedLength.toFixed(2), (s.utilisation * 100).toFixed(1), (s.utilisationOfUsed * 100).toFixed(1), s.cutLength.toFixed(1), s.pierces, Object.entries(s.counts).map(([k, v]) => `${v}x ${k}`).join("; ")]);
   }
   const q = (v) => {
     let t = String(v);

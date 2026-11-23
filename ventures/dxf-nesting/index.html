@@ -22,7 +22,7 @@
     .note, footer { font-size: .86rem; color: #46566a; }
     .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
     label { display: block; font-weight: 600; margin: 10px 0 4px; }
-    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
     input[type=file] { padding: 14px; border-style: dashed; background: #f7fafd; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
     button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
@@ -32,6 +32,10 @@
     th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6edf5; vertical-align: middle; }
     th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
     td input { width: 6em; }
+    textarea { font-family: ui-monospace, monospace; }
+    details { margin: 14px 0; } summary { cursor: pointer; font-weight: 600; }
+    label[for=fullAfter] { display: flex; gap: 8px; align-items: center; font-weight: 400; }
+    label[for=fullAfter] input { width: auto; }
     .thumb svg { width: 64px; height: 48px; display: block; }
     .sheet svg { width: 100%; height: auto; display: block; border-radius: 6px; }
     .ok { color: #1c6b2f; font-weight: 600; }
@@ -96,6 +100,17 @@
           <option value="5000">5,000 moves (slower)</option>
         </select></div>
     </div>
+    <details id="stockBox">
+      <summary>Remnants and other sheets on hand (optional)</summary>
+      <p class="note">Offcuts and odd sheets are used first, in the order listed, before any new sheet of the size above. A remnant DXF can be any closed outline, with cut-outs where parts already came out; each closed outline in the file is one remnant. Draw it in the same units as the parts.</p>
+      <label for="remnantFiles">Remnant DXF files</label>
+      <input type="file" id="remnantFiles" accept=".dxf" multiple>
+      <p><button type="button" class="secondary" id="load-remnant">Add the example offcut (mm)</button><button type="button" class="secondary" id="clear-remnants">Clear remnants</button></p>
+      <p class="note" id="remnantNotes"></p>
+      <label for="stockList">Other rectangular sheets, one per line: length x width x quantity, then a name (no quantity = as many as needed)</label>
+      <textarea id="stockList" rows="3" spellcheck="false" placeholder="1200 x 800 x 2 offcut rack A&#10;3000 x 1500 x 1"></textarea>
+      <p><label for="fullAfter"><input type="checkbox" id="fullAfter" checked> Then new sheets of the size above, as many as needed</label></p>
+    </details>
     <p><button type="button" id="nest">Nest</button></p>
     <p id="status" role="status" aria-live="polite"></p>
   </section>
@@ -105,13 +120,13 @@
     <p id="summary"></p>
     <p id="checkLine"></p>
     <div class="scroll"><table>
-      <thead><tr><th scope="col">Sheet</th><th scope="col">Parts</th><th scope="col">Length used</th><th scope="col">Of sheet</th><th scope="col">Of length used</th><th scope="col">Cut length</th><th scope="col">Pierces</th></tr></thead>
+      <thead><tr><th scope="col">Sheet</th><th scope="col">Stock</th><th scope="col">Parts</th><th scope="col">Length used</th><th scope="col">Of sheet</th><th scope="col">Of length used</th><th scope="col">Cut length</th><th scope="col">Pierces</th></tr></thead>
       <tbody id="sheetRows"></tbody>
     </table></div>
     <p id="unplaced" class="bad"></p>
     <p><button type="button" id="dl-all">Download all sheets (DXF)</button><button type="button" class="secondary" id="dl-csv">Download report (CSV)</button></p>
     <div id="sheets"></div>
-    <p class="note">Layers in the DXF: <code>CUT_OUTER</code> (part outlines), <code>CUT_INNER</code> (holes, cut first), <code>MARK</code> (open lines inside a part, such as engraving), <code>SHEET</code> (the sheet outline). The green strip is the remnant past the last part.</p>
+    <p class="note">Layers in the DXF: <code>CUT_OUTER</code> (part outlines), <code>CUT_INNER</code> (holes, cut first), <code>MARK</code> (open lines inside a part, such as engraving), <code>SHEET</code> (the sheet or remnant outline). The green strip is the offcut past the last part. A remnant's DXF is drawn with its bounding box at (0, 0): line the real offcut up the same way on the bed.</p>
   </section>
 
   <section class="card">
@@ -121,8 +136,8 @@
 
   <section class="card" id="limits">
     <h2>What it does and does not do</h2>
-    <p><strong>Does:</strong> true-shape nesting of closed outlines with their holes on rectangular sheets, parts inside holes, rotation in steps you choose, a minimum gap and edge margin, several sheets, the remnant left at the far end, an independent gap check, DXF out on separate cut and mark layers, utilisation, cut length and pierce counts, and the area bound (no nester can use fewer sheets than the parts' area divided by a sheet's usable area).</p>
-    <p><strong>Not modelled:</strong> common-line cutting, lead-ins and lead-outs, kerf compensation (your CAM does that; set the gap at least to the kerf plus what your material needs), cut order and heat, micro-joints and tabs, grain beyond 0/180° turns, remnant and non-rectangular sheets, mirroring parts, nesting the same job across different sheet sizes. Placement is greedy on a grid with a short search and an optional squeeze of the last sheet: on 13 standard benchmarks its layouts are about 17 to 20% longer than the best published ones, so treat the sheet count as a cautious estimate.</p>
+    <p><strong>Does:</strong> true-shape nesting of closed outlines with their holes on rectangular sheets, parts inside holes, rotation in steps you choose, a minimum gap and edge margin, several sheets, offcuts of any shape (with cut-outs) and a list of mixed sheet sizes used first, the remnant left at the far end, an independent gap check, DXF out on separate cut and mark layers, utilisation, cut length and pierce counts, and the area bound (no nester can use fewer sheets than the parts' area divided by a sheet's usable area).</p>
+    <p><strong>Not modelled:</strong> common-line cutting, lead-ins and lead-outs, kerf compensation (your CAM does that; set the gap at least to the kerf plus what your material needs), cut order and heat, micro-joints and tabs, grain beyond 0/180° turns, mirroring parts, choosing which stock is cheapest (sheets are used in the order you list them), saving the new offcut back to a remnant list, and the squeeze on a remnant's outline (it runs on rectangular last sheets only). Placement is greedy on a grid with a short search and an optional squeeze of the last sheet: on 13 standard benchmarks its layouts are about 17 to 20% longer than the best published ones, so treat the sheet count as a cautious estimate.</p>
     <p><strong>When to use something else:</strong> production runs where the material a stronger nester saves is worth a licence (SigmaNEST, ProNest, Lantek, your machine's own software), or when you need lead-ins and cut order in the same step.</p>
   </section>
 
@@ -136,6 +151,8 @@
     <p>Parts are placed on a fine grid that always covers the whole shape, and each placed part reserves extra cells for the gap plus the arc flattening error. After nesting, a separate check measures the distance between every pair of placed outlines from their edges and reports any pair closer than the gap.</p>
     <h3>Is it as good as SigmaNEST, ProNest or Deepnest?</h3>
     <p>No. On 13 standard nesting benchmarks its layouts come out about 20% longer than the best published ones with the default search (24% with it off, 17% with the search at 100 orders and the last sheet squeezed), and the gap is widest on interlocking, concave parts; a commercial true-shape nester with a long search gets closer to those. It is free, quick, private and its sheets come out as plain DXF; the page also shows the area bound, the fewest sheets any nester could use.</p>
+    <h3>Can it nest into my offcuts and remnants first?</h3>
+    <p>Yes. Under "Remnants and other sheets on hand", load a DXF of each offcut (any closed outline, with holes where parts were already cut) or type the sizes of rectangular sheets you have, with quantities. They are filled in the order listed before a new sheet is opened, and the gap check measures every part's distance from the offcut's real edge and its cut-outs. On the worked example, an L-shaped offcut takes 35 of the 72 parts and the new sheet's used length falls from 1,912 to 1,124 mm.</p>
     <h3>Which DXF entities are read?</h3>
     <p>LINE, ARC, CIRCLE, LWPOLYLINE and POLYLINE with bulges, ELLIPSE, SPLINE and INSERT of blocks (with scale, rotation, mirroring and arrays). Text, dimensions and hatches are skipped and counted. Binary DXF is not read; save as ASCII DXF.</p>
     <h3>Are my drawings uploaded?</h3>
@@ -146,14 +163,14 @@
 <footer>
   <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, fabrication or financial advice, and it does not replace your CAM software's checks or a qualified operator. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every nest before you cut it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
   <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you load is saved anywhere by this tool.</p>
-  <p>Everything runs in your browser. Your drawings are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>dxf_loaded</code>, <code>example_loaded</code>, <code>sheets_nested</code>, <code>dxf_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device. Do Not Track and Global Privacy Control are honoured.</p>
+  <p>Everything runs in your browser. Your drawings are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>dxf_loaded</code>, <code>example_loaded</code>, <code>remnant_loaded</code>, <code>sheets_nested</code>, <code>dxf_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device. Do Not Track and Global Privacy Control are honoured.</p>
   <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
   <p>Related: <a href="../laser-cutting-engraving-job-price-calculator/">laser job price</a>, <a href="../cnc-machining-quote-calculator/">CNC machining quote</a>, <a href="../cut-list-optimizer/">cut list for sheet goods (saw cuts)</a>.</p>
   <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
 </footer>
 
 <script type="module">
-  import { partsFromDxf, exampleParts, runJob, sheetSvg, sheetDxf, allSheetsDxf, reportCsv } from "./job.mjs";
+  import { partsFromDxf, exampleParts, runJob, sheetSvg, sheetDxf, allSheetsDxf, reportCsv, remnantsFromDxf, exampleRemnantDxf, parseStock } from "./job.mjs";
   import { previewPoints } from "./dxf.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -161,7 +178,26 @@
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const n = (x, d = 1) => Number(x).toLocaleString("en-US", { maximumFractionDigits: d });
   const keys = ["sheetW", "sheetH", "gap", "margin", "rotations", "res", "maxSheets", "search", "compact", "skipLayers", "defaultQty"];
-  let items = [], units = "unitless", insunits = 0, job = null;
+  let items = [], remnants = [], units = "unitless", insunits = 0, job = null;
+
+  function addRemnants(text, name) {
+    const r = remnantsFromDxf(text, name);
+    if (!r.ok) return `${name}: ${r.error}`;
+    remnants.push(...r.remnants);
+    record("remnant_loaded");
+    return `${name}: ${r.remnants.length} remnant${r.remnants.length > 1 ? "s" : ""}.`;
+  }
+  function drawRemnants(extra = "") {
+    $("#remnantNotes").textContent = (remnants.length ? `Remnants used first: ${remnants.map((x) => x.name).join(", ")}. ` : "") + extra;
+  }
+  $("#remnantFiles").addEventListener("change", async (e) => {
+    const notes = [];
+    for (const f of e.target.files) notes.push(addRemnants(await f.text(), f.name));
+    e.target.value = "";
+    drawRemnants(notes.join(" "));
+  });
+  $("#load-remnant").addEventListener("click", () => { drawRemnants(addRemnants(exampleRemnantDxf(), "example offcut.dxf")); $("#stockBox").open = true; });
+  $("#clear-remnants").addEventListener("click", () => { remnants = []; drawRemnants(); });
 
   function thumb(part) {
     const tol = Math.max(part.width, part.height) / 200 || 0.01;
@@ -226,7 +262,12 @@
     setTimeout(() => {
       try {
         const res = parseFloat($("#res").value);
+        const lines = parseStock($("#stockList").value);
+        if (!lines.ok) { $("#status").textContent = lines.error; return; }
+        let stock = [...remnants, ...lines.stock];
+        if (stock.length && $("#fullAfter").checked) stock.push({ w: +$("#sheetW").value, h: +$("#sheetH").value });
         job = runJob(items, {
+          ...(stock.length ? { stock } : {}),
           sheetW: +$("#sheetW").value, sheetH: +$("#sheetH").value, gap: +$("#gap").value || 0, margin: +$("#margin").value || 0,
           rotations: rotationsOf($("#rotations").value), res: res > 0 ? res : undefined, maxSheets: Math.max(1, Math.floor(+$("#maxSheets").value || 50)),
           searchIters: Math.max(0, Math.floor(+$("#search").value || 0)),
@@ -243,13 +284,13 @@
 
   function show() {
     const r = job.report, u = units !== "unitless" ? " " + units : "";
-    $("#summary").innerHTML = `<strong>${r.totalParts} parts on ${r.totalSheets} sheet${r.totalSheets === 1 ? "" : "s"}</strong> (the area bound says no nester can use fewer than ${r.sheetLowerBound}). Parts are ${n(r.utilisation * 100)}% of the sheets bought. Cut length ${n(r.cutLength)}${u}, ${r.pierces} pierces. Grid ${job.result.res}${u}, ${job.result.ordersTried} orders tried${job.result.searched ? ` (${job.result.searched} by the search)` : ""}${job.result.compaction ? `, ${job.result.compaction.successes} of ${job.result.compaction.attempts} squeezes of the last sheet kept` : ""} in ${n(job.result.ms / 1000, 1)} s.`;
+    $("#summary").innerHTML = `<strong>${r.totalParts} parts on ${r.totalSheets} sheet${r.totalSheets === 1 ? "" : "s"}</strong>${r.sheetLowerBound !== null ? ` (the area bound says no nester can use fewer than ${r.sheetLowerBound})` : ""}. Parts are ${n(r.utilisation * 100)}% of the sheets used. Cut length ${n(r.cutLength)}${u}, ${r.pierces} pierces. Grid ${job.result.res}${u}, ${job.result.ordersTried} orders tried${job.result.searched ? ` (${job.result.searched} by the search)` : ""}${job.result.compaction ? `, ${job.result.compaction.successes} of ${job.result.compaction.attempts} squeezes of the last sheet kept` : ""} in ${n(job.result.ms / 1000, 1)} s.`;
     $("#checkLine").innerHTML = job.check.ok
-      ? `<span class="ok">Checked: every pair of parts is at least ${job.result.gap}${u} apart and every part at least ${job.result.margin}${u} from the edge.</span>`
+      ? `<span class="ok">Checked: every pair of parts is at least ${job.result.gap}${u} apart and every part at least ${job.result.margin}${u} from the edge${job.result.stock.some((x) => x.outline) ? " (a remnant's real outline and cut-outs)" : ""}.</span>`
       : `<span class="bad">Check failed (please report this): ${esc(job.check.problems.slice(0, 5).join(" "))}</span>`;
-    $("#sheetRows").innerHTML = r.sheets.map((s) => `<tr><th scope="row">${s.sheet}</th><td>${s.parts}</td><td>${n(s.usedLength)}${u}</td><td>${n(s.utilisation * 100)}%</td><td>${n(s.utilisationOfUsed * 100)}%</td><td>${n(s.cutLength)}${u}</td><td>${s.pierces}</td></tr>`).join("");
+    $("#sheetRows").innerHTML = r.sheets.map((s) => `<tr><th scope="row">${s.sheet}</th><td>${esc(s.stock || "")}</td><td>${s.parts}</td><td>${n(s.usedLength)}${u}</td><td>${n(s.utilisation * 100)}%</td><td>${n(s.utilisationOfUsed * 100)}%</td><td>${n(s.cutLength)}${u}</td><td>${s.pierces}</td></tr>`).join("");
     $("#unplaced").textContent = job.result.unplaced.map((x) => `Not placed: ${x.count} × ${x.name} (${x.reason}).`).join(" ");
-    $("#sheets").innerHTML = r.sheets.map((s, i) => `<div class="sheet card"><h3>Sheet ${s.sheet}: ${Object.entries(s.counts).map(([k, v]) => `${v} × ${esc(k)}`).join(", ")}</h3>${sheetSvg(job, i)}<button type="button" class="secondary" data-sheet="${i}">Download sheet ${s.sheet} (DXF)</button></div>`).join("");
+    $("#sheets").innerHTML = r.sheets.map((s, i) => `<div class="sheet card"><h3>Sheet ${s.sheet}${job.result.stock.length > 1 ? ` (${esc(s.stock)})` : ""}: ${Object.entries(s.counts).map(([k, v]) => `${v} × ${esc(k)}`).join(", ")}</h3>${sheetSvg(job, i)}<button type="button" class="secondary" data-sheet="${i}">Download sheet ${s.sheet} (DXF)</button></div>`).join("");
     $("#report").hidden = false;
     $("#status").textContent = `${r.totalParts} parts on ${r.totalSheets} sheet${r.totalSheets === 1 ? "" : "s"}.`;
     $("#report").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
