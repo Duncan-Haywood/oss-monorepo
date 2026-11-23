@@ -50,6 +50,19 @@
 // Revit keeps the GlobalId when a type is re-specified or swapped (Lake
 // Kegonsa: "5.125x6" glulam to "HSS3.500X0.203" steel), and that is priced.
 //
+// A material has no GlobalId, so a material renamed in place (BlenderBIM's
+// "Unknown" given the name "baksteen" on Tulpstraat) is told by its STEP
+// entity id, and only when the two files keep those ids: a tool that edits
+// the file in place does, a re-export renumbers everything. `materialIdsKept`
+// is that test: of the elements matched by GlobalId, at least 3, and 80% of
+// them keep their own STEP id (Tulpstraat: all, on all 11 steps). When it holds,
+// an id whose name differs is listed in `renames.material`, and an element
+// whose material changed only by that is marked `sameMaterialEntity` on the
+// attribute; like a type, a material name is the specification, so it stays
+// a change. `materialSwaps` groups every material change by before -> after
+// with the elements' volume and area: the re-specifications an estimator
+// prices, one line each instead of one per element.
+//
 // `boqDelta` sums each revision by the same grouping as the bill of
 // quantities and subtracts: the lines an estimator prices for a change order.
 
@@ -93,6 +106,53 @@ function findRenames(A, B) {
   return out;
 }
 
+/** IfcMaterial entity id -> name over the elements of one revision. */
+const materialNames = (rows) => {
+  const m = new Map();
+  for (const r of rows) {
+    for (const p of r.materialParts || []) if (!m.has(p.id)) m.set(p.id, { kind: "IFCMATERIAL", name: p.name ?? null });
+    const s = r.materialSet;
+    if (s && !m.has(s.id)) m.set(s.id, { kind: s.kind, name: s.name ?? null });
+  }
+  return m;
+};
+const usesMaterial = (r, id) => r.materialSet?.id === id || (r.materialParts || []).some((p) => p.id === id);
+const KIND_LABEL = { IFCMATERIAL: "IfcMaterial", IFCMATERIALLAYERSET: "IfcMaterialLayerSet", IFCMATERIALPROFILESET: "IfcMaterialProfileSet", IFCMATERIALCONSTITUENTSET: "IfcMaterialConstituentSet", IFCMATERIALLIST: "IfcMaterialList" };
+
+/**
+ * Whether the two revisions keep their STEP ids (a file edited in place, told
+ * by the elements matched by GlobalId keeping theirs), and the IfcMaterial
+ * ids renamed under them with the later elements using each.
+ */
+export function materialRenames(A, B, pairs = []) {
+  const ma = materialNames(A), mb = materialNames(B);
+  const shared = [...ma.keys()].filter((id) => mb.has(id));
+  const byGid = pairs.filter((p) => p.how === "globalId" && p.a.id != null);
+  const same = byGid.filter((p) => p.a.id === p.b.id).length;
+  const kept = byGid.length >= 3 && same >= 0.8 * byGid.length;
+  const renames = [];
+  if (kept) {
+    for (const id of shared) {
+      const x = ma.get(id), y = mb.get(id);
+      // the same id holding another kind of entity is not the same material
+      if (x.kind !== y.kind || x.name === y.name) continue;
+      renames.push({ entityId: id, entity: Object.hasOwn(KIND_LABEL, y.kind) ? KIND_LABEL[y.kind] : y.kind, before: x.name, after: y.name, elements: B.filter((r) => usesMaterial(r, id)).length });
+    }
+    renames.sort((x, y) => String(x.after).localeCompare(String(y.after)));
+  }
+  return { kept, matched: byGid.length, sameStepId: same, renames };
+}
+
+/**
+ * The same assignment entity reaching the same IfcMaterial entities, in the
+ * same order, on both rows (a wall moved from a bare material to a layer set
+ * of that material is re-specified, not renamed).
+ */
+const sameMaterialEntities = (a, b) => {
+  const pa = a.materialParts || [], pb = b.materialParts || [];
+  return a.materialRef != null && a.materialRef === b.materialRef && pa.length > 0 && pa.length === pb.length && pa.every((p, i) => p.id === pb[i].id);
+};
+
 const boxCentre = (b) => [(b[0] + b[3]) / 2, (b[1] + b[4]) / 2, (b[2] + b[5]) / 2];
 const boxSize = (b) => [b[3] - b[0], b[4] - b[1], b[5] - b[2]];
 /** intersection volume over union volume of two boxes; 0 when they do not overlap or either is flat. */
@@ -119,7 +179,7 @@ function quantitiesOf(r) {
  * when that is more than `moveTol` and its size held, or that its size
  * changed.
  */
-function compareRows(a, b, tol, moveTol) {
+function compareRows(a, b, tol, moveTol, idsKept = false) {
   const qa = quantitiesOf(a), qb = quantitiesOf(b);
   const quantities = {};
   for (const k of QTY) {
@@ -132,7 +192,7 @@ function compareRows(a, b, tol, moveTol) {
   for (const k of ATTRS) {
     if ((a[k] ?? null) === (b[k] ?? null)) continue;
     if (k === "storey" && isRename(k, a, b)) renamed[ATTR_LABEL[k]] = { before: a[k] ?? null, after: b[k] ?? null };
-    else attributes[ATTR_LABEL[k]] = { before: a[k] ?? null, after: b[k] ?? null, ...(k === "type" && isRename(k, a, b) ? { sameTypeObject: true } : {}) };
+    else attributes[ATTR_LABEL[k]] = { before: a[k] ?? null, after: b[k] ?? null, ...(k === "type" && isRename(k, a, b) ? { sameTypeObject: true } : {}), ...(k === "material" && idsKept && sameMaterialEntities(a, b) ? { sameMaterialEntity: true } : {}) };
   }
   // moved: the box kept its size and its centre shifted; reshaped: the box
   // changed size (a wall made longer shifts its centre too, but did not move)
@@ -246,9 +306,10 @@ export function diffTakeoffs(rowsA, rowsB, opts = {}) {
     }
   }
 
+  const mat = materialRenames(A, B, pairs);
   const changed = [], unchanged = [];
   for (const p of pairs) {
-    const c = compareRows(p.a, p.b, tol, moveTol);
+    const c = compareRows(p.a, p.b, tol, moveTol, mat.kept);
     const entry = { ...p, ...c };
     if (p.how === "place") changed.push(entry); // a new element, even when nothing measurable differs
     else if (Object.keys(c.quantities).length || Object.keys(c.attributes).length || c.moved || c.reshaped) changed.push(entry);
@@ -256,9 +317,25 @@ export function diffTakeoffs(rowsA, rowsB, opts = {}) {
   }
   const added = [...freeB], removed = [...freeA];
   const reid = pairs.filter((p) => p.how === "tag" || p.how === "geometry");
-  const renames = findRenames(A, B);
+  const renames = { ...findRenames(A, B), material: mat.renames };
+  // every material change, grouped by before -> after
+  const swaps = new Map();
+  for (const c of changed) {
+    const m = c.attributes.material;
+    if (!m) continue;
+    const k = JSON.stringify([m.before, m.after]);
+    if (!swaps.has(k)) swaps.set(k, { before: m.before, after: m.after, elements: 0, renamedInPlace: 0, volume: 0, area: 0, classes: {} });
+    const s = swaps.get(k);
+    s.elements++;
+    if (m.sameMaterialEntity) s.renamedInPlace++;
+    s.volume += c.after.volume ?? 0;
+    s.area += c.after.area ?? 0;
+    s.classes[c.b.ifcClass] = (s.classes[c.b.ifcClass] || 0) + 1;
+  }
+  const materialSwaps = [...swaps.values()].sort((x, y) => y.elements - x.elements || String(x.after).localeCompare(String(y.after)));
   return {
-    changed, unchanged, added, removed, groups, renames,
+    changed, unchanged, added, removed, groups, renames, materialSwaps,
+    materialIdsKept: mat.kept,
     summary: {
       before: A.length, after: B.length,
       matched: pairs.length - pairs.filter((p) => p.how === "place").length, byGlobalId: pairs.filter((p) => p.how === "globalId").length, byTag: reid.filter((p) => p.how === "tag").length, byGeometry: reid.filter((p) => p.how === "geometry").length,
@@ -271,7 +348,7 @@ export function diffTakeoffs(rowsA, rowsB, opts = {}) {
       added: added.length, removed: removed.length,
       merged: groups.filter((g) => g.kind === "merged").length, split: groups.filter((g) => g.kind === "split").length,
       duplicateGlobalIds: { before: dupCount(A), after: dupCount(B) },
-      storeysRenamed: renames.storey.length, typesRenamed: renames.type.length,
+      storeysRenamed: renames.storey.length, typesRenamed: renames.type.length, materialsRenamed: renames.material.length, materialSwaps: materialSwaps.length,
       renamedOnly: unchanged.filter((c) => Object.keys(c.renamed).length).length,
     },
   };
@@ -337,13 +414,15 @@ export function changesCsv(d) {
   const head = ["Change", "GlobalId before", "GlobalId after", "Class", "Name", "Type", "Storey", "Matched by", "What changed", "Volume m3 before", "Volume m3 after", "Area m2 before", "Area m2 after", "Length m before", "Length m after", "Weight kg before", "Weight kg after", "Moved m"];
   const out = [head.map(csvCell).join(",")];
   const qcells = (qa, qb) => QTY.flatMap((k) => [qa?.[k] ?? null, qb?.[k] ?? null]);
+  for (const r of d.renames?.material || []) out.push(["material renamed", `#${r.entityId}`, `#${r.entityId}`, r.entity ?? "IfcMaterial", r.after, "", "", "same STEP id (file edited in place)", `name: ${r.before ?? "(none)"} -> ${r.after ?? "(none)"} (${r.elements} element${r.elements === 1 ? "" : "s"}; each still listed as a material change)`, ...qcells(null, null), null].map(csvCell).join(","));
+  for (const s of d.materialSwaps || []) out.push(["material swap", "", "", Object.keys(s.classes).join(" / "), "", "", "", s.renamedInPlace === s.elements ? "same material entity" : s.renamedInPlace ? `${s.renamedInPlace} of ${s.elements} same material entity` : "", `material: ${s.before ?? "(none)"} -> ${s.after ?? "(none)"} (${s.elements} element${s.elements === 1 ? "" : "s"})`, null, s.volume, null, s.area, null, null, null, null, null].map(csvCell).join(","));
   for (const [k, label, cls] of [["storey", "storey renamed", "IfcBuildingStorey"], ["type", "type renamed", "(type)"]]) {
     for (const r of d.renames?.[k] || []) out.push([label, r.globalId, r.globalId, cls, r.after, k === "type" ? r.after : "", k === "storey" ? r.after : "", "same GlobalId", `name: ${r.before ?? "(none)"} -> ${r.after ?? "(none)"} (${r.elements} element${r.elements === 1 ? "" : "s"}; ${k === "storey" ? "not counted as changed" : "each still listed as a type change"})`, ...qcells(null, null), null].map(csvCell).join(","));
   }
   for (const c of d.changed) {
     const what = [
       ...Object.entries(c.quantities).map(([k, q]) => `${k} ${q.delta > 0 ? "+" : ""}${Math.round(q.delta * 1e4) / 1e4}`),
-      ...Object.entries(c.attributes).map(([k, v]) => `${k}: ${v.before ?? "(none)"} -> ${v.after ?? "(none)"}${v.sameTypeObject ? " (same type GlobalId: renamed or re-specified)" : ""}`),
+      ...Object.entries(c.attributes).map(([k, v]) => `${k}: ${v.before ?? "(none)"} -> ${v.after ?? "(none)"}${v.sameTypeObject ? " (same type GlobalId: renamed or re-specified)" : ""}${v.sameMaterialEntity ? " (same material entity, renamed)" : ""}`),
       ...(c.moved ? [`moved ${Math.round(c.moved.distance * 1000) / 1000} m`] : []),
       ...(c.reshaped ? [`box ${c.reshaped.before.map((v) => Math.round(v * 1000) / 1000).join(" x ")} -> ${c.reshaped.after.map((v) => Math.round(v * 1000) / 1000).join(" x ")} m`] : []),
     ].join("; ");

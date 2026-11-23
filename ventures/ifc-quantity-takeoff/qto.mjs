@@ -244,6 +244,36 @@ export function glassPlanes(boxes) {
   return planes.map(({ volume, pieces }) => ({ volume, pieces }));
 }
 
+/**
+ * The IfcMaterial entities a material assignment reaches (layers, profiles,
+ * constituents, list items), as {id, name} in file order, each once. The
+ * change report (diff.mjs) reads them to tell a material renamed in place
+ * from an element given another material: IfcMaterial has no GlobalId.
+ */
+function materialLeaves(E, id, out = [], depth = 0) {
+  const m = E.get(id);
+  if (!m || depth > 5) return out;
+  const down = (r) => materialLeaves(E, refId(r), out, depth + 1);
+  switch (m.type) {
+    case "IFCMATERIAL": if (!out.some((x) => x.id === id)) out.push({ id, name: str(m.args[0]) }); break;
+    case "IFCMATERIALLAYERSETUSAGE": case "IFCMATERIALPROFILESETUSAGE": case "IFCMATERIALLAYER": down(m.args[0]); break;
+    case "IFCMATERIALLAYERSET": case "IFCMATERIALLIST": for (const r of m.args[0] || []) down(r); break;
+    case "IFCMATERIALCONSTITUENTSET": case "IFCMATERIALPROFILESET": for (const r of m.args[2] || []) { const c = E.get(refId(r)); if (c) down(c.args[2]); } break;
+    default: break;
+  }
+  return out;
+}
+
+/** The layer set, profile set, constituent set or list an assignment names (through its usage), as {id, kind, name}. */
+const SET_NAME_ARG = new Map([["IFCMATERIALLAYERSET", 1], ["IFCMATERIALPROFILESET", 0], ["IFCMATERIALCONSTITUENTSET", 0]]);
+function materialSet(E, id) {
+  let m = E.get(id);
+  if (m && (m.type === "IFCMATERIALLAYERSETUSAGE" || m.type === "IFCMATERIALPROFILESETUSAGE")) { id = refId(m.args[0]); m = E.get(id); }
+  const named = !!m && SET_NAME_ARG.has(m.type);
+  if (!m || !(named || m.type === "IFCMATERIALLIST")) return null;
+  return { id, kind: m.type, name: named ? str(m.args[SET_NAME_ARG.get(m.type)]) : null };
+}
+
 function materialName(E, id, depth = 0) {
   const m = E.get(id);
   if (!m || depth > 5) return null;
@@ -432,7 +462,7 @@ export function takeoff(model, opts = {}) {
     const id = e.id;
     const row = {
       id, globalId: e.args[0], ifcClass: prettyClass(e.type), ifcType: e.type, name: str(e.args[2]), tag: str(e.args[7]) ?? null,
-      type: null, typeGlobalId: null, storey: null, storeyGlobalId: null, storeyElevation: null, space: null, material: null, classification: null, parent: null, isAssembly: false,
+      type: null, typeGlobalId: null, storey: null, storeyGlobalId: null, storeyElevation: null, space: null, material: null, materialParts: null, materialRef: null, materialSet: null, classification: null, parent: null, isAssembly: false,
       stored: {}, storedSet: null, computed: null, check: null, box: null,
       pathJoins: idx.pathJoins.get(id) || [],
     };
@@ -463,7 +493,7 @@ export function takeoff(model, opts = {}) {
     row.assembly = parent ?? null;
     row.isAssembly = (idx.children.get(id) || []).some((c) => { const ce = E.get(c); return ce && isElement(ce); });
     const mid = idx.material.get(id) ?? (tId ? idx.material.get(tId) : undefined);
-    if (mid) row.material = materialName(E, mid);
+    if (mid) { row.material = materialName(E, mid); row.materialParts = materialLeaves(E, mid); row.materialRef = mid; row.materialSet = materialSet(E, mid); }
     row.classification = classificationCode(E, idx.classif.get(id) ?? (tId ? idx.classif.get(tId) : undefined));
     // what the Uniformat rules read (uniformat.mjs)
     const te = tId ? E.get(tId) : null;
