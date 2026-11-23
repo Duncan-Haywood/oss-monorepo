@@ -1,0 +1,500 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKnVTUtCwTU6QKmcTJ2",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T10:18:33Z",
+  "ended": "2026-11-23T10:20:49Z",
+  "wall_minutes": 9.67,
+  "tokens_in": 4451039,
+  "tokens_out": 21324,
+  "cost_usd": 1.9252,
+  "tool_calls": 58,
+  "task": "redteam: seed faults in uk-capital-allowances-calculator and parcel-dim-weight-calculator, hunt and fix real defects",
+  "projects": [
+    "uk-capital-allowances-calculator",
+    "parcel-dim-weight-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18406",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "league-schedule-generator's whole node --test ran past 120 s while I was checking it as a second target; I stopped it and picked parcel-dim-weight-calculator",
+    "post front matter first failed check_posts (description 242 chars, seo_title 85); shortened"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list had 13 entries, all control-plane or needing a redesign (help-keeper stemmer), so a run on a single branch cannot act on any of them. The list would be more useful if it split 'needs owner/control-plane PR' entries out from the ones a run can fix."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`targets --probe 20` prints only a random sample, so a recently changed file (league-schedule-generator, uk-capital-allowances-calculator) cannot be probed by name; I timed suites by hand instead."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "legislation.gov.uk and gov.uk are blocked by the proxy and WebFetch here; the statute was confirmed from search snippets of HMRC CA23085/CA23225 and GOV.UK guidance instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: none of the 13 open defects was fixable from this branch (all control-plane, owner approval, or a measured-mixed stemmer change)",
+      "did": "skipped step 0 fixes and noted it",
+      "result": "time went to the seeded campaign and three real defects, all patched"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b: the defect class (Math.min(12, months) period capping, a fixed small-pool limit) has no sibling in ventures/ (grep found none), so a lint would guard nothing",
+      "did": "left the guards as venture tests, which ventures-tests.yml runs on every PR",
+      "result": "no new CI check added this run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-redteam-an-18-month-year.md"
+  ],
+  "goal": null,
+  "notes": "Real defects confirmed against HMRC Capital Allowances Manual CA23085 (AIA proportionately increased for an 18-month period: \u00a31.5m) and CA23225 (small pools limit scaled, 17 months = \u00a31,417) via search snippets; legislation.gov.uk unreachable. Verification: run_venture_tests.py on both slugs, 34 and 71 tests pass; check_posts ok. Catch rate 14/22 before, 22/22 after (mutant 5's line was rewritten by the whitespace fix; the analogous fault on the new line was applied by hand and fails 2 tests). Guard added: venture tests only (no sibling with the same class).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/uk-capital-allowances-calculator/calc.mjs",
+        "test": "node --test ventures/uk-capital-allowances-calculator/**/*.test.mjs  (in .)",
+        "seed": 441384956,
+        "commit": "694a128f9",
+        "sites": 126,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/uk-capital-allowances-calculator/calc.mjs",
+            "line": 31,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "const round2 = (n) => Math.round(n * 100) / 100;",
+            "after": "const round2 = (n) => Math.round(n * 101) / 100;",
+            "line_text": "const round2 = (n) => Math.round(n * 100) / 100;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-capital-allowances-calculator/calc.mjs",
+            "line": 49,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "if (balance <= 0) return 0;",
+            "after": "if (balance <= 1) return 0;",
+            "line_text": "  if (balance <= 0) return 0;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "pool of \u00a31 written off: new test 'a pool of \u00a31 or less is still written off'"
+          },
+          {
+            "file": "ventures/uk-capital-allowances-calculator/calc.mjs",
+            "line": 70,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "let rest = spend[c] - (aiaUsed[c] || 0);",
+            "after": "let rest = spend[c] - (aiaUsed[c] || 1);",
+            "line_text": "    let rest = spend[c] - (aiaUsed[c] || 0);",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-capital-allowances-calculator/calc.mjs",
+            "line": 72,
+            "col": 38,
+            "operator": "times-to-div",
+            "before": "if (fyaRate > 0) { const f = rest * fyaRate; fya += f; later[POOL_OF[c]] += rest - f; rest = 0; }",
+            "after": "if (fyaRate > 0) { const f = rest / fyaRate; fya += f; later[POOL_OF[c]] += rest - f; rest = 0; }",
+            "line_text": "    if (fyaRate > 0) { const f = rest * fyaRate; fya += f; later[POOL_OF[c]] += rest - f; rest = 0; }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-capital-allowances-calculator/calc.mjs",
+            "line": 91,
+            "col": 57,
+            "operator": "const-plus-one",
+            "before": "v.months = num(\"months\", \"Accounting period (months)\", 1);",
+            "after": "v.months = num(\"months\", \"Accounting period (months)\", 2);",
+            "line_text": "  v.months = num(\"months\", \"Accounting period (months)\", 1);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "one-month period: new test 'a one-month period is accepted'"
+          },
+          {
+            "file": "ventures/uk-capital-allowances-calculator/calc.mjs",
+            "line": 96,
+            "col": 31,
+            "operator": "or-to-and",
+            "before": "v.profit = raw.profit === \"\" || raw.profit == null ? null : Number(raw.profit);",
+            "after": "v.profit = raw.profit === \"\" && raw.profit == null ? null : Number(raw.profit);",
+            "line_text": "  v.profit = raw.profit === \"\" || raw.profit == null ? null : Number(raw.profit);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": " [rerun: line changed; triage by hand] [rerun: line changed; triage by hand] [rerun: line changed; triage by hand] line rewritten by the whitespace-profit fix; the same fault on the new line (=== to !==) was applied by hand and fails 2 tests"
+          },
+          {
+            "file": "ventures/uk-capital-allowances-calculator/calc.mjs",
+            "line": 110,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "const rate = v.taxRate / 100;",
+            "after": "const rate = v.taxRate / 101;",
+            "line_text": "  const rate = v.taxRate / 100;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-capital-allowances-calculator/calc.mjs",
+            "line": 111,
+            "col": 59,
+            "operator": "plus-to-minus",
+            "before": "const spendTotal = FIELDS.slice(0, 6).reduce((s, k) => s + v[k], 0);",
+            "after": "const spendTotal = FIELDS.slice(0, 6).reduce((s, k) => s - v[k], 0);",
+            "line_text": "  const spendTotal = FIELDS.slice(0, 6).reduce((s, k) => s + v[k], 0);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "spendTotal: new test checks spendTotal and the summary line"
+          },
+          {
+            "file": "ventures/uk-capital-allowances-calculator/calc.mjs",
+            "line": 114,
+            "col": 68,
+            "operator": "times-to-div",
+            "before": "const years = [{ year: 1, deduction: opt.total, saving: opt.total * rate }];",
+            "after": "const years = [{ year: 1, deduction: opt.total, saving: opt.total / rate }];",
+            "line_text": "  const years = [{ year: 1, deduction: opt.total, saving: opt.total * rate }];",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "tax saving per year: new test pins years[0].saving"
+          },
+          {
+            "file": "ventures/uk-capital-allowances-calculator/calc.mjs",
+            "line": 118,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "m -= poolWda(m, RATES.mainWda, 12); s -= poolWda(s, RATES.specialWda, 12);",
+            "after": "m -= poolWda(m, RATES.mainWda, 13); s -= poolWda(s, RATES.specialWda, 12);",
+            "line_text": "    m -= poolWda(m, RATES.mainWda, 12); s -= poolWda(s, RATES.specialWda, 12);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "year-2+ pool reduction: years test now checks year 3 for both pools"
+          },
+          {
+            "file": "ventures/uk-capital-allowances-calculator/calc.mjs",
+            "line": 122,
+            "col": 8,
+            "operator": "const-plus-one",
+            "before": "years[0].cumulative = opt.total;",
+            "after": "years[1].cumulative = opt.total;",
+            "line_text": "  years[0].cumulative = opt.total;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-capital-allowances-calculator/calc.mjs",
+            "line": 128,
+            "col": 47,
+            "operator": "const-plus-one",
+            "before": "if (!isCompany && v.mainNew + v.specialNew > 0) findings.push({ severity: \"info\", title: \"Full expensing and the 50% special-rate allowance are for companies only. Sole traders and partnerships get the AIA, then a 40% first-year allowance on new main-rate equipment (not cars) from 1 January 2026, then 14% / 6% writing-down.\" });",
+            "after": "if (!isCompany && v.mainNew + v.specialNew > 1) findings.push({ severity: \"info\", title: \"Full expensing and the 50% special-rate allowance are for companies only. Sole traders and partnerships get the AIA, then a 40% first-year allowance on new main-rate equipment (not cars) from 1 January 2026, then 14% / 6% writing-down.\" });",
+            "line_text": "  if (!isCompany && v.mainNew + v.specialNew > 0) findings.push({ severity: \"info\", title: \"Full expensing and the 50% special-rate allowance are for companies only. Sole traders and partnerships get the AIA, then a 40% first-year allowance on new main-rate equipment (not cars) from 1 January 2026, then 14% / 6% writing-down.\" });",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "sole-trader note for a \u00a31 spend: new assertion"
+          }
+        ]
+      },
+      {
+        "target": "ventures/parcel-dim-weight-calculator/calc.mjs",
+        "test": "node --test ventures/parcel-dim-weight-calculator/**/*.test.mjs  (in .)",
+        "seed": 911317652,
+        "commit": "694a128f9",
+        "sites": 62,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 53,
+            "col": 17,
+            "operator": "max-to-min",
+            "before": "return round ? Math.max(1, Math.round(value)) : value;",
+            "after": "return round ? Math.min(1, Math.round(value)) : value;",
+            "line_text": "  return round ? Math.max(1, Math.round(value)) : value;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 62,
+            "col": 19,
+            "operator": "max-to-min",
+            "before": "return Math.ceil(Math.max(actual, dimensional));",
+            "after": "return Math.ceil(Math.min(actual, dimensional));",
+            "line_text": "  return Math.ceil(Math.max(actual, dimensional));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 76,
+            "col": 40,
+            "operator": "div-to-times",
+            "before": "const height = targetWeight * divisor / (length * width);",
+            "after": "const height = targetWeight * divisor * (length * width);",
+            "line_text": "  const height = targetWeight * divisor / (length * width);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 77,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "return Number.isFinite(height) && height > 0 ? height : null;",
+            "after": "return Number.isFinite(height) && height > 1 ? height : null;",
+            "line_text": "  return Number.isFinite(height) && height > 0 ? height : null;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "break-even height below 1 inch: new test with a 30x30 footprint"
+          },
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 116,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "const girth = 2 * (secondSide + shortestSide);",
+            "after": "const girth = 3 * (secondSide + shortestSide);",
+            "line_text": "  const girth = 2 * (secondSide + shortestSide);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 121,
+            "col": 69,
+            "operator": "gt-to-ge",
+            "before": "if (longestSide > thresholds.maximumLongestSide || lengthPlusGirth > thresholds.maximumGirth) {",
+            "after": "if (longestSide > thresholds.maximumLongestSide || lengthPlusGirth >= thresholds.maximumGirth) {",
+            "line_text": "  if (longestSide > thresholds.maximumLongestSide || lengthPlusGirth > thresholds.maximumGirth) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 127,
+            "col": 60,
+            "operator": "or-to-and",
+            "before": "} else if (lengthPlusGirth > thresholds.largePackageGirth || longestSide > thresholds.largePackageLongestSide) {",
+            "after": "} else if (lengthPlusGirth > thresholds.largePackageGirth && longestSide > thresholds.largePackageLongestSide) {",
+            "line_text": "  } else if (lengthPlusGirth > thresholds.largePackageGirth || longestSide > thresholds.largePackageLongestSide) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 155,
+            "col": 25,
+            "operator": "eq-flip",
+            "before": "const lever = billedOn === 'dimensional'",
+            "after": "const lever = billedOn !== 'dimensional'",
+            "line_text": "  const lever = billedOn === 'dimensional'",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 159,
+            "col": 32,
+            "operator": "minus-to-plus",
+            "before": "airWeight: billableWeight - billedActual,",
+            "after": "airWeight: billableWeight + billedActual,",
+            "line_text": "      airWeight: billableWeight - billedActual,",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/parcel-dim-weight-calculator/calc.mjs",
+            "line": 178,
+            "col": 86,
+            "operator": "or-to-and",
+            "before": "roundedDimensions: roundDimensions && (length !== rawLength || width !== rawWidth || height !== rawHeight),",
+            "after": "roundedDimensions: roundDimensions && (length !== rawLength || width !== rawWidth && height !== rawHeight),",
+            "line_text": "    roundedDimensions: roundDimensions && (length !== rawLength || width !== rawWidth || height !== rawHeight),",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/uk-capital-allowances-calculator/calc.mjs",
+        "issue": "A sole trader's 13-18 month period capped the AIA and writing-down allowances at 12 months (input allowed up to 18): an 18-month period with \u00a32m of second-hand kit got a \u00a31m AIA instead of \u00a31.5m (CAA 2001 s51A(6), s56(3); HMRC CA23085). A company period over 12 months was accepted though a CT accounting period is at most 12 months.",
+        "patched": true
+      },
+      {
+        "file": "ventures/uk-capital-allowances-calculator/calc.mjs",
+        "issue": "The \u00a31,000 small pools limit was never scaled for the period's length (s56A; HMRC CA23225): a 6-month period wrote off an \u00a3800 pool in full instead of 14% x 6/12 = \u00a356, and the page said the pool 'can be written off in full'.",
+        "patched": true
+      },
+      {
+        "file": "ventures/uk-capital-allowances-calculator/calc.mjs",
+        "issue": "A profit field holding only spaces read as \u00a30 profit (Number('  ') = 0), so any claim was flagged as creating a loss.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "25823165-30e8-5bd9-babd-a4f425762d01",
+    "transcripts": 1,
+    "first": "2026-11-23T10:18:33Z",
+    "last": "2026-11-23T10:28:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 103,
+        "output": 21324,
+        "thinking": 3974,
+        "cache_read": 4372966,
+        "cache_write_5m": 0,
+        "cache_write_1h": 77970,
+        "api_equivalent_usd": 1.9252,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 103,
+      "output": 21324,
+      "thinking": 3974,
+      "cache_read": 4372966,
+      "cache_write_5m": 0,
+      "cache_write_1h": 77970,
+      "api_equivalent_usd": 1.9252,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 48,
+      "ToolSearch": 3,
+      "WebFetch": 3,
+      "WebSearch": 2,
+      "TaskStop": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.67,
+      "active_minutes": 9.67,
+      "model_minutes": 5.19,
+      "tool_minutes": 4.48,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "a tax-aware engineer: read the engine, check the statute and HMRC manual, write 9 tests and the fix, docs and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 207.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
