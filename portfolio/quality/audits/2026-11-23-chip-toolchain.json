@@ -1,0 +1,218 @@
+{
+ "date": "2026-11-23",
+ "subject": "research/chip-toolchain",
+ "stratum": "research",
+ "seed": "2026-11-23-b-de69",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior digital design / EDA engineer who runs open synthesis flows (Yosys + ABC) and signs off RTL with simulation and formal equivalence. First checks: do the synthesised netlists compute the right function, are the gate counts a property of the design or of the script, does the equivalence wrapper distinguish 'not equivalent' from 'tool failed', and do the sequential testbenches cover the corner cases (full, empty, underflow)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Installed the same Ubuntu 24.04 packages the README names (yosys 0.33-5build2, iverilog 12.0-2build2, verilator 5.020-1; about 47 MB, not a large toolchain). experiments/run.py reproduces experiments/results.txt byte-for-byte in 2.0 s (diff empty), and figure.py regenerates cells_vs_width.svg identically in a scratch copy. Independent recomputations: (1) the synthesised mult_op netlists (write_verilog after the README's flow) simulated in Icarus against Verilog i*j for all 256 (W=4) and all 65,536 (W=8) input pairs: 0 mismatches. (2) The negative control adder_bug at W=8 simulated exhaustively: 28,672 of 65,536 sums wrong, exactly the analytic count (pairs whose low 3 bits carry out of bit 2: 28/64 of all pairs), and 4+4 gives 0, so the SAT 'False' is a real non-equivalence, not a tool error. (3) A hand-built 4-bit ripple adder in the same gate library (XOR sum, AND for bit 0, MUX carry) is 11 cells, path length 4 by ltp, and is SAT-proved equal to adder_ripple; textbook count 3W-1. The flow's 17 cells / depth 7 (5W-3 / 2W-1) are therefore what this ABC script produces, about 55% above a trivially available netlist, not the cost of a ripple adder. (4) The FIFO's 40/75 flops decomposed with stat: 32/64 DFFE memory bits, 6/8 SDFFE pointer bits, and 2/3 extra SDFF bits that drive the read-mux select (a registered copy of the next read address created by memory mapping), so the 'extra' is AW bits of read address, not the write address the README guesses.",
+  "completeness": "Every README item runs end to end: 8 unit tests OK in 1.3 s (README: '8 tests, about 2 s'), results table, equivalence (W=4/8/12 True, bug False), lint (UNOPTFLAT on adder_ripple only), 256-vector simulation, the SVG. Limits (no OpenROAD, PDK, cocotb, liberty) are stated, not claimed. No stubs. Live page https://marisstella.app/research/chip-toolchain/ not loaded (proxy 403), not scored.",
+  "verification": "python3 -B -m unittest discover -s tests: 8 tests OK (they skip silently without the tools). Five seeded mutants via quality_mutate.py: 3 caught (dropping sat -verify, removing the adder_bug fault, inverting the FIFO full flag's MSB compare), 2 survived: removing the FIFO's '!empty' underflow guard on pop (tb_fifo never pops while empty and observes the result), and dropping MUX from the ABC gate library (no test pins any cell count; the flop test is only a >= 38 lower bound). The equivalence test cannot tell a tool error from a non-equivalence (see craft).",
+  "craft": "Read flow.py (83 lines), run.py, figure.py, tests/test_flow.py and all seven .v files. Small and readable, but: flow.py:83 equivalent() returns p.returncode == 0, so a missing file, wrong top name or misspelled parameter all return False, the same as a proved non-equivalence (ran: equivalent('nope.v',...), wrong top, chparam WW, all False). In an equivalence wrapper whose negative control is the headline check this is a silent failure. synth_stats returns depth None silently if ltp output does not parse. run.py:44 'lines = vecs' is dead aliasing. synth already runs ABC, then abc -g remaps a second time (undocumented double mapping).",
+  "claims": "Checked against results.txt and the rerun: versions, every table cell, 5W-3 and 2W-1 at W=4..32, '0, 1, 5 and 13 more cells', equivalence results, lint results, 256 vectors 0 mismatches, 40 vs 38 flops: all pass. Partial: README:32 'The ripple adder costs 5W-3 cells ... and depth 2W-1' reads as a property of the adder; it is the script's output (hand netlist 3W-1, depth W). README:36 speculates the extra flops are the write address; they are the read address. ABC (Brayton and Mishchenko, CAV 2010) is used but not cited in 'Builds on'. AI assistance disclosed; OpenROAD absence disclosed prominently.",
+  "fitness": "It is milestone-1 infrastructure: a recorded, reproducible Yosys/Icarus/Verilator setup that later projects in this repo build on (chip-abc-sweep, chip-rtl-loop, chip-pnr, eda-harness cite it). As research there is no result: these are standard smoke flows (Yosys synth+abc, Yosys miter/sat, the same steps OpenLane/OpenROAD-flow-scripts automate) on five toy designs with one script and one version, no baseline beyond the tool itself, and the one interesting observation (ABC with -g leaves a ripple adder ~55% larger than a hand netlist using the MUX it was offered) is not noticed. Far from the research brief's PhD/publishable bar on its own, as it was meant to be.",
+  "domain": "Method is standard practice for an open front end (miter + SAT for combinational equivalence, exhaustive simulation for a 4-bit adder, Verilator lint). Departures a design engineer would flag: gate counts reported without noting the script is not area-optimal or delay-targeted (no abc -D, no dch/resyn2 comparison here; chip-abc-sweep does that later); the sequential FIFO has no formal property check (e.g. SymbiYosys) and its testbench omits underflow and simultaneous push/pop; equivalence is only combinational, which is all these designs need."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Synthesised mult_op netlist computes a*b at W=4 and W=8",
+   "method": "Icarus Verilog exhaustive simulation of the post-ABC netlist against Verilog i*j (auditor testbench, yosys simlib)",
+   "command": "yosys ... write_verilog /tmp/claude-0/-home-user-oss-monorepo/53ffa676-4533-50af-a1cf-f7db84c8cb92/scratchpad/ct/mult_net8.v; iverilog -g2012 ... /tmp/claude-0/-home-user-oss-monorepo/53ffa676-4533-50af-a1cf-f7db84c8cb92/scratchpad/ct/tb_mult8.v /usr/share/yosys/simlib.v; vvp /tmp/claude-0/-home-user-oss-monorepo/53ffa676-4533-50af-a1cf-f7db84c8cb92/scratchpad/ct/m8.vvp",
+   "expected": "0 mismatches of 256 / 65,536",
+   "observed": "W=4 bad=0, W=8 bad=0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Negative control adder_bug really is wrong, and by how much",
+   "method": "analytic: dropping carry out of bit 2 errs iff low 3 bits of a and b sum to >= 8, 28 of 64 pairs; checked by exhaustive Icarus simulation",
+   "command": "iverilog -g2012 -o /tmp/claude-0/-home-user-oss-monorepo/53ffa676-4533-50af-a1cf-f7db84c8cb92/scratchpad/ct/bug.vvp designs/adder_bug.v /tmp/claude-0/-home-user-oss-monorepo/53ffa676-4533-50af-a1cf-f7db84c8cb92/scratchpad/ct/tb_bug.v && vvp /tmp/claude-0/-home-user-oss-monorepo/53ffa676-4533-50af-a1cf-f7db84c8cb92/scratchpad/ct/bug.vvp",
+   "expected": "28,672 of 65,536 wrong; 4+4 -> 0",
+   "observed": "28,672; 4+4=0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Is 5W-3 cells / depth 2W-1 the cost of a ripple adder in this gate library?",
+   "method": "textbook full adder with MUX carry: 3 cells per bit, 2 for bit 0 (3W-1); hand netlist SAT-proved equal to adder_ripple W=4",
+   "command": "yosys -p 'read_verilog /tmp/claude-0/-home-user-oss-monorepo/53ffa676-4533-50af-a1cf-f7db84c8cb92/scratchpad/ct/hand4.v; proc; techmap; stat; ltp -noff'",
+   "expected": "11 cells, path 4 at W=4",
+   "observed": "hand: 11 cells, length 4; flow: 17 cells, depth 7. 5W-3 is a script artifact, README phrases it as the adder's cost",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Origin of the FIFO's extra flops (40 vs 38, 75 vs 72)",
+   "method": "Yosys stat by cell type and write_verilog of the netlist",
+   "command": "yosys -p 'read_verilog designs/fifo.v; chparam -set W 8 -set AW 2 fifo; ...; stat; write_verilog'",
+   "expected": "README guess: write address",
+   "observed": "32 DFFE mem + 6 SDFFE pointers + 2 SDFF driving the read mux select (_001_ -> dout); AW=3: 64+8+3. Extra bits are a read-address register",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiments/run.py reproduces results.txt",
+   "method": "rerun and diff",
+   "command": "python3 -B experiments/run.py > scratch/results.txt; diff",
+   "expected": "identical",
+   "observed": "identical, 2.0 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure.py regenerates the committed SVG",
+   "method": "run in a scratch copy, cmp",
+   "command": "python3 -B -I exp/figure.py; cmp",
+   "expected": "identical",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Unit tests",
+   "method": "run",
+   "command": "python3 -B -m unittest discover -s tests",
+   "expected": "8 tests OK, ~2 s",
+   "observed": "Ran 8 tests in 1.326s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "equivalent() separates tool error from non-equivalence",
+   "method": "call with a missing file, a wrong top and a misspelled parameter",
+   "command": "python3 -B -c \"equivalent(D/'nope.v',...); equivalent(...,'adder_ripplX',...); equivalent(...,{'WW':8})\"",
+   "expected": "an exception or a distinct value",
+   "observed": "False, False, False (same as a proved non-equivalence)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README table and bullets vs results.txt (cells, depths, flops, +0/1/5/13 cells, equivalence, lint, 256 vectors)",
+   "method": "line-by-line comparison with rerun output",
+   "command": "diff + reading README:24-36",
+   "expected": "all match",
+   "observed": "all match",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Prior work cited for the tools used",
+   "method": "README 'Builds on' vs tools invoked in flow.py",
+   "command": "grep -n abc src/chip_toolchain/flow.py README.md",
+   "expected": "Yosys, ABC, Icarus, Verilator cited",
+   "observed": "ABC (Brayton and Mishchenko, CAV 2010) used for all mapping but not cited",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Live page",
+   "method": "curl",
+   "command": "curl https://marisstella.app/research/chip-toolchain/",
+   "expected": "200",
+   "observed": "proxy 403, not checked",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "designs/fifo.v:18",
+   "change": "if (pop && !empty) rp -> if (pop) rp",
+   "caught": false,
+   "test_cmd": "python3 -B -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_toolchain/flow.py:11",
+   "change": "GATES = \"AND,NAND,OR,NOR,XOR,XNOR,ANDNOT,ORNOT,MUX\" -> GATES = \"AND,NAND,OR,NOR,XOR,XNOR,ANDNOT,ORNOT\"",
+   "caught": false,
+   "test_cmd": "python3 -B -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_toolchain/flow.py:81",
+   "change": "sat -verify -prove trigger 0 miter -> sat -prove trigger 0 miter",
+   "caught": true,
+   "test_cmd": "python3 -B -m unittest discover -s tests"
+  },
+  {
+   "where": "designs/adder_bug.v:12",
+   "change": "if (i == 2) assign -> if (i == 99) assign",
+   "caught": true,
+   "test_cmd": "python3 -B -m unittest discover -s tests"
+  },
+  {
+   "where": "designs/fifo.v:12",
+   "change": "(wp[AW] != rp[AW]) -> (wp[AW] == rp[AW])",
+   "caught": true,
+   "test_cmd": "python3 -B -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "where": "research/chip-toolchain/src/chip_toolchain/flow.py:83",
+   "category": "logic-error",
+   "origin": "implementation",
+   "what": "equivalent() returns p.returncode == 0, so any Yosys error (missing file, wrong top, misspelled chparam) returns False, indistinguishable from a proved non-equivalence. The negative-control check would pass on a broken flow. Should raise on errors and only return False when sat reports a counterexample.",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18376"
+  },
+  {
+   "severity": "medium",
+   "where": "research/chip-toolchain/designs/tb_fifo.v:17",
+   "category": "untested-core",
+   "origin": "tests",
+   "what": "The FIFO testbench never observes a pop while empty: removing the '!empty' underflow guard (fifo.v:18) leaves all tests green. README:34 says FIFO behaviour is 'checked in the unit tests'; underflow and simultaneous push/pop are not."
+  },
+  {
+   "severity": "low",
+   "where": "research/chip-toolchain/tests/test_flow.py:36",
+   "category": "untested-core",
+   "origin": "tests",
+   "what": "No test pins any reported cell count (flops only >= 38), so changing the ABC gate library (dropping MUX) or the script leaves every test green while the README table would change."
+  },
+  {
+   "severity": "medium",
+   "where": "research/chip-toolchain/README.md:32",
+   "category": "overclaim",
+   "origin": "claims",
+   "what": "'The ripple adder costs 5W-3 cells ... and depth 2W-1' states a script artifact as the adder's cost. A hand netlist in the same library (MUX carry) is 3W-1 cells and depth W (11 cells, path 4 at W=4, SAT-proved equal); the flow's ABC pass leaves it about 55% larger and the README does not notice.",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18376"
+  },
+  {
+   "severity": "low",
+   "where": "research/chip-toolchain/README.md:36",
+   "category": "logic-error",
+   "origin": "claims",
+   "what": "The extra FIFO flops are guessed to be 'the 2-bit write address'; stat/write_verilog show they are an AW-bit register driving the read mux select (read address), 2 at AW=2 and 3 at AW=3 (75 = 64 + 8 + 3, also unexplained in the README).",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18376"
+  },
+  {
+   "severity": "low",
+   "where": "research/chip-toolchain/README.md:7",
+   "category": "research-design",
+   "origin": "design",
+   "what": "ABC does all technology mapping but is not cited in 'Builds on' (Brayton and Mishchenko, CAV 2010, doi:10.1007/978-3-642-14295-6_5, already cited by sibling research/chip-abc-sweep).",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18376"
+  },
+  {
+   "severity": "low",
+   "where": "research/chip-toolchain/experiments/run.py:44",
+   "category": "code-craft",
+   "origin": "implementation",
+   "what": "Dead aliasing 'lines = vecs'; synth_stats silently returns depth None if ltp output does not parse (flow.py:54)."
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18376"],
+ "verdict": "A small, honest, fully reproducible toolchain milestone: with the README's own apt packages, results.txt and the SVG regenerate byte-for-byte and the 8 tests pass. Independent checks agree on function: the synthesised multipliers are exhaustively correct at W=4 and 8 and the negative control fails on exactly the analytic 28,672 of 65,536 inputs. It misses the bar on verification (2 of 5 seeded bugs survive, including the FIFO underflow guard) and on craft, because the equivalence wrapper reports any tool error as 'not equivalent', which is a silent failure for the check the milestone is meant to establish. The headline '5W-3 cells, depth 2W-1' is the ABC script's output, not a ripple adder's cost (a hand netlist is 3W-1 cells, depth W), and the README's guess about the extra FIFO flops names the wrong pointer. As research it is infrastructure with no new result, appropriate for a first milestone, far from the publishable bar on its own."
+}
