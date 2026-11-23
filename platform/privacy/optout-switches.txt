@@ -988,6 +988,7 @@ ventures/rfp-compliance-matrix/usage.mjs
 ventures/rmd-calculator/usage.mjs
 ventures/robust-pca/usage.mjs
 ventures/roc-analysis/usage.mjs
+ventures/roof-snow-load-calculator/usage.mjs
 ventures/roofing-bid-calculator/usage.mjs
 ventures/roofing-insurance-supplement-finder/usage.mjs
 ventures/roommate-rent-splitter/usage.mjs

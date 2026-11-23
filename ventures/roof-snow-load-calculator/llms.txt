@@ -1,0 +1,18 @@
+# Roof Snow Load Calculator: ASCE 7-16 flat, sloped, minimum, unbalanced, step and parapet drift, sliding snow
+
+> Free roof snow load calculator to ASCE/SEI 7-16 Chapter 7. From the ground snow load pg, the risk category, terrain, exposure and thermal condition, and the roof's shape, pitch and eave-to-ridge distance, it gives the flat roof load pf = 0.7 Ce Ct Is pg, the slope factor and sloped load, the minimum load, the rain-on-snow surcharge, the unbalanced gable load, the leeward and windward drift on a lower roof at a step (capped by the clear height, truncated at the far edge), the drift at a parapet or rooftop unit, sliding snow onto the lower roof and the eave ice-dam load, each with its section number, and draws the step drift to scale. Runs in the browser; nothing is uploaded.
+
+Free and open source (MIT). Arithmetic on the numbers typed in, not engineering advice; the ground snow load is the user's to look up. Not modelled: ASCE 7-22, partial loads, curved and sawtooth roofs, separated buildings, ponding, load combinations.
+
+## Pages
+
+- [The tool](https://marisstella.app/roof-snow-load-calculator/)
+- [Snow drift at a roof step: a worked example](https://marisstella.app/roof-snow-load-calculator/snow-drift-at-a-roof-step.html)
+
+## For agents
+
+- Engine: `calc.mjs`, `analyze(input)` with string fields `{ pg (psf), risk: "I"|"II"|"III"|"IV", terrain: "B"|"C"|"D"|"treeline"|"alaska", exposure: "fully"|"partially"|"sheltered", thermal: "heated"|"cold"|"unheated"|"freezer"|"greenhouse", insulated: "yes"|"no", roofType: "gable"|"mono"|"flat", pitch (rise per 12), surface: "other"|"slippery", W (eave to ridge, ft), prismatic: "yes"|"no", overhang: "yes"|"no", stepHeight, upperLength, lowerLength (ft, blank stepHeight for no lower roof), slidesOnto: "yes"|"no", parapetHeight, parapetFetch, parapetSide (ft) }`. Missing fields fall back to `DEFAULTS`, the page's example. Lower level: `driftHeight`, `snowDensity`, `slopeFactor`, `driftShape`, `stepProfile`, `resultRows`, `reportCsv`, `stepSvg`. Callable through `node platform/agents/tools.mjs call roof-snow-load-calculator analyze --input '{"pg":"50","pitch":"4","W":"24","stepHeight":""}'` or the repository's MCP server (`call_tool`).
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/roof-snow-load-calculator): MIT licensed.

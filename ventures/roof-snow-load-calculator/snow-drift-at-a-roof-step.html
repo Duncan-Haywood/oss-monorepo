@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23285e78'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Snow Drift at a Roof Step: an ASCE 7-16 Worked Example for a House Addition</title>
+  <meta name="description" content="A two-storey house steps down 9 ft to a one-storey wing, ground snow 40 psf. The flat roof load, the leeward and windward drifts, the clear-height cap and far-edge truncation of ASCE 7-16 Section 7.7, worked step by step.">
+  <meta property="og:title" content="Snow drift at a roof step, worked through">
+  <meta property="og:description" content="28 psf on the open roof, 65.9 psf against the wall: where the drift on a lower roof comes from and how ASCE 7-16 sizes it.">
+  <link rel="canonical" href="./snow-drift-at-a-roof-step.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does a lower step give a wider drift?", "acceptedAnswer": {"@type": "Answer", "text": "Because the drift cannot rise above the upper roof. When the drift height from Figure 7.6-1 is taller than the clear height hc, Section 7.7.1 cuts it to hc and spreads the same snow wider, 4hd²/hc. In the example a 3 ft step caps the drift at 1.54 ft but widens it from 7.9 to 10.1 ft."}}, {"@type": "Question", "name": "Does the drift stop at the edge of a narrow lower roof?", "acceptedAnswer": {"@type": "Answer", "text": "It is cut off there, not squeezed. A 6 ft deep lower roof in the example still carries 9.1 psf of drift surcharge at its outer edge, on top of the balanced load, because Section 7.7.1 truncates the triangle rather than tapering it to zero at the edge."}}]}</script>
+  <style>
+    :root { font: 17px Georgia, serif; color: #172026; background: #f7f9fa; }
+    body { max-width: 720px; margin: auto; padding: 28px 18px; }
+    h1 { font: 700 clamp(1.7rem, 4.5vw, 2.4rem)/1.12 system-ui, sans-serif; color: #163c4e; }
+    h2 { font: 700 1.2rem system-ui, sans-serif; color: #163c4e; margin-top: 30px; }
+    h3 { font: 700 1rem system-ui, sans-serif; margin: 18px 0 4px; }
+    p, li { line-height: 1.65; }
+    a { color: #1d4f66; }
+    table { border-collapse: collapse; width: 100%; font: 15px system-ui, sans-serif; }
+    th, td { padding: 6px 8px; border-bottom: 1px solid #dfe7ea; text-align: left; }
+    td.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .note, footer { font: 14px system-ui, sans-serif; color: #4a5a63; }
+    footer { margin-top: 32px; border-top: 1px solid #d6e0e4; padding-top: 14px; }
+  </style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="./">Roof snow load calculator</a> · guide</p>
+  <h1>Snow drift at a roof step, worked through</h1>
+  <p>The commonest snow failure on a house is not the open roof. It is the strip of lower roof against a taller wall, where wind piles snow from the roof above. An addition, a garage, a porch roof or a new lean-to built against an existing two-storey wall gets that drift for the life of the building. Here is how ASCE 7-16, the snow chapter the 2018 and 2021 building codes use, sizes it, on the example the <a href="./">calculator</a> loads.</p>
+
+  <h2>The building</h2>
+  <p>A two-storey house with a 6/12 gable roof, 28 ft from front to back, in open terrain where the ground snow load pg is 40 psf. A one-storey wing, 22 ft deep, is built against its side. The top of the house roof is 9 ft above the wing's roof. The house is heated and its roof partially exposed: Ce = 1.0, Ct = 1.0, and a house is risk category II, so Is = 1.0.</p>
+
+  <h2>1. The open roof</h2>
+  <p>The flat roof snow load is pf = 0.7 Ce Ct Is pg = 0.7 × 1.0 × 1.0 × 1.0 × 40 = <strong>28.0 psf</strong>. The wing is low slope, so its balanced load is the same 28.0 psf. Snow on a roof at this load weighs γ = 0.13 pg + 14 = <strong>19.2 pcf</strong>, so the balanced snow on the wing is hb = 28.0 / 19.2 = <strong>1.46 ft</strong> deep, leaving a clear height hc = 9 − 1.46 = <strong>7.54 ft</strong> up the wall.</p>
+
+  <h2>2. Two drifts, the larger governs</h2>
+  <p>Wind from the house side scours the house roof and drops it in the lee of the wall: the <strong>leeward drift</strong>, sized by the upper roof's 28 ft length. Figure 7.6-1 gives hd = 0.43 ∛28 ∜(40 + 10) − 1.5 = <strong>1.97 ft</strong>.</p>
+  <p>Wind from the other side blows across the wing and piles snow against the wall it hits: the <strong>windward drift</strong>, sized by the wing's 22 ft length and taken at three-quarters: 0.75 × (0.43 ∛22 ∜50 − 1.5) = <strong>1.28 ft</strong>. The leeward drift governs.</p>
+
+  <h2>3. The shape on the roof</h2>
+  <p>The drift is a triangle against the wall. Its height, 1.97 ft, is below the 7.54 ft clear height, so it is not capped and its width is w = 4 hd = <strong>7.9 ft</strong>. At the wall it adds pd = hd γ = 1.97 × 19.2 = <strong>37.9 psf</strong> to the balanced load, for <strong>65.9 psf</strong> in all, 2.4 times the open-roof load, falling to 28.0 psf 7.9 ft from the wall.</p>
+  <p>Per foot of wall that triangle is ½ × 37.9 × 7.9 = <strong>149 lb</strong> of extra snow on the first 7.9 ft of the wing, on top of the 221 lb the balanced load puts there. The rafters or joists nearest the wall and the ledger they hang from carry it; a framer sizing the wing for 28 psf throughout is short by that much.</p>
+
+  <table>
+    <tr><th>Case</th><th>Drift height (ft)</th><th>Width (ft)</th><th>At the wall (psf)</th></tr>
+    <tr><td>Example, 28 ft house</td><td class="n">1.97</td><td class="n">7.9</td><td class="n">65.9</td></tr>
+    <tr><td>An 80 ft long building above</td><td class="n">3.43</td><td class="n">13.7</td><td class="n">93.8</td></tr>
+    <tr><td>A 3 ft step (capped)</td><td class="n">1.54</td><td class="n">10.1</td><td class="n">57.6</td></tr>
+  </table>
+
+  <h2>4. When the step is short or the roof narrow</h2>
+  <p>The drift cannot stand taller than the upper roof. If hd were more than hc, Section 7.7.1 cuts the height to hc and widens the drift to 4hd²/hc, but no wider than 8hc. With a 3 ft step the clear height is 1.54 ft, below the 1.97 ft drift, so the drift is held at 1.54 ft and spreads to 10.1 ft: a lower peak but more roof under extra load. If hc is under a fifth of hb, no drift is required at all.</p>
+  <p>A lower roof narrower than the drift does not shed the rest. The triangle is truncated at the far edge, so a 6 ft porch roof against the same wall still carries 9.1 psf of surcharge at its outer edge.</p>
+
+  <h2>Common questions</h2>
+  <h3>Why does a lower step give a wider drift?</h3>
+  <p>Because the drift cannot rise above the upper roof. When the drift height from Figure 7.6-1 is taller than the clear height hc, Section 7.7.1 cuts it to hc and spreads the same snow wider, 4hd²/hc. In the example a 3 ft step caps the drift at 1.54 ft but widens it from 7.9 to 10.1 ft.</p>
+  <h3>Does the drift stop at the edge of a narrow lower roof?</h3>
+  <p>It is cut off there, not squeezed. A 6 ft deep lower roof in the example still carries 9.1 psf of drift surcharge at its outer edge, on top of the balanced load, because Section 7.7.1 truncates the triangle rather than tapering it to zero at the edge.</p>
+
+  <p>Try your own building in the <a href="./">roof snow load calculator</a>; it also checks the gable's unbalanced load, sliding snow off the upper roof, parapets and rooftop units.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This guide and the tool are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, legal or code-compliance advice, and do not replace a licensed engineer, the truss designer or your building official. You are responsible for reviewing and verifying any number before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+  <p><strong>Independent.</strong> Not affiliated with ASCE, the ICC, any standards body, manufacturer or software vendor, and no product is named or ranked here.</p>
+  <p>Free and open source under an MIT licence; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is optional.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23285e78'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Roof Snow Load Calculator — ASCE 7-16 Flat, Sloped, Unbalanced and Drift Loads</title>
+  <meta name="description" content="Free roof snow load calculator to ASCE 7-16 Chapter 7. From the ground snow load: flat and sloped roof loads, minimum load, rain-on-snow, unbalanced gable loads, snow drift at a roof step or parapet, sliding snow and ice dams, with a drawn drift section.">
+  <meta property="og:title" content="Roof Snow Load Calculator — ASCE 7-16, free, in your browser">
+  <meta property="og:description" content="Ground snow load in, roof snow loads out: balanced, minimum, unbalanced, step and parapet drifts and sliding snow, every number tied to its ASCE 7-16 section.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Roof Snow Load Calculator", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Roof snow loads to ASCE 7-16 Chapter 7 from the ground snow load: flat and sloped roof loads, the minimum load, rain-on-snow, unbalanced gable loads, drift at a roof step and at a parapet or rooftop unit, sliding snow and the eave ice-dam load, with a drawn drift section. Runs in your browser.", "featureList": "ASCE 7-16 Chapter 7, exposure and thermal factors, slope factor, minimum roof snow load, rain-on-snow surcharge, unbalanced gable load, leeward and windward step drift, parapet and rooftop unit drift, sliding snow, ice dams, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I calculate the roof snow load from the ground snow load?", "acceptedAnswer": {"@type": "Answer", "text": "ASCE 7-16 starts with the flat roof snow load, pf = 0.7 Ce Ct Is pg: 0.7 converts ground snow to roof snow, Ce adjusts for wind exposure, Ct for how warm the roof is, and Is for the building's risk category. A sloped roof then multiplies by the slope factor Cs. With pg = 40 psf on a heated, partially exposed house in open terrain, pf is 28 psf."}}, {"@type": "Question", "name": "Where do I find the ground snow load for my site?", "acceptedAnswer": {"@type": "Answer", "text": "From ASCE 7-16 Figure 7.2-1, a free hazard lookup by address that reports the ASCE 7-16 value, or your building department, which in many mountain states publishes its own table. Large parts of the West are case-study areas with no mapped value, so ask the jurisdiction there. This tool does not look pg up for you."}}, {"@type": "Question", "name": "What is a snow drift load at a roof step?", "acceptedAnswer": {"@type": "Answer", "text": "Wind blows snow off a higher roof and drops it against the wall of a lower roof beside it, as a triangle. ASCE 7-16 Section 7.7 sizes the triangle from the length of the upper roof and the ground snow load. In the example on this page a 9 ft step puts 65.9 psf on the lower roof at the wall, 2.4 times the 28 psf a flat roof carries, tapering to the balanced load 7.9 ft out."}}, {"@type": "Question", "name": "Why is the leeward side of a gable roof loaded more than the balanced load?", "acceptedAnswer": {"@type": "Answer", "text": "Wind strips snow from the windward slope and drops it on the leeward one. For a gable with 20 ft or less from eave to ridge and simple rafters, Section 7.6.1 loads the leeward slope with Is pg, the full ground snow load, and the windward slope with nothing. In the example that is 40 psf on one side against a 28 psf balanced load."}}, {"@type": "Question", "name": "When is the minimum roof snow load used?", "acceptedAnswer": {"@type": "Answer", "text": "On monoslope, hip and gable roofs flatter than 15 degrees, Section 7.3.4 sets a floor: Is pg when pg is 20 psf or less, and 20 Is above that. It is a separate uniform case and is never added to drift, sliding or unbalanced loads."}}, {"@type": "Question", "name": "What is the rain-on-snow surcharge?", "acceptedAnswer": {"@type": "Answer", "text": "Where pg is 20 psf or less (but not zero), Section 7.10 adds 5 psf to the balanced load on roofs flatter than W/50 degrees, W being the eave-to-ridge distance in feet, because rain soaks into snow that cannot drain off a flat roof. It applies to the balanced case only."}}, {"@type": "Question", "name": "Does this replace an engineer?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does the Chapter 7 arithmetic on the numbers you enter so you can see the loads and check a design or a quote. The building official, the truss designer or the engineer of record sets the design loads; check the edition your jurisdiction adopted, since IBC 2024 moves to ASCE 7-22, whose snow chapter changed."}}, {"@type": "Question", "name": "Is anything I enter uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #172026; background: #f2f5f6; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d4f66; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #163c4e; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #163c4e; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5a63; }
+    .card { background: #fff; border: 1px solid #d6e0e4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #163c4e10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6f8791; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f66; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2ecef; color: #163c4e; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6edf0; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5a63; }
+    td.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #e6edf0; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #f8dcd6; color: #7a1f10; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e2ecef; color: #163c4e; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eef4f6; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.4rem; color: #163c4e; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e4; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    svg text { font: 12px system-ui, sans-serif; fill: #4a5a63; }
+    svg text.pt { font-weight: 700; fill: #7a1f10; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ROOF SNOW LOAD CALCULATOR · ASCE 7-16 CHAPTER 7 · NOTHING UPLOADED</p>
+    <h1>Roof snow load and drift calculator</h1>
+    <p>Type the <strong>ground snow load</strong> and describe the roof. Get the <strong>flat and sloped roof snow loads</strong>, the <strong>minimum load</strong> and <strong>rain-on-snow</strong>, the <strong>unbalanced load</strong> on a gable, the <strong>drift at a roof step</strong> (leeward and windward) or against a <strong>parapet or rooftop unit</strong>, <strong>sliding snow</strong> onto a lower roof and the <strong>eave ice-dam load</strong>, each tied to its ASCE 7-16 section, with the drift drawn to scale.</p>
+    <p class="note">For contractors, framers, solar and HVAC installers putting weight on an existing roof, building an addition beside one, or checking a truss quote. Arithmetic on your numbers, not engineering advice: the design loads are set by the engineer of record or the building official.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Site and building</h2>
+    <div class="grid">
+      <div><label for="pg">Ground snow load pg (psf)</label><input id="pg" inputmode="decimal"></div>
+      <div><label for="risk">Risk category</label><select id="risk"><option value="I">I: low hazard (barns, sheds)</option><option value="II">II: most buildings, houses</option><option value="III">III: assembly, schools</option><option value="IV">IV: essential facilities</option></select></div>
+      <div><label for="terrain">Surface roughness (terrain)</label><select id="terrain"></select></div>
+      <div><label for="exposure">Roof exposure</label><select id="exposure"></select></div>
+      <div><label for="thermal">Thermal condition</label><select id="thermal"></select></div>
+      <div><label for="insulated">Roof insulation (warm roofs)</label><select id="insulated"><option value="yes">Unvented R ≥ 30 or vented R ≥ 20</option><option value="no">Less than that</option></select></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Roof</h2>
+    <div class="grid">
+      <div><label for="roofType">Roof shape</label><select id="roofType"></select></div>
+      <div><label for="pitch">Pitch (inches of rise per 12)</label><input id="pitch" inputmode="decimal"></div>
+      <div><label for="W">W, eave to ridge (ft; monoslope: full width)</label><input id="W" inputmode="decimal"></div>
+      <div><label for="surface">Surface</label><select id="surface"><option value="other">Shingles, membrane, other</option><option value="slippery">Unobstructed slippery (metal, glass, slate)</option></select></div>
+      <div><label for="prismatic">Rafters or trusses</label><select id="prismatic"><option value="yes">Simply supported, eave to ridge</option><option value="no">Other framing</option></select></div>
+      <div><label for="overhang">Eave overhang</label><select id="overhang"><option value="yes">Yes</option><option value="no">No</option></select></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Lower roof beside this one (optional)</h2>
+    <p class="note">This roof is the upper one; the lower roof sits against its wall. Lengths are measured perpendicular to the step. Leave the step height blank if there is no lower roof.</p>
+    <div class="grid">
+      <div><label for="stepHeight">Step height, lower roof to top of upper (ft)</label><input id="stepHeight" inputmode="decimal"></div>
+      <div><label for="upperLength">Upper roof length (ft)</label><input id="upperLength" inputmode="decimal"></div>
+      <div><label for="lowerLength">Lower roof length (ft)</label><input id="lowerLength" inputmode="decimal"></div>
+      <div><label for="slidesOnto">Upper roof slopes down toward the lower roof?</label><select id="slidesOnto"><option value="no">No</option><option value="yes">Yes, check sliding snow</option></select></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Parapet or rooftop unit (optional)</h2>
+    <div class="grid">
+      <div><label for="parapetHeight">Height above the roof (ft)</label><input id="parapetHeight" inputmode="decimal"></div>
+      <div><label for="parapetFetch">Roof length upwind of it (ft)</label><input id="parapetFetch" inputmode="decimal"></div>
+      <div><label for="parapetSide">Length of its side (ft, blank for a long parapet)</label><input id="parapetSide" inputmode="decimal"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <button type="button" id="calculate">Calculate</button>
+    <button type="button" class="secondary" id="load-example">Load the example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter the ground snow load and the roof, then click Calculate.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>Loads, with the ASCE 7-16 section for each</h3>
+    <div class="scroll"><table id="rows"><thead><tr><th>Quantity</th><th>Value</th><th>Unit</th><th>Source</th></tr></thead><tbody></tbody></table></div>
+    <div id="section-wrap"><h3>Section through the step</h3><div class="scroll" id="section"></div></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>Everything follows ASCE/SEI 7-16, Chapter 7, the edition adopted by the 2018 and 2021 International Building Code. The flat roof snow load is pf = 0.7 Ce Ct Is pg (Eq. 7.3-1), with Ce from Table 7.3-1, Ct from Table 7.3-2 and Is from Table 1.5-2. The sloped roof load is ps = Cs pf, with Cs read from the three panels of Figure 7.4-1 by the thermal factor and whether the surface is unobstructed and slippery; a warm roof gets the slippery curve only with the insulation Section 7.4.1 asks for. The minimum load (Section 7.3.4) and rain-on-snow surcharge (Section 7.10) are applied where their slope and pg limits say.</p>
+    <p>Drift heights come from Figure 7.6-1, hd = 0.43 ∛lu ∜(pg + 10) − 1.5, with lu no less than 20 ft, at a snow density of 0.13 pg + 14 pcf, at most 30 (Eq. 7.7-1). At a step the leeward drift uses the upper roof's length and the windward drift three-quarters of hd from the lower roof's length (Section 7.7.1); the larger governs. If the drift is taller than the clear height hc above the balanced snow, it is cut to hc and widened to 4hd²/hc, no wider than 8hc, and a drift wider than the lower roof is truncated at the far edge, not tapered. No drift is needed when hc/hb is under 0.2. Parapets and rooftop units use three-quarters of hd from the upwind roof length (Section 7.8), and none is needed for a unit whose side is under 15 ft. Unbalanced gable loads follow Section 7.6.1 and Figure 7.6-2 between 1/2 on 12 and 7 on 12. Sliding snow is 0.4 pf W per foot of eave spread over 15 ft of the lower roof (Section 7.9). Overhangs of poorly insulated warm roofs carry 2pf (Section 7.4.5).</p>
+    <p><strong>Not modelled:</strong> the ground snow load itself (you enter it), ASCE 7-22's reliability-targeted loads and new drift equation, partial loading of continuous beams (Section 7.5), curved, sawtooth and dome roofs, drifts between separated buildings (Section 7.7.2), ponding (Section 7.11), a lower roof with its own slope or thermal factor (it is taken as low slope with the same Ce, Ct and Is), and load combinations with dead, wind or live load. <strong>Unverified:</strong> checked against hand calculations of each equation in its unit tests, not against a commercial structural program or a sealed calculation.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I calculate the roof snow load from the ground snow load?</h3>
+    <p>ASCE 7-16 starts with the flat roof snow load, pf = 0.7 Ce Ct Is pg: 0.7 converts ground snow to roof snow, Ce adjusts for wind exposure, Ct for how warm the roof is, and Is for the building's risk category. A sloped roof then multiplies by the slope factor Cs. With pg = 40 psf on a heated, partially exposed house in open terrain, pf is 28 psf.</p>
+    <h3>Where do I find the ground snow load for my site?</h3>
+    <p>From ASCE 7-16 Figure 7.2-1, a free hazard lookup by address that reports the ASCE 7-16 value, or your building department, which in many mountain states publishes its own table. Large parts of the West are case-study areas with no mapped value, so ask the jurisdiction there. This tool does not look pg up for you.</p>
+    <h3>What is a snow drift load at a roof step?</h3>
+    <p>Wind blows snow off a higher roof and drops it against the wall of a lower roof beside it, as a triangle. ASCE 7-16 Section 7.7 sizes the triangle from the length of the upper roof and the ground snow load. In the example on this page a 9 ft step puts 65.9 psf on the lower roof at the wall, 2.4 times the 28 psf a flat roof carries, tapering to the balanced load 7.9 ft out.</p>
+    <h3>Why is the leeward side of a gable roof loaded more than the balanced load?</h3>
+    <p>Wind strips snow from the windward slope and drops it on the leeward one. For a gable with 20 ft or less from eave to ridge and simple rafters, Section 7.6.1 loads the leeward slope with Is pg, the full ground snow load, and the windward slope with nothing. In the example that is 40 psf on one side against a 28 psf balanced load.</p>
+    <h3>When is the minimum roof snow load used?</h3>
+    <p>On monoslope, hip and gable roofs flatter than 15 degrees, Section 7.3.4 sets a floor: Is pg when pg is 20 psf or less, and 20 Is above that. It is a separate uniform case and is never added to drift, sliding or unbalanced loads.</p>
+    <h3>What is the rain-on-snow surcharge?</h3>
+    <p>Where pg is 20 psf or less (but not zero), Section 7.10 adds 5 psf to the balanced load on roofs flatter than W/50 degrees, W being the eave-to-ridge distance in feet, because rain soaks into snow that cannot drain off a flat roof. It applies to the balanced case only.</p>
+    <h3>Does this replace an engineer?</h3>
+    <p>No. It does the Chapter 7 arithmetic on the numbers you enter so you can see the loads and check a design or a quote. The building official, the truss designer or the engineer of record sets the design loads; check the edition your jurisdiction adopted, since IBC 2024 moves to ASCE 7-22, whose snow chapter changed.</p>
+    <h3>Is anything I enter uploaded?</h3>
+    <p>No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal or code-compliance advice, and it does not replace a licensed engineer, the truss designer or your building official. Results are arithmetic on the numbers you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with ASCE, the ICC, any standards body, manufacturer or software vendor, and no product is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>loads_calculated</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Designing the framing? The <a href="../shed-designer/">shed designer</a> sizes rafters and headers for a roof snow load, and the <a href="../continuous-beam-calculator/">continuous beam calculator</a> takes a drift's triangular load. Guide: <a href="snow-drift-at-a-roof-step.html">snow drift at a roof step, worked through</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, resultRows, reportCsv, stepSvg, sampleInput, TERRAINS, EXPOSURES, THERMAL, ROOF_TYPES } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const KEYS = ["pg", "risk", "terrain", "exposure", "thermal", "insulated", "roofType", "pitch", "surface", "W", "prismatic", "overhang", "stepHeight", "upperLength", "lowerLength", "slidesOnto", "parapetHeight", "parapetFetch", "parapetSide"];
+    const BLANK = { risk: "II", terrain: "C", exposure: "partially", thermal: "heated", insulated: "yes", roofType: "gable", surface: "other", prismatic: "yes", overhang: "yes", slidesOnto: "no" };
+    const START = "Enter the ground snow load and the roof, then click Calculate.";
+    let last = null;
+
+    const opts = (o) => Object.entries(o).map(([k, v]) => `<option value="${k}">${esc(typeof v === "string" ? v : `${v.label} (Ct ${v.ct})`)}</option>`).join("");
+    $("#terrain").innerHTML = opts(TERRAINS);
+    $("#exposure").innerHTML = opts(EXPOSURES);
+    $("#thermal").innerHTML = opts(THERMAL);
+    $("#roofType").innerHTML = opts(ROOF_TYPES);
+
+    function read() { return Object.fromEntries(KEYS.map((k) => [k, $("#" + k).value])); }
+    function fill(x) { KEYS.forEach((k) => { $("#" + k).value = x[k] ?? BLANK[k] ?? ""; }); }
+
+    function run() {
+      const r = analyze(read());
+      if (r.error) { status.textContent = r.error; report.hidden = true; return false; }
+      last = r;
+      const f = (v) => v.toFixed(1);
+      const tiles = [[`${f(r.uniform)} psf`, `uniform design load (${r.governs})`], [`${f(r.pf)} psf`, "flat roof load pf"]];
+      if (r.Cs < 1) tiles.push([`${f(r.ps)} psf`, `sloped roof ps, Cs ${r.Cs.toFixed(2)}`]);
+      if (r.unbalanced && r.unbalanced.required) tiles.push([`${f(r.unbalanced.leeward + (r.unbalanced.surcharge || 0))} psf`, "leeward slope, unbalanced"]);
+      if (r.step && r.step.required) tiles.push([`${f(r.step.maxLoad)} psf`, `at the step, drift ${f(Math.min(r.step.drift.w, r.step.ll))} ft wide`]);
+      if (r.parapet && r.parapet.required) tiles.push([`${f(r.parapet.maxLoad)} psf`, "at the parapet or unit"]);
+      $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("");
+      $("#rows tbody").innerHTML = resultRows(r).map(([n, v, u, s]) => `<tr><td>${esc(n)}</td><td class="n">${esc(v)}</td><td>${esc(u)}</td><td>${esc(s)}</td></tr>`).join("");
+      const svg = stepSvg(r);
+      $("#section").innerHTML = svg;
+      $("#section-wrap").hidden = !svg;
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      return true;
+    }
+
+    $("#calculate").addEventListener("click", () => { if (run()) record("loads_calculated"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Example: a two-storey 6/12 gable house, pg 40 psf, stepping down 9 ft to a 22 ft deep one-storey wing."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({}); report.hidden = true; last = null; status.textContent = START; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "roof-snow-loads.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    fill(sampleInput());
+  </script>
+</body>
+</html>
