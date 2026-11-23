@@ -1245,6 +1245,320 @@ cells, SWC and random tie near theta ((3, 4{]}: 3.31\% against 3.63\%, 9
 cells) and SWC wins clearly above it ((4, 6{]}: 0.52\% against 5.01\%;
 above 6: 3.10\% against 8.52\%, 18 of 19 cells).
 
+\textbf{A second operating point (milestone 141; flow run).} Every blind
+result above is at 40\% placement utilisation, where theta and the clip
+were chosen. We reran the 52 one-clock blind designs of milestones 137,
+138 and 140 at 65\% utilisation, with seven predictions, a seed-141 run
+order and the same prefix rule committed before any point ran
+(\texttt{experiments/\allowbreak{}util65\_\allowbreak{}blind/\allowbreak{}}). The flow stopped at its time
+limit with 20 designs complete. At 65\% routing is dearer (median
+routed/r2 7.56 against 5.29) and the routed ranking moves (median
+Kendall tau-b against the 40\% table 0.74; the routed-best sequence
+changes on 8 of 20 designs), yet with nothing retuned SWC beats
+equal-cost random routing on 16 designs and loses on 4 (2.52\% against
+7.13\% mean regret, sign p = 0.012; at 40\% on the same designs 2.57\%
+against 6.70\%, 17 to 3). The change in the advantage between the two
+operating points is -0.47 points (design-bootstrap 95\% interval -1.82
+to +1.06), and the sign agrees on 17 of 20 designs. The losses are the
+three 256-bit restoring dividers, again the ladder's weakest family. One
+256-bit design (gtc8l) lost 82 of 120 points to pin placement at 65\%,
+because the die was too small for its pins; dropping it leaves 15 to 4
+(p = 0.019). Milestone 142 ran 26 of the remaining 32 designs of the
+same order (\texttt{experiments/\allowbreak{}util65\_\allowbreak{}rest/\allowbreak{}}, eight predictions
+committed before the flow): SWC beats random on 22 and loses on 4
+(2.41\% against 5.75\%, sign p = 0.0005). Over the 46 designs analysed
+at 65\%, SWC wins 38 to 8 (2.46\% against 6.35\%; at 40\% on the same
+designs 37 to 9), the change in its advantage is -0.61 points (interval
+-1.60 to +0.37), and the per-design sign agrees on 39 of 46. Division is
+the only family where SWC is not ahead on the mean (+0.24 points). A
+second 256-bit design (gtc16l) also lost points to pin placement;
+without both, 36 to 8.
+
+\textbf{A second library corner (milestone 143; flow run).} Both
+operating points above share the tt\_025C\_1v80 liberty. We reran the
+same order of blind designs at ss\_100C\_1v60 (liberty only, 40\%
+utilisation, clock targets from each design's own ss baseline, a median
+2.19 times the tt period), with seven predictions committed before any
+point ran (\texttt{experiments/\allowbreak{}corner\_\allowbreak{}ss\_\allowbreak{}blind/\allowbreak{}}). The flow stopped at
+its time limit with 27 designs complete. The corner perturbs the routed
+landscape far more than density does: the median Kendall tau-b of the
+routed score between tt and ss is 0.34 (against 0.74 between 40\% and
+65\%), and the routed-best sequence is the same at both corners on only
+3 of 27 designs. With nothing retuned, SWC beats equal-cost random
+routing on 24 designs and loses on 3 (1.96\% against 6.11\% mean regret,
+sign p = 0.00005; at tt on the same designs 2.76\% against 6.35\%, 22 to
+5); the change in its advantage is -0.56 points (interval -2.36 to
++1.26). On these 27 designs at all three operating points SWC is ahead
+at all three on 17 and behind at all three on none. The designs it loses
+on are not the same: none of the five tt losers loses at ss, division
+(the weak family at tt) is ahead on all five of its designs, and two of
+three carry-save adders lose. The ladder's advantage is a property of
+re-ranking at the corner it runs at; which designs it fails on is not.
+
+\textbf{A fast corner (milestone 144; flow run).} To bracket tt we reran
+the same order at ff\_n40C\_1v95 (liberty only, 40\%, clock targets from
+each design's own ff baseline, a median 0.77 times tt), with seven
+predictions committed before any point ran
+(\texttt{experiments/\allowbreak{}corner\_\allowbreak{}ff\_\allowbreak{}blind/\allowbreak{}}). After an interim look at 14
+designs we fixed, in writing, one more launch and a cap of the 27
+designs milestone 143 analysed; the cap bound (31 were complete). The
+fast corner moves the routed ranking further than the slow one: median
+tau-b between tt and ff 0.19 (0.34 for tt against ss, 0.13 for ss
+against ff), and the routed-best sequence differs between tt and ff on
+all 27 designs. Random routing is worse at ff (10.06\% against 6.35\% at
+tt), and SWC beats it on 20 designs and loses on 7 (4.03\% mean regret,
+sign p = 0.019, design-bootstrap interval of the mean difference -10.06
+to -1.14 points); the change in its advantage from tt is -2.44 points
+(interval -6.84 to +2.29). Over the four operating points (tt 40\%, tt
+65\%, ss, ff) SWC is ahead at all four on 14 of 27 designs and behind at
+all four on none. Post hoc, the losses at ff are all three carry-save
+adders, all three dot products and rng8l; division, the weak family at
+tt, wins all five designs by a mean 18.5 points. Which family fails
+moves with the corner; that the ladder wins on most designs does not.
+
+\textbf{Add-chain amounts at the fast corner (milestone 145; flow run).}
+Milestone 144's ff losses included every carry-save and dot-product
+design. We tested that reading blind on 20 128-bit designs never run at
+ff (\texttt{experiments/\allowbreak{}addchain\_\allowbreak{}ff/\allowbreak{}}). Ten have shift amounts that are
+add chains over three or more multi-bit terms, and ten are compare,
+select, clamp or divide chains. The grouping and seven predictions were
+committed before any point ran. The strong form is refuted: SWC loses on
+3 of 10 add-chain designs and 0 of 10 others (one-sided Fisher p =
+0.105). A weaker form holds. SWC's mean advantage over equal-cost random
+routing is 1.57 points on add chains against 8.83 on the others
+(difference 7.26, permutation p = 0.026). The mapped rung's Kendall
+tau-b against routed score is also lower on add chains (median 0.27
+against 0.47), which fits a rung-bias account of the gap. Overall SWC
+wins 16, loses 3 and ties 1 (sign p = 0.0044). Every add-chain design
+here maps to a shorter no-wire period than every control (6.9 to 14.8 ns
+against 16.7 to 30.2), so this table cannot separate amount structure
+from mapped delay. Only three short non-add designs exist in milestone
+144's table, all one-bit counters, and the ladder wins all three. This
+milestone used Yosys 0.71, where earlier ff runs used 0.70.
+
+\textbf{Structure or delay (milestone 146; flow run).} We then ran the
+two missing cells of that 2 x 2 on fresh designs
+(\texttt{experiments/\allowbreak{}delay\_\allowbreak{}split\_\allowbreak{}ff/\allowbreak{}}). We used slow add chains (ff
+baseline at least 16.7 ns) and fast control chains (at most 14.8 ns),
+selected by a rule committed with eight predictions before any baseline
+ran. Only ones'-complement chains (csum) mapped slow: sad, wsum and dot
+chains mapped at 8 to 15 ns however long or wide, so the slow add-chain
+cell has 5 designs of one family, against 8 fast controls. SWC wins all
+5 slow add chains (mean d -6.21 points) and 4 of the 8 fast controls
+(mean d -1.31; 2 ties below the ladder branch, 2 losses). Across the
+four cells (33 designs), the delay main effect is +6.08 points (95\%
+design-bootstrap interval +2.58 to +9.73) and the structure main effect
+is +1.18 (-2.43 to +4.69). Spearman's correlation of log base period
+with d is -0.44. Every loss in either milestone is on a design whose ff
+baseline is under 15 ns. Milestone 145's gap is therefore a delay
+effect: at ff the ladder's edge depends on how short the mapped critical
+path is, not on what computes the shift amount. The fast cells and the
+slow control cell come from different runs, with the same tools and
+protocol.
+
+\textbf{A fully fresh 2 x 2 (milestone 147; flow run).} Milestone 146's
+2 x 2 took two of its cells from milestone 145, the table that suggested
+the reading. A parallel run filled all four cells with fresh designs
+(\texttt{experiments/\allowbreak{}addchain\_\allowbreak{}delay/\allowbreak{}}). It took 33 128-bit candidates,
+banded them by their own ff baseline period (FAST at most 15.0 ns, SLOW
+at least 16.5 ns), and kept 5 per (structure, band) cell by a seeded
+rule. The rule and eight predictions were committed before any point
+ran. Four top-ups were chosen by the same rule after the baselines,
+before any sequence result was read, and are analysed only as a
+secondary. On the 16 primary designs the add-chain effect at matched
+band is -5.06 points (stratified permutation p = 0.46) and the delay
+effect is +2.42 (p = 0.75). With the top-ups (5 a cell) the figures are
+-2.55 (p = 0.66) and -0.09 (p = 0.99). Post hoc, pooling the 26 fresh
+designs of milestones 146 and 147 gives a delay effect of +0.01 points
+(p = 0.997). It reaches +3.31 (p = 0.26) only when milestone 145's
+designs are added. The fresh fast add chains are SWC's best cell (mean d
+-11.57). So neither structure nor delay explains the ff losses, which
+stay design-specific. On five designs both runs ran at the same clock,
+the flow returned identical routed results on all 515 usable points.
+
+\textbf{A pilot guard at the fast corner (milestone 148; replay).} We
+then asked whether the ff losses can be caught per design. The guard
+routes p random points and falls back to random routing when the clipped
+mapped score's Kendall tau-b against routing on them is below tau0. It
+is milestone 111's tt guard with SWC's score
+(\texttt{experiments/\allowbreak{}pilot\_\allowbreak{}tau\_\allowbreak{}ff/\allowbreak{}}). Over the 77 ff designs of
+milestones 144 to 147, with parameters chosen leave-one-milestone-out
+and seven predictions committed before the script ran, the guard has
+4.21\% mean regret against SWC's 2.98\% (difference +1.23 points,
+design-bootstrap interval +0.12 to +3.09). No grid setting beats SWC in
+sample. The pilot sees the weak rung: it falls back on 30\% of draws on
+SWC's 14 losing designs against 18\% on the rest. But random routing is
+a poor fall-back. On the losers it saves 6.77 points, and on the other
+59 designs it costs 9.39. So a fall-back guard pays only if its
+false-alarm rate is below 0.17 times its hit rate. Even an oracle
+reading the full-pool tau-b (AUC 0.70 for the losses) gains at most 0.16
+points. As at tt (milestones 126 to 135), we found no guard that
+improves on the unguarded ladder at ff.
+
+\textbf{A pre-routing detector at the fast corner (milestones 149 and
+150; replay).} Hedging the fall-back (keeping the cheap score's best few
+of a mapped subset) lifts the break-even ratio only to 0.24 (milestone
+149), so we looked for a detector instead
+(\texttt{experiments/\allowbreak{}detector\_\allowbreak{}ff/\allowbreak{}}). A signal read off the whole mapped
+pool has a cost the pilot guards did not: it has already spent the
+mapping, and what is left of the budget routes exactly 8 mapped points,
+so it cannot fall back to equal-cost random routing at all. Its
+responses re-rank the same 8 routes (unclipped r2, mapped area alone, or
+8 at random). Over eight pool features, both directions, every cut and
+three responses, chosen leave-one-milestone-out with eight predictions
+committed before the script ran, the detector has 3.61\% against SWC's
+2.98\% (interval of the difference -0.89 to +2.81), and the best
+in-sample searches sit inside their permutation nulls (p = 0.25 and
+0.88). What the features do see is that SWC loses where its clip does
+not bind (median share of points 0.04 on losers against 0.49), so the
+clipped score reduces to the unclipped one there. Post hoc, and not yet
+tested blind, ranking the mapped pool by area alone (the clip's alpha
+-\textgreater{} 0 limit) does better than SWC on its losers (6.25\%
+against 13.06\%) and costs only 1.23 points elsewhere, 2.69\% against
+2.98\% pooled (interval -2.19 to +2.07), with a worse tail (66.6\% on
+one design). At tt, milestone 32 found area alone a bad argmin, so if
+this holds the clip's alpha is a per-corner parameter.
+
+\textbf{One alpha for both corners (milestone 151; replay).} Milestone
+150's post hoc area-only reading raised the question of whether the
+clip's alpha is a per-corner parameter. Over alpha in \{0, 0.5, 0.8, 1,
+1.25\}, with seven predictions committed before the script ran
+(\texttt{experiments/\allowbreak{}alpha\_\allowbreak{}corner/\allowbreak{}}), a leave-one-milestone-out choice
+on the 77 ff designs picks area-only (alpha = 0) on three of four folds
+and has 3.62\% against SWC(1.25)'s 2.98\% (interval of the difference
+-0.83 to +2.76). The ff case for a small alpha rests on a broad gain
+against one catastrophic miss: without csum2, where area-only has 66.6\%
+and SWC 0.00\%, area-only would have 1.85\% against 3.02\% (post hoc).
+At tt the same grid replayed on 118 cells keeps 1.25 in every fold, and
+area-only is 8 points worse (9.90\% against 1.84\%, worst cell 343\%). A
+per-corner choice beats a single choice (2.54\% against 2.65\% over 195
+units), but both are worse than 1.25 at both corners (2.29\%), so we
+report one alpha. Milestone 152 then ran 15 fresh short add chains blind
+at ff to ask whether csum2's miss recurs
+(\texttt{experiments/\allowbreak{}addshort\_\allowbreak{}ff/\allowbreak{}}; seven predictions committed before
+any point ran). None did: area-only has 6.15\% against SWC(1.25)'s
+7.18\% (interval -4.50 to +2.38; better on 4, worse on 2, tied on 9), so
+csum2 is 1 of 92 ff designs. Pooled, area-only is the in-sample best
+alpha at ff (3.25\% against 3.66\%), yet a leave-one-milestone-out
+choice over the five ff milestones still has 4.04\%, worse than the
+fixed 1.25. The ff gain from a smaller alpha is real on average but
+unstable across milestones, and we keep 1.25. Milestone 153 ran 13 of
+the same designs (the two already in tt tables left out) blind at tt to
+score alpha = 1, the best ff alpha on them after the fact, against 1.25
+(\texttt{experiments/\allowbreak{}addshort\_\allowbreak{}tt/\allowbreak{}}; seven predictions committed before
+any point ran). At tt alpha = 1 is worse: 2.08\% against 1.69\%
+(interval of the difference -0.05 to +1.01 points; worse on 2 designs,
+better on 1, tied on 10), and every alpha from 0 to 1 gives the same
+regret on every one of the 13 designs. Over these 26 paired units alpha
+= 1 is best (2.83\% against 3.57\%), but a design's preference at one
+corner does not predict the other (Spearman of SWC(1) - SWC(1.25) across
+corners -0.46), and over all 223 units 1.25 stays the best single alpha
+(2.58\% against 2.73\%).
+
+\textbf{Corner table (milestones 141 to 154).} One rule, SWC with theta
+= 3 and alpha = 1.25 chosen at tt and 40\% utilisation, against
+equal-cost random routing at every operating point we have run. Each row
+is copied from the results file it names. The rows on the same 27
+designs (tt 40\%, tt 65\%, ss, ff) are the cleanest comparison. The
+other rows are fresh design sets, so their means differ in what was run
+as well as in corner.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1250}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1250}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1250}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1250}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1250}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1250}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1250}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 14\tabcolsep) * \real{0.1250}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Operating point
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Milestone(s)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Designs
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+SWC regret \%
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Random regret \%
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+SWC better / worse / tied
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Sign p
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+File
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+tt 40\% & 136 to 140 & 73 & (mean difference -2.79 points, -3.98 to
+-1.59) & & 55 / 15 / 3 & 0.000002 & \texttt{ladder\_\allowbreak{}rest/\allowbreak{}results.txt} \\
+tt 40\% & 137, 138 & 27 & 2.76 & 6.35 & 22 / 5 / 0 & 0.0015 &
+\texttt{corner\_\allowbreak{}ff\_\allowbreak{}blind/\allowbreak{}results.txt} \\
+tt 65\% & 141, 142 & 46 & 2.46 & 6.35 & 38 / 8 / 0 & \textless{} 0.0001
+& \texttt{util65\_\allowbreak{}rest/\allowbreak{}results.txt} \\
+tt 65\% & 141, 142 & 27 & 2.34 & 6.83 & 22 / 5 / 0 & 0.0015 &
+\texttt{corner\_\allowbreak{}ff\_\allowbreak{}blind/\allowbreak{}results.txt} \\
+ss 40\% & 143 & 27 & 1.96 & 6.11 & 24 / 3 / 0 & 0.00005 &
+\texttt{corner\_\allowbreak{}ss\_\allowbreak{}blind/\allowbreak{}results.txt} \\
+ff 40\% & 144 & 27 & 4.03 & 10.06 & 20 / 7 / 0 & 0.019 &
+\texttt{corner\_\allowbreak{}ff\_\allowbreak{}blind/\allowbreak{}results.txt} \\
+ff 40\% & 144 to 147 & 77 & 2.98 & 8.95 & 59 / 14 / 4 & \textless{}
+0.0001 & \texttt{corner\_\allowbreak{}rank/\allowbreak{}results.txt} \\
+ff 40\%, short add chains & 152 & 15 & 7.18 & 8.23 & 8 / 7 / 0 & 1.0 &
+\texttt{corner\_\allowbreak{}rank/\allowbreak{}results.txt} \\
+ff 40\%, the same 13 & 152 & 13 & 5.45 & 6.96 & 7 / 6 / 0 & 1.0 &
+\texttt{corner\_\allowbreak{}rank/\allowbreak{}results.txt} \\
+tt 40\%, the same 13 & 153 & 13 & 1.69 & 3.19 & 9 / 4 / 0 & 0.27 &
+\texttt{corner\_\allowbreak{}rank/\allowbreak{}results.txt} \\
+\end{longtable}
+
+Over the four operating points of the 27 designs, SWC is ahead at all
+four on 14 and behind at all four on none. In both sets run at more than
+one corner (the 27 and the 13), random routing does worst at ff, and so
+does SWC.
+
+\textbf{Why the edge varies (milestone 154; paired replay).} The 13
+short add chains of the last two rows are the only designs run at two
+corners with the same 120 sequences at the same relative clock
+(\texttt{experiments/\allowbreak{}corner\_\allowbreak{}rank/\allowbreak{}}, seven predictions committed before
+the script ran). On them the ladder's edge is the same at both corners
+(1.51 points at ff, 1.50 at tt). The thinner edge on milestone 152's 15
+designs (1.05) comes from csum4, which ran only at ff.~Per design, the
+edge swings far more at ff (+11.8 to -10.5 points). The ladder's key
+ranks routing a little worse at ff: Kendall tau-b of r2c(1.25) against
+routed score falls from 0.44 to 0.36 (interval of the change -0.18 to
++0.01, so the registered primary just failed). Across the 26 units, that
+tau-b predicts the edge (Spearman -0.62). The delay half carries it
+(mapped against routed delay, -0.58), and the area half does not
+(+0.04). Mapped area ranks routed area at tau-b 0.92 at both corners, so
+it is the same on winning and losing designs. This is milestone 134's tt
+mechanism seen across corners: the ladder wins where mapped delay still
+ranks routed delay. Mapped delay's rank information is near zero on
+short add chains at ff (median tauD 0.002), and there the outcome per
+design is close to a coin toss with large stakes.
+
+\textbf{Which units the ladder loses, across both corners (milestone
+155; replay).} Over every unit with per-point rows (223; 183 on the
+ladder branch, 38 of them losses to random routing), the losses sit
+where mapped delay ranks routed delay worst: median Kendall tau-b 0.015
+on losers against 0.160 on the rest, a loser AUC of 0.69 (0.60 to 0.78;
+\texttt{experiments/\allowbreak{}delay\_\allowbreak{}rank/\allowbreak{}}, seven predictions committed before
+the script ran). The share of points where the clip binds, milestone
+150's ff signal, has 0.59 pooled, 0.67 at ff and 0.51 at tt; the
+difference from tauD (+0.11, interval -0.03 to +0.24) is not
+significant, so the registered primary failed. Mapped area agreement is
+slightly \emph{higher} on losers (0.933 against 0.921). The account
+explains which designs lose, not how much (Spearman of tauD against the
+edge -0.01), and it does not give a guard: switching the units flagged
+by low clip share and low tauD to area-only ranking has 2.81\% with the
+full-pool oracle and 2.98\% with one 8-point routed pilot (not charged),
+against SWC's 2.76\%. We therefore report SWC's losses as a
+characterised limit, not a solved one.
+
 \hypertarget{limitations-and-threats}{%
 \subsection{5 Limitations and threats}\label{limitations-and-threats}}
 
@@ -1296,15 +1610,70 @@ version alone moves pick regret by up to 93 points. What survives both
 versions is the dose-response of the rank correlation of period (falling
 with W) and of the routed-to-mapped period ratio (rising). A trend of
 pick regret with fanout is therefore not claimed as a property of the
-flow. Two intermediate releases (0.47, 0.51) split the flow's
-\texttt{abc\ -g} gate list at the commas when it is passed with
-\texttt{-p}; with the commands in a script file (\texttt{-s}, which
-reproduces the 0.70 table exactly) they run and give identical results
-to each other: pick regret 1.4 / 0 / 0 / 0.9\% and tau of period 0.33 /
-0.52 / 0.03 / -0.04, so at W = 192 pick regret is 109, 16 and 1\% for
-Yosys 0.33, 0.70 and 0.47/0.51 (milestone 77). The mapped period carries
-no rank information at W = 192 under any version (tau between -0.04 and
-0.10).
+flow. The ladder's edge itself does not depend on the build (milestone
+158, \texttt{experiments/\allowbreak{}tool\_\allowbreak{}build/\allowbreak{}}: on 27 ss designs, Yosys 0.70
+against 0.71 moves the mean SWC - random difference by -0.48 points,
+interval -3.05 to +1.78), but the winning sequence does: the mapped
+netlist is the same on only 13\% of points, and a routed-best sequence
+carried across builds lands at 14\% regret, so a tuned recipe should be
+re-searched after a tool upgrade. All of that drift is Yosys's
+(milestone 160, \texttt{experiments/\allowbreak{}yosys\_\allowbreak{}swap/\allowbreak{}}). The two builds ran
+the same OpenROAD executable: their nixpkgs store paths differ, but
+\texttt{bin/\allowbreak{}.openroad-wrapped} is byte-identical and the runtime
+closures differ only in the Yosys the wrapper puts on PATH. With that
+executable fixed, Yosys 0.70 and 0.71 reproduce both builds' rows on 90
+of 90 sampled points, every field. Milestone 159 had read the drift on
+374 points with equal mapped area and timing as the rebuild's (median
+1.9\%, 54\% of the same design's other drift). In fact the two Yosys
+builds wrote different netlists on all 60 sampled points of that set, 21
+of them differing only in names and order, and those 21 still move every
+routed result (median 1.75\%, diverging at global placement). So a
+cosmetic rewrite of a netlist moves routed area x delay by about 2\%, a
+noise floor for any routed comparison of two netlists. Milestone 161
+(\texttt{experiments/\allowbreak{}netlist\_\allowbreak{}noise/\allowbreak{}}) isolates the cause with both
+tools fixed: shuffling one netlist's instances or wire declarations
+changes no result on 90 of 90 points (OpenROAD's database lists the
+instances in name order whatever the file order), while renaming every
+internal net and instance moves the routed score on 90 of 90 (median
+2.1\%, max 12.5\%), diverging at global placement. Writing each netlist
+in a canonical form (instances sorted and renamed by colour refinement
+of the cell/net graph, which left no ties on any of the 90) makes the
+routed result the same for every naming and order on 90 of 90. On the 22
+designs sampled, 15.8\% of same-design sequence pairs in build B's table
+differ by less than renaming moves one of them. The tables in this paper
+were placed from Yosys's own names, so a single point's routed number
+carries that noise; a flow that compares netlists should canonicalise
+them before placement. Does that noise reach the headline? Milestones
+162 and 162b (\texttt{experiments/\allowbreak{}naming\_\allowbreak{}ladder/\allowbreak{}}) placed every mapped
+netlist of all 27 designs under two more namings (the canonical form and
+a random renaming) and averaged the three routed scores per point: SWC's
+edge over equal-cost random routing is -4.37 points (interval -6.56 to
+-2.32), +0.33 (interval -0.20 to +0.89) from Yosys's naming alone, and
+SWC beats random on 24 of 27 (sign p 0.00005), so the mean edge is a
+property of the netlists. A single design's edge is noisier: one
+whole-table renaming moves it 2.36 points on average and flips its sign
+on 3 of 27. Milestone 163 (\texttt{experiments/\allowbreak{}naming\_\allowbreak{}draws/\allowbreak{}}; replay,
+six predictions committed before it ran, five held) measures that noise
+the way a search meets it, one naming draw per routed point: over 200
+draws in which each point takes its routed outcome from one of the three
+namings, a design's d has a median standard deviation of 1.02 points
+(0.54 to 2.19), the design mean moves with sd 0.22 (every draw between
+-4.78 and -3.62) and SWC beats random on 21 to 25 of 27 in every draw.
+No design whose three-naming edge exceeds 2.08 points in size flips sign
+in more than 5\% of draws, and none above 3 points flips at all; the two
+that flip in more than 20\% (gtc12r, dot6r, flip shares 0.38 and 0.37)
+have edges within a point of zero, which no affordable number of namings
+resolves. So per-design wins and losses of more than about 3 points in
+this paper survive naming noise, and smaller ones should be read as ties
+unless several namings agree. Two intermediate releases (0.47, 0.51)
+split the flow's \texttt{abc\ -g} gate list at the commas when it is
+passed with \texttt{-p}; with the commands in a script file
+(\texttt{-s}, which reproduces the 0.70 table exactly) they run and give
+identical results to each other: pick regret 1.4 / 0 / 0 / 0.9\% and tau
+of period 0.33 / 0.52 / 0.03 / -0.04, so at W = 192 pick regret is 109,
+16 and 1\% for Yosys 0.33, 0.70 and 0.47/0.51 (milestone 77). The mapped
+period carries no rank information at W = 192 under any version (tau
+between -0.04 and 0.10).
 
 \hypertarget{what-the-paper-still-needs}{%
 \subsection{6 What the paper still
@@ -1352,7 +1721,40 @@ and page limit still need checking against the call for papers.
   cluster near theta at both clocks, not at the tight clock, and that no
   raised threshold helps. What remains open is a pre-route signal that
   separates the near-theta wins from the near-theta losses (milestone
-  140 ran the 15 designs milestone 138's flow did not reach).
+  140 ran the 15 designs milestone 138's flow did not reach). Milestones
+  141 and 142 repeated 46 of the blind designs at 65\% utilisation with
+  the same result (38 to 8); milestone 143 ran 27 of them at the
+  ss\_100C\_1v60 corner (24 to 3) and milestone 144 the same 27 at
+  ff\_n40C\_1v95 (20 to 7); milestone 156 gave ss its own wire RC
+  (SKY130's max-RC corner from the PDK's OpenRCX rules, per-unit-length
+  RC x 1.41 to 1.46) on 12 of those designs with the same tools in both
+  arms: routed/mapped delay rises 2.4\%, tauD moves -0.005 (interval
+  -0.022 to +0.011) and the ladder's edge +0.10 points (interval -1.44
+  to +1.84), and the routed ranking moves less between RC corners
+  (median tau-b 0.85) than between milestone 143's tools and today's
+  (Yosys 0.70 to 0.71, OpenROAD 26Q3 rebuilt; 0.66), so wire RC is not
+  what moves the ladder on these blocks; milestone 157 resumed the same
+  flow on the other 15 designs (a blind replication, seven predictions
+  committed before it ran, all held): the edge moves +0.23 points
+  (interval -0.51 to +0.93) and tauD -0.008 (interval -0.025 to +0.007)
+  on the 15, and over all 27 designs the edge moves +0.17 points
+  (interval -0.61 to +1.01) while SWC still beats random routing on 22
+  and loses on 5 under max RC (sign p = 0.0015; 24 to 3 at nominal RC),
+  and the same nixpkgs build reproduced milestone 156's rows exactly on
+  all 11 control points; milestone 158 scored the same 27 designs under
+  milestone 143's build and today's (Yosys 0.70 against 0.71, the same
+  seed for both): the mean edge moves -0.48 points (interval -3.05 to
+  +1.78; SWC wins 24 and 22 of 27), but each design's edge moves 2.8
+  times as far as under max-RC wires (4.39 against 1.55 points) and a
+  routed-best sequence carried from one build to the other has 14\% mean
+  regret, against 6\% for equal-cost random routing on the new build;
+  the family-level failures move with the liberty corner. Milestone 145
+  tested the ff add-chain reading blind: the ladder's edge is smaller on
+  add-chain amounts (permutation p = 0.026) but it does not lose on most
+  of them (3 of 10). Milestones 146 and 147 crossed amount structure
+  with mapped delay; on the 26 fresh designs neither factor moves the
+  ladder's advantage (delay +0.01 points, p = 0.997), so a per-design
+  guard, not a family rule, is what remains open.
 \end{enumerate}
 
 The headline is split by cost. On small designs, where a routed point
