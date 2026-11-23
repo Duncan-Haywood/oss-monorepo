@@ -17,7 +17,8 @@ wins, and most sellers meet it for the first time on an invoice.
 - **Pounds of air**: the gap between what is billed and what the goods weigh,
   stated in pounds rather than as a ratio, because that is the number that
   changes a carton decision.
-- **The break-even cube** — actual weight times divisor — and, where the
+- **The break-even cube** — actual weight, rounded up to the billed pound, times
+  divisor — and, where the
   footprint allows it, the packed height that reaches it on the carton you
   already have. When no achievable height gets there, it says so rather than
   suggesting you pack a mug flat.

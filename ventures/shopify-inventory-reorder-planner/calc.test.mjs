@@ -245,3 +245,42 @@ test("a wholesale invoice export (StockCode, Description, InvoiceDate) is read",
   assert.deepEqual([n.items[0].sku, n.items[0].name, n.items[0].qty, n.items[0].price], ["85048", "15CM CHRISTMAS GLASS BALL 20 LIGHTS", 12, 6.95]);
   assert.equal(n.items[1].qty, -12);
 });
+
+// Red team 2026-11-23: these four escaped the suite (a trend off by +2, ISO dates
+// with one-digit months refused, every purchase-order cost blanked, the worked
+// example's date moved a month).
+import { parseWhen } from "./calc.mjs";
+
+test("the surge trend is the recent rate over the window rate, minus one", () => {
+  const sales = steady("S", 1, 90);
+  for (let d = 0; d < 28; d++) sales.push({ t: asOf - d * D, sku: "S", name: "S", qty: 2, price: 1 });
+  const s = analyze(sales, [], { asOf }).rows[0];
+  // 146 units over 90 days against 84 in the last 28: 3 / (146 / 90) - 1
+  assert.ok(Math.abs(s.trend - (3 / (146 / 90) - 1)) < 1e-12, String(s.trend));
+});
+
+test("ISO dates with one-digit months and days parse", () => {
+  assert.equal(parseWhen("2026-6-5").t, Date.UTC(2026, 5, 5));
+  assert.equal(parseWhen("2026-06-05").t, Date.UTC(2026, 5, 5));
+  assert.equal(parseWhen("2026-6-31"), null);
+});
+
+test("the purchase-order CSV carries unit and order cost to the cent, blank only when unknown", () => {
+  const r = analyze(steady("A", 2, 70).concat(steady("B", 2, 70)), [
+    { sku: "A", name: "", onHand: 5, incoming: 0, cost: 4, price: null },
+    { sku: "B", name: "", onHand: 5, incoming: 0, cost: null, price: null },
+  ], { asOf });
+  const rows = Object.fromEntries(poCsv(r).split("\n").slice(1).map((l) => [l.split(",")[0].replace(/"/g, ""), l.split(",")]));
+  const a = r.rows.find((x) => x.sku === "A");
+  assert.ok(a.orderQty > 0);
+  assert.equal(rows.A[8], "4.00");
+  assert.equal(rows.A[9], (a.orderQty * 4).toFixed(2));
+  assert.equal(rows.B[8], "");
+  assert.equal(rows.B[9], "");
+});
+
+test("the worked example ends on its default as-of date, 28 September 2026", () => {
+  const s = normalizeSales(parseCsv(sampleSales()));
+  const last = Math.max(...s.items.map((x) => x.t));
+  assert.equal(new Date(last).toISOString().slice(0, 10), "2026-09-28");
+});

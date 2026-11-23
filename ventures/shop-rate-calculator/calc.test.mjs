@@ -362,3 +362,60 @@ test('labor at the bill rate plus materials at the assumed markup is exactly the
   // Billing materials at cost misses the target by the materials' share of overhead and profit.
   assert.ok(laborRevenue + materials < r.revenueNeeded - 1000);
 });
+
+// Red team 2026-11-23: the field bounds were only spot-checked, so a widened
+// `max` (53 paid weeks, a lead-fee ceiling one dollar higher) passed the suite.
+// Every field is checked at both ends, and each bound the form also declares
+// must agree with it, so the page and the arithmetic reject the same numbers.
+const BOUNDS = {
+  hourlyWage: [0.01, 100000],
+  fieldCrewCount: [1, 500],
+  paidHoursPerWeek: [1, 168],
+  paidWeeksPerYear: [1, 52],
+  paidDaysOffPerYear: [0, 365],
+  nonBillablePercent: [0, 99],
+  payrollTaxPercent: [0, 100],
+  workersCompPercent: [0, 200],
+  liabilityInsurancePercent: [0, 100],
+  benefitsPerYear: [0, 1000000],
+  vehicleToolsPerYear: [0, 1000000],
+  ownerAdminSalary: [0, 100000000],
+  officeRentUtilities: [0, 100000000],
+  softwareAccountingLegal: [0, 100000000],
+  marketingAndLeads: [0, 100000000],
+  insuranceLicensesOther: [0, 100000000],
+  annualMaterialAndSubCost: [0, 1000000000],
+  targetMargin: [0, CARRY_LIMITS.targetMargin],
+};
+
+test('every field accepts its own bounds and rejects one step past them', () => {
+  // Only range errors count: 365 days off is in range but always contradicts the paid year.
+  const idsOf = (r) => (r.ok ? [] : r.errors.filter((e) => /cannot be (above|below)/.test(e.message)).map((e) => e.id));
+  for (const [id, [min, max]] of Object.entries(BOUNDS)) {
+    const step = Math.min(0.01, min || 0.01);
+    assert.ok(!idsOf(calculateShopRate({ ...BASE, [id]: max })).includes(id), `${id} = ${max} should be accepted`);
+    assert.ok(idsOf(calculateShopRate({ ...BASE, [id]: max + step })).includes(id), `${id} = ${max + step} should be rejected`);
+    assert.ok(!idsOf(calculateShopRate({ ...BASE, [id]: min })).includes(id), `${id} = ${min} should be accepted`);
+    assert.ok(idsOf(calculateShopRate({ ...BASE, [id]: min - step })).includes(id), `${id} = ${min - step} should be rejected`);
+  }
+});
+
+test('the form declares the same min and max as the arithmetic', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const html = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  for (const [id, [min, max]] of Object.entries(BOUNDS)) {
+    const tag = html.match(new RegExp(`<input[^>]*id="${id}"[^>]*>`));
+    assert.ok(tag, `index.html has no input #${id}`);
+    const attr = (name) => { const m = tag[0].match(new RegExp(`\\s${name}="([^"]*)"`)); return m ? Number(m[1]) : null; };
+    if (attr('min') !== null) assert.equal(attr('min'), min, `#${id} min`);
+    if (attr('max') !== null) assert.equal(attr('max'), max, `#${id} max`);
+  }
+});
+
+test('a tiny but real year still prices: half an hour worked, under one billable', () => {
+  // 5 paid hours in one week is five 1-hour days; 4.5 days off leave 0.5 h worked,
+  // 0.4 h billable. Small, positive, and a rate, not a contradiction.
+  const result = calculateShopRate({ ...BASE, paidHoursPerWeek: 5, paidWeeksPerYear: 1, paidDaysOffPerYear: 4.5 });
+  assert.equal(result.ok, true, JSON.stringify(result.errors));
+  near(result.billableHoursPerYear, 0.4, 1e-9);
+});
