@@ -14,10 +14,15 @@ ledger export and a calendar.
 ## Input
 
 Any CSV with a `Due Date`, a `Unit` (or `Tenant`), an `Amount Due` (or `Rent`) and an
-`Amount Paid`, one row per monthly charge; `Date Paid` is used when present and is needed for
+`Amount Paid`; `Date Paid` is used when present and is needed for
 late-payment figures. **Column names are matched by alias and no real property-management
 export was available**; if a file is not read, the page lists the rows it skipped and why, and
 a sheet with the headers above always works.
+Charges and payments may share a row or sit on separate rows: a payment-only row, or a
+negative amount due (a credit or concession), is applied to the same unit's oldest unpaid
+charge, in payment-date order, and a charge cleared that way counts as paid on that
+payment's date. Rows with a charge type (late fee, deposit) are still counted as rent; see
+the 2026-11-23 quality audit in `portfolio/quality/audits/`.
 
 ## Model
 
