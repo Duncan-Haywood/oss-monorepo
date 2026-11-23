@@ -1,0 +1,114 @@
+01-b15946e.ifc: IFC4, 29 elements (1 without a box), 0.9 s
+02-aa96583.ifc: IFC4, 28 elements (0 without a box), 0.0 s
+03-63861be.ifc: IFC4, 26 elements (0 without a box), 0.0 s
+04-47080f1.ifc: IFC4, 29 elements (0 without a box), 0.0 s
+05-1173c48.ifc: IFC4, 35 elements (0 without a box), 0.1 s
+06-81d9751.ifc: IFC4, 34 elements (0 without a box), 0.1 s
+07-de6ad25.ifc: IFC4, 74 elements (0 without a box), 0.1 s
+08-5ca209b.ifc: IFC4, 64 elements (0 without a box), 0.1 s
+09-e0b3fb5.ifc: IFC4, 56 elements (0 without a box), 0.0 s
+10-8b33053.ifc: IFC4, 30 elements (0 without a box), 0.0 s
+11-6cd5e57.ifc: IFC4, 31 elements (0 without a box), 0.0 s
+12-071fe94.ifc: IFC4, 32 elements (0 without a box), 0.0 s
+
+01-b15946e.ifc -> 02-aa96583.ifc
+  elements 29 -> 28; matched 28 (GlobalId 28, Tag 0, geometry 0); unchanged 28, changed 0; added 0, removed 1; merged 0, split 0; replaced in place 0
+  a GlobalId-only comparison: 0 added, 1 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {}
+  new GlobalId: {}
+  added: {}
+  removed: {"IfcFurniture":1}
+
+02-aa96583.ifc -> 03-63861be.ifc
+  elements 28 -> 26; matched 26 (GlobalId 26, Tag 0, geometry 0); unchanged 25, changed 1; added 0, removed 2; merged 0, split 0; replaced in place 0
+  a GlobalId-only comparison: 0 added, 2 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"quantity: volume":1,"quantity: area":1}
+  new GlobalId: {}
+  added: {}
+  removed: {"IfcFurniture":2}
+
+03-63861be.ifc -> 04-47080f1.ifc
+  elements 26 -> 29; matched 26 (GlobalId 26, Tag 0, geometry 0); unchanged 9, changed 17; added 3, removed 0; merged 0, split 0; replaced in place 0
+  a GlobalId-only comparison: 3 added, 0 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"attribute: material":17,"quantity: volume":1,"quantity: area":1}
+  new GlobalId: {}
+  material renamed (IfcMaterial #67, file kept its STEP ids): Unknown -> baksteen (17 elements); still material changes
+  material renamed (IfcMaterialLayerSet #68, file kept its STEP ids): (none) -> brick (16 elements); still material changes
+  material swap: Unknown -> brick: 16 elements (16 IfcWall), 9.812 m3; 16 of 16 the same entity renamed
+  material swap: Unknown -> baksteen: 1 elements (1 IfcSlab), 3.541 m3; 1 of 1 the same entity renamed
+  added: {"IfcWindow":1,"IfcStair":1,"IfcSanitaryTerminal":1}
+  removed: {}
+
+04-47080f1.ifc -> 05-1173c48.ifc
+  elements 29 -> 35; matched 28 (GlobalId 28, Tag 0, geometry 0); unchanged 4, changed 24; added 7, removed 1; merged 0, split 0; replaced in place 0
+  a GlobalId-only comparison: 7 added, 1 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"quantity: volume":19,"quantity: area":9,"attribute: name":8,"attribute: type":17,"reshaped":18,"quantity: length":2,"attribute: material":15,"moved":1}
+  new GlobalId: {}
+  storey renamed (same GlobalId): My Storey -> 00_begane_grond (34 elements); elements changed by a storey rename alone, counted unchanged: 4
+  type renamed (same GlobalId): TYPEX -> buitengevel (8 elements); still type changes
+  material swap: brick -> binnenwand_materiaal: 9 elements (9 IfcWall), 1.374 m3
+  material swap: brick -> baksteen: 4 elements (4 IfcWall), 1.841 m3
+  material swap: brick -> (none): 2 elements (2 IfcWall), 4.420 m3
+  added: {"IfcWall":5,"IfcStair":1,"IfcWindow":1}
+  removed: {"IfcSlab":1}
+  commonest moves (dx, dy, dz m): {"-0.00, 0.00, 0.58":1}
+
+05-1173c48.ifc -> 06-81d9751.ifc
+  elements 35 -> 34; matched 33 (GlobalId 33, Tag 0, geometry 0); unchanged 33, changed 0; added 1, removed 2; merged 0, split 0; replaced in place 0
+  a GlobalId-only comparison: 1 added, 2 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {}
+  new GlobalId: {}
+  added: {"IfcWall":1}
+  removed: {"IfcWall":2}
+
+06-81d9751.ifc -> 07-de6ad25.ifc
+  elements 34 -> 74; matched 32 (GlobalId 32, Tag 0, geometry 0); unchanged 32, changed 0; added 42, removed 2; merged 0, split 0; replaced in place 0
+  a GlobalId-only comparison: 42 added, 2 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {}
+  new GlobalId: {}
+  added: {"IfcBeam":29,"IfcWall":8,"IfcRoof":5}
+  removed: {"IfcWall":2}
+
+07-de6ad25.ifc -> 08-5ca209b.ifc
+  elements 74 -> 64; matched 60 (GlobalId 60, Tag 0, geometry 0); unchanged 57, changed 3; added 2, removed 8; merged 2, split 0; replaced in place 0
+  a GlobalId-only comparison: 4 added, 14 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"quantity: volume":2,"quantity: area":2,"reshaped":2,"attribute: storey":1}
+  new GlobalId: {}
+  merged: 3 -> 1  IfcWall Wall  volume 2.0157 -> 2.0157 m3
+  merged: 3 -> 1  IfcWall Wall  volume 2.0094 -> 2.0294 m3
+  added: {"IfcWall":2}
+  removed: {"IfcWall":5,"IfcWindow":2,"IfcDoor":1}
+
+08-5ca209b.ifc -> 09-e0b3fb5.ifc
+  elements 64 -> 56; matched 49 (GlobalId 49, Tag 0, geometry 0); unchanged 44, changed 5; added 7, removed 15; merged 0, split 0; replaced in place 0
+  a GlobalId-only comparison: 7 added, 15 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"quantity: volume":5,"reshaped":5,"quantity: area":1}
+  new GlobalId: {}
+  added: {"IfcBeam":7}
+  removed: {"IfcBeam":14,"IfcWall":1}
+
+09-e0b3fb5.ifc -> 10-8b33053.ifc
+  elements 56 -> 30; matched 25 (GlobalId 25, Tag 0, geometry 0); unchanged 16, changed 9; added 5, removed 31; merged 0, split 0; replaced in place 0
+  a GlobalId-only comparison: 5 added, 31 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"quantity: volume":4,"quantity: area":2,"attribute: name":3,"reshaped":4,"quantity: length":1,"attribute: storey":7}
+  new GlobalId: {}
+  added: {"IfcBeam":3,"IfcFooting":2}
+  removed: {"IfcWall":14,"IfcDoor":6,"IfcRoof":5,"IfcWindow":2,"IfcStair":2,"IfcSanitaryTerminal":1,"IfcBeam":1}
+
+10-8b33053.ifc -> 11-6cd5e57.ifc
+  elements 30 -> 31; matched 30 (GlobalId 30, Tag 0, geometry 0); unchanged 27, changed 3; added 1, removed 0; merged 0, split 0; replaced in place 0
+  a GlobalId-only comparison: 1 added, 0 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {"attribute: name":2,"attribute: material":1,"moved":1}
+  new GlobalId: {}
+  material swap: (none) -> baksteen: 1 elements (1 IfcWall), 6.047 m3
+  added: {"IfcBeam":1}
+  removed: {}
+  commonest moves (dx, dy, dz m): {"0.00, -0.15, 0.00":1}
+
+11-6cd5e57.ifc -> 12-071fe94.ifc
+  elements 31 -> 32; matched 31 (GlobalId 31, Tag 0, geometry 0); unchanged 31, changed 0; added 1, removed 0; merged 0, split 0; replaced in place 0
+  a GlobalId-only comparison: 1 added, 0 removed; GlobalIds repeated within a file: 0 before, 0 after
+  changed: {}
+  new GlobalId: {}
+  added: {"IfcSlab":1}
+  removed: {}

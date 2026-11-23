@@ -248,3 +248,62 @@ test("renames read from the file: the storey's and type's GlobalIds come through
   assert.equal(d.renames.type[0].after, "Exterior 200");
   assert.ok(d.summary.renamedOnly > 0);
 });
+
+test("a material renamed in place is told by its STEP id, only when the file kept its ids; swaps are grouped", () => {
+  // Tulpstraat (BlenderBIM), 2024-02-15 -> 02-19: IfcMaterial #67 'Unknown'
+  // renamed 'baksteen' and its layer set #68 given the name 'brick'; no wall
+  // was given another material
+  const m = (g, id, o = {}) => ({ ...row({ g, cls: "IfcWall", v: o.v ?? 1, box: [0, 0, 0, 1, 1, 1] }), id, material: o.material, materialRef: o.ref ?? 76, materialSet: o.set === undefined ? { id: 68, kind: "IFCMATERIALLAYERSET", name: null } : o.set, materialParts: o.parts ?? [{ id: 67, name: "Unknown" }] });
+  const a = [m("W1", 10, { material: "Unknown" }), m("W2", 11, { material: "Unknown" }), m("W3", 12, { material: "Unknown", v: 2 }), m("W4", 13, { material: "Unknown", ref: 67, set: null })];
+  const after = { set: { id: 68, kind: "IFCMATERIALLAYERSET", name: "brick" }, parts: [{ id: 67, name: "baksteen" }] };
+  const b = [
+    m("W1", 10, { material: "brick", ...after }),
+    m("W2", 11, { material: "brick", ...after }),
+    // W3 given another layer set: a re-specification, not a rename
+    m("W3", 12, { material: "Kalkzandsteen", v: 2, ref: 90, set: { id: 91, kind: "IFCMATERIALLAYERSET", name: "Kalkzandsteen" }, parts: [{ id: 92, name: "Kalkzandsteen" }] }),
+    m("W4", 13, { material: "baksteen", ref: 67, set: null, parts: [{ id: 67, name: "baksteen" }] }),
+  ];
+  const d = diffTakeoffs(a, b);
+  assert.equal(d.materialIdsKept, true);
+  assert.deepEqual(d.renames.material, [
+    { entityId: 67, entity: "IfcMaterial", before: "Unknown", after: "baksteen", elements: 3 },
+    { entityId: 68, entity: "IfcMaterialLayerSet", before: null, after: "brick", elements: 2 },
+  ]);
+  // like a type, a material name is the specification: still a change, marked
+  assert.equal(d.summary.changed, 4);
+  assert.equal(d.changed.find((c) => c.b.globalId === "W1").attributes.material.sameMaterialEntity, true);
+  assert.equal(d.changed.find((c) => c.b.globalId === "W4").attributes.material.sameMaterialEntity, true);
+  assert.equal(d.changed.find((c) => c.b.globalId === "W3").attributes.material.sameMaterialEntity, undefined);
+  assert.deepEqual(d.materialSwaps.map((s) => [s.before, s.after, s.elements, s.renamedInPlace, s.volume]), [["Unknown", "brick", 2, 2, 2], ["Unknown", "baksteen", 1, 1, 1], ["Unknown", "Kalkzandsteen", 1, 0, 2]]);
+  assert.equal(d.summary.materialsRenamed, 2);
+  assert.equal(d.summary.materialSwaps, 3);
+  const csv = changesCsv(d);
+  assert.match(csv, /material renamed,#67,#67,IfcMaterial,baksteen,,,same STEP id \(file edited in place\),name: Unknown -> baksteen \(3 elements; each still listed as a material change\)/);
+  assert.match(csv, /material swap,,,IfcWall,,,,same material entity,material: Unknown -> brick \(2 elements\)/);
+  assert.match(csv, /material: Unknown -> brick \(same material entity, renamed\)/);
+  // a re-export renumbers the file (Revit: 0 to 2% of matched elements keep
+  // their STEP id on the Aalseth series): the same ids mean nothing, so no
+  // rename is claimed and no change is marked
+  const renumbered = b.map((r, i) => ({ ...r, id: 500 + i }));
+  const e = diffTakeoffs(a, renumbered);
+  assert.equal(e.materialIdsKept, false);
+  assert.deepEqual(e.renames.material, []);
+  assert.ok(e.changed.every((c) => !c.attributes.material.sameMaterialEntity));
+  assert.equal(e.materialSwaps.length, 3);
+});
+
+test("a material renamed in the file comes through the takeoff", () => {
+  const src = readFileSync(new URL("./samples/sample-office.ifc", import.meta.url), "latin1");
+  const renamed = src.replace("#70=IFCMATERIAL('Concrete C30/37'", "#70=IFCMATERIAL('Concrete C35/45'");
+  assert.notEqual(renamed, src);
+  const a = load("sample-office.ifc"), b = takeoff(parseStep(Buffer.from(renamed, "latin1"))).rows;
+  const d = diffTakeoffs(a, b);
+  assert.equal(d.materialIdsKept, true);
+  assert.equal(d.renames.material.length, 1);
+  assert.deepEqual([d.renames.material[0].entityId, d.renames.material[0].before, d.renames.material[0].after], [70, "Concrete C30/37", "Concrete C35/45"]);
+  const n = a.filter((r) => !r.isAssembly && (r.material || "").includes("Concrete C30/37")).length;
+  assert.ok(n > 0);
+  assert.equal(d.renames.material[0].elements, n);
+  assert.ok(d.changed.length === n && d.changed.every((c) => c.attributes.material?.sameMaterialEntity && Object.keys(c.attributes).length === 1));
+  assert.equal(d.materialSwaps.reduce((t, s) => t + s.renamedInPlace, 0), n);
+});

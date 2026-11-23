@@ -52,7 +52,8 @@ for (let i = 1; i < runs.length; i++) {
     before: basename(A.file), after: basename(B.file), summary: s, gidOnly, what,
     reid: count([...d.changed, ...d.unchanged].filter((p) => p.how === "tag" || p.how === "geometry"), (p) => `${p.how}: ${p.b.ifcClass}`),
     replaced: d.changed.filter((c) => c.how === "place").map((c) => ({ class: c.b.ifcClass, storey: c.b.storey, before: c.a.type || c.a.name, after: c.b.type || c.b.name, moved: c.moved ? c.moved.distance : null, reshaped: !!c.reshaped, volume: [volOf(c.a), volOf(c.b)] })),
-    renames: d.renames,
+    renames: d.renames, materialIdsKept: d.materialIdsKept,
+    materialSwaps: d.materialSwaps.map((m) => ({ before: m.before, after: m.after, elements: m.elements, renamedInPlace: m.renamedInPlace, volume: m.volume, area: m.area, classes: m.classes })),
     groups: d.groups.map((g) => ({ kind: g.kind, before: g.before.map((r) => `${r.ifcClass} ${r.name}`), after: g.after.map((r) => `${r.ifcClass} ${r.name}`), volumeBefore: g.volumeBefore, volumeAfter: g.volumeAfter })),
     added: count(d.added, (r) => r.ifcClass), removed: count(d.removed, (r) => r.ifcClass),
     moves: Object.fromEntries(Object.entries(moves).slice(0, 6)),
@@ -65,6 +66,8 @@ for (let i = 1; i < runs.length; i++) {
   console.log(`  changed: ${JSON.stringify(what)}`);
   console.log(`  new GlobalId: ${JSON.stringify(rec.reid)}`);
   for (const k of ["storey", "type"]) for (const r of d.renames[k]) console.log(`  ${k} renamed (same GlobalId): ${r.before} -> ${r.after} (${r.elements} elements)${k === "storey" ? `; elements changed by a storey rename alone, counted unchanged: ${s.renamedOnly}` : "; still type changes"}`);
+  for (const r of d.renames.material) console.log(`  material renamed (${r.entity} #${r.entityId}, file kept its STEP ids): ${r.before ?? "(none)"} -> ${r.after ?? "(none)"} (${r.elements} elements); still material changes`);
+  for (const m of rec.materialSwaps) console.log(`  material swap: ${m.before ?? "(none)"} -> ${m.after ?? "(none)"}: ${m.elements} elements (${Object.entries(m.classes).map(([k, v]) => `${v} ${k}`).join(", ")}), ${m.volume.toFixed(3)} m3${m.renamedInPlace ? `; ${m.renamedInPlace} of ${m.elements} the same entity renamed` : ""}`);
   for (const g of rec.groups) console.log(`  ${g.kind}: ${g.before.length} -> ${g.after.length}  ${g.kind === "merged" ? g.after[0] : g.before[0]}  volume ${g.volumeBefore.toFixed(4)} -> ${g.volumeAfter.toFixed(4)} m3`);
   for (const r of rec.replaced) console.log(`  replaced in place: ${r.class} (${r.storey}) ${r.before === r.after ? r.before : `${r.before} -> ${r.after}`}${r.moved != null ? `, moved ${r.moved.toFixed(3)} m` : ""}${r.reshaped ? ", box resized" : ""}, volume ${r.volume.map((v) => (v == null ? "-" : v.toFixed(4))).join(" -> ")} m3`);
   console.log(`  added: ${JSON.stringify(rec.added)}`);
