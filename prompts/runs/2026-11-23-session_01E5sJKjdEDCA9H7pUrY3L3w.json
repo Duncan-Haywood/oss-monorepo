@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKjdEDCA9H7pUrY3L3w",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T19:18:12Z",
+  "ended": "2026-11-23T19:30:36Z",
+  "wall_minutes": 12.65,
+  "tokens_in": 8864185,
+  "tokens_out": 39569,
+  "cost_usd": 3.8395,
+  "tool_calls": 74,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18468",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "gh api repos/<other>/... is refused for repositories outside the session scope; git clone --filter=blob:none worked instead",
+    "git ls-tree -l on a blob:none clone fetches every blob lazily and outlived the 120 s timeout; a sparse checkout of the one folder took seconds"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ifc-quantity-takeoff buildable item 'next ArchiCAD/Vectorworks' named no source; code search for 'ARCHICAD extension:ifc' found EngiWorld's MIT Archicad before/after pairs in one query, worth naming in the row (now done)"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "the pkill/pgrep hook also refuses a bracketed pattern when the word appears elsewhere in the same command line; kill by pid from ps works"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-the-ifc-change-report-missed-every-room.md",
+    "ventures/ifc-quantity-takeoff/eval/engiworld-archicad-diff-2026-11-23.md"
+  ],
+  "goal": null,
+  "notes": "Flagship ifc-quantity-takeoff, item 'ArchiCAD/Vectorworks revision series'. Found EngiWorld (MIT) Archicad 27 tasks: 20 init/result IFC pairs with a JSON list of required edits. Before: change report found 43/43 listed doors/windows/walls, 0/44 rooms, 0/42 room annotations (rooms were never diffed). Added diffRooms (diff.mjs), room description/type/properties (qto.mjs), page card + change rows, CSV rows, CLI summary, revision-diff.mjs output, eval/engiworld-archicad-diff.mjs scorer. After: 87/87 adds, 42/42 annotations, 14 extra = existing rooms gaining the new opening. Verification: run_venture_tests.py ifc-quantity-takeoff ok (254 tests); check_posts ok; validate.py ok; Playwright on the page with task 04: cards 'Rooms added/removed/changed 2/0/1', no page errors; venture-preflight run in background (result in PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "da788735-297e-5045-b20d-3d0cd71888cb",
+    "transcripts": 1,
+    "first": "2026-11-23T19:18:12Z",
+    "last": "2026-11-23T19:30:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 128,
+        "output": 39569,
+        "thinking": 6723,
+        "cache_read": 8700627,
+        "cache_write_5m": 0,
+        "cache_write_1h": 163430,
+        "api_equivalent_usd": 3.8395,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 128,
+      "output": 39569,
+      "thinking": 6723,
+      "cache_read": 8700627,
+      "cache_write_5m": 0,
+      "cache_write_1h": 163430,
+      "api_equivalent_usd": 3.8395,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 74,
+    "tools": {
+      "Bash": 65,
+      "Write": 4,
+      "Edit": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "TaskStop": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.65,
+      "active_minutes": 12.65,
+      "model_minutes": 8.86,
+      "tool_minutes": 3.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "find the dataset, add room diffing across takeoff/diff/page/CSV/CLI, scorer, tests, write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 208.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
