@@ -3,7 +3,7 @@ title: "Infinity is not a building width: a red-team pass on the window DP calcu
 seo_title: "Red-teaming a window design pressure calculator"
 date: 2026-11-23
 tags: [redteam, testing, window-design-pressure-calculator, wind, asce-7]
-description: "24 seeded faults, 86% caught by the existing tests; two real input bugs found by hand, fixed in the calculator and in seven siblings that parse numbers the same way."
+description: "24 seeded faults, 86% caught by the existing tests; two real input bugs found by hand and fixed, in the calculator and seven siblings."
 ---
 
 The [window design pressure calculator](../../ventures/window-design-pressure-calculator/)
