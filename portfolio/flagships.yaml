@@ -565,26 +565,28 @@ flagships:
       (11) next a real TIA exhibit. (8) MSPDI: resource calendars, Resume, splits
       read 2026-11-21 (2,446 of 2,491 = Project's, eval/split-tasks-2026-11-21.md);
       next a Project open of those rows, a P6 import of a curve, timephased late
-      dates. (13) XER to Project XML shipped 2026-11-21; next a Project check.
-      Expenses <-> cost resources and fixed costs 2026-11-21 (1,526/1,526 to the
-      cent, MPXJ agrees; eval/expenses-2026-11-21.md); next a P6-written XER with
-      expenses, a P6 import (category by name?). Finish-date UDFs <-> Project Finish
-      fields, Start/Finish fields read 2026-11-22 (eval/finish-udfs-2026-11-22.md:
-      120/120 Project values, CCA 182/182); next: a P6 import of the result. next a
-      real scheduler's read. Levelling on P6 resource curves 2026-11-22 (--curves,
-      eval/level-curves-2026-11-22.md); next a P6-levelled file with a curve.
-      branches in TIA 2026-11-22 (tia.mjs Branch group/Branch/Probability, every
-      outcome scheduled, eval/tia-branches-2026-11-22.md), next a real TIA exhibit
-      with alternatives. (15) next a commercial drag run, real crash rates. (16)
-      next a real schedule with its GAO assessment. (17) Collapsed as-built,
-      as-planned vs as-built 2026-11-23 (collapse.mjs, asplanned.mjs;
-      eval/asplanned-check-2026-11-23.md); next a real baseline + final update with
-      a claim's delay list. (18) TIA by party, events step by step in date order and
-      newest first 2026-11-23 (eval/tia-party-check-2026-11-23.md,
-      eval/tia-steps-check-2026-11-23.md); next a real claim's parties and dated
-      event list. (19) Redundant logic 2026-11-23 (redundant.mjs, --redundant;
-      eval/redundant-logic-2026-11-23.md); next an Acumen Fuse count on one file, a
-      P6 import of the cleaned XER. More: NEXT.md.
+      dates. (13) XER to Project XML shipped 2026-11-21; next a Project check. (14)
+      P6 XML read and to XER 2026-11-23 (pmxml.mjs, eval/pmxml-2026-11-23.md:
+      21,441/21,441 same schedule); next a P6 import of one, a large real P6 XML
+      export. Expenses <-> cost resources and fixed costs 2026-11-21 (1,526/1,526 to
+      the cent, MPXJ agrees; eval/expenses-2026-11-21.md); next a P6-written XER
+      with expenses, a P6 import (category by name?). Finish-date UDFs <-> Project
+      Finish fields, Start/Finish fields read 2026-11-22
+      (eval/finish-udfs-2026-11-22.md: 120/120 Project values, CCA 182/182); next: a
+      P6 import of the result. next a real scheduler's read. Levelling on P6
+      resource curves 2026-11-22 (--curves, eval/level-curves-2026-11-22.md); next a
+      P6-levelled file with a curve. branches in TIA 2026-11-22 (tia.mjs Branch
+      group/Branch/Probability, every outcome scheduled,
+      eval/tia-branches-2026-11-22.md), next a real TIA exhibit with alternatives.
+      (15) next a commercial drag run, real crash rates. (16) next a real schedule
+      with its GAO assessment. (17) Collapsed as-built, as-planned vs as-built
+      2026-11-23 (collapse.mjs, asplanned.mjs; eval/asplanned-check-2026-11-23.md);
+      next a real baseline + final update with a claim's delay list. (18) TIA by
+      party, events step by step in date order and newest first 2026-11-23
+      (eval/tia-party-check-2026-11-23.md, eval/tia-steps-check-2026-11-23.md); next
+      a real claim's parties and dated event list. (19) Redundant logic 2026-11-23
+      (redundant.mjs, --redundant; eval/redundant-logic-2026-11-23.md); next an
+      Acumen Fuse count on one file, a P6 import of the cleaned XER. More: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).

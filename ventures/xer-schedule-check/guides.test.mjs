@@ -25,6 +25,7 @@ const GUIDES = [
   "how-to-run-a-time-impact-analysis-on-a-p6-schedule.html",
   "how-to-split-concurrent-delay-between-owner-and-contractor.html",
   "how-to-run-a-monte-carlo-schedule-risk-analysis-on-a-p6-schedule.html",
+  "how-to-convert-p6-xml-to-xer.html",
 ];
 
 test("every guide is linked from the tool page, the sitemap and llms.txt", () => {
