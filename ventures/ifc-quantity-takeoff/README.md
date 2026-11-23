@@ -42,6 +42,17 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   [eval/member-length-section-2026-11-22.md](eval/member-length-section-2026-11-22.md):
   no public model has the fault, the sample office's IPE 200 does). Where the
   stored figure is the wrong one, the bill of quantities uses the computed one.
+- **Figures in doubt** (2026-11-23,
+  [eval/in-doubt-2026-11-23.md](eval/in-doubt-2026-11-23.md)). Where the
+  figure a line sums disagrees with the geometry and no cause is named, the
+  line says how many such figures it holds and what the stored and the
+  geometry figures sum to (six CSV columns), and a choice on the page
+  (`--unexplained geometry` on the CLI) sums the geometry for those rows
+  instead of the stored figure. Looking for them found ARK_NUS skolebygg's two
+  slabs laid to falls whose stored volume is their area x the nominal 250 mm x
+  1000 (`nominal-slip`): 6,415 m3 of concrete not in the model, 43% of its
+  bill, now summed from the geometry. On 11 of 15 public models nothing the
+  BoQ sums is in doubt; on the other four, 3 volumes and 13 areas are (5 volumes before the fix).
 
 **Guides** (2026-11-22, worked examples on the sample office, every number
 checked against the engine by `guides.test.mjs`):
@@ -829,6 +840,8 @@ node cli.mjs model.ifc --rows elements.csv     # every element
 node cli.mjs model.ifc --rooms rooms.csv       # room schedule: floor area, perimeter, height, wall area gross and net, volume
 node cli.mjs model.ifc --by space,class        # BoQ room by room
 node cli.mjs model.ifc --check                 # stored vs computed summary
+node cli.mjs model.ifc --unexplained geometry  # sum the geometry where stored and computed disagree for no known cause
+node eval/in-doubt.mjs a.ifc b.ifc             # how much of each BoQ rests on figures in doubt
 node cli.mjs model.ifc --voids-up-to 0.5,0.05  # leave in openings up to 0.5 m2 (areas) / 0.05 m3 (volumes)
 node cli.mjs model.ifc --voids-up-to "0,0;walls=0.5,0.05;slabs=0,0.05"  # per work section (walls, slabs, coverings, frames, other)
 node cli.mjs new.ifc --compare old.ifc         # change in the BoQ since old.ifc, CSV to stdout

@@ -15,23 +15,26 @@
 //   --voids-up-to "0.5,0.05;slabs=0,0.05"      the same, with a work section's own pair (walls, slabs,
 //                                              coverings, frames, other)
 //   --tolerance 0.02                           relative difference that still counts as agreeing (default 2%)
+//   --unexplained geometry                     where a stored volume or area disagrees with the geometry for no
+//                                              known cause, sum the geometry's figure (default: stored); the
+//                                              BoQ CSV lists those rows' count and both sums on every line
 //   --no-geometry                              stored quantities only (faster)
 //   --trust-declared-units                     keep a named unit's declared factor even when it is not that unit
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { parseStep } from "./step.mjs";
-import { takeoff, boq, boqCsv, rowsCsv, checkSummary, unitRepairNote } from "./qto.mjs";
+import { takeoff, boq, boqCsv, rowsCsv, checkSummary, unitRepairNote, UNEXPLAINED_CHOICES } from "./qto.mjs";
 import { diffTakeoffs, boqDelta, boqDeltaCsv, changesCsv } from "./diff.mjs";
 import { parseRule } from "./measure.mjs";
 import { roomsCsv } from "./rooms.mjs";
 import { rebarSchedule, rebarCsv } from "./rebar.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--rooms", "--rebar", "--rows", "--json", "--by", "--compare", "--changes", "--tolerance", "--voids-up-to"];
+const VALUED = ["--rooms", "--rebar", "--rows", "--json", "--by", "--compare", "--changes", "--tolerance", "--voids-up-to", "--unexplained"];
 const file = args.find((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
 const opt = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : null; };
 if (!file || args.includes("--help")) {
-  console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 20).map((l) => l.replace(/^\/\/ ?/, "")).join("\n"));
+  console.log(readFileSync(new URL(import.meta.url), "utf8").split("\n").slice(1, 23).map((l) => l.replace(/^\/\/ ?/, "")).join("\n"));
   process.exit(file ? 0 : 2);
 }
 const by = (opt("--by") || "class,type").split(",").map((s) => s.trim()).filter(Boolean);
@@ -42,6 +45,9 @@ if (opt("--voids-up-to")) {
   if (parsed.error) { console.error(`--voids-up-to: ${parsed.error}`); process.exit(2); }
   rule = parsed.rule;
 }
+const unexplained = opt("--unexplained") || "stored";
+if (!UNEXPLAINED_CHOICES.includes(unexplained)) { console.error(`--unexplained: one of ${UNEXPLAINED_CHOICES.join(", ")}`); process.exit(2); }
+const boqOpts = { unexplained };
 const t0 = Date.now();
 const model = parseStep(readFileSync(file));
 const trustDeclaredUnits = args.includes("--trust-declared-units");
@@ -65,7 +71,7 @@ if (opt("--rebar")) {
   writeFileSync(opt("--rebar"), rebarCsv(sched));
   console.error(`${file}: bar schedule: ${sched.total.bars} bars in ${sched.lines.length} lines, ${sched.total.mass.toFixed(1)} kg${sched.notes.length ? "; " + sched.notes.join("; ") : ""}`);
 }
-if (opt("--json")) writeFileSync(opt("--json"), JSON.stringify({ schema: res.schema, units: res.units, summary: checkSummary(res.rows), boq: boq(res.rows, by, rule), rooms: res.rooms, rows: res.rows }, null, 1));
+if (opt("--json")) writeFileSync(opt("--json"), JSON.stringify({ schema: res.schema, units: res.units, summary: checkSummary(res.rows), boq: boq(res.rows, by, rule, boqOpts), rooms: res.rooms, rows: res.rows }, null, 1));
 if (args.includes("--check")) {
   const s = checkSummary(res.rows);
   console.log(`${file}: ${res.schema}, ${s.elements} elements, ${secs.toFixed(1)} s`);
@@ -83,5 +89,5 @@ if (args.includes("--check")) {
     console.log(`  rooms: ${res.rooms.length}, ${res.rooms.filter((r) => r.computed).length} measured; stored room quantities: ${pairs.filter((c) => c.agree).length} of ${pairs.length} agree; elements in a room: ${inFile} by the file, ${placed} by where they stand`);
   }
 } else if (!opt("--rows") && !opt("--json") && !opt("--rooms") && !opt("--rebar")) {
-  process.stdout.write(boqCsv(boq(res.rows, by, rule), by, {}, rule));
+  process.stdout.write(boqCsv(boq(res.rows, by, rule, boqOpts), by, {}, rule, boqOpts));
 }
