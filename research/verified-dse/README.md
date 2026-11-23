@@ -16,10 +16,10 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   renaming every net and instance moves routed area x delay on 90 of 90 (median 2.1%, max 12.5%) from global placement on;
   renaming by a colour-refinement canonical form makes the result the same for every naming and order on 90 of 90, and 15.8%
   of same-design sequence pairs differ by less than renaming does: [`experiments/netlist_noise/`](experiments/netlist_noise/results.txt).
-- **The ladder's edge survives netlist naming noise; per-design results do not** (milestone 162): on 13 SKY130 ss designs,
+- **The ladder's edge survives netlist naming noise; small per-design results do not** (milestones 162, 162b): on all 27 SKY130 ss designs,
   averaging routed scores over three namings of every mapped netlist (Yosys's, a canonical form, a random renaming) leaves
-  the clipped ladder's edge over equal-cost random routing at -4.05 points (interval -8.94 to -0.21; +0.36 against Yosys's
-  naming alone), but one renaming moves a single design's edge 2.55 points on average and flips its sign between namings on 2 of 13:
+  the clipped ladder's edge over equal-cost random routing at -4.37 points (interval -6.56 to -2.32; +0.33 against Yosys's
+  naming alone; better than random on 24 of 27, sign p 0.00005), but one renaming moves a single design's edge 2.36 points on average and flips its sign on 3 of 27:
   [`experiments/naming_ladder/`](experiments/naming_ladder/results.txt).
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).

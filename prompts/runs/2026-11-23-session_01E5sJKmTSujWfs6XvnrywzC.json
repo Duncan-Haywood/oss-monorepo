@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKmTSujWfs6XvnrywzC",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T01:18:43Z",
+  "ended": "2026-11-23T03:55:41Z",
+  "wall_minutes": 157.33,
+  "tokens_in": 6067477,
+  "tokens_out": 19991,
+  "cost_usd": 3.1154,
+  "tool_calls": 57,
+  "task": "research programme verified-dse: milestone 162b, resume the pre-registered naming-ladder flow on the 14 designs milestone 162 did not reach",
+  "projects": [
+    "verified-dse"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18343",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Drew track 21 whose two programmes were offline (water-leaks: zenodo) or claimed; its fallback list was useful, but sensing-selfcal (first listed) is blocked on the TUM host, which the list does not flag."
+    },
+    {
+      "file": "research/verified-dse/README.md",
+      "issue": "The Reproduce section says 'nix build nixpkgs#openroad nixpkgs#yosys', which now resolves to newer builds; the pinned store paths (needed after milestone 160) are only in experiments/yosys_swap/run.py and closures.txt; `nix-store -r <path>` fetched them from cache.nixos.org in about 12 minutes."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/verified-dse/experiments/naming_ladder/run.py",
+      "why": "The pre-registered analysed set is the complete prefix reached by the flow; one background job cannot cover 27 designs, so the flow was resumed twice (as run.py --resume provides) to reach all 27.",
+      "did": "Two background runs of 112 and 105 min; checkpoint commits of results.jsonl in between",
+      "result": "27 of 27 analysed; predictions unchanged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-verified-dse-naming-ladder-27-designs.md",
+    "research/verified-dse/LOG.md (milestone 162b)"
+  ],
+  "goal": "advance an open PhD+ research programme with a pre-registered real-tool result",
+  "notes": "Local checks: tests/test_naming_ladder162.py 3 of 3 pass (run directly; no pytest on the system python); research/_homepage/build.py ok; check_md_links ok; check_posts ok. Control 1 2,774 of 2,777 (3 differ by 0.01 ns in mapped-rung OpenSTA WNS, disclosed), control 2 54 of 54. Primary (1) held: -4.37 (-6.56 to -2.32); 5 of 7 held.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3580f277-4aa2-5788-a767-344af3d6ebe1",
+    "transcripts": 1,
+    "first": "2026-11-23T01:18:43Z",
+    "last": "2026-11-23T03:56:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 123,
+        "output": 19991,
+        "thinking": 3630,
+        "cache_read": 5874834,
+        "cache_write_5m": 0,
+        "cache_write_1h": 192520,
+        "api_equivalent_usd": 3.1154,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 123,
+      "output": 19991,
+      "thinking": 3630,
+      "cache_read": 5874834,
+      "cache_write_5m": 0,
+      "cache_write_1h": 192520,
+      "api_equivalent_usd": 3.1154,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 54,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 157.33,
+      "active_minutes": 11.54,
+      "model_minutes": 5.37,
+      "tool_minutes": 6.17,
+      "waiting_on_human_minutes": 145.8,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "fetch pinned EDA builds, babysit a ~3.6 h four-core flow resume, analyse and write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 321.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
