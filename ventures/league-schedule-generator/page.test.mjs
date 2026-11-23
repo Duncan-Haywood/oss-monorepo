@@ -1069,9 +1069,10 @@ test("the one-format pages load neither the season builder nor the carry-over se
     }
     return seen;
   };
-  // Every page in the folder but the two that build whole seasons (the single-league page and the
-  // multi-division page, whose divisions.mjs uses the season builder's text parsers).
-  const FULL = new Set(["index.html", "multi-division-league-schedule.html"]);
+  // Every page in the folder but the single-league page, which builds whole seasons. The multi-division
+  // page reached schedule.mjs (and the carry-over search behind it) for seven text parsers until those
+  // moved to fields.mjs on 2026-11-23; divisions.mjs builds its own season and needs none of the rest.
+  const FULL = new Set(["index.html"]);
   const pages = readdirSync(new URL("./", import.meta.url)).filter((f) => f.endsWith(".html") && !FULL.has(f));
   let withModules = 0;
   for (const p of pages) {

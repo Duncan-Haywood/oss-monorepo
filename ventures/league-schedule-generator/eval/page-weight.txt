@@ -21,3 +21,7 @@ americano-night.html                       8 modules    47 kB   17 kB gz
 box-league.html                            8 modules   103 kB   36 kB gz
 practice-schedule.html                     8 modules   113 kB   39 kB gz
 weekend-tournament-schedule.html          12 modules   176 kB   61 kB gz
+## 2026-11-23, later: fields.mjs (divisions.mjs takes its seven text helpers from it, not schedule.mjs)
+multi-division-league-schedule.html       11 modules   235 kB   75 kB gz
+index.html                                32 modules   663 kB  226 kB gz
+(the eight one-format pages unchanged)

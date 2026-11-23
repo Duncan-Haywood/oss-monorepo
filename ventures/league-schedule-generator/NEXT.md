@@ -23,7 +23,7 @@
 
 ## From quality audit round 87 (2026-11-19, `portfolio/quality/audits/2026-11-19-league-schedule-generator-r87.json`)
 
-- (done 2026-11-23) `calc.mjs` split into 15 feature modules, `calc.mjs` re-exports them (README "One file became fifteen"). Left: `schedule.mjs` is 1,969 lines and `divisions.mjs` 2,212; the multi-division page still loads the carry-over search through `divisions.mjs` (217 kB gzip, eval/page-weight.txt); and `index.html` could import the feature modules directly.
+- (done 2026-11-23) `calc.mjs` split into 15 feature modules, `calc.mjs` re-exports them (README "One file became fifteen"). Left: `schedule.mjs` is 1,969 lines and `divisions.mjs` 2,212; the multi-division page no longer loads the carry-over search (done 2026-11-23, later: `fields.mjs`, 217 to 75 kB gzip, eval/page-weight.txt); and `index.html` could import the feature modules directly.
 - (2026-11-20) also by a base round fixed by multiplier 37 (eval/whist-involution.c, 11 s; 69 too)
 - (2026-11-20) 52, near-whist 58 by starter + table matching (eval/whist-starter.c)
 - (2026-11-20) Americano/Mexicano scorer page 2026-11-19 (americano-night.html, night.mjs: live table, sit-out credit; eval/sit-out-credit.txt)
@@ -42,3 +42,4 @@
 
 - Budapest A round 8: the arbiters gave the pairing bye to 82 (1.5) where the pairer gives 90 (1.0; both no bye yet, seven games each). The only single-result explanation is round 4's 90 v 82 as 1-0 (every file shows a draw), which moves only the bye. ChessHouse round 8 too (82 of 84 from the round-9 file, first at 1 point; no single result explains it, eval/swiss-result-flip.txt). (done 2026-11-23) the bye compared on every round (condition `bye`, eval/swiss-colour-truth.txt): 21 of 24 chess-results rounds, 18 of 18 lichess; misses Graz r1 (provisional list), Budapest A r8 (82 v our 90), ChessHouse r8 (160 v our 128). (done 2026-11-23, later) ChessHouse r8 was the bye's weight, counted from the bottom of the whole field instead of its bracket (README "The pairing bye, priced inside its own bracket"; eval/swiss-bye-bracket.txt): byes 40 of 42. Budapest A r8 stays a result question (82 has 1.5 to 90's 1.0 on the file, so no bye rule picks 82; round 4's 90 v 82 as 1-0 explains it).
 - Check a round on the page: a two-result search (pairs of changes) when no single one explains a round; today it says "no single earlier result explains it". No measured round needs it since ChessHouse r8 was fixed (2026-11-23), so it waits for a real file that does.
+- (2026-11-23) next: a real league's fields and teams. 2026-11-23 drawn colour (E.5) and TRF XXC: arbiters' colours on 4,358/4,358 boards, byes 21/24 (eval/swiss-colour-truth.txt)

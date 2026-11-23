@@ -1,6 +1,6 @@
 FROM node:22-alpine
 WORKDIR /app
-COPY calc.mjs dates.mjs names.mjs schedule.mjs rounds.mjs share.mjs rng.mjs officials.mjs outputs.mjs standings.mjs pools.mjs pool-play.mjs brackets.mjs swiss-system.mjs americano.mjs ladder.mjs swiss.mjs blossom.mjs whist.mjs whist-bases.mjs near-whist-bases.mjs carryover.mjs orient.mjs nights.mjs session-designs.mjs odd-designs.mjs availability.mjs subs.mjs mailer.mjs registration.mjs freeagents.mjs teams.mjs changes.mjs confirm.mjs reschedule.mjs announcements.mjs waivers.mjs spirit.mjs discipline.mjs pwa.mjs embed.mjs officiating.mjs server.mjs ./
+COPY calc.mjs dates.mjs names.mjs schedule.mjs fields.mjs rounds.mjs share.mjs rng.mjs officials.mjs outputs.mjs standings.mjs pools.mjs pool-play.mjs brackets.mjs swiss-system.mjs americano.mjs ladder.mjs swiss.mjs blossom.mjs whist.mjs whist-bases.mjs near-whist-bases.mjs carryover.mjs orient.mjs nights.mjs session-designs.mjs odd-designs.mjs availability.mjs subs.mjs mailer.mjs registration.mjs freeagents.mjs teams.mjs changes.mjs confirm.mjs reschedule.mjs announcements.mjs waivers.mjs spirit.mjs discipline.mjs pwa.mjs embed.mjs officiating.mjs server.mjs ./
 COPY wasm/minplus-wasm.mjs ./wasm/
 RUN mkdir /data && chown node /data
 USER node

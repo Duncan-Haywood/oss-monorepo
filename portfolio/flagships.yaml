@@ -398,11 +398,10 @@ flagships:
       SAT-proved out (eval/golf-tee-grid.txt); next: a real league's season. Box
       leagues 2026-11-21 (boxleague.mjs); next: a real club's month. Practice slots
       on shared fields 2026-11-21 (practice.mjs: 95 of 95 CP-SAT optima,
-      eval/practice-exact.txt); next: a real league's fields and teams. 2026-11-23
-      drawn colour (E.5) and TRF XXC: arbiters' colours on 4,358/4,358 boards, byes
-      21/24 (eval/swiss-colour-truth.txt); ChessHouse r8 bye fixed 2026-11-23
-      (weighed in its bracket, byes 40/42); next: a real club's TRF. calc.mjs split
-      2026-11-23, pages 67-93% lighter (eval/page-weight.txt). More: NEXT.md.
+      eval/practice-exact.txt); ChessHouse r8 bye fixed 2026-11-23 (weighed in its
+      bracket, byes 40/42); next: a real club's TRF. calc.mjs split 2026-11-23,
+      pages 67-93% lighter; multi-division page 217 to 75 kB via fields.mjs
+      (eval/page-weight.txt). More: NEXT.md. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed
