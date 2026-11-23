@@ -399,9 +399,9 @@ flagships:
       bye fixed 2026-11-23 (weighed in its bracket, byes 40/42); next: a real club's
       TRF (GitHub search 2026-11-23: only test fixtures). Bowling 22-28 teams
       2026-11-23: 24x36 26 to 4 off, 2 seasons even (eval/bowling-lane-near.txt);
-      open in NEXT.md. calc.mjs split 2026-11-23, pages 67-93% lighter;
-      multi-division 217 to 75 kB; main page 226 to 110 kB, searches loaded on
-      demand (eval/page-weight.txt). More: NEXT.md. More open items: NEXT.md.
+      open in NEXT.md. Season import 2026-11-23 (importschedule.mjs, 819/819
+      round-trip, eval/import-roundtrip.txt); next: a real league's export. More:
+      NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed

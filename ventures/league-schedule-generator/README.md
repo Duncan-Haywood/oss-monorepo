@@ -20,7 +20,50 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
-## Big bowling leagues: 24 teams over 36 weeks from 26 counts off an even lane split to 4 (2026-11-23, newest)
+## Already have a schedule? The league page runs on it as it is (2026-11-23, newest)
+
+Until now the self-hosted league page (`server.mjs`) only ran on a season it built itself. Most
+organisers who would host it already have a season: one they typed into a spreadsheet, or one exported
+from TeamSnap, LeagueApps, SportsEngine or a club website. They had to retype it as teams and dates
+and accept a different season, so standings, rainout moves, calendar feeds, the website embed,
+availability, captains' score reports and officials were out of reach for them.
+
+The admin form now has an "Already have a schedule?" box (`importschedule.mjs`). Paste:
+
+- rows copied straight from Excel or Google Sheets (they arrive tab-separated), header row included;
+- a CSV (comma or semicolon) with a date column and either Home and Away columns or one column like
+  `Hawks vs Owls` (`Owls @ Hawks` and `Owls at Hawks` mean Owls are away); time, location, location
+  details, event type and Home Score / Away Score columns are read when present;
+- the text of an `.ics` calendar (each event's SUMMARY is read as the matchup; other events are left out).
+
+What it reads: dates as `2026-10-06`, `10/6/2026`, `10/6/26`, `Tue 10/6/2026`, `Tuesday, October 6, 2026`,
+or date and time in one cell; slash dates are month-first unless some date in the column only makes
+sense day-first (`25/9/2026`), and then the whole column is read day-first and the box says so. Times
+as `18:30`, `6:30 PM`, `6.30 p.m.`, `19h15`, `noon`, or `TBD` for none. Team names merge across case
+and spacing. Rows that are not games (a practice in an Event Type column, a party in a calendar), and
+rows with a bye or a team still to be named (`BYE`, `TBD`), are left out and counted. A row it cannot
+read is named by line number with the reason, and the rest still import. A court double-booked or a
+team down for two games at the same time is warned, not refused.
+
+The season becomes the builder's own schedule object (`importedSchedule`): one round per date, courts
+in first-seen order, the file's weekdays as play days (where a rained-out game's make-up is looked for),
+fixture ids counted per pair as the builder does, and a doubleheader night kept as one. Scores in the
+file go into the table; scores typed in the Results box are added to them. Game length comes from a
+new Minutes box on the admin form. Emptying the import box goes back to building a season.
+
+**Checked** (`eval/import-roundtrip.mjs`, `eval/import-roundtrip.txt`): 12 built seasons (4 to 16 teams,
+single and double, three courts and three times, 819 games) written in every format this tool exports
+and read back. The schedule CSV, the Google/Outlook calendar CSV, the TeamSnap CSV and the `.ics` file
+each give back all 819 games with the same date, time, court, home and away, and all 110 team names.
+SportsEngine's upload template carries HQ team IDs and no names, so no reader can say who plays from it;
+the box says that in one line. `importschedule.test.mjs` covers pasted sheets, platform exports with
+practices and scores, European semicolon CSV with day-first dates, a folded `.ics`, bad rows named by
+line, the league page published from a paste, and a rainout moved inside an imported season.
+
+Not checked yet: a real league's own export. The formats above are the ones this tool writes and the
+column names the platforms document; a real file from a real organiser is the next test.
+
+## Big bowling leagues: 24 teams over 36 weeks from 26 counts off an even lane split to 4 (2026-11-23)
 
 A bowling league with 22 to 28 teams is common, and so is a 33- to 36-week season. Those were exactly
 the seasons the bowling page's lane search left furthest from an even split, and where the stored SAT

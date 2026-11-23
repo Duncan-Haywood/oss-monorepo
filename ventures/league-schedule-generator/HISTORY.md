@@ -17,3 +17,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-22) 3-game nights (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits
 - (moved 2026-11-23) Swiss page 2026-11-22 (swiss-pairing.html, 51/54 real rounds exact; page checks a round, round-check.mjs)
 - (moved 2026-11-23) Practice slots on shared fields 2026-11-21 (practice.mjs: 95 of 95 CP-SAT optima, eval/practice-exact.txt)
+- (moved 2026-11-23) calc.mjs split 2026-11-23, pages 67-93% lighter; multi-division 217 to 75 kB; main page 226 to 110 kB, searches loaded on demand (eval/page-weight.txt)

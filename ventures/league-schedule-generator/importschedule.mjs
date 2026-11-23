@@ -246,6 +246,10 @@ export function parseScheduleImport(text, opts = {}) {
     else clash.set(k, g.line);
   }
   if (!games.length && !errors.length) errors.push("No games were found in the schedule.");
+  if (!games.length && col.matchup !== undefined && col.home === undefined && header.map(key).some((h) => /^team[12]id$/.test(h))) {
+    errors.unshift("This file names teams only by ID (Team1_ID, Team2_ID), as SportsEngine's upload template does: export the schedule with team names instead.");
+  }
+  if (errors.length > 20) errors.splice(20, errors.length - 20, `and ${errors.length - 20} more rows like these.`);
   if (games.length && order.length < 2) errors.push("A schedule needs at least two teams.");
   return { teams: order, games, results, errors, warnings: warnings.slice(0, 50), columns: col };
 }
