@@ -955,6 +955,21 @@ change); IfcTester counts the same. Wall side areas are held back in such a
 set: Tekla stores both faces, and not exactly twice one face either
 (`eval/qto-psets-2026-11-23.md`).
 
+**One Tekla model in three schemas (2026-11-23).** The same Tekla 2026 model
+exported as IFC2X3, IFC4 and IFC4X3 measured differently: 53 values read
+within 2% of Tekla's in one schema and not in another. Two causes, both fixed.
+Tekla stores a member's `NetVolume` without the section's root fillets (an
+HEA300 x 5 m pile: GrossVolume 0.05625, NetVolume 0.05314 m³), and its IFC2X3
+export draws the body with them. So for a Tekla member that is one extrusion
+of a parametric section, the NetVolume offered now leaves the fillets out and
+GrossVolume keeps them. On 109 such members that store a NetVolume, the
+offered figure matches 109 (37 before), including 85 of 85 on an independent
+Tekla export. Second, Tekla's IFC4 export lays walls on their side (the
+body's own y is up, no Axis). Those walls are now turned upright before they
+are read: 37 walls, and 74 of 74 stored Lengths and Heights match. On Tekla's
+`Qto_` property sets, 649 of 657 measured values are now within 2% (551 of
+583 before; `eval/beam-schema-twins-2026-11-23.md`).
+
 **Attributes (2026-11-21).** A failing attribute requirement (`Description`,
 `ObjectType`, `Tag`, `LongName`, a `PredefinedType` left `$`) is written into the
 element's own record when the attribute is unset (`$` or `''`): the value the

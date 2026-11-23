@@ -51,3 +51,4 @@
 - (2026-11-23) openings' Width/Height/Depth/Area by ARCHICAD's or Revit's convention 2026-11-22, 4,532/4,554, eval/opening-quantities-2026-11-22.md
 - (2026-11-23) Revit brep openings 2026-11-22, 102/102, eval/opening-brep-quantities-2026-11-22.md
 - (2026-11-23) wall-hosted fittings by box sample 2026-11-23, 37/37, eval/cobie-wall-hosted-2026-11-23.md
+- (2026-11-23) Tekla twins by schema done 2026-11-23 (eval/beam-schema-twins-2026-11-23.md: no-fillet NetVolume 109/109, walls on their side 74/74). Left: Tekla's one-member "railings" (IPE80) read as members in IFC4; a clipped Tekla extrusion's fillet share; an ARCHICAD/Revit rolled section's stored NetVolume

@@ -9,7 +9,10 @@
 // measures each against the values exporters stored, on the HHS Office
 // models):
 //   GrossVolume, NetVolume   any element with a body (NetVolume only when
-//                            every opening could be cut out)
+//                            every opening could be cut out; a Tekla member's
+//                            rolled section without its root fillets, as
+//                            Tekla stores it: addNetVolumeConventions below,
+//                            eval/beam-schema-twins-2026-11-23.md)
 //   GrossSideArea, NetSideArea, GrossFootprintArea, NetFootprintArea, Width
 //                            walls (side: the wall's middle plane; footprint:
 //                            the plan at its base; width: its thickness)
@@ -352,6 +355,34 @@ export function bodyDirection(row) {
   return L > 0 ? [-n[1] / L, n[0] / L] : null;
 }
 
+/**
+ * A rotation of a wall body's own frame that takes the world's up to +z, and
+ * its side normal (computed.areas.side.n, square to the world's up, in the
+ * body's frame) to +y, so the wall runs along x: for a wall whose placement
+ * lays its own z sideways. W is the row's placement (3x4, row-major), whose
+ * third row is the world's up in the body's frame. null when either is unknown,
+ * or when the wall would not run along the body's own x.
+ * @returns {{m: number[], dir: number[]} | null} m 3x4, dir the wall's direction in the turned frame
+ */
+export function uprightFrame(W, sideN) {
+  if (!W || !Array.isArray(sideN)) return null;
+  const L = Math.hypot(W[8], W[9], W[10]);
+  if (!(L > 0)) return null;
+  const v = [W[8] / L, W[9] / L, W[10] / L];
+  const dot = sideN[0] * v[0] + sideN[1] * v[1] + sideN[2] * v[2];
+  if (Math.abs(dot) > 1e-3) return null;
+  const n = sideN.map((x, i) => x - dot * v[i]);
+  const nl = Math.hypot(...n);
+  if (!(nl > 0)) return null;
+  const y = n.map((x) => x / nl);
+  const x = [y[1] * v[2] - y[2] * v[1], y[2] * v[0] - y[0] * v[2], y[0] * v[1] - y[1] * v[0]];
+  // the wall must run along its own x, as Tekla draws a wall: a part standing
+  // on its own x (M3D-CON's 1.45 x 1.5 x 3 m piers) Tekla stores with Length
+  // along that x, upright, against the definition, so none is offered
+  if (!(Math.abs(x[0]) > 0.999)) return null;
+  return { m: [x[0], x[1], x[2], 0, y[0], y[1], y[2], 0, v[0], v[1], v[2], 0], dir: [1, 0] };
+}
+
 // What each authoring tool's IFC export stores as a clipped wall's
 // Qto_WallBaseQuantities Height, measured on the public models that store one
 // (eval/wall-cut-top-heights-2026-11-22.md): ARCHICAD the clipped wall's
@@ -410,21 +441,30 @@ export function toolConvention(model, e, table, cache = new Map()) {
  * opts.asTerms (geom.mjs) reads faceted bodies; without it they are skipped.
  * opts.bodyDirection = false keeps to walls with an axis.
  */
-export function addWallLines(model, rows, { Geometry, polyPlanes, readUnits, asTerms, bodyDirection: useBody = true }) {
+export function addWallLines(model, rows, { Geometry, polyPlanes, readUnits, asTerms, transformSolid = null, bodyDirection: useBody = true }) {
   const units = readUnits(model);
   const geo = new Geometry(model, { angle: units.PLANEANGLEUNIT });
   const apps = new Map();
   let n = 0;
   for (const r of rows) {
     if (!WALL.test(r.ifcType) || !r.computed || r.computed.status !== "ok") continue;
-    const body = r.computed.solids?.body;
+    let body = r.computed.solids?.body;
     const e = model.entities.get(r.id);
     if (!body || !e) continue;
-    // the body's own z must be the world's up: the height is read along it
+    // the body's own z must be the world's up: the height is read along it.
+    // A wall placed on its side with no axis (Tekla's IFC4 export: a
+    // tessellated box whose local y is up) is turned first (uprightFrame).
     const W = r.world;
-    if (W && !(Math.abs(W[10]) > 0.999 * Math.hypot(W[2], W[6], W[10]))) continue;
-    let dir = straightAxis(model, geo, e), from = "axis";
-    if (!dir && useBody) { dir = bodyDirection(r); from = "body"; }
+    let dir, from;
+    if (W && !(Math.abs(W[10]) > 0.999 * Math.hypot(W[2], W[6], W[10]))) {
+      const turn = useBody && transformSolid && !straightAxis(model, geo, e) ? uprightFrame(W, r.computed.areas?.side?.n) : null;
+      if (!turn) continue;
+      body = transformSolid(body, turn.m);
+      dir = turn.dir; from = "body, turned upright";
+    } else {
+      dir = straightAxis(model, geo, e); from = "axis";
+      if (!dir && useBody) { dir = bodyDirection(r); from = "body"; }
+    }
     if (!dir) continue;
     let w;
     try { w = wallLines(body, dir, polyPlanes, { asTerms }); } catch { w = null; }
@@ -656,6 +696,63 @@ export function addMemberLines(model, rows, { solidExtent }) {
     } catch { /* no surface reading */ }
     if (!m || m.length == null) continue;
     r.computed.lines = { length: m.length, height: null, lengthFrom: m.lengthFrom, extent: m.extent, centroid: m.centroid, width: m.width };
+    n++;
+  }
+  return n;
+}
+
+// ---- a rolled section's net volume, by Tekla's convention -----------------
+//
+// Tekla Structures stores a member's GrossVolume from the catalogue section
+// (root fillets in) and its NetVolume from its modelled solid, which has no
+// root or edge fillets: an HEA300 x 5 m pile stores GrossVolume 0.05625 m3
+// and NetVolume 0.05314 m3, the section's 112.5 cm2 and its 106.3 cm2 with the
+// four 27 mm fillets left out. Its IFC2X3 and IFC4X3 exports draw the body as
+// the parametric profile with the fillets, its IFC4 export as a tessellation
+// without them, so the same beams measured 5.4 to 5.9% over the stored
+// NetVolume in two schemas and on it in the third
+// (eval/beam-schema-twins-2026-11-23.md). For a Tekla-authored column, beam,
+// member or pile whose body is one extrusion of a parametric section with
+// radii, NetVolume is the measured net less the fillets' share of the gross
+// (geom.mjs sectionVariants' "no fillets" ratio); GrossVolume is left as
+// measured. Other tools' conventions are not known, so nothing changes there.
+
+const NET_VOLUME_CONVENTIONS = [[/tekla/i, "no fillets"]];
+
+/** The one IfcExtrudedAreaSolid an element's 'Body' representation holds, or null. */
+function soleExtrusion(model, e) {
+  const E = model.entities;
+  const shape = E.get(e?.args?.[6]?.ref);
+  if (!shape || shape.type !== "IFCPRODUCTDEFINITIONSHAPE") return null;
+  const bodies = (shape.args[2] || []).map((r) => E.get(r?.ref)).filter((x) => x && x.args[1] === "Body");
+  if (bodies.length !== 1) return null;
+  const items = (bodies[0].args[3] || []).map((r) => E.get(r?.ref));
+  return items.length === 1 && items[0]?.type === "IFCEXTRUDEDAREASOLID" ? items[0] : null;
+}
+
+/**
+ * Lowers computed.net on each Tekla-authored linear member whose body is a
+ * single extrusion of a parametric section with fillet radii, to the section
+ * without them (computed.netFrom = "no fillets"). Returns how many.
+ */
+export function addNetVolumeConventions(model, rows, { Geometry }) {
+  const apps = new Map();
+  const geo = new Geometry(model, {});
+  let n = 0;
+  for (const r of rows) {
+    if (!CROSS.test(r.ifcType) || !r.computed || r.computed.status !== "ok") continue;
+    if (!usable(r.computed.gross) || !usable(r.computed.net)) continue;
+    const e = model.entities.get(r.id);
+    if (toolConvention(model, e, NET_VOLUME_CONVENTIONS, apps) !== "no fillets") continue;
+    const x = soleExtrusion(model, e);
+    if (!x) continue;
+    let v;
+    try { v = geo.sectionVariants(x.args[0]).find((o) => o.label === "no fillets"); } catch { v = null; }
+    if (!v || !(v.ratio > 0 && v.ratio < 1)) continue;
+    const net = r.computed.net - r.computed.gross * (1 - v.ratio);
+    if (!usable(net)) continue;
+    r.computed.net = net;
+    r.computed.netFrom = "no fillets";
     n++;
   }
   return n;
@@ -1655,8 +1752,9 @@ export async function measureModel(ifcText, opts = {}) {
   const { Geometry, polyPlanes, asTerms, solidExtent, sectionArea, mul, invert, transformSolid, apply, planeAreas, thinnestNormal } = await import(new URL("geom.mjs", base).href);
   const model = parseStep(ifcText);
   const { rows, rooms } = takeoff(model);
-  addWallLines(model, rows, { Geometry, polyPlanes, readUnits, asTerms });
+  addWallLines(model, rows, { Geometry, polyPlanes, readUnits, asTerms, transformSolid });
   addMemberLines(model, rows, { solidExtent });
+  addNetVolumeConventions(model, rows, { Geometry });
   addSlabLines(model, rows, { solidExtent });
   addFootingLines(model, rows, { solidExtent });
   addRailingLines(rows);

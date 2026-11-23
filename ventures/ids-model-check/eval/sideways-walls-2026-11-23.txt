@@ -1,0 +1,46 @@
+AC20-FZK-Haus.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+C20-Institute-Var-2.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+FM_ARC_DigitalHub.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+ISSUE_005_haus.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+ISSUE_021_Mini Project.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+ISSUE_034_HouseZ.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+ISSUE_044_test_IFCCOMPOSITEPROFILEDEF.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+ISSUE_068_ARK_NUS_skolebygg.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+ISSUE_098_R8_F1_MAB_AR_M3_XX_XXX_MO_7000.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+ISSUE_102_M3D-CON-CD.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+ISSUE_102_M3D-CON.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+ISSUE_126_model.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+ISSUE_129_N1540_17_EXE_MOD_448200_02_09_11SMC_IGC_V17.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+ISSUE_159_kleine_Wohnung_R22.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+ISSUE_171_IfcSurfaceCurveSweptAreaSolid.ifc: 1 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+IfcOpenHouse_IFC4.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+KIT-Simple-Road-Test-Web-IFC4x3_RC2.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+Office_A_20110811.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+S_Office_Integrated Design Archi.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+Sample_entities.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+Viadotto Acerno.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+advanced_model.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+dental_clinic.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+duplex.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+example.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+ifcbridge-model01.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+schependomlaan.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+tested_sample_project.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+IP4_BIM-Modell_Bauphasen_V5.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+IP4_BIM-Modell_Bauphasen_V6.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+IP4_BIM-Modell_Bauphasen_V7.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+IP4_BIM-Modell_Bauphasen_V8_DG.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+Test_2x3_single-punkt.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+Test_4_Standard-Export_Extrudiert&Brep.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+Haus-ifcopenshell.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+Infra-Bridge.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+Tekla-Export.ifc: 19 walls turned upright; Length stored 19, offered 19, within 2% 19; Height stored 19, offered 19, within 2% 19
+Test-Modell.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+ifcbridge-model01.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+Reference-view_4.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+test-allplan.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+test-2026-2x3.ifc: 0 walls turned upright; Length stored 0, offered 0, within 2% 0; Height stored 0, offered 0, within 2% 0
+test-2026-4.3.ifc: 9 walls turned upright; Length stored 9, offered 9, within 2% 9; Height stored 9, offered 9, within 2% 9
+test-2026-4.ifc: 9 walls turned upright; Length stored 9, offered 9, within 2% 9; Height stored 9, offered 9, within 2% 9
+exit 0
+ALLDONE

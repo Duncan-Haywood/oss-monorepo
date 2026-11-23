@@ -1,0 +1,51 @@
+{
+ "ISSUE_021_Mini Project.ifc": {
+  "changed": 85,
+  "withStored": 85,
+  "beforeWithin2": 37,
+  "afterWithin2": 85,
+  "worse": []
+ },
+ "ISSUE_102_M3D-CON.ifc": {
+  "changed": 0,
+  "withStored": 0,
+  "beforeWithin2": 0,
+  "afterWithin2": 0,
+  "worse": []
+ },
+ "ISSUE_102_M3D-CON-CD.ifc": {
+  "changed": 0,
+  "withStored": 0,
+  "beforeWithin2": 0,
+  "afterWithin2": 0,
+  "worse": []
+ },
+ "Tekla-Export.ifc": {
+  "changed": 0,
+  "withStored": 0,
+  "beforeWithin2": 0,
+  "afterWithin2": 0,
+  "worse": []
+ },
+ "test-2026-2x3.ifc": {
+  "changed": 17,
+  "withStored": 17,
+  "beforeWithin2": 0,
+  "afterWithin2": 17,
+  "worse": []
+ },
+ "test-2026-4.3.ifc": {
+  "changed": 7,
+  "withStored": 7,
+  "beforeWithin2": 0,
+  "afterWithin2": 7,
+  "worse": []
+ },
+ "test-2026-4.ifc": {
+  "changed": 0,
+  "withStored": 0,
+  "beforeWithin2": 0,
+  "afterWithin2": 0,
+  "worse": []
+ }
+}

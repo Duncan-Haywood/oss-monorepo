@@ -940,3 +940,60 @@ ENDSEC;END-ISO-10303-21;`;
   const old = model("Autodesk Revit 2015");
   assert.equal(fillModel(IDS, old, { ...resources(), geometry: geometryLookup(await measureModel(old, { weights: false })), random }).written, 0);
 });
+
+
+// ---- Tekla's IFC4 export: a wall laid on its side, a rolled section's net volume
+
+// One Tekla wall and one HEA300 pile as its exports write them
+// (eval/beam-schema-twins-2026-11-23.md): the wall a tessellated box whose own
+// y is up and no Axis (IFC4), the pile the parametric profile with its 27 mm
+// root fillets (IFC2X3, IFC4X3). Tekla stores the pile's GrossVolume 0.05625
+// and NetVolume 0.05314 m3.
+const teklaModel = (app = "Tekla Structures") => `ISO-10303-21;HEADER;FILE_DESCRIPTION((''),'2;1');FILE_NAME('','',(''),(''),'','','');FILE_SCHEMA(('IFC4'));ENDSEC;DATA;
+#1=IFCORGANIZATION($,'Trimble',$,$,$);#2=IFCAPPLICATION(#1,'2026','${app}','TS');
+#3=IFCPERSON($,$,$,$,$,$,$,$);#4=IFCPERSONANDORGANIZATION(#3,#1,$);#5=IFCOWNERHISTORY(#4,#2,$,.ADDED.,$,$,$,0);
+#6=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);#7=IFCUNITASSIGNMENT((#6));
+#8=IFCCARTESIANPOINT((0.,0.,0.));#9=IFCAXIS2PLACEMENT3D(#8,$,$);
+#10=IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.E-05,#9,$);
+#11=IFCGEOMETRICREPRESENTATIONSUBCONTEXT('Body','Model',*,*,*,*,#10,$,.MODEL_VIEW.,$);
+#12=IFCPROJECT('p',#5,'P',$,$,$,$,(#10),#7);
+#20=IFCDIRECTION((0.,-1.,0.));#21=IFCDIRECTION((1.,0.,0.));#22=IFCAXIS2PLACEMENT3D(#8,#20,#21);#23=IFCLOCALPLACEMENT($,#22);
+#24=IFCCARTESIANPOINTLIST3D(((0.,-1600.,-100.),(0.,1600.,-100.),(2460.,1600.,-100.),(2460.,-1600.,-100.),(0.,1600.,100.),(2460.,1600.,100.),(0.,-1600.,100.),(2460.,-1600.,100.)));
+#25=IFCINDEXEDPOLYGONALFACE((1,2,3,4));#26=IFCINDEXEDPOLYGONALFACE((7,8,6,5));#27=IFCINDEXEDPOLYGONALFACE((1,4,8,7));
+#28=IFCINDEXEDPOLYGONALFACE((2,5,6,3));#29=IFCINDEXEDPOLYGONALFACE((1,7,5,2));#30=IFCINDEXEDPOLYGONALFACE((4,3,6,8));
+#31=IFCPOLYGONALFACESET(#24,.T.,(#25,#26,#27,#28,#29,#30),$);
+#32=IFCSHAPEREPRESENTATION(#11,'Body','Tessellation',(#31));#33=IFCPRODUCTDEFINITIONSHAPE($,$,(#32));
+#34=IFCWALL('3E7SsyC$jB58ZpJXZMH26p',#5,'Ausfachung',$,$,#23,#33,$,.PARAPET.);
+#40=IFCAXIS2PLACEMENT3D(#8,$,$);#41=IFCLOCALPLACEMENT($,#40);
+#42=IFCISHAPEPROFILEDEF(.AREA.,'HEA300',$,300.,290.,8.5,14.,27.,$,$);
+#43=IFCDIRECTION((0.,0.,1.));#44=IFCEXTRUDEDAREASOLID(#42,#40,#43,5000.);
+#45=IFCSHAPEREPRESENTATION(#11,'Body','SweptSolid',(#44));#46=IFCPRODUCTDEFINITIONSHAPE($,$,(#45));
+#47=IFCBEAM('1yGPpif$P4x9476NNvox__',#5,'Rammprofil','HEA300',$,#41,#46,$,.BEAM.);
+ENDSEC;END-ISO-10303-21;`;
+
+test("a wall placed on its side is turned upright; a Tekla member's NetVolume leaves out its section's fillets, its GrossVolume keeps them", { skip: !haveGeom && "ifc-quantity-takeoff not beside this folder" }, async () => {
+  const q = async (app) => new Map([...(await measureModel(teklaModel(app)))].map(([id, m]) => [id, Object.fromEntries([...m].map(([k, v]) => [k, v.value]))]));
+  const near = (a, b, tol = 2e-4) => Math.abs(a - b) <= tol * b;
+  const tekla = await q("Tekla Structures"), other = await q("Other exporter");
+  for (const m of [tekla, other]) {
+    const wall = m.get(34);
+    assert.ok(near(wall.Length, 2.46) && near(wall.Height, 3.2) && near(wall.Width, 0.2), JSON.stringify(wall));
+  }
+  const tb = tekla.get(47), ob = other.get(47);
+  assert.ok(near(tb.NetVolume, 0.05314), tb.NetVolume); // (2 x 300 x 14 + 262 x 8.5) mm2 x 5 m
+  assert.ok(near(tb.GrossVolume, 0.05626) && near(ob.GrossVolume, 0.05626), tb.GrossVolume);
+  assert.ok(near(ob.NetVolume, ob.GrossVolume, 1e-9), "another tool's NetVolume is the body's");
+});
+
+test("uprightFrame takes the world's up to z and the side normal to y; none for a normal that is not square to up", async () => {
+  const { uprightFrame } = await import("./geometry-quantities.mjs");
+  // placement: own z along world -y, own x along world x (own y is up)
+  const W = [1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0];
+  const t = uprightFrame(W, [0, 0, 1]);
+  assert.deepEqual(t.dir, [1, 0]);
+  const ap = (m, p) => [0, 1, 2].map((i) => m[i * 4] * p[0] + m[i * 4 + 1] * p[1] + m[i * 4 + 2] * p[2]);
+  assert.deepEqual(ap(t.m, [0, 1, 0]).map((x) => Math.round(x)), [0, 0, 1]); // own y (up) -> z
+  assert.deepEqual(ap(t.m, [0, 0, 1]).map((x) => Math.round(x)), [0, 1, 0]); // side normal -> y
+  assert.equal(uprightFrame(W, [0, 1, 0]), null);
+  assert.equal(uprightFrame(W, null), null);
+});
