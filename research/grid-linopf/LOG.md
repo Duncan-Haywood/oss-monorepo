@@ -1,5 +1,9 @@
 # Research log
 
+## 2026-11-23 · Rule CF: outcome. Never dearer than rule CP on any of 83 finishers, cheaper on 28; frozen-start mean gap development +0.229 to +0.209, held-out +0.508 to +0.494 (below CS on both). Adoption met: CF replaces CP in the method of record
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-23); numbers in `research/infra-dcopf/experiments/results_fallback.txt`. T0 to T7 held.
+- The fallback fired on 183 rounds, 111 accepted. Next: the method of record (frozen repair, reactive stage, rule CF) on the confirmation split, fixed before it runs.
+
 ## 2026-11-23 · Rule CF: the cost phase with the frozen margins and the slack cap only on an empty margined QP (plan)
 - Plan, rule CF (`vlin.cost_phase(fallback={**MARGIN, "cap": True})`) and predictions T0 to T7: `research/infra-dcopf/LOG.md` (2026-11-23); script `research/infra-dcopf/experiments/run_fallback.py`. Same starts, cases and protocol as rules CP and CS.
 
