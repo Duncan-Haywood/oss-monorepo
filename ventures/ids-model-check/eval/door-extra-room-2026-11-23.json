@@ -1,0 +1,702 @@
+[
+ {
+  "file": "dental_clinic.ifc",
+  "id": 1964,
+  "globalId": "0otfaO0qPDAhynjJ6Dmg7t",
+  "type": "IFCWINDOW",
+  "name": "M_Fixed:1735 x 1000mm:1735 x 1000mm:261427",
+  "truth": [
+   "2R02 ROOF"
+  ],
+  "extra": [
+   "2D20 CONF. ROOM"
+  ],
+  "hostWall": "IFCWALLSTANDARDCASE #94",
+  "hostBoundsTruth": [
+   true
+  ],
+  "hostBoundsExtra": [
+   true
+  ],
+  "extraOtherOpenings": [
+   2
+  ],
+  "extraBoundaries": [
+   9
+  ],
+  "depth": 0.26699999999999846,
+  "probes": [
+   "-0.2:2D20 CONF. ROOM",
+   "-0.6:2D20 CONF. ROOM",
+   "-1:2D20 CONF. ROOM",
+   "+0.2:2R02 ROOF",
+   "+0.6:2R02 ROOF",
+   "+1:2R02 ROOF"
+  ]
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "id": 1965,
+  "globalId": "0otfaO0qPDAhynjJ6Dmg6e",
+  "type": "IFCWINDOW",
+  "name": "M_Fixed:1735 x 1000mm:1735 x 1000mm:261484",
+  "truth": [
+   "2R02 ROOF"
+  ],
+  "extra": [
+   "2D20 CONF. ROOM"
+  ],
+  "hostWall": "IFCWALLSTANDARDCASE #94",
+  "hostBoundsTruth": [
+   true
+  ],
+  "hostBoundsExtra": [
+   true
+  ],
+  "extraOtherOpenings": [
+   2
+  ],
+  "extraBoundaries": [
+   9
+  ],
+  "depth": 0.26699999999999846,
+  "probes": [
+   "-0.2:2D20 CONF. ROOM",
+   "-0.6:2D20 CONF. ROOM",
+   "-1:2D20 CONF. ROOM",
+   "+0.2:2R02 ROOF",
+   "+0.6:2R02 ROOF",
+   "+1:2R02 ROOF"
+  ]
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "id": 1966,
+  "globalId": "0otfaO0qPDAhynjJ6Dmg5J",
+  "type": "IFCWINDOW",
+  "name": "M_Fixed:1735 x 1000mm:1735 x 1000mm:261527",
+  "truth": [
+   "2R02 ROOF"
+  ],
+  "extra": [
+   "2D19 READINESS NCOIC OFFICE"
+  ],
+  "hostWall": "IFCWALLSTANDARDCASE #94",
+  "hostBoundsTruth": [
+   true
+  ],
+  "hostBoundsExtra": [
+   true
+  ],
+  "extraOtherOpenings": [
+   1
+  ],
+  "extraBoundaries": [
+   7
+  ],
+  "depth": 0.26699999999999846,
+  "probes": [
+   "-0.2:2D19 READINESS NCOIC OFFICE",
+   "-0.6:2D19 READINESS NCOIC OFFICE",
+   "-1:2D19 READINESS NCOIC OFFICE",
+   "+0.2:2R02 ROOF",
+   "+0.6:2R02 ROOF",
+   "+1:2R02 ROOF"
+  ]
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "id": 1967,
+  "globalId": "0otfaO0qPDAhynjJ6Dmg4K",
+  "type": "IFCWINDOW",
+  "name": "M_Fixed:1735 x 1000mm:1735 x 1000mm:261584",
+  "truth": [
+   "2R02 ROOF"
+  ],
+  "extra": [
+   "2D17 CREDENTIALS MGR"
+  ],
+  "hostWall": "IFCWALLSTANDARDCASE #94",
+  "hostBoundsTruth": [
+   true
+  ],
+  "hostBoundsExtra": [
+   true
+  ],
+  "extraOtherOpenings": [
+   1
+  ],
+  "extraBoundaries": [
+   7
+  ],
+  "depth": 0.26699999999999846,
+  "probes": [
+   "-0.2:2D17 CREDENTIALS MGR",
+   "-0.6:2D17 CREDENTIALS MGR",
+   "-1:2D17 CREDENTIALS MGR",
+   "+0.2:2R02 ROOF",
+   "+0.6:2R02 ROOF",
+   "+1:2R02 ROOF"
+  ]
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "id": 1968,
+  "globalId": "0otfaO0qPDAhynjJ6DmgB1",
+  "type": "IFCWINDOW",
+  "name": "M_Fixed:1735 x 1000mm:1735 x 1000mm:261637",
+  "truth": [
+   "2R02 ROOF"
+  ],
+  "extra": [
+   "2D15 1ST SGT"
+  ],
+  "hostWall": "IFCWALLSTANDARDCASE #94",
+  "hostBoundsTruth": [
+   true
+  ],
+  "hostBoundsExtra": [
+   true
+  ],
+  "extraOtherOpenings": [
+   1
+  ],
+  "extraBoundaries": [
+   8
+  ],
+  "depth": 0.26699999999999846,
+  "probes": [
+   "-0.2:2D15 1ST SGT",
+   "-0.6:2D15 1ST SGT",
+   "-1:2D15 1ST SGT",
+   "+0.2:2R02 ROOF",
+   "+0.6:2R02 ROOF",
+   "+1:2R02 ROOF"
+  ]
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "id": 1969,
+  "globalId": "0otfaO0qPDAhynjJ6Dmg94",
+  "type": "IFCWINDOW",
+  "name": "M_Fixed:1735 x 1000mm:1735 x 1000mm:261760",
+  "truth": [
+   "2R02 ROOF"
+  ],
+  "extra": [
+   "2D14 OPS SQUAD CMDR"
+  ],
+  "hostWall": "IFCWALLSTANDARDCASE #94",
+  "hostBoundsTruth": [
+   true
+  ],
+  "hostBoundsExtra": [
+   true
+  ],
+  "extraOtherOpenings": [
+   1
+  ],
+  "extraBoundaries": [
+   8
+  ],
+  "depth": 0.26699999999999846,
+  "probes": [
+   "-0.2:2D14 OPS SQUAD CMDR",
+   "-0.6:2D14 OPS SQUAD CMDR",
+   "-1:2D14 OPS SQUAD CMDR",
+   "+0.2:2R02 ROOF",
+   "+0.6:2R02 ROOF",
+   "+1:2R02 ROOF"
+  ]
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "id": 1970,
+  "globalId": "0otfaO0qPDAhynjJ6Dmg87",
+  "type": "IFCWINDOW",
+  "name": "M_Fixed:1735 x 1000mm:1735 x 1000mm:261827",
+  "truth": [
+   "2R02 ROOF"
+  ],
+  "extra": [
+   "2D16 RMO DIR."
+  ],
+  "hostWall": "IFCWALLSTANDARDCASE #94",
+  "hostBoundsTruth": [
+   true
+  ],
+  "hostBoundsExtra": [
+   true
+  ],
+  "extraOtherOpenings": [
+   1
+  ],
+  "extraBoundaries": [
+   11
+  ],
+  "depth": 0.26699999999999846,
+  "probes": [
+   "-0.2:2D16 RMO DIR.",
+   "-0.6:2D16 RMO DIR.",
+   "-1:2D16 RMO DIR.",
+   "+0.2:2R02 ROOF",
+   "+0.6:2R02 ROOF",
+   "+1:2R02 ROOF"
+  ]
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "id": 1971,
+  "globalId": "0otfaO0qPDAhynjJ6Dmg8s",
+  "type": "IFCWINDOW",
+  "name": "M_Fixed:1735 x 1000mm:1735 x 1000mm:261874",
+  "truth": [
+   "2R02 ROOF"
+  ],
+  "extra": [
+   "2D11 CMDR OFFICE"
+  ],
+  "hostWall": "IFCWALLSTANDARDCASE #94",
+  "hostBoundsTruth": [
+   true
+  ],
+  "hostBoundsExtra": [
+   true
+  ],
+  "extraOtherOpenings": [
+   1
+  ],
+  "extraBoundaries": [
+   10
+  ],
+  "depth": 0.26699999999999846,
+  "probes": [
+   "-0.2:2D11 CMDR OFFICE",
+   "-0.6:2D11 CMDR OFFICE",
+   "-1:2D11 CMDR OFFICE",
+   "+0.2:2R02 ROOF",
+   "+0.6:2R02 ROOF",
+   "+1:2R02 ROOF"
+  ]
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "id": 1972,
+  "globalId": "0otfaO0qPDAhynjJ6DmgFZ",
+  "type": "IFCWINDOW",
+  "name": "M_Fixed:1735 x 1000mm:1735 x 1000mm:261927",
+  "truth": [
+   "2R02 ROOF"
+  ],
+  "extra": [
+   "2D11 CMDR OFFICE"
+  ],
+  "hostWall": "IFCWALLSTANDARDCASE #101",
+  "hostBoundsTruth": [
+   true
+  ],
+  "hostBoundsExtra": [
+   true
+  ],
+  "extraOtherOpenings": [
+   1
+  ],
+  "extraBoundaries": [
+   10
+  ],
+  "depth": 0.26699999999999846,
+  "probes": [
+   "-0.2:2D11 CMDR OFFICE",
+   "-0.6:2D11 CMDR OFFICE",
+   "-1:2D11 CMDR OFFICE",
+   "+0.2:2R02 ROOF",
+   "+0.6:2R02 ROOF",
+   "+1:2R02 ROOF"
+  ]
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "id": 1973,
+  "globalId": "0otfaO0qPDAhynjJ6DmgEk",
+  "type": "IFCWINDOW",
+  "name": "M_Fixed:1735 x 1000mm:1735 x 1000mm:261994",
+  "truth": [
+   "2R02 ROOF"
+  ],
+  "extra": [
+   "2D10 SEC. WAIT"
+  ],
+  "hostWall": "IFCWALLSTANDARDCASE #101",
+  "hostBoundsTruth": [
+   true
+  ],
+  "hostBoundsExtra": [
+   true
+  ],
+  "extraOtherOpenings": [
+   3
+  ],
+  "extraBoundaries": [
+   11
+  ],
+  "depth": 0.26699999999999846,
+  "probes": [
+   "-0.2:2D10 SEC. WAIT",
+   "-0.6:2D10 SEC. WAIT",
+   "-1:2D10 SEC. WAIT",
+   "+0.2:2R02 ROOF",
+   "+0.6:2R02 ROOF",
+   "+1:2R02 ROOF"
+  ]
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "id": 1974,
+  "globalId": "0otfaO0qPDAhynjJ6DmgDl",
+  "type": "IFCWINDOW",
+  "name": "M_Fixed:1735 x 1000mm:1735 x 1000mm:262059",
+  "truth": [
+   "2R02 ROOF"
+  ],
+  "extra": [
+   "2D09 ADMIN OFFICE"
+  ],
+  "hostWall": "IFCWALLSTANDARDCASE #101",
+  "hostBoundsTruth": [
+   true
+  ],
+  "hostBoundsExtra": [
+   true
+  ],
+  "extraOtherOpenings": [
+   1
+  ],
+  "extraBoundaries": [
+   8
+  ],
+  "depth": 0.26699999999999846,
+  "probes": [
+   "-0.2:2D09 ADMIN OFFICE",
+   "-0.6:2D09 ADMIN OFFICE",
+   "-1:2D09 ADMIN OFFICE",
+   "+0.2:2R02 ROOF",
+   "+0.6:2R02 ROOF",
+   "+1:2R02 ROOF"
+  ]
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "id": 1975,
+  "globalId": "0otfaO0qPDAhynjJ6DmgC_",
+  "type": "IFCWINDOW",
+  "name": "M_Fixed:1735 x 1000mm:1735 x 1000mm:262138",
+  "truth": [
+   "2R02 ROOF"
+  ],
+  "extra": [
+   "2C17 PROSTH. LAB"
+  ],
+  "hostWall": "IFCWALLSTANDARDCASE #101",
+  "hostBoundsTruth": [
+   true
+  ],
+  "hostBoundsExtra": [
+   true
+  ],
+  "extraOtherOpenings": [
+   2
+  ],
+  "extraBoundaries": [
+   18
+  ],
+  "depth": 0.26699999999999846,
+  "probes": [
+   "-0.2:2C17 PROSTH. LAB",
+   "-0.6:2C17 PROSTH. LAB",
+   "-1:2C17 PROSTH. LAB",
+   "+0.2:2R02 ROOF",
+   "+0.6:2R02 ROOF",
+   "+1:2R02 ROOF"
+  ]
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "id": 1976,
+  "globalId": "0otfaO0qPDAhynjJ6DnLsa",
+  "type": "IFCWINDOW",
+  "name": "M_Fixed:1735 x 1000mm:1735 x 1000mm:262496",
+  "truth": [
+   "2R02 ROOF"
+  ],
+  "extra": [
+   "2C16 CERAMIC LAB"
+  ],
+  "hostWall": "IFCWALLSTANDARDCASE #101",
+  "hostBoundsTruth": [
+   true
+  ],
+  "hostBoundsExtra": [
+   true
+  ],
+  "extraOtherOpenings": [
+   1
+  ],
+  "extraBoundaries": [
+   9
+  ],
+  "depth": 0.26699999999999846,
+  "probes": [
+   "-0.2:2C16 CERAMIC LAB",
+   "-0.6:2C16 CERAMIC LAB",
+   "-1:2C16 CERAMIC LAB",
+   "+0.2:2R02 ROOF",
+   "+0.6:2R02 ROOF",
+   "+1:2R02 ROOF"
+  ]
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "id": 1977,
+  "globalId": "0otfaO0qPDAhynjJ6DnLrq",
+  "type": "IFCWINDOW",
+  "name": "M_Fixed:1735 x 1000mm:1735 x 1000mm:262576",
+  "truth": [
+   "2R02 ROOF"
+  ],
+  "extra": [
+   "2C16 CERAMIC LAB"
+  ],
+  "hostWall": "IFCWALLSTANDARDCASE #356",
+  "hostBoundsTruth": [
+   true
+  ],
+  "hostBoundsExtra": [
+   true
+  ],
+  "extraOtherOpenings": [
+   1
+  ],
+  "extraBoundaries": [
+   9
+  ],
+  "depth": 0.26699999999999846,
+  "probes": [
+   "-0.2:2C16 CERAMIC LAB",
+   "-0.6:2C16 CERAMIC LAB",
+   "-1:2C16 CERAMIC LAB",
+   "+0.2:2R02 ROOF",
+   "+0.6:2R02 ROOF",
+   "+1:2R02 ROOF"
+  ]
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "id": 1978,
+  "globalId": "0otfaO0qPDAhynjJ6DnLqt",
+  "type": "IFCWINDOW",
+  "name": "M_Fixed:1735 x 1000mm:1735 x 1000mm:262643",
+  "truth": [
+   "2R02 ROOF"
+  ],
+  "extra": [
+   "2C14 GEN. DENT. DTR #10"
+  ],
+  "hostWall": "IFCWALLSTANDARDCASE #356",
+  "hostBoundsTruth": [
+   true
+  ],
+  "hostBoundsExtra": [
+   true
+  ],
+  "extraOtherOpenings": [
+   0
+  ],
+  "extraBoundaries": [
+   8
+  ],
+  "depth": 0.26699999999999846,
+  "probes": [
+   "-0.2:2C14 GEN. DENT. DTR #10",
+   "-0.6:2C14 GEN. DENT. DTR #10",
+   "-1:2C14 GEN. DENT. DTR #10",
+   "+0.2:2R02 ROOF",
+   "+0.6:2R02 ROOF",
+   "+1:2R02 ROOF"
+  ]
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "id": 1961,
+  "globalId": "0otfaO0qPDAhynjJ6DmgWH",
+  "type": "IFCWINDOW",
+  "name": "M_Fixed:1735 x 1000mm:1735 x 1000mm:259285",
+  "truth": [
+   "2R01 ROOF"
+  ],
+  "extra": [
+   "2C09 GEN. DENT. DTR #9"
+  ],
+  "hostWall": "IFCWALLSTANDARDCASE #146",
+  "hostBoundsTruth": [
+   true
+  ],
+  "hostBoundsExtra": [
+   true
+  ],
+  "extraOtherOpenings": [
+   1
+  ],
+  "extraBoundaries": [
+   7
+  ],
+  "depth": 0.26699999999999846,
+  "probes": [
+   "-0.2:2C09 GEN. DENT. DTR #9",
+   "-0.6:2C09 GEN. DENT. DTR #9",
+   "-1:2C09 GEN. DENT. DTR #9",
+   "+0.2:2R01 ROOF",
+   "+0.6:2R01 ROOF",
+   "+1:2R01 ROOF"
+  ]
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "id": 1962,
+  "globalId": "0otfaO0qPDAhynjJ6DmgdG",
+  "type": "IFCWINDOW",
+  "name": "M_Fixed:1735 x 1000mm:1735 x 1000mm:259348",
+  "truth": [
+   "2R01 ROOF"
+  ],
+  "extra": [
+   "2C06 GEN. DENT. DTR #8"
+  ],
+  "hostWall": "IFCWALLSTANDARDCASE #146",
+  "hostBoundsTruth": [
+   true
+  ],
+  "hostBoundsExtra": [
+   true
+  ],
+  "extraOtherOpenings": [
+   1
+  ],
+  "extraBoundaries": [
+   5
+  ],
+  "depth": 0.26699999999999846,
+  "probes": [
+   "-0.2:2C06 GEN. DENT. DTR #8",
+   "-0.6:2C06 GEN. DENT. DTR #8",
+   "-1:2C06 GEN. DENT. DTR #8",
+   "+0.2:2R01 ROOF",
+   "+0.6:2R01 ROOF",
+   "+1:2R01 ROOF"
+  ]
+ },
+ {
+  "file": "dental_clinic.ifc",
+  "id": 1963,
+  "globalId": "0otfaO0qPDAhynjJ6DmgaJ",
+  "type": "IFCWINDOW",
+  "name": "M_Fixed:1735 x 1000mm:1735 x 1000mm:259543",
+  "truth": [
+   "2R01 ROOF"
+  ],
+  "extra": [
+   "2C04 GEN. DENT. DTR #7"
+  ],
+  "hostWall": "IFCWALLSTANDARDCASE #146",
+  "hostBoundsTruth": [
+   true
+  ],
+  "hostBoundsExtra": [
+   true
+  ],
+  "extraOtherOpenings": [
+   1
+  ],
+  "extraBoundaries": [
+   8
+  ],
+  "depth": 0.26699999999999846,
+  "probes": [
+   "-0.2:2C04 GEN. DENT. DTR #7",
+   "-0.6:2C04 GEN. DENT. DTR #7",
+   "-1:2C04 GEN. DENT. DTR #7",
+   "+0.2:2R01 ROOF",
+   "+0.6:2R01 ROOF",
+   "+1:2R01 ROOF"
+  ]
+ },
+ {
+  "file": "schependomlaan.ifc",
+  "id": 272494,
+  "globalId": "0MO3NBPw1FofnfwKUa2odt",
+  "type": "IFCDOOR",
+  "name": "merk A5",
+  "truth": [
+   "A0.02 berging"
+  ],
+  "extra": [
+   "A0.00 entree"
+  ],
+  "hostWall": "IFCBUILDINGELEMENTPROXY #271891",
+  "hostBoundsTruth": [
+   true
+  ],
+  "hostBoundsExtra": [
+   false
+  ],
+  "extraOtherOpenings": [
+   2
+  ],
+  "extraBoundaries": [
+   20
+  ],
+  "depth": 0.114,
+  "probes": [
+   "-0.2:A0.00 entree",
+   "-0.6:A0.00 entree",
+   "-1:A0.00 entree",
+   "+0.2:A0.02 berging",
+   "+0.6:A0.02 berging",
+   "+1:A0.02 berging"
+  ]
+ },
+ {
+  "file": "schependomlaan.ifc",
+  "id": 244556,
+  "globalId": "2AH9fQqwXE9O9QvwUR77zF",
+  "type": "IFCDOOR",
+  "name": "D1R",
+  "truth": [
+   "3.05 gang"
+  ],
+  "extra": [
+   "3.07 slaapkamer 2"
+  ],
+  "hostWall": null,
+  "hostBoundsTruth": [
+   false
+  ],
+  "hostBoundsExtra": [
+   false
+  ],
+  "extraOtherOpenings": [
+   0
+  ],
+  "extraBoundaries": [
+   9
+  ],
+  "depth": 0.17250000000000001,
+  "probes": [
+   "-0.2:3.05 gang",
+   "-0.6:3.05 gang",
+   "-1:3.05 gang",
+   "+0.2:3.07 slaapkamer 2",
+   "+0.6:3.07 slaapkamer 2",
+   "+1:3.07 slaapkamer 2"
+  ]
+ }
+]
