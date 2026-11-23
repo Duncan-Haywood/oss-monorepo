@@ -90,6 +90,12 @@
 // four characteristics as the average of their practices, and the activities
 // behind every failed test; --baseline scores practice 10 against the
 // baseline project's XER.
+// node cli.mjs schedule.xer --calendars [--csv calendars.csv] [--no-what-if] [--json] [--project CODE]
+// Calendar review (calreview.mjs): holidays that stop before the work does
+// (with how far the finish moves when the missing years get the calendar's
+// own holidays back), Hours per Day or per Week stored against the hours the
+// days hold, calendars named for a different week, no holidays at all,
+// critical work on seven-day calendars, duplicates and unused calendars.
 // node cli.mjs schedule.xer --drag [--drag-cost 12500] [--csv drag.csv] [--max-runs 800] [--no-expected-finish] [--json] [--project CODE]
 // Critical path drag (drag.mjs): how much earlier the forecast finish would be
 // if each longest-path activity, and each lag between them, took no time,
@@ -197,6 +203,7 @@ import { dragAnalysis, dragText, dragCsv } from "./drag.mjs";
 import { crashAnalysis, crashText, crashCsv } from "./crash.mjs";
 import { gao, gaoText, gaoCsv, gaoHtml } from "./gao.mjs";
 import { redundantLogic, redundantText, redundantCsv, dropLinksText } from "./redundant.mjs";
+import { calendarReview, calendarText, calendarCsv } from "./calreview.mjs";
 import { xerBytes } from "./xer.mjs";
 
 const args = process.argv.slice(2);
@@ -441,6 +448,12 @@ if (args.includes("--gao")) {
   if (opt("--csv")) writeFileSync(opt("--csv"), gaoCsv(r));
   if (opt("--html")) { writeFileSync(opt("--html"), gaoHtml(r, { by: opt("--by") })); console.error(`GAO scorecard written to ${opt("--html")}`); }
   await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : gaoText(r));
+  process.exit(0);
+}
+if (args.includes("--calendars")) {
+  const r = calendarReview(xer, { projId, whatIf: !args.includes("--no-what-if") });
+  if (opt("--csv")) writeFileSync(opt("--csv"), calendarCsv(r));
+  await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : calendarText(r));
   process.exit(0);
 }
 if (args.includes("--redundant")) {

@@ -895,6 +895,35 @@ its planted days. Seed 1 on five files: 50/50 and 50/50. The files' own Planned 
 adds up on 6/6. 6 unit tests in `asplanned.test.mjs`; the guide's worked example is checked against
 the engine in `guides.test.mjs`.
 
+## Calendar review: holidays, hours per day and working weeks (2026-11-23)
+
+`calreview.mjs`, `--calendars [--csv calendars.csv] [--no-what-if]`, and the page's **Review the
+calendars**: every work calendar in the file, read for the faults that move dates without
+showing in any logic, float or DCMA check. A holiday list that stops before the work does (a
+calendar with holidays in earlier years and none in a year its open work covers by 60 days or
+more) is a fault, with a what-if that copies the calendar's last listed year of holidays into
+each missing year by date and reschedules, to say how far the finish moves. Hours per Day stored
+against the hours the working days hold (P6 shows days as hours over that figure, so a 9-hour
+calendar labelled 8 shows a 10-day activity that takes 8.9 of its days) is a fault; Hours per
+Week the same way, as a note. To check: a calendar named for another week ("5 Day Workweek"
+working seven), a calendar with no holiday that works fewer than seven days, open critical work
+on seven-day calendars. Notes: duplicates (same week and exceptions under two names), unused
+calendars. A holiday on a day the week does not work is not counted. CSV: one row per activity.
+
+On the six public P6 files three have holidays that run out (the airport terminal's only
+calendar in use stops at 2010 for 2012-13 work; the sample file's at 2013 for 2021 work; the
+hotel's "HBTF # 2 - all days" at 2010 for 29 activities into 2013), each worth 2 working days on
+the finish in the what-if; the hotel's "Standard 5 Day Workweek" works seven 9-hour days and says
+8 hours a day, and its "HCRA - Global" calendar carries 1,103 open activities with no holiday.
+
+Checked (`eval/calendar-review-check.mjs`, `eval/calendar-review-2026-11-23.md`): every year of
+holidays inside a used calendar's open work deleted in turn is named, calendar and year, **16 of
+16**; a year before the data date deleted raises nothing new 33 of 33; Hours per Day +1 h named
+12 of 12 and set to the true hours quiet 12 of 12; renamed for the wrong days named 12 of 12 and
+for the right days quiet 12 of 12. Where a deleted year made the finish early (7 cases, 1 to 8
+working days), the what-if came within a day of the real holidays' finish in 4 and missed by
+3, 4 and 6 days where the year it copied from had a different list.
+
 ## GAO Schedule Assessment Guide scorecard (2026-11-23)
 
 `gao.mjs`, `--gao [--baseline baseline.xer] [--csv gao.csv] [--html gao.html]`, and the page's
@@ -1660,6 +1689,8 @@ values) downloads as a CSV from the page or `node cli.mjs file.xer --schedule ou
 
 ## Files
 
+`calreview.mjs` is the calendar review (`calendarReview`, `calendarText`, `calendarCsv`,
+`calendarTableHtml`); `eval/calendar-review-check.mjs` plants calendar faults in the public files.
 `samples/make-example.mjs` writes `example.mjs`, an invented office fit-out
 schedule with deliberate faults, used by the page's example button and the
 tests; `node samples/make-example.mjs office-fitout.xer` also writes it as an

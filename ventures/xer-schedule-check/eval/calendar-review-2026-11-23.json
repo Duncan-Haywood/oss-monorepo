@@ -1,0 +1,897 @@
+{
+ "files": [
+  {
+   "file": "CCA_R03_dt_24Oct11SC.xer",
+   "baseline": [
+    {
+     "kind": "hours-per-week",
+     "calendar": "R00-C02, Calendar day",
+     "activities": 0
+    },
+    {
+     "kind": "hours-per-week",
+     "calendar": "R00-C01, 6 days with holidays",
+     "activities": 0
+    }
+   ],
+   "plants": [
+    {
+     "plant": "hours per day +1",
+     "calendar": "R00-C02, Calendar day",
+     "found": true,
+     "controlQuiet": true
+    },
+    {
+     "plant": "renamed",
+     "calendar": "R00-C02, Calendar day",
+     "found": true,
+     "controlQuiet": true
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "R00-C01, 6 days with holidays",
+     "year": 2010,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "holidays removed",
+     "calendar": "R00-C01, 6 days with holidays",
+     "year": 2011,
+     "found": true
+    },
+    {
+     "plant": "holidays removed",
+     "calendar": "R00-C01, 6 days with holidays",
+     "year": 2012,
+     "found": true
+    },
+    {
+     "plant": "holidays removed",
+     "calendar": "R00-C01, 6 days with holidays",
+     "year": 2013,
+     "found": true
+    },
+    {
+     "plant": "hours per day +1",
+     "calendar": "R00-C01, 6 days with holidays",
+     "found": true,
+     "controlQuiet": true
+    },
+    {
+     "plant": "renamed",
+     "calendar": "R00-C01, 6 days with holidays",
+     "found": true,
+     "controlQuiet": true
+    }
+   ]
+  },
+  {
+   "file": "Expressway_Project.xer",
+   "baseline": [
+    {
+     "kind": "every-day",
+     "calendar": "BEW 7 Day SIL",
+     "activities": 30
+    }
+   ],
+   "plants": [
+    {
+     "plant": "hours per day +1",
+     "calendar": "BEW 7 Day SIL",
+     "found": true,
+     "controlQuiet": true
+    },
+    {
+     "plant": "renamed",
+     "calendar": "BEW 7 Day SIL",
+     "found": true,
+     "controlQuiet": true
+    },
+    {
+     "plant": "holidays removed",
+     "calendar": "BEW 5 Day SIL",
+     "year": 2013,
+     "found": true
+    },
+    {
+     "plant": "holidays removed",
+     "calendar": "BEW 5 Day SIL",
+     "year": 2014,
+     "found": true
+    },
+    {
+     "plant": "holidays removed",
+     "calendar": "BEW 5 Day SIL",
+     "year": 2015,
+     "found": true
+    },
+    {
+     "plant": "holidays removed",
+     "calendar": "BEW 5 Day SIL",
+     "year": 2016,
+     "found": true
+    },
+    {
+     "plant": "hours per day +1",
+     "calendar": "BEW 5 Day SIL",
+     "found": true,
+     "controlQuiet": true
+    },
+    {
+     "plant": "renamed",
+     "calendar": "BEW 5 Day SIL",
+     "found": true,
+     "controlQuiet": true
+    }
+   ]
+  },
+  {
+   "file": "example_xer_file.xer",
+   "baseline": [],
+   "plants": [
+    {
+     "plant": "past year removed (control)",
+     "calendar": "Standard 5 Day Workweek",
+     "year": 2022,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "Standard 5 Day Workweek",
+     "year": 2024,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "Standard 5 Day Workweek",
+     "year": 2025,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "holidays removed",
+     "calendar": "Standard 5 Day Workweek",
+     "year": 2026,
+     "found": true
+    },
+    {
+     "plant": "holidays removed",
+     "calendar": "Standard 5 Day Workweek",
+     "year": 2027,
+     "found": true
+    },
+    {
+     "plant": "hours per day +1",
+     "calendar": "Standard 5 Day Workweek",
+     "found": true,
+     "controlQuiet": true
+    },
+    {
+     "plant": "renamed",
+     "calendar": "Standard 5 Day Workweek",
+     "found": true,
+     "controlQuiet": true
+    }
+   ]
+  },
+  {
+   "file": "hotel-project.xer",
+   "baseline": [
+    {
+     "kind": "hours-per-day",
+     "calendar": "Standard 5 Day Workweek",
+     "activities": 19
+    },
+    {
+     "kind": "holidays-run-out",
+     "calendar": "HBTF # 2 - all days",
+     "years": [
+      2012,
+      2013
+     ],
+     "activities": 29
+    },
+    {
+     "kind": "name-days",
+     "calendar": "Standard 5 Day Workweek",
+     "activities": 19
+    },
+    {
+     "kind": "no-holidays",
+     "calendar": "HCRA - Global",
+     "activities": 39
+    },
+    {
+     "kind": "hours-per-week",
+     "calendar": "Standard 5 Day Workweek",
+     "activities": 0
+    },
+    {
+     "kind": "unused",
+     "calendar": "6 Day Workingwith holidays",
+     "activities": 0
+    },
+    {
+     "kind": "unused",
+     "calendar": "UP07 - 1 - Normal Calendar",
+     "activities": 0
+    },
+    {
+     "kind": "hours-per-week",
+     "calendar": "HCRA - 1 - Normal Calendar",
+     "activities": 0
+    },
+    {
+     "kind": "unused",
+     "calendar": "6 Day Workweek - Site",
+     "activities": 0
+    },
+    {
+     "kind": "unused",
+     "calendar": "Zatary 6 days per week",
+     "activities": 0
+    },
+    {
+     "kind": "hours-per-week",
+     "calendar": "HBTF # 1",
+     "activities": 0
+    },
+    {
+     "kind": "hours-per-week",
+     "calendar": "HBTF # 2 - all days",
+     "activities": 0
+    }
+   ],
+   "plants": [
+    {
+     "plant": "past year removed (control)",
+     "calendar": "Standard 5 Day Workweek",
+     "year": 2012,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "holidays removed",
+     "calendar": "Standard 5 Day Workweek",
+     "year": 2013,
+     "found": true
+    },
+    {
+     "plant": "hours per day +1",
+     "calendar": "Standard 5 Day Workweek",
+     "found": true,
+     "controlQuiet": true
+    },
+    {
+     "plant": "renamed",
+     "calendar": "Standard 5 Day Workweek",
+     "found": true,
+     "controlQuiet": true
+    },
+    {
+     "plant": "hours per day +1",
+     "calendar": "HCRA - Global",
+     "found": true,
+     "controlQuiet": true
+    },
+    {
+     "plant": "renamed",
+     "calendar": "HCRA - Global",
+     "found": true,
+     "controlQuiet": true
+    },
+    {
+     "plant": "holidays removed",
+     "calendar": "HCRA - 1 - Normal Calendar",
+     "year": 2012,
+     "found": true
+    },
+    {
+     "plant": "holidays removed",
+     "calendar": "HCRA - 1 - Normal Calendar",
+     "year": 2013,
+     "found": true
+    },
+    {
+     "plant": "holidays removed",
+     "calendar": "HCRA - 1 - Normal Calendar",
+     "year": 2014,
+     "found": true
+    },
+    {
+     "plant": "hours per day +1",
+     "calendar": "HCRA - 1 - Normal Calendar",
+     "found": true,
+     "controlQuiet": true
+    },
+    {
+     "plant": "renamed",
+     "calendar": "HCRA - 1 - Normal Calendar",
+     "found": true,
+     "controlQuiet": true
+    },
+    {
+     "plant": "holidays removed",
+     "calendar": "HBTF # 1",
+     "year": 2012,
+     "found": true
+    },
+    {
+     "plant": "holidays removed",
+     "calendar": "HBTF # 1",
+     "year": 2013,
+     "found": true
+    },
+    {
+     "plant": "holidays removed",
+     "calendar": "HBTF # 1",
+     "year": 2014,
+     "found": true
+    },
+    {
+     "plant": "hours per day +1",
+     "calendar": "HBTF # 1",
+     "found": true,
+     "controlQuiet": true
+    },
+    {
+     "plant": "renamed",
+     "calendar": "HBTF # 1",
+     "found": true,
+     "controlQuiet": true
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "HBTF # 2 - all days",
+     "year": 1999,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "HBTF # 2 - all days",
+     "year": 2000,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "HBTF # 2 - all days",
+     "year": 2001,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "HBTF # 2 - all days",
+     "year": 2002,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "HBTF # 2 - all days",
+     "year": 2003,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "HBTF # 2 - all days",
+     "year": 2004,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "HBTF # 2 - all days",
+     "year": 2005,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "HBTF # 2 - all days",
+     "year": 2006,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "HBTF # 2 - all days",
+     "year": 2007,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "HBTF # 2 - all days",
+     "year": 2008,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "HBTF # 2 - all days",
+     "year": 2009,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "HBTF # 2 - all days",
+     "year": 2010,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "hours per day +1",
+     "calendar": "HBTF # 2 - all days",
+     "found": true,
+     "controlQuiet": true
+    },
+    {
+     "plant": "renamed",
+     "calendar": "HBTF # 2 - all days",
+     "found": true,
+     "controlQuiet": true
+    }
+   ]
+  },
+  {
+   "file": "sample.xer",
+   "baseline": [
+    {
+     "kind": "holidays-run-out",
+     "calendar": "Corporate - Standard Full Time",
+     "years": [
+      2021
+     ],
+     "activities": 30
+    }
+   ],
+   "plants": [
+    {
+     "plant": "past year removed (control)",
+     "calendar": "Corporate - Standard Full Time",
+     "year": 2010,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "Corporate - Standard Full Time",
+     "year": 2011,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "Corporate - Standard Full Time",
+     "year": 2012,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "Corporate - Standard Full Time",
+     "year": 2013,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "hours per day +1",
+     "calendar": "Corporate - Standard Full Time",
+     "found": true,
+     "controlQuiet": true
+    },
+    {
+     "plant": "renamed",
+     "calendar": "Corporate - Standard Full Time",
+     "found": true,
+     "controlQuiet": true
+    }
+   ]
+  },
+  {
+   "file": "terminal-building-airport.xer",
+   "baseline": [
+    {
+     "kind": "holidays-run-out",
+     "calendar": "7-Day Workweek(TENDER CALENDAR)",
+     "years": [
+      2012
+     ],
+     "activities": 63
+    },
+    {
+     "kind": "unused",
+     "calendar": "Standard 5 Day Workweek",
+     "activities": 0
+    },
+    {
+     "kind": "unused",
+     "calendar": "Gama projects calender",
+     "activities": 0
+    },
+    {
+     "kind": "unused",
+     "calendar": "Terminal Building 2 Calendar",
+     "activities": 0
+    }
+   ],
+   "plants": [
+    {
+     "plant": "past year removed (control)",
+     "calendar": "7-Day Workweek(TENDER CALENDAR)",
+     "year": 1999,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "7-Day Workweek(TENDER CALENDAR)",
+     "year": 2000,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "7-Day Workweek(TENDER CALENDAR)",
+     "year": 2001,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "7-Day Workweek(TENDER CALENDAR)",
+     "year": 2002,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "7-Day Workweek(TENDER CALENDAR)",
+     "year": 2003,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "7-Day Workweek(TENDER CALENDAR)",
+     "year": 2004,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "7-Day Workweek(TENDER CALENDAR)",
+     "year": 2005,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "7-Day Workweek(TENDER CALENDAR)",
+     "year": 2006,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "7-Day Workweek(TENDER CALENDAR)",
+     "year": 2007,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "7-Day Workweek(TENDER CALENDAR)",
+     "year": 2008,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "7-Day Workweek(TENDER CALENDAR)",
+     "year": 2009,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "past year removed (control)",
+     "calendar": "7-Day Workweek(TENDER CALENDAR)",
+     "year": 2010,
+     "quiet": true,
+     "extra": []
+    },
+    {
+     "plant": "hours per day +1",
+     "calendar": "7-Day Workweek(TENDER CALENDAR)",
+     "found": true,
+     "controlQuiet": true
+    },
+    {
+     "plant": "renamed",
+     "calendar": "7-Day Workweek(TENDER CALENDAR)",
+     "found": true,
+     "controlQuiet": true
+    }
+   ]
+  }
+ ],
+ "totals": {
+  "runOut": [
+   16,
+   16
+  ],
+  "runOutControl": [
+   33,
+   33
+  ],
+  "hpd": [
+   12,
+   12
+  ],
+  "hpdControl": [
+   12,
+   12
+  ],
+  "name": [
+   12,
+   12
+  ],
+  "nameControl": [
+   12,
+   12
+  ]
+ },
+ "whatIf": [
+  {
+   "file": "CCA_R03_dt_24Oct11SC.xer",
+   "calendar": "R00-C01, 6 days with holidays",
+   "year": 2011,
+   "removed": 9,
+   "projects": [
+    {
+     "project": "CCA R03 dt 24Oct11SC",
+     "plantedDaysEarly": 5,
+     "whatIfOffBy": -1
+    }
+   ]
+  },
+  {
+   "file": "CCA_R03_dt_24Oct11SC.xer",
+   "calendar": "R00-C01, 6 days with holidays",
+   "year": 2012,
+   "removed": 9,
+   "projects": [
+    {
+     "project": "CCA R03 dt 24Oct11SC",
+     "plantedDaysEarly": 8,
+     "whatIfOffBy": -1
+    }
+   ]
+  },
+  {
+   "file": "CCA_R03_dt_24Oct11SC.xer",
+   "calendar": "R00-C01, 6 days with holidays",
+   "year": 2013,
+   "removed": 9,
+   "projects": [
+    {
+     "project": "CCA R03 dt 24Oct11SC",
+     "plantedDaysEarly": 1,
+     "whatIfOffBy": 0
+    }
+   ]
+  },
+  {
+   "file": "Expressway_Project.xer",
+   "calendar": "BEW 5 Day SIL",
+   "year": 2013,
+   "removed": 8,
+   "projects": [
+    {
+     "project": "BEW3",
+     "plantedDaysEarly": 0,
+     "whatIfOffBy": 0
+    }
+   ]
+  },
+  {
+   "file": "Expressway_Project.xer",
+   "calendar": "BEW 5 Day SIL",
+   "year": 2014,
+   "removed": 12,
+   "projects": [
+    {
+     "project": "BEW3",
+     "plantedDaysEarly": 0,
+     "whatIfOffBy": 0
+    }
+   ]
+  },
+  {
+   "file": "Expressway_Project.xer",
+   "calendar": "BEW 5 Day SIL",
+   "year": 2015,
+   "removed": 10,
+   "projects": [
+    {
+     "project": "BEW3",
+     "plantedDaysEarly": 0,
+     "whatIfOffBy": 0
+    }
+   ]
+  },
+  {
+   "file": "Expressway_Project.xer",
+   "calendar": "BEW 5 Day SIL",
+   "year": 2016,
+   "removed": 5,
+   "projects": [
+    {
+     "project": "BEW3",
+     "plantedDaysEarly": 0,
+     "whatIfOffBy": 0
+    }
+   ]
+  },
+  {
+   "file": "example_xer_file.xer",
+   "calendar": "Standard 5 Day Workweek",
+   "year": 2026,
+   "removed": 8,
+   "projects": [
+    {
+     "project": "DEMO-001",
+     "plantedDaysEarly": 3.3,
+     "whatIfOffBy": 6
+    }
+   ]
+  },
+  {
+   "file": "example_xer_file.xer",
+   "calendar": "Standard 5 Day Workweek",
+   "year": 2027,
+   "removed": 11,
+   "projects": [
+    {
+     "project": "DEMO-001",
+     "plantedDaysEarly": 3,
+     "whatIfOffBy": -1
+    }
+   ]
+  },
+  {
+   "file": "hotel-project.xer",
+   "calendar": "Standard 5 Day Workweek",
+   "year": 2013,
+   "removed": 9,
+   "projects": [
+    {
+     "project": "CR",
+     "plantedDaysEarly": 0,
+     "whatIfOffBy": 0
+    },
+    {
+     "project": "HBTF-2",
+     "plantedDaysEarly": 0,
+     "whatIfOffBy": 0
+    }
+   ]
+  },
+  {
+   "file": "hotel-project.xer",
+   "calendar": "HCRA - 1 - Normal Calendar",
+   "year": 2012,
+   "removed": 2,
+   "projects": [
+    {
+     "project": "CR",
+     "plantedDaysEarly": 0,
+     "whatIfOffBy": 0
+    },
+    {
+     "project": "HBTF-2",
+     "plantedDaysEarly": 0,
+     "whatIfOffBy": 0
+    }
+   ]
+  },
+  {
+   "file": "hotel-project.xer",
+   "calendar": "HCRA - 1 - Normal Calendar",
+   "year": 2013,
+   "removed": 2,
+   "projects": [
+    {
+     "project": "CR",
+     "plantedDaysEarly": 0,
+     "whatIfOffBy": 0
+    },
+    {
+     "project": "HBTF-2",
+     "plantedDaysEarly": 0,
+     "whatIfOffBy": 0
+    }
+   ]
+  },
+  {
+   "file": "hotel-project.xer",
+   "calendar": "HCRA - 1 - Normal Calendar",
+   "year": 2014,
+   "removed": 2,
+   "projects": [
+    {
+     "project": "CR",
+     "plantedDaysEarly": 0,
+     "whatIfOffBy": 0
+    },
+    {
+     "project": "HBTF-2",
+     "plantedDaysEarly": 0,
+     "whatIfOffBy": 0
+    }
+   ]
+  },
+  {
+   "file": "hotel-project.xer",
+   "calendar": "HBTF # 1",
+   "year": 2012,
+   "removed": 11,
+   "projects": [
+    {
+     "project": "CR",
+     "plantedDaysEarly": 0,
+     "whatIfOffBy": 0
+    },
+    {
+     "project": "HBTF-2",
+     "plantedDaysEarly": 7,
+     "whatIfOffBy": -4
+    }
+   ]
+  },
+  {
+   "file": "hotel-project.xer",
+   "calendar": "HBTF # 1",
+   "year": 2013,
+   "removed": 13,
+   "projects": [
+    {
+     "project": "CR",
+     "plantedDaysEarly": 0,
+     "whatIfOffBy": 0
+    },
+    {
+     "project": "HBTF-2",
+     "plantedDaysEarly": 7,
+     "whatIfOffBy": -3
+    }
+   ]
+  },
+  {
+   "file": "hotel-project.xer",
+   "calendar": "HBTF # 1",
+   "year": 2014,
+   "removed": 6,
+   "projects": [
+    {
+     "project": "CR",
+     "plantedDaysEarly": 0,
+     "whatIfOffBy": 0
+    },
+    {
+     "project": "HBTF-2",
+     "plantedDaysEarly": 0,
+     "whatIfOffBy": -2
+    }
+   ]
+  }
+ ]
+}
