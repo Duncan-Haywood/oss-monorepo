@@ -1,0 +1,47 @@
+seeds 40 per cell (faulted 8001-8040, no fault 9001-9040); heard = dated within 7 days; false = any date on a no-fault site
+level after the snippet loss, 4 weeks after vs 4 weeks before, first 10 faulted sites:
+  weekends 0.5, share 0.6: page views to 0.60, sessions to 0.81, people (GA4 activeUsers) to 0.83, PostHog users to 0.84
+  weekends 0.5, share 0.5: page views to 0.50, sessions to 0.73, people (GA4 activeUsers) to 0.76, PostHog users to 0.76
+  weekends 0.4, share 0.6: page views to 0.60, sessions to 0.80, people (GA4 activeUsers) to 0.83, PostHog users to 0.83
+  weekends 0.4, share 0.5: page views to 0.50, sessions to 0.72, people (GA4 activeUsers) to 0.76, PostHog users to 0.76
+==== source: posthog (people = users; watched event_pageview, event_signed_up, users)
+-- arm: count default
+weekends 0.5, page views to 0.6: heard event_pageview 40/40, event_signed_up 39/40, users 0/40; other dates event_pageview 0, event_signed_up 8, users 0
+weekends 0.5, page views to 0.5: heard event_pageview 40/40, event_signed_up 39/40, users 0/40; other dates event_pageview 0, event_signed_up 8, users 0
+weekends 0.5, no fault: false dates event_pageview 0, event_signed_up 0, users 0; total 0
+weekends 0.4, page views to 0.6: heard event_pageview 40/40, event_signed_up 35/40, users 0/40; other dates event_pageview 0, event_signed_up 6, users 0
+weekends 0.4, page views to 0.5: heard event_pageview 40/40, event_signed_up 35/40, users 0/40; other dates event_pageview 0, event_signed_up 6, users 0
+weekends 0.4, no fault: false dates event_pageview 0, event_signed_up 0, users 0; total 0
+-- arm: middle (--detector pelt --overdispersion nb --trend gated)
+weekends 0.5, page views to 0.6: heard event_pageview 40/40, event_signed_up 40/40, users 40/40; other dates event_pageview 0, event_signed_up 7, users 0
+weekends 0.5, page views to 0.5: heard event_pageview 40/40, event_signed_up 40/40, users 40/40; other dates event_pageview 0, event_signed_up 7, users 0
+weekends 0.5, no fault: false dates event_pageview 0, event_signed_up 0, users 0; total 0
+weekends 0.4, page views to 0.6: heard event_pageview 40/40, event_signed_up 40/40, users 37/40; other dates event_pageview 0, event_signed_up 4, users 3
+weekends 0.4, page views to 0.5: heard event_pageview 40/40, event_signed_up 40/40, users 40/40; other dates event_pageview 0, event_signed_up 4, users 0
+weekends 0.4, no fault: false dates event_pageview 0, event_signed_up 2, users 0; total 2
+==== source: ga4 (people = activeUsers; watched sessions, activeUsers, keyEvents)
+-- arm: count default
+weekends 0.5, page views to 0.6: heard sessions 0/40, activeUsers 0/40, keyEvents 39/40; other dates sessions 0, activeUsers 0, keyEvents 8
+weekends 0.5, page views to 0.5: heard sessions 1/40, activeUsers 0/40, keyEvents 39/40; other dates sessions 0, activeUsers 0, keyEvents 8
+weekends 0.5, no fault: false dates sessions 0, activeUsers 0, keyEvents 0; total 0
+weekends 0.4, page views to 0.6: heard sessions 0/40, activeUsers 0/40, keyEvents 35/40; other dates sessions 0, activeUsers 0, keyEvents 6
+weekends 0.4, page views to 0.5: heard sessions 0/40, activeUsers 0/40, keyEvents 35/40; other dates sessions 0, activeUsers 0, keyEvents 6
+weekends 0.4, no fault: false dates sessions 0, activeUsers 0, keyEvents 0; total 0
+-- arm: middle (--detector pelt --overdispersion nb --trend gated)
+weekends 0.5, page views to 0.6: heard sessions 40/40, activeUsers 40/40, keyEvents 40/40; other dates sessions 0, activeUsers 0, keyEvents 7
+weekends 0.5, page views to 0.5: heard sessions 40/40, activeUsers 40/40, keyEvents 40/40; other dates sessions 0, activeUsers 0, keyEvents 7
+weekends 0.5, no fault: false dates sessions 0, activeUsers 0, keyEvents 0; total 0
+weekends 0.4, page views to 0.6: heard sessions 39/40, activeUsers 37/40, keyEvents 40/40; other dates sessions 1, activeUsers 3, keyEvents 4
+weekends 0.4, page views to 0.5: heard sessions 40/40, activeUsers 40/40, keyEvents 40/40; other dates sessions 0, activeUsers 0, keyEvents 4
+weekends 0.4, no fault: false dates sessions 0, activeUsers 0, keyEvents 2; total 2
+-- arm: middle with screenPageViews watched
+weekends 0.5, page views to 0.6: heard sessions 40/40, activeUsers 40/40, keyEvents 40/40, screenPageViews 40/40; other dates sessions 0, activeUsers 0, keyEvents 7, screenPageViews 0
+weekends 0.5, page views to 0.5: heard sessions 40/40, activeUsers 40/40, keyEvents 40/40, screenPageViews 40/40; other dates sessions 0, activeUsers 0, keyEvents 7, screenPageViews 0
+weekends 0.5, no fault: false dates sessions 0, activeUsers 0, keyEvents 0, screenPageViews 0; total 0
+weekends 0.4, page views to 0.6: heard sessions 39/40, activeUsers 37/40, keyEvents 40/40, screenPageViews 40/40; other dates sessions 1, activeUsers 3, keyEvents 4, screenPageViews 0
+weekends 0.4, page views to 0.5: heard sessions 40/40, activeUsers 40/40, keyEvents 40/40, screenPageViews 40/40; other dates sessions 0, activeUsers 0, keyEvents 4, screenPageViews 0
+weekends 0.4, no fault: false dates sessions 0, activeUsers 0, keyEvents 2, screenPageViews 0; total 2
+==== verdicts (pre-registered rule in the header)
+posthog: V0 fails; V1 passes, V2 passes, V3 passes -> middle ships as the default
+ga4: V0 fails; V1 passes, V2 passes, V3 passes -> middle ships as the default
+ga4 page views: P1 passes, P2 passes -> screenPageViews joins the GA4 default columns

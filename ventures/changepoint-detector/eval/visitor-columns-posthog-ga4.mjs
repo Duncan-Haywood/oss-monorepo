@@ -40,9 +40,9 @@ import { main as watchMain } from '../watch.mjs';
 import { toCsv } from '../ga4-metrics.mjs';
 
 const SEEDS = Number(process.argv[2] ?? 40);
-const MIDDLE = ['--detector', 'pelt', '--overdispersion', 'nb', '--trend', 'gated'];
+export const MIDDLE = ['--detector', 'pelt', '--overdispersion', 'nb', '--trend', 'gated'];
 const FAULT_SEED = 8000, NULL_SEED = 9000;
-const PV_OFF = '2026-03-16', SU_OFF = '2026-01-12';
+export const PV_OFF = '2026-03-16', SU_OFF = '2026-01-12';
 export const SOURCES = {
   posthog: {
     all: ['event_pageview', 'event_signed_up', 'users'],
@@ -94,7 +94,7 @@ export function site({ wk, share, fault, seed }) {
 }
 
 const near = (d, t) => Math.abs(Date.parse(d) - Date.parse(t)) <= 7 * 86400000;
-async function watched(rows, all, cols, extra = []) {
+export async function watched(rows, all, cols, extra = []) {
   const dir = mkdtempSync(join(tmpdir(), 'visitor-ph-ga4-'));
   writeFileSync(join(dir, 'p.csv'), toCsv(rows, all));
   let text = '';
