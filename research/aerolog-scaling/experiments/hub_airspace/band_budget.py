@@ -17,8 +17,9 @@ avoidance or wind; same 48 layouts, 1200..1223 at M = 12 and 1600..1623 at M = 1
    k_cap(H, h) = floor((H / h + 1) / 2), at most M. Where not even two levels fit (H < h) the stack is one band.
  * A transit through a level spends tau = h / w there, w the vertical speed. Climbs and descents are equally many
    (each flight climbs and descends once at its hub and once at its destination), so tau = h (1/w_up + 1/w_down) / 2.
-Parameters (sourced): h = 7.62 m (25 ft, the layer spacing of Doole, Ellerbroek and Hoekstra's layered urban
-airspace, DICUAM 2021, as 11af used it; full text not opened), and 15.24 m and 30.48 m (50 and 100 ft) as more
+Parameters (sourced): h = 7.62 m (25 ft, the layer spacing of Doole, Ellerbroek, Knoop and Hoekstra's layered urban
+airspace, Aerospace 8(2):38, 2021, doi:10.3390/aerospace8020038, as 11af used it; attribution corrected 2026-11-23 from
+search excerpts, full text not opened), and 15.24 m and 30.48 m (50 and 100 ft) as more
 conservative separations; w_up = 5 m/s and w_down = 4 m/s (DJI Matrice 300 RTK, P mode, DJI's support page), so
 tau = 0.225 h s/m: 1.71 s, 3.43 s, 6.86 s. H swept over 30, 60, 90 and 120 m (no source fixes the floor of an urban
 delivery stack; 120 m is the whole 400 ft column above a floor at about 2 m, 30 m a stack squeezed above 90 m

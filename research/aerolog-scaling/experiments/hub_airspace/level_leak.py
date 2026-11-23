@@ -29,9 +29,10 @@ the closed form's crossing windows, flux part of cf_D) now carries the vertical 
  * F(labels; h) = sum_ij W_ij pw(|Delta b|) + sum_ij X_ij px(|Delta b|) + sum_{i != j} V_ij [b_j < b_i],
    pw(d) = p(2d), px(d) = (p(2d + 1) + p(|2d - 1|)) / 2. Diagonal terms (one operator's own traffic, Delta b = 0)
    depend on h through px(0) = p(1) and are included.
-Parameters. Z: 15 ft (4.57 m; the vertical separation a layered-airspace RL study with Mavic-class drones used, seen
-in a search abstract, full text not opened) and 25 ft (7.62 m; Doole et al.'s layer spacing, read as the separation
-it was set to provide). sigma: 0.5, 1, 2, 3 m (swept; DJI lists +-0.5 m vertical hover accuracy with GNSS and +-0.1 m
+Parameters. Z: 15 ft (4.57 m; the vertical separation of Ribeiro, Ellerbroek and Hoekstra's layered-airspace RL study,
+Aerospace 9(8):413, 2022, doi:10.3390/aerospace9080413, identified 2026-11-23 from search excerpts, full text not
+opened) and 25 ft (7.62 m; the layer spacing of Doole et al., Aerospace 8(2):38, 2021, read as the separation it was
+set to provide). sigma: 0.5, 1, 2, 3 m (swept; DJI lists +-0.5 m vertical hover accuracy with GNSS and +-0.1 m
 with vision or RTK for the M300, hover not cruise; uncorrected GNSS vertical error is metres; no small-drone
 height-keeping study with a 1-sigma figure could be opened from this session). h: 5 to 41 m in 2 m steps (k_cap from
 11 to 2 at H = 120 m; at most M bands are useful, so k = min(k_cap, M)). Same 48 layouts (1200..1223 at M = 12,
