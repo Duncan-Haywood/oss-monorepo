@@ -20,7 +20,68 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
-## Practice slots on shared fields (2026-11-21, newest)
+## One file became fifteen: eight pages load 67-93% less code (2026-11-23, newest)
+
+`calc.mjs` had grown to 4,195 lines (quality audit round 87: "split by feature"), and every page that
+took one name from it fetched all of it, with the 147 kB carry-over search and the doubleheader night
+designs behind it. The Americano night scorer, which needs only `americano()` and `parseTeams()`, made a
+phone at the court download 215 kB gzip of code before its first tap.
+
+It is now split into feature modules beside it, and `calc.mjs` is a 44-line file that re-exports
+exactly the 142 names it exported before, so the single-league page, the server, the tests and the
+eval scripts import it unchanged. Each name's code is byte for byte what it was (checked: every export
+of the old file and the new one compared by `toString()` and value, 0 differ).
+
+| module | what is in it |
+|---|---|
+| `dates.mjs` | weekday names, ISO days, the next play day, date, weekday and clock parsing |
+| `names.mjs` | team names from a pasted list, and finding a typed name in it |
+| `schedule.mjs` | text fields, slot assignment, the dated season, the validator, rainouts, pins, withdrawals, late teams, shared grounds, linked teams |
+| `rounds.mjs` | circle-method rounds and their breaks |
+| `share.mjs` | the share link, the example league, next season's fields |
+| `rng.mjs` | the seeded generator every search shares |
+| `officials.mjs` | referees, umpires and scorers |
+| `outputs.mjs` | team views, CSV (plain, calendar, TeamSnap, SportsEngine), .ics, messages, text, printable HTML |
+| `standings.mjs` | results, the table and tie-breaks, the play-off race |
+| `pools.mjs`, `pool-play.mjs` | pools and crossover seeds; each pool's own season |
+| `brackets.mjs` | seed order, single and double elimination, bracket results |
+| `swiss-system.mjs` | Swiss results, checks and text (the pairer stays `swiss.mjs`) |
+| `americano.mjs`, `ladder.mjs` | Americano and Mexicano; ladder leagues |
+
+The other modules (`night.mjs`, `boxleague.mjs`, `practice.mjs`, `tournament.mjs`, `bowling.mjs`,
+`golf.mjs`, the server's helpers) now import from the module that holds each name.
+`carryover.mjs` and `orient.mjs` take `mulberry32` from `rng.mjs`, which ends the import cycle between
+the carry-over search and `calc.mjs`.
+
+**What a browser fetches** (`node eval/page-weight.mjs <dir> <pages>`: every module a page reaches,
+gzipped one file at a time as a server sends them; `eval/page-weight.txt`):
+
+| page | before | after |
+|---|---|---|
+| Americano night | 215 kB | **17 kB** |
+| balanced teams | 221 kB | **16 kB** |
+| box league | 219 kB | **36 kB** |
+| practice slots | 222 kB | **39 kB** |
+| Swiss pairing | 213 kB | **40 kB** |
+| weekend tournament | 237 kB | **61 kB** |
+| bowling league | 253 kB | **74 kB** |
+| golf league | 270 kB | **90 kB** |
+| multi-division | 251 kB | 217 kB |
+| single league (`index.html`) | 215 kB | 225 kB |
+
+The single-league page uses nearly every module, so it gains nothing, and pays 10 kB (5%): fifteen files
+compress less well apart than as one. That is the trade for the eight pages above. The multi-division
+page still loads the season builder through `divisions.mjs`, which uses its text-field parsers.
+
+**Tests.** `page.test.mjs`: `calc.mjs` only re-exports its parts, each part imports only its siblings, and
+the eight one-format pages reach none of `calc.mjs`, `schedule.mjs`, `carryover.mjs`, `nights.mjs`
+(followed import by import). `deploy.test.mjs` now follows `server.mjs`'s imports all the way down: the
+old check read only the names `server.mjs` imports itself, so an image missing `pools.mjs` would have
+passed it and failed on start (tried: dropping `pools.mjs` from the Dockerfile fails the new test).
+A headless Chromium load of the ten pages logs no errors, and the single-league page builds the example
+season.
+
+## Practice slots on shared fields (2026-11-21)
 
 `practice-schedule.html`, `practice.mjs` (search in `practice-worker.mjs`), guide
 `how-to-make-a-practice-schedule-for-shared-fields.html`. Youth soccer, baseball, flag football and rec
@@ -626,7 +687,7 @@ third party: zero dependencies, one JSON file on a disk you own.
 
 Open `index.html`. No build step, no dependencies. `node --test '*.test.mjs'` runs the suite.
 
-- `calc.mjs` - circle-method rounds with byes for odd leagues and home/away built
+- `calc.mjs` (re-exports the feature modules listed in "One file became fifteen" above) - circle-method rounds with byes for odd leagues and home/away built
   in, date planner, seeded simulated-annealing court and time-slot assignment,
   blackout handling, CSV / iCalendar / text exports, standings, play-off bracket,
   rainout rescheduling (cancel a night or one team's match; it moves to the

@@ -9,7 +9,8 @@
 // Pure functions over a parsed TRF (trf.mjs parseTrf); no DOM, so the page, a worker and the eval
 // scripts share them.
 import { trfToResults, trfInitialColour } from "./trf.mjs";
-import { parseSwissResults, swissPairings } from "./calc.mjs";
+import { parseSwissResults } from "./swiss-system.mjs";
+import { swissPairings } from "./swiss.mjs";
 import { swissStandings } from "./swiss.mjs";
 
 /**

@@ -7,7 +7,7 @@
 // that can only read. embedKey() derives it from ADMIN_KEY (an HMAC, like the captain keys), so there is
 // nothing new to configure, and changing ADMIN_KEY retires every pasted embed at once.
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { dayLabel } from "./calc.mjs";
+import { dayLabel } from "./dates.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 

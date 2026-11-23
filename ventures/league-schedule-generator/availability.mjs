@@ -2,7 +2,7 @@
 // team's next games, the page shows the count beside every fixture, and the organiser sees which teams
 // are short of players before the night, not when a forfeit is already happening.
 // Pure functions: server.mjs keeps the store in its state file and passes `today` in.
-import { dayLabel } from "./calc.mjs";
+import { dayLabel } from "./dates.mjs";
 
 export const STATUSES = ["in", "maybe", "out"];
 export const MAX_NAMES = 60; // per team per game: more than any rec roster, small enough to bound the state file

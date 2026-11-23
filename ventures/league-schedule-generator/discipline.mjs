@@ -15,7 +15,7 @@
 // ban is never "served" by a game that did not happen. The output is who is suspended for which upcoming
 // fixtures, who is one yellow from a ban, and a scorers table. Nothing here is a disciplinary process: the
 // organiser's panel decides; this keeps the count. Zero dependencies.
-import { parseDate, dayLabel } from "./calc.mjs";
+import { parseDate, dayLabel } from "./dates.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const MAX_LINES = 2000;

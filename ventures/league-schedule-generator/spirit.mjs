@@ -7,7 +7,7 @@
 // never shown to players. Ratings are keyed by fixture id (a game keeps it through rainouts) and by the
 // rating side, so a captain can change their own rating while the game is still in the report window.
 // Zero dependencies.
-import { dayLabel } from "./calc.mjs";
+import { dayLabel } from "./dates.mjs";
 import { reportableGames, REPORT_DAYS } from "./confirm.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);

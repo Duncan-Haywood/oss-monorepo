@@ -6,7 +6,7 @@
 // when the captain asks (blackouts, the two teams' other games, a free court and slot), so a request the
 // organiser sees is one that fits. Requests are keyed by fixture id, which a game keeps across rainouts,
 // withdrawals and late teams. Zero dependencies.
-import { dayIso, dayLabel, parseDate } from "./calc.mjs";
+import { dayIso, dayLabel, parseDate } from "./dates.mjs";
 
 export const MAX_NOTE = 200;
 export const MAX_OPEN = 200; // requests in the state file at once

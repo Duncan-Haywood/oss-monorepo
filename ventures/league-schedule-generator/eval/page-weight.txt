@@ -1,0 +1,23 @@
+# node eval/page-weight.mjs <dir> <pages>, 2026-11-23: before = main at 33848f38b (calc.mjs one 4,195-line file), after = calc.mjs split into feature modules
+## before
+index.html                                16 modules   652 kB  215 kB gz
+balanced-teams.html                       14 modules   674 kB  221 kB gz
+bowling-league-schedule.html              18 modules   758 kB  253 kB gz
+golf-league-schedule.html                 20 modules   809 kB  270 kB gz
+multi-division-league-schedule.html       14 modules   780 kB  251 kB gz
+swiss-pairing.html                        14 modules   649 kB  213 kB gz
+americano-night.html                      14 modules   656 kB  215 kB gz
+box-league.html                           14 modules   667 kB  219 kB gz
+practice-schedule.html                    14 modules   676 kB  222 kB gz
+weekend-tournament-schedule.html          16 modules   722 kB  237 kB gz
+## after
+index.html                                31 modules   662 kB  225 kB gz
+balanced-teams.html                        4 modules    44 kB   16 kB gz
+bowling-league-schedule.html              13 modules   203 kB   74 kB gz
+golf-league-schedule.html                 15 modules   254 kB   90 kB gz
+multi-division-league-schedule.html       17 modules   660 kB  217 kB gz
+swiss-pairing.html                         9 modules   121 kB   40 kB gz
+americano-night.html                       8 modules    47 kB   17 kB gz
+box-league.html                            8 modules   103 kB   36 kB gz
+practice-schedule.html                     8 modules   113 kB   39 kB gz
+weekend-tournament-schedule.html          12 modules   176 kB   61 kB gz

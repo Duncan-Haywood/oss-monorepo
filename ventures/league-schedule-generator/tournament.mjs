@@ -11,7 +11,12 @@
 // wait any team has between games, then the least total waiting. validateTournament re-checks
 // every rule from the output alone.
 
-import { parseDate, parseTime, dayLabel, dayIso, dayOfWeek, splitPools, poolPlayoffSeeds, playoffBracket, roundRobin, mulberry32, csvCell } from "./calc.mjs";
+import { parseDate, parseTime, dayLabel, dayIso, dayOfWeek } from "./dates.mjs";
+import { splitPools, poolPlayoffSeeds } from "./pools.mjs";
+import { playoffBracket } from "./brackets.mjs";
+import { roundRobin } from "./rounds.mjs";
+import { mulberry32 } from "./rng.mjs";
+import { csvCell } from "./outputs.mjs";
 
 const WEEKDAY_WORDS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 const DAY = 1440;

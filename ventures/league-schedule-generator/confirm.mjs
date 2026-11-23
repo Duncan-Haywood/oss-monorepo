@@ -6,7 +6,7 @@
 // Reports are keyed by fixture id, which a game keeps across rainouts, withdrawals and late teams, so a
 // confirmed game cannot be added twice. Zero dependencies.
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { dayLabel } from "./calc.mjs";
+import { dayLabel } from "./dates.mjs";
 
 export const REPORT_DAYS = 21; // how far back a captain can still report a game
 export const MAX_SCORE = 999;

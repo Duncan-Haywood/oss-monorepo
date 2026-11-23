@@ -9,7 +9,8 @@
 //
 // Nothing here touches the DOM, storage or the network.
 
-import { americano, mexicanoNextRound, parseTeams } from "./calc.mjs";
+import { americano, mexicanoNextRound } from "./americano.mjs";
+import { parseTeams } from "./names.mjs";
 
 export const SIT_OUT_RULES = ["none", "average", "half"];
 export const MAX_PLAYERS = 64;

@@ -11,7 +11,8 @@
 //
 // Nothing here touches the DOM, storage or the network.
 
-import { parseTeams, csvCell } from "./calc.mjs";
+import { parseTeams } from "./names.mjs";
+import { csvCell } from "./outputs.mjs";
 
 export const MAX_PLAYERS = 200;
 export const MIN_BOX = 3;
