@@ -820,6 +820,45 @@ Other tracks need not chase polish meanwhile, beyond what their own work
 touches. Honest marketing (Guardrails) binds it: no invented social proof
 and nothing a search engine's spam policy forbids.
 
+## Direction: much more usage analytics, as far as the law allows
+
+Set by the owner on 2026-11-23: "i want one of the directions to be having a
+lot more usage analytics as far as privacy laws permit."
+
+Usage is the only honest signal of which product deserves the fleet's time
+(`portfolio/usage/README.md`), and most rows still read "never measured". So
+collect a lot more of it, up to the legal line and not short of it. The line
+is the one already set in "Privacy rules follow the law, not stricter" above
+and tabled in
+[`docs/legal/privacy-baseline.md`](../docs/legal/privacy-baseline.md); this
+direction asks runs to actually use that room. In practice:
+
+- **Every product page counts more than page loads**, on by default with no
+  banner, because anonymous aggregates need none: which features are used,
+  whether a calculation or tool run completes, errors, time-to-result
+  buckets, referrer class, country and device class. Server side or through
+  `platform/edge/`, nothing stored on the device.
+- **Identifier-based analytics where they answer a real question**
+  (returning visitors, funnels across pages, A/B tests): allowed, behind
+  prior opt-in consent for EU/UK visitors (ePrivacy, PECR) with reject as easy
+  as accept, and disclosed everywhere.
+- **Cookieless analytics vendors** (Cloudflare Web Analytics on the account
+  we already have, Plausible and similar) are fine with an accurate notice.
+- **Distributed apps and tools** (CLIs, extensions, desktop and mobile apps)
+  may send anonymous usage counts with a clear notice and an easy off switch,
+  and opt-in where the law or the store's policy requires it. Copies other
+  people deploy themselves are still never measured (2026-10-16).
+- **Shared code over one-offs**: an event helper, a consent component and a
+  daily rollup into `portfolio/usage/` that every page gets from the shared
+  template beats instrumenting pages by hand ("software for the routine").
+
+What does not move: the law itself (GDPR, ePrivacy, PECR, CCPA/CPRA and
+the rest), privacy copy that says exactly what each page collects, GPC for
+anything that sells or shares data, and **only aggregates in this public
+repository**: no IP addresses, emails, user or device IDs, or text a visitor
+typed. A run that adds a collection updates the privacy copy in the same PR
+and records the numbers in `usage.yaml`, where the router reads them.
+
 ## Judgment over rules
 
 Set by the owner on 2026-10-15, and sharpened on 2026-10-20: "i think the
