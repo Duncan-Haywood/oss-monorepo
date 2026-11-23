@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 162 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 163 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **The ladder's edge survives a tool upgrade; tuned recipes do not** (milestone 158): on 27 SKY130 ss designs under Yosys 0.70
   and 0.71, the clipped ladder beats equal-cost random routing by about 4 points under both (change -0.48, interval -3.05 to
@@ -21,6 +21,10 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   the clipped ladder's edge over equal-cost random routing at -4.37 points (interval -6.56 to -2.32; +0.33 against Yosys's
   naming alone; better than random on 24 of 27, sign p 0.00005), but one renaming moves a single design's edge 2.36 points on average and flips its sign on 3 of 27:
   [`experiments/naming_ladder/`](experiments/naming_ladder/results.txt).
+- **Per-design edges larger than about 3 points survive naming noise; smaller ones are ties** (milestone 163, replay): over 200 draws
+  in which each routed point takes one of its three namings, a design's edge has a median sd of 1.02 points, the 27-design mean stays
+  between -4.78 and -3.62, no design with an edge above 3 points flips sign, and the two that flip in over 20% of draws sit within a
+  point of zero: [`experiments/naming_draws/`](experiments/naming_draws/results.txt).
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
 - **Successive halving does not reliably beat random routed search** once budgets exceed a few
