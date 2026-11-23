@@ -177,3 +177,74 @@ test("a host and one of its layers are not 'replaced in place'", () => {
   // alone, a layer of 2.0 against a host of 3.0 is too far off in volume
   assert.equal(diffTakeoffs([host], [row({ g: "C2", cls: "IfcWall", v: 2.0, box: [0, 0.05, 0, 5, 0.25, 3] })]).summary.replacedInPlace, 0);
 });
+
+test("a storey renamed under its own GlobalId is listed once, not as a change to every element on it; a type renamed stays a change", () => {
+  // Tulpstraat (BlenderBIM), 2024-02-10 -> 02-15: "My Storey" renamed
+  // "00_begane_grond" and the wall type "TYPEX" renamed "buitengevel", same
+  // GlobalIds; the interior walls were given a new type
+  const r = (g, o = {}) => ({ ...row({ g, cls: o.cls ?? "IfcWall", v: o.v ?? 1, box: o.box ?? [0, 0, 0, 1, 1, 1], storey: o.storey ?? "My Storey" }), storeyGlobalId: o.sg ?? "S0", type: o.type ?? null, typeGlobalId: o.tg ?? null });
+  const a = [r("W1", { type: "TYPEX", tg: "T0" }), r("W2", { type: "TYPEX", tg: "T0" }), r("WIN", { cls: "IfcWindow" }), r("B1", { cls: "IfcBeam" })];
+  const b = [
+    r("W1", { type: "buitengevel", tg: "T0", storey: "00_begane_grond" }),
+    r("W2", { type: "binnenwanden_50mm", tg: "T1", storey: "00_begane_grond" }),
+    r("WIN", { cls: "IfcWindow", storey: "00_begane_grond" }),
+    // the beam's storey has a new GlobalId under the old name
+    r("B1", { cls: "IfcBeam", storey: "My Storey", sg: "S1" }),
+  ];
+  const d = diffTakeoffs(a, b);
+  assert.deepEqual(d.renames.storey, [{ globalId: "S0", before: "My Storey", after: "00_begane_grond", elements: 3 }]);
+  assert.deepEqual(d.renames.type, [{ globalId: "T0", before: "TYPEX", after: "buitengevel", elements: 1 }]);
+  assert.deepEqual(d.unchanged.map((c) => c.b.globalId).sort(), ["B1", "WIN"]);
+  assert.equal(d.summary.renamedOnly, 1);
+  assert.deepEqual(d.unchanged.find((c) => c.b.globalId === "WIN").renamed, { storey: { before: "My Storey", after: "00_begane_grond" } });
+  // Revit keeps a type's GlobalId when the type is re-specified, so a type
+  // rename is still a type change, labelled as the same type object
+  const w1 = d.changed.find((c) => c.b.globalId === "W1");
+  assert.deepEqual(w1.attributes, { type: { before: "TYPEX", after: "buitengevel", sameTypeObject: true } });
+  assert.deepEqual(w1.renamed, { storey: { before: "My Storey", after: "00_begane_grond" } });
+  assert.match(changesCsv(d), /type: TYPEX -> buitengevel \(same type GlobalId: renamed or re-specified\)/);
+  const w2 = d.changed.find((c) => c.b.globalId === "W2");
+  assert.deepEqual(w2.attributes, { type: { before: "TYPEX", after: "binnenwanden_50mm" } }, "a new type is a change; the storey rename is not");
+  const b1 = d.changed.find((c) => c.b.globalId === "B1");
+  assert.equal(b1, undefined, "same storey name, new storey GlobalId: not a change (a re-export may regenerate it)");
+  assert.equal(d.summary.storeysRenamed, 1);
+  assert.equal(d.summary.typesRenamed, 1);
+  const csv = changesCsv(d);
+  assert.match(csv, /storey renamed,S0,S0,IfcBuildingStorey,00_begane_grond,,00_begane_grond,same GlobalId,name: My Storey -> 00_begane_grond \(3 elements; not counted as changed\)/);
+  assert.match(csv, /type renamed,T0,T0/);
+  // rows without the storey's GlobalId (an older takeoff) compare by name, as before
+  const strip = (x) => ({ ...x, storeyGlobalId: null, typeGlobalId: null });
+  const old = diffTakeoffs(a.map(strip), b.map(strip));
+  assert.equal(old.summary.storeysRenamed, 0);
+  assert.equal(old.changed.find((c) => c.b.globalId === "WIN").attributes.storey.after, "00_begane_grond");
+  assert.equal(old.changed.find((c) => c.b.globalId === "W1").attributes.type.sameTypeObject, undefined);
+});
+
+test("a storey name moved to another GlobalId is a change; a regenerated GlobalId under the same name is not", () => {
+  const r = (g, sg, storey) => ({ ...row({ g, cls: "IfcBeam", v: 1, box: [0, 0, 0, 1, 1, 1], storey }), storeyGlobalId: sg });
+  // the beam's storey S0 was renamed L2 while it moved to S1, named L1: a storey change, not a rename
+  const d = diffTakeoffs([r("B", "S0", "L1")], [r("B", "S1", "L1x")]);
+  assert.deepEqual(d.changed[0].attributes.storey, { before: "L1", after: "L1x" });
+  assert.deepEqual(d.renames.storey, []);
+  // re-exported with new storey GlobalIds, names kept: nothing changed
+  assert.equal(diffTakeoffs([r("B", "S0", "L1")], [r("B", "S9", "L1")]).summary.changed, 0);
+});
+
+test("replaced in place pairs across a renamed storey", () => {
+  const w = (g, storey, box) => ({ ...row({ g, cls: "IfcWindow", v: 0.07, box, storey }), storeyGlobalId: "S0" });
+  const d = diffTakeoffs([w("A", "My Storey", [0, 0, 0, 1, 0.2, 1.5])], [w("B", "00_begane_grond", [0, 0, -0.02, 1, 0.2, 1.48])]);
+  assert.equal(d.summary.replacedInPlace, 1);
+});
+
+test("renames read from the file: the storey's and type's GlobalIds come through the takeoff", () => {
+  const src = readFileSync(new URL("./samples/sample-office.ifc", import.meta.url), "latin1");
+  const renamed = src.replace("IFCBUILDINGSTOREY('12OnscnIBCIL_UNHcL4B_o',$,'Level 1'", "IFCBUILDINGSTOREY('12OnscnIBCIL_UNHcL4B_o',$,'00 Ground floor'").replace("IFCWALLTYPE('1bNX7RDrbCpuXgosCTwZgn',$,'Basic Wall 200'", "IFCWALLTYPE('1bNX7RDrbCpuXgosCTwZgn',$,'Exterior 200'");
+  assert.notEqual(renamed, src);
+  const a = load("sample-office.ifc"), b = takeoff(parseStep(Buffer.from(renamed, "latin1"))).rows;
+  const d = diffTakeoffs(a, b);
+  // the walls of the renamed type are listed as type changes; nothing else
+  assert.ok(d.changed.length > 0 && d.changed.every((c) => Object.keys(c.attributes).join() === "type" && c.attributes.type.sameTypeObject && !Object.keys(c.quantities).length));
+  assert.equal(d.renames.storey[0].after, "00 Ground floor");
+  assert.equal(d.renames.type[0].after, "Exterior 200");
+  assert.ok(d.summary.renamedOnly > 0);
+});

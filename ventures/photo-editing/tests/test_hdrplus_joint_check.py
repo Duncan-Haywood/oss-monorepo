@@ -116,6 +116,31 @@ class JudgeTest(unittest.TestCase):
         self.assertIn("j4", out)
         self.assertEqual(out["collapsed_j4"], ["b2"])
 
+    def test_j5_shot_share_reads_mpcws_alone(self):
+        import hdrplus_joint_check as j
+
+        # a healthy read: shot term 1e-4 * 0.18 = 1.8e-5 against read 1e-6, share ~0.95
+        self.assertAlmostEqual(j.shot_share((1e-4, 1e-6)), 1.8e-5 / 1.9e-5, places=6)
+        self.assertFalse(j.collapsed_j5({"mpcws": (1e-4, 1e-6)}))
+        # a collapse that moved the noise into the read term (a real J5 tune burst: slope 0, read 1.5e-6)
+        self.assertTrue(j.collapsed_j5({"mpcws": (0.0, 1.5e-6)}))
+        # a good read with J4's lowest kept slope (7.4e-5) and a small read term (assumed here): kept
+        self.assertFalse(j.collapsed_j5({"mpcws": (7.4e-5, 1e-7)}))
+        self.assertEqual(j.shot_share((0.0, 0.0)), 0.0)
+        self.assertTrue(j.collapsed_j5({"mpcws": (0.0, 0.0)}))
+        # negative terms (a fit can return them) count as 0
+        self.assertEqual(j.shot_share((1e-4, -1e-6)), 1.0)
+
+    def test_j5_rows_are_judged(self):
+        import hdrplus_joint_check as j
+
+        rows = _rows()
+        for r in [r for r in rows if r["arm"] == "ship"]:
+            rows.append({**r, "arm": "j5", "collapsed": r["burst"] == "b4"})
+        out = j.judge_rows(rows)
+        self.assertIn("j5", out)
+        self.assertEqual(out["collapsed_j5"], ["b4"])
+
 
 if __name__ == "__main__":
     unittest.main()

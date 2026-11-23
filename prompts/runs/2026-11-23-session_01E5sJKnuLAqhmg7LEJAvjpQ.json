@@ -41,6 +41,10 @@
     {
       "file": "ventures/hearth-and-horizon/BIBLE.md",
       "issue": "The Next-up proposal asked for sound or lighting; its title ('a third louder') fits only sound, so a lighting story needs a new title and the Done marker has to explain the swap."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "'Claim before you draft' collided anyway: PR #18419 drafted and merged the same proposal (sound) while this run drafted it (light). The gh api search/issues check for the phrase returned nothing although #18419 was open minutes later: the search index lags. list_pull_requests sorted by created, re-run just before merging, would have caught it."
     }
   ],
   "deviations": [
@@ -55,13 +59,19 @@
       "why": "Audio cap exceeded (581 MB > 400 MB).",
       "did": "Text and pages only, no MP3.",
       "result": "Story is listed text-only like the other recent pieces."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "Overlap guidance says rewrite or drop a piece that overlaps finished work; the overlap was found only at merge time.",
+      "did": "Kept The First Click as a labelled companion (light vs sound), cut its pencil-marks scene that mirrored #18419, added cross-references in the story note, DONE entry and post; took main's Zipf proposal over this run's duplicate.",
+      "result": "Two distinct stories on one law; tests and check_posts green."
     }
   ],
   "writeups": [
     "docs/posts/2026-11-23-hearth-and-horizon-the-first-click.md"
   ],
   "goal": null,
-  "notes": "Creative track, Hearth & Horizon shelf: new story the-first-click (Weber-Fechner law and equal-watt vs equal-ratio dimmer steps, St. Fursa's (invented), Ballyhaunis, Candlemas to Easter Vigil 2054, ~5,300 words, text only). Claimed the BIBLE proposal 'The step that is a third louder' first, marked it Done, added a 2054 timeline row and a new Next-up proposal (The hundredth word, Zipf's law, Manx). Checks: weekdays and Easter 2054 computed in code, sunset by NOAA approximation, every lux/ratio/DALI arc level computed against the closing note; re-read fixed 2 weekday phrases, sunset-to-fire gap, arc-notch dialogue, a Fechner comparison. Local: node --test in hearth-and-horizon 20/20; run_workflow_locally --for-changes: pages.yml, page-integrity, sibling-links, link-contrast, doc-refs, conflict-markers, control-plane-guard, readme-live-links all passed (uses: steps not run); ventures-tests see PR.",
+  "notes": "Creative track, Hearth & Horizon shelf: new story the-first-click (Weber-Fechner law and equal-watt vs equal-ratio dimmer steps, St. Fursa's (invented), Ballyhaunis, Candlemas to Easter Vigil 2054, ~5,300 words, text only). Claimed the BIBLE proposal 'The step that is a third louder' first, marked it Done, added a 2054 timeline row and a new Next-up proposal (The hundredth word, Zipf's law, Manx). Checks: weekdays and Easter 2054 computed in code, sunset by NOAA approximation, every lux/ratio/DALI arc level computed against the closing note; re-read fixed 2 weekday phrases, sunset-to-fire gap, arc-notch dialogue, a Fechner comparison. Local: node --test in hearth-and-horizon 20/20; run_workflow_locally --for-changes: pages.yml, page-integrity, sibling-links, link-contrast, doc-refs, conflict-markers, control-plane-guard, readme-live-links all passed (uses: steps not run); ventures-tests see PR. Merge conflict with #18419 (same proposal, sound version) resolved at merge time; see deviations.",
   "corrections": [],
   "redteam": null,
   "usage": {

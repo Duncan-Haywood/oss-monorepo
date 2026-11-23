@@ -432,12 +432,15 @@ export function takeoff(model, opts = {}) {
     const id = e.id;
     const row = {
       id, globalId: e.args[0], ifcClass: prettyClass(e.type), ifcType: e.type, name: str(e.args[2]), tag: str(e.args[7]) ?? null,
-      type: null, storey: null, storeyElevation: null, space: null, material: null, classification: null, parent: null, isAssembly: false,
+      type: null, typeGlobalId: null, storey: null, storeyGlobalId: null, storeyElevation: null, space: null, material: null, classification: null, parent: null, isAssembly: false,
       stored: {}, storedSet: null, computed: null, check: null, box: null,
       pathJoins: idx.pathJoins.get(id) || [],
     };
     const tId = idx.typeOf.get(id);
-    if (tId) { const t = E.get(tId); row.type = t ? str(t.args[2]) : null; }
+    // the type's and storey's own GlobalIds: a revision that only renames a
+    // storey or a type keeps them, so the change report (diff.mjs) can tell a
+    // rename from an element moved to another storey or given another type
+    if (tId) { const t = E.get(tId); row.type = t ? str(t.args[2]) : null; row.typeGlobalId = t ? str(t.args[0]) : null; }
     // storey: own containment, else the aggregate parent's
     let sid = idx.storeyOf.get(id), p = idx.parentOf.get(id), hop = 0;
     while (!sid && p && hop++ < 10) { sid = idx.storeyOf.get(p); p = idx.parentOf.get(p); }
@@ -452,7 +455,7 @@ export function takeoff(model, opts = {}) {
       while (up && h++ < 10 && E.get(up)?.type === "IFCSPACE") up = idx.parentOf.get(up);
       if (up && E.get(up)?.type === "IFCBUILDINGSTOREY") sid = up;
     }
-    if (sid) { const s = E.get(sid); row.storey = s ? (str(s.args[2]) ?? `#${sid}`) : null; if (s && s.type === "IFCBUILDINGSTOREY" && numOf(s.args[9]) != null) row.storeyElevation = numOf(s.args[9]) * f; }
+    if (sid) { const s = E.get(sid); row.storey = s ? (str(s.args[2]) ?? `#${sid}`) : null; row.storeyGlobalId = s ? str(s.args[0]) : null; if (s && s.type === "IFCBUILDINGSTOREY" && numOf(s.args[9]) != null) row.storeyElevation = numOf(s.args[9]) * f; }
     const parent = idx.parentOf.get(id);
     if (parent) { const pe = E.get(parent); if (pe && isElement(pe)) row.parent = parent; }
     // the aggregate it belongs to, element or not (an IfcStair is not one here):

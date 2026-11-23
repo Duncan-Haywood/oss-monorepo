@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVKcQHrBAFk65dudPfE",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products; merge when done.",
+  "input_sha256": "81cce4695fb80157924b6c22d20d8ba6981a45ca77882284ef71cf8b87115a95",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T11:56:38Z",
+  "ended": "2026-11-23T12:24:15Z",
+  "wall_minutes": 27.91,
+  "tokens_in": 8335165,
+  "tokens_out": 31953,
+  "cost_usd": 3.3709,
+  "tool_calls": 71,
+  "task": "Deepen (flagship 7) photo-editing: J4's committed follow-up, a collapse test on mpcws's own model before a fifth HDR+ draw",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18415",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "started a 960-burst re-prep of the J1-J4 lists at 4 processes, which would have taken ~2 h and competed with the decisive draw",
+      "fix": "reniced it, then stopped it at 233 bursts once J5 decided; reported the partial reading as such"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing buildable: still names raw.pixls.us, refused again from this session; the camera-raw drawn-noise check (the row's first next item) stays unbuildable here"
+    },
+    {
+      "file": "ventures/photo-editing/eval/hdrplus-joint-check-j4-2026-11-23.md",
+      "issue": "'Prep and scoring took about 10 minutes on 4 cores' for 240 bursts; here it was ~8-10 s a burst per process (about 25 min for 240 on 2 processes), so a four-list reading is ~1-2 h, not a side task"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/photo-editing/eval/hdrplus-joint-check-j4-2026-11-23.md",
+      "why": "J4's Next asked for the floor to be scored on the four lists as a reading; the line was committed from an 11-burst look and the four-list reading was stopped at 233 bursts (models only) once J5 decided",
+      "did": "committed the 0.5 shot-share line before the full reading, ran J5, reported the partial reading",
+      "result": "J5 failed; the partial reading (share under 0.5 on 17%) would have predicted the over-firing, recorded in the note as a method lesson"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-photo-editing-noise-read-fifth-draw-fallback.md",
+    "ventures/photo-editing/eval/hdrplus-joint-check-j5-2026-11-23.md"
+  ],
+  "goal": "Deepen a flagship product's core engine with a pre-registered test",
+  "notes": "Route: ventures/1; Start here sent photo-editing. Rule committed in 9a6918126 before the draw (seed 20261126). J5: 126 scored; h1-h3 pass, h4o fails on 0919_20150905_181312_630 (-0.349 dB, a total collapse). j4 on the same draw passes all (0 worse, +0.059/+0.099). Local checks: pytest tests/test_hdrplus_joint_check.py tests/test_demosaic_noise_aware.py 36 passed; validate.py ok; check_posts ok. No developer code changed; the default and the opt-in are unchanged. No agent doc: the eval note and NEXT.md carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0d488e83-814d-5fb7-bd0e-b8537848af1a",
+    "transcripts": 1,
+    "first": "2026-11-23T11:56:38Z",
+    "last": "2026-11-23T12:24:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 138,
+        "output": 31953,
+        "thinking": 8595,
+        "cache_read": 8198582,
+        "cache_write_5m": 0,
+        "cache_write_1h": 136445,
+        "api_equivalent_usd": 3.3709,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 138,
+      "output": 31953,
+      "thinking": 8595,
+      "cache_read": 8198582,
+      "cache_write_5m": 0,
+      "cache_write_1h": 136445,
+      "api_equivalent_usd": 3.3709,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 68,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.91,
+      "active_minutes": 27.91,
+      "model_minutes": 6.37,
+      "tool_minutes": 21.54,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an imaging engineer designing, running and writing up one pre-registered blind test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 178.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

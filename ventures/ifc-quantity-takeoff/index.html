@@ -816,6 +816,7 @@
       ["New GlobalId, same element", s.byTag + s.byGeometry, s.byTag + s.byGeometry ? "warn" : ""],
       ["Parts and hosts paired", s.merged + s.split],
       ["Replaced in place", s.replacedInPlace, s.replacedInPlace ? "warn" : ""],
+      ["Storeys / types renamed", `${s.storeysRenamed} / ${s.typesRenamed}`],
     ].map(([k, v, c]) => `<div class="card">${esc(k)}<b class="${c || ""}">${esc(v)}</b></div>`).join("");
     $("diff-out").hidden = false;
     renderDelta();
@@ -842,11 +843,15 @@
     const out = [];
     const what = (c) => [
       ...Object.entries(c.quantities).map(([k, q]) => `${k} ${sgn(q.delta, 4)}`),
-      ...Object.entries(c.attributes).map(([k, v]) => `${k}: ${v.before ?? "(none)"} \u2192 ${v.after ?? "(none)"}`),
+      ...Object.entries(c.attributes).map(([k, v]) => `${k}: ${v.before ?? "(none)"} \u2192 ${v.after ?? "(none)"}${v.sameTypeObject ? " (same type GlobalId: renamed or re-specified)" : ""}`),
       ...(c.moved ? [`moved ${c.moved.distance.toFixed(3)} m`] : []),
       ...(c.reshaped ? ["box resized"] : []),
       ...(howText(c.how) ? [howText(c.how)] : []),
     ].join("; ");
+    // a storey or type renamed under its own GlobalId: one line, not a change on each element
+    for (const [k, label, cls] of [["storey", "Storey renamed", "IfcBuildingStorey"], ["type", "Type renamed", "type"]]) {
+      for (const r of diff.renames[k]) out.push([label, { name: r.after, globalId: r.globalId, ifcClass: cls, storey: k === "storey" ? r.after : "" }, `${r.before ?? "(none)"} \u2192 ${r.after ?? "(none)"}, same GlobalId (${r.elements} element${r.elements === 1 ? "" : "s"}, ${k === "storey" ? "not counted as changed" : "each still listed as a type change"})`, ""]);
+    }
     for (const c of diff.changed) out.push([c.how === "place" ? "Replaced in place" : "Changed", c.b, what(c), "warn"]);
     for (const c of diff.unchanged) if (howText(c.how)) out.push(["Same element", c.b, howText(c.how), ""]);
     for (const g of diff.groups) out.push([g.kind === "merged" ? "Parts \u2192 host" : "Host \u2192 parts", g.after.length === 1 ? g.after[0] : g.before[0], `${g.before.length} \u2192 ${g.after.length} elements, volume ${g.volumeBefore.toFixed(3)} \u2192 ${g.volumeAfter.toFixed(3)} m\u00b3`, ""]);

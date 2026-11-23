@@ -1741,6 +1741,14 @@ the next step: on this draw the 0.6 line fell back on 3 frames where the read wa
 the one over-reading (2.2 to 6.6x the true shot slope), so the next fallback test should look at the read's own
 slope. `eval/hdrplus-joint-check-j4-2026-11-23.md`.
 
+**A fifth draw: the fallback stays as it is (2026-11-23, later).** The read's own slope was tried as the fallback
+test: fall back where the shot term is under half the model's noise at 18% grey. Committed before a fifth draw of
+240 bursts (126 scored), it failed: one burst lost 0.35 dB because the read collapsed completely (both terms near
+0, so their ratio looked healthy), and the slope turned out to be exactly 0 on 22 bursts where the read still
+gained on most, so the test fell back on 31 frames and gave up 0.017 dB luma off the mean. The shipped 0.6 ratio
+line passed the same draw with no burst 0.1 dB worse (+0.06 dB colour, +0.10 luma): two blind draws, 237 bursts,
+none lost. `eval/hdrplus-joint-check-j5-2026-11-23.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,
