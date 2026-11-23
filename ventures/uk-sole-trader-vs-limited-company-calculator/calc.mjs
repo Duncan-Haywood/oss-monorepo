@@ -31,7 +31,7 @@ export const R = {
   secondaryThreshold: 5000,
   employerNi: 0.15,
   employmentAllowance: 10500,
-  lowerEarningsLimit: 6500,
+  lowerEarningsLimit: 6708, // £129 a week, HMRC rates and thresholds for employers 2026 to 2027
   ctSmall: 0.19,
   ctMain: 0.25,
   ctLower: 50000,
@@ -48,8 +48,10 @@ export function personalAllowance(income) {
 }
 
 // Income tax on non-dividend income (earnings / self-employed profit).
-export function incomeTax(nonDividend) {
-  const pa = personalAllowance(nonDividend);
+// The personal allowance tapers on total (adjusted net) income, dividends included
+// (ITA 2007 s.35), so pass totalIncome when there are dividends on top.
+export function incomeTax(nonDividend, totalIncome = nonDividend) {
+  const pa = personalAllowance(totalIncome);
   const taxable = Math.max(0, nonDividend - pa);
   const basic = Math.min(taxable, R.basicBand);
   const higher = Math.min(Math.max(0, taxable - R.basicBand), R.additionalFrom - R.basicBand);
@@ -124,7 +126,7 @@ export function limitedCompany(profit, salary, costs = 0, employmentAllowance = 
   const retained = Math.min(Math.max(0, retain), Math.max(0, ctProfit - ct));
   const dividends = Math.max(0, ctProfit - ct - retained);
   const eeNi = employeeNi(salary);
-  const it = incomeTax(salary);
+  const it = incomeTax(salary, salary + dividends);
   const dt = dividendTax(salary, dividends);
   const takeHome = salary - eeNi - it + dividends - dt;
   const tax = erNi + ct + eeNi + it + dt;
@@ -209,7 +211,7 @@ export function compare(input) {
   else findings.push({ severity: "medium", title: `Staying a sole trader keeps about £${Math.round(-diff).toLocaleString("en-GB")} more a year on these numbers`, detail: "At this profit the company's running costs and the extra layers of tax outweigh its lower rates. A limited company can still make sense for liability protection or to retain profit." });
   if (profit > R.mtdThreshold) findings.push({ severity: "high", title: "Making Tax Digital for Income Tax applies to a sole trader at this level", detail: "From April 2026 sole traders with qualifying income above £50,000 keep digital records and send quarterly updates through software; the threshold falls to £30,000 in April 2027 and £20,000 in April 2028. A limited company is outside that scheme but has its own filings." });
   else if (profit > 20000) findings.push({ severity: "info", title: "Making Tax Digital for Income Tax will reach a sole trader at this level later", detail: "The qualifying-income threshold is £50,000 from April 2026, £30,000 from April 2027 and £20,000 from April 2028, on gross income before expenses." });
-  if (lc.salary < R.lowerEarningsLimit) findings.push({ severity: "medium", title: "Salary is below the lower earnings limit", detail: "A salary under £6,500 does not earn a qualifying year for the State Pension. Raising it to at least £6,500 costs little and protects the year." });
+  if (lc.salary < R.lowerEarningsLimit) findings.push({ severity: "medium", title: "Salary is below the lower earnings limit", detail: "A salary under £6,708 (£129 a week in 2026/27) does not earn a qualifying year for the State Pension. Raising it to at least £6,708 costs little and protects the year." });
   if (lc.dividends > 0) findings.push({ severity: "info", title: "Dividends are taxed at higher rates from April 2026", detail: "Ordinary-rate dividend tax is 10.75% and upper-rate 35.75% in 2026/27, after a £500 allowance. This is why the best split is sensitive to the year." });
   if (profit >= 100000 && profit <= 125140) findings.push({ severity: "high", title: "You are in the personal allowance taper", detail: "Between £100,000 and £125,140 of income the personal allowance is withdrawn, an effective rate near 60% on the slice. Pension contributions and salary choices matter most here." });
   if (retain > 0) findings.push({ severity: "info", title: `£${Math.round(lc.retained).toLocaleString("en-GB")} stays in the company and is not counted as take-home`, detail: "Retained profit has already borne corporation tax and will bear dividend tax when you later take it out, so it is deferred rather than saved. The sole trader figure is taxed on all profit whether or not you spend it." });

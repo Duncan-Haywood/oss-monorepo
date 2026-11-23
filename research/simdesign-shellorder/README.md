@@ -37,6 +37,23 @@ Single geometry, single load case, one mesh triple, uniform refinement only; the
 ## Next steps
 Add a fourth level (48×16×8, memory permitting) or a different refinement ratio to test the order; vary l/w to see when the gap to the closed form closes; model the whole L-bracket as one 3D body.
 
+## Known gaps (quality round 106)
+
+From the [audit](../../portfolio/quality/audits/2026-11-23-simdesign-shellorder.json), which reran
+`scan.py` end to end and reproduced every number above. Fixed then: two fast tests now pin the closed
+form and the Richardson step (`tests/test_closed_form_and_order.py`), and the element is named
+correctly (27-node triquadratic). Still open:
+
+- The 14% gap is attributed to shear deformation and warping without numbers. The closed form assumes
+  no warping, the bar's warping parameter is about 0.27, and the usual pre-buckling factor (about
+  1.077 here) is not discussed; the auditor's slenderness sweep (ratio 1.145, 1.074, 1.038 at
+  l/w = 3, 6, 12) supports a short-bar effect but is not in the repo.
+- No GCI or asymptotic-range check (GCI on the fine level is about 0.15%), and the observed order
+  2.57 is not compared with the higher rate expected for quadratic elements.
+- No test exercises the load or prebuckling-stress scaling (those seeded bugs still survive).
+- `scan.py <level>` overwrites `scan.txt` with one level, after which `analyze.py` fails; the engine
+  is a copy of simdesign-shellconverge's.
+
 ## Owner steps
 None needed (simulation only).
 
