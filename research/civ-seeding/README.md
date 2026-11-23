@@ -4,7 +4,9 @@ Does a new product spread through a village like news (one informed contact is e
 a behaviour that needs reinforcement from several adopters? And if the data cannot tell, whom
 should a rollout seed first? This programme asks that on the 43 Karnataka village networks of
 Banerjee, Chandrasekhar, Duflo and Jackson (2013), where a lender introduced microfinance
-through village leaders. **Latest step (milestone 24): an end-line awareness question ("have you heard of the product?") is the cheap survey addition that tells a simple contagion from reinforcement, but nothing tested tells a threshold from reinforcement, and fewer than about 20 villages identify nothing.** Reusing milestone 3's identification harness unchanged (it reproduces milestone 3's 58.5 / 82.0 / 55.5% recovery exactly), adding awareness lifts leave-one-village-out recovery of the information and reinforcement models to 91% and 91.5%, robust to 15% misreporting, and removes the in-sample criterion's bias towards the bigger model (98.5 / 95.5 / 100% in sample), while the threshold model drops to 73.5%; trimester adoption timing adds about 1.5 points, and with 20 villages the best design recovers every model in only 64% of datasets. The largest effect was not a measurement: scaling each moment by its spread lifts the plain cross-section to 83.5% or more for every model, so milestone 3's weak identification was partly its identity weighting ([`experiments/m24_measure/results.txt`](experiments/m24_measure/results.txt), figure [`recovery.svg`](experiments/m24_measure/recovery.svg)).
+through village leaders. **Latest step (milestone 27): the real villages' own cross-section, binned by the share of each household's neighbours who adopted, rules out the deterministic adoption threshold but shows a smooth rise no fitted model reproduces.** Take-up among non-leaders climbs from 10.9% with no adopting neighbours to 19.0%, 28.8% and 29.1% as the adopting share passes 0.4 and 0.6: steeper than simple contagion or reinforcement produce, with none of the threshold model's step (it predicts 38.7 to 47.9% past 0.6). In simulation the same four moments, with no awareness question, recover the information, threshold and reinforcement models in 81.5 / 99.5 / 89.5% of datasets on the data's own scale (69.0% lowest without them), and on the real data the information model now has the lowest held-out loss under all three weightings, ahead of the threshold in 0.96 of bootstrap draws and of reinforcement in only 0.835 ([`experiments/m27_share_real/results.txt`](experiments/m27_share_real/results.txt), [`LOG.md`](LOG.md), 2026-11-23).
+
+**Milestone 24: an end-line awareness question ("have you heard of the product?") is the cheap survey addition that tells a simple contagion from reinforcement, but nothing tested tells a threshold from reinforcement, and fewer than about 20 villages identify nothing.** Reusing milestone 3's identification harness unchanged (it reproduces milestone 3's 58.5 / 82.0 / 55.5% recovery exactly), adding awareness lifts leave-one-village-out recovery of the information and reinforcement models to 91% and 91.5%, robust to 15% misreporting, and removes the in-sample criterion's bias towards the bigger model (98.5 / 95.5 / 100% in sample), while the threshold model drops to 73.5%; trimester adoption timing adds about 1.5 points, and with 20 villages the best design recovers every model in only 64% of datasets. The largest effect was not a measurement: scaling each moment by its spread lifts the plain cross-section to 83.5% or more for every model, so milestone 3's weak identification was partly its identity weighting ([`experiments/m24_measure/results.txt`](experiments/m24_measure/results.txt), figure [`recovery.svg`](experiments/m24_measure/recovery.svg)).
 
 **Milestone 23:** the cost of echoed false ties is a slope, not a step, under the fitted contagion models, and the seed swaps cost by crowding seeds together, not by picking weaker ones. Scoring milestone 22's seed draws (43 villages &times; 100) under the three point fits with common random numbers, census degree discount with one-sided ties at half weight loses 0.80 adopters (z 5.5) from no echoed false ties to a tenth echoed and 1.65 more (z 10.4) by a quarter: 8 then 11 adopters per unit share, a mild steepening, so milestone 22's step lives in the refitted processes that set the worst case. From a tenth to a quarter the seeds gain 26 true ties among themselves (se 2.6) and reach 0.21 point fewer households (se 0.02), while the swapped-in seeds' true degree is only 0.33 below the ones they replace; 42 of 43 villages lose. The advice is unchanged: with the echo share unknown, keep every report ([`experiments/m23_swaps/results.txt`](experiments/m23_swaps/results.txt), [`LOG.md`](LOG.md), 2026-11-21).
 
@@ -1274,9 +1276,52 @@ milestone 25's scale taken from each dataset's own villages. Plan and five hypot
   everyone aware past it adopts; a noisy or heterogeneous threshold would blur that bin. The real BCDJ
   survey has no awareness question: this is a design result for a new study, not a verdict on the 43 villages.
 
+## Milestone 27: what the real villages' share profile says, without an awareness question (`experiments/m27_share_real/`)
+
+Milestone 26's share bins needed an awareness question the real BCDJ survey never asked. The
+same bins over *all* non-leaders need only who adopted and the network, so they can be computed
+on the 43 villages. Without awareness the moment is confounded (households next to adopters are
+more often informed, so take-up rises with the share even under simple contagion); the question
+is whether a threshold's step still shows above that. Milestone 3's harness runs unchanged (it
+reproduces milestones 3 and 25 and the real identity losses exactly). Plan and five hypotheses
+logged before the run; four held and one (H98) was inconclusive.
+
+| take-up among non-leaders by adopting share | 0 | (0, 0.4) | [0.4, 0.6) | [0.6, 1] |
+|---|---|---|---|---|
+| **real villages** (mean over villages) | **10.9%** | **19.0%** | **28.8%** | **29.1%** |
+| real, pooled households (2681 / 3943 / 899 / 463) | 8.3% | 18.5% | 30.6% | 39.7% |
+| information model (5&ndash;95% over datasets) | 9.0% | 22.7% | 23.1% (20.0&ndash;25.9) | 20.6% (16.7&ndash;24.8) |
+| threshold model | 10.8% | 20.2% | 19.6% (16.7&ndash;22.7) | 43.1% (38.7&ndash;47.9) |
+| reinforcement model | 10.5% | 22.1% | 22.6% (20.4&ndash;25.2) | 16.2% (13.2&ndash;19.2) |
+
+| leave one village out, I / T / R&delta; | identity | data's own scale | synthetic scale |
+|---|---|---|---|
+| cross-section (milestone 3) | 58.5 / 82.0 / 55.5% | 69.0 / 81.5 / 79.0% | 83.5 / 87.0 / 87.5% |
+| + share bins, no awareness | 69.5 / 100 / 81.0% | **81.5 / 99.5 / 89.5%** | 88.5 / 100 / 93.0% |
+| real data: lowest held-out loss, + share bins | information (0.85, 0.81) | information (0.96, 0.835) | information (0.996, 0.94) |
+
+(Brackets: share of paired bootstrap draws in which the information model beats the threshold and the reinforcement model.)
+
+- **No step in the real data.** The deterministic threshold puts 43% take-up past a 0.6 share; the
+  real villages show 29%, below every threshold dataset. The fractional-threshold model the programme
+  has carried since milestone 2 is the one these moments reject.
+- **But no simple contagion either.** Real take-up rises from 19% to 29% between the second and third
+  bins, where the information and reinforcement models stay flat (23%); the middle bins lie outside
+  every one of their datasets. A smooth response to the share, as a threshold that differs between
+  households would give (or homophily), is the shape to fit next.
+- **The share moment needs no new survey to identify the threshold** (99.5% recovery), and it lifts the
+  weakest family from 69.0% to 81.5% on the data's own scale. Under all three weightings the real data
+  now prefer the information model, decisively over the threshold (0.96&ndash;0.996 of draws), not over
+  reinforcement (0.81&ndash;0.94).
+- **It survives pooling.** Pooled over households instead of averaged over villages, the real top bin is 39.7%
+  against the threshold model's 46.4&ndash;56.6% band, and the real middle bin (30.6%) is above every information
+  and reinforcement dataset (at most 27.5% and 29.1%).
+- Caveats: the share is measured at the survey; one grid;
+  homophily is not among the families.
+
 ## Next steps
 
-Milestone 26 finds take-up among the aware binned by the *share* of adopting neighbours identifies all three models (96.5% or more, data's own scale, 43 villages; 85.5% at 20), against a deterministic threshold. Next: a noisy, per-household threshold as a fourth process, to see how fast that power fades; the share moments without awareness, which the real data contain, as a real-data check. Earlier: Milestone 25 finds the real villages' preferred model changes with the weighting (information, threshold, reinforcement, information under four weightings, none decisive) and that a scale taken from the data recovers less than milestone 24's synthetic one. Next: a village random effect in the processes (milestone 3b) so synthetic villages vary as much as the real ones; awareness under the data's own scale; a moment that splits threshold from reinforcement (take-up among the aware by the share, not the count, of adopting neighbours). Then, from milestone 23: Milestone 23 finds the half weight's step is not in the average fitted process (a slope there, 8 then
+Milestone 27 finds the real villages' take-up rising smoothly with the share of adopting neighbours (10.9 to 29.1%), with no threshold step and steeper than simple contagion. Next: a heterogeneous threshold (per-household &theta; from a Beta distribution) as a fourth family fitted with the share moments; a homophily process as the rival explanation of the smooth gradient; the paper's identification section with milestones 24 to 27. Earlier: Milestone 26 finds take-up among the aware binned by the *share* of adopting neighbours identifies all three models (96.5% or more, data's own scale, 43 villages; 85.5% at 20), against a deterministic threshold. Next: a noisy, per-household threshold as a fourth process, to see how fast that power fades; the share moments without awareness, which the real data contain, as a real-data check. Earlier: Milestone 25 finds the real villages' preferred model changes with the weighting (information, threshold, reinforcement, information under four weightings, none decisive) and that a scale taken from the data recovers less than milestone 24's synthetic one. Next: a village random effect in the processes (milestone 3b) so synthetic villages vary as much as the real ones; awareness under the data's own scale; a moment that splits threshold from reinforcement (take-up among the aware by the share, not the count, of adopting neighbours). Then, from milestone 23: Milestone 23 finds the half weight's step is not in the average fitted process (a slope there, 8 then
 11 adopters per unit &kappa;) and that the costly swaps crowd seeds together rather than pick weaker
 ones. Next: which refitted processes set the worst case between &kappa; = 0.1 and 0.25 (the harness's
 per-draw arg-max family and its parameters) and whether coverage loss predicts regret there; the

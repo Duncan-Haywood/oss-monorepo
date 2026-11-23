@@ -1,0 +1,77 @@
+# Milestone 27: take-up by share of adopting neighbours, without awareness
+milestone 3 harness: grid 850 points, S = 75, seeds (0, 1), 200 datasets per process; share bins ((0.0, 0.0), (1e-12, 0.39999999999900004), (0.4, 0.599999999999), (0.6, 1.0)); confusion rows list the share choosing I/T/R
+grid simulated in 95 s
+
+## the share profile: take-up among non-leaders by share of adopting neighbours
+  real, mean over villages: share 0 0.109; share (0,0.4) 0.190; share [0.4,0.6) 0.288; share [0.6,1] 0.291
+  real, pooled households:  share 0 0.083; share (0,0.4) 0.185; share [0.4,0.6) 0.306; share [0.6,1] 0.397
+  real households per bin (sum over villages): 2681, 3943, 899, 463; villages with an empty bin: 0, 0, 0, 1
+  process I, pooled households: share 0 0.081 (0.072-0.091; real at or above 0.630); share (0,0.4) 0.225 (0.215-0.234; real at or above 0.000); share [0.4,0.6) 0.251 (0.225-0.275; real at or above 1.000); share [0.6,1] 0.228 (0.193-0.262; real at or above 1.000)
+  process I: share 0 0.090 (0.079-0.101; real at or above 0.985); share (0,0.4) 0.227 (0.216-0.236; real at or above 0.000); share [0.4,0.6) 0.231 (0.200-0.259; real at or above 1.000); share [0.6,1] 0.206 (0.167-0.248; real at or above 1.000)
+  process T, pooled households: share 0 0.098 (0.088-0.108; real at or above 0.020); share (0,0.4) 0.201 (0.193-0.210; real at or above 0.000); share [0.4,0.6) 0.226 (0.203-0.254; real at or above 1.000); share [0.6,1] 0.515 (0.464-0.566; real at or above 0.000)
+  process T: share 0 0.108 (0.096-0.119; real at or above 0.455); share (0,0.4) 0.202 (0.192-0.211; real at or above 0.015); share [0.4,0.6) 0.196 (0.167-0.227; real at or above 1.000); share [0.6,1] 0.431 (0.387-0.479; real at or above 0.000)
+  process R, pooled households: share 0 0.095 (0.085-0.107; real at or above 0.030); share (0,0.4) 0.217 (0.207-0.227; real at or above 0.000); share [0.4,0.6) 0.265 (0.242-0.291; real at or above 0.995); share [0.6,1] 0.203 (0.172-0.234; real at or above 1.000)
+  process R: share 0 0.105 (0.091-0.120; real at or above 0.665); share (0,0.4) 0.221 (0.210-0.232; real at or above 0.000); share [0.4,0.6) 0.226 (0.204-0.252; real at or above 1.000); share [0.6,1] 0.162 (0.132-0.192; real at or above 1.000)
+
+selection done in 134 s
+
+## (a) recovery, identity weights, rule loo, 43 villages
+  X   : I 0.585  T 0.820  R 0.555   lowest 0.555   (I->0.58/0.17/0.24; T->0.15/0.82/0.03; R->0.23/0.21/0.56)
+  XS0 : I 0.695  T 1.000  R 0.810   lowest 0.695   (I->0.69/0.01/0.29; T->0.00/1.00/0.00; R->0.19/0.00/0.81)
+
+## (a) recovery, identity weights, rule in-sample, 43 villages
+  X   : I 0.270  T 0.485  R 0.995   lowest 0.270   (I->0.27/0.01/0.72; T->0.07/0.48/0.44; R->0.00/0.01/0.99)
+  XS0 : I 0.625  T 1.000  R 1.000   lowest 0.625   (I->0.62/0.01/0.36; T->0.00/1.00/0.00; R->0.00/0.00/1.00)
+
+## (a) recovery, sd-data weights, rule loo, 43 villages
+  X   : I 0.690  T 0.815  R 0.790   lowest 0.690   (I->0.69/0.06/0.26; T->0.13/0.81/0.06; R->0.12/0.09/0.79)
+  XS0 : I 0.815  T 0.995  R 0.895   lowest 0.815   (I->0.81/0.00/0.18; T->0.01/0.99/0.00; R->0.10/0.01/0.90)
+
+## (a) recovery, sd-data weights, rule in-sample, 43 villages
+  X   : I 0.505  T 0.430  R 1.000   lowest 0.430   (I->0.51/0.00/0.49; T->0.10/0.43/0.47; R->0.00/0.00/1.00)
+  XS0 : I 0.700  T 1.000  R 1.000   lowest 0.700   (I->0.70/0.00/0.30; T->0.00/1.00/0.00; R->0.00/0.00/1.00)
+
+## (a) recovery, sd-synth weights, rule loo, 43 villages
+  X   : I 0.835  T 0.870  R 0.875   lowest 0.835   (I->0.83/0.07/0.10; T->0.10/0.87/0.03; R->0.05/0.07/0.88)
+  XS0 : I 0.885  T 1.000  R 0.930   lowest 0.885   (I->0.89/0.01/0.11; T->0.00/1.00/0.00; R->0.06/0.01/0.93)
+
+## (a) recovery, sd-synth weights, rule in-sample, 43 villages
+  X   : I 0.775  T 0.435  R 1.000   lowest 0.435   (I->0.78/0.01/0.22; T->0.14/0.43/0.42; R->0.00/0.00/1.00)
+  XS0 : I 0.835  T 1.000  R 1.000   lowest 0.835   (I->0.83/0.00/0.17; T->0.00/1.00/0.00; R->0.00/0.00/1.00)
+
+## (b) real data (leave one village out; paired Bayesian bootstrap over villages)
+  identity X   : LOO I 0.1742, T 0.1837, R 0.1906; lowest I; in-sample lowest R (I qN=0.050 qP=0.3; T qN=0.075 qP=0.1 theta=0.60; R qN=0.100 qP=0.1 gamma=0.10 delta=-0.25)
+      I vs T: lower in 0.776 of draws; mean diff -0.0095 [-0.0405, +0.0224]; T better in 19/43
+      I vs R: lower in 0.878 of draws; mean diff -0.0164 [-0.0408, +0.0223]; R better in 13/43
+  identity XS0 : LOO I 0.2642, T 0.2783, R 0.2774; lowest I; in-sample lowest R (I qN=0.050 qP=0.4; T qN=0.075 qP=0.1 theta=0.75; R qN=0.075 qP=0.6 gamma=0.15 delta=-0.50)
+      I vs T: lower in 0.848 of draws; mean diff -0.0140 [-0.0399, +0.0158]; T better in 19/43
+      I vs R: lower in 0.813 of draws; mean diff -0.0132 [-0.0460, +0.0324]; R better in 19/43
+  sd-data  X   : LOO I 8.4223, T 8.2088, R 8.2865; lowest T; in-sample lowest R (I qN=0.050 qP=0.2; T qN=0.075 qP=0.1 theta=0.60; R qN=0.100 qP=0.1 gamma=0.10 delta=-0.25)
+      T vs I: lower in 0.653 of draws; mean diff -0.2135 [-1.3144, +0.9593]; I better in 23/43
+      T vs R: lower in 0.620 of draws; mean diff -0.0778 [-0.6225, +0.5403]; R better in 19/43
+  sd-data  XS0 : LOO I 13.3853, T 14.6091, R 13.8110; lowest I; in-sample lowest R (I qN=0.050 qP=0.3; T qN=0.075 qP=0.1 theta=0.75; R qN=0.150 qP=0.3 gamma=0.15 delta=-0.50)
+      I vs T: lower in 0.960 of draws; mean diff -1.2238 [-2.9404, +0.1127]; T better in 20/43
+      I vs R: lower in 0.835 of draws; mean diff -0.4257 [-1.3723, +0.4968]; R better in 18/43
+  sd-synth X   : LOO I 12.3715, T 13.0811, R 12.7960; lowest I; in-sample lowest R (I qN=0.050 qP=0.3; T qN=0.075 qP=0.1 theta=0.60; R qN=0.075 qP=0.2 gamma=0.10 delta=-0.25)
+      I vs T: lower in 0.660 of draws; mean diff -0.7096 [-4.3316, +1.6465]; T better in 20/43
+      I vs R: lower in 0.761 of draws; mean diff -0.4244 [-1.6942, +0.9827]; R better in 18/43
+  sd-synth XS0 : LOO I 17.7569, T 21.3893, R 19.0577; lowest I; in-sample lowest R (I qN=0.050 qP=0.3; T qN=0.075 qP=0.1 theta=0.60; R qN=0.100 qP=0.4 gamma=0.15 delta=-0.50)
+      I vs T: lower in 0.996 of draws; mean diff -3.6324 [-8.2236, -0.5642]; T better in 17/43
+      I vs R: lower in 0.942 of draws; mean diff -1.3007 [-2.8436, +0.3926]; R better in 17/43
+
+## (c) real LOO loss differences (T - I, R - I) against each process's synthetic spread
+  identity X   : share of each process's datasets at or below the real difference: I: T-I 0.875, R-I 1.000; T: T-I 0.990, R-I 0.985; R: T-I 0.865, R-I 0.995
+  identity XS0 : share of each process's datasets at or below the real difference: I: T-I 0.505, R-I 0.980; T: T-I 1.000, R-I 0.905; R: T-I 0.510, R-I 1.000
+  sd-data  X   : share of each process's datasets at or below the real difference: I: T-I 0.030, R-I 0.160; T: T-I 0.745, R-I 0.245; R: T-I 0.295, R-I 0.770
+  sd-data  XS0 : share of each process's datasets at or below the real difference: I: T-I 0.455, R-I 0.635; T: T-I 1.000, R-I 0.565; R: T-I 0.805, R-I 0.970
+  sd-synth X   : share of each process's datasets at or below the real difference: I: T-I 0.745, R-I 0.780; T: T-I 1.000, R-I 0.680; R: T-I 0.910, R-I 0.980
+  sd-synth XS0 : share of each process's datasets at or below the real difference: I: T-I 1.000, R-I 0.975; T: T-I 1.000, R-I 0.935; R: T-I 0.995, R-I 1.000
+
+## hypotheses
+H95 (sanity: identity X = m3 0.585/0.820/0.555, sd-data X = m25 0.690/0.815/0.790, real identity LOO I 0.1742 T 0.1837 R 0.1906): [0.585, 0.82, 0.555], [0.69, 0.815, 0.79], [0.1742, 0.1837, 0.1906] -> held
+H96 (XS0, sd-data: lowest >= 0.80; refuted below 0.70): 0.815 -> held
+H97 (XS0 lowest >= X lowest + 0.05, sd-data): 0.815 vs 0.690 -> held
+H98 (real, XS0, sd-data: best I lower in >= 0.95 of draws against each; refuted below 0.80): min 0.835 -> inconclusive
+H99 (real top-bin take-up below the threshold process's 5th percentile): real 0.291, T 5th pct 0.387 -> held
+  (reported, not tested: pooled over households, real 0.397 against the threshold process's pooled 5-95% 0.464-0.566)
+runtime 134 s

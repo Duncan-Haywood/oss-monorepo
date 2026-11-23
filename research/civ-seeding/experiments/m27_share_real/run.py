@@ -140,7 +140,16 @@ def main():
             "mean": vm.mean(0).tolist(), "p5": np.percentile(vm, 5, 0).tolist(),
             "p95": np.percentile(vm, 95, 0).tolist(),
             "share_le_real": [float((vm[:, c] <= real_x.mean(0)[c]).mean()) for c in range(NX)]}
+        cnt = np.stack([ms.share_counts(v, Y) for v, Y in zip(V, data[name][0])])   # G x R x 4
+        pool = (data[name][1] * cnt).sum(0) / np.maximum(cnt.sum(0), 1)               # R x 4
+        J["process_profile"][name].update({
+            "pooled_mean": pool.mean(0).tolist(), "pooled_p5": np.percentile(pool, 5, 0).tolist(),
+            "pooled_p95": np.percentile(pool, 95, 0).tolist(),
+            "pooled_share_le_real": [float((pool[:, c] <= pooled[c]).mean()) for c in range(NX)]})
         pp = J["process_profile"][name]
+        p(f"  process {name}, pooled households: " + "; ".join(
+            f"{n} {pp['pooled_mean'][c]:.3f} ({pp['pooled_p5'][c]:.3f}-{pp['pooled_p95'][c]:.3f}; "
+            f"real at or above {pp['pooled_share_le_real'][c]:.3f})" for c, n in enumerate(BIN_NAMES)))
         p(f"  process {name}: " + "; ".join(
             f"{n} {pp['mean'][c]:.3f} ({pp['p5'][c]:.3f}-{pp['p95'][c]:.3f}; real at or above "
             f"{pp['share_le_real'][c]:.3f})" for c, n in enumerate(BIN_NAMES)))
@@ -261,6 +270,8 @@ def main():
     top_real = real_x.mean(0)[3]
     p(f"H99 (real top-bin take-up below the threshold process's 5th percentile): real {top_real:.3f}, "
       f"T 5th pct {tp['p5'][3]:.3f} -> " + ("held" if top_real < tp["p5"][3] else "refuted"))
+    p(f"  (reported, not tested: pooled over households, real {pooled[3]:.3f} against the threshold "
+      f"process's pooled 5-95% {tp['pooled_p5'][3]:.3f}-{tp['pooled_p95'][3]:.3f})")
     p(f"runtime {time.time() - t0:.0f} s")
     txt = "\n".join(out) + "\n"
     open(os.path.join(HERE, "results.txt"), "w").write(txt)
