@@ -6308,7 +6308,7 @@ Checked:
 - Not checked: the leagues' real point deductions (openfootball carries none, so the final table is
   the one the results give) and published clinch dates.
 
-Next: a worker for the slow tables, and the same search for `magic` (points that guarantee a place),
+Next: a worker for the slow tables (done the same day, "Slow race tables move to a worker"), and the same search for `magic` (points that guarantee a place),
 which still assumes every rival wins out (done the same day, next section).
 
 ## Magic numbers, exact (2026-11-23)
@@ -6348,6 +6348,48 @@ Checked:
 - Not checked: published "magic numbers" from a league or broadcaster, and head-to-head or goal
   difference inside the number (it counts a points tie against the team by design).
 
+
+
+## Slow race tables move to a worker (2026-11-23)
+
+The race table answers at once on the page thread, with 20,000 search nodes per question. On real
+seasons that left 606 of 6,144 tables (9.9%) without every best and worst place proved. A team marked
+"alive" on one of those tables might already have clinched or be out, and its "more points clinch it"
+number might be higher than it needs to be. Now the page posts those tables to `race-worker.mjs`, a Web
+Worker, and keeps the quick table on screen meanwhile. The worker asks only the questions the status
+column needs, and only for the alive teams: can enough others finish level with or above it when it loses
+out (no: clinched), must enough finish strictly above it when it wins out (yes: out), and can enough
+finish strictly above it (no: clinched unless tied). It asks them in passes of 200,000 and then
+2,000,000 nodes per question, then works out the magic numbers with 20,000 nodes per team (the page
+thread allows 1,000). After each pass that changes something it posts the table, and the page redraws it
+and says how far the search got. It stops after 30 s, and the page gives up on it after 60 s. Each answer
+is a proof or nothing, so "clinched" and "out" stay never wrong. Typing new results or changing the
+play-off size drops an answer that comes back late.
+
+Checked:
+
+- `eval/race-budget.mjs` (output `eval/race-budget.txt`): the same 18 openfootball seasons (CC0) as
+  `eval/race-real.mjs`, every table the page thread leaves unproved. Wrong calls: 0 (against the final
+  table, against the page's own calls, and no magic number raised). The worker lowered 553 magic
+  numbers (616 points in all, 1.1 per number). It settled 3 statuses the page showed alive, which is
+  only 2 team-races earlier, by 3 match dates (Bayern safe from relegation in February 2022 and Real
+  Madrid in April 2023). Alive rows with a status question still open: 75 at the page's budget, 53
+  after the worker. 1.1 s per slow table on average, 18 s at the slowest, none hit the time box.
+  What we learned: on real tables the page thread's yes/no questions already settle almost every
+  status. What was left unproved was the exact best and worst place, which the page does not show,
+  and the magic numbers, which it does show.
+- `race-worker.test.mjs`: on 200 random leagues small enough to enumerate, forced onto the search
+  route with a 1-node page budget, every status the worker settles matches the full enumeration, and
+  "alive" is the truth whenever the worker reports nothing open. On real Serie A tables a bigger budget
+  never undoes a call or raises a number. The page tests check the worker wiring and that late
+  answers are dropped.
+- `eval/browser-race-worker.mjs` (output `eval/browser-race-worker.txt`), Chromium: Serie A 2023-24
+  after its 78th match date, typed into the page with 17 safe places. The quick table appears in about
+  0.7 s and says a longer search is running. The page answers a script call in 1 to 2 ms while the
+  worker runs. The worker answers after about 1.7 s, proves every status and lowers 5 magic numbers.
+  No page errors.
+
+Not checked: a real league's own published magic numbers, and phones slower than this container.
 
 ## The supply cut in the race search (2026-11-23)
 

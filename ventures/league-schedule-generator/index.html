@@ -536,6 +536,47 @@
         : `<tr><td>${esc(r.round)}</td><td>${dayLabel(r.day)}</td><td>${esc(r.time)}</td><td>${esc(r.court)}</td><td>${esc(r.opponent)}</td><td>${r.venue}</td></tr>`).join("");
     }
 
+    // The race table, and (2026-11-23) its slow tables asked again in race-worker.mjs with a bigger budget.
+    function raceNote(race) {
+      const how = race.rows.exact ? "Every way the remaining games could finish was checked."
+        : race.rows.proved ? "Too many games remain to try every finish one by one, so a search that skips the finishes that cannot change the answer proved every best and worst place."
+        : race.deep === "running" ? `Many games remain; a quick search proved what it could and a longer one is running in the background${race.settled ? ` (${race.settled} team(s) settled so far)` : ""}, so a team marked alive may yet be shown settled.`
+        : race.deep === "done" ? `Many games remain; a longer search in the background proved every team's status${race.settled ? ` and settled ${race.settled} the quick one could not` : ""}, so every team marked alive can still finish either side of the line.`
+        : race.deep === "partly" ? `Many games remain; a longer search in the background proved what it could in its time limit${race.settled ? ` and settled ${race.settled} team(s)` : ""}; the rest uses safe bounds, so a team marked alive may already be settled.`
+        : "Many games remain; a search proved what it could in its time limit and the rest uses safe bounds, so a team marked alive may already be settled.";
+      return `Top ${race.spots} qualify. ${how} Ranked on points only; a tie on points counts against the team, so "clinched" and "out" are never wrong, and goal difference can help a team marked alive. Chance is an estimate from playing the rest of the season out 4,000 times with each team's results so far: a guide, not a promise.`;
+    }
+    function renderRace(race) {
+      $("#race-note").textContent = raceNote(race);
+      $("#race tbody").innerHTML = race.rows.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${r.points}</td><td class="n">${r.left}</td><td class="n">${r.maxPoints}</td><td>${r.status === "clinched" ? "Clinched" : r.status === "eliminated" ? "Out" : "Alive"}</td><td class="n">${r.magic ?? "–"}</td><td class="n">${r.status === "clinched" ? "100%" : r.status === "eliminated" ? "0%" : Math.min(99, Math.max(1, Math.round(r.chance * 100))) + "%"}</td></tr>`).join("");
+    }
+    let raceWorker = null, raceAsk = 0;
+    function deepenRace(race) {
+      raceAsk++;
+      if (raceWorker) { raceWorker.terminate(); raceWorker = null; }
+      if (!race.ask || race.rows.exact || race.rows.proved) return;
+      const id = raceAsk;
+      try { raceWorker = new Worker("./race-worker.mjs", { type: "module" }); } catch { return; }
+      race.deep = "running";
+      $("#race-note").textContent = raceNote(race);
+      const w = raceWorker;
+      const stop = setTimeout(() => { if (raceWorker === w) { w.terminate(); raceWorker = null; race.deep = race.deep === "running" ? "partly" : race.deep; if (last && last.race === race) $("#race-note").textContent = raceNote(race); } }, 60000);
+      w.onmessage = (e) => {
+        const d = e.data || {};
+        if (d.final) { clearTimeout(stop); w.terminate(); if (raceWorker === w) raceWorker = null; }
+        if (d.id !== raceAsk || !last || last.race !== race) return; // the inputs changed since
+        if (d.error) { race.deep = null; $("#race-note").textContent = raceNote(race); return; }
+        const chance = new Map(race.rows.map((r) => [r.index, r.chance]));
+        const rows = d.rows.map((r) => ({ ...r, chance: chance.get(r.index) }));
+        rows.exact = d.exact; rows.proved = d.proved;
+        race.rows = rows;
+        race.deep = d.final ? (d.open ? "partly" : "done") : "running";
+        race.settled = d.settled;
+        renderRace(race);
+      };
+      w.onerror = () => { clearTimeout(stop); w.terminate(); if (raceWorker === w) raceWorker = null; race.deep = null; if (last && last.race === race) $("#race-note").textContent = raceNote(race); };
+      w.postMessage({ id, ...race.ask, seconds: 30 });
+    }
     function render(s, extra) {
       last = { s, ...extra };
       later(showDutyLine);
@@ -624,8 +665,8 @@
       $("#fairness").textContent = `Biggest gap between one team's most and least used court or time: ${sp()}. Home/away breaks per team: ${s.stats.breaks.join(", ")} (in team order).${slotNote(s)}${restNote(s)}${runNote(s)}${rematchNote(s)}${byeNote(s)}${costNote(s)}${deadlineNote(s)}`;
       $("#race-wrap").hidden = !extra.race;
       if (extra.race) {
-        $("#race-note").textContent = `Top ${extra.race.spots} qualify. ${extra.race.rows.exact ? "Every way the remaining games could finish was checked." : extra.race.rows.proved ? "Too many games remain to try every finish one by one, so a search that skips the finishes that cannot change the answer proved every best and worst place." : "Many games remain; a search proved what it could in its time limit and the rest uses safe bounds, so a team marked alive may already be settled."} Ranked on points only; a tie on points counts against the team, so "clinched" and "out" are never wrong, and goal difference can help a team marked alive. Chance is an estimate from playing the rest of the season out 4,000 times with each team's results so far: a guide, not a promise.`;
-        $("#race tbody").innerHTML = extra.race.rows.map((r) => `<tr><td>${esc(r.name)}</td><td class="n">${r.points}</td><td class="n">${r.left}</td><td class="n">${r.maxPoints}</td><td>${r.status === "clinched" ? "Clinched" : r.status === "eliminated" ? "Out" : "Alive"}</td><td class="n">${r.magic ?? "–"}</td><td class="n">${r.status === "clinched" ? "100%" : r.status === "eliminated" ? "0%" : Math.min(99, Math.max(1, Math.round(r.chance * 100))) + "%"}</td></tr>`).join("");
+        renderRace(extra.race);
+        deepenRace(extra.race);
       }
       $("#standings-wrap").hidden = !extra.table;
       if (extra.table) $("#standings tbody").innerHTML = extra.table.map((r) => `<tr><td class="n">${r.rank}</td><td>${esc(r.name)}</td><td class="n">${r.played}</td><td class="n">${r.won}</td><td class="n">${r.drawn}</td><td class="n">${r.lost}</td><td class="n">${r.gd}</td><td class="n">${r.points}</td><td class="n">${r.left}</td><td class="n">${r.oppAvg == null ? "–" : r.oppAvg.toFixed(2)}</td><td>${esc(r.form.split("").join(" "))}</td><td class="n">${esc(r.streak)}</td></tr>`).join("");
@@ -883,7 +924,7 @@
       if (resText.trim() && want >= 1 && want < s.teams.length) {
         const pr2 = parseResults(resText, s.teams);
         const left2 = remainingFixtures(s, pr2.results);
-        race = { spots: want, rows: playoffRace(s.teams, pr2.results, left2, want, { ...pts, adjustments: pr2.adjustments }) };
+        race = { spots: want, rows: playoffRace(s.teams, pr2.results, left2, want, { ...pts, adjustments: pr2.adjustments }), ask: { teams: s.teams, results: pr2.results, remaining: left2, spots: want, options: { ...pts, adjustments: pr2.adjustments } } };
         const odds = playoffOdds(s.teams, pr2.results, left2, want, { ...pts, adjustments: pr2.adjustments });
         race.rows.forEach((r) => { r.chance = odds[r.index].chance; });
       }

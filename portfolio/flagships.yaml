@@ -399,9 +399,9 @@ flagships:
       2026-11-23: 24x36 26 to 4 off, 2 seasons even (eval/bowling-lane-near.txt);
       open in NEXT.md. Season import 2026-11-23 (importschedule.mjs, 819/819
       round-trip, eval/import-roundtrip.txt); next: a real league's export. Clinch
-      watch, exact magic numbers, race supply cut 2026-11-23 (race-exact.mjs,
-      eval/race-real.txt: 0 wrong, 90.1% of tables proved); next: a worker for the
-      slow tables, a real league's published numbers. More: NEXT.md.
+      watch, exact magic numbers, race supply cut, slow tables in a worker
+      2026-11-23 (race-worker.mjs, eval/race-budget.txt: 553 magic numbers lowered,
+      0 wrong); next: a real league's published numbers. More: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed

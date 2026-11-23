@@ -1,0 +1,20 @@
+Race worker on 18 real seasons (openfootball, CC0), every match date, three races per season
+Worker passes: 200000, 2000000 nodes per status question; magic numbers 20000 nodes per team; time box 30 s per table
+
+Tables: 6144; left unproved by the page thread (20,000 nodes per question): 606
+Wrong calls (page or worker against the final table, the worker undoing a page call or raising a magic number): 0
+Statuses the worker settled that the page showed alive: 3
+Alive rows after the worker: 11334; of them with every status question proved (alive is the truth): 11281
+Alive rows with a status question still open: 75 at the page thread's budget, 53 after the worker
+Magic numbers lowered by the worker: 553 (616 points in all, 1.1 per number)
+Worker time per slow table: 1095 ms mean, 18142 ms slowest; tables that hit the time box: 0
+
+race       team-races settled earlier by the worker  match dates earlier (total, most)
+title      0                                         0, 0
+top four   0                                         0, 0
+safety     2                                         3, 2
+
+Statuses the worker settled:
+  de.1.2021-22 safety after 2022-02-13: FC Bayern München clinched (108 games left)
+  de.1.2021-22 safety after 2022-02-18: FC Bayern München clinched (107 games left)
+  es.1.2022-23 safety after 2023-04-01: Real Madrid CF clinched (115 games left)
