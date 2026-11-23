@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23175e7a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>pg_hba.conf Mistakes Explained — First Match Wins, Refused Files, Trust, md5, Regex Traps</title>
+  <meta name="description" content="How PostgreSQL 16 really reads pg_hba.conf: the first matching line decides, one bad line refuses the whole file, all skips replication, quoted keywords, 010.0.0.1 is 8.0.0.1, and every pg_hba.conf Check finding explained.">
+  <link rel="canonical" href="./pg-hba-conf-mistakes-explained.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "pg_hba.conf mistakes explained: first match wins, refused files, trust, md5 and regex traps", "about": "PostgreSQL client authentication (pg_hba.conf)", "author": {"@type": "Organization", "name": "marisstella.app"}, "datePublished": "2026-11-23"}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f1f5f6; }
+    body { max-width: 860px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4.2vw, 2.4rem); line-height: 1.1; color: #123f52; }
+    h2 { font-size: 1.2rem; color: #123f52; margin-top: 30px; }
+    p, li { line-height: 1.6; }
+    pre { background: #fff; border: 1px solid #d3dde1; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .84rem; line-height: 1.5; }
+    code { overflow-wrap: anywhere; }
+    dt { font-weight: 700; margin-top: 14px; }
+    dd { margin: 4px 0 0 0; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 30px; border-top: 1px solid #d3dde1; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">← pg_hba.conf Check</a></p>
+  <h1>pg_hba.conf mistakes explained</h1>
+  <p><code>pg_hba.conf</code> decides who may connect to a PostgreSQL server, from where, to which database, and how they prove who they are. It reads like a firewall rule list, but three of its rules surprise almost everyone, and most of the mistakes below follow from them. The behaviour described here is PostgreSQL 16's, from <a href="https://github.com/postgres/postgres/blob/REL_16_STABLE/src/backend/libpq/hba.c" rel="noopener">src/backend/libpq/hba.c</a> and the <a href="https://www.postgresql.org/docs/16/auth-pg-hba-conf.html" rel="noopener">pg_hba.conf chapter of the manual</a>, and each point was checked against a real PostgreSQL 16.15 server (the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pg-hba-check/parity" rel="noopener">parity run</a>). This guide is not affiliated with the PostgreSQL Global Development Group.</p>
+
+  <h2>Rule 1: the first matching line decides</h2>
+  <p>For each connection PostgreSQL reads the rules from the top, with an included file's lines standing where its <code>include</code> line is, and stops at the first line whose connection type, client address, database and user all match. It then uses that line's method. It does not look for the most specific line, and if the password is wrong it does not try the next line. A connection no line matches is refused.</p>
+
+  <h2>Rule 2: one bad line and the whole file is refused</h2>
+  <p>If any line fails to parse, or an included file cannot be opened, PostgreSQL rejects the file as a whole. At start-up the server will not start. On a reload (<code>pg_ctl reload</code>, <code>SELECT pg_reload_conf()</code>, <code>systemctl reload</code>) it logs the error and carries on with the previous rules, so your change has no effect and nothing on the screen says so. <code>SELECT * FROM pg_hba_file_rules WHERE error IS NOT NULL;</code> reads the file on disk and shows the errors before you reload.</p>
+
+  <h2>Rule 3: keywords only count unquoted, and all is not everything</h2>
+  <p><code>all</code>, <code>sameuser</code>, <code>samerole</code>, <code>replication</code>, <code>samehost</code> and <code>samenet</code> are keywords only without quotes; <code>"all"</code> is a database or role named all. The database <code>all</code> does not match physical replication connections (<code>pg_basebackup</code>, streaming standbys): those match only lines that say <code>replication</code>. A <code>+group</code> matches members of the role, and a superuser is not counted as a member unless it was granted the role.</p>
+
+  <h2>A worked example</h2>
+  <p>This file is a composite of patterns that are common in real deployments:</p>
+  <pre><code># pg_hba.conf on an app database, edited over the years
+local   all             postgres                                peer
+local   all             all                                     trust
+host    all             all             127.0.0.1/32            trust
+host    all             all             0.0.0.0/0               md5
+host    all             postgres        0.0.0.0/0               reject
+host    reporting       /analyst        10.20.0.0/16            password
+hostssl all             all             192.168.10.5/24         scram-sha-256
+host    all             backup          010.0.0.7/32            scram-sha-256</code></pre>
+  <p>The CLI's output for it, unedited:</p>
+  <pre><code>pg_hba.conf Check: 1 high, 7 medium, 6 low
+Read, in order: pg_hba.conf
+Rules loaded: 8
+
+[high] cleartext-password-no-tls  pg_hba.conf:7
+  host    reporting       /analyst        10.20.0.0/16            password
+  password from 10.20.0.0/16 on a host line: the client sends the password in clear text, and this line also accepts connections without TLS, so anyone on the network path can read it.
+  fix: Change the line to hostssl, and use scram-sha-256 instead of password.
+
+[medium] trust-local  pg_hba.conf:3
+  local   all             all                                     trust
+  trust on the local socket for users all, databases all: anyone with a shell on this machine can connect as any of those roles, including the postgres superuser, with no password.
+  fix: Use peer (the OS user must match the role) or scram-sha-256.
+
+[medium] trust-loopback  pg_hba.conf:4
+  host    all             all             127.0.0.1/32            trust
+  trust from 127.0.0.1/32: any process on the server (another user, a container sharing the network, a web app with an SSRF bug) can connect as all with no password.
+  fix: Use scram-sha-256 for TCP, or connect over the local socket with peer.
+
+[medium] no-tls-required  pg_hba.conf:5
+  host    all             all             0.0.0.0/0               md5
+  host md5 from 0.0.0.0/0: this line also accepts connections without TLS, so queries and results cross the network unencrypted, and an attacker in the path can take over the session after login.
+  fix: Use hostssl for remote lines, and add a hostnossl ... reject line above them so non-TLS attempts are refused.
+
+[medium] shadowed-rule  pg_hba.conf:6
+  host    all             postgres        0.0.0.0/0               reject
+  This rule can never match: line 5 (host all all 0.0.0.0/0 md5) comes first and matches every connection this one would. PostgreSQL uses the first matching line, not the most specific one. The reject never fires, so the connections it was meant to block are let in by the earlier line.
+  fix: Move this line above the broader one, or delete it.
+
+[medium] unanchored-regex  pg_hba.conf:7
+  host    reporting       /analyst        10.20.0.0/16            password
+  user regex /analyst is searched for anywhere in the name: with no ^ it also matches names that merely contain analyst; with no $ it also matches longer names that start with it.
+  fix: Anchor it: /^analyst$.
+
+[medium] no-tls-required  pg_hba.conf:9
+  host    all             backup          010.0.0.7/32            scram-sha-256
+  host scram-sha-256 from 8.0.0.7/32: this line also accepts connections without TLS, so queries and results cross the network unencrypted, and an attacker in the path can take over the session after login.
+  fix: Use hostssl for remote lines, and add a hostnossl ... reject line above them so non-TLS attempts are refused.
+
+[medium] ipv4-shorthand  pg_hba.conf:9
+  host    all             backup          010.0.0.7/32            scram-sha-256
+  The address is read with inet_aton rules: it means 8.0.0.7 (a leading 0 is octal, a 0x part is hex, and missing parts are filled from the last one).
+  fix: Write all four parts in plain decimal.
+
+[low] md5-method  pg_hba.conf:5
+  host    all             all             0.0.0.0/0               md5
+  md5 from 0.0.0.0/0: MD5 password hashes are weak and deprecated (PostgreSQL 18 warns on them). An md5 line already uses SCRAM for roles whose stored password is a SCRAM verifier, so the risk is roles still holding MD5 hashes.
+  fix: Set password_encryption = scram-sha-256, re-set each role's password, then change the line to scram-sha-256.
+
+[low] any-address  pg_hba.conf:5
+  host    all             all             0.0.0.0/0               md5
+  md5 from 0.0.0.0/0: anyone on the internet who can reach the port can try passwords against all.
+  fix: Narrow the address to the networks that need access, and keep the port off the public internet (firewall, security group, listen_addresses).
+
+[low] shadowed-rule  pg_hba.conf:7
+  host    reporting       /analyst        10.20.0.0/16            password
+  This rule can never match: line 5 (host all all 0.0.0.0/0 md5) comes first and matches every connection this one would. PostgreSQL uses the first matching line, not the most specific one.
+  fix: Move this line above the broader one, or delete it.
+
+[low] host-bits-set  pg_hba.conf:8
+  hostssl all             all             192.168.10.5/24         scram-sha-256
+  192.168.10.5/24 has host bits set, so it matches the whole 192.168.10.0/24, not just 192.168.10.5.
+  fix: Write 192.168.10.0/24 if that is intended, or 192.168.10.5/32 for one host.
+
+[low] shadowed-rule  pg_hba.conf:8
+  hostssl all             all             192.168.10.5/24         scram-sha-256
+  This rule can never match: line 5 (host all all 0.0.0.0/0 md5) comes first and matches every connection this one would. PostgreSQL uses the first matching line, not the most specific one.
+  fix: Move this line above the broader one, or delete it.
+
+[low] shadowed-rule  pg_hba.conf:9
+  host    all             backup          010.0.0.7/32            scram-sha-256
+  This rule can never match: line 5 (host all all 0.0.0.0/0 md5) comes first and matches every connection this one would. PostgreSQL uses the first matching line, not the most specific one.
+  fix: Move this line above the broader one, or delete it.
+
+Which line decides:
+  local socket, user postgres, database postgres: pg_hba.conf:2 peer
+  TCP from 127.0.0.1, user postgres: pg_hba.conf:4 trust
+  TCP from the internet (203.0.113.10), no TLS, user postgres: pg_hba.conf:5 md5
+  TCP from the internet (203.0.113.10), TLS, user postgres: pg_hba.conf:5 md5
+  replication from the internet (203.0.113.10), TLS, user postgres: no line matches, refused</code></pre>
+
+  <h2>Every finding</h2>
+  <dl>
+    <dt><code>parse-error</code> (error)</dt>
+    <dd>PostgreSQL rejects the line, with the error text it would log. Common ones: a bare address such as <code>10.1</code> or <code>192.168.1.0</code> without <code>/bits</code> makes the next field the netmask, so the method is read as a mask (<code>invalid IP mask "md5"</code>); <code>scram</code> instead of <code>scram-sha-256</code>; <code>peer</code> on a <code>host</code> line; <code>cert</code> or <code>clientcert</code> on a line that is not <code>hostssl</code>; a host name with <code>/24</code>; an option without <code>=</code>; a comma inside an option value (<code>ldapsuffix=,dc=example</code>) that splits it into two options unless the value is quoted. Because of rule 2, one of these refuses the whole file.</dd>
+    <dt><code>include-missing</code> (error)</dt>
+    <dd>An <code>include</code>, <code>include_dir</code> or <code>@file</code> names something that is not among the files given. A relative path is taken from the directory of the file that names it. If it is missing on the server too, the whole file is refused. <code>include_if_exists</code> is the form for an optional file.</dd>
+    <dt><code>no-entries</code> (error)</dt>
+    <dd>The file has no rules at all; PostgreSQL refuses it, since nobody could connect.</dd>
+    <dt><code>hostssl-without-ssl</code> (medium, only when you say the server runs with <code>ssl = off</code>)</dt>
+    <dd>A <code>hostssl</code> line on a server without SSL is accepted with a warning (the view shows an error) but never matches, so TLS clients fall through to the rules below.</dd>
+    <dt><code>trust-remote</code> (high), <code>trust-loopback</code> (medium), <code>trust-local</code> (medium)</dt>
+    <dd><code>trust</code> lets the connection in as the role it names, with no password. From a network range that is anyone who can reach the port. On <code>127.0.0.1</code> or <code>samehost</code> it is every process on the server, including other users, containers sharing the network namespace and a web app tricked into making requests (SSRF). On the local socket it is anyone with a shell. <code>initdb</code> writes trust lines unless given <code>-A</code>, and container images often keep them.</dd>
+    <dt><code>ident-over-tcp</code> (high, medium on loopback)</dt>
+    <dd>Over TCP, <code>ident</code> asks the client machine's ident service (port 113) who owns the connection and believes the answer. Whoever controls the client machine chooses the answer. (On the local socket <code>ident</code> silently becomes <code>peer</code>, which is fine.)</dd>
+    <dt><code>cleartext-password-no-tls</code> (high)</dt>
+    <dd><code>password</code>, <code>ldap</code>, <code>pam</code>, <code>radius</code> and <code>bsd</code> have the client send the password itself. On a <code>host</code> line from a remote range the connection may be unencrypted, so the password crosses the network in clear. Make the line <code>hostssl</code>.</dd>
+    <dt><code>password-method</code> (low)</dt>
+    <dd><code>password</code> where the transport is protected (a <code>hostssl</code> line, loopback, the socket): the server still receives the password rather than a SCRAM proof. Prefer <code>scram-sha-256</code>.</dd>
+    <dt><code>md5-method</code> (low)</dt>
+    <dd>MD5 password hashes are deprecated, and PostgreSQL 18 warns about them. An <code>md5</code> line already authenticates with SCRAM for roles whose stored password is a SCRAM verifier, so migrate the stored passwords (<code>password_encryption = scram-sha-256</code>, then set each password again) and then change the line.</dd>
+    <dt><code>no-tls-required</code> (medium)</dt>
+    <dd>A remote <code>host</code>, <code>hostnossl</code> or <code>hostnogssenc</code> line with <code>scram-sha-256</code>, <code>md5</code> or <code>gss</code>: the login itself does not reveal the password, but the session that follows can be unencrypted. A common layout is <code>hostnossl all all 0.0.0.0/0 reject</code> first, then <code>hostssl</code> lines.</dd>
+    <dt><code>any-address</code> (low)</dt>
+    <dd><code>all</code>, <code>0.0.0.0/0</code> or <code>::/0</code> with a password method: anyone who can reach the port can try passwords. Narrow the range and keep the port off the public internet.</dd>
+    <dt><code>secret-in-file</code> (medium)</dt>
+    <dd><code>ldapbindpasswd=</code> or <code>radiussecrets=</code> keeps a secret in <code>pg_hba.conf</code>, and <code>pg_hba_file_rules</code> shows it to anyone allowed to read that view.</dd>
+    <dt><code>unanchored-regex</code> (medium)</dt>
+    <dd>A database or user starting with <code>/</code> is a regular expression, and it is searched for anywhere in the name: <code>/admin</code> matches <code>notadmin</code> and <code>admin_readonly</code>. Write <code>/^admin$</code>.</dd>
+    <dt><code>shadowed-rule</code> (low; medium for a <code>reject</code>)</dt>
+    <dd>An earlier line matches every connection this one would, so by rule 1 this line never decides anything. It is worst for a <code>reject</code> written to block one user or network under a line that lets everyone in: the block never happens. The check is conservative: it only reports a line when the earlier one certainly covers its type (a <code>host</code> line covers <code>hostssl</code> and <code>hostnossl</code>), address range, databases and users.</dd>
+    <dt><code>quoted-keyword</code> (low)</dt>
+    <dd><code>"all"</code>, <code>"replication"</code>, <code>"samehost"</code> and the other keywords in quotes mean a name, not the keyword (rule 3). A quoted address keyword is read as a host name.</dd>
+    <dt><code>ipv4-shorthand</code> (medium)</dt>
+    <dd>PostgreSQL parses IPv4 with the C library's numeric rules, which accept shorthand: a leading zero is octal (<code>010.0.0.1</code> is 8.0.0.1), <code>0x</code> is hex, and missing parts are filled from the last one (<code>10.1</code> is 10.0.0.1). Write four decimal parts.</dd>
+    <dt><code>address-is-hostname</code> (medium when it looks like an IP, else low)</dt>
+    <dd>Anything that is not a valid numeric address is treated as a host name, silently. <code>10.0.0.300</code> becomes a host name that almost certainly never matches. Real host names make PostgreSQL do a reverse lookup of each client and check that it resolves back, so slow DNS delays logins and whoever controls that DNS decides who matches.</dd>
+    <dt><code>host-bits-set</code> (low)</dt>
+    <dd><code>192.168.10.5/24</code> matches all of 192.168.10.0/24, not one host. Write <code>/32</code> for a single address.</dd>
+    <dt><code>include-dir-file-ignored</code> (low)</dt>
+    <dd><code>include_dir</code> reads only names that end in <code>.conf</code>, do not start with a dot and are at least six characters long, in byte order; <code>20-ops.conf.bak</code> is skipped.</dd>
+  </dl>
+
+  <h2>How the checker was tested</h2>
+  <p>The parser is an independent implementation in JavaScript, not PostgreSQL code. 600 generated files of odd but plausible lines (quotes, commas, continuations, includes, bad masks, shorthand addresses, every method and many options) were written to a PostgreSQL 16.15 server's data directory and its <code>pg_hba_file_rules</code> view read back; the checker agrees with every row: the type, databases, users, address, netmask, method, options and error text (for regular expressions PostgreSQL's own engine words its errors differently, so there only the failure is compared). Then 160 files of valid rules were loaded one at a time and 36 real connections made against each, over the socket and TCP with and without TLS, as three roles to three databases and as physical replication; for every one of the 5,760 connections the checker names the same line PostgreSQL logged as the one that authenticated, or the same refusal. The cases, the runner and the recorded output are in the repository.</p>
+  <p>Limits: regular expressions are evaluated with JavaScript's engine, which agrees with PostgreSQL's for common syntax; host names, <code>samehost</code> and <code>samenet</code> from outside addresses, and group membership you have not given are reported as undecided rather than guessed; <code>pg_ident.conf</code> maps are not read.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This guide and the tool are provided free and as-is, without warranty of any kind. They are not a security audit, and they do not replace a qualified security professional; you are responsible for verifying anything before relying on it.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Pages may move or go offline without notice.</p>
+    <p class="support">Free and open source under an MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+  </footer>
+</body>
+</html>
