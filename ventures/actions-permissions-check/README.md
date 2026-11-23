@@ -5,8 +5,10 @@ workflow or job with no explicit `permissions:` block (it runs with the
 repository or organization's *ambient default* `GITHUB_TOKEN` permissions,
 which can be read-write on every scope) or with `permissions: write-all` (an
 explicit grant of every scope's write access) — GitHub's own documented
-token-permissions hardening guidance, and the same check the OpenSSF
-Scorecard project runs against public repositories, not a novel claim.
+token-permissions hardening guidance and the core of what the OpenSSF
+Scorecard Token-Permissions check looks for, not a novel claim. It is not
+Scorecard's full scoring: Scorecard also wants a top-level block and a
+read-only one, while this tool accepts any explicit grant at either level.
 
 **Live tool:** https://marisstella.app/actions-permissions-check/
 
@@ -29,7 +31,7 @@ or organization's default token permissions are. Repositories created before
 narrowed it in Settings → Actions → General — and a lot of repositories never
 have. A workflow triggered by something an outside contributor can influence
 (a pull request, an issue comment) then runs with a token that can push
-commits, create releases, or modify repository settings, even though the job
+commits, create releases, or edit issues and pull requests, even though the job
 itself only needed to read the checkout and run tests. `permissions:
 write-all` makes the same breadth explicit rather than ambient, which is
 better but still broader than almost any job needs.
@@ -37,9 +39,10 @@ better but still broader than almost any job needs.
 ## Why there is no automatic detection of your actual default
 
 Privacy-first, on purpose: nothing this tool does ever leaves your device,
-and it makes no network calls of its own. There is also no public GitHub API
-that reports a repository's or organization's actual default token
-permissions setting, so this tool could not look it up even if it wanted to.
+and it makes no network calls of its own. GitHub does report a repository's or organization's default token setting,
+but only through an authenticated REST endpoint
+(`GET /repos/{owner}/{repo}/actions/permissions/workflow`, field
+`default_workflow_permissions`), which needs a token this tool never asks for.
 An `unspecified` finding means the workflow *file* does not make the grant
 explicit — it is a prompt to check Settings → Actions → General yourself and
 to add a `permissions:` block either way, not a claim that you are definitely
@@ -106,3 +109,11 @@ candidate — like its siblings
 graduation of an already-obvious, low-risk dev-tool idea. No external user
 contact has happened yet — that is the next, non-code step (see
 `kill_criteria` in `VENTURE.yaml`).
+
+## Known gaps (round 105 quality audit)
+
+From [`portfolio/quality/audits/2026-11-23-actions-permissions-check.json`](../../portfolio/quality/audits/2026-11-23-actions-permissions-check.json). Fixed in PR #18409: quoted `"write-all"`, quoted job ids, and nested `permissions:` keys (matrix, `with:`) read as the job grant. Still open:
+
+- No trigger awareness: `pull_request_target` or `workflow_run` with broad write scopes is reported the same as `push`, and top-level write scopes other than `write-all` pass.
+- Unlike Scorecard, a missing top-level block is accepted when every job declares its own.
+- It is a line scanner, not a YAML parser: flow mappings, anchors and non-two-space indentation are outside what it reads.

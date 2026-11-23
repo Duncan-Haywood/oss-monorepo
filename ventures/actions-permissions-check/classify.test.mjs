@@ -200,3 +200,30 @@ jobs:
 
   assert.deepEqual(jsFindings, pythonFindings);
 });
+
+// Round 105 audit (portfolio/quality/audits/2026-11-23-actions-permissions-check.json):
+// each of these passed the gate before the fix.
+test("quoted write-all is flagged", () => {
+  for (const value of ['"write-all"', "'write-all'"]) {
+    const text = `permissions: {}\njobs:\n  b:\n    runs-on: ubuntu-latest\n    permissions: ${value}\n`;
+    const job = scanText(text).find((f) => f.scope === "job:b");
+    assert.equal(job.classification, WRITE_ALL, value);
+  }
+});
+
+test("a quoted job id is scanned", () => {
+  for (const key of ['"deploy"', "'deploy'"]) {
+    const text = `permissions:\n  contents: read\njobs:\n  ${key}:\n    runs-on: ubuntu-latest\n    permissions: write-all\n`;
+    const jobs = scanText(text).filter((f) => f.scope === "job:deploy");
+    assert.equal(jobs.length, 1, key);
+    assert.equal(jobs[0].classification, WRITE_ALL);
+  }
+});
+
+test("a matrix or with: key named permissions is not the job grant", () => {
+  const text =
+    "jobs:\n  b:\n    runs-on: ubuntu-latest\n    strategy:\n      matrix:\n        permissions: [a, b]\n" +
+    "    steps:\n      - uses: x/y@v1\n        with:\n          permissions: read\n";
+  const job = scanText(text).find((f) => f.scope === "job:b");
+  assert.equal(job.classification, UNSPECIFIED);
+});

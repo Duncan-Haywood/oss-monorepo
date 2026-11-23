@@ -1,0 +1,271 @@
+{
+ "date": "2026-11-23",
+ "subject": "ventures/actions-permissions-check",
+ "stratum": "venture",
+ "seed": "2026-11-23-e-2a41",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior DevSecOps / supply-chain security engineer who hardens GitHub Actions workflows; first checks: does the tool apply GitHub's documented permission calculation (default -> workflow-level -> job-level override, unspecified scopes set to none, read-all/write-all/{} forms, fork pull_request write->read but pull_request_target read/write), does it catch every YAML spelling of write-all and every job, can it be trusted as a --fail-on-risk merge gate, and does it really match what OpenSSF Scorecard's Token-Permissions check does",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Wrote 12 workflow fixtures under /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/apc/c1..c12 and ran `python3 ventures/actions-permissions-check/check.py <dir> --format json` and `--fail-on-risk` on each, comparing against GitHub's docs (github/docs data/reusables/actions/github-token-available-permissions.md, jobs/section-assigning-permissions-to-jobs.md, workflow-syntax.md 'How permissions are calculated'). The documented core is right: workflow-level contents: read inherited by a job, a job block overriding it, job write-all flagged under a scoped workflow (c1); no block anywhere on pull_request_target -> both jobs unspecified, exit 2 (c2); top-level write-all inherited, job override to contents: read explicit (c6); permissions: {} and read-all explicit (c3); 4-space indent, flow mapping, CRLF, reusable-workflow call job, top-level permissions after jobs (c9-c11) all right, and the browser port matched the CLI on all 12 fixtures (/tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/apc/parity.mjs). But YAML spellings the scanner does not model give wrong verdicts with exit 0 under --fail-on-risk: `permissions: \"write-all\"` and `'write-all'` (valid YAML, the same string) classify as explicit (c3); a quoted job id `\"deploy\":` is skipped entirely, so its job-level write-all disappears from the report and the gate passes (c12); with no job-level grant, a matrix key or an action `with:` input named `permissions` is taken as the job's grant, so an unspecified job reports explicit (c5). Out-of-scope-by-design but relevant: top-level contents: write + packages: write on pull_request_target passes with exit 0 (c8). Canonical outputs right, edge cases a hardening engineer would hit wrong: 2.",
+  "completeness": "Claimed features walked: CLI default path, explicit path, --format json, --fail-on-risk exit 2 / 0, mistyped path exits 1 (main() guard), discovery of *.yml and *.yaml, browser port (classify.mjs) with byte-parity to the CLI (confirmed independently on 12 fixtures), worked example, local-only usage counter with opt-out (usage.mjs, usage.test.mjs), three SEO pages, llms.txt, sitemap, disclaimer. All present and working; no stubs or TODOs. Served copy (`node platform/pages/served-copy.mjs actions-permissions-check`) reports no placeholder or retired origin. Finished: 3.",
+  "verification": "cd ventures/actions-permissions-check/ && node --test '*.test.mjs': 65 tests, 65 pass, 0.17 s. /usr/bin/python3.13 -m pytest -q test_check.py: 29 passed, 0.28 s. Mutants via platform/ci/quality_mutate.py: 1 of 5 caught (inverting the inherit/unspecified branch, check.py:228). Survived: shallowest->deepest permissions match (classify.mjs:112, the heuristic that decides which `permissions:` line is the job's), write-all equality -> startswith (check.py:106), block-scope `<=` -> `<` (check.py:120, display-only), dropping jobs_block_end (check.py:158, near-equivalent because the job regex needs leading whitespace). No test covers quoted values, quoted job ids, or a deeper `permissions:` key inside a job, which is where every correctness failure above sits. 2.",
+  "craft": "Read check.py (349 lines) and classify.mjs (208 lines). Clean, small, well-commented, stdlib-only, with a parity test tying the two ports. But the core is a regex line scanner over YAML with a stated 'conventional indentation' assumption, and it fails open: unrecognised job keys are dropped silently (check.py:90, _JOB_NAME_RE has no quotes) and the c4 detail message then claims 'no jobs: section found' when one exists. The docstring premise of _find_job_permissions (check.py:172-176, 'permissions ... never a step input') is false for `with:` inputs and matrix keys. The engine is written twice (Python and JS) by design, kept equal by test. 2.",
+  "claims": "Disclaimer and no-warranty text present on index.html and all three pages; limits ('does not judge scopes', 'unspecified is not proof of misconfiguration') are stated honestly and repeatedly. Unbacked or false: (1) 'there is no public API' for the default token setting (README.md:40, check.py:38, index.html:104, how-to page:65, vs-reading-by-hand:75,93): GitHub's REST API documents GET /repos/{owner}/{repo}/actions/permissions/workflow and GET /orgs/{org}/actions/permissions/workflow returning default_workflow_permissions read|write (github/rest-api-description api.github.com.json); (2) the ambient token can 'modify repository settings' (README.md:32, check.py:21, index.html:100): GitHub's scope table has no administration scope for GITHUB_TOKEN; (3) 'the same check the OpenSSF Scorecard project runs' (README.md:8, check.py:24): Scorecard's docs/checks.md deducts a point for a missing top-level block even when every job is explicit and wants top-level read-only, which this tool passes (c7, c8); (4) Scorecard 'runs 18 named checks' (vs-openssf-scorecard.html:47): its checks.md lists 20; (5) llms.txt:5 says 'Results are estimates from the numbers typed in, not legal, tax, financial ... advice', boilerplate for a calculator. 2.",
+  "fitness": "Job walked: paste a repo's workflows (or run check.py in a checkout) to find every workflow/job with no explicit grant, then wire --fail-on-risk into CI. For a first sweep of unspecified jobs it works and is faster than reading by hand. As a merge gate it can be bypassed by quoting (c3, c12), and it treats a push-only unspecified job the same as a pull_request_target one, and passes top-level contents: write on pull_request_target (c8), the configuration a hardening engineer cares about most. They would use it as a pre-pass, not as the gate the README suggests. 2.",
+  "domain": "Compared against GitHub's documented permission calculation and Scorecard Token-Permissions (docs/checks.md). Matches: job-level block replaces workflow-level, unspecified job inherits, read-all/write-all/{} forms, ambient default unknown from the file. Departs: no trigger awareness (GitHub: pull_request from a fork downgrades write to read unless 'Send write tokens' is on, while pull_request_target gets read/write even from a public fork; the README says any pull-request-triggered job gets a token that can push); no top-level-read-only rule (Scorecard's main scoring criterion); no write-scope flagging at top level, which Scorecard reduces score for; the 'pre-2023-02-02 repositories default to read-write' line omits that new repositories in older organizations inherit the organization's permissive default. A senior practitioner would accept the narrow 'is it explicit' check but not the Scorecard-equivalence framing. 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "canonical inheritance: workflow contents: read, job inherits, job override, job write-all",
+   "method": "GitHub docs workflow-syntax.md 'How permissions are calculated' + section-assigning-permissions-to-jobs.md (job-level replaces workflow-level)",
+   "command": "python3 ventures/actions-permissions-check/check.py /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/apc/c1 --format json; --fail-on-risk",
+   "expected": "workflow explicit; test inherits explicit; comment explicit; release write-all; exit 2",
+   "observed": "3 workflow explicit; 6 job:test explicit (inherited); 12 job:comment explicit; 18 job:release write-all; exit 2",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "no permissions anywhere on pull_request_target, two jobs",
+   "method": "GitHub docs: token starts at the repo/org default; pull_request_target gets read/write even from public forks",
+   "command": "python3 ventures/actions-permissions-check/check.py /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/apc/c2 --fail-on-risk",
+   "expected": "both jobs unspecified, exit 2",
+   "observed": "job:label and job:greet unspecified, exit 2",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "top-level write-all inherited; job override to contents: read",
+   "method": "GitHub docs github-token-available-permissions.md (write-all form; job-level replaces)",
+   "command": "python3 ventures/actions-permissions-check/check.py /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/apc/c6 --format json",
+   "expected": "workflow write-all, job a write-all (inherited), job b explicit",
+   "observed": "2 workflow write-all; 4 job:a write-all; 9 job:b explicit",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "quoted write-all at job level (`permissions: \"write-all\"` and `'write-all'`) under top-level {}",
+   "method": "GitHub docs github-token-available-permissions.md: write-all is a string value; YAML 1.2 quoting yields the same scalar",
+   "command": "python3 ventures/actions-permissions-check/check.py /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/apc/c3 --fail-on-risk",
+   "expected": "jobs b and c write-all, exit 2",
+   "observed": "job:b explicit \"write-all\"; job:c explicit 'write-all'; exit 0",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "quoted job id `\"deploy\":` with job-level write-all under top-level contents: read",
+   "method": "YAML spec (quoted mapping key is the same key); GitHub job ids are mapping keys under jobs",
+   "command": "python3 ventures/actions-permissions-check/check.py /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/apc/c12 --fail-on-risk",
+   "expected": "job:deploy write-all, exit 2",
+   "observed": "only 'workflow explicit' reported; job missing; exit 0",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "job with no job-level grant but a matrix key / action with: input named permissions; plus a run heredoc containing 'permissions: write-all'",
+   "method": "GitHub workflow syntax: permissions is only meaningful at top level or jobs.<id>.permissions; matrix values and step inputs are not token grants",
+   "command": "python3 ventures/actions-permissions-check/check.py /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/apc/c5 --format json",
+   "expected": "all three jobs unspecified (no workflow or job grant)",
+   "observed": "job:matrix explicit [read, write]; job:app-token explicit contents:write; job:heredoc write-all",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "read-all, {}, flow mapping, 4-space indent, CRLF, reusable-workflow call job, top-level permissions after jobs",
+   "method": "GitHub docs github-token-available-permissions.md forms; YAML indentation freedom",
+   "command": "python3 ventures/actions-permissions-check/check.py /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/apc/c9 ; c10 ; c11 ; c3 (job a)",
+   "expected": "c9 a explicit/b unspecified; c10 a unspecified/b write-all; c11 call inherits explicit; c3 workflow {} explicit, job a read-all explicit",
+   "observed": "as expected in all four",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Scorecard equivalence: all jobs explicit, no top-level block (c7); top-level contents: write + packages: write on pull_request_target (c8)",
+   "method": "ossf/scorecard docs/checks.md Token-Permissions: one point reduced when top-level undefined; highest score needs top-level read-only",
+   "command": "python3 ventures/actions-permissions-check/check.py /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/apc/c7 --fail-on-risk; python3 ventures/actions-permissions-check/check.py /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/apc/c8 --fail-on-risk",
+   "expected": "Scorecard penalises both; a tool claiming 'the same check' should at least flag them",
+   "observed": "both exit 0, no risky findings",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "browser port vs CLI parity on 12 independent fixtures",
+   "method": "own harness calling classify.mjs scanText and check.py --format json",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/apc/parity.mjs c1 ... c12 (run in /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/apc)",
+   "expected": "SAME on every fixture",
+   "observed": "SAME on all 12",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "both test suites",
+   "method": "run",
+   "command": "cd ventures/actions-permissions-check/ && node --test '*.test.mjs' && /usr/bin/python3.13 -m pytest -q test_check.py",
+   "expected": "green",
+   "observed": "65/65 node, 29/29 pytest",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'there is no public API' for the repository/organization default token permission",
+   "method": "github/rest-api-description api.github.com.json paths /repos/{owner}/{repo}/actions/permissions/workflow and /orgs/{org}/actions/permissions/workflow (GET, default_workflow_permissions enum read|write)",
+   "command": "curl raw.githubusercontent.com/github/rest-api-description/main/descriptions/api.github.com/api.github.com.json | python3 (read paths)",
+   "expected": "no such endpoint (per the claim)",
+   "observed": "both endpoints documented: 'Get default workflow permissions for a repository/organization'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "ambient token 'can ... modify repository settings'",
+   "method": "github/docs data/reusables/actions/github-token-scope-descriptions.md scope table",
+   "command": "curl raw.githubusercontent.com/github/docs/main/data/reusables/actions/github-token-scope-descriptions.md",
+   "expected": "an administration/settings scope exists",
+   "observed": "no administration scope; scopes are actions, attestations, checks, contents, deployments, discussions, id-token, issues, packages, pages, pull-requests, security-events, statuses, etc.",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Scorecard 'runs 18 named checks'",
+   "method": "ossf/scorecard docs/checks.md",
+   "command": "grep -c '^## ' checks.md",
+   "expected": "18",
+   "observed": "20",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer and served URLs",
+   "method": "read pages; node platform/pages/served-copy.mjs actions-permissions-check",
+   "command": "node platform/pages/served-copy.mjs actions-permissions-check",
+   "expected": "disclaimer on every page; no placeholder origin",
+   "observed": "no-warranty block on index and all three pages; 'no placeholder or retired origin left'",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "classify.mjs:112",
+   "change": "indent < best.indent -> indent > best.indent (pick deepest permissions: line in a job)",
+   "caught": false,
+   "test_cmd": "node --test classify.test.mjs"
+  },
+  {
+   "where": "check.py:228",
+   "change": "elif top_classification is None: -> is not None",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q test_check.py"
+  },
+  {
+   "where": "check.py:106",
+   "change": "if inline == WRITE_ALL: -> if inline.startswith(WRITE_ALL):",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q test_check.py"
+  },
+  {
+   "where": "check.py:120",
+   "change": "_line_indent(line) <= key_indent -> < key_indent (display detail only)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q test_check.py"
+  },
+  {
+   "where": "check.py:158",
+   "change": "jobs_block_end = i -> pass (near-equivalent: indented regex never matches column 0)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q test_check.py"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "A quoted job id (`\"deploy\":` or `'deploy':`, valid YAML) never matches the job-name regex, so the job is silently dropped: with a top-level grant present its job-level `permissions: write-all` vanishes and --fail-on-risk exits 0 (c12); without one the file is reported as having 'no jobs: section'. Same regex in classify.mjs:22.",
+   "where": "ventures/actions-permissions-check/check.py:90",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
+  },
+  {
+   "severity": "high",
+   "what": "`permissions: \"write-all\"` and `permissions: 'write-all'` (the same YAML string GitHub reads as write-all) classify as explicit, so the gate passes with exit 0 (c3). Same comparison at classify.mjs:36.",
+   "where": "ventures/actions-permissions-check/check.py:106",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
+  },
+  {
+   "severity": "medium",
+   "what": "With no job-level grant, any deeper `permissions:` key in the job (a strategy.matrix key, an action `with:` input, a heredoc in run:) is taken as the job's grant: an unspecified job reports explicit (false negative) or a heredoc line reports write-all (c5). The docstring premise 'never a step input' is false.",
+   "where": "ventures/actions-permissions-check/check.py:172",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
+  },
+  {
+   "severity": "medium",
+   "what": "README, CLI docstring, index FAQ and two SEO pages say there is no public API for the repository/organization default GITHUB_TOKEN permission; GitHub's REST API documents GET /repos/{owner}/{repo}/actions/permissions/workflow and GET /orgs/{org}/actions/permissions/workflow (default_workflow_permissions read|write). Also at check.py:38, index.html:104, how-to page:65, vs-reading-the-workflow-yaml-by-hand.html:75 and :93.",
+   "where": "ventures/actions-permissions-check/README.md:40",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
+  },
+  {
+   "severity": "medium",
+   "what": "Claims to be 'the same check the OpenSSF Scorecard project runs'; Scorecard's Token-Permissions deducts for a missing top-level block when all jobs are explicit and scores top-level read-only, both of which this tool passes with exit 0 (c7, c8). Also check.py:24.",
+   "where": "ventures/actions-permissions-check/README.md:8",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
+  },
+  {
+   "severity": "medium",
+   "what": "Says the ambient token can 'modify repository settings' and that any pull-request-triggered workflow gets a token that can push; GITHUB_TOKEN has no administration scope, and GitHub downgrades write to read for pull_request from forks (only pull_request_target keeps read/write). Also check.py:21, index.html:100.",
+   "where": "ventures/actions-permissions-check/README.md:32",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
+  },
+  {
+   "severity": "medium",
+   "what": "No test exercises quoted values, quoted job ids or a deeper `permissions:` key in a job; the mutant that flips the shallowest-match heuristic survives, as does write-all equality -> startswith.",
+   "where": "ventures/actions-permissions-check/classify.test.mjs:141",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
+  },
+  {
+   "severity": "low",
+   "what": "No trigger awareness and no flag for top-level write scopes: `on: pull_request_target` with top-level `contents: write, packages: write` passes with exit 0 (c8), and a push-only unspecified job ranks the same as a pull_request_target one. Stated as out of scope, but it is the case a hardening engineer checks first.",
+   "where": "ventures/actions-permissions-check/check.py:103",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Scorecard described as running '18 named checks'; its docs/checks.md lists 20.",
+   "where": "ventures/actions-permissions-check/vs-openssf-scorecard.html:47",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt carries calculator boilerplate ('Results are estimates from the numbers typed in, not legal, tax, financial ... advice') that does not describe a YAML checker.",
+   "where": "ventures/actions-permissions-check/llms.txt:5",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"],
+ "verdict": "A tidy, honest-in-tone, finished dev tool (CLI + browser port in byte parity, 94 green tests, disclaimers everywhere) that gets GitHub's documented permission inheritance right on canonical workflows, but fails open on ordinary YAML spellings: a quoted `\"write-all\"` or a quoted job id passes the --fail-on-risk gate with exit 0, and a matrix key or step input named `permissions` hides an unspecified job. Its copy states as fact that no public API exposes the default token setting (GitHub documents two), that the token can modify repository settings (no such scope), and that it is the same check as OpenSSF Scorecard's Token-Permissions (Scorecard scores top-level read-only and penalises a missing top-level block, which this passes). A DevSecOps engineer would use it as a first sweep, not as the merge gate it advertises. Scores 2 on six dimensions, 3 on completeness: finished, does not meet the bar."
+}

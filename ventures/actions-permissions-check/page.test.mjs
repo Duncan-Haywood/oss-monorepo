@@ -49,7 +49,8 @@ test('the page never claims a clean scan means the repository or workflow is sec
 
 test('the page tells the visitor it makes no network calls and does not know the repository default', () => {
   assert.match(index, /makes no network calls/i);
-  assert.match(index, /no public API for that setting/i);
+  assert.match(index, /actions\/permissions\/workflow/);
+  assert.doesNotMatch(index, /no public API/i);
 });
 
 test('the JSON-LD FAQPage questions match the visible FAQ headings', () => {

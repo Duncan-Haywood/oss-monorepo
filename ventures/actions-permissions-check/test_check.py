@@ -280,5 +280,31 @@ class Main(unittest.TestCase):
                 os.chdir(cwd)
 
 
+
+class QuotedAndNestedEdgeCases(unittest.TestCase):
+    """Round 105 audit (portfolio/quality/audits/2026-11-23-actions-permissions-check.json):
+    each of these passed the gate before the fix."""
+
+    def test_quoted_write_all_is_flagged(self):
+        for value in ('"write-all"', "'write-all'"):
+            text = f"permissions: {{}}\njobs:\n  b:\n    runs-on: ubuntu-latest\n    permissions: {value}\n"
+            job = [f for f in apc.scan_text(text) if f["scope"] == "job:b"][0]
+            self.assertEqual(job["classification"], apc.WRITE_ALL, value)
+
+    def test_quoted_job_id_is_scanned(self):
+        for job_key in ('"deploy"', "'deploy'"):
+            text = (f"permissions:\n  contents: read\njobs:\n  {job_key}:\n"
+                    "    runs-on: ubuntu-latest\n    permissions: write-all\n")
+            jobs = [f for f in apc.scan_text(text) if f["scope"] == "job:deploy"]
+            self.assertEqual(len(jobs), 1, job_key)
+            self.assertEqual(jobs[0]["classification"], apc.WRITE_ALL)
+
+    def test_matrix_or_with_key_named_permissions_is_not_the_job_grant(self):
+        text = ("jobs:\n  b:\n    runs-on: ubuntu-latest\n    strategy:\n      matrix:\n"
+                "        permissions: [a, b]\n    steps:\n      - uses: x/y@v1\n        with:\n"
+                "          permissions: read\n")
+        job = [f for f in apc.scan_text(text) if f["scope"] == "job:b"][0]
+        self.assertEqual(job["classification"], apc.UNSPECIFIED)
+
 if __name__ == "__main__":
     unittest.main()

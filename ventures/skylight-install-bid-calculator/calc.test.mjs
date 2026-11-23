@@ -255,3 +255,22 @@ test('the customer summary names the units and omits wages', () => {
   assert.doesNotMatch(text, /burden/i);
   assert.match(text, /not a roofing specification/i);
 });
+
+// Round 105 audit (portfolio/quality/audits/2026-11-23-skylight-install-bid-calculator.json):
+// the customer-supplied article's figures held only at $0 travel and equipment, which it
+// did not say. Pin them to the engine and to the stated assumption.
+test('customer-supplied article walk-aways match the engine at the stated $0 travel and equipment', async () => {
+  const { readFileSync } = await import('node:fs');
+  const html = readFileSync(new URL('./should-i-install-a-customer-supplied-skylight.html', import.meta.url), 'utf8');
+  assert.match(html, /travel-and-equipment line set to \$0/);
+  const j = JOB_PRESETS[0];
+  const kit = { ...suggestedExtraKit(), ...suggestedTypeKit(j.type), ...suggestedScopeKit(j.scope), ...suggestedRoofKit(j.roof) };
+  const base = { ...j, hourlyWage: 42, burdenRate: 30, overheadRate: 15, targetMargin: 20, travelAndEquipment: 0, ...kit };
+  const supplied = calculateBid(base).totalCost;
+  const owner = calculateBid({ ...base, unitInvoice: 0, flashingInvoice: 0 }).totalCost;
+  assert.equal(Math.round(supplied), 1018);
+  assert.equal(Math.round(owner), 483);
+  assert.equal(Math.round(owner - 350), 133);
+  const withDefault = calculateBid({ ...base, travelAndEquipment: 75 }).totalCost;
+  assert.equal(Math.round(withDefault - supplied), 86);
+});

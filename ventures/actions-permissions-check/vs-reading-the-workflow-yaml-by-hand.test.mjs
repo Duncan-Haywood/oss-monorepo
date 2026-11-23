@@ -87,5 +87,6 @@ test('the page never claims a clean scan means the workflow or repository is sec
 });
 
 test('does not claim knowledge of the repository default token permissions', () => {
-  assert.match(html, /no public API for that setting/i);
+  assert.match(html, /actions\/permissions\/workflow/);
+  assert.doesNotMatch(html, /no public API/i);
 });

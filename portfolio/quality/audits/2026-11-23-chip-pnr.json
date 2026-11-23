@@ -1,0 +1,264 @@
+{
+ "date": "2026-11-23",
+ "subject": "research/chip-pnr",
+ "stratum": "research",
+ "seed": "2026-11-23-e-2a41",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior physical-design / EDA researcher (placement and routing) who runs OpenROAD/ORFS on SKY130 and reviews pre-layout vs post-layout PPA correlation work. First checks: are the mapped numbers reproducible from the pinned PDK, does the synthesis step use the timing constraints a real flow uses (ABC driver/load), is 'final' really post-route, are the claims backed by the committed results, and is anything here new against ORFS's own stage metrics and the pre-layout PPA prediction literature",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "OpenROAD was not run: the README's route is a ~1.5 h nixpkgs source build, not feasible here, so no placed/routed number was reproduced; that caps correctness at 2. fetch_pdk.sh worked (GitHub reachable, pinned ORFS commit e5cc6e7 checked out in 6.8 s). Ubuntu apt-get could not install yosys 0.33 (apt-get update ran >15 min and still reported \"Unable to locate package yosys\"), so I used Yosys 0.71 (YoWASP, pip) with the README's exact synth script and the repo's own filtered_liberty() output. Independent recomputations: (1) generic adder_ripple W=8: 37 cells, ltp length 15, matches results.json. (2) mapped adder_ripple W=8 on the fetched SKY130 HD tt liberty: 25 cells, 207.6992 um^2, byte-equal to results.json synth_area_um2 207.6992. (3) Liberty cell areas summed by hand (auditor regex over the .lib): the README's stated W=8 cell multiset (13 xnor2, 6 maj3, 2 xor2, 2 nand2, 1 o21ai) is 24 cells and 203.9456 um^2, not the reported 25 / 207.6992; the Yosys stat shows the missing cell is one nor2_1 (3.7536). (4) Every results.json row is internally consistent: cell_usage sums equal final_area_notap and final_cells, final_period = target - final_wns, um^2/gate mean 7.82 sd 4.97 over 10 designs, T2 growth 19.6%. (5) On Yosys 0.71 adder_op W=8 maps to 30 cells/206.45 (not identical to ripple), mult W=4 51/319.06 (reported 49/341.6), fifo AW=2 78/1483.9 (reported 114/1559.0): the README's mapped numbers are specific to Yosys 0.33, as its 'one tool version' limit says, but the 'mapping erases the ripple/+ difference' finding did not survive a version change. (6) The '-D target did not change the netlist' result reproduces without constraints (adder_op W16 at 2/5/8 ns: identical 60 cells, 436.67) but with ORFS's own ABC constraints (set_driving_cell sky130_fd_sc_hd__buf_1, set_load 5, from config.mk ABC_DRIVER_CELL/ABC_LOAD_IN_FF) the 2 and 3 ns targets give 471.70 um^2 (+8%) and 5/8 ns give 436.67: the finding is an artifact of omitting -constr.",
+  "completeness": "Everything the README lists is present: 13 runs (6 adders, 2 mults, 2 FIFOs, 3 extra clock targets) in results.json/results.txt, summarize.py, figure.py and ratios.png, pnr.tcl with the stated stage order, fetch_pdk.sh (worked). Tests: 5 tests, 1 skipped without yosys, README says '5 tests, under 1 s' (0.002 s). Not runnable here end to end: OpenROAD (1.5 h build). Not done and disclosed: detailed_route, extraction, DRC/LVS, utilisation sweep. No stubs or TODOs. Live page not loaded.",
+  "verification": "python3 -B -m unittest discover -s tests: Ran 5, OK (skipped=1, TestGeneric needs yosys). The tests are a parse_log unit test on a synthetic log, a liberty-filter test on a 3-cell toy lib, one generic-gate count, and two sanity checks over the committed results.json. No test calls synth() (the mapped flow) or pnr.tcl. Five seeded mutants via quality_mutate.py: 2 caught (implied period sign in parse.py:31, tap subtraction in parse.py:24), 3 survived: dropping abc -D (synth.py:44), deleting repair_timing from pnr.tcl:60, and adding xnor to the dont_use filter (synth.py:7, which would remove the most-used adder cell). The flow that produces every headline number is untested.",
+  "craft": "Read synth.py (83 lines), parse.py (32), pnr.tcl, run.py, summarize.py, figure.py, fetch_pdk.sh, tests/test_pnr.py and the four .v files. Small and readable, but: fetch_pdk.sh:10 'git fetch ... && git checkout $COMMIT || true' silently falls back to ORFS HEAD if the pinned commit cannot be fetched, defeating the pin (it prints rev-parse but does not fail). synth.py:7 filter removes sky130_fd_sc_hd__conb_1 from the liberty while synth.py:45 hilomap instantiates conb_1, so any design with a constant gets an unlibertied cell (no area in stat, no timing in OpenROAD). parse.py:26 buffers_added tests '\"Inverter\" in k and \"Clock\" in k' but OpenROAD prints 'Clock inverter' (lower-case i), so clock inverters are never counted (fifo AW3 has 3). synth.py:55/81 parse 'Number of cells:' which newer Yosys (0.71 prints '37 cells') no longer emits, so the flow breaks on any Yosys but 0.33 with an AttributeError rather than a clear message. run.py has no per-run failure handling (one OpenROAD failure loses all results).",
+  "claims": "Checked against results.txt/results.json: README table rows (README:28-32) all match; um^2/gate 5.1-5.8 and 17.2, sd 4.97 mean 7.82 (pass); 13 generic gates difference at W=32 (pass); 9-28% repair growth, 4-6% FIFO growth (pass); post-place ratios 1.03-1.04 adders, 1.06/1.16 mults, 1.13/1.19 FIFOs (pass); T2/T3 511.7, +19.6%, 4.72 ns, T8 untouched (pass); W32 11.9 -> 9.9 ns, W16 5.63 -> 5.00 (pass). Fail/partial: README:35 multiset lists 24 cells for a 25-cell netlist (missing nor2_1); README:37 'Longer/wider logic suffers more' is contradicted by its own adders (W8 + adder 1.040 > W32 1.034); README:36 '2-2.5 ns to spare' (netlist slack 2.75/2.45, final 2.19/1.82, approximate); README:11 says the filter removes 'cells ORFS marks dont_use', but it also removes 7 cells ORFS does not (conb_1, decap_*, diode_2; checked against config.mk DONT_USE_CELLS, all 36 ORFS cells removed); README:48 says per-cell reports are not committed, but results.json carries cell_usage for both FIFOs (Sequential cell 40 / 800.77 um^2 and 75 / 1501.44), so that limitation is stale; README:38 reports the -D insensitivity as a finding without noting ABC got no driver/load constraints. OpenROAD and RePlAce papers not cited (README:7 says so for OpenROAD). AI assistance disclosed; 'global-route-estimated, not post-route' limit is stated prominently.",
+  "fitness": "Nearest prior work: OpenROAD-flow-scripts itself (its make flow already emits synth/floorplan/place/CTS/GRT/route area and timing metrics per stage in metadata JSON for real designs, with ABC constraints and detailed routing), Ajayi et al. DAC 2019 (OpenROAD), RePlAce (Cheng et al., TCAD 2019, the global_placement used here), and the pre-layout PPA/timing-prediction literature (wire-load models; e.g. pre-routing timing prediction and RTL-level PPA predictors such as MasterRTL, ICCAD 2023), none cited or compared. The result (layout adds 0-28% area and 3-19% delay on 10 toy designs, global-route estimate only, one Yosys version, one utilisation, ideal I/O) is not new and is not general: no standard benchmark (ISPD, IWLS, EPFL), no baseline estimator (e.g. wire-load model or ABC's own delay, which README:47 says was not read out), no repeats. A researcher could reuse the pinned-PDK + scripted OpenROAD harness, but ORFS already provides a stronger one. Far from the research brief's PhD/publishable bar.",
+  "domain": "Stage order (floorplan, tapcell, global place, pin place, CTS, repair_design, detailed place, GRT, repair_timing) follows ORFS practice, and the README is honest that 'final' is GRT-estimated. Departures a P&R researcher would flag: ABC mapping without -constr (ORFS passes ABC_DRIVER_CELL/ABC_LOAD_IN_FF), which I showed is why the clock target had no effect; no set_driving_cell/set_load at the I/O in pnr.tcl with 0 I/O delays, so combinational 'wire cost' ratios are measured with ideal drivers and zero output loads; global_placement not timing- or routability-driven; no detailed_route/RCX, so wire parasitics are estimates on both sides of the ratio; utilisation and density fixed; dont_use list broader than ORFS's, including the tie cell."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Mapped area of adder_ripple W=8 on SKY130 HD tt",
+   "method": "Independent Yosys 0.71 (YoWASP) run of the README's synth script against the fetched ORFS liberty (filtered by the repo's filtered_liberty)",
+   "command": "yosys -q -l rip8.log rip8.ys (read_verilog designs/adder_ripple.v; chparam -set W 8; synth -flatten; dfflibmap; abc -D 5000 -liberty filt.lib; hilomap; opt_clean -purge; stat -liberty filt.lib)",
+   "expected": "25 cells, 207.6992 um^2 (results.json)",
+   "observed": "25 cells, 207.699200",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Generic gate count and depth of adder_ripple W=8",
+   "method": "Yosys 0.71 synth + abc -g GATES + ltp -noff",
+   "command": "yosys -q -l g.log g.ys",
+   "expected": "37 cells, depth 15",
+   "observed": "37 cells, length=15",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "README:35 W=8 cell multiset vs reported area",
+   "method": "Sum of liberty cell areas parsed from sky130_fd_sc_hd__tt_025C_1v80.lib (auditor script), compared with the Yosys stat cell list",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/libarea.py pdk/orfs/flow/platforms/sky130hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib",
+   "expected": "25 cells, 207.6992 um^2",
+   "observed": "README multiset: 24 cells, 203.9456 um^2; stat shows a 25th cell nor2_1 (3.7536)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Internal consistency of all 13 results.json rows (cell_usage sum = final_area_notap, cell counts, implied period, um^2/gate mean/sd, T2 growth)",
+   "method": "auditor recompute script from raw fields",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/recompute.py experiments/results.json",
+   "expected": "0 inconsistent rows; mean 7.82 sd 4.97; +19.6%",
+   "observed": "0 inconsistent rows; mean 7.82 sd 4.97; +19.6%",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "'The ABC clock target did not change the netlist' (README:38)",
+   "method": "adder_op W=16 mapped at -D 2000/3000/5000/8000 without and with ORFS's ABC constraints (set_driving_cell sky130_fd_sc_hd__buf_1, set_load 5 from sky130hd config.mk)",
+   "command": "yosys -q -l cD.log cD.ys (abc -D D -constr constr.sdc -liberty filt.lib)",
+   "expected": "identical netlists at all targets if the claim is a property of the flow",
+   "observed": "no -constr: 436.67 at all four; with -constr: 471.70 at 2 and 3 ns, 436.67 at 5 and 8 ns",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Version robustness of the mapped numbers (adder_op W8, mult W4, fifo AW2)",
+   "method": "same script on Yosys 0.71",
+   "command": "yosys -q -l op8.log op8.ys; mul4.ys; fifo2.ys",
+   "expected": "25/207.7, 49/341.6, 114/1559.0 (Yosys 0.33)",
+   "observed": "30/206.45, 51/319.06, 78/1483.92; 'ripple and + identical after mapping' does not hold on 0.71",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "fetch_pdk.sh fetches the pinned ORFS commit",
+   "method": "run it",
+   "command": "sh -x ./fetch_pdk.sh <scratch>/pdk",
+   "expected": "e5cc6e799f5ddf36e6bdf2d8c5db73373b88f52c",
+   "observed": "e5cc6e799f5ddf36e6bdf2d8c5db73373b88f52c in 6.8 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Full flow (run.py) incl. OpenROAD",
+   "method": "attempt to obtain OpenROAD",
+   "command": "which openroad; apt-get install yosys",
+   "expected": "run.py reproduces results.json",
+   "observed": "OpenROAD needs a ~1.5 h nix source build (not attempted); apt yosys 0.33 unavailable (apt-get update hung); not reproduced",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "python3 -B -m unittest discover -s tests",
+   "expected": "README: 5 tests, under 1 s",
+   "observed": "Ran 5 tests in 0.002s, OK (skipped=1)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Liberty filter removes exactly the ORFS dont_use cells (README:11)",
+   "method": "run filtered_liberty on the real liberty and diff against DONT_USE_CELLS in ORFS sky130hd/config.mk",
+   "command": "python3 -B /tmp/claude-0/-home-user-oss-monorepo/a197f6bb-2224-515d-973c-8c46338108d8/scratchpad/filt.py <lib> <out> pdk/orfs/flow/platforms/sky130hd/config.mk",
+   "expected": "36 removed (ORFS list)",
+   "observed": "43 removed: all 36 ORFS cells plus conb_1, decap_3/4/6/8/12, diode_2 (conb_1 is the tie cell synth.py:45 instantiates)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "README table and numeric bullets (README:28-39) vs results.txt",
+   "method": "line-by-line comparison plus recompute",
+   "command": "cat experiments/results.txt; python3 recompute.py",
+   "expected": "every number backed",
+   "observed": "all table cells and ranges match except 'longer/wider logic suffers more' (adder W8 1.040 > W32 1.034) and '2-2.5 ns to spare' (approximate)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:48 'committed run does not keep per-cell reports'",
+   "method": "read results.json cell_usage",
+   "command": "python3 -c \"import json;print([r['cell_usage'] for r in json.load(open('experiments/results.json'))['runs'] if 'fifo' in r['name']])\"",
+   "expected": "no per-cell data",
+   "observed": "Sequential cell 40/800.77 (AW2) and 75/1501.44 (AW3) are committed",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Nearest prior work cited and compared",
+   "method": "README 'Builds on' vs ORFS stage metrics, Ajayi DAC 2019, RePlAce TCAD 2019, pre-layout PPA prediction literature",
+   "command": "grep -n 'Builds on' README.md",
+   "expected": "comparison to an existing estimator or flow",
+   "observed": "none; OpenROAD cited by URL only, no baseline estimator",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/chip_pnr/parse.py:31",
+   "change": "round(period_ns - out[f\"{name}_wns\"], 3) -> round(period_ns + out[f\"{name}_wns\"], 3)",
+   "caught": true,
+   "test_cmd": "python3 -B -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_pnr/parse.py:24",
+   "change": "out[\"final_area_notap\"] = round(tot[1] - tap[1], 3) -> out[\"final_area_notap\"] = round(tot[1], 3)",
+   "caught": true,
+   "test_cmd": "python3 -B -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_pnr/synth.py:44",
+   "change": "abc -D {int(period_ns * 1000)} -liberty -> abc -liberty",
+   "caught": false,
+   "test_cmd": "python3 -B -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_pnr/pnr.tcl:60",
+   "change": "repair_timing -setup -verbose -> (deleted)",
+   "caught": false,
+   "test_cmd": "python3 -B -m unittest discover -s tests"
+  },
+  {
+   "where": "src/chip_pnr/synth.py:7",
+   "change": "DONT_USE regex (...|conb) -> (...|conb|xnor) (removes the most-used adder cell)",
+   "caught": false,
+   "test_cmd": "python3 -B -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "'The ABC clock target did not change the netlist' is reported as a finding, but synth() calls abc -D without -constr (no driver cell or load, which ORFS supplies via ABC_DRIVER_CELL/ABC_LOAD_IN_FF). With ORFS's constraints the 2 and 3 ns targets give a different, 8% larger netlist (471.70 vs 436.67 um^2 on Yosys 0.71). The bullet's conclusion about where the target matters is an artifact of the script.",
+   "where": "research/chip-pnr/README.md:38",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
+  },
+  {
+   "severity": "medium",
+   "what": "No baseline or prior-work comparison: ORFS's per-stage metrics, wire-load models, ABC's own delay estimate (README:47 not read out) and the pre-layout PPA prediction literature are neither cited nor compared; 10 toy designs, no standard benchmark (ISPD/IWLS/EPFL), one Yosys version, no detailed route. The result is not new and does not generalise.",
+   "where": "research/chip-pnr/README.md:7",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "The mapped flow and P&R script that produce every headline number are untested: no test calls synth() or exercises pnr.tcl; mutants dropping abc -D, deleting repair_timing, and removing xnor cells from the liberty all survive.",
+   "where": "research/chip-pnr/tests/test_pnr.py:78",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "fetch_pdk.sh ends the pinned fetch with '|| true', so if the pinned ORFS commit cannot be fetched it silently continues on ORFS HEAD, defeating the pin the README relies on.",
+   "where": "research/chip-pnr/fetch_pdk.sh:10",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "low",
+   "what": "The dont_use filter removes sky130_fd_sc_hd__conb_1 (and decap/diode) though ORFS does not mark them dont_use; conb_1 is the tie cell hilomap instantiates at synth.py:45, so any design with a constant gets a cell with no liberty area or timing. README:11 says only ORFS dont_use cells are removed.",
+   "where": "research/chip-pnr/src/chip_pnr/synth.py:7",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "README lists the W=8 adder's mapped cells as 13 xnor2, 6 maj3, 2 xor2, 2 nand2, 1 o21ai: that is 24 cells / 203.95 um^2, not the reported 25 / 207.70; the missing cell is a nor2_1.",
+   "where": "research/chip-pnr/README.md:35",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
+  },
+  {
+   "severity": "low",
+   "what": "'Longer/wider logic suffers more' is contradicted by the adders in the same table: post-place/netlist ratio 1.040 at W=8 (+) vs 1.034 at W=32.",
+   "where": "research/chip-pnr/README.md:37",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
+  },
+  {
+   "severity": "low",
+   "what": "Limitation says per-cell usage is not in the committed run, but results.json carries cell_usage for both FIFOs (Sequential cell 40 / 800.77 um^2 and 75 / 1501.44), which directly backs the flop-dominance claim.",
+   "where": "research/chip-pnr/README.md:48",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"
+  },
+  {
+   "severity": "low",
+   "what": "buffers_added checks '\"Inverter\" in k and \"Clock\" in k', but OpenROAD's category is 'Clock inverter' (lower-case i), so clock inverters are never counted (fifo_W8_AW3 has 3).",
+   "where": "research/chip-pnr/src/chip_pnr/parse.py:26",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Cell counts are parsed with 'Number of cells:', a Yosys 0.33 stat format; Yosys 0.71 prints '37 cells', so the flow fails with an AttributeError on newer Yosys instead of a clear version error.",
+   "where": "research/chip-pnr/src/chip_pnr/synth.py:55",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "pnr.tcl sets 0 I/O delays but no set_driving_cell or set_load, so combinational paths are timed with ideal drivers and zero output load; the 'wire cost' ratios for the adders and multipliers are biased low and this is not listed as a limitation.",
+   "where": "research/chip-pnr/src/chip_pnr/pnr.tcl:21",
+   "category": "domain-rule",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18409"],
+ "verdict": "A tidy, honest-in-tone milestone that scripts Yosys + OpenROAD on SKY130 HD for 13 runs of toy designs and reports how far synthesis-only area and delay sit from a global-route estimate. The one mapped number I could reproduce independently (adder_ripple W=8: 25 cells, 207.6992 um^2 on the fetched liberty) is exact and every results.json row is internally consistent, but OpenROAD was not runnable here, other mapped numbers move under a newer Yosys, and one headline bullet (clock target has no effect) is an artifact of running ABC without the driver/load constraints ORFS uses. Several README details are wrong or stale (a 24-cell multiset for a 25-cell netlist, 'longer logic suffers more' contradicted by its own adders, a limitation that the committed cell_usage already resolves). The tests cover log parsing only; the flow behind every number is untested (3 of 5 mutants survive). As research it has no baseline, no prior-work comparison and no standard benchmark, and ORFS's own stage metrics already answer the question at higher fidelity. Does not meet the bar."
+}
