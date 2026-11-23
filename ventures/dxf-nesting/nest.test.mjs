@@ -195,6 +195,7 @@ test("the order search repeats, never ends worse than no search, and still passe
 test("compaction keeps the gap, repeats, never lengthens the last sheet, and shortens random jobs", () => {
   const r = rng(2026);
   let shorter = 0;
+  const squeezed = [];
   for (let t = 0; t < 6; t++) {
     const items = [];
     for (let k = 0; k < 4; k++) {
@@ -219,6 +220,22 @@ test("compaction keeps the gap, repeats, never lengthens the last sheet, and sho
     assert.ok(last(a) <= last(plain), `compaction lengthened job ${t}: ${last(a)} > ${last(plain)}`);
     assert.deepEqual(a.result.sheets, b.result.sheets, "same job, same nest");
     if (last(a) < last(plain)) shorter++;
+    squeezed.push(last(a));
   }
   assert.ok(shorter >= 3, `only ${shorter} of 6 random jobs got shorter`);
+  // Search strength: after 800 moves these six last sheets total 1876 mm
+  // (2000 without). Seeded and counted in moves, so exact on any machine; the
+  // 10 mm slack is 0.5%. Two weakened searches seeded by the 2026-11-23
+  // red-team run (global sampling stuck at the strip's start: 1960; local
+  // sampling flattened in y: 1894) passed every check above.
+  const total = squeezed.reduce((t, v) => t + v, 0);
+  assert.ok(total <= 1886, `compaction got weaker: last sheets total ${total} mm, was 1876`);
+  // Exact pin. README and eval/esicup-compact-2026-11-23.md publish numbers
+  // from this exact seeded search; four other faults seeded that day changed
+  // it (sampling on past a zero-overlap spot, one extra local sample, an
+  // off-centre local window, a bent descent step) without making it weaker
+  // here, so only this catches them. If you change the search on purpose,
+  // rerun eval/esicup-strip.mjs as eval/esicup-compact-2026-11-23.md says,
+  // update the published numbers, then this pin.
+  assert.deepEqual(squeezed, [512, 340, 472, 106, 286, 160]);
 });
