@@ -1,5 +1,6 @@
 // Replays each recorded case through the engine and lists every place the
 // engine and the real server disagree.
+import { pathToFileURL } from "node:url";
 import { scan, normalize } from "../scan.mjs";
 import { makeCase } from "./gen.mjs";
 
@@ -77,7 +78,7 @@ export function compare(rec) {
   return { cases: rec.cases.length, values, probes, diffs };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { readFileSync } = await import("node:fs");
   const rec = JSON.parse(readFileSync(process.argv[2] || new URL("./redis-7.0.json", import.meta.url), "utf8"));
   const res = compare(rec);
