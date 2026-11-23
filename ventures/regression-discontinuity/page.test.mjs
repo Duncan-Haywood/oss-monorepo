@@ -51,7 +51,7 @@ test("every input has a label and nothing is sent anywhere", () => {
     const id = tag.match(/\sid="([^"]+)"/)?.[1];
     assert.ok(/aria-label=/.test(tag) || (id && html.includes(`<label for="${id}">`)), `unlabelled: ${tag}`);
   }
-  assert.doesNotMatch(html, NETWORK);
+  assert.doesNotMatch(html.replace('import("./example-data.mjs")', ""), NETWORK);
   for (const f of ["engine.mjs", "example-data.mjs", "usage.mjs", "cli.mjs"]) assert.doesNotMatch(page(f), NETWORK, f);
   assert.doesNotMatch(html, /<form[^>]+action=/i);
   assert.doesNotMatch(html, /<(script|link|img)[^>]+(src|href)=["']https?:/);
@@ -61,7 +61,7 @@ test("the module script imports only local files and parses", async () => {
   const html = page("index.html");
   const scripts = [...html.matchAll(/<script type="module">([\s\S]*?)<\/script>/g)];
   assert.equal(scripts.length, 1);
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]), ["./engine.mjs", "./example-data.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]), ["./engine.mjs", "./usage.mjs"]);
   assert.doesNotMatch(page("engine.mjs"), /^\s*import\s/m);
   assert.doesNotThrow(() => new Function(scripts[0][1].replace(/^\s*import .*$/gm, "")));
   for (const m of html.matchAll(/import \{([^}]+)\} from "\.\/([\w-]+\.mjs)"/g)) {
@@ -121,4 +121,15 @@ test("robots, sitemap, README, LICENSE, VENTURE.yaml and llms.txt exist", () => 
 test("footer links sibling causal and research tools", () => {
   const html = page("index.html");
   for (const s of ["difference-in-differences", "propensity-score", "instrumental-variables", "synthetic-control", "changepoint-detector", "meta-analysis"]) assert.match(html, new RegExp(`href="\\.\\./${s}/"`));
+});
+
+test("the example data loads on the first example press, and every name a handler takes exists", async () => {
+  const html = page("index.html");
+  assert.doesNotMatch(html, /from "\.\/example-data\.mjs"/, "example-data.mjs stays out of the page's static import graph");
+  assert.equal(html.split("import(").length - 1, 1, "the only dynamic import is the local example data");
+  assert.ok(html.includes('import("./example-data.mjs")'));
+  const data = await import("./example-data.mjs");
+  const taken = [...html.matchAll(/const \{([^}]+)\} = await exampleData\(\);/g)];
+  assert.ok(taken.length >= 1);
+  for (const m of taken) for (const name of m[1].split(",").map((s) => s.trim())) assert.notEqual(data[name], undefined, `example-data.mjs ${name}`);
 });

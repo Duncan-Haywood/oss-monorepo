@@ -52,7 +52,7 @@ test("every input has a label and nothing is sent anywhere", () => {
     const id = tag.match(/\sid="([^"]+)"/)?.[1];
     assert.ok(/aria-label=/.test(tag) || (id && new RegExp(`<label[^>]*\\sfor="${id}"`).test(html)), `unlabelled: ${tag}`);
   }
-  assert.doesNotMatch(html, NETWORK);
+  assert.doesNotMatch(html.replace('import("./example-data.mjs")', ""), NETWORK);
   for (const f of ["engine.mjs", "usage.mjs", "cli.mjs"]) assert.doesNotMatch(page(f), NETWORK, f);
   assert.doesNotMatch(html, /<form[^>]+action=/i);
   assert.doesNotMatch(html, /<(script|link|img)[^>]+(src|href)=["']https?:/);
@@ -85,4 +85,15 @@ test("the numbers the page states are the engine's", async () => {
 test("the example module is a verbatim copy of the data file", async () => {
   const { EXAMPLE_CSV } = await import("./example-data.mjs");
   assert.equal(EXAMPLE_CSV, page("data/red-wine-quality.csv"));
+});
+
+test("the example data loads on the first example press, and every name a handler takes exists", async () => {
+  const html = page("index.html");
+  assert.doesNotMatch(html, /from "\.\/example-data\.mjs"/, "example-data.mjs stays out of the page's static import graph");
+  assert.equal(html.split("import(").length - 1, 1, "the only dynamic import is the local example data");
+  assert.ok(html.includes('import("./example-data.mjs")'));
+  const data = await import("./example-data.mjs");
+  const taken = [...html.matchAll(/const \{([^}]+)\} = await exampleData\(\);/g)];
+  assert.ok(taken.length >= 1);
+  for (const m of taken) for (const name of m[1].split(",").map((s) => s.trim())) assert.notEqual(data[name], undefined, `example-data.mjs ${name}`);
 });
