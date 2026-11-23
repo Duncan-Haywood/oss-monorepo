@@ -187,7 +187,13 @@ export function progressText(r) {
   return L.join("\n") + "\n";
 }
 
-const csvCell = (v) => { const s = v === null || v === undefined ? "" : String(v); return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+// a cell a spreadsheet would run as a formula (=, +, -, @, tab, CR) gets an
+// apostrophe, numbers apart
+const csvCell = (v) => {
+  let s = v === null || v === undefined ? "" : String(v);
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
 export function progressCsv(r) {
   const head = ["kind", "activity_id", "name", "percent_type", "claimed_pct", "time_spent_pct", "spent_d", "remaining_d", "original_d", "why"];
   const rows = r.items.map((x) => [KIND_NAME.get(x.kind), x.code, x.name, x.type, x.claimed, x.time, x.spent, x.left, x.orig, x.why]);

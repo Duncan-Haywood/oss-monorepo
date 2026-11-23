@@ -126,3 +126,9 @@ test("largest gap first within a kind", () => {
   const r = review([active("S", 20, 5, 15), active("T", 10, 5, 15)]);
   assert.deepEqual(r.items.filter((x) => x.kind === "optimistic").map((x) => x.code), ["T", "S"]);
 });
+
+test("CSV guards cells a spreadsheet would run as formulas", () => {
+  const r = review([active("=cmd", 0, 30, 20, { task_name: "@SUM(A1)" })]);
+  const line = progressCsv(r).split("\r\n")[1];
+  assert.match(line, /,'=cmd,'@SUM\(A1\),/);
+});
