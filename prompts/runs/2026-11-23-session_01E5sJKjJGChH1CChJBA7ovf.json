@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 34,
   "outcome": "success",
@@ -35,7 +35,8 @@
     "Diff test first failed at seed 218: git reports a bad line in ~/.gitconfig before reading a gitdir include because of a very early system+global read with no repository (trace2). Modelled it.",
     "Seed 1,788: git parses .git/config alone (repository-format check) before the main read. Modelled it.",
     "The symlink unit test first assumed git -C sees the typed path; real git uses the typed path only when $PWD names the top folder. Fixed the test and added a gitdir-symlink finding.",
-    "run_venture_tests flagged two unguarded object-map lookups (SEVERITY_ORDER); switched to a Map."
+    "run_venture_tests flagged two unguarded object-map lookups (SEVERITY_ORDER); switched to a Map.",
+    "Local run of the PR workflows (run_workflow_locally.py --for-changes) found three problems, all fixed: a literal U+FEFF in gitconfig.mjs (now written as an escape), a first paragraph of 105 words against the 100-word limit for the first paragraph under the h1 (split into a list), and the new-page rule that findings use <h3> (this page's findings sit under <h3>Findings</h3>, so the page was added to the allow-list in finding-heading.test.mjs, as that file's comment permits)."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -50,7 +51,7 @@
     "ventures/gitconfig-include-check/why-git-uses-the-wrong-email.html"
   ],
   "goal": null,
-  "notes": "Explore idea: gitconfig includeIf checker, a fourth git/editor file explainer next to gitignore, gitattributes and editorconfig. The engine reimplements config.c parsing, reading order, include/includeIf (gitdir, gitdir/i, onbranch, hasconfig with the populate_remote_urls pass and forbid rule), the depth limit and the two hidden early reads. Oracle: git config --list --show-origin --show-scope (git 2.43.0). Seeds 1-3000 were used while building and ended with no difference. Held out, seeds 10001-15000: 5000/5000 agree (4141 read through, 1235 with a matched includeIf; 760 bad-line, 74 depth and 25 forbid fatals), 2m23s. New real-git finding: gitdir:~/work/ through a symlinked ~/work applies at the repository top folder but not in a subfolder or with git -C (strbuf_add_absolute_path uses $PWD only when it equals cwd). The CLI --verify matched git on this container's own config (23 values). Local checks: run_venture_tests.py gitconfig-include-check passed (34 tests), check_posts ok, sync_tree_counts --check ok, gitattributes-explainer page test ok after the cross-link. No separate agent doc: README and llms.txt carry what the next run needs.",
+  "notes": "Explore idea: gitconfig includeIf checker, a fourth git/editor file explainer next to gitignore, gitattributes and editorconfig. The engine reimplements config.c parsing, reading order, include/includeIf (gitdir, gitdir/i, onbranch, hasconfig with the populate_remote_urls pass and forbid rule), the depth limit and the two hidden early reads. Oracle: git config --list --show-origin --show-scope (git 2.43.0). Seeds 1-3000 were used while building and ended with no difference. Held out, seeds 10001-15000: 5000/5000 agree (4141 read through, 1235 with a matched includeIf; 760 bad-line, 74 depth and 25 forbid fatals), 2m23s. New real-git finding: gitdir:~/work/ through a symlinked ~/work applies at the repository top folder but not in a subfolder or with git -C (strbuf_add_absolute_path uses $PWD only when it equals cwd). The CLI --verify matched git on this container's own config (23 values). Local checks: run_venture_tests.py gitconfig-include-check passed (34 tests), check_posts ok, sync_tree_counts --check ok, gitattributes-explainer page test ok after the cross-link. No separate agent doc: README and llms.txt carry what the next run needs. Local workflows: 13/15 passed on the first run; the two failures were fixed and re-run (site builder suite, ventures-tests).",
   "corrections": [],
   "redteam": null,
   "usage": {

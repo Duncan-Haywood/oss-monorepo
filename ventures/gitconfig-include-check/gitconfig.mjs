@@ -191,7 +191,7 @@ class ParseError extends Error {
 // "fatal: bad config line N in file F".
 export function parseConfig(text) {
   let s = String(text ?? "");
-  if (s.startsWith("﻿")) s = s.slice(1);
+  if (s.startsWith("\uFEFF")) s = s.slice(1);
   let pos = 0, linenr = 1, eof = false;
   const next = () => {
     if (pos >= s.length) { if (!eof) { eof = true; linenr++; } return "\n"; }

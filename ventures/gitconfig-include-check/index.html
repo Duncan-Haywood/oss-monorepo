@@ -57,7 +57,14 @@
   <header>
     <p class="note">GITCONFIG INCLUDEIF CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Why is git using the wrong email in this repository?</h1>
-    <p>Paste your <code>~/.gitconfig</code> and the files it includes, and say where the repository is. The checker reads them the way git does and tells you <strong>which <code>[include]</code> and <code>[includeIf]</code> lines took effect, why each of the others did not</strong>, and <strong>which file and line set <code>user.email</code></strong>, your signing key and every other value. It names the usual causes: a <code>gitdir:</code> pattern without its trailing slash, an include placed above the setting it should override, a condition git does not know, an included file that is not there, a folder reached through a symlink, and an <code>onbranch:</code> that never matches on a detached HEAD.</p>
+    <p>Paste your <code>~/.gitconfig</code> and the files it includes, and say where the repository is. The checker reads them the way git does and tells you <strong>which <code>[includeIf]</code> lines took effect, why the others did not</strong>, and <strong>which file and line set <code>user.email</code></strong> and every other value.</p>
+    <p>It names the usual causes:</p>
+    <ul>
+      <li>a <code>gitdir:</code> pattern without its trailing slash;</li>
+      <li>an include placed above the setting it should override;</li>
+      <li>a condition git does not know, or an included file that is not there;</li>
+      <li>a folder reached through a symlink, and <code>onbranch:</code> on a detached HEAD.</li>
+    </ul>
     <p class="note">Nothing you paste leaves this browser tab. Checked against <code>git config --list --show-origin</code> (git 2.43) on thousands of random config trees, linked worktrees and symlinked folders (see the README); your own git is the final word.</p>
   </header>
 <main>
