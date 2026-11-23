@@ -22,3 +22,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (2026-11-21) Wander gate decided on the days before the newest change (README "A calmer wander gate", pre-registered: K1 fails 40 vs 37.5, K1' and K2-K5 pass): calm-site falls exactly as Middle, 2% walk 12.50 to 5.42 alerts per 1,000 days; --wander gated takes it.
 - (moved 2026-11-22) a calmer gate 2026-11-21 decides on the days before the change (README "A calmer wander gate": calm-site falls as Middle, 2% walk 12.50 to 5.42)
 - (moved 2026-11-22) rounds 4-5 2026-11-21: Christmas closure no effect, calm noise quietest
+- (moved 2026-11-23, restored 2026-11-23: PR #18422 dropped it from `next:` without filing it) Search Console and GA4 sources 2026-11-22 (README "Google Analytics 4 as a source")

@@ -1134,8 +1134,12 @@ def _main(argv: list[str]) -> int:
                     # item is parked (history_pieces' docstring), and down to
                     # the target even on an implicit edit: the move loses
                     # nothing, and stopping at the cap left the next run there.
-                    new, history = archive_history(new, FLAGSHIP_NEXT_TARGET, mine)
-                    for piece in history:
+                    # Extend, never assign: the run's own --history pieces are
+                    # already out of `new`, and replacing the list dropped them
+                    # from both files (PRs #18094, #18366, #18422's records).
+                    new, archived = archive_history(new, FLAGSHIP_NEXT_TARGET, mine)
+                    history.extend(archived)
+                    for piece in archived:
                         print(f"{'would move' if args.dry_run else 'moving'} to HISTORY.md "
                               f"({len(piece) + 2} chars): {piece}", file=sys.stderr)
                 new, auto = make_room(new, mine,

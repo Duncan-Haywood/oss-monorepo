@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKiv3yMmAZ5JSUA4d15",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T13:27:06Z",
+  "ended": "2026-11-23T13:31:14Z",
+  "wall_minutes": 4.27,
+  "tokens_in": 2815871,
+  "tokens_out": 13205,
+  "cost_usd": 1.4722,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18426",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Critique mode names friction_rank.py through earlier records only; the call is platform/ci/friction_rank.py, and a guessed prompts/friction_rank.py path failed once."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "Fixed here: archive_history replaced the run's own --history pieces, so they left the row and reached no file (3 records reported it as 'span not found')."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-flagship-field-history-flag-dropped-results.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode (backlog had only owner rows). friction_rank --live --ungated --days 2 ranked flagship_field.py first; reading all its 2026-11-21..23 reports turned up three about --history silently moving nothing. A failing test reproduced it: the archive_history assignment overwrote the named-pieces list. Fixed; restored 5 lost dated results to ids-model-check and changepoint-detector HISTORY.md (word diff of each merge's next:). Checks: main_health 313/313, pytest portfolio/router 281 passed, promptctl validate ok, check_posts ok. No backlog ids touched.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2e62bdd5-07ec-5603-9b33-0b832aae0948",
+    "transcripts": 1,
+    "first": "2026-11-23T13:27:06Z",
+    "last": "2026-11-23T13:31:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 32,
+        "input": 61,
+        "output": 13205,
+        "thinking": 2441,
+        "cache_read": 2733157,
+        "cache_write_5m": 0,
+        "cache_write_1h": 82653,
+        "api_equivalent_usd": 1.4722,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 61,
+      "output": 13205,
+      "thinking": 2441,
+      "cache_read": 2733157,
+      "cache_write_5m": 0,
+      "cache_write_1h": 82653,
+      "api_equivalent_usd": 1.4722,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 29,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.27,
+      "active_minutes": 4.27,
+      "model_minutes": 2.85,
+      "tool_minutes": 1.42,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "find, reproduce and fix a tool bug, recover lost text from git diffs, write a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 135.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

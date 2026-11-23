@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234a73'/%3E%3Ctext%20x='16'%20y='22'%20font-size='15'%20font-family='ui-monospace,monospace'%20font-weight='700'%20text-anchor='middle'%20fill='%23ffd43b'%3E%5B%5D%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>pyproject.toml Checker — Will My Python Package Build and Upload?</title>
+  <meta name="description" content="Free pyproject.toml checker: paste your file to find what setuptools, hatchling, flit, pip or PyPI will refuse or quietly get wrong, with the line and the fix. Checks PEP 621, PEP 639 licenses, PEP 508 dependencies and classifiers. Runs in your browser.">
+  <meta property="og:title" content="pyproject.toml Checker — free, private, in your browser">
+  <meta property="og:description" content="Unknown [project] keys, invalid license strings, Poetry ^ ranges, sys_platform == 'windows', entry points pip will not install: find them, with the line number, before the build or the upload fails.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "pyproject.toml Checker", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks a pyproject.toml against the pyproject.toml specification, PEP 639 license expressions, PEP 508 dependency specifiers, PEP 440 versions, PEP 735 dependency groups and PyPI's classifier list, and says what setuptools, hatchling, flit_core, pip or PyPI will refuse, with the line and a fix. Runs in your browser.", "featureList": "TOML 1.0 parsing with line numbers, [project] field validation, SPDX license expression check, PEP 508 dependency parsing, marker value typos, requires-python upper caps, trove classifier check, build-system wiring, readme and license-files checks, dependency group cycles, core metadata preview, command-line version with a CI exit code"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does license = \"MIT License\" fail to build now?", "acceptedAnswer": {"@type": "Answer", "text": "Since PEP 639, a string in project.license must be an SPDX license expression such as MIT, Apache-2.0 or GPL-3.0-or-later. \"MIT License\" is a name, not an identifier, so setuptools, hatchling and flit_core all refuse it. Write license = \"MIT\" and list your licence file in license-files."}}, {"@type": "Question", "name": "Can I keep the License :: classifier next to license = \"MIT\"?", "acceptedAnswer": {"@type": "Answer", "text": "With setuptools (84 tested) or flit_core, no: both stop the build and ask you to remove the classifier. hatchling 1.33 still accepts the pair. PEP 639 deprecates licence classifiers, so deleting them is the safe choice with every backend."}}, {"@type": "Question", "name": "Is it bad to cap requires-python, like <3.13?", "acceptedAnswer": {"@type": "Answer", "text": "Usually. pip picks the newest release whose requires-python matches the running Python, so on Python 3.13 your users silently get an older release of your package, or an install error, even if the new one would work. Poetry and PDM also push the cap onto every project that depends on yours. Keep only a lower bound unless a release really cannot run on newer Pythons."}}, {"@type": "Question", "name": "Why is my dependency with sys_platform == 'windows' never installed?", "acceptedAnswer": {"@type": "Answer", "text": "sys_platform is win32 on Windows, darwin on macOS and linux on Linux; platform_system is Windows, Darwin and Linux. A marker that compares with 'windows' is always false, so the dependency is skipped everywhere. The checker lists the value each variable really takes."}}, {"@type": "Question", "name": "Which backends does the checker know?", "acceptedAnswer": {"@type": "Answer", "text": "It checks the standard [project] table, which every modern backend reads, and names where setuptools 84, hatchling 1.33 and flit_core 4.2 differ, from building small projects with each of them. It also checks that build-system.requires installs the backend you name for setuptools, hatchling, flit_core, poetry-core, pdm-backend, maturin, scikit-build-core, meson-python and uv_build."}}, {"@type": "Question", "name": "Is anything I paste uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The checker runs in this browser tab. There are no accounts, cookies or analytics vendors, and the command-line version makes no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17222e; background: #f3f6f9; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f99; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #163a5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #163a5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    code { font: 0.92em ui-monospace, Menlo, Consolas, monospace; background: #e6edf4; padding: 1px 4px; border-radius: 4px; }
+    .note, footer { font-size: .86rem; color: #4c5966; }
+    .card { background: #fff; border: 1px solid #d6e0ea; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #163a5c10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7d8b99; border-radius: 7px; font: 13.5px ui-monospace, Menlo, Consolas, monospace; background: #fff; color: inherit; }
+    #src { min-height: 22em; }
+    #files { min-height: 6em; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f99; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e6edf4; color: #163a5c; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eef3f8; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #163a5c; }
+    .finding { border-bottom: 1px solid #e6edf4; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding .fix { font-size: .92rem; color: #2b4a2b; margin: 4px 0 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #f8dcd6; color: #7a1f10; }
+    .pill.medium { background: #fdf0d5; color: #6b4f0a; }
+    .pill.low, .pill.info { background: #e6edf4; color: #163a5c; }
+    .where { font: .82rem ui-monospace, Menlo, Consolas, monospace; color: #4c5966; }
+    pre { background: #f3f6f9; border-radius: 8px; padding: 12px; overflow-x: auto; font: 12.5px ui-monospace, Menlo, Consolas, monospace; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0ea; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PYPROJECT.TOML CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will my pyproject.toml build, install and upload?</h1>
+    <p>Paste your <code>pyproject.toml</code>. You get every line that <strong>setuptools, hatchling or flit_core will refuse</strong>, that <strong>pip will not install</strong> or that <strong>PyPI will reject on upload</strong>, plus the ones that build fine and quietly do the wrong thing: a <code>sys_platform == 'windows'</code> marker that is never true, a <code>requires-python</code> cap that hands newer Pythons an old release, Poetry's <code>^</code> in a standard dependency list. Each finding has the line and the fix.</p>
+    <p class="note">Nothing you paste leaves this tab. The TOML reader agrees with Python's tomllib on all 717 TOML 1.0 cases of the toml-test suite, and the dependency, version and licence grammars with the packaging library on 16,000 generated strings (see the README).</p>
+  </header>
+<main>
+  <section class="card">
+    <h2>1. Your file</h2>
+    <label for="src">pyproject.toml</label>
+    <textarea id="src" spellcheck="false" placeholder='[build-system]&#10;requires = ["hatchling"]&#10;build-backend = "hatchling.build"&#10;&#10;[project]&#10;name = "my-package"&#10;version = "0.1.0"'></textarea>
+    <label for="files">Files in the project folder (optional)</label>
+    <textarea id="files" spellcheck="false" placeholder="README.md&#10;LICENSE&#10;src/my_package/__init__.py"></textarea>
+    <p class="note">One path per line, relative to the folder with pyproject.toml; <code>git ls-files</code> prints them. With the list, the checker also says whether <code>readme</code> and every <code>license-files</code> pattern find a file.</p>
+    <p>
+      <button type="button" id="run">Check it</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p id="form-status" class="note" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="report" hidden>
+    <h2>Report</h2>
+    <p id="headline"></p>
+    <div class="big" id="totals"></div>
+    <div id="findings"></div>
+    <h3>Core metadata a backend would write</h3>
+    <p class="note">What PyPI's page and pip read, from the mapping in the core metadata specification. Backends differ in order and in how they combine markers; dynamic fields are filled in at build time.</p>
+    <pre id="metadata"></pre>
+    <p><button type="button" class="secondary" id="download">Download the report (JSON)</button></p>
+  </section>
+
+  <section class="card">
+    <h2>What it checks</h2>
+    <ul>
+      <li><strong>The file itself:</strong> TOML 1.0, with the line of a duplicate key or a table defined twice.</li>
+      <li><strong>[build-system]:</strong> <code>requires</code> present and valid, and the package that provides your <code>build-backend</code> actually in it (otherwise an isolated build stops with ModuleNotFoundError); <code>[tool.poetry.dependencies]</code> or <code>[tool.setuptools]</code> that your backend never reads.</li>
+      <li><strong>[project]:</strong> unknown keys (with the right spelling: <code>python_requires</code>, <code>author</code>, <code>homepage</code>...), <code>name</code>, a PEP 440 <code>version</code> (and the local <code>+label</code> PyPI refuses), <code>dynamic</code> clashes, the readme and its content type, people and e-mail addresses, URLs, scripts and entry points.</li>
+      <li><strong>Licences (PEP 639):</strong> SPDX expressions against the SPDX list 3.27, deprecated identifiers, the table form, <code>license-files</code> patterns, and the licence classifier conflict, named per backend.</li>
+      <li><strong>Dependencies (PEP 508):</strong> every string parsed the way pip parses it, Poetry's <code>^</code> and <code>~</code>, direct URL references PyPI rejects, markers that compare with a value the variable never takes, extra markers in the main list, extras (PEP 685), duplicate and exact pins.</li>
+      <li><strong>Classifiers:</strong> against PyPI's list (trove-classifiers), deprecated ones with their replacement, and Python versions that <code>requires-python</code> excludes.</li>
+      <li><strong>[dependency-groups] (PEP 735):</strong> names, includes that point nowhere, and cycles.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>From the command line</h2>
+    <p>The same engine, no dependencies, no network: <code>node cli.mjs .</code> in a project folder reads its <code>pyproject.toml</code> and the folder's files; <code>--fail-on medium</code> sets the CI exit code, <code>--metadata</code> prints the core metadata preview and <code>--json</code> the full report. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pyproject-metadata-check">Source and README</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why does license = "MIT License" fail to build now?</h3>
+    <p>Since PEP 639, a string in project.license must be an SPDX license expression such as MIT, Apache-2.0 or GPL-3.0-or-later. "MIT License" is a name, not an identifier, so setuptools, hatchling and flit_core all refuse it. Write license = "MIT" and list your licence file in license-files.</p>
+    <h3>Can I keep the License :: classifier next to license = "MIT"?</h3>
+    <p>With setuptools (84 tested) or flit_core, no: both stop the build and ask you to remove the classifier. hatchling 1.33 still accepts the pair. PEP 639 deprecates licence classifiers, so deleting them is the safe choice with every backend.</p>
+    <h3>Is it bad to cap requires-python, like &lt;3.13?</h3>
+    <p>Usually. pip picks the newest release whose requires-python matches the running Python, so on Python 3.13 your users silently get an older release of your package, or an install error, even if the new one would work. Poetry and PDM also push the cap onto every project that depends on yours. Keep only a lower bound unless a release really cannot run on newer Pythons.</p>
+    <h3>Why is my dependency with sys_platform == 'windows' never installed?</h3>
+    <p>sys_platform is win32 on Windows, darwin on macOS and linux on Linux; platform_system is Windows, Darwin and Linux. A marker that compares with 'windows' is always false, so the dependency is skipped everywhere. The checker lists the value each variable really takes.</p>
+    <h3>Which backends does the checker know?</h3>
+    <p>It checks the standard [project] table, which every modern backend reads, and names where setuptools 84, hatchling 1.33 and flit_core 4.2 differ, from building small projects with each of them. It also checks that build-system.requires installs the backend you name for setuptools, hatchling, flit_core, poetry-core, pdm-backend, maturin, scikit-build-core, meson-python and uv_build.</p>
+    <h3>Is anything I paste uploaded?</h3>
+    <p>No. The checker runs in this browser tab. There are no accounts, cookies or analytics vendors, and the command-line version makes no network calls.</p>
+  </section>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or professional advice, and a licence identifier it accepts is not a judgement on whether that licence suits your project. Results come from this tool's own reading of the packaging specifications and of how setuptools 84, hatchling 1.33, flit_core 4.2 and pip 24 behaved when tested; other versions and other backends can differ, and the final word is a real build (<code>python -m build</code>) and upload. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with or endorsed by the Python Software Foundation, the Python Packaging Authority, PyPI or the maintainers of any build backend. Python is a trademark of the Python Software Foundation.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>pyproject_checked</code>, <code>example_loaded</code>, <code>high_found</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related: the <a href="../requirements-pin-check/">requirements.txt pin checker</a>, the <a href="../pypi-provenance-check/">PyPI provenance checker</a> and the <a href="../pip-audit-triage/">pip-audit triage</a>. Guide: <a href="why-license-mit-license-breaks-your-build.html">why license = "MIT License" breaks your build</a>.</p>
+</footer>
+<script type="module">
+import { analyze, EXAMPLE } from "./engine.mjs";
+import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+let last = null;
+
+function render(r) {
+  $("#report").hidden = false;
+  const s = r.summary;
+  $("#headline").textContent = s ? `${s.name ?? "(no name)"} ${s.version ?? ""}${s.backend ? ` · built with ${s.backend}` : ""}${s.requiresPython ? ` · Python ${s.requiresPython}` : ""} · ${s.dependencies} dependencies` : "No [project] table.";
+  const t = r.totals ?? { high: r.findings.length, medium: 0, low: 0, info: 0 };
+  $("#totals").innerHTML = [["high", "will fail"], ["medium", "likely wrong"], ["low", "worth fixing"], ["info", "notes"]].map(([k, l]) => `<div><strong>${t[k]}</strong>${k} · ${l}</div>`).join("");
+  $("#findings").innerHTML = r.findings.length ? r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span><span class="where">${f.line ? `line ${f.line}` : "file"}${f.path ? ` · ${esc(f.path)}` : ""} · ${esc(f.id)}</span><p>${esc(f.message)}</p>${f.fix ? `<p class="fix">Fix: ${esc(f.fix)}</p>` : ""}</div>`).join("") : "<p>No problems found.</p>";
+  $("#metadata").textContent = r.metadata ? r.metadata.text : "(no [project] table)";
+}
+
+function check() {
+  const src = $("#src").value;
+  if (!src.trim()) { $("#form-status").textContent = "Paste a pyproject.toml first."; return; }
+  const list = $("#files").value.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  last = analyze(src, { files: list.length ? list : null });
+  render(last);
+  record("pyproject_checked");
+  if (last.findings.some((f) => f.severity === "high")) record("high_found");
+  $("#form-status").textContent = `Checked: ${last.findings.length} finding${last.findings.length === 1 ? "" : "s"}${list.length ? "" : " (file checks skipped: no file list)"}.`;
+}
+
+$("#run").addEventListener("click", check);
+$("#example").addEventListener("click", () => {
+  $("#src").value = EXAMPLE;
+  $("#files").value = "README.md\nLICENSE\nsrc/acme_widgets/__init__.py";
+  record("example_loaded");
+  check();
+});
+$("#clear").addEventListener("click", () => { $("#src").value = ""; $("#files").value = ""; $("#report").hidden = true; $("#form-status").textContent = ""; });
+$("#download").addEventListener("click", () => {
+  if (!last) return;
+  const url = URL.createObjectURL(new Blob([JSON.stringify(last, null, 2)], { type: "application/json" }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "pyproject-check.json";
+  a.click();
+  URL.revokeObjectURL(url);
+  record("report_downloaded");
+});
+const opt = $("#optout");
+const label = () => { opt.textContent = usageOptedOut() ? "Turn usage counting back on" : "Turn usage counting off"; };
+opt.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); label(); });
+label();
+</script>
+</body>
+</html>

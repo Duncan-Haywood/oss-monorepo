@@ -925,6 +925,7 @@ ventures/publish-kit/usage.mjs
 ventures/pv-string-sizer/usage.mjs
 ventures/pwa-installability-check/usage.mjs
 ventures/pypi-provenance-check/usage.mjs
+ventures/pyproject-metadata-check/usage.mjs
 ventures/qbi-deduction-calculator/usage.mjs
 ventures/qcd-calculator/usage.mjs
 ventures/qif-file-check/usage.mjs
