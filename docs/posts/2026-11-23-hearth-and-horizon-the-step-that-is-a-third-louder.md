@@ -1,6 +1,6 @@
 ---
 title: "A new story: ten equal volume steps, and why ears disagree"
-seo_title: "Weber, Fechner and a church volume panel: equal volts against equal decibels"
+seo_title: "Weber, Fechner and a volume panel: equal volts or equal decibels"
 date: 2026-11-23
 tags: [fiction, hearth-and-horizon, science-fiction, psychophysics]
 description: "A church's new ten-button volume panel is spaced in equal volts: the bottom steps leap, the top four add up to one. Equal ratios fix it."
