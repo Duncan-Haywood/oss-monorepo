@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23155e63'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E=%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to split group trip expenses fairly (worked example)</title>
+  <meta name="description" content="How to split a group trip's costs fairly: log who paid, split by shares or exact amounts, convert currencies once, round to the cent, and settle in the fewest payments. A worked five-person example.">
+  <meta property="og:title" content="How to split group trip expenses fairly, with a worked example">
+  <meta property="og:description" content="Balances, cents that add up, currencies, and why the fewest payments is not always biggest-pays-biggest.">
+  <link rel="canonical" href="./how-to-split-group-trip-expenses.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the fairest way to split a group trip?","acceptedAnswer":{"@type":"Answer","text":"Split each cost among the people who shared it, in the proportion they used it, then net everything into one balance per person. Equal splits are fine for shared rooms and groceries; shares or exact amounts suit dinners where one person ordered more, and leaving someone out suits costs they skipped."}},{"@type":"Question","name":"How many payments does it take to settle a group?","acceptedAnswer":{"@type":"Answer","text":"At most one fewer than the number of people who owe or are owed. It can be fewer when some of them have balances that cancel on their own: a group whose balances add to zero settles among themselves in one fewer payment than its size, so the fewest payments is the number of people with a balance minus the most such groups."}},{"@type":"Question","name":"Which exchange rate should we use?","acceptedAnswer":{"@type":"Answer","text":"The one the payer was actually charged, from their card or bank statement, if you can get it. Otherwise agree on one rate per currency for the whole trip before you add up. Convert each expense once, into the group's main currency, and split it there so the shares add back to the bill exactly."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17292b; background: #f3f7f6; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    a { color: #0f6a70; }
+    h1 { font-size: clamp(1.7rem, 4.4vw, 2.5rem); line-height: 1.12; color: #0d4448; }
+    h2 { font-size: 1.2rem; color: #0d4448; margin-top: 30px; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.6; }
+    .note, footer { font-size: .86rem; color: #445c5e; }
+    .cta { display: inline-block; background: #0f6a70; color: #fff; padding: 11px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #dce9e7; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    pre { background: #e7f1ef; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 14px; }
+    footer { margin-top: 32px; border-top: 1px solid #cfe0de; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note"><a href="./index.html">Group Expense Settle Up</a> · Guide</p>
+    <h1>How to split group trip expenses fairly, with a worked example</h1>
+    <p>You are back from a weekend away. One person booked the apartment, another bought groceries, someone paid a taxi in dollars and someone else already sent money back. This guide is for whoever ends up holding the receipts: how to turn them into a short list of who pays whom, without a spreadsheet argument.</p>
+    <p><a class="cta" href="./index.html">Open the free settle-up tool</a></p>
+  </header>
+  <main>
+    <h2>1. One line per cost, split by who shared it</h2>
+    <p>For each cost, write who paid, how much, and who shared it. Most costs are equal splits among everyone. The rest are one of four kinds:</p>
+    <ul>
+      <li><strong>Some people skipped it.</strong> The museum was four of the five: split among those four.</li>
+      <li><strong>Someone had more.</strong> Ana brought her partner to dinner: give her two shares.</li>
+      <li><strong>The receipt says who had what.</strong> Use exact amounts per person.</li>
+      <li><strong>Two people paid.</strong> Ana put 30 on her card and Ben 20 in cash: both count as paid.</li>
+    </ul>
+
+    <h2>2. Convert once, then split in cents that add up</h2>
+    <p>Convert a foreign-currency cost into the group's main currency once, at the rate the payer was charged if you know it, and split it there. Splitting first and converting each share is how a bill ends up a cent or two short. When 42.48 is split five ways, it is 8.496 each, which nobody can pay; the honest answer is three people at 8.50 and two at 8.49, so the parts add back to 42.48.</p>
+
+    <h2>3. Net everything into one balance each</h2>
+    <p>Each person's balance is what they paid, minus their share of everything, plus money they already sent to someone in the group, minus money they received. Balances add to zero. Here is the example trip that loads in the tool (five people, three currencies, one payment already made):</p>
+    <pre>Ana 640 apartment, 2 nights
+Ben 86.40 groceries
+Cara 120 USD museum tickets / Ana, Cara, Dev, Eli
+Dev 210 dinner / Ana:2, Ben:1, Cara:1, Dev:1, Eli:1
+Eli 45 taxi / all -Ben
+Ana=30+Ben=20 50 boat trip / Ana, Ben
+Cara 36 GBP train snacks
+Eli -&gt; Ana 100 sent by bank</pre>
+    <p>With USD at 0.92 EUR and GBP at 1.18 EUR, Dev's balance works out like this. He paid 210.00. His shares: apartment 128.00, groceries 17.28, museum 27.60 (110.40 over four), dinner 35.00 (one share in six), taxi 11.25, snacks 8.49. That is 227.62, so Dev owes 17.62. The tool's test suite checks this exact figure.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Person</th><th class="num">Balance (EUR)</th></tr></thead>
+      <tbody>
+        <tr><td>Ana</td><td class="num">+282.37</td></tr>
+        <tr><td>Ben</td><td class="num">−107.38</td></tr>
+        <tr><td>Cara</td><td class="num">−74.75</td></tr>
+        <tr><td>Dev</td><td class="num">−17.62</td></tr>
+        <tr><td>Eli</td><td class="num">−82.62</td></tr>
+      </tbody>
+    </table></div>
+    <p>Four people owe and one is owed, so four payments to Ana settle it, and four is the fewest possible.</p>
+
+    <h2>4. The fewest payments is not always biggest-pays-biggest</h2>
+    <p>The common shortcut is: the person who owes most pays the person owed most, and repeat. It never takes more than one payment fewer than the number of people, but it can miss a shorter way. Take six friends with balances +3, +5, +4, +6, −6 and −12.</p>
+    <ul>
+      <li><strong>Biggest-pays-biggest:</strong> the −12 pays the +6 first, and then it takes four more: <strong>5 payments</strong>.</li>
+      <li><strong>Fewest:</strong> the +6 and −6 cancel on their own (1 payment), and the −12 pays the +3, +5 and +4 (3 payments): <strong>4 payments</strong>.</li>
+    </ul>
+    <p>The rule behind this: any group of people whose balances add to zero can settle among themselves in one fewer payment than its size. So the fewest payments is the number of people with a balance minus the most zero-sum groups you can cut them into (Tom Verhoeff, "Settling multiple debts efficiently", 2004). Finding the best cut is a hard search problem in general, but for a trip-sized group a browser can try every subset in well under a second, which is what the tool does for up to 20 people with a balance.</p>
+
+    <h2>5. Or pay back only the people who paid for you</h2>
+    <p>The fewest payments can mean Ben sends money to Cara for a dinner Ben was not at, because the totals work out. Most groups are fine with that; some prefer that everyone repays only the people who covered them. That takes more payments (ten instead of four in the example) and the tool offers it as Pay back directly.</p>
+
+    <h2>When to use something else</h2>
+    <p>If your group wants receipts photographed, reminders sent, or a running tab across years, a dedicated expense-sharing app with accounts does that and this page does not. If you are splitting rent for rooms of different sizes, use the <a href="../roommate-rent-splitter/">roommate rent splitter</a>, which sets rents nobody would want to swap. For tax-deductible business travel, keep the original receipts: this tool only does the arithmetic.</p>
+
+    <h2>Questions</h2>
+    <h3>What is the fairest way to split a group trip?</h3>
+    <p>Split each cost among the people who shared it, in the proportion they used it, then net everything into one balance per person. Equal splits are fine for shared rooms and groceries; shares or exact amounts suit dinners where one person ordered more, and leaving someone out suits costs they skipped.</p>
+    <h3>How many payments does it take to settle a group?</h3>
+    <p>At most one fewer than the number of people who owe or are owed. It can be fewer when some of them have balances that cancel on their own: a group whose balances add to zero settles among themselves in one fewer payment than its size, so the fewest payments is the number of people with a balance minus the most such groups.</p>
+    <h3>Which exchange rate should we use?</h3>
+    <p>The one the payer was actually charged, from their card or bank statement, if you can get it. Otherwise agree on one rate per currency for the whole trip before you add up. Convert each expense once, into the group's main currency, and split it there so the shares add back to the bill exactly.</p>
+
+    <p><a class="cta" href="./index.html">Settle up your group now</a></p>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This guide and tool are provided free and as-is, without warranty of any kind, express or implied. They do arithmetic on the amounts and rates you type. They are not legal, tax or financial advice, and they do not replace a qualified professional. You are responsible for checking the figures and any payment you send because of them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+    <p class="support">Free and open source under an MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>
