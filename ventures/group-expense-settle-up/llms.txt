@@ -1,0 +1,21 @@
+# Group Expense Settle Up: split group costs, settle in the fewest payments
+
+> Free group expense splitter with no app and no account. Log who paid what in any currency, split equally, by shares, exact amounts or percent, and get the fewest payments that square everyone up. Runs in your browser.
+
+Free and open source (MIT). Results are arithmetic on the amounts and rates typed in, not legal, tax, financial or professional advice.
+
+## What it does
+
+- One line per cost: `payer amount [currency] description [/ who]`; `Ana:2, Ben:1` shares, `Ana=30, Ben=20` exact, `Ana=60%, Ben=40%` percent, `all -Ben` everyone but Ben; two payers `Ana=30+Ben=20 50 boat`; a payment already made `Eli -> Ana 100`.
+- Each cost converted once into the main currency (rates typed by the user, nothing looked up), then split in whole cents that add back to the bill exactly (largest remainder).
+- Fewest payments: people with a balance minus the most zero-sum groups the balances can be cut into (Verhoeff 2004), solved exactly by dynamic programming over subsets for up to 20 people with a balance. Also "largest to largest" and "pay back directly" (only repay the people who covered you).
+- Share link holding the whole list (no server copy), "Mark paid", group-chat text, expense and payment CSVs.
+
+## Pages
+
+- [The tool](https://marisstella.app/group-expense-settle-up/)
+- [How to split group trip expenses fairly, with a worked example](https://marisstella.app/group-expense-settle-up/how-to-split-group-trip-expenses.html)
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/group-expense-settle-up): MIT licensed.

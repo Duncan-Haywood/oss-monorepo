@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23155e63'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E=%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Group Expense Settle Up — split trip costs, fewest payments</title>
+  <meta name="description" content="Free group expense splitter with no app and no account. Log who paid what in any currency, split equally, by shares, exact amounts or percent, and get the fewest payments that square everyone up.">
+  <meta property="og:title" content="Group Expense Settle Up — who owes whom, in the fewest payments">
+  <meta property="og:description" content="Split a trip, a house or a party: any currency, any split, one share link, and a proven-minimum list of who pays whom. Runs in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Group Expense Settle Up","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free group expense splitter: log who paid what in any currency, split equally, by shares, exact amounts or percent, and get the fewest payments that square everyone up. No app, no account; runs in your browser.","featureList":"split expenses with friends, trip expense splitter, who owes whom, fewest payments to settle up, multi-currency, shares and percent splits, several payers, share link, CSV export, no account"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How does it find the fewest payments?","acceptedAnswer":{"@type":"Answer","text":"With k people who are owed or owe money, the fewest payments that square everyone is k minus the largest number of groups those balances can be cut into where each group adds to zero, because each group of size s settles in s - 1 payments. The page tries every way of cutting the group (dynamic programming over subsets) for up to 20 people with a balance, so the answer is the true minimum, not a good guess. Above 20 it pairs off people whose balances cancel exactly, then settles the rest largest to largest, and says the answer is not proven minimal."}},{"@type":"Question","name":"Why not just have the biggest debtor pay the biggest creditor?","acceptedAnswer":{"@type":"Answer","text":"That rule, which many apps use, never needs more than one payment fewer than the number of people, but it can miss a shortcut. With balances +3, +5, +4, +6, -6 and -12, it pays the 6 from the 12 first and needs 5 payments. The exact search sees that the +6 and -6 cancel on their own and finishes in 4. The page shows both counts so you can see when it matters."}},{"@type":"Question","name":"Can people pay only the friends who paid for them?","acceptedAnswer":{"@type":"Answer","text":"Yes. Pick Pay back directly. Each person repays the people who covered their share, netted per pair, so nobody sends money to someone they did not share a cost with. It takes more payments than the fewest-payments mode."}},{"@type":"Question","name":"How do I split unevenly?","acceptedAnswer":{"@type":"Answer","text":"After a slash, name who shares the cost and how: Ana, Ben for equal halves; Ana:2, Ben:1 for shares; Ana=30, Ben=20 for exact amounts; Ana=60%, Ben=40% for percents; all -Ben for everyone except Ben. Leave it out and everyone shares equally. Split amounts are rounded to the cent and always add back to the bill exactly."}},{"@type":"Question","name":"What about different currencies?","acceptedAnswer":{"@type":"Answer","text":"Write the currency after the amount, like 120 USD, or use a symbol like €12. Add one rate line for each currency that is not the group's main one, such as USD 0.92 meaning one US dollar is 0.92 of the main currency. Use the rate your bank or card charged if you know it. The page does not look rates up, so nothing is sent anywhere."}},{"@type":"Question","name":"How does everyone see the same list?","acceptedAnswer":{"@type":"Answer","text":"Make a share link and paste it in the group chat. The whole list is inside the link itself, so anyone who opens it sees the same expenses and payments, and there is no server copy. If someone adds an expense, they send a new link. Anyone holding the link can read the list, so share it only with the group."}},{"@type":"Question","name":"Does it cost anything or need an account?","acceptedAnswer":{"@type":"Answer","text":"No. It is free and open source, with no account, no app to install, no ads and no limit on how many expenses you add."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17292b; background: #f3f7f6; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #0f6a70; }
+    h1 { font-size: clamp(1.8rem, 4.6vw, 2.7rem); line-height: 1.1; margin: 0 0 14px; color: #0d4448; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0d4448; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #445c5e; }
+    .card { background: #fff; border: 1px solid #cfe0de; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #0d444810; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input[type=text], input[type=number], select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6b8587; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    textarea { min-height: 110px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; }
+    #lines { min-height: 220px; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; background: #0f6a70; color: #fff; font-weight: 700; cursor: pointer; margin: 12px 8px 0 0; }
+    button.secondary { background: #dcecea; color: #0d4448; }
+    button.small { padding: 5px 10px; margin: 0; font-size: .85rem; }
+    .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .bad { background: #fbe3e0; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #6b1a12; }
+    .ok { background: #e1f3ea; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #134a2c; }
+    .modes label { display: inline-flex; gap: 6px; align-items: center; font-weight: 500; margin: 6px 16px 0 0; }
+    .who-boxes label { display: inline-flex; gap: 5px; align-items: center; font-weight: 500; margin: 4px 12px 0 0; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid #e2eeec; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pos { color: #146c3a; } .neg { color: #9b2a1c; }
+    ol#transfers li { margin: 6px 0; }
+    ol#transfers .amt { font-weight: 700; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #cfe0de; padding-top: 16px; }
+    code { background: #e7f1ef; padding: 1px 5px; border-radius: 4px; }
+    .note, #errors, #transfers { overflow-wrap: anywhere; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GROUP EXPENSE SETTLE UP · RUNS IN YOUR BROWSER · NO ACCOUNT</p>
+    <h1>Split group expenses and settle up in the fewest payments</h1>
+    <p>Write down who paid for what on the trip, in the shared house or for the party, in any currency. Split it equally, by shares, exact amounts or percent. The page works out everyone's balance to the cent and the <strong>smallest number of payments</strong> that squares the group, found by trying every way the balances can cancel, not by a rule of thumb. Share one link so everyone sees the same list. No app, no sign-up, no limit.</p>
+    <p class="note">New to splitting a trip? Read <a href="./how-to-split-group-trip-expenses.html">how to split group trip expenses fairly, with a worked example</a>.</p>
+  </header>
+
+  <main>
+  <section class="card" id="setup">
+    <h2>1. The group</h2>
+    <div class="row">
+      <div>
+        <label for="title">Name (optional)</label>
+        <input type="text" id="title" maxlength="120" placeholder="Lisbon weekend">
+      </div>
+      <div>
+        <label for="base">Main currency</label>
+        <select id="base">
+          <option>USD</option><option>EUR</option><option>GBP</option><option>CAD</option><option>AUD</option><option>NZD</option><option>CHF</option><option>JPY</option><option>INR</option><option>MXN</option><option>BRL</option><option>SEK</option><option>NOK</option><option>DKK</option><option>PLN</option><option>CZK</option><option>HUF</option><option>ZAR</option><option>SGD</option><option>HKD</option><option>KRW</option><option>THB</option><option>TRY</option><option>AED</option><option>ILS</option><option>PHP</option><option>IDR</option><option>VND</option><option>COP</option><option>ARS</option><option>CLP</option><option>PEN</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="people">People, one per line</label>
+        <textarea id="people" placeholder="Ana&#10;Ben&#10;Cara"></textarea>
+      </div>
+      <div>
+        <label for="rates">Exchange rates, if you paid in other currencies</label>
+        <textarea id="rates" placeholder="USD 0.92&#10;GBP 1.18"></textarea>
+        <p class="note">One line each: <code>USD 0.92</code> means one US dollar is 0.92 of the main currency. Use the rate your card charged if you know it. Nothing is looked up online.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="expenses-card">
+    <h2>2. Who paid for what</h2>
+    <p class="note">One line each: <code>payer amount [currency] description [/ who shared it]</code>. Leave out the slash and everyone shares equally. After the slash: <code>Ana, Ben</code> equal, <code>Ana:2, Ben:1</code> shares, <code>Ana=30, Ben=20</code> exact, <code>Ana=60%, Ben=40%</code> percent, <code>all -Ben</code> everyone but Ben. Two payers: <code>Ana=30+Ben=20 50 boat</code>. A payment already made: <code>Eli -&gt; Ana 100</code>. A date first is optional; <code>#</code> starts a note.</p>
+    <label for="lines">Expenses and payments</label>
+    <textarea id="lines" spellcheck="false" placeholder="Ana 640 apartment&#10;Ben 86.40 groceries&#10;Cara 120 USD museum / Ana, Cara, Dev&#10;Dev 210 dinner / Ana:2, Ben:1, Cara:1, Dev:1"></textarea>
+    <details id="quick">
+      <summary>Or add one with a form</summary>
+      <div class="row">
+        <div><label for="q-payer">Paid by</label><select id="q-payer"></select></div>
+        <div><label for="q-amount">Amount</label><input type="text" id="q-amount" inputmode="decimal" placeholder="84.50"></div>
+        <div><label for="q-cur">Currency</label><input type="text" id="q-cur" maxlength="3" placeholder="same as main"></div>
+        <div><label for="q-desc">What for</label><input type="text" id="q-desc" maxlength="80" placeholder="groceries"></div>
+      </div>
+      <fieldset class="who-boxes" style="border:0;padding:0;margin:10px 0 0">
+        <legend style="font-weight:600">Shared by</legend>
+        <div id="q-who"></div>
+      </fieldset>
+      <button type="button" id="q-add">Add this line</button>
+      <p id="q-status" role="status" class="note"></p>
+    </details>
+    <div class="modes" role="radiogroup" aria-label="How to settle">
+      <p style="font-weight:600;margin:16px 0 0">3. How to settle</p>
+      <label><input type="radio" name="mode" value="fewest" checked> Fewest payments</label>
+      <label><input type="radio" name="mode" value="greedy"> Largest to largest</label>
+      <label><input type="radio" name="mode" value="direct"> Pay back directly</label>
+    </div>
+    <button type="button" id="go">Work it out</button>
+    <button type="button" class="secondary" id="example">Load the example trip</button>
+    <button type="button" class="secondary" id="clear">Clear</button>
+    <p id="form-status" role="status" class="note"></p>
+  </section>
+
+  <section class="card" id="result" hidden>
+    <h2 id="result-title">Settle up</h2>
+    <div id="errors"></div>
+    <p id="summary"></p>
+    <ol id="transfers"></ol>
+    <div>
+      <button type="button" id="copy">Copy for the group chat</button>
+      <button type="button" class="secondary" id="share">Make a share link</button>
+      <button type="button" class="secondary" id="csv">Expenses CSV</button>
+      <button type="button" class="secondary" id="csv-t">Payments CSV</button>
+    </div>
+    <p id="share-status" role="status" class="note"></p>
+    <h3>Balances</h3>
+    <div class="table-wrap"><table id="balances"><thead><tr><th>Person</th><th class="num">Paid</th><th class="num">Share</th><th class="num">Payments sent − received</th><th class="num">Balance</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">A positive balance is owed to that person; a negative one is what they owe. Balances add to zero to the cent.</p>
+  </section>
+
+  <section class="card" id="how">
+    <h2>How the fewest payments are found</h2>
+    <p>Each person's balance is what they paid minus their share, plus payments they sent, minus payments they received. If k people have a balance that is not zero, any group of them whose balances add to zero can settle among themselves in one fewer payment than its size. So the fewest payments is k minus the <em>most</em> zero-sum groups the balances can be cut into (Verhoeff, "Settling multiple debts efficiently", 2004). Finding that cut is a hard search problem in general; with up to 20 people who are owed or owe, the page checks every subset (about a million) in your browser and gives the true minimum. Above 20 it says the answer is a good one, not a proven one.</p>
+    <p>Every split is done in whole cents of the main currency: an expense is converted once, then cut so the parts add back exactly, with any leftover cent going to the largest remainders and, on a tie, to whoever is listed first.</p>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Questions</h2>
+    <h3>How does it find the fewest payments?</h3>
+    <p>With k people who are owed or owe money, the fewest payments that square everyone is k minus the largest number of groups those balances can be cut into where each group adds to zero, because each group of size s settles in s - 1 payments. The page tries every way of cutting the group (dynamic programming over subsets) for up to 20 people with a balance, so the answer is the true minimum, not a good guess. Above 20 it pairs off people whose balances cancel exactly, then settles the rest largest to largest, and says the answer is not proven minimal.</p>
+    <h3>Why not just have the biggest debtor pay the biggest creditor?</h3>
+    <p>That rule, which many apps use, never needs more than one payment fewer than the number of people, but it can miss a shortcut. With balances +3, +5, +4, +6, -6 and -12, it pays the 6 from the 12 first and needs 5 payments. The exact search sees that the +6 and -6 cancel on their own and finishes in 4. The page shows both counts so you can see when it matters.</p>
+    <h3>Can people pay only the friends who paid for them?</h3>
+    <p>Yes. Pick Pay back directly. Each person repays the people who covered their share, netted per pair, so nobody sends money to someone they did not share a cost with. It takes more payments than the fewest-payments mode.</p>
+    <h3>How do I split unevenly?</h3>
+    <p>After a slash, name who shares the cost and how: Ana, Ben for equal halves; Ana:2, Ben:1 for shares; Ana=30, Ben=20 for exact amounts; Ana=60%, Ben=40% for percents; all -Ben for everyone except Ben. Leave it out and everyone shares equally. Split amounts are rounded to the cent and always add back to the bill exactly.</p>
+    <h3>What about different currencies?</h3>
+    <p>Write the currency after the amount, like 120 USD, or use a symbol like €12. Add one rate line for each currency that is not the group's main one, such as USD 0.92 meaning one US dollar is 0.92 of the main currency. Use the rate your bank or card charged if you know it. The page does not look rates up, so nothing is sent anywhere.</p>
+    <h3>How does everyone see the same list?</h3>
+    <p>Make a share link and paste it in the group chat. The whole list is inside the link itself, so anyone who opens it sees the same expenses and payments, and there is no server copy. If someone adds an expense, they send a new link. Anyone holding the link can read the list, so share it only with the group.</p>
+    <h3>Does it cost anything or need an account?</h3>
+    <p>No. It is free and open source, with no account, no app to install, no ads and no limit on how many expenses you add.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It does arithmetic on the amounts and rates you type. It is not legal, tax or financial advice, and it does not replace a qualified professional. You are responsible for checking the figures and any payment you send because of them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Your list lives in this browser and in any share link you make, so keep the link or a CSV.</p>
+    <p>Everything runs in your browser. Names, amounts and rates are never uploaded; there are no accounts, cookies, or analytics vendors. This browser keeps your latest list in local storage so it is there when you come back (Clear removes it). Anonymous feature events (<code>settled</code>, <code>example_loaded</code>, <code>line_added</code>, <code>marked_paid</code>, <code>copied</code>, <code>link_made</code>, <code>link_opened</code>, <code>csv_downloaded</code>, <code>mode_fewest</code>, <code>mode_greedy</code>, <code>mode_direct</code>, <code>fewer_than_greedy</code>) are counted in your own browser's local storage and are never sent anywhere.</p>
+    <p>Related tools: the <a href="../roommate-rent-splitter/">roommate rent splitter</a> for rooms of different sizes, and the <a href="../secret-santa-draw/">Secret Santa draw</a> for the group's gift exchange.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { run, transfersText, expensesCsv, transfersCsv, paymentLine, encodeState, decodeState, formatMinor, parsePeople, EXAMPLE, EXACT_LIMIT } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const DRAFT = "group-expense-settle-up-draft";
+    const download = (name, text) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); };
+    const today = () => new Date().toISOString().slice(0, 10);
+    let last = null;
+
+    function readState() {
+      return { title: $("#title").value.trim(), peopleText: $("#people").value, linesText: $("#lines").value, base: $("#base").value, ratesText: $("#rates").value, mode: document.querySelector("input[name=mode]:checked").value };
+    }
+    function writeState(s) {
+      $("#title").value = s.title || "";
+      $("#people").value = s.peopleText || "";
+      $("#lines").value = s.linesText || "";
+      if (![...$("#base").options].some((o) => o.value === s.base)) $("#base").add(new Option(s.base, s.base));
+      $("#base").value = s.base || "USD";
+      $("#rates").value = s.ratesText || "";
+      const mode = ["fewest", "greedy", "direct"].includes(s.mode) ? s.mode : "fewest";
+      const r = document.querySelector(`input[name=mode][value=${mode}]`);
+      if (r) r.checked = true;
+      refreshQuick();
+    }
+    function saveDraft() { try { localStorage.setItem(DRAFT, JSON.stringify(readState())); } catch { /* storage is optional */ } }
+
+    function refreshQuick() {
+      const people = parsePeople($("#people").value);
+      const payer = $("#q-payer");
+      const keep = payer.value;
+      payer.replaceChildren(...people.map((p) => new Option(p, p)));
+      if (people.includes(keep)) payer.value = keep;
+      $("#q-who").innerHTML = people.map((p, i) => `<label><input type="checkbox" checked data-name="${esc(p)}" id="q-who-${i}"> ${esc(p)}</label>`).join("");
+    }
+
+    function show() {
+      const s = readState();
+      const res = run(s);
+      last = res;
+      $("#result").hidden = false;
+      $("#result-title").textContent = s.title ? `Settle up: ${s.title}` : "Settle up";
+      $("#errors").innerHTML = res.errors.length ? `<div class="bad"><strong>Fix these first:</strong><ul>${res.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>` : "";
+      const B = res.base;
+      const list = $("#transfers");
+      if (res.errors.length) {
+        list.innerHTML = "";
+        $("#summary").textContent = "";
+      } else if (!res.transfers.length) {
+        list.innerHTML = "";
+        $("#summary").innerHTML = `<span class="ok" style="display:inline-block">Everyone is square.</span>`;
+      } else {
+        const n = res.transfers.length;
+        const parts = [`<strong>${n} payment${n === 1 ? "" : "s"}</strong> square the group.`];
+        if (res.mode === "fewest") {
+          parts.push(res.exact ? "This is the fewest possible." : `More than ${EXACT_LIMIT} people have a balance, so this is a good answer but not proven to be the fewest.`);
+          if (res.counts.greedy > n) { parts.push(`Largest-to-largest would take ${res.counts.greedy}.`); record("fewer_than_greedy"); }
+          if (res.counts.direct > n) parts.push(`Paying back directly would take ${res.counts.direct}.`);
+        } else if (res.mode === "direct") parts.push("Everyone pays back only the people who paid for them.");
+        $("#summary").innerHTML = parts.join(" ");
+        list.innerHTML = res.transfers.map((t, i) => `<li><strong>${esc(res.people[t.from])}</strong> pays <strong>${esc(res.people[t.to])}</strong> <span class="amt">${esc(formatMinor(t.cents, B))}</span> <button type="button" class="small secondary" data-paid="${i}">Mark paid</button></li>`).join("");
+      }
+      const b = res.book;
+      $("#balances tbody").innerHTML = res.people.map((p, i) => {
+        const v = b.net[i];
+        const cls = v > 0 ? "pos" : v < 0 ? "neg" : "";
+        return `<tr><td>${esc(p)}</td><td class="num">${esc(formatMinor(b.paid[i], B))}</td><td class="num">${esc(formatMinor(b.share[i], B))}</td><td class="num">${esc(formatMinor(b.sent[i] - b.received[i], B))}</td><td class="num ${cls}">${esc(formatMinor(v, B))}</td></tr>`;
+      }).join("");
+      saveDraft();
+      return res;
+    }
+
+    $("#go").addEventListener("click", () => { const res = show(); if (!res.errors.length) { record("settled"); record(`mode_${res.mode}`); } $("#result").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); });
+    document.querySelectorAll("input[name=mode]").forEach((r) => r.addEventListener("change", () => { if (last) show(); }));
+    $("#people").addEventListener("input", () => { refreshQuick(); saveDraft(); });
+    for (const id of ["#lines", "#rates", "#title", "#base"]) $(id).addEventListener("change", saveDraft);
+
+    $("#transfers").addEventListener("click", (ev) => {
+      const btn = ev.target.closest("button[data-paid]");
+      if (!btn || !last) return;
+      const t = last.transfers[Number(btn.dataset.paid)];
+      const lines = $("#lines").value.replace(/\s+$/, "");
+      $("#lines").value = (lines ? lines + "\n" : "") + paymentLine(last, t, today());
+      record("marked_paid");
+      show();
+    });
+
+    $("#q-add").addEventListener("click", () => {
+      const payer = $("#q-payer").value;
+      const amount = $("#q-amount").value.trim();
+      const cur = $("#q-cur").value.trim().toUpperCase();
+      const desc = $("#q-desc").value.trim().replace(/[/#]/g, " ") || "expense";
+      const all = [...document.querySelectorAll("#q-who input")];
+      const who = all.filter((c) => c.checked).map((c) => c.dataset.name);
+      const st = $("#q-status");
+      if (!payer) { st.textContent = "Add the people first."; return; }
+      if (!/^\d[\d.,\s]*$/.test(amount)) { st.textContent = "Type an amount, like 84.50."; return; }
+      if (cur && !/^[A-Z]{3}$/.test(cur)) { st.textContent = "Currency is a three-letter code, like EUR."; return; }
+      if (!who.length) { st.textContent = "Tick at least one person who shared it."; return; }
+      const split = who.length === all.length ? "" : ` / ${who.join(", ")}`;
+      const line = `${today()} ${payer} ${amount}${cur ? " " + cur : ""} ${desc}${split}`;
+      const lines = $("#lines").value.replace(/\s+$/, "");
+      $("#lines").value = (lines ? lines + "\n" : "") + line;
+      $("#q-amount").value = ""; $("#q-desc").value = "";
+      st.textContent = `Added: ${line}`;
+      record("line_added");
+      saveDraft();
+      if (last) show();
+    });
+
+    $("#example").addEventListener("click", () => { writeState(EXAMPLE); record("example_loaded"); show(); });
+    $("#clear").addEventListener("click", () => {
+      writeState({ title: "", peopleText: "", linesText: "", base: $("#base").value, ratesText: "", mode: "fewest" });
+      try { localStorage.removeItem(DRAFT); } catch { /* storage is optional */ }
+      $("#result").hidden = true; last = null;
+      history.replaceState(null, "", location.pathname);
+      $("#form-status").textContent = "Cleared.";
+    });
+
+    $("#copy").addEventListener("click", async () => {
+      if (!last) return;
+      const head = last.errors.length ? "" : `${readState().title || "Settle up"} (${last.base})\n`;
+      const text = head + transfersText(last);
+      try { await navigator.clipboard.writeText(text); $("#share-status").textContent = "Copied. Paste it in the group chat."; }
+      catch { $("#share-status").textContent = text; }
+      record("copied");
+    });
+    $("#share").addEventListener("click", async () => {
+      const url = `${location.origin}${location.pathname}#s=${encodeState(readState())}`;
+      history.replaceState(null, "", url);
+      try { await navigator.clipboard.writeText(url); $("#share-status").textContent = "Link copied. Anyone with it can see this list, so share it only with the group."; }
+      catch { $("#share-status").textContent = `Share this link: ${url}`; }
+      record("link_made");
+    });
+    $("#csv").addEventListener("click", () => { if (last) { download("expenses.csv", expensesCsv(last)); record("csv_downloaded"); } });
+    $("#csv-t").addEventListener("click", () => { if (last) { download("payments.csv", transfersCsv(last)); record("csv_downloaded"); } });
+
+    const optBtn = $("#optout");
+    const syncOpt = () => { optBtn.textContent = usageOptedOut() ? "Turn usage counting back on" : "Turn usage counting off"; };
+    optBtn.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); syncOpt(); });
+    syncOpt();
+
+    // Start: a share link wins over the saved draft.
+    const m = location.hash.match(/^#s=([A-Za-z0-9_-]+)$/);
+    const fromLink = m ? decodeState(m[1]) : null;
+    let draft = null;
+    try { draft = JSON.parse(localStorage.getItem(DRAFT) || "null"); } catch { draft = null; }
+    if (fromLink) { writeState(fromLink); record("link_opened"); show(); }
+    else if (draft && typeof draft === "object" && typeof draft.linesText === "string") { writeState({ ...draft, base: /^[A-Z]{3}$/.test(draft.base) ? draft.base : "USD" }); if (draft.linesText.trim()) show(); }
+    else refreshQuick();
+    if (m && !fromLink) $("#form-status").textContent = "That share link could not be read. It may have been cut short when it was copied.";
+  </script>
+</body>
+</html>

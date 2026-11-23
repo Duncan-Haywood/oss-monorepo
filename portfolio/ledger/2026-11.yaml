@@ -312,3 +312,16 @@ entries:
         exact solution, mass balance, independent RK4 (peaks within 0.5%).
         Not yet checked against HydroCAD or HEC-HMS. Post, llms.txt, guide.
     mrr_end: 0
+  - venture: group-expense-settle-up
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/group-expense-settle-up,
+        a no-account browser group expense splitter (any currency, shares,
+        exact, percent, several payers, payments made, share link, CSV) whose
+        fewest-payments answer is exact (DP over subsets, Verhoeff 2004) for
+        up to 20 people with a balance; brute force agrees on 300 groups. On
+        16,000 simulated trips it beat largest-to-largest in 0-3.6% (eval/).
+        Guide page, post, llms.txt.
+    mrr_end: 0
