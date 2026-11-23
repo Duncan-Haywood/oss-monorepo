@@ -31,7 +31,7 @@ export function renderPage() {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E">
-<title>SdI error codes explained: every FatturaPA rejection code (00001-00477) | E-invoice Preflight</title>
+<title>SdI error codes: every FatturaPA rejection code (00001-00477)</title>
 <meta name="description" content="All ${count} error codes in an Italian SdI rejection receipt (ricevuta di scarto), from the Agenzia delle Entrate's specification 1.9, in English: what each means, how to fix it, and whether a file-only check can catch it first.">
 <link rel="canonical" href="https://example.invalid/einvoice-preflight/sdi-error-codes.html">
 <meta property="og:title" content="SdI error codes explained: every FatturaPA rejection code">

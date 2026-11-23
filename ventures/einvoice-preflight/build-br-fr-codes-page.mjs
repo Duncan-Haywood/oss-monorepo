@@ -74,7 +74,7 @@ ${list.map((r) => `<tr${anchor(r.code)}><td><strong>${esc(r.code)}</strong>${r.f
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E">
-<title>BR-FR error codes in English: France's e-invoice rules explained | E-invoice Preflight</title>
+<title>BR-FR error codes in English: France's e-invoice rules explained</title>
 <meta name="description" content="All ${count} French BR-FR and BR-FR-CDV rule codes (FNFE-MPE ${version}, XP Z12-012) in English beside the French original, with a free offline check.">
 <link rel="canonical" href="https://example.invalid/einvoice-preflight/br-fr-error-codes.html">
 <meta property="og:title" content="BR-FR error codes in English">

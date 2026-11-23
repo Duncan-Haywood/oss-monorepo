@@ -89,7 +89,7 @@ export function render() {
 <html lang="en">
 <head>
 <meta charset="utf-8">${icon}<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${esc(title)} | E-invoice Preflight</title>
+<title>Which e-invoicing deadline applies to my business? Country and size</title>
 <meta name="description" content="${esc(desc)}">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="${SITE}${PAGE}">

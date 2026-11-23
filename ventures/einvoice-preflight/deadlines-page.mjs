@@ -45,7 +45,7 @@ ${es.map((e) => `<li><strong>${human(e.date)}</strong> <a href="${e.page}">${esc
 <html lang="en">
 <head>
 <meta charset="utf-8">${icon}<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${esc(title)} | E-invoice Preflight</title>
+<title>E-invoicing deadlines, November 2026 to end of 2027, by date</title>
 <meta name="description" content="${esc(desc)}">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="${SITE}${PAGE}">
