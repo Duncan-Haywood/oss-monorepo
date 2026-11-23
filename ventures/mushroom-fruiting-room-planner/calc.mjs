@@ -15,7 +15,7 @@ export const DEFAULTS = {
 function numOrNaN(v) {
   if (typeof v === "number") return v;
   const s = String(v).trim().replace(/^(-?\d{1,3}(?:,\d{3})+)(\.\d*)?$/, (m) => m.replace(/,/g, ""));
-  return s === "" ? NaN : Number(s);
+  return /^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(s) ? Number(s) : NaN; // plain decimals: not "Infinity" or "0x10" (red team 2026-11-23)
 }
 
 export function parseInputs(raw = {}) {
