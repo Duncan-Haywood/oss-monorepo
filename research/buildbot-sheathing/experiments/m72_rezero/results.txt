@@ -1,0 +1,111 @@
+# Milestone 72: re-zero scheduling over a 100-sheet wall (milestone 71's per-pose allowances, smallest over its 8 loads; drift linear in time since the last re-zero; rates and re-zero durations swept, not sourced)
+cycle per sheet (cycle.seconds, three reads, single 2x, ledger): 116 s; 62 s before the nails, 54 s nailing, 0.871 s a press over 62 nails
+
+## A. Greedy against brute force on random fixed-order instances: 2000 instances, 0 mismatches
+
+## B. Lateral offset: zero. Pose use and weakest pose used per policy: robot | policy | lift stops | heights used (nails a sheet) | weakest allowance used N
+  g1 | LAYOUT | 4 | 0.4 (10), 0.6 (17), 0.8 (16), 1.0 (17), 1.2 (2) | 0.0439
+  g1 | WEAKEST | 4 | 0.4 (10), 0.6 (17), 0.8 (16), 1.0 (17), 1.2 (2) | 0.0439
+  g1 | BANDS k+0 (offset 0.00 m) | 4 | 0.4 (19), 0.6 (10), 0.8 (22), 1.0 (11) | 0.0959
+  g1 | BANDS k+1 (offset 0.10 m) | 5 | 0.6 (27), 0.8 (20), 1.0 (15) | 0.1071
+  g1 | BANDS k+2 (offset 0.11 m) | 6 | 0.6 (29), 0.8 (24), 1.0 (9) | 0.1071
+  g1 | BEST | 23 | 0.6 (62) | 0.2293
+  h1 | LAYOUT | 3 | 0.6 (15), 0.8 (10), 1.0 (12), 1.2 (10), 1.4 (15) | 0.1430
+  h1 | WEAKEST | 3 | 0.6 (15), 0.8 (10), 1.0 (12), 1.2 (10), 1.4 (15) | 0.1430
+  h1 | BANDS k+0 (offset 0.10 m) | 3 | 0.6 (19), 0.8 (10), 1.0 (12), 1.2 (12), 1.4 (9) | 0.1430
+  h1 | BANDS k+1 (offset 0.11 m) | 4 | 0.6 (27), 0.8 (16), 1.0 (8), 1.2 (11) | 0.1430
+  h1 | BANDS k+2 (offset 0.10 m) | 5 | 0.6 (27), 0.8 (20), 1.0 (15) | 0.2140
+  h1 | BEST | 23 | 0.8 (62) | 0.2838
+
+## C. Re-zeros per 100 sheets (lateral zero): robot | rate N/h | FIX | LAYOUT | WEAKEST | BANDS k+0 | BANDS k+1 | BANDS k+2 | BEST
+  g1 | 0.01 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+  g1 | 0.02 | 1 | 1 | 1 | 0 | 0 | 0 | 0
+  g1 | 0.05 | 3 | 3 | 3 | 1 | 1 | 1 | 0
+  g1 | 0.1 | 7 | 7 | 7 | 3 | 2 | 2 | 1
+  g1 | 0.2 | 15 | 14 | 14 | 6 | 5 | 5 | 2
+  g1 | 0.5 | 33 | 33 | 33 | 16 | 14 | 14 | 6
+  h1 | 0.01 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+  h1 | 0.02 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+  h1 | 0.05 | 1 | 1 | 1 | 1 | 1 | 0 | 0
+  h1 | 0.1 | 3 | 2 | 2 | 2 | 2 | 1 | 1
+  h1 | 0.2 | 7 | 4 | 4 | 4 | 4 | 2 | 2
+  h1 | 0.5 | 16 | 11 | 11 | 11 | 11 | 7 | 5
+
+## B. Lateral offset: worst. Pose use and weakest pose used per policy: robot | policy | lift stops | heights used (nails a sheet) | weakest allowance used N
+  g1 | LAYOUT | 4 | 0.4 (10), 0.6 (17), 0.8 (16), 1.0 (17), 1.2 (2) | 0.0415
+  g1 | WEAKEST | 4 | 0.4 (10), 0.6 (17), 0.8 (16), 1.0 (17), 1.2 (2) | 0.0415
+  g1 | BANDS k+0 (offset 0.00 m) | 4 | 0.4 (19), 0.6 (10), 0.8 (22), 1.0 (11) | 0.0469
+  g1 | BANDS k+1 (offset 0.00 m) | 5 | 0.4 (17), 0.6 (18), 0.8 (27) | 0.0469
+  g1 | BANDS k+2 (offset 0.00 m) | 6 | 0.4 (19), 0.6 (22), 0.8 (21) | 0.0469
+  g1 | BEST | 23 | 0.6 (62) | 0.1248
+  h1 | LAYOUT | 3 | 0.6 (15), 0.8 (10), 1.0 (12), 1.2 (10), 1.4 (15) | 0.1102
+  h1 | WEAKEST | 3 | 0.6 (15), 0.8 (10), 1.0 (12), 1.2 (10), 1.4 (15) | 0.1102
+  h1 | BANDS k+0 (offset 0.10 m) | 3 | 0.6 (19), 0.8 (10), 1.0 (12), 1.2 (12), 1.4 (9) | 0.1102
+  h1 | BANDS k+1 (offset 0.31 m) | 4 | 0.8 (27), 1.0 (16), 1.2 (8), 1.4 (11) | 0.1141
+  h1 | BANDS k+2 (offset 0.30 m) | 5 | 0.8 (27), 1.0 (20), 1.2 (15) | 0.1141
+  h1 | BEST | 23 | 0.8 (62) | 0.1601
+
+## C. Re-zeros per 100 sheets (lateral worst): robot | rate N/h | FIX | LAYOUT | WEAKEST | BANDS k+0 | BANDS k+1 | BANDS k+2 | BEST
+  g1 | 0.01 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+  g1 | 0.02 | 1 | 1 | 1 | 1 | 1 | 1 | 0
+  g1 | 0.05 | 3 | 3 | 3 | 3 | 3 | 3 | 1
+  g1 | 0.1 | 7 | 7 | 7 | 6 | 6 | 6 | 2
+  g1 | 0.2 | 15 | 14 | 14 | 13 | 13 | 13 | 5
+  g1 | 0.5 | 33 | 33 | 33 | 33 | 33 | 33 | 12
+  h1 | 0.01 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+  h1 | 0.02 | 0 | 0 | 0 | 0 | 0 | 0 | 0
+  h1 | 0.05 | 1 | 1 | 1 | 1 | 1 | 1 | 1
+  h1 | 0.1 | 3 | 2 | 2 | 2 | 2 | 2 | 1
+  h1 | 0.2 | 7 | 5 | 5 | 5 | 5 | 5 | 3
+  h1 | 0.5 | 16 | 14 | 14 | 14 | 13 | 13 | 9
+
+## C2. Reported extra, not registered: re-zeros per 1000 sheets, lateral zero: robot | rate N/h | FIX | LAYOUT | WEAKEST | BANDS k+0 | BANDS k+1 | BEST
+  g1 | 0.01 | 7 | 7 | 7 | 3 | 3 | 1
+  g1 | 0.02 | 15 | 14 | 14 | 6 | 6 | 2
+  g1 | 0.05 | 38 | 35 | 35 | 16 | 14 | 7
+  g1 | 0.1 | 76 | 71 | 71 | 33 | 29 | 14
+  g1 | 0.2 | 153 | 142 | 142 | 66 | 58 | 27
+  g1 | 0.5 | 333 | 333 | 333 | 166 | 142 | 68
+  h1 | 0.01 | 3 | 2 | 2 | 2 | 2 | 1
+  h1 | 0.02 | 7 | 4 | 4 | 4 | 4 | 2
+  h1 | 0.05 | 17 | 11 | 11 | 11 | 11 | 5
+  h1 | 0.1 | 35 | 22 | 22 | 22 | 22 | 11
+  h1 | 0.2 | 70 | 44 | 44 | 44 | 44 | 22
+  h1 | 0.5 | 166 | 111 | 111 | 111 | 111 | 55
+
+## D. Re-zero seconds a sheet and share of the cycle, LAYOUT, lateral zero: robot | rate N/h | c = 5, 15, 30 s
+  g1 | 0.01 | 0.00 s (0.00%) | 0.00 s (0.00%) | 0.00 s (0.00%)
+  g1 | 0.02 | 0.05 s (0.04%) | 0.15 s (0.13%) | 0.30 s (0.26%)
+  g1 | 0.05 | 0.15 s (0.13%) | 0.45 s (0.39%) | 0.90 s (0.78%)
+  g1 | 0.1 | 0.35 s (0.30%) | 1.05 s (0.91%) | 2.10 s (1.81%)
+  g1 | 0.2 | 0.70 s (0.60%) | 2.10 s (1.81%) | 4.20 s (3.62%)
+  g1 | 0.5 | 1.65 s (1.42%) | 4.95 s (4.27%) | 9.90 s (8.53%)
+  h1 | 0.01 | 0.00 s (0.00%) | 0.00 s (0.00%) | 0.00 s (0.00%)
+  h1 | 0.02 | 0.00 s (0.00%) | 0.00 s (0.00%) | 0.00 s (0.00%)
+  h1 | 0.05 | 0.05 s (0.04%) | 0.15 s (0.13%) | 0.30 s (0.26%)
+  h1 | 0.1 | 0.10 s (0.09%) | 0.30 s (0.26%) | 0.60 s (0.52%)
+  h1 | 0.2 | 0.20 s (0.17%) | 0.60 s (0.52%) | 1.20 s (1.03%)
+  h1 | 0.5 | 0.55 s (0.47%) | 1.65 s (1.42%) | 3.30 s (2.84%)
+
+## E. BEST's break-even move time (s a move): saved re-zero seconds a sheet over extra moves a sheet, lateral zero; extra moves = (one lift move per nail height plus the 4 columns' base moves) minus LAYOUT's (k stops times 4 columns): robot | rate N/h | extra moves a sheet | c = 5, 15, 30 s
+  g1 | 0.01 | 46 | 0.000 | 0.000 | 0.000
+  g1 | 0.02 | 46 | 0.001 | 0.003 | 0.007
+  g1 | 0.05 | 46 | 0.003 | 0.010 | 0.020
+  g1 | 0.1 | 46 | 0.007 | 0.020 | 0.039
+  g1 | 0.2 | 46 | 0.013 | 0.039 | 0.078
+  g1 | 0.5 | 46 | 0.029 | 0.088 | 0.176
+  h1 | 0.01 | 51 | 0.000 | 0.000 | 0.000
+  h1 | 0.02 | 51 | 0.000 | 0.000 | 0.000
+  h1 | 0.05 | 51 | 0.001 | 0.003 | 0.006
+  h1 | 0.1 | 51 | 0.001 | 0.003 | 0.006
+  h1 | 0.2 | 51 | 0.002 | 0.006 | 0.012
+  h1 | 0.5 | 51 | 0.006 | 0.018 | 0.035
+
+## F. Hypotheses (registered in LOG.md before this run; ratios over the rates where LAYOUT needs a re-zero on the 100-sheet wall: G1 [0.02, 0.05, 0.1, 0.2, 0.5], H1 [0.05, 0.1, 0.2, 0.5] N/h)
+H281 (greedy equals the brute-force minimum on every random instance): 0 mismatches -> held
+H282 (WEAKEST saves under 10% of LAYOUT's re-zeros, every rate, both robots): largest saving 0.0% -> held
+H283 (FIX / LAYOUT at most 1.10 on the G1 and at least 1.4 on the H1, rates up to 0.1 N/h): G1 max 1.000, H1 min 1.000 -> refuted
+H284 (G1 BANDS same stops: weakest used x2.18 (>= 2), re-zeros cut 57.1% (>= 40%); H1 same stops x1.000 (< 1.05), one more stop x1.000 (>= 1.4)) -> refuted
+H285 (BEST / LAYOUT at most 1/3 on the G1 and 1/1.6 on the H1, every rate): G1 max 0.182, H1 max 0.500 -> held
+H286 (LAYOUT at 0.1 N/h, c 15 s, under 2% of the cycle): larger 0.91% -> held
+H287 (BEST's break-even move time under 1 s, rates up to 0.1 N/h, c 15 s): largest 0.020 s -> held

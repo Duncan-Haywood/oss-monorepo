@@ -89,16 +89,3 @@ def fixed_interval(gaps, taus, Tfix):
     """A clock schedule: re-zero before any press that would end more than Tfix after the last
     re-zero, whatever the press's own allowance (milestone 71's table read as one interval)."""
     return greedy(gaps, taus, np.full(len(taus), float(Tfix)))
-
-
-def band_map(z, heights, wall=HEIGHT):
-    """Banded lift: the wall height is split into k equal bands no taller than the grid's height
-    span; within a band the grip height moves 1:1 with the nail (centred in the grid's span) and the
-    pose is the nearest grid height. Returns (band, grid height)."""
-    hs = np.asarray(sorted(heights), float)
-    span = hs[-1] - hs[0]
-    k = int(np.ceil(wall / span - 1e-9))
-    w = wall / k
-    b = min(int(z // w), k - 1)
-    h = hs[0] + (span - w) / 2 + (z - b * w)
-    return b, float(hs[np.argmin(np.abs(hs - h))]), k

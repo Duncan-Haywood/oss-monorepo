@@ -929,6 +929,20 @@ drift term: only re-zeroing (or a running bias estimate) acts on it. One seed; s
 
 ![Each press's drift allowance, and the worst row just under and just over it](experiments/m71_allowance/figure.png)
 
+**Milestone 72: how often must the force sensor be re-zeroed on a whole wall, and does press order matter?** Offline,
+from milestone 71's per-pose allowances over a 100-sheet wall (116 s a sheet, 62 nails each). **Re-zeroing as late as
+each press's allowance permits is provably optimal** for any press order (checked against brute force on 2,000 random
+instances, H281 held), and **press order changes nothing**: one re-zero interval spans about 14 sheets on the G1 at
+0.1 N/h (H282 held). What changes the count is **which poses the lift plan uses**. On the G1, starting the four lift
+bands at the bottom of the grip range instead of centring them drops the weak 1.2 m pose, **doubles the weakest
+allowance used (0.044 to 0.096 N) and halves the re-zeros (71 to 33 per 1,000 sheets at 0.1 N/h) at no extra moves**;
+the H1 gains nothing at three or four stops and needs five (H284 refuted in part). Holding every nail at the best pose
+cuts re-zeros 2 to 5 times but costs 46 to 51 extra lift moves a sheet, worth it only if a move took under 0.02 s.
+Overall the **re-zeros cost 0.9% (G1) and 0.3% (H1) of the cycle at 0.1 N/h and 15 s a re-zero** (H286 held).
+Drift rate and re-zero time swept, not sourced; drift linear in time; statics.
+
+![Re-zeros per 1,000 sheets against the drift rate for five plans, G1 and H1](experiments/m72_rezero/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
