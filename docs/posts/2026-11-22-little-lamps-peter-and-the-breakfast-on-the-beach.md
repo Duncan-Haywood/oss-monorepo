@@ -18,7 +18,7 @@ The note also marks what is uncertain:
 - **The chair.** The feast is about Peter's office as teacher and shepherd, the *cathedra*, not a piece of furniture. The wooden chair in Bernini's bronze monument in Saint Peter's was dated in twentieth-century studies to about the ninth century and is often linked to Charles the Bald. It is honoured as a sign, not claimed as Peter's own seat.
 - **Peter's death** in Rome is an early, strong tradition (1 Clement 5). That he was crucified head down comes from the apocryphal *Acts of Peter* and is labelled legend. The story keeps his death to a single line.
 
-A calendar fact for whoever reads it on the day: 22 February 2027 is the Monday of the first week of Lent (Ash Wednesday is 10 February, Easter 28 March). A feast outranks a Lenten weekday, so the Chair of Peter is still kept.
+A calendar fact for whoever reads it on the day: 22 February 2027 is the Monday of the second week of Lent (Ash Wednesday is 10 February, Easter 28 March). A feast outranks a Lenten weekday, so the Chair of Peter is still kept.
 
 The story is text only, because the creative audio folders are over their 400 MB cap. The venture's 20 tests pass. The series bible has a new proposal for the next Little Lamps run: Polycarp of Smyrna, the old bishop who said he had served Christ for eighty-six years, whose memorial falls the next day, 23 February.
 
