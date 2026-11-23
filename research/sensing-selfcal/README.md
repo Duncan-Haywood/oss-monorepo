@@ -25,6 +25,17 @@ its three references and the transfer to the TUM cameras, and folds the natural-
 checked draft, that every citation key is in `references.bib` and every figure exists. `draft.md` stays the
 extended version.
 
+**Milestone 3za headline** (when a robot camera adopts its self-calibrated focal length, should it adopt the self-calibrated lens
+distortion with it? five update rules scored by where rays land, the projected-radius error over 50&ndash;250 px): **keep the held
+distortion; the choice is worth under 1 px either way.** "Adopt the windows' f when it is more than half an sd from the held value, keep
+the target-calibrated distortion" is minimax at five windows (worst regret **0.48 px**, against 0.63 for adopting the distortion too, 1.94
+and 2.09 for adopting without a gate, and **14.2 px** for never updating). Which of the two wins flips with the recording (fr1/desk favours
+the joint update by 0.76 px, fr1/xyz the f-only one by 0.85), the reference and the window count (joint in 23 of 36 cells, by a median
+0.14 px), so milestone 3z's f&ndash;distortion cancellation is not something a robot can rely on. Updating a held f pays once it is more
+than **1.5%** stale. One of six predictions held; analysis of saved solves only. [Log](LOG.md).
+
+![median rms projected-radius error after five update rules against staleness of the held focal length, three TUM sequences, five windows, causal prior, against the board](experiments/m3za_joint/joint.png)
+
 **Milestone 3z headline** (is the natural-feature windows' "distortion bias" a real error in where a ray lands, or the focal length and
 the distortion trading off? a radius sweep of the projected radius P(r) against the distortion term, with the solver's 5&times;5 covariance):
 **on the Kinect, mostly a model-term artefact; on the Xtion, a focal-length error.** At the median the Kinect windows put a ray within
@@ -1320,6 +1331,11 @@ python3 paper/check_short.py               # seconds; every number in the letter
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3za: scored by where rays land, adopting f alone onto a held distortion (gate(0.5)) stays minimax; adopting the windows'
+distortion too is within about 1 px and flips by sequence. Next: Section 4 of the paper updated with 3y&ndash;3za (score by P(r);
+update f, hold the distortion; the folded fr1 board); a stale *distortion* as well as a stale f (the case where a joint update could
+pay); the feature radii the windows cover, when the TUM host answers; a real lens change when one is reachable.
 
 After milestone 3z: the Kinect windows' distortion bias cancels against f at the median (P within 1 px of the board to 250 px), the Xtion's
 is a focal-length error, and the solver's bar is nine times too narrow at every radius. Next: Section 4 of the paper updated with 3y and 3z
