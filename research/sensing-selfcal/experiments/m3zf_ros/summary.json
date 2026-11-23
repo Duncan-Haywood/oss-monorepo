@@ -1,0 +1,7031 @@
+{
+ "opencv": "5.1.0",
+ "sources": [
+  {
+   "repo": "duckietown/duckiefleet",
+   "commit": "56a3b0dfc6a15d3eb950ad766b84fea516ee9657",
+   "pattern": "^calibrations/camera_intrinsic/[^/]+\\.yaml$"
+  },
+  {
+   "repo": "duckietown/dt-core",
+   "commit": "0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077",
+   "pattern": "^packages/(old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/[^/]+|robots/duckiedrone/optical_flow/tests/scenario1/calibration-intrinsic-dd24)\\.yaml$"
+  },
+  {
+   "repo": "ApolloAuto/apollo",
+   "commit": "d53aa3da47a06a08e6d0cd175d5623a34fa0d6aa",
+   "pattern": "intrinsics\\.yaml$"
+  }
+ ],
+ "files": 198,
+ "cameras": 198,
+ "all_zero": 10,
+ "distinct": 179,
+ "duckiebot": 169,
+ "apollo": 9,
+ "other": 1,
+ "hypotheses": {
+  "H299": {
+   "held": false,
+   "folds_inside": 0,
+   "of": 169
+  },
+  "H300": {
+   "held": true,
+   "k3_nonzero": 0,
+   "of": 169
+  },
+  "H301": {
+   "held": null,
+   "at_most_1px": 0,
+   "of": 0
+  },
+  "H302": {
+   "held": false,
+   "over_half_px": 171,
+   "of": 177,
+   "worst_px": 525.9923073427683
+  },
+  "H303": {
+   "held": true,
+   "fold_radius_px": null,
+   "corner_radius_px": 406.1285481661741
+  },
+  "H304": {
+   "held": false,
+   "folds_inside": 1,
+   "of": 9
+  }
+ },
+ "unscored": {
+  "duckiebot_spread": {
+   "fx": {
+    "median": 334.97818884094795,
+    "q25": 322.5930217122517,
+    "q75": 342.09849010793897,
+    "min": 237.16153749291345,
+    "max": 11453.750209292964
+   },
+   "k1": {
+    "median": -0.28420813647863225,
+    "q25": -0.29999085661979047,
+    "q75": -0.2689695958995726,
+    "min": -5.35986220237093,
+    "max": -0.10833357479852536
+   },
+   "k2": {
+    "median": 0.05967565168392586,
+    "q25": 0.04981860090704426,
+    "q75": 0.07243780700691406,
+    "min": 0.009160369940841467,
+    "max": 44.28319075979691
+   }
+  },
+  "median_model": {
+   "fx": 334.97818884094795,
+   "fy": 334.68810906755107,
+   "cx": 317.9127184663754,
+   "cy": 232.61329722508526,
+   "k1": -0.28420813647863225,
+   "k2": 0.05967565168392586,
+   "p1": 0.00033088163554534865,
+   "p2": 0.00017483820380579767,
+   "k3": 0.0,
+   "width": 640,
+   "height": 480,
+   "fold_radius_px": null,
+   "corner_radius_px": 406.1285481661741,
+   "folds_inside": false,
+   "round_trip_default_px": [
+    3.9461114903526555,
+    4.354188159370209,
+    5.31543018594459,
+    5.352582490729255
+   ],
+   "min_slope": 0.39090033954328873
+  },
+  "folding_corners_beyond": {
+   "1": 0,
+   "2": 0,
+   "3": 0,
+   "4": 0
+  },
+  "folding_fold_radius_px": null,
+  "folding_round_trip_default_px": null,
+  "folding_round_trip_100_px": null,
+  "monotone_duckiebot_round_trip_default_px": {
+   "median": 10.213269474049099,
+   "q25": 4.856405734450986,
+   "q75": 26.22109262529685,
+   "min": 0.031063373734982715,
+   "max": 525.9923073427683
+  },
+  "monotone_min_slope": {
+   "median": 0.39308756829695746,
+   "q25": 0.3530483347272948,
+   "q75": 0.44329914817331684,
+   "min": 0.2564796510970858,
+   "max": 1.0
+  },
+  "duckiebot_never_fold": 169,
+  "cross_set_duplicates": 4,
+  "post_hoc_iterations": {
+   "default_equals_count5_eps0p01": true,
+   "counts": [
+    5,
+    10,
+    20,
+    50,
+    100,
+    200
+   ],
+   "duckiebot_share_under_0p1px": {
+    "5": 0.005917159763313609,
+    "10": 0.07692307692307693,
+    "20": 0.3727810650887574,
+    "50": 0.6272189349112426,
+    "100": 0.7218934911242604,
+    "200": 0.7396449704142012
+   },
+   "all_share_under_0p1px": {
+    "5": 0.011299435028248588,
+    "10": 0.11299435028248588,
+    "20": 0.4011299435028249,
+    "50": 0.6440677966101694,
+    "100": 0.7344632768361582,
+    "200": 0.751412429378531
+   },
+   "duckiebot_median_px": {
+    "5": 10.213269474049099,
+    "10": 3.2996576995458065,
+    "20": 0.3784082393684611,
+    "50": 0.0005746578565172945,
+    "100": 2.239181331236518e-08,
+    "200": 3.639754730461873e-13
+   },
+   "duckiebot_over_1px_count_only": {
+    "5": 164,
+    "10": 115,
+    "20": 74,
+    "50": 49,
+    "100": 46,
+    "200": 40
+   },
+   "duckiebot_max_px_count_only": {
+    "5": 525.9923073427683,
+    "10": 223.9629379981906,
+    "20": 158.262313196715,
+    "50": 223.6619732244555,
+    "100": 158.89597948397048,
+    "200": 158.8971870522702
+   },
+   "duckiebot_share_under_0p1px_eps": {
+    "5": 0.005917159763313609,
+    "10": 0.08284023668639054,
+    "20": 0.40828402366863903,
+    "50": 0.7928994082840237,
+    "100": 0.9644970414201184,
+    "200": 1.0
+   },
+   "duckiebot_max_px_eps": {
+    "5": 156.6970499387201,
+    "10": 26.838394753535646,
+    "20": 13.751525129802339,
+    "50": 3.3275334627263207,
+    "100": 0.3458656407875922,
+    "200": 0.009376377787630985
+   },
+   "all_max_px_eps": {
+    "5": 156.6970499387201,
+    "10": 26.838394753535646,
+    "20": 13.751525129802339,
+    "50": 3.3275334627263207,
+    "100": 0.3458656407875922,
+    "200": 0.009376377787630985
+   },
+   "spearman_slope_vs_default_error": -0.1485207100591716
+  },
+  "post_hoc_f_outliers": {
+   "rule": "fx more than 20% from the fleet median",
+   "n": 5,
+   "of": 169
+  }
+ },
+ "rows": [
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/Teo.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 330.97157748657446,
+   "fy": 331.70695515573993,
+   "cx": 316.6827507684257,
+   "cy": 231.69152905893193,
+   "k1": -0.2724349698280765,
+   "k2": 0.05536654180379657,
+   "p1": -8.22915071199787e-05,
+   "p2": 0.0009679364518962706,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 407.66547608518823,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    2.6715124539321233,
+    2.8605724791911893,
+    4.728913504138084,
+    4.358555860553858
+   ],
+   "round_trip_100_px": [
+    6.481146926371013e-13,
+    8.198074455012805e-13,
+    6.938623537128991e-13,
+    6.042538309847401e-13
+   ],
+   "min_slope": 0.3967590415299663
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/a313.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 335.87982792873066,
+   "fy": 334.9147057575178,
+   "cx": 330.6663135051057,
+   "cy": 225.95445389340048,
+   "k1": -0.298328790993675,
+   "k2": 0.07329882517888836,
+   "p1": 0.000511320263891666,
+   "p2": -0.0014420346224727004,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 416.9884295560936,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.9513183611802721,
+    1.395462313357217,
+    14.304715972155805,
+    0.38742358126072
+   ],
+   "round_trip_100_px": [
+    7.411475059146425e-13,
+    9.947598300641403e-13,
+    1.2453064231754136e-06,
+    9.779711566628324e-13
+   ],
+   "min_slope": 0.4536061076977733
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/afduck.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 346.4127659359219,
+   "fy": 341.56839031584246,
+   "cx": 325.18887945010226,
+   "cy": 230.11973582161517,
+   "k1": -0.2856223049365749,
+   "k2": 0.05712880862412497,
+   "p1": -0.0035703026168551807,
+   "p2": 0.0016080957428710261,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 410.10724663662376,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    3.3077149206317795,
+    0.5736796258325655,
+    13.63110128537941,
+    5.549566803286911
+   ],
+   "round_trip_100_px": [
+    7.56786389257192e-13,
+    8.043896115216799e-13,
+    2.1145374392415724e-09,
+    7.279509460923746e-13
+   ],
+   "min_slope": 0.3573987214517662
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/akira.yaml",
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/default.yaml",
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/default.yaml",
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/porsche911.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core",
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 307.7379294605756,
+   "fy": 314.9827773443905,
+   "cx": 329.692367951685,
+   "cy": 244.4605588877848,
+   "k1": -0.2565888993516047,
+   "k2": 0.04481160508242147,
+   "p1": -0.00505275149956019,
+   "p2": 0.001308569367976665,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 410.43638037741897,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    11.06497213506731,
+    7.310985357328647,
+    26.43531752314546,
+    13.498109994427274
+   ],
+   "round_trip_100_px": [
+    0.13467041366048468,
+    8.526512829121202e-13,
+    8.198074455012805e-13,
+    1.6286475963305966e-09
+   ],
+   "min_slope": 0.3388534420856172
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/alfi.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 361.58100437113353,
+   "fy": 355.90465554417597,
+   "cx": 317.9127184663754,
+   "cy": 243.37300302681604,
+   "k1": -0.3188111249196134,
+   "k2": 0.0785811590981324,
+   "p1": -0.0006333276278398727,
+   "p2": -0.001079399811630805,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 403.69621688592895,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    2.201923717522643,
+    3.0506025508346943,
+    1.9032961317143817,
+    2.817058483806732
+   ],
+   "round_trip_100_px": [
+    5.429959962425187e-13,
+    5.859285502108464e-13,
+    8.198074455012805e-13,
+    8.526512829121202e-13
+   ],
+   "min_slope": 0.4179490284380645
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/almightlybot.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 342.09849010793897,
+   "fy": 341.7907962498704,
+   "cx": 307.4440918594641,
+   "cy": 226.71900502138595,
+   "k1": -0.290627324719084,
+   "k2": 0.0700087118749717,
+   "p1": 0.0006748439665476862,
+   "p2": 0.002580840330821159,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 418.02475340167746,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.6964295631382498,
+    0.8398186637824046,
+    1.4552271002385657,
+    2.350822540829967
+   ],
+   "round_trip_100_px": [
+    8.526512829121202e-13,
+    8.198074455012805e-13,
+    6.844854043943255e-13,
+    8.198074455012805e-13
+   ],
+   "min_slope": 0.4570831570587198
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/alvin.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 345.076783483947,
+   "fy": 343.7987350210436,
+   "cx": 305.2219829128028,
+   "cy": 243.79944448550393,
+   "k1": -0.2837290030012355,
+   "k2": 0.05953145494969834,
+   "p1": -0.0012895822524752053,
+   "p2": 0.0002990129972471438,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 414.14307896701115,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.8695960097609652,
+    4.6296521616846755,
+    0.5542714471956403,
+    4.729459319241978
+   ],
+   "round_trip_100_px": [
+    4.62671908852022e-13,
+    5.518497755175417e-13,
+    9.779711566628324e-13,
+    6.629024818318272e-13
+   ],
+   "min_slope": 0.3914819277535436
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/anda.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 348.7000091735144,
+   "fy": 343.836597002638,
+   "cx": 306.73208476191644,
+   "cy": 225.63263925183884,
+   "k1": -0.31616865884417955,
+   "k2": 0.07749503179810446,
+   "p1": 0.000939231893799218,
+   "p2": 0.003263619217363021,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 419.2496363041042,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    2.577401346124277,
+    1.4941105917363549,
+    3.4129315027325346,
+    10.022570928087701
+   ],
+   "round_trip_100_px": [
+    9.779711566628324e-13,
+    8.198074455012805e-13,
+    9.680085421408877e-13,
+    3.5822204266717543e-06
+   ],
+   "min_slope": 0.41953466820703555
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/anitradg.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 323.1440468387941,
+   "fy": 318.01943575181934,
+   "cx": 312.4277979717682,
+   "cy": 228.02417905883206,
+   "k1": -0.2937943098448813,
+   "k2": 0.06667139607383762,
+   "p1": -0.0005168767540959618,
+   "p2": 0.003334593840426681,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 413.27395499910256,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    2.641421359416236,
+    5.44110843159165,
+    13.96326614260303,
+    32.531759674943416
+   ],
+   "round_trip_100_px": [
+    3.292463967425502e-10,
+    5.502929768419503e-08,
+    0.0428669435025043,
+    6.431098710768743e-13
+   ],
+   "min_slope": 0.4174144282096478
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/argo.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 330.5406859621664,
+   "fy": 334.68810906755107,
+   "cx": 327.39256345202836,
+   "cy": 243.23520559973738,
+   "k1": -0.2740436579385357,
+   "k2": 0.05707434023268051,
+   "p1": 0.0028044114348110046,
+   "p2": -0.00029404499585985896,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 407.85935792480836,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    4.703760502777903,
+    3.4228024137937694,
+    2.795892023740439,
+    1.4205723197177704
+   ],
+   "round_trip_100_px": [
+    8.043896115216799e-13,
+    8.87922587470104e-13,
+    9.680085421408877e-13,
+    6.938623537128991e-13
+   ],
+   "min_slope": 0.40787809780930717
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/arki.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 338.3403015095598,
+   "fy": 341.3535964267662,
+   "cx": 331.36699268615706,
+   "cy": 243.95753006855878,
+   "k1": -0.2738112838215229,
+   "k2": 0.055199513278358564,
+   "p1": 0.00022689009073357586,
+   "p2": 0.0002605051199667359,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 411.4843378781499,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    5.332004388053763,
+    1.1050314214718486,
+    3.9424079979992865,
+    0.4666866582528226
+   ],
+   "round_trip_100_px": [
+    9.323013879825752e-13,
+    8.043896115216799e-13,
+    7.731540852509763e-13,
+    8.526512829121202e-13
+   ],
+   "min_slope": 0.3888047808526063
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/ata.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 326.01947960125256,
+   "fy": 325.1983550509051,
+   "cx": 298.8707687234273,
+   "cy": 244.69413936610277,
+   "k1": -0.26015721095765737,
+   "k2": 0.047909832943350675,
+   "p1": 0.0001844673915115123,
+   "p2": 0.0018712936558209503,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 419.814690395016,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.9434145405279624,
+    8.461514513933421,
+    0.649068873230695,
+    7.80763428084032
+   ],
+   "round_trip_100_px": [
+    9.063807464771102e-13,
+    8.006171689879576e-08,
+    8.87922587470104e-13,
+    1.876289236759642e-11
+   ],
+   "min_slope": 0.3642891946703112
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/backseatdriver.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 347.82198496913196,
+   "fy": 343.94143082570923,
+   "cx": 317.46749032660233,
+   "cy": 256.56598116157306,
+   "k1": -0.3181561193890786,
+   "k2": 0.09079303769501017,
+   "p1": -0.000956596157598387,
+   "p2": 0.0018423854074674257,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 412.13265156454304,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    9.11976887879137,
+    10.213269474049099,
+    0.034066758029841805,
+    0.46846078268006525
+   ],
+   "round_trip_100_px": [
+    4.115875698182255e-11,
+    3.9771264854598885e-11,
+    7.279509460923746e-13,
+    6.938623537128991e-13
+   ],
+   "min_slope": 0.4983041267166446
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/bamboo17.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 362.1626641901725,
+   "fy": 363.1258079600186,
+   "cx": 301.37835588820803,
+   "cy": 229.07036892375572,
+   "k1": -0.3584183400794838,
+   "k2": 0.07774994727801265,
+   "p1": -0.007254004942261517,
+   "p2": 0.011634648759117579,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 421.4620951082471,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    38.35848982682239,
+    17.525585930157526,
+    101.26100858634696,
+    32.750615704086876
+   ],
+   "round_trip_100_px": [
+    9.099386826154683e-13,
+    0.007591859743596595,
+    6.629024818318272e-13,
+    8.87922587470104e-13
+   ],
+   "min_slope": 0.2564796510970858
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/bella.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 392.11972106587336,
+   "fy": 392.39168741531637,
+   "cx": 311.3646761569172,
+   "cy": 318.7073972148718,
+   "k1": -0.29115978369726897,
+   "k2": 0.06375993684792831,
+   "p1": -0.006137220439737563,
+   "p2": -0.0005453778612891601,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 457.79425631709927,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.8028806576766923,
+    2.1718470770083984,
+    1.0830367885351277,
+    0.5199726482911015
+   ],
+   "round_trip_100_px": [
+    5.240704272917405e-13,
+    6.431098710768743e-13,
+    7.122459968594323e-13,
+    3.2155493553843715e-13
+   ],
+   "min_slope": 0.4016884157454993
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/bhsf.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 332.15917876696045,
+   "fy": 333.41763344787364,
+   "cx": 324.7085094399204,
+   "cy": 224.2353494461823,
+   "k1": -0.302030008657109,
+   "k2": 0.07844088215420486,
+   "p1": 0.001312658481147806,
+   "p2": -0.0005326270794592966,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 413.34147212155153,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    2.399572067704253,
+    0.13909999909862883,
+    19.064697308663174,
+    9.212006988490215
+   ],
+   "round_trip_100_px": [
+    9.323013879825752e-13,
+    6.779635237919913e-13,
+    2.745347643219557e-06,
+    5.982355768447594e-10
+   ],
+   "min_slope": 0.47667650308118314
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/blackmanba.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 341.622278010638,
+   "fy": 339.5252456338737,
+   "cx": 358.00815029409375,
+   "cy": 196.17243562079446,
+   "k1": -0.26577424519055726,
+   "k2": 0.053354085263249564,
+   "p1": -0.0031262556535485483,
+   "p2": 0.005012702273835211,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 456.867510311721,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    3.408487843535365,
+    0.13199009957185093,
+    52.58909711165622,
+    0.6721619034115236
+   ],
+   "round_trip_100_px": [
+    7.122459968594323e-13,
+    8.198074455012805e-13,
+    6.042538309847401e-13,
+    8.038873388460929e-13
+   ],
+   "min_slope": 0.40424098600017233
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/blindrider.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 327.088900470556,
+   "fy": 326.56465783192914,
+   "cx": 317.2847088754605,
+   "cy": 227.03152290454156,
+   "k1": -0.3141306927507978,
+   "k2": 0.09020974755009059,
+   "p1": 0.001462588871583165,
+   "p2": -0.0012410109340393796,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 410.0465943397064,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    10.6728555749714,
+    16.799549211590403,
+    31.079750237828744,
+    43.080822249264095
+   ],
+   "round_trip_100_px": [
+    1.0423152287149334e-10,
+    9.91859209610035e-08,
+    0.0002923033715112335,
+    0.06316933354843945
+   ],
+   "min_slope": 0.5077567262844569
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/bluck.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 328.3559725088209,
+   "fy": 325.33900480965247,
+   "cx": 326.1169316130548,
+   "cy": 241.09869900614774,
+   "k1": -0.29300640813299944,
+   "k2": 0.06599748336785136,
+   "p1": -0.0007656163042660784,
+   "p2": -0.002196687827069785,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 405.56236973759155,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    5.023376943526374,
+    2.4219449821001113,
+    3.3815698474409692,
+    3.4611730188051384
+   ],
+   "round_trip_100_px": [
+    1.5477776375023818e-07,
+    1.2050987125059304e-10,
+    5.398355403921052e-08,
+    8.433709232351141e-11
+   ],
+   "min_slope": 0.41461798456222343
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/bob.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 334.16823428551055,
+   "fy": 333.81949920929384,
+   "cx": 303.59202106394184,
+   "cy": 222.9816887077409,
+   "k1": -0.3121418377522516,
+   "k2": 0.08122743609553158,
+   "p1": -0.0011674790635504307,
+   "p2": 0.0009847589033345793,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 423.35415508929157,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.0103505829162722,
+    10.930982844729986,
+    6.682987408060192,
+    56.92550324112735
+   ],
+   "round_trip_100_px": [
+    7.105427357601002e-13,
+    2.9565677764962798e-08,
+    2.291720658652093e-09,
+    7.731540852509763e-13
+   ],
+   "min_slope": 0.4602237963524318
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/botanic.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 343.7709992465966,
+   "fy": 339.77935189124037,
+   "cx": 316.7111259561417,
+   "cy": 256.49345835130964,
+   "k1": -0.28601033747933563,
+   "k2": 0.05773802761670695,
+   "p1": -0.0027549133445890694,
+   "p2": -0.0008098437662606323,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 412.67976720159265,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    5.815808449249637,
+    8.362039326908073,
+    1.6592519278307083,
+    3.6503881434945065
+   ],
+   "round_trip_100_px": [
+    7.279509460923746e-13,
+    1.0102788366129468e-11,
+    5.684341886080801e-13,
+    8.526512829121202e-13
+   ],
+   "min_slope": 0.3624503220570875
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/bumblebee.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 335.1634231607337,
+   "fy": 332.1356841207191,
+   "cx": 306.4277095016041,
+   "cy": 222.97304397817504,
+   "k1": -0.29999085661979047,
+   "k2": 0.07519386149236076,
+   "p1": 0.0008210693706707357,
+   "p2": 0.002010156425424989,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 421.1096402484647,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.2773943301393145,
+    2.531305794568599,
+    2.487406372088114,
+    24.446058944372776
+   ],
+   "round_trip_100_px": [
+    5.362597410144533e-13,
+    7.896940126926099e-13,
+    7.279509460923746e-13,
+    0.00024075479031753776
+   ],
+   "min_slope": 0.46142503502142096
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/chuckie.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 344.8174114237445,
+   "fy": 337.99131232461906,
+   "cx": 329.50183290814664,
+   "cy": 239.89846698545247,
+   "k1": -0.24692133100301966,
+   "k2": 0.03952178002839576,
+   "p1": -0.00047439036386395913,
+   "p2": 0.004678049218565277,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 407.70112097683034,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.13736328065592,
+    0.030056746696681406,
+    1.2255754866472799,
+    0.037181410733651145
+   ],
+   "round_trip_100_px": [
+    4.263256414560601e-13,
+    3.0212691549237007e-13,
+    7.731540852509763e-13,
+    6.629024818318272e-13
+   ],
+   "min_slope": 0.3057862108888977
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/daisy.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 338.0034463326781,
+   "fy": 341.5315204157286,
+   "cx": 308.47926416184055,
+   "cy": 219.19377554741945,
+   "k1": -0.2872095735914109,
+   "k2": 0.06116236983115812,
+   "p1": 0.0027253381800431548,
+   "p2": 0.0027970599203114466,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 421.81261835545473,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.2468110882356997,
+    3.1938578153037724,
+    5.171219034466365,
+    0.7672729299551583
+   ],
+   "round_trip_100_px": [
+    7.105427357601002e-13,
+    8.198074455012805e-13,
+    8.450381726173933e-13,
+    1.662605383545122e-10
+   ],
+   "min_slope": 0.39308756829695746
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/dori.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 348.42579208724294,
+   "fy": 348.7466073385909,
+   "cx": 285.8641396299884,
+   "cy": 218.2849298999871,
+   "k1": -0.3091994985761873,
+   "k2": 0.07468976668880603,
+   "p1": 0.004997833615823117,
+   "p2": -0.0006570563957179055,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 440.3487089994281,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.011804752604308225,
+    2.320169738006867,
+    0.8396193221412704,
+    44.16762058443451
+   ],
+   "round_trip_100_px": [
+    5.240704272917405e-13,
+    5.008226150829998e-07,
+    5.62721137192265e-13,
+    9.165725883006586e-13
+   ],
+   "min_slope": 0.4239913933540579
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/duckbrown.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 340.58849864459074,
+   "fy": 340.2230377134557,
+   "cx": 320.83392218544947,
+   "cy": 235.38609450193098,
+   "k1": -0.3051638244264715,
+   "k2": 0.07527603332623402,
+   "p1": 0.0017930155293594137,
+   "p2": 0.0010660615870695298,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 403.44809875362813,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.200550154766726,
+    1.2760011522298602,
+    0.6919900689823617,
+    0.029280437561821533
+   ],
+   "round_trip_100_px": [
+    9.617295015509985e-13,
+    8.3590755195091e-13,
+    8.87922587470104e-13,
+    8.87922587470104e-13
+   ],
+   "min_slope": 0.44329914817331684
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/duckduckgo.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 354.9839032361367,
+   "fy": 349.2004527284266,
+   "cx": 321.81266623573543,
+   "cy": 238.49016203961236,
+   "k1": -0.3125081858280108,
+   "k2": 0.08499637683972298,
+   "p1": -0.0013305717143733712,
+   "p2": 0.001288812485745406,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 402.3560537402234,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.16259610503126437,
+    0.3275518272283675,
+    0.07950329895929463,
+    0.36147694536338487
+   ],
+   "round_trip_100_px": [
+    7.902053070243849e-13,
+    8.043896115216799e-13,
+    9.323013879825752e-13,
+    8.526512829121202e-13
+   ],
+   "min_slope": 0.48294719840771605
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/duckie1.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 332.69874436550464,
+   "fy": 332.4750930374481,
+   "cx": 324.1904584799725,
+   "cy": 213.50881234857243,
+   "k1": -0.280416243454491,
+   "k2": 0.05827269690856375,
+   "p1": 0.004305568201263639,
+   "p2": 0.0010989188057333422,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 419.66296770780616,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    4.156004929152709,
+    1.462412513133176,
+    0.19006657299759297,
+    2.7302490088364904
+   ],
+   "round_trip_100_px": [
+    6.487375805200672e-13,
+    5.362597410144533e-13,
+    2.239181331236518e-08,
+    1.2085076619694803e-12
+   ],
+   "min_slope": 0.39276928674771094
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/duckiefat.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 11453.750209292964,
+   "fy": 1445.2722305261561,
+   "cx": 321.51120308827643,
+   "cy": 207.81872130831485,
+   "k1": -5.296402909076711,
+   "k2": 39.202598441549455,
+   "p1": -0.18928218639485633,
+   "p2": -0.0066808311362792795,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 421.2506405710402,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    2.7707584588029738e-06,
+    3.993245158593375e-06,
+    0.1480174534744743,
+    0.11544317011640975
+   ],
+   "round_trip_100_px": [
+    1.1368683772161603e-13,
+    2.2737367544323206e-13,
+    7.731540852509763e-13,
+    3.2155493553843715e-13
+   ],
+   "min_slope": 0.6779971685528541
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/duckiv.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 341.6892596429658,
+   "fy": 341.8088542502572,
+   "cx": 325.67956515510895,
+   "cy": 255.37518061675317,
+   "k1": -0.3201088787468735,
+   "k2": 0.08627644297409491,
+   "p1": -2.614188705095097e-06,
+   "p2": -0.00013352269322588518,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 413.86430389036957,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    24.047407538461286,
+    9.4317312468485,
+    2.2808062711544963,
+    0.5481103571436486
+   ],
+   "round_trip_100_px": [
+    0.0003273576396082465,
+    6.877557995556022e-09,
+    7.279509460923746e-13,
+    6.938623537128991e-13
+   ],
+   "min_slope": 0.4655393660157304
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/ducktaped.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 339.35683833937657,
+   "fy": 338.8879922839524,
+   "cx": 312.65759497241254,
+   "cy": 245.57421330532466,
+   "k1": -0.29636723978387747,
+   "k2": 0.06740394403251586,
+   "p1": -0.0022928827486192608,
+   "p2": 0.0006612111489185752,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 409.2184555586102,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    2.9002167729842014,
+    1.2213852137388002,
+    3.3595658702906914,
+    3.6367167473024535
+   ],
+   "round_trip_100_px": [
+    8.87922587470104e-13,
+    9.063807464771102e-13,
+    9.323013879825752e-13,
+    6.938623537128991e-13
+   ],
+   "min_slope": 0.41360859612954104
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/duckworth.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 337.25946337669194,
+   "fy": 340.7467028594954,
+   "cx": 328.19903548474554,
+   "cy": 226.9583401872555,
+   "k1": -0.2582588875333317,
+   "k2": 0.05032655777027355,
+   "p1": 0.00561745227418934,
+   "p2": -0.0008151273201010316,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 414.42090740442376,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.0547464973010119,
+    0.07079380095351591,
+    1.293751005034759,
+    0.36128834717160657
+   ],
+   "round_trip_100_px": [
+    8.043896115216799e-13,
+    8.700014782910993e-13,
+    4.823324033076557e-13,
+    5.684341886080801e-13
+   ],
+   "min_slope": 0.4036161985114649
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/duckyluke.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 326.89065102638995,
+   "fy": 323.2584612973085,
+   "cx": 301.0192243878026,
+   "cy": 223.06148251625478,
+   "k1": -0.2634112579686522,
+   "k2": 0.049139521715948715,
+   "p1": -0.000845052112735365,
+   "p2": 0.00013930923353280754,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 425.3532273315812,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.19636330988361195,
+    7.435178858415399,
+    5.172146356444358,
+    6.466785016992848
+   ],
+   "round_trip_100_px": [
+    9.947598300641403e-13,
+    8.3590755195091e-13,
+    7.6474998690365e-13,
+    0.016411613509995968
+   ],
+   "min_slope": 0.3645955479364297
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/duxi.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 332.60590681589656,
+   "fy": 334.4404826419346,
+   "cx": 319.20190613292374,
+   "cy": 240.75571054847398,
+   "k1": -0.30407730824041185,
+   "k2": 0.08034536793800638,
+   "p1": 0.0014745912690997992,
+   "p2": 0.001095524085004526,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 401.091921123388,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    6.849104754248553,
+    6.4239932202072385,
+    4.980514816758538,
+    4.69213246240931
+   ],
+   "round_trip_100_px": [
+    4.8004300883013905e-11,
+    6.287046589442227e-12,
+    8.526512829121202e-13,
+    8.87922587470104e-13
+   ],
+   "min_slope": 0.4821312630011214
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/emma.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 315.99986017540493,
+   "fy": 313.8702486304635,
+   "cx": 325.09117477221434,
+   "cy": 242.57944642097354,
+   "k1": -0.2575810538059969,
+   "k2": 0.0438194025070965,
+   "p1": -0.0046661641016833705,
+   "p2": -0.001344135804785668,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 405.62181862010874,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    13.64021957371832,
+    12.371098846903678,
+    25.356159695854775,
+    22.81730165327078
+   ],
+   "round_trip_100_px": [
+    3.061421850097129e-07,
+    4.1257620773552256e-10,
+    0.00783468950802222,
+    3.376445934377852e-05
+   ],
+   "min_slope": 0.31864429985839515
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/espresso.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 334.39213398126145,
+   "fy": 332.87555713040507,
+   "cx": 314.9925668144282,
+   "cy": 223.36698478469992,
+   "k1": -0.29991957678062336,
+   "k2": 0.07342939456691294,
+   "p1": 0.0008861276691529229,
+   "p2": 0.0020988575639997106,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 414.11391684459284,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.8617391648493924,
+    0.4097283540805088,
+    6.497429337455575,
+    12.567006300667785
+   ],
+   "round_trip_100_px": [
+    9.779711566628324e-13,
+    8.043896115216799e-13,
+    1.2473936932096985e-08,
+    4.092970061306288e-07
+   ],
+   "min_slope": 0.44874543937455846
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/eve.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 334.4935741576431,
+   "fy": 337.20308430335035,
+   "cx": 327.81770386645593,
+   "cy": 194.20749428040452,
+   "k1": -0.24874001934192572,
+   "k2": 0.04243936131327153,
+   "p1": 0.004377751039563428,
+   "p2": -0.0012397353216598201,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 434.90436108845864,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.10113808370324656,
+    0.004965122884643729,
+    8.158455907995751,
+    5.3766410356218985
+   ],
+   "round_trip_100_px": [
+    6.12222357532858e-13,
+    9.816810711055577e-13,
+    9.25343817704044e-13,
+    9.646648066153113e-13
+   ],
+   "min_slope": 0.34395292746115247
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/fang.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 322.5930217122517,
+   "fy": 317.7034778725839,
+   "cx": 316.49770711848345,
+   "cy": 233.94804873048477,
+   "k1": -0.23963157607838137,
+   "k2": 0.03932338334668091,
+   "p1": 0.0007327000791642617,
+   "p2": 0.0017102952703612394,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 406.44224217363825,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.7789384614079256,
+    1.8198101903326673,
+    3.551214039238236,
+    3.317519560956404
+   ],
+   "round_trip_100_px": [
+    8.198074455012805e-13,
+    8.198074455012805e-13,
+    8.87922587470104e-13,
+    5.684341886080801e-13
+   ],
+   "min_slope": 0.3428723747803699
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/farmer.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 237.16153749291345,
+   "fy": 234.07931499213942,
+   "cx": 314.78748892885,
+   "cy": 233.14770138526103,
+   "k1": -0.10833357479852536,
+   "k2": 0.009160369940841467,
+   "p1": 0.005765484130133645,
+   "p2": -0.00044205688558221886,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 408.2881760332806,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.0036952084437712465,
+    0.031063373734982715,
+    0.00020404185573104496,
+    0.002571519793096896
+   ],
+   "round_trip_100_px": [
+    1.9065862296939058e-13,
+    1.4210854715202004e-13,
+    2.3437142008433856e-13,
+    0.0
+   ],
+   "min_slope": 0.4234650373026192
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/fergy.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 332.44708519538233,
+   "fy": 331.35498819455574,
+   "cx": 314.6182825322791,
+   "cy": 232.61329722508526,
+   "k1": -0.3161767253955174,
+   "k2": 0.09469049153701087,
+   "p1": 0.0002830309963460948,
+   "p2": -0.0013829684999005763,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 408.74618380125304,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    7.730657152893899,
+    17.49786177921528,
+    15.57080561701041,
+    30.514655819498472
+   ],
+   "round_trip_100_px": [
+    9.323013879825752e-13,
+    2.5876182468475065e-08,
+    2.4591688978414837e-09,
+    9.948410027148385e-05
+   ],
+   "min_slope": 0.5249208868845137
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/flitzer.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 423.91880057247835,
+   "fy": 420.38091573291086,
+   "cx": 327.0110340053104,
+   "cy": 197.1105180816511,
+   "k1": -0.33715567788169654,
+   "k2": 0.08971936700024384,
+   "p1": 0.004356509973974171,
+   "p2": -0.004451892063316594,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 432.3918076712996,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.0476552439084652,
+    0.20829451182384295,
+    0.08792967671256083,
+    0.033346416456405126
+   ],
+   "round_trip_100_px": [
+    5.240704272917405e-13,
+    8.198074455012805e-13,
+    4.0990372275064023e-13,
+    3.639754730461873e-13
+   ],
+   "min_slope": 0.42985244211426377
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/fobot.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 351.46655842456204,
+   "fy": 345.8630781436328,
+   "cx": 320.3406296102735,
+   "cy": 241.27331548555787,
+   "k1": -0.30445432409306833,
+   "k2": 0.06951095308657154,
+   "p1": -0.0016548658960941222,
+   "p2": -0.0016853684563075467,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 401.037319640579,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    2.852458436393907,
+    3.9495732842400377,
+    3.448619315411632,
+    4.7205607973864225
+   ],
+   "round_trip_100_px": [
+    8.526512829121202e-13,
+    5.859285502108464e-13,
+    7.411475059146425e-13,
+    7.279509460923746e-13
+   ],
+   "min_slope": 0.39992772225511297
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/foxhunter.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 361.1281537015522,
+   "fy": 363.40073134604046,
+   "cx": 313.05498548555613,
+   "cy": 253.87192272687378,
+   "k1": -0.2858355956632464,
+   "k2": 0.058824267440135504,
+   "p1": 0.0027172817715418267,
+   "p2": 0.0011981286248179835,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 413.9371880670903,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.9181946459236812,
+    2.2883862888266315,
+    0.03270196663850725,
+    0.020691201317769553
+   ],
+   "round_trip_100_px": [
+    7.279509460923746e-13,
+    8.198074455012805e-13,
+    5.684341886080801e-13,
+    5.684341886080801e-13
+   ],
+   "min_slope": 0.3749876355475915
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/frankbot.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 348.43659035868245,
+   "fy": 342.98783700635806,
+   "cx": 314.42705706905525,
+   "cy": 228.4910222710114,
+   "k1": -0.27526801383123356,
+   "k2": 0.06339788583349713,
+   "p1": -0.0034639000892992575,
+   "p2": -0.0016037796240050415,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 411.4055262718248,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.0736805456911425,
+    0.3698392974395193,
+    0.7790455904404555,
+    1.6632258904639248
+   ],
+   "round_trip_100_px": [
+    7.731540852509763e-13,
+    5.518497755175417e-13,
+    5.240704272917405e-13,
+    5.684341886080801e-13
+   ],
+   "min_slope": 0.46216478201508826
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/grey.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 347.45269015223596,
+   "fy": 341.2948800734342,
+   "cx": 317.89352997615003,
+   "cy": 174.81007290863914,
+   "k1": -0.3302245592462032,
+   "k2": 0.10657066377384104,
+   "p1": 0.00313122261639954,
+   "p2": 0.002683469927767307,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 443.72679615868987,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.20331749917010683,
+    0.07104549961650532,
+    100.58677970148972,
+    94.00570077264602
+   ],
+   "round_trip_100_px": [
+    6.487375805200672e-13,
+    3.8131724593878115e-13,
+    5.240704272917405e-13,
+    7.279509460923746e-13
+   ],
+   "min_slope": 0.5395382274084963
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/gummi.yaml",
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/gummi.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core",
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 326.06458233401526,
+   "fy": 330.99099736051943,
+   "cx": 306.6389632318726,
+   "cy": 220.1238608814283,
+   "k1": -0.26926767060464707,
+   "k2": 0.05494843197714348,
+   "p1": 0.0036216641177382785,
+   "p2": 0.0013551076116927977,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 422.68805107111325,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.961804350184874,
+    3.88192892885588,
+    3.053349487136264,
+    1.7966387145260543
+   ],
+   "round_trip_100_px": [
+    4.73031519081054e-13,
+    7.105427357601002e-13,
+    7.234986049614835e-13,
+    1.1824537563952761e-09
+   ],
+   "min_slope": 0.4062199025413973
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/harpy.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 355.92983311139903,
+   "fy": 355.0906714822314,
+   "cx": 309.13630073423974,
+   "cy": 264.2563297914549,
+   "k1": -0.3214775478894934,
+   "k2": 0.09008020753061402,
+   "p1": -0.002546854120729916,
+   "p2": 0.0030084780619427393,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 423.44089944958506,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.9470719929903448,
+    10.882929265990235,
+    0.5539558006674291,
+    0.39329531016417396
+   ],
+   "round_trip_100_px": [
+    8.87922587470104e-13,
+    1.608950435441892e-10,
+    3.639754730461873e-13,
+    6.629024818318272e-13
+   ],
+   "min_slope": 0.4837210364518676
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/jeff.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 325.9760710246331,
+   "fy": 327.8404974983624,
+   "cx": 310.613841560381,
+   "cy": 250.80236414302613,
+   "k1": -0.29117004884059305,
+   "k2": 0.06775438834127606,
+   "p1": -0.003281457779369751,
+   "p2": -0.0018861951863596977,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 414.00128892473373,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.676307582250543,
+    19.33552057682149,
+    1.9338643683500296,
+    3.09632751296159
+   ],
+   "round_trip_100_px": [
+    7.56786389257192e-13,
+    0.0010205851896781962,
+    7.731540852509763e-13,
+    4.9401299403055975e-08
+   ],
+   "min_slope": 0.4369220987006256
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/jungle.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 311.91379078756825,
+   "fy": 308.75415059264196,
+   "cx": 326.9271053303758,
+   "cy": 222.291672470436,
+   "k1": -0.2831290512570605,
+   "k2": 0.0635082831335534,
+   "p1": 0.0023822866408405065,
+   "p2": 0.0002938009765079908,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 416.2870575429696,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    14.21472726453033,
+    0.26838275505221637,
+    68.24724664693532,
+    28.88484195297696
+   ],
+   "round_trip_100_px": [
+    0.000797100472301763,
+    5.28315162745648e-12,
+    9.165725883006586e-13,
+    0.11924834448381014
+   ],
+   "min_slope": 0.4319965040521422
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/justduckingaround.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 327.35561787252277,
+   "fy": 330.65141984694156,
+   "cx": 300.06581987491467,
+   "cy": 251.6393762287911,
+   "k1": -0.2869438391093178,
+   "k2": 0.06666754988282907,
+   "p1": -0.00016104525663695473,
+   "p2": 0.001249861796652411,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 422.9392657180568,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.6246540168336745,
+    26.22109262529685,
+    1.1637088484186522,
+    5.392149420623635
+   ],
+   "round_trip_100_px": [
+    9.680085421408877e-13,
+    0.0065732250888785775,
+    8.87922587470104e-13,
+    8.045779512089112e-10
+   ],
+   "min_slope": 0.44423418743480947
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/lex.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 347.50345368595106,
+   "fy": 338.462213604235,
+   "cx": 313.8081333478524,
+   "cy": 263.9232010415723,
+   "k1": -0.28909636522727505,
+   "k2": 0.05875395187808427,
+   "p1": -0.010251705336394266,
+   "p2": -0.0015560610969276468,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 419.59097930966374,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    3.052227932283467,
+    5.69876891396822,
+    1.401214191948027,
+    7.2413783832977545
+   ],
+   "round_trip_100_px": [
+    9.680085421408877e-13,
+    1.5785694775067698e-11,
+    9.46063038162108e-13,
+    7.626344918775623e-13
+   ],
+   "min_slope": 0.35988103691449513
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/littleredcorvette.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 340.4135058862268,
+   "fy": 336.1726789848235,
+   "cx": 313.6382404127212,
+   "cy": 225.8905611272356,
+   "k1": -0.27412712901520325,
+   "k2": 0.04920372504918229,
+   "p1": 0.0033378265403828907,
+   "p2": -0.00090773106095812,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 413.62253933403576,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.2321220550131426,
+    7.533961313146814,
+    5.490011172090439,
+    14.097803279405547
+   ],
+   "round_trip_100_px": [
+    8.3590755195091e-13,
+    8.87922587470104e-13,
+    7.731540852509763e-13,
+    1.5349120155855758e-09
+   ],
+   "min_slope": 0.31274395883682027
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/luckybot.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 338.3098138115256,
+   "fy": 337.78003137604634,
+   "cx": 300.58450630403627,
+   "cy": 222.7631348603732,
+   "k1": -0.2837837281686695,
+   "k2": 0.06050682599184803,
+   "p1": 0.002883745663996046,
+   "p2": 0.002219146071472405,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 425.8798916921734,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.45174889917789585,
+    4.182147828338582,
+    2.629118047670958,
+    2.2034608780804175
+   ],
+   "round_trip_100_px": [
+    9.947598300641403e-13,
+    8.043896115216799e-13,
+    8.038873388460929e-13,
+    1.0692145121591653e-08
+   ],
+   "min_slope": 0.40106027104855735
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/lukebot.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 342.4150474312635,
+   "fy": 341.7874575181467,
+   "cx": 328.9582583318239,
+   "cy": 234.02954860728,
+   "k1": -0.29040275158988116,
+   "k2": 0.07288234555909771,
+   "p1": 8.2438219789625e-05,
+   "p2": -0.0011512129678786299,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 410.7493136732494,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.12474303266993264,
+    0.6416084816544667,
+    1.096743905593103,
+    0.7412750496432038
+   ],
+   "round_trip_100_px": [
+    5.859285502108464e-13,
+    8.700014782910993e-13,
+    8.87922587470104e-13,
+    5.684341886080801e-13
+   ],
+   "min_slope": 0.47929514525595596
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/mallard.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 348.8461375869529,
+   "fy": 345.7830230259048,
+   "cx": 329.4429746650971,
+   "cy": 211.4271002865802,
+   "k1": -0.29810924094638797,
+   "k2": 0.06936159398006117,
+   "p1": 0.0025049929017131748,
+   "p2": -0.0008789871371483241,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 425.04596929821895,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.5119993942924481,
+    0.25522858159138534,
+    3.755420659792587,
+    2.241671361680612
+   ],
+   "round_trip_100_px": [
+    9.028087887525425e-13,
+    6.487375805200672e-13,
+    1.6918897076075434e-09,
+    6.431098710768743e-13
+   ],
+   "min_slope": 0.42344024305408035
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/maxhav.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 337.6135264983113,
+   "fy": 334.6502265908623,
+   "cx": 306.4029327492642,
+   "cy": 219.05046826801708,
+   "k1": -0.29464181329610784,
+   "k2": 0.06900007527773917,
+   "p1": 0.0035860933873657383,
+   "p2": -0.00016125186496838333,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 423.53472276713404,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.1108382937357733,
+    2.475575211627884,
+    0.7316063835977795,
+    15.609368132352921
+   ],
+   "round_trip_100_px": [
+    6.629024818318272e-13,
+    8.700014782910993e-13,
+    8.078967768797097e-13,
+    4.32816850493346e-05
+   ],
+   "min_slope": 0.4338236735393428
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/maxliubot.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 327.2496851314455,
+   "fy": 329.77396663517993,
+   "cx": 321.24416397517734,
+   "cy": 237.24829510675423,
+   "k1": -0.26918151701923576,
+   "k2": 0.054725065114631745,
+   "p1": 0.0025422996046694,
+   "p2": 0.0010652496398902,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 402.6489825104344,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    4.990049298354835,
+    3.4100748283210303,
+    3.530482759656719,
+    2.4329659771551793
+   ],
+   "round_trip_100_px": [
+    9.152496538777437e-13,
+    6.431098710768743e-13,
+    8.198074455012805e-13,
+    7.279509460923746e-13
+   ],
+   "min_slope": 0.4041777743187813
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/mcquack.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 343.1774165408615,
+   "fy": 339.64661484459873,
+   "cx": 335.96258144100517,
+   "cy": 242.79938617501548,
+   "k1": -0.2913235290864234,
+   "k2": 0.07165421714751836,
+   "p1": 0.00264970413637002,
+   "p2": -0.0013866099571980964,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 414.5146536076479,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    2.635181221491923,
+    1.0719521992433456,
+    0.889883042958414,
+    0.48963667186955273
+   ],
+   "round_trip_100_px": [
+    7.262845167122485e-13,
+    5.859285502108464e-13,
+    9.779711566628324e-13,
+    6.042538309847401e-13
+   ],
+   "min_slope": 0.4670065366234133
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/mickey.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 341.6779067471656,
+   "fy": 338.74425395168765,
+   "cx": 334.0777705486109,
+   "cy": 241.03891853195856,
+   "k1": -0.3061634036984332,
+   "k2": 0.07429504619812156,
+   "p1": -0.0008560655860773187,
+   "p2": -0.0005533016965389437,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 411.95596490618567,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    6.368645683191738,
+    2.0103633368223695,
+    4.926505607120107,
+    2.2157585537172255
+   ],
+   "round_trip_100_px": [
+    4.775306486036084e-08,
+    9.063807464771102e-13,
+    2.3860573282224248e-08,
+    8.87922587470104e-13
+   ],
+   "min_slope": 0.4322472957810136
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/misteur.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 334.86069243128964,
+   "fy": 330.2886877776877,
+   "cx": 337.4444889033759,
+   "cy": 239.79958686917726,
+   "k1": -0.2606867666305358,
+   "k2": 0.048965110338437805,
+   "p1": 0.0011350141587033744,
+   "p2": 0.0020676580019783155,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 414.2040820169189,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    8.874820761758377,
+    0.17548923085488255,
+    7.207966742622041,
+    0.09573962831340088
+   ],
+   "round_trip_100_px": [
+    7.56786389257192e-13,
+    5.362597410144533e-13,
+    8.87922587470104e-13,
+    8.198074455012805e-13
+   ],
+   "min_slope": 0.3754549838327105
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/moorhuhn.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 351.2630147511643,
+   "fy": 356.86999405183775,
+   "cx": 336.1903962635366,
+   "cy": 252.48455602640968,
+   "k1": -0.2709386510331601,
+   "k2": 0.04850757020607347,
+   "p1": 0.004350645717110357,
+   "p2": -0.00022424623260002422,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 420.4431395226791,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    11.237272904739445,
+    0.27789781238848976,
+    0.3995518749369648,
+    0.0014925801852052995
+   ],
+   "round_trip_100_px": [
+    1.4506213296016137e-12,
+    4.62671908852022e-13,
+    6.148555841259604e-13,
+    1.1368683772161603e-13
+   ],
+   "min_slope": 0.31900343514554796
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/mrgoobers.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 360.84206593032474,
+   "fy": 357.29982517559705,
+   "cx": 314.8157959437128,
+   "cy": 239.68952288404807,
+   "k1": -0.3087685762138291,
+   "k2": 0.07374547383955149,
+   "p1": -0.00034562344645738943,
+   "p2": 0.0021840730500333537,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 404.34377944939064,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.6289537793182423,
+    1.6399281685467104,
+    1.708425034597073,
+    1.7225521305574778
+   ],
+   "round_trip_100_px": [
+    9.498975809417745e-13,
+    9.779711566628324e-13,
+    4.0194366942304643e-13,
+    6.938623537128991e-13
+   ],
+   "min_slope": 0.418240701493072
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/mvptruck.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 343.09332359467453,
+   "fy": 344.82376778246356,
+   "cx": 311.8011255209016,
+   "cy": 223.8067561500115,
+   "k1": -0.2904757157517696,
+   "k2": 0.061943924804179394,
+   "p1": 0.004040426342798761,
+   "p2": 0.0005984830072890319,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 416.3525902450069,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.517416440575554,
+    4.249225781066284,
+    3.482886067027543,
+    4.165478088955532
+   ],
+   "round_trip_100_px": [
+    5.684341886080801e-13,
+    8.198074455012805e-13,
+    6.431098710768743e-13,
+    8.87922587470104e-13
+   ],
+   "min_slope": 0.3870381357682544
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/neptr.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 1691.164540018422,
+   "fy": 1411.8484349727116,
+   "cx": 344.21021572911695,
+   "cy": 237.8510274905106,
+   "k1": -5.35986220237093,
+   "k2": 44.28319075979691,
+   "p1": -0.31066574192061963,
+   "p2": -0.08182958814126481,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 420.8524652413084,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.3584216039627472,
+    0.0429566759729013,
+    17.40775920272625,
+    2.7649215709584447
+   ],
+   "round_trip_100_px": [
+    8.644125458514253e-13,
+    9.41355163017715e-13,
+    1.924169291878919e-10,
+    6.431098710768743e-13
+   ],
+   "min_slope": 0.7080685684364869
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/ola.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 352.4795791292202,
+   "fy": 347.122879543225,
+   "cx": 320.5832870726454,
+   "cy": 262.3731911669017,
+   "k1": -0.2915775541837731,
+   "k2": 0.06227640516438537,
+   "p1": -0.0038439198914728425,
+   "p2": 0.0006610480515446374,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 414.2623992029758,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    4.50392539122112,
+    3.627854635063112,
+    0.8561345688264226,
+    0.4875404699423728
+   ],
+   "round_trip_100_px": [
+    8.87922587470104e-13,
+    9.25343817704044e-13,
+    8.198074455012805e-13,
+    8.198074455012805e-13
+   ],
+   "min_slope": 0.38567646247356513
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/ordakgt.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 347.81084672300216,
+   "fy": 353.536912262381,
+   "cx": 303.8511702476765,
+   "cy": 224.22121338804706,
+   "k1": -0.2851238335720768,
+   "k2": 0.05796944534332743,
+   "p1": 0.003390478064394908,
+   "p2": 0.0015933329340193608,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 422.39652392572964,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.05082176159415665,
+    3.3478541414913594,
+    1.093648943377046,
+    5.445830735114187
+   ],
+   "round_trip_100_px": [
+    9.152496538777437e-13,
+    8.198074455012805e-13,
+    9.323013879825752e-13,
+    6.938623537128991e-13
+   ],
+   "min_slope": 0.3689258196570252
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/paco.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 337.8037567770026,
+   "fy": 337.01627740116936,
+   "cx": 315.7863905113195,
+   "cy": 222.0496885664232,
+   "k1": -0.27521625409485784,
+   "k2": 0.052297541052488614,
+   "p1": 0.002225172725927215,
+   "p2": 0.0006271274160048947,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 414.3100623281528,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.5205565408323636,
+    2.813450800880881,
+    7.732296259229231,
+    9.034450947036161
+   ],
+   "round_trip_100_px": [
+    7.56786389257192e-13,
+    5.518497755175417e-13,
+    8.450381726173933e-13,
+    4.367705676554248e-12
+   ],
+   "min_slope": 0.34825245610071365
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/pathfinder.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 335.23375340465697,
+   "fy": 331.94616682695636,
+   "cx": 314.6746781845721,
+   "cy": 235.1039781622963,
+   "k1": -0.31484444513047416,
+   "k2": 0.09120524151788749,
+   "p1": 0.0017733307690154638,
+   "p2": -0.0027006466452102083,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 407.19850997547223,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    6.073222190179121,
+    16.79775306973738,
+    9.008740032676265,
+    22.289810857223298
+   ],
+   "round_trip_100_px": [
+    7.56786389257192e-13,
+    9.137750642268215e-08,
+    1.6157935537594193e-12,
+    2.341294483490736e-06
+   ],
+   "min_slope": 0.5109145008721481
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/patito.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 332.36713423457013,
+   "fy": 328.82827799002786,
+   "cx": 323.4982155110002,
+   "cy": 223.6167675075847,
+   "k1": -0.25796443301781113,
+   "k2": 0.04692697778030507,
+   "p1": 7.138180864709777e-05,
+   "p2": 0.0006530168070193182,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 412.77531096476855,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.3845869370984665,
+    0.30647238063416105,
+    7.825256805252519,
+    4.401515092091709
+   ],
+   "round_trip_100_px": [
+    9.310008041529271e-13,
+    9.46063038162108e-13,
+    7.279509460923746e-13,
+    8.526512829121202e-13
+   ],
+   "min_slope": 0.36186936970924954
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/r2duck2.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 339.661744471486,
+   "fy": 335.8795123624501,
+   "cx": 304.21589337824184,
+   "cy": 221.28760314067068,
+   "k1": -0.27137464550500123,
+   "k2": 0.05216059459079659,
+   "p1": 0.0006720762454715193,
+   "p2": 3.124792339290133e-05,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 423.89039921714595,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.036779788424243114,
+    3.717157907811628,
+    2.6410295637373213,
+    9.74700834844175
+   ],
+   "round_trip_100_px": [
+    9.779711566628324e-13,
+    5.518497755175417e-13,
+    7.6474998690365e-13,
+    1.1533918717888217e-08
+   ],
+   "min_slope": 0.3646566060328599
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/roadrunner.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 360.27016065093767,
+   "fy": 356.05377433896666,
+   "cx": 306.88848571854976,
+   "cy": 215.89879911992608,
+   "k1": -0.2738044891436547,
+   "k2": 0.057455789354766036,
+   "p1": -0.003659790832601496,
+   "p2": -0.001640125871747548,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 425.10319365205663,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.0002722593856302032,
+    0.007758876448002449,
+    0.2859985014139896,
+    3.6368664816389704
+   ],
+   "round_trip_100_px": [
+    6.355287432313019e-14,
+    5.084229945850415e-13,
+    4.0194366942304643e-13,
+    8.87922587470104e-13
+   ],
+   "min_slope": 0.41283542385634253
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/scbb.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 341.7466206783907,
+   "fy": 338.38048823401624,
+   "cx": 312.70602263553644,
+   "cy": 242.72169415033443,
+   "k1": -0.2756110891082357,
+   "k2": 0.051993917771917385,
+   "p1": 0.0026600872800703473,
+   "p2": 0.000886421584837247,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 407.4741322222289,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    4.459235788740068,
+    8.774282329815653,
+    1.3185508458780075,
+    3.7076822846259825
+   ],
+   "round_trip_100_px": [
+    6.779635237919913e-13,
+    5.684341886080801e-13,
+    6.844854043943255e-13,
+    8.526512829121202e-13
+   ],
+   "min_slope": 0.34256420632660867
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/schumi.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 353.32880109224254,
+   "fy": 350.03231511108174,
+   "cx": 340.6187776422325,
+   "cy": 256.42403699758046,
+   "k1": -0.3120820098153013,
+   "k2": 0.07611370059003515,
+   "p1": -0.0043552007678532715,
+   "p2": -0.00045294362665816284,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 426.3501359594308,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    10.002069791811353,
+    1.4267116256747676,
+    3.0749479111981057,
+    0.38415864017085477
+   ],
+   "round_trip_100_px": [
+    1.3726530762065643e-06,
+    8.038873388460929e-13,
+    9.943537227477407e-13,
+    3.2155493553843715e-13
+   ],
+   "min_slope": 0.42417947063515626
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/shamrock.yaml",
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/kitt.yaml",
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/shamrock.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core",
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 305.5718893575089,
+   "fy": 308.8338858195428,
+   "cx": 303.0797142544728,
+   "cy": 231.8845403702499,
+   "k1": -0.2944667743901807,
+   "k2": 0.0701431287084318,
+   "p1": 0.0005859930422629722,
+   "p2": -0.0006697840226199427,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 418.42151026701515,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    11.469302117085242,
+    97.54233777763396,
+    28.921986191258323,
+    129.86365765833042
+   ],
+   "round_trip_100_px": [
+    3.416837128626252e-06,
+    8.436030657126042e-13,
+    0.06308046166838924,
+    5.684341886080801e-13
+   ],
+   "min_slope": 0.44371163282580217
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/sharkduck.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 341.2469139472725,
+   "fy": 345.14932209353367,
+   "cx": 312.5267332680393,
+   "cy": 220.59895059392116,
+   "k1": -0.27380263662207344,
+   "k2": 0.05212622634887147,
+   "p1": 0.003730123425724862,
+   "p2": 0.0009540150668738509,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 417.7650594019045,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.138318933126131,
+    1.6243910671983965,
+    3.308571452155129,
+    5.879394857828088
+   ],
+   "round_trip_100_px": [
+    4.43961293735052e-13,
+    6.629024818318272e-13,
+    8.87922587470104e-13,
+    8.198074455012805e-13
+   ],
+   "min_slope": 0.35281047407799193
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student01.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 333.42435088115786,
+   "fy": 333.16599897920236,
+   "cx": 334.1487273555946,
+   "cy": 233.80224775375984,
+   "k1": -0.2506924552846567,
+   "k2": 0.04628719566989228,
+   "p1": -3.9374923161067636e-05,
+   "p2": -0.004573461139486438,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 415.0526535326145,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.9252762584459812,
+    0.021798660923437227,
+    1.7660330676722542,
+    0.43320392495107485
+   ],
+   "round_trip_100_px": [
+    9.943537227477407e-13,
+    2.8421709430404007e-13,
+    7.731540852509763e-13,
+    7.279509460923746e-13
+   ],
+   "min_slope": 0.38900990215140485
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student02.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 339.5249140741437,
+   "fy": 338.520440841872,
+   "cx": 334.80738553265417,
+   "cy": 234.16638251975036,
+   "k1": -0.288501815196068,
+   "k2": 0.07556595488056389,
+   "p1": -0.0019790150686431135,
+   "p2": 0.0024885075571750054,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 415.36749137436965,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    2.573639791035418,
+    0.18889761961318183,
+    6.749670705912812,
+    0.260664974912352
+   ],
+   "round_trip_100_px": [
+    6.938623537128991e-13,
+    5.859285502108464e-13,
+    1.5804106140487698e-12,
+    5.684341886080801e-13
+   ],
+   "min_slope": 0.504340495030897
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student03.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 343.3686859141638,
+   "fy": 342.8620175027866,
+   "cx": 318.38075120839545,
+   "cy": 232.42525910582842,
+   "k1": -0.2902829211582799,
+   "k2": 0.06321109458753046,
+   "p1": -0.003026678489152544,
+   "p2": 0.0029529666420647343,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 405.8721393765433,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    2.579877521005342,
+    1.34447883222262,
+    6.936210308806864,
+    3.8970469206709497
+   ],
+   "round_trip_100_px": [
+    8.87922587470104e-13,
+    4.43961293735052e-13,
+    5.684341886080801e-13,
+    7.896940126926099e-13
+   ],
+   "min_slope": 0.40012305323714037
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student04.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 345.08434536958475,
+   "fy": 344.6780458003162,
+   "cx": 306.0134238805845,
+   "cy": 211.59013492330752,
+   "k1": -0.3096834302203139,
+   "k2": 0.08668990258718155,
+   "p1": 0.0044801569122611285,
+   "p2": 0.0012299677093464464,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 428.47507360225563,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.41784754937465235,
+    0.6269844815174889,
+    4.184881396047421,
+    23.51940917618547
+   ],
+   "round_trip_100_px": [
+    8.829047469026288e-13,
+    8.043896115216799e-13,
+    7.731540852509763e-13,
+    1.7626973983631183e-06
+   ],
+   "min_slope": 0.5021712929391131
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student05.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 336.05524233351946,
+   "fy": 336.35302112061726,
+   "cx": 304.1570269404827,
+   "cy": 240.24862673512197,
+   "k1": -0.27787947813825625,
+   "k2": 0.056341143696833344,
+   "p1": 0.0025014056638618023,
+   "p2": 0.0004460662464446782,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 412.9284504627498,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    2.0741985433244756,
+    7.827798102052365,
+    1.0038049234117858,
+    5.205350719079035
+   ],
+   "round_trip_100_px": [
+    6.310643616181585e-13,
+    2.3785115043632466e-10,
+    7.279509460923746e-13,
+    8.198074455012805e-13
+   ],
+   "min_slope": 0.38326328378222996
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student06.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 329.2711432274184,
+   "fy": 328.31604772422725,
+   "cx": 301.01055230830747,
+   "cy": 234.22079156940706,
+   "k1": -0.25021601106753694,
+   "k2": 0.03834687879420833,
+   "p1": 0.0004163005355542228,
+   "p2": 0.00993088776865545,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 418.7138222498603,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.625207495310366,
+    3.809841917718939,
+    4.644649461476961,
+    6.834301656156111
+   ],
+   "round_trip_100_px": [
+    8.261873662006925e-13,
+    8.526512829121202e-13,
+    7.740837351845866e-10,
+    8.198074455012805e-13
+   ],
+   "min_slope": 0.26529552425603664
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student07.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 327.86999566102844,
+   "fy": 328.1973292373319,
+   "cx": 295.98511852306206,
+   "cy": 208.20876994282509,
+   "k1": -0.27650165000582316,
+   "k2": 0.057502799730271746,
+   "p1": 0.0039095161656723665,
+   "p2": 0.004408293725672918,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 438.4252632018185,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.2127137423665715,
+    3.4593908908712776,
+    4.815963851649047,
+    34.318492515711135
+   ],
+   "round_trip_100_px": [
+    5.518497755175417e-13,
+    6.938623537128991e-13,
+    8.87922587470104e-13,
+    9.25343817704044e-13
+   ],
+   "min_slope": 0.4017000344984907
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student09.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 337.09560249306696,
+   "fy": 334.68587781057727,
+   "cx": 313.9131597014713,
+   "cy": 241.45824304422663,
+   "k1": -0.2936598039456729,
+   "k2": 0.07055220179420903,
+   "p1": -0.0008341311994723024,
+   "p2": 0.00017181273409731126,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 405.7520308635349,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.0929158625393887,
+    0.9190052537235476,
+    1.443228663061679,
+    0.056475978114706664
+   ],
+   "round_trip_100_px": [
+    8.526512829121202e-13,
+    8.526512829121202e-13,
+    8.87922587470104e-13,
+    9.779711566628324e-13
+   ],
+   "min_slope": 0.44996420793116754
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student10.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 340.14244728460204,
+   "fy": 341.6360145795056,
+   "cx": 321.0296797899084,
+   "cy": 228.2895063104939,
+   "k1": -0.30663025185923287,
+   "k2": 0.07249104089277018,
+   "p1": 0.0004286025590341287,
+   "p2": -0.0006969694341691484,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 407.94390293204043,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    2.9399941161061065,
+    3.3551789044208693,
+    0.9316762999568038,
+    0.6472362457211321
+   ],
+   "round_trip_100_px": [
+    9.310008041529271e-13,
+    8.87922587470104e-13,
+    4.98131719839851e-10,
+    1.317425914719335e-10
+   ],
+   "min_slope": 0.4163423565614671
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student11.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 335.0338715046725,
+   "fy": 333.38310472885007,
+   "cx": 311.65045718345453,
+   "cy": 240.6747706095365,
+   "k1": -0.279536556433814,
+   "k2": 0.060133034348809636,
+   "p1": -0.00010711338533919427,
+   "p2": 0.003971277753917167,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 407.1090363474968,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    3.5320454799858885,
+    2.008280532000707,
+    3.3180014153553525,
+    2.0553085964490507
+   ],
+   "round_trip_100_px": [
+    9.498975809417745e-13,
+    8.3590755195091e-13,
+    6.042538309847401e-13,
+    9.779711566628324e-13
+   ],
+   "min_slope": 0.4152414020319153
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student12.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 341.8093054355943,
+   "fy": 340.8285403161368,
+   "cx": 321.868962730562,
+   "cy": 233.5498198910998,
+   "k1": -0.30251268208033877,
+   "k2": 0.07253646205518528,
+   "p1": -0.002658974186792762,
+   "p2": -0.0002742916985828808,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 405.3853974244228,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.5585480323962275,
+    1.7412850510782747,
+    0.8368526885914844,
+    2.0914616461939373
+   ],
+   "round_trip_100_px": [
+    8.3590755195091e-13,
+    9.947598300641403e-13,
+    9.779711566628324e-13,
+    8.198074455012805e-13
+   ],
+   "min_slope": 0.43226807474996665
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student13.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 356.0511336931569,
+   "fy": 351.1888540238289,
+   "cx": 316.43804690232236,
+   "cy": 226.73704274586706,
+   "k1": -0.31037434669055186,
+   "k2": 0.06738592442967015,
+   "p1": -0.004543048546982138,
+   "p2": 3.591632441187578e-05,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 410.8947103693263,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.5870405896146005,
+    2.7281424440671604,
+    12.961225034608708,
+    15.158153716942309
+   ],
+   "round_trip_100_px": [
+    5.859285502108464e-13,
+    8.87922587470104e-13,
+    1.6713541963198314e-09,
+    6.837892214863982e-07
+   ],
+   "min_slope": 0.35669791361770853
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student14.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 334.35389266439233,
+   "fy": 336.22488648063916,
+   "cx": 325.3398475967586,
+   "cy": 226.6185917092638,
+   "k1": -0.25637786279794833,
+   "k2": 0.04858931303117129,
+   "p1": 0.006959117351948697,
+   "p2": -0.00026287411252893904,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 412.3689543378343,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.5608272342190608,
+    0.34506175614528284,
+    1.4799694793852507,
+    0.6123763231152791
+   ],
+   "round_trip_100_px": [
+    6.481146926371013e-13,
+    6.629024818318272e-13,
+    8.038873388460929e-13,
+    5.684341886080801e-13
+   ],
+   "min_slope": 0.39125865355866796
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student15.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 325.1361401992288,
+   "fy": 326.9363784862604,
+   "cx": 330.4706013095231,
+   "cy": 220.21721785059793,
+   "k1": -0.298794297398206,
+   "k2": 0.07129152793691224,
+   "p1": 0.002317308796225969,
+   "p2": -0.00024117558578172705,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 420.35450780402186,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    5.795651282603441,
+    2.2550158389264277,
+    51.046376676612226,
+    10.941693475062454
+   ],
+   "round_trip_100_px": [
+    1.0891131548349664e-07,
+    8.3590755195091e-13,
+    5.362597410144533e-13,
+    2.024096311741964e-06
+   ],
+   "min_slope": 0.4364671985833355
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student16.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 337.6481574073699,
+   "fy": 337.77809614425115,
+   "cx": 315.69541512943016,
+   "cy": 234.22882319923795,
+   "k1": -0.2730374748328541,
+   "k2": 0.05286121004680574,
+   "p1": -0.0015504531496608484,
+   "p2": 0.0016362208681776503,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 406.9114585682051,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.979133049574801,
+    2.3009483059823808,
+    5.241438467551556,
+    5.333540429071219
+   ],
+   "round_trip_100_px": [
+    7.105427357601002e-13,
+    8.198074455012805e-13,
+    6.629024818318272e-13,
+    8.198074455012805e-13
+   ],
+   "min_slope": 0.3653709750648213
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student17.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 327.89210223024594,
+   "fy": 328.25704323647676,
+   "cx": 316.7349450842115,
+   "cy": 225.76424342900162,
+   "k1": -0.25407519197244866,
+   "k2": 0.05060199343661817,
+   "p1": 0.00014469782150525464,
+   "p2": -0.006242718097402176,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 411.2616146067314,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.14425419104540455,
+    1.9941378983106353,
+    0.8626174070925867,
+    4.856405734450986
+   ],
+   "round_trip_100_px": [
+    5.362597410144533e-13,
+    9.617295015509985e-13,
+    7.279509460923746e-13,
+    8.87922587470104e-13
+   ],
+   "min_slope": 0.42592397150136485
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student18.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 346.6483027609697,
+   "fy": 345.37205255349375,
+   "cx": 324.21133611569974,
+   "cy": 220.5320356778402,
+   "k1": -0.3186436315238003,
+   "k2": 0.09313430009900388,
+   "p1": 0.00056243968873674,
+   "p2": 0.003123982982238156,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 415.2548795323335,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.3433987606060338,
+    0.07498638703758108,
+    18.94396111094094,
+    7.3018566377622545
+   ],
+   "round_trip_100_px": [
+    8.526512829121202e-13,
+    9.779711566628324e-13,
+    2.504115092707933e-07,
+    8.526512829121202e-13
+   ],
+   "min_slope": 0.5094160400154517
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student19.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 329.0571654310188,
+   "fy": 328.1230310417648,
+   "cx": 301.7668724665805,
+   "cy": 225.11070710115493,
+   "k1": -0.28420813647863225,
+   "k2": 0.060437896961557366,
+   "p1": -0.0016934781985984023,
+   "p2": -0.0017567448000021433,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 423.52119214451557,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.9092070666411499,
+    3.419892273129775,
+    4.34881442977866,
+    24.154061844545556
+   ],
+   "round_trip_100_px": [
+    5.684341886080801e-13,
+    1.257609730898762e-08,
+    6.844854043943255e-13,
+    9.165725883006586e-13
+   ],
+   "min_slope": 0.398582330002228
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student20.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 342.41383547439483,
+   "fy": 341.7902231166189,
+   "cx": 311.2878437156164,
+   "cy": 242.094029031817,
+   "k1": -0.28288219368177686,
+   "k2": 0.058534194769210325,
+   "p1": -0.004331670455142724,
+   "p2": -9.001897373056277e-05,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 408.2415958497949,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.2288541926985979,
+    3.586992301053233,
+    2.365463335247438,
+    6.556121398694804
+   ],
+   "round_trip_100_px": [
+    5.429959962425187e-13,
+    8.198074455012805e-13,
+    6.481146926371013e-13,
+    8.198074455012805e-13
+   ],
+   "min_slope": 0.3848031715905593
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student21.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 335.3498904864513,
+   "fy": 335.96053805594113,
+   "cx": 322.3086137386839,
+   "cy": 232.10616285757516,
+   "k1": -0.2859706103501032,
+   "k2": 0.05991145042272252,
+   "p1": 0.0023936765798360203,
+   "p2": 0.0019220021899220097,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 406.61308019214925,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    7.51528901285073,
+    3.7501280080122874,
+    6.407355775493268,
+    3.827511593003875
+   ],
+   "round_trip_100_px": [
+    8.526512829121202e-13,
+    7.279509460923746e-13,
+    2.315307184203959e-11,
+    6.431098710768743e-13
+   ],
+   "min_slope": 0.3857495482620248
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student22.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 339.36402403867186,
+   "fy": 339.6157512717742,
+   "cx": 295.8259379425389,
+   "cy": 224.3267449474188,
+   "k1": -0.31826606503544824,
+   "k2": 0.08929805882966739,
+   "p1": 0.0035463460135660135,
+   "p2": 3.903638142375206e-05,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 428.7477094309838,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.643701319413278,
+    23.170132089445783,
+    1.8318436544561851,
+    55.54447416380891
+   ],
+   "round_trip_100_px": [
+    5.362597410144533e-13,
+    3.405463069155584e-05,
+    6.042538309847401e-13,
+    6.431098710768743e-13
+   ],
+   "min_slope": 0.4895524016673797
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student23.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 341.04623604909847,
+   "fy": 341.2052073142902,
+   "cx": 316.0690408928935,
+   "cy": 223.1243605655118,
+   "k1": -0.2608853962530333,
+   "k2": 0.046320291745142676,
+   "p1": 0.003533961857346982,
+   "p2": -0.0030476973065270293,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 413.4203192913081,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.10826976131504752,
+    0.6726638515982202,
+    0.8986628643652897,
+    4.994884717330795
+   ],
+   "round_trip_100_px": [
+    6.487375805200672e-13,
+    8.198074455012805e-13,
+    6.844854043943255e-13,
+    8.87922587470104e-13
+   ],
+   "min_slope": 0.3387879407753035
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student24.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 333.5286637512865,
+   "fy": 333.189212358795,
+   "cx": 330.3534873499982,
+   "cy": 239.33572821238482,
+   "k1": -0.2577396607750466,
+   "k2": 0.04490883303253766,
+   "p1": -0.0005276829866400324,
+   "p2": -0.0009192742899472147,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 408.72083176585033,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    5.237965613642305,
+    0.5880563568643369,
+    5.98440561658662,
+    0.7617122573400004
+   ],
+   "round_trip_100_px": [
+    8.676771314227237e-13,
+    8.700014782910993e-13,
+    9.323013879825752e-13,
+    8.87922587470104e-13
+   ],
+   "min_slope": 0.33435411896024625
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student25.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 337.428885411088,
+   "fy": 340.0852215034362,
+   "cx": 334.00815399409686,
+   "cy": 210.00324221721866,
+   "k1": -0.28023305966815953,
+   "k2": 0.05789317107283844,
+   "p1": 0.004077821227711355,
+   "p2": -0.008838352126998463,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 429.48771361676717,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.9970111477008747,
+    0.6067933759405011,
+    1.501480249492949,
+    9.032488175264623
+   ],
+   "round_trip_100_px": [
+    8.531248465603559e-13,
+    7.105427357601002e-13,
+    1.9443440779113043e-12,
+    1.753138033218532e-11
+   ],
+   "min_slope": 0.3895868057782228
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student26.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 359.2459811639078,
+   "fy": 358.9605852354897,
+   "cx": 300.41110807692496,
+   "cy": 234.99001149323536,
+   "k1": -0.354188020457545,
+   "k2": 0.1290139991780708,
+   "p1": -0.0014210791708407994,
+   "p2": -0.0072148413910213816,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 418.7487432645343,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.0903852971322423,
+    29.765438696328065,
+    2.314570201319516,
+    43.029260638151165
+   ],
+   "round_trip_100_px": [
+    7.56786389257192e-13,
+    1.0306146410709708e-05,
+    7.279509460923746e-13,
+    0.004310401330560918
+   ],
+   "min_slope": 0.562434157649803
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student27.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 326.7644873196855,
+   "fy": 328.61701585955575,
+   "cx": 322.6069171427859,
+   "cy": 252.43856953459968,
+   "k1": -0.27072162762886287,
+   "k2": 0.05660477379769903,
+   "p1": 0.0007965190627707954,
+   "p2": -0.0032330849385520093,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 409.6345375783727,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.636837201695434,
+    4.577752982860554,
+    1.498594843937617,
+    2.549949045178402
+   ],
+   "round_trip_100_px": [
+    9.779711566628324e-13,
+    1.7400029565821986e-12,
+    7.279509460923746e-13,
+    8.198074455012805e-13
+   ],
+   "min_slope": 0.41735320832573686
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student28.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 340.5679896101422,
+   "fy": 337.56534938798774,
+   "cx": 318.68811992315494,
+   "cy": 239.33305789027168,
+   "k1": -0.2689695958995726,
+   "k2": 0.047935739729299556,
+   "p1": -0.0036304437621545223,
+   "p2": 0.0023181868949544906,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 401.4497494120082,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    2.9632907336825656,
+    1.4740495819065635,
+    7.594963390357907,
+    4.164604401263961
+   ],
+   "round_trip_100_px": [
+    6.65941940602578e-13,
+    8.198074455012805e-13,
+    8.87922587470104e-13,
+    5.684341886080801e-13
+   ],
+   "min_slope": 0.3208597644934421
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student29.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 334.97818884094795,
+   "fy": 335.3297479030311,
+   "cx": 313.29392388486093,
+   "cy": 244.09039013364026,
+   "k1": -0.31596381884509206,
+   "k2": 0.08537707395082988,
+   "p1": 0.0017969765573573795,
+   "p2": -0.0008975718974891134,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 407.8197870703967,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    8.096443178748302,
+    24.03236082885818,
+    3.217779096782637,
+    12.574295589178709
+   ],
+   "round_trip_100_px": [
+    4.753697529551906e-10,
+    0.0003311786694103111,
+    8.87922587470104e-13,
+    4.2104553828117906e-08
+   ],
+   "min_slope": 0.4738059224996578
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student30.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 335.3380310737221,
+   "fy": 334.89243283059807,
+   "cx": 293.01932715705954,
+   "cy": 229.781799520584,
+   "k1": -0.29234133568380877,
+   "k2": 0.06967375963818878,
+   "p1": -0.0019667989418279386,
+   "p2": 0.003025359944765341,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 427.79052721828344,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.5432198007556375,
+    6.776063172099953,
+    2.030017291011407,
+    25.56926043872304
+   ],
+   "round_trip_100_px": [
+    7.902053070243849e-13,
+    1.8833528607697443e-10,
+    5.684341886080801e-13,
+    0.0024848215254023934
+   ],
+   "min_slope": 0.44801951796107664
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student31.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 331.64367360364326,
+   "fy": 333.004863613546,
+   "cx": 301.10753735849573,
+   "cy": 212.52735223226966,
+   "k1": -0.2826856401564179,
+   "k2": 0.05406254405874516,
+   "p1": 0.0010910258655603868,
+   "p2": 0.0039919558421688955,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 431.7287557472906,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.7523299901351663,
+    8.694151595063504,
+    19.736233627165987,
+    8.161337124312926
+   ],
+   "round_trip_100_px": [
+    7.262845167122485e-13,
+    9.310008041529271e-13,
+    2.8862062017937988e-05,
+    7.731540852509763e-13
+   ],
+   "min_slope": 0.3348439734056943
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student32.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 333.00090669348396,
+   "fy": 333.6527608694986,
+   "cx": 321.20578965770414,
+   "cy": 233.37392098130243,
+   "k1": -0.2940898238212065,
+   "k2": 0.07574683641080979,
+   "p1": 0.004014035708735969,
+   "p2": -0.0008913049917689292,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 404.9661494023496,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.5925894101386255,
+    0.7583029606861466,
+    3.9001874772008263,
+    2.95368793320593
+   ],
+   "round_trip_100_px": [
+    7.902053070243849e-13,
+    6.938623537128991e-13,
+    7.279509460923746e-13,
+    8.198074455012805e-13
+   ],
+   "min_slope": 0.4861835446845071
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student33.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 341.2797434325478,
+   "fy": 339.3776827452424,
+   "cx": 338.2548851819201,
+   "cy": 249.84597885536587,
+   "k1": -0.27812757636327395,
+   "k2": 0.054338332765937844,
+   "p1": -0.0014177707739524421,
+   "p2": -0.0019339057493329866,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 420.5227467089383,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    8.313438831379298,
+    1.7582222159761856,
+    6.646680220045834,
+    0.16672402820648044
+   ],
+   "round_trip_100_px": [
+    4.1775314866483707e-10,
+    7.279509460923746e-13,
+    6.629024818318272e-13,
+    6.431098710768743e-13
+   ],
+   "min_slope": 0.35938912473235607
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student34.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 339.45213515398973,
+   "fy": 342.40970067919056,
+   "cx": 336.0522827051348,
+   "cy": 240.64586769194193,
+   "k1": -0.28553407364316546,
+   "k2": 0.06772650459371285,
+   "p1": -0.005367322031909311,
+   "p2": -0.004389291373344575,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 413.32985658979374,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.5845289514056418,
+    0.6323859106934422,
+    0.2247795184597793,
+    1.5937477185996252
+   ],
+   "round_trip_100_px": [
+    7.279509460923746e-13,
+    4.263256414560601e-13,
+    7.731540852509763e-13,
+    5.362597410144533e-13
+   ],
+   "min_slope": 0.4582864058299253
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student35.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 338.1569447644291,
+   "fy": 337.808814126279,
+   "cx": 328.3007214671708,
+   "cy": 241.32862215849931,
+   "k1": -0.2964545809672794,
+   "k2": 0.06004777953325259,
+   "p1": 0.0008182204064634829,
+   "p2": -0.004502840911262271,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 407.45658368565427,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    10.91156457057982,
+    17.01902109189684,
+    9.210767585483703,
+    13.271131649958214
+   ],
+   "round_trip_100_px": [
+    3.180390089246038e-07,
+    1.3403961953089423e-07,
+    1.4856481987797605e-09,
+    4.2774740678188354e-10
+   ],
+   "min_slope": 0.3413845831146628
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student36.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 308.8342287761344,
+   "fy": 305.7716795640076,
+   "cx": 275.6140564078805,
+   "cy": 187.33976810354895,
+   "k1": -0.31861098922221076,
+   "k2": 0.07243780700691406,
+   "p1": -0.0019954169130268922,
+   "p2": 0.0018634449719041539,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 467.3618803680974,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.9536183339076827,
+    158.8373928435931,
+    166.5481995126695,
+    525.9923073427683
+   ],
+   "round_trip_100_px": [
+    9.617295015509985e-13,
+    9.165725883006586e-13,
+    6.148555841259604e-13,
+    6.629024818318272e-13
+   ],
+   "min_slope": 0.3693785749251065
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student37.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 335.49173822619645,
+   "fy": 335.1659752083184,
+   "cx": 326.30899199883015,
+   "cy": 241.73728932575688,
+   "k1": -0.3063600229773526,
+   "k2": 0.07065963989695488,
+   "p1": 0.00033088163554534865,
+   "p2": -0.004912491400382529,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 406.09663297035263,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    2.9680049153423047,
+    6.107853551244592,
+    0.9457056048911548,
+    6.5363636994252
+   ],
+   "round_trip_100_px": [
+    3.0363403511734966e-08,
+    2.1054443116911114e-07,
+    1.747465900818776e-10,
+    3.939243021239816e-09
+   ],
+   "min_slope": 0.402269687355983
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student38.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 336.4867360351726,
+   "fy": 336.5390234886445,
+   "cx": 338.64964191472876,
+   "cy": 231.365883508302,
+   "k1": -0.28573783905164063,
+   "k2": 0.06794454234709019,
+   "p1": 0.0008672015381142067,
+   "p2": -0.006141877909537522,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 420.12201067378186,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.0623295100540946,
+    1.1028173669940315,
+    5.012962186216666,
+    1.7630759870533939
+   ],
+   "round_trip_100_px": [
+    7.262845167122485e-13,
+    6.042538309847401e-13,
+    5.240704272917405e-13,
+    8.87922587470104e-13
+   ],
+   "min_slope": 0.45925383550655907
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student39.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 353.07793017284575,
+   "fy": 352.6441534488049,
+   "cx": 341.11516510785884,
+   "cy": 239.00978516008274,
+   "k1": -0.3043411053644508,
+   "k2": 0.0664757501613035,
+   "p1": -0.002035650561032208,
+   "p2": 0.0007746437201039451,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 417.6551681892028,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    8.01633763182494,
+    0.35839541540490477,
+    10.662125887721123,
+    0.7459427684848895
+   ],
+   "round_trip_100_px": [
+    2.250137415512405e-09,
+    6.635114874557503e-13,
+    7.796094414587615e-07,
+    3.2155493553843715e-13
+   ],
+   "min_slope": 0.37299573636087346
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/student40.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 334.1992418562972,
+   "fy": 331.5312696831641,
+   "cx": 317.4592257243423,
+   "cy": 264.2925981489465,
+   "k1": -0.2847545354808918,
+   "k2": 0.06218762174336025,
+   "p1": -0.00361839567736127,
+   "p2": 0.0024864460675826506,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 416.9929597806914,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.43527996360150156,
+    2.414125054286316,
+    2.8571007274505424,
+    1.9190035938247823
+   ],
+   "round_trip_100_px": [
+    6.633507277575374e-10,
+    1.2872710232583003e-10,
+    5.684341886080801e-13,
+    5.684341886080801e-13
+   ],
+   "min_slope": 0.41325436743107113
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/swaggyduck.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 417.29548148811006,
+   "fy": 412.7866000206736,
+   "cx": 317.13130946855233,
+   "cy": 229.5351497652181,
+   "k1": -0.4018924001772177,
+   "k2": 0.12437282085086382,
+   "p1": -0.0007244642021021898,
+   "p2": 0.004901329322975011,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 408.62798794089406,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.8101042144654147,
+    0.34872470595621474,
+    2.965409886178827,
+    1.3641380599805062
+   ],
+   "round_trip_100_px": [
+    4.62671908852022e-13,
+    5.684341886080801e-13,
+    7.279509460923746e-13,
+    8.198074455012805e-13
+   ],
+   "min_slope": 0.41560483184862007
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/tianlu.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 327.7402856801207,
+   "fy": 326.55854654129206,
+   "cx": 307.60750536781586,
+   "cy": 235.7533456441121,
+   "k1": -0.30117367122208927,
+   "k2": 0.08240101883856908,
+   "p1": 0.007511850692533384,
+   "p2": -0.0020675900294327143,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 412.4817555381706,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    3.6397971946154164,
+    30.979729270687447,
+    3.5367768188677613,
+    24.352570688267544
+   ],
+   "round_trip_100_px": [
+    6.938623537128991e-13,
+    0.0017933385133484926,
+    9.779711566628324e-13,
+    5.691644736975587e-06
+   ],
+   "min_slope": 0.5046479803418441
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/tick.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 334.74409575360653,
+   "fy": 333.9447153002867,
+   "cx": 307.8066846524376,
+   "cy": 222.00623016612903,
+   "k1": -0.2951354989214863,
+   "k2": 0.07103422659049073,
+   "p1": -0.0007442832906448084,
+   "p2": 0.0006014471028953532,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 420.61048968695184,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.0445561363714622,
+    0.18436923524828952,
+    0.46315256226118656,
+    19.009111056871177
+   ],
+   "round_trip_100_px": [
+    8.987733679556354e-13,
+    9.617295015509985e-13,
+    8.87922587470104e-13,
+    0.00016787089767575817
+   ],
+   "min_slope": 0.44819229968820073
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/tori.yaml",
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/tori.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core",
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 332.68049673742615,
+   "fy": 332.54200587928034,
+   "cx": 316.3789126633995,
+   "cy": 230.15287278212577,
+   "k1": -0.2893805193683299,
+   "k2": 0.06300467024846944,
+   "p1": 0.0006589907956965329,
+   "p2": -0.0007195182490690304,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 408.84495245502086,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    3.604750548408872,
+    4.869855662486548,
+    3.4556059295425077,
+    2.3176243003570636
+   ],
+   "round_trip_100_px": [
+    7.105427357601002e-13,
+    8.3590755195091e-13,
+    2.069131678945416e-12,
+    7.087748471718602e-09
+   ],
+   "min_slope": 0.4018937312212735
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/trick.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 345.02685817880945,
+   "fy": 344.85188171288706,
+   "cx": 324.8715446875465,
+   "cy": 234.20158046311514,
+   "k1": -0.2863513812318843,
+   "k2": 0.05967565168392586,
+   "p1": 4.466555512579875e-05,
+   "p2": -0.002383527149738499,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 407.3799008229333,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    2.463349105316385,
+    2.1412392375242266,
+    3.7995252004054314,
+    3.858650215339205
+   ],
+   "round_trip_100_px": [
+    7.902053070243849e-13,
+    8.700014782910993e-13,
+    8.198074455012805e-13,
+    8.526512829121202e-13
+   ],
+   "min_slope": 0.38167912630922796
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/vickie.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 330.9129775551541,
+   "fy": 330.73284871204453,
+   "cx": 299.8922433716875,
+   "cy": 217.31822731298004,
+   "k1": -0.3059258314298391,
+   "k2": 0.07115793461777004,
+   "p1": 0.0017087526061166853,
+   "p2": 0.006219920511788427,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 429.73829224394075,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    4.884987772111609,
+    5.171608450045979,
+    1.5173326978174375,
+    64.04509164958434
+   ],
+   "round_trip_100_px": [
+    7.902053070243849e-13,
+    8.703239831061611e-08,
+    6.572237807128121e-05,
+    9.646648066153113e-13
+   ],
+   "min_slope": 0.4081366094408997
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/waddlepower.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 343.03368304902483,
+   "fy": 343.3397534426179,
+   "cx": 322.2403508903929,
+   "cy": 234.86598966509504,
+   "k1": -0.24576126660980122,
+   "k2": 0.03914812544598398,
+   "p1": 0.00015780503344888443,
+   "p2": 0.00021825475995959694,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 404.88211465170554,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.3415138173192588,
+    0.21266983237668177,
+    0.2654500838893196,
+    0.31085394616944073
+   ],
+   "round_trip_100_px": [
+    7.105427357601002e-13,
+    3.0212691549237007e-13,
+    9.323013879825752e-13,
+    6.938623537128991e-13
+   ],
+   "min_slope": 0.3057299739206345
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/wama.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 343.6568610346225,
+   "fy": 343.7918965619295,
+   "cx": 335.55794702610586,
+   "cy": 246.25387569951948,
+   "k1": -0.2638680114221448,
+   "k2": 0.04981860090704426,
+   "p1": 0.0019960262973482503,
+   "p2": 0.0004172008021564376,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 416.22122376136616,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    5.44972908095179,
+    0.06788090165372114,
+    1.7676764775078466,
+    0.029732828724894775
+   ],
+   "round_trip_100_px": [
+    8.700014782910993e-13,
+    8.87922587470104e-13,
+    9.46063038162108e-13,
+    4.43961293735052e-13
+   ],
+   "min_slope": 0.3710813477195175
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/yaf.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 337.57243586243413,
+   "fy": 337.16413394306767,
+   "cx": 323.1954772621967,
+   "cy": 225.95094133594554,
+   "k1": -0.3069098559412382,
+   "k2": 0.08562005643704901,
+   "p1": -0.00020581393125126689,
+   "p2": -0.001054715579370404,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 411.09152354534297,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    2.3068832090151963,
+    0.8171108571655523,
+    13.952732470648414,
+    9.176797937988288
+   ],
+   "round_trip_100_px": [
+    8.043896115216799e-13,
+    8.700014782910993e-13,
+    2.3894547510980576e-09,
+    2.1305971972826868e-11
+   ],
+   "min_slope": 0.5049390457829328
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/zanthar.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 332.09944163913735,
+   "fy": 335.41249058785723,
+   "cx": 322.3493988196422,
+   "cy": 241.26993426964665,
+   "k1": -0.30205246626623306,
+   "k2": 0.0780986890091533,
+   "p1": 0.00030609995029127877,
+   "p2": 0.001009237945974787,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 402.64167208805446,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    7.331453906253298,
+    3.421812952900709,
+    5.423017912725813,
+    2.318754964196107
+   ],
+   "round_trip_100_px": [
+    2.0861534721916541e-10,
+    7.46036036412459e-13,
+    7.685642249635512e-12,
+    9.779711566628324e-13
+   ],
+   "min_slope": 0.4743053685080385
+  },
+  {
+   "sources": [
+    "duckietown/duckiefleet/56a3b0dfc6a15d3eb950ad766b84fea516ee9657/calibrations/camera_intrinsic/zoe.yaml"
+   ],
+   "repos": [
+    "duckietown/duckiefleet"
+   ],
+   "duckiebot": true,
+   "fx": 337.3092553690036,
+   "fy": 336.85901913795016,
+   "cx": 314.1137093251905,
+   "cy": 217.29382862441514,
+   "k1": -0.26797875490095663,
+   "k2": 0.05000315164795536,
+   "p1": 0.0013671143837104543,
+   "p2": -0.0004467441984923973,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 418.5885891046298,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.08130332738596414,
+    1.2643631302100973,
+    5.559780772135932,
+    9.856672975065248
+   ],
+   "round_trip_100_px": [
+    8.3590755195091e-13,
+    8.043896115216799e-13,
+    9.25343817704044e-13,
+    1.789773514681195e-11
+   ],
+   "min_slope": 0.3537272187887084
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/2cv.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 313.96138047825696,
+   "fy": 316.4669914429712,
+   "cx": 304.05329341210603,
+   "cy": 225.79847068204063,
+   "k1": -0.2633678798877012,
+   "k2": 0.04597929927791968,
+   "p1": -0.0042953804026178875,
+   "p2": 0.0008000047123363624,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 421.28209928127956,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    3.8430346604733843,
+    15.867856527556679,
+    27.946399053309474,
+    8.455821683561192
+   ],
+   "round_trip_100_px": [
+    8.078967768797097e-13,
+    0.0001539674419479326,
+    0.03787037847659132,
+    5.240704272917405e-13
+   ],
+   "min_slope": 0.3211469389765581
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/ada.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 318.2765386206801,
+   "fy": 325.30025245737306,
+   "cx": 321.26181611176105,
+   "cy": 239.94428134440363,
+   "k1": -0.2720813316859305,
+   "k2": 0.04811261938081579,
+   "p1": 0.0029841039409895884,
+   "p2": 0.0006559066338705289,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 401.043517028616,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    34.19968337194426,
+    27.74891501797935,
+    22.251867064549025,
+    17.174403276354603
+   ],
+   "round_trip_100_px": [
+    7.6474998690365e-13,
+    0.04164808091019983,
+    0.0014417193013319435,
+    1.751969426955662e-06
+   ],
+   "min_slope": 0.307609658472736
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/amadobot.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 397.1765685437951,
+   "fy": 403.5246487733685,
+   "cx": 316.25888289102244,
+   "cy": 221.49503136657015,
+   "k1": -0.36791889889529594,
+   "k2": 0.08771239068724,
+   "p1": 0.0009686913859654071,
+   "p2": 0.0031008252290399083,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 414.286289557281,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.012560904972047931,
+    0.24247325380995122,
+    10.811350635397519,
+    7.919963748822336
+   ],
+   "round_trip_100_px": [
+    7.56786389257192e-13,
+    3.4224270219716276e-13,
+    1.8198773652309366e-12,
+    8.198074455012805e-13
+   ],
+   "min_slope": 0.30552637113926473
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/argo.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 326.7433499870809,
+   "fy": 329.3194474460529,
+   "cx": 318.79164970077073,
+   "cy": 242.69475708724352,
+   "k1": -0.2676815989970995,
+   "k2": 0.05218750012757095,
+   "p1": 0.0008576169767062387,
+   "p2": 7.069501276422123e-05,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 402.58607703146976,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    5.699347591197692,
+    5.906903531763745,
+    3.9142886114287405,
+    4.133717853051086
+   ],
+   "round_trip_100_px": [
+    8.078967768797097e-13,
+    8.3590755195091e-13,
+    9.680085421408877e-13,
+    5.684341886080801e-13
+   ],
+   "min_slope": 0.3821499936235324
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/ayrton.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 311.7988956380745,
+   "fy": 312.6042125497562,
+   "cx": 336.0057559340068,
+   "cy": 214.01672400890533,
+   "k1": -0.25808949729807323,
+   "k2": 0.04532102029678069,
+   "p1": 0.0031704059471976214,
+   "p2": 0.00015554640504610238,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 428.54051281966116,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    19.334874762975467,
+    2.3342537251912905,
+    30.312121061353494,
+    12.43562161848469
+   ],
+   "round_trip_100_px": [
+    0.00024331550375487595,
+    7.279509460923746e-13,
+    9.323013879825752e-13,
+    1.3991683816011698e-06
+   ],
+   "min_slope": 0.3386162828120226
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/bill.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 315.66735861905676,
+   "fy": 317.16594894267035,
+   "cx": 333.87288697272584,
+   "cy": 221.96457261345674,
+   "k1": -0.28190384155455805,
+   "k2": 0.056703482281847344,
+   "p1": -0.0010853941421764283,
+   "p2": -0.0008542909433567157,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 421.9637264529483,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.4900439880166247,
+    6.246413024625816,
+    75.53867892258563,
+    4.362175531251777
+   ],
+   "round_trip_100_px": [
+    0.0005563238613507147,
+    8.198074455012805e-13,
+    8.87922587470104e-13,
+    0.06227299550257978
+   ],
+   "min_slope": 0.36932622658395764
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/charles.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 307.15858840104016,
+   "fy": 310.3074023278187,
+   "cx": 311.8006621389836,
+   "cy": 225.0124974654555,
+   "k1": -0.27905645576138755,
+   "k2": 0.05495230219979095,
+   "p1": -0.0005717332993461644,
+   "p2": 0.0003520417735208697,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 415.61211702886374,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    9.397360980817172,
+    5.287732798093934,
+    21.00502592626455,
+    83.49926502429018
+   ],
+   "round_trip_100_px": [
+    2.353943517984931e-05,
+    5.028313697992568e-13,
+    5.084229945850415e-13,
+    8.676771314227237e-13
+   ],
+   "min_slope": 0.36230829149726773
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/chewbacca.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 315.84294416888895,
+   "fy": 317.23684551813574,
+   "cx": 321.89058905547495,
+   "cy": 235.78616992512292,
+   "k1": -0.28971351691457187,
+   "k2": 0.06433794174677274,
+   "p1": -0.0012031297781465887,
+   "p2": -0.00027911493562491734,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 404.04696029338174,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    12.19880713722909,
+    6.515079730202022,
+    24.097462469930846,
+    15.442541766279481
+   ],
+   "round_trip_100_px": [
+    0.0008636965962276377,
+    1.3771659627770173e-05,
+    6.431098710768743e-13,
+    0.037628885334445875
+   ],
+   "min_slope": 0.4129394908034463
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/cookie.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 318.2112215489262,
+   "fy": 313.6462738424372,
+   "cx": 339.7547640074441,
+   "cy": 211.72502801235638,
+   "k1": -0.2802347603390002,
+   "k2": 0.05770554466195607,
+   "p1": 0.003817048087807159,
+   "p2": 0.0007132449615482426,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 432.90271454534104,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.5306292593562936,
+    2.45079581388538,
+    109.46832377743424,
+    1.9975813581161532
+   ],
+   "round_trip_100_px": [
+    0.001538289536366018,
+    8.043896115216799e-13,
+    9.46063038162108e-13,
+    1.4133051162816975e-06
+   ],
+   "min_slope": 0.38759464775529306
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/duckmobile.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 308.19563411818757,
+   "fy": 305.74249959229263,
+   "cx": 344.1914290481888,
+   "cy": 246.32999671087626,
+   "k1": -0.28889967472575706,
+   "k2": 0.061396671030672575,
+   "p1": 0.0024755886830461287,
+   "p2": -0.0022272601279060716,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 423.256668122092,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    155.3443265697347,
+    2.982104257857613,
+    104.60116908758637,
+    4.71882311659525
+   ],
+   "round_trip_100_px": [
+    5.240704272917405e-13,
+    0.1793240502924105,
+    7.122459968594323e-13,
+    3.981164835767658e-08
+   ],
+   "min_slope": 0.3882671602015525
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/ducksolo.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 316.72059843645064,
+   "fy": 316.6553106102019,
+   "cx": 322.45760825304416,
+   "cy": 228.40434854818392,
+   "k1": -0.30748704510569047,
+   "k2": 0.09074399333897375,
+   "p1": 0.0008240583178767724,
+   "p2": 0.001678050318361568,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 408.99789846616255,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    33.45403427946142,
+    20.727082786326566,
+    65.00707550492686,
+    45.148712010707406
+   ],
+   "round_trip_100_px": [
+    0.0005402432750503615,
+    2.0880360269380742e-07,
+    6.481146926371013e-13,
+    0.05356757951437805
+   ],
+   "min_slope": 0.5311345055321426
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/duckula.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 306.37342888213914,
+   "fy": 312.8978117084266,
+   "cx": 308.2561559925181,
+   "cy": 233.9793736668529,
+   "k1": -0.2548995030999107,
+   "k2": 0.04223218280358444,
+   "p1": -0.0030250721877148894,
+   "p2": -0.00021652344838500923,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 413.0134702624292,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    10.780982642927368,
+    25.001015618534222,
+    26.76578566079906,
+    34.816098345637926
+   ],
+   "round_trip_100_px": [
+    1.0272668991317003e-11,
+    6.386984823121859e-13,
+    0.008582986285024094,
+    7.279509460923746e-13
+   ],
+   "min_slope": 0.3076798651677469
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/emma.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 315.6935394292935,
+   "fy": 319.24638911802447,
+   "cx": 324.17212110407246,
+   "cy": 201.01449793324386,
+   "k1": -0.2662832950814226,
+   "k2": 0.04811986050723841,
+   "p1": 0.0013139211723489476,
+   "p2": -0.0004259368326890423,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 427.692032266856,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    6.246172034322107,
+    3.0597329499671546,
+    26.199048695366542,
+    0.12582507520762137
+   ],
+   "round_trip_100_px": [
+    8.676771314227237e-13,
+    5.217532290852722e-13,
+    5.684341886080801e-13,
+    5.684341886080801e-13
+   ],
+   "min_slope": 0.3369046248992772
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/ernie.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 312.3315405248188,
+   "fy": 315.2212073442505,
+   "cx": 316.6683374946642,
+   "cy": 241.43372854679217,
+   "k1": -0.2822449841204083,
+   "k2": 0.061989708236957555,
+   "p1": -0.0017337564672521525,
+   "p2": -0.00025316042479965286,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 403.52646661460824,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    9.23060185770258,
+    17.532921215098597,
+    7.344413795222945,
+    15.54952137422514
+   ],
+   "round_trip_100_px": [
+    9.329748071867569e-06,
+    0.004424156704696635,
+    1.7234118015168237e-05,
+    0.008724734089772566
+   ],
+   "min_slope": 0.42171039391145926
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/feiying.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 315.4069520647808,
+   "fy": 315.4054047004445,
+   "cx": 306.2327081607269,
+   "cy": 240.48938330640172,
+   "k1": -0.24521226636067303,
+   "k2": 0.03832175347763605,
+   "p1": 0.0007485727871541754,
+   "p2": 0.00203067146133337,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 411.38272762090526,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    8.25875545719097,
+    23.307872048861984,
+    5.79781572496186,
+    19.34709940754256
+   ],
+   "round_trip_100_px": [
+    7.279509460923746e-13,
+    0.0001959221045325275,
+    8.078967768797097e-13,
+    2.855659272656696e-06
+   ],
+   "min_slope": 0.29392388012071613
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/ferrari.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 320.01662303646305,
+   "fy": 322.50098821941157,
+   "cx": 309.2304795708444,
+   "cy": 211.72347209268685,
+   "k1": -0.27438022923425975,
+   "k2": 0.05215872112103248,
+   "p1": 0.0027000386512372036,
+   "p2": -0.00018965250296526788,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 425.8882142897793,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    3.528872558606005,
+    12.906719403171435,
+    8.81993472719292,
+    23.83077116115479
+   ],
+   "round_trip_100_px": [
+    8.676771314227237e-13,
+    6.82723476575975e-09,
+    0.0011949067006149327,
+    8.676771314227237e-13
+   ],
+   "min_slope": 0.3504819740566445
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/forrest.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 316.81593186202076,
+   "fy": 320.1690022069204,
+   "cx": 325.90195533470376,
+   "cy": 234.7654555167928,
+   "k1": -0.27544970624009074,
+   "k2": 0.05269326621907823,
+   "p1": 0.0001096949315860532,
+   "p2": 0.0014327108642010076,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 407.862803279325,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    13.713020537713046,
+    9.847194410172639,
+    8.366364643195523,
+    10.85422384635736
+   ],
+   "round_trip_100_px": [
+    0.05590281347872945,
+    5.918250500489496e-10,
+    6.938623537128991e-13,
+    9.780469361516619e-07
+   ],
+   "min_slope": 0.35204921346595464
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/julie.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 319.3872569871768,
+   "fy": 318.615538642523,
+   "cx": 307.0183020903002,
+   "cy": 220.86378086574328,
+   "k1": -0.25195643225553904,
+   "k2": 0.039974174930709365,
+   "p1": 0.004708547653742009,
+   "p2": -0.0005126331989632244,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 421.9341076637727,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.4500122665642075,
+    25.871655592262474,
+    10.64440950665829,
+    32.58323442239205
+   ],
+   "round_trip_100_px": [
+    8.043896115216799e-13,
+    0.0003716881115841797,
+    4.99446346941313e-12,
+    9.646648066153113e-13
+   ],
+   "min_slope": 0.2853656209426986
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/lebeast.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 316.4726533653214,
+   "fy": 315.2847646230648,
+   "cx": 321.67155452588446,
+   "cy": 230.86822223793416,
+   "k1": -0.24517947908754184,
+   "k2": 0.04156312409112942,
+   "p1": 0.0016619329935685931,
+   "p2": -0.0002692188115163627,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 406.86512713918654,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    5.609401806461319,
+    4.424559626349063,
+    8.15907177113519,
+    7.139689344081406
+   ],
+   "round_trip_100_px": [
+    8.829047469026288e-13,
+    8.526512829121202e-13,
+    6.844854043943255e-13,
+    8.526512829121202e-13
+   ],
+   "min_slope": 0.3491625034088389
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/leon.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 319.5494466918277,
+   "fy": 321.014433026274,
+   "cx": 335.1483861636476,
+   "cy": 208.6241507126188,
+   "k1": -0.261669615322938,
+   "k2": 0.04624638515144327,
+   "p1": 0.004379664527428749,
+   "p2": -0.002489166878579965,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 431.2415707286867,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    10.321675969558454,
+    0.8410670822100533,
+    6.096858878086983,
+    15.048942913489045
+   ],
+   "round_trip_100_px": [
+    2.8131749990665455e-12,
+    6.042538309847401e-13,
+    6.629024818318272e-13,
+    1.5084674988788662e-06
+   ],
+   "min_slope": 0.33374372275353403
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/lily.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 312.63691242285097,
+   "fy": 316.8739153901084,
+   "cx": 310.02321042703403,
+   "cy": 226.49540748340675,
+   "k1": -0.2793713176343971,
+   "k2": 0.057317588662081004,
+   "p1": 0.00019571021854236434,
+   "p2": 0.0023674724507733434,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 416.112076349492,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    7.567869148879615,
+    2.3917702939152323,
+    2.8172082766332447,
+    38.05662190731895
+   ],
+   "round_trip_100_px": [
+    7.446318363714169e-10,
+    2.4931946270322217e-05,
+    0.01700947225166724,
+    6.431098710768743e-13
+   ],
+   "min_slope": 0.3872430659281507
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/littleredcorvette.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 341.23662406013136,
+   "fy": 337.0452388879819,
+   "cx": 332.6715322369311,
+   "cy": 231.85618370934947,
+   "k1": -0.2747051789220535,
+   "k2": 0.05110354043642884,
+   "p1": 0.0019192371484033455,
+   "p2": -0.001928783483057219,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 415.0249413278142,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    7.167246915255194,
+    0.8569351649630819,
+    9.054315665849511,
+    2.532065550978092
+   ],
+   "round_trip_100_px": [
+    6.310643616181585e-13,
+    8.700014782910993e-13,
+    8.078967768797097e-13,
+    8.87922587470104e-13
+   ],
+   "min_slope": 0.3354996423962837
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/magitek.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 305.19427956803503,
+   "fy": 307.89902129112147,
+   "cx": 325.0449729868689,
+   "cy": 240.03713016466358,
+   "k1": -0.23731673315881616,
+   "k2": 0.03620787542058649,
+   "p1": -0.002321332048182578,
+   "p2": 0.00017483820380579767,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 404.0693731548111,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    20.037796407592705,
+    10.742820969670744,
+    28.54673033365124,
+    16.655727035935126
+   ],
+   "round_trip_100_px": [
+    8.893277402964428e-06,
+    4.4224764378009075e-12,
+    0.011858485873026452,
+    3.055368572047493e-08
+   ],
+   "min_slope": 0.30005132788965583
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/maserati.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 306.19061682580826,
+   "fy": 311.97644426169967,
+   "cx": 334.11787072426927,
+   "cy": 224.09267939989485,
+   "k1": -0.2592515848857224,
+   "k2": 0.04720770853335733,
+   "p1": -0.00302454599047641,
+   "p2": 0.00026545785405374984,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 420.86020039205954,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    7.409053471630306,
+    3.6847776292540284,
+    39.785483680197196,
+    13.50611020643687
+   ],
+   "round_trip_100_px": [
+    0.0001450602143380609,
+    5.859285502108464e-13,
+    5.084229945850415e-13,
+    0.0002971606396078123
+   ],
+   "min_slope": 0.35931813153541015
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/megaman.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 312.2647774901193,
+   "fy": 316.7924416639175,
+   "cx": 298.7699352412828,
+   "cy": 213.1178300197452,
+   "k1": -0.2591287477939386,
+   "k2": 0.04310637693840684,
+   "p1": -0.002226968820604823,
+   "p2": 0.002797274959093028,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 433.20208880914686,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.8767623046207317,
+    18.616160062827717,
+    41.09557974575318,
+    28.50770137903756
+   ],
+   "round_trip_100_px": [
+    5.684341886080801e-13,
+    2.9193503602494538e-05,
+    6.844854043943255e-13,
+    7.731540852509763e-13
+   ],
+   "min_slope": 0.2990255570754674
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/miata.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 316.8933415791567,
+   "fy": 319.6307163026834,
+   "cx": 321.70733325450885,
+   "cy": 245.97717752973088,
+   "k1": -0.2488732421275252,
+   "k2": 0.03863535592842995,
+   "p1": 0.00031446701269484997,
+   "p2": 0.0014264000097088151,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 404.9696039645696,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    29.99752977341146,
+    17.0191295636076,
+    17.17804218185412,
+    7.7621563096883435
+   ],
+   "round_trip_100_px": [
+    0.013037327059182917,
+    7.114207310667287e-08,
+    1.0728897109606884e-07,
+    8.526512829121202e-13
+   ],
+   "min_slope": 0.2785869284457938
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/milo.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 326.13698043636697,
+   "fy": 330.8371356891141,
+   "cx": 319.6325407440365,
+   "cy": 241.45356395904486,
+   "k1": -0.2601014287439643,
+   "k2": 0.04243618165155937,
+   "p1": 0.0004876223232637172,
+   "p2": 0.0013054041893573124,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 401.1672126416191,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    17.168069673698472,
+    11.630832636538877,
+    12.746050768353442,
+    8.26467722822901
+   ],
+   "round_trip_100_px": [
+    7.358900626380295e-08,
+    3.176423266598182e-11,
+    2.7064314590886765e-10,
+    8.87922587470104e-13
+   ],
+   "min_slope": 0.2825994761523506
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/milo_rect.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 322.5309588810072,
+   "fy": 326.42912866290214,
+   "cx": 326.1897388789192,
+   "cy": 232.65743338616915,
+   "k1": -0.2674323347769451,
+   "k2": 0.04628823880332453,
+   "p1": 0.0025161911222271426,
+   "p2": -0.001002067711759875,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 409.3630308284015,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    22.179095094789908,
+    14.195435840303007,
+    21.08679292964391,
+    15.653668457754353
+   ],
+   "round_trip_100_px": [
+    4.588072818579534e-05,
+    1.0127827499402558e-09,
+    0.000449612581604469,
+    1.71689537737481e-08
+   ],
+   "min_slope": 0.30470406770382674
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/morty.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 304.74552199280834,
+   "fy": 306.04839275134395,
+   "cx": 310.13947055741346,
+   "cy": 247.3667257991389,
+   "k1": -0.261737215576948,
+   "k2": 0.05074429796471955,
+   "p1": -0.0009193761667525101,
+   "p2": 0.0016757908297210784,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 412.3084596715545,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.5432200612872362,
+    23.350888829183724,
+    6.63138500036693,
+    5.067341441672992
+   ],
+   "round_trip_100_px": [
+    5.086038466205583e-06,
+    9.779711566628324e-13,
+    1.8065756713962128e-09,
+    0.0004780341764160068
+   ],
+   "min_slope": 0.3924860970765709
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/neptunus.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 318.9157977461101,
+   "fy": 320.7995921455846,
+   "cx": 316.20843655089175,
+   "cy": 224.99133992954012,
+   "k1": -0.27200612663802953,
+   "k2": 0.04863086108427434,
+   "p1": -0.00032296923761449215,
+   "p2": 0.0012745130593098323,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 412.15336134957005,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    15.52312661031844,
+    15.585911972970315,
+    29.845568251453447,
+    23.13271990737614
+   ],
+   "round_trip_100_px": [
+    1.6698034226227805e-08,
+    1.0571839912144355e-07,
+    4.889855783314162e-13,
+    5.684341886080801e-13
+   ],
+   "min_slope": 0.31536684576212115
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/nikola.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 330.32899419163135,
+   "fy": 342.51819695488155,
+   "cx": 338.6054825167554,
+   "cy": 233.93802504071598,
+   "k1": -0.2694167520567276,
+   "k2": 0.045829701357506664,
+   "p1": 0.002928250353676708,
+   "p2": 0.0015948478144950037,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 418.56919178466546,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    37.361247867969745,
+    0.030649003252065692,
+    32.44149901329169,
+    0.5776799011877924
+   ],
+   "round_trip_100_px": [
+    6.481146926371013e-13,
+    8.3590755195091e-13,
+    0.3458656407875922,
+    8.526512829121202e-13
+   ],
+   "min_slope": 0.2872870024954707
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/oreo.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 318.69610421277093,
+   "fy": 314.23583048106553,
+   "cx": 326.3981771671353,
+   "cy": 239.6651260157668,
+   "k1": -0.27884906181402663,
+   "k2": 0.053446650747607245,
+   "p1": 0.00422681284749377,
+   "p2": -0.000841317941450484,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 405.33519673357495,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    9.96238653927292,
+    21.07545422851096,
+    5.460115491467522,
+    11.287382803778511
+   ],
+   "round_trip_100_px": [
+    8.644125458514253e-13,
+    0.21170883623528905,
+    0.02072145851403676,
+    1.3497963480642098e-06
+   ],
+   "min_slope": 0.34531800994044726
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/penguin.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 307.16887855859,
+   "fy": 311.0517649305613,
+   "cx": 316.6953797604635,
+   "cy": 212.11405304260597,
+   "k1": -0.2707062893809468,
+   "k2": 0.05279164844466736,
+   "p1": 0.001944737687023167,
+   "p2": 0.0022984357060532755,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 419.8675482166854,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    10.546054201954606,
+    6.723451075319074,
+    47.044458150714014,
+    52.64221082502952
+   ],
+   "round_trip_100_px": [
+    9.582748097084977e-09,
+    5.725394464807334e-10,
+    5.62721137192265e-13,
+    9.323013879825752e-13
+   ],
+   "min_slope": 0.37533958934483247
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/pipquack.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 319.170885343508,
+   "fy": 322.82109052899625,
+   "cx": 347.489399793102,
+   "cy": 240.89136089577443,
+   "k1": -0.26902857857184465,
+   "k2": 0.047788247575737755,
+   "p1": -0.0011623533963025302,
+   "p2": -0.001506461645571337,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 422.8209203939518,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    6.319558852050582,
+    4.2846798938515205,
+    11.699440532449897,
+    4.686378643305693
+   ],
+   "round_trip_100_px": [
+    7.059806164519512e-13,
+    8.87922587470104e-13,
+    5.084229945850415e-13,
+    8.198074455012805e-13
+   ],
+   "min_slope": 0.31846487622645125
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/pontiac.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 340.0747037880638,
+   "fy": 345.0147796419568,
+   "cx": 300.8932236709628,
+   "cy": 225.1617893363144,
+   "k1": -0.3425329008456545,
+   "k2": 0.08189151825981239,
+   "p1": -0.001529646840219255,
+   "p2": 0.004191247533830971,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 424.18854223863787,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    13.350093738750587,
+    26.003948177662338,
+    7.8190568838902506,
+    119.782305014704
+   ],
+   "round_trip_100_px": [
+    1.8240997958396858e-07,
+    8.676771314227237e-13,
+    8.87922587470104e-13,
+    7.279509460923746e-13
+   ],
+   "min_slope": 0.35526955911291036
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/quackmobile.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 313.749124376468,
+   "fy": 315.2618376365678,
+   "cx": 342.46601871967425,
+   "cy": 243.61177437407108,
+   "k1": -0.2878152378701094,
+   "k2": 0.06065126859194755,
+   "p1": 0.00431554226695094,
+   "p2": -0.0008848555098759183,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 420.27332843209024,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    115.1544043651789,
+    8.45859416838934,
+    62.01049854738773,
+    4.559086888447858
+   ],
+   "round_trip_100_px": [
+    9.898755460692427e-13,
+    1.5237100327893445e-05,
+    5.85238816540084e-13,
+    7.279509460923746e-13
+   ],
+   "min_slope": 0.38538919537001637
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/redrover.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 323.6396218979426,
+   "fy": 329.040529127523,
+   "cx": 290.3740033758671,
+   "cy": 242.06801873520013,
+   "k1": -0.2586163870859045,
+   "k2": 0.0436387338495118,
+   "p1": 0.003238641418117761,
+   "p2": 0.0034000798867961555,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 425.24729653438527,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.1794849127924911,
+    26.9217229847708,
+    0.17216747051153453,
+    16.10698329800315
+   ],
+   "round_trip_100_px": [
+    7.902053070243849e-13,
+    7.840477692374021e-13,
+    4.823324033076557e-13,
+    3.467233784810016e-05
+   ],
+   "min_slope": 0.3103123442793907
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/setlist.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 316.64344345872854,
+   "fy": 317.3529602539544,
+   "cx": 312.5161426051992,
+   "cy": 238.82895931563627,
+   "k1": -0.26705336143645064,
+   "k2": 0.04800910463486922,
+   "p1": 0.0017864811311712467,
+   "p2": 0.0013009505233069938,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 406.7052344376173,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    19.05560248080571,
+    19.36552083602533,
+    14.762015196626123,
+    14.933576280297084
+   ],
+   "round_trip_100_px": [
+    8.790343923405524e-06,
+    0.04456915865138188,
+    8.030312421325104e-08,
+    0.0007863957225027015
+   ],
+   "min_slope": 0.33152525387395415
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/sonata.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 317.3056771032321,
+   "fy": 320.0811906246113,
+   "cx": 319.258980953745,
+   "cy": 234.424211291441,
+   "k1": -0.2902350178152036,
+   "k2": 0.06951665662354099,
+   "p1": 0.002895172161259456,
+   "p2": 0.0001103249818113347,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 403.9582519254446,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    10.66795961584861,
+    11.057655857495837,
+    16.12200503103737,
+    16.527287640482644
+   ],
+   "round_trip_100_px": [
+    7.973585484174004e-07,
+    9.746185978179301e-07,
+    5.578756096326641e-06,
+    6.738376576197188e-06
+   ],
+   "min_slope": 0.45471536828977366
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/starducks.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 307.570220707646,
+   "fy": 311.0595096991042,
+   "cx": 330.3082552788771,
+   "cy": 215.03932781747554,
+   "k1": -0.2567146161988672,
+   "k2": 0.04784508975662922,
+   "p1": -0.00032897116538126197,
+   "p2": -0.0006680561066811133,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 423.4474008761785,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    6.2342642759891005,
+    2.8579162008986287,
+    33.99283223381519,
+    3.692519745432787
+   ],
+   "round_trip_100_px": [
+    9.049581184263969e-12,
+    7.279509460923746e-13,
+    6.042538309847401e-13,
+    0.00020315683322035154
+   ],
+   "min_slope": 0.3801646621365643
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/tesla.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 313.4246002298228,
+   "fy": 323.3809036610438,
+   "cx": 310.0924793761861,
+   "cy": 214.8491988593326,
+   "k1": -0.2507032413240272,
+   "k2": 0.04170180613809141,
+   "p1": -0.0009235050533103222,
+   "p2": 0.003501889369560416,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 423.2539657341558,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    1.5540569096626178,
+    3.823267786106028,
+    27.226476832444234,
+    18.320272305317424
+   ],
+   "round_trip_100_px": [
+    8.043896115216799e-13,
+    8.3590755195091e-13,
+    0.006330887302161365,
+    0.16934927363981703
+   ],
+   "min_slope": 0.32176914010978697
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/testbot.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 315.1285007704995,
+   "fy": 320.0966359930082,
+   "cx": 323.06963806572816,
+   "cy": 218.01258084028143,
+   "k1": -0.28048157543793056,
+   "k2": 0.05674481026365553,
+   "p1": -0.000988764087143394,
+   "p2": -0.00026869128565781613,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 415.94638937955773,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    6.737767457559979,
+    6.573435809172804,
+    35.633899678777524,
+    16.114826297226383
+   ],
+   "round_trip_100_px": [
+    1.0923844620293635e-09,
+    8.3590755195091e-13,
+    5.362597410144533e-13,
+    6.938623537128991e-13
+   ],
+   "min_slope": 0.37612865024117825
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/thing.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 308.4246869139988,
+   "fy": 315.0171053183707,
+   "cx": 337.6349219453771,
+   "cy": 238.1893164710587,
+   "k1": -0.26411010817090574,
+   "k2": 0.04851887527282886,
+   "p1": -0.003919441528819941,
+   "p2": -0.0013723816852795464,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 415.29477144047297,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    5.8461409049489115,
+    6.909664995940419,
+    13.370597202498862,
+    14.934024715147823
+   ],
+   "round_trip_100_px": [
+    7.46036036412459e-13,
+    8.700014782910993e-13,
+    7.896940126926099e-13,
+    7.596542139331816e-08
+   ],
+   "min_slope": 0.3530483347272948
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/old/complete_image_pipeline/log-calib-config/baseline/calibration/camera_intrinsic/zmaj.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": true,
+   "fx": 341.4123605997139,
+   "fy": 341.4293007112383,
+   "cx": 318.82990229764465,
+   "cy": 229.1886595958222,
+   "k1": -0.299930437451292,
+   "k2": 0.071209414423057,
+   "p1": -0.0038057474116178435,
+   "p2": 0.004628940483017835,
+   "k3": 0.0,
+   "width": 640.0,
+   "height": 480.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 407.50038053170067,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    2.5575157498544185,
+    0.8646647029371671,
+    2.8106551998634117,
+    0.6146447115352003
+   ],
+   "round_trip_100_px": [
+    7.46036036412459e-13,
+    8.526512829121202e-13,
+    3.258711852279175e-09,
+    6.938623537128991e-13
+   ],
+   "min_slope": 0.43151870273194703
+  },
+  {
+   "sources": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/robots/duckiedrone/optical_flow/tests/scenario1/calibration-intrinsic-dd24.yaml"
+   ],
+   "repos": [
+    "duckietown/dt-core"
+   ],
+   "duckiebot": false,
+   "fx": 309.1791995555939,
+   "fy": 309.8923403865892,
+   "cx": 220.67496030014146,
+   "cy": 322.2815791925517,
+   "k1": -0.3543517592168695,
+   "k2": 0.16442205538110652,
+   "p1": 0.0019406748564795508,
+   "p2": -0.0028917796204922853,
+   "k3": -0.04067351040366832,
+   "width": 480.0,
+   "height": 640.0,
+   "fold_radius_px": 273.6286363110819,
+   "corner_radius_px": 413.66035887208017,
+   "folds_inside": true,
+   "corners_beyond_fold": 4,
+   "margin_px": -139.9305660512809,
+   "round_trip_default_px": [
+    121.58371494667442,
+    145.5647675684907,
+    113.52609940729081,
+    136.8171855395409
+   ],
+   "round_trip_100_px": [
+    121.58371494667442,
+    145.5647675684907,
+    113.52609940729081,
+    136.8171855395409
+   ],
+   "min_slope": -3.2493764707819395e-05
+  },
+  {
+   "sources": [
+    "ApolloAuto/apollo/d53aa3da47a06a08e6d0cd175d5623a34fa0d6aa/modules/calibration/data/kitti_140/camera_params/camera_00_intrinsics.yaml"
+   ],
+   "repos": [
+    "ApolloAuto/apollo"
+   ],
+   "duckiebot": false,
+   "fx": 984.243896484375,
+   "fy": 980.8140869140625,
+   "cx": 690.0,
+   "cy": 233.19659423828125,
+   "k1": -0.37287551164627075,
+   "k2": 0.20372989773750305,
+   "p1": 0.0022190269082784653,
+   "p2": 0.0013837070437148213,
+   "k3": -0.07233721762895584,
+   "width": 1392.0,
+   "height": 512.0,
+   "fold_radius_px": 789.39954002745,
+   "corner_radius_px": 755.3378972779889,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": 35.01793235442217,
+   "round_trip_default_px": [
+    1.4295307656869547,
+    1.2671256981461263,
+    1.7051332161812738,
+    1.5178017444221372
+   ],
+   "round_trip_100_px": [
+    7.503546602517921e-13,
+    7.105427357601002e-13,
+    8.276526715781663e-13,
+    9.927276321703277e-13
+   ],
+   "min_slope": 0.3625407811395355
+  },
+  {
+   "sources": [
+    "ApolloAuto/apollo/d53aa3da47a06a08e6d0cd175d5623a34fa0d6aa/modules/calibration/data/kitti_140/camera_params/camera_01_intrinsics.yaml"
+   ],
+   "repos": [
+    "ApolloAuto/apollo"
+   ],
+   "duckiebot": false,
+   "fx": 989.5266723632812,
+   "fy": 987.838623046875,
+   "cx": 702.0,
+   "cy": 245.5590057373047,
+   "k1": -0.3644661009311676,
+   "k2": 0.17900189757347107,
+   "p1": 0.0011481069959700108,
+   "p2": -0.0006298563093878329,
+   "k3": -0.05314062163233757,
+   "width": 1392.0,
+   "height": 512.0,
+   "fold_radius_px": 822.2440274181783,
+   "corner_radius_px": 750.86270610791,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": 71.86023036747957,
+   "round_trip_default_px": [
+    1.02757108719706,
+    0.9560977262772555,
+    1.0525521154643274,
+    0.9780626948168265
+   ],
+   "round_trip_100_px": [
+    7.105427357601002e-13,
+    9.713407672867936e-13,
+    8.450381726173933e-13,
+    9.713407672867936e-13
+   ],
+   "min_slope": 0.4342862833642188
+  },
+  {
+   "sources": [
+    "ApolloAuto/apollo/d53aa3da47a06a08e6d0cd175d5623a34fa0d6aa/modules/calibration/data/kitti_140/camera_params/camera_02_intrinsics.yaml"
+   ],
+   "repos": [
+    "ApolloAuto/apollo"
+   ],
+   "duckiebot": false,
+   "fx": 959.791015625,
+   "fy": 956.9251098632812,
+   "cx": 696.021728515625,
+   "cy": 224.18060302734375,
+   "k1": -0.3691481053829193,
+   "k2": 0.19686810672283173,
+   "p1": 0.0013534730533137918,
+   "p2": 0.0005677586887031794,
+   "k3": -0.06770704686641693,
+   "width": 1392.0,
+   "height": 512.0,
+   "fold_radius_px": 775.8288025130253,
+   "corner_radius_px": 753.1840756678157,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": 23.439890680622703,
+   "round_trip_default_px": [
+    1.8805710382409127,
+    1.5534031066493883,
+    3.102447723526817,
+    2.5242254149070535
+   ],
+   "round_trip_100_px": [
+    7.503546602517921e-13,
+    9.927276321703277e-13,
+    7.626344918775623e-13,
+    9.927276321703277e-13
+   ],
+   "min_slope": 0.31151396774532847
+  },
+  {
+   "sources": [
+    "ApolloAuto/apollo/d53aa3da47a06a08e6d0cd175d5623a34fa0d6aa/modules/calibration/data/kitti_140/camera_params/camera_03_intrinsics.yaml"
+   ],
+   "repos": [
+    "ApolloAuto/apollo"
+   ],
+   "duckiebot": false,
+   "fx": 903.7595825195312,
+   "fy": 901.9652709960938,
+   "cx": 695.7518920898438,
+   "cy": 224.2509002685547,
+   "k1": -0.3639557957649231,
+   "k2": 0.17886510491371155,
+   "p1": 0.0006029693759046495,
+   "p2": -0.00039224239299073815,
+   "k3": -0.05382459983229637,
+   "width": 1392.0,
+   "height": 512.0,
+   "fold_radius_px": 748.150750801457,
+   "corner_radius_px": 753.3664262261292,
+   "folds_inside": true,
+   "corners_beyond_fold": 2,
+   "margin_px": -4.686422403885144,
+   "round_trip_default_px": [
+    3.860154664834526,
+    4.318941249533435,
+    8.03340771638463,
+    9.110802547754961
+   ],
+   "round_trip_100_px": [
+    8.276526715781663e-13,
+    9.447813987773464e-13,
+    1.282775655865633,
+    4.002235633186566
+   ],
+   "min_slope": -1.619971483313165e-05
+  },
+  {
+   "sources": [
+    "ApolloAuto/apollo/d53aa3da47a06a08e6d0cd175d5623a34fa0d6aa/modules/calibration/data/mkz_121/camera_params/front_12mm_intrinsics.yaml",
+    "ApolloAuto/apollo/d53aa3da47a06a08e6d0cd175d5623a34fa0d6aa/modules/perception/data/params/front_12mm_intrinsics.yaml"
+   ],
+   "repos": [
+    "ApolloAuto/apollo"
+   ],
+   "duckiebot": false,
+   "fx": 7083.01828,
+   "fy": 7087.231264,
+   "cx": 886.935585,
+   "cy": 458.925606,
+   "k1": 0.157589,
+   "k2": 1.165965,
+   "p1": 0.015345,
+   "p2": 0.000624,
+   "k3": 0.0,
+   "width": 1920.0,
+   "height": 1080.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 1205.3860329461925,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    2.5949503220802687e-12,
+    8.504202916383144e-11,
+    1.7669856604127558e-08,
+    6.310608692445556e-08
+   ],
+   "round_trip_100_px": [
+    3.8131724593878115e-13,
+    2.8421709430404007e-13,
+    2.5421149729252077e-13,
+    6.431098710768743e-13
+   ],
+   "min_slope": 1.0
+  },
+  {
+   "sources": [
+    "ApolloAuto/apollo/d53aa3da47a06a08e6d0cd175d5623a34fa0d6aa/modules/calibration/data/mkz_121/camera_params/front_6mm_intrinsics.yaml",
+    "ApolloAuto/apollo/d53aa3da47a06a08e6d0cd175d5623a34fa0d6aa/modules/perception/data/params/front_6mm_intrinsics.yaml"
+   ],
+   "repos": [
+    "ApolloAuto/apollo"
+   ],
+   "duckiebot": false,
+   "fx": 1992.669891,
+   "fy": 1990.404142,
+   "cx": 937.768962,
+   "cy": 453.083499,
+   "k1": -0.544499,
+   "k2": 0.276915,
+   "p1": -0.00154,
+   "p2": 0.005511,
+   "k3": 0.0,
+   "width": 1920.0,
+   "height": 1080.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 1165.2476609015957,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.5296971414354207,
+    0.2815923955004124,
+    1.0954143997702475,
+    0.5439883637136816
+   ],
+   "round_trip_100_px": [
+    7.389644451905042e-13,
+    7.031142602530156e-13,
+    7.279509460923746e-13,
+    5.084229945850415e-13
+   ],
+   "min_slope": 0.5194865113542477
+  },
+  {
+   "sources": [
+    "ApolloAuto/apollo/d53aa3da47a06a08e6d0cd175d5623a34fa0d6aa/modules/calibration/data/mkz_example/camera_params/front_camera_intrinsics.yaml"
+   ],
+   "repos": [
+    "ApolloAuto/apollo"
+   ],
+   "duckiebot": false,
+   "fx": 2033.39968,
+   "fy": 2046.55356,
+   "cx": 929.01881,
+   "cy": 572.81049,
+   "k1": -0.54336,
+   "k2": 0.26653,
+   "p1": -0.00099,
+   "p2": -0.0017,
+   "k3": 0.0,
+   "width": 1920.0,
+   "height": 1080.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 1144.6202760688175,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.42679588577010785,
+    0.8432823525993456,
+    0.3430535383083063,
+    0.7389468814021359
+   ],
+   "round_trip_100_px": [
+    5.084229945850415e-13,
+    6.431098710768743e-13,
+    2.2737367544323206e-13,
+    3.2155493553843715e-13
+   ],
+   "min_slope": 0.5182109667815072
+  },
+  {
+   "sources": [
+    "ApolloAuto/apollo/d53aa3da47a06a08e6d0cd175d5623a34fa0d6aa/modules/calibration/data/mkz_example/camera_params/short_camera_intrinsics.yaml"
+   ],
+   "repos": [
+    "ApolloAuto/apollo"
+   ],
+   "duckiebot": false,
+   "fx": 2032.79246,
+   "fy": 2034.56668,
+   "cx": 927.659048,
+   "cy": 485.900506,
+   "k1": -0.45662683,
+   "k2": 0.2749429,
+   "p1": 0.00274883,
+   "p2": 0.00161324,
+   "k3": -0.18475847,
+   "width": 1920.0,
+   "height": 1080.0,
+   "fold_radius_px": 1307.2914875211866,
+   "corner_radius_px": 1156.5875556080148,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": 150.4653468215708,
+   "round_trip_default_px": [
+    0.18764405945363155,
+    0.3116718470264142,
+    0.30188013311226175,
+    0.5057980291225123
+   ],
+   "round_trip_100_px": [
+    4.856703836433968e-13,
+    2.8421709430404007e-13,
+    9.165725883006586e-13,
+    4.547473508864641e-13
+   ],
+   "min_slope": 0.5208301337711267
+  },
+  {
+   "sources": [
+    "ApolloAuto/apollo/d53aa3da47a06a08e6d0cd175d5623a34fa0d6aa/modules/tools/sensor_calibration/config/init_params/sample_intrinsics.yaml"
+   ],
+   "repos": [
+    "ApolloAuto/apollo"
+   ],
+   "duckiebot": false,
+   "fx": 1998.5484365316602,
+   "fy": 1990.2872857509276,
+   "cx": 917.7422426747606,
+   "cy": 567.1297837900606,
+   "k1": -0.5467789805057404,
+   "k2": 0.2729182152572299,
+   "p1": -0.0019514549064445735,
+   "p2": -0.0004166085741949163,
+   "k3": 0.0,
+   "width": 1920.0,
+   "height": 1080.0,
+   "fold_radius_px": null,
+   "corner_radius_px": 1151.5888171480215,
+   "folds_inside": false,
+   "corners_beyond_fold": 0,
+   "margin_px": null,
+   "round_trip_default_px": [
+    0.47022809167840063,
+    0.8021588529373088,
+    0.4436113450122162,
+    0.8330037110207675
+   ],
+   "round_trip_100_px": [
+    9.165725883006586e-13,
+    5.684341886080801e-13,
+    9.165725883006586e-13,
+    3.2155493553843715e-13
+   ],
+   "min_slope": 0.5119244601874684
+  }
+ ]
+}
