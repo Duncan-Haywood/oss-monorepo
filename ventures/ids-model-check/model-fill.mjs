@@ -386,6 +386,13 @@ export function planFill(idsText, model, opts = {}) {
         }
         row.dataType = dataType || "";
         let qclass = null;
+        // A Qto_ set the element holds as an IfcPropertySet (Tekla Structures
+        // writes every Qto_ set so, some Allplan exports too;
+        // eval/qto-psets-2026-11-23.md): the property is written there, as an
+        // IfcPropertySingleValue of the measure, and its value can come from
+        // the element's other quantity sets or geometry like a quantity's.
+        const qtoAsProps = !quantity && held.has("IFCPROPERTYSET") && /^Qto_/.test(ps) && !!dataType && Object.hasOwn(QUANTITY_OF, dataType) && S.has(QUANTITY_OF[dataType]);
+        if (qtoAsProps) qclass = QUANTITY_OF[dataType];
         if (quantity) {
           qclass = dataType && Object.hasOwn(QUANTITY_OF, dataType) ? QUANTITY_OF[dataType] : null;
           if (!dataType) { unfilled.push({ ...row, why: "the IDS gives no data type and no standard Qto_ template names this quantity, so its kind (length, area, volume ...) is unknown" }); continue; }
@@ -398,12 +405,12 @@ export function planFill(idsText, model, opts = {}) {
         // A quantity the element already holds under the same name in
         // another quantity set, of the same kind: its value in SI units.
         let copied;
-        if (text === undefined && quantity) { copied = modelQuantity(e, ps, pn, qclass); if (copied !== undefined) { text = copied.text; source = "model"; } }
+        if (text === undefined && (quantity || qtoAsProps)) { copied = modelQuantity(e, ps, pn, qclass); if (copied !== undefined) { text = copied.text; source = "model"; } }
         // Else the element's own geometry, measured by ifc-quantity-takeoff
         // (opts.geometry(e, name, qclass) -> SI value; geometry-quantities.mjs),
         // to six significant figures: the measurement is not finer than that.
         let geomTried = false;
-        if (text === undefined && quantity && opts.geometry) {
+        if (text === undefined && (quantity || qtoAsProps) && opts.geometry) {
           geomTried = true;
           const g = opts.geometry(e, pn, qclass);
           if (typeof g === "number" && Number.isFinite(g)) { text = String(Number(g.toPrecision(6))); source = "geometry"; }
@@ -427,7 +434,10 @@ export function planFill(idsText, model, opts = {}) {
         if (clash) { unfilled.push({ ...row, value: text, why: `"${text}" would break another check: ${clash}` }); continue; }
         const key = `${e.id}\0${ps}\0${pn}`;
         const inUnits = quantity ? toProjectUnits(model, dataType, val.v) : null;
-        const valueText = quantity ? (copied && copied.raw !== undefined ? exactReal(copied.raw) : stepReal(source === "geometry" ? Number(inUnits.toPrecision(6)) : inUnits)) : stepValue(model, dataType, val);
+        // A measured value in a Qto_ property set: to six significant figures
+        // in the project's units (a mm model would otherwise get 2500.0000000000005).
+        const propMeasured = qtoAsProps && (source === "geometry" || source === "model") ? `${dataType}(${stepReal(Number(toProjectUnits(model, dataType, val.v).toPrecision(source === "geometry" ? 6 : 12)))})` : null;
+        const valueText = quantity ? (copied && copied.raw !== undefined ? exactReal(copied.raw) : stepReal(source === "geometry" ? Number(inUnits.toPrecision(6)) : inUnits)) : propMeasured || stepValue(model, dataType, val);
         const prev = writes.get(key);
         if (prev && prev.valueText !== valueText) { conflicts.add(key); unfilled.push({ ...row, value: text, why: `another specification asks for ${prev.text}` }); continue; }
         if (!prev) writes.set(key, { kind: quantity ? "quantity" : "property", setType, qclass, e, globalId: f.globalId, pset: ps, prop: pn, dataType, text: String(text), valueText, source, spec: spec.name });

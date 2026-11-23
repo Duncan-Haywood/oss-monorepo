@@ -305,6 +305,24 @@ test("a quantity set the element already has is edited in place, and its other q
   assert.match(r2.text, /IFCPROPERTYSINGLEVALUE\('Width',\$,IFCLENGTHMEASURE\(3000\.\),\$\)/);
 });
 
+test("a Qto_ set held as a property set (Tekla's way) takes geometry and other quantity sets' values, in project units", () => {
+  // W-01 and W-02 hold Qto_WallBaseQuantities as an IfcPropertySet with a
+  // Length only, as Tekla Structures writes it; W-01 also holds BaseQuantities.
+  const m = QMODEL.replace("'Pset_WallCommon'", "'Qto_WallBaseQuantities'").replace("#21=IFCPROPERTYSINGLEVALUE('IsExternal',$,IFCBOOLEAN(.T.),$);", "#21=IFCPROPERTYSINGLEVALUE('Length',$,IFCLENGTHMEASURE(5000.),$);");
+  const geometry = (e, name, qclass) => (name === "Width" && qclass === "IFCQUANTITYLENGTH" ? 0.2 + e.id * 1e-12 : undefined);
+  const I = ids(spec("IFCWALL", prop("Qto_WallBaseQuantities", "NetSideArea", "IFCAREAMEASURE") + prop("Qto_WallBaseQuantities", "Width", "IFCLENGTHMEASURE")));
+  const r = fill(I, m, { geometry });
+  // NetSideArea copied from W-01's BaseQuantities; Width measured for all three.
+  assert.deepEqual(r.writtenList.filter((w) => w.prop === "NetSideArea").map((w) => [w.id, w.kind, w.source]), [[10, "property", "model"]]);
+  assert.deepEqual(r.writtenList.filter((w) => w.prop === "Width").map((w) => [w.id, w.kind, w.source]), [[10, "property", "geometry"], [11, "property", "geometry"], [12, "property", "geometry"]]);
+  // Written into the property set, as properties of the measure, in mm, to six figures.
+  assert.match(r.text, /IFCPROPERTYSINGLEVALUE\('Width',\$,IFCLENGTHMEASURE\(200\.\),\$\)/);
+  assert.match(r.text, /IFCPROPERTYSINGLEVALUE\('NetSideArea',\$,IFCAREAMEASURE\(12\.5\),\$\)/);
+  assert.ok(!/IFCELEMENTQUANTITY\([^;]*'Qto_WallBaseQuantities'/.test(r.text));
+  assert.deepEqual(r.unfilled.map((u) => [u.name, u.prop]), [["W-02", "NetSideArea"], ["W-03", "NetSideArea"]]);
+  assert.equal(r.verified.pass, r.written);
+});
+
 test("an attribute left unset is written into the element's own record; one that holds a value is not overwritten", () => {
   const m = MODEL.replace("#12=IFCWALL('0Dqu2kwjbCmOwB7c2iZvUo',$,'W-03',$,$,$,$,$,.SOLIDWALL.);", "#12=IFCWALL('0Dqu2kwjbCmOwB7c2iZvUo',$,'W-03','Kept',$,$,$,'',$);");
   const attr = (n, v = "") => `<attribute><name><simpleValue>${n}</simpleValue></name>${v}</attribute>`;
