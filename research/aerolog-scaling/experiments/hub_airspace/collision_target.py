@@ -56,6 +56,11 @@ not its values, and a 1 500-point subsample's flux totals, quoted above, had bee
     the 96 draws at each M.
  K6 (prior 55%) Under G1 at 8 bands (h = 8.0 m, the literature's 25 ft layering at its widest), the cross-level
     en-route rate is below 1e-7 per flight hour in all 48 layouts.
+Changed after the predictions were pushed (e86219455), disclosed: the first build's one finished layout (1603) was
+analysed as a pipeline check and its transit term was about 2e-4 collisions per flight hour, almost flat in k. That
+led to finding that nyc_destinations.json is on a 10 m grid with coincident points, so the build was restarted with
+destinations and hubs spread over their 10 m cells (jittered_mix) and the transit term split into hub and destination
+parts. The predictions were not edited; K2 had in effect been seen on that one layout (unjittered).
 Reported without a prediction: per model, M and k the median and max of the en-route, transit and total rates; the
 distribution of k* and of k_T at both targets and both lam_z; the share of the total that is transit; the
 horizontal overlap rates per flight hour.
@@ -120,19 +125,41 @@ def flight_hours(mix, speeds, lam_h=rl.LAM):
     return lam_h * sum(w * 2.0 * math.hypot(x - hx, y - hy) / speeds[j] for w, j, hx, hy, x, y in mix) / 3600.0
 
 
+JITTER = 10.0                    # m, the grid the NYC destination coordinates are rounded to
+
+
+def jittered_mix(idx, m):
+    """11ai's layout (same hubs, radii, speeds, shares, destination sets), with every destination and hub spread
+    uniformly over its 10 m rounding cell. nyc_destinations.json stores coordinates on a 10 m grid (17 076 distinct
+    points of 20 000), and hubs are drawn from the same points, so at R = lam_h the unjittered geometry would count
+    coincident grid points (two operators' legs ending on one point, a leg ending on another operator's hub) as
+    exact hits. The 50 m cost tables are not rebuilt (the jitter is a fifth of R there)."""
+    import random
+    pts = rl.load_nyc(10000.0)
+    hubs, radii, speeds, shares = rl.draw_layout(pts, idx, m)
+    rnd = random.Random(910000 + idx)
+    half = JITTER / 2.0
+    jit = [(x + rnd.uniform(-half, half), y + rnd.uniform(-half, half)) for x, y in pts]
+    jh = [(hx + rnd.uniform(-half, half), hy + rnd.uniform(-half, half)) for hx, hy in hubs]
+    mix = []
+    for j, ((hx, hy), r) in enumerate(zip(hubs, radii)):
+        mine = [q for q, (x, y) in enumerate(pts) if 0 < (x - hx) ** 2 + (y - hy) ** 2 <= r * r]
+        mix += [(shares[j] / len(mine), j, jh[j][0], jh[j][1], jit[q][0], jit[q][1]) for q in mine]
+    return mix, speeds
+
+
 def build_layout(job, R=LAM_H):
     m, idx = job
     t = time.process_time()
-    pts = rl.load_nyc(10000.0)
-    hubs, radii, speeds, shares = rl.draw_layout(pts, idx, m)
-    mix = rl.mix_radii(pts, hubs, radii, shares)
+    mix, speeds = jittered_mix(idx, m)
     ex = st.start_terms(mix, speeds, ssr.LAM, R=R)
     cfd = ssr._add(ff.flux_terms(mix, speeds, ssr.LAM, R=R, sym_same=True), ex["start"])
     opp = ll.opp_flux_terms(mix, speeds, ssr.LAM, R=R)
     T = bc.transit_terms(mix, speeds, rl.LAM, R=R)
     out = {"m": m, "idx": idx, "R": R, "fh": flight_hours(mix, speeds),
-           "W": kw.matrix(cfd, m).tolist(), "X": kw.matrix(opp, m).tolist(),
-           "A": T["A"].tolist(), "B": T["B"].tolist(), "cpu": time.process_time() - t}
+           "W": kw.matrix(cfd, m).tolist(), "X": kw.matrix(opp, m).tolist(), "cpu": time.process_time() - t}
+    for q in ("A", "B", "A_hub", "B_hub", "A_dst", "B_dst"):
+        out[q] = T[q].tolist()
     print("M=%d layout %d built at R=%.2f, %.0f CPU s" % (m, idx, R, out["cpu"]), file=sys.stderr, flush=True)
     return out
 
@@ -235,6 +262,7 @@ def analyse_layout(args):
             for lam in LAM_ZS:
                 r["enr_%g" % lam] = enroute_rate(Wc, Xc, lab, h, lam, sgap, dist) / fh
                 r["tr_%g" % lam] = transit_rate(Ac, Bc, lab, lam) / fh
+                r["trhub_%g" % lam] = transit_rate(np.array(Lc["A_hub"]), np.array(Lc["B_hub"]), lab, lam) / fh
             if name == "GS":
                 for s in SCALES:
                     for dd in range(DRAWS):
@@ -305,6 +333,11 @@ def summarise():
                 print("    at k*: en-route median %s max %s; transit median %s max %s; transit > en-route in %d of %d"
                       % (g(S.median(a for a, _ in at)), g(max(a for a, _ in at)), g(S.median(b for _, b in at)),
                          g(max(b for _, b in at)), sum(b > a for a, b in at), len(at)))
+                hub = [L["models"][name][kstar(L["models"][name])]["trhub_%g" % lam] for L in G]
+                share = [hb / b for hb, (_, b) in zip(hub, at) if b > 0]
+                print("    at k*: hub transits (climb and descent at hubs only, as a winch or tether delivery would leave)"
+                      " median %s max %s per flight hour, a median %.3f of the transit term"
+                      % (g(S.median(hub)), g(max(hub)), S.median(share)))
                 for T in TARGETS:
                     for part, key in (("total", lambda r: r["enr_%g" % lam] + r["tr_%g" % lam]),
                                       ("en-route only", lambda r: r["enr_%g" % lam])):
