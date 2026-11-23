@@ -278,8 +278,9 @@ export function nest(shapes, { widthCm = 150, edgeCm = 1.5, gridCm = 0.5, tries 
 
 /** A marker for a ratio of sizes of one drafted garment: ratio {S:1, M:2, L:1}. Adds the metres per garment. */
 export function nestRatio(garment, ratio, { fit = "regular", widthCm = 150, endLossCm = 6, only = null, ...opt } = {}) {
-  // only: "body" keeps every piece except the rib bands, "rib" keeps just the bands (rib is usually a separate knit with its own width)
-  const keep = p => only === "rib" ? /Rib$/.test(p.name) : only === "body" ? !/Rib$/.test(p.name) : true;
+  // only: "body" keeps every piece except the rib bands (neckband included), "rib" keeps just the bands (rib is usually a separate knit with its own width)
+  const isRib = p => /Rib$/.test(p.name) || p.name === "neckband";
+  const keep = p => only === "rib" ? isRib(p) : only === "body" ? !isRib(p) : true;
   const shapes = [];
   let garments = 0;
   for (const [size, n] of Object.entries(ratio)) {

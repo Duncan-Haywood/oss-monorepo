@@ -21,6 +21,7 @@
  */
 import { garmentMeasurements, BODY_CHEST_CM } from "./fit.mjs";
 import { SLEEVE_CM_M } from "./tryon.mjs";
+import { neckAndShoulder, gradeRule, NECKBAND } from "./grade.mjs";
 
 const r2 = v => Math.round(v * 100) / 100;
 const KAPPA = 0.5522847498;
@@ -108,12 +109,18 @@ export function offsetRing(ring, dists) {
 
 /* ---------- drafting ---------- */
 
-/** Key points of the body block for one size (cm, y down, x from the fold). */
-export function bodyBlock(g) {
+/**
+ * Key points of the body block for one size (cm, y down, x from the fold).
+ * Neck width and shoulder point come from grade.mjs, the same rule the spec
+ * sheet prints (until 2026-11-23 they were 0.09 and 0.225 of each size's chest
+ * here and typed separately in spec.mjs, and the two disagreed).
+ */
+export function bodyBlock(g, { garment = "tee", sizeChart = BODY_CHEST_CM, grade } = {}) {
   const bc = g.bodyChest, Q = g.flatWidth / 2;
-  const hn = 0.09 * bc;                                  // half neck width
+  const ns = neckAndShoulder(g, { garment, sizeChart, grade });
+  const hn = ns.halfNeckCm;                              // half neck width
   const frontDrop = 0.08 * bc, backDrop = 2.5;
-  const sx = Math.min(Q - 4, 0.225 * bc + 0.1 * (g.chest - bc)); // shoulder point, from the fold
+  const sx = Math.min(Q - 4, ns.shoulderPointCm);        // shoulder point, from the fold
   const sd = 0.04 * bc;                                  // shoulder slope drop
   const ad = 0.235 * bc + 0.1 * (g.chest - bc);          // armhole depth from the high point
   return { Q, hn, frontDrop, backDrop, sx, sd, ad, L: g.length };
@@ -355,7 +362,8 @@ export function draft(garment, size, { fit = "regular", sizeChart = BODY_CHEST_C
     if (!opt.zip) return { ok: false, error: "A zip facing needs a zip front (zip: true)." };
     if (!(Number.isFinite(o.facingWidthCm) && o.facingWidthCm >= 2 && o.facingWidthCm <= 8)) return { ok: false, error: "facingWidthCm must be a number from 2 to 8." };
   }
-  const b = bodyBlock(g);
+  try { gradeRule(o.grade); } catch (e) { return { ok: false, error: e.message }; }
+  const b = bodyBlock(g, { garment, sizeChart, grade: o.grade });
   if (o.rib) b.L -= o.hemRibCm;
   if (!(b.Q - b.sx > 3 && b.ad > b.sd + 8 && b.L > b.ad + 10)) return { ok: false, error: "This size and fit leave no room for an armhole and a body length." };
   const front = bodyPiece(b, "front", o), back = bodyPiece(b, "back", o);
@@ -368,9 +376,18 @@ export function draft(garment, size, { fit = "regular", sizeChart = BODY_CHEST_C
     const hemOpening = 4 * b.Q, cuffOpening = sleeveHemWidth(sleeve) * 2;
     ribs = [ribPiece("hemRib", hemOpening * o.hemRibRatio, o.hemRibCm, 1), ribPiece("cuffRib", cuffOpening * o.cuffRibRatio, o.cuffRibCm, 2)];
   }
+  // Neckband (tee, long sleeve, crewneck; the hoodie's hood takes the neck): a rib strip cut double width and
+  // folded, stretched onto the whole neck seam (front and back, both halves) at NECKBAND.ratio. Missing until
+  // 2026-11-23 (quality audit: "no neckband piece").
+  let neckband = null;
+  if (garment !== "hoodie") {
+    const neckOpening = 2 * (segLen(front, "neck") + segLen(back, "neck"));
+    neckband = ribPiece("neckband", neckOpening * NECKBAND.ratio, NECKBAND.widthCm[garment], 1);
+    neckband.neckOpening = neckOpening;
+  }
   let facing = null;
   if (o.zip && o.facing) facing = facingPiece(len(front.segs.find(x => x.kind === "cf").pts), o.facingWidthCm);
-  const pieces = [front, back, sleeve, hood, pocket, ...ribs, facing].filter(Boolean).map(p => finish(p, o));
+  const pieces = [front, back, sleeve, hood, pocket, neckband, ...ribs, facing].filter(Boolean).map(p => finish(p, o));
   const s = sleeve.solved;
   const checks = {
     frontArmholeCm: r2(front.armholeLen), backArmholeCm: r2(back.armholeLen),
@@ -380,12 +397,20 @@ export function draft(garment, size, { fit = "regular", sizeChart = BODY_CHEST_C
     sleeveBicepGirthCm: r2(sleeve.girthCm), sleeveLengthCm: r2(sleeve.lengthCm), // girth = the piece's width; length from the shoulder point (cap top) to the cuff seam
     allSimple: pieces.every(p => p.simple),
   };
+  const notes0 = [];
+  checks.neckWidthCm = r2(2 * b.hn); checks.acrossShoulderCm = r2(2 * b.sx); // the spec sheet's neck and shoulder points (spec.mjs reads these)
+  checks.shoulderSetByArmhole = b.sx < neckAndShoulder(g, { garment, sizeChart, grade: o.grade }).shoulderPointCm - 1e-9;
+  if (checks.shoulderSetByArmhole) notes0.push(`Shoulder: the grade asks for ${r2(neckAndShoulder(g, { garment, sizeChart, grade: o.grade }).acrossShoulderCm)} cm across, but the block keeps the armhole at least 4 cm wide at this chest, so it is ${checks.acrossShoulderCm} cm (the spec sheet prints the same). A pattern maker would narrow the shoulder or add chest ease here.`);
+  if (neckband) {
+    checks.neckOpeningCm = r2(neckband.neckOpening); checks.neckbandLengthCm = r2(neckband.ribLen); checks.neckbandWidthCm = NECKBAND.widthCm[garment];
+    notes0.push(`Neckband: cut one ${checks.neckbandLengthCm} x ${r2(2 * checks.neckbandWidthCm)} cm rib strip plus seam allowance, join it into a loop, fold it to ${checks.neckbandWidthCm} cm and stretch it onto the ${checks.neckOpeningCm} cm neck seam (${Math.round(NECKBAND.ratio * 100)}%, a typical ratio for 1x1 rib; a firmer rib wants nearer 90%, check on the sample).`);
+  }
   if (o.rib) {
     checks.hemOpeningCm = r2(4 * b.Q); checks.hemRibLengthCm = r2(ribs[0].ribLen);
     checks.cuffOpeningCm = r2(sleeveHemWidth(sleeve) * 2); checks.cuffRibLengthCm = r2(ribs[1].ribLen);
     checks.bodyLengthCm = r2(b.L); checks.finishedBodyLengthCm = r2(b.L + o.hemRibCm);
   }
-  const notes = [];
+  const notes = notes0;
   if (o.zip) {
     const fd = front.segs.find(x => x.kind === "cf").pts;
     checks.zipOpeningCm = r2(len(fd)); // centre-front stitch line, neck to hem (with rib: to the band seam)
@@ -420,6 +445,7 @@ export function grade(garment, sizes, opts = {}) {
   const ordered = drafts.slice().sort((a, b) => sizeChart[a.size] - sizeChart[b.size]);
   const keys = [
     ["Half chest (side seam out)", d => d.block.Q], ["Armhole depth", d => d.block.ad], ["Shoulder point from fold", d => d.block.sx],
+    ["Neck width (stitch line)", d => d.checks.neckWidthCm], ["Across shoulder", d => d.checks.acrossShoulderCm],
     ["Body length", d => d.block.L], ["Front armhole length", d => d.checks.frontArmholeCm], ["Sleeve cap height", d => d.checks.capHeightCm],
   ];
   const table = keys.map(([label, f]) => {
