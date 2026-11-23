@@ -12,6 +12,7 @@ import { readFileSync, existsSync, statSync, realpathSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { homedir } from "node:os";
 import { resolve, join, dirname } from "node:path";
+import { pathToFileURL } from "node:url";
 import { analyze, why, reportText, normalizePath } from "../gitconfig.mjs";
 
 export function parseArgs(argv) {
@@ -134,4 +135,4 @@ function main() {
   if (opts.strict && result.findings.some((f) => f.severity === "high" || f.severity === "error")) process.exitCode = 1;
 }
 
-if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith("check.mjs")) main();
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(resolve(process.argv[1]))).href) main();
