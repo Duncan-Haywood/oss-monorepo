@@ -272,6 +272,18 @@ this tool says which they are
   20,858 mm, digit for digit) on every piece; the bill of quantities uses their
   section instead
   ([eval/joins-and-host-figures-2026-11-20.md](eval/joins-and-host-figures-2026-11-20.md)).
+- **Ends cut square in the swept check (2026-11-23).** A stepped arc wall
+  whose ends are cut square to the plan axes, not along a radius, was refused
+  and kept the chord cut. Its faces were right, but the divergence-theorem
+  check left out the ends' own flux, and an end at x = 0.6 on a quarter ring
+  carries area x -0.3 of it. The check now adds the flux of the standing
+  planes that face no centre (`ends`, exact for a plane). On the constructed
+  quarter ring with both ends cut, the check closes to 1e-9 and the outer and
+  inner faces match hand-clipped chords to 1e-9. As a file of two drawn
+  outline items, the wall is measured on its facets. A top raked by a sloped
+  cut still misses by 9.8% and is refused. The 28 public engine_web-ifc models
+  are unchanged line for line; none has such a wall
+  ([eval/square-cut-ends-2026-11-23.md](eval/square-cut-ends-2026-11-23.md)).
 - **The swept check on signed fans (2026-11-23).** A curved wall whose
   section steps up its height is measured on its facets only when its two
   faces enclose its volume (the swept check). That check had been kept off any

@@ -1578,13 +1578,45 @@ test("curvedFaces: a radial recess cut by a boolean difference sweeps its volume
 // the stepped wall as a file: two IfcExtrudedAreaSolid items of drawn
 // IfcArbitraryClosedProfileDef rings (30 chords a quarter), the upper item
 // placed at 0.75 m
-const steppedFanFile = () => {
+// clip a polygon to x >= k and y >= k (Sutherland-Hodgman; the window is convex)
+const clipXY = (pts, k) => {
+  let out = pts;
+  for (const ax of [0, 1]) {
+    const inp = out; out = [];
+    for (let i = 0; i < inp.length; i++) {
+      const a = inp[i], b = inp[(i + 1) % inp.length], ia = a[ax] >= k, ib = b[ax] >= k;
+      if (ia) out.push(a);
+      if (ia !== ib) { const t = (k - a[ax]) / (b[ax] - a[ax]); out.push([a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])]); }
+    }
+  }
+  return out;
+};
+// the length of a quarter arc's chords (N a quarter) left at x >= k, y >= k
+const clippedChords = (N, r, k) => {
+  let L = 0;
+  for (let i = 0; i < N; i++) {
+    const a = [r * Math.cos((Math.PI / 2) * i / N), r * Math.sin((Math.PI / 2) * i / N)];
+    const b = [r * Math.cos((Math.PI / 2) * (i + 1) / N), r * Math.sin((Math.PI / 2) * (i + 1) / N)];
+    let t0 = 0, t1 = 1;
+    for (const ax of [0, 1]) {
+      const d = b[ax] - a[ax];
+      if (Math.abs(d) < 1e-15) { if (a[ax] < k) t1 = -1; continue; }
+      const t = (k - a[ax]) / d;
+      if (d > 0) t0 = Math.max(t0, t); else t1 = Math.min(t1, t);
+    }
+    if (t1 > t0) L += (t1 - t0) * Math.hypot(b[0] - a[0], b[1] - a[1]);
+  }
+  return L;
+};
+
+const steppedFanFile = (squareCut = null) => {
   const N = 30, A = Math.PI / 2;
   const arc = (r, rev) => Array.from({ length: N + 1 }, (_, i) => [r * Math.cos((A * (rev ? N - i : i)) / N), r * Math.sin((A * (rev ? N - i : i)) / N)]);
   let id = 100;
   const lines = [];
   const item = (ro, ri, z, h) => {
-    const pts = [...arc(ro, false), ...arc(ri, true)];
+    const ring = [...arc(ro, false), ...arc(ri, true)];
+    const pts = squareCut == null ? ring : clipXY(ring, squareCut);
     const ids = pts.map((p) => { lines.push(`#${++id}=IFCCARTESIANPOINT((${p[0]},${p[1]}));`); return id; });
     lines.push(`#${++id}=IFCPOLYLINE((${[...ids, ids[0]].map((x) => `#${x}`).join(",")}));`);
     const pl = id;
@@ -1624,4 +1656,65 @@ test("a stepped arc wall drawn as outlines is measured on its facets through the
   close(S.gross, (outer + inner) / 2, 1e-6);
   assert.ok(S.chord.gross > 0);
   close(S.radius.outer, 2.3 * Math.cos(A / N / 2), 1e-3);
+});
+
+// ---- eval/square-cut-ends-2026-11-23.md -------------------------------------
+// The same stepped wall with both ends cut square to the plan axes (x = 0.6,
+// y = 0.6), not along a radius: the ends' own flux in plan (`ends`) closes
+// the volume, so the faces are measured; before, the swept check missed by 28%
+
+test("curvedFaces: ends cut square add their own flux, and faces plus ends enclose the volume", async () => {
+  const { curvedFaces, solidVolume, subtractCutters, cuttersOf } = await import("./geom.mjs");
+  const A = Math.PI / 2, N = 30;
+  const box = (x0, y0, x1, y1) => ({ s: 1, faces: fanLift(prism([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], [0, 0, 6]), -1) });
+  const square = subtractCutters(fanWall(A, N, 2.3, 2.2, 1.877), cuttersOf({ terms: [box(-1, -1, 0.6, 3), box(0.6, -1, 3, 0.6)] }), "boolean difference");
+  const G = curvedFaces(square, [0, 0, 1]);
+  const V = Math.abs(solidVolume(square));
+  assert.ok(Math.abs(G.swept / V - 1) > 0.2, "the faces alone still miss");
+  assert.ok(Math.abs((G.swept + G.ends) / V - 1) < 1e-9, `swept + ends ${G.swept + G.ends} vs ${V}`);
+  close(G.outer, clippedChords(N, 2.3, 0.6) * 3.97, 1e-9);
+  close(G.inner, clippedChords(N, 1.877, 0.6) * 0.75 + clippedChords(N, 2.2, 0.6) * 3.22, 1e-9);
+  // the two end faces: the clipped outline's edges on x = 0.6 and y = 0.6
+  // (to the chords, not the circles) times each item's height
+  const arc = (r, rev) => Array.from({ length: N + 1 }, (_, i) => [r * Math.cos((A * (rev ? N - i : i)) / N), r * Math.sin((A * (rev ? N - i : i)) / N)]);
+  const endLen = (ro, ri) => {
+    const q = clipXY([...arc(ro, false), ...arc(ri, true)], 0.6);
+    let L = 0;
+    for (let i = 0; i < q.length; i++) {
+      const a = q[i], b = q[(i + 1) % q.length];
+      if ((Math.abs(a[0] - 0.6) < 1e-12 && Math.abs(b[0] - 0.6) < 1e-12) || (Math.abs(a[1] - 0.6) < 1e-12 && Math.abs(b[1] - 0.6) < 1e-12)) L += Math.hypot(b[0] - a[0], b[1] - a[1]);
+    }
+    return L;
+  };
+  close(G.endArea, endLen(2.3, 1.877) * 0.75 + endLen(2.3, 2.2) * 3.22, 1e-9);
+  // a radial end has no flux: the uncut wall's ends add nothing
+  const R = curvedFaces(fanWall(A, N, 2.3, 2.2, 1.877), [0, 0, 1]);
+  assert.ok(Math.abs(R.ends) < 1e-9 * Math.abs(solidVolume(fanWall(A, N, 2.3, 2.2, 1.877))));
+});
+
+test("a stepped arc wall drawn as outlines with ends cut square is measured on its facets", () => {
+  const N = 30;
+  const r = takeoff(parseStep(steppedFanFile(0.6))).rows.find((x) => x.ifcClass === "IfcWall");
+  const S = r.computed.areas.side;
+  assert.equal(S.curved, true);
+  assert.equal(S.stepped, true);
+  const outer = clippedChords(N, 2.3, 0.6) * 3.97, inner = clippedChords(N, 1.877, 0.6) * 0.75 + clippedChords(N, 2.2, 0.6) * 3.22;
+  close(S.faces.gross[0], outer, 1e-6);
+  close(S.faces.gross[1], inner, 1e-6);
+  close(S.gross, (outer + inner) / 2, 1e-6);
+});
+
+test("a leaning face still fails the swept check with ends counted: a wall whose top is raked", async () => {
+  const { curvedFaces, solidVolume, subtractCutters, cuttersOf } = await import("./geom.mjs");
+  const A = Math.PI / 2, N = 30;
+  // a cutter whose underside slopes in plan across the wall: it leaves a top
+  // face that leans, neither level nor standing, so neither faces nor ends
+  // carry its flux
+  const wedge = { s: 1, faces: prism([[-1, -1], [3, -1], [3, 3], [-1, 3]], [0, 0, 10]).map((f) => f.map(([x, y, z]) => [x, y, z > 0 ? z + 4 : 2.5 + 0.4 * (x + y)])) };
+  const raked = subtractCutters(fanWall(A, N, 2.3, 2.2, 1.877), cuttersOf({ terms: [wedge] }), "boolean difference");
+  const G = curvedFaces(raked, [0, 0, 1]);
+  const V = Math.abs(solidVolume(raked));
+  // the faces are still read (G is not null); with the ends they miss by 9.8%
+  assert.ok(G, "the faces are read");
+  assert.ok(Math.abs((G.swept + G.ends) / V - 1) > 0.05, `swept + ends ${G.swept + G.ends} vs ${V}`);
 });
