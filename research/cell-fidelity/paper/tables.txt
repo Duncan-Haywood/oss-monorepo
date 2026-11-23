@@ -55,10 +55,10 @@ Committed sets only, rule - theta (20 folds): mean, set bootstrap 95%, cheaper/d
   oracle   +0.00  (+0.00 to +0.00)  0/0  p = 1.000
 
 Folds where two rules make the same decision (same cycles, same met flag), committed / f = 30 / f = 10:
-  thetaP=thetaN   20/20  10/10   7/10
-  thetaD=thetaH   20/20  10/10   8/10
-  thetaN=thetaH   17/20  10/10   7/10
-  thetaC=thetaH   17/20  10/10   9/10
+  thetaP=thetaN   20/20  10/10   7/10  (Marquis2019 f = 30: 5/5)
+  thetaD=thetaH   20/20  10/10   8/10  (Marquis2019 f = 30: 5/5)
+  thetaN=thetaH   17/20  10/10   7/10  (Marquis2019 f = 30: 5/5)
+  thetaC=thetaH   17/20  10/10   9/10  (Marquis2019 f = 30: 1/5)
 
 Per set: target met / 5 and mean DFN cycles per design; oracle = the rule 7y's hindsight pick chose.
 condition:set                      U       theta      thetaC      thetaN      thetaP      thetaD  oracle
@@ -70,3 +70,18 @@ f30:Mohtat2020             5/5  40.0   5/5  47.5   5/5  10.0   5/5  10.0   5/5  
 f30:Ecker2015              5/5  40.0   4/5  43.5   5/5  10.0   5/5  10.0   5/5  10.0   5/5  10.0  thetaH
 f10:Mohtat2020             3/5  24.0   2/5  23.0   2/5  21.6   2/5  21.0   2/5  21.6   2/5  23.0  thetaH
 f10:Ecker2015              5/5  46.0   5/5  42.6   4/5  10.0   4/5  26.6   4/5  18.0   4/5  18.0   theta
+m30:Marquis2019            4/5  44.0   2/5  34.8   2/5  15.9   4/5  14.6   4/5  14.6   4/5  14.6  thetaH
+
+Table 3, seventh set-condition (7za, added after it reported): Marquis2019 at f = 30, a cell built after
+every rule and gate above was fixed, and the seven set-conditions (committed + both f = 30 cells +
+Marquis2019 f = 30; 35 folds). Met / folds with Wilson 95%, mean DFN cycles per design, and the paired
+seven-set difference against theta and against U (set bootstrap 95%, cheaper/dearer, sign p).
+rule   Marq f=30   cyc  seven  Wilson 95%   cyc  rule - theta      set boot 95%  ch/de      p  rule - U      set boot 95%  ch/de       p
+U           4/5   44.0  33/35   0.81-0.98  45.1                +2.32   -2.48 to  +6.86 11/19   0.200  (reference)
+theta       2/5   34.8  30/35   0.71-0.94  42.8   (reference)                                            -2.32   -6.86 to  +2.48 19/11   0.200
+thetaC      2/5   15.9  28/35   0.64-0.90  30.8               -12.06  -25.07 to  -0.34 16/7    0.093    -14.38  -24.54 to  -4.69 24/4    0.000
+thetaH      4/5   14.6  31/35   0.74-0.95  31.7               -11.17  -24.70 to  +1.07 15/8    0.210    -13.49  -25.02 to  -3.79 23/4    0.000
+thetaN      4/5   14.6  31/35   0.74-0.95  30.9               -11.96  -25.00 to  +0.12 15/5    0.041    -14.28  -25.02 to  -4.42 25/4    0.000
+thetaP      4/5   14.6  31/35   0.74-0.95  30.9               -11.96  -25.00 to  +0.12 15/5    0.041    -14.28  -25.02 to  -4.42 25/4    0.000
+thetaD      4/5   14.6  31/35   0.74-0.95  31.7               -11.17  -24.70 to  +1.07 15/8    0.210    -13.49  -25.02 to  -3.79 23/4    0.000
+oracle      4/5   14.6  33/35   0.81-0.98  29.8               -13.03  -25.48 to  -2.88 15/0    0.000    -15.35  -25.09 to  -5.95 29/4    0.000
