@@ -544,7 +544,11 @@ function bracketMate(ctx) {
       if (inB.has(x)) {
         w -= PSD * Math.min(30, half(x)) ** 2 + UNP * Math.min(3, unplayed?.[x] ?? 0);
         if (top) return w;
-        w -= FLT * floatCost(x, undefined) + Math.floor((1000 * (v - 1 - vertexOf.get(x))) / Math.max(1, v));
+        // The bye's place from the bottom of this bracket, on the same 0..1000 scale as orderA, so it
+        // weighs against the Dutch order of the boards it frees. It was counted from the bottom of the
+        // whole field (v), which in a 170-player round made it all but free and sent the bye to the
+        // top of the last bracket (ChessHouse round 8: 128, not the arbiters' 160; eval/swiss-bye-bracket.txt).
+        w -= FLT * floatCost(x, undefined) + Math.floor((1000 * (bracket.length - 1 - posB.get(x))) / Math.max(1, bracket.length - 1));
       }
       return w;
     };

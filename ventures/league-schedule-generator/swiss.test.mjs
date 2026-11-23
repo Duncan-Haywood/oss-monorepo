@@ -393,3 +393,26 @@ test("initial colour: two players with no colour claim later on follow E.5 by th
     }
   }
 });
+
+test("the pairing bye in the last bracket: its place from the bracket's bottom, not the field's, outweighs the order of the boards it frees", () => {
+  // Five players on 1 point after three rounds, in seed order A B C D E; B has had a bye, A met C;
+  // A, D and E want white strongly, C black strongly, B white mildly. Every pairing that leaves the
+  // bracket's halves intact gives A a strong clash, so FIDE's Dutch order needs an exchange: B<->C
+  // (seed gap 1) gives A-B, C-E and the bye to D; the bye to A would take A<->C (gap 2). E is out
+  // (a bye counts as a downfloat, and E floated down two rounds ago). Spring 2026 ChessHouse
+  // round 8 had this shape (eval/swiss-bye-bracket.txt): the bye was priced against the whole
+  // 170-player field, so it cost almost nothing and went to the top of the bracket.
+  const P = ["T1", "T2", "T3", "T4", "T5", "T6", "A", "B", "C", "D", "E"];
+  const i = (n) => P.indexOf(n);
+  const g = (w, b, res) => ({ a: i(w), b: i(b), ga: res === "0" ? 0 : 1, gb: res === "1" ? 0 : 1 });
+  const games = [
+    g("T1", "A", "1"), g("C", "T2", "1"), g("B", "D", "0"), g("T3", "E", "0"), g("T4", "T5", "="),
+    g("A", "C", "1"), g("D", "T1", "0"), g("E", "T2", "0"), g("T3", "T4", "="), g("T5", "T6", "1"),
+    g("T4", "A", "1"), g("C", "T3", "0"), g("T2", "D", "1"), g("T1", "B", "1"), g("T5", "E", "1"),
+  ];
+  const byes = [i("T6"), i("B"), i("T6")];
+  const r = swissPairings(P, games, byes, [], { groupOrder: "seed" });
+  assert.equal(P[r.bye], "D");
+  const boards = r.pairs.map((p) => [P[p.white], P[p.black]].sort().join("-"));
+  assert.ok(boards.includes("A-B") && boards.includes("C-E"), boards.join(" "));
+});
