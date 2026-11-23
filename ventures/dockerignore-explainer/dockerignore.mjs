@@ -304,7 +304,8 @@ function checkFix(ignore, lines, tree, before, fixLines) {
 const SEV = { high: 0, medium: 1, low: 2, info: 3 };
 
 function finish({ list, res, rows, findings, df, fix }) {
-  findings.sort((a, b) => SEV[a.severity] - SEV[b.severity] || (a.line ?? 1e9) - (b.line ?? 1e9));
+  const rank = (s) => (Object.hasOwn(SEV, s) ? SEV[s] : 9);
+  findings.sort((a, b) => rank(a.severity) - rank(b.severity) || (a.line ?? 1e9) - (b.line ?? 1e9));
   const files = rows.filter((r) => !r.isDir);
   const sent = files.filter((r) => r.sent);
   const sum = (xs) => (list.sized ? xs.reduce((s, r) => s + (r.size || 0), 0) : null);

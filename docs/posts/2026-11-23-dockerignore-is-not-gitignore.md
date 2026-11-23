@@ -3,7 +3,7 @@ title: "A .dockerignore is not a .gitignore: five lines that do something else i
 seo_title: ".dockerignore traps checked against BuildKit's code"
 date: 2026-11-23
 tags: [explore, dockerignore-explainer, docker, buildkit, developer-tools]
-description: "*.log misses logs/app.log, !docs re-includes nothing, [!a] is not a negation. A new tool ports BuildKit's context filter to JavaScript and checks it against the Go code on 30,000 random trees."
+description: "*.log misses logs/app.log and !docs re-includes nothing. A port of BuildKit's context filter, checked against its Go code on 30,000 random trees."
 ---
 
 Most `.dockerignore` files begin as a copy of the project's `.gitignore`. The two
