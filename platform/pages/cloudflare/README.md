@@ -49,6 +49,20 @@ decision) or a third Worker, which needs a deploy step in
 to choose what to move; prefer low-traffic directories, since every request
 under `SHARD_DIRS` counts toward the 100,000 a day.
 
+**2026-11-23: share cards packed in the shard.** The shard had reached
+19,635 files (the site Worker 19,183). About 8,500 of the shard's files were
+`share-card.png`, one per directory page (`../share.mjs`), read only by
+link-preview fetchers. `split.mjs` now packs them into 512 files under
+`share-card-packs/` (`cardpack-build.mjs`), and `shard/worker.mjs` answers
+each card URL from its pack (`cardpack.mjs`; a card's pack is a hash of its
+path, so no index is needed). On the 2026-11-23 build the shard went from
+19,453 files to 11,494 locally (without `dev/`, which CI adds later); URLs, `og:image` tags and the GitHub Pages
+copy are unchanged. Card requests were already metered (they are under
+`SHARD_DIRS`), so the request count does not change. The site Worker's own
+~1,450 tool cards are not packed: that would need `run_worker_first` to
+match `/*/share-card.png`, which no run has checked against Cloudflare yet
+(`docs/reports/2026-11-23-share-card-packs.md`, "Next").
+
 ## Deploy
 
 `.github/workflows/portfolio-pages.yml`, job `deploy-cloudflare`, on every
