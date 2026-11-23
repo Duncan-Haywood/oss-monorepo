@@ -1,7 +1,10 @@
 """Independent check for the Windows Rating tag (0x4746) in TIFF raws: a
 stdlib walk of IFD0, its chain, SubIFDs and the EXIF IFD, written apart from
 site/rawpreview.mjs. Usage: python3 -I eval/cull-rating-tag-scan.py DIR"""
-import os, struct, sys
+import os
+import struct
+import sys
+
 
 def walk(path):
     b = open(path, "rb").read(4 << 20)
