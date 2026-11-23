@@ -758,9 +758,25 @@ the end. ([eval/linear-placement-2026-11-22.md](eval/linear-placement-2026-11-22
 Kerbs, barriers and ditches swept as an `IfcFixedReferenceSweptAreaSolid`
 along those curves are sliced the same way, the profile square to the 3D
 tangent with its x axis held toward FixedReference (2026-11-22).
-Not read yet: cant (`IfcSegmentedReferenceCurve`), spirals other than the
-clothoid, `IfcPolynomialCurve` and offset curves as directrices; the
-element on such a placement is "not read", and the rest of the file is.
+**Cant on rail alignments (2026-11-23).** Track parts placed on an
+`IfcSegmentedReferenceCurve` (the alignment with its cant over the gradient
+curve) are raised by the deviating elevation and rolled about the tangent by
+the cross slope, so a sleeper or slab on a canted curve is placed and boxed
+tilted, its high side on the high rail; lofted track beds roll with it. Each
+cant segment moves from its placement to the next by its parent curve's own
+function, as buildingSMART's `segmented-reference-curve` sample text works it
+(a cosine run-in, a constant stretch, a linear run-out); horizontal cosine
+transition spirals (`IfcCosineSpiral`) are read too. On that sample: the
+elevation and its slope match the text's formulas to 1e-17 m, the roll
+matches IfcOpenShell 0.9 to under 0.0001 degree, and the plan ends 2.4e-9 m
+from where the file places its next segment (IfcOpenShell: 5e-7 m).
+IfcOpenShell 0.9's elevation change is exactly 100 times the text's (L, the
+segment length, once too often): -7.92 m at the end where the file's own
+EndPoint says 0, so here the sample text wins
+([eval/cant-2026-11-23.md](eval/cant-2026-11-23.md)).
+Not read yet: spirals other than the clothoid and the cosine (sine and
+polynomial spirals), `IfcPolynomialCurve` and offset curves as directrices;
+the element on such a placement is "not read", and the rest of the file is.
 
 **Reinforcing bars and grid placements (2026-11-22).** A bar swept as a disk
 along an `IfcIndexedPolyCurve` of line and arc segments (how bars, stirrups

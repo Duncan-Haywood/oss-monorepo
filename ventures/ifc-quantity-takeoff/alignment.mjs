@@ -15,9 +15,27 @@
 //   direction of travel at SegmentStart sit on Placement. Only the parent's
 //   own shape matters, so where an exporter put the parent curve is ignored.
 // - Parent curves: IfcLine, IfcCircle, IfcClothoid (tangent angle
-//   s^2 / (2 A |A|) from the inflection point), IfcPolyline.
+//   s^2 / (2 A |A|) from the inflection point), IfcCosineSpiral (curvature
+//   1/A1 cos(pi s / L) + 1/A0, L the IfcCurveSegment's length: a 300 to
+//   1000 m transition ends where buildingSMART's sample places the next
+//   segment, to 5e-7 m), IfcPolyline.
 // - IfcCompositeCurve of IfcCurveSegment (the horizontal), IfcGradientCurve
 //   (horizontal + vertical), IfcPolyline as a bare basis curve.
+// - IfcSegmentedReferenceCurve (cant) over a gradient curve: each segment's
+//   Placement holds (distance along, deviating elevation) in its Location and
+//   the cross slope in its Axis (theta = atan2(Axis z, Axis y), roll
+//   pi/2 - theta, positive when the right rail is the high one, so the frame's
+//   z leans to the left). Between one segment's placement and the next (or
+//   EndPoint) the elevation and theta move by the parent curve's own
+//   function: buildingSMART's sample text (IFC4.3.x-sample-models,
+//   segmented-reference-curve/README.md) gives a cosine parent
+//   D(s) = L/A0 + L/A1 cos(pi s / L), L times its curvature; a clothoid's L
+//   times its curvature is linear (a linear cant run-off). Read here as
+//   w(s) = (f(s) - f(0)) / (f(L) - f(0)), elevation y0 + (y1 - y0) w and
+//   theta t0 + (t1 - t0) w, which is the sample's text exactly and stays
+//   joined to the next placement for any parent; a parent whose function
+//   does not change (a line: constant cant) moves linearly. The elevation's
+//   slope adds to the gradient. eval/cant-2026-11-23.md.
 // - The frame at a station: x along the curve's tangent (with its gradient),
 //   y level to the left, z perpendicular to the tangent in the vertical plane
 //   through it: the frame IfcPointByDistanceExpression's offsets are measured
@@ -25,8 +43,10 @@
 //   This is also IfcOpenShell 0.8's reading (eval/linear-placement-*.md).
 //
 // What is not (each throws Unresolved, so the element is "not read" and the
-// rest of the file still is): IfcSegmentedReferenceCurve (cant), spirals
-// other than the clothoid, IfcPolynomialCurve, IfcOffsetCurveByDistances.
+// rest of the file still is): spirals other than the clothoid and the
+// cosine (sine, polynomial spirals), IfcPolynomialCurve,
+// IfcOffsetCurveByDistances, a segmented reference curve over anything but
+// a gradient or composite curve.
 
 const GAUSS = [
   [-0.906179845938664, 0.236926885056189],
@@ -62,6 +82,13 @@ function planeFrame(o, d) {
 const onFrame = (F, p) => [F.o[0] + p[0] * F.x[0] + p[1] * F.y[0], F.o[1] + p[0] * F.x[1] + p[1] * F.y[1]];
 const dirOnFrame = (F, t) => [t[0] * F.x[0] + t[1] * F.y[0], t[0] * F.x[1] + t[1] * F.y[1]];
 
+/** the level-left and up axes of a station's frame turned by a cant's roll about the tangent (z toward the left for a positive roll) */
+function rolled(Y, Z, roll) {
+  if (!roll) return [Y, Z];
+  const c = Math.cos(roll), s = Math.sin(roll);
+  return [[0, 1, 2].map((i) => c * Y[i] - s * Z[i]), [0, 1, 2].map((i) => c * Z[i] + s * Y[i])];
+}
+
 export class AlignmentReader {
   /** @param {import("./geom.mjs").Geometry} geo for get/num/point/dir and the plane-angle unit */
   constructor(geo) {
@@ -83,8 +110,13 @@ export class AlignmentReader {
     return planeFrame([o[0], o[1]], [x[0] / n, x[1] / n]);
   }
 
-  /** a parent curve's point and unit tangent at arc length s (and how a parameter value maps to s) */
-  parent(ref) {
+  /**
+   * a parent curve's point and unit tangent at arc length s (and how a
+   * parameter value maps to s); L is the curve segment's length, which the
+   * IFC 4.3 spirals other than the clothoid are written against. `fn`, where
+   * given, is L times the curvature at s: the function a cant segment reads.
+   */
+  parent(ref, L = 1) {
     const g = this.geo;
     const e = g.get(ref);
     if (!e) this.fail("missing parent curve");
@@ -96,7 +128,7 @@ export class AlignmentReader {
         const mag = v ? Math.abs(g.num(v.args[1]) ?? 1) || 1 : 1;
         const n = Math.hypot(d[0], d[1]) || 1;
         const t = [d[0] / n, d[1] / n];
-        return { at: (s) => ({ p: [p[0] + s * t[0], p[1] + s * t[1]], t }), param: (u) => u * mag };
+        return { at: (s) => ({ p: [p[0] + s * t[0], p[1] + s * t[1]], t }), param: (u) => u * mag, fn: () => 0, dfn: () => 0 };
       }
       case "IFCCIRCLE": {
         const F = this.place2(e.args[0]);
@@ -125,6 +157,32 @@ export class AlignmentReader {
             return { p: onFrame(F, [x, y]), t: dirOnFrame(F, [Math.cos(th), Math.sin(th)]) };
           },
           param: (u) => u,
+          fn: (s) => (L * s) / (A * Math.abs(A)),
+          dfn: () => L / (A * Math.abs(A)),
+        };
+      }
+      case "IFCCOSINESPIRAL": {
+        // IfcCosineSpiral(Position, CosineTerm A1, ConstantTerm A0):
+        // curvature 1/A1 cos(pi s / L) + 1/A0, so the tangent turns through
+        // s/A0 + L/(pi A1) sin(pi s / L)
+        const F = this.place2(e.args[0]);
+        const A1 = g.num(e.args[1]), A0 = g.num(e.args[2]);
+        if (!A1) this.fail("cosine spiral with no cosine term");
+        // a zero-length closing segment (exporters write one at the end) has no shape to draw
+        if (!(L > 0)) return { at: () => ({ p: onFrame(F, [0, 0]), t: F.x }), param: (u) => u, fn: () => 0, dfn: () => 0 };
+        const c0 = A0 ? 1 / A0 : 0;
+        const theta = (s) => s * c0 + (L / (Math.PI * A1)) * Math.sin((Math.PI * s) / L);
+        return {
+          at: (s) => {
+            const n = Math.max(8, Math.ceil(Math.abs(theta(s)) * 16 + Math.abs(s) / 10));
+            const x = integrate((u) => Math.cos(theta(u)), 0, s, n);
+            const y = integrate((u) => Math.sin(theta(u)), 0, s, n);
+            const th = theta(s);
+            return { p: onFrame(F, [x, y]), t: dirOnFrame(F, [Math.cos(th), Math.sin(th)]) };
+          },
+          param: (u) => u,
+          fn: (s) => L * c0 + (L / A1) * Math.cos((Math.PI * s) / L),
+          dfn: (s) => -(Math.PI / A1) * Math.sin((Math.PI * s) / L),
         };
       }
       case "IFCPOLYLINE": {
@@ -168,7 +226,7 @@ export class AlignmentReader {
     const e = g.get(ref);
     if (!e || e.type !== "IFCCURVESEGMENT") this.fail(`composite curve part ${e ? e.type : "missing"}`);
     const P = this.place2(e.args[1]);
-    const par = this.parent(e.args[4]);
+    const par = this.parent(e.args[4], Math.abs(g.num(e.args[3]) ?? 0));
     const toS = (v) => {
       const n = g.num(v) ?? 0;
       return typedName(v) === "IFCPARAMETERVALUE" ? par.param(n) : n;
@@ -254,6 +312,8 @@ export class AlignmentReader {
         return { z: q.p[1], g: slope(q) };
       };
       out = { kind: "gradient", length: H.length, frame: (d) => { const h = H.at(d); const v = elevation(d); return { p: [h.p[0], h.p[1], v.z], t: h.t, g: v.g }; } };
+    } else if (e.type === "IFCSEGMENTEDREFERENCECURVE") {
+      out = this.segmentedReference(e);
     } else if (e.type === "IFCCOMPOSITECURVE" || e.type === "IFCPOLYLINE") {
       const H = this.composite(ref);
       out = { kind: e.type === "IFCPOLYLINE" ? "polyline" : "horizontal", length: H.length, frame: (d) => { const h = H.at(d); return { p: [h.p[0], h.p[1], h.z ?? 0], t: h.t, g: h.g ?? 0 }; } };
@@ -262,6 +322,73 @@ export class AlignmentReader {
     }
     this.cache.set(ref, out);
     return out;
+  }
+
+  /**
+   * IfcSegmentedReferenceCurve(Segments, SelfIntersect, BaseCurve, EndPoint)
+   * -> the base curve's frame raised by the deviating elevation, with the
+   * cant's roll (see the head of this file).
+   */
+  segmentedReference(e) {
+    const g = this.geo;
+    const [segRefs, , baseRef, endRef] = e.args;
+    if (!baseRef) this.fail("segmented reference curve with no base curve");
+    const base = this.basis(baseRef.ref ?? baseRef);
+    const knot = (ref) => {
+      const pl = g.get(ref);
+      if (!pl) return null;
+      const o = g.point(pl.args[0]);
+      // a 2D placement (the sample's own closing segment is one) holds no cross slope: level
+      if (pl.type === "IFCAXIS2PLACEMENT2D") return { d: o[0], y: o[1], roll: 0 };
+      if (pl.type !== "IFCAXIS2PLACEMENT3D") this.fail(`cant placement ${pl.type}`);
+      const ax = g.dir(pl.args[1], [0, 0, 1]);
+      // roll: pi/2 - atan2(Axis z, Axis y)
+      return { d: o[0], y: o[1], roll: Math.atan2(ax[1], ax[2]) };
+    };
+    const segs = [];
+    let cum = 0;
+    for (const r of segRefs || []) {
+      const se = g.get(r);
+      if (!se || se.type !== "IFCCURVESEGMENT") this.fail(`cant segment ${se ? se.type : "missing"}`);
+      const L = Math.abs(g.num(se.args[3]) ?? 0);
+      const par = this.parent(se.args[4], L);
+      if (!par.fn) this.fail(`cant parent curve ${g.get(se.args[4])?.type}`);
+      const s0 = g.num(se.args[2]) ?? 0;
+      segs.push({ start: cum, L, k: knot(se.args[1]) ?? { d: cum, y: 0, roll: 0 }, s0, fn: par.fn, dfn: par.dfn, sign: (g.num(se.args[3]) ?? 0) < 0 ? -1 : 1 });
+      cum += L;
+    }
+    if (!segs.length) this.fail("segmented reference curve with no segments");
+    const endK = endRef ? knot(endRef) : null;
+    for (let i = 0; i < segs.length; i++) segs[i].next = i + 1 < segs.length ? segs[i + 1].k : endK ?? segs[i].k;
+    const real = segs.filter((s) => s.L > 0);
+    if (!real.length) this.fail("segmented reference curve of zero length");
+    // the share w of the way from this placement to the next at u along, and dw/du
+    const share = (sg, u) => {
+      const f = (x) => sg.fn(sg.s0 + sg.sign * x);
+      const f0 = f(0), f1 = f(sg.L);
+      if (Math.abs(f1 - f0) < 1e-12) return { w: u / sg.L, dw: 1 / sg.L };
+      return { w: (f(u) - f0) / (f1 - f0), dw: (sg.sign * sg.dfn(sg.s0 + sg.sign * u)) / (f1 - f0) };
+    };
+    const cant = (d) => {
+      let k = 0;
+      while (k < real.length - 1 && d > real[k].start + real[k].L) k++;
+      const sg = real[k];
+      const u = Math.min(sg.L, Math.max(0, d - sg.start));
+      const { w, dw: dwIn } = share(sg, u);
+      // past either end the cant holds its end value
+      const dw = d - sg.start < 0 || d - sg.start > sg.L ? 0 : dwIn;
+      return { y: sg.k.y + (sg.next.y - sg.k.y) * w, dy: (sg.next.y - sg.k.y) * dw, roll: sg.k.roll + (sg.next.roll - sg.k.roll) * w };
+    };
+    return {
+      kind: "cant",
+      length: base.length,
+      cant,
+      frame: (d) => {
+        const f = base.frame(d);
+        const c = cant(d);
+        return { p: [f.p[0], f.p[1], f.p[2] + c.y], t: f.t, g: (f.g ?? 0) + c.dy, roll: c.roll };
+      },
+    };
   }
 
   /** IfcAxis2PlacementLinear -> 3x4 matrix (row-major, as geom.mjs) in the basis curve's coordinates */
@@ -281,7 +408,8 @@ export class AlignmentReader {
     // the vertical plane through it (IfcPointByDistanceExpression,
     // OffsetVertical), so a vertical offset on a 1.3% grade leans 1.3%
     const gr = f.g ?? 0, c = 1 / Math.hypot(1, gr);
-    const X = [tx[0] * c, tx[1] * c, gr * c], Y = [left[0], left[1], 0], Z = [-gr * tx[0] * c, -gr * tx[1] * c, c];
+    const X = [tx[0] * c, tx[1] * c, gr * c];
+    const [Y, Z] = rolled([left[0], left[1], 0], [-gr * tx[0] * c, -gr * tx[1] * c, c], f.roll);
     // OffsetLongitudinal is a straight step along that tangent after the
     // other two offsets, not a further distance along the curve
     const ol = g.num(lat) ?? 0, ov = g.num(vert) ?? 0, og = g.num(lon) ?? 0;
@@ -357,14 +485,14 @@ export function sectionedSolidHorizontal(A, e, loopsOf) {
     // the station's frame (axis2Linear): profile x along the level y axis,
     // profile y along z, square to the tangent in its vertical plane
     const gr = f.g ?? 0, c = 1 / Math.hypot(1, gr);
-    const Z = [-gr * f.t[0] * c, -gr * f.t[1] * c, c];
+    const [Y, Z] = rolled([left[0], left[1], 0], [-gr * f.t[0] * c, -gr * f.t[1] * c, c], f.roll);
     const loops = sections[i].map((l, k) => ({
       s: l.s,
       pts: l.pts.map((p, j) => {
         const q = t ? sections[i + 1][k].pts[j] : p;
         const x = p[0] + t * (q[0] - p[0]), y = p[1] + t * (q[1] - p[1]);
         const side = lat + SIGN_X * x, up = vert + y;
-        return [f.p[0] + side * left[0] + up * Z[0], f.p[1] + side * left[1] + up * Z[1], f.p[2] + up * Z[2]];
+        return [f.p[0] + side * Y[0] + up * Z[0], f.p[1] + side * Y[1] + up * Z[1], f.p[2] + side * Y[2] + up * Z[2]];
       }),
     }));
     return loops;
