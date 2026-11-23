@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01EhTJVMCRxF9UYeNNrRBrPm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ...)",
+  "input_sha256": "f0940a04757810de07f56e2c3705fe96e1a45d8de98448e85edef4ca28d67d12",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-23T06:10:17Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ifc-quantity-takeoff: CSG arc walls with cutters (flagship 14, allocate row 9)",
+  "projects": [
+    "ventures/ifc-quantity-takeoff"
+  ],
+  "pr": 18373,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    {
+      "file": "ventures/ifc-quantity-takeoff/eval/triangulated-arc-breps-2026-11-23.md",
+      "issue": "An earlier run blamed ISSUE_129 #36735/#148665's wrong outer face on CSG cutter faces; traced here to the two ends sharing one plane through the centre. Corrected in qto.mjs's comment, NEXT.md, README and the new eval note; the old note is left as history."
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The buildable item named 'CSG arc walls with cutters' carried the earlier misdiagnosis into the routing; the item text should name the symptom, not a cause not yet traced."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-23-half-round-wall-two-ends-one-plane.md",
+    "ventures/ifc-quantity-takeoff/eval/half-round-ends-2026-11-23.md"
+  ],
+  "goal": null,
+  "notes": "curvedFaces (geom.mjs) now requires each plane's area to lie within 45 degrees (RMS second moment) of the foot of the perpendicular from the bend centre. ISSUE_129 #36735 and #148665 measured: within 0.003% of their axis circle gross, net faces close on net volume to 0.01%. Four public models (ARK_NUS, dental_clinic, ISSUE_098, ISSUE_129): curved-walls.mjs and a net-face dump differ from before on those two rows only; 67 of 134 measured (65 before). node --test *.test.mjs in ventures/ifc-quantity-takeoff: 223 of 223 pass; the new test fails on the old code.",
+  "corrections": [],
+  "redteam": null
+}

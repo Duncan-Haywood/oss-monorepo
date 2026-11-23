@@ -1315,6 +1315,47 @@ test("curvedFaces: triangles leaning off the vertical on a curved face are read"
   assert.ok(Math.abs(F.swept - V) < 1e-3 * V, `swept ${F.swept} vs ${V}`);
 });
 
+// ISSUE_129's #36735 and #148665 (eval/half-round-ends-2026-11-23.md): a
+// half-ring wall extruded from a drawn profile, so its convex pieces are a
+// signed fan; its two ends lie on one plane through the centre, and the cuts
+// of two openings, one at each end, share two planes
+test("curvedFaces: a half ring's coplanar ends and paired opening cuts are on neither face", async () => {
+  const { curvedFaces, solidVolume, subtractCutters, cuttersOf } = await import("./geom.mjs");
+  const N = 180, ro = 20.2, ri = 18.4, h = 1.55;
+  const arc = (r, rev) => Array.from({ length: N + 1 }, (_, i) => { const a = -Math.PI / 2 + (Math.PI * (rev ? N - i : i)) / N; return [r * Math.cos(a), r * Math.sin(a)]; });
+  const outerPts = arc(ro, false), innerPts = arc(ri, true);
+  const pieces = convexPieces([...outerPts, ...innerPts]);
+  assert.ok(pieces.some((q) => q.s < 0), "a signed fan, as the engine builds a drawn profile");
+  const wall = { terms: pieces.map((q) => ({ s: q.s, faces: prism(q.pts, [0, 0, h]) })), mesh: 0, shells: [], notes: [] };
+  const chain = (pts, x0 = -Infinity, x1 = Infinity) => {
+    let L = 0;
+    for (let i = 0; i + 1 < pts.length; i++) {
+      const [a, b] = [pts[i], pts[i + 1]];
+      const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      const lo = Math.max(x0, Math.min(a[0], b[0])), hi = Math.min(x1, Math.max(a[0], b[0]));
+      L += a[0] === b[0] ? (a[0] >= x0 && a[0] <= x1 ? len : 0) : Math.max(0, hi - lo) / Math.abs(b[0] - a[0]) * len;
+    }
+    return L;
+  };
+  const F = curvedFaces(wall, [0, 0, 1]);
+  // before: both ends (2 x 1.8 x 1.55 = 5.58) were read as outer face
+  assert.ok(Math.abs(F.outer - chain(outerPts) * h) < 1e-9, `outer ${F.outer}`);
+  assert.ok(Math.abs(F.inner - chain(innerPts) * h) < 1e-9, `inner ${F.inner}`);
+  const V = Math.abs(solidVolume(wall));
+  assert.ok(Math.abs(((F.outer + F.inner) / 2) * (F.rOuter - F.rInner) - V) < 2e-4 * V);
+  // two openings through the ring near its ends, cut by the same planes x = 5.67 and 10.95
+  const box = (y0, y1) => ({ terms: [{ s: 1, faces: prism([[5.67, y0], [10.95, y0], [10.95, y1], [5.67, y1]], [0, 0, h + 2]).map((f) => f.map(([x, y, z]) => [x, y, z - 1])) }] });
+  let net = wall;
+  for (const b of [box(12, 22), box(-22, -12)]) net = subtractCutters(net, cuttersOf(b), "opening");
+  const G = curvedFaces(net, [0, 0, 1]);
+  // both openings: the clip by x takes the chain north and south of the centre
+  const off = (pts) => chain(pts, 5.67, 10.95) * h;
+  assert.ok(Math.abs(G.outer - (F.outer - off(outerPts))) < 1e-6, `net outer ${G.outer} vs ${F.outer - off(outerPts)}`);
+  assert.ok(Math.abs(G.inner - (F.inner - off(innerPts))) < 1e-6, `net inner ${G.inner} vs ${F.inner - off(innerPts)}`);
+  const Vn = Math.abs(solidVolume(net));
+  assert.ok(Math.abs(((G.outer + G.inner) / 2) * (G.rOuter - G.rInner) - Vn) < 1e-3 * Vn);
+});
+
 // ArchiCAD measures a drawn profile with its arcs as 45-degree chords and a
 // round column as a circumscribed 20-gon (eval/archicad-polygon-sections-2026-11-23.md)
 const polygonFile = (storedNotch, storedColumn) => `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC2X3'));ENDSEC;DATA;

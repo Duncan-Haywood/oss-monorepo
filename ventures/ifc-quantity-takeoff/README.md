@@ -249,6 +249,21 @@ this tool says which they are
   20,858 mm, digit for digit) on every piece; the bill of quantities uses their
   section instead
   ([eval/joins-and-host-figures-2026-11-20.md](eval/joins-and-host-figures-2026-11-20.md)).
+- **Half-round walls and the openings cut at both ends (2026-11-23).**
+  ISSUE_129's two 180-degree tunnel walls (#36735, #148665), refused until now,
+  are measured. The earlier note put the wrong outer face down to "cutter
+  faces". Traced, the cause was simpler: a half ring's two ends lie on one
+  plane through the centre, and summing that plane as one patch put its
+  centroid on the centre itself, so 5.58 m2 of ends read as outer face. The
+  cuts of the two openings, one at each end, do the same on two shared planes.
+  A plane now counts toward a face only when its area lies round the foot of
+  the perpendicular from the centre (RMS within 45 degrees). Both walls match
+  their own axis circle to 0.003% (98.362 / 89.597 m2 against 98.360 / 89.595;
+  244.319 / 222.548 against 244.312 / 222.542; 1.7999 m wide, type 1800), and
+  the net faces enclose the net volume to 0.01%. On four public models nothing
+  else moved; the bill's side area on these two goes from 22.83 m2 of chord
+  cuts to 327.41 m2 gross, 285.42 m2 net
+  ([eval/half-round-ends-2026-11-23.md](eval/half-round-ends-2026-11-23.md)).
 - **Curved walls as triangulated breps, and a duct inside one (2026-11-23).**
   Faceted brep walls on an arc are now measured too. Facets leaning up to 2
   degrees count as standing, and a facet with more of the wall beyond it (a
@@ -663,9 +678,11 @@ A curved wall's side area is the mean of its two curved faces summed from its
 facets, when mean x width matches its volume within 2%, or (for a body with
 no cutter terms) when its faces enclose its volume by the divergence theorem
 in plan, which allows a stepped section or a duct. Facets lining a channel
-inside the wall are left off both faces. A wall that fails both checks (a CSG
-body with cutters whose section changes, ISSUE_129's two 1.8 m walls) keeps a
-plane cut, a chord's elevation, unless it stores a figure.
+inside the wall are left off both faces, and so is a plane whose area lies
+far from the foot of the perpendicular from the centre (a half ring's two
+ends on one plane). A wall that fails both checks (a body with cutter terms
+whose section changes) keeps a plane cut, a chord's elevation, unless it
+stores a figure.
 
 ## Run it
 

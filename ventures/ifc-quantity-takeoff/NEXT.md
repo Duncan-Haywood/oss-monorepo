@@ -12,9 +12,9 @@
 
 ## Curved walls (landed 2026-11-23, eval/curved-side-area-2026-11-23.md)
 
-- (landed 2026-11-23, eval/triangulated-arc-breps-2026-11-23.md) Triangulated breps on an arc: ARK_NUS's two (a duct along the foot, faces matching the axis to 0.02%) and 8 ISSUE_129 tunnel walls measured, 55 to 65 of 134. Left: a CSG body with cutters (ISSUE_129 #36735, #148665: cutter faces read as an inner face 6-9 m inside the wall) needs its cutters clipped to the material first; recesses lined at other angles than facing the centre; facets leaning over 2 degrees (battered walls).
+- (landed 2026-11-23, eval/triangulated-arc-breps-2026-11-23.md) Triangulated breps on an arc: ARK_NUS's two (a duct along the foot, faces matching the axis to 0.02%) and 8 ISSUE_129 tunnel walls measured, 55 to 65 of 134. (ISSUE_129 #36735, #148665 landed 2026-11-23, eval/half-round-ends-2026-11-23.md: not cutters but a half ring's two ends on one plane through the centre, and opening cuts sharing planes; a plane's spread round the foot now decides.) Left: recesses lined at other angles than facing the centre; facets leaning over 2 degrees (battered walls).
 - `bendsInPlan` flags straight walls with rounded ends (one inspected of the 54 ISSUE_129 walls whose facets face no one centre); curvedFaces refuses them, but the flag (and a stored figure's `curved` reason there) is too broad.
-- ISSUE_129's two 180-degree 1.8 m extrusions (#36735, #148665): traced 2026-11-23, they are CSG bodies whose cutter terms carry faces off the material (eval/triangulated-arc-breps-2026-11-23.md); still refused.
+- The swept-volume check is kept off bodies with negative terms, a guard brought in on the misreading of #36735/#148665 (qto.mjs): a drawn concave profile's signed fan with a stepped section is still refused. Test the swept check on such a fan and lift the guard if it holds.
 - A second tool's stored side area on an arc wall (only Revit outer faces checked).
 
 ## Rooms (landed 2026-11-21, eval/rooms-2026-11-21.md)

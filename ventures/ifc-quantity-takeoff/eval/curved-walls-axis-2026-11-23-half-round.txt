@@ -1,0 +1,4 @@
+| Wall | type | axis radius m | arc deg | height m | measured mid radius m | width m | outer: measured / arc x H m2 | inner: measured / arc x H m2 | how it passed |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---|
+| #36735 | Mur de base:IGC_MUR_EGC-TUN-VOILE-1800 | 19.3000 | 180.000 | 1.550 | 19.2993 | 1.7999 | 98.362 / 98.360 | 89.597 / 89.595 | one section |
+| #148665 | Mur de base:IGC_MUR_EGC-TUN-VOILE-1800 | 19.3000 | 180.000 | 3.850 | 19.2993 | 1.7999 | 244.319 / 244.312 | 222.548 / 222.542 | one section |

@@ -1344,10 +1344,13 @@ function computeAreas(type, solids, W, f) {
         const V = Math.abs(solidVolume(body));
         const mean = g ? (g.outer + g.inner) / 2 : 0;
         const oneSection = g && V > 0 && Math.abs(mean * (g.rOuter - g.rInner) - V) <= 0.02 * V;
-        // only a body with no cutters among its terms: a cutter's faces off
-        // the remaining material are not its surface (ISSUE_129's 180-degree
-        // #36735 and #148665, 258 terms, read cutter faces 6-9 m inside the
-        // wall as its inner face), and neither face nor ray test sees past them
+        // only a body with no cutters among its terms. Brought in for
+        // ISSUE_129's 180-degree #36735 and #148665, whose wrong outer face
+        // was put down to cutter faces; traced 2026-11-23 to their two ends
+        // sharing one plane through the centre (curvedFaces now leaves such
+        // planes out, and both pass the one-section check;
+        // eval/half-round-ends-2026-11-23.md). Kept as a guard: a drawn
+        // profile's signed fan is not yet tested against the swept check
         const cutters = body.terms.some((t) => t.s < 0) || (body.shells || []).some((sh) => sh.s < 0);
         const stepped = !oneSection && !cutters && g && V > 0 && Math.abs(g.swept - V) <= 0.02 * V;
         if (oneSection || stepped) {

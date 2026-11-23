@@ -409,7 +409,11 @@ export function bendsInPlan(s, up, t, minDirs = 12) {
  * level or lies along a radius, whatever its section does up the wall (a
  * stepped or recessed wall included). A facet facing the centre or away
  * with more of the body beyond it (a duct's inside) is on neither face: its
- * area is `hidden`, though it still counts in `swept`. null when fewer than `minDirs` facets
+ * area is `hidden`, though it still counts in `swept`. A plane whose area
+ * lies more than 45 degrees from the foot of the perpendicular from the
+ * centre (RMS, seen from the centre) is on neither face, whatever its
+ * centroid says: a half ring's two ends on one plane, or the cuts of two
+ * openings that share a plane. null when fewer than `minDirs` facets
  * stand on either face or the normals do not meet (a wall that is straight
  * after all).
  */
@@ -489,7 +493,7 @@ export function curvedFaces(s, up, minDirs = 6) {
     const m = mulS(l.reduce((q, p) => add(q, p), [0, 0, 0]), 1 / l.length);
     const v = planes.get(key) || { a: [0, 0, 0], loops: [] };
     v.a = add(v.a, a);
-    v.loops.push([a, m]);
+    v.loops.push([a, m, l, sg]);
     planes.set(key, v);
   }
   // each plane's net area, outward normal and a point on it (its loops'
@@ -502,7 +506,7 @@ export function curvedFaces(s, up, minDirs = 6) {
     let w = 0, m = [0, 0, 0];
     for (const [a, c] of v.loops) { const x = dot(a, n); w += x; m = add(m, mulS(c, x)); }
     if (!(w > 0)) continue;
-    P.push({ n, area, p: mulS(m, 1 / w) });
+    P.push({ n, area, p: mulS(m, 1 / w), loops: v.loops });
   }
   if (P.length < 2 * minDirs) return null;
   // two directions across `up`
@@ -537,6 +541,30 @@ export function curvedFaces(s, up, minDirs = 6) {
     if (!(d > 0) || !(h > 0)) return [0, 0];
     return [(nx * dx + ny * dy) / (h * d), Math.abs((nx * dx + ny * dy) / h)];
   };
+  // RMS distance, along the plane and across `up`, of the plane's signed
+  // area from the foot of the perpendicular from C: the second moment of
+  // each loop in the plane's own (t, up) coordinates, t = up x n
+  const spread = (f, C) => {
+    const t = unit(cross(u, f.n));
+    if (!t) return Infinity;
+    const c3 = add(mulS(e1, C[0]), mulS(e2, C[1]));
+    let I = 0, A = 0;
+    for (const [, , l, sg] of f.loops) {
+      let i2 = 0, a2 = 0;
+      for (let k = 0; k < l.length; k++) {
+        const P0 = l[k], P1 = l[(k + 1) % l.length];
+        const x0 = dot(t, sub(P0, c3)), y0 = dot(u, P0), x1 = dot(t, sub(P1, c3)), y1 = dot(u, P1);
+        const cr = x0 * y1 - x1 * y0;
+        a2 += cr / 2;
+        i2 += (cr * (x0 * x0 + x0 * x1 + x1 * x1)) / 12;
+      }
+      // (t, up) is right-handed about n: a loop running anticlockwise there
+      // has its area along n; the term's sign on top
+      const o = sg * Math.sign(dot(cross(t, u), f.n));
+      I += o * i2; A += o * a2;
+    }
+    return A > 0 ? Math.sqrt(Math.max(0, I / A)) : Infinity;
+  };
   let C = fit(P);
   if (!C) return null;
   for (let i = 0; i < 3; i++) C = fit(P.filter((f) => Math.abs(facing(f, C)[0]) > cosMax)) ?? C;
@@ -545,7 +573,17 @@ export function curvedFaces(s, up, minDirs = 6) {
   let dMax = -Infinity, dMin = Infinity;
   for (const f of P) {
     const [c, dist] = facing(f, C);
-    if (Math.abs(c) <= cosMax) continue;
+    // A plane's summed area can be patches far apart that only its point
+    // (their centroid) makes look like a face: a half-round wall's two ends
+    // lie on one plane through the centre, and the cuts two openings at
+    // either end of it leave share two planes, each pair straddling the foot
+    // of the perpendicular from the centre (ISSUE_129's 180-degree #36735
+    // and #148665 read both ends, 5.58 m2, as outer face, and the cuts as
+    // inner; eval/half-round-ends-2026-11-23.md). A facet of the face lies
+    // round that foot, so the plane's area must stay within 45 degrees of it
+    // seen from the centre: RMS distance from the foot along the plane (in
+    // plan) no more than the plane's distance from the centre.
+    if (Math.abs(c) <= cosMax || !(spread(f, C) <= dist)) continue;
     F.push({ f, c, dist });
     if (c > 0) dMax = Math.max(dMax, dist); else dMin = Math.min(dMin, dist);
   }
