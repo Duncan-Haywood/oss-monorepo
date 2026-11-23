@@ -1,0 +1,66 @@
+{
+ "arxiv:2108.09293": {
+  "checked": "2026-11-23",
+  "title": "Asleep at the Keyboard? Assessing the Security of GitHub Copilot's Code Contributions (2021)"
+ },
+ "arxiv:2310.06770": {
+  "checked": "2026-11-23",
+  "title": "SWE-bench: Can Language Models Resolve Real-World GitHub Issues? (2023)"
+ },
+ "arxiv:2405.15793": {
+  "checked": "2026-11-23",
+  "title": "SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering (2024)"
+ },
+ "arxiv:2407.01502": {
+  "checked": "2026-11-23",
+  "title": "AI Agents That Matter (2024)"
+ },
+ "arxiv:2507.15003": {
+  "checked": "2026-11-23",
+  "title": "The Rise of AI Teammates in Software Engineering (SE) 3.0: How Autonomous Coding Agents Are Reshaping Software Engineering (2025)"
+ },
+ "doi:10.1007/s10664-019-09781-y": {
+  "checked": "2026-11-23",
+  "title": "How bugs are born: a model to identify how bugs are introduced in software components (2020)"
+ },
+ "doi:10.1007/s10664-021-10092-4": {
+  "checked": "2026-11-23",
+  "title": "Problems with SZZ and features: An empirical study of the state of practice of defect prediction data collection (2022)"
+ },
+ "doi:10.1093/jnci/22.4.719": {
+  "checked": "2026-11-23",
+  "title": "Statistical Aspects of the Analysis of Data From Retrospective Studies of Disease (1959)"
+ },
+ "doi:10.1109/ASE.2006.23": {
+  "checked": "2026-11-23",
+  "title": "Automatic Identification of Bug-Introducing Changes (2006)"
+ },
+ "doi:10.1109/ICSE.2013.6606585": {
+  "checked": "2026-11-23",
+  "title": "It's not a bug, it's a feature: How misclassification impacts bug prediction (2013)"
+ },
+ "doi:10.1109/ICSM.2000.883028": {
+  "checked": "2026-11-23",
+  "title": "Identifying reasons for software changes using historic databases (2000)"
+ },
+ "doi:10.1109/TSE.2012.70": {
+  "checked": "2026-11-23",
+  "title": "A large-scale empirical study of just-in-time quality assurance (2013)"
+ },
+ "doi:10.1109/TSE.2016.2616306": {
+  "checked": "2026-11-23",
+  "title": "A Framework for Evaluating the Results of the SZZ Approach for Identifying Bug-Introducing Changes (2017)"
+ },
+ "doi:10.1109/TSE.2017.2693980": {
+  "checked": "2026-11-23",
+  "title": "Are Fix-Inducing Changes a Moving Target? A Longitudinal Case Study of Just-In-Time Defect Prediction (2018)"
+ },
+ "doi:10.1145/1083142.1083147": {
+  "checked": "2026-11-23",
+  "title": "When do changes induce fixes? (2005)"
+ },
+ "doi:10.1145/1595696.1595716": {
+  "checked": "2026-11-23",
+  "title": "Fair and balanced? (2009)"
+ }
+}
