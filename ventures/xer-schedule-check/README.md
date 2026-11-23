@@ -770,7 +770,12 @@ How it was checked (`eval/collapse-check.mjs`, `eval/collapse-check-2026-11-23.m
 file's main project finished as planned by status.mjs, with and without planted slips (1 to 3
 activities in progress part-way through, 1 to 30 working days each) and planted waits (a
 start-on-or-after hold 1 to 30 days past an activity's early start), so the "but for" date is the
-run without them. RESULTS_HERE
+run without them. Six files, seed 2, 10 plants each: as exported the model lands 21,404 of
+21,422 activities on their dates (CCA 15,831 of 15,849) and every finish matches; finished as
+planned, taking out exactly the planted slips gave back the finish without them 60 of 60 times,
+planted waits taken out of the gap 60 of 60, the collapsed XER read back 60 of 60 (seed 1 on
+five files: 50/50 each). 7 unit tests in `collapse.test.mjs`; the guide's worked example is
+checked against the engine in `guides.test.mjs`.
 
 ## GAO Schedule Assessment Guide scorecard (2026-11-23)
 
