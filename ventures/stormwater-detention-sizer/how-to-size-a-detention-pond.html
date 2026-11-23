@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23205e7a'/%3E%3Cpath%20d='M6%2020h20v6H6z'%20fill='%23fff'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How to Size a Detention Pond: a Worked Two-Storm Example</title>
+  <meta name="description" content="A worked detention pond sizing example: NRCS curve-number runoff, the triangular unit hydrograph, routing through a 100 by 60 ft basin and sizing a 4.6 in orifice and a weir so 2-year and 100-year peaks stay at pre-development rates.">
+  <meta property="og:title" content="How to size a detention pond, worked through">
+  <meta property="og:description" content="Five acres from CN 61 to CN 85: the runoff, the hydrographs, the routing and the two-stage outlet, every number from the free sizer.">
+  <link rel="canonical" href="./how-to-size-a-detention-pond.html">
+  <style>
+    :root { font: 17px Georgia, serif; color: #18201f; background: #f1f5f4; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    a { color: #155a74; }
+    h1 { font: 700 clamp(1.7rem, 4.5vw, 2.5rem)/1.1 system-ui, sans-serif; color: #123f52; }
+    h2 { font: 700 1.2rem system-ui, sans-serif; color: #123f52; margin-top: 30px; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; font: 15px system-ui, sans-serif; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d3e0dd; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    footer { font: .86rem system-ui, sans-serif; color: #4b5856; margin-top: 36px; border-top: 1px solid #d3e0dd; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>How to size a detention pond</h1>
+  <p>A detention pond holds back the extra runoff that roofs and pavement make, and lets it out slowly enough that the creek downstream sees no bigger a peak than it did before. Sizing one is a loop: make the developed site's hydrograph, push it through a basin and an outlet, and change the outlet until the peak coming out is the one you are allowed. Here is that loop worked through for one small site, with every number from the <a href="./">free detention pond sizer</a>.</p>
+
+  <h2>The site</h2>
+  <p>Five acres of woods and pasture, curve number 61 and a time of concentration of 0.5 hours, becoming a small subdivision at curve number 85 with a 0.2 hour time of concentration. Two storms: a 2-year and a 100-year, each 24 hours long, from intensity = a / (minutes + 10)<sup>0.8</sup> with a = 40 and a = 85. <strong>Those coefficients are illustrative and belong to no real place</strong>; on a real job they come from the local drainage manual or a fit to NOAA Atlas 14. They give 2.84 in and 6.03 in of rain over the day.</p>
+
+  <h2>Step 1: how much runs off</h2>
+  <p>The NRCS curve-number equation: S = 1000 / CN - 10 is the most the ground could hold, the first 0.2 S soaks in before anything runs off, and runoff Q = (P - 0.2 S)² / (P + 0.8 S). Woods at CN 61 have S = 6.393 in, so the first 1.279 in of rain makes no runoff at all and the 2-year storm gives 0.31 in. The subdivision at CN 85 has S = 1.765 in and starts running off after 0.353 in: the same storm gives 1.45 in, more than four times as much.</p>
+
+  <h2>Step 2: when it arrives</h2>
+  <p>The rain is laid out as an alternating-block storm: the 2-minute blocks from the IDF curve with the biggest in the middle of the day. The runoff in each block is spread by the NRCS triangular unit hydrograph, which rises to its peak in half a step plus 0.6 times the time of concentration and is scaled so it carries exactly one inch. For the developed site that is 0.1367 hours to a peak of 27.67 cfs per inch of runoff; for the woods 0.3167 hours and 11.94 cfs per inch. Faster and taller: development changes the timing as well as the volume.</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>Storm</th><th class="n">Rain, in</th><th class="n">Runoff before</th><th class="n">Runoff after</th><th class="n">Peak before</th><th class="n">Peak after</th></tr></thead>
+    <tbody>
+      <tr><td>2-year</td><td class="n">2.84</td><td class="n">0.31 in</td><td class="n">1.45 in</td><td class="n">0.76 cfs</td><td class="n">9.62 cfs</td></tr>
+      <tr><td>100-year</td><td class="n">6.03</td><td class="n">2.03 in</td><td class="n">4.33 in</td><td class="n">8.21 cfs</td><td class="n">28.15 cfs</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Step 3: route it through the basin</h2>
+  <p>The basin is 100 by 60 ft at the bottom with 3 to 1 side slopes, so its volume at depth h is 6,000 h + 480 h² + 12 h³ cubic feet. Each 2-minute step, the water that came in minus the water that went out changes the storage, and the storage sets the level, and the level sets the outflow. Written for the end of the step, 2S/Δt + O equals the two inflows plus 2S/Δt - O at the start, which the tool solves for the level directly. That is level-pool, or storage-indication, routing.</p>
+
+  <h2>Step 4: size the outlet, small storm first</h2>
+  <p>A single circular orifice at the bottom is made bigger or smaller until the 2-year storm's peak outflow equals the woods' 0.76 cfs. That lands at <strong>a 4.6 in orifice</strong>, and the 2-year storm then fills the basin to 2.05 ft, about 14,455 cubic feet.</p>
+  <p>That orifice alone would hold the 100-year storm to a trickle and back the water 5.50 ft up the bank. The ordinance allows the woods' 100-year peak of 8.21 cfs, so a weir goes in with its crest at 2.05 ft, the 2-year storm's highest level, where that storm never reaches it. Lengthening it until the 100-year peak out is 8.21 cfs gives <strong>a 0.62 ft weir</strong>, and the 100-year level comes down to <strong>4.33 ft</strong> with about 35,926 cubic feet stored.</p>
+
+  <h2>Step 5: the depth</h2>
+  <p>Add a foot of freeboard to the 100-year level: <strong>5.33 ft deep</strong>, about 132 by 92 ft at the top of bank. Then the emergency spillway, the outlet barrel and tailwater, the water-quality volume and the local manual's minimum orifice size, none of which this example covers.</p>
+
+  <h2>When to use something else</h2>
+  <p>This is a screening model: one subarea, a storm built from an IDF curve rather than the NRCS 24-hour distributions, a free outfall and no infiltration. It is meant for a first layout and an independent check of a model run elsewhere. A permit set needs the method your reviewing agency names, run by a licensed engineer, usually in TR-20, HEC-HMS or a commercial package.</p>
+  <p><a href="./">Size your own basin</a> and download every step's hydrograph as a CSV.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This guide and the tool are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, legal or code-compliance advice, and do not replace a licensed professional engineer, the drainage manual that applies to your site or a plan review. You are responsible for reviewing and verifying any result before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+  <p><strong>Independent.</strong> Not affiliated with any software maker, agency or standards organisation.</p>
+  <p>Free and open source under the MIT licence. Optional <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a>.</p>
+</footer>
+</body>
+</html>

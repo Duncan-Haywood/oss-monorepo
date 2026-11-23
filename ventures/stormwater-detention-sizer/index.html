@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23205e7a'/%3E%3Cpath%20d='M6%2020h20v6H6z'%20fill='%23fff'/%3E%3Cpath%20d='M16%205c3%205%205%208%205%2010a5%205%200%200%201-10%200c0-2%202-5%205-10z'%20fill='%23cfe8f3'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Detention Pond Sizer — Orifice, Weir and Storage from NRCS Hydrographs</title>
+  <meta name="description" content="Free stormwater detention pond sizer. Enter the drainage area, pre- and post-development curve numbers and times of concentration, two design storms and the basin footprint: it routes NRCS unit hydrographs through the pond and sizes the orifice, the weir and the depth.">
+  <meta property="og:title" content="Detention Pond Sizer — free, private, in your browser">
+  <meta property="og:description" content="Size a two-stage outlet and the basin depth so post-development peaks stay at pre-development peaks: NRCS runoff, unit hydrographs and level-pool routing.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Detention Pond Sizer", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Stormwater detention basin sizing: NRCS curve-number runoff, the NRCS triangular unit hydrograph, an alternating-block design storm from an IDF curve, storage-indication routing through a sloped-side basin and a two-stage outlet (orifice and weir) sized so post-development peak outflow stays at the pre-development peak. Runs in your browser.", "featureList": "curve number runoff, unit hydrograph, design storm from IDF curve, level-pool routing, modified Puls, orifice sizing, weir sizing, basin depth, freeboard, hydrograph CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I size a detention pond?", "acceptedAnswer": {"@type": "Answer", "text": "Make the runoff hydrograph for the developed site, choose a basin footprint and an outlet, and route the hydrograph through the basin, one time step at a time, keeping track of storage and outflow. Adjust the outlet until the peak outflow is no more than the allowable, usually the pre-development peak, then read the peak water level and add freeboard. This tool does those steps for a small storm and a large one."}}, {"@type": "Question", "name": "Why two storms?", "acceptedAnswer": {"@type": "Answer", "text": "A single opening sized for a big storm lets the frequent small storms through almost untouched, and one sized for a small storm backs the big one far up the bank. So many ordinances ask for peak control at two or three return periods, and the outlet has two stages: a low orifice for the small storm and a weir higher up that opens for the large one."}}, {"@type": "Question", "name": "What does the example show?", "acceptedAnswer": {"@type": "Answer", "text": "Five acres going from curve number 61 to 85, with a 100 by 60 ft basin bottom and 3 to 1 sides. The 2-year peak rises from 0.76 to 9.62 cfs and the 100-year from 8.21 to 28.15 cfs. A 4.6 in orifice and a 0.62 ft weir with its crest at 2.05 ft hold both to the pre-development peaks; the 100-year storm fills the basin to 4.33 ft, so with 1 ft of freeboard it is 5.33 ft deep."}}, {"@type": "Question", "name": "Where do the IDF coefficients come from?", "acceptedAnswer": {"@type": "Answer", "text": "From your local drainage manual or a fit to the NOAA Atlas 14 table for your site, in the form intensity = a / (minutes + b) ^ n in inches per hour. The example's coefficients are made up for illustration and belong to no real place; replace them before relying on a number."}}, {"@type": "Question", "name": "Is this the same as TR-55 or HydroCAD?", "acceptedAnswer": {"@type": "Answer", "text": "It uses the same NRCS runoff equation and the NRCS triangular unit hydrograph, but builds its storm from an IDF curve rather than the NRCS 24-hour rainfall distributions, and uses one subarea. Treat it as a screening tool for a first layout and an independent check, not a stamped design."}}, {"@type": "Question", "name": "What is the peak rate factor?", "acceptedAnswer": {"@type": "Answer", "text": "The 484 in the NRCS unit hydrograph peak, qp = 484 x area in square miles / time to peak. Flat, swampy country such as the Delmarva peninsula uses lower factors (around 300), which spreads the same volume over a longer, lower hydrograph. The tool keeps the volume at exactly one inch whatever the factor."}}, {"@type": "Question", "name": "Is anything I enter uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #18201f; background: #f1f5f4; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #155a74; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #123f52; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #123f52; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4b5856; }
+    .card { background: #fff; border: 1px solid #d3e0dd; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #123f5210; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6f8582; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #155a74; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #dde9e6; color: #123f52; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3ecea; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4b5856; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #e3ecea; padding: 12px 0; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #f8dcd6; color: #7a1f10; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3ecea; color: #123f52; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eef5f3; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #123f52; }
+    footer { margin-top: 28px; border-top: 1px solid #d3e0dd; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DETENTION POND SIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What orifice, weir and depth keep the developed site's peaks at the old ones?</h1>
+    <p>For site civil engineers, land planners and builders laying out a subdivision or a pad. Enter the drainage area, the <strong>curve number and time of concentration before and after</strong> development, a <strong>small and a large design storm</strong> from your IDF curve, and the <strong>basin footprint</strong>. The tool makes the NRCS runoff hydrographs, routes them through the basin step by step, and sizes a <strong>low orifice</strong>, a <strong>weir</strong> above it and the <strong>basin depth</strong>.</p>
+    <p class="note">Nothing you type leaves this browser tab. A screening calculation on your numbers, not engineering advice: the local drainage manual, the reviewing engineer and the permit decide the design.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>The site</h2>
+    <div class="grid">
+      <div><label for="areaAc">Drainage area to the basin, acres</label><input type="text" id="areaAc" inputmode="decimal" placeholder="5" autocomplete="off"></div>
+      <div><label for="preCN">Curve number before development</label><input type="text" id="preCN" inputmode="decimal" placeholder="61" autocomplete="off"></div>
+      <div><label for="preTcHr">Time of concentration before, hours</label><input type="text" id="preTcHr" inputmode="decimal" placeholder="0.5" autocomplete="off"></div>
+      <div><label for="postCN">Curve number after development</label><input type="text" id="postCN" inputmode="decimal" placeholder="85" autocomplete="off"></div>
+      <div><label for="postTcHr">Time of concentration after, hours</label><input type="text" id="postTcHr" inputmode="decimal" placeholder="0.2" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The design storms</h2>
+    <p class="note">Intensity (in/hr) = a / (duration in minutes + b)<sup>n</sup>, from your drainage manual or a fit to NOAA Atlas 14. The example's numbers are illustrative and belong to no real place. The large storm is optional; without it only the orifice is sized.</p>
+    <div class="grid">
+      <div><label for="smallLabel">Small storm name</label><input type="text" id="smallLabel" placeholder="2-year" autocomplete="off"></div>
+      <div><label for="smallA">Small storm a</label><input type="text" id="smallA" inputmode="decimal" placeholder="40" autocomplete="off"></div>
+      <div><label for="smallB">Small storm b, minutes</label><input type="text" id="smallB" inputmode="decimal" placeholder="10" autocomplete="off"></div>
+      <div><label for="smallN">Small storm n</label><input type="text" id="smallN" inputmode="decimal" placeholder="0.8" autocomplete="off"></div>
+      <div><label for="smallAllow">Small storm allowable outflow, cfs (blank: the pre-development peak)</label><input type="text" id="smallAllow" inputmode="decimal" placeholder="" autocomplete="off"></div>
+      <div><label for="largeLabel">Large storm name</label><input type="text" id="largeLabel" placeholder="100-year" autocomplete="off"></div>
+      <div><label for="largeA">Large storm a</label><input type="text" id="largeA" inputmode="decimal" placeholder="85" autocomplete="off"></div>
+      <div><label for="largeB">Large storm b, minutes</label><input type="text" id="largeB" inputmode="decimal" placeholder="10" autocomplete="off"></div>
+      <div><label for="largeN">Large storm n</label><input type="text" id="largeN" inputmode="decimal" placeholder="0.8" autocomplete="off"></div>
+      <div><label for="largeAllow">Large storm allowable outflow, cfs (blank: the pre-development peak)</label><input type="text" id="largeAllow" inputmode="decimal" placeholder="" autocomplete="off"></div>
+      <div><label for="durationHr">Storm duration, hours</label><input type="text" id="durationHr" inputmode="decimal" placeholder="24" autocomplete="off"></div>
+      <div><label for="dtMin">Time step, minutes</label><input type="text" id="dtMin" inputmode="decimal" placeholder="2" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The basin</h2>
+    <div class="grid">
+      <div><label for="length">Bottom length, ft</label><input type="text" id="length" inputmode="decimal" placeholder="100" autocomplete="off"></div>
+      <div><label for="width">Bottom width, ft</label><input type="text" id="width" inputmode="decimal" placeholder="60" autocomplete="off"></div>
+      <div><label for="sideSlope">Side slope, horizontal to 1 vertical</label><input type="text" id="sideSlope" inputmode="decimal" placeholder="3" autocomplete="off"></div>
+      <div><label for="freeboard">Freeboard above the large storm, ft</label><input type="text" id="freeboard" inputmode="decimal" placeholder="1" autocomplete="off"></div>
+    </div>
+    <details><summary>Coefficients</summary>
+    <div class="grid">
+      <div><label for="cd">Orifice discharge coefficient</label><input type="text" id="cd" inputmode="decimal" placeholder="0.6" autocomplete="off"></div>
+      <div><label for="cw">Weir coefficient (US units)</label><input type="text" id="cw" inputmode="decimal" placeholder="3.33" autocomplete="off"></div>
+      <div><label for="prf">Unit hydrograph peak rate factor</label><input type="text" id="prf" inputmode="decimal" placeholder="484" autocomplete="off"></div>
+    </div>
+    </details>
+  </section>
+
+  <section class="card">
+    <button type="button" id="analyze">Size the basin</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fill in the site, the storms and the basin, then click Size the basin.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>Each storm</h3>
+    <div class="scroll"><table id="storm-table"><thead><tr><th>Storm</th><th class="n">Rain, in</th><th class="n">Runoff before / after, in</th><th class="n">Peak before, cfs</th><th class="n">Peak after, cfs</th><th class="n">Allowable, cfs</th><th class="n">Peak out, cfs</th><th class="n">Peak stage, ft</th><th class="n">Storage used, ft³</th></tr></thead><tbody></tbody></table></div>
+    <p class="note" id="table-note"></p>
+    <button type="button" id="download">Download hydrographs (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Rain.</strong> An alternating-block storm over the duration: the depth in each time step is the IDF depth of k steps minus that of k - 1, with the largest block in the middle and the rest placed right, left, right of it, so every duration centred on the peak gets its IDF depth.</p>
+    <p><strong>Runoff.</strong> The NRCS curve-number equation on the cumulative rain, Q = (P - 0.2 S)² / (P + 0.8 S) with S = 1000 / CN - 10 (NRCS National Engineering Handbook part 630, chapter 10; TR-55). Each step's runoff is spread by the NRCS triangular unit hydrograph: time to peak = step / 2 + 0.6 x Tc, peak = 484 x square miles / time to peak, base set so it holds exactly one inch (chapter 16).</p>
+    <p><strong>Routing.</strong> Level-pool storage-indication routing (modified Puls): 2S/Δt + O at the end of each step equals the inflows at both ends plus 2S/Δt - O at its start, solved for the water level by bisection on the exact basin volume, a rectangular bottom with sloped sides (prismoidal formula). Outflow is a circular orifice at the bottom, Q = Cd x area x √(2g x head to its centre), plus a sharp-crested weir, Q = Cw x length x head<sup>1.5</sup>.</p>
+    <p><strong>Sizing.</strong> The orifice diameter is found by bisection so the small storm's peak outflow equals its allowable (the pre-development peak unless you enter one). The weir crest goes at the small storm's peak level, so that storm never reaches it, and the weir length is found the same way on the large storm, releasing everything allowed so the basin is as shallow as it can be. Depth = the large storm's peak level + freeboard.</p>
+    <p><strong>Not modelled:</strong> NRCS 24-hour rainfall distributions (Types I to III) and Atlas 14 temporal patterns, several subareas or reaches, infiltration from the basin, tailwater on the outlet, the orifice below its crown (approximated as weir-like, rising with head<sup>1.5</sup>), outlet barrel or culvert control, the emergency spillway, water quality and channel-protection volumes, and metric units. <strong>Unverified:</strong> checked by hand calculations, conservation tests and an independent RK4 integration, not against HydroCAD, HEC-HMS or a reviewed design.</p>
+    <p>Worked example step by step: <a href="how-to-size-a-detention-pond.html">how to size a detention pond</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I size a detention pond?</h3>
+    <p>Make the runoff hydrograph for the developed site, choose a basin footprint and an outlet, and route the hydrograph through the basin, one time step at a time, keeping track of storage and outflow. Adjust the outlet until the peak outflow is no more than the allowable, usually the pre-development peak, then read the peak water level and add freeboard. This tool does those steps for a small storm and a large one.</p>
+    <h3>Why two storms?</h3>
+    <p>A single opening sized for a big storm lets the frequent small storms through almost untouched, and one sized for a small storm backs the big one far up the bank. So many ordinances ask for peak control at two or three return periods, and the outlet has two stages: a low orifice for the small storm and a weir higher up that opens for the large one.</p>
+    <h3>What does the example show?</h3>
+    <p>Five acres going from curve number 61 to 85, with a 100 by 60 ft basin bottom and 3 to 1 sides. The 2-year peak rises from 0.76 to 9.62 cfs and the 100-year from 8.21 to 28.15 cfs. A 4.6 in orifice and a 0.62 ft weir with its crest at 2.05 ft hold both to the pre-development peaks; the 100-year storm fills the basin to 4.33 ft, so with 1 ft of freeboard it is 5.33 ft deep.</p>
+    <h3>Where do the IDF coefficients come from?</h3>
+    <p>From your local drainage manual or a fit to the NOAA Atlas 14 table for your site, in the form intensity = a / (minutes + b) ^ n in inches per hour. The example's coefficients are made up for illustration and belong to no real place; replace them before relying on a number.</p>
+    <h3>Is this the same as TR-55 or HydroCAD?</h3>
+    <p>It uses the same NRCS runoff equation and the NRCS triangular unit hydrograph, but builds its storm from an IDF curve rather than the NRCS 24-hour rainfall distributions, and uses one subarea. Treat it as a screening tool for a first layout and an independent check, not a stamped design.</p>
+    <h3>What is the peak rate factor?</h3>
+    <p>The 484 in the NRCS unit hydrograph peak, qp = 484 x area in square miles / time to peak. Flat, swampy country such as the Delmarva peninsula uses lower factors (around 300), which spreads the same volume over a longer, lower hydrograph. The tool keeps the volume at exactly one inch whatever the factor.</p>
+    <h3>Is anything I enter uploaded?</h3>
+    <p>No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal or code-compliance advice, and it does not replace a licensed professional engineer, the drainage manual that applies to your site or a plan review. Results are arithmetic on the numbers you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any software maker, agency or standards organisation; the NRCS methods are public-domain US government publications.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>pond_sized</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Grading the pad too? The <a href="../earthwork-cut-fill/">earthwork cut and fill calculator</a>. Fire lines? The <a href="../sprinkler-hydraulic-calc/">sprinkler hydraulic calculator</a>. Guide: <a href="how-to-size-a-detention-pond.html">how to size a detention pond</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleInput } from "./detention.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const KEYS = ["areaAc", "preCN", "preTcHr", "postCN", "postTcHr", "durationHr", "dtMin", "smallLabel", "smallA", "smallB", "smallN", "smallAllow", "largeLabel", "largeA", "largeB", "largeN", "largeAllow", "length", "width", "sideSlope", "freeboard", "cd", "cw", "prf"];
+    const v = (n, d = 2) => (n === null || n === undefined ? "" : Number(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }));
+    let last = null;
+
+    function read() { return Object.fromEntries(KEYS.map((k) => [k, $("#" + k).value])); }
+    function fill(x) { KEYS.forEach((k) => { $("#" + k).value = x[k] ?? ""; }); }
+
+    function run() {
+      status.textContent = "Routing…";
+      const a = analyze(read());
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const o = a.outlet;
+      const tiles = [[`${v(o.orificeDiameterIn, 1)} in`, "orifice diameter at the bottom"]];
+      if (o.weirLengthFt !== null) tiles.push([`${v(o.weirLengthFt)} ft`, `weir length, crest at ${v(o.weirCrestFt)} ft`]);
+      tiles.push([`${v(a.requiredDepthFt)} ft`, `basin depth with ${v(a.input.freeboard, 1)} ft freeboard`], [`${v(a.topLengthFt, 0)} x ${v(a.topWidthFt, 0)} ft`, "top of bank"]);
+      $("#big").innerHTML = tiles.map(([x, l]) => `<div><strong>${esc(x)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
+      $("#storm-table tbody").innerHTML = a.storms.map((s) => `<tr><td>${esc(s.label)}</td><td class="n">${v(s.depthIn)}</td><td class="n">${v(s.preRunoffIn)} / ${v(s.postRunoffIn)}</td><td class="n">${v(s.prePeak)}</td><td class="n">${v(s.postPeak)}</td><td class="n">${v(s.allow)}${s.allowFromPre ? "" : " (entered)"}</td><td class="n">${v(s.peakOut)}</td><td class="n">${v(s.peakStage)}</td><td class="n">${v(s.peakStorageFt3, 0)}</td></tr>`).join("");
+      $("#table-note").textContent = `Storage at the top of bank: ${v(a.storageAtTopFt3, 0)} ft³. Time step ${v(a.input.dtMin, 1)} min; the CSV has every step's rain, inflow, outflow and water level.`;
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("pond_sized"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Example: five acres going from woods and pasture (CN 61) to a subdivision (CN 85), with illustrative storms."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({}); report.hidden = true; last = null; status.textContent = "Fill in the site, the storms and the basin, then click Size the basin."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "detention-hydrographs.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

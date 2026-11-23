@@ -1,0 +1,25 @@
+# Detention Pond Sizer
+
+> Free, open-source stormwater detention basin sizer for site civil work in US units: NRCS curve-number runoff, the NRCS triangular unit hydrograph, an alternating-block design storm from an IDF curve (i = a/(t+b)^n), storage-indication routing through a rectangular basin with sloped sides, and a two-stage outlet (bottom orifice, weir above it) sized by bisection so each storm's post-development peak outflow equals its allowable (the pre-development peak unless entered). Reports orifice diameter, weir length and crest, peak stages and storage, basin depth with freeboard, and every step's hydrograph as CSV. Runs in the browser; nothing is uploaded.
+
+Free and open source (MIT). A screening calculation, not engineering advice; the local drainage manual and a licensed engineer decide the design.
+
+## Pages
+
+- [The tool](https://marisstella.app/stormwater-detention-sizer/)
+- [How to size a detention pond, a worked two-storm example](https://marisstella.app/stormwater-detention-sizer/how-to-size-a-detention-pond.html)
+
+## Inputs
+
+- Drainage area (acres); curve number and time of concentration (hours) before and after development.
+- Small storm and optional large storm: name, IDF a, b (minutes), n, optional allowable outflow (cfs); storm duration (hours, default 24) and time step (minutes, default 2).
+- Basin bottom length and width (ft), side slope (H:1V), freeboard (ft); orifice Cd 0.6, weir Cw 3.33, peak rate factor 484.
+
+## How it is checked
+
+- `detention.test.mjs`: hand calculations for the runoff equation, unit hydrograph peak and volume, basin volume, orifice and weir; the linear reservoir's exact solution; mass conservation; an independent RK4 integration of dS/dt = I - O (peaks within 0.5 %).
+- Not checked against HydroCAD, HEC-HMS or a reviewed design.
+
+## Source
+
+- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stormwater-detention-sizer): MIT licensed. `node cli.mjs --areaAc 8 --postCN 90 --length 120 --width 80`, add `--csv` for the hydrographs.
