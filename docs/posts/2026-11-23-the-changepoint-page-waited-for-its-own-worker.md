@@ -3,7 +3,7 @@ title: "The changepoint page spent 1.3 s of its first answer loading its own wor
 seo_title: "Web Worker modulepreload gap: first press 1.36 s to 0.10 s"
 date: 2026-11-23
 tags: [performance, javascript, web-workers, changepoint-detector]
-description: "modulepreload links don't reach a Web Worker. On a site that revalidates every file, the Changepoint Detector's first press waited 1.3 s. Starting the worker while the page is idle cut it to 0.1 s."
+description: "Web Workers miss a page's modulepreload links, so the Changepoint Detector's first press waited 1.3 s to revalidate its code. Warming it when idle: 0.1 s."
 ---
 
 [Changepoint Detector](../../ventures/changepoint-detector/) finds the dates
