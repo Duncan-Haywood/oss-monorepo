@@ -1,5 +1,9 @@
 # Research log
 
+## 2026-11-23 · Rule CP: outcome. The cost phase lowers the mean gap for both starts on both splits (adoption met): development frozen +0.39 to +0.23 points, held-out +0.58 to +0.51; K1+CP stays +0.55 points dearer than frozen+CP held-out (dearer on 9 of 10, P = 0.021), so the frozen start stays
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-23); numbers in `research/infra-dcopf/experiments/results_costphase.txt`. C0, C5, C6 held; C1 to C4 refuted. 83 of 83 reruns reproduce their stored runs.
+- 27 of 83 finishers take no cost step; most of their rounds are empty hard QPs, the clean point sitting inside a rating's margin band. Next: the phase with each row's margin capped at its own slack at the clean point.
+
 ## 2026-11-23 · Rule CP: a post-feasibility cost phase from the first clean point (plan)
 - Plan, rule CP (`vlin.cost_phase`: up to 10 hard cost QPs in a 5 % box from the first clean point, accepting only clean, cheaper trials) and predictions C0 to C6: `research/infra-dcopf/LOG.md` (2026-11-23); script `research/infra-dcopf/experiments/run_costphase.py`. Starts F (frozen) and K1, development and held-out finishers.
 
