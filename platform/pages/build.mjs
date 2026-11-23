@@ -589,6 +589,7 @@ const HOUSEHOLD_SLUGS = new Set([
       'cheap-meal-plan-optimizer',
       'estate-item-divider',
       'estate-sale-net-proceeds-calculator',
+      'group-expense-settle-up',
       'funeral-price-list-checker',
       'heat-pump-vs-furnace-calculator',
       'heloc-vs-cash-out-refinance-calculator',
