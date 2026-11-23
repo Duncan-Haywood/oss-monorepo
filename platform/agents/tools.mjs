@@ -240,7 +240,9 @@ export async function describe(slug, root = REPO_ROOT, { example = false, timeou
     if (ex) {
       const note = ex.steps
         ? 'Two call_tool calls that ran on the sample the tool ships: the first parses the text, its result is the second call\'s first argument. Replace the text with yours.'
-        : 'A call_tool call that ran on the inputs the tool ships; pass these fields and change what differs.';
+        : ex.from === 'page form'
+          ? 'A call_tool call that ran on the values and examples the tool\'s page form shows (its filled boxes and "e.g." placeholders); change what differs. Read the doc comments for inputs the form names differently.'
+          : 'A call_tool call that ran on the inputs the tool ships; pass these fields and change what differs.';
       out.example = { note, ...ex };
     }
   }
@@ -355,6 +357,127 @@ export function entryCandidates(mod) {
 const fits = (v) => (toJson(v, 0) ?? '').length <= EXAMPLE_MAX_CHARS;
 const roundTrip = (v) => JSON.parse(toJson(v, 0));
 
+// ---- 5. The page's own form ---------------------------------------------------
+//
+// Over 600 tools ship no DEFAULTS and no sample, yet their page shows a filled
+// form: `value=` attributes, a `selected` option, a checked box, or an
+// "e.g. 85000" placeholder on a number box. Those are the tool's own example
+// inputs. formValues reads them; formExample matches them to an entry
+// function's parameter names (a box id `interest-paid` to `interestPaid`) and
+// keeps the call only if at least two values matched, it ran, and it gave a
+// non-zero answer. It runs last, so a tool reaches it only when its own
+// DEFAULTS, samples and empty-input call all failed or answered zero: the
+// form values are what made it answer.
+
+const htmlAttrs = (tag) => {
+  const o = {};
+  for (const m of tag.matchAll(/([\w:-]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/g)) o[m[1].toLowerCase()] = unescapeHtml(m[2] ?? m[3] ?? m[4] ?? '');
+  return o;
+};
+const unescapeHtml = (s) => s.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+const camelCase = (s) => s.replace(/[-_]+([a-zA-Z0-9])/g, (_, c) => c.toUpperCase());
+const NUMBER_RE = /^-?\d+(?:\.\d+)?$/;
+const asValue = (v) => (NUMBER_RE.test(v) ? Number(v) : v);
+// A placeholder that is an example value: "e.g. $85,000", "1500", "12%", "e.g. 40 hours".
+// Not one that only mentions a number ("blank = revenue change x 4").
+const PLACEHOLDER_NUMBER_RE = /^\s*(?:(?:e\.?\s?g\.?|ex\.|for example|such as)[:,]?\s*)?[$£€]?(-?\d[\d,]*(?:\.\d+)?|-?\.\d+)\s*(?:%|[A-Za-z/ ]{0,16})\s*$/i;
+/** The example number a placeholder such as "e.g. $85,000" shows, or null. */
+export function placeholderNumber(s) {
+  const m = PLACEHOLDER_NUMBER_RE.exec(String(s));
+  return m ? Number(m[1].replace(/,/g, '')) : null;
+}
+
+/** A page's form controls as { id-or-name: value }: values, selected options, checked boxes, number placeholders. */
+export function formValues(html) {
+  const out = {};
+  const put = (a, v) => {
+    for (const k of [a.id, a.name]) if (k && !(k in out)) out[k] = v;
+  };
+  for (const m of html.matchAll(/<input\b([^>]*)>/gi)) {
+    const a = htmlAttrs(m[1]);
+    const t = (a.type || 'text').toLowerCase();
+    if (['hidden', 'submit', 'button', 'file', 'reset', 'image', 'password'].includes(t)) continue;
+    if (t === 'checkbox') put(a, 'checked' in a);
+    else if (t === 'radio') {
+      if ('checked' in a && a.name && !(a.name in out)) out[a.name] = asValue(a.value ?? '');
+    } else if ('value' in a && a.value !== '') put(a, t === 'number' || t === 'range' ? Number(a.value) : asValue(a.value));
+    else if ((t === 'number' || t === 'range') && a.placeholder && placeholderNumber(a.placeholder) !== null) put(a, placeholderNumber(a.placeholder));
+  }
+  for (const m of html.matchAll(/<select\b([^>]*)>([\s\S]*?)<\/select>/gi)) {
+    const opts = [...m[2].matchAll(/<option\b([^>]*)>([\s\S]*?)<\/option>/gi)].map((o) => ({ ...htmlAttrs(o[1]), text: unescapeHtml(o[2].trim()) }));
+    const o = opts.find((x) => 'selected' in x) ?? opts[0];
+    if (o) put(htmlAttrs(m[1]), asValue('value' in o ? o.value : o.text));
+  }
+  for (const m of html.matchAll(/<textarea\b([^>]*)>([\s\S]*?)<\/textarea>/gi)) {
+    const v = unescapeHtml(m[2].trim());
+    if (v) put(htmlAttrs(m[1]), v);
+  }
+  return out;
+}
+
+/** The property names a function reads from its first argument: a destructured `{ a, b = 1 }`, or `o.a` / `o.b` in its body. */
+export function paramKeys(fn) {
+  const p = paramsOf(fn).trim();
+  const keys = new Set();
+  if (p.startsWith('{')) {
+    let depth = 0;
+    let cur = '';
+    const take = () => {
+      const k = cur.trim().split(/[=:\s]/)[0];
+      if (k) keys.add(k);
+      cur = '';
+    };
+    for (const c of p.slice(1)) {
+      if ('{(['.includes(c)) depth++;
+      else if ('})]'.includes(c)) {
+        if (depth === 0) break;
+        depth--;
+      }
+      if (c === ',' && depth === 0) take();
+      else cur += c;
+    }
+    take();
+  } else {
+    const first = /^([A-Za-z_$][\w$]*)/.exec(p)?.[1];
+    if (first) for (const m of Function.prototype.toString.call(fn).matchAll(new RegExp(`(?<![\\w$.])${first.replace(/\$/g, '\\$')}\\.([A-Za-z_$][\\w$]*)`, 'g'))) keys.add(m[1]);
+  }
+  return [...keys].filter((k) => /^[A-Za-z_$][\w$]*$/.test(k));
+}
+
+// Named for what they return (efficiencyOutcome) beats named for a step (validate, check).
+const IDENT_RE = /^[A-Za-z_$][\w$]*$/;
+const HELPER_RE = /^(validate|check|parse|normali[sz]e|format|find|match|detect)/i;
+
+async function formExample(mod, D, form, moduleSrc) {
+  const byKey = {};
+  for (const [k, v] of Object.entries(form)) {
+    byKey[camelCase(k)] ??= v;
+    byKey[k] ??= v;
+  }
+  const names = entryCandidates(mod);
+  const ordered = [...names.filter((n) => !HELPER_RE.test(n)), ...names.filter((n) => HELPER_RE.test(n))];
+  let best = null;
+  for (const n of ordered) {
+    const fn = mod[n];
+    let keys = paramKeys(fn);
+    // `(raw = {})` handed on to a helper reads nothing itself: offer the form keys the module reads anywhere.
+    if (!paramsOf(fn).trim().startsWith('{') && keys.length < 2) keys = Object.keys(byKey).filter((k) => IDENT_RE.test(k) && new RegExp(`[.{,\\s]${k.replace(/\$/g, '\\$')}\\b`).test(moduleSrc));
+    const input = {};
+    for (const k of keys) if (k in byKey) input[k] = byKey[k];
+    const size = Object.keys(input).length;
+    if (size < 2 || (best && size <= best.size)) continue;
+    let r;
+    try {
+      r = await fn({ ...(D ?? {}), ...input });
+    } catch {
+      continue;
+    }
+    if (!usableResult(r) || !hasNonZero(r)) continue;
+    best = { size, function: n, input: roundTrip(input) };
+  }
+  return best;
+}
+
 /** Resolves { module, function, input?, args?, text? } for the first call that ran, or null. */
 export async function findExample(slug, root = REPO_ROOT) {
   if (!SLUG_RE.test(slug)) throw new Error(`bad slug "${slug}"`);
@@ -427,6 +550,18 @@ export async function findExample(slug, root = REPO_ROOT) {
         if (usableResult(r) && hasNonZero(r)) return { module: e.module, function: n, input: {} };
       }
     }
+  }
+  // 5. Nothing the modules ship ran: the inputs the page's own form shows.
+  const html = await read(path.join(ventureDir(slug, root), 'index.html'));
+  const form = html ? formValues(html) : {};
+  if (Object.keys(form).length < 2) return null;
+  for (const e of await engines(slug, root)) {
+    if (e.skip) continue;
+    const file = path.join(ventureDir(slug, root), e.module);
+    const mod = await import(pathToFileURL(file).href);
+    const D = mod.DEFAULTS && typeof mod.DEFAULTS === 'object' && !Array.isArray(mod.DEFAULTS) ? mod.DEFAULTS : null;
+    const hit = await formExample(mod, D, form, (await read(file)) ?? '');
+    if (hit) return { module: e.module, function: hit.function, input: hit.input, from: 'page form' };
   }
   return null;
 }

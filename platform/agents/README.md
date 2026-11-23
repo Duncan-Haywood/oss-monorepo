@@ -89,6 +89,17 @@ stale. An unknown function name now gets the list of real ones in the error.
 sample as `args`, 107 a sample string as `text`, and 32 a parse step first. The
 other 581 need the doc comments read first; `--list null` names them.
 
+When nothing the modules ship runs, `example` reads the tool's page form as
+a last step: `value=` attributes, the `selected` option, checked boxes and
+number placeholders that are an example value ("e.g. 85,000", not "blank =
+revenue change x 4"). It matches box ids to the entry function's parameter
+names (`interest-paid` to `interestPaid`, or the `o.price` properties a
+plain `(o)` reads), and keeps the call only when two or more matched and the
+answer has a non-zero number. Such an example carries `from: "page form"`.
+On 2026-11-23 that step gave 107 more tools a first call (797 to 904 of
+1,416, 56.3% to 63.8%; `example_coverage.mjs` counts them as `form`), and all
+107 ran again through `call()`.
+
 ## Relation to the npm MCP package
 
 [`platform/distribution/mcp.mjs`](../distribution/mcp.mjs) builds

@@ -13,11 +13,14 @@ import {
   engines,
   entryCandidates,
   findExample,
+  formValues,
   handle,
   main,
   pageEngines,
   pageMeta,
+  paramKeys,
   paramsOf,
+  placeholderNumber,
   parseArgv,
   search,
   serve,
@@ -279,4 +282,54 @@ test('findExample gives a real catalogue tool a call that call() then runs', asy
   assert.ok(ex, `${REAL} has an example`);
   const r = await call(REAL, ex.function, { input: ex.input, args: ex.args, stdin: ex.text });
   assert.ok(usableResult(r.result));
+});
+
+test('placeholderNumber takes an example value, not a number a hint only mentions', () => {
+  assert.equal(placeholderNumber('e.g. $85,000'), 85000);
+  assert.equal(placeholderNumber('e.g., 3,400.50'), 3400.5);
+  assert.equal(placeholderNumber('12%'), 12);
+  assert.equal(placeholderNumber('e.g. 40 hours'), 40);
+  // saas-efficiency-metrics-calculator's net-new-ARR box: a hint, not a value of 4.
+  assert.equal(placeholderNumber('blank = revenue change x 4'), null);
+  assert.equal(placeholderNumber('2026-01-01'), null);
+  assert.equal(placeholderNumber('optional'), null);
+});
+
+test('formValues reads values, placeholders, selected options, checked boxes and radios', () => {
+  const html =
+    '<input type="number" id="interest-paid" placeholder="e.g. 3400">' +
+    '<input type="number" id="rate" value="6.5">' +
+    '<input type="text" id="note" placeholder="anything">' +
+    '<input type="hidden" id="secret" value="x">' +
+    '<input type="checkbox" id="rush" checked><input type="checkbox" id="haul">' +
+    '<input type="radio" name="plan" value="a"><input type="radio" name="plan" value="b" checked>' +
+    '<select id="status"><option value="single">Single</option><option value="joint" selected>Joint</option></select>' +
+    '<select id="tier"><option>3</option></select>' +
+    '<textarea id="rows">a &amp; b</textarea>';
+  assert.deepEqual(formValues(html), { 'interest-paid': 3400, rate: 6.5, rush: true, haul: false, plan: 'b', status: 'joint', tier: 3, rows: 'a & b' });
+});
+
+test('paramKeys reads a destructured first parameter or the properties the body reads', () => {
+  assert.deepEqual(paramKeys(function f({ a, b = 1, c: alias, d = { x: 1 } } = {}, opts) {}), ['a', 'b', 'c', 'd']);
+  assert.deepEqual(paramKeys(function g(o) { return o.price * o.qty + other.price; }), ['price', 'qty']);
+});
+
+test('findExample falls back to the page form, and only when its boxes match the parameters', async () => {
+  const form = '<input type="number" id="sq-ft" placeholder="e.g. 1,200"><input type="number" id="rate" value="3"><select id="unused"><option>x</option></select>';
+  const root = await fixtureRoot({
+    'ventures/form-tool/index.html': page('Form', 'd', 'import { calculateBid } from "./calc.mjs";').replace('<script', `${form}<script`),
+    'ventures/form-tool/calc.mjs':
+      'export function validate(o) { return { errors: [] }; }\n' +
+      'export function calculateBid({ sqFt = 0, rate = 0 } = {}) { return { price: sqFt * rate }; }\n',
+    // The form's boxes name nothing this function reads: no example.
+    'ventures/still-tool/index.html': page('Still', 'd', 'import { calculateBid } from "./calc.mjs";').replace('<script', `${form}<script`),
+    'ventures/still-tool/calc.mjs': 'export function calculateBid({ width = 0, depth = 0 } = {}) { return { price: width * depth }; }\n',
+  });
+  const ex = await findExample('form-tool', root);
+  assert.deepEqual(ex, { module: 'calc.mjs', function: 'calculateBid', input: { sqFt: 1200, rate: 3 }, from: 'page form' });
+  const r = await call('form-tool', ex.function, { input: ex.input }, root);
+  assert.deepEqual(r.result, { price: 3600 });
+  assert.equal(await findExample('still-tool', root), null);
+  const d = await describe('form-tool', root, { example: true });
+  assert.match(d.example.note, /page form/);
 });

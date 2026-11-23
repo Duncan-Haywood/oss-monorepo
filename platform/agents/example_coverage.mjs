@@ -11,6 +11,7 @@
 //   args    a sample the module ships, as positional arguments
 //   text    a SAMPLE string the module ships, as `text`
 //   steps   a parse step then the entry function (see findExample in tools.mjs)
+//   form    the values and "e.g." placeholders the tool's page form shows
 //   null    nothing the module ships ran through an entry function
 //   failed  the child threw or timed out
 // A report tool, not a CI gate: "null" is not a defect in a tool, only a place
@@ -31,6 +32,7 @@ export function kindOf(code, stdout) {
   }
   if (ex === null) return 'null';
   if (ex.steps) return 'steps';
+  if (ex.from === 'page form') return 'form';
   if (ex.input) return 'input';
   if (ex.text !== undefined) return 'text';
   if (ex.args) return 'args';
