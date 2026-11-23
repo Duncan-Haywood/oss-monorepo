@@ -155,6 +155,14 @@ work. Two consequences for a reader:
   all 30 six-set folds and the drift gate repeats the ungated honest rule, so three gates amount to two
   decisions, and the best of them reaches 89% of the hindsight oracle's six-set saving while meeting two
   fewer committed folds than triage alone.
+- Milestone 7za checks that reading out of sample on `Marquis2019` at 30 times the copied plating rate, a cell
+  added after every rule and gate was fixed and the first whose drift runs above 1 (median m 1.29). The honest
+  corrected rule meets 4 of 5 held-out pools at 14.6 cycles per design, where triage alone meets 2 of 5 at 34.8
+  and a uniform run length 4 of 5 at 44.0. All three plating cells now save about 30 cycles per design against
+  the uniform rule (&minus;29.8, set bootstrap &minus;30.0 to &minus;29.4), whichever way their drift runs. Over
+  seven set-conditions the plating-share recipe saves &minus;12.0 cycles per design against triage alone
+  (&minus;25.0 to +0.1) and meets 31 of 35 folds against 30. The interval still touches zero, and
+  `NCA_Kim2011` remains the case the mechanism condition does not explain.
 
 ## 5.4 Limitations and next steps
 
