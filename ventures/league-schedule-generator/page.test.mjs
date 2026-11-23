@@ -71,7 +71,7 @@ test("the module scripts import only local files, and the inline script parses",
   // doubleheader nights), never a package or URL
   assert.doesNotMatch(page("calc.mjs"), /^\s*import\b/m);
   assert.deepEqual([...page("calc.mjs").matchAll(/^export \{[^}]+\} from "\.\/([^"]+)";$/gm)].map((m) => m[1]), [...CALC_PARTS, "swiss.mjs"]);
-  const allowed = new Set([...CALC_PARTS, "whist.mjs", "carryover.mjs", "swiss.mjs", "nights.mjs"]);
+  const allowed = new Set([...CALC_PARTS, "whist.mjs", "carryover.mjs", "swiss.mjs", "nights.mjs", "fields.mjs"]);
   for (const f of CALC_PARTS) {
     for (const m of page(f).matchAll(/^\s*import .* from "([^"]+)"/gm)) assert.ok(allowed.has(m[1].replace(/^\.\//, "")) && m[1].startsWith("./"), `${f} imports ${m[1]}`);
     assert.ok(!/from "\.\/calc\.mjs"/.test(page(f)), `${f} imports the barrel`);
