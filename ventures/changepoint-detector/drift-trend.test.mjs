@@ -46,3 +46,15 @@ test('no change on a smooth trend: no cut (eval/trend-walk-floored.out.txt, S1)'
   for (let s = 0; s < 10; s++) cuts += trendWalkChanges(smooth(100 + s, 200, 0.1, 0, 0)).changepoints.length;
   assert.ok(cuts <= 1, `${cuts} false cuts in 10 series`);
 });
+
+test('qzMax caps the slope wander the search may choose (README "A stiff slope")', () => {
+  const y = smooth(7, 200, 0.1, 0, 0);
+  const free = trendWalkChanges(y), capped = trendWalkChanges(y, { qzMax: 1e-3 });
+  assert.ok(free.q > 1e-3, `uncapped qz ${free.q}`);
+  assert.ok(capped.q <= 1e-3 * (1 + 1e-9), `capped qz ${capped.q}`);
+  assert.equal(capped.atCap, true);
+  assert.equal(capped.qzMax, 1e-3);
+  assert.equal(free.qzMax, null);
+  // no cap: the same fit as before the option existed
+  assert.deepEqual(trendWalkChanges(y, { qzMax: Infinity }).changepoints, free.changepoints);
+});

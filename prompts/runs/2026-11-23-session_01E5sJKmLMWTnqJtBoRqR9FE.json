@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-23",
+  "session": "https://claude.ai/code/session_01E5sJKmLMWTnqJtBoRqR9FE",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-23T03:09:20Z",
+  "ended": "2026-11-23T03:16:16Z",
+  "wall_minutes": 7.37,
+  "tokens_in": 4506282,
+  "tokens_out": 30489,
+  "cost_usd": 2.5006,
+  "tool_calls": 42,
+  "task": "changepoint-detector flagship: the drift model's open item, a stiff-slope trend walk (slope wander capped, cap chosen in simulation), pre-registered",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18355",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "fred.stlouisfed.org refused through the proxy (403); the fresh series came from the Rdatasets mirror on raw.githubusercontent.com instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "'take the third open item no open PR title names' is hard to apply to a next: field written as one run-on paragraph with nested parentheses; I could not count items reliably and took the one buildable item instead (the others need a live repo, property or site)"
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "a replacement 120 characters longer than the old clause could not make room (2087 of 2000 even after parking); had to cut the new text to about the old length"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "the 'third open item' pick: items 1-3 of changepoint-detector's next: need a live GitHub repository, a live analytics property or a live site, none buildable here",
+      "did": "took the drift model's item (0), the stiff-slope walk, explicitly named as next by the last round",
+      "result": "a full pre-registered round landed (R0-R2 pass, R3 fails, nothing ships) plus a post hoc finding worth a later round"
+    },
+    {
+      "file": "ventures/changepoint-detector/llms.txt",
+      "why": "nothing user-facing changed (a module option and an eval only), so llms.txt and the marketing page were left as they are",
+      "did": "no edit",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-changepoint-a-stiff-slope-hears-recessions.md",
+    "ventures/changepoint-detector/README.md section 'A stiff slope'"
+  ],
+  "goal": null,
+  "notes": "Pre-registration committed (378562293) before eval/trend-walk-stiff.mjs first ran. Cap 3e-4 chosen in simulation; R0 (sim fresh seeds) passes, R1 fresh NBER-dated set +0.166 F1 3/0, R2 NBER seven +0.316 7/0, R3 TCPD floored -0.105 7/14 fails, so nothing ships. Post hoc random-cut baseline: stiff beats its own cut count on 10/10 NBER series (+0.214), shipped 6/10 (+0.022). Local checks: node --test on drift-trend, trend-walk-stiff, trend-walk-nber (10 pass); run_venture_tests.py changepoint-detector and venture-preflight in the PR summary; check_posts passes; validate.py passes.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b91c0b74-8e1e-5678-8676-5f846678bb10",
+    "transcripts": 1,
+    "first": "2026-11-23T03:09:20Z",
+    "last": "2026-11-23T03:16:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 78,
+        "output": 30489,
+        "thinking": 6544,
+        "cache_read": 4379369,
+        "cache_write_5m": 0,
+        "cache_write_1h": 126835,
+        "api_equivalent_usd": 2.5006,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 78,
+      "output": 30489,
+      "thinking": 6544,
+      "cache_read": 4379369,
+      "cache_write_5m": 0,
+      "cache_write_1h": 126835,
+      "api_equivalent_usd": 2.5006,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 39,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.37,
+      "active_minutes": 7.37,
+      "model_minutes": 5.7,
+      "tool_minutes": 1.66,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a statistician designing, pre-registering and running a simulation-plus-three-real-set evaluation and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 239.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

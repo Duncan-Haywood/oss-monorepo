@@ -112,6 +112,13 @@
 // party, event) taken out, and the finish recomputed: the "but for" date with
 // all of them out, each party's out and each event's out; --xer writes the
 // collapsed schedule and --as-built-xer the model, for P6.
+// node cli.mjs final.xer --as-planned baseline.xer [--csv apab.csv] [--json] [--project CODE]
+// node cli.mjs final.xer --as-planned target   (the final file's own Planned Start / Finish as the plan)
+// As-planned vs as-built instead (asplanned.mjs, AACE 29R-03 MIP 3.1/3.2):
+// the as-built critical path (the driving path of the collapse's as-built
+// model) laid beside the plan, activity by activity, with the steps where the
+// delay grew (late starts, longer durations, planned gaps used up) adding up
+// to the project's delay.
 // node cli.mjs schedule.xer --to-project schedule.xml [--project CODE] [--code-names] [--outline-codes] [--all-resources] [--json]
 // Converts the XER to Microsoft Project XML instead (msproject.mjs): open the
 // .xml in Microsoft Project, ProjectLibre or GanttProject. WBS as summary
@@ -171,6 +178,7 @@ import { lookahead, lookaheadText, lookaheadCsv, lookaheadHtml } from "./lookahe
 import { constraintLogCsv } from "./constraints.mjs";
 import { timeImpact, timeImpactText, timeImpactCsv, timeImpactHtml } from "./tia.mjs";
 import { collapsedAsBuilt, collapsedText, collapsedCsv } from "./collapse.mjs";
+import { asPlannedVsAsBuilt, asPlannedText, asPlannedCsv } from "./asplanned.mjs";
 import { xerText } from "./xer.mjs";
 import { calendarSlack, calendarSlackText, calendarSlackCsv } from "./calslack.mjs";
 import { milestoneCalendars, milestoneCalendarsText, milestoneCalendarsCsv } from "./milestones.mjs";
@@ -185,7 +193,7 @@ import { crashAnalysis, crashText, crashCsv } from "./crash.mjs";
 import { gao, gaoText, gaoCsv, gaoHtml } from "./gao.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--collapse", "--as-built-xer", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks", "--excel", "--drag-cost", "--max-runs", "--crash-target", "--crash-data", "--crash-max"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--collapse", "--as-planned", "--as-built-xer", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks", "--excel", "--drag-cost", "--max-runs", "--crash-target", "--crash-data", "--crash-max"];
 // Print and exit only once stdout has taken it all: to a pipe, process.exit()
 // straight after a write cuts the output off at 64 KB (a --json report of a
 // large file).
@@ -382,6 +390,16 @@ if (args.includes("--collapse") || args.includes("--as-built")) {
   if (opt("--as-built-xer")) { writeFileSync(opt("--as-built-xer"), xerText(r.asBuiltXer)); console.error(`as-built model written to ${opt("--as-built-xer")}`); }
   const { collapsedXer, asBuiltXer, ...plain } = r;
   await emit(args.includes("--json") ? JSON.stringify(plain, null, 2) + "\n" : collapsedText(r));
+  process.exit(0);
+}
+if (args.includes("--as-planned")) {
+  const result = schedule(xer);
+  const pid = assess(xer, { projId, result }).project.id;
+  const src = opt("--as-planned");
+  const plan = !src || src === "target" ? null : parseSchedule(decodeXer(readFileSync(src)));
+  const r = asPlannedVsAsBuilt(xer, plan, { projId: pid });
+  if (opt("--csv")) writeFileSync(opt("--csv"), asPlannedCsv(r));
+  await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : asPlannedText(r) + "\n");
   process.exit(0);
 }
 if (args.includes("--crash")) {

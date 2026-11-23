@@ -9674,3 +9674,45 @@ By the rule written beforehand nothing changes: `--model drift` stays the defaul
 `trendWalkChanges` stays an export. The routing rule is retired: it was a post hoc reading on 17 TCPD series and
 loses on the first fresh set it reaches. Next for the drift model: if the trend walk is tried again, cap its slope
 wander (a stiff slope, qz well under 0.1, chosen in simulation before any real series) so a turn costs a cut.
+
+## A stiff slope: business-cycle turns found beyond chance, but jumps over-cut (2026-11-23, pre-registered; R0, R1 and R2 pass, R3 fails, nothing ships)
+
+Open item from "The trend-walk route on fresh series": cap the trend walk's slope wander so a turn costs a cut, the
+cap chosen in simulation before any real series. `trendWalkChanges(x, { qzMax })` (drift-trend.mjs) now limits the
+likelihood search over qz = zeta^2 / sigma^2 to [0, qzMax]; with no cap the fit is unchanged (`drift-trend.test.mjs`).
+
+Rules in the header of `eval/trend-walk-stiff.mjs`, committed before it first ran (commit "pre-register the
+stiff-slope trend walk"). Stage 1 chose the cap from {1e-4, 3e-4, 1e-3, 3e-3, 1e-2}: among caps with at most 0.15
+false cuts a series on a slowly turning trend, the one with the best mean power for a 4-sigma step on a fast-turning
+trend (B4) and for a slope kink (K). 1e-4 failed the false-cut bar (0.18); **3e-4 was chosen** (0.005 false cuts, B4
+79%, K 5%). Stage 2 scored it on fresh seeds and three real sets, against the shipped `--model drift` default. A new
+fresh set F, never fitted before by any model here, is three US activity measures NBER dates: monthly industrial
+production 1947-2004 (AER USMacroSWM), quarterly industrial production 1960-1991 (AER USProdIndex; the same concept
+from another source) and persons unemployed 1967-2015 (ggplot2 `economics`), in `data/`. Output
+`eval/trend-walk-stiff.out.txt` (fetch TCPD with `sh eval/tcpd-fetch.sh`, then 16 s); test
+`trend-walk-stiff.test.mjs`.
+
+- **R0, simulation on fresh seeds: passes.** 0.010 false cuts a series (bar 0.15); B4 found 82.5% (bar 50%; the
+  uncapped walk 48%, the shipped drift model 61% with 3.1 false cuts a series beside it).
+- **R1, fresh set F: passes.** Mean F1 0.474 to 0.640 (+0.166, bar +0.03), 3 wins, 0 losses; pooled recall of NBER
+  peaks and troughs 19 of 46 shipped, 45 of 46 stiff.
+- **R2, the NBER seven of the last round: passes.** Mean F1 0.329 to 0.645 (+0.316), 7 wins, 0 losses; recall 29 to
+  90 of 110. (Not fresh for the idea of a cap, which came from reading that round; fresh for its value.)
+- **R3, TCPD's 21 drift-floored series not worse: fails.** Mean F1 0.605 to 0.499 (-0.105), 7 wins, 14 losses. The
+  losses are smooth series the stiff slope cannot follow, so it cuts them into pieces: us_population 0 cuts to 37
+  (-0.789), quality_control_4 3 to 50 (-0.493), gdp_japan, rail_lines, ozone, global_co2. 15 of the 21 fits sit at
+  the cap.
+
+By the rule written beforehand nothing ships: `--model drift` stays the default and `qzMax` stays a module option.
+
+Read after the run (post hoc, not a result; `eval/trend-walk-stiff-chance.mjs`, 0.5 s, its output checked by the
+test): the stiff walk makes 2 to 7 times the shipped model's cuts on the NBER series, and with a margin of 5 more
+cuts alone raise recall. So each model's F1 was set beside the mean F1 of the same number of uniformly random cuts.
+The stiff walk beats its random baseline on all ten NBER-labelled series, by +0.214 F1 on average; the shipped
+model beats its own on 6 of 10, by +0.022. So the stiff walk's cuts do sit on business-cycle turns, beyond what
+their number explains. In simulation it rarely cuts at a clean slope kink (K 5%), so what it hears on the real series
+is the recessions' sharp falls, which a stiff slope cannot bend round. TCPD's annotators mark jumps and few slope
+turns, and a smooth series full of slow turns is exactly where the stiff walk over-cuts. Next: a turning-point
+option is a different product question from the drift model's jumps; if it is tried, it needs its own registered
+bars on a fresh turning-point label set (another country's dated business cycle, say) with the random-cut baseline
+as a bar, not a reading.

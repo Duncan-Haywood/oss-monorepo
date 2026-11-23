@@ -840,3 +840,18 @@ is `end`).
   GitHub; nber.org and fred.stlouisfed.org refused this session).
 - **Licence:** tis is released as "Unlimited"; the dates are published facts.
 - **Used by:** `eval/trend-walk-nber.mjs`, `trend-walk-nber.test.mjs`.
+
+# US industrial production and persons unemployed (fresh NBER-labelled series for the stiff-slope trend walk)
+
+`us-industrial-production-monthly.csv`: the `production` column (index of industrial production) of AER's
+`USMacroSWM` (Stock and Watson), 696 months from 1947-01 to 2004-12 (the package's help says 1947(1) to 2004(4);
+696 rows from 1947-01 end in 2004-12, and the 1958-04, 1975-05 and 2001-12 troughs fall on their known months).
+`us-industrial-production-quarterly.csv`: the `adjusted` column of AER's `USProdIndex` (Franses 1998; 1985 = 100),
+128 quarters from 1960Q1 to 1991Q4 (the 1985 rows average 99.5). `us-unemployed-monthly.csv`: the `unemploy` column
+(thousands of persons unemployed, FRED UNEMPLOY) of ggplot2's `economics`, 574 months from 1967-07 to 2015-04.
+
+- **Retrieved:** 2026-11-23 from <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/AER/USMacroSWM.csv>,
+  `.../csv/AER/USProdIndex.csv` and `.../csv/ggplot2/economics.csv` (fred.stlouisfed.org refused this session).
+- **Licence:** Federal Reserve Board and US Bureau of Labor Statistics figures, US government works in the public
+  domain; the Rdatasets copies are as published by AER (GPL-2 | GPL-3) and ggplot2 (MIT). Used as test fixtures only.
+- **Used by:** `eval/trend-walk-stiff.mjs`, `eval/trend-walk-stiff-chance.mjs`, `trend-walk-stiff.test.mjs`.
