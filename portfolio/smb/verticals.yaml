@@ -1,0 +1,1995 @@
+# Regional SMB verticals: pain points, incumbent software, compliance records.
+# Evidence for portfolio/smb/OFFER.md. Validated by
+# `python3 portfolio/smb/cost_plus.py --check` (every pain, compliance rule and
+# product needs a URL). Rows with no source are under `unsourced`: named so a
+# later run can source them, never claimed.
+#
+# How it was made (2026-11-24): three web-research passes, one per group. All
+# evidence was read through search-result summaries; no page was opened, and
+# many sources are vendors (marked [vendor]) or secondhand (marked
+# [secondhand]). Re-read a source before quoting it in anything user-facing.
+- slug: hvac-plumbing-electrical
+  name: HVAC, plumbing and electrical contractors
+  group: home-services
+  size:
+    summary: 'IBISWorld [snippet]: HVAC contractors ~120,461 US businesses (2026), avg 5.1 employees;
+      plumbers ~129,352 businesses (2026), avg 6.0 employees (https://www.ibisworld.com/industry-statistics/number-of-businesses/plumbers-united-states/);
+      electricians ~261,958 businesses (2026), avg 4.9-5.0 employees, industry revenue $312.2bn 2025 (https://www.ibisworld.com/industry-statistics/number-of-businesses/electricians-united-states/).
+      IEC study puts NAICS 238210 electrical contractors at an estimated 84,903 firms in 2025 employing
+      ~548,000 electricians (https://ieci.org/wp-content/uploads/2026/06/IEC-Economic-Impact-Results-Final-6.23.26.pdf).
+      Per-firm revenue: no source found.'
+    source: https://ibisworld.com/industry-statistics/number-of-businesses/heating-air-conditioning-contractors-united-states/
+  software_today:
+  - name: ServiceTitan
+    what: Full FSM/CRM for larger residential and commercial trades shops (dispatch, pricebook, memberships,
+      reporting)
+    list_price: quote only (per-technician pricing; third-party estimates of $245-$500/tech/month plus
+      implementation fees are unverified)
+    source: https://www.capterra.com/p/150053/ServiceTitan/pricing/
+  - name: Housecall Pro
+    what: 'SMB field service app: scheduling, dispatch, invoicing, payments'
+    list_price: Basic $59/mo annual or $79/mo monthly (1 user); Essentials $149/$189 (up to 5 users);
+      MAX $299/$329 (8 users, extra seats $35) [snippet; vendor page not fetchable; Capterra guide may
+      date from 2023]
+    source: https://capterra.com/p/140363/HouseCall-Pro/pricing/
+  - name: Jobber
+    what: 'SMB field service app: quotes, scheduling, invoicing, client hub'
+    list_price: 'Core ~$39/mo, Connect ~$119/mo, Grow ~$199/mo billed monthly (single user; annual billing
+      lower) [snippet][conflict: other 2026 guides give different tiers]'
+    source: https://capterra.com/p/127994/Jobber/pricing/
+  pain_points:
+  - pain: Hiring and keeping qualified technicians
+    evidence:
+    - source: https://www.achrnews.com/blogs/17-opinions/post/163957-a-new-survey-of-trades-professionals-takes-a-look-at-whats-ahead-for-2025
+      says: 'Housecall Pro survey [vendor][snippet]: 60% said the skilled-labor shortage impacted their
+        business; 86% said the biggest hiring challenge is a lack of qualified candidates.'
+    - source: https://www.contractingbusiness.com/industry-news/news/55373105/2026-hvac-survey-finds-rising-prices-and-ai-interest
+      says: 'EGIA 2026 HVAC contractor survey [snippet]: respondents named hiring and retention, lead
+        generation and operations management as their biggest business challenges.'
+    - source: https://www.achrnews.com/polls/164-hiring-situation/results
+      says: '[snippet] In a 2024 ACCA survey, members reported workforce shortages as their top challenge.'
+  - pain: 'Lead capture: missed and after-hours calls'
+    evidence:
+    - source: https://www.contractingbusiness.com/industry-news/news/55373105/2026-hvac-survey-finds-rising-prices-and-ai-interest
+      says: 'EGIA 2026 survey [snippet]: lead generation is one of the top three challenges.'
+    - source: https://www.servicetitan.com/toolbox/state-of-the-trades/trends/hvac-summer-after-hours-call-spike
+      says: '[vendor][snippet] ServiceTitan analysed 2025 inbound calls on its platform: a larger share
+        of residential HVAC demand arrives outside business hours in summer. No independent missed-call
+        rate found.'
+  - pain: Rising costs squeezing margins and pricing
+    evidence:
+    - source: https://www.achrnews.com/articles/165150-servicetitan-report-shows-revenue-gains-but-rising-costs-for-hvac-contractors
+      says: '[snippet] Headline: ServiceTitan report shows revenue gains but rising costs for HVAC contractors.'
+    - source: https://www.contractingbusiness.com/industry-news/news/55373105/2026-hvac-survey-finds-rising-prices-and-ai-interest
+      says: '[snippet] EGIA 2026 survey headline: rising prices and labor and cost pressures.'
+  - pain: Software that is expensive, opaque and slow to onboard
+    evidence:
+    - source: https://getjobber.com/academy/servicetitan-competitors/
+      says: '[competitor][snippet] Jobber article says ServiceTitan is too expensive for small businesses.'
+    - source: https://www.capterra.com/p/150053/ServiceTitan/pricing/
+      says: '[snippet] Capterra reviewers describe pricing as expensive, with extra costs for features
+        and scaling with team size; a separate search summary reported a reviewer''s failed multi-week
+        onboarding, but which review page it came from could not be confirmed.'
+  - pain: 'Getting paid: unpaid invoices and cash flow'
+    evidence:
+    - source: https://quickbooks.intuit.com/r/small-business-data/small-business-late-payments-report-2026
+      says: '[snippet] QuickBooks 2026 (all small businesses, not trade-specific): owners waiting on invoices
+        are owed $17.7K on average; 22% have at least 20% of invoices past 30 days.'
+    - source: https://www.housecallpro.com/resources/how-to-collect-hvac-payments/
+      says: '[vendor][snippet] A few large unpaid invoices can force an HVAC shop to choose which bills,
+        parts orders or payroll to delay.'
+  - pain: Admin and paperwork time
+    evidence:
+    - source: https://www.housecallpro.com/wp-content/uploads/2026/06/062026-HCP-The-AI-Advantage-report.pdf
+      says: '[vendor][snippet] Spring 2026 survey of 245+ pros: 38% of AI users say they are less buried
+        in paperwork; 1 in 4 save 6+ admin hours a week (vendor says read directionally).'
+    - source: https://www.salesforce.com/news/?p=86059
+      says: '[snippet; secondhand] Salesforce survey: tradespeople waste more than seven hours per week
+        on low-value tasks like manual data entry.'
+  - pain: Maintenance agreements lapsing without renewal
+    evidence:
+    - source: https://www.simprogroup.com/blog/maintenance-agreement-renewals
+      says: '[vendor][snippet] Article on keeping service contracts from lapsing; vendor-cited lapse rates
+        of 28-40% without structured renewal outreach are unverified.'
+    - source: https://www.servicetitan.com/blog/maintenance-agreements
+      says: '[vendor][snippet] Guide framing maintenance agreements as the core recurring-revenue program
+        for HVAC shops.'
+  compliance:
+  - rule: Clean Air Act Section 608 refrigerant management (40 CFR 82 Subpart F)
+    authority: US EPA
+    records: 'Technicians disposing of appliances with 5-50 lb of refrigerant keep disposal records (location,
+      recovery date, refrigerant type); leak inspection/verification records for 50+ lb ODS appliances.
+      Retention period for technician disposal records: not confirmed in sources read (3 years seen only
+      for MVAC shops).'
+    source: https://19january2025snapshot.epa.gov/section608/recordkeeping-and-reporting-requirements-stationary-refrigeration/index.html
+  - rule: AIM Act Emissions Reduction and Reclamation rule (40 CFR 84, incl. 84.106)
+    authority: US EPA
+    records: Leak repair, leak-rate calculation, recordkeeping and reporting for HFC appliances with a
+      full charge of 15 lb or more; single compliance date Jan 1, 2026.
+    source: https://www.epa.gov/system/files/documents/2026-01/er-r-fact-sheet-leak-repair-2026-01-13_1.pdf
+  - rule: AIM Act Technology Transitions (refrigerant GWP limits) reconsideration, final rule May 26,
+      2026
+    authority: US EPA
+    records: Which refrigerants may be used in new installs; deadlines extended/loosened per law-firm
+      summary [secondhand]. Exact dates not confirmed.
+    source: https://www.hklaw.com/en/insights/publications/2026/05/epa-finalizes-changes-to-technology-transitions-provisions
+  - rule: 'State contractor licensing (example: Texas air conditioning and refrigeration contractor)'
+    authority: Texas Department of Licensing and Regulation
+    records: Class A/B license with E/R/C endorsements; commercial general liability insurance must be
+      maintained while license is active.
+    source: https://www.tdlr.texas.gov/acr/contractor-apply.htm
+  - rule: 'State contractor licensing (example: California C-20 HVAC)'
+    authority: California Contractors State License Board
+    records: Business-level license with a qualifier (experience + law/business and trade exams per vendor
+      guide [secondhand]); workers' comp required.
+    source: https://www.aptora.com/licensing/hvac/california
+  - rule: Backflow prevention assembly testing (plumbers)
+    authority: 'State drinking-water agency and local water utility (example: Texas TCEQ)'
+    records: Annual test of health-hazard assemblies within 12 months of last test; signed test report
+      by licensed tester, original to the public water system.
+    source: https://www.tceq.texas.gov/goto/20700
+  - rule: Local building/mechanical/electrical permits
+    authority: Local building departments
+    records: Permit applications and inspections per job; remodelers in an informal 2018 survey averaged
+      4.8 staff hours/week pulling permits [snippet].
+    source: https://www.jlconline.com/remodeling/got-the-bureaucratic-blues-heres-what-your-remodeler-peers-said-about-pulling-permits_o
+  suite_modules:
+  - 'Call capture: AI/after-hours answering, missed-call text-back and online booking feeding the schedule'
+  - Dispatch and scheduling board with tech mobile app (job notes, photos, signatures)
+  - Flat-rate pricebook, good-better-best estimates and invoicing with card/ACH and financing links
+  - 'Payments and collections: auto-reminders, card on file, aging dashboard'
+  - 'Maintenance-agreement manager: auto-renew, auto-schedule tune-ups, renewal outreach'
+  - 'Compliance log: refrigerant recovered/charged per appliance (608/AIM Act 15 lb leak repair timers),
+    backflow test reports, permit tracker'
+  - 'Hiring and training: applicant pipeline, ride-along checklists, license/cert expiry alerts'
+  first_module:
+    module: Call capture + online booking with missed-call text-back
+    why: Lead generation and hiring are the top named challenges (EGIA 2026); software can't hire techs
+      but can stop losing the calls a short-staffed shop already paid to get. It is standalone (works
+      beside ServiceTitan/Jobber/HCP), has a measurable ROI per recovered job, and is the cheapest wedge
+      into a market where incumbents are criticised as expensive and slow to onboard.
+  evidence_read: 2026-11-24, through web-search result summaries; pages not opened (see VERTICALS.md,
+    'How sure')
+- slug: roofing
+  name: Roofing contractors
+  group: home-services
+  size:
+    summary: 'IBISWorld [snippet]: ~109k US roofing businesses in 2026 (3.4% CAGR 2021-26); May 2025 report:
+      ~102k businesses, 294k employees, $76.4bn revenue; average 2.1 employees per business (roofing &
+      siding variant: 130k businesses, 2.6 employees). NAICS Association lists 59,589 businesses for 238160
+      (year/method not stated) [conflict].'
+    source: https://www.ibisworld.com/industry-statistics/number-of-businesses/roofing-contractors-united-states/
+  software_today:
+  - name: AccuLynx
+    what: 'Roofing CRM/production: leads, estimates, material orders, crews, insurance jobs'
+    list_price: quote only (per user per month per Capterra listing)
+    source: https://capterra.com/p/116187/Acculynx/
+  - name: JobNimbus
+    what: Roofing/exteriors CRM and job boards
+    list_price: 'quote only / conflicting: Capterra lists from $300 per user/month; another guide cites
+      $225 or $550/mo base plus $20-$75/user [conflict][competitor]'
+    source: https://www.capterra.com/p/126797/JobNimbus/pricing/
+  - name: Roofr
+    what: Measurement reports, proposals, CRM
+    list_price: Reports $19 pay-as-you-go or $13 on a subscription; plans Measure+ $109/mo, Instant Estimator
+      $149/mo, Essentials $249/mo, Scale $349/mo [snippet]
+    source: https://roofr.com/help/roofr-report-update-2024
+  - name: EagleView
+    what: Aerial roof measurement reports
+    list_price: per report, roughly $15-$87 by roof size per third-party guides; official page unreadable;
+      subscription quote only [conflict]
+    source: https://www.eagleview.com/pricing
+  pain_points:
+  - pain: Rising and volatile material prices
+    evidence:
+    - source: https://www.servicetitan.com/guides/exterior-trades-report-2025
+      says: '[vendor][snippet] Survey of 1,020 exterior owners (>$1M revenue): fears include increasing
+        material prices (64%).'
+    - source: https://www.roofingcontractor.com/articles/100718-survey-shows-material-prices-among-biggest-concerns-in-roofing
+      says: '[snippet] Headline: survey shows material prices among biggest concerns in roofing.'
+  - pain: Labor shortage and overhead
+    evidence:
+    - source: https://www.servicetitan.com/guides/exterior-trades-report-2025
+      says: '[vendor][snippet] Labor shortage (58%) and rising labor and overhead costs (53%).'
+    - source: https://www.roofingcontractor.com/articles/101568-2025-commercial-roofing-trends-report
+      says: '[snippet] 36% of commercial roofers highlighted a lack of qualified workers.'
+    - source: https://nrca.net/RoofingNews/labor-shortage-in-construction-is-main-cause-of-project-delays.9-16-2025.12933/Details/Story
+      says: '[snippet] Workforce survey of nearly 1,400 construction companies: labor shortages are the
+        main cause of project delays.'
+  - pain: Insurance claims, supplements and adjuster delays
+    evidence:
+    - source: https://www.servicetitan.com/guides/exterior-trades-report-2025
+      says: '[vendor][snippet] 40% do insurance work; claims complexity (47%) and adjuster delays (36%)
+        create operational drag.'
+    - source: https://www.propertyinsurancecoveragelaw.com/blog/the-concerns-and-legality-of-supplemental-claims-and-supplemental-claims-companies/
+      says: '[snippet] Supplements with insufficient evidence of extra damage lead to delays, denials
+        and disputes.'
+  - pain: Lead follow-up and owner-as-salesperson bottleneck
+    evidence:
+    - source: https://www.jobnimbus.com/blog/missed-calls-missed-forms-missed-revenue-the-roofing-leads-youre-losing-today
+      says: '[vendor][snippet] One audit (anecdote) found a company missing 42% of potential leads.'
+    - source: https://www.getjobber.com/academy/roofing/how-to-grow-your-roofing-business/
+      says: '[vendor][snippet] Owners who are the main salesperson hit a ceiling around $1M revenue and
+        become the bottleneck.'
+  - pain: 'Cash flow: paying for materials and crews before the customer or insurer pays'
+    evidence:
+    - source: https://projul.com/blog/roofing-contractor-software
+      says: '[vendor][snippet] Waiting 30-60 days for payment strains the ability to buy materials and
+        pay crews.'
+    - source: https://www.getjobber.com/academy/roofing/how-to-run-the-office-of-a-roofing-company/
+      says: '[vendor][snippet] Owners underestimate up-front working capital for materials, labor and
+        permits.'
+  - pain: 'Production handoffs: crews waiting on job details, redos'
+    evidence:
+    - source: https://es.rooferscoffeeshop.com/post/danielle-basch-the-struggle-is-real-fix-the-painful-processes-from-the-roof-podcast-transcript
+      says: '[snippet] Podcast lists missed follow-ups, redo mistakes, crews waiting around for job details
+        and team burnout.'
+  compliance:
+  - rule: Fall protection in residential construction, 29 CFR 1926.501(b)(13)
+    authority: OSHA
+    records: Conventional fall protection at 6 ft+; if infeasible, a written site-specific fall protection
+      plan under 1926.502(k). Fall protection is OSHA's most-cited standard (14th straight year in FY2024
+      per trade press [snippet]).
+    source: https://www.osha.gov/residential-fall-protection/faq
+  - rule: Insurance deductible waiver ban (Texas HB 2102, 2019)
+    authority: Texas Department of Insurance / state law
+    records: Contracts and invoices must not waive or rebate the deductible; fines up to $2,000 [snippet].
+    source: https://tdi.texas.gov/tips/state-law-cracks-down-on-roof-scams.html
+  - rule: Colorado residential roofing contract law (CRS 6-22-105)
+    authority: State of Colorado
+    records: 'Written contract with cancellation/refund terms and 72-hour rescission; no deductible waivers
+      [secondhand: law-firm summary].'
+    source: https://www.propertyinsurancecoveragelaw.com/blog/who-pays-the-deductible-requirements-of-roofing-contracts-in-colorado/
+  - rule: Storm-chaser / post-storm contract laws (NCOIL model act; state compendium)
+    authority: State legislatures / insurance regulators
+    records: 'Model: 3-business-day cancellation right; deposits returned within 10 business days. Which
+      states adopted it: not confirmed.'
+    source: https://ncoil.org/wp-content/uploads/2026/02/NCOIL-Storm-Chaser-Model-November-2025.pdf
+  - rule: Heat injury and illness prevention (proposed federal rule; state rules in CA, CO, MD, MN, NV,
+      OR, WA per law-firm summary)
+    authority: OSHA (proposed, not final as of sources read) and State Plans
+    records: Proposed written heat plans; federal rule still not final in 2026 [snippet].
+    source: https://www.osha.gov/heat-exposure/rulemaking
+  suite_modules:
+  - 'Insurance claim workspace: photo/damage documentation, supplement builder, adjuster correspondence
+    log, claim status tracker'
+  - Lead capture and follow-up CRM with automated cadences and canvassing map
+  - 'Estimating and proposals: measurement import (Roofr/EagleView/own), material takeoff, good-better-best'
+  - Material ordering and job costing with price-change alerts
+  - 'Production scheduling: crew calendar, weather holds, job packet to crew phones'
+  - 'Payments: deposit, insurance-check and draw tracking, depreciation/ACV recoverable tracking'
+  - 'Safety and compliance: fall-protection plans per site, toolbox talks, state contract templates (rescission,
+    no-deductible-waiver)'
+  first_module:
+    module: Insurance claim and supplement workspace
+    why: Material prices and labor are macro problems software can't fix; claims complexity (47%) and
+      adjuster delays (36%) are operational drag that documentation software directly reduces, and every
+      insurance job's cash depends on it. Incumbents are quote-only, per-user CRMs, so a cheap, focused
+      claims tool is a clear wedge that later grows into the CRM.
+  evidence_read: 2026-11-24, through web-search result summaries; pages not opened (see VERTICALS.md,
+    'How sure')
+- slug: landscaping-lawn-care
+  name: Landscaping and lawn care
+  group: home-services
+  size:
+    summary: 'IBISWorld [snippet][conflict]: 556,238 businesses (2026) on one page vs 692,777 (2025) on
+      another; ~1.39-1.47M employees; average 2.1-2.5 employees per business; market $176.7bn (2026).
+      Census 2002 data imply roughly 73% of landscaping units had no employees (209,072 nonemployers vs
+      76,102 employer establishments; my calculation, old data) (https://webarchive.library.unt.edu/eot2008/20090829210804/http:/www.census.gov/epcd/nonemployer/2002/us/US000_56.HTM).'
+    source: https://www.ibisworld.com/united-states/number-of-businesses/landscaping-services/1497/
+  software_today:
+  - name: Jobber
+    what: SMB quoting, scheduling, invoicing (common for lawn care)
+    list_price: Core ~$39/mo, Connect ~$119/mo, Grow ~$199/mo billed monthly [snippet][conflict]
+    source: https://capterra.com/p/127994/Jobber/pricing/
+  - name: LMN
+    what: Landscape estimating, budgeting, crew timesheets
+    list_price: 'free tier up to 5 users; Pro $335/mo + $19.97/user; Pro Plus $460/mo + $19.97/user [snippet;
+      aggregator][conflict: another aggregator gives $297-$648]'
+    source: https://www.softwareadvice.com/landscaping/lmn-profile/
+  - name: Service Autopilot
+    what: Lawn care scheduling, routing, automation, invoicing
+    list_price: from $49/mo plus sign-up fee; higher tiers $139-$499/mo depending on source [conflict]
+    source: https://www.getjobber.com/academy/lawn-care/best-lawn-care-software/
+  - name: Aspire
+    what: Commercial landscape ERP (estimating to invoicing)
+    list_price: quote only (tiers by revenue, unlimited users per vendor)
+    source: https://www.youraspire.com/blog/lmn-alternatives
+  - name: RealGreen (Service Assistant)
+    what: Lawn/tree care and pest application businesses (WorkWave)
+    list_price: starting $199/mo per Software Advice (Capterra labels it per user) [conflict]
+    source: https://www.softwareadvice.com/field-service/service-assistant-profile/
+  pain_points:
+  - pain: Finding and keeping crew labor (incl. H-2B visa caps)
+    evidence:
+    - source: https://www.youraspire.com/blog/webinar-recap-where-technology-meets-opportunity
+      says: '[vendor][snippet] Aspire 2025 report: 51% classify staffing as one of their biggest risks
+        of 2025.'
+    - source: https://www.greenindustrypros.com/industry-updates/article/22929768/staying-rooted-2025-state-of-the-green-industry-report
+      says: '[snippet] 29% said labor is their most pressing concern.'
+    - source: https://sportsfieldmanagementonline.com/2025/12/10/2200-businesses-call-for-immediate-release-of-supplemental-h-2b-visas/18778/
+      says: '[snippet] More than 2,200 small businesses called for release of 64,716 supplemental H-2B
+        visas.'
+    - source: https://blog.landscapeprofessionals.org/talent-trends-for-2026-how-landscape-companies-are-approaching-recruiting/
+      says: '[snippet] NALP: finding skilled labor remains one of the primary business challenges.'
+  - pain: Rising costs (materials, fuel, equipment, insurance) vs clients' old price expectations
+    evidence:
+    - source: https://www.lawnandlandscape.com/state-of-industry-report
+      says: '[snippet] Contractor: meeting customer demands at five-years-ago pricing is difficult; concerns
+        include recession and high fuel prices.'
+    - source: https://www.youraspire.com/guides/2026-landscape-industry-trends-report
+      says: '[vendor][snippet] Aspire lists rising material costs and winning bids in a competitive market
+        among top challenges.'
+  - pain: Estimating and bidding accuracy (underpricing)
+    evidence:
+    - source: https://www.totallandscapecare.com/business-best-practices/lawn-care-estimating-mistakes-to-avoid/
+      says: '[snippet] Owners are overconfident in their estimating abilities; warns against pricing by
+        eye.'
+    - source: https://www.lawnandlandscape.com/article/pricing-residential-mowing
+      says: '[snippet] Pricing guidance: if you''re not losing jobs often, your prices are too low.'
+  - pain: Seasonal cash flow and late payments
+    evidence:
+    - source: https://blog.landscapeprofessionals.org/business-smarts-managing-cash-flow-through-the-slow-season/
+      says: '[snippet] NALP: revenue falls in winter while insurance, equipment payments and overhead
+        continue; levelled monthly billing suggested.'
+    - source: https://relayfi.com/blog/seasonal-cash-flow-accounting-landscaping-businesses/
+      says: '[vendor][snippet] Late payments are among the most common cash-flow drains, usually from
+        missed or forgotten invoices.'
+  - pain: Client retention
+    evidence:
+    - source: https://www.barchart.com/story/news/35280148/new-aspire-software-data-shows-commercial-landscape-contractors-focus-on-client-retention-operational-efficiency-and-smarter-tech-investments
+      says: '[vendor][snippet] Aspire data headline: commercial landscape contractors focus on client
+        retention and operational efficiency.'
+  - pain: Proof of service and disputes over visits
+    evidence:
+    - source: https://www.youraspire.com/blog/prove-service-delivery-data-ends-disputes
+      says: '[vendor][snippet; title only] Photo, GPS and time data to prove service delivery and end
+        disputes.'
+  compliance:
+  - rule: 'H-2B employer obligations: record retention (WHD Fact Sheet 78I) and three-fourths hours guarantee
+      (78E)'
+    authority: US Department of Labor, Wage and Hour Division
+    records: Keep H-2B registration, job order, application, Appendix B, I-129 etc. for 3 years; payroll
+      showing hours offered vs worked per workweek for the 3/4 guarantee [snippet].
+    source: https://www.dol.gov/agencies/whd/fact-sheets/78i-h2b-record-retention
+  - rule: 'Pesticide applicator licensing for lawn/weed treatments (example: California maintenance gardener)'
+    authority: California Department of Pesticide Regulation + county agricultural commissioner
+    records: Qualified Applicator Certificate Category Q, Maintenance Gardener Pest Control Business License
+      ($180), county registration, even for incidental pesticide use.
+    source: https://www.cdpr.ca.gov:/docs/license/maintgardeners/brochure.pdf
+  - rule: Pesticide application records (state rules; federal floor for restricted-use pesticides)
+    authority: State pesticide lead agencies; USDA (7 CFR 110) for RUP
+    records: RUP records available 2 years federally; states require 2 (NH) to 3 (CO) to 5 (MN) to 7 years
+      (WA), some for all applications with weather data.
+    source: https://www.law.cornell.edu/cfr/text/7/110.3
+  - rule: Zero-emission small off-road engines (AB 1346 / CARB SORE rule)
+    authority: California Air Resources Board
+    records: New MY2024+ mowers, blowers, trimmers sold must be zero-emission (generators 2028); affects
+      equipment purchasing, not record-keeping.
+    source: https://ww2.arb.ca.gov/2021-assembly-bill-1346-berman-marc-small-road-engines-chaptered
+  - rule: Heat illness prevention (proposed federal; state rules exist)
+    authority: OSHA / State Plans
+    records: Proposed written heat plan; not final as of sources read.
+    source: https://www.osha.gov/heat-exposure/rulemaking
+  suite_modules:
+  - 'Estimating: satellite/property measurement, production-rate based pricing, minimum charges, margin
+    check'
+  - Recurring service scheduling and route optimisation for crews
+  - 'Billing: auto-charge card on file, levelled monthly (budget) billing, prepay offers'
+  - Crew time tracking and job costing (hours budgeted vs actual)
+  - 'H-2B compliance: hours-offered vs worked ledger for the 3/4 guarantee, document vault'
+  - Pesticide/fertilizer application log with state-specific record formats
+  - Client portal with visit photos/GPS proof and upsell requests
+  first_module:
+    module: Estimating with measured properties and production-rate pricing
+    why: Costs are rising faster than clients accept and owners admit to estimating by eye; a fast measured-bid
+      tool fixes margin on every new job, wins the 'winning bids' problem Aspire's survey names, and is
+      the natural entry point that every downstream module (schedule, bill, job cost) feeds from.
+  evidence_read: 2026-11-24, through web-search result summaries; pages not opened (see VERTICALS.md,
+    'How sure')
+- slug: pest-control
+  name: Pest control
+  group: home-services
+  size:
+    summary: 'IBISWorld [snippet][conflict]: ~31,300-34,000 US pest control businesses (2026); 148,619-177,751
+      employees; average 4.5-5.2 employees per business. Statista (citing IBISWorld) 33,385 businesses
+      in 2024.'
+    source: https://www.ibisworld.com/industry-statistics/number-of-businesses/pest-control-united-states/
+  software_today:
+  - name: PestPac (WorkWave)
+    what: 'Pest control ERP: routing, chemical tracking, billing, state reports'
+    list_price: quote only (sales contact form; no free plan)
+    source: https://www.capterra.com/p/23130/PestPac/pricing/
+  - name: FieldRoutes (ServiceTitan)
+    what: Pest/lawn routing, chemical tracking, customer portal
+    list_price: quote only
+    source: https://www.softwareadvice.com/field-service/fieldroutes-profile/
+  - name: Briostack
+    what: Pest control CRM and routing
+    list_price: 'quote only (G2: no pricing provided)'
+    source: https://www.g2.com/products/briostack/pricing
+  - name: GorillaDesk
+    what: SMB pest/lawn/pool scheduling, routing, chemical records
+    list_price: 'Basic $49/mo, Pro $99/mo, Growth $299/mo; +$50/mo per extra schedule; unlimited users
+      [snippet][conflict: another source says $49/$99/$149]'
+    source: https://www.capterra.com/p/130290/GorillaDesk/pricing/
+  pain_points:
+  - pain: Finding qualified technicians
+    evidence:
+    - source: https://www.pctonline.com/news/finding-qualified-workers-low-ball-competitors-top-pco-concerns-2025
+      says: '[snippet] PCT 2025 reader poll: finding qualified workers (48%) was the biggest business
+        challenge heading into 2025.'
+    - source: https://www.npmapestworld.org/media/gnldxqsz/2022-npma-pct-industry-trends-survey.pdf
+      says: '[snippet] 2022 NPMA/PCT survey: 52% said hiring employees was their top workforce concern.'
+  - pain: Low-ball competitors and pricing pressure
+    evidence:
+    - source: https://www.pctonline.com/news/finding-qualified-workers-low-ball-competitors-top-pco-concerns-2025
+      says: '[snippet] Low-ball competitors (23%) were the second biggest challenge.'
+  - pain: Rising costs and economic uncertainty
+    evidence:
+    - source: https://www.fieldroutes.com/company/news/new-fieldroutes-data-finds-software-is-key-to-profit-growth
+      says: '[vendor][snippet] FieldRoutes/Thrive survey of 1,025 leaders: 89% grappling with rising costs;
+        economy a chief concern.'
+    - source: https://www.pctonline.com/news/finding-qualified-workers-low-ball-competitors-top-pco-concerns-2025
+      says: '[snippet] Uncertain economy (17%).'
+  - pain: Customer cancellations on recurring plans
+    evidence:
+    - source: https://www.fieldroutes.com/blog/why-pest-control-customers-cancel
+      says: '[vendor][snippet] Ongoing infestations that make customers feel the service is ineffective
+        are a top cancellation reason.'
+    - source: https://pctonline.com/article/-business-growth--customer-retention-how-to
+      says: '[snippet] Retention benchmarks need context; an 80% rate is not automatically fine vs a competitor''s
+        70%. Widely repeated ~40% annual churn figure is unsourced.'
+  - pain: Regulatory pressure and chemical-use paperwork/state reporting
+    evidence:
+    - source: https://www.pctonline.com/news/finding-qualified-workers-low-ball-competitors-top-pco-concerns-2025
+      says: '[snippet] Increased regulatory pressures (12%).'
+    - source: https://www.fieldproxy.ai/blog/11-compliance-requirements-pest-control-software-must-handle-d1-40
+      says: '[vendor][snippet] States require anything from monthly summaries to annual pesticide use
+        reports.'
+  - pain: Route density and scheduling efficiency
+    evidence:
+    - source: https://cubecreative.design/blog/pest-control-marketing/kpis-that-drive-profit
+      says: '[vendor][snippet] Falling margins linked to poor route density, scheduling gaps and spread-out
+        territories.'
+    - source: https://acquisitionstars.com/blog/route-density-customer-contract-pest-control-ma-diligence
+      says: '[snippet] Fewer than six stops per tech per day in a dense market signals poor routing.'
+  - pain: Incumbent software cost and add-ons
+    evidence:
+    - source: https://www.g2.com/products/pestpac-by-workwave/pricing
+      says: '[snippet] Reviewers feel PestPac is expensive: high base rates, per-user fees, extra charges
+        for modules, training and migration.'
+  compliance:
+  - rule: Pest control use records (4 Tex. Admin. Code 7.144)
+    authority: Texas Department of Agriculture, Structural Pest Control Service
+    records: Certified applicator keeps pesticide use records at the business location (service address,
+      product, termite sq ft treated etc.); 2 years per TDA self-audit checklist (rule-text retention
+      not confirmed).
+    source: https://www.law.cornell.edu/regulations/texas/4-Tex-Admin-Code-SS-7-144
+  - rule: Wood-destroying organism inspection reports (Fla. Stat. 482.226; Form 13645)
+    authority: Florida Department of Agriculture and Consumer Services
+    records: WDO reports for real-estate transactions on Form 13645; termite/WDO license category; $50,000
+      E&O coverage or bond [snippet].
+    source: https://www.flsenate.gov/Laws/Statutes/2024/482.226
+  - rule: Certification of Pesticide Applicators (40 CFR 171, 2017 revision)
+    authority: US EPA (implemented via state plans)
+    records: Commercial applicator certification and recertification under state plans; RUP application
+      records (federal floor 2 years).
+    source: https://www.federalregister.gov/documents/2017/01/04/2016-30332/pesticides-certification-of-pesticide-applicators
+  - rule: 'Pesticide use reporting (example: California)'
+    authority: California DPR / county agricultural commissioners
+    records: Businesses submit use reports to the county agricultural commissioner on set timelines.
+    source: https://www.cdpr.ca.gov/wp-content/uploads/2026/04/volume_1_chapter_4.pdf
+  suite_modules:
+  - 'Recurring service plans: auto-scheduling, autopay, re-service requests, cancellation save flow'
+  - Route optimisation and route-density map for selling into existing routes
+  - Chemical-use log on the tech's phone generating state-format records/reports (TX, FL, CA first)
+  - 'Inspection reports: WDO/termite forms (e.g. FL 13645), photos, graphs'
+  - 'Customer portal: visit reports with what was applied and where, re-treat requests'
+  - 'Hiring and licensing tracker: applicator certifications, CE credits, expiry alerts'
+  - 'Sales: door-to-door/referral lead capture tied to route density'
+  first_module:
+    module: Chemical-use log with state-format record and report generation
+    why: Every applicator must keep these records (Texas, Florida, California and federal RUP rules);
+      it is mandatory, recurring and painful on paper, so willingness to pay is clear, and it is the data
+      that the service ticket, customer report and inspection modules all reuse. Incumbents with good
+      state reports are quote-only; GorillaDesk is the cheap alternative.
+  evidence_read: 2026-11-24, through web-search result summaries; pages not opened (see VERTICALS.md,
+    'How sure')
+- slug: cleaning-janitorial
+  name: Residential and commercial cleaning / janitorial
+  group: home-services
+  size:
+    summary: 'IBISWorld [snippet]: ~1,254,202 US janitorial businesses (2026); ~2.30M employees; average
+      1.8-1.9 employees per business; market $112.0bn (2026); largest firm ABM. Census 2002 data imply
+      ~89% of janitorial units had no employees (427,553 nonemployers vs 50,984 employer establishments;
+      my calculation, old data) (https://webarchive.library.unt.edu/eot2008/20090829210804/http:/www.census.gov/epcd/nonemployer/2002/us/US000_56.HTM).'
+    source: https://www.ibisworld.com/industry-statistics/employment/janitorial-services-united-states/
+  software_today:
+  - name: Swept
+    what: 'Commercial janitorial: staff scheduling, communication, inspections'
+    list_price: Launch ~$30/mo, Optimize $150/mo, Scale $225/mo; plans start at 15 locations [snippet]
+    source: https://www.softwareadvice.com/field-service/swept-profile/
+  - name: ZenMaid
+    what: Residential maid-service scheduling, booking, payments
+    list_price: Starter $19 + $4/user/mo; Pro $39 + $14/user; Pro Max $49 + $24/user [snippet]
+    source: https://www.capterra.com/p/133875/ZenMaid-Software/pricing/
+  - name: Janitorial Manager
+    what: Commercial janitorial operations/inspections
+    list_price: quote only (a competitor claims ~$500/mo start [competitor])
+    source: https://learn.sweptworks.com/janitorial-manager-alternatives
+  - name: MaidCentral
+    what: Residential cleaning operations and KPI benchmarking
+    list_price: no source found
+    source: https://maidcentral.com/pci-report
+  pain_points:
+  - pain: Staff turnover and recruiting
+    evidence:
+    - source: https://www.youraspire.com/blog/commercial-cleaning-insights-report
+      says: '[vendor][snippet] Survey of 1,000+ commercial cleaning companies: 63% cited employee recruitment
+        and retention as a primary concern.'
+    - source: https://cmmonline.com/news/state-of-the-industry-shows-tension-in-facility-upkeep
+      says: '[snippet] Speaker at ISSA summit: janitorial turnover 200-400% a year; ~$18,000 to replace
+        an employee (speaker estimate).'
+  - pain: No-shows and staff communication
+    evidence:
+    - source: https://learn.sweptworks.com/how-to-run-a-successful-cleaning-business
+      says: '[vendor][snippet] Survey of 300+ commercial cleaning owners/managers: top concerns revolved
+        around staff communication and retention.'
+    - source: https://procleaneruk.co.uk/?p=4628
+      says: '[snippet] No-show and quality problems more often stem from how cleaners are managed.'
+  - pain: Customer churn driven by inconsistent quality
+    evidence:
+    - source: https://maidcentral.com/pci-report
+      says: '[vendor][snippet] Residential recurring customer churn averaged ~5.36% per month (Oct 2025
+        data); 2026 edition shows ~7.55% for one size group.'
+    - source: https://get.zenmaid.com/tools/recurring-revenue-calculator
+      says: '[vendor][snippet] Main churn causes: inconsistent cleaning quality, team turnover breaking
+        the client relationship, weak onboarding in first 90 days.'
+  - pain: Pricing/bids vs wage-driven cost increases
+    evidence:
+    - source: https://cmmonline.com/news/state-of-the-industry-shows-tension-in-facility-upkeep
+      says: '[snippet] PPI for nonresidential cleaning up 9.7% year over year, tied to minimum-wage increases.'
+    - source: https://cmmonline.com/news/bsc-survey-highlights-challenges-of-balancing-costs-with-client-expectations
+      says: '[snippet; title only] BSC survey highlights balancing costs with client expectations.'
+  - pain: Payroll and timekeeping across many sites
+    evidence:
+    - source: https://hubstaff.com/blog/how-to-manage-a-cleaning-business/
+      says: '[vendor][snippet] Technician payroll is by far the biggest monthly cost; lack of systems
+        is the biggest owner mistake.'
+  - pain: Worker misclassification exposure
+    evidence:
+    - source: https://www.dol.gov/newsroom/releases/whd/whd20241030
+      says: '[snippet] Oct 2024: Columbia SC cleaning company ordered to pay $53,044 to 59 workers classified
+        as contractors.'
+    - source: https://www.dol.gov/newsroom/releases/whd/whd20150205
+      says: '[snippet] DOL (2015): more than three-quarters of janitorial companies investigated had violations.'
+  compliance:
+  - rule: Hazard Communication Standard, 29 CFR 1910.1200
+    authority: OSHA
+    records: Written hazcom program; SDS for every hazardous cleaning product kept current and accessible;
+      training before first use.
+    source: https://www.osha.gov/sites/default/files/hazcom_2012_regulatory_text.pdf
+  - rule: Employee vs independent contractor under the FLSA
+    authority: US DOL Wage and Hour Division (plus state agencies)
+    records: Payroll and hours records for employees; misclassification leads to back wages and liquidated
+      damages.
+    source: https://www.dol.gov/newsroom/releases/whd/whd20241030
+  - rule: Property Service Workers Protection Act (Cal. Labor Code 1428; 8 CCR 13810-13819)
+    authority: California Labor Commissioner (DIR)
+    records: Annual janitorial employer registration; in-person sexual violence and harassment prevention
+      training every two years, with records.
+    source: https://www.dir.ca.gov/dlse/Janitorial_Providers_Contractors.html
+  suite_modules:
+  - Staff scheduling with shift confirmations, no-show alerts and backup-cleaner dispatch
+  - GPS/geofenced time clock feeding payroll (W-2 by default, classification guidance)
+  - 'Quality inspections: room/site checklists with photos, client-visible scores'
+  - 'Client retention: post-clean feedback, issue tickets, at-risk account alerts'
+  - Bidding/pricing calculator from production rates and local wage costs
+  - Recruiting pipeline and onboarding/training (incl. hazcom training records, SDS library)
+  - Residential booking and recurring billing with card on file
+  first_module:
+    module: Staff scheduling + no-show alerts + GPS time clock
+    why: Turnover and staff communication top every survey found; a schedule that confirms shifts, flags
+      no-shows before the client does, and feeds clean hours to payroll attacks no-shows, payroll errors
+      and quality complaints at once, and keeps workers properly classified as employees.
+  evidence_read: 2026-11-24, through web-search result summaries; pages not opened (see VERTICALS.md,
+    'How sure')
+- slug: pool-service
+  name: Pool service
+  group: home-services
+  size:
+    summary: 'IBISWorld [snippet]: 78,817 US swimming-pool cleaning businesses in 2025 (another page shows
+      89,046, undated); 99,529 employees (2025); average 1.3 employees per business; market $8.6-8.8bn;
+      no company above 5% share.'
+    source: https://www.ibisworld.com/industry-statistics/number-of-businesses/swimming-pool-cleaning-services-united-states/
+  software_today:
+  - name: Skimmer
+    what: 'Pool route service: routes, chemical readings, service emails, billing'
+    list_price: 'from $1 per serviced location per month, $49/mo minimum; higher tier $98/mo usage-based
+      per Software Advice [snippet][conflict: competitor says $2/pool, $98 min]'
+    source: https://www.softwareadvice.com/field-service/skimmer-profile/
+  - name: Pool Brain
+    what: Pool route and service management
+    list_price: $55 per technician per month (5-tech minimum per competitor); Software Advice lists $10/user
+      plus $55/tech [conflict][competitor]
+    source: https://www.softwareadvice.com/field-service/pool-brain-profile/
+  - name: Pool Office Manager
+    what: Pool service routing and billing
+    list_price: $70/mo flat or $49 per user/mo per Capterra [conflict]
+    source: https://www.capterra.com/p/175269/Pool-Office-Manager/alternatives/
+  pain_points:
+  - pain: Inflation, rising overhead and chemical costs
+    evidence:
+    - source: https://www.getskimmer.com/blog/10-insights-on-the-state-of-pool-service-2025
+      says: '[vendor][snippet] Survey of 2,000 pros: inflation, labor shortages and rising material costs
+        were top challenges in 2024, expected to continue in 2025.'
+    - source: https://www.getskimmer.com/blog/state-of-pool-service-2026-webinar-recap
+      says: '[vendor][snippet] 2026: economic pressures including inflation and rising overhead top the
+        list; chemical costs stabilised somewhat.'
+  - pain: Labor and staffing shortages
+    evidence:
+    - source: https://www.getskimmer.com/blog/state-of-pool-service-2026-webinar-recap
+      says: '[vendor][snippet] Labor remains the most persistently cited constraint on growth.'
+  - pain: 'Pricing: chemicals included vs itemised, and raising rates without losing customers'
+    evidence:
+    - source: https://www.getskimmer.com/blog/10-insights-on-the-state-of-pool-service-2025
+      says: '[vendor][snippet] Only 20% have adopted a ''plus chems'' model; chems-included pricing carries
+        fluctuating-cost risk.'
+    - source: https://community.getjobber.com/discussions/cleaning-and-property-maintenance/how-to-raise-pool-service-rates-when-costs-are-rising-without-losing-customers/12901
+      says: '[snippet] Owner thread: how to raise rates as costs rise; a Florida owner says they undervalued
+        themselves and the costs of servicing pools.'
+  - pain: Business insurance cost and availability
+    evidence:
+    - source: https://www.getskimmer.com/blog/state-of-pool-service-2026-webinar-recap
+      says: '[vendor][snippet] Increasing cost and difficulty of obtaining business insurance is a top-three
+        challenge.'
+  - pain: Not knowing per-pool margins (chemical usage per account)
+    evidence:
+    - source: https://www.getskimmer.com/blog/double-your-profits-strategies-for-increasing-revenue-without-adding-more-pools
+      says: '[vendor][snippet] Many owners don''t know their numbers; fluctuating chemical cost loses
+        margin until per-pool usage is analysed.'
+    - source: https://pooldial.com/resources/articles/business/raising-rates-on-inherited-pool-accounts
+      says: '[vendor][snippet] Raise underpriced accounts by math: account history, chemical usage, service
+        time, route value.'
+  - pain: Proof-of-service disputes ('you skipped my pool')
+    evidence:
+    - source: https://pooldial.com/resources/articles/guides/pool-service-proof-of-service
+      says: '[vendor][snippet] GPS, chemical readings and photos used to answer skipped-visit claims;
+        sometimes the customer simply missed the visit.'
+    - source: https://www.getskimmer.com/blog/proof-of-service
+      says: '[vendor][snippet] On-site-only timestamped photos to support disputes and audits.'
+  compliance:
+  - rule: Public pool service technician certification (Fla. Admin. Code 64E-9)
+    authority: Florida Department of Health
+    records: 'Individual DOH pool service technician certification (16+ hour course) to maintain public
+      pools [secondhand: vendor guide].'
+    source: https://pooldial.com/resources/articles/business/florida-pool-service-legal-requirements
+  - rule: Certified pool/spa servicing contractor license (Fla. Stat. ch. 489) for repair/equipment work
+    authority: Florida Construction Industry Licensing Board (DBPR)
+    records: Contractor license for non-structural repair and equipment servicing.
+    source: https://www2.myfloridalicense.com/pro/cilb/documents/CILB5L_Certified_Contractor_Individual_Pool-Servicing.pdf
+  - rule: 'Hazmat transport of pool chemicals: materials of trade exception (49 CFR 173.6)'
+    authority: US DOT PHMSA
+    records: Package size limits (66 lb solid / 8 gal liquid per package for PG II/III per trade article
+      [unverified against CFR]); operator informed of hazmat on board; 1998 PHMSA letter found a small
+      pool service compliant on its facts.
+    source: https://www.law.cornell.edu/cfr/text/49/173.6
+  - rule: Pesticide licensing for algaecide application
+    authority: State pesticide agencies
+    records: no source found confirming whether routine pool algaecide use requires an applicator license
+      in CA or AZ.
+    source: https://cdpr.ca.gov/wp-content/uploads/2025/02/chapter_3.pdf
+  suite_modules:
+  - 'Route app: stop list, chemical readings and dosing calculator, on-site timestamped photos'
+  - Automatic service report to the homeowner after each stop (proof of service)
+  - 'Per-pool profitability: chemical cost and time per account, flags underpriced pools'
+  - 'Billing: monthly autopay with optional itemised chemicals, price-increase letters'
+  - Repair/equipment quotes and upsell workflow from tech findings
+  - 'Compliance and fleet: chemical load sheet vs materials-of-trade limits, certification tracker'
+  first_module:
+    module: Route app with readings, dosing, photos and auto service report
+    why: Firms average 1.3 employees, so the owner is the tech; the daily route app is used at every stop,
+      produces proof of service that settles disputes, and captures the chemical data that per-pool profitability
+      and itemised-chem billing need. Skimmer's $1/location pricing sets the bar, so it must be at least
+      as cheap.
+  evidence_read: 2026-11-24, through web-search result summaries; pages not opened (see VERTICALS.md,
+    'How sure')
+- slug: independent-dental
+  name: Independent dental practices
+  group: care-and-personal
+  size:
+    summary: 'About 34% of US dentists practiced solo (single location, no other dentist) in 2024; 16%
+      were DSO-affiliated in 2024 (ADA HPI via Becker''s/DentistryIQ [secondhand]). Share of private-practice
+      dentists in solo practice fell from 66.5% (2001) to 46.2% (2021). No current Census CBP establishment/employee
+      figure retrieved (API blocked); 1997 Economic Census: 114,178 establishments, 641,674 paid employees
+      (~5.6 per establishment, own arithmetic, old data). Typical revenue: no source found.'
+    source: https://www.dentistryiq.com/dentistry/research-and-news/article/55318380/the-future-of-dentistry-2024-ada-hpi-workforce-report-unpacks-emerging-trends
+  software_today:
+  - name: Open Dental
+    what: Desktop/server practice management (scheduling, charting, billing, claims)
+    list_price: $179/month per location for up to 3 dentists (12-month contract); reduced rate after year
+      one not found; medical integrations $110/month/FTE provider
+    source: https://opendental.com/site/fees.html
+  - name: Dentrix Ascend (Henry Schein One)
+    what: Cloud practice management with optional imaging
+    list_price: 'quote only (third-party estimates conflict: TechRadar $995 setup + $500/month up to 10
+      users; Software Advice from $499/month)'
+    source: https://www.techradar.com/reviews/dentrix-ascend
+  - name: Dentrix (desktop), Eaglesoft, Denticon, CareStack
+    what: Other common PMS options seen in comparison listings
+    list_price: quote only / no published price found
+    source: https://www.g2.com/products/denticon/pricing
+  pain_points:
+  - pain: Hiring and keeping hygienists and assistants
+    evidence:
+    - source: https://www.beckersdental.com/staffing-issues/how-dentists-are-faring-against-workforce-shortages/
+      says: '[secondhand of ADA HPI Q3 2025] Among dentists recruiting, 74% called hygienist recruitment
+        extremely challenging vs 40.1% for assistants and 29.1% for admin staff.'
+    - source: https://adanews.ada.org/new-dentist/2025/march/staffing-shortages-top-expected-challenges-this-year
+      says: About 3 in 5 dentists worried about recruiting and retaining staff, especially hygienists,
+        going into 2025.
+  - pain: 'Insurance: low reimbursement, denials, eligibility verification'
+    evidence:
+    - source: https://www.drbicuspid.com/dental-practice/office-management/practice-trends/article/15712053/what-dentists-are-really-expecting-in-2025
+      says: '[secondhand of ADA HPI] Nearly 58% of dentists cited low insurance reimbursement, denials,
+        Medicaid/Medicare issues as a top expected 2025 challenge.'
+    - source: https://zentist.io/blog/blog-2026-dental-rcm-trends
+      says: '[vendor] 71% of 160+ billing pros named real-time insurance verification their primary daily
+        challenge; 78% saw rising denials.'
+    - source: https://www.beckersdental.com/benchmarking/top-10-insurance-pains-dental-providers-face/
+      says: '[vendor survey via Becker''s] Top insurance pains: processing delays, chasing unpaid/rejected
+        claims, then eligibility (denied after verified).'
+  - pain: Claims attachments and follow-up eat front-desk time
+    evidence:
+    - source: https://www.beckersdental.com/benchmarking/top-10-insurance-pains-dental-providers-face/
+      says: '[vendor survey] Over 40% said 10-25% of claims need attachments; 36% said 26-50% do.'
+    - source: https://www.oralhealthgroup.com/features/when-one-person-leaves-does-your-front-office-stop/
+      says: Front office becomes a catchall for phones, verification, claims, payments, aging follow-up
+        and scheduling.
+  - pain: Rising overhead costs
+    evidence:
+    - source: https://www.drbicuspid.com/dental-practice/office-management/practice-trends/article/15712053/what-dentists-are-really-expecting-in-2025
+      says: '[secondhand of ADA HPI] About 46% of dentists reported rising expenses as an expected challenge.'
+    - source: https://adanews.ada.org/huddles/dental-fiscal-squeeze-continues-into-2026/
+      says: 'ADA News headline: dental fiscal squeeze continues into 2026 (insurance, staffing, overhead).'
+  - pain: Late cancellations and no-shows leave unfilled chair time
+    evidence:
+    - source: https://www.dentistryiq.com/dentistry/article/16367882/down-and-dirty-tasks-of-dental-life-dealing-with-no-shows-and-patients-who-play-dentist-ping-pong
+      says: Calls no-shows a frustration all dental offices share.
+    - source: https://adanews.ada.org/ada-news/2022/march/hpi-dental-practice-schedules-were-on-average-83-full-in-february
+      says: 'ADA News (HPI): practice schedules averaged 83% full in Feb 2022 (headline only; read via
+        search result).'
+  - pain: Front-desk turnover and single points of failure
+    evidence:
+    - source: https://www.oralhealthgroup.com/features/when-one-person-leaves-does-your-front-office-stop/
+      says: Estimates replacing a front-desk employee at $3,000-$5,000 including onboarding and productivity
+        dip.
+  compliance:
+  - rule: HIPAA Privacy/Security Rules; cloud vendors holding ePHI need a BAA
+    authority: HHS Office for Civil Rights
+    records: Risk analysis, policies, BAAs with every vendor that stores/transmits ePHI, breach logs
+    source: https://www.hhs.gov/hipaa/for-professionals/special-topics/cloud-computing
+  - rule: Bloodborne Pathogens Standard 29 CFR 1910.1030
+    authority: OSHA (and state-plan OSHAs)
+    records: Written exposure control plan reviewed annually; annual training records (3 years); employee
+      exposure/Hep B medical records (employment + 30 years)
+    source: https://osha.gov/Publications/osha3187.pdf
+  - rule: Dental amalgam separator rule 40 CFR Part 441
+    authority: US EPA via local control authority (POTW)
+    records: One-time compliance report; separator inspection/maintenance/repair records; dates of amalgam
+      pickup/shipment and receiving facility name
+    source: https://www.law.cornell.edu/cfr/text/40/441.50
+  - rule: Dental X-ray machine registration and periodic inspection
+    authority: State radiation control programs (e.g. Texas DSHS, Virginia VDH)
+    records: Machine registration/renewal per tube, equipment performance evaluations, inspection reports
+      (e.g. VA inspects dental facilities every 3 years)
+    source: https://www.dshs.texas.gov/texas-radiation-control/x-ray-machines-x-ray-services/dental-x-ray-machine
+  suite_modules:
+  - 'insurance-desk: eligibility verification, benefit breakdowns, claim attachment packets, denial/aging
+    worklist'
+  - 'staff-and-scheduling: hygiene/assistant schedule, temp coverage, credential and CE expiry tracker'
+  - 'chair-fill: automated reminders, confirm/reschedule by text, short-notice waitlist to backfill cancellations'
+  - 'patient-payments: treatment-plan estimates, text-to-pay, payment plans'
+  - 'compliance-binder: OSHA BBP plan and training log, amalgam separator log, X-ray registration renewals,
+    HIPAA BAA register'
+  - 'front-desk inbox: unified phone/text/web-form queue with call-back tracking'
+  first_module:
+    module: insurance-desk (eligibility verification + claim/denial worklist)
+    why: 'Insurance is the most consistently cited operational pain after staffing (58% in HPI''s 2025
+      outlook; verification #1 daily task in billing surveys), software can directly cut front-desk hours,
+      and it sits alongside the existing PMS rather than replacing it, so a small shop can sell it without
+      a full PMS migration. Staffing ranks higher but is less software-solvable. Handles PHI: needs HIPAA-grade
+      hosting with BAAs (and clearinghouse/payer connectivity costs) priced in.'
+  unsourced:
+  - section: compliance
+    rule: State dental board licensure and CE for dentists, hygienists, assistants
+    authority: State dental boards
+    records: License and CE tracking per staff member
+  evidence_read: 2026-11-24, through web-search result summaries; pages not opened (see VERTICALS.md,
+    'How sure')
+- slug: independent-veterinary
+  name: Independent veterinary clinics
+  group: care-and-personal
+  size:
+    summary: 'AVMA: mean FTE veterinarians per private practice 2.44 in 2009 (old). 2022 AVMA figure (via
+      search summary): average gross revenue $1.72M for companion-animal-exclusive practices, $1.45M companion-animal-predominant.
+      Corporate share estimates vary: 85-95% independent (AVMA 2017) vs ~30% corporate of the market (ag-econ
+      working paper) [secondhand]. Employee count per clinic: no current source found.'
+    source: https://www.avma.org/javma-news/2011-12-15/sizing
+  software_today:
+  - name: ezyVet (IDEXX)
+    what: Cloud PIMS
+    list_price: from $260.50 per user/month (Basic) per Capterra/Software Advice; ezyvet.com says 'as
+      little as $260.50 per month'
+    source: https://www.capterra.com/p/99977/ezyVet-Cloud-Vet-Software/pricing/
+  - name: Cornerstone (IDEXX)
+    what: Server-based PIMS
+    list_price: quote only (no published price found)
+    source: https://www.capterra.com/p/99976/Cornerstone-Practice-Management/reviews/
+  - name: AVImark (Covetrus)
+    what: Server-based PIMS
+    list_price: quote only (no published price found)
+    source: https://capterra.com/p/92887/AVImark/reviews/
+  - name: Shepherd
+    what: Cloud PIMS
+    list_price: $299/month (third-party listings; SaaSworthy shows tiers $299/1 doctor, $499/2-3, $749/4-7)
+    source: https://www.capterra.com/p/172485/Shepherd-App/pricing/
+  - name: Digitail
+    what: Cloud PIMS
+    list_price: quote only per vendor; Digitail's own guide page states from $299/month for one doctor,
+      +$99 per additional doctor (conflicting figures elsewhere)
+    source: https://digitail.com/blog/best-veterinary-software-guide/
+  pain_points:
+  - pain: Staff shortages, burnout and technician turnover
+    evidence:
+    - source: https://www.frontiersin.org/articles/10.3389/fvets.2025.1614496/full
+      says: Veterinary technician turnover rate 'greatly exceeds that of the national average' (US sample,
+        2025 study).
+    - source: https://todaysveterinarybusiness.com/?p=77483
+      says: '[secondhand] AAHA survey: 30% of practice team members planning to leave their role; AVMA
+        News cites ~23% average annual turnover.'
+    - source: https://vetmedux.com/industry-insights/2025-veterinary-market-survey-results/
+      says: In 2024 the primary concern was finding staff; in 2025 economic uncertainty overtook it.
+  - pain: Phones overwhelm the front desk; calls go unanswered and bookings are lost
+    evidence:
+    - source: https://todaysveterinarybusiness.com/the-six-figure-problem-with-your-phone-system/
+      says: '[secondhand, vendor data] 25-30% of calls to small and medium clinics go unanswered.'
+    - source: https://whautomate.com/why-patients-dont-book-vet-phone-study/
+      says: '[secondhand of Ohio State-linked study] Callers to 5,000+ practices got an appointment 67%
+        of the time; failures from not reaching staff or long holds.'
+    - source: https://petdesk.com/pet-parent-research-report
+      says: '[vendor] More than half of pet parents report problems booking appointments.'
+  - pain: Client affordability pressure and financial pressure on the practice
+    evidence:
+    - source: https://www.veterinarypracticenews.com/?p=55474
+      says: 86% of practices report pet owners are cutting back, especially on elective and non-essential
+        services.
+    - source: https://www.aaha.org/trends-magazine/publications/rising-vet-med-costs-create-challenges/
+      says: 'AAHA Trends: rising vet med costs create challenges (title; detail not read).'
+  - pain: Legacy PIMS that is slow, crash-prone and charting-heavy
+    evidence:
+    - source: https://www.capterra.com/p/92887/AVImark/reviews/?page=17
+      says: 'User review: lagging issues and ''it locks up every day''.'
+    - source: https://www.capterra.com/p/99976/Cornerstone-Practice-Management/reviews/
+      says: 'User review: outdated, many steps, ''takes a lot of time for charting''.'
+  - pain: Controlled-substance logging and inventory counts
+    evidence:
+    - source: https://www.deadiversion.usdoj.gov/mtgs/pract_awareness/conf_2019/oct_2019/ikner.pdf
+      says: 'DEA presentation: the registrant (not staff) is responsible for controlled substance records.'
+    - source: https://vetmed.illinois.edu/?p=31921
+      says: Page titled 'Incomplete/Inferior Recordkeeping' on controlled substances (detail not read).
+  - pain: Client communication and marketing
+    evidence:
+    - source: https://software.covetrus.com/emea/veterinary-insights/ebooks/the-2024-trends-survey-an-overview-of-our-insights/
+      says: '[vendor] Marketing/client communications and having the right technology listed among practice
+        challenges; 41% planned software upgrades in 2025.'
+  compliance:
+  - rule: DEA controlled substance recordkeeping, 21 CFR Part 1304
+    authority: US DEA (plus state boards; some states longer retention)
+    records: Initial and biennial inventory; separate Schedule II records; dispensing/administration logs;
+      keep 2 years (e.g. Illinois 5 years)
+    source: https://www.ecfr.gov/current/title-21/chapter-II/part-1304
+  - rule: State PDMP reporting for veterinary dispensing (varies; most states exempt vets)
+    authority: State PDMPs / boards (e.g. Virginia mandatory)
+    records: Report dispensed controlled substances at state interval where required
+    source: https://www.dhp.virginia.gov/Boards/VetMed/PractitionerResources/PrescriptionMonitoringProgram/
+  - rule: Rabies vaccination certificate retention
+    authority: State health rules (e.g. Texas 25 TAC 169.29 / 22 TAC 573.51)
+    records: Copy of each rabies certificate, retrievable for at least 5 years in Texas; 3 years in Arizona
+    source: https://law.cornell.edu/regulations/texas/22-Tex-Admin-Code-SS-573-51
+  - rule: Veterinary medical record content and retention
+    authority: State veterinary boards (e.g. 49 Pa. Code 31.22)
+    records: Patient medical records kept at least 3 years from last treatment in Pennsylvania
+    source: https://law.cornell.edu/regulations/pennsylvania/49-Pa-Code-SS-31-22
+  suite_modules:
+  - 'front-desk phone and text inbox: missed-call capture, callback queue, two-way texting, online booking'
+  - 'team scheduling and retention: shift scheduling, coverage, credential/CE tracking'
+  - 'estimates and payments: treatment estimates, deposits, text-to-pay, payment plans'
+  - 'controlled-substance log: per-bottle running balance, biennial inventory, discrepancy alerts, PDMP
+    export where required'
+  - 'reminders and client communication: vaccine/rabies due reminders, rabies certificate generator'
+  - 'inventory: reorder points and expiry tracking'
+  first_module:
+    module: front-desk phone and text inbox with online booking
+    why: Unanswered calls (roughly a quarter in vendor data, with an independent mystery-caller study
+      showing a third of booking attempts failing) are lost revenue that a staffing-short clinic cannot
+      fix by hiring. It bolts onto any PIMS. Vet records are not HIPAA PHI, so hosting is lighter than
+      dental/PT; the controlled-substance log is a strong second module because DEA records are a hard
+      obligation.
+  unsourced:
+  - section: compliance
+    rule: Radiography equipment registration
+    authority: State radiation control programs
+    records: Registration and inspection records (vet-specific source not found)
+  evidence_read: 2026-11-24, through web-search result summaries; pages not opened (see VERTICALS.md,
+    'How sure')
+- slug: salons-barbers-spas
+  name: Hair salons, barbershops and day spas
+  group: care-and-personal
+  size:
+    summary: '[secondhand] Census CBP 2023 via startbusinessbystate.com: 84,176 employer salon establishments,
+      391,064 employees, ~4.6 employees per establishment; Nonemployer Statistics 2023: 838,264 nonemployer
+      salons with average receipts $30,374. Not verified against census.gov (API blocked). Barbershops
+      and day spas separately: no source found.'
+    source: https://startbusinessbystate.com/salon-industry-statistics/
+  software_today:
+  - name: Vagaro
+    what: Booking, POS, marketing
+    list_price: $30/month first calendar + $10/month each additional (up to 7); add-ons e.g. forms $10/month,
+      text marketing $20/month; promo $23.99 seen
+    source: https://emitrr.com/blog/vagaro-pricing/
+  - name: Boulevard
+    what: Premium salon/spa booking and POS
+    list_price: Essentials ~$176/month monthly or $159 annual per location; Premier ~$293 monthly or $263
+      annual (third-party, Nov 2025)
+    source: https://thedigitalmerchant.com/?p=69482
+  - name: GlossGenius
+    what: Booking/payments for solo and small teams
+    list_price: Standard $28/month ($24 annual); Gold $56 ($48); Platinum $168 ($148)
+    source: https://glossgenius.com/pricing
+  - name: Mindbody, Square Appointments, Fresha, Zenoti, Phorest
+    what: Alternatives seen in comparisons
+    list_price: not collected
+    source: https://squareup.com/us/en/compare/square-vs-vagaro
+  pain_points:
+  - pain: Finding, keeping and motivating stylists (walkouts, booth-rent drift)
+    evidence:
+    - source: https://www.phorest.com/?p=65018
+      says: '[vendor survey] 59% of salon owners struggle to find and hire the right staff.'
+    - source: https://www.salontoday.com/articles/new-survey-claims-45-of-owners-have-considered-closing-their-salon
+      says: '[vendor survey, 2019] Difficulty finding and managing staff was top factor (32%) behind owners
+        considering closing.'
+    - source: https://www.salontoday.com/articles/beauty-pulse-why-stylists-fly-the-salon-coop
+      says: Salon Today piece on why stylists leave salons (title; detail not read).
+  - pain: No-shows and late cancellations
+    evidence:
+    - source: https://www.zenoti.com/thecheckin/salon-cancellation-policies
+      says: '[vendor] 2025 benchmark: 3% no-show and 8% cancellation rate; estimates $6,864/year lost
+        to no-shows.'
+    - source: https://www.fresha.com/blog/cancellations-cost-study
+      says: '[vendor, UK] 55% of owners say no-shows force longer hours; ~7% of monthly revenue lost to
+        cancellations in hair and beauty.'
+  - pain: Client retention and rebooking
+    evidence:
+    - source: https://professionalbeauty.co.uk/only-29-percent-new-salon-clients-rebook-phorest-research
+      says: '[vendor, UK] Only 29% of new salon clients rebook.'
+    - source: https://www.phorest.com/?p=2578
+      says: '[vendor] ~20% of owners named retaining existing clients their biggest challenge, ahead of
+        marketing (17%).'
+  - pain: Worker classification and commission/booth-rent payroll complexity
+    evidence:
+    - source: https://www.nailsmag.com/irsclassifications
+      says: Owner, not technician, pays if the IRS finds misclassification; one owner reportedly owed
+        $85,000.
+    - source: https://irs.gov/pub/ss8/05PCP018952.pdf
+      says: 'IRS SS-8 ruling: commission earnings are not evidence of independent status for a stylist
+        without investment.'
+  - pain: Marketing and time management for owner-operators
+    evidence:
+    - source: https://www.phorest.com/?p=2578
+      says: '[vendor] Marketing (17%) and time management (15%) follow retention as biggest challenges.'
+  - pain: Software and processing fees stack up via add-ons
+    evidence:
+    - source: https://koalendar.com/blog/vagaro-pricing
+      says: '[competitor] Vagaro add-ons (forms, texting, website) and processing fees add to base price.'
+  compliance:
+  - rule: State cosmetology/barber establishment license and sanitation rules
+    authority: State boards of cosmetology/barbering (e.g. Minnesota 2105.0375)
+    records: 'Minnesota: log of each use, test results and maintenance for equipment, last 36 months on
+      site'
+    source: https://revisor.mn.gov/rules/pdf/2105.0375/2020-03-06%2012:37:16+00:00
+  - rule: Pedicure equipment cleaning log
+    authority: California Board of Barbering and Cosmetology
+    records: Date/time, cleaner initials, after-client or end-of-day for each cleaning
+    source: https://www.barbercosmo.ca.gov/laws_regs/art12.shtml
+  - rule: Posting of inspection reports; annual inspections
+    authority: Georgia Secretary of State boards; Kansas Board of Cosmetology
+    records: Most recent inspection report posted (GA); annual routine inspections (KS)
+    source: https://sos.ga.gov/28-guidelines-cosmetology-salon-barber-shop-school-sanitary-regulations
+  - rule: Worker classification (employee vs independent/booth renter)
+    authority: IRS (common-law control test); state law (booth renting reportedly not legal in PA and
+      NJ [secondhand])
+    records: W-2 payroll or 1099s; booth-rent agreements; evidence of control factors
+    source: https://www.nailsmag.com/irsclassifications
+  suite_modules:
+  - 'booking with deposits: online booking, card-on-file, no-show fees, automated reminders, waitlist'
+  - 'rebook and retention: rebook-at-checkout prompts, lapsed-client win-back texts'
+  - 'team pay: commission tiers, product commission, tips, booth-rent invoicing, classification checklist'
+  - POS and retail inventory
+  - 'compliance log: disinfection/pedicure logs, license expiry tracker, inspection binder'
+  - 'marketing: reviews request, simple campaigns'
+  first_module:
+    module: booking with deposits and no-show protection (plus rebook prompts)
+    why: No-shows and retention are the most-measured, software-addressable pains; staffing ranks higher
+      but is mostly not software-solvable. Market is mostly tiny operators (~4.6 staff at employer salons,
+      ~10x as many nonemployer salons), so price sensitivity is extreme and incumbents start at $24-30/month;
+      a near-cost product must undercut add-on stacking. No PHI, so hosting is light (PCI handled by a
+      payment processor).
+  unsourced:
+  - section: compliance
+    rule: Individual practitioner license renewals
+    authority: State boards
+    records: License numbers/expiry per stylist (tracking burden; specific source not found)
+  evidence_read: 2026-11-24, through web-search result summaries; pages not opened (see VERTICALS.md,
+    'How sure')
+- slug: childcare-centers-home-daycares
+  name: Childcare centers and in-home daycares
+  group: care-and-personal
+  size:
+    summary: '[secondhand of BLS MLR] About 77,000 childcare establishments employing ~942,000 workers;
+      58% of establishments employed fewer than 10 people. NSECE 2019: ~118,000 regulated home-based providers
+      vs NARA count of ~266,017 regulated family child care homes [secondhand via Bipartisan Policy Center].
+      Revenue: no source found.'
+    source: https://www.bls.gov/opub/mlr/2024/article/childcare-employment-before-during-and-after-the-covid-19-pandemic.htm
+  software_today:
+  - name: Brightwheel
+    what: Check-in, parent app, billing, CACFP
+    list_price: quote only (aggregators show 'from $49/month', unverified)
+    source: https://www.g2.com/products/brightwheel/pricing
+  - name: Procare
+    what: Center management, billing, attendance
+    list_price: quote only for centers; home version $25/month
+    source: https://www.softwareadvice.com/child-care/procare-profile/
+  - name: Tadpoles, Storypark, MyKidReports, Playground
+    what: Alternatives
+    list_price: Tadpoles $2.25 per active child/month; Storypark $1.59/child/month (CostBench); MyKidReports
+      $0.99/child/month (own site)
+    source: https://costbench.com/software/childcare-management/procare/
+  pain_points:
+  - pain: Staffing shortages and burnout
+    evidence:
+    - source: https://www.naeyc.org/node/5663
+      says: 'NAEYC 2025 survey (10,000+ respondents): staffing the leading reason programs are under-enrolled.'
+    - source: https://www.procaresoftware.com/about-us/press-room/procare-solutions-releases-2026-child-care-business-trends-report/
+      says: '[vendor] 43% name burnout and staff well-being a major challenge.'
+    - source: https://www.mccormickinstitute.nl.edu/leading-under-pressure-stress-burnout-and-commitment-among-novice-ecec-administrators
+      says: 54% of novice directors physically and 57% emotionally drained at least weekly.
+  - pain: Rising operating costs vs what families can pay
+    evidence:
+    - source: https://www.naeyc.org/node/5663
+      says: Operating costs rose drastically; 65% of centers and 31% of home-based programs raised tuition.
+    - source: https://nafcc.org/wp-content/uploads/2026/01/For-Immediate-Release-NAFCC-Annual-Survey-Report.pdf
+      says: 35% of family child care educators earn under $10/hour; 71% work 50+ hours a week.
+  - pain: Under-enrollment / enrollment management
+    evidence:
+    - source: https://www.naeyc.org/node/5663
+      says: Nearly half of programs not enrolled at desired capacity.
+    - source: https://procaresoftware.com/blog/2025-child-care-trends-grow-your-child-care-centers-enrollment
+      says: '[vendor] 39.8% identify enrollment management as a significant obstacle; 41% of centers under
+        capacity (2026).'
+  - pain: Subsidy (CCDF) billing paperwork and payment process
+    evidence:
+    - source: https://aspe.hhs.gov/reports/ccdf-state-plan-barriers
+      says: 70% of states/territories identified administrative burden as a barrier for providers.
+    - source: https://dcfpi.org/all/if-you-build-it-recommendations-for-increasing-the-supply-of-affordable-child-care-to-meet-district-demand/
+      says: Providers submit the same paperwork to multiple systems, 'overwhelming, time consuming' and
+        error-prone.
+  - pain: Tuition collection and family billing
+    evidence:
+    - source: https://hhs.iowa.gov/media/10203/download
+      says: 'Iowa provider survey: full collection of fees is a significant barrier; few have auto-deposit
+        billing.'
+  - pain: Regulatory paperwork (licensing, CACFP)
+    evidence:
+    - source: https://nafcc.org/docs/reports/NAFCC-Annual-Report-2025.pdf
+      says: Lists subsidy and CACFP admin tasks among ongoing demands; paperwork ranked 6th among challenges
+        (benefits top 3).
+    - source: https://www.oesw.mn.gov/info/reports/Former FCCP Survey Report 2026.pdf
+      says: Minnesota closure study cites burdensome regulation for family child care providers.
+  compliance:
+  - rule: CACFP recordkeeping, 7 CFR 226.18 (homes) / 226.15 (centers)
+    authority: USDA FNS via state agency and sponsor
+    records: Enrollment documentation, daily attendance, daily meal counts by type, menus; monthly claim
+      with source documents
+    source: https://www.fns.usda.gov/cacfp/record-maintenance-requirements-family-day-care-home-providers
+  - rule: CCDF health and safety minimums and comprehensive background checks
+    authority: HHS ACF Office of Child Care; state lead agencies
+    records: Staff background checks (incl. FBI fingerprint, registry), health/safety training, immunization
+      records, inspections
+    source: https://childcareta.acf.hhs.gov/sites/default/files/new-occ/resource/files/center_licensing_trends_brief_2020_final.pdf
+  - rule: 'State licensing: child-staff ratios, group size, attendance, immunizations'
+    authority: State child care licensing agencies
+    records: Daily sign-in/out, ratio by room, child immunization and enrollment files, staff files
+    source: https://www.childcareaware.org/families/child-care-regulations/who-regulates-child-care/
+  - rule: Subsidy attendance and billing
+    authority: State CCDF lead agencies
+    records: Attendance supporting subsidy claims, copays (state-specific; exact rule text not found)
+    source: https://aspe.hhs.gov/reports/ccdf-state-plan-barriers
+  suite_modules:
+  - 'attendance and ratios: kiosk/phone check-in, live room ratio, licensing-ready sign-in records'
+  - 'billing and autopay: tuition, subsidy copay split, late fees, autopay, ledger'
+  - 'subsidy claims: state-specific attendance export and reconciliation'
+  - 'CACFP meal counts: point-of-service counts, menus, monthly claim report'
+  - 'enrollment and waitlist: inquiries, tours, waitlist, capacity planning'
+  - 'staff files and scheduling: background check/training/expiry tracking, ratio-aware schedule'
+  - 'parent communication: daily reports, messaging, photos'
+  first_module:
+    module: attendance + ratios + tuition autopay (single 'front door' module)
+    why: Attendance is the source record for licensing, subsidy and CACFP claims, and billing/collections
+      is a cited sustainability problem; together they produce the paperwork that the other modules reuse.
+      Home providers earn little (35% under $10/hour), so a near-cost price matters more here than in
+      any other vertical. Children's records are not HIPAA PHI in this setting but are sensitive; COPPA-style
+      care and state privacy rules apply.
+  evidence_read: 2026-11-24, through web-search result summaries; pages not opened (see VERTICALS.md,
+    'How sure')
+- slug: independent-pt-chiro
+  name: Independent physical therapy / chiropractic clinics
+  group: care-and-personal
+  size:
+    summary: 'PT: IBISWorld average ~4.0 employees per physical/occupational/speech therapy business;
+      APTA 2023 benchmark covered 3,843 clinics with 20,443 FTEs (~5.3 FTE/clinic, own arithmetic). Chiropractic:
+      average office with employees ~$409,600 receipts (2022 Census via consultant [secondhand]); IBISWorld
+      ~2.8 employees per business; NBCE 2024 median chiropractor practice AGI $125,000.'
+    source: https://www.apta.org/contentassets/89ae879ae25648a488db5b45baf3d772/apta-benchmark-report-hiring-challenges-2023.pdf
+  software_today:
+  - name: WebPT
+    what: PT EMR, billing, scheduling
+    list_price: quote only (third-party estimates $164-$307 per provider/month on 12-month terms)
+    source: https://www.physitrack.com/insights/webpt-pricing
+  - name: Jane App
+    what: Scheduling, charting, billing for allied health
+    list_price: Balance $59/month, Practice $79/month (1 full-time practitioner per license; part-time
+      = half)
+    source: https://jane.app/pricing
+  - name: ChiroTouch
+    what: Chiropractic EHR/PM
+    list_price: Start $139, Grow $329, Scale $529 per month (Software Advice)
+    source: https://www.softwareadvice.com/medical/chirotouch-profile/
+  - name: ChiroFusion
+    what: Cloud chiropractic EHR/PM
+    list_price: Essentials $129, Complete $299 per month flat (Capterra/Software Advice)
+    source: https://www.capterra.com/p/142407/ChiroFusion-Complete-Practice-Management/pricing/
+  pain_points:
+  - pain: 'Payer administrative burden: prior authorization, denials'
+    evidence:
+    - source: https://www.apta.org/advocacy/issues/administrative-burden/report
+      says: 'APTA 2025 survey (856 responses): 30% wait 1-2 weeks for prior auth; 57% say burden led them
+        to drop a payer.'
+    - source: https://apta.org/article/2025/11/12/survey-findings-drive-new-apta-advocacy-resources-on-administrative-burden
+      says: Nearly 75% had to hire admin staff to keep up with administrative burden.
+  - pain: Documentation load drives burnout
+    evidence:
+    - source: https://ensorahealth.com/news/rehab-therapists-will-lose-nearly-five-years-of-their-careers-to-documentation-new-ensora-health-research-finds/
+      says: '[vendor] 86% of rehab therapists report burnout; 59% name documentation the top driver.'
+    - source: https://www.apta.org/news/2019/07/01/apta-survey-pts-say-administrative-burdens-delay-access-affect-clinical-outcomes
+      says: 8 in 10 PTs point to excessive requirements as a contributor to burnout.
+  - pain: Hiring PTs/PTAs
+    evidence:
+    - source: https://www.apta.org/article/2024/10/16/report-on-hiring-challenges-2024
+      says: Outpatient vacancy rate 9.5%, about double the all-industry 4.8%; ~13% of PT/PTA positions
+        open.
+  - pain: Chiropractic Medicare documentation errors and audits
+    evidence:
+    - source: https://www.cms.gov/training-education/medicare-learning-network-mln/compliance/medicare-provider-compliance-tips/chiropractic-services
+      says: 2024 chiropractic improper payment rate 33.6%; 95.5% due to insufficient documentation.
+  - pain: No-shows, cancellations and plan-of-care dropout
+    evidence:
+    - source: https://oasis.library.unlv.edu/thesesdissertations/2323/
+      says: 'US survey of 634 clinics: mean no-show rate ~10.4%; multi-method reminders plus 24h policy
+        linked to lower rates.'
+    - source: https://pmc.ncbi.nlm.nih.gov/articles/PMC8162651
+      says: '[URL-to-claim mapping from search summary, unverified] Across 828 clinics, 73% of patients
+        missed at least one appointment in an episode of care.'
+  - pain: Declining reimbursement and new-patient acquisition (chiropractic)
+    evidence:
+    - source: https://theamericanchiropractor.com/article/2026/4/1/the-insurance-debate-is-a-false-choice---and-its-killing-independent-practices
+      says: '[opinion, secondhand of Chiropractic Economics] Reimbursement rates fell from 69% (2021)
+        to 57% (2024).'
+    - source: https://www.chirohd.com/blog/4-barriers-to-new-patient-acquisition
+      says: '[vendor] 53.2% of chiropractors say growing patient volume is their #1 priority.'
+  compliance:
+  - rule: HIPAA Privacy/Security; BAA with any cloud host
+    authority: HHS OCR
+    records: Risk analysis, BAAs, access logs, breach records
+    source: https://www.hhs.gov/hipaa/for-professionals/special-topics/cloud-computing
+  - rule: Medicare outpatient therapy plan of care certification and KX modifier threshold
+    authority: CMS (42 CFR 410.61; Benefit Policy Manual Ch.15 s220)
+    records: Certified plan of care; medical-necessity justification in record above threshold ($2,410
+      in 2025, $2,480 in 2026); targeted review above $3,000
+    source: https://www.cms.gov/data-research/monitoring-programs/medicare-fee-service-compliance-programs/medicare-fee-service-recovery-audit-program/approved-rac-topics/0228-therapy-claims-billed-kx-modifier-medical-necessity-documentation-requirements
+  - rule: 'Medicare chiropractic coverage: active treatment of subluxation only, AT modifier'
+    authority: CMS
+    records: Subluxation documented each visit; treatment plan with frequency, duration, goals; AT modifier
+      only for active care
+    source: https://www.cms.gov/Outreach-and-Education/Medicare-Learning-Network-MLN/MLNProducts/Downloads/JobAidChiropracticServices-FactSheet-MLN1232664print-friendly.pdf
+  - rule: OSHA Bloodborne Pathogens (where exposure exists)
+    authority: OSHA
+    records: Exposure control plan, training records
+    source: https://osha.gov/Publications/osha3187.pdf
+  suite_modules:
+  - 'documentation assist: templated/AI-drafted daily notes with Medicare-required elements checked (plan
+    of care, KX justification, subluxation/PART for chiro)'
+  - 'prior auth and visit tracker: auth status, visits used vs authorized, re-cert due dates'
+  - 'attendance and plan-of-care adherence: reminders, rebook, dropout alerts'
+  - 'billing and claims: claims, denials worklist, patient balances'
+  - home exercise programs and patient messaging
+  - staff scheduling and credential tracking
+  first_module:
+    module: Medicare-ready documentation checker + auth/visit tracker
+    why: 'Documentation and payer admin are the most-cited and best-evidenced pains (APTA 2025 survey;
+      CMS 95.5% insufficient-documentation share for chiro), and they map directly to dollars recovered
+      or protected. Heavy PHI: requires HIPAA hosting with BAAs (and a BAA with any LLM provider used
+      for note drafting), which raises the cost floor versus salons/fitness.'
+  evidence_read: 2026-11-24, through web-search result summaries; pages not opened (see VERTICALS.md,
+    'How sure')
+- slug: independent-fitness-studios
+  name: Independent fitness studios and gyms (yoga, martial arts, boutique)
+  group: care-and-personal
+  size:
+    summary: '[secondhand] Census CBP 2023 via vantainsights.com: 41,556 fitness and recreational sports
+      centers with payroll, 708,273 employees (~17 per establishment; includes chains and large clubs,
+      so independents are smaller). Owner economics (Two-Brain, owner survey): average owner pay ~$3,967/month;
+      average owner works ~37.8 h/week (2021). Independent-studio revenue: no source found.'
+    source: https://vantainsights.com/insights/how-many-gyms-in-the-us
+  software_today:
+  - name: Mindbody
+    what: Booking, memberships, payments, marketplace
+    list_price: Starter $79/month per location; Accelerate/Ultimate quote only
+    source: https://www.mindbodyonline.com/business/education/blog/mindbody-pricing-united-states
+  - name: Glofox (ABC)
+    what: Studio/gym management with branded app
+    list_price: plans 'starting at $99 per month'; higher tiers quote
+    source: https://www.glofox.com/plans/
+  - name: Zen Planner
+    what: Gym/martial arts management (rank tracking)
+    list_price: Studio $99, Engage $248, Ultimate $348 per month (G2)
+    source: https://www.g2.com/products/zen-planner/pricing
+  - name: Gymdesk, Wodify, WellnessLiving, PushPress
+    what: Alternatives
+    list_price: not collected
+    source: https://gymdesk.com/blog/gym-owner-statistics
+  pain_points:
+  - pain: Attracting new members (lead generation)
+    evidence:
+    - source: https://gymdesk.com/blog/gym-owner-statistics
+      says: '[vendor survey 2024] 55.5% of owners say attracting new members is their biggest concern;
+        referrals lead (71.3%).'
+  - pain: Member churn / retention
+    evidence:
+    - source: https://gymdesk.com/blog/gym-retention-rate-benchmarks
+      says: '[secondhand of HFA 2025 benchmark] Average annual retention 66.4%: roughly 1 in 3 members
+        leave each year.'
+    - source: https://www.fittechglobal.com/fit-tech-features/IHRSA-update-One-million-strong/30115
+      says: '[2015 IHRSA study] Independent-club members 47% more likely to cancel than chain members.'
+  - pain: Billing leakage and failed payments
+    evidence:
+    - source: https://abcfitness.com/?p=28703
+      says: '[vendor] Failed payments drive up to 1 in 3 cancellations.'
+    - source: https://gymdesk.com/gym-benchmark-report
+      says: '[vendor platform data] 96% of unpaid gym revenue was never charged (billing never attempted).'
+  - pain: Low owner pay and long hours
+    evidence:
+    - source: https://twobrainbusiness.com/?p=151763
+      says: Average gym owner makes $3,967/month including personal expenses run through the business.
+    - source: https://twobrainbusiness.com/soi-hours/
+      says: Owners working 51+ hours more likely to be unprofitable; a quarter work 50+ hours.
+  - pain: Cancellation/auto-renew compliance exposure
+    evidence:
+    - source: https://www.fisherphillips.com/en/news-insights/court-strikes-down-ftcs-click-to-cancel-rule.html
+      says: FTC click-to-cancel rule vacated but state auto-renewal laws still create major risk.
+    - source: https://ag.ny.gov/resources/individuals/consumer-issues/health-clubs-gyms
+      says: 'NY Health Club Services Act: non-compliant contracts void and unenforceable.'
+  compliance:
+  - rule: State automatic renewal laws (e.g. California, strengthened for contracts from July 1, 2025)
+    authority: State legislatures/AGs; FTC (ROSCA enforcement)
+    records: Clear renewal terms, affirmative consent, renewal reminders where required, online cancellation
+      records
+    source: https://arnoldporter.com/en/perspectives/advisories/2026/02/ftc-and-state-ags-continue-to-scrutinize-subscription-practices
+  - rule: 'Health club services acts: registration and bonding for prepaid memberships'
+    authority: State AGs (e.g. Colorado $50,000 bond; Maryland bond capped at $200,000; NH registration)
+    records: Registration, surety bond or letter of credit, contract terms, liability reports (MD)
+    source: https://coag.gov/licensing/health-club-bonds/
+  suite_modules:
+  - 'billing that always charges: autopay, dunning, card updater, failed-payment recovery'
+  - 'lead-to-trial funnel: web forms, trial booking, follow-up texts, referral tracking'
+  - 'retention radar: attendance-drop alerts, at-risk member outreach'
+  - class booking and check-in, waivers
+  - 'compliant memberships: state-aware contract templates, renewal reminders, one-click cancel log'
+  - rank/belt tracking for martial arts; instructor pay
+  first_module:
+    module: billing + dunning + compliant cancel/renewal (membership ledger)
+    why: Lead generation is the top stated concern but is mostly marketing; billing leakage (failed or
+      never-attempted charges) and churn are directly software-fixable and recover revenue immediately,
+      and the same ledger carries state auto-renewal compliance. No PHI, so hosting is light (payments
+      via processor).
+  unsourced:
+  - section: compliance
+    rule: Liability waivers and minors' consent (martial arts/kids programs)
+    authority: State contract law
+    records: Signed waivers (no authoritative source found)
+  evidence_read: 2026-11-24, through web-search result summaries; pages not opened (see VERTICALS.md,
+    'How sure')
+- slug: independent-restaurants
+  name: Independent restaurants and caterers
+  group: local-commerce
+  size:
+    summary: 'National Restaurant Association: more than 9 in 10 restaurants have fewer than 50 employees
+      and 7 in 10 are single-unit operations. No current Census CBP average-size figure was found for
+      NAICS 722511 (no source found).'
+    source: https://restaurant.org/research-and-media/research/industry-statistics/national-statistics
+  software_today:
+  - name: Toast POS
+    what: Restaurant POS, payments, online ordering, add-on payroll and scheduling
+    list_price: 'US: Starter Kit $0/mo, Point of Sale plan $69/mo software (per Toast''s own pricing blog
+      as summarised by search; third-party listings disagree, e.g. $99 Essentials); hardware and processing
+      extra'
+    source: https://pos.toasttab.com/blog/on-the-line/toast-pricing
+  - name: Square for Restaurants
+    what: POS with KDS, free tier plus paid Plus tier
+    list_price: 'US Plus: $69 per location/month (third-party, Owner.com; not confirmed on Square US page);
+      Canada page shows CA$60 per location/month'
+    source: https://www.owner.com/blog/square-pos-system-cost
+  - name: 7shifts
+    what: Restaurant scheduling, time clock, tip pooling, payroll add-on
+    list_price: Free Comp tier; paid tiers listed per location/month on vendor page (approx. $39.99 and
+      up per search summary; Capterra lists $39.99 / $69.99 / $149.99); payroll and tip management are
+      add-ons
+    source: https://www.capterra.com/p/123038/7shifts-Restaurant-Scheduling/pricing/
+  - name: Caterease / CaterZen / Planning Pod
+    what: Catering event, BEO and proposal management
+    list_price: no source found
+    source: https://www.g2.com/products/caterease/reviews
+  pain_points:
+  - pain: Labor cost, hiring and retention
+    evidence:
+    - source: https://restaurant.org/education-and-resources/resource-library/the-2025-state-of-the-industry-shows-cautious-optimism/
+      says: 'NRA 2025 State of the Industry: 96% of operators cite labor as a major challenge; quick-service
+        operators rank labor costs and hiring highest (search summary).'
+    - source: https://www.restaurant365.com/wp-content/uploads/2025/06/R365-Guide-The-2025-State-of-the-Restaurant-Industry-Midyear-Report.pdf
+      says: 'Restaurant365 midyear 2025 survey: recruiting and retaining staff and food costs were top
+        hurdles; 89% said labor costs increased (vendor survey).'
+  - pain: Food cost inflation and inventory control
+    evidence:
+    - source: https://restaurant.org/education-and-resources/resource-library/the-2025-state-of-the-industry-shows-cautious-optimism/
+      says: 95% of operators cite food costs and 95% inflation as major challenges; full-service operators
+        are most concerned about food costs; food and labor costs up more than 30% since 2019 (search
+        summary).
+    - source: https://www.fb101.com/top-10-pain-points-for-restaurant-owners-and-how-to-solve-them
+      says: Trade piece calls inventory an enormous area of concern for owners, with hundreds to thousands
+        of items to track.
+  - pain: Third-party delivery commissions erase margin and hide customer data
+    evidence:
+    - source: https://democrats-smallbusiness.house.gov/UploadedFiles/04-21-26_Ms._Rosa_Thurnher_Testimony.pdf
+      says: '2026 House testimony by an Independent Restaurant Coalition board member: a 15% in-house
+        margin can turn negative (about -7.6%) when fulfilled via third-party delivery; no federal cap
+        on commissions.'
+    - source: https://www.prnewswire.com/news-releases/restaurant-delivery-report--nearly-1-000-independent-restaurant-operators-share-their-profitability-and-challenges-with-delivery-300861277.html
+      says: '2019 RestaurantOwner.com survey of ~1,000 independents: fees mostly 21-30% of the sale; dissatisfied
+        operators cite high commissions and lack of guest data.'
+  - pain: Other overhead squeezing thin margins (card processing, utilities, insurance, occupancy)
+    evidence:
+    - source: https://restaurant.org/education-and-resources/resource-library/the-2025-state-of-the-industry-shows-cautious-optimism/
+      says: 'NRA outlook: utilities, occupancy, supplies, insurance and card processing fees will continue
+        to pressure the bottom line (search summary; exact NRA page for this line not confirmed).'
+  - pain: Shift scheduling eats owner time
+    evidence:
+    - source: https://wheniwork.com/blog/back-office-tips-for-restaurants
+      says: Scheduling-software vendor calls shift scheduling the biggest draw on an owner's time (vendor).
+  - pain: Caterers run intake, BEOs and costing across email, phone and spreadsheets
+    evidence:
+    - source: https://dev.to/lowcodeagency/why-catering-companies-collapse-under-admin-before-events-moe
+      says: Most catering operations run tasks across email, phone, WhatsApp and spreadsheets with no
+        single source of truth (vendor-adjacent blog).
+    - source: https://planningpod.com/blog/how-the-coonamessett-used-catering-software-to-streamline-their-business
+      says: A caterer said it could not see per-event profit margins in real time until leaving spreadsheets
+        (vendor case study).
+  compliance:
+  - rule: Cold holding of TCS food at 41F (5C) or below; time as a public health control needs written
+      procedures kept on premises
+    authority: FDA Food Code (model code; adopted and enforced by state and local health departments)
+    records: 'Written TPHC procedures available to the inspector; temperature monitoring is the inspection
+      basis (temp logs are common practice, exact log mandate varies by jurisdiction: no single source
+      found)'
+    source: https://www.fda.gov/food/fda-food-code/food-code-2022
+  - rule: State adoption example of Food Code 3-501.16 / 3-501.19 (cold holding, 4-hour and 6-hour time-control
+      options)
+    authority: Wisconsin DATCP (state adoption)
+    records: Written procedures for time-as-control; food marked/discarded per time limits
+    source: https://docs-preview.legis.wisconsin.gov/code/admin_code/atcp/055/75_/_656?up=1
+  - rule: 'Tip credit and tip pools: employer may claim tip credit only after informing employees; may
+      not keep any portion of tips; must notify of required tip pool contributions'
+    authority: US Department of Labor, Wage and Hour Division (FLSA)
+    records: Tip credit notice, tips received per employee, cash wage paid (current recordkeeping detail
+      not confirmed in search results)
+    source: https://www.dol.gov/agencies/whd/fact-sheets/15-tipped-employees-flsa
+  suite_modules:
+  - 'Prime cost tracker: daily food plus labor as % of sales from POS export and invoices'
+  - 'Inventory and recipe costing: counts on a phone, invoice price capture, theoretical vs actual usage'
+  - Labor scheduling with forecast from sales history, tip pool calculator and FLSA tip notices
+  - Direct online ordering to cut delivery-app commissions, keeping guest data
+  - 'Food safety logs: digital temp checks, TPHC procedures, inspection-ready export'
+  - 'Catering CRM: inquiry to proposal to BEO to deposit to invoice, per-event margin'
+  - 'Hiring pipeline: job posts, applicant texts, onboarding paperwork'
+  first_module:
+    module: Prime cost tracker with inventory and recipe costing
+    why: Food cost and labor are cited by 95-96% of operators (NRA 2025); incumbents (Toast, Square) own
+      the POS but costing is a paid add-on or separate product, so a cheap tool that reads POS exports
+      and invoices adds value without replacing the POS.
+  evidence_read: 2026-11-24, through web-search result summaries; pages not opened (see VERTICALS.md,
+    'How sure')
+- slug: independent-auto-repair
+  name: Independent auto repair and collision shops
+  group: local-commerce
+  size:
+    summary: IBISWorld estimates the average US auto mechanics business at 2.2 employees and the average
+      auto body shop at 3.4 employees, with about 104,625 auto body shop businesses in 2026 (IBISWorld
+      estimates, subscription data, secondhand).
+    source: https://www.ibisworld.com/united-states/employment/auto-mechanics/1689
+  software_today:
+  - name: Tekmetric
+    what: 'Cloud shop management: ROs, digital inspections, parts ordering, payments'
+    list_price: Start $199/mo month-to-month ($179 annual, third-party); Grow $349/mo ($309 annual) and
+      Scale $439/mo ($409 annual) per vendor page summary; Enterprise quote only
+    source: https://tekmetric.com/pricing
+  - name: Shopmonkey
+    what: Cloud shop management
+    list_price: 'Tiers Basic/Clever/Genius; sources disagree: Basic $199-$239/mo, Clever $324-$399/mo,
+      Genius $449-$499/mo (third-party); Multi-Shop quote only'
+    source: https://pricingsaas.com/companies/shopmonkey
+  - name: Mitchell RepairCenter
+    what: Collision/repair estimating and shop management
+    list_price: from $149/mo flat (third-party, Capterra)
+    source: https://www.capterra.com/compare/83653-83656/Mitchell-RepairCenter-vs-CCC-ONE-Total-Repair-Platform
+  - name: CCC ONE
+    what: Collision estimating tied to insurer workflows
+    list_price: quote only; one shop reviewer reports about $1,200/month plus add-ons (anecdote)
+    source: https://www.sourceforge.net/software/product/CCC-ONE-Total-Repair-Platform
+  - name: PartsTech
+    what: Multi-supplier parts catalog and ordering
+    list_price: no source found
+    source: https://partstech.com/?p=3668
+  pain_points:
+  - pain: Finding and keeping qualified technicians
+    evidence:
+    - source: https://www.ratchetandwrench.com/running-a-shop/operations/article/55138527/numbers-whats-keeping-shop-owners-awake-at-night
+      says: 'Ratchet+Wrench 2024 survey: technician shortage was the top concern for 55% of shop owners.'
+    - source: https://www.ratchetandwrench.com/running-a-shop/operations/article/55379580/oec-general-auto-repair-shop-survey-puts-spotlight-on-industry-hurdles
+      says: 'OEC survey (~700 shops): 59% said the shortage highly or moderately impacted their business.'
+    - source: https://aftermarketinsight.spglobal.com/news/4400/partstech-report-reveals-skilled-technician-shortage-in-us-auto-industry
+      says: 'PartsTech 2025 (~752 shops): 31% name tech shortages as their biggest challenge (vendor survey).'
+  - pain: Parts sourcing across many suppliers wastes labor time
+    evidence:
+    - source: https://www.ratchetandwrench.com/running-a-shop/operations/article/55379580/oec-general-auto-repair-shop-survey-puts-spotlight-on-industry-hurdles
+      says: 'OEC survey: shops work with about 5.8 parts suppliers and dealers on average.'
+    - source: https://vehicleservicepros.com/aftermarket-business-world/columnists/article/55355011/pedler-interview-with-a-service-advisor-part-one-have-we-actually-fixed-parts-buying
+      says: 'Columnist: parts lookup took 20-30 minutes before modern software cut it to about five.'
+    - source: https://www.autobodynews.com/news/collision-repairers-looking-for-more-than-just-parts-discounts-find-multiple-systems-a-time-suck
+      says: A collision shop owner needed 50 minutes to order one headlight across multiple ordering systems.
+  - pain: Rising operating costs
+    evidence:
+    - source: https://www.ratchetandwrench.com/running-a-shop/operations/article/55138527/numbers-whats-keeping-shop-owners-awake-at-night
+      says: Rising business costs were the second concern at 15% (2024).
+  - pain: 'Collision: insurers short-pay estimates and deny labor rates'
+    evidence:
+    - source: https://www.autobodynews.com/news/body-shops-nationwide-share-strategies-to-address-insurer-pushback-and-short-pays
+      says: 'Shop president quoted: "Short pays are worse than ever in our industry."'
+    - source: https://www.repairerdrivennews.com/2022/04/18/scrs-repairer-roundtable-survey-sheds-light-on-shops-most-common-issues-solutions-to-consider/
+      says: 'SCRS survey top issues: skilled worker shortage, bill-payers denying labor rates, and denial
+        of payment.'
+  - pain: Customer trust, price pushback and getting approval for recommended work
+    evidence:
+    - source: https://www.iatn.net/forums/15/475589/difficult-cients
+      says: Owners on a technician forum describe customers asking for cheaper fixes or offering to do
+        work themselves.
+    - source: https://www.aol.com/lifestyle/one-reddit-debate-exposed-little-231042443.html
+      says: 'Reddit debate summary: customers ask for old parts back to verify work was done (secondhand
+        Reddit).'
+  - pain: Access to repair information and diagnostics
+    evidence:
+    - source: https://www.ratchetandwrench.com/running-a-shop/operations/article/55138527/numbers-whats-keeping-shop-owners-awake-at-night
+      says: Availability of repair information was the third concern at 8% (2024).
+  - pain: Collecting payment on approved jobs
+    evidence:
+    - source: https://www.motor1.com/news/799608/mechanic-negative-facebook-review/
+      says: Owner describes a customer who approved a large job, could not pay, then posted a negative
+        review (anecdote).
+  compliance:
+  - rule: Section 609 certification for anyone servicing motor vehicle A/C for pay; refrigerant sales
+      restrictions
+    authority: US EPA, Clean Air Act Section 609, 40 CFR 82.42
+    records: Certification and equipment records kept on-site at least three years; allow EPA inspection
+    source: https://www.epa.gov/mvac/regulatory-requirements-mvac-system-servicing
+  - rule: Used oil management standards for generators (repair shops named as typical generators)
+    authority: US EPA, 40 CFR Part 279 (states may run equivalent programs)
+    records: Good-housekeeping standards; hauler/recycling handling (specific record list not confirmed
+      in search results)
+    source: https://www.epa.gov/node/131755
+  - rule: Written estimate before work, teardown estimate, documented customer authorization (written,
+      oral or electronic) and itemized invoice
+    authority: California Bureau of Automotive Repair, Bus. and Prof. Code 9884.9; 16 CCR 3353, 3353.1,
+      3356 (state example; other states differ)
+    records: Estimate, authorization with date/time/name/phone or email, revised authorizations, itemized
+      invoice; EPA ID number if a disposal fee is charged
+    source: https://bar.ca.gov/wir
+  suite_modules:
+  - 'Digital estimate and authorization: text a photo inspection, capture e-signature, log date/time/name
+    for state estimate laws'
+  - Parts quoting across suppliers with ETA tracking and invoice matching
+  - Technician scheduling, flagged-hours and productivity tracking for pay plans
+  - 'Collision supplement and short-pay tracker: line items denied, insurer, labor rate, appeal status'
+  - 'Customer follow-up: declined-work reminders and service due'
+  - 'Compliance binder: Section 609 certs, used-oil manifests, hazardous waste pickups'
+  - Payments, deposits and financing links at authorization
+  first_module:
+    module: Digital estimate and authorization
+    why: It sits on the trust/approval pain and doubles as a compliance record for state estimate laws
+      (e.g. California BAR); incumbent suites cost $199-$499/month, so a cheap standalone estimate-and-approve
+      tool is a credible wedge before tackling parts or technician pain.
+  evidence_read: 2026-11-24, through web-search result summaries; pages not opened (see VERTICALS.md,
+    'How sure')
+- slug: small-property-managers
+  name: Small residential property managers (20-500 doors)
+  group: local-commerce
+  size:
+    summary: '2017 Buildium/NARPM survey: about 20% of respondents managed 1-25 units, 30% 26-100, 35%
+      101-500, 15% over 500. A DoorLoop compilation reports 46% of firms have 2-5 employees and 16% are
+      solo operators (vendor compilation, secondhand).'
+    source: https://info.buildium.com/rs/546-NBY-032/images/NARPM%20Report-2018.pdf
+  software_today:
+  - name: AppFolio Property Manager
+    what: Accounting, leasing, maintenance, portals
+    list_price: Core from $1.49 per unit/month; minimum spend and ~50-unit minimum apply (third parties
+      put minimum around $280-$298/mo)
+    source: https://www.appfolio.com/pricing?facet2=management
+  - name: Buildium
+    what: Accounting, leasing, maintenance for small and mid managers
+    list_price: 'Vendor buy-now page: Essential from $58/mo, Growth from $183/mo, Premium from $375/mo
+      (other sources show $62/$192/$400 and $65/$202/$420); scales with units'
+    source: https://www.buildium.com/buy-now-growth/
+  - name: Rentvine
+    what: Property management accounting platform
+    list_price: from $1.50 per unit/month, FAQ cites $2.50 (third-party summary of vendor claims; vendor
+      page not opened)
+    source: https://www.doorloop.com/blog/rentvine-alternatives-reviews-pricing
+  - name: DoorLoop
+    what: Property management software
+    list_price: DoorLoop One $2.50/unit/month with $199/mo minimum (third-party, Capterra)
+    source: https://capterra.com/p/211768/DoorLoop/pricing/
+  pain_points:
+  - pain: Revenue not keeping up with rising costs
+    evidence:
+    - source: https://buildium.com/resource/2025-property-management-industry-report
+      says: 'Buildium/NARPM 2025: generating enough revenue to compensate for rising costs remains a top
+        challenge; 63% plan to raise rents or resident-paid fees (vendor survey).'
+  - pain: Maintenance coordination, after-hours calls and owner approval delays
+    evidence:
+    - source: https://blog.irem.org/learning/publications-news/blog/irem-blogs/2025/08/the-communication-strategy-that-can-make-or-break-your-property-management-business
+      says: 'IREM: most after-hours tenant calls are not emergencies, and they clog lines so urgent issues
+        get delayed.'
+    - source: https://www.biggerpockets.com/forums/899/topics/1278925-5-things-that-nearly-broke-our-maintenance-operation-4-years-as-a-coordinator
+      says: 'Maintenance coordinator: owners'' different, often undocumented approval thresholds slow
+        turnaround.'
+  - pain: Difficult residents, burnout and staffing
+    evidence:
+    - source: https://multifamilydive.com/news/aggressive-tenants-mental-health-voice-of-the-property-manager/727809
+      says: 'NAA Voice of the Property Manager 2024: aggressive/abusive residents top challenge (22%),
+        mental health and not switching off after hours 16.3%, staffing 14.3%.'
+  - pain: Rent collection and delinquency
+    evidence:
+    - source: https://www.appfolio.com/blog/top-property-management-accounting-challenges
+      says: Many managers struggle to collect rent in full and on time, hurting NOI and owner cash flow
+        (vendor).
+    - source: https://www.buildium.com/blog/2026-property-management-industry-trends
+      says: 'Buildium 2026 survey: rent collection/delinquencies (36%) and maintenance triage (36%) are
+        top areas where managers apply technology (vendor survey).'
+  - pain: Owner reporting, communication speed and financial transparency
+    evidence:
+    - source: https://www.buildium.com/blog/how-rental-owners-evaluate-a-property-managers-performance/
+      says: 'Survey of 300 small-portfolio owners: they judge managers on tenant outcomes, maintenance
+        execution, communication speed and financial control (vendor survey).'
+  - pain: Trust accounting and monthly reconciliation burden
+    evidence:
+    - source: https://www.rentvine.com/blog/no-more-fines-the-simple-guide-to-trust-accounting-for-property-managers
+      says: The three-way reconciliation is where most audit violations surface, usually from oversight
+        (vendor).
+    - source: https://www.appfolio.com/blog/top-property-management-accounting-challenges
+      says: Accounting described as one of the most complex, time-consuming workflows; paper checks cause
+        double data entry (vendor).
+  - pain: Fragmented, hard-to-integrate software
+    evidence:
+    - source: https://www.biggerpockets.com/forums/899/topics/1247908-small-landlords-what-are-your-top-3-pain-points-managing-properties
+      says: Forum poster lists rent delinquency, tenant texts at all hours and fragmented software among
+        top pain points (anecdote).
+  compliance:
+  - rule: Client trust and security deposit accounts reconciled monthly (three-way), reviewed by principal
+      broker
+    authority: State real estate regulators, e.g. Oregon Real Estate Agency; Colorado Division of Real
+      Estate audits expect monthly three-way reconciliations
+    records: Bank statement, journal/check register, per-owner/tenant ledgers; Oregon retention six years
+    source: https://oregon.gov/rea/Brokerage/CTA/Pages/maintain-CTA.aspx
+  - rule: Trust account audit expectations
+    authority: Colorado Division of Real Estate
+    records: Monthly 3-way reconciliations for all trust/escrow accounts on request
+    source: https://dre.colorado.gov/division-programs/real-estate-broker/broker-practice-guidance/broker-financial-audit-process
+  - rule: Security deposit returned within 21 days of move-out with itemized statement; receipts attached
+      above a threshold; bad-faith penalty up to twice the deposit
+    authority: California Civil Code 1950.5 (state example; every state differs)
+    records: Move-in/out condition evidence, itemized deduction statement, invoices/receipts
+    source: https://selfhelp.courts.ca.gov/guide-security-deposits
+  - rule: Criminal-history screening must not be a blanket ban; disparate-impact analysis applies
+    authority: HUD Office of Fair Housing and Equal Opportunity (Fair Housing Act); 2016 OGC guidance
+      and 2022 implementation memo (current status should be rechecked)
+    records: Written screening criteria applied consistently, individualized assessment records
+    source: https://www.hud.gov/sites/dfiles/FHEO/documents/Implementation%20of%20OGC%20Guidance%20on%20Application%20of%20FHA%20Standards%20to%20the%20Use%20of%20Criminal%20Records%20-%20June%2010%202022.pdf
+  - rule: Lead-based paint disclosure for pre-1978 housing leases
+    authority: US EPA and HUD (Section 1018, 40 CFR 745 Subpart F)
+    records: Signed disclosure and pamphlet acknowledgement; retention at least three years (per Connecticut
+      DPH summary; federal text not confirmed in search)
+    source: https://epa.gov/lead/lead-based-paint-disclosure-rule-section-1018-title-x
+  suite_modules:
+  - Trust accounting with automatic monthly three-way reconciliation and audit pack
+  - 'Maintenance intake and triage: after-hours emergency rules, vendor dispatch, owner approval thresholds
+    stored per owner'
+  - 'Rent collection: online payments, reminders, late-fee rules by state'
+  - Owner portal and monthly statements
+  - 'Security deposit workflow: move-in/out photos, state deadline countdown, itemized statement generator'
+  - Fair-housing-safe screening criteria builder with consistent decision log
+  - Lead disclosure and lease document library by property age and state
+  first_module:
+    module: Maintenance intake and triage with per-owner approval thresholds
+    why: Maintenance and after-hours load appears in industry, NAA and forum sources and drives burnout;
+      it can sit beside an existing ledger (AppFolio/Buildium) instead of forcing an accounting migration,
+      which is the hardest switch for a 20-500 door firm.
+  evidence_read: 2026-11-24, through web-search result summaries; pages not opened (see VERTICALS.md,
+    'How sure')
+- slug: craft-beverage-producers
+  name: Craft breweries, wineries and distilleries
+  group: local-commerce
+  size:
+    summary: 'Brewers Association: 9,578 operating craft breweries in 2025 (1,994 microbreweries, 3,525
+      brewpubs, 3,784 taprooms, 275 regionals), production 21.9M bbl, down 5%. Wineries: about 11,450
+      US wineries (WineBusiness Analytics via Farm Credit East); 83% of wineries east of the Mississippi
+      make under 5,000 cases. Craft distillers: 2,282 active as of Aug 2025 (ACSA, methodology change).
+      No average employee count found (no source found).'
+    source: https://www.brewersassociation.org/association-news/a-year-of-correction-for-craft-beer-with-early-signals-of-recovery/
+  software_today:
+  - name: Ekos
+    what: Brewery/winery/distillery production, inventory, TTB reports, sales
+    list_price: quote only (Essentials/Plus/Professional); a $31.10/user/month figure on Capterra is unconfirmed
+    source: https://www.capterra.com/p/151906/Ekos-Brewmaster/pricing/
+  - name: Orchestrated Beer
+    what: Brewery ERP
+    list_price: no source found
+    source: https://slashdot.org/software/comparison/Breww-vs-OrchestratedBEER/
+  - name: Breww
+    what: Brewery management
+    list_price: from GBP 29.99/month (third-party)
+    source: https://capterra.com/p/193051/Breww/
+  - name: BrewERP
+    what: Brewery ERP
+    list_price: Starter $29, Pro $79, Business $149 per month flat (third-party)
+    source: https://www.capterra.com/p/10037851/BrewERP/
+  - name: InnoVint
+    what: Winery production records and compliance
+    list_price: from $149/month (third-party, Software Advice); otherwise quote
+    source: https://www.softwareadvice.com/compliance/innovint-profile
+  - name: vintrace
+    what: Winery production
+    list_price: from $95/month (third-party)
+    source: https://www.softwareadvice.com/winery/vintrace-profile/
+  - name: Commerce7
+    what: Winery DTC ecommerce, wine club, POS
+    list_price: from $299/month (third-party, unverified)
+    source: https://www.softwareadvice.com/winery/vintrace-profile/
+  pain_points:
+  - pain: Shrinking volume and taproom traffic
+    evidence:
+    - source: https://www.brewersassociation.org/association-news/a-year-of-correction-for-craft-beer-with-early-signals-of-recovery/
+      says: Craft production fell 5% in 2025; 60% of breweries reported declines; closures 481 vs openings
+        300.
+    - source: https://washingtonbeerblog.com/beers-reality-check-2025-was-tough-but-the-sky-isnt-falling/
+      says: Taproom traffic has been very slowly returning to pre-pandemic levels (secondary blog citing
+        BA).
+  - pain: Input cost spikes (aluminum tariffs)
+    evidence:
+    - source: https://www.brewersassociation.org/association-news/2025-midyear-report/
+      says: 'BA: aluminum is the largest packaging input cost; Section 232 tariffs doubled to 50%; 75%
+        of packaged craft volume sold in aluminum.'
+  - pain: Distribution access (three-tier) pushes producers to direct sales
+    evidence:
+    - source: https://bevinfogroup.com/2025/10/22/acsa-economic-report-us-craft-spirits-sales-delcine-2024/
+      says: 'ACSA: limited access to three-tier distribution has hindered craft spirits expansion.'
+    - source: https://www.parkstreet.com/craft-spirits-sales-account-for-7-3-billion-as-tasting-rooms-take-center-stage/
+      says: Sales at the distillery grew from 14% of craft spirits sales in 2015 to 26% in 2025.
+    - source: https://www.vermontbrewers.com/wp-content/uploads/2025/12/Slido-Poll-Results.pdf
+      says: Vermont brewers poll respondents cite problems working with large distributors and fewer taproom
+        visitors.
+  - pain: TTB reporting depends on reconciled inventory; spreadsheets break
+    evidence:
+    - source: https://www.goekos.com/blog/what-you-need-to-know-about-the-brewers-report-of-operations
+      says: The Brewer's Report of Operations centres on inventory flowing to sales and transfers; spreadsheets
+        cannot flag errors (vendor).
+    - source: https://breww.com/docs/resolving-negative-inventory-balances-on-ttb-reports/
+      says: Vendor help article exists for negative inventory balances on TTB reports (page reported as
+        no longer available).
+  - pain: Keg loss and keg fleet tracking
+    evidence:
+    - source: https://craftbeer.com/?p=91733
+      says: 'Commonly cited estimate: each brewery loses 3-5% of kegs per year; about $60-100M industry-wide
+        (advocacy source, secondhand).'
+    - source: https://www.goekos.com/blog/keg-tracking-as-you-grow
+      says: A 10,000 bbl brewery could lose $4,600-$13,700 a year to misplaced kegs (vendor estimate).
+  - pain: 'Wine DTC shipping: a state-by-state patchwork of permits and reports'
+    evidence:
+    - source: https://mainelegislature.org/doc/12302
+      says: 'Maine-commissioned assessment: 46 jurisdictions allow DTC wine shipping; shipper reporting
+        required in 44 states, monthly to annual.'
+    - source: https://blog.tablascreek.com/2021/01/wine-shipping-state-of-the-union-2021-edition/
+      says: 'Winery blog (2021): some states require 36 reports a year; some are not worth shipping to
+        for many wineries.'
+  compliance:
+  - rule: Brewer's Report of Operations (TTB F 5130.9) monthly, or quarterly Small Brewers Report (F 5130.26)
+      if eligible
+    authority: Alcohol and Tobacco Tax and Trade Bureau (TTB), 27 CFR 25.297
+    records: Production, packaging, removals, inventory per period; final report on ceasing
+    source: https://www.ttb.gov/ttb-form-51309
+  - rule: Federal excise tax return (TTB F 5000.24) on the brewer's filing cycle (quarterly or annual
+      if eligible)
+    authority: TTB
+    records: Taxable removals and tax computation, filed on Pay.gov
+    source: https://www.ttb.gov/business-central/requirements-breweries.shtml
+  - rule: Report of Wine Premises Operations (TTB F 5120.17) monthly, quarterly (<=60,000 gal/quarter)
+      or annual (<=20,000 gal any month)
+    authority: TTB, 27 CFR 24.300
+    records: Bulk and bottled wine by tax class; due 15 days after period
+    source: https://www.ttb.gov/regulated-commodities/beverage-alcohol/wine/report-of-wine-premises-operations
+  - rule: 'Distilled spirits plant monthly operational reports: production (5110.40), storage (5110.11),
+      processing (5110.28) in proof gallons'
+    authority: TTB, 27 CFR 19.632
+    records: Monthly reports due by the 15th of the following month, backed by Part 19 records
+    source: https://www.law.cornell.edu/cfr/text/27/19.632
+  - rule: Certificate of Label Approval (COLA) for products sold interstate; formula approval first where
+      required
+    authority: TTB (COLAs Online, Formulas Online)
+    records: Approved COLA per label, formula ID
+    source: https://www.ttb.gov/regulated-commodities/formulation/approval-basics
+  - rule: State DTC shipper permits and periodic shipment reports
+    authority: State alcohol regulators, e.g. Washington State Liquor and Cannabis Board
+    records: Permit per state, shipment volume reports, tax returns
+    source: https://lcb.wa.gov/licensing/direct-shipping-laws
+  suite_modules:
+  - Production and inventory ledger (batch to tank to package to removal) that produces TTB reports
+  - TTB report and excise return generator with period close checks
+  - Taproom/tasting room POS link plus club/membership billing for direct sales
+  - Keg fleet tracking by QR code with deposit ledger per account
+  - Self-distribution orders, routes and invoices for accounts
+  - 'DTC shipping compliance calendar: permits, volume caps and report due dates by state'
+  - COLA and label tracker
+  first_module:
+    module: Production inventory ledger that generates TTB reports
+    why: Every producer must file TTB reports, and the vendor evidence says errors come from unreconciled
+      spreadsheets; existing tools are quote-only or bundled ERPs, so a low-cost compliance-first ledger
+      is a clear, sticky wedge across beer, wine and spirits.
+  evidence_read: 2026-11-24, through web-search result summaries; pages not opened (see VERTICALS.md,
+    'How sure')
+- slug: independent-funeral-homes
+  name: Independent funeral homes
+  group: local-commerce
+  size:
+    summary: 'NFDA: the average member funeral home serves 113 families a year with three full-time and
+      four part-time employees; a newer NFDA media page reports 15,401 US funeral homes, about 75% family-
+      or privately owned (data years differ).'
+    source: https://www.nfda.org/news/statistics
+  software_today:
+  - name: Passare
+    what: Cloud case management, arrangements, e-signature
+    list_price: quote only (third-party figures of $60, $100 and $469/month conflict)
+    source: https://www.capterra.com/p/164764/Passare/
+  - name: Tribute Management Software
+    what: Case management
+    list_price: no source found
+    source: https://tributetech.com/tribute-management-software
+  pain_points:
+  - pain: Finding and keeping licensed staff
+    evidence:
+    - source: https://nfda.org/Portals/0/2024_NFDA_Cremation%20and%20Burial%20Report.pdf
+      says: NFDA members say their greatest business challenge over the next four years will be availability
+        of qualified personnel.
+    - source: https://funeraldirectordaily.com/bridging-the-gap-a-newly-licensed-funeral-directors-perspective-on-tackling-the-industrys-staffing-shortage/
+      says: Essay cites an NFDA projection that over 60% of funeral directors plan to retire by 2028 (secondhand).
+  - pain: Cremation shift lowers revenue per call
+    evidence:
+    - source: https://nfda.org/Portals/0/2024_NFDA_Cremation%20and%20Burial%20Report.pdf
+      says: Cremation rate projected at 82.1% by 2045; cremations usually bring in less than burials.
+  - pain: Death certificate delays (physician signatures, state e-registration systems)
+    evidence:
+    - source: https://oregon.gov/oha/PH/BIRTHDEATHCERTIFICATES/Documents/County/QandRPanelDiscussionFuneralHomeWGRepresentatives.pdf
+      says: 'Oregon funeral home reps: tracking down the certifier is extremely time consuming, inefficient
+        and frustrating.'
+    - source: https://cronkitenews.azpbs.org/2017/12/01/dhs-backs-new-death-records-database-despite-concerns-delays/
+      says: Arizona funeral directors blamed a new online death certificate system for delayed cremations
+        and burials.
+  - pain: Price disclosure and responsiveness under FTC scrutiny
+    evidence:
+    - source: https://www.ftc.gov/news-events/news/press-releases/2024/01/ftc-sends-warning-letters-funeral-homes-after-first-undercover-phone-sweep
+      says: FTC called 250+ homes undercover; 39 violated the Funeral Rule on price information calls.
+    - source: https://prod.nfda.org/?p=10150
+      says: 'NFDA summary of FTC staff report: after hours, callers had to call more than once or wait
+        for a callback at nearly 70% of providers.'
+  - pain: Paperwork per case and after-hours first calls
+    evidence:
+    - source: https://www.tributetech.com/cut-5-hours-from-every-case-here-s-how-smart-funeral-directors-are-doing-it
+      says: Vendor claims users save up to five hours per case on paperwork (vendor marketing).
+    - source: https://www.passare.com/blog/a-managers-guide-to-passare
+      says: Answering services take after-hours calls and create a pre-filled case (vendor).
+  - pain: Rising costs and revenue pressure
+    evidence:
+    - source: https://convention.nfda.org/Portals/0/NFDAORG/Conferences/Futures-Forum/2024/2023_Futures%20Forum%20Meeting%20Report%20FINAL.pdf
+      says: NFDA Futures Forum convened to address revenue challenges, increasing costs and staffing shortages.
+  - pain: Preneed trust and insurance-assignment reporting by state
+    evidence:
+    - source: https://health.state.mn.us/facilities/providers/mortsci/preneed.html
+      says: 'Minnesota: every funeral provider files an annual electronic preneed trust fund report per
+        location.'
+  compliance:
+  - rule: Give a General Price List to in-person inquirers; give prices by phone; itemized statement;
+      no misrepresenting legal requirements (e.g. embalming)
+    authority: Federal Trade Commission, Funeral Rule (16 CFR 453)
+    records: Current GPL, casket and outer burial container price lists, Statement of Funeral Goods and
+      Services Selected
+    source: https://www.ftc.gov/node/28265
+  - rule: Possible requirement to post prices online (rulemaking open since 2022 ANPR; final status not
+      found)
+    authority: Federal Trade Commission
+    records: Online GPL if adopted
+    source: https://www.ftc.gov/news-events/news/press-releases/2022/10/ftc-seeks-improve-american-publics-access-funeral-service-prices-online
+  - rule: Preneed trust fund annual reporting per location
+    authority: State regulators, e.g. Minnesota Department of Health; Utah requires an on-site annual
+      report subject to audit
+    records: Per-contract trust records, deposits, withdrawals, market values
+    source: https://health.state.mn.us/facilities/providers/mortsci/preneed.html
+  - rule: Death registration via state electronic death registration system before burial/cremation permits
+    authority: State vital records offices, e.g. Nevada
+    records: Death record filed by funeral home, certifier signature, permit
+    source: https://funeral.nv.gov/uploadedFiles/funeralnvgov/Content/Home/Features/EDRS_InfoForFuneralHomes.pdf
+  suite_modules:
+  - Case file from first call to disposition with state-specific forms
+  - 'Death certificate tracker: certifier status, reminders, state deadline clock'
+  - FTC-compliant GPL builder, online price page and statement of goods and services
+  - 'Family portal: e-signature, obituary, payments, document upload'
+  - Preneed contract and trust/insurance assignment ledger with state annual report
+  - On-call scheduling and first-call intake form for answering services
+  - Cash advance and receivables tracking
+  first_module:
+    module: Case file with death certificate tracker
+    why: Every call needs a case file and certificate follow-up; death certificate delays are documented
+      across several states and hit families directly; with ~113 calls a year and 3 full-time staff, a
+      home needs a simple tool more than an ERP.
+  unsourced:
+  - section: software_today
+    name: Osiris
+    what: Funeral home management software
+    list_price: $135/month incl. four computers, extra computers $9.95 each (third-party G2 listing);
+      Capterra lists from $100/month. Seen in a search summary; the listing URL was not captured
+  - section: software_today
+    name: Gather
+    what: Case management and websites
+    list_price: no source found
+  evidence_read: 2026-11-24, through web-search result summaries; pages not opened (see VERTICALS.md,
+    'How sure')
+- slug: local-movers-small-trucking
+  name: Local moving companies and small trucking (owner-operator to ~20 trucks)
+  group: local-commerce
+  size:
+    summary: 'Small fleets dominate: secondary sources cite about 91.5% of carriers operating 10 or fewer
+      trucks (attributed to FMCSA data, not verified in the Pocket Guide) and ATA data of 95.5% (as of
+      March 2024, via Linxup). No current Census firm count for NAICS 484210 movers was found (no source
+      found).'
+    source: https://www.fleetowner.com/research/truck-by-numbers/media-gallery/55338098/trucking-by-the-numbers-2025-overview-carrier-composition-costs-and-impact
+  software_today:
+  - name: SmartMoving
+    what: Moving company CRM, estimates, dispatch
+    list_price: $399/month flat per most listings (GetApp also shows a $299 Essential plan; third-party)
+    source: https://www.capterra.com/p/180048/SmartMoving-Software/
+  - name: MoveitPro
+    what: Moving company management
+    list_price: $359/mo on 12-month term, $323 on 24, $292 on 36, plus add-ons (third-party)
+    source: https://fieldservicesoftware.io/software/moveitpro/
+  - name: Supermove
+    what: Moving CRM and crew app
+    list_price: quote only
+    source: https://capterra.com/compare/154185-200112/MoveitPro-vs-Supermove
+  - name: Motive
+    what: ELD, fleet telematics, dashcams
+    list_price: quote only; third parties estimate about $25-$50 per vehicle/month plus hardware, 12-month
+      minimum
+    source: https://www.costbench.com/software/fleet-management/motive/
+  pain_points:
+  - pain: Getting enough good leads at an affordable cost
+    evidence:
+    - source: https://www.smartmoving.com/blog/5-surprising-takeaways-moving-industry-report
+      says: 'SmartMoving State of Moving survey (484 movers): top pains include not enough leads, low-quality
+        leads and high marketing costs (vendor survey; exact report URL not confirmed).'
+  - pain: Hiring and keeping reliable crews and drivers
+    evidence:
+    - source: https://www.smartmoving.com/2024-state-moving-industry-report
+      says: 66% of moving companies report recruitment and turnover challenges (vendor survey).
+    - source: https://movebuddha.com/blog/movers-survey-2021/
+      says: '2021 survey of 63 movers: 67% lacked enough drivers to cover demand (dated).'
+  - pain: Economy and freight rates (trucking)
+    evidence:
+    - source: https://www.ttnews.com/articles/atri-trucking-issues-2025
+      says: 'ATRI 2025 (4,200+ respondents): the economy is the top concern for the third year, then lawsuit
+        abuse and insurance.'
+  - pain: Broker practices (owner-operators)
+    evidence:
+    - source: https://www.overdriveonline.com/business/article/15770300/economy-ranks-as-top-overall-concern-in-trucking-industry
+      says: In ATRI 2025, owner-operators ranked broker issues at the top of their list.
+  - pain: Insurance availability and cost
+    evidence:
+    - source: https://www.truckinginfo.com/articles/insurance-fuel-costs-drivers-challenge-growing-smaller-fleets
+      says: Insurance, fuel costs and drivers challenge growing smaller fleets (headline-level evidence).
+    - source: https://www.ttnews.com/articles/atri-trucking-issues-2025
+      says: Insurance availability ranks among the top three ATRI 2025 issues.
+  - pain: Scheduling and no-shows
+    evidence:
+    - source: https://www.smartmoving.com/blog/5-surprising-takeaways-moving-industry-report
+      says: Survey lists scheduling problems with no-shows among top pains (vendor survey).
+  - pain: Damage claims and cash flow
+    evidence:
+    - source: https://movebuddha.com/blog/movers-survey-2021/
+      says: 2021 movers survey lists increased damage claims and rising fuel costs among main challenges
+        (dated).
+    - source: https://www.smartmoving.com/2024-state-moving-industry-report
+      says: 33% of moving businesses took a line of credit or cash advance loan in 2023 (vendor survey).
+  - pain: Truck parking (drivers)
+    evidence:
+    - source: https://www.ttnews.com/articles/atri-trucking-issues-2025
+      says: Truck parking dropped two spots overall but ranks second among truck operators in ATRI 2025.
+  compliance:
+  - rule: Interstate household goods movers must survey goods and give a written binding or non-binding
+      estimate before the bill of lading; non-binding capped at 110% at delivery
+    authority: FMCSA, 49 CFR 375.401-375.405
+    records: Written estimate, bill of lading, order for service, weight tickets (detailed retention not
+      confirmed in search)
+    source: https://www.law.cornell.edu/cfr/text/49/375.401
+  - rule: Provide the Your Rights and Responsibilities When You Move booklet (copy or link)
+    authority: FMCSA, 49 CFR Part 375 Appendix A
+    records: Proof booklet was provided
+    source: https://www.fmcsa.dot.gov/sites/fmcsa.dot.gov/files/2023-10/FMCSA_R%26R_Handbook_Web_v1.pdf
+  suite_modules:
+  - 'Lead intake and instant quoting: web form, inventory or video survey, compliant binding/non-binding
+    estimate'
+  - Crew and truck scheduling with SMS confirmations to cut no-shows
+  - 'Job-day app: bill of lading, rights booklet delivery, photos, e-signature, payment'
+  - 'Claims log: pre-move photo evidence, claim intake and resolution'
+  - Hiring pipeline for seasonal crews
+  - 'Owner-operator back office: load profitability, broker payment tracking, fuel and insurance cost'
+  - 'Compliance calendar: DOT/HHG paperwork, driver qualification file reminders'
+  first_module:
+    module: Lead intake and instant estimate with compliant paperwork
+    why: Leads and marketing cost top the movers' survey, and the estimate is also the main FMCSA household-goods
+      compliance document; incumbents start near $300-$400/month, leaving room for a near-cost tool for
+      1-5 truck movers.
+  unsourced:
+  - section: compliance
+    rule: Hours of service and electronic logging devices
+    authority: FMCSA
+    records: no source found (search budget exhausted before this could be sourced; do not use until sourced)
+  - section: compliance
+    rule: IFTA fuel tax reporting and drug and alcohol clearinghouse
+    authority: IFTA member jurisdictions; FMCSA
+    records: no source found
+  evidence_read: 2026-11-24, through web-search result summaries; pages not opened (see VERTICALS.md,
+    'How sure')

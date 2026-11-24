@@ -1,7 +1,7 @@
 {
  "note": "Venture pages whose meta description is over 160 characters. May only shrink: node platform/pages/description-length.mjs --write after shortening descriptions.",
  "max": 160,
- "count": 3824,
+ "count": 3823,
  "pages": [
   "ventures/1099-k-threshold-checker/index.html",
   "ventures/1099-k-threshold-checker/vs-checking-the-threshold-yourself.html",
@@ -1828,7 +1828,6 @@
   "ventures/hearth-and-horizon/the-square-that-came-out-small.html",
   "ventures/hearth-and-horizon/the-square-that-stays-warm.html",
   "ventures/hearth-and-horizon/the-stack-that-sweats.html",
-  "ventures/hearth-and-horizon/the-stall-that-paid-double.html",
   "ventures/hearth-and-horizon/the-star-that-is-not-quite-north.html",
   "ventures/hearth-and-horizon/the-stave-mill.html",
   "ventures/hearth-and-horizon/the-step-that-goes-up.html",

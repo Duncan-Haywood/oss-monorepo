@@ -524,30 +524,22 @@
     import { addDeferral, importDeferralsCsv, cancelDeferral, deferredRegister, deferredWaterfall } from "./deferred.mjs";
     import { newBooks, importStatement, importOfxAccounts, importQifAccounts, importCsvAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
     import { parseCents } from "./bank.mjs";
-    import { decodeBytes } from "./textcodec.mjs";
-    import { pdfToText } from "./pdftext.mjs";
-    import { xlsxToCsv, looksLikeXlsx } from "./xlsx.mjs";
-    import { xlsToCsv, looksLikeXls } from "./xls.mjs";
     import { setTaxTreatment, taxDepreciation, taxDepreciationCsv } from "./taxdepr.mjs";
     import { parseAccounts } from "./ledger.mjs";
     import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
     import { detectRecurring, forecastCash } from "./recurring.mjs";
     import { addLoan, applyLoanPayments, loanRegister } from "./loans.mjs";
-    import { planBills } from "./billpay.mjs";
     import { setBudget, budgetVsActual } from "./budget.mjs";
-    import { reconcile } from "./reconcile.mjs";
     import { cashBasis } from "./cashbasis.mjs";
     import { compareProfit, precedingPeriod } from "./compare.mjs";
     import { addPayroll, planPayroll, applyPayroll, payrollSummary, form941, employerCost } from "./payroll.mjs";
     import { addTrip, removeTrip, setHomeOffice, mileageDeduction, homeOfficeDeduction } from "./deductions.mjs";
     import { estimatedTax } from "./estimatedtax.mjs";
-    import { scorpFromBooks } from "./scorp.mjs";
     import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDiscounts, stateDueDay, stateEndMonth, stateFilingNote, stateDiscountNote, presetDiscountWarning, stateHistoryPresets, STATE_DUE_DAYS } from "./salestaxreturn.mjs";
     import { closeYear, reopenYear, yearEndReport } from "./yearend.mjs";
     import { renderInvoice, setProfile, PROFILE_KEYS } from "./invoice.mjs";
     import { renderStatement } from "./statement.mjs";
     import { reminders } from "./collections.mjs";
-    import { aiSuggest } from "./ai.mjs";
     import { detectLocal, isLocal } from "./byok.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     import { liveFileSupported, pickNewFile, pickExistingFile, readBooksFromHandle, ensureWritable, createLiveWriter, serializeBooks, rememberHandle, recallHandle, forgetHandle } from "./livefile.mjs";
@@ -558,6 +550,11 @@
     // touch, so the first render does not wait for them. The service worker
     // still caches them for offline use.
     let receiptsMod = null;
+    // Modules only a button or a file pick uses load on first use, once (a failed
+    // load is forgotten, so the next click retries): docs/history/ai-bookkeeper-page-perf-2026-11-24.md.
+    const onDemand = (load) => { let p = null; return () => (p ??= load().catch((e) => { p = null; throw e; })); };
+    const fileReaders = onDemand(() => Promise.all([import("./pdftext.mjs"), import("./xlsx.mjs"), import("./xls.mjs"), import("./textcodec.mjs")])
+      .then(([pdf, xlsx, xls, codec]) => ({ pdfToText: pdf.pdfToText, xlsxToCsv: xlsx.xlsxToCsv, looksLikeXlsx: xlsx.looksLikeXlsx, xlsToCsv: xls.xlsToCsv, looksLikeXls: xls.looksLikeXls, decodeBytes: codec.decodeBytes })));
     const loadReceipts = () => import("./receipts.mjs").then((m) => (receiptsMod = m));
     const STORE = "ai-bookkeeper-books", AI_STORE = "ai-bookkeeper-ai";
     const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else e.setAttribute(k, v); } for (const k of kids) e.append(k); return e; };
@@ -905,8 +902,9 @@
       } catch (e) { $("#ln-status").textContent = e.message; }
     });
 
-    $("#bp-plan").addEventListener("click", () => {
+    $("#bp-plan").addEventListener("click", async () => {
       try {
+        const { planBills } = await import("./billpay.mjs");
         const reserve = $("#bp-reserve").value.trim() ? parseCents($("#bp-reserve").value) : 0;
         if (!Number.isFinite(reserve) || reserve < 0) throw new Error("The reserve must be an amount of zero or more.");
         const terms = {};
@@ -1112,8 +1110,9 @@
         $("#est-status").textContent = "";
       } catch (e) { $("#est-status").textContent = e.message; }
     });
-    $("#est-scorp").addEventListener("click", () => {
+    $("#est-scorp").addEventListener("click", async () => {
       try {
+        const { scorpFromBooks } = await import("./scorp.mjs");
         const o = estOpts();
         const r = scorpFromBooks(books, { year: o.year, monthsElapsed: o.monthsElapsed, filing: o.filing, otherIncome: o.otherIncome, service: o.service, salary: dollars("#scorp-salary"), extraCost: dollars("#scorp-cost") });
         record("tax_scorp");
@@ -1239,18 +1238,17 @@
 
     async function readInput() {
       const f = $("#file").files[0];
-      if (f && /\.pdf$/i.test(f.name)) {
+      if (!f) return $("#paste").value;
+      const [{ pdfToText, xlsxToCsv, looksLikeXlsx, xlsToCsv, looksLikeXls, decodeBytes }, buf] = await Promise.all([fileReaders(), f.arrayBuffer()]);
+      if (/\.pdf$/i.test(f.name)) {
         // The PDF is read in this tab; nothing is uploaded.
-        const text = await pdfToText(await f.arrayBuffer());
+        const text = await pdfToText(buf);
         if (!text.trim()) throw new Error("This PDF has no text layer (a scan). Statements are not OCR'd; download the bank's CSV or OFX instead.");
         return text;
       }
-      if (f) {
-        const bytes = new Uint8Array(await f.arrayBuffer());
-        // An Excel export is unzipped and read in this tab as well.
-        return looksLikeXlsx(bytes) ? await xlsxToCsv(bytes) : looksLikeXls(bytes) ? xlsToCsv(bytes) : decodeBytes(bytes);
-      }
-      return $("#paste").value;
+      const bytes = new Uint8Array(buf);
+      // An Excel export is unzipped and read in this tab as well.
+      return looksLikeXlsx(bytes) ? await xlsxToCsv(bytes) : looksLikeXls(bytes) ? xlsToCsv(bytes) : decodeBytes(bytes);
     }
 
     // A multi-account OFX file: one select per account in the file, so each
@@ -1346,6 +1344,9 @@
       const cfg = aiConfig();
       if (!cfg.provider) { $("#ai-state").textContent = "Choose a provider first. AI is optional: the review queue already has every suggestion the rules, memory and classifier can make."; return; }
       $("#ai-state").textContent = `Asking ${isLocal(cfg) ? "the model on your computer" : cfg.provider} about up to 40 review lines...`;
+      let aiSuggest;
+      try { ({ aiSuggest } = await import("./ai.mjs")); }
+      catch (e) { $("#ai-state").textContent = `The AI module did not load (${e.message}). Check the connection and try again; the review queue is unchanged.`; return; }
       const r = await aiSuggest(cfg, books);
       if (r.source !== "model") { $("#ai-state").textContent = `No AI suggestions: ${r.error ?? "AI is off"}. The review queue is unchanged.`; return; }
       books = categorize(r.books, opts());
@@ -1362,8 +1363,9 @@
       try { const y = (books.yearEnd ?? []).at(-1)?.year; books = reopenYear(books, y); render(); $("#ye-status").textContent = `${y} reopened.`; }
       catch (e) { $("#ye-status").textContent = e.message; }
     });
-    $("#recon-check").addEventListener("click", () => {
+    $("#recon-check").addEventListener("click", async () => {
       try {
+        const { reconcile } = await import("./reconcile.mjs");
         const cents = parseCents($("#recon-balance").value);
         if (cents === null || cents === undefined || Number.isNaN(cents)) throw new Error("Enter the closing balance as printed, such as 691.50.");
         const r = reconcile(books, { account: $("#recon-account").value, date: $("#recon-date").value, balance: cents });

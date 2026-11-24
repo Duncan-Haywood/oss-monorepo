@@ -61,9 +61,9 @@
   },
   {
    "file": "prompts/research/prompt-0.md",
-   "why": "Research work stays inside research/, but portfolio-pages' description-length test was red on main (PRs #18706 and #18718), which blocked this PR's green CI.",
-   "did": "Shortened three ebay-fee-calculator guide descriptions to 160 characters or fewer and baselined the new hearth-and-horizon story page, as its generator uses the full summary by design (559 story pages are already in the baseline).",
-   "result": "description-length.test.mjs 5/5 and reseller-guides.test.mjs 12/12 pass locally."
+   "why": "Main's CI was red in ventures/platform checks unrelated to research, which blocked this PR's green CI.",
+   "did": "Fixed the description-length failure in this branch and opened #18745 for the webext one.",
+   "result": "Sibling sessions landed the same two fixes first (#18740, #18727); I dropped mine on merge and closed #18745. Wasted about 20 minutes; checking main for an in-flight fix first would have saved it."
   }
  ],
  "writeups": [
@@ -71,7 +71,7 @@
   "research/sensing-selfcal/LOG.md (milestone 3zi planned + result)"
  ],
  "goal": null,
- "notes": "Milestone 3zi: src/undistcheck.py (stdlib). H318 and H320 held; H317 and H319 were refuted as stated, on tolerances tighter than OpenCV 5.1.0's own converged answer, which falls short of 1e-6 px at 28 corners. Local checks: tests 230 passed, build.py ok, check_numbers 444/444, check_short ok, check_posts ok. CI: description-length (pages test) was red on main from #18706/#18718, fixed here. changed-ventures fails on platform/distribution/webext.test.mjs, red on main since #18712 and not caused by this diff; the fix is in its own PR #18745 (platform/distribution is owner-only core, so it waits for owner review). Merged #18726 with that one pre-existing failure documented.",
+ "notes": "Milestone 3zi: src/undistcheck.py (stdlib). H318 and H320 held; H317 and H319 were refuted as stated, on tolerances tighter than OpenCV 5.1.0's own converged answer, which falls short of 1e-6 px at 28 corners. Local checks: tests 230 passed, build.py ok, check_numbers 444/444, check_short ok, check_posts ok. CI: two checks were red on main during this run (description-length after #18706/#18718; webext after #18712). I fixed the first here and opened #18745 for the second, but sibling PRs #18740 and #18727 landed the same fixes first; on merging main I took main's versions, so this PR's final diff is research-only plus the post and record, and #18745 was closed as superseded.",
  "corrections": [],
  "redteam": null,
  "usage": {
