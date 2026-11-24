@@ -10713,3 +10713,60 @@ without a calm window, and the long-lived false contraction left is P3's own 200
 line continues: a pre-registered round on a second make (another composite with dated turns, e.g. a state
 coincident index against its state's dated recessions) before any default change, and whether P3 with MAD
 weights should demand a larger move for a contraction shorter than 6 months.
+
+## Turns on real vintages: revisions moved two of six turns by four months (2026-11-24, pre-registered; V1 and V3 pass, V2 and V4 fail, the replays' delays are marked optimistic)
+
+Every replay above cut today's revised data at each month. This round replays the composite on the data as it
+was published: FRED-MD's monthly vintages (McCracken and Ng, St. Louis Fed), 1999-08 to 2021-10, 267 cut-offs,
+read from a public copy because stlouisfed.org refuses this session (`data/fredmd-vintages/`, source and checks
+in `data/SOURCE.md`, "FRED-MD vintages"). The copy holds three of the four components (payrolls, real income less
+transfers, industrial production; not real manufacturing and trade sales), so both arms use those three: V on
+the vintages a user held at each month, P on today's files cut at the same months. Everything else is the shipped
+`--turns --columns` monthly default (sd weights over every month, 3-month phases, bigMove 0.05) and the replays'
+2-month lag and call rule (a call holds at every later cut-off, within 3 months of NBER's month). Rules and bars
+in the header of `eval/turns-vintages.mjs`, committed before it first ran (commits "pre-register the real-vintage
+composite round" and a data-loading amendment made before any composite was built); output
+`eval/turns-vintages.out.txt` (2 s); test `turns-vintages.test.mjs`.
+
+| NBER turn | P: called (delay) | V: called (delay) | where V dates it, 36 months on | NBER announced |
+|---|---|---|---|---|
+| peak 2001-03 | 2001-10 (7) | 2014-03 (156) | 2000-11 (4 early) | 2001-11 |
+| trough 2001-11 | 2002-07 (8) | 2006-12 (61) | 2002-01 (2 late) | 2003-07 |
+| peak 2007-12 | 2008-07 (7) | 2008-08 (8) | 2007-12 | 2008-12 |
+| trough 2009-06 | 2010-02 (8) | 2020-06 (132) | 2009-10 (4 late) | 2010-09 |
+| peak 2020-02 | 2020-09 (7) | 2020-09 (7) | 2020-02 | 2020-06 |
+| trough 2020-04 | 2020-11 (7) | 2020-11 (7) | 2020-04 | 2021-07 |
+
+| bar | V | P | |
+|---|---|---|---|
+| V1 all six called | 6 | 6 | **passes** |
+| V2 median at most 2 months over P's, no turn more than 6 later | median 34.5, worst +149 | median 7 | **fails** |
+| V3 false episodes (1997 on) at most P's + 1 | 5 | 4 | **passes** |
+| V4 before NBER's announcement on at least P's - 1 | 2 | 5 | **fails** |
+
+What it shows:
+
+- **Revisions did not lose a turn; they moved two.** On the vintages of 2002 to 2014 the composite dates the 2001
+  peak at 2000-11 or 2000-12, three to four months before NBER; from the 2014-03 vintage on it sits at 2001-01,
+  inside the 3-month window. The 2009 trough sits at 2009-10, four months late, on most vintages of 2010 to 2020
+  (payrolls carry about 60% of the weight on every vintage before 2020) and moves to 2009-06 only on the 2020 vintages. Which
+  revisions moved them is not split out here. A strict call rule (held at every later cut-off within 3 months)
+  turns each 4-month shift into a call a decade late.
+- **Recent turns are unaffected.** 2007-12 is called one month later on the vintages, and both 2020 turns on the
+  same months, so the replays' delays for big, sharp turns stand.
+- **The 2001-11 trough flickers.** On 2004 to 2006 vintages the 2002-03 soft patch takes its place (a peak in
+  2002-06 or 2002-11 and a trough in 2003-03 or 2003-04), which is P3's long-lived false pair from the rounds above, seen in the data
+  as published too.
+- **The pseudo-real-time replays were optimistic.** Their "before NBER in 8 of 12" and median delays assume the
+  data as revised; on real vintages two of the six turns since 1999 would not have been dated within three months
+  of NBER's month until years later. What a user of `--turns` today should take from it: the dated month of a
+  mild turn can move by a quarter or more as the components are revised, while big turns stay put.
+
+As the header set out, a bar failed, so nothing in the CLI changes (no default rests on the replays) and their
+numbers above are to be read as upper bounds on real-time performance. Printed with no bar: MAD weights make no
+difference to the two shifts (V calls the 2001 peak after 101 months, P in 7); 6-month phases are worse on the
+vintages (median 70); the shipped four-component composite on today's files calls 5 of 6 on the same cut-offs
+(the 2001 peak slides outside the window). Next, if this line continues: a call rule that tolerates a dated
+month moving (e.g. a turn counts as called once a turn of its kind stays within 6 months), judged on these
+vintages; the fourth component's vintages (CMRMTSPLx is in FRED-MD; a copy holding it, or stlouisfed.org); and
+FRED-MD vintages before 1999 do not exist, so earlier turns stay pseudo-real-time.

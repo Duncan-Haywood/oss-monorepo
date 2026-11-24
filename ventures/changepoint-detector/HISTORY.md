@@ -30,3 +30,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-24) Curvature word ships under --shape-word panel (README "A curvature word"): slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37
 - (moved 2026-11-24) P3 + warning ship for composites 2026-11-24 (README "P3 and the heavy-late warning together": +0.032 freight, wins on 5 makes)
 - (moved 2026-11-24) pseudo-real-time replay 2026-11-24 (README "Turns called in pseudo-real time", 6-month rule): called ~7 months after, 7 of 12 before NBER, 2001 peak lost once 2020 sets the weights
+- (moved 2026-11-24) P3 replay 2026-11-24 (README "under P3": same call months, adds the 2002-03 pair, Q2 fails)

@@ -195,7 +195,13 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   }
   const p4 = score(replay('P4'));
   console.log(`shipped four (with CMRMTSPL), today's files, P3 sd: ${p4.called}/6, delays ${p4.calls.map((c) => c.delay).join(' ')}, median ${p4.median}, before ${p4.before}, false ${p4.episodes.length}`);
-  const rv = replay('V');
+  console.log('\nwhere each arm dates each NBER turn (nearest turn of the kind; at the cut-offs 12, 36 and 120 months after the turn, and the last):');
+  const rv = replay('V'), rp = replay('P');
+  const at = (cuts, t, after) => { const j = Math.min(cuts.length - 1, monthIndex(t.month) + after - monthIndex(FIRST)); const c = cuts[j];
+    const near = c.turns.filter((x) => x.kind === t.kind).map((x) => x.k).sort((a, b) => Math.abs(a - t.k) - Math.abs(b - t.k))[0];
+    return near === undefined ? '-' : `${monthLabel(near)}(${near - t.k >= 0 ? '+' : ''}${near - t.k})`; };
+  for (const t of NBER()) console.log(`  ${t.month} ${t.kind.padEnd(6)}  V: ${[12, 36, 120, 999].map((a) => at(rv, t, a)).join(' ')}   P: ${[12, 36, 120, 999].map((a) => at(rp, t, a)).join(' ')}`);
+  console.log(`P weights at 2001-08, 2009-08, 2021-10: ${[24, 120, rp.length - 1].map((j) => rp[j].weights.map((w) => w.toFixed(3)).join('/')).join(', ')}`);
   console.log('\nvintage weights (PAYEMS/W875RX1/INDPRO) and the vintage month each component came from, every 24th cut-off:');
   for (let j = 0; j < rv.length; j += 24) console.log(`  ${rv[j].pub}: ${rv[j].weights.map((w) => w.toFixed(3)).join('/')}  rows to ${rv[j].used.join(', ')}`);
   const last = rv[rv.length - 1];
