@@ -53,7 +53,7 @@
     "docs/posts/2026-11-24-agency-lines-heaviest-line-is-the-latest.md"
   ],
   "goal": "Decide whether P3 ships as the --turns --columns composite default on a fresh make, gated by a bar a user could actually meet (advance pick).",
-  "notes": "Pre-registered agency make (seed 20261126, 500 draws): P3 composite 0.755 vs shipped 0.708 (+0.047, 107-7, K1 pass), K3/K4/K5 pass, K2a fails (advance pick 0.857; billable hours alone 0.934). Nothing ships. Post hoc: headcount takes 70% weight (inverse volatility), composite dates +2 months late; without headcount 0.924. Checks: node --test turns-agency-lines.test.mjs turns-saas-lines.test.mjs (5/5 pass); check_posts ok; validate.py ok; venture suite and preflight results below.",
+  "notes": "Pre-registered agency make (seed 20261126, 500 draws): P3 composite 0.755 vs shipped 0.708 (+0.047, 107-7, K1 pass), K3/K4/K5 pass, K2a fails (advance pick 0.857; billable hours alone 0.934). Nothing ships. Post hoc: headcount takes 70% weight (inverse volatility), composite dates +2 months late; without headcount 0.924. Checks: node --test turns-agency-lines.test.mjs turns-saas-lines.test.mjs (5/5 pass); check_posts ok; validate.py ok; run_venture_tests.py changepoint-detector: ok, 1177 tests, 438.6 s; venture-preflight.mjs changepoint-detector: clean.",
   "corrections": [],
   "redteam": null
 }
