@@ -354,6 +354,19 @@ def since_slugs(base):
 
 def changed_slugs(base_ref="origin/main"):
     """Committed, staged, unstaged and untracked changes since the merge base."""
+    # Refresh the base first: a cloud clone's origin/main can sit behind the
+    # commit the session branch was cut from, and main's newer commits then
+    # count as this branch's (run_workflow_locally.refresh_remote_base has the
+    # measurement). A failed fetch leaves the old ref; RWL_NO_FETCH=1 skips it.
+    remote, _, branch = base_ref.partition("/")
+    if branch and not os.environ.get("RWL_NO_FETCH"):
+        import io
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        try:
+            import fetch_ref
+            fetch_ref.fetch_ref(branch, remote, cwd=ROOT, out=io.StringIO())
+        except Exception:
+            pass
     found = subprocess.run(["git", "merge-base", base_ref, "HEAD"], cwd=ROOT,
                            capture_output=True, text=True)
     if found.returncode != 0 or not found.stdout.strip():

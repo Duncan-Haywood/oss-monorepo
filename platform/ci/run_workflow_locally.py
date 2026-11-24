@@ -1279,6 +1279,45 @@ FETCH_STEPS = (("fetch_ref",), ("--deepen=500",))
 FETCH_HINT = "python3 platform/ci/fetch_ref.py main"
 
 
+# A remote base is refreshed before the diff, added 2026-11-24. A cloud clone's
+# `origin/main` is whatever the harness's first `fetch --depth 50 origin main`
+# stored, while the session branch is cut from a newer main (measured in this
+# run's clone: origin/main 9 commits behind the branch's start, reflog
+# "fetch --no-progress --depth 50 origin main: storing head"). The merge base
+# was then the stale tip, so those 9 commits of other PRs read as this
+# branch's changes: two 2026-11-24 runs (a story, a redteam fix) had their
+# sweeps select and fail einvoice-preflight's suite, which only #18511 on main
+# had touched, and the failure read as the PR's own. A newer base never moves
+# the merge base past what HEAD contains, so refreshing is always safe; when
+# the fetch fails (offline, a lock held by `measure`), the old ref is used.
+# RWL_NO_FETCH=1 skips it.
+def refresh_remote_base(base, git, repo=None, out=sys.stderr) -> bool:
+    """Bring `origin/<branch>` up to date with fetch_ref.py; True if it moved."""
+    remote, _, branch = base.partition("/")
+    if (not branch or os.environ.get("RWL_NO_FETCH")
+            or git("remote", "get-url", remote).returncode != 0):
+        return False
+    before = git("rev-parse", "--verify", "--quiet", base).stdout.strip()
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import io
+    import fetch_ref
+    quiet = io.StringIO()
+    try:
+        fetch_ref.fetch_ref(branch, remote, cwd=repo or REPO, out=quiet)
+    except Exception as exc:  # a refresh is a courtesy; never fail the sweep on it
+        print(f"run_workflow_locally: could not refresh {base} ({exc}); using it as is",
+              file=out)
+        return False
+    after = git("rev-parse", "--verify", "--quiet", base).stdout.strip()
+    if before and after and before != after:
+        behind = git("rev-list", "--count", f"{before}..{after}").stdout.strip()
+        print(f"run_workflow_locally: refreshed {base} ({behind or '?'} new commit(s)), "
+              "so main's newer commits are not counted as this branch's changes",
+              file=out)
+        return True
+    return False
+
+
 def _fetch_merge_base(base, git, repo=None):
     """Fetch history until `base` and HEAD share a commit, for a remote ref.
 
@@ -1327,6 +1366,7 @@ def changed_paths(base: str, repo: str = REPO) -> list[str]:
         return subprocess.run(["git", *args], cwd=repo,
                               capture_output=True, text=True)
 
+    refresh_remote_base(base, git, repo)
     found = git("merge-base", base, "HEAD")
     if found.returncode != 0 or not found.stdout.strip():
         found = _fetch_merge_base(base, git, repo)
