@@ -12,6 +12,8 @@
 # owner adds readings. null means unmeasured, never zero. Agents never invent
 # or estimate a reading here (Hard limits, "Never fabricate").
 
+rail: paddle   # owner, 2026-11-24; readings come from the Paddle dashboard
+
 goal:
   set: 2026-11-24
   milestone_mrr_usd: 10000
@@ -24,5 +26,5 @@ readings:
   #   costs_usd: null
   #   mrp_usd: null
   #   paying_subscribers: null
-  #   source: owner, merchant dashboard
+  #   source: owner, Paddle dashboard
   []
