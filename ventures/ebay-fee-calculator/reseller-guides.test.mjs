@@ -29,7 +29,7 @@ for (const f of GUIDES) {
   });
   test(`${f}: honest product status and no 1099-K fear`, () => {
     assert.match(html, /in development &mdash; early access/);
-    assert.match(html, /href="\.\.\/industries\/online-sellers\/"/);
+    assert.match(html, /href="https:\/\/marisstella\.app\/industries\/online-sellers\/"/);
     assert.doesNotMatch(html, /\$600(?![.,\d])/, 'the federal 1099-K threshold is $20,000 and 200 transactions, not $600');
     assert.match(html, /irs\.gov/);
   });
