@@ -202,7 +202,7 @@
    "lastFinish": "2013-06-22 10:48"
   },
   "addsUp": true,
-  "ms": 16086
+  "ms": 18751
  },
  {
   "file": "CCA_R03_dt_24Oct11SC.xer",
@@ -234,7 +234,7 @@
     "window": 2,
     "kind": "type",
     "planted": true,
-    "detail": "FS -> SS T16P122011C0 -> T16P101005C0",
+    "detail": "FS -> SS T16P109205C0 -> T16P109901C0",
     "error": null,
     "expect": {
      "progress": 0,
@@ -255,17 +255,17 @@
     "window": 3,
     "kind": "constraint",
     "planted": true,
-    "detail": "T16P109503C0 start on or after +5",
+    "detail": "T16P209601C0 start on or after +1",
     "error": null,
     "expect": {
      "progress": 0,
-     "revisions": 5,
-     "nominal": 5
+     "revisions": 1,
+     "nominal": 1
     },
     "got": {
-     "moved": 5,
+     "moved": 1,
      "progress": 0,
-     "revisions": 5
+     "revisions": 1
     },
     "splitExact": true,
     "side": true,
@@ -276,17 +276,17 @@
     "window": 4,
     "kind": "calendar",
     "planted": true,
-    "detail": "T16TS01813C0 calendar R00-C01, 6 days with holidays -> R00-C02, Calendar day",
+    "detail": "BAFTS01801G0 calendar R00-C02, Calendar day -> R00-C01, 6 days with holidays",
     "error": null,
     "expect": {
      "progress": 0,
-     "revisions": -2,
+     "revisions": 18,
      "nominal": null
     },
     "got": {
-     "moved": -2,
+     "moved": 18,
      "progress": 0,
-     "revisions": -2
+     "revisions": 18
     },
     "splitExact": true,
     "side": true,
@@ -317,17 +317,17 @@
     "window": 6,
     "kind": "added",
     "planted": true,
-    "detail": "ZZ-ADDED-176541 (4 d) between T16P109503C0 and T16P109907C0",
+    "detail": "ZZ-ADDED-176541 (5 d) between T16P209907C0 and T16TS01809C0",
     "error": null,
     "expect": {
      "progress": 0,
-     "revisions": 4,
-     "nominal": 4
+     "revisions": 5,
+     "nominal": 5
     },
     "got": {
-     "moved": 4,
+     "moved": 5,
      "progress": 0,
-     "revisions": 4
+     "revisions": 5
     },
     "splitExact": true,
     "side": true,
@@ -342,13 +342,13 @@
     "error": null,
     "expect": {
      "progress": 0,
-     "revisions": -10.6,
+     "revisions": -22,
      "nominal": null
     },
     "got": {
-     "moved": -10.6,
+     "moved": -22,
      "progress": 0,
-     "revisions": -10.6
+     "revisions": -22
     },
     "splitExact": true,
     "side": true,
@@ -359,28 +359,28 @@
     "window": 8,
     "kind": "cut",
     "planted": true,
-    "detail": "TGNCZ01090G0 cut 2 d",
+    "detail": "GGLRD09701C0 cut 3 d",
     "error": null,
     "expect": {
      "progress": 0,
-     "revisions": -1,
-     "nominal": -2
+     "revisions": 0,
+     "nominal": -3
     },
     "got": {
-     "moved": -1,
+     "moved": 0,
      "progress": 0,
-     "revisions": -1
+     "revisions": 0
     },
     "splitExact": true,
     "side": true,
-    "moved": true,
+    "moved": false,
     "named": true
    },
    {
     "window": 9,
     "kind": "early-finish",
     "planted": true,
-    "detail": "T20R109205C0 finished at the data date",
+    "detail": "GGLRD09501C0 finished at the data date",
     "error": null,
     "expect": {
      "progress": 0,
@@ -399,15 +399,15 @@
    }
   ],
   "total": {
-   "moved": -6.6,
-   "sumOfWindows": -6.6,
+   "moved": 0,
+   "sumOfWindows": 0,
    "progress": -2,
-   "revisions": -4.6,
+   "revisions": 2,
    "firstFinish": "2013-06-22 16:59",
-   "lastFinish": "2013-06-15 10:48"
+   "lastFinish": "2013-06-22 16:59"
   },
   "addsUp": true,
-  "ms": 13316
+  "ms": 17751
  },
  {
   "file": "CCA_R03_dt_24Oct11SC.xer",
@@ -501,7 +501,7 @@
     "window": 5,
     "kind": "type",
     "planted": true,
-    "detail": "FS -> SS T16P109501C0 -> T16P109601C0",
+    "detail": "FS -> SS T16P109601C0 -> T16P106101C0",
     "error": null,
     "expect": {
      "progress": 0,
@@ -543,33 +543,12 @@
     "window": 7,
     "kind": "cut",
     "planted": true,
-    "detail": "T16P209205C0 cut 1 d",
-    "error": null,
-    "expect": {
-     "progress": 0,
-     "revisions": -1,
-     "nominal": -1
-    },
-    "got": {
-     "moved": -1,
-     "progress": 0,
-     "revisions": -1
-    },
-    "splitExact": true,
-    "side": true,
-    "moved": true,
-    "named": true
-   },
-   {
-    "window": 8,
-    "kind": "link-deleted",
-    "planted": true,
-    "detail": "FS T16P109501C0 -> T16P109305C0 deleted",
+    "detail": "T16P222011C0 cut 2 d",
     "error": null,
     "expect": {
      "progress": 0,
      "revisions": 0,
-     "nominal": null
+     "nominal": -2
     },
     "got": {
      "moved": 0,
@@ -582,20 +561,41 @@
     "named": true
    },
    {
-    "window": 9,
-    "kind": "constraint",
+    "window": 8,
+    "kind": "link-deleted",
     "planted": true,
-    "detail": "T16P206101C0 start on or after +2",
+    "detail": "FS T16P209601C0 -> T16P206101C0 deleted",
     "error": null,
     "expect": {
      "progress": 0,
-     "revisions": 2,
-     "nominal": 2
+     "revisions": -1,
+     "nominal": null
     },
     "got": {
-     "moved": 2,
+     "moved": -1,
      "progress": 0,
-     "revisions": 2
+     "revisions": -1
+    },
+    "splitExact": true,
+    "side": true,
+    "moved": true,
+    "named": true
+   },
+   {
+    "window": 9,
+    "kind": "constraint",
+    "planted": true,
+    "detail": "T16P109901C0 start on or after +1",
+    "error": null,
+    "expect": {
+     "progress": 0,
+     "revisions": 1,
+     "nominal": 1
+    },
+    "got": {
+     "moved": 1,
+     "progress": 0,
+     "revisions": 1
     },
     "splitExact": true,
     "side": true,
@@ -604,15 +604,15 @@
    }
   ],
   "total": {
-   "moved": 19,
-   "sumOfWindows": 19,
+   "moved": 18,
+   "sumOfWindows": 18,
    "progress": -1,
-   "revisions": 20,
+   "revisions": 19,
    "firstFinish": "2013-06-22 16:59",
-   "lastFinish": "2013-07-14 16:59"
+   "lastFinish": "2013-07-13 16:59"
   },
   "addsUp": true,
-  "ms": 13363
+  "ms": 15879
  },
  {
   "file": "Expressway_Project.xer",
@@ -812,7 +812,7 @@
    "lastFinish": "2016-09-01 17:00"
   },
   "addsUp": true,
-  "ms": 1429
+  "ms": 1431
  },
  {
   "file": "Expressway_Project.xer",
@@ -823,12 +823,12 @@
     "window": 1,
     "kind": "gain",
     "planted": true,
-    "detail": "BEW/MO/EF/1010 3 days less left",
+    "detail": "BEW/MO/EF/1010 1 days less left",
     "error": null,
     "expect": {
      "progress": 0,
      "revisions": 0,
-     "nominal": -3
+     "nominal": -1
     },
     "got": {
      "moved": 0,
@@ -844,7 +844,7 @@
     "window": 2,
     "kind": "type",
     "planted": true,
-    "detail": "FS -> SS BEW/PR/FC/1260 -> BEW/CL/GEN/1010",
+    "detail": "FS -> SS BEW/CL/GEN/1010 -> BEW/GEN/MS/0020",
     "error": null,
     "expect": {
      "progress": 0,
@@ -985,34 +985,34 @@
     "window": 9,
     "kind": "early-finish",
     "planted": true,
-    "detail": "BEW/PR/FC/1260 finished at the data date",
+    "detail": "BEW/PR/FC/1040 finished at the data date",
     "error": null,
     "expect": {
-     "progress": -3,
+     "progress": 0,
      "revisions": 0,
      "nominal": null
     },
     "got": {
-     "moved": -3,
-     "progress": -3,
+     "moved": 0,
+     "progress": 0,
      "revisions": 0
     },
     "splitExact": true,
     "side": true,
-    "moved": true,
+    "moved": false,
     "named": true
    }
   ],
   "total": {
-   "moved": -3,
-   "sumOfWindows": -3,
-   "progress": -3,
+   "moved": 0,
+   "sumOfWindows": 0,
+   "progress": 0,
    "revisions": 0,
    "firstFinish": "2016-08-28 17:00",
-   "lastFinish": "2016-08-25 17:00"
+   "lastFinish": "2016-08-28 17:00"
   },
   "addsUp": true,
-  "ms": 1224
+  "ms": 1518
  },
  {
   "file": "Expressway_Project.xer",
@@ -1213,7 +1213,7 @@
    "lastFinish": "2016-08-28 17:00"
   },
   "addsUp": true,
-  "ms": 1232
+  "ms": 1483
  },
  {
   "file": "example_xer_file.xer",
@@ -1413,7 +1413,7 @@
    "lastFinish": "2027-05-07 14:26"
   },
   "addsUp": true,
-  "ms": 237
+  "ms": 333
  },
  {
   "file": "example_xer_file.xer",
@@ -1615,7 +1615,7 @@
    "lastFinish": "2027-05-03 14:26"
   },
   "addsUp": true,
-  "ms": 159
+  "ms": 207
  },
  {
   "file": "example_xer_file.xer",
@@ -1820,7 +1820,7 @@
    "lastFinish": "2027-06-01 17:00"
   },
   "addsUp": true,
-  "ms": 170
+  "ms": 199
  },
  {
   "file": "hotel-project.xer",
@@ -2017,7 +2017,7 @@
    "lastFinish": "2014-07-23 16:00"
   },
   "addsUp": true,
-  "ms": 2061
+  "ms": 2497
  },
  {
   "file": "hotel-project.xer",
@@ -2214,7 +2214,7 @@
    "lastFinish": "2014-07-23 16:00"
   },
   "addsUp": true,
-  "ms": 2310
+  "ms": 2346
  },
  {
   "file": "hotel-project.xer",
@@ -2411,7 +2411,7 @@
    "lastFinish": "2014-07-23 16:00"
   },
   "addsUp": true,
-  "ms": 2453
+  "ms": 2393
  },
  {
   "file": "sample.xer",
@@ -2612,7 +2612,7 @@
    "lastFinish": ""
   },
   "addsUp": true,
-  "ms": 28
+  "ms": 16
  },
  {
   "file": "sample.xer",
@@ -2813,7 +2813,7 @@
    "lastFinish": ""
   },
   "addsUp": true,
-  "ms": 29
+  "ms": 16
  },
  {
   "file": "sample.xer",
@@ -3013,7 +3013,7 @@
    "lastFinish": ""
   },
   "addsUp": true,
-  "ms": 23
+  "ms": 15
  },
  {
   "file": "terminal-building-airport.xer",
@@ -3190,12 +3190,12 @@
     "window": 9,
     "kind": "gain",
     "planted": true,
-    "detail": "BA-P3-70 2 days less left",
+    "detail": "BA-P3-70 4 days less left",
     "error": null,
     "expect": {
      "progress": 0,
      "revisions": 0,
-     "nominal": -2
+     "nominal": -4
     },
     "got": {
      "moved": 0,
@@ -3217,7 +3217,7 @@
    "lastFinish": "2013-03-02 17:00"
   },
   "addsUp": true,
-  "ms": 40
+  "ms": 34
  },
  {
   "file": "terminal-building-airport.xer",
@@ -3419,7 +3419,7 @@
    "lastFinish": "2013-03-04 17:00"
   },
   "addsUp": true,
-  "ms": 28
+  "ms": 24
  },
  {
   "file": "terminal-building-airport.xer",
@@ -3623,6 +3623,6 @@
    "lastFinish": "2013-02-27 17:00"
   },
   "addsUp": true,
-  "ms": 26
+  "ms": 28
  }
 ]

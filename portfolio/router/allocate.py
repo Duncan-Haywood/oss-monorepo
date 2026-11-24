@@ -522,15 +522,27 @@ def refused_rows(ventures: list["Venture"], probe=table_probe) -> dict[str, list
     return out
 
 
-def hosts_line(urls: list[str], answers=host_answers) -> str:
-    """One line saying which of `urls` answer from this session right now."""
+def probe_urls(urls: list[str], answers=host_answers) -> dict[str, bool]:
+    """{url: answered} for `urls`, probed in parallel."""
     if not urls:
-        return ""
+        return {}
     from concurrent.futures import ThreadPoolExecutor
     with ThreadPoolExecutor(max_workers=min(8, len(urls))) as ex:
-        ok = list(ex.map(answers, urls))
-    parts = [re.sub(r"^[a-z]+://", "", u, flags=re.I).rstrip("/") + (" answers" if a else " REFUSED")
-             for u, a in zip(urls, ok)]
+        return dict(zip(urls, ex.map(answers, urls)))
+
+
+def url_host(url: str) -> str:
+    return re.sub(r"^[a-z]+://", "", url, flags=re.I).split("/", 1)[0].lower()
+
+
+def hosts_line(urls: list[str], answers=host_answers, ok: Optional[dict[str, bool]] = None) -> str:
+    """One line saying which of `urls` answer from this session right now.
+    `ok` is a probe_urls result to reuse instead of probing again."""
+    if not urls:
+        return ""
+    ok = ok if ok is not None else probe_urls(urls, answers)
+    parts = [re.sub(r"^[a-z]+://", "", u, flags=re.I).rstrip("/") + (" answers" if ok[u] else " REFUSED")
+             for u in urls]
     return ("hosts, probed just now (trust this over any 'answers 403' or 'serves files' note "
             "in the row; reachability changes between sessions): " + "; ".join(parts))
 
@@ -1516,12 +1528,24 @@ def _unbracketed(text: str) -> str:
     return " ".join("".join(out).split())
 
 
-def item_skip(body: str, today: Optional[str] = None) -> str:
+def item_skip(body: str, today: Optional[str] = None, refused: frozenset = frozenset()) -> str:
     """Why `body` is not counted as an open item ("result", "needs outside
-    input", "waits for <date>"), or "" when it looks buildable here."""
+    input", "waits for <date>", "<host> REFUSED just now"), or "" when it
+    looks buildable here. `refused` holds host names this session's probe
+    could not reach."""
     from flagship_field import DATED_EVIDENCE, is_result
     if _NEEDS_INPUT.search(body):
         return "needs outside input"
+    # Why: the hosts line said "REFUSED" while the numbered list still
+    # counted the item that needs that host, so Start here's rank sent runs
+    # to it (photo-editing raw.pixls.us, changepoint-detector
+    # alfred.stlouisfed.org; 4 allocate.py doc_friction reports 2026-11-21..24,
+    # `friction_rank.py --live --ungated --days 3`). The row-level demotion
+    # (refused_rows) misses an item whose host is not in `buildable:`.
+    if refused:
+        bad = sorted({m.group(1).lower() for m in _HOST_RE.finditer(body)} & refused)
+        if bad:
+            return f"{', '.join(bad)} REFUSED just now"
     gates = future_gates(body, today)
     if gates and body.lower().startswith(("after", "from", "not before")):
         return f"waits for {gates[0]}"
@@ -1548,12 +1572,13 @@ def item_skip(body: str, today: Optional[str] = None) -> str:
 ITEM_WIDTH = 150
 
 
-def item_lines(items: list[tuple[str, str]], today: Optional[str] = None) -> list[str]:
+def item_lines(items: list[tuple[str, str]], today: Optional[str] = None,
+               refused: frozenset = frozenset()) -> list[str]:
     """The `items:` lines: buildable-looking entries numbered, the rest
     listed after them unnumbered with the reason."""
     lines, skipped, n = [], [], 0
     for field_name, body in items:
-        why = item_skip(body, today)
+        why = item_skip(body, today, refused)
         if why:
             skipped.append(f"  -  [{field_name}] ({why}) {_shorten(body, ITEM_WIDTH)}")
         else:
@@ -1835,8 +1860,12 @@ def venture_report(name: str, ventures: list[Venture],
                         if v.flagship_not_before else ""))
         if v.flagship_buildable:
             lines.append("buildable here: " + v.flagship_buildable)
+        refused: frozenset = frozenset()
         if probe is not None:
-            line = hosts_line(row_hosts(v), probe)
+            urls = row_hosts(v)
+            ok = probe_urls(urls, probe)
+            refused = frozenset(url_host(u) for u, a in ok.items() if not a)
+            line = hosts_line(urls, ok=ok)
             if line:
                 lines.append(line)
         lines.append(f"next: ({next_budget(v)}; portfolio/router/validate.py fails a longer one, "
@@ -1845,10 +1874,11 @@ def venture_report(name: str, ventures: list[Venture],
         items = open_items(v.flagship_buildable, v.flagship_next)
         if items:
             lines.append("items: (numbered from the two fields above for Start here's item "
-                         "rank; results, setup or source lines, advice, entries needing outside input and dated waits are "
+                         "rank; results, setup or source lines, advice, entries needing outside input or a host "
+                         "refused just now, and dated waits are "
                          "listed unnumbered after them. A heuristic split: take a skipped "
                          "entry if you can do it)")
-            lines.extend(item_lines(items))
+            lines.extend(item_lines(items, refused=refused))
     else:
         lines.append("task: " + next_task(v))
     if v.flagship and left is not None:

@@ -59,6 +59,10 @@ Options:
   --refetch <n>         days at the end of an existing CSV to fetch again (default: 4)
   --lag <n>             leave out the last n days before today, still being processed (default: 1, so yesterday is
                         the last day written; 2 is safer on a busy property, where yesterday can still grow)
+  --sections <n>        also write page views for the n busiest sections of the site (the first path segment:
+                        views_home for "/", views_blog for "/blog/..."), 1 to 10, picked on the first fetch and kept
+                        after; a tag lost from one page template takes its section near zero while the totals
+                        move only by its share
   --from-export <file>  no API: convert a report's Share > Download file > CSV (a Date or Nth day column, then
                         metrics) into the same layout, oldest first, missing days filled with zeros
   -h, --help            this help
@@ -108,20 +112,25 @@ export async function accessToken(env, { tokenUrl, fetchImpl, sleep, nowSec }) {
  * property's zone). Pages with offset, stepping by the rows returned, until rowCount is reached. Returns [{ date, values: {metric: number} }] and the
  * thresholding/sampling flags the answer carries, so the caller can warn.
  */
-export async function runReport({ api, token, property, metrics, startDate, endDate, fetchImpl = globalThis.fetch, sleep = (ms) => new Promise((r) => setTimeout(r, ms)) }) {
+async function postReport({ api, token, property, body, fetchImpl, sleep }) {
   const url = `${api}/properties/${property}:runReport`;
+  const { r, body: ans } = await retrying(fetchImpl, sleep, url, { method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify(body) });
+  if (!r.ok) {
+    const msg = ans?.error?.message ? `: ${ans.error.message}` : '';
+    if (r.status === 401) throw new Error(`Google Analytics refused the token (401)${msg}.`);
+    if (r.status === 403) throw new Error(`Google Analytics answered 403${msg}. Add the service account's email as a Viewer of property ${property} (Admin > Property access management), and check the Google Analytics Data API is enabled in the key's project.`);
+    if (r.status === 400) throw new Error(`Google Analytics refused the request (400)${msg}. Check the metric names (--metrics) against the Data API's list.`);
+    throw new Error(`Google Analytics answered ${r.status}${msg}.`);
+  }
+  return ans;
+}
+
+export async function runReport({ api, token, property, metrics, startDate, endDate, fetchImpl = globalThis.fetch, sleep = (ms) => new Promise((r) => setTimeout(r, ms)) }) {
   const rows = [];
   const flags = { thresholded: false, sampled: false };
   for (let offset = 0; ; ) {
     const body = { dateRanges: [{ startDate, endDate }], dimensions: [{ name: 'date' }], metrics: metrics.map((name) => ({ name })), limit: String(PAGE), offset: String(offset), keepEmptyRows: true, orderBys: [{ dimension: { dimensionName: 'date' } }] };
-    const { r, body: ans } = await retrying(fetchImpl, sleep, url, { method: 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify(body) });
-    if (!r.ok) {
-      const msg = ans?.error?.message ? `: ${ans.error.message}` : '';
-      if (r.status === 401) throw new Error(`Google Analytics refused the token (401)${msg}.`);
-      if (r.status === 403) throw new Error(`Google Analytics answered 403${msg}. Add the service account's email as a Viewer of property ${property} (Admin > Property access management), and check the Google Analytics Data API is enabled in the key's project.`);
-      if (r.status === 400) throw new Error(`Google Analytics refused the request (400)${msg}. Check the metric names (--metrics) against the Data API's list.`);
-      throw new Error(`Google Analytics answered ${r.status}${msg}.`);
-    }
+    const ans = await postReport({ api, token, property, body, fetchImpl, sleep });
     const heads = (ans?.metricHeaders ?? []).map((h) => h?.name);
     if (ans?.metadata?.subjectToThresholding) flags.thresholded = true;
     if (Array.isArray(ans?.metadata?.samplingMetadatas) && ans.metadata.samplingMetadatas.length) flags.sampled = true;
@@ -143,6 +152,72 @@ export async function runReport({ api, token, property, metrics, startDate, endD
     if (!page.length || offset >= total) break;
   }
   return { rows, ...flags };
+}
+
+// --sections: page views per section of the site, the first path segment (GA4's pagePathLevel1: "/blog/", "/" for
+// the home page), one column each. A tag lost from one template (a blog theme, a help centre moved to a hosted tool)
+// takes that section to near zero while the totals move by its share; README "A template-shaped tracking loss".
+const SECTION_PREFIX = 'views_';
+/** The column name for a pagePathLevel1 value: "/" -> views_home, "/blog/" -> views_blog; null for "(other)" and the like. */
+export function sectionColumn(path) {
+  const p = String(path ?? '').trim();
+  if (!p.startsWith('/')) return null;
+  const seg = p.replace(/^\/+|\/+$/g, '').toLowerCase();
+  if (!seg) return `${SECTION_PREFIX}home`;
+  const name = seg.replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40);
+  return name ? `${SECTION_PREFIX}${name}` : null;
+}
+
+/** The n section columns with the most page views from startDate to endDate, most viewed first. */
+export async function topSections({ api, token, property, n, startDate, endDate, fetchImpl = globalThis.fetch, sleep = (ms) => new Promise((r) => setTimeout(r, ms)) }) {
+  // Asked for more than n, since several paths can share a column ("/Blog/" and "/blog/") or have none ("(other)").
+  const body = { dateRanges: [{ startDate, endDate }], dimensions: [{ name: 'pagePathLevel1' }], metrics: [{ name: 'screenPageViews' }], limit: String(Math.max(50, n * 5)), orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }] };
+  const ans = await postReport({ api, token, property, body, fetchImpl, sleep });
+  const tot = new Map();
+  for (const x of Array.isArray(ans?.rows) ? ans.rows : []) {
+    const col = sectionColumn(x?.dimensionValues?.[0]?.value);
+    if (!col) continue;
+    const v = Number(x?.metricValues?.[0]?.value) || 0;
+    tot.set(col, (tot.get(col) ?? 0) + v);
+  }
+  return [...tot.entries()].sort((a, b) => b[1] - a[1]).slice(0, n).map(([column]) => column);
+}
+
+/**
+ * Daily page views for the given section columns: [{ date, values: {views_x: n} }], from a runReport by date and
+ * pagePathLevel1. Every path is fetched and summed into its column, so a column keeps its meaning across runs even
+ * when its section has gone dark (the case it is there for).
+ */
+export async function sectionViews({ api, token, property, columns, startDate, endDate, fetchImpl = globalThis.fetch, sleep = (ms) => new Promise((r) => setTimeout(r, ms)) }) {
+  const want = new Set(columns);
+  const byDate = new Map();
+  for (let offset = 0; ; ) {
+    const body = { dateRanges: [{ startDate, endDate }], dimensions: [{ name: 'date' }, { name: 'pagePathLevel1' }], metrics: [{ name: 'screenPageViews' }], limit: String(PAGE), offset: String(offset), orderBys: [{ dimension: { dimensionName: 'date' } }] };
+    const ans = await postReport({ api, token, property, body, fetchImpl, sleep });
+    const page = Array.isArray(ans?.rows) ? ans.rows : [];
+    for (const x of page) {
+      const d = x?.dimensionValues?.[0]?.value ?? '', col = sectionColumn(x?.dimensionValues?.[1]?.value);
+      if (!/^\d{8}$/.test(d) || !want.has(col)) continue;
+      const iso = isoOf(d);
+      if (!byDate.has(iso)) byDate.set(iso, {});
+      const v = Number(x?.metricValues?.[0]?.value);
+      byDate.get(iso)[col] = (byDate.get(iso)[col] ?? 0) + (Number.isFinite(v) ? v : 0);
+    }
+    const total = Number(ans?.rowCount ?? 0);
+    offset += page.length;
+    if (!page.length || offset >= total) break;
+  }
+  return [...byDate.entries()].map(([date, values]) => ({ date, values }));
+}
+
+/** The views_ columns an earlier CSV carries after the metrics, or null when its header is not date, metrics, views_*. */
+export function existingSections(text, metrics) {
+  const first = String(text).split(/\r?\n/, 1)[0].trim();
+  const head = header(metrics);
+  if (first === head) return [];
+  if (!first.startsWith(`${head},`)) return null;
+  const rest = first.slice(head.length + 1).split(',');
+  return rest.every((c) => /^views_[a-z0-9_]{1,40}$/.test(c)) && new Set(rest).size === rest.length ? rest : null;
 }
 
 /** Every day in [from, to]: the rows given where there are some, zeros where GA4 had none. */
@@ -233,7 +308,7 @@ export function fromExport(text) {
 }
 
 export async function main(argv, { env = process.env, out = (s) => process.stdout.write(s), err = (s) => process.stderr.write(s), fetchImpl = globalThis.fetch, now = () => Date.now(), sleep } = {}) {
-  let outPath = null, property = null, days = 480, refetch = 4, lag = 1, exportPath = null, metrics = DEFAULT_METRICS;
+  let outPath = null, property = null, days = 480, refetch = 4, lag = 1, exportPath = null, metrics = DEFAULT_METRICS, sections = 0;
   const whole = (s, name, min) => { const v = Number(s); if (!Number.isInteger(v) || v < min) throw new Error(`${name} takes a whole number of ${min} or more.`); return v; };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -245,11 +320,13 @@ export async function main(argv, { env = process.env, out = (s) => process.stdou
     else if (a === '--refetch') refetch = whole(argv[++i], '--refetch', 0);
     else if (a === '--lag') lag = whole(argv[++i], '--lag', 0);
     else if (a === '--from-export') exportPath = argv[++i];
+    else if (a === '--sections') { sections = whole(argv[++i], '--sections', 1); if (sections > 10) throw new Error('--sections takes 1 to 10.'); }
     else throw new Error(`Unknown option ${a} (see --help).`);
   }
   if (!outPath) throw new Error('Give --out <file.csv> (see --help).');
   const write = async (rows, ms) => { if (outPath.includes('/')) await mkdir(dirname(outPath), { recursive: true }); await writeFile(outPath, toCsv(rows, ms)); };
 
+  if (exportPath && sections) throw new Error('--sections needs the Data API (an export has no per-section columns); leave it out with --from-export.');
   if (exportPath) {
     const { metrics: ms, rows } = fromExport(await readFile(exportPath, 'utf8'));
     await write(rows, ms);
@@ -264,8 +341,14 @@ export async function main(argv, { env = process.env, out = (s) => process.stdou
   const todayUtc = new Date(now()).toISOString().slice(0, 10);
   let kept = [];
   let startDate = addDays(todayUtc, -days);
+  // With --sections, an earlier CSV's views_ columns are kept as they are, so a section that has gone dark keeps its
+  // column; a CSV without them is fetched afresh and the busiest sections are picked then.
+  let sectionCols = [];
   if (existsSync(outPath)) {
-    const prev = readExisting(await readFile(outPath, 'utf8'), metrics);
+    const text = await readFile(outPath, 'utf8');
+    const ex = existingSections(text, metrics);
+    if (sections && ex && ex.length) sectionCols = ex;
+    const prev = sections && !sectionCols.length ? null : readExisting(text, [...metrics, ...sectionCols]);
     if (prev && prev.length) {
       kept = prev.filter((r) => r.date < addDays(prev[prev.length - 1].date, 1 - refetch));
       startDate = kept.length ? addDays(kept[kept.length - 1].date, 1) : prev[0].date;
@@ -274,14 +357,23 @@ export async function main(argv, { env = process.env, out = (s) => process.stdou
   if (startDate > addDays(todayUtc, 1 - lag)) { err(`${outPath} is already up to date.\n`); return 0; }
   const sl = sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
   const token = await accessToken(env, { tokenUrl, fetchImpl, sleep: sl, nowSec: Math.floor(now() / 1000) });
-  const { rows, thresholded, sampled } = await runReport({ api, token, property, metrics, startDate, endDate: lag === 0 ? 'today' : `${lag}daysAgo`, fetchImpl, sleep: sl });
+  const endDate = lag === 0 ? 'today' : `${lag}daysAgo`;
+  const { rows, thresholded, sampled } = await runReport({ api, token, property, metrics, startDate, endDate, fetchImpl, sleep: sl });
   const to = rows.reduce((m, r) => (r.date > m ? r.date : m), '');
   if (!to || to < startDate) { err(`Google Analytics has no day from ${startDate} yet; ${outPath} left as it was.\n`); return 0; }
-  const fresh = fillDays(rows, metrics, startDate, to);
+  // Picked on a window that ends 35 days before the last day fetched, so a section that went dark in the last month
+  // (the loss this is for) is still among the busiest when a first fetch comes after it.
+  if (sections && !sectionCols.length) sectionCols = await topSections({ api, token, property, n: sections, startDate, endDate: addDays(to, -35) >= addDays(startDate, 28) ? addDays(to, -35) : endDate, fetchImpl, sleep: sl });
+  if (sectionCols.length) {
+    const sv = new Map((await sectionViews({ api, token, property, columns: sectionCols, startDate, endDate, fetchImpl, sleep: sl })).map((r) => [r.date, r.values]));
+    for (const r of rows) for (const c of sectionCols) r.values[c] = sv.get(r.date)?.[c] ?? 0;
+  }
+  const cols = [...metrics, ...sectionCols];
+  const fresh = fillDays(rows, cols, startDate, to);
   const all = [...kept, ...fresh];
-  await write(all, metrics);
+  await write(all, cols);
   const first = metrics[0];
-  out(`${outPath}: ${all.length} days to ${to} (${fresh.length} fetched, ${fresh.reduce((s, r) => s + r.values[first], 0)} ${first}), property ${property}.\n`);
+  out(`${outPath}: ${all.length} days to ${to} (${fresh.length} fetched, ${fresh.reduce((s, r) => s + r.values[first], 0)} ${first}), property ${property}${sectionCols.length ? `; sections ${sectionCols.join(', ')}` : ''}.\n`);
   if (thresholded) err('Note: Google Analytics applied thresholding to this report (Google signals is on), so small daily counts may be withheld; a watch on them can mistake withheld days for a fall.\n');
   if (sampled) err('Note: Google Analytics sampled this report; daily values are estimates.\n');
   return 0;

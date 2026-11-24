@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { parseStep } from "./step.mjs";
 import { parseIfcXml } from "./ifcxml.mjs";
 import { parseModel, check } from "./node.mjs";
-import { writeIfcXml, ifcXmlSchemaFor, ifcXmlTarget } from "./ifcxml-writer.mjs";
+import { writeIfcXml, ifcXmlSchemaFor, ifcXmlTarget, makeIfcXmlTarget } from "./ifcxml-writer.mjs";
 
 const sample = (f) => readFileSync(new URL("./samples/" + f, import.meta.url), "utf8");
 const write = (text, id) => {
@@ -144,4 +144,18 @@ test("a reference to an entity the file lacks is left out and counted", () => {
   const { xml, stats } = write(text);
   assert.equal(stats.danglingRefs, 1);
   assert.match(xml, /<IfcProductDefinitionShape id="i930"><Representations><\/Representations><\/IfcProductDefinitionShape>/);
+});
+
+test("a target built from fetched JSON (the page's path) writes the same bytes as the Node path", () => {
+  const text = sample("tiny-house.ifc");
+  const json = (f) => JSON.parse(readFileSync(new URL("./schema/" + f, import.meta.url), "utf8"));
+  const a = write(text, "IFC4").xml;
+  const parts = [];
+  writeIfcXml(parseStep(text, { eager: true }), makeIfcXmlTarget("IFC4", json("ifc4.json"), json("ifcxml-layout-ifc4.json")), (s) => parts.push(s), { timeStamp: "2026-11-24T00:00:00" });
+  assert.equal(parts.join(""), a);
+});
+
+test("the writer has no static Node import, so the page's worker can load it", () => {
+  const src = readFileSync(new URL("./ifcxml-writer.mjs", import.meta.url), "utf8");
+  assert.doesNotMatch(src, /from "node:/);
 });

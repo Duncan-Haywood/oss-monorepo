@@ -177,7 +177,7 @@
 // Any --report also takes --appendix: every activity behind every correction
 // printed in an appendix, not only the first 40 of each.
 import { ribbon, ribbonText, ribbonCsv } from "./ribbon.mjs";
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 // A file that cannot be assessed (no PROJECT table, not an XER at all) ends
 // with one line saying why, not a stack trace. XER_DEBUG=1 keeps the trace.
 if (!process.env.XER_DEBUG) process.on("uncaughtException", (e) => { console.error(`xer-schedule-check: ${e && e.message ? e.message : e}`); process.exit(1); });
@@ -226,6 +226,18 @@ const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ran
 // large file).
 const emit = (text) => new Promise((done) => process.stdout.write(text, done));
 const opt = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : undefined);
+// a flag that needs a value, given last or straight before another flag, would
+// write to undefined (a crash) or to a file named after the next flag
+for (const f of new Set(VALUED)) {
+  const v = opt(f);
+  if (args.includes(f) && (v === undefined || v.startsWith("--"))) { console.error(`xer-schedule-check: ${f} needs a value`); process.exit(2); }
+}
+// flags whose value may be left out: what follows is their value unless it is
+// a file on disk (so `--risk 1000 schedule.xer` and `--risk schedule.xer` both
+// read schedule.xer), and is never taken for the schedule
+const OPTIONAL = ["--risk", "--lookahead", "--ribbon", "--float-paths"];
+const optional = (f) => { const i = args.indexOf(f) + 1; return i > 0 && i < args.length && !args[i].startsWith("--") && !existsSync(args[i]) ? args[i] : undefined; };
+const isValue = (i) => VALUED.includes(args[i - 1]) || (OPTIONAL.includes(args[i - 1]) && !existsSync(args[i]));
 function writeReview(report, cmp, risk = null, win = null) {
   if (!args.includes("--report")) return;
   writeFileSync(opt("--report"), reviewHtml(report, cmp, { recipient: opt("--to"), reviewer: opt("--from"), reference: opt("--ref"), notes: opt("--notes"), risk, windows: win, appendix: args.includes("--appendix") }));
@@ -233,7 +245,7 @@ function writeReview(report, cmp, risk = null, win = null) {
   console.error(`review written to ${opt("--report")}: ${items.length} corrections (${n("high")} high, ${n("medium")} medium, ${n("low")} low)`);
 }
 if (args.includes("--trend")) {
-  const files = args.filter((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
+  const files = args.filter((a, i) => !a.startsWith("--") && !isValue(i));
   if (files.length < 2) { console.error("usage: node cli.mjs --trend update1.xer update2.xer [update3.xer ...] [--json] [--csv trend.csv] [--project CODE]"); process.exit(2); }
   const ups = files.map((f) => ({ xer: parseSchedule(decodeXer(readFileSync(f))), label: f.split("/").pop() }));
   const rep = trend(ups, { projectName: opt("--project") });
@@ -242,7 +254,7 @@ if (args.includes("--trend")) {
   process.exit(0);
 }
 if (args.includes("--windows")) {
-  const files = args.filter((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
+  const files = args.filter((a, i) => !a.startsWith("--") && !isValue(i));
   if (files.length < 2) { console.error("usage: node cli.mjs --windows update1.xer update2.xer [update3.xer ...] [--json] [--csv windows.csv] [--project CODE]"); process.exit(2); }
   const ups = files.map((f) => ({ xer: parseSchedule(decodeXer(readFileSync(f))), label: f.split("/").pop() }));
   if (args.includes("--earned-value")) {
@@ -268,13 +280,13 @@ if (args.includes("--windows")) {
   await emit(args.includes("--json") ? JSON.stringify(rep, null, 2) + "\n" : windowsText(rep));
   process.exit(0);
 }
-const file = args.find((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
+const file = args.find((a, i) => !a.startsWith("--") && !isValue(i));
 if (!file) {
   console.error("usage: node cli.mjs schedule.xer [--report review.html] [--json] [--csv findings.csv] [--schedule activities.csv] [--project CODE]\n       node cli.mjs current.xer --previous previous.xer [--json] [--csv changes.csv] [--project CODE]\n       node cli.mjs --windows update1.xer update2.xer [...] [--json] [--csv windows.csv] [--project CODE]");
   process.exit(2);
 }
 function runRisk(x, projId) {
-  const nArg = opt("--risk");
+  const nArg = optional("--risk");
   const levelled = args.includes("--levelled");
   const iterations = nArg && /^\d+$/.test(nArg) ? Number(nArg) : levelled ? 100 : 500;
   const crew = Number(opt("--crew") || 1);
@@ -507,8 +519,7 @@ if (args.includes("--drag")) {
 }
 if (args.includes("--ribbon")) {
   const report = assess(xer, { projId });
-  const v = opt("--ribbon");
-  const by = v && !v.startsWith("--") ? v : "wbs";
+  const by = optional("--ribbon") ?? "wbs";
   let rb;
   try { rb = ribbon(xer, report, { by, level: opt("--level") ? Number(opt("--level")) : 1 }); }
   catch (e) { console.error(e.message); process.exit(2); }
@@ -537,7 +548,7 @@ if (args.includes("--gantt")) {
 if (args.includes("--lookahead")) {
   const result = schedule(xer);
   const pid = assess(xer, { projId, result }).project.id;
-  const w = opt("--lookahead");
+  const w = optional("--lookahead");
   const la = lookahead(xer, { weeks: w && /^\d+$/.test(w) ? Number(w) : 3, from: opt("--from"), projId: pid, result, constraints: opt("--constraints") ? readFileSync(opt("--constraints"), "utf8") : null });
   if (opt("--csv")) writeFileSync(opt("--csv"), lookaheadCsv(la));
   if (opt("--constraints-csv") && la.constraintLog) writeFileSync(opt("--constraints-csv"), constraintLogCsv(la.constraintLog));
@@ -573,7 +584,7 @@ if (args.includes("--milestone-calendars")) {
 if (args.includes("--float-paths")) {
   const result = schedule(xer);
   const pid = assess(xer, { projId, result }).project.id;
-  const code = opt("--float-paths");
+  const code = optional("--float-paths");
   let target;
   if (code && !code.startsWith("--")) {
     target = [...result.model.tasks.values()].find((t) => t.code === code && t.proj === pid) || [...result.model.tasks.values()].find((t) => t.code === code);

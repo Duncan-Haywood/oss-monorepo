@@ -89,3 +89,22 @@ test("CSV: a name a spreadsheet would run as a formula is written as text", () =
   const csv = calendarSlackCsv({ activities: [{ code: "A", name: "=HYPERLINK(1)", calendar: "C", tfP6: -8, tf: 0, gain: 8, lateFinishP6: "", lateFinish: "" }] });
   assert.match(csv, /\nA,'=HYPERLINK\(1\),C,-8,0,8,,\n$/);
 });
+
+test("zero-length work gains no calendar slack: a 0 h task finishes where it starts, at the next work start", () => {
+  // NET with B made a 0 h task: B has no finish to slide from Friday 17:00 to
+  // Monday 08:00, so the FF link from A gains nothing over P6's late dates
+  const xer = parseXer(xerText({
+    PROJECT: [{ proj_id: "1", proj_short_name: "TEST", clndr_id: "C1", last_recalc_date: "2025-12-01 08:00", plan_start_date: "2025-12-01 08:00", plan_end_date: "" }],
+    CALENDAR: [
+      { clndr_id: "C1", default_flag: "Y", clndr_name: "Mon-Fri", day_hr_cnt: 8, clndr_data: WEEK },
+      { clndr_id: "C7", default_flag: "N", clndr_name: "Curing 7-day", day_hr_cnt: 8, clndr_data: ALL },
+    ],
+    SCHEDOPTIONS: [{ schedoptions_id: "1", proj_id: "1", sched_float_type: "FT_FF", sched_calendar_on_relationship_lag: "rcal_Predecessor", sched_retained_logic: "Y", sched_progress_override: "N" }],
+    TASK: [task("1", "X", 48), task("2", "B", 0), task("3", "C", 8), task("4", "A", 8, { clndr_id: "C7" }), task("5", "END", 0, { task_type: "TT_FinMile" })],
+    TASKPRED: [link("1", "5", "1"), link("2", "3", "2"), link("3", "5", "3"), link("4", "2", "4", "PR_FF", 8)],
+  }));
+  const base = schedule(xer), cs = schedule(xer, { calendarSlack: true });
+  assert.equal(byCode(base, "A").tf, 24);
+  assert.equal(byCode(cs, "A").tf, 24);
+  assert.equal(byCode(cs, "B").lfAbs, undefined);
+});

@@ -25,3 +25,5 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-24) AF points 2026-11-24 (22 of 22 = metadata-extractor, eval/cull-af-point-*)
 - 2026-11-24 closed-eye page asks MediaPipe for 32 faces, the CLI's MAX_FACES (was 20; red-team find, test pins the landmarker options and reads the CLI constants)
 - (moved 2026-11-24) Closed eyes: page = CLI rule 2026-11-24 (6 of 7, eval/blink-rule-agreement-*)
+- (moved 2026-11-24) mpcws opt-in again 2026-11-24 (a GH4 tile -0.13, eval/camera-drawn-mpcws-fresh-*)
+- (moved 2026-11-24) S1R II 177 MP = LibRaw snapshot 202611, every sensel (eval/panasonic-rw2-177mp-libraw-*)

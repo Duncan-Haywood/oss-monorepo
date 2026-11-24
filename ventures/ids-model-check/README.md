@@ -768,6 +768,17 @@ complex types), so IFC4X3 exports follow its layout but are checked by reading
 back only. The check found one reader fault, fixed: an ifcXML file in IFC4X3
 ADD2's own namespace (`.../IFC/RELEASE/IFC4/3/ADD2`) was opened as IFC4.
 
+### The page's "Download as .ifcxml" (2026-11-24)
+
+The checker page offers the same export: after a check of an IFC4 or IFC4X3
+STEP model, *Download as .ifcxml* writes it in the browser's worker with the
+same writer (`ifcxml-writer.mjs` no longer imports `node:fs`; the worker fetches
+`schema/ifcxml-layout-*.json` as it does the schemas). Driven in headless
+Chromium on the tiny-house sample and the three buildingSMART IFC4X3 samples,
+the downloaded files are byte for byte the CLI's apart from the time stamp, and
+the tiny-house download gives the same verdicts as its STEP file on all three
+sample IDS files (`eval/ifcxml-page-download-2026-11-24.md`).
+
 ### ifcXML, ifcJSON and IFC5 models written as a STEP .ifc (2026-11-22)
 
 Most BIM tools open only STEP `.ifc` files, and the model fill below edits a

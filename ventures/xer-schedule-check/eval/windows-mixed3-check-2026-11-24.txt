@@ -1,0 +1,34 @@
+CCA_R03_dt_24Oct11SC.xer seed 1: windows with both sides 2/6, changes planted 13, split exact 6/6, named 13/13, adds up true, sorted true, 12119 ms
+CCA_R03_dt_24Oct11SC.xer seed 2: windows with both sides 2/6, changes planted 13, split exact 6/6, named 12/13, adds up true, sorted true, 11573 ms
+   W3 [FS T14PA23009C0 -> T14PA23015C0 deleted; T20TS01801C0 cut 4 d] expect {"progress":0,"revisions":-0.3} got {"moved":-0.3,"progress":0,"revisions":-0.3} not named: cut
+CCA_R03_dt_24Oct11SC.xer seed 3: windows with both sides 0/6, changes planted 11, split exact 6/6, named 10/11, adds up true, sorted true, 11316 ms
+   W3 [ZZ-ADDED-176541 (3 d) between T16TS01808C0 and T16TS01813C0; T16P109901C0 calendar R00-C01, 6 days with holidays -> R00-C02, Calendar day] expect {"progress":0,"revisions":0} got {"moved":0,"progress":0,"revisions":0} not named: added
+Expressway_Project.xer seed 1: windows with both sides 3/6, changes planted 7, split exact 4/4, named 7/7, adds up true, sorted true, 1161 ms
+Expressway_Project.xer seed 2: windows with both sides 1/6, changes planted 6, split exact 5/5, named 6/6, adds up true, sorted true, 1039 ms
+Expressway_Project.xer seed 3: windows with both sides 0/6, changes planted 7, split exact 5/5, named 7/7, adds up true, sorted true, 1021 ms
+example_xer_file.xer seed 1: windows with both sides 0/6, changes planted 4, split exact 3/3, named 4/4, adds up true, sorted true, 193 ms
+example_xer_file.xer seed 2: windows with both sides 1/6, changes planted 4, split exact 2/2, named 4/4, adds up true, sorted true, 182 ms
+example_xer_file.xer seed 3: windows with both sides 1/6, changes planted 6, split exact 3/3, named 6/6, adds up true, sorted true, 170 ms
+hotel-project.xer seed 1: windows with both sides 0/6, changes planted 0, split exact 0/0, named 0/0, adds up true, sorted true, 1628 ms
+hotel-project.xer seed 2: windows with both sides 0/6, changes planted 0, split exact 0/0, named 0/0, adds up true, sorted true, 1660 ms
+hotel-project.xer seed 3: windows with both sides 0/6, changes planted 0, split exact 0/0, named 0/0, adds up true, sorted true, 1488 ms
+sample.xer seed 1: windows with both sides 1/6, changes planted 8, split exact 5/5, named 8/8, adds up true, sorted true, 10 ms
+sample.xer seed 2: windows with both sides 0/6, changes planted 4, split exact 3/3, named 4/4, adds up true, sorted true, 7 ms
+sample.xer seed 3: windows with both sides 4/6, changes planted 12, split exact 6/6, named 12/12, adds up true, sorted true, 20 ms
+terminal-building-airport.xer seed 1: windows with both sides 3/6, changes planted 13, split exact 6/6, named 12/13, adds up true, sorted true, 25 ms
+   W1 [BA-P1-10 1 days less left; BA-P2-10 cut 4 d; FS BA-P3-70 -> BA-P3-90 deleted] expect {"progress":-1,"revisions":0} got {"moved":-1,"progress":-1,"revisions":0} not named: link-deleted
+terminal-building-airport.xer seed 2: windows with both sides 4/6, changes planted 11, split exact 6/6, named 11/11, adds up true, sorted true, 23 ms
+terminal-building-airport.xer seed 3: windows with both sides 3/6, changes planted 11, split exact 6/6, named 11/11, adds up true, sorted true, 21 ms
+
+kind          planted  named  other-side
+late-start          5      5           0
+gain               14     14           0
+early-finish       13     13           0
+constraint         19     19           0
+added              14     13           0
+link-deleted       15     14           0
+calendar            9      9           0
+cut                20     19           0
+type               21     21           0
+windows with a plant 72, split exact 72; with both sides 25, split exact 25, both sides moved 15
+series 18, adding up 18, sorted 18, errors 0

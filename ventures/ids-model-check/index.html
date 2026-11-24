@@ -443,6 +443,18 @@
     $("out").appendChild(d);
     $("dl-bsdd").onclick = () => { record("ids_bsdd_linked_downloaded"); download((state.idsName || "spec.ids").replace(/(\.ids|\.xml)*$/i, "-bsdd.ids"), addBsddLinks(idsText, list), "application/xml"); };
   }
+  // What the ifcXML writer's stats say, as lines for the page.
+  function ifcXmlNotes(w) {
+    const st = w.stats, n = (x) => x.toLocaleString("en-US");
+    const out = [`Wrote ${n(st.entities)} entities (${w.schemaRaw}) as ${w.target} ifcXML; ${n(st.nestedRelationships)} relationships nested under their objects.`];
+    if (st.unknownTypes) out.push(`${n(st.unknownTypes)} entities of classes the ${w.target} schema lacks left out.`);
+    for (const [k, c] of Object.entries(st.keptPointerTypes || {})) out.push(`${n(c)} ${k} written with the pointer the XSD leaves out (kept so nothing is lost; the file breaks the XSD there).`);
+    if (st.spacedListItems) out.push(`${n(st.spacedListItems)} list item(s) hold a space, which an XSD list attribute splits.`);
+    if (st.raggedLists) out.push(`${n(st.raggedLists)} list(s) of lists with rows of different lengths kept their row wrappers.`);
+    if (st.danglingRefs) out.push(`${n(st.danglingRefs)} reference(s) to entities the file does not have left out.`);
+    if (st.binaryBits) out.push(`${n(st.binaryBits)} binary value(s) not a whole number of bytes, written padded.`);
+    return out;
+  }
   function download(name, data, type) {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([data], { type }));
@@ -492,6 +504,9 @@
     // check failed; ifcXML, ifcJSON and IFC5 are written as STEP first
     // (step-writer.mjs), so the download is a .ifc whatever came in.
     if (r.format !== "STEP") h += `<div class="spec" id="as-step"><h3>Download this model as a STEP .ifc</h3><p>Many BIM tools open only STEP <code>.ifc</code> files. The page writes your ${esc(r.format)} model as one, in your browser: every entity, argument for argument (on 187 public ifcXML, ifcJSON and IFC5 files the written file reads back entity for entity and gives the same IDS results, and IfcOpenShell opens all of them). Anything that could not be carried over exactly is listed.</p><div class="row"><button class="ghost" id="as-step-go">Download as .ifc</button></div><pre class="muted" id="as-step-status"></pre></div>`;
+    // The other way round (ifcxml-writer.mjs): an IFC4 or IFC4X3 STEP model
+    // written as ifcXML in the layout buildingSMART's XSD gives.
+    if (r.format === "STEP" && /^IFC4(X3|$|_)/i.test(r.schema || "")) h += `<div class="spec" id="as-ifcxml"><h3>Download this model as ifcXML</h3><p>Some tools and pipelines take IFC's XML form, <code>.ifcxml</code>, rather than STEP. The page writes your ${esc(r.schema)} model as one, in your browser, laid out as buildingSMART's ifcXML schema (XSD) says: the spatial tree under the project, property sets under their objects, each entity in full once and by reference after. On buildingSMART's 41 IFC4 examples and five public exports (901,550 entities) every entity reads back as it was in the STEP file, and on the exports all 3,240 IDS verdicts are the same. It is the same writer as the command line's <code>--to-ifcxml</code>, and gives the same bytes. Anything the XSD cannot hold exactly (IFC4's XSD allows one opening per wall, for example) is kept and listed, so nothing is lost.</p><div class="row"><button class="ghost" id="as-ifcxml-go">Download as .ifcxml</button></div><pre class="muted" id="as-ifcxml-status"></pre></div>`;
     if (!r.pass) h += `<div class="spec fill" id="fill"><h3>Write the missing values into the model</h3><p>For failing property, quantity and attribute requirements, the page writes into a copy of your model the values the IDS fixes (a single allowed value), and quantities the element already holds under the same name in another quantity set (an IFC2X3 export's <code>BaseQuantities</code>). For the rest, download the to-fill table, type each value in its <em>Value</em> column (in Excel, LibreOffice or a text editor; <code>*</code> as the GlobalId gives every listed element that value), and choose the filled table here. Each value is checked against the IDS before it is written, and the filled model is checked again before you download it. Every line of the file it does not change stays as it was. An attribute that already holds a value is never overwritten. Classifications and materials are listed, not written. ${r.format === "STEP" ? "" : `Your ${r.format} model is written as a STEP <code>.ifc</code> first and that copy is filled (on 187 public ifcXML, ifcJSON and IFC5 files the written copy reads back entity for entity and gives the same IDS results), so the download is a <code>.ifc</code>.`}</p><label class="row"><input type="checkbox" id="fill-geometry"> Measure missing <code>Qto_</code> volumes, areas and lengths from each element's geometry (gross and net volume; wall side, footprint, width, length and height; slab, plate, covering and roof area; slab thickness and perimeter; column, beam and member cross-section and length; a footing's length, width, height, section and surface areas as Tekla measures them; an opening's width, height, depth and area as ARCHICAD or Revit stores them), with <a href="../ifc-quantity-takeoff/">IFC Quantity Takeoff</a>'s engine. Slower on large models. On the HHS Office exports these agree with the stored values in 3,666 of 3,858 cases within 2%, and every difference but two traces to the stored value (a split wall carrying the whole wall's figure, a net volume stored as gross). Wall lengths are measured on the wall's middle line, not its axis curve: 465 of 492 within 2% on five Revit and ARCHICAD exports; a roof-clipped wall's height is written only as its authoring tool's export would store it (ARCHICAD: the highest point; Revit: the extrusion depth), and otherwise left for you. A column's, beam's or member's length is its body's length when its ends are square (3,189 of 3,194 match the stored lengths on five public exports); a cut member's only from ARCHICAD, as its export stores it.</label><label class="row">Material densities for <code>NetWeight</code>/<code>GrossWeight</code> (kg/m&sup3;, optional; one <code>material,density</code> per line, the material named as the model writes it): <textarea id="fill-densities" rows="2" placeholder="STEEL/S235JR,7850"></textarea></label><p class="muted">With the box above ticked, weights are the element's own volume times its material's density: from this list, else the model's material properties, else the density the model's own stored weights imply when they all agree (on three public Tekla exports, 1,152 of 1,152 stored weights are volume times one density per material, but the same steel grade is 8,000 kg/m&sup3; in one office's model and 7,850 in another's, so no standard figure is assumed).</p><div class="row"><button id="fill-go">Download the filled model</button><button class="ghost" id="fill-todo">Download the to-fill table (CSV)</button><label class="ghost">Filled table: <input type="file" id="fill-values" accept=".csv,.tsv,.txt,text/csv"></label></div><pre class="muted" id="fill-status"></pre></div>`;
     $("out").innerHTML = h;
     if ($("as-step-go")) $("as-step-go").onclick = () => {
@@ -508,6 +523,21 @@
         download(name, w.text, "application/octet-stream");
       };
       worker.postMessage({ ifc: state.ifc, asStep: name, req });
+    };
+    if ($("as-ifcxml-go")) $("as-ifcxml-go").onclick = () => {
+      const name = (state.ifcName || "model").replace(/\.(ifczip|zip|ifc)$/i, "") + ".ifcxml";
+      $("as-ifcxml-status").textContent = "Writing...";
+      worker ||= new Worker(new URL("./worker.mjs", import.meta.url), { type: "module" });
+      const req = ++reqNo;
+      worker.onmessage = (ev) => {
+        if (ev.data.req !== req) return;
+        if (ev.data.error) { $("as-ifcxml-status").textContent = "Could not write: " + ev.data.error; record("as_ifcxml_error"); return; }
+        const w = ev.data.ifcxml;
+        $("as-ifcxml-status").textContent = ifcXmlNotes(w).join("\n");
+        record("as_ifcxml_downloaded");
+        download(name, w.text, "application/xml");
+      };
+      worker.postMessage({ ifc: state.ifc, asIfcXml: state.ifcName || name, req });
     };
     if ($("fill")) {
       let values = null;

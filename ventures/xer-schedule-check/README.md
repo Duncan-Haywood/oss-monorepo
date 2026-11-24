@@ -159,6 +159,18 @@ schedule's driving path as well as the paths at either end of the window, since
 progress can move the path mid-window (a deleted link that pulled the finish
 in 2.9 days had been missed) (eval/windows-kinds-check-2026-11-24.md).
 
+**Several kinds of change in one window** (2026-11-24): the same check with
+a progress change and one or two revisions planted together in each window,
+the revisions picked on the path the earlier changes left. 149 of 149 planted
+windows split exactly (84 of them holding two or three changes); 238 of 241
+changes named on their own side, none on the wrong one. Of the 3 not named,
+2 moved nothing; the third is a limit: a duration cut that drove the finish
+only on a path an earlier revision in the same window opened, so it is on
+none of the start, half-step or end paths the drivers are read from (its 0.3
+days still land on the revision side). Also found: planting a "gain" on work
+with an expected finish date, or whose finish an FF predecessor holds, gains
+nothing, and the tool rightly names nothing (eval/windows-mixed-check-2026-11-24.md).
+
 **Written review** (2026-11-19): one document for the contractor, built from
 the assessment and, when loaded, the comparison: a summary (forecast against
 the must-finish date, the half-step split), every correction ranked **high**
@@ -572,6 +584,16 @@ up from 156; 799 rows fixed and 22 made worse. The six real P6 files stay at
 19,908 of 19,935. The rules were fitted on the probes, so this is not a
 held-out score, and no public real file has crews on other hours than their
 activities. What is left: `eval/p6-probes-rd-2026-11-24.md`, "What is left".
+
+**Progress override and links out of work under way (2026-11-24).** Under
+progress override P6 lays a successor of work under way by an SS or SF link
+from the data date itself, the lag not yet spent run on from there, not
+from the predecessor's restart (a data date at Fri 17:00: the successor
+starts Fri 17:00 on its own 24-hour calendar, not Mon 08:00), and the
+started predecessor's free float no longer stops at that successor. The
+engine does the same now: **3,822 of 5,199** probe rows match on all six
+values (92 fixed, 0 made worse), the six real files unchanged
+(`eval/po-ss-data-date-2026-11-24.md`, `po-data-date.test.mjs`).
 
 ## Schedule health trend across updates (2026-11-22)
 
@@ -1786,7 +1808,9 @@ run as a formula in Excel or Sheets.
   activities on their crews' calendars"; `eval/p6-probes-rd-2026-11-24.md`):
   with P6's own import laid over each probe file, **3,730 of 5,199** rows match
   (468 of 936 resource-dependent ones), 799 fixed and 22 made worse, the real
-  files unchanged.
+  files unchanged. With SS and SF successors of work under way laid from the
+  data date under progress override (`eval/po-ss-data-date-2026-11-24.md`):
+  **3,822 of 5,199**, 92 more fixed, none made worse.
 - **Free float against P6** (`eval/free-float-2026-11-19.md`,
   `eval/free-float-expected-2026-11-20.md`): the same files,
   **19,820 of 19,822 (99.99%)** equal P6's stored free float (19,810 before

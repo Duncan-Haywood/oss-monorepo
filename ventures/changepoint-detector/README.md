@@ -39,6 +39,7 @@ row below. Every flag's measurements are in the README section named after it.
 | ...from Stripe or Shopify | `stripe-metrics.mjs` or `shopify-metrics.mjs`, then the watch with `--columns` |
 | ...from Google Search Console (clicks, impressions) | `search-console-metrics.mjs` (API, or the UI's Dates.csv export), then `--columns clicks:poisson,impressions:poisson` |
 | ...from Google Analytics 4 (sessions, users, key events) | `ga4-metrics.mjs` (Data API, or a report's CSV download), then `--columns sessions:poisson,activeUsers:poisson,screenPageViews:poisson,keyEvents:poisson --detector pelt --overdispersion nb --trend gated` |
+| ...and a tag lost from one page template (the blog, the help centre) | `ga4-metrics.mjs --sections 5`, then `dark-sections.mjs ga4.csv --state dark-state.json` (see "A template-shaped tracking loss") |
 | Did the change fall inside a Google update, a release or a price change? | `--events updates.csv` (start[,end],label per line) |
 | ...for a shop that shuts some days | `--period 7`, plus `--closed <dates>` for holidays |
 | ...for a level that wanders all the time | `watch.mjs --detector drift` |
@@ -9807,7 +9808,7 @@ earlier "visitors heard on 40 of 40" results were artefacts of the simulation.
 - **What changed.** `deploy/watch-metric.yml` (and `watch-repo-files.mjs`, rebuilt from it) adds `$MIDDLE` to the
   Plausible and Umami defaults. The watch page and `llms.txt` replace the old "heard on all 40" lines. A repository
   that already sets `WATCH_OPTIONS` keeps its own setting.
-- **Not checked.** The model tracks or drops each page view at random. A real loss is usually by template: the pages
+- **Not checked** (simulated since: README "A template-shaped tracking loss")**.** The model tracks or drops each page view at random. A real loss is usually by template: the pages
   built from that template go dark for everyone. Visitors who only land on those pages then vanish, so visitors fall
   further than here, which makes this the hard case for the column. Growth was not simulated; `--trend gated` is what
   lets a growing site grow (README "The joint growth fit, gated"). PostHog's `users` (people who did any named event) is the
@@ -9857,10 +9858,93 @@ and not page views, so a tag dropped from part of a site could only be heard thr
 - **How it was checked.** `visitor-columns-posthog-ga4.test.mjs` (3 tests: the fall of each column on one simulated
   site, one faulted GA4 site heard by the middle setting and missed by the count default, and the two workflow
   defaults); `ga4-metrics.test.mjs`'s whole-workflow run now expects four watched columns.
-- **Not checked.** Page views are dropped at random, not by template (the hard case for people columns, as above). In
+- **Not checked** (simulated since: README "A template-shaped tracking loss")**.** Page views are dropped at random, not by template (the hard case for people columns, as above). In
   GA4 the tag that sends page views usually sends key events too, so a lost tag on a template with a form would move
   `keyEvents` as well; the sign-up fault here is independent of the tag. No growth was simulated (`--trend gated` is
   the guard for that, README "The joint growth fit, gated"), and no live GA4 property or PostHog project was used.
+
+## A template-shaped tracking loss: a dark-section check ships for GA4 (2026-11-24, two pre-registered rounds; round 1 fails, round 2 passes)
+
+The two sections above dropped page views at random and listed the realistic case as not checked: a tag lost from one
+page template, so every page of that type goes dark for everyone. That happens when a theme update drops the tag from
+the blog layout, when a help centre moves to a hosted tool, or when checkout is served from a payment provider's
+domain. The question was whether the shipped GA4 default hears such a loss, and whether per-section page-view columns
+help.
+
+- **The simulation** (`eval/template-loss.mjs`; outputs `eval/template-loss.out.txt`, about 2 min, and
+  `eval/template-loss-round2.out.txt`, under 1 min). It uses the same people, sessions and page views as
+  `eval/visitor-columns.mjs`, and each page view belongs to a template: home, category, product, blog, help or
+  checkout. Blog is the most-landed template. A session that reaches checkout sends the key event there a quarter of
+  the time. Healthy sites are not flat: about once in 45 days a blog post takes off (blog landings x1.5 to x5 that
+  day, halving for three days after). From 2026-03-16 one template sends nothing, each on its own 40 sites per weekend
+  depth: help (T1, about 8% of page views, no key event), blog (T2, about 21%, the most-landed template) and checkout
+  (T3, about 7%, and its key events go with it).
+- **What falls** (4 weeks either side, weekends at half). With help dark, page views fall to 0.916 and active users to
+  0.963. With blog dark, page views fall to 0.786, sessions to 0.888 and active users to 0.907. With checkout dark,
+  page views fall to 0.932, active users to 0.994 and key events to 0. A random loss of the same page-view share leaves
+  active users at 0.978, 0.943 and 0.991. So the earlier sections' guess holds: people fall further under a template
+  loss than under a random one. They still fall by less than 10%, except when the template is where most visits land.
+
+**Round 1** (rule in the file's header, committed before it ran; seeds 12001-15040). Arm A is the shipped GA4 default:
+sessions, activeUsers, screenPageViews and keyEvents under the middle setting. Arm B is A plus one page-view column for
+each of the five busiest sections, all watched by the same detector.
+
+| arm, weekends | help dark (T1) heard | blog dark (T2) | checkout dark (T3) | false dates, 40 healthy sites |
+|---|---|---|---|---|
+| A, 0.5 | 6 / 40 | 37 / 40 | 40 / 40 (key events) | 158 |
+| A, 0.4 | 0 / 40 | 39 / 40 | 40 / 40 | 62 |
+| B, 0.5 | 10 / 40 | 40 / 40 | 40 / 40 | 322 (views_blog 148) |
+| B, 0.4 | 5 / 40 | 40 / 40 | 40 / 40 | 182 (views_blog 115) |
+
+S1 (B hears T1 on at least 36 of 40) failed, and so did S3 (B adds at most 4 false dates). Verdict: nothing offered.
+Two things were read off the output after it ran. First, the false dates came from viral blog days: a change detector
+watching a section column reports every post that takes off. Second, help never appeared in B's columns at all,
+because the round picked the five busiest sections over the whole series. After a month and a half dark, help had
+fewer views in total than checkout. A deployed `--sections` picks its columns on its first fetch, before a later loss.
+The viral days also explain arm A's many false dates on these sites (158 at weekends 0.5, against 0 and 2 on the flat sites
+of the section above). Those dates mark real traffic swings, not faults, but they are messages all the same.
+
+**Round 2** (pre-registered after round 1's verdict and before its own run, on fresh seeds 16001-19040). Sections are
+picked on the days before the loss. Arm D is A plus `dark-sections.mjs` on those five columns. A section counts as
+dark when its last 3 days average under 10% of its mean over the 28 days before, from a level of at least 20 views a
+day. A rise never trips it. Bars: (D1) D hears T1 on at least 36 of 40 at both depths; (D2) D hears T2 and T3 no less
+often than A, minus 2; (D3) at most 2 dark calls on the 40 healthy sites at each depth; (D4) at most 2 dark calls on
+faulted sites more than 7 days from the loss.
+
+| weekends | help dark: A / D (dark check alone) | blog dark: A / D | checkout dark: A / D | dark calls, healthy sites | dark calls away from the loss |
+|---|---|---|---|---|---|
+| 0.5 | 1 / **40** (40) | 37 / 40 (40) | 40 / 40 (0) | **0** | 0 |
+| 0.4 | 3 / **40** (40) | 36 / 40 (40) | 40 / 40 (0) | **0** | 0 |
+
+All four bars pass. Every dark call starts on the day of the loss and is reported on its third day. Checkout was never
+among the five busiest sections, so the dark check misses T3 (0 of 40), but key events hear it on all 40 sites.
+
+- **What ships.**
+  - `ga4-metrics.mjs --sections N` (1 to 10) adds one `views_<section>` column per section of the site. The section is
+    the first path segment (GA4's `pagePathLevel1`): `views_home` for `/`, `views_blog` for `/blog/...`. Paths that
+    differ only in case or punctuation share a column, and GA4's `(other)` bucket is skipped. It makes two more
+    `runReport` calls: the busiest sections, picked on a window that ends 35 days before the last day fetched (so a
+    first fetch made just after a loss still picks the dark section), and daily views by date and section. A CSV that
+    already has `views_` columns keeps them, so a section that has gone dark keeps its column at zero.
+  - `dark-sections.mjs` reports each dark stretch once, while it is still dark, with state in `dark-state.json`. It
+    takes `--webhook-env` and `--fail-on-alert` like the watch, and stays silent on a CSV with no `views_` columns.
+  - In the self-deploy workflow (`deploy/watch-metric.yml`), the GA4 fetch defaults to `--sections 5` when
+    `GA4_OPTIONS` is unset, and the dark check runs after the daily watch. The section columns are not added to the
+    watch's columns, since round 1 showed that floods it with false dates. The workflow now commits every
+    `*-state.json`.
+- **How it was checked.** `ga4-sections.test.mjs` (8 tests) covers: column names; the two requests against a stand-in
+  for runReport, with paging, case-merged paths and kept columns; a section gone dark staying at zero; the dark rule's
+  edges (two days is not yet three, small sections, rises, weekends at a fifth of weekdays); a simulated help loss
+  called on its day while three healthy sites with viral days are not; the CLI's report-once state and webhook; and the
+  whole self-deploy workflow run twice, which reports `views_help` once, fails the first run (so GitHub emails) and
+  stays quiet on the second.
+- **Not checked.** No live GA4 property was used. The `pagePathLevel1` requests follow the Data API's documented
+  shapes, not a live answer. Real sections can also go dark on purpose: a campaign section after its campaign, or a
+  section moved to a new path. The check reports those too, and its message names the tag as the usual cause, not the
+  only one. Holidays that shut a whole site were not simulated; they move every section together, and a 90% fall for
+  three days is rare outside an outage. Plausible, Umami and PostHog can break page views down by path too, and
+  section columns for them are the next step. The workflow file is now 1 character under the 16,000-character link the
+  watch page builds for no-terminal set-up (`watch-repo.test.mjs`), so the next workflow line needs room made first.
 
 ## Why the likelihood's wander absorbs a step: seat belts and quality control 4 (2026-11-22, pre-registered; M1 and G2 fail, M2 and G1 pass, nothing ships)
 
@@ -10770,3 +10854,58 @@ vintages (median 70); the shipped four-component composite on today's files call
 month moving (e.g. a turn counts as called once a turn of its kind stays within 6 months), judged on these
 vintages; the fourth component's vintages (CMRMTSPLx is in FRED-MD; a copy holding it, or stlouisfed.org); and
 FRED-MD vintages before 1999 do not exist, so earlier turns stay pseudo-real-time.
+
+## A tolerant call rule on real vintages: the jobless recovery, not the window, is what is late (2026-11-24, pre-registered; T1, T3 and T4 pass, T2 fails, nothing ships)
+
+The next item from "Turns on real vintages": its strict call rule (a turn of the kind within 3 months of NBER's
+month at every later cut-off) turned two four-month dating shifts into calls a decade late. This round counts a
+turn as called once a turn of its kind stays within 6 months of NBER's month at every later cut-off (rule T6), on
+the same FRED-MD vintages, three components, cut-offs and shipped monthly composite defaults as that section, with
+today's files as the baseline. So that a wider window cannot pass by catching anything, the six NBER turns shifted
+12 months either way (same kind; 10 targets left after dropping two too near the data's end) were scored as
+placebos under both rules. Rules, bars and the expectation in the header of `eval/turns-vintages-tolerant.mjs`,
+committed before it first ran (commit "pre-register the tolerant call rule round on real vintages"); output
+`eval/turns-vintages-tolerant.out.txt` (1.4 s); test `turns-vintages-tolerant.test.mjs`.
+
+| NBER turn | V strict (delay) | V T6 (delay) | P T6 (delay) | NBER announced |
+|---|---|---|---|---|
+| peak 2001-03 | 156 | **2** (dated 2000-09, at the window's edge) | 7 | 2001-11 |
+| trough 2001-11 | 61 | **61** | 8 | 2003-07 |
+| peak 2007-12 | 8 | 8 | 7 | 2008-12 |
+| trough 2009-06 | 132 | **7** | 8 | 2010-09 |
+| peak 2020-02 | 7 | 7 | 7 | 2020-06 |
+| trough 2020-04 | 7 | 7 | 7 | 2021-07 |
+
+| bar | result | |
+|---|---|---|
+| T1 arm V calls all six under T6 | 6 | **passes** |
+| T2 V's median at most 2 over P's, no turn more than 6 later | medians 7 and 7, but the 2001-11 trough +53 | **fails** |
+| T3 V before NBER's announcement on at least P's - 1 | 4 against 5 | **passes** |
+| T4 placebos: at most 2 of 10 called under T6, at most 1 more than the strict rule | 1 against 0 | **passes** |
+
+What it shows:
+
+- **The two four-month shifts are a window problem, and a 6-month window fixes them.** The 2009 trough is called
+  7 months after it (strict: 132), before NBER's announcement; the 2001 peak after 2, because the 2001-03 vintages
+  already dated a peak at 2000-09. That is six months early, on the window's edge, and should be read as a lucky
+  early call, not a fast one. A 4-month window (printed, no bar) rescues the trough but not the peak (56).
+- **The 2001 trough is a different thing: on the data as published in 2004 to 2006, the recession did not end in
+  2001.** At 24 cut-offs from 2004-02 to 2006-11 (and six in early 2002, before any trough could yet be dated) the composite
+  showed one contraction from 2000-11 to 2003-04, 17 months after NBER's trough. Payrolls carry about 60% of the
+  weight, and payrolls as published then kept falling into 2003: the jobless recovery. Later benchmark revisions
+  pulled the trough back to 2001-12/2002-01 and left 2002-03 as a separate soft patch. No window under 17 months
+  calls it (9 months: still 61), and MAD weights only shorten it to 45.
+- **The wider window costs one placebo.** The 2002-11 placebo trough is "called" from 2020-06 on, because the
+  soft-patch trough at 2003-04 sits five months from it. The strict rule calls no placebo.
+
+Read it for what it is: six turns, one composite of three series, one vintage archive. T2 failed, so as the header
+said nothing in the CLI or page changes. What a user should take from the two vintage rounds together: a mild
+turn's dated month can move by four to six months as data are revised, and a recession whose recovery is
+jobless can show, on payroll-heavy data as published, as a longer contraction than NBER later dates, for years.
+Next, if this line continues: a composite less heavy in payrolls in real time (MAD weights made payrolls heavier,
+not lighter), or the fourth component's vintages; a second make (a state coincident index).
+
+Also corrected on the page and in `llms.txt` (not part of this round): the trust note said the composite dated
+NBER's 16 turns "with no false turn", true of 6-month phases only; under the 3-month default monthly composites
+have used since "P3 and the heavy-late warning together", it also dates the 2002-03 soft patch. The note now says
+so, as the CLI's already did.

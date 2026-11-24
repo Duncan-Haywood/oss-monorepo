@@ -318,6 +318,42 @@ test("CPM: an SF link into a started successor holds the predecessor by the SF l
   assert.equal(at(schedule(d), d, "X").es, "2025-12-16 08:00");
 });
 
+test("CPM: a zero-lag SF link into a started successor holds the predecessor's start to the successor's finish, not a minute before", () => {
+  // same shape as the SF-lag probes: X (as late as possible) and Y started
+  // Mon 1 Dec, data date Wed 08:00, Y finishes Fri 5 Dec 17:00. With no lag
+  // there is nothing to spend, so X's remaining start may reach Y's finish:
+  // the next working morning, exactly as when a 16 h lag is fully spent
+  const x = project(
+    [task("1", "X", 8, { status_code: "TK_Active", act_start_date: "2025-12-01 08:00", target_drtn_hr_cnt: 24, cstr_type: "CS_ALAP" }),
+      task("2", "Y", 24, { status_code: "TK_Active", act_start_date: "2025-12-01 08:00", target_drtn_hr_cnt: 40 }), task("3", "L", 80)],
+    [link("1", "2", "1", "PR_SF", 0)],
+    { last_recalc_date: "2025-12-03 08:00" },
+  );
+  const r = at(schedule(x), x, "X");
+  assert.equal(r.es, "2025-12-08 08:00");
+  assert.equal(r.ef, "2025-12-08 17:00");
+  // and its late dates run to the project's end, where Y's late finish is
+  assert.equal(r.ls, "2025-12-16 08:00");
+  assert.equal(r.ff, 0);
+});
+
+test("CPM: out of sequence, an FS link into a started successor bounds the unstarted predecessor's finish, not its start", () => {
+  // S started Mon 1 Dec ahead of its FS predecessor P (retained logic); data
+  // date Wed 3 Dec 08:00. L (80 h) runs the project to Tue 16 Dec. S's
+  // remaining 16 h may start as late as Mon 15 Dec 08:00, so P (8 h) must
+  // finish by then: late finish Fri 12 Dec 17:00, late start Fri 08:00.
+  const x = project(
+    [task("1", "P", 8),
+      task("2", "S", 16, { status_code: "TK_Active", act_start_date: "2025-12-01 08:00", target_drtn_hr_cnt: 32 }), task("3", "L", 80)],
+    [link("1", "2", "1")],
+    { last_recalc_date: "2025-12-03 08:00" },
+  );
+  const out = schedule(x);
+  assert.equal(at(out, x, "S").ls, "2025-12-15 08:00");
+  assert.equal(at(out, x, "P").lf, "2025-12-12 17:00");
+  assert.equal(at(out, x, "P").ls, "2025-12-12 08:00");
+});
+
 test("CPM: as late as possible takes up free float; loops are found and reported", () => {
   const x = project(
     [task("1", "A", 8), task("2", "B", 8, { cstr_type: "CS_ALAP" }), task("3", "C", 24), task("4", "End", 0, { task_type: "TT_FinMile" })],
