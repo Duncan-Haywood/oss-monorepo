@@ -947,6 +947,14 @@ D1 = 0.1 N, the schedule built as if the drift were linear fails the 100-sheet w
 against a 116 s sheet, and one step past it the failure is 11.0%. Starting the G1's bands at the bottom of the grip range
 cuts the count to 24 (75.8%, against 57.1% under linear drift), from 12.8% to 3.10% of the cycle at 15 s a re-zero.
 Holding every nail at the best pose would pay at 0.313 s a move (0.020 s under linear drift).
+Allocating the risk press by press does not get past the G1's cliff (milestone 74, offline). The fewest re-zeros under
+a total risk budget split into segments is an exact layered dynamic programme, and the wall is periodic, so a press's
+risk depends only on its place in the sheet and its time since the last re-zero. Bounding each segment's failure below by
+its largest marginal gives a lower bound on any schedule with 1% wall risk: 96 re-zeros on the G1's LAYOUT plan at
+D1 = 0.1 N, which the Monte Carlo-calibrated allocation reaches (against 99 at a uniform level). Against a calibrated
+uniform level the allocation saves at most 149 to 136, and it sits within 10% of the bound on every row with 10 or more
+re-zeros (median 1.3%). On the G1's banded plan it needs 23 (2.97% of the cycle). The pose plan, not the allocation,
+sets the count.
 
 ### 5.12 What the remedies cost (milestone 13)
 

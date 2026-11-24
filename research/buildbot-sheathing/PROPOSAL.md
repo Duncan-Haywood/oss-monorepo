@@ -605,6 +605,13 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    the H1 (0.56 times) but not the G1, whose weak pose's deadline sits at the sheet period (H291 refuted). The G1's band
    offset now cuts re-zeros 76% (H292 held), and the best pose pays at 0.31 s a move (H294 held). Next: risk allocated
    per pose; a warm-up transient; a logged drift trace.
+74. **Risk allocated per press** (done 2026-11-24, `experiments/m74_allocate/`, offline): an exact dynamic programme
+   gives the fewest re-zeros for a per-press risk budget and a lower bound on any schedule with 1% wall risk. On the
+   G1's LAYOUT plan at 0.1 N the bound is 96 and the calibrated allocation reaches it (99 under milestone 73): the cliff
+   is the wall's (H295 held). Allocation beats the union bound's uniform level (H296 held) but saves only 0 to 9% over a
+   calibrated one (H297 refuted), and lands within 10% of the bound wherever it needs 10 or more (H298 held). The G1's
+   banded plan costs 2.97% of the cycle (H299 held). Next: a warm-up transient; a logged drift trace; pose plan and
+   schedule chosen together.
 
 ## Target venue
 

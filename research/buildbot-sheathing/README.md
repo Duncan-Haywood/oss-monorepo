@@ -958,6 +958,19 @@ building a schedule. Drift swept; isotropic Brownian walk; statics.
 
 ![Re-zeros per 100 sheets under a random-walk bias: linear schedule against a 1% wall-risk schedule, G1 and H1](experiments/m73_randomwalk/figure.png)
 
+**Milestone 74: can allocating re-zero risk press by press get the G1 past its cliff?** No, and nothing can. Offline,
+on milestone 73's wall and drift models, an exact dynamic programme finds the fewest re-zeros for a per-press risk
+budget, and the same programme on each segment's largest marginal gives **a lower bound on any schedule with 1% wall
+risk**. On the G1's LAYOUT plan at D1 = 0.1 N that bound is **96 re-zeros per 100 sheets** (H295 held), and the
+simulation-calibrated allocation reaches it (96, against milestone 73's 99): the cliff is the wall's. Against the union
+bound's uniform level the allocation cuts re-zeros on 17 of 18 rows (H296 held), but against a calibrated uniform level it
+saves 0 to 9% and wins on only 9 of 20 rows (H297 refuted). On every row with 10 or more re-zeros it is **within 10% of
+the lower bound** (median 1.3%, H298 held), so the risk allocation is close to solved. The G1's banded plan now costs
+2.97% of the cycle (23 re-zeros, H299 held). The lever left is the pose plan's weakest allowance. Drift swept; isotropic
+Brownian walk; statics.
+
+![Re-zeros per 100 sheets at 1% wall risk: uniform level, per-press allocation and the lower bound, G1 and H1](experiments/m74_allocate/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
