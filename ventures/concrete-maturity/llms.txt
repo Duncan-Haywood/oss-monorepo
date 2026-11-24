@@ -14,6 +14,7 @@ Free and open source (MIT). Results are estimates, not engineering advice; confi
 - Logger CSV: a date/time or elapsed-time column and one column per sensor (°C or °F). Elapsed headers may name hours, minutes, seconds or days (`Elapsed (min)`, `elapsed_min`, `Age (days)`); impossible timestamps such as 30 February are rejected, not rolled over.
 - Lab breaks: one specimen per line, "age_days, strength" (moist-cured at a stated temperature) or "maturity, strength".
 - Target strength; optional assumed future temperature.
+- Mix calibration (optional): mortar cubes at three or more curing temperatures, one per line "temperature, age_hours, strength", plus "set, temperature, hours" lines for final setting time. Returns each temperature's rate constant k, the mix's datum temperature (k against T) and activation energy (ln k against 1/T), and how tightly all cubes fall on one strength-maturity curve under the default, fitted and best-single-curve values. CLI: `node cli.mjs --calibrate cubes.txt`.
 
 ## Source
 

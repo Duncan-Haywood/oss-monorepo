@@ -6,12 +6,19 @@
 //                [--model auto|logarithmic|hyperbolic|exponential]
 //                [--unit auto|C|F] [--future 10] [--index] [--json] [--csv out.csv]
 //
+//   node cli.mjs --calibrate cubes.txt [--rate hyperbolic|reciprocal] [--days] [--fahrenheit] [--json]
+//
+// cubes.txt (mix calibration, ASTM C1074 annex procedure) holds one mortar
+// cube per line, "temperature, age_hours, strength", and "set, temperature,
+// hours" lines for final setting time.
+//
 // breaks.txt holds one specimen per line: "age_days, strength" (cured at --lab
 // deg C), or "maturity, strength" with --index. Not engineering advice: check
 // every estimate against field-cured specimens or other in-place tests.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { parseLoggerCsv, parseCalibrationText, calibrationPoints, fitStrength, estimate, indexUnit, toCsv, exampleCsv, EXAMPLE_CALIBRATION } from './maturity.mjs';
 import { pathToFileURL } from 'node:url';
+import { parseCubeText, calibrateMix, collapseFit, collapseReport } from './calibrate.mjs';
 
 export function parseArgs(argv) {
   const a = { file: null, cal: null, target: null, method: 'nurse-saul', model: 'auto', unit: 'auto', json: false, index: false, csv: null, example: false };
@@ -20,6 +27,10 @@ export function parseArgs(argv) {
     const k = argv[i];
     if (k in num) a[num[k]] = Number(argv[++i]);
     else if (k === '--cal') a.cal = argv[++i];
+    else if (k === '--calibrate') a.calibrate = argv[++i];
+    else if (k === '--rate') a.rate = argv[++i];
+    else if (k === '--days') a.days = true;
+    else if (k === '--fahrenheit') a.fahrenheit = true;
     else if (k === '--method') a.method = argv[++i];
     else if (k === '--model') a.model = argv[++i];
     else if (k === '--unit') a.unit = argv[++i];
@@ -45,6 +56,27 @@ export function run(a, read = p => readFileSync(p, 'utf8')) {
   return { opts, logger, cal, fit, result };
 }
 
+export function runCalibrate(a, read = p => readFileSync(p, 'utf8')) {
+  const p = parseCubeText(read(a.calibrate), { tempUnit: a.fahrenheit ? 'F' : 'C', ageUnit: a.days ? 'd' : 'h' });
+  if (p.errors.length) return { error: p.errors.join(' ') };
+  if (!p.cubes.length) return { error: 'No cubes read.' };
+  const cal = calibrateMix(p.cubes, p.setting, { rateMethod: a.rate || 'hyperbolic' });
+  const best = { datum: collapseFit(p.cubes, 'nurse-saul'), energy: collapseFit(p.cubes, 'equivalent-age') };
+  return { cal, best, collapse: collapseReport(p.cubes, cal, best) };
+}
+
+export function reportCalibrate(r) {
+  const L = [];
+  for (const k of r.cal.rates) L.push(k.ok ? `${k.tempC.toFixed(1)} °C: k ${k.k.toPrecision(3)} /h, t0 ${k.t0.toFixed(1)} h (${k.t0Source}), Su ${k.su.toFixed(0)}, RMSE ${k.rmse.toFixed(0)} (${k.cubes} cubes)` : `${k.tempC.toFixed(1)} °C: ${k.reason}`);
+  if (r.cal.datum) L.push(`Datum temperature: ${r.cal.datum.datumC.toFixed(1)} °C (R² ${r.cal.datum.r2.toFixed(3)})`);
+  if (r.cal.activation) L.push(`Activation energy: ${r.cal.activation.activationEnergy.toFixed(0)} J/mol (R² ${r.cal.activation.r2.toFixed(3)})`);
+  L.push('Scatter of all cubes about one curve:');
+  for (const c of r.collapse) L.push(`  ${c.label}: ${Number.isFinite(c.rmse) ? c.rmse.toFixed(0) : 'no fit'}`);
+  for (const w of r.cal.warnings) L.push(`! ${w}`);
+  L.push('Regression on the cubes given, not engineering advice.');
+  return L.join('\n');
+}
+
 export function report(r, strengthUnit = 'psi') {
   const u = indexUnit(r.opts);
   const lines = [];
@@ -65,6 +97,12 @@ export function report(r, strengthUnit = 'psi') {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const a = parseArgs(process.argv.slice(2));
+  if (a.calibrate) {
+    const r = runCalibrate(a);
+    if (r.error) { console.error(r.error); process.exit(1); }
+    console.log(a.json ? JSON.stringify(r, null, 2) : reportCalibrate(r));
+    process.exit(0);
+  }
   if (a.help || (!a.example && (!a.file || !a.cal))) {
     console.log('usage: node cli.mjs logger.csv --cal breaks.txt [--target 3000] [--method nurse-saul|equivalent-age] [--json] [--csv out.csv]\n       node cli.mjs --example --target 3000');
     process.exit(a.help ? 0 : 2);
