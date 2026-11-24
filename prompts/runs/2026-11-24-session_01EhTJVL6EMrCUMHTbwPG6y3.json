@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVL6EMrCUMHTbwPG6y3",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell products; merge when done)",
+  "input_sha256": "6778381d4702e8428cd9c7f4e6c8cb6a2317e6b5fb92d7bf091e2776ad526bac",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T20:11:40Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/llm-coding-inference milestone 7bg: pre-registered test of an exact interval for audits with 3 or 4 positives just above the rare-count trigger",
+  "projects": [
+    "llm-coding-inference"
+  ],
+  "pr": 18651,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "CHAIN note suggested a paper step over another knob; I chose 7bf's named next step because it tested a defect the paper already states, and its outcome changes the paper's text (Section 5)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-rare-category-audit-misses-on-the-high-tail.md"
+  ],
+  "goal": "advance the drawn programme (pick_track draw 0.944) by one pre-registered step",
+  "notes": "Pre-registration commit b2724cd5e before any draw; 54 cells x 2000 draws, then the planned by-count diagnostic (replay check passed). Decision rule (d): w3c5 fails P2 (admiration 2% n 200 92.5%), default stays RARE_FALLBACK=3. Diagnostic: the 3- and 4-positive draws already cover 99.9/99.7%, so the misses are in draws with x>=7 and x=0. Mid-p band covers the same at 1/8 of CP's cost. Checks run locally: test_llmci.py 50 passed (/usr/bin/python3.13), research/_homepage/build.py ok, check_posts ok, check_md_links ok, research_live_links 0 missing.",
+  "corrections": [],
+  "redteam": null
+}
