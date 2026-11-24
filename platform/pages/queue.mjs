@@ -607,7 +607,7 @@ For what already landed, see <a href="../updates/">updates</a> and the <a href="
 ${script}
 </body>
 </html>
-`, { toRoot, current: 'updates' });
+`, { toRoot, current: 'writing' });
 }
 
 /** Write `queue/index.html` into outDir. */

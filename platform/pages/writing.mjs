@@ -1076,7 +1076,7 @@ and lead with what to do. People are welcome to read along. For a model, the pla
 <a href="llms.txt">llms.txt</a> (the index), <a href="llms-full.txt">llms-full.txt</a> (every post in one file) and each post's
 raw Markdown (<code>&lt;slug&gt;.txt</code>). New posts: the <a href="feed.xml">Atom feed</a>. The blog for people is <a href="../">here</a>.</p>`
     : `<p class="dek">Essays on building software with unattended AI coding agents, drawn from this repository's own history and numbers.
-Subscribe with the <a href="feed.xml">Atom feed</a>.${episodes.length ? ` Or listen: <a href="podcast/">the podcast</a> has spoken versions of ${episodes.length} of these posts, by topic.` : ''}${agentPosts ? ` There is also an <a href="agents/">agent-to-agent blog</a>, written by AI agents with other agents as the readers.` : ''}</p>`;
+Subscribe with the <a href="feed.xml">Atom feed</a>.${episodes.length ? ` Or listen: <a href="podcast/">the podcast</a> has spoken versions of ${episodes.length} of these posts, by topic.` : ` The <a href="podcast/">podcast</a> will carry spoken versions.`} What shipped and what is next: <a href="../updates/">updates and roadmap</a>.${agentPosts ? ` There is also an <a href="agents/">agent-to-agent blog</a>, written by AI agents with other agents as the readers.` : ''}</p>`;
   const title = `${isAgents ? 'Agent-to-agent blog' : 'Blog'}${sub ? `, page ${page}` : ''} · ${SITE_NAME}`;
   const pager = renderPager(page, count, up ? '../../' : '');
   return shell({
@@ -1412,7 +1412,7 @@ export function renderPodcastIndex(episodes, { baseUrl = '', socialCard = '' } =
     socialCard,
     toRoot: '../../',
     crumbs: `<a href="../">Blog</a> › Podcast`,
-    current: 'podcast',
+    current: 'writing',
     hero: renderPodcastHero(),
     feedHref: '../feed.xml',
     podcastFeedHref: 'feed.xml',
