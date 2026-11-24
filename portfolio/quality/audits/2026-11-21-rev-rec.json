@@ -253,59 +253,78 @@
  "prior_defects": [
   {
    "index": 0,
-   "what": "credit note booked as one day of negative revenue",
+   "severity": "high",
+   "basis": "marked",
    "status": "closed",
+   "what": "credit note booked as one day of negative revenue",
    "evidence": "linked refund case recomputes to Feb 46.03, nothing after; an unlinked credit note keeps the old behaviour and is disclosed on the page and README"
   },
   {
    "index": 1,
-   "what": "incremental sync misses late-paid invoices",
+   "severity": "high",
+   "basis": "marked",
    "status": "closed",
+   "what": "incremental sync misses late-paid invoices",
    "evidence": "daily full re-read; 30-day simulation picks up the Oct 25 payment; mutant disabling the full pass is caught"
   },
   {
    "index": 2,
-   "what": "one extra day for periods with a time of day",
+   "severity": "medium",
+   "basis": "marked",
    "status": "closed",
+   "what": "one extra day for periods with a time of day",
    "evidence": "Jan 15 14:00 - Feb 15 14:00 spreads 17/14 over 31 days"
   },
   {
    "index": 3,
-   "what": "no SSP allocation, setup fees on their date",
+   "severity": "medium",
+   "basis": "open",
    "status": "open",
+   "what": "no SSP allocation, setup fees on their date",
    "evidence": "unchanged; now disclosed in README Known gaps and llms.txt"
   },
   {
    "index": 4,
-   "what": "no period lock; AR never clears",
+   "severity": "medium",
+   "basis": "marked",
    "status": "partial",
+   "what": "no period lock; AR never clears",
    "evidence": "CLOSED_THROUGH lock recomputed correct; billing debits Stripe balance; voids of closed-month invoices still rewrite them (disclosed)"
   },
   {
    "index": 5,
-   "what": "newer tax shape not read",
+   "severity": "medium",
+   "basis": "marked",
    "status": "closed",
+   "what": "newer tax shape not read",
    "evidence": "taxes[].tax_behavior inclusive nets correctly; no Stripe-Version pin remains, disclosed"
   },
   {
    "index": 6,
-   "what": "zero-decimal currencies off by 100x",
+   "severity": "medium",
+   "basis": "marked",
    "status": "closed",
+   "what": "zero-decimal currencies off by 100x",
    "evidence": "JPY 120000 -> ¥120,000, journal 120000; mutant caught"
   },
   {
    "index": 7,
-   "what": "tests miss day count, remainder sort, sync window",
+   "severity": "medium",
+   "basis": "marked",
    "status": "closed",
+   "what": "tests miss day count, remainder sort, sync window",
    "evidence": "remainder-sort and sync-window mutants now caught; the day-count line changed to round and its ceil mutant survives only for part-day periods (new low defect)"
   },
   {
    "index": 8,
-   "what": "blank amount becomes a 0 line",
+   "severity": "low",
+   "basis": "marked",
    "status": "closed",
+   "what": "blank amount becomes a 0 line",
    "evidence": "csv.mjs:74 skips with 'amount is blank'"
   }
  ],
+ "prior_defects_note": "basis and arrival status backfilled 2026-11-24 by reflection 3 from the prior audit's git history (fixed_by marks present before this re-audit) and this file's own findings",
  "fix_prs": [
   "https://github.com/Duncan-Haywood/oss-monorepo/pull/18064"
  ],

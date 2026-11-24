@@ -328,6 +328,98 @@
    "closed_by": null
   }
  ],
+ "prior_audit": "portfolio/quality/audits/2026-11-15-eu-battery-regulation-checker.json",
+ "prior_defects": [
+  {
+   "index": 0,
+   "severity": "high",
+   "basis": "marked",
+   "status": "closed",
+   "what": "QR duty limited to non-portable batteries (high)",
+   "evidence": "closed: qr has categories ALL, test asserts the portable QR row, mutant caught",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16236"
+  },
+  {
+   "index": 1,
+   "severity": "high",
+   "basis": "marked",
+   "status": "closed",
+   "what": "EU fulfilment provider with no EU operator told 'every duty is marked done' (high)",
+   "evidence": "closed: fallback status adds the 2019/1020 Art 4 operator row and a high finding; 'all done' needs at least one row (guard unpinned, filed low)",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16276"
+  },
+  {
+   "index": 2,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "Due diligence scoped by SME status, not Art 47 EUR 40m (medium)",
+   "evidence": "closed: under40m input, unsure keeps the duty, mutant caught",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16276"
+  },
+  {
+   "index": 3,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "Nuclear-safety batteries wholly out of scope (medium)",
+   "evidence": "closed: nuclear input drops only Chapter III and VIII rows; page option no longer says nuclear",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16276"
+  },
+  {
+   "index": 4,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "EPR never shown to distributors (medium)",
+   "evidence": "closed: epr-first row for distributors",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16276"
+  },
+  {
+   "index": 5,
+   "severity": "medium",
+   "basis": "marked",
+   "status": "closed",
+   "what": "Core dates and category sets untested; 3 of 6 mutants survived (medium)",
+   "evidence": "closed: the same three mutants are now caught; 8 of 9 caught this round",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16276"
+  },
+  {
+   "index": 6,
+   "severity": "low",
+   "basis": "marked",
+   "status": "closed",
+   "what": "Collection symbol folded into the 2026 label row (low)",
+   "evidence": "closed: separate collection row from 2025-08-18; label row states the implementing-act condition",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16276"
+  },
+  {
+   "index": 7,
+   "severity": "low",
+   "basis": "open",
+   "status": "open",
+   "what": "Category labels depart from Art 3; no weight or capacity input (low)",
+   "evidence": "open: labels unchanged (re-filed medium); the missing input re-filed low"
+  },
+  {
+   "index": 8,
+   "severity": "low",
+   "basis": "marked",
+   "status": "closed",
+   "what": "Wrong article references (Chapter VI, implementing act only, lead date) (low)",
+   "evidence": "closed: conformity cites Chapter IV, carbon waits on 'delegated or implementing acts', the lead date is given as 18 Aug 2024 in the substances row",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16276"
+  },
+  {
+   "index": 9,
+   "severity": "low",
+   "basis": "open",
+   "status": "open",
+   "what": "Arts 10, 11(7), 12, 14 and LMT recycled content not modelled (low)",
+   "evidence": "open: unchanged, listed in Known gaps (re-filed low)"
+  }
+ ],
+ "prior_defects_note": "basis and arrival status backfilled 2026-11-24 by reflection 3 from the prior audit's git history (fixed_by marks present before this re-audit) and this file's own findings",
  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18089"],
  "verdict": "Re-audit after PRs #16236 and #16276. Eight of the ten defects filed on 2026-11-15 are closed in the code as it is now, including both highs: a power bank now gets its 18 Feb 2027 QR code, an EU fulfilment house with no EU operator is told it is the responsible operator instead of 'all done', due diligence follows the EUR 40m turnover test, nuclear-safety batteries lose only the Chapter III and VIII duties, and distributors see producer registration. 12 recomputed outputs pass; 39/39 tests pass; 8 of 9 seeded mutants are caught, including the three that survived last time. Open: the portable category label narrows Art 3(9) to consumer use (medium: a professional-tool pack loses its removability row), no weight or capacity input, Arts 10, 12, 14 and 11(7) not modelled, an out-of-EU 'importer' accepted silently, and the 'all done' guard unpinned by a test. Scores: correctness 3, completeness 3, verification 3, craft 3, claims 3, fitness 2, domain 3. Meets the bar and finished; fitness stays at 2 until the classification inputs and the Art 12/14 duties exist. The Regulation could not be re-fetched this session, so the checks rest on the OJ wording quoted in the earlier audit."
 }

@@ -279,7 +279,37 @@ def validate_audit(a: dict) -> list[str]:
         errs.append(f"{name}: fix_prs must be a list")
     if a.get("drawn_by", "sample") not in DRAWN_BY:
         errs.append(f"{name}: drawn_by must be one of {DRAWN_BY}")
+    errs += validate_reaudit(a, name)
     errs += validate_detail(a, name)
+    return errs
+
+
+def validate_reaudit(a: dict, name: str) -> list[str]:
+    """A re-audit says, for every defect of the audit it re-checks, how that audit counted it (`basis`) and what the
+    re-auditor found on arrival (`status`). Three of the first nine re-audits (2026-11-21) wrote this only in prose,
+    under three different keys, so the error rate of the blanket "fixed" reading had to be tallied by hand
+    (reflection 3, 2026-11-24). `quality_metrics.reaudit_outcomes` counts these rows."""
+    if a.get("drawn_by") != "reaudit" or a.get("status") != "audited":
+        return []
+    import quality_metrics as qm
+    errs = []
+    pa = a.get("prior_audit")
+    if not (isinstance(pa, str) and pa.startswith("portfolio/quality/audits/") and pa.endswith(".json")):
+        errs.append(f"{name}: a re-audit names the audit it re-checks ('prior_audit': portfolio/quality/audits/<file>.json)")
+    rows = a.get("prior_defects")
+    if not isinstance(rows, list) or not rows:
+        errs.append(f"{name}: a re-audit lists every earlier defect in 'prior_defects' "
+                    f"({{index, severity, basis, status, what}})")
+        return errs
+    for i, r in enumerate(rows):
+        if not isinstance(r.get("index"), int) or isinstance(r.get("index"), bool):
+            errs.append(f"{name}: prior_defects[{i}].index must be the defect's index in the prior audit")
+        if r.get("basis") not in qm.REAUDIT_BASES:
+            errs.append(f"{name}: prior_defects[{i}].basis must be one of {qm.REAUDIT_BASES} "
+                        "(how the prior audit counted it before this re-audit: its own fixed_by, the blanket fix_prs reading, or open)")
+        if r.get("status") not in qm.REAUDIT_STATUSES:
+            errs.append(f"{name}: prior_defects[{i}].status must be one of {qm.REAUDIT_STATUSES} "
+                        "(its state when you arrived; a fix your own PR makes goes in closed_by)")
     return errs
 
 

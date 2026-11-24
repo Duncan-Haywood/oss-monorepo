@@ -205,6 +205,45 @@
    "origin": "spec"
   }
  ],
+ "prior_audit": "portfolio/quality/audits/2026-11-15-sudoers-check.json",
+ "prior_defects": [
+  {
+   "index": 0,
+   "severity": "high",
+   "basis": "marked",
+   "status": "closed",
+   "what": "Runas lists are read as 'any !root excludes root', but sudo takes the last matching item: 'nobody ALL = (!root, ALL) NOP"
+  },
+  {
+   "index": 1,
+   "severity": "medium",
+   "basis": "open",
+   "status": "open",
+   "what": "CLI on a directory that is not named etc (a repo copy, the stated config-management/CI use) does not map '@includedir /e"
+  },
+  {
+   "index": 2,
+   "severity": "medium",
+   "basis": "open",
+   "status": "open",
+   "what": "Defaults>runas and Defaults!cmnd scoped !authenticate are ignored when deciding whether a rule needs a password, so the "
+  },
+  {
+   "index": 3,
+   "severity": "low",
+   "basis": "marked",
+   "status": "open",
+   "what": "No test covers runas-list order or the runas-root guard in the nopasswd-overridden loop: deleting it leaves all 98 tests"
+  },
+  {
+   "index": 4,
+   "severity": "low",
+   "basis": "marked",
+   "status": "closed",
+   "what": "parity-gen principal() checks 'groupid' but cvtsudoers emits 'usergid' for %#gid users, so such a user would print as ra"
+  }
+ ],
+ "prior_defects_note": "basis and arrival status backfilled 2026-11-24 by reflection 3 from the prior audit's git history (fixed_by marks present before this re-audit) and this file's own findings",
  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18023"],
  "verdict": "Re-audit of the 2026-11-15 census after fix PR #16361. Of its five defects, that PR closed two: the high (a runas list with !root before ALL is now read last-match, verified against real sudo: id -u 0, tool high nopasswd-all) and the parity-gen usergid mapping. It did not close the other three, although one of them (the untested runas-root guard) was marked fixed_by it: that mutant still survives on main. The two mediums had only been written into README Known gaps. This round also found sudo applies global, user and runas authenticate Defaults in file order and command Defaults last (11 cases tested live), which main got wrong in one more direction (a global !authenticate hid a later per-user authenticate). Scores are as found on main: still at the bar, with the root-path list right for every unscoped case. The fix PR for this re-audit closes five of the six listed defects with tests built from the live sudo results; the glob/directory Defaults!cmnd binding stays open."
 }

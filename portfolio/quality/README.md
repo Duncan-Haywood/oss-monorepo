@@ -30,7 +30,9 @@ quality reviews. detailed metrics on quality and correctness."
 A quality session runs one of five modes. `python3
 platform/ci/quality_audit.py mode` picks it: `reflect` whenever no reflection
 has been written for seven days, otherwise a draw seeded by the date (sample
-35%, census 20%, fix 25%, reaudit 10%, reflect 10%; `fix` doubles while
+30%, census 15%, fix 25%, reaudit 20%, reflect 10% from 2026-11-24, when
+[reflection 3](reflections/2026-11-24-the-blanket-rule-is-mostly-wrong.md)
+doubled `reaudit`; `fix` doubles while
 high-severity defects are open, and `reaudit` drops out when no fix awaits a
 re-check). Software decides the routine; the session's time goes to
 the audit.
@@ -40,7 +42,7 @@ the audit.
 | `sample` | the stratified random round below: the unbiased share meeting the bar | `sample` |
 | `census` | the full-repository sweep: never-audited subjects first, so every venture, research project and platform directory gets a first audit | `census --n 6` |
 | `fix` | work the open-defect queue: fix, add the test that would have caught it, record the PR in the audit's `fix_prs`; a later round re-audits the subject in a new file. `queue` flags rows whose subject has commits since the audit: check those first, since a fix may have landed unrecorded (PR #14329 did). It also marks rows an open PR's title already names ("open PR naming it"): a fix PR reaches `fix_prs` only at merge, so take another row or extend that PR. Subjects come in a per-session shuffled order (seed printed; `--oldest-first` for the fixed one), so parallel fix sessions start on different rows | `queue --severity high` |
-| `reaudit` | confirm recorded fixes: take a subject whose latest audit lists a fix PR and that no later audit has checked (fixed highs first), re-check *every* earlier defect against the code as it is now, and write a new audit file with `"drawn_by": "reaudit"` that says which defects the fix closed. Added 2026-11-17: no subject had been re-audited after a fix since 2026-11-10, 248 awaited one, and 1,313 defects counted as fixed only because their audit listed some fix PR ([reflection 2](reflections/2026-11-17-the-fix-loop-is-open.md)) | `reaudit` |
+| `reaudit` | confirm recorded fixes: take a subject whose latest audit lists a fix PR and that no later audit has checked (fixed highs first), re-check *every* earlier defect against the code as it is now, and write a new audit file with `"drawn_by": "reaudit"` that says which defects the fix closed, as `prior_audit` (the file re-checked) and one `prior_defects` row per earlier defect: `{index, severity, basis, status, what}`, where `basis` is how that audit counted it before you arrived (`marked` by its own `fixed_by`, `assumed` by the blanket `fix_prs` reading, or `open`) and `status` is what you found on arrival (`closed`, `partial`, `open`; a fix your own PR makes goes in `closed_by`). `validate` requires them from 2026-11-24 and `metrics` tallies them ([reflection 3](reflections/2026-11-24-the-blanket-rule-is-mostly-wrong.md)). Added 2026-11-17: no subject had been re-audited after a fix since 2026-11-10, 248 awaited one, and 1,313 defects counted as fixed only because their audit listed some fix PR ([reflection 2](reflections/2026-11-17-the-fix-loop-is-open.md)) | `reaudit` |
 | `reflect` | read the corpus and the process, write `reflections/<date>-<slug>.md`: where quality drops, why, and process fixes with the metric each should move | `metrics --md` |
 
 On another mode's day `sample` prints that mode's command and post name
