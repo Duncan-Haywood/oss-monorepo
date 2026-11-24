@@ -8,7 +8,7 @@ PDF file, or run the CLI below. The page never uploads the invoice.
 
 **Live tool:** https://marisstella.app/einvoice-preflight/
 
-**This is the free edition** (frozen as `einvoice-preflight-free-v1`, 2026-11-24).
+**This is the free edition** (frozen 2026-11-24 at main commit `cf0b6311f`, to be tagged `einvoice-preflight-free-v1`).
 It stays MIT, public and working; from now on it gets lead-magnet maintenance
 only (fixes, rule-page polish), not new depth. A paid edition that fixes and
 explains rejected e-invoices is **in development** in the owner's private

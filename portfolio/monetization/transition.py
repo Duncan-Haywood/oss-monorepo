@@ -107,6 +107,13 @@ MOVED: dict[str, dict[str, str]] = {
     },
 }
 MOVE_STATUSES = ("moving", "moved")
+# Both free editions freeze main at cf0b6311f (2026-11-24). The session that
+# froze them could not push tags (HTTP 403), so the tags are the owner's to
+# create, once:
+#   git tag wall-framing-takeoff-free-v1 cf0b6311f
+#   git tag einvoice-preflight-free-v1 cf0b6311f
+#   git push origin wall-framing-takeoff-free-v1 einvoice-preflight-free-v1
+FREE_EDITION_COMMIT = "cf0b6311f"
 
 SUBSCRIPTION_FILE = re.compile(r"(^|[-_])(server|api|sync|wrangler)([-_.]|$)|^wrangler\.", re.I)
 SUBSCRIPTION_TEXT = re.compile(
