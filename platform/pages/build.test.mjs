@@ -3041,6 +3041,13 @@ test('a click on the sponsor link is counted, under the same rules as every othe
   assert.equal(other.counts()[SPONSOR_CLICK_EVENT], undefined);
   assert.equal(other.counts()['cross_tool_click:roofing-bid-calculator'], 1);
 
+  // The footer's product offer (`product-offer.mjs`) is its own event, so a
+  // click toward a paid product is not read as an ordinary cross-tool click.
+  const offered = chromeCounter();
+  offered.clickOn('[data-pf-offer]');
+  assert.equal(offered.counts()['product_offer_click:roofing-bid-calculator'], 1);
+  assert.equal(offered.counts()['cross_tool_click:roofing-bid-calculator'], undefined);
+
   // A click on neither -- the ordinary case, since most clicks on these pages
   // land on a number field.
   const idle = chromeCounter();
