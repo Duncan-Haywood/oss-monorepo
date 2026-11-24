@@ -25,13 +25,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 8,
   "outcome": "success",
   "errors": [
     "First full build failed: the new post's description was 166 characters (writing.mjs caps it at 160); shortened and rebuilt.",
-    "check.mjs flagged the page's meta description at 239 characters (budget 160); cut to 155 and pinned by a test."
+    "check.mjs flagged the page's meta description at 239 characters (budget 160); cut to 155 and pinned by a test.",
+    "CI 'test' failed on the first head: build.test.mjs pins the exact hub sitemap list and the llms-full.txt bullet count, and both grew by the new page. Updated both, and the two tests pass locally."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -56,7 +57,7 @@
     "docs/posts/2026-11-24-e-invoicing-deadlines-four-countries-official-sources.md"
   ],
   "goal": null,
-  "notes": "After merging main: node build.mjs exit 0; node check.mjs exit 0 ('dist looks publishable: 1437 products, 54 category pages, 13150 pages, no dead links'); node --test industry-e-invoicing.test.mjs custom-development-page.test.mjs 26/26 passed. Follow-up: once business.mjs is on main, move PRODUCT onto it and link the industries/ index.",
+  "notes": "After merging main: node build.mjs exit 0; node check.mjs exit 0 ('dist looks publishable: 1437 products, 54 category pages, 13150 pages, no dead links'); node --test industry-e-invoicing.test.mjs custom-development-page.test.mjs 26/26 passed. Follow-up: once business.mjs is on main, move PRODUCT onto it and link the industries/ index. Full platform/pages suite locally before the fix: 1969/1971, and the 2 failures were the pinned sitemap and llms counts, now updated.",
   "corrections": [],
   "redteam": null
 }
