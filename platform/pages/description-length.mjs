@@ -12,6 +12,7 @@
 //   node platform/pages/description-length.mjs           # report
 //   node platform/pages/description-length.mjs --write   # rewrite the baseline
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { join, relative, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { decode, REPO } from './title-length.mjs';
@@ -39,10 +40,24 @@ function* pages(dir) {
   }
 }
 
+// Git-ignored files under `root` (pages a venture's own tests generate, such as
+// shed-designer's lumber pages): a fresh checkout and CI never have them, so a
+// local run must not count them. Empty when git is unavailable.
+function ignored(root) {
+  try {
+    const out = execFileSync('git', ['ls-files', '--others', '--ignored', '--exclude-standard', '-z', '--', '.'], { cwd: root, encoding: 'utf8', maxBuffer: 1 << 28 });
+    return new Set(out.split('\0').filter(Boolean).map((p) => join(root, p)));
+  } catch {
+    return new Set();
+  }
+}
+
 // { 'ventures/x/page.html': length } for every venture page over MAX.
 export function scan(root = join(REPO, 'ventures'), max = MAX) {
   const out = {};
+  const skip = ignored(root);
   for (const f of pages(root)) {
+    if (skip.has(f)) continue;
     const text = readFileSync(f, 'utf8');
     if (!/<html/i.test(text)) continue;
     const n = descriptionLength(text);
