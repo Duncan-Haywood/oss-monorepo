@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 5,
   "review_findings": null,
   "tests_added": 11,
   "outcome": "success",
@@ -60,7 +60,7 @@
   ],
   "writeups": [],
   "goal": "North star: a paid, cost-plus SMB offer with evidence for which verticals to build first.",
-  "notes": "Checks run here: python3 portfolio/smb/cost_plus.py --check (ok); python3 -m pytest -q portfolio/ledger/test_smb_cost_plus.py (11 passed; kept under portfolio/ledger so the checklist line covers it). Cost basis: Paddle, Cloudflare and model per-token prices are published; every labour and volume line is an assumption, so 100% of each modelled price rests on assumptions until a pilot shop is measured. Findings: support time is ~90% of variable cost under the placeholders; prices must be held at the planned shop count to reach $10k MRP (124-200 shops per wave-1 vertical).",
+  "notes": "Checks run here: python3 portfolio/smb/cost_plus.py --check (ok); python3 -m pytest -q portfolio/ledger/test_smb_cost_plus.py (11 passed; kept under portfolio/ledger so the checklist line covers it). Cost basis: Paddle, Cloudflare and model per-token prices are published; every labour and volume line is an assumption, so 100% of each modelled price rests on assumptions until a pilot shop is measured. Findings: support time is ~90% of variable cost under the placeholders; prices must be held at the planned shop count to reach $10k MRP (124-200 shops per wave-1 vertical). Main was red on five checks when this PR ran CI, all from concurrent merges; fixed here so the PR could land: dead bets.md links in hardware-bets.md (PR #18699, bets.md is in unmerged PR #18675), invalid hypothesis evidence in machine-shop-guides/VENTURE.yaml, its missing launch date and category (PR #18708; placed in trades / trades-paid beside shop-rate), and a build.test.mjs count-line assertion PR #18701 changed the copy for but did not update. Local: run_workflow_locally --for-changes 7/9 workflows passed (agent-cross-review and deploy only run in PR CI); after the fixes node --test platform/pages/{build,launched,front-doors}.test.mjs 372 pass, 0 fail.",
   "corrections": [],
   "redteam": null,
   "build_ok": true
