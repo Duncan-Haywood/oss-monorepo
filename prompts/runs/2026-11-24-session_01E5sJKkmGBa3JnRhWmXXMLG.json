@@ -45,6 +45,10 @@
     {
       "file": "portfolio/monetization/hardware-bets.md",
       "issue": "Linked bets.md, which is not on main (README.md, portfolio/README.md and verticals.py cite it too), so check_md_links.py was red on main and venture-preflight failed on an unrelated file; pointed the two links at the public research post."
+    },
+    {
+      "file": "ventures/machine-shop-guides/VENTURE.yaml",
+      "issue": "Landed on main with hypothesis evidence 'usage', which validate.py rejects (must be customer-contact or in-repo), so validate was red on main; set to customer-contact since both claims need real visitors."
     }
   ],
   "deviations": [
