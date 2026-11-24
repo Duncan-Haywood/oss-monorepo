@@ -40,6 +40,8 @@ import { issRateProblem, issBurdenProblem, lcSubitem } from "./iss-rate.mjs";
 import { cityRateProblem } from "./iss-city-rates.mjs";
 
 export const NFSE_NS = "http://www.sped.fazenda.gov.br/nfse";
+// An xmlns or xmlns:prefix attribute whose value is exactly NFSE_NS.
+const NFSE_NS_DECL = new RegExp(`\\sxmlns(?::[A-Za-z0-9_.-]+)?\\s*=\\s*(["'])${NFSE_NS.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}\\1`);
 export { PACKAGE };
 
 function finding(rule, message, fix, path) {
@@ -48,7 +50,7 @@ function finding(rule, message, fix, path) {
 
 export function looksLikeNfse(text) {
   const head = String(text).slice(0, 4096);
-  return /<(?:[A-Za-z0-9_]+:)?(?:DPS|NFSe)[\s>]/.test(head) && head.includes(NFSE_NS);
+  return /<(?:[A-Za-z0-9_]+:)?(?:DPS|NFSe)[\s>]/.test(head) && NFSE_NS_DECL.test(head);
 }
 
 // ---------- schema layer ----------
@@ -440,7 +442,8 @@ export function checkNfse(text) {
   const findings = [], skipped = [];
   let root;
   // A bare & (not an entity) is not well-formed XML; the reader here would let it pass.
-  const body = String(text).replace(/<!\[CDATA\[[\s\S]*?\]\]>|<!--[\s\S]*?-->/g, "");
+  let body = String(text), prev;
+  do { prev = body; body = body.replace(/<!\[CDATA\[[\s\S]*?\]\]>|<!--[\s\S]*?-->/g, ""); } while (body !== prev);
   const amp = /&(?!(?:amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);)/.exec(body);
   if (amp) {
     const line = body.slice(0, amp.index).split("\n").length;

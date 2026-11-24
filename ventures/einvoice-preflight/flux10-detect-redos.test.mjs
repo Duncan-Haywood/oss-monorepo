@@ -10,8 +10,42 @@ import test from "node:test";
 import { detectSyntax } from "./schematron-core.mjs";
 import { looksLikeFlux10 } from "./flux10.mjs";
 
-// The PR #17149 pattern, kept only as the reference for the comparison below.
-const OLD = /^(?:\uFEFF)?\s*(?:<\?[\s\S]*?\?>\s*|<!--[\s\S]*?-->\s*)*<Report\b[^>]*>\s*(?:<!--[\s\S]*?-->\s*)*<ReportDocument\b/;
+// The PR #17149 pattern, kept only as the reference for the comparison below:
+//   /^(?:\uFEFF)?\s*(?:<\?[\s\S]*?\?>\s*|<!--[\s\S]*?-->\s*)*<Report\b[^>]*>\s*(?:<!--[\s\S]*?-->\s*)*<ReportDocument\b/
+// OLD.test answers whether that pattern matches, by a search over the same grammar that visits each
+// position once instead of backtracking: a PI or comment opens at its opener and may close at ANY later
+// terminator (the lazy body could run past its own terminator), then whitespace is skipped. Every item
+// and the root start with "<", so skipping all whitespace (\s, which includes \uFEFF) loses no match.
+const skipWs = (s, p) => { while (p < s.length && /\s/.test(s[p])) p++; return p; };
+function itemEnds(s, from, kinds) {
+  const seen = new Set([from]);
+  const todo = [from];
+  while (todo.length) {
+    const p = todo.pop();
+    for (const [open, close] of kinds) {
+      if (!s.startsWith(open, p)) continue;
+      for (let q = s.indexOf(close, p + open.length); q !== -1; q = s.indexOf(close, q + 1)) {
+        const e = skipWs(s, q + close.length);
+        if (!seen.has(e)) { seen.add(e); todo.push(e); }
+      }
+    }
+  }
+  return seen;
+}
+const OLD = {
+  test(s) {
+    for (const p of itemEnds(s, skipWs(s, 0), [["<?", "?>"], ["<!--", "-->"]])) {
+      const root = /<Report\b[^>]*>\s*/y;
+      root.lastIndex = p;
+      const m = root.exec(s);
+      if (!m) continue;
+      for (const q of itemEnds(s, p + m[0].length, [["<!--", "-->"]])) {
+        if (s.startsWith("<ReportDocument", q) && !/\w/.test(s[q + 15] ?? "")) return true;
+      }
+    }
+    return false;
+  },
+};
 
 test("flux10 sniffing: 200 leading comments or PIs before another root answer at once", () => {
   for (const item of ["<!-- note -->\n", "<?pi data?>", "<!--a-->", "<?a?>"]) {
