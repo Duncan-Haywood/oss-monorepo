@@ -1,0 +1,21 @@
+# Photo Nutrition Agent
+
+> Self-hosted, open-source (MIT) autonomous nutrition tracking: take a photo with the ordinary iPhone Camera app, and the meal is recognised, estimated, written to Apple Health, and available to ChatGPT or Claude for questions and corrections.
+
+Status: prototype. The server and its MCP tools are tested; the iOS agent is source code that has not yet been built on a device. Nutrition values from photos are visual estimates with ranges, not measurements. Not medical or dietary advice.
+
+## How it works
+- iOS agent: PhotoKit persistent change history finds new photos; Vision classifies them on device; only likely food is uploaded (downscaled, no EXIF/GPS) to your own server. A Shortcuts "Camera is Closed" automation gives near-real-time processing; background tasks catch up.
+- Server (Node 22, no dependencies, SQLite): deduplicates photos, calls a vision model with a strict JSON schema, groups photos into meals, links nutrition labels, versions every correction, and keeps an Apple Health change feed.
+- Apple Health: one sample per nutrient per meal with HKMetadataKeySyncIdentifier/SyncVersion, so a correction replaces the old sample.
+- Chat: MCP over streamable HTTP at /mcp (OAuth 2.1 with PKCE and dynamic client registration) and the same tools as REST with an OpenAPI document at /openapi.json for ChatGPT Custom GPT Actions.
+
+## MCP tools
+get_daily_totals, get_meals, find_meals, get_meal, log_meal, update_meal, delete_meal, restore_meal, reanalyze_meal, get_pending_reviews, resolve_pending_review, get_nutrition_history, get_nutrition_targets, update_nutrition_targets, get_weight_history, get_energy_balance, get_body_composition_history, log_dexa_scan, get_sync_status, get_processing_status
+
+## Docs
+- [README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/photo-nutrition-agent)
+- [Architecture decision](https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/photo-nutrition-agent/docs/adr/0001-architecture.md)
+- [Platform research (iOS, HealthKit, ChatGPT)](https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/photo-nutrition-agent/docs/platform-research.md)
+- [Install](https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/photo-nutrition-agent/docs/install.md)
+- [Limitations](https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/photo-nutrition-agent/docs/limitations.md)

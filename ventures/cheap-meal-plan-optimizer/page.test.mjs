@@ -205,3 +205,9 @@ test("the vegan and budget guides carry the clauses, link both ways, and match t
   const vb = budgetFrontier(vegan, [5])[0].protein;
   assert.ok(vb > 136 && vb < 138, "vegan ceiling quoted as near 137 g");
 });
+
+test('index links one hop to the photo-nutrition-agent sibling', () => {
+  const html = page("index.html");
+  assert.match(html, /href="\.\.\/photo-nutrition-agent\/"/, 'index must link ../photo-nutrition-agent/ so readers reach automatic meal logging in one hop');
+  assert.match(html, /photo nutrition agent/i);
+});
