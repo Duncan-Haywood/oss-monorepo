@@ -81,7 +81,20 @@ const REFERENCE_RE = /(?:href|src)\s*=\s*"([^"]+)"/g;
 // template placeholder as a dead link and failed the Pages build over a page
 // that is correct. The hub check below already strips scripts for this reason;
 // this applies the same rule to the per-page scan.
-const SCRIPT_OR_STYLE_RE = /<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi;
+const SCRIPT_OR_STYLE_RE = /<(script|style)\b[^>]*>[\s\S]*?<\/\1\b[^>]*>/gi;
+// Strip until nothing changes, so a block that only forms once an inner one is
+// removed (`<scr<script></script>ipt>`) is stripped too.
+const stripUntilStable = (text, re) => {
+  let previous;
+  do {
+    previous = text;
+    text = text.replace(re, '');
+  } while (text !== previous);
+  return text;
+};
+const stripScriptsAndStyles = (text) => stripUntilStable(text, SCRIPT_OR_STYLE_RE);
+const SCRIPT_ONLY_RE = /<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi;
+const stripScripts = (text) => stripUntilStable(text, SCRIPT_ONLY_RE);
 // Both quote styles, and `import(...)` as well as `from ...`. Every calculator
 // here loads its `calc.mjs` from an inline module script, and a specifier this
 // pattern misses is a tool that renders its form and then does nothing. These
@@ -179,7 +192,7 @@ export const SNIPPET_MAX = 160;
 
 // Every `<script>` on a page, with its attributes and its inline body. Used to
 // parse-check the bodies; `SCRIPT_OR_STYLE_RE` above strips them instead.
-const SCRIPT_BLOCK_RE = /<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi;
+const SCRIPT_BLOCK_RE = /<script\b([^>]*)>([\s\S]*?)<\/script\b[^>]*>/gi;
 const TYPE_ATTR_RE = /\btype\s*=\s*["']([^"']+)["']/i;
 
 // Script types the browser executes as JavaScript. A bare `<script>` with no
@@ -738,7 +751,7 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
     // offline widget builds hub markup by concatenation, so its source contains
     // the literal `data-tool="' + slug + '"` — scraped raw, that reads as a link
     // to a product called `' + slug + '` and fails the check on a healthy site.
-    const markupOnly = hubHtml.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+    const markupOnly = stripScripts(hubHtml);
     const linked = new Set([...markupOnly.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
     hubCategoryLinks = new Set([...markupOnly.matchAll(/data-category="([^"]+)"/g)].map((m) => m[1]));
     for (const slug of linked) {
@@ -747,7 +760,7 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
     const reachable = new Set(linked);
     for (const id of hubCategoryLinks) {
       const page = await fs.readFile(path.join(site, CATEGORY_DIR, id, 'index.html'), 'utf8').catch(() => '');
-      const markup = page.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+      const markup = stripScripts(page);
       for (const m of markup.matchAll(/data-tool="([^"]+)"/g)) reachable.add(m[1]);
     }
     if (reachable.size > 0) {
@@ -797,7 +810,7 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
       }
       // A category page that lists a tool the build did not publish is a 404
       // handed to the one visitor who was closest to using it.
-      const markup = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+      const markup = stripScripts(html);
       const tools = new Set([...markup.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
       if (tools.size === 0) problems.push(`${relative}: lists no tools`);
       for (const slug of tools) {
@@ -1437,7 +1450,7 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
     // them); IMPORT_RE/DYNAMIC_IMPORT_RE below are what actually matter for a
     // script file, and they already scan the unstripped text on every
     // extension in LINKED_EXTENSIONS.
-    const markupOnly = extension === '.html' ? text.replace(SCRIPT_OR_STYLE_RE, '') : '';
+    const markupOnly = extension === '.html' ? stripScriptsAndStyles(text) : '';
     // Split rather than concatenated, because the reachability walk below may
     // only follow the first kind. A crawler navigates *markup* on a page it
     // rendered; an `import` specifier is a module the browser fetches, not a
