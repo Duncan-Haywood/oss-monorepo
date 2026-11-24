@@ -2,11 +2,13 @@
 
 > Free UK Shared Parental Pay planner for 2026/27: enter both parents' earnings and employment dates, choose how many weeks of maternity pay the mother takes, and compare how splitting the shared weeks changes household pay. Runs in your browser; nothing is uploaded.
 
+Built-in rates cover 2025/26 (from 6 April 2025) and 2026/27; the tool warns when a due date puts any paid week or the qualifying week outside those years.
+
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-shared-parental-pay-planner/)
+- [The tool](https://marisstella.app/uk-shared-parental-pay-planner/)
 
 ## Source
 

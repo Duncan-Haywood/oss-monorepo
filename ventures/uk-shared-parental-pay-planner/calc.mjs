@@ -21,6 +21,7 @@ export const RATES = [
   { from: Date.UTC(2026, 3, 6) / 86400000, standard: 194.32, lel: 129, label: "2026/27" },
 ];
 export const LAST_KNOWN_END = Date.UTC(2027, 3, 6) / 86400000;
+export const FIRST_KNOWN = RATES[0].from;
 export const POOL_WEEKS = 39;
 export const HIGH_WEEKS = 6;
 export const MIN_SMP_WEEKS = 2;
@@ -78,12 +79,13 @@ function price(ctx, partnerWeeks) {
   const { start, motherAwe, partnerAwe, mother, partner, smpWeeks } = ctx;
   const shared = POOL_WEEKS - smpWeeks;
   const motherShared = shared - partnerWeeks;
-  let smpTotal = 0, beyond = false;
+  let smpTotal = 0, beyond = false, before = false;
   const smpRows = [];
   if (mother.eligible) {
     for (let i = 0; i < smpWeeks; i++) {
       const wk = start + 7 * i;
       if (wk >= LAST_KNOWN_END) beyond = true;
+      if (wk < FIRST_KNOWN) before = true;
       const high = i < HIGH_WEEKS;
       const amount = r2(high ? 0.9 * motherAwe : Math.min(rateAt(wk).standard, 0.9 * motherAwe));
       const phase = high ? "Mother: SMP at 90% of earnings" : "Mother: SMP at the lower of the standard rate and 90%";
@@ -99,6 +101,7 @@ function price(ctx, partnerWeeks) {
     for (let i = 0; i < weeks; i++, k++) {
       const wk = start + 7 * (smpWeeks + k);
       if (wk >= LAST_KNOWN_END) beyond = true;
+      if (wk < FIRST_KNOWN) before = true;
       const amount = elig ? r2(Math.min(rateAt(wk).standard, 0.9 * awe)) : 0;
       const phase = `${who}: ShPP at the lower of the standard rate and 90%`;
       const last = sharedRows[sharedRows.length - 1];
@@ -109,7 +112,7 @@ function price(ctx, partnerWeeks) {
   };
   addShared("Partner", partnerWeeks, partnerAwe, partner.eligible);
   addShared("Mother", motherShared, motherAwe, mother.eligible);
-  return { partnerWeeks, motherShared, smpTotal, partnerTotal, motherSharedTotal, total: r2(smpTotal + partnerTotal + motherSharedTotal), rows: [...smpRows, ...sharedRows], beyond };
+  return { partnerWeeks, motherShared, smpTotal, partnerTotal, motherSharedTotal, total: r2(smpTotal + partnerTotal + motherSharedTotal), rows: [...smpRows, ...sharedRows], beyond, before };
 }
 
 export function compute(input) {
@@ -156,6 +159,10 @@ export function compute(input) {
   const best = scenarios.reduce((a, b) => (b.total > a.total ? b : a));
   const current = price(ctx, plan);
 
+  // Weeks or a qualifying week before 6 April 2025 would silently take the
+  // 2025/26 figures (red team 2026-11-24: a September 2024 due date priced
+  // 2024/25 weeks at the later standard rate), so say so.
+  if (current.before || qualifyingWeek + 6 < FIRST_KNOWN) findings.push({ severity: "medium", title: `Dates before 6 April 2025 use the 2025/26 standard rate and lower earnings limit because earlier years are not built in, so pay for those weeks may be overstated and the earnings test may be wrong. Check GOV.UK for the rates that applied.` });
   if (current.beyond) findings.push({ severity: "medium", title: "Weeks from 6 April 2027 use the 2026/27 standard rate because the next uprating was not available. Check GOV.UK." });
   if (best.total > current.total + 0.005) findings.push({ severity: "info", title: `Giving the partner ${best.partnerWeeks} shared weeks instead of ${plan} would raise household statutory pay by ${money(best.total - current.total)}, to ${money(best.total)}.` });
   else findings.push({ severity: "info", title: "Within the weeks you chose, no other split of the shared weeks pays the household more in statutory pay." });
