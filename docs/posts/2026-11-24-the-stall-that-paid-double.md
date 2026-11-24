@@ -1,6 +1,6 @@
 ---
 title: "A new story: the St Petersburg game at a parish fête, and why every row is worth a euro"
-seo_title: "The St Petersburg paradox at a charity stall: expected value with a capped prize"
+seo_title: "The St Petersburg paradox at a charity stall: a capped prize"
 date: 2026-11-24
 tags: [fiction, hearth-and-horizon, st-petersburg-paradox, expected-value, probability, variance]
 description: "A doubling coin stall capped at €128 pays back €8 a go, so charging €5 loses. Same margin, bigger cap: far likelier to lose an afternoon. A story and its sums."
