@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVPzsFszxkQQrxnnnQV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T20:05:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing (flagship 7): load a Lightroom Classic / Photo Mechanic keyword list in the cull page; typed names and synonyms resolve to tree paths",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": 18653,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Item 'Lightroom's import of the tree' reads as buildable but literally needs a Lightroom install; I built the buildable neighbour (Lightroom keyword-list import/export) and left the real-Lightroom check as an open item marked 'needs Lightroom'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here said the second numbered item (the H 25 IT8.7-2 card raw), which needs a raw file no reachable host serves; took item 4 instead.",
+      "did": "Lightroom keyword list in the cull page",
+      "result": "landed with unit + Chromium/ExifTool checks"
+    }
+  ],
+  "writeups": [
+    "ventures/photo-editing/eval/cull-keyword-list-2026-11-24.md",
+    "docs/posts/2026-11-24-photo-editing-lightroom-keyword-list.md"
+  ],
+  "goal": null,
+  "notes": "Checks: node --test site/keywordlist.test.mjs site/iptc.test.mjs: 24 pass. run_venture_tests.py photo-editing: ok, 1626 tests. eval/cull-keyword-list-page.mjs in Chromium on two NEFs, sidecars read by ExifTool 12.76 (installed via apt) with paths, synonyms, no unexported level in dc:subject, -validate OK. Lightroom itself not run.",
+  "corrections": [],
+  "redteam": null
+}

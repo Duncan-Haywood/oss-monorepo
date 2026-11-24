@@ -132,7 +132,7 @@
     </div>
     <details id="iptcBox">
       <summary><strong>Captions, keywords and copyright (IPTC)</strong> <span class="status" id="iptcState">off: sidecars carry ratings and labels only</span></summary>
-      <p class="muted">Fill in what every frame should carry, like a Photo Mechanic stationery pad. It goes into the same sidecars as standard IPTC fields that Lightroom, Bridge, Capture One, darktable and digiKam read. Empty boxes are left alone, so a caption already in your own sidecar is kept; keywords are added to the ones already there. Press <kbd>K</kbd> on a frame to add keywords to that frame only, <kbd>C</kbd> to give it its own caption (it replaces the caption below, or fills <code>{caption}</code> in it). A keyword typed as <code>Sport|Ice hockey</code> or <code>Sport &gt; Ice hockey</code> goes into Lightroom's keyword tree (<code>lr:hierarchicalSubject</code>) and each level into the flat keywords. Variables: <code>{date}</code> <code>{year}</code> <code>{monthname}</code> <code>{day}</code> <code>{time}</code> <code>{camera}</code> <code>{lens}</code> <code>{file}</code> <code>{stem}</code> <code>{seq}</code> <code>{iso}</code> <code>{aperture}</code> <code>{shutter}</code> <code>{focal}</code> <code>{caption}</code>.</p>
+      <p class="muted">Fill in what every frame should carry, like a Photo Mechanic stationery pad. It goes into the same sidecars as standard IPTC fields that Lightroom, Bridge, Capture One, darktable and digiKam read. Empty boxes are left alone, so a caption already in your own sidecar is kept; keywords are added to the ones already there. Press <kbd>K</kbd> on a frame to add keywords to that frame only, <kbd>C</kbd> to give it its own caption (it replaces the caption below, or fills <code>{caption}</code> in it). A keyword typed as <code>Sport|Ice hockey</code> or <code>Sport &gt; Ice hockey</code> goes into Lightroom's keyword tree (<code>lr:hierarchicalSubject</code>) and each level into the flat keywords. Load your Lightroom or Photo Mechanic keyword list (below) and a plain <code>Ice hockey</code> finds its own place in your tree. Variables: <code>{date}</code> <code>{year}</code> <code>{monthname}</code> <code>{day}</code> <code>{time}</code> <code>{camera}</code> <code>{lens}</code> <code>{file}</code> <code>{stem}</code> <code>{seq}</code> <code>{iso}</code> <code>{aperture}</code> <code>{shutter}</code> <code>{focal}</code> <code>{caption}</code>.</p>
       <div class="iptc">
         <label>Creator (photographer; separate several with ;)<input id="ip_creator" autocomplete="name"></label>
         <label>Copyright notice<input id="ip_copyright" placeholder="© {year} Your Name"></label>
@@ -154,9 +154,13 @@
         <button type="button" id="ipSave">Save template (.json)</button>
         <label class="btnlike">Open template (.json)<input type="file" id="ipOpen" accept=".json,application/json"></label>
         <label class="btnlike">Load codes (.txt, tab separated)<input type="file" id="ipCodesFile" accept=".txt,.tsv,.csv,text/plain"></label>
+        <label class="btnlike">Load keyword list (Lightroom or Photo Mechanic .txt)<input type="file" id="kwListFile" accept=".txt,text/plain"></label>
+        <button type="button" id="kwListSave">Keywords used, for Lightroom (.txt)</button>
+        <button type="button" id="kwListClear" hidden>Forget keyword list</button>
         <button type="button" id="ipClear">Clear</button>
         <span class="status" id="ipPreview"></span>
       </div>
+      <p class="muted" id="kwListState">No keyword list loaded. Export yours from Lightroom Classic with Metadata › Export Keywords (or from Photo Mechanic's Structured Keywords) and load it here: a typed keyword such as “Ice hockey”, or a synonym of it, is then written as its full path (Sport|Ice hockey) with its synonyms, keywords in [brackets] stay out of the keyword list as Lightroom keeps them, and names the list lacks or holds under two parents are listed before you download.</p>
     </details>
     <div class="bar">
       <button class="primary" id="dlXmp">Download XMP sidecars (.zip)</button>
@@ -247,6 +251,7 @@ import { readRawFile, isCandidateFile, captureMillis, groupBursts, sharpness, de
 import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 import { summarizeFaces, eyesOpenCandidates, describeFaces, loadFaceLandmarker, EDGES, edgeLayout, drawEdgeView, edgeFacesFromResult, needsEdgeSearch } from "./eyes.mjs";
 import { IPTC_FIELDS, frameIptc, mergeIptc, readIptc, splitKeywords, parseCodes } from "./iptc.mjs";
+import { parseKeywordList, keywordVocabulary, resolveKeywords, keywordListText } from "./keywordlist.mjs";
 
 const $ = (id) => document.getElementById(id);
 const grid = $("grid");
@@ -778,6 +783,7 @@ document.addEventListener("keydown", (e) => {
     if (typed === null) return;
     mark((x) => { x.keywords = splitKeywords(typed); });
     if (it.keywords.length) record("frame_keywords");
+    templateChanged();
   } else if (k === "c" || k === "C") {
     const it = items[view[sel]]; if (!it) return;
     const typed = prompt(`Caption for ${it.name} (codes like \\23\\ and variables like {date} work; clear the box to use the template's):`, it.caption || "");
@@ -810,6 +816,34 @@ const marked = (it) => it.rating || it.rejected || it.label || it.keywords?.leng
 const IP_STORE = "shootflow-cull-iptc";
 const CODES_STORE = "shootflow-cull-codes";
 const codes = () => parseCodes($("ipCodes").value);
+// A loaded Lightroom / Photo Mechanic keyword list (the text is kept in the browser).
+const KWLIST_STORE = "shootflow-cull-kwlist";
+let kwList = null, kwListName = "";
+const resolver = () => (kwList?.size ? (kw) => resolveKeywords(kw, kwList) : null);
+function setKwList(text, name, notes = []) {
+  kwList = text ? keywordVocabulary(parseKeywordList(text)) : null;
+  kwListName = text ? name : "";
+  $("kwListClear").hidden = !kwList;
+  try { if (text) localStorage.setItem(KWLIST_STORE, JSON.stringify({ name, text })); else localStorage.removeItem(KWLIST_STORE); } catch { /* optional: a large list may not fit */ }
+  if (kwList) {
+    const syn = kwList.nodes.reduce((a, n) => a + n.synonyms.length, 0), hid = kwList.nodes.filter((n) => !n.exported).length;
+    $("kwListState").textContent = `Keyword list: ${kwList.size.toLocaleString()} keywords from ${name}${syn ? `, ${syn} synonyms` : ""}${hid ? `, ${hid} not exported` : ""}${notes.length ? `; ${notes.length} line${notes.length > 1 ? "s" : ""} read with a guess (first: line ${notes[0].line}, ${notes[0].reason})` : ""}. Typed keywords are looked up in it.`;
+  }
+  templateChanged();
+}
+// Keywords the list lacks, or holds under more than one parent, across the frames that get sidecars.
+function keywordReport(frames) {
+  const r = resolver(); if (!r) return "";
+  const tpl = readTemplate(), cds = codes(), unknown = new Map(), amb = new Map();
+  for (const it of frames) {
+    const raw = frameIptc(tpl, { ...it, seq: items.indexOf(it) + 1 }, cds).keywords || [];
+    const res = r(raw);
+    for (const k of res.unknown) unknown.set(k.toLowerCase(), k);
+    for (const a of res.ambiguous) amb.set(a.typed.toLowerCase(), a);
+  }
+  const list = (m, f) => [...m.values()].slice(0, 6).map(f).join(", ") + (m.size > 6 ? ` and ${m.size - 6} more` : "");
+  return [unknown.size ? `not in ${kwListName}: ${list(unknown, (k) => k)}` : "", amb.size ? `under two parents, written as typed (type the path to choose): ${list(amb, (a) => `${a.typed} (${a.paths.join(" or ")})`)}` : ""].filter(Boolean).join("; ");
+}
 const ipKeys = Object.keys(IPTC_FIELDS);
 function readTemplate() { const t = {}; for (const k of ipKeys) { const v = $(`ip_${k}`).value.trim(); if (v) t[k] = v; } return t; }
 function fillTemplate(t) { for (const k of ipKeys) $(`ip_${k}`).value = Array.isArray(t?.[k]) ? t[k].join(", ") : (t?.[k] || ""); templateChanged(); }
@@ -821,11 +855,14 @@ function templateChanged() {
   const c = codes();
   try { localStorage.setItem(CODES_STORE, $("ipCodes").value); } catch { /* optional */ }
   if (c.size) $("iptcState").textContent += ` · ${c.size} code${c.size > 1 ? "s" : ""}`;
-  const f = it ? frameIptc(t, { ...it, seq: items.indexOf(it) + 1 }, c) : null;
-  $("ipPreview").textContent = f && (f.caption || f.copyright) ? `${it.name}: ${[f.caption, f.copyright].filter(Boolean).join(" · ")}` : "";
+  if (kwList) $("iptcState").textContent += ` · keyword list`;
+  const f = it ? frameIptc(t, { ...it, seq: items.indexOf(it) + 1 }, c, resolver()) : null;
+  const rep = it && kwList ? keywordReport([it]) : "";
+  $("ipPreview").textContent = [f && (f.caption || f.copyright) ? `${it.name}: ${[f.caption, f.copyright].filter(Boolean).join(" · ")}` : "", f?.keywords?.length && kwList ? `keywords ${f.keywords.join(", ")}` : "", rep].filter(Boolean).join(" · ");
 }
 try { $("ipCodes").value = localStorage.getItem(CODES_STORE) || ""; } catch { /* optional */ }
 try { fillTemplate(JSON.parse(localStorage.getItem(IP_STORE) || "{}")); } catch { /* optional */ }
+try { const k = JSON.parse(localStorage.getItem(KWLIST_STORE) || "null"); if (k?.text) setKwList(k.text, k.name || "your list"); } catch { /* optional */ }
 $("ipCodes").addEventListener("input", templateChanged);
 $("ipCodesFile").onchange = async (e) => {
   const f = e.target.files[0]; if (!f) return;
@@ -835,6 +872,30 @@ $("ipCodesFile").onchange = async (e) => {
   e.target.value = "";
 };
 for (const k of ipKeys) $(`ip_${k}`).addEventListener("input", templateChanged);
+$("kwListFile").onchange = async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const text = await f.text(), parsed = parseKeywordList(text);
+  if (!parsed.nodes.length) $("ipPreview").textContent = `${f.name} has no keywords (one per line, a tab per level).`;
+  else { setKwList(text, f.name, parsed.notes); record("keyword_list_loaded"); }
+  e.target.value = "";
+};
+$("kwListClear").onclick = () => { setKwList("", ""); $("kwListState").textContent = "Keyword list forgotten."; };
+$("kwListSave").onclick = () => {
+  // Every keyword the sidecars would carry (template plus each frame's own), as paths, in Lightroom's import layout.
+  const only = $("onlyMarked").checked, tpl = readTemplate(), cds = codes(), r = resolver();
+  // A name the loaded list holds under two parents is left out: importing it would add a third, top-level copy.
+  const paths = items.filter((it) => !only || marked(it)).flatMap((it) => {
+    const kw = frameIptc(tpl, { ...it, seq: items.indexOf(it) + 1 }, cds).keywords || [];
+    if (!r) return kw;
+    const res = r(kw), amb = new Set(res.ambiguous.map((a) => a.typed.toLowerCase()));
+    return res.keywords.filter((k) => !amb.has(k.toLowerCase()));
+  });
+  const text = keywordListText(paths, kwList);
+  if (!text) { $("ipPreview").textContent = "No keywords yet: type some in the template or give a frame its own with K."; return; }
+  download("shootflow-keywords.txt", text, "text/plain");
+  $("ipPreview").textContent = `${text.trimEnd().split("\n").length} lines in shootflow-keywords.txt: in Lightroom Classic, Metadata › Import Keywords.`;
+  record("keyword_list_saved");
+};
 $("ipClear").onclick = () => fillTemplate({});
 $("ipSave").onclick = () => { download("shootflow-iptc-template.json", JSON.stringify({ ...readTemplate(), ...($("ipCodes").value.trim() ? { codes: $("ipCodes").value } : {}) }, null, 2) + "\n", "application/json"); record("iptc_template_saved"); };
 $("ipOpen").onchange = async (e) => {
@@ -858,9 +919,9 @@ $("dlXmp").onclick = () => {
   // settings, keywords and crops in it survive the unzip.
   // IPTC fields (template plus the frame's own keywords) go into the same file.
   let merged = 0, captioned = 0;
-  const tpl = readTemplate(), cds = codes();
+  const tpl = readTemplate(), cds = codes(), res = resolver();
   const withIptc = (xmp, it) => {
-    const f = frameIptc(tpl, { ...it, seq: items.indexOf(it) + 1 }, cds);
+    const f = frameIptc(tpl, { ...it, seq: items.indexOf(it) + 1 }, cds, res);
     if (!Object.keys(f).length) return xmp;
     captioned++;
     return mergeIptc(xmp, f) ?? xmp;
@@ -872,7 +933,8 @@ $("dlXmp").onclick = () => {
   });
   if (!files.length) { $("status").textContent = "Nothing rated, labelled or rejected yet: untick “only frames I rated” to write a sidecar for every frame."; return; }
   download("shootflow-cull-sidecars.zip", zipStored(files), "application/zip");
-  $("status").textContent = `${files.length} sidecars in the zip${merged ? `, ${merged} of them your own with only the rating, label${captioned ? " and IPTC fields" : ""} changed` : ""}${captioned ? `; ${captioned} carry IPTC captions or keywords` : ""}.`;
+  const kwRep = keywordReport(items.filter((it) => !only || marked(it)));
+  $("status").textContent = `${files.length} sidecars in the zip${merged ? `, ${merged} of them your own with only the rating, label${captioned ? " and IPTC fields" : ""} changed` : ""}${captioned ? `; ${captioned} carry IPTC captions or keywords` : ""}${kwRep ? `; keywords ${kwRep}` : ""}.`;
   record("sidecars_downloaded");
   if (captioned) record("sidecars_iptc");
   if (merged) record("sidecars_merged");

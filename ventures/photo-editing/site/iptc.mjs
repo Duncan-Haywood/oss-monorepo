@@ -208,9 +208,11 @@ export function expandTemplate(s, vars) {
  * codes replaced and variables filled in, its keywords plus the frame's own
  * (`frame.keywords`). A frame's own caption (`frame.caption`) replaces the
  * template's; {caption} in the template's caption puts it inside instead.
- * Empty fields are left out, so mergeIptc leaves them alone.
+ * Empty fields are left out, so mergeIptc leaves them alone. `resolve`, when
+ * given, maps the keyword list to { keywords, synonyms, hidden } (a loaded
+ * keyword list: keywordlist.mjs resolveKeywords).
  */
-export function frameIptc(template = {}, frame = {}, codes = null) {
+export function frameIptc(template = {}, frame = {}, codes = null, resolve = null) {
   const vars = frameVars(frame);
   const fill = (s) => expandTemplate(applyCodes(s, codes), vars).trim();
   const own = fill(frame.caption);
@@ -223,7 +225,14 @@ export function frameIptc(template = {}, frame = {}, codes = null) {
   }
   const kwText = (x) => (Array.isArray(x) ? x.join(",") : x);
   const kw = splitKeywords([...splitKeywords(fill(kwText(template.keywords))), ...splitKeywords(splitKeywords(frame.keywords || []).map((k) => applyCodes(k, codes)).join(","))]);
-  if (kw.length) out.keywords = kw;
+  if (kw.length && resolve) {
+    // A keyword list (keywordlist.mjs resolveKeywords): names become their
+    // paths, synonyms go into the flat keywords, unexported levels stay out.
+    const r = resolve(kw);
+    out.keywords = r.keywords;
+    if (r.synonyms?.length) out.synonyms = r.synonyms;
+    if (r.hidden?.length) out.hidden = r.hidden;
+  } else if (kw.length) out.keywords = kw;
   return out;
 }
 
@@ -311,7 +320,11 @@ export function mergeIptc(text, fields = {}) {
   const rdf = d[1];
   let out = text;
   fields = { ...fields };
-  delete fields.hierarchy;
+  // synonyms: added to dc:subject only; hidden: levels kept out of the new
+  // dc:subject entries (a keyword list's [bracketed] names), never removed
+  // from what the sidecar already lists.
+  const synonyms = fields.synonyms || [], hidden = new Set((fields.hidden || []).map((x) => x.toLowerCase()));
+  delete fields.hierarchy; delete fields.synonyms; delete fields.hidden;
   if (fields.keywords && fields.keywords.length) {
     // The existing flat keywords and tree, with the new ones, as one tree:
     // dc:subject gets every level, lr:hierarchicalSubject the paths (only when there is one).
@@ -327,7 +340,7 @@ export function mergeIptc(text, fields = {}) {
     const t = keywordTree([...have(...HIERARCHY), ...fields.keywords]);
     const paths = t.paths.filter((x) => x.includes("|"));
     const inPath = new Set(paths.flatMap((x) => x.split("|")).map((x) => x.toLowerCase()));
-    fields.keywords = uniqueCi([...flatHave, ...t.flat]);
+    fields.keywords = uniqueCi([...flatHave, ...t.flat.filter((k) => !hidden.has(k.toLowerCase())), ...synonyms]);
     const flats = [...flatHave, ...t.paths.filter((x) => !x.includes("|"))].filter((k) => !inPath.has(k.toLowerCase()));
     if (paths.length) fields.hierarchy = uniqueCi([...paths, ...flats]);
   }
