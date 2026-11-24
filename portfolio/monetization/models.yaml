@@ -830,7 +830,7 @@ products:
     price_hypothesis: "cost-plus per apps/grants/docs/PRICING.md (not restated here); untested with buyers"
     tiers:
       - name: as in apps/grants/docs/PRICING.md
-        price: "$10 / $29 / $149 a month since 2026-11-24 (was $5 / $20 / $100), at least a 40% margin over fully loaded cost"
+        price: "$10 / $29 / $149 a month since 2026-11-24 (was $5 / $20 / $100) for 5 / 20 / 120 drafts on Haiku 5.5, 82-88% margin at full use (floor 40%)"
         status: proposal
         why: >-
           The app's own pricing file and its unit test set the tiers; this row

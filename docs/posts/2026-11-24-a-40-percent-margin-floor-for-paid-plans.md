@@ -3,7 +3,7 @@ title: "A 40% margin floor for our subscriptions, and what it did to Grant Autop
 seo_title: "A 40% margin floor for AI subscription plans"
 date: 2026-11-24
 tags: [portfolio, monetization, pricing, saas, llm-cost]
-description: "Every subscription tier must now keep at least a 40% margin at full use, checked by a unit test. Grant Autopilot moves from $5/$20/$100 to $10/$29/$149."
+description: "Every subscription tier must now keep at least a 40% margin at full use, checked by a unit test. Grant Autopilot moves to $10/$29/$149, then to Haiku."
 ---
 
 Our paid products now have a margin rule. Every paid plan has to keep **at
@@ -66,6 +66,24 @@ from 200 and 400 to 125 and 300, for margins of 51 to 58% at full use.
   will show how much headroom there is.
 - **The $0.50 fee.** On a $10 plan the fixed merchant fee is 5% of the
   charge. Annual billing pays it once a year instead of twelve times.
+
+## Update, the same evening: Haiku, not Opus
+
+The owner's next instruction made the model the first lever, not the last:
+"use the cheapest model that does the job correctly ... no need to use opus
+for a haiku task." Grant Autopilot now runs on Claude Haiku 5.5, which lists
+at $0.10 and $0.50 per million input and output tokens against Opus 5.5's $4
+and $20. A drafted, checked application falls from about $1.30 to about
+$0.03.
+
+The prices stay at $10, $29 and $149. The plans now include 5, 20 and 120
+drafts a month, and each tier still costs less per draft than the one below
+it. At full use that is a margin of 82% to 88%, and the merchant's fixed fee
+becomes the biggest cost on the $10 plan. A purpose moves back up to Sonnet
+or Opus only if the evaluations show Haiku getting it wrong. Haiku's draft
+quality hasn't been measured on live calls yet. Whatever model writes a
+draft, the grounding checks still stop any claim the organisation's own
+documents don't support.
 
 These are list-price estimates from our own cost model, not measured bills.
 The figures come from the pricing tables and the tests that check them, so a
