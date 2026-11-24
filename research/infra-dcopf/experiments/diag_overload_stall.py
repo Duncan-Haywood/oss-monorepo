@@ -22,7 +22,7 @@ variable bounds):
        allows, and the branch ends that carry it. When TE > 0 the linear model at this point says no
        move of P and V within the physical limits relieves those branches.
 
-Every LP is solved by constraint generation (start from the rows violated at the linearisation point plus
+TE is solved only when NBM is empty (otherwise it is 0 exactly). Every LP is solved by constraint generation (start from the rows violated at the linearisation point plus
 the n rows with least slack, add every left-out row the solution breaks by more than 1e-7, repeat). A
 relaxation that is infeasible proves the full set empty; a solution breaking no left-out row is the full
 LP's solution, so every answer is exact (no answer is taken from an unsettled relaxation: after 40 passes
@@ -63,6 +63,7 @@ DEFAULT = [("case2869_pegase", "typ"), ("case2869_pegase", "api"), ("case2869_pe
 TOLV = 1e-7       # a left-out row broken by more than this is added
 FEAS_TOL = 1e-7   # phase-1 optimum above this (row-scaled units) counts as empty
 MAXPASS = 40
+LP_SECS = 900.0   # per HiGHS solve; a solve that hits it is reported as 'timeout', never as an answer
 
 
 def bounds_of(ppc, lin, margin, ptrust, vtrust, t=1.0):
@@ -126,7 +127,10 @@ def _lp(A, u, a_eq, b_eq, lo, hi, x0, elastic_rows=None, wts=None, extra_col=Non
         if extra_col is not None:
             bnds.append((0.0, extra_col[1]))
         bnds += [(0.0, None)] * ne
-        r = linprog(c, A_ub=Aub, b_ub=u[idx], A_eq=aeq, b_eq=[b_eq], bounds=bnds, method="highs")
+        r = linprog(c, A_ub=Aub, b_ub=u[idx], A_eq=aeq, b_eq=[b_eq], bounds=bnds, method="highs",
+                    options={"time_limit": LP_SECS})
+        if r.status == 1:
+            return "timeout", None, None, {}
         if r.status == 2:
             return "empty", None, None, {}
         if r.status != 0:
@@ -235,12 +239,18 @@ def wrap(orig):
                 d["NBM"] = is_empty(p, lin, None, None, None)
                 if d["NB"] == "feasible":
                     d["t"] = box_t(p, lin, margin, ptrust, vtrust)
-                d.update(thermal_phase1(p, lin))
+                if d["NBM"] == "empty":  # otherwise TE = 0 exactly: a point with no thermal excess exists
+                    d.update(thermal_phase1(p, lin))
+                else:
+                    d.update(TE_status="feasible", TE=0.0, TE_ends=[], TE_skipped=True)
             except Exception as e:  # recorded, not hidden
                 d["error"] = f"{type(e).__name__}: {e}"
                 d["tb"] = traceback.format_exc()[-1500:]
             d["secs"] = time.time() - t0
             REC.append(d)
+            print(f"[{p['bus'].shape[0]} buses] failed hard QP {d['n']}: H {d.get('H')} NB {d.get('NB')} NM {d.get('NM')} "
+                  f"NBM {d.get('NBM')} t {d.get('t')} TE {d.get('TE', d.get('TE_status'))} {d['secs']:.0f} s",
+                  file=sys.stderr, flush=True)
         return xp, xv, ok
     return solve
 
