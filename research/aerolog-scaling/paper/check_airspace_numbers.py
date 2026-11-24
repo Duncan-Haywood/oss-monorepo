@@ -360,7 +360,7 @@ CHECKS = [
     ('collision_target_results.txt', 'median 4.41e-05 max 9.75e-05', '4.41e-05 and 3.66e-05'),
     ('collision_target_results.txt', 'median 3.66e-05 max 7.27e-05', '4.41e-05 and 3.66e-05'),
     ('collision_target_results.txt', 'target 1e-07 (total): k_T {1: 24}; binds (k_T < k*) in 24 of 24', 'binds in 48 of 48 layouts under every error model'),
-    ('collision_target_results.txt', 'K3 1e-7 (total) never binds under G1: refuted', '4 of 6 predictions held'),
+    ('collision_target_results.txt', 'K3 1e-7 (total) never binds under G1: refuted', '4 of 6, 4 of 6 and 5 of 6 predictions'),
     ('collision_target_results.txt', 'GS gap sd 1.593 m', 'sd 1.593 m'),
     # 11bg transit hold
     ('transit_hold_results.txt', 'one band costs F(1)/F(k*) median 4.18', '**4.18** (12 operators)'),
@@ -377,10 +377,10 @@ CHECKS = [
     ('transit_hold_results.txt', 'hub share of hold median 0.260', 'hubs 0.26'),
     ('transit_hold_results.txt', 'x1: median 4.07e-08 max 3.04e-07', '3.04e-07 at most'),
     # 11bh hold position
-    ('hold_level_results.txt', 'hold per flight vs 11bg max relative difference 8.88e-16', 'Section 6.12 corrects it'),
+    ('hold_level_results.txt', 'hold per flight vs 11bg max relative difference 8.88e-16', "part (c)'s recomputation per heading corrects it"),
     ('hold_level_results.txt', 'normal, x1: H0 2.09e-08 [max 1.57e-07]', '**2.09e-08** (12 operators)'),
     ('hold_level_results.txt', 'normal, x1: H0 4.19e-08 [max 1.21e-07]', '**4.19e-08** (16)'),
-    ('hold_level_results.txt', 'H0 2.09e-08 [max 1.57e-07]', 'at most **1.57e-07**'),
+    ('hold_level_results.txt', 'H0 2.09e-08 [max 1.57e-07]', 'up to **1.57e-07**'),
     ('hold_level_results.txt', 'HX 6.92e-12 [max 5.36e-11]', '**6.92e-12** and **1.44e-11**'),
     ('hold_level_results.txt', 'HX 1.44e-11 [max 5.74e-10]', 'at most **5.74e-10**'),
     ('hold_level_results.txt', 'HX 1.5e-09 [max 6.02e-08]', 'at most **6.02e-08**'),
@@ -389,13 +389,18 @@ CHECKS = [
     ('hold_level_results.txt', 'HX / H0 hover LoS (normal, x1): median 1.374', '**1.339** and **1.374**'),
     ('hold_level_results.txt', 'HB 0.000452 [max 0.000791]', 'at most 4.52e-04 for any position'),
     ('hold_level_results.txt', 'HX 0.000976 [max 0.00215]', 'under 1e-3 at ten times'),
-    ('hold_level_results.txt', 'L2 HX < 1e-9 in every layout at x1 and x10 (GS): refuted', '5 of 6 predictions held. In the own level'),
+    ('hold_level_results.txt', 'L2 HX < 1e-9 in every layout at x1 and x10 (GS): refuted', '4 of 6, 4 of 6 and 5 of 6 predictions'),
     ('transit_hold_results.txt', 'r=50 1.16 [18.4]', '1.16 s (worst layout 18.4 s)'),
     ('transit_hold_results.txt', 'r=50 1.36e+03', '1 360 s and 102 s'),
     ('transit_hold_results.txt', 'r=50 102 [', '1 360 s and 102 s'),
     ('transit_hold_results.txt', 'c_samp/c_full - 1 median +0.005 [-0.082, +0.084]', 'within 8.4%'),
-    ('transit_hold_results.txt', 'T5 hover exposure < 1e-7 per flight hour in every layout: refuted', '4 of 6 predictions held. At the Remote ID'),
+    ('transit_hold_results.txt', 'T5 hover exposure < 1e-7 per flight hour in every layout: refuted', 'above the target in some layouts'),
     ('transit_hold_results.txt', 'T6 Remote ID bound: hold at the 1e-7 radius < 1 s (median, both M): held', 'meets 1e-7 for under 0.31 s per flight'),
+    # 2026-11-24 fold of 6.10 to 6.12 into one section (Figure A4)
+    ('collision_target_results.txt', 'K5 OF1 en-route at k* > 1e-7 in >= 25% of draws at each M: refuted', 'fewer than a quarter of draws'),
+    ('hold_level_results.txt', 'L3 HX < 1e-7 in every layout under GL at x1: held', '4 of 6, 4 of 6 and 5 of 6 predictions'),
+    ('collision_target_results.txt', 'k= 5 h= 13.33  enr  1.33e-17', 'ten orders of magnitude inside 1e-7'),
+    ('hold_level_results.txt', 'HX 3.85e-08 [max 2.68e-07]', 'in its worst layout (2.68e-07)'),
 ]
 
 
