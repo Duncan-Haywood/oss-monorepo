@@ -6,7 +6,7 @@
 # no public URL -- and gated its deploy on `GITHUB_PAGES_ENABLED`, deliberately
 # reusing the one owner flip rather than opening a second ask.
 #
-# `portfolio-pages.yml` was written to close the same gap, from the same
+# `priv-portfolio-pages.yml` was written to close the same gap, from the same
 # reasoning, in the same hour. Neither pull request could see the other, and both
 # merged. GitHub serves exactly one Pages site per repository and
 # `actions/deploy-pages` replaces the whole of it, so with both deploying, the
@@ -21,7 +21,7 @@
 # enforced at creation time). The race this section describes was real, but
 # nobody could have flipped either variable to trigger it.
 #
-# `portfolio-pages.yml` keeps the deploy: it is the more developed of the two
+# `priv-portfolio-pages.yml` keeps the deploy: it is the more developed of the two
 # (site navigation, favicon, sitemap repair, the no-SLA clause check) and the
 # later Pages work built on it. Nothing here is deleted, because this builder is
 # still worth running: it is an independent implementation of the same site, so

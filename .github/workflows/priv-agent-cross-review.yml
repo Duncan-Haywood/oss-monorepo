@@ -48,7 +48,7 @@ jobs:
     # README.md, step 2). Until it is `true` the reviewer Apps are unset and
     # every job below skipped in a few seconds anyway, but only after taking a
     # runner: 712 runs on 2026-10-30, each of which also woke
-    # agent-pr-auto-merge.yml. A false job-level `if:` skips before a runner is
+    # priv-agent-pr-auto-merge.yml. A false job-level `if:` skips before a runner is
     # assigned (docs/reports/2026-10-30-ci-platform-evolution.md).
     if: >-
       github.event_name == 'workflow_dispatch' ||

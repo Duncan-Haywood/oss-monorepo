@@ -786,7 +786,7 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_unlanded_work
 
-      # The scheduled half of the same gate: adopt-stranded-branches.yml opens a
+      # The scheduled half of the same gate: priv-adopt-stranded-branches.yml opens a
       # draft PR for each branch whose session died before it could.
       - name: Adopt-stranded-branches tests
         working-directory: platform/ci

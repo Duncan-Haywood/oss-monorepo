@@ -18,7 +18,7 @@ import path from 'node:path';
 // with others that call these generators, so one that rewrites a committed
 // file changes the source under a build in progress. shed-designer's gallery
 // (make-gallery.mjs) rewrites the committed gallery-data.mjs, so it is not
-// listed: the deploy workflow (portfolio-pages.yml) runs it before the build
+// listed: the deploy workflow (priv-portfolio-pages.yml) runs it before the build
 // instead (it was listed from #11853 until build.test.mjs's "an identical
 // build produces an identical cache name" caught the race, 2026-10-30).
 export const GENERATED_PAGES = {

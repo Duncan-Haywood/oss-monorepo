@@ -18,9 +18,9 @@ What the repository already does, written as policy so an auditor can test it.
    `docs/security/soc2/risk-register.md`), offset by the checks and by fixing
    forward.
 4. **Production is deployed only from `main`** by
-   `.github/workflows/portfolio-pages.yml`, so every deploy maps to a merged
-   PR and a commit. Workers deploy the same way (`edge-deploy.yml`).
-5. **A post-merge audit** (`control-plane-guard.yml --audit-commit`) turns
+   `.github/workflows/priv-portfolio-pages.yml`, so every deploy maps to a merged
+   PR and a commit. Workers deploy the same way (`priv-edge-deploy.yml`).
+5. **A post-merge audit** (`priv-control-plane-guard.yml --audit-commit`) turns
    `main` red if a control-plane change landed without the owner's approval.
 6. **Emergency changes** follow the same path; for a live incident, the
    owner may merge without waiting for CI and records why in the incident's

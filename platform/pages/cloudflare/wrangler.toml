@@ -1,6 +1,6 @@
 # The public site (owner, 2026-10-29: moving from GitHub Pages to Cloudflare),
 # served as static files on the free plan. Deployed by
-# .github/workflows/portfolio-pages.yml after split.mjs has moved the
+# .github/workflows/priv-portfolio-pages.yml after split.mjs has moved the
 # directories in router.mjs's SHARD_DIRS into the shard Worker (shard/), which
 # keeps each Worker under the free plan's 20,000-file limit.
 name = "monorepo-projects-site"

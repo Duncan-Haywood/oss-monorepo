@@ -240,7 +240,7 @@ Whether to add audio is the creative prompt's call, not this file's: `prompts/cr
 
 - Episodes, pages and `feed.xml` are served with the catalogue at
   `https://marisstella.app/saints-by-candlelight/` (Cloudflare, built by
-  `portfolio-pages.yml` on every merge; the old github.io address redirects).
+  `priv-portfolio-pages.yml` on every merge; the old github.io address redirects).
 - Audio is committed as mono 40 kbps MP3 (about 0.3 MB a minute). The deploy
   serves each committed MP3 from jsDelivr at a pinned commit
   (`platform/pages/audio-cdn.mjs`), so audio no longer counts against the

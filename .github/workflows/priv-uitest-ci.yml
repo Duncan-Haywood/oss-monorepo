@@ -15,13 +15,13 @@ on:
     paths:
       - "platform/uitest/**"
       - "platform/llm/**"
-      - ".github/workflows/uitest-ci.yml"
+      - ".github/workflows/priv-uitest-ci.yml"
   push:
     branches: [main]
     paths:
       - "platform/uitest/**"
       - "platform/llm/**"
-      - ".github/workflows/uitest-ci.yml"
+      - ".github/workflows/priv-uitest-ci.yml"
   workflow_dispatch:
     inputs:
       serve:

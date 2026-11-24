@@ -27,7 +27,7 @@ in `docs/security/soc2/controls.yaml` stop being N/A that day.
 2. **Nothing personal in the tree.** The repository is public; only
    aggregates are committed (`docs/legal/privacy-baseline.md`).
 3. **Every change goes through a pull request and CI.** Production is built
-   and deployed only from `main` by `.github/workflows/portfolio-pages.yml`.
+   and deployed only from `main` by `.github/workflows/priv-portfolio-pages.yml`.
 4. **Least privilege.** Workflows declare the permissions they need
    (`actions-permissions-check-ci.yml`); agents get their own non-admin
    identities (`access-control.md`).
