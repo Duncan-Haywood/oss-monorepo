@@ -27,13 +27,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 3,
   "outcome": "success",
   "errors": [
     "eval script first clicked the IPTC panel after a page reload, where it is hidden with no files loaded; reordered so the load-from-xmp step runs before the reload",
-    "apt-get install libimage-exiftool-perl failed until apt-get update ran first"
+    "apt-get install libimage-exiftool-perl failed until apt-get update ran first",
+    "changed-ventures CI failed on check_hidden_unicode.py: a literal U+FEFF in eval/cull-iptc-tree-page.mjs (the roster file's BOM); replaced with the \\uFEFF escape. Running platform/ci/unwired_checks.py locally, as run_venture_tests.py suggested, would have caught it"
   ],
   "integrity_issues": [],
   "doc_friction": [

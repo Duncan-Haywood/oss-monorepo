@@ -34,7 +34,7 @@ const sc = join(work, "Nikon D810.xmp");
 writeFileSync(sc, lr);
 // A roster as a Photo Mechanic-style tab-separated code list (with a BOM, as Excel saves it).
 const codes = join(work, "roster.txt");
-writeFileSync(codes, "﻿# home team\n23\tJane Roe\n7\tJohn Doe\nlds\tLeeds Rhinos\n");
+writeFileSync(codes, "\uFEFF# home team\n23\tJane Roe\n7\tJohn Doe\nlds\tLeeds Rhinos\n");
 
 const { chromium } = await loadPlaywright();
 const browser = await chromium.launch();
