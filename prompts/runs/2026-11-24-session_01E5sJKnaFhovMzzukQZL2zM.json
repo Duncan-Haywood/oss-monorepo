@@ -32,7 +32,8 @@
   "tests_added": 5,
   "outcome": "success",
   "errors": [
-    "First chain implementation used scipy ncx2.cdf per cell and one phase at a time; a timing check timed out at 110 s. Replaced with the closed-form 3-D radial CDF and all 62 phases propagated as one matrix (G1 BEST at 0.05 N: 23 s)."
+    "First chain implementation used scipy ncx2.cdf per cell and one phase at a time; a timing check timed out at 110 s. Replaced with the closed-form 3-D radial CDF and all 62 phases propagated as one matrix (G1 BEST at 0.05 N: 23 s).",
+    "run_workflow_locally's research tests caught test_latex failing: milestone 73's paper paragraph used \u03b5 and \u03c1 with no LaTeX mapping in paper/build_latex.py (pre-existing on main); added both mappings, full project suite then passed."
   ],
   "integrity_issues": [
     "The exact chain shows milestone 73's Monte Carlo-calibrated CAL schedules exceed the 1% wall-risk target on 5 of 18 RW rows (up to 1.31%); the H1's count at 0.1 N is 10, not 9. Recorded as a correction in LOG.md, README, paper and post; milestone 73's own text left as it was, with milestone 74 stating the correction."
@@ -66,7 +67,7 @@
     "research/buildbot-sheathing/LOG.md (milestone 74 planned + result)"
   ],
   "goal": null,
-  "notes": "Routed research/0 by weighted draw; security queue empty; IDEAS and website requests empty. Hypotheses H295-H301 registered and pushed before the run; 5 held (H295, H296, H297, H300, H301), 2 refuted (H298, H299). Local checks: pytest on test_riskdp/test_drift/test_reproduce/test_paper/test_rezero 27 passed; paper/check_numbers.py 500/500; research/_homepage/build.py ok; research_live_links --write; check_md_links ok; programme_check ok; check_posts ok. Run time ~4 min experiment + ~3 min scan on 4 processes.",
+  "notes": "Routed research/0 by weighted draw; security queue empty; IDEAS and website requests empty. Hypotheses H295-H301 registered and pushed before the run; 5 held (H295, H296, H297, H300, H301), 2 refuted (H298, H299). Local checks: pytest on test_riskdp/test_drift/test_reproduce/test_paper/test_rezero 27 passed; paper/check_numbers.py 500/500; research/_homepage/build.py ok; research_live_links --write; check_md_links ok; programme_check ok; check_posts ok. Run time ~4 min experiment + ~3 min scan on 4 processes. Full buildbot-sheathing suite rerun after the build_latex fix.",
   "corrections": [],
   "redteam": null,
   "usage": {
