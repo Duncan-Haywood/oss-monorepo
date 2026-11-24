@@ -93,3 +93,9 @@ def test_committed_json_is_current():
     assert json.loads(t.OUT.read_text()) == data, "run transition.py --write"
     assert data["counts"]["proprietary"] == len(data["proprietary"])
     assert [r["move_order"] for r in data["proprietary"]] == list(range(1, len(data["proprietary"]) + 1))
+
+
+def test_licence_named_source_is_not_a_licence_file(tmp_path, monkeypatch):
+    monkeypatch.setattr(t, "ROOT", tmp_path)
+    v = make(tmp_path, "studio", {"lib/licence.mjs": "x", "lib/LICENSE": "MIT"})
+    assert t.nested_licences(v) == ["studio/lib/LICENSE"]

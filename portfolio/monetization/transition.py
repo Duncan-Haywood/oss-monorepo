@@ -121,7 +121,7 @@ def nested_licences(venture: Path) -> list[str]:
         if Path(root) == venture:
             continue
         for name in files:
-            if THIRD_PARTY_LICENCE.match(name):
+            if THIRD_PARTY_LICENCE.match(name) and not name.endswith(SOURCE_EXT):
                 found.append(str(Path(root, name).relative_to(ROOT)))
     return sorted(found)
 

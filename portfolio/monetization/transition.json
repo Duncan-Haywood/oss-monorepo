@@ -82,9 +82,7 @@
       "why": "flagship #8: the depth people pay for",
       "model": "one-off",
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
-      "third_party_licences": [
-        "ventures/quick-pick-survey/src/lib/licence.ts"
-      ],
+      "third_party_licences": [],
       "move_order": 7
     },
     {
