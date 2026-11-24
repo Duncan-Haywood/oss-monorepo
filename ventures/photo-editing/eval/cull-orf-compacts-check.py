@@ -94,7 +94,7 @@ def thumbs(out: Path):
 def score(out: Path, files):
     import rawpy
 
-    rows = {json.loads(l)["file"]: json.loads(l) for l in (out / "rows.jsonl").read_text().splitlines() if l.strip()}
+    rows = {json.loads(line)["file"]: json.loads(line) for line in (out / "rows.jsonl").read_text().splitlines() if line.strip()}
     print("| file | run | vs LibRaw median dE00 | p90 | chroma ratio | vs camera JPEG median dE00 | matrix |")
     print("|---|---|---|---|---|---|---|")
     for f in files:
