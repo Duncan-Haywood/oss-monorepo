@@ -10481,3 +10481,52 @@ By the rules written beforehand nothing changes in the CLI or on the page. Next,
 pre-registered warning (or a weight cap) for a composite whose heaviest column is also its latest, using
 `line-leads.mjs` to read each column's lead against the others, on a fourth make and fresh seed, with the shop,
 SaaS and agency draws and NBER's 16 of 16 as guards.
+
+## A heaviest-is-latest warning (2026-11-24, pre-registered; H1-H5 pass, the warning ships on `--turns --columns`)
+
+The item above: on the agency make the Conference Board weights gave smooth, late headcount 70% of the composite
+and the composite turned late with it. This round tests a warning that reads that from the data alone, on a
+fourth make with a fresh seed, with the shop, SaaS and agency draws and NBER's 16 turns as guards. The warning,
+the remedy, the make and the bars are in the header of `eval/turns-heavy-late.mjs`, committed before it first ran
+(commit "pre-register the heaviest-is-latest warning round"); output `eval/turns-heavy-late.out.txt` (0.8 s); test
+`turns-heavy-late.test.mjs`; module `heavy-late.mjs`.
+
+- **The warning:** date every column on its own (the composite's rule); a column's relative lag is the median
+  offset of its turns from the nearest same-kind turn of every *other* column within 6 months (against the other
+  columns, not the composite, because a composite the heavy column dominates follows it and hides its lag); fire
+  when the heaviest column weighs at least 40%, its relative lag is at least 2 months and no column is later.
+- **The remedy when it fires:** date the composite of the other columns.
+- **The make:** a manufacturer's orders (lead 2), shipments, production hours (lag 1) and employees (smooth,
+  weight-heavy), with the employees line's lag drawn afresh from -1 to +5 months in every draw, so the warning
+  has draws where it should fire and draws where it should not. 500 draws, seed 20261127, shipped composite rule
+  (monthly, minimum phase 6, big move 5%), since P3 has not shipped.
+
+| bar | result | |
+|---|---|---|
+| H1 when it fires, the remedy beats the full composite by >= +0.03 F1, more wins, sign test p <= 0.05 | fires in 262 of 500; 0.915 vs 0.843, +0.072, wins 140, losses 56, p 2e-9 | **passes** |
+| H2 fires in >= 50% of draws whose employees lag is >= 3 | 94% | **passes** |
+| H3 fires in <= 20% of draws whose employees lag is <= 1 | 8% (lag -1: 0%, 0: 4%, 1: 21%) | **passes** |
+| H4 following it loses nothing on any make (mean F1, followed vs full) | maker 0.915 vs 0.877; shop 0.941 vs 0.932; SaaS 0.887 vs 0.833; agency 0.902 vs 0.708 | **passes** |
+| H5 FRED: quiet, or the remedy keeps 16 of 16 with at most 2 false | quiet (payrolls weigh 54% but every column's relative lag is 0); full composite 16 of 16, 0 false | **passes** |
+
+What it shows:
+
+- **The warning finds the late heavy line and the alternative dates are better when it does.** Fire rate climbs
+  with the employees lag (0% at -1, 4% at 0, 21% at 1, 66% at 2, 92-97% at 3-5). The gain where it fires holds at
+  half and double the noise (+0.054, +0.061) and at 96 and 240 months (+0.112, +0.089).
+- **On the agency make it repairs most of what that round found:** following the warning dates 0.902 against
+  the shipped composite's 0.708, close to the advance pick (0.857) and the post-hoc "without headcount" figure.
+  On SaaS lines it fires in 93% of draws (MRR) and adds +0.054 overall.
+- **Costs, read before trusting it:** the remedy drops the steadiest column, so it trades lateness for false turns.
+  On fired draws false turns rise from 0.23 to 0.36 a draw on the main make and from 0.68 to 1.66 at double noise.
+  On the shop make it fires in 66% of draws (customers, lag 2) for a small, not significant gain (+0.013, p 0.06).
+  It is a simulation of four makes, not real company data.
+
+What ships, as the header said: for monthly composites, the CLI's `--turns --columns` adds a warning line naming
+the column, its weight and relative lag, with the peaks and troughs of the composite without it; `--json` carries
+`composite.heavyLate` (null when quiet); the page's "Peaks and troughs" card shows the same note. The main dates
+stay the full composite's, so the user compares the two. Quarterly composites were not tested and never warn. On
+the page's FRED example it stays quiet.
+
+Next, if this line continues: the warning on a real company's monthly lines (needs outside data), or P3 and the
+warning together on a fifth make, pre-registered.
