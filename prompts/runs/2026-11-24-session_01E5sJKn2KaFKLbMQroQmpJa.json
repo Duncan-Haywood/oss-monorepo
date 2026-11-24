@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKn2KaFKLbMQroQmpJa",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T00:18:17Z",
+  "ended": "2026-11-24T00:25:12Z",
+  "wall_minutes": 7.89,
+  "tokens_in": 5634569,
+  "tokens_out": 33321,
+  "cost_usd": 2.9004,
+  "tool_calls": 49,
+  "task": "changepoint-detector: BBQ turning-point dater, pre-registered against NBER and MBRI dating",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18507",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "docs.peppol.eu, fred.stlouisfed.org and apps.bea.gov refused through the proxy (403)",
+      "impact": "einvoice's dated 3.1.0 rebuild could not be confirmed from docs; a fresh GDPC1 round could not run"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here named league-schedule-generator, but every item allocate.py --venture lists for it needs outside input (it says so itself); a second session in two days had to leave the row. Its row needs inputs_only or a buildable field."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice-preflight's buildable 'After 2026-11-23: rebuild peppol-next-* from the 3.1.0 tag on master' was due but OpenPeppol master is still 3.0.22 (38d693d) with no 3.1.0 tag on 2026-11-24; the item reads as ready when it is still a wait."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "changepoint-detector's '(0) drift model: stiff slope hears NBER turns, over-cuts TCPD' was stale: the 2026-11-23 Iran round had already dropped the turning-point option and named BBQ as the next step."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here row 5 (league-schedule-generator) lists only items needing a real league or club's input; einvoice-preflight's due item waits on an OpenPeppol tag that is not out yet",
+      "did": "took row 2 (changepoint-detector) and built the turning-point dater its last round named",
+      "result": "module, pre-registered eval and post landed; CLI held back by the registered D1 bar"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-dating-recessions-with-a-1971-rule-beats-a-changepoint-model.md",
+    "ventures/changepoint-detector/README.md (Dated turning points by Bry-Boschan's rule)"
+  ],
+  "goal": null,
+  "notes": "Bars committed in a separate commit before the first run. D1 GDP agreement 0.781 vs 0.80 fails; D2 +0.363 beyond random, D3 +0.407 over the shipped drift model (7-0), G1 Iran growth F1 0.727 pass. By the registered rule nothing ships in the CLI; turning-points.mjs is exported. No agent doc in docs/reports: the README section and flagships next carry what the next run needs. Local checks: node --test turns-bbq.test.mjs turns-iran.test.mjs (7/7), check_posts ok, validate.py ok; run_venture_tests.py changepoint-detector: ok, 1157 tests, 263 s. Also added a buildable: field to league-schedule-generator's flagship row (NEXT.md's search items) so Start here stops treating it as all outside input.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "872e1584-4c01-5946-8e7b-3a9967845d8f",
+    "transcripts": 1,
+    "first": "2026-11-24T00:18:17Z",
+    "last": "2026-11-24T00:26:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 88,
+        "output": 33321,
+        "thinking": 8560,
+        "cache_read": 5492592,
+        "cache_write_5m": 0,
+        "cache_write_1h": 141889,
+        "api_equivalent_usd": 2.9004,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 88,
+      "output": 33321,
+      "thinking": 8560,
+      "cache_read": 5492592,
+      "cache_write_5m": 0,
+      "cache_write_1h": 141889,
+      "api_equivalent_usd": 2.9004,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 44,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.89,
+      "active_minutes": 7.89,
+      "model_minutes": 5.94,
+      "tool_minutes": 1.95,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "implement and test BBQ + HP filter, design and run a pre-registered evaluation on 8 series, write README section and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 344.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
