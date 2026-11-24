@@ -165,10 +165,9 @@
 
 - (landed 2026-11-24, eval/cull-nikon-af-2026-11-24.md) Nikon AF points placed from per-body maps (Focus-Points
   plugin, Apache-2.0) for AFInfo2 0100/0101/0300/04xx: 27 of 28 Z8 frames (5 before), median detail rank 0.92,
-  19 of 23 beat the turned control. Next: (a) HLG-mode Z8/Z9 NEFs carry HEVC previews (320 x 212, 1620 x 1080),
-  so the page shows the 160 x 120 thumbnail and reads the whole file: decode the HEVC preview with WebCodecs
-  `VideoDecoder` where the browser has HEVC (Safari; Chrome/Edge with hardware) and stop the whole-file read once
-  one is found; (b) a map for the 11-point bodies (D90, D3x00, D5000, D5100) and AFInfo 0x88 bodies (D70, D200),
+  19 of 23 beat the turned control. (a) landed 2026-11-24 (eval/cull-hevc-previews-2026-11-24.md): HLG Z8/Z9
+  HEVC previews decoded with WebCodecs where the browser has HEVC, 1 MB of 143 MB read for 3 files (all before);
+  next a real Safari (or hardware Chrome) decode of a Z8 HLG card and a look at its HLG-to-sRGB mapping; (b) a map for the 11-point bodies (D90, D3x00, D5000, D5100) and AFInfo 0x88 bodies (D70, D200),
   from frames shot with a known point; (c) a D5/D500/D850 card to check the in-focus-first rule and the 98
   interpolated 153-point positions.
 - Sony before the A7 III (NEX-5N, NEX-7, A5000, A500): no FocusLocation; the enciphered 0x9400/0x9416 blocks may hold
@@ -185,4 +184,4 @@
 - (landed 2026-11-24, PR #18557, eval/cull-iptc-tree-codes-2026-11-24.md) Keyword trees and code replacements.
   (2026-11-24, eval/cull-iptc-own-keywords-2026-11-24.md) A sidecar's own flat keywords stay as written (a
   `Before > After` was being turned into a path). Next: Lightroom's Read Metadata from Files on these sidecars.
-- (2026-11-24) next HLG Z8 HEVC previews, a real card of 500+ raws with picks, a Lightroom read of merged sidecars
+- (2026-11-24) HLG Z8 HEVC previews landed (eval/cull-hevc-previews-*); next a real card of 500+ raws with picks, a Lightroom read of merged sidecars
