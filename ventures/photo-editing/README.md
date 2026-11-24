@@ -201,6 +201,29 @@ python3 eval/cull-raw-data-previews-check.py OUT     # sensels vs shootflow
 python3 eval/cull-raw-data-previews-colour.py OUT    # colour vs shootflow
 ```
 
+## The cull page writes keyword trees and fills codes from a roster (2026-11-24)
+
+Two things a sports or news desk leans on, added to the IPTC template.
+**Keyword trees:** a keyword typed as a path (`Sport > Ice hockey` or
+`Sport|Ice hockey`, in the template or with `K`) goes into
+`lr:hierarchicalSubject`, the Bag Lightroom Classic, Bridge and digiKam keep
+keyword trees in, and each level goes into `dc:subject`, so readers with no
+tree still find every word. Merging into your own sidecar adds to its tree
+and leaves the entries already there as written. **Code replacements:** paste
+or load a list of `code<TAB>text` (or `code=text`) lines, such as a team
+roster, and `\23\` in any box or in a frame's keywords becomes that text
+when the sidecars are written, the way Photo Mechanic's code replacements
+work (one text per code and the backslash delimiter only). Unknown codes stay
+as typed so a typo shows; a code's text may use `{year}` and the other
+variables.
+
+Checked (eval/cull-iptc-tree-2026-11-24.md): 12 unit tests; in Chromium, two
+NEFs and a Lightroom-style sidecar that already had a tree, a code list file,
+the zip read back by ExifTool 12.76 (`HierarchicalSubject`
+["Events|Wedding","Sport|Rugby league","People|Players|Jane Roe"]; headline
+"Jane Roe scores for Leeds Rhinos"; `crs:Exposure2012` kept; `-validate` OK).
+Not checked: Lightroom building the tree on import.
+
 ## The cull page writes IPTC captions, keywords and copyright (2026-11-24)
 
 After picking, a photo desk captions: creator, copyright line, where, and

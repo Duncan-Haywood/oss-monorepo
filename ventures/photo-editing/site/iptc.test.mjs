@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { frameVars, expandTemplate, frameIptc, mergeIptc, readIptc, splitKeywords } from "./iptc.mjs";
+import { frameVars, expandTemplate, frameIptc, mergeIptc, readIptc, splitKeywords, keywordBags, parseCodes, expandCodes } from "./iptc.mjs";
 import { xmpSidecar, mergeXmpSidecar, readXmp } from "./rawpreview.mjs";
 
 const LR = `<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 7.0">
@@ -120,4 +120,45 @@ test("readIptc loads a template from a captioned sidecar", () => {
   const r = readIptc(LR);
   assert.deepEqual(r, { title: "Old title", keywords: ["wedding & rings", "Bride"], city: "Leeds" });
   assert.equal(readIptc("plain text"), null);
+});
+
+test("keyword paths: every level into dc:subject, full paths into lr:hierarchicalSubject", () => {
+  assert.deepEqual(splitKeywords("Sport > Ice hockey, Sport|Ice hockey, People | Players|Jane Roe"), ["Sport|Ice hockey", "People|Players|Jane Roe"]);
+  assert.deepEqual(keywordBags(["Sport|Ice hockey", "final", "Sport|Football"]), {
+    subject: ["Sport", "Ice hockey", "final", "Football"],
+    hierarchy: ["Sport|Ice hockey", "Sport|Football"],
+  });
+  const f = frameIptc({ keywords: "Sport > Ice hockey, final" }, FRAME);
+  assert.deepEqual(f, { keywords: ["Sport", "Ice hockey", "final"], hierarchy: ["Sport|Ice hockey"] });
+  const out = mergeIptc(xmpSidecar({ rating: 3 }), f);
+  assert.match(out, /xmlns:lr="http:\/\/ns.adobe.com\/lightroom\/1.0\/"/);
+  assert.match(out, /<lr:hierarchicalSubject>\s*<rdf:Bag>\s*<rdf:li>Sport\|Ice hockey<\/rdf:li>\s*<\/rdf:Bag>/);
+  // Read back as a template: the path, then flat keywords no path names.
+  assert.deepEqual(readIptc(out).keywords, ["Sport|Ice hockey", "final"]);
+  assert.equal(readXmp(out).rating, 3);
+});
+
+test("keyword paths merge into a Lightroom sidecar's existing tree without touching old entries", () => {
+  const lr = LR.replace("</dc:subject>", `</dc:subject>
+   <lr:hierarchicalSubject>
+    <rdf:Bag>
+     <rdf:li>Events|Wedding</rdf:li>
+    </rdf:Bag>
+   </lr:hierarchicalSubject>`).replace('xmlns:dc=', 'xmlns:lr="http://ns.adobe.com/lightroom/1.0/"\n    xmlns:dc=');
+  const out = mergeIptc(lr, frameIptc({ keywords: "Events|wedding, People|Bride" }, FRAME));
+  assert.equal(out.match(/xmlns:lr=/g).length, 1);
+  assert.match(out, /<rdf:li>Events\|Wedding<\/rdf:li>\s*<rdf:li>People\|Bride<\/rdf:li>/);
+  assert.deepEqual(readIptc(out).keywords, ["Events|Wedding", "People|Bride", "wedding & rings"]);
+});
+
+test("code replacements: \\code\\ in fields and keywords, unknown codes kept, codes may use variables", () => {
+  const codes = parseCodes("# roster\n23\tJane Roe\n7 = John Doe\nLDS\tLeeds Rhinos, {year} season\n\nbad line\n");
+  assert.deepEqual([...codes.keys()], ["23", "7", "lds"]);
+  assert.equal(expandCodes("\\23\\ passes to \\7\\ (\\99\\)", codes), "Jane Roe passes to John Doe (\\99\\)");
+  const f = frameIptc({ codes: "23\tJane Roe\nlds\tLeeds Rhinos {year}", caption: "\\23\\ of \\LDS\\ scores.", keywords: "People|Players|\\23\\" },
+    { ...FRAME, keywords: ["\\lds\\"] });
+  assert.equal(f.caption, "Jane Roe of Leeds Rhinos 2026 scores.");
+  assert.deepEqual(f.hierarchy, ["People|Players|Jane Roe"]);
+  assert.deepEqual(f.keywords, ["People", "Players", "Jane Roe", "Leeds Rhinos 2026"]);
+  assert.equal(frameIptc({ caption: "\\23\\" }, FRAME).caption, "\\23\\");
 });

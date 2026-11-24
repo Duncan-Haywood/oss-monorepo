@@ -22,6 +22,18 @@
 //   country       photoshop:Country          simple text
 //   instructions  photoshop:Instructions     simple text
 //
+// Two desk features ride on the keywords and text fields:
+//
+//   * Hierarchical keywords. A keyword typed as "Sport|Ice hockey" (or
+//     "Sport > Ice hockey") is a path. Its full path goes into
+//     lr:hierarchicalSubject, the Bag Lightroom Classic, Bridge and digiKam
+//     use for keyword trees, and every level ("Sport", "Ice hockey") goes
+//     into dc:subject, so readers without trees still find each word.
+//   * Code replacements, in the style of Photo Mechanic's: a list of
+//     "code<TAB>text" lines (or "code=text"), and "\23\" in any field or
+//     keyword box becomes the text for code 23 (a team roster, a venue list).
+//     Unknown codes stay as typed so a typo shows.
+//
 // mergeIptc edits a sidecar in place: properties the template leaves empty
 // are untouched, keywords are added to the existing bag (no duplicates, case
 // ignored), and every other property (develop settings, crops, history) is
@@ -31,6 +43,7 @@ export const NS = {
   dc: "http://purl.org/dc/elements/1.1/",
   photoshop: "http://ns.adobe.com/photoshop/1.0/",
   Iptc4xmpCore: "http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/",
+  lr: "http://ns.adobe.com/lightroom/1.0/",
 };
 
 /** Field key -> [preferred prefix, namespace key, local name, kind]. */
@@ -50,6 +63,9 @@ export const IPTC_FIELDS = {
   instructions: ["photoshop", "Instructions", "text"],
 };
 
+// What mergeIptc and readIptc handle: the form's fields plus the keyword tree.
+const XMP_FIELDS = { ...IPTC_FIELDS, hierarchy: ["lr", "hierarchicalSubject", "bag"] };
+
 const reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 function unesc(s) {
@@ -60,14 +76,61 @@ function unesc(s) {
   });
 }
 
-/** Keywords from a typed string: split on commas, semicolons or new lines, trimmed, duplicates (case ignored) dropped. */
+// "Sport > Ice hockey", " Sport | Ice  hockey " -> "Sport|Ice hockey"; empty levels dropped.
+function normKeyword(raw) {
+  return String(raw).split(/\||\s>\s/).map((x) => x.trim().replace(/\s+/g, " ")).filter(Boolean).join("|");
+}
+
+/**
+ * Keywords from a typed string: split on commas, semicolons or new lines,
+ * trimmed, duplicates (case ignored) dropped. A path keeps its levels joined
+ * by "|" ("Sport > Ice hockey" -> "Sport|Ice hockey").
+ */
 export function splitKeywords(s) {
   const out = [], seen = new Set();
   for (const raw of Array.isArray(s) ? s : String(s || "").split(/[,;\n]/)) {
-    const k = String(raw).trim().replace(/\s+/g, " ");
+    const k = normKeyword(raw);
     if (k && !seen.has(k.toLowerCase())) { seen.add(k.toLowerCase()); out.push(k); }
   }
   return out;
+}
+
+/**
+ * Typed keywords (paths allowed) as the two XMP bags: `subject`, every level
+ * of every keyword once (dc:subject), and `hierarchy`, the full paths of the
+ * keywords that have more than one level (lr:hierarchicalSubject).
+ */
+export function keywordBags(keywords) {
+  const subject = [], hierarchy = [];
+  for (const k of splitKeywords(keywords)) {
+    const levels = k.split("|");
+    subject.push(...levels);
+    if (levels.length > 1) hierarchy.push(k);
+  }
+  return { subject: splitKeywords(subject), hierarchy };
+}
+
+// ---------------------------------------------------------------- code replacements
+
+/**
+ * A code list from text: one "code<TAB>text" (or "code=text") per line;
+ * blank lines and lines starting with # are skipped. Codes match with case
+ * ignored. Returns a Map of lower-cased code -> text.
+ */
+export function parseCodes(text) {
+  const codes = new Map();
+  for (const line of String(text || "").split(/\r?\n/)) {
+    if (!line.trim() || /^\s*#/.test(line)) continue;
+    const m = /^\s*([^\t=\\]+?)\s*(?:\t|=)\s*(.*?)\s*$/.exec(line);
+    if (m && m[1]) codes.set(m[1].toLowerCase(), m[2]);
+  }
+  return codes;
+}
+
+/** "\\23\\ scores" -> "Jane Roe scores" with code 23 -> "Jane Roe". Unknown codes stay as typed. */
+export function expandCodes(s, codes) {
+  if (!codes || !codes.size) return String(s ?? "");
+  return String(s ?? "").replace(/\\([^\\\s]+)\\/g, (m, c) => (codes.has(c.toLowerCase()) ? codes.get(c.toLowerCase()) : m));
 }
 
 // ---------------------------------------------------------------- template variables
@@ -125,14 +188,22 @@ export function expandTemplate(s, vars) {
  */
 export function frameIptc(template = {}, frame = {}) {
   const vars = frameVars(frame);
+  const codes = template.codes instanceof Map ? template.codes : parseCodes(template.codes);
+  // Codes first, so a code's text may itself use {variables}.
+  const fill = (s) => expandTemplate(expandCodes(s, codes), vars);
   const out = {};
   for (const k of Object.keys(IPTC_FIELDS)) {
     if (k === "keywords") continue;
-    const v = expandTemplate(template[k], vars).trim();
+    const v = fill(template[k]).trim();
     if (v) out[k] = v;
   }
-  const kw = splitKeywords([...splitKeywords(expandTemplate(Array.isArray(template.keywords) ? template.keywords.join(",") : template.keywords, vars)), ...splitKeywords(frame.keywords || [])]);
-  if (kw.length) out.keywords = kw;
+  const own = (frame.keywords || []).map((k) => fill(k)).join(",");
+  const kw = splitKeywords([...splitKeywords(fill(Array.isArray(template.keywords) ? template.keywords.join(",") : template.keywords)), ...splitKeywords(own)]);
+  if (kw.length) {
+    const { subject, hierarchy } = keywordBags(kw);
+    out.keywords = subject;
+    if (hierarchy.length) out.hierarchy = hierarchy;
+  }
   return out;
 }
 
@@ -168,7 +239,7 @@ function liValues(inner) {
 export function readIptc(text) {
   if (typeof text !== "string" || !/<x:xmpmeta\b|<rdf:RDF\b|<x:xapmeta\b/.test(text)) return null;
   const out = {};
-  for (const [key, [nsKey, name, kind]] of Object.entries(IPTC_FIELDS)) {
+  for (const [key, [nsKey, name, kind]] of Object.entries(XMP_FIELDS)) {
     const p = prefixFor(text, NS[nsKey]);
     if (!p) continue;
     const f = findProp(text, p, name);
@@ -182,6 +253,14 @@ export function readIptc(text) {
       const vals = lis.map((l) => l.value).filter(Boolean);
       if (vals.length) out[key] = kind === "bag" ? vals : vals.join("; ");
     }
+  }
+  if (out.hierarchy) {
+    // As a template: the paths, then the flat keywords no path already names.
+    const paths = splitKeywords(out.hierarchy);
+    const named = new Set(paths.flatMap((p) => p.split("|")).map((x) => x.toLowerCase()));
+    const kw = splitKeywords([...paths, ...(out.keywords || []).filter((k) => !named.has(k.toLowerCase()))]);
+    delete out.hierarchy;
+    out.keywords = kw;
   }
   return out;
 }
@@ -212,7 +291,7 @@ export function mergeIptc(text, fields = {}) {
   if (!d || !/<x:xmpmeta\b|<rdf:RDF\b/.test(text)) return null;
   const rdf = d[1];
   let out = text;
-  const keys = Object.keys(IPTC_FIELDS).filter((k) => (k === "keywords" ? fields.keywords && fields.keywords.length : fields[k]));
+  const keys = Object.keys(XMP_FIELDS).filter((k) => (XMP_FIELDS[k][2] === "bag" ? fields[k] && fields[k].length : fields[k]));
   if (!keys.length) return out;
 
   // Open the Description (a self-closing one gets a closing tag) so elements can go inside.
@@ -241,13 +320,15 @@ export function mergeIptc(text, fields = {}) {
   };
 
   for (const key of keys) {
-    const [nsKey, name, kind] = IPTC_FIELDS[key];
+    const [nsKey, name, kind] = XMP_FIELDS[key];
     const p = bind(nsKey);
     const f = findProp(out, p, name);
     let value = fields[key];
     if (kind === "bag" && f) {
       const have = f.form === "attr" ? [unesc(f.inner)] : liValues(f.inner).map((l) => l.value);
-      value = splitKeywords([...have, ...value]);
+      // Existing entries are kept as written; new ones added unless already there (case ignored).
+      const seen = new Set();
+      value = [...have, ...value].filter((v) => v && !seen.has(v.toLowerCase()) && seen.add(v.toLowerCase()));
     }
     if (kind === "alt" && f && f.form === "elem") {
       // Keep other languages; replace x-default (or the only entry).
