@@ -205,10 +205,10 @@ flagships:
       views, middle default for all four, GA4 watches page views (README "Visitors
       under a partial snippet loss", "PostHog users and GA4 activeUsers under a
       snippet loss"); next a template-shaped loss (whole page types dark) and a live
-      site. joint drift (measured, not offered). Open: (0) drift model: stiff slope
-      hears NBER turns, over-cuts TCPD; t-walk. Curvature word ships under
-      --shape-word panel (README "A curvature word"): slope donors straight 73% vs
-      clean 37%, OR 4.74 vs 3.37. More open items: NEXT.md.
+      site. joint drift (measured, not offered). Open: (0) BBQ dater (README "Dated
+      turning points"): GDP 0.781/0.80; next GDPC1 past 2009; t-walk. Curvature word
+      ships under --shape-word panel (README "A curvature word"): slope donors
+      straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://github.com/, https://pypi.org/, https://repo1.maven.org/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
@@ -402,6 +402,13 @@ flagships:
       watch, exact magic numbers, race supply cut, slow tables in a worker
       2026-11-23 (race-worker.mjs, eval/race-budget.txt: 553 magic numbers lowered,
       0 wrong); next: a real league's published numbers. More: NEXT.md.
+    buildable: >-
+      Search work in NEXT.md, no outside input: 12 teams below 132 carry-over or
+      124-130 ruled out (eval/window-refill.c); bowling 22-28 team seasons 1 off the
+      bound (22x10, 22x21, 24x23, 26x38: an answer or a proof,
+      bowling-lane-near.mjs); 47/49 on 8x9 night designs (a split or resumable
+      search). Each is a hard combinatorial search; judge its worth before taking
+      it.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed
