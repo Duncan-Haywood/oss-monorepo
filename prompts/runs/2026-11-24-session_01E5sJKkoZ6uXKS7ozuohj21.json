@@ -1,0 +1,466 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKkoZ6uXKS7ozuohj21",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T23:17:48Z",
+  "ended": "2026-11-24T23:18:33Z",
+  "wall_minutes": 17.64,
+  "tokens_in": 6665563,
+  "tokens_out": 27266,
+  "cost_usd": 2.725,
+  "tool_calls": 68,
+  "task": null,
+  "projects": [
+    "ebay-fee-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18737",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "First scripted edit asserted one occurrence of `input.finalValueRate ?? 13.6`; there were two (priceToMatchProfit), which is how the second batch-fee defect surfaced."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 open list is 14 entries, 12 of them control-plane or blocked on gov.uk; each run rereads them to find nothing fixable. A flag on entries that need owner approval or an unreachable host would let `redteam.py open` print only actionable ones."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`targets` has no --target-style filter by path; `--under ventures/<slug> --limit 50` works but isn't mentioned for aiming at one venture."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for an automated guard; the `?? default` blank-box class spans ~20 venture calculators but only bites where the page passes raw blanks (Amazon FBA normalises them), so a lint would be noisy.",
+      "did": "Fixed the instance class in the eBay engine (both copies) and noted the wider class in the post and notes instead of a lint.",
+      "result": "No new CI check this run."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "North star says for-profit work first; the router drew redteam.",
+      "did": "Aimed the campaign at the eBay calculator, the lead magnet for Seller Books, rather than a random draw.",
+      "result": "Three real money-answer bugs fixed in a for-profit funnel tool."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-redteam-ebay-fee-calculator-batch-fee-and-blank-boxes.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: 14 open entries; the uk-shared-parental-pay one still blocked (gov.uk and legislation.gov.uk 403/ENOTFOUND via curl and WebFetch), the rest control plane or need a redesign; none patched. Campaigns: calc.mjs 12 mutants (6 caught), csv.mjs 8 (7 caught). Guard: 4 gap tests + 3 defect tests in calc.test.mjs; rerun shows all gaps caught. Follow-up: `Number(input.x ?? <non-zero>)` appears in ~20 venture calc.mjs files (parking-lot-striping, sewer-line, security-camera, music-lesson, ...); check each page for raw blank strings. Verification: ebay-fee-calculator node --test 524/524; marketplace-fee-compare handoff 34/34; where-to-sell-calculator handoff 31/31; check_posts ok; platform/pages/build.test.mjs locally: 335/2 fail then 333/5 fail with a file timeout (site section/compare/guides tests, none touching the eBay engine); the failing set changed between runs, so CI build is the arbiter.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/ebay-fee-calculator/calc.mjs",
+        "test": "node --test ventures/ebay-fee-calculator/**/*.test.mjs  (in .)",
+        "seed": 705793234,
+        "commit": "65e47b5a7",
+        "sites": 2025,
+        "baseline_seconds": 1.1,
+        "mutants": [
+          {
+            "file": "ventures/ebay-fee-calculator/calc.mjs",
+            "line": 267,
+            "col": 32,
+            "operator": "le-to-lt",
+            "before": "if (Math.abs(profitReturnGap) <= 1e-12) {",
+            "after": "if (Math.abs(profitReturnGap) < 1e-12) {",
+            "line_text": "  if (Math.abs(profitReturnGap) <= 1e-12) {",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Only differs when |profit - returnProfit| is exactly 1e-12 dollars; money inputs cannot land on that float boundary."
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/calc.mjs",
+            "line": 624,
+            "col": 55,
+            "operator": "minus-to-plus",
+            "before": "auction.expectedProfitDelta = auction.expectedProfit - bin.expectedProfit;",
+            "after": "auction.expectedProfitDelta = auction.expectedProfit + bin.expectedProfit;",
+            "line_text": "  auction.expectedProfitDelta = auction.expectedProfit - bin.expectedProfit;",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "auction.expectedProfitDelta was never asserted; new test pins it to -bin delta."
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/calc.mjs",
+            "line": 758,
+            "col": 48,
+            "operator": "minus-to-plus",
+            "before": "breakEvenPartial = Math.max(0, (sold.profit - returnKept) / denom);",
+            "after": "breakEvenPartial = Math.max(0, (sold.profit + returnKept) / denom);",
+            "line_text": "    breakEvenPartial = Math.max(0, (sold.profit - returnKept) / denom);",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/calc.mjs",
+            "line": 990,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "export const DEFAULT_PICKUP_MINUTES = 25;",
+            "after": "export const DEFAULT_PICKUP_MINUTES = 26;",
+            "line_text": "export const DEFAULT_PICKUP_MINUTES = 25;",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/calc.mjs",
+            "line": 1597,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "expectedProfit: envelopeAfterClaims * (envelopeSellThrough / 100),",
+            "after": "expectedProfit: envelopeAfterClaims * (envelopeSellThrough / 101),",
+            "line_text": "    expectedProfit: envelopeAfterClaims * (envelopeSellThrough / 100),",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/calc.mjs",
+            "line": 1610,
+            "col": 57,
+            "operator": "const-plus-one",
+            "before": "if (envelopeSellThrough > 1e-12 && profitClaimGap > 1e-12) {",
+            "after": "if (envelopeSellThrough > 1e-12 && profitClaimGap > 1e-13) {",
+            "line_text": "  if (envelopeSellThrough > 1e-12 && profitClaimGap > 1e-12) {",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Only differs when the envelope claim gap is between 1e-13 and 1e-12 dollars, which cent-scale inputs cannot produce; both thresholds mean \"no gap\"."
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/calc.mjs",
+            "line": 1919,
+            "col": 40,
+            "operator": "ge-to-gt",
+            "before": "const ahead = combined.expectedProfit >= separate.expectedProfit ? 'more' : 'less';",
+            "after": "const ahead = combined.expectedProfit > separate.expectedProfit ? 'more' : 'less';",
+            "line_text": "  const ahead = combined.expectedProfit >= separate.expectedProfit ? 'more' : 'less';",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Exact tie in combinedShippingNote untested; new test asserts a tie never reads as keeping less."
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/calc.mjs",
+            "line": 2547,
+            "col": 62,
+            "operator": "times-to-div",
+            "before": "const conversionPct = clicks > 1e-12 ? extraOrders / clicks * 100 : 0;",
+            "after": "const conversionPct = clicks > 1e-12 ? extraOrders / clicks / 100 : 0;",
+            "line_text": "  const conversionPct = clicks > 1e-12 ? extraOrders / clicks * 100 : 0;",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/calc.mjs",
+            "line": 3296,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "unpaidPct: 0,",
+            "after": "unpaidPct: 1,",
+            "line_text": "    unpaidPct: 0,",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "immediate row unpaidPct is shown in the table (index.html, immediate-payment page) but was never asserted."
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/calc.mjs",
+            "line": 3386,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "export const DEFAULT_TRS_DISCOUNT_PCT = 10;",
+            "after": "export const DEFAULT_TRS_DISCOUNT_PCT = 11;",
+            "line_text": "export const DEFAULT_TRS_DISCOUNT_PCT = 10;",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/calc.mjs",
+            "line": 3749,
+            "col": 47,
+            "operator": "const-plus-one",
+            "before": "const unrefundedFees = selfOrder.feeTotal * (1 - selfOrder.feeRefundOnReturnPercent / 100);",
+            "after": "const unrefundedFees = selfOrder.feeTotal * (2 - selfOrder.feeRefundOnReturnPercent / 100);",
+            "line_text": "  const unrefundedFees = selfOrder.feeTotal * (1 - selfOrder.feeRefundOnReturnPercent / 100);",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "breakEvenManagedFee had no test; new test plugs the ceiling fee back in with 50% fee refund and checks it ties self-label."
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/calc.mjs",
+            "line": 4717,
+            "col": 31,
+            "operator": "plus-to-minus",
+            "before": "shippingCost: shippingCost + extraShipping,",
+            "after": "shippingCost: shippingCost - extraShipping,",
+            "line_text": "    shippingCost: shippingCost + extraShipping,",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/ebay-fee-calculator/csv.mjs",
+        "test": "node --test ventures/ebay-fee-calculator/**/*.test.mjs  (in .)",
+        "seed": 414838420,
+        "commit": "65e47b5a7",
+        "sites": 9,
+        "baseline_seconds": 1.2,
+        "mutants": [
+          {
+            "file": "ventures/ebay-fee-calculator/csv.mjs",
+            "line": 13,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "Number(row.price).toFixed(2),",
+            "after": "Number(row.price).toFixed(3),",
+            "line_text": "    Number(row.price).toFixed(2),",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/csv.mjs",
+            "line": 14,
+            "col": 42,
+            "operator": "and-to-or",
+            "before": "String(Number.isInteger(row.quantity) && row.quantity > 0 ? row.quantity : 1),",
+            "after": "String(Number.isInteger(row.quantity) || row.quantity > 0 ? row.quantity : 1),",
+            "line_text": "    String(Number.isInteger(row.quantity) && row.quantity > 0 ? row.quantity : 1),",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/csv.mjs",
+            "line": 14,
+            "col": 58,
+            "operator": "gt-to-ge",
+            "before": "String(Number.isInteger(row.quantity) && row.quantity > 0 ? row.quantity : 1),",
+            "after": "String(Number.isInteger(row.quantity) && row.quantity >= 0 ? row.quantity : 1),",
+            "line_text": "    String(Number.isInteger(row.quantity) && row.quantity > 0 ? row.quantity : 1),",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/csv.mjs",
+            "line": 14,
+            "col": 60,
+            "operator": "const-plus-one",
+            "before": "String(Number.isInteger(row.quantity) && row.quantity > 0 ? row.quantity : 1),",
+            "after": "String(Number.isInteger(row.quantity) && row.quantity > 1 ? row.quantity : 1),",
+            "line_text": "    String(Number.isInteger(row.quantity) && row.quantity > 0 ? row.quantity : 1),",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "quantity > 1 vs > 0 differs only at quantity 1, where the fallback is also 1, so the cell is identical."
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/csv.mjs",
+            "line": 14,
+            "col": 79,
+            "operator": "const-plus-one",
+            "before": "String(Number.isInteger(row.quantity) && row.quantity > 0 ? row.quantity : 1),",
+            "after": "String(Number.isInteger(row.quantity) && row.quantity > 0 ? row.quantity : 2),",
+            "line_text": "    String(Number.isInteger(row.quantity) && row.quantity > 0 ? row.quantity : 1),",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/csv.mjs",
+            "line": 16,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "Number(row.profit).toFixed(2),",
+            "after": "Number(row.profit).toFixed(3),",
+            "line_text": "    Number(row.profit).toFixed(2),",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/csv.mjs",
+            "line": 19,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "Number(row.profitDelta).toFixed(2),",
+            "after": "Number(row.profitDelta).toFixed(3),",
+            "line_text": "    Number(row.profitDelta).toFixed(2),",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ebay-fee-calculator/csv.mjs",
+            "line": 21,
+            "col": 84,
+            "operator": "plus-to-minus",
+            "before": "return [header, ...body].map((row) => row.map(escapeCell).join(\",\")).join(\"\\r\\n\") + \"\\r\\n\";",
+            "after": "return [header, ...body].map((row) => row.map(escapeCell).join(\",\")).join(\"\\r\\n\") - \"\\r\\n\";",
+            "line_text": "  return [header, ...body].map((row) => row.map(escapeCell).join(\",\")).join(\"\\r\\n\") + \"\\r\\n\";",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/ebay-fee-calculator/calc.mjs",
+        "issue": "priceToMatchProfit charged the per-order fixed fee to every unit (fixedFee + ... per unit), while calculateOrder spreads it across the batch; at 10 units a $30 target named a price leaving $33.61. Fixed: fixedFee / quantity; test 'price for a target leftover charges the per-order fixed fee once across a batch'.",
+        "patched": true
+      },
+      {
+        "file": "ventures/ebay-fee-calculator/calc.mjs",
+        "issue": "calculateSourcingCeiling solved on a quantity-1 baseline, so the per-item ceiling for a batch charged the whole order fee to each unit; at 10 units and 25% target the order at the ceiling returned 26.1%. An older test pinned the ceiling as identical across batch sizes. Fixed: baseline keeps the typed quantity; old test corrected, new test checks ROI at the ceiling equals the target at 1 and 10 units.",
+        "patched": true
+      },
+      {
+        "file": "ventures/ebay-fee-calculator/calc.mjs",
+        "issue": "calculateOrder/priceToMatchProfit used `input.x ?? default`, but the page passes raw box text, so a cleared final value fee box computed a 0% fee (profit $6.26 too high on a $46 order), a cleared fixed fee $0, a cleared fee-refund box 0% instead of 100%, and a cleared units box an error. Fixed with orDefault(); test 'a cleared rate box falls back to its default instead of silently reading 0%'.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3ed8ecbf-96d5-5f98-a094-267fcfac408f",
+    "transcripts": 1,
+    "first": "2026-11-24T23:17:48Z",
+    "last": "2026-11-24T23:35:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 134,
+        "output": 27266,
+        "thinking": 6742,
+        "cache_read": 6556957,
+        "cache_write_5m": 0,
+        "cache_write_1h": 108472,
+        "api_equivalent_usd": 2.725,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 134,
+      "output": 27266,
+      "thinking": 6742,
+      "cache_read": 6556957,
+      "cache_write_5m": 0,
+      "cache_write_1h": 108472,
+      "api_equivalent_usd": 2.725,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 61,
+      "ToolSearch": 3,
+      "WebFetch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.64,
+      "active_minutes": 17.64,
+      "model_minutes": 5.83,
+      "tool_minutes": 11.81,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: mutation triage, three money-math fixes with tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 220.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
