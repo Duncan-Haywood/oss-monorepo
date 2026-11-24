@@ -526,3 +526,10 @@ test("the bowling page builds in a Web Worker that runs the same functions, with
   assert.deepEqual(posted[0].problems, []);
   assert.ok(posted[1].season.errors.length && !posted[1].report);
 });
+
+test("22 teams over 10 weeks: every team on every pair at most once (stored 2026-11-24; 11 weeks is proved out of reach)", () => {
+  assert.ok(OUT_OF_REACH.includes("22,11"));
+  const s = bowlingSchedule({ teams: names(22), weeks: 10, start: START });
+  const r = laneReport(s);
+  assert.equal(r.atBound, 22);
+});

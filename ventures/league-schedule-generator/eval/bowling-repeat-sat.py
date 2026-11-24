@@ -36,7 +36,7 @@ for w, wk in enumerate(rounds):
 for t in range(n):
     for p in range(P):
         lits = [x(w, at[w][t], p) for w in range(W)]
-        cnf.extend(CardEnc.atmost(lits, hi, vpool=pool, encoding=EncType.seqcounter).clauses)
+        cnf.extend(CardEnc.atmost(lits, hi, vpool=pool, encoding=EncType.pairwise if hi == 1 else EncType.seqcounter).clauses)  # pairwise at hi 1: 22x10 in 1.5 s, none in 420 s (2026-11-24)
         cnf.extend(CardEnc.atleast(lits, lo, vpool=pool, encoding=EncType.seqcounter).clauses)
 for m in range(P): cnf.append([x(0, m, m)])  # pair labels are free: fix week 1
 # A repeat of team t on pair p in weeks w, w+1. When a match is played twice running (it never is
