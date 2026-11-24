@@ -1033,3 +1033,38 @@ def test_named_history_survives_the_automatic_archive(tmp_path, capsys):
     assert mine not in got
     assert mine in hist  # the named piece, not only the automatic ones
     assert "Result 0 2026-11-10" in hist and "Result 0" not in got
+
+
+def test_park_moves_a_dated_result_and_keeps_its_open_tail(tmp_path, capsys):
+    # PR #18514's record: the park filed "closed-eye flag 2026-11-24 (...):
+    # next Nikon AF grids, a real card, a Lightroom read" whole in NEXT.md,
+    # a result to the open list and the row's next steps out of the row.
+    tail = "next Nikon AF grids, a real card of 500+ raws with picks, a Lightroom read"
+    res = ("on-device closed-eye flag 2026-11-24 (1 closed face flagged, "
+           "eval/cull-closed-eyes-*; next a real blink set)")
+    assert ff.result_head(res + ": " + tail) == res
+    assert ff.reads_result(res) and not ff.is_result(res)
+    row = "History: README. Next: " + "; ".join(["x" * 190] * 9) + "; AF points; " + res + ": " + tail + "."
+    doc = DOC.replace("    next: >-\n      Only b.\n", "".join(ff.wrap("next", row)))
+    f = tmp_path / "flagships.yaml"
+    f.write_text(doc)
+    (tmp_path / "ventures" / "b").mkdir(parents=True)
+    base = ["b", "--file", str(f), "--ventures-dir", str(tmp_path / "ventures")]
+    new = "AF points; DNGs developed in-page 2026-11-24 (32 of 32, eval/raw-*) " + "d" * 60
+    assert ff.main(base + ["--replace", "AF points", new]) == 0
+    got = ff.read_value(f.read_text(), "b", "next")
+    assert tail in got and res not in got and "; next Nikon" in got
+    assert res in (tmp_path / "ventures" / "b" / "HISTORY.md").read_text()
+    assert not (tmp_path / "ventures" / "b" / "NEXT.md").exists()
+
+
+def test_reads_result_on_readme_cited_work():
+    # PR #18513's record: five shipped sources, each citing its README
+    # section, were parked to NEXT.md as an open item.
+    item = 'Plausible, Mixpanel (README "Mixpanel as a source"), Matomo'
+    readme = "# x\n\n## Mixpanel as a source\n\ntext\n"
+    assert ff.reads_result(item, readme)
+    assert not ff.reads_result(item, "# x\n")                    # no such section yet
+    assert not ff.reads_result("a real Mixpanel export (README \"Mixpanel as a source\")", readme)
+    assert not ff.reads_result('(1) AI layer (README "Mixpanel as a source")', readme)
+    assert ff.result_head("plain words: next a thing") == ""
