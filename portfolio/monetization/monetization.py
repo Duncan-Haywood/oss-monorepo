@@ -46,6 +46,26 @@ BET_REQUIRED = ["bet", "billing", "tiers", "cost_drivers", "rail", "checkout"]
 BILLING = ["subscription", "one-off"]
 CHECKOUT = ["dark", "live"]
 
+# A public venture's row says how its offer bills, so the North star's metric
+# (only subscriptions are MRR, prompts/goals.md) is countable. A row that is
+# not a subscription says why in `billing_why`. Why: on 2026-11-24, 8 of 9
+# venture rows were one-off packs written before the subscription pivot, and
+# nothing in the file said so (backlog P072).
+VENTURE_BILLING = ["subscription", "one-off", "none"]
+
+# Payment providers a checkout file can be wired to, by the host it calls.
+# Why: the seven dark packs built 2026-11-02..07 call Lemon Squeezy's licence
+# validate endpoint, but the owner opened Paddle on 2026-11-24, so their
+# "owner: set the checkout link" step could never happen and the rows sat in
+# "Waiting on the owner" with an agent step (rewiring to Paddle) unwritten.
+PROVIDER_HOSTS = {
+    "lemonsqueezy": "lemonsqueezy.com",
+    "paddle": "paddle.com",
+    "gumroad": "gumroad.com",
+    "stripe": "stripe.com",
+}
+CHECKOUT_FILES = ("checkout.mjs", "checkout.ts", "checkout.js")
+
 
 def row_name(row: dict, i: int = 0) -> str:
     """`venture` for a public venture's row, `app:<slug>` for a private bet's."""
@@ -61,9 +81,27 @@ def load(path: Path = MODELS) -> dict:
         return yaml.safe_load(fh) or {}
 
 
+def checkout_providers(venture_dir: Path) -> set[str]:
+    """Providers the venture's checkout file(s) call, by host."""
+    found: set[str] = set()
+    if not venture_dir.is_dir():
+        return found
+    for name in CHECKOUT_FILES:
+        for f in venture_dir.rglob(name):
+            if "node_modules" in f.parts:
+                continue
+            try:
+                text = f.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            found.update(p for p, host in PROVIDER_HOSTS.items() if host in text)
+    return found
+
+
 def check(data: dict, repo: Path = REPO) -> list[str]:
     """Problems with the file, empty when it is valid."""
     errors: list[str] = []
+    rail = str((data.get("rail") or {}).get("provider") or "")
     products = data.get("products")
     if not isinstance(products, list) or not products:
         return ["models.yaml: `products` must be a non-empty list"]
@@ -85,6 +123,13 @@ def check(data: dict, repo: Path = REPO) -> list[str]:
             errors.append(f"{where}: missing `venture` (or `app` for a private bet)")
         elif not (repo / "ventures" / str(name)).is_dir():
             errors.append(f"{where}: no ventures/{name} directory")
+        else:
+            errors.extend(check_venture_billing(row, where))
+            wired = checkout_providers(repo / "ventures" / str(name)) - {rail}
+            if rail and wired and row.get("next_owner") is True:
+                errors.append(
+                    f"{where}: checkout calls {', '.join(sorted(wired))} but the rail is {rail}; "
+                    "rewiring it is an agent step, so set next_owner: false and write that step in `next`")
         if row.get("stage") not in STAGES:
             errors.append(f"{where}: stage must be one of {STAGES}")
         if row.get("liability") not in LIABILITY:
@@ -110,6 +155,39 @@ def check(data: dict, repo: Path = REPO) -> list[str]:
         if ev and not (repo / str(ev)).exists():
             errors.append(f"{where}: evidence {ev} does not exist")
     return errors
+
+
+def check_venture_billing(row: dict, where: str) -> list[str]:
+    billing = row.get("billing")
+    if billing not in VENTURE_BILLING:
+        return [f"{where}: billing must be one of {VENTURE_BILLING}"]
+    if billing != "subscription" and not str(row.get("billing_why") or "").strip():
+        return [f"{where}: billing {billing} needs `billing_why` (only subscriptions count "
+                "toward MRR, prompts/goals.md \"North star\")"]
+    return []
+
+
+def billing_summary(data: dict, proprietary: list[dict]) -> str:
+    """P072's metric: for-profit products by how their row bills."""
+    rows = {r.get("venture"): r for r in data.get("products") or [] if r.get("venture")}
+    sub = reasoned = none = 0
+    differ = []
+    for p in proprietary:
+        r = rows.get(p.get("venture"))
+        if r is None:
+            none += 1
+            continue
+        if r.get("billing") == "subscription":
+            sub += 1
+        else:
+            reasoned += 1
+        if p.get("model") and r.get("billing") != p.get("model"):
+            differ.append(f"{p['venture']} ({r.get('billing')}, planned {p['model']})")
+    line = (f"Billing of the {len(proprietary)} for-profit products: {sub} subscription row(s), "
+            f"{reasoned} not a subscription with a reason, {none} with no row")
+    if differ:
+        line += "\nBilling differs from LICENSING_TRANSITION.md's plan: " + ", ".join(differ)
+    return line
 
 
 def check_bet_row(row: dict, where: str) -> list[str]:
@@ -250,6 +328,7 @@ def main(argv: list[str] | None = None) -> int:
         print(next_task(data, proprietary))
         return 0
     print(table(data))
+    print(billing_summary(data, proprietary))
     missing = gaps(data, proprietary)
     if missing:
         print(f"No row yet ({len(missing)} for-profit products in LICENSING_TRANSITION.md): "
