@@ -144,3 +144,16 @@ def test_latent_homophily_adopters_are_informed(setup):
     Y, I = cx.simulate(v, beta, 0.05, 0.3, 60, np.random.default_rng(7), return_informed=True,
                        latent=(2.0, 2.0))
     assert (Y <= I).all()
+
+
+def test_mixed_family_nests_homophily_and_adds_adopters(setup):
+    # milestone 31: M = latent propensity plus reinforcement. gamma = 0 is L draw for draw; with
+    # qP >= qN and common random numbers, a positive gamma can only add adopters (coupling).
+    V, beta = setup
+    v = V[0]
+    kw = dict(delta=-0.5, latent=(1.5, 8.0))
+    L = cx.simulate(v, beta, 0.1, 0.2, 80, np.random.default_rng(31), **kw)
+    M0 = cx.simulate(v, beta, 0.1, 0.2, 80, np.random.default_rng(31), gamma=0.0, **kw)
+    M = cx.simulate(v, beta, 0.1, 0.2, 80, np.random.default_rng(31), gamma=0.2, **kw)
+    assert (M0 == L).all()
+    assert (M >= L).all() and M.mean() > L.mean()

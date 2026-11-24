@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PEPPOL-EN16931-R121: Price base quantity is zero or negative</title>
+<meta name="description" content="PEPPOL-EN16931-R121: If a line's price gives a base quantity (BT-149, the number of units the price is for), it must be greater than zero. Leaving it out is…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-r121">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-r121">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/peppol-en16931-r121">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/peppol-en16931-r121">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-r121">
+<meta property="og:title" content="PEPPOL-EN16931-R121: Price base quantity is zero or negative">
+<meta property="og:description" content="PEPPOL-EN16931-R121: If a line's price gives a base quantity (BT-149, the number of units the price is for), it must be greater than zero. Leaving it out is…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does PEPPOL-EN16931-R121 mean?","acceptedAnswer":{"@type":"Answer","text":"If a line's price gives a base quantity (BT-149, the number of units the price is for), it must be greater than zero. Leaving it out is fine: it then counts as 1. In CII the rule checks the base quantity of both the net and the gross price."}},{"@type":"Question","name":"How do I fix PEPPOL-EN16931-R121?","acceptedAnswer":{"@type":"Answer","text":"Set cbc:BaseQuantity (UBL) or ram:BasisQuantity (CII) to the number of units the price is for, usually 1. Keep negative signs on the quantity or amount, never on the base quantity. If the price is simply per unit, you can remove the base quantity altogether."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-invoice rule explained · Peppol BIS</p>
+<h1>PEPPOL-EN16931-R121: Price base quantity is zero or negative</h1>
+<nav class="langs" aria-label="Other languages"><a href="../de/peppol-en16931-r121.html" hreflang="de" lang="de">Deutsch</a><a href="../fr/peppol-en16931-r121.html" hreflang="fr" lang="fr">Français</a><a href="index.html">All rules</a></nav>
+</header>
+<section>
+<h2>Official message</h2>
+<blockquote lang="en">Base quantity MUST be a positive number above zero.</blockquote>
+<dl>
+<dt>Severity</dt><dd>Error (the invoice is rejected)</dd>
+<dt>Checked in</dt><dd>UBL, CII</dd>
+<dt>Business terms</dt><dd>BT-149</dd>
+</dl>
+</section>
+<section>
+<h2>What does PEPPOL-EN16931-R121 mean?</h2>
+<p>If a line's price gives a base quantity (BT-149, the number of units the price is for), it must be greater than zero. Leaving it out is fine: it then counts as 1. In CII the rule checks the base quantity of both the net and the gross price.</p>
+<h2>Usual causes</h2>
+<ul>
+<li>The software writes a base quantity of 0 when no price unit is set.</li>
+<li>On a credit note or return line the minus sign was put on the base quantity instead of the quantity.</li>
+<li>A blank field was exported as 0.</li>
+</ul>
+</section>
+<section>
+<h2>How do I fix PEPPOL-EN16931-R121?</h2>
+<ol>
+<li>Set cbc:BaseQuantity (UBL) or ram:BasisQuantity (CII) to the number of units the price is for, usually 1.</li>
+<li>Keep negative signs on the quantity or amount, never on the base quantity.</li>
+<li>If the price is simply per unit, you can remove the base quantity altogether.</li>
+</ol>
+<h2>Corrected XML (minimal example we wrote)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;cac:Price&gt;
+  &lt;cbc:PriceAmount currencyID=&quot;EUR&quot;&gt;25.00&lt;/cbc:PriceAmount&gt;
+  &lt;cbc:BaseQuantity unitCode=&quot;C62&quot;&gt;1&lt;/cbc:BaseQuantity&gt;
+&lt;/cac:Price&gt;</code></pre>
+<p><strong>CII</strong></p>
+<pre><code>&lt;ram:NetPriceProductTradePrice&gt;
+  &lt;ram:ChargeAmount&gt;25.00&lt;/ram:ChargeAmount&gt;
+  &lt;ram:BasisQuantity unitCode=&quot;C62&quot;&gt;1&lt;/ram:BasisQuantity&gt;
+&lt;/ram:NetPriceProductTradePrice&gt;</code></pre>
+<p class="note">Example values only. Put the elements in place of, or beside, what your file has; element order matters in both syntaxes.</p>
+</section>
+<section>
+<h2>Check your file for free</h2>
+<p>The free checker runs the official EN 16931, XRechnung and Peppol rules in your browser. Your file is not uploaded.</p>
+<p><a class="button" href="../../index.html">Open the free checker</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In development — early access</span></p>
+<h2>Fix-and-explain for accountants and invoicing teams</h2>
+<p>A paid service that explains every failed rule in plain German, French or English and proposes a corrected file is in development. <a href="https://example.invalid/industries/e-invoicing/">Early access</a></p>
+</section>
+<section>
+<h2>Source</h2>
+<p>Rule id and official message from the OpenPeppol BIS Billing 3 rules, 3.0.22 (MPL-2.0), compiled from upstream commit 38d693d. The explanation, causes, fix and XML on this page are our own, not the rule publisher's. <a href="https://github.com/OpenPEPPOL/peppol-bis-invoice-3/tree/3.0.22" rel="noopener">OpenPeppol BIS Billing 3 rules 3.0.22</a></p>
+</section>
+<footer>
+<p><strong>Not tax or legal advice.</strong> This page explains what a validation rule checks and how to make a file pass it. It does not say which VAT treatment applies to your sale; ask a tax adviser. <strong>No warranty:</strong> provided free and as-is; check the result before you rely on it.</p>
+<p>Our code and explanations are MIT-licensed. Official rule messages are quoted under their publishers' licences (EUPL-1.2, Apache-2.0, MPL-2.0), named on each page.</p>
+</footer>
+</main></body></html>
