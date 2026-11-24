@@ -182,6 +182,18 @@ open. MIT licensed, no dependencies, nothing uploaded.
   and NaN with a reader note; checks fail them ("is Infinity, not <= 1") and
   the editor's row says the export wrote a fault.
   `eval/xbim-test-files-2026-11-24.md`.
+  **Classes the model's schema does not have** (2026-11-24): on IfcOpenShell's
+  294 test files (all read; 1,734 of 1,734 offers pass) and buildingSMART's 46
+  IFC4.3 samples, and against IfcTester on 293 models x 65 public IDS files
+  (126,781 specification results, 1,614 different, every one from a cause
+  already named in `eval/corpus-crosscheck-2026-11-17.md` or a file built to
+  be invalid), one IFC4X3 file writes its 18 beams as IFC4's
+  IFCBEAMSTANDARDCASE, a class IFC4X3 removed. IfcOpenShell drops them and
+  neither tool checked them: 7 of the 26 public IDS specifications that reach
+  IfcBeam passed a model whose beams nobody looked at. The reader now notes
+  each such class and its parent, and a specification on the parent says how
+  many elements it did not check and to re-export them (verdicts unchanged,
+  as IDS reads them). `eval/ifcopenshell-test-files-2026-11-24.md`.
   **Attribute values and classification codes** (2026-11-17): attribute rows
   (Name, ObjectType, Tag, PredefinedType...) and classification rows offer
   the values and codes the model holds the same way. On four real exports, 243
