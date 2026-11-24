@@ -130,6 +130,15 @@ checked against the engine by `guides.test.mjs`):
   doors, windows, walls) and 42 of 42 notes, plus 14 rooms whose walls
   gained the new door or window
   ([eval/engiworld-archicad-diff-2026-11-23.md](eval/engiworld-archicad-diff-2026-11-23.md)).
+- **Rooms renamed, split, merged or carved** (2026-11-24). A room given a
+  new GlobalId and a new name in the same step is matched by its box and
+  floor area and listed as a name change; one room replaced by several
+  (a new partition) is a "room split", the reverse a "room merged"; and
+  rooms drawn in the floor a kept room lost say "carved from" it. On 45
+  EngiWorld pairs (Archicad gui tasks, Archicad and Revit stages), rooms
+  left as plain "removed" or "added" fell from 63 to 7, each match agreeing
+  with its brief; Archicad loading and saving a Revit file changed nothing
+  ([eval/engiworld-gui-cross-2026-11-24.md](eval/engiworld-gui-cross-2026-11-24.md)).
 - **Faulty units repaired, and said so.** A unit named INCH, FOOT, SQUARE
   FOOT and so on whose declared factor is not that unit (a 2014 Revit export
   declares its inch as 3.6576 m, 144 inches, which makes every volume 3

@@ -57,7 +57,7 @@ for (let i = 1; i < runs.length; i++) {
     groups: d.groups.map((g) => ({ kind: g.kind, before: g.before.map((r) => `${r.ifcClass} ${r.name}`), after: g.after.map((r) => `${r.ifcClass} ${r.name}`), volumeBefore: g.volumeBefore, volumeAfter: g.volumeAfter })),
     added: count(d.added, (r) => r.ifcClass), removed: count(d.removed, (r) => r.ifcClass),
     moves: Object.fromEntries(Object.entries(moves).slice(0, 6)),
-    rooms: { summary: d.rooms.summary, added: d.rooms.added.map((r) => ({ globalId: r.globalId, number: r.number, name: r.name, storey: r.storey, floorArea: r.computed?.floorArea ?? null })), removed: d.rooms.removed.map((r) => ({ globalId: r.globalId, number: r.number, name: r.name, storey: r.storey })), changed: d.rooms.changed.map((c) => ({ globalId: c.b.globalId, number: c.b.number, how: c.how, what: roomChangeText(c, { short: true }) })) },
+    rooms: { summary: d.rooms.summary, added: d.rooms.added.map((r) => ({ globalId: r.globalId, number: r.number, name: r.name, storey: r.storey, floorArea: r.computed?.floorArea ?? null })), removed: d.rooms.removed.map((r) => ({ globalId: r.globalId, number: r.number, name: r.name, storey: r.storey })), changed: d.rooms.changed.map((c) => ({ globalId: c.b.globalId, number: c.b.number, how: c.how, what: roomChangeText(c, { short: true }) })), groups: d.rooms.groups.map((g) => ({ kind: g.kind, before: g.before.map((r) => r.number ?? r.name), after: g.after.map((r) => r.number ?? r.name), floorAreaBefore: g.floorAreaBefore, floorAreaAfter: g.floorAreaAfter })) },
     boqByClass: delta.map((l) => ({ class: l.key[0], count: [l.before.count, l.after.count], volume: [l.before.volume, l.after.volume] })),
   };
   out.push(rec);
@@ -74,10 +74,12 @@ for (let i = 1; i < runs.length; i++) {
   console.log(`  added: ${JSON.stringify(rec.added)}`);
   console.log(`  removed: ${JSON.stringify(rec.removed)}`);
   const R = d.rooms.summary;
-  console.log(`  rooms ${R.before} -> ${R.after}; matched ${R.matched} (GlobalId ${R.byGlobalId}, number and name ${R.byName}); unchanged ${R.unchanged}, changed ${R.changed} (${R.attributeChanged} attribute, ${R.propertyChanged} property, ${R.quantityChanged} quantity); added ${R.added}, removed ${R.removed}; floor area ${R.floorAreaBefore.toFixed(2)} -> ${R.floorAreaAfter.toFixed(2)} m2`);
+  console.log(`  rooms ${R.before} -> ${R.after}; matched ${R.matched} (GlobalId ${R.byGlobalId}, number and name ${R.byName}, geometry ${R.byGeometry}); split ${R.split}, merged ${R.merged}; unchanged ${R.unchanged}, changed ${R.changed} (${R.attributeChanged} attribute, ${R.propertyChanged} property, ${R.quantityChanged} quantity); added ${R.added}, removed ${R.removed}; floor area ${R.floorAreaBefore.toFixed(2)} -> ${R.floorAreaAfter.toFixed(2)} m2`);
   for (const r of d.rooms.added) console.log(`  room added: ${[r.number, r.name].filter(Boolean).join(" ")} (${r.storey}), ${r.computed?.floorArea != null ? r.computed.floorArea.toFixed(2) + " m2" : "no floor area"}`);
   for (const r of d.rooms.removed) console.log(`  room removed: ${[r.number, r.name].filter(Boolean).join(" ")} (${r.storey})`);
-  for (const c of d.rooms.changed) console.log(`  room changed: ${c.b.number ?? c.b.name}${c.how === "name" ? " (new GlobalId)" : ""}: ${roomChangeText(c, { short: true })}`);
+  for (const c of d.rooms.changed) console.log(`  room changed: ${c.b.number ?? c.b.name}${c.how === "name" ? " (new GlobalId)" : c.how === "geometry" ? " (new GlobalId, matched by geometry)" : ""}: ${roomChangeText(c, { short: true })}`);
+  for (const k of d.rooms.carved) console.log(`  rooms carved from ${k.from.b.number ?? k.from.b.name}: ${k.rooms.map((r) => r.number ?? r.name).join(" + ")}, ${k.floorAreaCarved.toFixed(2)} of the ${k.floorAreaLost.toFixed(2)} m2 it lost`);
+  for (const g of d.rooms.groups) console.log(`  room ${g.kind}: ${g.before.map((r) => r.number ?? r.name).join(" + ")} -> ${g.after.map((r) => r.number ?? r.name).join(" + ")}, ${g.floorAreaBefore.toFixed(2)} -> ${g.floorAreaAfter.toFixed(2)} m2`);
   if (Object.keys(rec.moves).length) console.log(`  commonest moves (dx, dy, dz m): ${JSON.stringify(rec.moves)}`);
 }
 if (jsonOut) writeFileSync(jsonOut, JSON.stringify(out, null, 1));

@@ -837,7 +837,7 @@
       ["Replaced in place", s.replacedInPlace, s.replacedInPlace ? "warn" : ""],
       ["Storeys / types / materials renamed", `${s.storeysRenamed} / ${s.typesRenamed} / ${s.materialsRenamed ?? 0}`],
       ["Material swaps", s.materialSwaps ?? 0, s.materialSwaps ? "warn" : ""],
-      ...(R && (R.before || R.after) ? [["Rooms added / removed / changed", `${R.added} / ${R.removed} / ${R.changed}`, R.added + R.removed + R.changed ? "warn" : ""]] : []),
+      ...(R && (R.before || R.after) ? [["Rooms added / removed / changed", `${R.added} / ${R.removed} / ${R.changed}`, R.added + R.removed + R.changed ? "warn" : ""], ...(R.split || R.merged ? [["Rooms split / merged", `${R.split} / ${R.merged}`, "warn"]] : [])] : []),
     ].map(([k, v, c]) => `<div class="card">${esc(k)}<b class="${c || ""}">${esc(v)}</b></div>`).join("");
     $("diff-out").hidden = false;
     renderDelta();
@@ -884,8 +884,11 @@
     // rooms (IfcSpace): their own matches, properties and measured figures
     const room = (r) => ({ name: [r.number, r.name].filter(Boolean).join(" ") || `#${r.id}`, globalId: r.globalId, ifcClass: "IfcSpace", storey: r.storey });
     const fa = (r) => (r.computed?.floorArea != null ? `floor area ${r.computed.floorArea.toFixed(2)} m\u00b2` : "");
-    for (const c of diff.rooms?.changed || []) out.push(["Room changed", room(c.b), roomChangeText(c, { short: true }).replaceAll(" -> ", " \u2192 ") + (c.how === "name" ? "; new GlobalId (matched by number and name)" : ""), "warn"]);
-    for (const r of diff.rooms?.added || []) out.push(["Room added", room(r), fa(r), "warn"]);
+    for (const c of diff.rooms?.changed || []) out.push(["Room changed", room(c.b), roomChangeText(c, { short: true }).replaceAll(" -> ", " \u2192 ") + (c.how === "name" ? "; new GlobalId (matched by number and name)" : c.how === "geometry" ? "; new GlobalId (matched by its place and floor area)" : ""), "warn"]);
+    for (const g of diff.rooms?.groups || []) out.push([g.kind === "split" ? "Room split" : "Rooms merged", room(g.kind === "split" ? g.before[0] : g.after[0]), `${g.before.map((r) => room(r).name).join(" + ")} \u2192 ${g.after.map((r) => room(r).name).join(" + ")}, floor area ${g.floorAreaBefore.toFixed(2)} \u2192 ${g.floorAreaAfter.toFixed(2)} m\u00b2`, "warn"]);
+    const carvedOf = new Map();
+    for (const k of diff.rooms?.carved || []) for (const r of k.rooms) carvedOf.set(r, k);
+    for (const r of diff.rooms?.added || []) { const k = carvedOf.get(r); out.push(["Room added", room(r), [fa(r), k ? `carved from ${room(k.from.b).name} (it lost ${k.floorAreaLost.toFixed(2)} m\u00b2)` : ""].filter(Boolean).join("; "), "warn"]); }
     for (const r of diff.rooms?.removed || []) out.push(["Room removed", room(r), fa(r), "bad"]);
     const shown = out.slice(0, 500);
     $("changes").innerHTML = `<tr><th>Change</th><th>Element</th><th>Class</th><th>Storey</th><th>What</th></tr>` + shown.map(([k, r, w, c]) => `<tr><td class="${c}">${esc(k)}</td><td>${esc(r.name || r.globalId)}<div class="muted">${esc(r.globalId)}</div></td><td>${esc(r.ifcClass)}</td><td>${esc(r.storey)}</td><td>${esc(w)}</td></tr>`).join("");
