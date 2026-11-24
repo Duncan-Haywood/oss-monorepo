@@ -40,6 +40,12 @@ or [browse it](manufacturing/collector/) (GitHub renders the STLs in 3D):
   package that a builder would have hit; they are fixed
   ([`cad/README.md`](cad/README.md), "Assembly guide")
 
+**Sourcing, cost and certification on paper** (2026-11-24):
+[`manufacturing/sourcing/`](manufacturing/sourcing/README.md) has a BOM with
+supplier part numbers, prices and URLs, a unit-cost rollup at 10/100/1,000,
+fabrication, assembly and fulfilment options, a certification gap list and
+the owner's decisions. Nothing has been ordered or quoted.
+
 Every build checks for part-to-part collisions, bolt-hole alignment, ground
 contact and design rules, and is byte-reproducible. CI fails if the
 committed package goes stale.
