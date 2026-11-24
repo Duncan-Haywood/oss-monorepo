@@ -152,14 +152,20 @@ longer copied on each redraw. Phone DNGs with no JPEG inside, BigTIFF DNGs and t
 
 Tick "Check for closed eyes" and the page runs MediaPipe Face Landmarker
 (Apache-2.0, a 3.6 MB model fetched once from public CDNs) in the browser on a
-1,024 px copy of each preview. A face is eyes-closed when both blink scores are
-0.45 or more (`site/eyes.mjs`); faces under 1% of the frame are ignored. Frames
-get an "eyes closed" tag and filter, CSV columns, face boxes in the large view,
-and the burst pick leaves them out unless the whole burst blinks. Checked in
-Chromium on 10 portraits (one closed face, flagged; 12 open faces at 0.27 or
-less, none flagged) and on the 65 public camera raws (6 with faces, all open,
-none flagged; about 80 ms a frame): `eval/cull-closed-eyes-2026-11-24.md`. One
-closed face brackets the line; it is not an error rate.
+1,024 px copy of each preview. A face is eyes-closed when the more-closed eye's
+blink score is over 0.5 (`site/eyes.mjs`), the CLI detector's rule since a
+second change on 2026-11-24: the first version asked for both eyes at 0.45 and,
+on 115 labelled photos, flagged 4 of 7 closed-eye photos, because the model
+often reads one shut lid low (0.79 / 0.43). With the CLI's rule the real page
+flags 6 of 7 and none of the other 108 (the miss is a half face at the frame
+edge); a deliberate wink now counts as a blink, and the widest open laugh read
+0.48 (`eval/blink-rule-agreement-2026-11-24.md`). Faces under 1% of the frame
+are ignored. Frames get an "eyes closed" tag and filter, CSV columns, face
+boxes in the large view, and the burst pick leaves them out unless the whole
+burst blinks. The CSV's `blink_max` and `toDetectorJson`'s `eyes_open` are on
+the CLI's scale. First checks: `eval/cull-closed-eyes-2026-11-24.md` (65 public
+camera raws: 6 with faces, all open, none flagged; about 80 ms a frame). Seven
+closed photos are not an error rate.
 
 ### Existing sidecars and in-camera ratings (2026-11-23, later)
 
