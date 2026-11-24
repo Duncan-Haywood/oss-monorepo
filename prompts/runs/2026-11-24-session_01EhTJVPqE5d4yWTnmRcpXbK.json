@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVPqE5d4yWTnmRcpXbK",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (scheduled brief)",
+  "input_sha256": "d41ea248a34510effde9c2001b3e18b52d1566fa24e32f9ded4dd50efc93c17d",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T05:06:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "submittal-register: submit requirements outside Part 1 (README Next item 2)",
+  "projects": [
+    "submittal-register"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18544",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Allocator's start-here row was open-tennis-robots (bolt tails in CAD); the last session left it for lack of a market path and the reason still holds. The other Deepen flagships each had 40-120 commits in 7 days and mostly outside-input items. Deepened submittal-register instead: a construction product with a paid incumbent (ACC AutoSpecs/Pype) and an open README item that closes a stated Limits gap.",
+      "did": "Shipped Part 2/3 submittal finder with UFGS hand-read evaluation",
+      "result": "79/80 obligations, 43/49 pairings right on held-out reads"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-submittals-hiding-in-part-3.md",
+    "ventures/submittal-register/eval/buried-2026-11-24.md"
+  ],
+  "goal": null,
+  "notes": "Venture submittal-register. Corpus: UFGS_M (690 sections, github.com/mttvnst-HA/secwriter). 5,072 outside-Part-1 submit sentences found, 3,194 paired. Two held-out reads of 40 by one reader (seeds 23 and 31): 79/80 real obligations, 43/49 Covered By right; of 30 unpaired, 6 were in Part 1 under other words, 12 clearly absent, 12 not judgeable. Part 1 register unchanged: ufgs-eval 99.3%/99.9%. Local checks: run_venture_tests.py submittal-register ok (38 tests) + site FAQ checks; check_posts ok; Chromium page check: panel renders, checkbox adds 2 rows to the sample register, schedule dates 20/20, no console errors, 390px no overflow. venture-preflight run in background (result in PR merge note).",
+  "corrections": [],
+  "redteam": null
+}
