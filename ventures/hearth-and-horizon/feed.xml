@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Cakes That Sold Out at Three</title>
+      <link>https://example.invalid/hearth-and-horizon/the-cakes-that-sold-out-at-three.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-cakes-that-sold-out-at-three.html</guid>
+      <pubDate>Tue, 24 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A Ludlow parish's office agent orders 120 iced Christmas cakes for the fair because five years of sales average 120. The baker points out that the cakes have sold out every year since 2047, so 120 is what was ordered, not what people wanted. The café till's timestamps say about 140, the newsvendor rule says order above the average when a cake short costs three times a cake over, and the treasurer who remembers thirty-one leftover cakes says no until a care home and the food bank change what a leftover costs. Setting: Saint Thomas of Hereford (invented), Ludlow, Shropshire, Monday 14 October to Saturday 30 November 2052. Read the full text at https://example.invalid/hearth-and-horizon/the-cakes-that-sold-out-at-three.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A Ludlow parish's office agent orders 120 iced Christmas cakes for the fair because five years of sales average 120. The baker points out that the cakes have sold out every year since 2047, so 120 is what was ordered, not what people wanted. The café till's timestamps say about 140, the newsvendor rule says order above the average when a cake short costs three times a cake over, and the treasurer who remembers thirty-one leftover cakes says no until a care home and the food bank change what a leftover costs.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Ones on Both Lists</title>
       <link>https://example.invalid/hearth-and-horizon/the-ones-on-both-lists.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-ones-on-both-lists.html</guid>
