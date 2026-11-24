@@ -53,7 +53,7 @@
     "ventures/xer-schedule-check/eval/spec-check-2026-11-24.md"
   ],
   "goal": "Give owners' reviewers a one-pass check of a P6 submittal against the limits in their contract's scheduling section",
-  "notes": "Verification: node --test spec.test.mjs (16 pass); page.test/guides.test/own-keys pass; eval/spec-check.mjs on the six public XERs: 64 of 64 rule counts agree with a raw-table recount (CCA 16,146 activities in 508 ms); Chromium at 390 px: no page errors, no horizontal scroll, rules saved/reloaded, example run 5 of 6 not met. Full venture suite and venture-preflight results below.",
+  "notes": "Verification: node --test spec.test.mjs (16 pass); page.test/guides.test/own-keys pass; eval/spec-check.mjs on the six public XERs: 64 of 64 rule counts agree with a raw-table recount (CCA 16,146 activities in 508 ms); Chromium at 390 px: no page errors, no horizontal scroll, rules saved/reloaded, example run 5 of 6 not met. run_venture_tests.py xer-schedule-check: 0 failed (after fixing own-keys and label findings); venture-preflight: clean (after reading typed commas by shape, check_money_comma.py).",
   "corrections": [],
   "redteam": null
 }
