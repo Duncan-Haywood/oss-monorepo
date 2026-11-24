@@ -36,6 +36,7 @@ import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { FUNNEL_ATTRS, FUNNEL_TOKEN_RE } from '../counter/core.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
+import { buildManufacturingPage } from './industry-manufacturing.mjs';
 import { buildConstructionPage, CONSTRUCTION_PATH } from './industry-construction.mjs';
 import { buildNonprofitsPage } from './industry-nonprofits.mjs';
 import { renderHardwarePage, HARDWARE_PATH } from './hardware-page.mjs';
@@ -13998,7 +13999,15 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       published: new Set(surfaces.map((s) => s.slug)),
       footer: `${disclaimerHtml('../../', surfaces)}\n      ${renderSiteFooterNav({ toRoot: '../../' })}`,
       tail: `  <script src="../../${CHROME_MODULE_FILE}" ${CHROME_SLUG_ATTR}="industry-nonprofits" defer></script>`,
-    }),  ];
+    }),
+    // Job shops and small engineering firms: quoting and CMMC/ISO 9001
+    // products in development, and the free tools (`industry-manufacturing.mjs`).
+    await buildManufacturingPage(outDir, base, {
+      published: new Set(surfaces.map((s) => s.slug)),
+      footer: `${disclaimerHtml('../../', surfaces)}\n      ${renderSiteFooterNav({ toRoot: '../../' })}`,
+      tail: `  <script src="../../${CHROME_MODULE_FILE}" ${CHROME_SLUG_ATTR}="industry-manufacturing" defer></script>`,
+    }),
+  ];
   // The online sellers industry page (industry-online-sellers.mjs): resellers'
   // problems, Seller Books in development, and the best free seller tools.
   await fs.mkdir(path.join(outDir, ONLINE_SELLERS_PATH), { recursive: true });
