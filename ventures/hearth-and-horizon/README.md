@@ -483,9 +483,10 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (93 stories)
+### Little Lamps (94 stories)
 
 - [John of Kanty and the Coins in the Hem](stories/john-of-kanty-and-the-coins-in-the-hem.md) (2026-11-24; 10 min read, text only)
+- [Turibius and the Catechism in Three Languages](stories/turibius-and-the-catechism-in-three-languages.md) (2026-11-24; 11 min read, text only)
 - [Cyril of Jerusalem and the Lessons in the Dark](stories/cyril-of-jerusalem-and-the-lessons-in-the-dark.md) (2026-11-23; 11 min read, text only)
 - [Polycarp and the Eighty-Six Years](stories/polycarp-and-the-eighty-six-years.md) (2026-11-23; 12 min read, text only)
 - [Cyril and Methodius and the Letters for the Slavs](stories/cyril-and-methodius-and-the-letters-for-the-slavs.md) (2026-11-22; 11 min read, text only)
