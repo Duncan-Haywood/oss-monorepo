@@ -48,6 +48,9 @@ test('view: one column, no turns, and labels are escaped', () => {
   assert.doesNotMatch(turnsChartSvg(r), /<b>/);
   const csv = turnsCsv(r).split('\n');
   assert.equal(csv[0], 'label,value,turn');
+  const evil = turnsResult({ csv: 'm,v\n=1+1,5\n@x,6\n' + Array.from({ length: 12 }, (_, i) => `r${i},${7 + i}`).join('\n'), withSeries: true });
+  assert.match(turnsCsv(evil), /\n'=1\+1,5,/);
+  assert.match(turnsCsv(evil), /\n'@x,6,/);
 });
 
 test('page: the turns card is wired, labelled and counted', () => {

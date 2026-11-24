@@ -35,6 +35,10 @@
     {
       "file": "portfolio/flagships.yaml",
       "issue": "changepoint-detector item 2 ('real-time vintages (ALFRED) or a business's own lines') names ALFRED, but alfred/fred.stlouisfed.org, philadelphiafed.org, bls.gov and federalreserve.gov all refused this session's proxy; only the page/business half was buildable."
+    },
+    {
+      "file": "portfolio/monetization/LICENSING_TRANSITION.md",
+      "issue": "changepoint-detector is on the proprietary move list ('new work happens in private-monorepo/apps/<slug>') but is not imported yet and its flagship row still routes deepening runs to this public tree; a run has to read the transition doc to know working here is still right."
     }
   ],
   "deviations": [
@@ -50,7 +54,7 @@
     "ventures/changepoint-detector/README.md (Peaks and troughs on the page)"
   ],
   "goal": null,
-  "notes": "Local verification: python3 platform/ci/run_venture_tests.py changepoint-detector -> ok (308.5s, 1169 tests), site page checks ok. Playwright Chromium: example renders 8 peaks/8 troughs, error path shows engine message, no console errors, scrollWidth 390 at 390px. check_posts ok; validate.py ok.",
+  "notes": "Local verification: python3 platform/ci/run_venture_tests.py changepoint-detector -> ok (308.5s, 1169 tests), site page checks ok. Playwright Chromium: example renders 8 peaks/8 troughs, error path shows engine message, no console errors, scrollWidth 390 at 390px. check_posts ok; validate.py ok. unwired_checks found my CSV export lacked the formula-injection guard (fixed with csvCell, test added) and transition.json's source_lines stale for changepoint-detector, ids-model-check, xer-schedule-check (regenerated with transition.py --write; test_transition passes).",
   "corrections": [],
   "redteam": null,
   "usage": {

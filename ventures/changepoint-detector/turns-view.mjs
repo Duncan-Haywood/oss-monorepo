@@ -1,6 +1,7 @@
 // The page's view of `--turns` (turns-cli.mjs): a chart of the dated series with contractions shaded,
 // a table of peaks and troughs, a table of phases, and a CSV. No DOM access, so it is tested in Node.
 import { esc } from './report.mjs';
+import { csvCell } from './synth-view.mjs';
 
 const pct = (v) => `${v >= 0 ? '+' : ''}${(100 * (Math.exp(v) - 1)).toFixed(1)}%`;
 const unit = (r) => (r.frequency === 'monthly' ? 'months' : 'quarters');
@@ -67,10 +68,10 @@ export function turnsHtml(r) {
   return out.join('');
 }
 
-// One row per point: label, value (the composite index for several columns), and the turn on that row.
+// One row per point (labels through csvCell, the formula-injection guard: a cell starting =, +, -, @ is
+// prefixed with an apostrophe so a spreadsheet does not run it): label, value (the composite index for several columns), and the turn on that row.
 export function turnsCsv(r) {
   const at = new Map(r.turns.map((t) => [t.index, t.kind]));
   const head = r.composite ? 'label,composite_index,turn' : 'label,value,turn';
-  const q = (s) => (/[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
-  return [head, ...r.series.labels.map((l, i) => `${q(l)},${r.series.values[i]},${at.get(i) ?? ''}`)].join('\n') + '\n';
+  return [head, ...r.series.labels.map((l, i) => `${csvCell(l)},${r.series.values[i]},${at.get(i) ?? ''}`)].join('\n') + '\n';
 }
