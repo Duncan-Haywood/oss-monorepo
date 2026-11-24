@@ -1,0 +1,91 @@
+// The manufacturing industry page (`industries/manufacturing/`): problems map
+// to products and free tools, the products read as in development, nothing
+// implies CMMC certification or DoD endorsement, and every linked tool ships.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync, mkdtempSync, existsSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import {
+  buildManufacturingPage, EARLY_ACCESS_HREF, FACTS, FREE_TOOLS, INDEXED, INDUSTRIES_DIR,
+  MANUFACTURING_PATH, PROBLEMS, PRODUCTS, renderManufacturingPage,
+} from './industry-manufacturing.mjs';
+import { CHROME_MODULE_FILE, CUSTOM_DEV_PATH } from './build.mjs';
+import { INDUSTRIES_DIR as CHECK_INDUSTRIES_DIR, SITE_OWN_DIRS } from './check.mjs';
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(HERE, '..', '..');
+const base = 'https://example.test/';
+const html = renderManufacturingPage({ baseUrl: base });
+const text = html.replace(/<[^>]+>/g, ' ');
+
+test('every problem routes to a product or a free tool, and every route resolves', () => {
+  for (const p of PROBLEMS) {
+    const product = PRODUCTS.some((x) => x.problems.includes(p.id));
+    const tool = FREE_TOOLS.some((t) => t.problem === p.id);
+    assert.ok(product || tool, `${p.id} leads nowhere`);
+  }
+  const ids = new Set(PROBLEMS.map((p) => p.id));
+  for (const x of PRODUCTS) for (const id of x.problems) assert.ok(ids.has(id), `${x.id} names unknown problem ${id}`);
+  for (const t of FREE_TOOLS) assert.ok(ids.has(t.problem), `${t.slug} names unknown problem ${t.problem}`);
+  for (const m of html.matchAll(/href="#([^"]+)"/g)) assert.ok(html.includes(`id="${m[1]}"`), `#${m[1]} has no target`);
+});
+
+test('the job-shop problems the brief names are all here', () => {
+  for (const re of [/RFQ/, /own rates/i, /CMMC Level 1\/2/, /SPRS/, /ISO 9001/, /AS9100/]) assert.match(text, re);
+});
+
+test('every free tool is a published venture and is linked', () => {
+  const launched = JSON.parse(readFileSync(path.join(HERE, 'launched.json'), 'utf8')).launched;
+  const published = new Set(Array.isArray(launched) ? launched.map((x) => (typeof x === 'string' ? x : x.slug)) : Object.keys(launched));
+  for (const t of FREE_TOOLS) {
+    assert.ok(existsSync(path.join(ROOT, 'ventures', t.slug)), `${t.slug} is not a venture`);
+    assert.ok(published.has(t.slug), `${t.slug} is not in launched.json`);
+    assert.ok(html.includes(`href="../../${t.slug}/"`), `${t.slug} not linked`);
+  }
+});
+
+test('products are in development, unpriced, and never claim certification or endorsement', () => {
+  for (const p of PRODUCTS) assert.match(p.status, /in development/i);
+  assert.match(text, /early access/i);
+  assert.match(text, /Pricing is not set yet/);
+  assert.doesNotMatch(text, /\$\d+\s*(?:\/|a |per )mo/i);
+  assert.doesNotMatch(text, /\b(?:get|become|guarantee[sd]?|achieve)\s+(?:CMMC\s+)?certifi/i);
+  assert.doesNotMatch(text, /(?:DoD|Department of Defense)[- ](?:approved|endorsed|certified)/i);
+  assert.match(text, /not a certification/);
+  assert.match(text, /not a C3PAO/);
+  assert.match(text, /nothing here is endorsed by the Department of Defense/);
+  assert.doesNotMatch(text, /\b(?:available now|buy now|start your free trial)\b/i);
+});
+
+test('every fact carries a source link', () => {
+  assert.ok(FACTS.length > 0);
+  for (const f of FACTS) {
+    assert.match(f.href, /^https:\/\//);
+    assert.ok(html.includes(`href="${f.href.replace(/&/g, '&amp;')}"`), f.href);
+  }
+});
+
+test('disclaimer, usage tracking, canonical and the noindex switch', () => {
+  assert.match(html, /No warranty/);
+  assert.ok(html.includes(`src="../../${CHROME_MODULE_FILE}"`), 'site chrome script (usage counter) missing');
+  assert.ok(html.includes(`<link rel="canonical" href="${base}${MANUFACTURING_PATH}">`));
+  assert.equal(/content="noindex"/.test(html), !INDEXED);
+  assert.doesNotMatch(renderManufacturingPage({ baseUrl: base, indexed: true }), /content="noindex"/);
+  assert.ok(EARLY_ACCESS_HREF.startsWith(CUSTOM_DEV_PATH));
+  assert.match(html, /data-pfs-head/);
+});
+
+test('check.mjs treats industries/ as a site page, not a product', () => {
+  assert.equal(CHECK_INDUSTRIES_DIR, INDUSTRIES_DIR);
+  assert.ok(SITE_OWN_DIRS.has(INDUSTRIES_DIR));
+  assert.ok(MANUFACTURING_PATH.startsWith(`${INDUSTRIES_DIR}/`));
+});
+
+test('writes industries/manufacturing/index.html', async () => {
+  const out = mkdtempSync(path.join(os.tmpdir(), 'mfg-'));
+  const file = await buildManufacturingPage(out, base);
+  assert.equal(file, path.join(out, 'industries', 'manufacturing', 'index.html'));
+  assert.ok(readFileSync(file, 'utf8').includes('Software for machine shops'));
+});

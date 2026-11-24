@@ -35,6 +35,7 @@ import { promisify } from 'node:util';
 import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
+import { buildManufacturingPage } from './industry-manufacturing.mjs';
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
 import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, loadPosts, WRITING_PATH } from './writing.mjs';
@@ -13840,6 +13841,11 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // spent and is blocked on, read from the committed run records and history.
   // `noindex` and in no sitemap; see `engineering.mjs`.
   await buildEngineeringPage(outDir, base);
+
+  // The manufacturing and engineering industry page (industries/manufacturing/):
+  // job-shop problems, the products in development for them, and the free tools
+  // that serve them. `noindex` until the industries index links it; see the module.
+  await buildManufacturingPage(outDir, base);
 
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
