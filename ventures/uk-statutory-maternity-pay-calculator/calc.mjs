@@ -92,6 +92,8 @@ export function compute(input) {
     findings.push({ severity: "medium", title: `Maternity pay cannot start before ${fromDay(earliestStart)} (11 weeks before the expected week); the calculation uses that date instead of ${fromDay(leave)}.` });
     start = earliestStart;
   }
+  // GOV.UK: leave starts the day after the birth at the latest (red team 2026-11-24).
+  if (leave !== null && leave > ewc + 1) findings.push({ severity: "medium", title: `Maternity leave and pay start the day after the birth at the latest, so a start on ${fromDay(leave)} only holds if the baby is born after ${fromDay(leave - 1)}, later than the due date (${fromDay(ewc)}).` });
   if (leave === null) findings.push({ severity: "info", title: `No start date given, so maternity pay is shown from the earliest possible date, ${fromDay(earliestStart)}.` });
 
   const rows = [];
@@ -120,6 +122,10 @@ export function compute(input) {
     const std = rateAt(ps).standard;
     const weekly = r2(Math.min(std, 0.9 * awe));
     spp = { weekly, total: r2(weekly * SPP_WEEKS), from: ps };
+    // GOV.UK: paternity leave starts on or after the birth and must finish
+    // within 52 weeks of it (red team 2026-11-24: any date was priced).
+    if (pat !== null && pat < ewc) findings.push({ severity: "medium", title: `Paternity pay starts on the birth date or later, so a start on ${fromDay(pat)} only holds if the baby is born by then, before the due date (${fromDay(ewc)}).` });
+    if (pat !== null && pat + 7 * SPP_WEEKS - 1 > ewc + 363) findings.push({ severity: "medium", title: `Paternity pay starts too late: the ${SPP_WEEKS} weeks from ${fromDay(pat)} must finish within 52 weeks of the birth (by ${fromDay(ewc + 363)} for a birth on the due date).` });
     findings.push({ severity: "info", title: `Statutory Paternity Pay (a partner or other eligible person with the same employment test) would be ${money(weekly)} a week for up to ${SPP_WEEKS} weeks (${money(spp.total)}) at these earnings and dates.` });
   }
   findings.push({ severity: "info", title: "Average weekly earnings must be worked out from gross pay in the 8 weeks to the end of the qualifying week, including some bonuses and back-pay. This tool takes the figure you enter." });

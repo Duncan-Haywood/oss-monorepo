@@ -132,3 +132,18 @@ test("continuous employment: a start any day of the 26th week back qualifies", (
   assert.equal(late.mother.lengthOk, false);
   assert.equal(late.mother.employedWeeks, 25);
 });
+
+// Red team 2026-11-24: escaped mutants on row grouping and the same-rate note.
+test("rows keep SMP, partner and mother weeks apart even at the same weekly amount", () => {
+  const r = run({ partnerWeeks: "6" }); // both parents' ShPP and late SMP are all 194.32
+  const rows = r.current.rows;
+  assert.deepEqual(rows.map((x) => [x.phase.split(":")[0], x.weeks]), [["Mother", 6], ["Mother", 20], ["Partner", 6], ["Mother", 7]]);
+});
+
+test("the same-weekly-ShPP note needs equal rates, not just two eligible parents", () => {
+  const same = run({});
+  assert.equal(same.findings.some((f) => f.title.startsWith("Both parents get the same weekly ShPP")), true);
+  const diff = run({ motherWeekly: "150" }); // 90% = 135, below the standard rate
+  assert.equal(diff.mother.eligible && diff.partner.eligible, true);
+  assert.equal(diff.findings.some((f) => f.title.startsWith("Both parents get the same weekly ShPP")), false);
+});
