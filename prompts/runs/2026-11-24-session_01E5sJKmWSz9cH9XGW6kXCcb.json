@@ -1,0 +1,386 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKmWSz9cH9XGW6kXCcb",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T19:19:05Z",
+  "ended": "2026-11-24T19:23:46Z",
+  "wall_minutes": 8.26,
+  "tokens_in": 3426088,
+  "tokens_out": 16977,
+  "cost_usd": 1.5995,
+  "tool_calls": 44,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18650",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Probed ventures/changepoint-detector's full suite as a --target candidate: it ran past 120 s and was stopped; let the tool draw a probed target instead.",
+    "First push edited only the solar-pv copy of the vendored proposal.test.mjs; proposal-module-ci sync.test.mjs failed; fixed by editing the canonical file and syncing."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list is 14 entries, 12 of them control plane or blocked on an unreachable source; there is no flag to list only the ones a non-control-plane run can act on, so each run re-reads all 14."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "targets lists ventures/changepoint-detector/*.mjs although that venture's node --test runs well over 120 s; a --target there without --probe would blow the budget."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-redteam-fifty-tests-guarding-the-wrong-key.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: 14 open entries; uk-shared-parental-pay (gov.uk/legislation.gov.uk still proxy 403) and help-keeper stem (needs a help-center eval set) not actionable; the rest are control plane. Guard added: platform/ci/test_usage_test_keys.py (unwired test, runs via unwired_checks.py on venture PRs); first run on main's tree listed 50 foreign keys. Catch rate 12/16 -> 16/16 after fix.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/truck-detention-pay-calculator/usage.mjs",
+        "test": "node --test ventures/truck-detention-pay-calculator/**/*.test.mjs  (in .)",
+        "seed": 901701096,
+        "commit": "87f2de11a",
+        "sites": 24,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/truck-detention-pay-calculator/usage.mjs",
+            "line": 24,
+            "col": 57,
+            "operator": "eq-flip",
+            "before": "return !noStorage() && localStorage.getItem(OPT_OUT) === \"1\";",
+            "after": "return !noStorage() && localStorage.getItem(OPT_OUT) !== \"1\";",
+            "line_text": "    return !noStorage() && localStorage.getItem(OPT_OUT) === \"1\";",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/truck-detention-pay-calculator/usage.mjs",
+            "line": 34,
+            "col": 79,
+            "operator": "true-to-false",
+            "before": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "after": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return false;",
+            "line_text": "    if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/truck-detention-pay-calculator/usage.mjs",
+            "line": 49,
+            "col": 15,
+            "operator": "or-to-and",
+            "before": "if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "after": "if (!current && typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "line_text": "  if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Copy suite never stored valid non-object JSON, and its \"corrupt stored JSON\" test wrote under another venture's key (solo-401k-contribution-calculator-usage), so it tested nothing; key fixed and added a case storing [1,2], [], 5, \"text\", null, true. CI's platform/ci/usage_contract.mjs already rejects this mutant (one-venture scratch tree: exit 1), the open 2026-11-15 suite_for defect."
+          },
+          {
+            "file": "ventures/truck-detention-pay-calculator/usage.mjs",
+            "line": 49,
+            "col": 46,
+            "operator": "or-to-and",
+            "before": "if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "after": "if (!current || typeof current !== \"object\" && Array.isArray(current)) current = {};",
+            "line_text": "  if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Copy suite never stored valid non-object JSON, and its \"corrupt stored JSON\" test wrote under another venture's key (solo-401k-contribution-calculator-usage), so it tested nothing; key fixed and added a case storing [1,2], [], 5, \"text\", null, true. CI's platform/ci/usage_contract.mjs already rejects this mutant (one-venture scratch tree: exit 1), the open 2026-11-15 suite_for defect."
+          },
+          {
+            "file": "ventures/truck-detention-pay-calculator/usage.mjs",
+            "line": 50,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "current[event] = (current[event] || 0) + 1;",
+            "after": "current[event] = (current[event] || 1) + 1;",
+            "line_text": "  current[event] = (current[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/truck-detention-pay-calculator/usage.mjs",
+            "line": 50,
+            "col": 41,
+            "operator": "plus-to-minus",
+            "before": "current[event] = (current[event] || 0) + 1;",
+            "after": "current[event] = (current[event] || 0) - 1;",
+            "line_text": "  current[event] = (current[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/truck-detention-pay-calculator/usage.mjs",
+            "line": 50,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "current[event] = (current[event] || 0) + 1;",
+            "after": "current[event] = (current[event] || 0) + 2;",
+            "line_text": "  current[event] = (current[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/truck-detention-pay-calculator/usage.mjs",
+            "line": 62,
+            "col": 48,
+            "operator": "and-to-or",
+            "before": "return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "after": "return parsed && typeof parsed === \"object\" || !Array.isArray(parsed) ? parsed : {};",
+            "line_text": "    return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Copy suite never stored valid non-object JSON, and its \"corrupt stored JSON\" test wrote under another venture's key (solo-401k-contribution-calculator-usage), so it tested nothing; key fixed and added a case storing [1,2], [], 5, \"text\", null, true. CI's platform/ci/usage_contract.mjs already rejects this mutant (one-venture scratch tree: exit 1), the open 2026-11-15 suite_for defect."
+          }
+        ]
+      },
+      {
+        "target": "ventures/solar-pv-bid-calculator/proposal.mjs",
+        "test": "node --test ventures/solar-pv-bid-calculator/**/*.test.mjs  (in .)",
+        "seed": 24,
+        "commit": "87f2de11a",
+        "sites": 119,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/solar-pv-bid-calculator/proposal.mjs",
+            "line": 182,
+            "col": 34,
+            "operator": "and-to-or",
+            "before": "|| (typeof value === 'number' && !Number.isFinite(value));",
+            "after": "|| (typeof value === 'number' || !Number.isFinite(value));",
+            "line_text": "    || (typeof value === 'number' && !Number.isFinite(value));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/solar-pv-bid-calculator/proposal.mjs",
+            "line": 185,
+            "col": 33,
+            "operator": "eq-flip",
+            "before": ".reduce((node, key) => (node === null || node === undefined ? undefined : node[key]), scope);",
+            "after": ".reduce((node, key) => (node !== null || node === undefined ? undefined : node[key]), scope);",
+            "line_text": "    .reduce((node, key) => (node === null || node === undefined ? undefined : node[key]), scope);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/solar-pv-bid-calculator/proposal.mjs",
+            "line": 185,
+            "col": 50,
+            "operator": "eq-flip",
+            "before": ".reduce((node, key) => (node === null || node === undefined ? undefined : node[key]), scope);",
+            "after": ".reduce((node, key) => (node === null || node !== undefined ? undefined : node[key]), scope);",
+            "line_text": "    .reduce((node, key) => (node === null || node === undefined ? undefined : node[key]), scope);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/solar-pv-bid-calculator/proposal.mjs",
+            "line": 200,
+            "col": 41,
+            "operator": "false-to-true",
+            "before": "if (missing(value)) { complete = false; return ''; }",
+            "after": "if (missing(value)) { complete = true; return ''; }",
+            "line_text": "        if (missing(value)) { complete = false; return ''; }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/solar-pv-bid-calculator/proposal.mjs",
+            "line": 236,
+            "col": 17,
+            "operator": "neq-flip",
+            "before": "if (rendered !== null) filled.push(rendered);",
+            "after": "if (rendered === null) filled.push(rendered);",
+            "line_text": "    if (rendered !== null) filled.push(rendered);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/solar-pv-bid-calculator/proposal.mjs",
+            "line": 268,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "if (year < 1 || back.getUTCFullYear() !== year || back.getUTCMonth() !== month - 1 || back.getUTCDate() !== day) {",
+            "after": "if (year < 2 || back.getUTCFullYear() !== year || back.getUTCMonth() !== month - 1 || back.getUTCDate() !== day) {",
+            "line_text": "  if (year < 1 || back.getUTCFullYear() !== year || back.getUTCMonth() !== month - 1 || back.getUTCDate() !== day) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "The real-date test refused 0000-01-01 but never accepted 0001-01-01, so moving the bound to year < 2 passed. Added an acceptance of 0001-01-01 to 'issue date must be a real calendar date'. proposal.test.mjs is vendored: added to platform/proposal/proposal.test.mjs and synced to all 120 venture copies (all pass; sync.test.mjs green)."
+          },
+          {
+            "file": "ventures/solar-pv-bid-calculator/proposal.mjs",
+            "line": 316,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "if (priceCents <= 0) throw new Error('Price a job before printing a proposal');",
+            "after": "if (priceCents <= 1) throw new Error('Price a job before printing a proposal');",
+            "line_text": "  if (priceCents <= 0) throw new Error('Price a job before printing a proposal');",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/solar-pv-bid-calculator/proposal.mjs",
+            "line": 331,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "const depositAmount = depositCents / 100;",
+            "after": "const depositAmount = depositCents / 101;",
+            "line_text": "  const depositAmount = depositCents / 100;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/*/usage.test.mjs (50 files)",
+        "issue": "50 venture usage.test.mjs files called setItem with another venture's storage key (copied tests: donor-acknowledgment-letter-generator-usage x34, dac7-seller-reporting-checker-usage x4, niit-calculator-usage x4, solo-401k-contribution-calculator-usage x4, tent-rental-job-profit-calculator-usage x3, parish-office-usage, handyman-minimum-job-calculator-usage, tile-layout-planner-usage), so their 'corrupt stored JSON is treated as empty' test never touched the counter's own key and passed whatever the counter did. Reproduced: platform/ci/test_usage_test_keys.py fails on main's tree with all 50 listed. Fixed: each key rewritten to the venture's own KEY (50 suites green) and the lint added, run in CI by unwired_checks.py.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18650"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "45b2f6bf-dbdf-57ed-b57b-19f68b9a5407",
+    "transcripts": 1,
+    "first": "2026-11-24T19:19:05Z",
+    "last": "2026-11-24T19:27:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 83,
+        "output": 16977,
+        "thinking": 2921,
+        "cache_read": 3352358,
+        "cache_write_5m": 0,
+        "cache_write_1h": 73647,
+        "api_equivalent_usd": 1.5995,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 83,
+      "output": 16977,
+      "thinking": 2921,
+      "cache_read": 3352358,
+      "cache_write_5m": 0,
+      "cache_write_1h": 73647,
+      "api_equivalent_usd": 1.5995,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 39,
+      "Write": 2,
+      "TaskStop": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.26,
+      "active_minutes": 8.26,
+      "model_minutes": 3.49,
+      "tool_minutes": 4.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "scan and fix 50 copied tests, write lint, two mutant triages, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 187.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
