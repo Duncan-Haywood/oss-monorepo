@@ -31,11 +31,17 @@ export async function serveStatic(dir, { port = 0 } = {}) {
   if (!(await stat(root).catch(() => null))?.isDirectory()) throw new Error(`--serve: ${dir} is not a directory`);
   const server = createServer(async (req, res) => {
     let file = safePath(root, req.url || '/');
-    if (!file) { res.writeHead(403).end(); return; }
+    if (!file || !(file === root || file.startsWith(root + sep))) { res.writeHead(403).end(); return; }
     try {
       const s = await stat(file).catch(() => null);
       if (s?.isDirectory()) {
-        if (!req.url.split('?')[0].endsWith('/')) { res.writeHead(301, { location: req.url.replace(/^([^?]*)/, '$1/') }).end(); return; }
+        const [pathname] = req.url.split('?');
+        if (!pathname.endsWith('/')) {
+          // Relative to the request (`./name/`), so the redirect stays on this server whatever the path holds.
+          const query = req.url.slice(pathname.length);
+          res.writeHead(301, { location: `./${pathname.slice(pathname.lastIndexOf('/') + 1)}/${query}` }).end();
+          return;
+        }
         file = join(file, 'index.html');
       } else if (!s && !extname(file)) {
         // Pretty URLs: /pricing -> /pricing.html when it exists.

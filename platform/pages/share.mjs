@@ -153,7 +153,7 @@ function metaMatcher(attr, key) {
   const id = `${attr}\0${key}`;
   let test = metaMatchers.get(id);
   if (!test) {
-    test = new RegExp(`\\b${attr}\\s*=\\s*["']${key.replace(/[:]/g, '\\:')}["']`, 'i');
+    test = new RegExp(`\\b${attr}\\s*=\\s*["']${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["']`, 'i');
     metaMatchers.set(id, test);
   }
   return test;
@@ -189,6 +189,13 @@ function headTitle(html) {
   return decode(/<title>([\s\S]*?)<\/title>/i.exec(head)?.[1] ?? '').replace(/\s+/g, ' ').trim();
 }
 
+// Drop every tag, repeating until none is left, so removing one cannot leave another behind.
+function stripTags(s) {
+  let prev;
+  do { prev = s; s = s.replace(/<[^>]+>/g, ''); } while (s !== prev);
+  return s;
+}
+
 /** The breadcrumb trail's labels, without "Home". */
 export function crumbsOf(html) {
   const start = html.search(/<(?:span|nav)\b[^>]*class="[^"]*\b(?:pfs-crumbs|crumbs)\b/i);
@@ -196,7 +203,7 @@ export function crumbsOf(html) {
   const close = html.indexOf('</nav>', start);
   const slice = html.slice(start, close > -1 ? Math.min(close, start + 4000) : start + 4000);
   return [...slice.matchAll(/<a\b[^>]*>([\s\S]*?)<\/a>/gi)]
-    .map((m) => decode(m[1].replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim())
+    .map((m) => decode(stripTags(m[1])).replace(/\s+/g, ' ').trim())
     .filter((t) => t && !/^home$/i.test(t));
 }
 

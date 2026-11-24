@@ -2,6 +2,8 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
+const stripScripts = (s, sub = '') => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, sub); } while (s !== p); return s; };
+
 const html = readFileSync(new URL('./why-two-canonical-tags-is-worse-than-none.html', import.meta.url), 'utf8');
 const indexHtml = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
@@ -123,7 +125,7 @@ const decodeEntities = (text) => text
 test('the FAQPage answers appear verbatim on the visible page, not only in the script tag', () => {
   const match = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
   const schema = JSON.parse(match[1]);
-  const visible = decodeEntities(html.replace(/<script[\s\S]*?<\/script>/g, ''));
+  const visible = decodeEntities(stripScripts(html));
   for (const { acceptedAnswer } of schema.mainEntity) {
     assert.ok(
       visible.includes(acceptedAnswer.text),
