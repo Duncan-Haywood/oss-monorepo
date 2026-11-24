@@ -637,7 +637,10 @@ solves.
    1 &minus; c(r): with its own 8 steps it lands a median Duckiebot's worst corner within 0.0085 px, and fails only
    where &rho;&prime; &gt; 2. A robot that undistorts features near the image edge should pass
    `(COUNT | EPS, 200, 1e-12)` on OpenCV 4.13 or later, or use a loop it has checked, and test the round trip at
-   the corners once per calibration.
+   the corners once per calibration. `src/undistcheck.py` does that test from the calibration file alone, in
+   stdlib Python: its copy of the undamped loop predicts OpenCV's default corner error to within
+   7.5 &times; 10<sup>&minus;13</sup> px on all 179 calibrations, and its Newton inverse is exact in at most 7 steps
+   at every corner that does not fold and refuses at the 6 that do.
 
 ## 9. Limitations
 
