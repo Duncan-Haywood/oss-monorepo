@@ -10097,3 +10097,55 @@ What it shows:
   fresh test it was given fails both bars, and its mechanism explains why it would fail on any growth-cycle dating.
   `qzMax` stays a module option. A person who wants dated turns in a smooth aggregate is better served by a dating
   rule built for it (Bry-Boschan / BBQ, which BCDating implements) than by a changepoint model.
+
+## Dated turning points by Bry-Boschan's rule: beyond chance everywhere, but one GDP bar missed by 0.019 (2026-11-24, pre-registered; D2, D3 and G1 pass, D1 fails, nothing ships in the CLI)
+
+Open item from "A turning-point option on Iran's dated cycle": a person who wants dated turns in a smooth
+aggregate is better served by a rule built for dating them than by a changepoint model. `turning-points.mjs` is
+that rule: Bry and Boschan's, in Harding and Pagan's quarterly form (BBQ). A peak is a value above the two
+quarters either side, peaks and troughs alternate, and every phase lasts at least 2 quarters and every cycle at
+least 5 (monthly: 5 months either side, phases of 6, cycles of 15). A growth-cycle mode dates the
+Hodrick-Prescott cycle of the log level instead (lambda 1600 a quarter; the module's own banded solver). Exports:
+`bbq(x, opts)`, `hpFilter(y, lambda)`, `turningPoints(x, { frequency, mode })`, which returns the turns and each
+phase's length and percentage change.
+
+The rules are in the header of `eval/turns-bbq.mjs`, committed before it first ran (commit "pre-register the BBQ
+turning-point round"). Seven procyclical US series already in `data/` were scored against NBER's peaks and
+troughs, with the module's defaults and nothing tuned: macrodata's real GDP, consumption, investment and
+disposable income (1959Q1-2009Q3), R's real GDP (1950Q1-2000Q4), and quarterly and monthly industrial
+production. Iran's non-oil GDP was scored against MBRI's growth-cycle dating. A turn counts as matched when a
+turn of the same kind is within 1 quarter (3 months). Output `eval/turns-bbq.out.txt` (0.5 s); test
+`turns-bbq.test.mjs`.
+
+| bar | result |
+|---|---|
+| D1, the two GDP series: at least 80% of NBER turns matched, at most 2 false turns each | 25 of 32 (**0.781**), false 2 and 1: **fails** |
+| D2, beyond chance: mean F1 at least 0.15 above random turns at the same count, p at most 0.05 on 6 of 7 | **+0.363**, 6 of 7: **passes** |
+| D3, better than the shipped changepoint model: mean F1 +0.10, more wins than losses | **+0.407**, 7 wins, 0 losses: **passes** |
+| G1, Iran's growth cycle: F1 at least 0.447 and 0.10 above random, p at most 0.05 | **0.727** (random 0.516, p 0.016): **passes** |
+
+What it shows:
+
+- **The rule finds US recessions, as the literature says it should.** On R's real GDP it dates 15 of NBER's 16
+  turns within a quarter, with 1 false turn, and its F1 is 0.941 against the shipped drift model's 0.083. On
+  quarterly industrial production it matches 10 of 12. Every series beats random turns at the same count by
+  +0.18 to +0.60 F1 (disposable income's p is 0.067, the one series over 0.05).
+- **D1 is missed on macrodata's GDP alone, which matches 10 of 16.** The misses: the 2001 recession (real GDP
+  in this vintage never falls two quarters running, so no quarterly rule dates it); the 2009Q2 trough, which is
+  the second-to-last quarter in the file, where a rule that looks two quarters ahead cannot see it; the 2007Q4
+  peak, dated 2008Q2 (2 off); and the troughs of 1970 and 1982, each dated 3 quarters early. Read after the run
+  (not a result): leaving out the trough no window-2 rule could see gives 25 of 31 (0.806). That is a post hoc
+  exclusion, so the verdict stands.
+- **Consumption and disposable income are the weak series.** They are smooth, so BBQ dates only 7 and 6 turns
+  on them, and income's 1980Q4-1987Q2 contraction is not a recession. Investment is the reverse: 29 turns, 12
+  of 16 matched but 16 false. The rule does what it says on each. Which series to date is the user's choice.
+- **The growth mode works where it was meant to.** On Iran it matches 9 of MBRI's 13 turns within a quarter
+  (F1 0.727 against the changepoint models' 0.400 to 0.417 in the last round). On the package's own HP cycle
+  column it matches 12 of 13, so most of the remaining gap is the filter's input (BCDating's cycle is not the
+  HP cycle of the log level). On the US series the growth mode makes 19 to 35 turns and is not what NBER dates
+  (classical cycles), as expected. That is printed, with no bar.
+
+By the rule written beforehand, nothing is added to the CLI or the page. `turning-points.mjs` stays a module
+export, as `trendWalkChanges` did. Next: one fresh GDP vintage that runs past 2009 and includes 2020 (FRED's
+GDPC1; fred.stlouisfed.org and apps.bea.gov refused this session's proxy on 2026-11-24), scored under the same D1
+bar. A pass there ships `turns-cli.mjs` with classical and growth modes.
