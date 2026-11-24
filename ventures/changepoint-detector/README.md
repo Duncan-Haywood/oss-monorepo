@@ -10625,3 +10625,46 @@ done on the numbers people saw at the time. As the header said, a bar failed, so
 on the CLI or page. Next, if this line continues: real vintages (ALFRED) when its host answers, and a pre-registered
 round on how `--sd-until` should be set in real time (a fixed calm window, or volatility that leaves out the
 largest moves) with this replay as the test.
+
+## Turns called in pseudo-real time under P3 (2026-11-24, pre-registered; Q2 fails, Q1, Q3 and Q4 pass, nothing ships)
+
+The next item from the section above: the same replay under the 3-month phase minimum that monthly
+`--turns --columns` now uses by default ("P3 and the heavy-late warning together"). Same data, cut-offs, 2-month
+release lag, call rule, alarm rule and survival rule, with `minPhase: 3`; the bars are the first replay's, so the
+two rules are judged alike. Rules, bars and the expectation (P3 calls short contractions sooner but adds alarms,
+and does not fix the 2001 peak) are in the header of `eval/turns-realtime-p3.mjs`, committed before it first ran
+(commit "pre-register the P3 pseudo-real-time turns replay"); output `eval/turns-realtime-p3.out.txt` (0.7 s);
+test `turns-realtime-p3.test.mjs`.
+
+| bar | P3 | 6-month rule | |
+|---|---|---|---|
+| Q1 at least 15 of 16 called, median delay at most 7 months | 15, median 7 | 15, median 7 | **passes** |
+| Q2 called before NBER's announcement in at least 8 of 12 | 7 of 12 | 7 of 12 | **fails** |
+| Q3 at most 6 retracted false alarms, 1970-2026 | 6 | 4 | **passes** |
+| Q4 survival rises with age, 12+ months held in 90% or more | 59, 70, 77, 80, 94% by age 0-5, 6-8, 9-11, 12-17, 18+; 12+ 94.0% | 65, 74, 85, 90, 100%; 99.9% | **passes** |
+
+What it shows:
+
+- **P3 calls no turn sooner on the real composite.** Every one of the 16 call months is the same under both rules,
+  to the month. The short phases P3 rescues in the simulated makes do not occur among NBER's turns since 1969 at
+  the point the call is made: by the time 5 months of data follow a turn, the phase on either side is already six
+  months or more.
+- **What P3 adds is the 2002-11 peak and 2003-04 trough.** In the replay they appear on data to 2003-04, stand at
+  every cut-off for 17 years (201 cut-offs), and vanish at the 2020-03 cut-off, when 2020's swings enter the
+  volatility weights and the 2002-03 soft patch shrinks below the rule's reach. Two retracted alarms instead of
+  four becomes six (Q3's limit, exactly).
+- **That one pair is what breaks "a year of data makes a turn safe".** Under the 6-month rule no turn dated with
+  18 or more months of data after it ever moved (100%); under P3, 377 of the 6,527 such readings were the
+  2002-03 pair, so the share is 94%, and 12-17 months falls from 90% to 80%. A composite turn under P3 can be
+  rewritten by a later shock's effect on the weights long after it looks settled.
+- **With the weights fixed to 2019-12** (printed, no bar) both rules call all 16 turns, 8 of 12 before NBER, with
+  identical delays; the pair then never goes away (it is in today's full-sample dating too), and a 2025-07 peak
+  shows on one cut-off.
+
+Read it for what it is: one composite, revised data, one rule change. Q2 failed exactly as it did for the 6-month
+rule, so as the header said nothing ships: no survival note on `--turns`. Nothing pre-registered here changes the
+P3 default, which was chosen on five simulated makes' full-sample F1; this replay says it buys no speed on the
+FRED composite and costs one long-lived false contraction, the same pair the P3 section listed as its cost. The
+open question this leaves is the weights, not the phase rule: a pre-registered round on setting `--sd-until` in
+real time (a fixed calm window, or volatility that leaves out the largest moves), judged on this replay under both
+minimums, and real vintages (ALFRED) when its host answers.

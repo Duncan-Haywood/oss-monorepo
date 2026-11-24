@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVPqfNAMb4g92V8Tjhg",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products)",
+  "input_sha256": "d06985287d402957a41f6a151c3bedfc2a633c6c4ef4d3b85a37ca1e6f2013bc",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T13:00:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18604",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here sent the session to changepoint-detector minutes after three of its PRs merged; the 'replay under P3' item was tagged (needs outside input) though it ran offline on committed data in 0.7 s."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The router's weighted draw picked research; the scheduled brief asks for revenue products, so routed with --task as prompt.md says.",
+      "did": "routed with --task",
+      "result": "ventures/2"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Pre-registered eval/turns-realtime-p3.mjs (committed before first run). Q1, Q3, Q4 pass, Q2 fails (7 of 12 before NBER): nothing ships. P3 gives identical call months to the 6-month rule on the FRED composite and adds the 2002-11/2003-04 pair, standing 2003-2020. Verified: node --test turns-*.test.mjs 40 pass; check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}
