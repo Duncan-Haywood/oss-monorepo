@@ -38,6 +38,7 @@ were read; no per-design d had been computed under the rule and no count below w
      165) that contains 0. Prior 60%.
 """
 import json
+import math
 import os
 import random
 import re
@@ -138,6 +139,15 @@ def runs(ts):
     return ", ".join(out)
 
 
+def sign_p(a, b):
+    """Two-sided exact sign test for a wins and b losses."""
+    n, k = a + b, min(a, b)
+    if n == 0:
+        return 1.0
+    tail = sum(math.comb(n, i) for i in range(k + 1)) / 2 ** n
+    return min(1.0, 2 * tail)
+
+
 def boot_ci(vals, seed=SEED, n=BOOT):
     rng = random.Random(seed)
     means = sorted(statistics.mean(rng.choice(vals) for _ in vals) for _ in range(n))
@@ -218,6 +228,16 @@ def main():
             f"(5) depth < 32, decided losses at most 6: {lo.count('loss') <= 6} "
             f"({lo.count('win')} wins, {lo.count('loss')} losses, {lo.count('tie')} ties)",
             f"(6) interval of mean d contains 0: {lo_ci[0] <= 0 <= lo_ci[1]} ({lo_ci[0]:+.2f} to {lo_ci[1]:+.2f})"]
+    # Post hoc, added after the first run printed the predictions above (reported, not tests of them).
+    zeros = [r for r in dep if r["d"] == 0]
+    nz = [r for r in dep if r["d"] != 0]
+    nz_tie = sum(cls(r["d"], TAU) == "tie" for r in nz)
+    out += ["", "## Post hoc (added after the first run; reported, not predicted)", "",
+            f"designs with d exactly 0 (SWC routed as random routing did, off the ladder branch): {len(zeros)} of {len(dep)} "
+            f"with depth; among the {len(nz)} with d != 0, {nz_tie} tie at tau = 4 ({nz_tie / len(nz):.0%})",
+            f"decided designs, sign test (two-sided): depth >= {CUT}: {hi.count('win')} wins / {hi.count('loss')} losses, "
+            f"p = {sign_p(hi.count('win'), hi.count('loss')):.4f}; depth < {CUT}: {lo.count('win')} wins / "
+            f"{lo.count('loss')} losses, p = {sign_p(lo.count('win'), lo.count('loss')):.4f}"]
     open(os.path.join(HERE, "results.txt"), "w").write("\n".join(out) + "\n")
     print("\n".join(out))
 
