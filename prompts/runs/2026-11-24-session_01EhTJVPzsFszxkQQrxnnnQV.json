@@ -24,7 +24,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 5,
@@ -50,7 +50,7 @@
     "docs/posts/2026-11-24-photo-editing-lightroom-keyword-list.md"
   ],
   "goal": null,
-  "notes": "Checks: node --test site/keywordlist.test.mjs site/iptc.test.mjs: 24 pass. run_venture_tests.py photo-editing: ok, 1626 tests. eval/cull-keyword-list-page.mjs in Chromium on two NEFs, sidecars read by ExifTool 12.76 (installed via apt) with paths, synonyms, no unexported level in dc:subject, -validate OK. Lightroom itself not run.",
+  "notes": "Checks: node --test site/keywordlist.test.mjs site/iptc.test.mjs: 24 pass. run_venture_tests.py photo-editing: ok, 1626 tests. eval/cull-keyword-list-page.mjs in Chromium on two NEFs, sidecars read by ExifTool 12.76 (installed via apt) with paths, synonyms, no unexported level in dc:subject, -validate OK. Lightroom itself not run. CI: all green except changed-ventures, whose only failure is check_third_party.py on research/sensing-selfcal/experiments/m3zg_loop/loop.py (Intel/Willow Garage OpenCV notices missing from platform/ci/third_party.json), present on main before this PR; venture-preflight stopped on the same check. Not fixed here: platform/ci is control plane (CODEOWNERS) and would hold this PR.",
   "corrections": [],
   "redteam": null
 }
