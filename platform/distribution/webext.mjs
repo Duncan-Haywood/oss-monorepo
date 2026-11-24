@@ -40,7 +40,10 @@ function withoutScripts(html) {
   } while (out !== prev);
   return out;
 }
-const NETWORK_RE = /\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts|\bimport\s*\(/;
+// A dynamic import of a literal relative path ("./x.mjs") loads a file that
+// importedFiles() packages into the extension, so it stays local; any other
+// import() could load code from the network.
+const NETWORK_RE = /\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts|\bimport\s*\((?!\s*["']\.{1,2}\/)/;
 
 /** Names Chrome shows: the title up to its first dash, at most 45 characters. */
 export function extensionName(title) {

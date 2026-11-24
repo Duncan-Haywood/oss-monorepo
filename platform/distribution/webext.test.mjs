@@ -88,3 +88,10 @@ test('the real shift-roster-builder qualifies', async () => {
   const { ok } = await plan({ slugs: ['shift-roster-builder'] });
   assert.equal(ok.length, 1);
 });
+
+test('a dynamic import of a packaged relative file is local; any other import() is network', () => {
+  const page = (js) => `<!doctype html><title>T</title><script type="module">${js}</script>`;
+  assert.ok(!rewritePage(page('const m = await import("./importer.mjs");')).skip);
+  assert.equal(rewritePage(page('await import(url);')).skip, 'inline script reaches the network');
+  assert.equal(rewritePage(page('await import("https://cdn.example/x.mjs");')).skip, 'inline script reaches the network');
+});
