@@ -1,0 +1,56 @@
+name: pv-row-spacing-optimizer
+description: >-
+  Free browser tool for solar developers, EPC estimators and designers: picks
+  the row spacing (ground coverage ratio) and tilt of a ground-mount plant by
+  simulating a year of weather (PVGIS, NSRDB, TMY3 or clear sky) on every
+  fixed-tilt and backtracking-tracker layout, with inter-row shading, sky view
+  and bypass-diode bands, and ranking each by NPV or cost per MWh with the
+  site's land, capital, O&M and energy value. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-24 in an explore run. duplicate_check.py: top match 0.14
+# (drone-mapping-job-calculator); slug_dupe.py: none. No venture chooses row
+# spacing: pv-string-sizer is the electrical step, solar-pv-bid-calculator
+# prices an install, solar-land-lease-offer-calculator is the landowner's side.
+# Fits the owner's 2026-10-31 direction (industrial, energy, real estate
+# development and construction).
+#
+# Why a tool and not a chatbot answer: the answer is a year-long simulation of
+# about 2,000 layouts priced against each other; a chat reply gives the 9-to-3
+# rule, which on a real typical year at 55 N cost $7.21/MWh (check/).
+#
+# First visitor: developers and EPC estimators searching "solar row spacing
+# calculator", "ground coverage ratio", "inter-row shading", "GCR optimization";
+# volume not measured with an external tool.
+#
+# Liability: a screening model, not engineering or financial advice; detailed
+# design software and an engineer decide the layout. No product is named.
+# Physics checked against pvlib-python 0.16.1; economics by hand-checked tests.
+
+hypotheses:
+  - claim: >-
+      Solar developers and EPC estimators will use a free, no-signup spacing
+      screen that prices layouts with their own land and energy value before
+      they open a full design package.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a yield or shading loss that disagrees with pvlib or PVsyst on the same inputs by more than the documented model differences, and the disagreement is the engine's error.
+
+links:
+  production: https://marisstella.app/pv-row-spacing-optimizer/
+  analytics: null

@@ -1,0 +1,229 @@
+{
+ "inputs": {
+  "lat": 35,
+  "lon": -106.6,
+  "altitude": 1500,
+  "linkeTurbidity": 3,
+  "airTemp": 20,
+  "azimuth": 180,
+  "tiltMin": 0,
+  "tiltMax": 40,
+  "gcrMin": 0.2,
+  "gcrMax": 0.7,
+  "collectorWidth": 4,
+  "bands": 2,
+  "trackerWidth": 2.4,
+  "trackerMaxAngle": 60,
+  "backtrack": true,
+  "axisAzimuth": 180,
+  "trackerBands": 1,
+  "albedo": 0.2,
+  "losses": 0.14,
+  "moduleEff": 0.21,
+  "overhead": 0.15,
+  "mode": "land",
+  "rankBy": "auto",
+  "acres": 40,
+  "mwdc": 10,
+  "price": 50,
+  "capex": 1,
+  "trackerPremium": 0.1,
+  "om": 15,
+  "landCost": 800,
+  "discount": 0.07,
+  "life": 30,
+  "degradation": 0.005,
+  "tzHours": 0,
+  "shiftMinutes": 0
+ },
+ "sites": [
+  {
+   "file": "723170TYA.CSV",
+   "lat": 36.1,
+   "lon": -79.95,
+   "annual": {
+    "ghi": 1566.203,
+    "dni": 1474.238,
+    "dhi": 682.2230000000001
+   },
+   "modes": {
+    "land": {
+     "rankBy": "lcoe",
+     "fixedBest": {
+      "tilt": 26,
+      "gcr": 0.4,
+      "yield": 1391,
+      "rowLossPct": 1.08,
+      "npv": -4696460,
+      "lcoe": 74.15,
+      "kwp": 11824,
+      "acres": 40
+     },
+     "trackerBest": {
+      "gcr": 0.25,
+      "yield": 1580,
+      "rowLossPct": 2.37,
+      "npv": -2995713,
+      "lcoe": 71.69,
+      "kwp": 7390,
+      "acres": 40
+     },
+     "nineToThreeAtBestTilt": {
+      "tilt": 26,
+      "gcr": 0.509,
+      "yield": 1378,
+      "rowLossPct": 2.01,
+      "npv": -5989176,
+      "lcoe": 74.41,
+      "kwp": 15057,
+      "acres": 40
+     },
+     "clearSkyChoice": {
+      "tilt": 32,
+      "gcr": 0.44,
+      "yieldClaimed": 1958,
+      "lcoeUnderRealWeather": 74.46
+     },
+     "lcoeAddedByRule": 0.26,
+     "lcoeAddedByClearSky": 0.31,
+     "choice": "tracker"
+    },
+    "capacity": {
+     "rankBy": "lcoe",
+     "fixedBest": {
+      "tilt": 26,
+      "gcr": 0.4,
+      "yield": 1391,
+      "rowLossPct": 1.08,
+      "npv": -3972020,
+      "lcoe": 74.15,
+      "kwp": 10000,
+      "acres": 33.8
+     },
+     "trackerBest": {
+      "gcr": 0.25,
+      "yield": 1580,
+      "rowLossPct": 2.37,
+      "npv": -4053787,
+      "lcoe": 71.69,
+      "kwp": 10000,
+      "acres": 54.1
+     },
+     "nineToThreeAtBestTilt": {
+      "tilt": 26,
+      "gcr": 0.509,
+      "yield": 1378,
+      "rowLossPct": 2.01,
+      "npv": -3977592,
+      "lcoe": 74.41,
+      "kwp": 10000,
+      "acres": 26.6
+     },
+     "clearSkyChoice": {
+      "tilt": 32,
+      "gcr": 0.44,
+      "yieldClaimed": 1958,
+      "lcoeUnderRealWeather": 74.46
+     },
+     "lcoeAddedByRule": 0.26,
+     "lcoeAddedByClearSky": 0.31,
+     "choice": "tracker"
+    }
+   }
+  },
+  {
+   "file": "703165TY.csv",
+   "lat": 55.317,
+   "lon": -160.517,
+   "annual": {
+    "ghi": 829.243,
+    "dni": 813.761,
+    "dhi": 460.947
+   },
+   "modes": {
+    "land": {
+     "rankBy": "lcoe",
+     "fixedBest": {
+      "tilt": 36,
+      "gcr": 0.24,
+      "yield": 847,
+      "rowLossPct": 2.29,
+      "npv": -5258815,
+      "lcoe": 124,
+      "kwp": 7094,
+      "acres": 40
+     },
+     "trackerBest": {
+      "gcr": 0.21,
+      "yield": 904,
+      "rowLossPct": 3.24,
+      "npv": -5063506,
+      "lcoe": 126.32,
+      "kwp": 6208,
+      "acres": 40
+     },
+     "nineToThreeAtBestTilt": {
+      "tilt": 36,
+      "gcr": 0.088,
+      "yield": 863,
+      "rowLossPct": 0.41,
+      "npv": -2144723,
+      "lcoe": 131.22,
+      "kwp": 2587,
+      "acres": 40
+     },
+     "clearSkyChoice": {
+      "tilt": 40,
+      "gcr": 0.23,
+      "yieldClaimed": 1639,
+      "lcoeUnderRealWeather": 124.16
+     },
+     "lcoeAddedByRule": 7.21,
+     "lcoeAddedByClearSky": 0.16,
+     "choice": "fixed"
+    },
+    "capacity": {
+     "rankBy": "lcoe",
+     "fixedBest": {
+      "tilt": 36,
+      "gcr": 0.24,
+      "yield": 847,
+      "rowLossPct": 2.29,
+      "npv": -7412717,
+      "lcoe": 124,
+      "kwp": 10000,
+      "acres": 56.4
+     },
+     "trackerBest": {
+      "gcr": 0.21,
+      "yield": 904,
+      "rowLossPct": 3.24,
+      "npv": -8157044,
+      "lcoe": 126.32,
+      "kwp": 10000,
+      "acres": 64.4
+     },
+     "nineToThreeAtBestTilt": {
+      "tilt": 36,
+      "gcr": 0.088,
+      "yield": 863,
+      "rowLossPct": 0.41,
+      "npv": -8291850,
+      "lcoe": 131.22,
+      "kwp": 10000,
+      "acres": 154.6
+     },
+     "clearSkyChoice": {
+      "tilt": 40,
+      "gcr": 0.23,
+      "yieldClaimed": 1639,
+      "lcoeUnderRealWeather": 124.16
+     },
+     "lcoeAddedByRule": 7.21,
+     "lcoeAddedByClearSky": 0.16,
+     "choice": "fixed"
+    }
+   }
+  }
+ ]
+}

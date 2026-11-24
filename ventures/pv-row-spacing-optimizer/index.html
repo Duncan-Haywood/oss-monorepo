@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23b8860b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%E2%89%A1%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PV Row Spacing Optimizer: GCR, Pitch and Tilt by NPV</title>
+  <meta name="description" content="Free solar row spacing tool for developers and designers: simulates a year of sun on every tilt and ground coverage ratio, with inter-row shading, backtracking trackers and bypass diodes, and prices each layout by NPV or LCOE with your land, cost and energy price. Reads PVGIS, NSRDB and TMY3 files.">
+  <meta property="og:title" content="PV Row Spacing Optimizer — free, private, in your browser">
+  <meta property="og:description" content="How far apart should the rows be? Every tilt and GCR simulated through a year of weather and priced with your land and energy value, fixed tilt and trackers side by side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "PV Row Spacing Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Chooses the row spacing (ground coverage ratio) and tilt of a ground-mount solar plant by simulating a year of sun on every layout and pricing it with your land, capital, O&M and energy price, for fixed-tilt racks and single-axis trackers. Runs in your browser.", "featureList": "ground coverage ratio, row pitch, tilt, inter-row shading, backtracking trackers, sky view factor, bypass diode bands, PVGIS TMY, NSRDB, TMY3, NPV, LCOE, land-limited and capacity-limited sites, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How far apart should solar panel rows be?", "acceptedAnswer": {"@type": "Answer", "text": "Far enough that the energy the next foot of spacing saves from shade is worth less than the land, cable and racking it costs. That point depends on the site's latitude and weather, the tilt, the price of land and of energy, and whether the plant is limited by acres or by its grid connection. This tool simulates a year of sun for every tilt and spacing and prices each one, so the answer comes from your numbers rather than a rule of thumb."}}, {"@type": "Question", "name": "What is ground coverage ratio (GCR)?", "acceptedAnswer": {"@type": "Answer", "text": "The collector width (the slant width of one row of modules) divided by the row pitch (the distance from one row to the same point on the next). A GCR of 0.4 with 4 m wide tables means a pitch of 10 m. Higher GCR fits more capacity on the land and loses more energy to row-to-row shading and to the sky the rows hide from each other."}}, {"@type": "Question", "name": "Is the 9 am to 3 pm winter solstice rule good enough?", "acceptedAnswer": {"@type": "Answer", "text": "It is a safe starting point, not an optimum. It ignores the price of land and of energy and treats every latitude the same. On the two real typical-year weather files we tested, it cost 0.26 dollars per MWh at 36 degrees north and 7.21 dollars per MWh at 55 degrees north, where it spreads rows nearly three times farther apart than the cheapest layout."}}, {"@type": "Question", "name": "Why does the tool ask for electrical bands?", "acceptedAnswer": {"@type": "Answer", "text": "A shadow across the bottom edge of a row costs more than its own area: the cells in a module are wired in series substrings behind bypass diodes, and a substring with a shaded cell drops out. Two standard modules in portrait make 2 bands across the table; two half-cut modules in portrait make 4; three substrings per module in landscape make 3 per module. Enter 0 for a loss that is linear in shaded area."}}, {"@type": "Question", "name": "Which weather file should I use?", "acceptedAnswer": {"@type": "Answer", "text": "A typical-year file for the site: PVGIS TMY (free from the EU Joint Research Centre, worldwide), an NSRDB CSV (free from NREL, the Americas and more), a TMY3 file, or any CSV with a time column and GHI, DNI and DHI. Without a file the tool uses a clear sky every day, which overstates both the yield and the shading loss."}}, {"@type": "Question", "name": "Fixed tilt or single-axis tracker?", "acceptedAnswer": {"@type": "Answer", "text": "The tool prices both on the same land and the same weather. Trackers collect more energy per kWp, need wider spacing and cost more per watt; enter the tracker premium you are quoted and compare the two results directly."}}, {"@type": "Question", "name": "Does this replace PVsyst, a design review or an engineer?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a screening model for picking a spacing and tilt to take into detailed design. It assumes long rows on flat ground, no terrain or horizon, and no bifacial gain. Detailed design software, a qualified engineer and the module and racking makers' guidance decide the final layout."}}, {"@type": "Question", "name": "Is my weather file or anything I enter uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and the year is simulated in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1d18; background: #f6f4ee; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #6b4e00; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #4a3600; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #4a3600; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5a5446; }
+    .card { background: #fff; border: 1px solid #e2dccb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #4a360010; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #8a7f63; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #6b4e00; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #efe8d6; color: #4a3600; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #efe9da; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #5a5446; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f8f4e8; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #4a3600; }
+    footer { margin-top: 28px; border-top: 1px solid #e2dccb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .best td { background: #eef3e1; font-weight: 600; }
+    svg text { font: 12px system-ui, sans-serif; fill: #5a5446; }
+    .legend span { display: inline-block; margin-right: 16px; font-size: .86rem; }
+    .legend i { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 6px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PV ROW SPACING OPTIMIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How far apart should the solar rows be?</h1>
+    <p>Give the site, a typical-year weather file and your costs. Every tilt and every row spacing (ground coverage ratio) is run through the whole year, sun position by sun position, with <strong>row-to-row shading</strong>, the <strong>sky the rows hide from each other</strong> and <strong>bypass-diode substrings</strong>, for fixed-tilt racks and for <strong>backtracking single-axis trackers</strong>. Then each layout is priced with your land, capital, O&amp;M and energy value, so the spacing you get is the one that pays best, not the 9-to-3 rule.</p>
+    <p class="note">Nothing you enter or load leaves this browser tab. A screening model for choosing a layout to take into detailed design, not engineering advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Site and weather</h2>
+    <div class="grid">
+      <div><label for="lat">Latitude (deg, north +)</label><input type="text" id="lat" inputmode="decimal" autocomplete="off" placeholder="35.0"></div>
+      <div><label for="lon">Longitude (deg, east +)</label><input type="text" id="lon" inputmode="decimal" autocomplete="off" placeholder="-106.6"></div>
+      <div><label for="altitude">Altitude (m)</label><input type="text" id="altitude" inputmode="decimal" autocomplete="off" placeholder="1500"></div>
+      <div><label for="airTemp">Daytime air temperature (C), if the file has none</label><input type="text" id="airTemp" inputmode="decimal" autocomplete="off" placeholder="20"></div>
+      <div><label for="linkeTurbidity">Linke turbidity (clear sky only; 2 very clean to 6 hazy)</label><input type="text" id="linkeTurbidity" inputmode="decimal" autocomplete="off" placeholder="3"></div>
+      <div><label for="albedo">Ground albedo</label><input type="text" id="albedo" inputmode="decimal" autocomplete="off" placeholder="0.2"></div>
+      <div><label for="weatherFile">Typical-year weather file (optional)</label><input type="file" id="weatherFile" accept=".csv,.txt,.dat,text/csv"></div>
+      <div><label for="tzHours">Time zone of a plain CSV's timestamps (hours from UTC)</label><input type="text" id="tzHours" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+      <div><label for="shiftMinutes">Shift every timestamp by (minutes)</label><input type="text" id="shiftMinutes" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+    </div>
+    <p class="note" id="weather-status">No file loaded: a clear sky every day (an upper bound on yield and shading). PVGIS TMY, NSRDB, TMY3 or any CSV with time, GHI, DNI and DHI columns.</p>
+  </section>
+
+  <section class="card">
+    <h2>Fixed-tilt racks</h2>
+    <div class="grid">
+      <div><label for="azimuth">Rows face azimuth (deg; 180 south, 0 north)</label><input type="text" id="azimuth" inputmode="decimal" autocomplete="off" placeholder="180"></div>
+      <div><label for="tiltMin">Lowest tilt to try (deg)</label><input type="text" id="tiltMin" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+      <div><label for="tiltMax">Highest tilt to try (deg)</label><input type="text" id="tiltMax" inputmode="decimal" autocomplete="off" placeholder="40"></div>
+      <div><label for="collectorWidth">Table width up the slope (m)</label><input type="text" id="collectorWidth" inputmode="decimal" autocomplete="off" placeholder="4.0"></div>
+      <div><label for="bands">Electrical bands across the table (0 = linear)</label><input type="text" id="bands" inputmode="decimal" autocomplete="off" placeholder="2"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Single-axis trackers</h2>
+    <div class="grid">
+      <div><label for="axisAzimuth">Axis azimuth (deg; 180 = north-south axis)</label><input type="text" id="axisAzimuth" inputmode="decimal" autocomplete="off" placeholder="180"></div>
+      <div><label for="trackerMaxAngle">Rotation limit (deg)</label><input type="text" id="trackerMaxAngle" inputmode="decimal" autocomplete="off" placeholder="60"></div>
+      <div><label for="backtrack">Backtracking</label><select id="backtrack"><option value="true">On</option><option value="false">Off</option></select></div>
+      <div><label for="trackerWidth">Tracker width across the axis (m)</label><input type="text" id="trackerWidth" inputmode="decimal" autocomplete="off" placeholder="2.4"></div>
+      <div><label for="trackerBands">Electrical bands across the tracker</label><input type="text" id="trackerBands" inputmode="decimal" autocomplete="off" placeholder="1"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Spacing and modules</h2>
+    <div class="grid">
+      <div><label for="gcrMin">Lowest GCR to try</label><input type="text" id="gcrMin" inputmode="decimal" autocomplete="off" placeholder="0.20"></div>
+      <div><label for="gcrMax">Highest GCR to try</label><input type="text" id="gcrMax" inputmode="decimal" autocomplete="off" placeholder="0.70"></div>
+      <div><label for="moduleEff">Module efficiency (%)</label><input type="text" id="moduleEff" inputmode="decimal" autocomplete="off" placeholder="21"></div>
+      <div><label for="losses">Other losses: soiling, wiring, inverter, availability (%)</label><input type="text" id="losses" inputmode="decimal" autocomplete="off" placeholder="14"></div>
+      <div><label for="overhead">Extra land for roads, setbacks, equipment (% of the array area)</label><input type="text" id="overhead" inputmode="decimal" autocomplete="off" placeholder="15"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Money</h2>
+    <div class="grid">
+      <div><label for="mode">What limits the plant</label><select id="mode"><option value="land">The land: a fixed number of acres</option><option value="capacity">The grid connection: a fixed DC capacity</option></select></div>
+      <div><label for="acres">Buildable acres (land-limited)</label><input type="text" id="acres" inputmode="decimal" autocomplete="off" placeholder="40"></div>
+      <div><label for="mwdc">DC capacity, MW (capacity-limited)</label><input type="text" id="mwdc" inputmode="decimal" autocomplete="off" placeholder="10"></div>
+      <div><label for="price">Energy value ($/MWh)</label><input type="text" id="price" inputmode="decimal" autocomplete="off" placeholder="50"></div>
+      <div><label for="capex">Installed cost, fixed tilt ($/W DC)</label><input type="text" id="capex" inputmode="decimal" autocomplete="off" placeholder="1.00"></div>
+      <div><label for="trackerPremium">Tracker premium over fixed tilt ($/W DC)</label><input type="text" id="trackerPremium" inputmode="decimal" autocomplete="off" placeholder="0.10"></div>
+      <div><label for="om">O&M ($/kW DC per year)</label><input type="text" id="om" inputmode="decimal" autocomplete="off" placeholder="15"></div>
+      <div><label for="landCost">Land lease ($/acre per year)</label><input type="text" id="landCost" inputmode="decimal" autocomplete="off" placeholder="800"></div>
+      <div><label for="discount">Discount rate (%)</label><input type="text" id="discount" inputmode="decimal" autocomplete="off" placeholder="7"></div>
+      <div><label for="life">Life (years)</label><input type="text" id="life" inputmode="decimal" autocomplete="off" placeholder="30"></div>
+      <div><label for="degradation">Degradation (% per year)</label><input type="text" id="degradation" inputmode="decimal" autocomplete="off" placeholder="0.5"></div>
+      <div><label for="rankBy">Rank layouts by</label><select id="rankBy"><option value="auto">Net present value (cost per MWh if nothing pays)</option><option value="npv">Net present value</option><option value="lcoe">Cost per MWh (LCOE)</option></select></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <button type="button" id="analyze">Find the spacing</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <p id="form-status" role="status" class="note">The fields start on an example site near Albuquerque, NM. Change them, or load a weather file, then click Find the spacing.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div class="scroll"><table id="compare"><thead><tr><th>Layout</th><th class="n">Tilt</th><th class="n">GCR</th><th class="n">Pitch</th><th class="n">Yield, kWh/kWp</th><th class="n">Row loss</th><th class="n">kW DC</th><th class="n">Acres</th><th class="n">NPV</th><th class="n">$/MWh</th></tr></thead><tbody></tbody></table></div>
+    <h3 id="chart-title">Net present value by GCR</h3>
+    <p class="legend"><span><i style="background:#6b4e00"></i>Fixed tilt at the best tilt</span><span><i style="background:#2f6f8f"></i>Single-axis tracker</span></p>
+    <div id="chart"></div>
+    <ul id="notes" class="note"></ul>
+    <button type="button" id="download">Download every GCR as CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p><strong>Sun and sky.</strong> The sun's position comes from NOAA's solar equations at every step of the year. With a weather file, its own GHI, DNI and DHI are used; without one, the Ineichen-Perez clear sky with the Linke turbidity you enter. Diffuse light is split by Hay and Davies: the circumsolar part travels with the beam, the rest comes evenly from the sky.</p>
+    <p><strong>Rows.</strong> Rows are long and parallel on flat ground. The shaded share of a row's width is 1 - sin(sun elevation) / (GCR x cos(angle of incidence)), from the geometry across the rows. The sky a row's face can see past the row in front is (1 + p - sqrt(1 + p&sup2; - 2p cos tilt)) / 2 of the open sky, with p = 1/GCR. Any shadow in an electrical band removes that band's beam and circumsolar light. Trackers follow the sun and backtrack (Anderson and Mikofski, 2020) so rows never shade each other, at the cost of turning away from the sun early and late. Cell temperature uses the NOCT model; power falls 0.35% per degree above 25 C.</p>
+    <p><strong>Money.</strong> Capacity is the land divided by the area each kW needs (module area / GCR, plus your overhead), or your fixed MW. Net present value = energy x price over the life (with degradation), minus installed cost, O&amp;M and land lease, all discounted. The best layout is the one with the highest NPV, or the lowest cost per MWh when none pays.</p>
+    <p><strong>Checked against pvlib.</strong> Sun position within 0.013 degrees of NREL's SPA, the clear sky within 0.01 W/m&sup2;, the shaded fraction and tracker angles identical to pvlib's, and a year of beam and sky light on five row layouts within 0.04% of pvlib's infinite-sheds model. <strong>Not modelled:</strong> sloped or uneven ground, horizon and nearby objects, row ends, bifacial rear-side gain, snow, inverter clipping, and cable and racking costs that change with spacing (put them in the installed cost or the overhead).</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How far apart should solar panel rows be?</h3>
+    <p>Far enough that the energy the next foot of spacing saves from shade is worth less than the land, cable and racking it costs. That point depends on the site's latitude and weather, the tilt, the price of land and of energy, and whether the plant is limited by acres or by its grid connection. This tool simulates a year of sun for every tilt and spacing and prices each one, so the answer comes from your numbers rather than a rule of thumb.</p>
+    <h3>What is ground coverage ratio (GCR)?</h3>
+    <p>The collector width (the slant width of one row of modules) divided by the row pitch (the distance from one row to the same point on the next). A GCR of 0.4 with 4 m wide tables means a pitch of 10 m. Higher GCR fits more capacity on the land and loses more energy to row-to-row shading and to the sky the rows hide from each other.</p>
+    <h3>Is the 9 am to 3 pm winter solstice rule good enough?</h3>
+    <p>It is a safe starting point, not an optimum. It ignores the price of land and of energy and treats every latitude the same. On the two real typical-year weather files we tested, it cost 0.26 dollars per MWh at 36 degrees north and 7.21 dollars per MWh at 55 degrees north, where it spreads rows nearly three times farther apart than the cheapest layout.</p>
+    <h3>Why does the tool ask for electrical bands?</h3>
+    <p>A shadow across the bottom edge of a row costs more than its own area: the cells in a module are wired in series substrings behind bypass diodes, and a substring with a shaded cell drops out. Two standard modules in portrait make 2 bands across the table; two half-cut modules in portrait make 4; three substrings per module in landscape make 3 per module. Enter 0 for a loss that is linear in shaded area.</p>
+    <h3>Which weather file should I use?</h3>
+    <p>A typical-year file for the site: PVGIS TMY (free from the EU Joint Research Centre, worldwide), an NSRDB CSV (free from NREL, the Americas and more), a TMY3 file, or any CSV with a time column and GHI, DNI and DHI. Without a file the tool uses a clear sky every day, which overstates both the yield and the shading loss.</p>
+    <h3>Fixed tilt or single-axis tracker?</h3>
+    <p>The tool prices both on the same land and the same weather. Trackers collect more energy per kWp, need wider spacing and cost more per watt; enter the tracker premium you are quoted and compare the two results directly.</p>
+    <h3>Does this replace PVsyst, a design review or an engineer?</h3>
+    <p>No. It is a screening model for picking a spacing and tilt to take into detailed design. It assumes long rows on flat ground, no terrain or horizon, and no bifacial gain. Detailed design software, a qualified engineer and the module and racking makers' guidance decide the final layout.</p>
+    <h3>Is my weather file or anything I enter uploaded?</h3>
+    <p>No. The file is read and the year is simulated in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, electrical, financial, legal or code-compliance advice, and it does not replace a qualified professional, detailed design software or the module and racking makers' guidance. Results are estimates from a simplified model and the numbers you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any module, racking or tracker manufacturer, software vendor, utility or data provider, and no product is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers and files are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>spacing_found</code>, <code>weather_loaded</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Next steps on the same plant: the <a href="../pv-string-sizer/">PV string sizer</a> for modules per string, the <a href="../voltage-drop-calculator/">voltage drop calculator</a> for the DC runs, the <a href="../solar-land-lease-offer-calculator/">solar land lease offer calculator</a> for the landowner's side. Guide: <a href="solar-row-spacing-gcr.html">solar row spacing: the 9-to-3 rule against the money answer</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleInput, buildWeather } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const KEYS = ["lat", "lon", "altitude", "airTemp", "linkeTurbidity", "albedo", "tzHours", "shiftMinutes", "azimuth", "tiltMin", "tiltMax", "collectorWidth", "bands", "axisAzimuth", "trackerMaxAngle", "backtrack", "trackerWidth", "trackerBands", "gcrMin", "gcrMax", "moduleEff", "losses", "overhead", "mode", "acres", "mwdc", "price", "capex", "trackerPremium", "om", "landCost", "discount", "life", "degradation", "rankBy"];
+    const PCT = new Set(["moduleEff", "losses", "overhead", "discount", "degradation"]);
+    const TEXT = new Set(["backtrack", "mode", "rankBy"]);
+    let weatherText = "", last = null;
+
+    function read() {
+      const x = {};
+      for (const k of KEYS) {
+        const raw = $("#" + k).value.trim();
+        if (TEXT.has(k)) x[k] = raw;
+        else if (raw !== "") x[k] = PCT.has(k) ? Number(raw) / 100 : Number(raw);
+      }
+      x.backtrack = x.backtrack === "true";
+      if (weatherText) x.weatherText = weatherText;
+      return x;
+    }
+    function fill(x) {
+      for (const k of KEYS) $("#" + k).value = x[k] === undefined ? "" : PCT.has(k) ? +(x[k] * 100).toFixed(4) : String(x[k]);
+    }
+    const money = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 });
+    const f = (n, d) => Number(n).toFixed(d);
+
+    function chart(a) {
+      const key = a.rankBy === "lcoe" ? "lcoe" : "npv";
+      $("#chart-title").textContent = key === "npv" ? "Net present value by GCR" : "Cost per MWh by GCR (lower is better)";
+      const series = [[a.fixed.curve, "#6b4e00"], [a.tracker.curve, "#2f6f8f"]];
+      const vals = series.flatMap(([c]) => c.map((r) => r[key])).filter(Number.isFinite);
+      const lo = Math.min(...vals), hi = Math.max(...vals);
+      const W = 640, H = 240, L = 70, R = 12, T = 10, B = 34;
+      const g0 = a.fixed.gcrs[0], g1 = a.fixed.gcrs[a.fixed.gcrs.length - 1];
+      const x = (g) => L + ((g - g0) / (g1 - g0 || 1)) * (W - L - R);
+      const y = (v) => T + (1 - (v - lo) / (hi - lo || 1)) * (H - T - B);
+      const fmt = (v) => key === "npv" ? (v < 0 ? "-$" : "$") + (Math.abs(v) >= 1e6 ? (Math.abs(v) / 1e6).toFixed(1) + "M" : (Math.abs(v) / 1e3).toFixed(0) + "k") : "$" + v.toFixed(1);
+      let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc($("#chart-title").textContent)}">`;
+      for (let k = 0; k <= 4; k++) { const v = lo + ((hi - lo) * k) / 4; s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="#efe9da"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${fmt(v)}</text>`; }
+      for (let g = Math.ceil(g0 * 10) / 10; g <= g1 + 1e-9; g += 0.1) s += `<text x="${x(g)}" y="${H - 12}" text-anchor="middle">${g.toFixed(1)}</text>`;
+      s += `<text x="${(L + W - R) / 2}" y="${H}" text-anchor="middle">GCR</text>`;
+      for (const [c, col] of series) s += `<polyline fill="none" stroke="${col}" stroke-width="2.5" points="${c.filter((r) => Number.isFinite(r[key])).map((r) => `${x(r.gcr).toFixed(1)},${y(r[key]).toFixed(1)}`).join(" ")}"/>`;
+      for (const [b, col] of [[a.fixed.best, "#6b4e00"], [a.tracker.best, "#2f6f8f"]]) s += `<circle cx="${x(b.gcr)}" cy="${y(b[key])}" r="5" fill="${col}"/>`;
+      $("#chart").innerHTML = s + "</svg>";
+    }
+
+    function show(a) {
+      last = a;
+      const best = a.choice === "tracker" ? a.tracker.best : a.fixed.best;
+      const what = a.choice === "tracker" ? `Tracker, GCR ${f(best.gcr, 2)}` : `${best.tilt}°, GCR ${f(best.gcr, 2)}`;
+      const tiles = [[what, a.choice === "tracker" ? "best layout: single-axis tracker" : "best layout: fixed tilt"], [`${f(best.pitch, 1)} m`, "row pitch, axis to axis"], [a.rankBy === "lcoe" ? `$${f(best.lcoe, 1)}` : money(best.npv), a.rankBy === "lcoe" ? "per MWh over the life" : "net present value"], [`${f(best.yield, 0)}`, `kWh per kWp a year (${f(100 * best.rowLoss, 1)}% lost to the rows)`]];
+      $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      const row = (name, r, cls) => `<tr class="${cls}"><td>${esc(name)}</td><td class="n">${r.tilt === undefined ? "tracks" : r.tilt + "°"}</td><td class="n">${f(r.gcr, 2)}</td><td class="n">${f(r.pitch, 1)} m</td><td class="n">${f(r.yield, 0)}</td><td class="n">${f(100 * r.rowLoss, 2)}%</td><td class="n">${f(r.kwp, 0)}</td><td class="n">${f(r.acres, 1)}</td><td class="n">${money(r.npv)}</td><td class="n">${f(r.lcoe, 2)}</td></tr>`;
+      const rows = [row("Best fixed tilt", a.fixed.best, a.choice === "fixed" ? "best" : ""), row("Best tracker", a.tracker.best, a.choice === "tracker" ? "best" : "")];
+      if (a.rule) rows.push(row("9-to-3 winter rule, same tilt", a.rule, ""));
+      $("#compare tbody").innerHTML = rows.join("");
+      chart(a);
+      const src = a.weather.source === "clear-sky" ? "clear sky" : a.weather.source;
+      $("#notes").innerHTML = [`Weather: ${src}, ${a.weather.steps} steps; GHI ${f(a.weather.annual.ghi, 0)} kWh/m² a year. Searched ${a.fixed.tilts.length * a.fixed.gcrs.length} fixed layouts and ${a.tracker.curve.length} tracker spacings.`, ...a.notes].map((n) => `<li>${esc(n)}</li>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    }
+
+    function run(event) {
+      status.textContent = "Simulating every layout through the year...";
+      setTimeout(() => {
+        try { show(analyze(read())); if (event) record(event); }
+        catch (e) { status.textContent = e.message; report.hidden = true; }
+      }, 20);
+    }
+
+    $("#weatherFile").addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      weatherText = "";
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const x = read();
+        const w = buildWeather({ ...sampleInput(), ...x, weatherText: text });
+        weatherText = text;
+        $("#lat").value = w.lat; $("#lon").value = w.lon;
+        $("#weather-status").textContent = `${file.name}: ${w.source}, ${w.sU.length} readings, GHI ${w.annual.ghi.toFixed(0)} kWh/m² a year at ${w.lat}, ${w.lon}. ${w.notes.join(" ")}`;
+        record("weather_loaded");
+      } catch (err) {
+        $("#weather-status").textContent = `${file.name}: ${err.message}`;
+      }
+    });
+    $("#analyze").addEventListener("click", () => run("spacing_found"));
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput()); weatherText = ""; $("#weatherFile").value = "";
+      $("#weather-status").textContent = "No file loaded: a clear sky every day (an upper bound on yield and shading).";
+      run("example_loaded");
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "pv-row-spacing.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+    fill(sampleInput());
+  </script>
+</body>
+</html>
