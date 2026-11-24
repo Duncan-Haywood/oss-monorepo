@@ -158,3 +158,17 @@ test("eBay with only some items costed leaves profit and cost of goods blank (qu
   assert.equal(full.channels[0].cogs, 50);
   assert.equal(full.channels[0].profit, 87.44);
 });
+
+test("header found past 15 blank lines, and large exports read the same", () => {
+  const { files } = sampleFiles();
+  // eBay is found by its preamble in the first 15 lines, so it is left out here.
+  for (const f of files.filter((f) => !f.name.startsWith("ebay"))) {
+    assert.equal(detectKind("\n".repeat(20) + f.text), detectKind(f.text), f.name);
+  }
+  const posh = files.find((f) => f.name.startsWith("poshmark"));
+  const lines = posh.text.trim().split("\n");
+  const big = [lines[0], ...Array(50).fill(lines.slice(1)).flat()].join("\n");
+  const one = buildBooks([{ name: "p.csv", text: posh.text }]).channels[0];
+  const many = buildBooks([{ name: "p.csv", text: big }]).channels[0];
+  assert.equal(many.orders, one.orders * 50);
+});
