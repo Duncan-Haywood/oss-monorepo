@@ -40,6 +40,11 @@ const CASES = [
   ["required attribute unset", "IFC4", "#1=IFCPROJECTLIBRARY($,$,'L',$,$,$,$,$,$);", "#1=IFCPROJECTLIBRARY('1iBd2lkrX61vZxF9AnXLa0',$,'L',$,$,$,$,$,$);", "required-unset"],
   ["empty list where one item is the least", "IFC4", "#1=IFCCLASSIFICATION($,$,$,'C',$,$,());", "#1=IFCCLASSIFICATION($,$,$,'C',$,$,('.'));", "list-too-short"],
   ["3D points in a 2D point list", "IFC4", "#1=IFCCARTESIANPOINTLIST2D(((0.,0.,0.),(1.,1.,0.)));", "#1=IFCCARTESIANPOINTLIST2D(((0.,0.),(1.,1.)));", "inner-list-size"],
+  // Inverse cardinalities (schema/*.json inverseBounds; eval/inverse-counts-2026-11-24.md).
+  ["opening that voids no element", "IFC4", "#1=IFCOPENINGELEMENT('2CbOYFeCHBku9$oytmyQ2e',$,$,$,$,$,$,$,$);", "#1=IFCOPENINGELEMENT('2CbOYFeCHBku9$oytmyQ2e',$,$,$,$,$,$,$,$);\n#2=IFCWALL('3g5hZOvez0U9ta9w2d8T5$',$,$,$,$,$,$,$,$);\n#3=IFCRELVOIDSELEMENT('0B3vnDCO9Cfg4Q09lNwjms',$,$,$,#2,#1);", "inverse-count"],
+  ["IFC2X3 placement shared by two products", "IFC2X3", "#1=IFCCARTESIANPOINT((0.,0.,0.));\n#2=IFCAXIS2PLACEMENT3D(#1,$,$);\n#3=IFCLOCALPLACEMENT($,#2);\n#4=IFCBUILDINGELEMENTPROXY('2CbOYFeCHBku9$oytmyQ2e',$,$,$,$,#3,$,$,$);\n#5=IFCBUILDINGELEMENTPROXY('3g5hZOvez0U9ta9w2d8T5$',$,$,$,$,#3,$,$,$);", "#1=IFCCARTESIANPOINT((0.,0.,0.));\n#2=IFCAXIS2PLACEMENT3D(#1,$,$);\n#3=IFCLOCALPLACEMENT($,#2);\n#6=IFCLOCALPLACEMENT($,#2);\n#4=IFCBUILDINGELEMENTPROXY('2CbOYFeCHBku9$oytmyQ2e',$,$,$,$,#3,$,$,$);\n#5=IFCBUILDINGELEMENTPROXY('3g5hZOvez0U9ta9w2d8T5$',$,$,$,$,#6,$,$,$);", "inverse-count"],
+  ["element contained in two storeys", "IFC4", "#1=IFCWALL('3g5hZOvez0U9ta9w2d8T5$',$,$,$,$,$,$,$,$);\n#2=IFCBUILDINGSTOREY('2CbOYFeCHBku9$oytmyQ2e',$,'S1',$,$,$,$,$,.ELEMENT.,0.);\n#3=IFCBUILDINGSTOREY('1AftmW30PC4xMJ7tU7EJK8',$,'S2',$,$,$,$,$,.ELEMENT.,3.);\n#4=IFCRELCONTAINEDINSPATIALSTRUCTURE('0B3vnDCO9Cfg4Q09lNwjms',$,$,$,(#1),#2);\n#5=IFCRELCONTAINEDINSPATIALSTRUCTURE('1iBd2lkrX61vZxF9AnXLa0',$,$,$,(#1),#3);", "#1=IFCWALL('3g5hZOvez0U9ta9w2d8T5$',$,$,$,$,$,$,$,$);\n#2=IFCBUILDINGSTOREY('2CbOYFeCHBku9$oytmyQ2e',$,'S1',$,$,$,$,$,.ELEMENT.,0.);\n#3=IFCBUILDINGSTOREY('1AftmW30PC4xMJ7tU7EJK8',$,'S2',$,$,$,$,$,.ELEMENT.,3.);\n#4=IFCRELCONTAINEDINSPATIALSTRUCTURE('0B3vnDCO9Cfg4Q09lNwjms',$,$,$,(#1),#2);", "inverse-count"],
+  ["one layer listed twice in a layer set", "IFC4", "#1=IFCMATERIAL('Gypsum',$,$);\n#2=IFCMATERIALLAYER(#1,12.5,$,'Lining',$,$,$);\n#3=IFCMATERIALLAYER(#1,140.,$,'Core',$,$,$);\n#4=IFCMATERIALLAYERSET((#2,#3,#2),'W',$);", "#1=IFCMATERIAL('Gypsum',$,$);\n#2=IFCMATERIALLAYER(#1,12.5,$,'Lining',$,$,$);\n#3=IFCMATERIALLAYER(#1,140.,$,'Core',$,$,$);\n#5=IFCMATERIALLAYER(#1,12.5,$,'Lining',$,$,$);\n#4=IFCMATERIALLAYERSET((#2,#3,#5),'W',$);", "inverse-count"],
   ["abstract class written as a record", "IFC4", "#1=IFCELEMENT('2CbOYFeCHBku9$oytmyQ2e',$,$,$,$,$,$,$);", "#1=IFCBUILDINGELEMENTPROXY('2CbOYFeCHBku9$oytmyQ2e',$,$,$,$,$,$,$,$);", "abstract-class"],
 ];
 
@@ -55,6 +60,31 @@ for (const [what, schema, bad, good, code] of CASES) {
     assert.ok(!g.includes(code), what + " (twin)");
   });
 }
+
+test("inverse counts name the count, the pointing records and the bound", () => {
+  const two = CASES.find((c) => c[0] === "element contained in two storeys");
+  const f = conformance(file("IFC4", two[2]), resources().schemas).findings.find((x) => x.code === "inverse-count");
+  assert.equal(f.id, 1);
+  assert.equal(f.attr, "ContainedInStructure");
+  assert.match(f.message, /counts 2 IfcRelContainedInSpatialStructures \(RelatedElements pointing here: #4, #5\), IFC4 gives \[0:1\]/);
+  assert.match(f.message, /partOf/);
+  // IFC4 lets one placement place many products (PlacesObject [0:?]); IFC2X3 does not.
+  const shared = CASES.find((c) => c[0] === "IFC2X3 placement shared by two products");
+  assert.ok(!codes("IFC4", shared[2]).includes("inverse-count"));
+});
+
+test("a repeated layer is counted per listing; a pointer of a class outside the schema is named", () => {
+  const rep = CASES.find((c) => c[0] === "one layer listed twice in a layer set");
+  const f = conformance(file("IFC4", rep[2]), resources().schemas).findings.find((x) => x.code === "inverse-count");
+  assert.equal(f.id, 2);
+  assert.match(f.message, /counts 2 IfcMaterialLayerSets \(MaterialLayers pointing here: #4 \(one record listing it 2 times\)\)/);
+  // IFCBEAMSTANDARDCASE is IFC4, not IFC4X3: its shape is reported (as
+  // ifcopenshell.validate does) with the record that is the likelier fault.
+  const data = "#1=IFCPRODUCTDEFINITIONSHAPE($,$,());\n#2=IFCBEAMSTANDARDCASE('2CbOYFeCHBku9$oytmyQ2e',$,$,$,$,$,#1,$,$);";
+  const g = conformance(file("IFC4X3_ADD2", data), resources().schemas).findings.find((x) => x.code === "inverse-count");
+  assert.equal(g.id, 1);
+  assert.match(g.message, /#2, an IFCBEAMSTANDARDCASE, also points here, but IFC4X3_ADD2 has no such class/);
+});
 
 test("the header records against ISO 10303-21's shapes", () => {
   const h = (name) => header(HEAD("IFC4", name)).map((x) => x.code);

@@ -58,7 +58,7 @@ aggregate attribute whose lower bound is 1 or more (144 `min: 1`, 21 `min: 2`, 4
 (`ThatOpen/engine_web-ifc` `src/schema-generator/`), which first reproduced the
 committed JSON exactly. The only change is the new field.
 
-Not checked: inverse cardinalities (except the IFC2X3 group rule), WHERE rules
+Not checked: WHERE rules
 and functions (`express_rules=True` in IfcOpenShell), INTEGER written as a real
 (the reader does not keep the token's form), and string lengths.
 
@@ -158,9 +158,6 @@ The other sets are sparse clones of `*.ifc` from
 
 ## Next
 
-Inverse cardinalities, which is where the two tools still differ (47 lines on
-IfcOpenShell's files, 1,038 on web-ifc's). The schema JSON keeps inverse names and
-`inverseFor`, but not their bounds. Most of these lines are IFC2X3
-`ShapeOfProduct [1:1]` on representations shared by types, and
-`PlacesObject [1:1]` on shared placements. Worth adding only as notes that
-explain those two cases. As blanket faults they would be noise.
+Inverse cardinalities landed the same day: `eval/inverse-counts-2026-11-24.md`
+(all 1,085 of IfcOpenShell's inverse lines matched record for record). The
+"Inverse lines set apart" column above is the state before that.
