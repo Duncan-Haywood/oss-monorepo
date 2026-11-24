@@ -236,6 +236,21 @@ node eval/cull-orf-compacts.mjs OUT FILE... > OUT/rows.jsonl
 python eval/cull-orf-compacts-check.py score OUT FILE...   # rawpy, numpy, Pillow
 ```
 
+## Your Lightroom keyword list in the cull page (2026-11-24)
+
+Load the keyword list Lightroom Classic exports (Metadata › Export Keywords;
+Photo Mechanic's Structured Keywords use the same layout) and a typed keyword
+is written as its place in your tree: "Ice hockey", or its synonym "hockey",
+becomes `Sport|Ice hockey`, with the synonyms in `dc:subject` and
+`[bracketed]` keywords kept out of it as Lightroom keeps them. Names the list
+lacks, or holds under two parents, are written as typed and listed before you
+download, and a button writes the keywords the shoot used back out in the
+same layout for Metadata › Import Keywords. Checked
+(eval/cull-keyword-list-2026-11-24.md): 5 unit tests including a byte-for-byte
+round trip of a list; in Chromium, two NEFs' sidecars read back by ExifTool
+12.76 with the paths, synonyms and no unexported level in `dc:subject`,
+`-validate` OK. Not yet checked: Lightroom's own import.
+
 ## Keyword trees, code replacements and per-frame captions (2026-11-24)
 
 The IPTC template below gained the three things a sports or event desk uses

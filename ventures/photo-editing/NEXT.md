@@ -185,3 +185,4 @@
   (2026-11-24, eval/cull-iptc-own-keywords-2026-11-24.md) A sidecar's own flat keywords stay as written (a
   `Before > After` was being turned into a path). Next: Lightroom's Read Metadata from Files on these sidecars.
 - (2026-11-24) HLG Z8 HEVC previews landed (eval/cull-hevc-previews-*); next a real card of 500+ raws with picks, a Lightroom read of merged sidecars
+- (2026-11-24) Keyword list landed (eval/cull-keyword-list-2026-11-24.md): next Lightroom Classic's Import Keywords on the written list and Read Metadata on the sidecars, a real desk's 1,000+ keyword list for load time and ambiguity rate, autocomplete from the list while typing with K.
