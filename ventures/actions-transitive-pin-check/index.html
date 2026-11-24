@@ -6,7 +6,7 @@
   <title>Actions Transitive Pin Check — Does Your Pinned Workflow Load Something Unpinned?</title>
   <meta name="description" content="Paste a GitHub Actions workflow and check whether a reusable workflow or composite action it pins to a commit SHA itself loads a third-party action by a mutable tag underneath — a gap a top-level SHA pin does not close.">
   <meta property="og:title" content="Does your pinned workflow load something unpinned underneath it?">
-  <meta property="og:description" content="Pinning a reusable workflow or composite action to a commit SHA only proves that reference is fixed. It says nothing about what that reusable workflow or action itself loads. This checks the one hop underneath.">
+  <meta property="og:description" content="A reusable workflow pinned to a commit SHA can still load unpinned actions. This checks the one hop underneath your pins.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Actions Transitive Pin Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Checks whether a GitHub Actions reusable workflow or composite action, pinned to a commit SHA at the call site, itself loads a third-party action by a mutable tag underneath. Runs as a zero-dependency CLI or in the browser; fetches only the specific public files a pasted workflow references, from raw.githubusercontent.com."}

@@ -6,7 +6,7 @@
   <title>Agent Workroom — A 3D Room for Your AI Agents' Tasks, by Voice or Text</title>
   <meta name="description" content="Walk around a 3D room where each AI coding agent has a desk and every task sits on the wall. Add and move tasks by voice or text, and pull progress from a GitHub repo's pull requests. Free, runs in your browser.">
   <meta property="og:title" content="Agent Workroom: a 3D room for your AI agents' tasks">
-  <meta property="og:description" content="Each agent gets a desk with its current task on the monitor; the task wall shows what's queued, in progress, in review and done. Speak or type tasks; pull live progress from GitHub pull requests. No account, no upload.">
+  <meta property="og:description" content="Each agent gets a desk with its current task on the monitor, and a task wall shows what is queued, in progress, in review and done. No account, no upload.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Agent Workroom","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A walkable 3D room for keeping track of work handed to AI coding agents: one desk per agent showing its current task and progress, a task wall with to-do, in-progress, review and done columns, task entry by voice or text, and optional progress import from a public GitHub repository's pull requests. Runs entirely in the browser; tasks are stored only in local storage."}
@@ -337,7 +337,7 @@
     if (k === "r") { Object.assign(cam, START); applyCamera(); return; }
     if (MOVE_KEYS[k] || TURN_KEYS[k]) { e.preventDefault(); held.add(k); tick(); }
   });
-  scene.addEventListener("keyup", (e) => held.delete(e.key.length === 1 ? e.key.toLowerCase() : e.key));
+  scene.addEventListener("keyup", (e) => { const k = e.key ?? ""; held.delete(k.length === 1 ? k.toLowerCase() : k); });
   scene.addEventListener("blur", () => held.clear(), true);
   let ticking = false;
   function tick() {

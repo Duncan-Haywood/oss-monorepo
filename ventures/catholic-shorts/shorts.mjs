@@ -142,7 +142,7 @@ for (const a of document.querySelectorAll("[data-count]")) a.addEventListener("c
 </script>`;
 }
 
-function page({ title, description, canonical, jsonLd, body, event, type = 'website', image }) {
+function page({ title, description, ogDescription = description, canonical, jsonLd, body, event, type = 'website', image }) {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -154,7 +154,7 @@ function page({ title, description, canonical, jsonLd, body, event, type = 'webs
 <link rel="canonical" href="${canonical}">
 <meta property="og:type" content="${type}">
 <meta property="og:title" content="${escapeHtml(title)}">
-<meta property="og:description" content="${escapeHtml(description)}">
+<meta property="og:description" content="${escapeHtml(ogDescription)}">
 <meta property="og:url" content="${canonical}">
 ${image ? `<meta property="og:image" content="${image}">\n` : ''}<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
 <style>${CSS}</style>
@@ -253,7 +253,7 @@ ${list}
 <h2>Questions</h2>
 ${FAQ.map(([q, a]) => `<h3>${escapeHtml(q)}</h3><p>${escapeHtml(a)}</p>`).join('\n')}
 </main>`;
-  return page({ title: `${SHOW.title}: one-minute Catholic apologetics, saints and stories, free`, description: SHOW.description, canonical: SITE, jsonLd, body, event: 'index_opened' });
+  return page({ title: `${SHOW.title}: one-minute Catholic apologetics, saints and stories, free`, description: SHOW.description, ogDescription: 'Free one-minute Catholic videos and scripts: apologetics with every source cited, saints of the day told truthfully, and short stories labelled as fiction.', canonical: SITE, jsonLd, body, event: 'index_opened' });
 }
 
 export function renderSitemap(shorts) {

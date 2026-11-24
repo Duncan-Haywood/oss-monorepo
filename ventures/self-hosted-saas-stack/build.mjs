@@ -7,6 +7,8 @@ const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, 
 
 const TITLE = "Self-Hosted SaaS Stack: Open-Source Alternatives to Calendly, Sentry, LaunchDarkly and Help Scout";
 const DESC = `${ALL.length} open-source, self-hosted tools that replace the small-SaaS subscriptions a founder pays for: booking, help center, error tracking, feature flags, analytics, email, referrals, billing metrics and e-signature. MIT licensed, zero dependencies, one-click deploy.`;
+// The hub's card and a share preview show about 180 characters; DESC is for search.
+const OG_DESC = `${ALL.length} open-source, self-hosted tools that replace a founder's small-SaaS subscriptions, from booking to e-signature. MIT licensed, one-click deploy.`;
 
 const FAQ = [
   ["Are these really free?", "Yes. Every tool is MIT licensed. You pay only for wherever you choose to run it, which for most of them is a single small Node process on a free or low-cost host. There is no per-seat fee and no usage cap beyond your own server."],
@@ -38,7 +40,7 @@ ${g.items.map((t) => `      <tr><td><a href="../${t.slug}/">${esc(t.name)}</a></
   <title>${esc(TITLE)}</title>
   <meta name="description" content="${esc(DESC)}">
   <meta property="og:title" content="${esc(TITLE)}">
-  <meta property="og:description" content="${esc(DESC)}">
+  <meta property="og:description" content="${esc(OG_DESC)}">
   <link rel="canonical" href="./index.html">
 ${LD.map((o) => `  <script type="application/ld+json">${JSON.stringify(o)}</script>`).join("\n")}
   <style>
