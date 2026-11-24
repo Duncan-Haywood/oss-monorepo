@@ -295,7 +295,7 @@ directions:
       - platform/deploy/**
 
   - id: promote-or-demote
-    title: Every project, tool and product is promoted into a product or demoted; products get marketing pages
+    title: From a bunch of projects to a bunch of specialized products (promote into niche products or demote; marketing pages)
     kind: area
     set: 2026-11-24
     source: docs/reports/2026-11-24-cloud-provider-comparison.md

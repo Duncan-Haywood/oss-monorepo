@@ -348,8 +348,9 @@ invoicing rail is needed; the margin; and the terms page.
 
 ### Products: promote or demote (owner, 2026-11-24)
 
-The owner, same conversation: "projects tools and products get moved into
-products or demoted and get marrketing pages".
+The owner, same conversation, summing it up: **"moving from a bunch of
+projects to a bunch of specialized products."** Before that: "projects tools
+and products get moved into products or demoted and get marrketing pages".
 
 Read here as: every venture is either **promoted**, meaning it becomes a
 product on the AWS platform or a feature folded into one, with a marketing
