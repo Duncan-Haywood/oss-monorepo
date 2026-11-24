@@ -28,7 +28,7 @@ test('every problem routes to a product or a free tool, and every route resolves
   }
   const ids = new Set(PROBLEMS.map((p) => p.id));
   for (const x of PRODUCTS) for (const id of x.problems) assert.ok(ids.has(id), `${x.id} names unknown problem ${id}`);
-  for (const t of FREE_TOOLS) assert.ok(ids.has(t.problem), `${t.slug} names unknown problem ${t.problem}`);
+  for (const t of FREE_TOOLS) assert.ok(t.problem === null || ids.has(t.problem), `${t.slug} names unknown problem ${t.problem}`);
   for (const m of html.matchAll(/href="#([^"]+)"/g)) assert.ok(html.includes(`id="${m[1]}"`), `#${m[1]} has no target`);
 });
 
@@ -36,13 +36,26 @@ test('the job-shop problems the brief names are all here', () => {
   for (const re of [/RFQ/, /own rates/i, /CMMC Level 1\/2/, /SPRS/, /ISO 9001/, /AS9100/]) assert.match(text, re);
 });
 
-test('every free tool is a published venture and is linked', () => {
-  const launched = JSON.parse(readFileSync(path.join(HERE, 'launched.json'), 'utf8')).launched;
-  const published = new Set(Array.isArray(launched) ? launched.map((x) => (typeof x === 'string' ? x : x.slug)) : Object.keys(launched));
+test('every free tool is a venture, linked when published and dropped when not', () => {
   for (const t of FREE_TOOLS) {
-    assert.ok(existsSync(path.join(ROOT, 'ventures', t.slug)), `${t.slug} is not a venture`);
-    assert.ok(published.has(t.slug), `${t.slug} is not in launched.json`);
+    assert.ok(existsSync(path.join(ROOT, 'ventures', t.slug, 'index.html')), `${t.slug} is not a venture`);
     assert.ok(html.includes(`href="../../${t.slug}/"`), `${t.slug} not linked`);
+  }
+  const [gone, ...kept] = FREE_TOOLS.map((t) => t.slug);
+  const partial = renderManufacturingPage({ baseUrl: base, published: new Set(kept) });
+  assert.ok(!partial.includes(`href="../../${gone}/"`), `${gone} linked though not published`);
+  for (const slug of kept) assert.ok(partial.includes(`href="../../${slug}/"`), slug);
+});
+
+test('every tool the front doors send here is listed, so the door leads somewhere useful', () => {
+  const doors = JSON.parse(readFileSync(path.join(HERE, 'front-doors.json'), 'utf8'));
+  assert.ok(doors.industries.manufacturing, 'front-doors.json has no manufacturing industry');
+  assert.equal(`${INDUSTRIES_DIR}/manufacturing/`, MANUFACTURING_PATH);
+  const listed = new Set(FREE_TOOLS.map((t) => t.slug));
+  // 3d-print-price-calculator is mapped for makers selling prints; not a job-shop tool.
+  const skipped = new Set(['3d-print-price-calculator']);
+  for (const [slug, id] of Object.entries(doors.tools)) {
+    if (id === 'manufacturing' && !skipped.has(slug)) assert.ok(listed.has(slug), `${slug} is a manufacturing door but not on the page`);
   }
 });
 
@@ -85,7 +98,8 @@ test('check.mjs treats industries/ as a site page, not a product', () => {
 
 test('writes industries/manufacturing/index.html', async () => {
   const out = mkdtempSync(path.join(os.tmpdir(), 'mfg-'));
-  const file = await buildManufacturingPage(out, base);
-  assert.equal(file, path.join(out, 'industries', 'manufacturing', 'index.html'));
-  assert.ok(readFileSync(file, 'utf8').includes('Software for machine shops'));
+  assert.equal(await buildManufacturingPage(out, base, { footer: '<p>site footer</p>', tail: '<script>tail</script>' }), MANUFACTURING_PATH);
+  const written = readFileSync(path.join(out, 'industries', 'manufacturing', 'index.html'), 'utf8');
+  assert.ok(written.includes('Software for machine shops'));
+  assert.ok(written.includes('<p>site footer</p>') && written.includes('<script>tail</script>'));
 });

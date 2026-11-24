@@ -51,6 +51,7 @@ preparing your own self-assessment: not a certification, not a C3PAO, and
 not endorsed by the Department of Defense. A test checks those lines are
 still there and that no "certified" or "DoD-approved" phrasing has crept in.
 
-The page is `noindex` for now: the site-wide industries index that will link
-to it is being built separately, and the site's own checks require a page
-search engines can find to also be reachable from the home page.
+Ten free tool pages already carry a one-line front door to it: a small note
+that a separate product is being built for their visitors, while the tool
+itself stays free. That makes the page reachable from the rest of the site
+without a new menu item.

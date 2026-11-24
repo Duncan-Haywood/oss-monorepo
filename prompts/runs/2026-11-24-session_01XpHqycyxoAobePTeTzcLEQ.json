@@ -31,7 +31,7 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 8,
+  "tests_added": 9,
   "outcome": "success",
   "errors": [
     "Post description 197 chars (limit 160); report used kind \"handoff\" and a non-directory subject. Both caught by check_posts / doc_index and fixed."
@@ -40,20 +40,20 @@
   "doc_friction": [
     {
       "file": "platform/pages/check.mjs",
-      "issue": "An indexable page must be reachable from the hub, so a page whose only inbound link lives in a sibling PR has to ship noindex; INDEXED flag + follow-up report used."
+      "issue": "An indexable page must be reachable from the hub; the first version shipped noindex until main gained front-doors.json, whose tool-page doors made the page reachable, after which it was indexed."
     }
   ],
   "deviations": [
     {
       "file": "task brief",
-      "why": "CMMC facts beyond bets.md (L1 = 15 FAR requirements, SPRS range -203..110) could not be verified (regulator hosts blocked), so left off rather than cited from memory.",
-      "did": "used only bets.md-sourced facts",
+      "why": "CMMC facts beyond bets.md could not be fetched (regulator hosts blocked); cited instead from ventures/machine-shop-guides/SOURCES.md, which a sibling sourced.",
+      "did": "used only facts with a repo-recorded source",
       "result": "every fact on the page has a link"
     }
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Local: node --test industry-manufacturing.test.mjs 8/8; engineering+custom-development+check tests 127/127; build.mjs --only preview renders the page in chrome, scrollWidth 390 at 390px; check_posts ok. Helps the North star as the landing page for two paid bets (quoting, CMMC) aimed at the same shops.",
+  "notes": "Local: node --test industry-manufacturing.test.mjs 8/8; engineering+custom-development+check tests 127/127; build.mjs --only preview renders the page in chrome, scrollWidth 390 at 390px; check_posts ok. Helps the North star as the landing page for two paid bets (quoting, CMMC) aimed at the same shops. Merge with main (industry-nonprofits, hardware page, front doors) resolved in build.mjs/check.mjs; page joined industryPages (sitemap), filters tools by published, uses site footer/chrome; preview shows tool-page front doors linking it.",
   "corrections": [],
   "redteam": null
 }

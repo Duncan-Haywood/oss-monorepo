@@ -15,12 +15,10 @@
  *   - no claim of CMMC certification, C3PAO status or DoD endorsement;
  *   - every market fact carries the source `bets.md` cites for it.
  *
- * Data is local to this module. The site foundation (`business.mjs`, the
- * `industries/` index and its nav item) is built in a sibling PR; until that
- * index links here the page is `noindex` (`INDEXED` below) and in no sitemap,
- * so `check.mjs` does not demand a route from the hub to it. Follow-up: when
- * `business.mjs` lands on main, read the product records from it, set
- * `INDEXED = true` and list the page in `renderHubSitemap`.
+ * Reachable from the hub through the free tools' front doors
+ * (`front-doors.json` maps them to `manufacturing`), so it is indexed and
+ * listed in the hub sitemap (`industryPages` in build.mjs). A free tool is
+ * listed only if this build publishes it (`published`).
  */
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
@@ -31,7 +29,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 export const INDUSTRIES_DIR = 'industries';
 export const MANUFACTURING_PATH = `${INDUSTRIES_DIR}/manufacturing/`;
-export const INDEXED = false;
+export const INDEXED = true;
 
 // Same file and attribute as `CHROME_MODULE_FILE` and `CHROME_SLUG_ATTR` in
 // build.mjs (the test asserts the file name agrees); not imported, because
@@ -94,8 +92,8 @@ export const PROBLEMS = Object.freeze([
   }),
 ]);
 
-// Every figure below is copied from `portfolio/monetization/bets.md` (bets #2
-// and #4, researched 2026-11-24) with the source that file cites.
+// Every figure below is copied with its source from `portfolio/monetization/bets.md`
+// (bets #2 and #4, researched 2026-11-24) or `ventures/machine-shop-guides/SOURCES.md`.
 export const FACTS = Object.freeze([
   Object.freeze({
     text: 'CMMC Phase 1 took effect on 10 November 2025.',
@@ -111,6 +109,16 @@ export const FACTS = Object.freeze([
     text: 'Level 1 and Level 2 self-assessments remain required during the pause.',
     source: 'Wiley',
     href: 'https://www.wiley.law/alert-DOD-Pauses-CMMC-2-0-Implementation-A-Big-Deal-with-Little-Immediate-Impact',
+  }),
+  Object.freeze({
+    text: 'CMMC Level 1 covers the 15 requirements of FAR 52.204-21, with an annual self-assessment and affirmation entered in SPRS.',
+    source: '32 CFR 170.15',
+    href: 'https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.15',
+  }),
+  Object.freeze({
+    text: 'An SPRS score for the 110 NIST SP 800-171 requirements runs from 110 (all met) down to -203.',
+    source: 'DoD CIO, CMMC Alignment to NIST Standards',
+    href: 'https://dodcio.defense.gov/Portals/0/Documents/CMMC/CMMC-AlignmentNIST-Standards.pdf',
   }),
   Object.freeze({
     text: 'The DoD estimates 337,968 contractors are affected, 229,818 of them small businesses.',
@@ -139,6 +147,8 @@ export const FREE_TOOLS = Object.freeze([
   Object.freeze({ slug: 'powder-coating-job-price-calculator', name: 'Powder coating job price calculator', why: 'Price per piece and per square foot, by order size, for finishers and shops that coat in house.', problem: 'own-rates' }),
   Object.freeze({ slug: 'mobile-welding-job-price-calculator', name: 'Mobile welding job price calculator', why: 'A field welding job priced from hours, rig, consumables, miles and margin.', problem: 'own-rates' }),
   Object.freeze({ slug: 'job-shop-scheduler', name: 'Job shop scheduler', why: 'Sequence jobs across machines to the shortest makespan, with a Gantt chart and machine use.', problem: 'rfq-backlog' }),
+  Object.freeze({ slug: 'machine-shop-guides', name: 'SPRS score calculator and CMMC guides', why: 'Score your NIST SP 800-171 self-assessment the way SPRS does, and read what CMMC Level 1 and Level 2 ask of a small shop.', problem: 'cmmc' }),
+  Object.freeze({ slug: 'assembly-line-balancer', name: 'Assembly line balancer', why: 'Fewest stations at a takt time, or the shortest cycle on a set number of stations, solved exactly.', problem: null }),
   Object.freeze({ slug: 'spc-control-charts', name: 'SPC control charts', why: 'X-bar R, I-MR and attribute charts with Nelson rules and Cp/Cpk, for the quality records an ISO 9001 or AS9100 audit asks for.', problem: 'iso' }),
 ]);
 
@@ -154,7 +164,8 @@ export function esc(value) {
 const TITLE = 'Software for machine shops and engineering firms';
 const DESCRIPTION = 'Quoting and CMMC/ISO 9001 software in development for CNC and fabrication job shops, plus free tools for shop rates, part costs, nesting and SPC.';
 
-export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED } = {}) {
+export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED, published = null, footer = '', tail = '' } = {}) {
+  const liveTools = FREE_TOOLS.filter((t) => !published || published.has(t.slug));
   const toRoot = '../../';
   const url = `${baseUrl}${MANUFACTURING_PATH}`;
   const canonical = baseUrl
@@ -169,7 +180,7 @@ export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED } = {}
 
   const problems = PROBLEMS.map((p) => {
     const product = PRODUCTS.find((x) => x.problems.includes(p.id));
-    const tools = FREE_TOOLS.filter((t) => t.problem === p.id);
+    const tools = liveTools.filter((t) => t.problem === p.id);
     return `<li id="${esc(p.id)}">
   <h3>${esc(p.title)}</h3>
   <p>${esc(p.body)}</p>
@@ -186,7 +197,7 @@ export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED } = {}
   <p>Pricing is not set yet. <a class="go" href="${esc(`${toRoot}${EARLY_ACCESS_HREF}`)}">Ask for early access</a></p>
 </section>`).join('\n');
 
-  const tools = FREE_TOOLS.map((t) => `<li><a href="${esc(`${toRoot}${t.slug}/`)}">${esc(t.name)}</a>: ${esc(t.why)}</li>`).join('\n');
+  const tools = liveTools.map((t) => `<li><a href="${esc(`${toRoot}${t.slug}/`)}">${esc(t.name)}</a>: ${esc(t.why)}</li>`).join('\n');
   const facts = FACTS.map((f) => `<li>${esc(f.text)} <span class="src">(<a href="${esc(f.href)}" rel="noopener">${esc(f.source)}</a>)</span></li>`).join('\n');
 
   const html = `<!doctype html>
@@ -236,9 +247,10 @@ ${facts}
 
 <footer>
 <p>No warranty. These products are in development and the free tools give estimates from the figures you enter; they are not legal, compliance, tax or engineering advice. CMMC requirements and their timing are set by the Department of Defense and change; check the current rules before you rely on any date here.</p>
+${footer}
 </footer>
 </main>
-<script src="${esc(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="${esc(MANUFACTURING_PATH.replace(/\/$/, ''))}" defer></script>
+${tail || `<script src="${esc(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="industry-manufacturing" defer></script>`}
 </body>
 </html>
 `;
@@ -250,7 +262,7 @@ export async function buildManufacturingPage(outDir, baseUrl = '', opts = {}) {
   await fs.mkdir(dir, { recursive: true });
   const file = path.join(dir, 'index.html');
   await fs.writeFile(file, renderManufacturingPage({ baseUrl, ...opts }));
-  return file;
+  return MANUFACTURING_PATH;
 }
 
 const invokedDirectly = process.argv[1] && import.meta.url.endsWith(path.basename(process.argv[1]));
