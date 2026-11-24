@@ -83,3 +83,46 @@ def test_more_risk_allows_fewer_tares():
     lo = C.simulate("READ", A, TAU, 20.0, 30, SIG, 0.01, 1e-2, risk, LS, 400, 2)
     hi = C.simulate("READ", A, TAU, 20.0, 30, SIG, 0.01, 2e-1, risk, LS, 400, 2)
     assert hi[1] <= lo[1]
+
+
+# Milestone 77: BALANCE
+
+def test_balanced_runs_cover_the_wall_as_equally_as_possible():
+    for sheets in (1, 7, 100):
+        for T in range(sheets):
+            runs = C.balanced_runs(sheets, T)
+            assert sum(runs) == sheets and len(runs) == T + 1 and max(runs) - min(runs) <= 1
+
+
+def test_balance_schedule_is_the_brute_force_optimum_for_convex_costs():
+    import itertools
+    q = [1e-4, 2e-3, 4e-3, 5e-3, 5.5e-3, 5.8e-3, 6e-3, 6e-3]
+    sheets, budget = 8, 0.02
+    cum = np.concatenate([[0.0], np.cumsum(q)])
+    best = None
+    for T in range(sheets):
+        for tares in itertools.combinations(range(1, sheets), T):
+            cut = [0, *tares, sheets]
+            if sum(cum[b - a] for a, b in zip(cut[:-1], cut[1:])) <= budget:
+                best = T
+                break
+        if best is not None:
+            break
+    sched, cost = C.balance_schedule(q, sheets, budget)
+    assert len(sched) == best and cost <= budget
+
+
+def test_p_sequence_matches_the_filter_and_rises_monotonically():
+    Ps = C.p_sequence(4, [], TAU, 30.0, SIG, 0.01, 20)
+    assert Ps[0] == 0.0 and all(b >= a - 1e-18 for a, b in zip(Ps, Ps[1:]))
+    P = SIG ** 2 * (4 * TAU + 30.0)
+    assert np.isclose(Ps[1], P * 0.01 ** 2 / (P + 0.01 ** 2))
+    assert C.p_sequence(4, [], TAU, 30.0, SIG, 0.0, 5) == [0.0] * 5
+    assert len(set(C.p_sequence(4, [2], TAU, 30.0, SIG, 0.01, 6)[1:])) == 1   # an in-sheet re-zero resets P
+
+
+def test_balance_simulation_tares_on_its_schedule():
+    risk, LS = _sheet()
+    f, mean, p95 = C.simulate("BALANCE", A, TAU, 30.0, 10, SIG, 0.01, 1e-3, risk, LS, 200, 1)
+    t, _, _ = C.simulate("TRACK", A, TAU, 30.0, 10, SIG, 0.01, 1e-3, risk, LS, 200, 1)
+    assert mean == p95 and 0.0 <= f <= 1.0
