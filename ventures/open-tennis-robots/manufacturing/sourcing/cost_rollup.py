@@ -47,7 +47,7 @@ def line_cost(row: dict, build: int) -> float | None:
     if not bk:
         return None
     pack = int(row.get("pack") or 1)
-    units = math.ceil(float(row["qty_per_unit"]) * build / pack)
+    units = max(math.ceil(float(row["qty_per_unit"]) * build / pack), int(row.get("moq") or 1))
     price = bk[0][1]
     for q, p in bk:
         if units >= q:
