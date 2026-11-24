@@ -131,6 +131,30 @@ How it was checked (`regions.test.mjs`, `eval/nfl-divisions.mjs`, output in `eva
 What it does not do: road drive times, team strength balance, or travel between away games on one trip. Next: a real
 league's list of grounds and its current divisions.
 
+## Big bowling leagues: 26 and 28 teams over 12 and 13 weeks, one count closer (2026-11-24, latest)
+
+Two of the short seasons where a team should meet every lane pair at most once moved closer to an even
+split: 26 teams over 12 weeks from 4 counts off to **3**, and 28 teams over 13 weeks from 4 to **3**
+(`bowling-lane-near.mjs`, re-checked by `bowling.test.mjs`; the page builds 3 on seeds 1 and 2 for both).
+
+The search (`eval/bowling-week-lns.c`) frees one whole week at a time and puts its matches back on the
+pairs by an exact assignment (the Hungarian method) against the other weeks' counts. That works because a
+team plays once a week, so a week's share of the count is a sum over (match, pair) cells. Ties go at random,
+so the walk crosses plateaus, and a random swap is forced after a long stall.
+
+| teams x weeks | stored before | now |
+|---|---|---|
+| 26 x 12 | 4 | **3** |
+| 28 x 13 | 4 | **3** |
+| 24 x 11 | 3 | 3 (four seeds, never 2) |
+
+It only helps on short seasons. On every longer or exact season in the near table the old tabu search's
+answers are far better (28 x 28: 22 against 16), and on 22 x 10, which SAT puts at 0, the walk stalls at 2.
+Two other ideas found nothing. Fixing most weeks of the stored 26 x 38 (1 off) and asking SAT to finish 16 or
+22 freed weeks found nothing in 25 minutes each. Writing out the counts every answer must satisfy (each team
+short on exactly one pair, each pair short on exactly two teams) made 22 x 10 slower, 54 s against 1.5 s.
+Every run: `eval/bowling-week-lns-2026-11-24.txt`.
+
 ## Big bowling leagues: three more seasons at an even lane split, from a change of encoding (2026-11-24)
 
 Three bowling seasons had sat one count off an even lane split since 2026-11-23 (the table two
