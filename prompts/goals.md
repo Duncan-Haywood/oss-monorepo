@@ -1190,7 +1190,7 @@ glad to see, never work that embarrasses them or the author.
 - Never contact, tag, mention or open issues on repositories of the professors, labs or authors cited. Outreach is the repository owner's decision.
 
 **Licensing and attribution.**
-- Original work is MIT-licensed.
+- Original work is the owner's copyright. Since 2026-11-24 it is licensed FSL-1.1-MIT (source available: any use but a competing commercial product, MIT two years after each release; owner, 2026-11-24: "I want to do the change to a more restrictive license", choosing source-available). `research/` and results of outside website requests stay MIT; products moved to the private repository are proprietary. Details: `portfolio/monetization/LICENSING_TRANSITION.md`.
 - Third-party code keeps its original license. Check compatibility before vendoring. Prefer dependencies over copying where you can (a default: it keeps licences and updates someone else's job).
 - Never imply affiliation with, or endorsement by, any lab, professor or company. Say "builds on" or "reproduces", never "with" or "for".
 
