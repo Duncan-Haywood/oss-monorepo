@@ -206,7 +206,7 @@
     };
     const num = (id) => Number($("#" + id).value) || 0;
 
-    function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+    function esc(s) { return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
     function renderFindings(container, findings) {
       container.innerHTML = findings.map((f) => `
@@ -235,8 +235,8 @@
       const rows = [];
       if (r.deadlines) {
         const d = r.deadlines;
-        rows.push(`<tr><th scope="row">Identify replacement property by</th><td>${d.identifyBy} (${d.identifyByWeekday})${d.daysToIdentify !== null ? `, ${d.daysToIdentify} days from ${today}` : ""}</td></tr>`);
-        rows.push(`<tr><th scope="row">Close on the replacement by</th><td>${d.completeBy} (${d.completeByWeekday})${d.daysToComplete !== null ? `, ${d.daysToComplete} days from ${today}` : ""}${d.cutShort ? ` — but ${d.returnDue} if the return is not extended` : ""}</td></tr>`);
+        rows.push(`<tr><th scope="row">Identify replacement property by</th><td>${esc(d.identifyBy)} (${esc(d.identifyByWeekday)})${d.daysToIdentify !== null ? `, ${esc(d.daysToIdentify)} days from ${esc(today)}` : ""}</td></tr>`);
+        rows.push(`<tr><th scope="row">Close on the replacement by</th><td>${esc(d.completeBy)} (${esc(d.completeByWeekday)})${d.daysToComplete !== null ? `, ${esc(d.daysToComplete)} days from ${esc(today)}` : ""}${d.cutShort ? ` — but ${esc(d.returnDue)} if the return is not extended` : ""}</td></tr>`);
       }
       rows.push(
         `<tr><th scope="row">Net sale price (amount realized)</th><td>${money(r.amountRealized)}</td></tr>`,
@@ -253,7 +253,7 @@
       );
       if (r.identification) {
         const i = r.identification;
-        rows.push(`<tr><th scope="row">Identification list (${i.count} properties, ${money(i.total)})</th><td>${i.ok ? "Passes" : "FAILS"}: three-property ${i.threeProperty ? "yes" : "no"}, 200% ${i.twoHundredPercent ? "yes" : "no"}, 95% ${i.ninetyFivePercent ? "yes" : "no"}</td></tr>`);
+        rows.push(`<tr><th scope="row">Identification list (${esc(i.count)} properties, ${esc(money(i.total))})</th><td>${i.ok ? "Passes" : "FAILS"}: three-property ${i.threeProperty ? "yes" : "no"}, 200% ${i.twoHundredPercent ? "yes" : "no"}, 95% ${i.ninetyFivePercent ? "yes" : "no"}</td></tr>`);
       }
       els.resultTable.innerHTML = rows.join("");
       renderFindings(els.findings, r.findings);
