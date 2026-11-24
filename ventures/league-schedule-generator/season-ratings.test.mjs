@@ -127,6 +127,8 @@ test("text and CSV outputs", () => {
   const csv = ratingsCsv(table).split("\n");
   assert.equal(csv.length, 4);
   assert.match(csv[1], /^1,Ana,/);
+  const evil = ratingsCsv(rateSeason(parseRatingLog("=SUM(A1) 11-3 Ben").games).table);
+  assert.match(evil, /,'=SUM\(A1\),/);
 });
 
 test("player-ratings.html: disclaimer, privacy, FAQ matches the page, events listed", async () => {

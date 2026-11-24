@@ -372,7 +372,8 @@ export function ratingsText(table, { title = "Ratings" } = {}) {
 
 /** CSV of the table. */
 export function ratingsCsv(table) {
-  const q = (s) => (/[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
+  // Formula-injection guard: a cell starting =, +, -, @, tab or CR gets a leading apostrophe.
+  const q = (raw) => { const s = /^[=+\-@\t\r]/.test(raw) && !/^-?\d+(\.\d+)?$/.test(raw) ? `'${raw}` : raw; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   const rows = ["rank,name,rating,rd,volatility,games,wins,losses,draws,provisional"];
   table.forEach((r, i) => rows.push([i + 1, q(r.name), r.rating.toFixed(1), r.rd.toFixed(1), r.vol.toFixed(4), r.games, r.wins, r.losses, r.draws, r.provisional ? "yes" : "no"].join(",")));
   return rows.join("\n");
