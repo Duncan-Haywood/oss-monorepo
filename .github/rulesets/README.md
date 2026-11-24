@@ -23,6 +23,15 @@ Why it looks the way it does:
   that never starts. Job names are not unique across workflows (`test` is a
   job in 63 of them), which is why these jobs have their own names.
   `integration_id` 15368 is GitHub Actions.
+- **Code scanning merge protection (CodeQL, medium or higher).** Owner,
+  2026-11-24: fix new CodeQL findings "before they hit main". The
+  `code_scanning` rule blocks a PR whose CodeQL results add a security alert
+  of medium severity or worse, or any error-level alert.
+  `.github/workflows/codeql.yml` runs on every PR, so the rule never waits on a
+  check that does not start. Its gate step (`platform/ci/codeql_gate.py`)
+  prints the same findings in the job log for agent sessions, which cannot
+  read alerts. Apply this rule only after `codeql.yml` has completed one
+  analysis on `main`, or every PR waits for results that do not exist yet.
 - **Not strict (no up-to-date requirement).** Many sessions merge concurrently;
   strict mode serialises them and re-runs CI on metered minutes.
 - **Squash only, linear history.** Matches the auto-merge bot.

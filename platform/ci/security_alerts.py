@@ -127,6 +127,23 @@ def render(alerts: list[dict]) -> dict[str, str]:
     return files
 
 
+UNAVAILABLE = "Unavailable:"
+
+
+def unavailable(code: int, detail: str, previous: str) -> str:
+    """QUEUE.md when the alerts API cannot be read: a notice, then the last known alerts."""
+    cause = {404: "no code-scanning analysis exists, so CodeQL is not running or has not "
+                  "finished a first analysis (`.github/workflows/codeql.yml`)",
+             403: "the workflow token cannot read code-scanning alerts"}.get(code, "the API refused the read")
+    lines = ["# Security queue", "",
+             f"{UNAVAILABLE} the alerts API answered HTTP {code}"
+             + (f" ({detail})" if detail else "") + f": {cause}. "
+             "This is not an empty queue. Fixing the cause is the top security task; "
+             "the last known alerts, if any, follow.", ""]
+    lines += [ln for ln in previous.splitlines() if ln.startswith("- [")]
+    return "\n".join(lines) + "\n"
+
+
 def write_tree(out: Path, files: dict[str, str]) -> None:
     """Replace the queue files under `out`, leaving `.git` alone."""
     shutil.rmtree(out / "alerts", ignore_errors=True)
@@ -163,10 +180,23 @@ def main(argv: list[str] | None = None) -> int:
     try:
         alerts = fetch_alerts(args.repo, token)
     except urllib.error.HTTPError as e:
-        # 404: code scanning is not enabled; 403: the token lacks security-events.
-        # Leave the queue as it is rather than empty it on a read failure.
-        print(f"::warning::code-scanning alerts unreadable (HTTP {e.code}); queue left as is")
-        return 0
+        # 404: no code-scanning analysis exists (CodeQL is not running); 403: the token
+        # lacks security-events. Keep the alert files (a failed read is not a fix) but
+        # say so at the top of QUEUE.md and fail the job. Until 2026-11-24 this was a
+        # warning on a green job, and the queue sat empty for 581 hourly runs while no
+        # analysis existed at all (docs/reports/2026-11-24-codeql-never-ran.md).
+        detail = ""
+        try:
+            detail = str(json.loads(e.read() or b"{}").get("message") or "")
+        except (ValueError, AttributeError, OSError):
+            pass
+        queue = args.out / "QUEUE.md"
+        previous = queue.read_text(encoding="utf-8") if queue.exists() else ""
+        args.out.mkdir(parents=True, exist_ok=True)
+        queue.write_text(unavailable(e.code, detail, previous), encoding="utf-8")
+        print(f"::error::code-scanning alerts unreadable (HTTP {e.code}: {detail or e.reason}); "
+              "QUEUE.md marked unavailable")
+        return 1
     files = render(alerts)
     write_tree(args.out, files)
     print(files["QUEUE.md"])
