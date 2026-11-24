@@ -208,6 +208,13 @@ test("the bowling page's worked example matches bowlingSchedule(), its FAQ match
   assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
 });
 
+test("26 teams over 12 weeks: every team on 12 different pairs (stored 2026-11-24 from the mirrored CP-SAT model; 13 weeks is proved out of reach)", () => {
+  assert.ok(OUT_OF_REACH.includes("26,13"));
+  assert.ok(LANE_TABLE["26,12"] && !LANE_NEAR["26,12"]);
+  const s = bowlingSchedule({ teams: names(26), weeks: 12, start: START });
+  assert.equal(laneReport(s).atBound, 26);
+});
+
 test("seasons a solver proved out of reach are flagged, and only those", () => {
   assert.ok(OUT_OF_REACH.length >= 20, `${OUT_OF_REACH.length} proofs`);
   // Every listed season really is off the bound in the page's own season: a proof can never sit
