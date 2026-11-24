@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design, accessibility]
+date: 2026-11-24
+---
 # Polish 2026-11-24: the bars take the venture's button colour
 
 PR #18643. Polish track, prompt 0.
