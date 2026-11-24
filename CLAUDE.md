@@ -27,7 +27,13 @@ highest priority; free tools and posts are there for traffic and leads to
 them (owner, same day). The same day's whole pivot (hosted SaaS by default,
 tools grown into full web and native apps, hosting chosen from first
 principles, minimal click ops, aggressive lawful sales and marketing) is
-summarised in `prompts/goals.md`, "The 2026-11-24 pivot, in one place". Definition and readings:
+summarised in `prompts/goals.md`, "The 2026-11-24 pivot, in one place".
+**Default audience: small-business owners and the people they delegate to**
+(office manager, bookkeeper, shift lead, outside accountant; owner, same
+day: "smb owner/delegated users as a target audience for most work going
+forward"). Strategy and plans of attack:
+[`portfolio/smb/README.md`](portfolio/smb/README.md); the direction is in
+`goals.md`, "Direction: small-business owners and their delegates". Definition and readings:
 [`prompts/goals.md`](prompts/goals.md), "North star", and
 [`portfolio/monetization/mrr.yaml`](portfolio/monetization/mrr.yaml).
 
