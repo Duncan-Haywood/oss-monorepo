@@ -53,7 +53,7 @@ only in this browser's local storage. `byok.mjs` is a synced copy of
 | File | What |
 |---|---|
 | `catalogue.mjs` | Garments (to scale), print areas, fabrics, methods, colours, compatibility notes |
-| `design.mjs` | The design model, every edit as an operation, undo, three variants, share links |
+| `design.mjs` | The design model, every edit as an operation, undo, three variants (the colour one from the supplier sheet's stock colours when it lists them, `eval/stock-alternatives-2026-11-24.txt`), share links |
 | `commands.mjs` | Spoken or typed sentences to operations, no model |
 | `shade.mjs` | "Make it darker", "a bit more muted", "warmer ink": a colour moved in CIELAB, a nearby catalogue colour used by name, otherwise a custom colour with the nearest stock colour named (`eval/shade-edits-2026-11-19.md`) |
 | `ai.mjs` | Optional model that rewrites free speech into commands |

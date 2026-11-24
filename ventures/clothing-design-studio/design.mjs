@@ -6,6 +6,9 @@
  */
 
 import { GARMENTS, FABRICS, METHODS, COLOURS, luminance } from "./catalogue.mjs";
+import { stockColours } from "./suppliers.mjs";
+import { labOfHex } from "./shade.mjs";
+import { ciede2000 } from "./colour.mjs";
 
 export const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 
@@ -232,22 +235,69 @@ const LIGHT_ALTERNATIVES = ["cream", "bone", "off white", "sand", "sage"];
 const DARK_ALTERNATIVES = ["black", "navy", "burgundy", "forest green", "chocolate", "charcoal"];
 
 /**
+ * The garment colour for the first alternative: the opposite lightness
+ * (light if the garment is dark, dark if light), so the artwork reads anew.
+ *
+ * With no stock list (no sheet, or a sheet that lists no colours) it is the
+ * first catalogue colour of the fixed pool, as before. With a stock list for
+ * the design's fabric it is a colour the factory keeps dyed:
+ *   1. a stocked colour from the pool, in pool order;
+ *   2. else another stocked colour of the opposite lightness, the most
+ *      neutral first (low CIELAB chroma: the safest second colour), ties to
+ *      the one furthest in lightness;
+ *   3. else the stocked colour furthest from the current one (CIEDE2000),
+ *      said so, as the sheet has nothing of the opposite lightness;
+ *   4. else (the sheet stocks only this colour) the pool colour, marked as
+ *      dyed to order.
+ * Returns { name, hex, stocked, listed, note }.
+ */
+export function alternativeColour(design, sheet = null) {
+  const dark = luminance(design.colour) < 0.4;
+  const pool = dark ? LIGHT_ALTERNATIVES : DARK_ALTERNATIVES;
+  const poolPick = pool.find(c => COLOURS[c] !== design.colour) ?? pool[0];
+  const stock = sheet ? stockColours(sheet, design.fabric) : null;
+  if (!stock) return { name: poolPick, hex: COLOURS[poolPick], stocked: true, listed: false, note: "" };
+  const fabric = FABRICS[design.fabric]?.label?.toLowerCase() ?? design.fabric;
+  const entries = Object.entries(stock).filter(([, hex]) => hex !== design.colour.toLowerCase());
+  const opposite = entries.filter(([, hex]) => (luminance(hex) < 0.4) !== dark);
+  const fromPool = pool.map(n => opposite.find(([name, hex]) => name === n || hex === COLOURS[n])).find(Boolean);
+  if (fromPool) return { name: fromPool[0], hex: fromPool[1], stocked: true, listed: true, note: `Stocked in ${fabric} on your sheet.` };
+  const here = labOfHex(design.colour);
+  const chroma = hex => { const [, a, b] = labOfHex(hex); return Math.hypot(a, b); };
+  const lift = hex => Math.abs(labOfHex(hex)[0] - here[0]);
+  if (opposite.length) {
+    const [name, hex] = [...opposite].sort((x, y) => (Math.round(chroma(x[1]) / 5) - Math.round(chroma(y[1]) / 5)) || lift(y[1]) - lift(x[1]))[0];
+    return { name, hex, stocked: true, listed: true, note: `Stocked in ${fabric} on your sheet.` };
+  }
+  if (entries.length) {
+    const [name, hex] = [...entries].sort((x, y) => ciede2000(here, labOfHex(y[1])) - ciede2000(here, labOfHex(x[1])))[0];
+    return { name, hex, stocked: true, listed: true, note: `Your sheet stocks no ${dark ? "light" : "dark"} colour in ${fabric}; this is the stocked colour furthest from ${design.colourName}.` };
+  }
+  return { name: poolPick, hex: COLOURS[poolPick], stocked: false, listed: true, note: `Your sheet stocks no other colour in ${fabric}: ${poolPick} would be dyed to order (lab dip and a minimum dye lot).` };
+}
+
+/**
  * Three alternatives to compare side by side, each one change away from the
  * current design so the designer can say "the third one" and see why:
  *   1. a different garment colour (light if dark, dark if light), with ink
- *      flipped to stay readable;
+ *      flipped to stay readable; from the supplier sheet's stock colours
+ *      for the fabric when the sheet lists them (`alternativeColour`);
  *   2. the artwork larger and higher (a statement piece), or smaller on the
  *      chest if it is already large;
  *   3. a different decoration: raised if flat, flat if raised.
+ * With no artwork, 2 and 3 are another garment and another fabric; the
+ * fabric alternative says when the sheet does not stock the colour in it.
+ * Each alternative carries `stocked` (false when its garment colour would be
+ * dyed to order on the sheet; true when stocked or there is no list).
  */
-export function variants(design) {
+export function variants(design, { sheet = null } = {}) {
   const out = [];
-  const dark = luminance(design.colour) < 0.4;
-  const pool = dark ? LIGHT_ALTERNATIVES : DARK_ALTERNATIVES;
-  const colourName = pool.find(c => COLOURS[c] !== design.colour) ?? pool[0];
-  let v1 = applyOp(design, { op: "colour", value: colourName });
-  v1 = { ...v1, placements: v1.placements.map(p => (p.kind === "image" ? p : { ...p, ink: dark ? "#2a1d0e" : "#e9cf8f" })) };
-  out.push({ label: `${capital(colourName)} garment`, why: `Same artwork on ${colourName} instead of ${design.colourName}.`, design: v1 });
+  const stockedIn = (fabric, hex) => { const st = sheet ? stockColours(sheet, fabric) : null; return !st || Object.values(st).includes(String(hex).toLowerCase()); };
+  const alt = alternativeColour(design, sheet);
+  let v1 = applyOp(design, { op: "colour", value: alt.hex, name: alt.name });
+  const lightGarment = luminance(alt.hex) >= 0.4;
+  v1 = { ...v1, placements: v1.placements.map(p => (p.kind === "image" ? p : { ...p, ink: lightGarment ? "#2a1d0e" : "#e9cf8f" })) };
+  out.push({ label: `${capital(alt.name)} garment`, why: `Same artwork on ${alt.name} instead of ${design.colourName}.${alt.note ? " " + alt.note : ""}`, design: v1, stocked: alt.stocked });
 
   if (design.placements.length) {
     const p = design.placements.find(q => q.id === design.selected) ?? design.placements.at(-1);
@@ -256,17 +306,18 @@ export function variants(design) {
     const v2 = big
       ? applyOp(applyOp(applyOp(design, { op: "select", id: p.id }), { op: "area", value: "chest" in GARMENTS[design.garment].areas ? "chest" : p.area }), { op: "fill" })
       : applyOp(applyOp(design, { op: "select", id: p.id }), { op: "fill" });
-    out.push({ label: big ? "Small on the chest" : "Full-size statement", why: big ? "The artwork moved to a left-chest placement: quieter, and cheaper to decorate." : "The artwork enlarged to fill the print area.", design: v2 });
+    out.push({ label: big ? "Small on the chest" : "Full-size statement", why: big ? "The artwork moved to a left-chest placement: quieter, and cheaper to decorate." : "The artwork enlarged to fill the print area.", design: v2, stocked: stockedIn(v2.fabric, v2.colour) });
 
     const raised = ["high-density", "puff", "3d-puff-embroidery"].includes(p.method);
     const nextMethod = raised ? "dtg" : (p.kind === "image" ? "dtf" : "high-density");
     const v3 = applyOp(applyOp(design, { op: "select", id: p.id }), { op: "method", value: nextMethod });
-    out.push({ label: METHODS[nextMethod].label, why: `${METHODS[p.method].label} changed to ${METHODS[nextMethod].label.toLowerCase()}. ${METHODS[nextMethod].note}`, design: v3 });
+    out.push({ label: METHODS[nextMethod].label, why: `${METHODS[p.method].label} changed to ${METHODS[nextMethod].label.toLowerCase()}. ${METHODS[nextMethod].note}`, design: v3, stocked: stockedIn(v3.fabric, v3.colour) });
   } else {
     const v2 = applyOp(design, { op: "garment", value: design.garment === "hoodie" ? "crewneck" : "hoodie" });
-    out.push({ label: GARMENTS[v2.garment].label, why: `The same colour and fabric as a ${GARMENTS[v2.garment].label.toLowerCase()}.`, design: v2 });
+    out.push({ label: GARMENTS[v2.garment].label, why: `The same colour and fabric as a ${GARMENTS[v2.garment].label.toLowerCase()}.`, design: v2, stocked: stockedIn(v2.fabric, v2.colour) });
     const v3 = applyOp(design, { op: "fabric", value: design.fabric === "heavyweight-cotton" ? "organic-cotton" : "heavyweight-cotton" });
-    out.push({ label: FABRICS[v3.fabric].label, why: FABRICS[v3.fabric].note, design: v3 });
+    const ok = stockedIn(v3.fabric, v3.colour);
+    out.push({ label: FABRICS[v3.fabric].label, why: FABRICS[v3.fabric].note + (ok ? "" : ` Your sheet does not stock ${design.colourName} in ${FABRICS[v3.fabric].label.toLowerCase()}: dyed to order.`), design: v3, stocked: ok });
   }
   return out;
 }
