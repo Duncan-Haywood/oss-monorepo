@@ -5135,8 +5135,10 @@ test('llms.txt leads with the company, its products and industries, and puts the
     assert.ok(quote.includes(p.name), `the summary names live product ${p.name}`);
     assert.ok(llms.includes(`- [${p.name}](${BASE}${p.path}): `), `${p.name} is linked under Products`);
   }
+  const full = renderLlmsTxt(surfaces, BASE, [], [], { full: true });
   for (const [name] of IN_DEVELOPMENT) {
-    assert.ok(llms.includes(`- **${name}**`), `${name} is listed as in development`);
+    assert.ok(llms.includes(name), `${name} is named as in development`);
+    assert.ok(full.includes(`- **${name}**`), `${name} is described in llms-full.txt`);
     assert.ok(!llms.includes(`[${name}](`), `${name} is in development and must not be linked as if live`);
   }
   const at = (h) => llms.indexOf(h);

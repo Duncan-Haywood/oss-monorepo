@@ -12987,7 +12987,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     full
       ? `- [Short index](${baseUrl}llms.txt): the same tools with one-sentence descriptions, small enough to read in one fetch.`
       : `- [Full text](${baseUrl}llms-full.txt): every tool with its complete description and the LLM docs a product ships; large (several hundred KB), fetch only when the index does not answer the question.`,
-    `- [About and press kit](${baseUrl}${ABOUT_PATH}): who runs the company and how (one owner, AI agents, open research and hardware designs), what is live and what is in development, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, the country code and the device type, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [About and press kit](${baseUrl}${ABOUT_PATH}): who runs the company (one owner, AI agents), what is live and in development, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, the country code and the device type, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
     `- [Free custom software for your business](${baseUrl}${CUSTOM_DEV_PATH}): describe your problem and it gets built. How a business, or anyone, can ask the agents that build this site for a new tool, free and in public, the one condition (the result stays MIT licensed, held by the repository owner), and every request so far with its status. Each request has its own page (custom-development/R-0001/ and so on) showing its stage and what is still open, with a form for feedback on it.`,
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
@@ -13090,13 +13090,13 @@ ${full ? `\n${exceptions.map((x) => `- [${oneLine(toolProseName(x.title))}](${ba
 
 Live:
 
-${LIVE_PRODUCTS.map((p) => `- [${p.name}](${baseUrl}${p.path}): for ${p.audience}. ${p.name} ${p.summary}`).join('\n')}
+${LIVE_PRODUCTS.map((p) => `- [${p.name}](${baseUrl}${p.path}): for ${p.audience}. ${p.name} ${full ? p.summary : shortText(p.summary)}`).join('\n')}
 
-In development (not for sale yet, no sign-ups; the order changes with the evidence):
+${full ? `In development (not for sale yet, no sign-ups; the order changes with the evidence):
 
-${IN_DEVELOPMENT.map(([name, what]) => `- **${name}**, ${what}.`).join('\n')}
+${IN_DEVELOPMENT.map(([name, what]) => `- **${name}**, ${what}.`).join('\n')}` : `In development, not for sale yet: ${IN_DEVELOPMENT.map(([name]) => name).join('; ')}. Each is described in [llms-full.txt](${baseUrl}llms-full.txt).`}
 
-Built for ${INDUSTRIES}. A business with a problem software could solve can [ask for it to be built](${baseUrl}${CUSTOM_DEV_PATH}), free and in public.
+Built for ${full ? INDUSTRIES : 'construction, manufacturing and engineering SMBs first, then small nonprofits and businesses facing e-invoicing mandates'}. A business with a problem software could solve can [ask for it to be built](${baseUrl}${CUSTOM_DEV_PATH}), free and in public.
 `;
 
   const live = LIVE_PRODUCTS.map((p) => `${p.name}, for ${p.audience}`);
@@ -13107,7 +13107,7 @@ Built for ${INDUSTRIES}. A business with a problem software could solve can [ask
 ${products}
 ${audienceSection ? `${audienceSection}\n` : ''}## Free tools
 
-${formatCount(surfaces.length)} free, open-source tools: browser calculators and checks, self-hostable business apps and command-line tools, for marketplace sellers, trade contractors, logistics buyers and small teams. No account or payment, and the numbers you type stay in your browser. Each tool is a static page that works offline once opened, with no gated features. They are estimates and records to act on, not professional advice or a determination made on anyone's behalf; each page carries its own limitations. They are grouped by category below.
+${formatCount(surfaces.length)} free, open-source tools (browser calculators and checks, self-hostable apps, command-line tools) for sellers, contractors, logistics buyers and small teams. No account; the numbers you type stay in your browser. Estimates and records to act on, not professional advice; each page states its limits.
 
 ${network}${sections.join('\n')}
 ${researchSection ? `${researchSection}\n` : ''}${optional}${/^\d{4}-\d{2}-\d{2}/.test(updated) ? `\n${llmsAsOfLine(updated)}\n` : ''}`;
