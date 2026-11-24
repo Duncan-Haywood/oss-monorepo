@@ -65,7 +65,7 @@
     "docs/posts/2026-11-24-reseller-mileage-on-schedule-c-line-9.md"
   ],
   "goal": null,
-  "notes": "reseller-books: node --test 52/52 pass (10 new in trips.test.mjs). Page checked in Chromium at 390px with the example: line 9 $85.52 for 102.1 miles, Part IV row, no console errors, no horizontal scroll. check_posts ok; router validate ok. Risk review: no owner review; the two prompts (innerHTML in index.html, personal data in trips.mjs) answered in the PR: only numbers pass through money()/esc(), and trip data never leaves the tab. No agent doc: the README and flagships next: carry what the next run needs.",
+  "notes": "reseller-books: node --test 52/52 pass (10 new in trips.test.mjs). Page checked in Chromium at 390px with the example: line 9 $85.52 for 102.1 miles, Part IV row, no console errors, no horizontal scroll. check_posts ok; router validate ok. Risk review: no owner review; the two prompts (innerHTML in index.html, personal data in trips.mjs) answered in the PR: only numbers pass through money()/esc(), and trip data never leaves the tab. No agent doc: the README and flagships next: carry what the next run needs. venture-preflight (reseller-books, mileage-log): first run failed 5 repository checks on the new code (alias order, date digit boundary, comma stripping, a literal BOM, no CSV formula guard in mileage-log export, now fixed in the source and the copy) and 3 checks already red on main (transition.json and verticals.json stale after pay-app-guides #18714; test_friction_rank expecting prompt.md in CODEOWNERS after #18736): regenerated both JSON files and updated the test. Rerun: preflight clean.",
   "corrections": [],
   "redteam": null,
   "usage": {
