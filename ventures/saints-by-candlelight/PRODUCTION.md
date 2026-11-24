@@ -220,14 +220,15 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - The cloud over the tabernacle and the two silver trumpets, setting out from Sinai, Hobab asked to be their eyes, and 'Arise, O Lord' when the ark set out (Numbers 9:15 to 10:36; left by episode 167).
 - The new king who did not know Joseph and the store cities of Pithom and Raamses, the bricks and the people who multiplied anyway, told as a quieter episode about work and its dignity (Exodus 1:1-14, with Genesis 50:22-26; left by episode 171).
 - Rachel on the road to Ephrathah and the midwife who said do not be afraid, Benjamin, son of my sorrow and son of my right hand (Genesis 35:16-20; left by episode 171).
-- Massah and Meribah, the water from the rock at Horeb and "is the Lord among us or not?", Ziva's family carried on (Exodus 17:1-7, with Psalm 95:8-9 and First Corinthians 10:4; left by episode 173).
 - The graves of craving at Kibroth-hattaavah, the second quails and the rabble who wept for the cucumbers and leeks of Egypt, told carefully (Numbers 11:4-6 and 31-35; left by episode 173).
+- On eagles' wings to the foot of the mountain, the three days of washing and the boundary set round Sinai, Ziva's family carried on (Exodus 19, with Deuteronomy 32:11; left by episode 174, after episode 140's Jethro).
+- The second Meribah remembered: Psalm ninety-five and the Invitatory, told as a quieter episode about morning prayer, 'today, if you hear his voice' (Psalm 95, with Hebrews 3:7 to 4:11; left by episode 174).
 - The bronze serpent on the pole, the people who looked and lived (Numbers 21:4-9, with Wisdom 16:5-7 and John 3:14-15; left by episode 163).
 
 ## Audio status
 
 <!-- audio-status: written by node generate.mjs from episodes/ and audio/manifest.json -->
-Audio: 29 of 173 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 173.
+Audio: 29 of 174 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 174.
 <!-- /audio-status -->
 
 Whether to add audio is the creative prompt's call, not this file's: `prompts/creative/prompt-0.md`, "Audio size", says text only while the `du` it names is over 400 MB (577 MB on 2026-11-18), and the higher layer wins. The case that the cap is stale (audio has been served from jsDelivr, outside the deploy artifact, since 2026-10-24, so the cost left is git history) is in [`docs/reports/2026-11-13-audio-cap-is-stale.md`](../../docs/reports/2026-11-13-audio-cap-is-stale.md); changing the rule is a `prompts/` edit, which waits on the owner's approval. This paragraph used to recommend voicing the backlog against the prompt, and five run records from 2026-11-16 to 2026-11-18 reported the two guides disagreeing. When the rule allows audio, voice the backlog in episode order, about 60 MB a run (episodes 20 to 24 took 7 to 11 minutes each on 4 cores, 2026-11-15). Read the episode for names first and add any the voice would trip on to `SAY` in `render_audio.py`. The line above is regenerated with the pages, so a new episode or render needs no edit here. If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 8 to 15 minutes.
