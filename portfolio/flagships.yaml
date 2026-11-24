@@ -318,30 +318,30 @@ flagships:
       masters; DNG developer with DNG-spec colour, DCP tables, tone curves; Canon
       CR2; camera DNGs match LibRaw to 0.02-0.11 steps; DNG opcodes compared with
       the 1.7.1.0 text, eval/opcode-spec-audit-2026-11-12.md; WarpRectilinear
-      matches the Leica T's preview to 0.18 px; WarpRectilinear2). S1R II 177 MP =
-      LibRaw snapshot 202611, every sensel (eval/panasonic-rw2-177mp-libraw-*).
-      Next: the H 25 IT8.7-2 card raw to judge the matrices; an iXU180 dark frame or
-      Capture One export to say if IIQ S offset tables apply (LibRaw skips them; the
-      iXU180's 5.2% blue gap is them, calibration = LibRaw on 13 more files,
+      matches the Leica T's preview to 0.18 px; WarpRectilinear2). Next: the H 25
+      IT8.7-2 card raw to judge the matrices; an iXU180 dark frame or Capture One
+      export to say if IIQ S offset tables apply (LibRaw skips them; the iXU180's
+      5.2% blue gap is them, calibration = LibRaw on 13 more files,
       eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
       evenly lit frame (its JPEG lifts none: eval/sony-vignetting-preview-*);
       Near-clean leak closed on Bayer 2026-11-19 (k 12,
       eval/near-clean-gate-2026-11-19.md); X-Trans tuned on 51 fresh bodies the same
       day: no loser to fix, stays off; Bayer's 15 there were a noisy ISO 1600
       reference; X-Trans mpcws read: own ramp failed, Bayer ramp 3 of 4
-      (eval/xtrans-drawn-mpcws-*; next blind 6-body set); D780/D600: 6 of 11 losers
-      are real over-reads on clean truths
+      (eval/xtrans-drawn-mpcws-*; next blind 6-body set, raw.pixls.us); D780/D600: 6
+      of 11 losers are real over-reads on clean truths
       (eval/near-clean-truth-noise-2026-11-19.md); next a read kept off grain
       floors. Browser cull page 2026-11-23 (site/cull.html; 520-file card 25.8 s;
       merges existing sidecars, eval/cull-existing-sidecars-*); DNGs with no JPEG
       developed in-page 2026-11-24 (32 of 32 = shootflow sensels,
-      eval/cull-raw-data-previews-*; next JPEG XL DNGs; HLG Z8 HEVC previews via
-      WebCodecs 2026-11-24, 1 of 143 MB read, eval/cull-hevc-previews-*; BigTIFF and
-      the 2000s Olympus compacts' ORFs developed in-page 2026-11-24,
-      eval/cull-orf-compacts-*); keyword trees, code replacements, C captions
-      2026-11-24 (ExifTool, eval/cull-iptc-tree-codes-*; next Lightroom's import of
-      the tree). Nikon AF points, half faces at the edge 2026-11-24
-      (eval/cull-nikon-af-*, eval/cull-edge-mirror-*). More open items: NEXT.md.
+      eval/cull-raw-data-previews-*; next JPEG XL DNGs, raw.pixls.us; HLG Z8 HEVC
+      previews via WebCodecs 2026-11-24, 1 of 143 MB read,
+      eval/cull-hevc-previews-*; BigTIFF and the 2000s Olympus compacts' ORFs
+      developed in-page 2026-11-24, eval/cull-orf-compacts-*); keyword trees, code
+      replacements, C captions 2026-11-24 (ExifTool, eval/cull-iptc-tree-codes-*;
+      next Lightroom's import of the tree). Nikon AF points, half faces at the edge
+      2026-11-24 (eval/cull-nikon-af-*, eval/cull-edge-mirror-*). More open items:
+      NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
