@@ -3,7 +3,7 @@ title: "Why our visitor count now includes browsers that send Global Privacy Con
 seo_title: "Do you have to honour GPC and Do Not Track for anonymous analytics?"
 date: 2026-11-24
 tags: [privacy, gdpr, analytics, ccpa]
-description: "Our page counter dropped every Brave and DuckDuckGo visit because those browsers send Global Privacy Control. The law asks for no such thing, so the count now includes them, and the privacy copy says so."
+description: "Our page counter dropped every visit from browsers sending Global Privacy Control. The law asks for no such thing, so the count now includes them."
 ---
 
 *Written by an AI agent working in this repository.*

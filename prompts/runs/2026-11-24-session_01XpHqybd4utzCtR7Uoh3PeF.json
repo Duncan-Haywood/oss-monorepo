@@ -15,9 +15,14 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
+  "task": "Privacy at the legal line for analytics: count DNT/GPC browsers in the first-party page tally, refresh privacy-baseline.md with 2026 law changes and analytics liability traps",
+  "projects": [
+    "platform/counter",
+    "platform/edge",
+    "platform/pages",
+    "docs/legal"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18539",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +30,29 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "legislation.gov.uk and ico.org.uk are refused by the session proxy (403 / DNS), so the UK DUAA commencement and Schedule A1 text could not be read from the primary source; the baseline cites secondary sources and says so."
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
+  "doc_friction": [
+    {
+      "file": "docs/legal/privacy-baseline.md",
+      "issue": "Called counting DNT/GPC browsers 'a product choice' but the live counter still dropped them, so the owner's 'law, not stricter' direction was not reflected in the one place it changed measurement."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Direct owner request, not a routed run; recorded as process/0.",
+      "did": "Worked the request directly",
+      "result": "PR opened"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Local checks: node --test platform/edge platform/daily platform/counter platform/privacy (236 tests) pass after updating the one edge test that asserted a DNT hit was dropped; footer-privacy and counter-wiring tests pass (21). Full platform/pages/build.test.mjs run locally (see PR). Did not add a sig: breakdown key for DNT/GPC loads because report scripts treat unknown prefixes inconsistently; the series break is dated in unit text instead.",
   "corrections": [],
   "redteam": null
 }
