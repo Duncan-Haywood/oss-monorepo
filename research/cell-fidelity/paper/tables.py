@@ -23,6 +23,13 @@ Table 3, seventh column (added after 7za had reported; descriptive, no new hypot
 `Marquis2019` plating cell at f = 30 (five folds, every rule and gate from 7za's summary, its oracle
 pick from 7za), and the seven-set pooling (committed + both f = 30 cells + Marquis2019 at f = 30, 35
 folds) with the same paired statistics; 7za's stored seven-set pairs are the control.
+
+Table 3, eighth column (added after 7zc and 7zd had reported; descriptive, no new hypothesis): 7zc's
+plating-free SEI cell (`Marquis2019`, plating off, SEI film resistivity 0, solvent diffusivity x 1e5;
+five folds, every rule and gate from 7zc's `rules/summary.json`) and the eight-set pooling (seven +
+that cell, 40 folds), with 7zd's resistive rung (rho = 0.1, 20,000 Ohm m) swapped in as a sensitivity.
+The SEI cell is relabelled `Marquis2019-SEI` so the set bootstrap treats it as its own cluster, as
+7zc's own eight-set report does; 7zc's and 7zd's stored eight-set pairs are the control.
 """
 import json
 import math
@@ -205,8 +212,12 @@ def fmt(table, ins, pool, pair):
 # ---------- Table 3: the corrected forecast and its gates (7w to 7y) ----------
 
 CONDS = (("four", "committed sets (20 folds)"), ("f30", "tuned f = 30 (10)"), ("f10", "tuned f = 10 (10)"),
-         ("m30", "Marquis2019 f = 30 (5; 7za)"))
+         ("m30", "Marquis2019 f = 30 (5; 7za)"), ("sei", "Marquis2019 SEI-only, rho 0 (5; 7zc)"),
+         ("sei1", "Marquis2019 SEI-only, rho 0.1 (5; 7zd)"))
 SEVEN = ("four", "f30", "m30")
+EIGHT = SEVEN + ("sei",)
+EIGHT_R = SEVEN + ("sei1",)  # 7zd's resistive rung in place of 7zc's cell
+SEI_SRC = {"sei": ("sei7zc/rules", "7zc"), "sei1": ("sei7zd/rho1e-01/rules", "7zd rho 0.1")}
 CRULES = (("U", "uniform run length (7h)"), ("theta", "straight forecast + triage (7h)"),
           ("thetaC", "corrected, no gate (7w)"), ("thetaH", "corrected, honest margin (7x)"),
           ("thetaN", "out-of-fold error gate (7x)"), ("thetaP", "plating-share gate (7y)"),
@@ -221,6 +232,12 @@ def corrected_folds():
         if c == "m30":  # 7za: every rule and gate, fixed before the cell existed, on 7z's new cell
             F[c] = {r: z["folds"][r] for r in ("theta", "U", "thetaC", "thetaH", "thetaN", "thetaP", "thetaD")}
             F[c]["oracle"] = list(F[c][z["oracle"]])
+            continue
+        if c in SEI_SRC:  # 7zc / 7zd: the same rules and gates on the plating-free SEI cell
+            w = load(SEI_SRC[c][0])
+            F[c] = {r: [dict(f, set="Marquis2019-SEI") for f in w["folds"][r]]
+                    for r in ("theta", "U", "thetaC", "thetaH", "thetaN", "thetaP", "thetaD")}
+            F[c]["oracle"] = list(F[c][w["oracle"]])
             continue
         F[c] = {r: y[c]["folds"][r] for r in ("theta", "U", "thetaH", "thetaN", "thetaP", "thetaD")}
         F[c]["thetaC"] = x[c]["folds"]["thetaC"]
@@ -263,6 +280,12 @@ def corrected():
     pair7 = {r: pair_stats(seven[r], seven["theta"]) for r, _ in CRULES if r != "theta"}
     pair7u = {r: pair_stats(seven[r], seven["U"]) for r, _ in CRULES if r != "U"}
     pair4 = {r: pair_stats(F["four"][r], F["four"]["theta"]) for r, _ in CRULES if r != "theta"}
+    pair8, pair8u = {}, {}
+    for name, conds in (("eight", EIGHT), ("eight_r", EIGHT_R)):
+        e = {r: [f for c in conds for f in F[c][r]] for r, _ in CRULES}
+        tot[name] = {r: agg(e[r]) for r, _ in CRULES}
+        pair8[name] = {r: pair_stats(e[r], e["theta"]) for r, _ in CRULES if r != "theta"}
+        pair8u[name] = {r: pair_stats(e[r], e["U"]) for r, _ in CRULES if r != "U"}
     per = {}
     for c, _ in CONDS:
         for st in dict.fromkeys(f["set"] for f in F[c]["theta"]):
@@ -271,8 +294,10 @@ def corrected():
     for a, b in (("thetaP", "thetaN"), ("thetaD", "thetaH"), ("thetaN", "thetaH"), ("thetaC", "thetaH")):
         same[f"{a}={b}"] = {c: sum(1 for r in paired(F[c][a], F[c][b]) if r["d"] == 0 and r["met_a"] == r["met_b"])
                             for c, _ in CONDS}
-    oracle = dict(load("gate7y")["oracle"], m30={"Marquis2019": load("marq7za")["oracle"]})
+    oracle = dict(load("gate7y")["oracle"], m30={"Marquis2019": load("marq7za")["oracle"]},
+                  **{c: {"Marquis2019-SEI": load(SEI_SRC[c][0])["oracle"]} for c in SEI_SRC})
     return dict(total=tot, pair_six=pair6, pair_seven=pair7, pair_seven_u=pair7u, pair_four=pair4, per=per,
+                pair_eight=pair8, pair_eight_u=pair8u,
                 same=same, oracle=oracle)
 
 
@@ -305,7 +330,8 @@ def fmt_corrected(C):
                  f"{q['cheaper']}/{q['dearer']}  p = {q['sign_p']:.3f}")
     o += ["", "Folds where two rules make the same decision (same cycles, same met flag), committed / f = 30 / f = 10:"]
     for k, v in C["same"].items():
-        o.append(f"  {k:15s} {v['four']:2d}/20  {v['f30']:2d}/10  {v['f10']:2d}/10  (Marquis2019 f = 30: {v['m30']}/5)")
+        o.append(f"  {k:15s} {v['four']:2d}/20  {v['f30']:2d}/10  {v['f10']:2d}/10  (Marquis2019 f = 30: {v['m30']}/5; "
+                 f"SEI rho 0: {v['sei']}/5, rho 0.1: {v['sei1']}/5)")
     o += ["",
           "Per set: target met / 5 and mean DFN cycles per design; oracle = the rule 7y's hindsight pick chose.",
           f"{'condition:set':24s}" + "".join(f"{r:>12s}" for r in ("U", "theta", "thetaC", "thetaN", "thetaP", "thetaD"))
@@ -316,6 +342,7 @@ def fmt_corrected(C):
                         for r in ("U", "theta", "thetaC", "thetaN", "thetaP", "thetaD"))
         o.append(f"{key:24s}{cells}{C['oracle'][c][st]:>8s}")
     o += fmt_seven(C)
+    o += fmt_eight(C)
     return "\n".join(o) + "\n"
 
 
@@ -339,6 +366,31 @@ def fmt_seven(C):
         u = cell(C["pair_seven_u"][r]) if r != "U" else f"{'(reference)':>8s}"
         o.append(f"{r:6s} {m['met']:6d}/{m['n']:<2d} {m['cycles']:5.1f} {s7['met']:3d}/{s7['n']:<2d} {w:>11s} "
                  f"{s7['cycles']:5.1f}  {t}  {u}")
+    return o
+
+
+def fmt_eight(C):
+    """Table 3's eighth column: 7zc's plating-free SEI cell, and the eight-set pooling (7zd's rho 0.1 rung as a swap)."""
+    T = C["total"]
+    o = ["",
+         "Table 3, eighth set-condition (7zc and 7zd, added after both reported): Marquis2019 with plating off and the",
+         "SEI film's resistivity at 0 (7zc) or 0.1 of Marquis2019's (7zd), and the eight set-conditions (seven + the",
+         "rho 0 cell; 40 folds). 'eight, rho 0.1' swaps 7zd's rung in. Paired difference against theta and U as above.",
+         f"{'rule':6s} {'SEI rho0':>9s} {'cyc':>5s} {'rho0.1':>6s} {'cyc':>5s} {'eight':>6s} {'Wilson 95%':>11s} {'cyc':>5s}  "
+         f"{'rule - theta':>12s} {'set boot 95%':>17s} {'ch/de':>6s} {'p':>6s}  {'rule - U':>8s} {'set boot 95%':>17s} {'ch/de':>6s} {'p':>7s}"]
+
+    def cell(q):
+        return (f"{q['mean']:+8.2f} {q['boot'][0]:+7.2f} to {q['boot'][1]:+6.2f} "
+                f"{q['cheaper']:>2d}/{q['dearer']:<3d} {q['sign_p']:6.3f}")
+    for name, label in (("eight", "eight set-conditions, 7zc's cell"), ("eight_r", "eight, 7zd's rho 0.1 cell swapped in")):
+        o.append(f"  {label}:")
+        for r, _ in CRULES:
+            a, b, e = T["sei"][r], T["sei1"][r], T[name][r]
+            w = f"{e['wilson'][0]:.2f}-{e['wilson'][1]:.2f}"
+            t = cell(C["pair_eight"][name][r]).rjust(51) if r != "theta" else f"{'(reference)':>12s}{'':39s}"
+            u = cell(C["pair_eight_u"][name][r]) if r != "U" else f"{'(reference)':>8s}"
+            o.append(f"{r:6s} {a['met']:6d}/{a['n']:<2d} {a['cycles']:5.1f} {b['met']:3d}/{b['n']:<2d} {b['cycles']:5.1f} "
+                     f"{e['met']:3d}/{e['n']:<2d} {w:>11s} {e['cycles']:5.1f}  {t}  {u}")
     return o
 
 

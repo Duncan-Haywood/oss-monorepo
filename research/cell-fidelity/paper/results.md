@@ -1,4 +1,4 @@
-# Results: the ten-cycle fade forecast and DFN-cycle triage (design pools 5zk to 7h; corrected forecast 7v to 7za)
+# Results: the ten-cycle fade forecast and DFN-cycle triage (design pools 5zk to 7h; corrected forecast 7v to 7zd)
 
 Draft results section of the `cell-fidelity` paper (target: *Journal of Power Sources* or *Journal of
 The Electrochemical Society*; `PROPOSAL.md`, "Target venue"). Produced with AI assistance (Claude).
@@ -131,7 +131,7 @@ Three findings carry the paper.
    not the score, is what makes the rule hold; with four training pools it settles the extension at 50
    cycles by itself (H288: the free-K1 and K1 = 50 rules pick the same policy on every set).
 
-## 4.7 Correcting the ten-cycle forecast, and when to (7v to 7za)
+## 4.7 Correcting the ten-cycle forecast, and when to (7v to 7zd)
 
 Milestone 7c fitted a correction to the ten-cycle forecast: the drift multiplier m of each design, predicted
 by the ten-cycle observable (O1 to O3) that ranks best with it on the training pools. Milestones 7v to 7y put
@@ -205,10 +205,52 @@ rows and pools it with the six set-conditions (35 folds); 7za's stored seven-set
 7. The hindsight oracle reaches &minus;13.03 against &theta; with no fold dearer, so on seven conditions the
    deployable gates recover 92% of the per-set ceiling (&minus;11.96 / &minus;13.03), up from 89% on six.
 
+**Eighth set-condition (7zc, 7zd; Table 3's eighth column, regenerated after both reported).** 7zc built a
+cell that drifts without plating (`Marquis2019`, plating off, SEI film resistivity 0, SEI solvent
+diffusivity &times; 10<sup>5</sup>; it loses 3.7% of n<sub>Li</sub> over cycles 2 to 20, all to SEI, as
+&radic;t, median m 0.365), and 7zd gave the film back a tenth of `Marquis2019`'s resistivity (20,000
+&Omega;&nbsp;m) without changing the outcome. `paper/tables.py` adds 7zc's cell from its fold rows as a
+separate cluster (`Marquis2019-SEI`) and pools it with the seven (40 folds); 7zc's and 7zd's stored
+eight-set pairs recur exactly.
+
+| rule | SEI cell, &rho; 0 met | cycles | &rho; 0.1 met | cycles | eight met | Wilson 95% | cycles | eight: &minus; &theta; | set boot 95% | ch / de | sign p | eight: &minus; U | set boot 95% |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| U | 5/5 | 50.0 | 5/5 | 50.0 | 38/40 | 0.83&ndash;0.99 | 45.8 | +2.13 | &minus;2.06 to +6.14 | 11 / 20 | 0.15 | reference | |
+| &theta; | 5/5 | 49.2 | 4/5 | 46.6 | 35/40 | 0.74&ndash;0.95 | 43.6 | reference | | | | &minus;2.13 | &minus;6.14 to +2.06 |
+| &theta;C | 5/5 | 10.0 | 5/5 | 10.0 | 33/40 | 0.68&ndash;0.91 | 28.2 | &minus;15.45 | &minus;27.87 to &minus;3.35 | 21 / 7 | 0.013 | &minus;17.58 | &minus;28.05 to &minus;7.14 |
+| &theta;H, &theta;D | 5/5 | 10.0 | 5/5 | 10.0 | 36/40 | 0.77&ndash;0.96 | 28.9 | &minus;14.67 | &minus;27.70 to &minus;1.77 | 20 / 8 | 0.036 | &minus;16.80 | &minus;27.82 to &minus;5.55 |
+| &theta;N | 5/5 | 10.0 | 5/5 | 10.0 | 36/40 | 0.77&ndash;0.96 | 28.3 | &minus;15.36 | &minus;27.98 to &minus;3.11 | 20 / 5 | 0.004 | &minus;17.49 | &minus;28.16 to &minus;6.85 |
+| &theta;P | 5/5 | 49.2 | 4/5 | 46.6 | 36/40 | 0.77&ndash;0.96 | 33.2 | &minus;10.46 | &minus;22.23 to +0.12 | 15 / 5 | 0.041 | &minus;12.59 | &minus;22.56 to &minus;3.62 |
+| oracle | 5/5 | 10.0 | 5/5 | 10.0 | 38/40 | 0.83&ndash;0.99 | 27.3 | &minus;16.30 | &minus;28.26 to &minus;4.69 | 20 / 0 | 2e&minus;6 | &minus;18.43 | &minus;28.42 to &minus;8.25 |
+
+With 7zd's &rho; = 0.1 cell in place of 7zc's, every row moves by at most 0.33 cycles per design and no
+interval changes sign (&theta;D &minus; &theta; &minus;14.35, &minus;27.01 to &minus;1.73; &theta;N
+&minus;15.04, &minus;27.29 to &minus;3.06; &theta;P &minus;10.46, &minus;22.23 to +0.12; `tables.txt`).
+
+8. **The plating-share gate is the one that fails.** On the plating-free cell it switches the correction off
+   on every fold (&theta;P = &theta;, 49.2 cycles), while the drift-size gate and the out-of-fold error gate
+   keep it on (&theta;D = &theta;N = &theta;H, 10.0 cycles, 5 of 5 met). Before 7zc the three gates came down
+   to two decisions on every cell (finding 2); this cell is the first on which &theta;P and &theta;N part.
+   So plating share was standing in for drift on the plating cells, and the gate should read drift (or the
+   out-of-fold error, which tracks it), not mechanism.
+9. **Against triage alone, the eight-set intervals of the gated rules now exclude zero.** &theta;N saves
+   15.4 cycles per design (&minus;28.0 to &minus;3.1; 20 cheaper, 5 dearer, p = 0.004) and &theta;D 14.7
+   (&minus;27.7 to &minus;1.8; p = 0.036), both meeting 36 of 40 folds against &theta;'s 35; &theta;P's interval
+   still reaches +0.12. Of the two, &theta;N is cheaper because it also switches the correction off on
+   `Ai2020`; &theta;D is the one with a mechanism behind it. This rests on one engineered cell, built to
+   drift after the gates were fixed: with seven conditions no honest-margin interval excluded zero
+   (finding 6), so the eighth cell is what moves it, and the reading is "the correction pays wherever the
+   drift is large and one-directional", not a new breadth result.
+
 For a practitioner this is the conditional step of the recipe (section 5.1): correct the ten-cycle forecast
-only when the cell is known in advance to be plating-limited with large one-directional drift, and otherwise
-run the straight forecast with triage. Table 3 is the evidence that no signal tried so far makes that call
-from the training pools.
+when a gate on the training pools' drift size (or the out-of-fold error gate) says so, and otherwise run the
+straight forecast with triage. Neither gate tests the direction of the drift, which is what separates the
+cells where the correction pays (one-way) from the published sets (both ways); a gate on the sign
+agreement of the per-design drift is the untried candidate, though it would still correct `NCA_Kim2011`,
+which drifts one way (median 0.23) and misses a held-out pool when corrected. Whether a cell is plating-limited is not
+the condition: the plating-free cell of 7zc gains as much as the plating cells. What no gate tried does is
+separate `NCA_Kim2011` (one-directional drift, misses a held-out pool when corrected) from the cells where
+the correction pays, so on the committed sets every gated rule still meets 17 of 20 folds against triage's 19.
 
 ## 4.8 Results that did not hold
 

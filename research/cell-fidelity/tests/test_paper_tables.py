@@ -82,7 +82,7 @@ class CorrectedTable(unittest.TestCase):
     def test_every_rule_covers_the_same_folds(self):
         for c, _ in t.CONDS:
             keys = {(f["set"], f["pool"]) for f in self.F[c]["theta"]}
-            self.assertEqual(len(keys), {"four": 20, "m30": 5}.get(c, 10))
+            self.assertEqual(len(keys), {"four": 20, "m30": 5, "sei": 5, "sei1": 5}.get(c, 10))
             for r, _ in t.CRULES:
                 self.assertEqual({(f["set"], f["pool"]) for f in self.F[c][r]}, keys, (c, r))
                 self.assertEqual(len(self.F[c][r]), len(keys), (c, r))
@@ -152,6 +152,42 @@ class CorrectedTable(unittest.TestCase):
         for r, q in self.C["pair_seven"].items():
             self.assertAlmostEqual(q["mean"], T[r]["cycles"] - T["theta"]["cycles"], places=9, msg=r)
 
+
+    def test_eight_set_pairs_match_7zc(self):
+        z = t.load("sei7zc")["extra_7zc"]
+        for key, q in (("eight thetaP-theta", self.C["pair_eight"]["eight"]["thetaP"]),
+                       ("eight thetaD-theta", self.C["pair_eight"]["eight"]["thetaD"]),
+                       ("eight thetaD-U", self.C["pair_eight_u"]["eight"]["thetaD"]),
+                       ("eight thetaP-U", self.C["pair_eight_u"]["eight"]["thetaP"])):
+            if key not in z:
+                continue
+            ref = z[key]
+            self.assertAlmostEqual(q["mean"], ref["mean"], places=9, msg=key)
+            self.assertAlmostEqual(q["boot"][0], ref["boot"][0], places=9, msg=key)
+            self.assertAlmostEqual(q["boot"][1], ref["boot"][1], places=9, msg=key)
+            self.assertEqual((q["cheaper"], q["dearer"]), (ref["cheaper"], ref["dearer"]), key)
+        self.assertIn("eight thetaD-theta", z)
+
+    def test_sei_cell_columns_match_7zc_and_7zd(self):
+        zc = t.load("sei7zc")["extra_7zc"]["total"]
+        zd = {r["rho"]: r for r in t.load("sei7zd")["rows"]}[0.1]["total"]
+        for cond, ref in (("sei", zc), ("sei1", zd)):
+            for r, v in ref.items():
+                self.assertEqual(self.C["total"][cond][r]["met"], v["met"], (cond, r))
+                self.assertAlmostEqual(self.C["total"][cond][r]["cycles"], v["cycles"], places=9, msg=(cond, r))
+
+    def test_plating_gate_parts_from_error_gate_only_on_sei_cells(self):
+        S = self.C["same"]["thetaP=thetaN"]
+        self.assertEqual((S["four"], S["f30"], S["m30"]), (20, 10, 5))
+        self.assertEqual((S["sei"], S["sei1"]), (0, 0))
+        self.assertEqual((self.C["same"]["thetaD=thetaH"]["sei"], self.C["same"]["thetaD=thetaH"]["sei1"]), (5, 5))
+
+    def test_eight_set_totals_cover_40_folds(self):
+        for name in ("eight", "eight_r"):
+            T = self.C["total"][name]
+            for r, _ in t.CRULES:
+                self.assertEqual(T[r]["n"], 40, (name, r))
+        self.assertEqual((self.C["total"]["eight"]["theta"]["met"], self.C["total"]["eight"]["thetaD"]["met"]), (35, 36))
 
 if __name__ == "__main__":
     unittest.main()

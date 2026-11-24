@@ -55,10 +55,10 @@ Committed sets only, rule - theta (20 folds): mean, set bootstrap 95%, cheaper/d
   oracle   +0.00  (+0.00 to +0.00)  0/0  p = 1.000
 
 Folds where two rules make the same decision (same cycles, same met flag), committed / f = 30 / f = 10:
-  thetaP=thetaN   20/20  10/10   7/10  (Marquis2019 f = 30: 5/5)
-  thetaD=thetaH   20/20  10/10   8/10  (Marquis2019 f = 30: 5/5)
-  thetaN=thetaH   17/20  10/10   7/10  (Marquis2019 f = 30: 5/5)
-  thetaC=thetaH   17/20  10/10   9/10  (Marquis2019 f = 30: 1/5)
+  thetaP=thetaN   20/20  10/10   7/10  (Marquis2019 f = 30: 5/5; SEI rho 0: 0/5, rho 0.1: 0/5)
+  thetaD=thetaH   20/20  10/10   8/10  (Marquis2019 f = 30: 5/5; SEI rho 0: 5/5, rho 0.1: 5/5)
+  thetaN=thetaH   17/20  10/10   7/10  (Marquis2019 f = 30: 5/5; SEI rho 0: 5/5, rho 0.1: 5/5)
+  thetaC=thetaH   17/20  10/10   9/10  (Marquis2019 f = 30: 1/5; SEI rho 0: 5/5, rho 0.1: 5/5)
 
 Per set: target met / 5 and mean DFN cycles per design; oracle = the rule 7y's hindsight pick chose.
 condition:set                      U       theta      thetaC      thetaN      thetaP      thetaD  oracle
@@ -71,6 +71,8 @@ f30:Ecker2015              5/5  40.0   4/5  43.5   5/5  10.0   5/5  10.0   5/5  
 f10:Mohtat2020             3/5  24.0   2/5  23.0   2/5  21.6   2/5  21.0   2/5  21.6   2/5  23.0  thetaH
 f10:Ecker2015              5/5  46.0   5/5  42.6   4/5  10.0   4/5  26.6   4/5  18.0   4/5  18.0   theta
 m30:Marquis2019            4/5  44.0   2/5  34.8   2/5  15.9   4/5  14.6   4/5  14.6   4/5  14.6  thetaH
+sei:Marquis2019-SEI        5/5  50.0   5/5  49.2   5/5  10.0   5/5  10.0   5/5  49.2   5/5  10.0  thetaH
+sei1:Marquis2019-SEI       5/5  50.0   4/5  46.6   5/5  10.0   5/5  10.0   4/5  46.6   5/5  10.0  thetaH
 
 Table 3, seventh set-condition (7za, added after it reported): Marquis2019 at f = 30, a cell built after
 every rule and gate above was fixed, and the seven set-conditions (committed + both f = 30 cells +
@@ -85,3 +87,26 @@ thetaN      4/5   14.6  31/35   0.74-0.95  30.9               -11.96  -25.00 to 
 thetaP      4/5   14.6  31/35   0.74-0.95  30.9               -11.96  -25.00 to  +0.12 15/5    0.041    -14.28  -25.02 to  -4.42 25/4    0.000
 thetaD      4/5   14.6  31/35   0.74-0.95  31.7               -11.17  -24.70 to  +1.07 15/8    0.210    -13.49  -25.02 to  -3.79 23/4    0.000
 oracle      4/5   14.6  33/35   0.81-0.98  29.8               -13.03  -25.48 to  -2.88 15/0    0.000    -15.35  -25.09 to  -5.95 29/4    0.000
+
+Table 3, eighth set-condition (7zc and 7zd, added after both reported): Marquis2019 with plating off and the
+SEI film's resistivity at 0 (7zc) or 0.1 of Marquis2019's (7zd), and the eight set-conditions (seven + the
+rho 0 cell; 40 folds). 'eight, rho 0.1' swaps 7zd's rung in. Paired difference against theta and U as above.
+rule    SEI rho0   cyc rho0.1   cyc  eight  Wilson 95%   cyc  rule - theta      set boot 95%  ch/de      p  rule - U      set boot 95%  ch/de       p
+  eight set-conditions, 7zc's cell:
+U           5/5   50.0   5/5   50.0  38/40   0.83-0.99  45.8                +2.13   -2.06 to  +6.14 11/20   0.150  (reference)
+theta       5/5   49.2   4/5   46.6  35/40   0.74-0.95  43.6   (reference)                                            -2.13   -6.14 to  +2.06 20/11   0.150
+thetaC      5/5   10.0   5/5   10.0  33/40   0.68-0.91  28.2               -15.45  -27.87 to  -3.35 21/7    0.013    -17.58  -28.05 to  -7.14 29/4    0.000
+thetaH      5/5   10.0   5/5   10.0  36/40   0.77-0.96  28.9               -14.67  -27.70 to  -1.77 20/8    0.036    -16.80  -27.82 to  -5.55 28/4    0.000
+thetaN      5/5   10.0   5/5   10.0  36/40   0.77-0.96  28.3               -15.36  -27.98 to  -3.11 20/5    0.004    -17.49  -28.16 to  -6.85 30/4    0.000
+thetaP      5/5   49.2   4/5   46.6  36/40   0.77-0.96  33.2               -10.46  -22.23 to  +0.12 15/5    0.041    -12.59  -22.56 to  -3.62 26/4    0.000
+thetaD      5/5   10.0   5/5   10.0  36/40   0.77-0.96  28.9               -14.67  -27.70 to  -1.77 20/8    0.036    -16.80  -27.82 to  -5.55 28/4    0.000
+oracle      5/5   10.0   5/5   10.0  38/40   0.83-0.99  27.3               -16.30  -28.26 to  -4.69 20/0    0.000    -18.43  -28.42 to  -8.25 34/4    0.000
+  eight, 7zd's rho 0.1 cell swapped in:
+U           5/5   50.0   5/5   50.0  38/40   0.83-0.99  45.8                +2.46   -1.79 to  +6.37 11/21   0.110  (reference)
+theta       5/5   49.2   4/5   46.6  34/40   0.71-0.93  43.3   (reference)                                            -2.46   -6.37 to  +1.79 21/11   0.110
+thetaC      5/5   10.0   5/5   10.0  33/40   0.68-0.91  28.2               -15.12  -27.21 to  -3.31 21/7    0.013    -17.58  -28.05 to  -7.14 29/4    0.000
+thetaH      5/5   10.0   5/5   10.0  36/40   0.77-0.96  28.9               -14.35  -27.01 to  -1.73 20/8    0.036    -16.80  -27.82 to  -5.55 28/4    0.000
+thetaN      5/5   10.0   5/5   10.0  36/40   0.77-0.96  28.3               -15.04  -27.29 to  -3.06 20/5    0.004    -17.49  -28.16 to  -6.85 30/4    0.000
+thetaP      5/5   49.2   4/5   46.6  35/40   0.74-0.95  32.8               -10.46  -22.23 to  +0.12 15/5    0.041    -12.92  -22.84 to  -4.16 27/4    0.000
+thetaD      5/5   10.0   5/5   10.0  36/40   0.77-0.96  28.9               -14.35  -27.01 to  -1.73 20/8    0.036    -16.80  -27.82 to  -5.55 28/4    0.000
+oracle      5/5   10.0   5/5   10.0  38/40   0.83-0.99  27.3               -15.97  -27.51 to  -4.58 20/0    0.000    -18.43  -28.42 to  -8.25 34/4    0.000
