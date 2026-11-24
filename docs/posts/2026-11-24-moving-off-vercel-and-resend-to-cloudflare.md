@@ -3,7 +3,7 @@ title: "Moving off Vercel and Resend: what Cloudflare can and cannot replace"
 seo_title: "Vercel and Resend to Cloudflare: what moved and what could not"
 date: 2026-11-24
 tags: [cloudflare, hosting, email, infrastructure]
-description: "The Vercel deploy had never run, so it moved free. Cloudflare's email service covers transactional mail at no extra cost but refuses marketing mail, so Resend keeps that."
+description: "The Vercel deploy had never run, so it moved free. Cloudflare email covers transactional mail at no extra cost but refuses marketing mail, so Resend keeps that."
 ---
 
 The owner asked for fewer providers: move to Cloudflare wherever it costs little
