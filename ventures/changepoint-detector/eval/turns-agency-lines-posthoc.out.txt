@@ -1,0 +1,3 @@
+Mean composite weights: pipeline 0.052, billable hours 0.164, invoices 0.082, headcount 0.702
+Composite (P3) median timing vs truth, matched within 6: +2 months
+P3 F1: composite of all four 0.755; without headcount 0.924; equal weights 0.865

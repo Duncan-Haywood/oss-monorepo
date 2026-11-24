@@ -57,3 +57,4 @@
 - (2026-11-24) Plausible, PostHog, Umami (README "Umami as a source"; UTC days cost nothing), Mixpanel (README "Mixpanel as a source"), Matomo (README "Matomo as a source")
 - (2026-11-24) Umami, Plausible, PostHog and GA4 people columns fall less than views, middle default for all four, GA4 watches page views (README "Visitors under a partial snippet loss", "PostHog users and GA4 activeUsers under a snippet loss")
 - (2026-11-24) next a live property
+- (2026-11-24) payroll troughs lag 2001/2009
