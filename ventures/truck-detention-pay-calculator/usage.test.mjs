@@ -56,8 +56,19 @@ test("a missing localStorage never throws", () => {
 });
 
 test("corrupt stored JSON is treated as empty rather than thrown", () => {
-  globalThis.localStorage.setItem("solo-401k-contribution-calculator-usage", "not json");
+  globalThis.localStorage.setItem("truck-detention-pay-calculator-usage", "not json");
   assert.deepEqual(readUsage(), {});
   record("comparison_run");
   assert.equal(readUsage().comparison_run, 1);
+});
+
+test("stored JSON that is not a plain object reads as {} and record() recovers", () => {
+  // An array survives typeof === "object", and JSON.stringify drops named keys
+  // set on it, so a counter that kept one would silently lose every event.
+  for (const raw of ["[1,2]", "[]", "5", "\"text\"", "null", "true"]) {
+    globalThis.localStorage.setItem("truck-detention-pay-calculator-usage", raw);
+    assert.deepEqual(readUsage(), {}, raw);
+    record("comparison_run");
+    assert.deepEqual(readUsage(), { comparison_run: 1 }, raw);
+  }
 });
