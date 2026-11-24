@@ -12473,8 +12473,17 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
   return { wrapped, rated, saved, shared, described, highlighted, narrowed, embedded };
 }
 
+// Grant Autopilot (private repo) is served at /grants/ by the site Worker's
+// GRANTS binding (cloudflare/router.mjs). Crawlers read robots.txt only at the
+// host root, so its private paths and its own sitemap are named here.
+export const GRANTS_ROBOTS = Object.freeze({
+  disallow: ['/grants/orgs', '/grants/api', '/grants/invite', '/grants/onboarding'],
+  sitemap: 'grants/sitemap.xml',
+});
+
 export function renderRobots(baseUrl) {
-  return `User-agent: *\nAllow: /\n\nSitemap: ${baseUrl}sitemap.xml\n`;
+  const disallow = GRANTS_ROBOTS.disallow.map((p) => `Disallow: ${p}\n`).join('');
+  return `User-agent: *\nAllow: /\n${disallow}\nSitemap: ${baseUrl}sitemap.xml\nSitemap: ${baseUrl}${GRANTS_ROBOTS.sitemap}\n`;
 }
 
 /**
