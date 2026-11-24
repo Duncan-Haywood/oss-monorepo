@@ -14,9 +14,9 @@ h3 { font-size: 1rem; margin: 18px 0 4px; }
 nav.guides { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .92rem; margin: 6px 0 18px; }
 label { display: block; font-weight: 600; margin: 10px 0 4px; }
 input { width: 100%; box-sizing: border-box; padding: 8px 9px; border: 1px solid var(--input); border-radius: 7px; font: 15px system-ui, sans-serif; background: var(--card); color: var(--ink); }
-td input { padding: 6px 7px; font-size: 14px; min-width: 90px; }
-td input.desc { min-width: 180px; }
-td input.item { min-width: 54px; width: 64px; }
+table.sov-input { table-layout: fixed; min-width: 820px; }
+table.sov-input td input { width: 100%; min-width: 0; padding: 6px 7px; font-size: 14px; }
+table.sov-input th { white-space: normal; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
 button { border: 0; border-radius: 8px; padding: 10px 14px; background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; margin: 12px 8px 0 0; font: 700 15px system-ui, sans-serif; }
 @media (prefers-color-scheme: dark) { button { color: #17150f; } }

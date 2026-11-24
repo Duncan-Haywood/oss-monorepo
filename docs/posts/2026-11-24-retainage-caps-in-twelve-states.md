@@ -53,6 +53,4 @@ The calculator runs in the browser and uploads nothing.
 
 Hosted pay-app billing for subcontractors, covering the SOV, retainage,
 change orders and waivers across every job, is in development with early
-access on the [construction
-page](https://marisstella.app/industries/construction/). Nothing is for
-sale yet.
+access; each guide links to it. Nothing is for sale yet.
