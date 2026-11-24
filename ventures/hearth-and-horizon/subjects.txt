@@ -96,3 +96,6 @@ hearth-and-horizon | Zipf's law, Zipf | a parish library, a dictionary for a rev
 hearth-and-horizon | Rayleigh scattering, Rayleigh | why the sky is blue and the low sun red: short wavelengths scatter as the inverse fourth power, so a lamp, a filter or a mountain view chosen by colour turns on a ratio of about five and a half between violet and red
 hearth-and-horizon | rolling resistance | a parish's hand-pulled bier or a charity wheelchair push that is twice as hard on gravel; the coefficient, not the slope, sets the effort, and pumping the tyres up is the cheap fix someone has to be persuaded of
 hearth-and-horizon | Matthew effect | a grants panel or a choir's solo rota where whoever got the first chance gets the next; cumulative advantage from a small early lead, and a lottery as the fairer rule
+for-other-minds | gambler's ruin, random walk | a food bank's reserve whose donations average exactly its spending, and still runs dry
+for-other-minds | Hawthorne | a parish hall's new lighting that seems to make the volunteers faster, until the trial ends and it stops
+for-other-minds | clustering illusion | three falls on the same church step in a fortnight, and whether a run like that needs a cause
