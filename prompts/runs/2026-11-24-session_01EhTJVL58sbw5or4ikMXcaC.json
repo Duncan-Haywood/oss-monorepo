@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVL58sbw5or4ikMXcaC",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompts/ventures/prompt-1.md)",
+  "input_sha256": "81e5291c5a6f5ce849df079cc13c27fdbb43204449c00ae7b9c6f7742db70807",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T21:15:20Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ids-model-check flagship: IfcRelAggregates two-record cycle (buildable item 2 from allocate.py)",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": 18660,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first seeding run wrote a 24-character GlobalId on the appended relationship; ifcopenshell.validate flagged it on one file",
+      "fix": "seed writes 22 characters; every number in the report is from the rerun (seeded2), IfcTester rerun matched the first run exactly"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "venture-preflight's repository checks fail with check_venture_regression when main moved during the run; the fix (merge origin/main) is printed, but the preflight could say 'main moved since your branch point' first."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-ids-model-check-decomposition-cycles.md",
+    "ventures/ids-model-check/eval/decomposition-cycles-2026-11-24.md"
+  ],
+  "goal": "Measure what catches a cycle of wholes (A part of B, B part of A) and add a check if nothing does.",
+  "notes": "Seeded 187 two-record loops (assembly, nest, spatial, containment) into the 102 public files of eval/where-rules-global-seeds-2026-11-24.md. Schema rules/inverse counts caught 156 (all spatial/containment, 3 of 6 nest) and 0 of 28 assembly loops; ifcopenshell.validate --rules adds nothing on the 31 uncaught (31/31 same issue counts). IfcTester 0.9.0 hung (60 s limit) on exactly those 31 and on 0 originals (confirmed twice). New conformance decomposition-cycle check: 187/187 seeds named, 0/102 originals flagged (6 s for all). partOf no longer counts an element as its own whole. Verification: python3 platform/ci/run_venture_tests.py ids-model-check -> ok (626 tests, 22.6 s); python3 platform/ci/check_posts.py ok; venture-preflight clean after merging main.",
+  "corrections": [],
+  "redteam": null
+}
