@@ -328,3 +328,410 @@ products:
       page (2026-11-03); Anodot's site is blocked from this host, so its
       figure stays a comparison-site snippet.
     next_owner: true
+
+  # ---------------------------------------------------------------------------
+  # The paid bets (portfolio/monetization/bets.md, ranked 2026-11-24), one row
+  # each, built in private-monorepo and named by `app:` instead of `venture:`.
+  # Every tier price below is a PROPOSAL (`status: proposal`, with its `why`),
+  # not a measured price: no sale has happened. Comparables are copied from
+  # bets.md's sources, read 2026-11-24, many via aggregators (Capterra, G2,
+  # Toolradar) that disagree with vendors: re-read the vendor's own page
+  # before setting a Paddle price. Rail: Paddle; checkout dark until the owner
+  # sets each product's price ids in owner-only config. Cost drivers are the
+  # things that scale with customers; their unit costs are not measured yet.
+  # ---------------------------------------------------------------------------
+  - app: private-monorepo/apps/payapps
+    bet: 1
+    buyer: specialty-trade subcontractors (electrical, mechanical, drywall, concrete) and small GCs who bill monthly AIA-style pay applications
+    liability: medium
+    billing: subscription
+    model: >-
+      Subscription per company, priced by active jobs: pay apps (G702/G703
+      layout), retainage, change orders and lien-waiver tracking, with
+      QuickBooks Online export, growing into a contractor suite (job costing,
+      RFIs, estimating from bet 6). A free G702/G703 template page in the
+      public repository is the front door.
+    first_offer: monthly pay apps with retainage and lien-waiver tracking for up to a few active jobs
+    price_hypothesis: "about $99 to $249 a month (bets.md estimate; untested)"
+    tiers:
+      - name: Solo
+        price: $99 a month
+        includes: up to 5 active jobs, pay apps, retainage, change orders, PDF export
+        status: proposal
+        why: >-
+          Matches Trimble Pay's subcontractor plan ($99) and sits between
+          PayAppHub's $79.99 and $129.99 plans; bets.md's estimated band starts here.
+      - name: Crew
+        price: $179 a month
+        includes: up to 20 active jobs, lien-waiver tracking, QuickBooks Online export, 3 users
+        status: proposal
+        why: >-
+          Under SubLien's $199 floor while adding pay apps it does not lead with;
+          QuickBooks sync is the feature subs say they need from day one.
+      - name: Company
+        price: $249 a month
+        includes: unlimited jobs and users, approvals, audit history
+        status: proposal
+        why: >-
+          The top of bets.md's estimated band; well under JobTread's $199 plus
+          $20 a user once a company has several users.
+    cost_drivers:
+      - storage of pay-app PDFs, backup documents and signed waivers per job
+      - QuickBooks Online API calls (sync) and the support load of mismatched charts of accounts
+      - e-signature for lien waivers if a third-party signing API is used (per envelope)
+      - Paddle's per-transaction fee
+    rail: paddle
+    checkout: dark
+    comparables:
+      - what: PayAppHub (Toolradar listing)
+        price: $39.99 / $79.99 / $129.99 a month
+        source: https://toolradar.com/tools/payapphub
+        read: 2026-11-24
+      - what: Trimble Pay (Flashtract) subcontractor plan (G2)
+        price: $99 a month
+        source: https://www.g2.com/products/flashtract/pricing
+        read: 2026-11-24
+      - what: SubLien (SaaSworthy)
+        price: from $199 a month
+        source: https://www.saasworthy.com/product/sublien/pricing
+        read: 2026-11-24
+      - what: JobTread
+        price: $199 a month plus $20 a user
+        source: https://jobtread.com/blog/jobtread-vs-buildertrend-construction-management-software-comparison
+        read: 2026-11-24
+    stage: planned
+    next: >-
+      Build milestone (1) of the payapps flagship row (portfolio/flagships.yaml,
+      bet 1) in private-monorepo/apps/payapps, with the Paddle BillingProvider
+      copied from apps/grants and left dark. Then the Paddle catalogue for these
+      tiers as code, so the owner only sets ids.
+    next_owner: false
+
+  - app: private-monorepo/apps/jobshop-quote
+    bet: 2
+    buyer: CNC machining and metal fabrication job shops whose owner or estimator quotes RFQs by hand
+    liability: medium
+    billing: subscription
+    model: >-
+      Subscription per shop: RFQ (email, PDF drawing, STEP) in, priced quote
+      out, calibrated to the shop's own rates and win/loss history. Model
+      calls per RFQ are the main cost, so the plan includes an RFQ allowance.
+    first_offer: AI-assisted quoting with the shop's rates, an RFQ allowance per month
+    price_hypothesis: "about $199 a month per shop (bets.md; untested)"
+    tiers:
+      - name: Shop
+        price: $199 a month
+        includes: 1 estimator, a monthly RFQ allowance, quote PDFs, rate calibration
+        status: proposal
+        why: >-
+          QuotedPart lists $199 a month a shop; matching it keeps the comparison
+          simple while JobBOSS² (about $3,000 a year) and ProShop ($650 to $715
+          a month) sit above.
+      - name: Shop Plus
+        price: $399 a month
+        includes: 3 estimators, a larger RFQ allowance, STEP geometry, won/lost analytics
+        status: proposal
+        why: >-
+          Still well under ProShop's $650 to $715; the allowance covers the model
+          cost of heavier shops so margin holds (cost-plus, as Grant Autopilot).
+    cost_drivers:
+      - model API calls per RFQ (drawing and email extraction), the largest variable cost
+      - CPU for STEP geometry (volume, bounding box) per part
+      - storage of customer drawings and CAD files
+      - Paddle's per-transaction fee
+    rail: paddle
+    checkout: dark
+    comparables:
+      - what: QuotedPart (Toolradar listing)
+        price: $199 a month per shop
+        source: https://toolradar.com/tools/quotedpart
+        read: 2026-11-24
+      - what: JobBOSS² (SoftwareConnect)
+        price: about $3,000 a year
+        source: https://softwareconnect.com/manufacturing-estimating-quoting
+        read: 2026-11-24
+      - what: ProShop (G2)
+        price: $650 to $715 a month
+        source: https://www.g2.com/products/proshop/pricing
+        read: 2026-11-24
+    stage: planned
+    next: >-
+      Build milestone (1) of the jobshop-quote flagship row (bet 1's scaffold,
+      apps/grants as template): shop profile and the feature-based quote engine
+      with tests. Measure the model cost per RFQ on public sample drawings
+      before fixing the RFQ allowance.
+    next_owner: false
+
+  - app: private-monorepo/apps/einvoice-preflight
+    bet: 3
+    buyer: German and French SMEs facing the 2027-28 e-invoicing mandates, their accountants, and small invoicing-software vendors
+    liability: medium
+    billing: subscription
+    model: >-
+      Subscription for fix-and-explain: every failed rule explained in plain
+      German, French or Dutch with a safely corrected file and a list of what
+      changed; a per-client workspace plan for accountants; a metered API for
+      small invoicing vendors. Checks alone stay free in the public edition
+      (validation is a commodity: free official validators, about $4 per 1,000
+      on API marketplaces).
+    first_offer: accountant plan with per-client workspaces, explanations and safe fixes
+    price_hypothesis: "about EUR 19 to 49 a month for accountants (bets.md estimate; untested), API metered"
+    tiers:
+      - name: Business
+        price: EUR 19 a month
+        includes: one company, explanations and safe fixes, run history
+        status: proposal
+        why: >-
+          At the low end of Verax-Check (EUR 15 to 49) and bets.md's band; the
+          fix and explanation are what a validator alone does not give.
+      - name: Accountant
+        price: EUR 49 a month
+        includes: up to 25 client workspaces, explanations, fixes, a branded audit pack
+        status: proposal
+        why: >-
+          The top of Verax-Check's range and bets.md's band, for many clients;
+          ecosio gives fixes "only for our customers", so fixes are the paid depth.
+      - name: API
+        price: metered per document, set after measuring cost
+        includes: validate, explain and fix over HTTP for invoicing vendors
+        status: proposal
+        why: >-
+          No per-document price until the compute cost per document is measured;
+          the marketplace comparable (about $4 per 1,000) is the ceiling to beat.
+    cost_drivers:
+      - CPU per document (Schematron/XSLT rule runs, PDF/A-3 parsing for Factur-X)
+      - storage of client invoices and run history (retention rules under GDPR)
+      - keeping 60+ countries' rule sets current as authorities change them
+      - Paddle's per-transaction fee
+    rail: paddle
+    checkout: dark
+    comparables:
+      - what: Verax-Check (Capterra)
+        price: EUR 15 to 49 a month
+        source: https://www.capterra.com/p/10043428/Verax-Check/
+        read: 2026-11-24
+      - what: Peppol BIS preflight validator (Apify actor)
+        price: from $4.00 per 1,000 validations
+        source: https://apify.com/kamerozkan/peppol-bis-preflight-validator
+        read: 2026-11-02
+    stage: planned
+    next: >-
+      Import the venture into private-monorepo (scripts/import-venture.mjs) if not
+      done, then milestone (1) of its flagship row: rule explanations in German
+      and French for the most-failed rules. The public row above (venture:
+      einvoice-preflight, audit pack) is the free edition's old one-off offer.
+    next_owner: false
+
+  - app: private-monorepo/apps/cmmc
+    bet: 4
+    buyer: small US defense and aerospace suppliers (often machine shops) that must self-assess against CMMC Level 1 or 2
+    liability: high
+    billing: subscription
+    model: >-
+      Subscription workspace: the 110 NIST SP 800-171 requirements with status
+      and evidence notes, an SPRS score, and a System Security Plan and POA&M
+      generated from the answers; ISO 9001 / AS9100 checklist on the same
+      evidence. Never a certification claim; no CUI uploads. A free Level 1
+      self-assessment page is the front door.
+    first_offer: Level 2 self-assessment workspace with SSP and POA&M documents
+    price_hypothesis: "about $99 to $399 a month (FutureFeed's range; untested)"
+    tiers:
+      - name: Level 1
+        price: $49 a month
+        includes: the 15 Level 1 requirements, annual affirmation record, one user
+        status: proposal
+        why: >-
+          Below FutureFeed's $99 entry; Level 1 is a short checklist, and the
+          cheap tier is the upgrade path to Level 2.
+      - name: Level 2
+        price: $249 a month
+        includes: 110 requirements, SPRS score, SSP and POA&M documents, 3 users
+        status: proposal
+        why: >-
+          Under FutureFeed's $399 and PreVeil Pass's $450 for 3 users, and a
+          fraction of a $3k to $25k consultant SSP within a year.
+      - name: Level 2 + Quality
+        price: $399 a month
+        includes: Level 2 plus ISO 9001 / AS9100 clause checklist and shared evidence
+        status: proposal
+        why: >-
+          FutureFeed's top listed price; the quality checklist is what the same
+          machine shops (bet 2's buyers) also maintain.
+    cost_drivers:
+      - encrypted storage of evidence documents and audit logs
+      - security work the buyers expect (access control, logging, reviews)
+      - optional model calls to draft policy text, metered
+      - Paddle's per-transaction fee
+    rail: paddle
+    checkout: dark
+    comparables:
+      - what: FutureFeed
+        price: $99 / $399 a month
+        source: https://futurefeed.co/pricing
+        read: 2026-11-24
+      - what: PreVeil Pass
+        price: $450 a month for 3 users
+        source: https://www.preveil.com/preveil-pass/
+        read: 2026-11-24
+      - what: Consultant SSP and POA&M (Secureframe summary)
+        price: $3,000 to $25,000
+        source: https://secureframe.com/hub/cmmc/certification-cost
+        read: 2026-11-24
+    stage: planned
+    next: >-
+      Milestone (1) of the cmmc flagship row: the 110 requirements from NIST's
+      public text and the SPRS scoring with tests, in private-monorepo/apps/cmmc.
+      Write the liability notes (no certification claim, no CUI) into the app's
+      terms before any paid path.
+    next_owner: false
+
+  - app: private-monorepo/apps/seller-books
+    bet: 5
+    buyer: multi-platform resellers (eBay, Poshmark, Mercari, Whatnot, Depop) who file a Schedule C
+    liability: medium
+    billing: subscription
+    model: >-
+      Low-priced subscription with near-zero cost per user: payout CSVs in, fees
+      split out, cost of goods and mileage tracked, a Schedule C-ready P&L out.
+      No bank feed, so no aggregator minimum. Annual plans for the tax season.
+    first_offer: multi-platform import with a Schedule C-mapped P&L export
+    price_hypothesis: "about $10 to $20 a month (bets.md wedge price; untested)"
+    tiers:
+      - name: Hobby
+        price: $12 a month
+        includes: 2 platforms, cost of goods, P&L
+        status: proposal
+        why: >-
+          Between Seller Ledger's $10 and $20 plans; a hobby seller's books need
+          little, and the cost per user is near zero.
+      - name: Pro
+        price: $24 a month
+        includes: every supported platform, mileage log, Schedule C export, accountant CSV
+        status: proposal
+        why: >-
+          Under A2X's $29 for a single channel, for all channels at once.
+      - name: Business
+        price: $49 a month
+        includes: high volume, 3 users, inventory by location
+        status: proposal
+        why: >-
+          At Seller Ledger's $50 top plan, inside Link My Books' $21 to $136 range.
+    cost_drivers:
+      - storage of imported CSVs and the ledger (small per user)
+      - upkeep when a marketplace changes its export format (agent time)
+      - Paddle's per-transaction fee, a large share at $12 (price annual plans to soften it)
+    rail: paddle
+    checkout: dark
+    comparables:
+      - what: A2X (G2)
+        price: $29 a month per channel
+        source: https://www.g2.com/products/a2x/pricing
+        read: 2026-11-24
+      - what: Seller Ledger (Shopify App Store)
+        price: $10 / $20 / $50 a month
+        source: https://apps.shopify.com/seller-ledger
+        read: 2026-11-24
+      - what: Link My Books (Capterra)
+        price: about $21 to $136 a month
+        source: https://www.capterra.com/p/184768/Link-My-Books/pricing/
+        read: 2026-11-24
+    stage: planned
+    next: >-
+      Milestone (1) of the seller-books flagship row: import ventures/reseller-books'
+      engines into private-monorepo/apps/seller-books and add accounts with saved,
+      deduplicated imports.
+    next_owner: false
+
+  - app: private-monorepo/apps/wall-framing-takeoff
+    bet: 6
+    buyer: residential remodelers, roofers and framers who take off materials from PDF plan sets
+    liability: medium
+    billing: subscription
+    model: >-
+      Subscription for framing, roofing and siding material lists from PDF plan
+      sets with saved jobs and branded bid packages; later the estimating module
+      of the bet 1 contractor suite. The engine runs in the browser, so the
+      cost per user is low. The public row above (venture: wall-framing-takeoff,
+      yearly bid-package licence) is the free edition's older one-off offer.
+    first_offer: roof and siding lists from a PDF plan set, plus the framing takeoff, saved per job
+    price_hypothesis: "about $79 to $149 a month (untested; under Handoff, Buildxact and Togal.AI)"
+    tiers:
+      - name: Pro
+        price: $79 a month
+        includes: framing, roofing and siding lists, saved jobs, one user
+        status: proposal
+        why: >-
+          About half of Handoff's $149 floor and under two or three roof reports
+          a week at $13 to $38 each; residential takeoff is crowded, so enter low.
+      - name: Business
+        price: $149 a month
+        includes: Pro plus branded bid packages, 3 users, export to the payapps app
+        status: proposal
+        why: >-
+          Handoff's floor and under Buildxact's about $199 and Togal.AI's $249.99.
+    cost_drivers:
+      - storage of uploaded plan sets (large PDFs)
+      - server-side PDF parsing if moved off the browser
+      - Paddle's per-transaction fee
+    rail: paddle
+    checkout: dark
+    comparables:
+      - what: Togal.AI
+        price: $249.99 to $299.99 a month
+        source: https://togal.ai/en-au/pricing-licenses
+        read: 2026-11-24
+      - what: Handoff (Capterra)
+        price: from $149 a month
+        source: https://www.capterra.com/p/10026318/Handoff/pricing/
+        read: 2026-11-24
+      - what: Buildxact (Software Advice)
+        price: about $199 a month
+        source: https://www.softwareadvice.com/ca/construction/buildxact-profile/
+        read: 2026-11-24
+      - what: RoofSnap roof reports (Capterra)
+        price: about $13 to $38 a report
+        source: https://www.capterra.com/p/174071/RoofSnap/
+        read: 2026-11-24
+    stage: planned
+    next: >-
+      Milestone (1) of the wall-framing-takeoff flagship row (bet 6): roofing and
+      siding lists from a PDF plan set in private-monorepo/apps/wall-framing-takeoff.
+    next_owner: false
+
+  - app: private-monorepo/apps/grants
+    bet: 7
+    buyer: small nonprofits that apply for grants without a development staff
+    liability: medium
+    billing: subscription
+    model: >-
+      Live product (marisstella.app/grants) with a cost-plus subscription: 1.3x
+      to 2.0x of the fully loaded cost, enforced by a unit test
+      (private-monorepo/apps/grants/docs/PRICING.md, per LICENSING_TRANSITION.md).
+      Its Paddle adapter is the reference for every bet above.
+    first_offer: the plans in apps/grants/docs/PRICING.md
+    price_hypothesis: "cost-plus per apps/grants/docs/PRICING.md (not restated here); untested with buyers"
+    tiers:
+      - name: as in apps/grants/docs/PRICING.md
+        price: cost-plus, 1.3x to 2.0x of fully loaded cost
+        status: proposal
+        why: >-
+          The app's own pricing file and its unit test set the tiers; this row
+          does not copy numbers that could drift from it. Instrumentl ($299 to
+          $999) is the ceiling small nonprofits call pricey.
+    cost_drivers:
+      - model API calls per draft and per grant match, the largest variable cost
+      - funder data storage and refresh
+      - Paddle's per-transaction fee
+    rail: paddle
+    checkout: dark
+    comparables:
+      - what: Instrumentl (Summit Partners release)
+        price: $299 to $999 a month
+        source: https://www.summitpartners.com/news/instrumentl-raises-55m-from-summit-partners-to-accelerate-their-ai-grant-fundraising-platform
+        read: 2026-11-24
+    stage: built-dark
+    next: >-
+      Paddle sandbox checkout end to end with webhook-driven plan changes, then the
+      Paddle catalogue as code (grants flagship row, milestones 1 and 2). The
+      owner then sets live price ids.
+    next_owner: false

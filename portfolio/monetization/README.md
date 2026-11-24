@@ -5,9 +5,19 @@ the things in this repo. this should be a continual thing to focus on."
 
 This directory is where that work lives between sessions:
 
+- **[`bets.md`](bets.md)**: the paid bets, ranked 2026-11-24 by promise and
+  value, with every competitor price and market size sourced. **Start here.**
+  Since that day the top rows of
+  [`portfolio/flagships.yaml`](../flagships.yaml) are these seven bets, in
+  bets.md's order, each pointing its deepening work at
+  `private-monorepo/apps/<slug>` (`app:`); every other flagship row is
+  `demoted:` below them with its reason.
 - **[`models.yaml`](models.yaml)**: one row per product with its buyer, model,
   first paid offer, a price hypothesis, competitors' list prices (with source
-  and the date read), its stage, and the next step.
+  and the date read), its stage, and the next step. Each bet has an `app:` row
+  (below, "The paid bets"): subscription billing, proposed tiers labelled
+  `status: proposal` with their reasoning, cost drivers, Paddle, checkout
+  dark. The older `venture:` rows are the public free editions' one-off packs.
 - **[`monetization.py`](monetization.py)**: prints the table and the next
   agent-doable step (`next`), and validates the file (`--check`). Tests:
   `python3 -m pytest -q portfolio/ledger/test_monetization.py` (kept there so
@@ -79,7 +89,33 @@ Two things follow:
 | 7 | Display ads on calculator pages | owner (ad account) | low legal, real product cost: slower pages, worse look, against the "serious looking" site direction; near-zero at this traffic | not recommended now |
 | 8 | Hosted SaaS subscriptions run by the owner | merchant of record, paying out to the owner | high: the owner becomes operator and data holder; priced cost-plus so per-user server cost is covered | **direction since 2026-11-24** for the 8 subscription products in [`LICENSING_TRANSITION.md`](LICENSING_TRANSITION.md); the `goals.md` line waits on a control-plane PR |
 
-## Product by product (detail and sources in `models.yaml`)
+## The paid bets (2026-11-24; detail in `models.yaml`, evidence in `bets.md`)
+
+The owner, 2026-11-24: "invest in things that have most promise and most
+value"; the north star is $10k MRR. Every bet is a subscription built in
+`private-monorepo`, sold through Paddle, and dark until the owner sets its
+price ids. **Every tier price is a proposal** (no sale has happened); each
+one's `why` names the comparable it is set against, and those comparables
+come from bets.md's sources (many are aggregator listings: re-read the
+vendor's page before setting a Paddle price).
+
+| Bet | App (`private-monorepo/apps/`) | Customer | Proposed tiers (a month) | Main cost driver | Stage |
+|---|---|---|---|---|---|
+| 1 | `payapps` | specialty subcontractors, small GCs | $99 / $179 / $249 | document storage, QuickBooks sync | planned |
+| 2 | `jobshop-quote` | CNC and fabrication job shops | $199 / $399 | model calls per RFQ | planned |
+| 3 | `einvoice-preflight` | DE/FR SMEs, accountants, invoicing vendors | EUR 19 / EUR 49 / metered API | CPU per document, rule upkeep | planned |
+| 4 | `cmmc` | small defense and aerospace suppliers | $49 / $249 / $399 | secure evidence storage | planned |
+| 5 | `seller-books` | multi-platform resellers | $12 / $24 / $49 | near zero; Paddle's fee at $12 | planned |
+| 6 | `wall-framing-takeoff` | remodelers, roofers, framers | $79 / $149 | plan-set storage | planned |
+| 7 | `grants` | small nonprofits | cost-plus, per the app's `docs/PRICING.md` | model calls | built-dark |
+
+`monetization.py next` takes the bet rows first, in bet order; the router
+(`allocate.py`) gives each bet a Deepen row from its `app:` even where no
+`ventures/<slug>` exists. `--check` refuses a bet row whose tiers are not
+labelled proposals with a reason, whose rail is not Paddle, or which has no
+cost drivers.
+
+## Product by product, the free editions' older offers (detail and sources in `models.yaml`)
 
 - **wall-framing-takeoff (first paid product).** Builders already pay for
   takeoff software: Buildxact lists $149 to $399 a month, Autotakeoff from
