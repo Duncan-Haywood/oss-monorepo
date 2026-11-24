@@ -205,9 +205,11 @@ flagships:
       PAYEMS 0.654/0.731 (bigMove) of 0.80; heavy-late warning ships 2026-11-24
       (README "A heaviest-is-latest warning"); P3 + warning ship for composites
       2026-11-24 (README "P3 and the heavy-late warning together": +0.032 freight,
-      wins on 5 makes); next P3 on single lines, ALFRED vintages; t-walk. Curvature
-      word ships under --shape-word panel (README "A curvature word"): slope donors
-      straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items: NEXT.md.
+      wins on 5 makes); pseudo-real-time replay 2026-11-24 (README "Turns called in
+      pseudo-real time", 6-month rule): called ~7 months after, 7 of 12 before NBER,
+      2001 peak lost once 2020 sets the weights; next the replay under P3, P3 on
+      single lines, ALFRED vintages, a real-time --sd-until rule; t-walk. More open
+      items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://github.com/, https://pypi.org/, https://repo1.maven.org/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag.
