@@ -17,6 +17,9 @@ export function resources() {
       measureUnits: load("measure-units.json"),
       bsddUnits: load("bsdd-units.json"),
     };
+    // The WHERE rules (where-rules.mjs), read on first use: most commands never need them.
+    let rules = null;
+    Object.defineProperty(cache, "rules", { get: () => rules || (rules = { IFC2X3: load("rules-ifc2x3.json"), IFC4: load("rules-ifc4.json"), IFC4X3: load("rules-ifc4x3.json") }) });
   }
   return cache;
 }

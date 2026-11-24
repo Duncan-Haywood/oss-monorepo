@@ -588,6 +588,16 @@ with one systematic fault gives one line:
   saying what it means for a reader (`eval/inverse-counts-2026-11-24.md`). Classes
   outside the schema and duplicate GlobalIds were already reader notes and
   model findings, and are not repeated.
+- **The schema's own WHERE rules** (2026-11-24, `where-rules.mjs`): all 363
+  IFC2X3, 677 IFC4 and 777 IFC4X3 rules, run by an interpreter for the EXPRESS
+  the schemas are written in, from the buildingSMART `.exp` text
+  (`schema/gen-rules.mjs` writes `schema/rules-*.json`). No rule is coded by
+  hand; DERIVE attributes, the 38-48 functions per schema and the two global
+  RULEs are evaluated too, with ISO 10303-11's three-valued logic (a rule fails
+  only when it is FALSE). The ones an IDS check leans on are said in IDS terms:
+  a wall whose PredefinedType is USERDEFINED with no ObjectType (where a
+  predefinedType facet then looks), a wall typed by a door type, two property
+  sets or two properties of one name. `--no-rules` skips them on the CLI.
 - **Where it shows:** `node cli.mjs --conformance MODEL.ifc [--json]` (exit 1 on
   any fault, with the outside-schema notes and duplicate GlobalIds). It is also
   a model warning in every check of a STEP file up to 40 MB, on the page (a
@@ -604,7 +614,13 @@ with one systematic fault gives one line:
   (outside-schema classes, duplicate GlobalIds) are set apart. That includes,
   since 2026-11-24, all 1,085 of IfcOpenShell's inverse-cardinality lines
   (47 on its own files, 1,038 on web-ifc's), matched record for record
-  (`eval/inverse-counts-2026-11-24.md`). The two tools differ in two places.
+  (`eval/inverse-counts-2026-11-24.md`). WHERE rules (2026-11-24,
+  `eval/where-rules-2026-11-24.md`): 26,013 rule failures found by both tools
+  on the same records across the 492 files. 21 more only here, all in one IFC4X3 file
+  that writes an IFC4 class, and 18 only from IfcOpenShell, each its own
+  runner's error (a Python TypeError, a derived attribute it cannot compute,
+  an indeterminate read as true). 0.31 s for AC20-FZK-Haus's 40,455 rule
+  evaluations, where IfcOpenShell's rule runner takes 4.0 s. The two tools differ in two places.
   IfcOpenShell lets `$` stand in a derived slot, where ISO 10303-21 writes `*`.
   And IfcOpenShell refuses the draft schemas IFC4X2 and IFC4X3_RC2, which this
   reads as IFC4 and IFC4X3_ADD2 behind a first note.
