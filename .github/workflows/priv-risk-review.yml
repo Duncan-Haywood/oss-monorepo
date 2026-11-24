@@ -49,7 +49,13 @@ jobs:
         run: |
           set -eu
           spec="+refs/pull/${PR}/head:refs/remotes/pr/head"
-          git fetch --no-tags --filter=blob:none --depth=100 origin "$BASE_SHA" "$spec"
+          # Depth only on a shallow clone (the runner's); a full clone, as
+          # run_workflow_locally.py uses, must not be truncated.
+          if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+            git fetch --no-tags --filter=blob:none --depth=100 origin "$BASE_SHA" "$spec"
+          else
+            git fetch --no-tags --filter=blob:none origin "$BASE_SHA" "$spec"
+          fi
           for _ in 1 2 3 4 5 6 7 8; do
             git merge-base "$BASE_SHA" refs/remotes/pr/head >/dev/null 2>&1 && exit 0
             git fetch --no-tags --filter=blob:none --deepen=400 origin "$BASE_SHA" "$spec"
