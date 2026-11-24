@@ -48,9 +48,15 @@ arithmetic on the file, not advice; see the page for what is not modelled.
 From the quality audit of 2026-11-13
 ([`portfolio/quality/audits/2026-11-13-meta-ads-fatigue-analyzer.json`](../../portfolio/quality/audits/2026-11-13-meta-ads-fatigue-analyzer.json)):
 
+Re-audited 2026-11-24
+([`2026-11-24-meta-ads-fatigue-analyzer.json`](../../portfolio/quality/audits/2026-11-24-meta-ads-fatigue-analyzer.json)):
+the daily-export gap is fixed; these remain.
+
 - Ads are compared with one median across all campaigns, so retargeting (high frequency by design)
   dominates the flags; CPM is not computed. The thresholds (frequency 3, CTR 80%, cost 125%, trend
   -25%) are rules of thumb, not sourced from Meta.
+- The `clicks` alias falls back to a bare `Clicks` column, so an export with only `Clicks (all)` is
+  read as link clicks; the exported CTR column is matched but not cross-checked.
 
 ## Run
 
