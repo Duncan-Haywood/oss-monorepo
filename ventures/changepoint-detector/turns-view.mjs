@@ -58,6 +58,8 @@ export function turnsHtml(r) {
   const out = [];
   if (r.composite) {
     out.push(`<p class="note">Composite index (the Conference Board's method: each column's monthly percent change, weighted by one over its volatility, then cumulated). Weights: ${r.composite.columns.map((c, i) => `${esc(c)} ${r.composite.weights[i].toFixed(3)}`).join(', ')}${r.composite.sdUntil ? `, volatility measured up to ${esc(r.composite.sdUntil)}` : ''}.${r.composite.rowsDropped ? ` ${r.composite.rowsDropped} rows without every column were left out.` : ''}</p>`);
+    const hl = r.composite.heavyLate;
+    if (hl) out.push(`<p class="note" role="note"><strong>Heaviest column is also the latest.</strong> ${esc(hl.column)} carries ${(100 * hl.weight).toFixed(0)}% of the weight and its turns come a median ${hl.lag} months after the other columns', so it can delay the composite's dates. Dated without it (${hl.without.map(esc).join(', ')}): ${hl.turns.length ? hl.turns.map((t) => `${t.kind} ${esc(t.label)}`).join(', ') : 'no turn'}. In simulations of four business makes, these dates were closer to the true turns when this warning fired (README "A heaviest-is-latest warning"); compare both with what you know happened.</p>`);
   }
   if (r.turns.length) {
     out.push(`<h3>Peaks and troughs</h3><div class="scroll"><table><thead><tr><th>Turn</th><th>At</th><th>Value</th></tr></thead><tbody>${r.turns.map((t) => `<tr><td>${t.kind === 'peak' ? 'Peak' : 'Trough'}</td><td>${esc(t.label)}</td><td>${esc(t.value)}</td></tr>`).join('')}</tbody></table></div>`);

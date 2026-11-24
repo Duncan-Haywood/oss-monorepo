@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVKvYwrjCuN7cbsTLGx",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled routine)",
+  "input_sha256": "11e3b35e49613a6364c0c8156c62feb36e116801279806d7c7661dd70db1a697",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T12:01:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 4): changepoint-detector, a heaviest-is-latest warning for --turns composites",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 18596,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The weighted draw routed to research; the scheduled task asks for revenue products, so I routed with --track ventures as prompt.md allows for a session that names its task.",
+      "did": "took the Start here flagship row (changepoint-detector) instead",
+      "result": "a pre-registered round passed and a user-facing warning shipped on the CLI, --json and the page"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-the-heaviest-column-was-also-the-latest.md"
+  ],
+  "goal": "ship a pre-registered, tested warning for composites whose heaviest column is also their latest",
+  "notes": "Pre-registered eval/turns-heavy-late.mjs and heavy-late.mjs, committed before the first run (second commit on the branch). H1-H5 all pass (fires 262/500; remedy +0.072 F1 where it fires; 94% fire at lag>=3, 8% at lag<=1; no loss on maker/shop/SaaS/agency; quiet on FRED). Shipped: --turns --columns monthly warning line, composite.heavyLate in --json, a note on the page. Costs reported: more false turns where it fires, small non-significant gain on the shop make. Tests: node --test turns-heavy-late.test.mjs 5/5; full venture suite via platform/ci/run_venture_tests.py changepoint-detector.",
+  "corrections": [],
+  "redteam": null
+}

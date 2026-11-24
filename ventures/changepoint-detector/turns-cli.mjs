@@ -11,6 +11,7 @@
 import { parseSeries, DEFAULTS } from './engine.mjs';
 import { turningPoints } from './turning-points.mjs';
 import { compositeIndex } from './composite-index.mjs';
+import { heavyLate } from './heavy-late.mjs';
 
 export const TURNS_DEFAULTS = { monthly: { bigMove: 0.05 }, quarterly: {} };
 
@@ -25,6 +26,8 @@ function alignColumns(csv, columns, labelColumn) {
 export function turnsResult({ csv, column = null, columns = null, labelColumn = null, frequency = 'monthly', bigMove = null, sdUntil = null, withSeries = false }) {
   if (frequency !== 'monthly' && frequency !== 'quarterly') throw new Error('--frequency takes monthly or quarterly.');
   const src = csv ?? DEFAULTS.csv;
+  const rule = { ...TURNS_DEFAULTS[frequency], ...(bigMove != null ? { bigMove: bigMove === 'off' ? Infinity : Number(bigMove) } : {}) };
+  if (!(rule.bigMove === undefined || rule.bigMove === Infinity || rule.bigMove > 0)) throw new Error('--big-move takes a positive number (a log move, 0.05 is about 5%) or off.');
   let labels, x, composite = null;
   if (columns && columns.length) {
     if (columns.length < 2) throw new Error('--turns --columns needs two or more columns for a composite (or use --column for one).');
@@ -38,15 +41,29 @@ export function turnsResult({ csv, column = null, columns = null, labelColumn = 
     }
     const c = compositeIndex(a.series, { sdWindow });
     labels = a.labels; x = c.index;
-    composite = { columns: a.names, weights: c.weights.map((w) => Number(w.toFixed(4))), rowsDropped: a.dropped, sdUntil: sdUntil ?? null };
+    composite = { columns: a.names, weights: c.weights.map((w) => Number(w.toFixed(4))), rowsDropped: a.dropped, sdUntil: sdUntil ?? null, heavyLate: null };
+    // Heaviest-is-latest (README "A heaviest-is-latest warning", eval/turns-heavy-late.mjs): monthly composites only,
+    // the setting the round passed with. The main dates stay the full composite's; the warning adds the dates
+    // without the heavy column, for the user to compare.
+    if (frequency === 'monthly') {
+      const w = heavyLate(a.series, c.weights, { rule: { frequency, ...rule } });
+      if (w.fires) {
+        const rest = w.without.map((i) => a.series[i]);
+        const y = rest.length >= 2 ? compositeIndex(rest, { sdWindow }).index : rest[0];
+        composite.heavyLate = {
+          column: a.names[w.column], weight: Number(w.weight.toFixed(4)), lag: w.lag,
+          lags: Object.fromEntries(a.names.map((nm, i) => [nm, w.lags[i]])),
+          without: w.without.map((i) => a.names[i]),
+          turns: turningPoints(y, { frequency, ...rule }).turns.map((t) => ({ kind: t.kind, label: a.labels[t.i], index: t.i })),
+        };
+      }
+    }
   } else {
     if (sdUntil != null) throw new Error('--sd-until goes with --turns --columns (a composite).');
     const p = parseSeries(src, column, labelColumn);
     labels = p.labels; x = p.values;
     if (x.some((v) => !(v > 0))) throw new Error('--turns needs every value above zero (the series is logged).');
   }
-  const rule = { ...TURNS_DEFAULTS[frequency], ...(bigMove != null ? { bigMove: bigMove === 'off' ? Infinity : Number(bigMove) } : {}) };
-  if (!(rule.bigMove === undefined || rule.bigMove === Infinity || rule.bigMove > 0)) throw new Error('--big-move takes a positive number (a log move, 0.05 is about 5%) or off.');
   const tp = turningPoints(x, { frequency, ...rule });
   const turns = tp.turns.map((t) => ({ kind: t.kind, label: labels[t.i], index: t.i, value: Number(x[t.i].toPrecision(6)) }));
   const phases = [];
@@ -65,6 +82,10 @@ export function turnsText(r) {
   const lines = [`Peaks and troughs by Bry-Boschan's rule (${r.frequency} durations${r.bigMove ? `, a short phase kept when it moves ${(100 * r.bigMove).toFixed(0)}% or more` : ''}), ${r.n} points, ${r.first} to ${r.last}:`];
   if (r.composite) {
     lines.push(`  On a composite index of ${r.composite.columns.join(', ')} (Conference Board method: weights ${r.composite.columns.map((c, i) => `${c} ${r.composite.weights[i].toFixed(3)}`).join(', ')}${r.composite.sdUntil ? `, volatility measured to ${r.composite.sdUntil}` : ''})${r.composite.rowsDropped ? `; ${r.composite.rowsDropped} rows without every column left out` : ''}.`);
+  }
+  const hl = r.composite && r.composite.heavyLate;
+  if (hl) {
+    lines.push(`  Warning: ${hl.column} carries ${(100 * hl.weight).toFixed(0)}% of the weight and is also the latest column (its turns come a median ${hl.lag} ${r.frequency === 'monthly' ? 'months' : 'rows'} after the other columns'), so it can delay the composite's dates. Dated without it (${hl.without.join(', ')}): ${hl.turns.length ? hl.turns.map((t) => `${t.kind} ${t.label}`).join(', ') : 'no turn'}. In simulations of four business makes this warning's alternative dated turns better when it fired (README "A heaviest-is-latest warning"); compare both with what you know happened.`);
   }
   if (!r.turns.length) { lines.push('  No turning point: the series has no peak and trough far enough apart under these durations.'); return lines.join('\n'); }
   for (const t of r.turns) lines.push(`  ${t.kind === 'peak' ? 'Peak  ' : 'Trough'} ${t.label}`);
