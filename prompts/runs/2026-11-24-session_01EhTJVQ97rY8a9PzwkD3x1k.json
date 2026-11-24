@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVQ97rY8a9PzwkD3x1k",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production; merge when done.",
+  "input_sha256": "a833a95ac973b0c43ea8ef7145861b765abca74bc028f7eb44ff2a31d99a23f3",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T16:55:56Z",
+  "ended": "2026-11-24T17:13:37Z",
+  "wall_minutes": 18.0,
+  "tokens_in": 12989921,
+  "tokens_out": 68678,
+  "cost_usd": 5.5974,
+  "tool_calls": 84,
+  "task": "Deepen (flagship 4) changepoint-detector: a template-shaped tracking loss (whole page types dark)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18631",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "photo-editing claim lost by one minute to PR #18630 (same item); yielded per claim_check and moved to the row it assigned"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here sent this session and the session behind PR #18630 to the same photo-editing item (HLG HEVC previews) in the same minute; the id-based item split did not separate them, so one claim was wasted."
+    },
+    {
+      "file": "ventures/changepoint-detector/deploy/watch-metric.yml",
+      "issue": "The workflow sat 120 characters under the 16,000-character set-up link limit (watch-repo.test.mjs); adding one check cost three rounds of trimming comments. Now 1 character under: the next addition needs room made first (noted in NEXT.md)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The item taken ('a template-shaped loss ... and a live site') is listed as needing outside input because of the live site; the template-shaped half is simulatable here.",
+      "did": "Simulated it with two pre-registered rounds and shipped the round that passed; the live site stays open in NEXT.md.",
+      "result": "Round 1 failed and was reported; round 2 passed and shipped a default-on GA4 check."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-when-one-page-template-loses-its-tag.md",
+    "ventures/changepoint-detector/README.md (A template-shaped tracking loss)"
+  ],
+  "goal": "Make the self-deployed metric watch hear a GA4 tag lost from one page template",
+  "notes": "Round 1 (pre-registered, seeds 12001-15040): S1, S3 fail, nothing offered (section columns under the change detector: 158->322 false dates). Round 2 (pre-registered after round 1, fresh seeds 16001-19040): D1-D4 pass; help dark heard 1/40 and 3/40 by the shipped watch, 40/40 with the dark check; 0 dark calls on 80 healthy sites. Local checks: ga4-sections.test.mjs 8/8, ga4-metrics + watch-repo + watch-workflow pass (30/30 with the new file); check_posts ok; validate.py ok. Full venture suite: python3 platform/ci/run_venture_tests.py changepoint-detector -> ok, 1204 tests, 0 failed (388.5 s; started before the last workflow-length trims, whose suites (watch-repo, ga4-sections, ga4-metrics, watch-workflow) were rerun after: 30/30).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1e1c65b2-d922-5760-9ba2-fd7ad107faa1",
+    "transcripts": 1,
+    "first": "2026-11-24T16:55:56Z",
+    "last": "2026-11-24T17:13:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 79,
+        "input": 150,
+        "output": 68678,
+        "thinking": 16617,
+        "cache_read": 12781406,
+        "cache_write_5m": 0,
+        "cache_write_1h": 208365,
+        "api_equivalent_usd": 5.5974,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 79,
+      "input": 150,
+      "output": 68678,
+      "thinking": 16617,
+      "cache_read": 12781406,
+      "cache_write_5m": 0,
+      "cache_write_1h": 208365,
+      "api_equivalent_usd": 5.5974,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 84,
+    "tools": {
+      "Bash": 77,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.0,
+      "active_minutes": 18.0,
+      "model_minutes": 11.64,
+      "tool_minutes": 6.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "simulation design, two pre-registered rounds, API feature, CLI, workflow wiring, tests and docs by a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 178.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
