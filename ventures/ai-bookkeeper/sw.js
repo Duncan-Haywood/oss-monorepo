@@ -1,7 +1,7 @@
 // Offline shell for the installed app. Caches this directory's own files only;
 // there are no third-party requests and nothing is sent anywhere. The list is the
 // import closure of index.html; page.test.mjs fails if it falls out of date.
-const CACHE = "ai-bookkeeper-v18";
+const CACHE = "ai-bookkeeper-v19";
 const SHELL = [
   "./", "./accruals.mjs", "./ai.mjs", "./assets.mjs", "./bai2.mjs",
   "./bank.mjs", "./billpay.mjs", "./budget.mjs", "./byok.mjs", "./categorize.mjs", "./brands.mjs", "./mcc.mjs",
@@ -9,8 +9,8 @@ const SHELL = [
   "./annualized.mjs", "./penalty2210.mjs", "./estimatedtax.mjs", "./example-data.mjs", "./fx.mjs", "./index.html", "./inventory.mjs",
   "./invoice.mjs", "./ledger.mjs", "./livefile.mjs", "./loans.mjs", "./n43.mjs", "./opening.mjs",
   "./payouts.mjs", "./plaid.mjs", "./payroll.mjs", "./pdftext.mjs", "./prepaid.mjs", "./deferred.mjs", "./receipts.mjs",
-  "./cashbasis.mjs", "./compare.mjs", "./reconcile.mjs", "./recurring.mjs", "./salestaxreturn.mjs", "./scorp.mjs", "./sepa.mjs", "./statement.mjs",
-  "./statementtext.mjs", "./taxdepr.mjs", "./taxforms.mjs", "./textcodec.mjs", "./usage.mjs",
+  "./cashbasis.mjs", "./compare.mjs", "./reconcile.mjs", "./recurring.mjs", "./salestax-rules.mjs", "./salestaxreturn.mjs", "./scorp.mjs", "./sepa.mjs", "./statement.mjs",
+  "./statementtext.mjs", "./taxdepr.mjs", "./irsdates.mjs", "./taxforms.mjs", "./textcodec.mjs", "./usage.mjs",
   "./csvq.mjs", "./xls.mjs", "./xlsx.mjs", "./xmlent.mjs", "./yearend.mjs", "./manifest.webmanifest",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png",
 ];
