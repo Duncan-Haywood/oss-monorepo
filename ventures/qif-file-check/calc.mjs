@@ -91,6 +91,15 @@ export function dateOrder(records) {
   return { order: dmy && mdy ? "mixed" : dmy ? "dmy" : mdy ? "mdy" : "unknown", dmy, mdy, dated: n };
 }
 
+// Investment (!Type:Invst) records name an action in N and the security in Y. These actions move shares
+// and no cash, so a QIF export may leave T out (Quicken's own QIF spec, "Investment transaction" fields).
+export const INVST_ACTIONS = new Set(["buy", "buyx", "sell", "sellx", "cglong", "cglongx", "cgmid", "cgmidx", "cgshort", "cgshortx",
+  "div", "divx", "intinc", "intincx", "reinvdiv", "reinvint", "reinvlg", "reinvmd", "reinvsh", "reprice", "xin", "xout",
+  "miscexp", "miscexpx", "miscinc", "miscincx", "margint", "margintx", "rtrncap", "rtrncapx", "stksplit", "shrsout", "shrsin",
+  "cash", "contribx", "withdrwx", "reminder", "grant", "vest", "exercise", "expire", "buyopt", "sellopt", "shtsell", "cvrshrt"]);
+export const INVST_NO_CASH = new Set(["shrsin", "shrsout", "stksplit", "reminder", "grant", "vest", "expire", "reprice"]);
+const isInvst = (r) => String(r.type ?? "").toLowerCase() === "invst";
+
 const keyName = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const cents = (n) => Math.round(n * 100);
 
@@ -146,16 +155,25 @@ export function validate(text, opts = {}) {
         }
       }
     }
+    const inv = isInvst(r);
+    const action = String(f.N ?? "").trim().toLowerCase();
+    if (inv) {
+      if (!action) add("warning", "Investment record has no action (N)", "An investment record names its action in N (Buy, Sell, Div, ShrsIn ...). Without it the importer cannot tell a purchase from a dividend.", r.line);
+      else if (!INVST_ACTIONS.has(action)) add("warning", `Unrecognised investment action "${f.N.trim()}"`, "Not one of the QIF investment actions (Buy, Sell, Div, IntInc, ReinvDiv, ShrsIn, ShrsOut, StkSplit, XIn, XOut, ...). Check the importer accepts it.", r.lines.N);
+    }
     const rawAmt = f.T !== undefined ? f.T : f.U;
     let amt = null;
-    if (rawAmt === undefined) add("error", "Record has no amount (T)", "A transaction needs a T line.", r.line);
+    if (rawAmt === undefined) {
+      if (!inv) add("error", "Record has no amount (T)", "A transaction needs a T line.", r.line);
+      else if (!INVST_NO_CASH.has(action)) add("error", "Investment record has no amount (T)", `A ${f.N ? f.N.trim() : "cash"} record moves cash and needs a T line. Only share movements (ShrsIn, ShrsOut, StkSplit) may leave it out.`, r.line);
+    }
     else {
       const a = normalizeAmount(rawAmt);
       if (!a) add("error", "Amount not readable", `"${rawAmt}" cannot be read as an amount without guessing.`, r.lines.T || r.lines.U || r.line);
       else {
         amt = a.value;
         if (a.fixed !== null && !/^[+-]?\d{1,3}(,\d{3})+(\.\d+)?$/.test(String(rawAmt).trim())) add("warning", "Amount is not a plain decimal", `"${rawAmt}" is read as ${a.fixed}; write it that way so every importer agrees.`, r.lines.T || r.lines.U, true);
-        if (a.value === 0) add("warning", "Zero amount", "A zero-value transaction is usually an error.", r.lines.T || r.line);
+        if (a.value === 0 && !(inv && INVST_NO_CASH.has(action))) add("warning", "Zero amount", "A zero-value transaction is usually an error.", r.lines.T || r.line);
       }
     }
     if (r.splits.length) {
@@ -163,10 +181,10 @@ export function validate(text, opts = {}) {
       if (parts.some((x) => x === null)) add("error", "Split line has no readable amount", "Each S (category) line needs a $ amount.", r.splits[0].line);
       else if (amt !== null && cents(parts.reduce((s, x) => s + x.value, 0)) !== cents(amt)) add("error", "Split amounts do not add up to the total", `The splits sum to ${(parts.reduce((s, x) => s + x.value, 0)).toFixed(2)} but T is ${amt.toFixed(2)}. Importers reject the transaction or post an unbalanced one.`, r.splits[0].line);
     }
-    if (!f.P && !f.M) add("warning", "No payee or memo", "The row will import with no description.", r.line);
+    if (inv ? !f.Y && !f.P && !f.M && !["xin", "xout", "cash", "margint", "miscexp", "miscinc", "intinc"].includes(action) : !f.P && !f.M) add("warning", inv ? "No security (Y)" : "No payee or memo", inv ? "An investment record names its security in Y; without it the importer cannot tell which holding moved." : "The row will import with no description.", r.line);
     if (f.C !== undefined && !/^[*cXR]?$/.test(f.C.trim())) add("warning", "Unusual cleared flag", `C${f.C} is not blank, *, c, X or R.`, r.lines.C);
     if (f.D !== undefined && rawAmt !== undefined) {
-      const k = `${f.D.trim()}|${amt}|${keyName(f.P)}`;
+      const k = `${f.D.trim()}|${amt}|${keyName(f.P)}|${inv ? `${action}|${keyName(f.Y)}|${f.Q ?? ""}` : ""}`;
       if (seen.has(k)) add("warning", "Looks like a repeat of an earlier record", `Same date, amount and payee as the record on line ${seen.get(k)}. QIF carries no transaction ID, so a file downloaded twice imports twice; if these are two real purchases, ignore this.`, r.line);
       else seen.set(k, r.line);
     }
@@ -199,16 +217,17 @@ export function repair(text, opts = {}) {
   const proven = dateOrder(p.records).order;
   const order = proven === "dmy" || proven === "mdy" ? proven : opts.order;
   if (opts.convertDates && (order === "dmy" || order === "mdy") && proven !== "mixed") {
-    let n = 0;
+    const changed = [];
     for (const r of p.records) {
       const d = r.fields.D !== undefined && qifDateParts(r.fields.D);
       if (!d) continue;
       const [mo, da] = order === "dmy" ? [d.b, d.a] : [d.a, d.b];
       if (!realDay(d.y, mo, da)) continue;
       const out = opts.convertDates === "dmy" ? `${String(da).padStart(2, "0")}/${String(mo).padStart(2, "0")}/${d.y}` : `${String(mo).padStart(2, "0")}/${String(da).padStart(2, "0")}/${d.y}`;
-      if (lines[r.lines.D - 1] !== "D" + out) { lines[r.lines.D - 1] = "D" + out; n++; }
+      if (lines[r.lines.D - 1] !== "D" + out) { lines[r.lines.D - 1] = "D" + out; changed.push(r.lines.D); }
     }
-    if (n) changes.push(`${n} date${n === 1 ? "" : "s"} rewritten as ${opts.convertDates === "dmy" ? "DD/MM/YYYY" : "MM/DD/YYYY"} with a four-digit year (read as ${order === "dmy" ? "day/month" : "month/day"}${proven === order ? ", proven by the file" : ", the order you chose"}).`);
+    const n = changed.length;
+    if (n) changes.push(`${n} date${n === 1 ? "" : "s"} on line${n === 1 ? "" : "s"} ${changed.join(", ")} rewritten as ${opts.convertDates === "dmy" ? "DD/MM/YYYY" : "MM/DD/YYYY"} with a four-digit year (read as ${order === "dmy" ? "day/month" : "month/day"}${proven === order ? ", proven by the file" : ", the order you chose"}).`);
   }
   let out = lines.join(eol);
   if (p.unterminated) { out = out.replace(/\s*$/, "") + eol + "^" + eol; changes.push(`Line ${p.unterminated.line}: closing ^ added after the last record.`); }

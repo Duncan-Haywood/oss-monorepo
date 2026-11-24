@@ -128,3 +128,8 @@ test('the critical-tag finding is explained in the page copy', () => {
   assert.match(html, /critical/i);
   assert.match(html, /unrecognized tag|unrecognised tag/i);
 });
+
+// Closest sibling: once CAA lets a CA issue, the certificate it issues is read by cert-chain-check.
+test('index links one hop to the cert-chain-check sibling', () => {
+  assert.match(html, /href="\.\.\/cert-chain-check\/"/, 'index must link ../cert-chain-check/ so crawlers reach the chain checker in one hop');
+});

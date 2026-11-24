@@ -145,7 +145,7 @@ from 45.6 s, and takes 1.2 GB off the disk instead of 8.7 GB: `readRawFile`
 fetches only the byte ranges the parser asks for (2.1% of a raw; 65 of 65
 results identical to a whole read, `eval/cull-sparse-read.mjs`), the grid
 decodes a raw's ~1,620 px preview where it has one, and thumbnails are no
-longer copied on each redraw. Not done: BigTIFF DNGs, phone DNGs with no JPEG inside,
+longer copied on each redraw. Not done: BigTIFF DNGs (phone DNGs with no JPEG inside are developed since 2026-11-24, below),
 the 640 px previews of 2000s Olympus compacts (only their 160 px thumbnail).
 
 ### Closed eyes (2026-11-24)
@@ -179,6 +179,26 @@ itself.
 node --test site/rawpreview.test.mjs site/usage.test.mjs
 node eval/cull-page-previews.mjs mei OUT > report.tsv   # mei = the sample clone
 python3 eval/cull-page-previews-decode.py OUT           # needs Pillow
+```
+
+### Phone DNGs with no preview (2026-11-24)
+
+A DNG with no JPEG inside (Nexus 5, 5X, 6, 6P, the first Pixels, Google's HDR+
+bursts) used to show "no embedded JPEG preview found". The page now develops one
+from the sensor data in a worker (`site/rawmosaic.mjs`): uncompressed or
+lossless-JPEG CFA, one pixel per 2 x 2 block, the file's levels, crop, lens-shading
+GainMaps, white balance and colour matrix, up to 2 stops of lift. On 32 public
+DNGs the sensels equal shootflow's own reader on all 32, and the colours are a
+median 0.41 dE from shootflow's half-size development (0.68 against its DNG colour
+model; worst 3.3, a Leica whose lens warp the page does not run); 26 HDR+ frames
+(529 MB) load in Chromium in 10.8 s, all with previews
+(`eval/cull-raw-data-previews-2026-11-24.md`).
+
+```bash
+node --test site/rawmosaic.test.mjs
+node eval/cull-raw-data-previews.mjs DIR... OUT > report.tsv
+python3 eval/cull-raw-data-previews-check.py OUT     # sensels vs shootflow
+python3 eval/cull-raw-data-previews-colour.py OUT    # colour vs shootflow
 ```
 
 ## The cull page reads where the camera focused (2026-11-24)

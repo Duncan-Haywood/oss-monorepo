@@ -11,6 +11,7 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"ShootFlow Cull","url":"https://marisstella.app/photo-editing/cull.html","applicationCategory":"MultimediaApplication","operatingSystem":"Any (runs in the browser)","browserRequirements":"A current Chrome, Edge, Firefox or Safari","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"A browser photo culler for camera raw files. It reads the JPEG preview each raw file carries, lets you rate, colour-label and reject by keyboard, reads the AF point from Canon, Sony, Fujifilm, Panasonic and Olympus maker notes, groups bursts and ranks them by detail at that point, flags closed eyes on request with an on-device face model, and writes XMP sidecars with xmp:Rating and xmp:Label. Files never leave the computer."}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
     {"@type":"Question","name":"Are my photos uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The page reads the files with your browser's File API on your own computer. Nothing is sent anywhere; you can disconnect from the internet after the page loads and it still works."}},
+    {"@type":"Question","name":"My phone's DNG files have no preview. Can it show them?","acceptedAnswer":{"@type":"Answer","text":"Yes. Many phone DNGs (Nexus 5, 5X, 6 and 6P, the first Pixels, and Google's HDR+ bursts) carry no JPEG at all, so the page develops a preview from the sensor data itself, in a background worker: one pixel for each 2 × 2 block of the colour filter (half the sensor's width), with the white balance, colour matrix and lens-shading map the phone wrote into the file, and up to two stops of brightening so the bright end of the frame is near white. The large view says \"developed from the raw data\". It takes about half a second to a second a frame. It is a preview for culling, not an edit: no lens distortion correction, sharpening or highlight recovery. Checked on 32 public DNGs: the sensor values read are identical to ShootFlow's own raw reader on all 32, and the colours are a median 0.4 ΔE (CIELAB) from ShootFlow's full development of the same files."}},
     {"@type":"Question","name":"Will Lightroom see my ratings?","acceptedAnswer":{"@type":"Answer","text":"Yes for raw files: put the downloaded .xmp files next to the raws before you import, and Lightroom Classic reads xmp:Rating (stars, −1 for rejected) and xmp:Label. Lightroom does not read sidecars for JPEG or DNG files, which keep metadata inside the file."}},
     {"@type":"Question","name":"Will my Lightroom edits survive?","acceptedAnswer":{"@type":"Answer","text":"Yes, if you drop the existing .xmp sidecars along with the raw files. The page reads the rating and colour label in them as each frame's start, and when you download, the zip carries those same sidecar files back under their own names with only xmp:Rating, xmp:Label and xmp:MetadataDate changed; develop settings, keywords and crops stay as they were. Without them, a fresh sidecar would replace the one on disk."}},
     {"@type":"Question","name":"Does it read ratings I set in the camera?","acceptedAnswer":{"@type":"Answer","text":"Yes, where the camera writes them into the raw file: the XMP packet many raws carry (in the public samples: recent Sony, Canon, Nikon, OM System, DJI and Pentax files), the XMP box of a Canon CR3, or the Rating tag OM System bodies write. A rating you set on this page before, or one in a dropped sidecar, comes first."}},
@@ -152,7 +153,7 @@
     <p>Where the camera recorded where it focused, the page reads that too and draws it in the large view (in red the points the camera reports in focus): Canon (CR2 and CR3, including the 1,053-point grids of recent mirrorless bodies), Sony (bodies that write FocusLocation, such as the A7 III and A7 IV), Fujifilm, Panasonic, and Olympus and OM System. In a burst where every frame has an AF point, "sharpest" then means the most detail at that point, which is the subject the camera chose, so a soft subject in front of a busy background no longer wins; <kbd>Z</kbd> zooms to it. Nikon numbers its phase-detect points on a grid that differs by body and publishes no coordinates, so Nikon files fall back to the busiest area. On the public sample files, the point read agrees with metadata-extractor's own decoding on all 22 files it decodes, and sits on more detail than a random spot in 18 of 24 (median rank 0.89).</p>
     <p>Closed eyes, if you tick "Check for closed eyes": the page downloads Google's MediaPipe Face Landmarker (Apache-2.0, a 3.6 MB model) once and runs it in the browser on a 1,024 px copy of each preview, after the card has loaded. A face counts as blinking when the model's blink score for both eyes is 0.45 or more; faces smaller than 1% of the frame (people in the background) are ignored. Frames with a blink get an "eyes closed" tag and their own filter, the large view boxes each face (amber closed, green open), and the burst pick skips blinking frames unless every frame in the burst has one. How far to trust it: on our check set of real and generated portraits, every open-eyed face (smiling and squinting included) scored 0.27 or less and the one closed pair 0.61 and 0.63, so the line sits between them; that is too few closed faces to give an error rate, and half-closed eyes, profiles, sunglasses and heavy motion blur are not covered. Treat the tag as a hint and look before you reject.</p>
     <p>It shows the camera's JPEG, not a development of the raw data, so white balance and picture style are what the camera chose. For developing raw files with checked colour, see <a href="./">ShootFlow's command-line tools</a>.</p>
-    <p>Measured on 65 public sample files from 55 camera models (the <a href="https://github.com/drewnoakes/metadata-extractor-images">metadata-extractor-images</a> set): a preview was found in 61, and all 61 decode at the size read; in Chromium the page read all 65 (1.1 GB) in about 5 seconds. The four misses are two BigTIFF test files, a phone DNG with no JPEG inside and a truncated 368-byte file. Four 2005 to 2008 Olympus compacts give only a 160 × 120 thumbnail.</p>
+    <p>Measured on 65 public sample files from 55 camera models (the <a href="https://github.com/drewnoakes/metadata-extractor-images">metadata-extractor-images</a> set): a preview was found in 61, and all 61 decode at the size read; in Chromium the page read all 65 (1.1 GB) in about 5 seconds. The misses were two 2 KB BigTIFF test files, a phone DNG with no JPEG inside and a truncated 368-byte file; DNGs with no JPEG inside are now developed from their sensor data (below). Four 2005 to 2008 Olympus compacts give only a 160 × 120 thumbnail.</p>
   </section>
 
   <section aria-labelledby="faq-h">
@@ -169,6 +170,8 @@
     <p>Yes for Canon, Sony (A7 III and later bodies that record it), Fujifilm, Panasonic, Olympus and OM System files: the AF points are drawn on the large view, <kbd>Z</kbd> zooms to 100% there, and the burst pick uses the detail at that point. Press <kbd>F</kbd> to hide them. Nikon files and older Sony bodies do not record a usable position, so the page uses the busiest area instead.</p>
     <h3>Does it find closed eyes?</h3>
     <p>Yes, if you tick "Check for closed eyes" above the grid. The face model is downloaded once (3.6 MB) and runs on your computer; your photos are still not uploaded. Blinking frames get an "eyes closed" tag, Show › Eyes closed lists them, and the sharpest-of-burst pick prefers a frame where everyone's eyes are open. It is a hint, measured on few closed faces so far: check before rejecting.</p>
+    <h3>My phone's DNG files have no preview. Can it show them?</h3>
+    <p>Yes. Many phone DNGs (Nexus 5, 5X, 6 and 6P, the first Pixels, and Google's HDR+ bursts) carry no JPEG at all, so the page develops a preview from the sensor data itself, in a background worker: one pixel for each 2 × 2 block of the colour filter (half the sensor's width), with the white balance, colour matrix and lens-shading map the phone wrote into the file, and up to two stops of brightening so the bright end of the frame is near white. The large view says "developed from the raw data". It takes about half a second to a second a frame. It is a preview for culling, not an edit: no lens distortion correction, sharpening or highlight recovery. Checked on 32 public DNGs: the sensor values read are identical to ShootFlow's own raw reader on all 32, and the colours are a median 0.4 ΔE (CIELAB) from ShootFlow's full development of the same files.</p>
     <h3>Why does a preview look different from my raw editor?</h3>
     <p>It is the JPEG the camera made at capture, with the camera's picture style, not a development of the raw data. That is what makes culling fast, and it is what the camera's own screen showed you.</p>
     <h3>Does it remember my ratings?</h3>
@@ -249,7 +252,40 @@ function drawOriented(ctx, img, o, W, H) {
   ctx.restore();
 }
 
-function previewBlob(it, p = it.preview) { return it.file.slice(p.offset, p.offset + p.length, "image/jpeg"); }
+function previewBlob(it, p = it.preview) { return p.blob || it.file.slice(p.offset, p.offset + p.length, "image/jpeg"); }
+
+// A DNG with no JPEG inside (phone DNGs: Nexus, Pixel, HDR+ bursts) gets a
+// preview developed from its sensor data in a worker (site/rawmosaic.mjs):
+// one pixel per 2 x 2 CFA block, the file's white balance, colour matrix and
+// lens-shading GainMaps, as a JPEG blob held in memory.
+const devPool = [], devQueue = [];
+let devSeq = 0, devBroken = false;
+function developInWorker(file) {
+  return new Promise((resolve, reject) => {
+    if (devBroken) { reject(new Error("could not develop the raw data in this browser")); return; }
+    devQueue.push({ id: ++devSeq, file, resolve, reject });
+    pumpDev();
+  });
+}
+function pumpDev() {
+  if (devBroken) { devQueue.splice(0).forEach((j) => j.reject(new Error("could not develop the raw data in this browser"))); return; }
+  while (devQueue.length) {
+    let w = devPool.find((x) => !x.job);
+    if (!w && devPool.length < 2) {
+      try { w = { worker: new Worker(new URL("./rawmosaic-worker.mjs", import.meta.url), { type: "module" }), job: null }; }
+      catch { devBroken = true; pumpDev(); return; }
+      const done = (fn) => { const job = w.job; w.job = null; if (job) fn(job); pumpDev(); };
+      w.worker.onmessage = (e) => done((job) => (e.data.error ? job.reject(new Error(e.data.error)) : job.resolve(e.data)));
+      // A worker that cannot load (an old browser, a blocked script) fails its
+      // job and every queued one, rather than leaving the card loading forever.
+      w.worker.onerror = (e) => { e.preventDefault?.(); devBroken = true; done((job) => job.reject(new Error("could not develop the raw data in this browser"))); };
+      devPool.push(w);
+    }
+    if (!w) return;
+    w.job = devQueue.shift();
+    w.worker.postMessage({ id: w.job.id, file: w.job.file });
+  }
+}
 
 // The grid needs 1024 px at most (thumbnail 360, detail score 1024), so it
 // decodes the smallest embedded preview that big: Canon CR3, the Sony A7 IV
@@ -267,6 +303,12 @@ async function loadOne(file) {
     const r = await readRawFile(file);
     bytesRead += r.bytesRead;
     it.format = r.format; it.meta = r.meta; it.preview = r.preview;
+    if (!r.preview && r.meta.dng) {
+      const d = await developInWorker(file); // readRawFile already read this file whole
+      it.preview = r.preview = { blob: d.blob, length: 0, width: d.width, height: d.height, source: d.source, developed: true, ownOrientation: 0 };
+      r.previews = [r.preview];
+      it.developed = true;
+    }
     if (!r.preview) throw new Error(r.format ? "no embedded JPEG preview found" : "not a camera raw or JPEG file");
     it.orient = r.preview.ownOrientation ? 1 : r.meta.orientation || 1;
     it.t = captureMillis(r.meta);
@@ -413,6 +455,7 @@ async function addFiles(fileList) {
   record("files_loaded");
   if (fresh.length >= 50) record("files_loaded_50_plus");
   if (fresh.some((it) => it.af?.at)) record("af_points_read");
+  if (items.some((it) => it.developed)) record("raw_data_previews");
   refresh(true);
   if ($("eyesOn").checked) { checkEyes(); return; }
   $("status").textContent = `${items.length} files${bad ? `, ${bad} without a preview` : ""} (read ${fresh.length} in ${secs} s; ${mib(bytesRead - before)} of their ${mib(cardBytes)} read from disk)${startCounts()}.`;
@@ -602,7 +645,7 @@ function describe(it) {
   if (m.iso) parts.push(`ISO ${m.iso}`);
   if (m.focalLength) parts.push(`${Math.round(m.focalLength)} mm`);
   if (m.lens) parts.push(m.lens);
-  if (it.preview) parts.push(`preview ${it.preview.width}×${it.preview.height}`);
+  if (it.preview) parts.push(`preview ${it.preview.width}×${it.preview.height}${it.developed ? " (developed from the raw data)" : ""}`);
   if (it.eyes) parts.push(describeFaces(it.eyes));
   if (it.af) parts.push(it.af.at ? `AF point: ${it.af.source}` : `AF: ${it.af.source}, none reported in focus`);
   if (m.captured) parts.push(m.captured.replace(/^(\d{4}):(\d{2}):(\d{2})/, "$1-$2-$3"));

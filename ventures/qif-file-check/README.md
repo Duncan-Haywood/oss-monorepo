@@ -23,20 +23,25 @@ cd ventures/qif-file-check && node --test '*.test.mjs'
 
 ## Known gaps
 
-From the quality audit of 2026-11-13
-([`portfolio/quality/audits/2026-11-13-qif-file-check.json`](../../portfolio/quality/audits/2026-11-13-qif-file-check.json)):
+Re-audited 2026-11-24
+([`portfolio/quality/audits/2026-11-24-qif-file-check.json`](../../portfolio/quality/audits/2026-11-24-qif-file-check.json),
+re-checking [the 2026-11-13 audit](../../portfolio/quality/audits/2026-11-13-qif-file-check.json)):
 
-- Investment (`!Type:Invst`) records are checked like bank records: a share
-  transfer (`ShrsIn`) with no `T` line is reported as an error, and every
-  investment record warns "No payee or memo".
-- Calendar-impossible dates such as 02/30/2024 are not flagged (only month
-  and day ranges are checked).
-- Split totals are compared loosely enough that a seeded change to compare
-  them in dimes was not caught by any test.
-- Fixed on 2026-11-13: list sections of a full Quicken export (`!Type:Cat`,
-  `!Account` blocks and the like) were checked as transactions; stray
-  letters before an amount (`l2.50`, `DR12.50`) were stripped as if they
-  were a currency code.
+- Investment records are checked for structure only: the action (N), the
+  security (Y) and a T line on every action that moves cash. The arithmetic
+  `T = Q × I ± O` (shares times price, plus or minus commission) is not
+  checked, because brokers round price and commission differently and a
+  tolerance has not been chosen from real files.
+- Two-digit years written with `/` are read with a pivot at 70 (`'69` is
+  2069, `/70` is 1970); Quicken's own convention is an apostrophe for
+  2000s years, which is read as 20xx regardless.
+
+Fixed since the 2026-11-13 audit: list sections of a full Quicken export
+(`!Type:Cat`, `!Account` blocks) are no longer checked as transactions; stray
+letters before an amount (`l2.50`, `DR12.50`) are no longer stripped as a
+currency code; calendar-impossible dates (02/30/2024) are errors; splits are
+compared to the cent; investment share transfers need no T and the security
+counts as the description; every date the repair rewrites is listed by line.
 
 ## Files
 

@@ -34,6 +34,20 @@ Full tables: [`experiments/m1_subgroups/`](experiments/m1_subgroups) (`t1` compo
 fertility, `t3` retention, `t4` practice, belief and politics by subgroup). Plan and hypotheses:
 [`PROPOSAL.md`](PROPOSAL.md). Research log: [`LOG.md`](LOG.md).
 
+## Is the falling "raised Catholic" share an age drift or a change in the surveys? Not an age drift: in 1977-94 older adults show it too (milestone 5b, 2026-11-24)
+
+The step before found that US-born mothers born 1937-49 report a Catholic upbringing less often as they age, but only
+at 25-44, in the surveys of 1977-94, and guessed it was a mid-life drift in how people describe their childhood. A
+drift with age would not touch people who were already 57-79 in those same surveys; a change in the surveys would.
+Within single birth years, the raised-Catholic share of US-born adults fell by **-0.14 points a year [-0.32, +0.06] at
+25-44 and -0.21 [-0.45, +0.02] at 57-79** in 1977-94; their difference is +0.07 [-0.18, +0.37], so the main
+pre-registered test (a fall specific to young ages) is refuted. In 1995-2018 both slopes are near zero (-0.03 and
++0.04). Four predictions were committed first; 2 of 4 are supported, both weakly. The pattern fits a change in the
+1977-94 surveys better than an age drift, but no single contrast excludes zero. The reading that the 1937-49 mothers'
+falling Catholic share is not evidence of leaving still holds, since their reported upbringing falls with it.
+Unpredicted: at 45-56 in 1995-2018 women's raised-Catholic share rises with age (+0.58 a year [+0.12, +1.06]). Code
+`experiments/m5s_age_period/run.py`, table `t51`, details in `LOG.md`.
+
 ## Do older Catholic mothers forget a Catholic upbringing? Not after 60: their own re-interviews show no drift, and the fall sits at 25-44 (milestone 5b, 2026-11-22)
 
 The step before found that, for US-born mothers born 1937-49, the share who say they were raised Catholic is 3.4-3.5
