@@ -1,0 +1,671 @@
+[
+  {
+    "id": "PEPPOL-EN16931-R001",
+    "source": "peppol",
+    "terms": [
+      "BT-23"
+    ],
+    "en": {
+      "title": "Business process (profile ID) is missing",
+      "meaning": "Peppol BIS Billing 3.0 requires the Business process type (BT-23) on every invoice and credit note. In UBL this is cbc:ProfileID; in CII it is the ID inside ram:BusinessProcessSpecifiedDocumentContextParameter. The rule only checks that the element is there; PEPPOL-EN16931-R007 checks its value.",
+      "causes": [
+        "The software exports plain EN 16931 or XRechnung, where the business process is optional, and the file is then sent over Peppol.",
+        "The element was dropped by a converter or a hand-made template.",
+        "The value was put in cbc:CustomizationID (BT-24) instead of a separate cbc:ProfileID."
+      ],
+      "fix": [
+        "Add cbc:ProfileID right after cbc:CustomizationID (UBL), or ram:BusinessProcessSpecifiedDocumentContextParameter/ram:ID in rsm:ExchangedDocumentContext (CII).",
+        "Use the standard Peppol value urn:fdc:peppol.eu:2017:poacc:billing:01:1.0 unless your receiver has agreed another approved process.",
+        "Validate again; PEPPOL-EN16931-R007 will then check that the value is an approved one."
+      ]
+    },
+    "de": {
+      "title": "Geschäftsprozess (Profil-ID) fehlt",
+      "meaning": "Peppol BIS Billing 3.0 verlangt in jeder Rechnung und Gutschrift die Angabe des Geschäftsprozesses (BT-23). In UBL ist das cbc:ProfileID, in CII die ID in ram:BusinessProcessSpecifiedDocumentContextParameter. Die Regel prüft nur, ob das Element vorhanden ist; den Wert prüft PEPPOL-EN16931-R007.",
+      "causes": [
+        "Die Software erzeugt reines EN 16931 oder XRechnung, wo der Geschäftsprozess optional ist, und die Datei wird dann über Peppol verschickt.",
+        "Ein Konverter oder eine selbst gebaute Vorlage hat das Element weggelassen.",
+        "Der Wert steht in cbc:CustomizationID (BT-24) statt in einem eigenen cbc:ProfileID."
+      ],
+      "fix": [
+        "Fügen Sie cbc:ProfileID direkt nach cbc:CustomizationID ein (UBL) bzw. ram:BusinessProcessSpecifiedDocumentContextParameter/ram:ID in rsm:ExchangedDocumentContext (CII).",
+        "Verwenden Sie den Peppol-Standardwert urn:fdc:peppol.eu:2017:poacc:billing:01:1.0, sofern mit dem Empfänger kein anderer zugelassener Prozess vereinbart ist.",
+        "Prüfen Sie die Datei erneut; danach kontrolliert PEPPOL-EN16931-R007, ob der Wert zugelassen ist."
+      ]
+    },
+    "fr": {
+      "title": "Le processus métier (identifiant de profil) est absent",
+      "meaning": "Peppol BIS Billing 3.0 exige le type de processus métier (BT-23) dans chaque facture et chaque avoir. En UBL c'est cbc:ProfileID ; en CII, l'ID dans ram:BusinessProcessSpecifiedDocumentContextParameter. La règle vérifie seulement la présence de l'élément ; sa valeur est contrôlée par PEPPOL-EN16931-R007.",
+      "causes": [
+        "Le logiciel produit du EN 16931 simple ou de la XRechnung, où le processus métier est facultatif, et le fichier est ensuite envoyé via Peppol.",
+        "Un convertisseur ou un modèle fait main a supprimé l'élément.",
+        "La valeur a été placée dans cbc:CustomizationID (BT-24) au lieu d'un cbc:ProfileID distinct."
+      ],
+      "fix": [
+        "Ajoutez cbc:ProfileID juste après cbc:CustomizationID (UBL), ou ram:BusinessProcessSpecifiedDocumentContextParameter/ram:ID dans rsm:ExchangedDocumentContext (CII).",
+        "Utilisez la valeur Peppol standard urn:fdc:peppol.eu:2017:poacc:billing:01:1.0, sauf si un autre processus approuvé a été convenu avec le destinataire.",
+        "Validez à nouveau ; PEPPOL-EN16931-R007 vérifiera alors que la valeur est approuvée."
+      ]
+    },
+    "ubl": "<cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0</cbc:CustomizationID>\n<cbc:ProfileID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</cbc:ProfileID>",
+    "cii": "<rsm:ExchangedDocumentContext>\n  <ram:BusinessProcessSpecifiedDocumentContextParameter>\n    <ram:ID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</ram:ID>\n  </ram:BusinessProcessSpecifiedDocumentContextParameter>\n  <ram:GuidelineSpecifiedDocumentContextParameter>\n    <ram:ID>urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0</ram:ID>\n  </ram:GuidelineSpecifiedDocumentContextParameter>\n</rsm:ExchangedDocumentContext>"
+  },
+  {
+    "id": "PEPPOL-EN16931-R003",
+    "source": "peppol",
+    "terms": [
+      "BT-10",
+      "BT-13"
+    ],
+    "en": {
+      "title": "Neither a buyer reference nor a purchase order reference is given",
+      "meaning": "Peppol requires at least one of two references so the buyer can match the invoice internally: the Buyer reference (BT-10) or the Purchase order reference (BT-13). One of them is enough; the rule passes as soon as either element exists.",
+      "causes": [
+        "The buyer did not give a reference or order number, so nothing was filled in.",
+        "The order number was written in a free-text note instead of the order reference field.",
+        "The software only fills the buyer reference for public buyers and leaves it out for private ones."
+      ],
+      "fix": [
+        "Ask the buyer which reference they want on the invoice (their order number, a cost centre or, for German public buyers, the Leitweg-ID).",
+        "Put it in cbc:BuyerReference, or the order number in cac:OrderReference/cbc:ID (UBL). In CII use ram:BuyerReference or ram:BuyerOrderReferencedDocument/ram:IssuerAssignedID in ram:ApplicableHeaderTradeAgreement.",
+        "If the buyer really has no reference, agree a value with them rather than inventing one."
+      ]
+    },
+    "de": {
+      "title": "Weder Käuferreferenz noch Bestellnummer angegeben",
+      "meaning": "Peppol verlangt mindestens eine von zwei Referenzen, damit der Käufer die Rechnung intern zuordnen kann: die Käuferreferenz (BT-10) oder die Bestellnummer (BT-13). Eine davon genügt; die Regel ist erfüllt, sobald eines der beiden Elemente vorhanden ist.",
+      "causes": [
+        "Der Käufer hat keine Referenz oder Bestellnummer genannt, deshalb wurde nichts eingetragen.",
+        "Die Bestellnummer steht in einem Freitext-Hinweis statt im Feld für die Bestellreferenz.",
+        "Die Software füllt die Käuferreferenz nur bei öffentlichen Auftraggebern und lässt sie bei privaten Kunden weg."
+      ],
+      "fix": [
+        "Fragen Sie den Käufer, welche Referenz er auf der Rechnung erwartet (seine Bestellnummer, eine Kostenstelle oder bei deutschen öffentlichen Auftraggebern die Leitweg-ID).",
+        "Tragen Sie sie in cbc:BuyerReference ein oder die Bestellnummer in cac:OrderReference/cbc:ID (UBL). In CII verwenden Sie ram:BuyerReference oder ram:BuyerOrderReferencedDocument/ram:IssuerAssignedID in ram:ApplicableHeaderTradeAgreement.",
+        "Hat der Käufer wirklich keine Referenz, vereinbaren Sie einen Wert mit ihm, statt einen zu erfinden."
+      ]
+    },
+    "fr": {
+      "title": "Ni référence acheteur ni numéro de commande",
+      "meaning": "Peppol exige au moins l'une de deux références pour que l'acheteur puisse rapprocher la facture en interne : la référence acheteur (BT-10) ou la référence du bon de commande (BT-13). Une seule suffit ; la règle est satisfaite dès que l'un des deux éléments est présent.",
+      "causes": [
+        "L'acheteur n'a fourni ni référence ni numéro de commande, donc rien n'a été renseigné.",
+        "Le numéro de commande figure dans une note libre au lieu du champ prévu.",
+        "Le logiciel ne remplit la référence acheteur que pour les acheteurs publics et l'omet pour les clients privés."
+      ],
+      "fix": [
+        "Demandez à l'acheteur quelle référence il attend sur la facture (son numéro de commande, un centre de coûts ou, pour un acheteur public allemand, le Leitweg-ID).",
+        "Indiquez-la dans cbc:BuyerReference, ou le numéro de commande dans cac:OrderReference/cbc:ID (UBL). En CII, utilisez ram:BuyerReference ou ram:BuyerOrderReferencedDocument/ram:IssuerAssignedID dans ram:ApplicableHeaderTradeAgreement.",
+        "Si l'acheteur n'a vraiment aucune référence, convenez d'une valeur avec lui plutôt que d'en inventer une."
+      ]
+    },
+    "ubl": "<cbc:BuyerReference>PO-2026-0815</cbc:BuyerReference>\n<cac:OrderReference>\n  <cbc:ID>PO-2026-0815</cbc:ID>\n</cac:OrderReference>",
+    "cii": "<ram:ApplicableHeaderTradeAgreement>\n  <ram:BuyerReference>PO-2026-0815</ram:BuyerReference>\n  <ram:SellerTradeParty><!-- seller, unchanged --></ram:SellerTradeParty>\n  <ram:BuyerTradeParty><!-- buyer, unchanged --></ram:BuyerTradeParty>\n  <ram:BuyerOrderReferencedDocument>\n    <ram:IssuerAssignedID>PO-2026-0815</ram:IssuerAssignedID>\n  </ram:BuyerOrderReferencedDocument>\n</ram:ApplicableHeaderTradeAgreement>"
+  },
+  {
+    "id": "PEPPOL-EN16931-R004",
+    "source": "peppol",
+    "terms": [
+      "BT-24"
+    ],
+    "en": {
+      "title": "Specification identifier is not the Peppol BIS Billing 3.0 one",
+      "meaning": "The Specification identifier (BT-24, cbc:CustomizationID in UBL) must begin with urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0 and must not contain a double colon (::). It tells the receiver which rule set the invoice follows.",
+      "causes": [
+        "The file is an XRechnung or a plain EN 16931 invoice (a different identifier) but is being checked as Peppol BIS.",
+        "A typo, an older version number, or extra spaces or characters at the start of the value.",
+        "A double colon slipped into the value, for example billing::3.0."
+      ],
+      "fix": [
+        "Set cbc:CustomizationID (UBL) or ram:GuidelineSpecifiedDocumentContextParameter/ram:ID (CII) to urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0.",
+        "Copy the value exactly; the check compares the start of the text character by character.",
+        "If you meant to send an XRechnung, keep its own identifier and validate the file against the XRechnung rules instead."
+      ]
+    },
+    "de": {
+      "title": "Spezifikationskennung ist nicht die von Peppol BIS Billing 3.0",
+      "meaning": "Die Spezifikationskennung (BT-24, in UBL cbc:CustomizationID) muss mit urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0 beginnen und darf keinen doppelten Doppelpunkt (::) enthalten. Sie sagt dem Empfänger, nach welchem Regelwerk die Rechnung erstellt ist.",
+      "causes": [
+        "Die Datei ist eine XRechnung oder eine reine EN-16931-Rechnung (mit anderer Kennung), wird aber als Peppol BIS geprüft.",
+        "Ein Tippfehler, eine ältere Versionsnummer oder zusätzliche Leerzeichen bzw. Zeichen am Anfang des Werts.",
+        "Im Wert steht ein doppelter Doppelpunkt, zum Beispiel billing::3.0."
+      ],
+      "fix": [
+        "Setzen Sie cbc:CustomizationID (UBL) bzw. ram:GuidelineSpecifiedDocumentContextParameter/ram:ID (CII) auf urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0.",
+        "Übernehmen Sie den Wert exakt; die Prüfung vergleicht den Anfang des Textes Zeichen für Zeichen.",
+        "Wollten Sie eine XRechnung senden, behalten Sie deren eigene Kennung und prüfen die Datei stattdessen gegen die XRechnung-Regeln."
+      ]
+    },
+    "fr": {
+      "title": "L'identifiant de spécification n'est pas celui de Peppol BIS Billing 3.0",
+      "meaning": "L'identifiant de spécification (BT-24, cbc:CustomizationID en UBL) doit commencer par urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0 et ne doit pas contenir de double deux-points (::). Il indique au destinataire quel jeu de règles suit la facture.",
+      "causes": [
+        "Le fichier est une XRechnung ou une facture EN 16931 simple (avec un autre identifiant) mais il est contrôlé comme Peppol BIS.",
+        "Une faute de frappe, un ancien numéro de version, ou des espaces ou caractères en trop au début de la valeur.",
+        "Un double deux-points s'est glissé dans la valeur, par exemple billing::3.0."
+      ],
+      "fix": [
+        "Renseignez cbc:CustomizationID (UBL) ou ram:GuidelineSpecifiedDocumentContextParameter/ram:ID (CII) avec urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0.",
+        "Recopiez la valeur à l'identique : le contrôle compare le début du texte caractère par caractère.",
+        "Si vous vouliez envoyer une XRechnung, gardez son propre identifiant et validez plutôt le fichier avec les règles XRechnung."
+      ]
+    },
+    "ubl": "<cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0</cbc:CustomizationID>",
+    "cii": "<rsm:ExchangedDocumentContext>\n  <ram:BusinessProcessSpecifiedDocumentContextParameter>\n    <ram:ID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</ram:ID>\n  </ram:BusinessProcessSpecifiedDocumentContextParameter>\n  <ram:GuidelineSpecifiedDocumentContextParameter>\n    <ram:ID>urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0</ram:ID>\n  </ram:GuidelineSpecifiedDocumentContextParameter>\n</rsm:ExchangedDocumentContext>"
+  },
+  {
+    "id": "PEPPOL-EN16931-R007",
+    "source": "peppol",
+    "terms": [
+      "BT-23"
+    ],
+    "en": {
+      "title": "Business process identifier is not an approved value",
+      "meaning": "The Business process type (BT-23) must be one of the values Peppol has approved. In this rule set that is urn:fdc:peppol.eu:2017:poacc:billing:01:1.0 or urn:peppol:bis:billing_with_response; the UBL rules also accept the French profiles urn:peppol:france:billing:regulated and urn:peppol:france:billing:non-regulated. Any other text fails, and so does a missing value.",
+      "causes": [
+        "A value from another standard was used, for example an XRechnung or Factur-X profile.",
+        "A typo or a changed version number in the identifier.",
+        "A placeholder such as \"billing\" or the specification identifier (BT-24) was copied into the profile field."
+      ],
+      "fix": [
+        "Set cbc:ProfileID (UBL) or ram:BusinessProcessSpecifiedDocumentContextParameter/ram:ID (CII) to urn:fdc:peppol.eu:2017:poacc:billing:01:1.0, the usual value.",
+        "Use urn:peppol:bis:billing_with_response only if you and the receiver use the invoice response process.",
+        "Copy the value exactly; spaces at the ends are ignored but any other difference fails."
+      ]
+    },
+    "de": {
+      "title": "Geschäftsprozess-Kennung ist kein zugelassener Wert",
+      "meaning": "Der Geschäftsprozess (BT-23) muss einer der von Peppol zugelassenen Werte sein. In diesem Regelwerk sind das urn:fdc:peppol.eu:2017:poacc:billing:01:1.0 oder urn:peppol:bis:billing_with_response; die UBL-Regeln akzeptieren außerdem die französischen Profile urn:peppol:france:billing:regulated und urn:peppol:france:billing:non-regulated. Jeder andere Text schlägt fehl, ebenso ein fehlender Wert.",
+      "causes": [
+        "Es wurde ein Wert aus einem anderen Standard verwendet, etwa ein XRechnung- oder Factur-X-Profil.",
+        "Ein Tippfehler oder eine geänderte Versionsnummer in der Kennung.",
+        "Ein Platzhalter wie „billing“ oder die Spezifikationskennung (BT-24) wurde in das Profilfeld kopiert."
+      ],
+      "fix": [
+        "Setzen Sie cbc:ProfileID (UBL) bzw. ram:BusinessProcessSpecifiedDocumentContextParameter/ram:ID (CII) auf den üblichen Wert urn:fdc:peppol.eu:2017:poacc:billing:01:1.0.",
+        "Verwenden Sie urn:peppol:bis:billing_with_response nur, wenn Sie und der Empfänger den Prozess mit Rechnungsantwort nutzen.",
+        "Übernehmen Sie den Wert exakt; Leerzeichen am Anfang und Ende werden ignoriert, jede andere Abweichung nicht."
+      ]
+    },
+    "fr": {
+      "title": "L'identifiant de processus métier n'est pas une valeur approuvée",
+      "meaning": "Le type de processus métier (BT-23) doit être l'une des valeurs approuvées par Peppol. Dans ce jeu de règles, ce sont urn:fdc:peppol.eu:2017:poacc:billing:01:1.0 ou urn:peppol:bis:billing_with_response ; les règles UBL acceptent aussi les profils français urn:peppol:france:billing:regulated et urn:peppol:france:billing:non-regulated. Tout autre texte échoue, de même qu'une valeur absente.",
+      "causes": [
+        "Une valeur issue d'une autre norme a été utilisée, par exemple un profil XRechnung ou Factur-X.",
+        "Une faute de frappe ou un numéro de version modifié dans l'identifiant.",
+        "Une valeur provisoire comme « billing » ou l'identifiant de spécification (BT-24) a été copié dans le champ de profil."
+      ],
+      "fix": [
+        "Renseignez cbc:ProfileID (UBL) ou ram:BusinessProcessSpecifiedDocumentContextParameter/ram:ID (CII) avec la valeur habituelle urn:fdc:peppol.eu:2017:poacc:billing:01:1.0.",
+        "N'utilisez urn:peppol:bis:billing_with_response que si vous et le destinataire utilisez le processus avec réponse à la facture.",
+        "Recopiez la valeur à l'identique ; les espaces en début et fin sont ignorés, toute autre différence fait échouer le contrôle."
+      ]
+    },
+    "ubl": "<cbc:ProfileID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</cbc:ProfileID>",
+    "cii": "<ram:BusinessProcessSpecifiedDocumentContextParameter>\n  <ram:ID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</ram:ID>\n</ram:BusinessProcessSpecifiedDocumentContextParameter>"
+  },
+  {
+    "id": "PEPPOL-EN16931-R008",
+    "source": "peppol",
+    "terms": [],
+    "en": {
+      "title": "The document contains an empty element",
+      "meaning": "Peppol does not allow empty elements anywhere in a UBL invoice: every element must have either child elements or some text. An element that holds only spaces, or only attributes such as a currency or scheme, also counts as empty. If a value is unknown, the element must be left out entirely.",
+      "causes": [
+        "The software writes every field of its template, including ones with no value, such as <cbc:Note/> or <cbc:AccountingCost></cbc:AccountingCost>.",
+        "An element was given an attribute but no value, for example an endpoint with a schemeID and no address.",
+        "A field contains only spaces or line breaks."
+      ],
+      "fix": [
+        "Find the empty element(s) named in the validation report and remove them, or fill them with the real value.",
+        "Set your export to leave out optional fields that have no value instead of writing them empty.",
+        "Check elements that carry attributes too: an element with a schemeID or currencyID still needs a value."
+      ]
+    },
+    "de": {
+      "title": "Das Dokument enthält ein leeres Element",
+      "meaning": "Peppol erlaubt in einer UBL-Rechnung nirgends leere Elemente: Jedes Element muss entweder Unterelemente oder Text enthalten. Ein Element, das nur Leerzeichen oder nur Attribute wie eine Währung oder ein Schema enthält, gilt ebenfalls als leer. Ist ein Wert unbekannt, muss das Element ganz entfallen.",
+      "causes": [
+        "Die Software schreibt alle Felder ihrer Vorlage, auch solche ohne Wert, etwa <cbc:Note/> oder <cbc:AccountingCost></cbc:AccountingCost>.",
+        "Ein Element hat ein Attribut, aber keinen Wert, zum Beispiel eine elektronische Adresse mit schemeID, aber ohne Adresse.",
+        "Ein Feld enthält nur Leerzeichen oder Zeilenumbrüche."
+      ],
+      "fix": [
+        "Suchen Sie das bzw. die im Prüfbericht genannten leeren Elemente und entfernen Sie sie oder füllen Sie sie mit dem richtigen Wert.",
+        "Stellen Sie den Export so ein, dass optionale Felder ohne Wert weggelassen statt leer geschrieben werden.",
+        "Prüfen Sie auch Elemente mit Attributen: Ein Element mit schemeID oder currencyID braucht trotzdem einen Wert."
+      ]
+    },
+    "fr": {
+      "title": "Le document contient un élément vide",
+      "meaning": "Peppol n'admet aucun élément vide dans une facture UBL : chaque élément doit contenir soit des sous-éléments, soit du texte. Un élément qui ne contient que des espaces, ou seulement des attributs comme une devise ou un schéma, est aussi considéré comme vide. Si une valeur est inconnue, il faut omettre l'élément entièrement.",
+      "causes": [
+        "Le logiciel écrit tous les champs de son modèle, même ceux sans valeur, par exemple <cbc:Note/> ou <cbc:AccountingCost></cbc:AccountingCost>.",
+        "Un élément a reçu un attribut mais pas de valeur, par exemple une adresse électronique avec schemeID mais sans adresse.",
+        "Un champ ne contient que des espaces ou des sauts de ligne."
+      ],
+      "fix": [
+        "Repérez le ou les éléments vides indiqués dans le rapport de validation et supprimez-les, ou renseignez la vraie valeur.",
+        "Paramétrez l'export pour omettre les champs facultatifs sans valeur au lieu de les écrire vides.",
+        "Vérifiez aussi les éléments porteurs d'attributs : un élément avec schemeID ou currencyID doit quand même avoir une valeur."
+      ]
+    },
+    "ubl": "<cbc:Note>Thank you for your order.</cbc:Note>\n<cbc:DocumentCurrencyCode>EUR</cbc:DocumentCurrencyCode>"
+  },
+  {
+    "id": "PEPPOL-EN16931-R010",
+    "source": "peppol",
+    "terms": [
+      "BT-49"
+    ],
+    "en": {
+      "title": "Buyer electronic address is missing",
+      "meaning": "Peppol requires the Buyer electronic address (BT-49): the buyer's Peppol endpoint, the address the network delivers the invoice to. In UBL it is cbc:EndpointID in the buyer party, with a schemeID from the Peppol EAS code list; in CII it is ram:URIUniversalCommunication/ram:URIID in ram:BuyerTradeParty.",
+      "causes": [
+        "The software does not export the buyer's endpoint because it is optional in plain EN 16931.",
+        "The buyer's e-mail address or a customer number was put elsewhere and no endpoint was entered.",
+        "The customer record in the software has no Peppol ID yet."
+      ],
+      "fix": [
+        "Ask the buyer for its Peppol participant ID, or look it up in the Peppol directory. It has two parts: a scheme code and the identifier, for example 0204 with a Leitweg-ID or 9930 with a German VAT number.",
+        "Add it as the first element of the buyer party: cbc:EndpointID with the scheme code in schemeID (UBL), or ram:URIUniversalCommunication/ram:URIID with schemeID (CII).",
+        "Use only scheme codes from the EAS list; other Peppol rules reject unknown codes."
+      ]
+    },
+    "de": {
+      "title": "Elektronische Adresse des Käufers fehlt",
+      "meaning": "Peppol verlangt die elektronische Adresse des Käufers (BT-49): seinen Peppol-Endpunkt, an den das Netz die Rechnung zustellt. In UBL ist das cbc:EndpointID in der Käuferpartei mit einer schemeID aus der Peppol-EAS-Codeliste; in CII ram:URIUniversalCommunication/ram:URIID in ram:BuyerTradeParty.",
+      "causes": [
+        "Die Software exportiert den Endpunkt des Käufers nicht, weil er im reinen EN 16931 optional ist.",
+        "Die E-Mail-Adresse oder eine Kundennummer des Käufers steht an anderer Stelle, ein Endpunkt wurde nicht erfasst.",
+        "Im Kundenstamm der Software ist noch keine Peppol-ID hinterlegt."
+      ],
+      "fix": [
+        "Fragen Sie den Käufer nach seiner Peppol-Teilnehmer-ID oder suchen Sie sie im Peppol-Verzeichnis. Sie besteht aus einem Schema-Code und der Kennung, zum Beispiel 0204 mit einer Leitweg-ID oder 9930 mit einer deutschen USt-IdNr.",
+        "Tragen Sie sie als erstes Element der Käuferpartei ein: cbc:EndpointID mit dem Schema-Code in schemeID (UBL) bzw. ram:URIUniversalCommunication/ram:URIID mit schemeID (CII).",
+        "Verwenden Sie nur Schema-Codes aus der EAS-Liste; andere Peppol-Regeln lehnen unbekannte Codes ab."
+      ]
+    },
+    "fr": {
+      "title": "L'adresse électronique de l'acheteur est absente",
+      "meaning": "Peppol exige l'adresse électronique de l'acheteur (BT-49) : son point de terminaison Peppol, l'adresse à laquelle le réseau remet la facture. En UBL c'est cbc:EndpointID dans la partie acheteur, avec un schemeID de la liste de codes EAS de Peppol ; en CII, ram:URIUniversalCommunication/ram:URIID dans ram:BuyerTradeParty.",
+      "causes": [
+        "Le logiciel n'exporte pas le point de terminaison de l'acheteur, facultatif dans la norme EN 16931 simple.",
+        "L'adresse e-mail ou un numéro client de l'acheteur figure ailleurs et aucun point de terminaison n'a été saisi.",
+        "La fiche client du logiciel ne contient pas encore d'identifiant Peppol."
+      ],
+      "fix": [
+        "Demandez à l'acheteur son identifiant de participant Peppol, ou cherchez-le dans l'annuaire Peppol. Il comporte un code de schéma et l'identifiant, par exemple 0204 avec un Leitweg-ID ou 9930 avec un numéro de TVA allemand.",
+        "Ajoutez-le en premier élément de la partie acheteur : cbc:EndpointID avec le code de schéma dans schemeID (UBL), ou ram:URIUniversalCommunication/ram:URIID avec schemeID (CII).",
+        "N'utilisez que des codes de schéma de la liste EAS ; d'autres règles Peppol rejettent les codes inconnus."
+      ]
+    },
+    "ubl": "<cac:AccountingCustomerParty>\n  <cac:Party>\n    <cbc:EndpointID schemeID=\"0204\">04011000-12345-34</cbc:EndpointID>\n    <cac:PartyName>\n      <cbc:Name>Example Buyer GmbH</cbc:Name>\n    </cac:PartyName>\n  </cac:Party>\n</cac:AccountingCustomerParty>",
+    "cii": "<ram:BuyerTradeParty>\n  <ram:Name>Example Buyer GmbH</ram:Name>\n  <ram:URIUniversalCommunication>\n    <ram:URIID schemeID=\"0204\">04011000-12345-34</ram:URIID>\n  </ram:URIUniversalCommunication>\n</ram:BuyerTradeParty>"
+  },
+  {
+    "id": "PEPPOL-EN16931-R020",
+    "source": "peppol",
+    "terms": [
+      "BT-34"
+    ],
+    "en": {
+      "title": "Seller electronic address is missing",
+      "meaning": "Peppol requires the Seller electronic address (BT-34): your own Peppol endpoint, so the buyer and the network know where the invoice comes from and where to send responses. In UBL it is cbc:EndpointID in the seller party, with a schemeID from the Peppol EAS code list; in CII it is ram:URIUniversalCommunication/ram:URIID in ram:SellerTradeParty.",
+      "causes": [
+        "Your company settings in the invoicing software have no Peppol ID filled in.",
+        "The software does not export the seller endpoint because it is optional in plain EN 16931.",
+        "Your Peppol ID was only configured at the access point provider and never written into the invoice."
+      ],
+      "fix": [
+        "Find your Peppol participant ID (your access point provider registered it); it is a scheme code plus an identifier, for example 9930 with your German VAT number or 0088 with your GLN.",
+        "Add it as the first element of the seller party: cbc:EndpointID with schemeID (UBL), or ram:URIUniversalCommunication/ram:URIID with schemeID (CII).",
+        "Store it in your company settings so every invoice carries it."
+      ]
+    },
+    "de": {
+      "title": "Elektronische Adresse des Verkäufers fehlt",
+      "meaning": "Peppol verlangt die elektronische Adresse des Verkäufers (BT-34): Ihren eigenen Peppol-Endpunkt, damit Käufer und Netz wissen, woher die Rechnung kommt und wohin Antworten gehen. In UBL ist das cbc:EndpointID in der Verkäuferpartei mit einer schemeID aus der Peppol-EAS-Codeliste; in CII ram:URIUniversalCommunication/ram:URIID in ram:SellerTradeParty.",
+      "causes": [
+        "In den Firmendaten der Rechnungssoftware ist keine Peppol-ID eingetragen.",
+        "Die Software exportiert den Endpunkt des Verkäufers nicht, weil er im reinen EN 16931 optional ist.",
+        "Ihre Peppol-ID ist nur beim Access-Point-Anbieter hinterlegt und wird nicht in die Rechnung geschrieben."
+      ],
+      "fix": [
+        "Ermitteln Sie Ihre Peppol-Teilnehmer-ID (Ihr Access-Point-Anbieter hat sie registriert); sie besteht aus Schema-Code und Kennung, zum Beispiel 9930 mit Ihrer deutschen USt-IdNr. oder 0088 mit Ihrer GLN.",
+        "Tragen Sie sie als erstes Element der Verkäuferpartei ein: cbc:EndpointID mit schemeID (UBL) bzw. ram:URIUniversalCommunication/ram:URIID mit schemeID (CII).",
+        "Hinterlegen Sie sie in den Firmendaten, damit jede Rechnung sie enthält."
+      ]
+    },
+    "fr": {
+      "title": "L'adresse électronique du vendeur est absente",
+      "meaning": "Peppol exige l'adresse électronique du vendeur (BT-34) : votre propre point de terminaison Peppol, pour que l'acheteur et le réseau sachent d'où vient la facture et où envoyer les réponses. En UBL c'est cbc:EndpointID dans la partie vendeur, avec un schemeID de la liste de codes EAS de Peppol ; en CII, ram:URIUniversalCommunication/ram:URIID dans ram:SellerTradeParty.",
+      "causes": [
+        "Les paramètres de votre entreprise dans le logiciel de facturation ne contiennent pas d'identifiant Peppol.",
+        "Le logiciel n'exporte pas le point de terminaison du vendeur, facultatif dans la norme EN 16931 simple.",
+        "Votre identifiant Peppol n'est configuré que chez votre fournisseur de point d'accès et n'est jamais écrit dans la facture."
+      ],
+      "fix": [
+        "Retrouvez votre identifiant de participant Peppol (enregistré par votre fournisseur de point d'accès) ; il comporte un code de schéma et un identifiant, par exemple 9930 avec votre numéro de TVA allemand ou 0088 avec votre GLN.",
+        "Ajoutez-le en premier élément de la partie vendeur : cbc:EndpointID avec schemeID (UBL), ou ram:URIUniversalCommunication/ram:URIID avec schemeID (CII).",
+        "Enregistrez-le dans les paramètres de l'entreprise pour que chaque facture le contienne."
+      ]
+    },
+    "ubl": "<cac:AccountingSupplierParty>\n  <cac:Party>\n    <cbc:EndpointID schemeID=\"9930\">DE123456789</cbc:EndpointID>\n    <cac:PartyName>\n      <cbc:Name>Example Seller GmbH</cbc:Name>\n    </cac:PartyName>\n  </cac:Party>\n</cac:AccountingSupplierParty>",
+    "cii": "<ram:SellerTradeParty>\n  <ram:Name>Example Seller GmbH</ram:Name>\n  <ram:URIUniversalCommunication>\n    <ram:URIID schemeID=\"9930\">DE123456789</ram:URIID>\n  </ram:URIUniversalCommunication>\n</ram:SellerTradeParty>"
+  },
+  {
+    "id": "PEPPOL-EN16931-R046",
+    "source": "peppol",
+    "terms": [
+      "BT-146",
+      "BT-147",
+      "BT-148"
+    ],
+    "en": {
+      "title": "Item net price does not equal gross price minus price discount",
+      "meaning": "When a line gives a gross price (BT-148, cbc:BaseAmount in the price's allowance), the net price (BT-146, cbc:PriceAmount) must be exactly the gross price minus the price discount (BT-147, cbc:Amount). There is no rounding tolerance. If no gross price is given, the rule does not apply.",
+      "causes": [
+        "The net price was rounded to fewer decimals than the gross price and discount produce, for example 8.33 against 9.99 - 1.665.",
+        "The discount is a percentage and the software filled in the percentage, or the discount per line total, instead of the amount per unit.",
+        "The gross and net prices were swapped, or the net price already includes another discount."
+      ],
+      "fix": [
+        "Make cbc:PriceAmount = cbc:BaseAmount - cbc:Amount exactly, using the same decimals in all three.",
+        "Give the discount as an amount per price unit (the same unit as the price), not as a line total or a percentage.",
+        "If you do not need to show the gross price, remove the price allowance and give only the net price."
+      ]
+    },
+    "de": {
+      "title": "Artikel-Nettopreis ist nicht Bruttopreis minus Preisnachlass",
+      "meaning": "Wird in einer Position ein Bruttopreis angegeben (BT-148, cbc:BaseAmount im Preisnachlass), muss der Nettopreis (BT-146, cbc:PriceAmount) genau dem Bruttopreis minus dem Preisnachlass (BT-147, cbc:Amount) entsprechen. Eine Rundungstoleranz gibt es nicht. Ohne Bruttopreis greift die Regel nicht.",
+      "causes": [
+        "Der Nettopreis wurde auf weniger Nachkommastellen gerundet, als Bruttopreis und Nachlass ergeben, etwa 8,33 gegenüber 9,99 - 1,665.",
+        "Der Nachlass ist prozentual, und die Software hat den Prozentsatz oder den Nachlass auf die ganze Position eingetragen statt des Betrags je Einheit.",
+        "Brutto- und Nettopreis wurden vertauscht, oder der Nettopreis enthält bereits einen weiteren Nachlass."
+      ],
+      "fix": [
+        "Sorgen Sie für cbc:PriceAmount = cbc:BaseAmount - cbc:Amount, exakt und mit denselben Nachkommastellen in allen drei Werten.",
+        "Geben Sie den Nachlass als Betrag je Preiseinheit an (dieselbe Einheit wie der Preis), nicht als Positionssumme oder Prozentsatz.",
+        "Müssen Sie den Bruttopreis nicht zeigen, entfernen Sie den Preisnachlass und geben nur den Nettopreis an."
+      ]
+    },
+    "fr": {
+      "title": "Le prix net de l'article n'est pas égal au prix brut moins la remise",
+      "meaning": "Quand une ligne indique un prix brut (BT-148, cbc:BaseAmount dans la remise sur prix), le prix net (BT-146, cbc:PriceAmount) doit être exactement égal au prix brut moins la remise sur prix (BT-147, cbc:Amount). Aucune tolérance d'arrondi n'est admise. Sans prix brut, la règle ne s'applique pas.",
+      "causes": [
+        "Le prix net a été arrondi à moins de décimales que n'en donnent le prix brut et la remise, par exemple 8,33 contre 9,99 - 1,665.",
+        "La remise est en pourcentage et le logiciel a inscrit le pourcentage, ou la remise sur toute la ligne, au lieu du montant par unité.",
+        "Les prix brut et net ont été inversés, ou le prix net inclut déjà une autre remise."
+      ],
+      "fix": [
+        "Faites en sorte que cbc:PriceAmount = cbc:BaseAmount - cbc:Amount exactement, avec les mêmes décimales dans les trois valeurs.",
+        "Indiquez la remise comme un montant par unité de prix (la même unité que le prix), pas comme un total de ligne ni un pourcentage.",
+        "Si vous n'avez pas besoin d'afficher le prix brut, supprimez la remise sur prix et n'indiquez que le prix net."
+      ]
+    },
+    "ubl": "<cac:Price>\n  <cbc:PriceAmount currencyID=\"EUR\">90.00</cbc:PriceAmount>\n  <cbc:BaseQuantity unitCode=\"C62\">1</cbc:BaseQuantity>\n  <cac:AllowanceCharge>\n    <cbc:ChargeIndicator>false</cbc:ChargeIndicator>\n    <cbc:Amount currencyID=\"EUR\">10.00</cbc:Amount>\n    <cbc:BaseAmount currencyID=\"EUR\">100.00</cbc:BaseAmount>\n  </cac:AllowanceCharge>\n</cac:Price>"
+  },
+  {
+    "id": "PEPPOL-EN16931-R051",
+    "source": "peppol",
+    "terms": [
+      "BT-5",
+      "BT-111"
+    ],
+    "en": {
+      "title": "An amount uses a different currency from the invoice currency",
+      "meaning": "Every amount in the invoice (prices, line amounts, allowances and charges, VAT amounts and the document totals) must carry a currencyID equal to the Invoice currency code (BT-5, cbc:DocumentCurrencyCode). The only exception is the VAT total in accounting currency (BT-111): a second cac:TaxTotal that has no tax subtotals.",
+      "causes": [
+        "The invoice is in one currency but some amounts were written with your home currency, for example USD invoice with EUR on the VAT amounts.",
+        "The VAT total in accounting currency was written inside the main tax total or with tax subtotals, so it is no longer treated as BT-111.",
+        "A typo or lower-case code in one currencyID, such as eur or EURO."
+      ],
+      "fix": [
+        "Set currencyID on every amount to the value of cbc:DocumentCurrencyCode, exactly as written there.",
+        "If you must state VAT in your accounting currency, set cbc:TaxCurrencyCode and add a separate cac:TaxTotal with only cbc:TaxAmount in that currency, no cac:TaxSubtotal.",
+        "Search the file for currencyID= and check each value."
+      ]
+    },
+    "de": {
+      "title": "Ein Betrag hat eine andere Währung als die Rechnungswährung",
+      "meaning": "Jeder Betrag in der Rechnung (Preise, Positionsbeträge, Zu- und Abschläge, Umsatzsteuerbeträge und Gesamtsummen) muss eine currencyID tragen, die dem Code der Rechnungswährung (BT-5, cbc:DocumentCurrencyCode) entspricht. Einzige Ausnahme ist der Umsatzsteuer-Gesamtbetrag in Buchungswährung (BT-111): ein zweites cac:TaxTotal ohne Steueraufschlüsselung.",
+      "causes": [
+        "Die Rechnung lautet auf eine Währung, aber einige Beträge wurden in der Hauswährung geschrieben, etwa eine USD-Rechnung mit EUR bei den Steuerbeträgen.",
+        "Der Steuerbetrag in Buchungswährung steht im Haupt-TaxTotal oder hat eine Steueraufschlüsselung und gilt deshalb nicht mehr als BT-111.",
+        "Ein Tippfehler oder Kleinbuchstaben in einer currencyID, etwa eur oder EURO."
+      ],
+      "fix": [
+        "Setzen Sie currencyID bei jedem Betrag auf den Wert von cbc:DocumentCurrencyCode, genau so geschrieben.",
+        "Müssen Sie die Umsatzsteuer in Buchungswährung angeben, setzen Sie cbc:TaxCurrencyCode und fügen ein eigenes cac:TaxTotal nur mit cbc:TaxAmount in dieser Währung hinzu, ohne cac:TaxSubtotal.",
+        "Durchsuchen Sie die Datei nach currencyID= und prüfen Sie jeden Wert."
+      ]
+    },
+    "fr": {
+      "title": "Un montant est dans une autre devise que celle de la facture",
+      "meaning": "Chaque montant de la facture (prix, montants de ligne, remises et frais, montants de TVA et totaux) doit porter un currencyID égal au code de devise de la facture (BT-5, cbc:DocumentCurrencyCode). Seule exception : le total de TVA en devise de comptabilité (BT-111), c'est-à-dire un second cac:TaxTotal sans ventilation de TVA.",
+      "causes": [
+        "La facture est dans une devise mais certains montants ont été écrits dans votre devise nationale, par exemple une facture en USD avec des montants de TVA en EUR.",
+        "Le total de TVA en devise de comptabilité figure dans le cac:TaxTotal principal ou avec une ventilation, il n'est donc plus traité comme BT-111.",
+        "Une faute de frappe ou des minuscules dans un currencyID, comme eur ou EURO."
+      ],
+      "fix": [
+        "Mettez sur chaque montant un currencyID identique à la valeur de cbc:DocumentCurrencyCode, écrite de la même façon.",
+        "Si vous devez indiquer la TVA dans votre devise de comptabilité, renseignez cbc:TaxCurrencyCode et ajoutez un cac:TaxTotal distinct ne contenant que cbc:TaxAmount dans cette devise, sans cac:TaxSubtotal.",
+        "Cherchez currencyID= dans le fichier et vérifiez chaque valeur."
+      ]
+    },
+    "ubl": "<cbc:DocumentCurrencyCode>USD</cbc:DocumentCurrencyCode>\n<cbc:TaxCurrencyCode>EUR</cbc:TaxCurrencyCode>\n<!-- parties, lines and other elements unchanged -->\n<cac:TaxTotal>\n  <cbc:TaxAmount currencyID=\"USD\">19.00</cbc:TaxAmount>\n  <cac:TaxSubtotal>\n    <cbc:TaxableAmount currencyID=\"USD\">100.00</cbc:TaxableAmount>\n    <cbc:TaxAmount currencyID=\"USD\">19.00</cbc:TaxAmount>\n    <cac:TaxCategory>\n      <cbc:ID>S</cbc:ID>\n      <cbc:Percent>19</cbc:Percent>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:TaxCategory>\n  </cac:TaxSubtotal>\n</cac:TaxTotal>\n<cac:TaxTotal>\n  <cbc:TaxAmount currencyID=\"EUR\">17.48</cbc:TaxAmount>\n</cac:TaxTotal>"
+  },
+  {
+    "id": "PEPPOL-EN16931-R053",
+    "source": "peppol",
+    "terms": [
+      "BT-110",
+      "BG-23"
+    ],
+    "en": {
+      "title": "There must be exactly one VAT total with VAT breakdown",
+      "meaning": "In UBL the invoice must contain exactly one cac:TaxTotal that has cac:TaxSubtotal children (the VAT total, BT-110, with its breakdown, BG-23); none or two or more fail. A second cac:TaxTotal is allowed only without subtotals, for the VAT total in accounting currency. The CII version checks that exactly one ram:TaxTotalAmount in the invoice currency appears in the document totals.",
+      "causes": [
+        "One cac:TaxTotal was written per VAT rate instead of one cac:TaxTotal with several cac:TaxSubtotal entries.",
+        "The VAT total in accounting currency was also given tax subtotals.",
+        "The VAT total is missing completely, for example on an invoice with only exempt items (CII: ram:TaxTotalAmount missing or written twice in the invoice currency)."
+      ],
+      "fix": [
+        "Write a single cac:TaxTotal with the total cbc:TaxAmount and one cac:TaxSubtotal per VAT category and rate.",
+        "Keep it even when VAT is zero: TaxAmount 0.00 with a subtotal for the exempt or zero-rated category.",
+        "In CII, give ram:TaxTotalAmount once in the invoice currency in ram:SpecifiedTradeSettlementHeaderMonetarySummation; a second one is only for the accounting currency."
+      ]
+    },
+    "de": {
+      "title": "Es muss genau eine Umsatzsteuersumme mit Aufschlüsselung geben",
+      "meaning": "In UBL muss die Rechnung genau ein cac:TaxTotal mit Unterelementen cac:TaxSubtotal enthalten (die Umsatzsteuersumme BT-110 mit ihrer Aufschlüsselung BG-23); keins oder zwei und mehr schlagen fehl. Ein zweites cac:TaxTotal ist nur ohne Aufschlüsselung erlaubt, für die Steuersumme in Buchungswährung. Die CII-Fassung prüft, dass in den Gesamtbeträgen genau ein ram:TaxTotalAmount in Rechnungswährung steht.",
+      "causes": [
+        "Für jeden Steuersatz wurde ein eigenes cac:TaxTotal geschrieben statt eines cac:TaxTotal mit mehreren cac:TaxSubtotal.",
+        "Auch die Steuersumme in Buchungswährung hat eine Aufschlüsselung erhalten.",
+        "Die Umsatzsteuersumme fehlt ganz, etwa bei einer Rechnung nur mit steuerbefreiten Positionen (CII: ram:TaxTotalAmount fehlt oder steht zweimal in Rechnungswährung)."
+      ],
+      "fix": [
+        "Schreiben Sie ein einziges cac:TaxTotal mit dem Gesamtbetrag in cbc:TaxAmount und je einem cac:TaxSubtotal pro Steuerkategorie und Steuersatz.",
+        "Behalten Sie es auch bei null Umsatzsteuer: TaxAmount 0.00 mit einer Aufschlüsselung für die befreite oder mit 0 % besteuerte Kategorie.",
+        "In CII geben Sie ram:TaxTotalAmount einmal in Rechnungswährung in ram:SpecifiedTradeSettlementHeaderMonetarySummation an; ein zweiter ist nur für die Buchungswährung gedacht."
+      ]
+    },
+    "fr": {
+      "title": "Il faut exactement un total de TVA avec ventilation",
+      "meaning": "En UBL, la facture doit contenir exactement un cac:TaxTotal comportant des cac:TaxSubtotal (le total de TVA BT-110 et sa ventilation BG-23) ; aucun, ou deux et plus, font échouer la règle. Un second cac:TaxTotal n'est admis que sans ventilation, pour le total de TVA en devise de comptabilité. La version CII vérifie qu'un seul ram:TaxTotalAmount dans la devise de la facture figure dans les totaux du document.",
+      "causes": [
+        "Un cac:TaxTotal a été écrit par taux de TVA au lieu d'un seul cac:TaxTotal avec plusieurs cac:TaxSubtotal.",
+        "Le total de TVA en devise de comptabilité a lui aussi reçu une ventilation.",
+        "Le total de TVA manque complètement, par exemple sur une facture ne comportant que des articles exonérés (CII : ram:TaxTotalAmount absent ou présent deux fois dans la devise de la facture)."
+      ],
+      "fix": [
+        "Écrivez un seul cac:TaxTotal avec le montant total dans cbc:TaxAmount et un cac:TaxSubtotal par catégorie et taux de TVA.",
+        "Gardez-le même quand la TVA est nulle : TaxAmount 0.00 avec une ventilation pour la catégorie exonérée ou à taux zéro.",
+        "En CII, indiquez ram:TaxTotalAmount une seule fois dans la devise de la facture dans ram:SpecifiedTradeSettlementHeaderMonetarySummation ; un second n'est prévu que pour la devise de comptabilité."
+      ]
+    },
+    "ubl": "<cac:TaxTotal>\n  <cbc:TaxAmount currencyID=\"EUR\">26.00</cbc:TaxAmount>\n  <cac:TaxSubtotal>\n    <cbc:TaxableAmount currencyID=\"EUR\">100.00</cbc:TaxableAmount>\n    <cbc:TaxAmount currencyID=\"EUR\">19.00</cbc:TaxAmount>\n    <cac:TaxCategory>\n      <cbc:ID>S</cbc:ID>\n      <cbc:Percent>19</cbc:Percent>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:TaxCategory>\n  </cac:TaxSubtotal>\n  <cac:TaxSubtotal>\n    <cbc:TaxableAmount currencyID=\"EUR\">100.00</cbc:TaxableAmount>\n    <cbc:TaxAmount currencyID=\"EUR\">7.00</cbc:TaxAmount>\n    <cac:TaxCategory>\n      <cbc:ID>S</cbc:ID>\n      <cbc:Percent>7</cbc:Percent>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:TaxCategory>\n  </cac:TaxSubtotal>\n</cac:TaxTotal>",
+    "cii": "<ram:SpecifiedTradeSettlementHeaderMonetarySummation>\n  <ram:LineTotalAmount>200.00</ram:LineTotalAmount>\n  <ram:TaxBasisTotalAmount>200.00</ram:TaxBasisTotalAmount>\n  <ram:TaxTotalAmount currencyID=\"EUR\">26.00</ram:TaxTotalAmount>\n  <ram:GrandTotalAmount>226.00</ram:GrandTotalAmount>\n  <ram:DuePayableAmount>226.00</ram:DuePayableAmount>\n</ram:SpecifiedTradeSettlementHeaderMonetarySummation>"
+  },
+  {
+    "id": "PEPPOL-EN16931-R120",
+    "source": "peppol",
+    "terms": [
+      "BT-131",
+      "BT-129",
+      "BT-146",
+      "BT-149",
+      "BT-136",
+      "BT-141"
+    ],
+    "en": {
+      "title": "Line net amount does not match quantity, price and line allowances or charges",
+      "meaning": "For each line, the net amount (BT-131) must equal quantity (BT-129) times net price (BT-146) divided by the price base quantity (BT-149), plus line charges (BT-141) minus line allowances (BT-136). A difference of up to 0.02 is tolerated. The line allowances and charges are summed and rounded to two decimals; a missing quantity or base quantity counts as 1, a missing price as 0.",
+      "causes": [
+        "The price is per 100 or per 1,000 units but the base quantity (cbc:BaseQuantity) was left out, so the checker treats it as per 1.",
+        "The net amount was computed with a more precise unit price than the one written in the file.",
+        "A line discount was taken off the price and also given as a line allowance, so it counts twice.",
+        "The quantity is negative on a credit and the price or amount sign does not follow."
+      ],
+      "fix": [
+        "Recalculate: quantity x price / base quantity + line charges - line allowances, rounded to two decimals, and write that as cbc:LineExtensionAmount.",
+        "If the price is per 100 units, give cbc:BaseQuantity 100 with the same unit code as the quantity.",
+        "Write the unit price with enough decimals that the product works out, or apply each discount only once (in the price or as a line allowance)."
+      ]
+    },
+    "de": {
+      "title": "Positions-Nettobetrag passt nicht zu Menge, Preis und Zu- oder Abschlägen",
+      "meaning": "In jeder Position muss der Nettobetrag (BT-131) gleich Menge (BT-129) mal Nettopreis (BT-146) geteilt durch die Basismenge des Preises (BT-149) plus Zuschläge (BT-141) minus Abschläge (BT-136) der Position sein. Eine Abweichung bis 0,02 wird toleriert. Die Zu- und Abschläge werden summiert und auf zwei Nachkommastellen gerundet; fehlt die Menge oder die Basismenge, zählt sie als 1, ein fehlender Preis als 0.",
+      "causes": [
+        "Der Preis gilt pro 100 oder 1.000 Stück, die Basismenge (cbc:BaseQuantity) fehlt aber, sodass die Prüfung von einem Preis pro Stück ausgeht.",
+        "Der Nettobetrag wurde mit einem genaueren Stückpreis berechnet als dem, der in der Datei steht.",
+        "Ein Positionsrabatt wurde vom Preis abgezogen und zusätzlich als Abschlag angegeben und zählt so doppelt.",
+        "Bei einer Gutschrift ist die Menge negativ, Preis oder Betrag haben aber nicht das passende Vorzeichen."
+      ],
+      "fix": [
+        "Rechnen Sie nach: Menge x Preis / Basismenge + Zuschläge - Abschläge, auf zwei Nachkommastellen gerundet, und tragen Sie das Ergebnis in cbc:LineExtensionAmount ein.",
+        "Gilt der Preis pro 100 Stück, geben Sie cbc:BaseQuantity 100 mit derselben Mengeneinheit wie bei der Menge an.",
+        "Geben Sie den Stückpreis mit so vielen Nachkommastellen an, dass die Rechnung aufgeht, oder berücksichtigen Sie jeden Rabatt nur einmal (im Preis oder als Abschlag)."
+      ]
+    },
+    "fr": {
+      "title": "Le montant net de la ligne ne correspond pas à quantité, prix et remises ou frais",
+      "meaning": "Pour chaque ligne, le montant net (BT-131) doit être égal à la quantité (BT-129) multipliée par le prix net (BT-146) divisé par la quantité de base du prix (BT-149), plus les frais de ligne (BT-141), moins les remises de ligne (BT-136). Un écart jusqu'à 0,02 est toléré. Les remises et frais de ligne sont additionnés puis arrondis à deux décimales ; une quantité ou quantité de base absente compte pour 1, un prix absent pour 0.",
+      "causes": [
+        "Le prix s'entend pour 100 ou 1 000 unités mais la quantité de base (cbc:BaseQuantity) a été omise, si bien que le contrôle le traite comme un prix unitaire.",
+        "Le montant net a été calculé avec un prix unitaire plus précis que celui écrit dans le fichier.",
+        "Une remise de ligne a été déduite du prix et aussi indiquée comme remise de ligne, elle compte donc deux fois.",
+        "Sur un avoir, la quantité est négative mais le signe du prix ou du montant ne suit pas."
+      ],
+      "fix": [
+        "Recalculez : quantité x prix / quantité de base + frais de ligne - remises de ligne, arrondi à deux décimales, et inscrivez-le dans cbc:LineExtensionAmount.",
+        "Si le prix s'entend pour 100 unités, indiquez cbc:BaseQuantity 100 avec la même unité que la quantité.",
+        "Écrivez le prix unitaire avec assez de décimales pour que le calcul tombe juste, ou n'appliquez chaque remise qu'une fois (dans le prix ou comme remise de ligne)."
+      ]
+    },
+    "ubl": "<cac:InvoiceLine>\n  <cbc:ID>1</cbc:ID>\n  <cbc:InvoicedQuantity unitCode=\"C62\">10</cbc:InvoicedQuantity>\n  <cbc:LineExtensionAmount currencyID=\"EUR\">245.00</cbc:LineExtensionAmount>\n  <cac:AllowanceCharge>\n    <cbc:ChargeIndicator>false</cbc:ChargeIndicator>\n    <cbc:AllowanceChargeReason>Discount</cbc:AllowanceChargeReason>\n    <cbc:Amount currencyID=\"EUR\">5.00</cbc:Amount>\n  </cac:AllowanceCharge>\n  <cac:Item>\n    <cbc:Name>Widget</cbc:Name>\n    <cac:ClassifiedTaxCategory>\n      <cbc:ID>S</cbc:ID>\n      <cbc:Percent>19</cbc:Percent>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:ClassifiedTaxCategory>\n  </cac:Item>\n  <cac:Price>\n    <cbc:PriceAmount currencyID=\"EUR\">25.00</cbc:PriceAmount>\n    <cbc:BaseQuantity unitCode=\"C62\">1</cbc:BaseQuantity>\n  </cac:Price>\n</cac:InvoiceLine>"
+  },
+  {
+    "id": "PEPPOL-EN16931-R121",
+    "source": "peppol",
+    "terms": [
+      "BT-149"
+    ],
+    "en": {
+      "title": "Price base quantity is zero or negative",
+      "meaning": "If a line's price gives a base quantity (BT-149, the number of units the price is for), it must be greater than zero. Leaving it out is fine: it then counts as 1. In CII the rule checks the base quantity of both the net and the gross price.",
+      "causes": [
+        "The software writes a base quantity of 0 when no price unit is set.",
+        "On a credit note or return line the minus sign was put on the base quantity instead of the quantity.",
+        "A blank field was exported as 0."
+      ],
+      "fix": [
+        "Set cbc:BaseQuantity (UBL) or ram:BasisQuantity (CII) to the number of units the price is for, usually 1.",
+        "Keep negative signs on the quantity or amount, never on the base quantity.",
+        "If the price is simply per unit, you can remove the base quantity altogether."
+      ]
+    },
+    "de": {
+      "title": "Basismenge des Preises ist null oder negativ",
+      "meaning": "Gibt der Preis einer Position eine Basismenge an (BT-149, die Anzahl Einheiten, auf die sich der Preis bezieht), muss sie größer als null sein. Weglassen ist erlaubt: Dann gilt sie als 1. In CII prüft die Regel die Basismenge sowohl beim Netto- als auch beim Bruttopreis.",
+      "causes": [
+        "Die Software schreibt eine Basismenge 0, wenn keine Preiseinheit hinterlegt ist.",
+        "Bei einer Gutschrift oder Rücksendung steht das Minuszeichen an der Basismenge statt an der Menge.",
+        "Ein leeres Feld wurde als 0 exportiert."
+      ],
+      "fix": [
+        "Setzen Sie cbc:BaseQuantity (UBL) bzw. ram:BasisQuantity (CII) auf die Anzahl Einheiten, für die der Preis gilt, meist 1.",
+        "Negative Vorzeichen gehören an die Menge oder den Betrag, nie an die Basismenge.",
+        "Gilt der Preis einfach pro Einheit, können Sie die Basismenge ganz weglassen."
+      ]
+    },
+    "fr": {
+      "title": "La quantité de base du prix est nulle ou négative",
+      "meaning": "Si le prix d'une ligne indique une quantité de base (BT-149, le nombre d'unités auquel s'applique le prix), elle doit être supérieure à zéro. L'omettre est permis : elle vaut alors 1. En CII, la règle contrôle la quantité de base du prix net comme du prix brut.",
+      "causes": [
+        "Le logiciel écrit une quantité de base de 0 lorsqu'aucune unité de prix n'est définie.",
+        "Sur un avoir ou une ligne de retour, le signe moins a été placé sur la quantité de base au lieu de la quantité.",
+        "Un champ vide a été exporté comme 0."
+      ],
+      "fix": [
+        "Renseignez cbc:BaseQuantity (UBL) ou ram:BasisQuantity (CII) avec le nombre d'unités auquel s'applique le prix, généralement 1.",
+        "Placez les signes négatifs sur la quantité ou le montant, jamais sur la quantité de base.",
+        "Si le prix est simplement unitaire, vous pouvez supprimer la quantité de base."
+      ]
+    },
+    "ubl": "<cac:Price>\n  <cbc:PriceAmount currencyID=\"EUR\">25.00</cbc:PriceAmount>\n  <cbc:BaseQuantity unitCode=\"C62\">1</cbc:BaseQuantity>\n</cac:Price>",
+    "cii": "<ram:NetPriceProductTradePrice>\n  <ram:ChargeAmount>25.00</ram:ChargeAmount>\n  <ram:BasisQuantity unitCode=\"C62\">1</ram:BasisQuantity>\n</ram:NetPriceProductTradePrice>"
+  },
+  {
+    "id": "PEPPOL-EN16931-P0112",
+    "source": "peppol",
+    "terms": [
+      "BT-3"
+    ],
+    "en": {
+      "title": "Invoice type code 326, 384 or 389 used outside the allowed countries",
+      "meaning": "The Invoice type codes 326 (partial invoice), 384 (corrected invoice) and 389 (self-billed invoice) are only allowed on Peppol when both seller and buyer are German, judged by the country code in their postal addresses. Code 384 is also allowed when both are Slovak; for that check the country is taken from the VAT number prefix (for the seller, else from the tax representative's VAT number), falling back to the postal address. Other invoices should use a code such as 380.",
+      "causes": [
+        "The software uses 326, 384 or 389 for all customers, including foreign ones.",
+        "Seller and buyer are both German, but a postal address country code is missing or not DE.",
+        "A corrected invoice (384) was sent between parties in countries other than Germany or Slovakia."
+      ],
+      "fix": [
+        "Check the postal address country codes (cac:Country/cbc:IdentificationCode) of seller and buyer; for two German parties both must be DE.",
+        "Otherwise use the commercial invoice code 380 in cbc:InvoiceTypeCode; to correct an invoice, issue a credit note and a new invoice instead of a 384.",
+        "If the transaction is self-billing or a partial invoice, ask your Peppol provider how your receiver expects it to be marked."
+      ]
+    },
+    "de": {
+      "title": "Rechnungsart 326, 384 oder 389 außerhalb der zulässigen Länder",
+      "meaning": "Die Rechnungsarten 326 (Teilrechnung), 384 (korrigierte Rechnung) und 389 (Gutschrift im Gutschriftverfahren, Selbstfakturierung) sind in Peppol nur erlaubt, wenn Verkäufer und Käufer beide deutsch sind, gemessen am Ländercode ihrer Postanschrift. Code 384 ist außerdem erlaubt, wenn beide slowakisch sind; dafür wird das Land aus dem Präfix der USt-IdNr. ermittelt (beim Verkäufer ersatzweise aus der des Steuervertreters), hilfsweise aus der Postanschrift. Andere Rechnungen sollten einen Code wie 380 verwenden.",
+      "causes": [
+        "Die Software verwendet 326, 384 oder 389 für alle Kunden, auch für ausländische.",
+        "Verkäufer und Käufer sind beide deutsch, aber ein Ländercode in der Postanschrift fehlt oder ist nicht DE.",
+        "Eine korrigierte Rechnung (384) wurde zwischen Parteien aus anderen Ländern als Deutschland oder der Slowakei verschickt."
+      ],
+      "fix": [
+        "Prüfen Sie die Ländercodes der Postanschriften (cac:Country/cbc:IdentificationCode) von Verkäufer und Käufer; bei zwei deutschen Parteien müssen beide DE sein.",
+        "Andernfalls verwenden Sie den Code 380 (Handelsrechnung) in cbc:InvoiceTypeCode; zur Korrektur stellen Sie eine Gutschrift (Rechnungskorrektur) und eine neue Rechnung aus statt einer 384.",
+        "Handelt es sich um eine Selbstfakturierung oder eine Teilrechnung, fragen Sie Ihren Peppol-Anbieter, wie der Empfänger sie gekennzeichnet haben möchte."
+      ]
+    },
+    "fr": {
+      "title": "Type de facture 326, 384 ou 389 utilisé hors des pays autorisés",
+      "meaning": "Les types de facture 326 (facture partielle), 384 (facture rectificative) et 389 (autofacturation) ne sont admis sur Peppol que si le vendeur et l'acheteur sont tous deux allemands, d'après le code pays de leur adresse postale. Le code 384 est aussi admis si les deux sont slovaques ; le pays est alors déduit du préfixe du numéro de TVA (pour le vendeur, à défaut celui du représentant fiscal), sinon de l'adresse postale. Les autres factures doivent utiliser un code comme 380.",
+      "causes": [
+        "Le logiciel utilise 326, 384 ou 389 pour tous les clients, y compris étrangers.",
+        "Vendeur et acheteur sont tous deux allemands, mais un code pays d'adresse postale manque ou n'est pas DE.",
+        "Une facture rectificative (384) a été envoyée entre des parties d'autres pays que l'Allemagne ou la Slovaquie."
+      ],
+      "fix": [
+        "Vérifiez les codes pays des adresses postales (cac:Country/cbc:IdentificationCode) du vendeur et de l'acheteur ; pour deux parties allemandes, les deux doivent être DE.",
+        "Sinon, utilisez le code 380 (facture commerciale) dans cbc:InvoiceTypeCode ; pour corriger une facture, émettez un avoir puis une nouvelle facture au lieu d'une 384.",
+        "S'il s'agit d'autofacturation ou d'une facture partielle, demandez à votre prestataire Peppol comment le destinataire souhaite qu'elle soit signalée."
+      ]
+    },
+    "ubl": "<cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>"
+  }
+]

@@ -998,6 +998,19 @@ fresh failure was 1.56% (H307 refuted narrowly). RW only; drift and reading nois
 
 ![Mean re-zeros per 100 sheets at 1% wall risk against free-air reading noise: tracking the offset, triggering tares, and the open-loop optimum, G1 and H1](experiments/m76_closedloop/figure.png)
 
+**Milestone 77: when the robot tracks its force bias, how should it schedule the tares it still needs?** Spread a wall
+risk budget over equal runs instead of capping each sheet's risk (offline, `experiments/m77_balance/`). The tracked
+filter's variance after j sheets does not depend on the readings, so each sheet's risk j sheets after a tare is a fixed
+table, and with it rising the fewest tares at a union-bound budget are equal runs (BALANCE). It is never worse than
+milestone 76's TRACK on 90 cases (H315 held) and needs no more tares than either closed-loop policy at 0.01 N on all 11
+large cases (H318 held), but saves a median of only 2.0% over TRACK (H317 refuted). It pays where a per-sheet level
+forced a tare every sheet: **G1 LAYOUT at 0.2 N with 0.05 N readings, 116 re-zeros against TRACK's 199 and the open-loop
+optimum's 142**. The G1's weak pose at 0.02 N stays at the open-loop optimum (97 against 96, H316 held), and a 0.02 N
+gravity-model error still fails 11.9% of walls (H319 held). Worst fresh failure 1.30% (H314 held). RW only; drift and
+reading noise swept; statics.
+
+![Re-zeros per 100 sheets at 1% wall risk against reading noise: a wall budget spread over the tracked residual's tares against one per-sheet risk level, G1 and H1 at 0.2 N](experiments/m77_balance/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

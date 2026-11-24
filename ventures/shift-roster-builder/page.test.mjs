@@ -51,7 +51,9 @@ test("every input has a label and nothing is sent anywhere", () => {
 
 test("the module scripts import only local files, and the inline script parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./checkout.mjs", "./import-7shifts.mjs", "./import-deputy-staff.mjs", "./import-deputy.mjs", "./import-shifts.mjs", "./import-square.mjs", "./import-staff.mjs", "./import-wheniwork.mjs", "./licence.mjs", "./staffpack.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./checkout.mjs", "./licence.mjs", "./staffpack.mjs", "./usage.mjs"]);
+  // the importers load when a file is chosen (import("./x.mjs") through onDemand), local files only
+  assert.deepEqual([...new Set([...html.matchAll(/import\("([^"]+)"\)/g)].map((m) => m[1]))].sort(), ["./import-7shifts.mjs", "./import-deputy-staff.mjs", "./import-deputy.mjs", "./import-shifts.mjs", "./import-square.mjs", "./import-staff.mjs", "./import-wheniwork.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   // calc.mjs may import its own sibling modules (bnp.mjs), never anything remote or bare.
   for (const m of page("calc.mjs").matchAll(/^\s*import\s.*?from\s+"([^"]+)"/gm)) assert.match(m[1], /^\.\/[\w-]+\.mjs$/, m[1]);
@@ -268,4 +270,19 @@ test("page: a schedule export with several locations or shift versions gets pick
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
   for (const id of ["import-shifts-pick", "import-shifts-loc", "import-shifts-use"]) assert.ok(html.includes(`id="${id}"`), id);
   assert.match(html, /importShiftsCsv\(shiftsFile\.text, \{ location: loc \|\| undefined/);
+});
+
+test("every importer name the file handlers take is exported by the modules their loader fetches", async () => {
+  const html = page("index.html");
+  const loaders = Object.fromEntries([...html.matchAll(/const (\w+) = onDemand\(\(\) => ([^\n]+)\);\n/g)].map((m) => [m[1], [...m[2].matchAll(/import\("([^"]+)"\)/g)].map((x) => x[1])]));
+  assert.deepEqual(Object.keys(loaders).sort(), ["shiftImporters", "staffImporters"]);
+  const exported = async (files) => new Set((await Promise.all(files.map((f) => import(new URL(f, import.meta.url))))).flatMap((m) => Object.keys(m)));
+  const staff = await exported(loaders.staffImporters), shifts = await exported(loaders.shiftImporters);
+  const staffNames = html.match(/staffImporters\(\)\]\)\.then\(\(\[texts, \{([^}]+)\}\]\)/)[1].split(",").map((x) => x.trim());
+  const shiftNames = html.match(/const \{([^}]+)\} = shiftsMod;/)[1].split(",").map((x) => x.trim());
+  for (const n of staffNames) assert.ok(staff.has(n), `staff importer: ${n}`);
+  for (const n of shiftNames) assert.ok(shifts.has(n), `shift importer: ${n}`);
+  assert.ok(staffNames.length === 4 && shiftNames.length === 8);
+  // and nothing in the page still uses an importer outside those handlers
+  for (const n of [...staffNames, ...shiftNames]) assert.equal([...html.matchAll(new RegExp(`\\b${n}\\b`, "g"))].length, 2, n);
 });

@@ -66,3 +66,8 @@ test('the committed file covers every flagship and every mechanism has a basis',
   for (const e of data.evaluations.filter((x) => x.kind === 'venture')) assert.ok(slugs.has(e.id), e.id);
   for (const e of data.evaluations) for (const m of e.mechanisms) assert.ok(m.basis, `${e.id}/${m.name}`);
 });
+
+test('flagshipSlugs leaves out paid-bet rows (`app:`), which models.yaml evaluates', () => {
+  const src = 'flagships:\n  - venture: payapps\n    bet: 1\n    app: private-monorepo/apps/payapps\n    why: >-\n      x\n  - venture: old-tool\n    demoted: >-\n      y\n';
+  assert.deepEqual(flagshipSlugs(src), ['old-tool']);
+});
