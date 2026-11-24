@@ -92,6 +92,9 @@ workflows:
 - workflow: cloudflare-email.yml
   classification: none
   publishes: []
+- workflow: codeql.yml
+  classification: none
+  publishes: []
 - workflow: conflict-markers-ci.yml
   classification: none
   publishes: []
