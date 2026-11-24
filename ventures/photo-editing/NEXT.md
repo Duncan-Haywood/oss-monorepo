@@ -163,3 +163,9 @@
 - Whether ranking a burst by detail at the AF point picks the frames a photographer keeps (needs a real card + picks;
   the CSV has `af_detail` and `sharpest_by`).
 - (2026-11-24) on-device closed-eye flag 2026-11-24 (1 closed face flagged, no open one, eval/cull-closed-eyes-*; next a real blink set): next Nikon AF grids, a real card of 500+ raws with picks, a Lightroom read of merged sidecars
+
+## From the cull page's IPTC template (2026-11-24, eval/cull-iptc-2026-11-24.md)
+
+- An import into Lightroom Classic, Capture One and Photo Mechanic to confirm each shows the fields.
+- Hierarchical keywords (`lr:hierarchicalSubject`, "Sport|Ice hockey") alongside `dc:subject`.
+- Code replacements (Photo Mechanic's short code to name list, e.g. a team roster) in captions.

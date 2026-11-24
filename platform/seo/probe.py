@@ -326,16 +326,63 @@ def gsc_rows_to_observations(rows: list[dict], queries: dict, start: str, end: s
     return obs
 
 
+def gsc_pages(rows: list[dict], start: str, end: str, top_queries: int = 5) -> dict:
+    """Search Analytics rows (dimensions query, page) -> one entry per page, most
+    impressions first: clicks, impressions, CTR, impression-weighted position and the
+    page's top queries. This is what tells a run which page is close to paying off."""
+    pages: dict[str, list[dict]] = {}
+    for r in rows:
+        pages.setdefault(r["keys"][1], []).append(r)
+
+    def agg(rs: list[dict]) -> dict:
+        clicks = sum(r.get("clicks", 0) for r in rs)
+        impr = sum(r.get("impressions", 0) for r in rs)
+        pos = sum(r.get("position", 0) * r.get("impressions", 0) for r in rs) / impr if impr else None
+        return {"clicks": clicks, "impressions": impr,
+                "ctr": round(clicks / impr, 4) if impr else None,
+                "position": round(pos, 1) if pos is not None else None}
+
+    out = []
+    for page, rs in pages.items():
+        qs = sorted(rs, key=lambda r: (-r.get("impressions", 0), r["keys"][0]))[:top_queries]
+        out.append({"page": page, **agg(rs),
+                    "top_queries": [{"query": r["keys"][0], **agg([r])} for r in qs]})
+    out.sort(key=lambda e: (-e["impressions"], -e["clicks"], e["page"]))
+    return {"window": [start, end], **agg(rows), "pages": out}
+
+
+def gsc_sites(token: str) -> list[str]:
+    """The Search Console properties this service account can read (for a 403)."""
+    status, _, resp = http("https://www.googleapis.com/webmasters/v3/sites",
+                           headers={"Authorization": f"Bearer {token}"})
+    if status != 200:
+        return []
+    return [e.get("siteUrl", "") for e in json.loads(resp).get("siteEntry", [])]
+
+
 def cmd_gsc(args) -> int:
     raw = os.environ.get("GSC_SERVICE_ACCOUNT_JSON")
     if not raw:
         print("GSC_SERVICE_ACCOUNT_JSON is not set: unmeasured (see README.md, 'Owner steps').")
         return EXIT_UNMEASURED
+    try:
+        sa = json.loads(raw)
+        email = sa["client_email"]
+        sa["private_key"]
+    except (ValueError, KeyError, TypeError):
+        print("GSC_SERVICE_ACCOUNT_JSON is not a service-account JSON key (needs client_email "
+              "and private_key): paste the whole downloaded .json file.", file=sys.stderr)
+        return EXIT_UNMEASURED
+    print(f"service account: {email}")
     queries = load_queries()
-    prop = os.environ.get("GSC_PROPERTY", "sc-domain:marisstella.app")
+    prop = os.environ.get("GSC_PROPERTY") or "sc-domain:marisstella.app"
     end = dt.date.today() - dt.timedelta(days=3)  # GSC lags about two to three days
     start = end - dt.timedelta(days=27)
-    token = gsc_token(json.loads(raw))
+    try:
+        token = gsc_token(sa)
+    except (RuntimeError, subprocess.CalledProcessError) as e:
+        print(f"token exchange failed: {e}", file=sys.stderr)
+        return EXIT_UNMEASURED
     if token is None:
         print("no answer from oauth2.googleapis.com from here: unmeasured.")
         return EXIT_UNMEASURED
@@ -349,13 +396,26 @@ def cmd_gsc(args) -> int:
         print("no egress to googleapis.com from here: unmeasured.")
         return EXIT_UNMEASURED
     if status != 200:
-        print(f"Search Console answered {status}: {resp[:300]!r}", file=sys.stderr)
+        print(f"Search Console answered {status} for {prop}: {resp[:300]!r}", file=sys.stderr)
+        if status == 403:
+            sites = gsc_sites(token)
+            print(f"properties this service account can read: {sites or 'none'}", file=sys.stderr)
+            if not sites:
+                print(f"Add {email} as a Restricted user in Search Console "
+                      "(Settings -> Users and permissions).", file=sys.stderr)
+            elif prop not in sites:
+                print(f"Set the GSC_PROPERTY variable to one of those (now {prop}).", file=sys.stderr)
         return EXIT_UNMEASURED
-    obs = gsc_rows_to_observations(json.loads(resp).get("rows", []), queries,
-                                   start.isoformat(), end.isoformat())
-    append_history(obs)
+    rows = json.loads(resp).get("rows", [])
+    obs = gsc_rows_to_observations(rows, queries, start.isoformat(), end.isoformat())
+    if args.out:
+        result = {"property": prop, "pulled": dt.date.today().isoformat(),
+                  **gsc_pages(rows, start.isoformat(), end.isoformat()), "observations": obs}
+        Path(args.out).write_text(json.dumps(result, indent=1) + "\n", encoding="utf-8")
+    else:
+        append_history(obs)
     site = obs[0]
-    print(f"{start}..{end}: {site['impressions']} impressions, {site['clicks']} clicks, "
+    print(f"{prop} {start}..{end}: {site['impressions']} impressions, {site['clicks']} clicks, "
           f"{site['distinct_queries']} queries, {site['distinct_pages']} pages")
     return EXIT_OK
 
@@ -603,7 +663,9 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--note", default="")
     r.add_argument("--date")
     sub.add_parser("brave")
-    sub.add_parser("gsc")
+    g = sub.add_parser("gsc")
+    g.add_argument("--out", help="write per-page results and observations to this JSON "
+                   "file instead of appending to history (the daily workflow)")
     a = sub.add_parser("audit")
     a.add_argument("--site")
     a.add_argument("--pages", type=int, default=25)

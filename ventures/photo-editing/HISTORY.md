@@ -20,3 +20,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-22) q ramps refit 2026-11-22 (eval/hdrplus-ramp-fit-*): ship's pick fails h3/h4 on 79 fresh bursts, ramps stay
 - (moved 2026-11-23) mpcws, colour ramp (0.3, 1.0), 4 blind draws (eval/hdrplus-joint-check-*): J4 passed on 111 HDR+ bursts, J5 held it on 126
 - (moved 2026-11-24) drawn noise on 11 fresh camera raws passed 2026-11-23 (+0.12/+0.22 dB, eval/camera-drawn-mpcws-*), so mpcws is the Bayer default
+- (moved 2026-11-24) a lower-envelope line fit (opt-in) rescued 3 of 6 K-1 II losers but failed h1 2026-11-22 (-0.2 dB luma at SNR 12 wb: wb bins are not on one line; eval/noise-envelope-fit-*; next on whitened bins)

@@ -12,6 +12,7 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
     {"@type":"Question","name":"Are my photos uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The page reads the files with your browser's File API on your own computer. Nothing is sent anywhere; you can disconnect from the internet after the page loads and it still works."}},
     {"@type":"Question","name":"My phone's DNG files have no preview. Can it show them?","acceptedAnswer":{"@type":"Answer","text":"Yes. Many phone DNGs (Nexus 5, 5X, 6 and 6P, the first Pixels, and Google's HDR+ bursts) carry no JPEG at all, so the page develops a preview from the sensor data itself, in a background worker: one pixel for each 2 × 2 block of the colour filter (half the sensor's width), with the white balance, colour matrix and lens-shading map the phone wrote into the file, and up to two stops of brightening so the bright end of the frame is near white. The large view says \"developed from the raw data\". It takes about half a second to a second a frame. It is a preview for culling, not an edit: no lens distortion correction, sharpening or highlight recovery. Checked on 32 public DNGs: the sensor values read are identical to ShootFlow's own raw reader on all 32, and the colours are a median 0.4 ΔE (CIELAB) from ShootFlow's full development of the same files."}},
+    {"@type":"Question","name":"Can it add captions, keywords and my copyright?","acceptedAnswer":{"@type":"Answer","text":"Yes. Open \"Captions, keywords and copyright (IPTC)\" under the download button and fill in what every frame should carry: creator, copyright notice, credit, headline, title, caption, keywords and location. Variables such as {date}, {camera} and {stem} are filled per frame, so \"© {year} Jane Doe\" becomes the year each frame was shot. Press K on a frame to add keywords to that frame alone. The fields go into the sidecars as the standard IPTC XMP properties (dc:description, dc:subject, dc:rights, photoshop:City and so on); in your own sidecars, empty boxes leave existing captions alone and keywords are added to the ones already there. The template is kept in this browser and can be saved as a file or loaded from a captioned .xmp. ExifTool reads every field back from the downloaded sidecars."}},
     {"@type":"Question","name":"Will Lightroom see my ratings?","acceptedAnswer":{"@type":"Answer","text":"Yes for raw files: put the downloaded .xmp files next to the raws before you import, and Lightroom Classic reads xmp:Rating (stars, −1 for rejected) and xmp:Label. Lightroom does not read sidecars for JPEG or DNG files, which keep metadata inside the file."}},
     {"@type":"Question","name":"Will my Lightroom edits survive?","acceptedAnswer":{"@type":"Answer","text":"Yes, if you drop the existing .xmp sidecars along with the raw files. The page reads the rating and colour label in them as each frame's start, and when you download, the zip carries those same sidecar files back under their own names with only xmp:Rating, xmp:Label and xmp:MetadataDate changed; develop settings, keywords and crops stay as they were. Without them, a fresh sidecar would replace the one on disk."}},
     {"@type":"Question","name":"Does it read ratings I set in the camera?","acceptedAnswer":{"@type":"Answer","text":"Yes, where the camera writes them into the raw file: the XMP packet many raws carry (in the public samples: recent Sony, Canon, Nikon, OM System, DJI and Pentax files), the XMP box of a Canon CR3, or the Rating tag OM System bodies write. A rating you set on this page before, or one in a dropped sidecar, comes first."}},
@@ -72,6 +73,12 @@
     .muted{color:var(--muted)}
     .err{color:var(--rej)}
     footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:1rem;margin-top:2rem}
+    #iptcBox{border-top:1px solid var(--line);padding-top:.6rem;margin:.6rem 0}
+    #iptcBox summary{cursor:pointer}
+    .iptc{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.5rem .8rem}
+    .iptc label{display:flex;flex-direction:column;font-size:.85rem;color:var(--muted);gap:.15rem}
+    .iptc label.wide{grid-column:1/-1}
+    .iptc input,.iptc textarea{font:inherit;color:var(--ink);background:var(--code);border:1px solid var(--line);border-radius:6px;padding:.35rem .5rem;width:100%}
     @media (max-width:600px){#grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}.tile canvas{height:110px}}
   </style>
 </head>
@@ -79,7 +86,7 @@
 <main>
   <p class="eyebrow"><a href="./">ShootFlow</a> · free, runs in your browser</p>
   <h1>Cull a card of raw files in your browser.</h1>
-  <p class="lede">Drop a shoot's raw files. The page shows each one from the JPEG the camera stored inside it, so hundreds open in seconds with no raw decoding. Rate, label and reject from the keyboard, see the sharpest frame of each burst, then download XMP sidecars that Lightroom, Bridge, Capture One or darktable read on import. Nothing is uploaded.</p>
+  <p class="lede">Drop a shoot's raw files. The page shows each one from the JPEG the camera stored inside it, so hundreds open in seconds with no raw decoding. Rate, label and reject from the keyboard, see the sharpest frame of each burst, add captions, keywords and your copyright from a template, then download XMP sidecars that Lightroom, Bridge, Capture One or darktable read on import. Nothing is uploaded.</p>
 
   <div class="drop" id="drop">
     <p><strong>Drop raw files or a folder here</strong></p>
@@ -123,6 +130,34 @@
       </select></label>
       <label class="status"><input type="checkbox" id="onlyMarked" checked> only frames I rated, labelled or rejected</label>
     </div>
+    <details id="iptcBox">
+      <summary><strong>Captions, keywords and copyright (IPTC)</strong> <span class="status" id="iptcState">off: sidecars carry ratings and labels only</span></summary>
+      <p class="muted">Fill in what every frame should carry, like a Photo Mechanic stationery pad. It goes into the same sidecars as standard IPTC fields that Lightroom, Bridge, Capture One, darktable and digiKam read. Empty boxes are left alone, so a caption already in your own sidecar is kept; keywords are added to the ones already there. Press <kbd>K</kbd> on a frame to add keywords to that frame only, <kbd>C</kbd> to give it its own caption (it replaces the caption below, or fills <code>{caption}</code> in it). A keyword typed as <code>Sport|Ice hockey</code> or <code>Sport &gt; Ice hockey</code> goes into Lightroom's keyword tree (<code>lr:hierarchicalSubject</code>) and each level into the flat keywords. Variables: <code>{date}</code> <code>{year}</code> <code>{monthname}</code> <code>{day}</code> <code>{time}</code> <code>{camera}</code> <code>{lens}</code> <code>{file}</code> <code>{stem}</code> <code>{seq}</code> <code>{iso}</code> <code>{aperture}</code> <code>{shutter}</code> <code>{focal}</code> <code>{caption}</code>.</p>
+      <div class="iptc">
+        <label>Creator (photographer; separate several with ;)<input id="ip_creator" autocomplete="name"></label>
+        <label>Copyright notice<input id="ip_copyright" placeholder="© {year} Your Name"></label>
+        <label>Credit line<input id="ip_credit"></label>
+        <label>Source<input id="ip_source"></label>
+        <label>Headline<input id="ip_headline"></label>
+        <label>Title<input id="ip_title"></label>
+        <label class="wide">Caption<textarea id="ip_caption" rows="2" placeholder="Runners at the county finals, {monthname} {day}, {year}."></textarea></label>
+        <label class="wide">Keywords (comma separated)<input id="ip_keywords" placeholder="athletics, county finals, {year}"></label>
+        <label>Sublocation<input id="ip_location"></label>
+        <label>City<input id="ip_city"></label>
+        <label>State or province<input id="ip_state"></label>
+        <label>Country<input id="ip_country"></label>
+        <label class="wide">Instructions<input id="ip_instructions" placeholder="Embargoed until …"></label>
+        <label class="wide">Code replacements (one per line: code, a tab or =, then the text; type <code>\code\</code> in any box, caption or keyword, <code>\code#2\</code> for a second tab column)<textarea id="ipCodes" rows="3" spellcheck="false" placeholder="23=Jane Roe (Leeds Rhinos, 23)&#10;LR=Leeds Rhinos"></textarea></label>
+      </div>
+      <div class="bar">
+        <label class="btnlike">Load from a captioned .xmp<input type="file" id="ipLoad" accept=".xmp"></label>
+        <button type="button" id="ipSave">Save template (.json)</button>
+        <label class="btnlike">Open template (.json)<input type="file" id="ipOpen" accept=".json,application/json"></label>
+        <label class="btnlike">Load codes (.txt, tab separated)<input type="file" id="ipCodesFile" accept=".txt,.tsv,.csv,text/plain"></label>
+        <button type="button" id="ipClear">Clear</button>
+        <span class="status" id="ipPreview"></span>
+      </div>
+    </details>
     <div class="bar">
       <button class="primary" id="dlXmp">Download XMP sidecars (.zip)</button>
       <button id="dlPicks">Picks list (.txt)</button>
@@ -143,6 +178,8 @@
       <li><kbd>F</kbd> in the large view: show or hide the AF points and face boxes</li>
       <li><kbd>Esc</kbd> close the large view</li>
       <li><kbd>B</kbd> jump to the sharpest frame of this burst</li>
+      <li><kbd>K</kbd> add keywords to this frame (IPTC, written into its sidecar; <code>Sport|Ice hockey</code> for a keyword tree)</li>
+      <li><kbd>C</kbd> give this frame its own caption (codes like <code>\23\</code> work)</li>
     </ul>
   </section>
 
@@ -174,6 +211,8 @@
     <p>Yes. Many phone DNGs (Nexus 5, 5X, 6 and 6P, the first Pixels, and Google's HDR+ bursts) carry no JPEG at all, so the page develops a preview from the sensor data itself, in a background worker: one pixel for each 2 × 2 block of the colour filter (half the sensor's width), with the white balance, colour matrix and lens-shading map the phone wrote into the file, and up to two stops of brightening so the bright end of the frame is near white. The large view says "developed from the raw data". It takes about half a second to a second a frame. It is a preview for culling, not an edit: no lens distortion correction, sharpening or highlight recovery. Checked on 32 public DNGs: the sensor values read are identical to ShootFlow's own raw reader on all 32, and the colours are a median 0.4 ΔE (CIELAB) from ShootFlow's full development of the same files.</p>
     <h3>Why does a preview look different from my raw editor?</h3>
     <p>It is the JPEG the camera made at capture, with the camera's picture style, not a development of the raw data. That is what makes culling fast, and it is what the camera's own screen showed you.</p>
+    <h3>Can it add captions, keywords and my copyright?</h3>
+    <p>Yes. Open "Captions, keywords and copyright (IPTC)" under the download button and fill in what every frame should carry: creator, copyright notice, credit, headline, title, caption, keywords and location. Variables such as <code>{date}</code>, <code>{camera}</code> and <code>{stem}</code> are filled per frame, so "© {year} Jane Doe" becomes the year each frame was shot. Press <kbd>K</kbd> on a frame to add keywords to that frame alone. The fields go into the sidecars as the standard IPTC XMP properties (<code>dc:description</code>, <code>dc:subject</code>, <code>dc:rights</code>, <code>photoshop:City</code> and so on); in your own sidecars, empty boxes leave existing captions alone and keywords are added to the ones already there. The template is kept in this browser and can be saved as a file or loaded from a captioned .xmp. ExifTool reads every field back from the downloaded sidecars.</p>
     <h3>Does it remember my ratings?</h3>
     <p>In this browser only: ratings are kept in its local storage, keyed by file name and size, so reopening the same files brings them back. Download the sidecars to keep them anywhere else.</p>
   </section>
@@ -206,6 +245,7 @@
 import { readRawFile, isCandidateFile, captureMillis, groupBursts, sharpness, detailAt, burstBest, orientPoint, xmpSidecar, sidecarName, zipStored, LABEL_KEYS, readXmp, mergeXmpSidecar, sidecarTarget } from "./rawpreview.mjs";
 import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 import { summarizeFaces, eyesOpenCandidates, describeFaces, loadFaceLandmarker } from "./eyes.mjs";
+import { IPTC_FIELDS, frameIptc, mergeIptc, readIptc, splitKeywords, parseCodes } from "./iptc.mjs";
 
 const $ = (id) => document.getElementById(id);
 const grid = $("grid");
@@ -223,7 +263,7 @@ let marks = loadMarks();
 function saveMarks() {
   for (const it of items) {
     const k = `${it.name}|${it.size}`;
-    if (it.rating || it.rejected || it.label) marks[k] = { r: it.rating, x: it.rejected ? 1 : 0, l: it.label };
+    if (marked(it)) marks[k] = { r: it.rating, x: it.rejected ? 1 : 0, l: it.label, ...(it.keywords?.length ? { k: it.keywords } : {}), ...(it.caption ? { c: it.caption } : {}) };
     else delete marks[k];
   }
   try { localStorage.setItem(STORE, JSON.stringify(marks)); } catch { /* storage is optional */ }
@@ -360,7 +400,7 @@ async function loadOne(file) {
   // marked on this page before (this browser), a sidecar dropped with it, the
   // rating set in the camera.
   const m = marks[`${it.name}|${it.size}`];
-  if (m) { it.rating = m.r || 0; it.rejected = !!m.x; it.label = m.l || ""; it.from = "here"; }
+  if (m) { it.rating = m.r || 0; it.rejected = !!m.x; it.label = m.l || ""; it.from = "here"; if (Array.isArray(m.k)) it.keywords = m.k; if (typeof m.c === "string") it.caption = m.c; }
   else if (it.meta && (it.meta.cameraRating || it.meta.cameraLabel)) {
     const r = it.meta.cameraRating || 0;
     it.rating = r > 0 ? r : 0; it.rejected = r === -1; it.label = it.meta.cameraLabel || ""; it.from = "camera";
@@ -691,7 +731,7 @@ function mark(fn) {
 let pendingRefilter = false;
 
 document.addEventListener("keydown", (e) => {
-  if (e.target.closest && e.target.closest("select,input,button") && !["Escape"].includes(e.key)) return;
+  if (e.target.closest && e.target.closest("select,input,button,textarea,summary") && !["Escape"].includes(e.key)) return;
   if (!view.length) return;
   const k = e.key;
   const move = (d) => { if (pendingRefilter) { pendingRefilter = false; const cur = view[sel]; refresh(false); const p = view.indexOf(cur); sel = p >= 0 ? p : Math.max(0, sel - (d > 0 ? 1 : 0)); } select(sel + d); };
@@ -706,7 +746,20 @@ document.addEventListener("keydown", (e) => {
   else if (k === "x" || k === "X") mark((it) => { it.rejected = !it.rejected; });
   else if ((k === "z" || k === "Z") && loupeOpen) toggleZoom();
   else if ((k === "f" || k === "F") && loupeOpen) { showAf = !showAf; drawLoupe(); }
-  else if (k === "b" || k === "B") {
+  else if (k === "k" || k === "K") {
+    const it = items[view[sel]]; if (!it) return;
+    const typed = prompt(`Keywords for ${it.name} (comma separated; clear the box to remove them all):`, (it.keywords || []).join(", "));
+    if (typed === null) return;
+    mark((x) => { x.keywords = splitKeywords(typed); });
+    if (it.keywords.length) record("frame_keywords");
+  } else if (k === "c" || k === "C") {
+    const it = items[view[sel]]; if (!it) return;
+    const typed = prompt(`Caption for ${it.name} (codes like \\23\\ and variables like {date} work; clear the box to use the template's):`, it.caption || "");
+    if (typed === null) return;
+    mark((x) => { x.caption = typed.trim(); });
+    if (it.caption) record("frame_caption");
+    templateChanged();
+  } else if (k === "b" || k === "B") {
     const it = items[view[sel]];
     const p = view.findIndex((i) => items[i].burst === it.burst && items[i].best);
     if (p >= 0) select(p);
@@ -724,23 +777,78 @@ function download(name, data, type) {
   const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
-const marked = (it) => it.rating || it.rejected || it.label;
+const marked = (it) => it.rating || it.rejected || it.label || it.keywords?.length || it.caption;
+
+// ---------------------------------------------------------------- IPTC template
+
+const IP_STORE = "shootflow-cull-iptc";
+const CODES_STORE = "shootflow-cull-codes";
+const codes = () => parseCodes($("ipCodes").value);
+const ipKeys = Object.keys(IPTC_FIELDS);
+function readTemplate() { const t = {}; for (const k of ipKeys) { const v = $(`ip_${k}`).value.trim(); if (v) t[k] = v; } return t; }
+function fillTemplate(t) { for (const k of ipKeys) $(`ip_${k}`).value = Array.isArray(t?.[k]) ? t[k].join(", ") : (t?.[k] || ""); templateChanged(); }
+function templateChanged() {
+  const t = readTemplate(), n = Object.keys(t).length;
+  try { localStorage.setItem(IP_STORE, JSON.stringify(t)); } catch { /* optional */ }
+  $("iptcState").textContent = n ? `on: ${n} field${n > 1 ? "s" : ""} go into every sidecar` : "off: sidecars carry ratings and labels only";
+  const it = items[view[sel]] || items[0];
+  const c = codes();
+  try { localStorage.setItem(CODES_STORE, $("ipCodes").value); } catch { /* optional */ }
+  if (c.size) $("iptcState").textContent += ` · ${c.size} code${c.size > 1 ? "s" : ""}`;
+  const f = it ? frameIptc(t, { ...it, seq: items.indexOf(it) + 1 }, c) : null;
+  $("ipPreview").textContent = f && (f.caption || f.copyright) ? `${it.name}: ${[f.caption, f.copyright].filter(Boolean).join(" · ")}` : "";
+}
+try { $("ipCodes").value = localStorage.getItem(CODES_STORE) || ""; } catch { /* optional */ }
+try { fillTemplate(JSON.parse(localStorage.getItem(IP_STORE) || "{}")); } catch { /* optional */ }
+$("ipCodes").addEventListener("input", templateChanged);
+$("ipCodesFile").onchange = async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const text = await f.text(), n = parseCodes(text).size;
+  if (!n) $("ipPreview").textContent = `${f.name} has no code lines (code, a tab, then the text).`;
+  else { $("ipCodes").value = text.replace(/\r\n/g, "\n").trimEnd(); templateChanged(); $("ipPreview").textContent = `Loaded ${n} codes from ${f.name}.`; record("iptc_codes_loaded"); }
+  e.target.value = "";
+};
+for (const k of ipKeys) $(`ip_${k}`).addEventListener("input", templateChanged);
+$("ipClear").onclick = () => fillTemplate({});
+$("ipSave").onclick = () => { download("shootflow-iptc-template.json", JSON.stringify({ ...readTemplate(), ...($("ipCodes").value.trim() ? { codes: $("ipCodes").value } : {}) }, null, 2) + "\n", "application/json"); record("iptc_template_saved"); };
+$("ipOpen").onchange = async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  try { const t = JSON.parse(await f.text()); if (typeof t.codes === "string") $("ipCodes").value = t.codes; fillTemplate(t); $("ipPreview").textContent = `Template opened from ${f.name}.`; }
+  catch { $("ipPreview").textContent = `${f.name} is not a template file.`; }
+  e.target.value = "";
+};
+$("ipLoad").onchange = async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const t = readIptc(await f.text());
+  if (!t || !Object.keys(t).length) { $("ipPreview").textContent = `${f.name} carries no IPTC caption, keywords or credits.`; }
+  else { fillTemplate(t); $("ipPreview").textContent = `Loaded ${Object.keys(t).length} fields from ${f.name}.`; record("iptc_template_from_xmp"); }
+  e.target.value = "";
+};
 
 $("dlXmp").onclick = () => {
   const style = $("sidecarStyle").value, only = $("onlyMarked").checked;
   // A frame that came with a sidecar gets that sidecar back under its own
   // name with only the rating and label changed, so Lightroom's develop
   // settings, keywords and crops in it survive the unzip.
-  let merged = 0;
+  // IPTC fields (template plus the frame's own keywords) go into the same file.
+  let merged = 0, captioned = 0;
+  const tpl = readTemplate(), cds = codes();
+  const withIptc = (xmp, it) => {
+    const f = frameIptc(tpl, { ...it, seq: items.indexOf(it) + 1 }, cds);
+    if (!Object.keys(f).length) return xmp;
+    captioned++;
+    return mergeIptc(xmp, f) ?? xmp;
+  };
   const files = items.filter((it) => !only || marked(it)).map((it) => {
     const m = it.sidecar ? mergeXmpSidecar(it.sidecar.text, it) : null;
-    if (m) { merged++; return { name: it.sidecar.name, data: m }; }
-    return { name: sidecarName(it.name, style), data: xmpSidecar(it) };
+    if (m) { merged++; return { name: it.sidecar.name, data: withIptc(m, it) }; }
+    return { name: sidecarName(it.name, style), data: withIptc(xmpSidecar(it), it) };
   });
   if (!files.length) { $("status").textContent = "Nothing rated, labelled or rejected yet: untick “only frames I rated” to write a sidecar for every frame."; return; }
   download("shootflow-cull-sidecars.zip", zipStored(files), "application/zip");
-  $("status").textContent = `${files.length} sidecars in the zip${merged ? `, ${merged} of them your own with only the rating and label changed` : ""}.`;
+  $("status").textContent = `${files.length} sidecars in the zip${merged ? `, ${merged} of them your own with only the rating, label${captioned ? " and IPTC fields" : ""} changed` : ""}${captioned ? `; ${captioned} carry IPTC captions or keywords` : ""}.`;
   record("sidecars_downloaded");
+  if (captioned) record("sidecars_iptc");
   if (merged) record("sidecars_merged");
 };
 $("dlPicks").onclick = () => {
@@ -750,10 +858,10 @@ $("dlPicks").onclick = () => {
 };
 $("dlCsv").onclick = () => {
   const q = (v) => { const s = v == null ? "" : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-  const rows = [["file", "rating", "rejected", "label", "burst", "sharpest_in_burst", "sharpest_by", "detail", "af_x", "af_y", "af_detail", "af_source", "captured", "camera", "lens", "exposure_s", "f_number", "iso", "focal_mm", "preview_w", "preview_h", "faces", "eyes_closed", "blink_max", "error"]];
+  const rows = [["file", "rating", "rejected", "label", "burst", "sharpest_in_burst", "sharpest_by", "detail", "af_x", "af_y", "af_detail", "af_source", "captured", "camera", "lens", "exposure_s", "f_number", "iso", "focal_mm", "preview_w", "preview_h", "faces", "eyes_closed", "blink_max", "keywords", "caption", "error"]];
   for (const it of items) {
     const m = it.meta || {};
-    rows.push([it.name, it.rating, it.rejected ? 1 : 0, it.label, it.burst, it.best ? 1 : 0, it.best ? it.bestBy || "" : "", it.detail != null ? it.detail.toFixed(1) : "", it.af?.at ? it.af.at[0].toFixed(4) : "", it.af?.at ? it.af.at[1].toFixed(4) : "", it.afDetail != null ? it.afDetail.toFixed(1) : "", it.af?.source || "", m.captured, cameraName(m), m.lens, m.exposureTime, m.fNumber, m.iso, m.focalLength, it.preview?.width, it.preview?.height, it.eyes ? it.eyes.prominent : "", it.eyes ? (it.eyes.eyesClosed ? 1 : 0) : "", it.eyes?.worstBlink != null ? it.eyes.worstBlink.toFixed(3) : "", it.error]);
+    rows.push([it.name, it.rating, it.rejected ? 1 : 0, it.label, it.burst, it.best ? 1 : 0, it.best ? it.bestBy || "" : "", it.detail != null ? it.detail.toFixed(1) : "", it.af?.at ? it.af.at[0].toFixed(4) : "", it.af?.at ? it.af.at[1].toFixed(4) : "", it.afDetail != null ? it.afDetail.toFixed(1) : "", it.af?.source || "", m.captured, cameraName(m), m.lens, m.exposureTime, m.fNumber, m.iso, m.focalLength, it.preview?.width, it.preview?.height, it.eyes ? it.eyes.prominent : "", it.eyes ? (it.eyes.eyesClosed ? 1 : 0) : "", it.eyes?.worstBlink != null ? it.eyes.worstBlink.toFixed(3) : "", (it.keywords || []).join("; "), it.caption || "", it.error]);
   }
   download("shootflow-cull.csv", rows.map((r) => r.map(q).join(",")).join("\n") + "\n", "text/csv");
   record("csv_downloaded");

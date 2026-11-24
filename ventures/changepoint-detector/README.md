@@ -33,7 +33,7 @@ row below. Every flag's measurements are in the README section named after it.
 | Did the slope change? | `--hinge-test` (one change), `--two-hinge-test` (two) |
 | Did it change at a date I name (a launch, a law)? | `--known-date <label>`; with comparison columns `--donors all` (synthetic control) |
 | Several columns measured at the same points | `--columns a,b,c` |
-| When did the cycle peak and bottom out (recessions, a business's up and down years)? | `--turns`; several indicators at once `--turns --columns a,b,c` (a composite index) |
+| When did the cycle peak and bottom out (recessions, a business's up and down years)? | `--turns`; several indicators at once `--turns --columns a,b,c` (a composite index); on the page, the "Peaks and troughs" card |
 | A feed that repeats stale values for a while | `--spells` |
 | Tell me when a daily metric shifts, from now on | `watch.mjs daily.csv --state s.json` (see "Watching a growing series"); pick a setting with `--suggest --alerts-per 1/month` |
 | ...from Stripe or Shopify | `stripe-metrics.mjs` or `shopify-metrics.mjs`, then the watch with `--columns` |
@@ -10311,3 +10311,27 @@ Next, if this line continues: the composite in real time (each month's vintage a
 when its host answers) to measure how many months after NBER's announcement-free date the rule confirms a turn;
 and a business-shaped check (a shop's or SaaS company's several lines, where no committee dates exist).
 
+## Peaks and troughs on the page (2026-11-24)
+
+`--turns` shipped in the CLI earlier the same day ("A composite of NBER's monthly indicators dates every turn").
+The page now has it too, in a "Peaks and troughs: when did the cycle turn?" card, so a person who would never
+open a terminal can date a business's good and bad stretches from the lines they already export. It reads the
+same data box: the Value column in one-column mode, or with "several columns" chosen, a composite index of the
+names in the Columns box. Controls: months or quarters (the CLI's `--frequency`), the short-phase move in
+percent (`--big-move`, 5 by default, blank for never), and the row to measure volatility up to (`--sd-until`).
+Output: a one-line summary (how many peaks and troughs, the latest turn and what it implies), a log-scale chart
+with contractions shaded, the turn and phase tables, and a CSV of the series (or composite index) with each
+row's turn. It runs in the tab in a few milliseconds on 700 months, so it does not use the worker. Usage: a
+`turns_run` counter (local only, like the others).
+
+The example button loads the four FRED indicators of the shipped round (`example-turns.mjs`, 1967-01 to
+2026-07, rounded to 6 significant figures) with volatility measured to 2019-12. Rounding changes nothing: it
+dates the same 16 turns, each within 3 months of NBER's, weights 0.541, 0.189, 0.152, 0.117
+(`turns-page.test.mjs`). The view (`turns-view.mjs`: chart, tables, summary, CSV) has no DOM access and is tested
+in Node; `turnsResult` gained `withSeries` to return the dated series for the chart.
+
+Checked in Chromium (Playwright): the example renders 8 peaks and 8 troughs, an unknown column shows the
+engine's message in the card, no console errors, and no horizontal scroll at 390 px. Not done, and the next
+item on this line: a business-shaped check, where no committee dates exist (simulated shop or SaaS lines that
+share a cycle but lag and differ in noise), to measure whether the composite dates a business's turns better than
+its best single line; and the composite in real time on ALFRED's vintages when that host answers.
