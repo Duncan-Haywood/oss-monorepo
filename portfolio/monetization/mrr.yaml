@@ -1,0 +1,30 @@
+# North star: $10k MRR, stretch $10k MRP (owner, 2026-11-24).
+# Definition and how runs use it: prompts/goals.md, "North star: $10k MRR".
+#
+# - mrr_usd: recurring subscription revenue that month through the owner's
+#   merchant of record, net of refunds. One-off licences, donations and
+#   sponsorships go in `other_income_usd`, not here.
+# - costs_usd: monthly costs of earning it (merchant fees, model API, hosting,
+#   storage, domains, paid tools).
+# - mrp_usd: mrr_usd - costs_usd.
+#
+# Only the owner can read the merchant dashboard and the bills, so only the
+# owner adds readings. null means unmeasured, never zero. Agents never invent
+# or estimate a reading here (Hard limits, "Never fabricate").
+
+rail: paddle   # owner, 2026-11-24; readings come from the Paddle dashboard
+
+goal:
+  set: 2026-11-24
+  milestone_mrr_usd: 10000
+  stretch_mrp_usd: 10000
+
+readings:
+  # - month: 2026-12
+  #   mrr_usd: null
+  #   other_income_usd: null
+  #   costs_usd: null
+  #   mrp_usd: null
+  #   paying_subscribers: null
+  #   source: owner, Paddle dashboard
+  []

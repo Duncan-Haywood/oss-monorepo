@@ -10980,3 +10980,76 @@ seen, and an index that carries the unemployment rate will put a trough where un
 line continues: a pre-registered round on whether a published composite should default to 3-month phases, on a
 make not seen here (the Conference Board's coincident index, or another country's composite with an official
 dating committee, e.g. CEPR's euro-area dates); a state dating to score CAPHCI against.
+
+## Japan's coincident index: 3-month phases add false turns and no match, and a short-phase bug in the dater fixed (2026-11-24, pre-registered; J1 and J2 fail, J3 and J4 pass, nothing ships from the round; the fix ships)
+
+The open item from "A second make": on the Philadelphia Fed's index, 3-month phases dated the 1980 recession that
+the one-column default (6 months) missed. That was a look after the result. This round asked it beforehand, on a
+make not seen before: the Cabinet Office of Japan's coincident composite index (CI 一致指数, 2020 = 100), scored
+against the Cabinet Office's own reference dates (ESRI 景気基準日付), 1985-01 to 2026-08, with an older copy of
+the index (to 2024-07) as a vintage. esri.cao.go.jp, e-stat.go.jp, the Conference Board, CEPR and dbnomics all
+refused this session's proxy; two public copies of the CI and two independent public transcriptions of ESRI's
+dates (which agree on every date) were found by GitHub code search (`data/SOURCE.md`, "Japan CI"). Rules and bars
+in the header of `eval/turns-jp-ci.mjs`, committed before it first ran (commit "pre-register the Japan CI
+3-month-phase round"); output `eval/turns-jp-ci.out.txt` (0.4 s); test `turns-jp-ci.test.mjs`.
+
+| bar | registered run (dater as it was) | after the fix below |
+|---|---|---|
+| J1 3-month phases: at least 12 of 14 within 3 months, at most 2 false | 11 of 14, 10 false: **fails** | 11, 9 false: **fails** |
+| J2 3-month phases beat 6: +1 match, at most +1 false, F1 no lower | +0, +4, 0.650 vs 0.722: **fails** | +0, +2, 0.650 vs 0.684: **fails** |
+| J3 3-month phases beyond chance: +0.15 F1, p <= 0.05 | +0.272, p 0.0002: **passes** | same: **passes** |
+| J4 the 2024-07 copy dates the same matched turns, moving <= 3 | 1997-05 moves 3, the rest 0: **passes** | same: **passes** |
+
+What it shows:
+
+- **The expectation written beforehand held.** Every ESRI contraction since 1985 ran 8 months or more (2012-03 to
+  2012-11 is the shortest), so 6-month phases already see them all, and 3-month phases have nothing to add. What
+  they do add is turns ESRI did not date: a 1995-04 to 1995-07 pause (2.0% down) and, before the fix, a 2022-08
+  to 2023-01 dip. The 1980 gain on the Philadelphia Fed's index was one short, shallow recession, not a reason to
+  change how a one-column composite is dated. As the header said, nothing changes in the CLI, page or `llms.txt`;
+  `--min-phase 3` stays an option a user can choose for an index whose recessions are known to be short.
+- **Both arms match 11 of 14, and the misses are the index's own.** The troughs are close (2009-03, 2012-03,
+  2012-11 and 2020-05 to the month). Three peaks come early: 1991-02 dated 1990-10 (4 months), 2008-02 dated
+  2007-05 (9) and 2018-10 dated 2017-12 (10). The CI was at 124.4 in 2017-12 and 122.0 in 2018-10, and at 123.4 in
+  2007-05 against 121.5 in 2008-02: the index had stopped rising well before the month ESRI chose, which is the
+  sense in which ESRI's peaks are a judgment on many series and not the CI's high.
+- **Turns ESRI did not date.** With the shipped rule: 2014-03 to 2015-12 (the index fell after April 2014's
+  consumption-tax rise; ESRI's list has no turn there), 2021-04 to 2021-09 (a 5-month, 5.4% fall, kept by the
+  5% big-move exception; with `--big-move off` it goes) and a 2022-08 peak. Those are the false turns the J1 bar
+  counted. The March 2011 earthquake drop (110.0 to 100.9 in two months) is inside a longer phase and dates
+  nothing.
+- **The vintages agree.** The copy saved to 2024-07 has monthly growth a median 0.105 points away from the
+  current one (the CI is re-estimated as its components and seasonal factors revise), and every matched turn is
+  dated in the same month on both but 1997-05 (1997-06 on the current copy, 1997-03 on the older).
+
+**The fix.** The registered run dated a 2005-04 peak (117.2) before the 2009-03 trough, although the index rose to
+123.4 in 2007-05. The cause was in `turning-points.mjs`: when a phase was shorter than the minimum, `enforceOnce`
+always dropped that phase's own two ends. Here the candidates were 2005-04 peak, 2007-03 trough, 2007-05 peak;
+the 2-month 2007-03 to 2007-05 phase went, and with it the higher peak. The module's header already described the
+right rule ("a short phase loses its two ends' weaker turn pair") and its rule 2 keeps the higher of two peaks;
+the code did not. Now a short phase a to b drops the pair before b when b beats the turn of its kind before a,
+the pair after a when a beats the turn of its kind after b, the smaller move when both, and a and b themselves
+otherwise. Alternation holds in every case. A first attempt (move every turn to the extreme between its
+neighbours) was rejected before it shipped: on GDPC1 it moved the 1969Q3 peak to 1970Q3, a higher quarter inside
+the 1969-70 recession, and lost a recession NBER dates.
+
+Every earlier turn round (19) was rerun with the fix (all `eval/turns-*.out.txt` regenerated in this commit; the five that do
+not change are Iran, payrolls, USPHCI, GDPC1-lag and the tolerant-vintage one).
+No pre-registered verdict moved in any of them. The figures that did move, old to new:
+
+- BBQ round: real consumption 7 of 16 matched, 0 false, F1 0.640 (was 6, 1, 0.560); quarterly industrial
+  production 11 of 12, F1 0.889 (was 10, 0.815); D2's mean excess +0.392 (was +0.363), D3's +0.436 (was +0.407);
+  the GDP rows are unchanged, so D1 still fails at 0.781, and GDPC1's dates are unchanged (19 of 24).
+- The shipped composite (README "A composite of NBER's monthly indicators") still dates 16 of 16 with no false
+  turn. Its single lines moved: real income less transfers 10 of 16 (was 12), real sales 12 (was 10), payrolls,
+  industrial production and employment unchanged; the trust note's "one series alone missed 2 to 7" still holds.
+- Simulated makes: the heavy-late warning's gain on fired draws +0.078 (was +0.072); P3 with the warning beats
+  the 6-month rule by +0.015 to +0.053 F1 on the five makes (was +0.016 to +0.055; `llms.txt` updated), and the
+  primary gain is +0.029 (was +0.032). Agency, SaaS and shop make figures moved by 0.001 to 0.002.
+- Real-time replays: 5 retracted episodes on the primary replay (was 4, bar 6) and the 0-5 month survival 61.9%
+  (was 65.0%); the MAD-weights round's 6-month arm now also shows 7 false episodes (was 6; M3 failed before and
+  still fails); on the FRED-MD vintages the 6-month phases' median delay is now 34.5 months, the same as the
+  3-month primary's (it was 70, which README "Turns on real vintages" printed as worse; no bar rested on it).
+
+Next, if this line continues: an index whose dating committee is known to call short recessions (CEPR's euro-area
+dates have a 2-quarter 2011-13 double dip), to see whether there 3-month phases earn their false turns.

@@ -7,6 +7,13 @@
  *   node platform/distribution/npm.mjs --pack <slug> <outDir>   # write one package to disk (to inspect or `npm pack`)
  *   DISTRIBUTE_NPM=true NODE_AUTH_TOKEN=... [NPM_SCOPE=@you] node platform/distribution/npm.mjs
  *
+ * In CI there is no token: a job with `id-token: write` publishes through npm
+ * trusted publishing (OIDC, npm 11.5.1 or later), which mints a short-lived
+ * credential per publish and adds provenance (docs/security/trusted-publishing-setup.md).
+ * npm can only attach a trusted publisher to a package that exists, so on the
+ * OIDC path a name not yet on the registry is skipped and logged for the
+ * owner's one-time first publish, instead of failing the run.
+ *
  * Only tools on the npm allow-list (portfolio/distribution/allowlist.json) are
  * published, at the version versions.json gives them (versions.mjs). Stateless
  * de-duplication: a version the registry already has is left alone, and at
@@ -165,9 +172,20 @@ const exec = promisify(execFile);
 /** Whether a registry document is a package this repository published (its repository URL names this repo). */
 export const isOurs = (doc) => String(doc?.repository?.url ?? '').toLowerCase().includes('duncan-haywood/oss-monorepo');
 
+/** actions/setup-node exports this placeholder when NODE_AUTH_TOKEN is unset; it is not a token. */
+const SETUP_NODE_PLACEHOLDER = 'XXXXX-XXXXX-XXXXX-XXXXX';
+
+/** How a live run would authenticate: 'token', 'oidc' (GitHub Actions with id-token: write), or ''. */
+export function authMode(env) {
+  if (env.NODE_AUTH_TOKEN && env.NODE_AUTH_TOKEN !== SETUP_NODE_PLACEHOLDER) return 'token';
+  if (env.ACTIONS_ID_TOKEN_REQUEST_URL) return 'oidc';
+  return '';
+}
+
 export async function run({ env = process.env, fetchImpl = fetch, log = console.log, publish, root = REPO_ROOT, allow, versions } = {}) {
   const scope = env.NPM_SCOPE || '';
-  const live = env.DISTRIBUTE_NPM === 'true' && !!env.NODE_AUTH_TOKEN;
+  const auth = authMode(env);
+  const live = env.DISTRIBUTE_NPM === 'true' && !!auth;
   allow ??= await loadAllowlist(root);
   versions ??= await loadVersions(root);
   const slugs = [...allowed(allow, 'npm')].sort();
@@ -184,10 +202,14 @@ export async function run({ env = process.env, fetchImpl = fetch, log = console.
       if (!isOurs(doc)) { log(`  skip ${p.name}: the name belongs to another project (set NPM_SCOPE to publish under a scope)`); continue; }
       if (doc.versions?.[p.version]) continue;
     } else if (res.status !== 404) throw new Error(`npm registry: HTTP ${res.status} for ${p.name}`);
+    else if (live && auth === 'oidc') {
+      log(`  skip ${p.name}: not on npm yet, and trusted publishing cannot create a package; the owner publishes its first version (docs/security/trusted-publishing-setup.md)`);
+      continue;
+    }
     fresh.push(p);
   }
   if (!live) {
-    log(`DRY RUN (set DISTRIBUTE_NPM=true and NODE_AUTH_TOKEN to publish). Would publish up to ${MAX_PER_RUN} new versions:`);
+    log(`DRY RUN (set DISTRIBUTE_NPM=true, and run in a job with id-token: write or set NODE_AUTH_TOKEN, to publish). Would publish up to ${MAX_PER_RUN} new versions:`);
     for (const p of fresh) log(`  ${p.name}@${p.version}  ${Object.keys(p.files).length} files`);
     return { published: 0, planned: fresh.length };
   }

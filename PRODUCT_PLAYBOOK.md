@@ -39,7 +39,18 @@ is wrong, and no amount of code fixes it. The strongest version of that sentence
 ends in the user earning more: a job they can now bid on, an invoice they can
 now issue, a client they can now keep.
 
-## 2. Choose the shape that fits the user; keep our cost per user at zero
+## 2. Choose the shape that gives the user the most value
+
+**Updated 2026-11-24** (owner: move away from "the stupid static page
+requirement and over emphasis on free and privacy and no accounts to
+generally giving max value to the user"; `prompts/goals.md`, "North star").
+Build the best product for the user and one people will pay for. Accounts,
+saved work, hosted features and paid tiers are normal tools here. Per-user
+costs are fine in a paid product whose price covers them, on infrastructure
+the owner has set up. Agents never open accounts or start paid spend
+themselves. Where the older text in this section reads stricter than that,
+this note wins.
+
 
 **A menu, not a ranking.** There is no static-only, static-first or
 browser-only rule; where a product runs is the agent's and the project's
@@ -74,14 +85,23 @@ reproduce in one reply and a maths graduate can't follow at a glance.
    user runs locally, with the no-SLA clause in §5b. Details:
    [`portfolio/hosting/README.md`](portfolio/hosting/README.md).
 
-The hard line is the owner's money: no per-user paid API on our account and no
-per-user database or server we pay for (`goals.md`, Guardrails). Defaults that
-keep it easy: no per-user human step, and no account system unless the product
-needs one (then prefer "bring your own GitHub login" over storing credentials). GitHub Pages hosts our web surfaces
+The hard line is the owner's money: agents never open an account, add a card
+or start paid spend (`goals.md`, Guardrails). Per-user API, database or server
+costs are fine in a paid product priced to cover them, once the owner has set
+up the account. Until then, the hosted path ships ready to switch on, with a
+self-run or bring-your-own-key path beside it. Accounts are fine wherever they
+make the product better (saved work, sync, teams, a subscription). GitHub Pages hosts our web surfaces
 at $0; another host (Cloudflare, Vercel) means an account only the owner can
 open, so it needs a stated reason Pages cannot meet.
 
 ### Rule of thumb: anyone can deploy it themselves (owner, 2026-10-15)
+
+**Superseded 2026-11-24: hosted by default, self-deploy only on request.** The
+owner: "i think the free tools and self host we can move away from. i think hosted saas generally simplifies and is actually better value for most customers unless there is a speciifc request otherwise". Earlier the same day: "I think the hosted saas for them is better for business. I am happy to give away value but I'm not running a charity primarily. giving away value is good to do"**).**  Products and
+free tools are hosted on the owner's infrastructure, and products are sold
+through Paddle by subscription or one-off licence. Build the self-deploy
+flow described below only when a specific request asks for it, or as a paid
+self-hosted tier that buyers want.
 
 Build every app so that a stranger can run their own copy of it, in their own
 cloud account, without us. That lets other people set up businesses from
@@ -355,7 +375,8 @@ or `localStorage` entry a feature needs is fine, and is named here; an
 identifier used for analytics needs consent from EU/UK visitors first;
 accounts, email sign-ups, server logs and server-side features are fine with a
 lawful basis and a notice that says what, why, who receives it and how long it
-is kept. If everything is client-side, say so. It is a feature:
+is kept. If everything is client-side, say so; it is a fact to state, not a design
+goal (owner, 2026-11-24). For example:
 
 > Everything runs in your browser. Your data is never uploaded, and we don't
 > have accounts, tracking cookies, or an analytics vendor. We count anonymous
@@ -519,9 +540,10 @@ No third-party donation links (one owner-approved exception: a plain link to
 `https://buymeacoffee.com/duncanhaywood`; see §2's self-deploy rule), and never in front of a feature — a donation
 prompt lives in the README and the footer, nowhere a user has to pass through.
 
-What "free for now" is buying: usage data, which is the only evidence we have
-about which product deserves more time. Design so that turning payment on later
-is a change of who holds the key or a hosted tier — not a rewrite.
+Free is for lead magnets and what is already promised as free. Products with
+depth carry a paid tier aimed at the $10k MRR goal (`prompts/goals.md`, "North
+star"), built so it ships dark until the owner's checkout link is set. Design
+it so that turning payment on is a config change, not a rewrite.
 
 ## 7. Definition of done
 

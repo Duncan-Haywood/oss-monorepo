@@ -34,3 +34,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-24) MAD weights in real time 2026-11-24 (README "Composite weights set in real time": 16 of 16 called, 8 of 12 before NBER, M3 fails under P3, the 2002-03 pair kept)
 - (moved 2026-11-24) real vintages 2026-11-24 (README "Turns on real vintages": FRED-MD 1999-2021, 2001 peak and 2009 trough dated 4 months off for years, V2/V4 fail)
 - (moved 2026-11-24) heavy-late warning ships 2026-11-24 (README "A heaviest-is-latest warning")
+- (moved 2026-11-24) tolerant call rule 2026-11-24 (README "A tolerant call rule on real vintages": 6-month window calls 2001 peak and 2009 trough on time; the 2001 trough stays 61 months late, a jobless recovery on vintages)
