@@ -878,3 +878,18 @@ def test_priced_two_phase_plan_is_capped_at_the_budget():
     assert old["design"] == new["design"] == "cells"
     assert len(pilot) + sum(old["to_label"]) > n
     assert len(pilot) + sum(new["to_label"]) <= n
+
+
+def test_rare_fallback_absolute_bar_7bf_summary_matches_the_log_and_paper():
+    """7bf: the committed summary holds the numbers the log, README and paper quote."""
+    here = Path(__file__).resolve().parent
+    txt = (here / "experiments" / "h7bf_rare_fallback_abs.txt").read_text()
+    assert "cells run: 92; errors (cell with < 2 labels): 0" in txt
+    assert "P1 pooled_cv under 93% in 33 of 33 cells" in txt
+    assert "P4a mean cost 0.0053 <= 0.01: yes; P4b largest 0.0230 <= 0.05: yes" in txt
+    assert "Decision rule (d)" in txt
+    w3 = next(l for l in txt.splitlines() if l.startswith("w3: "))
+    assert "(('sadness p0.02', 200), 't10', 91.6)" in w3 and "(('gratitude p0.01', 1000), 't10', 92.6)" in w3
+    assert "do-no-harm failures (P3) []" in w3
+    paper = (here / "paper" / "paper.md").read_text()
+    assert "0.0053" in paper and "91.6%" in paper and "93.2% or more" in paper
