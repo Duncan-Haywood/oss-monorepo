@@ -939,8 +939,7 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const network = externalCallExceptions(surfaces).length;
   // Plus one per live product under "Products" (company.mjs); products in
   // development are bold, not linked, so they are not "- [" bullets.
-  assert.equal(bullets.length, surfaces.length + 12 + audiences + topics + agentBlog + network + LIVE_PRODUCTS.length);
-  assert.equal(bullets.length, surfaces.length + 13 + audiences + topics + agentBlog + network);
+  assert.equal(bullets.length, surfaces.length + 13 + audiences + topics + agentBlog + network + LIVE_PRODUCTS.length);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }

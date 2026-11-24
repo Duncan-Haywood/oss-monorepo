@@ -12935,7 +12935,10 @@ ${asOf}`;
  * publish its second half as body prose.
  */
 const LLMS_INDEX_DESC_MAX = 140;
-const LLMS_INDEX_TOOLS_PER_CATEGORY = 4;
+// 3, not 4, since 2026-11-24: the index now opens with the products and
+// industries, and the free tools are the front door to them rather than the
+// headline. Every tool is still in llms-full.txt and on its category page.
+const LLMS_INDEX_TOOLS_PER_CATEGORY = 3;
 
 export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] }, agentPostCount = 0, full = false, updated = '' } = {}) {
   const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
@@ -13106,7 +13109,7 @@ ${full ? `In development (not for sale yet, no sign-ups; the order changes with 
 
 ${IN_DEVELOPMENT.map(([name, what]) => `- **${name}**, ${what}.`).join('\n')}` : `In development, not for sale yet: ${IN_DEVELOPMENT.map(([name]) => name).join('; ')}. Each is described in [llms-full.txt](${baseUrl}llms-full.txt).`}
 
-Built for ${full ? INDUSTRIES : 'construction, manufacturing and engineering SMBs first, then small nonprofits and businesses facing e-invoicing mandates'}. A business with a problem software could solve can [ask for it to be built](${baseUrl}${CUSTOM_DEV_PATH}), free and in public.
+${full ? `Built for ${INDUSTRIES}. A business with a problem software could solve can [ask for it to be built](${baseUrl}${CUSTOM_DEV_PATH}), free and in public.` : 'Built for construction, manufacturing and other small businesses; the industry pages follow.'}
 `;
 
   const live = LIVE_PRODUCTS.map((p) => `${p.name}, for ${p.audience}`);
@@ -13117,7 +13120,7 @@ Built for ${full ? INDUSTRIES : 'construction, manufacturing and engineering SMB
 ${products}
 ${audienceSection ? `${audienceSection}\n` : ''}## Free tools
 
-${formatCount(surfaces.length)} free, open-source tools (browser calculators and checks, self-hostable apps, command-line tools) for sellers, contractors, logistics buyers and small teams. No account; the numbers you type stay in your browser. Estimates and records to act on, not professional advice; each page states its limits.
+${full ? `${formatCount(surfaces.length)} free, open-source tools (browser calculators and checks, self-hostable apps, command-line tools) for sellers, contractors, logistics buyers and small teams. No account; the numbers you type stay in your browser. Estimates and records to act on, not professional advice; each page states its limits.` : 'No account; inputs stay in the browser. Estimates, not professional advice.'}
 
 ${network}${sections.join('\n')}
 ${researchSection ? `${researchSection}\n` : ''}${optional}${/^\d{4}-\d{2}-\d{2}/.test(updated) ? `\n${llmsAsOfLine(updated)}\n` : ''}`;
