@@ -518,8 +518,8 @@ flagships:
       beside IfcTester 2026-11-24 (eval/ifcopenshell-test-files-*); WHERE rules and
       seeded faults 2026-11-24 (eval/where-rules-*); global RULEs seeded 2026-11-24
       (eval/where-rules-global-seeds-*); next: a 2-record aggregation cycle
-      (NEXT.md); STEP exports as nested ifcXML (eval/ifc4-layout.mjs). IFC5:
-      eval/ifcx-twins.mjs on new IFC5-development files.
+      (NEXT.md); --to-ifcxml 2026-11-24 (eval/ifcxml-export-*); next: the page's
+      .ifcxml download. IFC5: eval/ifcx-twins.mjs on new IFC5-development files.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked") and HISTORY.md.
