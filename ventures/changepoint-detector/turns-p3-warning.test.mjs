@@ -7,10 +7,10 @@ import { TURNS_CSV, TURNS_COLUMNS, TURNS_SD_UNTIL } from './example-turns.mjs';
 // README "P3 and the heavy-late warning together" (2026-11-24, pre-registered; J1-J5 pass, P3 ships for composites).
 test('pre-registered round: P3 with the warning beats the 6-month rule with it on five makes and keeps NBER 16 of 16', async () => {
   const o = await run();
-  assert.equal(o.primary.gain.d.toFixed(3), '0.032');
-  assert.equal(o.primary.gain.wins, 93); assert.equal(o.primary.gain.losses, 16);
-  assert.equal(o.primary.arms.PW.F.toFixed(3), '0.914');
-  assert.equal(o.primary.arms.SW.F.toFixed(3), '0.882');
+  assert.equal(o.primary.gain.d.toFixed(3), '0.029');
+  assert.equal(o.primary.gain.wins, 78); assert.equal(o.primary.gain.losses, 16);
+  assert.equal(o.primary.arms.PW.F.toFixed(3), '0.916');
+  assert.equal(o.primary.arms.SW.F.toFixed(3), '0.887');
   for (const g of Object.values(o.guards)) assert.ok(g.arms.PW.F > g.arms.SW.F);
   assert.equal(o.fred.PW.matched, 16); assert.equal(o.fred.PW.falses, 2);
   assert.deepEqual(o.fred.PW.extra, ['peak 2002-11', 'trough 2003-04']);

@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKmJrj8cToLjX32JgYZ",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T21:09:44Z",
+  "ended": "2026-11-24T21:26:20Z",
+  "wall_minutes": 24.87,
+  "tokens_in": 16366270,
+  "tokens_out": 60026,
+  "cost_usd": 6.0898,
+  "tool_calls": 102,
+  "task": "changepoint-detector flagship: pre-registered round on whether a published composite fed as one column should take 3-month phases, on an unseen make (Japan's Cabinet Office coincident CI vs ESRI reference dates)",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18662",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first fix attempt (move each turn to the extreme between its neighbours) lost the 1969-70 recession on GDPC1",
+      "fix": "rejected before commit; replaced by a narrower short-phase pair choice matching the module header"
+    },
+    {
+      "what": "misread a test diff's +/- direction once (assert.equal(file, output) puts the pinned file as 'actual')",
+      "fix": "rechecked with a direct old-vs-new comparison before deciding"
+    },
+    {
+      "what": "README draft claimed real disposable income moved; it did not under the shipped fix",
+      "fix": "checked every moved figure against regenerated out.txt files and corrected"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/turning-points.mjs",
+      "issue": "header said 'a short phase loses its two ends' weaker turn pair' but the code always dropped the phase's own ends; fixed in this PR"
+    },
+    {
+      "file": "ventures/changepoint-detector/README.md",
+      "issue": "the open item named the Conference Board or CEPR as the next make; neither (nor esri.cao.go.jp, e-stat, dbnomics, OECD SDMX) is reachable through the proxy, only raw.githubusercontent.com; GitHub code search found the data"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "the round's item was a measurement; the run also changed shipped code (turning-points.mjs) after finding a bug, which re-pinned 12 earlier tests' numbers",
+      "did": "fixed the bug, reran all 19 earlier turn rounds, checked no pre-registered verdict moved, and listed every moved figure in the README",
+      "result": "no verdict moved; single-series figures moved both ways"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-dating-japans-business-cycle-and-a-bug-in-our-peak-rule.md",
+    "ventures/changepoint-detector/README.md (Japan's coincident index)"
+  ],
+  "goal": "deepen flagship 4 (changepoint-detector)",
+  "notes": "Round: J1 fails (3-month phases 11/14, 9 false after the fix; 10 in the registered run), J2 fails (+0 matches, +2 false), J3 and J4 pass; nothing ships from the round. Fix: enforceOnce short-phase pair choice. Verification: turn-related tests 99/99 after final pins; full `run_venture_tests.py changepoint-detector` 888/889 on the first run (the one failure was the BBQ D3 text pin, fixed in a3961abc0), rerun on the final tree: 1 suite run, 0 failed (exit 0); venture-preflight changepoint-detector: clean (exit 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0a5a1e44-2f8a-5410-9dd4-983af52c35a7",
+    "transcripts": 1,
+    "first": "2026-11-24T21:09:44Z",
+    "last": "2026-11-24T21:34:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 100,
+        "input": 188,
+        "output": 60026,
+        "thinking": 18490,
+        "cache_read": 16158991,
+        "cache_write_5m": 0,
+        "cache_write_1h": 207091,
+        "api_equivalent_usd": 6.0898,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 100,
+      "input": 188,
+      "output": 60026,
+      "thinking": 18490,
+      "cache_read": 16158991,
+      "cache_write_5m": 0,
+      "cache_write_1h": 207091,
+      "api_equivalent_usd": 6.0898,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 102,
+    "tools": {
+      "Bash": 96,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.87,
+      "active_minutes": 24.87,
+      "model_minutes": 12.88,
+      "tool_minutes": 11.99,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an econometrician sourcing two index copies and reference dates, pre-registering and scoring a dating round, then finding, fixing and re-verifying a Bry-Boschan bug across 19 prior rounds",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 164.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

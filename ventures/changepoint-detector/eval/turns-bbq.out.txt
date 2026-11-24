@@ -4,13 +4,13 @@ macrodata realgdp: n 203, NBER turns 16, BBQ turns 13, matched 10/16, false 2
   F1 bbq 0.774 (random 0.319, excess +0.455, p 0.000)  shipped 7 cuts F1 0.160  bbq - shipped +0.614
   NBER  1960Q2p 1961Q1t 1969Q4p 1970Q4t 1973Q4p 1975Q1t 1980Q1p 1980Q3t 1981Q3p 1982Q4t 1990Q3p 1991Q1t 2001Q1p 2001Q4t 2007Q4p 2009Q2t
   BBQ   1960Q1p 1960Q4t 1969Q3p 1970Q1t 1973Q4p 1975Q1t 1980Q1p 1980Q3t 1981Q3p 1982Q1t 1990Q2p 1991Q1t 2008Q2p
-  growth mode (no bar): 34 turns, matched 5/16, false 26, F1 0.346
+  growth mode (no bar): 34 turns, matched 6/16, false 25, F1 0.385
 
-macrodata realcons: n 203, NBER turns 16, BBQ turns 7, matched 6/16, false 1
-  F1 bbq 0.560 (random 0.255, excess +0.305, p 0.002)  shipped 7 cuts F1 0.160  bbq - shipped +0.400
+macrodata realcons: n 203, NBER turns 16, BBQ turns 7, matched 7/16, false 0
+  F1 bbq 0.640 (random 0.255, excess +0.385, p 0.000)  shipped 7 cuts F1 0.160  bbq - shipped +0.480
   NBER  1960Q2p 1961Q1t 1969Q4p 1970Q4t 1973Q4p 1975Q1t 1980Q1p 1980Q3t 1981Q3p 1982Q4t 1990Q3p 1991Q1t 2001Q1p 2001Q4t 2007Q4p 2009Q2t
-  BBQ   1973Q3p 1974Q1t 1979Q4p 1980Q2t 1990Q3p 1991Q1t 2007Q4p
-  growth mode (no bar): 26 turns, matched 5/16, false 20, F1 0.364
+  BBQ   1973Q3p 1974Q4t 1979Q4p 1980Q2t 1990Q3p 1991Q1t 2007Q4p
+  growth mode (no bar): 27 turns, matched 5/16, false 21, F1 0.356
 
 macrodata realinv: n 203, NBER turns 16, BBQ turns 29, matched 12/16, false 16
   F1 bbq 0.596 (random 0.376, excess +0.220, p 0.003)  shipped 7 cuts F1 0.400  bbq - shipped +0.196
@@ -22,35 +22,35 @@ macrodata realdpi: n 203, NBER turns 16, BBQ turns 6, matched 2/16, false 4
   F1 bbq 0.417 (random 0.240, excess +0.176, p 0.067)  shipped 12 cuts F1 0.400  bbq - shipped +0.017
   NBER  1960Q2p 1961Q1t 1969Q4p 1970Q4t 1973Q4p 1975Q1t 1980Q1p 1980Q3t 1981Q3p 1982Q4t 1990Q3p 1991Q1t 2001Q1p 2001Q4t 2007Q4p 2009Q2t
   BBQ   1973Q4p 1975Q1t 1980Q4p 1987Q2t 2004Q4p 2008Q1t
-  growth mode (no bar): 33 turns, matched 4/16, false 26, F1 0.431
+  growth mode (no bar): 37 turns, matched 5/16, false 29, F1 0.364
 
 us-real-gdp: n 204, NBER turns 16, BBQ turns 16, matched 15/16, false 1
   F1 bbq 0.941 (random 0.338, excess +0.603, p 0.000)  shipped 6 cuts F1 0.083  bbq - shipped +0.858
   NBER  1953Q3p 1954Q2t 1957Q3p 1958Q2t 1960Q2p 1961Q1t 1969Q4p 1970Q4t 1973Q4p 1975Q1t 1980Q1p 1980Q3t 1981Q3p 1982Q4t 1990Q3p 1991Q1t
   BBQ   1953Q2p 1954Q1t 1957Q3p 1958Q1t 1960Q1p 1960Q4t 1969Q3p 1970Q1t 1973Q4p 1975Q1t 1980Q1p 1980Q3t 1981Q3p 1982Q3t 1990Q2p 1991Q1t
-  growth mode (no bar): 35 turns, matched 7/16, false 24, F1 0.453
+  growth mode (no bar): 35 turns, matched 8/16, false 22, F1 0.528
 
-industrial production (q): n 128, NBER turns 12, BBQ turns 13, matched 10/12, false 3
-  F1 bbq 0.815 (random 0.398, excess +0.417, p 0.000)  shipped 10 cuts F1 0.500  bbq - shipped +0.315
+industrial production (q): n 128, NBER turns 12, BBQ turns 13, matched 11/12, false 2
+  F1 bbq 0.889 (random 0.398, excess +0.491, p 0.000)  shipped 10 cuts F1 0.500  bbq - shipped +0.389
   NBER  1960Q2p 1961Q1t 1969Q4p 1970Q4t 1973Q4p 1975Q1t 1980Q1p 1980Q3t 1981Q3p 1982Q4t 1990Q3p 1991Q1t
-  BBQ   1961Q1t 1966Q4p 1967Q2t 1969Q3p 1970Q4t 1974Q3p 1975Q2t 1980Q1p 1980Q3t 1981Q3p 1982Q4t 1990Q3p 1991Q1t
+  BBQ   1961Q1t 1966Q4p 1967Q2t 1969Q3p 1970Q4t 1973Q4p 1975Q2t 1980Q1p 1980Q3t 1981Q3p 1982Q4t 1990Q3p 1991Q1t
   growth mode (no bar): 19 turns, matched 9/12, false 10, F1 0.606
 
-industrial production (m): n 696, NBER turns 20, BBQ turns 26, matched 13/20, false 10
-  F1 bbq 0.708 (random 0.343, excess +0.365, p 0.000)  shipped 9 cuts F1 0.258  bbq - shipped +0.450
+industrial production (m): n 696, NBER turns 20, BBQ turns 28, matched 15/20, false 10
+  F1 bbq 0.760 (random 0.348, excess +0.412, p 0.000)  shipped 9 cuts F1 0.258  bbq - shipped +0.502
   NBER  1948-11p 1949-10t 1953-07p 1954-05t 1957-08p 1958-04t 1960-04p 1961-02t 1969-12p 1970-11t 1973-11p 1975-03t 1980-01p 1980-07t 1981-07p 1982-11t 1990-07p 1991-03t 2001-03p 2001-11t
-  BBQ   1948-06p 1949-10t 1951-04p 1952-07t 1953-07p 1954-04t 1957-02p 1958-04t 1959-06p 1960-12t 1967-01p 1967-07t 1969-08p 1970-11t 1973-11p 1975-05t 1981-07p 1982-12t 1989-01p 1989-07t 1990-09p 1991-03t 2000-05p 2001-11t 2002-06p 2003-04t
-  growth mode (no bar): 33 turns, matched 10/20, false 20, F1 0.509
+  BBQ   1948-06p 1949-10t 1951-04p 1952-07t 1953-07p 1954-04t 1957-02p 1958-04t 1960-01p 1960-12t 1967-01p 1967-07t 1969-08p 1970-11t 1973-11p 1975-05t 1979-03p 1980-07t 1981-07p 1982-12t 1989-01p 1989-07t 1990-09p 1991-03t 2000-05p 2001-11t 2002-06p 2003-04t
+  growth mode (no bar): 35 turns, matched 13/20, false 19, F1 0.596
 
-Iran non-oil GDP, growth mode (HP 1600 on log level): 18 turns, matched 9/13 within 1 quarter, false 9
+Iran non-oil GDP, growth mode (HP 1600 on log level): 18 turns, matched 10/13 within 1 quarter, false 8
   F1 0.727 (random 0.516, excess +0.211, p 0.016)
   MBRI  1368Q1t 1370Q3p 1372Q4t 1373Q2p 1374Q1t 1376Q1p 1378Q1t 1378Q4p 1380Q1t 1386Q1p 1388Q2t 1390Q2p 1392Q2t
-  BBQ   1368Q1t 1369Q4p 1372Q4t 1373Q2p 1374Q1t 1375Q4p 1376Q4t 1377Q4p 1380Q1t 1381Q1p 1381Q3t 1384Q1p 1385Q2t 1386Q2p 1388Q3t 1390Q2p 1391Q1t 1392Q4p
+  BBQ   1368Q1t 1370Q3p 1372Q4t 1373Q2p 1374Q1t 1375Q4p 1376Q4t 1378Q3p 1380Q1t 1381Q1p 1381Q3t 1384Q4p 1385Q2t 1386Q2p 1387Q2t 1390Q2p 1391Q1t 1391Q4p
   on the package's hp_cycle column (no bar): 19 turns, matched 12/13, false 7, F1 0.765: 1368Q1t 1370Q3p 1372Q4t 1373Q2p 1374Q1t 1376Q1p 1378Q1t 1378Q3p 1380Q1t 1381Q1p 1381Q4t 1383Q1p 1383Q4t 1384Q4p 1385Q2t 1386Q1p 1387Q2t 1390Q2p 1392Q2t
 
 D1 FAILS: GDP matched share 0.781 (bar 0.80), false turns 2 and 1 (bar <= 2 each)
-D2 PASSES: mean excess over random +0.363 (bar +0.15), p <= 0.05 on 6 of 7 (bar 6)
-D3 PASSES: mean bbq - shipped +0.407 (bar +0.10), 7 wins, 0 losses
+D2 PASSES: mean excess over random +0.392 (bar +0.15), p <= 0.05 on 6 of 7 (bar 6)
+D3 PASSES: mean bbq - shipped +0.436 (bar +0.10), 7 wins, 0 losses
 G1 PASSES: Iran growth F1 0.727 (bar 0.447), excess +0.211 (bar +0.10), p 0.016 (bar 0.05)
 
 Ships: nothing.

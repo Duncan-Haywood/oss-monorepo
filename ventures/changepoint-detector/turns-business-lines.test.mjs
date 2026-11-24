@@ -6,9 +6,9 @@ import { lineLeads } from './line-leads.mjs';
 // README "Several business lines that share a cycle" (2026-11-24, pre-registered; S1 and S2 pass, S3 and S4 fail).
 test('business lines, typical noise: composite beats revenue and the heaviest line, not the hindsight best; readout not offered', () => {
   const a = arm();
-  assert.equal(a.fc.toFixed(3), '0.932');
-  assert.equal(a.fl[1].toFixed(3), '0.869'); // revenue alone
-  assert.equal(a.best.toFixed(3), '0.974');
+  assert.equal(a.fc.toFixed(3), '0.933');
+  assert.equal(a.fl[1].toFixed(3), '0.870'); // revenue alone
+  assert.equal(a.best.toFixed(3), '0.975');
   assert.ok(a.S1 && a.S2);
   assert.ok(!a.S3 && !a.S4);
   assert.deepEqual(a.heavyCount, [0, 0, 500, 0]); // the sticky customers line always weighs most
