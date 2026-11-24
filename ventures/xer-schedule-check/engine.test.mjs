@@ -520,3 +520,26 @@ test("CPM: a finished node's unspent FS/FF lag comes back off its late date, to 
   const old = schedule(x, { variant: { bwDoneLagLeft: false } });
   assert.equal(formatDate(old.tasks.get("1").lf), "2025-12-09 08:00");
 });
+
+test("red team 2026-11-24: a started predecessor's SS lag does not pull its late start earlier", () => {
+  // A started Mon with 8 h left; SS lag 16 to B (not started) -> FS -> End, and
+  // a longer parallel C -> End gives B float. P6 (bwSSActivePred "rem"): A's
+  // remaining work may start as late as B does, because the part of the lag
+  // that ran is behind the data date.
+  const x = project(
+    [task("1", "A", 8, { status_code: "TK_Active", act_start_date: "2025-12-01 08:00", target_drtn_hr_cnt: 24 }), task("2", "B", 16), task("3", "End", 0, { task_type: "TT_FinMile" }), task("4", "C", 40)],
+    [link("1", "2", "1", "PR_SS", 16), link("2", "3", "2"), link("3", "3", "4")],
+    { last_recalc_date: "2025-12-03 08:00" },
+  );
+  const out = schedule(x);
+  assert.equal(at(out, x, "A").ls, at(out, x, "B").ls);
+  assert.notEqual(at(schedule(x, { variant: { bwSSActivePred: false } }), x, "A").ls, at(out, x, "B").ls, "the generic rule subtracts the lag");
+});
+
+test("red team 2026-11-24: the driving path starts from the finishing activity even when it has successors", () => {
+  // A (40 h) sets the project finish; its only successor B (8 h, SS) ends earlier,
+  // so the last activity to finish still has a successor.
+  const x = project([task("1", "A", 40), task("2", "B", 8)], [link("1", "2", "1", "PR_SS")]);
+  const out = schedule(x);
+  assert.deepEqual(drivingPath(out, "1").map((id) => out.model.tasks.get(id).code), ["A"]);
+});
