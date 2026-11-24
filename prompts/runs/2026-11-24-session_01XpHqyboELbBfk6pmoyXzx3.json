@@ -27,13 +27,19 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 8,
+  "tests_added": 9,
   "outcome": "success",
   "errors": [
-    "candid.org is unreachable through the session proxy (DNS), so the Candid 22%/72% figure was checked against search-result quotes of the article, not the page itself."
+    "candid.org is unreachable through the session proxy (DNS), so the Candid 22%/72% figure was checked against search-result quotes of the article, not the page itself.",
+    "First full check.mjs run found 12 problems: industries/ unknown to check.mjs, description 177 chars, and /grants/ links counted dead (Worker-served, not in the artifact). Fixed: INDUSTRIES_DIR in SITE_OWN_DIRS with a per-page disclaimer check, WORKER_SERVED_PREFIXES ['grants/'], description 142 chars."
   ],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/check.mjs",
+      "issue": "No notion of paths the Worker serves from another binding (/grants/), so the first page to link Grant Autopilot from the static site failed the dead-link check."
+    }
+  ],
   "deviations": [
     {
       "file": "CLAUDE.md",
@@ -44,7 +50,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Grant Autopilot copy and prices read live from https://marisstella.app/grants and /grants/pricing on 2026-11-24. node --test industry-nonprofits.test.mjs: 8/8 pass. Full build + check.mjs: see follow-up commit.",
+  "notes": "Grant Autopilot copy and prices read live from https://marisstella.app/grants and /grants/pricing on 2026-11-24. node --test industry-nonprofits.test.mjs check.test.mjs: pass. Full build (node build.mjs) exit 0; node check.mjs: 'looks publishable: 1437 products, 54 category pages, 13147 pages, no dead links.' Playwright: no horizontal overflow at 360 and 1200 px.",
   "corrections": [],
   "redteam": null
 }
