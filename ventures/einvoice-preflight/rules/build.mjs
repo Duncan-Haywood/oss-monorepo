@@ -295,12 +295,13 @@ export function renderAll() {
     out.push([`${lang}/index.html`, renderHub(rules, lang)]);
     for (const r of rules) out.push([`${lang}/${slugOf(r.id)}.html`, renderRule(r, lang)]);
   }
-  out.push(["index.html", renderChooser(rules.length)]);
+  out.push(["index.html", renderChooser(rules)]);
   return out;
 }
 
 /** rules/ itself: a language chooser, so the bare folder URL is not a 404. */
-export function renderChooser(n) {
+export function renderChooser(rules) {
+  const n = rules.length;
   return `<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8">
@@ -312,10 +313,15 @@ ${LANGS.map((l) => `<link rel="alternate" hreflang="${l}" href="${ORIGIN}${l}/">
 <style>${STYLE}</style>
 </head><body><main>
 <h1>E-invoice validation errors explained</h1>
+${LANGS.map((l) => `<section lang="${l}">
+<h2><a href="${l}/index.html" hreflang="${l}">${esc(T[l].hubH1)}</a> (${LANG_NAME[l]})</h2>
+<p>${esc(T[l].hubLede(n))}</p>
+</section>`).join("\n")}
+<section>
+<h2>All rules</h2>
+${Object.keys(SOURCES).map((s) => `<p><strong>${esc(T.en.groups[s])}:</strong> ${rules.filter((r) => r.source === s).map((r) => `<a href="en/${slugOf(r.id)}.html">${esc(r.id)}</a>`).join(", ")}</p>`).join("\n")}
+</section>
 <p>${T.en.disclaimer}</p>
-<ul>
-${LANGS.map((l) => `<li><a href="${l}/index.html" hreflang="${l}" lang="${l}">${esc(T[l].hubH1)}</a> (${LANG_NAME[l]})</li>`).join("\n")}
-</ul>
 </main></body></html>
 `;
 }
