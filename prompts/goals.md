@@ -28,6 +28,160 @@ coffee or sponsor link.
 it block work from getting done like in the past." Selling through the
 owner's merchant of record is on; it never gates other work (Guardrails,
 "Payments").
+**Updated 2026-11-24:** "this is the new overarching goal in the repo hit 10k
+mrr", with $10k monthly recurring profit as the stretch. That goal now sits
+above this order. See "North star" below.
+
+## North star: $10k MRR, then $10k MRP (owner, 2026-11-24)
+
+The owner, 2026-11-24: "setting a goal to hit 10k mrr. this is the new
+overarching goal in the repo hit 10k mrr." **Reaching $10,000 of monthly
+recurring revenue is the goal every track serves.** Better still, the
+owner added: **$10k of monthly recurring profit** ("even better if we can hit
+10k mrp"; "mrp is monthly recurring profit"). So $10k MRR is the first
+milestone and $10k MRP is the stretch, which means margin matters as well as
+revenue. It ranks above the 2026-10-15 priority order at the top of this
+file: where a run has to choose between pieces of
+work, it picks the one most likely to bring paying customers closer. Research,
+creative work and free tools still have their places. They help by building
+trust, traffic and reputation for the products people pay for, and they never
+replace that work.
+
+- **All new development points at it, fastest first.** The owner, same day:
+  "all new dev direction moves in that direction towards the tasks and whatnot
+  that move the needle towards unlocking that faster rather than slower." So
+  when a run chooses or scopes work, whether from the ideas inbox, website
+  requests, flagships or a free draw, it prefers the step that brings the first
+  (and then the next) paying subscriber soonest. The owner, same day:
+  "moving the free stuff to traffic and lead magnets and pushing stuff that
+  is for profit as highest priority." So the for-profit products (the
+  `proprietary` track in `LICENSING_TRANSITION.md`) come first. Free tools,
+  posts and pages exist to bring traffic and leads to them, and new free work
+  is judged by that. In rough order:
+  1. whatever stands between a subscription product and a sale: a working
+     paid tier, a pricing page, a checkout path that ships dark (Guardrails,
+     "Payments"), onboarding, licence checks, and the features buyers ask for;
+  2. getting buyers to those products: SEO and AEO pages, compliant
+     distribution, sales tools, and free tools and posts used as lead magnets
+     that link to a paid product;
+  3. retention: whatever keeps a subscriber paying next month;
+  4. everything else, which stays welcome but comes after these.
+  A run that takes other work says in a line of its run record how that work
+  helps the goal, or why it was the better call. This is judgment, not a gate.
+
+- **The best product for the user, not free-static-private by reflex.** The
+  owner, same day: "I think we also move from the stupid static page
+  requirement and over emphasis on free and privacy and no accounts to
+  generally giving max value to the user and trying to create the best
+  products we can for them hopefully generating revenue and moving towards
+  profitability." So:
+  - shape, hosting, accounts and data handling follow what makes the product
+    most valuable to its user. A static page, a client-only tool, "no
+    accounts" and "nothing leaves your browser" are options, not virtues to
+    reach for. Sign-in, saved work, sync, hosted features, team seats and
+    server-side processing are fine where they make a product better or
+    sellable;
+  - paid tiers are expected for products with depth. Free stays for lead
+    magnets and the things already promised as free;
+  - a product's privacy copy states accurately what it does, under the law
+    (the privacy rules below). It is not a selling point to design around;
+  - per-user running costs (a model call, a server, storage) are acceptable in
+    a paid product whose price covers them with a margin, on infrastructure the
+    owner has set up. Agents still never open accounts, add a card or start
+    paid spend themselves (Hard limits), so until the owner sets something up,
+    build the hosted path ready to switch on and keep a self-run or
+    bring-your-own-key path beside it.
+  Where older text below (the 2026-10-15 business model, "zero per-user
+  cost", "free for now", "no account system") pulls the other way, this wins.
+
+- **What counts.** Recurring subscription revenue paid through the owner's
+  merchant of record, per month, net of refunds. One-off licences, donations and
+  sponsorships are worth having but are not MRR. Record them beside it, not in
+  it. **MRP** is that MRR minus the monthly costs of earning it: the
+  merchant-of-record fees, model API and hosting bills, storage, domains and
+  paid tools. That favours products with near-zero cost per user
+  (`PRODUCT_PLAYBOOK.md`, zero per-user cost) and prices that cover any model
+  or server cost with a margin. The readings and the gap live in
+  [`portfolio/monetization/mrr.yaml`](../portfolio/monetization/mrr.yaml).
+  Only the owner can read the merchant dashboard, so only the owner fills in a
+  reading. An empty month is unmeasured, never zero.
+- **Where it comes from.** Payments run through Paddle (Guardrails,
+  "Payments"). The revenue comes from the subscription products in
+  [`LICENSING_TRANSITION.md`](../portfolio/monetization/LICENSING_TRANSITION.md)
+  (built in `private-monorepo`), plus the traffic, SEO, distribution and sales
+  work that brings them buyers. For example, $10k is about 340 customers at
+  $29 a month, or 200 at $49. Pick the products and prices by their evidence in
+  [`models.yaml`](../portfolio/monetization/models.yaml), not by these
+  examples. MRP needs more than that, because each subscriber's own
+  costs come off first.
+- **What it does not change.** The hard limits below hold exactly as before:
+  no fabricated numbers, no fake reviews or inflated claims, no paywall on
+  what the site already promises for free, no keys in agent reach, and money
+  and accounts stay with the owner. A run that would need to cross one of them
+  to move MRR leaves the money on the table. Missing revenue never blocks a
+  merge, and runs do not spend time re-measuring that MRR is $0 (Guardrails,
+  "Payments").
+
+## The 2026-11-24 pivot, in one place
+
+The owner, 2026-11-24: "again this is a big pivot for the whole thing." Every
+direction below is the owner's, from that day. It wins over older text in
+this file, `PRODUCT_PLAYBOOK.md`, `DIRECTION.md` and the track prompts that
+says otherwise. The hard limits under Guardrails still hold.
+
+1. **Goal: $10k MRR, then $10k MRP.** For-profit products come first. See
+   "North star" above.
+2. **Best product for the user.** Drop the static-page, free-first, privacy-
+   as-feature and no-accounts defaults. See "North star".
+3. **Hosted SaaS by default** for products and free tools alike. Self-deploy
+   is built only when a request asks for it. Being the operator is fine. See
+   Mission, "The business model".
+4. **Productize the tools.** "I think we also want to productize a lot of the
+   tools move them to potentially more feature rich"; "move things away from
+   static pages into full feature web apps to deliver more value. also the
+   possibility for ios android macos ipados etc native apps. no need to shy
+   away from those." So a tool worth keeping grows into a real web app, with
+   accounts, saved work, history, team use, integrations and a paid tier where
+   one fits. Native iOS, iPadOS, Android and macOS apps are welcome where users
+   would reach for them (`platform/distribution/`). Publishing to an app store
+   under the owner's developer account stays an owner step, but building the
+   app is not.
+5. **Hosting from first principles.** "idt default is a good reason. it is
+   soo easy to migrate that if from first principles anoterh provider is
+   better it makes sense to move." Cloudflare is where things run today, not
+   a rule. When AWS, GCP, Azure, Hetzner, Vercel, Fly, a managed Postgres or
+   anything else fits a product better on cost, features, reliability or
+   speed, write the reasoning down (a short `docs/reports/` note) and move it.
+   Opening or paying for a new provider account is still the owner's step.
+6. **Minimise click ops.** "I think one of the things is to minimize click
+   ops as much as possible." Every provider setting that has an API or a
+   Terraform/OpenTofu provider lives in the repo with an apply step: DNS,
+   Workers, databases, email domains, the Paddle catalogue (products, prices,
+   discounts, webhooks), app-store metadata. What stays manual is only what
+   providers force to be manual (signing up, identity checks, a bank, a card)
+   and pasting secret values. When something has to be clicked, write down the
+   exact clicks in the repo so it is done once. See also "Direction:
+   everything as code".
+7. **Aggressive sales and marketing.** "I think we also want to move to a more
+   aggressive outreach through ai sales outbound and inbound email marketing
+   and a lot of marketing and sales work including organic etc." Build and run
+   the machine for this:
+   - AI-assisted outbound to businesses that fit a product;
+   - inbound: lead magnets, opt-in lists, newsletters, nurture sequences;
+   - organic: SEO and AEO, posts, comparisons, communities and social.
+   "Aggressive" means volume and persistence inside the law and the platforms'
+   rules, never past them:
+   - cold email follows CAN-SPAM in the US and GDPR/PECR in the EU and UK.
+     Every message identifies the sender, has a working unsubscribe that is
+     honoured, and avoids deceptive subject lines. Consumer marketing email
+     needs opt-in;
+   - no bought or scraped personal lists where the law forbids them;
+   - no sockpuppets or fake engagement, and nothing that breaks a
+     platform's terms;
+   - the honest-marketing hard limit applies to every message.
+   Agents build the sequences, lists, targeting and tooling. Sending
+   under the portfolio's name and any paid send volume are switched on once by
+   the owner (Hard limits, "Owner-only actions"), and after that they run.
 
 ## Mission
 
@@ -48,6 +202,19 @@ and one platform that runs them:
   stored or sent anywhere else. How to build this:
   `PRODUCT_PLAYBOOK.md` §2, "Rule of thumb: anyone can deploy it
   themselves".
+  **Superseded for products, 2026-11-24.** The owner: "I think the hosted saas for them is better for business. I am happy to give away value but I'm not running a charity primarily. giving away value is good to do". Products
+  (the `proprietary` track in `portfolio/monetization/LICENSING_TRANSITION.md`)
+  are now **hosted SaaS** that the owner runs and sells by subscription
+  through Paddle, or one-off licences. The owner then extended it to everything:
+  "i think the free tools and self host we can move away from. i think hosted saas generally simplifies and is actually better value for most customers unless there is a speciifc request otherwise". So **hosted is the default for every product and free tool**:
+  the owner runs it, and a customer signs up and uses it. Self-deploy pages,
+  multi-cloud deploy setups and deployer docs are no longer built by default.
+  Make one only when a specific request asks for it, or as a paid
+  self-hosted tier that buyers want. `sales-agent` is built to be run by
+  whoever deploys it and keeps its deploy path. Being the operator is
+  accepted (owner, same day: "which is fine"). The protection is now Paddle
+  as merchant of record, accurate terms and privacy pages, and the existing
+  disclaimers. No run spends time removing deploy pages that already exist.
   **Infrastructure as code** (the owner, 2026-10-16): "the deploy should be
   tf or similar i think as a suggestion but not a hard rule. iac sort of
   mentality." Prefer OpenTofu/Terraform (or the platform's own declarative
@@ -935,6 +1102,13 @@ when they don't, do the sensible thing and record it as a deviation
     (`docs/reports/2026-10-30-billing-plan.md`, Option A).
   - Payment code in a product stays off by default and runs on keys that
     whoever deploys it supplies, so a fork pays its deployer, never the owner.
+  - **The provider is Paddle** (owner, 2026-11-24: "we have payment rails
+    thorugh paddle now"). Build paid paths against Paddle (price ids,
+    Paddle.js or hosted checkout, webhooks; `private-monorepo`'s
+    `apps/grants/src/worker/ports/billing/paddle.ts` is the reference
+    adapter), and keep them dark until the owner sets the product's ids and
+    secrets in owner-only config. Agents never hold the Paddle login, API key
+    or webhook secret.
   - GitHub Sponsors donations stay allowed alongside.
   - **For profit, without blocking work** (owner, 2026-11-01: "I want to
     turn on for profit in this repo. don't let it block work from getting
