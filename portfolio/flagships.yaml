@@ -410,10 +410,10 @@ flagships:
     buildable: >-
       Search work in NEXT.md, no outside input: 12 teams below 132 carry-over or
       124-130 ruled out (eval/window-refill.c); bowling 26x38 1 off the bound and
-      limit-1 seasons 24x11, 26x12, 28x13 (eval/bowling-encoding.py: pick the
-      encoding, kissat404); 47/49 on 8x9 night designs (a split or resumable
-      search). Each is a hard combinatorial search; judge its worth before taking
-      it.
+      limit-1 seasons 24x11, 26x12, 28x13 at 3 (whole-week re-deals,
+      eval/bowling-week-lns-2026-11-24.txt; SAT or a 2-week neighbourhood next);
+      47/49 on 8x9 night designs (a split or resumable search). Each is a hard
+      combinatorial search; judge its worth before taking it.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed
