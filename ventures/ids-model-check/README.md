@@ -755,10 +755,14 @@ public exports up to 33 MB (ARCHICAD, Revit and a bridge model, 901,550
 entities) were written and read back: every entity's arguments equal the STEP
 reader's, and the checker's 540 verdicts from the 68 IDS files are the same on
 each export as on its STEP file (3,240 of 3,240). Against the IFC4 ADD2 XSD
-(xmllint) the files validate except where the XSD cannot hold the model: it
-allows one `HasOpenings` per element although EXPRESS gives a set, so a wall's
-second opening keeps its pointer to the wall (the file reads back whole, and
-the command says how many and exits 1). The IFC4X3 ADD2 XSD as published does
+(xmllint) 37 of the 42 small files validate, and every XSD error in the large
+ones is accounted for: either the source left a required attribute `$` (1,137,
+which `--conformance` reports on the STEP file too) or the XSD cannot hold the
+model (680). IFC4's XSD allows one `HasOpenings` per element although EXPRESS
+gives a set, so a wall's second opening keeps its pointer to the wall; the file
+reads back whole, and the command says how many and exits 1. Lists of lists
+are written flat, as the XSD's "list list" says, with `ifc:arraySize` giving
+the rows, which the reader now uses to cut them back. The IFC4X3 ADD2 XSD as published does
 not compile in xmllint (`maxOccurs="?"` in three places and list types built on
 complex types), so IFC4X3 exports follow its layout but are checked by reading
 back only. The check found one reader fault, fixed: an ifcXML file in IFC4X3
