@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%234c1b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ER%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Weekly Route Planner — which day each customer gets, free</title>
+  <meta name="description" content="Free weekly route planner for pool, lawn, pest control, cleaning and other recurring service routes. Paste your customers and visits a week; get which day each one is served, the routes for every day, and what it saves against your current days. Runs in your browser.">
+  <meta property="og:title" content="Weekly Route Planner — re-zone a recurring route book, free">
+  <meta property="og:description" content="Pick each customer's service day and every day's route to cut weekly drive time. Nothing uploaded.">
+  <link rel="canonical" href="./weekly.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Weekly Route Planner","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Paste recurring customers with visits a week and allowed days. Chooses each customer's service day(s) and every day's routes across your drivers, within a shift length, and shows the miles, hours and dollars saved against your current days. Runs in your browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does re-zoning a route book mean?","acceptedAnswer":{"@type":"Answer","text":"Choosing which day of the week each recurring customer is served so that each day's customers sit close together. A book that grew one sign-up at a time puts neighbours on different days, so a driver crosses town every day. Re-zoning puts them on the same day."}},{"@type":"Question","name":"How much can changing service days save?","acceptedAnswer":{"@type":"Answer","text":"On invented books of 40 to 150 customers with service days dealt out at random, as books grow, the planner cut weekly drive time by 35 to 43 percent; against cutting the map into one pie slice per day it cut 11 to 26 percent. Your saving depends on how scattered your days are today; paste your current days to see it on your own list."}},{"@type":"Question","name":"Can customers who need two visits a week keep a sensible gap?","acceptedAnswer":{"@type":"Answer","text":"Yes. Give the visits a week and the planner only uses spread patterns: two visits a week are Monday and Thursday, Monday and Friday, or Tuesday and Friday on a five-day week; three are Monday, Wednesday and Friday. You can also limit any customer to certain days."}},{"@type":"Question","name":"Will it move every customer to a new day?","acceptedAnswer":{"@type":"Answer","text":"No. Moving a customer costs a phone call and some goodwill, so the planner charges a set number of driving minutes per moved customer (10 by default) and only moves one when the saving is larger. Raise it to move fewer customers; set it to 0 to see the best possible week."}},{"@type":"Question","name":"Does it respect a driver's shift length?","acceptedAnswer":{"@type":"Answer","text":"Yes. Each route's driving plus service time is kept within the shift you set. If the customers cannot fit, the plan says how many hours over the week runs so you can add a driver, a working day or shorter visits."}},{"@type":"Question","name":"Is my customer list uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The list is read and planned in this browser tab. There are no accounts, cookies or servers involved, and nothing is stored."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f86; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    h4 { margin: 14px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f86; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    button:disabled { opacity: .6; cursor: wait; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f2f7f9; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #1f4a5d; }
+    footer { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid #6c8896; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; }
+    .warn { background: #fdf0d5; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #5c4508; }
+    .row3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .days { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+    .days label { display: flex; gap: 6px; align-items: center; font-weight: 400; margin: 0; }
+    .days input { width: auto; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: middle; margin-right: 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ROUTE STOP OPTIMIZER · WEEKLY PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which day should each customer get?</h1>
+    <p>For <strong>pool service, lawn care, pest control, cleaning, window washing, meter reading</strong> and any route where the same customers are served every week. Paste your customers with <strong>how many visits a week</strong> each needs. The planner chooses <strong>each customer's service day</strong> and <strong>every day's route</strong> for your drivers within a shift, and shows what it saves against <strong>the days they have now</strong>.</p>
+    <p class="note">Your customer list never leaves this browser tab. Planning aid, not legal, tax, or financial advice. For one day's stops, use the <a href="./index.html">daily stop optimizer</a>.</p>
+  </header>
+<main>
+  <section class="card">
+    <h2>Your customers</h2>
+    <label for="file">Upload a CSV</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="rows">…or paste rows: name, latitude, longitude, service minutes, visits a week, allowed days, current days</label>
+    <textarea id="rows" spellcheck="false" placeholder="name,lat,lng,service_min,visits_per_week,allowed_days,current_days&#10;Aspen pool,39.7392,-104.9903,25,1,,Tue&#10;Birch pool,39.7684,-104.9470,30,2,,Mon|Thu&#10;Cedar office,39.7170,-104.9530,20,1,Mon|Tue|Wed,Mon"></textarea>
+    <p class="note">Only name, latitude and longitude are needed; service minutes default to 0 and visits a week to 1. Allowed days limit when a customer can be served (blank means any working day); current days are what they get today, written like <code>Tue</code> or <code>Mon|Thu</code>, and are the baseline the saving is measured against.</p>
+    <div class="row3">
+      <div><label for="depot">Depot / yard (latitude, longitude)</label><input id="depot" placeholder="39.7420,-104.9850"></div>
+      <div><label for="vehicles">Drivers each day</label><input id="vehicles" inputmode="numeric" value="1"></div>
+      <div><label for="shift">Shift length (hours, driving plus service)</label><input id="shift" inputmode="decimal" value="8"></div>
+      <div><label for="move">Only move a customer to save at least (driving minutes a week)</label><input id="move" inputmode="decimal" value="10"></div>
+      <div><label for="circuity">Road miles per straight-line mile</label><input id="circuity" inputmode="decimal" value="1.3"></div>
+      <div><label for="mph">Average speed (mph)</label><input id="mph" inputmode="decimal" value="30"></div>
+      <div><label for="mpg">Vehicle miles per gallon</label><input id="mpg" inputmode="decimal" value="20"></div>
+      <div><label for="fuel">Fuel price ($ per gallon)</label><input id="fuel" inputmode="decimal" value="3.80"></div>
+      <div><label for="wage">Driver cost ($ per hour)</label><input id="wage" inputmode="decimal" value="25"></div>
+      <div><label for="weeks">Weeks you run the route a year</label><input id="weeks" inputmode="numeric" value="50"></div>
+    </div>
+    <p><strong>Working days</strong></p>
+    <div class="days" id="workdays">
+      <label><input type="checkbox" value="0" aria-label="Monday" checked> Mon</label>
+      <label><input type="checkbox" value="1" aria-label="Tuesday" checked> Tue</label>
+      <label><input type="checkbox" value="2" aria-label="Wednesday" checked> Wed</label>
+      <label><input type="checkbox" value="3" aria-label="Thursday" checked> Thu</label>
+      <label><input type="checkbox" value="4" aria-label="Friday" checked> Fri</label>
+      <label><input type="checkbox" value="5" aria-label="Saturday"> Sat</label>
+      <label><input type="checkbox" value="6" aria-label="Sunday"> Sun</label>
+    </div>
+    <button type="button" id="plan">Plan the week</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Upload or paste your customers, then click the button.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Your week</h2>
+    <div id="notices"></div>
+    <div class="big" id="big"></div>
+    <h3>Against your current days</h3>
+    <div id="cmp"></div>
+    <h3>Customers to move</h3>
+    <div id="moves"></div>
+    <h3>Map</h3>
+    <div class="legend" id="legend"></div>
+    <div id="map" role="img" aria-label="Plot of the depot and customers coloured by service day"></div>
+    <p class="note">Latitude and longitude with no basemap; colour is the service day (a twice-a-week customer shows its first day).</p>
+    <h3>Every day's routes</h3>
+    <div id="routes"></div>
+    <button type="button" id="download">Download the week as CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it works, and how it was checked</h2>
+    <p><strong>Problem:</strong> this is the periodic vehicle routing problem. Each customer needs a number of visits a week on one of its allowed patterns (spread out: two visits a week are Mon+Thu, Mon+Fri or Tue+Fri on a five-day week), each working day has your drivers' routes from one yard, and a route longer than the shift is penalised so heavily that the planner only runs over when nothing fits. <strong>Objective:</strong> least weekly driving time, plus your per-move charge for each customer taken off its current days. <strong>Search:</strong> ruin and recreate with simulated annealing: remove a customer and its nearest neighbours (or a whole route) from every day they are on, put each back on the pattern whose days' cheapest insertions sum lowest, tidy the touched routes with 2-opt, and keep the change by the annealing rule. Early on the overtime charge is low, so the search can pass through an over-full day on the way to a better week; it ends at full strength.</p>
+    <p><strong>Checked:</strong> on 85 small weeks (six customers, one or two drivers, a tight shift, some twice-a-week customers) the planner matched the optimum found by trying every pattern, driver split and visit order. On invented books of 40, 80 and 150 customers (5 books each, a quarter twice a week, an 8-hour shift), it cut weekly drive time by 43%, 40% and 35% against days dealt out at random, as books grow, and by 26%, 21% and 12% against one pie slice of the map per day, with no overtime where the baselines ran up to 4 hours a week over. Five seeds on the same book land within 2 to 4% of each other. <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/route-stop-optimizer/eval/weekly-2026-11-24.md" rel="noopener">Method and table</a>.</p>
+    <p><strong>Not modelled:</strong> the real road network, traffic, time windows inside the day, a customer who must keep the same driver, every-other-week customers, and turn-by-turn directions. <strong>Unverified:</strong> not yet measured against a published periodic-routing benchmark or a real company's route book.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What does re-zoning a route book mean?</h3>
+    <p>Choosing which day of the week each recurring customer is served so that each day's customers sit close together. A book that grew one sign-up at a time puts neighbours on different days, so a driver crosses town every day. Re-zoning puts them on the same day.</p>
+    <h3>How much can changing service days save?</h3>
+    <p>On invented books of 40 to 150 customers with service days dealt out at random, as books grow, the planner cut weekly drive time by 35 to 43 percent; against cutting the map into one pie slice per day it cut 11 to 26 percent. Your saving depends on how scattered your days are today; paste your current days to see it on your own list.</p>
+    <h3>Can customers who need two visits a week keep a sensible gap?</h3>
+    <p>Yes. Give the visits a week and the planner only uses spread patterns: two visits a week are Monday and Thursday, Monday and Friday, or Tuesday and Friday on a five-day week; three are Monday, Wednesday and Friday. You can also limit any customer to certain days.</p>
+    <h3>Will it move every customer to a new day?</h3>
+    <p>No. Moving a customer costs a phone call and some goodwill, so the planner charges a set number of driving minutes per moved customer (10 by default) and only moves one when the saving is larger. Raise it to move fewer customers; set it to 0 to see the best possible week.</p>
+    <h3>Does it respect a driver's shift length?</h3>
+    <p>Yes. Each route's driving plus service time is kept within the shift you set. If the customers cannot fit, the plan says how many hours over the week runs so you can add a driver, a working day or shorter visits.</p>
+    <h3>Is my customer list uploaded?</h3>
+    <p>No. The list is read and planned in this browser tab. There are no accounts, cookies or servers involved, and nothing is stored.</p>
+  </section>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace navigation software, a qualified professional or your own knowledge of your customers and roads. Results are planning estimates from the numbers you supply. You are responsible for reviewing and verifying its output before relying on it, and for agreeing any change of service day with your customers.</p>
+    <p><strong>Independent.</strong> Not affiliated with any mapping, routing, field-service or fleet-management vendor, and none is ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your customers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>week_planned</code>, <code>week_example_loaded</code>, <code>week_file_loaded</code>, <code>week_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parsePoint, money, num } from "./calc.mjs";
+    import { parseCustomers, planWeekFor, weekCsv, weekMapsLink, weekSampleText, weekSampleDepot } from "./week.mjs";
+    import { DAY_NAMES } from "./weekly.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const val = (id) => { const t = $("#" + id).value.trim(); return t === "" ? NaN : Number(t); };
+    const COLORS = ["#1f5f86", "#b5533c", "#2f7d4f", "#7b4fa0", "#a07b1f", "#1f8a8a", "#8a1f5c"];
+    const dayList = (ds) => ds.map((d) => DAY_NAMES[d]).join(" + ");
+    let last = null;
+
+    function drawMap(r) {
+      const pts = r.nodes, W = 640, H = 380, pad = 20;
+      const lats = pts.map((p) => p.lat), lngs = pts.map((p) => p.lng);
+      const minLat = Math.min(...lats), maxLat = Math.max(...lats), minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
+      const kx = Math.cos(((minLat + maxLat) / 2) * Math.PI / 180);
+      const s = Math.min((W - 2 * pad) / Math.max(1e-6, (maxLng - minLng) * kx), (H - 2 * pad) / Math.max(1e-6, maxLat - minLat));
+      const X = (p) => (pad + (p.lng - minLng) * kx * s).toFixed(1), Y = (p) => (H - pad - (p.lat - minLat) * s).toFixed(1);
+      let g = "";
+      r.best.routes.forEach((day, d) => day.forEach((route) => {
+        if (!route.length) return;
+        g += `<polyline fill="none" stroke="${COLORS[r.days[d]]}" stroke-opacity=".55" stroke-width="1.6" points="${[0, ...route, 0].map((k) => X(pts[k]) + "," + Y(pts[k])).join(" ")}"/>`;
+      }));
+      for (let c = 1; c < pts.length; c++) {
+        const first = r.patterns[c][r.best.pattern[c]][0];
+        g += `<circle cx="${X(pts[c])}" cy="${Y(pts[c])}" r="${pts[c].freq > 1 ? 6 : 4.5}" fill="${COLORS[r.days[first]]}"/>`;
+      }
+      g += `<rect x="${X(pts[0]) - 7}" y="${Y(pts[0]) - 7}" width="14" height="14" fill="#1b1f2a"/>`;
+      $("#map").innerHTML = `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">${g}</svg>`;
+      $("#legend").innerHTML = r.days.map((d) => `<span><i class="sw" style="background:${COLORS[d]}"></i>${DAY_NAMES[d]}</span>`).join("");
+    }
+
+    function render(r) {
+      last = r;
+      $("#notices").innerHTML = r.warnings.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+      const b = r.best, c = r.current, sv = r.save;
+      const big = sv ? [
+        [num(Math.max(0, sv.miles), 0) + " mi", "Fewer road miles a week than your current days"],
+        [num(Math.max(0, sv.hours), 1) + " h", "Less driver time a week"],
+        [money(Math.max(0, sv.money)), `Saved a week in fuel and labor${sv.year > 0 ? ` — about ${money(sv.year)} a year` : ""}`],
+        [String(r.moves.length), `Customer${r.moves.length === 1 ? "" : "s"} to move to a new day`],
+      ] : [
+        [num(b.miles, 0) + " mi", "Road miles a week"],
+        [num(b.hours, 1) + " h", "Driver hours a week (driving + service)"],
+        [money(b.money), "Fuel and labor a week"],
+        [num(b.overtimeHours, 1) + " h", "Over the shift across the week"],
+      ];
+      $("#big").innerHTML = big.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      const row = (n, x) => `<tr><td>${esc(n)}</td><td class="n">${num(x.miles, 0)}</td><td class="n">${num(x.driveHours, 1)}</td><td class="n">${num(x.hours, 1)}</td><td class="n">${num(x.overtimeHours, 1)}</td><td class="n">${money(x.money)}</td></tr>`;
+      $("#cmp").innerHTML = c
+        ? `<div class="scroll"><table><thead><tr><th>Week</th><th class="n">Road miles</th><th class="n">Driving h</th><th class="n">Driving + service h</th><th class="n">Over shift h</th><th class="n">Fuel + labor</th></tr></thead><tbody>${row("Planned days", b)}${row("Your current days, routes optimized", c)}</tbody></table></div><p class="note">Both weeks are routed by the same engine, so the difference is what choosing days saves on top of good daily routes.</p>`
+        : `<p class="note">Add every customer's current days (the last column) to compare against the week you run today.</p>`;
+      $("#moves").innerHTML = r.moves.length
+        ? `<div class="scroll"><table><thead><tr><th>Customer</th><th>Now</th><th>Planned</th></tr></thead><tbody>${r.moves.map((m) => `<tr><td>${esc(r.nodes[m.node].name)}</td><td>${dayList(m.from)}</td><td>${dayList(m.to)}</td></tr>`).join("")}</tbody></table></div>`
+        : `<p class="note">${r.current ? "No customer needs to move: their current days are already the best this planner found at your move charge." : "Every customer's day is new, since no current days were given."}</p>`;
+      $("#routes").innerHTML = b.routes.map((day, d) => {
+        const parts = day.map((route, k) => {
+          if (!route.length) return day.length > 1 ? `<p class="note">Driver ${k + 1}: not needed.</p>` : `<p class="note">No customers.</p>`;
+          const e = b.days[d][k];
+          const links = weekMapsLink(r, d, k).map((u, i, a) => `<a href="${esc(u)}" rel="noopener" target="_blank">Open ${a.length > 1 ? "part " + (i + 1) + " " : ""}in Google Maps</a>`).join(" · ");
+          return `<p><strong>${day.length > 1 ? `Driver ${k + 1}: ` : ""}${route.length} stops, ${num(e.travel / 60, 1)} h driving + ${num(e.service / 60, 1)} h service${e.overtime > 0.5 ? `, <span style="color:#7d1f16">${Math.round(e.overtime)} min over</span>` : ""}</strong> — ${route.map((x) => esc(r.nodes[x].name)).join(" → ")}</p><p class="note">${links}</p>`;
+        }).join("");
+        return `<h4 style="color:${COLORS[r.days[d]]}">${DAY_NAMES[r.days[d]]}</h4>${parts}`;
+      }).join("");
+      drawMap(r);
+      report.hidden = false;
+    }
+
+    function run(after) {
+      const parsed = parseCustomers($("#rows").value);
+      if (parsed.error) { status.textContent = parsed.error; report.hidden = true; return; }
+      let depot = parsePoint($("#depot").value), customers = parsed.customers;
+      if (!depot && $("#depot").value.trim() === "" && customers.length > 1) { depot = { ...customers[0], name: "Depot", service: 0 }; customers = customers.slice(1); }
+      if (!depot) { status.textContent = "The depot must be latitude, longitude, for example 39.74, -104.98."; report.hidden = true; return; }
+      const workdays = [...document.querySelectorAll("#workdays input:checked")].map((x) => Number(x.value));
+      if (!workdays.length) { status.textContent = "Tick at least one working day."; return; }
+      status.textContent = `Planning ${customers.length} customers over ${workdays.length} days…`;
+      $("#plan").disabled = true;
+      setTimeout(() => { // let the status paint before the search holds the tab
+        try {
+          const r = planWeekFor({ depot, customers }, {
+            workdays, vehicles: val("vehicles"), shiftHours: val("shift"), movePenalty: val("move"), circuity: val("circuity"), mph: val("mph"),
+            mpg: val("mpg"), fuelPrice: val("fuel"), wage: val("wage"), weeksPerYear: val("weeks"),
+          });
+          if (r.error) { status.textContent = r.error; report.hidden = true; return; }
+          render(r);
+          status.textContent = "Done. Scroll down for your week.";
+          if (after) after();
+          report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+        } finally { $("#plan").disabled = false; }
+      }, 30);
+    }
+
+    $("#plan").addEventListener("click", () => run(() => record("week_planned")));
+    $("#load-example").addEventListener("click", () => {
+      $("#rows").value = weekSampleText(); $("#depot").value = weekSampleDepot;
+      run(() => { record("week_example_loaded"); status.textContent = "Sample data: 48 invented pool customers around Denver, a quarter twice a week, days dealt out as a book grows."; });
+    });
+    $("#file").addEventListener("change", (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => { $("#rows").value = String(rd.result); record("week_file_loaded"); status.textContent = `Loaded ${f.name}. Click Plan the week.`; };
+      rd.readAsText(f);
+    });
+    $("#clear-all").addEventListener("click", () => { $("#rows").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Upload or paste your customers, then click the button."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([weekCsv(last)], { type: "text/csv" }));
+      a.download = "weekly-routes.csv";
+      a.click();
+      record("week_downloaded");
+    });
+    $("#optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+    if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>
