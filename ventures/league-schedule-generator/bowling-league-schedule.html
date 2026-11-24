@@ -257,6 +257,7 @@ Rolling Thunder</textarea>
       (s.avoid ? ` Lane limits kept: no team bowls on a pair it avoids, every week. ${r.atBound} of ${r.teams} teams are inside their fair share once the avoided pairs are taken out (the other teams bowl a little more on the pairs some teams avoid); the worst spread between a team's most- and least-used pair it may use is ${r.worstSpread}.` + (s.weeks.some((w) => w.kind === "position") ? " Position rounds put places on pairs in order and their teams are known only on the night, so check a limited team's pair then." : "")
         : ` ${r.atBound} of ${r.teams} teams have the most even lane split a team's weeks allow; the worst spread between a team's most- and least-used pair is ${r.worstSpread}.`) +
       (r.boundProvedOutOfReach && r.atBound < r.teams ? " For this many teams and round-robin weeks a solver has proved that no lane deal gives every team that split, so the teams off it are the season's limit, not a missed deal." : "") +
+      (r.laneProvedBest && r.atBound < r.teams ? ` This deal is also the most even one possible: a solver proved that no deal of these weeks has fewer than ${s.laneOffMin} lane counts outside a team's fair share, and this one has ${s.laneOff}.` : "") +
       (s.skipped.length ? ` No bowling on ${s.skipped.map(dayLabel).join(", ")}.` : "") + (problems.length ? ` Check failed: ${problems.join(" ")}` : " Checked: every team bowls once a week, every pair is used once a week and every pair of teams meets as evenly as the weeks allow.");
     status.textContent = "";
     $("#out").hidden = false;

@@ -410,12 +410,12 @@ flagships:
       next: a real club's box season. More: NEXT.md.
     buildable: >-
       Search work in NEXT.md, no outside input: 12 teams below 132 carry-over or
-      124-130 ruled out (eval/window-refill.c); bowling: 26x12, 26x38 at 0 by mirror
-      symmetry 2026-11-24 (eval/bowling-mirror-cpsat.py); left 24x11, 28x13 at 3
-      (odd W: no mirror) and even exact seasons 24x24, 26x26, 28x28 (mirror with 4
-      workers or a hint next); 47/49 on 8x9 night designs (a split or resumable
-      search). Each is a hard combinatorial search; judge its worth before taking
-      it.
+      124-130 ruled out (eval/window-refill.c); bowling: proved lane minimums for 39
+      of 44 out-of-reach seasons 2026-11-24 (eval/bowling-lane-min-2026-11-24.txt);
+      left a proof for 22x11..30x15 (W=P, CP-SAT bounds weak), 24x11, 28x13 at 3
+      (odd W), 24x24, 26x26, 28x28 (mirror and hinted soft CP-SAT unmoved); 47/49 on
+      8x9 night designs (a split or resumable search). Each is a hard combinatorial
+      search; judge its worth before taking it.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed

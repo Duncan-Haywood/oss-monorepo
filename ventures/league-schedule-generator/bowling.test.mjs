@@ -5,6 +5,7 @@ import { LANE_SHAPES } from "./bowling-avoid-shapes.mjs";
 import { LANE_TABLE } from "./bowling-lane-table.mjs";
 import { LANE_NEAR } from "./bowling-lane-near.mjs";
 import { OUT_OF_REACH } from "./bowling-proofs.mjs";
+import { LANE_MIN } from "./bowling-lane-min.mjs";
 import { toDay, roundRobin } from "./calc.mjs";
 
 const START = toDay(2026, 9, 1);
@@ -545,4 +546,34 @@ test("22 teams over 10 weeks: every team on every pair at most once (stored 2026
   const s = bowlingSchedule({ teams: names(22), weeks: 10, start: START });
   const r = laneReport(s);
   assert.equal(r.atBound, 22);
+});
+
+test("proved lane minimums: every page season off its bound reaches the solver's proved minimum", () => {
+  // bowling-lane-min.mjs holds CP-SAT --soft optima (eval/bowling-lane-min-2026-11-24.txt). Each key
+  // must be a season proved off the bound, and the page's own season must reach the minimum exactly
+  // (it can never go below a proved minimum; above it would make the "most even possible" note wrong).
+  const keys = Object.keys(LANE_MIN);
+  assert.ok(keys.length >= 39, `${keys.length} minimums`);
+  for (const key of keys) {
+    assert.ok(OUT_OF_REACH.includes(key), key);
+    const [n, W] = key.split(",").map(Number);
+    if (n > 20 || (n === 4 && W > 16)) continue; // the 4-team rows repeat with period 6; keep the test fast
+    const s = bowlingSchedule({ teams: names(n), weeks: W, start: START });
+    assert.equal(s.laneOff, LANE_MIN[key], key);
+    assert.equal(s.laneProvedBest, true, key);
+    assert.equal(laneReport(s).laneProvedBest, true, key);
+  }
+  // 20 x 10 reached 20 only through the stored CP-SAT answer (the page's own search gave 22).
+  assert.equal(LANE_NEAR["20,10"].off, 20);
+  // A season with no proved minimum, or with lane limits, never claims it.
+  assert.equal(bowlingSchedule({ teams: names(22), weeks: 11, start: START }).laneProvedBest, false);
+  assert.equal(bowlingSchedule({ teams: names(8), weeks: 30, start: START }).laneOffMin, null);
+});
+
+test("CP-SAT near answers 2026-11-24: 26 x 13 at 28 and 26 x 39 at 12 on the page", () => {
+  for (const [n, W, off] of [[26, 13, 28], [26, 39, 12]]) {
+    const cyc = roundRobin(n);
+    const rounds = Array.from({ length: W }, (_, w) => cyc[w % cyc.length].matches);
+    assert.ok(offBound(assignLanes(rounds, n, n / 2), n, n / 2) <= off, `${n} x ${W}`);
+  }
 });

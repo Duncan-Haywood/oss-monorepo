@@ -28,3 +28,5 @@
 # node --test bowling.test.mjs: 36 pass, 0 fail (two new tests: atBound 26 for 26 x 12 and 26 x 38).
 # node eval/bowling-lane-near-check.mjs after: the 10 remaining near entries unchanged on seeds 1 and 2.
 # Not tried: the mirror with a hint from the stored near answers, or more than one worker on the exact seasons.
+# Later the same day: 24 x 24 --mirror with 4 workers for 1800 s: none (UNKNOWN). Hints and a soft objective:
+# eval/bowling-lane-min-2026-11-24.txt.
