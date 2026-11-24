@@ -353,7 +353,7 @@ workflows:
   - job: deploy
     step: uses cloudflare/wrangler-action
     gates:
-    - env.CLOUDFLARE_API_TOKEN != ''
+    - vars.CLOUDFLARE_ACCOUNT_ID != ''
 - workflow: register-change-rate-ci.yml
   classification: none
   publishes: []
