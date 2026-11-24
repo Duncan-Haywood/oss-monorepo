@@ -25,6 +25,10 @@ export const BLINK_SLOPE = 14;
 // Faces under 1% of the frame are background people; a blink there is not the
 // shot's fault (the same line as shootflow/faces.py).
 export const MIN_FACE_AREA = 0.01;
+// Faces the landmarker is asked for: the CLI detector's MAX_FACES, so a big group
+// shot is checked to the same depth either way (it was 20 here until 2026-11-24,
+// which left faces 21 to 32 of a group photo unchecked on the page only).
+export const MAX_FACES = 32;
 
 export const MEDIAPIPE_VERSION = "0.10.21";
 export const MEDIAPIPE_BASE = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MEDIAPIPE_VERSION}`;
@@ -99,7 +103,7 @@ export function loadFaceLandmarker({ base = MEDIAPIPE_BASE, model = FACE_MODEL_U
       return FaceLandmarker.createFromOptions(files, {
         baseOptions: { modelAssetPath: model, delegate: "CPU" },
         runningMode: "IMAGE",
-        numFaces: 20,
+        numFaces: MAX_FACES,
         outputFaceBlendshapes: true,
       });
     })();
