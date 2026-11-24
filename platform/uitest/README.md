@@ -243,7 +243,7 @@ Guardrails:
   sibling links resolving:
   `node platform/uitest/uitest.mjs --serve ventures --path /<slug>/ --crawl 5`
   (see `.github/prompts/verify-and-merge.md`).
-- `.github/workflows/uitest-ci.yml` tests the tool and runs its own action.
+- `.github/workflows/priv-uitest-ci.yml` tests the tool and runs its own action.
   Its manual run takes a venture path and a goal, and uses the repository's
   model key only when the person dispatching it ticks the box.
 - Tests: `node --test platform/uitest/*.test.mjs`. The browser half skips

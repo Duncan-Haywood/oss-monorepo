@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import io
+import json
 import contextlib
 import os
 import shutil
@@ -111,13 +112,13 @@ class Collect(unittest.TestCase):
         self.assertFalse(f("a && (b || c) && github.event_name == 'pull_request'"))
 
     def test_this_repositorys_deploy_jobs_are_skipped_locally(self):
-        path = os.path.join(runner.REPO, ".github/workflows/portfolio-pages.yml")
+        path = os.path.join(runner.REPO, ".github/workflows/priv-portfolio-pages.yml")
         steps, skipped = runner.collect(runner.load_workflow(path))
         self.assertFalse([s.label for s in steps if s.job in ("deploy", "deploy-cloudflare")])
         self.assertIn("deploy: job's if: is false on a pull request", skipped)
 
     def test_this_repositorys_pages_build_reaches_frontmatter_before_suite(self):
-        path = os.path.join(runner.REPO, ".github/workflows/portfolio-pages.yml")
+        path = os.path.join(runner.REPO, ".github/workflows/priv-portfolio-pages.yml")
         steps, _ = runner.collect(runner.load_workflow(path))
         names = [s.name for s in steps]
         self.assertLess(names.index("Check blog post front matter before the long build"),
@@ -222,7 +223,7 @@ class Collect(unittest.TestCase):
         self.assertIn("expression", steps[0].reason)
 
     def test_a_step_whose_env_needs_an_expression_is_skipped(self):
-        """`portfolio-pages.yml`'s post-deploy check: the command is plain
+        """`priv-portfolio-pages.yml`'s post-deploy check: the command is plain
         bash, but PAGE_URL comes from the deploy action's output, so locally
         it runs with the variable unset and dies on `set -u`. Reporting that
         as a failure would be reporting the absence of a deploy as a bug."""
@@ -250,7 +251,7 @@ class Collect(unittest.TestCase):
         self.assertEqual(steps[0].status, "pending")
 
     def test_an_unset_repository_variable_resolves_to_empty_rather_than_skipping(self):
-        """`portfolio-pages.yml`'s "Build the site": the command is plain, and
+        """`priv-portfolio-pages.yml`'s "Build the site": the command is plain, and
         `PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}` is an optional override
         that `build.mjs` reads as `process.env.X || DEFAULT_BASE_URL`. Skipping
         it did not just lose one step -- "Check the built artifact" then ran
@@ -509,7 +510,7 @@ class Execute(unittest.TestCase):
         self.assertIn("diagnostic", step.tail)
 
     def test_a_step_can_write_github_output_and_friends(self):
-        """portfolio-pages.yml's first step is `echo day=... >> "$GITHUB_OUTPUT"`;
+        """priv-portfolio-pages.yml's first step is `echo day=... >> "$GITHUB_OUTPUT"`;
         unset, that is an ambiguous redirect and a FAILED row on every run."""
         saved = {k: os.environ.pop(k) for k in ("GITHUB_OUTPUT", "GITHUB_ENV",
                  "GITHUB_STEP_SUMMARY", "RUNNER_TEMP") if k in os.environ}
@@ -956,7 +957,7 @@ class AgainstThisRepository(unittest.TestCase):
 
     def test_branch_cleanup_is_not_on_the_verification_only_list(self):
         """It deletes branches. Running it locally must need --force."""
-        self.assertNotIn("branch-cleanup.yml", runner.VERIFICATION_ONLY)
+        self.assertNotIn("priv-branch-cleanup.yml", runner.VERIFICATION_ONLY)
 
     def test_every_verification_only_workflow_exists(self):
         for name in runner.VERIFICATION_ONLY:
@@ -964,7 +965,7 @@ class AgainstThisRepository(unittest.TestCase):
                             f"{name} is listed but not in .github/workflows/")
 
     def test_an_unlisted_workflow_is_refused_without_force(self):
-        self.assertEqual(runner.main(["branch-cleanup.yml"]), 2)
+        self.assertEqual(runner.main(["priv-branch-cleanup.yml"]), 2)
 
     def test_an_unlisted_read_only_workflow_lists_without_force(self):
         """doc-refs-ci.yml is not in VERIFICATION_ONLY, but --for-changes
@@ -979,9 +980,9 @@ class AgainstThisRepository(unittest.TestCase):
     def test_a_mixed_workflow_by_name_lists_only_its_read_only_jobs(self):
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
-            code = runner.main(["--list", "uitest-ci.yml"])
+            code = runner.main(["--list", "priv-uitest-ci.yml"])
         self.assertEqual(code, 0)
-        self.assertIn("[held  ] uitest-ci.yml / manual", out.getvalue())
+        self.assertIn("[held  ] priv-uitest-ci.yml / manual", out.getvalue())
         self.assertNotIn("manual /", out.getvalue().split("[held", 1)[0])
 
     def test_only_and_names_together_are_refused(self):
@@ -995,17 +996,17 @@ class AgainstThisRepository(unittest.TestCase):
         without .yml) now run in turn, each with its own steps."""
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
-            code = runner.main(["--list", "doc-refs-ci", "uitest-ci.yml"])
+            code = runner.main(["--list", "doc-refs-ci", "priv-uitest-ci.yml"])
         self.assertEqual(code, 0)
-        self.assertIn("[held  ] uitest-ci.yml / manual", out.getvalue())
+        self.assertIn("[held  ] priv-uitest-ci.yml / manual", out.getvalue())
         self.assertIn("exit 0  doc-refs-ci.yml", out.getvalue())
 
     def test_only_alone_runs_the_named_workflows(self):
         calls = []
         with mock.patch.object(runner, "_run_one",
                                side_effect=lambda n, a: calls.append(n) or 0):
-            self.assertEqual(runner.main(["--only", "uitest-ci,doc-refs-ci"]), 0)
-        self.assertEqual(calls, ["doc-refs-ci.yml", "uitest-ci.yml"])
+            self.assertEqual(runner.main(["--only", "priv-uitest-ci,doc-refs-ci"]), 0)
+        self.assertEqual(calls, ["doc-refs-ci.yml", "priv-uitest-ci.yml"])
 
     def test_a_missing_name_is_refused_before_anything_runs(self):
         err = io.StringIO()
@@ -1138,7 +1139,7 @@ class Selects(unittest.TestCase):
         self.assertTrue(self.selects("on: [push, pull_request]\n", ["anything"]))
 
     def test_a_pull_request_filter_wins_over_a_post_merge_push(self):
-        # portfolio-pages.yml's shape: `push` to main with no path filter
+        # priv-portfolio-pages.yml's shape: `push` to main with no path filter
         # (every merge redeploys), `pull_request` with one. The PR runs only
         # the filtered trigger, so a change outside it selects nothing.
         body = """
@@ -1297,12 +1298,12 @@ class ReadOnlyJobs(unittest.TestCase):
     def test_branch_cleanup_is_held_back_by_capability_not_by_the_list(self):
         """The regression that shaped this check.
 
-        `branch-cleanup.yml` deletes refs from inside `branch_cleanup.py`, so
+        `priv-branch-cleanup.yml` deletes refs from inside `branch_cleanup.py`, so
         every shell command in it is an innocent `python3 ...` and the mutation
         screen passes it. Only the declared capability gives it away.
         """
         parsed = runner.load_workflow(
-            os.path.join(runner.WORKFLOWS, "branch-cleanup.yml"))
+            os.path.join(runner.WORKFLOWS, "priv-branch-cleanup.yml"))
         steps, _ = runner.collect(parsed)
         self.assertFalse(any(runner.screen(s) for s in steps),
                          "expected the pattern screen alone to miss this")
@@ -1312,7 +1313,7 @@ class ReadOnlyJobs(unittest.TestCase):
     def test_portfolio_pages_runs_its_build_job_and_holds_its_deploy_job(self):
         """The motivating case: the FAQ guard lives in `build`."""
         parsed = runner.load_workflow(
-            os.path.join(runner.WORKFLOWS, "portfolio-pages.yml"))
+            os.path.join(runner.WORKFLOWS, "priv-portfolio-pages.yml"))
         allowed, held = runner.read_only_jobs(parsed)
         self.assertIn("build", allowed)
         self.assertIn("deploy", [job for job, _ in held])
@@ -1408,11 +1409,11 @@ class ForChanges(unittest.TestCase):
         return names
 
     def test_a_venture_page_selects_the_workflow_that_runs_the_faq_guard(self):
-        # The regression this mode exists for. `portfolio-pages.yml` runs
+        # The regression this mode exists for. `priv-portfolio-pages.yml` runs
         # `platform/pages/*.test.mjs`, which includes the FAQPage visibility
         # guard that a session verifying only `portfolio-validate.yml` misses.
         names = self.selected(["ventures/cloud-egress-calculator/index.html"])
-        self.assertIn("portfolio-pages.yml", names)
+        self.assertIn("priv-portfolio-pages.yml", names)
         self.assertIn("ventures-tests.yml", names)
 
     def test_a_venture_change_does_not_select_an_unrelated_venture(self):
@@ -1420,14 +1421,14 @@ class ForChanges(unittest.TestCase):
         self.assertNotIn("no-show-fee-calculator-ci.yml", names)
 
     def test_a_research_readme_does_not_select_the_site_build(self):
-        # portfolio-pages.yml's pull_request filter names research/_homepage,
+        # priv-portfolio-pages.yml's pull_request filter names research/_homepage,
         # research/README.md and research/*/app only; its path-less push to
         # main used to select it for every research diff anyway.
         names = self.selected(["research/_audit/README.md"])
-        self.assertNotIn("portfolio-pages.yml", names)
+        self.assertNotIn("priv-portfolio-pages.yml", names)
         self.assertIn("research-ci.yml", names)
         # A post is a site input (loadPosts throws on a malformed one).
-        self.assertIn("portfolio-pages.yml", self.selected(["docs/posts/x.md"]))
+        self.assertIn("priv-portfolio-pages.yml", self.selected(["docs/posts/x.md"]))
 
 
 class LocalContext(unittest.TestCase):
@@ -1481,7 +1482,7 @@ class LocalContext(unittest.TestCase):
             self.assertEqual(runner.local_cache_dirs(raw, root="/nonexistent"), [], uses)
 
     def test_portfolio_pages_restores_its_share_cards_locally(self):
-        path = os.path.join(runner.WORKFLOWS, "portfolio-pages.yml")
+        path = os.path.join(runner.WORKFLOWS, "priv-portfolio-pages.yml")
         with tempfile.TemporaryDirectory() as kept_root, \
                 mock.patch.object(runner, "PIN_CACHE", kept_root):
             steps, skipped = runner.collect(runner.load_workflow(path), only={"test"})
@@ -1538,11 +1539,11 @@ class Tree(unittest.TestCase):
 
     def test_it_never_sweeps_a_workflow_that_is_not_verification_only(self):
         # A sweep is the mode most likely to be run unattended, so this is
-        # the boundary that matters most. branch-cleanup.yml deletes
+        # the boundary that matters most. priv-branch-cleanup.yml deletes
         # branches.
         selected, held = self.selected()
         seen = {name for name, *_ in selected} | {name for name, *_ in held}
-        self.assertNotIn("branch-cleanup.yml", seen)
+        self.assertNotIn("priv-branch-cleanup.yml", seen)
 
     def test_tree_with_a_workflow_name_is_refused(self):
         self.assertEqual(runner.main(["portfolio-validate.yml", "--tree"]), 2)
@@ -1755,7 +1756,7 @@ class SweepExitCode(unittest.TestCase):
         return code, out.getvalue()
 
     def test_a_ci_only_workflow_beside_passes_does_not_block_a_pass(self):
-        # agent-cross-review.yml (nothing runnable here) is selected by every
+        # priv-agent-cross-review.yml (nothing runnable here) is selected by every
         # diff; it made every clean sweep exit 5 until 2026-11-15.
         code, out = self.sweep_codes([runner.NOTHING_RAN, 0])
         self.assertEqual(code, 0)
@@ -2314,15 +2315,15 @@ class LocalCostHint(unittest.TestCase):
 
     def test_long_selection_names_cost_and_ci(self):
         hint = runner.local_cost_hint(
-            ["portfolio-pages.yml", "portfolio-validate.yml", "doc-refs-ci.yml"], listing=False)
+            ["priv-portfolio-pages.yml", "portfolio-validate.yml", "doc-refs-ci.yml"], listing=False)
         self.assertIn("about 12 min", hint)
-        self.assertIn("portfolio-pages.yml ~8 min", hint)
+        self.assertIn("priv-portfolio-pages.yml ~8 min", hint)
         self.assertIn("ci_starvation.py", hint)
 
     def test_short_selection_unknown_or_listing_is_quiet(self):
         self.assertIsNone(runner.local_cost_hint(["pages.yml", "doc-refs-ci.yml"], listing=False))
         self.assertIsNone(runner.local_cost_hint(["no-such.yml"], listing=False))
-        self.assertIsNone(runner.local_cost_hint(["portfolio-pages.yml"], listing=True))
+        self.assertIsNone(runner.local_cost_hint(["priv-portfolio-pages.yml"], listing=True))
 
     def test_table_names_real_workflows(self):
         wf = os.path.join(runner.REPO, ".github", "workflows")
@@ -2440,7 +2441,7 @@ class FailureCauses(unittest.TestCase):
         step.tail = ["# fail 4"]
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
-            runner.report("portfolio-pages.yml", [step], [], False)
+            runner.report("priv-portfolio-pages.yml", [step], [], False)
         text = out.getvalue()
         self.assertIn("4 error(s), 2 distinct", text)
         self.assertIn("first in: builds the writing index", text)
@@ -2480,11 +2481,11 @@ class FailureCauses(unittest.TestCase):
             return step
         post = "docs/posts/2026-11-16-x.md"
         pairs = [("posts.yml", failed("check", [post])),
-                 ("portfolio-pages.yml", failed("build", [post, "platform/pages/writing.mjs"])),
+                 ("priv-portfolio-pages.yml", failed("build", [post, "platform/pages/writing.mjs"])),
                  ("other.yml", failed("t", ["platform/pages/writing.mjs"]))]
         # writing.mjs is named twice but is not in the diff: not a cause.
         self.assertEqual(runner.shared_changed_paths(pairs, [post]), [
-            (post, ["posts.yml / check / s", "portfolio-pages.yml / build / s"])])
+            (post, ["posts.yml / check / s", "priv-portfolio-pages.yml / build / s"])])
         self.assertEqual(runner.shared_changed_paths(pairs[:1], [post]), [])
 
     def test_sweep_names_the_changed_file_failed_workflows_share(self):
@@ -2718,10 +2719,57 @@ class PostPrecheck(unittest.TestCase):
         pick.assert_called_once()
 
 
+class RecordPrecheck(unittest.TestCase):
+    """A changed run record with outcome null stops --for-changes before the sweep."""
+
+    def setUp(self):
+        self.repo = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.repo, True)
+        os.makedirs(os.path.join(self.repo, "prompts", "runs"))
+
+    def record(self, name, outcome):
+        path = f"prompts/runs/{name}.json"
+        with open(os.path.join(self.repo, path), "w") as f:
+            json.dump({"date": "2026-11-24", "outcome": outcome}, f)
+        return path
+
+    def test_only_null_outcomes_are_named(self):
+        blank = self.record("2026-11-24-a", None)
+        filled = self.record("2026-11-24-b", "success")
+        with open(os.path.join(self.repo, "prompts/runs/bad.json"), "w") as f:
+            f.write("{not json")
+        changed = [blank, filled, "prompts/runs/bad.json", "prompts/runs/gone.json",
+                   "prompts/runs/README.md", "README.md"]
+        self.assertEqual(runner.blank_records(changed, repo=self.repo), [blank])
+
+    def _sweep(self, **kw):
+        args = argparse.Namespace(for_changes="origin/main", list=False, workflow_timeout=0,
+                                  no_post_check=True, no_browser_sweeps=True, **kw)
+        out = io.StringIO()
+        with mock.patch.object(runner, "changed_paths", return_value=["prompts/runs/r.json"]), \
+             mock.patch.object(runner, "blank_records", return_value=["prompts/runs/r.json"]), \
+             mock.patch.object(runner, "pick_workflows", return_value=([], [])) as pick, \
+             mock.patch.object(runner, "_run_selected", return_value=0), \
+             contextlib.redirect_stdout(out):
+            code = runner.run_for_changes(args)
+        return code, out.getvalue(), pick
+
+    def test_the_sweep_stops_before_selecting_workflows(self):
+        code, out, pick = self._sweep()
+        self.assertEqual(code, 1)
+        self.assertIn("prompts/runs/r.json still have outcome null", out)
+        pick.assert_not_called()
+
+    def test_no_record_check_sweeps_anyway(self):
+        code, _, pick = self._sweep(no_record_check=True)
+        self.assertEqual(code, 0)
+        pick.assert_called_once()
+
+
 class DeferHeavyOnProse(unittest.TestCase):
     """A content-only diff leaves the measured-heavy workflows to the PR's CI."""
 
-    SEL = [("portfolio-pages.yml", {}, {"test"}), ("portfolio-validate.yml", {}, {"v"}),
+    SEL = [("priv-portfolio-pages.yml", {}, {"test"}), ("portfolio-validate.yml", {}, {"v"}),
            ("pages.yml", {}, {"b"})]
 
     def args(self, **kw):
@@ -2732,7 +2780,7 @@ class DeferHeavyOnProse(unittest.TestCase):
     def test_prose_diff_defers_the_heavy_two(self):
         kept, deferred = runner.defer_heavy(self.SEL, ["docs/posts/p.md", "x/notes.txt"], self.args())
         self.assertEqual([s[0] for s in kept], ["pages.yml"])
-        self.assertEqual(deferred, ["portfolio-pages.yml", "portfolio-validate.yml"])
+        self.assertEqual(deferred, ["priv-portfolio-pages.yml", "portfolio-validate.yml"])
 
     def test_story_and_research_diffs_are_content(self):
         # The diffs of PRs 18277 (a story) and 18270 (a research milestone):
@@ -2744,7 +2792,7 @@ class DeferHeavyOnProse(unittest.TestCase):
                          "research/capture-sync/src/capture_sync/track.py",
                          "research/capture-sync/experiments/tracker/gated_oos.png"]):
             kept, deferred = runner.defer_heavy(self.SEL, changed, self.args())
-            self.assertEqual(deferred, ["portfolio-pages.yml", "portfolio-validate.yml"], changed)
+            self.assertEqual(deferred, ["priv-portfolio-pages.yml", "portfolio-validate.yml"], changed)
 
     def test_tooling_and_root_files_are_not_content(self):
         for path in ("platform/ci/x.py", "portfolio/router/allocate.py",

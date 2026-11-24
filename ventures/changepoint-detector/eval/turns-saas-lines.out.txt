@@ -1,9 +1,9 @@
 Primary, SaaS make, n 144, noise x1 (bars K1-K3): 500 draws, 6.02 true turns a draw
-  single lines (shipped rule), mean F1: sign-ups 0.822, active users 0.872, MRR 0.786, paid invoices 0.841; hindsight-best 0.960
-  composite shipped F1 0.833; misses 1.46, false 0.07 a draw; timing median 1; bigMove median 0.050
+  single lines (shipped rule), mean F1: sign-ups 0.822, active users 0.876, MRR 0.786, paid invoices 0.841; hindsight-best 0.961
+  composite shipped F1 0.832; misses 1.47, false 0.07 a draw; timing median 1; bigMove median 0.050
   composite P3      F1 0.915 (vs shipped +0.082, wins 168, losses 3, p 5.57e-46); misses 0.76, false 0.10 a draw; timing median 1; bigMove median 0.050
-  composite REL     F1 0.858 (vs shipped +0.025, wins 71, losses 1, p 3.09e-20); misses 1.21, false 0.08 a draw; timing median 1; bigMove median 0.027
-  MRR alone 0.786 vs shipped composite 0.833
+  composite REL     F1 0.857 (vs shipped +0.024, wins 70, losses 1, p 6.10e-20); misses 1.22, false 0.08 a draw; timing median 1; bigMove median 0.027
+  MRR alone 0.786 vs shipped composite 0.832
 
 FRED composite arm A vs NBER (K4):
   shipped matched 16/16, false 0, bigMove 0.050: 1969-10p 1970-11t 1973-11p 1975-04t 1980-01p 1980-07t 1981-08p 1982-12t 1990-06p 1991-03t 2000-12p 2001-12t 2008-01p 2009-06t 2020-02p 2020-04t
@@ -11,10 +11,10 @@ FRED composite arm A vs NBER (K4):
   REL     matched 16/16, false 0, bigMove 0.022: 1969-10p 1970-11t 1973-11p 1975-04t 1980-01p 1980-07t 1981-08p 1982-12t 1990-06p 1991-03t 2000-12p 2001-12t 2008-01p 2009-06t 2020-02p 2020-04t
 
 Shop make of the last round, seed 20261124 (K5): 500 draws, 5.02 true turns a draw
-  single lines (shipped rule), mean F1: orders 0.870, revenue 0.869, customers 0.872, hours 0.852; hindsight-best 0.974
-  composite shipped F1 0.932; misses 0.48, false 0.08 a draw; timing median 1; bigMove median 0.050
-  composite P3      F1 0.974 (vs shipped +0.042, wins 91, losses 2, p 8.83e-25); misses 0.15, false 0.10 a draw; timing median 1; bigMove median 0.050
-  composite REL     F1 0.947 (vs shipped +0.015, wins 42, losses 0, p 4.55e-13); misses 0.33, false 0.09 a draw; timing median 1; bigMove median 0.032
+  single lines (shipped rule), mean F1: orders 0.871, revenue 0.870, customers 0.877, hours 0.862; hindsight-best 0.975
+  composite shipped F1 0.933; misses 0.48, false 0.08 a draw; timing median 1; bigMove median 0.050
+  composite P3      F1 0.974 (vs shipped +0.041, wins 89, losses 1, p 1.47e-25); misses 0.15, false 0.10 a draw; timing median 1; bigMove median 0.050
+  composite REL     F1 0.947 (vs shipped +0.014, wins 40, losses 0, p 1.82e-12); misses 0.33, false 0.09 a draw; timing median 1; bigMove median 0.032
 
 Bars:
   P3   K1 PASS, K2 FAIL, K3 PASS, K4 PASS, K5 PASS
@@ -23,22 +23,22 @@ Decision: no arm passes K1-K5: nothing changes.
 
 Printed, no bar:
 SaaS make, n 144, noise x0.5: 500 draws, 6.02 true turns a draw
-  single lines (shipped rule), mean F1: sign-ups 0.939, active users 0.914, MRR 0.836, paid invoices 0.928; hindsight-best 0.989
+  single lines (shipped rule), mean F1: sign-ups 0.939, active users 0.916, MRR 0.836, paid invoices 0.928; hindsight-best 0.989
   composite shipped F1 0.875; misses 1.12, false 0.05 a draw; timing median 1; bigMove median 0.050
   composite P3      F1 0.951 (vs shipped +0.076, wins 164, losses 2, p 2.96e-46); misses 0.43, false 0.07 a draw; timing median 1; bigMove median 0.050
   composite REL     F1 0.892 (vs shipped +0.017, wins 46, losses 0, p 2.84e-14); misses 0.95, false 0.06 a draw; timing median 1; bigMove median 0.027
 SaaS make, n 144, noise x2: 500 draws, 6.02 true turns a draw
-  single lines (shipped rule), mean F1: sign-ups 0.616, active users 0.781, MRR 0.675, paid invoices 0.619; hindsight-best 0.867
-  composite shipped F1 0.770; misses 1.96, false 0.11 a draw; timing median 2; bigMove median 0.050
-  composite P3      F1 0.850 (vs shipped +0.080, wins 175, losses 12, p 2.91e-38); misses 1.30, false 0.20 a draw; timing median 2; bigMove median 0.050
-  composite REL     F1 0.799 (vs shipped +0.029, wins 95, losses 7, p 7.85e-21); misses 1.65, false 0.15 a draw; timing median 2; bigMove median 0.028
+  single lines (shipped rule), mean F1: sign-ups 0.616, active users 0.787, MRR 0.680, paid invoices 0.619; hindsight-best 0.870
+  composite shipped F1 0.770; misses 1.96, false 0.12 a draw; timing median 2; bigMove median 0.050
+  composite P3      F1 0.850 (vs shipped +0.080, wins 174, losses 11, p 6.99e-39); misses 1.30, false 0.20 a draw; timing median 2; bigMove median 0.050
+  composite REL     F1 0.800 (vs shipped +0.031, wins 93, losses 3, p 3.72e-24); misses 1.65, false 0.15 a draw; timing median 2; bigMove median 0.028
 SaaS make, n 96, noise x1: 500 draws, 3.91 true turns a draw
-  single lines (shipped rule), mean F1: sign-ups 0.810, active users 0.846, MRR 0.788, paid invoices 0.826; hindsight-best 0.962
-  composite shipped F1 0.818; misses 0.97, false 0.08 a draw; timing median 1; bigMove median 0.050
-  composite P3      F1 0.896 (vs shipped +0.077, wins 116, losses 1, p 1.42e-33); misses 0.55, false 0.10 a draw; timing median 1; bigMove median 0.050
-  composite REL     F1 0.819 (vs shipped +0.000, wins 1, losses 0, p 1.00e+0); misses 0.97, false 0.08 a draw; timing median 1; bigMove median 0.035
+  single lines (shipped rule), mean F1: sign-ups 0.810, active users 0.852, MRR 0.788, paid invoices 0.827; hindsight-best 0.963
+  composite shipped F1 0.817; misses 0.98, false 0.08 a draw; timing median 1; bigMove median 0.050
+  composite P3      F1 0.896 (vs shipped +0.078, wins 117, losses 0, p 1.20e-35); misses 0.55, false 0.10 a draw; timing median 1; bigMove median 0.050
+  composite REL     F1 0.818 (vs shipped +0.000, wins 1, losses 0, p 1.00e+0); misses 0.97, false 0.08 a draw; timing median 1; bigMove median 0.035
 SaaS make, n 240, noise x1: 500 draws, 10.31 true turns a draw
-  single lines (shipped rule), mean F1: sign-ups 0.830, active users 0.860, MRR 0.816, paid invoices 0.837; hindsight-best 0.943
-  composite shipped F1 0.836; misses 2.61, false 0.09 a draw; timing median 1; bigMove median 0.050
-  composite P3      F1 0.916 (vs shipped +0.080, wins 260, losses 1, p 1.41e-76); misses 1.36, false 0.13 a draw; timing median 1; bigMove median 0.050
-  composite REL     F1 0.872 (vs shipped +0.036, wins 125, losses 0, p 4.70e-38); misses 2.05, false 0.10 a draw; timing median 1; bigMove median 0.026
+  single lines (shipped rule), mean F1: sign-ups 0.830, active users 0.862, MRR 0.816, paid invoices 0.837; hindsight-best 0.944
+  composite shipped F1 0.837; misses 2.60, false 0.09 a draw; timing median 1; bigMove median 0.050
+  composite P3      F1 0.917 (vs shipped +0.080, wins 258, losses 1, p 5.61e-76); misses 1.36, false 0.13 a draw; timing median 1; bigMove median 0.050
+  composite REL     F1 0.872 (vs shipped +0.035, wins 124, losses 0, p 9.40e-38); misses 2.04, false 0.10 a draw; timing median 1; bigMove median 0.026

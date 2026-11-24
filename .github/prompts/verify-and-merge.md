@@ -132,7 +132,7 @@ works through the page and judges the result. In the PR, say what it
 printed.
 
 **After you merge a change that touches a served surface:** nothing to do.
-`.github/workflows/portfolio-pages.yml` builds and deploys the site on the
+`.github/workflows/priv-portfolio-pages.yml` builds and deploys the site on the
 merge (gated on the owner's `PAGES_ENABLED`). The old `gh-pages` branch is no
 longer served, so there is no need to run `publish-branch.sh` by hand.
 

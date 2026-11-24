@@ -40,9 +40,9 @@ V4 before NBER on at least P's - 1: fails (2 vs 5)
 decision: a bar fails: the README marks the replays' delays as optimistic by what revisions cost
 
 === printed, no bar ===
-P6 sd   V: 6/6, delays 156 223 8 132 7 7, median 70, before 2, false 5 | P: 6/6, delays 7 8 7 8 7 7, median 7, before 5, false 3
+P6 sd   V: 6/6, delays 156 61 8 132 7 7, median 34.5, before 2, false 5 | P: 6/6, delays 7 8 7 8 7 7, median 7, before 5, false 3
 P3 mad  V: 5/6, delays 101 45 8  7 7, median 8, before 2, false 5 | P: 5/6, delays 7 8 7  7 7, median 7, before 4, false 4
-P6 mad  V: 5/6, delays 101 237 8  7 7, median 8, before 2, false 5 | P: 5/6, delays 7 8 7  7 7, median 7, before 4, false 3
+P6 mad  V: 5/6, delays 101 45 8  7 7, median 8, before 2, false 5 | P: 5/6, delays 7 8 7  7 7, median 7, before 4, false 3
 shipped four (with CMRMTSPL), today's files, P3 sd: 5/6, delays  8 8 7 7 7, median 7, before 4, false 3
 
 where each arm dates each NBER turn (nearest turn of the kind; at the cut-offs 12, 36 and 120 months after the turn, and the last):

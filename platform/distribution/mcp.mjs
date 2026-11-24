@@ -8,6 +8,10 @@
  *   node platform/distribution/mcp.mjs --pack <outDir>       # write the npm package to disk
  *   DISTRIBUTE_MCP=true NODE_AUTH_TOKEN=... node platform/distribution/mcp.mjs   # npm publish
  *
+ * In CI the publish uses npm trusted publishing (OIDC, no token) with
+ * provenance; as in npm.mjs, a package npm does not have yet is left for the
+ * owner's first publish (docs/security/trusted-publishing-setup.md).
+ *
  * Eligibility is stricter than the npx channel (npm.mjs): besides the closure
  * check (node: builtins and sibling files only), a CLI whose closure imports a
  * network or process module (http, https, net, tls, dgram, dns, child_process,
@@ -21,7 +25,7 @@ import os from 'node:os';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
-import { importsOf, closure, descriptionOf, discover } from './npm.mjs';
+import { importsOf, closure, descriptionOf, discover, authMode } from './npm.mjs';
 import { toolUrl, BASE_URL } from './bluesky.mjs';
 import { tagUrl } from './attribution.mjs';
 
@@ -171,9 +175,15 @@ export async function run({ env = process.env, log = console.log, execImpl = exe
   }
   const view = await execImpl('npm', ['view', name, 'version']).then((r) => r.stdout.trim(), () => '');
   if (view === VERSION) { log(`${name}@${VERSION} is already on npm; nothing to do`); return { published: false }; }
+  if (!view && authMode(env) === 'oidc') {
+    log(`${name} is not on npm yet, and trusted publishing cannot create a package; the owner publishes its first version (docs/security/trusted-publishing-setup.md)`);
+    return { published: false };
+  }
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'mcp-'));
   await writeBundle(files, dir);
-  await execImpl('npm', ['publish', '--access', 'public'], { cwd: dir });
+  // Provenance needs a CI identity; a publish from the owner's machine has none.
+  const provenance = env.ACTIONS_ID_TOKEN_REQUEST_URL ? ['--provenance'] : [];
+  await execImpl('npm', ['publish', '--access', 'public', ...provenance], { cwd: dir });
   log(`published ${name}@${VERSION}`);
   return { published: true };
 }

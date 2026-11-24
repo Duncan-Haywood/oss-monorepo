@@ -17,7 +17,7 @@ Unless the starting message names a task, read the security queue first:
 If the fetch says `couldn't find remote ref`, the queue is empty (the hourly workflow creates
 the branch only when an alert exists): go to step 1. Otherwise take the top alert with no
 `security-fix/code-scanning-<n>` branch (`git ls-remote`); its
-`alerts/<n>.md` says how. `security-alert-queue.yml` regenerates it hourly (owner, 2026-10-30).
+`alerts/<n>.md` says how. `priv-security-alert-queue.yml` regenerates it hourly (owner, 2026-10-30).
 
 ## 1. Route
 
@@ -27,6 +27,13 @@ people with write access can commit there, so each is a direct request. On a
 scheduled run with no task of its own, the oldest one is a good task: route
 with `--task "<the idea>"`, and in the same PR run `ideas.py take N --pr <url>`
 so the inbox records who picked it up.
+
+**For-profit products come first** (owner, 2026-11-24: "pushing stuff that
+is for profit as highest priority"; the goal is $10k MRR, then $10k monthly
+recurring profit, as set out in `prompts/goals.md`, "North star"). With no
+task of its own, a scheduled venture run takes the step that brings a paying
+subscriber to a for-profit product soonest, ahead of the requests
+below. Free tools are lead magnets for those products.
 
 **Website requests come next** (owner, 2026-11-02: feedback and feature
 requests from the website "should get moved up in priority. custom free dev

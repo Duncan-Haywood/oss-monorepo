@@ -1,28 +1,28 @@
 Primary, agency make, n 144, noise x1 (bars K1-K3): 500 draws, 6.49 true turns a draw
-  single lines (shipped rule), mean F1: pipeline 0.656, billable hours 0.934, invoices 0.759, headcount 0.110; hindsight-best 0.948
-  advance pick (most agreeing line) 0.857; picked: pipeline 1%, billable hours 45%, invoices 53%, headcount 0%
-  composite shipped F1 0.708; misses 2.71, false 0.15 a draw
-  composite P3      F1 0.755; misses 2.32, false 0.19 a draw
+  single lines (shipped rule), mean F1: pipeline 0.656, billable hours 0.936, invoices 0.759, headcount 0.109; hindsight-best 0.949
+  advance pick (most agreeing line) 0.856; picked: pipeline 1%, billable hours 45%, invoices 53%, headcount 1%
+  composite shipped F1 0.709; misses 2.71, false 0.15 a draw
+  composite P3      F1 0.756; misses 2.32, false 0.18 a draw
   P3 vs shipped +0.047, wins 107, losses 7, p 4.23e-24
-  P3 vs advance pick -0.102, wins 128, losses 330, p 1.26e-21
+  P3 vs advance pick -0.100, wins 127, losses 329, p 1.02e-21
 
 FRED composite arm A vs NBER (K4): P3 matched 16/16, false 2; shipped matched 16/16, false 0
 
 Shop make, seed 20261124 (K5): 500 draws, 5.02 true turns a draw
-  single lines (shipped rule), mean F1: orders 0.870, revenue 0.869, customers 0.872, hours 0.852; hindsight-best 0.974
-  advance pick (most agreeing line) 0.934; picked: orders 17%, revenue 34%, customers 18%, hours 30%
-  composite shipped F1 0.932; misses 0.48, false 0.08 a draw
+  single lines (shipped rule), mean F1: orders 0.871, revenue 0.870, customers 0.877, hours 0.862; hindsight-best 0.975
+  advance pick (most agreeing line) 0.935; picked: orders 16%, revenue 35%, customers 18%, hours 31%
+  composite shipped F1 0.933; misses 0.48, false 0.08 a draw
   composite P3      F1 0.974; misses 0.15, false 0.10 a draw
-  P3 vs shipped +0.042, wins 91, losses 2, p 8.83e-25
-  P3 vs advance pick +0.040, wins 172, losses 46, p 2.60e-18
+  P3 vs shipped +0.041, wins 89, losses 1, p 1.47e-25
+  P3 vs advance pick +0.039, wins 168, losses 48, p 8.44e-17
 
 SaaS make, seed 20261125 (printed, no bar): 500 draws, 6.02 true turns a draw
-  single lines (shipped rule), mean F1: sign-ups 0.822, active users 0.872, MRR 0.786, paid invoices 0.841; hindsight-best 0.960
-  advance pick (most agreeing line) 0.909; picked: sign-ups 1%, active users 66%, MRR 2%, paid invoices 31%
-  composite shipped F1 0.833; misses 1.46, false 0.07 a draw
+  single lines (shipped rule), mean F1: sign-ups 0.822, active users 0.876, MRR 0.786, paid invoices 0.841; hindsight-best 0.961
+  advance pick (most agreeing line) 0.909; picked: sign-ups 1%, active users 67%, MRR 2%, paid invoices 30%
+  composite shipped F1 0.832; misses 1.47, false 0.07 a draw
   composite P3      F1 0.915; misses 0.76, false 0.10 a draw
   P3 vs shipped +0.082, wins 168, losses 3, p 5.57e-46
-  P3 vs advance pick +0.006, wins 147, losses 121, p 1.27e-1
+  P3 vs advance pick +0.006, wins 145, losses 121, p 1.58e-1
 
 Bars for P3:
   K1 PASS, K2 FAIL (reported, not a gate), K2a FAIL, K3 PASS, K4 PASS, K5 PASS
@@ -30,30 +30,30 @@ Decision: a gate fails: nothing changes.
 
 Printed, no bar:
 Agency make, n 144, noise x0.5: 500 draws, 6.49 true turns a draw
-  single lines (shipped rule), mean F1: pipeline 0.814, billable hours 0.963, invoices 0.901, headcount 0.039; hindsight-best 0.980
-  advance pick (most agreeing line) 0.934; picked: pipeline 0%, billable hours 39%, invoices 61%, headcount 0%
+  single lines (shipped rule), mean F1: pipeline 0.814, billable hours 0.964, invoices 0.903, headcount 0.040; hindsight-best 0.981
+  advance pick (most agreeing line) 0.934; picked: pipeline 0%, billable hours 38%, invoices 62%, headcount 0%
   composite shipped F1 0.802; misses 1.92, false 0.11 a draw
   composite P3      F1 0.844; misses 1.55, false 0.11 a draw
   P3 vs shipped +0.042, wins 97, losses 0, p 1.26e-29
-  P3 vs advance pick -0.090, wins 62, losses 311, p 5.33e-41
+  P3 vs advance pick -0.091, wins 60, losses 313, p 2.05e-42
 Agency make, n 144, noise x2: 500 draws, 6.49 true turns a draw
-  single lines (shipped rule), mean F1: pipeline 0.508, billable hours 0.775, invoices 0.565, headcount 0.243; hindsight-best 0.801
+  single lines (shipped rule), mean F1: pipeline 0.508, billable hours 0.775, invoices 0.565, headcount 0.245; hindsight-best 0.801
   advance pick (most agreeing line) 0.683; picked: pipeline 5%, billable hours 49%, invoices 41%, headcount 5%
-  composite shipped F1 0.611; misses 3.33, false 0.45 a draw
-  composite P3      F1 0.659; misses 2.96, false 0.59 a draw
-  P3 vs shipped +0.047, wins 127, losses 33, p 3.31e-14
-  P3 vs advance pick -0.024, wins 224, losses 254, p 1.85e-1
+  composite shipped F1 0.617; misses 3.30, false 0.42 a draw
+  composite P3      F1 0.661; misses 2.95, false 0.57 a draw
+  P3 vs shipped +0.044, wins 108, losses 32, p 7.79e-11
+  P3 vs advance pick -0.022, wins 227, losses 251, p 2.93e-1
 Agency make, n 96, noise x1: 500 draws, 4.13 true turns a draw
-  single lines (shipped rule), mean F1: pipeline 0.643, billable hours 0.930, invoices 0.735, headcount 0.124; hindsight-best 0.949
-  advance pick (most agreeing line) 0.835; picked: pipeline 3%, billable hours 44%, invoices 52%, headcount 2%
-  composite shipped F1 0.692; misses 1.72, false 0.14 a draw
+  single lines (shipped rule), mean F1: pipeline 0.643, billable hours 0.935, invoices 0.736, headcount 0.126; hindsight-best 0.951
+  advance pick (most agreeing line) 0.838; picked: pipeline 3%, billable hours 44%, invoices 52%, headcount 2%
+  composite shipped F1 0.693; misses 1.72, false 0.13 a draw
   composite P3      F1 0.741; misses 1.48, false 0.17 a draw
-  P3 vs shipped +0.049, wins 83, losses 5, p 2.69e-19
-  P3 vs advance pick -0.094, wins 114, losses 290, p 8.68e-19
+  P3 vs shipped +0.048, wins 82, losses 5, p 5.08e-19
+  P3 vs advance pick -0.097, wins 112, losses 293, p 8.93e-20
 Agency make, n 240, noise x1: 500 draws, 11.10 true turns a draw
-  single lines (shipped rule), mean F1: pipeline 0.670, billable hours 0.941, invoices 0.780, headcount 0.132; hindsight-best 0.947
-  advance pick (most agreeing line) 0.858; picked: pipeline 0%, billable hours 39%, invoices 60%, headcount 0%
-  composite shipped F1 0.735; misses 4.41, false 0.20 a draw
-  composite P3      F1 0.780; misses 3.79, false 0.23 a draw
-  P3 vs shipped +0.045, wins 171, losses 5, p 2.86e-44
-  P3 vs advance pick -0.078, wins 129, losses 342, p 2.65e-23
+  single lines (shipped rule), mean F1: pipeline 0.670, billable hours 0.945, invoices 0.780, headcount 0.133; hindsight-best 0.951
+  advance pick (most agreeing line) 0.863; picked: pipeline 0%, billable hours 41%, invoices 59%, headcount 0%
+  composite shipped F1 0.736; misses 4.41, false 0.19 a draw
+  composite P3      F1 0.780; misses 3.79, false 0.22 a draw
+  P3 vs shipped +0.044, wins 168, losses 4, p 1.20e-44
+  P3 vs advance pick -0.083, wins 124, losses 348, p 1.18e-25

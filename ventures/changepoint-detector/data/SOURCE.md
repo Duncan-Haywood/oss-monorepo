@@ -1001,3 +1001,33 @@ date, so each holds that month's re-estimated history.
 - **Licence:** statistics published by a Federal Reserve Bank through FRED; only the numbers were taken. The
   source repositories' code was not used.
 - **Used by:** `eval/turns-usphci.mjs`, `turns-usphci.test.mjs`.
+
+## Japan CI: the Cabinet Office's coincident composite index, two copies 1985-01 to 2024-07 and 2026-08; ESRI's reference dates
+
+`jp-ci-coincident.csv` (1985-01 to 2026-08, 500 months) and `jp-ci-coincident-vintage-2024-07.csv` (1985-01 to
+2024-07, 475 months): the coincident composite index (CI 一致指数, 2020 = 100, monthly) of the Cabinet Office's
+Indexes of Business Conditions (景気動向指数), each as saved in a public repository on a different date, so each
+holds that release's re-estimated history.
+
+- **Retrieved:** 2026-11-24. esri.cao.go.jp and e-stat.go.jp refused this session's proxy; the copies were found by
+  GitHub code search and read from raw.githubusercontent.com (git blobs checked with `git hash-object`):
+  - main, to 2026-08: r-matsuzaka/boj-dashboard-data (commit 2a81c449acfe6a55f03dd6f857a212d96f90719c),
+    `data/景気動向指数.csv`, blob 54781038, column `CI_一致指数` (its CI columns are empty before 1985-01; those
+    60 rows were left out);
+  - to 2024-07: mitsuhir0/ogu-python-pandas (43260889f98d5b57cb6c06c9b97295655dcfe4ec), `pages/csv/keiki_ci.csv`,
+    blob ee86c6bd, column `一致指数`.
+- **Checks:** both are contiguous monthly runs from 1985-01 with no missing value. The older copy's monthly growth
+  differs from the main copy's by a median 0.105 percentage points (largest 2.20), and 8 of its 475 values are
+  identical to the main copy's: different releases (the CI is re-estimated as components and seasonal factors are
+  revised), not one file copied. Dates were cut to `YYYY-MM` and the header renamed (`month,ci_coincident`);
+  values are unchanged.
+- **Reference dates (景気基準日付):** ESRI's monthly peaks and troughs, typed into `eval/turns-jp-ci.mjs` from two
+  independent public transcriptions that agree on every date from 1985 on: Py4Macro/py4macro
+  (63fe7589d775b90c437aa11276bff70b0c92ea7f) `py4macro/data/cycle_dates.csv.bz2`, blob 67a48106 (cycles 1-15 as
+  trough, peak, trough, from https://www.esri.cao.go.jp/jp/stat/di/hiduke.html), and mitsuoxv/jp-suicide
+  (42b7946445182b4f8ea484dda51a76ca1ac43b03) `README.Rmd`, blob 26acc61d (recession start and end months). Neither
+  lists a turn after the 2020-05 trough.
+- **Licence:** official statistics published by the Cabinet Office of Japan (its terms of use follow the
+  government standard terms, compatible with CC BY 4.0: cite the source); only the numbers and dates were taken.
+  The source repositories' code was not used.
+- **Used by:** `eval/turns-jp-ci.mjs`, `turns-jp-ci.test.mjs`.

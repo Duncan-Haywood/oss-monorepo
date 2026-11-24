@@ -21,6 +21,7 @@ already assumes. Every rule extends flagged designs to K1 = 50 except some 7f/7g
 the flagged share f = (cycles - 10) / 40 is exact for K1 = 50 and an approximation otherwise (noted).
 """
 import json
+import math
 import statistics as st
 from pathlib import Path
 
@@ -75,7 +76,9 @@ def fixed_cost_horizon():
         ys = r["cycle_end_s"][:30]
         xs = list(range(1, len(ys) + 1))
         mx, my = st.mean(xs), st.mean(ys)
-        b = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / sum((x - mx) ** 2 for x in xs)
+        # math.fsum, not sum: Python 3.12 made float sum() compensated, so plain sum() writes
+        # different last digits under 3.11 and 3.12+; fsum is exactly rounded on every version.
+        b = math.fsum((x - mx) * (y - my) for x, y in zip(xs, ys)) / math.fsum((x - mx) ** 2 for x in xs)
         if b > 0:
             vals.append((my - b * mx) / b)
     q = st.quantiles(vals, n=4)

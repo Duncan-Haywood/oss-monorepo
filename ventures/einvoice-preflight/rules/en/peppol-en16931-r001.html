@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PEPPOL-EN16931-R001: Business process (profile ID) is missing</title>
+<meta name="description" content="PEPPOL-EN16931-R001: Peppol BIS Billing 3.0 requires the Business process type (BT-23) on every invoice and credit note. In UBL this is cbc:ProfileID; in CII…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-r001">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-r001">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/peppol-en16931-r001">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/peppol-en16931-r001">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-r001">
+<meta property="og:title" content="PEPPOL-EN16931-R001: Business process (profile ID) is missing">
+<meta property="og:description" content="PEPPOL-EN16931-R001: Peppol BIS Billing 3.0 requires the Business process type (BT-23) on every invoice and credit note. In UBL this is cbc:ProfileID; in CII…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does PEPPOL-EN16931-R001 mean?","acceptedAnswer":{"@type":"Answer","text":"Peppol BIS Billing 3.0 requires the Business process type (BT-23) on every invoice and credit note. In UBL this is cbc:ProfileID; in CII it is the ID inside ram:BusinessProcessSpecifiedDocumentContextParameter. The rule only checks that the element is there; PEPPOL-EN16931-R007 checks its value."}},{"@type":"Question","name":"How do I fix PEPPOL-EN16931-R001?","acceptedAnswer":{"@type":"Answer","text":"Add cbc:ProfileID right after cbc:CustomizationID (UBL), or ram:BusinessProcessSpecifiedDocumentContextParameter/ram:ID in rsm:ExchangedDocumentContext (CII). Use the standard Peppol value urn:fdc:peppol.eu:2017:poacc:billing:01:1.0 unless your receiver has agreed another approved process. Validate again; PEPPOL-EN16931-R007 will then check that the value is an approved one."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-invoice rule explained · Peppol BIS</p>
+<h1>PEPPOL-EN16931-R001: Business process (profile ID) is missing</h1>
+<nav class="langs" aria-label="Other languages"><a href="../de/peppol-en16931-r001.html" hreflang="de" lang="de">Deutsch</a><a href="../fr/peppol-en16931-r001.html" hreflang="fr" lang="fr">Français</a><a href="index.html">All rules</a></nav>
+</header>
+<section>
+<h2>Official message</h2>
+<blockquote lang="en">Business process MUST be provided.</blockquote>
+<dl>
+<dt>Severity</dt><dd>Error (the invoice is rejected)</dd>
+<dt>Checked in</dt><dd>UBL, CII</dd>
+<dt>Business terms</dt><dd>BT-23</dd>
+</dl>
+</section>
+<section>
+<h2>What does PEPPOL-EN16931-R001 mean?</h2>
+<p>Peppol BIS Billing 3.0 requires the Business process type (BT-23) on every invoice and credit note. In UBL this is cbc:ProfileID; in CII it is the ID inside ram:BusinessProcessSpecifiedDocumentContextParameter. The rule only checks that the element is there; PEPPOL-EN16931-R007 checks its value.</p>
+<h2>Usual causes</h2>
+<ul>
+<li>The software exports plain EN 16931 or XRechnung, where the business process is optional, and the file is then sent over Peppol.</li>
+<li>The element was dropped by a converter or a hand-made template.</li>
+<li>The value was put in cbc:CustomizationID (BT-24) instead of a separate cbc:ProfileID.</li>
+</ul>
+</section>
+<section>
+<h2>How do I fix PEPPOL-EN16931-R001?</h2>
+<ol>
+<li>Add cbc:ProfileID right after cbc:CustomizationID (UBL), or ram:BusinessProcessSpecifiedDocumentContextParameter/ram:ID in rsm:ExchangedDocumentContext (CII).</li>
+<li>Use the standard Peppol value urn:fdc:peppol.eu:2017:poacc:billing:01:1.0 unless your receiver has agreed another approved process.</li>
+<li>Validate again; PEPPOL-EN16931-R007 will then check that the value is an approved one.</li>
+</ol>
+<h2>Corrected XML (minimal example we wrote)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;cbc:CustomizationID&gt;urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0&lt;/cbc:CustomizationID&gt;
+&lt;cbc:ProfileID&gt;urn:fdc:peppol.eu:2017:poacc:billing:01:1.0&lt;/cbc:ProfileID&gt;</code></pre>
+<p><strong>CII</strong></p>
+<pre><code>&lt;rsm:ExchangedDocumentContext&gt;
+  &lt;ram:BusinessProcessSpecifiedDocumentContextParameter&gt;
+    &lt;ram:ID&gt;urn:fdc:peppol.eu:2017:poacc:billing:01:1.0&lt;/ram:ID&gt;
+  &lt;/ram:BusinessProcessSpecifiedDocumentContextParameter&gt;
+  &lt;ram:GuidelineSpecifiedDocumentContextParameter&gt;
+    &lt;ram:ID&gt;urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0&lt;/ram:ID&gt;
+  &lt;/ram:GuidelineSpecifiedDocumentContextParameter&gt;
+&lt;/rsm:ExchangedDocumentContext&gt;</code></pre>
+<p class="note">Example values only. Put the elements in place of, or beside, what your file has; element order matters in both syntaxes.</p>
+</section>
+<section>
+<h2>Check your file for free</h2>
+<p>The free checker runs the official EN 16931, XRechnung and Peppol rules in your browser. Your file is not uploaded.</p>
+<p><a class="button" href="../../index.html">Open the free checker</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In development — early access</span></p>
+<h2>Fix-and-explain for accountants and invoicing teams</h2>
+<p>A paid service that explains every failed rule in plain German, French or English and proposes a corrected file is in development. <a href="https://example.invalid/industries/e-invoicing/">Early access</a></p>
+</section>
+<section>
+<h2>Source</h2>
+<p>Rule id and official message from the OpenPeppol BIS Billing 3 rules, 3.0.22 (MPL-2.0), compiled from upstream commit 38d693d. The explanation, causes, fix and XML on this page are our own, not the rule publisher's. <a href="https://github.com/OpenPEPPOL/peppol-bis-invoice-3/tree/3.0.22" rel="noopener">OpenPeppol BIS Billing 3 rules 3.0.22</a></p>
+</section>
+<footer>
+<p><strong>Not tax or legal advice.</strong> This page explains what a validation rule checks and how to make a file pass it. It does not say which VAT treatment applies to your sale; ask a tax adviser. <strong>No warranty:</strong> provided free and as-is; check the result before you rely on it.</p>
+<p>Our code and explanations are MIT-licensed. Official rule messages are quoted under their publishers' licences (EUPL-1.2, Apache-2.0, MPL-2.0), named on each page.</p>
+</footer>
+</main></body></html>

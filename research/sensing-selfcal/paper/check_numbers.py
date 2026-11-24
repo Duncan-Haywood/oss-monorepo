@@ -496,6 +496,9 @@ CHECKS = [
     ("log", "the Kinect's two-term target calibrations fold at 381 and 403 px", "fold back at 381 and 403 px"),
     ("log", "5.52 px rms P at &delta; = 0", "leave 17.3 px at the edge, where adopting the\nwindows' distortion leaves 5.5"),
     ("log", "two of five predictions held", "two of five in 3zd"),
+    ("json", "m3zh_versions/summary.json", "hypotheses/H312/corners_over_1px_eps200_4_12", 58, 0, None, "58 of 676 corners stay over 1 px"),
+    ("json", "m3zh_versions/summary.json", "hypotheses/H315/duckiebot_median_worst_corner_err8_px", 0.0085, 4, None, "within 0.0085 px"),
+    ("log", "164 of 169 over 1 px", "leaves 164 of 169 robots over 1 px"),
 ]
 
 

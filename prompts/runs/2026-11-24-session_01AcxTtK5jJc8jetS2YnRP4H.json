@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01AcxTtK5jJc8jetS2YnRP4H",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T22:07:25Z",
+  "ended": "2026-11-24T22:13:04Z",
+  "wall_minutes": 26.01,
+  "tokens_in": 4468049,
+  "tokens_out": 31761,
+  "cost_usd": 2.5443,
+  "tool_calls": 43,
+  "task": "civ-seeding milestone 31: homophily grid past its edges (L+) and a mixed homophily + reinforcement family (M)",
+  "projects": [
+    "research/civ-seeding"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18679",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    "Disclosed, not an issue in the result: a crash test on a thin grid (M31_SMOKE=1) printed numbers to the terminal before the full run; they are not used. results.txt labels L+'s new points with prefix 'L' (cosmetic, disclosed in LOG.md, not re-run)."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Re-running it to get the pre-merge CLAIM CHECK redraws a track, so the programme's CLAIM CHECK line may not print; portfolio/router/claim_check.py civ-seeding gave the answer instead."
+    },
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "A run that prints only at the end gives no log marker; --until with grep EXIT plus run_in_background worked, the foreground 540 s wait timed out twice first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "North star says for-profit work first; the router drew the research track (weighted draw) and the research prompt governs research/.",
+      "did": "Followed the routed research track and advanced the drawn programme.",
+      "result": "Milestone 31 landed with a pre-registered plan and a post."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-village-adoption-data-ask-for-no-contagion-beyond-homophily.md",
+    "research/civ-seeding/LOG.md (2026-11-24, milestone 31)"
+  ],
+  "goal": null,
+  "notes": "Verification: civ-seeding tests 116 passed (/usr/bin/python3.13 -m pytest -q tests); research/_homepage/build.py ok; research_live_links ok; check_md_links ok; programme_check ok; check_posts ok; cite_check ok. Full run 1180 s on 4 cores. H116 held (exact reproduction of m29), H117 held (L+ 11.74 vs L 11.86), H118 held (M lower than L+ in 0.006 of draws), H119 inconclusive (M recovered 53.5%), H120 inconclusive (L+ 59.0%).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "24f13690-0489-5ff1-b4bd-e7acb2190837",
+    "transcripts": 1,
+    "first": "2026-11-24T22:07:25Z",
+    "last": "2026-11-24T22:33:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 76,
+        "output": 31761,
+        "thinking": 9438,
+        "cache_read": 4337824,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130149,
+        "api_equivalent_usd": 2.5443,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 76,
+      "output": 31761,
+      "thinking": 9438,
+      "cache_read": 4337824,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130149,
+      "api_equivalent_usd": 2.5443,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 41,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.01,
+      "active_minutes": 26.01,
+      "model_minutes": 5.42,
+      "tool_minutes": 20.59,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "design, code, run and write up one pre-registered model-comparison milestone with a post, by a PhD-level researcher",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 628.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

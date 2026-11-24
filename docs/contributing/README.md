@@ -51,7 +51,7 @@ that.
 Every merge to `main` that touches a site input rebuilds the catalogue with
 `platform/pages/build.mjs` and deploys it to Cloudflare at
 https://marisstella.app/
-(`.github/workflows/portfolio-pages.yml`, also every three hours). The old
+(`.github/workflows/priv-portfolio-pages.yml`, also every three hours). The old
 GitHub Pages address, `https://duncan-haywood.github.io/oss-monorepo/`, now
 serves redirect pages to the same path there
 ([`portfolio/hosting/README.md`](../../portfolio/hosting/README.md)). There is no separate release step:

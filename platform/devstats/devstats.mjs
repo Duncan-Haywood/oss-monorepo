@@ -413,14 +413,14 @@ export async function fromCI({ token, repo, now = Date.now(), fetch: fetchImpl =
 // over the last DELIVERY_DAYS days (filtered by workflow and branch, which
 // stays under the API's 1,000-run cap: about 950 Pages runs in 3 days,
 // measured 2026-10-24):
-//   - portfolio-pages.yml tests, builds and deploys the site: a passing run
+//   - priv-portfolio-pages.yml tests, builds and deploys the site: a passing run
 //     on main is a deploy;
 //   - portfolio-validate.yml is the other gate a merge has to clear.
 // Merge to live is a merge commit's time to the end of the first passing
 // deploy run created after it (that run builds a main which contains it).
 
 export const DELIVERY_DAYS = 3;
-export const DEPLOY_WORKFLOW = 'portfolio-pages.yml';
+export const DEPLOY_WORKFLOW = 'priv-portfolio-pages.yml';
 export const DELIVERY_WORKFLOWS = [DEPLOY_WORKFLOW, 'portfolio-validate.yml'];
 
 /** Pure: merge times (ms) and each workflow's completed runs on main. */

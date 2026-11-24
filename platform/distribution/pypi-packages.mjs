@@ -4,7 +4,9 @@
  * Off by default. See portfolio/distribution/README.md.
  *
  *   node platform/distribution/pypi-packages.mjs                      # dry run: prints the packages it would publish
- *   DISTRIBUTE_PYPI=true TWINE_PASSWORD=pypi-... node platform/distribution/pypi-packages.mjs
+ *   DISTRIBUTE_PYPI=true PYPI_DIST_DIR=dist node platform/distribution/pypi-packages.mjs   # build into dist/ for the
+ *                                                     # workflow's OIDC upload (trusted publishing, no token)
+ *   DISTRIBUTE_PYPI=true TWINE_PASSWORD=pypi-... node platform/distribution/pypi-packages.mjs   # build and upload with twine
  *
  * Only ventures on the pypi-packages allow-list (portfolio/distribution/allowlist.json)
  * are published, at the version versions.json gives them (versions.mjs), which
@@ -107,7 +109,8 @@ export async function stage(pkg, out) {
 }
 
 export async function main({ env = process.env, fetchImpl = fetch, log = console.log, exec = run, root = REPO_ROOT, allow, versions } = {}) {
-  const live = env.DISTRIBUTE_PYPI === 'true' && !!env.TWINE_PASSWORD;
+  const distDir = env.PYPI_DIST_DIR ? path.resolve(env.PYPI_DIST_DIR) : '';
+  const live = env.DISTRIBUTE_PYPI === 'true' && (!!distDir || !!env.TWINE_PASSWORD);
   allow ??= await loadAllowlist(root);
   versions ??= await loadVersions(root);
   const listed = allowed(allow, 'pypi-packages');
@@ -128,7 +131,7 @@ export async function main({ env = process.env, fetchImpl = fetch, log = console
     todo.push(pkg);
   }
   if (!live) {
-    log(`DRY RUN (set DISTRIBUTE_PYPI=true plus TWINE_PASSWORD to publish). ${todo.length} package(s):`);
+    log(`DRY RUN (set DISTRIBUTE_PYPI=true plus PYPI_DIST_DIR or TWINE_PASSWORD to publish). ${todo.length} package(s):`);
     for (const p of todo) log(`--- ${p.name} ${p.version} (ventures/${p.slug})`);
     return { published: 0, planned: todo.length };
   }
@@ -137,6 +140,13 @@ export async function main({ env = process.env, fetchImpl = fetch, log = console
     const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'pypi-'));
     try {
       await stage(pkg, tmp);
+      if (distDir) {
+        await fs.mkdir(distDir, { recursive: true });
+        await exec('python3', ['-m', 'build', '--outdir', distDir, '.'], { cwd: tmp });
+        log(`built ${pkg.name} ${pkg.version} into ${distDir} for upload`);
+        published++;
+        continue;
+      }
       await exec('python3', ['-m', 'build', '--outdir', 'dist', '.'], { cwd: tmp });
       const files = (await fs.readdir(path.join(tmp, 'dist'))).map((f) => path.join('dist', f));
       await exec('python3', ['-m', 'twine', 'upload', '--non-interactive', ...files], {

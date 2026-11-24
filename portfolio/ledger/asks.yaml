@@ -185,14 +185,12 @@ decisions:
   exposure: legal-person
   opened: "2026-08-19"
   action: >-
-    Decided 2026-10-31: a merchant of record. What is left is yours, in this
-    order: (1) approve the `prompts/goals.md` amendment PR that replaces
-    "Payments: never the owner's" with your 2026-10-31 decision (agents may
-    not edit that guardrail on their own); (2) pick the provider (Polar,
-    Lemon Squeezy or Paddle; `docs/reports/2026-10-31-payout-rail-next-steps.md`
-    compares them) and open the account yourself with 2FA on; (3) paste the
-    live checkout link into owner-only config (Cloudflare dashboard variable),
-    never into this repo or a session.
+    **Rail open 2026-11-24: Paddle** (owner: "we have payment rails thorugh
+    paddle now"). What is left, per paid product, is yours: create its
+    product and prices in Paddle, then set the price ids, API key and webhook
+    secret in that app's owner-only config (Cloudflare secrets), never in a
+    repo or a session. Agents build each paid path against Paddle and ship it
+    dark until you do; nothing else waits on you.
   unlocks:
     - >-
       The only thing that moves the revenue ceiling off $0. Every other item in
@@ -436,7 +434,7 @@ decisions:
   blocked_by: []
   note: >-
     No money, no new account; reversible in the same settings pages. The
-    EMAIL_FORWARD_TO secret in cloudflare-email.yml is unused by the script
+    EMAIL_FORWARD_TO secret in priv-cloudflare-email.yml is unused by the script
     (PR 12773 removes it) and does not need to be set.
 
 - id: prompt-review-stalled

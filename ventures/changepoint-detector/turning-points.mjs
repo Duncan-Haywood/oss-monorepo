@@ -15,8 +15,9 @@
 //   3. a peak or trough at either end must be more extreme than every value between it and that end;
 //   4. every phase (peak to trough, trough to peak) lasts at least `minPhase` steps, and every full cycle
 //      (peak to peak, trough to trough) at least `minCycle`. The shortest offending stretch goes first.
-//      A short phase loses its two ends' weaker turn pair; a short cycle loses its less extreme turn, and
-//      alternation is restored. Repeat until nothing changes.
+//      A short phase loses a turn pair: its own two ends, unless one of them is more extreme than the turn of
+//      its kind beside it, in which case that neighbour pair goes instead; a short cycle loses its less extreme
+//      turn, and alternation is restored. Repeat until nothing changes.
 // Quarterly defaults (BBQ): window 2, minPhase 2, minCycle 5. Monthly (Bry-Boschan's own durations):
 // window 5, minPhase 6, minCycle 15. No smoothing step: BBQ dates the series as given (log it first for
 // a level that grows).
@@ -44,6 +45,7 @@ function candidates(x, k) {
 }
 
 const better = (x, a, b) => (a.kind === 'peak' ? x[a.i] >= x[b.i] : x[a.i] <= x[b.i]);
+const strictly = (x, a, b) => (a.kind === 'peak' ? x[a.i] > x[b.i] : x[a.i] < x[b.i]);
 
 function alternate(x, turns) {
   const out = [];
@@ -85,8 +87,18 @@ function enforceOnce(x, s, minPhase, minCycle, bigMove = Infinity) {
   if (!worst) return null;
   const out = s.slice();
   if (worst.type === 'phase') {
-    // drop both ends of the short phase; the turns either side are of opposite kinds, so alternation holds
-    out.splice(worst.j, 2);
+    // a short phase a->b loses a turn pair, chosen so the more extreme turn of each kind stays: when b beats the
+    // turn of its kind before a, the pair before b goes; when a beats the turn of its kind after b, the pair
+    // after a goes; when both, the pair with the smaller move; otherwise a and b themselves. Each choice keeps
+    // the kinds alternating. (Dropping a and b always could leave a lower peak standing over a higher one:
+    // README "Japan's coincident index", the 2005-04 peak kept over 2007-05.)
+    const j = worst.j, a = s[j], b = s[j + 1], before = s[j - 1], after = s[j + 2];
+    const left = before && strictly(x, b, before), right = after && strictly(x, a, after);
+    let at = j;
+    if (left && right) at = Math.abs(x[a.i] - x[before.i]) <= Math.abs(x[after.i] - x[b.i]) ? j - 1 : j + 1;
+    else if (left) at = j - 1;
+    else if (right) at = j + 1;
+    out.splice(at, 2);
   } else {
     const a = s[worst.j], b = s[worst.j + 2];
     out.splice(better(x, a, b) ? worst.j + 2 : worst.j, 1);

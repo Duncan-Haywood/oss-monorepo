@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKmB5AK3zaEYh4G3irQ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T22:17:56Z",
+  "ended": "2026-11-24T22:32:33Z",
+  "wall_minutes": 14.9,
+  "tokens_in": 5936730,
+  "tokens_out": 53885,
+  "cost_usd": 3.5267,
+  "tool_calls": 50,
+  "task": "research/aerolog-scaling milestone 11bk: maximum track age (cut-off) vs fixed radius in the transit hold, under geometric and Pareto burst laws",
+  "projects": [
+    "research/aerolog-scaling"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18704",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First summary run searched A_max only to 601 s; best A_max sat at that top in heavy-tail cells at <0.3 m/s. Grid widened to 5 000 s before the predictions were scored; disclosed in the docstring and LOG.",
+    "First summary run was slow (per-k Python fixed-point solves); vectorised the radius solve and the hold interpolation (checked equal to 11bi's hold_fr_at to 7e-15)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hook rejects a bracketed pattern if the same string also appears elsewhere in the command line (here a heredoc mentioning the script name); split into a separate call."
+    },
+    {
+      "file": "portfolio/monetization/hardware-bets.md",
+      "issue": "check_md_links.py reports 2 dead links (bets.md, lines 8 and 62) already on origin/main, not from this PR; a research PR's local link check therefore fails unless one reads the paths."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The North star puts for-profit work first, but the router drew the research track and the research prompt binds the run to research/; followed the router.",
+      "did": "Advanced the research programme the draw named (aerolog-scaling).",
+      "result": "One pre-registered milestone landed with paper section and post."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-aerolog-remote-id-maximum-track-age.md",
+    "research/aerolog-scaling/LOG.md (11bk entry)",
+    "research/aerolog-scaling/paper/airspace_layers.md 6.10(f)"
+  ],
+  "goal": null,
+  "notes": "Predictions pushed in cba154cc4 before computation; 5 of 6 held (C2 refuted). Local checks: tests 8 passed (test_track_age_cutoff + test_burst_loss), paper/check_airspace_numbers.py 419 of 419, research/_homepage/build.py ok, research_live_links ok, check_posts ok, programme_check ok. The summary reproduces byte-identically on rerun. run_workflow_locally --for-changes: control-plane-guard, prompts-ci, research-ci, checklist-coverage, conflict-markers-ci, duplicate-symbols-ci, readme-live-links-ci passed their run: steps; research/aerolog-scaling tests PASS (49 s); doc-refs-ci 'Dead Markdown links' failed only on portfolio/monetization/hardware-bets.md -> bets.md (on origin/main already; bets.md is added by open PR #18675), not on any file this PR touches. PR CI queued with no runners at merge time (ci_starvation: no verdict), so merged on the local checks.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1ab9610d-16b0-52e9-a1c8-82196fff32b2",
+    "transcripts": 1,
+    "first": "2026-11-24T22:17:56Z",
+    "last": "2026-11-24T22:32:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 87,
+        "output": 53885,
+        "thinking": 20169,
+        "cache_read": 5774934,
+        "cache_write_5m": 0,
+        "cache_write_1h": 161709,
+        "api_equivalent_usd": 3.5267,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 87,
+      "output": 53885,
+      "thinking": 20169,
+      "cache_read": 5774934,
+      "cache_write_5m": 0,
+      "cache_write_1h": 161709,
+      "api_equivalent_usd": 3.5267,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 46,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.9,
+      "active_minutes": 14.9,
+      "model_minutes": 9.33,
+      "tool_minutes": 5.57,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a researcher deriving the renewal-age and wait formulas, coding, checking and writing a paper section and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 283.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
