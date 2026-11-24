@@ -36,6 +36,7 @@ import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { FUNNEL_ATTRS, FUNNEL_TOKEN_RE } from '../counter/core.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
+import { buildManufacturingPage } from './industry-manufacturing.mjs';
 import { buildConstructionPage, CONSTRUCTION_PATH } from './industry-construction.mjs';
 import { buildNonprofitsPage } from './industry-nonprofits.mjs';
 import { renderHardwarePage, HARDWARE_PATH } from './hardware-page.mjs';
@@ -1716,7 +1717,6 @@ const CATEGORY_RULES = [
     // `water-damage-drying-estimate-calculator` joined 2026-10-11 on its first commit beside `grease-trap-pumping-price-calculator`: a restoration contractor turning wet area, equipment days and labour into a job invoice and margin.
     // `hoarding-cleanout-bid-calculator` joined 2026-10-11 on its first commit beside `dumpster-rental-margin-calculator`: a cleanout contractor pricing volume, crew days and containers.
     // `powder-coating-job-price-calculator` joined 2026-10-10 on its first commit beside `cnc-machining-quote-calculator`: a job shop turning labour, machine and material into a customer price.
-    // `machine-shop-guides` joined 2026-11-24 (red team: it had landed as the catch-all's sixth tool) beside `cnc-machining-quote-calculator`: the same job shop's SPRS score, CMMC guides and quote calculator.
     // `dxf-nesting` joined 2026-11-18 on its first commit beside `laser-cutting-engraving-job-price-calculator` and `cnc-machining-quote-calculator`: the same laser, plasma and CNC job shop, nesting the customer's DXF parts on sheets before it prices the cut.
     // `laser-cutting-engraving-job-price-calculator` joined 2026-10-10 on its first commit beside `cnc-machining-quote-calculator`: a laser shop turning sheet, machine time and labour into a customer price.
     // `therapy-8-minute-rule-calculator` joined 2026-10-10: a therapy practice turning timed minutes into billable units is a services-business job; the catch-all was at 6, over the bound of five (build.test.mjs).
@@ -13999,7 +13999,15 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       published: new Set(surfaces.map((s) => s.slug)),
       footer: `${disclaimerHtml('../../', surfaces)}\n      ${renderSiteFooterNav({ toRoot: '../../' })}`,
       tail: `  <script src="../../${CHROME_MODULE_FILE}" ${CHROME_SLUG_ATTR}="industry-nonprofits" defer></script>`,
-    }),  ];
+    }),
+    // Job shops and small engineering firms: quoting and CMMC/ISO 9001
+    // products in development, and the free tools (`industry-manufacturing.mjs`).
+    await buildManufacturingPage(outDir, base, {
+      published: new Set(surfaces.map((s) => s.slug)),
+      footer: `${disclaimerHtml('../../', surfaces)}\n      ${renderSiteFooterNav({ toRoot: '../../' })}`,
+      tail: `  <script src="../../${CHROME_MODULE_FILE}" ${CHROME_SLUG_ATTR}="industry-manufacturing" defer></script>`,
+    }),
+  ];
   // The online sellers industry page (industry-online-sellers.mjs): resellers'
   // problems, Seller Books in development, and the best free seller tools.
   await fs.mkdir(path.join(outDir, ONLINE_SELLERS_PATH), { recursive: true });

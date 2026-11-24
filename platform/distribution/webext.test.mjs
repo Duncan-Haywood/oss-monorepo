@@ -89,16 +89,17 @@ test('the real shift-roster-builder qualifies', async () => {
   assert.equal(ok.length, 1);
 });
 
-// shift-roster-builder (#18712) lazy-loads its importers with import("./x.mjs").
-// A relative dynamic import loads a file packaged with the extension, so it is
-// not network access; any other dynamic import still is (red team 2026-11-24).
-test('a relative dynamic import is bundled, a computed or remote one still skips', async () => {
-  assert.equal(rewritePage('<script type="module">import("./lazy.mjs")</script>').skip, undefined);
-  assert.match(rewritePage('<script type="module">import(url)</script>').skip, /network/);
-  assert.match(rewritePage('<script type="module">import("https://x.example/a.mjs")</script>').skip, /network/);
-  const page = PAGE.replace('f();', 'f(); import("./lazy.mjs");');
-  const dir = await fixture({ 'index.html': page, 'calc.mjs': 'export const f = () => 1;', 'lazy.mjs': 'export const g = 2;', LICENSE: 'MIT License' });
-  const ext = await buildExtension({ slug: 'demo', dir });
-  assert.equal(ext.skip, undefined);
-  assert.ok('lazy.mjs' in ext.files);
+test('a dynamic import of a local file is packaged, not read as the network', async () => {
+  // shift-roster-builder loads its importers on first use (PR #18712); the
+  // packager skipped it as "inline script reaches the network"
+  const ok = rewritePage('<script type="module">const f = () => import("./a.mjs");</script>');
+  assert.equal(ok.skip, undefined);
+  for (const body of ['import("https://x.example/a.js")', 'import(name)', 'import(`./${n}.mjs`)']) {
+    assert.match(rewritePage(`<script type="module">${body}</script>`).skip ?? '', /network/, body);
+  }
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'webext-dyn-'));
+  await fs.writeFile(path.join(dir, 'a.mjs'), 'export const a = () => import("./b.mjs");\n');
+  await fs.writeFile(path.join(dir, 'b.mjs'), 'export const b = 1;\n');
+  const imp = await importedFiles(dir, ['const f = () => import("./a.mjs");']);
+  assert.deepEqual(imp.files, ['a.mjs', 'b.mjs']);
 });

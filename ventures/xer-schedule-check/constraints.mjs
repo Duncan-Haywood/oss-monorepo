@@ -10,7 +10,7 @@
 // file with a header row. Columns are found by name (see COLUMNS); only the
 // activity column is required. One row may name several activities
 // ("A1010; A1020"). Dates read as 2025-12-03, 12/3/2025 (US order, or
-// day-first when the first number is over 12), 3-Dec-25, 3 Dec 2025 or an
+// day-first when any slash date in the log has a first number over 12), 3-Dec-25, 3 Dec 2025 or an
 // Excel day number. "Cleared" is a date (cleared that day), or yes / done /
 // closed / x; blank, "open" or "no" is open.
 //
@@ -77,8 +77,10 @@ export function splitRows(text) {
   return rows.map((r) => r.map((v) => v.trim())).filter((r) => r.some((v) => v !== ""));
 }
 
-// minutes (xer.mjs's clock) of a date the way people type them, or null
-export function parseLogDate(v) {
+// minutes (xer.mjs's clock) of a date the way people type them, or null.
+// order: "dmy" reads 03/12/2025 as 3 December, "mdy" as March 12; left out,
+// each value decides alone (US order unless the first number is over 12).
+export function parseLogDate(v, order) {
   const s = String(v ?? "").trim();
   if (!s) return null;
   const at = (y, m, d, hh = 0, mm = 0) => {
@@ -91,13 +93,27 @@ export function parseLogDate(v) {
   if ((m = /^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)(?:[ T](\d{1,2}):(\d{2}))?/.exec(s))) return at(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0));
   if ((m = /^(\d{1,2})[/.](\d{1,2})[/.](\d{4}|\d{2})(?!\d)(?:\s+(\d{1,2}):(\d{2}))?$/.exec(s))) {
     let a = +m[1], b = +m[2];
-    if (a > 12 && b <= 12) [a, b] = [b, a]; // day first
+    if (order === "dmy" ? b <= 12 : order !== "mdy" && a > 12 && b <= 12) [a, b] = [b, a]; // day first
     return at(+m[3], a - 1, b, +(m[4] || 0), +(m[5] || 0));
   }
   if ((m = /^(\d{1,2})[-\s]([A-Za-z]{3})[a-z]*[-\s,]+(\d{4}|\d{2})(?!\d)$/.exec(s)) && Object.hasOwn(MON, m[2].toLowerCase())) return at(+m[3], MON[m[2].toLowerCase()], +m[1]);
   if ((m = /^([A-Za-z]{3})[a-z]*\.?\s+(\d{1,2}),?\s+(\d{4})$/.exec(s)) && Object.hasOwn(MON, m[1].toLowerCase())) return at(+m[3], MON[m[1].toLowerCase()], +m[2]);
   if (/^\d{5}(\.\d+)?$/.test(s)) { const n = Number(s); if (n > 20000 && n < 80000) return Math.round((Date.UTC(1899, 11, 30) / 60000) + n * DAY); }
   return null;
+}
+
+// One order for the whole log: a site team types every date the same way, so
+// a 25/12/2025 anywhere means 03/12/2025 elsewhere is 3 December, not March 12.
+// "dmy", "mdy", "mixed" (both kinds seen) or undefined (nothing tells).
+export function slashOrder(values) {
+  let dmy = false, mdy = false;
+  for (const v of values) {
+    const m = /^(\d{1,2})[/.](\d{1,2})[/.](\d{4}|\d{2})(?!\d)/.exec(String(v ?? "").trim());
+    if (!m) continue;
+    if (+m[1] > 12 && +m[2] <= 12) dmy = true;
+    else if (+m[2] > 12 && +m[1] <= 12) mdy = true;
+  }
+  return dmy && mdy ? "mixed" : dmy ? "dmy" : mdy ? "mdy" : undefined;
 }
 
 export function parseConstraintLog(text) {
@@ -119,17 +135,20 @@ export function parseConstraintLog(text) {
     warnings.push("no column named activity (or activity ID, task code, ID): read as activity, constraint, owner, expected date, cleared");
   }
   const get = (r, k) => (columns[k] === undefined ? "" : r[columns[k]] ?? "");
+  const order = slashOrder(body.flatMap((r) => ["expected", "needBy", "cleared"].map((k) => get(r, k))));
+  if (order === "mixed") warnings.push("the log has dates with the day first (25/12/2025) and with the month first (12/25/2025); each one read on its own, and 03/12-style dates as month first");
+  const date = (v) => parseLogDate(v, order === "mixed" ? undefined : order);
   const items = [];
   body.forEach((r, i) => {
     const row = i + (body === rows ? 1 : 2);
     const act = get(r, "activity");
     if (!act) { warnings.push(`row ${row}: no activity, skipped`); return; }
     const exp = get(r, "expected"), need = get(r, "needBy"), cl = get(r, "cleared");
-    const expected = parseLogDate(exp), needByLog = parseLogDate(need);
+    const expected = date(exp), needByLog = date(need);
     if (exp && expected === null) warnings.push(`row ${row}: expected date "${exp}" does not read as a date; treated as no date`);
     if (need && needByLog === null) warnings.push(`row ${row}: need-by date "${need}" does not read as a date`);
     let cleared = false, clearedOn = null;
-    const cd = parseLogDate(cl);
+    const cd = date(cl);
     if (cd !== null) { cleared = true; clearedOn = cd; }
     else if (YES.test(cl)) cleared = true;
     else if (!NO.test(cl)) warnings.push(`row ${row}: cleared "${cl}" read as open (use a date, yes or done to close it)`);

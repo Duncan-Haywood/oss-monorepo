@@ -37,6 +37,7 @@ python3 platform/ci/run_venture_tests.py --changed   # every venture your branch
 # No pytest/numpy? PY=$(python3 platform/ci/pyenv.py pytest numpy), then "$PY" -m pytest: some images split python3 from what pip/apt install into.
 (cd platform/ci && rc=0; for m in test_*.py; do python3 -m unittest "${m%.py}" || { echo "FAILED $m"; rc=1; }; done; exit $rc)  # runs every module, lists each failure
 (cd platform/ci/agent_review && python3 -m unittest test_review)
+(cd platform/security && python3 -m unittest test_risk_review)  # the cyber and legal risk review (docs/security/risk-review.md)
 python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline -q  # >4 min in a shallow clone (router's real-portfolio tests; run reports 2026-10-19): run_in_background
 python3 -m pytest portfolio/work -q                      # directions and tasks registry (workctl.py), under 1 s
 python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename

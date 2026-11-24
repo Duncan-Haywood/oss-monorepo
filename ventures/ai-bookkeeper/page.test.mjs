@@ -149,7 +149,7 @@ test("the tax estimate card exists, its ids are labelled, and estimatedTax is im
   assert.match(html, /id="est-annual"/);
   assert.match(html, /id="annual"/);
   for (const id of ["scorp-salary", "scorp-cost"]) assert.match(html, new RegExp(`<label[^>]*>[^<]*<input id="${id}"`), id);
-  assert.match(script(), /import \{ scorpFromBooks \} from "\.\/scorp\.mjs"/);
+  assert.match(script(), /const \{ scorpFromBooks \} = await import\("\.\/scorp\.mjs"\)/);
   assert.match(html, /id="est-scorp"/);
   assert.match(html, /id="scorp"/);
 });
@@ -222,4 +222,17 @@ test("receipts, payouts and the annualized worksheet load on first use, not with
     assert.doesNotMatch(script(), new RegExp(`from "\\./${f}\\.mjs"`), `${f}.mjs is a static import again`);
     assert.match(script(), new RegExp(`import\\("\\./${f}\\.mjs"\\)`), `${f}.mjs is never loaded`);
   }
+});
+
+test("file readers, S-corp, AI, reconcile and bill pay load on first use, and the names the handlers take exist", async () => {
+  // 29 kB gzip and 8 files off the first render (docs/history/ai-bookkeeper-page-perf-2026-11-24.md).
+  const lazy = { pdftext: ["pdfToText"], xlsx: ["xlsxToCsv", "looksLikeXlsx"], xls: ["xlsToCsv", "looksLikeXls"], textcodec: ["decodeBytes"], scorp: ["scorpFromBooks"], ai: ["aiSuggest"], reconcile: ["reconcile"], billpay: ["planBills"] };
+  for (const [f, names] of Object.entries(lazy)) {
+    assert.doesNotMatch(script(), new RegExp(`from "\\./${f}\\.mjs"`), `${f}.mjs is a static import again`);
+    assert.match(script(), new RegExp(`import\\("\\./${f}\\.mjs"\\)`), `${f}.mjs is never loaded`);
+    const mod = await import(`./${f}.mjs`);
+    for (const n of names) assert.equal(typeof mod[n], "function", `${n} from ${f}.mjs`);
+  }
+  // Invoice and statement stay static: their buttons call window.open, and an await first risks the popup blocker.
+  for (const f of ["invoice", "statement"]) assert.match(script(), new RegExp(`from "\\./${f}\\.mjs"`), f);
 });

@@ -118,8 +118,8 @@ Fix what you find even when it reaches past the target: a sweep across many
 files, a sibling with the same bug, or a test that was red before you came
 (the open list's three oldest entries were each "too wide" or "unrelated",
 and each took under an hour to fix). Leave `patched: false` only when the fix
-is unsafe here: a product that needs a redesign, a control-plane file
-(`.github/CODEOWNERS`) that wants its own PR, or another person's open PR. Say
+is unsafe here: a product that needs a redesign, a file in the owner-only
+core of `.github/CODEOWNERS` that wants its own PR, or another person's open PR. Say
 in `issue` what the fix needs, so the run that picks it up from step 0 can
 start without rediscovering it.
 
@@ -159,8 +159,10 @@ blue team run"). In rough order of preference:
   (`platform/ci/security_alerts.py`, the `security-alerts` branch). A check
   that writes its findings into a file queue like that one counts too.
 
-A new workflow file is control plane (`.github/CODEOWNERS`): open it as its
-own small PR so the fixes in this run aren't held up. Say in `notes` which
+A new workflow that needs a secret or a write token is a `priv-*` workflow
+and owner-only (`.github/CODEOWNERS`): open it as its own small PR so the
+fixes in this run aren't held up. Any other new workflow lands like the rest
+once `ci-policy` and the risk review (`docs/security/risk-review.md`) pass. Say in `notes` which
 guard you added or tightened, and what it caught on its first run.
 
 ## 5. Record and land
