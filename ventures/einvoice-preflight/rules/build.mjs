@@ -107,6 +107,11 @@ const T = {
     others: "Autres langues", titleTail: "expliquée", back: "Toutes les règles",
   },
 };
+/** The cited source of a rule; throws on an unknown key (a prototype name included). */
+export const sourceOf = (key) => {
+  if (!Object.hasOwn(SOURCES, key)) throw new Error(`unknown rule source "${key}"`);
+  return SOURCES[key];
+};
 const LANG_NAME = { en: "English", de: "Deutsch", fr: "Français" };
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -143,7 +148,7 @@ export function loadRules() {
 
 /** The official facts of a rule: the syntaxes it is in, its severity and its message(s). */
 export function official(rule) {
-  const src = SOURCES[rule.source];
+  const src = sourceOf(rule.source);
   const syntaxes = [];
   const messages = new Set();
   const flags = new Set();
@@ -198,13 +203,13 @@ const clip = (s, n = 160) => (s.length <= n ? s : `${s.slice(0, n - 1).replace(/
 
 const titleFor = (rule, t) => {
   const full = `${rule.id}: ${rule[t.htmlLang].title}`;
-  return [...full].length <= 70 ? full : `${rule.id}: ${SOURCES[rule.source].label} ${t.titleTail}`;
+  return [...full].length <= 70 ? full : `${rule.id}: ${sourceOf(rule.source).label} ${t.titleTail}`;
 };
 
 export function renderRule(rule, lang) {
   const t = T[lang];
   const c = rule[lang];
-  const src = SOURCES[rule.source];
+  const src = sourceOf(rule.source);
   const off = official(rule);
   const path = `${lang}/${slugOf(rule.id)}.html`;
   const alternates = [...LANGS.map((l) => [l, `${l}/${slugOf(rule.id)}.html`]), ["x-default", `en/${slugOf(rule.id)}.html`]];

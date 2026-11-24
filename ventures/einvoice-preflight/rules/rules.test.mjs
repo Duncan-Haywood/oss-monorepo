@@ -16,7 +16,7 @@ test("every cited source version is the one the compiled rule sets were built fr
 });
 
 test("every rule id exists in the official rule set version its page cites", () => {
-  const missing = rules.filter((r) => !SOURCES[r.source] || !SOURCES[r.source].sets.some((set) => officialChecks(set).has(r.id)));
+  const missing = rules.filter((r) => !Object.hasOwn(SOURCES, r.source) || !SOURCES[r.source].sets.some((set) => officialChecks(set).has(r.id)));
   assert.deepEqual(missing.map((r) => `${r.id} (${r.source}, ${r.file})`), []);
 });
 
@@ -119,4 +119,33 @@ test("titles fit in 70 characters and FAQ markup matches the visible questions",
     if (!ld) { assert.equal(p, "index.html"); continue; }
     for (const q of JSON.parse(ld[1]).mainEntity) assert.ok(html.includes(`<h2>${q.name.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}</h2>`), `${p}: ${q.name}`);
   }
+});
+
+// The corrected XML is checked against the official rules themselves, where the engine is
+// installed (`npm i --no-save slimdom fontoxpath`; plain-schematron.test.mjs skips the same way).
+// examples/ubl-invoice.xml is an XRechnung invoice that fails BR-DE-2 (no seller contact) and
+// BR-DE-9 (no buyer post code); putting our snippets into it must silence those rules, and the
+// BR-DE-18 Skonto lines must pass where the two usual mistakes fail.
+const { runPlain, plainAvailable } = await import("../plain-node.mjs");
+const engine = plainAvailable() ? false : "npm i --no-save slimdom fontoxpath (rules are in ../plain/)";
+const byId = new Map(rules.map((r) => [r.id, r]));
+const example = fs.readFileSync(new URL("../examples/ubl-invoice.xml", import.meta.url), "utf8");
+const fired = async (xml) => (await runPlain(xml)).findings.map((f) => f.rule);
+const part = (xml, tag) => xml.match(new RegExp(`<${tag}>[\\s\\S]*?</${tag}>`))[0];
+
+test("the BR-DE-2 and BR-DE-9 snippets, put into a failing invoice, pass the official XRechnung rules", { skip: engine }, async () => {
+  const before = await fired(example);
+  assert.ok(before.includes("BR-DE-2") && before.includes("BR-DE-9"), before.join(","));
+  const fixed = example
+    .replace("</cac:PartyLegalEntity>\n    </cac:Party>\n  </cac:AccountingSupplierParty>", `</cac:PartyLegalEntity>\n${part(byId.get("BR-DE-2").ubl, "cac:Contact")}\n    </cac:Party>\n  </cac:AccountingSupplierParty>`)
+    .replace(/(<cac:AccountingCustomerParty>[\s\S]*?)<cac:PostalAddress>[\s\S]*?<\/cac:PostalAddress>/, (_, head) => head + part(byId.get("BR-DE-9").ubl, "cac:PostalAddress"));
+  const after = await fired(fixed);
+  for (const id of ["BR-DE-2", "BR-DE-5", "BR-DE-6", "BR-DE-7", "BR-DE-9", "BR-DE-27", "BR-DE-28"]) assert.ok(!after.includes(id), `${id} still fires: ${after.join(",")}`);
+});
+
+test("the BR-DE-18 Skonto snippet passes; no trailing line break or a decimal comma fails", { skip: engine }, async () => {
+  const terms = (t) => example.replace(/<cac:PaymentTerms>[\s\S]*?<\/cac:PaymentTerms>/, t);
+  assert.ok(!(await fired(terms(byId.get("BR-DE-18").ubl))).includes("BR-DE-18"));
+  assert.ok((await fired(terms("<cac:PaymentTerms><cbc:Note>#SKONTO#TAGE=14#PROZENT=2.00#</cbc:Note></cac:PaymentTerms>"))).includes("BR-DE-18"));
+  assert.ok((await fired(terms("<cac:PaymentTerms><cbc:Note>#SKONTO#TAGE=14#PROZENT=2,00#\n</cbc:Note></cac:PaymentTerms>"))).includes("BR-DE-18"));
 });
