@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVQ8VQUUujWn5prrPhh",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T20:04:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ifc-quantity-takeoff flagship: notched L angle volume 1% over",
+  "projects": [
+    "ifc-quantity-takeoff"
+  ],
+  "pr": 18652,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ifc-quantity-takeoff/eval/coped-coating-2026-11-24.md",
+      "issue": "named the boolean cut of fillet pieces as the suspect; the fault was the L profile's ignored EdgeRadius. A hand-worked section area would have found it in minutes."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here said take item 2 (figures in doubt), which reads '0 areas left' (done); item 3 needs a second Revit model, item 4 is claimed by PR 18502. Took item 7 (notched L), a concrete defect buildable here.",
+      "did": "took item 7",
+      "result": "root cause found and fixed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-steel-angle-toe-radii-ifc-takeoff.md",
+    "ventures/ifc-quantity-takeoff/eval/edge-radii-2026-11-24.md"
+  ],
+  "goal": null,
+  "notes": "Root cause: Geometry.profile ignored toe radii (L/U EdgeRadius, I/T FlangeEdgeRadius, T WebEdgeRadius, Z fillet+edge). Fixed with filletEach. Mini Project: 17 of 2636 elements change (all angles), #10087 volume 0.007526->0.0074681 m3 (hand 0.0074681, IfcOpenShell 0.00747), area 1.52138->1.50586 (IOS 1.50562). stored-vs-computed classes unchanged. node --test *.test.mjs: 293 pass (290 before + 3 new; new tests fail on main's geom.mjs). run_venture_tests.py ifc-quantity-takeoff: 1 suite, 0 failed. check_posts ok. validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}
