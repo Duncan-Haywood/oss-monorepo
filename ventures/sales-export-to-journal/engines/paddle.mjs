@@ -45,7 +45,10 @@ export function parseMapping(text) {
 export const mappingText = (mapping = defaultMapping()) => CATEGORY_ORDER.map((k) => `${k} = ${mapping[k]}`).join("\n");
 
 const dollars = (c) => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)((Math.abs(c) / 100).toFixed(2));
-export const money = (c, cur = "USD") => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + cur);
+// One formatter, built once: toLocaleString with options builds a new Intl.NumberFormat on every call,
+// which was most of a large file's read time (same locale and options, so the same text).
+const MONEY_FMT = new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const money = (c, cur = "USD") => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(MONEY_FMT.format(Math.abs(c / 100)) + " " + cur);
 
 // ---- parsing ----------------------------------------------------------------
 
