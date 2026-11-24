@@ -41,6 +41,10 @@
     {
       "file": "prompts/ventures/prompt-2.md",
       "issue": "'No new calculator work' collides with the north star's 'free tools as lead magnets for paid products'; had to judge that a front-door feature for bet 1 is allowed."
+    },
+    {
+      "file": "portfolio/monetization/hardware-bets.md",
+      "issue": "Linked bets.md, which is not on main (README.md, portfolio/README.md and verticals.py cite it too), so check_md_links.py was red on main and venture-preflight failed on an unrelated file; pointed the two links at the public research post."
     }
   ],
   "deviations": [
@@ -61,7 +65,7 @@
     "docs/posts/2026-11-24-rolling-a-pay-application-to-next-month.md"
   ],
   "goal": "Front door for paid bet 1 (pay-app suite): demonstrates the monthly workflow and routes to early access.",
-  "notes": "node --test in ventures/pay-application-generator: 29/29 pass (run_venture_tests.py). Playwright 390px: example -> next month -> work out: app no 5, period 2026-11-30, previous certs 220770.00, due $0.00; no console errors; scrollWidth 390. venture-preflight run in background, result in PR.",
+  "notes": "node --test in ventures/pay-application-generator: 29/29 pass (run_venture_tests.py). Playwright 390px: example -> next month -> work out: app no 5, period 2026-11-30, previous certs 220770.00, due $0.00; no console errors; scrollWidth 390. venture-preflight run in background, result in PR. venture-preflight: only failures were my post description (fixed, check_posts ok) and main's dead bets.md links (fixed; check_md_links ok).",
   "corrections": [],
   "redteam": null,
   "usage": {
