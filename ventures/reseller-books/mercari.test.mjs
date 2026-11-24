@@ -88,7 +88,7 @@ test("a report with no completed orders is refused with a reason", () => {
 });
 
 test("quoted titles with commas, a BOM, ISO dates and a totals line", () => {
-  const text = "﻿" + HEAD + '\nm1,2026-03-02,,2026-03-06,"Jacket, denim",Completed,CA,OH,"$1,048.00",0,0,104.80,30.89,0,912.31,0,0,0,0,0\nTotal,,,,,,,,1048.00,,,,,,912.31,,,,,';
+  const text = "\uFEFF" + HEAD + '\nm1,2026-03-02,,2026-03-06,"Jacket, denim",Completed,CA,OH,"$1,048.00",0,0,104.80,30.89,0,912.31,0,0,0,0,0\nTotal,,,,,,,,1048.00,,,,,,912.31,,,,,';
   const n = normalizeReport(parseCsv(text));
   assert.equal(n.rows.length, 1);
   assert.equal(n.rows[0].title, "Jacket, denim");
