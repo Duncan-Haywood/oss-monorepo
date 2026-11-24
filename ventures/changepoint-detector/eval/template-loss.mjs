@@ -32,14 +32,33 @@
 // workflow's default fetch adds --sections 5 and watches the views_ columns. If S1 and S2 pass and S3 fails,
 // --sections ships as an option only, with the false-date count in the README. If S1 fails, nothing is offered.
 //   node eval/template-loss.mjs [seeds=40]    (output: eval/template-loss.out.txt)
+//
+// ROUND 2, pre-registered 2026-11-24 after round 1's verdict (S1 and S3 failed: nothing offered) and before round 2
+// first ran, on fresh seeds (faulted 16001-16040, 17001-17040, 18001-18040 for T1-T3; no fault 19001-19040), same
+// sites and depths. Round 1 read: the section columns' false dates came from viral blog days (views_blog 115-148 of
+// the 182-322), and help fell out of the top five because the five were picked on the whole series, after the loss;
+// a deployed --sections picks them on its first fetch, before a later loss, so round 2 picks them on the days before
+// 2026-03-16. Arm A as before; arm D = A plus dark-sections.mjs on the five page-view columns (a column is dark when
+// its last 3 days average under 10% of its mean over the 28 days before, from at least 20 a day; a rise never trips
+// it). D's heard = A's heard or a dark call starting within 7 days of 2026-03-16.
+//   (D1) D hears T1 on >= 36 of 40 at both depths;
+//   (D2) D hears T2 and T3 on no fewer than A's count minus 2 at each depth;
+//   (D3) dark calls on the no-fault sites, all five columns, number at most 2 at each depth;
+//   (D4) dark calls on the faulted sites starting more than 7 days from 2026-03-16 number at most 2 at each depth,
+//        summed over T1-T3.
+// If D1-D4 pass, ga4-metrics.mjs ships --sections and the GA4 workflow default fetches --sections 5 and runs the dark
+// check beside the watch. If any fails, nothing is offered and the README says so.
+//   node eval/template-loss.mjs [seeds=40] round2    (output: eval/template-loss-round2.out.txt)
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { main as watchMain } from '../watch.mjs';
 import { toCsv } from '../ga4-metrics.mjs';
+import { darkSections } from '../dark-sections.mjs';
 
 const SEEDS = Number(process.argv[2] ?? 40);
+const ROUND2 = process.argv[3] === 'round2';
 export const MIDDLE = ['--detector', 'pelt', '--overdispersion', 'nb', '--trend', 'gated'];
 export const OFF = '2026-03-16';
 export const SECTIONS = ['home', 'category', 'product', 'blog', 'help', 'checkout'];
@@ -99,9 +118,9 @@ export function site({ wk, dark = null, share = 1, seed }) {
 }
 
 /** The five sections with the most views over the whole series, as GA4 --sections 5 would pick them. */
-export function topSections(days, n = 5) {
+export function topSections(days, n = 5, before = null) {
   const tot = Object.fromEntries(SECTIONS.map((s) => [s, 0]));
-  for (const d of days) for (const s of SECTIONS) tot[s] += d.views[s];
+  for (const d of days) if (!before || d.date < before) for (const s of SECTIONS) tot[s] += d.views[s];
   return SECTIONS.slice().sort((a, b) => tot[b] - tot[a]).slice(0, n);
 }
 
@@ -123,6 +142,53 @@ async function watched(days, cols, extra) {
 const cache = new Map();
 const siteOnce = (o) => { const k = JSON.stringify(o); if (!cache.has(k)) cache.set(k, site(o)); return cache.get(k); };
 const colsFor = (arm, days) => (arm === 'A' ? BASE : [...BASE, ...topSections(days).map((s) => `views_${s}`)]);
+
+const ROUND2_SEEDS = { T1: 16000, T2: 17000, T3: 18000 }, ROUND2_NULL = 19000;
+const sectionRows = (days) => days.map((d) => ({ date: d.date, values: Object.fromEntries(SECTIONS.map((s) => [`views_${s}`, d.views[s]])) }));
+
+async function round2() {
+  const WKS = [0.5, 0.4];
+  const lines = [`round 2: seeds ${SEEDS} per cell (faulted 16001-, 17001-, 18001- for T1-T3; no fault 19001-); five sections picked on the days before ${OFF}; dark = last 3 days under 10% of the 28 before, from >= 20 a day`];
+  const res = {};
+  for (const wk of WKS) {
+    const cell = { A: {}, D: {}, darkByFault: {}, darkAway: 0, nullDark: 0, nullDarkCols: {}, nullA: 0 };
+    for (const name of Object.keys(FAULTS)) {
+      let a = 0, d = 0, darkHits = 0;
+      for (let s = 1; s <= SEEDS; s++) {
+        const days = siteOnce({ wk, dark: FAULTS[name].dark, seed: ROUND2_SEEDS[name] + s });
+        const by = await watched(days, BASE, MIDDLE);
+        const heardA = BASE.some((c) => (by[c] ?? []).some((x) => near(x, OFF)));
+        const cols = topSections(days, 5, OFF).map((x) => `views_${x}`);
+        const calls = darkSections(sectionRows(days), cols);
+        const heardDark = calls.some((c) => near(c.start, OFF));
+        cell.darkAway += calls.filter((c) => !near(c.start, OFF)).length;
+        if (heardA) a++;
+        if (heardA || heardDark) d++;
+        if (heardDark) darkHits++;
+      }
+      cell.A[name] = a; cell.D[name] = d; cell.darkByFault[name] = darkHits;
+    }
+    for (let s = 1; s <= SEEDS; s++) {
+      const days = siteOnce({ wk, seed: ROUND2_NULL + s });
+      const by = await watched(days, BASE, MIDDLE);
+      cell.nullA += BASE.reduce((t, c) => t + (by[c] ?? []).length, 0);
+      for (const c of darkSections(sectionRows(days), topSections(days, 5, OFF).map((x) => `views_${x}`))) { cell.nullDark++; cell.nullDarkCols[c.column] = (cell.nullDarkCols[c.column] ?? 0) + 1; }
+    }
+    res[wk] = cell;
+    lines.push(`-- weekends ${wk}`);
+    for (const name of Object.keys(FAULTS)) lines.push(`   ${name} (${FAULTS[name].dark} dark): arm A heard ${cell.A[name]}/${SEEDS}; arm D heard ${cell.D[name]}/${SEEDS} (the dark check alone ${cell.darkByFault[name]}/${SEEDS})`);
+    lines.push(`   dark calls on faulted sites away from ${OFF}: ${cell.darkAway}`);
+    lines.push(`   no fault: dark calls ${cell.nullDark} (${Object.entries(cell.nullDarkCols).map(([c, k]) => `${c} ${k}`).join(', ') || 'none'}); arm A's dates ${cell.nullA}`);
+  }
+  const d1 = WKS.every((wk) => res[wk].D.T1 >= 36);
+  const d2 = WKS.every((wk) => ['T2', 'T3'].every((t) => res[wk].D[t] >= res[wk].A[t] - 2));
+  const d3 = WKS.every((wk) => res[wk].nullDark <= 2);
+  const d4 = WKS.every((wk) => res[wk].darkAway <= 2);
+  lines.push('==== round 2 verdict (pre-registered rule in the header)', `D1 ${d1 ? 'passes' : 'fails'}, D2 ${d2 ? 'passes' : 'fails'}, D3 ${d3 ? 'passes' : 'fails'}, D4 ${d4 ? 'passes' : 'fails'} -> ${d1 && d2 && d3 && d4 ? '--sections 5 and the dark check join the GA4 workflow default' : 'nothing offered'}`);
+  const out = lines.join('\n') + '\n';
+  process.stdout.write(out);
+  if (SEEDS === 40) writeFileSync(new URL('./template-loss-round2.out.txt', import.meta.url), out);
+}
 
 async function main() {
   const WKS = [0.5, 0.4];
@@ -189,4 +255,4 @@ async function main() {
   if (SEEDS === 40) writeFileSync(new URL('./template-loss.out.txt', import.meta.url), out);
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await (ROUND2 ? round2() : main());
