@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVMivmLJbHz7G8J5eEm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: ventures brief (continue work on the repo ... merge when done)",
+  "input_sha256": "70080a3f31a06df5f79f7d24624cb704a4ad5443651169a6a47b18331339e440",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T04:12:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check: contract specification check (spec.mjs, page section, CLI --spec, guide, post)",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": 18533,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 16,
+  "outcome": "success",
+  "errors": [
+    "Blobless git clones in the scratchpad hung on 'Auto packing' past the 120 s timeout while probing GitHub repos for JPEG XL DNG samples; abandoned.",
+    "www.wbdg.org and dot.ca.gov refused by the proxy, so no specification text could be read; the check ships with no presets for that reason (and on purpose)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/xer-schedule-check/page.test.mjs",
+      "issue": "The label test needs the literal string <label for=\"ID\"> with no other attributes, so styled labels must be styled by CSS selector; worth a comment in the test."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here was photo-editing item 8 (JPEG XL DNGs in the cull page). No public JPEG XL DNG sample was reachable (raw.pixls.us refused; GitHub code search found readers, not samples), so a decoder would have been built against no real file. Took flagship xer-schedule-check instead, whose buildable list only re-runs finished checks, and added a user-facing feature with no outside input.",
+      "did": "Built a contract specification check for xer-schedule-check",
+      "result": "Landed with 64/64 rule counts equal to a raw-table recount on six public XERs"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-checking-a-p6-schedule-against-the-contract-specification.md",
+    "ventures/xer-schedule-check/eval/spec-check-2026-11-24.md"
+  ],
+  "goal": "Give owners' reviewers a one-pass check of a P6 submittal against the limits in their contract's scheduling section",
+  "notes": "Verification: node --test spec.test.mjs (16 pass); page.test/guides.test/own-keys pass; eval/spec-check.mjs on the six public XERs: 64 of 64 rule counts agree with a raw-table recount (CCA 16,146 activities in 508 ms); Chromium at 390 px: no page errors, no horizontal scroll, rules saved/reloaded, example run 5 of 6 not met. run_venture_tests.py xer-schedule-check: 0 failed (after fixing own-keys and label findings); venture-preflight: clean (after reading typed commas by shape, check_money_comma.py).",
+  "corrections": [],
+  "redteam": null
+}

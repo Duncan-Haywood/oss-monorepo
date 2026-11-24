@@ -595,7 +595,8 @@ flagships:
       (redundant.mjs, --redundant; eval/redundant-logic-2026-11-23.md); next a real
       P6 reschedule with holidays extended. (21) Progress review 2026-11-23
       (progress.mjs, eval/progress-review-2026-11-23.md); next a real pay-app
-      review's list. More: NEXT.md. More open items: NEXT.md.
+      review's list. (22) Spec check 2026-11-24 (spec.mjs); next a real contract's
+      spec section. More: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).
