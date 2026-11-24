@@ -392,7 +392,7 @@ function paragraphs(value) {
  */
 export function renderProposalHtml(proposal, { disclaimer = '', currency = '$' } = {}) {
   const { company, client, job, pricing } = proposal;
-  const amount = (value) => money(value, currency);
+  const amount = (value) => escapeHtml(money(value, currency));
 
   const contact = [company.phone, company.email, company.address]
     .filter(Boolean)
