@@ -895,3 +895,31 @@ quarterly 1947Q1 to 2026Q1 (317 rows), FRED series `GDPC1` (US Bureau of Economi
   `Nicholashsw/macro-desk@abd880ea:macro_desk/data/GDPC1.csv`. Quarter labels were made from the date column.
 - **Licence:** US government statistics, public domain. Only the numbers were taken.
 - **Used by:** `eval/turns-gdpc1.mjs`, `turns-gdpc1.test.mjs`.
+
+# US payroll employment and NBER monthly recession months (the monthly BBQ round)
+
+`us-payems.csv`: all employees, total nonfarm, thousands of persons, seasonally adjusted, monthly 1939-01 to
+2026-07 (1,051 rows), FRED series `PAYEMS` (US Bureau of Labor Statistics, Current Employment Statistics).
+`us-payems-vintage-2024.csv` (1939-01 to 2024-06) and `us-payems-vintage-2026-10.csv` (1939-01 to 2026-10) are an
+older and a newer vintage, used only for a printed vintage check; the older one differs from the main file from
+1990 on (BLS's annual benchmark revisions). `us-usrec.csv`: FRED's `USREC`, 1 in NBER recession months
+(1854-12 to 2026-06), from which the monthly peaks and troughs are read.
+
+- **Retrieved:** 2026-11-24. fred.stlouisfed.org, bls.gov and nber.org refused this session's proxy, so the
+  files are FRED downloads committed in public GitHub repositories, read through raw.githubusercontent.com and
+  pinned here by git blob id (the id GitHub's code search reports for that file). Main file:
+  `Gariyuuu/forecast-graveyard:data/raw/PAYEMS.csv` (blob d828b52e). Three independent copies,
+  `charlescoverdale/nowcast:paper/data/PAYEMS.csv` (81fb7f98), `shergin/malevich:demos/fred/data/payems.csv`
+  (c473df11) and `Sir-Teo/explainer-videos:explainer/economics/data/fred_PAYEMS.csv` (33a16a57), agree with it on
+  every shared month except each copy's last two (BLS's usual two monthly revisions). The newer vintage is that
+  last copy; the older is `ebbam/transition_abm:data/macro_vars/PAYEMS.csv` (59eddc67). USREC is
+  `jalonso1979/puremacro:curso/notebooks/data_curso/USREC.csv` (23231f92); two independent copies
+  (`atkrish0/regime-shift-forecasting:data/USREC.csv`, `zivmi/voc_reproduction:data/raw/USREC.csv`) give the
+  same peaks and troughs from 1980 on. Date columns were cut to `YYYY-MM`; values are unchanged.
+- **A slip in `nber-recessions.csv`:** its copy of tis (1.39) starts the 2020 recession in 2020-01, so the peak
+  it implies is 2019-12. NBER dated the peak February 2020 (announcement of 8 June 2020) and USREC agrees.
+  Every other turn since 1939 agrees. The quarterly rounds are unaffected in their matching (both months fall
+  within a quarter of 2019Q4, NBER's quarterly peak); the file is left as the unmodified tis copy and the
+  monthly round reads USREC instead.
+- **Licence:** US government statistics, public domain. Only the numbers were taken.
+- **Used by:** `eval/turns-payems.mjs`, `turns-payems.test.mjs`.
