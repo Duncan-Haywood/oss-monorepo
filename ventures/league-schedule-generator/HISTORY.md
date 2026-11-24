@@ -19,3 +19,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-23) Practice slots on shared fields 2026-11-21 (practice.mjs: 95 of 95 CP-SAT optima, eval/practice-exact.txt)
 - (moved 2026-11-23) calc.mjs split 2026-11-23, pages 67-93% lighter; multi-division 217 to 75 kB; main page 226 to 110 kB, searches loaded on demand (eval/page-weight.txt)
 - (moved 2026-11-23) bowling lanes 36 of 36 even (eval/bowling-repeat-sat.txt); bowling averages, handicaps, points, standings from score sheets (bowling-recap.test.mjs)
+- (moved 2026-11-24) Season import 2026-11-23 (importschedule.mjs, 819/819 round-trip, eval/import-roundtrip.txt); next: a real league's export

@@ -97,6 +97,39 @@ levels 1250-1750, games to 11 played rally by rally). Spearman rho to the true o
 **Not yet:** a real club's season (box league or pickleball ladder results with dates) to check
 the box-league claim on people. The two-week DUPR-style "reliability" display. Wiring the ranked names
 straight into `box-league.html` seeding (today they are copied and pasted).
+## Divisions drawn by location: the least travel between rivals (2026-11-24, newest)
+
+A regional league (youth soccer across towns, a county darts league, a school conference) splits its teams into
+divisions before anything is scheduled, and that split decides most of the season's driving: every team visits every
+division rival. `divisions-by-location.html` (module `regions.mjs`, CLI `node regions.mjs teams.txt --divisions 4
+[--apart apart.txt]`) takes each team's home ground as `Team @ lat, lon`, a number of divisions, optional keep-apart
+groups (`Hawks A, Hawks B`: every team on a line in a different division) and, optionally, the current divisions, and
+returns divisions of even size (within one team) with the least total great-circle distance between division rivals,
+each team's average and farthest trip, the saving against the current split, and a button that opens the
+multi-division scheduler with the divisions filled in (same `#d=` fragment, decoded by `decodeDivisionFields` in the
+test).
+
+The search is iterated local search: 64 starts (farthest-point seeds grown greedily, alternating with random splits),
+each improved by the best swap of two teams between divisions (or a move from a division one larger to one smaller)
+until none helps, then shaken by 2-4 random swaps and improved again 30 times. Keep-apart pairs are priced above the
+whole league's travel, so one is broken only when no split avoids it, and the page says so.
+
+How it was checked (`regions.test.mjs`, `eval/nfl-divisions.mjs`, output in `eval/nfl-divisions.txt`):
+
+- **60 random leagues of 8 to 12 teams** (2 to 4 divisions, uneven sizes included): the search's split equals the best
+  of every possible split each time; 15 more with two keep-apart groups equal the best split that honours them.
+- **A real 32-team map: the NFL**, each team placed at its stadium's town centre (GeoNames via the `geonamescache`
+  3.0.2 wheel, CC BY 4.0; `eval/nfl-stadium-towns.txt` lists the geonameid of each). The 2025 divisions put
+  43,953 km between rivals; the least-travel split of the same 32 into 8 divisions of 4 has 28,018 km (-36%; 89 of
+  400 starts reached it). Keeping the two conferences, each conference's 2,627,625 splits into 4 divisions of 4 were
+  all checked: the exhaustive best (18,821 km AFC, 17,853 km NFC, 36,674 km together, -17%) is the search's split
+  in 64 of 64 starts for each conference.
+- **Not proved: the 32-team split.** `eval/nfl-divisions-proof.mjs` is a branch and bound over all 5.9 x 10^19 splits
+  with a nearest-three-rivals bound; it did not finish in 10 minutes here, so 28,018 km is the best found, not a proved
+  least. A tighter bound (a matching or LP relaxation) is the next step if a proof is wanted.
+
+What it does not do: road drive times, team strength balance, or travel between away games on one trip. Next: a real
+league's list of grounds and its current divisions.
 
 ## Big bowling leagues: three more seasons at an even lane split, from a change of encoding (2026-11-24)
 

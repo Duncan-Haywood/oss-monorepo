@@ -1,0 +1,34 @@
+
+Actual divisions (2025): rival pairs 43,953 km, division-game travel 175,814 km a season
+  AFC East     Bills, Dolphins, Patriots, Jets                longest Dolphins-Patriots 1973 km
+  AFC North    Ravens, Bengals, Browns, Steelers              longest Ravens-Bengals 681 km
+  AFC South    Texans, Colts, Jaguars, Titans                 longest Texans-Colts 1393 km
+  AFC West     Broncos, Chiefs, Raiders, Chargers             longest Chiefs-Chargers 2193 km
+  NFC East     Cowboys, Giants, Eagles, Commanders            longest Cowboys-Giants 2230 km
+  NFC North    Bears, Lions, Packers, Vikings                 longest Lions-Vikings 872 km
+  NFC South    Falcons, Panthers, Saints, Buccaneers          longest Panthers-Saints 1044 km
+  NFC West     Cardinals, Rams, 49ers, Seahawks               longest Cardinals-Seahawks 1780 km
+
+Least travel, any 4 teams (search: 89 of 400 starts reached it, 0.5 s): rival pairs 28,018 km, division-game travel 112,074 km a season
+  East 1       Bills, Ravens, Steelers, Commanders            longest Bills-Commanders 454 km
+  South-East   Dolphins, Jaguars, Falcons, Buccaneers         longest Dolphins-Falcons 955 km
+  East 2       Patriots, Jets, Giants, Eagles                 longest Patriots-Eagles 404 km
+  East 3       Bengals, Colts, Titans, Panthers               longest Colts-Panthers 689 km
+  North-East   Browns, Bears, Lions, Packers                  longest Browns-Packers 614 km
+  South-West   Texans, Chiefs, Cowboys, Saints                longest Chiefs-Saints 1097 km
+  West 1       Broncos, Vikings, Cardinals, Seahawks          longest Vikings-Seahawks 2239 km
+  West 2       Raiders, Chargers, Rams, 49ers                 longest Raiders-49ers 623 km
+
+AFC: exhaustive best 18821 km over every split; search 18821 km (64 of 64 starts) - same
+
+NFC: exhaustive best 17853 km over every split; search 17853 km (64 of 64 starts) - same
+
+Least travel, conferences kept (proved by checking every split): rival pairs 36,674 km, division-game travel 146,695 km a season
+  East 1       Bills, Patriots, Jets, Ravens                  longest Bills-Patriots 620 km
+  South-East   Dolphins, Texans, Jaguars, Titans              longest Dolphins-Texans 1544 km
+  East 2       Bengals, Browns, Steelers, Colts               longest Steelers-Colts 529 km
+  West 1       Broncos, Chiefs, Raiders, Chargers             longest Chiefs-Chargers 2193 km
+  South        Cowboys, Falcons, Saints, Buccaneers           longest Cowboys-Buccaneers 1502 km
+  East 3       Giants, Eagles, Commanders, Panthers           longest Giants-Panthers 858 km
+  North        Bears, Lions, Packers, Vikings                 longest Lions-Vikings 872 km
+  West 2       Cardinals, Rams, 49ers, Seahawks               longest Cardinals-Seahawks 1780 km
