@@ -8095,7 +8095,8 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
   const total = surfaces.length;
   const categoryCount = groups.length;
   const title = `About ${SITE_NAME}`;
-  const description = `${SITE_NAME} builds software for small and medium businesses, run by one owner with AI agents. What is live, what is in development, and what happens to the numbers you type into the ${formatCount(total)} free calculators.`;
+  // Under 160 characters: check.mjs holds og:/twitter:description to it.
+  const description = `${SITE_NAME} builds software for small businesses, run by one owner with AI agents: what is live, what is in development, and how the free tools work.`;
 
   // The one absolute claim below — nothing typed ever leaves the browser —
   // is true for every tool except one this checks for: a tool whose whole
