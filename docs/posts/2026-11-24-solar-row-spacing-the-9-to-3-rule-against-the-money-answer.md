@@ -3,7 +3,7 @@ title: "Solar row spacing: the 9-to-3 rule against the money answer"
 seo_title: "Solar row spacing: what the 9-to-3 rule costs on real weather"
 date: 2026-11-24
 tags: [solar, energy, optimization, pvlib, pv-row-spacing-optimizer]
-description: "A new free tool prices every tilt and row spacing of a ground-mount plant. On two real typical years, the winter 9-to-3 rule added $0.26/MWh at 36 N and $7.21/MWh at 55 N."
+description: "A free tool prices every tilt and row spacing of a solar plant. On two real typical years the 9-to-3 rule added $0.26/MWh at 36 N and $7.21/MWh at 55 N."
 ---
 
 Every ground-mount solar plant has to settle early on how far apart the rows
