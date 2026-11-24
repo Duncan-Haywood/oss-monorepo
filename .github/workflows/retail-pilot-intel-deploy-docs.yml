@@ -1,5 +1,7 @@
-# Publish built docs to GitHub Pages (private repo: enable Pages in repo settings).
-# Pair with passcode gate (VITE_DOCS_PASSCODE) and optional Vercel Deployment Protection.
+# Publish built docs to their own Cloudflare Worker (ventures/retail-pilot-intel/apps/docs/wrangler.toml),
+# or to GitHub Pages when RETAIL_PILOT_INTEL_PAGES=true. Pair with the passcode gate (VITE_DOCS_PASSCODE)
+# and, for a real login, Cloudflare Access on the Worker's host. Vercel was retired on 2026-11-24
+# (docs/reports/2026-11-24-cloudflare-consolidation.md).
 name: Deploy retail-pilot-intel docs
 
 on:
@@ -116,13 +118,23 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
 
-  deploy-vercel:
+  # Replaced the Vercel job on 2026-11-24 (owner: consolidate providers onto Cloudflare). That job
+  # never ran: VERCEL_DEPLOY was never set. This one publishes on a manual run, or on every docs
+  # push once RETAIL_PILOT_INTEL_DOCS_CLOUDFLARE=true, with the Cloudflare secrets portfolio-pages.yml
+  # already uses. Free plan, static files only: no code runs, so requests are never metered.
+  deploy-cloudflare:
     needs: build
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
     permissions:
       contents: read
-    if: ${{ vars.VERCEL_DEPLOY == 'true' }}
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || vars.RETAIL_PILOT_INTEL_DOCS_CLOUDFLARE == 'true') }}
+    concurrency:
+      group: retail-pilot-intel-docs-cloudflare
+      cancel-in-progress: false
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -138,21 +150,46 @@ jobs:
           cache: pnpm
           cache-dependency-path: ventures/retail-pilot-intel/pnpm-lock.yaml
 
+      - name: Check the Cloudflare secrets are set
+        run: |
+          if [[ -z "$CLOUDFLARE_API_TOKEN" || -z "$CLOUDFLARE_ACCOUNT_ID" ]]; then
+            echo "::error::CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID are not set; nothing was deployed."
+            exit 1
+          fi
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build docs for Vercel
+      - name: Build docs for Cloudflare
         env:
           VITE_DOCS_GATE_ENABLED: "true"
           VITE_DOCS_PASSCODE: ${{ secrets.DOCS_PASSCODE }}
           VITE_DOCS_SITE_URL: ${{ vars.DOCS_SITE_URL }}
         run: pnpm docs:build
 
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@16e87c0a08142b0d0d33b76aeaf20823c381b9b9 # v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ventures/retail-pilot-intel/apps/docs
-          vercel-args: "--prod"
+      - name: Install wrangler (pinned)
+        run: npm install --global wrangler@4.145.0
+
+      - name: Deploy to Cloudflare
+        id: deploy
+        working-directory: ventures/retail-pilot-intel/apps/docs
+        env:
+          WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-deploy.ndjson
+        run: |
+          wrangler deploy
+          url="$(grep -o '"targets":\[[^]]*\]' "$WRANGLER_OUTPUT_FILE_PATH" | grep -o 'https://[^"]*workers\.dev' | head -1 || true)"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Verify the docs answer
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          if [[ -z "$URL" ]]; then echo "::warning::wrangler printed no workers.dev URL; skipped the check"; exit 0; fi
+          for i in 1 2 3 4 5 6; do
+            headers="$(curl -sS -D - -o /dev/null "$URL/" || true)"
+            if grep -qi '^HTTP/[0-9.]* 200' <<<"$headers" && grep -qi '^x-robots-tag: noindex' <<<"$headers"; then
+              echo "Live: $URL (200, noindex)"; exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::$URL did not answer 200 with X-Robots-Tag: noindex"; printf '%s\n' "$headers"; exit 1
