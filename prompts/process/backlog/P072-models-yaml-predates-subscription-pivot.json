@@ -1,7 +1,7 @@
 {
   "id": "P072",
   "title": "models.yaml's paid offers predate the 2026-11-24 subscription pivot: 8 of 9 are one-off packs, and 12 for-profit products have no row",
-  "status": "done",
+  "status": "open",
   "owner": "agent",
   "effect": 3,
   "cost": 2,
@@ -21,7 +21,6 @@
   "baseline": "8 of 20 have a row; 1 of those 8 (ai-bookkeeper, parked) names a recurring offer, 2026-11-24",
   "opened": "2026-11-24",
   "source": "process critique, 2026-11-24 (monetization.py next named finished rows for 17 days)",
-  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18721",
-  "result": null,
-  "change_shipped": "monetization.py: venture rows need `billing` (+ `billing_why` unless subscription); the plan prints the metric and rows whose billing differs from transition.json; --check fails a next_owner row whose checkout file calls a provider other than the rail (all 7 dark packs call Lemon Squeezy, rail is Paddle), and those 7 rows now name the rewire-to-Paddle agent step. Metric after: 8 of 20 rows state billing (1 subscription, 7 one-off with reason), 12 no row. The per-product rewrites and the 12 missing rows are venture work routed by monetization.py next, not process rows."
+  "pr": null,
+  "result": null
 }

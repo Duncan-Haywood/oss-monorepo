@@ -51,7 +51,7 @@
     {
       "file": "prompts/process/backlog/P072-models-yaml-predates-subscription-pivot.json",
       "why": "Its change says one run per product; a process run can't write comparables for 12 products honestly, so I shipped the check and metric, re-pointed the 7 stale rows, and left the per-product work to venture runs via monetization.py next.",
-      "did": "Marked P072 done with change_shipped describing the remainder.",
+      "did": "Wrote P072's done/change_shipped update in a separate PR (prompts/process/backlog is a CODEOWNERS path), keeping this PR mergeable.",
       "result": "Waiting-on-owner rows 7 -> 0; metric printed by monetization.py."
     }
   ],
