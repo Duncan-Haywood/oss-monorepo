@@ -365,9 +365,20 @@ products." So a promotion targets one specific kind of user (a roofing
 estimator, a youth-league scheduler), not a broad category. Tools fold into
 the narrow product whose user needs them. A broad product is split by user
 when the users' jobs differ.
-`portfolio/monetization/transition.py` already sorts the 1,446 ventures into
-20 products and about 1,420 MIT tools; the promote-or-demote pass builds on
-it rather than starting over.
+`portfolio/monetization/transition.py` sorts the 1,446 ventures into 20
+products and about 1,420 MIT tools by a 5,000-line rule. The owner: "only
+promoting 20 to paid seems a bit silly to me unless the 1400 are really quite
+useless." Measured here, by non-test source lines: 428 under 500, 562 from
+500 to 1,000, 272 from 1,000 to 2,000, 151 from 2,000 to 5,000, 31 above.
+By name: 654 calculators, 234 checks or checkers, about 130 analyzers or
+planners. Usage is unmeasured. Line count measures size, not whether anyone
+pays. So the pass changes shape:
+- **cluster by specific user** into niche products that bundle the tools that
+  user needs (plausibly dozens of products, not 20);
+- **one platform-wide paid tier** every tool inherits: saved work, branded
+  client reports, batch runs, an API, and a white-label embed;
+- **demote only** near-duplicates and thin tools;
+- **let measured usage order the launches.**
 
 
 

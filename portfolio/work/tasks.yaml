@@ -566,25 +566,56 @@ tasks:
 
   - id: promote-or-demote-pass
     direction: promote-or-demote
-    title: Decide promote (product or feature of one) or demote for every venture, by script
+    title: Cluster every venture by specific user into niche products; demote only duplicates and thin tools
     done_when: >-
-      A tested script extends portfolio/monetization/transition.py with an
-      outcome per venture: promote-product, fold-into:<product>, lead-magnet
-      (feeds a named product) or archive, from merit scores
-      (portfolio/scoring/venture-scores.yaml), measured usage where it exists
-      (unmeasured is never zero) and fit with the 20 products; a report gives
-      the counts and the list of folds and archives for the owner to skim.
-    hours: 12
+      A tested script assigns each of the ~1,446 ventures to a specific-user
+      cluster (landlord, roofer, payroll admin, marketplace seller...) from its
+      VENTURE.yaml, page copy and catalogue category; proposes a niche product
+      for each cluster big enough to pay (named user, the tools it bundles,
+      what accounts/history/reports add, subscription or one-off by per-use
+      cost); marks near-duplicates and thin tools for demotion with reasons;
+      and writes the result beside transition.json. A report gives the
+      clusters, counts and a launch order, for the owner to skim.
+    hours: 16
     status: open
     added: 2026-11-24
     notes: >-
       Owner, 2026-11-24: "projects tools and products get moved into products
-      or demoted and get marrketing pages". Archiving removes from navigation
-      and sitemaps, not from git; old URLs redirect to the product they feed. Owner, same day:
-      "better niched down multiple products for very specific users than
-      multiple broad products", so each promoted product names one specific
-      user, and a broad product that serves users with different jobs is
-      proposed as a split.
+      or demoted and get marrketing pages"; "better niched down multiple
+      products for very specific users than multiple broad products"; "only
+      promoting 20 to paid seems a bit silly to me unless the 1400 are really
+      quite useless". The 20 came from a 5,000-lines rule that measures code
+      size, not willingness to pay; usage is unmeasured, not zero. Archiving
+      removes from navigation and sitemaps, not from git; old URLs redirect
+      to the product they feed.
+
+  - id: platform-pro-tier
+    direction: promote-or-demote
+    title: Add one paid tier every tool inherits from the platform
+    done_when: >-
+      Shared, tested platform code gives any tool, without per-tool work:
+      accounts, saved scenarios and history, branded PDF reports a
+      professional can send to clients, CSV/batch runs, an API key, and a
+      white-label embed for a business's own site; gated by the billing port
+      (dark until the merchant account is open); the free single calculation
+      is unchanged.
+    hours: 40
+    status: open
+    added: 2026-11-24
+    notes: Runs on the AWS SaaS starter (aws-saas-starter). The embed also feeds the custom dev shop.
+
+  - id: tool-usage-measured
+    direction: promote-or-demote
+    title: Get real per-tool usage so launch order follows use, not line counts
+    done_when: >-
+      Per-tool page views and calculations for at least two weeks are in
+      portfolio/usage/ from the analytics pipeline (Cloudflare now, CloudFront
+      after the move), bots separated; the cluster launch order is re-ranked
+      by it.
+    hours: 6
+    status: open
+    added: 2026-11-24
+    blocked_on: The Cloudflare analytics token lacks Zone Analytics Read (portfolio/usage/cloudflare-analytics.json last_pull errors); an owner step.
 
   - id: product-marketing-pages
     direction: promote-or-demote
