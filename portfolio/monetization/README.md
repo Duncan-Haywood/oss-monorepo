@@ -5,7 +5,7 @@ the things in this repo. this should be a continual thing to focus on."
 
 This directory is where that work lives between sessions:
 
-- **[`bets.md`](bets.md)**: the paid bets, ranked 2026-11-24 by promise and
+- **`bets.md`** (lands with PR #18675): the paid bets, ranked 2026-11-24 by promise and
   value, with every competitor price and market size sourced. **Start here.**
   Since that day the top rows of
   [`portfolio/flagships.yaml`](../flagships.yaml) are these seven bets, in
