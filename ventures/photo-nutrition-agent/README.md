@@ -33,7 +33,7 @@ Why this design over on-device AI, photo-sync services, existing apps or a captu
 [`docs/install.md`](docs/install.md): run the server (Node 22.5+, no dependencies, or Docker), build the iOS app with XcodeGen, set up the Camera-closed automation, and connect ChatGPT through developer mode or a Custom GPT.
 
 ```sh
-cd server && node --test     # run the tests
+cd self-host && node --test     # run the tests
 ```
 
 ## Records you can ask about

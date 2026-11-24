@@ -7,7 +7,7 @@ You need: a small always-on server with HTTPS, an OpenAI API key (or another Ope
 Node 22.5 or newer; no `npm install` (there are no dependencies).
 
 ```sh
-cd ventures/photo-nutrition-agent/server
+cd ventures/photo-nutrition-agent/self-host
 cp .env.example .env            # then fill it in; keep it out of git
 export $(grep -v '^#' .env | xargs)
 node server.mjs
@@ -22,7 +22,7 @@ node server.mjs
 | `NUTRITION_API_KEY` | OpenAI key (or compatible); without it photos are queued, not analysed |
 | `NUTRITION_MODEL` | Default `gpt-5-mini`; any vision model supporting `json_schema` output |
 | `NUTRITION_API_BASE` | Default `https://api.openai.com/v1` |
-| `DATABASE_PATH` | Default `server/data/nutrition.sqlite`; back this file up |
+| `DATABASE_PATH` | Default `self-host/data/nutrition.sqlite`; back this file up |
 | `OAUTH_REDIRECT_PREFIXES` | Override allowed OAuth redirect URI prefixes (default: chatgpt.com, chat.openai.com, claude.ai, claude.com, localhost) |
 | `OAUTH_STATIC_CLIENT` | `id:secret:redirect-prefix` for a hand-configured OAuth client (Custom GPT OAuth) |
 
@@ -30,8 +30,8 @@ Generate secrets with `openssl rand -base64 32`.
 
 **Hosting options** (pick one; all keep cost near zero for one person):
 
-- **Docker on any VM:** `docker build -t pna server && docker run -d -p 8787:8787 --env-file server/.env -v pna-data:/app/data pna`, behind Caddy (`nutrition.example.com { reverse_proxy localhost:8787 }`, automatic TLS).
-- **Fly.io:** `fly launch` in `server/` with the Dockerfile, a 1 GB volume mounted at `/app/data`, and `fly secrets set ...` for the variables.
+- **Docker on any VM:** `docker build -t pna self-host && docker run -d -p 8787:8787 --env-file self-host/.env -v pna-data:/app/data pna`, behind Caddy (`nutrition.example.com { reverse_proxy localhost:8787 }`, automatic TLS).
+- **Fly.io:** `fly launch` in `self-host/` with the Dockerfile, a 1 GB volume mounted at `/app/data`, and `fly secrets set ...` for the variables.
 - **A home server** plus Cloudflare Tunnel or Tailscale Funnel for the public https URL.
 
 Personal targets: either set them later in chat ("set my calorie target to 2,200 and protein to 200 g"), or copy `config.example.json` to `config.local.json` (git-ignored) before the first start.

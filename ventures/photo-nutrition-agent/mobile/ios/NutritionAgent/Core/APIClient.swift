@@ -1,6 +1,6 @@
 import Foundation
 
-/// Talks to your own backend (server/). Every call is idempotent on the server,
+/// Talks to your own backend (self-host/). Every call is idempotent on the server,
 /// so any of them can be retried after a timeout without creating duplicates.
 struct APIClient {
     enum APIError: Error, CustomStringConvertible {

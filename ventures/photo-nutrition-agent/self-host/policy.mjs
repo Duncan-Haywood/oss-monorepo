@@ -2,7 +2,7 @@
 //
 // Defaults are generic placeholders. Personal values (body stats, targets) are
 // set at runtime through `update_nutrition_targets` or a local, git-ignored
-// config file (server/config.local.json); they never belong in this public tree.
+// config file (self-host/config.local.json); they never belong in this public tree.
 
 export const DEFAULT_POLICY = {
   // An analysed meal/beverage is logged without asking when both hold:
@@ -106,7 +106,7 @@ export function updateProfile(store, patch) {
   return next;
 }
 
-/** Load server/config.local.json (if present) once, on first start of an empty database. */
+/** Load self-host/config.local.json (if present) once, on first start of an empty database. */
 export function seedFromLocalConfig(store, config) {
   if (!config || store.getSetting("seeded_from_local_config", false)) return false;
   if (config.policy) updatePolicy(store, config.policy);
