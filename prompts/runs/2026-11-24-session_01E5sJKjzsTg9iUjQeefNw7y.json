@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKjzsTg9iUjQeefNw7y",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T19:18:51Z",
+  "ended": "2026-11-24T19:28:24Z",
+  "wall_minutes": 9.8,
+  "tokens_in": 4694453,
+  "tokens_out": 37967,
+  "cost_usd": 2.627,
+  "tool_calls": 48,
+  "task": "research/sensing-selfcal milestone 3zg: why OpenCV's undistortPoints stalls with a COUNT-only criterion",
+  "projects": [
+    "sensing-selfcal"
+  ],
+  "pr": 18649,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "`git grep` on a --filter=blob:none fetch of the OpenCV tag lazily fetched every blob and outlasted the 120 s timeout",
+      "fix": "listed the tree with `git ls-tree` and `git show` of three named files instead"
+    },
+    {
+      "what": "the README's 3zf next step said the OpenCV source to read was calib3d/undistort.dispatch.cpp; in 5.1.0 the loop is in modules/geometry/src/pinhole.cpp",
+      "fix": "found by listing the tag's tree"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/goals.md",
+      "issue": "'Third-party code keeps its original license' gives no recipe for a translated port (header placement, which licence when the file's legacy BSD notice and the project's Apache-2.0 LICENSE differ); I kept the file's notice and named Apache-2.0 in loop.py's header"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "H306 was refuted; I added a post-hoc 2-D Jacobian test in the same milestone rather than leaving it for a new pre-registered milestone, because the cause (tangential terms) was visible in one trace",
+      "did": "labelled it post hoc in analyse.py, LOG, README and post; the planned radial verdict stays 'refuted'",
+      "result": "the post-hoc criterion separates the corners 53/53 and 569/569; the next milestone can pre-register it on another corpus"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-why-opencv-undistortpoints-stalls-without-the-eps-flag.md",
+    "research/sensing-selfcal/LOG.md (3zg plan and result)"
+  ],
+  "goal": "advance an open PhD-level programme with a result a practitioner can act on",
+  "notes": "Plan committed before analyse.py existed. H305 port exact (0.0 diff, 179 calibs x 13 criteria); H306 refuted (radial slope); H307 held (Spearman 0.86); H308 held; H309 held (median 5.7% of pixels >1 px). Checks run locally: tests/test_m3zg.py 11 passed, test_m3ze/m3zf/foldcheck pass; research/_homepage/build.py ok; check_md_links ok; check_posts ok. loop.py keeps OpenCV's license (Apache-2.0, original BSD-style notice reproduced). No agent doc in docs/reports: the LOG and README Next steps carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f5224a52-9e47-5d2d-8070-f3307c6f13be",
+    "transcripts": 1,
+    "first": "2026-11-24T19:18:51Z",
+    "last": "2026-11-24T19:28:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 89,
+        "output": 37967,
+        "thinking": 8514,
+        "cache_read": 4575338,
+        "cache_write_5m": 0,
+        "cache_write_1h": 119026,
+        "api_equivalent_usd": 2.627,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 89,
+      "output": 37967,
+      "thinking": 8514,
+      "cache_read": 4575338,
+      "cache_write_5m": 0,
+      "cache_write_1h": 119026,
+      "api_equivalent_usd": 2.627,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 45,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.8,
+      "active_minutes": 9.8,
+      "model_minutes": 6.25,
+      "tool_minutes": 3.55,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "reading OpenCV's loop, porting and validating it bit-exact, the stability analysis and write-up, for a computer-vision PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 380.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

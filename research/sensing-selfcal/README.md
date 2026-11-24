@@ -31,6 +31,19 @@ k<sub>1</sub>, k<sub>2</sub>, k<sub>3</sub> model: `python3 src/foldcheck.py --f
 reports the Kinect's board fit folding at 380.8 px against a 415.7 px corner (exit 1). Run it before trusting a two-term
 calibration near the image edge; milestone 3zd found such a fit 14&ndash;17 px off there.
 
+**Milestone 3zg headline** (why does OpenCV's `undistortPoints` stall at wide-lens image corners?): **because OpenCV damps its
+fixed-point iteration only when the criterion carries the EPS flag, and its default criterion does not.** A NumPy port of the loop in OpenCV
+5.1.0 (`modules/geometry/src/pinhole.cpp`) reproduces `cv2.undistortPoints` exactly (difference 0.0 at the corners of 179 calibrations under 13
+criteria). Without the EPS flag no step is ever rejected, so the loop is plain fixed-point iteration, and it cannot converge where the spectral
+radius of its 2-D map at the answer reaches 1: that happens at a corner of 35 of 169 Duckietown robots. Post hoc, that radius separates the
+corners completely (all 53 with &rho; &ge; 1 stall over 1 px; all 569 with &rho; &lt; 0.9 converge within 0.01 px). Over the whole image the
+default criterion is off by more than 1 px on a median 5.7% of pixels, an outer ring. Fix: pass
+`criteria=(cv2.TERM_CRITERIA_COUNT | cv2.TERM_CRITERIA_EPS, n, eps)`; a bigger count alone does not help. Four of five predictions held
+(the radial-only slope missed 10 corners where tangential terms matter). The port, `experiments/m3zg_loop/loop.py`, keeps OpenCV's license
+(Apache-2.0, original notice in its header), not MIT. [Log](LOG.md).
+
+![Corner round-trip error against the undamped map's spectral radius for 169 Duckiebots, and the default criterion's error over a median Duckiebot image](experiments/m3zg_loop/loop.png)
+
 **Milestone 3zf headline** (do deployed robots' camera calibrations fold inside the image, and does OpenCV undistort their corners?):
 **they do not fold, but OpenCV's default `undistortPoints` misses their corners by about 10 px.** Over 179 distinct ROS `camera_info`
 calibrations (169 Duckietown robots with a 160&deg; lens and ROS's two-term fit, 9 Baidu Apollo vehicle cameras, a Duckiedrone), none of the
@@ -1254,6 +1267,7 @@ default: with the transferred factor the rule made a harmful adoption in 1.4% of
 
 ```
 pip install numpy scipy opencv-python-headless matplotlib pytest
+python3 experiments/m3zg_loop/analyse.py      # milestone 3zg, the ported undistortPoints loop on 3zf's calibs.json, ~6 s; summary.json, results.txt, loop.png
 python3 experiments/m3zf_ros/fetch.py --work /tmp/m3zf   # milestone 3zf, 198 ROS camera_info files via git at pinned commits; calibs.json (committed)
 python3 experiments/m3zf_ros/analyse.py      # seconds; summary.json, results.txt, fleet.png
 python3 experiments/m3ze_fleet/fetch.py      # milestone 3ze, 55 SLAM/VIO configs from raw.githubusercontent.com; calibs.json (committed)
@@ -1391,6 +1405,12 @@ python3 paper/check_short.py               # seconds; every number in the letter
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3zg: the stall is OpenCV's undamped fixed-point loop (damping is gated behind the EPS flag), unstable where the 2-D map's
+spectral radius at the answer reaches 1 (a corner of 35 of 169 Duckiebots). Next: report it upstream with the port and the corpus as a
+reproducer (a damped default, or damping whatever the flags); check the 4.x loop line by line; the paper's Recommendation 9 rewritten (pass a
+COUNT|EPS criterion; check the fold radius whatever the term count); the share of a real front end's features in the outer ring, on Duckietown
+logs if reachable.
 
 After milestone 3zf: deployed wide-lens calibrations (169 Duckiebots) do not fold, but OpenCV's default `undistortPoints` misses their
 corners by a median 10.2 px; a COUNT|EPS criterion with 200 iterations closes them to 0.01 px; the folds found are three-term models (KITTI
