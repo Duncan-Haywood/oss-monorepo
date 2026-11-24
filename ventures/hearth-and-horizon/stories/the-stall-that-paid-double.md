@@ -3,7 +3,7 @@ title: The Stall That Paid Double
 shelf: hearth-and-horizon
 setting: The parish fête behind the church of Sint-Gummarus, Lier, in the province of Antwerp, Belgium, Sunday 9 September 2074
 published: 2026-11-24
-summary: A seventeen-year-old runs a coin stall at a Flemish parish fête, €5 a go, the prize doubling with every toss until the king comes up, capped at the €128 in the float tin. Three players in four get back less than they paid, and by lunch she is €24 up. The treasurer shuts the stall anyway because "the big one comes". She works out that every row of the board is worth a euro, that a go pays back €8, and that he is right for the wrong reason; then that his reason answers a different question.
+summary: A seventeen-year-old runs a coin-toss stall at a parish fête, the prize doubling until the king shows. Most players lose; she is up by lunch and shut anyway.
 ---
 
 Lotte Verbruggen was seventeen and twenty-four euros up at half past twelve, and she had the tin to prove it.
