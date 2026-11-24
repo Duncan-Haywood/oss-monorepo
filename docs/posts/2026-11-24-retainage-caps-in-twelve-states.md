@@ -3,7 +3,7 @@ title: "Retainage caps on public work in twelve states, and a free SOV calculato
 seo_title: "Public retainage caps by state: CA, TX, FL, NY and 8 more"
 date: 2026-11-24
 tags: [construction, subcontractors, retainage, pay-applications, lien-waivers]
-description: "Five percent in most of the twelve largest states we checked, ten in a few: the statutory caps on public-work retainage, each linked to the statute, plus a free continuation-sheet calculator."
+description: "Statutory caps on retainage for public construction in 12 large states, each linked to the official statute, plus a free continuation-sheet calculator."
 ---
 
 Retainage is the 5 or 10 percent of every progress payment an owner holds
