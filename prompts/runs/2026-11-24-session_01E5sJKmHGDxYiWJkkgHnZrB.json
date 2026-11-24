@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKmHGDxYiWJkkgHnZrB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T01:18:01Z",
+  "ended": "2026-11-24T01:24:12Z",
+  "wall_minutes": 6.54,
+  "tokens_in": 3503812,
+  "tokens_out": 26231,
+  "cost_usd": 1.9754,
+  "tool_calls": 39,
+  "task": "Deepen (flagship 4) changepoint-detector: BBQ dater on GDPC1 past 2009 (allocate.py item 2)",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18513",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "fred.stlouisfed.org, apps.bea.gov, OECD, IMF, DBnomics, Eurostat, CRAN, zenodo and huggingface all refused the proxy (000); GDPC1 was found through gh api search/code and read from raw.githubusercontent.com"
+  ],
+  "integrity_issues": [
+    "Draft README/post claimed 4 of 5 misses were GDP's own extremes; rechecked the numbers before committing: 3 of 5 are, the 2001 pair is a too-short dip. Corrected before the first commit of the write-up."
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace auto-parked a finished-source list (Plausible/PostHog/Umami/Mixpanel/Matomo) to NEXT.md as if it were an open item; harmless but it moves results, not items"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-gdp-recession-dates-19-of-24-ceiling.md",
+    "ventures/changepoint-detector/README.md section 'BBQ on FRED GDPC1 1947-2026'"
+  ],
+  "goal": "Score the BBQ turning-point rule on a GDP vintage past 2009 under the pre-registered D1 bar",
+  "notes": "Pre-registered eval/turns-gdpc1.mjs committed before its first run. D1g 19/24 = 0.792 (bar 0.80) fails, 2 false; D2g F1 0.898 vs random 0.311 passes; nothing ships to the CLI. Four independent GitHub copies of the FRED download agree on every shared quarter; two more were other vintages (printed check: identical 2000+ dates). Post-hoc lag script: 18/19 matched turns called with 2 quarters of data. node --test turns-gdpc1.test.mjs turns-bbq.test.mjs: 7 pass; run_venture_tests.py changepoint-detector: see PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3409c17b-e81f-5fe2-8d08-ddbefa1218ed",
+    "transcripts": 1,
+    "first": "2026-11-24T01:18:01Z",
+    "last": "2026-11-24T01:24:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 72,
+        "output": 26231,
+        "thinking": 6813,
+        "cache_read": 3407623,
+        "cache_write_5m": 0,
+        "cache_write_1h": 96117,
+        "api_equivalent_usd": 1.9754,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 72,
+      "output": 26231,
+      "thinking": 6813,
+      "cache_read": 3407623,
+      "cache_write_5m": 0,
+      "cache_write_1h": 96117,
+      "api_equivalent_usd": 1.9754,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 35,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.54,
+      "active_minutes": 6.54,
+      "model_minutes": 4.79,
+      "tool_minutes": 1.75,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a macro-econometrician sourcing and cross-checking GDP vintages, pre-registering, scoring and writing up one round",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 303.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
