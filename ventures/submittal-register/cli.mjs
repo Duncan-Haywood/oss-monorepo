@@ -6,7 +6,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { inflateSync, constants as zlibConstants } from "node:zlib";
 import { extractPdfLines } from "./pdf-text.mjs";
-import { buildRegister, linesFromPdf, linesFromText, report, toCsv } from "./engine.mjs";
+import { buildRegister, buriedCsv, linesFromPdf, linesFromText, report, toCsv, withBuried } from "./engine.mjs";
 import { readReviewPeriod, readSchedule, scheduleCsv, scheduleRegister, scheduleReport } from "./schedule.mjs";
 
 const args = process.argv.slice(2);
@@ -14,8 +14,13 @@ if (!args.length || args.includes("--help") || args.includes("-h")) {
   console.log(`usage: node cli.mjs <project-manual.pdf|.txt> [more files] [--csv out.csv] [--json]
        [--schedule schedule.xer|activities.csv] [--review-days N] [--working] [--cycles N]
        [--lead "05 12=56, 08 71=70"] [--pin "09 68 00=A1230"] [--data-date YYYY-MM-DD]
+       [--buried-csv outside.csv] [--with-buried]
 
 Reads each section's Part 1 submittal articles and writes one row per submittal.
+It also finds "submit ..." requirements written elsewhere (Part 2, Part 3, quality
+assurance) and names the Part 1 row each seems to restate: --buried-csv writes them
+all; --with-buried adds the ones no Part 1 row covers to the register (flag
+outside-part-1).
 With --schedule, finds the first activity that installs each section's work and dates
 every submittal: Submit By = that activity's start - lead days - review days x cycles
 (review days from Division 01 when the book states them, else 14 calendar days;
@@ -31,7 +36,7 @@ relying on it. To the maximum extent permitted by law, the authors accept no lia
 any loss or damage arising from its use.`);
   process.exit(args.length ? 0 : 2);
 }
-const VALUED = ["--csv", "--schedule", "--review-days", "--cycles", "--lead", "--pin", "--data-date"];
+const VALUED = ["--csv", "--buried-csv", "--schedule", "--review-days", "--cycles", "--lead", "--pin", "--data-date"];
 const opt = (k) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : undefined; };
 const csvOut = opt("--csv") || null;
 const valueAt = new Set(VALUED.map((k) => args.indexOf(k)).filter((i) => i >= 0).map((i) => i + 1));
@@ -53,7 +58,8 @@ for (const f of files) {
   for (const l of ls) if (l.page > pageBase) pageBase = l.page;
   lines = lines.concat(ls);
 }
-const reg = buildRegister(lines);
+const reg0 = buildRegister(lines);
+const reg = args.includes("--with-buried") ? withBuried(reg0) : reg0;
 let sched = null;
 if (opt("--schedule")) {
   const s = readSchedule(readFileSync(opt("--schedule"), "latin1"));
@@ -70,4 +76,5 @@ if (opt("--schedule")) {
 if (args.includes("--json")) console.log(JSON.stringify(sched ? { ...reg, schedule: sched } : reg, null, 1));
 else { console.log(report(reg)); if (sched) console.log(scheduleReport(sched)); }
 if (csvOut) { writeFileSync(csvOut, sched ? scheduleCsv(sched) : toCsv(reg)); console.error(`wrote ${reg.items.length} rows to ${csvOut}`); }
+if (opt("--buried-csv")) { writeFileSync(opt("--buried-csv"), buriedCsv(reg0)); console.error(`wrote ${reg0.buried.length} outside-Part-1 requirements to ${opt("--buried-csv")}`); }
 process.exit(reg.items.length ? 0 : 1);
