@@ -1,7 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { summarizeFaces, eyesOpenCandidates, toDetectorJson, describeFaces, eyesOpenFromBlink, EYES_CLOSED_AT, BLINK_SLOPE } from "./eyes.mjs";
+import { readFileSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
+import { summarizeFaces, eyesOpenCandidates, toDetectorJson, describeFaces, eyesOpenFromBlink, loadFaceLandmarker, EYES_CLOSED_AT, BLINK_SLOPE, MAX_FACES, MIN_FACE_AREA } from "./eyes.mjs";
 
 // A face as FaceLandmarker returns it: landmarks spanning a box, and blend shapes.
 function face(x0, y0, x1, y1, left, right) {
@@ -91,6 +94,36 @@ test("the page's line and eyes_open map are the CLI detector's", () => {
   assert.equal(Number(py.match(/^BLINK_CLOSED_AT = ([\d.]+)/m)[1]), EYES_CLOSED_AT);
   assert.equal(Number(py.match(/^BLINK_SLOPE = ([\d.]+)/m)[1]), BLINK_SLOPE);
   assert.match(py, /worst = max\(blink\)/);
+  // The background-face line is shootflow/faces.py's.
+  const faces = readFileSync(new URL("../src/shootflow/faces.py", import.meta.url), "utf8");
+  assert.equal(Number(faces.match(/^_MIN_FACE_SIZE = ([\d.]+)/m)[1]), MIN_FACE_AREA);
   // The CLI's eyes_open_from_blink at a few scores (computed with its formula).
   for (const [b, want] of [[0.1, 0.996], [0.45, 0.668], [0.55, 0.332], [0.9, 0.004]]) assert.equal(eyesOpenFromBlink(b), want);
+});
+
+test("a face of exactly 1% of the frame counts, as in faces.py (size under 0.01 is skipped)", () => {
+  const s = summarizeFaces(result(face(0, 0, 0.5, 0.02, 0.9, 0.9)));
+  assert.equal(s.faces[0].area, 0.01);
+  assert.equal(s.prominent, 1);
+  assert.equal(s.faces[0].closed, true);
+  assert.equal(s.eyesClosed, true);
+});
+
+test("the page asks the landmarker for as many faces as the CLI detector keeps, with blend shapes", async () => {
+  const py = readFileSync(new URL("../tools/mediapipe_face_detector.py", import.meta.url), "utf8");
+  assert.equal(Number(py.match(/^MAX_FACES = (\d+)/m)[1]), MAX_FACES);
+  const dir = mkdtempSync(join(tmpdir(), "eyes-"));
+  writeFileSync(join(dir, "vision_bundle.mjs"), `
+    export const FilesetResolver = { forVisionTasks: async (p) => ({ wasm: p }) };
+    export const FaceLandmarker = { createFromOptions: async (files, options) => ({ files, options }) };
+  `);
+  const base = pathToFileURL(dir).href;
+  const got = await loadFaceLandmarker({ base, model: "model.task" });
+  assert.equal(got.files.wasm, `${base}/wasm`);
+  assert.deepEqual(got.options, {
+    baseOptions: { modelAssetPath: "model.task", delegate: "CPU" },
+    runningMode: "IMAGE",
+    numFaces: MAX_FACES,
+    outputFaceBlendshapes: true,
+  });
 });
