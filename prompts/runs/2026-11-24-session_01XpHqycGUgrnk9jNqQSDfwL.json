@@ -52,7 +52,7 @@
     "research/buildbot-sheathing/LOG.md (milestone 77 planned and result)"
   ],
   "goal": null,
-  "notes": "Programme buildbot-sheathing milestone 77 (drawn by pick_track.py). Checks run here: tests/test_closedloop.py + test_riskdp.py 16 passed; paper/check_numbers.py 517 of 517 ok; research/_homepage/build.py ok; research_live_links ok; check_posts ok; check_md_links reports 2 dead links in portfolio/monetization/hardware-bets.md, present on main before this change.",
+  "notes": "Programme buildbot-sheathing milestone 77 (drawn by pick_track.py). Checks run here: tests/test_closedloop.py + test_riskdp.py 16 passed; paper/check_numbers.py 517 of 517 ok; research/_homepage/build.py ok; research_live_links ok; check_posts ok; check_md_links reports 2 dead links in portfolio/monetization/hardware-bets.md, present on main before this change. CI: the doc-refs 'check' job is red on the same 2 dead links (portfolio/monetization/hardware-bets.md -> bets.md, which lands with PR #18675), also red on main; the portfolio-validate failure (machine-shop-guides evidence enum) was fixed on main and merged in. Merged with that one pre-existing red check.",
   "corrections": [],
   "redteam": null,
   "usage": {
