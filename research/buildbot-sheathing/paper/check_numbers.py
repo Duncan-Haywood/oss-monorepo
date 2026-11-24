@@ -89,6 +89,7 @@ M72 = E + "m72_rezero/results.txt"
 M73 = E + "m73_randomwalk/results.txt"
 M74 = E + "m74_allocate/results.txt"
 M75 = E + "m75_riskopt/results.txt"
+M76 = E + "m76_closedloop/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -397,6 +398,12 @@ CHECKS = [
     (M75, "largest count change 1,", "(at most one\nre-zero)"),
     ("experiments/m75_riskopt/scan.txt", "h1 | BEST | 0.1 | 2 (0.0013; 2.57e-04) | 2 | 2 (0.0131)", "up to 1.31%"),
     ("experiments/m75_riskopt/scan.txt", "h1 | LAYOUT | 0.1 | 10 (0.0071; 4.54e-04) | 10 | 9 (0.0103)", "needs 10 re-zeros, not 9"),
+    (M76, "g1 | LAYOUT | 0.1 | 96 | TRACK | 0.0 (0.00) | 0.0 (0.00) | 49.0 (0.96)", "49 on the G1's LAYOUT plan at 0.1 N"),
+    (M76, "g1 | LAYOUT | 0.1 | 96 | READ | 38.4 (0.84)", "needs 38.4 there"),
+    (M76, "H309 (G1 LAYOUT D1 0.1, better policy at s = 0.02 saves < 20% of OPT): 0.3%", "(95.7 at best)"),
+    (M76, "g1 | BANDS k+0 | 0.1 | READ | 0.02 | 12.42 | 7.4", "9.9 to 12.4%"),
+    (M76, "g1 | LAYOUT | 0.1 | TRACK | 0.02 | 9.89 | 49.0", "9.9 to 12.4%"),
+    (M76, "3.45 s -> held", "worth 3.45 s a\nsheet"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),
