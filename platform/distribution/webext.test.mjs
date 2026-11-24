@@ -88,3 +88,17 @@ test('the real shift-roster-builder qualifies', async () => {
   const { ok } = await plan({ slugs: ['shift-roster-builder'] });
   assert.equal(ok.length, 1);
 });
+
+// shift-roster-builder (#18712) lazy-loads its importers with import("./x.mjs").
+// A relative dynamic import loads a file packaged with the extension, so it is
+// not network access; any other dynamic import still is (red team 2026-11-24).
+test('a relative dynamic import is bundled, a computed or remote one still skips', async () => {
+  assert.equal(rewritePage('<script type="module">import("./lazy.mjs")</script>').skip, undefined);
+  assert.match(rewritePage('<script type="module">import(url)</script>').skip, /network/);
+  assert.match(rewritePage('<script type="module">import("https://x.example/a.mjs")</script>').skip, /network/);
+  const page = PAGE.replace('f();', 'f(); import("./lazy.mjs");');
+  const dir = await fixture({ 'index.html': page, 'calc.mjs': 'export const f = () => 1;', 'lazy.mjs': 'export const g = 2;', LICENSE: 'MIT License' });
+  const ext = await buildExtension({ slug: 'demo', dir });
+  assert.equal(ext.skip, undefined);
+  assert.ok('lazy.mjs' in ext.files);
+});

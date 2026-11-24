@@ -29,7 +29,7 @@ const REPO_ROOT = path.resolve(HERE, '..', '..');
 export const VERSION = '0.1.0';
 const REPO_URL = 'https://github.com/duncan-haywood/oss-monorepo';
 const SCRIPT_RE = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
-const NETWORK_RE = /\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts|\bimport\s*\(/;
+const NETWORK_RE = /\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts|\bimport\s*\((?!\s*(["'])\.\.?\/[^"']*\1\s*\))/;
 
 /** Names Chrome shows: the title up to its first dash, at most 45 characters. */
 export function extensionName(title) {
