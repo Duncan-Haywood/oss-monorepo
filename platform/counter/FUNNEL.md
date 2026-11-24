@@ -42,6 +42,10 @@ A click on that link counts `cta_click` and `outbound_click`, both under
 `restaurants` and `menu-suite`. Use `outbound` alone for a product link that
 is not a promoted block (a row in a product table, say).
 
+The product-offer line a free tool's footer carries (`data-pf-offer="<product>"`,
+`platform/pages/product-offer.mjs`, from PR #18677) is read as a `cta` for that
+product with no extra markup.
+
 ## What is sent and stored
 
 One `sendBeacon` per event to the counter's `POST /hit`, body

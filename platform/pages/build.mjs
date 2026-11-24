@@ -11088,16 +11088,17 @@ const CHROME_SCRIPT = ({ counterUrl = '' } = {}) => `
     try{
       var FA=${JSON.stringify(FUNNEL_ATTRS)},TOK=${FUNNEL_TOKEN_RE.toString()};
       var tok=function(el,a){var h=el.closest('['+a+']');var v=h?h.getAttribute(a)||'':'';return TOK.test(v)?v:'';};
-      var fev=function(el,ev){var o={p:slug,e:ev},i=tok(el,'data-funnel-industry'),t=tok(el,'data-funnel-product');if(i)o.i=i;if(t)o.t=t;send(o);};
+      var prod=function(el){return tok(el,'data-funnel-product')||tok(el,'data-pf-offer');};
+      var fev=function(el,ev){var o={p:slug,e:ev},i=tok(el,'data-funnel-industry'),t=prod(el);if(i)o.i=i;if(t)o.t=t;send(o);};
       var seen={};
-      var once=function(el,ev){var k=ev+'|'+tok(el,'data-funnel-industry')+'|'+tok(el,'data-funnel-product');if(seen[k])return;seen[k]=1;fev(el,ev);};
+      var once=function(el,ev){var k=ev+'|'+tok(el,'data-funnel-industry')+'|'+prod(el);if(seen[k])return;seen[k]=1;fev(el,ev);};
       var scan=function(){
-        var els=document.querySelectorAll('[data-funnel]'),io=null;
+        var els=document.querySelectorAll('[data-funnel],[data-pf-offer]'),io=null;
         if(typeof IntersectionObserver==='function')io=new IntersectionObserver(function(es){es.forEach(function(x){
           if(x.isIntersecting&&(x.intersectionRatio>=0.5||(x.rootBounds&&x.intersectionRect.height>=x.rootBounds.height/2))){io.unobserve(x.target);once(x.target,FA.cta);}
         });},{threshold:[0,0.5,1]});
         for(var j=0;j<els.length;j++){
-          var el=els[j],v=el.getAttribute('data-funnel');
+          var el=els[j],v=el.getAttribute('data-funnel')||'cta';
           if(v==='cta'){if(io)io.observe(el);else once(el,FA.cta);}
           else if(v!=='outbound'&&Object.prototype.hasOwnProperty.call(FA,v))once(el,FA[v]);
         }
@@ -11106,7 +11107,7 @@ const CHROME_SCRIPT = ({ counterUrl = '' } = {}) => `
       document.addEventListener('click',function(e){
         var t=e.target&&e.target.closest?e.target:null;
         if(!t)return;
-        var c=t.closest('[data-funnel="cta"]');
+        var c=t.closest('[data-funnel="cta"],[data-pf-offer]');
         if(c)fev(c,'cta_click');
         var o=t.closest('[data-funnel="outbound"]');
         if(o)fev(o,FA.outbound);

@@ -12,9 +12,9 @@ function el(attrs = {}, parent = null) {
     attrs, parent,
     getAttribute(a) { return Object.hasOwn(this.attrs, a) ? this.attrs[a] : null; },
     closest(sel) {
-      const m = /^\[([a-z-]+)(?:="([^"]*)")?\]$/.exec(sel);
+      const alts = sel.split(',').map((one) => /^\[([a-z-]+)(?:="([^"]*)")?\]$/.exec(one));
       for (let n = this; n; n = n.parent) {
-        if (Object.hasOwn(n.attrs, m[1]) && (m[2] === undefined || n.attrs[m[1]] === m[2])) return n;
+        if (alts.some((m) => Object.hasOwn(n.attrs, m[1]) && (m[2] === undefined || n.attrs[m[1]] === m[2]))) return n;
       }
       return null;
     },
@@ -32,7 +32,7 @@ function page(els, { io = false, optout = false, dnt = false, counterUrl = 'http
     readyState: 'complete',
     referrer: '',
     querySelector: () => ({ getAttribute: () => 'tool-a' }),
-    querySelectorAll: (sel) => (sel === '[data-funnel]' ? els : []),
+    querySelectorAll: (sel) => (sel === '[data-funnel],[data-pf-offer]' ? els : []),
     addEventListener: (type, fn) => { (listeners[type] ||= []).push(fn); },
     getElementsByTagName: () => [],
     body: { getElementsByTagName: () => [] },
@@ -130,4 +130,14 @@ test('every event the script can send is one the counter accepts, and lands on a
     seen.add(parseFunnelKey(v.funnel).event);
   }
   assert.deepEqual([...seen].sort(), ['cta_click', 'cta_view', 'industry_view', 'outbound_click', 'products_view']);
+});
+
+test('a product-offer line (data-pf-offer, platform/pages/product-offer.mjs) counts as a CTA for its product', () => {
+  const offer = el({ href: '../menu-suite/', 'data-pf-offer': 'menu-suite' });
+  const p = page([offer]);
+  p.click(offer);
+  assert.deepEqual(p.events(), [
+    { p: 'tool-a', e: 'cta_view', t: 'menu-suite' },
+    { p: 'tool-a', e: 'cta_click', t: 'menu-suite' },
+  ]);
 });
