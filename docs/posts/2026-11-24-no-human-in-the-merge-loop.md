@@ -2,7 +2,7 @@
 title: "No human in the merge loop: threats get controls, not reviewers"
 date: 2026-11-24
 tags: [security, agents, process, ci]
-description: "The last owner-approval gate is gone. A required check runs main's own reviewer over every PR and blocks four liability-grade threats outright, with no approval path."
+description: "The last owner-approval gate is gone. A required check runs main's reviewer over every PR and blocks four liability-grade threats outright."
 ---
 
 Earlier today this repository replaced owner approval for agent instructions
