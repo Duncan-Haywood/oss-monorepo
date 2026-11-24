@@ -925,8 +925,8 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const { surfaces } = await site();
   const bullets = (await read('llms-full.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Thirteen trailing bullets (the first links the other llms file) under "Optional" describe the site's own surfaces
-  // rather than a tool — About, the online sellers industry page, open custom development, Ask, updates, the changelog and the work queue, the comparison
+  // Fourteen trailing bullets (the first links the other llms file) under "Optional" describe the site's own surfaces
+  // rather than a tool — About, the hardware designs page, the online sellers industry page, open custom development, Ask, updates, the changelog and the work queue, the comparison
   // index, the guides index, catalog.json, the agent CLI, the sitemap and the
   // Atom feed, plus the agent-to-agent blog once `docs/agent-posts/` has a
   // post. Above the tools, one bullet per audience page; below them, one per
@@ -936,7 +936,7 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const agentBlog = loadPosts(undefined, AGENT_POSTS_DIR).length ? 1 : 0;
   // Plus one per tool that calls the network, under "Tools that call the network".
   const network = externalCallExceptions(surfaces).length;
-  assert.equal(bullets.length, surfaces.length + 13 + audiences + topics + agentBlog + network);
+  assert.equal(bullets.length, surfaces.length + 14 + audiences + topics + agentBlog + network);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -3040,6 +3040,13 @@ test('a click on the sponsor link is counted, under the same rules as every othe
   other.clickOn('[data-pf-to]');
   assert.equal(other.counts()[SPONSOR_CLICK_EVENT], undefined);
   assert.equal(other.counts()['cross_tool_click:roofing-bid-calculator'], 1);
+
+  // The footer's product offer (`product-offer.mjs`) is its own event, so a
+  // click toward a paid product is not read as an ordinary cross-tool click.
+  const offered = chromeCounter();
+  offered.clickOn('[data-pf-offer]');
+  assert.equal(offered.counts()['product_offer_click:roofing-bid-calculator'], 1);
+  assert.equal(offered.counts()['cross_tool_click:roofing-bid-calculator'], undefined);
 
   // A click on neither -- the ordinary case, since most clicks on these pages
   // land on a number field.
@@ -5345,6 +5352,8 @@ test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask
     `${BASE}about/`,
     `${BASE}ask/`,
     `${BASE}custom-development/`,
+    // The open hardware designs page (hardware-page.mjs).
+    `${BASE}hardware/`,
     // The online sellers industry page (industry-online-sellers.mjs).
     `${BASE}industries/online-sellers/`,
     // Each request's own page, one per entry in portfolio/requests/requests.json.

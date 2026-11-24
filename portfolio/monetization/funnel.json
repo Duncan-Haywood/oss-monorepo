@@ -1,0 +1,84 @@
+{
+  "about": "Which free lead-magnet tools point their visitors at which product with depth (the proprietary track in LICENSING_TRANSITION.md). The site build (platform/pages/product-offer.mjs) prints one line in each listed tool's footer naming its product. Every pairing was chosen by hand from both tools' pages: a feeder is listed only when a person using it is plausibly doing the job the product does in full. Lexical matching was tried first and rejected (docs/reports/2026-11-24-lead-magnet-funnel.md). The pitch is what the product does today; it must not claim a price, a paid tier or a result the product's page does not back. Edit by hand; product-offer.test.mjs checks every slug.",
+  "products": {
+    "wall-framing-takeoff": {
+      "pitch": "lays out every stud, header and cripple in a house's walls, with a cut list and the cheapest mix of board lengths to buy",
+      "feeders": ["cut-list-optimizer", "drywall-bid-calculator", "pdf-plan-takeoff", "adu-payback-calculator", "open-house-plans"]
+    },
+    "shed-designer": {
+      "pitch": "draws a gable shed board by board, with plans, a 3D view, a cut sheet and a shopping list",
+      "feeders": ["shed-install-bid-calculator", "pergola-bid-calculator"]
+    },
+    "xer-schedule-check": {
+      "pitch": "reads a Primavera P6 XER file, recomputes the critical path and runs the DCMA 14-point assessment",
+      "feeders": ["construction-delay-claim-calculator", "construction-evidence-log"]
+    },
+    "ifc-quantity-takeoff": {
+      "pitch": "takes a bill of quantities straight from an IFC building model: counts, lengths, areas, volumes and weights",
+      "feeders": ["rebar-schedule"]
+    },
+    "ai-bookkeeper": {
+      "pitch": "keeps double-entry books from your bank and card CSVs and learns from every correction you make",
+      "feeders": [
+        "bank-csv-to-qbo-converter", "bank-statement-pdf-to-csv", "eu-bank-statement-reader", "expense-tracker",
+        "freelancer-schedule-c-categorizer", "self-employed-schedule-c-categorizer", "rental-property-schedule-e-categorizer",
+        "quickbooks-chart-of-accounts-csv-check", "xero-bank-statement-csv-check", "bookkeeping-client-fee-calculator",
+        "payment-reconciliation-workbench", "wise-statement-to-journal", "revolut-business-statement-to-journal",
+        "payoneer-statement-to-journal"
+      ]
+    },
+    "sales-export-to-journal": {
+      "pitch": "takes a sales or payout export from any of ten platforms, proves it adds up to the payout and writes the Xero or QuickBooks journal",
+      "feeders": [
+        "airbnb-payout-to-journal", "amazon-settlement-to-journal", "buymeacoffee-payout-to-journal", "distrokid-royalty-to-journal",
+        "ebay-payout-to-journal", "etsy-statement-to-journal", "fiverr-earnings-to-journal", "gumroad-sales-to-journal",
+        "kdp-royalty-to-journal", "ko-fi-payout-to-journal", "lemonsqueezy-payout-to-journal", "paddle-payout-to-journal",
+        "patreon-payout-to-journal", "paypal-activity-to-journal", "shopify-payout-to-journal", "square-sales-to-journal",
+        "stripe-payout-to-journal", "teachable-payout-to-journal", "upwork-earnings-to-journal", "youtube-adsense-payout-to-journal",
+        "etsy-statement-profit-analyzer", "shopify-payout-profit-analyzer", "ebay-transaction-report-analyzer",
+        "airbnb-earnings-report-analyzer"
+      ]
+    },
+    "shift-roster-builder": {
+      "pitch": "builds a weekly staff roster that never breaks availability, rest, hour caps or days-in-a-row rules",
+      "feeders": [
+        "weekly-staff-schedule-maker", "shift-cover-optimizer", "shift-rotation-schedule-generator",
+        "restaurant-labor-cost-daypart-analyzer", "restaurant-tip-pool-calculator", "tip-pool-compliance-calculator",
+        "fair-workweek-schedule-checker", "overtime-pay-calculator", "flsa-regular-rate-overtime-audit",
+        "employee-cost-calculator", "volunteer-shift-scheduler", "support-staffing-planner"
+      ]
+    },
+    "league-schedule-generator": {
+      "pitch": "builds a fair round-robin season with real dates, balanced home and away, and courts shared evenly",
+      "feeders": ["tournament-pairing-manager", "sports-official-game-fee-calculator", "pickleball-facility-pro-forma"]
+    },
+    "quick-pick-survey": {
+      "pitch": "ranks a list from quick pairwise picks, with a rank range per option, and combines a whole team's picks",
+      "feeders": ["pairwise-ranking", "capex-budget-prioritizer", "ranked-ballot-counter", "survey-keeper"]
+    },
+    "changepoint-detector": {
+      "pitch": "finds when a time series changed level or volatility, with PELT segmentation and Bayesian changepoint probabilities",
+      "feeders": ["mann-kendall-trend", "demand-forecast-backtester", "sales-seasonality-forecaster", "spc-control-charts", "ab-test-significance-calculator"]
+    },
+    "photo-editing": {
+      "pitch": "ingests cards with checksums, batch-grades the shoot and builds Instagram reels and carousels for photographers",
+      "feeders": [
+        "photos-import-tools", "wedding-photographer-profit-calculator", "wedding-videographer-profit-calculator",
+        "real-estate-photographer-shoot-profit-calculator", "photo-addon-pricing-calculator",
+        "commercial-photo-license-calculator", "photo-booth-event-quote", "ugc-creator-rate-calculator"
+      ]
+    },
+    "real-estate-agent-photo-app": {
+      "pitch": "checks listing photos against an MLS floor spec before delivery, with a dated findings report",
+      "feeders": ["agent-brokerage-split-calculator"]
+    },
+    "print-atelier": {
+      "pitch": "checks a print master at its print size and compares up to five exports before you order a proof print",
+      "feeders": ["print-on-demand-profit-calculator"]
+    },
+    "clothing-design-studio": {
+      "pitch": "designs a tee or hoodie by voice or drag, costs every piece and writes the tech pack for your manufacturer",
+      "feeders": ["apparel-decoration-price-calculator", "screen-print-job-quote-calculator", "embroidery-shop-quote-calculator"]
+    }
+  }
+}

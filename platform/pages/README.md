@@ -2269,6 +2269,26 @@ A long unbreakable token and a fixed-column grid are both real layout decisions
 a venture is entitled to make. Overriding either from the shared stylesheet
 would be the blunt rule again, in a new place.
 
+## The hardware page (`hardware/`)
+
+`hardware-page.mjs` renders `/hardware/`: the open hardware designs (tennis
+ball robots, floor-cleaning robots, the robot mower, open house plans and the
+construction robotics research) as future products for the businesses that
+would use them. Its rules, because honesty here is a hard limit:
+
+- **Each stage is quoted from its venture's README**, and
+  `hardware-page.test.mjs` re-reads each README for an evidence phrase ("No
+  robot has been built yet", "Not for construction" ...). When a README's
+  status changes, the test fails until the card is updated too.
+- **Nothing is offered for sale.** The test fails on a price, a ship date, a
+  pre-order or a "buy now".
+- **The call to action is the existing feedback form**
+  (`feedback/?type=idea&tool=<slug>`), so interest lands in
+  `portfolio/usage/site-feedback.json` with everything else; no new service.
+- The module imports nothing from `build.mjs`: the build passes in the shared
+  disclaimer footer and the chrome script (the usage counter), and lists the
+  page in the hub sitemap.
+
 ## Deploying
 
 `.github/workflows/portfolio-pages.yml` builds and tests on every push to `main`
