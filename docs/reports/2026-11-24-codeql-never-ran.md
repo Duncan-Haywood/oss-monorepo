@@ -49,18 +49,29 @@ so that PR waits for the owner's approval. The scripts and docs merge on their o
 
 ## What the next run needs to know
 
-1. **The backlog is unknown until the first analysis on `main`.** I tried to
-   run the CodeQL CLI in the session to size it early. The session's permission
-   classifier blocked the download, so no counts are given here. None are
-   guessed. After `codeql.yml` merges and analyses `main`, the next hourly queue
-   run writes the real list.
+1. **The backlog, measured.** The first CodeQL run (on PR 18529, merge commit
+   of e2988dfb5; ~14 min per language) found **977 medium-or-worse findings**:
+   0 in Actions workflows, 21 in Python, 956 in JS/TS. It also hit 1 Python
+   parse error (`research/eda-smtbmc/experiments/wordlevel.py`, not analysed).
+   Most are a few rules repeated: `bad-tag-filter`,
+   `incomplete-multi-character-sanitization`, `incomplete-sanitization` and
+   `incomplete-url-substring-sanitization` in build scripts, tests and the HTML
+   linters under `platform/ci/`. Python: 12 `py/bad-tag-filter`, 2
+   `incomplete-url-substring-sanitization` (both in tests), 1 `insecure-protocol`
+   (`platform/ci/site_probe.py:112`), 1 `redos`
+   (`ventures/jwt-verification-misuse-check/check.py:169`), 5
+   `overly-large-range` (`platform/ci/check_hidden_unicode.py:94`). Many are in
+   code no attacker input reaches (tests, build-time linters). The policy lets
+   those be lowered one level, with the reason written down. They still get
+   fixed, but code that handles user input or ships to the site comes first.
+   Each alert file now tells a session to fix every queued alert in the same
+   file together.
 2. **Apply the `code_scanning` ruleset rule only after that first analysis**
    (`.github/rulesets/README.md`). Applied earlier, every PR waits for results
    that do not exist yet.
-3. **Expect a burst.** A first CodeQL scan of about 20k JS/HTML and 10k Python
-   files can open dozens of alerts. Step 0 sends every scheduled session at
-   them, most severe first. If the queue goes beyond about 50 alerts, raising
-   `security-extended` can wait until it is below 10.
+3. **Pace.** At one batched file per session and about 96 sessions a day,
+   977 alerts should take days, not weeks. Do not switch on
+   `security-extended` until the queue is below 10.
 4. **Not covered:** Go (one oracle in `ventures/dockerignore-explainer/oracle`;
    CodeQL Go needs a build), Dependabot and secret-scanning alerts (a workflow
    token cannot read them).

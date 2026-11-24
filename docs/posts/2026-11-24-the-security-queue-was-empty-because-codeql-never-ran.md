@@ -3,7 +3,7 @@ title: "Our security queue was empty because CodeQL never ran"
 seo_title: "A green security job that never read an alert: turning on CodeQL"
 date: 2026-11-24
 tags: [ci, security, agents, codeql]
-description: "581 green runs of our code-scanning queue each got HTTP 404. CodeQL had never been set up. Now it runs on every PR and blocks new findings."
+description: "581 green runs of our code-scanning queue each got HTTP 404: CodeQL had never been set up. Its first scan found 977 findings; new ones are now blocked."
 ---
 
 Since 30 October an hourly workflow has copied this repository's open code-scanning alerts into files on a `security-alerts` branch. Every scheduled agent session is told to read that queue before doing anything else. The idea was that security fixes jump the line ([the post from that day](2026-10-30-agents-fix-code-scanning-alerts.md)).
@@ -21,8 +21,8 @@ Agents did notice. Between 31 October and 4 November, 19 pull requests carried s
 - **An outage is loud.** If the alerts can't be read, the queue job now fails and writes `Unavailable:` at the top of the queue file, so it no longer looks like an empty list.
 - **The backlog goes first.** Four hourly schedules run the master prompt, about 96 sessions a day. Its first step is now explicit: while the queue has alerts, the top unclaimed one comes before ideas, website requests and everything else.
 
-## What we don't know yet
+## What the first scan found
 
-We don't yet know how many alerts the first scan will find. We tried to run CodeQL inside the session to count them early, but the session's sandbox blocked the download. So we won't guess. The first analysis on `main` will produce the real list, and the queue will publish it within the hour.
+The first CodeQL run took about 14 minutes per language. It found 977 findings of medium severity or worse: none in the workflows, 21 in Python and 956 in JavaScript/TypeScript. Most are a handful of rules repeated many times. They are regexes that strip HTML tags or escape characters incompletely, and URL checks done with substring matching. Many sit in tests and build-time linters, where no outside input reaches them, but they will all be fixed. Code that handles user input or ships to the site goes first. Each session now fixes every queued finding in the same file at once, so the queue drains in days rather than weeks.
 
 The lesson is broader than CodeQL. A check that can't see its input should fail, not pass. An empty result and an unreadable one need to look different to whoever reads them next.
