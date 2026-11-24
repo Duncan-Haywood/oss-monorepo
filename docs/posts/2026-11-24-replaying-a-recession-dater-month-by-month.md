@@ -17,7 +17,9 @@ We wanted to answer that on ALFRED's archive of each month's data as first publi
 in this session refused its host, and the Philadelphia Fed's real-time data set too. So we ran
 the next best thing and labelled it as such: today's revised data, cut off at every month from
 1970 to 2026, with the composite and its weights rebuilt from only the months known at each
-cut-off and a two-month publication lag. The bars were committed before the first run.
+cut-off and a two-month publication lag. The bars were committed before the first run. The
+replay uses the six-month minimum phase that shipped when the round was registered. A three-month
+minimum for composites landed later the same day, and rerunning the replay under it is next.
 
 ## What came out
 
