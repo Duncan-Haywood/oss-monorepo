@@ -10668,3 +10668,48 @@ FRED composite and costs one long-lived false contraction, the same pair the P3 
 open question this leaves is the weights, not the phase rule: a pre-registered round on setting `--sd-until` in
 real time (a fixed calm window, or volatility that leaves out the largest moves), judged on this replay under both
 minimums, and real vintages (ALFRED) when its host answers.
+
+## Composite weights set in real time: a robust scale (2026-11-24, pre-registered; M1, M2, M4 and M5 pass, M3 fails under P3, nothing ships beyond the module option)
+
+The open question from "Turns called in pseudo-real time under P3": the weights, not the phase rule. Both replays
+showed that once 2020's swings enter the standard deviations, the composite's 2000-2003 history changes shape and
+the 2001 peak is lost; fixing the window at 2019-12 repairs it, but at a cut-off nobody knows where the next calm
+window ends. This round tried a scale that a few wild months barely move and that needs no choice: each
+component's volatility as 1.4826 x the median absolute deviation (MAD) of its monthly change over every month known
+at the cut-off (`compositeIndex(..., { scale: 'mad' })`, new in `composite-index.mjs`). Same replay, data, 2-month
+lag and rules as the two sections above, under the 3-month (P3, the monthly composite default) and 6-month phase
+minimums. Rules and bars in the header of `eval/turns-realtime-weights.mjs`, committed with the module option
+before the script first ran (commit "pre-register the real-time composite weights round"); output
+`eval/turns-realtime-weights.out.txt` (2 s); test `turns-realtime-weights.test.mjs`.
+
+| bar (on MAD weights) | P3 | P6 | shipped sd (P3 / P6) | |
+|---|---|---|---|---|
+| M1 at least 15 of 16 called, median delay at most 7 | 16, median 7 | 16, median 7 | 15 / 15, median 7 | **passes** |
+| M2 called before NBER's announcement in at least 8 of 12 | 8 | 8 | 7 / 7 | **passes** |
+| M3 at most 6 false episodes (retracted or still standing) | 8 | 6 | 6 / 4 | **fails** (P3) |
+| M4 survival rises with age, 12+ months held in 90% or more | 65, 79, 89, 96, 100%; 99.9% | 67, 78, 88, 96, 100%; 99.9% | 94.0% / 99.9% | **passes** |
+| M5 full sample to 2026-07 under P3: 16 of 16 within 3 months, at most 2 false | 16 of 16, 2 false | | 15 of 16, 0 false | **passes** |
+
+What it shows:
+
+- **A robust scale does in real time what the hindsight window did.** MAD weights call all 16 NBER turns, the
+  2001-03 peak in 6 months (sd over every month: never held for good; sd fixed to 2019-12, a choice made with
+  hindsight: 4), 8 of 12 before NBER's announcement, and with every call month otherwise the same. The trimmed
+  scale (sd after leaving out changes over 5 MADs from the median; printed, no bar) gives the same calls.
+- **It also calls the 1969-12 peak in 5 months instead of 18.** MAD weights payrolls more (0.528/0.238/0.134/0.100
+  for PAYEMS/W875RX1/INDPRO/CMRMTSPL on the full sample, against sd's 0.320/0.306/0.203/0.171), and payrolls
+  turned cleanly in 1969-70.
+- **Survival is steadier.** A turn with 12-17 months of data after it held 96% of the time under MAD weights and P3,
+  against 80% for sd weights under P3, because 2020 no longer rewrites 2002-03.
+- **What fails is the P3 pair, kept rather than lost.** Under P3 the 2002-11 peak and 2003-04 trough now stand at
+  every cut-off from 2003 to today (277 cut-offs), as they do with the hindsight window; sd weights had dropped them
+  at 2020-03 only because 2020 distorted the weights. Add two one-cut-off blips (peaks 1992-12 and 2025-07, shown on
+  one cut-off each) and P3 has 8 false episodes, over M3's 6. Under P6 MAD weights pass all four replay bars
+  (6 episodes, at the limit).
+
+Read it for what it is: one composite on revised data. As the header said, a bar failed, so no `--sd-scale` flag
+ships; the scale stays a module option. The result moves the question: the weights can be set in real time
+without a calm window, and the long-lived false contraction left is P3's own 2002-03 soft patch. Next, if this
+line continues: a pre-registered round on a second make (another composite with dated turns, e.g. a state
+coincident index against its state's dated recessions) before any default change, and whether P3 with MAD
+weights should demand a larger move for a contraction shorter than 6 months.
