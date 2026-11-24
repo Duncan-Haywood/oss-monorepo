@@ -34,9 +34,9 @@ def ref_point(text):
     if m:
         x1, y1, x2, y2 = map(int, m.groups())
         return "Olympus 0x0304", [((x1 + x2) / 510, (y1 + y2) / 510)]
-    if "AF Areas = \n" in text or re.search(r"AF Areas = $", text, re.M):
+    if "AF Areas = \n" in text or re.search(r"AF Areas = $", text, re.MULTILINE):
         return "Olympus 0x0304", []
-    m = re.search(r"AF Area X Positions = ([-\d ]+)\n.*AF Area Y Positions = ([-\d ]+)\n.*AF Points in Focus = (\d+)", text, re.S)
+    m = re.search(r"AF Area X Positions = ([-\d ]+)\n.*AF Area Y Positions = ([-\d ]+)\n.*AF Points in Focus = (\d+)", text, re.DOTALL)
     if m:
         xs = list(map(int, m.group(1).split()))
         ys = list(map(int, m.group(2).split()))
@@ -48,7 +48,8 @@ def ref_point(text):
 
 
 def main(root, jsonl):
-    rows = [json.loads(l) for l in open(jsonl) if l.strip()]
+    with open(jsonl) as fh:
+        rows = [json.loads(line) for line in fh if line.strip()]
     checked = agree = 0
     print("file\treference\tref x,y\tours x,y\tmax diff")
     for r in rows:
@@ -56,7 +57,8 @@ def main(root, jsonl):
         p = os.path.join(root, fmt, "metadata", "java", name + ".txt")
         if not os.path.exists(p):
             continue
-        src, pts = ref_point(open(p, encoding="utf-8", errors="replace").read())
+        with open(p, encoding="utf-8", errors="replace") as fh:
+            src, pts = ref_point(fh.read())
         if src is None:
             continue
         af = r.get("af")

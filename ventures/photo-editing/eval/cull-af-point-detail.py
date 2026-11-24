@@ -27,8 +27,9 @@ def lap_var(g, cx, cy, half):
 
 
 def main(path):
-    rows = [json.loads(l) for l in open(path) if l.strip()]
-    print("\t".join(["file", "source", "x", "y", "in_focus", "rank", "rank_mirrored"]))
+    with open(path) as fh:
+        rows = [json.loads(line) for line in fh if line.strip()]
+    print("file\tsource\tx\ty\tin_focus\trank\trank_mirrored")
     ranks, mranks = [], []
     for r in rows:
         af = r.get("af")
