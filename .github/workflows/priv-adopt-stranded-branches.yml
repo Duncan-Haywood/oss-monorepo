@@ -71,5 +71,5 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           # A fixed start, not the 14-day default, so the backlog measured on
           # 2026-10-15 (tips back to 2026-09-15) is adopted too. Adopted PRs that
-          # get closed are deleted by branch-cleanup.yml, so the window empties.
+          # get closed are deleted by priv-branch-cleanup.yml, so the window empties.
           python3 adopt_stranded.py --repo "$GITHUB_WORKSPACE" --since 2026-09-15 --reap $APPLY

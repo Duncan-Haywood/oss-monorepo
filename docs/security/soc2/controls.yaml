@@ -92,32 +92,32 @@ controls:
   cm-review:
     tsc: [CC8.1]
     answer: partial
-    evidence: [.github/CODEOWNERS, platform/ci/agent_review/README.md, .github/workflows/agent-cross-review.yml]
+    evidence: [.github/CODEOWNERS, platform/ci/agent_review/README.md, .github/workflows/priv-agent-cross-review.yml]
     gap: Control-plane changes need the owner; other changes are reviewed by two bots, not a second person, by design (CLAUDE.md, "Ship without review ceremony"). Record this as an accepted risk (R3).
   cm-cicd:
     tsc: [CC8.1]
     answer: yes
-    evidence: [.github/workflows/portfolio-pages.yml, .github/workflows/ventures-tests.yml, .github/workflows/portfolio-validate.yml]
+    evidence: [.github/workflows/priv-portfolio-pages.yml, .github/workflows/ventures-tests.yml, .github/workflows/portfolio-validate.yml]
   cm-separation:
     tsc: [CC8.1, CC5.2]
     answer: partial
-    evidence: [.github/workflows/portfolio-pages.yml, .github/rulesets/main.json]
+    evidence: [.github/workflows/priv-portfolio-pages.yml, .github/rulesets/main.json]
     gap: Production deploys only from main through CI, but whoever can merge can deploy; the ruleset is not yet applied.
     owner: true
   op-logging:
     tsc: [CC7.2]
     answer: partial
-    evidence: [.github/workflows/control-plane-guard.yml]
+    evidence: [.github/workflows/priv-control-plane-guard.yml]
     gap: GitHub keeps Actions logs and the security log, Cloudflare keeps its own; neither is kept a year or reviewed on a schedule.
   op-monitoring:
     tsc: [CC7.2, CC7.3]
     answer: partial
-    evidence: [platform/ci/main_health.py, .github/workflows/security-alert-queue.yml]
+    evidence: [platform/ci/main_health.py, .github/workflows/priv-security-alert-queue.yml]
     gap: Health and alert queues exist and agents work them; nobody is on call.
   op-vuln:
     tsc: [CC7.1]
     answer: partial
-    evidence: [.github/workflows/security-alert-queue.yml, platform/ci/compliance_scan.py, docs/security/policies/vulnerability-management.md]
+    evidence: [.github/workflows/priv-security-alert-queue.yml, platform/ci/compliance_scan.py, docs/security/policies/vulnerability-management.md]
     gap: Fix deadlines are written (vulnerability-management.md) but there is no dependabot.yml and no record of deadlines met.
   op-pentest:
     tsc: [CC4.1]

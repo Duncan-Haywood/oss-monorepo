@@ -14,9 +14,9 @@ reads a secret that file does not list
 
 | Channel | Before | After |
 |---|---|---|
-| PyPI (`distribute-pypi.yml`, `distribute-pypi-packages.yml`) | `PYPI_TOKEN`, an account-wide API token, uploaded with twine | The scripts build into `dist/` (`PYPI_DIST_DIR`); `pypa/gh-action-pypi-publish` uploads with an OIDC token valid for minutes, for the listed projects only, and attaches attestations |
-| npm (`distribute-npm.yml`, `distribute-mcp.yml`) | `NPM_TOKEN`, a granular token with an expiry | `npm publish --provenance` with npm 11.21.2 and `id-token: write`; npm exchanges the job's OIDC token for a one-use publish credential |
-| Homebrew tap (`distribute-homebrew.yml`) | `HOMEBREW_TAP_TOKEN`, a fine-grained PAT on your account | A one-hour installation token from a GitHub App that is installed on the tap repository only |
+| PyPI (`priv-distribute-pypi.yml`, `priv-distribute-pypi-packages.yml`) | `PYPI_TOKEN`, an account-wide API token, uploaded with twine | The scripts build into `dist/` (`PYPI_DIST_DIR`); `pypa/gh-action-pypi-publish` uploads with an OIDC token valid for minutes, for the listed projects only, and attaches attestations |
+| npm (`priv-distribute-npm.yml`, `priv-distribute-mcp.yml`) | `NPM_TOKEN`, a granular token with an expiry | `npm publish --provenance` with npm 11.21.2 and `id-token: write`; npm exchanges the job's OIDC token for a one-use publish credential |
+| Homebrew tap (`priv-distribute-homebrew.yml`) | `HOMEBREW_TAP_TOKEN`, a fine-grained PAT on your account | A one-hour installation token from a GitHub App that is installed on the tap repository only |
 
 All five jobs keep running in the `publish` environment, now on GitHub-hosted
 `ubuntu-latest` (npm's trusted publishing does not accept self-hosted runners,
@@ -50,14 +50,14 @@ until the first upload.
 
 | PyPI Project Name | Owner | Repository name | Workflow name | Environment name |
 |---|---|---|---|---|
-| `coverage-drop-check` | `Duncan-Haywood` | `oss-monorepo` | `distribute-pypi.yml` | `publish` |
-| `flaky-test-finder` | `Duncan-Haywood` | `oss-monorepo` | `distribute-pypi.yml` | `publish` |
-| `required-checks-drift-check` | `Duncan-Haywood` | `oss-monorepo` | `distribute-pypi.yml` | `publish` |
+| `coverage-drop-check` | `Duncan-Haywood` | `oss-monorepo` | `priv-distribute-pypi.yml` | `publish` |
+| `flaky-test-finder` | `Duncan-Haywood` | `oss-monorepo` | `priv-distribute-pypi.yml` | `publish` |
+| `required-checks-drift-check` | `Duncan-Haywood` | `oss-monorepo` | `priv-distribute-pypi.yml` | `publish` |
 
 These are the tools on the `pypi` channel of
 `portfolio/distribution/allowlist.json`. The `pypi-packages` channel
-(`distribute-pypi-packages.yml`) has no tools yet. When one is added, add a row
-for it with workflow `distribute-pypi-packages.yml`. For a project that already
+(`priv-distribute-pypi-packages.yml`) has no tools yet. When one is added, add a row
+for it with workflow `priv-distribute-pypi-packages.yml`. For a project that already
 exists, use the project's own **Settings → Publishing** page; the fields are
 the same.
 
@@ -93,14 +93,14 @@ Publisher → GitHub Actions**:
 
 | Package | Organization or user | Repository | Workflow filename | Environment name |
 |---|---|---|---|---|
-| `<scope>/agent-instructions-drift-check` | `Duncan-Haywood` | `oss-monorepo` | `distribute-npm.yml` | `publish` |
-| `<scope>/agent-permission-config-check` | `Duncan-Haywood` | `oss-monorepo` | `distribute-npm.yml` | `publish` |
-| `<scope>/env-example-drift-check` | `Duncan-Haywood` | `oss-monorepo` | `distribute-npm.yml` | `publish` |
-| `<scope>/llm-spend-guard` (scope required) | `Duncan-Haywood` | `oss-monorepo` | `distribute-npm.yml` | `publish` |
-| `<scope>/llms-txt-generator` (scope required) | `Duncan-Haywood` | `oss-monorepo` | `distribute-npm.yml` | `publish` |
-| `<scope>/npm-lifecycle-script-check` | `Duncan-Haywood` | `oss-monorepo` | `distribute-npm.yml` | `publish` |
-| `<scope>/slopsquatting-check` | `Duncan-Haywood` | `oss-monorepo` | `distribute-npm.yml` | `publish` |
-| `monorepo-projects-mcp` | `Duncan-Haywood` | `oss-monorepo` | `distribute-mcp.yml` | `publish` |
+| `<scope>/agent-instructions-drift-check` | `Duncan-Haywood` | `oss-monorepo` | `priv-distribute-npm.yml` | `publish` |
+| `<scope>/agent-permission-config-check` | `Duncan-Haywood` | `oss-monorepo` | `priv-distribute-npm.yml` | `publish` |
+| `<scope>/env-example-drift-check` | `Duncan-Haywood` | `oss-monorepo` | `priv-distribute-npm.yml` | `publish` |
+| `<scope>/llm-spend-guard` (scope required) | `Duncan-Haywood` | `oss-monorepo` | `priv-distribute-npm.yml` | `publish` |
+| `<scope>/llms-txt-generator` (scope required) | `Duncan-Haywood` | `oss-monorepo` | `priv-distribute-npm.yml` | `publish` |
+| `<scope>/npm-lifecycle-script-check` | `Duncan-Haywood` | `oss-monorepo` | `priv-distribute-npm.yml` | `publish` |
+| `<scope>/slopsquatting-check` | `Duncan-Haywood` | `oss-monorepo` | `priv-distribute-npm.yml` | `publish` |
+| `monorepo-projects-mcp` | `Duncan-Haywood` | `oss-monorepo` | `priv-distribute-mcp.yml` | `publish` |
 
 The MCP bundle's name is fixed (`DEFAULT_NAME` in
 `platform/distribution/mcp.mjs`, not scoped). npm allows one trusted publisher

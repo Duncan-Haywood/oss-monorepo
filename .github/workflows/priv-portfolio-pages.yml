@@ -54,7 +54,7 @@ on:
       - "research/*/app/**"
       - "platform/daily/**"
       - "platform/devstats/**"
-      - ".github/workflows/portfolio-pages.yml"
+      - ".github/workflows/priv-portfolio-pages.yml"
   workflow_dispatch:
 
 # One slot per ref, not one slot for the whole repository.

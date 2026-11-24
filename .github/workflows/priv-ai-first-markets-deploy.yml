@@ -19,7 +19,7 @@ permissions:
 # Not keyed by ref, deliberately: there is one Cloudflare Pages project behind
 # this, so a dispatch from a branch and a dispatch from `main` write to the same
 # place and must queue against each other. `cancel-in-progress: false` for the
-# same reason the Pages deploy in `portfolio-pages.yml` uses it -- a deploy
+# same reason the Pages deploy in `priv-portfolio-pages.yml` uses it -- a deploy
 # cancelled part-way has already written some of its change and nothing re-runs
 # to finish it, which leaves a state neither revision produced.
 concurrency:

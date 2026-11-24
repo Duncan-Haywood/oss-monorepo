@@ -3,7 +3,7 @@
 #
 # Why this exists
 # ---------------
-# `.github/workflows/portfolio-pages.yml` publishes the same artifact through
+# `.github/workflows/priv-portfolio-pages.yml` publishes the same artifact through
 # `actions/deploy-pages`, which is the "GitHub Actions" Pages source. That is
 # the better route when it works: it rebuilds on every merge to `main`, so the
 # published site cannot drift from the repository.

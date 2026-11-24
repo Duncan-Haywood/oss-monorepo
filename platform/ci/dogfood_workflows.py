@@ -42,15 +42,15 @@ CHECKERS = (
 
 # (checker, workflow file, finding type) -> why it stays.
 ACCEPTED = {
-    ("actions-checkout-credentials-check", ".github/workflows/distribute-homebrew.yml", "checkout-persists-credentials"):
+    ("actions-checkout-credentials-check", ".github/workflows/priv-distribute-homebrew.yml", "checkout-persists-credentials"):
         "the tap checkout carries HOMEBREW_TAP_TOKEN on purpose; the job's `git push` needs it",
-    ("actions-checkout-credentials-check", ".github/workflows/research-archive.yml", "checkout-persists-credentials"):
+    ("actions-checkout-credentials-check", ".github/workflows/priv-research-archive.yml", "checkout-persists-credentials"):
         "the job pushes archive/* branches with the checkout's credential",
-    ("actions-continue-on-error-check", ".github/workflows/agent-cross-review.yml", "job-continue-on-error"):
+    ("actions-continue-on-error-check", ".github/workflows/priv-agent-cross-review.yml", "job-continue-on-error"):
         "the cross-review bots assist and are not a merge gate (CLAUDE.md); one bot's outage must not turn the others red",
     ("actions-continue-on-error-check", ".github/workflows/browser-checks-ci.yml", "step-continue-on-error"):
         "the Chromium install retries once without --with-deps; if it still fails the sweep step after it fails loudly",
-    ("actions-continue-on-error-check", ".github/workflows/portfolio-pages.yml", "step-continue-on-error"):
+    ("actions-continue-on-error-check", ".github/workflows/priv-portfolio-pages.yml", "step-continue-on-error"):
         "the Shed Designer picture redraw is optional: if Playwright cannot install, the committed pictures ship; a redraw that ran is checked strictly by the next step",
     ("actions-continue-on-error-check", ".github/workflows/distribute-shorts.yml", "step-continue-on-error"):
         "the Piper voice is optional narration (commented in the workflow); videos render silent with captions",

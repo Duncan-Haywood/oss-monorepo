@@ -12,7 +12,7 @@ on:
       - "ventures/retail-pilot-intel/scripts/convert-html-to-tsx.ts"
       - "ventures/retail-pilot-intel/packages/**"
       - "ventures/retail-pilot-intel/pnpm-lock.yaml"
-      - ".github/workflows/retail-pilot-intel-deploy-docs.yml"
+      - ".github/workflows/priv-retail-pilot-intel-deploy-docs.yml"
   workflow_dispatch:
 
 concurrency:
@@ -79,7 +79,7 @@ jobs:
     # Deliberately NOT `PAGES_ENABLED` (originally spelled `GITHUB_PAGES_
     # ENABLED`, which GitHub rejects outright -- Actions configuration
     # variables cannot start with `GITHUB_`). GitHub serves one Pages site per
-    # repository, and that variable now publishes `portfolio-pages.yml` — the
+    # repository, and that variable now publishes `priv-portfolio-pages.yml` — the
     # ~30 free calculators the portfolio's deploy-first priority is about. If
     # both workflows read the same flag, one owner flip would make two
     # deployments race and the live site would flap between them.
@@ -95,13 +95,13 @@ jobs:
     # flap between them" -- and mitigates it with two separate variables. That is
     # a policy mitigation: it holds exactly as long as nobody sets both flags.
     #
-    # This is the mechanical one. `portfolio-pages.yml`'s Pages deploy job uses
+    # This is the mechanical one. `priv-portfolio-pages.yml`'s Pages deploy job uses
     # the group `github-pages-deploy`, deliberately un-keyed by ref because
     # GitHub serves one Pages site per repository. Sharing that exact group name
     # is what makes these two jobs queue against each other rather than race: a
     # concurrency group is only a queue for the runs inside it, so two correct
     # workflows under two different group names have no ordering between them at
-    # all. Keep this string identical to the one in `portfolio-pages.yml`.
+    # all. Keep this string identical to the one in `priv-portfolio-pages.yml`.
     #
     # `cancel-in-progress: false` matches that job too -- an in-flight publish
     # should finish rather than leave the live site half-swapped.

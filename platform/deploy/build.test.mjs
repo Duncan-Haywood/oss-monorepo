@@ -77,7 +77,7 @@ test('a real build writes the page, a catalogue and one json per app', async () 
 }, { timeout: 120000 });
 
 test('the CLI the pages workflow runs builds into --out and says how many apps', async () => {
-  // portfolio-pages.yml runs `node platform/deploy/build.mjs --out=...`; the
+  // priv-portfolio-pages.yml runs `node platform/deploy/build.mjs --out=...`; the
   // entry block was untested (red team 2026-11-18: an off-by-one in the
   // --out= slice and a flipped main-module check both passed every test).
   const { execFileSync } = await import('node:child_process');
