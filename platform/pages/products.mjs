@@ -194,7 +194,7 @@ ${renderProductGrid(software, { toRoot, published })}
 <section class="band" id="hardware" aria-labelledby="hardware-h">
 <h2 id="hardware-h">Hardware</h2>
 <p class="band-lede">Open designs for machines that take routine physical work off a crew. Each has CAD, firmware and a parts list in the open.
-Nothing has been physically built or tested yet, and a manufactured product is a long-term plan.</p>
+Nothing has been physically built or tested yet, and a manufactured product is a long-term plan. More on each design's stage: <a href="${esc(toRoot)}hardware/">open hardware for businesses</a>.</p>
 ${renderProductGrid(hardware, { toRoot, published })}
 </section>
 <section class="band" id="yours" aria-labelledby="yours-h">

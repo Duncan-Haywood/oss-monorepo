@@ -233,6 +233,7 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
       ['about/', 'About &amp; press kit'],
       ['feedback/', 'Report a problem'],
       ['custom-development/', 'Custom development'],
+      ['hardware/', 'Hardware designs'],
       ['queue/', 'Work queue'],
       ['engineering/', 'Engineering status'],
       ['dev/', 'Development dashboard'],

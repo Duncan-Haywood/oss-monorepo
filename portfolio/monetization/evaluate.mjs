@@ -100,9 +100,14 @@ export function ventureSlugs() {
     .sort();
 }
 
-export function flagshipSlugs() {
-  const text = fs.readFileSync(path.join(ROOT, 'portfolio/flagships.yaml'), 'utf8');
-  return [...text.matchAll(/^\s*- venture:\s*(\S+)/gm)].map((m) => m[1]);
+// Flagship rows that need an evaluation here. A paid bet's row (`app:
+// private-monorepo/apps/<slug>`, the 2026-11-24 ranking) is evaluated by its
+// `app:` row in models.yaml instead, so it is left out.
+export function flagshipSlugs(text = fs.readFileSync(path.join(ROOT, 'portfolio/flagships.yaml'), 'utf8')) {
+  return text.split(/^(?=\s*- venture:)/m)
+    .map((block) => [block.match(/^\s*- venture:\s*(\S+)/), /^\s+app:\s*\S/m.test(block)])
+    .filter(([m, isApp]) => m && !isApp)
+    .map(([m]) => m[1]);
 }
 
 // Three scenarios, each a sum over the evaluation's mechanisms:

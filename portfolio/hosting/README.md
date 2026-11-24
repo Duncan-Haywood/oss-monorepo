@@ -92,7 +92,11 @@ python3 platform/ci/check_pages_links.py _site   # fail on any link that 404s
 **Other hosts.** The site moved from GitHub Pages to Cloudflare's free plan
 on 2026-10-29 at the owner's request. The free plan cannot bill: going over
 a limit fails requests rather than charging. Vercel and Railway are still not
-defaults, and a product that needs a backend should state the need.
+defaults, and a product that needs a backend should state the need. On
+2026-11-24 the owner asked for providers to consolidate onto Cloudflare: the
+one Vercel deploy (retail-pilot-intel's docs, which had never run) became a
+Worker of its own (`ventures/retail-pilot-intel/apps/docs/wrangler.toml`;
+`docs/reports/2026-11-24-cloudflare-consolidation.md`).
 `local-site-studio` keeps Convex for its backend; replacing it would be a
 rewrite.
 
