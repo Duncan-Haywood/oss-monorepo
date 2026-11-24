@@ -119,6 +119,7 @@ export function assess(xer, opts = {}) {
   const openIds = new Set(open.map((t) => t.id));
   const rels = model.rels.filter((r) => openIds.has(r.succId));
 
+  let popDue = [];
   // 1 Logic
   {
     const bad = [];
@@ -127,7 +128,7 @@ export function assess(xer, opts = {}) {
       const succs = t.succs.filter((r) => !model.tasks.get(r.succId).span);
       const noPred = preds.length === 0 && !(t.type === "TT_Mile");
       const noSucc = succs.length === 0 && !(t.type === "TT_FinMile");
-      if (noPred || noSucc) bad.push({ code: t.code, name: t.name, why: noPred && noSucc ? "no predecessor or successor" : noPred ? "no predecessor" : "no successor" });
+      if (noPred || noSucc) bad.push({ tid: t.id, code: t.code, name: t.name, why: noPred && noSucc ? "no predecessor or successor" : noPred ? "no predecessor" : "no successor" });
     }
     add({ id: 1, name: "Logic", value: pct(bad.length, open.length), unit: "%", threshold: "<= 5%", pass: pct(bad.length, open.length) <= 5, count: bad.length, total: open.length, items: bad,
       note: "Open activities missing a predecessor or a successor. A start milestone may have no predecessor and a finish milestone no successor." });
@@ -155,21 +156,21 @@ export function assess(xer, opts = {}) {
   {
     const bad = open.filter((t) => t.cstr.some((c) => hardConstraint(c.type)));
     add({ id: 5, name: "Hard constraints", value: pct(bad.length, open.length), unit: "%", threshold: "<= 5%", pass: pct(bad.length, open.length) <= 5, count: bad.length, total: open.length,
-      items: bad.map((t) => ({ code: t.code, name: t.name, why: t.cstr.filter((c) => hardConstraint(c.type)).map((c) => `${Object.hasOwn(CSTR, c.type) ? CSTR[c.type] : c.type} ${formatDate(c.date)}`).join("; ") })),
+      items: bad.map((t) => ({ tid: t.id, code: t.code, name: t.name, why: t.cstr.filter((c) => hardConstraint(c.type)).map((c) => `${Object.hasOwn(CSTR, c.type) ? CSTR[c.type] : c.type} ${formatDate(c.date)}`).join("; ") })),
       note: "Start on, finish on, start on or before, finish on or before and mandatory constraints stop the logic from moving dates." });
   }
   // 6 High float
   {
     const bad = open.filter((t) => floatH(t) !== null && days(t, floatH(t)) > DAYS_44);
     add({ id: 6, name: "High float", value: pct(bad.length, open.length), unit: "%", threshold: "<= 5%", pass: pct(bad.length, open.length) <= 5, count: bad.length, total: open.length,
-      items: bad.map((t) => ({ code: t.code, name: t.name, why: `${round1(days(t, floatH(t)))} days total float` })),
+      items: bad.map((t) => ({ tid: t.id, code: t.code, name: t.name, why: `${round1(days(t, floatH(t)))} days total float` })),
       note: "Open activities with more than 44 working days of total float, usually a sign of missing successors." });
   }
   // 7 Negative float
   {
     const bad = open.filter((t) => floatH(t) !== null && floatH(t) < -1e-9);
     add({ id: 7, name: "Negative float", value: pct(bad.length, open.length), unit: "%", threshold: "0%", pass: bad.length === 0, count: bad.length, total: open.length,
-      items: bad.map((t) => ({ code: t.code, name: t.name, why: `${round1(days(t, floatH(t)))} days total float` })),
+      items: bad.map((t) => ({ tid: t.id, code: t.code, name: t.name, why: `${round1(days(t, floatH(t)))} days total float` })),
       note: "Negative float means a constraint or a must-finish-by date cannot be met with the current logic and durations." });
   }
   // 8 High duration (planned duration of normal activities)
@@ -177,7 +178,7 @@ export function assess(xer, opts = {}) {
     const dur = (t) => (t.status === "TK_Active" ? t.remain : t.orig) / 60;
     const bad = normal.filter((t) => days(t, dur(t)) > DAYS_44);
     add({ id: 8, name: "High duration", value: pct(bad.length, normal.length), unit: "%", threshold: "<= 5%", pass: pct(bad.length, normal.length) <= 5, count: bad.length, total: normal.length,
-      items: bad.map((t) => ({ code: t.code, name: t.name, why: `${round1(days(t, dur(t)))} days` })),
+      items: bad.map((t) => ({ tid: t.id, code: t.code, name: t.name, why: `${round1(days(t, dur(t)))} days` })),
       note: "Open activities (not milestones) longer than 44 working days: planned duration, or remaining duration once started. Long activities are hard to status and hide logic." });
   }
   // 9 Invalid dates
@@ -185,13 +186,13 @@ export function assess(xer, opts = {}) {
     const bad = [];
     for (const t of all) {
       if (t.span) continue;
-      if (dd !== null && t.actStart !== null && t.actStart > dd) bad.push({ code: t.code, name: t.name, why: `actual start ${formatDate(t.actStart)} after the data date` });
-      if (dd !== null && t.actEnd !== null && t.actEnd > dd) bad.push({ code: t.code, name: t.name, why: `actual finish ${formatDate(t.actEnd)} after the data date` });
+      if (dd !== null && t.actStart !== null && t.actStart > dd) bad.push({ tid: t.id, code: t.code, name: t.name, why: `actual start ${formatDate(t.actStart)} after the data date` });
+      if (dd !== null && t.actEnd !== null && t.actEnd > dd) bad.push({ tid: t.id, code: t.code, name: t.name, why: `actual finish ${formatDate(t.actEnd)} after the data date` });
       if (t.status !== "TK_Complete" && dd !== null) {
         const ef = parseDate(t.row.early_end_date);
         const es = parseDate(t.status === "TK_Active" ? "" : t.row.early_start_date);
-        if (es !== null && es < dd) bad.push({ code: t.code, name: t.name, why: `forecast start ${formatDate(es)} before the data date` });
-        if (ef !== null && ef < dd) bad.push({ code: t.code, name: t.name, why: `forecast finish ${formatDate(ef)} before the data date` });
+        if (es !== null && es < dd) bad.push({ tid: t.id, code: t.code, name: t.name, why: `forecast start ${formatDate(es)} before the data date` });
+        if (ef !== null && ef < dd) bad.push({ tid: t.id, code: t.code, name: t.name, why: `forecast finish ${formatDate(ef)} before the data date` });
       }
     }
     add({ id: 9, name: "Invalid dates", value: bad.length, unit: "", threshold: "0", pass: bad.length === 0, count: bad.length, total: all.filter((t) => !t.span).length, items: bad,
@@ -203,15 +204,16 @@ export function assess(xer, opts = {}) {
     const loaded = (xer.tables.TASKRSRC || []).length > 0;
     const bad = normal.filter((t) => (t.status === "TK_Active" ? t.remain : t.orig) > 0 && !withRes.has(t.id));
     add({ id: 10, name: "Resources", value: pct(bad.length, normal.length), unit: "%", threshold: "0%", pass: bad.length === 0, count: bad.length, total: normal.length,
-      items: bad.map((t) => ({ code: t.code, name: t.name, why: "no resource or cost assignment" })),
+      items: bad.map((t) => ({ tid: t.id, code: t.code, name: t.name, why: "no resource or cost assignment" })),
       note: loaded ? "Open activities with duration and no resource or cost assignment." : "The file has no resource assignments at all; skip this check if the schedule is not meant to be resource loaded." });
   }
   // 11 Missed tasks and 14 BEI (planned finish as the baseline)
   {
     const due = all.filter((t) => !t.span && t.type !== "TT_Mile" && t.type !== "TT_FinMile" && dd !== null && parseDate(t.row.target_end_date) !== null && parseDate(t.row.target_end_date) <= dd);
     const missed = due.filter((t) => t.actEnd === null || t.actEnd > parseDate(t.row.target_end_date));
+    popDue = due.map((t) => t.id);
     add({ id: 11, name: "Missed tasks", value: pct(missed.length, due.length), unit: "%", threshold: "<= 5%", pass: pct(missed.length, due.length) <= 5, count: missed.length, total: due.length,
-      items: missed.map((t) => ({ code: t.code, name: t.name, why: t.actEnd === null ? `planned to finish ${t.row.target_end_date}, not finished` : `planned ${t.row.target_end_date}, finished ${formatDate(t.actEnd)}` })),
+      items: missed.map((t) => ({ tid: t.id, code: t.code, name: t.name, why: t.actEnd === null ? `planned to finish ${t.row.target_end_date}, not finished` : `planned ${t.row.target_end_date}, finished ${formatDate(t.actEnd)}` })),
       note: "Activities planned to finish by the data date that finished late or have not finished. Planned dates stand in for the baseline only on started or finished activities: P6 resets a not-started activity's planned dates to its early dates when it schedules, so late work not yet started is not counted." });
     const finished = due.filter((t) => t.actEnd !== null).length;
     const doneAll = all.filter((t) => !t.span && t.type !== "TT_Mile" && t.type !== "TT_FinMile" && t.status === "TK_Complete").length;
@@ -279,8 +281,8 @@ export function assess(xer, opts = {}) {
       for (const r of t.preds) {
         const pr = model.tasks.get(r.predId);
         if (pr.span) continue;
-        if (r.type === "PR_FS" && pr.actEnd === null) oos.push({ code: t.code, name: t.name, why: `started ${formatDate(t.actStart)} before ${pr.code} finished` });
-        else if (r.type === "PR_SS" && pr.actStart === null) oos.push({ code: t.code, name: t.name, why: `started ${formatDate(t.actStart)} before ${pr.code} started` });
+        if (r.type === "PR_FS" && pr.actEnd === null) oos.push({ tid: t.id, code: t.code, name: t.name, why: `started ${formatDate(t.actStart)} before ${pr.code} finished` });
+        else if (r.type === "PR_SS" && pr.actStart === null) oos.push({ tid: t.id, code: t.code, name: t.name, why: `started ${formatDate(t.actStart)} before ${pr.code} started` });
       }
     }
     extra.push({ id: "out-of-sequence", name: "Out-of-sequence progress", count: oos.length, pass: oos.length === 0, items: oos,
@@ -290,7 +292,7 @@ export function assess(xer, opts = {}) {
       return succs.length > 0 && succs.every((r) => r.type === "PR_SS" || r.type === "PR_SF") && t.type !== "TT_Mile";
     });
     extra.push({ id: "open-finish", name: "Open finishes (start-to-start successors only)", count: ssOnly.length, pass: ssOnly.length === 0,
-      items: ssOnly.map((t) => ({ code: t.code, name: t.name, why: "nothing depends on its finish" })),
+      items: ssOnly.map((t) => ({ tid: t.id, code: t.code, name: t.name, why: "nothing depends on its finish" })),
       note: "An activity whose successors all hang off its start can run long without moving anything: its finish is open-ended even though DCMA point 1 passes." });
   }
 
@@ -490,7 +492,7 @@ export function assess(xer, opts = {}) {
     count: lp.size, p6Flagged: flagged.size, agree: [...lp].filter((id) => flagged.has(id)).length,
     onlyP6: codes([...flagged].filter((id) => !lp.has(id))), onlyHere: codes([...lp].filter((id) => !flagged.has(id))),
   };
-  return {
+  const report = {
     project: {
       id: p.id, code: p.code, name: projRow.proj_short_name || p.code,
       dataDate: formatDate(dd), finish: formatDate(p.finish), storedFinish: formatDate(p.storedFinish), mustFinish: formatDate(p.mustFinish),
@@ -510,6 +512,16 @@ export function assess(xer, opts = {}) {
     warnings: result.warnings,
     passed: checks.filter((c) => c.pass).length,
   };
+  // the activities each check counts over (relationship checks: each
+  // relationship's successor), for a breakdown by WBS or activity code
+  // (ribbon.mjs). Not enumerable, so JSON output is unchanged.
+  const ids = (ts) => ts.map((t) => t.id);
+  const relIds = (rs) => rs.map((r) => r.succId);
+  Object.defineProperty(report, "populations", { enumerable: false, value: {
+    1: ids(open), 2: relIds(rels), 3: relIds(rels), 4: relIds(rels), 5: ids(open), 6: ids(open), 7: ids(open),
+    8: ids(normal), 9: ids(all.filter((t) => !t.span)), 10: ids(normal), 11: popDue,
+  } });
+  return report;
 }
 
 const CSTR = {
@@ -521,7 +533,7 @@ const TYPE = { PR_FS: "FS", PR_SS: "SS", PR_FF: "FF", PR_SF: "SF" };
 function relItem(model, r) {
   const a = model.tasks.get(r.predId), b = model.tasks.get(r.succId);
   const h = b ? b.cal.hoursPerDay || 8 : 8;
-  return { code: `${a ? a.code : r.predId} -> ${b ? b.code : r.succId}`, name: b ? b.name : "", why: `${Object.hasOwn(TYPE, r.type) ? TYPE[r.type] : r.type} lag ${round1(r.lag / 60 / h)} days` };
+  return { tid: r.succId, code: `${a ? a.code : r.predId} -> ${b ? b.code : r.succId}`, name: b ? b.name : "", why: `${Object.hasOwn(TYPE, r.type) ? TYPE[r.type] : r.type} lag ${round1(r.lag / 60 / h)} days` };
 }
 
 const round1 = (x) => Math.round(x * 10) / 10;

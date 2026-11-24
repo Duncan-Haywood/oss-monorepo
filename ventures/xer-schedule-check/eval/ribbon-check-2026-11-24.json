@@ -1,0 +1,1104 @@
+[
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "WBS level 1",
+    "groups": 16,
+    "failingGroups": 16,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Gallery",
+      "failing": 6,
+      "population": 1077
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "WBS level 2",
+    "groups": 137,
+    "failingGroups": 135,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Level 2",
+      "failing": 6,
+      "population": 63
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "WBS level 3",
+    "groups": 556,
+    "failingGroups": 542,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Structure & Envelopment",
+      "failing": 6,
+      "population": 10
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCAD DIVISION(SET)",
+    "groups": 17,
+    "failingGroups": 17,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no CCAD DIVISION(SET))",
+      "failing": 8,
+      "population": 12845
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCAD WORK(SET)",
+    "groups": 32,
+    "failingGroups": 32,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "MEP",
+      "failing": 6,
+      "population": 8064
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCAD ZONE(SET)",
+    "groups": 149,
+    "failingGroups": 146,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Common Zone",
+      "failing": 6,
+      "population": 413
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCAD Carpark district code(set)",
+    "groups": 3,
+    "failingGroups": 3,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no CCAD Carpark district code(set))",
+      "failing": 8,
+      "population": 11897
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCAD CBS(SET)",
+    "groups": 12,
+    "failingGroups": 12,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no CCAD CBS(SET))",
+      "failing": 7,
+      "population": 576
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCAD PHASE(SET)",
+    "groups": 4,
+    "failingGroups": 4,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Construction",
+      "failing": 8,
+      "population": 14147
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCAD RESPONSIBILITY(SET)",
+    "groups": 4,
+    "failingGroups": 4,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no CCAD RESPONSIBILITY(SET))",
+      "failing": 7,
+      "population": 12543
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCAD HANDOVER(SET)",
+    "groups": 4,
+    "failingGroups": 4,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Section 1 - Time for Completion",
+      "failing": 6,
+      "population": 5004
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCAD SECTION(SET)",
+    "groups": 41,
+    "failingGroups": 41,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Electrical",
+      "failing": 6,
+      "population": 2460
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCA VO (SET)",
+    "groups": 5,
+    "failingGroups": 5,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no CCA VO (SET))",
+      "failing": 7,
+      "population": 14226
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCAD (VO)",
+    "groups": 2,
+    "failingGroups": 2,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no CCAD (VO))",
+      "failing": 8,
+      "population": 14100
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCAD FLOOR(SET)",
+    "groups": 36,
+    "failingGroups": 36,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Podium 3",
+      "failing": 6,
+      "population": 1831
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCAD SUB ZONE MEP(SET)",
+    "groups": 5,
+    "failingGroups": 5,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no CCAD SUB ZONE MEP(SET))",
+      "failing": 8,
+      "population": 6713
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCAD BUILDING(SET)",
+    "groups": 15,
+    "failingGroups": 15,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Gallery",
+      "failing": 7,
+      "population": 1090
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCAD SERIAL No.(SET)",
+    "groups": 97,
+    "failingGroups": 95,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no CCAD SERIAL No.(SET))",
+      "failing": 7,
+      "population": 229
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCAD BILL(SET)",
+    "groups": 13,
+    "failingGroups": 13,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "GALLERY",
+      "failing": 7,
+      "population": 1005
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCADACF (SET)",
+    "groups": 14,
+    "failingGroups": 14,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "MEP 1st Fix",
+      "failing": 6,
+      "population": 3019
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCAD MEQ",
+    "groups": 5,
+    "failingGroups": 5,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no CCAD MEQ)",
+      "failing": 8,
+      "population": 13725
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "FSP CODE",
+    "groups": 13,
+    "failingGroups": 13,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no FSP CODE)",
+      "failing": 8,
+      "population": 12109
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "Phase",
+    "groups": 2,
+    "failingGroups": 2,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no Phase)",
+      "failing": 8,
+      "population": 14240
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "Area/ Department",
+    "groups": 6,
+    "failingGroups": 6,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no Area/ Department)",
+      "failing": 8,
+      "population": 14240
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "Grids",
+    "groups": 8,
+    "failingGroups": 8,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no Grids)",
+      "failing": 8,
+      "population": 14240
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "Are",
+    "groups": 8,
+    "failingGroups": 8,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no Are)",
+      "failing": 8,
+      "population": 14240
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "Weight & Nos",
+    "groups": 8,
+    "failingGroups": 8,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no Weight & Nos)",
+      "failing": 8,
+      "population": 14240
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "Process",
+    "groups": 4,
+    "failingGroups": 4,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no Process)",
+      "failing": 8,
+      "population": 14240
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "Levels",
+    "groups": 7,
+    "failingGroups": 7,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no Levels)",
+      "failing": 8,
+      "population": 14240
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCAD REV(SET)",
+    "groups": 2,
+    "failingGroups": 2,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Rev 00 - Original Accepted Baseline",
+      "failing": 7,
+      "population": 14200
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "CCAD CSA",
+    "groups": 10,
+    "failingGroups": 10,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "MEP",
+      "failing": 6,
+      "population": 8002
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "FILTER",
+    "groups": 2,
+    "failingGroups": 2,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no FILTER)",
+      "failing": 8,
+      "population": 14171
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "TO BE DELETED",
+    "groups": 2,
+    "failingGroups": 2,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no TO BE DELETED)",
+      "failing": 8,
+      "population": 14261
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "Act Selector %",
+    "groups": 5,
+    "failingGroups": 5,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no Act Selector %)",
+      "failing": 8,
+      "population": 11598
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "R3 Partitions",
+    "groups": 2,
+    "failingGroups": 2,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no R3 Partitions)",
+      "failing": 8,
+      "population": 14190
+    }
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "by": "R3 Finish",
+    "groups": 2,
+    "failingGroups": 2,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 24152,
+      "matched": 24152,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no R3 Finish)",
+      "failing": 8,
+      "population": 14078
+    }
+  },
+  {
+    "file": "Expressway_Project.xer",
+    "by": "WBS level 1",
+    "groups": 11,
+    "failingGroups": 10,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 1425,
+      "matched": 1425,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Road Works",
+      "failing": 6,
+      "population": 65
+    }
+  },
+  {
+    "file": "Expressway_Project.xer",
+    "by": "WBS level 2",
+    "groups": 40,
+    "failingGroups": 39,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 1425,
+      "matched": 1425,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Piling",
+      "failing": 6,
+      "population": 42
+    }
+  },
+  {
+    "file": "Expressway_Project.xer",
+    "by": "WBS level 3",
+    "groups": 46,
+    "failingGroups": 45,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 1425,
+      "matched": 1425,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Pile Testing (Load Test and Integrity)",
+      "failing": 5,
+      "population": 14
+    }
+  },
+  {
+    "file": "example_xer_file.xer",
+    "by": "WBS level 1",
+    "groups": 8,
+    "failingGroups": 7,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 452,
+      "matched": 452,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Work Package 49547",
+      "failing": 5,
+      "population": 222
+    }
+  },
+  {
+    "file": "example_xer_file.xer",
+    "by": "WBS level 2",
+    "groups": 11,
+    "failingGroups": 10,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 452,
+      "matched": 452,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Work Package 49552",
+      "failing": 5,
+      "population": 75
+    }
+  },
+  {
+    "file": "example_xer_file.xer",
+    "by": "WBS level 3",
+    "groups": 16,
+    "failingGroups": 15,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 452,
+      "matched": 452,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Work Package 49552",
+      "failing": 5,
+      "population": 75
+    }
+  },
+  {
+    "file": "example_xer_file.xer",
+    "by": "Project Charge Code",
+    "groups": 1,
+    "failingGroups": 1,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 452,
+      "matched": 452,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no Project Charge Code)",
+      "failing": 6,
+      "population": 404
+    }
+  },
+  {
+    "file": "example_xer_file.xer",
+    "by": "Activity Hide",
+    "groups": 2,
+    "failingGroups": 1,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 452,
+      "matched": 452,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no Activity Hide)",
+      "failing": 6,
+      "population": 403
+    }
+  },
+  {
+    "file": "example_xer_file.xer",
+    "by": "Dashboard Planned",
+    "groups": 1,
+    "failingGroups": 1,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 452,
+      "matched": 452,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "YES",
+      "failing": 6,
+      "population": 404
+    }
+  },
+  {
+    "file": "hotel-project.xer",
+    "by": "WBS level 1",
+    "groups": 6,
+    "failingGroups": 6,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 8141,
+      "matched": 8141,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Engineering",
+      "failing": 6,
+      "population": 124
+    }
+  },
+  {
+    "file": "hotel-project.xer",
+    "by": "WBS level 2",
+    "groups": 19,
+    "failingGroups": 19,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 8141,
+      "matched": 8141,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Material Submittals",
+      "failing": 6,
+      "population": 96
+    }
+  },
+  {
+    "file": "hotel-project.xer",
+    "by": "WBS level 3",
+    "groups": 47,
+    "failingGroups": 46,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 8141,
+      "matched": 8141,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Approval",
+      "failing": 6,
+      "population": 48
+    }
+  },
+  {
+    "file": "hotel-project.xer",
+    "by": "Bill No.",
+    "groups": 7,
+    "failingGroups": 7,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 8141,
+      "matched": 8141,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no Bill No.)",
+      "failing": 6,
+      "population": 456
+    }
+  },
+  {
+    "file": "hotel-project.xer",
+    "by": "Division No.",
+    "groups": 17,
+    "failingGroups": 17,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 8141,
+      "matched": 8141,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no Division No.)",
+      "failing": 6,
+      "population": 637
+    }
+  },
+  {
+    "file": "hotel-project.xer",
+    "by": "Responsibility",
+    "groups": 5,
+    "failingGroups": 5,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 8141,
+      "matched": 8141,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no Responsibility)",
+      "failing": 5,
+      "population": 351
+    }
+  },
+  {
+    "file": "hotel-project.xer",
+    "by": "Phase Code",
+    "groups": 4,
+    "failingGroups": 4,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 8141,
+      "matched": 8141,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Engineering Phase",
+      "failing": 7,
+      "population": 71
+    }
+  },
+  {
+    "file": "hotel-project.xer",
+    "by": "Trade",
+    "groups": 3,
+    "failingGroups": 3,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 8141,
+      "matched": 8141,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no Trade)",
+      "failing": 5,
+      "population": 1269
+    }
+  },
+  {
+    "file": "sample.xer",
+    "by": "WBS level 1",
+    "groups": 6,
+    "failingGroups": 6,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 52,
+      "matched": 52,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Nr. 1",
+      "failing": 2,
+      "population": 8
+    }
+  },
+  {
+    "file": "terminal-building-airport.xer",
+    "by": "WBS level 1",
+    "groups": 3,
+    "failingGroups": 2,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 65,
+      "matched": 65,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Building A",
+      "failing": 4,
+      "population": 64
+    }
+  },
+  {
+    "file": "terminal-building-airport.xer",
+    "by": "WBS level 2",
+    "groups": 7,
+    "failingGroups": 5,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 65,
+      "matched": 65,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "Part 4",
+      "failing": 5,
+      "population": 17
+    }
+  },
+  {
+    "file": "terminal-building-airport.xer",
+    "by": "WBS level 3",
+    "groups": 20,
+    "failingGroups": 17,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 65,
+      "matched": 65,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "First Basement Floor",
+      "failing": 3,
+      "population": 6
+    }
+  },
+  {
+    "file": "terminal-building-airport.xer",
+    "by": "Classification",
+    "groups": 11,
+    "failingGroups": 9,
+    "sumOk": true,
+    "totalOk": true,
+    "attribution": {
+      "findings": 65,
+      "matched": 65,
+      "ambiguous": 0
+    },
+    "passOk": true,
+    "worst": {
+      "name": "(no Classification)",
+      "failing": 5,
+      "population": 15
+    }
+  }
+]

@@ -60,6 +60,10 @@
 // --group-by "Responsibility,WBS" groups the rows by activity codes (name or
 // id) and/or the WBS instead, outermost first (actvcodes.mjs); --codes lists
 // the code types the project can be grouped by.
+// node cli.mjs schedule.xer --ribbon [wbs|CODE TYPE] [--level N] [--csv ribbon.csv] [--json] [--project CODE]
+// DCMA points 1-11 per WBS node or activity code value instead (ribbon.mjs):
+// each group scored on its own activities against the same thresholds, worst
+// first, so each area or subcontractor gets its own result.
 // node cli.mjs schedule.xer --lookahead [WEEKS] [--from YYYY-MM-DD] [--csv lookahead.csv] [--html lookahead.html] [--by NAME] [--json] [--project CODE]
 // A look-ahead instead (lookahead.mjs): the next WEEKS weeks (3) of work by
 // WBS with a bar per day and a make-ready check of what each activity still
@@ -172,6 +176,7 @@
 //
 // Any --report also takes --appendix: every activity behind every correction
 // printed in an appendix, not only the first 40 of each.
+import { ribbon, ribbonText, ribbonCsv } from "./ribbon.mjs";
 import { readFileSync, writeFileSync } from "node:fs";
 // A file that cannot be assessed (no PROJECT table, not an XER at all) ends
 // with one line saying why, not a stack trace. XER_DEBUG=1 keeps the trace.
@@ -498,6 +503,17 @@ if (args.includes("--drag")) {
   const r = dragAnalysis(xer, { projId: pid, costPerDay: cost, ...(opt("--max-runs") ? { maxRuns: Number(opt("--max-runs")) } : {}), expectedFinish: !args.includes("--no-expected-finish") });
   if (opt("--csv")) writeFileSync(opt("--csv"), dragCsv(r));
   await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : dragText(r));
+  process.exit(0);
+}
+if (args.includes("--ribbon")) {
+  const report = assess(xer, { projId });
+  const v = opt("--ribbon");
+  const by = v && !v.startsWith("--") ? v : "wbs";
+  let rb;
+  try { rb = ribbon(xer, report, { by, level: opt("--level") ? Number(opt("--level")) : 1 }); }
+  catch (e) { console.error(e.message); process.exit(2); }
+  if (opt("--csv")) writeFileSync(opt("--csv"), ribbonCsv(rb));
+  await emit(args.includes("--json") ? JSON.stringify(rb, null, 2) + "\n" : ribbonText(rb));
   process.exit(0);
 }
 if (args.includes("--gantt")) {
