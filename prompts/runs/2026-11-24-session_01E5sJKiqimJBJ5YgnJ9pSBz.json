@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKiqimJBJ5YgnJ9pSBz",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T20:18:06Z",
+  "ended": "2026-11-24T20:35:27Z",
+  "wall_minutes": 17.67,
+  "tokens_in": 8538209,
+  "tokens_out": 41978,
+  "cost_usd": 3.6754,
+  "tool_calls": 75,
+  "task": "Deepen (flagship 14) ifc-quantity-takeoff, item 7: HouseZ's 3 openings 0.51 m under their room's floor; dental_clinic's ROOF windows",
+  "projects": [
+    "ventures/ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18655",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ifc-quantity-takeoff/NEXT.md",
+      "issue": "The dental_clinic 'ROOF windows, look on the model' item was already half-answered by the 2026-11-23 door-extra-room change (eval in ids-model-check), but NEXT.md still listed it as open; cost a few minutes to find that the office side is already taken."
+    },
+    {
+      "file": "ventures/ifc-quantity-takeoff/README.md",
+      "issue": "README cites eval/door-extra-room-2026-11-23.md under ids-model-check; rooms.mjs's comment cites it as if it were in this venture's eval/ (a grep inside the venture finds no such file)."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Preflight stopped on a repository-wide check_third_party.py failure introduced on main by PR #18649 (research/sensing-selfcal), unrelated to the venture; it says so clearly, which helped."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Main was red on check_third_party.py (OpenCV notice in research/sensing-selfcal from PR #18649, inventory not updated); no open PR fixed it.",
+      "did": "Added the inventory entry and regenerated THIRD_PARTY.md in this venture PR rather than a separate PR (platform/ci/third_party.json is not a CODEOWNERS path).",
+      "result": "check_third_party.py passes: 63 signals covered by 21 entries."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-split-level-rooms-in-an-ifc-model-wall-finish.md",
+    "ventures/ifc-quantity-takeoff/eval/floors-below-2026-11-24.md"
+  ],
+  "goal": null,
+  "notes": "Looked at HouseZ on the model: the 3 openings and 42 walls are contained in the Site; slabs under the west of the ground floor top at -0.51 m; every ground-floor IfcSpace is drawn from 0. New rooms.mjs floorsBelow samples each room's plan (0.2 m grid) for the highest IfcSlab under it; 25 cm..1.5 m down over >=5% of the plan is a lower floor: band added to gross wall, openings measured down to it. 12 public models (989 rooms): HouseZ 3 rooms +16.64 m2, net wall 292.9 -> 307.4 m2, its 2.1 m2 opening cut gone; ARK_NUS lift shaft +8.83 m2; others unchanged (ARK_NUS opening cut 31.1 m2 with and without, checked by stash). The 5% gate was added after the first run flagged 8 ARK_NUS gross-area zones at 0-2% edge slivers. dental_clinic ROOF spaces are Revit rooms on the first floor's roof; all 18 windows external, office side taken since 2026-11-23. Verification: node --test ifc-quantity-takeoff 295 pass; run_workflow_locally --for-changes 10/11 workflows, the one failure check_third_party.py on main's sensing-selfcal file, fixed in this PR and rerun clean; check_posts ok; portfolio validate ok; agent-cross-review and portfolio-pages deploy jobs not runnable locally. Model files from a blob-less sparse clone of ThatOpen/engine_web-ifc, not committed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "377af142-77bf-5489-b279-0c006b93ede0",
+    "transcripts": 1,
+    "first": "2026-11-24T20:18:06Z",
+    "last": "2026-11-24T20:35:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 130,
+        "output": 41978,
+        "thinking": 11579,
+        "cache_read": 8393505,
+        "cache_write_5m": 0,
+        "cache_write_1h": 144574,
+        "api_equivalent_usd": 3.6754,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 130,
+      "output": 41978,
+      "thinking": 11579,
+      "cache_read": 8393505,
+      "cache_write_5m": 0,
+      "cache_write_1h": 144574,
+      "api_equivalent_usd": 3.6754,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 69,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.67,
+      "active_minutes": 17.67,
+      "model_minutes": 9.01,
+      "tool_minutes": 8.66,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an estimator-developer tracing a split-level IFC model, writing and testing a slab-under-room check on 12 models, and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 272.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+
+AC20-FZK-Haus.ifc: 7 rooms measured, 0 with a floor below the solid; band added 0.00 m2 to 398.19 m2 gross wall; openings cut at floor or ceiling now 0.00 m2 (0.4 s)
+
+ISSUE_005_haus.ifc: 7 rooms measured, 0 with a floor below the solid; band added 0.00 m2 to 398.19 m2 gross wall; openings cut at floor or ceiling now 0.00 m2 (0.3 s)
+
+duplex.ifc: 21 rooms measured, 0 with a floor below the solid; band added 0.00 m2 to 968.91 m2 gross wall; openings cut at floor or ceiling now 0.00 m2 (0.5 s)
+
+Office_A_20110811.ifc: 99 rooms measured, 0 with a floor below the solid; band added 0.00 m2 to 5962.59 m2 gross wall; openings cut at floor or ceiling now 0.42 m2 (0.7 s)
+
+dental_clinic.ifc: 269 rooms measured, 0 with a floor below the solid; band added 0.00 m2 to 15499.35 m2 gross wall; openings cut at floor or ceiling now 0.00 m2 (1.9 s)
+
+C20-Institute-Var-2.ifc: 82 rooms measured, 0 with a floor below the solid; band added 0.00 m2 to 4553.50 m2 gross wall; openings cut at floor or ceiling now 0.00 m2 (0.8 s)
+
+FM_ARC_DigitalHub.ifc: 64 rooms measured, 0 with a floor below the solid; band added 0.00 m2 to 6131.85 m2 gross wall; openings cut at floor or ceiling now 0.59 m2 (16.1 s)
+
+schependomlaan.ifc: 100 rooms measured, 0 with a floor below the solid; band added 0.00 m2 to 3125.31 m2 gross wall; openings cut at floor or ceiling now 5.93 m2 (5.9 s)
+
+ISSUE_159_kleine_Wohnung_R22.ifc: 28 rooms measured, 0 with a floor below the solid; band added 0.00 m2 to 978.31 m2 gross wall; openings cut at floor or ceiling now 0.00 m2 (5.8 s)
+
+ISSUE_034_HouseZ.ifc: 5 rooms measured, 3 with a floor below the solid; band added 16.64 m2 to 331.14 m2 gross wall; openings cut at floor or ceiling now 0.00 m2 (1.8 s)
+  #133 GF Hallway (Ground Floor): floor 0.51 m below over 18% of the plan, 26% of the outline; +3.76 m2 on 89.63 m2; slabs #53569
+  #48 Parametricos Office (Ground Floor): floor 0.51 m below over 54% of the plan, 55% of the outline; +8.14 m2 on 91.41 m2; slabs #53569
+  #175 Washing Room (Ground Floor): floor 0.51 m below over 100% of the plan, 100% of the outline; +4.74 m2 on 29.3 m2; slabs #53569
+
+example.ifc: 1 rooms measured, 0 with a floor below the solid; band added 0.00 m2 to 1.19 m2 gross wall; openings cut at floor or ceiling now 0.00 m2 (0.4 s)
+
+ISSUE_068_ARK_NUS_skolebygg.ifc: 306 rooms measured, 1 with a floor below the solid; band added 8.83 m2 to 27019.88 m2 gross wall; openings cut at floor or ceiling now 31.11 m2 (38.5 s)
+  #30955 0U017 heis (Plan 00U): floor 1.1 m below over 100% of the plan, 100% of the outline; +8.83 m2 on 19.58 m2; slabs #1186886

@@ -502,6 +502,14 @@ room by room, so the takeoff lists every IfcSpace with:
   not cut, but ARK_NUS's 3.09 m classroom glazing over a 2.44 m lowered
   ceiling comes off at 2.44 m (151 deductions on 5 of 12 models cut,
   47.2 m2; the room schedule's CSV gives each room's cut area).
+  Where a room's solid is drawn from its storey's level over a lower floor
+  (eval/floors-below-2026-11-24.md: HouseZ's split-level ground floor, slabs
+  0.51 m down under the Washing Room and the west of the office and hallway),
+  the wall between that slab and the solid is added to the gross wall and
+  the doors and windows standing on it are measured down to it (HouseZ's net
+  wall 292.9 to 307.4 m2; a slab within 25 cm is floor build-up, and a room
+  needs 5% of its plan over the lower floor; 1 room elsewhere in 12 models,
+  ARK_NUS's lift shaft over its pit).
 - A room with no body but a `FootPrint` outline and a `Box` (Revit and
   ArchiCAD both export these) is the outline extruded through the box.
 - Each figure against the stored one (GrossFloorArea then NetFloorArea,

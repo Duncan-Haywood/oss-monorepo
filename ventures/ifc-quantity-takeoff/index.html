@@ -732,11 +732,16 @@
       if (c.glazedArea) parts.push(`curtain wall ${fmt(c.glazedArea, 2)} m²`);
       return parts.join("; ");
     };
+    const floorNote = (r) => {
+      const f = r.computed?.floorBelow;
+      if (!f) return "";
+      return `the floor is ${fmt(f.drop, 2)} m below the room's solid over ${Math.round(f.share * 100)}% of its plan (slab ${f.slabs.map((x) => "#" + x).join(", ")}): the room was drawn from its storey's level over a lower floor. ${fmt(f.bandArea, 2)} m² of wall between that floor and the solid added to the ${fmt(r.computed.solidWallArea, 2)} m² the solid gives; doors and windows there are measured down to it. Check the room on the drawings.`;
+    };
     const shown = rooms.slice(0, 500);
     $("rooms-table").innerHTML = `<tr><th>Room</th><th>Storey</th><th>Floor m&sup2;</th><th>Perimeter m</th><th>Height m</th><th>Wall m&sup2;</th><th>Openings m&sup2;</th><th>Net wall m&sup2;</th><th>Volume m&sup3;</th><th>Elements</th><th>Check</th></tr>` + shown.map((r) => {
       const bad = Object.entries(r.check || {}).filter(([, c]) => !c.agree);
       const note = r.computed ? (bad.length ? bad.map(([k, c]) => `${k === "floorArea" ? "floor area" : k} ${(c.diff * 100).toFixed(1)}%: ${ROOM_REASON_TEXT[c.reason] ?? c.reason}`).join("; ") : Object.keys(r.check || {}).length ? "agrees" : "nothing stored to check") : r.status;
-      return `<tr data-room="${esc(r.label)}"><td>${esc(r.label)}</td><td>${esc(r.storey)}</td>${cell(r, "floorArea", 2)}${cell(r, "perimeter", 2)}${cell(r, "height", 2)}<td class="n">${fmt(r.computed?.wallArea, 2)}</td><td class="n" title="${esc(openingNote(r))}">${r.computed?.openings || r.computed?.glazedArea ? fmt((r.computed.openingArea ?? 0) + (r.computed.glazedArea ?? 0), 2) : ""}</td><td class="n">${fmt(r.computed?.netWallArea, 2)}</td>${cell(r, "volume", 2)}<td class="n">${r.elements || ""}</td><td class="${bad.length ? "bad" : ""}">${esc(note)}</td></tr>`;
+      return `<tr data-room="${esc(r.label)}"><td>${esc(r.label)}</td><td>${esc(r.storey)}</td>${cell(r, "floorArea", 2)}${cell(r, "perimeter", 2)}${cell(r, "height", 2)}<td class="n${r.computed?.floorBelow ? " bad" : ""}" title="${esc(floorNote(r))}">${fmt(r.computed?.wallArea, 2)}${r.computed?.floorBelow ? " *" : ""}</td><td class="n" title="${esc(openingNote(r))}">${r.computed?.openings || r.computed?.glazedArea ? fmt((r.computed.openingArea ?? 0) + (r.computed.glazedArea ?? 0), 2) : ""}</td><td class="n">${fmt(r.computed?.netWallArea, 2)}</td>${cell(r, "volume", 2)}<td class="n">${r.elements || ""}</td><td class="${bad.length ? "bad" : ""}">${esc(note)}</td></tr>`;
     }).join("");
     for (const tr of $("rooms-table").querySelectorAll("tr[data-room]")) tr.addEventListener("click", () => {
       const label = tr.dataset.room;

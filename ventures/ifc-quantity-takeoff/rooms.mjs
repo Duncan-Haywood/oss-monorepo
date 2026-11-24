@@ -558,6 +558,95 @@ export function openingSides(row, testable) {
   return found;
 }
 
+// A floor below the room's solid: an exporter that draws every room of a
+// storey from the storey's level leaves a split-level floor's lower part
+// under the room (HouseZ: the Washing Room and the west of the office and
+// hallway stand on slabs 0.51 m below the Ground Floor rooms' solids, and
+// their walls, doors and window run on down to those slabs). A slab top more
+// than FLOOR_MIN and at most FLOOR_MAX below the solid's bottom counts; one
+// within FLOOR_MIN is floor build-up (screed and finish over the structural
+// slab: FM_ARC_DigitalHub's door frames run 15 cm under the room's floor),
+// not a lower floor.
+// A room needs FLOOR_SHARE of its plan over the lower floor: ARK_NUS's
+// gross-area zones ("1 Area", "3 Area") reach 0-2% over a lift pit's or a
+// stair's slab at their edge, which is not their floor.
+const FLOOR_SLACK = 0.05, FLOOR_MIN = 0.25, FLOOR_MAX = 1.5, FLOOR_STEP = 0.2, FLOOR_POINTS = 6000, FLOOR_SHARE = 0.05;
+
+/**
+ * Where each room's real floor lies below its solid. The room's plan is
+ * sampled on a grid (FLOOR_STEP, coarser for a large room) just above the
+ * solid's bottom; under each point the highest slab (IfcSlab) whose top is
+ * within FLOOR_MAX below, or FLOOR_SLACK above, that bottom is the floor
+ * there; a top within FLOOR_MIN (25 cm) below is build-up, the floor as
+ * drawn. A point with no slab under it is left as drawn. A room with less
+ * than FLOOR_SHARE (5%) of its plan sunken is left as drawn.
+ *
+ * Sets, on a room with any sunken point, computed.floorBelow = {drop (m,
+ * deepest), share (of the plan points), edgeShare (of the outline points),
+ * bandArea (m2: the perimeter times the mean drop along the outline, the
+ * wall between the slab and the solid that perimeter x height leaves out),
+ * slabs (ids)}, adds bandArea to computed.wallArea (keeping the solid's own
+ * figure as computed.solidWallArea), and keeps the sunken points on the room
+ * (non-enumerable floorPoints) for the opening cut (floorDropAt). The step
+ * between a room's two floor levels (a riser inside the room) is not added.
+ */
+export function floorsBelow(rows, rooms) {
+  const slabs = rows.filter((r) => /^IFCSLAB/.test(r.ifcType ?? "") && r.box && r.computed?.solids?.body && r.world && r.lengthUnit).map((r) => ({ r, inv: invert(r.world) }));
+  if (!slabs.length) return;
+  for (const room of rooms) {
+    const c = room.computed, B = room.box;
+    if (!c || !room.solid || !B || !room.world || c.perimeter == null) continue;
+    const z0 = B[2];
+    const cand = slabs.filter(({ r }) => r.box[0] < B[3] && r.box[3] > B[0] && r.box[1] < B[4] && r.box[4] > B[1] && r.box[5] <= z0 + FLOOR_SLACK && r.box[5] >= z0 - FLOOR_MAX).sort((a, b) => b.r.box[5] - a.r.box[5]);
+    if (!cand.some(({ r }) => r.box[5] < z0 - FLOOR_MIN)) continue;
+    const inv = invert(room.world);
+    const step = Math.max(FLOOR_STEP, Math.sqrt(((B[3] - B[0]) * (B[4] - B[1])) / FLOOR_POINTS));
+    const nx = Math.max(1, Math.floor((B[3] - B[0]) / step)), ny = Math.max(1, Math.floor((B[4] - B[1]) / step));
+    const x0 = B[0] + (B[3] - B[0] - (nx - 1) * step) / 2, y0 = B[1] + (B[4] - B[1] - (ny - 1) * step) / 2;
+    const inRoom = (x, y) => pointInSolid(room.solid, apply(inv, [x / room.lengthUnit, y / room.lengthUnit, (z0 + 0.02) / room.lengthUnit])) === true;
+    const grid = new Map();
+    for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) { const x = x0 + i * step, y = y0 + j * step; if (inRoom(x, y)) grid.set(`${i},${j}`, { x, y, drop: 0, slab: null }); }
+    if (!grid.size) continue;
+    for (const p of grid.values()) {
+      for (const { r, inv: si } of cand) {
+        const b = r.box;
+        if (p.x < b[0] || p.x > b[3] || p.y < b[1] || p.y > b[4]) continue;
+        const q = [p.x, p.y, b[5] - 0.01].map((v) => v / r.lengthUnit);
+        if (pointInSolid(r.computed.solids.body, apply(si, q)) === true) { p.slab = r.id; p.drop = z0 - b[5] > FLOOR_MIN ? z0 - b[5] : 0; break; }
+      }
+    }
+    const pts = [...grid.entries()];
+    const sunk = pts.filter(([, p]) => p.drop > 0);
+    if (!sunk.length || sunk.length < FLOOR_SHARE * pts.length) continue;
+    const edge = pts.filter(([k]) => { const [i, j] = k.split(",").map(Number); return !grid.has(`${i + 1},${j}`) || !grid.has(`${i - 1},${j}`) || !grid.has(`${i},${j + 1}`) || !grid.has(`${i},${j - 1}`); });
+    const meanEdge = edge.length ? edge.reduce((s, [, p]) => s + p.drop, 0) / edge.length : 0;
+    const bandArea = c.perimeter * meanEdge;
+    c.floorBelow = {
+      drop: Math.max(...sunk.map(([, p]) => p.drop)),
+      share: sunk.length / pts.length,
+      edgeShare: edge.length ? edge.filter(([, p]) => p.drop > 0).length / edge.length : 0,
+      bandArea,
+      slabs: [...new Set(sunk.map(([, p]) => p.slab))].sort((a, b) => a - b),
+    };
+    if (c.wallArea != null) { c.solidWallArea = c.wallArea; c.wallArea += bandArea; }
+    Object.defineProperty(room, "floorPoints", { value: { step, pts: sunk.map(([, p]) => p) }, enumerable: false, writable: true });
+  }
+}
+
+/**
+ * How far below the room's solid the floor lies at an opening (m): the
+ * deepest sunken floor point (floorsBelow) within 0.6 m of the opening's box
+ * in plan, else 0.
+ */
+export function floorDropAt(room, box) {
+  const fp = room.floorPoints;
+  if (!fp || !box) return 0;
+  const m = 0.6 + fp.step;
+  let d = 0;
+  for (const p of fp.pts) if (p.x >= box[0] - m && p.x <= box[3] + m && p.y >= box[1] - m && p.y <= box[4] + m && p.drop > d) d = p.drop;
+  return d;
+}
+
 // Slack (m) before an opening's height is cut at the room's floor or ceiling:
 // a frame a centimetre past either is drawing tolerance, not a cut.
 const CUT_SLACK = 0.01;
@@ -701,7 +790,11 @@ export function deductOpenings(rows, rooms, bounds = [], overall = new Map()) {
     // off: the gross figure is perimeter x the room's height, so a window
     // rising past a lowered ceiling (or a door frame set below the floor
     // finish) is cut to the band the room's walls are measured over
-    const k = GLAZED_CLASS.test(row.ifcType) ? 1 : heightShare(row.box, room.box, own(row) != null ? overall.get(row.id).height : null);
+    // where the room's floor lies below its solid (floorsBelow), the band
+    // runs down to that floor
+    const drop = floorDropAt(room, row.box);
+    const band = drop > 0 && room.box ? [room.box[0], room.box[1], room.box[2] - drop, room.box[3], room.box[4], room.box[5]] : room.box;
+    const k = GLAZED_CLASS.test(row.ifcType) ? 1 : heightShare(row.box, band, own(row) != null ? overall.get(row.id).height : null);
     if (k < 1) { room.computed.openingCut += a * (1 - k); if (k < 1 - 1e-9) room.computed.openingsCut++; a *= k; if (!(a > 0)) continue; }
     if (GLAZED_CLASS.test(row.ifcType)) room.computed.glazedArea += a;
     else { room.computed.openingArea += a; room.computed.openings++; room.computed.openingsFrom[from]++; }
