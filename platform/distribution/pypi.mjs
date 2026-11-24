@@ -5,7 +5,14 @@
  *
  *   node platform/distribution/pypi.mjs                          # dry run: prints the packages it would publish
  *   node platform/distribution/pypi.mjs --pack <slug> <outDir>   # write one project to disk (to inspect or `python3 -m build`)
- *   DISTRIBUTE_PYPI=true TWINE_PASSWORD=pypi-... node platform/distribution/pypi.mjs
+ *   DISTRIBUTE_PYPI=true PYPI_DIST_DIR=dist node platform/distribution/pypi.mjs   # build the new versions into dist/ for
+ *                                                     # pypa/gh-action-pypi-publish (OIDC trusted publishing, no token)
+ *   DISTRIBUTE_PYPI=true TWINE_PASSWORD=pypi-... node platform/distribution/pypi.mjs   # build and upload with twine
+ *
+ * PYPI_DIST_DIR is how CI publishes: the workflow uploads the directory with
+ * a short-lived OIDC token, so no PyPI API token is stored anywhere
+ * (docs/security/trusted-publishing-setup.md). TWINE_PASSWORD stays for a
+ * publish from the owner's own machine.
  *
  * Only tools on the pypi allow-list (portfolio/distribution/allowlist.json) are
  * published, at the version versions.json gives them (versions.mjs). Stateless
@@ -159,7 +166,8 @@ const exec = promisify(execFile);
 export const isOurs = (doc) => Object.values(doc?.info?.project_urls ?? {}).some((u) => String(u).toLowerCase().includes('duncan-haywood/oss-monorepo'));
 
 export async function run({ env = process.env, fetchImpl = fetch, log = console.log, publish, root = REPO_ROOT, allow, versions } = {}) {
-  const live = env.DISTRIBUTE_PYPI === 'true' && !!env.TWINE_PASSWORD;
+  const distDir = env.PYPI_DIST_DIR ? path.resolve(env.PYPI_DIST_DIR) : '';
+  const live = env.DISTRIBUTE_PYPI === 'true' && (!!distDir || !!env.TWINE_PASSWORD);
   allow ??= await loadAllowlist(root);
   versions ??= await loadVersions(root);
   const slugs = [...allowed(allow, 'pypi')].sort();
@@ -179,14 +187,17 @@ export async function run({ env = process.env, fetchImpl = fetch, log = console.
     fresh.push(p);
   }
   if (!live) {
-    log(`DRY RUN (set DISTRIBUTE_PYPI=true and TWINE_PASSWORD to publish). Would publish up to ${MAX_PER_RUN} new versions:`);
+    log(`DRY RUN (set DISTRIBUTE_PYPI=true and PYPI_DIST_DIR or TWINE_PASSWORD to publish). Would publish up to ${MAX_PER_RUN} new versions:`);
     for (const p of fresh) log(`  ${p.name}==${p.version}  ${Object.keys(p.files).length} files`);
     return { published: 0, planned: fresh.length };
   }
-  const doPublish = publish ?? (async (dir) => {
-    await exec('python3', ['-m', 'build', '--outdir', 'dist', dir], { cwd: dir, env });
-    await exec('python3', ['-m', 'twine', 'upload', '--non-interactive', 'dist/*'], { cwd: dir, env: { ...env, TWINE_USERNAME: '__token__' }, shell: false });
-  });
+  if (distDir) await fs.mkdir(distDir, { recursive: true });
+  const doPublish = publish ?? (distDir
+    ? async (dir) => exec('python3', ['-m', 'build', '--outdir', distDir, dir], { cwd: dir, env })
+    : async (dir) => {
+      await exec('python3', ['-m', 'build', '--outdir', 'dist', dir], { cwd: dir, env });
+      await exec('python3', ['-m', 'twine', 'upload', '--non-interactive', 'dist/*'], { cwd: dir, env: { ...env, TWINE_USERNAME: '__token__' }, shell: false });
+    });
   let published = 0;
   for (const p of fresh) {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pypipkg-'));
@@ -194,7 +205,7 @@ export async function run({ env = process.env, fetchImpl = fetch, log = console.
       await writePackage(p, dir);
       await doPublish(dir);
       published += 1;
-      log(`published ${p.name}==${p.version}`);
+      log(`${distDir ? `built ${p.name}==${p.version} into ${distDir} for upload` : `published ${p.name}==${p.version}`}`);
     } finally {
       await fs.rm(dir, { recursive: true, force: true });
     }
