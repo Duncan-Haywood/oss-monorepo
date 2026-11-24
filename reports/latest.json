@@ -1,9 +1,9 @@
 {
- "generated_for": "2026-11-23",
- "data_through": "2026-11-23",
+ "generated_for": "2026-11-24",
+ "data_through": "2026-11-24",
  "latest_day": {
-  "day": "2026-11-23",
-  "page_loads": 18
+  "day": "2026-11-24",
+  "page_loads": 22
  },
  "weeks": [
   {
@@ -64,13 +64,13 @@
   {
    "week": "2026-W48",
    "monday": "2026-11-23",
-   "days": 1,
-   "page_loads": 18,
-   "tool_loads": 17,
-   "tools": 8,
-   "top_tool": "quick-pick-survey",
+   "days": 2,
+   "page_loads": 87,
+   "tool_loads": 77,
+   "tools": 25,
+   "top_tool": "xer-schedule-check",
    "feedback": 0,
-   "crawler_beacons": 14950
+   "crawler_beacons": 30365
   }
  ]
 }
