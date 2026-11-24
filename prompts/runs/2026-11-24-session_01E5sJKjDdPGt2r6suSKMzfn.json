@@ -39,6 +39,10 @@
     {
       "file": "prompts/perf/prompt-0.md",
       "issue": "Item 4 (what visitors wait on) gives no hint that a 4x-throttled sampling profile inflates one-off engine set-up into a large self-time line; counting calls first would have saved a measurement round."
+    },
+    {
+      "file": "platform/ci/check_third_party.py",
+      "issue": "No pull-request workflow runs it directly, so #18649 merged a new OpenCV port without an inventory entry and the next PR touching ventures inherited the red unwired check."
     }
   ],
   "deviations": [],
@@ -47,7 +51,7 @@
     "docs/history/clothing-design-studio-drape-perf-2026-11-24.md"
   ],
   "goal": null,
-  "notes": "Metric: drapeGarment wall time, six cases x3 reps, Node 22, median of three alternating rounds: 12,440 -> 11,742 ms (-5.6%); three-case run 7,766/7,749 -> 7,253/7,249 ms. Chromium, same three cases: medians 7,599 -> 7,399 (~-3%, noise); drape.html 'Settled in' median 2,158 -> 2,176 ms (no change). Output hash d174f2adad39cb1c identical. Before/after taken with the bench script in the history doc. Dud lead: money() Intl.NumberFormat cache, index.html throttled load 2,144 -> 2,080 ms (noise), reverted. Verification: run_venture_tests.py clothing-design-studio 755 tests 0 failed + site page checks. Also timed shift-roster-builder suite: 238 s wall, 681 s CPU (not changed).",
+  "notes": "Metric: drapeGarment wall time, six cases x3 reps, Node 22, median of three alternating rounds: 12,440 -> 11,742 ms (-5.6%); three-case run 7,766/7,749 -> 7,253/7,249 ms. Chromium, same three cases: medians 7,599 -> 7,399 (~-3%, noise); drape.html 'Settled in' median 2,158 -> 2,176 ms (no change). Output hash d174f2adad39cb1c identical. Before/after taken with the bench script in the history doc. Dud lead: money() Intl.NumberFormat cache, index.html throttled load 2,144 -> 2,080 ms (noise), reverted. Verification: run_venture_tests.py clothing-design-studio 755 tests 0 failed + site page checks. Also timed shift-roster-builder suite: 238 s wall, 681 s CPU (not changed). Also fixed main's red unwired check: check_third_party.py failed on research/sensing-selfcal/experiments/m3zg_loop/loop.py (OpenCV Apache-2.0 port from #18649, Intel/Willow Garage copyrights not inventoried); added a third_party.json entry and regenerated THIRD_PARTY.md, check now 63 signals all covered. Local run_workflow_locally --for-changes: 5/6 workflows passed before the fix, the failure was that check.",
   "corrections": [],
   "redteam": null,
   "usage": {

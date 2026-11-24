@@ -199,6 +199,15 @@
       "license": "MIT",
       "source": "https://github.com/pre-commit/identify (ALL_TAGS) and https://github.com/pre-commit/pre-commit (clientlib.py, all_languages.py), generated from the installed packages",
       "notice": "inline"
+    },
+    {
+      "name": "OpenCV 5.1.0 undistortPointsInternal (translated)",
+      "paths": [
+        "research/sensing-selfcal/experiments/m3zg_loop/loop.py"
+      ],
+      "license": "Apache-2.0",
+      "source": "https://github.com/opencv/opencv (modules/geometry/src/pinhole.cpp, OpenCV 5.1.0), translated from C++ to Python; the file's own OpenCV licence notice (Intel Corporation, Willow Garage Inc.) is kept",
+      "notice": "inline"
     }
   ],
   "not_third_party": [
@@ -226,7 +235,9 @@
     {
       "name": "licence tooling and its tests",
       "paths": [
-        "ventures/license-compat-check/engine.test.mjs", "ventures/license-compat-check/engine.mjs", "ventures/lockfile-license-check/classify.test.mjs",
+        "ventures/license-compat-check/engine.test.mjs",
+        "ventures/license-compat-check/engine.mjs",
+        "ventures/lockfile-license-check/classify.test.mjs",
         "ventures/license-drift-check/engine.mjs",
         "ventures/license-drift-check/engine.test.mjs",
         "ventures/ig-media-pipeline/tests/test_music.py"
