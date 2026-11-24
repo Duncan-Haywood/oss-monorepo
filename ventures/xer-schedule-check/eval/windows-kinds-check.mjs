@@ -48,7 +48,7 @@ import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseXer, decodeXer, formatDate, num } from "../xer.mjs";
 import { schedule, drivingPath } from "../cpm.mjs";
-import { pickProject } from "../compare.mjs";
+import { pickProject, compare } from "../compare.mjs";
 import { statusAsPlanned, cloneXer } from "../status.mjs";
 import { windows } from "../windows.mjs";
 
@@ -124,7 +124,10 @@ const planters = {
   },
   gain(prev, st, projId, dd, rand, hpd) {
     const after = pathOf(st, projId);
-    const cands = after.path.filter((t) => t.status === "TK_Active" && t.remain >= 2 * hpd * 60);
+    // not work with an expected finish date: P6 (and cpm.mjs) recompute its
+    // remaining duration from that date, so a cut there is no gain at all
+    // (7 of 21 --mixed gains on 2026-11-24 were such, all split 0 and unnamed)
+    const cands = after.path.filter((t) => t.status === "TK_Active" && t.remain >= 2 * hpd * 60 && !t.expEnd);
     if (!cands.length) return null;
     const t = cands[Math.floor(rand() * cands.length)];
     const maxG = Math.floor(t.remain / 60 / hpd) - 1;
@@ -300,7 +303,7 @@ function runFileMixed(path, seed) {
   const progKinds = KINDS.filter((k) => PROGRESS_KINDS.has(k)), revKinds = KINDS.filter((k) => !PROGRESS_KINDS.has(k));
   const u = [xer], plan = [];
   let dd = p.dataDate;
-  // 9 windows, each kind of revision leading once; the progress kind cycles
+  // 6 windows, each kind of revision leading once; the progress kind cycles
   const lead = shuffle(revKinds);
   for (let wi = 0; wi < lead.length; wi++) {
     dd = step(dd);
@@ -337,6 +340,12 @@ function runFileMixed(path, seed) {
     const n = kinds.filter((q) => q.planted).length;
     return { window: w.n, kinds, plantedCount: n, both: kinds.some((q) => q.planted && q.side === "progress") && kinds.some((q) => q.planted && q.side === "revisions"), expect: { progress: e.progress, revisions: e.revisions }, got: { moved: w.moved, progress: w.progressEffect, revisions: w.revisionEffect }, splitExact: w.progressEffect === e.progress && w.revisionEffect === e.revisions };
   });
+  // DEBUG_MIXED=1: why a planted change went unnamed (path membership, float row, progress lists)
+  if (process.env.DEBUG_MIXED) for (const x of rows) for (const q of x.kinds) if (q.planted && !q.named) {
+    const c = compare(u[x.window - 1], u[x.window], {});
+    const fr = c.float.rows.find((r) => r.code === q.target);
+    console.log("DEBUG", x.window, q.kind, q.target, "onPrev", c.criticalPath.previous.includes(q.target), "onCur", c.criticalPath.current.includes(q.target), JSON.stringify(fr), "prog", JSON.stringify(Object.fromEntries(Object.entries(c.progress).map(([k, v]) => [k, Array.isArray(v) ? v.filter((r) => r.code === q.target).length : v]))));
+  }
   return { file: path.split("/").pop(), seed, mixed: MIXED, ordered: rep.updates.map((x) => x.label).join(",") === u.map((_, i) => `U${i}`).join(","), rows, total: rep.total, addsUp: rep.total.moved === rep.total.sumOfWindows, ms };
 }
 
