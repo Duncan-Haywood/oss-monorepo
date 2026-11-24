@@ -80,16 +80,17 @@ export async function main(argv, { env = process.env, out = (s) => process.stdou
   const { webhookBody } = await import('./watch-core.mjs');
   let file = null, statePath = null, columns = null, hookEnv = null, fail = false;
   const opts = {};
+  const val = (k, name) => { const v = argv[k]; if (v === undefined || v.startsWith('--')) throw new Error(`${name} needs a value (see --help).`); return v; };
   const pos = (s, name) => { const v = Number(s); if (!(v > 0) || !Number.isFinite(v)) throw new Error(`${name} takes a positive number.`); return v; };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '-h' || a === '--help') { out(USAGE + '\n'); return 0; }
-    else if (a === '--state') statePath = argv[++i];
-    else if (a === '--columns') columns = String(argv[++i] ?? '').split(',').map((x) => x.trim()).filter(Boolean);
-    else if (a === '--days') opts.days = Math.round(pos(argv[++i], '--days'));
-    else if (a === '--frac') { opts.frac = pos(argv[++i], '--frac'); if (opts.frac >= 1) throw new Error('--frac takes a share under 1, e.g. 0.1.'); }
-    else if (a === '--min-level') opts.minLevel = pos(argv[++i], '--min-level');
-    else if (a === '--webhook-env') hookEnv = argv[++i];
+    else if (a === '--state') statePath = val(++i, '--state');
+    else if (a === '--columns') columns = String(val(++i, '--columns')).split(',').map((x) => x.trim()).filter(Boolean);
+    else if (a === '--days') opts.days = Math.round(pos(val(++i, '--days'), '--days'));
+    else if (a === '--frac') { opts.frac = pos(val(++i, '--frac'), '--frac'); if (opts.frac >= 1) throw new Error('--frac takes a share under 1, e.g. 0.1.'); }
+    else if (a === '--min-level') opts.minLevel = pos(val(++i, '--min-level'), '--min-level');
+    else if (a === '--webhook-env') hookEnv = val(++i, '--webhook-env');
     else if (a === '--fail-on-alert') fail = true;
     else if (a.startsWith('-')) throw new Error(`Unknown option ${a} (see --help).`);
     else if (!file) file = a;

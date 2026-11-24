@@ -27,12 +27,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 8,
   "outcome": "success",
   "errors": [
-    "photo-editing claim lost by one minute to PR #18630 (same item); yielded per claim_check and moved to the row it assigned"
+    "photo-editing claim lost by one minute to PR #18630 (same item); yielded per claim_check and moved to the row it assigned",
+    "CI changed-ventures failed once: check_trailing_flag_value.py flagged dark-sections.mjs reading flag values with argv[++i] unchecked; fixed with a val() guard (local: check exits 0, unwired_checks 282/282, ga4-sections 8/8)"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -58,7 +59,7 @@
     "ventures/changepoint-detector/README.md (A template-shaped tracking loss)"
   ],
   "goal": "Make the self-deployed metric watch hear a GA4 tag lost from one page template",
-  "notes": "Round 1 (pre-registered, seeds 12001-15040): S1, S3 fail, nothing offered (section columns under the change detector: 158->322 false dates). Round 2 (pre-registered after round 1, fresh seeds 16001-19040): D1-D4 pass; help dark heard 1/40 and 3/40 by the shipped watch, 40/40 with the dark check; 0 dark calls on 80 healthy sites. Local checks: ga4-sections.test.mjs 8/8, ga4-metrics + watch-repo + watch-workflow pass (30/30 with the new file); check_posts ok; validate.py ok. Full venture suite: python3 platform/ci/run_venture_tests.py changepoint-detector -> ok, 1204 tests, 0 failed (388.5 s; started before the last workflow-length trims, whose suites (watch-repo, ga4-sections, ga4-metrics, watch-workflow) were rerun after: 30/30).",
+  "notes": "Round 1 (pre-registered, seeds 12001-15040): S1, S3 fail, nothing offered (section columns under the change detector: 158->322 false dates). Round 2 (pre-registered after round 1, fresh seeds 16001-19040): D1-D4 pass; help dark heard 1/40 and 3/40 by the shipped watch, 40/40 with the dark check; 0 dark calls on 80 healthy sites. Local checks: ga4-sections.test.mjs 8/8, ga4-metrics + watch-repo + watch-workflow pass (30/30 with the new file); check_posts ok; validate.py ok. Full venture suite: python3 platform/ci/run_venture_tests.py changepoint-detector -> ok, 1204 tests, 0 failed (388.5 s; started before the last workflow-length trims, whose suites (watch-repo, ga4-sections, ga4-metrics, watch-workflow) were rerun after: 30/30). Local portfolio-validate.yml: 100/100 run steps passed (10 uses: steps not run).",
   "corrections": [],
   "redteam": null,
   "usage": {
