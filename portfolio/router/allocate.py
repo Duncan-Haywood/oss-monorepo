@@ -114,6 +114,10 @@ class Venture:
     # (four runs in two days left einvoice-preflight, whose only buildable
     # item was dated "after 2026-11-23": run-record doc_friction, 2026-11-18).
     flagship_not_before: Optional[date] = None
+    # flagships.yaml `app: private-monorepo/apps/<slug>`: where a paid bet's
+    # deepening work happens (2026-11-24 ranking, portfolio/monetization/bets.md).
+    # A bet with no ventures/<slug> directory is listed from this field alone.
+    flagship_app: Optional[str] = None
 
     @property
     def flagship(self) -> bool:
@@ -590,6 +594,7 @@ def load_ventures(
     buildable = load_flagship_field("buildable", flagships_path)
     hosts = load_flagship_hosts(flagships_path)
     not_before = load_not_before(flagships_path, today)
+    apps = load_flagship_field("app", flagships_path)
     venture_dirs = sorted(p for p in ventures_dir.iterdir() if p.is_dir())
     names = []
     parsed = []
@@ -631,8 +636,23 @@ def load_ventures(
                 flagship_buildable=buildable.get(name) if flag_rank is not None else None,
                 flagship_hosts=hosts.get(name, []) if flag_rank is not None else [],
                 flagship_not_before=not_before.get(name) if flag_rank is not None else None,
+                flagship_app=apps.get(name) if flag_rank is not None else None,
             )
         )
+    # A paid bet built only in private-monorepo has no VENTURE.yaml here; its
+    # flagship row still gets a Deepen task, pointed at its `app:`.
+    listed = {v.name for v in ventures}
+    for name, app in apps.items():
+        if name in listed or name not in flagships:
+            continue
+        rank, nxt = flagships[name]
+        ventures.append(Venture(
+            name=name, stage="building", mrr=None, monthly_cost=None, monthly_cap=0.0,
+            protected=False, flagship_rank=rank, flagship_next=nxt,
+            flagship_inputs_only=inputs_only.get(name), flagship_buildable=buildable.get(name),
+            flagship_hosts=hosts.get(name, []), flagship_not_before=not_before.get(name),
+            flagship_app=app,
+        ))
     return ventures
 
 
@@ -828,8 +848,11 @@ def next_task(v: Venture) -> str:
                 f"(same tool with `--field buildable`, capped at {FLAGSHIP_BUILDABLE_MAX} characters; "
                 "drop the field when nothing buildable is left)."
             )
+        where = (f"Work in {v.flagship_app} (attach private-monorepo with add_repo, push access; "
+                 "the paid bet's model is its `app:` row in portfolio/monetization/models.yaml). "
+                 if v.flagship_app else "")
         return (
-            f"Deepen (flagship {v.flagship_rank + 1}): {milestone} "
+            f"Deepen (flagship {v.flagship_rank + 1}): {where}{milestone} "
             "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml "
             f"(now {next_budget(v)}, validate.py's cap: replace what you landed, don't append; "
             f"`portfolio/router/flagship_field.py {v.name} --replace OLD NEW` edits it across line breaks; "

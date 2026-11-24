@@ -163,7 +163,11 @@ export const FEEDBACK_DIR = 'feedback';
 // request queue and how to add to it, linked from the footer, not a tool.
 export const CUSTOM_DEV_DIR = 'custom-development';
 
-export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, CUSTOM_DEV_DIR, ASK_DIR, STORIES_DIR, INDUSTRIES_DIR]);
+// The open hardware designs page (`hardware-page.mjs`): about future products,
+// linked from the footer, not a tool.
+export const HARDWARE_DIR = 'hardware';
+
+export const SITE_OWN_DIRS = new Set([HARDWARE_DIR, CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, CUSTOM_DEV_DIR, ASK_DIR, STORIES_DIR, INDUSTRIES_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -848,7 +852,7 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
     else if (!DISCLAIMER_MARKER.test(html)) problems.push(`${relative}: carries no disclaimer, so it must not ship`);
   }
 
-  for (const dir of [UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, STORIES_DIR]) {
+  for (const dir of [UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, STORIES_DIR, HARDWARE_DIR]) {
     // Optional, like the writing pages: a fixture build may write neither.
     const relative = path.join(dir, 'index.html');
     const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);

@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVMqoW3GBnC2yy1TVXe",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T21:55:53Z",
+  "ended": "2026-11-24T22:01:46Z",
+  "wall_minutes": 11.34,
+  "tokens_in": 6659848,
+  "tokens_out": 30122,
+  "cost_usd": 2.8602,
+  "tool_calls": 65,
+  "task": "Explore: route free lead-magnet traffic to the for-profit products (hand-curated footer offers)",
+  "projects": [
+    "platform/pages",
+    "portfolio/monetization"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18677",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First pitch for print-atelier said 'paid proof' and tripped the no-paid-tier guard; reworded. Product short names (ShootFlow, Listing Lens) were repeated in pitches; seen in the built output and fixed."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/README.md",
+      "issue": "The front matter requirement (kind/subjects/topics) is only surfaced by check_post_frontmatter.py after writing; the topic vocabulary has no monetization/funnel topic, so 'money' was the closest fit."
+    },
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "With the 2026-11-24 north star, explore runs are told to follow curiosity while goals.md says all new work should move MRR; the prompt doesn't mention the north star."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Free choice was spent on the north star (for-profit first) rather than a pure curiosity idea, per goals.md 'North star'.",
+      "did": "Built a lead-magnet to product funnel.",
+      "result": "85 footer offers live after merge; measurable via product_offer_click."
+    },
+    {
+      "file": "platform/pages/build.mjs (related-tools scoring)",
+      "why": "Reusing the existing word-overlap ranking for product matching produced wrong pairs (docker secrets check -> shift roster).",
+      "did": "Hand-curated funnel.json with a test guarding slugs and pitch claims.",
+      "result": "Every rendered offer reviewed in the built site."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-pointing-free-tools-at-the-products.md",
+    "docs/reports/2026-11-24-lead-magnet-funnel.md"
+  ],
+  "goal": "North star $10k MRR, item 2 (getting buyers to the products): 85 free tool pages now link the product that does the whole job, with a local click counter to measure it.",
+  "notes": "Idea: lead-magnet -> product funnel (explore). Verification: node --test platform/pages/product-offer.test.mjs 6/6 pass; build.test.mjs counter tests ('sponsor link is counted', 'counts locally') 2/2 pass; full `node build.mjs` (4m43s) then `node check.mjs dist`: 'looks publishable: 1437 products, 54 category pages, 13143 pages, no dead links'; 85 entry pages carry class=pf-product, product pages carry none, pf-site.js counts product_offer_click. Post frontmatter and post links checks clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "385425b7-9bca-5cbd-98c8-634356a78a30",
+    "transcripts": 1,
+    "first": "2026-11-24T21:55:53Z",
+    "last": "2026-11-24T22:07:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 120,
+        "output": 30122,
+        "thinking": 7150,
+        "cache_read": 6541100,
+        "cache_write_5m": 0,
+        "cache_write_1h": 118628,
+        "api_equivalent_usd": 2.8602,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 120,
+      "output": 30122,
+      "thinking": 7150,
+      "cache_read": 6541100,
+      "cache_write_5m": 0,
+      "cache_write_1h": 118628,
+      "api_equivalent_usd": 2.8602,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 57,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.34,
+      "active_minutes": 11.34,
+      "model_minutes": 5.9,
+      "tool_minutes": 5.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "curating 85 pairings across 1,400 tools, footer module, tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 209.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
