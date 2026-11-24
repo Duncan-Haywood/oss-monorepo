@@ -5,16 +5,35 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import router, { SHARD_DIRS, SITE_ORIGIN, WORKERS_DEV_HOST, inShard } from './router.mjs';
+import router, { APP_DIRS, SHARD_DIRS, SITE_ORIGIN, WORKERS_DEV_HOST, appBinding, inShard } from './router.mjs';
 import { split, workersDevHeaders, securityHeaders, SECURITY_HEADERS } from './split.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
-test('wrangler.toml runs the router for exactly the shard directories', async () => {
+test('wrangler.toml runs the router for exactly the shard and app directories', async () => {
   const toml = await fs.readFile(path.join(HERE, 'wrangler.toml'), 'utf8');
   const line = toml.split('\n').find((l) => l.startsWith('run_worker_first'));
   const patterns = JSON.parse(line.slice(line.indexOf('=') + 1));
-  assert.deepEqual(patterns, SHARD_DIRS.flatMap((d) => [`/${d}`, `/${d}/*`]));
+  assert.deepEqual(patterns, [...SHARD_DIRS, ...Object.keys(APP_DIRS)].flatMap((d) => [`/${d}`, `/${d}/*`]));
+  for (const binding of Object.values(APP_DIRS)) assert.match(toml, new RegExp(`binding = "${binding}"`));
+});
+
+test('the router hands app paths to their Worker unchanged', async () => {
+  let seen = '';
+  const env = {
+    ASSETS: { fetch: async () => new Response('site') },
+    SHARD: { fetch: async () => new Response('shard') },
+    GRANTS: { fetch: async (req) => { seen = req.url; return new Response('grants'); } },
+  };
+  const get = async (p) => (await router.fetch(new Request(`https://marisstella.app${p}`), env)).text();
+  assert.equal(await get('/grants/api/health?x=1'), 'grants');
+  assert.equal(seen, 'https://marisstella.app/grants/api/health?x=1');
+  assert.equal(await get('/grants'), 'grants');
+  assert.equal(await get('/grant-deadline-tracker/'), 'site');
+  assert.equal(appBinding('/grantsx/'), null);
+  // Without the binding (a fork's deploy), the path falls back to the site's assets.
+  delete env.GRANTS;
+  assert.equal(await get('/grants/'), 'site');
 });
 
 test('the router sends shard paths to the shard and everything else to its own assets', async () => {
