@@ -29,7 +29,8 @@ export const DONATION_FEE = { pct: 0, fixed: 0 };
 // 40-60% margins in the products"). A mechanism that states its
 // `variable_cost_usd` (what one sale costs to serve: model calls, hosting,
 // storage, per unit of `unit`) must keep at least MARGIN_FLOOR after the
-// merchant fee; MARGIN_TARGET is the aim. The same floor is enforced on the
+// merchant fee; MARGIN_TARGET is the minimum to aim for (owner: "a sort of
+// minimal goal"), not a ceiling. The same floor is enforced on the
 // subscription apps by private-monorepo packages/billing (MIN_MARGIN).
 export const MARGIN_FLOOR = 0.4;
 export const MARGIN_TARGET = 0.6;

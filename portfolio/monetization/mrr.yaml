@@ -19,7 +19,9 @@ goal:
   milestone_mrr_usd: 10000
   stretch_mrp_usd: 10000
   # Owner, 2026-11-24: "we want to aim for min 40-60% margins in the
-  # products". Margin = 1 - cost of serving / price, per product. Enforced on
+  # products"; "the 40-60 isn't a limit for how high the margins go but a
+  # sort of minimal goal". Floor and target below are minimums; there is no
+  # ceiling. Margin = 1 - cost of serving / price, per product. Enforced on
   # the subscription apps by private-monorepo packages/billing (MIN_MARGIN,
   # at full allowance) and on evaluations.json by evaluate.mjs --check.
   product_margin_floor: 0.40

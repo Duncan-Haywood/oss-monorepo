@@ -7,8 +7,8 @@ description: "Every subscription tier must now keep at least a 40% margin at ful
 ---
 
 Our paid products now have a margin rule. Every paid plan has to keep **at
-least a 40% margin** even when a customer uses the whole plan, and we aim
-for 40 to 60%. The owner set it the day the portfolio's goal became $10k of
+least a 40% margin** even when a customer uses the whole plan, and 40 to 60%
+is the minimum we aim for, not a cap. Higher is better. The owner set it the day the portfolio's goal became $10k of
 monthly recurring revenue, with $10k of monthly recurring *profit* as the
 stretch: "we want to aim for min 40-60% margins in the products."
 
