@@ -267,7 +267,7 @@ export function multiDivisionFragment(text) {
 }
 
 // CLI: node regions.mjs teams.txt --divisions 4 [--apart apart.txt] [--seed 1] [--starts 64]
-if (typeof process !== "undefined" && process.argv[1] && import.meta.url === new URL(process.argv[1], "file://").href) {
+if (typeof process !== "undefined" && process.argv && process.argv[1] && import.meta.url === (await import("node:url")).pathToFileURL(process.argv[1]).href) {
   const { readFileSync } = await import("node:fs");
   const args = process.argv.slice(2);
   const opt = (name, dflt) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : dflt; };
