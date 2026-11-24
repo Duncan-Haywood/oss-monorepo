@@ -3,7 +3,7 @@ title: The Stall That Paid Double
 shelf: hearth-and-horizon
 setting: The parish fête behind the church of Sint-Gummarus, Lier, in the province of Antwerp, Belgium, Sunday 9 September 2074
 published: 2026-11-24
-summary: A seventeen-year-old runs a coin-toss stall at a parish fête, the prize doubling until the king shows. Most players lose; she is up by lunch and shut anyway.
+summary: A teenager runs a doubling coin-toss stall at a parish fête, €5 a go, capped at €128. She is €24 up by lunch, and the treasurer still shuts it down.
 ---
 
 Lotte Verbruggen was seventeen and twenty-four euros up at half past twelve, and she had the tin to prove it.
