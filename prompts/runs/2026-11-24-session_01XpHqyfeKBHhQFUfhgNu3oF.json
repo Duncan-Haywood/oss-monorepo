@@ -45,7 +45,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Local checks (CI produced no check runs on the PR): industry-construction.test 10/10; writing.test 57/57; build.test.mjs 336/336 after adding the new sitemap URL to the pinned hub-sitemap list; preview build ok; playwright 390/1200 light+dark, no sideways scroll; promptctl validate ok.",
+  "notes": "Local checks (CI produced no check runs on the PR): industry-construction.test 10/10; writing.test 57/57; build.test.mjs 336/336 after adding the new sitemap URL to the pinned hub-sitemap list; preview build ok; playwright 390/1200 light+dark, no sideways scroll; promptctl validate ok. After merging main (conflicts with the hardware page in build.mjs and build.test.mjs, both kept): build.test 334/336; the 2 failures (category external-call exception, catch-all size) fail identically on a clean origin/main worktree, so they are pre-existing and not from this change.",
   "corrections": [],
   "redteam": null
 }
