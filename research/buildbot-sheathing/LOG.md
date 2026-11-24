@@ -1,5 +1,19 @@
 # buildbot-sheathing research log
 
+## 2026-11-24 · Milestone 77 planned: can the tracked filter's tares be spread over the wall (BALANCE) instead of set by a per-sheet risk level, and does that beat TRACK, READ and the open-loop optimum?
+
+- **Why.** Milestone 76 found TRACK's tare decision depends only on the filter variance P, which depends only on the sheets since the last tare, so TRACK is a fixed schedule with a per-sheet chance constraint: it tares every sheet or every other sheet or never (G1 LAYOUT at 0.1 N, s = 0.02 N: 99 tares at 0.00% failure, against OPT's 96). Its "Next" was a schedule optimised for TRACK.
+- **Method (`closedloop.py`: `p_sequence`, `per_sheet_risk`, `balanced_runs`, `balance_schedule`; policy BALANCE in `simulate`).** Under TRACK each sheet's failure j sheets after a tare is q_j = q(0, P_j) (milestone 76's carried-sheet chain at a centred start), q_0 the sheet's failure from a tare. A run of L sheets after a tare costs c(L) = q_0 + ... + q_{L-1} under the union bound. P_j rises monotonically from 0 to its steady state, so q_j increases and c is convex: for a given number of tares T the summed cost is smallest when the T + 1 runs are as equal as integers allow. BALANCE takes the fewest T whose balanced cost is &le; a wall budget B = 100 &epsilon;; &epsilon; also sets the in-sheet plan as in milestone 76, and is calibrated by the same log bisection on 4,000 Monte Carlo walls (seed 770) to wall failure &le; 1%, then checked on 10,000 fresh walls (seed 7700). Rows, noise levels and systematic-error rows as milestone 76.
+- **Seen before registering (smoke, uncalibrated, 2,000 paths, G1 LAYOUT at 0.1 N, &epsilon; = 1e-4).** q_1 = 3.2e-3 at s = 0.02 N (q_&infin; 3.1e-2) and q_1 = 2.0e-4 at s = 0.01 N (q_&infin; 4.8e-4). BALANCE then tares 96 times at s = 0.02 (1.0% failure) and 49 at s = 0.01 (0.6%).
+- **Hypotheses, registered before the run.**
+  - **H314 (calibrated).** Every (row, s) calibrates and fails at most 1.5% of the 10,000 fresh walls.
+  - **H315 (never worse than TRACK).** BALANCE's mean re-zeros are at most milestone 76's TRACK on every row and s.
+  - **H316 (the cliff closes to the open-loop optimum, not past it).** G1 LAYOUT at 0.1 N, s = 0.02 N: BALANCE within 3 re-zeros of OPT (96).
+  - **H317 (spreading pays).** Over the (row, s) cells where TRACK needs at least 10 re-zeros, BALANCE's median saving over TRACK is at least 20%.
+  - **H318 (best closed loop at s = 0.01 N).** BALANCE needs no more re-zeros than the better of READ and TRACK on at least 9 of the 11 rows with OPT &ge; 10.
+  - **H319 (a systematic error still breaks it).** &beta; = 0.02 N along x, s = 0.01 N, G1 LAYOUT at 0.1 N, budget calibrated at &beta; = 0: BALANCE fails more than 5% of fresh walls (TRACK: 9.9%).
+- **Limits fixed in advance.** As milestone 76: RW only; D1 and s swept, not sourced; white independent reading noise; exact tares; checks at press ends; union-bound budget calibrated on 4,000 paths; statics.
+
 ## 2026-11-24 · Milestone 76 result: one free-air bias reading a sheet, subtracted from the offset, removes every re-zero on 16 of 18 rows when it is good to 0.01 N a axis (H310 held); triggering re-zeros from it instead (READ) saves less and still beats the open-loop optimum, but noise of 0.02 N puts the G1's LAYOUT plan back at its cliff (H309 held), and a 0.02 N systematic reading error raises failure to 10 to 12% wherever the margin is thin (H312 refuted: it hits READ as well as TRACK)
 
 `src/buildbot_sheathing/closedloop.py` (new: carried-sheet risk from the radial chain with a noncentral chi start, Kalman reading, READ and TRACK policies, Monte Carlo and calibration), `tests/test_closedloop.py` (7 tests), `experiments/m76_closedloop/` (run, results, figure), `reproduce.py` (m76 listed), `paper/draft.md` (section 5.11 paragraph), `paper/check_numbers.py`, README, PROPOSAL, `project.json`. Run time about 18 minutes on 4 processes, one start.
