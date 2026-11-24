@@ -8,7 +8,7 @@
   <meta property="og:title" content="Concrete Maturity Calculator">
   <meta property="og:description" content="Logger CSV plus lab cylinder breaks in, estimated in-place strength per sensor and time to target out. Nurse-Saul or equivalent age, three curve fits, nothing uploaded.">
   <link rel="canonical" href="./">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Concrete Maturity Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Reads temperature logger CSV exports with several sensors; Nurse-Saul temperature-time factor or Arrhenius equivalent age; fits logarithmic, hyperbolic and exponential strength-maturity curves to lab breaks; estimated in-place strength per sensor; time to reach a target strength, from the record or projected at an assumed temperature; CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Concrete Maturity Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Reads temperature logger CSV exports with several sensors; Nurse-Saul temperature-time factor or Arrhenius equivalent age; fits logarithmic, hyperbolic and exponential strength-maturity curves to lab breaks; estimated in-place strength per sensor; time to reach a target strength, from the record or projected at an assumed temperature; datum temperature and activation energy from mortar cubes at three curing temperatures (ASTM C1074 annex procedure), with a best-single-curve check; CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the concrete maturity method?","acceptedAnswer":{"@type":"Answer","text":"Concrete gains strength faster when it is warm and slower when it is cold. The maturity method turns a temperature record into a single number, the maturity index, that accounts for both time and temperature. Once you know how strength rises with maturity for one mix (from lab cylinders broken at several ages), a sensor's maturity tells you roughly how strong the concrete around it is now. ASTM C1074 is the US standard practice that describes it."}},{"@type":"Question","name":"What is the difference between Nurse-Saul and equivalent age?","acceptedAnswer":{"@type":"Answer","text":"Nurse-Saul adds up degrees above a datum temperature times hours (a temperature-time factor in degree-hours). Equivalent age converts each hour into the number of hours at a reference temperature that would have produced the same strength gain, using the Arrhenius equation and an activation energy. Equivalent age tracks the real temperature dependence better over a wide range; Nurse-Saul is simpler and widely used in the field."}},{"@type":"Question","name":"What calibration data do I need?","acceptedAnswer":{"@type":"Answer","text":"Compressive strengths of specimens of the same mix, broken at several ages (commonly 1, 3, 7, 14 and 28 days, two or more at each), together with their maturity at the time of testing. If the specimens were moist-cured at a known constant temperature, the age is enough and the tool works out the maturity. If a logger sat in a companion specimen, enter the logged maturity directly."}},{"@type":"Question","name":"Can I strip forms on this estimate alone?","acceptedAnswer":{"@type":"Answer","text":"No. The estimate assumes the field concrete is the same mix as the calibration specimens and was kept moist enough to keep hydrating. It cannot see a batching error, a wrong mix or a dried-out surface. ASTM C1074 itself asks for the estimate to be checked by other tests before critical operations. The engineer of record decides what evidence is needed."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The file is read and every calculation runs in your browser. Nothing is sent anywhere. An optional anonymous counter in this browser's local storage records only which features were used and the day."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2125; background: #eceae6; --accent: #c2410c; --ink2: #555c63; --line: #c9c5bd; --panel: #fbfaf8; }
@@ -95,7 +95,7 @@
           <label class="eqage">Activation energy (J/mol) <input id="activationEnergy" type="number" step="500" value="40000"></label>
           <label class="eqage">Reference temperature (°C) <input id="referenceC" type="number" step="0.5" value="20"></label>
         </div>
-        <p class="hint" style="margin-top:10px">The datum and activation energy depend on the cement and admixtures. The defaults are commonly used starting values for plain portland cement; ASTM C1074's annex describes how to measure them for your mix.</p>
+        <p class="hint" style="margin-top:10px">The datum and activation energy depend on the cement and admixtures. The defaults are commonly used starting values for plain portland cement; <a href="#calibrate">measure them for your mix</a> from cubes at three temperatures, as ASTM C1074's annex describes.</p>
       </section>
 
       <section>
@@ -152,6 +152,37 @@
     </div>
   </main>
 
+  <section id="calibrate" aria-labelledby="cal-h">
+    <h2 id="cal-h">Measure this mix's datum temperature and activation energy</h2>
+    <p class="hint">The step before the maturity function: mortar cubes of the mix cured at three temperatures (say 10, 23 and 38 °C), broken at increasing ages, with final setting time at each temperature, as ASTM C1074's annex describes. One cube per line: temperature, age, strength. Setting lines: <code>set, temperature, hours</code>.</p>
+    <div class="fields">
+      <label>Temperatures in <select id="cubeTempUnit"><option value="C">°C</option><option value="F">°F</option></select></label>
+      <label>Ages in <select id="cubeAgeUnit"><option value="h">hours</option><option value="d">days</option></select></label>
+      <label>Rate constant k from
+        <select id="rateMethod"><option value="hyperbolic">Hyperbola fitted to the strengths (default)</option><option value="reciprocal">Straight line through 1/strength vs 1/age (the annex's way)</option></select>
+      </label>
+    </div>
+    <label style="margin-top:10px">Cubes <textarea id="cubeText" spellcheck="false" placeholder="set, 10, 13.1&#10;10, 26.2, 1420&#10;10, 52.5, 2780&#10;..."></textarea></label>
+    <div class="actions">
+      <button type="button" class="primary" id="calRun">Calibrate</button>
+      <button type="button" id="calExample">Load made-up cubes</button>
+      <button type="button" id="calUse" disabled>Use these values above</button>
+    </div>
+    <p class="err" id="calErrors" role="alert"></p>
+    <div id="calOut" hidden>
+      <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-top:10px">
+        <div class="card"><h3>Datum temperature</h3><p class="big" id="calDatum"></p><p class="muted" id="calDatumNote"></p></div>
+        <div class="card"><h3>Activation energy</h3><p class="big" id="calEnergy"></p><p class="muted" id="calEnergyNote"></p></div>
+      </div>
+      <h3>Rate constant at each temperature</h3>
+      <div style="overflow-x:auto"><table><thead><tr><th>°C</th><th>Cubes</th><th>t0 (h)</th><th>k (1/h)</th><th>Su</th><th>RMSE</th></tr></thead><tbody id="rateTable"></tbody></table></div>
+      <h3>Which value puts every cube on one curve?</h3>
+      <p class="hint">In the field one strength-maturity curve is read at whatever temperature the slab ran, so the test that matters is how closely all the cubes fall on a single curve once age is turned into maturity. Lower is better. "Best single curve" searches for the value that does this best; it is not part of the annex.</p>
+      <table><thead><tr><th>Maturity function</th><th>Scatter about one curve (RMSE)</th></tr></thead><tbody id="collapseTable"></tbody></table>
+      <div id="calWarn"></div>
+    </div>
+  </section>
+
   <section id="faq" aria-labelledby="faq-h">
     <h2 id="faq-h">Questions</h2>
     <h3>What is the concrete maturity method?</h3>
@@ -180,6 +211,7 @@
 
   <script type="module">
     import { parseLoggerCsv, parseCalibrationText, calibrationPoints, fitStrength, estimate, predictStrength, indexUnit, toCsv, exampleCsv, EXAMPLE_CALIBRATION } from './maturity.mjs';
+    import { parseCubeText, calibrateMix, collapseFit, collapseReport, exampleCubeText } from './calibrate.mjs';
     import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const el = id => document.getElementById(id);
@@ -326,6 +358,58 @@
       a.href = URL.createObjectURL(blob); a.download = 'maturity-estimate.csv'; a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
       count('csv_downloaded');
+    });
+    let calLast = null;
+    function runCalibration() {
+      el('calErrors').textContent = '';
+      const p = parseCubeText(el('cubeText').value, { tempUnit: el('cubeTempUnit').value, ageUnit: el('cubeAgeUnit').value });
+      if (p.errors.length) { el('calErrors').textContent = p.errors.join(' '); return; }
+      if (!p.cubes.length) { el('calErrors').textContent = 'No cubes read.'; return; }
+      const cal = calibrateMix(p.cubes, p.setting, { rateMethod: el('rateMethod').value });
+      count('mix_calibrated');
+      el('calOut').hidden = false;
+      el('calDatum').textContent = cal.datum ? `${cal.datum.datumC.toFixed(1)} °C` : 'n/a';
+      el('calDatumNote').textContent = cal.datum ? `From the straight line through k against temperature (R² ${cal.datum.r2.toFixed(3)}${Number.isFinite(cal.datum.se) ? `, standard error ±${cal.datum.se.toFixed(1)} °C` : ''}).` : '';
+      el('calEnergy').textContent = cal.activation ? `${Math.round(cal.activation.activationEnergy).toLocaleString('en-US')} J/mol` : 'n/a';
+      el('calEnergyNote').textContent = cal.activation ? `From the straight line through ln k against 1/T (R² ${cal.activation.r2.toFixed(3)}${Number.isFinite(cal.activation.se) ? `, standard error ±${Math.round(cal.activation.se).toLocaleString('en-US')} J/mol` : ''}); Q = E/R = ${Math.round(cal.activation.Q).toLocaleString('en-US')} K.` : '';
+      const tb = el('rateTable'); tb.replaceChildren();
+      for (const r of cal.rates) {
+        const tr = text('tr');
+        tr.append(text('td', r.tempC.toFixed(1)), text('td', String(r.cubes)));
+        if (r.ok) tr.append(text('td', `${r.t0.toFixed(1)} (${r.t0Source})`), text('td', r.k.toPrecision(3)), text('td', Math.round(r.su).toLocaleString('en-US')), text('td', r.rmse.toFixed(0)));
+        else { const td = text('td', r.reason); td.colSpan = 4; tr.append(td); }
+        tb.append(tr);
+      }
+      const warn = el('calWarn'); warn.replaceChildren();
+      for (const w of cal.warnings) warn.append(text('p', w, { class: 'warn' }));
+      const ct = el('collapseTable'); ct.replaceChildren(text('tr', null));
+      ct.firstChild.append(text('td', 'Searching for the best single curve...'));
+      calLast = { cal, best: null };
+      el('calUse').disabled = !(cal.datum || cal.activation);
+      setTimeout(() => {
+        const best = { datum: collapseFit(p.cubes, 'nurse-saul'), energy: collapseFit(p.cubes, 'equivalent-age') };
+        calLast.best = best;
+        ct.replaceChildren();
+        const rows = collapseReport(p.cubes, cal, best);
+        const minR = Math.min(...rows.map(r => r.rmse).filter(Number.isFinite));
+        for (const r of rows) { const tr = text('tr', null, r.rmse === minR ? { class: 'chosen' } : {}); tr.append(text('td', r.label), text('td', Number.isFinite(r.rmse) ? r.rmse.toFixed(0) : 'no fit')); ct.append(tr); }
+        for (const [k, b] of Object.entries(best)) if (b?.atEdge) warn.append(text('p', `The best single-curve ${k === 'datum' ? 'datum temperature' : 'activation energy'} sits at the edge of the range searched; treat it as a sign the cubes do not pin it down.`, { class: 'warn' }));
+      }, 30);
+    }
+    el('calRun').addEventListener('click', runCalibration);
+    el('calExample').addEventListener('click', () => {
+      el('cubeText').value = exampleCubeText();
+      el('cubeTempUnit').value = 'C'; el('cubeAgeUnit').value = 'h';
+      count('cube_example_loaded');
+      runCalibration();
+    });
+    el('calUse').addEventListener('click', () => {
+      if (!calLast) return;
+      const { cal } = calLast;
+      if (cal.datum) el('datumC').value = cal.datum.datumC.toFixed(1);
+      if (cal.activation) el('activationEnergy').value = String(Math.round(cal.activation.activationEnergy / 100) * 100);
+      count('calibration_used');
+      el('methodBox').scrollIntoView({ behavior: 'smooth' });
     });
     try {
       const u = el('usageOptOut');
