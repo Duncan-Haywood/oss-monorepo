@@ -5,7 +5,7 @@ market evidence, not by how much open design already sits in this repository
 (owner, 2026-11-24: open hardware becomes long-term **outsourced** hardware
 companies; invest by promise and value, not sunk cost; SMB customers
 preferred; construction a favourite). The software bets and the scoring method
-are in [`bets.md`](bets.md); this file uses the same method plus one more
+are in [`bets.md`](https://github.com/Duncan-Haywood/oss-monorepo/pull/18675) (PR #18675, not yet merged); this file uses the same method plus one more
 column, because hardware carries a certification and safety burden that
 software does not.
 
@@ -59,7 +59,7 @@ Part 15 on a pre-certified module, nothing that moves), cheap to build
 sensor; $50–150 a machine a month), and both are mostly **software
 businesses with a sensor attached**, which is what an agent-run company can
 actually do well. Each lands on the same customers as a software bet already
-ranked in [`bets.md`](bets.md): concrete subs are trade subs for the pay-app
+ranked in [`bets.md`](https://github.com/Duncan-Haywood/oss-monorepo/pull/18675) (PR #18675, not yet merged): concrete subs are trade subs for the pay-app
 contractor suite (#1 there); job shops are the buyers of RFQ-to-quote (#2) and
 the CMMC workspace (#4). So a sensor is a second product to the same
 account, not a new market to find.
