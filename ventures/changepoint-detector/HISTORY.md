@@ -32,3 +32,5 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-24) pseudo-real-time replay 2026-11-24 (README "Turns called in pseudo-real time", 6-month rule): called ~7 months after, 7 of 12 before NBER, 2001 peak lost once 2020 sets the weights
 - (moved 2026-11-24) P3 replay 2026-11-24 (README "under P3": same call months, adds the 2002-03 pair, Q2 fails)
 - (moved 2026-11-24) MAD weights in real time 2026-11-24 (README "Composite weights set in real time": 16 of 16 called, 8 of 12 before NBER, M3 fails under P3, the 2002-03 pair kept)
+- (moved 2026-11-24) real vintages 2026-11-24 (README "Turns on real vintages": FRED-MD 1999-2021, 2001 peak and 2009 trough dated 4 months off for years, V2/V4 fail)
+- (moved 2026-11-24) heavy-late warning ships 2026-11-24 (README "A heaviest-is-latest warning")
