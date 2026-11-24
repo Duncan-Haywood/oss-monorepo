@@ -983,6 +983,21 @@ Milestone 74's lower bound (a separate code) sits at or below OPT on all 18 rows
 
 ![Re-zeros per 100 sheets at 1% wall risk under a random-walk bias: optimal schedule against one per-press risk, G1 and H1](experiments/m75_riskopt/figure.png)
 
+**Milestone 76: can one free-air bias reading a sheet replace the force-sensor re-zeros?** Mostly, if the reading is
+good to 0.01 N. (offline, `experiments/m76_closedloop/`, `src/buildbot_sheathing/closedloop.py`). Once a sheet the tool
+hangs in free air, so its bias can be read through a gravity model, with noise s a axis (swept). A Kalman filter turns the
+readings into an estimate, and milestone 75's exact chain prices a sheet that skips its tare. **Subtracting the estimate
+from the sensor offset at every reading (TRACK) needs no tares at all on 16 of 18 cases at s = 0.01 N**, and 49 instead of
+the open-loop optimum's 96 on the G1's LAYOUT plan at 0.1 N (H310 held). Using the reading only to decide when to tare
+(READ) needs 38.4 there even with perfect readings (H308 held). At s = 0.02 N the G1's 1.2 m pose (0.044 N allowance) is
+back at its cliff, 95.7 at best (H309 held), and TRACK, whose tare rule is the same on every path, tares every sheet or
+never, so READ wins 4 of 90 comparisons (H311 refuted). A fixed 0.02 N gravity-model error unknown to the filter takes the
+wall's failure from 1% to 9.9 to 12.4% wherever a policy runs near its margin, READ as much as TRACK (H312 refuted). The
+reading pays for 3.45 s a sheet on the G1's banded plan at 15 s a tare (H313 held). Calibrated on 4,000 walls, the worst
+fresh failure was 1.56% (H307 refuted narrowly). RW only; drift and reading noise swept; statics.
+
+![Mean re-zeros per 100 sheets at 1% wall risk against free-air reading noise: tracking the offset, triggering tares, and the open-loop optimum, G1 and H1](experiments/m76_closedloop/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
