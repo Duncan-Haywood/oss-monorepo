@@ -150,7 +150,10 @@ export function parseOpenings(text) {
     const h = num(f[2]);
     // A header is the first content line (after blanks and # comments) whose
     // width and height are both text, e.g. "Mark, Width, Height" or "Opening, W, H".
-    const header = first && !Number.isFinite(w) && !Number.isFinite(h) && /[a-z]/i.test(f[1] || "") && /[a-z]/i.test(f[2] || "");
+    // A field that starts like a number ("36in", "84 in") is a measurement with
+    // a unit, not a column name: that line is an opening (red team 2026-11-24).
+    const word = (v) => /[a-z]/i.test(v || "") && !/^[-+]?\.?\d/.test(v || "");
+    const header = first && !Number.isFinite(w) && !Number.isFinite(h) && word(f[1]) && word(f[2]);
     first = false;
     if (header) return;
     if (!(w > 0) || !(h > 0)) {
@@ -264,6 +267,9 @@ export function analyze(input = {}) {
   if (!own(TOPOGRAPHY, x.topo)) return { error: "Choose a topographic feature or None." };
 
   const elevation = num(x.elevation);
+  // Blank means sea level (Ke = 1 is always permitted); anything else typed must
+  // be a number, so "5,280" is not silently read as sea level (red team 2026-11-24).
+  if (String(x.elevation ?? "").trim() !== "" && !Number.isFinite(elevation)) return { error: "Enter the ground elevation as a plain number of feet above sea level (e.g. 5280), or leave it blank for Ke = 1." };
   const Ke = ke(elevation);
   const Kh = kz(h, x.exposure);
   const topo = kzt({ shape: x.topo, H: num(x.hillH), Lh: num(x.hillLh), x: num(x.hillX), side: x.hillSide, z: h, exposure: x.exposure });
@@ -293,7 +299,9 @@ export function analyze(input = {}) {
   if (x.enclosure === "partial") {
     findings.push({ severity: "medium", title: "Partially enclosed: internal pressure ±0.55", detail: "Every opening carries a much larger net pressure than in an enclosed building. If the openings will be protected, the building is enclosed." });
   }
-  if (topo.applies) {
+  if (topo.applies && topo.k2 === 0) {
+    findings.push({ severity: "info", title: "Beyond the feature's zone of influence (Kzt = 1)", detail: `The building is ${num(x.hillX)} ft ${x.hillSide === "downwind" ? "downwind" : "upwind"} of the crest, at or past mu x Lh = ${r1(topo.mu * topo.LhUsed)} ft, so K2 = 0 and Figure 26.8-1 gives Kzt = 1.` });
+  } else if (topo.applies) {
     findings.push({ severity: "medium", title: `Topography raises the pressure by ${Math.round((Kzt - 1) * 100)}%`, detail: `Kzt = ${r3(Kzt)} from K1 = ${r3(topo.k1)}, K2 = ${r3(topo.k2)}, K3 = ${r3(topo.k3)} (Figure 26.8-1${topo.capped ? `, H/Lh taken as 0.5 and Lh as 2H = ${topo.LhUsed} ft` : ""}). Section 26.8.1 also requires the feature to be isolated and to stand at least twice as high as the upwind terrain within 2 miles; if it does not, Kzt = 1.` });
   } else if (x.topo !== "none") {
     findings.push({ severity: "info", title: "Topographic factor not applied (Kzt = 1)", detail: topo.reason });
