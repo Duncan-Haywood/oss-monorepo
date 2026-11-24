@@ -15,7 +15,8 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
     assert.match(html, /in development, with early access<\/strong>; nothing is for sale yet/, name);
     assert.match(html, /href="https:\/\/marisstella\.app\/industries\/construction\/"/, name);
     assert.match(html, /<title>[^<]{3,60}<\/title>/, name);
-    assert.match(html, /<meta name="description"/, name);
+    const desc = /<meta name="description" content="([^"]*)"/.exec(html);
+    assert.ok(desc && desc[1].length <= 160, `${name}: meta description must be 160 characters or fewer`);
   }
 });
 
