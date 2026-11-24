@@ -30,7 +30,10 @@ export function textReport(r, { maxFailures = 10 } = {}) {
     if (s.hint) out.push(`  warning: ${s.hint}`);
     if (s.failed.length) {
       out.push(`  ${s.passed} pass, ${s.failed.length} fail:`);
-      for (const f of s.failed.slice(0, maxFailures)) out.push(`    #${f.id} ${f.type}${f.name ? ` "${f.name}"` : ""}${f.globalId ? ` ${f.globalId}` : ""}: ${f.reasons.join("; ")}`);
+      for (const f of s.failed.slice(0, maxFailures)) {
+        out.push(`    #${f.id} ${f.type}${f.name ? ` "${f.name}"` : ""}${f.globalId ? ` ${f.globalId}` : ""}: ${f.reasons.join("; ")}`);
+        for (const m of f.modelRules || []) out.push(`      note: ${m}`);
+      }
       if (s.failed.length > maxFailures) out.push(`    ... and ${s.failed.length - maxFailures} more`);
     }
   }
@@ -46,7 +49,7 @@ export function csvReport(r) {
   const rows = [["specification", "status", "step_id", "ifc_class", "global_id", "name", "reason"]];
   for (const s of r.specs) {
     if (!s.failed.length) rows.push([s.name, s.status, "", "", "", "", s.note || ""]);
-    for (const f of s.failed) rows.push([s.name, "fail", "#" + f.id, f.type, f.globalId, f.name, f.reasons.join("; ")]);
+    for (const f of s.failed) rows.push([s.name, "fail", "#" + f.id, f.type, f.globalId, f.name, [...f.reasons, ...(f.modelRules || [])].join("; ")]);
   }
   // Model findings, after the specifications: one row per element that shares
   // its GlobalId, so a filter on global_id shows the whole group.

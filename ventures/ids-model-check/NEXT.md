@@ -56,6 +56,6 @@
 
 ## WHERE rules (2026-11-24, eval/where-rules-2026-11-24.md)
 
-- Seeded faults: write one fault per rule family into public files (USERDEFINED with ObjectType cleared, a type relationship pointed at another class's type, a duplicated pset name, a negative quantity, a 3D direction in a 2D placement) and show each rule fires on exactly the seeded records, beside ifcopenshell.validate. The public files exercise 87 of about 1,800 rules; the seeds would cover the IDS-relevant families on purpose.
-- An IDS-side cross-reference: when a spec's predefinedType or partOf facet fails on an element that also breaks CorrectPredefinedType / CorrectTypeAssigned / UniquePropertySetNames, say in that failure's row that the model itself breaks the rule (today the MODEL block and the spec rows are separate).
+- Seeded faults landed 2026-11-24 (eval/where-rules-seeded-2026-11-24.md): 8 families, 358 seeds in 24 public files, each firing on exactly its record. Next: seed the families IDS reads less directly (material associations on non-elements, `IfcRelAggregates` cycles, an `IfcSIUnit` with a wrong dimension) and the global RULEs (`IfcRepresentationContextSameWCS`, `IfcSingleProjectInstance`).
+- IDS-side cross-reference landed 2026-11-24 (`markModelRules`): failing rows carry `modelRules` notes for CorrectPredefinedType, CorrectTypeAssigned, UniquePropertySetNames and UniquePropertyNames on the element, its type and its sets. Next: the BCF export and the JUnit/annotation outputs (ci.mjs) do not carry the notes yet; and an element that *passes* a facet while breaking the rule (the tool happened to read the right one of two same-named sets) is not marked.
 - `LIKE` (unused by IFC rules) evaluates to UNKNOWN; implement it if a later schema uses it.
