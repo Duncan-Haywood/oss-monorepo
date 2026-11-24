@@ -15,6 +15,15 @@ not, don't, and say so in the run record's `deviations`. How rules are
 written and cut: [`prompts/steering.md`](prompts/steering.md), "Guidelines, not
 rules".
 
+**North star: $10k MRR** (owner, 2026-11-24: "this is the new overarching
+goal in the repo hit 10k mrr"; the stretch is $10k monthly recurring
+profit, so margin counts too). Every track serves it: when choosing work,
+pick the task that unlocks paying subscribers fastest (paid tier, pricing,
+checkout shipped dark, onboarding, then traffic to those products, then
+retention), inside the hard limits. Definition and readings:
+[`prompts/goals.md`](prompts/goals.md), "North star", and
+[`portfolio/monetization/mrr.yaml`](portfolio/monetization/mrr.yaml).
+
 This repository holds two peer portfolios: products in `ventures/` and open
 research in `research/`. Their job is to ship products people use and research
 people can build on. `README.md` ("Finding your way") says which guide covers
