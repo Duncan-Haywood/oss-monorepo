@@ -18,6 +18,11 @@ This directory is where that work lives between sessions:
   driven by the measured traffic, with the GTM steps and the owner decision
   each mechanism waits on. `node portfolio/monetization/evaluate.mjs`; tests
   `node --test portfolio/monetization/*.test.mjs`.
+- **[`LICENSING_TRANSITION.md`](LICENSING_TRANSITION.md)** with
+  `transition.py` and `transition.json`: the owner's 2026-11-24 direction.
+  Products (20) move to proprietary licences and paid subscription or one-off
+  models in the private repository; lead magnets (1,415) stay MIT. Tests:
+  `python3 -m pytest -q portfolio/monetization/test_transition.py`.
 - This README: the reasoning, so a later run can disagree with it on purpose.
 
 It is listed as request R-0004 in
@@ -72,7 +77,7 @@ Two things follow:
 | 5 | **Grants for open-source and research work** (foundation and public open-source funds) | owner or an entity | low, but needs the owner's identity and applications | owner question 3 below |
 | 6 | Affiliate links on comparison pages | owner | medium: FTC disclosure, and it pays us to recommend the paid tools our pages compare against | not recommended |
 | 7 | Display ads on calculator pages | owner (ad account) | low legal, real product cost: slower pages, worse look, against the "serious looking" site direction; near-zero at this traffic | not recommended now |
-| 8 | Hosted SaaS subscriptions run by the owner | owner | high: the owner becomes operator and data holder, and per-user server cost breaks `PRODUCT_PLAYBOOK.md` §2 | ruled out under the current model |
+| 8 | Hosted SaaS subscriptions run by the owner | merchant of record, paying out to the owner | high: the owner becomes operator and data holder; priced cost-plus so per-user server cost is covered | **direction since 2026-11-24** for the 8 subscription products in [`LICENSING_TRANSITION.md`](LICENSING_TRANSITION.md); the `goals.md` line waits on a control-plane PR |
 
 ## Product by product (detail and sources in `models.yaml`)
 

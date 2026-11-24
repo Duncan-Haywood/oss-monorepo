@@ -1,0 +1,70 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01XpHqyc2MsWMhP5hhLFvfPN",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "moving the apps to subscription and one off saases",
+  "input_sha256": "4d834ccfd7508ca2307172c447c2ee8e5cc7d35a1526280ace5af7905785c4c7",
+  "follow_up_inputs": [
+    "generally moving based on intelligence. / By per-use cost",
+    "as direction transitioning everything that direction moving licenses to more prop esp for the for profit and non lead magnet ones.",
+    "idk use ur judgement on the way to do it."
+  ],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T05:36:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Owner direction: move the products to proprietary licences and subscription or one-off paid models; lead magnets stay MIT",
+  "projects": [
+    "portfolio/monetization",
+    "wall-framing-takeoff"
+  ],
+  "pr": 18551,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 14,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/goals.md",
+      "issue": "'Original work is MIT-licensed' and the monetization guardrails (owner-run hosted SaaS ruled out) contradict the owner's 2026-11-24 direction; amending them needs a control-plane PR the owner approves"
+    },
+    {
+      "file": "ventures/*/VENTURE.yaml",
+      "issue": "almost every venture's 'Path to revenue' comment says 'lead magnet and donations' because no other model was allowed, so the label carries no signal for which are products; transition.py uses code depth instead"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Most PRs go to one repository; this direction spans both, so the private-monorepo side (proprietary LICENSE, import script, first import) landed as its own PR (private-monorepo#8)",
+      "did": "two PRs, one per repository",
+      "result": "private-monorepo#8 merged; this PR carries the oss side"
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "control-plane path; left for a separate owner-approved PR so this work is not held",
+      "did": "named the change in LICENSING_TRANSITION.md 'What waits on the owner'"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-twenty-products-go-paid-fourteen-hundred-tools-stay-free.md",
+    "portfolio/monetization/LICENSING_TRANSITION.md"
+  ],
+  "goal": "income without liability: paid products in the private repository, free MIT tools as the traffic engine",
+  "notes": "transition.py classified 1,441 ventures: 20 proprietary (8 subscription, 12 one-off), 1,415 lead magnets, 5 commons, 1 deployer-run. Depth split from a measured line count: >=20k lines 12 ventures, >=5k 25, >=2k 49, >=500 536. pytest portfolio/monetization/test_transition.py: 14 passed. Local sweep (run_workflow_locally --for-changes): 7 workflows passed on a stable tree; portfolio-validate and portfolio-pages were voided because the tree moved mid-run (a licence-filter fix), re-run listed below. private-monorepo#8: import-venture tests 7/7, imported wall-framing-takeoff engine/licence/checkout/bidpackage/pdf tests 100/100, biome ci over the repo clean.",
+  "corrections": [],
+  "redteam": null
+}
