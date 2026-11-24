@@ -93,7 +93,7 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { Schema, parseIds } from "./ids.mjs";
   import { auditIds } from "./audit.mjs";
-  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, boxSubclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, repairOnOpen, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, setTypeLimit, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, templateTypeRow, fileTypeRefused, renameSuggestion, renameRow, temporalType, TEMPORAL_EXAMPLE, datePattern, dateTimePattern, timePattern, modelSubclassesLeftOut, modelSpec, valueChoices, numberValueProblem } from "./editor.mjs";
+  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, boxSubclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, repairOnOpen, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, setTypeLimit, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, untypeOwnRow, mixedModelTypes, templateTypeRow, fileTypeRefused, renameSuggestion, renameRow, temporalType, TEMPORAL_EXAMPLE, datePattern, dateTimePattern, timePattern, modelSubclassesLeftOut, modelSpec, valueChoices, numberValueProblem } from "./editor.mjs";
   import { temporalKind } from "./temporal.mjs";
   import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
 
@@ -188,9 +188,21 @@
         if (r.set && !ownSetName(r.set)) note = `${r.set} uses the Pset_/Qto_ prefix buildingSMART reserves for its standard sets; the audit will reject a name the standard does not have. ` + note;
         const mp1 = mp.find((p) => p.name === r.name);
         mprop = mp1 || null;
-        if (mp1) note += ` The model has it on ${mp1.count} of ${ofN}${mp1.dataType ? `, as ${mp1.dataType}` : ""}.`;
+        const mixed = mixedModelTypes(mp1);
+        if (mp1 && !mixed) note += ` The model has it on ${mp1.count} of ${ofN}${mp1.dataType ? `, as ${mp1.dataType}` : ""}.`;
+        // Written in two or more types: IDS names one, so a typed check fails
+        // the objects holding another (eval/mixed-type-own-props-2026-11-24.md).
+        else if (mixed) {
+          const others = mixed.filter(([t]) => t !== dt);
+          note += ` The model has it on ${mp1.count} of ${ofN}, written as ${mixed.map(([t, n]) => `${t} on ${n}`).join(", ")}.`;
+          if (!r.untyped) {
+            note += dt ? ` A check with dataType ${dt} fails the ${others.reduce((a, [, n]) => a + n, 0)} written as ${others.map(([t]) => t).join(" or ")}.` : "";
+            const u = untypeOwnRow(L.S, r, mp1);
+            if (u) { note += u.text ? " Every one of those types is text, so a check with no dataType compares the same words in all of them, and the audit accepts it (with a warning when a value is asked)." : " With no dataType a boolean or number is read apart by checkers, so with none the property is checked for presence only."; anyBtn = "own"; }
+          }
+        }
         if (r.untyped && mp1 && mp1.dataType && valueTypes(L.S).includes(mp1.dataType)) typeBtn = `Write dataType ${mp1.dataType}`;
-        else if (mset && r.name) note += ` None of the model's ${esc(spec.cls)} objects has ${r.name} in ${r.set}.`;
+        else if (mset && r.name && !mp1) note += ` None of the model's ${esc(spec.cls)} objects has ${r.name} in ${r.set}.`;
       } else {
         const props = r.set ? propertiesOf(L.psets, L.S, r.set) : [];
         const pcount = (n) => { const q = mset && mset.props.find((x) => x.name === n); return q ? `, ${q.count} in model` : ""; };
@@ -374,7 +386,7 @@
     if (boolType && caps.length) h += `<p class="warn" style="margin:6px 0 0;font-size:0.86rem">${esc(caps.join(", "))} is not how IDS writes a boolean (true or false). With no dataType, tools disagree: this checker matches no object with it, IfcTester matches the ones that hold it. ${esc(typeBtn)} turns it into ${esc(vals.map((v) => v.toLowerCase()).join(", "))}, which both read the same way.</p>`;
     const sug = renameSuggestion(L, specBases(spec), r);
     if (sug) h += renameHtml(sug, si, ri, app);
-    if (note) h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(note)}${typeBtn ? ` <button type="button" class="ghost small" data-act="type-row" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${esc(typeBtn)}</button>` : ""}${tplBtn ? ` <button type="button" class="ghost small" data-act="template-type" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${esc(tplBtn)}</button>` : ""}${anyBtn ? ` <button type="button" class="ghost small" data-act="untype-row" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Accept any data type</button>` : ""}</p>`;
+    if (note) h += `<p class="muted" style="margin:6px 0 0;font-size:0.86rem">${esc(note)}${typeBtn ? ` <button type="button" class="ghost small" data-act="type-row" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${esc(typeBtn)}</button>` : ""}${tplBtn ? ` <button type="button" class="ghost small" data-act="template-type" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>${esc(tplBtn)}</button>` : ""}${anyBtn ? ` <button type="button" class="ghost small" data-act="${anyBtn === "own" ? "untype-own" : "untype-row"}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""}>Accept any data type</button>` : ""}</p>`;
     if (realWarn) h += `<p class="warn" style="margin:6px 0 0;font-size:0.86rem">This value has no dataType and the model holds a real number: tools disagree on whether it matches. Ask for any value, or ${esc(typeBtn || "write a dataType")}.</p>`;
     // How many of the model's objects of these classes the condition keeps.
     if (app && inv && spec.cls) {
@@ -691,6 +703,14 @@
       const q = m && m.props.find((x) => x.name === r.name);
       const t = q ? untypeRow(L, r, q.dataType) : null;
       if (t) { rows[+e.target.dataset.r] = t.row; record("editor_untyped"); if (t.dropped) alert(t.real ? "With no dataType, checkers read a real-number value differently, so the row now asks for any value (presence)." : "A range needs a dataType, so the row now asks for any value. Set a value again if you need one."); }
+    }
+    // An own-set property the model writes in several types, with no dataType.
+    if (a === "untype-own") {
+      const L = loaded[doc.schema], s = doc.specs[si], r = rows[+e.target.dataset.r];
+      const m = inv ? modelSets(inv, specClasses(L, s), []).find((x) => x.name === r.set) : null;
+      const q = m && m.props.find((x) => x.name === r.name);
+      const t = q ? untypeOwnRow(L.S, r, q) : null;
+      if (t) { rows[+e.target.dataset.r] = t.row; record("editor_untyped_own"); if (t.dropped) alert("With no dataType, checkers read a boolean or number value differently, so the row now asks for any value (presence)."); }
     }
     // A property one slip from the template's name, moved to that name.
     if (a === "rename-row") {

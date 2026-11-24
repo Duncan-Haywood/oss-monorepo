@@ -162,6 +162,17 @@ open. MIT licensed, no dependencies, nothing uploaded.
   the offers pass. "One of" now works on any text property or attribute (82.0%
   of the public files' facets editable, was 81.1%).
   `eval/model-values-2026-11-17.md`.
+  **A property written in two data types** (2026-11-24): on 28 more public
+  exports (engine_web-ifc's test models), 19,296 of 19,300 offers passed their
+  own model. The 4 that failed were a project's own properties that Revit
+  wrote as IFCLABEL on some objects and IFCTEXT on others (ARK_NUS's
+  Constraints.Level: 162 and 145 rooms). IDS names one dataType, so the
+  offered check failed 178 objects, in this checker and in IfcTester alike.
+  The row now gives the count for each type and offers **Accept any data
+  type**, which drops the dataType so every object passes (both tools agree,
+  8 of 8 specs). The set's dataType is now the commonest across classes, not
+  the first one seen. 19,300 of 19,300 pass.
+  `eval/mixed-type-own-props-2026-11-24.md`.
   **Attribute values and classification codes** (2026-11-17): attribute rows
   (Name, ObjectType, Tag, PredefinedType...) and classification rows offer
   the values and codes the model holds the same way. On four real exports, 243
