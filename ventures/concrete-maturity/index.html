@@ -411,7 +411,7 @@
       if (cal.datum) el('datumC').value = cal.datum.datumC.toFixed(1);
       if (cal.activation) el('activationEnergy').value = String(Math.round(cal.activation.activationEnergy / 100) * 100);
       count('calibration_used');
-      el('methodBox').scrollIntoView({ behavior: 'smooth' });
+      el('methodBox').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     });
     try {
       const u = el('usageOptOut');

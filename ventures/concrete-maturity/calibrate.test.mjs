@@ -142,3 +142,9 @@ test('a thousands comma stays inside its number', () => {
   assert.deepEqual(p.cubes.map(c => [c.ageH, c.strength]), [[26.2, 6000], [52, 1250.5], [104, 3000]]);
   assert.deepEqual(p.setting, [{ tempC: 10, hours: 13.1 }]);
 });
+
+test('plain CSV with a thousands comma is reported, not misread', () => {
+  const p = parseCubeText('10,26.2,6,000\n');
+  assert.equal(p.cubes.length, 0);
+  assert.match(p.errors[0], /^Line 1/);
+});
