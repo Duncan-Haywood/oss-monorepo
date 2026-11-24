@@ -277,6 +277,34 @@ keyword kept beside the new ones, `Title-fr-FR` kept, `crs:Exposure2012` and
 `exiftool -validate` says OK on every file. Not yet checked: an import into
 Lightroom, Capture One or Photo Mechanic itself.
 
+## Nikon AF points on the cull page (2026-11-24)
+
+Nikon's maker note names the AF points it used by number and bit on a grid
+that differs by body (51, 39, 153, 105, 81 points on DSLRs and early Z
+bodies; 405, 299 or 231 in auto-area on the Z8/Z9, Z6III/Zf/Z5II and Z50II),
+with no coordinates. `site/rawpreview.mjs` (`nikonPhaseAf`) now reads AFInfo2
+versions 0100, 0101, 0300 and 04xx (ExifTool's layouts) and places the points
+from per-body maps measured by the Focus-Points Lightroom plugin's
+contributors (Apache-2.0, `THIRD_PARTY_NOTICES.md`), converted by
+`tools/nikon_af_grids.py` into `site/nikon-af-grids.mjs`: 29 maps covering 43
+models. Z bodies that write the AF area's position directly are read from it.
+The large view draws the body's whole grid faintly with the used points in
+red, and the status line names them (`C5`, or "16 points around H16"). Not
+placed: the 11-point bodies (D90, D3000-D3500, D5000, D5100) and bodies
+before 2007, which keep the busiest-cell score.
+
+Checked (`eval/cull-nikon-af-2026-11-24.md`): on 28 CC0 Nikon Z8 raws the page
+now places a point on 27 (5 before). On their 1620 x 1080 previews the detail
+at the point ranks at median 0.92 of the frame (22 of 27 in the top quarter),
+and beats the point turned through the centre on 19 of 23 off-centre frames
+(sign test p = 0.0013); grid-placed points rank as high as the camera's own
+coordinates (0.924 vs 0.932). The plugin's Z9 grid spacing (255 x 288 px)
+agrees with the spacing ExifTool measured independently (260 x 292 px) within
+2%. On the public D810 sample both AF fields name C5. Found on the way: these
+Z8 files (HLG tone mode) carry HEVC previews, so the page shows their 160 x
+120 thumbnail and reads the whole file (as it did before); decoding the HEVC
+preview in the browser is next (NEXT.md).
+
 ## The cull page reads where the camera focused (2026-11-24)
 
 The cull page's detail score looked at the busiest of 16 cells, so a soft
@@ -289,7 +317,8 @@ camera reports focus; `F` hides them), `Z` zooms to 100% at the AF point, a
 burst's "sharpest" is the frame with most detail at its AF point when every
 frame has one, there is a sort by that, and the CSV gains `af_x`, `af_y`,
 `af_detail`, `af_source` and `sharpest_by`. Nikon phase-detect points have no
-published coordinates, so Nikon files keep the busiest-cell score.
+published coordinates; since the same day they are placed from per-body maps
+(next section).
 
 Checked (`eval/cull-af-point-2026-11-24.md`) on the public sample raws: the
 point agrees with metadata-extractor's own decoding on all 22 files it

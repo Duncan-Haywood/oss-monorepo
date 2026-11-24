@@ -153,9 +153,14 @@
 
 ## From the cull page's AF point (2026-11-24, eval/cull-af-point-2026-11-24.md)
 
-- Nikon phase-detect AF points: map point numbers to positions per body (51-point D300/D800/D810 grid, 39-point
-  D5100/D7000, 153-point D5/D850), e.g. measured from frames shot with a known point; only live-view (AFInfo2 0100
-  contrast-detect) areas are placed now.
+- (landed 2026-11-24, eval/cull-nikon-af-2026-11-24.md) Nikon AF points placed from per-body maps (Focus-Points
+  plugin, Apache-2.0) for AFInfo2 0100/0101/0300/04xx: 27 of 28 Z8 frames (5 before), median detail rank 0.92,
+  19 of 23 beat the turned control. Next: (a) HLG-mode Z8/Z9 NEFs carry HEVC previews (320 x 212, 1620 x 1080),
+  so the page shows the 160 x 120 thumbnail and reads the whole file: decode the HEVC preview with WebCodecs
+  `VideoDecoder` where the browser has HEVC (Safari; Chrome/Edge with hardware) and stop the whole-file read once
+  one is found; (b) a map for the 11-point bodies (D90, D3x00, D5000, D5100) and AFInfo 0x88 bodies (D70, D200),
+  from frames shot with a known point; (c) a D5/D500/D850 card to check the in-focus-first rule and the 98
+  interpolated 153-point positions.
 - Sony before the A7 III (NEX-5N, NEX-7, A5000, A500): no FocusLocation; the enciphered 0x9400/0x9416 blocks may hold
   one (ExifTool's Sony.pm decipher table).
 - Canon AFInfo2 0x26 on bodies that add AFPointsSelected: `selected` is set only when the array is long enough; check
