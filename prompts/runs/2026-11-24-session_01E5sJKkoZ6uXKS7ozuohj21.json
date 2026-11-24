@@ -43,6 +43,10 @@
     {
       "file": "prompts/redteam/prompt-0.md",
       "issue": "`targets` has no --target-style filter by path; `--under ventures/<slug> --limit 50` works but isn't mentioned for aiming at one venture."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "The pages test job's log tail shows only the summary (2048 tests, 1 fail); finding the failing test name took a full local rerun of the pages suite (~3 min). A step that prints `not ok` lines at the end of the job would save that."
     }
   ],
   "deviations": [
@@ -63,7 +67,7 @@
     "docs/posts/2026-11-24-redteam-ebay-fee-calculator-batch-fee-and-blank-boxes.md"
   ],
   "goal": null,
-  "notes": "Step 0: 14 open entries; the uk-shared-parental-pay one still blocked (gov.uk and legislation.gov.uk 403/ENOTFOUND via curl and WebFetch), the rest control plane or need a redesign; none patched. Campaigns: calc.mjs 12 mutants (6 caught), csv.mjs 8 (7 caught). Guard: 4 gap tests + 3 defect tests in calc.test.mjs; rerun shows all gaps caught. Follow-up: `Number(input.x ?? <non-zero>)` appears in ~20 venture calc.mjs files (parking-lot-striping, sewer-line, security-camera, music-lesson, ...); check each page for raw blank strings. Verification: ebay-fee-calculator node --test 524/524; marketplace-fee-compare handoff 34/34; where-to-sell-calculator handoff 31/31; check_posts ok; platform/pages/build.test.mjs locally: 335/2 fail then 333/5 fail with a file timeout (site section/compare/guides tests, none touching the eBay engine); the failing set changed between runs, so CI build is the arbiter.",
+  "notes": "Step 0: 14 open entries; the uk-shared-parental-pay one still blocked (gov.uk and legislation.gov.uk 403/ENOTFOUND via curl and WebFetch), the rest control plane or need a redesign; none patched. Campaigns: calc.mjs 12 mutants (6 caught), csv.mjs 8 (7 caught). Guard: 4 gap tests + 3 defect tests in calc.test.mjs; rerun shows all gaps caught. Follow-up: `Number(input.x ?? <non-zero>)` appears in ~20 venture calc.mjs files (parking-lot-striping, sewer-line, security-camera, music-lesson, ...); check each page for raw blank strings. Verification: ebay-fee-calculator node --test 524/524; marketplace-fee-compare handoff 34/34; where-to-sell-calculator handoff 31/31; check_posts ok; platform/pages/build.test.mjs locally: 335/2 fail then 333/5 fail with a file timeout (site section/compare/guides tests, none touching the eBay engine); the failing set changed between runs, so CI build is the arbiter. CI: portfolio-pages test job failed on 1 test (description-length) inherited from main via PR #18706; fixed in this PR. Local platform/pages suite after fix and main merge: 2057 tests, only that one had failed.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -383,6 +387,12 @@
         "file": "ventures/ebay-fee-calculator/calc.mjs",
         "issue": "calculateOrder/priceToMatchProfit used `input.x ?? default`, but the page passes raw box text, so a cleared final value fee box computed a 0% fee (profit $6.26 too high on a $46 order), a cleared fixed fee $0, a cleared fee-refund box 0% instead of 100%, and a cleared units box an error. Fixed with orDefault(); test 'a cleared rate box falls back to its default instead of silently reading 0%'.",
         "patched": true
+      },
+      {
+        "file": "ventures/ebay-fee-calculator/*.html",
+        "issue": "Red on main from PR #18706: three new reseller guides (cost-of-goods, payout reconciliation, Schedule C worksheet) had meta/og descriptions of 199-229 characters, failing platform/pages/description-length.test.mjs in portfolio-pages.yml's test job. Shortened to 151-152; test passes.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18737"
       }
     ]
   },
