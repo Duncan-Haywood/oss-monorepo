@@ -1,0 +1,236 @@
+gui task-06 init->result [IfcOpenShell 0.8.5-1c5b825 -> IfcOpenShell 0.8.5-1c5b825]: elements 7 -> 7 (0 by GlobalId, 0 Tag, 4 geometry; 1 changed, 2 added, 2 removed); rooms 1 -> 1; lost rooms 2 -> 0
+    room changed (renamed, new GlobalId): OFFICE: number: UNCLASSIFIED -> OFFICE; net wall area +1.3359
+    element replaced in place: IfcWall Exterior Wall 1 (volume, area)
+gui task-07 init->result [IfcOpenShell 0.8.5-1c5b825 -> IfcOpenShell 0.8.5-1c5b825]: elements 5 -> 7 (0 by GlobalId, 0 Tag, 5 geometry; 0 changed, 2 added, 0 removed); rooms 1 -> 1; lost rooms 0 -> 0
+    room changed (new GlobalId): ROOM 101: doors and windows 0 -> 1
+gui task-08 init->result [IfcOpenShell 0.8.5-1c5b825 -> IfcOpenShell 0.8.5-1c5b825]: elements 9 -> 10 (0 by GlobalId, 0 Tag, 4 geometry; 1 changed, 5 added, 4 removed); rooms 1 -> 2; lost rooms 3 -> 0
+    room split: OPEN STUDIO -> MEETING + STUDIO (29.06 -> 28.13 m2)
+    element replaced in place: IfcWall Exterior Wall 1 (volume, area)
+gui task-09 init->result [IfcOpenShell 0.8.5-1c5b825 -> IfcOpenShell 0.8.5-1c5b825]: elements 12 -> 12 (0 by GlobalId, 0 Tag, 6 geometry; 1 changed, 5 added, 5 removed); rooms 3 -> 3; lost rooms 6 -> 0
+    room changed (renamed, new GlobalId): OFFICE: number: ROOM-A -> OFFICE; net wall area +1.35; doors and windows 1 -> 0
+    room changed (renamed, new GlobalId): STORAGE: number: ROOM-B -> STORAGE; net wall area +1.35; doors and windows 1 -> 0
+    room changed (renamed, new GlobalId): WC: number: UNCLASSIFIED -> WC; doors and windows 0 -> 2
+    element replaced in place: IfcWall Exterior Wall 1 (volume, area)
+gui task-10 init->result [IfcOpenShell 0.8.5-1c5b825 -> IfcOpenShell 0.8.5-1c5b825]: elements 9 -> 10 (0 by GlobalId, 0 Tag, 5 geometry; 1 changed, 4 added, 3 removed); rooms 2 -> 2; lost rooms 0 -> 0
+    room changed (new GlobalId): STORE: net wall area +1.35; doors and windows 1 -> 0
+    room changed (new GlobalId): UTILITY: doors and windows 0 -> 1
+    element replaced in place: IfcWall Exterior Wall 1 (volume, area)
+gui task-11 init->result [IfcOpenShell 0.8.5-1c5b825 -> IfcOpenShell 0.8.5-1c5b825]: elements 9 -> 10 (0 by GlobalId, 0 Tag, 4 geometry; 1 changed, 5 added, 4 removed); rooms 2 -> 2; lost rooms 0 -> 0
+    room changed (new GlobalId): OFFICE: net wall area +1.3217; doors and windows 1 -> 2
+    room changed (new GlobalId): STORAGE: net wall area +1.35; doors and windows 1 -> 0
+    element replaced in place: IfcWall Exterior Wall 1 (volume, area)
+gui task-12 init->result [IfcOpenShell 0.8.5-1c5b825 -> IfcOpenShell 0.8.5-1c5b825]: elements 14 -> 15 (0 by GlobalId, 0 Tag, 9 geometry; 1 changed, 5 added, 4 removed); rooms 2 -> 2; lost rooms 0 -> 0
+    room changed (new GlobalId): LOWER ROOM: net wall area +1.3359
+    element replaced in place: IfcWall Exterior Wall 1 (volume, area)
+gui task-13 init->result [IfcOpenShell 0.8.5-1c5b825 -> IfcOpenShell 0.8.5-1c5b825]: elements 12 -> 13 (0 by GlobalId, 0 Tag, 7 geometry; 1 changed, 5 added, 4 removed); rooms 3 -> 3; lost rooms 0 -> 0
+    room changed (new GlobalId): CORRIDOR: net wall area +1.35; doors and windows 1 -> 0
+    room changed (new GlobalId): ROOM 1: net wall area +1.35; doors and windows 1 -> 0
+    room changed (new GlobalId): ROOM 2: doors and windows 0 -> 2
+    element replaced in place: IfcWall Exterior Wall 1 (volume, area)
+gui task-14 init->result [IfcOpenShell 0.8.5-1c5b825 -> IfcOpenShell 0.8.5-1c5b825]: elements 10 -> 11 (0 by GlobalId, 0 Tag, 5 geometry; 1 changed, 5 added, 4 removed); rooms 2 -> 2; lost rooms 0 -> 0
+    room changed (new GlobalId): STORE: net wall area +1.35; doors and windows 1 -> 0
+    room changed (new GlobalId): WORK ROOM: net wall area +1.3076; doors and windows 1 -> 3
+    element replaced in place: IfcWall Exterior Wall 1 (volume, area)
+gui task-15 init->result [IfcOpenShell 0.8.5-1c5b825 -> IfcOpenShell 0.8.5-1c5b825]: elements 14 -> 16 (0 by GlobalId, 0 Tag, 8 geometry; 1 changed, 7 added, 5 removed); rooms 4 -> 5; lost rooms 3 -> 3
+    room changed (new GlobalId): RECEPTION: floor area -5.5; perimeter -4; net wall area -11.2; volume -15.4
+    room changed (new GlobalId): STAFF: floor area -5.5; perimeter -4; net wall area -11.2283; volume -15.4; doors and windows 0 -> 2
+    room changed (new GlobalId): WC: floor area -5.5; perimeter -4; net wall area -11.2; volume -15.4
+    room added: CHAIR
+    room added: STERILIZATION
+    room removed: EXAM
+    element replaced in place: IfcWall Exterior Wall 1 (volume, area)
+gui task-16 init->result [IfcOpenShell 0.8.5-1c5b825 -> IfcOpenShell 0.8.5-1c5b825]: elements 13 -> 15 (0 by GlobalId, 0 Tag, 7 geometry; 1 changed, 7 added, 5 removed); rooms 2 -> 4; lost rooms 2 -> 0
+    room changed (new GlobalId): OPEN OFFICE: floor area -17.25; perimeter -6; net wall area -15.45; volume -48.3; doors and windows 1 -> 0
+    room changed (new GlobalId): WC: floor area -17.25; perimeter -6; net wall area -15.45; volume -48.3; doors and windows 1 -> 0
+    rooms carved from OPEN OFFICE: STORAGE (15.81 of the 17.25 m2 it lost)
+    rooms carved from WC: MEETING (15.81 of the 17.25 m2 it lost)
+    room added: MEETING
+    room added: STORAGE
+    element replaced in place: IfcWall Exterior Wall 1 (volume, area)
+gui task-17 init->result [IfcOpenShell 0.8.5-1c5b825 -> IfcOpenShell 0.8.5-1c5b825]: elements 14 -> 16 (0 by GlobalId, 0 Tag, 8 geometry; 1 changed, 7 added, 5 removed); rooms 3 -> 4; lost rooms 3 -> 1
+    room changed (new GlobalId): LIVING: net wall area +1.35; doors and windows 1 -> 0
+    room changed (renamed, new GlobalId): BEDROOM: number: ROOM -> BEDROOM; net wall area +1.35; doors and windows 1 -> 0
+    room added: KITCHEN
+    element replaced in place: IfcWall Exterior Wall 1 (volume, area)
+gui task-18 init->result [IfcOpenShell 0.8.5-1c5b825 -> IfcOpenShell 0.8.5-1c5b825]: elements 15 -> 17 (0 by GlobalId, 0 Tag, 8 geometry; 1 changed, 8 added, 6 removed); rooms 4 -> 4; lost rooms 2 -> 0
+    room changed (new GlobalId): CLASS-1: net wall area +1.35; doors and windows 1 -> 0
+    room changed (new GlobalId): CLASS-2: net wall area +2.7; doors and windows 2 -> 0
+    room changed (new GlobalId): CORRIDOR: doors and windows 0 -> 4
+    room changed (renamed, new GlobalId): WC: number: UNCLASSIFIED -> WC
+    element replaced in place: IfcWall Exterior Wall 1 (volume, area)
+gui task-19 init->result [IfcOpenShell 0.8.5-1c5b825 -> IfcOpenShell 0.8.5-1c5b825]: elements 14 -> 16 (0 by GlobalId, 0 Tag, 8 geometry; 1 changed, 7 added, 5 removed); rooms 3 -> 4; lost rooms 3 -> 1
+    room changed (new GlobalId): LOBBY: net wall area +1.35; doors and windows 1 -> 0
+    room changed (new GlobalId): READING: net wall area +1.35; doors and windows 1 -> 0
+    room changed (renamed, new GlobalId): STACKS: number: UNCLASSIFIED -> STACKS; doors and windows 0 -> 3
+    room added: OFFICE
+    element replaced in place: IfcWall Exterior Wall 1 (volume, area)
+gui task-20 init->result [IfcOpenShell 0.8.5-1c5b825 -> IfcOpenShell 0.8.5-1c5b825]: elements 14 -> 18 (0 by GlobalId, 0 Tag, 9 geometry; 1 changed, 8 added, 4 removed); rooms 2 -> 3; lost rooms 5 -> 2
+    room split: LOWER -> LOBBY + UPPER ROOM (21.56 -> 20.63 m2)
+    room added: STAIR
+    room removed: UPPER
+    element replaced in place: IfcWall Exterior Wall 1 (volume, area)
+ac-os task-01 init->stage1 [Archicad 27 -> The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013]: elements 5 -> 7 (5 by GlobalId, 0 Tag, 0 geometry; 1 changed, 2 added, 0 removed); rooms 1 -> 2; lost rooms 1 -> 0
+    room changed: SITE-OFFICE SITE-OFFICE-ZN: number: UNCLASSIFIED -> SITE-OFFICE; name: (none) -> SITE-OFFICE-ZN; description: (none) -> EW2A01 | SITE-OFFICE | PRINT-COPY | SOUTH-ENTRANCE-WINDOW | OPAQUE-NORTH-WEST | multi-cli-2-archicad-openstudio-task-01-windows; floor area -7.92; perimeter -4.4; net wall area -16.01; volume -22.176; doors and windows 0 -> 2
+    rooms carved from SITE-OFFICE SITE-OFFICE-ZN: PRINT-COPY PRINT-COPY-ZN (7.92 of the 7.92 m2 it lost)
+    room added: PRINT-COPY PRINT-COPY-ZN
+    element changed: IfcWall South Wall (volume, area)
+ac-os task-02 init->stage1 [? -> ?]: elements 41 -> 41 (41 by GlobalId, 0 Tag, 0 geometry; 0 changed, 0 added, 0 removed); rooms 9 -> 9; lost rooms 0 -> 0
+    room changed: CONSULT C03: number: CONSULT-1 -> CONSULT
+ac-os task-03 init->stage1 [? -> ?]: elements 5 -> 5 (5 by GlobalId, 0 Tag, 0 geometry; 0 changed, 0 added, 0 removed); rooms 7 -> 7; lost rooms 0 -> 0
+    room changed: READING L02: number: G-READING -> READING
+    room changed: GALLERY L05: number: 1-GALLERY -> GALLERY
+    room changed: QUIET-POD-01 L06: number: 1-STUDY-1 -> QUIET-POD-01
+    room changed: QUIET-POD-02 L07: number: 1-STUDY-2 -> QUIET-POD-02
+ac-os task-04 init->stage1 [? -> ?]: elements 29 -> 29 (29 by GlobalId, 0 Tag, 0 geometry; 0 changed, 0 added, 0 removed); rooms 6 -> 6; lost rooms 0 -> 0
+    room changed: WORKSHOP W01: number: BAY-1 -> WORKSHOP
+    room changed: PARCEL-PICKUP W06: number: LOADING -> PARCEL-PICKUP
+ac-os task-05 init->stage1 [? -> ?]: elements 3 -> 3 (3 by GlobalId, 0 Tag, 0 geometry; 0 changed, 0 added, 0 removed); rooms 5 -> 5; lost rooms 0 -> 0
+    room changed: STORAGE STORAGE-ZN: number: OFFICE -> STORAGE; name: (none) -> STORAGE-ZN
+    room changed: FINISHING-BOOTH FINISHING-BOOTH-ZN: number: STORE -> FINISHING-BOOTH; name: (none) -> FINISHING-BOOTH-ZN
+    room changed: MAIN-STUDIO MAIN-STUDIO-ZN: number: STUDIO -> MAIN-STUDIO; name: (none) -> MAIN-STUDIO-ZN
+ac-os task-06 init->stage1 [? -> ?]: elements 2 -> 2 (2 by GlobalId, 0 Tag, 0 geometry; 0 changed, 0 added, 0 removed); rooms 10 -> 10; lost rooms 0 -> 0
+    room changed: PLAYROOM PLAYROOM-ZN: number: CLASSROOM-1 -> PLAYROOM; name: (none) -> PLAYROOM-ZN
+    room changed: SICK-BAY SICK-BAY-ZN: number: CLASSROOM-2 -> SICK-BAY; name: (none) -> SICK-BAY-ZN
+    room changed: CALM-ROOM CALM-ROOM-ZN: number: CLASSROOM-3 -> CALM-ROOM; name: (none) -> CALM-ROOM-ZN
+    room changed: STAFF-SUPPORT STAFF-SUPPORT-ZN: number: CLASSROOM-4 -> STAFF-SUPPORT; name: (none) -> STAFF-SUPPORT-ZN
+ac-os task-07 init->stage1 [? -> ?]: elements 2 -> 2 (2 by GlobalId, 0 Tag, 0 geometry; 0 changed, 0 added, 0 removed); rooms 13 -> 13; lost rooms 0 -> 0
+    room changed: MARKET-HALL MARKET-HALL-ZN: number: AISLE -> MARKET-HALL; name: (none) -> MARKET-HALL-ZN
+    room changed: COLD-CHAIN COLD-CHAIN-ZN: number: COLD-STORE -> COLD-CHAIN; name: (none) -> COLD-CHAIN-ZN
+    room changed: WASTE-HOLDING WASTE-HOLDING-ZN: number: DRY-STORE -> WASTE-HOLDING; name: (none) -> WASTE-HOLDING-ZN
+ac-os task-08 init->stage1 [? -> ?]: elements 5 -> 5 (5 by GlobalId, 0 Tag, 0 geometry; 0 changed, 0 added, 0 removed); rooms 10 -> 10; lost rooms 0 -> 0
+    room changed: ACCESSIBLE-SUITE ACCESSIBLE-SUITE-ZN: number: GUEST-2 -> ACCESSIBLE-SUITE; name: (none) -> ACCESSIBLE-SUITE-ZN
+    room changed: HOUSEKEEPING-CLOSET HOUSEKEEPING-CLOSET-ZN: number: LINEN -> HOUSEKEEPING-CLOSET; name: (none) -> HOUSEKEEPING-CLOSET-ZN
+    room changed: RECEPTION RECEPTION-ZN: name: (none) -> RECEPTION-ZN
+ac-os task-09 init->stage1 [? -> ?]: elements 11 -> 11 (11 by GlobalId, 0 Tag, 0 geometry; 0 changed, 0 added, 0 removed); rooms 11 -> 11; lost rooms 0 -> 0
+    room changed: BED-1 BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED: name: (none) -> BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED
+    room changed: BED-2 BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED: name: (none) -> BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED
+    room changed: BED-3 BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED: name: (none) -> BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED
+    room changed: LAUNDRY LAUNDRY-ZN | HIGH-EQUIPMENT-LAUNDRY: name: (none) -> LAUNDRY-ZN | HIGH-EQUIPMENT-LAUNDRY
+    room changed: SOCIAL-COMMONS SOCIAL-COMMONS-ZN: number: LOUNGE -> SOCIAL-COMMONS; name: (none) -> SOCIAL-COMMONS-ZN
+    room changed: QUIET-STUDY QUIET-STUDY-ZN | LOW-EQUIPMENT-STUDY: number: SHARED-KITCHEN -> QUIET-STUDY; name: (none) -> QUIET-STUDY-ZN | LOW-EQUIPMENT-STUDY
+    room changed: BED-4 BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED: name: (none) -> BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED
+    room changed: BED-5 BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED: name: (none) -> BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED
+    room changed: BED-6 BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED: name: (none) -> BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED
+ac-os task-10 init->stage1 [IfcOpenShell 0.8.5-1c5b825 -> The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013]: elements 50 -> 50 (50 by GlobalId, 0 Tag, 0 geometry; 0 changed, 0 added, 0 removed); rooms 12 -> 12; lost rooms 0 -> 0
+    room changed: PPE-DONNING PPE-DONNING-ZN | PPE-SUPPORT | ISOLATION-FLOW-04: number: CLEAN -> PPE-DONNING; name: (none) -> PPE-DONNING-ZN | PPE-SUPPORT | ISOLATION-FLOW-04
+    room changed: CONSULT CONSULT-ZN | CLINICAL-VENTILATION | ISOLATION-FLOW-01: number: CONSULT-1 -> CONSULT; name: (none) -> CONSULT-ZN | CLINICAL-VENTILATION | ISOLATION-FLOW-01
+    room changed: ISO-CONSULT ISO-CONSULT-ZN | ISOLATION-CONSULT-SCHEDULE | ISOLATION-FLOW-03: number: CONSULT-2 -> ISO-CONSULT; name: (none) -> ISO-CONSULT-ZN | ISOLATION-CONSULT-SCHEDULE | ISOLATION-FLOW-03
+    room changed: CONTAMINATED-SUPPORT CONTAMINATED-SUPPORT-ZN | CONTAMINATED-SUPPORT-LOW-OCCUPANCY | ISOLATION-FLOW-05: number: DIRTY -> CONTAMINATED-SUPPORT; name: (none) -> CONTAMINATED-SUPPORT-ZN | CONTAMINATED-SUPPORT-LOW-OCCUPANCY | ISOLATION-FLOW-05
+    room changed: EQUIPMENT EQUIPMENT-ZN | CLINICAL-VENTILATION | ISOLATION-FLOW-02: number: LAB -> EQUIPMENT; name: (none) -> EQUIPMENT-ZN | CLINICAL-VENTILATION | ISOLATION-FLOW-02
+rv-ac task-01 init->stage1 [ODA SDAI 24.12 -> ODA SDAI 24.12]: elements 5 -> 5 (5 by GlobalId, 0 Tag, 0 geometry; 5 changed, 0 added, 0 removed); rooms 1 -> 2; lost rooms 3 -> 0
+    room split: G01 Activity Room -> 01 COMMUNITY-ACTIVITY + 02 QUIET-COUNSELLING (51.04 -> 51.04 m2)
+    element changed: IfcWall Basic Wall:Wall 1:2785 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2786 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2787 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2788 (type, material)
+    element changed: IfcSlab Floor:Floor:Floor 1:1235440 (name, type, material)
+rv-ac task-01 stage1->stage2 [ODA SDAI 24.12 -> The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013]: elements 5 -> 5 (5 by GlobalId, 0 Tag, 0 geometry; 0 changed, 0 added, 0 removed); rooms 2 -> 2; lost rooms 0 -> 0
+rv-ac task-02 init->stage1 [ODA SDAI 24.12 -> ODA SDAI 24.12]: elements 6 -> 6 (6 by GlobalId, 0 Tag, 0 geometry; 6 changed, 0 added, 0 removed); rooms 2 -> 3; lost rooms 5 -> 0
+    room changed (renamed, new GlobalId): 01 RETAIL-SALES: number: G01 -> 01; name: Retail -> RETAIL-SALES; Name removed (was Retail); Reference: Retail G01 -> RETAIL-SALES 01; Reference: Retail G01 -> RETAIL-SALES 01; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Level removed (was Ground Floor); Limit Offset removed (was 0.026246719160104987); Upper Limit removed (was Ground Floor); Area removed (was 37.24000000000001); Computation Height removed (was 0); Perimeter removed (was 27200.000000000007); Unbounded Height removed (was 0.026246719160104987); Volume removed (was 90.80601600000001); Actual Lighting Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Latent Heat Gain per person removed (was 58.61421403444444); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load removed (was 0); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load removed (was 0); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Retail); Number removed (was G01); Phase removed (was New Construction); ThermalZone added: RETAIL-SALES-ZN; ScheduleCategory added: RETAIL-PUBLIC-SCHEDULE; PeoplePerM2 added: 0.15; LightingPowerDensityWPerM2 added: 12; EquipmentPowerDensityWPerM2 added: 8; OutdoorAirLPerSPerson added: 7.5
+    room split: G02 Back of House -> 02 PREP-KITCHEN + 03 DRY-STORAGE (17.64 -> 17.64 m2)
+    element changed: IfcWall Basic Wall:Wall 1:2785 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2786 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2787 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2788 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2789 (type, material)
+    element changed: IfcSlab Floor:Floor:Floor 1:1235441 (name, type, material)
+rv-ac task-02 stage1->stage2 [ODA SDAI 24.12 -> The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013]: elements 6 -> 6 (6 by GlobalId, 0 Tag, 0 geometry; 0 changed, 0 added, 0 removed); rooms 3 -> 3; lost rooms 0 -> 0
+rv-ac task-03 init->stage1 [ODA SDAI 24.12 -> ODA SDAI 24.12]: elements 6 -> 6 (6 by GlobalId, 0 Tag, 0 geometry; 6 changed, 0 added, 0 removed); rooms 2 -> 3; lost rooms 5 -> 0
+    room changed (renamed, new GlobalId): 02 EXAM-ROOM: number: G02 -> 02; name: Exam -> EXAM-ROOM; Name removed (was Exam); Reference: Exam G02 -> EXAM-ROOM 02; Reference: Exam G02 -> EXAM-ROOM 02; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Limit Offset removed (was 0.026246719160104987); Upper Limit removed (was Ground Floor); Level removed (was Ground Floor); Computation Height removed (was 0); Unbounded Height removed (was 0.026246719160104987); Area removed (was 29.239999999999984); Perimeter removed (was 22200); Volume removed (was 71.298816); Actual Lighting Load removed (was 0); Actual Power Load removed (was 0); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Specified Lighting Load removed (was 0); Specified Power Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Latent Heat Gain per person removed (was 58.61421403444444); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Exam); Number removed (was G02); Phase removed (was New Construction); ThermalZone added: EXAM-ROOM-ZN; ScheduleCategory added: EXAM-VENTILATION; PeoplePerM2 added: 0.08; LightingPowerDensityWPerM2 added: 10; EquipmentPowerDensityWPerM2 added: 12; OutdoorAirLPerSPerson added: 12
+    room split: G01 Waiting -> 01 WAITING + 03 RECORDS-ROOM (29.24 -> 29.24 m2)
+    element changed: IfcWall Basic Wall:Wall 1:2785 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2786 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2787 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2788 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2789 (type, material)
+    element changed: IfcSlab Floor:Floor:Floor 1:1235441 (name, type, material)
+rv-ac task-03 stage1->stage2 [ODA SDAI 24.12 -> The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013]: elements 6 -> 6 (6 by GlobalId, 0 Tag, 0 geometry; 0 changed, 0 added, 0 removed); rooms 3 -> 3; lost rooms 0 -> 0
+rv-ac task-04 init->stage1 [ODA SDAI 24.12 -> ODA SDAI 24.12]: elements 5 -> 6 (5 by GlobalId, 0 Tag, 0 geometry; 5 changed, 1 added, 0 removed); rooms 1 -> 2; lost rooms 3 -> 0
+    room split: G01 Gallery -> 01 GARDEN-GALLERY + 02 ENTRY-NICHE (45.24 -> 45.24 m2)
+    element changed: IfcWall Basic Wall:Wall 1:2785 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2786 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2787 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2788 (type, material)
+    element changed: IfcSlab Floor:Floor:Floor 1:1235440 (name, type, material)
+rv-ac task-04 stage1->stage2 [ODA SDAI 24.12 -> The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013]: elements 6 -> 6 (6 by GlobalId, 0 Tag, 0 geometry; 0 changed, 0 added, 0 removed); rooms 2 -> 2; lost rooms 0 -> 0
+rv-ac task-05 init->stage1 [ODA SDAI 24.12 -> ODA SDAI 24.12]: elements 11 -> 10 (10 by GlobalId, 0 Tag, 0 geometry; 10 changed, 0 added, 1 removed); rooms 3 -> 3; lost rooms 6 -> 0
+    room split: U01 Upper Activity -> 02 UPPER-ACTIVITY + 03 UPPER-READING (66.64 -> 66.64 m2)
+    room merged: G01 Lobby + G02 Multipurpose Room -> 01 GROUND-PUBLIC (65.28 -> 66.64 m2)
+    element changed: IfcWall Basic Wall:Wall 1:2786 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2787 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2788 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2789 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2790 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2791 (type, material)
+    ... 4 more elements changed
+rv-ac task-05 stage1->stage2 [ODA SDAI 24.12 -> The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013]: elements 10 -> 10 (10 by GlobalId, 0 Tag, 0 geometry; 0 changed, 0 added, 0 removed); rooms 3 -> 3; lost rooms 0 -> 0
+rv-ac task-06 init->stage1 [ODA SDAI 24.12 -> ODA SDAI 24.12]: elements 11 -> 11 (11 by GlobalId, 0 Tag, 0 geometry; 11 changed, 0 added, 0 removed); rooms 1 -> 3; lost rooms 4 -> 0
+    room split: G01 Workshop -> 01 MAKER-WORKSHOP + 02 OFFICE + 03 TOOL-ROOM (107.36 -> 107.36 m2)
+    element changed: IfcWall Basic Wall:Wall 1:2785 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2786 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2787 (type, material)
+    element changed: IfcWall Basic Wall:Wall 1:2788 (type, material)
+    element changed: IfcSlab Floor:Floor:Floor 1:1235599 (name, type, material)
+    element changed: IfcColumn M_Rectangular Column:475 x 610mm:3293 (type, material)
+    ... 5 more elements changed
+rv-ac task-06 stage1->stage2 [ODA SDAI 24.12 -> The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013]: elements 11 -> 11 (11 by GlobalId, 0 Tag, 0 geometry; 0 changed, 0 added, 0 removed); rooms 3 -> 3; lost rooms 0 -> 0
+rv-ac task-07 init->stage1 [ODA SDAI 24.12 -> ODA SDAI 24.12]: elements 6 -> 15 (6 by GlobalId, 0 Tag, 0 geometry; 6 changed, 9 added, 0 removed); rooms 2 -> 5; lost rooms 3 -> 0
+    room changed: 02 READING-ROOM: number: G01 -> 02; name: Reading Hall -> READING-ROOM; Name removed (was Reading Hall); Reference: Reading Hall G01 -> READING-ROOM 02; Reference: Reading Hall G01 -> READING-ROOM 02; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Level removed (was Ground Floor); Limit Offset removed (was 0.026246719160104987); Upper Limit removed (was Ground Floor); Area removed (was 107.63999999999996); Computation Height removed (was 0); Perimeter removed (was 43199.99999999999); Unbounded Height removed (was 0.026246719160104987); Volume removed (was 262.4693759999999); Actual Lighting Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Latent Heat Gain per person removed (was 58.61421403444444); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load removed (was 0); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load removed (was 0); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Reading Hall); Number removed (was G01); Phase removed (was New Construction); ThermalZone added: READING-ROOM-ZN; ScheduleCategory added: READING-LOAD-CURVE; PeoplePerM2 added: 0.08; LightingPowerDensityWPerM2 added: 8; EquipmentPowerDensityWPerM2 added: 3; OutdoorAirLPerSPerson added: 8; floor area -62.4; perimeter -16; net wall area -43.8144; volume -152.1562; doors and windows 0 -> 2
+    room changed: 04 STAFF-OFFICE: number: G02 -> 04; name: Staff Room -> STAFF-OFFICE; Name removed (was Staff Room); Reference: Staff Room G02 -> STAFF-OFFICE 04; Reference: Staff Room G02 -> STAFF-OFFICE 04; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Limit Offset removed (was 0.026246719160104987); Upper Limit removed (was Ground Floor); Level removed (was Ground Floor); Computation Height removed (was 0); Unbounded Height removed (was 0.026246719160104987); Area removed (was 29.639999999999976); Perimeter removed (was 23199.999999999993); Volume removed (was 72.27417599999994); Actual Lighting Load removed (was 0); Actual Power Load removed (was 0); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Specified Lighting Load removed (was 0); Specified Power Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Latent Heat Gain per person removed (was 58.61421403444444); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Staff Room); Number removed (was G02); Phase removed (was New Construction); ThermalZone added: STAFF-OFFICE-ZN; ScheduleCategory added: STAFF-OFFICE-SCHEDULE; PeoplePerM2 added: 0.1; LightingPowerDensityWPerM2 added: 8; EquipmentPowerDensityWPerM2 added: 10; OutdoorAirLPerSPerson added: 8; floor area -11.4; perimeter -6; net wall area -20.9304; volume -27.7978; doors and windows 0 -> 3
+    rooms carved from 02 READING-ROOM: 01 LOBBY + 03 BOOK-STACK (62.40 of the 62.40 m2 it lost)
+    rooms carved from 04 STAFF-OFFICE: 05 TOILET-SUPPORT (11.40 of the 11.40 m2 it lost)
+    room added: 01 LOBBY
+    room added: 03 BOOK-STACK
+    room added: 05 TOILET-SUPPORT
+    element changed: IfcWall Basic Wall:EW3B07 Annex Wall:1235481 (volume, area, name, type, material, classification)
+    element changed: IfcWall Basic Wall:EW3B07 Annex Wall:1235482 (name, type, material, classification)
+    element changed: IfcWall Basic Wall:EW3B07 Annex Wall:1235483 (name, type, material, classification)
+    element changed: IfcWall Basic Wall:EW3B07 Annex Wall:1235484 (name, type, material, classification)
+    element changed: IfcWall Basic Wall:EW3B07 Annex Wall:1235485 (volume, area, name, type, material, classification)
+    element changed: IfcSlab Floor:Floor:Floor 1:1235441 (name, type, material)
+rv-ac task-07 stage1->stage2 [ODA SDAI 24.12 -> The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013]: elements 15 -> 15 (15 by GlobalId, 0 Tag, 0 geometry; 0 changed, 0 added, 0 removed); rooms 5 -> 5; lost rooms 0 -> 0
+rv-ac task-08 init->stage1 [ODA SDAI 24.12 -> ODA SDAI 24.12]: elements 10 -> 19 (10 by GlobalId, 0 Tag, 0 geometry; 10 changed, 9 added, 0 removed); rooms 2 -> 4; lost rooms 2 -> 0
+    room changed: 01 L1-LAB: number: G01 -> 01; name: Ground Lab -> L1-LAB; Name removed (was Ground Lab); Reference: Ground Lab G01 -> L1-LAB 01; Reference: Ground Lab G01 -> L1-LAB 01; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Level removed (was Ground Floor); Limit Offset removed (was 0.026246719160104987); Upper Limit removed (was Ground Floor); Area removed (was 66.64); Computation Height removed (was 0); Perimeter removed (was 33200.00000000001); Unbounded Height removed (was 0.026246719160104987); Volume removed (was 162.494976); Actual Lighting Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Latent Heat Gain per person removed (was 58.61421403444444); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load removed (was 0); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load removed (was 0); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Ground Lab); Number removed (was G01); Phase removed (was New Construction); ThermalZone added: L1-LAB-ZN; ScheduleCategory added: LAB-HIGH-EQUIPMENT; PeoplePerM2 added: 0.08; LightingPowerDensityWPerM2 added: 12; EquipmentPowerDensityWPerM2 added: 45; OutdoorAirLPerSPerson added: 15; floor area -19.04; perimeter -5.6; net wall area -20.555; volume -46.4271; doors and windows 0 -> 3
+    room changed: 03 L2-LAB: number: U01 -> 03; name: Upper Lab -> L2-LAB; Name removed (was Upper Lab); Reference: Upper Lab U01 -> L2-LAB 03; Reference: Upper Lab U01 -> L2-LAB 03; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Limit Offset removed (was 0.026246719160104987); Level removed (was Level 2); Upper Limit removed (was Level 2); Computation Height removed (was 0); Unbounded Height removed (was 0.026246719160104987); Area removed (was 66.64); Perimeter removed (was 33200.00000000001); Volume removed (was 162.494976); Actual Lighting Load removed (was 0); Actual Power Load removed (was 0); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Specified Lighting Load removed (was 0); Specified Power Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Latent Heat Gain per person removed (was 58.61421403444444); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Upper Lab); Number removed (was U01); Phase removed (was New Construction); ThermalZone added: L2-LAB-ZN; ScheduleCategory added: LAB-HIGH-EQUIPMENT; PeoplePerM2 added: 0.08; LightingPowerDensityWPerM2 added: 12; EquipmentPowerDensityWPerM2 added: 45; OutdoorAirLPerSPerson added: 15; floor area -19.04; perimeter -5.6; net wall area -20.555; volume -46.4271; doors and windows 0 -> 3
+    rooms carved from 01 L1-LAB: 02 L1-PREP (19.04 of the 19.04 m2 it lost)
+    rooms carved from 03 L2-LAB: 04 L2-PREP (19.04 of the 19.04 m2 it lost)
+    room added: 02 L1-PREP
+    room added: 04 L2-PREP
+    element changed: IfcWall Basic Wall:EW3B08 Laboratory Wall:1235513 (volume, area, name, type, material, classification)
+    element changed: IfcWall Basic Wall:EW3B08 Laboratory Wall:1235514 (name, type, material, classification)
+    element changed: IfcWall Basic Wall:EW3B08 Laboratory Wall:1235515 (volume, area, name, type, material, classification)
+    element changed: IfcWall Basic Wall:EW3B08 Laboratory Wall:1235516 (name, type, material, classification)
+    element changed: IfcWall Basic Wall:EW3B08 Laboratory Wall:1235517 (volume, area, name, type, material, classification)
+    element changed: IfcWall Basic Wall:EW3B08 Laboratory Wall:1235518 (name, type, material, classification)
+    ... 4 more elements changed
+rv-ac task-08 stage1->stage2 [ODA SDAI 24.12 -> The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013]: elements 19 -> 19 (19 by GlobalId, 0 Tag, 0 geometry; 0 changed, 0 added, 0 removed); rooms 4 -> 4; lost rooms 0 -> 0
+rv-ac task-09 init->stage1 [ODA SDAI 24.12 -> ODA SDAI 24.12]: elements 6 -> 14 (6 by GlobalId, 0 Tag, 0 geometry; 6 changed, 8 added, 0 removed); rooms 2 -> 4; lost rooms 2 -> 0
+    room changed: 02 CLASSROOM-A: number: G01 -> 02; name: Training Hall -> CLASSROOM-A; Name removed (was Training Hall); Reference: Training Hall G01 -> CLASSROOM-A 02; Reference: Training Hall G01 -> CLASSROOM-A 02; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Level removed (was Ground Floor); Limit Offset removed (was 0.026246719160104987); Upper Limit removed (was Ground Floor); Area removed (was 115.43999999999998); Computation Height removed (was 0); Perimeter removed (was 45200); Unbounded Height removed (was 0.026246719160104987); Volume removed (was 281.488896); Actual Lighting Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Latent Heat Gain per person removed (was 58.61421403444444); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load removed (was 0); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load removed (was 0); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Training Hall); Number removed (was G01); Phase removed (was New Construction); ThermalZone added: CLASSROOM-A-ZN; ScheduleCategory added: CLASSROOM-TEACHING-SCHEDULE; PeoplePerM2 added: 0.25; LightingPowerDensityWPerM2 added: 10; EquipmentPowerDensityWPerM2 added: 8; OutdoorAirLPerSPerson added: 10; floor area -69.42; perimeter -17.8; net wall area -48.2035; volume -169.2737; doors and windows 0 -> 2
+    room changed: 04 STORAGE: number: G02 -> 04; name: Store -> STORAGE; Name removed (was Store); Reference: Store G02 -> STORAGE 04; Reference: Store G02 -> STORAGE 04; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Limit Offset removed (was 0.026246719160104987); Upper Limit removed (was Ground Floor); Level removed (was Ground Floor); Computation Height removed (was 0); Unbounded Height removed (was 0.026246719160104987); Area removed (was 37.44000000000004); Perimeter removed (was 25200.000000000007); Volume removed (was 91.29369600000008); Actual Lighting Load removed (was 0); Actual Power Load removed (was 0); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Specified Lighting Load removed (was 0); Specified Power Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Latent Heat Gain per person removed (was 58.61421403444444); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Store); Number removed (was G02); Phase removed (was New Construction); ThermalZone added: STORAGE-ZN; ScheduleCategory added: STORAGE-LOW-LOAD; PeoplePerM2 added: 0.01; LightingPowerDensityWPerM2 added: 3; EquipmentPowerDensityWPerM2 added: 1; OutdoorAirLPerSPerson added: 5; net wall area -6.3; doors and windows 0 -> 3
+    rooms carved from 02 CLASSROOM-A: 01 LOBBY + 03 CLASSROOM-B (69.42 of the 69.42 m2 it lost)
+    room added: 01 LOBBY
+    room added: 03 CLASSROOM-B
+    element changed: IfcWall Basic Wall:EW3B09 200mm Bar Wall:1235483 (volume, area, name, type, material, classification)
+    element changed: IfcWall Basic Wall:EW3B09 200mm Bar Wall:1235484 (name, type, material, classification)
+    element changed: IfcWall Basic Wall:EW3B09 200mm Bar Wall:1235485 (name, type, material, classification)
+    element changed: IfcWall Basic Wall:EW3B09 200mm Bar Wall:1235486 (name, type, material, classification)
+    element changed: IfcWall Basic Wall:EW3B09 200mm Bar Wall:1235487 (volume, area, name, type, material, classification)
+    element changed: IfcSlab Floor:Floor:Floor 1:1235441 (name, type, material)
+rv-ac task-09 stage1->stage2 [ODA SDAI 24.12 -> The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013]: elements 14 -> 14 (14 by GlobalId, 0 Tag, 0 geometry; 0 changed, 0 added, 0 removed); rooms 4 -> 4; lost rooms 0 -> 0
+rv-ac task-10 init->stage1 [ODA SDAI 24.12 -> ODA SDAI 24.12]: elements 15 -> 22 (15 by GlobalId, 0 Tag, 0 geometry; 15 changed, 7 added, 0 removed); rooms 3 -> 3; lost rooms 0 -> 0
+    room changed: 01 RECEPTION-L1: number: G01 -> 01; name: Unassigned Ground -> RECEPTION-L1; Name removed (was Unassigned Ground); Reference: Unassigned Ground G01 -> RECEPTION-L1 01; Reference: Unassigned Ground G01 -> RECEPTION-L1 01; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Level removed (was Ground Floor); Limit Offset removed (was 0.026246719160104987); Upper Limit removed (was Ground Floor); Area removed (was 45.239999999999995); Computation Height removed (was 0); Perimeter removed (was 27200); Unbounded Height removed (was 0.026246719160104987); Volume removed (was 110.31321600000001); Actual Lighting Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Latent Heat Gain per person removed (was 58.61421403444444); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load removed (was 0); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load removed (was 0); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Unassigned Ground); Number removed (was G01); Phase removed (was New Construction); ThermalZone added: RECEPTION-L1-ZN; ScheduleCategory added: RECEPTION-PUBLIC-LOAD; PeoplePerM2 added: 0.12; LightingPowerDensityWPerM2 added: 8; EquipmentPowerDensityWPerM2 added: 6; OutdoorAirLPerSPerson added: 8; net wall area -4.92; doors and windows 0 -> 2
+    room changed: 02 STUDIO-L2: number: L201 -> 02; name: Unassigned Level 2 -> STUDIO-L2; Name removed (was Unassigned Level 2); Reference: Unassigned Level 2 L201 -> STUDIO-L2 02; Reference: Unassigned Level 2 L201 -> STUDIO-L2 02; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Limit Offset removed (was 0.026246719160104987); Level removed (was Level 2); Upper Limit removed (was Level 2); Computation Height removed (was 0); Unbounded Height removed (was 0.026246719160104987); Area removed (was 45.239999999999995); Perimeter removed (was 27200); Volume removed (was 110.31321600000001); Actual Lighting Load removed (was 0); Actual Power Load removed (was 0); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Specified Lighting Load removed (was 0); Specified Power Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Latent Heat Gain per person removed (was 58.61421403444444); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Unassigned Level 2); Number removed (was L201); Phase removed (was New Construction); ThermalZone added: STUDIO-L2-ZN; ScheduleCategory added: STUDIO-HIGH-EQUIPMENT; PeoplePerM2 added: 0.08; LightingPowerDensityWPerM2 added: 12; EquipmentPowerDensityWPerM2 added: 30; OutdoorAirLPerSPerson added: 10; net wall area -4.5; doors and windows 0 -> 2
+    room changed: 03 ARCHIVE-L3: number: L301 -> 03; name: Unassigned Level 3 -> ARCHIVE-L3; Name removed (was Unassigned Level 3); Reference: Unassigned Level 3 L301 -> ARCHIVE-L3 03; Reference: Unassigned Level 3 L301 -> ARCHIVE-L3 03; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Limit Offset removed (was 0.026246719160104987); Level removed (was Level 3); Upper Limit removed (was Level 3); Computation Height removed (was 0); Unbounded Height removed (was 0.026246719160104987); Area removed (was 45.239999999999995); Perimeter removed (was 27200); Volume removed (was 110.31321600000001); Actual Lighting Load removed (was 0); Actual Power Load removed (was 0); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Specified Lighting Load removed (was 0); Specified Power Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Latent Heat Gain per person removed (was 58.61421403444444); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Unassigned Level 3); Number removed (was L301); Phase removed (was New Construction); ThermalZone added: ARCHIVE-L3-ZN; ScheduleCategory added: ARCHIVE-LOW-LIGHTING; PeoplePerM2 added: 0.01; LightingPowerDensityWPerM2 added: 3; EquipmentPowerDensityWPerM2 added: 1; OutdoorAirLPerSPerson added: 5; net wall area -4.5; doors and windows 0 -> 2
+    element changed: IfcWall Basic Wall:EW3B10 200mm Stack Wall:1235546 (volume, area, name, type, material, classification)
+    element changed: IfcWall Basic Wall:EW3B10 200mm Stack Wall:1235547 (name, type, material, classification)
+    element changed: IfcWall Basic Wall:EW3B10 200mm Stack Wall:1235548 (name, type, material, classification)
+    element changed: IfcWall Basic Wall:EW3B10 200mm Stack Wall:1235549 (name, type, material, classification)
+    element changed: IfcWall Basic Wall:EW3B10 200mm Stack Wall:1235550 (volume, area, name, type, material, classification)
+    element changed: IfcWall Basic Wall:EW3B10 200mm Stack Wall:1235551 (name, type, material, classification)
+    ... 9 more elements changed
+rv-ac task-10 stage1->stage2 [ODA SDAI 24.12 -> The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013]: elements 22 -> 22 (22 by GlobalId, 0 Tag, 0 geometry; 0 changed, 0 added, 0 removed); rooms 3 -> 3; lost rooms 0 -> 0
+
+gui init->result: 15 pairs; elements 171 before, 0 kept their GlobalId, 14 changed, 82 added, 60 removed; rooms 35 before, 31 matched (7 renamed under a new GlobalId), 2 split, 0 merged; rooms reported only as removed or added: 29 before this change, 7 after
+ac-os init->stage1: 10 pairs; elements 153 before, 153 kept their GlobalId, 1 changed, 2 added, 0 removed; rooms 84 before, 84 matched (0 renamed under a new GlobalId), 0 split, 0 merged; rooms reported only as removed or added: 1 before this change, 0 after
+rv-ac init->stage1: 10 pairs; elements 81 before, 80 kept their GlobalId, 80 changed, 34 added, 1 removed; rooms 19 before, 11 matched (2 renamed under a new GlobalId), 6 split, 1 merged; rooms reported only as removed or added: 33 before this change, 0 after
+rv-ac stage1->stage2: 10 pairs; elements 114 before, 114 kept their GlobalId, 0 changed, 0 added, 0 removed; rooms 32 before, 32 matched (0 renamed under a new GlobalId), 0 split, 0 merged; rooms reported only as removed or added: 0 before this change, 0 after

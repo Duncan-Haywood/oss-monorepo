@@ -375,7 +375,10 @@ const ROOM_ATTRS = [["number", "number"], ["name", "name"], ["description", "des
 /**
  * The rooms (IfcSpace) of two takeoffs compared, as the elements are: a room
  * is matched by GlobalId, then, for a room with a new GlobalId, by its number
- * and name on the same storey when that is unique on both sides. A matched
+ * and name on the same storey when that is unique on both sides, then by
+ * geometry (same storey, box overlap, floor area) for a room renamed under a
+ * new GlobalId; rooms split into or merged from several are listed in
+ * `groups`, as the elements' are. A matched
  * room is changed when its number, name, description, storey or type
  * differs, when one of its single-value properties is added, removed or
  * given another value (a room data sheet's use or finish), when its floor
@@ -403,6 +406,46 @@ export function diffRooms(roomsA = [], roomsB = [], opts = {}) {
     const b = freeBByKey.get(k);
     if (b && freeB.has(b)) { freeA.delete(a); freeB.delete(b); pairs.push({ a, b, how: "name" }); }
   }
+  // 3. geometry: a room given a new GlobalId and a new name or number in the
+  //    same step (Archicad re-creating a zone and renaming it; EngiWorld gui
+  //    task 06 renamed UNCLASSIFIED to OFFICE). Same storey, boxes overlapping
+  //    by `roomOverlap` of their union, floor areas within 5%, and exactly one
+  //    candidate both ways. Reported as changed, with the name change listed.
+  const roomOverlap = opts.roomOverlap ?? 0.9;
+  const fa = (r) => roomQuantities(r).floorArea;
+  const roomStorey = (a, b) => (a.storey ?? null) === (b.storey ?? null);
+  const geoFits = (a, b) => a.box && b.box && roomStorey(a, b) && boxIoU(a.box, b.box) >= roomOverlap && relDiff(fa(a), fa(b)) <= 0.05;
+  if (roomOverlap > 0) {
+    for (const a of [...freeA]) {
+      const c = [...freeB].filter((b) => geoFits(a, b));
+      if (c.length !== 1 || [...freeA].filter((a2) => geoFits(a2, c[0])).length !== 1) continue;
+      freeA.delete(a); freeB.delete(c[0]); pairs.push({ a, b: c[0], how: "geometry" });
+    }
+  }
+  // 4. split / merged: one room on one side whose plan box holds the plan
+  //    centres of two or more unpaired rooms on the same storey on the other
+  //    side, their floor areas summing to 85-102% of its own (the new
+  //    partition takes some floor; EngiWorld gui task 08 split OPEN STUDIO,
+  //    29.06 m2, into STUDIO and MEETING, 14.06 m2 each). A brief that
+  //    subdivides a room is a priced change (a partition, a door, finishes on
+  //    two rooms), and listing it as one room removed and two added hides
+  //    that the floor is the same floor.
+  const groups = [];
+  const planInside = (inner, outer) => { const c = boxCentre(inner.box); return c[0] >= outer.box[0] - 0.01 && c[0] <= outer.box[3] + 0.01 && c[1] >= outer.box[1] - 0.01 && c[1] <= outer.box[4] + 0.01; };
+  const findRoomGroups = (ones, many, kind) => {
+    for (const one of [...ones]) {
+      const v = fa(one);
+      if (!one.box || !(v > 0)) continue;
+      const inside = [...many].filter((m) => m.box && fa(m) > 0 && roomStorey(m, one) && planInside(m, one));
+      if (inside.length < 2) continue;
+      const sum = inside.reduce((s, m) => s + fa(m), 0);
+      if (sum < 0.85 * v || sum > 1.02 * v) continue;
+      ones.delete(one);
+      for (const m of inside) many.delete(m);
+      groups.push(kind === "merged" ? { kind, before: inside, after: [one], floorAreaBefore: sum, floorAreaAfter: v } : { kind, before: [one], after: inside, floorAreaBefore: v, floorAreaAfter: sum });
+    }
+  };
+  if (opts.roomGroups !== false) { findRoomGroups(freeA, freeB, "split"); findRoomGroups(freeB, freeA, "merged"); }
   const changed = [], unchanged = [];
   for (const p of pairs) {
     const attributes = {};
@@ -425,13 +468,37 @@ export function diffRooms(roomsA = [], roomsB = [], opts = {}) {
     else unchanged.push(entry);
   }
   const added = [...freeB], removed = [...freeA];
+  // 5. carved: a matched room that kept its GlobalId (or its name) but lost
+  //    floor, and added rooms on its storey whose plan centres lie in its
+  //    earlier box and outside its later one, their floor areas summing to
+  //    85-102% of the floor it lost. Revit keeps the old room's GlobalId for
+  //    the part that keeps its number and draws the rest as new rooms
+  //    (EngiWorld revit--archicad task 08: Ground Lab 66.64 -> 47.60 m2,
+  //    L1-PREP 19.04 m2 added in the 19.04 m2 it lost). The added rooms stay
+  //    added (they are new records); `carved` says where their floor came from.
+  const carved = [];
+  if (opts.roomGroups !== false) {
+    const taken = new Set();
+    for (const c of changed) {
+      const fall = (c.before.floorArea ?? 0) - (c.after.floorArea ?? 0);
+      if (!(fall > 0) || !c.a.box || !c.b.box) continue;
+      const rs = added.filter((r) => !taken.has(r) && r.box && fa(r) > 0 && roomStorey(r, c.b) && planInside(r, c.a) && !planInside(r, c.b));
+      if (!rs.length) continue;
+      const sum = rs.reduce((t, r) => t + fa(r), 0);
+      if (sum < 0.85 * fall || sum > 1.02 * fall) continue;
+      for (const r of rs) taken.add(r);
+      carved.push({ from: c, rooms: rs, floorAreaLost: fall, floorAreaCarved: sum });
+    }
+  }
   const area = (rs) => rs.reduce((s, r) => s + (roomQuantities(r).floorArea ?? 0), 0);
   return {
-    changed, unchanged, added, removed,
+    changed, unchanged, added, removed, groups, carved,
     summary: {
       before: roomsA.length, after: roomsB.length,
-      matched: pairs.length, byGlobalId: pairs.filter((p) => p.how === "globalId").length, byName: pairs.filter((p) => p.how === "name").length,
+      matched: pairs.length, byGlobalId: pairs.filter((p) => p.how === "globalId").length, byName: pairs.filter((p) => p.how === "name").length, byGeometry: pairs.filter((p) => p.how === "geometry").length,
       unchanged: unchanged.length, changed: changed.length, added: added.length, removed: removed.length,
+      split: groups.filter((g) => g.kind === "split").length, merged: groups.filter((g) => g.kind === "merged").length,
+      carvedFrom: carved.length, carvedRooms: carved.reduce((t, k) => t + k.rooms.length, 0),
       attributeChanged: changed.filter((c) => Object.keys(c.attributes).length).length,
       propertyChanged: changed.filter((c) => Object.keys(c.properties).length).length,
       quantityChanged: changed.filter((c) => Object.keys(c.quantities).length).length,
@@ -506,6 +573,8 @@ export function boqDeltaCsv(lines, by, { all = false } = {}) {
 
 const HOW_TEXT = { globalId: "", tag: "new GlobalId, matched by Tag", geometry: "new GlobalId, matched by geometry", place: "new element in the same place (box overlap)" };
 
+const ROOM_HOW = { globalId: "", name: "new GlobalId, matched by number and name", geometry: "new GlobalId, matched by geometry (renamed)" };
+
 /** One CSV row per element that is not unchanged. */
 export function changesCsv(d) {
   const head = ["Change", "GlobalId before", "GlobalId after", "Class", "Name", "Type", "Storey", "Matched by", "What changed", "Volume m3 before", "Volume m3 after", "Area m2 before", "Area m2 after", "Length m before", "Length m after", "Weight kg before", "Weight kg after", "Moved m"];
@@ -538,9 +607,17 @@ export function changesCsv(d) {
     const rq = (q) => [q?.volume ?? null, q?.floorArea ?? null];
     const rcells = (qa, qb) => { const [va, aa] = rq(qa), [vb, ab] = rq(qb); return [va, vb, aa, ab, null, null, null, null]; };
     const label = (r) => [r.number, r.name].filter(Boolean).join(" ") || `#${r.id}`;
-    for (const c of d.rooms.changed) out.push(["room changed", c.a.globalId, c.b.globalId, "IfcSpace", label(c.b), "", c.b.storey, c.how === "name" ? "new GlobalId, matched by number and name" : "", roomChangeText(c), ...rcells(c.before, c.after), null].map(csvCell).join(","));
-    for (const c of d.rooms.unchanged) if (c.how !== "globalId") out.push(["same room, new GlobalId", c.a.globalId, c.b.globalId, "IfcSpace", label(c.b), "", c.b.storey, "new GlobalId, matched by number and name", "", ...rcells(c.before, c.after), null].map(csvCell).join(","));
-    for (const r of d.rooms.added) out.push(["room added", "", r.globalId, "IfcSpace", label(r), "", r.storey, "", "", ...rcells(null, roomQuantities(r)), null].map(csvCell).join(","));
+    for (const c of d.rooms.changed) out.push(["room changed", c.a.globalId, c.b.globalId, "IfcSpace", label(c.b), "", c.b.storey, (Object.hasOwn(ROOM_HOW, c.how) ? ROOM_HOW[c.how] : ""), roomChangeText(c), ...rcells(c.before, c.after), null].map(csvCell).join(","));
+    for (const c of d.rooms.unchanged) if (c.how !== "globalId") out.push(["same room, new GlobalId", c.a.globalId, c.b.globalId, "IfcSpace", label(c.b), "", c.b.storey, (Object.hasOwn(ROOM_HOW, c.how) ? ROOM_HOW[c.how] : ""), "", ...rcells(c.before, c.after), null].map(csvCell).join(","));
+    for (const g of d.rooms.groups || []) {
+      const kind = g.kind === "merged" ? `room merged (${g.before.length} into 1)` : `room split (1 into ${g.after.length})`;
+      const what = `${g.before.map(label).join(" + ")} -> ${g.after.map(label).join(" + ")}; floor area ${Math.round(g.floorAreaBefore * 100) / 100} -> ${Math.round(g.floorAreaAfter * 100) / 100} m2`;
+      for (const r of g.before) out.push([kind, r.globalId, "", "IfcSpace", label(r), "", r.storey, "plan box and floor area", what, ...rcells(roomQuantities(r), null), null].map(csvCell).join(","));
+      for (const r of g.after) out.push([kind, "", r.globalId, "IfcSpace", label(r), "", r.storey, "plan box and floor area", what, ...rcells(null, roomQuantities(r)), null].map(csvCell).join(","));
+    }
+    const carvedOf = new Map();
+    for (const k of d.rooms.carved || []) for (const r of k.rooms) carvedOf.set(r, k);
+    for (const r of d.rooms.added) { const k = carvedOf.get(r); out.push(["room added", "", r.globalId, "IfcSpace", label(r), "", r.storey, k ? "plan box and floor area" : "", k ? `carved from ${label(k.from.b)} (it lost ${Math.round(k.floorAreaLost * 100) / 100} m2; ${k.rooms.length} room${k.rooms.length === 1 ? "" : "s"} carved, ${Math.round(k.floorAreaCarved * 100) / 100} m2)` : "", ...rcells(null, roomQuantities(r)), null].map(csvCell).join(",")); }
     for (const r of d.rooms.removed) out.push(["room removed", r.globalId, "", "IfcSpace", label(r), "", r.storey, "", "", ...rcells(roomQuantities(r), null), null].map(csvCell).join(","));
   }
   return out.join("\r\n") + "\r\n";

@@ -1,0 +1,2048 @@
+{
+ "totals": {
+  "gui": {
+   "init->result": {
+    "pairs": 15,
+    "elements": 171,
+    "elementsByGlobalId": 0,
+    "elementsChanged": 14,
+    "elementsAdded": 82,
+    "elementsRemoved": 60,
+    "rooms": 35,
+    "roomsMatched": 31,
+    "renamed": 7,
+    "split": 2,
+    "merged": 0,
+    "lostBefore": 29,
+    "lostAfter": 7
+   }
+  },
+  "ac-os": {
+   "init->stage1": {
+    "pairs": 10,
+    "elements": 153,
+    "elementsByGlobalId": 153,
+    "elementsChanged": 1,
+    "elementsAdded": 2,
+    "elementsRemoved": 0,
+    "rooms": 84,
+    "roomsMatched": 84,
+    "renamed": 0,
+    "split": 0,
+    "merged": 0,
+    "lostBefore": 1,
+    "lostAfter": 0
+   }
+  },
+  "rv-ac": {
+   "init->stage1": {
+    "pairs": 10,
+    "elements": 81,
+    "elementsByGlobalId": 80,
+    "elementsChanged": 80,
+    "elementsAdded": 34,
+    "elementsRemoved": 1,
+    "rooms": 19,
+    "roomsMatched": 11,
+    "renamed": 2,
+    "split": 6,
+    "merged": 1,
+    "lostBefore": 33,
+    "lostAfter": 0
+   },
+   "stage1->stage2": {
+    "pairs": 10,
+    "elements": 114,
+    "elementsByGlobalId": 114,
+    "elementsChanged": 0,
+    "elementsAdded": 0,
+    "elementsRemoved": 0,
+    "rooms": 32,
+    "roomsMatched": 32,
+    "renamed": 0,
+    "split": 0,
+    "merged": 0,
+    "lostBefore": 0,
+    "lostAfter": 0
+   }
+  }
+ },
+ "pairs": [
+  {
+   "set": "gui",
+   "task": "task-06",
+   "step": "init->result",
+   "writers": [
+    "IfcOpenShell 0.8.5-1c5b825",
+    "IfcOpenShell 0.8.5-1c5b825"
+   ],
+   "elements": {
+    "before": 7,
+    "after": 7,
+    "byGlobalId": 0,
+    "byTag": 0,
+    "byGeometry": 4,
+    "unchanged": 4,
+    "changed": 1,
+    "added": 2,
+    "removed": 2,
+    "replacedInPlace": 1
+   },
+   "rooms": {
+    "before": 1,
+    "after": 1,
+    "byGlobalId": 0,
+    "byName": 0,
+    "byGeometry": 1,
+    "unchanged": 0,
+    "changed": 1,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 2,
+    "after": 0
+   },
+   "lines": [
+    "room changed (renamed, new GlobalId): OFFICE: number: UNCLASSIFIED -> OFFICE; net wall area +1.3359",
+    "element replaced in place: IfcWall Exterior Wall 1 (volume, area)"
+   ]
+  },
+  {
+   "set": "gui",
+   "task": "task-07",
+   "step": "init->result",
+   "writers": [
+    "IfcOpenShell 0.8.5-1c5b825",
+    "IfcOpenShell 0.8.5-1c5b825"
+   ],
+   "elements": {
+    "before": 5,
+    "after": 7,
+    "byGlobalId": 0,
+    "byTag": 0,
+    "byGeometry": 5,
+    "unchanged": 5,
+    "changed": 0,
+    "added": 2,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 1,
+    "after": 1,
+    "byGlobalId": 0,
+    "byName": 1,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 1,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": [
+    "room changed (new GlobalId): ROOM 101: doors and windows 0 -> 1"
+   ]
+  },
+  {
+   "set": "gui",
+   "task": "task-08",
+   "step": "init->result",
+   "writers": [
+    "IfcOpenShell 0.8.5-1c5b825",
+    "IfcOpenShell 0.8.5-1c5b825"
+   ],
+   "elements": {
+    "before": 9,
+    "after": 10,
+    "byGlobalId": 0,
+    "byTag": 0,
+    "byGeometry": 4,
+    "unchanged": 4,
+    "changed": 1,
+    "added": 5,
+    "removed": 4,
+    "replacedInPlace": 1
+   },
+   "rooms": {
+    "before": 1,
+    "after": 2,
+    "byGlobalId": 0,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "split": 1,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 3,
+    "after": 0
+   },
+   "lines": [
+    "room split: OPEN STUDIO -> MEETING + STUDIO (29.06 -> 28.13 m2)",
+    "element replaced in place: IfcWall Exterior Wall 1 (volume, area)"
+   ]
+  },
+  {
+   "set": "gui",
+   "task": "task-09",
+   "step": "init->result",
+   "writers": [
+    "IfcOpenShell 0.8.5-1c5b825",
+    "IfcOpenShell 0.8.5-1c5b825"
+   ],
+   "elements": {
+    "before": 12,
+    "after": 12,
+    "byGlobalId": 0,
+    "byTag": 0,
+    "byGeometry": 6,
+    "unchanged": 6,
+    "changed": 1,
+    "added": 5,
+    "removed": 5,
+    "replacedInPlace": 1
+   },
+   "rooms": {
+    "before": 3,
+    "after": 3,
+    "byGlobalId": 0,
+    "byName": 0,
+    "byGeometry": 3,
+    "unchanged": 0,
+    "changed": 3,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 6,
+    "after": 0
+   },
+   "lines": [
+    "room changed (renamed, new GlobalId): OFFICE: number: ROOM-A -> OFFICE; net wall area +1.35; doors and windows 1 -> 0",
+    "room changed (renamed, new GlobalId): STORAGE: number: ROOM-B -> STORAGE; net wall area +1.35; doors and windows 1 -> 0",
+    "room changed (renamed, new GlobalId): WC: number: UNCLASSIFIED -> WC; doors and windows 0 -> 2",
+    "element replaced in place: IfcWall Exterior Wall 1 (volume, area)"
+   ]
+  },
+  {
+   "set": "gui",
+   "task": "task-10",
+   "step": "init->result",
+   "writers": [
+    "IfcOpenShell 0.8.5-1c5b825",
+    "IfcOpenShell 0.8.5-1c5b825"
+   ],
+   "elements": {
+    "before": 9,
+    "after": 10,
+    "byGlobalId": 0,
+    "byTag": 0,
+    "byGeometry": 5,
+    "unchanged": 5,
+    "changed": 1,
+    "added": 4,
+    "removed": 3,
+    "replacedInPlace": 1
+   },
+   "rooms": {
+    "before": 2,
+    "after": 2,
+    "byGlobalId": 0,
+    "byName": 2,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 2,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": [
+    "room changed (new GlobalId): STORE: net wall area +1.35; doors and windows 1 -> 0",
+    "room changed (new GlobalId): UTILITY: doors and windows 0 -> 1",
+    "element replaced in place: IfcWall Exterior Wall 1 (volume, area)"
+   ]
+  },
+  {
+   "set": "gui",
+   "task": "task-11",
+   "step": "init->result",
+   "writers": [
+    "IfcOpenShell 0.8.5-1c5b825",
+    "IfcOpenShell 0.8.5-1c5b825"
+   ],
+   "elements": {
+    "before": 9,
+    "after": 10,
+    "byGlobalId": 0,
+    "byTag": 0,
+    "byGeometry": 4,
+    "unchanged": 4,
+    "changed": 1,
+    "added": 5,
+    "removed": 4,
+    "replacedInPlace": 1
+   },
+   "rooms": {
+    "before": 2,
+    "after": 2,
+    "byGlobalId": 0,
+    "byName": 2,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 2,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": [
+    "room changed (new GlobalId): OFFICE: net wall area +1.3217; doors and windows 1 -> 2",
+    "room changed (new GlobalId): STORAGE: net wall area +1.35; doors and windows 1 -> 0",
+    "element replaced in place: IfcWall Exterior Wall 1 (volume, area)"
+   ]
+  },
+  {
+   "set": "gui",
+   "task": "task-12",
+   "step": "init->result",
+   "writers": [
+    "IfcOpenShell 0.8.5-1c5b825",
+    "IfcOpenShell 0.8.5-1c5b825"
+   ],
+   "elements": {
+    "before": 14,
+    "after": 15,
+    "byGlobalId": 0,
+    "byTag": 0,
+    "byGeometry": 9,
+    "unchanged": 9,
+    "changed": 1,
+    "added": 5,
+    "removed": 4,
+    "replacedInPlace": 1
+   },
+   "rooms": {
+    "before": 2,
+    "after": 2,
+    "byGlobalId": 0,
+    "byName": 2,
+    "byGeometry": 0,
+    "unchanged": 1,
+    "changed": 1,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": [
+    "room changed (new GlobalId): LOWER ROOM: net wall area +1.3359",
+    "element replaced in place: IfcWall Exterior Wall 1 (volume, area)"
+   ]
+  },
+  {
+   "set": "gui",
+   "task": "task-13",
+   "step": "init->result",
+   "writers": [
+    "IfcOpenShell 0.8.5-1c5b825",
+    "IfcOpenShell 0.8.5-1c5b825"
+   ],
+   "elements": {
+    "before": 12,
+    "after": 13,
+    "byGlobalId": 0,
+    "byTag": 0,
+    "byGeometry": 7,
+    "unchanged": 7,
+    "changed": 1,
+    "added": 5,
+    "removed": 4,
+    "replacedInPlace": 1
+   },
+   "rooms": {
+    "before": 3,
+    "after": 3,
+    "byGlobalId": 0,
+    "byName": 3,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 3,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": [
+    "room changed (new GlobalId): CORRIDOR: net wall area +1.35; doors and windows 1 -> 0",
+    "room changed (new GlobalId): ROOM 1: net wall area +1.35; doors and windows 1 -> 0",
+    "room changed (new GlobalId): ROOM 2: doors and windows 0 -> 2",
+    "element replaced in place: IfcWall Exterior Wall 1 (volume, area)"
+   ]
+  },
+  {
+   "set": "gui",
+   "task": "task-14",
+   "step": "init->result",
+   "writers": [
+    "IfcOpenShell 0.8.5-1c5b825",
+    "IfcOpenShell 0.8.5-1c5b825"
+   ],
+   "elements": {
+    "before": 10,
+    "after": 11,
+    "byGlobalId": 0,
+    "byTag": 0,
+    "byGeometry": 5,
+    "unchanged": 5,
+    "changed": 1,
+    "added": 5,
+    "removed": 4,
+    "replacedInPlace": 1
+   },
+   "rooms": {
+    "before": 2,
+    "after": 2,
+    "byGlobalId": 0,
+    "byName": 2,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 2,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": [
+    "room changed (new GlobalId): STORE: net wall area +1.35; doors and windows 1 -> 0",
+    "room changed (new GlobalId): WORK ROOM: net wall area +1.3076; doors and windows 1 -> 3",
+    "element replaced in place: IfcWall Exterior Wall 1 (volume, area)"
+   ]
+  },
+  {
+   "set": "gui",
+   "task": "task-15",
+   "step": "init->result",
+   "writers": [
+    "IfcOpenShell 0.8.5-1c5b825",
+    "IfcOpenShell 0.8.5-1c5b825"
+   ],
+   "elements": {
+    "before": 14,
+    "after": 16,
+    "byGlobalId": 0,
+    "byTag": 0,
+    "byGeometry": 8,
+    "unchanged": 8,
+    "changed": 1,
+    "added": 7,
+    "removed": 5,
+    "replacedInPlace": 1
+   },
+   "rooms": {
+    "before": 4,
+    "after": 5,
+    "byGlobalId": 0,
+    "byName": 3,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 3,
+    "added": 2,
+    "removed": 1,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 3,
+    "after": 3
+   },
+   "lines": [
+    "room changed (new GlobalId): RECEPTION: floor area -5.5; perimeter -4; net wall area -11.2; volume -15.4",
+    "room changed (new GlobalId): STAFF: floor area -5.5; perimeter -4; net wall area -11.2283; volume -15.4; doors and windows 0 -> 2",
+    "room changed (new GlobalId): WC: floor area -5.5; perimeter -4; net wall area -11.2; volume -15.4",
+    "room added: CHAIR",
+    "room added: STERILIZATION",
+    "room removed: EXAM",
+    "element replaced in place: IfcWall Exterior Wall 1 (volume, area)"
+   ]
+  },
+  {
+   "set": "gui",
+   "task": "task-16",
+   "step": "init->result",
+   "writers": [
+    "IfcOpenShell 0.8.5-1c5b825",
+    "IfcOpenShell 0.8.5-1c5b825"
+   ],
+   "elements": {
+    "before": 13,
+    "after": 15,
+    "byGlobalId": 0,
+    "byTag": 0,
+    "byGeometry": 7,
+    "unchanged": 7,
+    "changed": 1,
+    "added": 7,
+    "removed": 5,
+    "replacedInPlace": 1
+   },
+   "rooms": {
+    "before": 2,
+    "after": 4,
+    "byGlobalId": 0,
+    "byName": 2,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 2,
+    "added": 2,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 2,
+    "after": 0
+   },
+   "lines": [
+    "room changed (new GlobalId): OPEN OFFICE: floor area -17.25; perimeter -6; net wall area -15.45; volume -48.3; doors and windows 1 -> 0",
+    "room changed (new GlobalId): WC: floor area -17.25; perimeter -6; net wall area -15.45; volume -48.3; doors and windows 1 -> 0",
+    "rooms carved from OPEN OFFICE: STORAGE (15.81 of the 17.25 m2 it lost)",
+    "rooms carved from WC: MEETING (15.81 of the 17.25 m2 it lost)",
+    "room added: MEETING",
+    "room added: STORAGE",
+    "element replaced in place: IfcWall Exterior Wall 1 (volume, area)"
+   ]
+  },
+  {
+   "set": "gui",
+   "task": "task-17",
+   "step": "init->result",
+   "writers": [
+    "IfcOpenShell 0.8.5-1c5b825",
+    "IfcOpenShell 0.8.5-1c5b825"
+   ],
+   "elements": {
+    "before": 14,
+    "after": 16,
+    "byGlobalId": 0,
+    "byTag": 0,
+    "byGeometry": 8,
+    "unchanged": 8,
+    "changed": 1,
+    "added": 7,
+    "removed": 5,
+    "replacedInPlace": 1
+   },
+   "rooms": {
+    "before": 3,
+    "after": 4,
+    "byGlobalId": 0,
+    "byName": 2,
+    "byGeometry": 1,
+    "unchanged": 1,
+    "changed": 2,
+    "added": 1,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 3,
+    "after": 1
+   },
+   "lines": [
+    "room changed (new GlobalId): LIVING: net wall area +1.35; doors and windows 1 -> 0",
+    "room changed (renamed, new GlobalId): BEDROOM: number: ROOM -> BEDROOM; net wall area +1.35; doors and windows 1 -> 0",
+    "room added: KITCHEN",
+    "element replaced in place: IfcWall Exterior Wall 1 (volume, area)"
+   ]
+  },
+  {
+   "set": "gui",
+   "task": "task-18",
+   "step": "init->result",
+   "writers": [
+    "IfcOpenShell 0.8.5-1c5b825",
+    "IfcOpenShell 0.8.5-1c5b825"
+   ],
+   "elements": {
+    "before": 15,
+    "after": 17,
+    "byGlobalId": 0,
+    "byTag": 0,
+    "byGeometry": 8,
+    "unchanged": 8,
+    "changed": 1,
+    "added": 8,
+    "removed": 6,
+    "replacedInPlace": 1
+   },
+   "rooms": {
+    "before": 4,
+    "after": 4,
+    "byGlobalId": 0,
+    "byName": 3,
+    "byGeometry": 1,
+    "unchanged": 0,
+    "changed": 4,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 2,
+    "after": 0
+   },
+   "lines": [
+    "room changed (new GlobalId): CLASS-1: net wall area +1.35; doors and windows 1 -> 0",
+    "room changed (new GlobalId): CLASS-2: net wall area +2.7; doors and windows 2 -> 0",
+    "room changed (new GlobalId): CORRIDOR: doors and windows 0 -> 4",
+    "room changed (renamed, new GlobalId): WC: number: UNCLASSIFIED -> WC",
+    "element replaced in place: IfcWall Exterior Wall 1 (volume, area)"
+   ]
+  },
+  {
+   "set": "gui",
+   "task": "task-19",
+   "step": "init->result",
+   "writers": [
+    "IfcOpenShell 0.8.5-1c5b825",
+    "IfcOpenShell 0.8.5-1c5b825"
+   ],
+   "elements": {
+    "before": 14,
+    "after": 16,
+    "byGlobalId": 0,
+    "byTag": 0,
+    "byGeometry": 8,
+    "unchanged": 8,
+    "changed": 1,
+    "added": 7,
+    "removed": 5,
+    "replacedInPlace": 1
+   },
+   "rooms": {
+    "before": 3,
+    "after": 4,
+    "byGlobalId": 0,
+    "byName": 2,
+    "byGeometry": 1,
+    "unchanged": 0,
+    "changed": 3,
+    "added": 1,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 3,
+    "after": 1
+   },
+   "lines": [
+    "room changed (new GlobalId): LOBBY: net wall area +1.35; doors and windows 1 -> 0",
+    "room changed (new GlobalId): READING: net wall area +1.35; doors and windows 1 -> 0",
+    "room changed (renamed, new GlobalId): STACKS: number: UNCLASSIFIED -> STACKS; doors and windows 0 -> 3",
+    "room added: OFFICE",
+    "element replaced in place: IfcWall Exterior Wall 1 (volume, area)"
+   ]
+  },
+  {
+   "set": "gui",
+   "task": "task-20",
+   "step": "init->result",
+   "writers": [
+    "IfcOpenShell 0.8.5-1c5b825",
+    "IfcOpenShell 0.8.5-1c5b825"
+   ],
+   "elements": {
+    "before": 14,
+    "after": 18,
+    "byGlobalId": 0,
+    "byTag": 0,
+    "byGeometry": 9,
+    "unchanged": 9,
+    "changed": 1,
+    "added": 8,
+    "removed": 4,
+    "replacedInPlace": 1
+   },
+   "rooms": {
+    "before": 2,
+    "after": 3,
+    "byGlobalId": 0,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 0,
+    "added": 1,
+    "removed": 1,
+    "split": 1,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 5,
+    "after": 2
+   },
+   "lines": [
+    "room split: LOWER -> LOBBY + UPPER ROOM (21.56 -> 20.63 m2)",
+    "room added: STAIR",
+    "room removed: UPPER",
+    "element replaced in place: IfcWall Exterior Wall 1 (volume, area)"
+   ]
+  },
+  {
+   "set": "ac-os",
+   "task": "task-01",
+   "step": "init->stage1",
+   "writers": [
+    "Archicad 27",
+    "The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013"
+   ],
+   "elements": {
+    "before": 5,
+    "after": 7,
+    "byGlobalId": 5,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 4,
+    "changed": 1,
+    "added": 2,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 1,
+    "after": 2,
+    "byGlobalId": 1,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 1,
+    "added": 1,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 1,
+    "after": 0
+   },
+   "lines": [
+    "room changed: SITE-OFFICE SITE-OFFICE-ZN: number: UNCLASSIFIED -> SITE-OFFICE; name: (none) -> SITE-OFFICE-ZN; description: (none) -> EW2A01 | SITE-OFFICE | PRINT-COPY | SOUTH-ENTRANCE-WINDOW | OPAQUE-NORTH-WEST | multi-cli-2-archicad-openstudio-task-01-windows; floor area -7.92; perimeter -4.4; net wall area -16.01; volume -22.176; doors and windows 0 -> 2",
+    "rooms carved from SITE-OFFICE SITE-OFFICE-ZN: PRINT-COPY PRINT-COPY-ZN (7.92 of the 7.92 m2 it lost)",
+    "room added: PRINT-COPY PRINT-COPY-ZN",
+    "element changed: IfcWall South Wall (volume, area)"
+   ]
+  },
+  {
+   "set": "ac-os",
+   "task": "task-02",
+   "step": "init->stage1",
+   "writers": [
+    "?",
+    "?"
+   ],
+   "elements": {
+    "before": 41,
+    "after": 41,
+    "byGlobalId": 41,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 41,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 9,
+    "after": 9,
+    "byGlobalId": 9,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 8,
+    "changed": 1,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": [
+    "room changed: CONSULT C03: number: CONSULT-1 -> CONSULT"
+   ]
+  },
+  {
+   "set": "ac-os",
+   "task": "task-03",
+   "step": "init->stage1",
+   "writers": [
+    "?",
+    "?"
+   ],
+   "elements": {
+    "before": 5,
+    "after": 5,
+    "byGlobalId": 5,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 5,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 7,
+    "after": 7,
+    "byGlobalId": 7,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 3,
+    "changed": 4,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": [
+    "room changed: READING L02: number: G-READING -> READING",
+    "room changed: GALLERY L05: number: 1-GALLERY -> GALLERY",
+    "room changed: QUIET-POD-01 L06: number: 1-STUDY-1 -> QUIET-POD-01",
+    "room changed: QUIET-POD-02 L07: number: 1-STUDY-2 -> QUIET-POD-02"
+   ]
+  },
+  {
+   "set": "ac-os",
+   "task": "task-04",
+   "step": "init->stage1",
+   "writers": [
+    "?",
+    "?"
+   ],
+   "elements": {
+    "before": 29,
+    "after": 29,
+    "byGlobalId": 29,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 29,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 6,
+    "after": 6,
+    "byGlobalId": 6,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 4,
+    "changed": 2,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": [
+    "room changed: WORKSHOP W01: number: BAY-1 -> WORKSHOP",
+    "room changed: PARCEL-PICKUP W06: number: LOADING -> PARCEL-PICKUP"
+   ]
+  },
+  {
+   "set": "ac-os",
+   "task": "task-05",
+   "step": "init->stage1",
+   "writers": [
+    "?",
+    "?"
+   ],
+   "elements": {
+    "before": 3,
+    "after": 3,
+    "byGlobalId": 3,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 3,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 5,
+    "after": 5,
+    "byGlobalId": 5,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 2,
+    "changed": 3,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": [
+    "room changed: STORAGE STORAGE-ZN: number: OFFICE -> STORAGE; name: (none) -> STORAGE-ZN",
+    "room changed: FINISHING-BOOTH FINISHING-BOOTH-ZN: number: STORE -> FINISHING-BOOTH; name: (none) -> FINISHING-BOOTH-ZN",
+    "room changed: MAIN-STUDIO MAIN-STUDIO-ZN: number: STUDIO -> MAIN-STUDIO; name: (none) -> MAIN-STUDIO-ZN"
+   ]
+  },
+  {
+   "set": "ac-os",
+   "task": "task-06",
+   "step": "init->stage1",
+   "writers": [
+    "?",
+    "?"
+   ],
+   "elements": {
+    "before": 2,
+    "after": 2,
+    "byGlobalId": 2,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 2,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 10,
+    "after": 10,
+    "byGlobalId": 10,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 6,
+    "changed": 4,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": [
+    "room changed: PLAYROOM PLAYROOM-ZN: number: CLASSROOM-1 -> PLAYROOM; name: (none) -> PLAYROOM-ZN",
+    "room changed: SICK-BAY SICK-BAY-ZN: number: CLASSROOM-2 -> SICK-BAY; name: (none) -> SICK-BAY-ZN",
+    "room changed: CALM-ROOM CALM-ROOM-ZN: number: CLASSROOM-3 -> CALM-ROOM; name: (none) -> CALM-ROOM-ZN",
+    "room changed: STAFF-SUPPORT STAFF-SUPPORT-ZN: number: CLASSROOM-4 -> STAFF-SUPPORT; name: (none) -> STAFF-SUPPORT-ZN"
+   ]
+  },
+  {
+   "set": "ac-os",
+   "task": "task-07",
+   "step": "init->stage1",
+   "writers": [
+    "?",
+    "?"
+   ],
+   "elements": {
+    "before": 2,
+    "after": 2,
+    "byGlobalId": 2,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 2,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 13,
+    "after": 13,
+    "byGlobalId": 13,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 10,
+    "changed": 3,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": [
+    "room changed: MARKET-HALL MARKET-HALL-ZN: number: AISLE -> MARKET-HALL; name: (none) -> MARKET-HALL-ZN",
+    "room changed: COLD-CHAIN COLD-CHAIN-ZN: number: COLD-STORE -> COLD-CHAIN; name: (none) -> COLD-CHAIN-ZN",
+    "room changed: WASTE-HOLDING WASTE-HOLDING-ZN: number: DRY-STORE -> WASTE-HOLDING; name: (none) -> WASTE-HOLDING-ZN"
+   ]
+  },
+  {
+   "set": "ac-os",
+   "task": "task-08",
+   "step": "init->stage1",
+   "writers": [
+    "?",
+    "?"
+   ],
+   "elements": {
+    "before": 5,
+    "after": 5,
+    "byGlobalId": 5,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 5,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 10,
+    "after": 10,
+    "byGlobalId": 10,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 7,
+    "changed": 3,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": [
+    "room changed: ACCESSIBLE-SUITE ACCESSIBLE-SUITE-ZN: number: GUEST-2 -> ACCESSIBLE-SUITE; name: (none) -> ACCESSIBLE-SUITE-ZN",
+    "room changed: HOUSEKEEPING-CLOSET HOUSEKEEPING-CLOSET-ZN: number: LINEN -> HOUSEKEEPING-CLOSET; name: (none) -> HOUSEKEEPING-CLOSET-ZN",
+    "room changed: RECEPTION RECEPTION-ZN: name: (none) -> RECEPTION-ZN"
+   ]
+  },
+  {
+   "set": "ac-os",
+   "task": "task-09",
+   "step": "init->stage1",
+   "writers": [
+    "?",
+    "?"
+   ],
+   "elements": {
+    "before": 11,
+    "after": 11,
+    "byGlobalId": 11,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 11,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 11,
+    "after": 11,
+    "byGlobalId": 11,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 2,
+    "changed": 9,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": [
+    "room changed: BED-1 BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED: name: (none) -> BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED",
+    "room changed: BED-2 BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED: name: (none) -> BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED",
+    "room changed: BED-3 BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED: name: (none) -> BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED",
+    "room changed: LAUNDRY LAUNDRY-ZN | HIGH-EQUIPMENT-LAUNDRY: name: (none) -> LAUNDRY-ZN | HIGH-EQUIPMENT-LAUNDRY",
+    "room changed: SOCIAL-COMMONS SOCIAL-COMMONS-ZN: number: LOUNGE -> SOCIAL-COMMONS; name: (none) -> SOCIAL-COMMONS-ZN",
+    "room changed: QUIET-STUDY QUIET-STUDY-ZN | LOW-EQUIPMENT-STUDY: number: SHARED-KITCHEN -> QUIET-STUDY; name: (none) -> QUIET-STUDY-ZN | LOW-EQUIPMENT-STUDY",
+    "room changed: BED-4 BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED: name: (none) -> BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED",
+    "room changed: BED-5 BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED: name: (none) -> BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED",
+    "room changed: BED-6 BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED: name: (none) -> BEDROOM-GROUP-ZN | BEDROOM-GROUP | BEDROOM-COUNT-PRESERVED"
+   ]
+  },
+  {
+   "set": "ac-os",
+   "task": "task-10",
+   "step": "init->stage1",
+   "writers": [
+    "IfcOpenShell 0.8.5-1c5b825",
+    "The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013"
+   ],
+   "elements": {
+    "before": 50,
+    "after": 50,
+    "byGlobalId": 50,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 50,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 12,
+    "after": 12,
+    "byGlobalId": 12,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 7,
+    "changed": 5,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": [
+    "room changed: PPE-DONNING PPE-DONNING-ZN | PPE-SUPPORT | ISOLATION-FLOW-04: number: CLEAN -> PPE-DONNING; name: (none) -> PPE-DONNING-ZN | PPE-SUPPORT | ISOLATION-FLOW-04",
+    "room changed: CONSULT CONSULT-ZN | CLINICAL-VENTILATION | ISOLATION-FLOW-01: number: CONSULT-1 -> CONSULT; name: (none) -> CONSULT-ZN | CLINICAL-VENTILATION | ISOLATION-FLOW-01",
+    "room changed: ISO-CONSULT ISO-CONSULT-ZN | ISOLATION-CONSULT-SCHEDULE | ISOLATION-FLOW-03: number: CONSULT-2 -> ISO-CONSULT; name: (none) -> ISO-CONSULT-ZN | ISOLATION-CONSULT-SCHEDULE | ISOLATION-FLOW-03",
+    "room changed: CONTAMINATED-SUPPORT CONTAMINATED-SUPPORT-ZN | CONTAMINATED-SUPPORT-LOW-OCCUPANCY | ISOLATION-FLOW-05: number: DIRTY -> CONTAMINATED-SUPPORT; name: (none) -> CONTAMINATED-SUPPORT-ZN | CONTAMINATED-SUPPORT-LOW-OCCUPANCY | ISOLATION-FLOW-05",
+    "room changed: EQUIPMENT EQUIPMENT-ZN | CLINICAL-VENTILATION | ISOLATION-FLOW-02: number: LAB -> EQUIPMENT; name: (none) -> EQUIPMENT-ZN | CLINICAL-VENTILATION | ISOLATION-FLOW-02"
+   ]
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-01",
+   "step": "init->stage1",
+   "writers": [
+    "ODA SDAI 24.12",
+    "ODA SDAI 24.12"
+   ],
+   "elements": {
+    "before": 5,
+    "after": 5,
+    "byGlobalId": 5,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 5,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 1,
+    "after": 2,
+    "byGlobalId": 0,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "split": 1,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 3,
+    "after": 0
+   },
+   "lines": [
+    "room split: G01 Activity Room -> 01 COMMUNITY-ACTIVITY + 02 QUIET-COUNSELLING (51.04 -> 51.04 m2)",
+    "element changed: IfcWall Basic Wall:Wall 1:2785 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2786 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2787 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2788 (type, material)",
+    "element changed: IfcSlab Floor:Floor:Floor 1:1235440 (name, type, material)"
+   ]
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-01",
+   "step": "stage1->stage2",
+   "writers": [
+    "ODA SDAI 24.12",
+    "The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013"
+   ],
+   "elements": {
+    "before": 5,
+    "after": 5,
+    "byGlobalId": 5,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 5,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 2,
+    "after": 2,
+    "byGlobalId": 2,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 2,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": []
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-02",
+   "step": "init->stage1",
+   "writers": [
+    "ODA SDAI 24.12",
+    "ODA SDAI 24.12"
+   ],
+   "elements": {
+    "before": 6,
+    "after": 6,
+    "byGlobalId": 6,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 6,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 2,
+    "after": 3,
+    "byGlobalId": 0,
+    "byName": 0,
+    "byGeometry": 1,
+    "unchanged": 0,
+    "changed": 1,
+    "added": 0,
+    "removed": 0,
+    "split": 1,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 5,
+    "after": 0
+   },
+   "lines": [
+    "room changed (renamed, new GlobalId): 01 RETAIL-SALES: number: G01 -> 01; name: Retail -> RETAIL-SALES; Name removed (was Retail); Reference: Retail G01 -> RETAIL-SALES 01; Reference: Retail G01 -> RETAIL-SALES 01; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Level removed (was Ground Floor); Limit Offset removed (was 0.026246719160104987); Upper Limit removed (was Ground Floor); Area removed (was 37.24000000000001); Computation Height removed (was 0); Perimeter removed (was 27200.000000000007); Unbounded Height removed (was 0.026246719160104987); Volume removed (was 90.80601600000001); Actual Lighting Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Latent Heat Gain per person removed (was 58.61421403444444); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load removed (was 0); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load removed (was 0); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Retail); Number removed (was G01); Phase removed (was New Construction); ThermalZone added: RETAIL-SALES-ZN; ScheduleCategory added: RETAIL-PUBLIC-SCHEDULE; PeoplePerM2 added: 0.15; LightingPowerDensityWPerM2 added: 12; EquipmentPowerDensityWPerM2 added: 8; OutdoorAirLPerSPerson added: 7.5",
+    "room split: G02 Back of House -> 02 PREP-KITCHEN + 03 DRY-STORAGE (17.64 -> 17.64 m2)",
+    "element changed: IfcWall Basic Wall:Wall 1:2785 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2786 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2787 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2788 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2789 (type, material)",
+    "element changed: IfcSlab Floor:Floor:Floor 1:1235441 (name, type, material)"
+   ]
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-02",
+   "step": "stage1->stage2",
+   "writers": [
+    "ODA SDAI 24.12",
+    "The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013"
+   ],
+   "elements": {
+    "before": 6,
+    "after": 6,
+    "byGlobalId": 6,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 6,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 3,
+    "after": 3,
+    "byGlobalId": 3,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 3,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": []
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-03",
+   "step": "init->stage1",
+   "writers": [
+    "ODA SDAI 24.12",
+    "ODA SDAI 24.12"
+   ],
+   "elements": {
+    "before": 6,
+    "after": 6,
+    "byGlobalId": 6,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 6,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 2,
+    "after": 3,
+    "byGlobalId": 0,
+    "byName": 0,
+    "byGeometry": 1,
+    "unchanged": 0,
+    "changed": 1,
+    "added": 0,
+    "removed": 0,
+    "split": 1,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 5,
+    "after": 0
+   },
+   "lines": [
+    "room changed (renamed, new GlobalId): 02 EXAM-ROOM: number: G02 -> 02; name: Exam -> EXAM-ROOM; Name removed (was Exam); Reference: Exam G02 -> EXAM-ROOM 02; Reference: Exam G02 -> EXAM-ROOM 02; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Limit Offset removed (was 0.026246719160104987); Upper Limit removed (was Ground Floor); Level removed (was Ground Floor); Computation Height removed (was 0); Unbounded Height removed (was 0.026246719160104987); Area removed (was 29.239999999999984); Perimeter removed (was 22200); Volume removed (was 71.298816); Actual Lighting Load removed (was 0); Actual Power Load removed (was 0); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Specified Lighting Load removed (was 0); Specified Power Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Latent Heat Gain per person removed (was 58.61421403444444); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Exam); Number removed (was G02); Phase removed (was New Construction); ThermalZone added: EXAM-ROOM-ZN; ScheduleCategory added: EXAM-VENTILATION; PeoplePerM2 added: 0.08; LightingPowerDensityWPerM2 added: 10; EquipmentPowerDensityWPerM2 added: 12; OutdoorAirLPerSPerson added: 12",
+    "room split: G01 Waiting -> 01 WAITING + 03 RECORDS-ROOM (29.24 -> 29.24 m2)",
+    "element changed: IfcWall Basic Wall:Wall 1:2785 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2786 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2787 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2788 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2789 (type, material)",
+    "element changed: IfcSlab Floor:Floor:Floor 1:1235441 (name, type, material)"
+   ]
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-03",
+   "step": "stage1->stage2",
+   "writers": [
+    "ODA SDAI 24.12",
+    "The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013"
+   ],
+   "elements": {
+    "before": 6,
+    "after": 6,
+    "byGlobalId": 6,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 6,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 3,
+    "after": 3,
+    "byGlobalId": 3,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 3,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": []
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-04",
+   "step": "init->stage1",
+   "writers": [
+    "ODA SDAI 24.12",
+    "ODA SDAI 24.12"
+   ],
+   "elements": {
+    "before": 5,
+    "after": 6,
+    "byGlobalId": 5,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 5,
+    "added": 1,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 1,
+    "after": 2,
+    "byGlobalId": 0,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "split": 1,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 3,
+    "after": 0
+   },
+   "lines": [
+    "room split: G01 Gallery -> 01 GARDEN-GALLERY + 02 ENTRY-NICHE (45.24 -> 45.24 m2)",
+    "element changed: IfcWall Basic Wall:Wall 1:2785 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2786 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2787 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2788 (type, material)",
+    "element changed: IfcSlab Floor:Floor:Floor 1:1235440 (name, type, material)"
+   ]
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-04",
+   "step": "stage1->stage2",
+   "writers": [
+    "ODA SDAI 24.12",
+    "The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013"
+   ],
+   "elements": {
+    "before": 6,
+    "after": 6,
+    "byGlobalId": 6,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 6,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 2,
+    "after": 2,
+    "byGlobalId": 2,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 2,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": []
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-05",
+   "step": "init->stage1",
+   "writers": [
+    "ODA SDAI 24.12",
+    "ODA SDAI 24.12"
+   ],
+   "elements": {
+    "before": 11,
+    "after": 10,
+    "byGlobalId": 10,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 10,
+    "added": 0,
+    "removed": 1,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 3,
+    "after": 3,
+    "byGlobalId": 0,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "split": 1,
+    "merged": 1
+   },
+   "lostRooms": {
+    "before": 6,
+    "after": 0
+   },
+   "lines": [
+    "room split: U01 Upper Activity -> 02 UPPER-ACTIVITY + 03 UPPER-READING (66.64 -> 66.64 m2)",
+    "room merged: G01 Lobby + G02 Multipurpose Room -> 01 GROUND-PUBLIC (65.28 -> 66.64 m2)",
+    "element changed: IfcWall Basic Wall:Wall 1:2786 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2787 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2788 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2789 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2790 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2791 (type, material)",
+    "... 4 more elements changed"
+   ]
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-05",
+   "step": "stage1->stage2",
+   "writers": [
+    "ODA SDAI 24.12",
+    "The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013"
+   ],
+   "elements": {
+    "before": 10,
+    "after": 10,
+    "byGlobalId": 10,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 10,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 3,
+    "after": 3,
+    "byGlobalId": 3,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 3,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": []
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-06",
+   "step": "init->stage1",
+   "writers": [
+    "ODA SDAI 24.12",
+    "ODA SDAI 24.12"
+   ],
+   "elements": {
+    "before": 11,
+    "after": 11,
+    "byGlobalId": 11,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 11,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 1,
+    "after": 3,
+    "byGlobalId": 0,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "split": 1,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 4,
+    "after": 0
+   },
+   "lines": [
+    "room split: G01 Workshop -> 01 MAKER-WORKSHOP + 02 OFFICE + 03 TOOL-ROOM (107.36 -> 107.36 m2)",
+    "element changed: IfcWall Basic Wall:Wall 1:2785 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2786 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2787 (type, material)",
+    "element changed: IfcWall Basic Wall:Wall 1:2788 (type, material)",
+    "element changed: IfcSlab Floor:Floor:Floor 1:1235599 (name, type, material)",
+    "element changed: IfcColumn M_Rectangular Column:475 x 610mm:3293 (type, material)",
+    "... 5 more elements changed"
+   ]
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-06",
+   "step": "stage1->stage2",
+   "writers": [
+    "ODA SDAI 24.12",
+    "The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013"
+   ],
+   "elements": {
+    "before": 11,
+    "after": 11,
+    "byGlobalId": 11,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 11,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 3,
+    "after": 3,
+    "byGlobalId": 3,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 3,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": []
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-07",
+   "step": "init->stage1",
+   "writers": [
+    "ODA SDAI 24.12",
+    "ODA SDAI 24.12"
+   ],
+   "elements": {
+    "before": 6,
+    "after": 15,
+    "byGlobalId": 6,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 6,
+    "added": 9,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 2,
+    "after": 5,
+    "byGlobalId": 2,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 2,
+    "added": 3,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 3,
+    "after": 0
+   },
+   "lines": [
+    "room changed: 02 READING-ROOM: number: G01 -> 02; name: Reading Hall -> READING-ROOM; Name removed (was Reading Hall); Reference: Reading Hall G01 -> READING-ROOM 02; Reference: Reading Hall G01 -> READING-ROOM 02; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Level removed (was Ground Floor); Limit Offset removed (was 0.026246719160104987); Upper Limit removed (was Ground Floor); Area removed (was 107.63999999999996); Computation Height removed (was 0); Perimeter removed (was 43199.99999999999); Unbounded Height removed (was 0.026246719160104987); Volume removed (was 262.4693759999999); Actual Lighting Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Latent Heat Gain per person removed (was 58.61421403444444); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load removed (was 0); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load removed (was 0); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Reading Hall); Number removed (was G01); Phase removed (was New Construction); ThermalZone added: READING-ROOM-ZN; ScheduleCategory added: READING-LOAD-CURVE; PeoplePerM2 added: 0.08; LightingPowerDensityWPerM2 added: 8; EquipmentPowerDensityWPerM2 added: 3; OutdoorAirLPerSPerson added: 8; floor area -62.4; perimeter -16; net wall area -43.8144; volume -152.1562; doors and windows 0 -> 2",
+    "room changed: 04 STAFF-OFFICE: number: G02 -> 04; name: Staff Room -> STAFF-OFFICE; Name removed (was Staff Room); Reference: Staff Room G02 -> STAFF-OFFICE 04; Reference: Staff Room G02 -> STAFF-OFFICE 04; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Limit Offset removed (was 0.026246719160104987); Upper Limit removed (was Ground Floor); Level removed (was Ground Floor); Computation Height removed (was 0); Unbounded Height removed (was 0.026246719160104987); Area removed (was 29.639999999999976); Perimeter removed (was 23199.999999999993); Volume removed (was 72.27417599999994); Actual Lighting Load removed (was 0); Actual Power Load removed (was 0); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Specified Lighting Load removed (was 0); Specified Power Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Latent Heat Gain per person removed (was 58.61421403444444); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Staff Room); Number removed (was G02); Phase removed (was New Construction); ThermalZone added: STAFF-OFFICE-ZN; ScheduleCategory added: STAFF-OFFICE-SCHEDULE; PeoplePerM2 added: 0.1; LightingPowerDensityWPerM2 added: 8; EquipmentPowerDensityWPerM2 added: 10; OutdoorAirLPerSPerson added: 8; floor area -11.4; perimeter -6; net wall area -20.9304; volume -27.7978; doors and windows 0 -> 3",
+    "rooms carved from 02 READING-ROOM: 01 LOBBY + 03 BOOK-STACK (62.40 of the 62.40 m2 it lost)",
+    "rooms carved from 04 STAFF-OFFICE: 05 TOILET-SUPPORT (11.40 of the 11.40 m2 it lost)",
+    "room added: 01 LOBBY",
+    "room added: 03 BOOK-STACK",
+    "room added: 05 TOILET-SUPPORT",
+    "element changed: IfcWall Basic Wall:EW3B07 Annex Wall:1235481 (volume, area, name, type, material, classification)",
+    "element changed: IfcWall Basic Wall:EW3B07 Annex Wall:1235482 (name, type, material, classification)",
+    "element changed: IfcWall Basic Wall:EW3B07 Annex Wall:1235483 (name, type, material, classification)",
+    "element changed: IfcWall Basic Wall:EW3B07 Annex Wall:1235484 (name, type, material, classification)",
+    "element changed: IfcWall Basic Wall:EW3B07 Annex Wall:1235485 (volume, area, name, type, material, classification)",
+    "element changed: IfcSlab Floor:Floor:Floor 1:1235441 (name, type, material)"
+   ]
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-07",
+   "step": "stage1->stage2",
+   "writers": [
+    "ODA SDAI 24.12",
+    "The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013"
+   ],
+   "elements": {
+    "before": 15,
+    "after": 15,
+    "byGlobalId": 15,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 15,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 5,
+    "after": 5,
+    "byGlobalId": 5,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 5,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": []
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-08",
+   "step": "init->stage1",
+   "writers": [
+    "ODA SDAI 24.12",
+    "ODA SDAI 24.12"
+   ],
+   "elements": {
+    "before": 10,
+    "after": 19,
+    "byGlobalId": 10,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 10,
+    "added": 9,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 2,
+    "after": 4,
+    "byGlobalId": 2,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 2,
+    "added": 2,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 2,
+    "after": 0
+   },
+   "lines": [
+    "room changed: 01 L1-LAB: number: G01 -> 01; name: Ground Lab -> L1-LAB; Name removed (was Ground Lab); Reference: Ground Lab G01 -> L1-LAB 01; Reference: Ground Lab G01 -> L1-LAB 01; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Level removed (was Ground Floor); Limit Offset removed (was 0.026246719160104987); Upper Limit removed (was Ground Floor); Area removed (was 66.64); Computation Height removed (was 0); Perimeter removed (was 33200.00000000001); Unbounded Height removed (was 0.026246719160104987); Volume removed (was 162.494976); Actual Lighting Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Latent Heat Gain per person removed (was 58.61421403444444); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load removed (was 0); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load removed (was 0); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Ground Lab); Number removed (was G01); Phase removed (was New Construction); ThermalZone added: L1-LAB-ZN; ScheduleCategory added: LAB-HIGH-EQUIPMENT; PeoplePerM2 added: 0.08; LightingPowerDensityWPerM2 added: 12; EquipmentPowerDensityWPerM2 added: 45; OutdoorAirLPerSPerson added: 15; floor area -19.04; perimeter -5.6; net wall area -20.555; volume -46.4271; doors and windows 0 -> 3",
+    "room changed: 03 L2-LAB: number: U01 -> 03; name: Upper Lab -> L2-LAB; Name removed (was Upper Lab); Reference: Upper Lab U01 -> L2-LAB 03; Reference: Upper Lab U01 -> L2-LAB 03; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Limit Offset removed (was 0.026246719160104987); Level removed (was Level 2); Upper Limit removed (was Level 2); Computation Height removed (was 0); Unbounded Height removed (was 0.026246719160104987); Area removed (was 66.64); Perimeter removed (was 33200.00000000001); Volume removed (was 162.494976); Actual Lighting Load removed (was 0); Actual Power Load removed (was 0); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Specified Lighting Load removed (was 0); Specified Power Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Latent Heat Gain per person removed (was 58.61421403444444); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Upper Lab); Number removed (was U01); Phase removed (was New Construction); ThermalZone added: L2-LAB-ZN; ScheduleCategory added: LAB-HIGH-EQUIPMENT; PeoplePerM2 added: 0.08; LightingPowerDensityWPerM2 added: 12; EquipmentPowerDensityWPerM2 added: 45; OutdoorAirLPerSPerson added: 15; floor area -19.04; perimeter -5.6; net wall area -20.555; volume -46.4271; doors and windows 0 -> 3",
+    "rooms carved from 01 L1-LAB: 02 L1-PREP (19.04 of the 19.04 m2 it lost)",
+    "rooms carved from 03 L2-LAB: 04 L2-PREP (19.04 of the 19.04 m2 it lost)",
+    "room added: 02 L1-PREP",
+    "room added: 04 L2-PREP",
+    "element changed: IfcWall Basic Wall:EW3B08 Laboratory Wall:1235513 (volume, area, name, type, material, classification)",
+    "element changed: IfcWall Basic Wall:EW3B08 Laboratory Wall:1235514 (name, type, material, classification)",
+    "element changed: IfcWall Basic Wall:EW3B08 Laboratory Wall:1235515 (volume, area, name, type, material, classification)",
+    "element changed: IfcWall Basic Wall:EW3B08 Laboratory Wall:1235516 (name, type, material, classification)",
+    "element changed: IfcWall Basic Wall:EW3B08 Laboratory Wall:1235517 (volume, area, name, type, material, classification)",
+    "element changed: IfcWall Basic Wall:EW3B08 Laboratory Wall:1235518 (name, type, material, classification)",
+    "... 4 more elements changed"
+   ]
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-08",
+   "step": "stage1->stage2",
+   "writers": [
+    "ODA SDAI 24.12",
+    "The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013"
+   ],
+   "elements": {
+    "before": 19,
+    "after": 19,
+    "byGlobalId": 19,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 19,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 4,
+    "after": 4,
+    "byGlobalId": 4,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 4,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": []
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-09",
+   "step": "init->stage1",
+   "writers": [
+    "ODA SDAI 24.12",
+    "ODA SDAI 24.12"
+   ],
+   "elements": {
+    "before": 6,
+    "after": 14,
+    "byGlobalId": 6,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 6,
+    "added": 8,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 2,
+    "after": 4,
+    "byGlobalId": 2,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 2,
+    "added": 2,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 2,
+    "after": 0
+   },
+   "lines": [
+    "room changed: 02 CLASSROOM-A: number: G01 -> 02; name: Training Hall -> CLASSROOM-A; Name removed (was Training Hall); Reference: Training Hall G01 -> CLASSROOM-A 02; Reference: Training Hall G01 -> CLASSROOM-A 02; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Level removed (was Ground Floor); Limit Offset removed (was 0.026246719160104987); Upper Limit removed (was Ground Floor); Area removed (was 115.43999999999998); Computation Height removed (was 0); Perimeter removed (was 45200); Unbounded Height removed (was 0.026246719160104987); Volume removed (was 281.488896); Actual Lighting Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Latent Heat Gain per person removed (was 58.61421403444444); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load removed (was 0); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load removed (was 0); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Training Hall); Number removed (was G01); Phase removed (was New Construction); ThermalZone added: CLASSROOM-A-ZN; ScheduleCategory added: CLASSROOM-TEACHING-SCHEDULE; PeoplePerM2 added: 0.25; LightingPowerDensityWPerM2 added: 10; EquipmentPowerDensityWPerM2 added: 8; OutdoorAirLPerSPerson added: 10; floor area -69.42; perimeter -17.8; net wall area -48.2035; volume -169.2737; doors and windows 0 -> 2",
+    "room changed: 04 STORAGE: number: G02 -> 04; name: Store -> STORAGE; Name removed (was Store); Reference: Store G02 -> STORAGE 04; Reference: Store G02 -> STORAGE 04; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Limit Offset removed (was 0.026246719160104987); Upper Limit removed (was Ground Floor); Level removed (was Ground Floor); Computation Height removed (was 0); Unbounded Height removed (was 0.026246719160104987); Area removed (was 37.44000000000004); Perimeter removed (was 25200.000000000007); Volume removed (was 91.29369600000008); Actual Lighting Load removed (was 0); Actual Power Load removed (was 0); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Specified Lighting Load removed (was 0); Specified Power Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Latent Heat Gain per person removed (was 58.61421403444444); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Store); Number removed (was G02); Phase removed (was New Construction); ThermalZone added: STORAGE-ZN; ScheduleCategory added: STORAGE-LOW-LOAD; PeoplePerM2 added: 0.01; LightingPowerDensityWPerM2 added: 3; EquipmentPowerDensityWPerM2 added: 1; OutdoorAirLPerSPerson added: 5; net wall area -6.3; doors and windows 0 -> 3",
+    "rooms carved from 02 CLASSROOM-A: 01 LOBBY + 03 CLASSROOM-B (69.42 of the 69.42 m2 it lost)",
+    "room added: 01 LOBBY",
+    "room added: 03 CLASSROOM-B",
+    "element changed: IfcWall Basic Wall:EW3B09 200mm Bar Wall:1235483 (volume, area, name, type, material, classification)",
+    "element changed: IfcWall Basic Wall:EW3B09 200mm Bar Wall:1235484 (name, type, material, classification)",
+    "element changed: IfcWall Basic Wall:EW3B09 200mm Bar Wall:1235485 (name, type, material, classification)",
+    "element changed: IfcWall Basic Wall:EW3B09 200mm Bar Wall:1235486 (name, type, material, classification)",
+    "element changed: IfcWall Basic Wall:EW3B09 200mm Bar Wall:1235487 (volume, area, name, type, material, classification)",
+    "element changed: IfcSlab Floor:Floor:Floor 1:1235441 (name, type, material)"
+   ]
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-09",
+   "step": "stage1->stage2",
+   "writers": [
+    "ODA SDAI 24.12",
+    "The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013"
+   ],
+   "elements": {
+    "before": 14,
+    "after": 14,
+    "byGlobalId": 14,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 14,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 4,
+    "after": 4,
+    "byGlobalId": 4,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 4,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": []
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-10",
+   "step": "init->stage1",
+   "writers": [
+    "ODA SDAI 24.12",
+    "ODA SDAI 24.12"
+   ],
+   "elements": {
+    "before": 15,
+    "after": 22,
+    "byGlobalId": 15,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 15,
+    "added": 7,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 3,
+    "after": 3,
+    "byGlobalId": 3,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 0,
+    "changed": 3,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": [
+    "room changed: 01 RECEPTION-L1: number: G01 -> 01; name: Unassigned Ground -> RECEPTION-L1; Name removed (was Unassigned Ground); Reference: Unassigned Ground G01 -> RECEPTION-L1 01; Reference: Unassigned Ground G01 -> RECEPTION-L1 01; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Level removed (was Ground Floor); Limit Offset removed (was 0.026246719160104987); Upper Limit removed (was Ground Floor); Area removed (was 45.239999999999995); Computation Height removed (was 0); Perimeter removed (was 27200); Unbounded Height removed (was 0.026246719160104987); Volume removed (was 110.31321600000001); Actual Lighting Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Latent Heat Gain per person removed (was 58.61421403444444); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load removed (was 0); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load removed (was 0); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Unassigned Ground); Number removed (was G01); Phase removed (was New Construction); ThermalZone added: RECEPTION-L1-ZN; ScheduleCategory added: RECEPTION-PUBLIC-LOAD; PeoplePerM2 added: 0.12; LightingPowerDensityWPerM2 added: 8; EquipmentPowerDensityWPerM2 added: 6; OutdoorAirLPerSPerson added: 8; net wall area -4.92; doors and windows 0 -> 2",
+    "room changed: 02 STUDIO-L2: number: L201 -> 02; name: Unassigned Level 2 -> STUDIO-L2; Name removed (was Unassigned Level 2); Reference: Unassigned Level 2 L201 -> STUDIO-L2 02; Reference: Unassigned Level 2 L201 -> STUDIO-L2 02; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Limit Offset removed (was 0.026246719160104987); Level removed (was Level 2); Upper Limit removed (was Level 2); Computation Height removed (was 0); Unbounded Height removed (was 0.026246719160104987); Area removed (was 45.239999999999995); Perimeter removed (was 27200); Volume removed (was 110.31321600000001); Actual Lighting Load removed (was 0); Actual Power Load removed (was 0); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Specified Lighting Load removed (was 0); Specified Power Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Latent Heat Gain per person removed (was 58.61421403444444); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Unassigned Level 2); Number removed (was L201); Phase removed (was New Construction); ThermalZone added: STUDIO-L2-ZN; ScheduleCategory added: STUDIO-HIGH-EQUIPMENT; PeoplePerM2 added: 0.08; LightingPowerDensityWPerM2 added: 12; EquipmentPowerDensityWPerM2 added: 30; OutdoorAirLPerSPerson added: 10; net wall area -4.5; doors and windows 0 -> 2",
+    "room changed: 03 ARCHIVE-L3: number: L301 -> 03; name: Unassigned Level 3 -> ARCHIVE-L3; Name removed (was Unassigned Level 3); Reference: Unassigned Level 3 L301 -> ARCHIVE-L3 03; Reference: Unassigned Level 3 L301 -> ARCHIVE-L3 03; Category removed (was Rooms); Phase Id removed (was 4); Base Offset removed (was 0); Limit Offset removed (was 0.026246719160104987); Level removed (was Level 3); Upper Limit removed (was Level 3); Computation Height removed (was 0); Unbounded Height removed (was 0.026246719160104987); Area removed (was 45.239999999999995); Perimeter removed (was 27200); Volume removed (was 110.31321600000001); Actual Lighting Load removed (was 0); Actual Power Load removed (was 0); Base Lighting Load on removed (was By Space Type); Base Power Load on removed (was By Space Type); Heat Load Values removed (was By Space Type); Lighting Load Units removed (was Power Density); Number of People removed (was 0); Plenum Lighting Contribution removed (was 0.2); Power Load Units removed (was Power Density); Specified Lighting Load removed (was 0); Specified Power Load removed (was 0); Actual Lighting Load per area removed (was 0); Actual Power Load per area removed (was 0); Area per Person removed (was 28.571428571428573); Latent Heat Gain per person removed (was 58.61421403444444); Sensible Heat Gain per person removed (was 73.26776754305556); Specified Lighting Load per area removed (was 10.763910416709722); Specified Power Load per area removed (was 13.993083541722639); Total Heat Gain per person removed (was 131.88198157749997); Name removed (was Unassigned Level 3); Number removed (was L301); Phase removed (was New Construction); ThermalZone added: ARCHIVE-L3-ZN; ScheduleCategory added: ARCHIVE-LOW-LIGHTING; PeoplePerM2 added: 0.01; LightingPowerDensityWPerM2 added: 3; EquipmentPowerDensityWPerM2 added: 1; OutdoorAirLPerSPerson added: 5; net wall area -4.5; doors and windows 0 -> 2",
+    "element changed: IfcWall Basic Wall:EW3B10 200mm Stack Wall:1235546 (volume, area, name, type, material, classification)",
+    "element changed: IfcWall Basic Wall:EW3B10 200mm Stack Wall:1235547 (name, type, material, classification)",
+    "element changed: IfcWall Basic Wall:EW3B10 200mm Stack Wall:1235548 (name, type, material, classification)",
+    "element changed: IfcWall Basic Wall:EW3B10 200mm Stack Wall:1235549 (name, type, material, classification)",
+    "element changed: IfcWall Basic Wall:EW3B10 200mm Stack Wall:1235550 (volume, area, name, type, material, classification)",
+    "element changed: IfcWall Basic Wall:EW3B10 200mm Stack Wall:1235551 (name, type, material, classification)",
+    "... 9 more elements changed"
+   ]
+  },
+  {
+   "set": "rv-ac",
+   "task": "task-10",
+   "step": "stage1->stage2",
+   "writers": [
+    "ODA SDAI 24.12",
+    "The EXPRESS Data Manager Version 5.02.0100.09 : 26 Sep 2013"
+   ],
+   "elements": {
+    "before": 22,
+    "after": 22,
+    "byGlobalId": 22,
+    "byTag": 0,
+    "byGeometry": 0,
+    "unchanged": 22,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "replacedInPlace": 0
+   },
+   "rooms": {
+    "before": 3,
+    "after": 3,
+    "byGlobalId": 3,
+    "byName": 0,
+    "byGeometry": 0,
+    "unchanged": 3,
+    "changed": 0,
+    "added": 0,
+    "removed": 0,
+    "split": 0,
+    "merged": 0
+   },
+   "lostRooms": {
+    "before": 0,
+    "after": 0
+   },
+   "lines": []
+  }
+ ]
+}

@@ -360,3 +360,46 @@ test("rooms: added, given a property, resized, and matched under a new GlobalId"
   // a model's rooms against themselves: nothing
   assert.equal(diffRooms(after.rooms, after.rooms).summary.changed, 0);
 });
+
+// Synthetic rooms laid out as EngiWorld's Archicad and Revit tasks draw them
+// (eval/engiworld-gui-cross-2026-11-24.md): a plan box and a measured floor area.
+const room = (globalId, number, box, floorArea, storey = "Ground Floor") => ({ globalId, number, name: null, storey, box, computed: { floorArea }, properties: {} });
+
+test("rooms: renamed under a new GlobalId is matched by geometry and listed as a name change", () => {
+  const A = [room("a1", "UNCLASSIFIED", [0.1, 0.1, 0, 6.85, 3.85, 2.8], 25.31)];
+  const B = [room("b1", "OFFICE", [0.1, 0.1, 0, 6.85, 3.85, 2.8], 25.31)];
+  const d = diffRooms(A, B);
+  assert.deepEqual([d.summary.byGeometry, d.summary.changed, d.summary.added, d.summary.removed], [1, 1, 0, 0]);
+  assert.equal(roomChangeText(d.changed[0]), "number: UNCLASSIFIED -> OFFICE");
+  // the old comparison, for the record: one removed, one added
+  const old = diffRooms(A, B, { roomOverlap: 0, roomGroups: false });
+  assert.deepEqual([old.summary.added, old.summary.removed], [1, 1]);
+  // another storey, or a box that overlaps by less than 90%, is not the same room
+  assert.equal(diffRooms(A, [{ ...B[0], storey: "Level 2" }]).summary.byGeometry, 0);
+  assert.equal(diffRooms(A, [room("b1", "OFFICE", [0.1, 0.1, 0, 5.5, 3.85, 2.8], 20.3)]).summary.byGeometry, 0);
+});
+
+test("rooms: a room split by a partition, two merged, and rooms carved from one that kept its GlobalId", () => {
+  // split: OPEN STUDIO 29.06 m2 -> STUDIO + MEETING 14.06 each (the wall takes the rest)
+  const s = diffRooms([room("a", "OPEN STUDIO", [0.1, 0.1, 0, 7.85, 3.85, 2.8], 29.06)],
+    [room("b", "STUDIO", [0.1, 0.1, 0, 3.85, 3.85, 2.8], 14.06), room("c", "MEETING", [4.1, 0.1, 0, 7.85, 3.85, 2.8], 14.06)]);
+  assert.deepEqual([s.summary.split, s.summary.added, s.summary.removed], [1, 0, 0]);
+  assert.deepEqual(s.groups[0].after.map((r) => r.number).sort(), ["MEETING", "STUDIO"]);
+  // merged: the reverse
+  const m = diffRooms([room("b", "STUDIO", [0.1, 0.1, 0, 3.85, 3.85, 2.8], 14.06), room("c", "MEETING", [4.1, 0.1, 0, 7.85, 3.85, 2.8], 14.06)],
+    [room("a", "OPEN STUDIO", [0.1, 0.1, 0, 7.85, 3.85, 2.8], 29.06)]);
+  assert.deepEqual([m.summary.merged, m.summary.split, m.summary.added, m.summary.removed], [1, 0, 0, 0]);
+  // parts that add up to too little floor are not a split (a room drawn inside a bigger one)
+  const small = diffRooms([room("a", "HALL", [0, 0, 0, 10, 10, 3], 100)], [room("b", "POD 1", [1, 1, 0, 3, 3, 3], 4), room("c", "POD 2", [5, 5, 0, 7, 7, 3], 4)]);
+  assert.deepEqual([small.summary.split, small.summary.added, small.summary.removed], [0, 2, 1]);
+  // carved: Ground Lab keeps its GlobalId, 66.64 -> 47.60 m2; L1-PREP added in the 19.04 m2 it lost
+  const c = diffRooms([room("g", "G01", [0.1, 0.1, 0, 9.9, 6.9, 2.44], 66.64)],
+    [room("g", "01", [0.1, 0.1, 0, 7.1, 6.9, 2.44], 47.6), room("p", "02", [7.1, 0.1, 0, 9.9, 6.9, 2.44], 19.04)]);
+  assert.deepEqual([c.summary.byGlobalId, c.summary.added, c.summary.carvedRooms], [1, 1, 1]);
+  near(c.carved[0].floorAreaLost, 19.04, 1e-9);
+  assert.equal(c.carved[0].rooms[0].number, "02");
+  const csv = changesCsv({ changed: [], unchanged: [], added: [], removed: [], groups: [], rooms: c });
+  assert.match(csv, /room added,,p,IfcSpace,02,,Ground Floor,plan box and floor area,"carved from 01 \(it lost 19\.04 m2/);
+  const csvSplit = changesCsv({ changed: [], unchanged: [], added: [], removed: [], groups: [], rooms: s });
+  assert.equal((csvSplit.match(/room split \(1 into 2\)/g) || []).length, 3);
+});

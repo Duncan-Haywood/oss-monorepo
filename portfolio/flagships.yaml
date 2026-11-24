@@ -606,8 +606,8 @@ flagships:
       unexplained areas (eval/curved-and-faces-2026-11-22.md, The 14 left); figures
       in doubt 2026-11-23 (eval/in-doubt-2026-11-23.md, node eval/in-doubt.mjs): HHS
       construction #1405/#4407, M3D-CON-CD's 7 Tekla plates (#207997 settled: faces
-      vs circles, eval/off-edges-2026-11-23.md); revisions: EngiWorld's Archicad gui
-      and cross-software pairs (eval/engiworld-archicad-diff-2026-11-23.md, Left).
+      vs circles, eval/off-edges-2026-11-23.md); revisions: EngiWorld's
+      revit--archicad--abaqus folder (eval/engiworld-gui-cross-2026-11-24.md, Left).
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/; search guides 2026-11-22. its
