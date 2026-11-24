@@ -23,3 +23,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-22) a calmer gate 2026-11-21 decides on the days before the change (README "A calmer wander gate": calm-site falls as Middle, 2% walk 12.50 to 5.42)
 - (moved 2026-11-22) rounds 4-5 2026-11-21: Christmas closure no effect, calm noise quietest
 - (moved 2026-11-23, restored 2026-11-23: PR #18422 dropped it from `next:` without filing it) Search Console and GA4 sources 2026-11-22 (README "Google Analytics 4 as a source")
+- (moved 2026-11-24) composite of 4 FRED coincident series 16/16, 0 false, --turns ships 2026-11-24 (README "A composite of NBER's monthly indicators"), on the page 2026-11-24 (README "Peaks and troughs on the page")
