@@ -45,12 +45,12 @@ token.** What changes:
 
 | Repository | Workflow / job | Aliases read | Calls | Profile |
 |---|---|---|---|---|
-| oss | `portfolio-pages.yml` gate, deploy-cloudflare | `CLOUDFLARE_API_TOKEN`, `CLOUDFLAREAPITOKEN`, `CLOUDFLARERESTRICTEDAPIKEY`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLAREACCOUNTID` | `wrangler deploy` ×2 (site and shard Workers; the custom domain is already attached, there is no `routes` key) | `site-deploy` |
-| oss | `edge-deploy.yml` gate, deploy | same five | `wrangler d1 list/create/execute`, `wrangler deploy` | `edge-deploy` |
-| oss | `cloudflare-email.yml` | same five | `/zones?name=`, `/zones/{id}/email/routing*` | `email-routing` |
-| oss | `site-usage-pull.yml` | `CLOUDFLARE_ANALYTICS_TOKEN`, then the five | GraphQL zone and account analytics, `/zones?name=` | `usage-analytics` |
-| oss | `ai-first-markets-deploy.yml` | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | `opennextjs-cloudflare deploy` (one Worker) | `ai-first-markets-deploy` |
-| oss | `real-estate-agent-photo-app-deploy-docs.yml` deploy | same two | `wrangler pages deploy` | `listing-lens-docs-deploy` |
+| oss | `priv-portfolio-pages.yml` gate, deploy-cloudflare | `CLOUDFLARE_API_TOKEN`, `CLOUDFLAREAPITOKEN`, `CLOUDFLARERESTRICTEDAPIKEY`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLAREACCOUNTID` | `wrangler deploy` ×2 (site and shard Workers; the custom domain is already attached, there is no `routes` key) | `site-deploy` |
+| oss | `priv-edge-deploy.yml` gate, deploy | same five | `wrangler d1 list/create/execute`, `wrangler deploy` | `edge-deploy` |
+| oss | `priv-cloudflare-email.yml` | same five | `/zones?name=`, `/zones/{id}/email/routing*` | `email-routing` |
+| oss | `priv-site-usage-pull.yml` | `CLOUDFLARE_ANALYTICS_TOKEN`, then the five | GraphQL zone and account analytics, `/zones?name=` | `usage-analytics` |
+| oss | `priv-ai-first-markets-deploy.yml` | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | `opennextjs-cloudflare deploy` (one Worker) | `ai-first-markets-deploy` |
+| oss | `priv-real-estate-agent-photo-app-deploy-docs.yml` deploy | same two | `wrangler pages deploy` | `listing-lens-docs-deploy` |
 | oss | same, apply-access | same two | `/accounts/{id}/access/{apps,policies,identity_providers,organizations}` | `listing-lens-access` |
 | private | `grants-deploy.yml` | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_API_KEY`, `CF_API_TOKEN`, `CLOUDFLARE_TOKEN`, `CF_API_KEY`, `CF_TOKEN`, `CLOUDFLARE_EMAIL`, `CLOUDFLARE_ACCOUNT_ID`, `CF_ACCOUNT_ID` | `wrangler deploy` (D1, R2, Vectorize, Queues, Workflows, custom domain), `wrangler d1 migrations`, `wrangler secret`, `/zones`, `/workers/subdomain` | `grants-deploy` |
 | private | `grants-backup.yml` | `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` | `wrangler d1 export`, `wrangler r2 object put/delete`, R2 list API | `grants-backup` |

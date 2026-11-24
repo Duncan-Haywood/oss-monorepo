@@ -241,7 +241,7 @@ test('delivery: deploys, merge to live, red spells, time to restore and red shar
   ];
   const validate = [run('Validate', 10, 9.9, 'success'), run('Validate', 5, 4.9, 'success')];
   const merges = [NOW - 31 * 3_600_000, NOW - 17 * 3_600_000, NOW - 3 * 3_600_000, NOW - 200 * 3_600_000];
-  const d = delivery({ merges, workflows: { 'portfolio-pages.yml': pages, 'portfolio-validate.yml': validate } }, { now: NOW });
+  const d = delivery({ merges, workflows: { 'priv-portfolio-pages.yml': pages, 'portfolio-validate.yml': validate } }, { now: NOW });
   assert.equal(d.deploys, 2);
   assert.equal(Object.values(d.deploys_per_day).reduce((a, b) => a + b, 0), 2);
   // 31 h ago -> deploy created 30 h ago, done 29.8 h ago: 72 min. 17 h ago -> done 15.5 h ago: 90 min.
@@ -269,7 +269,7 @@ test('fromDelivery: reads each workflow on main and the checkout\'s merges', asy
   };
   const d = await fromDelivery({ token: 't', repo: 'o/r', gitRepo: repoFixture(), now: NOW, fetch });
   assert.equal(d.available, true);
-  assert.ok(urls.every((u) => /\/actions\/workflows\/portfolio-(pages|validate)\.yml\/runs\?branch=main&status=completed&created=%3E%3D/.test(u)), urls.join(' '));
+  assert.ok(urls.every((u) => /\/actions\/workflows\/(priv-portfolio-pages|portfolio-validate)\.yml\/runs\?branch=main&status=completed&created=%3E%3D/.test(u)), urls.join(' '));
   // Fixture commits on main: base (10-15 00:00) and the merge (10-16 10:00) go live with the 10:30 deploy,
   // done 10:45 (2,085 and 45 minutes); the revert at 11:00 waits for a later deploy.
   assert.deepEqual([d.merge_to_live_minutes.n, d.merge_to_live_minutes.max, d.merge_to_live_minutes.waiting], [2, 2085, 1]);

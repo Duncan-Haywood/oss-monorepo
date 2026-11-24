@@ -14,7 +14,7 @@ on:
       - 'platform/edge/**'
       - '!platform/edge/site.json'
       - 'platform/counter/core.mjs'
-      - '.github/workflows/edge-deploy.yml'
+      - '.github/workflows/priv-edge-deploy.yml'
   workflow_dispatch:
 permissions:
   contents: read

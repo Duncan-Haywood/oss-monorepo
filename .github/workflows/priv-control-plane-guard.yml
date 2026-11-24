@@ -53,19 +53,23 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_control_plane_guard
 
+      # -I (isolated) on the steps that decide: without it Python puts
+      # platform/ci first on sys.path, and a `json.py` an unowned PR adds
+      # there would shadow the standard library inside the guard. (The unit
+      # tests above need that path to import the module; they are not the gate.)
       - name: CODEOWNERS still owns the control plane
-        run: python3 platform/ci/control_plane_guard.py --check-coverage
+        run: python3 -I platform/ci/control_plane_guard.py --check-coverage
 
       - name: List control-plane files this PR touches
         if: github.event_name == 'pull_request'
         env:
           GITHUB_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: python3 platform/ci/control_plane_guard.py --pr "$PR_NUMBER"
+        run: python3 -I platform/ci/control_plane_guard.py --pr "$PR_NUMBER"
 
       - name: Audit the merged commit for unreviewed control-plane changes
         if: github.event_name == 'push'
         env:
           GITHUB_TOKEN: ${{ github.token }}
           SHA: ${{ github.sha }}
-        run: python3 platform/ci/control_plane_guard.py --audit-commit "$SHA"
+        run: python3 -I platform/ci/control_plane_guard.py --audit-commit "$SHA"

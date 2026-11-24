@@ -1062,7 +1062,9 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
       // the page about the site, or about a trade, instead of a tool. They are
       // not products, so the "no such product shipped" reading is wrong for
       // them; that they shipped is checked in their own blocks above.
-      if (!productDirs.includes(slug) && !SITE_OWN_DIRS.has(slug)) {
+      // A Worker-served product (Grant Autopilot at /grants/) is listed under
+      // "Products" but is never in this artifact; it shipped, elsewhere.
+      if (!productDirs.includes(slug) && !SITE_OWN_DIRS.has(slug) && !isWorkerServed(`${slug}/`)) {
         problems.push(`llms-full.txt: lists "${slug}" but no such product shipped`);
       }
     }
