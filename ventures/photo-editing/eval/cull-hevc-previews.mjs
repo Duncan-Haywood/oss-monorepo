@@ -92,4 +92,6 @@ async function run(mode) {
   return { mode, chromium_hevc_supported: native, files: files.length, seconds: secs, status, decoded_by_ffmpeg: n, rows, caption: (caption.match(/preview \d+×\d+[^·|]*?(\)|$)/) || [caption.slice(0, 200)])[0], errors };
 }
 
-for (const mode of ["native", "shim"]) console.log(JSON.stringify(await run(mode), null, 1));
+const runs = [];
+for (const mode of ["native", "shim"]) runs.push(await run(mode));
+console.log(JSON.stringify(runs, null, 1));
