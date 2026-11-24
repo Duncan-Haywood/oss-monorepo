@@ -248,18 +248,43 @@ def infer_track(task: str, tracks: dict[str, Any]) -> str | None:
     return None
 
 
-def review_claimed(repo: str = "duncan-haywood/oss-monorepo") -> bool:
-    """True when an open PR titled "prompts: review" already holds the review claim.
+REVIEW_CLAIM_HOURS = 24
 
-    Reads the public pulls API; any failure (offline, rate limit, proxy) says
-    False, so routing never blocks on the network."""
+
+def live_review_claim(pulls: list[dict[str, Any]], now: datetime | None = None,
+                      hours: float = REVIEW_CLAIM_HOURS) -> bool:
+    """True when one of `pulls` (GitHub pulls API objects) is a live review claim:
+    titled "prompts: review" and updated within `hours`.
+
+    A claim expires because review runs that die leave their PR open: three
+    abandoned ones from 2026-10-31 and 11-01 held the claim for over three
+    weeks, and no review ran while about 6,000 runs were recorded."""
+    now = now or datetime.now(timezone.utc)
+    for p in pulls:
+        if not str(p.get("title", "")).lower().startswith("prompts: review"):
+            continue
+        try:
+            updated = datetime.fromisoformat(str(p.get("updated_at", "")).replace("Z", "+00:00"))
+        except ValueError:
+            return True  # unreadable date: keep the claim, as before
+        if (now - updated).total_seconds() < hours * 3600:
+            return True
+    return False
+
+
+def review_claimed(repo: str = "duncan-haywood/oss-monorepo") -> bool:
+    """True when an open PR titled "prompts: review", updated within the last
+    REVIEW_CLAIM_HOURS, already holds the review claim.
+
+    Reads the public pulls API, newest first; any failure (offline, rate limit,
+    proxy) says False, so routing never blocks on the network."""
     import urllib.request
     try:
-        url = f"https://api.github.com/repos/{repo}/pulls?state=open&per_page=100"
+        url = (f"https://api.github.com/repos/{repo}/pulls?state=open&per_page=100"
+               "&sort=updated&direction=desc")
         with urllib.request.urlopen(url, timeout=8) as r:
             pulls = json.load(r)
-        return any(str(p.get("title", "")).lower().startswith("prompts: review")
-                   for p in pulls)
+        return live_review_claim(pulls)
     except Exception:
         return False
 

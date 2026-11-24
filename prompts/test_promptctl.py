@@ -83,6 +83,17 @@ class RouteTest(PromptTestCase):
                 r = promptctl.route(self.fx.root, rng=random.Random(seed))
                 self.assertNotEqual(r["track"], "review")
 
+    def test_a_stale_review_claim_expires(self):
+        from datetime import datetime, timezone
+        now = datetime(2026, 11, 24, 12, tzinfo=timezone.utc)
+        stale = {"title": "prompts: review 2026-11-01", "updated_at": "2026-11-01T16:12:11Z"}
+        fresh = {"title": "prompts: review 2026-11-24", "updated_at": "2026-11-24T06:00:00Z"}
+        other = {"title": "ventures: x", "updated_at": "2026-11-24T11:00:00Z"}
+        self.assertFalse(promptctl.live_review_claim([stale, other], now=now))
+        self.assertTrue(promptctl.live_review_claim([stale, fresh], now=now))
+        self.assertTrue(promptctl.live_review_claim(
+            [{"title": "Prompts: Review", "updated_at": "garbled"}], now=now))
+
     def test_forced_track_uses_its_champion(self):
         r = promptctl.route(self.fx.root, track="research", rng=random.Random(0))
         self.assertEqual((r["track"], r["version"], r["role"]), ("research", 0, "champion"))
