@@ -519,9 +519,18 @@ No third-party donation links (one owner-approved exception: a plain link to
 `https://buymeacoffee.com/duncanhaywood`; see §2's self-deploy rule), and never in front of a feature — a donation
 prompt lives in the README and the footer, nowhere a user has to pass through.
 
-What "free for now" is buying: usage data, which is the only evidence we have
-about which product deserves more time. Design so that turning payment on later
-is a change of who holds the key or a hosted tier — not a rewrite.
+The free path still buys usage data, the only evidence we have about which
+product deserves more time. Design so that turning payment on later is a
+change of who holds the key or a hosted tier — not a rewrite.
+
+**Pricing a paid offer: cost plus 1.5 to 2x** (owner, 2026-11-24; `prompts/goals.md`,
+"Direction: for profit, priced at cost plus"). Add up the cost of one sale:
+per-buyer running cost (hosting, tokens, storage, bandwidth), the merchant
+fee, expected support time, and the paid feature's build cost from the run
+records spread over a stated, conservative buyer count. Price it at 1.5 to 2
+times that, write the sum and its sources beside the price in
+`portfolio/monetization/models.yaml`, and use competitors' dated list prices
+as a sanity check, not the anchor.
 
 ## 7. Definition of done
 

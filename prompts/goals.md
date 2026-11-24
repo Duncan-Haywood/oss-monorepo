@@ -28,14 +28,20 @@ coffee or sponsor link.
 it block work from getting done like in the past." Selling through the
 owner's merchant of record is on; it never gates other work (Guardrails,
 "Payments").
+**Updated 2026-11-24:** "setting the goal further to turn projects more in
+the for profit direction. cost plus 1.5-2x cost sort of thing." So projects
+lean toward earning, and paid offers are priced at cost plus: 1.5 to 2 times
+what it costs to deliver them ("Direction: for profit, priced at cost plus").
+Value for people still comes first, and the hard limits do not move.
 
 ## Mission
 
 One public repository for the owner's open-source work, with two portfolios
 and one platform that runs them:
 
-- **Ventures** (`ventures/`): software products strangers can use for free,
-  with real business potential, measured by use. The ventures sub-prompt is
+- **Ventures** (`ventures/`): software products strangers can use, with a
+  free path and, since 2026-11-24, a paid offer priced at cost plus where one
+  fits ("Direction: for profit, priced at cost plus"), measured by use. The ventures sub-prompt is
   the owner's brief for them.
 
   **The business model** (the owner, 2026-10-15): "the model I'm thinking is fully developing one click deploy actual businesses with a web page with some inputs for credentials so people can spin up their own copies of the venture. then I'm not hosting and not liable. it's someone else. but still with a donate to the creator button."
@@ -273,6 +279,42 @@ never more without a person, so every outbound message is a draft someone
 approves. Letting a deployer switch on unattended sending for their own
 mailbox is the owner's call (ROADMAP M5). Accuracy claims come from labelled
 replies written after the code they score.
+
+## Direction: for profit, priced at cost plus
+
+Set by the owner on 2026-11-24: "setting the goal further to turn projects
+more in the for profit direction. cost plus 1.5-2x cost sort of thing."
+This extends the 2026-11-01 "turn on for profit" and keeps its rule that
+selling never blocks work (Guardrails, "Payments").
+
+- **Lean toward earning.** When a run picks or shapes work on a product,
+  weigh what a buyer would pay for, and give each flagship and each new
+  product of real depth a paid offer in `portfolio/monetization/models.yaml`
+  (built dark until the checkout link exists). The free path, donations and
+  the one-click self-deploy model stay; a paid offer is added beside them.
+- **Price at cost plus: 1.5 to 2 times cost.** The cost is what it takes to
+  deliver one sale: the per-buyer running cost (hosting, model tokens,
+  storage, bandwidth), the merchant-of-record fee, expected support time,
+  and the build cost of the paid feature (the API-equivalent cost and human
+  hours from the run records, `prompts/runcost.py`) spread over a stated,
+  conservative number of buyers. Price = that cost times 1.5 to 2. Write the
+  cost basis next to the price, with its sources and how certain each figure
+  is, so a later run can redo the sum; an estimate is labelled as one.
+- **Comparables are a check, not the anchor.** Competitors' list prices
+  (read from their own pages, dated) show whether a cost-plus price is
+  plausible. Where cost plus lands far below them, keep the cost-plus price
+  and say so; where it lands above them, the offer probably isn't worth
+  building yet. Where per-buyer cost is near zero, the build-cost share
+  decides the price.
+- **Custom work.** The website-request queue stays free and MIT. A requester
+  may also be offered a paid lane (built next, or extras), quoted at cost
+  plus from the run's measured cost, once the checkout rail is live; that
+  offer is owner-gated through the merchant of record like every sale.
+- **The limits don't move.** Charge for new depth, never paywall what a page
+  already calls free; no owner merchant key anywhere an agent can reach;
+  honest marketing (no invented savings, users or reviews); disclaimers on
+  tax, legal, medical and financial tools. Hosting a per-user service the
+  owner operates is still out (Mission, "The business model").
 
 ## Direction: business functions with data to build and test against
 
