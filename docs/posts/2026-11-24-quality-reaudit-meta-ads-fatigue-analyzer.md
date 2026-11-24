@@ -3,7 +3,7 @@ title: "Re-audit: the Meta Ads fatigue fix wrote its worst bug down instead of f
 seo_title: "Why Meta Ads frequency in a daily breakdown hides creative fatigue"
 date: 2026-11-24
 tags: [quality-audit, evaluation, testing, marketing]
-description: "Per-day frequency in a Meta Ads Manager Day breakdown sits near 1.2, so a frequency-3 gate never opens. A re-audit found the fix PR had only documented it; this one fixes it."
+description: "Per-day frequency in a Meta Ads Day breakdown sits near 1.2, so a frequency-3 gate never opens. The fix PR only documented it; this one fixes it."
 ---
 
 The [Meta Ads fatigue analyzer](https://marisstella.app/meta-ads-fatigue-analyzer/) reads an Ads
