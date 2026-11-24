@@ -4,7 +4,7 @@
 const ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
 function decode(s) {
   return s.replace(/&(#x[0-9a-fA-F]+|#\d+|amp|lt|gt|quot|apos);/g, (_, e) =>
-    e[0] === "#" ? String.fromCodePoint(e[1] === "x" ? parseInt(e.slice(2), 16) : Number(e.slice(1))) : ENTITIES[e]);
+    e[0] === "#" ? codePointOr(e[1] === "x" ? parseInt(e.slice(2), 16) : Number(e.slice(1))) : ENTITIES[e]);
 }
 
 /** A small XML reader that keeps namespaces and non-ASCII attribute names (CFDI has
@@ -48,3 +48,7 @@ export function parseCfdiXml(source) {
   const root = top.children.find((c) => c.name);
   return { root };
 }
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

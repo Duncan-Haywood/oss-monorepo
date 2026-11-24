@@ -25,7 +25,7 @@
     },
     {
       "venture": "ai-bookkeeper",
-      "source_lines": 18175,
+      "source_lines": 18183,
       "track": "proprietary",
       "why": "flagship #2: the depth people pay for",
       "model": "subscription",
@@ -47,7 +47,7 @@
     },
     {
       "venture": "einvoice-preflight",
-      "source_lines": 35898,
+      "source_lines": 35918,
       "track": "proprietary",
       "why": "flagship #5: the depth people pay for",
       "model": "subscription",
@@ -72,7 +72,7 @@
     },
     {
       "venture": "photo-editing",
-      "source_lines": 76929,
+      "source_lines": 76949,
       "track": "proprietary",
       "why": "flagship #7: the depth people pay for",
       "model": "one-off",
@@ -105,7 +105,7 @@
     },
     {
       "venture": "ids-model-check",
-      "source_lines": 17933,
+      "source_lines": 17941,
       "track": "proprietary",
       "why": "flagship #12: the depth people pay for",
       "model": "one-off",
@@ -118,7 +118,7 @@
     },
     {
       "venture": "xer-schedule-check",
-      "source_lines": 16121,
+      "source_lines": 16123,
       "track": "proprietary",
       "why": "flagship #13: the depth people pay for",
       "model": "one-off",
@@ -129,7 +129,7 @@
     },
     {
       "venture": "ifc-quantity-takeoff",
-      "source_lines": 10460,
+      "source_lines": 10464,
       "track": "proprietary",
       "why": "flagship #14: the depth people pay for",
       "model": "one-off",

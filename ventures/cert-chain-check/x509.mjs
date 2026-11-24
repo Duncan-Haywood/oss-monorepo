@@ -74,7 +74,7 @@ function decodeString(buf, n) {
   switch (n.tag) {
     case 12: return new TextDecoder("utf-8").decode(b);
     case 30: { let s = ""; for (let i = 0; i + 1 < b.length; i += 2) s += String.fromCharCode((b[i] << 8) | b[i + 1]); return s; }
-    case 28: { let s = ""; for (let i = 0; i + 3 < b.length; i += 4) s += String.fromCodePoint(((b[i] << 24) | (b[i + 1] << 16) | (b[i + 2] << 8) | b[i + 3]) >>> 0); return s; }
+    case 28: { let s = ""; for (let i = 0; i + 3 < b.length; i += 4) s += codePointOr(((b[i] << 24) | (b[i + 1] << 16) | (b[i + 2] << 8) | b[i + 3]) >>> 0); return s; }
     default: return String.fromCharCode(...b); // Printable, IA5, T61 (read as Latin-1), Numeric, Visible
   }
 }
@@ -496,3 +496,7 @@ export function pemBlocks(text) {
   }
   return out;
 }
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

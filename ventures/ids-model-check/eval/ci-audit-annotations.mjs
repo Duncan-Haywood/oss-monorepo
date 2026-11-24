@@ -28,7 +28,7 @@ const walk = (d) => readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.is
 const ifc2x3 = ["ISO-10303-21;", "HEADER;", "FILE_DESCRIPTION((''),'2;1');", "FILE_NAME('m.ifc','',(''),(''),'','','');", "FILE_SCHEMA(('IFC2X3'));", "ENDSEC;", "DATA;",
   "#1=IFCWALL('1hqIFTRjfV6AWq_bMtnZwI',$,'W1',$,$,$,$,$);", "ENDSEC;", "END-ISO-10303-21;", ""].join("\n");
 const models = [["tiny-house.ifc (IFC4)", parseModel(readFileSync(join(here, "../samples/tiny-house.ifc"), "utf8"))], ["one-wall.ifc (IFC2X3)", parseModel(ifc2x3)]];
-const unesc = (s) => s.replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#(x?)([0-9a-fA-F]+);/g, (_, x, n) => String.fromCodePoint(parseInt(n, x ? 16 : 10))).replace(/&amp;/g, "&");
+const unesc = (s) => s.replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#(x?)([0-9a-fA-F]+);/g, (_, x, n) => codePointOr(parseInt(n, x ? 16 : 10))).replace(/&amp;/g, "&");
 
 console.log("| Set | Files | Specifications | Lines found | Tag on line is that spec | Specs with audit warnings | Audit annotations (2 models) | On the spec's line | Folded into the pointer |");
 console.log("|---|---:|---:|---:|---:|---:|---:|---:|---:|");
@@ -68,3 +68,7 @@ for (const [label, dir] of sets) {
   console.log(`| ${label} | ${files} | ${specs} | ${found} | ${same} | ${warned} | ${notes} | ${onLine} | ${folded} |`);
 }
 console.log(misses.length ? `\nMisses (${misses.length}):\n` + misses.slice(0, 40).join("\n") : "\nMisses: none");
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

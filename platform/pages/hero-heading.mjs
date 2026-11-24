@@ -40,8 +40,8 @@ export function h1Text(html) {
   const ent = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', rsquo: '\u2019', lsquo: '\u2018', mdash: '\u2014', ndash: '\u2013', hellip: '\u2026' };
   return m[1]
     .replace(/<[^>]+>/g, '')
-    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => codePointOr(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => codePointOr(Number(d)))
     .replace(/&([a-z]+);/gi, (e, n) => ent[n.toLowerCase()] ?? e)
     .replace(/\s+/g, ' ')
     .trim();
@@ -150,3 +150,7 @@ async function main() {
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await main();
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

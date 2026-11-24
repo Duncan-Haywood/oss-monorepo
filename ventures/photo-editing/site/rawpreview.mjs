@@ -863,7 +863,11 @@ const reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 function xmlUnescape(s) {
   return s.replace(/&(lt|gt|amp|quot|apos|#\d+|#x[0-9a-f]+);/gi, (m, e) => {
     const k = e.toLowerCase();
-    if (k[0] === "#") return String.fromCodePoint(k[1] === "x" ? parseInt(k.slice(2), 16) : parseInt(k.slice(1), 10));
+    if (k[0] === "#") {
+      // A reference past U+10FFFF (a damaged or hostile sidecar) stays as typed: fromCodePoint would throw.
+      const n = k[1] === "x" ? parseInt(k.slice(2), 16) : parseInt(k.slice(1), 10);
+      return n <= 0x10ffff ? String.fromCodePoint(n) : m;
+    }
     return { lt: "<", gt: ">", amp: "&", quot: '"', apos: "'" }[k];
   });
 }
@@ -879,8 +883,9 @@ function xmpPrefix(text) {
 // (xmp:Rating="3") or as an element (<xmp:Rating>3</xmp:Rating>).
 function findProp(text, p, name) {
   const q = `${reEsc(p)}:${name}`;
-  let m = new RegExp(`(\\s)${q}\\s*=\\s*(["'])([^"']*)\\2`).exec(text);
-  if (m) return { index: m.index, length: m[0].length, value: xmlUnescape(m[3]), form: "attr" };
+  // A double-quoted value may hold an apostrophe ("Client's pick") and a single-quoted one a double quote.
+  let m = new RegExp(`\\s${q}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`).exec(text);
+  if (m) return { index: m.index, length: m[0].length, value: xmlUnescape(m[1] ?? m[2]), form: "attr" };
   m = new RegExp(`<${q}\\s*>([^<]*)</${q}\\s*>`).exec(text);
   if (m) return { index: m.index, length: m[0].length, value: xmlUnescape(m[1].trim()), form: "elem" };
   m = new RegExp(`<${q}\\s*/>`).exec(text);

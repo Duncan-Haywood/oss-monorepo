@@ -456,7 +456,10 @@ class Parser {
         if (len) {
           const h = s.slice(i + 1, i + 1 + len);
           if (!new RegExp(`^[0-9a-fA-F]{${len}}$`).test(h)) throw new YamlError(`expected escape sequence of ${len} hexadecimal numbers`, line);
-          out += String.fromCodePoint(parseInt(h, 16));
+          const cp = parseInt(h, 16);
+          // \UFFFFFFFF is a YAML error, not a crash (fromCodePoint throws a RangeError past U+10FFFF).
+          if (cp > 0x10ffff) throw new YamlError(`escape \\${e}${h} is past U+10FFFF`, line);
+          out += String.fromCodePoint(cp);
           i += len;
           continue;
         }

@@ -39,7 +39,7 @@ async function load(key) {
     .replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, "")
     .replace(/<br\s*\/?>|<\/p>|<\/tr>|<\/td>|<\/li>/gi, "\n")
     .replace(/<[^>]+>/g, "")
-    .replace(/&(#\d+|#x[0-9a-f]+|\w+);/gi, (m, e) => e[0] === "#" ? String.fromCodePoint(e[1] === "x" || e[1] === "X" ? parseInt(e.slice(2), 16) : Number(e.slice(1))) : named(e) ?? m);
+    .replace(/&(#\d+|#x[0-9a-f]+|\w+);/gi, (m, e) => e[0] === "#" ? codePointOr(e[1] === "x" || e[1] === "X" ? parseInt(e.slice(2), 16) : Number(e.slice(1))) : named(e) ?? m);
 }
 
 // A code starts a line or follows text; consolidated copies write one typo, "16.02.2005".
@@ -109,3 +109,7 @@ export const COUNTS = ${JSON.stringify({ base: base.size, added: added.length + 
 `;
 writeFileSync(new URL("./rio-service-codes-data.mjs", import.meta.url), `${header}export default ${JSON.stringify(all.map((r) => r.join("\t")).join("\n"))};\n`);
 console.log(`rio-service-codes-data.mjs: ${all.length} rows (${base.size} in 2018, ${added.length + add321.length} added, ${excluded286.length + del321.length} excluded)`);
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

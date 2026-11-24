@@ -501,3 +501,15 @@ test("detailAt and burstBest: the AF point decides when every frame has one", ()
   assert.deepEqual(burstBest([{ detail: 900, afDetail: 10 }, { detail: 500, afDetail: 80 }]), { index: 1, basis: "af" });
   assert.deepEqual(burstBest([{ detail: 900, afDetail: 10 }, { detail: 500 }]), { index: 0, basis: "frame" });
 });
+
+test("readXmp and mergeXmpSidecar: a label holding an apostrophe is read and replaced, never duplicated; a bad character reference does not throw", () => {
+  const w = (a) => `<x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about="" xmlns:xmp="http://ns.adobe.com/xap/1.0/" ${a}/></rdf:RDF></x:xmpmeta>`;
+  const s = w(`xmp:Rating="3" xmp:Label="Client's pick"`);
+  assert.deepEqual(readXmp(s), { rating: 3, label: "Client's pick" });
+  const out = mergeXmpSidecar(s, { rating: 4, label: "Red" });
+  // Two xmp:Label attributes on one element is not well-formed XML; Lightroom rejects the sidecar.
+  assert.equal(out.match(/xmp:Label/g).length, 1);
+  assert.deepEqual(readXmp(out), { rating: 4, label: "Red" });
+  assert.deepEqual(readXmp(w(`xmp:Rating='2' xmp:Label='The "keepers"'`)), { rating: 2, label: 'The "keepers"' });
+  assert.deepEqual(readXmp(w(`xmp:Rating="2" xmp:Label="A&#99999999;"`)), { rating: 2, label: "A&#99999999;" });
+});

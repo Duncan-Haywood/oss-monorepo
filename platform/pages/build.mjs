@@ -11738,8 +11738,8 @@ const TEXT_ENTITIES = {
 
 const decodeTextEntities = (value) =>
   decodeEntities(value)
-    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
-    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCodePoint(parseInt(code, 16)))
+    .replace(/&#(\d+);/g, (_, code) => codePointOr(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) => codePointOr(parseInt(code, 16)))
     .replace(/&([a-z][a-z0-9]*);/gi, (whole, name) => TEXT_ENTITIES[name.toLowerCase()] ?? whole);
 
 /** Visible text of an HTML fragment, with script/style content dropped. */
@@ -14159,3 +14159,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       + 'look at the pages, but do not deploy it or run check.mjs on it.');
   }
 }
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

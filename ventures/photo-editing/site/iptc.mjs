@@ -72,7 +72,11 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&l
 function unesc(s) {
   return s.replace(/&(lt|gt|amp|quot|apos|#\d+|#x[0-9a-f]+);/gi, (m, e) => {
     const k = e.toLowerCase();
-    if (k[0] === "#") return String.fromCodePoint(k[1] === "x" ? parseInt(k.slice(2), 16) : parseInt(k.slice(1), 10));
+    if (k[0] === "#") {
+      // A reference past U+10FFFF (a damaged or hostile sidecar) stays as typed: fromCodePoint would throw.
+      const n = k[1] === "x" ? parseInt(k.slice(2), 16) : parseInt(k.slice(1), 10);
+      return n <= 0x10ffff ? String.fromCodePoint(n) : m;
+    }
     return { lt: "<", gt: ">", amp: "&", quot: '"', apos: "'" }[k];
   });
 }
@@ -234,8 +238,9 @@ function prefixFor(text, uri) {
 // Where property p:name is, as an attribute, an element with content, or empty.
 function findProp(text, p, name) {
   const q = `${reEsc(p)}:${name}`;
-  let m = new RegExp(`\\s${q}\\s*=\\s*(["'])([^"']*)\\1`).exec(text);
-  if (m) return { index: m.index, length: m[0].length, form: "attr", inner: m[2] };
+  // A double-quoted value may hold an apostrophe ("Smith's goal") and a single-quoted one a double quote.
+  let m = new RegExp(`\\s${q}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`).exec(text);
+  if (m) return { index: m.index, length: m[0].length, form: "attr", inner: m[1] ?? m[2] };
   m = new RegExp(`<${q}(\\s[^>]*)?/>`).exec(text);
   if (m) return { index: m.index, length: m[0].length, form: "empty", inner: "" };
   m = new RegExp(`<${q}(\\s[^>]*)?>([\\s\\S]*?)</${q}\\s*>`).exec(text);
@@ -345,14 +350,24 @@ export function mergeIptc(text, fields = {}) {
   };
   const bind = (nsKey) => {
     let p = prefixFor(out, NS[nsKey]);
-    if (p) return p;
+    if (p) {
+      // Elements are written into the first rdf:Description. A prefix declared
+      // only on a later one (older Adobe sidecars use one Description per
+      // namespace) is not in scope there, so declare it again on the first.
+      const { end } = openEnd();
+      if (!new RegExp(`xmlns:${reEsc(p)}\\s*=\\s*["']${reEsc(NS[nsKey])}["']`).test(out.slice(0, end))) declare(p, nsKey);
+      return p;
+    }
     p = nsKey;
     let n = 1;
     while (new RegExp(`xmlns:${reEsc(p)}\\s*=`).test(out)) p = `${nsKey}${++n}`;
-    const at = openEnd().start + `<${rdf}:Description`.length;
-    out = `${out.slice(0, at)}\n    xmlns:${p}="${NS[nsKey]}"${out.slice(at)}`;
+    declare(p, nsKey);
     return p;
   };
+  function declare(p, nsKey) {
+    const at = openEnd().start + `<${rdf}:Description`.length;
+    out = `${out.slice(0, at)}\n    xmlns:${p}="${NS[nsKey]}"${out.slice(at)}`;
+  }
 
   for (const key of keys) {
     const [nsKey, name, kind] = WRITTEN[key];

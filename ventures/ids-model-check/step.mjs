@@ -57,7 +57,7 @@ export function decodeStepString(s) {
     if (s.startsWith("\\X4\\", i)) {
       const end = s.indexOf("\\X0\\", i + 4);
       const hex = s.slice(i + 4, end < 0 ? s.length : end);
-      for (let k = 0; k + 8 <= hex.length; k += 8) out += String.fromCodePoint(parseInt(hex.slice(k, k + 8), 16));
+      for (let k = 0; k + 8 <= hex.length; k += 8) out += codePointOr(parseInt(hex.slice(k, k + 8), 16));
       i = (end < 0 ? s.length : end + 4) - 1;
       continue;
     }
@@ -694,3 +694,7 @@ export function parseStep(text, opts = {}) {
   }
   return { schema, entities: entities.trim(), errors, policy };
 }
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }
