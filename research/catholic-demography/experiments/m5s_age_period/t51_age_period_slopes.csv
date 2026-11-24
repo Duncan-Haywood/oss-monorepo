@@ -1,0 +1,89 @@
+group,cell,era,quantity,est,lo,hi,se,info
+all adults,25-44,1977-94,slope (points/yr),-0.1425,-0.3217,0.0564,0.0993,
+all adults,25-44,1977-94,n,,,,,10073
+all adults,25-44,1977-94,raised Catholic %,30.5930,,,,
+all adults,25-44,1977-94,cohorts,,,,,1933-1969
+all adults,45-56,1977-94,slope (points/yr),0.0481,-0.3875,0.4446,0.2169,
+all adults,45-56,1977-94,n,,,,,3819
+all adults,45-56,1977-94,raised Catholic %,24.0514,,,,
+all adults,45-56,1977-94,cohorts,,,,,1921-1949
+all adults,57-79,1977-94,slope (points/yr),-0.2126,-0.4484,0.0161,0.1174,
+all adults,57-79,1977-94,n,,,,,5760
+all adults,57-79,1977-94,raised Catholic %,22.0736,,,,
+all adults,57-79,1977-94,cohorts,,,,,1898-1937
+all adults,25-44,1995-2018,slope (points/yr),-0.0332,-0.2232,0.1529,0.0935,
+all adults,25-44,1995-2018,n,,,,,10380
+all adults,25-44,1995-2018,raised Catholic %,31.0619,,,,
+all adults,25-44,1995-2018,cohorts,,,,,1952-1993
+all adults,45-56,1995-2018,slope (points/yr),0.2337,-0.0851,0.5709,0.1657,
+all adults,45-56,1995-2018,n,,,,,5911
+all adults,45-56,1995-2018,raised Catholic %,28.8525,,,,
+all adults,45-56,1995-2018,cohorts,,,,,1940-1973
+all adults,57-79,1995-2018,slope (points/yr),0.0434,-0.1815,0.2485,0.1083,
+all adults,57-79,1995-2018,n,,,,,7138
+all adults,57-79,1995-2018,raised Catholic %,26.0561,,,,
+all adults,57-79,1995-2018,cohorts,,,,,1917-1961
+all adults,P2 1977-94: 25-44 - 57-79,,difference (points/yr),0.0701,-0.1818,0.3710,0.1418,
+all adults,P3 57-79: 1977-94 - 1995-2018,,difference (points/yr),-0.2560,-0.5938,0.0486,0.1615,
+all adults,P4 25-44: 1995-2018 - 1977-94,,difference (points/yr),0.1093,-0.1471,0.3603,0.1342,
+all adults,1995-2018: 25-44 - 57-79,,difference (points/yr),-0.0767,-0.3298,0.1678,0.1322,
+all adults,45-56: 1977-94 - 1995-2018,,difference (points/yr),-0.1856,-0.7429,0.3172,0.2778,
+women,25-44,1977-94,slope (points/yr),-0.1569,-0.4029,0.1250,0.1366,
+women,25-44,1977-94,n,,,,,5595
+women,25-44,1977-94,raised Catholic %,30.8754,,,,
+women,25-44,1977-94,cohorts,,,,,1933-1969
+women,45-56,1977-94,slope (points/yr),-0.2516,-0.8666,0.2794,0.2860,
+women,45-56,1977-94,n,,,,,2101
+women,45-56,1977-94,raised Catholic %,22.4004,,,,
+women,45-56,1977-94,cohorts,,,,,1921-1949
+women,57-79,1977-94,slope (points/yr),-0.0933,-0.4084,0.1625,0.1480,
+women,57-79,1977-94,n,,,,,3498
+women,57-79,1977-94,raised Catholic %,21.7344,,,,
+women,57-79,1977-94,cohorts,,,,,1898-1937
+women,25-44,1995-2018,slope (points/yr),-0.1317,-0.3647,0.0912,0.1167,
+women,25-44,1995-2018,n,,,,,5781
+women,25-44,1995-2018,raised Catholic %,30.2633,,,,
+women,25-44,1995-2018,cohorts,,,,,1952-1993
+women,45-56,1995-2018,slope (points/yr),0.5843,0.1206,1.0547,0.2404,
+women,45-56,1995-2018,n,,,,,3188
+women,45-56,1995-2018,raised Catholic %,30.2133,,,,
+women,45-56,1995-2018,cohorts,,,,,1940-1973
+women,57-79,1995-2018,slope (points/yr),0.1302,-0.1212,0.3889,0.1280,
+women,57-79,1995-2018,n,,,,,4001
+women,57-79,1995-2018,raised Catholic %,25.6494,,,,
+women,57-79,1995-2018,cohorts,,,,,1917-1961
+women,P2 1977-94: 25-44 - 57-79,,difference (points/yr),-0.0636,-0.4127,0.3187,0.1908,
+women,P3 57-79: 1977-94 - 1995-2018,,difference (points/yr),-0.2235,-0.6145,0.1546,0.1937,
+women,P4 25-44: 1995-2018 - 1977-94,,difference (points/yr),0.0252,-0.3500,0.3878,0.1825,
+women,1995-2018: 25-44 - 57-79,,difference (points/yr),-0.2619,-0.5907,0.0590,0.1659,
+women,45-56: 1977-94 - 1995-2018,,difference (points/yr),-0.8359,-1.5879,-0.1271,0.3790,
+mothers,25-44,1977-94,slope (points/yr),0.0622,-0.2144,0.3473,0.1431,
+mothers,25-44,1977-94,n,,,,,4253
+mothers,25-44,1977-94,raised Catholic %,29.3224,,,,
+mothers,25-44,1977-94,cohorts,,,,,1933-1969
+mothers,45-56,1977-94,slope (points/yr),-0.0613,-0.6910,0.4939,0.3009,
+mothers,45-56,1977-94,n,,,,,1897
+mothers,45-56,1977-94,raised Catholic %,22.3631,,,,
+mothers,45-56,1977-94,cohorts,,,,,1921-1949
+mothers,57-79,1977-94,slope (points/yr),-0.0902,-0.4143,0.1989,0.1595,
+mothers,57-79,1977-94,n,,,,,2945
+mothers,57-79,1977-94,raised Catholic %,20.5970,,,,
+mothers,57-79,1977-94,cohorts,,,,,1898-1937
+mothers,25-44,1995-2018,slope (points/yr),0.1980,-0.0812,0.4560,0.1351,
+mothers,25-44,1995-2018,n,,,,,4253
+mothers,25-44,1995-2018,raised Catholic %,29.1459,,,,
+mothers,25-44,1995-2018,cohorts,,,,,1952-1993
+mothers,45-56,1995-2018,slope (points/yr),0.7030,0.2054,1.2353,0.2573,
+mothers,45-56,1995-2018,n,,,,,2628
+mothers,45-56,1995-2018,raised Catholic %,29.9922,,,,
+mothers,45-56,1995-2018,cohorts,,,,,1940-1973
+mothers,57-79,1995-2018,slope (points/yr),0.0823,-0.1800,0.3386,0.1354,
+mothers,57-79,1995-2018,n,,,,,3477
+mothers,57-79,1995-2018,raised Catholic %,25.4181,,,,
+mothers,57-79,1995-2018,cohorts,,,,,1917-1961
+mothers,P2 1977-94: 25-44 - 57-79,,difference (points/yr),0.1524,-0.2195,0.5615,0.2006,
+mothers,P3 57-79: 1977-94 - 1995-2018,,difference (points/yr),-0.1725,-0.5708,0.2123,0.2089,
+mothers,P4 25-44: 1995-2018 - 1977-94,,difference (points/yr),0.1358,-0.2402,0.5159,0.1963,
+mothers,1995-2018: 25-44 - 57-79,,difference (points/yr),0.1157,-0.2554,0.4829,0.1854,
+mothers,45-56: 1977-94 - 1995-2018,,difference (points/yr),-0.7643,-1.5863,-0.0575,0.4017,
+mothers 1937-49 (m5r),25-44,1977-2018,slope (points/yr),-0.3566,-0.9244,0.1649,0.2789,
