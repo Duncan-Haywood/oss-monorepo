@@ -335,10 +335,11 @@ flagships:
       whitened bins); next read it against --noise-read ship on new camera files.
       Browser cull page 2026-11-23 (site/cull.html; 520-file card 25.8 s; merges
       existing sidecars, eval/cull-existing-sidecars-*); AF points 2026-11-24 (22 of
-      22 = metadata-extractor, eval/cull-af-point-*); on-device closed-eye flag
-      2026-11-24 (1 closed face flagged, no open one, eval/cull-closed-eyes-*; next
-      a real blink set): next Nikon AF grids, a real card of 500+ raws with picks, a
-      Lightroom read of merged sidecars. More open items: NEXT.md.
+      22 = metadata-extractor, eval/cull-af-point-*); DNGs with no JPEG developed
+      in-page 2026-11-24 (32 of 32 = shootflow sensels,
+      eval/cull-raw-data-previews-*; next JPEG XL DNGs). Next Nikon AF grids, a real
+      card of 500+ raws with picks, a Lightroom read of merged sidecars. More open
+      items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-

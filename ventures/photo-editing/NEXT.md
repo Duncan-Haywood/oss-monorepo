@@ -162,3 +162,4 @@
   on a 1D X / 5D IV file that the selected bits are where ExifTool reads them.
 - Whether ranking a burst by detail at the AF point picks the frames a photographer keeps (needs a real card + picks;
   the CSV has `af_detail` and `sharpest_by`).
+- (2026-11-24) on-device closed-eye flag 2026-11-24 (1 closed face flagged, no open one, eval/cull-closed-eyes-*; next a real blink set): next Nikon AF grids, a real card of 500+ raws with picks, a Lightroom read of merged sidecars
