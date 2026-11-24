@@ -160,7 +160,14 @@ often reads one shut lid low (0.79 / 0.43). With the CLI's rule the real page
 flags 6 of 7 and none of the other 108 (the miss is a half face at the frame
 edge); a deliberate wink now counts as a blink, and the widest open laugh read
 0.48 (`eval/blink-rule-agreement-2026-11-24.md`). Faces under 1% of the frame
-are ignored. Frames get an "eyes closed" tag and filter, CSV columns, face
+are ignored. Half faces cut by the frame edge (2026-11-24, later): after the
+first pass the page reflects each edge's 40% strip across the edge and runs the
+model on the pair, the CLI detector's search (`edgeLayout`, `drawEdgeView`,
+`edgeFacesFromResult` in `site/eyes.mjs`); frames already flagged skip it. The
+real page now flags 7 of 7 closed photos, still 0 of 108 others, and on 40 half
+faces cut from the set's own faces finds 20 (0 before) and flags 8 of 10 shut
+ones, 0 of 30 open (`eval/cull-edge-mirror-2026-11-24.md`; the CSV gains
+`faces_at_edge`; `cull.html?edges=0` turns it off). Frames get an "eyes closed" tag and filter, CSV columns, face
 boxes in the large view, and the burst pick leaves them out unless the whole
 burst blinks. The CSV's `blink_max` and `toDetectorJson`'s `eyes_open` are on
 the CLI's scale. First checks: `eval/cull-closed-eyes-2026-11-24.md` (65 public

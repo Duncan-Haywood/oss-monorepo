@@ -1,0 +1,41 @@
+file	faces	faces_at_edge	eyes_closed	blink_max	sharpest_in_burst	error
+burst-friends-1-1-left.jpg	0	0	0		1	
+burst-friends-1-0-right.jpg	0	0	0		1	
+burst-friends-1-0-left.jpg	0	0	0		1	
+burst-friends-1-1-right.jpg	0	0	0		1	
+burst-friends-2-0-left.jpg	1	0	0	0.214	1	
+burst-friends-2-1-left.jpg	0	0	0		1	
+burst-friends-2-0-right.jpg	0	0	0		1	
+burst-friends-2-1-right.jpg	0	0	0		1	
+burst-friends-3-0-left.jpg	1	0	0	0.264	1	
+burst-friends-3-0-right.jpg	0	0	0		1	
+burst-friends-3-1-left.jpg	0	0	0		1	
+burst-friends-3-1-right.jpg	0	0	0		1	
+dinner-friends-wine-0-left.jpg	1	1	0	0.119	1	
+coffee-kitchen-0-left.jpg	1	1	1	0.728	1	
+coffee-kitchen-0-right.jpg	1	1	1	0.764	1	
+dinner-friends-wine-0-right.jpg	1	1	0	0.037	1	
+doctor-tablet-0-left.jpg	1	1	0	0.177	1	
+doctor-tablet-0-right.jpg	1	1	0	0.135	1	
+family-picnic-dog-0-left.jpg	4	1	0	0.264	1	
+family-picnic-dog-0-right.jpg	1	0	0	0.204	1	
+family-picnic-dog-1-left.jpg	1	1	0	0.192	1	
+family-picnic-dog-2-left.jpg	1	0	0	0.149	1	
+family-picnic-dog-2-right.jpg	3	1	0	0.357	1	
+family-picnic-dog-1-right.jpg	4	1	0	0.287	1	
+family-picnic-dog-3-left.jpg	3	0	0	0.289	1	
+family-picnic-dog-3-right.jpg	1	0	0	0.210	1	
+friends-hilltop-laughing-0-right.jpg	0	0	0		1	
+friends-hilltop-laughing-0-left.jpg	0	0	0		1	
+office-woman-red-sweater-0-left.jpg	1	1	0	0.217	1	
+office-woman-red-sweater-0-right.jpg	1	1	0	0.161	1	
+portrait-closeup-0-left.jpg	1	1	1	0.863	1	
+portrait-closeup-0-right.jpg	1	1	1	0.759	1	
+portrait-field-0-left.jpg	1	1	1	0.575	1	
+portrait-laughing-0-left.jpg	1	1	0	0.461	1	
+portrait-field-0-right.jpg	1	0	1	0.569	1	
+portrait-laughing-0-right.jpg	0	0	0		1	
+portrait-smiling-woman-0-left.jpg	1	1	0	0.353	1	
+portrait-smiling-woman-0-right.jpg	1	1	0	0.438	1	
+portrait-lipstick-0-left.jpg	1	1	1	0.629	1	
+portrait-lipstick-0-right.jpg	1	1	1	0.592	1	

@@ -127,3 +127,84 @@ test("the page asks the landmarker for as many faces as the CLI detector keeps, 
     outputFaceBlendshapes: true,
   });
 });
+
+// ---------------------------------------------------- half faces at the edge
+import { edgeLayout, edgeFaceBox, edgeFacesFromResult, drawEdgeView, mergeEdgeFaces, needsEdgeSearch, iou, EDGES } from "./eyes.mjs";
+
+test("edge layout matches the CLI's mirror_strip on a 1000 x 600 frame", () => {
+  // right: strip 400 deep, pair 800 x 600, margin round(0.15 * 800) = 120.
+  assert.deepEqual(edgeLayout(1000, 600, "right"), { edge: "right", depth: 400, vw: 1040, vh: 840, line: 520, pad: 120 });
+  // top: strip 240 deep, pair 1000 x 480, margin 150.
+  assert.deepEqual(edgeLayout(1000, 600, "top"), { edge: "top", depth: 240, vw: 1300, vh: 780, line: 390, pad: 150 });
+});
+
+test("a face centred on the mirror line maps back to its visible half; one off the line is dropped", () => {
+  const w = 1000, h = 600;
+  const R = edgeLayout(w, h, "right"); // line at x 520; the frame's x 1000 sits there
+  // face spanning x 460..580 in the view, rows 220..340: visible half 940..1000 in the frame.
+  assert.deepEqual(edgeFaceBox([460, 220, 580, 340], R, w, h), [940, 100, 1000, 220]);
+  assert.equal(edgeFaceBox([300, 220, 420, 340], R, w, h), null); // a whole face inside the strip
+  const L = edgeLayout(w, h, "left"); // the frame's x 0 at the line (520)
+  assert.deepEqual(edgeFaceBox([460, 220, 580, 340], L, w, h), [0, 100, 60, 220]);
+  const B = edgeLayout(w, h, "bottom"); // line at y 240 + 150
+  assert.deepEqual(edgeFaceBox([400, 350, 500, 430], B, w, h), [250, 560, 350, 600]);
+  const T = edgeLayout(w, h, "top");
+  assert.deepEqual(edgeFaceBox([400, 350, 500, 430], T, w, h), [250, 0, 350, 40]);
+});
+
+test("edge faces come back normalised to the frame with the edge named", () => {
+  const w = 1000, h = 600, R = edgeLayout(w, h, "right");
+  const pts = [{ x: 460 / R.vw, y: 220 / R.vh }, { x: 580 / R.vw, y: 340 / R.vh }];
+  const res = { faceLandmarks: [pts], faceBlendshapes: [{ categories: [{ categoryName: "eyeBlinkLeft", score: 0.71 }, { categoryName: "eyeBlinkRight", score: 0.61 }] }] };
+  const [f] = edgeFacesFromResult(res, R, w, h);
+  assert.equal(f.edge, "right");
+  assert.equal(f.blink, 0.71);
+  f.box.forEach((v, i) => assert.ok(Math.abs(v - [0.94, 100 / 600, 1, 220 / 600][i]) < 1e-9));
+});
+
+test("the measured miss: a half face at the right edge is flagged once merged", () => {
+  // portrait-woman-white-background.jpg: no whole face; the right-edge view read 0.703 on the page.
+  const s = summarizeFaces({ faceLandmarks: [], faceBlendshapes: [] }, { edgeFaces: [{ box: [0.78, 0.2, 1, 0.78], blink: 0.703, edge: "right" }] });
+  assert.equal(s.eyesClosed, true);
+  assert.equal(s.faces[0].edge, "right");
+  assert.equal(describeFaces(s), "1 face, eyes closed");
+  assert.equal(toDetectorJson(s).faces[0].eyes_open < 0.5, true);
+});
+
+test("an edge face overlapping a whole face is the same face, its scores averaged", () => {
+  const whole = [{ box: [0.7, 0.2, 1, 0.6], blink: 0.4 }];
+  const merged = mergeEdgeFaces(whole, [{ box: [0.72, 0.22, 1, 0.6], blink: 0.6, edge: "right" }, { box: [0, 0, 0.1, 0.2], blink: 0.2, edge: "left" }]);
+  assert.equal(merged.length, 2);
+  assert.ok(Math.abs(merged[0].blink - 0.5) < 1e-12);
+  assert.equal(merged[1].edge, "left");
+  assert.equal(iou([0, 0, 1, 1], [0, 0, 1, 1]), 1);
+});
+
+test("frames already flagged skip the edge search", () => {
+  assert.equal(needsEdgeSearch({ eyesClosed: true }), false);
+  assert.equal(needsEdgeSearch({ eyesClosed: false }), true);
+  assert.equal(needsEdgeSearch(null), false);
+});
+
+test("drawEdgeView paints the strip and its reflection either side of the line", () => {
+  // A recording context: the plain copy goes on the frame's side, the flipped one beyond the line.
+  for (const edge of EDGES) {
+    const calls = [];
+    let t = [1, 0, 0, 1, 0, 0];
+    const ctx = { setTransform: (...m) => { t = m; }, fillRect: () => {}, set fillStyle(v) {}, drawImage: (src, sx, sy, sw, sh, dx, dy, dw, dh) => calls.push({ t: [...t], sx, sy, sw, sh, dx, dy, dw, dh }) };
+    const L = edgeLayout(100, 60, edge);
+    drawEdgeView(ctx, {}, 100, 60, L);
+    assert.equal(calls.length, 2);
+    const [plain, flipped] = calls;
+    // Where the frame's edge lands: map the source edge coordinate through each draw.
+    const map = (c, x, y) => [c.t[0] * (c.dx + (x - c.sx) * c.dw / c.sw) + c.t[4], c.t[3] * (c.dy + (y - c.sy) * c.dh / c.sh) + c.t[5]];
+    const edgePt = { left: [0, 30], right: [100, 30], top: [50, 0], bottom: [50, 60] }[edge];
+    const i = edge === "left" || edge === "right" ? 0 : 1;
+    assert.equal(map(plain, ...edgePt)[i], L.line, `${edge} plain`);
+    assert.equal(map(flipped, ...edgePt)[i], L.line, `${edge} flipped`);
+    // and the strip's inner side lands depth away on opposite sides of the line
+    const inner = { left: [L.depth, 30], right: [100 - L.depth, 30], top: [50, L.depth], bottom: [50, 60 - L.depth] }[edge];
+    assert.equal(Math.abs(map(plain, ...inner)[i] - L.line), L.depth);
+    assert.equal(map(plain, ...inner)[i] + map(flipped, ...inner)[i], 2 * L.line, `${edge} mirrored`);
+  }
+});
