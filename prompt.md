@@ -105,7 +105,7 @@ deviation (step 3). That is how the defaults improve
 ([`prompts/steering.md`](prompts/steering.md)).
 
 The router picks the review track itself once enough runs have merged since
-the last review (`review_when_due`). If an open pull request titled `prompts: review` already
+the last review (`review_when_due`). If an open pull request titled `prompts: review`, updated in the last day, already
 exists, another run has claimed that review; route again with `--skip-review`.
 
 `explore` (free choice), `creative` (stories, podcasts), `polish` (design, SEO
