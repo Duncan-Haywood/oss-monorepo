@@ -6520,14 +6520,15 @@ export function disclaimerHtml(toRoot, surfaces = [], { counter = counterOn() } 
         package page); the kind of site that sent you ("google", "reddit"),
         never its address; the country, as a two-letter code; and phone, tablet
         or desktop.</li>
-        <li><strong>Also counted, as daily totals only:</strong> on pages that
-        point to one of our paid products, that the product's link was shown
-        and whether it was clicked, as the page's name, the industry and the
-        product it names. These are separate tallies, not linked to the page
-        load or to you.</li>
         <li><strong>Never stored:</strong> anything you type, a cookie, your IP
         address. Its host sees each request the way any web server does.</li>
-      </ul>` : `
+      </ul>
+      <p>
+        On pages that point to one of our paid products, a separate daily
+        tally also counts that the product's link was shown or clicked, with
+        the page, industry and product names the page itself wrote. It is not
+        linked to the page load or to you.
+      </p>` : `
         Browsers sending
         <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
         not counted at all.
