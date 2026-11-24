@@ -278,6 +278,51 @@ directions:
       - platform/ci/check_site_fresh.py
       - platform/ci/site_probe*.py
 
+  - id: aws-consolidation
+    title: One platform on AWS (site, DNS, apps, native-app backends, email, client projects); Cloudflare and self-deploy retired
+    kind: area
+    set: 2026-11-24
+    source: docs/reports/2026-11-24-cloud-provider-comparison.md
+    section: "7. Owner decision: consolidate everything onto AWS, security first (2026-11-24, later the same day)"
+    status: active
+    # Weight 2: the owner's platform decision for the whole repository. The
+    # North star ($10k MRR) still ranks first; this is the ground it runs on.
+    weight: 2
+    paths:
+      - platform/aws/**
+      - platform/hosting/**
+      - docs/runbooks/aws-*
+      - platform/deploy/**
+
+  - id: promote-or-demote
+    title: From a bunch of projects to a bunch of specialized products (promote into niche products or demote; marketing pages)
+    kind: area
+    set: 2026-11-24
+    source: docs/reports/2026-11-24-cloud-provider-comparison.md
+    section: "Products: promote or demote (owner, 2026-11-24)"
+    status: active
+    # Weight 2: it decides what moves onto the AWS platform and what is sold.
+    weight: 2
+    paths:
+      - portfolio/monetization/transition*
+      - portfolio/monetization/promote*
+      - platform/marketing/product-pages*
+
+  - id: security-first
+    title: Security as the priority (scanned dev workflow, hardened AWS baseline, SOC 2 controls)
+    kind: area
+    set: 2026-11-24
+    source: docs/reports/2026-11-24-cloud-provider-comparison.md
+    section: "7. Owner decision: consolidate everything onto AWS, security first (2026-11-24, later the same day)"
+    status: active
+    # Weight 3: "everything security as a priority" (owner, 2026-11-24).
+    weight: 3
+    paths:
+      - platform/security/**
+      - platform/aws/security/**
+      - docs/security/**
+      - .github/workflows/security-*.yml
+
   # --- principles (how to work; no tasks) ----------------------------------
   - id: depth-over-calculators
     title: Depth over calculators

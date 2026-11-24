@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Schedule of Values Calculator</title>
+  <meta name="description" content="Free schedule of values calculator for subcontractors: completed and stored, retainage held and released, balance to finish and payment due. Nothing uploaded.">
+  <meta property="og:title" content="Schedule of values and continuation sheet calculator, free and private">
+  <meta property="og:description" content="Type your SOV lines. Get completed and stored to date, percent complete, retainage, balance to finish and this month's payment due, with over-billed lines flagged.">
+  <link rel="canonical" href="./index.html">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Schedule of Values Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a schedule of values?", "acceptedAnswer": {"@type": "Answer", "text": "A schedule of values (SOV) splits the contract sum into line items, each with a dollar value. Every pay application bills against those lines, so the owner can see how much of each part of the work is done."}}, {"@type": "Question", "name": "How is retainage calculated on a continuation sheet?", "acceptedAnswer": {"@type": "Answer", "text": "Retainage is a percentage of the work completed to date, and often of stored materials too, at the rate your contract sets. This page multiplies each line's completed work by the work rate and its stored materials by the stored rate, rounds each line to the cent, adds them, and subtracts any retainage already released."}}, {"@type": "Question", "name": "What is balance to finish?", "acceptedAnswer": {"@type": "Answer", "text": "Balance to finish is the scheduled value less the total completed and stored to date. Balance to finish including retainage adds back the retainage still held, because that money is also still to be paid."}}, {"@type": "Question", "name": "Is this the AIA G702 or G703 form?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page does the same kind of arithmetic in its own layout. The AIA forms are copyrighted and this page is not affiliated with the American Institute of Architects. If your owner requires the AIA form, copy the numbers into your licensed copy."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="kicker">Pay app guides · runs in your browser · nothing uploaded</p>
+    <h1>Schedule of values and continuation sheet calculator</h1>
+    <p>Type each line of your <strong>schedule of values</strong>: what was billed before, what you are billing this period, and materials stored on site. The page works out <strong>total completed and stored</strong>, <strong>percent complete</strong>, <strong>retainage held</strong>, <strong>balance to finish</strong> and the <strong>current payment due</strong>, and flags any line billed over its value.</p>
+    <p class="note">Your numbers stay in this browser tab. It does the arithmetic; your contract decides the retainage rate and what may be billed. It is not the AIA G702/G703 form and is not affiliated with the AIA.</p>
+    <nav class="guides" aria-label="Guides">
+      <a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a>
+      <a href="retainage-explained.html">Retainage explained, with state caps</a>
+      <a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional lien waivers</a>
+      <a href="change-orders-schedule-of-values.html">Change orders and the SOV</a>
+    </nav>
+  </header>
+<main>
+  <section class="card" id="inputs">
+    <h2>1. Contract terms for this application</h2>
+    <div class="grid">
+      <div><label for="ret-work">Retainage on completed work (%)</label><input id="ret-work" inputmode="decimal" value="10"></div>
+      <div><label for="ret-stored">Retainage on stored materials (%)</label><input id="ret-stored" inputmode="decimal" value="10"></div>
+      <div><label for="released">Retainage released to date ($)</label><input id="released" inputmode="decimal" placeholder="0"></div>
+      <div><label for="prev-cert">Previous certificates for payment ($)</label><input id="prev-cert" inputmode="decimal" placeholder="0"></div>
+    </div>
+    <p class="note">Previous certificates: the total of the payment-due lines certified on all earlier applications. Put CO in the item column (CO-1, CO-2) for change orders; a deductive change order is a negative scheduled value.</p>
+
+    <h2>2. Schedule of values</h2>
+    <div class="scroll"><table class="sov-input">
+      <colgroup><col style="width:72px"><col style="width:220px"><col style="width:120px"><col style="width:120px"><col style="width:120px"><col style="width:120px"><col style="width:48px"></colgroup>
+      <thead><tr><th scope="col">Item</th><th scope="col">Description</th><th scope="col" class="n">Scheduled value</th><th scope="col" class="n">From previous apps</th><th scope="col" class="n">This period</th><th scope="col" class="n">Stored now</th><th scope="col"><span class="note">remove</span></th></tr></thead>
+      <tbody id="lines"></tbody>
+    </table></div>
+    <button type="button" id="add">Add a line</button>
+    <button type="button" class="secondary" id="sample">Load an example</button>
+    <button type="button" class="secondary" id="clear">Clear</button>
+  </section>
+
+  <section class="card" id="result" aria-live="polite">
+    <h2>3. This application</h2>
+    <p>Current payment due</p>
+    <p class="due" id="due">$0.00</p>
+    <div id="findings"></div>
+    <div class="scroll"><table>
+      <thead><tr><th scope="col">Item</th><th scope="col">Description</th><th scope="col" class="n">Scheduled</th><th scope="col" class="n">Completed and stored</th><th scope="col" class="n">%</th><th scope="col" class="n">Balance to finish</th><th scope="col" class="n">Retainage</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <h3>Summary</h3>
+    <pre class="sum" id="summary"></pre>
+    <button type="button" class="secondary" id="copy">Copy summary</button>
+    <button type="button" class="secondary" id="csv">Download CSV</button>
+    <button type="button" class="secondary" id="print">Print</button>
+  </section>
+
+  <section class="card" id="rules">
+    <h2>How the numbers are worked out</h2>
+    <ul>
+      <li><strong>Total completed and stored</strong> = from previous applications + this period + materials presently stored.</li>
+      <li><strong>Percent</strong> = completed and stored ÷ scheduled value. <strong>Balance to finish</strong> = scheduled value − completed and stored.</li>
+      <li><strong>Retainage</strong> = (previous + this period) × work rate + stored × stored rate, rounded to the cent on each line, less any retainage released.</li>
+      <li><strong>Payment due</strong> = completed and stored − retainage held − previous certificates.</li>
+      <li><strong>Not decided here:</strong> what your contract or state law allows for retainage and stored materials, whether a change order is approved, sales tax, and whether the owner will certify the amount. See <a href="retainage-explained.html">retainage explained</a> for the state caps.</li>
+    </ul>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is a schedule of values?</h3>
+    <p>A schedule of values (SOV) splits the contract sum into line items, each with a dollar value. Every pay application bills against those lines, so the owner can see how much of each part of the work is done.</p>
+    <h3>How is retainage calculated on a continuation sheet?</h3>
+    <p>Retainage is a percentage of the work completed to date, and often of stored materials too, at the rate your contract sets. This page multiplies each line's completed work by the work rate and its stored materials by the stored rate, rounds each line to the cent, adds them, and subtracts any retainage already released.</p>
+    <h3>What is balance to finish?</h3>
+    <p>Balance to finish is the scheduled value less the total completed and stored to date. Balance to finish including retainage adds back the retainage still held, because that money is also still to be paid.</p>
+    <h3>Is this the AIA G702 or G703 form?</h3>
+    <p>No. The page does the same kind of arithmetic in its own layout. The AIA forms are copyrighted and this page is not affiliated with the American Institute of Architects. If your owner requires the AIA form, copy the numbers into your licensed copy.</p>
+  </section>
+
+  <section class="card cta" id="early-access">
+    <h2>Doing this every month for several jobs?</h2>
+    <p>We are building hosted pay-app billing for specialty subcontractors: schedule of values, retainage tracking, change orders and lien waivers in one place. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+  </section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, or financial advice, and it does not replace your contract, your accountant, or an attorney. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Not affiliated with the American Institute of Architects.</strong> AIA, G702 and G703 are marks of their owner. This page does not reproduce the AIA forms.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record: nothing you type is saved anywhere.</p>
+  <p><strong>Privacy.</strong> Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>sov_calculated</code>, <code>example_loaded</code>, <code>summary_copied</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with your numbers, and Do Not Track switches them off.</p>
+  <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+  import { compute, toCsv, summaryText, SAMPLE, fmt, pctText } from "./calc.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  const $ = (s) => document.querySelector(s);
+  const FIELDS = ["item", "description", "scheduled", "previous", "thisPeriod", "stored"];
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  let counted = false;
+
+  function addLine(line = {}) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = FIELDS.map((f) => {
+      const cls = f === "item" ? "item" : f === "description" ? "desc" : "";
+      const mode = ["item", "description"].includes(f) ? "" : ' inputmode="decimal"';
+      return `<td><input class="${cls}" data-f="${f}" aria-label="${f}"${mode} value="${esc(line[f] ?? "")}"></td>`;
+    }).join("") + '<td><button type="button" class="x" aria-label="Remove line">×</button></td>';
+    tr.querySelector("button").addEventListener("click", () => { tr.remove(); update(); });
+    $("#lines").append(tr);
+  }
+  function readLines() {
+    return [...$("#lines").querySelectorAll("tr")].map((tr) => Object.fromEntries([...tr.querySelectorAll("input")].map((i) => [i.dataset.f, i.value])));
+  }
+  function settings() {
+    return { workRetainage: $("#ret-work").value, storedRetainage: $("#ret-stored").value, retainageReleased: $("#released").value, previousCertificates: $("#prev-cert").value };
+  }
+  let last;
+  function update() {
+    last = compute(readLines(), settings());
+    const t = last.totals;
+    $("#due").textContent = fmt(t.currentPaymentDue);
+    $("#findings").innerHTML = last.findings.map((f) => `<p class="finding"><span class="pill ${f.level}">${f.level === "high" ? "check" : "note"}</span>${esc(f.msg)}</p>`).join("");
+    $("#rows").innerHTML = last.rows.map((r) => `<tr><td>${esc(r.item)}</td><td>${esc(r.description)}</td><td class="n">${fmt(r.C)}</td><td class="n">${fmt(r.G)}</td><td class="n">${pctText(r.pct)}</td><td class="n">${fmt(r.H)}</td><td class="n">${fmt(r.retainage)}</td></tr>`).join("") +
+      `<tr class="total"><td></td><td>Totals</td><td class="n">${fmt(t.contractSumToDate)}</td><td class="n">${fmt(t.completedStored)}</td><td class="n">${pctText(t.percentComplete)}</td><td class="n">${fmt(t.balanceToFinish)}</td><td class="n">${fmt(t.retainageGross)}</td></tr>`;
+    $("#summary").textContent = summaryText(last);
+    if (!counted && last.rows.length) { counted = true; record("sov_calculated"); }
+  }
+  document.addEventListener("input", (e) => { if (e.target.closest("#inputs")) update(); });
+  $("#add").addEventListener("click", () => { addLine(); update(); });
+  $("#clear").addEventListener("click", () => { $("#lines").innerHTML = ""; addLine(); update(); });
+  $("#sample").addEventListener("click", () => {
+    $("#lines").innerHTML = "";
+    SAMPLE.lines.forEach(addLine);
+    $("#ret-work").value = SAMPLE.settings.workRetainage; $("#ret-stored").value = SAMPLE.settings.storedRetainage;
+    $("#released").value = SAMPLE.settings.retainageReleased; $("#prev-cert").value = SAMPLE.settings.previousCertificates;
+    record("example_loaded"); update();
+  });
+  $("#copy").addEventListener("click", async () => { try { await navigator.clipboard.writeText($("#summary").textContent); $("#copy").textContent = "Copied"; record("summary_copied"); } catch { $("#copy").textContent = "Select the summary and copy it"; } });
+  $("#csv").addEventListener("click", () => {
+    const url = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: "schedule-of-values.csv" });
+    a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); record("csv_downloaded");
+  });
+  $("#print").addEventListener("click", () => window.print());
+  $("#optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+  if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
+  for (let i = 0; i < 3; i++) addLine();
+  update();
+</script>
+</body>
+</html>

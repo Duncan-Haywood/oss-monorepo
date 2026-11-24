@@ -156,7 +156,7 @@ class Freshness(unittest.TestCase):
         self.assertEqual(state, "unknown")
 
 
-PATTERNS = ["ventures/**", "platform/pages/**", ".github/workflows/portfolio-pages.yml"]
+PATTERNS = ["ventures/**", "platform/pages/**", ".github/workflows/priv-portfolio-pages.yml"]
 
 
 class BuildInputs(unittest.TestCase):
@@ -190,7 +190,7 @@ class BuildInputs(unittest.TestCase):
 
     def test_a_literal_path_matches_exactly(self):
         self.assertTrue(
-            ps.is_build_input(".github/workflows/portfolio-pages.yml", PATTERNS)
+            ps.is_build_input(".github/workflows/priv-portfolio-pages.yml", PATTERNS)
         )
         self.assertFalse(ps.is_build_input(".github/workflows/other.yml", PATTERNS))
 

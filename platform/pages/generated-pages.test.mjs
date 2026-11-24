@@ -76,7 +76,7 @@ test('every listed generator writes only gitignored files', { skip: !inGit && 'n
       }
     }
     const added = [...untracked()].filter((f) => !newBefore.has(f));
-    assert.deepEqual(changed, [], `${slug}'s generator rewrote committed files (put back): ${changed.join(', ')}; generate them at build time and gitignore them, or move the script to portfolio-pages.yml as make-gallery.mjs was`);
+    assert.deepEqual(changed, [], `${slug}'s generator rewrote committed files (put back): ${changed.join(', ')}; generate them at build time and gitignore them, or move the script to priv-portfolio-pages.yml as make-gallery.mjs was`);
     assert.deepEqual(added, [], `${slug}'s generator wrote files git does not ignore: ${added.join(', ')}; add them to the venture's .gitignore`);
   }
 });

@@ -12,7 +12,7 @@
       "signup_url": null,
       "signup_with": null,
       "unlocks": ["github-release-digest", "tool-releases", "ghcr-container-images", "desktop-apps"],
-      "workflows": ["distribute-releases.yml", "distribute-tool-releases.yml", "distribute-ghcr.yml", "distribute-desktop.yml"],
+      "workflows": ["priv-distribute-releases.yml", "priv-distribute-tool-releases.yml", "priv-distribute-ghcr.yml", "priv-distribute-desktop.yml"],
       "secrets": [],
       "variables": ["DISTRIBUTE_RELEASES", "DISTRIBUTE_TOOL_RELEASES", "DISTRIBUTE_GHCR", "DISTRIBUTE_DESKTOP"],
       "steps": [
@@ -28,7 +28,7 @@
       "signup_url": null,
       "signup_with": null,
       "unlocks": [],
-      "workflows": ["cloudflare-email.yml"],
+      "workflows": ["priv-cloudflare-email.yml"],
       "secrets": [],
       "variables": [],
       "steps": [
@@ -44,7 +44,7 @@
       "signup_url": "https://bsky.app",
       "signup_with": "accounts",
       "unlocks": ["bluesky-bot"],
-      "workflows": ["distribute-bluesky.yml", "distribute-hub.yml"],
+      "workflows": ["priv-distribute-bluesky.yml", "priv-distribute-hub.yml"],
       "secrets": ["BSKY_HANDLE", "BSKY_APP_PASSWORD"],
       "variables": ["DISTRIBUTE_BLUESKY"],
       "steps": [
@@ -60,7 +60,7 @@
       "signup_url": "https://joinmastodon.org/servers",
       "signup_with": "accounts",
       "unlocks": ["mastodon-bot"],
-      "workflows": ["distribute-mastodon.yml", "distribute-hub.yml"],
+      "workflows": ["priv-distribute-mastodon.yml", "priv-distribute-hub.yml"],
       "secrets": ["MASTODON_TOKEN"],
       "variables": ["DISTRIBUTE_MASTODON", "MASTODON_INSTANCE", "MASTODON_ACCT"],
       "steps": [
@@ -77,7 +77,7 @@
       "signup_url": "https://dev.to/enter",
       "signup_with": "accounts",
       "unlocks": ["devto-crosspost"],
-      "workflows": ["distribute-devto.yml", "distribute-hub.yml"],
+      "workflows": ["priv-distribute-devto.yml", "priv-distribute-hub.yml"],
       "secrets": ["DEVTO_API_KEY"],
       "variables": ["DISTRIBUTE_DEVTO", "DEVTO_PUBLISH"],
       "steps": [
@@ -93,7 +93,7 @@
       "signup_url": "https://hashnode.com/onboard",
       "signup_with": "accounts",
       "unlocks": ["hashnode-crosspost"],
-      "workflows": ["distribute-hashnode.yml"],
+      "workflows": ["priv-distribute-hashnode.yml"],
       "secrets": ["HASHNODE_TOKEN"],
       "variables": ["DISTRIBUTE_HASHNODE", "HASHNODE_PUBLICATION_ID", "HASHNODE_PUBLISH"],
       "steps": [
@@ -109,13 +109,14 @@
       "signup_url": "https://www.npmjs.com/signup",
       "signup_with": "accounts",
       "unlocks": ["npm-cli-packages", "mcp-server"],
-      "workflows": ["distribute-npm.yml", "distribute-mcp.yml", "distribute-tool-releases.yml", "distribute-homebrew.yml"],
-      "secrets": ["NPM_TOKEN"],
+      "workflows": ["priv-distribute-npm.yml", "priv-distribute-mcp.yml", "priv-distribute-tool-releases.yml", "priv-distribute-homebrew.yml"],
+      "secrets": [],
       "variables": ["DISTRIBUTE_NPM", "NPM_SCOPE", "DISTRIBUTE_MCP"],
       "steps": [
         "Sign up with accounts@marisstella.app and turn on two-factor authentication (npm asks for it to publish).",
         "Create an organisation for the scope (NPM_SCOPE); two names are taken by other projects without one (portfolio/distribution/README.md).",
-        "Access Tokens > Generate: a granular token limited to that scope, with an expiry. Store it as NPM_TOKEN; set NPM_SCOPE, DISTRIBUTE_NPM=true and, for the MCP server, DISTRIBUTE_MCP=true."
+        "No token: CI publishes through npm trusted publishing (OIDC). Publish each package's first version from your machine, then add its trusted publisher, per the table in docs/security/trusted-publishing-setup.md.",
+        "Set NPM_SCOPE, DISTRIBUTE_NPM=true and, for the MCP server, DISTRIBUTE_MCP=true."
       ]
     },
     {
@@ -125,12 +126,12 @@
       "signup_url": "https://pypi.org/account/register/",
       "signup_with": "accounts",
       "unlocks": ["pypi-python-clis", "pypi-pyproject-packages"],
-      "workflows": ["distribute-pypi.yml", "distribute-pypi-packages.yml", "distribute-tool-releases.yml"],
-      "secrets": ["PYPI_TOKEN"],
+      "workflows": ["priv-distribute-pypi.yml", "priv-distribute-pypi-packages.yml", "priv-distribute-tool-releases.yml"],
+      "secrets": [],
       "variables": ["DISTRIBUTE_PYPI"],
       "steps": [
         "Sign up with accounts@marisstella.app and turn on two-factor authentication (PyPI requires it).",
-        "Account settings > API tokens: create one. Store it as PYPI_TOKEN and set DISTRIBUTE_PYPI=true."
+        "No token: Your account > Publishing > add a pending GitHub publisher for each project in docs/security/trusted-publishing-setup.md (CI uploads with OIDC). Then set DISTRIBUTE_PYPI=true."
       ]
     },
     {
@@ -140,12 +141,12 @@
       "signup_url": null,
       "signup_with": null,
       "unlocks": ["homebrew-tap"],
-      "workflows": ["distribute-homebrew.yml"],
-      "secrets": ["HOMEBREW_TAP_TOKEN"],
-      "variables": ["DISTRIBUTE_HOMEBREW", "HOMEBREW_TAP_REPO"],
+      "workflows": ["priv-distribute-homebrew.yml"],
+      "secrets": ["HOMEBREW_TAP_APP_PRIVATE_KEY"],
+      "variables": ["DISTRIBUTE_HOMEBREW", "HOMEBREW_TAP_REPO", "HOMEBREW_TAP_APP_ID"],
       "steps": [
         "Create an empty public repository named homebrew-<something> under your account.",
-        "Create a fine-grained token with Contents: write on that repository only. Store it as HOMEBREW_TAP_TOKEN.",
+        "Create a GitHub App with Contents: read and write, install it on that repository only, and store its private key as HOMEBREW_TAP_APP_PRIVATE_KEY and its App ID as the variable HOMEBREW_TAP_APP_ID (docs/security/trusted-publishing-setup.md, 'Homebrew tap').",
         "Set HOMEBREW_TAP_REPO (owner/name) and DISTRIBUTE_HOMEBREW=true. Needs the npm channel live first (formulae install the npm packages)."
       ]
     },
@@ -156,7 +157,7 @@
       "signup_url": "https://developers.facebook.com/apps",
       "signup_with": null,
       "unlocks": ["hub-threads", "hub-facebook", "hub-instagram"],
-      "workflows": ["distribute-hub.yml"],
+      "workflows": ["priv-distribute-hub.yml"],
       "secrets": ["THREADS_TOKEN", "FACEBOOK_PAGE_TOKEN", "INSTAGRAM_TOKEN"],
       "variables": ["DISTRIBUTE_THREADS", "THREADS_USER_ID", "DISTRIBUTE_FACEBOOK", "FACEBOOK_PAGE_ID", "DISTRIBUTE_INSTAGRAM", "INSTAGRAM_USER_ID", "INSTAGRAM_IMAGE_BASE"],
       "steps": [
@@ -172,7 +173,7 @@
       "signup_url": "https://buttondown.com/register",
       "signup_with": "accounts",
       "unlocks": ["hub-email"],
-      "workflows": ["distribute-hub.yml"],
+      "workflows": ["priv-distribute-hub.yml"],
       "secrets": ["BUTTONDOWN_API_KEY"],
       "variables": ["DISTRIBUTE_EMAIL", "EMAIL_SEND"],
       "steps": [

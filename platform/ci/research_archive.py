@@ -25,7 +25,7 @@ repository would still lose three things, and this tool keeps each one here:
 - **Pull requests, reviews and issues.** `export` writes each one, with its
   body, comments, reviews and review threads, to `pulls/<n>.json` and
   `issues/<n>.json`, plus an `INDEX.md` to browse them. The scheduled workflow
-  (`.github/workflows/research-archive.yml`) commits that directory to the
+  (`.github/workflows/priv-research-archive.yml`) commits that directory to the
   branch `archive/research-meta`.
 - **Proof.** `ready` exits 0 only when deleting upstream would lose nothing
   this tool can keep: upstream `main` in this repository's history, every
