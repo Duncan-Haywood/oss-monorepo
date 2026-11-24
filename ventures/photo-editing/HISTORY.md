@@ -22,3 +22,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-24) drawn noise on 11 fresh camera raws passed 2026-11-23 (+0.12/+0.22 dB, eval/camera-drawn-mpcws-*), so mpcws is the Bayer default
 - (moved 2026-11-24) a lower-envelope line fit (opt-in) rescued 3 of 6 K-1 II losers but failed h1 2026-11-22 (-0.2 dB luma at SNR 12 wb: wb bins are not on one line; eval/noise-envelope-fit-*; next on whitened bins)
 - (moved 2026-11-24) IPTC template 2026-11-24 (13 fields, eval/cull-iptc-*)
+- (moved 2026-11-24) AF points 2026-11-24 (22 of 22 = metadata-extractor, eval/cull-af-point-*)

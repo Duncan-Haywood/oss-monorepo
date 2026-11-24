@@ -5,14 +5,23 @@
 // public CDNs the first time the box is ticked; the photos themselves are
 // read on this computer and never sent anywhere.
 //
-// The verdict uses the model's eyeBlinkLeft/eyeBlinkRight blend-shape scores.
-// A face counts as eyes-closed when BOTH scores reach EYES_CLOSED_AT (a wink
-// or a squint on one side is not a blink). The line sits between what was
-// measured on the check set (eval/cull-closed-eyes-2026-11-24.md): open eyes,
-// smiling or squinting, scored 0.005 to 0.27; the one closed pair 0.61 to 0.63.
-// That is one closed face, not a calibrated rate: treat the flag as a hint.
+// The verdict uses the model's eyeBlinkLeft/eyeBlinkRight blend-shape scores,
+// with the same rule as the CLI detector (tools/mediapipe_face_detector.py), so
+// a frame gets one verdict whichever way it is culled: a face counts as
+// eyes-closed when the MORE-closed eye's score passes EYES_CLOSED_AT (0.5).
+// Until 2026-11-24's second change the page needed BOTH eyes at 0.45 or more;
+// on 115 labelled photos that missed 2 of the 6 closed faces it found, because
+// on real shut eyes the model often reads one lid far lower (0.79 / 0.43,
+// 0.57 / 0.41). The CLI's rule, set on 2026-11-16 before these readings, flags
+// 6 of 7 closed photos and 0 of 108 others with the page's own search
+// (eval/blink-rule-agreement-2026-11-24.md). The cost: a deliberate wink now
+// counts as a blink. The margin is thin (the highest open face read 0.478),
+// so treat the flag as a hint.
 
-export const EYES_CLOSED_AT = 0.45;
+export const EYES_CLOSED_AT = 0.5;
+// eyes_open for shootflow/faces.py: the CLI's logistic map of the blink score,
+// 0.5 at the line (BLINK_CLOSED_AT, BLINK_SLOPE in the CLI detector).
+export const BLINK_SLOPE = 14;
 // Faces under 1% of the frame are background people; a blink there is not the
 // shot's fault (the same line as shootflow/faces.py).
 export const MIN_FACE_AREA = 0.01;
@@ -39,8 +48,8 @@ export function summarizeFaces(result, { closedAt = EYES_CLOSED_AT, minArea = MI
     const area = Math.max(0, x1 - x0) * Math.max(0, y1 - y0);
     const shapes = result.faceBlendshapes?.[i];
     const l = blendScore(shapes, "eyeBlinkLeft"), r = blendScore(shapes, "eyeBlinkRight");
-    const blink = l == null || r == null ? null : Math.min(l, r);
-    return { box: [x0, y0, x1, y1], area, blink, prominent: area >= minArea, closed: blink != null && area >= minArea && blink >= closedAt };
+    const blink = l == null || r == null ? null : Math.max(l, r);
+    return { box: [x0, y0, x1, y1], area, blink, prominent: area >= minArea, closed: blink != null && area >= minArea && blink > closedAt };
   });
   const prominent = faces.filter((f) => f.prominent);
   const scored = prominent.filter((f) => f.blink != null);
@@ -64,8 +73,11 @@ export function eyesOpenCandidates(frames) {
 
 // The SHOOTFLOW_FACE_DETECTOR contract shootflow/faces.py reads:
 // {"faces": [{"size": share of frame, "eyes_open": 0..1 or null}]}.
+export function eyesOpenFromBlink(blink, { closedAt = EYES_CLOSED_AT, slope = BLINK_SLOPE } = {}) {
+  return +Math.min(1, Math.max(0, 1 / (1 + Math.exp(slope * (blink - closedAt))))).toFixed(3);
+}
 export function toDetectorJson(summary) {
-  return { faces: summary.faces.map((f) => ({ size: +f.area.toFixed(4), eyes_open: f.blink == null ? null : +(1 - f.blink).toFixed(3) })) };
+  return { faces: summary.faces.map((f) => ({ size: +f.area.toFixed(4), eyes_open: f.blink == null ? null : eyesOpenFromBlink(f.blink) })) };
 }
 
 // Short text for the large view's info line.
