@@ -157,11 +157,19 @@ workflows:
   classification: none
   publishes: []
 - workflow: distribute-pypi-packages.yml
-  classification: none
-  publishes: []
+  classification: dispatch
+  publishes:
+  - job: publish
+    step: uses pypa/gh-action-pypi-publish
+    gates:
+    - ${{ vars.DISTRIBUTE_PYPI == 'true' && hashFiles('dist/*') != '' }}
 - workflow: distribute-pypi.yml
-  classification: none
-  publishes: []
+  classification: dispatch
+  publishes:
+  - job: publish
+    step: uses pypa/gh-action-pypi-publish
+    gates:
+    - ${{ vars.DISTRIBUTE_PYPI == 'true' && hashFiles('dist/*') != '' }}
 - workflow: distribute-releases.yml
   classification: none
   publishes: []
@@ -379,11 +387,15 @@ workflows:
     step: uses actions/deploy-pages
     gates:
     - ${{ vars.RETAIL_PILOT_INTEL_PAGES == 'true' }}
-  - job: deploy-vercel
-    step: uses amondnet/vercel-action
+  - job: deploy-cloudflare
+    step: runs 'wrangler deploy'
     gates:
-    - ${{ vars.VERCEL_DEPLOY == 'true' }}
+    - ${{ github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || vars.RETAIL_PILOT_INTEL_DOCS_CLOUDFLARE
+      == 'true') }}
 - workflow: sbom-diff-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: secrets-inventory-ci.yml
   classification: none
   publishes: []
 - workflow: security-alert-queue.yml

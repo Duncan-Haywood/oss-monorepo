@@ -80,31 +80,30 @@ Agents do everything after the sign-up: the posts, the tokens' use, de-duplicati
 
 - Sign up: https://www.npmjs.com/signup with accounts@marisstella.app
 - Switches on: `npm-cli-packages` (now artifact), `mcp-server` (now artifact)
-- Secrets: `NPM_TOKEN`
 - Variables: `DISTRIBUTE_NPM`, `NPM_SCOPE`, `DISTRIBUTE_MCP`
 
 1. Sign up with accounts@marisstella.app and turn on two-factor authentication (npm asks for it to publish).
 2. Create an organisation for the scope (NPM_SCOPE); two names are taken by other projects without one (portfolio/distribution/README.md).
-3. Access Tokens > Generate: a granular token limited to that scope, with an expiry. Store it as NPM_TOKEN; set NPM_SCOPE, DISTRIBUTE_NPM=true and, for the MCP server, DISTRIBUTE_MCP=true.
+3. No token: CI publishes through npm trusted publishing (OIDC). Publish each package's first version from your machine, then add its trusted publisher, per the table in docs/security/trusted-publishing-setup.md.
+4. Set NPM_SCOPE, DISTRIBUTE_NPM=true and, for the MCP server, DISTRIBUTE_MCP=true.
 
 ### PyPI
 
 - Sign up: https://pypi.org/account/register/ with accounts@marisstella.app
 - Switches on: `pypi-python-clis` (now artifact), `pypi-pyproject-packages` (now artifact)
-- Secrets: `PYPI_TOKEN`
 - Variables: `DISTRIBUTE_PYPI`
 
 1. Sign up with accounts@marisstella.app and turn on two-factor authentication (PyPI requires it).
-2. Account settings > API tokens: create one. Store it as PYPI_TOKEN and set DISTRIBUTE_PYPI=true.
+2. No token: Your account > Publishing > add a pending GitHub publisher for each project in docs/security/trusted-publishing-setup.md (CI uploads with OIDC). Then set DISTRIBUTE_PYPI=true.
 
 ### Homebrew tap (a second GitHub repository)
 
 - Switches on: `homebrew-tap` (now artifact)
-- Secrets: `HOMEBREW_TAP_TOKEN`
-- Variables: `DISTRIBUTE_HOMEBREW`, `HOMEBREW_TAP_REPO`
+- Secrets: `HOMEBREW_TAP_APP_PRIVATE_KEY`
+- Variables: `DISTRIBUTE_HOMEBREW`, `HOMEBREW_TAP_REPO`, `HOMEBREW_TAP_APP_ID`
 
 1. Create an empty public repository named homebrew-<something> under your account.
-2. Create a fine-grained token with Contents: write on that repository only. Store it as HOMEBREW_TAP_TOKEN.
+2. Create a GitHub App with Contents: read and write, install it on that repository only, and store its private key as HOMEBREW_TAP_APP_PRIVATE_KEY and its App ID as the variable HOMEBREW_TAP_APP_ID (docs/security/trusted-publishing-setup.md, 'Homebrew tap').
 3. Set HOMEBREW_TAP_REPO (owner/name) and DISTRIBUTE_HOMEBREW=true. Needs the npm channel live first (formulae install the npm packages).
 
 ## 4. Accounts that need a decision first

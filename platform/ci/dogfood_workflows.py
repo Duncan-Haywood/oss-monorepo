@@ -43,7 +43,7 @@ CHECKERS = (
 # (checker, workflow file, finding type) -> why it stays.
 ACCEPTED = {
     ("actions-checkout-credentials-check", ".github/workflows/distribute-homebrew.yml", "checkout-persists-credentials"):
-        "the tap checkout carries HOMEBREW_TAP_TOKEN on purpose; the job's `git push` needs it",
+        "the tap checkout carries the GitHub App's one-hour tap token on purpose; the job's `git push` needs it",
     ("actions-checkout-credentials-check", ".github/workflows/research-archive.yml", "checkout-persists-credentials"):
         "the job pushes archive/* branches with the checkout's credential",
     ("actions-continue-on-error-check", ".github/workflows/agent-cross-review.yml", "job-continue-on-error"):
