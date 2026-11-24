@@ -87,6 +87,7 @@ M70 = E + "m70_drift/results.txt"
 M71 = E + "m71_allowance/results.txt"
 M72 = E + "m72_rezero/results.txt"
 M73 = E + "m73_randomwalk/results.txt"
+M74 = E + "m74_allocate/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -384,6 +385,10 @@ CHECKS = [
     (M73, "LAYOUT 12.80%, BANDS 3.10%", "from 12.8% to 3.10% of the cycle"),
     (M73, "g1 | RW | 0.1 | 46 | 0.313", "at 0.313 s a move"),
     ("experiments/m73_randomwalk/scan.txt", "g1 LAYOUT 1.86e-03 66 0.10975", "the failure is 11.0%"),
+    (M74, "H295 (G1 LAYOUT RW 0.1: LB >= 95): LB 96, DPU 97, DPC 96, CAL 99", "1% wall risk: 96 re-zeros"),
+    (M74, "g1 | LAYOUT | RW | 0.2 | 134 | 145 (0.0098; 0.0097) | 136", "saves at most 149 to 136"),
+    (M74, "worst 0.100, median 0.013", "within 10% of the bound"),
+    (M74, "DPC 23 re-zeros, 2.97%", "it needs 23 (2.97% of the cycle)"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),
