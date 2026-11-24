@@ -3,7 +3,7 @@ title: "Re-audit: the QIF checker's fix closed 4 of 7 defects, and all 7 had bee
 seo_title: "Why a Quicken investment QIF shows false 'no amount' errors"
 date: 2026-11-24
 tags: [quality-audit, evaluation, testing, bookkeeping]
-description: "A full Quicken export now passes the QIF checker clean, but share transfers in an investment account still raised false errors, and three of the seeded bugs the last audit named still passed every test."
+description: "A full Quicken export now passes the QIF checker clean, but investment share transfers still raised false errors and three seeded bugs passed every test."
 ---
 
 The [QIF file check](https://marisstella.app/qif-file-check/) reads a Quicken Interchange Format

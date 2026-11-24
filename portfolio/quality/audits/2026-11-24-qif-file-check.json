@@ -186,7 +186,7 @@
    "basis": "assumed",
    "status": "open",
    "what": "Invst records checked with bank rules: ShrsIn without T still an error, 'No payee or memo' on every Invst record",
-   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/PENDING"
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18517"
   },
   {
    "index": 3,
@@ -194,7 +194,7 @@
    "basis": "assumed",
    "status": "partial",
    "what": "seeded mutants survive: month-first threshold now caught, split precision, year pivot and payee key still survive; no Invst test",
-   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/PENDING"
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18517"
   },
   {
    "index": 4,
@@ -216,7 +216,7 @@
    "basis": "assumed",
    "status": "open",
    "what": "date rewrites reported as one count with no lines; llms.txt boilerplate 'estimates from the numbers typed in'",
-   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/PENDING"
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18517"
   }
  ],
  "defects": [
@@ -226,7 +226,7 @@
    "where": "ventures/qif-file-check/calc.mjs:150",
    "category": "scope-gap",
    "origin": "spec",
-   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/PENDING"
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18517"
   },
   {
    "severity": "medium",
@@ -234,7 +234,7 @@
    "where": "ventures/qif-file-check/calc.test.mjs:1",
    "category": "untested-core",
    "origin": "tests",
-   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/PENDING"
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18517"
   },
   {
    "severity": "low",
@@ -242,7 +242,7 @@
    "where": "ventures/qif-file-check/calc.mjs:230",
    "category": "overclaim",
    "origin": "claims",
-   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/PENDING"
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18517"
   },
   {
    "severity": "low",
@@ -250,7 +250,7 @@
    "where": "ventures/qif-file-check/llms.txt:5",
    "category": "overclaim",
    "origin": "claims",
-   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/PENDING"
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18517"
   },
   {
    "severity": "low",
@@ -258,11 +258,11 @@
    "where": "ventures/qif-file-check/README.md:24",
    "category": "stale-docs",
    "origin": "maintenance",
-   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/PENDING"
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18517"
   }
  ],
  "fix_prs": [
-  "https://github.com/Duncan-Haywood/oss-monorepo/pull/PENDING"
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/18517"
  ],
  "verdict": "Of the seven defects the 2026-11-13 audit recorded, four are closed (the high one among them: a full Quicken export with account and category lists now passes clean, 0 errors on one transaction where it gave 10), one is partly closed (one of four named surviving mutants is now caught) and two were still open on arrival: investment records judged by bank rules, and date rewrites reported without line numbers against the page's 'every change listed with its line'. All seven were counted fixed only by the blanket fix_prs reading. Bank, card and cash checks recomputed right on four of four hand checks. It does not meet the bar on arrival: verification 2 (three of six mutants survive) and claims 2. This session's PR adds investment rules (action, security, T only on cash actions), lists every rewritten date by line, rewrites llms.txt, and adds seven tests that kill all three survivors and an investment mutant; a later audit should re-score."
 }
