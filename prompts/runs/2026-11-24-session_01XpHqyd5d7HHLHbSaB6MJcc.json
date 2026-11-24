@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01XpHqyd5d7HHLHbSaB6MJcc",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "Goal: end click-ops key management (secrets inventory, CI check, trusted publishing)",
+  "input_sha256": "0253506623eb9dbd5a3b9bab470460037ad94de6958c9be7d97260c14f721438",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T21:42:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Keys as code: secrets inventory (both repos), CI check, PyPI/npm OIDC trusted publishing, Homebrew tap via GitHub App token",
+  "projects": [
+    "platform/ci",
+    "platform/distribution",
+    "docs/security"
+  ],
+  "pr": 18668,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 21,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route picked the 'explore' track for an infra/security task; there is no platform/security track, so the record says explore/0."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/workflows (task brief)",
+      "why": "The brief said to put workflow edits in their own PR; the inventory must retire PYPI_TOKEN/NPM_TOKEN/HOMEBREW_TAP_TOKEN in the same commit that stops reading them, or the new check fails, so the control-plane PR also carries the inventory/accounts.json edits.",
+      "did": "PR 18671 = workflows + inventory retirement + SETUP regen, stacked on 18668",
+      "result": "each PR passes the checker on its own"
+    },
+    {
+      "file": "task brief (Homebrew)",
+      "why": "A GitHub App still stores one long-lived private key; a tap-side pull workflow would store none, but the tap repo is outside this session's scope.",
+      "did": "implemented the App token as asked; documented the zero-secret pull alternative",
+      "result": "owner chooses"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-thirty-seven-secrets-and-three-that-can-go.md",
+    "docs/security/trusted-publishing-setup.md",
+    "docs/security/secrets-inventory.yaml"
+  ],
+  "goal": null,
+  "notes": "oss: 37 secret names in workflows (9 non-credentials, 3 aliases, 1 GITHUB_TOKEN, 24 long-lived). private-monorepo: 27 (6 spellings of one Cloudflare token, one may be a Global API Key); its inventory goes in a private-monorepo PR. Registry check 2026-11-24: none of the 3 PyPI or 8 npm package names published yet; llm-spend-guard and llms-txt-generator unscoped names belong to others. npm needs a first manual publish before a trusted publisher can be attached, so OIDC runs skip unknown names. Pins: pypa/gh-action-pypi-publish v1.14.3 = 7245906f (2026-10-20); npm 11.21.2 (2026-11-04; 11.21.3 is under two weeks old). Local: test_secrets_inventory 16 OK; node --test platform/distribution/*.test.mjs 260 pass; check_posts ok; validate_workflows, workflow-audit, dogfood_workflows clean on the workflow branch. No secret deleted.",
+  "corrections": [],
+  "redteam": null
+}
