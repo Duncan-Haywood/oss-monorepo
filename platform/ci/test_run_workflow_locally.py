@@ -2261,6 +2261,34 @@ class ChangedPaths(unittest.TestCase):
         self.assertEqual(runner.changed_paths("origin/main", repo=clone),
                          ["mine.txt"])
 
+    def test_a_stale_remote_base_is_refreshed_so_mains_commits_are_not_mine(self):
+        # A cloud clone's origin/main can sit behind the commit the session
+        # branch was cut from (2026-11-24: 9 commits, einvoice-preflight swept).
+        import subprocess
+        import tempfile
+        upstream = self.repo
+        clone = tempfile.mkdtemp(prefix="changed-paths-stale-")
+        self.addCleanup(__import__("shutil").rmtree, clone, True)
+        run = lambda *a: subprocess.run(["git", *a], cwd=clone, check=True,
+                                        capture_output=True, text=True).stdout.strip()
+        subprocess.run(["git", "clone", "-q", f"file://{upstream}", clone],
+                       check=True, capture_output=True)
+        run("config", "user.email", "t@example.invalid")
+        run("config", "user.name", "t")
+        stale = run("rev-parse", "origin/main")
+        self.commit("someone-elses-pr.txt")       # lands on main upstream
+        run("fetch", "-q", "origin", "main")
+        run("checkout", "-q", "-b", "work", "origin/main")   # branch cut from the newer main
+        run("update-ref", "refs/remotes/origin/main", stale)  # ...but the ref is stale
+        with open(os.path.join(clone, "mine.txt"), "w") as fh:
+            fh.write("mine")
+        with mock.patch.dict(os.environ, {"RWL_NO_FETCH": "1"}):
+            self.assertEqual(sorted(runner.changed_paths("origin/main", repo=clone)),
+                             ["mine.txt", "someone-elses-pr.txt"])  # the old fault
+        with mock.patch.dict(os.environ, {}, clear=False) as env:
+            env.pop("RWL_NO_FETCH", None)
+            self.assertEqual(runner.changed_paths("origin/main", repo=clone), ["mine.txt"])
+
     def test_a_missing_base_says_to_fetch_it(self):
         with self.assertRaises(SystemExit) as caught:
             runner.changed_paths("origin/nope", repo=self.repo)
