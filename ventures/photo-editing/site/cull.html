@@ -190,7 +190,7 @@
     <p>Where the camera recorded where it focused, the page reads that too and draws it in the large view (in red the points the camera reports in focus): Canon (CR2 and CR3, including the 1,053-point grids of recent mirrorless bodies), Sony (bodies that write FocusLocation, such as the A7 III and A7 IV), Fujifilm, Panasonic, and Olympus and OM System. In a burst where every frame has an AF point, "sharpest" then means the most detail at that point, which is the subject the camera chose, so a soft subject in front of a busy background no longer wins; <kbd>Z</kbd> zooms to it. Nikon numbers its phase-detect points on a grid that differs by body and publishes no coordinates, so Nikon files fall back to the busiest area. On the public sample files, the point read agrees with metadata-extractor's own decoding on all 22 files it decodes, and sits on more detail than a random spot in 18 of 24 (median rank 0.89).</p>
     <p>Closed eyes, if you tick "Check for closed eyes": the page downloads Google's MediaPipe Face Landmarker (Apache-2.0, a 3.6 MB model) once and runs it in the browser on a 1,024 px copy of each preview, after the card has loaded. A face counts as blinking when the model's blink score for both eyes is 0.45 or more; faces smaller than 1% of the frame (people in the background) are ignored. Frames with a blink get an "eyes closed" tag and their own filter, the large view boxes each face (amber closed, green open), and the burst pick skips blinking frames unless every frame in the burst has one. How far to trust it: on our check set of real and generated portraits, every open-eyed face (smiling and squinting included) scored 0.27 or less and the one closed pair 0.61 and 0.63, so the line sits between them; that is too few closed faces to give an error rate, and half-closed eyes, profiles, sunglasses and heavy motion blur are not covered. Treat the tag as a hint and look before you reject.</p>
     <p>It shows the camera's JPEG, not a development of the raw data, so white balance and picture style are what the camera chose. For developing raw files with checked colour, see <a href="./">ShootFlow's command-line tools</a>.</p>
-    <p>Measured on 65 public sample files from 55 camera models (the <a href="https://github.com/drewnoakes/metadata-extractor-images">metadata-extractor-images</a> set): a preview was found in 61, and all 61 decode at the size read; in Chromium the page read all 65 (1.1 GB) in about 5 seconds. The misses were two 2 KB BigTIFF test files, a phone DNG with no JPEG inside and a truncated 368-byte file; DNGs with no JPEG inside are now developed from their sensor data (below). Four 2005 to 2008 Olympus compacts give only a 160 × 120 thumbnail.</p>
+    <p>Measured on 65 public sample files from 55 camera models (the <a href="https://github.com/drewnoakes/metadata-extractor-images">metadata-extractor-images</a> set): a preview was found in 61, and all 61 decode at the size read; in Chromium the page read all 65 (1.1 GB) in about 5 seconds. The misses were two 2 KB BigTIFF test files (read since 2026-11-24), a phone DNG with no JPEG inside and a truncated 368-byte file; DNGs with no JPEG inside are now developed from their sensor data (below). Four older Olympus compacts (C-5050 Zoom, C-8080, SP-350, SP-500 UZ) store only a 160 × 120 thumbnail, so the page develops those from their sensor data too: a 1,288 to 1,640 px preview with the camera's white balance and a typical sensor's colour matrix (the files carry none), a median 1.0 to 3.2 ΔE2000 from LibRaw's development of the same files.</p>
   </section>
 
   <section aria-labelledby="faq-h">
@@ -343,11 +343,19 @@ async function loadOne(file) {
     const r = await readRawFile(file);
     bytesRead += r.bytesRead;
     it.format = r.format; it.meta = r.meta; it.preview = r.preview;
-    if (!r.preview && r.meta.dng) {
-      const d = await developInWorker(file); // readRawFile already read this file whole
-      it.preview = r.preview = { blob: d.blob, length: 0, width: d.width, height: d.height, source: d.source, developed: true, ownOrientation: 0 };
-      r.previews = [r.preview];
-      it.developed = true;
+    // No preview, or only a thumbnail under 640 px (the 2002-2008 Olympus
+    // compacts keep just a 160 x 120 one): develop one from the sensor data.
+    // When that fails, a thumbnail the file has is still shown.
+    const small = !r.preview || Math.max(r.preview.width, r.preview.height) < 640;
+    if (small && (r.meta.dng || r.format === "ORF")) {
+      try {
+        const d = await developInWorker(file); // readRawFile already read this file whole
+        it.preview = r.preview = { blob: d.blob, length: 0, width: d.width, height: d.height, source: d.source, developed: true, ownOrientation: 0 };
+        r.previews = [r.preview];
+        it.developed = true;
+      } catch (err) {
+        if (!r.preview) throw err;
+      }
     }
     if (!r.preview) throw new Error(r.format ? "no embedded JPEG preview found" : "not a camera raw or JPEG file");
     it.orient = r.preview.ownOrientation ? 1 : r.meta.orientation || 1;
