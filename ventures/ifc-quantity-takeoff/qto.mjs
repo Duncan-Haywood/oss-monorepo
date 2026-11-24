@@ -435,6 +435,53 @@ function sweptProfile(E, repId) {
   return pid;
 }
 
+/**
+ * The skin of a body that is one extruded profile, optionally clipped by
+ * half-spaces: each profile edge swept along the extrusion (|edge x depth
+ * vector|) plus both ends. A clipped body's sides are scaled by its volume
+ * over the unclipped extrusion's (end cuts shorten every side alike); its
+ * ends are counted at the profile's area. Model units squared; null when the
+ * representation is anything else. {area, clipped}
+ */
+export function profileSkin(E, geo, repId, body) {
+  const rep = repId != null ? E.get(repId) : null;
+  if (!rep || !Array.isArray(rep.args[3]) || rep.args[3].length !== 1) return null;
+  let x = E.get(refId(rep.args[3][0])), clipped = false;
+  // a mapped item (Revit's members): the one item of the map's representation;
+  // a scaled mapping fails the volume check below
+  for (let i = 0; x && x.type === "IFCMAPPEDITEM" && i < 10; i++) {
+    const r = E.get(refId(E.get(refId(x.args[0]))?.args[1]));
+    if (!r || !Array.isArray(r.args[3]) || r.args[3].length !== 1) return null;
+    x = E.get(refId(r.args[3][0]));
+  }
+  for (let i = 0; x && x.type === "IFCBOOLEANCLIPPINGRESULT" && i < 20; i++) { clipped = true; x = E.get(refId(x.args[1])); }
+  if (!x || x.type !== "IFCEXTRUDEDAREASOLID") return null;
+  const loops = geo.profile(refId(x.args[0]));
+  const d = geo.dir(x.args[2], [0, 0, 1]), depth = geo.num(x.args[3]);
+  if (!(depth > 0) || !loops?.length) return null;
+  const D = [d[0] * depth, d[1] * depth, d[2] * depth];
+  let side = 0, area = 0;
+  for (const l of loops) {
+    const P = l.pts;
+    let a = 0;
+    for (let i = 0; i < P.length; i++) {
+      const p = P[i], q = P[(i + 1) % P.length];
+      const ex = q[0] - p[0], ey = q[1] - p[1];
+      // |(ex, ey, 0) x D|
+      side += Math.hypot(ey * D[2], -ex * D[2], ex * D[1] - ey * D[0]);
+      a += p[0] * q[1] - q[0] * p[1];
+    }
+    area += l.s * Math.abs(a) / 2;
+  }
+  const full = Math.abs(area) * Math.abs(D[2]);
+  const V = body ? Math.abs(solidVolume(body)) : full;
+  if (!(full > 0) || !(V > 0) || V > full * 1.005) return null;
+  const k = clipped ? V / full : 1;
+  // an unclipped body that does not hold the extrusion's volume is not this profile
+  if (!clipped && Math.abs(V - full) > 0.005 * full) return null;
+  return { area: side * k + 2 * Math.abs(area), clipped };
+}
+
 export function isElement(e) {
   if (NOT_ELEMENTS.has(e.type) || e.type.endsWith("TYPE") || e.type.startsWith("IFCREL")) return false;
   const a = e.args;
@@ -553,6 +600,12 @@ export function takeoff(model, opts = {}) {
         if (pid != null) { const v = geo.sectionVariants(pid); if (v.length) row.computed.sectionVariants = v; }
         if (pid != null) { const v = geo.polygonSections(pid); if (v.length) row.computed.polygonSections = v; }
         try { row.computed.areas = computeAreas(e.type, row.computed.solids, worldOf(refId(e.args[5])), f); } catch (err) { row.computed.areas = { error: err.message }; }
+        // a steel member whose faces cannot be summed one by one (a profile
+        // with root radii is cut into many convex pieces): its skin from the
+        // extruded profile's own outline (profileSkin)
+        if (COATED_CLASS.test(e.type) && row.computed.areas && !row.computed.areas.error && !row.computed.areas.surface) {
+          try { const k = profileSkin(E, geo, bodyRepresentation(E, refId(e.args[6])), row.computed.solids.body); if (k) row.computed.areas.surface = { gross: k.area * f * f, net: null, fromProfile: true, clipped: k.clipped }; } catch { /* no skin */ }
+        }
         try { const L = memberLength(e.type, row.computed.solids.body, f); if (L != null) row.computed.length = L; } catch { /* no length */ }
         // a reinforcing bar's shapes and the author's schedule figures (rebar.mjs)
         if (REBAR_CLASS.test(e.type) && row.computed.solids.body?.bars?.length) {

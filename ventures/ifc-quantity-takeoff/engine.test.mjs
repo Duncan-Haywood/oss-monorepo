@@ -1864,3 +1864,49 @@ test("coating: a stored skin stands in when the body gives none, and a disagreei
   assert.equal(coatingArea({ ...base, ifcType: "IFCREINFORCINGBAR" }), null);
   assert.equal(coatingArea({ ...base, ifcType: "IFCMECHANICALFASTENER" }), null);
 });
+
+const filletedI = `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC4'));ENDSEC;DATA;
+#1=IFCPROJECT('0YvctVUKr0kugbFTf53O9L',$,'p',$,$,$,$,$,#2);
+#2=IFCUNITASSIGNMENT((#3));
+#3=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);
+#10=IFCCARTESIANPOINT((0.,0.,0.));
+#11=IFCAXIS2PLACEMENT3D(#10,$,$);
+#12=IFCLOCALPLACEMENT($,#11);
+#13=IFCAXIS2PLACEMENT2D(#10,$);
+#16=IFCDIRECTION((0.,0.,1.));
+#20=IFCISHAPEPROFILEDEF(.AREA.,'I400',#13,200.,400.,10.,15.,12.,$,$);
+#21=IFCEXTRUDEDAREASOLID(#20,#11,#16,5000.);
+#22=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#21));
+#23=IFCREPRESENTATIONMAP(#11,#22);
+#24=IFCCARTESIANTRANSFORMATIONOPERATOR3D($,$,#10,$,$);
+#25=IFCMAPPEDITEM(#23,#24);
+#26=IFCSHAPEREPRESENTATION($,'Body','MappedRepresentation',(#25));
+#27=IFCPRODUCTDEFINITIONSHAPE($,$,(#26));
+#28=IFCCOLUMN('1YvctVUKr0kugbFTf53O9A',$,'mapped',$,$,#12,#27,'C1');
+#30=IFCCARTESIANPOINT((0.,0.,4000.));
+#31=IFCAXIS2PLACEMENT3D(#30,$,$);
+#32=IFCPLANE(#31);
+#33=IFCHALFSPACESOLID(#32,.F.);
+#34=IFCBOOLEANCLIPPINGRESULT(.DIFFERENCE.,#21,#33);
+#35=IFCSHAPEREPRESENTATION($,'Body','Clipping',(#34));
+#36=IFCPRODUCTDEFINITIONSHAPE($,$,(#35));
+#37=IFCBEAM('1YvctVUKr0kugbFTf53O9B',$,'clipped',$,$,#12,#36,'B1');
+#60=IFCMATERIAL('S355JR');
+#61=IFCRELASSOCIATESMATERIAL('4YvctVUKr0kugbFTf53O9A',$,$,$,(#28,#37),#60);
+ENDSEC;END-ISO-10303-21;`;
+
+test("coating: a filleted I section's skin comes from its profile outline, through a mapped item and a clipped end", async () => {
+  const { coatingArea } = await import("./qto.mjs");
+  const res = takeoff(parseStep(filletedI));
+  const [M, B] = res.rows;
+  // outline 2w + 2(w - tw) + 4 tf + 2(d - 2 tf), each root radius trading 2r of edge for a quarter arc
+  const r = 0.012, P = 2 * 0.2 + 2 * 0.19 + 4 * 0.015 + 2 * 0.37 + 4 * (Math.PI * r / 2 - 2 * r);
+  const A = 2 * 0.2 * 0.015 + 0.01 * 0.37 + 4 * (1 - Math.PI / 4) * r * r;
+  const cm = coatingArea(M);
+  assert.equal(M.computed.areas.surface.fromProfile, true);
+  close(cm.area, P * 5 + 2 * A, 2e-4);
+  // the plane at 4 m keeps 4 m of the 5 m extrusion: sides x 0.8, both ends kept
+  const cb = coatingArea(B);
+  assert.equal(B.computed.areas.surface.clipped, true);
+  close(cb.area, P * 4 + 2 * A, 2e-4);
+});
