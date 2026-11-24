@@ -546,9 +546,19 @@ class FreeChoiceTest(unittest.TestCase):
 
     def test_unknown_age_counts_as_idlest_and_says_so(self):
         lines = pick_track.contention_lines(["a", "b"], prs=lambda s: [], recent=lambda s: [],
-                                            last={"a": 5.0, "b": None}.get)
+                                            last={"a": 5.0, "b": None}.get, logged=lambda s: None)
         self.assertTrue(lines[0].strip().startswith("b:"))
-        self.assertIn("nothing in this clone's history", lines[0])
+        self.assertIn("nothing in this clone's history or LOG.md", lines[0])
+
+    def test_log_date_stands_in_when_the_shallow_clone_has_no_commit(self):
+        import calendar
+        now = calendar.timegm((2026, 11, 23, 20, 0, 0))
+        lines = pick_track.contention_lines(["logged-today", "landed", "old-log"], prs=lambda s: [],
+                                            recent=lambda s: [], now=now,
+                                            last={"logged-today": None, "landed": 40.0, "old-log": None}.get,
+                                            logged={"logged-today": "2026-11-23", "old-log": "2026-11-01"}.get)
+        self.assertEqual([l.split(":")[0].strip() for l in lines], ["old-log", "landed", "logged-today"])
+        self.assertIn("newest LOG.md entry dated 2026-11-23", lines[2])
 
     def test_free_choice_prints_the_ranking(self):
         text = "\n".join(pick_track.free_choice_lines([("a-prog", True)], contention=lambda s: ["    a-prog: x"]))

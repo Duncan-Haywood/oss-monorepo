@@ -539,21 +539,45 @@ def last_landed_hours(slug, now=None):
     return max(0.0, ((now or time.time()) - int(parts[1])) / 3600)
 
 
-def contention_lines(slugs, show=5, prs=open_prs_for, recent=recent_programme_commits, last=last_landed_hours):
+def newest_log_date(slug):
+    """The newest `## <YYYY-MM-DD>` heading date in research/<slug>/LOG.md, or None."""
+    top = newest_log_entries(slug, n=1)
+    return top[0].split(": ", 1)[1][:10] if top else None
+
+
+def contention_lines(slugs, show=5, prs=open_prs_for, recent=recent_programme_commits, last=last_landed_hours,
+                     logged=newest_log_date, now=None):
     """The least contended open programmes first: open PRs naming it, then origin/main
     commits touching it in the last 6 h, then the longest since anything landed.
 
     Free choice listed 21 open programmes with no sign of which ones sibling runs were
     on; every one had a LOG.md entry dated that day, so picking took several LOG reads
-    (doc friction 2026-11-16, research/_shared/pick_track.py)."""
+    (doc friction 2026-11-16, research/_shared/pick_track.py).
+
+    When the shallow clone holds no commit for a programme, its newest LOG.md date stands in
+    (as the start of that UTC day, so it errs idle). Before 2026-11-24 an unknown age ranked as
+    idlest, so a track fallback put sensing-selfcal first as "nothing in this clone's history"
+    although its LOG.md had three entries dated that day (doc friction 2026-11-23)."""
+    now = now or time.time()
     rows = []
     for s in slugs:
         n_pr, n_recent, age = len(prs(s)), len(recent(s)), last(s)
-        rows.append(((n_pr, n_recent, -(age if age is not None else 1e9)), s, n_pr, n_recent, age))
+        day = logged(s) if age is None else None
+        if day:
+            try:
+                age = max(0.0, (now - calendar.timegm(time.strptime(day, "%Y-%m-%d"))) / 3600)
+            except ValueError:
+                day = None
+        rows.append(((n_pr, n_recent, -(age if age is not None else 1e9)), s, n_pr, n_recent, age, day))
     rows.sort()
     out = []
-    for _, s, n_pr, n_recent, age in rows[:show]:
-        since = "nothing in this clone's history" if age is None else f"last landed {age:.0f} h ago"
+    for _, s, n_pr, n_recent, age, day in rows[:show]:
+        if day:
+            since = f"no commit in this shallow clone; newest LOG.md entry dated {day}"
+        elif age is None:
+            since = "nothing in this clone's history or LOG.md"
+        else:
+            since = f"last landed {age:.0f} h ago"
         out.append(f"    {s}: {n_pr} open PR(s), {n_recent} commit(s) on main in 6 h, {since}")
     return out
 
