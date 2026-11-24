@@ -7,7 +7,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { offBound } from "../bowling.mjs";
+import { offBound, assignLanes } from "../bowling.mjs";
 import { roundRobin } from "../calc.mjs";
 import { LANE_TABLE } from "../bowling-lane-table.mjs";
 import { LANE_NEAR } from "../bowling-lane-near.mjs";
@@ -38,7 +38,13 @@ for (const f of files) {
   if (LANE_TABLE[key]) console.log(`${key}: already at the bound in LANE_TABLE (this answer off ${off})`);
   else if (off === 0) { toTable[key] = code; console.log(`${key}: off 0, to LANE_TABLE (near had ${near?.off ?? "none"})`); }
   else if (near && off < near.off) { toNear[key] = { off, code }; console.log(`${key}: off ${off}, closer than near's ${near.off}`); }
-  else console.log(`${key}: off ${off}, not closer (near ${near?.off ?? "none"})`);
+  else if (!near) {
+    // No near entry yet: keep it only if closer than the page's own search (seed 1), whose off is the entry's `page`.
+    const { n, W } = ans, P = n / 2, cyc = roundRobin(n);
+    const page = offBound(assignLanes(Array.from({ length: W }, (_, w) => cyc[w % cyc.length].matches), n, P), n, P);
+    if (off < page) { toNear[key] = { off, code, page }; console.log(`${key}: off ${off}, new near entry (page ${page})`); }
+    else console.log(`${key}: off ${off}, page's own search already ${page}`);
+  } else console.log(`${key}: off ${off}, not closer (near ${near.off})`);
 }
 
 if (write) {
@@ -47,7 +53,15 @@ if (write) {
   for (const key of [...Object.keys(toTable), ...Object.keys(toNear)]) {
     const re = new RegExp(`^  "${key}": \\{ off: (\\d+), page: (\\d+), code: "[0-9a-z]+" \\},?\\n`, "m");
     const m = text.match(re);
-    if (!m) continue;
+    if (!m) {
+      if (toNear[key]?.page !== undefined) {
+        const lines = text.split("\n"), end = lines.lastIndexOf("};");
+        const at = lines.findIndex((l, i) => i < end && /^  "(\d+),(\d+)":/.test(l) && (([, a, b]) => Number(a) > Number(key.split(",")[0]) || (Number(a) === Number(key.split(",")[0]) && Number(b) > Number(key.split(",")[1])))(l.match(/^  "(\d+),(\d+)":/)));
+        lines.splice(at === -1 ? end : at, 0, `  "${key}": { off: ${toNear[key].off}, page: ${toNear[key].page}, code: "${toNear[key].code}" },`);
+        text = lines.join("\n");
+      }
+      continue;
+    }
     text = toTable[key] ? text.replace(re, "")
       : text.replace(re, `  "${key}": { off: ${toNear[key].off}, page: ${m[2]}, code: "${toNear[key].code}" },\n`);
   }

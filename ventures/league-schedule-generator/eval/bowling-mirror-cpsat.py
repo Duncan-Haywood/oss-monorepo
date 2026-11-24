@@ -12,7 +12,7 @@ every pair's count for it is even except the middle week's: impossible at a limi
 (22 x 33 checked: INFEASIBLE in 0.0 s). So --mirror refuses odd W.
 --soft lets counts leave floor..ceil and minimises the total out-of-bounds count (offBound in bowling.mjs),
 so with --hint it can return a stored near answer made closer rather than nothing; Ctrl-free: the best
-answer at the time limit is printed with its "off".
+answer at the time limit is printed with its "off" and the solver's proved lower "bound" (OPTIMAL when equal).
 --hint starts the search from the stored near answer (bowling-lane-near.mjs) for this season: without
 --mirror its pair labels are renamed so week 1 reads 0..P-1 (counts are unchanged by a renaming); with
 --mirror the hint is the near answer as stored (not symmetric, so only a starting point).
@@ -83,6 +83,6 @@ s = cp_model.CpSolver(); s.parameters.max_time_in_seconds = secs; s.parameters.n
 t0 = time.time(); r = s.Solve(m)
 out = {"n": n, "W": W, "status": s.StatusName(r), "mirror": mirror, "hint": "--hint" in args, "seconds": round(time.time() - t0, 1)}
 if r in (cp_model.OPTIMAL, cp_model.FEASIBLE):
-    if soft: out["off"] = int(s.ObjectiveValue())
+    if soft: out["off"], out["bound"] = int(s.ObjectiveValue()), int(round(s.BestObjectiveBound()))
     out["plan"] = [[s.Value(L[w][k]) for k in range(P)] for w in range(W)]
 print(json.dumps(out), flush=True)
