@@ -141,3 +141,36 @@ test("a change that leaves no lag unspent either way is invisible, and not liste
   assert.deepEqual([...r.started.was, ...r.started.atMost], []);
   assert.ok(r.started.agree.has("9006"));
 });
+
+test("an SF link decodes too: aref is the successor's early start, arls a late finish less the predecessor's duration", () => {
+  // the shape of CCA's and the hotel file's SF links (eval/p6-probes-2026-11-24.md):
+  // add one between two unstarted activities, with the dates P6 would write
+  const x0 = scheduled();
+  const m0 = buildModel(x0);
+  const open = [...m0.tasks.values()].filter((t) => t.status === "TK_NotStart" && !t.span && t.remain > 0);
+  const [p, s] = [open[0], open[open.length - 1]];
+  const lag = 16 * 60, lc = p.cal, P = (k, t) => parseDate(t.row[k]);
+  const aref = s.cal.subWork(lc.addWork(P("early_start_date", p), lag), s.remain);
+  const arls = p.cal.subWork(lc.subWork(P("late_end_date", s), lag), p.remain);
+  const row = { task_pred_id: "sf1", task_id: s.id, pred_task_id: p.id, proj_id: s.proj, pred_proj_id: p.proj, pred_type: "PR_SF", lag_hr_cnt: "16", aref: formatDate(aref), arls: formatDate(arls) };
+  const x = { ...x0, tables: { ...x0.tables, TASKPRED: [...x0.tables.TASKPRED, row] } };
+  const before = relationshipLags(buildModel(x0)).checked;
+  const r = relationshipLags(buildModel(x));
+  assert.equal(r.checked, before + 1);
+  assert.deepEqual(r.links, []);
+  // the lag lengthened after the run reads back as the 16 h P6 used, on both dates
+  const r2 = relationshipLags(buildModel(setLag(x, "sf1", 40)));
+  assert.deepEqual(r2.links.map((l) => [l.rel.id, l.lag / 60, l.was / 60, l.witnesses.join("+")]), [["sf1", 40, 16, "aref+arls"]]);
+});
+
+test("an SF lag is spent from the predecessor's actual start", () => {
+  const m = buildModel(scheduled());
+  const started = [...m.tasks.values()].find((t) => t.status === "TK_Active" && t.actStart !== null);
+  const succ = [...m.tasks.values()].find((t) => t.status === "TK_NotStart" && !t.span);
+  const rel = { id: "sf", predId: started.id, succId: succ.id, type: "PR_SF", lag: 400 * 60 };
+  const u = unspentLag(m, rel, started, succ);
+  const dd = m.projects.get(succ.proj).dataDate;
+  assert.ok(u.spent > 0, "some of it ran before the data date");
+  assert.equal(u.spent, lagCalendar(m, rel).workBetween(started.actStart, dd));
+  assert.equal(u.eff, rel.lag - u.spent);
+});

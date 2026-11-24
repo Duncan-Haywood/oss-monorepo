@@ -317,7 +317,18 @@ export function schedule(xer, options = {}) {
   const proj = (t) => projects.get(t.proj) || { dataDate: model.anchor ?? null, retainedLogic: true, progressOverride: false, floatType: "FT_FF" };
   const done = (t) => t.status === "TK_Complete";
   const active = (t) => t.status === "TK_Active";
-  const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ssActivePred: "maxleft", ssDoneNode: true, bwSSActivePred: "rem", bwDoneNode: true, bwDoneSS: "nolag", bwDoneFS: "nolag", bwDoneSuccLag: ["PR_FS"], bwRsrcRemain: "zero", bwDoneSSLeft: true, bwDoneLagLeft: true, alapActive: true, activeSSLeft: "future", ffOpenEnd: "early", ffDoneSucc: true, ffSSActivePred: true, ffFloor: true, ffExpected: true, ...(options.variant || {}) };
+  const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ssActivePred: "maxleft", ssDoneNode: true, bwSSActivePred: "rem", bwDoneNode: true, bwDoneSS: "nolag", bwDoneFS: "nolag", bwDoneSuccLag: ["PR_FS"], bwRsrcRemain: "zero", bwDoneSSLeft: true, bwDoneLagLeft: true, alapActive: true, activeSSLeft: "future", ffOpenEnd: "early", ffDoneSucc: true, ffSSActivePred: true, ffFloor: true, ffExpected: true, sfActiveSucc: true, ...(options.variant || {}) };
+  // An SF lag runs from the predecessor's actual start, so the working time
+  // from that start to the data date is spent; what is left still holds a
+  // predecessor's start before a started successor's finish (P6 23.12 on the
+  // cpp-cpm-engine probes h6s-an/ay/as: eval/p6-probes-2026-11-24.md)
+  const sfLeft = (t, rel) => {
+    if (!rel.lag) return 0;
+    const dd = model.projects.get(t.proj)?.dataDate;
+    if (!active(t) || t.actStart === null || t.actStart === undefined || dd === null || dd === undefined) return rel.lag;
+    const left = rel.lag - (t.actStart < dd ? lagCalendar(model, rel).workBetween(t.actStart, dd) : 0);
+    return left > 0 ? left : 0;
+  };
   const delay = options.delay || null; // { taskId, minutes }: added remaining duration (critical path test)
   // options.durations: Map(task id -> remaining minutes) in place of the file's
   // (risk.mjs's sampled durations); options.forwardOnly: stop after the
@@ -559,7 +570,12 @@ export function schedule(xer, options = {}) {
       }
       if (active(s)) {
         if (proj(s).progressOverride) continue;
-        if (rel.type === "PR_SF") continue;
+        if (rel.type === "PR_SF") {
+          // the started successor's finish still bounds this one's start,
+          // less only the SF lag not yet spent
+          if (V.sfActiveSucc && !done(t)) { const l = sfLeft(t, rel); starts.push(l ? lagCalendar(model, rel).subWork(sv.lf, l) : sv.lf); }
+          continue;
+        }
         if (rel.type === "PR_SS") {
           // mirror of the forward rule: the remaining work of a started
           // successor waits on this one's start
@@ -673,8 +689,11 @@ export function schedule(xer, options = {}) {
         // mirror of the forward rule for a started successor: an SF link is
         // met, and an SS link waits only for this one's remaining work to
         // start (its lag already spent once this one has started)
-        if (rel.type === "PR_SF") continue;
-        gap = t.cal.workBetween(r.remES, active(t) ? sv.remES : lc.subWork(sv.remES, rel.lag));
+        // under progress override an SF link out of work already started is
+        // met (P6 slides h4s-a A11X past it; A8X, not started, is held)
+        if (rel.type === "PR_SF" && (!V.sfActiveSucc || (active(t) && proj(s).progressOverride))) continue;
+        if (rel.type === "PR_SF") { const l = sfLeft(t, rel); gap = t.cal.workBetween(r.remES, l ? lc.subWork(sv.ef, l) : sv.ef); }
+        else gap = t.cal.workBetween(r.remES, active(t) ? sv.remES : lc.subWork(sv.remES, rel.lag));
       } else if (rel.type === "PR_SS" && active(t) && V.ffSSActivePred) {
         // a started predecessor: the successor waits for the later of this
         // one's remaining start and its actual start plus the lag (forward
