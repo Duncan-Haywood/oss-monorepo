@@ -1,0 +1,430 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVKer8ti8wyT1juRBUs",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T22:56:24Z",
+  "ended": "2026-11-24T22:57:44Z",
+  "wall_minutes": 11.85,
+  "tokens_in": 9434151,
+  "tokens_out": 38865,
+  "cost_usd": 3.6761,
+  "tool_calls": 85,
+  "task": "redteam: xer-schedule-check cpm.mjs + constraints.mjs; date-order defect fixed there and in league-schedule-generator",
+  "projects": [
+    "xer-schedule-check",
+    "league-schedule-generator",
+    "shift-cover-optimizer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18727",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list held 14 entries, 12 of them control-plane edits needing their own owner-approved PR and 2 needing sources this container cannot reach (gov.uk 403); every red-team run re-reads and re-skips them. The list could mark control-plane-blocked entries so runs skip them in one glance."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix open entries first; all 14 were control plane (own PR, owner approval) or needed unreachable gov.uk sources.",
+      "did": "Checked gov.uk/legislation.gov.uk reachability (still 403), skipped the rest, went to seeding.",
+      "result": "No open entry closed; two new real defects found and fixed instead."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-one-date-order-per-spreadsheet.md"
+  ],
+  "goal": null,
+  "notes": "Targets: xer-schedule-check cpm.mjs (10 mutants, 8 caught) and constraints.mjs (8, 4 caught), both paid products (transition.json proprietary). Escaped: 2 equivalent (cpm.mjs:689 under the default variant; constraints.mjs:86 hh 24 rolls the date so the getUTCDate check rejects it), 4 gaps guarded (ALAP milestone with remaining hours in the file, every month name, 3-digit month, past=false for cleared rows and started work). rerun: all 4 caught_after_fix. Catch rate 12/18 (0.67) raw, 12/16 = 0.75 of non-equivalent before, 1.0 after. Class fix: the per-cell day/month guess found in constraints.mjs was grepped across ventures; league-schedule-generator had it in a range parser (fixed, all four list parsers); cash-application-matcher has an explicit dayFirst switch (fine); shift-cover-optimizer/calc.mjs:356 had it too (fixed); client-rebooking-predictor already counts dmy/mdy per file (not changed). Verification: run_venture_tests.py xer-schedule-check ok (561 tests); league-schedule-generator see below. CI on this PR: changed-ventures was red only on platform/distribution/webext.test.mjs (red on main since #18712; fixed here). Portfolio Pages 'test' has 3 failures that are red on main and outside this diff: build.test.mjs:5005 (category count wording) and :5477 (catch-all has 6 tools), description-length.test.mjs (3 ebay-fee-calculator guides and hearth-and-horizon/the-stall-that-paid-double.html over 160 chars). Open PR #18690 touches build.mjs/build.test and the hearth page; the ebay guides were in no open PR and were left for a later run to avoid racing active sessions. Local runs: xer-schedule-check 561, shift-cover-optimizer 42, league-schedule-generator 1029, platform/distribution 261 tests, all pass.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/xer-schedule-check/cpm.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 538983703,
+        "commit": "4d15b7b0e",
+        "sites": 701,
+        "baseline_seconds": 4.5,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 69,
+            "col": 22,
+            "operator": "neq-flip",
+            "before": "const ratio = h !== null && w !== null && h > 0 ? w / h : null;",
+            "after": "const ratio = h === null && w !== null && h > 0 ? w / h : null;",
+            "line_text": "      const ratio = h !== null && w !== null && h > 0 ? w / h : null;",
+            "caught": true,
+            "seconds": 4.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 181,
+            "col": 81,
+            "operator": "const-plus-one",
+            "before": "orig: Math.round(readHours(r, \"target_drtn_hr_cnt\", \"original duration\") * 60),",
+            "after": "orig: Math.round(readHours(r, \"target_drtn_hr_cnt\", \"original duration\") * 61),",
+            "line_text": "      orig: Math.round(readHours(r, \"target_drtn_hr_cnt\", \"original duration\") * 60),",
+            "caught": true,
+            "seconds": 4.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 578,
+            "col": 87,
+            "operator": "and-to-or",
+            "before": "if (useExp && p.useExpectedFinish && t.expEnd !== null && t.expEnd !== undefined && t.expEnd > es) {",
+            "after": "if (useExp && p.useExpectedFinish && t.expEnd !== null && t.expEnd !== undefined || t.expEnd > es) {",
+            "line_text": "      if (useExp && p.useExpectedFinish && t.expEnd !== null && t.expEnd !== undefined && t.expEnd > es) {",
+            "caught": true,
+            "seconds": 4.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 687,
+            "col": 36,
+            "operator": "and-to-or",
+            "before": "else if (rel.type === \"PR_FF\" && V.bwDoneFS && done(t)) fins.push(doneNoLag ? minusLeft(sv.lf, rel) : lc.subWork(sv.lf, rel.lag));",
+            "after": "else if (rel.type === \"PR_FF\" || V.bwDoneFS && done(t)) fins.push(doneNoLag ? minusLeft(sv.lf, rel) : lc.subWork(sv.lf, rel.lag));",
+            "line_text": "      else if (rel.type === \"PR_FF\" && V.bwDoneFS && done(t)) fins.push(doneNoLag ? minusLeft(sv.lf, rel) : lc.subWork(sv.lf, rel.lag));",
+            "caught": true,
+            "seconds": 4.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 689,
+            "col": 50,
+            "operator": "and-to-or",
+            "before": "else if (rel.type === \"PR_SF\" && V.bwDoneFS && done(t)) starts.push(doneNoLag ? sv.lf : lc.subWork(sv.lf, rel.lag));",
+            "after": "else if (rel.type === \"PR_SF\" && V.bwDoneFS || done(t)) starts.push(doneNoLag ? sv.lf : lc.subWork(sv.lf, rel.lag));",
+            "line_text": "      else if (rel.type === \"PR_SF\" && V.bwDoneFS && done(t)) starts.push(doneNoLag ? sv.lf : lc.subWork(sv.lf, rel.lag));",
+            "caught": false,
+            "seconds": 4.4,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "With the default variant V (the only one any product surface uses; variants are set only by tests and eval scripts), every done(t) predecessor reaching line 689 is PR_SF: FS, SS and FF done cases return on lines 682, 684 (bwDoneSS \"nolag\") and 687. So \"PR_SF && bwDoneFS || done(t)\" picks the same branch as the original for every user input."
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 714,
+            "col": 33,
+            "operator": "min-to-max",
+            "before": "const sMin = starts.length ? Math.min(...starts) : Infinity;",
+            "after": "const sMin = starts.length ? Math.max(...starts) : Infinity;",
+            "line_text": "    const sMin = starts.length ? Math.min(...starts) : Infinity;",
+            "caught": true,
+            "seconds": 4.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 727,
+            "col": 23,
+            "operator": "eq-flip",
+            "before": "ls = lf = t.type === \"TT_Mile\" ? (ms24 && mandStart === null ? v : startSnapBack(cal, v)) : cal.prevEnd(v);",
+            "after": "ls = lf = t.type !== \"TT_Mile\" ? (ms24 && mandStart === null ? v : startSnapBack(cal, v)) : cal.prevEnd(v);",
+            "line_text": "      ls = lf = t.type === \"TT_Mile\" ? (ms24 && mandStart === null ? v : startSnapBack(cal, v)) : cal.prevEnd(v);",
+            "caught": true,
+            "seconds": 4.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 767,
+            "col": 46,
+            "operator": "eq-flip",
+            "before": "r.lfAbs = mandFin === null && mandStart === null && Number.isFinite(fMin) && lf === cal.prevEnd(fMin) && ns > lf && ns <= fMin ? ns : lf;",
+            "after": "r.lfAbs = mandFin === null && mandStart !== null && Number.isFinite(fMin) && lf === cal.prevEnd(fMin) && ns > lf && ns <= fMin ? ns : lf;",
+            "line_text": "      r.lfAbs = mandFin === null && mandStart === null && Number.isFinite(fMin) && lf === cal.prevEnd(fMin) && ns > lf && ns <= fMin ? ns : lf;",
+            "caught": true,
+            "seconds": 4.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 814,
+            "col": 21,
+            "operator": "eq-flip",
+            "before": "if (rel.type === \"PR_SF\" && (!V.sfActiveSucc || (active(t) && proj(s).progressOverride))) continue;",
+            "after": "if (rel.type !== \"PR_SF\" && (!V.sfActiveSucc || (active(t) && proj(s).progressOverride))) continue;",
+            "line_text": "        if (rel.type === \"PR_SF\" && (!V.sfActiveSucc || (active(t) && proj(s).progressOverride))) continue;",
+            "caught": true,
+            "seconds": 4.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 861,
+            "col": 32,
+            "operator": "or-to-and",
+            "before": "if (t.type === \"TT_FinMile\" || t.type === \"TT_Mile\" || rem === 0) {",
+            "after": "if (t.type === \"TT_FinMile\" && t.type === \"TT_Mile\" || rem === 0) {",
+            "line_text": "    if (t.type === \"TT_FinMile\" || t.type === \"TT_Mile\" || rem === 0) {",
+            "caught": false,
+            "seconds": 4.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "A milestone carrying remaining hours in the file (exports/conversions do) was moved by ALAP as if it had duration. engine.test.mjs: \"an ALAP milestone stays zero-length even when the file gives it a remaining duration\"."
+          }
+        ]
+      },
+      {
+        "target": "ventures/xer-schedule-check/constraints.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 592275506,
+        "commit": "4d15b7b0e",
+        "sites": 343,
+        "baseline_seconds": 4.5,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/constraints.mjs",
+            "line": 55,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "const MON = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, sept: 8, oct: 9, nov: 10, dec: 11 };",
+            "after": "const MON = { jan: 0, feb: 1, mar: 2, apr: 4, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, sept: 8, oct: 9, nov: 10, dec: 11 };",
+            "line_text": "const MON = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, sept: 8, oct: 9, nov: 10, dec: 11 };",
+            "caught": false,
+            "seconds": 4.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test read an April date. constraints.test.mjs now checks every month name."
+          },
+          {
+            "file": "ventures/xer-schedule-check/constraints.mjs",
+            "line": 68,
+            "col": 12,
+            "operator": "eq-flip",
+            "before": "if (c === '\"') { if (s[i + 1] === '\"') { cell += '\"'; i++; } else q = false; } else cell += c;",
+            "after": "if (c !== '\"') { if (s[i + 1] === '\"') { cell += '\"'; i++; } else q = false; } else cell += c;",
+            "line_text": "      if (c === '\"') { if (s[i + 1] === '\"') { cell += '\"'; i++; } else q = false; } else cell += c;",
+            "caught": true,
+            "seconds": 4.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/constraints.mjs",
+            "line": 86,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "if (m < 0 || m > 11 || d < 1 || d > 31 || hh > 23 || mm > 59) return null;",
+            "after": "if (m < 0 || m > 11 || d < 1 || d > 31 || hh > 24 || mm > 59) return null;",
+            "line_text": "    if (m < 0 || m > 11 || d < 1 || d > 31 || hh > 23 || mm > 59) return null;",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "hh=24 always rolls Date.UTC to the next day, so the getUTCDate()===d check on the next line returns null either way."
+          },
+          {
+            "file": "ventures/xer-schedule-check/constraints.mjs",
+            "line": 91,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "if ((m = /^(\\d{4})-(\\d{1,2})-(\\d{1,2})(?!\\d)(?:[ T](\\d{1,2}):(\\d{2}))?/.exec(s))) return at(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0));",
+            "after": "if ((m = /^(\\d{4})-(\\d{1,3})-(\\d{1,2})(?!\\d)(?:[ T](\\d{1,2}):(\\d{2}))?/.exec(s))) return at(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0));",
+            "line_text": "  if ((m = /^(\\d{4})-(\\d{1,2})-(\\d{1,2})(?!\\d)(?:[ T](\\d{1,2}):(\\d{2}))?/.exec(s))) return at(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0));",
+            "caught": false,
+            "seconds": 4.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "\"2025-012-03\" read as 3 Dec with the mutant; pinned to null (a typo should warn, not read)."
+          },
+          {
+            "file": "ventures/xer-schedule-check/constraints.mjs",
+            "line": 95,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "return at(+m[3], a - 1, b, +(m[4] || 0), +(m[5] || 0));",
+            "after": "return at(+m[3], a - 2, b, +(m[4] || 0), +(m[5] || 0));",
+            "line_text": "    return at(+m[3], a - 1, b, +(m[4] || 0), +(m[5] || 0));",
+            "caught": true,
+            "seconds": 4.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/constraints.mjs",
+            "line": 177,
+            "col": 27,
+            "operator": "eq-flip",
+            "before": "else if (it.expected === null) status = \"no date\";",
+            "after": "else if (it.expected !== null) status = \"no date\";",
+            "line_text": "      else if (it.expected === null) status = \"no date\";",
+            "caught": true,
+            "seconds": 4.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/constraints.mjs",
+            "line": 182,
+            "col": 32,
+            "operator": "neq-flip",
+            "before": "const slack = it.expected !== null && needBy !== null && open && !done ? Math.round(((it.expected < needBy ? t.cal.workBetween(it.expected, needBy) : -t.cal.workBetween(needBy, it.expected)) / 60 / hpd) * 10) / 10 : null;",
+            "after": "const slack = it.expected === null && needBy !== null && open && !done ? Math.round(((it.expected < needBy ? t.cal.workBetween(it.expected, needBy) : -t.cal.workBetween(needBy, it.expected)) / 60 / hpd) * 10) / 10 : null;",
+            "line_text": "      const slack = it.expected !== null && needBy !== null && open && !done ? Math.round(((it.expected < needBy ? t.cal.workBetween(it.expected, needBy) : -t.cal.workBetween(needBy, it.expected)) / 60 / hpd) * 10) / 10 : null;",
+            "caught": true,
+            "seconds": 4.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/constraints.mjs",
+            "line": 183,
+            "col": 238,
+            "operator": "and-to-or",
+            "before": "const link = { code, id: t.id, name: t.name, status, needBy: needBy === null ? null : formatDate(needBy), latest: latest === null ? null : formatDate(latest), slackDays: slack, inLookahead: rowsById.has(t.id), past: latest !== null && it.expected !== null && open && it.expected > latest };",
+            "after": "const link = { code, id: t.id, name: t.name, status, needBy: needBy === null ? null : formatDate(needBy), latest: latest === null ? null : formatDate(latest), slackDays: slack, inLookahead: rowsById.has(t.id), past: latest !== null || it.expected !== null && open && it.expected > latest };",
+            "line_text": "      const link = { code, id: t.id, name: t.name, status, needBy: needBy === null ? null : formatDate(needBy), latest: latest === null ? null : formatDate(latest), slackDays: slack, inLookahead: rowsById.has(t.id), past: latest !== null && it.expected !== null && open && it.expected > latest };",
+            "caught": false,
+            "seconds": 4.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test checked past=false for a cleared row or a started activity (latest null). constraints.test.mjs now does both."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/xer-schedule-check/constraints.mjs",
+        "issue": "parseLogDate read each slash date alone, so in one UK constraints log 25/12/2025 read as 25 Dec but 03/12/2025 as 12 March (a December delivery shown overdue), with no warning. Fixed: slashOrder() picks one order for the whole log (dmy/mdy, warning when mixed); test 'one date order for the whole log'.",
+        "patched": true
+      },
+      {
+        "file": "ventures/league-schedule-generator/dates.mjs",
+        "issue": "parseDate read each date alone, so the blackout '20/12/2026 to 05/01/2027' ended on 1 May 2027 and blocked 133 days instead of 17, silently (under the 365-day range cap). Fixed: dateOrder() over the whole text box (parseDateList, parseBlackouts, parseDivisionBlackouts, parseCourtClosures), an error asking for YYYY-MM-DD when both orders appear with an ambiguous date; two tests in calc.test.mjs.",
+        "patched": true
+      },
+      {
+        "file": "ventures/shift-cover-optimizer/calc.mjs",
+        "issue": "parseStamp read each POS export row alone, so in a UK export 27/10/2026 read day-first but 03/11/2026 as 11 March: every order on the 1st-12th of a month was bucketed under the wrong weekday in demandFromHistory. Fixed: stampOrder() over the time column (warning when mixed); test 'one day/month order for the whole export'; the old mixed-file test split into a US and a day-first file.",
+        "patched": true
+      },
+      {
+        "file": "platform/distribution/webext.mjs",
+        "issue": "Red on main: NETWORK_RE flagged every dynamic import(, so after PR #18712 made shift-roster-builder load its importers with import(\"./import-staff.mjs\") the browser-extension packager skipped it ('inline script reaches the network') and webext.test 'the real shift-roster-builder qualifies' failed in the unwired checks. Fixed: a relative string-literal import() is a local file (importsOf already follows and packages it); URLs, variables and templates still count as network. Test: 'a dynamic import of a local file is packaged'.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "740c7da4-375a-5b1f-b989-d4ff823d4923",
+    "transcripts": 1,
+    "first": "2026-11-24T22:56:24Z",
+    "last": "2026-11-24T23:08:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 161,
+        "output": 38865,
+        "thinking": 9256,
+        "cache_read": 9304332,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129658,
+        "api_equivalent_usd": 3.6761,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 161,
+      "output": 38865,
+      "thinking": 9256,
+      "cache_read": 9304332,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129658,
+      "api_equivalent_usd": 3.6761,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 85,
+    "tools": {
+      "Bash": 83,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.85,
+      "active_minutes": 11.85,
+      "model_minutes": 7.5,
+      "tool_minutes": 4.34,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "senior engineer: mutation triage, three date-parser fixes with tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 136.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
