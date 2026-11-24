@@ -159,6 +159,14 @@
    "by": "numbered open-list items need shipped/landed to read as results (this PR)",
    "at": "2026-11-20T20:22:54Z",
    "note": ""
+  },
+  {
+   "file": "research/cell-fidelity/tests",
+   "match": "cost.json",
+   "verdict": "fixed",
+   "by": "PR #18661",
+   "at": "2026-11-24T22:09:00Z",
+   "note": "math.fsum in cost.py and tables.py; paper/*.json byte-identical on python 3.11, 3.12, 3.13 (re-checked 2026-11-24)"
   }
  ]
 }

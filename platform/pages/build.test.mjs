@@ -5338,7 +5338,7 @@ test('the About page documents the embed feature that #2561 shipped, not just th
   assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
-test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask, custom development, the online sellers industry page, the request pages, /compare/, /research/, Stories, updates, the changelog, the work queue and /guides/, and nothing else', () => {
+test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask, custom development, /hardware/, the request pages, /compare/, /research/, Stories, updates, the changelog, the work queue and /guides/, and nothing else', () => {
   const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   // About, the comparison index and the guides index are hub-level pages
@@ -5352,10 +5352,7 @@ test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask
     `${BASE}about/`,
     `${BASE}ask/`,
     `${BASE}custom-development/`,
-    // The open hardware designs page (hardware-page.mjs).
     `${BASE}hardware/`,
-    // The online sellers industry page (industry-online-sellers.mjs).
-    `${BASE}industries/online-sellers/`,
     // Each request's own page, one per entry in portfolio/requests/requests.json.
     ...loadRequests().map((r) => `${BASE}custom-development/${r.id}/`),
     `${BASE}${COMPARE_PATH}`,

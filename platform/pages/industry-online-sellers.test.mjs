@@ -82,11 +82,11 @@ test('FAQ data matches the page, escaped and parseable', () => {
   for (const [q] of ONLINE_SELLERS_FAQ) assert.ok(html.includes(`<dt>${q.replace(/'/g, '&#39;')}</dt>`), q);
 });
 
-test('build wiring: real head, chrome script and the hub sitemap', () => {
+test('build wiring: real head and chrome script; the sitemap lists it as an industry page', () => {
   const html = renderOnlineSellersIndustryPage({ surfaces: all, baseUrl: base });
   assert.match(html, new RegExp(`<link rel="canonical" href="${base}${ONLINE_SELLERS_PATH}">`));
   assert.match(html, /data-pf-slug="industry-online-sellers"/);
   assert.match(html, /href="\.\.\/\.\.\/reseller-books\/"/);
   assert.ok(!/content="noindex"/.test(html));
-  assert.match(renderHubSitemap(base), new RegExp(`${base}${ONLINE_SELLERS_PATH}`));
+  assert.match(renderHubSitemap(base, [], [], [], [], [ONLINE_SELLERS_PATH]), new RegExp(`${base}${ONLINE_SELLERS_PATH}`));
 });
