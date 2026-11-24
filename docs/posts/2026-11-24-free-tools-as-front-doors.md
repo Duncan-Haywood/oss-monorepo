@@ -1,9 +1,9 @@
 ---
-title: "204 free tools now point at the paid product their users need"
+title: "205 free tools now point at the paid product their users need"
 seo_title: "Turning free calculators into front doors for SMB software"
 date: 2026-11-24
 tags: [marketing, site, monetization]
-description: "204 free tool pages now link the paid SMB product their users need. Narrow rules pick the pairs, and a link shows only once its product page exists."
+description: "205 free tool pages now link the paid SMB product their users need. Narrow rules pick the pairs, and a link shows only once its product page exists."
 ---
 
 This site has about 1,400 free single-purpose tools. As of today they are not
@@ -13,7 +13,7 @@ this site is building are for small and mid-sized businesses in five
 industries: construction, manufacturing, online sellers, e-invoicing and
 nonprofits.
 
-So 204 tools, two category pages and ten audience pages are now mapped to the
+So 205 tools, two category pages and ten audience pages are now mapped to the
 product their visitors are plausibly customers for. Each one carries a short
 line linking that industry's page. The exception is 18 tools that already name
 a specific product in their footer (from
@@ -38,7 +38,7 @@ listed by hand
   reseller tools such as the liquidation pallet bid. The marketplace shelf as
   a whole was tried first and rejected: it also holds short-term-rental hosts,
   course creators and streamers, who are not resellers.
-- **Manufacturing (9), nonprofits (8), e-invoicing (1):** hand lists only.
+- **Manufacturing (10), nonprofits (8), e-invoicing (1):** hand lists only.
   Few tools fit, and a word like "grant" also appears in RSU-grant tax tools.
 
 Matching on words only counts in business categories. Without that limit,

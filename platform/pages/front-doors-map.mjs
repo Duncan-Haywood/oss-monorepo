@@ -62,6 +62,7 @@ export const INDUSTRIES = {
     slugs: [
       'cnc-machining-quote-calculator', 'job-shop-scheduler', 'laser-cutting-engraving-job-price-calculator', 'powder-coating-job-price-calculator',
       'mobile-welding-job-price-calculator', 'spc-control-charts', 'assembly-line-balancer', 'dxf-nesting', '3d-print-price-calculator',
+      'machine-shop-guides',
     ],
     tokens: ['cnc', 'machining', 'cmmc', 'as9100', 'dfars', 'itar', 'fabrication', 'fabricator', 'manufacturing', 'manufacturer'],
     tokenCategories: BUSINESS_CATEGORIES,

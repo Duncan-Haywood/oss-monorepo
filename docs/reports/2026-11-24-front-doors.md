@@ -7,7 +7,7 @@ topics: [money, distribution]
 # Free tools as front doors to industry pages (2026-11-24)
 
 **What:** `platform/pages/front-doors-map.mjs` (rules and hand lists) writes
-`platform/pages/front-doors.json`: 204 tool slugs, plus 12 category and
+`platform/pages/front-doors.json`: 205 tool slugs, plus 12 category and
 audience page ids (`trades`, `marketplace`, `for-roofers` and others), each
 mapped to an industry slug (`construction`, `manufacturing`, `online-sellers`,
 `e-invoicing`, `nonprofits`). `platform/pages/front-doors.mjs` renders:
