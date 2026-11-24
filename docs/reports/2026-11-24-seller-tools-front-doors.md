@@ -2,7 +2,7 @@
 kind: note
 subjects: [ebay-fee-calculator, etsy-profit-calculator, poshmark-fee-calculator, mercari-fee-calculator, depop-fee-calculator, whatnot-seller-payout, grailed-fee-calculator, facebook-marketplace-fee-calculator, stockx-seller-payout-calculator, tiktok-shop-fee-calculator]
 ---
-# Seller tools as front doors for bet #5, reseller books (agent note)
+# Seller tools as front doors for bet #5, Seller Books (agent note)
 
 Bet #5 in `portfolio/monetization/bets.md` (branch `claude/relaxed-planck-7fn5tx` at the time) is reseller profit and Schedule C books. These are its free front doors.
 

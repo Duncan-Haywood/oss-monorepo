@@ -63,8 +63,8 @@ keep the books.
 Each of the ten tool pages now ends with a short "track true profit across
 every platform" section. It points to the
 [online sellers page](https://marisstella.app/industries/online-sellers/),
-where reseller books, a hosted product that does all three steps from your
+where Seller Books, a hosted product that does all three steps from your
 payout files, is listed as in development, with early access. Until then, the
-free in-browser [reseller books worksheet](../../ventures/reseller-books/)
+free in-browser [Reseller Books tool](../../ventures/reseller-books/)
 already groups eBay, Etsy, Poshmark, Whatnot and Shopify exports into
 Schedule C lines.
