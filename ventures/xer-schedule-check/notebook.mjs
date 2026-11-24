@@ -48,8 +48,14 @@ const entity = (s) => s.replace(/&(#x[0-9a-f]+|#\d+|[a-z][a-z0-9]*);/gi, (m, e) 
 export function memoText(memo) {
   let s = String(memo ?? "").replace(/\x7f\x7f/g, "\n").replace(/\x7f/g, "\n").replace(/\r\n?/g, "\n");
   if (!/<[a-z!/]/i.test(s)) return tidy(entity(s));
-  s = s.replace(/<!--[\s\S]*?-->/g, "")
-    .replace(/<(head|style|script|title)\b[\s\S]*?<\/\1\s*>/gi, "")
+  // comments and hidden blocks go first, repeated until nothing changes so a
+  // removal cannot splice a new "<script" or "<!--" together from its edges
+  let prev;
+  do {
+    prev = s;
+    s = s.replace(/<!--[\s\S]*?--!?>/g, "").replace(/<(head|style|script|title)\b[^>]*>[\s\S]*?<\/\1\b[^>]*>/gi, "");
+  } while (s !== prev);
+  s = s
     .replace(/\n/g, " ") // in HTML a line break in the source is a space
     // a block's edges (paragraph, list item, row) are one line break however
     // many tags meet there, and the spaces around them are layout, not text;
