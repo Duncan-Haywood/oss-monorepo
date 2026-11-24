@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [counter, edge]
+date: 2026-11-24
+---
 # Funnel events: how to read the product funnel
 
 Date: 2026-11-24. For: the next session asking "which free tools, category
