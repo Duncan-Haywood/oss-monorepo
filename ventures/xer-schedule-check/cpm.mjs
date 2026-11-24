@@ -19,9 +19,15 @@
 // of 21 and 2 of 2, eval/expected-finish-2026-11-19.md).
 // options.expectedFinish: false ignores them (the what-if "without").
 //
+// Resource-dependent activities (TT_Rsrc) run on their labour and nonlabour
+// assignments' resource calendars, each for its own units over units per
+// hour from the activity's start plus its lag, the start on the activity
+// calendar (P6 23.12 probes: eval/p6-probes-rd-2026-11-24.md, 3,730 of 5,199
+// probe rows; variant.rsrcDep false schedules them on their own calendar).
+//
 // Not modelled: resource levelling, out-of-sequence
-// progress beyond retained logic / progress override, resource-dependent
-// activity dates (a TT_Rsrc activity is scheduled on its own calendar), level
+// progress beyond retained logic / progress override, the early (unsnapped)
+// dates successors of resource-dependent work follow, level
 // of effort and WBS summary dates (they span their neighbours and drive
 // nothing; they are reported but left out of the network).
 
@@ -223,6 +229,30 @@ export function buildModel(xer) {
     const w = t.cal.workBetween(s, e);
     if (w > (t.rsrcRemain || 0)) t.rsrcRemain = w;
   }
+  // Resource-dependent activities (TT_Rsrc): P6 schedules each labour or
+  // nonlabour assignment on its resource's calendar, from the activity's
+  // start plus the assignment's lag, for its own remaining units over its
+  // rate; the activity runs from its earliest assignment start to its latest
+  // assignment finish (see schedule(), "resource-dependent").
+  const rsrcCal = new Map();
+  for (const r of T.RSRC || []) rsrcCal.set(r.rsrc_id, cals.get(r.clndr_id) || null);
+  for (const a of T.TASKRSRC || []) {
+    const t = tasks.get(a.task_id);
+    if (!t || t.type !== "TT_Rsrc") continue;
+    if (a.rsrc_type === "RT_Mat") continue;
+    const cal = rsrcCal.get(a.rsrc_id) || t.cal;
+    const qty = num(a.remain_qty) ?? 0, rate = num(a.remain_qty_per_hr) ?? 0;
+    // no units per hour: the resource's working hours between the
+    // assignment's remaining start and finish (planned ones when blank),
+    // probe zero-units rule ZW; else units over units per hour
+    let rem = rate > 0 ? Math.round((qty / rate) * 60) : null;
+    if (rem === null) {
+      const s0 = parseDate(a.restart_date) ?? parseDate(a.target_start_date), e0 = parseDate(a.reend_date) ?? parseDate(a.target_end_date);
+      if (s0 !== null && e0 !== null && e0 > s0) rem = cal.workBetween(s0, e0);
+    }
+    const lagH = num(t.status === "TK_Active" ? a.relag_drtn_hr_cnt : a.target_lag_drtn_hr_cnt) ?? num(a.relag_drtn_hr_cnt) ?? 0;
+    (t.asg ||= []).push({ id: a.taskrsrc_id, cal, rem, lag: Math.round(lagH * 60) });
+  }
   return { tasks, projects, rels, cals, fallback, warnings, anchor };
 }
 
@@ -317,7 +347,7 @@ export function schedule(xer, options = {}) {
   const proj = (t) => projects.get(t.proj) || { dataDate: model.anchor ?? null, retainedLogic: true, progressOverride: false, floatType: "FT_FF" };
   const done = (t) => t.status === "TK_Complete";
   const active = (t) => t.status === "TK_Active";
-  const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ssActivePred: "maxleft", ssDoneNode: true, bwSSActivePred: "rem", bwDoneNode: true, bwDoneSS: "nolag", bwDoneFS: "nolag", bwDoneSuccLag: ["PR_FS"], bwRsrcRemain: "zero", bwDoneSSLeft: true, bwDoneLagLeft: true, alapActive: true, activeSSLeft: "future", ffOpenEnd: "early", ffDoneSucc: true, ffSSActivePred: true, ffFloor: true, ffExpected: true, sfActiveSucc: true, ...(options.variant || {}) };
+  const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ssActivePred: "maxleft", ssDoneNode: true, bwSSActivePred: "rem", bwDoneNode: true, bwDoneSS: "nolag", bwDoneFS: "nolag", bwDoneSuccLag: ["PR_FS"], bwRsrcRemain: "zero", bwDoneSSLeft: true, bwDoneLagLeft: true, alapActive: true, activeSSLeft: "future", ffOpenEnd: "early", ffDoneSucc: true, ffSSActivePred: true, ffFloor: true, ffExpected: true, sfActiveSucc: true, rsrcDep: true, rdFinNext: "snap", rdSnapAct: "iter", rdIter: 2, rdSnapActBw: true, rdLinkEarly: false, rdLinkStart: false, rdFinishEarly: true, rdStartF: "active", ...(options.variant || {}) };
   // An SF lag runs from the predecessor's actual start, so the working time
   // from that start to the data date is spent; what is left still holds a
   // predecessor's start before a started successor's finish (P6 23.12 on the
@@ -374,6 +404,11 @@ export function schedule(xer, options = {}) {
   // activities whose remaining duration an expected finish set in this run:
   // task id -> { from: file or sampled minutes, to: minutes }
   const expected = new Map();
+  // resource-dependent scheduling (buildModel's t.asg): on unless
+  // variant.rsrcDep is false; an expected finish or a mandatory date keeps
+  // the activity-calendar reading
+  const rdDone = new Set(), rdLink = new Map();
+  const rdOn = (t, p) => V.rsrcDep && t.type === "TT_Rsrc" && t.asg && t.asg.length && !(useExp && p.useExpectedFinish && t.expEnd !== null && t.expEnd !== undefined) && !t.cstr.some((c) => HARD.has(c.type) || c.type === "CS_ALAP");
 
   // ---- forward pass
   for (const id of order) {
@@ -432,8 +467,9 @@ export function schedule(xer, options = {}) {
       const lc = lagCalendar(model, r);
       // an in-progress predecessor's start, for SS/SF links, is where its
       // remaining work starts (P6 "lag from early start")
-      const pS = V.ssFromRem ? pv.remES : pv.es;
-      const pF = pv.ef;
+      const rdE = rdLink.get(r.predId);
+      const pS = rdE && V.rdLinkStart ? rdE[0] : V.ssFromRem ? pv.remES : pv.es;
+      const pF = rdE ? rdE[1] : pv.ef;
       if (r.type === "PR_FS") starts.push(lc.addWork(pF, r.lag));
       else if (r.type === "PR_SS" && active(tasks.get(r.predId)) && V.ssActivePred !== "es") {
         if (V.ssActivePred === "rem") starts.push(pv.remES);
@@ -480,6 +516,47 @@ export function schedule(xer, options = {}) {
       let v = Math.max(sMax, fMax);
       if (mandStart !== null) v = mandStart;
       es = ef = ms24 && mandStart === null && t.type === "TT_Mile" ? v : cal.nextStart(v);
+    } else if (rdOn(t, p) && mandStart === null && mandFin === null) {
+      // resource-dependent: each assignment on its resource's calendar
+      // (buildModel), from the activity's start plus its lag; a finish link
+      // ends an assignment that would finish sooner at its resource's last
+      // close at or before the required finish, its work starting earlier
+      // (P6 23.12, cpp-cpm-engine probes h9 to h28: eval/p6-probes-rd-2026-11-24.md)
+      // P6 prints the remaining dates, from the activity calendar's next
+      // opening; successors follow the early finish, from the unsnapped start
+      // (probe rd-underway: early pair 06:00-18:00, remaining 07:00-07:00)
+      // an assignment with no work beside ones with work does not set the
+      // activity's dates (probe zero-units)
+      const asg = V.rdSkipZero && t.asg.some((a) => (a.rem ?? remain) > 0) ? t.asg.filter((a) => (a.rem ?? remain) > 0) : t.asg;
+      const run = (from) => {
+        let lo = Infinity, hi = -Infinity;
+        for (const a of asg) {
+          const ar = a.rem ?? remain;
+          const lc = V.rdLagCal === "act" ? cal : a.cal;
+          const s1 = a.lag ? lc.addWork(lc.nextStart(from), a.lag) : from;
+          let s0 = a.cal.nextStart(s1), f0 = ar ? a.cal.addWork(s0, ar) : s0;
+          if (fMax > f0) {
+            const f1 = a.cal.prevEnd(fMax);
+            if (f1 > f0) { f0 = f1; s0 = ar ? a.cal.subWork(f0, ar) : f0; }
+          }
+          lo = Math.min(lo, s0); hi = Math.max(hi, f0);
+        }
+        if (fMax > hi && V.rdFinNext && cal.workBetween(hi, fMax) === 0) hi = Math.max(hi, finishSnap(cal, fMax));
+        return [lo, hi];
+      };
+      const early = run(sMax);
+      if (V.rdSnapAct === "iter") {
+        // the early start off the activity calendar: the remaining work
+        // starts at its next opening and each assignment runs again from there
+        // again, until it lands on the activity calendar or after
+        // V.rdIter tries (a weekend crew on a weekday calendar never lands:
+        // P6 stops at the second rerun, probe rd-underway U4)
+        [es, ef] = early;
+        for (let k = 0; k < V.rdIter && cal.nextStart(es) !== es; k++) [es, ef] = run(cal.nextStart(es));
+      } else [es, ef] = V.rdSnapAct ? run(cal.nextStart(sMax)) : early;
+      if (V.rdLinkEarly === true || (V.rdLinkEarly === "active" && active(t))) rdLink.set(id, early);
+      remain = cal.workBetween(es, ef);
+      rdDone.add(id);
     } else {
       es = cal.nextStart(mandStart ?? sMax);
       // expected finish: the remaining duration is what is left to it (the
@@ -508,7 +585,7 @@ export function schedule(xer, options = {}) {
   for (const id of order) {
     const t = tasks.get(id);
     const p = projects.get(t.proj);
-    if (p && !done(t)) p.finish = Math.max(p.finish, res.get(id).ef);
+    if (p && !done(t)) p.finish = Math.max(p.finish, rdLink.has(id) && V.rdFinishEarly ? rdLink.get(id)[1] : res.get(id).ef);
   }
   for (const p of projects.values()) {
     if (p.finish === -Infinity) p.finish = null;
@@ -634,6 +711,27 @@ export function schedule(xer, options = {}) {
       // a start milestone may sit at a period's start; a zero-length task
       // finishes, so it snaps back to a period's end
       ls = lf = t.type === "TT_Mile" ? (ms24 && mandStart === null ? v : startSnapBack(cal, v)) : cal.prevEnd(v);
+    } else if (rdDone.has(id) && mandStart === null && mandFin === null) {
+      // resource-dependent (mirror of the forward pass): each assignment
+      // finishes at its resource's last close at or before the late finish
+      // (or what a start bound plus its lag and work allows); the activity
+      // runs from its earliest assignment late start to its latest late finish
+      let lo = Infinity, hi = -Infinity;
+      for (const a of t.asg) {
+        const ar = a.rem ?? remainOf(t);
+        const fB = V.rdSnapActBw && Number.isFinite(fMin) ? cal.prevEnd(fMin) : fMin;
+        const sB = V.rdSnapActBw && Number.isFinite(sMin) ? startSnapBack(cal, sMin) : sMin;
+        let f0 = Number.isFinite(fB) ? a.cal.prevEnd(fB) : null;
+        if (Number.isFinite(sB)) {
+          const v = a.cal.addWork(startSnapBack(a.cal, sB), a.lag + ar);
+          if (f0 === null || v < f0) f0 = v;
+        }
+        if (f0 === null) f0 = r.ef;
+        const s0 = ar ? a.cal.subWork(f0, ar) : f0;
+        const st = a.lag ? a.cal.subWork(s0, a.lag) : s0;
+        lo = Math.min(lo, a.cal.nextStart(st)); hi = Math.max(hi, f0);
+      }
+      ls = lo; lf = hi;
     } else {
       lf = Number.isFinite(fMin) ? cal.prevEnd(fMin) : r.ef;
       if (mandFin !== null) lf = mandFin;
@@ -658,7 +756,10 @@ export function schedule(xer, options = {}) {
     r.ls = active(t) ? ls : ls;
     // total float, in hours on the activity's calendar
     const finF = cal.workBetween(r.ef, lf);
-    const startF = cal.workBetween(r.remES, ls);
+    let startF = cal.workBetween(r.remES, ls);
+    // resource-dependent work under way: start float is finish float (P6
+    // 23.12, probe h9 rdtf rule RT)
+    if (rdDone.has(id) && (V.rdStartF === "all" || (V.rdStartF === "active" && active(t)))) startF = finF;
     const ft = p.floatType;
     r.tf = (ft === "FT_SF" ? startF : ft === "FT_FF" ? finF : Math.min(startF, finF)) / 60;
   }

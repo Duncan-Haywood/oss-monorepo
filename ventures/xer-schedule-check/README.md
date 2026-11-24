@@ -544,6 +544,35 @@ other activity named either way (eval/evm-series-check-2026-11-20.md).
 planned rate; `overruns` plants a cost factor), so the example series and
 generated series carry actuals.
 
+## Resource-dependent activities on their crews' calendars (2026-11-24)
+
+A resource-dependent activity in P6 (activity type "Resource Dependent",
+`TT_Rsrc`) is not scheduled on its own calendar: each labour or equipment
+assignment runs on its resource's calendar, for its own remaining units over
+units per hour, from the activity's start plus the assignment's lag. A crew
+on a ten-hour day, a weekend crew or a crane with its own holidays then moves
+the activity's dates and everything after it. The engine used to schedule
+these on the activity calendar like any other activity.
+
+Now it schedules each assignment the way P6 23.12 does on 338 public probe
+files: the activity starts at its own calendar's next opening, runs to the
+latest assignment finish, and when a crew's start lands off the activity
+calendar the remaining work moves to the next opening and every assignment
+runs again from there. Finish-to-finish and start-to-finish requirements end
+an assignment at its resource's last close before the requirement; late dates
+mirror it; float stays on the activity calendar. Material assignments do not
+drive. It is on in every report that recomputes dates (critical path, float
+checks, risk, time impact, drag); `variant: { rsrcDep: false }` in `cpm.mjs`
+gives the old reading.
+
+Checked against P6's own values on the probe files (`node eval/p6-probes.mjs
+DIR/p6-probes`, P6's import laid over each file): **3,730 of 5,199** rows
+match P6 on all six values, up from 2,953; resource-dependent rows 468 of 936,
+up from 156; 799 rows fixed and 22 made worse. The six real P6 files stay at
+19,908 of 19,935. The rules were fitted on the probes, so this is not a
+held-out score, and no public real file has crews on other hours than their
+activities. What is left: `eval/p6-probes-rd-2026-11-24.md`, "What is left".
+
 ## Schedule health trend across updates (2026-11-22)
 
 A lender's monitor or an owner's scheduler reading a job month after month
@@ -1751,8 +1780,13 @@ run as a formula in Excel or Sheets.
   actual start; under progress override it holds only work not yet started).
   The probes isolate hard cases, so the share is not the engine's accuracy
   on real files (those are unchanged at 19,908 of 19,935). What they show is
-  the largest gap: resource-dependent activities are scheduled on the activity
-  calendar, not the resources' (156 of 936 such rows match).
+  the largest gap: resource-dependent activities were scheduled on the activity
+  calendar, not the resources' (156 of 936 such rows matched). **Since
+  2026-11-24 they run on their crews' calendars** (section "Resource-dependent
+  activities on their crews' calendars"; `eval/p6-probes-rd-2026-11-24.md`):
+  with P6's own import laid over each probe file, **3,730 of 5,199** rows match
+  (468 of 936 resource-dependent ones), 799 fixed and 22 made worse, the real
+  files unchanged.
 - **Free float against P6** (`eval/free-float-2026-11-19.md`,
   `eval/free-float-expected-2026-11-20.md`): the same files,
   **19,820 of 19,822 (99.99%)** equal P6's stored free float (19,810 before
