@@ -4,7 +4,7 @@
 
 | # | Criterion | Status | Evidence |
 |---|---|---|---|
-| 1 | Photo taken with the ordinary Camera app | By design: no custom camera | `ios/` reads the library; nothing replaces the Camera |
+| 1 | Photo taken with the ordinary Camera app | By design: no custom camera | `mobile/ios/` reads the library; nothing replaces the Camera |
 | 2 | Discovered without manual upload | **Needs a device** (server side shown) | `PhotoScanner.swift` (persistent change token), `SyncFoodPhotosIntent.swift`, `BackgroundScheduler.swift`; server: test "AC2-6" |
 | 3 | Food told apart from other photos | On device: **needs a device**. Server-side second stage: shown | `FoodClassifier.swift`; tests "AC3/13", "AC13: below the on-device food score" |
 | 4 | Nutrition estimated automatically | Shown with a fake model; the live OpenAI call is **unverified** (no key, host blocked here) | `analyze.mjs`; test "openAiAnalyzer sends an image + strict JSON schema request" |

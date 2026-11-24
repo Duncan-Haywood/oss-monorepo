@@ -40,7 +40,7 @@ Personal targets: either set them later in chat ("set my calorie target to 2,200
 
 ```sh
 brew install xcodegen
-cd ventures/photo-nutrition-agent/ios
+cd ventures/photo-nutrition-agent/mobile/ios
 # edit project.yml: bundleIdPrefix, DEVELOPMENT_TEAM, app group id (3 places)
 xcodegen && open NutritionAgent.xcodeproj
 ```

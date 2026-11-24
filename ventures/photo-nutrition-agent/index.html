@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b3c'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Photo Nutrition Agent: log meals to Apple Health from Camera photos</title>
 <meta name="description" content="Open-source, self-hosted nutrition tracking: take a food photo with the iPhone Camera, and the meal is estimated, written to Apple Health and correctable from ChatGPT. Prototype.">
@@ -52,6 +52,9 @@ footer{margin-top:3rem;font-size:.85rem;color:var(--muted);border-top:1px solid 
 
 <h2>Get it</h2>
 <p>Code, install guide and the architecture decision are on <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/photo-nutrition-agent">GitHub</a>. You need a small server with HTTPS, an OpenAI-compatible vision API key, a Mac to build the iPhone app, and an iPhone.</p>
+
+<h2>Planning what to eat</h2>
+<p>To choose the foods in the first place, the free <a href="../cheap-meal-plan-optimizer/">cheap meal plan optimizer</a> builds the lowest-cost day that hits your calorie and protein targets.</p>
 
 <h2>Privacy</h2>
 <p>This page sets no cookies and loads no scripts. The software sends non-food photos nowhere. Food photos go to the server you run, and from there to the vision API you choose, and are deleted after 3 days by default. Records stay in your server's database and in Apple Health. There is no analytics or tracking in the app or the server.</p>

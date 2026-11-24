@@ -4,12 +4,14 @@ Take a photo of your food with the ordinary iPhone Camera app and put the phone 
 
 This is not a food diary app. It is infrastructure: a minimal iOS agent, a small server you run yourself, and a set of chat tools. After one-time setup the only recurring action is taking the photo.
 
+Project page: https://marisstella.app/photo-nutrition-agent/
+
 **Status: prototype.**
 
 | Part | State |
 |---|---|
 | Server (records, pipeline, MCP, OAuth, analytics) | Built; 36 tests passing (`node --test`) |
-| iOS agent (`ios/`) | Source written; **not yet compiled or run on a device** |
+| iOS agent (`mobile/ios/`) | Source written; **not yet compiled or run on a device** |
 | Live vision model call | Request shape tested against a fake; not yet run against a real key |
 | ChatGPT Plus + MCP write tools | Unresolved: the Custom GPT path is the fallback ([research §4](docs/platform-research.md#4-chatgpt)) |
 

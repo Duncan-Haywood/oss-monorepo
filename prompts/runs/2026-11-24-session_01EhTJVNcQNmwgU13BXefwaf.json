@@ -1,0 +1,76 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVNcQNmwgU13BXefwaf",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Owner brief: build an autonomous AI nutrition tracking system (iPhone Camera photos -> AI vision -> Apple Health -> bidirectional ChatGPT), research platform limits, ADR, MVP, tests, docs.",
+  "input_sha256": "25fedd187451fc346c82c8ebae671b7d1ce3e7701d86d0fb9b5a2ec6074fa03f",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T20:11:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Owner brief: autonomous photo-to-Apple-Health nutrition agent with bidirectional ChatGPT",
+  "projects": [
+    "photo-nutrition-agent"
+  ],
+  "pr": 18654,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 39,
+  "outcome": "partial",
+  "errors": [
+    {
+      "what": "First push failed five CI checks: README lacked the live-page link (venture_live_links.py), no launch date (launched.mjs), .swift files would be published, no tab icon (favicons.py), and the new page had no sibling link (siblings.mjs).",
+      "fix": "Added the link, launch date and favicon; moved ios/ under mobile/ (excluded from publishing); linked cheap-meal-plan-optimizer <-> photo-nutrition-agent with page tests."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/CLAUDE.md",
+      "issue": "The new-venture publishing gates (live link in README, launched.mjs --write, favicons.py --fix, a sibling link, mobile/ for native sources) are not listed in one place; each surfaced only as a separate CI failure after the push. run_venture_tests.py's page checks did not catch any of them."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally.py --for-changes ran for over ten minutes and blocks editing tracked files while it runs; the faster path was to read the CI logs once checks started."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "why": "\u00a75d usage counting: no telemetry in a self-hosted health-data product or on its static page; privacy is the product's core promise.",
+      "did": "No usage counting; privacy.md states there is none.",
+      "result": "page and clause checks pass"
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "why": "System rules for this session forbid model identifiers in pushed artifacts, so the run record's model field is left null.",
+      "did": "model: null",
+      "result": null
+    },
+    {
+      "file": "(owner brief)",
+      "why": "The brief's personal body stats (age, weight, DEXA values) would be published in a public repository.",
+      "did": "Kept them out of the tree; targets are runtime settings or a git-ignored config.local.json.",
+      "result": "no personal data committed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-logging-meals-from-camera-photos-without-a-photo-trigger.md"
+  ],
+  "goal": "ship",
+  "notes": "Outcome partial: the server, MCP/OAuth and docs are complete and tested (39 tests in the venture, sibling test in cheap-meal-plan-optimizer); the iOS agent was written without an Apple toolchain and never compiled; the live vision-model call and ChatGPT Plus write-tool eligibility are unverified (help.openai.com and developers.openai.com unreachable through the proxy). Local checks: run_venture_tests.py photo-nutrition-agent cheap-meal-plan-optimizer ok; clauses.mjs ok; check_posts.py ok; siblings.mjs --check ok; favicons ok; venture_live_links ok; unwired_checks 281/283 before fixes, the transition.json one fixed, check_third_party.py fails on research/sensing-selfcal (not this PR). run_workflow_locally --for-changes: agent-permission-harness 5/5, pages.yml steps ok until it was voided by the CI fixes; GitHub CI is the verification for the rest.",
+  "corrections": [],
+  "redteam": null
+}
