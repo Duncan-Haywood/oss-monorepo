@@ -1071,6 +1071,20 @@ test('every category tile on the front door ends on a whole sentence', () => {
   }
 });
 
+test('every tool card ends on a whole sentence', async () => {
+  // 188 of 1,435 tool cards still ended "…" after cardCopy landed (2026-11-24):
+  // their og:description was over CARD_MAX or missing. Each got a one-sentence
+  // og:description, and this keeps a new or edited venture from bringing the
+  // cut back. Fix a failure in the venture: an og:description of 40 to 180
+  // characters ending in . ! or ?, using only facts the page already states.
+  const cut = [];
+  for (const surface of await discoverSurfaces(VENTURES)) {
+    const { description } = readMeta(await fs.readFile(surface.entryFile, 'utf8'), surface.slug);
+    if (description.endsWith('…')) cut.push(surface.slug);
+  }
+  assert.deepEqual(cut, [], `tool cards that end mid-phrase: ${cut.join(', ')}`);
+});
+
 test('readMeta falls back through title, then slug', () => {
   assert.equal(readMeta('<title>Tool | Extra</title>', 'x').title, 'Tool');
   assert.equal(readMeta('<html></html>', 'walk-in-tub-bid-calculator').title, 'Walk In Tub Bid Calculator');

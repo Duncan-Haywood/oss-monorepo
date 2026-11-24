@@ -175,7 +175,7 @@ for (const audio of document.querySelectorAll("audio")) {
 </script>`;
 }
 
-function page({ title, description, canonical, jsonLd, body, event, type = 'website' }) {
+function page({ title, description, ogDescription = description, canonical, jsonLd, body, event, type = 'website' }) {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -188,7 +188,7 @@ function page({ title, description, canonical, jsonLd, body, event, type = 'webs
 <link rel="alternate" type="application/rss+xml" title="${SHOW.title} podcast" href="${FEED}">
 <meta property="og:type" content="${type}">
 <meta property="og:title" content="${escapeHtml(title)}">
-<meta property="og:description" content="${escapeHtml(description)}">
+<meta property="og:description" content="${escapeHtml(ogDescription)}">
 <meta property="og:url" content="${canonical}">
 <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
 <style>${CSS}</style>
@@ -316,6 +316,8 @@ document.getElementById("copyFeed").addEventListener("click", async (e) => {
   return page({
     title: `${SHOW.title}: a bedtime podcast of saints and Bible stories`,
     description: 'Free bedtime story podcast of Catholic and Orthodox saints, angels and patriarchs: lighthearted, faithful, 30 to 60 minute episodes with full scripts and an honest note on what is history and what is legend.',
+    // A card or share preview shows about 180 characters; the description above is for search.
+    ogDescription: 'Free bedtime story podcast of saints, angels and patriarchs: faithful 30 to 60 minute episodes with full scripts and a note on history and legend.',
     canonical: SITE,
     jsonLd,
     body,

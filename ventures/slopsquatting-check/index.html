@@ -6,7 +6,7 @@
   <title>Slopsquatting Check — Did an AI Assistant Just Suggest a Package That Doesn't Exist?</title>
   <meta name="description" content="Paste your package.json and this offline check flags any dependency name that looks like a one- or two-letter typo of a famous npm package -- the same shape as a hallucinated name an AI coding assistant invents.">
   <meta property="og:title" content="Did an AI assistant just suggest a package that doesn't exist?">
-  <meta property="og:description" content="LLM code generators regularly suggest npm package names that were never published. Attackers pre-register those exact names -- slopsquatting -- so the next developer who copies the AI's suggestion installs their package instead. Free offline browser check plus a CLI that verifies against the live registry.">
+  <meta property="og:description" content="Check AI-suggested npm package names that were never published and could be registered by an attacker, offline in your browser or live with the CLI.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Slopsquatting Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Flags npm dependency names that look like a hallucinated or typosquatted variant of a well-known package. The browser page runs a fully offline heuristic with no network call of any kind; the companion CLI makes one read-only request per dependency to the public npm registry to check whether the name exists at all and, if so, whether it was published suspiciously recently."}

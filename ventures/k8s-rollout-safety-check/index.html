@@ -6,7 +6,7 @@
   <title>Kubernetes Rollout Safety Check — Will Your Deployment Drop Requests?</title>
   <meta name="description" content="Paste a Kubernetes Deployment YAML and find every reason a rolling update can drop live requests: no readinessProbe, no preStop hook, a grace period shorter than the drain, maxUnavailable covering every replica, a PodDisruptionBudget that blocks a node drain. Free, runs in your browser, nothing uploaded.">
   <meta property="og:title" content="Will your Kubernetes rollout drop live requests?">
-  <meta property="og:description" content="A rolling update looks like zero downtime and usually is not. Paste your Deployment YAML and get every place Kubernetes is allowed to take a pod out of service before it has stopped receiving traffic — with the exact YAML to fix each one.">
+  <meta property="og:description" content="Paste your Deployment YAML and find every place a rolling update can take a pod out of service while it still receives traffic, with the YAML to fix it.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Kubernetes Rollout Safety Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Reads a Kubernetes Deployment manifest and reports every configuration that lets a rolling update or a node drain drop live requests. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded, it needs no cluster access, and it makes no network calls of its own."}
