@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVLiRURaKVu1v1Huajo",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ... develop, deploy, market, sell and support revenue generating software)",
+  "input_sha256": "a6dff07f8f1c4c66a6cf83b29c33c778bdd44c9b9c3b555714b8eb638718c944",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T00:04:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ifc-quantity-takeoff flagship, buildable item 3: change report on EngiWorld's Archicad gui and cross-software pairs",
+  "projects": [
+    "ifc-quantity-takeoff"
+  ],
+  "pr": 18502,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "buildable item 'EngiWorld gui and cross-software pairs' did not say the gui ground truth is IfcOpenShell-written, not an Archicad export; read the FILE_NAME headers first"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-a-renamed-room-is-not-a-new-room.md",
+    "ventures/ifc-quantity-takeoff/eval/engiworld-gui-cross-2026-11-24.md"
+  ],
+  "goal": "Rooms renamed or subdivided between IFC revisions reported as such, not as removed + added",
+  "notes": "diffRooms gains geometry matching (renamed under a new GlobalId), split/merged groups and carved-from links. On 45 EngiWorld pairs rooms left only as removed/added fell 63 -> 7 (gui 29->7, ac-os 1->0, rv-ac stage1 33->0); each match read against its brief, no false match. Archicad round trip of 10 Revit files: 0 of 114 elements, 0 of 32 rooms changed. 2026-11-23 CLI score unchanged (87/87, 42/42, 14 extra). Local checks: run_venture_tests.py ifc-quantity-takeoff ok (265 tests), check_posts ok, validate.py ok, venture-preflight run. gui ground-truth doors have malformed mixed-unit geometry (no box): noted, not chased.",
+  "corrections": [],
+  "redteam": null
+}
