@@ -119,7 +119,11 @@ export function utcDay(now = new Date()) {
 export function classify({ method, url, headers = {}, body = '' }) {
   const h = Object.fromEntries(Object.entries(headers).map(([k, v]) => [k.toLowerCase(), String(v)]));
   if (method !== 'POST' || url.split('?')[0] !== '/hit') return { count: false, reason: 'route' };
-  if (h.dnt === '1' || h['sec-gpc'] === '1') return { count: false, reason: 'opted-out' };
+  // DNT and Sec-GPC are not grounds to drop an anonymous first-party count
+  // (docs/legal/privacy-baseline.md: DNT has no legal force; GPC opts out of
+  // selling or sharing, which a page-load tally is neither). They were dropped
+  // until 2026-11-24; the site's own "Don't count my visit" opt-out still
+  // stops the beacon in the browser.
   const bot = botClass(h['user-agent'] || '');
   if (body.length > MAX_BODY) return { count: false, reason: bot ? 'bot' : 'size', ...(bot && { bot }) };
   let slug;

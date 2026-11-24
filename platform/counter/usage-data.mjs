@@ -110,7 +110,7 @@ export function topPages(visits = {}, { days = 14, n = 20, tools = false, bots =
 
 function topText(t, { days, bots, tools, source }) {
   if (!t.to) return `No visit days in ${source}.`;
-  const what = bots ? 'crawler beacons (not page loads)' : `page loads${tools ? ' on tool pages' : ''} (browsers without DNT/GPC; not people)`;
+  const what = bots ? 'crawler beacons (not page loads)' : `page loads${tools ? ' on tool pages' : ''} (not people; DNT/GPC browsers included from 2026-11-24)`;
   const lines = [
     `${source}: ${t.from}..${t.to}, ${t.covered} day(s) with a row in the last ${days}; ${t.loads} page loads, ${t.beacons} crawler beacons.`,
     `Top ${t.rows.length} of ${t.pages} pages by ${what}:`,

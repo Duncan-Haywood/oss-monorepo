@@ -26,7 +26,11 @@ test('with the counter on, the footer lists what is counted and what is never st
   const all = text(html);
   assert.match(all, /daily per-page total on our own open-source counter/);
   assert.match(all, /totals are published in the repository/);
-  assert.match(all, /Do Not Track or Global Privacy Control are not counted at all/);
+  // Since 2026-11-24 the anonymous total includes DNT/GPC browsers; the copy
+  // must say so rather than keep the old "not counted at all" promise.
+  assert.doesNotMatch(all, /not counted at all/);
+  assert.match(all, /includes browsers sending Do Not Track or Global Privacy Control/);
+  assert.match(all, /opt-out at the foot of the tool list stops it/);
   // No paragraph in the Privacy section runs past ~60 words again.
   const privacy = html.slice(html.indexOf('<h2>Privacy</h2>'));
   for (const [, p] of privacy.matchAll(/<p>([\s\S]*?)<\/p>/g)) {

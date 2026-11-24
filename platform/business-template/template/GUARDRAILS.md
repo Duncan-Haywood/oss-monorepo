@@ -36,7 +36,11 @@ Everything else in the repository is a default that runs may improve.
 
 - Every public page has a privacy notice that matches what is actually
   collected, and the disclaimer in `legal/` where the page gives figures.
-- Measurement respects privacy: no third-party trackers without a consent
-  banner; prefer cookieless, first-party counting.
+- Measurement follows the privacy law where the visitor is, no stricter:
+  cookieless, anonymous counting (first-party or a vendor such as Cloudflare
+  Web Analytics or Plausible) needs no banner; anything that stores an
+  identifier on the device (returning-visitor cookies, A/B buckets, ad pixels)
+  needs prior consent from EU/UK visitors; and the privacy notice names what
+  is collected and by whom.
 - Comply with each distribution platform's terms and the law in the
   business's region (`BUSINESS.md`).

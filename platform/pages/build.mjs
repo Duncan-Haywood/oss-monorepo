@@ -6461,9 +6461,10 @@ export function disclaimerHtml(toRoot, surfaces = [], { counter = counterOn() } 
       <p>${counter ? `
         Each page load also adds one to a daily per-page total on our own
         open-source counter, and those totals are published in the repository.
-        Browsers sending
-        <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
-        not counted at all.
+        That total is anonymous and first-party, so it includes browsers sending
+        <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em>
+        (those signals still switch off the tallies kept in your own browser);
+        the opt-out at the foot of the tool list stops it.
       </p>
       <ul class="pfs-counted">
         <li><strong>Counted, as daily totals only:</strong> which page; which day;
@@ -8202,9 +8203,13 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
         repository. That counter's host sees each request the way any web server
         does; the counter stores none of it` : ` and is never
         sent anywhere`}. It exists so the next tool built is one people actually
-        opened. Browsers sending <em>Do&nbsp;Not&nbsp;Track</em> or
+        opened. ${counterOn() ? `Browsers sending <em>Do&nbsp;Not&nbsp;Track</em> or
+        <em>Global&nbsp;Privacy&nbsp;Control</em> keep no local tally, but their
+        page loads are included in the anonymous daily totals: neither signal
+        covers a first-party count that identifies no one. To stop both, use the
+        opt-out checkbox at the foot of` : `Browsers sending <em>Do&nbsp;Not&nbsp;Track</em> or
         <em>Global&nbsp;Privacy&nbsp;Control</em> are not counted at all, and
-        there is an opt-out checkbox at the foot of
+        there is an opt-out checkbox at the foot of`}
         <a href="${escapeHtml(toRoot)}" data-pf-to="hub">the tool list</a>.
       </p>
 
@@ -10995,12 +11000,14 @@ export function renderChromeStyle() {
 //
 // Same store, same rules, same off switches as the two events above it: DNT or
 // Sec-GPC silences it, `portfolio-hub-optout` silences it, and it never leaves
-// the device. `localStorage.setItem` is synchronous and the handler runs before
+// the device. The one exception is the page-view beacon to the site's own
+// counter (only when the build has a counter URL): the opt-out stops it, but
+// since 2026-11-24 DNT/GPC do not, because an anonymous first-party page-load
+// tally is lawful for those browsers (docs/legal/privacy-baseline.md). `localStorage.setItem` is synchronous and the handler runs before
 // the browser navigates, so following the link does not lose the count.
 const CHROME_SCRIPT = ({ counterUrl = '' } = {}) => `
 (function(){
   try{
-    if(navigator.doNotTrack==='1'||navigator.globalPrivacyControl===true)return;
     if(localStorage.getItem('portfolio-hub-optout')==='1')return;
     var tag=document.querySelector('script[${CHROME_SLUG_ATTR}]');
     var slug=tag?tag.getAttribute('${CHROME_SLUG_ATTR}')||'':'';
@@ -11020,6 +11027,7 @@ const CHROME_SCRIPT = ({ counterUrl = '' } = {}) => `
       if(rh&&rh!==location.hostname){var src=(${sourceOf.toString()})(rh,${JSON.stringify(SOURCE_HOSTS)},${JSON.stringify(SOURCE_LABELS)});if(src)hit.s=src;}
     }catch(e){}
     try{navigator.sendBeacon(${JSON.stringify(`${counterUrl}/hit`)},new Blob([JSON.stringify(hit)],{type:'text/plain'}));}catch(e){}` : ''}
+    if(navigator.doNotTrack==='1'||navigator.globalPrivacyControl===true)return;
     var k='portfolio-hub-usage';
     var bump=function(event){
       try{
