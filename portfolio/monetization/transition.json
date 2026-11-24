@@ -1,0 +1,240 @@
+{
+  "generated_by": "portfolio/monetization/transition.py",
+  "depth_product_lines": 5000,
+  "counts": {
+    "mit-commons": 5,
+    "mit-deployer-run": 1,
+    "mit-lead-magnet": 1415,
+    "proprietary": 20
+  },
+  "models": {
+    "subscription": 8,
+    "one-off": 12
+  },
+  "proprietary": [
+    {
+      "venture": "wall-framing-takeoff",
+      "source_lines": 17913,
+      "track": "proprietary",
+      "why": "flagship #1: the depth people pay for",
+      "model": "one-off",
+      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
+      "third_party_licences": [],
+      "move_order": 1
+    },
+    {
+      "venture": "ai-bookkeeper",
+      "source_lines": 18175,
+      "track": "proprietary",
+      "why": "flagship #2: the depth people pay for",
+      "model": "subscription",
+      "model_why": "holds a business's books, imports bank feeds and calls a model every month",
+      "third_party_licences": [],
+      "move_order": 2
+    },
+    {
+      "venture": "changepoint-detector",
+      "source_lines": 15009,
+      "track": "proprietary",
+      "why": "flagship #4: the depth people pay for",
+      "model": "one-off",
+      "model_why": "statistics run on the user's own data in the browser or CLI; nothing to serve per user",
+      "third_party_licences": [],
+      "move_order": 3
+    },
+    {
+      "venture": "einvoice-preflight",
+      "source_lines": 35898,
+      "track": "proprietary",
+      "why": "flagship #5: the depth people pay for",
+      "model": "subscription",
+      "model_why": "60+ countries of e-invoice rules that change every quarter; the cost is keeping them current",
+      "third_party_licences": [
+        "ventures/einvoice-preflight/eval/nfe-corpus/nfelib/LICENSE-nfelib",
+        "ventures/einvoice-preflight/fixtures/hungary-nav/LICENCE-NAV.md"
+      ],
+      "move_order": 4
+    },
+    {
+      "venture": "shift-roster-builder",
+      "source_lines": 13384,
+      "track": "proprietary",
+      "why": "flagship #6: the depth people pay for",
+      "model": "subscription",
+      "model_why": "runs a server-side part (server.mjs): a monthly cost per user",
+      "third_party_licences": [],
+      "move_order": 5
+    },
+    {
+      "venture": "photo-editing",
+      "source_lines": 76542,
+      "track": "proprietary",
+      "why": "flagship #7: the depth people pay for",
+      "model": "one-off",
+      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
+      "third_party_licences": [],
+      "move_order": 6
+    },
+    {
+      "venture": "quick-pick-survey",
+      "source_lines": 24922,
+      "track": "proprietary",
+      "why": "flagship #8: the depth people pay for",
+      "model": "one-off",
+      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
+      "third_party_licences": [
+        "ventures/quick-pick-survey/src/lib/licence.ts"
+      ],
+      "move_order": 7
+    },
+    {
+      "venture": "league-schedule-generator",
+      "source_lines": 24566,
+      "track": "proprietary",
+      "why": "flagship #9: the depth people pay for",
+      "model": "subscription",
+      "model_why": "runs a server-side part (server.mjs): a monthly cost per user",
+      "third_party_licences": [],
+      "move_order": 8
+    },
+    {
+      "venture": "ids-model-check",
+      "source_lines": 17885,
+      "track": "proprietary",
+      "why": "flagship #12: the depth people pay for",
+      "model": "one-off",
+      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
+      "third_party_licences": [
+        "ventures/ids-model-check/samples/bsi-ifc43/LICENSE.md"
+      ],
+      "move_order": 9
+    },
+    {
+      "venture": "xer-schedule-check",
+      "source_lines": 16071,
+      "track": "proprietary",
+      "why": "flagship #13: the depth people pay for",
+      "model": "one-off",
+      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
+      "third_party_licences": [],
+      "move_order": 10
+    },
+    {
+      "venture": "ifc-quantity-takeoff",
+      "source_lines": 10460,
+      "track": "proprietary",
+      "why": "flagship #14: the depth people pay for",
+      "model": "one-off",
+      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
+      "third_party_licences": [],
+      "move_order": 11
+    },
+    {
+      "venture": "local-site-studio",
+      "source_lines": 96963,
+      "track": "proprietary",
+      "why": "96963 lines of product code, more than a single-page tool",
+      "model": "subscription",
+      "model_why": "hosted sites for local businesses (hosting, domain, edits) are a monthly cost per customer",
+      "third_party_licences": [],
+      "move_order": 12
+    },
+    {
+      "venture": "ig-media-pipeline",
+      "source_lines": 22479,
+      "track": "proprietary",
+      "why": "22479 lines of product code, more than a single-page tool",
+      "model": "one-off",
+      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
+      "third_party_licences": [],
+      "move_order": 13
+    },
+    {
+      "venture": "shed-designer",
+      "source_lines": 20426,
+      "track": "proprietary",
+      "why": "has a paid model in models.yaml",
+      "model": "one-off",
+      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
+      "third_party_licences": [],
+      "move_order": 14
+    },
+    {
+      "venture": "print-atelier",
+      "source_lines": 19368,
+      "track": "proprietary",
+      "why": "19368 lines of product code, more than a single-page tool",
+      "model": "subscription",
+      "model_why": "description names an ongoing per-user cost ('AI-first')",
+      "third_party_licences": [
+        "ventures/print-atelier/site/LICENSE"
+      ],
+      "move_order": 15
+    },
+    {
+      "venture": "clothing-design-studio",
+      "source_lines": 14379,
+      "track": "proprietary",
+      "why": "14379 lines of product code, more than a single-page tool",
+      "model": "one-off",
+      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
+      "third_party_licences": [],
+      "move_order": 16
+    },
+    {
+      "venture": "babysitting-business-kit",
+      "source_lines": 11061,
+      "track": "proprietary",
+      "why": "11061 lines of product code, more than a single-page tool",
+      "model": "subscription",
+      "model_why": "runs a server-side part (automations-server.mjs): a monthly cost per user",
+      "third_party_licences": [],
+      "move_order": 17
+    },
+    {
+      "venture": "retail-pilot-intel",
+      "source_lines": 8542,
+      "track": "proprietary",
+      "why": "8542 lines of product code, more than a single-page tool",
+      "model": "one-off",
+      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
+      "third_party_licences": [],
+      "move_order": 18
+    },
+    {
+      "venture": "real-estate-agent-photo-app",
+      "source_lines": 8112,
+      "track": "proprietary",
+      "why": "8112 lines of product code, more than a single-page tool",
+      "model": "subscription",
+      "model_why": "description names an ongoing per-user cost ('AI-first')",
+      "third_party_licences": [
+        "ventures/real-estate-agent-photo-app/site/LICENSE"
+      ],
+      "move_order": 19
+    },
+    {
+      "venture": "sales-export-to-journal",
+      "source_lines": 6560,
+      "track": "proprietary",
+      "why": "6560 lines of product code, more than a single-page tool",
+      "model": "one-off",
+      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
+      "third_party_licences": [],
+      "move_order": 20
+    }
+  ],
+  "stay_mit": {
+    "mit-commons": [
+      "chant-forge",
+      "open-floor-robots",
+      "open-house-plans",
+      "open-robot-mower",
+      "open-tennis-robots"
+    ],
+    "mit-deployer-run": [
+      "sales-agent"
+    ]
+  },
+  "lead_magnets": 1415
+}
