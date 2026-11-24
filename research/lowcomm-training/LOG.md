@@ -2,6 +2,22 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-24 · Milestone 6ag (H6 mechanism): when during training does the H = 64 gain of keep 1/4 with a dense last sync appear? A per-round trace of unc and the rand-k trunk, eight seeds (planned before running; outcome below)
+
+- Why: 6af's "Next" (1). 6af showed the recipe's gain is an optimisation effect (lower training loss that mostly carries over), not regularisation. Every figure so far is an end point at round 60, so nothing says whether the gain builds through training, appears late, or is a fixed offset, and the paper cannot yet state it as rounds (communication) saved.
+- Run (`experiments/gpt_scale/trace_6ag.py`, written before the runs): the size-2 setup of `scale.py` at H = 64 (60 syncs), full training text, seeds 0 to 7; unc, and rand-k keep 1/4 (omega 3) every round. One trajectory per arm: with the plain outer step (SGD lr 1, no momentum) a dense sync sets the global model to the workers' mean end point, and rand-k's generator is used only when syncing, so after each round r the script also builds *clean_r*, the model a dense sync would have given (computed exactly as DiLoCo's dense branch, p - (p - mean)). clean_r is the recipe stopped at round r; clean_60 is the stored recipe and the trunk at 60 is the stored *full* arm. Per round: loss on 16 fixed training-text batches (draw seed 2424, 6af's) and the first 16 fresh validation batches (seed 777), the workers' mean inner loss, ||theta||^2 and the squared norm of the mean delta. 16 runs, 4 cores, about 80 minutes.
+- T_r = clean_r(rk4) - unc_r, paired by seed. Windows are means over the rounds named, per seed, then seed mean and se.
+- **H6ag-i** (prior 90%, check): the round-60 standard and fresh-64 scores reproduce the stored runs bit-exactly (`tuned_6y.jsonl`, `recipe_6z.jsonl`, `recipe_6ae.jsonl`; 48 checks; 6ae reproduced the cpu build's runs on the cu132 build).
+- **H6ag-ii** (prior 55%): no early gain: T(train) over rounds 1 to 15 is not below zero by more than 2 se.
+- **H6ag-iii** (prior 75%): T(train) over rounds 46 to 59 is below zero by more than 2 se (the gain exists before the last round, not only at it).
+- **H6ag-iv** (prior 50%): the onset, the first round from which the seed-mean T(train) stays below zero through round 60, is after round 30.
+- **H6ag-v** (prior 60%): the seed-mean T(train) and T(fresh) traces correlate over rounds 16 to 60 with Pearson r above 0.7 (the held-out gain follows the training gain through the run, as 6af's reading predicts).
+- **H6ag-vi** (prior 50%): the workers' mean inner loss is lower in the rk4 trunk than in unc over rounds 46 to 60 by more than 2 se (the compressed trunk's workers train from better starts, not only the dense sync's end point).
+- **H6ag-vii** (prior 50%): the recipe-stopped-at-r curve (seed mean, fresh) reaches unc's round-60 fresh loss at least 4 rounds early (7% of syncs saved).
+- Reported, no verdict: the per-round T on both sets, the trunk's T (full_r - unc_r), the delta-norm ratio, ||theta||^2 at rounds 15, 30, 45 and 60.
+- Reading: ii and iii holding with iv holding means the gain is a late-training effect, which points at the plateau of the constant inner lr (the noise acting when progress slows). iv failing (an early onset) with a gain that grows means compression changes the trajectory from the start. vii gives the paper its practical figure: syncs saved at equal loss, on top of the 4x fewer bytes per sync.
+- Not tested: other H, omega or widths; an inner-lr schedule.
+
 ## 2026-11-23 · Milestone 6af (H6 mechanism): does the H = 64 gain of keep 1/4 with a dense last sync hold on a test split carved from the training text, which no decision has seen? Eight seeds, unc and keep 1/4 retrained on the first 80% (planned before running; outcome below)
 
 - Why: the paper section's (`paper/section_recipe.md`) first-listed limit, and 6ae's "Next" (2). Every recipe figure so far is scored on the validation text: the 16 standard batches, on which the recipe was found and omega 3 chosen, and 6y's 64 fresh batches, which are new windows of the same 111k characters. A reviewer can fairly read the -0.0134 as partly selected on that text. Carving a test split from the training text gives batches nothing in the programme was trained or chosen on. Scoring training-text batches too tests the one mechanism the section names as not contradicted: outer-step noise acting as a regulariser.
