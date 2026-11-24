@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKnaFhovMzzukQZL2zM",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T08:18:18Z",
+  "ended": "2026-11-24T08:29:05Z",
+  "wall_minutes": 21.69,
+  "tokens_in": 5117165,
+  "tokens_out": 45014,
+  "cost_usd": 3.0009,
+  "tool_calls": 47,
+  "task": "research/buildbot-sheathing milestone 74: optimal allocation of a 1% wall risk over force-sensor re-zeros under a random-walk bias",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": 18570,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "First chain implementation used scipy ncx2.cdf per cell and one phase at a time; a timing check timed out at 110 s. Replaced with the closed-form 3-D radial CDF and all 62 phases propagated as one matrix (G1 BEST at 0.05 N: 23 s)."
+  ],
+  "integrity_issues": [
+    "The exact chain shows milestone 73's Monte Carlo-calibrated CAL schedules exceed the 1% wall-risk target on 5 of 18 RW rows (up to 1.31%); the H1's count at 0.1 N is 10, not 9. Recorded as a correction in LOG.md, README, paper and post; milestone 73's own text left as it was, with milestone 74 stating the correction."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py chose /usr/bin/python3.13 while plain python3 lacks scipy; worked as documented, no friction beyond remembering to use $PY for every call."
+    },
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Output is long; the CLAIM RACE advice (empty commit + draft PR first) was the useful part and worked."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/buildbot-sheathing/LOG.md (milestone 73 Next)",
+      "why": "Milestone 73 named per-pose risk allocation as the next step; I instead computed the exact optimum over all open-loop schedules, which bounds every per-pose allocation at once, and kept a two-level per-pose allocation (POSE2) as one comparator.",
+      "did": "exact radial-chain risk + layered DP, plus POSE2 and a post-hoc exactly-calibrated uniform level",
+      "result": "answered the question for every allocation: at most 7% to gain; the cliff is structural"
+    },
+    {
+      "file": "experiments/m74_riskopt/scan.py",
+      "why": "The registered comparator (milestone 73's CAL) turned out to be infeasible on 5 rows under the exact risk, making OPT-vs-CAL savings misleading; added a post-hoc, labelled-unregistered CAL* comparator.",
+      "did": "scan.py over 400 uniform levels with the chain",
+      "result": "OPT ties CAL* on 12 of 18 rows, saves at most 6.4%"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-sheathing-robot-optimal-rezero-risk-allocation.md",
+    "research/buildbot-sheathing/LOG.md (milestone 74 planned + result)"
+  ],
+  "goal": null,
+  "notes": "Routed research/0 by weighted draw; security queue empty; IDEAS and website requests empty. Hypotheses H295-H301 registered and pushed before the run; 5 held (H295, H296, H297, H300, H301), 2 refuted (H298, H299). Local checks: pytest on test_riskdp/test_drift/test_reproduce/test_paper/test_rezero 27 passed; paper/check_numbers.py 500/500; research/_homepage/build.py ok; research_live_links --write; check_md_links ok; programme_check ok; check_posts ok. Run time ~4 min experiment + ~3 min scan on 4 processes.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9ed4826a-a167-5889-bfd1-02cb7e2552ae",
+    "transcripts": 1,
+    "first": "2026-11-24T08:18:18Z",
+    "last": "2026-11-24T08:40:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 79,
+        "output": 45014,
+        "thinking": 16224,
+        "cache_read": 4979019,
+        "cache_write_5m": 0,
+        "cache_write_1h": 138067,
+        "api_equivalent_usd": 3.0009,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 79,
+      "output": 45014,
+      "thinking": 16224,
+      "cache_read": 4979019,
+      "cache_write_5m": 0,
+      "cache_write_1h": 138067,
+      "api_equivalent_usd": 3.0009,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 39,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.69,
+      "active_minutes": 21.69,
+      "model_minutes": 8.01,
+      "tool_minutes": 13.68,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "an OR/robotics PhD student deriving the Bessel-chain risk, writing the DP, verifying and writing up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 533.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
