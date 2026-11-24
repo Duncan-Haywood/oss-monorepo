@@ -26,7 +26,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 4,
@@ -60,7 +60,7 @@
     "research/aerolog-scaling/paper/airspace_layers.md 6.10(f)"
   ],
   "goal": null,
-  "notes": "Predictions pushed in cba154cc4 before computation; 5 of 6 held (C2 refuted). Local checks: tests 8 passed (test_track_age_cutoff + test_burst_loss), paper/check_airspace_numbers.py 419 of 419, research/_homepage/build.py ok, research_live_links ok, check_posts ok, programme_check ok. The summary reproduces byte-identically on rerun.",
+  "notes": "Predictions pushed in cba154cc4 before computation; 5 of 6 held (C2 refuted). Local checks: tests 8 passed (test_track_age_cutoff + test_burst_loss), paper/check_airspace_numbers.py 419 of 419, research/_homepage/build.py ok, research_live_links ok, check_posts ok, programme_check ok. The summary reproduces byte-identically on rerun. run_workflow_locally --for-changes: control-plane-guard, prompts-ci, research-ci, checklist-coverage, conflict-markers-ci, duplicate-symbols-ci, readme-live-links-ci passed their run: steps; research/aerolog-scaling tests PASS (49 s); doc-refs-ci 'Dead Markdown links' failed only on portfolio/monetization/hardware-bets.md -> bets.md (on origin/main already; bets.md is added by open PR #18675), not on any file this PR touches. PR CI queued with no runners at merge time (ci_starvation: no verdict), so merged on the local checks.",
   "corrections": [],
   "redteam": null,
   "usage": {
