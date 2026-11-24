@@ -321,7 +321,14 @@ export function conformance(text, schemas, { rules = null } = {}) {
     const o = contextOrigins(p, S, rules[id], w.findings);
     if (o) findings.push(o);
   }
-  const elementRules = whereStats ? ruleLinks(E, S, findings) : null;
+  let elementRules = whereStats ? ruleLinks(E, S, findings) : null;
+  // Wholes that are each other's parts (eval/decomposition-cycles-2026-11-24.md).
+  const cyc = decompositionCycles(E, S);
+  for (const c of cyc.cycles) findings.push(c.finding);
+  if (cyc.affected.size) {
+    elementRules ||= new Map();
+    for (const [el, note] of cyc.affected) { if (!elementRules.has(el)) elementRules.set(el, []); elementRules.get(el).push(note); }
+  }
 
   const groups = new Map();
   for (const f of findings) {
@@ -331,6 +338,123 @@ export function conformance(text, schemas, { rules = null } = {}) {
     else groups.set(key, { code: f.code, type: f.type, attr: f.attr, count: 1, first: f.id, message: f.message });
   }
   return { schema: raw, records, findings, groups: [...groups.values()], whereStats, elementRules };
+}
+
+// Records that are each other's wholes: A part of B and B part of A, through
+// the relationships an IDS partOf facet follows (aggregation, nesting,
+// containment, group assignment, voids and fills), in any mix. No WHERE rule
+// or inverse count names a cycle of two or more records: a record listed
+// among its own parts is IfcRelAggregates.NoSelfReference's (and the like),
+// and a whole that already had a parent breaks a [0:1] inverse, but two
+// assemblies holding each other pass IFC2X3, IFC4 and IFC4X3 and
+// ifcopenshell.validate. IfcTester 0.9.0's partOf climbs such a chain
+// with no record of where it has been and never returns
+// (eval/decomposition-cycles-2026-11-24.md). One finding per cycle (a
+// strongly connected set of records), and a note for each element in it or
+// below it, whose partOf answer the cycle reaches.
+const PART_RELS = [
+  ["IFCRELAGGREGATES", "RelatingObject", "RelatedObjects"],
+  ["IFCRELNESTS", "RelatingObject", "RelatedObjects"],
+  ["IFCRELCONTAINEDINSPATIALSTRUCTURE", "RelatingStructure", "RelatedElements"],
+  ["IFCRELASSIGNSTOGROUP", "RelatingGroup", "RelatedObjects"],
+  ["IFCRELVOIDSELEMENT", "RelatingBuildingElement", "RelatedOpeningElement"],
+  ["IFCRELFILLSELEMENT", "RelatingOpeningElement", "RelatedBuildingElement"],
+  // Last: IFC4's IfcRelDecomposes is also the voids relationship's supertype.
+  ["IFCRELDECOMPOSES", "RelatingObject", "RelatedObjects"],
+];
+export function decompositionCycles(E, S) {
+  const rels = PART_RELS.filter(([t]) => S.has(t));
+  const refsIn = (v, out = []) => { if (Array.isArray(v)) for (const x of v) refsIn(x, out); else if (v && typeof v === "object" && "ref" in v) out.push(v.ref); return out; };
+  const up = new Map(); // part id -> [{ whole, rel }]
+  const down = new Map(); // whole id -> [part ids]
+  const kind = new Map();
+  const kindOfType = (t) => {
+    if (kind.has(t)) return kind.get(t);
+    const k = rels.find(([r]) => S.isA(t, r)) || null;
+    kind.set(t, k);
+    return k;
+  };
+  for (const r of E.values()) {
+    if (!S.has(r.type)) continue;
+    const k = kindOfType(r.type);
+    if (!k) continue;
+    const ats = S.attrs(r.type);
+    const wi = ats.index.get(k[1]), pi = ats.index.get(k[2]);
+    if (wi === undefined || pi === undefined) continue;
+    for (const w of refsIn(r.args[wi])) for (const p of refsIn(r.args[pi])) {
+      // A record that is its own part is a WHERE rule's (NoSelfReference, WR31).
+      if (w === p || !E.has(w) || !E.has(p)) continue;
+      if (!up.has(p)) up.set(p, []);
+      up.get(p).push({ whole: w, rel: r });
+      if (!down.has(w)) down.set(w, []);
+      down.get(w).push(p);
+    }
+  }
+  const cycles = [];
+  const affected = new Map();
+  if (!up.size) return { cycles, affected };
+  // Tarjan's strongly connected components, iteratively (models nest deep).
+  const index = new Map(), low = new Map(), onStack = new Set(), stack = [];
+  let n = 0;
+  const comps = [];
+  for (const start of up.keys()) {
+    if (index.has(start)) continue;
+    const work = [[start, 0]];
+    index.set(start, n); low.set(start, n); n++; stack.push(start); onStack.add(start);
+    while (work.length) {
+      const top = work[work.length - 1];
+      const [v, i] = top;
+      const es = up.get(v) || [];
+      if (i < es.length) {
+        top[1]++;
+        const w = es[i].whole;
+        if (!index.has(w)) { index.set(w, n); low.set(w, n); n++; stack.push(w); onStack.add(w); work.push([w, 0]); }
+        else if (onStack.has(w)) low.set(v, Math.min(low.get(v), index.get(w)));
+        continue;
+      }
+      work.pop();
+      if (work.length) { const u = work[work.length - 1][0]; low.set(u, Math.min(low.get(u), low.get(v))); }
+      if (low.get(v) === index.get(v)) {
+        const comp = [];
+        let x;
+        do { x = stack.pop(); onStack.delete(x); comp.push(x); } while (x !== v);
+        if (comp.length > 1) comps.push(comp);
+      }
+    }
+  }
+  const name = (t) => (S.entities[t] && S.entities[t].name) || t;
+  for (const comp of comps) {
+    const inComp = new Set(comp);
+    // One loop through the component, from its lowest record id, for the message.
+    const first = Math.min(...comp);
+    const path = [first], via = [];
+    const seen = new Map([[first, 0]]);
+    for (let x = first; ;) {
+      const e = up.get(x).filter((y) => inComp.has(y.whole)).sort((a, b) => a.whole - b.whole)[0];
+      via.push(e.rel);
+      x = e.whole;
+      if (seen.has(x)) { const k = seen.get(x); path.splice(0, k); via.splice(0, k); path.push(x); break; }
+      seen.set(x, path.length);
+      path.push(x);
+    }
+    // Everything whose chain of wholes runs into the cycle.
+    const below = new Set();
+    const q = [...comp];
+    while (q.length) for (const p of down.get(q.pop()) || []) if (!inComp.has(p) && !below.has(p)) { below.add(p); q.push(p); }
+    const relNames = [...new Set(via.map((r) => name(r.type)))];
+    const loop = path.map((id) => `#${id}`).join(" in ");
+    const top = path[0];
+    const rec = E.get(top);
+    const more = comp.length > path.length - 1 ? ` (${comp.length} records in all are tangled)` : "";
+    const finding = {
+      code: "decomposition-cycle", id: top, type: rec.type, attr: relNames.join(" + "),
+      message: `#${top}: ${path.slice(0, -1).map((id) => `#${id} ${E.get(id).type}`).join(", ")} are each other's wholes (${loop}, through ${via.map((r) => `${name(r.type)} #${r.id}`).join(", ")})${more}, so the part-of tree has no top${below.size ? ` for them and the ${below.size.toLocaleString("en-US")} record${below.size === 1 ? "" : "s"} below them` : ""}. No schema rule or inverse count names this, so ifcopenshell.validate passes it; IfcTester's partOf check climbs such a chain forever when the class it looks for is not on it. Remove the relationship that closes the loop (usually the last one written)`,
+    };
+    cycles.push({ ids: comp, path, rels: via.map((r) => r.id), below: below.size, finding });
+    const note = { rule: `its part-of tree, a cycle ${loop}`, why: "a partOf facet climbing it never reaches a top, so the answer depends on the tool (IfcTester does not return; this checker stops where the loop closes)" };
+    for (const id of [...comp, ...below]) if (!affected.has(id)) affected.set(id, note);
+  }
+  return { cycles, affected };
 }
 
 // IFC2X3's and IFC4's IfcSameAxis2Placement ends with
