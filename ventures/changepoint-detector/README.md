@@ -33,6 +33,7 @@ row below. Every flag's measurements are in the README section named after it.
 | Did the slope change? | `--hinge-test` (one change), `--two-hinge-test` (two) |
 | Did it change at a date I name (a launch, a law)? | `--known-date <label>`; with comparison columns `--donors all` (synthetic control) |
 | Several columns measured at the same points | `--columns a,b,c` |
+| When did the cycle peak and bottom out (recessions, a business's up and down years)? | `--turns`; several indicators at once `--turns --columns a,b,c` (a composite index) |
 | A feed that repeats stale values for a while | `--spells` |
 | Tell me when a daily metric shifts, from now on | `watch.mjs daily.csv --state s.json` (see "Watching a growing series"); pick a setting with `--suggest --alerts-per 1/month` |
 | ...from Stripe or Shopify | `stripe-metrics.mjs` or `shopify-metrics.mjs`, then the watch with `--columns` |
@@ -10238,3 +10239,75 @@ employment lags the recovery. A single coincident series will not reproduce NBER
 quarter, because the committee dates on several. Next, if this line continues: a pre-registered round on a
 composite of the monthly indicators NBER's committee says it weighs (payroll and household employment, real
 personal income less transfers, real spending, industrial production, real manufacturing and trade sales), or a reference dated on one series itself.
+
+## A composite of NBER's monthly indicators dates every turn: `--turns` ships (2026-11-24, pre-registered; C1-C3 pass)
+
+The item above: payrolls alone missed NBER where employment lags a recovery, GDP where its own extremes are not
+NBER's, so the committee's own practice, dating on several coincident series, was the next fair test. This round
+builds the coincident composite index by the Conference Board's published method (symmetric monthly changes,
+weights in inverse proportion to each component's volatility, cumulated; `composite-index.mjs`; the GDP-trend
+step left out) and runs the same monthly Bry-Boschan rule on it. Data: FRED's PAYEMS, W875RX1 (real personal
+income less transfers), INDPRO and CMRMTSPL (real manufacturing and trade sales), plus CE16OV (household
+employment) for arm B; 1967-01 to 2026-07, 715 months, the span every component covers (`data/SOURCE.md`).
+The rules are in the header of `eval/turns-composite.mjs`, committed before it first ran (commit "pre-register
+the BBQ round on a coincident composite"). The first attempt stopped before any output on a blank CE16OV month
+(2025-10: no household survey in the October 2025 shutdown); the loader now fills one blank month halfway between
+its neighbours, a fix committed separately before the first scored run. Output `eval/turns-composite.out.txt`
+(0.2 s); test `turns-composite.test.mjs`.
+
+Both arms use bigMove 0.05, set beforehand from the payroll round (where it changed only 2020). Volatility weights
+are measured over 1967-02 to 2019-12, so 2020 does not set them. Labels are NBER's 16 monthly peaks and troughs
+from 1969-12 to 2020-04 (FRED USREC).
+
+| bar | A: PAYEMS, W875RX1, INDPRO, CMRMTSPL | B: A + CE16OV |
+|---|---|---|
+| C1, at least 13 of 16 NBER turns within 3 months, at most 2 false | **16 of 16**, false 0: **passes** | 15 of 16, false 0: passes |
+| C2, F1 at least 0.15 above random turns at the same count, p at most 0.05 | F1 **1.000**, random 0.271, p < 0.001: **passes** | F1 1.000, random 0.271: passes |
+| C3, more turns matched than any one component alone | 16 against INDPRO's 14: **passes** | 15 against 14: passes |
+
+What it shows:
+
+- **Four series together date what none dates alone.** Each component on its own, with the same rule: payrolls 11
+  of 16 (3 false), real income 12 (9 false), industrial production 14 (11 false), real sales 10 (6 false),
+  household employment 9 (4 false). Their misses fall in different places (payrolls' jobless-recovery troughs,
+  production's mid-cycle dips, income's 2008 tax-rebate bump), so the composite cancels them.
+- **Dates on the month or close to it.** Arm A's distances from NBER's month, in order: -2, 0, 0, +1, 0, 0, +1, +1,
+  -1, 0, -3, +1, +1, 0, 0, 0. The one at the edge of the window is the 2001 peak: the composite peaks in 2000-12,
+  NBER in 2001-03.
+- **Household employment hurts.** Adding CE16OV moves the 2009 trough to 2009-10, four months late (the household
+  survey's employment kept falling), so B matches 15. A ships, as written beforehand.
+- **Printed, no bar:** without bigMove A matches 14 (2020's two-month recession is thrown out as too short, as on
+  payrolls); with volatility measured over every month, including 2020, A matches 15 and B 16. The weights are
+  PAYEMS 0.541, W875RX1 0.189, INDPRO 0.152, CMRMTSPL 0.117.
+
+Read it for what it is: NBER's committee looks at these same series, so agreement is expected; the result is that
+a published, mechanical rule on public data reproduces the committee's dates within a quarter, 1967-2026, with
+nothing tuned on the labels apart from bigMove (taken from the payroll round). That is the known finding of
+Harding and Pagan (2002) and of the Conference Board's own index, re-run here on today's vintages; it is not new.
+What is new for this tool is that it now does it: `--turns` dates peaks and troughs on any positive series, and
+`--turns --columns a,b,c` builds the composite first, so a business can date its own cycle from several lines
+(orders, revenue, active customers, hours) without one noisy line deciding.
+
+```
+node cli.mjs indicators.csv --turns --columns payems,w875rx1,indpro,cmrmtspl --sd-until 2019-12
+node cli.mjs data/us-payems.csv --turns                       # one series, monthly durations
+node cli.mjs data/us-gdpc1.csv --turns --frequency quarterly  # BBQ's quarterly durations
+```
+
+Options: `--frequency monthly|quarterly` (default monthly: window 5, phases 6, cycles 15, `--big-move 0.05`;
+quarterly is BBQ's window 2, phases 2, cycles 5, no short-phase exception), `--big-move <log move>|off`, and
+`--sd-until <label>` to measure the volatility weights only up to that row. The text lists each phase's length
+and percent change; `--json` gives turns, phases and the weights. Limits: the last turn is provisional until the
+series has moved far enough after it; the composite needs positive values (it is built from percent changes) and
+rows that every column has (others are left out and counted); durations are fixed per frequency, so weekly or
+daily data should be totalled to months first.
+
+References: Bry, G. and Boschan, C. (1971), *Cyclical Analysis of Time Series: Selected Procedures and Computer
+Programs*, NBER Technical Paper 20; Harding, D. and Pagan, A. (2002), "Dissecting the cycle: a methodological
+investigation", *Journal of Monetary Economics* 49(2), 365-381; The
+Conference Board (2001), *Business Cycle Indicators Handbook*, "Calculating the Composite Indexes".
+
+Next, if this line continues: the composite in real time (each month's vintage as it was published, ALFRED,
+when its host answers) to measure how many months after NBER's announcement-free date the rule confirms a turn;
+and a business-shaped check (a shop's or SaaS company's several lines, where no committee dates exist).
+

@@ -1,0 +1,35 @@
+BBQ (classical, log level, monthly Bry-Boschan durations, bigMove 0.05) on a coincident composite vs NBER monthly turns
+
+months: n 715 (1967-01 to 2026-07), NBER turns 16
+NBER: 1969-12p 1970-11t 1973-11p 1975-03t 1980-01p 1980-07t 1981-07p 1982-11t 1990-07p 1991-03t 2001-03p 2001-11t 2007-12p 2009-06t 2020-02p 2020-04t
+
+each component alone (same options; printed, C3 reads it):
+  PAYEMS    turns 14, matched 11/16, false 3, F1 0.750; missed: 1973-11p 1980-01p 1980-07t 2001-11t 2009-06t; false: 1974-07p 2003-08t 2010-02t
+  W875RX1   turns 22, matched 12/16, false 9, F1 0.700; missed: 1969-12p 1970-11t 2007-12p 2009-06t; false: 1992-12p 1993-10t 2004-12p 2006-08t 2008-11p 2012-12p 2013-02t 2021-10p 2022-06t
+  INDPRO    turns 25, matched 14/16, false 11, F1 0.698; missed: 2001-03p 2020-02p; false: 1967-07t 1989-01p 1989-07t 2000-06p 2003-02p 2005-09t 2014-11p 2016-03t 2018-09p 2022-04p 2024-11t
+  CMRMTSPL  turns 18, matched 10/16, false 6, F1 0.722; missed: 1980-01p 1981-07p 2001-03p 2001-11t 2007-12p 2020-02p; false: 1979-03p 1989-01p 1989-07t 2003-02t 2006-03p 2017-12p
+  CE16OV    turns 15, matched  9/16, false 4, F1 0.727; missed: 1969-12p 1970-11t 1973-11p 1980-01p 1980-07t 1990-07p 2009-06t; false: 1974-07p 2012-10p 2013-10t 2025-12p
+
+A Conference Board four (PAYEMS, W875RX1, INDPRO, CMRMTSPL):
+  weights: PAYEMS 0.541, W875RX1 0.189, INDPRO 0.152, CMRMTSPL 0.117
+  BBQ turns 16, matched 16/16 (1.000), false 0
+  BBQ: 1969-10p 1970-11t 1973-11p 1975-04t 1980-01p 1980-07t 1981-08p 1982-12t 1990-06p 1991-03t 2000-12p 2001-12t 2008-01p 2009-06t 2020-02p 2020-04t
+  missed: -; false: -
+  months from NBER on matched turns: -2 0 0 1 0 0 1 1 -1 0 -3 1 1 0 0 0
+  F1 1.000, random 0.271 (+0.729), p 0.000
+  best single component in the arm: matched 14
+  C1 passes; C2 passes; C3 passes
+  printed, no bar: without bigMove matched 14, false 0; sd over every month matched 15, false 0
+
+B four + household employment (PAYEMS, W875RX1, INDPRO, CMRMTSPL, CE16OV):
+  weights: PAYEMS 0.385, W875RX1 0.135, INDPRO 0.108, CMRMTSPL 0.083, CE16OV 0.289
+  BBQ turns 16, matched 15/16 (0.938), false 0
+  BBQ: 1969-10p 1970-11t 1973-11p 1975-04t 1980-01p 1980-07t 1981-08p 1982-12t 1990-06p 1991-03t 2000-12p 2002-01t 2008-01p 2009-10t 2020-02p 2020-04t
+  missed: 2009-06t; false: -
+  months from NBER on matched turns: -2 0 0 1 0 0 1 1 -1 0 -3 2 1 0 0
+  F1 1.000, random 0.271 (+0.729), p 0.000
+  best single component in the arm: matched 14
+  C1 passes; C2 passes; C3 passes
+  printed, no bar: without bigMove matched 13, false 0; sd over every month matched 16, false 0
+
+decision: arm A passes; a turns subcommand ships
