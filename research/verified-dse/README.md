@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 165 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 166 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **The ladder's edge survives a tool upgrade; tuned recipes do not** (milestone 158): on 27 SKY130 ss designs under Yosys 0.70
   and 0.71, the clipped ladder beats equal-cost random routing by about 4 points under both (change -0.48, interval -3.05 to
@@ -35,6 +35,12 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   (19 of the 44 whose edge is not exactly zero); at 32 gates or more the ladder still wins 11 decided designs and loses 1 (sign p 0.006),
   but below 32 it wins 5 and loses 8 (p 0.58), so "the ladder loses on shallow amounts" is a few large losses, not a rule, and the
   guard's random routing there is insurance: [`experiments/tie_rule/`](experiments/tie_rule/results.txt).
+- **The shallow-amount shifters' wins and losses are properties of the designs, not of one netlist naming** (milestone 166, flow run,
+  seven of seven predictions held): two fresh random namings of all 13 decided designs below 32 gates (5,408 place-and-route runs,
+  build A's Yosys 0.70 and OpenROAD 26Q3, controls exact) keep every sign and every class at 4 points averaged over three namings
+  (8 losses +4.55 to +22.48, 5 wins -4.38 to -15.52), though one naming moves a design's edge a median 3.51 points and the 128-bit
+  funnel shifter's by 24.7; below the cut they still split 5 to 8 (p 0.58), so gate depth does not separate them:
+  [`experiments/naming_shifters/`](experiments/naming_shifters/results.txt).
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
 - **Successive halving does not reliably beat random routed search** once budgets exceed a few
