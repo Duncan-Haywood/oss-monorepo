@@ -9,6 +9,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from allocate import (
     claim_note,
@@ -1207,7 +1208,7 @@ class DateGateTests(unittest.TestCase):
         self.assertEqual(refused_rows(rows, probe=probe),
                          {"hf": ["huggingface.co"], "px": ["raw.pixls.us"]})
         self.assertEqual(len(asked), len(set(asked)))
-        self.assertFalse(any("legacy.org" in u for u in asked))  # `next:` prose is not probed
+        self.assertNotIn("legacy.org", {urlsplit(u).hostname for u in asked})  # `next:` prose is not probed
         self.assertEqual(refused_rows([row("gh", [], "nothing hosted")], probe=probe), {})
 
     def test_no_outside_input_buildable_skips_stale_hosts(self):

@@ -29,10 +29,10 @@ def estimate(sub):
  else:lo=hi=p
  return {'n':len(sub),'divorce_n':sum(y),'effective_n':ne,'percent':100*p,'ci_low':100*lo,'ci_high':100*hi,'weighted_population':S,'caution':'Sparse: n < 50' if len(w)<50 else ''}
 results=[]
-for sex in ['All','Men','Women']:
+for group in ['All','Men','Women']:
  for ed in ['All']+list(dict.fromkeys(levels.values()))+['Some college, no higher degree','Less than high school','Unknown']:
-  s=[r for r in A if (sex=='All' or r['sex']==sex) and (ed=='All' or r['education']==ed)]
-  if s:results.append(dict(sex=sex,education=ed,**estimate(s)))
+  s=[r for r in A if (group=='All' or r['sex']==group) and (ed=='All' or r['education']==ed)]
+  if s:results.append(dict(sex=group,education=ed,**estimate(s)))
 with open(P/'nlsy79_degree_sex_results.csv','w') as f:
  w=csv.DictWriter(f,fieldnames=results[0]);w.writeheader();w.writerows(results)
 # Audit counts for alternative indicator omitting transition records.
@@ -49,12 +49,12 @@ for r in A:
  q=dict(r);q['ever_divorce']=any(r[k]==3 for k in post)
  F.append(q)
 rr=[]
-for sex in ['All','Men','Women']:
+for group in ['All','Men','Women']:
  for measure in ['1999 family income (nominal dollars)','1999 annual hours']:
   for label,lo,hi in ([('Under $25,000',0,25000),('$25,000–49,999',25000,50000),('$50,000–99,999',50000,100000),('$100,000 or more',100000,float('inf'))] if measure.startswith('1999 family') else [('0 hours',0,1),('1–1,999 hours',1,2000),('2,000 or more hours',2000,float('inf'))]):
    var='R7006500' if measure.startswith('1999 family') else 'R7007600'
-   sub=[r for r in F if (sex=='All' or r['sex']==sex) and lo<=r[var]<hi]
-   if sub:rr.append(dict(sex=sex,measure=measure,category=label,**estimate(sub)))
+   sub=[r for r in F if (group=='All' or r['sex']==group) and lo<=r[var]<hi]
+   if sub:rr.append(dict(sex=group,measure=measure,category=label,**estimate(sub)))
 with open(P/'nlsy79_prospective_income_employment.csv','w') as f:
  w=csv.DictWriter(f,fieldnames=rr[0]);w.writeheader();w.writerows(rr)
 json.dump({'baseline_married_2000_retained_2022_n':len(F),'recorded_postbaseline_divorce_n':sum(r['ever_divorce'] for r in F),'results':rr},open(P/'nlsy79_prospective.json','w'),indent=2)
@@ -63,10 +63,10 @@ print('Prospective baseline n:',len(F))
 # Observation coverage sensitivity: no missing marital-status interview waves.
 complete=[r for r in A if all(r[k]>=0 for k in mar)]
 sensitivity=[]
-for sex in ['All','Men','Women']:
+for group in ['All','Men','Women']:
  for ed in ['All','Bachelor','Master','Doctorate (PhD)','Professional']:
-  sub=[r for r in complete if (sex=='All' or r['sex']==sex) and (ed=='All' or r['education']==ed)]
-  if sub:sensitivity.append(dict(sex=sex,education=ed,**estimate(sub)))
+  sub=[r for r in complete if (group=='All' or r['sex']==group) and (ed=='All' or r['education']==ed)]
+  if sub:sensitivity.append(dict(sex=group,education=ed,**estimate(sub)))
 with open(P/'nlsy79_complete_waves_sensitivity.csv','w') as f:
  w=csv.DictWriter(f,fieldnames=sensitivity[0]);w.writeheader();w.writerows(sensitivity)
 json.dump({'retained_birth_year_min':int(min(r['R0000500'] for r in A))+1900,'retained_birth_year_max':int(max(r['R0000500'] for r in A))+1900,'complete_30_status_waves_n':len(complete),'no_recorded_divorce_n':sum(not r['ever_divorce'] for r in A),'no_recorded_divorce_with_any_missing_status_wave_n':sum(not r['ever_divorce'] and any(r[k]<0 for k in mar) for r in A)},open(P/'nlsy79_coverage_audit.json','w'),indent=2)
