@@ -166,6 +166,7 @@ import {
 } from './site-nav.mjs';
 import { ASK_PATH, ASSISTANT_LAUNCHER_JS, ASSISTANT_VOICE_CSS, renderAskPage, renderAssistantFiles } from './assistant.mjs';
 import { formatCount } from './count.mjs';
+import { ONLINE_SELLERS_PATH, renderOnlineSellersPage } from './industry-online-sellers.mjs';
 import { loadResearchRegistry } from './research-registry.mjs';
 import {
   HERO_BACKDROP_HTML,
@@ -190,6 +191,7 @@ import {
   siteStructuredData,
 } from './home.mjs';
 import { servedPath } from './served-path.mjs';
+import { COMPANY_SUMMARY, IN_DEVELOPMENT, INDUSTRIES, LIVE_PRODUCTS } from './company.mjs';
 import { liveIndustries, pruneDoors, renderPageDoor, renderToolDoor } from './front-doors.mjs';
 import { loadFunnel, offerTable, OFFER_ATTR, renderProductOffer } from './product-offer.mjs';
 import { acquireBuildLock, waitForBuildLock } from './build-lock.mjs';
@@ -1742,9 +1744,11 @@ const CATEGORY_RULES = [
     // `yoga-pilates-studio-class-profit-calculator` joined 2026-10-11 on its first commit: a boutique studio owner turning classes, attendance, the price mix and teacher pay into profit per class and room hour sits beside `boutique-fitness-studio-pricing-planner` and `music-teacher-studio-profit-calculator`, the same small-studio owner job.
     // `laundromat-acquisition-offer-calculator` joined 2026-10-11 on its first commit beside `laundromat-machine-payback-calculator`: a buyer turning a laundromat's revenue and costs into a walk-away price.
     test: (slug) =>
+      // `machine-shop-guides` joined 2026-11-24 (filed after it tripped the catch-all bound at 6): a job shop's quote
+      // calculator and SPRS self-check sit beside `cnc-machining-quote`, the same small shop pricing work for a customer.
       // `school-timetable-builder` joined 2026-11-16 on its first commit: a school office turning lessons, teachers and rooms into a
       // clash-free week is the same organiser scheduling job as `league-schedule-generator` and `volunteer-shift-scheduler` here.
-      /^(youth-lineup-rotator|axe-throwing-bar-profit-calculator|tournament-pairing-manager|tailor-alterations-shop-profit-calculator|shoe-repair-shop-profit-calculator|phone-repair-shop-profit-calculator|barbershop-chair-profit-calculator|driving-school-profit-calculator|braiding-studio-profit-calculator|esthetician-studio-profit-calculator|lash-studio-profit-calculator|bail-bond-agency-exposure-calculator|school-timetable-builder|local-site-studio|review-reply-desk|bowling-center-profit-calculator|padel-club-profit-calculator|pet-boarding-daycare-profit-calculator|arcade-game-payback-calculator|self-serve-dog-wash-profit-calculator|coworking-space-profit-calculator|rv-boat-storage-lot-calculator|subscription-proration-calculator|patent-maintenance-fee-planner|climbing-gym-profit-calculator|trampoline-park-profit-calculator|golf-simulator-bay-profit-calculator|mini-golf-course-profit-calculator|ebike-rental-fleet-profit-calculator|pilot-car-escort-run-profit-calculator|event-rental-inventory-payback-calculator|kids-birthday-party-package-profit-calculator|indoor-play-center-profit-calculator|lawn-aeration-overseeding-bid-calculator|party-bus-charter-profit-calculator|tent-rental-job-profit-calculator|courier-van-route-profit-calculator|laundromat-acquisition-offer-calculator|amusement-route-location-calculator|private-school-tuition-discount-calculator|mobile-oil-change-route-profit-calculator|boat-rental-fleet-profit-calculator|mobile-phlebotomy-route-profit-calculator|music-teacher-studio-profit-calculator|yoga-pilates-studio-class-profit-calculator|freelance-project-picker|swim-lesson-pool-rental-profit-calculator|home-inspection-business-profit-calculator|hydroseeding-job-bid-calculator|bike-shop-repair-profit-calculator|ski-snowboard-tune-shop-profit-calculator|fundraising-event-net-calculator|therapy-8-minute-rule-calculator|real-estate-photographer-shoot-profit-calculator|auto-detailing-service-menu-picker|saas-feature-packaging-optimizer|saas-tier-price-optimizer|pto-accrual-liability-calculator|wedding-flower-order-optimizer|project-staffing-margin-optimizer|appointment-no-show-analyzer|vending-machine-planogram-optimizer|capex-budget-prioritizer|childcare-enrollment-mix-optimizer|wedding-venue-date-pricing-optimizer|water-well-drilling-bid-calculator|sign-shop-job-pricing-calculator|medical-billing-pricing-calculator|ghostwriter-book-quote-calculator|sbir-budget-builder|speaker-fee-calculator|recipe-costing-calculator|pte-tax-election-calculator|appointment-no-show-cost-calculator|aba-authorization-tracker|h1b-weighted-lottery-odds-calculator|rent-increase-notice-checker|pay-application-generator|lien-waiver-checker|employment-contract-checker|worker-classification-checker|freelance-contract-checker|exemption-certificate-audit-check|insurance-commission-reconciler|mrr-waterfall-calculator|hoa-reserve-fund-calculator|pickleball-facility|property-management-profit|mobile-welding-job-price|sauna-cold-plunge-install-bid-calculator|good-faith-estimate|collision-shop-drp|escape-room-pricing|boutique-fitness-studio|waterfront-rental-season|car-wash-membership|law-firm-realization-rate-calculator|laundromat-machine-payback|ev-charging-site-roi|home-care-agency|childcare-center-break-even|booth-rent|commercial-photo-license|notary-trip|mobile-signing-agent|pool-route|pool-service-route|fishing-charter-trip-pricing|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|tattoo-piece-profit|massage-therapist-profit|dj-gig-profit|band-tour-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|wedding-videographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|embroidery-shop-quote|screen-print-job-quote|sports-official-game-fee|powder-coating-job-price|grease-trap-pumping-price|hoarding-cleanout-bid|bed-bug-heat-treatment-price|ppf-ceramic-coating-price|paintless-dent-repair-quote|water-damage-drying-estimate|laser-cutting-engraving-job-price|cnc-machining-quote|dxf-nesting|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|home-inspection-report-builder|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|volunteer-shift-scheduler|coffee-roaster-margin|house-cleaning-quote|str-turnover-crew|process-server-day|appraisal-assignment|translation-job|tax-season-client|interior-design-fee|nail-tech-booth-rent|birth-doula-package|pet-sitting-platform-fee|dog-grooming-price|farrier-visit|pet-waste-removal-route|private-pilot-training-cost|wedding-officiant-fee|cdl-school-payback|mobile-mechanic-visit|fishing-charter|horse-boarding-stall-profit|tutor-effective-hourly-rate|campground-site-profit|mobile-detailing-day-planner|fishing-crew-share-settlement|scrap-gold-buy-price|pawn-loan-profit|junk-car-buyer-offer|grape-grower-sell-vs-bottle|adjunct-course-offer-calculator|lash-studio-service-profit-calculator|optical-dispensary-margin-calculator|hearing-aid-dispensing-margin-calculator|provider-credentialing-delay-cost-calculator|independent-pharmacy-rx-margin-calculator|veterinary-wellness-plan-pricing-calculator|veterinary-dental-estimate-calculator|mobile-vet-house-call-fee-calculator|demand-charge-interval-analyzer|dental-patient-financing-fee-calculator|pool-opening-closing-price-calculator|private-chef-service-price-calculator)/.test(
+      /^(youth-lineup-rotator|axe-throwing-bar-profit-calculator|tournament-pairing-manager|tailor-alterations-shop-profit-calculator|shoe-repair-shop-profit-calculator|phone-repair-shop-profit-calculator|barbershop-chair-profit-calculator|driving-school-profit-calculator|braiding-studio-profit-calculator|esthetician-studio-profit-calculator|lash-studio-profit-calculator|bail-bond-agency-exposure-calculator|school-timetable-builder|local-site-studio|review-reply-desk|bowling-center-profit-calculator|padel-club-profit-calculator|pet-boarding-daycare-profit-calculator|arcade-game-payback-calculator|self-serve-dog-wash-profit-calculator|coworking-space-profit-calculator|rv-boat-storage-lot-calculator|subscription-proration-calculator|patent-maintenance-fee-planner|climbing-gym-profit-calculator|trampoline-park-profit-calculator|golf-simulator-bay-profit-calculator|mini-golf-course-profit-calculator|ebike-rental-fleet-profit-calculator|pilot-car-escort-run-profit-calculator|event-rental-inventory-payback-calculator|kids-birthday-party-package-profit-calculator|indoor-play-center-profit-calculator|lawn-aeration-overseeding-bid-calculator|party-bus-charter-profit-calculator|tent-rental-job-profit-calculator|courier-van-route-profit-calculator|laundromat-acquisition-offer-calculator|amusement-route-location-calculator|private-school-tuition-discount-calculator|mobile-oil-change-route-profit-calculator|boat-rental-fleet-profit-calculator|mobile-phlebotomy-route-profit-calculator|music-teacher-studio-profit-calculator|yoga-pilates-studio-class-profit-calculator|freelance-project-picker|swim-lesson-pool-rental-profit-calculator|home-inspection-business-profit-calculator|hydroseeding-job-bid-calculator|bike-shop-repair-profit-calculator|ski-snowboard-tune-shop-profit-calculator|fundraising-event-net-calculator|therapy-8-minute-rule-calculator|real-estate-photographer-shoot-profit-calculator|auto-detailing-service-menu-picker|saas-feature-packaging-optimizer|saas-tier-price-optimizer|pto-accrual-liability-calculator|wedding-flower-order-optimizer|project-staffing-margin-optimizer|appointment-no-show-analyzer|vending-machine-planogram-optimizer|capex-budget-prioritizer|childcare-enrollment-mix-optimizer|wedding-venue-date-pricing-optimizer|water-well-drilling-bid-calculator|sign-shop-job-pricing-calculator|medical-billing-pricing-calculator|ghostwriter-book-quote-calculator|sbir-budget-builder|speaker-fee-calculator|recipe-costing-calculator|pte-tax-election-calculator|appointment-no-show-cost-calculator|aba-authorization-tracker|h1b-weighted-lottery-odds-calculator|rent-increase-notice-checker|pay-application-generator|lien-waiver-checker|employment-contract-checker|worker-classification-checker|freelance-contract-checker|exemption-certificate-audit-check|insurance-commission-reconciler|mrr-waterfall-calculator|hoa-reserve-fund-calculator|pickleball-facility|property-management-profit|mobile-welding-job-price|sauna-cold-plunge-install-bid-calculator|good-faith-estimate|collision-shop-drp|escape-room-pricing|boutique-fitness-studio|waterfront-rental-season|car-wash-membership|law-firm-realization-rate-calculator|laundromat-machine-payback|ev-charging-site-roi|home-care-agency|childcare-center-break-even|booth-rent|commercial-photo-license|notary-trip|mobile-signing-agent|pool-route|pool-service-route|fishing-charter-trip-pricing|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|tattoo-piece-profit|massage-therapist-profit|dj-gig-profit|band-tour-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|wedding-videographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|embroidery-shop-quote|screen-print-job-quote|sports-official-game-fee|powder-coating-job-price|grease-trap-pumping-price|hoarding-cleanout-bid|bed-bug-heat-treatment-price|ppf-ceramic-coating-price|paintless-dent-repair-quote|water-damage-drying-estimate|laser-cutting-engraving-job-price|cnc-machining-quote|machine-shop-guides|dxf-nesting|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|home-inspection-report-builder|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|volunteer-shift-scheduler|coffee-roaster-margin|house-cleaning-quote|str-turnover-crew|process-server-day|appraisal-assignment|translation-job|tax-season-client|interior-design-fee|nail-tech-booth-rent|birth-doula-package|pet-sitting-platform-fee|dog-grooming-price|farrier-visit|pet-waste-removal-route|private-pilot-training-cost|wedding-officiant-fee|cdl-school-payback|mobile-mechanic-visit|fishing-charter|horse-boarding-stall-profit|tutor-effective-hourly-rate|campground-site-profit|mobile-detailing-day-planner|fishing-crew-share-settlement|scrap-gold-buy-price|pawn-loan-profit|junk-car-buyer-offer|grape-grower-sell-vs-bottle|adjunct-course-offer-calculator|lash-studio-service-profit-calculator|optical-dispensary-margin-calculator|hearing-aid-dispensing-margin-calculator|provider-credentialing-delay-cost-calculator|independent-pharmacy-rx-margin-calculator|veterinary-wellness-plan-pricing-calculator|veterinary-dental-estimate-calculator|mobile-vet-house-call-fee-calculator|demand-charge-interval-analyzer|dental-patient-financing-fee-calculator|pool-opening-closing-price-calculator|private-chef-service-price-calculator)/.test(
         slug,
       ),
   },
@@ -8095,8 +8099,9 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
   const toRoot = '../';
   const total = surfaces.length;
   const categoryCount = groups.length;
-  const title = 'About these tools';
-  const description = `Who makes these ${formatCount(total)} free calculators, why they are free, and what happens to the numbers you type in (nothing — every tool runs in your browser).`;
+  const title = `About ${SITE_NAME}`;
+  // Under 160 characters: check.mjs holds og:/twitter:description to it.
+  const description = `${SITE_NAME} builds software for small businesses, run by one owner with AI agents: what is live, what is in development, and how the free tools work.`;
 
   // The one absolute claim below — nothing typed ever leaves the browser —
   // is true for every tool except one this checks for: a tool whose whole
@@ -8142,7 +8147,7 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
   const deviceClaim = exceptions.length
     ? `the numbers a user types never leave their device, except on ${exceptions.length === 1 ? toolProseName(exceptions[0].title) : `${exceptions.length} ${EXCEPTION_NOUN} (${EXCEPTION_KINDS})`}, which send what you give them to that service and nowhere else`
     : `the numbers a user types never leave their device`;
-  const longBoiler = `${SITE_NAME} is a collection of ${formatCount(total)} free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, and no third-party analytics — ${deviceClaim}, and each tool keeps working offline once it has been opened. All ${formatCount(total)} are free with no gated features and no paid tier.`;
+  const longBoiler = `${SITE_NAME} builds software for small and medium businesses; it is run by one owner, with AI agents doing most of the building in public. Beside ${LIVE_PRODUCTS.length === 1 ? 'its paid product' : 'its paid products'}, ${listProse(LIVE_PRODUCTS.map((p) => `${p.name} for ${p.audience}`))}, it publishes ${formatCount(total)} free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, and no third-party analytics — ${deviceClaim}, and each tool keeps working offline once it has been opened. All ${formatCount(total)} are free with no gated features and no paid tier.`;
 
   // A stand-in slug, not a real one: naming an actual tool here would go stale
   // the day that tool is renamed, and every real snippet is already generated,
@@ -8206,7 +8211,7 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
     <header class="pf-hero">
       <p class="eyebrow">About</p>
       <h1>${escapeHtml(title)}</h1>
-      <p class="lede">${formatCount(total)} free calculators and checks for people who run a small business. They run in your browser and they cost nothing. ${
+      <p class="lede">We build software for small and medium businesses: the billing, quoting, paperwork and compliance jobs that eat an owner's week. The company is one owner and a team of AI agents, working in public. ${LIVE_PRODUCTS.length === 1 ? 'One paid product is live today' : `${LIVE_PRODUCTS.length} paid products are live today`}; others are in development, and ${formatCount(total)} free calculators and checks stay up beside them. ${
         exceptions.length
           ? `The numbers you type never leave your device, except on the ${exceptions.length} ${EXCEPTION_NOUN} listed below (${EXCEPTION_KINDS}), which send what you give them to that service.`
           : 'The numbers you type never leave your device.'
@@ -8214,37 +8219,83 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
     </header>
 
     <main class="prose">
-      <h2>Who makes this</h2>
+      <h2>What we build</h2>
       <p>
-        ${escapeHtml(SITE_NAME)} is a small open-source lab in Colorado, founded
-        and run by Duncan Haywood. AI coding agents build the tools and the
-        research in public, in one
-        <a href="${escapeHtml(REPO_WEB_URL)}">GitHub repository</a>; every change
+        Software for one kind of business at a time, covering whatever software
+        and AI can do for it. Each product starts from one sharp job that
+        business already pays to get done (a pay application, a quote, an
+        invoice that has to pass a new legal format) and grows from there into
+        a suite: accounts, saved data, imports, and the integrations the
+        business already uses. Products are priced for a business, monthly,
+        and built so the price covers what they cost to run.
+      </p>
+
+      <h2>What is live and what is in development</h2>
+      <h3>Live</h3>
+      <ul>
+${/* Absolute: a live product may be served by the site Worker rather than
+     from this build's output (Grant Autopilot is), so a relative link would
+     read as dead to check.mjs. */ ''}${LIVE_PRODUCTS.map((p) => `        <li><strong><a href="${escapeHtml(`${baseUrl}${p.path}`)}">${escapeHtml(p.name)}</a></strong>, for ${escapeHtml(p.audience)}: it ${escapeHtml(p.summary)}</li>`).join('\n')}
+      </ul>
+      <h3>In development</h3>
+      <p>
+        These are being built now. None of them takes payment or sign-ups yet,
+        and the order changes when the evidence does.
+      </p>
+      <ul>
+${IN_DEVELOPMENT.map(([name, what]) => `        <li><strong>${escapeHtml(name)}</strong>, ${escapeHtml(what)}.</li>`).join('\n')}
+      </ul>
+      <p>
+        If your business has a problem software could take off your hands,
+        <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}`)}">describe it</a>:
+        requests are built free and in public, and they tell us which product
+        to build next.
+      </p>
+
+      <h2>Who we build for</h2>
+      <p>
+        Small and medium businesses that already pay for software to run their
+        money and operations. Construction comes first (specialty
+        subcontractors, general contractors, remodelers, roofers, estimators),
+        then the industries beside it: machine shops, fabricators and small
+        manufacturers, engineering and design firms. Grant Autopilot serves
+        small nonprofits, and the e-invoicing work serves any small business
+        that has to send invoices in the new formats. The free tools are
+        grouped by trade <a href="#trades">at the foot of this page</a>.
+      </p>
+
+      <h2>How we work</h2>
+      <p>
+        ${escapeHtml(SITE_NAME)} is owned and run by ${escapeHtml(SITE_FOUNDER)}, in
+        Colorado. There is no other staff: AI coding agents write the code,
+        tests, research and most of the writing, in public, in one
+        <a href="${escapeHtml(REPO_WEB_URL)}">GitHub repository</a>. Every change
         is tested before it ships, and the history of every merge is public.
-        Everything is MIT licensed, so you can use it, change it, or run your own
-        copy as a business of your own.
+        Decisions about money, accounts and anything published under the
+        company's name are the owner's.
+      </p>
+      <ul>
+        <li><strong>Agents.</strong> Scheduled agent sessions pick the next job from a written queue, build it, check it and merge it. What they did and why is in the repository; the <a href="${escapeHtml(`${toRoot}${UPDATES_PATH}`)}">updates page</a> summarises each week.</li>
+        <li><strong>Open research.</strong> The <a href="${escapeHtml(`${toRoot}${RESEARCH_PATH}`)}">research projects</a> are published with their code, tests and limitations. New research is aimed at a product: a question gets studied because the answer goes into something a business will use.</li>
+        <li><strong>Open hardware designs.</strong> <a href="${escapeHtml(`${toRoot}${HARDWARE_PATH}`)}">Robot and house-plan designs for businesses</a> are published with their CAD, firmware and bills of materials, MIT licensed. They are at the design and simulation stage: nothing has been built and nothing physical is for sale. Real hardware products are a long-term goal.</li>
+        <li><strong>Open source.</strong> The free tools, the research and the hardware designs are MIT licensed, so you can use them, change them, or run your own copy. The paid products are developed privately.</li>
+      </ul>
+
+      <h2>The free tools</h2>
+      <p>
+        ${total} small, single-purpose web tools across ${categoryCount} areas:
+        pricing a job, checking what a marketplace sale actually nets, planning
+        cashflow, normalising freight quotes, and assembling the evidence a
+        compliance obligation asks for. Each answers one question for one kind
+        of business. They are free, they stay up, and the ones that fit a
+        product link to it.
       </p>
 
-      <h2>What this is</h2>
-      <p>
-        A working set of ${total} small, single-purpose web tools across
-        ${categoryCount} areas — pricing a job, checking what a marketplace sale
-        actually nets, planning cashflow, normalising freight quotes, and
-        assembling the evidence a compliance obligation asks for. Each one
-        exists because the arithmetic behind it is easy to get wrong under time
-        pressure and expensive to get wrong in front of a customer.
-      </p>
-      <p>
-        They are deliberately narrow. A tool here answers one question for one
-        kind of business, rather than being a spreadsheet template that answers
-        none of them well.
-      </p>
-
-      <h2>What happens to what you type</h2>
+      <h2>What happens to what you type into a free tool</h2>
       <div class="panel">
         <h3>${exceptions.length ? `Nothing, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`} below.` : feedbackOn() ? 'Nothing. No tool sends it anywhere.' : 'Nothing. There is no server that could receive it.'}</h3>
         <p>
-          Every tool on this site is a static page. The calculation happens in
+          Every free tool on this site is a static page. The calculation happens in
           your browser, in JavaScript you can read with your browser's own
           <em>View Source</em> or developer tools — no build step, no
           minification, nothing hidden from you. Specifically:
@@ -8295,12 +8346,13 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
         <a href="${escapeHtml(toRoot)}" data-pf-to="hub">the tool list</a>.
       </p>
 
-      <h2>Why it is free</h2>
+      <h2>Why the free tools are free</h2>
       <p>
-        Because keeping it free costs almost nothing. A static page has no
+        Because keeping them free costs almost nothing. A static page has no
         per-user cost, so there is no usage to meter and no reason to build a
-        paywall around arithmetic. There is no paid tier, no trial, and no
-        feature held back — the version you are using is the whole product.
+        paywall around arithmetic. A free tool has no paid tier, no trial, and
+        no feature held back. The paid products are separate software with
+        accounts and saved data, and they say so on their own pages.
       </p>
       <p>
         If one of these has saved you money,
@@ -8380,8 +8432,8 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
       </p>
     </main>
 
-    <section class="siblings">
-      <h2>Browse by trade</h2>
+    <section class="siblings" id="trades">
+      <h2>Free tools by trade</h2>
       <ul>
 ${categoryLinks}
       </ul>
@@ -8841,6 +8893,24 @@ function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, directions
 }
 
 /** The `<head>` shared by the custom development pages. */
+/**
+ * The online sellers industry page with this build's head, disclaimer and
+ * chrome script (which counts usage) handed in, so the module stays free of a
+ * build.mjs import.
+ */
+export function renderOnlineSellersIndustryPage({ surfaces = [], baseUrl }) {
+  const toRoot = '../../';
+  return renderOnlineSellersPage({
+    baseUrl,
+    surfaces,
+    shell: {
+      head: customDevHead,
+      disclaimer: disclaimerHtml(toRoot, surfaces),
+      tail: `<script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="industry-online-sellers" defer></script>`,
+    },
+  });
+}
+
 function customDevHead({ title, description, url, toRoot, baseUrl, extraHead = '' }) {
   return `<!doctype html>
 <html lang="en">
@@ -9557,7 +9627,10 @@ export function renderHub(
   <script type="application/ld+json">${jsonLd(siteStructuredData({
     baseUrl,
     siteName: SITE_NAME,
-    description: 'Free, open-source browser tools, self-hostable business apps and reproducible research.',
+    description: 'Software for small and medium businesses, with free open-source tools and reproducible research beside it.',
+    organizationDescription: `${SITE_NAME} ${COMPANY_SUMMARY}.`,
+    // Only what is live: a product in development is not an offer.
+    offers: LIVE_PRODUCTS.map((p) => ({ name: p.name, url: `${baseUrl}${p.path}`, audience: p.audience, description: `${p.name} ${p.summary}` })),
     repoUrl: REPO_WEB_URL,
     founder: SITE_FOUNDER,
     logo: `${baseUrl}icon-512.png`,
@@ -12992,7 +13065,10 @@ ${asOf}`;
  * publish its second half as body prose.
  */
 const LLMS_INDEX_DESC_MAX = 140;
-const LLMS_INDEX_TOOLS_PER_CATEGORY = 4;
+// 3, not 4, since 2026-11-24: the index now opens with the products and
+// industries, and the free tools are the front door to them rather than the
+// headline. Every tool is still in llms-full.txt and on its category page.
+const LLMS_INDEX_TOOLS_PER_CATEGORY = 3;
 
 export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] }, agentPostCount = 0, full = false, updated = '' } = {}) {
   const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
@@ -13053,8 +13129,10 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     full
       ? `- [Short index](${baseUrl}llms.txt): the same tools with one-sentence descriptions, small enough to read in one fetch.`
       : `- [Full text](${baseUrl}llms-full.txt): every tool with its complete description and the LLM docs a product ships; large (several hundred KB), fetch only when the index does not answer the question.`,
-    `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, the country code and the device type, plus daily tallies of product links shown and clicked, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [About and press kit](${baseUrl}${ABOUT_PATH}): who runs the company (one owner, AI agents), what is live and in development, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, the country code and the device type, plus daily tallies of product links shown and clicked, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
     `- [Open hardware designs for businesses](${baseUrl}${HARDWARE_PATH}): robots for tennis clubs (ball collection), cleaning companies (floor cleaning) and grounds crews (a wire-free mower), open house plans for builders, and construction robotics research, each with its honest stage. Every design is MIT licensed and at the CAD and simulation stage: nothing has been built, nothing is for sale, and there are no prices or dates. Each card links the site's feedback form so a business can say it would use one.`,
+    // Full file only: the short index sits at its 50,000-byte cap (build.test.mjs).
+    ...(full ? [`- [Online sellers](${baseUrl}${ONLINE_SELLERS_PATH}): resellers on eBay, Etsy, Poshmark, Mercari, Whatnot, Depop: profit after fees, payouts, cost of goods, mileage, Schedule C; Seller Books (in development) and free tools.`] : []),
     `- [Free custom software for your business](${baseUrl}${CUSTOM_DEV_PATH}): describe your problem and it gets built. How a business, or anyone, can ask the agents that build this site for a new tool, free and in public, the one condition (the result stays MIT licensed, held by the repository owner), and every request so far with its status. Each request has its own page (custom-development/R-0001/ and so on) showing its stage and what is still open, with a form for feedback on it.`,
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
@@ -13111,9 +13189,9 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
   // question names a trade rather than a tool. Absent from this file until
   // 2026-10-21, while every tool was here.
   const audienceSection = audiences.length
-    ? `## Tools by who you are
+    ? `## Industries and trades
 
-One page per trade or kind of business, listing only the tools that serve it.
+One page per trade or kind of business, listing the free tools that serve it.
 
 ${audiences
   .map(({ audience, items }) => `- [${oneLine(audience.title)}](${baseUrl}${categoryPagePath(audiencePageId(audience))}): ${items.length} tools. ${oneLine(audience.description)}`)
@@ -13148,16 +13226,35 @@ ${full ? `\n${exceptions.map((x) => `- [${oneLine(toolProseName(x.title))}](${ba
 `
     : '';
 
+  // Products and industries first, free tools after (2026-11-24 revamp: the
+  // site is a for-profit portfolio of products for specific SMBs, and the free
+  // tools are the front door to them). Live products are linked; products in
+  // development are named in bold, not linked, because they have no page to
+  // send anyone to yet. Shared with the About page through company.mjs.
+  const products = `## Products
+
+Live:
+
+${LIVE_PRODUCTS.map((p) => `- [${p.name}](${baseUrl}${p.path}): for ${p.audience}. ${p.name} ${full ? p.summary : shortText(p.summary)}`).join('\n')}
+
+${full ? `In development (not for sale yet, no sign-ups; the order changes with the evidence):
+
+${IN_DEVELOPMENT.map(([name, what]) => `- **${name}**, ${what}.`).join('\n')}` : `In development, not for sale yet: ${IN_DEVELOPMENT.map(([name]) => name).join('; ')}. Each is described in [llms-full.txt](${baseUrl}llms-full.txt).`}
+
+${full ? `Built for ${INDUSTRIES}. A business with a problem software could solve can [ask for it to be built](${baseUrl}${CUSTOM_DEV_PATH}), free and in public.` : 'Built for construction, manufacturing and other small businesses; the industry pages follow.'}
+`;
+
+  const live = LIVE_PRODUCTS.map((p) => `${p.name}, for ${p.audience}`);
   return `# ${SITE_NAME}
 
-> ${SITE_NAME} is an open-source lab where AI agents build tools and research in public, all MIT licensed. ${formatCount(surfaces.length)} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${formatCount(researchProjects)} reproducible research projects` : 'open research'}; no account or payment, and the numbers you type stay in your browser.
+> ${SITE_NAME} ${COMPANY_SUMMARY}. Live: ${listProse(live)}; more products are in development for construction, manufacturing and other small businesses. Free: ${formatCount(surfaces.length)} open-source tools${researchProjects ? ` and ${formatCount(researchProjects)} research projects` : ''}, MIT licensed.
 
-Each tool is a static page that works offline once opened, and is free with no
-gated features. They are estimates and records to act on, not professional
-advice or a determination made on anyone's behalf; each page carries its own
-limitations.
+${products}
+${audienceSection ? `${audienceSection}\n` : ''}## Free tools
 
-${network}${audienceSection ? `${audienceSection}\n` : ''}${sections.join('\n')}
+${full ? `${formatCount(surfaces.length)} free, open-source tools (browser calculators and checks, self-hostable apps, command-line tools) for sellers, contractors, logistics buyers and small teams. No account; the numbers you type stay in your browser. Estimates and records to act on, not professional advice; each page states its limits.` : 'No account; inputs stay in the browser. Estimates, not professional advice.'}
+
+${network}${sections.join('\n')}
 ${researchSection ? `${researchSection}\n` : ''}${optional}${/^\d{4}-\d{2}-\d{2}/.test(updated) ? `\n${llmsAsOfLine(updated)}\n` : ''}`;
 }
 
@@ -13904,8 +14001,12 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       published: new Set(surfaces.map((s) => s.slug)),
       footer: `${disclaimerHtml('../../', surfaces)}\n      ${renderSiteFooterNav({ toRoot: '../../' })}`,
       tail: `  <script src="../../${CHROME_MODULE_FILE}" ${CHROME_SLUG_ATTR}="industry-nonprofits" defer></script>`,
-    }),
-  ];
+    }),  ];
+  // The online sellers industry page (industry-online-sellers.mjs): resellers'
+  // problems, Seller Books in development, and the best free seller tools.
+  await fs.mkdir(path.join(outDir, ONLINE_SELLERS_PATH), { recursive: true });
+  await fs.writeFile(path.join(outDir, ONLINE_SELLERS_PATH, 'index.html'), renderOnlineSellersIndustryPage({ surfaces, baseUrl: base }));
+  industryPages.push(ONLINE_SELLERS_PATH);
   // The open hardware designs as future products for businesses (see `hardware-page.mjs`).
   const hardwareDir = path.join(outDir, HARDWARE_PATH);
   await fs.mkdir(hardwareDir, { recursive: true });

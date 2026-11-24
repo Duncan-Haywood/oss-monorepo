@@ -1,0 +1,57 @@
+name: CI policy
+
+# Keeps unprivileged workflows unprivileged. Every workflow not named
+# `priv-*.yml` merges without the owner's review, so this required check
+# (`ci-policy` in .github/rulesets/main.json) fails a PR that leaves one able to
+# read a secret, hold a write token, run on a self-hosted runner, use an
+# action off the allowlist, or pose as a required check. For `priv-` workflows
+# it checks that the code their privileged jobs run is owner-owned or listed
+# as an accepted risk. Rules and reasons: platform/ci/ci_policy_check.py and
+# docs/security/agent-hardening.md, "Two tiers of CI".
+#
+# No path filter: a required check that a filter skips leaves the PR waiting
+# forever. Reads files only; publishes nothing, pushes nothing, calls no paid
+# API.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  ci-policy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Whole tree, not sparse: the privileged-code check follows imports into
+      # platform/, portfolio/ and ventures/.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          filter: blob:none
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyYAML
+        run: python3 -m pip install --quiet "pyyaml==6.0.2"
+
+      - name: Checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_ci_policy_check
+
+      # -I (isolated) on the step that decides: platform/ci is not put on
+      # sys.path, so a module an unowned PR adds there cannot shadow `yaml` or
+      # the standard library. (The unit tests above need that path to import
+      # the module; they are not the gate.)
+      - name: Unprivileged workflows are read-only and secret-free
+        run: python3 -I platform/ci/ci_policy_check.py

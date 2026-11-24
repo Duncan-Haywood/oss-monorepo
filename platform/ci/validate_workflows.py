@@ -29,7 +29,7 @@ about, one paragraph above where it is described):
 4. A `name:` unique across the repository. GitHub groups the PR checks list by
    workflow name, not by filename, so two files sharing a name produce two
    identically-labelled rows with no way to tell which is which without
-   opening each one -- the exact anti-pattern `conflict-markers-ci.yml` and
+   opening each one -- the exact anti-pattern `priv-conflict-markers-ci.yml` and
    `duplicate-symbols-ci.yml` were each named to avoid (their own headers say
    so: "a red result should name its own cause without opening it"). Found by
    this check itself: `print-atelier-ci.yml`, `quick-pick-survey-ci.yml` and
@@ -41,7 +41,7 @@ about, one paragraph above where it is described):
    so such a reference resolves to the empty string forever -- and does it
    silently, because a job skipped by a false `if:` is a *successful* run. This
    is the one invariant here written from a bug that shipped:
-   `portfolio-pages.yml` gated the entire Pages deploy on
+   `priv-portfolio-pages.yml` gated the entire Pages deploy on
    `vars.GITHUB_PAGES_ENABLED`, so the "one owner flip" that the decision
    queue, `portfolio/DIRECTION.md` and `platform/pages/README.md` all pointed
    at could never have published a page. Nothing was red; it was found by
@@ -349,7 +349,7 @@ def reserved_github_refs(node):
     expression resolves to the empty string, so a gate like
     `if: vars.GITHUB_X == 'true'` is simply always false.
 
-    That is not hypothetical here. `portfolio-pages.yml` gated the whole Pages
+    That is not hypothetical here. `priv-portfolio-pages.yml` gated the whole Pages
     deploy on `vars.GITHUB_PAGES_ENABLED`, and the "one owner flip" that the
     decision queue, `portfolio/DIRECTION.md` and `platform/pages/README.md` all
     pointed at could never have published anything. It was found by reading the

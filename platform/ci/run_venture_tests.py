@@ -87,7 +87,7 @@ SUITE_TIMEOUT = 1200
 TIMES_FILE = ROOT / "platform" / "ci" / "venture_suite_times.json"
 ON_ACTIONS = os.environ.get("GITHUB_ACTIONS") == "true"
 # Site-builder checks that read every venture's hand-written HTML. They run in
-# portfolio-pages.yml, not in a venture's own suite, so a session checking its
+# priv-portfolio-pages.yml, not in a venture's own suite, so a session checking its
 # venture locally never saw them: editing a visible FAQ answer without its
 # FAQPage JSON-LD twin passed `run_venture_tests.py <slug>` and went red in CI
 # (four run records 2026-11-17/18 name faq-visible.test.mjs as a CI-only
@@ -828,7 +828,7 @@ def main(argv):
                 print(f"::error file={rel},line={line},title=inherited key::{lookup} needs Object.hasOwn")
     # Local runs that name ventures, including `--since` under
     # run_workflow_locally.py --for-changes (which skipped them on a venture
-    # FAQ edit, friction 2026-11-18). On Actions, portfolio-pages.yml runs them.
+    # FAQ edit, friction 2026-11-18). On Actions, priv-portfolio-pages.yml runs them.
     page_red = False
     if named and not ON_ACTIONS and not args.no_page_checks:
         ran, ok, out = page_checks(lint_slugs)

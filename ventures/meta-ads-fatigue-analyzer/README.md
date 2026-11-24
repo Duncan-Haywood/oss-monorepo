@@ -34,7 +34,10 @@ Rows are combined per campaign, ad set and ad. An ad is flagged for fatigue when
 its frequency is at or above the threshold (default 3) with enough impressions and
 one of: CTR under 80% of the account median, cost per result over 125% of the
 median, spend over one result's cost with none, or (daily exports) CTR down 25% or
-more from the first to the last third of its days. No-result spend is **proven**
+more from the first to the last third of its days. With a Day breakdown each row's
+frequency is that day's, so the averaged figure rarely reaches the threshold; there the
+CTR fall flags an ad on its own, and the reason states the upper bound on period
+frequency (impressions over the largest day's reach). No-result spend is **proven**
 at the fewest link clicks `n` with `(1 - rate)^n < 0.05`, **overspent** above one
 result's cost, otherwise **watch**. Scale candidates need enough results, a cost
 per result at least 20% under the median and frequency under the threshold. It is
@@ -45,13 +48,15 @@ arithmetic on the file, not advice; see the page for what is not modelled.
 From the quality audit of 2026-11-13
 ([`portfolio/quality/audits/2026-11-13-meta-ads-fatigue-analyzer.json`](../../portfolio/quality/audits/2026-11-13-meta-ads-fatigue-analyzer.json)):
 
-- With a Day breakdown each row carries that day's frequency (usually 1 to 1.5), and the averaged
-  figure rarely reaches the frequency threshold, so the daily CTR-trend signal seldom fires on a
-  real daily export. Until the model handles it, export without the Day breakdown for period
-  frequency, or lower the threshold.
+Re-audited 2026-11-24
+([`2026-11-24-meta-ads-fatigue-analyzer.json`](../../portfolio/quality/audits/2026-11-24-meta-ads-fatigue-analyzer.json)):
+the daily-export gap is fixed; these remain.
+
 - Ads are compared with one median across all campaigns, so retargeting (high frequency by design)
   dominates the flags; CPM is not computed. The thresholds (frequency 3, CTR 80%, cost 125%, trend
   -25%) are rules of thumb, not sourced from Meta.
+- The `clicks` alias falls back to a bare `Clicks` column, so an export with only `Clicks (all)` is
+  read as link clicks; the exported CTR column is matched but not cross-checked.
 
 ## Run
 
