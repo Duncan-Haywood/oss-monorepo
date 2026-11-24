@@ -52,6 +52,7 @@
  */
 import { stripForInjection, toolHeadingEnd } from './jobs.mjs';
 import { BAR_ALIGN_JS } from './bar-align.mjs';
+import { BAR_TONE_JS, barToneCss } from './bar-tone.mjs';
 
 export const SHOP_RATE_FIELDS = [
   { id: 'hourlyWage', label: 'Crew hourly wage', prefix: '$', suffix: '/h', max: 100000 },
@@ -799,7 +800,7 @@ section.pf-rates{background:none;border:0;border-radius:0;box-shadow:none;min-he
  * allow-list: a contractor who had saved their rates and left the panel open
  * would have handed the customer their margin along with the quote. */
 @media print{.pf-rates{display:none !important}}
-`;
+${barToneCss('pf-rates')}`;
 
 /** "a, b and c" — the carried fields named the way the page labels them. */
 function fieldSentence(fields) {
@@ -920,6 +921,7 @@ const RATES_SCRIPT = () => `
   var root = document.querySelector('[data-pf-rates-root]');
   if (!root) return;
 ${BAR_ALIGN_JS}
+${BAR_TONE_JS}
   var aligned = false;
   var el = function(id){ return document.getElementById(id); };
   var fieldFor = function(f){
@@ -1071,7 +1073,7 @@ ${BAR_ALIGN_JS}
   var render = function(rates, outcome){
     root.hidden = false;
     // Once, on the first reveal: line up with the page's heading (bar-align.mjs).
-    if (!aligned) { aligned = true; pfAlignBar(root); }
+    if (!aligned) { aligned = true; pfAlignBar(root); pfToneBar(root); }
     var list = el('pf-rates-list');
     var status = el('pf-rates-status');
     var button = function(name){ return root.querySelector('[data-pf-rates="' + name + '"]'); };
