@@ -36,8 +36,7 @@ early-access status and name no price.
 `<title>`/og:title stay as they were. The count line reads "N tools · free, no
 account · …".
 
-**Overlap:** PR #18677 (open when this landed) adds a hand-curated
-`p.pf-product` footer line linking free tools to *product* pages. If both
-land, one footer can hold both lines (for example `drywall-bid-calculator`
-gets wall-framing-takeoff and the construction door). Consider showing just
-one per page once the industry pages say which product each sells.
+**Overlap:** PR #18677 (`product-offer.mjs`, `p.pf-product`) names a specific
+product in some tool footers. A tool listed there gets no industry door
+(`addSiteChrome`), so a footer has one pitch. The front-doors map still lists
+those tools, and they show the door if their product offer is removed.

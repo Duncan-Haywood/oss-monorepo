@@ -13,9 +13,12 @@ this site is building are for small and mid-sized businesses in five
 industries: construction, manufacturing, online sellers, e-invoicing and
 nonprofits.
 
-So 204 tool pages, two category pages and ten audience pages now carry one
-short line naming the product their visitors are plausibly customers for,
-with a link to that industry's page.
+So 204 tools, two category pages and ten audience pages are now mapped to the
+product their visitors are plausibly customers for. Each one carries a short
+line linking that industry's page. The exception is 18 tools that already name
+a specific product in their footer (from
+[an earlier change today](2026-11-24-pointing-free-tools-at-the-products.md)):
+they keep that line, so no footer carries two pitches.
 
 ## Which tool points where
 
