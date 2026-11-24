@@ -21,10 +21,12 @@ export const MAX = 70;
 const SKIP = new Set(['node_modules', '.next', '.git']);
 
 const NAMED = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: '\u00a0', mdash: '\u2014', ndash: '\u2013', hellip: '\u2026', rsquo: '\u2019', lsquo: '\u2018', rdquo: '\u201d', ldquo: '\u201c', middot: '\u00b7', times: '\u00d7' };
+// An out-of-range reference (past U+10FFFF) stays as written instead of throwing.
+const cp = (n, raw) => (n <= 0x10ffff ? String.fromCodePoint(n) : raw);
 export function decode(s) {
   return s
-    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(+d))
+    .replace(/&#x([0-9a-f]+);/gi, (m, h) => cp(parseInt(h, 16), m))
+    .replace(/&#(\d+);/g, (m, d) => cp(+d, m))
     .replace(/&([a-z]+);/gi, (m, n) => NAMED[n.toLowerCase()] ?? m);
 }
 

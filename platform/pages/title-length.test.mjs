@@ -11,6 +11,7 @@ test('length counts decoded characters, collapses whitespace', () => {
   assert.equal(titleLength('<title>A &amp; B</title>'), 5);
   assert.equal(titleLength('<title>\n  A\n  B </title>'), 3);
   assert.equal(titleLength('<title>Caf&#233; &#x2014; x</title>'), 8);
+  assert.equal(titleLength('<title>&#x110000;</title>'), 10);
   assert.equal(titleLength('<title>  </title>'), null);
   assert.equal(titleLength('<p>no title</p>'), null);
 });

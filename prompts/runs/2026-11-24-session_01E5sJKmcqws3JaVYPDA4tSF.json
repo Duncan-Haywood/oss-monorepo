@@ -28,16 +28,25 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 4,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "changed-ventures red: check_code_point_range.py flagged unguarded String.fromCodePoint in platform/pages/title-length.mjs",
+      "fix": "guarded with n <= 0x10ffff, added a test case"
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/polish/prompt-0.md",
       "issue": "Says to start the build in run_in_background; I backgrounded with '&' in a normal call instead and it still completed (~6 min), no friction beyond that. The prompt's long screenshot survey step was skipped because the previous polish report already named the next items."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "The site-test step it names (node --test platform/pages/*.test.mjs) does not run platform/ci's tree checks (check_code_point_range.py), which a new platform/pages module also has to pass; only CI's changed-ventures job caught it after ~11 min."
     }
   ],
   "deviations": [
@@ -53,7 +62,7 @@
     "docs/reports/polish-2026-11-24-title-ratchet.md"
   ],
   "goal": "SEO: titles that fit a search result",
-  "notes": "Local: node platform/pages/build.mjs completed; node platform/pages/check.mjs exit 0 (1435 products, 13025 pages, no dead links); node --test '*.test.mjs' 'cloudflare/*.test.mjs' in platform/pages: 1953 pass, 0 fail (304 s); title-length.test.mjs 4 pass; check_posts ok; check_title_meta.py long-title 1105 -> 1088; promptctl validate ok.",
+  "notes": "Local: node platform/pages/build.mjs completed; node platform/pages/check.mjs exit 0 (1435 products, 13025 pages, no dead links); node --test '*.test.mjs' 'cloudflare/*.test.mjs' in platform/pages: 1953 pass, 0 fail (304 s); title-length.test.mjs 4 pass; check_posts ok; check_title_meta.py long-title 1105 -> 1088; promptctl validate ok. CI changed-ventures failed once on check_code_point_range (fixed in follow-up commit).",
   "corrections": [],
   "redteam": null,
   "usage": {
