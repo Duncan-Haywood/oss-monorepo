@@ -840,6 +840,16 @@ class FlagshipTests(unittest.TestCase):
         self.assertIn("archive.org REFUSED; github.com answers", out)
         self.assertNotIn("probed just now", venture_report("deep", [v]))
 
+    def test_venture_report_leaves_an_item_on_a_refused_host_unnumbered(self):
+        # friction 2026-11-21..24: hosts line said REFUSED, item still numbered
+        v = self.flag("deep", 0, "history. Next: fit the ramp on the github.com set; "
+                                 "next: a vintage read from alfred.stlouisfed.org")
+        out = venture_report("deep", [v], probe=lambda url: "github" in url)
+        self.assertIn("1. [next] fit the ramp on the github.com set", out)
+        self.assertIn("(alfred.stlouisfed.org REFUSED just now) a vintage read", out)
+        self.assertNotIn("2. [next]", out)
+        self.assertIn("2. [next] a vintage", venture_report("deep", [v]))
+
     def test_load_flagship_hosts_takes_a_list_or_a_string(self):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "flagships.yaml"
