@@ -40,7 +40,7 @@ cd apps/docs && npx wrangler@4.145.0 dev        # serve dist/ as Cloudflare woul
 npx wrangler@4.145.0 deploy --dry-run           # check the config
 ```
 
-CI: job `deploy-cloudflare` in `.github/workflows/retail-pilot-intel-deploy-docs.yml` (manual run, or
+CI: job `deploy-cloudflare` in `.github/workflows/priv-retail-pilot-intel-deploy-docs.yml` (manual run, or
 every docs push once `RETAIL_PILOT_INTEL_DOCS_CLOUDFLARE=true`). Build env: `DOCS_PASSCODE` secret,
 `DOCS_SITE_URL` variable. For a network boundary beyond the client passcode, put Cloudflare Access in
 front of the workers.dev host.

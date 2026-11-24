@@ -5,7 +5,7 @@ channels:
     rung: artifact
     built: 2026-10-15
     code: platform/distribution/bluesky.mjs
-    workflow: .github/workflows/distribute-bluesky.yml
+    workflow: .github/workflows/priv-distribute-bluesky.yml
     enabled_by: repository variable DISTRIBUTE_BLUESKY=true, plus secrets BSKY_HANDLE and BSKY_APP_PASSWORD (an app password, never the account password)
     what_it_posts: one post per tool launched in the last 3 days (platform/pages/launched.json), at most 3 per run, link back to the tool page, text ends "Automated post."
     dedupe: stateless; reads the account's own recent posts and skips any tool whose URL is already there
@@ -19,7 +19,7 @@ channels:
     rung: artifact
     built: 2026-10-15
     code: platform/distribution/mastodon.mjs
-    workflow: .github/workflows/distribute-mastodon.yml
+    workflow: .github/workflows/priv-distribute-mastodon.yml
     enabled_by: repository variables DISTRIBUTE_MASTODON=true and MASTODON_INSTANCE (https URL), plus secret MASTODON_TOKEN (write:statuses scope only)
     what_it_posts: one public status per tool launched in the last 3 days (platform/pages/launched.json), at most 3 per run, link back to the tool page, text ends "Automated post."
     dedupe: stateless; reads the account's own recent statuses and skips any tool whose URL is already there, plus an Idempotency-Key per tool
@@ -33,7 +33,7 @@ channels:
     rung: artifact
     built: 2026-10-15
     code: platform/distribution/devto.mjs
-    workflow: .github/workflows/distribute-devto.yml
+    workflow: .github/workflows/priv-distribute-devto.yml
     enabled_by: repository variable DISTRIBUTE_DEVTO=true plus secret DEVTO_API_KEY; articles are created as drafts until DEVTO_PUBLISH=true
     what_it_posts: one short article per tool launched in the last 3 days (platform/pages/launched.json), at most 2 per run, canonical_url set to the tool page, body links back, states it is free MIT software and not professional advice, ends "Posted automatically"
     dedupe: stateless; reads the account's own articles (GET /api/articles/me/all) and skips any tool whose URL is already a canonical_url
@@ -47,7 +47,7 @@ channels:
     rung: artifact
     built: 2026-10-15
     code: platform/distribution/hashnode.mjs
-    workflow: .github/workflows/distribute-hashnode.yml
+    workflow: .github/workflows/priv-distribute-hashnode.yml
     enabled_by: repository variables DISTRIBUTE_HASHNODE=true and HASHNODE_PUBLICATION_ID, plus secret HASHNODE_TOKEN; articles are created as drafts until HASHNODE_PUBLISH=true
     what_it_posts: one short article per tool launched in the last 3 days (platform/pages/launched.json), at most 2 per run, originalArticleURL (canonical) set to the tool page, same body and disclosures as the dev.to channel (free MIT software, not professional advice, posted automatically)
     dedupe: stateless; reads the publication's own posts and drafts (canonicalUrl) and skips any tool whose URL is already there
@@ -60,7 +60,7 @@ channels:
     rung: artifact
     built: 2026-10-15
     code: platform/distribution/releases.mjs
-    workflow: .github/workflows/distribute-releases.yml
+    workflow: .github/workflows/priv-distribute-releases.yml
     enabled_by: repository variable DISTRIBUTE_RELEASES=true (uses the workflow's own GITHUB_TOKEN; no external account or secret)
     what_it_posts: one release per ISO week (tag launches-YYYY-MM-DD) listing tools launched in the last 7 days (platform/pages/launched.json), at most 25, each with a link and its one-line description, plus the free/MIT and not-professional-advice lines
     dedupe: stateless; a release that already has the week's tag is left alone; no release when nothing launched
@@ -72,7 +72,7 @@ channels:
     rung: artifact
     built: 2026-10-30
     code: platform/distribution/tool-releases.mjs
-    workflow: .github/workflows/distribute-tool-releases.yml
+    workflow: .github/workflows/priv-distribute-tool-releases.yml
     enabled_by: repository variable DISTRIBUTE_TOOL_RELEASES=true (uses the workflow's own GITHUB_TOKEN; no external account or secret). Tags only main
     what_it_posts: "one git tag `<slug>-v<version>` and one GitHub release per allow-listed tool version (31 tools on 2026-10-30), so users can pin `uses: .../actions/<slug>@<slug>-v0.1.0` and pre-commit `rev:` instead of @main. Notes list the pin lines that exist for that tool (action, pre-commit, and npm/PyPI only when those channels are on), the content hash and a link to the source at the tag. devsec-toolkit's release attaches its `bundle` output as a reproducible devsec-toolkit-<version>.tar.gz (about 130 KB) with its SHA-256. At most 5 releases per run; runs on each change to versions.json and weekly"
     dedupe: stateless; a release that already has its tag is left alone. A run refuses to tag when versions.json is stale, so a tag always points at a commit whose shipped files match the recorded hash
@@ -84,7 +84,7 @@ channels:
     rung: artifact
     built: 2026-10-15
     code: platform/distribution/npm.mjs
-    workflow: .github/workflows/distribute-npm.yml
+    workflow: .github/workflows/priv-distribute-npm.yml
     enabled_by: repository variable DISTRIBUTE_NPM=true plus secret NPM_TOKEN (an npm automation token); optional variable NPM_SCOPE (e.g. @yourname) to publish under a scope
     what_it_posts: one npm package per zero-dependency venture CLI on the npm allow-list (portfolio/distribution/allowlist.json, 7 tools on 2026-10-30) (cli.mjs plus the sibling files it imports, an MIT LICENSE, the venture README with a free/open-source/not-advice footer), at most 5 per run, at the version versions.json gives it; a bin wrapper makes `npx <name>` work because npm's bin symlink defeats the CLIs' direct-invocation guard
     dedupe: stateless; a version the registry already has is skipped, and a name owned by another project (its repository URL is not this repo) is skipped with a note, so nothing is ever overwritten. On 2026-10-30 llm-spend-guard and llms-txt-generator were already taken on npm; they publish only under NPM_SCOPE
@@ -99,7 +99,7 @@ channels:
     built: 2026-10-16
     code: platform/distribution/mcp.mjs
     server: platform/distribution/mcp-server.mjs
-    workflow: .github/workflows/distribute-mcp.yml
+    workflow: .github/workflows/priv-distribute-mcp.yml
     enabled_by: repository variable DISTRIBUTE_MCP=true plus secret NPM_TOKEN; optional variable MCP_PACKAGE_NAME (default monorepo-projects-mcp)
     what_it_posts: one npm package, monorepo-projects-mcp, bundling every zero-dependency venture CLI whose closure imports no network or process module (133 of 142 today) behind a stdio MCP server with three tools (list_tools, tool_help, run_tool); also writes a server.json for the official MCP registry
     dedupe: stateless; skipped when the registry already shows the current VERSION. Bump VERSION in mcp.mjs to ship a changed tool set
@@ -114,7 +114,7 @@ channels:
     rung: artifact
     built: 2026-10-16
     code: platform/distribution/pypi.mjs
-    workflow: .github/workflows/distribute-pypi.yml
+    workflow: .github/workflows/priv-distribute-pypi.yml
     enabled_by: repository variable DISTRIBUTE_PYPI=true plus secret PYPI_TOKEN (a PyPI API token, passed to twine as the password with username __token__)
     what_it_posts: one PyPI project per stdlib-only Python venture CLI on the pypi allow-list (portfolio/distribution/allowlist.json, 3 tools on 2026-10-30) (ventures/<slug>/check.py with a main(), an MIT LICENSE, a VENTURE.yaml description), at most 5 per run, at the version versions.json gives it, installable with `pipx run <slug>`. The tool source is shipped unchanged; the README gains a free/open-source/not-advice footer linking the tool page. Tools importing anything outside a stdlib allowlist, or any network or process module, are skipped.
     dedupe: stateless; a version PyPI already has is skipped, and a name owned by another project is skipped, so nothing is republished or overwritten
@@ -129,7 +129,7 @@ channels:
     rung: artifact
     built: 2026-10-16
     code: platform/distribution/pypi-packages.mjs
-    workflow: .github/workflows/distribute-pypi-packages.yml
+    workflow: .github/workflows/priv-distribute-pypi-packages.yml
     enabled_by: same as pypi-python-clis (variable DISTRIBUTE_PYPI=true plus secret PYPI_TOKEN)
     what_it_posts: "one PyPI project per allow-listed Python venture (none on 2026-10-30) that already ships a pyproject.toml, a src/ tree, a LICENSE and a README and has no runtime dependencies (8 qualify, including backup-verification-evidence, cra-evidence-desk, einvoice-preflight, public-record-watch, vendor-change-watch), at most 3 per run, at the version versions.json gives it (it replaces the pyproject version in the build copy); built from a clean copy so no site files ship; all five built and passed twine check on 2026-10-16. Complements pypi-python-clis, which wraps single-file check.py tools."
     dedupe: stateless; a version already on PyPI is skipped, and a name owned by another project is skipped
@@ -141,7 +141,7 @@ channels:
     rung: artifact
     built: 2026-10-16
     code: platform/distribution/homebrew.mjs
-    workflow: .github/workflows/distribute-homebrew.yml
+    workflow: .github/workflows/priv-distribute-homebrew.yml
     enabled_by: repository variable DISTRIBUTE_HOMEBREW=true, variable HOMEBREW_TAP_REPO (e.g. you/homebrew-tools), and secret HOMEBREW_TAP_TOKEN (a token with contents:write on that one repository only)
     what_it_posts: one `Formula/<slug>.rb` per venture CLI already published by npm-cli-packages, in the owner's own tap repository (not homebrew-core). The formula installs the npm tarball and its sha256 is computed from the tarball the registry serves; a package not yet on npm is skipped. At most 10 new formulas per run.
     dedupe: stateless; a formula file already in the tap is never rewritten
@@ -155,7 +155,7 @@ channels:
     rung: artifact
     built: 2026-10-16
     code: platform/distribution/ghcr.mjs
-    workflow: .github/workflows/distribute-ghcr.yml
+    workflow: .github/workflows/priv-distribute-ghcr.yml
     enabled_by: repository variable DISTRIBUTE_GHCR=true (no secret, the job logs in to ghcr.io with its own GITHUB_TOKEN, packages:write)
     what_it_posts: one image `ghcr.io/<owner>/<slug>:0.1.0` per venture CLI that npm-cli-packages can package (FROM node:22-alpine, non-root, OCI source/licence labels linking to this repository). At most 5 new images per run.
     dedupe: stateless; a tag that `docker manifest inspect` finds is never rebuilt
@@ -293,7 +293,7 @@ channels:
     rung: artifact
     built: 2026-10-20
     code: platform/distribution/desktop.mjs
-    workflow: .github/workflows/distribute-desktop.yml (workflow_dispatch only; the build jobs are skipped unless DISTRIBUTE_DESKTOP is true)
+    workflow: .github/workflows/priv-distribute-desktop.yml (workflow_dispatch only; the build jobs are skipped unless DISTRIBUTE_DESKTOP is true)
     enabled_by: repository variable DISTRIBUTE_DESKTOP=true, then a manual run with a venture slug or suite id. No secret is read; signing and notarisation are the owner's steps
     what_it_posts: 'nothing automatically. `desktop.mjs --build <slug|suite> <dir>` writes a Tauri v2 project (dist/ mirroring the site layout, a Rust shell, tauri.conf.json, .ico/.icns/.png icons, winget manifest templates, BUILD.md) for any static venture page the browser-extension packager accepts (1213 of 1285 today), or for a catalogue section as a suite with a launcher page. The CSP has connect-src none, no Tauri capability is granted, and the window loads only bundled pages; other links open in the system browser tagged ?ref=desktop. A manual workflow run builds unsigned .dmg (macOS), .msi/.exe (Windows) and .AppImage/.deb (Linux) on the matching runners and attaches them, SHA256SUMS.txt and filled-in winget manifests to a pre-release.'
     dedupe: one pre-release per run (tag desktop-<target>-<run number>); nothing is overwritten
@@ -310,7 +310,7 @@ channels:
     rung: artifact
     built: 2026-10-20
     code: platform/distribution/hub.mjs (adapter in platform/distribution/hub/adapters.mjs)
-    workflow: .github/workflows/distribute-hub.yml
+    workflow: .github/workflows/priv-distribute-hub.yml
     enabled_by: repository variable DISTRIBUTE_THREADS=true, variable THREADS_USER_ID, secret THREADS_TOKEN (threads_basic + threads_content_publish; add threads_manage_insights to read metrics)
     what_it_posts: one text post per item (new tool or write-up), at most 3 per run, tagged link back, ends "Automated post."
     dedupe: stateless; reads the account's own recent posts and skips any item whose page URL is already there
@@ -325,7 +325,7 @@ channels:
     rung: artifact
     built: 2026-10-20
     code: platform/distribution/hub.mjs (adapter in platform/distribution/hub/adapters.mjs)
-    workflow: .github/workflows/distribute-hub.yml
+    workflow: .github/workflows/priv-distribute-hub.yml
     enabled_by: repository variable DISTRIBUTE_FACEBOOK=true, variable FACEBOOK_PAGE_ID, secret FACEBOOK_PAGE_TOKEN (a Page token with pages_manage_posts for a Page the owner admins)
     what_it_posts: one Page post per item, at most 3 per run, message plus link (tagged), ends "Automated post."
     dedupe: stateless; reads the account's own recent posts and skips any item whose page URL is already there
@@ -339,7 +339,7 @@ channels:
     rung: artifact
     built: 2026-10-20
     code: platform/distribution/hub.mjs (adapter in platform/distribution/hub/adapters.mjs)
-    workflow: .github/workflows/distribute-hub.yml
+    workflow: .github/workflows/priv-distribute-hub.yml
     enabled_by: repository variable DISTRIBUTE_INSTAGRAM=true, variables INSTAGRAM_USER_ID and INSTAGRAM_IMAGE_BASE (a public folder of <slug>.jpg images), secret INSTAGRAM_TOKEN
     what_it_posts: one image post per item that has a JPEG at INSTAGRAM_IMAGE_BASE<slug>.jpg (items without one are skipped), caption from the description, "Link in bio"
     dedupe: stateless; reads the account's own recent posts and skips any item whose page URL is already there
@@ -354,7 +354,7 @@ channels:
     rung: artifact
     built: 2026-10-20
     code: platform/distribution/hub.mjs (adapter in platform/distribution/hub/adapters.mjs)
-    workflow: .github/workflows/distribute-hub.yml
+    workflow: .github/workflows/priv-distribute-hub.yml
     enabled_by: repository variable DISTRIBUTE_EMAIL=true and secret BUTTONDOWN_API_KEY; issues are drafts until EMAIL_SEND=true
     what_it_posts: one weekly digest (Mondays UTC) of the last 7 days of tools and write-ups not in an earlier issue, at most 25 items
     dedupe: stateless; reads the account's own recent posts and skips any item whose page URL is already there
@@ -370,7 +370,7 @@ channels:
     rung: artifact
     built: 2026-10-20
     code: platform/distribution/hub.mjs
-    workflow: .github/workflows/distribute-hub.yml (uploads the drafts pack as a run artifact)
+    workflow: .github/workflows/priv-distribute-hub.yml (uploads the drafts pack as a run artifact)
     enabled_by: nothing; drafts only, never posted automatically
     why_drafts_only: "X API is pay-per-use since 2026-02-06 (no free tier for new developers); the spec forbids paid channels, so drafts for the owner to post by hand"
     what_it_posts: nothing. `hub.mjs pack --out <dir>` writes x.md with paste-ready text whose links carry ?ref=x
@@ -380,7 +380,7 @@ channels:
     rung: artifact
     built: 2026-10-20
     code: platform/distribution/hub.mjs
-    workflow: .github/workflows/distribute-hub.yml (uploads the drafts pack as a run artifact)
+    workflow: .github/workflows/priv-distribute-hub.yml (uploads the drafts pack as a run artifact)
     enabled_by: nothing; drafts only, never posted automatically
     why_drafts_only: "reading own posts back (for de-duplication) and analytics need partner-gated API scopes"
     what_it_posts: nothing. `hub.mjs pack --out <dir>` writes linkedin.md with paste-ready text whose links carry ?ref=linkedin
@@ -390,7 +390,7 @@ channels:
     rung: artifact
     built: 2026-10-20
     code: platform/distribution/hub.mjs
-    workflow: .github/workflows/distribute-hub.yml (uploads the drafts pack as a run artifact)
+    workflow: .github/workflows/priv-distribute-hub.yml (uploads the drafts pack as a run artifact)
     enabled_by: nothing; drafts only, never posted automatically
     why_drafts_only: "Substack has no publishing API; unofficial endpoints may break its terms"
     what_it_posts: nothing. `hub.mjs pack --out <dir>` writes substack.md with paste-ready text whose links carry ?ref=substack
@@ -400,7 +400,7 @@ channels:
     rung: artifact
     built: 2026-10-20
     code: platform/distribution/hub.mjs
-    workflow: .github/workflows/distribute-hub.yml (uploads the drafts pack as a run artifact)
+    workflow: .github/workflows/priv-distribute-hub.yml (uploads the drafts pack as a run artifact)
     enabled_by: nothing; drafts only, never posted automatically
     why_drafts_only: "Medium no longer issues integration tokens; use its 'Import a story', which keeps the canonical link"
     what_it_posts: nothing. `hub.mjs pack --out <dir>` writes medium.md with paste-ready text whose links carry ?ref=medium
@@ -410,7 +410,7 @@ channels:
     rung: artifact
     built: 2026-10-20
     code: platform/distribution/hub.mjs
-    workflow: .github/workflows/distribute-hub.yml (uploads the drafts pack as a run artifact); .github/workflows/distribute-shorts.yml (renders the finished video, platform/distribution/shorts.mjs)
+    workflow: .github/workflows/priv-distribute-hub.yml (uploads the drafts pack as a run artifact); .github/workflows/distribute-shorts.yml (renders the finished video, platform/distribution/shorts.mjs)
     enabled_by: nothing; drafts only, never posted automatically
     why_drafts_only: "unaudited Content Posting API clients can only post privately, and every post needs a video; the hub writes the video script"
     what_it_posts: nothing. `hub.mjs pack --out <dir>` writes tiktok.md with paste-ready text whose links carry ?ref=tiktok; `shorts.mjs render` turns the same item into a captioned 1080x1920 MP4 of the real page with its worked example loaded, plus the upload text
@@ -420,7 +420,7 @@ channels:
     rung: artifact
     built: 2026-10-20
     code: platform/distribution/hub.mjs
-    workflow: .github/workflows/distribute-hub.yml (uploads the drafts pack as a run artifact); .github/workflows/distribute-shorts.yml (renders the finished video, platform/distribution/shorts.mjs)
+    workflow: .github/workflows/priv-distribute-hub.yml (uploads the drafts pack as a run artifact); .github/workflows/distribute-shorts.yml (renders the finished video, platform/distribution/shorts.mjs)
     enabled_by: nothing; drafts only, never posted automatically
     why_drafts_only: "every post needs a video and unverified API projects upload privately; the hub writes title, description and a Short script"
     what_it_posts: nothing. `hub.mjs pack --out <dir>` writes youtube.md with paste-ready text whose links carry ?ref=youtube; `shorts.mjs render` turns the same item into a captioned 1080x1920 MP4 of the real page with its worked example loaded, plus the upload text
@@ -430,7 +430,7 @@ channels:
     rung: artifact
     built: 2026-10-20
     code: platform/distribution/hub.mjs
-    workflow: .github/workflows/distribute-hub.yml (uploads the drafts pack as a run artifact)
+    workflow: .github/workflows/priv-distribute-hub.yml (uploads the drafts pack as a run artifact)
     enabled_by: nothing; drafts only, never posted automatically
     why_drafts_only: "most subreddits forbid automated or self-promotional posts; owner posts by hand after reading the subreddit rules"
     what_it_posts: nothing. `hub.mjs pack --out <dir>` writes reddit.md with paste-ready text whose links carry ?ref=reddit
@@ -440,7 +440,7 @@ channels:
     rung: artifact
     built: 2026-10-20
     code: platform/distribution/hub.mjs
-    workflow: .github/workflows/distribute-hub.yml (uploads the drafts pack as a run artifact)
+    workflow: .github/workflows/priv-distribute-hub.yml (uploads the drafts pack as a run artifact)
     enabled_by: nothing; drafts only, never posted automatically
     why_drafts_only: "Hacker News forbids automated submissions; Show HN title and URL for the owner"
     what_it_posts: nothing. `hub.mjs pack --out <dir>` writes hackernews.md with paste-ready text whose links carry ?ref=hn

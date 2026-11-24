@@ -62,9 +62,9 @@ jobs:
       # shipped, the scan reported three genuine defects in this repository's
       # own deploy workflows, so gating on it would have made an unrelated
       # repair a prerequisite for every future change here. Those three are
-      # fixed (`ai-first-markets-deploy.yml` had no concurrency group,
-      # `retail-pilot-intel-deploy-docs.yml` deployed `github-pages` under a
-      # different group name from `portfolio-pages.yml`, and the photo-app docs
+      # fixed (`priv-ai-first-markets-deploy.yml` had no concurrency group,
+      # `priv-retail-pilot-intel-deploy-docs.yml` deployed `github-pages` under a
+      # different group name from `priv-portfolio-pages.yml`, and the photo-app docs
       # deploy cancelled in progress), the scan now reports no deployment race
       # across 363 files, and the flag keeps it that way.
       #

@@ -1,0 +1,265 @@
+{
+ "date": "2026-11-24",
+ "subject": "ventures/meta-ads-fatigue-analyzer",
+ "stratum": "venture",
+ "seed": "2026-11-24-f941",
+ "drawn_by": "reaudit",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "prior_audit": "portfolio/quality/audits/2026-11-13-meta-ads-fatigue-analyzer.json",
+ "professional": "a senior paid-social media buyer who manages Meta campaigns for DTC brands; they check first that frequency, link CTR, cost per result and ROAS match Ads Manager's definitions, that a fatigue call follows the practitioner diagnosis (the same ad's CTR falling and CPM/CPA rising over time, judged within comparable campaign types), and that a real export (period or daily, any locale) is read correctly",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Scores are on arrival (before this PR's fix). Re-ran the standard path: `node dump.mjs` on the tool's own sample vs `python3 -I indep.py sample.csv` (csv module, Meta definitions: frequency = impressions/reach, link CTR = link clicks/impressions, CPA = spend/results, ROAS = value/spend); all 13 ads match to 4 dp (reported Frequency column vs impr/reach agrees to rounding, e.g. 5.2000 vs 5.2001), totals 5,923.78 / 232, median CTR 1.0618%, median CPA 46.79, clicks needed 79, the same 4 ads flagged. A tab-delimited decimal-comma file (eu.tsv) now reads 512,40 as 512.40 and 1.234,50 as 1234.50, frequency 1,26 as 1.26 (closed by PR #15600's detectDecimalComma). Capped at 2 on arrival because the realistic 28-day daily export (per-day frequency 1.18, CTR 2.0% -> 0.9%) still left the decaying ad unflagged: the new test in calc.test.mjs run against the arrival calc.mjs (`git stash -- calc.mjs; node --test '*.test.mjs'`) gives 33 pass, 1 fail. After this PR the same file flags it: trend early 0.018333 (hand: clicks 40+39+38+38+37+36+35+34+33 = 330 over 18,000 impressions), late 0.010667, change -41.8%.",
+  "completeness": "Of the 11 claimed features, the one that did not work end to end in the prior audit (daily-export CTR-trend fatigue) still did not on arrival; tab + decimal comma now works. Served page https://marisstella.app/meta-ads-fatigue-analyzer/ not re-fetched this round (prior audit: 200, calc.mjs byte-identical). About 10 of 11 work; 3.",
+  "verification": "`node --test '*.test.mjs'` on arrival: 33/33 pass. The four threshold mutants that survived on 2026-11-13 (freq >= -> >, CTR 0.8 -> 0.6, CPA 1.25 -> 2, trend -0.25 -> -0.5) are now all caught (quality_mutate.py rows below). Two mutants on this PR's new code (ungated trend -0.25 -> -0.5, period-frequency bound maxReach -> reach) are caught by the new test. 6 of 6 caught: 3.",
+  "craft": "Read calc.mjs (aggregateAds, trendOf, analyze), index.html script, calc.test.mjs. Still: `ignored` returned but never incremented (calc.mjs:161,196); `clicks` alias falls back to bare 'clicks' (calc.mjs:14), so 'Clicks (all)' is taken as link clicks; the matched CTR column is never read. Pure, escaped, readable; 3 as before.",
+  "claims": "On arrival: the tab/semicolon decimal-comma claim (index.html:62) is now backed (eu.tsv run). Still unbacked: the daily CTR-trend signal described in the FAQ, model section and README could not fire on a realistic daily export (README 'Known gaps' said so, the page did not); the page did not say that column names are from memory and unchecked against a real export (README:28, VENTURE.yaml:44 do). This PR fixes both (page text, model section, README, test asserting the disclosure). 2 on arrival.",
+  "fitness": "The buyer's period-export triage works. On arrival the buyer who adds a Day breakdown (the classic fatigue check) still got no flags; retargeting still dominates pooled-median flags; no CPM. 2.",
+  "domain": "Unchanged method on arrival: pooled cross-sectional medians across campaign types (calc.mjs:279-280), no CPM, uncited thresholds (now labelled rules of thumb in README). After this PR the time-based signal on daily exports follows the practitioner diagnosis (the same ad's CTR decline over its own days) without a frequency gate the data cannot reach, and states the honest upper bound on period frequency. Segmentation and CPM remain open. 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "per-ad frequency, CTR, CPA, ROAS for all 13 sample ads",
+   "method": "Meta definitions recomputed in Python csv, independent of calc.mjs",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/df41d671-2d63-54c9-860e-ed0b58afdfd1/scratchpad/meta && node dump.mjs && python3 -I indep.py sample.csv",
+   "expected": "Testimonial reel 4.6 / 0.5641% / 195.54 / 0.3273",
+   "observed": "identical for all 13 to 4 dp",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "account totals, medians over ads with >= 1,000 impressions, clicks needed",
+   "method": "hand arithmetic in Python; smallest n with (1-p)^n < 0.05, p = 232/clicks",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/df41d671-2d63-54c9-860e-ed0b58afdfd1/scratchpad/meta && python3 -I indep.py sample.csv",
+   "expected": "5923.78, 232, 1.0618%, 46.79, 79",
+   "observed": "5923.78, 232, 1.0618%, 46.79, 79",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "tab-delimited export with decimal commas",
+   "method": "by hand: 512,40 = 512.40; 1.234,50 = 1234.50; 1,26 = 1.26",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/df41d671-2d63-54c9-860e-ed0b58afdfd1/scratchpad/meta && node dump.mjs eu.tsv",
+   "expected": "spend 512.40 / 1234.50, freq 1.26",
+   "observed": "512.40 / 1234.50, freq 1.26",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "realistic 28-day daily export, per-day frequency 1.18, one ad's CTR 2.0% -> 0.9%, on arrival code",
+   "method": "Meta: frequency in a Day breakdown is per-day reach; performance falling as exposure accumulates = fatigue",
+   "command": "cd ventures/meta-ads-fatigue-analyzer && git stash -- calc.mjs && node --test '*.test.mjs'; git stash pop",
+   "expected": "decaying ad flagged",
+   "observed": "not flagged (new test fails: 33 pass, 1 fail)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "daily trend figures after the fix, recomputed by hand",
+   "method": "first 9 days' clicks summed by hand: 330 / 18,000",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/df41d671-2d63-54c9-860e-ed0b58afdfd1/scratchpad/meta && node dump.mjs daily.csv",
+   "expected": "early CTR 1.8333%, change about -42%, flagged",
+   "observed": "early 0.018333, late 0.010667, change -0.418, flagged",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite on arrival",
+   "method": "run",
+   "command": "cd ventures/meta-ads-fatigue-analyzer && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "33/33",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "the four previously surviving threshold mutants",
+   "method": "quality_mutate.py",
+   "command": "python3 platform/ci/quality_mutate.py ventures/meta-ads-fatigue-analyzer/calc.mjs --old 'a.ctr < 0.8 * medCtr' --new 'a.ctr < 0.6 * medCtr' -- node --test '*.test.mjs'",
+   "expected": "caught",
+   "observed": "all 4 caught",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'comma, tab or semicolon files' with thousands separators (index.html:62)",
+   "method": "eu.tsv run",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/df41d671-2d63-54c9-860e-ed0b58afdfd1/scratchpad/meta && node dump.mjs eu.tsv",
+   "expected": "read in either number locale",
+   "observed": "read correctly",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "daily CTR-trend fatigue signal (FAQ, model section, README)",
+   "method": "realistic daily export on arrival code",
+   "command": "cd ventures/meta-ads-fatigue-analyzer && git stash -- calc.mjs && node --test '*.test.mjs'; git stash pop",
+   "expected": "signal can fire",
+   "observed": "never fires on arrival; fires after this PR",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "page discloses that column names are unverified",
+   "method": "grep index.html vs README:28 and VENTURE.yaml:44",
+   "command": "grep -n -i 'memory' ventures/meta-ads-fatigue-analyzer/index.html",
+   "expected": "disclosed",
+   "observed": "absent on arrival; added in this PR with a test",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "fatigue method vs practitioner diagnosis",
+   "method": "per-ad time trend, segmented by campaign type, with CPM",
+   "command": "grep -n 'medCtr\\|medCpa\\|cpm' ventures/meta-ads-fatigue-analyzer/calc.mjs",
+   "expected": "segmented medians, CPM",
+   "observed": "pooled medians, no CPM column",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:280",
+   "change": "a.freq >= freqThreshold) { -> a.freq > freqThreshold) {",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:281",
+   "change": "a.ctr < 0.8 * medCtr -> a.ctr < 0.6 * medCtr",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:282",
+   "change": "a.cpa > 1.25 * medCpa -> a.cpa > 2 * medCpa",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:284",
+   "change": "a.trend.change <= -0.25 -> a.trend.change <= -0.5",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:297",
+   "change": "(new code) ungated daily trend -0.25 -> -0.5",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:239",
+   "change": "(new code) a.impr / a.maxReach -> a.impr / a.reach",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "prior_defects": [
+  {
+   "index": 0,
+   "severity": "high",
+   "basis": "assumed",
+   "status": "open",
+   "what": "daily export per-day frequency never reaches the gate, CTR-trend signal never fires; PR #15600 only documented it in README Known gaps",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18730"
+  },
+  {
+   "index": 1,
+   "severity": "medium",
+   "basis": "assumed",
+   "status": "closed",
+   "what": "tab + decimal comma misread 100x: detectDecimalComma now sniffs tab files (calc.mjs:67, tested)"
+  },
+  {
+   "index": 2,
+   "severity": "medium",
+   "basis": "assumed",
+   "status": "open",
+   "what": "pooled medians across prospecting and retargeting; no CPM (documented in README Known gaps only)"
+  },
+  {
+   "index": 3,
+   "severity": "medium",
+   "basis": "assumed",
+   "status": "closed",
+   "what": "4 threshold mutants survived: all 4 now caught by boundary tests"
+  },
+  {
+   "index": 4,
+   "severity": "low",
+   "basis": "assumed",
+   "status": "partial",
+   "what": "thresholds uncited: README now calls them rules of thumb; still unsourced"
+  },
+  {
+   "index": 5,
+   "severity": "low",
+   "basis": "assumed",
+   "status": "partial",
+   "what": "tab/decimal-comma claim now true; page still lacked the unverified-columns disclosure",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18730"
+  },
+  {
+   "index": 6,
+   "severity": "low",
+   "basis": "assumed",
+   "status": "open",
+   "what": "bare 'clicks' alias, CTR column unread, `ignored` never incremented: unchanged"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "On arrival, a realistic daily export (per-day frequency ~1.2) still never triggered the CTR-trend fatigue signal, because it is gated on frequency >= 3; the fix PR only documented it.",
+   "where": "ventures/meta-ads-fatigue-analyzer/calc.mjs:280",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18730"
+  },
+  {
+   "severity": "medium",
+   "what": "Fatigue compares ads with one median pooled across campaign types, so retargeting dominates flags; CPM is not computed.",
+   "where": "ventures/meta-ads-fatigue-analyzer/calc.mjs:279",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Page did not disclose (as README and VENTURE.yaml do) that column names are from memory and unchecked against a real export.",
+   "where": "ventures/meta-ads-fatigue-analyzer/index.html:62",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18730"
+  },
+  {
+   "severity": "low",
+   "what": "Thresholds (3, 0.8x, 1.25x, -25%) remain unsourced rules of thumb.",
+   "where": "ventures/meta-ads-fatigue-analyzer/calc.mjs:259",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "`clicks` alias falls back to bare 'clicks' (Clicks (all) taken as link clicks); matched CTR column never read; `ignored` never incremented.",
+   "where": "ventures/meta-ads-fatigue-analyzer/calc.mjs:14",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15600",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/18730"
+ ],
+ "verdict": "Of the seven defects the 2026-11-13 audit counted fixed by PR #15600, two were closed (tab-file decimal commas, the four surviving threshold mutants), two were partly addressed, and three were open, including the only high one: PR #15600 wrote the daily-frequency defect into the README instead of fixing it. The standard-path arithmetic still matches Meta's definitions on all 13 sample ads, and all six seeded mutants are now caught. On arrival it does not meet the bar: correctness and claims are 2 because the advertised daily CTR-trend signal could not fire on a real daily export. This PR fixes that (daily exports flag a CTR fall on its own, with the upper bound on period frequency stated) and adds the page's missing unverified-columns disclosure; scores are not raised for those fixes. Pooled medians and missing CPM remain the main domain gap."
+}

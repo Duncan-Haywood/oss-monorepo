@@ -40,7 +40,7 @@ permissions:
 
 jobs:
   auto-merge:
-    # Off until the owner sets AGENT_REVIEW_ENABLED (see agent-cross-review.yml):
+    # Off until the owner sets AGENT_REVIEW_ENABLED (see priv-agent-cross-review.yml):
     # with no reviewer App there are no allowed approvers, so every run on
     # 2026-10-30 ended "0 allowed approver(s)" and merged nothing.
     if: >-

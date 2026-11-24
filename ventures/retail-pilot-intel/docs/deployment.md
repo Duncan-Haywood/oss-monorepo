@@ -35,7 +35,7 @@ The docs are a free-plan Cloudflare Worker of their own, `retail-pilot-intel-doc
 `apps/docs/dist` as static files (`apps/docs/wrangler.toml`; headers in `apps/docs/public/_headers`).
 Address: `https://retail-pilot-intel-docs.<account subdomain>.workers.dev/`.
 
-CI job `deploy-cloudflare` in `.github/workflows/retail-pilot-intel-deploy-docs.yml` publishes it on
+CI job `deploy-cloudflare` in `.github/workflows/priv-retail-pilot-intel-deploy-docs.yml` publishes it on
 a manual run, or on every docs push once the repository variable `RETAIL_PILOT_INTEL_DOCS_CLOUDFLARE`
 is `true`. It uses the `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` secrets the portfolio site
 already uses. Optional: `DOCS_SITE_URL` for canonical meta, and Cloudflare Access on the workers.dev
