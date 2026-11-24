@@ -319,6 +319,7 @@ export function conformance(text, schemas, { rules = null } = {}) {
     findings.push(...w.findings);
     whereStats = w.stats;
   }
+  const elementRules = whereStats ? ruleLinks(E, S, findings) : null;
 
   const groups = new Map();
   for (const f of findings) {
@@ -327,7 +328,73 @@ export function conformance(text, schemas, { rules = null } = {}) {
     if (g) g.count++;
     else groups.set(key, { code: f.code, type: f.type, attr: f.attr, count: 1, first: f.id, message: f.message });
   }
-  return { schema: raw, records, findings, groups: [...groups.values()], whereStats };
+  return { schema: raw, records, findings, groups: [...groups.values()], whereStats, elementRules };
+}
+
+// The WHERE rules an IDS facet leans on, tied to the element they change the
+// answer for (NEXT.md, "An IDS-side cross-reference"): the element's own
+// PredefinedType and type rules, its type object's PredefinedType rule, two
+// property sets of one name on it or on its type, and a set defining it that
+// names one property twice. Seeded per family in eval/where-rules-seeded-2026-11-24.md.
+const IDS_RULES = {
+  CorrectPredefinedType: "PredefinedType is USERDEFINED with no name for it, so a predefinedType facet's answer depends on the tool",
+  CorrectTypeAssigned: "its type is another class's type, so the properties it inherits are not its own class's",
+  UniquePropertySetNames: "two property sets of one name, so a property facet may read either",
+  UniquePropertyNames: "one property named twice in a set, so a property facet may read either value",
+};
+const ruleLabel = (attr) => { const l = String(attr || "").split(".").pop(); return l === "WR32" ? "UniquePropertyNames" : l; };
+function ruleLinks(E, S, findings) {
+  const byRecord = new Map();
+  for (const f of findings) {
+    if (f.code !== "where-rule" || f.id === null) continue;
+    let label = ruleLabel(f.attr);
+    // IFC2X3 names the duplicate-property rule IfcPropertySet.WR32.
+    if (label === "UniquePropertyNames" && !/PROPERTYSET\./i.test(f.attr)) continue;
+    if (!IDS_RULES[label]) continue;
+    if (!byRecord.has(f.id)) byRecord.set(f.id, []);
+    byRecord.get(f.id).push({ rule: f.attr, why: IDS_RULES[label] });
+  }
+  const out = new Map();
+  if (!byRecord.size) return out;
+  const put = (el, note) => { if (!out.has(el)) out.set(el, []); const l = out.get(el); if (!l.some((x) => x.rule === note.rule && x.via === note.via)) l.push(note); };
+  for (const [id, l] of byRecord) for (const n of l) put(id, n);
+  const refs = (v) => (Array.isArray(v) ? v.flatMap(refs) : v && typeof v === "object" && "ref" in v ? [v.ref] : []);
+  const at = (r, name) => { const i = S.attrs(r.type).index.get(name); return i === undefined ? undefined : r.args[i]; };
+  const typePsets = new Map(); // pset id -> type ids holding it
+  for (const r of E.values()) {
+    if (!S.has(r.type)) continue;
+    if (S.isA(r.type, "IFCTYPEOBJECT")) for (const ps of refs(at(r, "HasPropertySets"))) { if (!typePsets.has(ps)) typePsets.set(ps, []); typePsets.get(ps).push(r.id); }
+  }
+  const via = (rec, what) => `${what} #${rec.id} ${rec.type}`;
+  for (const r of E.values()) {
+    if (!S.has(r.type)) continue;
+    if (S.isA(r.type, "IFCRELDEFINESBYTYPE")) {
+      const t = refs(at(r, "RelatingType"))[0];
+      const notes = byRecord.get(t);
+      if (notes) for (const o of refs(at(r, "RelatedObjects"))) for (const n of notes) put(o, { ...n, via: via(E.get(t), "its type") });
+      const tr = E.get(t);
+      // A pset on the type that names a property twice reaches its occurrences too.
+      if (tr) for (const ps of refs(at(tr, "HasPropertySets"))) for (const n of byRecord.get(ps) || []) for (const o of refs(at(r, "RelatedObjects"))) put(o, { ...n, via: via(E.get(ps), "its type's property set") });
+    } else if (S.isA(r.type, "IFCRELDEFINESBYPROPERTIES")) {
+      for (const ps of refs(at(r, "RelatingPropertyDefinition"))) for (const n of byRecord.get(ps) || []) for (const o of refs(at(r, "RelatedObjects"))) put(o, { ...n, via: via(E.get(ps), "its property set") });
+    }
+  }
+  return out;
+}
+
+// Adds to each failing row of a checkIds() report the WHERE rules the model
+// itself breaks on that element (ruleLinks above), as modelRules: strings.
+export function markModelRules(report, conf) {
+  const m = conf && conf.elementRules;
+  if (!m || !m.size) return 0;
+  let n = 0;
+  for (const s of report.specs || []) for (const f of s.failed || []) {
+    const l = m.get(f.id);
+    if (!l) continue;
+    f.modelRules = l.map((x) => `the model breaks ${x.rule}${x.via ? ` on ${x.via}` : ""}: ${x.why}`);
+    n++;
+  }
+  return n;
 }
 
 function recordText(text, rid) {

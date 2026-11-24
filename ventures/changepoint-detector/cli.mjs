@@ -79,7 +79,7 @@ Options:
   --drift-noise ml|lags     with --model drift: how the wander is sized. ml (default) chooses it together with the changes, so one big step is not absorbed as wander; lags is the earlier estimate from lag differences alone
   --joint-ar1               with --columns and the level model: each column's sd raised to its AR(1) long-run sd
   --no-agreed               with the level model: skip the six-setting panel that leads the text output with the changes every setting agrees on (runs on worker threads; skipped anyway above 10000 points)
-  --turns                   date peaks and troughs (business-cycle style) by Bry-Boschan's rule on the logged series; with --columns a,b,c, on a composite index of those columns (Conference Board method), which on FRED's four coincident indicators dated all 16 NBER turns 1967-2026 within 3 months; takes --frequency monthly|quarterly (default monthly), --big-move <log move>|off (monthly default 0.05: keep a phase shorter than 6 months that moves that much, such as 2020) and --sd-until <label> (measure each column's volatility only up to that row, so one wild stretch does not set the weights); a monthly composite warns when its heaviest column is also its latest and dates the composite without it too
+  --turns                   date peaks and troughs (business-cycle style) by Bry-Boschan's rule on the logged series; with --columns a,b,c, on a composite index of those columns (Conference Board method), which on FRED's four coincident indicators dated all 16 NBER turns 1967-2026 within 3 months; takes --frequency monthly|quarterly (default monthly), --big-move <log move>|off (monthly default 0.05: keep a phase shorter than 6 months that moves that much, such as 2020) and --sd-until <label> (measure each column's volatility only up to that row, so one wild stretch does not set the weights); a monthly composite uses phases of at least 3 months (one column: 6), and --min-phase N sets it (6 restores the old composite rule); a monthly composite warns when its heaviest column is also its latest and dates the composite without it too
   --json                    print the full result as JSON
   -h, --help                this help
 
@@ -98,7 +98,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   let json = false;
   let example = false;
   let agreed = true;
-  const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold', '--period': 'period', '--knot-margin': 'knotMargin', '--holidays': 'holidays', '--known-date': 'knownDate', '--donors': 'donors', '--covariates': 'covariates', '--window': 'window', '--anticipation': 'anticipation', '--shape-word': 'shapeWord', '--events': 'events', '--event-slack': 'eventSlack', '--frequency': 'frequency', '--big-move': 'bigMove', '--sd-until': 'sdUntil' };
+  const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold', '--period': 'period', '--knot-margin': 'knotMargin', '--holidays': 'holidays', '--known-date': 'knownDate', '--donors': 'donors', '--covariates': 'covariates', '--window': 'window', '--anticipation': 'anticipation', '--shape-word': 'shapeWord', '--events': 'events', '--event-slack': 'eventSlack', '--frequency': 'frequency', '--big-move': 'bigMove', '--sd-until': 'sdUntil', '--min-phase': 'minPhase' };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '-h' || a === '--help') { out(USAGE + '\n'); return 0; }
@@ -169,10 +169,10 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     }
   }
   if (typeof opt.holidays === 'string') opt.holidays = opt.holidays.split(',').map((h) => h.trim()).filter(Boolean);
-  if (opt.frequency != null || opt.bigMove != null || opt.sdUntil != null) { if (!opt.turns) throw new Error('--frequency, --big-move and --sd-until go with --turns.'); }
+  if (opt.frequency != null || opt.bigMove != null || opt.sdUntil != null || opt.minPhase != null) { if (!opt.turns) throw new Error('--frequency, --big-move, --sd-until and --min-phase go with --turns.'); }
   if (opt.turns) {
     const { turnsResult, turnsText } = await import('./turns-cli.mjs');
-    const r = turnsResult({ csv: example ? NILE_CSV : opt.csv, column: opt.column, columns: opt.columns, labelColumn: opt.labelColumn, frequency: opt.frequency ?? 'monthly', bigMove: opt.bigMove, sdUntil: opt.sdUntil });
+    const r = turnsResult({ csv: example ? NILE_CSV : opt.csv, column: opt.column, columns: opt.columns, labelColumn: opt.labelColumn, frequency: opt.frequency ?? 'monthly', bigMove: opt.bigMove, sdUntil: opt.sdUntil, minPhase: opt.minPhase });
     out((json ? JSON.stringify(r, null, 2) : turnsText(r)) + '\n');
     return 0;
   }

@@ -10531,6 +10531,7 @@ the page's FRED example it stays quiet.
 Next, if this line continues: the warning on a real company's monthly lines (needs outside data), or P3 and the
 warning together on a fifth make, pre-registered.
 
+<<<<<<< HEAD
 ## Turns called in pseudo-real time (2026-11-24, pre-registered; R1 and R2 fail, R3 and R4 pass, nothing ships)
 
 The open item from "A composite of NBER's monthly indicators dates every turn": how many months after a turn the
@@ -10579,3 +10580,48 @@ done on the numbers people saw at the time. As the header said, a bar failed, so
 on the CLI or page. Next, if this line continues: real vintages (ALFRED) when its host answers, and a pre-registered
 round on how `--sd-until` should be set in real time (a fixed calm window, or volatility that leaves out the
 largest moves) with this replay as the test.
+=======
+## P3 and the heavy-late warning together (2026-11-24, pre-registered; J1-J5 pass, a monthly composite now uses 3-month phases)
+
+The item above: P3 (minimum phase 3 months instead of 6) beat the shipped composite rule on three makes but never
+shipped, and the heaviest-is-latest warning shipped on the 6-month rule. This round asks whether the two together
+beat what ships now, the 6-month rule with the warning followed (SW), when the warning, its remedy and the main
+dates all use P3 (PW). Fifth make, fresh seed: a freight carrier's load tenders (lead 2, noisy), loaded miles (on
+time), invoiced revenue (lag 1) and drivers employed (smooth, weight-heavy, lag drawn from -1 to +5 months each
+draw), contractions of 4-12 months. Rules and bars are in the header of `eval/turns-p3-warning.mjs`, committed before
+it first ran (commit "pre-register the P3-with-warning freight round"); output `eval/turns-p3-warning.out.txt`
+(1.3 s); test `turns-p3-warning.test.mjs`. 500 draws, seed 20261128. Known beforehand, and the header says so: P3
+alone beat the 6-month rule on the shop, SaaS and agency draws and dated FRED's 16 of 16 with 2 false.
+
+| bar (freight make, 144 months, typical noise) | result | |
+|---|---|---|
+| J1 PW beats SW by >= +0.02 F1, more wins, sign test p <= 0.05 | 0.914 vs 0.882, +0.032, wins 93, losses 16, p 2e-14 | **passes** |
+| J2 PW false turns a draw <= SW's + 0.10 | 0.404 vs 0.376 | **passes** |
+| J3 no loss on the guard makes (PW >= SW) | maker 0.938 vs 0.915; shop 0.967 vs 0.941; SaaS 0.942 vs 0.887; agency 0.918 vs 0.902 | **passes** |
+| J4 FRED composite: PW dates NBER's 16 of 16 with at most 2 false | 16 of 16, 2 false (peak 2002-11, trough 2003-04); warning quiet | **passes** |
+| J5 the warning under P3 fires in >= 50% of draws with drivers lag >= 3, <= 20% with lag <= 1 | 94% and 7% | **passes** |
+
+What it shows:
+
+- **The two fixes add up.** P3 rescues short contractions (misses fall from 1.18 to 0.79 a draw) and the warning
+  takes the late heavy line out where it fires; together they score 0.914, level with the best single line picked
+  with hindsight (0.914) and ahead of the advance pick (0.857). On every guard make PW wins 3 to 11 times as many
+  draws as it loses (+0.016 to +0.055).
+- **It holds off the main setting:** half and double noise +0.037 and +0.031, 96 and 240 months +0.038 and +0.029.
+- **The warning reads about the same under P3** as under the 6-month rule (fire rate 2% at lag -1, 18% at lag 1, 62%
+  at 2, 87-97% at 3-5), so its shipped thresholds carry over.
+- **Costs:** a few more false turns (+0.03 a draw here, +0.05 on SaaS, +0.06 on the agency make, +0.21 at double
+  noise), and on FRED the soft patch after the 2001 recession now shows as a short contraction that NBER did not date.
+
+What ships, as the header said: monthly `--turns --columns` uses 3-month phases by default (the main dates, the
+warning and its remedy); `--min-phase N` sets the minimum phase for any `--turns` run (6 restores the old composite
+rule; whole numbers 1-24); the page's "Peaks and troughs" card has a "Shortest phase" box (blank = automatic). One
+column keeps 6 months, because P3 was never tested on a single line, and quarterly data keep BBQ's 2 quarters. The
+text and `--json` (`minPhase`) say which minimum was used. The page's FRED example now dates 18 turns: NBER's 16 and
+the 2002-11 / 2003-04 pair (16 with the box at 6, `turns-page.test.mjs`). Checked in Chromium (Playwright): the
+example renders, 6 in the box gives the old 16, 0 shows the error, no console errors, no horizontal scroll at 390 px.
+
+Read it for what it is: five simulated makes, chosen before each run, not a real company's lines. Next, if this line
+continues: P3 on a single line (a pre-registered round on one-column business series, with NBER's payrolls as the
+guard), or the composite on a real company's monthly lines (needs outside data).
+>>>>>>> origin/main

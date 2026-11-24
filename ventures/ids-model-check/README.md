@@ -598,6 +598,27 @@ with one systematic fault gives one line:
   a wall whose PredefinedType is USERDEFINED with no ObjectType (where a
   predefinedType facet then looks), a wall typed by a door type, two property
   sets or two properties of one name. `--no-rules` skips them on the CLI.
+- **In the IDS rows themselves** (2026-11-24, `markModelRules` in
+  `conformance.mjs`): when an element fails a specification and the model
+  also breaks one of those four rules on it, its type, a property set
+  defining it or its type's property set, the failing row says so in a note
+  ("the model breaks IfcWall.CorrectPredefinedType: PredefinedType is
+  USERDEFINED with no name for it, so a predefinedType facet's answer depends
+  on the tool"). On the page, in the CLI text, CSV and HTML reports. In the
+  public files, 3,261 elements would carry such a note, almost all from
+  ISSUE_102's IFC2X3 export that names properties twice; 81 are the bridge
+  members typed by proxy types (`eval/where-rules-seeded-2026-11-24.md`).
+- **Seeded faults** (2026-11-24, `eval/where-rules-seeded.mjs`): eight fault
+  families an IDS check cares about (USERDEFINED with nothing naming it, an
+  occurrence typed by another class's type, two property sets of one name,
+  one property named twice, a negative quantity, a negative positive length,
+  a 3D direction or point in a 2D placement), written into 24 public files from
+  ARCHICAD, Revit, Tekla, SketchUp and others across IFC2X3, IFC4 and IFC4X3:
+  358 seeds, each rule firing on exactly the seeded record and nowhere else,
+  and no finding of the original lost. `ifcopenshell.validate` 0.9.0 agrees on
+  every seeded copy it opens (332 of 332 seeds, the same new failures on all
+  109; the other 26 are in the IFC4X2 and IFC4X3_RC2 files it refuses).
+  `where-rules-seeded.test.mjs` keeps every family on the bundled sample.
 - **Where it shows:** `node cli.mjs --conformance MODEL.ifc [--json]` (exit 1 on
   any fault, with the outside-schema notes and duplicate GlobalIds). It is also
   a model warning in every check of a STEP file up to 40 MB, on the page (a

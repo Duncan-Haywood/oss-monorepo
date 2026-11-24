@@ -1972,6 +1972,13 @@ Bayer raws with no NoiseProfile. `--noise-read ship` gives the old bytes. The dr
 assumes, so the real-noise phone bursts' +0.08 / +0.12 dB is the better guide to the size.
 `eval/camera-drawn-mpcws-2026-11-23.md`.
 
+**X-Trans stays on Chen's read (2026-11-24).** The same drawn-noise check on two Fujifilm X-Trans raws no noise
+read had been scored on (darktable's test folder), with the rule committed first. `mpcws` with the X-Trans colour
+ramp gains +0.41 dB luma and +0.12 colour on average, but loses 0.10 to 0.15 dB of colour on three rows where the
+oracle does not and adds a loser to directional, so it fails and `shootflow develop` on X-Trans is unchanged. With
+Bayer's colour ramp the same read passes three of the four tests (+0.29 colour) and fails the last on two test-chart
+rows at the lowest SNR; that form is the candidate for a larger, blind X-Trans set. `eval/xtrans-drawn-mpcws-2026-11-24.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,

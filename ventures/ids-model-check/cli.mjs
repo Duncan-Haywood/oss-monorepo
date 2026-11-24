@@ -348,8 +348,10 @@ if (flag("--cobie") && files.length === 1) {
     // Schema faults the check reads past (conformance.mjs), as on the page:
     // STEP files up to 40 MB.
     if (report.format === "STEP" && !layers.length && model.bytes.length <= 40e6 && !flag("--no-conformance")) {
-      const { conformance, conformanceSummary } = await import("./conformance.mjs");
-      try { report.conformance = conformanceSummary(conformance(model.bytes, resources().schemas, { rules: resources().rules })); } catch (e) { report.conformance = { error: e.message }; }
+      const { conformance, conformanceSummary, markModelRules } = await import("./conformance.mjs");
+      // A failing row whose element also breaks a WHERE rule an IDS facet
+      // leans on says so (modelRules; eval/where-rules-seeded-2026-11-24.md).
+      try { const conf = conformance(model.bytes, resources().schemas, { rules: resources().rules }); markModelRules(report, conf); report.conformance = conformanceSummary(conf); } catch (e) { report.conformance = { error: e.message }; }
     }
     report.seconds = (Date.now() - t0) / 1000;
   } catch (e) {

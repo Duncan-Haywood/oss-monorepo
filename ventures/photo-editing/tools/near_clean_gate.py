@@ -71,6 +71,17 @@ def arms(c, pat, b, d, model, ks, eigs=(), reads: dict | None = None, option: bo
         if reads is not None:
             reads["opt"] = round(float(max(noise[0] * 0.18 + noise[1], 0.0) ** 0.5), 6)
             reads["opt_fell_back"] = bool(fell_back)
+        if cfa == 6:
+            # On X-Trans ``opt`` is exactly what ships. ``xopt``/``xoptr``: ``mpcws`` with the collapse fallback and
+            # the X-Trans ramp / ``MPCWS_COLOUR_RAMP`` (eval/xtrans-drawn-mpcws-2026-11-24.md), the CFA's lift.
+            for arm, form in (("xopt", "own"), ("xoptr", "ramp")):
+                noise, cramp, fell_back = xd.frame_noise_read(c, pat, "mpcws", xtrans=form)
+                cramp = cramp or ramp
+                q = xd.frame_measures(c, pat, b, d, noise=noise, blocks=True)["q_blocks"]
+                out[arm] = xd.blend(b, d, q if k is None else xd.lift_near_detail(q, k), cramp[0], cramp[1], luma_ramp=luma)
+                if reads is not None:
+                    reads[arm] = round(float(max(noise[0] * 0.18 + noise[1], 0.0) ** 0.5), 6)
+                    reads[arm + "_fell_back"] = bool(fell_back)
     return out
 
 
@@ -476,20 +487,24 @@ def drawn(argv) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("rows", nargs="+")
     ap.add_argument("--all-truths", action="store_true", help="also score rows whose truth is noisier than the noise added")
+    ap.add_argument("--xtrans", action="store_true", help="X-Trans rows (eval/xtrans-drawn-mpcws-2026-11-24.md): arm xopt "
+                    "against ship and the oracle true (X-Trans ships no lift)")
+    ap.add_argument("--arm", help="the arm judged (default opt, or xopt with --xtrans)")
     args = ap.parse_args(argv)
-    rows = [r for r in load(args.rows, clean_truths=not args.all_truths) if "opt" in r["cpsnr"]]
-    arm, base, orc = "opt", "ship+12", "true+12"
+    arm, base, orc = ("xopt", "ship", "true") if args.xtrans else ("opt", "ship+12", "true+12")
+    arm = args.arm or arm
+    rows = [r for r in load(args.rows, clean_truths=not args.all_truths) if arm in r["cpsnr"]]
     dl, dc = g(rows, "l", arm, base), g(rows, "c", arm, base)
     cells = defaultdict(list)
     for i, r in enumerate(rows):
         cells[(r["snr"], r["scenario"])].append(i)
-    print(f"{len(rows)} rows, {len({r['file'] for r in rows})} files; opt fell back on "
-          f"{sum(1 for r in rows if r['sigma18'].get('opt_fell_back'))}")
+    print(f"{len(rows)} rows, {len({r['file'] for r in rows})} files; {arm} fell back on "
+          f"{sum(1 for r in rows if r['sigma18'].get(arm + '_fell_back'))}")
     table_arms(rows, [base, arm, orc])
     worst_cell = min((float(min(dl[ix].mean(), dc[ix].mean())), key) for key, ix in cells.items())
     for key in sorted(cells):
         ix = cells[key]
-        print(f"   SNR {key[0]:>5g} {key[1]:5s} n={len(ix):4d}  opt - ship: luma {dl[ix].mean():+.4f}  colour {dc[ix].mean():+.4f}")
+        print(f"   SNR {key[0]:>5g} {key[1]:5s} n={len(ix):4d}  {arm} - {base}: luma {dl[ix].mean():+.4f}  colour {dc[ix].mean():+.4f}")
     lo_b, lo_a = losers(rows, base), losers(rows, arm)
     under = [i for i in range(len(rows)) if min(dl[i], dc[i]) < -0.1]
     oracle_under = {i for i in range(len(rows))
@@ -509,12 +524,12 @@ def drawn(argv) -> int:
     for i in sorted(under, key=lambda i: min(dl[i], dc[i]))[:12]:
         r = rows[i]
         print(f"   under: {r['file']} {r['tile']} SNR {r['snr']:g} {r['scenario']}: luma {dl[i]:+.3f} colour {dc[i]:+.3f}"
-              f" reads ship {r['sigma18'].get('ship')} opt {r['sigma18'].get('opt')} true {r.get('true_sigma18')}"
+              f" reads ship {r['sigma18'].get('ship')} {arm} {r['sigma18'].get(arm)} true {r.get('true_sigma18')}"
               f"{' (oracle also under)' if i in oracle_under else ''}")
     if args.all_truths:  # the committed judgement is on clean truths; this is a reading
         print("reading (all truths, decides nothing):", "all four hold" if ok else "not all four hold")
     else:
-        print("verdict:", "pass: --noise-read mpcws becomes the Bayer default" if ok else "fail: --noise-read mpcws stays opt-in")
+        print("verdict:", f"pass on all four ({arm})" if ok else f"fail ({arm})")
     return 0
 
 

@@ -134,6 +134,21 @@ class DrawnJudge(unittest.TestCase):
         self.assertIn("1 rows", self._verdict(rows))
         self.assertIn("2 rows", self._verdict(rows, "--all-truths"))
 
+    def test_xtrans_judges_xopt_against_ship(self):
+        rows = []
+        for s in (12.0, 25.0):
+            for sc in ("equal", "wb"):
+                r = self._row(s, sc, 0.0, 0.0)
+                for k in ("lpsnr", "cpsnr"):
+                    r[k].update({"ship": 31.0, "true": 31.2, "xopt": 31.1})
+                r["sigma18"]["xopt_fell_back"] = s == 12.0
+                rows.append(r)
+        out = self._verdict(rows, "--xtrans")
+        self.assertIn("xopt fell back on 2", out)
+        self.assertIn("verdict: pass on all four (xopt)", out)
+        rows[0]["lpsnr"]["xopt"] = 30.5  # 0.5 dB under ship where the oracle is not
+        self.assertIn("FAIL h4o", self._verdict(rows, "--xtrans"))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -391,8 +391,16 @@ class NoiseReadTests(unittest.TestCase):
             self.assertEqual(xd.frame_noise_read(None, (0, 1, 1, 2), "mpcws"),
                              (reads["mpcws"], xd.MPCWS_COLOUR_RAMP, False))
             self.assertEqual(xd.frame_noise_read(None, XE1_PATTERN, "mpcws"), (reads[None], None, False))
+            # the evaluation-only X-Trans forms (eval/xtrans-drawn-mpcws-2026-11-24.md); develop never passes them
+            self.assertEqual(xd.frame_noise_read(None, XE1_PATTERN, "mpcws", xtrans="own"), (reads["mpcws"], None, False))
+            self.assertEqual(xd.frame_noise_read(None, XE1_PATTERN, "mpcws", xtrans="ramp"),
+                             (reads["mpcws"], xd.MPCWS_COLOUR_RAMP, False))
+            self.assertEqual(xd.frame_noise_read(None, XE1_PATTERN, "ship", xtrans="own"), (reads[None], None, False))
+            with self.assertRaises(ValueError):
+                xd.frame_noise_read(None, XE1_PATTERN, "mpcws", xtrans="chen")
             reads["mpcws"] = (0.3e-4, 0.3e-6)  # sigma about 0.55x the shipped read's: under the 0.6 line
             self.assertEqual(xd.frame_noise_read(None, (0, 1, 1, 2), "mpcws"), (reads[None], None, True))
+            self.assertEqual(xd.frame_noise_read(None, XE1_PATTERN, "mpcws", xtrans="own"), (reads[None], None, True))
             with self.assertRaises(ValueError):
                 xd.frame_noise_read(None, (0, 1, 1, 2), "chen")
 

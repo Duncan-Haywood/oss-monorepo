@@ -203,12 +203,20 @@ flagships:
       (measured, not offered). Open: (0) BBQ dater (README "Dated turning points",
       "BBQ on FRED GDPC1", "BBQ on monthly payrolls"): GDP 0.781, GDPC1 0.792,
       PAYEMS 0.654/0.731 (bigMove) of 0.80; heavy-late warning ships 2026-11-24
+<<<<<<< HEAD
       (README "A heaviest-is-latest warning"); pseudo-real-time replay 2026-11-24
       (README "Turns called in pseudo-real time"): called ~7 months after, 7 of 12
       before NBER, 2001 peak lost once 2020 sets the weights; next ALFRED vintages,
       a real-time --sd-until rule; t-walk. Curvature word ships under --shape-word
       panel (README "A curvature word"): slope donors straight 73% vs clean 37%, OR
       4.74 vs 3.37. More open items: NEXT.md.
+=======
+      (README "A heaviest-is-latest warning"); P3 + warning ship for composites
+      2026-11-24 (README "P3 and the heavy-late warning together": +0.032 freight,
+      wins on 5 makes); next P3 on single lines, ALFRED vintages; t-walk. Curvature
+      word ships under --shape-word panel (README "A curvature word"): slope donors
+      straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items: NEXT.md.
+>>>>>>> origin/main
   - venture: einvoice-preflight
     hosts: [https://github.com/, https://pypi.org/, https://repo1.maven.org/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag.
@@ -327,8 +335,9 @@ flagships:
       Near-clean leak closed on Bayer 2026-11-19 (k 12,
       eval/near-clean-gate-2026-11-19.md); X-Trans tuned on 51 fresh bodies the same
       day: no loser to fix, stays off; Bayer's 15 there were a noisy ISO 1600
-      reference (--clean-truths: 0 left; eval/near-clean-gate-xtrans-tune-*);
-      D780/D600: 6 of 11 losers are real over-reads on clean truths
+      reference; X-Trans mpcws read: own ramp failed, Bayer ramp 3 of 4
+      (eval/xtrans-drawn-mpcws-*; next blind 6-body set); D780/D600: 6 of 11 losers
+      are real over-reads on clean truths
       (eval/near-clean-truth-noise-2026-11-19.md); next read it against --noise-read
       ship on new camera files. Browser cull page 2026-11-23 (site/cull.html;
       520-file card 25.8 s; merges existing sidecars,
@@ -400,19 +409,20 @@ flagships:
       Box leagues 2026-11-21 (boxleague.mjs); next: a real club's month. ChessHouse
       r8 bye fixed 2026-11-23 (weighed in its bracket, byes 40/42); next: a real
       club's TRF (GitHub search 2026-11-23: only test fixtures). Bowling 22-28 teams
-      2026-11-23: 24x36 26 to 4 off, 2 seasons even (eval/bowling-lane-near.txt);
-      open in NEXT.md. Clinch watch, exact magic numbers 2026-11-23 (README); next:
-      a real league's published numbers. Divisions by location 2026-11-24
-      (regions.mjs, eval/nfl-divisions.txt); next: a real league's grounds. Club
-      ratings 2026-11-24 (season-ratings.mjs, README); next: a real club's box
-      season. More: NEXT.md.
+      2026-11-23: 24x36 26 to 4 off, 26x12, 26x38 even 2026-11-24
+      (eval/bowling-mirror-2026-11-24.txt); open in NEXT.md. Clinch watch, exact
+      magic numbers 2026-11-23 (README); next: a real league's published numbers.
+      Divisions by location 2026-11-24 (regions.mjs, eval/nfl-divisions.txt); next:
+      a real league's grounds. Club ratings 2026-11-24 (season-ratings.mjs, README);
+      next: a real club's box season. More: NEXT.md.
     buildable: >-
       Search work in NEXT.md, no outside input: 12 teams below 132 carry-over or
-      124-130 ruled out (eval/window-refill.c); bowling 26x38 1 off the bound and
-      limit-1 seasons 24x11, 26x12, 28x13 at 3 (whole-week re-deals,
-      eval/bowling-week-lns-2026-11-24.txt; SAT or a 2-week neighbourhood next);
-      47/49 on 8x9 night designs (a split or resumable search). Each is a hard
-      combinatorial search; judge its worth before taking it.
+      124-130 ruled out (eval/window-refill.c); bowling: 26x12, 26x38 at 0 by mirror
+      symmetry 2026-11-24 (eval/bowling-mirror-cpsat.py); left 24x11, 28x13 at 3
+      (odd W: no mirror) and even exact seasons 24x24, 26x26, 28x28 (mirror with 4
+      workers or a hint next); 47/49 on 8x9 night designs (a split or resumable
+      search). Each is a hard combinatorial search; judge its worth before taking
+      it.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed
@@ -514,10 +524,10 @@ flagships:
       rerun it after excel2ids.mjs changes. B-spline control points cut into rows
       from knot counts 2026-11-18 (eval/ifcxml-twins-2026-11-18.md); IfcOpenShell's
       294 files swept and set beside IfcTester 2026-11-24
-      (eval/ifcopenshell-test-files-*); WHERE rules landed 2026-11-24
-      (eval/where-rules-*); next: seeded faults per rule family (NEXT.md); STEP
-      exports as nested ifcXML (eval/ifc4-layout.mjs). IFC5: eval/ifcx-twins.mjs on
-      new IFC5-development files.
+      (eval/ifcopenshell-test-files-*); WHERE rules and seeded faults 2026-11-24
+      (eval/where-rules-*); next: global RULE seeds (NEXT.md); STEP exports as
+      nested ifcXML (eval/ifc4-layout.mjs). IFC5: eval/ifcx-twins.mjs on new
+      IFC5-development files.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked") and HISTORY.md.
