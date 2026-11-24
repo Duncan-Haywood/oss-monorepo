@@ -618,10 +618,10 @@ flagships:
       The 8 public models in eval/areas-vs-stored-2026-11-19.md (sparse clones of
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public): 14
       unexplained areas (eval/curved-and-faces-2026-11-22.md, The 14 left); figures
-      in doubt 2026-11-23 (eval/in-doubt-2026-11-23.md, node eval/in-doubt.mjs): HHS
-      construction #1405/#4407, M3D-CON-CD's 7 Tekla plates (#207997 settled: faces
-      vs circles, eval/off-edges-2026-11-23.md); revisions: EngiWorld's Archicad gui
-      and cross-software pairs (eval/engiworld-archicad-diff-2026-11-23.md, Left).
+      in doubt (node eval/in-doubt.mjs; HHS walls and Tekla plates named 2026-11-24,
+      eval/split-held-2026-11-24.md): 1 volume, 6 areas left; a coating-area BoQ
+      column from whole-surface; revisions: EngiWorld's Archicad gui and
+      cross-software pairs (eval/engiworld-archicad-diff-2026-11-23.md, Left).
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/; search guides 2026-11-22. its
