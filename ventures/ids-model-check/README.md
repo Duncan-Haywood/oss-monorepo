@@ -619,6 +619,23 @@ with one systematic fault gives one line:
   every seeded copy it opens (332 of 332 seeds, the same new failures on all
   109; the other 26 are in the IFC4X2 and IFC4X3_RC2 files it refuses).
   `where-rules-seeded.test.mjs` keeps every family on the bundled sample.
+- **Global RULEs and the less direct rules, seeded** (2026-11-24,
+  `eval/where-rules-global-seeds-2026-11-24.md`): seven more families (a second
+  `IfcProject`, a second context with a turned or a moved world origin, an SI
+  unit named for another dimension, an aggregation listing its own whole, a
+  material on a space, storey or project, a material on an opening) in 102
+  public files: 538 seeds, each firing where it was put and nowhere else; with
+  the first eight families on the same files, 1,283 seeds in 15 families.
+  `ifcopenshell.validate` 0.9.0 agrees on all 542 seeded copies it opens
+  (526 of 526 seeds).
+  The run found a typo in the IFC2X3 and IFC4 schemas: their
+  `IfcSameAxis2Placement` compares the first placement's Location with
+  itself, so `IfcRepresentationContextSameWCS` never sees contexts whose
+  origins differ (IFC4X3 fixed it; 57 of 57 IFC4X3 files catch a moved
+  origin, 0 of 45 IFC2X3/IFC4 files do). The conformance pass now runs
+  IFC4X3's comparison on IFC2X3 and IFC4 models too and says so as a
+  `context-origin` note when only that one fails (0 of the 102 public
+  originals; the seeded copies all do).
 - **Where it shows:** `node cli.mjs --conformance MODEL.ifc [--json]` (exit 1 on
   any fault, with the outside-schema notes and duplicate GlobalIds). It is also
   a model warning in every check of a STEP file up to 40 MB, on the page (a

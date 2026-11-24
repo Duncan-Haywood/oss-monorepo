@@ -512,13 +512,12 @@ flagships:
     buildable: >-
       Excel2IDS's tool runs here (venv: pip ifctester openpyxl tqdm;
       EXCEL2IDS_PYTHON=venv/bin/python node eval/excel2ids-sidebyside.mjs, 8 s):
-      rerun it after excel2ids.mjs changes. B-spline control points cut into rows
-      from knot counts 2026-11-18 (eval/ifcxml-twins-2026-11-18.md); IfcOpenShell's
-      294 files swept and set beside IfcTester 2026-11-24
-      (eval/ifcopenshell-test-files-*); WHERE rules and seeded faults 2026-11-24
-      (eval/where-rules-*); next: global RULE seeds (NEXT.md); STEP exports as
-      nested ifcXML (eval/ifc4-layout.mjs). IFC5: eval/ifcx-twins.mjs on new
-      IFC5-development files.
+      rerun it after excel2ids.mjs changes. IfcOpenShell's 294 files swept and set
+      beside IfcTester 2026-11-24 (eval/ifcopenshell-test-files-*); WHERE rules and
+      seeded faults 2026-11-24 (eval/where-rules-*); global RULEs seeded 2026-11-24
+      (eval/where-rules-global-seeds-*); next: a 2-record aggregation cycle
+      (NEXT.md); STEP exports as nested ifcXML (eval/ifc4-layout.mjs). IFC5:
+      eval/ifcx-twins.mjs on new IFC5-development files.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked") and HISTORY.md.

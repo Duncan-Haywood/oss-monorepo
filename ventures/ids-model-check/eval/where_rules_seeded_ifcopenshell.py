@@ -46,7 +46,8 @@ def main():
         before, after = found[m["original"]], found[m["seeded"]]
         added, lost = after - before, before - after
         want = {(e["id"], e["rule"].lower()) for e in m["expect"]}
-        ours_added = {(int(k.split(" ")[0]), k.split(" ", 1)[1].lower()) for k in m["ours"]["added"]}
+        # A global RULE (IfcSingleProjectInstance, ...) has no instance: "null <rule>" here, None there.
+        ours_added = {(None if k.startswith("null ") else int(k.split(" ")[0]), k.split(" ", 1)[1].lower()) for k in m["ours"]["added"]}
         hit, extra, missed = added & want, added - want, want - after
         t = tally[m["family"]]
         t["files"] += 1; t["seeds"] += len(want); t["fired"] += len(hit); t["extra"] += len(extra); t["missed"] += len(missed); t["lost"] += len(lost)
