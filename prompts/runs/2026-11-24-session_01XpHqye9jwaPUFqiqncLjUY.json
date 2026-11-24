@@ -1,0 +1,402 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01XpHqye9jwaPUFqiqncLjUY",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T22:39:18Z",
+  "ended": "2026-11-24T22:41:25Z",
+  "wall_minutes": 7.35,
+  "tokens_in": 4982944,
+  "tokens_out": 29035,
+  "cost_usd": 2.4364,
+  "tool_calls": 52,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18719",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list is mostly control-plane items (9 of 14) a session cannot land; a filter (redteam.py open --landable) would save each run re-reading them."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b (leave an automated guard) not done as a new lint: the defect class (statutory rules written from memory) has no mechanical signature; instead each boundary is pinned against GOV.UK's own calculator in the suites, which run in ventures-tests CI.",
+      "did": "boundary tests citing the GOV.UK source",
+      "result": "guards run in CI on every change to these ventures"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-redteam-uk-maternity-pay-26-weeks-ends-on-a-saturday.md"
+  ],
+  "goal": null,
+  "notes": "Purple: fixed the open 2026-11-24 ShPP 26-week defect (gov.uk reachable this time; GOV.UK calculator for due 2026-11-20 asks for contract covering Sat 2026-02-14) and the same bug in the SMP sibling; pinned the old wrong boundary test in SMP calc.test.mjs was corrected. Campaigns: SMP calc.mjs 8 seeded/4 caught, ShPP calc.mjs 8/6; 6 gaps, all caught_after_fix. Catch rate 0.625 -> 1.0. Suites: SMP 34/34, ShPP 33/33 node --test. Also: main's test_verticals red (stale verticals.json after machine-shop-guides) regenerated; cnc-machining-quote-calculator now links machine-shop-guides (siblings.mjs --check: 0 orphans, budget lowered 1 -> 0). Local run_workflow_locally --for-changes: ventures-tests 4/5 with only the verticals failure, fixed after; agent-cross-review and pages deploy steps not runnable locally.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/uk-statutory-maternity-pay-calculator/calc.mjs",
+        "test": "node --test ventures/uk-statutory-maternity-pay-calculator/**/*.test.mjs  (in .)",
+        "seed": 459308579,
+        "commit": "83086a12a",
+        "sites": 125,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/uk-statutory-maternity-pay-calculator/calc.mjs",
+            "line": 20,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "export const LAST_KNOWN_END = Date.UTC(2027, 3, 6) / 86400000;",
+            "after": "export const LAST_KNOWN_END = Date.UTC(2027, 4, 6) / 86400000;",
+            "line_text": "export const LAST_KNOWN_END = Date.UTC(2027, 3, 6) / 86400000;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-statutory-maternity-pay-calculator/calc.mjs",
+            "line": 32,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "const t = Date.UTC(+m[1], +m[2] - 1, +m[3]);",
+            "after": "const t = Date.UTC(+m[2], +m[2] - 1, +m[3]);",
+            "line_text": "  const t = Date.UTC(+m[1], +m[2] - 1, +m[3]);",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-statutory-maternity-pay-calculator/calc.mjs",
+            "line": 34,
+            "col": 86,
+            "operator": "neq-flip",
+            "before": "if (d.getUTCFullYear() !== +m[1] || d.getUTCMonth() !== +m[2] - 1 || d.getUTCDate() !== +m[3]) return null;",
+            "after": "if (d.getUTCFullYear() !== +m[1] || d.getUTCMonth() !== +m[2] - 1 || d.getUTCDate() === +m[3]) return null;",
+            "line_text": "  if (d.getUTCFullYear() !== +m[1] || d.getUTCMonth() !== +m[2] - 1 || d.getUTCDate() !== +m[3]) return null;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-statutory-maternity-pay-calculator/calc.mjs",
+            "line": 40,
+            "col": 25,
+            "operator": "plus-to-minus",
+            "before": "const money = (n) => \"\u00a3\" + (Math.round(n * 100) / 100).toFixed(2);",
+            "after": "const money = (n) => \"\u00a3\" - (Math.round(n * 100) / 100).toFixed(2);",
+            "line_text": "const money = (n) => \"\u00a3\" + (Math.round(n * 100) / 100).toFixed(2);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-statutory-maternity-pay-calculator/calc.mjs",
+            "line": 102,
+            "col": 13,
+            "operator": "ge-to-gt",
+            "before": "if (wk >= LAST_KNOWN_END) beyond = true;",
+            "after": "if (wk > LAST_KNOWN_END) beyond = true;",
+            "line_text": "      if (wk >= LAST_KNOWN_END) beyond = true;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-statutory-maternity-pay-calculator/calc.mjs",
+            "line": 105,
+            "col": 35,
+            "operator": "times-to-div",
+            "before": "const amount = r2(high ? 0.9 * awe : Math.min(std, 0.9 * awe));",
+            "after": "const amount = r2(high ? 0.9 / awe : Math.min(std, 0.9 * awe));",
+            "line_text": "      const amount = r2(high ? 0.9 * awe : Math.min(std, 0.9 * awe));",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-statutory-maternity-pay-calculator/calc.mjs",
+            "line": 105,
+            "col": 61,
+            "operator": "times-to-div",
+            "before": "const amount = r2(high ? 0.9 * awe : Math.min(std, 0.9 * awe));",
+            "after": "const amount = r2(high ? 0.9 * awe : Math.min(std, 0.9 / awe));",
+            "line_text": "      const amount = r2(high ? 0.9 * awe : Math.min(std, 0.9 * awe));",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-statutory-maternity-pay-calculator/calc.mjs",
+            "line": 114,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "if (0.9 * awe < rateAt(start + 7 * HIGH_WEEKS).standard) findings.push({ severity: \"info\", title: `90% of earnings (${money(0.9 * awe)}) is below the standard rate, so weeks 7-39 are paid at 90% of earnings, not the flat rate.` });",
+            "after": "if (0.9 * awe < rateAt(start + 8 * HIGH_WEEKS).standard) findings.push({ severity: \"info\", title: `90% of earnings (${money(0.9 * awe)}) is below the standard rate, so weeks 7-39 are paid at 90% of earnings, not the flat rate.` });",
+            "line_text": "    if (0.9 * awe < rateAt(start + 7 * HIGH_WEEKS).standard) findings.push({ severity: \"info\", title: `90% of earnings (${money(0.9 * awe)}) is below the standard rate, so weeks 7-39 are paid at 90% of earnings, not the flat rate.` });",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+        "test": "node --test ventures/uk-shared-parental-pay-planner/**/*.test.mjs  (in .)",
+        "seed": 849678899,
+        "commit": "83086a12a",
+        "sites": 185,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 39,
+            "col": 86,
+            "operator": "neq-flip",
+            "before": "if (d.getUTCFullYear() !== +m[1] || d.getUTCMonth() !== +m[2] - 1 || d.getUTCDate() !== +m[3]) return null;",
+            "after": "if (d.getUTCFullYear() !== +m[1] || d.getUTCMonth() !== +m[2] - 1 || d.getUTCDate() === +m[3]) return null;",
+            "line_text": "  if (d.getUTCFullYear() !== +m[1] || d.getUTCMonth() !== +m[2] - 1 || d.getUTCDate() !== +m[3]) return null;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 75,
+            "col": 40,
+            "operator": "minus-to-plus",
+            "before": "const employedWeeks = (qualifyingWeek - sundayOnOrBefore(emp)) / 7 + 1;",
+            "after": "const employedWeeks = (qualifyingWeek + sundayOnOrBefore(emp)) / 7 + 1;",
+            "line_text": "  const employedWeeks = (qualifyingWeek - sundayOnOrBefore(emp)) / 7 + 1;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 75,
+            "col": 71,
+            "operator": "const-plus-one",
+            "before": "const employedWeeks = (qualifyingWeek - sundayOnOrBefore(emp)) / 7 + 1;",
+            "after": "const employedWeeks = (qualifyingWeek - sundayOnOrBefore(emp)) / 7 + 2;",
+            "line_text": "  const employedWeeks = (qualifyingWeek - sundayOnOrBefore(emp)) / 7 + 1;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 100,
+            "col": 29,
+            "operator": "plus-to-minus",
+            "before": "smpTotal = r2(smpTotal + amount);",
+            "after": "smpTotal = r2(smpTotal - amount);",
+            "line_text": "      smpTotal = r2(smpTotal + amount);",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 113,
+            "col": 29,
+            "operator": "eq-flip",
+            "before": "if (last && last.phase === phase && last.weekly === amount) { last.weeks++; last.total = r2(last.total + amount); }",
+            "after": "if (last && last.phase !== phase && last.weekly === amount) { last.weeks++; last.total = r2(last.total + amount); }",
+            "line_text": "      if (last && last.phase === phase && last.weekly === amount) { last.weeks++; last.total = r2(last.total + amount); }",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 139,
+            "col": 13,
+            "operator": "neq-flip",
+            "before": "if (wanted !== null && (!Number.isInteger(wanted) || wanted < 0)) errors.push(\"Enter the partner's shared weeks as a whole number, or leave it blank.\");",
+            "after": "if (wanted === null && (!Number.isInteger(wanted) || wanted < 0)) errors.push(\"Enter the partner's shared weeks as a whole number, or leave it blank.\");",
+            "line_text": "  if (wanted !== null && (!Number.isInteger(wanted) || wanted < 0)) errors.push(\"Enter the partner's shared weeks as a whole number, or leave it blank.\");",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 155,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "if (shared === 0) findings.push({ severity: \"medium\", title: \"Taking all 39 weeks as maternity pay leaves nothing to share. Choose fewer SMP weeks to plan Shared Parental Pay.\" });",
+            "after": "if (shared === 1) findings.push({ severity: \"medium\", title: \"Taking all 39 weeks as maternity pay leaves nothing to share. Choose fewer SMP weeks to plan Shared Parental Pay.\" });",
+            "line_text": "  if (shared === 0) findings.push({ severity: \"medium\", title: \"Taking all 39 weeks as maternity pay leaves nothing to share. Choose fewer SMP weeks to plan Shared Parental Pay.\" });",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 176,
+            "col": 22,
+            "operator": "and-to-or",
+            "before": "if (mRate === pRate && mother.eligible && partner.eligible) findings.push({ severity: \"info\", title: `Both parents get the same weekly ShPP (${money(mRate)}), so statutory pay is the same whoever takes the shared weeks. Employer enhanced pay, if any, usually decides the split.` });",
+            "after": "if (mRate === pRate || mother.eligible && partner.eligible) findings.push({ severity: \"info\", title: `Both parents get the same weekly ShPP (${money(mRate)}), so statutory pay is the same whoever takes the shared weeks. Employer enhanced pay, if any, usually decides the split.` });",
+            "line_text": "  if (mRate === pRate && mother.eligible && partner.eligible) findings.push({ severity: \"info\", title: `Both parents get the same weekly ShPP (${money(mRate)}), so statutory pay is the same whoever takes the shared weeks. Employer enhanced pay, if any, usually decides the split.` });",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/uk-statutory-maternity-pay-calculator/calc.mjs",
+        "issue": "Same 26-week boundary defect as the open uk-shared-parental-pay-planner entry: whole 7-day blocks required a start by Sun 2026-02-08 for a 2026-11-20 due date; GOV.UK's employer calculator asks for a contract covering Sat 2026-02-14. Starts on 9-14 Feb wrongly read as ineligible. Failing test first, fixed.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18719"
+      },
+      {
+        "file": "ventures/uk-statutory-maternity-pay-calculator/calc.mjs",
+        "issue": "A maternity pay start after the day after the due date (e.g. 2027-06-01 for due 2026-11-20) was priced with no warning; GOV.UK: leave starts the day after the birth at the latest. Added a medium finding with tests.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18719"
+      },
+      {
+        "file": "ventures/uk-statutory-maternity-pay-calculator/calc.mjs",
+        "issue": "A paternity pay start before the birth (e.g. 2020-01-01) or too late to finish within 52 weeks of it was priced silently (at the wrong year's rate in the first case). Added medium findings with boundary tests.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18719"
+      },
+      {
+        "file": "portfolio/monetization/verticals.json",
+        "issue": "main red: machine-shop-guides (2026-11-24) landed without verticals.py --write, so test_verticals.py::test_committed_json_is_consistent failed in ventures-tests' unwired checks. Regenerated; --check passes. Same session closed the machine-shop-guides sibling orphan (return link from cnc-machining-quote-calculator, page test, siblings-budget 1 -> 0).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18719"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f8538e8d-07ef-5d3f-b4af-e7797fa2e9cb",
+    "transcripts": 1,
+    "first": "2026-11-24T22:39:18Z",
+    "last": "2026-11-24T22:46:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 100,
+        "output": 29035,
+        "thinking": 8974,
+        "cache_read": 4872748,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110096,
+        "api_equivalent_usd": 2.4364,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 100,
+      "output": 29035,
+      "thinking": 8974,
+      "cache_read": 4872748,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110096,
+      "api_equivalent_usd": 2.4364,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 50,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.35,
+      "active_minutes": 7.35,
+      "model_minutes": 4.38,
+      "tool_minutes": 2.97,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "researching the SMP/ShPP continuity rule against GOV.UK and legislation, two boundary fixes, 8 tests, a stale-index fix and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 205.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
