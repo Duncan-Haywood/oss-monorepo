@@ -20,7 +20,11 @@ goal in the repo hit 10k mrr"; the stretch is $10k monthly recurring
 profit, so margin counts too). Every track serves it: when choosing work,
 pick the task that unlocks paying subscribers fastest (paid tier, pricing,
 checkout shipped dark, onboarding, then traffic to those products, then
-retention), inside the hard limits. Definition and readings:
+retention), inside the hard limits. Build the best product for the user,
+with accounts, hosted features and paid tiers where they help; static, free
+and no-accounts are options, not defaults. For-profit products are the
+highest priority; free tools and posts are there for traffic and leads to
+them (owner, same day). Definition and readings:
 [`prompts/goals.md`](prompts/goals.md), "North star", and
 [`portfolio/monetization/mrr.yaml`](portfolio/monetization/mrr.yaml).
 
@@ -32,7 +36,7 @@ which work.
 - **Product work:** [`AGENTS.md`](AGENTS.md), then
   [`ventures/CLAUDE.md`](ventures/CLAUDE.md) and
   [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) (niche, product shapes and
-  zero per-user cost, the API-key switch, disclaimer text, SEO checklist, definition of
+  costs, the API-key switch, disclaimer text, SEO checklist, definition of
   done). [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) is a long
   reference: `grep -n '^## '` it and read only what your task touches.
 - **Research work:** [`research/CLAUDE.md`](research/CLAUDE.md). Its brief,
@@ -66,7 +70,9 @@ when the next run needs to know something (owner, 2026-10-21 and 2026-10-24:
 empty queue, a vague brief or a task that already landed means look wider,
 not stop. Restated blockers, ledger-only edits and re-verifying unchanged
 work do not count. Never fabricate or lower the bar to have something to
-ship. For venture work the default is an open website request in
+ship. For venture work, the for-profit products come first (the North star
+above; `portfolio/monetization/LICENSING_TRANSITION.md`). After them, the
+default is an open website request in
 [`portfolio/requests/`](portfolio/requests/README.md) (owner, 2026-11-02: a
 free custom dev shop for businesses, the results MIT licensed and owned by the
 repository owner; `prompt.md`, "Website requests come next"), then the top

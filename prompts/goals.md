@@ -52,16 +52,47 @@ replace that work.
   that move the needle towards unlocking that faster rather than slower." So
   when a run chooses or scopes work, whether from the ideas inbox, website
   requests, flagships or a free draw, it prefers the step that brings the first
-  (and then the next) paying subscriber soonest. In rough order:
+  (and then the next) paying subscriber soonest. The owner, same day:
+  "moving the free stuff to traffic and lead magnets and pushing stuff that
+  is for profit as highest priority." So the for-profit products (the
+  `proprietary` track in `LICENSING_TRANSITION.md`) come first. Free tools,
+  posts and pages exist to bring traffic and leads to them, and new free work
+  is judged by that. In rough order:
   1. whatever stands between a subscription product and a sale: a working
      paid tier, a pricing page, a checkout path that ships dark (Guardrails,
      "Payments"), onboarding, licence checks, and the features buyers ask for;
   2. getting buyers to those products: SEO and AEO pages, compliant
-     distribution, lead magnets that link to a paid product, and sales tools;
+     distribution, sales tools, and free tools and posts used as lead magnets
+     that link to a paid product;
   3. retention: whatever keeps a subscriber paying next month;
   4. everything else, which stays welcome but comes after these.
   A run that takes other work says in a line of its run record how that work
   helps the goal, or why it was the better call. This is judgment, not a gate.
+
+- **The best product for the user, not free-static-private by reflex.** The
+  owner, same day: "I think we also move from the stupid static page
+  requirement and over emphasis on free and privacy and no accounts to
+  generally giving max value to the user and trying to create the best
+  products we can for them hopefully generating revenue and moving towards
+  profitability." So:
+  - shape, hosting, accounts and data handling follow what makes the product
+    most valuable to its user. A static page, a client-only tool, "no
+    accounts" and "nothing leaves your browser" are options, not virtues to
+    reach for. Sign-in, saved work, sync, hosted features, team seats and
+    server-side processing are fine where they make a product better or
+    sellable;
+  - paid tiers are expected for products with depth. Free stays for lead
+    magnets and the things already promised as free;
+  - a product's privacy copy states accurately what it does, under the law
+    (the privacy rules below). It is not a selling point to design around;
+  - per-user running costs (a model call, a server, storage) are acceptable in
+    a paid product whose price covers them with a margin, on infrastructure the
+    owner has set up. Agents still never open accounts, add a card or start
+    paid spend themselves (Hard limits), so until the owner sets something up,
+    build the hosted path ready to switch on and keep a self-run or
+    bring-your-own-key path beside it.
+  Where older text below (the 2026-10-15 business model, "zero per-user
+  cost", "free for now", "no account system") pulls the other way, this wins.
 
 - **What counts.** Recurring subscription revenue paid through the owner's
   merchant of record, per month, net of refunds. One-off licences, donations and
