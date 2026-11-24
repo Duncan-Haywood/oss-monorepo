@@ -217,7 +217,21 @@ export function widestSub(classifications) {
 function principalMentionsGitHub(statement) {
   const principal = statement?.Principal;
   if (!principal || typeof principal !== 'object') return false;
-  return asArray(principal.Federated).some((arn) => lower(arn).includes(GITHUB_OIDC_HOST));
+  return asArray(principal.Federated).some((arn) => federatedProviderIsGitHub(lower(arn)));
+}
+
+// The provider is the part after "oidc-provider/" in an IAM ARN (or the whole
+// value when it is a bare provider URL). Compare its host exactly, allowing the
+// GitHub Enterprise form "token.actions.githubusercontent.com/<slug>", so a
+// look-alike such as "token.actions.githubusercontent.com.evil.example" or
+// "evil.example/token.actions.githubusercontent.com" does not count.
+function federatedProviderIsGitHub(value) {
+  const marker = ':oidc-provider/';
+  const at = value.indexOf(marker);
+  let provider = at === -1 ? value : value.slice(at + marker.length);
+  if (provider.startsWith('https://')) provider = provider.slice('https://'.length);
+  const host = provider.split('/')[0];
+  return host === GITHUB_OIDC_HOST;
 }
 
 function statementAllowsWebIdentity(statement) {

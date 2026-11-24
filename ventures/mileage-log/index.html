@@ -286,7 +286,7 @@
       $("#vehicle-list").innerHTML = vehicleNames(state.trips).map((n) => `<option value="${esc(n)}">`).join("");
       $("#vehicles").innerHTML = vs.map((v) => {
         const o = vOdo()[v.vehicle] || {}, named = v.vehicle !== NO_VEHICLE;
-        const inp = (k) => named ? `<input class="cost" data-vodo="${k}" data-v="${esc(v.vehicle)}" inputmode="decimal" aria-label="${esc(v.vehicle)} odometer ${k === "start" ? "January 1" : "December 31"}" value="${o[k] ?? ""}">` : "–";
+        const inp = (k) => named ? `<input class="cost" data-vodo="${k}" data-v="${esc(v.vehicle)}" inputmode="decimal" aria-label="${esc(v.vehicle)} odometer ${k === "start" ? "January 1" : "December 31"}" value="${esc(o[k] ?? "")}">` : "–";
         return `<tr><th scope="row">${esc(v.vehicle)}</th><td class="n">${Math.round(v.business).toLocaleString("en-US")}</td><td class="n">${Math.round(v.commute).toLocaleString("en-US")}</td><td class="n">${inp("start")}</td><td class="n">${inp("end")}</td><td class="n">${v.businessUse == null ? "–" : pct(v.businessUse, 1)}</td><td class="n">${money(v.deduction)}</td></tr>`;
       }).join("");
     }
