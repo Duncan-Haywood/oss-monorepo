@@ -51,6 +51,15 @@
   </ul>
   <p>It chooses between them by AICc, which rewards a closer fit and penalises the extra parameter, so a three-parameter curve has to earn its place. You can override the choice.</p>
 
+  <h2>Measuring the datum temperature and activation energy for your mix</h2>
+  <p>The 0 °C datum and 40,000 J/mol are starting values. A mix with fly ash, slag, an accelerator or a retarder can differ a lot, and ASTM C1074's annex gives the way to measure them. Cast mortar cubes from the mix and cure sets of them at three constant temperatures that bracket what the slab will see, for example 10, 23 and 38 °C. Measure final setting time at each temperature, then break cubes at increasing ages, starting at about twice the setting time and doubling each time.</p>
+  <p>At each temperature, fit the hyperbola <code>S = S<sub>u</sub> k(t − t<sub>0</sub>) / (1 + k(t − t<sub>0</sub>))</code> to the breaks. Here <code>t<sub>0</sub></code> is final setting and <code>k</code> is the rate constant, the number that carries the temperature effect. The annex draws a straight line through 1/strength against 1/(t − t<sub>0</sub>), and k is the intercept divided by the slope. Then:</p>
+  <ul>
+    <li><strong>Datum temperature:</strong> draw the straight line through k against curing temperature. The datum is where that line reaches zero.</li>
+    <li><strong>Activation energy:</strong> draw the straight line through ln k against 1/T, with T in kelvin. The activation energy is minus the slope times the gas constant (8.314 J/mol·K).</li>
+  </ul>
+  <p>The <a href="./#calibrate">calculator's calibration section</a> does this from a pasted cube sheet. It fits k either by the annex's straight line or by fitting the hyperbola to the strengths directly, and it shows standard errors. It adds one check the annex does not have: how closely every cube falls on a single strength-maturity curve once ages are turned into maturity. That is the job the value does on site. For a mix whose rate follows Arrhenius, k does not rise in a straight line with temperature. The datum from the k-line can then collapse the cubes worse than the 0 °C default, and the page shows when that happens, along with the datum that collapses them best.</p>
+
   <h2>A worked example</h2>
   <p>The numbers below are made up for illustration (they are the calculator's "Load a made-up example" button), shaped like a slab placed at 2 pm on a cold November day with two loggers: one at mid-depth and one near an exposed edge.</p>
   <p><strong>Lab breaks</strong> (two cylinders per age, moist-cured at 23 °C, psi):</p>
