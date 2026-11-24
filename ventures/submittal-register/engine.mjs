@@ -17,6 +17,7 @@
 // Pure functions; no DOM, no network.
 
 /** @typedef {{page: number, text: string, indent: number, file?: string, filePage?: number}} Line */
+/** @typedef {{id: string, section: string, sectionTitle: string, article: string, part: number, para: string, type: string, sd: string, phase: string, text: string, when: string, coveredBy: string, page: number, file?: string, filePage?: number}} Buried */
 /** @typedef {{id: string, section: string, sectionTitle: string, article: string, para: string, label: string, type: string, sd: string, phase: string, description: string, approval: string, reviewer: string, flags: string[], page: number, file?: string, filePage?: number}} Item */
 
 // ---------------------------------------------------------------- input
@@ -497,6 +498,7 @@ function coveringItem(sentence, sd, items, articleTitle = "") {
  * @param {Item[]} items the section's Part 1 rows
  */
 export function buriedRequirements(section, items) {
+  /** @type {Buried[]} */
   const out = [];
   for (const a of findArticles(section.body)) {
     if (a.part <= 1 && isSubmittalHeading(a.title)) continue;
@@ -544,6 +546,7 @@ export function buildRegister(lines) {
   const sections = findSections(body);
   const out = [];
   const warnings = [];
+  /** @type {Buried[]} */
   const buried = [];
   for (const s of sections) {
     const items = sectionItems(s);
@@ -558,7 +561,7 @@ export function buildRegister(lines) {
   // Several files read as one book: say which file and page each row came from.
   const where = new Map();
   for (const l of lines) if (l.file && !where.has(l.page)) where.set(l.page, { file: l.file, page: l.filePage ?? l.page });
-  for (const it of [...items, ...buried]) { const w = where.get(it.page); it.file = w ? w.file : ""; it.filePage = w ? w.page : it.page; }
+  for (const it of /** @type {(Item | Buried)[]} */ ([...items, ...buried])) { const w = where.get(it.page); it.file = w ? w.file : ""; it.filePage = w ? w.page : it.page; }
   return { sections: out, items, buried, warnings, summary: summarize(items) };
 }
 
