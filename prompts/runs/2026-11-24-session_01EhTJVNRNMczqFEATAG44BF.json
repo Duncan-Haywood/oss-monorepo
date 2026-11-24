@@ -25,13 +25,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 0,
   "review_findings": null,
   "tests_added": 13,
   "outcome": "success",
   "errors": [
     "An LCG (seed*1103515245 % 2^31) in doubles lost precision and gave bootstrap intervals that excluded their own point estimates; replaced with mulberry32 before any number was reported.",
-    "First page draft claimed score margin 0.75 helped on football; the eval said otherwise; text corrected before commit."
+    "First page draft claimed score margin 0.75 helped on football; the eval said otherwise; text corrected before commit.",
+    "venture-preflight caught a missing CSV formula-injection guard in ratingsCsv; fixed before merge."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -52,7 +53,7 @@
     "docs/posts/2026-11-24-club-player-ratings-when-a-rating-beats-the-table.md"
   ],
   "goal": null,
-  "notes": "Football data: martj42/international_results results.csv (CC0), sha256 c1773d3e..., 50,093 matches, not committed. JeffSackmann tennis repos returned 404/403 from this container. Local checks: node --test season-ratings.test.mjs 13/13 pass; headless Chromium 390px no console errors, no horizontal scroll; check_posts ok; validate.py ok. Venture suite, preflight and run_workflow_locally results appended below when finished.",
+  "notes": "Football data: martj42/international_results results.csv (CC0), sha256 c1773d3e..., 50,093 matches, not committed. JeffSackmann tennis repos returned 404/403 from this container. Local checks: node --test season-ratings.test.mjs 13/13 pass; headless Chromium 390px no console errors, no horizontal scroll; check_posts ok; validate.py ok. run_venture_tests.py league-schedule-generator: ok, 1010 tests (336.6 s). venture-preflight: first run failed check_csv_formula_guard (ratings CSV had no formula-injection guard), fixed with a test, rerun clean. run_workflow_locally --for-changes: 10 workflows passed their run: steps before the rest were detached; remote CI green on every check run.",
   "corrections": [],
   "redteam": null
 }
