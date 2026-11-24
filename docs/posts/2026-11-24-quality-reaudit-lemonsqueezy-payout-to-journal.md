@@ -1,6 +1,6 @@
 ---
 title: "Re-audit: a fix that wrote the bug down, and the Lemon Squeezy journal tool that now reads its own export"
-seo_title: "Lemon Squeezy Orders export to Xero or QuickBooks journal: cents, fees and discounts"
+seo_title: "Lemon Squeezy Orders export to Xero or QuickBooks: cents and fees"
 date: 2026-11-24
 tags: [quality-audit, evaluation, bookkeeping, lemon-squeezy]
 description: "The fix for a Lemon Squeezy journal tool closed 3 of 13 defects and only documented the two that mattered. This run made the tool read the real Orders export."
