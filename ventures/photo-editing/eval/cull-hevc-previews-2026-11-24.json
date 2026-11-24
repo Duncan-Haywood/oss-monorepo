@@ -1,0 +1,60 @@
+{
+ "mode": "native",
+ "chromium_hevc_supported": false,
+ "files": 3,
+ "seconds": 0.111,
+ "status": "3 files (read 3 in 0.1 s; 1 MB of their 143 MB read from disk).",
+ "decoded_by_ffmpeg": 0,
+ "rows": [
+  {
+   "file": "IMAGE_001.NEF",
+   "preview": "160x120",
+   "detail": "6046.2",
+   "af_detail": "3658.8"
+  },
+  {
+   "file": "IMAGE_006.NEF",
+   "preview": "160x120",
+   "detail": "3279.1",
+   "af_detail": "1508.4"
+  },
+  {
+   "file": "IMAGE_019.NEF",
+   "preview": "160x120",
+   "detail": "6626.5",
+   "af_detail": "9073.8"
+  }
+ ],
+ "caption": "preview 160×120 (thumbnail: this browser has no HEVC decoder for the camera's HLG preview; Safari has one)",
+ "errors": []
+}
+{
+ "mode": "shim",
+ "chromium_hevc_supported": true,
+ "files": 3,
+ "seconds": 4.829,
+ "status": "3 files (read 3 in 4.8 s; 3 MB of their 143 MB read from disk).",
+ "decoded_by_ffmpeg": 3,
+ "rows": [
+  {
+   "file": "IMAGE_019.NEF",
+   "preview": "1620x1080",
+   "detail": "1839.4",
+   "af_detail": "2271.4"
+  },
+  {
+   "file": "IMAGE_006.NEF",
+   "preview": "1620x1080",
+   "detail": "1984.9",
+   "af_detail": "1272.0"
+  },
+  {
+   "file": "IMAGE_001.NEF",
+   "preview": "1620x1080",
+   "detail": "7867.0",
+   "af_detail": "1788.3"
+  }
+ ],
+ "caption": "preview 1620×1080 (the camera's HEVC preview)",
+ "errors": []
+}

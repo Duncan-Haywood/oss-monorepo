@@ -273,6 +273,17 @@ function walkTiff(b, base, meta, cands, opts = {}) {
           cands.push({ offset: base + so[0], length: sc[0], source: `${kind} strip` });
         }
       }
+      // Nikon Z8/Z9 NEFs shot in HLG tone mode keep their previews as HEVC
+      // bitstreams (Compression 34713, the NEF code, on a reduced-resolution
+      // SubIFD whose strip opens with an Annex B VPS). The page decodes them
+      // with WebCodecs where the browser has an HEVC decoder.
+      if (comp === 34713 && tagNum(v, tags.get(0xfe)) === 1) {
+        const so = tagNums(v, tags.get(T.StripOffsets)), sc = tagNums(v, tags.get(T.StripByteCounts));
+        if (so.length === 1 && sc.length === 1 && so[0] && sc[0] > 64) {
+          cands.push({ offset: base + so[0], length: sc[0], source: `${kind} HEVC`, hevc: true,
+            width: tagNum(v, tags.get(T.ImageWidth)), height: tagNum(v, tags.get(T.ImageLength)) });
+        }
+      }
       if (h.magic === 0x55) {
         const jr = tags.get(T.RW2JpgFromRaw);
         if (jr && jr.size > 4) cands.push({ offset: jr.at, length: jr.size, source: "RW2 JpgFromRaw" });
@@ -749,9 +760,18 @@ export function readRaw(bytes, name = "") {
   }
 
   let previews = [];
+  const hevc = [];
   const seen = new Set();
   const consider = (list) => {
     for (const c of list) {
+      if (c.hevc) {
+        if (c.offset + c.length > b.length || seen.has(c.offset)) continue;
+        seen.add(c.offset);
+        need(c.offset, 256);
+        const codec = hevcCodec(b, c.offset, Math.min(c.length, 256));
+        if (codec && c.width && c.height) hevc.push({ offset: c.offset, length: c.length, width: c.width, height: c.height, source: c.source, codec });
+        continue;
+      }
       if (!c.length || c.offset < 0 || c.offset + c.length > b.length || seen.has(c.offset)) continue;
       seen.add(c.offset);
       need(c.offset, Math.min(c.length, PREVIEW_HEAD));
@@ -760,8 +780,12 @@ export function readRaw(bytes, name = "") {
     }
   };
   consider(cands);
-  // Fall back to a scan when the pointers found nothing or only a thumbnail.
-  if (format && format !== "JPEG" && (!previews.length || Math.max(...previews.map((p) => p.width)) < 640)) {
+  hevc.sort((a, b2) => b2.width * b2.height - a.width * a.height);
+  // Fall back to a scan when the pointers found nothing or only a thumbnail
+  // (not when an HEVC preview stands in for the JPEG: a scan of those files
+  // finds nothing more and reads all of a 50 MB raw).
+  if (format && format !== "JPEG" && !(hevc.length && hevc[0].width >= 640) &&
+      (!previews.length || Math.max(...previews.map((p) => p.width)) < 640)) {
     consider(scanJpegs(b));
   }
   previews.sort((a, b2) => b2.width * b2.height - a.width * a.height);
@@ -784,7 +808,42 @@ export function readRaw(bytes, name = "") {
   if (!meta.orientation) meta.orientation = 1;
   cameraMarks(b, meta);
   previews = previews.map(({ exif, ...rest }) => rest);
-  return { format, meta, preview: previews[0] || null, previews };
+  return { format, meta, preview: previews[0] || null, previews, hevc };
+}
+
+// ---------------------------------------------------------------- HEVC previews
+
+// The RFC 6381 / ISO 14496-15 Annex E codec string ("hev1.2.4.L120.B0") of an
+// Annex B HEVC bitstream at b[at, at+len), from the general profile_tier_level
+// of its first VPS or SPS, or null when there is none. WebCodecs'
+// VideoDecoder takes Annex B input with "hev1" and no description.
+export function hevcCodec(b, at, len) {
+  const end = Math.min(b.length, at + len);
+  for (let i = at; i + 4 < end; i++) {
+    if (b[i] !== 0 || b[i + 1] !== 0 || b[i + 2] !== 1) continue;
+    const type = (b[i + 3] >> 1) & 0x3f;
+    if (type !== 32 && type !== 33) continue;
+    // RBSP after the 2-byte NAL header, emulation-prevention bytes removed.
+    const r = [];
+    for (let k = i + 5, zeros = 0; k < end && r.length < 16; k++) {
+      if (zeros >= 2 && b[k] === 3) { zeros = 0; continue; }
+      zeros = b[k] === 0 ? zeros + 1 : 0;
+      r.push(b[k]);
+    }
+    // VPS: id, flags, max layers and sub-layers, nesting, 0xffff = 4 bytes;
+    // SPS: vps id, max sub-layers, nesting = 1 byte. Then profile_tier_level.
+    const p = type === 32 ? 4 : 1;
+    if (r.length < p + 12) return null;
+    const space = r[p] >> 6, tier = (r[p] >> 5) & 1, profile = r[p] & 0x1f;
+    let compat = ((r[p + 1] << 24) | (r[p + 2] << 16) | (r[p + 3] << 8) | r[p + 4]) >>> 0, rev = 0;
+    for (let j = 0; j < 32; j++) { rev = (rev << 1) | (compat & 1); compat >>>= 1; }
+    const cons = r.slice(p + 5, p + 11);
+    while (cons.length && cons[cons.length - 1] === 0) cons.pop();
+    const level = r[p + 11];
+    return ["hev1", `${space ? "ABC"[space - 1] : ""}${profile}`, (rev >>> 0).toString(16).toUpperCase(),
+      `${tier ? "H" : "L"}${level}`, ...cons.map((c) => c.toString(16).toUpperCase())].join(".");
+  }
+  return null;
 }
 
 // The rating and colour label the camera wrote into the file, from its XMP
@@ -858,7 +917,8 @@ export async function readRawFile(file, { head = 1 << 18 } = {}) {
     try { r = readRaw(buf, file.name); } finally { asked = NEED; NEED = null; }
     if (!(await load(asked.filter(([o]) => o < size)))) break;
   }
-  if (passes === 16 || !r || !r.preview || r.preview.source === "scan" || r.preview.width < 640) return whole();
+  const hevcBig = r && r.hevc.length && r.hevc[0].width >= 640;
+  if (passes === 16 || !r || ((!r.preview || r.preview.source === "scan" || r.preview.width < 640) && !hevcBig)) return whole();
   return { ...r, bytesRead, passes: passes + 1, sparse: true };
 }
 

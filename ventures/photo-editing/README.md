@@ -284,6 +284,31 @@ keyword kept beside the new ones, `Title-fr-FR` kept, `crs:Exposure2012` and
 `exiftool -validate` says OK on every file. Not yet checked: an import into
 Lightroom, Capture One or Photo Mechanic itself.
 
+## HEVC previews of Nikon HLG raws on the cull page (2026-11-24)
+
+A Nikon Z8 or Z9 shooting in the HLG tone mode stores its 1620 x 1080 and
+320 x 212 previews as HEVC frames (Compression 34713 on a reduced-resolution
+SubIFD, an Annex B stream opening with its VPS), not as JPEGs. The page used
+to find only the 160 x 120 IFD0 thumbnail and, looking for a bigger JPEG,
+read all of every 50 MB file. Now `site/rawpreview.mjs` lists those streams
+(`hevc`, largest first) with an RFC 6381 codec string read from the stream's
+own profile_tier_level (`hev1.2.4.L120.B0.10`: Main 10, level 4, one picture),
+stops reading once one is found, and `site/hevcpreview.mjs` decodes it with
+WebCodecs' `VideoDecoder` where the browser has an HEVC decoder (Safari;
+Chrome and Edge with hardware). Where there is none the thumbnail stays and
+the large view says why. No decoder is downloaded.
+
+Checked (`eval/cull-hevc-previews-2026-11-24.md`): on three CC0 Z8 HLG raws
+the page reads 1 MB of 143 MB (all 143 MB before; readRawFile 0.33 MB a file,
+4-13 ms, against 48-51 MB and about 500 ms), with the same metadata, AF points
+and JPEG list as before. Headless Chromium here has no HEVC decoder, so the
+decode itself was run with a stand-in that hands the chunk to ffmpeg: all
+three came back 1620 x 1080, into the grid, detail score, AF view and CSV, with
+no page errors. Ranking on the 1620 px preview instead of the thumbnail is
+what moved detail at the AF point from median rank 0.73 to 0.92 in
+`eval/cull-nikon-af-2026-11-24.md`. Not yet seen: a real Safari decode of
+these frames and how its HLG-to-sRGB mapping looks.
+
 ## Nikon AF points on the cull page (2026-11-24)
 
 Nikon's maker note names the AF points it used by number and bit on a grid
@@ -308,9 +333,8 @@ and beats the point turned through the centre on 19 of 23 off-centre frames
 coordinates (0.924 vs 0.932). The plugin's Z9 grid spacing (255 x 288 px)
 agrees with the spacing ExifTool measured independently (260 x 292 px) within
 2%. On the public D810 sample both AF fields name C5. Found on the way: these
-Z8 files (HLG tone mode) carry HEVC previews, so the page shows their 160 x
-120 thumbnail and reads the whole file (as it did before); decoding the HEVC
-preview in the browser is next (NEXT.md).
+Z8 files (HLG tone mode) carry HEVC previews; the page decodes them where
+the browser can since the section above.
 
 ## The cull page reads where the camera focused (2026-11-24)
 
