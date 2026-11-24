@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKiZ8P3WQMBX5xH6Pvz",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T03:08:51Z",
+  "ended": "2026-11-24T03:18:44Z",
+  "wall_minutes": 17.18,
+  "tokens_in": 5324364,
+  "tokens_out": 28735,
+  "cost_usd": 2.7393,
+  "tool_calls": 46,
+  "task": "research free-choice draw: civ-seeding milestone 30, the seeding rules re-scored under the homophily (L) and per-household threshold (H) fits",
+  "projects": [
+    "research/civ-seeding"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18526",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "the first full run scored random seeds with milestone 4's harness: one shared random draw for all 200 random seed sets, so under L one latent field per village made random look best",
+      "fix": "scored random with independent draws as the pre-registered plan specified; kept the shared-draw score only for the H110 reproduction check; disclosed in LOG and README"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/civ-seeding/experiments/m4_seeding/run.py",
+      "issue": "the random rule is scored on one draw shared across all 200 random seed sets (simulate_batch without independent=True); harmless under I/T/R (regret 0.069 vs 0.066) but wrong under any process with a per-simulation latent field. Fixed in m30, not in m4"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "the session started on the work branch already at origin/main; a defensive git reset --hard was refused by the auto-mode classifier, which cost a call but nothing else"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-village-seeding-advice-survives-homophily.md",
+    "research/civ-seeding/LOG.md (milestone 30 plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "Hypotheses H110-H115 registered and pushed before the run. H110, H112-H115 held; H111 refuted (gain ratio 0.807 vs 0.75). Local checks: tests 115 passed (/usr/bin/python3.13 -m pytest research/civ-seeding/tests), research/_homepage/build.py ok, check_md_links ok, research_live_links ok, programme_check ok, check_posts ok. Run 304 s on 4 cores.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "70ced52e-a603-568c-abb6-12af3175492d",
+    "transcripts": 1,
+    "first": "2026-11-24T03:08:51Z",
+    "last": "2026-11-24T03:26:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 81,
+        "output": 28735,
+        "thinking": 5935,
+        "cache_read": 5183338,
+        "cache_write_5m": 0,
+        "cache_write_1h": 140945,
+        "api_equivalent_usd": 2.7393,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 81,
+      "output": 28735,
+      "thinking": 5935,
+      "cache_read": 5183338,
+      "cache_write_5m": 0,
+      "cache_write_1h": 140945,
+      "api_equivalent_usd": 2.7393,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 42,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.18,
+      "active_minutes": 17.18,
+      "model_minutes": 5.51,
+      "tool_minutes": 11.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a PhD student extending a simulator, writing a registered analysis and running/writing up a 15-rule x 7-model scoring study",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 365.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
