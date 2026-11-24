@@ -61,7 +61,7 @@ export const ANNOUNCED = {
 const monthIndex = (m) => { const [y, mo] = m.split('-').map(Number); return y * 12 + mo - 1; };
 const monthLabel = (k) => `${Math.floor(k / 12)}-${String((k % 12) + 1).padStart(2, '0')}`;
 
-export function replay({ sdFixed = false } = {}) {
+export function replay({ sdFixed = false, minPhase = null } = {}) {
   const s = load();
   const parts = ARMS[0].parts.map((p) => s.values[p]);
   const sdTo = s.sdTo;
@@ -71,7 +71,7 @@ export function replay({ sdFixed = false } = {}) {
     const cut = parts.map((x) => x.slice(0, T + 1));
     const hi = sdFixed && T + 1 > sdTo ? sdTo : T + 1;
     const c = compositeIndex(cut, { sdWindow: [1, hi] });
-    cuts.push({ T, turns: turningPoints(c.index, { frequency: 'monthly', bigMove: BIG }).turns });
+    cuts.push({ T, turns: turningPoints(c.index, { frequency: 'monthly', bigMove: BIG, ...(minPhase ? { minPhase } : {}) }).turns });
   }
   return { s, cuts };
 }
