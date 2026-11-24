@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVPzm4ZjHoXpnwEajkJ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T09:06:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 13) xer-schedule-check: DCMA 14-point broken down by WBS and activity code (ribbon view)",
+  "projects": [
+    "ventures/xer-schedule-check"
+  ],
+  "pr": 18573,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "a local python3 -m http.server for a Playwright check of the page was refused by the session's auto-mode classifier twice; page wiring was checked by page.test.mjs/guides.test.mjs only, not in a browser"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "promptctl route drew the research track, but the scheduled task's own prompt asks for revenue-generating products, so the run took the allocator's Start-here venture row (xer-schedule-check) instead",
+      "did": "ventures track, flagship 13",
+      "result": "a new paid-seat feature (ribbon analysis) shipped free"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "every listed buildable item was a re-verification sweep; picked a new user-facing feature commercial tools charge for instead",
+      "did": "ribbon.mjs + page + CLI + guide",
+      "result": "58/58 groupings consistent on six public files"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-dcma-14-point-by-subcontractor-and-wbs.md",
+    "ventures/xer-schedule-check/eval/ribbon-check-2026-11-24.md",
+    "ventures/xer-schedule-check/how-to-break-down-a-dcma-assessment-by-subcontractor.html"
+  ],
+  "goal": null,
+  "notes": "ribbon.mjs scores DCMA points 1-11 per WBS node or activity code value. Local: node --test in the venture 534/534 pass; eval/ribbon-check.mjs on the six public XERs: 58 groupings, sums, totals, pass flags and second-route attribution (34,287 findings) all agree; check_posts ok; validate.py ok; inherited_keys 0 new. run_workflow_locally --for-changes result is in the PR body.",
+  "corrections": [],
+  "redteam": null
+}
