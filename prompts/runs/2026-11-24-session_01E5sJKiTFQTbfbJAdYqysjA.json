@@ -1,0 +1,123 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKiTFQTbfbJAdYqysjA",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T04:17:53Z",
+  "ended": "2026-11-24T04:26:15Z",
+  "wall_minutes": 8.53,
+  "tokens_in": 2125266,
+  "tokens_out": 25087,
+  "cost_usd": 1.5923,
+  "tool_calls": 27,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18537",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "The session branch already existed locally (checked out at clone), so 'git checkout -b' failed; harmless, but the cloud guide could say the work branch may already be checked out."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-saints-by-candlelight-shiphrah-and-puah.md"
+  ],
+  "goal": null,
+  "notes": "Project: saints-by-candlelight, the longest gap of the three creative projects (last episode #18500). Piece: episode 171, shiphrah-and-puah-the-midwives-who-feared-god, 5,786 words, text only (audio du 581 MB, over the 400 MB cap). Security queue empty, IDEAS.md and website requests empty. Checks: check-script ok; node --test 0 fail; run_workflow_locally --for-changes 9/9 selected workflows passed (uses: steps and the PR-only review/deploy jobs not run; portfolio-pages/validate deferred to PR CI). No agent doc: the next run needs nothing beyond the series list in PRODUCTION.md.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "da1bf0a9-36c2-5c39-910c-fac355d31de9",
+    "transcripts": 1,
+    "first": "2026-11-24T04:17:53Z",
+    "last": "2026-11-24T04:26:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 25,
+        "input": 49,
+        "output": 25087,
+        "thinking": 6204,
+        "cache_read": 2039917,
+        "cache_write_5m": 0,
+        "cache_write_1h": 85300,
+        "api_equivalent_usd": 1.5923,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 25,
+      "input": 49,
+      "output": 25087,
+      "thinking": 6204,
+      "cache_read": 2039917,
+      "cache_write_5m": 0,
+      "cache_write_1h": 85300,
+      "api_equivalent_usd": 1.5923,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.96,
+    "tool_calls": 27,
+    "tools": {
+      "Bash": 24,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.53,
+      "active_minutes": 8.53,
+      "model_minutes": 5.25,
+      "tool_minutes": 3.28,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a writer drafting and fact-checking a 5,800-word scripture retelling with sources",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 376.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
