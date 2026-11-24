@@ -100,6 +100,19 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID }}
           CLOUDFLARE_ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID }}
         run: node platform/counter/pull-cloudflare.mjs
+      # Google Search Console: clicks, impressions and position per page and
+      # query over the last 28 days (GSC lags 2-3 days), written to the data
+      # branch as search-console.json. GSC_SERVICE_ACCOUNT_JSON is a
+      # service-account key added as a Restricted (read-only) user on the
+      # property; GSC_PROPERTY defaults to sc-domain:marisstella.app. Without
+      # the secret, or on any error, the step logs why and the job stays green.
+      - name: Pull Search Console
+        env:
+          GSC_SERVICE_ACCOUNT_JSON: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}
+          GSC_PROPERTY: ${{ vars.GSC_PROPERTY }}
+        run: |
+          python3 platform/seo/probe.py gsc --out "$RUNNER_TEMP/data/search-console.json" \
+            || echo "::warning::Search Console pull did not complete (exit $?); see the lines above."
       # Daily and weekly engagement reports from the files just pulled
       # (owner, 2026-11-02: "daily and weekly reports on what sort of user
       # engagement is happening"). Reads the pulled files only, calls nothing,
@@ -125,6 +138,7 @@ jobs:
           Written daily by `.github/workflows/site-usage-pull.yml` on main. Holds only
           generated, aggregate files; never merged as a branch, never edited by hand.
           Read: `node platform/counter/usage-data.mjs show` (from a main checkout).
+          Google Search Console, per page and query: search-console.json.
           Engagement reports, daily and weekly: reports/README.md.
           Land on main: `node platform/counter/usage-data.mjs sync`, then a PR.
           See portfolio/usage/README.md, "Where the daily pull lands".
