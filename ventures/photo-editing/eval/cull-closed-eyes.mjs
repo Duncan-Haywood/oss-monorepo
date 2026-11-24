@@ -35,7 +35,8 @@ await page.route("**/*", (route) => {
   if (!f) return route.abort();
   route.fulfill({ body: readFileSync(f), contentType: types[extname(f)] || "application/octet-stream" });
 });
-await page.goto("http://site.local/cull.html");
+// EDGES=0 runs the page without its mirrored edge pass (cull.html?edges=0).
+await page.goto(`http://site.local/cull.html${process.env.EDGES === "0" ? "?edges=0" : ""}`);
 
 // Re-encode PNGs to JPEG with the browser's own encoder (into a temp folder:
 // Playwright passes files by path, and real raws pass the 50 MB buffer cap).
@@ -61,7 +62,8 @@ await page.setInputFiles("#pickFiles", inputs);
 await page.waitForFunction(() => /^\d+ files/.test(document.getElementById("status").textContent), null, { timeout: 600000 });
 const loaded = (Date.now() - t0) / 1000;
 await page.check("#eyesOn");
-await page.waitForFunction(() => /Eyes checked on|could not load/.test(document.getElementById("status").textContent), null, { timeout: 600000 });
+// data-eyes is set once both passes (whole frame, then the mirrored edges) are done.
+await page.waitForFunction(() => document.body.dataset.eyes, null, { timeout: 1800000 });
 const status = await page.textContent("#status");
 const csv = await (async () => {
   const dl = page.waitForEvent("download");
@@ -89,7 +91,7 @@ function parseCsv(text) {
 }
 const [head, ...rows] = parseCsv(csv);
 const col = (n) => head.indexOf(n);
-console.log(["file", "faces", "eyes_closed", "blink_max", "sharpest_in_burst", "error"].join("\t"));
-for (const r of rows) console.log([r[col("file")], r[col("faces")], r[col("eyes_closed")], r[col("blink_max")], r[col("sharpest_in_burst")], r[col("error")]].join("\t"));
+console.log(["file", "faces", "faces_at_edge", "eyes_closed", "blink_max", "sharpest_in_burst", "error"].join("\t"));
+for (const r of rows) console.log([r[col("file")], r[col("faces")], r[col("faces_at_edge")], r[col("eyes_closed")], r[col("blink_max")], r[col("sharpest_in_burst")], r[col("error")]].join("\t"));
 await browser.close();
 rmSync(tmp, { recursive: true, force: true });

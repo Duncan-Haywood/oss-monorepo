@@ -152,7 +152,7 @@
 
 - A licensed set with many real closed and half-closed eyes to set the 0.45 line from a curve (one closed face
   brackets it now); sunglasses read as open.
-- (landed 2026-11-24, eval/blink-rule-agreement-2026-11-24.md) One rule for the page and the CLI detector: the more-closed eye over 0.5 (the page asked for both at 0.45 and flagged 4 of 7 closed photos; now 6 of 7, 0 of 108 others). Next: edge-mirror search on the page (its one miss is a half face at the edge), opt-in or gated, timed on a 500-file card; a real wink, which now counts as a blink.
+- (landed 2026-11-24, eval/blink-rule-agreement-2026-11-24.md) One rule for the page and the CLI detector: the more-closed eye over 0.5 (the page asked for both at 0.45 and flagged 4 of 7 closed photos; now 6 of 7, 0 of 108 others). (landed 2026-11-24, eval/cull-edge-mirror-2026-11-24.md) Edge-mirror pass on the page, gated (skips frames already flagged), after the first pass: 7 of 7 closed photos, 0 of 108 others; 20 of 40 cut half faces found, 8 of 10 shut flagged. Next: half faces under 100 px (both page and CLI miss most); a real wink, which now counts as a blink.
 
 ## From the cull page's AF point (2026-11-24, eval/cull-af-point-2026-11-24.md)
 
@@ -178,3 +178,4 @@
 - (landed 2026-11-24, PR #18557, eval/cull-iptc-tree-codes-2026-11-24.md) Keyword trees and code replacements.
   (2026-11-24, eval/cull-iptc-own-keywords-2026-11-24.md) A sidecar's own flat keywords stay as written (a
   `Before > After` was being turned into a path). Next: Lightroom's Read Metadata from Files on these sidecars.
+- (2026-11-24) next HLG Z8 HEVC previews, a real card of 500+ raws with picks, a Lightroom read of merged sidecars

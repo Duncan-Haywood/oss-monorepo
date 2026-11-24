@@ -339,9 +339,8 @@ flagships:
       DNGs; BigTIFF and the 2000s Olympus compacts' ORFs developed in-page
       2026-11-24, eval/cull-orf-compacts-*); keyword trees, code replacements, C
       captions 2026-11-24 (ExifTool, eval/cull-iptc-tree-codes-*; next Lightroom's
-      import of the tree). Nikon AF points 2026-11-24 (eval/cull-nikon-af-*); next
-      HLG Z8 HEVC previews, a real card of 500+ raws with picks, a Lightroom read of
-      merged sidecars. More open items: NEXT.md.
+      import of the tree). Nikon AF points, half faces at the edge 2026-11-24
+      (eval/cull-nikon-af-*, eval/cull-edge-mirror-*). More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-

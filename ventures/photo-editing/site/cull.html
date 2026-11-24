@@ -188,7 +188,7 @@
     <p>Every camera raw file carries a JPEG made by the camera at capture. On most bodies from the last decade it is full size (on the files we tested: every Canon CR3, the newer CR2 and NEF files, Pentax, Samsung and the Sony A7 IV; Sony before the A7 IV, Fujifilm and Panasonic store about 1,600 to 1,920 px). The page finds that JPEG by the file's own pointers (TIFF tags, CR3 boxes, the RAF header, the Olympus maker note), with a byte scan as the last resort, and reads the camera, lens, exposure and capture time from the file's EXIF.</p>
     <p>Bursts are frames from the same body taken no more than 1.5 s apart. "Detail" is the variance of a Laplacian filter in the busiest of 16 areas of the preview, the same kind of measure culling apps use for sharpness. It compares frames of the same scene well; it cannot tell a soft subject in front of a sharp background, and it favours busy scenes over plain ones. Treat the ranking as a hint and check focus at 100% with <kbd>Z</kbd>.</p>
     <p>Where the camera recorded where it focused, the page reads that too and draws it in the large view (in red the points the camera reports in focus): Canon (CR2 and CR3, including the 1,053-point grids of recent mirrorless bodies), Sony (bodies that write FocusLocation, such as the A7 III and A7 IV), Fujifilm, Panasonic, and Olympus and OM System. In a burst where every frame has an AF point, "sharpest" then means the most detail at that point, which is the subject the camera chose, so a soft subject in front of a busy background no longer wins; <kbd>Z</kbd> zooms to it. Nikon numbers its phase-detect points on a grid that differs by body and publishes no coordinates; the page places them from per-body point maps measured by the Focus-Points Lightroom plugin's contributors (Apache-2.0) with ExifTool's point numbering: the 51- and 39-point DSLRs (D3 to D4S, D300, D600/D610, D700, D750, D7000 to D7500, D800/D810, Df, D5200 to D5600), the 153-point D5, D500 and D850, the D6 and D780, and the Z bodies, which also write the AF area's position directly (on 28 public Z8 files, 27 now show a point, where 5 did before). Nikon's 11-point bodies (D90, D3000 to D3500, D5000, D5100) and bodies before 2007 have no map yet and fall back to the busiest area. On the public sample files, the point read agrees with metadata-extractor's own decoding on all 22 files it decodes, and sits on more detail than a random spot in 18 of 24 (median rank 0.89).</p>
-    <p>Closed eyes, if you tick "Check for closed eyes": the page downloads Google's MediaPipe Face Landmarker (Apache-2.0, a 3.6 MB model) once and runs it in the browser on a 1,024 px copy of each preview, after the card has loaded. A face counts as blinking when the model's blink score for the more-closed eye is over 0.5, the same rule as ShootFlow's command-line detector, so a frame gets one verdict whichever you use (on real shut eyes the model often reads one lid much lower than the other, so asking for both eyes missed a third of them). A deliberate wink counts as a blink too. Faces smaller than 1% of the frame (people in the background) are ignored. Frames with a blink get an "eyes closed" tag and their own filter, the large view boxes each face (amber closed, green open), and the burst pick skips blinking frames unless every frame in the burst has one. How far to trust it: on 115 labelled real and generated photos the page flagged 6 of the 7 with shut eyes and none of the other 108 (the miss is a half face at the frame edge, which the face model does not find). The widest open-eyed laugh scored 0.48, close to the line; seven closed photos are too few to give an error rate, and half-closed eyes, profiles, sunglasses and heavy motion blur are not covered. Treat the tag as a hint and look before you reject.</p>
+    <p>Closed eyes, if you tick "Check for closed eyes": the page downloads Google's MediaPipe Face Landmarker (Apache-2.0, a 3.6 MB model) once and runs it in the browser on a 1,024 px copy of each preview, after the card has loaded. A face counts as blinking when the model's blink score for the more-closed eye is over 0.5, the same rule as ShootFlow's command-line detector, so a frame gets one verdict whichever you use (on real shut eyes the model often reads one lid much lower than the other, so asking for both eyes missed a third of them). A deliberate wink counts as a blink too. Faces smaller than 1% of the frame (people in the background) are ignored. A face cut in half by the frame edge is not found by the face model, so after the first pass the page looks again along each edge: it reflects a strip 40% deep across the edge, so the half face and its reflection make a whole one, and keeps a face only if it sits on the mirror line (the same search as the command-line detector; about 0.14 s more per frame, and skipped on frames already flagged). Frames with a blink get an "eyes closed" tag and their own filter, the large view boxes each face (amber closed, green open), and the burst pick skips blinking frames unless every frame in the burst has one. How far to trust it: on 115 labelled real and generated photos the page flags all 7 with shut eyes and none of the other 108 (the seventh is a half face at the frame edge, found by the edge pass, which was designed on that photo); on 40 half faces cut from the set's own faces it finds 20 and flags 8 of the 10 shut ones, none of the 30 open ones, where the first pass alone found none. Half faces under about 100 px wide are mostly still missed. The widest open-eyed laugh scored 0.48, close to the line; seven closed photos are too few to give an error rate, and half-closed eyes, profiles, sunglasses and heavy motion blur are not covered. Treat the tag as a hint and look before you reject.</p>
     <p>It shows the camera's JPEG, not a development of the raw data, so white balance and picture style are what the camera chose. For developing raw files with checked colour, see <a href="./">ShootFlow's command-line tools</a>.</p>
     <p>Measured on 65 public sample files from 55 camera models (the <a href="https://github.com/drewnoakes/metadata-extractor-images">metadata-extractor-images</a> set): a preview was found in 61, and all 61 decode at the size read; in Chromium the page read all 65 (1.1 GB) in about 5 seconds. The misses were two 2 KB BigTIFF test files (read since 2026-11-24), a phone DNG with no JPEG inside and a truncated 368-byte file; DNGs with no JPEG inside are now developed from their sensor data (below). Four older Olympus compacts (C-5050 Zoom, C-8080, SP-350, SP-500 UZ) store only a 160 × 120 thumbnail, so the page develops those from their sensor data too: a 1,288 to 1,640 px preview with the camera's white balance and a typical sensor's colour matrix (the files carry none), a median 1.0 to 3.2 ΔE2000 from LibRaw's development of the same files.</p>
   </section>
@@ -244,7 +244,7 @@
 <script type="module">
 import { readRawFile, isCandidateFile, captureMillis, groupBursts, sharpness, detailAt, burstBest, orientPoint, xmpSidecar, sidecarName, zipStored, LABEL_KEYS, readXmp, mergeXmpSidecar, sidecarTarget } from "./rawpreview.mjs";
 import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
-import { summarizeFaces, eyesOpenCandidates, describeFaces, loadFaceLandmarker } from "./eyes.mjs";
+import { summarizeFaces, eyesOpenCandidates, describeFaces, loadFaceLandmarker, EDGES, edgeLayout, drawEdgeView, edgeFacesFromResult, needsEdgeSearch } from "./eyes.mjs";
 import { IPTC_FIELDS, frameIptc, mergeIptc, readIptc, splitKeywords, parseCodes } from "./iptc.mjs";
 
 const $ = (id) => document.getElementById(id);
@@ -867,10 +867,10 @@ $("dlPicks").onclick = () => {
 };
 $("dlCsv").onclick = () => {
   const q = (v) => { const s = v == null ? "" : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-  const rows = [["file", "rating", "rejected", "label", "burst", "sharpest_in_burst", "sharpest_by", "detail", "af_x", "af_y", "af_detail", "af_source", "captured", "camera", "lens", "exposure_s", "f_number", "iso", "focal_mm", "preview_w", "preview_h", "faces", "eyes_closed", "blink_max", "keywords", "caption", "error"]];
+  const rows = [["file", "rating", "rejected", "label", "burst", "sharpest_in_burst", "sharpest_by", "detail", "af_x", "af_y", "af_detail", "af_source", "captured", "camera", "lens", "exposure_s", "f_number", "iso", "focal_mm", "preview_w", "preview_h", "faces", "faces_at_edge", "eyes_closed", "blink_max", "keywords", "caption", "error"]];
   for (const it of items) {
     const m = it.meta || {};
-    rows.push([it.name, it.rating, it.rejected ? 1 : 0, it.label, it.burst, it.best ? 1 : 0, it.best ? it.bestBy || "" : "", it.detail != null ? it.detail.toFixed(1) : "", it.af?.at ? it.af.at[0].toFixed(4) : "", it.af?.at ? it.af.at[1].toFixed(4) : "", it.afDetail != null ? it.afDetail.toFixed(1) : "", it.af?.source || "", m.captured, cameraName(m), m.lens, m.exposureTime, m.fNumber, m.iso, m.focalLength, it.preview?.width, it.preview?.height, it.eyes ? it.eyes.prominent : "", it.eyes ? (it.eyes.eyesClosed ? 1 : 0) : "", it.eyes?.worstBlink != null ? it.eyes.worstBlink.toFixed(3) : "", (it.keywords || []).join("; "), it.caption || "", it.error]);
+    rows.push([it.name, it.rating, it.rejected ? 1 : 0, it.label, it.burst, it.best ? 1 : 0, it.best ? it.bestBy || "" : "", it.detail != null ? it.detail.toFixed(1) : "", it.af?.at ? it.af.at[0].toFixed(4) : "", it.af?.at ? it.af.at[1].toFixed(4) : "", it.afDetail != null ? it.afDetail.toFixed(1) : "", it.af?.source || "", m.captured, cameraName(m), m.lens, m.exposureTime, m.fNumber, m.iso, m.focalLength, it.preview?.width, it.preview?.height, it.eyes ? it.eyes.prominent : "", it.eyes ? it.eyes.faces.filter((f) => f.prominent && f.edge).length : "", it.eyes ? (it.eyes.eyesClosed ? 1 : 0) : "", it.eyes?.worstBlink != null ? it.eyes.worstBlink.toFixed(3) : "", (it.keywords || []).join("; "), it.caption || "", it.error]);
   }
   download("shootflow-cull.csv", rows.map((r) => r.map(q).join(",")).join("\n") + "\n", "text/csv");
   record("csv_downloaded");
@@ -895,7 +895,7 @@ async function eyeCanvas(it) {
 async function checkEyes() {
   if (eyesRunning) return;
   const todo = items.filter((it) => it.preview && !it.error && !it.eyes);
-  if (!todo.length) return;
+  if (!todo.length) { if (items.some((it) => it.eyesFace && !it.edgeChecked)) return checkEdges(); return; }
   eyesRunning = true;
   const prog = $("prog");
   try {
@@ -906,7 +906,13 @@ async function checkEyes() {
     let lastDraw = performance.now();
     for (let k = 0; k < todo.length; k++) {
       const it = todo[k];
-      try { it.eyes = summarizeFaces(lm.detect(await eyeCanvas(it))); }
+      try {
+        const result = lm.detect(await eyeCanvas(it));
+        it.eyes = summarizeFaces(result);
+        // Kept (boxes and scores only) for the edge pass, which merges into it.
+        if (needsEdgeSearch(it.eyes)) it.eyesFace = { faceLandmarks: result.faceLandmarks.map((pts) => pts.map((q) => ({ x: q.x, y: q.y }))), faceBlendshapes: result.faceBlendshapes.map((b) => ({ categories: b.categories.filter((k) => /^eyeBlink/.test(k.categoryName)).map((k) => ({ categoryName: k.categoryName, score: k.score })) })) };
+        else it.edgeChecked = true;
+      }
       catch { it.eyes = null; }
       prog.value = k + 1;
       $("status").textContent = `Checking eyes ${k + 1} of ${todo.length}…`;
@@ -920,9 +926,64 @@ async function checkEyes() {
     $("status").textContent = `Eyes checked on ${todo.length} frames in ${((performance.now() - t0) / 1000).toFixed(1)} s: ${withFaces} with faces, ${closed} with eyes closed${closed ? " (Show › Eyes closed lists them)" : ""}.`;
     record("eyes_checked");
     if (closed) record("eyes_closed_found");
+    eyesRunning = false;
+    await checkEdges(t0);
+    document.body.dataset.eyes = "done";
   } catch (e) {
     prog.hidden = true;
+    document.body.dataset.eyes = "failed";
     $("status").textContent = `The face model could not load (${e.message || e}); the rest of the page works without it.`;
+  } finally {
+    eyesRunning = false;
+  }
+}
+// Second pass: half faces cut by the frame edge, which the face model cannot
+// find whole. Each edge strip (40% deep) is reflected across the edge and the
+// model looks at the pair (eval/cull-edge-mirror-2026-11-24.md). Four more
+// model runs a frame, so it runs after the verdicts are on screen, and skips
+// frames already flagged.
+// cull.html?edges=0 skips it (for timing and before/after checks).
+const EDGE_SEARCH = new URLSearchParams(location.search).get("edges") !== "0";
+async function checkEdges(t0 = performance.now()) {
+  if (eyesRunning || !EDGE_SEARCH) return;
+  const todo = items.filter((it) => it.eyesFace && !it.edgeChecked && !it.error);
+  if (!todo.length) return;
+  eyesRunning = true;
+  const prog = $("prog");
+  const before = items.filter((it) => it.eyes?.eyesClosed).length;
+  const t1 = performance.now();
+  try {
+    const lm = await loadFaceLandmarker();
+    prog.hidden = false; prog.max = todo.length; prog.value = 0;
+    let lastDraw = performance.now();
+    const view = document.createElement("canvas");
+    for (let k = 0; k < todo.length; k++) {
+      const it = todo[k];
+      try {
+        const c = await eyeCanvas(it);
+        const found = [];
+        for (const edge of EDGES) {
+          const L = edgeLayout(c.width, c.height, edge);
+          view.width = L.vw; view.height = L.vh;
+          drawEdgeView(view.getContext("2d"), c, c.width, c.height, L);
+          found.push(...edgeFacesFromResult(lm.detect(view), L, c.width, c.height));
+        }
+        if (found.length) it.eyes = summarizeFaces(it.eyesFace, { edgeFaces: found });
+      } catch { /* keep the whole-frame verdict */ }
+      it.edgeChecked = true; it.eyesFace = null;
+      prog.value = k + 1;
+      $("status").textContent = `Looking for half faces at the frame edges ${k + 1} of ${todo.length}…`;
+      if (performance.now() - lastDraw > 1000) { refresh(false); lastDraw = performance.now(); }
+    }
+    prog.hidden = true;
+    refresh(false);
+    if (loupeOpen) drawLoupe();
+    const closed = items.filter((it) => it.eyes?.eyesClosed).length;
+    const edgeFaces = items.filter((it) => it.eyes?.faces.some((f) => f.edge && f.prominent)).length;
+    $("status").textContent = `Eyes checked in ${((performance.now() - t0) / 1000).toFixed(1)} s (edges ${((performance.now() - t1) / 1000).toFixed(1)} s on ${todo.length} frames): ${closed} with eyes closed${closed > before ? `, ${closed - before} of them from a half face at the edge` : ""}${edgeFaces ? `; ${edgeFaces} frames with a face cut by the edge` : ""}${closed ? " (Show › Eyes closed lists them)" : ""}.`;
+    if (closed > before) record("eyes_closed_edge_found");
+  } catch {
+    prog.hidden = true;
   } finally {
     eyesRunning = false;
   }
