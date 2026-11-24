@@ -115,3 +115,8 @@ test("matching og:url and a self-referencing hreflang set stay clean", () => {
   const r = audit(GOOD.replace('<meta name="twitter:card"', '<meta property="og:url" content="https://example.com"><link rel="alternate" hreflang="en" href="https://example.com/"><link rel="alternate" hreflang="fr" href="https://example.com/fr/"><meta name="twitter:card"'));
   assert.deepEqual(r.findings.map((f) => f.id), []);
 });
+
+test("a character reference past U+10FFFF in a stranger's page becomes U+FFFD instead of crashing the audit", () => {
+  assert.equal(parse("<title>Hi &#99999999; &#x110000; &#233;</title>").title, "Hi \uFFFD \uFFFD é");
+  assert.doesNotThrow(() => audit("<html><head><title>&#99999999;</title></head><body><h1>x</h1></body></html>"));
+});

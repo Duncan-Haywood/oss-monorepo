@@ -1,0 +1,5 @@
+# Files whose String.fromCodePoint calls check_code_point_range.py cannot see a guard for,
+# judged safe by a reviewer. One path per line; say why after a '#'. A stale entry fails.
+ventures/dockerignore-explainer/matcher.mjs  # ASCII_PUNCT checks c < 0x80 first (short-circuit)
+ventures/ids-model-check/pattern-lang.mjs  # code points come from the XML_CHAR table and its class atoms, all within U+10FFFF
+ventures/ids-model-check/eval/pattern-inclusion.mjs  # eval script; samples automaton edges built from the same XML_CHAR atoms

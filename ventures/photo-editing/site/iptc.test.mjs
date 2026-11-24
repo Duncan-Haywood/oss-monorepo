@@ -179,3 +179,73 @@ test("mergeIptc keeps a sidecar's own flat keywords as written: no path parsing,
   assert.ok(!/hierarchicalSubject/.test(flat));
   assert.match(flat, /<rdf:li>Before &gt; After<\/rdf:li>/);
 });
+
+// Every prefixed element and attribute name in `xml` must be bound where it is used:
+// a prefix declared on a sibling element is not in scope, and ExifTool and the
+// Adobe XMP toolkit reject a sidecar that uses one (red-team run 2026-11-24).
+function assertPrefixesInScope(xml) {
+  const stack = [new Set(["xml"])];
+  const tagRe = /<(\/?)([\w.:-]+)((?:\s+[\w.:-]+\s*=\s*(?:"[^"]*"|'[^']*'))*)\s*(\/?)>/g;
+  let m;
+  while ((m = tagRe.exec(xml))) {
+    const [, close, name, attrs, selfClose] = m;
+    if (close) { stack.pop(); continue; }
+    const scope = new Set(stack.at(-1));
+    const attrList = [...attrs.matchAll(/([\w.:-]+)\s*=/g)].map((a) => a[1]);
+    for (const a of attrList) if (a.startsWith("xmlns:")) scope.add(a.slice(6));
+    for (const n of [name, ...attrList.filter((a) => !a.startsWith("xmlns"))]) {
+      if (n.includes(":")) assert.ok(scope.has(n.split(":")[0]), `prefix of <${name}> ${n} is not in scope at offset ${m.index}`);
+    }
+    if (!selfClose) stack.push(scope);
+  }
+}
+
+const RDF_OPEN = `<x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">`;
+const RDF_CLOSE = `</rdf:RDF></x:xmpmeta>`;
+
+test("readIptc decodes decimal and hex character references, and keeps a malformed one as typed instead of throwing", () => {
+  const s = `${RDF_OPEN}<rdf:Description rdf:about="" xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/" photoshop:City="Z&#252;rich &#x41;" photoshop:State="A&#99999999;B"/>${RDF_CLOSE}`;
+  assert.deepEqual(readIptc(s), { city: "Zürich A", state: "A&#99999999;B" });
+  assert.doesNotThrow(() => mergeIptc(s, { keywords: ["k"] }));
+});
+
+test("readIptc and mergeIptc handle an attribute value holding the other quote (Smith's goal)", () => {
+  const s = `${RDF_OPEN}<rdf:Description rdf:about="" xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/" photoshop:Headline="Smith's goal" photoshop:City='The "Den"'/>${RDF_CLOSE}`;
+  assert.deepEqual(readIptc(s), { headline: "Smith's goal", city: 'The "Den"' });
+  const out = mergeIptc(s, { headline: "New", city: "Leeds" });
+  // Replaced in place, never written twice (an attribute and an element for one property).
+  assert.equal(out.match(/photoshop:Headline/g).length, 1);
+  assert.equal(out.match(/photoshop:City/g).length, 1);
+  assert.deepEqual(readIptc(out), { headline: "New", city: "Leeds" });
+});
+
+test("mergeIptc into a sidecar with one rdf:Description per namespace binds every prefix it writes", () => {
+  const s = `${RDF_OPEN}
+  <rdf:Description rdf:about="" xmlns:crs="http://ns.adobe.com/camera-raw-settings/1.0/" crs:Exposure2012="+0.5"/>
+  <rdf:Description rdf:about="" xmlns:photoshop="http://ns.adobe.com/photoshop/1.0/" xmlns:dc="http://purl.org/dc/elements/1.1/"><photoshop:City>Leeds</photoshop:City><dc:subject><rdf:Bag><rdf:li>old</rdf:li></rdf:Bag></dc:subject></rdf:Description>
+${RDF_CLOSE}`;
+  const out = mergeIptc(s, { headline: "Hi", city: "York", keywords: ["new"], location: "Elland Road" });
+  assertPrefixesInScope(out);
+  assert.deepEqual(readIptc(out), { headline: "Hi", keywords: ["old", "new"], location: "Elland Road", city: "York" });
+  assert.match(out, /crs:Exposure2012="\+0.5"/);
+});
+
+test("mergeIptc output keeps every prefix in scope and the rdf:RDF tag untouched", () => {
+  for (const out of [mergeIptc(LR, { location: "Elland Road", keywords: ["Sport|Football"] }), mergeIptc(xmpSidecar({ rating: 3 }), { headline: "h", keywords: ["a|b"], location: "x" })]) {
+    assertPrefixesInScope(out);
+    assert.match(out, /<rdf:RDF xmlns:rdf="http:\/\/www.w3.org\/1999\/02\/22-rdf-syntax-ns#">/);
+    assert.match(out, /<rdf:Description\b[^>]*xmlns:Iptc4xmpCore="http:\/\/iptc.org\/std\/Iptc4xmpCore\/1.0\/xmlns\/"/);
+  }
+});
+
+test("readIptc picks x-default from a language alternative wherever it sits, else the first language", () => {
+  const alt = (lis) => `${RDF_OPEN}<rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title><rdf:Alt>${lis}</rdf:Alt></dc:title></rdf:Description>${RDF_CLOSE}`;
+  assert.equal(readIptc(alt(`<rdf:li xml:lang="fr-FR">Titre</rdf:li><rdf:li xml:lang="x-default">Title</rdf:li>`)).title, "Title");
+  assert.equal(readIptc(alt(`<rdf:li xml:lang="en-GB">Only English</rdf:li><rdf:li xml:lang="de-DE">Deutsch</rdf:li>`)).title, "Only English");
+});
+
+test("frameVars camera keeps the maker when the model does not start with it", () => {
+  assert.equal(frameVars({ meta: { make: "Canon", model: "EOS R5" } }).camera, "Canon EOS R5");
+  assert.equal(frameVars({ meta: { make: "NIKON CORPORATION", model: "NIKON D300" } }).camera, "NIKON D300");
+  assert.equal(frameVars({ meta: { model: "X100V" } }).camera, "X100V");
+});

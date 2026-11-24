@@ -142,7 +142,7 @@ function text(node, ...names) {
 }
 const hex = (bytes) => Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 // SdI's own text can quote a tax number ("IdCodice non valido : 00174410993").
-const decodeRefs = (s) => String(s || "").replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16))).replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(+d))
+const decodeRefs = (s) => String(s || "").replace(/&#x([0-9a-f]+);/gi, (_, h) => codePointOr(parseInt(h, 16))).replace(/&#(\d+);/g, (_, d) => codePointOr(+d))
   .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, "&");
 export const withhold = (s) => decodeRefs(s).replace(/\d{8,}/g, "[number withheld]").replace(/\s+/g, " ").trim();
 
@@ -288,3 +288,7 @@ export function receiptEnvelope(r, pair) {
   if (pair) bits.push(`paired with ${pair.name} by ${pair.by === "hash" ? "SHA-256" : "file name"}`);
   return `${bits.join("; ")}. ${Object.hasOwn(OUTCOME, r.type) ? OUTCOME[r.type] : ""}`.trim();
 }
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

@@ -13,7 +13,7 @@ const XML_NS = "http://www.w3.org/XML/1998/namespace";
 
 function decodeEntities(text) {
   return text.replace(/&(#x[0-9a-fA-F]+|#[0-9]+|amp|lt|gt|quot|apos);/g, (_, ref) => {
-    if (ref[0] === "#") return String.fromCodePoint(ref[1] === "x" || ref[1] === "X" ? parseInt(ref.slice(2), 16) : parseInt(ref.slice(1), 10));
+    if (ref[0] === "#") return codePointOr(ref[1] === "x" || ref[1] === "X" ? parseInt(ref.slice(2), 16) : parseInt(ref.slice(1), 10));
     return { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" }[ref];
   });
 }
@@ -171,3 +171,7 @@ export function textOf(node) {
   if (node.type === "text") return node.value;
   return node.children.map(textOf).join("");
 }
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

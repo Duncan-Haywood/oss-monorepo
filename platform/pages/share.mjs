@@ -121,8 +121,8 @@ const decode = (s) => {
   return str.includes('&') ? decodeEntities(str) : str;
 };
 const decodeEntities = (str) => str
-  .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
-  .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
+  .replace(/&#(\d+);/g, (_, n) => codePointOr(Number(n)))
+  .replace(/&#x([0-9a-f]+);/gi, (_, n) => codePointOr(parseInt(n, 16)))
   .replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>')
   .replace(/&nbsp;/g, ' ').replace(/&mdash;/g, '—').replace(/&ndash;/g, '–').replace(/&rsquo;/g, '’')
   .replace(/&lsquo;/g, '‘').replace(/&ldquo;/g, '“').replace(/&rdquo;/g, '”').replace(/&hellip;/g, '…')
@@ -634,3 +634,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === new URL(import.meta.url
   });
   console.log(`Drew ${result.cards.length} share card(s); completed share tags on ${result.changed.length} page(s).`);
 }
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }
