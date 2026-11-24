@@ -32,6 +32,16 @@ test('rewritePage refuses what MV3 cannot run or what reaches out', () => {
   assert.equal(rewritePage('<p onclick-free>ok</p>').skip, undefined);
 });
 
+test('a literal dynamic import of a local file is bundled; import(expr) and a package import are refused', async () => {
+  assert.equal(rewritePage('<script type="module">const m = () => import("./lazy.mjs");</script>').skip, undefined);
+  assert.match(rewritePage('<script>import(url)</script>').skip, /network/);
+  const page = '<title>Demo Tool — x</title><meta name="description" content="Does a thing."><script type="module">const m = () => import("./lazy.mjs");</script>';
+  const dir = await fixture({ 'lazy.mjs': 'export const x = 1;\n' });
+  const r = await importedFiles(dir, [page]);
+  assert.deepEqual(r.files, ['lazy.mjs']);
+  assert.match((await importedFiles(dir, ['import("left-pad")'])).skip, /imports "left-pad"/);
+});
+
 async function fixture(files) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'webext-'));
   for (const [n, b] of Object.entries(files)) await fs.writeFile(path.join(dir, n), b);

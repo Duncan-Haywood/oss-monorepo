@@ -29,7 +29,10 @@ const REPO_ROOT = path.resolve(HERE, '..', '..');
 export const VERSION = '0.1.0';
 const REPO_URL = 'https://github.com/duncan-haywood/oss-monorepo';
 const SCRIPT_RE = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
-const NETWORK_RE = /\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts|\bimport\s*\(/;
+// `import("./x.mjs")` with a string literal is followed like a static import
+// (`importsOf` reads it, and `importedFiles` refuses one that is not
+// relative); only `import(expr)`, whose target the walk cannot see, is refused.
+const NETWORK_RE = /\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts|\bimport\s*\((?!\s*[\"'])/;
 
 /** Names Chrome shows: the title up to its first dash, at most 45 characters. */
 export function extensionName(title) {
