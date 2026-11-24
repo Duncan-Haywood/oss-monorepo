@@ -62,6 +62,7 @@
 
 import { readFileSync } from 'node:fs';
 import { BAR_ALIGN_JS } from './bar-align.mjs';
+import { BAR_TONE_JS, barToneCss } from './bar-tone.mjs';
 export const SAVED_BIDS_KEY = 'portfolio-saved-bids';
 
 const JOBS_MARKER = 'pf-jobs';
@@ -2944,7 +2945,7 @@ section.pf-jobs{background:none;border:0;border-radius:0;box-shadow:none;min-hei
  * outside those sheets' allow-list: a contractor who left the panel open would
  * have handed one customer a list of the others. */
 @media print{.pf-jobs{display:none !important}}
-`;
+${barToneCss('pf-jobs')}`;
 
 /**
  * What the status line says to a visitor with no saved bids.
@@ -3085,6 +3086,7 @@ ${BID_PRICE_BAND_HELPERS}
   var root = document.querySelector('[data-pf-jobs-root]');
   if (!root) return;
 ${BAR_ALIGN_JS}
+${BAR_TONE_JS}
   var el = function(id){ return document.getElementById(id); };
 
   var store = (function(){ try { return window.localStorage; } catch (e) { return null; } })();
@@ -3811,6 +3813,8 @@ ${BAR_ALIGN_JS}
     root.hidden = false;
     // Line up with the page's heading, now the bar is in the layout (bar-align.mjs).
     pfAlignBar(root);
+    // And take the venture's own button colour (bar-tone.mjs).
+    pfToneBar(root);
     render();
     var saved = mine().length;
     say(saved === 1 ? '1 saved bid.' : saved > 1 ? saved + ' saved bids.' : ${JSON.stringify(JOBS_FIRST_VISIT_STATUS)});
