@@ -3,6 +3,13 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { readdirSync } from 'node:fs';
 
+// Remove every <script> element, case-insensitively and until nothing is left to strip.
+const stripScripts = (s, sub = '') => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, sub); } while (s !== p); return s; };
+// Remove every tag, repeating until no tag-shaped text is left.
+const stripTags = (s, sub = '') => { let p; do { p = s; s = s.replace(/<[^>]*>/g, sub); } while (s !== p); return s; };
+// Escape every regular-expression metacharacter so the text matches literally.
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
 const guide = await readFile(new URL('./why-your-migration-locked-the-table.html', import.meta.url), 'utf8');
 const comparison = await readFile(new URL('./vs-squawk.html', import.meta.url), 'utf8');
@@ -35,7 +42,7 @@ test('the page carries the portfolio disclaimers and stays local', () => {
 // clean result mean the migration is safe to run?", and banning the phrase
 // outright would forbid the honest question along with the overclaim.
 test('the page never claims a clean result means the migration is safe', () => {
-  const prose = index.replace(/<script[\s\S]*?<\/script>/g, '');
+  const prose = stripScripts(index);
   // Longest alternative first: JavaScript alternation is leftmost-match, so
   // `safe|safe to run` matches just `safe` and the "is it phrased as a
   // question?" test below then looks at " to run?" instead of "?" and fails on
@@ -100,12 +107,12 @@ test('the JSON-LD FAQPage questions match the visible FAQ headings', () => {
     // script builds finding cards with `<h3>` in a template literal, and those
     // are rendered output, not FAQ questions -- counting them would demand a
     // JSON-LD entry for a string no crawler ever sees.
-    const visible = html.replace(/<script[\s\S]*?<\/script>/g, '');
+    const visible = stripScripts(html);
     // Question-shaped headings only: a non-question section heading such as
     // "Checking a migration before you run it" is not an FAQ entry and should
     // not be forced into the schema.
     const headings = [...visible.matchAll(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`, 'g'))]
-      .map((m) => m[1].replace(/<[^>]+>/g, '').trim())
+      .map((m) => stripTags(m[1]).trim())
       .filter((h) => h.endsWith('?'));
     assert.ok(headings.length > 0, `${name}: expected visible question headings`);
     for (const heading of headings) {
@@ -167,7 +174,7 @@ test('every .html file in the venture is reachable from the sitemap', async () =
   const dir = new URL('./', import.meta.url);
   for (const name of readdirSync(dir).filter((n) => n.endsWith('.html'))) {
     if (name === 'index.html') continue;
-    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+    assert.match(sitemap, new RegExp(escapeRegExp(name)), `${name} is missing from sitemap.xml`);
   }
 });
 

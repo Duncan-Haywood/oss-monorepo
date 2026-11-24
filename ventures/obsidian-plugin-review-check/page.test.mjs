@@ -181,7 +181,7 @@ test('the comparison page carries valid FAQPage JSON-LD matching its visible cop
   const faq = blocks.find((b) => b['@type'] === 'FAQPage');
   assert.ok(faq, 'missing FAQPage JSON-LD on the comparison page');
   assert.ok(faq.mainEntity.length >= 3);
-  const decode = (s) => s.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+  const decode = (s) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&');
   for (const { name, acceptedAnswer } of faq.mainEntity) {
     assert.ok(vsHtml.includes(decode(name)), `question not found verbatim in visible copy: ${name}`);
     assert.ok(vsHtml.includes(decode(acceptedAnswer.text)), `answer not found verbatim in visible copy: ${acceptedAnswer.text.slice(0, 60)}...`);

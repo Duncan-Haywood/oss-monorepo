@@ -2,6 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const PAGES = ["index.html", "nec-110-24-available-fault-current-label.html", "arc-flash-calculator.html"];
 const fa = (n) => Math.round(n).toLocaleString("en-US");
@@ -38,11 +40,11 @@ test("SEO basics on every page", () => {
     const html = page(p);
     assert.match(html, /<title>[^<]{20,}<\/title>/, p);
     assert.match(html, /<meta name="description" content="[^"]{80,320}"/, p);
-    assert.match(html, new RegExp(`<link rel="canonical" href="\\./${p.replace(/\./g, "\\.")}">`), p);
+    assert.match(html, new RegExp(`<link rel="canonical" href="\\./${escapeRegExp(p)}">`), p);
     assert.match(html, /<meta property="og:title"/, p);
     assert.equal((html.match(/<h1>/g) || []).length, 1, p);
     assert.match(html, /<html lang="en">/, p);
-    assert.match(page("sitemap.xml"), new RegExp(p.replace(/\./g, "\\.")));
+    assert.match(page("sitemap.xml"), new RegExp(escapeRegExp(p)));
   }
 });
 

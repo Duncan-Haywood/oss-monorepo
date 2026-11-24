@@ -3,6 +3,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { calculateJobBid, DEFAULTS } from './calc.mjs';
 
+// Remove <script> blocks (any case, attributes, whitespace in the end tag), repeating until stable.
+const stripScripts = (s, repl = '') => {
+  let p;
+  do {
+    p = s;
+    s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, repl);
+  } while (s !== p);
+  return s;
+};
+
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 
 test('every DEFAULTS field has a matching input on the page', () => {
@@ -96,7 +106,7 @@ test('comparison page FAQ structured data matches the visible answers', () => {
   const compare = readFileSync(new URL('./vs-a-flat-rate-per-pound-quote.html', import.meta.url), 'utf8');
   const ld = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(compare)[1]);
   assert.equal(ld['@type'], 'FAQPage');
-  const visible = compare.replace(/<script[\s\S]*?<\/script>/g, '');
+  const visible = stripScripts(compare);
   for (const entry of ld.mainEntity) {
     assert.ok(
       visible.includes(`<h3>${entry.name}</h3>`),
@@ -117,7 +127,7 @@ test('every page in the venture is reachable from the sitemap', () => {
       assert.match(sitemap, /biohazard-cleanup-bid-calculator\/<\/loc>/);
       continue;
     }
-    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+    assert.ok(sitemap.includes(name), `${name} is missing from sitemap.xml`);
   }
 });
 

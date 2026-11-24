@@ -2,6 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const stripTags = (s) => { let p; do { p = s; s = s.replace(/<[^>]+>/g, ""); } while (s !== p); return s; };
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const NETWORK = /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts|import\(/;
 
@@ -25,7 +27,7 @@ test("JSON-LD blocks parse and the FAQ matches the page", () => {
   assert.equal(blocks[0].offers.price, "0");
   assert.equal(blocks[1]["@type"], "FAQPage");
   assert.ok(blocks[1].mainEntity.length >= 5);
-  const text = html.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&");
+  const text = stripTags(html).replace(/&amp;/g, "&");
   for (const q of blocks[1].mainEntity) {
     assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
     assert.ok(text.includes(q.acceptedAnswer.text), `answer to "${q.name}" is not shown on the page`);
@@ -95,8 +97,8 @@ test("page cites the papers with BibTeX and states its limits", () => {
   assert.match(html, /<strong>Calibration is not skill\.<\/strong>/);
   assert.match(html, /Not modelled:/);
   const ref = JSON.parse(page("eval/reference.json"));
-  assert.match(html, new RegExp(`scikit-learn ${ref.versions.sklearn.replace(/\./g, "\\.")}`));
-  assert.match(html, new RegExp(`scipy ${ref.versions.scipy.replace(/\./g, "\\.")}`));
+  assert.match(html, new RegExp(`scikit-learn ${escapeRegExp(ref.versions.sklearn)}`));
+  assert.match(html, new RegExp(`scipy ${escapeRegExp(ref.versions.scipy)}`));
 });
 
 test("the numbers quoted about the example are the ones the engine gives", () => {

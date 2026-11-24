@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const DOCS_PAGE = 'why-hreflang-must-be-reciprocal.html';
 const VS_PAGE = 'vs-merkle-hreflang-tool.html';
 
@@ -90,13 +92,13 @@ test('engine.mjs and usage.mjs are imported as ES modules, not duplicated inline
 test('index links to the docs page and the docs page links back', async () => {
   const index = await read('index.html');
   const docs = await read(DOCS_PAGE);
-  assert.match(index, new RegExp(`href="${DOCS_PAGE.replace(/\./g, '\\.')}"`));
+  assert.match(index, new RegExp(`href="${escapeRegExp(DOCS_PAGE)}"`));
   assert.match(docs, /href="\.\/"/);
 });
 
 test('index links to the comparison page', async () => {
   const index = await read('index.html');
-  assert.match(index, new RegExp(`href="${VS_PAGE.replace(/\./g, '\\.')}"`));
+  assert.match(index, new RegExp(`href="${escapeRegExp(VS_PAGE)}"`));
 });
 
 test('vs-merkle-hreflang-tool page links back to the tool and carries required clauses', async () => {

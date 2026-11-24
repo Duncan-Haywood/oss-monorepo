@@ -2,6 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "why-dockerignore-pattern-does-not-match-subfolders.html";
 const PAGES = ["index.html", GUIDE];
@@ -39,11 +41,11 @@ test("SEO basics on every page", () => {
     const html = page(p);
     assert.match(html, /<title>[^<]{20,}<\/title>/, p);
     assert.match(html, /<meta name="description" content="[^"]{80,320}"/, p);
-    assert.match(html, new RegExp(`<link rel="canonical" href="\\./${p.replace(/\./g, "\\.")}">`), p);
+    assert.match(html, new RegExp(`<link rel="canonical" href="\\./${escapeRegExp(p)}">`), p);
     assert.match(html, /<meta property="og:title"/, p);
     assert.equal((html.match(/<h1>/g) || []).length, 1, p);
     assert.match(html, /<html lang="en">/, p);
-    assert.match(page("sitemap.xml"), new RegExp(p === "index.html" ? "dockerignore-explainer/<" : p.replace(/\./g, "\\.")));
+    assert.match(page("sitemap.xml"), new RegExp(p === "index.html" ? "dockerignore-explainer/<" : escapeRegExp(p)));
   }
 });
 
@@ -101,7 +103,7 @@ test("the guide's examples are what the engine says", async () => {
 
 test("links: siblings, guide, robots, sitemap, README, llms.txt, LICENSE and VENTURE.yaml", () => {
   for (const s of ["docker-build-secrets-check", "docker-cache-order-check", "gitignore-explainer"]) assert.match(page("index.html"), new RegExp(`href="\\.\\./${s}/"`));
-  assert.match(page("index.html"), new RegExp(`href="${GUIDE.replace(/\./g, "\\.")}"`));
+  assert.match(page("index.html"), new RegExp(`href="${escapeRegExp(GUIDE)}"`));
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("README.md"), /No warranty/);
   assert.match(page("llms.txt"), /^# \.dockerignore Explainer/);
