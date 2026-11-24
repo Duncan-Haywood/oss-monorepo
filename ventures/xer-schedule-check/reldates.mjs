@@ -26,12 +26,21 @@
 //            minutes (not the current `lag`), on both witnesses where both
 //            exist; arls alone when aref is empty or off the activities'
 //            dates (P6 Web 17.12 writes some arefs an hour off)
-//   finished: FS and FF links from a finished predecessor into an unstarted
-//            activity: { checked, agree: Set of link ids whose arls says P6
-//            used the current lag, was: [{ rel, pred, succ, lag, was }] }.
-//            There arls is the successor's late date less only the part of
-//            the lag still unspent at the data date (cpm.mjs rule 17; 444 of
-//            444 such links on CCA), so it names the lag while some is unspent.
+//   started: every link with a started end (an in-progress or finished
+//            predecessor, or an in-progress successor; never a finished
+//            successor): { checked, agree: Set of link ids whose dates say P6
+//            used the current lag, was: [{ rel, pred, succ, lag, was }],
+//            atMost: [{ rel, pred, succ, lag, atMost }] }. There the dates
+//            carry only the lag still unspent at the data date,
+//            max(0, lag - the lag calendar's working time from the
+//            predecessor's actual finish (FS, FF) or actual start (SS) to the
+//            data date) (cpm.mjs rule 17; eval/relationship-dates-started-
+//            2026-11-24.md: arls 11,610 of 11,610 links on six files).
+//            `was` is exact while some of the old lag was unspent; where P6's
+//            dates show none left but the current lag leaves some, the old lag
+//            is only known to be at most what was spent (`atMost`).
+//   finished: the same object as `started` (its earlier name, when only FS
+//            and FF links from finished predecessors were read)
 //   added:   links with neither date in a file whose other links have them,
 //            between two activities that have stored dates (P6 fills both
 //            on every link it schedules, so the link came after the run)
@@ -42,7 +51,8 @@ import { parseDate } from "./xer.mjs";
 const TOL = 1; // minutes
 
 export function relationshipLags(model) {
-  const out = { checked: 0, links: [], added: [], finished: { checked: 0, agree: new Set(), was: [] } };
+  const out = { checked: 0, links: [], added: [], started: { checked: 0, agree: new Set(), was: [], atMost: [] } };
+  out.finished = out.started;
   const rowOf = new Map();
   for (const t of model.tasks.values()) rowOf.set(t.id, t);
   let withDates = 0, total = 0;
@@ -56,8 +66,8 @@ export function relationshipLags(model) {
     if (rel.external || !rel.row) continue;
     const pred = rowOf.get(rel.predId), succ = rowOf.get(rel.succId);
     if (!pred || !succ || pred.span || succ.span) continue;
-    if (pred.status === "TK_Complete" && succ.status === "TK_NotStart") { finishedLink(model, rel, pred, succ, out.finished); continue; }
-    if (pred.status !== "TK_NotStart" || succ.status !== "TK_NotStart") continue;
+    if (succ.status === "TK_Complete") continue;
+    if (pred.status !== "TK_NotStart" || succ.status !== "TK_NotStart") { startedLink(model, rel, pred, succ, out.started); continue; }
     const p = pred.row, s = succ.row;
     if ([p.early_start_date, p.early_end_date, s.late_start_date, s.late_end_date].some((d) => parseDate(d) === null)) continue;
     if (parseDate(rel.row.aref) === null && parseDate(rel.row.arls) === null) {
@@ -114,21 +124,54 @@ export function impliedLags(model, rel, pred, succ) {
   return { fromA, fromL };
 }
 
-// A finished predecessor's FS or FF link: arls = the successor's late start
-// (FS) or finish (FF) less max(0, lag - the lag calendar's working time from
-// the actual finish to the data date).
-function finishedLink(model, rel, pred, succ, acc) {
-  if (rel.type !== "PR_FS" && rel.type !== "PR_FF") return;
-  const arls = parseDate(rel.row.arls), af = pred.actEnd;
-  const sL = parseDate(rel.type === "PR_FS" ? succ.row.late_start_date : succ.row.late_end_date);
+// The part of a link's lag P6 counts at the data date: all of it, less the
+// lag calendar's working time already spent since the predecessor's actual
+// finish (FS, FF) or actual start (SS). Returns { spent, eff } in minutes, or
+// null when a date it needs is missing.
+export function unspentLag(model, rel, pred, succ) {
+  const from = pred.status === "TK_Complete" && rel.type !== "PR_SS" ? pred.actEnd
+    : pred.status !== "TK_NotStart" && rel.type === "PR_SS" ? pred.actStart : undefined;
+  if (from === undefined) return { spent: 0, eff: rel.lag };
   const dd = model.projects.get(succ.proj)?.dataDate;
-  if (arls === null || sL === null || af === null || af === undefined || dd === null || dd === undefined) return;
+  if (from === null || dd === null || dd === undefined) return null;
+  const spent = from < dd ? lagCalendar(model, rel).workBetween(from, dd) : 0;
+  return { spent, eff: Math.max(0, rel.lag - spent) };
+}
+
+// A link with a started end. The witnesses are read as for two unstarted
+// activities (the stored dates of a started activity are its remaining
+// ones), against the unspent lag instead of the whole lag; a finished
+// predecessor has no early dates, so arls is its only witness.
+function startedLink(model, rel, pred, succ, acc) {
+  if (rel.type === "PR_SF") return;
+  const u = unspentLag(model, rel, pred, succ);
+  if (!u) return;
+  const p = pred.row, s = succ.row;
+  const sLS = parseDate(s.late_start_date), sLF = parseDate(s.late_end_date);
+  const pES = parseDate(p.early_start_date), pEF = parseDate(p.early_end_date);
+  const aref = pred.status === "TK_Complete" ? null : parseDate(rel.row.aref), arls = parseDate(rel.row.arls);
   const lc = lagCalendar(model, rel);
-  const spent = af < dd ? lc.workBetween(af, dd) : 0;
-  const left = sL >= arls ? lc.workBetween(arls, sL) : -lc.workBetween(sL, arls);
+  const span = (a, b) => (a === null || b === null ? null : b >= a ? lc.workBetween(a, b) : -lc.workBetween(b, a));
+  let fromA = null, fromL = null;
+  if (rel.type === "PR_FS") { fromA = span(pEF, aref); fromL = span(arls, sLS); }
+  if (rel.type === "PR_SS") {
+    fromA = span(pES, aref);
+    if (arls !== null && sLS !== null && lc === pred.cal) fromL = span(arls, sLS) - (pred.status === "TK_Complete" ? 0 : pred.remain);
+  }
+  if (rel.type === "PR_FF") { fromA = aref === null || pEF === null ? null : span(pEF, succ.cal.addWork(aref, succ.remain)); fromL = span(arls, sLF); }
+  if (fromA === null && fromL === null) return;
   acc.checked++;
-  const nowLeft = Math.max(0, rel.lag - spent);
-  if (Math.abs(left - nowLeft) <= TOL) { acc.agree.add(rel.id); return; }
-  // with nothing left the old lag is only known to be at most what was spent
-  if (left > TOL) acc.was.push({ rel, pred, succ, lag: rel.lag, was: Math.round(spent + left) });
+  const off = (v) => v !== null && Math.abs(v - u.eff) > TOL;
+  let left = null;
+  if (fromL !== null && fromA !== null && Math.abs(fromL - fromA) <= TOL) { if (off(fromL)) left = fromL; }
+  else if (fromL !== null && off(fromL) && (fromA === null || off(fromA))) left = fromL;
+  else if (fromL === null && off(fromA)) left = fromA;
+  if (left === null) { acc.agree.add(rel.id); return; }
+  const base = { rel, pred, succ, lag: rel.lag };
+  // some of the old lag was still unspent: it reads back exactly
+  // (with nothing spent, as from an unfinished FS predecessor, that is all of it)
+  if (left > TOL || (u.spent <= TOL && left >= -TOL)) acc.was.push({ ...base, was: Math.round(u.spent + Math.max(0, left)) });
+  // none left at that run, some left now: the old lag was at most what was spent
+  else if (left >= -TOL && u.eff > TOL) acc.atMost.push({ ...base, atMost: Math.round(u.spent) });
+  // a date before the lag could start reads as no rule here: neither listed nor agreeing
 }
