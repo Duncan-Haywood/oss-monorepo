@@ -34,9 +34,16 @@ export const CHANNELS = {
 
 const r2 = (n) => Math.round(n * 100) / 100;
 
+// The first line with anything but whitespace, or "". Reads 15 lines first,
+// so a large export is not split whole just to find its header.
+function firstFilledLine(text) {
+  const filled = (l) => l.trim() !== "";
+  return text.split(/\r?\n/, 15).find(filled) ?? text.split(/\r?\n/).find(filled) ?? "";
+}
+
 /** Header tokens of the first non-empty line, lower-cased. */
 function headerTokens(text) {
-  const line = String(text || "").split(/\r?\n/).find((l) => l.trim() !== "") || "";
+  const line = firstFilledLine(String(text || ""));
   const delim = line.includes("\t") ? "\t" : line.split(";").length > line.split(",").length ? ";" : ",";
   return line.split(delim).map((h) => h.replace(/^\uFEFF/, "").replace(/^"|"$/g, "").trim().toLowerCase());
 }
@@ -50,7 +57,7 @@ function headerTokens(text) {
  * test looks for the header anywhere in the first lines.
  */
 export function detectKind(text) {
-  const head = String(text || "").split(/\r?\n/).slice(0, 15).join("\n").toLowerCase();
+  const head = String(text || "").split(/\r?\n/, 15).join("\n").toLowerCase();
   if (/net amount/.test(head) && /(order number|transaction creation date)/.test(head)) return "ebay";
   const h = headerTokens(text);
   const has = (...names) => names.every((n) => h.some((x) => x === n));
@@ -244,7 +251,8 @@ function itemChannel(channel, engine, files, costText, feeMode) {
   let skipped = 0;
   for (const f of files) {
     const delim = engine.detectDelimiter(f.text);
-    const n = engine.normalizeRows(engine.parseCsv(f.text, delim), { decimalComma: engine.detectDecimalComma(engine.parseCsv(f.text, delim), delim), feeMode });
+    const table = engine.parseCsv(f.text, delim); // read-only in both calls, so parsed once
+    const n = engine.normalizeRows(table, { decimalComma: engine.detectDecimalComma(table, delim), feeMode });
     if (n.error) return { error: `${f.name}: ${n.error}` };
     items.push(...n.items);
     skipped += (n.skipped || []).length;
