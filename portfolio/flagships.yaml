@@ -565,11 +565,10 @@ flagships:
       DIR/xer, 5 s; --mpxj adds MPXJ junit/data). Constraints log on more planted
       seeds or files: node eval/constraints-check.mjs (section 4,
       eval/constraints-slack-2026-11-20.md); P6 probes: eval/p6-probes.mjs
-      (NEXT.md); windows: several change kinds in one window
-      (eval/windows-kinds-check.mjs); redundant: node eval/redundant-check.mjs
-      DIR/xer; converter/hand-made XERs: node eval/converter-corpus.mjs; MSPDI:
-      eval/cpm-vs-project.mjs on MPXJ files; XML out: eval/msproject-check.mjs,
-      msproject-mpxj.py (pip mpxj jpype1).
+      (NEXT.md); windows: leave-one-out revision naming (NEXT.md); redundant: node
+      eval/redundant-check.mjs DIR/xer; converter/hand-made XERs: node
+      eval/converter-corpus.mjs; MSPDI: eval/cpm-vs-project.mjs on MPXJ files; XML
+      out: eval/msproject-check.mjs, msproject-mpxj.py (pip mpxj jpype1).
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/. Next, most valuable first:

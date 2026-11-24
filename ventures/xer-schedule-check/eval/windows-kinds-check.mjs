@@ -33,12 +33,22 @@
 // is the rest. Checked per planted window: the split equals that, the other
 // side is 0, and the planted activity or link is among the window's drivers.
 //
-//   node eval/windows-kinds-check.mjs <dir-with-xer-files> [--seeds 3] [--json out.json] [--only file.xer] [--out-of-sequence]
+//   node eval/windows-kinds-check.mjs <dir-with-xer-files> [--seeds 3] [--json out.json] [--only file.xer] [--out-of-sequence] [--mixed N]
+//
+// --mixed N (N = 2 or 3): several kinds in one window, as a real update holds.
+// Each window plants one progress kind and N-1 revision kinds, chained: the
+// progress change on the as-planned statused file, then each revision on the
+// file the one before it made (so a revision is picked on the half-step
+// driving path, the one this period's progress left). Expected split as
+// above: the progress effect is the window's file with its progress and none
+// of its revisions; the revisions are the rest. Checked per window: the split
+// is exact, and every planted change is named among the drivers on its own
+// side (a change named only on the other side is counted as such).
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseXer, decodeXer, formatDate, num } from "../xer.mjs";
 import { schedule, drivingPath } from "../cpm.mjs";
-import { pickProject } from "../compare.mjs";
+import { pickProject, compare } from "../compare.mjs";
 import { statusAsPlanned, cloneXer } from "../status.mjs";
 import { windows } from "../windows.mjs";
 
@@ -50,6 +60,7 @@ const ONLY = opt("--only", null);
 // --out-of-sequence: let early-finish plant on out-of-sequence work too (the
 // first run's seeding, kept to re-check the CCA seed 1 window 7 case)
 const OOS = args.includes("--out-of-sequence");
+const MIXED = args.includes("--mixed") ? +opt("--mixed", 2) : 0;
 const STEP_DAYS = 20;
 export const KINDS = ["late-start", "gain", "early-finish", "constraint", "added", "link-deleted", "calendar", "cut", "type"];
 const PROGRESS_KINDS = new Set(["late-start", "gain", "early-finish"]);
@@ -113,15 +124,25 @@ const planters = {
   },
   gain(prev, st, projId, dd, rand, hpd) {
     const after = pathOf(st, projId);
-    const cands = after.path.filter((t) => t.status === "TK_Active" && t.remain >= 2 * hpd * 60);
-    if (!cands.length) return null;
-    const t = cands[Math.floor(rand() * cands.length)];
-    const maxG = Math.floor(t.remain / 60 / hpd) - 1;
-    const G = 1 + Math.floor(rand() * Math.min(5, maxG));
-    const x = cloneXer(st);
-    const row = taskRow(x, t.code, projId);
-    row.remain_drtn_hr_cnt = String((num(row.remain_drtn_hr_cnt) ?? 0) - G * hpd);
-    return { full: x, progOnly: x, target: t.code, nominal: -G, detail: `${t.code} ${G} days less left` };
+    // not work with an expected finish date: P6 (and cpm.mjs) recompute its
+    // remaining duration from that date, so a cut there is no gain at all
+    const cands = after.path.filter((t) => t.status === "TK_Active" && t.remain >= 2 * hpd * 60 && !t.expEnd);
+    // and only a cut that brings the activity's own forecast finish in: work
+    // whose finish an FF predecessor holds (CCA's metal studs) gains nothing
+    // from less remaining. 7 of 21 --mixed gains on the 2026-11-24 first run
+    // were one or the other, each split 0 and rightly not named
+    const order = cands.map((t) => [rand(), t]).sort((a, b) => a[0] - b[0]).map((a) => a[1]);
+    for (const t of order) {
+      const maxG = Math.floor(t.remain / 60 / hpd) - 1;
+      const G = 1 + Math.floor(rand() * Math.min(5, maxG));
+      const x = cloneXer(st);
+      const row = taskRow(x, t.code, projId);
+      row.remain_drtn_hr_cnt = String((num(row.remain_drtn_hr_cnt) ?? 0) - G * hpd);
+      // cloneXer keeps task ids, so the model ids match
+      const ef0 = after.res.tasks.get(t.id).ef, ef1 = schedule(x).tasks.get(t.id)?.ef;
+      if (ef1 !== undefined && ef1 < ef0) return { full: x, progOnly: x, target: t.code, nominal: -G, detail: `${t.code} ${G} days less left` };
+    }
+    return null;
   },
   "early-finish"(prev, st, projId, dd, rand) {
     const after = pathOf(st, projId);
@@ -271,6 +292,96 @@ function runFile(path, seed) {
     return row;
   });
   return { file: path.split("/").pop(), seed, ordered: rep.updates.map((x) => x.label).join(",") === u.map((_, i) => `U${i}`).join(","), rows, total: rep.total, addsUp: rep.total.moved === rep.total.sumOfWindows, ms };
+}
+
+// --mixed: one progress kind and MIXED-1 revision kinds per window
+function runFileMixed(path, seed) {
+  const xer = parseXer(decodeXer(readFileSync(path)));
+  const res0 = schedule(xer);
+  const projId = pickProject(xer, res0.model, null).id;
+  const p = res0.projects.get(projId);
+  const hpd = p.cal.hoursPerDay || 8;
+  const rand = rng(seed * 104729 + 31);
+  const step = (dd) => p.cal.addWork(dd, STEP_DAYS * hpd * 60);
+  const finOf = (x) => { const q = schedule(x).projects.get(projId); return { f: q.finish, cal: q.cal }; };
+  const wdays = (a, b, cal) => Math.round((cal.workBetween(a, b) / 60 / (cal.hoursPerDay || 8)) * 10) / 10;
+  const effect = (prev, progOnly, full) => { const a = finOf(prev), b = finOf(progOnly), c = finOf(full); return { progress: wdays(a.f, b.f, c.cal), revisions: Math.round((wdays(a.f, c.f, c.cal) - wdays(a.f, b.f, c.cal)) * 10) / 10 }; };
+  const shuffle = (xs) => xs.map((k) => [rand(), k]).sort((a, b) => a[0] - b[0]).map((a) => a[1]);
+  const progKinds = KINDS.filter((k) => PROGRESS_KINDS.has(k)), revKinds = KINDS.filter((k) => !PROGRESS_KINDS.has(k));
+  const u = [xer], plan = [];
+  let dd = p.dataDate;
+  // 6 windows, each kind of revision leading once; the progress kind cycles
+  const lead = shuffle(revKinds);
+  for (let wi = 0; wi < lead.length; wi++) {
+    dd = step(dd);
+    const prev = u[u.length - 1];
+    const st = statusAsPlanned(prev, projId, dd);
+    const want = [progKinds[(wi + seed) % progKinds.length], lead[wi], ...shuffle(revKinds.filter((k) => k !== lead[wi])).slice(0, MIXED - 2)];
+    let cur = st, progOnly = st;
+    const planted = [];
+    for (const kind of want) {
+      let pl = null;
+      try { pl = planters[kind](prev, cur, projId, dd, rand, hpd); } catch (e) { pl = { error: e.message }; }
+      if (!pl || pl.error) { planted.push({ kind, planted: false, error: pl?.error || null }); continue; }
+      // a revision planted on an earlier revision's target would blur whose effect is whose
+      if (planted.some((q) => q.planted && q.target === pl.target)) { planted.push({ kind, planted: false, error: "same target" }); continue; }
+      cur = pl.full;
+      if (PROGRESS_KINDS.has(kind)) progOnly = cur;
+      planted.push({ kind, planted: true, target: pl.target, detail: pl.detail });
+    }
+    u.push(cur);
+    plan.push({ planted, ...effect(prev, progOnly, cur) });
+  }
+  const t0 = Date.now();
+  const rep = windows(u.map((x, i) => ({ xer: x, label: `U${i}` })).sort(() => rand() - 0.5));
+  const ms = Date.now() - t0;
+  const rows = rep.windows.map((w, i) => {
+    const e = plan[i];
+    const kinds = e.planted.map((q) => {
+      const prog = PROGRESS_KINDS.has(q.kind);
+      if (!q.planted) return { ...q, side: prog ? "progress" : "revisions" };
+      const mine = prog ? w.drivers.progress : w.drivers.revisions, other = prog ? w.drivers.revisions : w.drivers.progress;
+      const named = mine.some((d) => d.code === q.target);
+      return { ...q, side: prog ? "progress" : "revisions", named, namedOtherSide: !named && other.some((d) => d.code === q.target) };
+    });
+    const n = kinds.filter((q) => q.planted).length;
+    return { window: w.n, kinds, plantedCount: n, both: kinds.some((q) => q.planted && q.side === "progress") && kinds.some((q) => q.planted && q.side === "revisions"), expect: { progress: e.progress, revisions: e.revisions }, got: { moved: w.moved, progress: w.progressEffect, revisions: w.revisionEffect }, splitExact: w.progressEffect === e.progress && w.revisionEffect === e.revisions };
+  });
+  // DEBUG_MIXED=1: why a planted change went unnamed (path membership, float row, progress lists)
+  if (process.env.DEBUG_MIXED) for (const x of rows) for (const q of x.kinds) if (q.planted && !q.named) {
+    const c = compare(u[x.window - 1], u[x.window], {});
+    const fr = c.float.rows.find((r) => r.code === q.target);
+    console.log("DEBUG", x.window, q.kind, q.target, "onPrev", c.criticalPath.previous.includes(q.target), "onCur", c.criticalPath.current.includes(q.target), JSON.stringify(fr), "prog", JSON.stringify(Object.fromEntries(Object.entries(c.progress).map(([k, v]) => [k, Array.isArray(v) ? v.filter((r) => r.code === q.target).length : v]))));
+  }
+  return { file: path.split("/").pop(), seed, mixed: MIXED, ordered: rep.updates.map((x) => x.label).join(",") === u.map((_, i) => `U${i}`).join(","), rows, total: rep.total, addsUp: rep.total.moved === rep.total.sumOfWindows, ms };
+}
+
+if (MIXED) {
+  const files = readdirSync(dir).filter((f) => f.toLowerCase().endsWith(".xer") && (!ONLY || f === ONLY)).sort();
+  const all = [];
+  for (const f of files) for (let s = 1; s <= SEEDS; s++) {
+    let r;
+    try { r = runFileMixed(join(dir, f), s); } catch (e) { r = { file: f, seed: s, error: e.stack }; }
+    all.push(r);
+    if (r.error) { console.log(`${f} seed ${s}: ERROR ${r.error}`); continue; }
+    const ws = r.rows.filter((x) => x.both);
+    const ch = r.rows.flatMap((x) => x.kinds).filter((q) => q.planted);
+    console.log(`${f} seed ${s}: windows with both sides ${ws.length}/${r.rows.length}, changes planted ${ch.length}, split exact ${r.rows.filter((x) => x.plantedCount && x.splitExact).length}/${r.rows.filter((x) => x.plantedCount).length}, named ${ch.filter((q) => q.named).length}/${ch.length}, adds up ${r.addsUp}, sorted ${r.ordered}, ${r.ms} ms`);
+    for (const x of r.rows) {
+      const miss = x.kinds.filter((q) => q.planted && !q.named);
+      if (x.plantedCount && (!x.splitExact || miss.length)) console.log(`   W${x.window} [${x.kinds.filter((q) => q.planted).map((q) => q.detail).join("; ")}] expect ${JSON.stringify(x.expect)} got ${JSON.stringify(x.got)}${miss.length ? " not named: " + miss.map((q) => q.kind + (q.namedOtherSide ? " (other side)" : "")).join(", ") : ""}`);
+    }
+  }
+  const ok = all.filter((r) => !r.error);
+  const ch = ok.flatMap((r) => r.rows.flatMap((x) => x.kinds)).filter((q) => q.planted);
+  const both = ok.flatMap((r) => r.rows).filter((x) => x.both);
+  console.log("\nkind          planted  named  other-side");
+  for (const k of KINDS) { const rs = ch.filter((q) => q.kind === k); console.log(`${k.padEnd(13)} ${String(rs.length).padStart(7)} ${String(rs.filter((q) => q.named).length).padStart(6)} ${String(rs.filter((q) => q.namedOtherSide).length).padStart(11)}`); }
+  const planted = ok.flatMap((r) => r.rows).filter((x) => x.plantedCount);
+  console.log(`windows with a plant ${planted.length}, split exact ${planted.filter((x) => x.splitExact).length}; with both sides ${both.length}, split exact ${both.filter((x) => x.splitExact).length}, both sides moved ${both.filter((x) => x.expect.progress !== 0 && x.expect.revisions !== 0).length}`);
+  console.log(`series ${ok.length}, adding up ${ok.filter((r) => r.addsUp).length}, sorted ${ok.filter((r) => r.ordered).length}, errors ${all.length - ok.length}`);
+  if (args.includes("--json")) writeFileSync(opt("--json"), JSON.stringify(all, null, 1) + "\n");
+  process.exit(0);
 }
 
 const files = readdirSync(dir).filter((f) => f.toLowerCase().endsWith(".xer") && (!ONLY || f === ONLY)).sort();
