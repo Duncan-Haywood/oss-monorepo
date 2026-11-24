@@ -47,7 +47,8 @@ that shares a word of your item, or names no item at all (a bare "x: claim"),
 still blocks. A word in three or more recent titles on the slug (open or
 closed; "reader" on photo-editing) is the flagship's vocabulary: sharing only
 that one word is SHARE, while two shared words still block. Without --item
-the check is slug-only, as before. The words
+the check reads the item from your own PR's title ("photo-editing: windows
+check"); a title naming only the slug ("x: claim") keeps it slug-only. The words
 are matched literally, so read the SHARE titles: a judgment the tool cannot
 make (overlapping files under different names) is yours.
 
@@ -224,7 +225,9 @@ def decide(prs: list[dict], keyword: str, mine: Optional[int] = None,
     `hours`) that name `keyword` go to "landed" when their title shares
     enough words of `item` (`shares_item`; verdict LANDED unless an open PR
     already makes it YIELD), else to "merged" (listed, never blocking).
-    Without `item` a merge never blocks. With no PR of mine (none by
+    Without `item`, the words of my own PR's title stand in for it (a
+    title naming only the slug and claim words leaves the check slug-only);
+    without either, a merge never blocks. With no PR of mine (none by
     `mine` or `branch`) and nothing older, the verdict is UNCLAIMED, not HOLD."""
     now = now or datetime.now(timezone.utc)
     since = now - timedelta(hours=hours)
@@ -246,6 +249,15 @@ def decide(prs: list[dict], keyword: str, mine: Optional[int] = None,
     else:
         older = sorted((r for r in rivals if key(r) < key(me)), key=key)
         newer = sorted((r for r in rivals if key(r) > key(me)), key=key)
+    # Why: runs title their PR "<slug>: <item>" (claim_recipe asks for it) and
+    # then run the bare check that allocate.py's Start-here line printed, so it
+    # was slug-only and yielded to an older PR on another item: three live
+    # doc_friction reports on 2026-11-22..24 (#18235, #18624, #18645 made
+    # sessions on other photo-editing items YIELD; rerun with --item gave HOLD).
+    # Your own title already names the item, so read it when --item is absent.
+    source = "flag" if item else None
+    if not item and me and item_words(me["title"], keyword):
+        item, source = me["title"], "title"
     sharing = []
     if item and item_words(item, keyword):
         mine_no = me["number"] if me else mine
@@ -275,7 +287,8 @@ def decide(prs: list[dict], keyword: str, mine: Optional[int] = None,
     others.sort(key=newest, reverse=True)
     verdict = "YIELD" if older else ("LANDED" if landed else ("HOLD" if me else "UNCLAIMED"))
     return {"verdict": verdict, "mine": me, "older": older, "newer": newer,
-            "sharing": sharing, "landed": landed, "merged": others}
+            "sharing": sharing, "landed": landed, "merged": others,
+            "item": item, "item_source": source}
 
 
 def recently_closed(repo: str = REPO, timeout: int = 15, pages: int = 2) -> Optional[list[dict]]:
@@ -518,6 +531,10 @@ def report(result: dict, keyword: str, now: datetime, hours: float,
     me, older, newer = result["mine"], result["older"], result["newer"]
     sharing = result.get("sharing") or []
     lines = []
+    if result.get("item_source") == "title":
+        item = result["item"]
+        lines.append(f"Item read from your PR title (no --item given): '{item}'. "
+                     "Pass --item \"<words>\" if the title does not name the piece you are taking.")
     if me is None:
         lines.append(f"Your PR: none found (pass --pr N, or open your draft PR naming '{keyword}' first).")
         lines.append(claim_recipe(keyword, item))
