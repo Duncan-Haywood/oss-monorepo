@@ -187,3 +187,31 @@ It accepts only plain https links and edits nothing else. Then run each
 venture's tests and move its stage to `test-paid` only after a real test-mode
 purchase (tested in `test_golive.py`, added 2026-11-03).
 - 2026-11-03: go-live rehearsal. Set a test https link on all six paths; six tests asserted an empty link and failed. Relaxed to pass dark or live (ventures/*/{closepack,report,printpack,buildpack,staffpack,bidpackage}.test.mjs). Dark and live both green for pack, licence and page suites.
+
+## Verticals and front doors (verticals.py)
+
+`python3 portfolio/monetization/verticals.py --write` assigns every venture a
+customer vertical (construction, manufacturing-engineering, online-sellers,
+eu-einvoicing-accounting, nonprofits, freelancers, landlords, local-services,
+creators, consumer, hardware-open-designs, research-tool, other), the paid bet
+of `bets.md` whose buyers it reaches (`front_door_for`, or null) and a
+`status`: `front-door` (it may get work that sends visitors to that bet: a link
+into the product, a page fix that keeps its search traffic) or `frozen` (stays
+up, no new effort beyond fixing what breaks; `prompts/goals.md`, "Free tools
+are demoted"). Output: `verticals.json`, read by the site's front-door mapping
+and by runs choosing work. `--check` fails when the file is stale; `--show
+<vertical>` lists one vertical with the rule that placed each venture.
+
+Rules, first match wins: hand `OVERRIDES` (each with a reason), slug keywords,
+the category the site build files the tool under (`categoryFor` in
+`platform/pages/build.mjs`, read through node), VENTURE.yaml description
+keywords for the build's generic categories, then `other`. Each row records
+its `rule`, so a wrong row points at the pattern to fix; `test_verticals.py`
+pins the word-boundary traps found while calibrating (vending-*machine*,
+menu-*engineering*, *section-8*3b, *stud*io, p*lumber*, water*proof*ing).
+
+First reading (2026-11-24, 1,441 ventures): 301 front doors, 1,140 frozen.
+The contractor suite has 153 front doors and seller books 105, but the
+job-shop quoting bet has 9 and the CMMC bet 2 (two research tools, by
+override): the catalogue has almost nothing for machine shops, so those two
+bets need their own entry pages rather than borrowed traffic.
