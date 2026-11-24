@@ -1,3 +1,8 @@
+---
+kind: note
+date: 2026-11-24
+subjects: [ci]
+---
 # Cloudflare: minted one-hour tokens replace the CI secret aliases (2026-11-24)
 
 For the next session. Owner, 2026-11-24: key management was "click ops" and
