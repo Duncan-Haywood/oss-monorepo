@@ -269,7 +269,7 @@ test("leukemia stratified by sex: pinned values for the example", () => {
 test("strata: one stratum is the unstratified fit; a stratum shifting the baseline is absorbed", () => {
   const csv = read("./eval/cases/ties3.csv");
   const base = analyze({ csv, group: "arm", covariates: "x1,x2" });
-  const one = analyze({ csv: csv.replace(/^.*$/m, (h) => h + ",k").replace(/\n(?=.)/g, "\n").split("\n").map((l, i) => (i === 0 || !l ? l : l + ",same")).join("\n"), group: "arm", covariates: "x1,x2", strata: "k" });
+  const one = analyze({ csv: csv.replace(/^.*$/m, (h) => h + ",k").split("\n").map((l, i) => (i === 0 || !l ? l : l + ",same")).join("\n"), group: "arm", covariates: "x1,x2", strata: "k" });
   close(one.cox.logLik, base.cox.logLik, 1e-12, "single stratum log-likelihood");
   close(one.logrank.chiSquare, base.logrank.chiSquare, 1e-12, "single stratum log-rank");
   assert.match(one.warnings.join(" "), /single value, so stratifying changes nothing/);

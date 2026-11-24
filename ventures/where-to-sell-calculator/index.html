@@ -708,20 +708,22 @@
       return true;
     }
 
+    const escHtml = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
     function renderPanels() {
       document.getElementById("channelPanels").innerHTML = channels.map((channel, index) => `
         <details data-index="${index}">
-          <summary>${channel.label}${channel.enabled === false ? " — not compared" : ""}</summary>
+          <summary>${escHtml(channel.label)}${channel.enabled === false ? " — not compared" : ""}</summary>
           <label class="check" style="margin-top:10px">
             <input type="checkbox" data-index="${index}" data-enable="1" ${channel.enabled === false ? "" : "checked"}>
             Compare this channel
           </label>
-          ${channel.note ? `<p class="note">${channel.note}</p>` : ""}
+          ${channel.note ? `<p class="note">${escHtml(channel.note)}</p>` : ""}
           <div class="fields">
             ${CHANNEL_FIELDS.map((field) => `
-              <label>${field.label}
+              <label>${escHtml(field.label)}
                 <input type="number" min="0" step="${field.step}" data-index="${index}" data-key="${field.key}"
-                       value="${channel[field.key] ?? ""}"${field.key === "expectedMonthlySales" ? ` placeholder="${document.getElementById("monthlyOrders").value || "shared"}"` : ""}>
+                       value="${escHtml(channel[field.key] ?? "")}"${field.key === "expectedMonthlySales" ? ` placeholder="${escHtml(document.getElementById("monthlyOrders").value || "shared")}"` : ""}>
               </label>`).join("")}
           </div>
         </details>`).join("");
