@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23471b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='white'%3EL%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Club Player Ratings: Free Doubles and Singles Ratings for Your League</title>
+  <meta name="description" content="Paste a season of results, singles or doubles, and get a Glicko-2 rating for every player with how sure it is, win chances and a ranked list for boxes and teams. Free, private.">
+  <meta property="og:title" content="Free club player ratings for pickleball, padel, tennis, squash and darts leagues">
+  <meta property="og:description" content="A rating per player from your own league's results: doubles partners and score margins counted, uncertainty shown, win chances for any match. Nothing uploaded.">
+  <link rel="canonical" href="./player-ratings.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How are doubles results rated?", "acceptedAnswer": {"@type": "Answer", "text": "Each player is rated as if they had played one opponent whose rating makes the gap equal to the gap between the two pairs' average ratings. Winning beside a much stronger partner moves your rating less than winning beside an equal one, and losing beside a weaker partner costs less."}}, {"@type": "Question", "name": "What does the plus-or-minus number mean?", "acceptedAnswer": {"@type": "Answer", "text": "It is twice the rating deviation (RD): the true level is likely within that range. New players start at 1500 plus or minus 700. It narrows as they play and widens again for each rating period they sit out, so a returning player's rating moves faster."}}, {"@type": "Question", "name": "Should scores count or only wins?", "acceptedAnswer": {"@type": "Answer", "text": "The score margin setting blends the win with the share of points won, so 11-9 counts as a narrower win than 11-2. In simulated games to 11 played rally by rally, counting points ordered players better than wins alone. On 50,000 real international football results, goal margin did not improve predictions, because goals are few. The page starts at half and half."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Club player ratings", "applicationCategory": "SportsApplication", "operatingSystem": "Any (browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "isAccessibleForFree": true}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 900px; margin: 0 auto; padding: 24px 16px 64px; line-height: 1.5; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.035em; line-height: 1.08; margin-bottom: .3em; }
+    h2 { font-size: 1.2rem; margin-top: 1.6em; }
+    h3 { font-size: 1rem; margin: .2em 0 .4em; }
+    a { color: #1d5a3f; }
+    .card { background: #fff; border: 1px solid #d4dad2; border-radius: 12px; padding: 16px; margin: 16px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 200px; font: 15px/1.4 ui-monospace, monospace; padding: 8px; border: 1px solid #b9c2b6; border-radius: 8px; }
+    input, select { font: inherit; padding: 7px 8px; border: 1px solid #b9c2b6; border-radius: 8px; background: #fff; max-width: 100%; box-sizing: border-box; }
+    .row { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+    button { font: inherit; font-weight: 650; padding: 10px 14px; border-radius: 8px; border: 0; background: #1d5a3f; color: #fff; cursor: pointer; margin: 8px 8px 0 0; }
+    button.secondary { background: #e4e9e2; color: #1d2330; }
+    .note { color: #4a5148; font-size: .92rem; }
+    .err { color: #9b2c1f; white-space: pre-line; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .93rem; margin-top: 8px; }
+    th, td { padding: 4px 6px; border-bottom: 1px solid #e4e9e2; text-align: right; white-space: nowrap; }
+    th:nth-child(2), td:nth-child(2) { text-align: left; white-space: normal; }
+    th { font-size: .78rem; color: #4a5148; font-weight: 650; }
+    td.prov { color: #7a4b00; font-size: .85rem; }
+    .big { font-size: 1.5rem; font-weight: 700; }
+    pre { white-space: pre-wrap; background: #f7f8f6; padding: 8px; border-radius: 8px; font-size: .9rem; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+    @media print { #input, .actions, footer, .guide, #topnav, #odds { display: none !important; } .card { border: 0; } }
+  </style>
+</head>
+<body>
+<main>
+  <p id="topnav"><a href="./">&larr; League schedule generator</a></p>
+  <h1>Club player ratings</h1>
+  <p>For pickleball, padel, tennis, squash, badminton, table tennis, darts and chess clubs. Paste a season of results, <strong>singles or doubles</strong>, and every player gets a rating that moves with each result, with a <strong>plus-or-minus that says how sure it is</strong>. Partners and score margins count. Use it to seed <a href="./box-league.html">boxes</a>, draw <a href="./balanced-teams.html">balanced teams</a> or split divisions, and to see who is evenly matched before a league night.</p>
+
+  <section class="card" id="input">
+    <h2 style="margin-top:0">Results, oldest first</h2>
+    <label for="log">One game per line. A date (YYYY-MM-DD) starts a new rating period; lines without a date take the last one.</label>
+    <textarea id="log" spellcheck="false" autocomplete="off" placeholder="2026-01-06&#10;Ana &amp; Ben 11-7 Cy &amp; Dee&#10;Ana 3-1 Cy&#10;2026-01-13 Ben beat Dee"></textarea>
+    <div class="row">
+      <div><label for="method">Method</label>
+        <select id="method"><option value="fit" selected>Whole season at once</option><option value="glicko">Glicko-2, period by period</option></select></div>
+      <div><label for="period">Rating period (Glicko-2)</label>
+        <select id="period"><option value="date">Each date (league night)</option><option value="week" selected>Each week</option><option value="month">Each month</option><option value="game">Each game</option></select></div>
+      <div><label for="margin">Score margin</label>
+        <select id="margin"><option value="0">Wins only</option><option value="0.25">A little (0.25)</option><option value="0.5" selected>Half (0.5)</option><option value="0.75">Mostly (0.75)</option><option value="1">Points share only (1)</option></select></div>
+      <div><label for="tau">Volatility (Glicko-2)</label>
+        <select id="tau"><option value="0.3">Steady (0.3)</option><option value="0.5" selected>Standard (0.5)</option><option value="0.8">Lively (0.8)</option><option value="1.2">Fast-changing (1.2)</option></select></div>
+    </div>
+    <details>
+      <summary>Starting ratings (optional)</summary>
+      <p class="note">Players with a known level (last season's final ratings, say): <code>Name: 1650</code> or <code>Name: 1650, 120</code> (rating, RD). Everyone else starts at 1500: ± 700 under Glicko-2, ± 600 in the whole-season fit.</p>
+      <textarea id="initial" spellcheck="false" style="min-height:80px" aria-label="Starting ratings, one per line"></textarea>
+    </details>
+    <div>
+      <button type="button" id="go">Rate the season</button>
+      <button type="button" class="secondary" id="example">Load an example doubles season</button>
+    </div>
+    <p id="status" role="status" class="err"></p>
+  </section>
+
+  <section class="card" id="out" hidden>
+    <h2 style="margin-top:0">Ratings</h2>
+    <p class="note" id="summary"></p>
+    <div class="scroll"><table id="table"><thead><tr><th>#</th><th>Player</th><th>Rating</th><th>± (95%)</th><th>Played</th><th>W-L</th><th></th></tr></thead><tbody></tbody></table></div>
+    <div class="actions">
+      <button type="button" class="secondary" id="copy">Copy the table</button>
+      <button type="button" class="secondary" id="order">Copy ranked names (for boxes or teams)</button>
+      <button type="button" class="secondary" id="csv">Download CSV</button>
+      <button type="button" class="secondary" id="print">Print</button>
+    </div>
+    <p id="copy-status" role="status" class="note"></p>
+  </section>
+
+  <section class="card" id="odds" hidden>
+    <h2 style="margin-top:0">Who wins?</h2>
+    <div class="row">
+      <div><label for="sideA">Side A (one name, or two with &amp;)</label><input id="sideA" list="names" placeholder="Ana &amp; Ben"></div>
+      <div><label for="sideB">Side B</label><input id="sideB" list="names" placeholder="Cy &amp; Dee"></div>
+    </div>
+    <datalist id="names"></datalist>
+    <p><span class="big" id="chance">&ndash;</span> <span class="note" id="chance-note"></span></p>
+  </section>
+
+  <section class="guide">
+    <h2>How it works</h2>
+    <h3>How are doubles results rated?</h3>
+    <p>Each player is rated as if they had played one opponent whose rating makes the gap equal to the gap between the two pairs' average ratings. Winning beside a much stronger partner moves your rating less than winning beside an equal one, and losing beside a weaker partner costs less.</p>
+    <h3>What does the plus-or-minus number mean?</h3>
+    <p>It is twice the rating deviation (RD): the true level is likely within that range. New players start at 1500 plus or minus 700. It narrows as they play and widens again for each rating period they sit out, so a returning player's rating moves faster.</p>
+    <h3>Should scores count or only wins?</h3>
+    <p>The score margin setting blends the win with the share of points won, so 11-9 counts as a narrower win than 11-2. In simulated games to 11 played rally by rally, counting points ordered players better than wins alone. On 50,000 real international football results, goal margin did not improve predictions, because goals are few. The page starts at half and half.</p>
+    <h3>Whole season or Glicko-2?</h3>
+    <p>For one season, "whole season at once" fits every result together, so the order games were played in does not matter and early results count as much as late ones. Glicko-2 updates one rating period at a time: use it when levels change over months, or to carry ratings from one season into the next (paste the final ratings as starting ratings).</p>
+    <p>Where ratings help most is <strong>one table across boxes or divisions</strong>. A box league's own order ranks every player in box 1 above every player in box 2. In 200 simulated 16-player box seasons, the whole-season fit (at this page's settings) matched the true order better than the box ladder in 166 seasons of 200 after eight rounds and 181 after twelve (Spearman 0.85 against 0.77, and 0.89 against 0.79). After only two rounds the ladder, which starts from the club's own seeding, was better in most seasons. When everyone plays everyone with random partners, a plain points-difference table did as well, so this page will not order an Americano night better than its own table does. What it adds there is the ± and the win chances.</p>
+    <h3>What is it built on?</h3>
+    <p>Glicko-2, Mark Glickman's published rating system (the one many chess sites use), checked against the worked example in his paper, and a Bradley-Terry fit with a normal prior for the whole-season method (the same 400-point scale). Players marked provisional need more games before their rating means much (RD above 110 under Glicko-2, above 200 in the whole-season fit, which counts a doubles game as a quarter of a singles game for each player). How it was measured: <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/league-schedule-generator#club-player-ratings-season-long-glicko-2-for-singles-and-doubles-2026-11-24">README section</a>.</p>
+    <h3>Is anything uploaded?</h3>
+    <p>No. The results stay on this device; the last season you rated is saved in this browser only.</p>
+    <p>More: <a href="./box-league.html">box leagues</a>, <a href="./how-to-run-a-ladder-league.html">challenge ladders</a>, <a href="./americano-night.html">Americano nights</a>, <a href="./balanced-teams.html">balanced teams</a>, <a href="./">season round robins with courts and dates</a>.</p>
+  </section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Ratings are estimates from the results you type, not an official rating of any federation or rating body; check them before using them to seed or grade players. The example players are invented.</p>
+  <p><strong>Independent.</strong> Not affiliated with any club, federation, booking platform or rating system.</p>
+  <p>Everything runs in your browser; results are saved only on this device. Anonymous feature events (<code>ratings_run</code>, <code>ratings_example</code>, <code>ratings_copied</code>, <code>ratings_csv</code>, <code>ratings_odds</code>) are counted only in local storage on your device, never uploaded.</p>
+  <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free and open source under an <a href="LICENSE">MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+<script type="module">
+  import { parseRatingLog, rateSeason, fitSeason, fittedChance, ratingsText, ratingsCsv } from "./season-ratings.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  const $ = (s) => document.querySelector(s);
+  const KEY = "lsg-player-ratings";
+  let current = null;
+
+  function parseInitial(text) {
+    const out = {}; const errors = [];
+    String(text || "").split(/\r?\n/).forEach((raw, i) => {
+      const line = raw.trim(); if (!line) return;
+      const m = /^(.+?)\s*:\s*(\d{3,4}(?:\.\d+)?)(?:\s*,\s*(\d{1,3}(?:\.\d+)?))?$/.exec(line);
+      if (!m) { errors.push(`Starting ratings line ${i + 1}: write it as "Ana: 1650" or "Ana: 1650, 120".`); return; }
+      out[m[1]] = { rating: +m[2], ...(m[3] ? { rd: Math.min(350, +m[3]) } : {}) };
+    });
+    return { out, errors };
+  }
+
+  function run() {
+    const { games, errors } = parseRatingLog($("#log").value);
+    const init = parseInitial($("#initial").value);
+    const all = [...errors, ...init.errors];
+    $("#status").textContent = all.slice(0, 8).join("\n") + (all.length > 8 ? `\n...and ${all.length - 8} more.` : "");
+    if (!games.length) { $("#out").hidden = true; $("#odds").hidden = true; if (!all.length) $("#status").textContent = "No results to rate yet."; return; }
+    const opts = { method: $("#method").value, period: $("#period").value, margin: +$("#margin").value, tau: +$("#tau").value, initial: init.out };
+    if (opts.method === "fit") {
+      const table = fitSeason(games, { margin: opts.margin, initial: init.out });
+      current = { table, predict: (a, b) => fittedChance(table, a, b), periods: null };
+    } else {
+      const r = rateSeason(games, opts);
+      current = { table: r.table, predict: (a, b) => r.rater.predict(a, b), periods: r.rater.periodIndex };
+    }
+    const t = current.table;
+    const tb = $("#table tbody"); tb.textContent = "";
+    t.forEach((r, i) => {
+      const tr = document.createElement("tr");
+      const cells = [i + 1, r.name, Math.round(r.rating), `±${Math.round(2 * r.rd)}`, r.games, `${r.wins}-${r.losses}${r.draws ? `-${r.draws}` : ""}`, r.provisional ? "provisional" : ""];
+      cells.forEach((c, j) => { const td = document.createElement("td"); td.textContent = c; if (j === 6) td.className = "prov"; tr.append(td); });
+      tb.append(tr);
+    });
+    const doubles = games.filter((g) => g.a.length > 1 || g.b.length > 1).length;
+    $("#summary").textContent = `${games.length} games (${doubles} doubles) ${current.periods === null ? "fitted together" : `over ${current.periods} rating periods`}, ${t.length} players. ${t.filter((r) => r.provisional).length} still provisional.`;
+    const dl = $("#names"); dl.textContent = "";
+    for (const r of t) { const o = document.createElement("option"); o.value = r.name; dl.append(o); }
+    $("#out").hidden = false; $("#odds").hidden = false;
+    odds();
+    try { localStorage.setItem(KEY, JSON.stringify({ log: $("#log").value, initial: $("#initial").value, method: opts.method, period: opts.period, margin: String(opts.margin), tau: String(opts.tau) })); } catch {}
+  }
+
+  function odds() {
+    if (!current) return;
+    const split = (s) => s.split(/\s*(?:&|\/|\+|\band\b)\s*/i).map((x) => x.trim()).filter(Boolean);
+    const a = split($("#sideA").value); const b = split($("#sideB").value);
+    const known = new Set(current.table.map((r) => r.name));
+    if (!a.length || !b.length) { $("#chance").textContent = "–"; $("#chance-note").textContent = "Type two sides from the table."; return; }
+    const unknown = [...a, ...b].filter((n) => !known.has(n));
+    const p = current.predict(a, b);
+    $("#chance").textContent = `${Math.round(100 * p)}%`;
+    $("#chance-note").textContent = `chance side A wins${unknown.length ? ` (${unknown.join(", ")} not in the table: rated 1500)` : ""}. Under 60% either way is a close match.`;
+  }
+
+  const EXAMPLE = (() => {
+    // Invented players; a fixed-seed season of rotating-partner doubles to 11.
+    const P = ["Ana", "Ben", "Cy", "Dee", "Eli", "Fay", "Gus", "Hana", "Ivo", "Jo", "Kai", "Lea"];
+    const skill = [1720, 1650, 1600, 1580, 1540, 1500, 1480, 1450, 1420, 1380, 1350, 1300];
+    let s = 11 >>> 0; const rnd = () => { s = (s + 0x6d2b79f5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    const lines = [];
+    for (let w = 0; w < 6; w++) {
+      const d = new Date(Date.UTC(2026, 0, 6 + 7 * w)).toISOString().slice(0, 10);
+      lines.push(d);
+      for (let r = 0; r < 3; r++) {
+        const idx = P.map((_, i) => i).sort(() => rnd() - 0.5);
+        for (let c = 0; c < 3; c++) {
+          const [a1, a2, b1, b2] = idx.slice(c * 4, c * 4 + 4);
+          const pa = 1 / (1 + 10 ** ((skill[b1] + skill[b2] - skill[a1] - skill[a2]) / 800));
+          const loser = Math.floor(rnd() * 10);
+          lines.push(rnd() < pa ? `${P[a1]} & ${P[a2]} 11-${loser} ${P[b1]} & ${P[b2]}` : `${P[a1]} & ${P[a2]} ${loser}-11 ${P[b1]} & ${P[b2]}`);
+        }
+      }
+    }
+    return lines.join("\n");
+  })();
+
+  $("#go").addEventListener("click", () => { record("ratings_run"); run(); });
+  $("#example").addEventListener("click", () => { $("#log").value = EXAMPLE; record("ratings_example"); run(); });
+  $("#sideA").addEventListener("input", odds);
+  $("#sideB").addEventListener("input", odds);
+  $("#sideB").addEventListener("change", () => record("ratings_odds"));
+  const copy = async (text, msg) => { try { await navigator.clipboard.writeText(text); $("#copy-status").textContent = msg; } catch { $("#copy-status").textContent = "Copy failed; select the table instead."; } record("ratings_copied"); };
+  $("#copy").addEventListener("click", () => current && copy(ratingsText(current.table, { title: "Club ratings" }), "Table copied."));
+  $("#order").addEventListener("click", () => current && copy(current.table.map((r) => r.name).join("\n"), "Ranked names copied: paste them into the box league or balanced teams page."));
+  $("#csv").addEventListener("click", () => {
+    if (!current) return;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([ratingsCsv(current.table)], { type: "text/csv" }));
+    a.download = "player-ratings.csv"; a.click(); record("ratings_csv");
+  });
+  $("#print").addEventListener("click", () => window.print());
+  $("#optout").addEventListener("click", () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; });
+  if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (s && s.log) { $("#log").value = s.log; $("#initial").value = s.initial || ""; $("#method").value = s.method || "fit"; $("#period").value = s.period; $("#margin").value = s.margin; $("#tau").value = s.tau; run(); }
+  } catch {}
+</script>
+</body>
+</html>

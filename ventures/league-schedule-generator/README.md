@@ -20,7 +20,85 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
-## Big bowling leagues: three more seasons at an even lane split, from a change of encoding (2026-11-24, newest)
+## Club player ratings: season-long Glicko-2 for singles and doubles (2026-11-24)
+
+**What it is.** `player-ratings.html` and `season-ratings.mjs`. Paste a season of results, one game
+per line (`2026-01-06 Ana & Ben 11-7 Cy & Dee`, `Ana 3-1 Cy`, `Ben beat Dee`), and every player gets
+a rating, a ± (2 x RD), a W-L record, a provisional flag, and win chances for any two sides. It copies
+the table, the ranked names (to paste into the box league or balanced teams pages) or a CSV.
+This is what clubs pay rating services for (DUPR for pickleball, UTR for tennis, club Elo
+spreadsheets), for the club's own results, with nothing uploaded.
+
+**Two methods.**
+- *Whole season at once* (`fitSeason`, the page default): a doubles Bradley-Terry fit on side averages
+  (the Elo scale, 400 points = 10:1), as a MAP estimate under a normal prior (sd 300, or a starting
+  rating and RD per player), by Newton steps on the full Hessian. Order-free. The ± is the Laplace RD.
+- *Glicko-2 period by period* (`createRater`, `rateSeason`): Glickman's steps 1 to 8 with the Illinois
+  volatility search. Periods are each date, ISO week, month or game. A player who sits out k periods
+  has step 6 applied k times. Doubles use a composite opponent: the virtual opponent's rating makes the
+  one-on-one gap equal to the gap between side averages, and its RD carries the partner's and the
+  opponents'. Home advantage is optional.
+- Both take `margin` in 0..1: the outcome is (1 - margin) x win + margin x the share of points won.
+
+**Checks.** `season-ratings.test.mjs` (13 tests): Glickman's worked example (1464.06, RD 151.52,
+volatility 0.05999) through both the bare update and the rater; doubles partner effect; RD growth
+when sitting out; ISO week keys at year ends; the fit is order-free and respects priors; parser and
+page (FAQ JSON-LD equals visible text, every usage event listed in the footer). Rendered in headless
+Chromium at 390 px with the example season: no console errors, no horizontal scroll.
+
+**Real data: 50,093 international football results** (`eval/season-ratings-football.mjs`, data
+martj42/international_results, CC0, fetched 2026-11-24, sha256 `c1773d3e...`; not committed). Each
+method predicts every match from earlier results only. Parameters were tuned on 1990-2009 and
+scored on 16,512 held-out matches from 2010 on. Brier is on the home side's expected score; log loss
+and accuracy are on decisive matches.
+
+| method (held out 2010-) | Brier | log loss | accuracy |
+|---|---|---|---|
+| base rate (home side's average) | 0.1824 | 0.6592 | 62.2% |
+| Elo, K 40, home 100 (tuned) | 0.1321 | 0.4809 | 76.8% |
+| World Football Elo constants (K by tournament, goal margin, home 100) | 0.1321 | **0.4725** | 77.3% |
+| Glicko-2, monthly periods, tau 2.5, home 100 (tuned) | **0.1301** | 0.4773 | 77.4% |
+| Glicko-2 monthly + goal margin 0.25 (tuned) | 0.1301 | 0.4801 | 77.5% |
+
+Paired bootstrap (2,000 resamples): Glicko-2 monthly beats tuned Elo on Brier (-0.0020, 95% CI
+-0.0026 to -0.0013) and on log loss (-0.0036, CI -0.0056 to -0.0016). Against World Football Elo it
+has a lower Brier (-0.0020, CI -0.0028 to -0.0012) but a higher log loss (+0.0048, CI +0.0024 to
++0.0073). It is better on draws and less sharp on decisive games, so it is not a clean win. Goal margin
+does not help Glicko-2 here: Brier is unchanged (CI -0.0002 to +0.0001) and log loss is worse at
+every margin tried (sweep in the eval file). Periods of one date did worse than monthly periods
+(Brier 0.1350). With global periods, every date anyone plays ages everyone else's RD, so a national
+team that plays monthly hits the RD cap. A club league, where everyone plays on league nights, does
+not have this problem. tau tuned to the top of its grid (2.5), so national team strength moves fast.
+
+**Synthetic club seasons** (`eval/season-ratings-doubles.mjs`, 200 seasons per cell, 16 players, true
+levels 1250-1750, games to 11 played rally by rally). Spearman rho to the true order:
+
+| | random-partner nights (12) | Mexicano nights (12) | box league rounds (8) | box league rounds (12) |
+|---|---|---|---|---|
+| win percentage | 0.705 | 0.676 | 0.651 | 0.731 |
+| points difference | 0.745 | 0.742 | 0.692 | 0.776 |
+| box ladder's own order | | | 0.773 | 0.785 |
+| Glicko-2, margin 0.5 | 0.693 | 0.707 | 0.841 | 0.887 |
+| whole-season fit, margin 0.5 (page default) | 0.718 | 0.738 | 0.849 | 0.891 |
+| whole-season fit, margin 1 | 0.750 | 0.749 | 0.866 | 0.907 |
+
+- **Negative result: Americano and Mexicano nights.** When partners rotate and everyone meets
+  everyone, a plain points-difference table orders players as well as any rating tried, and better
+  than sequential Glicko-2. Under a rally model, total points difference is close to a sufficient
+  statistic. So the page does not claim a better Americano order. There it adds the ±, win chances
+  and carrying ratings across nights.
+- **Where ratings win: one table across boxes.** On the same 200 box seasons, the default fit beat
+  the box ladder's order in 166 of 200 after 8 rounds and in 181 of 200 after 12. Glicko-2 at
+  margin 0.5 beat it in 174 and 184. After 2 rounds the ladder wins most seasons (fit 53 of 200),
+  because it starts from the club's seeding and the fit starts everyone level.
+- Points share is favoured by construction here, since the simulation is a rally model. The real
+  football data did not reward goal margin, so the page defaults to 0.5 as a hedge, not as a finding.
+
+**Not yet:** a real club's season (box league or pickleball ladder results with dates) to check
+the box-league claim on people. The two-week DUPR-style "reliability" display. Wiring the ranked names
+straight into `box-league.html` seeding (today they are copied and pasted).
+
+## Big bowling leagues: three more seasons at an even lane split, from a change of encoding (2026-11-24)
 
 Three bowling seasons had sat one count off an even lane split since 2026-11-23 (the table two
 sections down): 22 teams over 10 weeks, 22 over 21 and 24 over 23. Each now has every team on every

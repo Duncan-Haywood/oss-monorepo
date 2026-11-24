@@ -402,9 +402,9 @@ flagships:
       2026-11-23: 24x36 26 to 4 off, 2 seasons even (eval/bowling-lane-near.txt);
       open in NEXT.md. Season import 2026-11-23 (importschedule.mjs, 819/819
       round-trip, eval/import-roundtrip.txt); next: a real league's export. Clinch
-      watch, exact magic numbers, race supply cut, slow tables in a worker
-      2026-11-23 (race-worker.mjs, eval/race-budget.txt: 553 magic numbers lowered,
-      0 wrong); next: a real league's published numbers. More: NEXT.md.
+      watch, exact magic numbers 2026-11-23 (README); next: a real league's
+      published numbers. Club ratings 2026-11-24 (season-ratings.mjs, README); next:
+      a real club's box season. More: NEXT.md.
     buildable: >-
       Search work in NEXT.md, no outside input: 12 teams below 132 carry-over or
       124-130 ruled out (eval/window-refill.c); bowling 26x38 1 off the bound and
