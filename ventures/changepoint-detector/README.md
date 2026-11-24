@@ -10149,3 +10149,46 @@ By the rule written beforehand, nothing is added to the CLI or the page. `turnin
 export, as `trendWalkChanges` did. Next: one fresh GDP vintage that runs past 2009 and includes 2020 (FRED's
 GDPC1; fred.stlouisfed.org and apps.bea.gov refused this session's proxy on 2026-11-24), scored under the same D1
 bar. A pass there ships `turns-cli.mjs` with classical and growth modes.
+
+## BBQ on FRED GDPC1 1947-2026: 19 of 24 NBER turns, one short of the bar again (2026-11-24, pre-registered; D1g fails, D2g passes, nothing ships)
+
+The item above: one fresh GDP vintage past 2009 and including 2020. FRED's GDPC1 (1947Q1-2026Q1, 317 quarters,
+chained 2017 dollars) came from unmodified FRED downloads committed in public GitHub repositories, since FRED
+refused the proxy; four independent copies agree on every shared quarter (`data/SOURCE.md`). The rules are in
+the header of `eval/turns-gdpc1.mjs`, committed before it first ran (commit "pre-register the BBQ round on FRED
+GDPC1"); scoring is `eval/turns-bbq.mjs`'s, and `turning-points.mjs` was not changed. Output
+`eval/turns-gdpc1.out.txt` (0.4 s); test `turns-gdpc1.test.mjs`.
+
+| bar | result |
+|---|---|
+| D1g, at least 80% of NBER's 24 turns matched within a quarter, at most 2 false turns | 19 of 24 (**0.792**), false 2: **fails** |
+| D2g, F1 at least 0.15 above random turns at the same count, p at most 0.05 | F1 **0.898**, random 0.311, p < 0.001: **passes** |
+
+What it shows:
+
+- **The new data fixed the end-of-file miss and the rule dated both recent recessions exactly.** 2009Q2 is now
+  well inside the file and is dated on the quarter; 2019Q4 and 2020Q2 are dated on the quarter too. The shipped
+  drift model's F1 on the same file is 0.200 (4 cuts).
+- **Each of the 5 misses is where real GDP's own high or low is not NBER's quarter.** The 2001 recession again
+  (GDP fell in 2001Q1 and 2001Q3, never two quarters running). The 2007Q4 peak is dated 2008Q2 because GDP in
+  2008Q2 (16,943) is above 2007Q4 (16,915). The 1949Q4 trough is dated 1949Q2 (GDP's low, 2,253 against 2,257),
+  and the 1982Q4 trough is dated 1982Q1 (7,296 against 7,304). In those 3 the rule dates the series' actual
+  extreme, 2 or 3 quarters from NBER's; NBER dates on monthly employment, income and sales as well as GDP. The 2 false turns are a 1947Q3
+  trough at the start of the file and the 1982Q1 trough (3 quarters from NBER's).
+- **Revisions do not move the recent dates.** On the 2000-onward part of this file, an earlier vintage (to
+  2024Q4) and a later one (to 2026Q2, revised from 2021), BBQ gives the same four turns: 2008Q2p 2009Q2t 2019Q4p
+  2020Q2t.
+- **Read after the run (not pre-registered, no bar): how soon it calls a turn.** `eval/turns-gdpc1-lag.mjs`
+  cuts the file off at each quarter and finds when each matched turn is called and stays called. 18 of the 19
+  are called with 2 quarters of data after the turn, the least the rule's window allows, so about 7 months after
+  the turn's quarter ends once BEA's advance estimate is out. The 1969Q3 peak takes 7: called at 1970Q1,
+  withdrawn when 1970Q3 rose above it, called again once the strike-hit 1970Q4 trough was confirmed. These run
+  on the final vintage; the data available at the time differed (output `eval/turns-gdpc1-lag.out.txt`).
+
+Across the two rounds GDP alone has now missed D1 by 0.019 and 0.008 while every other bar passed by a wide
+margin. By the rules written beforehand nothing ships, and the bar is not lowered after seeing it. The reading
+(after the run, not a result): a rule that needs two falling quarters and dates GDP's own highs and lows can
+reach no more than these 19 of 24, since 2001 has no such fall and in 3 more turns GDP's extreme is 2 to 3
+quarters from NBER's quarter. Only a rule that dated the one-quarter 2001 dips too could reach 21. Next: a reference
+dated on GDP itself is the fair test of the rule, and a monthly coincident series (payroll employment, which
+NBER weights most) is the fair test against NBER; either, pre-registered, decides `turns-cli.mjs`.

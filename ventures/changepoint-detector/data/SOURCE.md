@@ -875,3 +875,23 @@ Research Institute), as quarters. Check: the log of `level`, HP-filtered with la
 - **Licence:** BCDating is GPL-2; the figures are published national accounts and a published dating. Used as test
   fixtures only.
 - **Used by:** `eval/turns-iran.mjs`, `turns-iran.test.mjs`.
+
+# US real GDP, FRED GDPC1, 1947Q1 to 2026Q1 (and two other vintages)
+
+`us-gdpc1.csv`: real gross domestic product, billions of chained 2017 dollars, seasonally adjusted annual rate,
+quarterly 1947Q1 to 2026Q1 (317 rows), FRED series `GDPC1` (US Bureau of Economic Analysis).
+`us-gdpc1-vintage-2025.csv` (2000Q1 to 2024Q4, 100 rows) and `us-gdpc1-vintage-2026q2.csv` (2000Q1 to 2026Q2,
+106 rows) are an earlier and a later vintage of the same series; they differ from the main file from 2020 and
+2021 onward (BEA's annual revisions), and are used only for a printed vintage check.
+
+- **Retrieved:** 2026-11-24. fred.stlouisfed.org and apps.bea.gov refused this session's proxy, so the files are
+  unmodified FRED downloads (`observation_date,GDPC1`) committed in public GitHub repositories, read at pinned
+  commits through raw.githubusercontent.com. The main file is
+  `jalonso1979/puremacro@73030cf7:puremacro/datasets/data/GDPC1.csv`; three independent copies
+  (`charlescoverdale/nowcast@6b93b60b:paper/data/GDPC1.csv`, `GongJr0/Econometrics2025-Project@128ccac0:data/fred/GDPC1.csv`,
+  `mikkelpm/macro_econometrics@6db3b17a:code/data/GDPC1.csv`) agree with it on every shared quarter (316, 141 and
+  316 quarters; the last one differs only in 2025Q4, its own later estimate). The vintages are
+  `JackDamato/macro-regime-allocation@b76de9c8:MacroData/GDPC1.csv` and
+  `Nicholashsw/macro-desk@abd880ea:macro_desk/data/GDPC1.csv`. Quarter labels were made from the date column.
+- **Licence:** US government statistics, public domain. Only the numbers were taken.
+- **Used by:** `eval/turns-gdpc1.mjs`, `turns-gdpc1.test.mjs`.
