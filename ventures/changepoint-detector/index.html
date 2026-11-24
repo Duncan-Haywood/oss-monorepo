@@ -184,10 +184,11 @@
 
   <section class="card" id="turns-card" aria-labelledby="turns-h">
     <h2 id="turns-h">Peaks and troughs: when did the cycle turn?</h2>
-    <p>A changepoint asks where a level jumped. A turning point asks where a series stopped rising and started falling, and back: the dates of a business's good and bad stretches, or of a recession. This dates them by Bry and Boschan's rule, the one official business-cycle daters use: a peak is the highest point within 5 months either side (2 quarters for quarterly data), peaks and troughs alternate, and every phase lasts at least 6 months (2 quarters) and every cycle 15 months (5 quarters). It reads the data box above: the Value column in one-column mode, or with &ldquo;several columns&rdquo; chosen, a composite index of the Columns you list (orders, revenue, active customers, hours), so one noisy line does not decide the dates.</p>
+    <p>A changepoint asks where a level jumped. A turning point asks where a series stopped rising and started falling, and back: the dates of a business's good and bad stretches, or of a recession. This dates them by Bry and Boschan's rule, the one official business-cycle daters use: a peak is the highest point within 5 months either side (2 quarters for quarterly data), peaks and troughs alternate, and every phase lasts at least 6 months (2 quarters) and every cycle 15 months (5 quarters); a monthly composite of several columns allows phases of 3 months, which dated short business contractions better in simulations. It reads the data box above: the Value column in one-column mode, or with &ldquo;several columns&rdquo; chosen, a composite index of the Columns you list (orders, revenue, active customers, hours), so one noisy line does not decide the dates.</p>
     <div class="grid">
       <div><label for="turns-frequency">Rows are</label><select id="turns-frequency"><option value="monthly">Months</option><option value="quarterly">Quarters</option></select></div>
-      <div><label for="turns-bigmove">Keep a phase shorter than 6 months when it moves at least (%; blank = never; monthly only)</label><input id="turns-bigmove" type="number" min="0" step="any" value="5"></div>
+      <div><label for="turns-minphase">Shortest phase in rows (blank = 3 months for several columns, 6 for one; 2 quarters)</label><input id="turns-minphase" type="number" min="1" max="24" step="1" placeholder="auto"></div>
+      <div><label for="turns-bigmove">Keep a phase shorter than that when it moves at least (%; blank = never; monthly only)</label><input id="turns-bigmove" type="number" min="0" step="any" value="5"></div>
       <div><label for="turns-sduntil">Several columns: measure each column's volatility only up to this row (optional, e.g. 2019-12 to keep 2020 from setting the weights)</label><input id="turns-sduntil" type="text" placeholder="e.g. 2019-12"></div>
     </div>
     <button type="button" id="turns-run">Date peaks and troughs</button>
@@ -704,7 +705,7 @@
       const frequency = $("#turns-frequency").value;
       try {
         if (multi && cols.length < 2) throw new Error("A composite needs two or more names in the Columns box (or choose one column).");
-        const r = turnsResult({ csv: $("#csv").value, column: multi ? null : $("#column").value.trim() || null, columns: multi ? cols : null, frequency, bigMove: frequency === "monthly" ? (bm === "" ? "off" : Number(bm) / 100) : null, sdUntil: multi ? $("#turns-sduntil").value.trim() || null : null, withSeries: true });
+        const r = turnsResult({ csv: $("#csv").value, column: multi ? null : $("#column").value.trim() || null, columns: multi ? cols : null, frequency, bigMove: frequency === "monthly" ? (bm === "" ? "off" : Number(bm) / 100) : null, sdUntil: multi ? $("#turns-sduntil").value.trim() || null : null, minPhase: $("#turns-minphase").value.trim() || null, withSeries: true });
         lastTurns = r;
         $("#turns-summary").textContent = turnsSummary(r);
         $("#turns-chart").innerHTML = turnsChartSvg(r);
@@ -713,14 +714,14 @@
         record("turns_run");
       } catch (e) {
         lastTurns = null; $("#turns-results").hidden = true;
-        $("#turns-error").textContent = String(e.message || e).replace(/--turns --columns/g, "A composite").replace(/--(columns|column)/g, "the Columns box").replace(/--sd-until/g, "The volatility row").replace(/--big-move/g, "The short-phase move").replace(/--turns/g, "Dating");
+        $("#turns-error").textContent = String(e.message || e).replace(/--turns --columns/g, "A composite").replace(/--(columns|column)/g, "the Columns box").replace(/--sd-until/g, "The volatility row").replace(/--big-move/g, "The short-phase move").replace(/--min-phase/g, "The shortest phase").replace(/--turns/g, "Dating");
       }
     }
     $("#turns-run").addEventListener("click", runTurns);
     $("#example-turns").addEventListener("click", async () => {
       const { TURNS_CSV, TURNS_COLUMNS, TURNS_SD_UNTIL } = await import("./example-turns.mjs");
       $("#csv").value = TURNS_CSV; $("#shape").value = "multi"; $("#columns").value = TURNS_COLUMNS; $("#columns").disabled = false; $("#jointNoise").disabled = false; $("#column").disabled = true;
-      $("#turns-frequency").value = "monthly"; $("#turns-bigmove").value = "5"; $("#turns-sduntil").value = TURNS_SD_UNTIL;
+      $("#turns-frequency").value = "monthly"; $("#turns-bigmove").value = "5"; $("#turns-minphase").value = ""; $("#turns-sduntil").value = TURNS_SD_UNTIL;
       record("example_loaded"); runTurns();
     });
     $("#turns-download").addEventListener("click", () => {

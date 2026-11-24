@@ -14,6 +14,7 @@ import { compositeIndex } from './composite-index.mjs';
 import { heavyLate } from './heavy-late.mjs';
 
 export const TURNS_DEFAULTS = { monthly: { bigMove: 0.05 }, quarterly: {} };
+export const COMPOSITE_MIN_PHASE = { monthly: 3 };
 
 function alignColumns(csv, columns, labelColumn) {
   const parsed = columns.map((c) => ({ c, ...parseSeries(csv, c, labelColumn) }));
@@ -23,13 +24,19 @@ function alignColumns(csv, columns, labelColumn) {
   return { labels, series: maps.map((m) => labels.map((l) => m.get(l))), names: parsed.map((p) => p.column), dropped };
 }
 
-export function turnsResult({ csv, column = null, columns = null, labelColumn = null, frequency = 'monthly', bigMove = null, sdUntil = null, withSeries = false }) {
+export function turnsResult({ csv, column = null, columns = null, labelColumn = null, frequency = 'monthly', bigMove = null, sdUntil = null, minPhase = null, withSeries = false }) {
   if (frequency !== 'monthly' && frequency !== 'quarterly') throw new Error('--frequency takes monthly or quarterly.');
   const src = csv ?? DEFAULTS.csv;
   const rule = { ...TURNS_DEFAULTS[frequency], ...(bigMove != null ? { bigMove: bigMove === 'off' ? Infinity : Number(bigMove) } : {}) };
   if (!(rule.bigMove === undefined || rule.bigMove === Infinity || rule.bigMove > 0)) throw new Error('--big-move takes a positive number (a log move, 0.05 is about 5%) or off.');
+  const multi = Boolean(columns && columns.length);
+  if (minPhase != null && minPhase !== '') {
+    const m = Number(minPhase);
+    if (!Number.isInteger(m) || m < 1 || m > 24) throw new Error('--min-phase takes a whole number of rows from 1 to 24 (months or quarters).');
+    rule.minPhase = m;
+  } else if (multi && COMPOSITE_MIN_PHASE[frequency]) rule.minPhase = COMPOSITE_MIN_PHASE[frequency];
   let labels, x, composite = null;
-  if (columns && columns.length) {
+  if (multi) {
     if (columns.length < 2) throw new Error('--turns --columns needs two or more columns for a composite (or use --column for one).');
     const a = alignColumns(src, columns, labelColumn);
     if (a.series.some((s) => s.some((v) => !(v > 0)))) throw new Error('--turns needs every value above zero (the composite is built from percent changes).');
@@ -71,7 +78,7 @@ export function turnsResult({ csv, column = null, columns = null, labelColumn = 
     const a = turns[j], b = turns[j + 1];
     phases.push({ from: a.label, to: b.label, kind: a.kind === 'peak' ? 'contraction' : 'expansion', length: b.index - a.index, change: Number((Math.log(b.value / a.value)).toFixed(4)) });
   }
-  const out = { method: 'bbq', frequency, bigMove: rule.bigMove === undefined || rule.bigMove === Infinity ? null : rule.bigMove, n: x.length, first: labels[0], last: labels[labels.length - 1], composite, turns, phases };
+  const out = { method: 'bbq', frequency, minPhase: rule.minPhase ?? (frequency === 'monthly' ? 6 : 2), bigMove: rule.bigMove === undefined || rule.bigMove === Infinity ? null : rule.bigMove, n: x.length, first: labels[0], last: labels[labels.length - 1], composite, turns, phases };
   // The page draws the dated series (the composite index when there are several columns).
   if (withSeries) out.series = { labels, values: x.map((v) => Number(v.toPrecision(6))) };
   return out;
@@ -79,13 +86,14 @@ export function turnsResult({ csv, column = null, columns = null, labelColumn = 
 
 const pct = (v) => `${v >= 0 ? '+' : ''}${(100 * (Math.exp(v) - 1)).toFixed(1)}%`;
 export function turnsText(r) {
-  const lines = [`Peaks and troughs by Bry-Boschan's rule (${r.frequency} durations${r.bigMove ? `, a short phase kept when it moves ${(100 * r.bigMove).toFixed(0)}% or more` : ''}), ${r.n} points, ${r.first} to ${r.last}:`];
+  const unitW = r.frequency === 'monthly' ? 'months' : 'quarters';
+  const lines = [`Peaks and troughs by Bry-Boschan's rule (${r.frequency} durations, phases of at least ${r.minPhase} ${unitW}${r.bigMove ? `, a short phase kept when it moves ${(100 * r.bigMove).toFixed(0)}% or more` : ''}), ${r.n} points, ${r.first} to ${r.last}:`];
   if (r.composite) {
     lines.push(`  On a composite index of ${r.composite.columns.join(', ')} (Conference Board method: weights ${r.composite.columns.map((c, i) => `${c} ${r.composite.weights[i].toFixed(3)}`).join(', ')}${r.composite.sdUntil ? `, volatility measured to ${r.composite.sdUntil}` : ''})${r.composite.rowsDropped ? `; ${r.composite.rowsDropped} rows without every column left out` : ''}.`);
   }
   const hl = r.composite && r.composite.heavyLate;
   if (hl) {
-    lines.push(`  Warning: ${hl.column} carries ${(100 * hl.weight).toFixed(0)}% of the weight and is also the latest column (its turns come a median ${hl.lag} ${r.frequency === 'monthly' ? 'months' : 'rows'} after the other columns'), so it can delay the composite's dates. Dated without it (${hl.without.join(', ')}): ${hl.turns.length ? hl.turns.map((t) => `${t.kind} ${t.label}`).join(', ') : 'no turn'}. In simulations of four business makes this warning's alternative dated turns better when it fired (README "A heaviest-is-latest warning"); compare both with what you know happened.`);
+    lines.push(`  Warning: ${hl.column} carries ${(100 * hl.weight).toFixed(0)}% of the weight and is also the latest column (its turns come a median ${hl.lag} ${r.frequency === 'monthly' ? 'months' : 'rows'} after the other columns'), so it can delay the composite's dates. Dated without it (${hl.without.join(', ')}): ${hl.turns.length ? hl.turns.map((t) => `${t.kind} ${t.label}`).join(', ') : 'no turn'}. In simulations of five business makes this warning's alternative dated turns better when it fired (README "A heaviest-is-latest warning"); compare both with what you know happened.`);
   }
   if (!r.turns.length) { lines.push('  No turning point: the series has no peak and trough far enough apart under these durations.'); return lines.join('\n'); }
   for (const t of r.turns) lines.push(`  ${t.kind === 'peak' ? 'Peak  ' : 'Trough'} ${t.label}`);
@@ -93,6 +101,6 @@ export function turnsText(r) {
     lines.push('', '  Phases:');
     for (const p of r.phases) lines.push(`    ${p.kind.padEnd(11)} ${p.from} to ${p.to}: ${p.length} ${r.frequency === 'monthly' ? 'months' : 'quarters'}, ${pct(p.change)}`);
   }
-  lines.push('', '  How far to trust it: on FRED\'s payrolls, real income less transfers, industrial production and real sales, 1967-2026, the composite dated all 16 NBER peaks and troughs within 3 months with no false turn; one series alone missed 2 to 7 (README "A composite of NBER\'s monthly indicators"). The last turn can move as new data arrive: a peak needs months of decline after it to be confirmed.');
+  lines.push('', `  How far to trust it: on FRED's payrolls, real income less transfers, industrial production and real sales, 1967-2026, the composite dated all 16 NBER peaks and troughs within 3 months (with 6-month phases no false turn; with the composite default of 3, also the 2002-11 to 2003-04 soft patch NBER did not date); one series alone missed 2 to 7 (README "A composite of NBER's monthly indicators", "P3 and the heavy-late warning together"). The last turn can move as new data arrive: a peak needs months of decline after it to be confirmed.`);
   return lines.join('\n');
 }

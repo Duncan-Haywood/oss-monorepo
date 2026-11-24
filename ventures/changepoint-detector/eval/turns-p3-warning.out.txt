@@ -1,0 +1,53 @@
+Primary, freight make, n 144, noise x1 (bars J1, J2, J5): 500 draws
+  SW (shipped rule, warning followed): F1 0.882 (composite alone 0.814), misses 1.184, false 0.376 a draw, warning fires 52%
+  PW (P3 rule, warning followed):      F1 0.914 (composite alone 0.867), misses 0.792, false 0.404 a draw, warning fires 53%
+  PW - SW +0.032, wins 93, losses 16, p 2.21e-14; hindsight-best line 0.914, advance pick 0.857
+  PW fire rate by heavy-line lag: 0: 0% (SW 1%) of 72, 1: 18% (SW 24%) of 72, 2: 62% (SW 56%) of 71, 3: 87% (SW 83%) of 71, 4: 96% (SW 95%) of 77, 5: 97% (SW 97%) of 73, -1: 2% (SW 2%) of 64; lag >= 3 94%, lag <= 1 7%
+
+Guard, maker make (J3): 500 draws
+  SW (shipped rule, warning followed): F1 0.915 (composite alone 0.877), misses 0.682, false 0.280 a draw, warning fires 52%
+  PW (P3 rule, warning followed):      F1 0.938 (composite alone 0.905), misses 0.420, false 0.332 a draw, warning fires 53%
+  PW - SW +0.023, wins 74, losses 20, p 1.85e-8; hindsight-best line 0.934, advance pick 0.881
+  PW fire rate by heavy-line lag: 0: 3% (SW 4%) of 73, 1: 18% (SW 21%) of 73, 2: 72% (SW 66%) of 67, 3: 93% (SW 92%) of 86, 4: 96% (SW 94%) of 68, 5: 95% (SW 97%) of 59, -1: 1% (SW 0%) of 74; lag >= 3 94%, lag <= 1 7%
+Guard, shop make (J3): 500 draws
+  SW (shipped rule, warning followed): F1 0.941 (composite alone 0.932), misses 0.372, false 0.128 a draw, warning fires 66%
+  PW (P3 rule, warning followed):      F1 0.967 (composite alone 0.974), misses 0.168, false 0.150 a draw, warning fires 65%
+  PW - SW +0.026, wins 57, losses 8, p 3.16e-10; hindsight-best line 0.974, advance pick 0.934
+Guard, saas make (J3): 500 draws
+  SW (shipped rule, warning followed): F1 0.887 (composite alone 0.833), misses 0.968, false 0.056 a draw, warning fires 93%
+  PW (P3 rule, warning followed):      F1 0.942 (composite alone 0.915), misses 0.496, false 0.102 a draw, warning fires 94%
+  PW - SW +0.055, wins 111, losses 10, p 1.04e-22; hindsight-best line 0.960, advance pick 0.909
+Guard, agency make (J3): 500 draws
+  SW (shipped rule, warning followed): F1 0.902 (composite alone 0.708), misses 0.896, false 0.216 a draw, warning fires 94%
+  PW (P3 rule, warning followed):      F1 0.918 (composite alone 0.755), misses 0.708, false 0.274 a draw, warning fires 97%
+  PW - SW +0.016, wins 48, losses 17, p 1.52e-4; hindsight-best line 0.948, advance pick 0.857
+
+FRED composite arm A (PAYEMS, W875RX1, INDPRO, CMRMTSPL) (J4):
+  SW: heaviest PAYEMS weight 0.541, relative lags 0, 0, 0, 0; warning quiet; followed 16/16, false 0
+  PW: heaviest PAYEMS weight 0.541, relative lags 0, 0, 0, 0; warning quiet; followed 16/16, false 2 (peak 2002-11, trough 2003-04)
+
+Bars:
+  J1 PASS, J2 PASS, J3 PASS, J4 PASS, J5 PASS
+Decision: P3 becomes the monthly composite default, with the warning dated under it.
+
+Printed, no bar:
+Freight make, n 144, noise x0.5: 500 draws
+  SW (shipped rule, warning followed): F1 0.934 (composite alone 0.877), misses 0.694, false 0.160 a draw, warning fires 56%
+  PW (P3 rule, warning followed):      F1 0.971 (composite alone 0.925), misses 0.238, false 0.164 a draw, warning fires 57%
+  PW - SW +0.037, wins 100, losses 4, p 4.72e-25; hindsight-best line 0.981, advance pick 0.951
+  PW fire rate by heavy-line lag: 0: 1% (SW 0%) of 72, 1: 8% (SW 10%) of 72, 2: 83% (SW 76%) of 71, 3: 99% (SW 99%) of 71, 4: 96% (SW 97%) of 77, 5: 100% (SW 99%) of 73, -1: 0% (SW 2%) of 64; lag >= 3 98%, lag <= 1 3%
+Freight make, n 144, noise x2: 500 draws
+  SW (shipped rule, warning followed): F1 0.752 (composite alone 0.710), misses 2.228, false 1.124 a draw, warning fires 39%
+  PW (P3 rule, warning followed):      F1 0.783 (composite alone 0.763), misses 1.828, false 1.330 a draw, warning fires 39%
+  PW - SW +0.031, wins 119, losses 57, p 3.42e-6; hindsight-best line 0.778, advance pick 0.676
+  PW fire rate by heavy-line lag: 0: 3% (SW 4%) of 72, 1: 13% (SW 15%) of 72, 2: 27% (SW 32%) of 71, 3: 56% (SW 56%) of 71, 4: 74% (SW 74%) of 77, 5: 88% (SW 81%) of 73, -1: 8% (SW 6%) of 64; lag >= 3 73%, lag <= 1 8%
+Freight make, n 96, noise x1: 500 draws
+  SW (shipped rule, warning followed): F1 0.866 (composite alone 0.806), misses 0.748, false 0.318 a draw, warning fires 50%
+  PW (P3 rule, warning followed):      F1 0.904 (composite alone 0.863), misses 0.458, false 0.382 a draw, warning fires 52%
+  PW - SW +0.038, wins 86, losses 31, p 3.68e-7; hindsight-best line 0.929, advance pick 0.855
+  PW fire rate by heavy-line lag: 0: 8% (SW 8%) of 61, 1: 13% (SW 19%) of 70, 2: 63% (SW 60%) of 84, 3: 86% (SW 78%) of 79, 4: 92% (SW 89%) of 64, 5: 94% (SW 87%) of 70, -1: 3% (SW 3%) of 72; lag >= 3 91%, lag <= 1 8%
+Freight make, n 240, noise x1: 500 draws
+  SW (shipped rule, warning followed): F1 0.901 (composite alone 0.830), misses 1.812, false 0.498 a draw, warning fires 54%
+  PW (P3 rule, warning followed):      F1 0.930 (composite alone 0.874), misses 1.140, false 0.580 a draw, warning fires 53%
+  PW - SW +0.029, wins 154, losses 32, p 2.42e-20; hindsight-best line 0.907, advance pick 0.868
+  PW fire rate by heavy-line lag: 0: 0% (SW 4%) of 57, 1: 15% (SW 19%) of 72, 2: 71% (SW 72%) of 79, 3: 97% (SW 95%) of 59, 4: 100% (SW 100%) of 67, 5: 99% (SW 99%) of 77, -1: 0% (SW 0%) of 89; lag >= 3 99%, lag <= 1 5%
