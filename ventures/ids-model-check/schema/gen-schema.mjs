@@ -5,7 +5,7 @@
 //
 // Kept facts only: entity names, supertype, abstract flag, explicit attributes in
 // order (name, type, optional, aggregate, and for a list of lists each inner
-// level's fixed size as `inner`), which inherited attributes a subtype
+// level's fixed size as `inner`, and the outer list's least size as `min` when it is 1 or more), which inherited attributes a subtype
 // derives (written `*` in a STEP file), inverse attribute names (and, in
 // inverseFor, each one's entity and FOR attribute, for ifcXML), and every defined
 // type's underlying kind (simple base, enumeration values, select members).
@@ -58,6 +58,9 @@ export function parseExpress(text) {
       // inner level's fixed size, or null when it varies. ifcXML writes such
       // a list flat ("x y z x y z") when the size is fixed.
       const levels = [...tdecl.matchAll(/\b(?:LIST|SET|ARRAY|BAG)\s*\[\s*(\w+)\s*:\s*([\w?]+)\s*\]/g)];
+      // The outer list's least size when it is 1 or more (SET [1:?]): an
+      // empty list there breaks the schema (conformance.mjs).
+      if (agg && levels.length && /^\d+$/.test(levels[0][1]) && Number(levels[0][1]) > 0) at.min = Number(levels[0][1]);
       if (agg && levels.length > 1) at.inner = levels.slice(1).map((l) => (l[1] === l[2] && /^\d+$/.test(l[1]) ? Number(l[1]) : null));
       attrs.push(at);
     }

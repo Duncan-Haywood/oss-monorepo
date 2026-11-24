@@ -300,6 +300,10 @@ class Reader {
   }
 }
 
+// Reads one parenthesised argument list starting at text[pos] (a header
+// record's, for conformance.mjs). Throws on text ISO 10303-21 does not allow.
+export function readStepArgs(text, pos) { return new Reader(text, pos).list(); }
+
 // Where an entity record ends: the ";" after it, skipping strings ('' is an
 // escaped quote) and /* comments */. Returns -1 when the text ends first.
 function recordEnd(t, p) {

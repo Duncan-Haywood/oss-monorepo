@@ -10,6 +10,7 @@ import { modelInventory } from "./inventory.mjs";
 import { fillModel, fillReport, toFillCsv, readValues } from "./model-fill.mjs";
 import { measureModel, geometryLookup } from "./geometry-quantities.mjs";
 import { toStep } from "./step-writer.mjs";
+import { conformance, conformanceSummary } from "./conformance.mjs";
 import { cobieFromModel, cobieToXlsx, cobieQc, qcText, numberRows, placementFromTakeoff, SHEETS } from "./cobie.mjs";
 
 const cache = {};
@@ -168,6 +169,12 @@ self.onmessage = async (ev) => {
       return;
     }
     const report = checkIds(ids, ifc, { schemas: modelSchemas(id, schemas), auditSchemas: schemas, typeMap, measureUnits, psets });
+    // Schema faults the check reads past (conformance.mjs): STEP files up to
+    // 40 MB, where a second, full read costs a few seconds at most.
+    if (report.format === "STEP" && ifc.length <= 40e6) {
+      try { report.conformance = conformanceSummary(conformance(ifc, modelSchemas(id, schemas))); }
+      catch (e) { report.conformance = { error: e.message }; }
+    }
     report.seconds = (performance.now() - t0) / 1000;
     postMessage({ report });
   } catch (e) {

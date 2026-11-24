@@ -515,8 +515,8 @@ flagships:
       rerun it after excel2ids.mjs changes. IFC4X3 ifcXML: none public (searched
       2026-11-18); B-spline control points cut into rows from knot counts 2026-11-18
       (eval/ifcxml-twins-2026-11-18.md); IfcOpenShell's 294 files swept and set
-      beside IfcTester 2026-11-24 (eval/ifcopenshell-test-files-*); next: its
-      validate/ fixtures' faults as reader notes; STEP exports as nested ifcXML
+      beside IfcTester 2026-11-24 (eval/ifcopenshell-test-files-*); next: inverse
+      counts (eval/conformance-2026-11-24.md); STEP exports as nested ifcXML
       (eval/ifc4-layout.mjs). IFC5: eval/ifcx-twins.mjs on new IFC5-development
       files.
     hosts: [https://github.com]

@@ -465,6 +465,12 @@
       for (const d of dups.slice(0, 300)) h += `<tr><td><code>${esc(d.globalId)}</code></td><td>${d.elements.map((e) => `#${e.id} ${esc(e.type)}${e.name ? ` ${esc(e.name)}` : ""}`).join("<br>")}</td></tr>`;
       h += `</tbody></table></div>${dups.length > 300 ? `<p class="muted">Showing 300 of ${dups.length}; the JSON and CSV downloads hold them all.</p>` : ""}</div></details>`;
     }
+    const cf = r.conformance;
+    if (cf && cf.total) {
+      h += `<details class="spec"${dups.length ? "" : " open"}><summary><span class="tag fail">MODEL</span><span><strong>${cf.total.toLocaleString()} schema fault${cf.total > 1 ? "s" : ""}</strong> <span class="muted">not an IDS verdict: places where the file breaks its own ${esc(cf.schema)} schema</span></span></summary><div class="body"><p>An IDS check reads every value by its position and type, so a record with a missing attribute, a number written where a select needs a typed value, or an enumeration value the schema lacks can make a check test the wrong value or skip it. These usually come from the exporting tool; the fix is in its export settings or a newer version. <code>node cli.mjs --conformance</code> lists them all.</p><div class="tablewrap"><table><thead><tr><th>How many</th><th>Fault (first record shown)</th></tr></thead><tbody>`;
+      for (const g of cf.groups) h += `<tr><td>${g.count.toLocaleString()}</td><td>${esc(g.message)}</td></tr>`;
+      h += `</tbody></table></div>${cf.more ? `<p class="muted">and ${cf.more} more kinds</p>` : ""}</div></details>`;
+    }
     h += `<div class="row"><button class="ghost" id="dl-html">Download report (HTML)</button><button class="ghost" id="dl-bcf">Download BCF issues</button><button class="ghost" id="dl-csv">Download CSV</button><button class="ghost" id="dl-json">Download JSON</button></div>`;
     for (const s of r.specs) {
       h += `<details class="spec"${s.status !== "pass" && r.specs.length < 12 ? " open" : ""}><summary><span class="tag ${s.status}">${s.status.toUpperCase()}</span><span><strong>${esc(s.name)}</strong> <span class="muted">${s.applicable} applicable${s.failed.length ? `, ${s.failed.length} failing` : ""} (${s.optionality})</span></span></summary><div class="body">`;
