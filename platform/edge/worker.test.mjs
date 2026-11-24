@@ -88,7 +88,8 @@ test('a hit is counted per day and slug, and /counts returns it', async () => {
   assert.equal(res.status, 200);
   const { days } = await res.json();
   const [day] = Object.keys(days);
-  assert.deepEqual(days[day], { 'roof-bid': 3, 'ref:npm': 2, 'src:google': 2, 'dev:desktop': 3 }, 'a source outside the closed list is dropped');
+  // The DNT load counts too (anonymous first-party tally, 2026-11-24).
+  assert.deepEqual(days[day], { 'roof-bid': 4, 'ref:npm': 2, 'src:google': 2, 'dev:desktop': 4 }, 'a source outside the closed list is dropped; a DNT load is counted');
 });
 
 test('a load adds its country and device class; a crawler beacon adds to bot: keys, not the page', async () => {

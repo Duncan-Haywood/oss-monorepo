@@ -12,9 +12,9 @@ test('counts a plain page view under its slug', () => {
   assert.deepEqual(classify(ok), { count: true, slug: 'shop-rate-calculator' });
 });
 
-test('honours Do Not Track and Global Privacy Control', () => {
-  assert.equal(classify({ ...ok, headers: { ...ok.headers, DNT: '1' } }).count, false);
-  assert.equal(classify({ ...ok, headers: { ...ok.headers, 'Sec-GPC': '1' } }).count, false);
+test('counts Do Not Track and Global Privacy Control browsers like any other anonymous load', () => {
+  assert.deepEqual(classify({ ...ok, headers: { ...ok.headers, DNT: '1' } }), { count: true, slug: 'shop-rate-calculator' });
+  assert.deepEqual(classify({ ...ok, headers: { ...ok.headers, 'Sec-GPC': '1' } }), { count: true, slug: 'shop-rate-calculator' });
 });
 
 test('drops crawlers so a sitemap crawl is not an audience', () => {
@@ -61,7 +61,7 @@ test('server: counts a hit, persists nothing about the request, serves aggregate
     assert.equal(hit.headers.get('access-control-allow-origin'), 'https://example.github.io');
     await fetch(`${base}/hit`, { method: 'POST', body: '{"p":"hub"}', headers: { 'user-agent': 'Mozilla/5.0', DNT: '1' } });
     const counts = await (await fetch(`${base}/counts`)).json();
-    assert.deepEqual(counts.days, { '2026-10-16': { hub: 1 } });
+    assert.deepEqual(counts.days, { '2026-10-16': { hub: 2 } });
     assert.match(counts.unit, /not people/);
     assert.ok(!JSON.stringify(tally.days).includes('203.0.113.9'));
     assert.equal((await fetch(`${base}/nope`, { method: 'POST' })).status, 404);

@@ -10,15 +10,19 @@ test('default build ships no beacon', () => {
   assert.ok(!renderChromeModule().includes('sendBeacon'));
 });
 
-test('a counter URL adds one beacon (slug, plus a known channel tag), after every opt-out', () => {
+test('a counter URL adds one beacon (slug, plus a known channel tag), after the site opt-out', () => {
   const js = renderChromeModule({ counterUrl: 'https://count.example' });
   assert.equal(js.split('sendBeacon').length - 1, 1);
   assert.match(js, /var hit=\{p:slug\};/);
   assert.match(js, /sendBeacon\("https:\/\/count\.example\/hit",new Blob\(\[JSON\.stringify\(hit\)\]/);
   const beacon = js.indexOf('sendBeacon');
-  for (const guard of ['doNotTrack', 'globalPrivacyControl', 'portfolio-hub-optout', 'if(!slug)return']) {
+  for (const guard of ['portfolio-hub-optout', 'if(!slug)return']) {
     assert.ok(js.indexOf(guard) < beacon, `${guard} must run before the beacon`);
   }
+  // DNT/GPC no longer stop the anonymous first-party count (2026-11-24,
+  // docs/legal/privacy-baseline.md), but still silence the local-only tallies.
+  const signal = js.indexOf('doNotTrack');
+  assert.ok(signal > beacon && signal < js.indexOf("bump('tool_viewed:'"), 'DNT/GPC gate the local tallies, not the beacon');
 });
 
 test('counter URL is reduced to an https origin', () => {

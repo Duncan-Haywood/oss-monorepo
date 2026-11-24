@@ -25,7 +25,7 @@ it never creates a charge, and no card is needed.
 |---|---|
 | `POST /feedback` | `{type, tool, message, page, website}` from the site's form. Only the site's origin may post. Emails are removed from the message. At most 3 posts a minute per sender and 50 messages a day site-wide (`FEEDBACK_DAILY_CAP`). |
 | `GET /feedback?after=<id>` | Stored messages after an id, which `pull-feedback.mjs` reads. Public, because the same text is committed to the public repository. |
-| `POST /hit` | The page-view ping. DNT, Global Privacy Control and unknown slugs are not counted. A counted load also adds one to `geo:<country>` and `dev:<mobile/tablet/desktop>`; a crawler's beacon adds to `bot:<class>` and `botpage:<slug>` instead of the page. |
+| `POST /hit` | The page-view ping. Unknown slugs are not counted. Browsers sending DNT or Global Privacy Control are counted from 2026-11-24 (before that they were dropped; see `docs/legal/privacy-baseline.md` for why that is lawful). A counted load also adds one to `geo:<country>` and `dev:<mobile/tablet/desktop>`; a crawler's beacon adds to `bot:<class>` and `botpage:<slug>` instead of the page. |
 | `GET /counts?since=YYYY-MM-DD` | The daily aggregates, which `platform/counter/pull.mjs` reads. |
 | `GET /healthz` | `ok`. |
 
@@ -38,7 +38,7 @@ to the total (`isPageKey` in `platform/counter/core.mjs`; `pull.mjs`'s
 
 | Key | What it counts |
 |---|---|
-| `<slug>` | Page loads by browsers that sent no DNT/GPC and did not opt out. Not people. |
+| `<slug>` | Page loads by browsers that did not use the site's opt-out. Not people. Until 2026-11-23 browsers sending DNT/GPC were also left out, so earlier days read lower. |
 | `ref:<tag>` | The same loads, arriving by one of the portfolio's own `?ref=` links. |
 | `src:<class>` | The same loads, by kind of referring site (`google`, `reddit`, `other`...). |
 | `geo:<CC>` | The same loads, by Cloudflare's `request.cf.country` (`XX` unknown, `T1` Tor). Added 2026-10-24. |

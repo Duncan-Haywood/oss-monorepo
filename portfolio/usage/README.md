@@ -343,8 +343,10 @@ node platform/counter/usage-data.mjs top --bots              # pages ranked by c
 split from the prefixed breakdowns (`ref:`, `src:`, `geo:`, `dev:`, `bot:`,
 `botpage:`) for you, each row gives loads, the number of days it was loaded
 and its kind (tool, site or category page), and the header says which days the
-window covers. Loads are page loads by browsers that sent no DNT/GPC, not
-people.
+window covers. Loads are page loads by browsers that did not use the site's
+opt-out, not people. Browsers sending DNT/GPC were left out until 2026-11-23
+and are counted from 2026-11-24, so earlier days read lower
+(`docs/legal/privacy-baseline.md`, "What changed on 2026-11-24").
 
 `sync` lets the branch copy win but merges visit days (larger count) and
 feedback records (by id) with main's, so a hand-run pull is never lost.

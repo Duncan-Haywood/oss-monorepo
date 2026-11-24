@@ -32,8 +32,6 @@
 //
 // WHAT IT REFUSES
 //
-//   - requests carrying `DNT: 1` or `Sec-GPC: 1` (the page already stays
-//     silent for those browsers; this is the server keeping the same promise);
 //   - user agents that announce themselves as crawlers, so a sitemap crawl
 //     does not read as an audience (the agent string is tested and dropped,
 //     never stored);
