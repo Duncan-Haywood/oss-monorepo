@@ -448,9 +448,9 @@ function renderPrices(est, d) {
   if (box.contains(document.activeElement)) return;
   const mats = est.lumber.map((l) => l.material);
   const lens = d.lengths;
-  let html = `<table class="grid"><thead><tr><th scope="col">Board</th>${lens.map((ft) => `<th scope="col">${ft}'</th>`).join('')}</tr></thead><tbody>`;
+  let html = `<table class="grid"><thead><tr><th scope="col">Board</th>${lens.map((ft) => `<th scope="col">${esc(ft)}'</th>`).join('')}</tr></thead><tbody>`;
   for (const m of mats) {
-    html += `<tr><th scope="row">${m}</th>${lens.map((ft) => `<td><input type="number" min="0" step="0.01" data-mat="${m}" data-ft="${ft}" value="${esc(state.prices.lumber[m]?.[ft] ?? '')}" aria-label="Price of a ${m} ${ft} ft board ($)"></td>`).join('')}</tr>`;
+    html += `<tr><th scope="row">${esc(m)}</th>${lens.map((ft) => `<td><input type="number" min="0" step="0.01" data-mat="${esc(m)}" data-ft="${esc(ft)}" value="${esc(state.prices.lumber[m]?.[ft] ?? '')}" aria-label="Price of a ${esc(m)} ${esc(ft)} ft board ($)"></td>`).join('')}</tr>`;
   }
   html += '</tbody></table><div class="items">';
   for (const r of est.shopping.filter((x) => x.section !== 'Lumber')) {

@@ -40,8 +40,10 @@ import { issRateProblem, issBurdenProblem, lcSubitem } from "./iss-rate.mjs";
 import { cityRateProblem } from "./iss-city-rates.mjs";
 
 export const NFSE_NS = "http://www.sped.fazenda.gov.br/nfse";
-// An xmlns or xmlns:prefix attribute whose value is exactly NFSE_NS.
-const NFSE_NS_DECL = new RegExp(`\\sxmlns(?::[A-Za-z0-9_.-]+)?\\s*=\\s*(["'])${NFSE_NS.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}\\1`);
+// An xmlns or xmlns:prefix attribute; the head declares NFSE_NS when one's value is exactly it
+// (compared as a string, so no character of the namespace is read as a pattern).
+const XMLNS_DECL = /\sxmlns(?::[A-Za-z0-9_.-]+)?\s*=\s*(["'])(.*?)\1/g;
+const declaresNfseNs = (head) => [...String(head).matchAll(XMLNS_DECL)].some((m) => m[2] === NFSE_NS);
 export { PACKAGE };
 
 function finding(rule, message, fix, path) {
@@ -50,7 +52,7 @@ function finding(rule, message, fix, path) {
 
 export function looksLikeNfse(text) {
   const head = String(text).slice(0, 4096);
-  return /<(?:[A-Za-z0-9_]+:)?(?:DPS|NFSe)[\s>]/.test(head) && NFSE_NS_DECL.test(head);
+  return /<(?:[A-Za-z0-9_]+:)?(?:DPS|NFSe)[\s>]/.test(head) && declaresNfseNs(head);
 }
 
 // ---------- schema layer ----------

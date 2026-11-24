@@ -50,10 +50,11 @@ export function memoText(memo) {
   if (!/<[a-z!/]/i.test(s)) return tidy(entity(s));
   // comments and hidden blocks go first, repeated until nothing changes so a
   // removal cannot splice a new "<script" or "<!--" together from its edges
-  let prev;
+  let prev, p;
   do {
     prev = s;
-    s = s.replace(/<!--[\s\S]*?--!?>/g, "").replace(/<(head|style|script|title)\b[^>]*>[\s\S]*?<\/\1\b[^>]*>/gi, "");
+    do { p = s; s = s.replace(/<!--[\s\S]*?--!?>/g, ""); } while (s !== p);
+    do { p = s; s = s.replace(/<(head|style|script|title)\b[^>]*>[\s\S]*?<\/\1\b[^>]*>/gi, ""); } while (s !== p);
   } while (s !== prev);
   s = s
     .replace(/\n/g, " ") // in HTML a line break in the source is a space
@@ -64,8 +65,9 @@ export function memoText(memo) {
     .replace(/<br\b[^>]*>/gi, "\n")
     .replace(/<li\b[^>]*>/gi, "\u0001- ")
     .replace(/<\/?(?:p|div|h[1-6]|ul|ol|li|tr|table|tbody|thead|blockquote|pre)\b[^>]*>/gi, "\u0001")
-    .replace(/<\/t[dh]\s*>/gi, "\t")
-    .replace(/<[^>]*>/g, "");
+    .replace(/<\/t[dh]\s*>/gi, "\t");
+  // one pass leaves only a "<" with no ">" after it; the loop is what CodeQL reads as complete
+  do { p = s; s = s.replace(/<[^>]*>/g, ""); } while (s !== p);
   s = entity(s).replace(/\u0001+/g, "\u0001").replace(/^\u0001|\u0001$/g, "").replace(/\u0001/g, "\n");
   return tidy(s);
 }

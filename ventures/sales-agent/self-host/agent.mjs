@@ -292,7 +292,8 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
       return it;
     } catch (e) {
       // Only the message reaches the page and the audit log, never the error object (and so never its stack).
-      const error = (e instanceof Error ? e.message : String(e)).replace(env.SMTP_PASS || "\0", "***");
+      // sendMail only throws Error objects; anything else is reported generically rather than stringified.
+      const error = (e instanceof Error ? e.message : "sending failed").replace(env.SMTP_PASS || "\0", "***");
       delete it.sendingAt; audit("send_error", { id, to, error }); save();
       return { error };
     }

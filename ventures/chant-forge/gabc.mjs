@@ -60,7 +60,9 @@ const untilStable = (s, f) => { let p; do { p = s; s = f(s); } while (s !== p); 
 export function lyricText(text) {
   const unsung = untilStable(text, (s) => s.replace(/<v>[\s\S]*?<\/v>/g, '').replace(/<alt>[\s\S]*?<\/alt>/g, ''));
   const special = unsung.replace(/<sp>([\s\S]*?)<\/sp>/g, (_, k) => SP[k.trim()] ?? k.replace(/\//g, ''));
-  return untilStable(special, (s) => s.replace(/<[^>]*>/g, ''))
+  let tagless = special, prev;
+  do { prev = tagless; tagless = tagless.replace(/<[^>]*>/g, ''); } while (tagless !== prev);
+  return tagless
     .replace(/[{}]/g, '')
     .replace(/~/g, ' ')
     .replace(/[*\u2020\u2021]/g, '')

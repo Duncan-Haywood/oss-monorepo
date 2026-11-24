@@ -35,10 +35,11 @@ async function load(key) {
   const ent = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", ordm: "º", ordf: "ª", ndash: "–", mdash: "—", ldquo: "“", rdquo: "”", lsquo: "‘", rsquo: "’", deg: "°", sect: "§", hellip: "…" };
   const MARK = { acute: "\u0301", grave: "\u0300", circ: "\u0302", tilde: "\u0303", uml: "\u0308", cedil: "\u0327" };
   const named = (e) => ent[e.toLowerCase()] ?? (/^([A-Za-z])(acute|grave|circ|tilde|uml|cedil)$/.test(e) ? (e[0] + MARK[e.slice(1)]).normalize("NFC") : null);
-  const untilStable = (s, f) => { let p; do { p = s; s = f(s); } while (s !== p); return s; };
-  html = untilStable(html, (s) => s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>|<style\b[^>]*>[\s\S]*?<\/style\b[^>]*>/gi, ""));
+  let prev;
+  do { prev = html; html = html.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>|<style\b[^>]*>[\s\S]*?<\/style\b[^>]*>/gi, ""); } while (html !== prev);
   html = html.replace(/<br\s*\/?>|<\/p>|<\/tr>|<\/td>|<\/li>/gi, "\n");
-  return untilStable(html, (s) => s.replace(/<[^>]+>/g, ""))
+  do { prev = html; html = html.replace(/<[^>]+>/g, ""); } while (html !== prev);
+  return html
     .replace(/&(#\d+|#x[0-9a-f]+|\w+);/gi, (m, e) => e[0] === "#" ? codePointOr(e[1] === "x" || e[1] === "X" ? parseInt(e.slice(2), 16) : Number(e.slice(1))) : named(e) ?? m);
 }
 
