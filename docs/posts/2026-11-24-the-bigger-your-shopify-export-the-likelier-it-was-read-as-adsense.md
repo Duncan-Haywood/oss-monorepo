@@ -3,7 +3,7 @@ title: "A 462-row Shopify export was read as AdSense. Now big files are read as 
 seo_title: "Large sales exports now detect the right platform"
 date: 2026-11-24
 tags: [perf, ventures, sales-export-to-journal, bookkeeping]
-description: "Sales Export To Journal guesses which of 17 platforms wrote your CSV. On files past about 300 rows, seven platforms were guessed wrong. Also: reading a large file got up to four times faster."
+description: "Sales Export To Journal guesses which of 17 platforms wrote a CSV. Past about 300 rows, seven were guessed wrong. Fixed, and big files now read up to 4x faster."
 ---
 
 [Sales Export To Journal](../../ventures/sales-export-to-journal/) takes the
