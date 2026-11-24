@@ -35,6 +35,9 @@
   "errors": [
     {
       "what": "First drafts of two descriptions came out at 161 and 165; the apply script's length check caught them before writing."
+    },
+    {
+      "what": "The new ratchet went red on main's merge for 5 pages added by another PR in the meantime; fixed the pages rather than growing the baseline."
     }
   ],
   "integrity_issues": [],
@@ -61,7 +64,7 @@
     "docs/reports/polish-2026-11-24-paid-front-page-descriptions.md"
   ],
   "goal": "North star $10k MRR: search snippets of the 20 for-profit products' front pages now show a whole sentence.",
-  "notes": "Verification: node --test platform/pages/description-length.test.mjs 5/5; description-length.mjs 3,841 -> 3,823 offenders, 0 new. run_venture_tests.py on the 17 touched ventures: 16 ok (wall-framing 1217, ai-bookkeeper 3450, ids 626, xer 559, shed 546, clothing 755, ifc 293, babysitting 334, quick-pick 125, shift-roster 785, real-estate-photo 59, print-atelier 50, sales-export 88, plus the rest per the PR's CI); einvoice-preflight FAIL on 1 of 2762: 'poppler opens the repaired PDF' (pdfdetach exit 1 on a PDF the test generates), which reads no HTML and is the container's poppler, unrelated to two guide-page meta descriptions. PR CI: einvoice/venture jobs checked before merge. check_post_frontmatter clean. changepoint-detector and league-schedule-generator full suites were still running at commit time (long); their page.test.mjs (which asserts the meta description) passed 21/21 and 64/64. The einvoice failure is environmental: the container removes /usr/bin/pdfdetach (seen in its setup process), so the test's pdfdetach call exits nonzero.",
+  "notes": "Verification: node --test platform/pages/description-length.test.mjs 5/5; description-length.mjs 3,841 -> 3,823 offenders, 0 new. run_venture_tests.py on the 17 touched ventures: 16 ok (wall-framing 1217, ai-bookkeeper 3450, ids 626, xer 559, shed 546, clothing 755, ifc 293, babysitting 334, quick-pick 125, shift-roster 785, real-estate-photo 59, print-atelier 50, sales-export 88, plus the rest per the PR's CI); einvoice-preflight FAIL on 1 of 2762: 'poppler opens the repaired PDF' (pdfdetach exit 1 on a PDF the test generates), which reads no HTML and is the container's poppler, unrelated to two guide-page meta descriptions. PR CI: einvoice/venture jobs checked before merge. check_post_frontmatter clean. changepoint-detector and league-schedule-generator full suites were still running at commit time (long); their page.test.mjs (which asserts the meta description) passed 21/21 and 64/64. The einvoice failure is environmental: the container removes /usr/bin/pdfdetach (seen in its setup process), so the test's pdfdetach call exits nonzero. After merging main, the new ratchet flagged 5 machine-shop-guides pages (landed on main meanwhile, 164-178 chars); shortened them (148-159), its suite 33/33. PR CI's other reds (validate: machine-shop-guides VENTURE.yaml evidence 'usage'; check_md_links: portfolio/monetization/hardware-bets.md -> bets.md; launched.test.mjs: machine-shop-guides missing a launch date) are on main and not in this diff.",
   "corrections": [],
   "redteam": null,
   "usage": {

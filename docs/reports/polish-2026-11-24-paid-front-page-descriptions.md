@@ -28,6 +28,9 @@ first). Item 3 of `polish-2026-11-24-league-ebay-babysitting-titles.md`
   `portfolio-pages.yml`.
 - Post: `docs/posts/2026-11-24-paid-product-front-pages-fit-a-search-snippet.md`.
 
+- After merging main: 5 new machine-shop-guides pages (164 to 178) were
+  shortened to 148 to 159 instead of baselined, so the baseline stays at 3,823.
+
 ## Verified
 
 - `node --test platform/pages/description-length.test.mjs`: 5/5.
