@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "git fetch collided with measure's shallow.lock once (measure was deepening in the background); waited for it instead"
+    "git fetch collided with measure's shallow.lock once (measure was deepening in the background); waited for it instead",
+    "post slug collided with 2026-11-19-process-results-are-not-open-items.md; renamed"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -41,14 +42,18 @@
     {
       "file": "prompt.md",
       "issue": "68 run records report a bare `route` drawing a track the scheduled brief did not ask for; the fix (route reads the starting message) sits in owner-gated PR #16170 since 2026-11-15, so runs keep reporting it."
+    },
+    {
+      "file": "platform/ci/check_posts.py",
+      "issue": "Passed a post whose slug (date stripped) matched a 2026-11-19 post; only portfolio-pages' build (writing.mjs loadPosts) caught it, ~1 min into CI and 173 test errors. Fixed in this PR: check_posts.py now has a slug check."
     }
   ],
   "deviations": [],
   "writeups": [
-    "docs/posts/2026-11-24-process-results-are-not-open-items.md"
+    "docs/posts/2026-11-24-process-park-reads-the-evidence.md"
   ],
   "goal": null,
-  "notes": "Critique mode: backlog has only owner/blocked rows. Picked from measure's doc friction: flagship_field.py had 3 live reports in 3 days. Replayed both rows (pre-#18514 photo-editing, pre-#18513 changepoint-detector) from git: results now go to HISTORY.md, NEXT.md unchanged. README-cited rule matches 3 other items on main, all finished (shift-roster-builder). pytest portfolio/router: 287 passed. main_health: 313/313 before the change. allocate.py league-schedule-generator reports checked: row now has buildable items, so stale. No backlog ids touched; no agent doc needed (the post and the code comments carry the why).",
+  "notes": "Critique mode: backlog has only owner/blocked rows. Picked from measure's doc friction: flagship_field.py had 3 live reports in 3 days. Replayed both rows (pre-#18514 photo-editing, pre-#18513 changepoint-detector) from git: results now go to HISTORY.md, NEXT.md unchanged. README-cited rule matches 3 other items on main, all finished (shift-roster-builder). pytest portfolio/router: 287 passed. main_health: 313/313 before the change. allocate.py league-schedule-generator reports checked: row now has buildable items, so stale. No backlog ids touched; no agent doc needed (the post and the code comments carry the why). Also: check_posts.py slug-clash check (test_check_posts 16 pass), added after the portfolio-pages build failed on this PR's first post name.",
   "corrections": [],
   "redteam": null,
   "usage": {

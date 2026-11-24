@@ -46,3 +46,7 @@ Now the evidence decides, not the wording:
 
 The tool's source already cites 59 dated run reports, most of them an item it sorted wrongly. These two follow the same pattern: tests built from the actual rows
 (`portfolio/router/test_flagship_field.py`, 120 pass), plus a replay of both rows before landing.
+
+One more fix came out of landing this one. This post first used a file name whose slug (the
+part after the date) matched a 2026-11-19 post. `check_posts.py` passed it, and the site build
+failed with 173 test errors. `check_posts.py` now catches a reused slug and names the other file.
