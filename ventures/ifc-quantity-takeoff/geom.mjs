@@ -1361,6 +1361,8 @@ export class Geometry {
     const a = e.args;
     const n = (i) => this.num(a[i]);
     const rad = (i) => (opts?.plain ? 0 : (n(i) ?? 0));
+    // toe (edge) radii: dropped with the fillets, or alone with opts.noToes
+    const toe = (i) => (opts?.noToes ? 0 : rad(i));
     const pos = () => (a[2] ? this.placement(a[2]) : IDENTITY);
     const place = (loops) => {
       const m = pos();
@@ -1404,28 +1406,32 @@ export class Geometry {
         return place([{ s: 1, pts: circle(n(3)).map((p) => [p[0], p[1] * b]) }]);
       }
       case "IFCISHAPEPROFILEDEF": {
-        const w = n(3), d = n(4), tw = n(5), tf = n(6), r = rad(7);
+        const w = n(3), d = n(4), tw = n(5), tf = n(6), r = rad(7), e = toe(8);
         if (n(9)) throw new Unresolved("sloped I flanges");
         const pts = [[-w / 2, -d / 2], [w / 2, -d / 2], [w / 2, -d / 2 + tf], [tw / 2, -d / 2 + tf], [tw / 2, d / 2 - tf], [w / 2, d / 2 - tf], [w / 2, d / 2], [-w / 2, d / 2], [-w / 2, d / 2 - tf], [-tw / 2, d / 2 - tf], [-tw / 2, -d / 2 + tf], [-w / 2, -d / 2 + tf]];
-        return place([{ s: 1, pts: r > 0 ? filletAll(pts, [3, 4, 9, 10], r) : pts }]);
+        // FlangeEdgeRadius (IFC4) rounds each flange tip's inner corner
+        return place([{ s: 1, pts: filletEach(pts, { 3: r, 4: r, 9: r, 10: r, 2: e, 5: e, 8: e, 11: e }) }]);
       }
       case "IFCLSHAPEPROFILEDEF": {
-        const d = n(3), w = n(4) ?? n(3), t = n(5), r = rad(6);
+        const d = n(3), w = n(4) ?? n(3), t = n(5), r = rad(6), e = toe(7);
         if (n(8)) throw new Unresolved("sloped L legs");
         const pts = [[-w / 2, -d / 2], [w / 2, -d / 2], [w / 2, -d / 2 + t], [-w / 2 + t, -d / 2 + t], [-w / 2 + t, d / 2], [-w / 2, d / 2]];
-        return place([{ s: 1, pts: r > 0 ? filletAll(pts, [3], r) : pts }]);
+        // EdgeRadius rounds each leg's toe on its inner side (eval/edge-radii-2026-11-24.md)
+        return place([{ s: 1, pts: filletEach(pts, { 3: r, 2: e, 4: e }) }]);
       }
       case "IFCTSHAPEPROFILEDEF": {
-        const d = n(3), w = n(4), tw = n(5), tf = n(6), r = rad(7);
+        const d = n(3), w = n(4), tw = n(5), tf = n(6), r = rad(7), fe = toe(8), we = toe(9);
         if (n(10) || n(11)) throw new Unresolved("sloped T");
         const pts = [[-tw / 2, -d / 2], [tw / 2, -d / 2], [tw / 2, d / 2 - tf], [w / 2, d / 2 - tf], [w / 2, d / 2], [-w / 2, d / 2], [-w / 2, d / 2 - tf], [-tw / 2, d / 2 - tf]];
-        return place([{ s: 1, pts: r > 0 ? filletAll(pts, [2, 7], r) : pts }]);
+        // FlangeEdgeRadius on the flange tips' inner corners, WebEdgeRadius on both corners of the web's foot
+        return place([{ s: 1, pts: filletEach(pts, { 2: r, 7: r, 3: fe, 6: fe, 0: we, 1: we }) }]);
       }
       case "IFCUSHAPEPROFILEDEF": {
-        const d = n(3), w = n(4), tw = n(5), tf = n(6), r = rad(7);
+        const d = n(3), w = n(4), tw = n(5), tf = n(6), r = rad(7), e = toe(8);
         if (n(9)) throw new Unresolved("sloped U flanges");
         const pts = [[-w / 2, -d / 2], [w / 2, -d / 2], [w / 2, -d / 2 + tf], [-w / 2 + tw, -d / 2 + tf], [-w / 2 + tw, d / 2 - tf], [w / 2, d / 2 - tf], [w / 2, d / 2], [-w / 2, d / 2]];
-        return place([{ s: 1, pts: r > 0 ? filletAll(pts, [3, 4], r) : pts }]);
+        // EdgeRadius on each flange toe's inner corner
+        return place([{ s: 1, pts: filletEach(pts, { 3: r, 4: r, 2: e, 5: e }) }]);
       }
       case "IFCCSHAPEPROFILEDEF": {
         const d = n(3), w = n(4), t = n(5), g = n(6);
@@ -1433,9 +1439,10 @@ export class Geometry {
         return place([{ s: 1, pts }]);
       }
       case "IFCZSHAPEPROFILEDEF": {
-        const d = n(3), w = n(4), tw = n(5), tf = n(6);
+        const d = n(3), w = n(4), tw = n(5), tf = n(6), r = rad(7), e = toe(8);
         const pts = [[-tw / 2, -d / 2], [w - tw / 2, -d / 2], [w - tw / 2, -d / 2 + tf], [tw / 2, -d / 2 + tf], [tw / 2, d / 2], [-w + tw / 2, d / 2], [-w + tw / 2, d / 2 - tf], [-tw / 2, d / 2 - tf]];
-        return place([{ s: 1, pts }]);
+        // FilletRadius at the two inner roots, EdgeRadius on each flange toe's inner corner
+        return place([{ s: 1, pts: filletEach(pts, { 3: r, 7: r, 2: e, 6: e }) }]);
       }
       case "IFCARBITRARYCLOSEDPROFILEDEF":
       case "IFCARBITRARYPROFILEDEFWITHVOIDS": {
@@ -1478,6 +1485,7 @@ export class Geometry {
       if (Math.abs(ratio - 1) > 0.001 && !out.some((o) => Math.abs(o.ratio - ratio) < 1e-6)) out.push({ label, ratio });
     };
     tryOne("no fillets", { plain: true });
+    tryOne("no edge radii", { noToes: true });
     for (const sides of SECTION_POLYGON_SIDES) {
       tryOne(`${sides}-gon circles`, { sides });
       tryOne(`no fillets, ${sides}-gon circles`, { plain: true, sides });
@@ -3085,11 +3093,21 @@ export function prism(pts, v) {
 
 /** Rounds the corners at `idx` of a polygon with radius r (convex or concave corners). */
 export function filletAll(pts, idx, r) {
+  return filletEach(pts, Object.fromEntries(idx.map((i) => [i, r])));
+}
+
+/**
+ * Round the corners of a polygon, each by its own radius: radii maps a vertex
+ * index to a radius (absent or 0 leaves the corner sharp). Parametric steel
+ * sections round the root (FilletRadius) and the toes (EdgeRadius,
+ * FlangeEdgeRadius, WebEdgeRadius) by different radii.
+ */
+export function filletEach(pts, radii) {
   const out = [];
-  const set = new Set(idx);
   for (let i = 0; i < pts.length; i++) {
     const V = pts[i];
-    if (!set.has(i)) { out.push(V); continue; }
+    const r = radii[i];
+    if (!(r > 0)) { out.push(V); continue; }
     const A = pts[(i - 1 + pts.length) % pts.length], B = pts[(i + 1) % pts.length];
     const u = [A[0] - V[0], A[1] - V[1]], w = [B[0] - V[0], B[1] - V[1]];
     const lu = Math.hypot(u[0], u[1]), lw = Math.hypot(w[0], w[1]);
