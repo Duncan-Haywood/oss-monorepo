@@ -25,12 +25,46 @@ import { schedule, lagCalendar } from "../cpm.mjs";
 const args = process.argv.slice(2);
 const opt = (k, d) => (args.includes(k) ? args[args.indexOf(k) + 1] : d);
 const show = +opt("--show", 0), jsonOut = opt("--json", null);
-const root = args.find((a, i) => !a.startsWith("--") && !["--show", "--json"].includes(args[i - 1]));
+// --no-import: score the XERs as written. By default P6's own import is laid
+// over each file first (each folder's p6-imported-*.json, read back from P6
+// before its F9): P6 re-sizes resource-dependent work on import (remaining
+// and original durations, assignment rates), so the file P6 scheduled is not
+// byte for byte the XER. The probe author's scorers lay it the same way.
+const useImport = !args.includes("--no-import");
+const variant = opt("--variant", null) ? JSON.parse(opt("--variant")) : undefined;
+function layImport(xer, folderPath) {
+  const T = xer.tables;
+  const projByCode = new Map((T.PROJECT || []).map((p) => [p.proj_short_name, p.proj_id]));
+  const rsrcName = new Map((T.RSRC || []).map((r) => [r.rsrc_id, r.rsrc_short_name]));
+  let laid = 0;
+  for (const f of readdirSync(folderPath).filter((f) => /^p6-imported-.*\.json$/.test(f))) {
+    const j = JSON.parse(readFileSync(join(folderPath, f), "utf8"));
+    const pid = projByCode.get(j.case);
+    if (!pid || !j.resource_dependent) continue;
+    const tasks = (T.TASK || []).filter((t) => t.proj_id === pid);
+    const byCode = new Map(tasks.map((t) => [t.task_code, t]));
+    for (const [code, v] of Object.entries(j.resource_dependent.tasks || {})) {
+      const t = byCode.get(code);
+      if (!t) continue;
+      for (const k of ["remain_drtn_hr_cnt", "target_drtn_hr_cnt"]) if (v[k] !== undefined && v[k] !== null) { t[k] = String(v[k]); laid++; }
+    }
+    const codeOf = new Map(tasks.map((t) => [t.task_id, t.task_code]));
+    for (const a of j.resource_dependent.assignments || []) {
+      const row = (T.TASKRSRC || []).find((r) => codeOf.get(r.task_id) === a.task_code && rsrcName.get(r.rsrc_id) === a.rsrc_short_name);
+      if (!row) continue;
+      for (const k of ["remain_qty", "target_qty", "remain_qty_per_hr", "target_qty_per_hr", "target_lag_drtn_hr_cnt", "relag_drtn_hr_cnt", "restart_date", "reend_date"]) if (a[k] !== undefined && a[k] !== null) { row[k] = String(a[k]); laid++; }
+    }
+  }
+  return laid;
+}
+const root = args.find((a, i) => !a.startsWith("--") && !["--show", "--json", "--variant", "--rows"].includes(args[i - 1]));
 if (!root) { console.error("usage: node eval/p6-probes.mjs <p6-probes dir> [--show N] [--json out.json]"); process.exit(2); }
 
 const FIELDS = ["es", "ef", "ls", "lf", "tf", "ff"];
 const blank = () => ({ n: 0, all: 0, ...Object.fromEntries(FIELDS.map((f) => [f, 0])) });
-const T = { all: blank(), sf: blank(), ssOther: blank(), plain: blank() };
+const T = { all: blank(), sf: blank(), ssOther: blank(), plain: blank(), rsrcDep: blank(), rsrcFiles: blank(), noRsrcFiles: blank() };
+// --rows out.json: every row's all-six result, to diff two runs (fixed / made worse)
+const rowsOut = opt("--rows", null), rowOk = {};
 const perFolder = [], misses = [];
 let files = 0, skipped = [];
 
@@ -51,7 +85,9 @@ for (const folder of readdirSync(root).sort()) {
     const path = join(root, folder, file);
     if (!existsSync(path)) { skipped.push(`${folder}/${file} (missing)`); continue; }
     files++;
-    const out = schedule(parseXer(decodeXer(readFileSync(path))));
+    const xer = parseXer(decodeXer(readFileSync(path)));
+    if (useImport) layImport(xer, join(root, folder));
+    const out = schedule(xer, variant ? { variant } : {});
     const m = out.model;
     // which activities touch an SF link, or an SS link off the predecessor's calendar
     const sfIds = new Set(), ssIds = new Set();
@@ -61,6 +97,7 @@ for (const folder of readdirSync(root).sort()) {
       if (rel.type === "PR_SF") { sfIds.add(p.id); sfIds.add(s.id); }
       if (rel.type === "PR_SS" && lagCalendar(m, rel) !== p.cal) { ssIds.add(p.id); ssIds.add(s.id); }
     }
+    const hasRsrc = new Set((xer.tables.TASKRSRC || []).map((a) => a.proj_id));
     const projCode = new Map([...m.projects.values()].map((p) => [p.id, p.code]));
     const multi = projs.length > 1 || m.projects.size > 1;
     for (const [key, p] of projs) {
@@ -76,6 +113,9 @@ for (const folder of readdirSync(root).sort()) {
         if (t && sfIds.has(t.id)) buckets.push(T.sf);
         if (t && ssIds.has(t.id)) buckets.push(T.ssOther);
         if (t && !sfIds.has(t.id) && !ssIds.has(t.id)) buckets.push(T.plain);
+        if (t && t.type === "TT_Rsrc") buckets.push(T.rsrcDep);
+        if (t) buckets.push(hasRsrc.has(t.proj) ? T.rsrcFiles : T.noRsrcFiles);
+        rowOk[`${folder}/${file}/${key}/${code}`] = allOk;
         for (const b of buckets) { b.n++; b.all += allOk; for (const f of FIELDS) b[f] += ok[f]; }
         if (!allOk) misses.push({ folder, file, project: key, code, sf: !!t && sfIds.has(t.id), ssOther: !!t && ssIds.has(t.id), off: FIELDS.filter((f) => !ok[f]).map((f) => `${f} ${got ? (f === "tf" || f === "ff" ? got[f] : formatDate(got[f])) : "-"} vs P6 ${f === "tf" || f === "ff" ? want[f] : v[f]}`) });
       }
@@ -90,6 +130,10 @@ console.log(line("TOTAL", T.all));
 console.log(line("  touching an SF link", T.sf));
 console.log(line("  touching an SS link off the predecessor's calendar", T.ssOther));
 console.log(line("  neither", T.plain));
+console.log(line("  resource-dependent activities (TT_Rsrc)", T.rsrcDep));
+console.log(line("  in projects with resource assignments", T.rsrcFiles));
+console.log(line("  in projects without", T.noRsrcFiles));
+if (rowsOut) writeFileSync(rowsOut, JSON.stringify(rowOk) + "\n");
 for (const x of misses.slice(0, show)) console.log("   ", JSON.stringify(x));
 // the JSON keeps only the misses on SF and off-calendar SS links (the full
 // list, ~2,200 rows, is one run away and would be ~0.8 MB)
