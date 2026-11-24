@@ -1,0 +1,49 @@
+# Publishes dependency-free Python ventures to PyPI, a few new projects per run.
+# Off by default: with vars.DISTRIBUTE_PYPI unset this only prints a dry run.
+# Free registry, no paid spend, no commits pushed. Spec: portfolio/distribution/README.md
+name: distribute-pypi-packages
+on:
+  schedule:
+    - cron: '41 18 * * 3'
+  workflow_dispatch:
+permissions:
+  contents: read
+# One publish at a time: two overlapping runs could race to publish the same
+# version, and a slow older run could land last.
+concurrency:
+  group: distribute-pypi-packages
+  cancel-in-progress: false
+jobs:
+  publish:
+    # Trusted publishing: PyPI accepts this job's OIDC token for the projects
+    # that name this workflow and the `publish` environment (limited to main),
+    # so no PyPI token is stored (docs/security/trusted-publishing-setup.md).
+    environment: publish
+    permissions:
+      contents: read
+      id-token: write
+    # GitHub-hosted: the upload action is a Linux container action.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - run: python3 -m pip install build
+        if: ${{ vars.DISTRIBUTE_PYPI == 'true' }}
+      # Dry run unless DISTRIBUTE_PYPI is true; then builds the new versions into dist/.
+      - run: node platform/distribution/pypi-packages.mjs
+        env:
+          DISTRIBUTE_PYPI: ${{ vars.DISTRIBUTE_PYPI }}
+          PYPI_DIST_DIR: dist
+      - name: Upload with a short-lived OIDC token (trusted publishing)
+        if: ${{ vars.DISTRIBUTE_PYPI == 'true' && hashFiles('dist/*') != '' }}
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+        with:
+          packages-dir: dist/

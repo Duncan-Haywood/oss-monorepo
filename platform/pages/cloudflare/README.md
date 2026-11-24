@@ -44,7 +44,7 @@ in each, about 94 % of the limit. Together they hold about 37,500 of the
 40,000 two free Workers allow, so moving directories only buys time. The
 lasting fixes are Workers Paid ($5 a month, 100,000 files: an owner
 decision) or a third Worker, which needs a deploy step in
-`.github/workflows/portfolio-pages.yml` and so the owner's approval
+`.github/workflows/priv-portfolio-pages.yml` and so the owner's approval
 (CODEOWNERS). Count a build with `find dist -type f | wc -l` per directory
 to choose what to move; prefer low-traffic directories, since every request
 under `SHARD_DIRS` counts toward the 100,000 a day.
@@ -65,7 +65,7 @@ match `/*/share-card.png`, which no run has checked against Cloudflare yet
 
 ## Deploy
 
-`.github/workflows/portfolio-pages.yml`, job `deploy-cloudflare`, on every
+`.github/workflows/priv-portfolio-pages.yml`, job `deploy-cloudflare`, on every
 merge to `main`:
 
 1. split the site;
@@ -100,7 +100,7 @@ dashboard: Workers & Pages → `monorepo-projects-site` → Settings → Domains
 Routes → Custom domain). Cloudflare created the DNS record and certificate.
 `wrangler.toml` has no `routes` key, so `wrangler deploy` leaves the
 attachment alone and the deploy token needs no zone permissions. The workflow
-builds for that origin (`CLOUDFLARE_BASE` in `portfolio-pages.yml`), so every
+builds for that origin (`CLOUDFLARE_BASE` in `priv-portfolio-pages.yml`), so every
 canonical link, sitemap and feed names it. The workers.dev address
 forwards to it (above). `platform/edge/wrangler.toml`'s `ALLOWED_ORIGIN`
 lists both.
@@ -116,7 +116,7 @@ itself lists Account → Workers Scripts → Edit.
 Mail to the domain is Cloudflare Email Routing (free), kept as code like the
 rest of this directory: `email-routing.json` lists the addresses,
 `email-routing.mjs` makes Cloudflare match it (dry run unless `APPLY=1`),
-and `.github/workflows/cloudflare-email.yml` runs it on demand. Every address
+and `.github/workflows/priv-cloudflare-email.yml` runs it on demand. Every address
 is delivered to the edge Worker's agent-managed inbox
 (`platform/edge/inbox.mjs`), not forwarded to anyone (owner, 2026-11-03:
 "agent managed inbox not mine", "no forwarding"). The mail stays in the

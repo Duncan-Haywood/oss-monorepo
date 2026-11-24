@@ -129,6 +129,9 @@ export const ASK_DIR = 'ask';
 export const LAB_DIR = 'lab';
 // The fiction section (`stories.mjs`): an indexed page linking the story ventures.
 export const STORIES_DIR = 'stories';
+// The company's product pages (`products.mjs`): /products/ and the /industries/
+// index. Marketing pages about the site's own products, not tools.
+export const PRODUCTS_DIR = 'products';
 // Industry pages (2026-11-24 pivot): industries/<id>/, one per kind of
 // business, each written by its own module (industry-nonprofits.mjs, ...).
 export const INDUSTRIES_DIR = 'industries';
@@ -167,7 +170,7 @@ export const CUSTOM_DEV_DIR = 'custom-development';
 // linked from the footer, not a tool.
 export const HARDWARE_DIR = 'hardware';
 
-export const SITE_OWN_DIRS = new Set([HARDWARE_DIR, CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, CUSTOM_DEV_DIR, ASK_DIR, STORIES_DIR, INDUSTRIES_DIR]);
+export const SITE_OWN_DIRS = new Set([HARDWARE_DIR, CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, CUSTOM_DEV_DIR, ASK_DIR, STORIES_DIR, INDUSTRIES_DIR, PRODUCTS_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -852,7 +855,7 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
     else if (!DISCLAIMER_MARKER.test(html)) problems.push(`${relative}: carries no disclaimer, so it must not ship`);
   }
 
-  for (const dir of [UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, STORIES_DIR, HARDWARE_DIR]) {
+  for (const dir of [UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, STORIES_DIR, HARDWARE_DIR, PRODUCTS_DIR, INDUSTRIES_DIR]) {
     // Optional, like the writing pages: a fixture build may write neither.
     const relative = path.join(dir, 'index.html');
     const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
@@ -1059,7 +1062,9 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
       // the page about the site, or about a trade, instead of a tool. They are
       // not products, so the "no such product shipped" reading is wrong for
       // them; that they shipped is checked in their own blocks above.
-      if (!productDirs.includes(slug) && !SITE_OWN_DIRS.has(slug)) {
+      // A Worker-served product (Grant Autopilot at /grants/) is listed under
+      // "Products" but is never in this artifact; it shipped, elsewhere.
+      if (!productDirs.includes(slug) && !SITE_OWN_DIRS.has(slug) && !isWorkerServed(`${slug}/`)) {
         problems.push(`llms-full.txt: lists "${slug}" but no such product shipped`);
       }
     }

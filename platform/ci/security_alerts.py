@@ -3,7 +3,7 @@
 
 Scheduled agent sessions cannot read code-scanning alerts: the alerts API
 needs a token with `security-events`, and a session's GitHub tools have no
-such scope. Files they can read. So `.github/workflows/security-alert-queue.yml`
+such scope. Files they can read. So `.github/workflows/priv-security-alert-queue.yml`
 runs this hourly with the workflow's own token and commits the result to the
 data branch `security-alerts` (main needs a PR for every change), and
 `prompt.md` ("0. Security alerts first") sends the next scheduled session to
@@ -116,7 +116,7 @@ def render(alerts: list[dict]) -> dict[str, str]:
         "# Security queue",
         "",
         "Open code-scanning alerts, most severe then oldest first. Generated hourly by",
-        "`.github/workflows/security-alert-queue.yml` from `platform/ci/security_alerts.py`;",
+        "`.github/workflows/priv-security-alert-queue.yml` from `platform/ci/security_alerts.py`;",
         "do not edit by hand. Take the first one whose claim branch",
         f"(`{BRANCH_PREFIX}<n>`) does not exist; its file says how.",
         "",

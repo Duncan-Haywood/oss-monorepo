@@ -1,7 +1,7 @@
 # Retail Pilot Intel's passcode-gated docs, served as static files by a
 # free-plan Cloudflare Worker (owner, 2026-11-24: consolidate hosting onto
 # Cloudflare; this replaces the Vercel project). Deployed by
-# .github/workflows/retail-pilot-intel-deploy-docs.yml, job deploy-cloudflare,
+# .github/workflows/priv-retail-pilot-intel-deploy-docs.yml, job deploy-cloudflare,
 # with the CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID secrets the portfolio
 # site already uses. Address: https://retail-pilot-intel-docs.<account>.workers.dev/
 #
