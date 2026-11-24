@@ -10,6 +10,7 @@
 // the same question of the same files.
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { basename, join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { parseStep } from "../step.mjs";
 import { Schema } from "../ids.mjs";
 import { whereRules } from "../where-rules.mjs";
@@ -292,7 +293,7 @@ export function seedAndCheck(text, family, before = runRules(text)) {
 }
 export { runRules };
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const [outDir, ...files] = process.argv.slice(2);
   mkdirSync(outDir, { recursive: true });
   const manifest = [];
