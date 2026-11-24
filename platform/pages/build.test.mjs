@@ -49,6 +49,8 @@ import {
   NO_SLA_PATTERN,
   listFiles as buildListFiles,
   readMeta,
+  cardCopy,
+  CARD_MAX,
   relatedTools,
   upToRoot,
   renderHub,
@@ -1041,6 +1043,32 @@ test('readMeta keeps the whole description for search, not just the card', () =>
   assert.ok(description.endsWith('…'), 'card copy is trimmed');
   assert.ok(!description.includes('needleword'), 'the trim really does drop the tail');
   assert.ok(fullDescription.includes('needleword'), 'search copy keeps the tail');
+});
+
+test('a tool card prefers the venture\'s own og:description to a cut description', () => {
+  const long = `Free roof bid calculator. ${'Squares, pitch, waste and tear-off layers, '.repeat(6)}priced.`;
+  const og = 'Price a roof from squares, pitch and waste.';
+  const html = `<meta name="description" content="${long}"><meta property="og:description" content="${og}">`;
+  assert.equal(readMeta(html, 'x').description, og);
+  assert.equal(readMeta(html, 'x').fullDescription, long, 'search still indexes the long copy');
+  // A short description is the card as it stands, even beside an og line.
+  assert.equal(cardCopy('Fits.', og), 'Fits.');
+  // An og line that is not a whole sentence, or is too long, is not used.
+  assert.ok(cardCopy(long, 'Price a roof from squares, pitch and waste').length <= CARD_MAX);
+  assert.notEqual(cardCopy(long, `${og} `.repeat(6)), `${og} `.repeat(6).trim());
+  // The fallback cuts at a clause, not mid-phrase after the last word.
+  const clauses = `${'A first clause about the job, '.repeat(7)}and an end.`;
+  assert.match(cardCopy(clauses), /job…$/);
+});
+
+test('every category tile on the front door ends on a whole sentence', () => {
+  // The hub tile shows 140 characters of `card ?? blurb` (renderCategoryTile).
+  // 14 of 23 tiles ended "…" on 2026-11-24, before the categories got cards.
+  for (const category of [...ALL_CATEGORIES, ...KIND_PAGES]) {
+    const line = category.card ?? category.blurb;
+    assert.ok(line.length <= 140, `${category.id}: tile line is ${line.length} characters; give it a card of at most 140`);
+    assert.match(line, /[.!?]$/, `${category.id}: tile line should end on a whole sentence`);
+  }
 });
 
 test('readMeta falls back through title, then slug', () => {

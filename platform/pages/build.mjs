@@ -726,6 +726,12 @@ const CATEGORY_RULES = [
     id: 'self-hosted',
     title: 'Self-hosted business apps',
     accent: '#2b4c7e',
+    // `card` is the front door's tile line (and the Tools index's): one whole
+    // sentence of at most 140 characters, so the tile ends on a full stop
+    // instead of "…". `blurb` stays the long copy for the category page, its
+    // meta description and llms.txt. A category whose blurb fits needs none
+    // (build.test.mjs, "every category tile ends on a whole sentence").
+    card: 'Business software you run on your own server, from failed-payment recovery to status pages. Your keys, your data.',
     blurb: 'Open-source business software you run on your own server: failed-payment recovery, cancellation flows, MRR and revenue recognition, lifecycle email, referrals, feature flags, status pages, help centres, booking pages, cookie-free analytics and more. Deploy your own copy with your own keys; you own the data.',
     // Named apps first; then any venture that ships a server and a deploy
     // manifest (surfaceKind 'app') that no other section claims, so the next
@@ -747,6 +753,7 @@ const CATEGORY_RULES = [
     id: 'sales',
     title: 'Sales, quotes & invoicing',
     accent: '#8a4b12',
+    card: 'From the first lead to the paid invoice: follow-ups, proposals, contracts, tracked time, invoices and late-payer letters.',
     blurb: 'From the first lead to the paid invoice: a lead list and follow-ups, a prospecting cadence, call notes, an AI inbox agent that drafts replies you approve, proposals, contracts and estimates, tracked time, invoices, payment terms and late-payer letters, plus commission and quota planners.',
     test: (slug) => SALES_SLUGS.has(slug),
   },
@@ -755,6 +762,7 @@ const CATEGORY_RULES = [
     id: 'imports',
     title: 'Import & upload file checks',
     accent: '#3d4f8a',
+    card: 'Check a file before you upload it: contact imports, feeds, calendar files, IBAN lists and more. Every problem named by row.',
     blurb: 'Check a file before you upload it: CRM and email contact imports, ad and catalog feeds, vCard and calendar files, barcode and IBAN lists, payroll hours and map feeds. Every problem named by row.',
     test: (slug) => IMPORT_CHECK_SLUGS.has(slug),
   },
@@ -916,6 +924,7 @@ const CATEGORY_RULES = [
     // The bid arithmetic is what the contractor needs; the printed quote is
     // what wins them the job, and it was invisible on the one page most
     // visitors land on.
+    card: 'Bid a job the way the trade does, with materials, crew hours, burden and overhead, then print the customer a proposal.',
     blurb: 'Bid a job the way the trade does — materials, crew hours, burden, overhead, and what the extras really cost — then print the customer a proposal with the scope, the deposit split, and a line to sign.',
     // `mosquito-control-program-pricing-calculator` joined 2026-10-09 on its first commit: a recurring seasonal spray route priced per visit and per
     // prepaid season is trade route work like `lawn-care-bid-calculator`, and its slug does not end in `bid-calculator`.
@@ -1060,6 +1069,7 @@ const CATEGORY_RULES = [
     id: 'food-service',
     title: 'Restaurant, bar & food truck pricing',
     accent: '#6b2f3a',
+    card: 'What a plate, a pour or a booked event really earns once food cost, waste and the hours behind it are counted.',
     blurb:
       'What a plate, a pour, or a booked event actually earns once food cost, waste, and the hours behind it are in the arithmetic — for the operators who sell food and drink rather than a job at someone else\'s property.',
     // Added 2026-09-13. The catch-all guard in `build.test.mjs` is what
@@ -1828,6 +1838,7 @@ const CATEGORY_RULES = [
     id: 'bookkeeping',
     title: 'Bookkeeping, bank files & journals',
     accent: '#1f5c4a',
+    card: 'Bank statements, payouts and accounting imports turned into balanced journals and clean files for QuickBooks and Xero.',
     blurb: 'Bank statements, payouts and accounting imports turned into balanced journals and clean files: OFX, QIF, BAI2, camt.053 and MT940, Stripe, PayPal, Shopify and Etsy payouts, QuickBooks and Xero imports, 1099 vendors, and a ledger that learns your accounts.',
     test: (slug) => /-to-journal$/.test(slug) || BOOKKEEPING_SLUGS.has(slug),
   },
@@ -2078,6 +2089,7 @@ const CATEGORY_RULES = [
     id: 'personal-tax',
     title: 'US personal tax, pay & retirement',
     accent: '#4a5a12',
+    card: 'Your own return, paycheck, equity pay and retirement accounts, worked with IRS and SSA figures in your browser.',
     blurb: 'Your own return, paycheck, equity comp, Social Security, Medicare and retirement accounts: RMDs, Roth conversions, IRMAA cliffs, RSU withholding, credits and deductions, worked with IRS and SSA figures in your browser.',
     test: (slug) => PERSONAL_TAX_SLUGS.has(slug),
   },
@@ -2093,6 +2105,7 @@ const CATEGORY_RULES = [
     id: 'household',
     title: 'Household money, home & health bills',
     accent: '#6a3d1a',
+    card: 'Your own mortgage, rent, loans, utility and medical bills, worked from your own numbers in your browser.',
     blurb: 'Your own mortgage, rent, loans, utility and medical bills: escrow shortages, mortgage points, rent vs buy, student-loan plans, medical bill errors, insurance denial appeals, tenant deposit deadlines, funeral quotes, worked from your own numbers in your browser.',
     test: (slug) => HOUSEHOLD_SLUGS.has(slug),
   },
@@ -2104,6 +2117,7 @@ const CATEGORY_RULES = [
     id: 'uk-tax',
     title: 'UK tax, pay & benefits',
     accent: '#3b3f8f',
+    card: 'Take-home pay, Self Assessment, dividends, IR35, VAT and pensions, worked with HMRC rates in your browser.',
     blurb: 'Take-home pay, Self Assessment, dividends, IR35, VAT, pensions, statutory pay and the 100k trap — worked with HMRC rates for the current tax year, in your browser.',
     test: (slug) => /^uk-/.test(slug),
   },
@@ -2771,6 +2785,7 @@ const CATEGORY_RULES = [
     id: 'ci',
     title: 'CI checks & developer gates',
     accent: '#1a4560',
+    card: 'Audit a GitHub Actions workflow, tell a starved runner from a real failure, and catch risky dependencies. Free, local, no account.',
     blurb: 'Audit a GitHub Actions workflow for injection, over-broad permissions, unpinned actions and cache poisoning; tell a starved runner from a real failure; catch a coverage drop, classify flaky tests, see which AI crawlers your robots.txt allows, catch a dependency that just gained an install-time script or could be confused with an internal package, find a missing iOS privacy-manifest declaration before App Review does, or catch a page whose JSON-LD no longer matches its own visible text — free, local, no account.',
     // These four sat in the catch-all together: each is a browser-local (and
     // matching CLI) checker a maintainer runs against files or API JSON they
@@ -3784,6 +3799,7 @@ const CATEGORY_RULES = [
     id: 'solo-earner',
     title: 'Creator & solo earner income',
     accent: '#7a3f8c',
+    card: 'What one person actually earns from their own work: a print, an ad slot, a delivery shift, a repo, a job application.',
     blurb:
       'What one person actually earns from their own work — a print, an ad slot, a delivery shift, a repo, a job application. Priced or checked before you commit to a number.',
     // Added 2026-09-08, because the catch-all guard asked for it: `More free
@@ -4104,6 +4120,7 @@ const CATEGORY_RULES = [
     id: 'research-algorithms',
     title: 'Research algorithms & ML',
     accent: '#5b3f8c',
+    card: 'Methods from published papers, cited and run on your own data in your browser: changepoints, conformal intervals, survival analysis.',
     blurb: 'Methods from published research papers, run on your own data in your browser and cited: changepoint detection, conformal prediction intervals, matrix-profile motifs and anomalies, Kaplan-Meier and Cox survival analysis, Benjamini-Hochberg and e-value multiple-testing correction, Schulze and STV ballot counts. Also callable from the command line and by AI agents.',
     test: (slug) => RESEARCH_ALGORITHM_SLUGS.includes(slug),
   },
@@ -4115,6 +4132,7 @@ const CATEGORY_RULES = [
     id: 'learning',
     title: 'Learning & practice',
     accent: '#127a4b',
+    card: 'Learn a language or a technical skill by doing it: speaking drills, graded audio stories and project-first lessons.',
     blurb: 'Learn a language or a technical skill by doing it: hands-free speaking drills, graded audio stories, and project-first engineering lessons, free in your browser. Plus free stories to read or listen to.',
     // `hearth-and-horizon` joined 2026-10-20: free stories with audio and
     // podcast feeds, the same read-and-listen axis as the graded stories.
@@ -4136,6 +4154,7 @@ const CATEGORY_RULES = [
     id: 'open-hardware',
     title: 'Open hardware, robots & house plans',
     accent: '#7a4a12',
+    card: 'Things you can build, change and sell: MIT-licensed robot CAD, firmware and simulators, and public-domain house plans.',
     blurb: 'Things you can build, change and sell: MIT-licensed robot CAD with laser-cut and 3D-print files, firmware, bills of materials and a browser simulator for each (a robot vacuum and mop, a robotic lawn mower, tennis ball robots), and a generator of public-domain house plans with drawings, IFC and DXF.',
     test: (slug) => ['open-floor-robots', 'open-robot-mower', 'open-tennis-robots', 'open-house-plans'].includes(slug),
   },
@@ -4147,6 +4166,7 @@ const CATEGORY_RULES = [
     id: 'music',
     title: 'Music & audio',
     accent: '#8a3b5a',
+    card: 'Make and check music in your browser: chant into MIDI choir lines, loudness and true-peak checks, and a release kit.',
     blurb: 'Make and check music in your browser: turn public-domain Gregorian chant into MIDI choir lines with genre backing, check a mix for loudness and true peak, and build a release kit for streaming.',
     test: (slug) => ['chant-forge'].includes(slug),
   },
@@ -5589,6 +5609,29 @@ export function snippetize(text, limit = SNIPPET_MAX) {
   return word.length <= limit ? word : `${clean.slice(0, limit - 1)}…`;
 }
 
+/** How many characters of a tool's description a card shows. */
+export const CARD_MAX = 180;
+
+/**
+ * A tool card's one line of copy, ending on a whole sentence where it can.
+ *
+ * 1,300 of 1,435 tool cards (2026-11-24) ended mid-phrase ("…and drafts
+ * answers to…"): the page description is written for search and runs long, and
+ * the card cut it at the last word under 180 characters. Most ventures already
+ * wrote a card-length pitch, their og:description (1,008 of the 1,300 are
+ * whole sentences under the budget), so a card prefers, in order: the
+ * description when it fits; the venture's own og:description when that is a
+ * complete sentence that fits; then `snippetize`, which cuts at a sentence or
+ * clause end before it falls back to a word.
+ */
+export function cardCopy(description, ogDescription = '', limit = CARD_MAX) {
+  const text = String(description ?? '').replace(/\s+/g, ' ').trim();
+  if (text.length <= limit) return text;
+  const og = String(ogDescription ?? '').replace(/\s+/g, ' ').trim();
+  if (og.length >= 40 && og.length <= limit && /[.!?]["')\]]?$/.test(og)) return og;
+  return snippetize(text, limit);
+}
+
 /**
  * The card copy for one surface. Prefers the venture's own og:title, because a
  * `<title>` is written for a search result page ("Janitorial Bid Calculator |
@@ -5603,11 +5646,13 @@ export function readMeta(html, slug) {
   const description =
     metaContent(html, 'name', 'description') || metaContent(html, 'property', 'og:description') || '';
 
-  // `description` is card copy and is trimmed to fit one. `fullDescription` is
-  // what the hub's search actually indexes: 24 of 34 tools say more about
-  // themselves than a card can hold, and the eBay tool says 1862 characters'
-  // worth. Indexing the trimmed copy made ~90% of that tool unfindable.
-  return { title, description: truncate(description), fullDescription: description };
+  // `description` is card copy and is trimmed to fit one (`cardCopy`).
+  // `fullDescription` is what the hub's search actually indexes: 24 of 34
+  // tools say more about themselves than a card can hold, and the eBay tool
+  // says 1862 characters' worth. Indexing the trimmed copy made ~90% of that
+  // tool unfindable.
+  const card = cardCopy(description, metaContent(html, 'property', 'og:description'));
+  return { title, description: card, fullDescription: description };
 }
 
 /** Words too common across these tools to narrow a search. */
@@ -7143,7 +7188,7 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
       section(
         category.id,
         category.title,
-        category.blurb,
+        category.card ?? category.blurb,
         items.length,
         groupBySubcategory(category.id, items).filter((g) => g.subcategory),
         category.accent,
@@ -7151,7 +7196,7 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
     )
     .join('\n');
   const kinds = kindPages
-    .map(({ page, items, subgroups }) => section(page.id, page.title, page.blurb, items.length, subgroups, page.accent))
+    .map(({ page, items, subgroups }) => section(page.id, page.title, page.card ?? page.blurb, items.length, subgroups, page.accent))
     .join('\n');
   const itemList = {
     '@context': 'https://schema.org',
@@ -9397,7 +9442,7 @@ export function renderHub(
       renderCategoryTile({
         id: category.id,
         title: category.title,
-        blurb: category.blurb,
+        blurb: category.card ?? category.blurb,
         count: items.length,
         examples: exampleTools(items, 4),
         accent: category.accent,
@@ -9409,7 +9454,7 @@ export function renderHub(
       renderCategoryTile({
         id: page.id,
         title: page.title,
-        blurb: page.blurb,
+        blurb: page.card ?? page.blurb,
         count: items.length,
         examples: exampleTools(items, 4),
         note: `All ${items.length} ${page.kind === 'app' ? 'apps' : 'command-line tools'}`,
