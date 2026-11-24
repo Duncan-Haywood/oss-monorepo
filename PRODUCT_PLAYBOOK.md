@@ -14,6 +14,14 @@ to us.**
 
 ## 1. Pick the niche before you pick the product
 
+**Start from the ranked bets (2026-11-24).** The owner set the aim: paid
+vertical software for small and medium businesses, chosen by promise rather
+than by how much already exists (`prompts/goals.md`, "Where effort goes").
+[`portfolio/monetization/bets.md`](portfolio/monetization/bets.md) holds the
+ranked customers and wedges with sourced evidence; build for one of them, or
+add a new one there with evidence first. The four questions below are how
+that file was scored, and how to argue a change to it.
+
 Most failures here were failures of aim, not of code. Narrow beats broad, and
 narrow-with-money beats narrow-and-interesting.
 
@@ -30,8 +38,8 @@ Where to find them: places where a rule changed and nobody has shipped the
 boring tool for it yet (a new reporting requirement, a deprecated format, a
 platform migration); trades where the money is real and the software is
 spreadsheets; and the long tail of "I do this manually every week" posts.
-`portfolio/pipeline/` already holds screened candidates with `build-now`
-verdicts — start there before inventing a new one.
+`portfolio/pipeline/` holds older screened candidates with `build-now`
+verdicts; they come after the ranked bets.
 
 **The value test:** finish this sentence in the product's own README — *"After
 using this, you can now ___ , which used to take ___ ."* If you can't, the aim

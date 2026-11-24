@@ -165,6 +165,27 @@ class RouteTest(PromptTestCase):
         r = promptctl.route(self.fx.root, rng=random.Random(0), track="research", task="revenue")
         self.assertEqual(r["track"], "research")  # an explicit --track wins over the text
 
+    def test_mrr_words_route_to_ventures(self):
+        for task in ("work toward 10k MRR", "ship the paid tier for the top bet",
+                     "a pricing page and checkout for payapps"):
+            r = promptctl.route(self.fx.root, rng=random.Random(0), task=task)
+            self.assertEqual(r["track"], "ventures", task)
+        # "unpaid" distribution is not a paid-product hint
+        a = promptctl.route(self.fx.root, rng=random.Random(3), task="unpaid distribution")
+        b = promptctl.route(self.fx.root, rng=random.Random(3))
+        self.assertEqual(a["track"], b["track"])
+
+    def test_route_names_the_focus_for_product_and_research_runs(self):
+        r = promptctl.route(self.fx.root, track="ventures", rng=random.Random(0))
+        self.assertIn("bets.md", r["focus"])
+        r = promptctl.route(self.fx.root, track="research", rng=random.Random(0))
+        self.assertIn("product", r["focus"])
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            promptctl.print_route(promptctl.route(self.fx.root, track="ventures",
+                                                  rng=random.Random(0)))
+        self.assertIn("Focus:", out.getvalue())
+
     def test_task_text_without_a_hint_leaves_the_draw(self):
         a = promptctl.route(self.fx.root, rng=random.Random(3), task="tidy up")
         b = promptctl.route(self.fx.root, rng=random.Random(3))
