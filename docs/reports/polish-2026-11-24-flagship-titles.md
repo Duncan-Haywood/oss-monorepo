@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-24
+---
 # Polish 2026-11-24: clothing-design-studio and wall-framing-takeoff titles
 
 Picked item 3 of "Still weakest" in `polish-2026-11-23-story-title-budget.md`
