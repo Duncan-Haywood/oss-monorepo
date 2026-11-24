@@ -73,6 +73,15 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   310UC96.8 1.794 m2/m against the table's 1.79. Stored skins agree within
   2% for 185 of 295; ArchiCAD's flat bars store the two wide faces only.
   Now 13 of 15 models have nothing in doubt; 1 volume and 6 areas remain.
+  2026-11-24 ([eval/coped-coating-2026-11-24.md](eval/coped-coating-2026-11-24.md)):
+  coped members (an extrusion less faceted cut-outs) coated from their faces
+  by `boundaryArea`, which counts a face up and a face down on one plane (a
+  cope flush with a flange) where one area vector per plane cancelled them:
+  825 of 825 steel parts, 3,338 m2. On the 11 coped parts whose volume
+  IfcOpenShell agrees with, faces agree to 1e-5 m2; on the other 17 its
+  boolean is off (Monte Carlo volume), and a Crofton line count agrees with
+  every area within 1.4σ. Clipped members now take their faces too
+  (IfcOpenShell's 3 of 3; Tekla's stored 7.58268 m2 on a clipped deck beam).
   Later that day ([eval/net-on-a-face-2026-11-24.md](eval/net-on-a-face-2026-11-24.md)):
   `net-on-a-face`, a holed Revit wall whose GrossSideArea is its longer face
   with the openings taken out (five walls in two models, to 1e-5). It named

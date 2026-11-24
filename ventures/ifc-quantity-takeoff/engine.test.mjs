@@ -1924,6 +1924,90 @@ test("coating: a tube's outside is its coating area, its bore summed apart (Mini
   close(L.coatingInside, c.inside);
 });
 
+// A coped beam, as S_Office's 28 (eval/coped-coating-2026-11-24.md): a
+// sharp-cornered I extruded 5 m, less a faceted box that takes the top flange
+// off its first 150 mm. The cut is flush with the flange's underside, so on
+// that plane the flange faces down and the web's exposed top faces up.
+const copedI = `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC4'));ENDSEC;DATA;
+#1=IFCPROJECT('0YvctVUKr0kugbFTf53O9L',$,'p',$,$,$,$,$,#2);
+#2=IFCUNITASSIGNMENT((#3));
+#3=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);
+#10=IFCCARTESIANPOINT((0.,0.,0.));
+#11=IFCAXIS2PLACEMENT3D(#10,$,$);
+#12=IFCLOCALPLACEMENT($,#11);
+#16=IFCDIRECTION((0.,0.,1.));
+#101=IFCCARTESIANPOINT((-100.,-200.));
+#102=IFCCARTESIANPOINT((100.,-200.));
+#103=IFCCARTESIANPOINT((100.,-185.));
+#104=IFCCARTESIANPOINT((5.,-185.));
+#105=IFCCARTESIANPOINT((5.,185.));
+#106=IFCCARTESIANPOINT((100.,185.));
+#107=IFCCARTESIANPOINT((100.,200.));
+#108=IFCCARTESIANPOINT((-100.,200.));
+#109=IFCCARTESIANPOINT((-100.,185.));
+#110=IFCCARTESIANPOINT((-5.,185.));
+#111=IFCCARTESIANPOINT((-5.,-185.));
+#112=IFCCARTESIANPOINT((-100.,-185.));
+#113=IFCPOLYLINE((#101,#102,#103,#104,#105,#106,#107,#108,#109,#110,#111,#112,#101));
+#20=IFCARBITRARYCLOSEDPROFILEDEF(.AREA.,'Steel Universal Section',#113);
+#21=IFCEXTRUDEDAREASOLID(#20,#11,#16,5000.);
+#201=IFCCARTESIANPOINT((-150.,185.,-50.));
+#202=IFCCARTESIANPOINT((150.,185.,-50.));
+#203=IFCCARTESIANPOINT((150.,250.,-50.));
+#204=IFCCARTESIANPOINT((-150.,250.,-50.));
+#205=IFCCARTESIANPOINT((-150.,185.,150.));
+#206=IFCCARTESIANPOINT((150.,185.,150.));
+#207=IFCCARTESIANPOINT((150.,250.,150.));
+#208=IFCCARTESIANPOINT((-150.,250.,150.));
+#211=IFCPOLYLOOP((#201,#204,#203,#202));
+#212=IFCPOLYLOOP((#205,#206,#207,#208));
+#213=IFCPOLYLOOP((#201,#202,#206,#205));
+#214=IFCPOLYLOOP((#204,#208,#207,#203));
+#215=IFCPOLYLOOP((#201,#205,#208,#204));
+#216=IFCPOLYLOOP((#202,#203,#207,#206));
+#221=IFCFACEOUTERBOUND(#211,.T.);
+#222=IFCFACEOUTERBOUND(#212,.T.);
+#223=IFCFACEOUTERBOUND(#213,.T.);
+#224=IFCFACEOUTERBOUND(#214,.T.);
+#225=IFCFACEOUTERBOUND(#215,.T.);
+#226=IFCFACEOUTERBOUND(#216,.T.);
+#231=IFCFACE((#221));
+#232=IFCFACE((#222));
+#233=IFCFACE((#223));
+#234=IFCFACE((#224));
+#235=IFCFACE((#225));
+#236=IFCFACE((#226));
+#240=IFCCLOSEDSHELL((#231,#232,#233,#234,#235,#236));
+#241=IFCFACETEDBREP(#240);
+#242=IFCBOOLEANRESULT(.DIFFERENCE.,#21,#241);
+#243=IFCSHAPEREPRESENTATION($,'Body','CSG',(#242));
+#244=IFCPRODUCTDEFINITIONSHAPE($,$,(#243));
+#245=IFCBEAM('1YvctVUKr0kugbFTf53O9C',$,'coped',$,$,#12,#244,'B2');
+#60=IFCMATERIAL('S355JR');
+#61=IFCRELASSOCIATESMATERIAL('4YvctVUKr0kugbFTf53O9A',$,$,$,(#245),#60);
+ENDSEC;END-ISO-10303-21;`;
+
+test("coating: a coped beam (an extrusion less a faceted cut-out) is coated from its faces, both faces on the cope's plane counted", async () => {
+  const { coatingArea } = await import("./qto.mjs");
+  const { boundaryArea, planeAreas } = await import("./geom.mjs");
+  const [B] = takeoff(parseStep(copedI)).rows;
+  // 9,700 mm2 x 5 m, less the flange's 200 x 15 x 150 mm
+  close(B.computed.gross, (9700 * 5000 - 200 * 15 * 150) * 1e-9, 1e-9);
+  // the uncut skin: outline 2 x 200 + 2 x 190 + 4 x 15 + 2 x 370 = 1,580 mm
+  // along 5 m, both 9,700 mm2 ends; the cope takes off the flange's top
+  // (200 x 150), its two edges (2 x 15 x 150) and its underside (190 x 150)
+  // and lays bare the web's top (10 x 150); the flange's end moves 150 mm in
+  const want = (1580 * 5000 + 2 * 9700 - 200 * 150 - 2 * 15 * 150 - 190 * 150 + 10 * 150) * 1e-6;
+  const c = coatingArea(B);
+  assert.equal(B.computed.areas.surface.fromFaces, true);
+  assert.equal(c.source, "computed");
+  close(c.area, want, 1e-9);
+  // the plane-by-plane vector sum takes the web's top off the flange's underside
+  const body = B.computed.solids.body;
+  close(planeAreas(body, true).reduce((a, p) => a + p.area, 0) * 1e-6, want - 2 * 10 * 150 * 1e-6, 1e-9);
+  close(boundaryArea(body) * 1e-6, want, 1e-9);
+});
+
 // schependomlaan's "afdekker" copings (eval/signed-faces-2026-11-24.md): a
 // profile built as a signed sum of pieces. Read with `signed`, the faces the
 // pieces share cancel, and the underside is the flat strip either side of the
