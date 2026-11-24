@@ -1,5 +1,8 @@
 # Research log
 
+## 2026-11-24 · Method of record on the confirmation split: frozen repair, reactive stage and rule CF on its 18 finishers (plan)
+- Plan, arms J and R and predictions M0 to M6: `research/infra-dcopf/LOG.md` (2026-11-24); script `research/infra-dcopf/experiments/run_confirm_cf.py`. Rule CP is run alongside for comparison; nothing is tuned on this split.
+
 ## 2026-11-23 · Rule CF: outcome. Never dearer than rule CP on any of 83 finishers, cheaper on 28; frozen-start mean gap development +0.229 to +0.209, held-out +0.508 to +0.494 (below CS on both). Adoption met: CF replaces CP in the method of record
 - Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-23); numbers in `research/infra-dcopf/experiments/results_fallback.txt`. T0 to T7 held.
 - The fallback fired on 183 rounds, 111 accepted. Next: the method of record (frozen repair, reactive stage, rule CF) on the confirmation split, fixed before it runs.
