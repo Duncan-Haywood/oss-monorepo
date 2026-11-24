@@ -340,7 +340,9 @@ ${markdownToHtml(story.body)}
 </section>`;
   return page({
     title: storyTitle(story, shelf, Boolean(a)),
-    description: `${story.summary}`.slice(0, 300),
+    // An optional short `description:` front-matter line wins: a search snippet
+    // shows ~160 characters, and summaries run longer (red team 2026-11-24).
+    description: `${story.description || story.summary}`.slice(0, 300),
     canonical: storyUrl(story),
     image: `${SITE}${coverPath(shelf.id)}`,
     jsonLd,
