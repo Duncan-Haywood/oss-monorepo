@@ -512,9 +512,9 @@ flagships:
       EXCEL2IDS_PYTHON=venv/bin/python node eval/excel2ids-sidebyside.mjs, 8 s):
       rerun it after excel2ids.mjs changes. IFC4X3 ifcXML: none public (searched
       2026-11-18); B-spline control points cut into rows from knot counts 2026-11-18
-      (eval/ifcxml-twins-2026-11-18.md); sweeps on engine_web-ifc's 28 and xBIM's
-      128 files 2026-11-24 (eval/mixed-type-own-props-*, eval/xbim-test-files-*:
-      1.#INF read); next another public set; STEP exports as nested ifcXML
+      (eval/ifcxml-twins-2026-11-18.md); IfcOpenShell's 294 files swept and set
+      beside IfcTester 2026-11-24 (eval/ifcopenshell-test-files-*); next: its
+      validate/ fixtures' faults as reader notes; STEP exports as nested ifcXML
       (eval/ifc4-layout.mjs). IFC5: eval/ifcx-twins.mjs on new IFC5-development
       files.
     hosts: [https://github.com]

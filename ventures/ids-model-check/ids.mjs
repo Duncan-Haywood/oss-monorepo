@@ -143,7 +143,44 @@ export class Model {
       if (!l) this.byType.set(e.type, (l = []));
       l.push(e);
     }
+    this._outsideSchema(schemas, asSchema);
     this._index();
+  }
+  // Records whose class the model's schema does not have (IfcOpenShell's
+  // fixtures, eval/ifcopenshell-test-files-2026-11-24.md: an IFC4X3 file of
+  // IFCBEAMSTANDARDCASE beams, a class IFC4X3 removed; an IFC4 file with
+  // IFC4X3's IFCBUILTELEMENT). They are kept and read leniently, but no
+  // attribute of theirs is known and no entity facet on their parent class
+  // takes them, so each class gets a reader note, and skippedSubclasses
+  // counts them where a facet names that parent. `parent` is the nearest
+  // ancestor the model's schema has: from another loaded schema that has the
+  // class, else IFC4X3's rule for the removed *STANDARDCASE and
+  // *ELEMENTEDCASE classes (the page loads only the model's own schema).
+  _outsideSchema(schemas, asSchema) {
+    this.outsideSchema = [];
+    for (const [type, list] of this.byType) {
+      if (this.schema.has(type)) continue;
+      let from = null, parent = null;
+      for (const [k, s] of Object.entries(schemas)) {
+        if (k === this.schemaId || !s) continue;
+        const o = asSchema(s);
+        if (!o.has(type)) continue;
+        from = k;
+        for (let t = o.entities[type].super; t; t = o.entities[t] && o.entities[t].super) if (this.schema.has(t)) { parent = t; break; }
+        break;
+      }
+      if (!parent) { const m = /^(.+?)(STANDARDCASE|ELEMENTEDCASE)$/.exec(type); if (m && this.schema.has(m[1])) parent = m[1]; }
+      const first = list.reduce((a, e) => (e.id < a ? e.id : a), list[0].id);
+      this.outsideSchema.push({ type, count: list.length, first, from, parent });
+      const an = (w) => (/^IFC/.test(w) ? "an" : "a");
+      const n = list.length === 1 ? "1 record" : `${list.length.toLocaleString("en-US")} records from #${first}`;
+      const was = from ? `; ${an(from)} ${from} class${parent ? `, there a subclass of ${parent}` : ""}` : "";
+      const abstract = parent && this.schema.entities[parent].abstract;
+      const fix = !parent ? "only an IDS entity facet naming it exactly finds it"
+        : abstract ? `an IDS entity facet on ${parent} does not check it (${parent} is abstract: write the file as ${from || "the schema that has the class"}, or use a concrete ${this.schemaRaw} class)`
+        : `an IDS entity facet on ${parent} does not check it (re-export it as ${parent})`;
+      this.parseErrors.push(`#${first}: ${type} is not ${an(this.schemaRaw)} ${this.schemaRaw} class (${n}${was}). Its attributes are unknown and IfcOpenShell drops it; ${fix}`);
+    }
   }
   get(ref) { return ref && typeof ref === "object" && "ref" in ref ? this.entities.get(ref.ref) : undefined; }
   attr(e, name) {
@@ -1351,14 +1388,25 @@ export function skippedSubclasses(spec, model, ctx) {
     for (const e of list) if (!ent.test(e, model, ctx).ok && anyName.test(e, model, ctx).ok && others.every((f) => f.test(e, model, ctx).ok)) count++;
     if (count) out.push({ type, via, count });
   }
+  for (const x of model.outsideSchema || []) {
+    if (!x.parent || ent.name.matchString(x.type)) continue;
+    let via = null;
+    for (let t = x.parent; t && !via; t = S.entities[t] && S.entities[t].super) if (ent.name.matchString(t)) via = t;
+    if (!via) continue;
+    let count = 0;
+    for (const e of model.byType.get(x.type) || []) if (anyName.test(e, model, ctx).ok && others.every((f) => f.test(e, model, ctx).ok)) count++;
+    if (count) out.push({ type: x.type, via, count, outside: model.schemaRaw });
+  }
   return out.sort((a, b) => b.count - a.count || (a.type < b.type ? -1 : 1));
 }
 
 export function skippedNote(skipped) {
   if (!skipped.length) return null;
   const total = skipped.reduce((n, x) => n + x.count, 0);
-  const list = skipped.slice(0, 4).map((x) => `${x.count.toLocaleString("en-US")} ${x.type} (a subclass of ${x.via})`).join(", ") + (skipped.length > 4 ? `, and ${skipped.length - 4} more class(es)` : "");
-  return `not checked: ${total.toLocaleString("en-US")} element(s) of subclasses the entity facet does not name: ${list}. IDS entity names do not include subclasses; add these class names to the entity facet to check them`;
+  const list = skipped.slice(0, 4).map((x) => `${x.count.toLocaleString("en-US")} ${x.type} (${x.outside ? `not in ${x.outside}; another schema's subclass of ${x.via}` : `a subclass of ${x.via}`})`).join(", ") + (skipped.length > 4 ? `, and ${skipped.length - 4} more class(es)` : "");
+  const outside = skipped.filter((x) => x.outside);
+  return `not checked: ${total.toLocaleString("en-US")} element(s) of subclasses the entity facet does not name: ${list}. IDS entity names do not include subclasses; add these class names to the entity facet to check them` +
+    (outside.length ? `. ${outside.map((x) => x.type).join(", ")} ${outside.length === 1 ? "is" : "are"} not in the model's schema, so IfcOpenShell and IfcTester do not see ${outside.length === 1 ? "it" : "them"} at all: re-export as ${[...new Set(outside.map((x) => x.via))].join(", ")}` : "");
 }
 
 function prefilter(f, model) {
