@@ -26,3 +26,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-24) composite of 4 FRED coincident series 16/16, 0 false, --turns ships 2026-11-24 (README "A composite of NBER's monthly indicators"), on the page 2026-11-24 (README "Peaks and troughs on the page")
 - (moved 2026-11-24) business lines sim 2026-11-24: composite 0.932 vs revenue 0.869, short of hindsight 0.974 (README "Several business lines")
 - (moved 2026-11-24) SaaS make 2026-11-24: min phase 3 lifts the composite 0.833 to 0.915, NBER 16/16 kept, 0.045 short of hindsight (README "A short-phase rule for composites")
+- (moved 2026-11-24) agency make 2026-11-24: P3 +0.047 again but composite 0.755 vs advance-picked line 0.857, smooth late headcount takes 70% weight (README "third make")

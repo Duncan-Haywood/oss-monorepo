@@ -9,9 +9,14 @@ const page = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const nber = readFileSync(new URL('./data/nber-recessions.csv', import.meta.url), 'utf8');
 
 // The page's example is the shipped composite round's arm A (README "A composite of NBER's monthly indicators"),
-// rounded to 6 significant figures: it must still date the same 16 turns, each within 3 months of NBER's.
+// rounded to 6 significant figures: with that round's 6-month phases it must still date the same 16 turns, each
+// within 3 months of NBER's. The composite default is 3 months since README "P3 and the heavy-late warning together",
+// which adds the 2002-11 / 2003-04 soft patch NBER did not date (18 turns).
 test('example: the four FRED indicators date 16 turns, each within 3 months of NBER', () => {
-  const r = turnsResult({ csv: TURNS_CSV, columns: TURNS_COLUMNS.split(',').map((c) => c.trim()), sdUntil: TURNS_SD_UNTIL, withSeries: true });
+  const cols = TURNS_COLUMNS.split(',').map((c) => c.trim());
+  const dflt = turnsResult({ csv: TURNS_CSV, columns: cols, sdUntil: TURNS_SD_UNTIL });
+  assert.equal(dflt.turns.filter((t) => t.label >= '1969-06' && t.label <= '2020-10').length, 18);
+  const r = turnsResult({ csv: TURNS_CSV, columns: cols, sdUntil: TURNS_SD_UNTIL, minPhase: 6, withSeries: true });
   assert.equal(r.n, 715);
   assert.equal(r.first, '1967-01'); assert.equal(r.last, '2026-07');
   const kept = r.turns.filter((t) => t.label >= '1969-06' && t.label <= '2020-10');
