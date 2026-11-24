@@ -1,0 +1,13 @@
+{
+  "name": "photo-nutrition-agent-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend for an autonomous photo-to-Apple-Health nutrition agent with an MCP server for ChatGPT and Claude.",
+  "license": "MIT",
+  "type": "module",
+  "engines": { "node": ">=22.5" },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server.mjs",
+    "test": "node --disable-warning=ExperimentalWarning --test"
+  }
+}

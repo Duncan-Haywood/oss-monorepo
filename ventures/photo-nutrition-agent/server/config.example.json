@@ -1,0 +1,15 @@
+{
+  "_comment": "Copy to config.local.json (git-ignored) before the first start to seed settings. Applied once.",
+  "home_time_zone": "America/New_York",
+  "targets": {
+    "energy_kcal": 2000,
+    "protein_g": 150,
+    "fiber_g": 30,
+    "weekly_weight_change_lb": -1,
+    "goal_weight_lb": 180,
+    "goal_body_fat_pct": 18,
+    "notes": "Preserve lean mass during fat loss."
+  },
+  "profile": { "birth_year": 1995, "height_cm": 180, "sex": "male", "activity_notes": "lifting 4x/week, walking daily" },
+  "policy": { "auto_log_confidence": 0.6, "image_retention_days": 3 }
+}
