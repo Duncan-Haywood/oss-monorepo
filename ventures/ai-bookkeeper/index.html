@@ -551,7 +551,7 @@
     // still caches them for offline use.
     let receiptsMod = null;
     // Modules only a button or a file pick uses load on first use, once (a failed
-    // load is forgotten, so the next click retries): docs/history/ai-bookkeeper-page-perf-2026-11-25.md.
+    // load is forgotten, so the next click retries): docs/history/ai-bookkeeper-page-perf-2026-11-24.md.
     const onDemand = (load) => { let p = null; return () => (p ??= load().catch((e) => { p = null; throw e; })); };
     const fileReaders = onDemand(() => Promise.all([import("./pdftext.mjs"), import("./xlsx.mjs"), import("./xls.mjs"), import("./textcodec.mjs")])
       .then(([pdf, xlsx, xls, codec]) => ({ pdfToText: pdf.pdfToText, xlsxToCsv: xlsx.xlsxToCsv, looksLikeXlsx: xlsx.looksLikeXlsx, xlsToCsv: xls.xlsToCsv, looksLikeXls: xls.looksLikeXls, decodeBytes: codec.decodeBytes })));

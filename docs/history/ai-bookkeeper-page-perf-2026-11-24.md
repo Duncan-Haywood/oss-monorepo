@@ -1,4 +1,4 @@
-# AI Bookkeeper page: file readers, S-corp, AI, reconcile and bill pay load on first use (2026-11-25)
+# AI Bookkeeper page: file readers, S-corp, AI, reconcile and bill pay load on first use (2026-11-24)
 
 Perf track, version 0. Both open perf backlog items (P063, P064) touch workflow
 files in `.github/CODEOWNERS` and wait for the owner. Under the north star

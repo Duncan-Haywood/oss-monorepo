@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01AcxTtH8KWgm5oj85vQtXht",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T23:06:54Z",
+  "ended": "2026-11-24T23:13:47Z",
+  "wall_minutes": 7.51,
+  "tokens_in": 4711701,
+  "tokens_out": 25804,
+  "cost_usd": 2.2191,
+  "tool_calls": 56,
+  "task": "perf: ai-bookkeeper page, handler-only modules load on first use",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18731",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "git checkout -b failed (branch already existed at main) and the && chain skipped writing the history doc; noticed via git status and rewritten",
+      "impact": "one extra step"
+    },
+    {
+      "what": "dated the doc and post 2026-11-25 while UTC was still 2026-11-24; check_post_frontmatter caught it, renamed before merge",
+      "impact": "one extra local CI pass"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/history/shift-roster-page-perf-2026-11-24.md",
+      "issue": "the load bench it cites lives in /tmp of an earlier session, so every perf run rebuilds the same ~30-line Playwright script; it belongs in platform/perf/ (rebuilt again here, not added, to keep this PR to the venture)"
+    },
+    {
+      "file": "platform/perf/module-weight.mjs",
+      "issue": "takes the repo root only; passing a venture dir fails with ENOENT on <dir>/ventures, no usage line"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-the-bookkeeper-reads-your-pdf-only-when-you-give-it-one.md",
+    "docs/history/ai-bookkeeper-page-perf-2026-11-24.md"
+  ],
+  "goal": "north star: faster first load on the ai-bookkeeper product page, the funnel target of 14 free feeder tools",
+  "notes": "Metric: ai-bookkeeper/index.html load. Static graph (platform/perf/module-exclusive.mjs) 326 kB gzip/50 files -> 297 kB/42. Throttled load (Playwright, local gzip server, 150 ms RTT, 1.6 Mbit/s, CPU 4x, cache off, median of 7 to domContentLoadedEventEnd): set 1 2,937 -> 2,650 ms; set 2 run back to back from one folder 2,907 -> 2,622 ms (-10%); files 52 -> 44, wire 382 -> 351 kB. Equivalence: old vs new page, 6 scenarios (CSV/XLSX/XLS/PDF import, example + S-corp/reconcile/bill pay, Ask AI with no provider), body.innerText identical 6/6, no page errors. run_venture_tests.py ai-bookkeeper: ok, 3453 tests, 25.0 s, 1 skipped (OCR tools absent). quick-pick-survey checked first: rank.html 38 kB gzip, nothing worth moving.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b7d6bb42-2f18-5845-a23c-f7d90fc8d4a8",
+    "transcripts": 1,
+    "first": "2026-11-24T23:06:54Z",
+    "last": "2026-11-24T23:14:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 97,
+        "output": 25804,
+        "thinking": 3514,
+        "cache_read": 4614122,
+        "cache_write_5m": 0,
+        "cache_write_1h": 97482,
+        "api_equivalent_usd": 2.2191,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 97,
+      "output": 25804,
+      "thinking": 3514,
+      "cache_read": 4614122,
+      "cache_write_5m": 0,
+      "cache_write_1h": 97482,
+      "api_equivalent_usd": 2.2191,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 52,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.51,
+      "active_minutes": 7.51,
+      "model_minutes": 4.58,
+      "tool_minutes": 2.94,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "trace 16 leaf modules, refactor 5 handlers, build bench and equivalence harness, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 135.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
