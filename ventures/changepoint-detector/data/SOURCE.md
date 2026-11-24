@@ -948,3 +948,27 @@ shutdown).
 - **Licence:** US government statistics, public domain. Only the numbers were taken.
 - **Used by:** `eval/turns-composite.mjs`, `turns-composite.test.mjs`.
 
+
+## FRED-MD vintages: PAYEMS, W875RX1, INDPRO as published, 1999-08 to 2021-10
+
+`fredmd-vintages/PAYEMS.csv`, `W875RX1.csv`, `INDPRO.csv`: every monthly vintage of three FRED-MD series (McCracken
+and Ng, "FRED-MD: A Monthly Database for Macroeconomic Research", Federal Reserve Bank of St. Louis), from the
+first vintage (1999-08) to 2021-10, each series as that vintage published it from 1959-01 (W875RX1's earliest
+vintages from 1967-01). Levels: payroll employment in thousands, real personal income less transfers in billions
+of chained dollars (each vintage's own base year), industrial production as an index (each vintage's base year).
+
+- **Retrieved:** 2026-11-24. stlouisfed.org (FRED-MD's home and ALFRED) refused this session's proxy, so the
+  vintages are read from AQLT/turningPointsDetection (github.com, commit 40a5d111bfd5f90be0562d449455a3a542f5d806),
+  `data/byseries_nber/<SERIES>.RDS` (git blobs PAYEMS ca33eb81, W875RX1 9e2f0a14, INDPRO 1c63fe43), made by that
+  repository's `R_fred_nber/0-download_files.R` from FRED-MD's `Historical_FRED-MD.zip` and `FRED_MD.zip`. Those
+  files store log levels per vintage, keyed by the last month, keeping the first vintage to reach each month.
+  `eval/fredmd-vintages.py` (pip `rdata`, `numpy`) converts them: exp() of every cell is within 1e-6 of a value at
+  the source's own precision (whole thousands, one decimal, four decimals), so the levels are recovered exactly.
+  The 2021-10 vintage's monthly growth agrees with today's files (`us-payems.csv`, `us-w875rx1.csv`,
+  `us-indpro.csv`) within a median 0.006, 0.016 and 0.027 percentage points from 1990 on: later revisions only.
+- **Format:** `last,first,from,values`, a row per kept vintage, values from `from` (the first month that differs
+  from the row before) to `last`; `eval/fredmd-vintages.mjs` rebuilds each vintage and says which one a user held
+  at a given month. One W875RX1 row (to 1999-10) starts at 1992-01 (R's `na.contiguous` after a gap in it).
+- **Licence:** US government statistics compiled by the St. Louis Fed; public domain numbers. The source
+  repository has no licence file; only the numbers were taken, not its code.
+- **Used by:** `eval/turns-vintages.mjs`, `turns-vintages.test.mjs`.
