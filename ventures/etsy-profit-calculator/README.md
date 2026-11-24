@@ -294,3 +294,7 @@ be slow, broken, moved, or taken offline without notice. We do not promise
 uptime, backups of anything you type, or that a URL will keep working. Do
 not use this as a system of record. If a tool needs to survive, export your
 inputs and run it yourself.
+
+## Track true profit across every platform
+
+The page ends with a short section for sellers on more than one marketplace. It links the online-sellers industry page (`/industries/online-sellers/`), where reseller books, a hosted product for payout reconciliation, cost of goods and a Schedule C-shaped profit and loss, is listed as in development, early access. It also links three guides that live in `ventures/ebay-fee-calculator/`: reconciling marketplace payouts to sales, cost of goods sold for resellers, and a Schedule C worksheet for resellers. Fee figures in the page's sourced lead were rechecked on 2026-11-24 (`docs/reports/2026-11-24-seller-tools-front-doors.md`).

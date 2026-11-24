@@ -128,3 +128,7 @@ site: the server only hands out files and never sees a figure you type.
 - **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
 - Nothing runs on the author's accounts. The Docker image has not been built in the session that added these files,
   so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.
+
+## Track true profit across every platform
+
+The page ends with a short section for sellers on more than one marketplace. It links the online-sellers industry page (`/industries/online-sellers/`), where reseller books, a hosted product for payout reconciliation, cost of goods and a Schedule C-shaped profit and loss, is listed as in development, early access. It also links three guides that live in `ventures/ebay-fee-calculator/`: reconciling marketplace payouts to sales, cost of goods sold for resellers, and a Schedule C worksheet for resellers. Fee figures in the page's sourced lead were rechecked on 2026-11-24 (`docs/reports/2026-11-24-seller-tools-front-doors.md`).

@@ -25,3 +25,10 @@ A $40 item, no shipping charged, cost $12, label $6, packaging $1, default 13.6%
 - Fee rates are inputs; categories with different final value rates must be typed in.
 - The return view assumes the item goes back into inventory.
 - The author hosts no service and sees none of your numbers. Provided as-is without warranty.
+
+## Track true profit across every platform
+
+- [Tools for online sellers](https://marisstella.app/industries/online-sellers/): reseller books, a hosted product for multi-platform resellers (payout reconciliation, cost of goods, a Schedule C-shaped profit and loss). In development, early access; do not describe it as available.
+- [How to reconcile marketplace payouts to sales](https://marisstella.app/ebay-fee-calculator/how-to-reconcile-marketplace-payouts-to-sales.html): a worked month bridged from bank deposit back to gross sales. Not tax advice.
+- [Cost of goods sold for resellers](https://marisstella.app/ebay-fee-calculator/cost-of-goods-sold-for-resellers.html): per item and per lot, and Schedule C Part III. Not tax advice.
+- [Schedule C worksheet for resellers](https://marisstella.app/ebay-fee-calculator/schedule-c-worksheet-for-resellers.html): line by line, with IRS sources. Not tax advice.
