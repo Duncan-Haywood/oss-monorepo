@@ -1,6 +1,6 @@
 ---
 title: "Milestone 1 is not Milestone 12: red team on a P6 contract specification check"
-seo_title: "P6 schedule specification check: matching contract milestones by whole word"
+seo_title: "P6 specification check: match contract milestones by whole word"
 date: 2026-11-24
 tags: [redteam, testing, mutation-testing, xer-schedule-check, primavera-p6, construction-scheduling, javascript, ventures]
 description: "Red team on a day-old P6 contract-spec checker: 7 of 11 seeded bugs caught, one real defect that would pass a schedule missing a contract milestone."
