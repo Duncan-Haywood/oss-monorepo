@@ -112,10 +112,11 @@ export function parseTravel(text, venues) {
   const estimated = [];
   const names = [...coords.keys()];
   for (let i = 0; i < names.length; i++) for (let j = i + 1; j < names.length; j++) {
-    const k = [names[i], names[j]].sort().join("|");
+    const pair = [names[i], names[j]].sort();
+    const k = pair.join("|");
     if (travel[k] !== undefined) continue;
     travel[k] = estimateDriveMinutes(coords.get(names[i]), coords.get(names[j]));
-    estimated.push(k.replace("|", " - ") + `: ${travel[k]}`);
+    estimated.push(pair.join(" - ") + `: ${travel[k]}`);
   }
   return { travel, errors, estimated };
 }

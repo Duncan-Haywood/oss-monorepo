@@ -222,6 +222,6 @@ test("the suspensions guide's worked table matches disciplineState(), FAQ matche
     assert.ok(html.includes(tr), tr);
   }
   assert.equal(s.bans.length, 4);
-  assert.match(read("sitemap.xml"), new RegExp(name.replace(/\./g, "\\.")));
-  assert.match(read("index.html"), new RegExp(`href="\\./${name.replace(/\./g, "\\.")}"`));
+  assert.match(read("sitemap.xml"), new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.match(read("index.html"), new RegExp(`href="\\./${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
 });
