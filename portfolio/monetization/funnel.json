@@ -61,7 +61,7 @@
       "feeders": ["mann-kendall-trend", "demand-forecast-backtester", "sales-seasonality-forecaster", "spc-control-charts", "ab-test-significance-calculator"]
     },
     "photo-editing": {
-      "pitch": "ShootFlow: safe card ingest with checksums, batch grading and Instagram reels and carousels for photographers",
+      "pitch": "ingests cards with checksums, batch-grades the shoot and builds Instagram reels and carousels for photographers",
       "feeders": [
         "photos-import-tools", "wedding-photographer-profit-calculator", "wedding-videographer-profit-calculator",
         "real-estate-photographer-shoot-profit-calculator", "photo-addon-pricing-calculator",
@@ -69,11 +69,11 @@
       ]
     },
     "real-estate-agent-photo-app": {
-      "pitch": "Listing Lens: checks listing photos against an MLS floor spec before delivery, with a dated findings report",
+      "pitch": "checks listing photos against an MLS floor spec before delivery, with a dated findings report",
       "feeders": ["agent-brokerage-split-calculator"]
     },
     "print-atelier": {
-      "pitch": "preflights a print master at its print size and compares up to five exports before you order a proof print",
+      "pitch": "checks a print master at its print size and compares up to five exports before you order a proof print",
       "feeders": ["print-on-demand-profit-calculator"]
     },
     "clothing-design-studio": {
