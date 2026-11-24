@@ -329,7 +329,7 @@
       },
       {
         "file": "ventures/machine-shop-guides/VENTURE.yaml; portfolio/monetization/hardware-bets.md; platform/pages/launched.json; platform/privacy/optout-switches.txt",
-        "issue": "main red in PR CI: hypotheses evidence 'usage' (router accepts customer-contact|in-repo) and two links to portfolio/monetization/bets.md, which only PR #18675 (owner approval) adds. Set evidence to in-repo (usage counters are read in-repo); links made plain text naming PR #18675. Also missing for machine-shop-guides: its launch date (pages build check.mjs and launched.test.mjs red) and its opt-out switch line (optout-persistence.test.mjs red); ran launched.mjs --write and sync_tree_counts.py.",
+        "issue": "main red in PR CI: hypotheses evidence 'usage' (router accepts customer-contact|in-repo) and two links to portfolio/monetization/bets.md, which only PR #18675 (owner approval) adds. Set evidence to in-repo (usage counters are read in-repo); links made plain text naming PR #18675. Also missing for machine-shop-guides: its launch date (pages build check.mjs and launched.test.mjs red) and its opt-out switch line (optout-persistence.test.mjs red); ran launched.mjs --write and sync_tree_counts.py. main fixed the launch date (#18722), the opt-out line and the evidence value (as customer-contact) concurrently; on merge main's versions were kept, so this PR's net part is the hardware-bets.md links.",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18719"
       }
