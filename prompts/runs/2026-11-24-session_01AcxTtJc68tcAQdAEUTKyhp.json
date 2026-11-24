@@ -27,8 +27,8 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
-  "ci_failures_before_green": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
   "review_findings": null,
   "tests_added": 12,
   "outcome": "success",
@@ -66,7 +66,7 @@
     "docs/posts/2026-11-24-reading-mercaris-gross-sales-report-for-your-books.md"
   ],
   "goal": "North star step 1/2: milestone (1) of paid flagship 5 (seller-books) names Mercari; the engine the paid app imports now reads it, and the free page (its lead magnet) covers one more marketplace.",
-  "notes": "Mercari field list from mercari.com/us/help_center/article/541 (read 2026-11-24). Verification: node --test in reseller-books 42 pass 0 fail; run_venture_tests.py reseller-books ok; inherited_keys.py 0 new; check_hidden_unicode ok; check_posts ok; validate.py ok; Playwright smoke of the page with the example: Mercari notes render, no console errors. Tests caught two real bugs pre-merge: `if (!seen)` at index 0 in dedupe, and Object.prototype lookups for an item titled 'constructor'. No agent doc: the flagship row and README carry what the next run needs.",
+  "notes": "Mercari field list from mercari.com/us/help_center/article/541 (read 2026-11-24). Verification: node --test in reseller-books 42 pass 0 fail; run_venture_tests.py reseller-books ok; inherited_keys.py 0 new; check_hidden_unicode ok; check_posts ok; validate.py ok; Playwright smoke of the page with the example: Mercari notes render, no console errors. Tests caught two real bugs pre-merge: `if (!seen)` at index 0 in dedupe, and Object.prototype lookups for an item titled 'constructor'. No agent doc: the flagship row and README carry what the next run needs. CI on the PR: 13 green, 2 red, both inherited from main and not from this diff: check_md_links (portfolio/monetization/hardware-bets.md -> bets.md, from #18699; open PRs #18729 and #18690 fix it) and platform/distribution/webext.test.mjs ('the real shift-roster-builder qualifies'; fails the same on a clean tree). venture-preflight reseller-books: only the same inherited dead link failed. run_workflow_locally --for-changes: 10/12 workflows passed, the same two failures.",
   "corrections": [],
   "redteam": null,
   "usage": {
