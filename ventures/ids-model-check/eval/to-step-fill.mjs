@@ -19,7 +19,9 @@ const EXT = take("--ext") || ".ifcxml";
 if (!IDS_DIR || !argv.length) { console.error("usage: node eval/to-step-fill.mjs --ids-dir DIR [--ext .json] <dir> ..."); process.exit(2); }
 const res = resources();
 const idsFiles = readdirSync(IDS_DIR).filter((f) => /\.ids$/i.test(f)).sort().map((f) => [f, readFileSync(join(IDS_DIR, f), "utf8")]);
-const extRe = new RegExp(EXT.replace(/\./g, "\\.") + "$", "i");
+// A plain case-insensitive suffix test: EXT comes from the command line, so it is never turned into a RegExp.
+const hasExt = (f) => f.toLowerCase().endsWith(EXT.toLowerCase());
+const stripExt = (f) => (hasExt(f) ? f.slice(0, f.length - EXT.length) : f);
 let runs = 0, same = 0, wroteRuns = 0, valuesStep = 0, valuesConv = 0, errs = 0;
 const diffs = [];
 let seed = 1;
@@ -28,8 +30,8 @@ const random = () => Uint8Array.from({ length: 16 }, () => (seed = (seed * 11035
 const sig = (r) => JSON.stringify(r.writtenList.map((w) => `${w.globalId}|${w.pset}|${w.prop}|${w.value}`).sort());
 let inherited = 0;
 for (const dir of argv) {
-  for (const f of readdirSync(dir).filter((f) => extRe.test(f)).sort()) {
-    const stepPath = join(dir, f.replace(extRe, ".ifc"));
+  for (const f of readdirSync(dir).filter(hasExt).sort()) {
+    const stepPath = join(dir, stripExt(f) + ".ifc");
     if (!existsSync(stepPath)) continue;
     const stepText = readFileSync(stepPath, "utf8"), convText = readFileSync(join(dir, f), "utf8");
     for (const [name, ids] of idsFiles) {
