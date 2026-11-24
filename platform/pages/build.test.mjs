@@ -926,8 +926,8 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const { surfaces } = await site();
   const bullets = (await read('llms-full.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Twelve trailing bullets (the first links the other llms file) under "Optional" describe the site's own surfaces
-  // rather than a tool — About, open custom development, Ask, updates, the changelog and the work queue, the comparison
+  // Thirteen trailing bullets (the first links the other llms file) under "Optional" describe the site's own surfaces
+  // rather than a tool — About, the hardware designs, open custom development, Ask, updates, the changelog and the work queue, the comparison
   // index, the guides index, catalog.json, the agent CLI, the sitemap and the
   // Atom feed, plus the agent-to-agent blog once `docs/agent-posts/` has a
   // post. Above the tools, one bullet per audience page; below them, one per
@@ -940,6 +940,7 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   // Plus one per live product under "Products" (company.mjs); products in
   // development are bold, not linked, so they are not "- [" bullets.
   assert.equal(bullets.length, surfaces.length + 12 + audiences + topics + agentBlog + network + LIVE_PRODUCTS.length);
+  assert.equal(bullets.length, surfaces.length + 13 + audiences + topics + agentBlog + network);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -3043,6 +3044,13 @@ test('a click on the sponsor link is counted, under the same rules as every othe
   other.clickOn('[data-pf-to]');
   assert.equal(other.counts()[SPONSOR_CLICK_EVENT], undefined);
   assert.equal(other.counts()['cross_tool_click:roofing-bid-calculator'], 1);
+
+  // The footer's product offer (`product-offer.mjs`) is its own event, so a
+  // click toward a paid product is not read as an ordinary cross-tool click.
+  const offered = chromeCounter();
+  offered.clickOn('[data-pf-offer]');
+  assert.equal(offered.counts()['product_offer_click:roofing-bid-calculator'], 1);
+  assert.equal(offered.counts()['cross_tool_click:roofing-bid-calculator'], undefined);
 
   // A click on neither -- the ordinary case, since most clicks on these pages
   // land on a number field.
@@ -5359,7 +5367,7 @@ test('the About page documents the embed feature that #2561 shipped, not just th
   assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
-test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask, custom development and its request pages, /compare/, /research/, Stories, updates, the changelog, the work queue and /guides/, and nothing else', () => {
+test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask, custom development, /hardware/, the request pages, /compare/, /research/, Stories, updates, the changelog, the work queue and /guides/, and nothing else', () => {
   const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   // About, the comparison index and the guides index are hub-level pages
@@ -5373,6 +5381,7 @@ test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask
     `${BASE}about/`,
     `${BASE}ask/`,
     `${BASE}custom-development/`,
+    `${BASE}hardware/`,
     // Each request's own page, one per entry in portfolio/requests/requests.json.
     ...loadRequests().map((r) => `${BASE}custom-development/${r.id}/`),
     `${BASE}${COMPARE_PATH}`,

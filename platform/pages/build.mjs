@@ -35,6 +35,7 @@ import { promisify } from 'node:util';
 import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
+import { renderHardwarePage, HARDWARE_PATH } from './hardware-page.mjs';
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
 import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, loadPosts, WRITING_PATH } from './writing.mjs';
@@ -185,6 +186,7 @@ import {
 } from './home.mjs';
 import { servedPath } from './served-path.mjs';
 import { COMPANY_SUMMARY, IN_DEVELOPMENT, INDUSTRIES, LIVE_PRODUCTS } from './company.mjs';
+import { loadFunnel, offerTable, OFFER_ATTR, renderProductOffer } from './product-offer.mjs';
 import { acquireBuildLock, waitForBuildLock } from './build-lock.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -8067,7 +8069,6 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
   const categoryCount = groups.length;
   const title = `About ${SITE_NAME}`;
   const description = `${SITE_NAME} builds software for small and medium businesses, run by one owner with AI agents. What is live, what is in development, and what happens to the numbers you type into the ${formatCount(total)} free calculators.`;
-  const hardwareGroup = groups.find(({ category }) => category.id === 'open-hardware');
 
   // The one absolute claim below — nothing typed ever leaves the browser —
   // is true for every tool except one this checks for: a tool whose whole
@@ -8243,7 +8244,7 @@ ${IN_DEVELOPMENT.map(([name, what]) => `        <li><strong>${escapeHtml(name)}<
       <ul>
         <li><strong>Agents.</strong> Scheduled agent sessions pick the next job from a written queue, build it, check it and merge it. What they did and why is in the repository; the <a href="${escapeHtml(`${toRoot}${UPDATES_PATH}`)}">updates page</a> summarises each week.</li>
         <li><strong>Open research.</strong> The <a href="${escapeHtml(`${toRoot}${RESEARCH_PATH}`)}">research projects</a> are published with their code, tests and limitations. New research is aimed at a product: a question gets studied because the answer goes into something a business will use.</li>
-        <li><strong>Open hardware designs.</strong> ${hardwareGroup ? `<a href="${escapeHtml(`${toRoot}${categoryPagePath('open-hardware')}`)}">Robot and house-plan designs</a>` : 'Robot and house-plan designs'} are published with their CAD, firmware and bills of materials, MIT licensed. Selling built hardware is a long-term goal, not something on offer: nothing physical is for sale.</li>
+        <li><strong>Open hardware designs.</strong> <a href="${escapeHtml(`${toRoot}${HARDWARE_PATH}`)}">Robot and house-plan designs for businesses</a> are published with their CAD, firmware and bills of materials, MIT licensed. They are at the design and simulation stage: nothing has been built and nothing physical is for sale. Real hardware products are a long-term goal.</li>
         <li><strong>Open source.</strong> The free tools, the research and the hardware designs are MIT licensed, so you can use them, change them, or run your own copy. The paid products are developed privately.</li>
       </ul>
 
@@ -10946,7 +10947,7 @@ const CHROME_CSS = `
 .pf-chrome-foot ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px 18px;
   grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr))}
 .pf-chrome-foot li{margin:0}
-.pf-chrome-foot p.pf-ask{margin:0 0 18px;padding:10px 14px;border:1px solid var(--pf-line);border-left-width:4px;border-radius:8px}
+.pf-chrome-foot p.pf-ask,.pf-chrome-foot p.pf-product{margin:0 0 18px;padding:10px 14px;border:1px solid var(--pf-line);border-left-width:4px;border-radius:8px}
 .pf-ci{margin:0 0 14px}
 .pf-ci summary{cursor:pointer;font-weight:600}
 .pf-ci pre{overflow-x:auto;margin:0 0 10px;padding:8px 10px;border:1px solid var(--pf-line);border-radius:6px;font-size:.82rem}
@@ -11142,6 +11143,8 @@ const CHROME_SCRIPT = ({ counterUrl = '' } = {}) => `
       if(!t)return;
       var a=t.closest('[data-pf-to]');
       if(a)bump('cross_tool_click:'+a.getAttribute('data-pf-to'));
+      var o=t.closest('[${OFFER_ATTR}]');
+      if(o)bump('product_offer_click:'+o.getAttribute('${OFFER_ATTR}'));
       if(t.closest('[${SPONSOR_LINK_ATTR}]'))bump('${SPONSOR_CLICK_EVENT}');
     });
   }catch(e){}
@@ -12175,7 +12178,7 @@ function crumbShort(name) {
  */
 export const FOOTER_LEAD_NOT_A_BROWSER_TOOL = 'More from the same free, open-source catalogue.';
 
-export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [], linkedCss = '', browserTool = true }) {
+export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [], linkedCss = '', browserTool = true, offer = null, offerName = '' }) {
   if (html.includes(CHROME_MARKER)) return html;
   const initialBody = locateBody(html);
   if (!initialBody) return html;
@@ -12302,7 +12305,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   const askLine = `    <p class="pf-ask"><strong>Need this tool to do more?</strong> <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}?kind=feature&tool=${encodeURIComponent(slug)}#request`)}">Request a feature</a>, built free and in public, or <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}?kind=problem&tool=${encodeURIComponent(slug)}#request`)}">tell us what is wrong</a>.</p>\n`;
   const footer = `<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
   <div class="pf-inner">
-${askLine}    <h2>More free tools</h2>
+${askLine}${renderProductOffer({ offer, name: offerName, toRoot })}    <h2>More free tools</h2>
     <p>${externalCallHosts.length
       ? `Everything on this page runs in your browser too, except this one lookup: what you type here also goes to ${listProse(externalCallHosts)}, because that is what checking it means — see the note on this page for exactly what is sent.`
       : browserTool
@@ -12444,6 +12447,8 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
 
   // Every footer's related tools, ranked and balanced once (`relatedToolsTable`).
   const relatedTable = relatedToolsTable(surfaces);
+  // The product each free tool's footer names, if any (`product-offer.mjs`).
+  const offers = offerTable(loadFunnel(), new Set(surfaces.map((surface) => surface.slug)));
   const perSurface = await mapLimit(surfaces, 16, async (surface) => {
     const found = { wrapped: [], rated: [], saved: [], shared: [], described: [], highlighted: [], narrowed: [], embedded: [] };
     const { wrapped, rated, saved, shared, described, highlighted, narrowed, embedded } = found;
@@ -12487,6 +12492,8 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         // electronics academy's index pages are hubs; their calculators are
         // pages inside them).
         browserTool: (names.get(surface.slug)?.browserTool ?? true) || hasOwnControls(html),
+        offer: offers.get(surface.slug) ?? null,
+        offerName: offers.has(surface.slug) ? names.get(offers.get(surface.slug).product)?.name : '',
       })), toRoot);
       // After the chrome, which guarantees the canonical this repairs, and read
       // from the venture's *own* markup: a deep SEO page inside a tool has its
@@ -12720,6 +12727,8 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     .concat([`  <url><loc>${baseUrl}${ASK_PATH}</loc></url>`])
     // Open custom development, on the same terms.
     .concat([`  <url><loc>${baseUrl}${CUSTOM_DEV_PATH}</loc></url>`])
+    // The hardware designs page, on the same terms.
+    .concat([`  <url><loc>${baseUrl}${HARDWARE_PATH}</loc></url>`])
     .concat(loadRequests().filter((r) => /^R-\d{4}$/.test(r.id || '')).map((r) => `  <url><loc>${baseUrl}${customRequestPath(r.id)}</loc></url>`))
     // And the comparison index, on exactly the same terms: a hub-level page
     // this build writes, so it is listed here or nowhere.
@@ -12988,6 +12997,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
       ? `- [Short index](${baseUrl}llms.txt): the same tools with one-sentence descriptions, small enough to read in one fetch.`
       : `- [Full text](${baseUrl}llms-full.txt): every tool with its complete description and the LLM docs a product ships; large (several hundred KB), fetch only when the index does not answer the question.`,
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): who runs the company (one owner, AI agents), what is live and in development, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, the country code and the device type, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [Open hardware designs for businesses](${baseUrl}${HARDWARE_PATH}): robots for tennis clubs (ball collection), cleaning companies (floor cleaning) and grounds crews (a wire-free mower), open house plans for builders, and construction robotics research, each with its honest stage. Every design is MIT licensed and at the CAD and simulation stage: nothing has been built, nothing is for sale, and there are no prices or dates. Each card links the site's feedback form so a business can say it would use one.`,
     `- [Free custom software for your business](${baseUrl}${CUSTOM_DEV_PATH}): describe your problem and it gets built. How a business, or anyone, can ask the agents that build this site for a new tool, free and in public, the one condition (the result stays MIT licensed, held by the repository owner), and every request so far with its status. Each request has its own page (custom-development/R-0001/ and so on) showing its stage and what is still open, with a form for feedback on it.`,
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
@@ -13844,6 +13854,15 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   const feedbackDir = path.join(outDir, FEEDBACK_PATH);
   await fs.mkdir(feedbackDir, { recursive: true });
   await fs.writeFile(path.join(feedbackDir, 'index.html'), renderFeedbackPage({ surfaces, baseUrl: base }));
+  // The open hardware designs as future products for businesses (see `hardware-page.mjs`).
+  const hardwareDir = path.join(outDir, HARDWARE_PATH);
+  await fs.mkdir(hardwareDir, { recursive: true });
+  await fs.writeFile(path.join(hardwareDir, 'index.html'), renderHardwarePage({
+    baseUrl: base,
+    footerHtml: disclaimerHtml('../', surfaces),
+    chromeScript: `<script src="${escapeHtml(`../${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="hardware" defer></script>`,
+    socialCard: `${base}${SOCIAL_CARD_FILE}`,
+  }));
   const customDevDir = path.join(outDir, CUSTOM_DEV_PATH);
   const customRequests = loadRequests();
   const researchDirs = researchDirections();
