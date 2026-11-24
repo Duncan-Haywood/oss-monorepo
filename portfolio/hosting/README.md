@@ -47,6 +47,15 @@ Read it for study; nothing in it is current instruction.
   so `github-pages-origin` in `portfolio/ledger/infra_state.yaml` stays
   `unknown` until the owner loads the site logged out.
 
+- **Decided 2026-11-24: everything moves to AWS.** The owner chose one
+  platform for the whole repository: the site to S3 and CloudFront, DNS to
+  Route 53, SaaS apps and native-app backends on one AWS starter, client
+  projects in their own AWS accounts, Cloudflare and all self-deploy paths
+  retired, security first. Until each piece is cut over, the lines above
+  still describe what serves traffic. Plan and order:
+  [`docs/reports/2026-11-24-cloud-provider-comparison.md`](../../docs/reports/2026-11-24-cloud-provider-comparison.md),
+  §7; tasks: `python3 portfolio/work/workctl.py list --direction aws-consolidation`.
+
 ## How a product gets served
 
 **Pick the form the product's users need** (`PRODUCT_PLAYBOOK.md` §2). There

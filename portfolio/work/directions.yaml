@@ -278,22 +278,36 @@ directions:
       - platform/ci/check_site_fresh.py
       - platform/ci/site_probe*.py
 
-  - id: cloud-portability
-    title: Ready to switch clouds (stay on Cloudflare, keep a move to AWS or GCP short)
+  - id: aws-consolidation
+    title: One platform on AWS (site, DNS, apps, native-app backends, email, client projects); Cloudflare and self-deploy retired
     kind: area
     set: 2026-11-24
     source: docs/reports/2026-11-24-cloud-provider-comparison.md
-    section: "7. Owner direction: prepare for a switch-over (2026-11-24, later the same day)"
+    section: "7. Owner decision: consolidate everything onto AWS, security first (2026-11-24, later the same day)"
     status: active
-    # Weight 1: preparation, not a migration. The North star ($10k MRR) still
-    # comes first; these tasks mostly shape how new SaaS backends are built.
-    weight: 1
+    # Weight 2: the owner's platform decision for the whole repository. The
+    # North star ($10k MRR) still ranks first; this is the ground it runs on.
+    weight: 2
     paths:
+      - platform/aws/**
       - platform/hosting/**
-      - platform/deploy/templates/aws/**
-      - platform/deploy/templates/gcp/**
-      - platform/deploy/templates/portable-saas/**
-      - docs/runbooks/cloud-switch*
+      - docs/runbooks/aws-*
+      - platform/deploy/**
+
+  - id: security-first
+    title: Security as the priority (scanned dev workflow, hardened AWS baseline, SOC 2 controls)
+    kind: area
+    set: 2026-11-24
+    source: docs/reports/2026-11-24-cloud-provider-comparison.md
+    section: "7. Owner decision: consolidate everything onto AWS, security first (2026-11-24, later the same day)"
+    status: active
+    # Weight 3: "everything security as a priority" (owner, 2026-11-24).
+    weight: 3
+    paths:
+      - platform/security/**
+      - platform/aws/security/**
+      - docs/security/**
+      - .github/workflows/security-*.yml
 
   # --- principles (how to work; no tasks) ----------------------------------
   - id: depth-over-calculators

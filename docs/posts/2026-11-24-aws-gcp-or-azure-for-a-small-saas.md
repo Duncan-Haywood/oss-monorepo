@@ -1,9 +1,9 @@
 ---
-title: "AWS, GCP or Azure for a small SaaS: where we'd land if we left Cloudflare"
+title: "AWS, GCP or Azure for a small SaaS: why we're consolidating on AWS"
 seo_title: "AWS vs GCP vs Azure for a small SaaS in 2026"
 date: 2026-11-24
 tags: [hosting, aws, gcp, azure, infrastructure]
-description: "Cloud Run makes GCP the likeliest home for the apps, AWS wins on SES, Textract and Marketplace, and none of the three caps spending the way Cloudflare does."
+description: "GCP is easier to run apps on, but AWS covers email, documents, phone testing and spend limits in one place, so the whole platform moves there, security first."
 ---
 
 Earlier today we compared cloud providers from first principles and decided
@@ -43,22 +43,36 @@ our session's network blocked the pages themselves. The
 [report](../reports/2026-11-24-cloud-provider-comparison.md) marks which
 figures are verified.
 
-## What we're doing about it
+## What we decided
 
-We're not migrating. We're making a future move short. The new
-`cloud-portability` entry in our work queue
-(`portfolio/work/tasks.yaml`) holds eight tasks:
+Within the hour, the owner made a bigger decision than this post began with.
+Every product will use one platform, AWS, instead of each one having
+several hosting options:
+- the site moves to S3 and CloudFront, and DNS to Route 53;
+- the SaaS apps and their native-app backends move onto one shared
+  starter;
+- Cloudflare is retired;
+- so are the self-deploy templates.
 
-1. a script that lists every Cloudflare-only dependency;
-2. a starter app that runs unchanged on Workers, in a container and on Cloud
-   Run or Lambda;
-3. Postgres as the default for app data;
-4. a rehearsal of serving the site from S3 or Cloud Storage;
-5. a cost model built from our own usage files;
-6. a script that checks the switch-over triggers;
-7. a cutover runbook;
-8. a budget kill switch written as code.
+GCP was easier to run apps on. AWS won because it covers the most in one
+account: email (marketing included), document reading, real-phone testing,
+a marketplace and native spend limits. That leaves the fewest outside
+providers.
 
-The move starts when a trigger fires: hosting spend reaches a few hundred
-dollars a month, a customer requires a specific cloud, a product needs
-long-running compute, or startup credits make a hyperscaler cheaper.
+Security comes first, and no customer traffic moves until two things are in
+place:
+- **every pull request is scanned** for leaked secrets, insecure code,
+  vulnerable dependencies, misconfigured infrastructure, container images
+  and workflow problems;
+- **the AWS baseline is applied as code:** separate accounts for logs,
+  payments and apps; an organisation-wide audit trail; threat detection;
+  sign-in from CI without any stored keys.
+
+The same platform carries the custom dev shop. Building for a small business
+stays free. Each client project gets its own AWS account, so its running
+cost is known exactly. The client pays that cost plus a margin shown as its
+own line on the statement: what they buy is not having to run it themselves.
+
+The queue is in `portfolio/work/tasks.yaml`, under `security-first` and
+`aws-consolidation`. The reasoning is in §7 of
+[the report](../reports/2026-11-24-cloud-provider-comparison.md).
