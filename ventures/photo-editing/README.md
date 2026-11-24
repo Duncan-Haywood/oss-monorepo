@@ -201,6 +201,35 @@ python3 eval/cull-raw-data-previews-check.py OUT     # sensels vs shootflow
 python3 eval/cull-raw-data-previews-colour.py OUT    # colour vs shootflow
 ```
 
+## The cull page writes IPTC captions, keywords and copyright (2026-11-24)
+
+After picking, a photo desk captions: creator, copyright line, where, and
+keywords an archive can search. Photo Mechanic's "stationery pad" (a template
+with variables) is the tool most working photographers pay for to do it. The
+cull page now has one: "Captions, keywords and copyright (IPTC)" under the
+download button. `site/iptc.mjs` resolves the template per frame (`{date}`,
+`{year}`, `{monthname}`, `{day}`, `{time}`, `{camera}`, `{lens}`, `{file}`,
+`{stem}`, `{seq}`, `{iso}`, `{aperture}`, `{shutter}`, `{focal}`; an unknown
+`{name}` stays as typed so a typo shows), `K` adds keywords to one frame, and
+the fields go into the same sidecars as the IPTC standard's XMP properties:
+`photoshop:Headline`, `dc:title`, `dc:description`, `dc:subject` (Bag),
+`dc:creator` (Seq, `;` separates people), `dc:rights`, `photoshop:Credit`,
+`Source`, `City`, `State`, `Country`, `Instructions`, `Iptc4xmpCore:Location`.
+Into a sidecar you dropped with the raws, empty template boxes leave what is
+there, keywords are added to the existing bag (case-insensitive, no
+duplicates), a title's other languages are kept, and develop settings stay
+byte for byte. The template persists in the browser, saves to and opens from
+JSON, and loads from any captioned .xmp. The CSV gains a `keywords` column.
+
+Checked (eval/cull-iptc-2026-11-24.md): 9 unit tests (`node --test
+site/iptc.test.mjs`); in Chromium, three NEFs and a Lightroom-style sidecar
+through the page, the zip read back by ExifTool 12.76: every field as typed
+with variables filled ("Shot on NIKON D810 at f/3.5, May 13, 2015"), the old
+keyword kept beside the new ones, `Title-fr-FR` kept, `crs:Exposure2012` and
+`crs:CropTop` unchanged; all 13 fields on a fresh sidecar read back and
+`exiftool -validate` says OK on every file. Not yet checked: an import into
+Lightroom, Capture One or Photo Mechanic itself.
+
 ## The cull page reads where the camera focused (2026-11-24)
 
 The cull page's detail score looked at the busiest of 16 cells, so a soft
