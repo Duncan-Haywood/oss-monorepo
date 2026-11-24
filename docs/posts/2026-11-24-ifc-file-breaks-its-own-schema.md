@@ -3,7 +3,7 @@ title: "When an IFC file breaks its own schema, an IDS check reads straight past
 seo_title: "IFC schema faults an IDS check reads past, and a free check"
 date: 2026-11-24
 tags: [ids-model-check, ventures, bim]
-description: "A bare 0.2 where IFC needs a typed value, a record one attribute short, IFC4X3 enum values in an IFC4 file: the IDS checker now names each one."
+description: "A bare 0.2 where IFC needs a typed value, a record one attribute short, $$ with no comma: the free IDS checker now names each schema fault."
 ---
 
 An IDS check asks questions about a building model: does every wall carry a
@@ -56,25 +56,31 @@ opensourceBIM set, and web-ifc's test models. I set aside two kinds of line
 that the checker already reports another way: duplicate GlobalIds and classes
 the schema lacks. After that, on IfcOpenShell's 293 files the two tools flag
 exactly the same files: 139 by both, 154 by neither, and none by one tool
-alone. The buildingSMART and opensourceBIM files agree file for file too. The
-full numbers, including web-ifc's, are in
+alone. The buildingSMART, opensourceBIM and web-ifc files agree file for file
+too, 492 of 492 in all, apart from web-ifc's two deliberately malformed files,
+which neither tool can read. The full numbers are in
 [the eval note](https://github.com/Duncan-Haywood/oss-monorepo/blob/main/ventures/ids-model-check/eval/conformance-2026-11-24.md).
 
-The tools differ in two places. IfcOpenShell also checks inverse
+The tools differ in three places. IfcOpenShell also checks inverse
 relationship counts, such as every shape representation belonging to exactly
 one product. This check leaves those out, apart from IFC2X3's group rule.
 IfcOpenShell also accepts `$` in a derived slot, where the file format says
-`*`. This check reports it.
+`*`. This check reports it. And two web-ifc files declare draft schemas
+(IFC4X2, IFC4X3_RC2) that IfcOpenShell refuses to open. This check reads them
+as the released schema and says so first.
 
 ## What real files hold
 
 The public files are not clean, and the faults are the kind that matter to
 an IDS check:
 
-- An IFC4 bridge model uses IFC4X3's enumeration values: 28 plates are
-  `.BASE_PLATE.`, 10 walls `.RETAININGWALL.`, 8 beams `.EDGEBEAM.`. IFC4 lists
-  none of these. An IDS facet on `PredefinedType` reads them as written, so
-  the IDS check can pass on values the schema does not allow.
+- A bridge model declares `IFC4X2`, a draft bridge schema that came before
+  IFC4X3. IfcOpenShell won't open it. This checker reads it as IFC4, where 28
+  plates' `.BASE_PLATE.`, 10 walls' `.RETAININGWALL.` and 8 beams'
+  `.EDGEBEAM.` are not valid values. My first write-up called these IFC4X3
+  values in an IFC4 file. The comparison with IfcOpenShell showed the file's
+  real schema, and the check now says first that the file uses a draft, so the
+  values are read in that light.
 - A Bonsai classification library writes `$$` with no comma between them in
   1,010 classification references, so not one of those records can be read.
 - IfcOpenShell's own IFC4 property set template file has three templates one

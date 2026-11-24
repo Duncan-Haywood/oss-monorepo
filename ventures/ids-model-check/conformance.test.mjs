@@ -75,6 +75,9 @@ test("a NUMBER takes an integer or a real; a complex number's list is read as on
 test("a draft IFC4X3 schema is named before its differences", () => {
   const r = conformance(file("IFC4X3_RC2", "#1=IFCCARTESIANPOINT((0.,0.,0.));"), resources().schemas);
   assert.equal(r.findings[0].code, "draft-schema");
+  const b = conformance(file("IFC4X2", "#1=IFCCARTESIANPOINT((0.,0.,0.));"), resources().schemas);
+  assert.deepEqual(b.findings.map((f) => f.code), ["draft-schema"]);
+  assert.match(b.findings[0].message, /read as IFC4,/);
 });
 
 test("the shipped samples follow their schema", () => {

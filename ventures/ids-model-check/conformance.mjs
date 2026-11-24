@@ -148,9 +148,13 @@ export function conformance(text, schemas) {
     return null;
   }
 
-  // A draft schema (IFC4X3_RC1 to RC4) is read as IFC4X3_ADD2, whose classes
-  // moved since: say so first, so the faults below are read as that.
-  if (/^IFC4X3_RC/.test(raw)) findings.push({ code: "draft-schema", id: null, type: null, attr: null, message: `the file declares ${raw}, a draft of IFC4X3; it is read as IFC4X3_ADD2, so attribute counts and abstract classes below may be the draft's differences (re-export as IFC4X3_ADD2)` });
+  // A draft schema is read as the released one its name starts with
+  // (IFC4X3_RC1-RC4 as IFC4X3_ADD2; IFC4X1 and IFC4X2, the alignment and
+  // bridge drafts, as IFC4), whose classes and enumerations moved since: say
+  // so first, so the faults below are read as that (web-ifc's
+  // ifcbridge-model01.ifc is IFC4X2).
+  const draft = /^IFC4X3_RC/.test(raw) ? "IFC4X3_ADD2" : /^IFC4X[12]\b/.test(raw) ? "IFC4" : null;
+  if (draft) findings.push({ code: "draft-schema", id: null, type: null, attr: null, message: `the file declares ${raw}, a draft schema; it is read as ${draft}, so the classes, attribute counts and enumeration values below may be the draft's own (re-export as ${draft === "IFC4" ? "IFC4 or IFC4X3_ADD2" : draft}). IfcOpenShell does not open it` });
 
   // Records.
   let records = 0;

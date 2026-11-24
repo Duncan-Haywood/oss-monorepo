@@ -567,8 +567,7 @@ An IDS check reads each value by its position in the record and by its type.
 When the file itself breaks the IFC schema, the check can test the wrong value
 or skip one, and say nothing. For example: an `IFCPERSON` with 7 attributes where
 IFC4 gives it 8, `NominalValue` written as a bare `0.2` where IFC needs
-`IFCREAL(0.2)` or a measure, `IFCLABEL(0.5)`, `.BASE_PLATE.` in an IFC4 file
-(an IFC4X3 value), `*` where `$` belongs, or an `IfcOwnerHistory` whose
+`IFCREAL(0.2)` or a measure, `IFCLABEL(0.5)`, an enumeration value the schema does not list, `*` where `$` belongs, or an `IfcOwnerHistory` whose
 application is a cartesian point. `conformance.mjs` reads every record of a STEP
 file against its schema and names each fault, folded by kind, so an export
 with one systematic fault gives one line:
@@ -595,17 +594,21 @@ with one systematic fault gives one line:
   flagged with their fault, and 0 notes on the 13 `pass-*` files. Then
   `ifcopenshell.validate` 0.9.0 on 492 public files (IfcOpenShell's 293,
   buildingSMART's IFC 4.3 samples and Sample-Test-Files, opensourceBIM,
-  web-ifc's 110): RESULT_WEBIFC. The two tools differ in two places. Inverse
+  web-ifc's 108 readable): the same files flagged, 492 of 492, and on records
+  none IfcOpenShell flags that this misses, once inverse cardinalities and
+  ids.mjs's own notes (outside-schema classes, duplicate GlobalIds) are set apart. The two tools differ in three places. Inverse
   cardinalities (`ShapeOfProduct`, `PlacesObject`) are not checked here, apart
   from IFC2X3's IfcGroup. And IfcOpenShell lets `$` stand in a derived slot,
-  where ISO 10303-21 writes `*`.
+  where ISO 10303-21 writes `*`. And IfcOpenShell refuses the draft schemas
+  IFC4X2 and IFC4X3_RC2, which this reads as IFC4 and IFC4X3_ADD2 behind a
+  first note.
 - **What the public files hold:** a Bonsai classification library whose 1,010
   references `$$` (no comma) leaves unread; IfcOpenShell's own IFC4 property
   set template file with three templates one attribute short; Bonsai's IFC2X3
   demo library and template whose owner histories name a cartesian point as the
-  application; an IFC4 bridge with IFC4X3 enumeration values (`.BASE_PLATE.`,
-  `.EDGEBEAM.`, `.RETAININGWALL.`) that an IDS check on `PredefinedType` reads as
-  given; 940 `IfcCurveBoundedPlane`s with `$` where IFC4 needs an empty set.
+  application; a bridge declaring the draft IFC4X2 (read as IFC4, now said
+  first; IfcOpenShell will not open it) whose `.BASE_PLATE.`, `.EDGEBEAM.` and
+  `.RETAININGWALL.` IFC4 does not list; 940 `IfcCurveBoundedPlane`s with `$` where IFC4 needs an empty set.
 
 ### COBie 2.4 handover workbook and its QC (2026-11-23)
 

@@ -79,17 +79,20 @@ they are not checked here.
 | buildingSMART IFC4.3.x-sample-models `ef22440` | 46 | 45 | 1 | 0 | 0 | 1 / 0 / 0 | 0 |
 | buildingSMART Sample-Test-Files (HEAD 2026-11-24) | 35 | 35 | 0 | 0 | 0 | 0 / 0 / 0 | 0 |
 | opensourceBIM IFC-files (HEAD 2026-11-24) | 8 | 6 | 2 | 0 | 0 | 5 / 0 / 0 | 0 |
-| ThatOpen engine_web-ifc (all .ifc, HEAD 2026-11-24) | 110 | WEBIFC_ROW |
+| ThatOpen engine_web-ifc (all .ifc, HEAD 2026-11-24) | 108 of 110 | 89 | 19 | 0 | 0 | 1,306 / 226 / 0 | 1,038 |
 
-**The same files flagged, file for file, on every set.** The records only
+Web-ifc's other 2 files are its `malformed-input` fixtures (an unterminated
+string or comment), which neither tool reads. **The same files flagged, file for
+file, on every set: 492 of 492.** The records only
 here are of two kinds:
 
 - `$` in a derived slot (IFC4X3 `IFCSIUNIT($,...)` in IfcOpenShell's
   `beam-standard-case.ifc`, 8 records). ISO 10303-21 writes a redeclared
   derived attribute as `*`. IfcOpenShell accepts `$` there. This checker
   reports it.
-- `KIT-Simple-Road-Test-Web-IFC4x3_RC2.ifc` (web-ifc): IfcOpenShell refuses the
-  file ("Unsupported schema: ifc4x3_rc2"). Here it is read as IFC4X3_ADD2,
+- `KIT-Simple-Road-Test-Web-IFC4x3_RC2.ifc` and `ifcbridge-model01.ifc`
+  (IFC4X2, below), both web-ifc: IfcOpenShell refuses each file ("Unsupported
+  schema"). Here it is read as IFC4X3_ADD2,
   behind the draft-schema note, and RC2's IfcFacilityPart (abstract in ADD2,
   one attribute more) and IfcRoad (one fewer) are listed.
 
@@ -110,10 +113,15 @@ with no record id.
 - Bonsai's `IFC2X3 Demo Library.ifc` and `IFC2X3 Demo Template.ifc`: four
   IfcOwnerHistory records whose OwningApplication and
   LastModifyingApplication are `#240`, an IFCCARTESIANPOINT.
-- `ifcbridge-model01.ifc` (web-ifc, IFC4): IFC4X3 enumeration values. 28
-  IfcPlate `.BASE_PLATE.`, 10 IfcWall `.RETAININGWALL.`, 8 IfcBeam `.EDGEBEAM.`,
-  4 IfcDiscreteAccessory `.EXPANSION_JOINT_DEVICE.`. An IDS PredefinedType facet
-  reads them as written.
+- `ifcbridge-model01.ifc` (web-ifc) declares `IFC4X2`, the draft bridge schema
+  before IFC4X3. Like the IDS check, this pass reads it as IFC4. There, 28
+  IfcPlate `.BASE_PLATE.`, 10 IfcWall `.RETAININGWALL.`, 8 IfcBeam `.EDGEBEAM.`
+  and 4 IfcDiscreteAccessory `.EXPANSION_JOINT_DEVICE.` are not IFC4 values,
+  and 40+ references go to IFC4X2 classes (IfcBridge and its parts). A first
+  reading called these IFC4X3 values in an IFC4 file. The comparison showed
+  IfcOpenShell refusing the file ("Unsupported schema: ifc4x2"), which gave
+  away the real schema. The draft-schema note now covers IFC4X1 and IFC4X2
+  (read as IFC4) as well as IFC4X3_RC*.
 - `FM_ARC_DigitalHub.ifc` (web-ifc, IFC4): 940 IfcCurveBoundedPlane with `$`
   for InnerBoundaries, a required SET [0:?] (`()` for none), and 184
   IfcRelSpaceBoundary with no RelatedBuildingElement (required in IFC4,
@@ -128,7 +136,7 @@ with no record id.
 ## Speed
 
 Sweep, all files, one core: IfcOpenShell's 293 in 1.1 s, web-ifc's 110 (485 MB)
-in 15 s. ifcopenshell.validate took about 30 minutes for web-ifc's. On the page the
+in 15 s. ifcopenshell.validate took about 50 minutes for web-ifc's. On the page the
 pass reads the file a second time, eagerly, so it is limited to STEP files up
 to 40 MB.
 
@@ -151,7 +159,7 @@ The other sets are sparse clones of `*.ifc` from
 ## Next
 
 Inverse cardinalities, which is where the two tools still differ (47 lines on
-IfcOpenShell's files, 911 on web-ifc's). The schema JSON keeps inverse names and
+IfcOpenShell's files, 1,038 on web-ifc's). The schema JSON keeps inverse names and
 `inverseFor`, but not their bounds. Most of these lines are IFC2X3
 `ShapeOfProduct [1:1]` on representations shared by types, and
 `PlacesObject [1:1]` on shared placements. Worth adding only as notes that
