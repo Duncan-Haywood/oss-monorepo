@@ -1,0 +1,175 @@
+690 sections, 12870 Part 1 rows
+outside Part 1 lists: 5072 sentences in 622 sections; by part {"1":1641,"2":1437,"3":1994}
+matched to a Part 1 row: 3220; unmatched: 1852; with a When: 706
+
+#1 076115-P02 [1.5 LOAD CALCULATIONS] SD-05 when=""
+  Submit load calculations for the following by a structural engineer registered as a Professional Engineer in any jurisdiction verifying that the system supplied meets the design loads indicated
+  covered by: 076115-012 SD-05 Load Calculations
+
+#2 129300-P01 [1.3 CERTIFICATIONS] SD-07 when=""
+  Submit sustainable wood certification data; identify each certified product on a line item basis
+  covered by: -
+  Part 1 list: Benches and Chairs | Tables | Shelters | Bicycle Racks | Planters | Bollards | Tree Grates | Assembly Instruction Drawings | Benches and Chairs | Tables | Shelters | Bicycle Racks | Planters | Bollards | Tree Grates | Recycled Content for steel components; S | Recycled Content for aluminum components; S | Recycled Content for HDPE components; S | Waste Receptacles | Finish | Testing | Primer Certificate | Powder Coatings Certificate | Certified Sustainably Harvested lumber; S | Certified Sustainably Harvested wood for wood seats and table tops; S | Certified Sustainably Harvested wood for wood
+
+#3 263713-P07 [2.1 SYSTEM DESCRIPTION AND OPERATIONAL REQUIREMENTS] SD-05 when=""
+  Submit Power System Studies including modeled analyses reports such as Short Circuit Study, Coordination Study, Arc Flash Study, Grounding Study, Load Flow Study, Harmonic Analysis, Voltage Drop Calculations, Transient Stability Study, and Reliability Analysis
+  covered by: 263713-010 SD-05 Power System Studies
+
+#4 260513-P04 [1.5 QUALITY CONTROL] Other when=""
+  Maintain and submit a list of splices and terminations to be installed by splicer/terminator
+  covered by: 260513-001 SD-01 List of Splices and Terminations to be Installed by Splicer/Terminator
+
+#5 316316-P08 [3.11 VIBRATION CONTROL] Other when="minimum of 28 days before the installation of vibration monitors"
+  A minimum of 28 days before the installation of vibration monitors, submit to the Government the name of the vibration consultant and a list of at least three previously completed projects of similar scope and purpose
+  covered by: -
+  Part 1 list: Installation Procedures | Contractor's Geotechnical Consultant Documentation | Load Tests Procedures | Grout Mix Design | Field Quality Control Procedures | Augered Cast-in-Place Piles | Load Tests | Test Piles | Grout Pump | Materials | Grout Specimens for Laboratory Tests | Grout Specimens for Contractor Tests | Casings | Test Piles | Load Tests | Flow Cone Test | Augered Cast-in-Place Piles | Pile Records
+
+#6 331113-P02 [2.2 WELL SCREENS] SD-01 when=""
+  Submit as part of the well installation plan
+  covered by: 331113-006 SD-03 Well Screens
+
+#7 083401-P06 [2.3 FORCED ENTRY RESISTANT PERSONNEL DOOR AND FRAME ASSEMBLIES] SD-06 when=""
+  Submit manufacturer's descriptive data, test report, and certification of the test report showing compliance with the specified requirements.
+  covered by: 083401-002 SD-03 Forced Entry Resistant Components
+
+#8 316316-P01 [1.4 SYSTEM DESCRIPTION] Other when=""
+  Submit detail drawings to demonstrate compliance of augering, mixing, and pumping equipment, installation, and installed piles with contract documents
+  covered by: -
+  Part 1 list: Installation Procedures | Contractor's Geotechnical Consultant Documentation | Load Tests Procedures | Grout Mix Design | Field Quality Control Procedures | Augered Cast-in-Place Piles | Load Tests | Test Piles | Grout Pump | Materials | Grout Specimens for Laboratory Tests | Grout Specimens for Contractor Tests | Casings | Test Piles | Load Tests | Flow Cone Test | Augered Cast-in-Place Piles | Pile Records
+
+#9 071400-P01 [2.7 BOND BREAKER] Other when=""
+  Submit material description and physical properties, application details, and recommendations regarding shelf life, application procedures, and precautions on flammability and toxicity.
+  covered by: 071400-008 SD-03 Bond Breaker
+
+#10 350540.1410-P20 [3.9 FIELD TESTS AND INSPECTIONS] SD-01 when="minimum of 45 days prior to the start of testing"
+  Field Pressure Testing Plan Prepare and submit a pressure testing plan a minimum of 45 days prior to the start of testing
+  covered by: 350540.1410-004 SD-01 Field Pressure Testing Plan
+
+#11 075323-P03 [1.4 QUALITY CONTROL] SD-05 when=""
+  Pre-roofing Conference After approval of submittals and before performing roofing and insulation system installation work, hold a pre-roofing conference to review the following: Roof Plan Drawing, specifications, and submittals related to the roof work; Submit roof plan drawing depicting wind load calculations and boundaries of enhanced perimeter and corner attachments of roof system components,...
+  covered by: 075323-001 SD-02 Roof Plan Drawing
+
+#12 237119-P08 [3.5 TESTING, ADJUSTING, AND BALANCING] SD-02 when="at least 2 weeks prior to the start of related testing"
+  Submit proposed test schedules for Performance Test and Operational Test, at least 2 weeks prior to the start of related testing
+  covered by: 237119-013 SD-03 Testing, Adjusting, and Balancing
+
+#13 026216.1610-P09 [3.3 DEMONSTRATION OF FULL-SCALE SYSTEM] Other when=""
+  Keep the log in notebooks organized in chronological order, and submit with the Full-Scale Demonstration Report not more than 14____ calendar days after completing the Full-Scale Demonstration.
+  covered by: 026216.1610-010 SD-06 Full-Scale Demonstration Report
+
+#14 321314.13-P26 [3.12 TESTING AND INSPECTION FOR CONTRACTOR QUALITY CONTROL DURING CONSTRUCTION] Other when=""
+  Perform the inspection and tests described below, and based upon the results of these inspections and tests, take the action required and submit reports as required
+  covered by: -
+  Part 1 list: Proposed Techniques | Preliminary Proposed Proportioning | Pavement Quality Control Plan | Stringless Technology | Diamond Grinding Plan | Dowels | Dowel Bar Assemblies | Equipment | Concrete Patching Mixture | Proportioning Studies | Batch Plant Manufacturer's Inspection Report | Slipform Paver Manufacturer's Inspection Report | Sampling and Testing | Diamond Grinding of PCC Surfaces | Mixer Performance (Uniformity) Testing | Repair Recommendations Plan | Paving Lot Report | Test Section Paving Lot Report | Test Section Lot Report | Contractor Quality Control (CQC) Staff | Laboratory Accredit
+
+#15 083401-P12 [3.5 INSTALLATION] SD-10 when=""
+  Submit a copy of installation instructions and recommended cleaning and maintenance instructions.
+  covered by: 083401-001 SD-02 Installation
+
+#16 075419-P05 [2.1 MATERIALS] Other when=""
+  Submit Data as required by Section 07 22 00 ROOF AND DECK INSULATION together with requirements of this section
+  covered by: 075419-008 SD-03 Roof Insulation
+
+#17 075200-P05 [1.6 QUALITY CONTROL] SD-01 when=""
+  Roof Plan and Flashing Details Develop and submit Roof Plan drawing depicting wind loads and boundaries of enhanced perimeter and corner attachments of roof system components, as applicable
+  covered by: -
+  Part 1 list: Construction Fire Safety Plan | Odor Control Plan | Roof Plan and Flashing Details | Field Inspection and Existing Conditions Report | Written Acceptance Letter | Modified Bitumen Sheets | Heat Island Reduction; S | Solar Reflectance; S | Asphalt | Cold-Applied Membrane Adhesive | Fiberglass Felt | Flashing Membranes | Liquid Applied Flashing | Primer | Modified Bitumen Roof Cement | Pre-Manufactured Accessories | Fasteners | Metal Fastening Plates | Cant and Tapered Edge Strips | Walkpads | Paver Blocks | Photovoltaic (PV) Systems | Sample Warranty Certificate | Pre-Fabricated Curbs | Wind Up
+
+#18 313320-P10 [2.1 GROUT MIX DESIGN] SD-01 when=""
+  Batch volume as proposed by the Contractor in the Work Plan.. For seepage control applications the grout must be less permeable than 3.9x10-7 in/s and viscosity requirements must be submitted as part of the work plan
+  covered by: 313320-011 SD-05 Grout Mix Design
+
+#19 081373-P01 [1.5 QUALITY ASSURANCE] SD-02 when=""
+  Submit Fabrication Drawings with framing member details, welding details, and finish and painting details for sliding door assemblies
+  covered by: 081373-001 SD-02 Fabrication Drawings
+
+#20 017800-P05 [2.2 CERTIFICATION OF EPA DESIGNATED ITEMS] SD-07 when=""
+  Submit the Certification of EPA Designated Items as required by FAR 52.223-9 Estimate of Percentage of Recovered Material Content for EPA Designated Items and FAR 52-223-17 Affirmative Procurement of EPA designated items in Service and Construction Contracts
+  covered by: 017800-010 SD-11 Certification of EPA Designated Items
+
+#21 230515-P12 [2.3 PIPING SPECIALTIES] SD-05 when=""
+  Submit design analysis and calculations consisting of surface resistance, rates of flow, head losses, inlet and outlet design, required radius of bend, and pressure calculations
+  covered by: 230515-015 SD-05 Piping Specialties
+
+#22 237119-P02 [1.4 QUALITY ASSURANCE] SD-07 when=""
+  Concurrent with installation drawings, submit manufacturer's certification of installation drawings
+  covered by: 237119-027 SD-07 Installation Drawings
+
+#23 330953-P07 [3.1 PUMP CONTROL PANEL (PCP) AND COMPONENTS] SD-06 when="within 15 days after completion of the test"
+  Submit certified test report within 15 days after completion of the test
+  covered by: 330953-011 SD-06 Certified Pump Control Panel (PCP) Shop Test Report
+
+#24 350170.13-P03 [1.7 WARRANTY] SD-11 when=""
+  Submit signed copies of a 1____ years warranty for all materials and services provided under this section.
+  covered by: 350170.13-020 SD-07 Warranty
+
+#25 316316-P07 [3.9 FIELD QUALITY CONTROL] Other when=""
+  Submit test set-up.
+  covered by: -
+  Part 1 list: Installation Procedures | Contractor's Geotechnical Consultant Documentation | Load Tests Procedures | Grout Mix Design | Field Quality Control Procedures | Augered Cast-in-Place Piles | Load Tests | Test Piles | Grout Pump | Materials | Grout Specimens for Laboratory Tests | Grout Specimens for Contractor Tests | Casings | Test Piles | Load Tests | Flow Cone Test | Augered Cast-in-Place Piles | Pile Records
+
+#26 230801.0020-P01 [1.4 QUALITY ASSURANCE] SD-04 when=""
+  Use the sample form, "Test Agency Qualifications Sheet," to submit the following information: Verification of 5 10 years of experience as an agency in testing industrial ventilation systems or current member of either AABC or NEBB. References from five Contracting Officers facility managers of facilities with industrial ventilation systems that the agency has tested
+  covered by: -
+  Part 1 list: Preliminary review report | Smoke tests report | Fan operating points report | Static pressure report | Volume and velocity flow rates report | Pitot traverse report | Submit 6 ____ copies of an organized report bound in a durable, 3-ring water-resistant binder. The report must contain a table of contents, an executive summary, an introduction, a results section and a discussion of the results. Include the reports specified in paragraphs entitled "Preliminary Review Report," "Smoke Test Reports,""Fan Operating Points Reports," "Static Pressure Report," "Volume and Velocity Flow Rates Report," 
+
+#27 321313.17-P08 [3.9 CONTRACTOR QUALITY CONTROL] Other when=""
+  Testing and Evaluation Based upon the results of these tests, take the action and submit reports as required in Table 10, and any additional tests to ensure that the requirements of these specifications are met
+  covered by: -
+  Part 1 list: Batching and Mixing Plant | Transporting and Placing Methods | Test Section | Placement Schedule | Contractor Quality Control | Placing and Spreading | Joints | Mixture Proportioning Studies | Sampling and Testing | Contractor Quality Control Staff | Laboratory Accreditation
+
+#28 083313-P04 [2.4 COILING COUNTER DOORS (NON-RATED)] SD-03 when=""
+  Submit manufacturer's descriptive product data for each coiling counter door type
+  covered by: 083313-003 SD-03 Coiling Counter Doors (Non-Rated)
+
+#29 026216.1310-P09 [3.4 MAINTENANCE] Other when=""
+  Submit maintenance log sheets attached to each Operations Report for the period covered by the Operations Report
+  covered by: 026216.1310-009 SD-10 Operations Reports
+
+#30 102113-P04 [2.9 COLORS AND FINISHES] SD-04 when=""
+  Submit three samples showing color and a finished edge on two adjacent sides and core construction, each not less than 12 inch square.
+  covered by: 102113-020 SD-04 Colors and Finishes
+
+#31 335619-P07 [3.3 FIELD QUALITY CONTROL] SD-06 when=""
+  Submit destructive field seam test reports following completion of installation and prior to covering the geomembrane liner.
+  covered by: 335619-013 SD-06 Non-Destructive Field Seam
+
+#32 274100-P08 [3.5 GENERAL WIRING STANDARDS] SD-02 when=""
+  Submit color scheme to Contracting Officer for approval as a part of the Shop Drawing submission package
+  covered by: -
+  Part 1 list: Qualifications | Bid Pricing | Shop Drawings | Status Reports and Meeting Minutes | Record Drawings | Operation and Maintenance (O&M) Manuals, G
+
+#33 261116-P02 [2.6 SOURCE QUALITY CONTROL] SD-06 when="before delivery of equipment to the project site"
+  Submit test reports, by serial number and receive approval before delivery of equipment to the project site
+  covered by: -
+  Part 1 list: Unit Substation Drawings | Transformer Drawings (to Code DC44CI46 074) | Include wiring diagrams and installation details of equipment indicating proposed location, layout and arrangement, control panels, accessories, piping, ductwork, and other items that must be shown to ensure a coordinated installation. Wiring diagrams must identify circuit terminals and indicate the internal wiring for each item of equipment and the interconnection between each item of equipment. Drawings must indicate adequate clearance for operation, maintenance, and replacement of operating equipment devices. Submittal
+
+#34 099713.27-P11 [3.9 FIELD QUALITY CONTROL] Other when="upon completion of the project and prior to final payment"
+  Submit the original Inspection Logbook to the Contracting Officer upon completion of the project and prior to final payment.
+  covered by: 099713.27-029 SD-11 Inspection Logbook
+
+#35 033130-P38 [3.7 CURING AND PROTECTION] Other when=""
+  Submit an increased curing period and minimum time to strip formwork based upon the reduced rate of strength development.
+  covered by: -
+  Part 1 list: Concrete Curing Plan | Concrete Qualification Program | Concrete Quality Control Program | Concrete Placement and Compaction | Concrete Pumping | Curing Concrete Elements | Form Removal Schedule | Laboratory Qualifications | Quality Control Personnel Qualifications | Contraction and Expansion Joints | Construction Joints | Formwork and Falsework | Precast Elements | Reinforcing Steel | Admixtures | Air Entraining | Corrosion Inhibitors | Aggregates | Joint Filler | Joint Sealants | Materials for Curing Concrete | Material Safety Data Sheets | Mechanical Reinforcing Bar Connectors | Non-Shrink 
+
+#36 335243.11-P06 [2.12 HYDRANT OUTLET PITS AND ISOLATION VALVE PITS] Other when=""
+  All results must be submitted for review and approval
+  covered by: 335243.11-009 SD-03 Hydrant Outlet Pits and Isolation Valve Pits
+
+#37 099702-P01 [1.3 SAFETY, HEALTH, AND ENVIRONMENTAL REQUIREMENTS] Other when=""
+  Submit matters of interpretation of these requirements to the Contracting Officer for resolution before starting work
+  covered by: 099702-001 SD-01 Safety, Health, and Environmental Requirements
+
+#38 026216.1310-P01 [3.1 APPLICATION] SD-01 when=""
+  Submit a plan for Process Monitoring not more than 30____ calendar days after notice to proceed
+  covered by: 026216.1310-002 SD-03 Process Monitoring
+
+#39 312306.00-P23 [3.6 BLAST EFFECTS MONITORING] Other when="prior to the commencement of blasting"
+  Submit the background vibration monitoring reports and the baseline vibrations levels determined from the data for approval at least two weeks prior to the commencement of blasting
+  covered by: -
+  Part 1 list: Blasting Consultant's Qualifications | Vibration Monitoring Specialty Firm | Structural Inspection/Evaluation Technician | Blasting Safety Plan | Master Blasting Plan | Survey Control Plan | Test-Blast Plan | Pre-Blast Surveys | Public Notice Of Blasting Operations | Seismographs | Lightning Detection Device | Individual Shot Plan | Individual Shot Reports | Post-Blast Surveys | Individual Shot Videos | Drilling Logs | Individual Shot Monitoring Report | Blasting Consultant | Blasting Specialist | Blaster In Charge | Blasting Administrator | Magazine Keeper | Structural Inspection/Evaluation T
+
+#40 354501-P32 [3.2 FIELD TESTS] SD-06 when=""
+  Submit field test results
+  covered by: 354501-026 SD-06 Field Test Results

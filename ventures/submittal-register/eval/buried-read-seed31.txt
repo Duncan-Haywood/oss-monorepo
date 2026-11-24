@@ -1,0 +1,181 @@
+690 sections, 12870 Part 1 rows
+outside Part 1 lists: 5072 sentences in 622 sections; by part {"1":1641,"2":1437,"3":1994}
+matched to a Part 1 row: 3190; unmatched: 1882; with a When: 725
+
+#1 078100-P04 [3.3 FIREPROOFING MATERIAL] Other when=""
+  Submit data identifying performance characteristics of fireproofing material
+  covered by: -
+  Part 1 list: Fireproofing Material; G, NVFAC | Spray-Applied Fireproofing; G, NVFAC | Fire Resistance Rating; G, NVFAC | Field Tests | Evaluation Reports | Installer Qualifications | Surface Preparation Report; G, NVFAC | Manufacturer's Inspection Report; G, NVFAC
+
+#2 028100-P15 [3.8 RECORDKEEPING] Other when=""
+  Submit information necessary to file state annual or EPA biennial reports for hazardous waste transported, treated, stored, or disposed of under this contract and in accordance with federal and state regulatory requirements
+  covered by: 028100-005 SD-06 Recordkeeping
+
+#3 019100.15-P03 [3.7 COMMISSIONING INSPECTIONS] Other when="no later than 7 calendar days after completion of inspection of all checklists items for each sy"
+  Submit the initialed and Completed Construction Observation Checklists no later than 7 calendar days after completion of inspection of all checklists items for each system
+  covered by: 019100.15-001 SD-06 Completed Construction Observation Checklists
+
+#4 330953-P04 [1.6 EXPERIENCE AND QUALIFICATIONS] SD-07 when=""
+  Submit the following data for approval: Certification stating that the manufacturer has manufactured, installed, and successfully completed at least five PLC-based systems for automatic cycling of pumps based upon varying dispensing demands ranging from 0 to 2400 GPM utilizing multiple pumps
+  covered by: 330953-013 SD-07 Experience and Qualifications
+
+#5 017824.0010-P02 [3.1 CONSTRUCTION PROGRESS SUBMITTALS] Other when=""
+  Submit individual FDW templates for each facility identified in the "FACILITIES" paragraph
+  covered by: 017824.0010-003 SD-10 Facility Data Workbook, Construction Progress
+
+#6 330150.55-P03 [1.5 QUALITY ASSURANCE] Other when=""
+  Submit name, location, and telephone number of this medical facility
+  covered by: -
+  Part 1 list: Cleaning Agents | Abrasive for Blasting | Gasoline-Oil-Resisting Rubber Gloves and Boots | Cotton Coveralls and Hard Hat | Respiratory Protective Equipment | Disinfectant | Blasting Abrasive Test | Tank Contents Tests | Cleaning Test Panel Results | Monitoring Results | Qualifications of Marine Chemist | Qualifications of Certified Industrial Hygienist (CIH) | Testing Laboratory | Safety Plan | Training Certification | Work Plan | Hazardous Waste Disposal Plan | Tank Certification of Safety | Tank Exhaust Blower | Respiratory Protective Equipment | Breathing-Air Supply Source | Combustible Gas
+
+#7 316223-P06 [2.3 PRODUCT QUALITY CONTROL] SD-05 when=""
+  Submit changes in mix design to Contracting Officer in writing
+  covered by: -
+  Part 1 list: Contractor Experience and Qualifications | Contractor's Geotechnical Consultant | Installation Equipment and Testing Equipment | Pile Driving Equipment | Equipment Calibration Data | Helmet and Cushion Block | Pile Shoes | Calibration Report | Load Test Report | Field Test and Inspection Reports | Timber piles | Aggregates | Admixtures | Cement | Fly ash and pozzolan | Pile records
+
+#8 017800-P06 [2.3 CERTIFICATION OF USDA DESIGNATED ITEMS] SD-07 when=""
+  Submit the Certification of USDA Designated Items as required by FAR 52-223-1 Bio-based Product Certifications and FAR 52.223-2 Affirmative Procurement of Biobased Products Under Service and Construction Contracts
+  covered by: 017800-011 SD-11 Certification Of USDA Designated Items
+
+#9 085113-P05 [1.8 WINDOW PERFORMANCE] SD-07 when=""
+  Submit documentation supporting compliance with Energy Star, FEMP designated, and Passive House qualifications as applicable
+  covered by: 085113-001 SD-02 Windows
+
+#10 125900-P11 [2.3 SYSTEMS FURNITURE] Other when=""
+  Submit three sets of Assembly Manuals describing assembly and reconfiguration procedures
+  covered by: 125900-017 SD-10 Assembly Manuals
+
+#11 335755-P07 [2.19 HIGH POINT VENT AND LOW POINT DRAIN PITS] Other when=""
+  All results must be submitted for review and approval
+  covered by: 335755-008 SD-02 High Point Vent and Low Point Drain Pits
+
+#12 412213.55-P02 [1.6 QUALITY ASSURANCE] SD-05 when=""
+  Submit calculations reviewed, signed, and sealed by a registered professional engineer verifying the load cases, sizing of the bridge girder(s), end trucks, travel drives, motors, and overcurrent protection
+  covered by: -
+  Part 1 list: Overhead Bridge Crane System | Complete Schematic Wiring Diagram | Crane Bridge Girder | Bridge End Trucks | End Stops | Crane Runway System | Hoist and Trolley Units | Hoist Brakes | Travel Brakes | Motors | Variable Frequency Drives | Disconnect Switch | Circuit Breakers | Fuses | Limit Switches | Pendant Pushbutton Station | Pendant Conductor System | Radio Control System | Runway Conductor System | Bridge Conductor System | Capacity Overload Protection | Enclosures | Warning Devices | Pilot Devices | Contractor's Painting System | Load and Sizing Calculations | Hook Non-Destructive Test (N
+
+#13 350170.13-P02 [1.6 ENVIRONMENT PRECAUTIONS] SD-03 when=""
+  Submit lubricant catalog data for environmental applicability review
+  covered by: -
+  Part 1 list: Wire Rope Work Plan | Wire Rope Safety Plan | Contractor Qualifications | Contractor Installation Qualifications | Wire Rope Tensioning Plan | Wire Rope Flux Leakage Test Plan | End Terminations | Lubrication | Pre-Stretching | End Termination Attachment Method | Tension Testing | Attaching and Proof Loading Terminations | Wire Strength and Ductility | Pre-Forming | Zinc Coating | End Terminations | Wire Rope Magnetic Flux Leakage Test Results (Pre-Installation) | Wire Rope Magnetic Flux Leakage Test Results (Post-Installation) | Spelter Socket Ndt Test Results | Warranty | Type of Wire Rope |
+
+#14 211325-P11 [3.35 TRAINING] SD-01 when=""
+  Submit a lessons plan prior to the training, that will outline the scope of the training
+  covered by: -
+  Part 1 list: OPTICAL FLAME DETECTOR AND FOAM/WATER DISCHARGE TESTING, SAFETY, AND ENVIRONMENTAL PLAN | Submit high-expansion foam solution containment and disposal plan as required under paragraph entitled "PRELIMINARY ACCEPTANCE TEST (PAT) AND FINAL ACCEPTANCE TEST (FAT) CHECKLIST FOR THE HIGH-EXPANSION FOAM SYSTEM." | High-Expansion Foam Systems | Prepare shop drawings in accordance with the requirements for "Plans" as specified in NFPA 11, "Working Plans" as specified in NFPA 13, and "Shop Drawings" as specified in NFPA 72. Drawings must be the same size as the contract drawings or minimum 24 by 36 inch
+
+#15 026613-P07 [2.2 MATERIALS] Other when=""
+  Submit a Water Supply Analysis demonstrating that water meets requirements
+  covered by: 026613-007 SD-06 Water Supply Analysis
+
+#16 412213.16-P05 [1.5 QUALITY ASSURANCE] Other when=""
+  Submit for review the NDT vendor's procedures, including technique sheets specific to the types, shapes, and sizes of the parts being examined (e.g., shank hook, eye hook, duplex hook, eye bar, nut)
+  covered by: -
+  Part 1 list: Overhead Electric Traveling (OET) Crane(s) | Crane Runway System | Complete Schematic Wiring Diagram | Description of operation. | OET Design Criteria | Overhead Electric Traveling (OET) Crane(s) | Load and Sizing Calculations | Festoon System | Runway Electrification System | Variable Frequency Drives | Bumpers | End Stops | Spare Parts | Framed Instructions | Acceptance Testing | Overload Test Certificate | No Hazardous Material | Loss of Power Test | Crane Runway System | Certificate of Compliance | Including listed Standards. | Wire Ropes | Including Manufacturer's Certificate of Breaking 
+
+#17 235143.0220-P02 [1.6 MODEL TEST] Other when="within 15 calendar days after the inspection stating his findings including the acceptabil"
+  Reports For precipitator inspection, submit report of the factory service engineer's inspection within 15 calendar days after the inspection stating his findings including the acceptability of the precipitator for field performance tests
+  covered by: 235143.0220-007 SD-06 Precipitator inspection
+
+#18 321315.20-P05 [2.2 MATERIALS] SD-06 when=""
+  Submit certified copies of the independent laboratory test results required for compliance with ASTM C494/C494M
+  covered by: 321315.20-002 SD-06 Independent Laboratory Test Results
+
+#19 312306.00-P16 [3.5 RECORD KEEPING] Other when="no later than 24 hours after the blast"
+  Submit the Individual Shot Report no later than 24 hours after the blast
+  covered by: 312306.00-013 SD-06 Individual Shot Reports
+
+#20 033713-P09 [3.6 CURING] SD-03 when=""
+  Submit curing materials and curing procedures for shotcrete including product data sheets indicating conformance with specification requirements
+  covered by: 033713-014 SD-07 Curing Materials
+
+#21 355913.1420-P14 [3.6 FIELD QUALITY CONTROL] Other when="within 15 calendar days after completion of the pile driving"
+  Submit complete and accurate records of installed piles to Contracting Officer within 15 calendar days after completion of the pile driving
+  covered by: -
+  Part 1 list: Polymeric piles | Polymeric Piles | Pile Driving Equipment | Driving Helmet | Pile Caps | Pile Driving Tips | Driving Pads | Pile Tops | HDPE Sleeve | Manufacturer's Warranty | Contractor's Warranty | Polymeric Piles | Allowable Bending Moment | Allowable Stresses | Concrete Mix Design | Wave Equation Analysis | Order List | Material Test Reports | Performance Test Data | Allowable Stresses | Delivery Inspection List | Pile Driving Analyzer | Dynamic Testing of Piles | Driving Hammer | Polymeric Piles | Pile Records
+
+#22 466100-P04 [3.3 FIELD QUALITY CONTROL] SD-06 when=""
+  Submit test reports in booklet form showing field tests performed to adjust each component and to prove compliance with the specified performance criteria
+  covered by: -
+  Part 1 list: Filtration System | Include complete wiring and schematic diagrams; equipment layout and anchorage; and any other details required to demonstrate that the system has been coordinated and will properly function as a unit. | Posting Framed Instructions | Qualifications | Media | Materials and Equipment | Control System | Spare Parts | Submit after approval of the shop drawings, and not later than ____ days prior to the start of operation. | Acceptance Testing | Factory Tests | Materials and Equipment | Field Training | Operating and Maintenance Instructions
+
+#23 050523.16-P07 [1.3 QUALITY ASSURANCE] Other when=""
+  Submit as evidence of conformance all records showing periods of employment, name of employer where welder, or welding operator, was last employed, and the process for which qualified
+  covered by: -
+  Part 1 list: Welding Quality Assurance Plan | Welding Procedure Qualifications | Welder, Welding Operator, and Tacker Qualification | Previous Qualifications | Pre-Qualified Procedures | Welding Electrodes and Rods | Nondestructive Testing | Weld Inspection Log | Certified Welding Procedure Specifications (WPS) | Certified Brazing Procedure Specifications (BPS) | Certified Procedure Qualification Records (PQR) | Certified Welder Performance Qualifications (WPQ) | Certified Brazer Performance Qualifications (BPQ) | Certified Welding Inspector | Nondestructive Testing Personnel
+
+#24 235233.0120-P01 [1.4 SYSTEM DESCRIPTION] Other when=""
+  Submit descriptive information for each item on the drawings
+  covered by: -
+  Part 1 list: Steam Generating Unit | Boiler Room Auxiliary Equipment | Stokers | Ash Handling System | Burners | Stacks, Dampers, and Breechings | Coal Handling Equipment | Fuel Oil Equipment | Piping and Specialty Items | Each drawing size shall be 34 by 22 inches, unless otherwise noted. | Steam Generating Unit (Boiler) | Coal Handling System | Insulation | Fans | Pumps | Insulation | Submit samples of each type of insulation with indications of its intended application and manufacturer's stamp or label attached giving name of manufacturer, brand and description of material. | Stack Manufacturer's Calcul
+
+#25 313310-P09 [2.2 GROUTING MATERIAL] SD-05 when=""
+  Submit grout mixes in the Grout Mix Design and Trial Batches submittal
+  covered by: 313310-002 SD-01 Grout Mix Design and Trial Batches
+
+#26 412213.15-P03 [1.6 QUALITY ASSURANCE] SD-04 when=""
+  Submit certifications that clearly identify the crane, the drives, components, and location (as applicable) to which it applies: Wire Rope Certification with either the wire rope manufacturer's certification that the rope meets the published breaking force, or certification of the actual breaking force of a sample taken from the reel and tested
+  covered by: -
+  Part 1 list: Overhead Electric Crane System | Complete Schematic Wiring Diagram | Hoist Brakes | Travel Brakes | Load Block and Hook | Hoist and Trolley Units | Hoisting Rope | Hoisting Chain | Travel Reducer | Wheels | Bridge End Trucks | Crane Bridge Girder | End Stops | Bumpers | Crane Runway System | Motors | Enclosures | Circuit Breakers | Disconnect Switch | Contactors and Relays | Fuses | Variable Frequency Drives | Limit Switches | Resistors | Radio Control System | Pendant Push-Button Station | Pendant Conductor System | Crane Controllers | Control Parameter Settings | Pilot Devices | Warning Devi
+
+#27 263353-P04 [2.17 FACTORY TESTING] Other when=""
+  Submit a detailed description of proposed factory test and field test procedures, including proposed dates and steps outlining each test, how it is to be performed, what it accomplishes, and its duration, not later than 1____ months prior to the date of each test
+  covered by: 263353-009 SD-06 Factory Test Report
+
+#28 211325-P09 [3.32 FINAL ACCEPTANCE TEST REPORT AND AS-BUILT DRAWINGS] SD-11 when=""
+  Submit As-built Drawings
+  covered by: -
+  Part 1 list: OPTICAL FLAME DETECTOR AND FOAM/WATER DISCHARGE TESTING, SAFETY, AND ENVIRONMENTAL PLAN | Submit high-expansion foam solution containment and disposal plan as required under paragraph entitled "PRELIMINARY ACCEPTANCE TEST (PAT) AND FINAL ACCEPTANCE TEST (FAT) CHECKLIST FOR THE HIGH-EXPANSION FOAM SYSTEM." | High-Expansion Foam Systems | Prepare shop drawings in accordance with the requirements for "Plans" as specified in NFPA 11, "Working Plans" as specified in NFPA 13, and "Shop Drawings" as specified in NFPA 72. Drawings must be the same size as the contract drawings or minimum 24 by 36 inch
+
+#29 263215-P28 [2.30 FACTORY INSPECTION AND TESTS] Other when=""
+  Submit six ____ complete reproducible copies of the factory inspection result on the checklist format specified below
+  covered by: 263215-039 SD-06 Factory Inspection and Tests
+
+#30 083953-P06 [2.4 FABRICATION] Other when=""
+  Submit detailed fabrication and assembly drawings for doors not conforming to those included in DDESB Technical Paper 15 or for doors that are included but with appreciable modifications, indicating the location and showing dimensions, materials, fabrication methods, hardware, and accessories in sufficient detail to enable the Contracting Officer to check compliance with contract documents
+  covered by: -
+  Part 1 list: Blast Resistant Door | Trolley Track | Trolleys | Submit templates, erection and installation drawings indicating thickness, type, grade, class of metal, and dimensions. Show construction details, reinforcement, anchorage, and installation with relation to the building construction. | Trolleys | Manual Operator | Submit calculations showing that manual operator has achieved by mechanical advantage, a required downward force to open the doors of not more than 18 pounds. | Blast Resistant Door
+
+#31 263215-P30 [3.1 EXAMINATION] Other when=""
+  Submit a letter stating the date the site was visited and listing discrepancies found
+  covered by: 263215-057 SD-07 Site Visit
+
+#32 334000-P03 [3.9 FIELD QUALITY CONTROL] SD-06 when=""
+  Submit leakage test results to the Contracting Officer
+  covered by: 334000-001 SD-06 Leakage Test
+
+#33 075323-P09 [3.4 FIELD QUALITY CONTROL] SD-11 when=""
+  Submit test results to the Contracting Officer as part of closeout submittal process
+  covered by: -
+  Part 1 list: Roof Plan Drawing | Cement | EPDM Sheet | Heat Island Reduction; S | Seam Tape | Bonding Adhesive | Lap Splice Adhesive | Water Cutoff Mastic/Water Block | Lap Cleaner, Lap Sealant, and Edge Treatment | Membrane Flashings | Flashing Accessories | Flashing Tape | Fasteners and Plates | Ballast | Roof Insulation | Protection Mat | Pre-Manufactured Accessories | Photovoltaic (PV) Systems | Sample Warranty Certificate | Pre-Fabricated Curbs | Wind Uplift Calculations | Qualification of Manufacturer | Qualification of Applicator | Qualification of Licensed Engineer | Wind Uplift Resistance classifi
+
+#34 042000-P11 [3.3 ERECTION] Other when=""
+  Submit drawings showing elevations of walls exposed to view and indicating the location of all cut CMU products
+  covered by: -
+  Part 1 list: Cut CMU Drawings | Reinforcement Detail Drawings | Hot Weather Procedures | Cold Weather Procedures | Clay or Shale Brick | Glazed Structural Clay Facing Tile | Glazed Brick | Cementitious Materials | Mock-Up Panel | Glazed Structural Clay Facing Tile | Glazed Brick | Admixtures for Masonry Mortar | Anchors, Ties, and Bar Positioners | Joint Reinforcement | Clay Masonry Expansion-Joint Materials | Masonry Compressive Strength | Bracing Calculations | Field Testing of Mortar | Field Testing of Grout | Prism Tests | Single-Wythe Masonry Wall Water Penetration Test | Glazed Structural Clay Facing
+
+#35 099000-P08 [2.1 MATERIALS] SD-08 when=""
+  Submit Manufacturer's Instructions on Mixing: Detailed mixing instructions, minimum and maximum application temperature and humidity, pot life, and curing and drying times between coats
+  covered by: 099000-011 SD-08 Mixing
+
+#36 075200-P08 [1.10 CONFORMANCE AND COMPATIBILITY] Other when="prior to installation"
+  Submit any deviation from specified or indicated requirements to the Contracting Officer for approval prior to installation
+  covered by: -
+  Part 1 list: Construction Fire Safety Plan | Odor Control Plan | Roof Plan and Flashing Details | Field Inspection and Existing Conditions Report | Written Acceptance Letter | Modified Bitumen Sheets | Heat Island Reduction; S | Solar Reflectance; S | Asphalt | Cold-Applied Membrane Adhesive | Fiberglass Felt | Flashing Membranes | Liquid Applied Flashing | Primer | Modified Bitumen Roof Cement | Pre-Manufactured Accessories | Fasteners | Metal Fastening Plates | Cant and Tapered Edge Strips | Walkpads | Paver Blocks | Photovoltaic (PV) Systems | Sample Warranty Certificate | Pre-Fabricated Curbs | Wind Up
+
+#37 037000-P62 [2.6 REINFORCEMENT] Other when=""
+  Submit description of reinforcement supports and materials for fastening coated reinforcement if not in conformance with CRSI RB4.1
+  covered by: 037000-018 SD-03 Reinforcement
+
+#38 313310-P24 [3.6 GROUTING PROCEDURES] SD-06 when=""
+  Submit the results of all laboratory testing of mixed grout as part of the Weekly Grout Test Results submittal
+  covered by: 313310-019 SD-06 Weekly Grout Test Results
+
+#39 333216-P06 [3.2 FIELD QUALITY CONTROL] SD-06 when=""
+  Submit the test results to the Contracting Officer
+  covered by: -
+  Part 1 list: Fabrication Drawings | Erection/Installation Drawings | Submersible Sewage Pumps | Pump Performance Curve | Pump Motor | Pump Control System | Wet Well and Valve Vault | Flexible Flanged Coupling | Station Piping and fittings | Valves | Spare Parts Data | Access Hatch Covers | Buoyancy Calculations | Pump Test | Pressure Sensor Test | Float Test | Submersible Sewage Pumps | Recycled Material Content | Manhole Chamber | Access Hatch Covers | Gate Valves | Check Valves | Blowers | Dehumidifier | Pump Motor | Manhole Chamber | Access Hatch Covers | Pump Control System | Gate Valves | Check Valves
+
+#40 033000-P23 [2.2 FORMWORK ACCESSORIES] SD-03 when=""
+  Submit manufacturer's product data on formwork release agent for use on each form-facing material
+  covered by: 033000-008 SD-02 Formwork

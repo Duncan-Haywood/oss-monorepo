@@ -33,3 +33,9 @@ test("links its sibling ids-model-check (crawlable pair, platform/pages/siblings
 test("links its sibling drawing-set-index (crawlable pair, platform/pages/siblings.mjs)", () => {
   assert.match(page("index.html"), /href="\.\.\/drawing-set-index\/"/);
 });
+
+test("outside-Part-1 numbers on the page match the README and the eval record", () => {
+  const html = page("index.html"), readme = page("README.md"), ev = page("eval/buried-2026-11-24.md");
+  for (const n of ["79 of 80", "43 of 49"]) { assert.ok(html.includes(n), n); assert.ok(readme.includes(n), n); assert.ok(ev.includes(n), n); }
+  assert.match(html, /id="buriedPanel"/);
+});
