@@ -893,3 +893,33 @@ def test_rare_fallback_absolute_bar_7bf_summary_matches_the_log_and_paper():
     assert "do-no-harm failures (P3) []" in w3
     paper = (here / "paper" / "paper.md").read_text()
     assert "0.0053" in paper and "91.6%" in paper and "93.2% or more" in paper
+
+
+def test_small_count_band_7bg_summary_matches_the_log_and_paper():
+    """7bg: the committed summary and by-count diagnostic hold the numbers the log, README and paper quote."""
+    here = Path(__file__).resolve().parent
+    txt = (here / "experiments" / "h7bg_small_count_band.txt").read_text()
+    assert "cells run: 54; errors (cell with < 2 labels): 0" in txt
+    assert "P1 w3 under 93% in 2 of 34 cells" in txt and "admiration p0.02 n 200 92.4" in txt
+    assert "P2 w3c5 93%+ in every cell: no" in txt and "P4a mean cost 0.0303" in txt
+    assert "Decision rule (d)" in txt
+    m5 = next(l for l in txt.splitlines() if l.startswith("w3m5: "))
+    assert "mean +0.0035, largest +0.0350" in m5
+    byx = (here / "experiments" / "h7bg_small_count_band_byx.txt").read_text()
+    assert "x 3: 11222 | 99.9 | 99.9 | 100.0" in byx and "x 10: 1691 | 42.5" in byx and "replay check" in byx
+    paper = (here / "paper" / "paper.md").read_text()
+    assert "7bg" in paper and "92.4%" in paper and "99.9% and 99.7%" in paper
+
+
+def test_mid_p_interval_known_values():
+    """7bg's mid-p exact interval: x = 0 of 200 has upper bound 1 - 0.05 ** (1 / 200); it sits inside Clopper-Pearson."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "experiments"))
+    import h7bg_small_count_band as G
+    import h7av_rare_fallback as V
+    lo, hi = G.mid_p(0, 200)
+    assert lo == 0.0 and abs(hi - (1 - 0.05 ** (1 / 200))) < 1e-9
+    for x in (1, 3, 4, 7):
+        ml, mh = G.mid_p(x, 200)
+        cl, ch = V.clopper_pearson(x, 200)
+        assert cl < ml < x / 200 < mh < ch

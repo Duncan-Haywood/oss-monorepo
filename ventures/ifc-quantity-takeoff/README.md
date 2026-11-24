@@ -728,7 +728,8 @@ the 17), and 14 exterior-flagged walls standing wholly under the roof
 ## Geometry it reads
 
 Extruded area solids (rectangle, rounded and hollow rectangle, circle and hollow
-circle, ellipse, I, L, T, U, C and Z shapes with root radii, arbitrary outlines
+circle, ellipse, I, L, T, U, C and Z shapes with root radii and, on I, L, T, U and Z, toe
+(edge) radii (eval/edge-radii-2026-11-24.md), arbitrary outlines
 from polylines, indexed poly curves with arcs, composite and trimmed curves,
 derived/mirrored and composite profiles); half-space, boxed half-space and
 polygonal-bounded half-space clips; boolean difference, union and intersection;

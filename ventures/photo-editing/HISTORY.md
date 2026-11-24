@@ -27,3 +27,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-24) Closed eyes: page = CLI rule 2026-11-24 (6 of 7, eval/blink-rule-agreement-*)
 - (moved 2026-11-24) mpcws opt-in again 2026-11-24 (a GH4 tile -0.13, eval/camera-drawn-mpcws-fresh-*)
 - (moved 2026-11-24) S1R II 177 MP = LibRaw snapshot 202611, every sensel (eval/panasonic-rw2-177mp-libraw-*)
+- (moved 2026-11-24) D780/D600: 6 of 11 losers are real over-reads on clean truths (eval/near-clean-truth-noise-2026-11-19.md)
