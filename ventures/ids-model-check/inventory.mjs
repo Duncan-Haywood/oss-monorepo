@@ -9,7 +9,7 @@
 //               systems: [[name, n]],
 //               attrs: [{ name, count, empty, values, distinct, more, min, max }],
 //               codes: [{ system, count, empty, values, distinct, more }],
-//               sets: [{ name, count, props: [{ name, count, dataType, dataTypes,
+//               sets: [{ name, count, props: [{ name, count, dataType, dataTypes, typeCounts,
 //                        values, distinct, more, min, max }] }] }],
 //   systems: [[name, n]]   (every classification system, by elements using it)
 // }
@@ -205,8 +205,9 @@ export function modelInventory(model, measureUnits = null) {
       name,
       count: s.count,
       props: [...s.props.entries()].map(([pn, pr]) => {
-        const types = ranked(pr.types).map(([t]) => t);
-        return { name: pn, count: pr.count, dataType: types[0] || null, dataTypes: types, values: ranked(pr.values).slice(0, MAX_LISTED), distinct: pr.values.size, more: pr.more, min: pr.min, max: pr.max, exact: exactOut(pr), tkind: pr.tkind, tmin: pr.tmin, tmax: pr.tmax };
+        const typeCounts = ranked(pr.types);
+        const types = typeCounts.map(([t]) => t);
+        return { name: pn, count: pr.count, dataType: types[0] || null, dataTypes: types, typeCounts, values: ranked(pr.values).slice(0, MAX_LISTED), distinct: pr.values.size, more: pr.more, min: pr.min, max: pr.max, exact: exactOut(pr), tkind: pr.tkind, tmin: pr.tmin, tmax: pr.tmax };
       }).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)),
     })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)),
   })).sort((a, b) => b.count - a.count || a.cls.localeCompare(b.cls));
