@@ -109,7 +109,7 @@ test('the changelog page: escaped, filterable, linked, disclaimed, canonical', (
   const html = renderChangelog(data(), { baseUrl: BASE });
   assert.ok(html.includes(`<link rel="canonical" href="${BASE}${CHANGELOG_PATH}">`));
   assert.ok(html.includes('data-pfs-head'), 'carries the site header');
-  assert.match(html, /aria-current="page">Updates</);
+  assert.match(html, /aria-current="page">Blog</);
   assert.ok(html.includes('tighten the router &lt;b&gt;'), 'a merge title cannot inject markup');
   assert.ok(!html.includes('router <b>'));
   assert.ok(html.includes('href="../roofing-calc/"'));

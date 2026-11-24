@@ -479,7 +479,7 @@ ${KINDS.map((k) => `<button type="button" data-filter="${k.id}" aria-pressed="fa
     canonical,
     socialCard,
     toRoot,
-    current: 'updates',
+    current: 'writing',
     feedHref: 'feed.xml',
     script,
     jsonLd: {
@@ -686,7 +686,7 @@ and keeps what works. Experiments and their verdicts are on the <a href="../dev/
     canonical,
     socialCard,
     toRoot,
-    current: 'updates',
+    current: 'writing',
     feedHref: `../${CHANGELOG_PATH}feed.xml`,
     script,
     jsonLd: {

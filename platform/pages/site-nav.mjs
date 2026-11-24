@@ -77,14 +77,15 @@ export function sponsorsNote() {
 export const SITE_NAV = Object.freeze([
   Object.freeze({ id: 'tools', label: 'Tools', href: 'c/' }),
   Object.freeze({ id: 'research', label: 'Research', href: 'research/' }),
-  // Blog and Podcast sit at the top level (owner, 2026-10-21). The podcast
-  // lives inside the blog's folder; its page always exists, even with no episodes.
+  // The reading side is two items (owner, 2026-11-24: "move more of the blog
+  // stuff to consolidated ... two items there"): Blog and Stories. Podcast and
+  // Updates were top-level tabs of their own (owner, 2026-10-21); they now sit
+  // under Blog (the blog index links both, and their pages mark Blog current)
+  // and stay in the footer's "Read" group.
   Object.freeze({ id: 'writing', label: 'Blog', href: 'writing/' }),
-  Object.freeze({ id: 'podcast', label: 'Podcast', href: 'writing/podcast/' }),
   // The creative track's fiction (owner, 2026-10-24: its "own page on the
   // website"); see stories.mjs.
   Object.freeze({ id: 'stories', label: 'Stories', href: 'stories/' }),
-  Object.freeze({ id: 'updates', label: 'Updates', href: 'updates/' }),
   Object.freeze({ id: 'ask', label: 'Ask', href: 'ask/' }),
   // Anyone may ask for a tool, product or feature to be built (owner,
   // 2026-11-02: "on the top tab. request a tool product or feature"). The
