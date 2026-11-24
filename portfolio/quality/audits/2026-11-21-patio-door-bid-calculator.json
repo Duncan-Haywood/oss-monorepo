@@ -53,17 +53,90 @@
     {"severity": "low", "what": "README listed 4 counted events; the page records 7 (carried over from 2026-11-17 defect 7)", "where": "ventures/patio-door-bid-calculator/README.md:84", "category": "stale-docs", "origin": "maintenance", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18138"},
     {"severity": "low", "what": "applyKit carried a dead `ids` branch (removed by PR #18138); the money formatter is still duplicated between calc.mjs and the page (carried over from 2026-11-17 defect 8)", "where": "ventures/patio-door-bid-calculator/index.html:390", "category": "code-craft", "origin": "implementation"}
   ],
+  "prior_audit": "portfolio/quality/audits/2026-11-17-patio-door-bid-calculator.json",
   "prior_defects": [
-    {"index": 0, "what": "Restore marked every field hand-edited, so selects stopped moving the price on return visits", "status": "closed", "evidence": "PR #17050: applyValues marks only restoredOverrides() fields; on a saved page-default form no config-kit field is marked (cases2.mjs). Its mutant survived until this PR's page test."},
-    {"index": 1, "what": "Comparison page called the 32%-margin price the walk-away and overstated the $1,800 special's loss", "status": "partly closed", "evidence": "PR #17050 relabelled the table ('Bid at a 32% margin', 'Under the bid by'); prose, FAQ and JSON-LD still called the bid a walk-away price until PR #18138."},
-    {"index": 2, "what": "Blank field priced as 0", "status": "open at start, closed by PR #18138", "evidence": "number() now throws '<field> is blank'; calc.test.mjs 'a blank field is an error' covers five fields and checks an omitted field still defaults."},
-    {"index": 3, "what": "No behavioural page test", "status": "partly closed by PR #18138", "evidence": "page.test.mjs now pins the restore line (the surviving mutant is caught); kit application is still not driven in a DOM."},
-    {"index": 4, "what": "Sill pan counted twice on new-con presets", "status": "open at start, closed by PR #18138", "evidence": "wrap hours redefined as tear-back, flashing tape and WRB tie-in, with the pan its own line, in calc.mjs, index.html FAQ (visible and JSON-LD) and the guide HowTo; math unchanged."},
-    {"index": 5, "what": "Crew-hours at one wage, unsaid", "status": "partly closed by PR #18138", "evidence": "a hint now says hours are crew-hours at one wage; mixed-wage crews remain unmodelled."},
-    {"index": 6, "what": "'Effective hourly billing rate' includes the door", "status": "open at start, closed by PR #18138", "evidence": "relabelled 'Price per crew-hour (door and materials included)' on the page, verdict and README."},
-    {"index": 7, "what": "README event list", "status": "open at start, closed by PR #18138", "evidence": "README now lists all 7 count() events."},
-    {"index": 8, "what": "Dead ids branch, duplicated formatter", "status": "partly closed by PR #18138", "evidence": "dead branch removed; formatter duplication remains."}
+   {
+    "index": 0,
+    "severity": "high",
+    "basis": "marked",
+    "status": "closed",
+    "what": "Restore marked every field hand-edited, so selects stopped moving the price on return visits",
+    "evidence": "PR #17050: applyValues marks only restoredOverrides() fields; on a saved page-default form no config-kit field is marked (cases2.mjs). Its mutant survived until this PR's page test."
+   },
+   {
+    "index": 1,
+    "severity": "high",
+    "basis": "marked",
+    "status": "partial",
+    "what": "Comparison page called the 32%-margin price the walk-away and overstated the $1,800 special's loss",
+    "evidence": "PR #17050 relabelled the table ('Bid at a 32% margin', 'Under the bid by'); prose, FAQ and JSON-LD still called the bid a walk-away price until PR #18138.",
+    "status_note": "partly closed"
+   },
+   {
+    "index": 2,
+    "severity": "medium",
+    "basis": "open",
+    "status": "open",
+    "what": "Blank field priced as 0",
+    "evidence": "number() now throws '<field> is blank'; calc.test.mjs 'a blank field is an error' covers five fields and checks an omitted field still defaults.",
+    "status_note": "open at start, closed by PR #18138"
+   },
+   {
+    "index": 3,
+    "severity": "medium",
+    "basis": "open",
+    "status": "open",
+    "what": "No behavioural page test",
+    "evidence": "page.test.mjs now pins the restore line (the surviving mutant is caught); kit application is still not driven in a DOM.",
+    "status_note": "partly closed by PR #18138"
+   },
+   {
+    "index": 4,
+    "severity": "medium",
+    "basis": "open",
+    "status": "open",
+    "what": "Sill pan counted twice on new-con presets",
+    "evidence": "wrap hours redefined as tear-back, flashing tape and WRB tie-in, with the pan its own line, in calc.mjs, index.html FAQ (visible and JSON-LD) and the guide HowTo; math unchanged.",
+    "status_note": "open at start, closed by PR #18138"
+   },
+   {
+    "index": 5,
+    "severity": "medium",
+    "basis": "open",
+    "status": "open",
+    "what": "Crew-hours at one wage, unsaid",
+    "evidence": "a hint now says hours are crew-hours at one wage; mixed-wage crews remain unmodelled.",
+    "status_note": "partly closed by PR #18138"
+   },
+   {
+    "index": 6,
+    "severity": "low",
+    "basis": "open",
+    "status": "open",
+    "what": "'Effective hourly billing rate' includes the door",
+    "evidence": "relabelled 'Price per crew-hour (door and materials included)' on the page, verdict and README.",
+    "status_note": "open at start, closed by PR #18138"
+   },
+   {
+    "index": 7,
+    "severity": "low",
+    "basis": "open",
+    "status": "open",
+    "what": "README event list",
+    "evidence": "README now lists all 7 count() events.",
+    "status_note": "open at start, closed by PR #18138"
+   },
+   {
+    "index": 8,
+    "severity": "low",
+    "basis": "open",
+    "status": "open",
+    "what": "Dead ids branch, duplicated formatter",
+    "evidence": "dead branch removed; formatter duplication remains.",
+    "status_note": "partly closed by PR #18138"
+   }
   ],
+  "prior_defects_note": "basis and arrival status backfilled 2026-11-24 by reflection 3 from the prior audit's git history (fixed_by marks present before this re-audit) and this file's own findings",
   "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18138"],
   "verdict": "Below the bar at the start of this session, but much closer than on 2026-11-17. PR #17050 closed the high defect that froze the price on return visits and relabelled the comparison table; the engine reproduces three hand-computed bids to the cent, including an independent wood-clad new-construction case. What still held it at 2 on correctness, claims and verification: a blank or comma-typed box priced as zero, the comparison prose still called the bid the walk-away, new-construction copy counted the sill pan twice, and the restore fix had no test (its mutant survived). PR #18138 fixes all four plus the rate label, the README event list and a dead branch, and adds the tests that catch them; a mixed-wage crew and the duplicated formatter remain. Scores here are before that PR; a later round re-audits."
 }

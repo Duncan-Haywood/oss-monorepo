@@ -411,9 +411,37 @@ def reaudit_due(audits: list[dict], seed: str | None = None, root: Path = ROOT) 
         subjects = sorted(r["subject"] for r in out)
         rng.shuffle(subjects)
         rank = {s: i for i, s in enumerate(subjects)}
-    out.sort(key=lambda r: (not (r["documented_open"] and r["high_fixed"]), r["high_fixed"] == 0,
+    # Within each group, audits whose fixes are only assumed (a fix PR listed, no `fixed_by`) come before marked ones:
+    # on the nine re-audits of 2026-11-21, 25 of 29 marked defects were closed but only 11 of 27 assumed ones
+    # (reflection 3, portfolio/quality/reflections/2026-11-24-the-blanket-rule-is-mostly-wrong.md).
+    out.sort(key=lambda r: (not (r["documented_open"] and r["high_fixed"]), r["high_fixed"] == 0, r["explicit"] > 0,
                             rank.get(r["subject"], 0), r["date"], r["subject"]))
     return out
+
+
+REAUDIT_STATUSES = ("closed", "partial", "open")
+REAUDIT_BASES = ("marked", "assumed", "open")
+
+
+def reaudit_outcomes(audits: list[dict]) -> dict:
+    """What re-audits found when they re-checked an earlier audit's defects, by how the earlier record counted each
+    one (`basis`: "marked" with its own `fixed_by`, "assumed" fixed by the blanket `fix_prs` reading, or "open"),
+    against its state when the re-auditor arrived (`status`, before any fix the re-audit's own PR made). This is the
+    error rate of `defect_fixed`: reflection 2 could only spot-check it; from 2026-11-24 every re-audit records it."""
+    table = {b: {s: 0 for s in REAUDIT_STATUSES} for b in REAUDIT_BASES}
+    high = {b: {s: 0 for s in REAUDIT_STATUSES} for b in REAUDIT_BASES}
+    files = 0
+    for a in audits:
+        rows = [r for r in (a.get("prior_defects") or [])
+                if r.get("basis") in REAUDIT_BASES and r.get("status") in REAUDIT_STATUSES]
+        if not rows:
+            continue
+        files += 1
+        for r in rows:
+            table[r["basis"]][r["status"]] += 1
+            if r.get("severity") == "high":
+                high[r["basis"]][r["status"]] += 1
+    return {"files": files, "by_basis": table, "high_by_basis": high}
 
 
 def mutation_kill(audits: list[dict]) -> dict:
@@ -656,7 +684,10 @@ MODES = {
 }
 # reaudit took 0.10 from census on 2026-11-17 (reflection 2): no subject had been re-audited after a fix since
 # 2026-11-10, so no recorded fix had been confirmed. It drops out of the draw when nothing awaits a re-check.
-MODE_WEIGHTS = {"sample": 0.35, "census": 0.20, "fix": 0.25, "reaudit": 0.10, "reflect": 0.10}
+# Reaudit 0.10 -> 0.20 (sample 0.35 -> 0.30, census 0.20 -> 0.15) on 2026-11-24, reflection 3: the mode is drawn per
+# day, so one reaudit day in ten re-checked 9 subjects while the backlog grew from 248 to 511, and the blanket
+# "fixed" reading it resolves was right for only 11 of 27 defects re-checked.
+MODE_WEIGHTS = {"sample": 0.30, "census": 0.15, "fix": 0.25, "reaudit": 0.20, "reflect": 0.10}
 REFLECT_EVERY_DAYS = 7
 
 
@@ -754,6 +785,7 @@ def metrics(audits: list[dict], pop: dict[str, list[str]], today: dt.date, meets
                       "survival_rate": round(muts["survived"] / known, 3) if known else None,
                       "ci": [round(lo, 3), round(hi, 3)]},
         "mutation_kill": mutation_kill(audits),
+        "reaudit_outcomes": reaudit_outcomes(audits),
         "fixes": {"audits_with_defects": len(with_defects),
                   "audits_with_fix_prs": sum(bool(a.get("fix_prs")) for a in with_defects),
                   "open_high_in_latest": high_open, **fix_confirmation(audits)},
@@ -767,6 +799,19 @@ def metrics(audits: list[dict], pop: dict[str, list[str]], today: dt.date, meets
         "weeks": dict(sorted(weeks.items())),
         "coverage": coverage(audits, pop, today),
     }
+
+
+def _reaudit_lines(ro: dict) -> list[str]:
+    if not ro.get("files"):
+        return []
+    parts = []
+    for b, label in (("marked", "marked fixed one by one"), ("assumed", "assumed fixed"), ("open", "counted open")):
+        t = ro["by_basis"][b]
+        n = sum(t.values())
+        if n:
+            parts.append(f"{label}: {t['closed']} of {n} closed, {t['partial']} partly, {t['open']} still open")
+    return [f"When {ro['files']} re-audits re-checked the earlier defects (state on arrival, `prior_defects`): "
+            + "; ".join(parts) + "."]
 
 
 def render_md(m: dict) -> str:
@@ -808,6 +853,7 @@ def render_md(m: dict) -> str:
           f"assumed fixed because their audit lists a fix PR and marks none, and {fx['open']} are open. "
           f"{fx['rechecked_after_fix']} subjects have been re-audited after a recorded fix; {fx['awaiting_recheck']} await one "
           f"(`quality_audit.py reaudit`), {fx['documented_open']} of them with a README that still lists the audit's defects as open.",
+          *_reaudit_lines(m.get("reaudit_outcomes") or {}),
           f"Of {ps['earlier_defects']} defects in an audit that was later repeated, {ps['reappeared']} "
           f"({100 * (ps['share'] or 0):.0f}%) reappear in the next audit of the same subject "
           f"({ps['subjects_reaudited']} subjects re-audited)."]

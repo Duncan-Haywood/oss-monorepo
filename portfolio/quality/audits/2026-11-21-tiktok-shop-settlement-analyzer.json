@@ -276,62 +276,82 @@
    "origin": "claims"
   }
  ],
+ "prior_audit": "portfolio/quality/audits/2026-11-20-tiktok-shop-settlement-analyzer.json",
  "prior_defects": [
   {
    "index": 0,
-   "what": "positive Adjustment read as refund, sign dropped",
+   "severity": "high",
+   "basis": "marked",
    "status": "partial",
+   "what": "positive Adjustment read as refund, sign dropped",
    "evidence": "No longer a refund: +$5 with zero cost gives take-home 26.20 (pass) and calc.test.mjs:172 covers it; re-adding 'adjustment' to RE_REFUND is caught. But it is now classed as an order: with $2 cost take-home 22.20 vs 24.20, order count 2 vs 1; amount-only file charges 6% on it (28.20 vs 28.50). Refiled as current defect 0."
   },
   {
    "index": 1,
-   "what": "YYYY/MM/DD dates rejected",
+   "severity": "high",
+   "basis": "marked",
    "status": "closed",
+   "what": "YYYY/MM/DD dates rejected",
    "evidence": "parseWhen accepts [-/.] (calc.mjs:67); settlement-shaped file with 2026/06/09 and 2026/06/09 14:03:22 loads with no skipped rows; mutant removing '/' caught. The 'never run on a real export' half remains, tracked in README Known gaps and current defect 8."
   },
   {
    "index": 2,
-   "what": "'TikTok Shop kept X%' includes affiliate commission",
+   "severity": "medium",
+   "basis": "open",
    "status": "open",
+   "what": "'TikTok Shop kept X%' includes affiliate commission",
    "evidence": "Referral -1.50 + affiliate -2.30 on $25 still titled 'TikTok Shop kept 15.2%' (calc.mjs:400), even with separate columns."
   },
   {
    "index": 3,
-   "what": "refund administration fee not modelled",
+   "severity": "medium",
+   "basis": "open",
    "status": "open",
+   "what": "refund administration fee not modelled",
    "evidence": "Amount-only refund case: take-home 36.10 vs 37.30 expected; calc.mjs:236-237 unchanged."
   },
   {
    "index": 4,
-   "what": "'FIVERR EARNINGS FEE ANALYZER' page header",
+   "severity": "medium",
+   "basis": "marked",
    "status": "closed",
+   "what": "'FIVERR EARNINGS FEE ANALYZER' page header",
    "evidence": "index.html:62 reads 'TIKTOK SHOP SETTLEMENT ANALYZER'; grep -i fiverr index.html: no match."
   },
   {
    "index": 5,
-   "what": "reskinned Fiverr/Upwork model (tips, hours, withdrawals, placeholders)",
+   "severity": "medium",
+   "basis": "open",
    "status": "open",
+   "what": "reskinned Fiverr/Upwork model (tips, hours, withdrawals, placeholders)",
    "evidence": "index.html:94 placeholder 'Logo design, 4 / Blog post, 1.5', index.html:127 'buyer's own service fee, TikTok Shop Connect', hours and withdrawal panels unchanged; README Known gaps admits it."
   },
   {
    "index": 6,
-   "what": "3 of 5 seeded mutants survive",
+   "severity": "medium",
+   "basis": "open",
    "status": "open",
+   "what": "3 of 5 seeded mutants survive",
    "evidence": "Re-ran the same three mutants (calc.mjs:284, :404, :228): all SURVIVED again with 34 tests."
   },
   {
    "index": 7,
-   "what": "break-even uses a blended fee rate",
+   "severity": "low",
+   "basis": "open",
    "status": "open",
+   "what": "break-even uses a blended fee rate",
    "evidence": "calc.mjs:367 feeUsed is the file-wide rate; unchanged."
   },
   {
    "index": 8,
-   "what": "RE_PENDING matches 'active'; duplicate aliases",
+   "severity": "low",
+   "basis": "open",
    "status": "open",
+   "what": "RE_PENDING matches 'active'; duplicate aliases",
    "evidence": "Status 'Inactive' gives pendingCount 1; calc.mjs:147 and duplicate aliases at calc.mjs:114,118 unchanged."
   }
  ],
+ "prior_defects_note": "basis and arrival status backfilled 2026-11-24 by reflection 3 from the prior audit's git history (fixed_by marks present before this re-audit) and this file's own findings",
  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18064"],
  "verdict": "Does not meet the bar (correctness 2, claims 2, verification 2). PR #17836 closed two of the nine prior defects (slash dates, Fiverr header) and half-closed a third: a positive adjustment is no longer a refund, but it is now counted as an order, so it takes the user's per-order cost and inflates the order count ($2 understatement per adjustment at $2 cost). A settlement-shaped file now loads and its total take-home matches hand arithmetic and TikTok's 6% referral fee, but affiliate commission is still reported as 'TikTok Shop kept', the refund administration fee is not modelled, TikTok 'unsettled' statuses are not flagged, the page keeps Fiverr concepts, and the same three seeded mutants still survive."
 }

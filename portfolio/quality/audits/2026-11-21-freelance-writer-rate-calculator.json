@@ -18,15 +18,74 @@
   "fitness": "Same job as 2026-11-13 ($0.20/word or $500 for 1,500 researched words): the solver ($675 for $75/h) is the useful output; the verdict repeats the totals. Self-employment tax, overrun and extra-round risk not modelled.",
   "domain": "Compared against IRS Schedule SE (15.3% on 92.35% of net earnings) and Peak Freelance / bestwriting.com 2026 rate guides as in the prior audit. Effective-hourly-over-all-hours method is standard; the 'per-word does not pay research' framing is wrong economics for a given offer; gross hourly with no SE adjustment ($55.56 gross is $47.71 after SE tax)."
  },
+ "prior_audit": "portfolio/quality/audits/2026-11-13-freelance-writer-rate-calculator.json",
  "prior_defects": [
-  {"index": 0, "what": "headline 'which actually pays more' overclaim and FAQ flat-fee claim", "status": "open", "evidence": "index.html:56 and :150 text unchanged; grid 144/144 agree with bigger total", "closed_by": null},
-  {"index": 1, "what": ">=25% non-writing finding contradicts a per-word verdict", "status": "closed", "evidence": "calc.mjs:145 now guards betterOption !== 'per-word'; $0.50/word vs $400 shows no contrary finding; mutation removing the guard is caught", "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15342"},
-  {"index": 2, "what": "blank writing speed silently drops writing time", "status": "open", "evidence": "check.mjs 'blank speed': 6 h, $50/h, no warning", "closed_by": null},
-  {"index": 3, "what": "threshold and tie-tolerance mutations survive", "status": "open", "evidence": "both mutants survive 42 tests today", "closed_by": null},
-  {"index": 4, "what": "no SE tax, overrun, extra-round or kill-fee modelling", "status": "open", "evidence": "grep finds no SE/overage terms in calc.mjs; README lists SE tax as known gap", "closed_by": null},
-  {"index": 5, "what": "rate-band and ghostwriting source wording overstated", "status": "open", "evidence": "calc.mjs:26, :59 unchanged", "closed_by": null},
-  {"index": 6, "what": "money() rounds per-word rates to cents, '$0.1', locale-dependent", "status": "partial", "evidence": "money(0.1) = '$0.10' and en-US pinned; money(0.0125) still '$0.01'", "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15342"},
-  {"index": 7, "what": "canonical host (source-only)", "status": "closed", "evidence": "source-only: rewritten at deploy by build_pages_site.py; not a defect in what ships", "closed_by": null}
+  {
+   "index": 0,
+   "severity": "high",
+   "basis": "assumed",
+   "status": "open",
+   "what": "headline 'which actually pays more' overclaim and FAQ flat-fee claim",
+   "evidence": "index.html:56 and :150 text unchanged; grid 144/144 agree with bigger total"
+  },
+  {
+   "index": 1,
+   "severity": "medium",
+   "basis": "assumed",
+   "status": "closed",
+   "what": ">=25% non-writing finding contradicts a per-word verdict",
+   "evidence": "calc.mjs:145 now guards betterOption !== 'per-word'; $0.50/word vs $400 shows no contrary finding; mutation removing the guard is caught",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15342"
+  },
+  {
+   "index": 2,
+   "severity": "medium",
+   "basis": "assumed",
+   "status": "open",
+   "what": "blank writing speed silently drops writing time",
+   "evidence": "check.mjs 'blank speed': 6 h, $50/h, no warning"
+  },
+  {
+   "index": 3,
+   "severity": "medium",
+   "basis": "assumed",
+   "status": "open",
+   "what": "threshold and tie-tolerance mutations survive",
+   "evidence": "both mutants survive 42 tests today"
+  },
+  {
+   "index": 4,
+   "severity": "medium",
+   "basis": "assumed",
+   "status": "open",
+   "what": "no SE tax, overrun, extra-round or kill-fee modelling",
+   "evidence": "grep finds no SE/overage terms in calc.mjs; README lists SE tax as known gap"
+  },
+  {
+   "index": 5,
+   "severity": "low",
+   "basis": "assumed",
+   "status": "open",
+   "what": "rate-band and ghostwriting source wording overstated",
+   "evidence": "calc.mjs:26, :59 unchanged"
+  },
+  {
+   "index": 6,
+   "severity": "low",
+   "basis": "assumed",
+   "status": "partial",
+   "what": "money() rounds per-word rates to cents, '$0.1', locale-dependent",
+   "evidence": "money(0.1) = '$0.10' and en-US pinned; money(0.0125) still '$0.01'",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15342"
+  },
+  {
+   "index": 7,
+   "severity": "low",
+   "basis": "assumed",
+   "status": "closed",
+   "what": "canonical host (source-only)",
+   "evidence": "source-only: rewritten at deploy by build_pages_site.py; not a defect in what ships"
+  }
  ],
  "checks": [
   {"dimension": "correctness", "what": "worked example hours and hourly rates", "method": "by hand: 1500/500 + 4 + 2 = 9 h; 300/9; 500/9", "command": "node check.mjs calc.mjs", "expected": "9, 33.33, 55.56", "observed": "9, 33.33, 55.56", "result": "pass"},
@@ -54,6 +113,7 @@
   {"severity": "low", "what": "Source wording overstates agreement: 'every 2026 rate guide agrees' on $0.05-$0.10 entry; 16-20% ghostwriting premium from 'multiple' sources is one 213-writer survey.", "where": "ventures/freelance-writer-rate-calculator/calc.mjs:26", "category": "source-data", "origin": "spec", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18065"},
   {"severity": "low", "what": "Solved per-word rates are rounded to cents: $0.0125/word prints as '$0.01/word'.", "where": "ventures/freelance-writer-rate-calculator/calc.mjs:53", "category": "logic-error", "origin": "implementation", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18065"}
  ],
+ "prior_defects_note": "basis and arrival status backfilled 2026-11-24 by reflection 3 from the prior audit's git history (fixed_by marks present before this re-audit) and this file's own findings",
  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18065"],
  "verdict": "PR #15342 closed one of the seven real defects from 2026-11-13 (the finding that advised a flat fee next to a per-word verdict) and half of another (money() is now locale-fixed and prints $0.10, but still rounds $0.0125 to $0.01). Everything else is as it was: the headline overclaim, the silent blank-speed result, the two surviving mutations, the overstated source wording and the missing self-employment-tax view. The fix PR mostly wrote the gaps into the README. Scores are unchanged and it does not meet the bar: claims 1; correctness, verification, craft, fitness and domain 2; completeness 3."
 }

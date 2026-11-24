@@ -213,7 +213,39 @@ class FixLoopTest(unittest.TestCase):
         self.assertNotIn("reaudit", modes)
         self.assertIn("reaudit", {m.mode_for("2026-11-11", seed=str(i), last_reflect="2026-11-10", reaudit_waiting=3)["mode"]
                                   for i in range(200)})
-        self.assertEqual(q.validate_audit(audit(drawn_by="reaudit")), [])
+        prior = {"prior_audit": "portfolio/quality/audits/2026-11-07-ai-bookkeeper.json",
+                 "prior_defects": [{"index": 0, "severity": "high", "basis": "assumed", "status": "open", "what": "x"}]}
+        self.assertEqual(q.validate_audit(audit(drawn_by="reaudit", **prior)), [])
+
+    def test_reaudit_must_record_basis_and_arrival_status(self):
+        """Reflection 3: three of the first nine re-audits said in prose only which earlier defects were closed."""
+        errs = q.validate_audit(audit(drawn_by="reaudit"))
+        self.assertTrue(any("prior_audit" in e for e in errs) and any("prior_defects" in e for e in errs), errs)
+        bad = audit(drawn_by="reaudit", prior_audit="portfolio/quality/audits/2026-11-07-a.json",
+                    prior_defects=[{"index": 0, "basis": "fixed", "status": "open at start, closed by PR #1"}])
+        errs = q.validate_audit(bad)
+        self.assertTrue(any(".basis" in e for e in errs) and any(".status" in e for e in errs), errs)
+        self.assertEqual(q.validate_audit(audit(drawn_by="census")), [])
+
+    def test_reaudit_outcomes_by_basis(self):
+        row = lambda b, st, sev="medium": {"index": 0, "severity": sev, "basis": b, "status": st, "what": "x"}
+        r1 = audit(subject="ventures/a", drawn_by="reaudit",
+                   prior_defects=[row("marked", "closed", "high"), row("assumed", "open", "high"), row("assumed", "closed")])
+        r2 = audit(subject="ventures/b", drawn_by="reaudit",
+                   prior_defects=[row("open", "open"), row("assumed", "partial"), row("bogus", "closed")])
+        o = m.reaudit_outcomes([r1, r2, audit(subject="ventures/c")])
+        self.assertEqual(o["files"], 2)
+        self.assertEqual(o["by_basis"]["assumed"], {"closed": 1, "partial": 1, "open": 1})
+        self.assertEqual(o["by_basis"]["marked"], {"closed": 1, "partial": 0, "open": 0})
+        self.assertEqual(o["high_by_basis"]["assumed"]["open"], 1)
+        self.assertIn("assumed fixed: 1 of 3 closed", m._reaudit_lines(o)[0])
+
+    def test_reaudit_puts_assumed_before_marked_within_highs(self):
+        marked = audit(subject="ventures/m", date="2026-11-08", fix_prs=[self.URL],
+                       defects=[{"severity": "high", "what": "y", "fixed_by": self.URL}])
+        assumed = audit(subject="ventures/z", date="2026-11-12", fix_prs=[self.URL],
+                        defects=[{"severity": "high", "what": "y"}])
+        self.assertEqual([r["subject"] for r in m.reaudit_due([marked, assumed])], ["ventures/z", "ventures/m"])
 
 
 class CoverageTest(unittest.TestCase):

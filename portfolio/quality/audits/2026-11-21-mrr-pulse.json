@@ -276,90 +276,108 @@
    "test_cmd": "node --test '*.test.mjs'"
   }
  ],
+ "prior_audit": "portfolio/quality/audits/2026-11-13-mrr-pulse.json",
  "prior_defects": [
   {
    "index": 0,
-   "what": "Logo churn/customers/movements per subscription, not customer",
+   "severity": "high",
+   "basis": "assumed",
    "status": "open",
-   "evidence": "node /tmp/claude-0/-home-user-oss-monorepo/593c531a-b219-50b3-8031-809ea877994e/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse: add-on drop logo churn 0.333; cancel+create swap logo 1, NRR 0. metrics.mjs:147 unchanged; only a README Known-gaps note (PR #15653)",
-   "closed_by": null
+   "what": "Logo churn/customers/movements per subscription, not customer",
+   "evidence": "node /tmp/claude-0/-home-user-oss-monorepo/593c531a-b219-50b3-8031-809ea877994e/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse: add-on drop logo churn 0.333; cancel+create swap logo 1, NRR 0. metrics.mjs:147 unchanged; only a README Known-gaps note (PR #15653)"
   },
   {
    "index": 1,
-   "what": "Tiered prices silently 0 MRR",
+   "severity": "high",
+   "basis": "assumed",
    "status": "partial",
-   "evidence": "node /tmp/claude-0/-home-user-oss-monorepo/593c531a-b219-50b3-8031-809ea877994e/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse: tiered 10x1500 -> 0; e2e tiered 4x2000 excluded. README 'Not counted' now names tiered (PR #15653); no dashboard count, index.html FAQ silent",
-   "closed_by": null
+   "what": "Tiered prices silently 0 MRR",
+   "evidence": "node /tmp/claude-0/-home-user-oss-monorepo/593c531a-b219-50b3-8031-809ea877994e/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse: tiered 10x1500 -> 0; e2e tiered 4x2000 excluded. README 'Not counted' now names tiered (PR #15653); no dashboard count, index.html FAQ silent"
   },
   {
    "index": 2,
-   "what": "Zero-decimal currencies shown 100x too small",
+   "severity": "medium",
+   "basis": "assumed",
    "status": "closed",
+   "what": "Zero-decimal currencies shown 100x too small",
    "evidence": "node /tmp/claude-0/-home-user-oss-monorepo/593c531a-b219-50b3-8031-809ea877994e/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse: formatMoney(1000,'jpy') = ¥1,000; monthsCsv JPY row 1000; minorExponent at metrics.mjs:164 and mutant ZERO_DECIMAL ? 0 -> 2 caught",
    "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17099"
   },
   {
    "index": 3,
-   "what": "CSV reads Canceled At before Ended At",
+   "severity": "medium",
+   "basis": "assumed",
    "status": "closed",
+   "what": "CSV reads Canceled At before Ended At",
    "evidence": "node /tmp/claude-0/-home-user-oss-monorepo/593c531a-b219-50b3-8031-809ea877994e/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse: export with both columns -> endedAt 2026-04-10 (Ended At); csv.mjs:70 alias lookup now in priority order",
    "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16179"
   },
   {
    "index": 4,
-   "what": "Unpaid subs vanish from history; canceled-without-end live forever",
+   "severity": "medium",
+   "basis": "assumed",
    "status": "partial",
-   "evidence": "node /tmp/claude-0/-home-user-oss-monorepo/593c531a-b219-50b3-8031-809ea877994e/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse: canceled with no end date now skipped with reason (closed); unpaid sub history still 0,0,0,0 (open, metrics.mjs:63)",
-   "closed_by": null
+   "what": "Unpaid subs vanish from history; canceled-without-end live forever",
+   "evidence": "node /tmp/claude-0/-home-user-oss-monorepo/593c531a-b219-50b3-8031-809ea877994e/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse: canceled with no end date now skipped with reason (closed); unpaid sub history still 0,0,0,0 (open, metrics.mjs:63)"
   },
   {
    "index": 5,
-   "what": "NRR is monthly but unlabelled",
+   "severity": "medium",
+   "basis": "assumed",
    "status": "partial",
-   "evidence": "page.mjs:54 tile now 'Net revenue retention (monthly)' (PR #15653, page.test.mjs); index.html:119 demo tile still 'Net revenue retention'; no 12-month NRR",
-   "closed_by": null
+   "what": "NRR is monthly but unlabelled",
+   "evidence": "page.mjs:54 tile now 'Net revenue retention (monthly)' (PR #15653, page.test.mjs); index.html:119 demo tile still 'Net revenue retention'; no 12-month NRR"
   },
   {
    "index": 6,
-   "what": "Percent-off netting ignores unexpanded discount ids",
+   "severity": "medium",
+   "basis": "assumed",
    "status": "closed",
+   "what": "Percent-off netting ignores unexpanded discount ids",
    "evidence": "stripe.mjs:67 list call adds expand[]=data.discounts (stripe.test.mjs:94-98 asserts it); expanded 20% coupon nets 10000 -> 8000 in indep.mjs and e2e",
    "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17855"
   },
   {
    "index": 7,
-   "what": "Intra-month down+up booked gross",
+   "severity": "low",
+   "basis": "assumed",
    "status": "open",
-   "evidence": "node /tmp/claude-0/-home-user-oss-monorepo/593c531a-b219-50b3-8031-809ea877994e/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse: two applySync calls 5000->3000->5000 give expansion 2000, contraction 2000",
-   "closed_by": null
+   "what": "Intra-month down+up booked gross",
+   "evidence": "node /tmp/claude-0/-home-user-oss-monorepo/593c531a-b219-50b3-8031-809ea877994e/scratchpad/mrr/indep.mjs /home/user/oss-monorepo/ventures/mrr-pulse: two applySync calls 5000->3000->5000 give expansion 2000, contraction 2000"
   },
   {
    "index": 8,
-   "what": "Quick-ratio caption omits reactivation",
+   "severity": "low",
+   "basis": "assumed",
    "status": "closed",
+   "what": "Quick-ratio caption omits reactivation",
    "evidence": "grep page.mjs: '(new+expansion+reactivation) ÷ (churn+contraction)'; pinned by page.test.mjs",
    "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15653"
   },
   {
    "index": 9,
-   "what": "Clone command names fp-monorepo",
+   "severity": "low",
+   "basis": "assumed",
    "status": "closed",
+   "what": "Clone command names fp-monorepo",
    "evidence": "index.html:72 and served copy (node platform/pages/served-copy.mjs mrr-pulse) both say Duncan-Haywood/oss-monorepo",
    "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15653"
   },
   {
    "index": 10,
-   "what": "QR reactivation term and concentration thresholds untested",
+   "severity": "low",
+   "basis": "assumed",
    "status": "partial",
-   "evidence": "quality_mutate: concentration 0.25->0.2 now caught; quick-ratio reactivation mutant at metrics.mjs:151 still survives",
-   "closed_by": null
+   "what": "QR reactivation term and concentration thresholds untested",
+   "evidence": "quality_mutate: concentration 0.25->0.2 now caught; quick-ratio reactivation mutant at metrics.mjs:151 still survives"
   },
   {
    "index": 11,
-   "what": "Stale chart.mjs comment; csv.mjs refers to missing import.mjs",
+   "severity": "low",
+   "basis": "assumed",
    "status": "partial",
-   "evidence": "grep -n import.mjs *.mjs: none (removed, PR #17552); chart.mjs:6 'stacked new/(churn) bars' still not drawn",
-   "closed_by": null
+   "what": "Stale chart.mjs comment; csv.mjs refers to missing import.mjs",
+   "evidence": "grep -n import.mjs *.mjs: none (removed, PR #17552); chart.mjs:6 'stacked new/(churn) bars' still not drawn"
   }
  ],
  "defects": [
@@ -423,6 +441,7 @@
    "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18065"
   }
  ],
+ "prior_defects_note": "basis and arrival status backfilled 2026-11-24 by reflection 3 from the prior audit's git history (fixed_by marks present before this re-audit) and this file's own findings",
  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18065"],
  "verdict": "Re-audit of the 2026-11-13 audit, whose listed fix PR #15653 only changed labels, the clone command and the README (it added a Known gaps section). Since then eight red-team PRs fixed real mechanics: zero-decimal currencies (#17099), Stripe-export alias priority so churn dates at Ended At (#16179), and coupon netting on new Stripe API versions via expand[] (#17855); tests grew from 62 to 119, all passing. Of the 12 prior defects, 5 are closed, 5 partial and 2 open. The headline defect is untouched: logo churn, Customers and the MRR bridge are per subscription, so a customer swapping a 5,000 plan for an 8,000 one shows logo churn 100% and NRR 0 instead of NRR 160%; tiered prices still count 0 MRR silently; an unpaid subscription's history vanishes. 3 of 8 seeded mutants survive, the same three the last audit found. Correctness, claims and verification stay at 2, so it does not meet the bar; it does what its README lists (completeness 3). Scores are unchanged from 2026-11-13: the fixes closed the narrower defects, not the gap a finance lead would hit first."
 }
