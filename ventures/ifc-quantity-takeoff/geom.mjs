@@ -239,6 +239,7 @@ function transformSolid(s, m) {
   const shells = s.shells ? s.shells.map((sh) => ({ s: sh.s, loops: transformPoly(sh.loops, m) })) : null;
   const out = solid(s.terms.map((t) => ({ s: t.s, faces: transformPoly(t.faces, m) })), s.mesh * Math.abs(det(m)), s.notes, shells);
   if (s.loose) out.loose = transformPoly(s.loose, m);
+  if (s.lofted) out.lofted = true;
   if (s.axis) { out.axis = unit(applyDir(m, s.axis)); out.axisWeight = (s.axisWeight ?? 0) * Math.abs(det(m)); }
   if (s.sweepLength != null) out.sweepLength = s.sweepLength * Math.cbrt(Math.abs(det(m)));
   if (s.bars) {
@@ -833,6 +834,7 @@ function subtractCutters(a, cutters, what) {
   if (a.mesh) notes.push(`${what} not taken from a faceted part`);
   const out = solid(guard(terms), a.mesh, notes, a.mesh ? null : []);
   if (a.axis) { out.axis = a.axis; out.axisWeight = a.axisWeight; }
+  if (a.lofted) out.lofted = true;
   return out;
 }
 
@@ -1377,7 +1379,9 @@ export class Geometry {
           if (err instanceof AlignmentError) throw new Unresolved(err.message);
           throw err;
         }
-        return orientedShells(loft.parts, loft.notes);
+        const out = orientedShells(loft.parts, loft.notes);
+        out.lofted = true; // no plane cut fits a deck that curves and climbs: computeAreas measures its top faces
+        return out;
       }
       case "IFCFIXEDREFERENCESWEPTAREASOLID": {
         // a profile swept along a curve with its x axis held toward one
@@ -2120,9 +2124,11 @@ export class Geometry {
     let joined = 0, unjoined = 0;
     let sweepLength = 0;
     let bars = [];
+    let lofted = true;
     const known = [], loose = [];
     for (const it of r.args[3]) {
       const s = this.item(it, depth + 1);
+      lofted = lofted && !!s.lofted;
       if (s.bars) bars.push(...s.bars);
       sweepLength = sweepLength != null && s.sweepLength != null ? sweepLength + s.sweepLength : null;
       // the body is the union of its items: where two overlap (a cabinet's
@@ -2149,6 +2155,7 @@ export class Geometry {
     if (axis) { out.axis = axis; out.axisWeight = axisWeight; }
     if (sweepLength) out.sweepLength = sweepLength;
     if (bars.length) out.bars = bars;
+    if (lofted && r.args[3].length) out.lofted = true;
     return out;
   }
 }
@@ -2525,6 +2532,34 @@ function faceted(parts, notes = []) {
  * alignment.mjs): only the sign is settled, by the enclosed volume, so the
  * neighbour search faceted() runs is skipped (Viadotto Acerno 30 s to 6 s).
  */
+/**
+ * The plan area of a solid's closed, outward-facing shells: each face's area
+ * projected along `up`, summed over the faces that look up (n . up > 0); a
+ * closed shell's projections sum to zero, so this is its top as seen from
+ * above. For lofted decks and courses, where a cut at one height catches only
+ * the part of a crowned, graded, curving deck that crosses it.
+ */
+export function shellPlanArea(s, up) {
+  if (!s.shells?.length) return null;
+  let a = 0;
+  for (const sh of s.shells) {
+    let top = 0;
+    for (const f of sh.loops) {
+      let nx = 0, ny = 0, nz = 0;
+      for (let i = 0; i < f.length; i++) {
+        const p = f[i], q = f[(i + 1) % f.length];
+        nx += (p[1] - q[1]) * (p[2] + q[2]);
+        ny += (p[2] - q[2]) * (p[0] + q[0]);
+        nz += (p[0] - q[0]) * (p[1] + q[1]);
+      }
+      const d = (nx * up[0] + ny * up[1] + nz * up[2]) / 2;
+      if (d > 0) top += d;
+    }
+    a += sh.s * top;
+  }
+  return a;
+}
+
 function orientedShells(parts, notes = []) {
   let v = 0;
   const shells = [];
