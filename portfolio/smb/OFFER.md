@@ -23,6 +23,14 @@ and prices, and the record-keeping rules for each kind of business), with a
 reading in [`VERTICALS.md`](VERTICALS.md). The arithmetic is
 [`cost_plus.py`](cost_plus.py) over [`cost_basis.yaml`](cost_basis.yaml).
 
+**Aligned with the owner's decisions recorded the same day** in PR #18715
+(`docs/reports/2026-11-24-cloud-provider-comparison.md`, §7): "dev fee not
+necessary"; "free dev service offered at operating cost plus transparent profit
+margin in exchange for ease of mind less headaches"; one AWS account per client
+project so the running cost is exact; the margin shown as its own line. So
+**building is free**. A shop pays the running cost of its share, plus a margin
+it can see.
+
 Related work still open when this was written: the SMB audience direction and
 strategy (PR #18697, `portfolio/smb/README.md`), the paid SaaS pivot with its
 suite list (PR #18008), the cost-plus direction (PR #18486) and the ranked
@@ -52,21 +60,26 @@ many times.
 We build and run a suite of software made for your kind of business:
 scheduling, quotes and invoices, the records your regulator or inspector
 asks for, reminders, reports. We keep it current when the rules change. You
-pay what it costs us to run your share of it, plus a stated margin, and we
-show you the cost lines. If you need something only your shop needs, we
-quote it the same way: our cost for the hours, plus the same margin. You
-get software built for your trade without hiring a developer, and without
+pay what it costs to run your share of it, plus a margin shown as its own
+line, and we show you the cost lines. Building it costs you nothing. That
+includes something only your shop needs: we build it free, and its running
+cost joins your statement on the same terms. You get software built for your
+trade without hiring a developer, without a development fee, and without
 paying for an enterprise product's sales team.
 
 ## Why cost-plus can undercut the incumbents and still make money
 
-A suite is built once per vertical and shared by every shop in it. So the
-cost per shop has two parts:
+A suite is built once per vertical and shared by every shop in it. The
+running cost per shop has two parts:
 
 - **variable**, what one more shop adds: model tokens, storage, database
   rows, the merchant's fee, support time;
-- **shared**, divided across all the shops: the build (amortised over
-  `amortize_build_months`), upkeep, rule-change watching, platform minimums.
+- **shared**, divided across all the shops: upkeep, rule-change watching,
+  platform minimums.
+
+**The build is not in the price.** It is the owner's investment, tracked in
+`cost_basis.yaml` (`build_once`) and recovered from the margin.
+`cost_plus.py` prints how many months that takes at the planned shop count.
 
 With 1 shop the shared part dominates and the price is high. With 100 it is
 small and the price approaches variable cost × markup. `cost_plus.py --suite
@@ -84,7 +97,7 @@ but never one below 1.0.
 
 **Hold the price as shops join.** If the price is recomputed at every new
 shop count, profit per shop shrinks as the shared cost spreads, and monthly
-profit grows slowly. On the placeholder basis, that is under $6k at 250
+profit grows slowly. On the placeholder basis, that is about $5.5k at 250
 home-services shops. So each suite's price is set once, at its planned shop
 count (`plan_shops`), and reviewed yearly. Later savings go into the shared
 core and the next vertical, and the cost lines stay published so customers
@@ -97,17 +110,27 @@ variable cost. Tokens and hosting come to $3–6. Self-serve onboarding and
 support that answers itself are therefore the margin, more than any choice of
 model or host (`VERTICALS.md`, "What the cost basis says").
 
-## Three price lines
+## What a shop's statement shows
 
-| Line | What it covers | How it is priced | Counts as |
-|---|---|---|---|
-| Suite subscription | The vertical suite, hosting, backups, compliance updates, support | `cost_plus.quote()` at the planned shop count; reviewed as shops join | MRR |
-| Custom work | A feature or integration only one shop needs | hours × cost rate × markup (`--custom-hours`) | one-off income, not MRR |
-| Custom upkeep | Keeping that shop-only feature running | its own variable cost × markup, added to the subscription | MRR |
+| Line | What it covers | Counts as |
+|---|---|---|
+| Running cost | Its share of hosting, backups, compliance updates and support, plus the running cost of anything built only for it | cost, passed through |
+| Margin | `markup − 1` times the running cost, shown as its own line | MRP |
+| Payment fee | The merchant of record's fee, passed through | cost |
 
-Custom work that turns out to be wanted by other shops in the vertical moves
-into the suite. The shop that paid for it gets a credit, recorded in the
-quote. That is how one shop's request becomes a module.
+The total is one monthly subscription, which counts as MRR. There is no build
+or development line. Work only one shop needs is built free (`--custom-hours`
+prints what it costs us, and that it bills $0). Its running cost joins that
+shop's statement. When other shops in the vertical want the same thing, it
+moves into the suite, and the running cost is shared from then on. That is
+how one shop's request becomes a module.
+
+**Hosting.** Today the suites would run on the Cloudflare account the
+catalogue uses. The owner's decision is to consolidate on AWS, with one
+account per client project, so a statement's cost lines come from the Cost
+and Usage Report, not an estimate. Shared suites run in one account per
+suite. A shop's own custom project gets its own account. When that lands,
+the `assumption` lines in `cost_basis.yaml` become `measured` ones.
 
 ## What "we handle compliance" may promise
 
@@ -166,13 +189,16 @@ in every suite's definition of done.
 
 None of these blocks building. They block selling.
 
-- **Terms of service and a custom-work agreement**: who owns code written for
-  one shop. Proposed default: we own the suite and any custom code, the shop
-  gets a perpetual licence to use what it paid for, and its data is always
-  its own. This is a legal decision, so it is the owner's.
-- **The default markup** (1.5× here) and whether the cost lines are shown to
-  customers in full.
-- **A HIPAA-eligible hosting account** before any dental, veterinary (where
+- **Terms of service**: who owns code built free for one shop. Proposed
+  default: we own the suite and any custom code; the shop may use what was
+  built for it while it subscribes; its data is always its own and exportable;
+  if it leaves, its own project's AWS account can go with it (the handover
+  path in PR #18715). This is a legal decision, so it is the owner's.
+- **The default markup** (1.5× here). The owner has already decided that the
+  margin is shown as its own line (PR #18715).
+- **The AWS Organization** (owner step in PR #18715). It must exist before
+  per-client accounts and measured statements can, and it can also be the
+  **HIPAA-eligible hosting** needed before any dental, veterinary (where
   state law adds requirements), PT or chiropractic suite stores patient
   data.
 - **Paddle products and prices** per suite. The checkout ships dark until
@@ -187,3 +213,10 @@ None of these blocks building. They block selling.
   cost basis has published unit prices for Paddle, Cloudflare and the Claude
   API; every other line is marked `assumption` until a bill or log replaces
   it. No customer, quote or revenue exists yet.
+- 2026-11-24, later: aligned with the owner's decisions merged in PR #18715
+  ("dev fee not necessary"; operating cost plus a transparent margin; one AWS
+  account per client project). The build left the price. It is now tracked
+  as the owner's investment, recovered from margin in 10–17 months at the
+  planned shop counts on the placeholder basis. Custom work is free to build.
+  The statement shows running cost, margin and payment fee as separate
+  lines.

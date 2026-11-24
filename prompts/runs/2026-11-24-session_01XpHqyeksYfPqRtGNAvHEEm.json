@@ -27,7 +27,7 @@
   "merged": null,
   "ci_failures_before_green": 5,
   "review_findings": null,
-  "tests_added": 11,
+  "tests_added": 12,
   "outcome": "success",
   "errors": [],
   "integrity_issues": [
@@ -42,6 +42,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "Four open PRs (#18008, #18486, #18546, #18675, #18697) all rewrite the SMB/cost-plus direction in owner-gated files; two of them add the same new file portfolio/smb/README.md. They conflict with each other and wait on the owner."
+    },
+    {
+      "file": "docs/reports/2026-11-24-cloud-provider-comparison.md",
+      "issue": "Owner decisions on cost-plus custom dev landed in a cloud-provider report and work queue while three other open PRs carry overlapping cost-plus text; a run working on the cost-plus offer only finds them by reading main's recent commits."
     }
   ],
   "deviations": [
@@ -60,7 +64,7 @@
   ],
   "writeups": [],
   "goal": "North star: a paid, cost-plus SMB offer with evidence for which verticals to build first.",
-  "notes": "Checks run here: python3 portfolio/smb/cost_plus.py --check (ok); python3 -m pytest -q portfolio/ledger/test_smb_cost_plus.py (11 passed; kept under portfolio/ledger so the checklist line covers it). Cost basis: Paddle, Cloudflare and model per-token prices are published; every labour and volume line is an assumption, so 100% of each modelled price rests on assumptions until a pilot shop is measured. Findings: support time is ~90% of variable cost under the placeholders; prices must be held at the planned shop count to reach $10k MRP (124-200 shops per wave-1 vertical). Main was red on five checks when this PR ran CI, all from concurrent merges; fixed here so the PR could land: dead bets.md links in hardware-bets.md (PR #18699, bets.md is in unmerged PR #18675), invalid hypothesis evidence in machine-shop-guides/VENTURE.yaml, its missing launch date and category (PR #18708; placed in trades / trades-paid beside shop-rate), and a build.test.mjs count-line assertion PR #18701 changed the copy for but did not update. Local: run_workflow_locally --for-changes 7/9 workflows passed (agent-cross-review and deploy only run in PR CI); after the fixes node --test platform/pages/{build,launched,front-doors}.test.mjs 372 pass, 0 fail.",
+  "notes": "Checks run here: python3 portfolio/smb/cost_plus.py --check (ok); python3 -m pytest -q portfolio/ledger/test_smb_cost_plus.py (11 passed; kept under portfolio/ledger so the checklist line covers it). Cost basis: Paddle, Cloudflare and model per-token prices are published; every labour and volume line is an assumption, so 100% of each modelled price rests on assumptions until a pilot shop is measured. Findings: support time is ~90% of variable cost under the placeholders; prices must be held at the planned shop count to reach $10k MRP (124-200 shops per wave-1 vertical). Main was red on five checks when this PR ran CI, all from concurrent merges; fixed here so the PR could land: dead bets.md links in hardware-bets.md (PR #18699, bets.md is in unmerged PR #18675), invalid hypothesis evidence in machine-shop-guides/VENTURE.yaml, its missing launch date and category (PR #18708; placed in trades / trades-paid beside shop-rate), and a build.test.mjs count-line assertion PR #18701 changed the copy for but did not update. Local: run_workflow_locally --for-changes 7/9 workflows passed (agent-cross-review and deploy only run in PR CI); after the fixes node --test platform/pages/{build,launched,front-doors}.test.mjs 372 pass, 0 fail. Mid-run, the owner's PR #18715 merged decisions that 'dev fee not necessary' and pricing is operating cost plus a transparent margin, one AWS account per client project. The draft had billed custom-work hours and amortised build into suite prices; realigned: build is the owner's investment, tracked and recovered from margin (10-17 months at plan), custom work bills $0, statement lines are running cost / margin / payment fee. Prices at plan fell to $82-$152/mo; the four wave-1 suites make ~$5.3k/mo margin at plan. Also fixed on main: an over-long meta description in hearth-and-horizon (PR #18718). Still red on main when last merged: three ebay-fee-calculator guide descriptions over 160 chars (PR #18706, merged minutes earlier), left to that PR's session.",
   "corrections": [],
   "redteam": null,
   "build_ok": true

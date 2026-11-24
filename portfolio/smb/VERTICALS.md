@@ -73,8 +73,9 @@ on top:
 | Staff schedule, time clock, no-show alerts | cleaning, restaurants, salons, childcare ratios | `shift-roster-builder` |
 | Books | all | `ai-bookkeeper` |
 
-That shape is what makes cost-plus pay. The core's build and upkeep are
-shared by every shop in every vertical. Each new trade adds only its own
+That shape is what makes cost-plus pay. The core's upkeep is shared by
+every shop in every vertical. Its build is built once and given free
+(owner, 2026-11-24: "dev fee not necessary"), then recovered from the margin. Each new trade adds only its own
 records, forms and vocabulary.
 
 ## Which verticals first
@@ -126,8 +127,8 @@ compliant cancellation for gyms. A whole suite is not the offer there.
 ## What the cost basis says (placeholders, not measurements)
 
 `python3 portfolio/smb/cost_plus.py` on the committed basis, with every
-labour and volume figure marked `assumption`. The arithmetic matters, not the
-dollars:
+labour and volume figure marked `assumption`. The build is free to shops and
+left out of the price (`OFFER.md`). The arithmetic matters, not the dollars:
 
 - **Support time decides the price, not compute.** Half an hour of support a
   month is about 90% of a trade shop's variable cost under these
@@ -135,15 +136,19 @@ dollars:
   lever is self-serve onboarding and support that answers itself, not a
   cheaper model.
 - **At the planned shop counts (40–50 a vertical), the four wave-1 suites
-  come to a few thousand dollars of profit a month together.** Reaching $10k
-  takes 124–200 shops a vertical at the planned price. If the price is cut
+  come to about $5.3k of margin a month together.** One vertical reaching
+  $10k alone would need about 170–280 shops at its planned price. The free
+  builds ($11k–$22.5k each at the placeholder rate) are recovered from margin
+  in 10–17 months. If the price is cut
   every time shops join, profit per shop falls with it. So the price is held
   at the planned count, and later savings go into the shared core and the
   next vertical. `OFFER.md` says the same.
-- Each wave-1 price at plan, about $100–$185 a month, sits inside the
-  incumbents' published ranges, not far below them. "Close to cost" beats the
-  quote-only and minimum-spend vendors clearly. Against the cheap published
-  tiers it wins on trade-specific records, not on price.
+- Each wave-1 price at plan, about $82–$152 a month, sits below the
+  incumbents' mid tiers (Housecall Pro Essentials $149–$189, Tekmetric from
+  $179, DoorLoop's $199 minimum) but not below their cheapest entry plans
+  (Jobber about $39, GorillaDesk $49, BrewERP $29). "Close to cost" beats the
+  quote-only and minimum-spend vendors clearly. Against the cheap entry tiers
+  it wins on trade-specific records, not on price.
 
 ## Gaps to close before selling
 

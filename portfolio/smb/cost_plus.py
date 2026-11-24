@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """Cost-plus pricing for the regional SMB suites (portfolio/smb/OFFER.md).
 
-The offer: a suite of software for one kind of local business, sold at what it
-costs us to build and run *per shop*, plus a stated markup. Because one suite
-serves every shop in the vertical, the build and upkeep cost is shared, so the
-per-shop cost falls as shops join. This script does that arithmetic from
-`cost_basis.yaml`, so a quote, a pricing page and the $10k MRP gap all come
-from the same numbers.
+The offer: a suite of software for one kind of local business. Building it is
+free (owner, 2026-11-24: "dev fee not necessary"; "free dev service offered at
+operating cost plus transparent profit margin"). A shop pays what it costs to
+*run* its share, plus a margin shown as its own line. Because one suite serves
+every shop in the vertical, the shared running cost (upkeep, rule watching,
+platform minimums) is divided across shops. The build cost is the owner's
+investment: tracked, recovered from the margin, never billed (`build_payback_months`).
+This script does that arithmetic from `cost_basis.yaml`, so a statement, a
+pricing page and the $10k MRP gap all come from the same numbers.
 
 Every cost line carries `kind`:
   published   a provider's list price (with source and the date read)
@@ -18,7 +21,7 @@ nobody mistakes an example for a measurement.
 Usage:
   python3 portfolio/smb/cost_plus.py                 # every suite
   python3 portfolio/smb/cost_plus.py --suite <slug>  # one suite, with the curve
-  python3 portfolio/smb/cost_plus.py --custom-hours 12 --suite <slug>
+  python3 portfolio/smb/cost_plus.py --custom-hours 12   # what free custom work costs us
   python3 portfolio/smb/cost_plus.py --check         # validate both YAML files
 """
 from __future__ import annotations
@@ -114,12 +117,9 @@ def quote(basis: dict, slug: str, shops: int, markup: float | None = None) -> Qu
     mk = float(markup if markup is not None else suite.get("markup", basis["markup"]["default"]))
     if mk < 1:
         raise ValueError("markup below 1.0 prices under cost")
-    shared, per_shop, build = suite_costs(basis, slug)
-    months = int(suite.get("amortize_build_months", basis["amortize_build_months"]))
-    shared_total = sum(l.usd for l in shared) + sum(l.usd for l in build) / months
-    shared_assumed = sum(l.usd for l in shared if l.assumed) + sum(
-        l.usd for l in build if l.assumed
-    ) / months
+    shared, per_shop, _build = suite_costs(basis, slug)  # build is free to the shop
+    shared_total = sum(l.usd for l in shared)
+    shared_assumed = sum(l.usd for l in shared if l.assumed)
     variable = sum(l.usd for l in per_shop)
     variable_assumed = sum(l.usd for l in per_shop if l.assumed)
     per_shared = shared_total / shops
@@ -133,28 +133,36 @@ def quote(basis: dict, slug: str, shops: int, markup: float | None = None) -> Qu
 def shops_for_mrp(basis: dict, slug: str, price: float, goal: float = MRP_GOAL_USD) -> int | None:
     """Shops needed at a fixed `price` for monthly recurring profit >= goal.
 
-    Fixed costs are the shared lines plus amortized build; each shop adds its
-    variable cost and the merchant fee. None when a shop never pays its way.
+    Fixed costs are the shared running lines; each shop adds its variable cost
+    and the merchant fee. The build is not in it: it is recovered separately
+    (build_payback_months). None when a shop never pays its way.
     """
-    suite = next(s for s in basis["suites"] if s["slug"] == slug)
-    shared, per_shop, build = suite_costs(basis, slug)
-    months = int(suite.get("amortize_build_months", basis["amortize_build_months"]))
-    fixed = sum(l.usd for l in shared) + sum(l.usd for l in build) / months
+    shared, per_shop, _build = suite_costs(basis, slug)
+    fixed = sum(l.usd for l in shared)
     contribution = price - merchant_of(basis).fee(price) - sum(l.usd for l in per_shop)
     if contribution <= 0:
         return None
     return max(1, math.ceil((goal + fixed) / contribution))
 
 
-def custom_work(basis: dict, hours: float, markup: float | None = None) -> dict:
-    """One-off cost-plus quote for work only one shop needs."""
+def build_cost(basis: dict, slug: str) -> float:
+    """The suite's one-off build cost: the owner's investment, never billed."""
+    return sum(l.usd for l in suite_costs(basis, slug)[2])
+
+
+def build_payback_months(basis: dict, slug: str, shops: int, markup: float | None = None) -> float | None:
+    """Months of margin, at `shops` shops, to recover the free build."""
+    margin = quote(basis, slug, shops, markup).margin * shops
+    return build_cost(basis, slug) / margin if margin > 0 else None
+
+
+def custom_work(basis: dict, hours: float) -> dict:
+    """What work only one shop needs costs us. Building is free to the shop
+    (owner, 2026-11-24: "dev fee not necessary"); only running it is billed,
+    at cost plus the margin, through that shop's statement."""
     rate = basis["custom_work"]
-    mk = float(markup if markup is not None else basis["markup"]["default"])
-    cost = hours * float(rate["hour_usd"])
-    m = merchant_of(basis)
-    price = m.gross_up(cost * mk)
-    return {"hours": hours, "cost": cost, "markup": mk, "price": price,
-            "fee": m.fee(price), "rate_kind": rate["kind"]}
+    return {"hours": hours, "cost": hours * float(rate["hour_usd"]), "billed": 0.0,
+            "rate_kind": rate["kind"]}
 
 
 # ---------------------------------------------------------------- validation
@@ -169,8 +177,6 @@ def check_cost_basis(basis: dict) -> list[str]:
             errs.append(f"merchant.{key} missing")
     if float(basis.get("markup", {}).get("default", 0)) < 1:
         errs.append("markup.default must be >= 1.0 (cost-plus never prices under cost)")
-    if int(basis.get("amortize_build_months", 0)) < 1:
-        errs.append("amortize_build_months must be >= 1")
 
     def lines(where: str, raw: list | None) -> None:
         for i, r in enumerate(raw or []):
@@ -250,8 +256,13 @@ def report(basis: dict, slug: str | None, markup: float | None) -> str:
         )
         out.append(f"  profit {_money(q.margin)}/shop/mo; "
                    f"{q.assumed_share:.0%} of the cost rests on assumptions")
+        out.append(f"  statement: running cost {_money(q.cost)} + margin {_money(q.margin)} "
+                   f"+ payment fee {_money(q.fee)} = {_money(q.price)}")
         out.append(f"  shops for ${MRP_GOAL_USD:,} MRP at that price: "
                    f"{need if need else 'never (a shop does not cover its own cost)'}")
+        pay = build_payback_months(basis, s["slug"], plan, markup)
+        out.append(f"  free build {_money(build_cost(basis, s['slug']))}, recovered from margin in "
+                   f"{f'{pay:.0f} months' if pay else 'never'} at {plan} shops")
         if s.get("incumbent"):
             inc = s["incumbent"]
             out.append(f"  incumbent: {inc['name']} {inc['price']} ({inc['source']})")
@@ -282,9 +293,9 @@ def main(argv: list[str] | None = None) -> int:
         print("ok" if not errs else f"{len(errs)} problem(s)")
         return 1 if errs else 0
     if a.custom_hours is not None:
-        c = custom_work(basis, a.custom_hours, a.markup)
-        print(f"custom work: {c['hours']:g} h at cost {_money(c['cost'])} (rate is {c['rate_kind']}), "
-              f"x{c['markup']:g} -> {_money(c['price'])} incl. merchant fee {_money(c['fee'])}")
+        c = custom_work(basis, a.custom_hours)
+        print(f"custom work: {c['hours']:g} h costs us {_money(c['cost'])} (rate is {c['rate_kind']}); "
+              f"billed to the shop: {_money(c['billed'])}. Its running cost goes on the statement at cost x markup.")
         return 0
     print(report(basis, a.suite, a.markup))
     return 0

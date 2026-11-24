@@ -9,8 +9,9 @@ description: "Pain points, incumbent prices and required records for 18 regional
 We are changing what we offer small businesses. Free tools stay. The new
 offer is a suite of software built for one kind of local business: the
 HVAC shop, the pest-control route, the brewery, the property manager with a
-few hundred doors. It is sold at what it costs us to run each shop's share,
-plus a stated margin, and it keeps the records their regulator asks for. It
+few hundred doors. Building it is free. A shop pays what it costs to run its
+share, plus a margin shown as its own line on the statement, and the suite
+keeps the records their regulator asks for. It
 is aimed at regional, owner-run firms of roughly 1 to 50 people. It is not
 for chains or enterprise buyers. The offer itself is in
 [`portfolio/smb/OFFER.md`](../../portfolio/smb/OFFER.md).
@@ -88,11 +89,16 @@ choice of model or host matters much less.
 **Pure cost-plus grows slowly.** If the price is recomputed every time a shop
 joins, the shared cost spreads thinner, the price falls, and so does the
 profit per shop. On the placeholder numbers, 250 home-services shops earn
-under $6k a month that way. So each price is set once, at a planned shop
+about $5.5k a month that way. So each price is set once, at a planned shop
 count, and held there. Later savings go into the shared core and the next
 trade, and the cost lines stay published, so a customer can see why the price
-is what it is. At held prices the four first suites need roughly 125–200
-shops each to reach $10k of monthly profit together.
+is what it is.
+
+At the planned counts of 40–50 shops, the four first suites would earn about
+$5.3k a month of margin together, at prices of roughly $82–$152 a month. The
+free builds come back out of that margin in 10–17 months. Reaching $10k
+needs more shops per trade, or more trades on the same core. The second is
+the cheaper road, because each new trade reuses the core.
 
 ## What we will and won't say about compliance
 

@@ -26,8 +26,11 @@ markup:
     Owner, 2026-11-24: "you get at close to what it costs". A stated, modest
     markup; the owner sets the final figure (OFFER.md, "What waits on the owner").
 
-amortize_build_months: 24
-
+# Where the suites run. Today's host is Cloudflare; the owner decided on
+# 2026-11-24 (PR #18715, docs/reports/2026-11-24-cloud-provider-comparison.md
+# section 7) to consolidate on AWS, with one AWS account per client project so
+# the cost-plus statement is read from the Cost and Usage Report, not
+# estimated. When a suite moves, replace this line with its measured account cost.
 platform_monthly:
   - item: Cloudflare Workers Paid minimum (Workers, KV, Durable Objects; D1 billed on usage)
     usd: 5
@@ -35,6 +38,8 @@ platform_monthly:
     source: https://developers.cloudflare.com/workers/platform/pricing/
     read: 2026-11-24
 
+# Building is free to the shop (owner, 2026-11-24: "dev fee not necessary").
+# This rate prices what free build work costs us, so payback can be tracked.
 custom_work:
   hour_usd: 75
   kind: assumption
@@ -52,7 +57,6 @@ suites:
       name: Housecall Pro
       price: "Essentials $149/mo annual, $189 monthly, up to 5 users (third-party listing, may date from 2023)"
       source: https://capterra.com/p/140363/HouseCall-Pro/pricing/
-    amortize_build_months: 24
     shared_monthly:
       - item: Upkeep, rule-change watching and support across the vertical
         usd: 600

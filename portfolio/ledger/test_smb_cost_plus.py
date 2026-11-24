@@ -20,7 +20,6 @@ def basis(**over):
     b = {
         "merchant": {"pct": 0.05, "fixed_usd": 0.50, "source": "x", "read": "2026-11-24"},
         "markup": {"default": 1.5},
-        "amortize_build_months": 24,
         "platform_monthly": [{"item": "host", "usd": 5, "kind": "published",
                               "source": "x", "read": "2026-11-24"}],
         "custom_work": {"hour_usd": 100, "kind": "assumption", "why": "t"},
@@ -42,12 +41,19 @@ def test_merchant_gross_up_round_trips():
     assert price - m.fee(price) == pytest.approx(100)
 
 
-def test_quote_is_cost_times_markup_after_fee():
+def test_quote_is_running_cost_times_markup_after_fee():
     q = cp.quote(basis(), "s", shops=10)
-    # shared: (5 + 95 + 2400/24) / 10 = 20; variable 10 -> cost 30
-    assert q.cost == pytest.approx(30)
-    assert q.price - q.fee == pytest.approx(45)  # 30 * 1.5 reaches us after Paddle
-    assert q.margin == pytest.approx(15)
+    # shared running cost: (5 + 95) / 10 = 10; variable 10 -> cost 20.
+    # The build (2400) is free to the shop and is not in the price.
+    assert q.cost == pytest.approx(20)
+    assert q.price - q.fee == pytest.approx(30)  # 20 * 1.5 reaches us after Paddle
+    assert q.margin == pytest.approx(10)
+
+
+def test_build_is_recovered_from_margin_not_billed():
+    assert cp.build_cost(basis(), "s") == 2400
+    # margin 10/shop x 10 shops = 100/month -> 24 months
+    assert cp.build_payback_months(basis(), "s", 10) == pytest.approx(24)
 
 
 def test_price_falls_as_shops_share_the_suite():
@@ -60,8 +66,8 @@ def test_price_falls_as_shops_share_the_suite():
 
 def test_assumed_share_counts_only_assumption_lines():
     q = cp.quote(basis(), "s", shops=10)
-    # assumption: (95 + 100)/10 = 19.5 of 30
-    assert q.assumed_share == pytest.approx(19.5 / 30)
+    # assumption: 95/10 = 9.5 of 20
+    assert q.assumed_share == pytest.approx(9.5 / 20)
 
 
 def test_markup_below_one_is_refused():
@@ -70,15 +76,14 @@ def test_markup_below_one_is_refused():
 
 
 def test_shops_for_mrp():
-    # contribution at $50: 50 - (2.5 + 0.5) - 10 = 37; fixed 200
-    assert cp.shops_for_mrp(basis(), "s", 50, goal=10_000) == 276
+    # contribution at $50: 50 - (2.5 + 0.5) - 10 = 37; fixed running 100
+    assert cp.shops_for_mrp(basis(), "s", 50, goal=10_000) == 273
     assert cp.shops_for_mrp(basis(), "s", 10) is None
 
 
-def test_custom_work_quote():
+def test_custom_work_is_free_to_the_shop():
     c = cp.custom_work(basis(), 10)
-    assert c["cost"] == 1000
-    assert c["price"] - c["fee"] == pytest.approx(1500)
+    assert c["cost"] == 1000 and c["billed"] == 0
 
 
 def test_check_flags_unsourced_and_unexplained_lines():
