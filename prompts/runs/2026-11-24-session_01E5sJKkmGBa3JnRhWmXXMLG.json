@@ -67,13 +67,19 @@
       "why": "The old revenue note reserved carry-forward for a paid version; under the new plan the paid suite's value is saved multi-job billing, retainage release, waivers and change orders, and a file-based roll of one job is a better lead magnet than a withheld feature.",
       "did": "Shipped file-based carry-forward free; recorded the reasoning in VENTURE.yaml.",
       "result": "Paid scope now stated as saved jobs, PDF, waivers."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Main was red on four checks from one newly landed venture (machine-shop-guides); my PR could not go green without them, and each fix was one line.",
+      "did": "Fixed them in this PR rather than a separate one.",
+      "result": "validate, optout-persistence, catch-all pass locally."
     }
   ],
   "writeups": [
     "docs/posts/2026-11-24-rolling-a-pay-application-to-next-month.md"
   ],
   "goal": "Front door for paid bet 1 (pay-app suite): demonstrates the monthly workflow and routes to early access.",
-  "notes": "node --test in ventures/pay-application-generator: 29/29 pass (run_venture_tests.py). Playwright 390px: example -> next month -> work out: app no 5, period 2026-11-30, previous certs 220770.00, due $0.00; no console errors; scrollWidth 390. venture-preflight run in background, result in PR. venture-preflight: only failures were my post description (fixed, check_posts ok) and main's dead bets.md links (fixed; check_md_links ok). Synced platform/privacy/optout-switches.txt for machine-shop-guides (main red); optout-persistence 20/20; build_pages_site + check_pages_links: only a generated shed-designer page missing locally.",
+  "notes": "node --test in ventures/pay-application-generator: 29/29 pass (run_venture_tests.py). Playwright 390px: example -> next month -> work out: app no 5, period 2026-11-30, previous certs 220770.00, due $0.00; no console errors; scrollWidth 390. venture-preflight run in background, result in PR. venture-preflight: only failures were my post description (fixed, check_posts ok) and main's dead bets.md links (fixed; check_md_links ok). Synced platform/privacy/optout-switches.txt for machine-shop-guides (main red); optout-persistence 20/20; build_pages_site + check_pages_links: only a generated shed-designer page missing locally. Also fixed main's machine-shop-guides fallout: launched.json entry (check.mjs dist) and filed it under services (build.test catch-all at 6 > 5); category tests 31/31.",
   "corrections": [],
   "redteam": null,
   "usage": {
