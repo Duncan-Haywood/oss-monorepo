@@ -612,6 +612,12 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    calibrated one (H297 refuted), and lands within 10% of the bound wherever it needs 10 or more (H298 held). The G1's
    banded plan costs 2.97% of the cycle (H299 held). Next: a warm-up transient; a logged drift trace; pose plan and
    schedule chosen together.
+75. **Optimal risk allocation** (done 2026-11-24, `experiments/m75_riskopt/`, offline): an exact risk calculation
+   (the bias norm under a random walk is a one-variable Markov chain) and a dynamic programme give the fewest re-zeros of
+   any open-loop schedule at 1% wall risk. It saves at most 7% over one per-press risk level calibrated exactly
+   (H303 refuted), and the G1's cliff is structural (96 against 99, H302 held). Milestone 73's Monte Carlo calibration
+   overshot 1% on 5 of 18 rows (up to 1.31%), and so did 3 of milestone 74's allocations; milestone 74's lower bound is
+   attained on 5 rows. Next: a closed-loop schedule; a warm-up transient; a logged drift trace.
 
 ## Target venue
 

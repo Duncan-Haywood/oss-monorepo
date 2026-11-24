@@ -955,6 +955,17 @@ D1 = 0.1 N, which the Monte Carlo-calibrated allocation reaches (against 99 at a
 uniform level the allocation saves at most 149 to 136, and it sits within 10% of the bound on every row with 10 or more
 re-zeros (median 1.3%). On the G1's banded plan it needs 23 (2.97% of the cycle). The pose plan, not the allocation,
 sets the count.
+Sharing the risk differently does not help (milestone 75, offline). Under a pure walk the bias norm is a 3-D Bessel
+process, so a segment's survival follows exactly from a one-variable chain with a closed-form transition, and since
+re-zeros reset the walk the fewest re-zeros at a 1% wall risk is a layered dynamic programme. Its count is checked against
+brute force, against 4,000 fresh Monte Carlo walls (at most 1.20% failure) and against a grid twice as fine (at most one
+re-zero). Over 18 cases (three plans, two robots, D1 0.05 to 0.2 N) the optimum is never more than 7% below one
+per-press &epsilon; calibrated on the same exact chain, and equal to it on 12. On the G1 at 0.1 N it needs 96 against 99:
+the cliff above is set by the weak pose and the sheet period, not by a uniform &epsilon;. The same chain shows the Monte
+Carlo calibration above overshoots the 1% target on 5 of the 18 cases, up to 1.31%, so the H1 needs 10 re-zeros, not 9.
+The two codes agree where they should: the lower bound above is at or below the exact optimum on all 18 cases and
+equal to it on 5, the G1's 96 among them, while 3 of the 18 simulation-calibrated allocations exceed 1% when scored on
+the chain (up to 1.22%). Against the exact optimum, allocation saves at most 149 to 142 re-zeros.
 
 ### 5.12 What the remedies cost (milestone 13)
 
