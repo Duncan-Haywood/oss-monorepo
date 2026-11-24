@@ -692,6 +692,10 @@ export function mspdiText(xer, { projId = null, codeNames = false, outlineCodes 
     `<MinutesPerWeek>${Math.round(projCal.weekMinutes || hoursPerDay * 300)}</MinutesPerWeek>`,
     "<DefaultTaskType>1</DefaultTaskType>",
     "<DurationFormat>7</DurationFormat>",
+    // P6's "make open-ended activities critical" is Project's "calculate
+    // multiple critical paths": both set a task with no successor's late
+    // finish to its early finish
+    `<MultipleCriticalPaths>${opts.sched_open_critical_flag === "Y" ? 1 : 0}</MultipleCriticalPaths>`,
     "<NewTasksEffortDriven>0</NewTasksEffortDriven>",
     dataDate !== null ? `<StatusDate>${isoDate(dataDate)}</StatusDate>` : "",
     "<NewTasksAreManual>0</NewTasksAreManual>",

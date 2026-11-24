@@ -590,6 +590,11 @@ export function schedule(xer, options = {}) {
     }
     if (t.extLF !== null) fins.push(t.extLF);
     if (t.deadline !== null && t.deadline !== undefined) fins.push(t.deadline);
+    // "Make open-ended activities critical" (P6 sched_open_critical_flag;
+    // Project's "Calculate multiple critical paths"): an activity with no
+    // successor finishes late where it finishes early, so its float is zero
+    // and the chain behind it is measured to its own end, not the project's
+    if (p.openCritical && !t.succs.some((rel) => !tasks.get(rel.succId).span)) fins.push(r.ef);
     let mandStart = null, mandFin = null;
     if (!active(t)) for (const c of t.cstr) {
       if (c.date === null) continue;
