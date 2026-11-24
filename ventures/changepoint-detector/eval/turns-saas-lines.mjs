@@ -52,11 +52,14 @@
 // Printed, no bar: each line's mean F1 and MRR's against the composite; misses and false turns a draw; the
 // composite's median timing error; the side scales and lengths; REL's bigMove values.
 //
+// Added after the first run (label only, no number changed): the shop block printed the SaaS line names for the
+// shop's four lines; it now prints orders, revenue, customers, hours.
+//
 // usage: node eval/turns-saas-lines.mjs > eval/turns-saas-lines.out.txt
 import { fileURLToPath } from 'node:url';
 import { turningPoints } from '../turning-points.mjs';
 import { compositeIndex } from '../composite-index.mjs';
-import { draw as shopDraw, score } from './turns-business-lines.mjs';
+import { draw as shopDraw, score, LINES as SHOP_LINES } from './turns-business-lines.mjs';
 
 const SEED = 20261125, DRAWS = 500, NEAR = 3;
 export const LINES = [
@@ -207,9 +210,9 @@ export async function run({ draws = DRAWS } = {}) {
 
 const f3 = (v) => v.toFixed(3);
 const sg = (v) => `${v >= 0 ? '+' : ''}${v.toFixed(3)}`;
-function describe(s, label) {
+function describe(s, label, names = LINES.map((l) => l.name)) {
   const o = [`${label}: ${s.draws} draws, ${s.truthMean.toFixed(2)} true turns a draw`];
-  o.push(`  single lines (shipped rule), mean F1: ${LINES.map((l, i) => `${l.name} ${f3(s.fl[i])}`).join(', ')}; hindsight-best ${f3(s.best)}`);
+  o.push(`  single lines (shipped rule), mean F1: ${names.map((nm, i) => `${nm} ${f3(s.fl[i])}`).join(', ')}; hindsight-best ${f3(s.best)}`);
   for (const [name, r] of Object.entries(s.rules)) {
     o.push(`  composite ${name.padEnd(7)} F1 ${f3(r.F)}${name === 'shipped' ? '' : ` (vs shipped ${sg(r.dShipped)}, wins ${r.wins}, losses ${r.losses}, p ${r.p.toExponential(2)})`}; misses ${r.miss.toFixed(2)}, false ${r.falses.toFixed(2)} a draw; timing median ${r.timingMedian}; bigMove median ${r.bigMove ?? f3(r.bigMoveMedian)}`);
   }
@@ -223,7 +226,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   console.log('\nFRED composite arm A vs NBER (K4):');
   for (const [name, r] of Object.entries(o.fred)) console.log(`  ${name.padEnd(7)} matched ${r.matched}/${r.of}, false ${r.falses}, bigMove ${f3(r.bigMove)}: ${r.turns.join(' ')}`);
   console.log('');
-  console.log(describe(o.shop, 'Shop make of the last round, seed 20261124 (K5)'));
+  console.log(describe(o.shop, 'Shop make of the last round, seed 20261124 (K5)', SHOP_LINES.map((l) => l.name)));
   console.log('\nBars:');
   for (const [a, v] of Object.entries(o.verdict)) console.log(`  ${a.padEnd(4)} ${['K1', 'K2', 'K3', 'K4', 'K5'].map((k) => `${k} ${v[k] ? 'PASS' : 'FAIL'}`).join(', ')}`);
   console.log(`Decision: ${o.ships ? `${o.ships} ships as the monthly default for --turns --columns` : 'no arm passes K1-K5: nothing changes'}.`);

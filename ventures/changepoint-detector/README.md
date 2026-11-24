@@ -10389,3 +10389,49 @@ Next, if this line continues: a fresh pre-registered round (new seed, a differen
 sign-ups, active users, MRR and paid invoices) on a short-phase rule for composites (minimum phase 3 months, or a
 short phase kept when it moves a set share of the composite's median phase move), with NBER's 16 of 16 on the FRED
 composite kept as a bar.
+
+## A short-phase rule for composites, on SaaS lines (2026-11-24, pre-registered; both rules gain +0.03 to +0.08 F1 and keep NBER's 16 of 16, but miss the hindsight bar, so nothing ships)
+
+The item above: the shop round's composite missed short contractions, because BBQ's 6-month phase minimum drops
+them and bigMove 0.05 does not rescue a small move. This round tests two fixes, set beforehand, on a fresh make
+and seed: a SaaS company's sign-ups (lead 2 months, noisy), active users (lag 1, sticky), MRR (lag 3, smooth,
+moves half as much) and paid invoices (lag 1), with contractions of 5-15 months and expansions of 20-50. The rules
+and bars are in the header of `eval/turns-saas-lines.mjs`, committed before it first ran (commit "pre-register the
+SaaS-lines short-phase round"); output `eval/turns-saas-lines.out.txt` (0.8 s); test `turns-saas-lines.test.mjs`.
+500 draws, seed 20261125, about 6 true turns a draw.
+
+- **P3:** minimum phase 3 months instead of 6, bigMove 0.05 kept.
+- **REL:** minimum phase 6, but a short phase is kept when it moves a quarter of the composite's own median phase
+  move (capped at 5%), so the rule follows the composite's scale. Its threshold came out at a median 2.7%.
+
+| bar (SaaS make, 144 months, typical noise) | P3 | REL |
+|---|---|---|
+| K1 beats the shipped rule on the composite by 0.02 F1, sign test p <= 0.025 | 0.915 vs 0.833, +0.082, wins 168, losses 3: **passes** | 0.858, +0.025, wins 71, losses 1: **passes** |
+| K2 within 0.03 of the hindsight-best single line (0.960) | 0.045 short: **fails** | 0.102 short: **fails** |
+| K3 false turns a draw at most shipped's (0.07) + 0.10 | 0.10: **passes** | 0.08: **passes** |
+| K4 FRED composite still dates NBER's 16 of 16, at most 2 false | 16 of 16, 2 false: **passes** | 16 of 16, 0 false: **passes** |
+| K5 no loss on the shop round's draws (shipped 0.932) | 0.974: **passes** | 0.947: **passes** |
+
+What it shows:
+
+- **The phase minimum, not the weighting, is what costs composites their short contractions.** With P3 the
+  composite's misses fall from 1.46 to 0.76 a draw and false turns rise from 0.07 to 0.10. It wins 168 draws and
+  loses 3. The gain holds at half and double the noise (+0.076, +0.080) and at 96 and 240 months (+0.077, +0.080).
+  On the shop round's draws P3 reaches 0.974, the hindsight-best figure there.
+- **On SaaS lines the shipped composite is weak, and the default deserves a warning.** With the 6-month minimum
+  the composite (0.833) is below its best single line on average (active users 0.872) and only just above MRR
+  alone (0.786), because MRR, the smoothest line, weighs most and its lag smears contractions further. Real SaaS
+  lines that look like this would be dated better by P3 than by today's default. That is a reading, not a bar,
+  and the CLI text is unchanged.
+- **P3 still trails hindsight on this make by 0.045.** Picking the best line after the fact scores 0.960; no rule
+  for picking it in advance was tested, and the heaviest-weight line (MRR) scores 0.786. The bar was set and missed.
+- **REL helps less.** A quarter of the median phase move is about 2.7% here, so it rescues fewer short phases than
+  P3 does; at 96 months it changed one draw.
+- **On FRED, P3 adds one pair of turns: 2002-11 and 2003-04.** That is the soft patch after the 2001 recession,
+  which NBER did not date. It stays within K4's 2 false turns; REL dates exactly the shipped 16.
+
+By the rules written beforehand nothing changes in the CLI or on the page. Next, if this line continues: a third
+make with a fresh seed (an agency's billable hours, pipeline, invoices and headcount), with P3 alone and the same
+K1-K5. A fair replacement for K2 would be a selection rule that can be used in advance (such as each line's own
+sticky/noisy diagnostics). It cannot be added after seeing these numbers, so it would be tested as a separate,
+pre-registered arm.

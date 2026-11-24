@@ -204,10 +204,12 @@ flagships:
       "BBQ on FRED GDPC1", "BBQ on monthly payrolls"): GDP 0.781, GDPC1 0.792,
       PAYEMS 0.654/0.731 (bigMove) of 0.80; payroll troughs lag 2001/2009; business
       lines sim 2026-11-24: composite 0.932 vs revenue 0.869, short of hindsight
-      0.974 (README "Several business lines"); next a short-phase rule for
-      composites on a fresh make, or ALFRED vintages; t-walk. Curvature word ships
-      under --shape-word panel (README "A curvature word"): slope donors straight
-      73% vs clean 37%, OR 4.74 vs 3.37. More open items: NEXT.md.
+      0.974 (README "Several business lines"); SaaS make 2026-11-24: min phase 3
+      lifts the composite 0.833 to 0.915, NBER 16/16 kept, 0.045 short of hindsight
+      (README "A short-phase rule for composites"); next a third make on P3 alone,
+      or ALFRED vintages; t-walk. Curvature word ships under --shape-word panel
+      (README "A curvature word"): slope donors straight 73% vs clean 37%, OR 4.74
+      vs 3.37. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://github.com/, https://pypi.org/, https://repo1.maven.org/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag.
