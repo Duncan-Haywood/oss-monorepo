@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVPStudbW2pZx2i25oM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T13:08:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing (flagship 7): edge-mirror closed-eye search on the cull page (NEXT.md item)",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": 18603,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/photo-editing/eval/cull-closed-eyes.mjs",
+      "issue": "With 45 PNGs in the folder the harness's in-page PNG-to-JPEG re-encode left setInputFiles hanging with no error; pre-converting with ImageMagick worked. Not fixed, noted in eval/cull-edge-mirror-2026-11-24.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here named photo-editing item 1 (HDR+ ramp-fit prep) and the numbered items 2-6 need outside data or Lightroom; took the NEXT.md cull-page item (edge-mirror search on the page), a user-facing gap with a measured miss, buildable with reachable hosts.",
+      "did": "ported the CLI's mirrored edge search to site/eyes.mjs and cull.html as a gated second pass",
+      "result": "7/7 closed, 0/108 others; 20/40 held-out half faces found, 8/10 shut flagged; +0.14 s/frame"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-half-faces-at-the-frame-edge.md",
+    "ventures/photo-editing/eval/cull-edge-mirror-2026-11-24.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: node --test site/eyes.test.mjs 19/19; run_venture_tests.py photo-editing ok (1616 tests, 176 s) plus site page checks; check_posts ok; venture-preflight photo-editing clean. Eval on the real page in headless Chromium with local MediaPipe 0.10.21 copies: sorter 105 + portraits 10, before/after via cull.html?edges=0; 40 held-out halves from eval/blink-half-face-2026-11-16.jsonl boxes; 525-file card timing 33.7 s first pass, 71.8 s edge pass.",
+  "corrections": [],
+  "redteam": null
+}
