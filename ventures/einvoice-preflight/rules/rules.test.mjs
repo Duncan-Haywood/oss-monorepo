@@ -69,6 +69,7 @@ test("every XML snippet is a well-formed fragment in the syntax it is labelled",
   assert.equal(wellFormed("<a>R&D</a>"), 'bare & in text "R&D"');
   for (const r of rules) {
     assert.ok(r.ubl || r.cii, `${r.id}: no snippet`);
+    for (const x of [r.ubl, r.cii].filter(Boolean)) assert.doesNotMatch(x.replace(/<!--[\s\S]*?-->/g, ""), /\.\.\.|…/, `${r.id}: an elision outside a comment would be copied into a file`);
     if (r.ubl) {
       assert.equal(wellFormed(r.ubl), null, `${r.id} UBL`);
       assert.ok(/<(cbc|cac):/.test(r.ubl) && !/<(ram|rsm|udt):/.test(r.ubl), `${r.id}: UBL snippet uses CII prefixes`);
