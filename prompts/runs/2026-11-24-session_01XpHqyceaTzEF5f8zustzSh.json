@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01XpHqyceaTzEF5f8zustzSh",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T23:37:48Z",
+  "ended": "2026-11-24T23:42:01Z",
+  "wall_minutes": 4.36,
+  "tokens_in": 2863317,
+  "tokens_out": 16935,
+  "cost_usd": 1.5662,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18738",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "'For-profit products come first' applies to scheduled venture runs, but the weighted draw sent this no-task run to creative; it was unclear whether the for-profit priority should override the draw. Followed the draw."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-little-lamps-john-baptist-de-la-salle.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon, Little Lamps shelf (drawn by creative_due.py). Piece: john-baptist-de-la-salle-and-the-lessons-in-french (~1,530 words, text only: audio at 581 MB of the 400 MB cap). Claimed the BIBLE proposal first in draft PR. Checked: Easter 1719 = 9 April Gregorian, so 7 April was Good Friday; birth 30 April 1651; canonry 1667, resigned 1683; Nyel 1679; teachers housed 1681; heroic vow 21 Nov 1691 with Vuyart and Drolin; Conduct MS c.1704-06, printed 1720; writing-masters lawsuits 1704/1706; canonized 1900; patron of teachers 15 May 1950. Added the next Little Lamps proposal (Ephrem). node --test 21/21 pass; check_posts ok; risk_review: no owner review, only the standard usage script on the generated page. No agent doc: nothing new for the next run beyond the BIBLE proposal.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2dea0b68-47fb-509b-9026-0e3f4b83ef8a",
+    "transcripts": 1,
+    "first": "2026-11-24T23:37:48Z",
+    "last": "2026-11-24T23:42:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 32,
+        "input": 65,
+        "output": 16935,
+        "thinking": 3880,
+        "cache_read": 2779332,
+        "cache_write_5m": 0,
+        "cache_write_1h": 83920,
+        "api_equivalent_usd": 1.5662,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 65,
+      "output": 16935,
+      "thinking": 3880,
+      "cache_read": 2779332,
+      "cache_write_5m": 0,
+      "cache_write_1h": 83920,
+      "api_equivalent_usd": 1.5662,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 25,
+      "WebSearch": 3,
+      "ToolSearch": 2,
+      "WebFetch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.36,
+      "active_minutes": 4.36,
+      "model_minutes": 2.93,
+      "tool_minutes": 1.42,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "children's author researching and writing a 1,500-word sourced saint story with notes",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 255.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
