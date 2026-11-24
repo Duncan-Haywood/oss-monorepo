@@ -5030,7 +5030,8 @@ test('a category holding a documented external-call exception says so, not "noth
     } else {
       assert.equal(
         count,
-        `${items.length} free tool${items.length === 1 ? '' : 's'} · no account · nothing you type is uploaded`,
+        // Copy since #18701: "N tools · free, no account · ..." (category h1 dropped "Free").
+        `${items.length} tool${items.length === 1 ? '' : 's'} · free, no account · nothing you type is uploaded`,
         `${category.id} holds no exception, so its count line should make the unconditional claim`,
       );
     }
