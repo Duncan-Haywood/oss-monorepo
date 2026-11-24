@@ -1395,10 +1395,54 @@ def _marked_end(text: str, start: int) -> int:
     return len(text)
 
 
+def _sentences(text: str) -> list[str]:
+    """`text` cut at '. ' before a capital, outside brackets (not at ';')."""
+    return [c.strip() for c in _top_level_clauses(text.replace(";", "\0"))
+            if c.strip()] if text else []
+
+
+def _buildable_clauses(text: str) -> list[str]:
+    """`buildable:` cut into clauses, keeping a sentence whole when its
+    ';'-parts are one result. Why: "Interpolated sRGB encode 2026-11-17; a
+    3-stop lift loses 0 of the screen codes ... (eval/...)" and "Every nut a
+    joint; deep sockets ... 2026-11-22 (cad/README.md)" are each one landed
+    entry, but cut at ';' their second or first half read as open work and
+    were numbered (photo-editing item 2, 2026-11-24 run record)."""
+    out = []
+    for sent in _sentences(text):
+        sent = sent.replace("\0", ";")
+        parts = _top_level_clauses(sent)
+        if len(parts) == 2 and _one_result(parts):
+            out.append(sent.strip(" ."))
+        else:
+            out.extend(parts)
+    return out
+
+
+_EVIDENCE_END = re.compile(r"\((?:[^()]*\b(?:eval/|[\w*.-]+\.md\b))[^()]*\)$")
+
+
+def _one_result(parts: list[str]) -> bool:
+    """True when the ';'-parts are one landed entry: no part has a build cue,
+    one reads as a result, and each other part either ends in its evidence
+    ("... (eval/shadow-lift-*)") or is a short head before the result ("Every
+    nut a joint"). A part that is neither ("HDR+ bursts: prep") stays an item."""
+    if any(_BUILD_CUE.search(_unbracketed(p)) for p in parts):
+        return False
+    done = [item_skip(p) == "result" for p in parts]
+    if not any(done):
+        return False
+    first = done.index(True)
+    return all(d or _EVIDENCE_END.search(p) or (i < first and len(p.split()) <= 5)
+               for i, (p, d) in enumerate(zip(parts, done)))
+
+
 def open_items(buildable: Optional[str], next_text: Optional[str],
-               width: int = 150) -> list[tuple[str, str]]:
-    """[(field, item)] numbered in the order Start here's item rank counts."""
-    found = [("buildable", c) for c in _top_level_clauses(buildable or "")]
+               width: Optional[int] = None) -> list[tuple[str, str]]:
+    """[(field, item)] numbered in the order Start here's item rank counts.
+    `width` shortens each item; item_lines shortens for display after it has
+    judged the whole entry, so the default keeps it whole."""
+    found = [("buildable", c) for c in _buildable_clauses(buildable or "")]
     text = next_text or ""
     for m in _ITEM_MARK.finditer(text):
         body = text[m.end():_marked_end(text, m.end())].strip(" ,:")
@@ -1406,7 +1450,7 @@ def open_items(buildable: Optional[str], next_text: Optional[str],
             found.append(("next", body))
     out, seen = [], set()
     for field, body in found:
-        short = body if len(body) <= width else body[:width - 1].rstrip() + "\u2026"
+        short = _shorten(body, width)
         if short not in seen:
             seen.add(short)
             out.append((field, short))
@@ -1436,6 +1480,29 @@ _DATED_END = re.compile(r"\b20\d\d-\d\d-\d\d\.?$")
 _BUILD_CUE = re.compile(r"\b(?:next|find|draw|rerun|run|rebuild|add|write|fit|diff)\b", re.I)
 
 
+def _shorten(body: str, width: Optional[int]) -> str:
+    return body if width is None or len(body) <= width else body[:width - 1].rstrip() + "\u2026"
+
+
+# Setup and source lines in `buildable:` ("tesseract via apt, RapidOCR via
+# pip", "Public samples, no key: github.com/...", "DNG 1.7.1.0 spec PDF: URL
+# in eval/...", "Test files: bash eval/corpus-fetch.sh DIR") say how to work,
+# not what to build, and advice ("Each is a hard combinatorial search", "judge
+# its worth before taking it") is not an item either. Why: on main on
+# 2026-11-24, 11 of the 53 numbered entries were such lines, and 4 rows
+# (ai-bookkeeper, photo-editing, xer-schedule-check, open-tennis-robots) led
+# their list with one, so a session drawing rank 1 there was pointed at a
+# source list (7 allocate.py doc_friction reports, 2026-11-22..24).
+_SETUP = re.compile(
+    r"\bvia (?:apt|pip|npm|brew)\b|^(?:public )?(?:samples|test files|sources?|data)\b[^:]{0,30}:"
+    r"|\bspec PDF\b|\banswers from a cloud session\b|\bwith no (?:outside input|key)$", re.I)
+_ADVICE = re.compile(r"^(?:each (?:is|needs|takes)|judge its worth)\b", re.I)
+# Words that keep a dated entry open ("figures in doubt 2026-11-23 (eval/...)").
+_STILL_OPEN = re.compile(r"\b(?:in doubt|unexplained|unsettled|unresolved)\b", re.I)
+# A matched count with nothing left ("1,138/1,138 unit asserts") reports a pass.
+_ALL_PASS = re.compile(r"\b(\d[\d,]*)/\1\b")
+
+
 def _unbracketed(text: str) -> str:
     """`text` without bracketed asides (evidence, dates, counts)."""
     out, depth = [], 0
@@ -1458,12 +1525,27 @@ def item_skip(body: str, today: Optional[str] = None) -> str:
     gates = future_gates(body, today)
     if gates and body.lower().startswith(("after", "from", "not before")):
         return f"waits for {gates[0]}"
-    if _BUILD_CUE.search(_unbracketed(body)):
+    flat = _unbracketed(body)
+    if _BUILD_CUE.search(flat):
         return ""
+    if _SETUP.search(flat):
+        return "setup or source"
+    if _ADVICE.search(flat):
+        return "advice"
+    if _ALL_PASS.search(flat):
+        return "result"
+    if _STILL_OPEN.search(flat):
+        return ""
+    parts = _top_level_clauses(body)
+    if len(parts) == 2 and _one_result(parts):
+        return "result"
     if (_STATUS.search(body) or _DATED_END.search(body) or DATED_EVIDENCE.search(body)
             or is_result(_unbracketed(body))):
         return "result"
     return ""
+
+
+ITEM_WIDTH = 150
 
 
 def item_lines(items: list[tuple[str, str]], today: Optional[str] = None) -> list[str]:
@@ -1473,10 +1555,10 @@ def item_lines(items: list[tuple[str, str]], today: Optional[str] = None) -> lis
     for field_name, body in items:
         why = item_skip(body, today)
         if why:
-            skipped.append(f"  -  [{field_name}] ({why}) {body}")
+            skipped.append(f"  -  [{field_name}] ({why}) {_shorten(body, ITEM_WIDTH)}")
         else:
             n += 1
-            lines.append(f"  {n}. [{field_name}] {body}")
+            lines.append(f"  {n}. [{field_name}] {_shorten(body, ITEM_WIDTH)}")
     if not n:
         lines.append("  (no entry looks buildable from a cloud session: take an open item "
                      "from the row's NEXT.md, or a skipped one you can do, and add it to "
@@ -1763,7 +1845,7 @@ def venture_report(name: str, ventures: list[Venture],
         items = open_items(v.flagship_buildable, v.flagship_next)
         if items:
             lines.append("items: (numbered from the two fields above for Start here's item "
-                         "rank; results, entries needing outside input and dated waits are "
+                         "rank; results, setup or source lines, advice, entries needing outside input and dated waits are "
                          "listed unnumbered after them. A heuristic split: take a skipped "
                          "entry if you can do it)")
             lines.extend(item_lines(items))
