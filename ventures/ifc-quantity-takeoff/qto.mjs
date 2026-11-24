@@ -19,7 +19,7 @@
 import { barShape, readBarProps, toMm, massPerMetre } from "./rebar.mjs";
 import { applyRule, ruleActive, ruleLabel } from "./measure.mjs";
 import { assignUniformat, uniformatLabel } from "./uniformat.mjs";
-import { roomGeometry, checkRoom, roomLabel, assignRooms, footprintSolid, deductOpenings, connectionArea, OPENING_CLASS } from "./rooms.mjs";
+import { roomGeometry, checkRoom, roomLabel, assignRooms, footprintSolid, deductOpenings, floorsBelow, connectionArea, OPENING_CLASS } from "./rooms.mjs";
 import { planRect, roofFaces, assignEnvelope, assignRailingSides } from "./envelope.mjs";
 import { Geometry, Unresolved, det, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, surfaceArea, planeAreas, boundaryArea, bendsInPlan, curvedFaces, prismAxis, thinnestNormal, solidExtent, barExtent, shellPlanArea } from "./geom.mjs";
 
@@ -677,7 +677,7 @@ export function takeoff(model, opts = {}) {
   assignUniformat(rows);
   const rooms = opts.rooms === false ? [] : takeoffRooms(E, idx, geo, bodyOf, worldOf, units, opts, tol);
   assignRooms(rows, rooms);
-  if (rooms.length) { const { bounds, overall } = spaceBoundaries(E, geo, f); deductOpenings(rows, rooms, bounds, overall); }
+  if (rooms.length) { floorsBelow(rows, rooms); const { bounds, overall } = spaceBoundaries(E, geo, f); deductOpenings(rows, rooms, bounds, overall); }
   return { schema: model.schema, units, rows, rooms };
 }
 

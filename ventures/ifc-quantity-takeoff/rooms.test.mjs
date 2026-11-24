@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { parseStep } from "./step.mjs";
 import { takeoff, boq, rowsCsv } from "./qto.mjs";
-import { assignRooms, outlineLength, footprintSolid, roomGeometry, pointInSolid, sectionPerimeter, checkRoom, roomsCsv, roomTotals, roomLabel, connectionArea, deductOpenings, heightShare } from "./rooms.mjs";
+import { assignRooms, outlineLength, footprintSolid, roomGeometry, pointInSolid, sectionPerimeter, checkRoom, roomsCsv, roomTotals, roomLabel, connectionArea, deductOpenings, heightShare, floorsBelow, floorDropAt } from "./rooms.mjs";
 import { IDENTITY, Geometry } from "./geom.mjs";
 
 const close = (a, b, tol = 1e-9) => assert.ok(Math.abs(a - b) <= tol * Math.max(1, Math.abs(b)), `${a} vs ${b}`);
@@ -472,4 +472,40 @@ test("a room's solid, placement and unit stay off its own fields (JSON, CSV)", (
     assert.ok(!Object.keys(office).includes(k), `${k} is enumerable`);
     assert.ok(office[k] != null, `${k} is kept for the room checks`);
   }
+});
+
+test("floorsBelow: a split-level floor under a room drawn from the storey's level", () => {
+  // a 4 x 4 m room drawn from z 0 to 3; its west half stands on a slab whose
+  // top is 0.5 m lower (HouseZ's Washing Room and office), its east half on
+  // one at the room's level
+  const room = { id: 1, label: "R", box: [0, 0, 0, 4, 4, 3], computed: { perimeter: 16, height: 3, wallArea: 48 } };
+  Object.assign(room, { solid: footprintSolid([[0, 0], [4, 0], [4, 4], [0, 4]], 0, 3), world: IDENTITY, lengthUnit: 1 });
+  const slab = (id, x0, x1, top, t) => ({ id, ifcType: "IFCSLAB", box: [x0, 0, top - t, x1, 4, top], world: IDENTITY, lengthUnit: 1, computed: { solids: { body: footprintSolid([[x0, 0], [x1, 0], [x1, 4], [x0, 4]], top - t, t) } } });
+  floorsBelow([slab(10, 0, 2, -0.5, 0.3), slab(11, 2, 4, 0, 0.3)], [room]);
+  const fb = room.computed.floorBelow;
+  close(fb.drop, 0.5);
+  close(fb.share, 0.5);
+  close(fb.edgeShare, 0.5);
+  close(fb.bandArea, 4); // 16 m perimeter x 0.25 m mean drop along it
+  assert.deepEqual(fb.slabs, [10]);
+  close(room.computed.solidWallArea, 48);
+  close(room.computed.wallArea, 52);
+  // at an opening: the floor under its west end is 0.5 m down, the east end's is the room's
+  close(floorDropAt(room, [0.5, -0.1, -0.5, 1.5, 0, 1.5]), 0.5);
+  assert.equal(floorDropAt(room, [3, -0.1, 0, 3.9, 0, 2]), 0);
+  // a door standing on the low floor keeps its height: the band runs down to it
+  const door = { id: 5, ifcType: "IFCDOOR", box: [0.5, -0.1, -0.5, 1.5, 0, 1.5] };
+  room.computed = { ...room.computed };
+  deductOpenings([door], [room], [{ space: 1, element: 5, type: "IFCDOOR", area: null }], new Map([[5, { width: 1, height: 2 }]]));
+  close(room.computed.openingArea, 2);
+  assert.equal(room.computed.openingsCut, 0);
+});
+
+test("floorsBelow: a structural slab a screed's depth down is build-up, not a lower floor", () => {
+  const room = { id: 1, label: "R", box: [0, 0, 0, 4, 4, 3], computed: { perimeter: 16, height: 3, wallArea: 48 } };
+  Object.assign(room, { solid: footprintSolid([[0, 0], [4, 0], [4, 4], [0, 4]], 0, 3), world: IDENTITY, lengthUnit: 1 });
+  const body = footprintSolid([[0, 0], [4, 0], [4, 4], [0, 4]], -0.45, 0.3);
+  floorsBelow([{ id: 10, ifcType: "IFCSLAB", box: [0, 0, -0.45, 4, 4, -0.15], world: IDENTITY, lengthUnit: 1, computed: { solids: { body } } }], [room]);
+  assert.equal(room.computed.floorBelow, undefined);
+  close(room.computed.wallArea, 48);
 });

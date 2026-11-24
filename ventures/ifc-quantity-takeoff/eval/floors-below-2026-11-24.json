@@ -1,0 +1,152 @@
+[
+ {
+  "model": "AC20-FZK-Haus.ifc",
+  "rooms": 7,
+  "sunken": [],
+  "band": 0,
+  "gross": 398.18885599151986,
+  "cut": 0
+ },
+ {
+  "model": "ISSUE_005_haus.ifc",
+  "rooms": 7,
+  "sunken": [],
+  "band": 0,
+  "gross": 398.18885599151986,
+  "cut": 0
+ },
+ {
+  "model": "duplex.ifc",
+  "rooms": 21,
+  "sunken": [],
+  "band": 0,
+  "gross": 968.9136896000282,
+  "cut": 0
+ },
+ {
+  "model": "Office_A_20110811.ifc",
+  "rooms": 99,
+  "sunken": [],
+  "band": 0,
+  "gross": 5962.591375300115,
+  "cut": 0.4150000000000054
+ },
+ {
+  "model": "dental_clinic.ifc",
+  "rooms": 269,
+  "sunken": [],
+  "band": 0,
+  "gross": 15499.353653832297,
+  "cut": 0
+ },
+ {
+  "model": "C20-Institute-Var-2.ifc",
+  "rooms": 82,
+  "sunken": [],
+  "band": 0,
+  "gross": 4553.501905272507,
+  "cut": 0
+ },
+ {
+  "model": "FM_ARC_DigitalHub.ifc",
+  "rooms": 64,
+  "sunken": [],
+  "band": 0,
+  "gross": 6131.849160000011,
+  "cut": 0.5854999999999891
+ },
+ {
+  "model": "schependomlaan.ifc",
+  "rooms": 100,
+  "sunken": [],
+  "band": 0,
+  "gross": 3125.309522951994,
+  "cut": 5.92667929767714
+ },
+ {
+  "model": "ISSUE_159_kleine_Wohnung_R22.ifc",
+  "rooms": 28,
+  "sunken": [],
+  "band": 0,
+  "gross": 978.314666582168,
+  "cut": 0
+ },
+ {
+  "model": "ISSUE_034_HouseZ.ifc",
+  "rooms": 5,
+  "sunken": [
+   {
+    "id": 133,
+    "room": "GF Hallway",
+    "storey": "Ground Floor",
+    "drop": 0.51,
+    "share": 0.175,
+    "edgeShare": 0.259,
+    "bandArea": 3.76,
+    "solidWallArea": 89.63,
+    "slabs": [
+     53569
+    ]
+   },
+   {
+    "id": 48,
+    "room": "Parametricos Office",
+    "storey": "Ground Floor",
+    "drop": 0.51,
+    "share": 0.535,
+    "edgeShare": 0.55,
+    "bandArea": 8.14,
+    "solidWallArea": 91.41,
+    "slabs": [
+     53569
+    ]
+   },
+   {
+    "id": 175,
+    "room": "Washing Room",
+    "storey": "Ground Floor",
+    "drop": 0.51,
+    "share": 1,
+    "edgeShare": 1,
+    "bandArea": 4.74,
+    "solidWallArea": 29.3,
+    "slabs": [
+     53569
+    ]
+   }
+  ],
+  "band": 16.640453314440297,
+  "gross": 347.7779367239505,
+  "cut": 0
+ },
+ {
+  "model": "example.ifc",
+  "rooms": 1,
+  "sunken": [],
+  "band": 0,
+  "gross": 1.192826241441751,
+  "cut": 0
+ },
+ {
+  "model": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+  "rooms": 306,
+  "sunken": [
+   {
+    "id": 30955,
+    "room": "0U017 heis",
+    "storey": "Plan 00U",
+    "drop": 1.1,
+    "share": 1,
+    "edgeShare": 1,
+    "bandArea": 8.83,
+    "solidWallArea": 19.58,
+    "slabs": [
+     1186886
+    ]
+   }
+  ],
+  "band": 8.833000000000018,
+  "gross": 27028.709594853342,
+  "cut": 31.109795237107928
+ }
+]
