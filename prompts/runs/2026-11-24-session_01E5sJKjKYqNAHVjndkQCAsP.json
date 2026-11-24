@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKjKYqNAHVjndkQCAsP",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T05:18:09Z",
+  "ended": "2026-11-24T05:35:51Z",
+  "wall_minutes": 21.23,
+  "tokens_in": 15835300,
+  "tokens_out": 60962,
+  "cost_usd": 6.0156,
+  "tool_calls": 121,
+  "task": "ids-model-check (flagship 12): buildable item 'next another public set'",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18547",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ids-model-check/cli.mjs",
+      "issue": "The CLI's argument order is model then IDS. Giving it IDS then model worked for a .ids file but failed with 'no root element' for an .ids.xml sample, which cost a retry; the usage line does not say the order matters."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "A sweep where 10/10 workflows passed still exits 5 because some workflows defer to PR CI; the last line 'DONE exit 5' reads like a failure until you scroll back up to the 'Not a clean sweep' notes."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-ids-model-check-beams-nobody-checked.md",
+    "ventures/ids-model-check/eval/ifcopenshell-test-files-2026-11-24.md"
+  ],
+  "goal": "Deepen flagship ids-model-check: run the model-driven sweeps on another public IFC set",
+  "notes": "Sets: IfcOpenShell@16f9a41 (294 .ifc/.ifczip) and buildingSMART/IFC4.3.x-sample-models@ef22440 (46). The four sweeps passed on both (1,734/1,734 offers on IfcOpenShell). Beyond the item, this checker ran against IfcTester 0.9.0 on 293 models x 65 public IDS: 126,781 results, 1,614 different; a new script, eval/corpus_crosscheck_group.py, classifies them (1,453 invalid-IDS refusals, 147 subclass with matching count, 12 untyped IsExternal, 2 on an invalid fixture). Found and fixed: classes outside the model's schema (IFCBEAMSTANDARDCASE in IFC4X3) were silently unchecked by both tools; 7 of 26 public specifications reaching IfcBeam passed. Now a reader note plus skippedSubclasses with 'outside'. Verification: node --test outside-schema.test.mjs 6/6; run_venture_tests.py ids-model-check ok (549 tests, 2 skipped); 0 of 19,045 pair verdicts changed; sweeps identical apart from timing; IfcTester agrees on the new sample (B-01 pass, 1 applicable); run_workflow_locally --for-changes 10/10 workflows passed (exit 5: cross-review and deploy jobs deferred to PR CI); check_posts ok; venture-preflight.mjs ids-model-check clean; PR CI green apart from changed-ventures, which was still running at record time.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a8f5cd09-e2bb-5aaa-a8b5-050366286aa1",
+    "transcripts": 1,
+    "first": "2026-11-24T05:18:09Z",
+    "last": "2026-11-24T05:39:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 105,
+        "input": 198,
+        "output": 60962,
+        "thinking": 13441,
+        "cache_read": 15626309,
+        "cache_write_5m": 0,
+        "cache_write_1h": 208793,
+        "api_equivalent_usd": 6.0156,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 105,
+      "input": 198,
+      "output": 60962,
+      "thinking": 13441,
+      "cache_read": 15626309,
+      "cache_write_5m": 0,
+      "cache_write_1h": 208793,
+      "api_equivalent_usd": 6.0156,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 121,
+    "tools": {
+      "Bash": 105,
+      "Write": 4,
+      "Edit": 4,
+      "ToolSearch": 3,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Monitor": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.23,
+      "active_minutes": 21.23,
+      "model_minutes": 13.59,
+      "tool_minutes": 7.63,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a BIM tooling engineer: fetch two sets, run two checkers over 19k pairs, classify 1.6k differences, fix and test the reader, write it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 166.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
