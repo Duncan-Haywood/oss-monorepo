@@ -167,7 +167,5 @@
 ## From the cull page's IPTC template (2026-11-24, eval/cull-iptc-2026-11-24.md)
 
 - An import into Lightroom Classic, Capture One and Photo Mechanic to confirm each shows the fields.
-- (landed 2026-11-24, eval/cull-iptc-tree-2026-11-24.md) Keyword trees (`lr:hierarchicalSubject`) and code
-  replacements (`\23\` from a `code<TAB>text` list). Next: Lightroom's Read Metadata from Files on those
-  sidecars to confirm it builds the tree; codes with several columns (a roster's name, number and position);
-  a keyword list import (Lightroom's tab-indented keyword export) as the source of paths.
+- Hierarchical keywords (`lr:hierarchicalSubject`, "Sport|Ice hockey") alongside `dc:subject`.
+- Code replacements (Photo Mechanic's short code to name list, e.g. a team roster) in captions.

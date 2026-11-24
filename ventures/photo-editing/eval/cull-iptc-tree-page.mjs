@@ -1,20 +1,20 @@
-// The cull page's keyword tree and code replacements, in headless Chromium,
-// read back by ExifTool. Loads two NEFs from DIR (metadata-extractor-images)
-// and a Lightroom-style sidecar for the D810 that already has a keyword tree
-// (lr:hierarchicalSubject "Events|Wedding"), loads a code list file, fills
-// the template with a path keyword and codes, adds a path keyword with a
-// code to the D300 with K, rates both and writes the zip's sidecars to
-// WORK/out for ExifTool.
+// The cull page's keyword tree, code replacements and per-frame captions, in
+// headless Chromium, read back by ExifTool. Loads three NEFs from DIR
+// (metadata-extractor-images) and a Lightroom-style sidecar for one of them
+// that already has a keyword tree (Places|Yorkshire) and a flat keyword;
+// fills the template with a path keyword, codes and {caption}; gives the D300
+// its own keywords (K) and caption (C) using codes; rates two frames, downloads
+// the zip and writes each sidecar to WORK/out for ExifTool.
 //   python3 -m http.server 8765 -d site &
 //   node eval/cull-iptc-tree-page.mjs http://localhost:8765/cull.html DIR WORK
-//   exiftool -j -G1 -XMP-dc:Subject -XMP-lr:HierarchicalSubject -XMP-dc:Description -XMP-photoshop:Headline -XMP-xmp:Rating -XMP-crs:Exposure2012 WORK/out/*.xmp
+//   exiftool -j -G1 -XMP-dc:Subject -XMP-lr:HierarchicalSubject -XMP-dc:Description -XMP-photoshop:Headline WORK/out/*.xmp
 import { loadPlaywright } from "../../../platform/pages/load-playwright.mjs";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 
 const [url, dir, work] = process.argv.slice(2);
 mkdirSync(join(work, "out"), { recursive: true });
-const raws = ["nef/Nikon D810.nef", "nef/Nikon D300.nef"].map((r) => join(dir, r));
+const raws = ["nef/Nikon D810.nef", "nef/Nikon D300.nef", "nef/Nikon D5100.nef"].map((r) => join(dir, r));
 const lr = `<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 7.0">
  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about=""
@@ -22,47 +22,54 @@ const lr = `<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 7.0">
     xmlns:crs="http://ns.adobe.com/camera-raw-settings/1.0/"
     xmlns:dc="http://purl.org/dc/elements/1.1/"
     xmlns:lr="http://ns.adobe.com/lightroom/1.0/"
+   xmp:MetadataDate="2026-01-02T03:04:05-08:00"
    xmp:Rating="2"
-   crs:Exposure2012="+0.35">
-   <dc:subject><rdf:Bag><rdf:li>Events</rdf:li><rdf:li>Wedding</rdf:li></rdf:Bag></dc:subject>
-   <lr:hierarchicalSubject><rdf:Bag><rdf:li>Events|Wedding</rdf:li></rdf:Bag></lr:hierarchicalSubject>
+   crs:Exposure2012="+0.35"
+   crs:CropTop="0.05">
+   <dc:subject><rdf:Bag><rdf:li>landscape</rdf:li><rdf:li>Places</rdf:li><rdf:li>Yorkshire</rdf:li></rdf:Bag></dc:subject>
+   <lr:hierarchicalSubject><rdf:Bag><rdf:li>Places|Yorkshire</rdf:li><rdf:li>landscape</rdf:li></rdf:Bag></lr:hierarchicalSubject>
+   <dc:title><rdf:Alt><rdf:li xml:lang="x-default">Old</rdf:li><rdf:li xml:lang="fr-FR">Vieux</rdf:li></rdf:Alt></dc:title>
   </rdf:Description>
  </rdf:RDF>
 </x:xmpmeta>
 `;
 const sc = join(work, "Nikon D810.xmp");
 writeFileSync(sc, lr);
-// A roster as a Photo Mechanic-style tab-separated code list (with a BOM, as Excel saves it).
-const codes = join(work, "roster.txt");
-writeFileSync(codes, "\uFEFF# home team\n23\tJane Roe\n7\tJohn Doe\nlds\tLeeds Rhinos\n");
 
 const { chromium } = await loadPlaywright();
 const browser = await chromium.launch();
 const page = await browser.newPage({ acceptDownloads: true });
 const errors = [];
 page.on("pageerror", (e) => errors.push(e.message));
-page.on("dialog", (d) => d.accept("People > Players > \\7\\, \\lds\\"));
+const answers = ["\\23#2\\, Sport > Ice hockey > Final", "\\23\\ scores for \\NO\\."];
+page.on("dialog", (d) => d.accept(answers.shift()));
 await page.goto(url);
 await page.setInputFiles("#pickFiles", [...raws, sc]);
 await page.waitForFunction(() => /files/.test(document.getElementById("status").textContent) && document.getElementById("prog").hidden, null, { timeout: 60000 });
 const tiles = await page.$$eval("#grid > *", (els) => els.map((e) => e.textContent.trim().replace(/\s+/g, " ")));
 await page.click("#iptcBox summary");
-await page.setInputFiles("#ipCodes", codes);
-const loaded = await page.textContent("#ipPreview");
-await page.fill("#ip_headline", "\\23\\ scores for \\LDS\\");
-await page.fill("#ip_caption", "\\23\\ of \\lds\\ on {monthname} {day}, {year}; \\99\\ is not a code.");
-await page.fill("#ip_keywords", "Sport > Rugby league, People|Players|\\23\\, {year}");
+await page.fill("#ip_creator", "Jane Doe");
+await page.fill("#ip_copyright", "© {year} Jane Doe");
+await page.fill("#ipCodes", "23\tJane Roe (Northfield Owls, 23)\tRoe\nNO=Northfield Owls");
+await page.fill("#ip_caption", "{caption} Shot on {camera}, {monthname} {day}, {year}.");
+await page.fill("#ip_keywords", "Sport|Ice hockey, \\NO\\, {year}");
+await page.fill("#ip_headline", "\\NO\\ at home");
 const state = await page.textContent("#iptcState");
 const preview = await page.textContent("#ipPreview");
 await page.focus("#grid");
 const at = (name) => tiles.findIndex((t) => t.startsWith(name));
 const go = async (i) => { await page.keyboard.press("Home"); for (let k = 0; k < 10; k++) await page.keyboard.press("ArrowLeft"); for (let k = 0; k < i; k++) await page.keyboard.press("ArrowRight"); };
-await go(at("Nikon D300")); await page.keyboard.press("k"); await page.keyboard.press("4");
+await go(at("Nikon D300")); await page.keyboard.press("k"); await page.keyboard.press("c"); await page.keyboard.press("4");
 await go(at("Nikon D810")); await page.keyboard.press("5");
 const [dl] = await Promise.all([page.waitForEvent("download"), page.click("#dlXmp")]);
 const zipPath = join(work, "sidecars.zip");
 await dl.saveAs(zipPath);
 const after = await page.textContent("#status");
+// Reload: the template and the frame's keywords come back from this browser's storage.
+await page.reload();
+const kept = { copyright: await page.inputValue("#ip_copyright"), codes: await page.inputValue("#ipCodes") };
+await browser.close();
+
 const z = readFileSync(zipPath);
 const names = [];
 for (let p = 0; z.readUInt32LE(p) === 0x04034b50;) {
@@ -72,11 +79,4 @@ for (let p = 0; z.readUInt32LE(p) === 0x04034b50;) {
   names.push(name);
   p += 30 + n + len;
 }
-// Load the D810's written sidecar back as a template: its paths come back as paths, the code list is kept.
-await page.setInputFiles("#ipLoad", join(work, "out", "Nikon D810.xmp"));
-const fromXmp = { keywords: await page.inputValue("#ip_keywords"), codes: (await page.inputValue("#ip_codes")).split("\n").length, msg: await page.textContent("#ipPreview") };
-// Reload: the code list comes back from this browser's storage.
-await page.reload();
-const codesKept = await page.inputValue("#ip_codes");
-await browser.close();
-console.log(JSON.stringify({ tiles, loaded, state, preview, after, zip: names, codesKeptAfterReload: codesKept.split("\n").length, fromXmp, errors }, null, 1));
+console.log(JSON.stringify({ tiles, state, preview, after, zip: names, templateAfterReload: kept, errors }, null, 1));

@@ -22,17 +22,17 @@
 //   country       photoshop:Country          simple text
 //   instructions  photoshop:Instructions     simple text
 //
-// Two desk features ride on the keywords and text fields:
+// Hierarchical keywords: a keyword typed as "Sport|Ice hockey" (or
+// "Sport > Ice hockey") is a path. Each level goes into dc:subject, so a
+// reader with flat keywords finds "Sport" and "Ice hockey", and the path goes
+// into lr:hierarchicalSubject, Lightroom's keyword tree, which digiKam,
+// darktable and ExifTool also read. When any path is written, that bag also
+// lists every flat keyword not already inside a path, so a reader that takes
+// keywords from the tree alone loses none.
 //
-//   * Hierarchical keywords. A keyword typed as "Sport|Ice hockey" (or
-//     "Sport > Ice hockey") is a path. Its full path goes into
-//     lr:hierarchicalSubject, the Bag Lightroom Classic, Bridge and digiKam
-//     use for keyword trees, and every level ("Sport", "Ice hockey") goes
-//     into dc:subject, so readers without trees still find each word.
-//   * Code replacements, in the style of Photo Mechanic's: a list of
-//     "code<TAB>text" lines (or "code=text"), and "\23\" in any field or
-//     keyword box becomes the text for code 23 (a team roster, a venue list).
-//     Unknown codes stay as typed so a typo shows.
+// Code replacements: as in Photo Mechanic, a list of short codes ("23" ->
+// "Jane Roe (Leeds, 23)") typed as \23\ in any field or a frame's own
+// keywords or caption. Unknown codes stay as typed, so a typo shows.
 //
 // mergeIptc edits a sidecar in place: properties the template leaves empty
 // are untouched, keywords are added to the existing bag (no duplicates, case
@@ -63,8 +63,9 @@ export const IPTC_FIELDS = {
   instructions: ["photoshop", "Instructions", "text"],
 };
 
-// What mergeIptc and readIptc handle: the form's fields plus the keyword tree.
-const XMP_FIELDS = { ...IPTC_FIELDS, hierarchy: ["lr", "hierarchicalSubject", "bag"] };
+// Written alongside keywords, never typed: Lightroom's keyword tree.
+const HIERARCHY = ["lr", "hierarchicalSubject", "bag"];
+const WRITTEN = { ...IPTC_FIELDS, hierarchy: HIERARCHY };
 
 const reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -76,61 +77,72 @@ function unesc(s) {
   });
 }
 
-// "Sport > Ice hockey", " Sport | Ice  hockey " -> "Sport|Ice hockey"; empty levels dropped.
-function normKeyword(raw) {
-  return String(raw).split(/\||\s>\s/).map((x) => x.trim().replace(/\s+/g, " ")).filter(Boolean).join("|");
-}
-
-/**
- * Keywords from a typed string: split on commas, semicolons or new lines,
- * trimmed, duplicates (case ignored) dropped. A path keeps its levels joined
- * by "|" ("Sport > Ice hockey" -> "Sport|Ice hockey").
- */
+/** Keywords from a typed string: split on commas, semicolons or new lines, trimmed, duplicates (case ignored) dropped. */
 export function splitKeywords(s) {
   const out = [], seen = new Set();
   for (const raw of Array.isArray(s) ? s : String(s || "").split(/[,;\n]/)) {
-    const k = normKeyword(raw);
+    const k = normalizeKeyword(raw);
     if (k && !seen.has(k.toLowerCase())) { seen.add(k.toLowerCase()); out.push(k); }
   }
   return out;
 }
 
+/** "Sport > Ice hockey" or " Sport | Ice  hockey " -> "Sport|Ice hockey"; a flat keyword is trimmed. Empty levels are dropped. */
+export function normalizeKeyword(raw) {
+  const parts = String(raw).split(/\||\s>\s/).map((x) => x.trim().replace(/\s+/g, " ")).filter(Boolean);
+  return parts.join("|");
+}
+
 /**
- * Typed keywords (paths allowed) as the two XMP bags: `subject`, every level
- * of every keyword once (dc:subject), and `hierarchy`, the full paths of the
- * keywords that have more than one level (lr:hierarchicalSubject).
+ * Flat keywords for dc:subject and paths for lr:hierarchicalSubject from a
+ * keyword list that may hold paths ("Sport|Ice hockey"). `flat` has every
+ * level of every path plus the flat keywords; `paths` has the paths plus the
+ * flat keywords that are no level of any path (empty when there is no path).
  */
-export function keywordBags(keywords) {
-  const subject = [], hierarchy = [];
-  for (const k of splitKeywords(keywords)) {
-    const levels = k.split("|");
-    subject.push(...levels);
-    if (levels.length > 1) hierarchy.push(k);
-  }
-  return { subject: splitKeywords(subject), hierarchy };
+export function keywordTree(list) {
+  const kws = splitKeywords(list);
+  const paths = kws.filter((k) => k.includes("|"));
+  const flat = splitKeywords(kws.flatMap((k) => k.split("|")));
+  if (!paths.length) return { flat, paths: [] };
+  const inPath = new Set(paths.flatMap((p) => p.split("|")).map((x) => x.toLowerCase()));
+  return { flat, paths: splitKeywords([...paths, ...kws.filter((k) => !k.includes("|") && !inPath.has(k.toLowerCase()))]) };
 }
 
 // ---------------------------------------------------------------- code replacements
 
 /**
- * A code list from text: one "code<TAB>text" (or "code=text") per line;
- * blank lines and lines starting with # are skipped. Codes match with case
- * ignored. Returns a Map of lower-cased code -> text.
+ * Photo Mechanic-style code replacements from text: one code per line, the
+ * code then a tab (or "=" when the line has no tab) then its text. Further
+ * tab-separated columns are alternatives, chosen with \code#2\ and so on.
+ * Blank lines and lines with no separator are skipped. Returns a Map.
  */
 export function parseCodes(text) {
   const codes = new Map();
   for (const line of String(text || "").split(/\r?\n/)) {
-    if (!line.trim() || /^\s*#/.test(line)) continue;
-    const m = /^\s*([^\t=\\]+?)\s*(?:\t|=)\s*(.*?)\s*$/.exec(line);
-    if (m && m[1]) codes.set(m[1].toLowerCase(), m[2]);
+    if (!line.trim()) continue;
+    let cols;
+    if (line.includes("\t")) cols = line.split("\t");
+    else { const i = line.indexOf("="); if (i < 0) continue; cols = [line.slice(0, i), line.slice(i + 1)]; }
+    const code = cols[0].trim();
+    if (!code || /[\\\s]/.test(code)) continue;
+    codes.set(code, cols.slice(1).map((c) => c.trim()));
   }
   return codes;
 }
 
-/** "\\23\\ scores" -> "Jane Roe scores" with code 23 -> "Jane Roe". Unknown codes stay as typed. */
-export function expandCodes(s, codes) {
+/** "\23\ scores" -> "Jane Roe scores". A code matches exactly, else ignoring case; unknown codes and missing columns stay as typed. */
+export function applyCodes(s, codes) {
   if (!codes || !codes.size) return String(s ?? "");
-  return String(s ?? "").replace(/\\([^\\\s]+)\\/g, (m, c) => (codes.has(c.toLowerCase()) ? codes.get(c.toLowerCase()) : m));
+  let lower = null;
+  return String(s ?? "").replace(/\\([^\\\s#]+)(?:#(\d+))?\\/g, (m, code, col) => {
+    let cols = codes.get(code);
+    if (!cols) {
+      lower ??= new Map([...codes].map(([k, v]) => [k.toLowerCase(), v]));
+      cols = lower.get(code.toLowerCase());
+    }
+    const v = cols && cols[(col ? +col : 1) - 1];
+    return v ? v : m;
+  });
 }
 
 // ---------------------------------------------------------------- template variables
@@ -183,27 +195,25 @@ export function expandTemplate(s, vars) {
 
 /**
  * The resolved IPTC fields for one frame: the template's text fields with
- * variables filled in, its keywords plus the frame's own (`frame.keywords`).
+ * codes replaced and variables filled in, its keywords plus the frame's own
+ * (`frame.keywords`). A frame's own caption (`frame.caption`) replaces the
+ * template's; {caption} in the template's caption puts it inside instead.
  * Empty fields are left out, so mergeIptc leaves them alone.
  */
-export function frameIptc(template = {}, frame = {}) {
+export function frameIptc(template = {}, frame = {}, codes = null) {
   const vars = frameVars(frame);
-  const codes = template.codes instanceof Map ? template.codes : parseCodes(template.codes);
-  // Codes first, so a code's text may itself use {variables}.
-  const fill = (s) => expandTemplate(expandCodes(s, codes), vars);
+  const fill = (s) => expandTemplate(applyCodes(s, codes), vars).trim();
+  const own = fill(frame.caption);
   const out = {};
   for (const k of Object.keys(IPTC_FIELDS)) {
     if (k === "keywords") continue;
-    const v = fill(template[k]).trim();
+    // {caption} is the frame's own caption, filled in one pass so its text is not expanded again.
+    const v = k === "caption" ? (own && !/\{caption\}/i.test(template.caption || "") ? own : expandTemplate(applyCodes(template.caption, codes), { ...vars, caption: own }).trim()) : fill(template[k]);
     if (v) out[k] = v;
   }
-  const own = (frame.keywords || []).map((k) => fill(k)).join(",");
-  const kw = splitKeywords([...splitKeywords(fill(Array.isArray(template.keywords) ? template.keywords.join(",") : template.keywords)), ...splitKeywords(own)]);
-  if (kw.length) {
-    const { subject, hierarchy } = keywordBags(kw);
-    out.keywords = subject;
-    if (hierarchy.length) out.hierarchy = hierarchy;
-  }
+  const kwText = (x) => (Array.isArray(x) ? x.join(",") : x);
+  const kw = splitKeywords([...splitKeywords(fill(kwText(template.keywords))), ...splitKeywords(splitKeywords(frame.keywords || []).map((k) => applyCodes(k, codes)).join(","))]);
+  if (kw.length) out.keywords = kw;
   return out;
 }
 
@@ -239,7 +249,7 @@ function liValues(inner) {
 export function readIptc(text) {
   if (typeof text !== "string" || !/<x:xmpmeta\b|<rdf:RDF\b|<x:xapmeta\b/.test(text)) return null;
   const out = {};
-  for (const [key, [nsKey, name, kind]] of Object.entries(XMP_FIELDS)) {
+  for (const [key, [nsKey, name, kind]] of Object.entries(IPTC_FIELDS)) {
     const p = prefixFor(text, NS[nsKey]);
     if (!p) continue;
     const f = findProp(text, p, name);
@@ -254,13 +264,11 @@ export function readIptc(text) {
       if (vals.length) out[key] = kind === "bag" ? vals : vals.join("; ");
     }
   }
-  if (out.hierarchy) {
-    // As a template: the paths, then the flat keywords no path already names.
-    const paths = splitKeywords(out.hierarchy);
-    const named = new Set(paths.flatMap((p) => p.split("|")).map((x) => x.toLowerCase()));
-    const kw = splitKeywords([...paths, ...(out.keywords || []).filter((k) => !named.has(k.toLowerCase()))]);
-    delete out.hierarchy;
-    out.keywords = kw;
+  // With a keyword tree, keywords are its paths plus flat keywords that are no level of a path.
+  const lp = prefixFor(text, NS.lr), h = lp && findProp(text, lp, HIERARCHY[1]);
+  if (h) {
+    const paths = (h.form === "attr" ? [unesc(h.inner)] : liValues(h.inner).map((l) => l.value)).filter(Boolean);
+    if (paths.some((x) => x.includes("|"))) out.keywords = keywordTree([...paths, ...(out.keywords || [])]).paths;
   }
   return out;
 }
@@ -291,7 +299,20 @@ export function mergeIptc(text, fields = {}) {
   if (!d || !/<x:xmpmeta\b|<rdf:RDF\b/.test(text)) return null;
   const rdf = d[1];
   let out = text;
-  const keys = Object.keys(XMP_FIELDS).filter((k) => (XMP_FIELDS[k][2] === "bag" ? fields[k] && fields[k].length : fields[k]));
+  fields = { ...fields };
+  delete fields.hierarchy;
+  if (fields.keywords && fields.keywords.length) {
+    // The existing flat keywords and tree, with the new ones, as one tree:
+    // dc:subject gets every level, lr:hierarchicalSubject the paths (only when there is one).
+    const have = (nsKey, name) => {
+      const p = prefixFor(out, NS[nsKey]), f = p && findProp(out, p, name);
+      return !f ? [] : f.form === "attr" ? [unesc(f.inner)] : liValues(f.inner).map((l) => l.value);
+    };
+    const t = keywordTree([...have("dc", "subject"), ...have(...HIERARCHY), ...fields.keywords]);
+    fields.keywords = t.flat;
+    if (t.paths.length) fields.hierarchy = t.paths;
+  }
+  const keys = Object.keys(WRITTEN).filter((k) => (WRITTEN[k][2] === "bag" ? fields[k] && fields[k].length : fields[k]));
   if (!keys.length) return out;
 
   // Open the Description (a self-closing one gets a closing tag) so elements can go inside.
@@ -320,15 +341,13 @@ export function mergeIptc(text, fields = {}) {
   };
 
   for (const key of keys) {
-    const [nsKey, name, kind] = XMP_FIELDS[key];
+    const [nsKey, name, kind] = WRITTEN[key];
     const p = bind(nsKey);
     const f = findProp(out, p, name);
     let value = fields[key];
     if (kind === "bag" && f) {
       const have = f.form === "attr" ? [unesc(f.inner)] : liValues(f.inner).map((l) => l.value);
-      // Existing entries are kept as written; new ones added unless already there (case ignored).
-      const seen = new Set();
-      value = [...have, ...value].filter((v) => v && !seen.has(v.toLowerCase()) && seen.add(v.toLowerCase()));
+      value = splitKeywords([...have, ...value]);
     }
     if (kind === "alt" && f && f.form === "elem") {
       // Keep other languages; replace x-default (or the only entry).

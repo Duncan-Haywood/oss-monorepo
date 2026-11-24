@@ -36,7 +36,7 @@
     },
     {
       "venture": "changepoint-detector",
-      "source_lines": 15009,
+      "source_lines": 15812,
       "track": "proprietary",
       "why": "flagship #4: the depth people pay for",
       "model": "one-off",
@@ -72,7 +72,7 @@
     },
     {
       "venture": "photo-editing",
-      "source_lines": 76896,
+      "source_lines": 76915,
       "track": "proprietary",
       "why": "flagship #7: the depth people pay for",
       "model": "one-off",

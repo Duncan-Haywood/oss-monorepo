@@ -201,28 +201,21 @@ python3 eval/cull-raw-data-previews-check.py OUT     # sensels vs shootflow
 python3 eval/cull-raw-data-previews-colour.py OUT    # colour vs shootflow
 ```
 
-## The cull page writes keyword trees and fills codes from a roster (2026-11-24)
+## Keyword trees, code replacements and per-frame captions (2026-11-24)
 
-Two things a sports or news desk leans on, added to the IPTC template.
-**Keyword trees:** a keyword typed as a path (`Sport > Ice hockey` or
-`Sport|Ice hockey`, in the template or with `K`) goes into
-`lr:hierarchicalSubject`, the Bag Lightroom Classic, Bridge and digiKam keep
-keyword trees in, and each level goes into `dc:subject`, so readers with no
-tree still find every word. Merging into your own sidecar adds to its tree
-and leaves the entries already there as written. **Code replacements:** paste
-or load a list of `code<TAB>text` (or `code=text`) lines, such as a team
-roster, and `\23\` in any box or in a frame's keywords becomes that text
-when the sidecars are written, the way Photo Mechanic's code replacements
-work (one text per code and the backslash delimiter only). Unknown codes stay
-as typed so a typo shows; a code's text may use `{year}` and the other
-variables.
-
-Checked (eval/cull-iptc-tree-2026-11-24.md): 12 unit tests; in Chromium, two
-NEFs and a Lightroom-style sidecar that already had a tree, a code list file,
-the zip read back by ExifTool 12.76 (`HierarchicalSubject`
-["Events|Wedding","Sport|Rugby league","People|Players|Jane Roe"]; headline
-"Jane Roe scores for Leeds Rhinos"; `crs:Exposure2012` kept; `-validate` OK).
-Not checked: Lightroom building the tree on import.
+The IPTC template below gained the three things a sports or event desk uses
+most. A keyword typed `Sport|Ice hockey` (or `Sport > Ice hockey`) is a path:
+each level goes into `dc:subject` and the path into `lr:hierarchicalSubject`,
+Lightroom's keyword tree, merged with any tree already in your sidecar.
+Code replacements, as Photo Mechanic calls them: a list of `code<TAB>text`
+(or `code=text`) lines, typed or loaded from a .txt, so `\23\` in any box,
+keyword or caption becomes "Jane Roe (Northfield Owls, 23)" and `\23#2\` the
+second column. `C` gives a frame its own caption, which replaces the
+template's or fills `{caption}` in it. Checked (eval/cull-iptc-tree-codes-2026-11-24.md):
+12 unit tests; in Chromium, the zip read back by ExifTool 12.76 with the tree,
+every level, the codes and the frame caption as intended, an existing
+`Places|Yorkshire` tree and develop settings kept, `-validate` OK. Not yet
+checked: Lightroom's own import of the tree.
 
 ## The cull page writes IPTC captions, keywords and copyright (2026-11-24)
 

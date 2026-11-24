@@ -56,3 +56,4 @@
 - (2026-11-23) next a provider that documents its own changes --events and count Middle (pelt + NB) shipped 2026-11-21 (README "A middle setting for over-dispersed counts": 20% falls 115/120 vs Quiet 38, 0.83 false/1,000 days): Middle as count default failed (alerts on growth)
 - (2026-11-24) Plausible, PostHog, Umami (README "Umami as a source"; UTC days cost nothing), Mixpanel (README "Mixpanel as a source"), Matomo (README "Matomo as a source")
 - (2026-11-24) Umami, Plausible, PostHog and GA4 people columns fall less than views, middle default for all four, GA4 watches page views (README "Visitors under a partial snippet loss", "PostHog users and GA4 activeUsers under a snippet loss")
+- (2026-11-24) next a live property
