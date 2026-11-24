@@ -332,18 +332,17 @@
   </footer>
 
   <script type="module">
-    import { importStaffCsv } from "./import-staff.mjs";
-    import { importShiftsCsv } from "./import-shifts.mjs";
-    import { import7shifts, import7shiftsStaff } from "./import-7shifts.mjs";
-    import { importWhenIWork, looksLikeWhenIWork } from "./import-wheniwork.mjs";
-    import { importSquare, looksLikeSquare } from "./import-square.mjs";
-    import { importDeputy, looksLikeDeputy } from "./import-deputy.mjs";
-    import { importDeputyStaff, looksLikeDeputyStaff } from "./import-deputy-staff.mjs";
     import { staffPackHtml } from "./staffpack.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { planWeeks, planFairness, parseAvailability, placeBreaks, placeRestBreaks, scheduleChanges, carryOverStaff, scheduleFlags, seniorityClaims, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, steadyRoster, steadyText, coverSlackText, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, siteSplit, trimOptions, coverOptions, coverChain, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, splitShiftPay, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, keepFromCsv, pinStarted, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    // The seven importers (about 46 kB gzip, a quarter of the page's script) run only when a file is
+    // chosen in the two import boxes, so they load then, once, instead of with the page. A failed load
+    // clears the memo, so choosing the file again retries.
+    const onDemand = (load) => { let p = null; return () => (p ??= load().catch((e) => { p = null; throw e; })); };
+    const staffImporters = onDemand(() => Promise.all([import("./import-staff.mjs"), import("./import-7shifts.mjs"), import("./import-deputy-staff.mjs")]).then(([a, b, c]) => ({ ...a, ...b, ...c })));
+    const shiftImporters = onDemand(() => Promise.all([import("./import-shifts.mjs"), import("./import-7shifts.mjs"), import("./import-wheniwork.mjs"), import("./import-square.mjs"), import("./import-deputy.mjs")]).then((ms) => Object.assign({}, ...ms)));
 
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
@@ -786,15 +785,15 @@
       // Saved Deputy JSON (Employee, EmployeeAgreement, EmployeeWorkplace, Company; EmployeeAvailability and Leave become dated
       // off: cells when a week is picked), saved 7shifts JSON (users, roles,
       // locations, each user's assignments and wages) or a staff CSV.
-      Promise.all(fs.map((x) => x.text())).then((texts) => {
+      Promise.all([Promise.all(fs.map((x) => x.text())), staffImporters()]).then(([texts, { importStaffCsv, import7shiftsStaff, importDeputyStaff, looksLikeDeputyStaff }]) => {
         const f = { name: fs.length === 1 ? fs[0].name : `${fs.length} files` };
         const json = texts.every((t) => /^\s*[[{]/.test(t.replace(/^\uFEFF/, "")));
         const r = json ? (looksLikeDeputyStaff(texts) ? importDeputyStaff : import7shiftsStaff)(texts, $("#weekstart").value ? { week: $("#weekstart").value } : {}) : importStaffCsv(texts[0]); if (r.rows) { $("#staff").value = r.staffText; persist(); } status.textContent = r.rows ? `Imported ${r.rows} ${r.rows === 1 ? "person" : "people"} from ${f.name}. ${r.notes.join(" ")}${r.skipped.length ? " Skipped: " + r.skipped.join("; ") + "." : ""}` : r.notes.join(" ");
-      });
+      }, () => { status.textContent = "Could not load the importer. Check the connection and choose the file again."; });
     });
     // A schedule export with several locations, or with planned and worked (or first and final) shifts side by side,
     // gets two pickers; the file stays in memory only, so changing a picker re-reads it without another upload.
-    let shiftsFile = null;
+    let shiftsFile = null, shiftsMod = null;
     const famLabel = { schedule: "rostered shifts", final: "final shifts", "": "shifts", initial: "first-published shifts", timesheet: "worked times (timesheets)" };
     const runShiftsImport = () => {
       if (!shiftsFile) return;
@@ -802,6 +801,7 @@
       // Saved Deputy, Square, When I Work or 7shifts API responses are JSON (told apart by their fields; Deputy first, by its
       // capitalised StartTime, then Square since its
       // locations response looks like When I Work's); everything else is read as a CSV export.
+      const { importShiftsCsv, import7shifts, importWhenIWork, looksLikeWhenIWork, importSquare, looksLikeSquare, importDeputy, looksLikeDeputy } = shiftsMod;
       const r = shiftsFile.json ? (looksLikeDeputy(shiftsFile.texts) ? importDeputy : looksLikeSquare(shiftsFile.texts) ? importSquare : looksLikeWhenIWork(shiftsFile.texts) ? importWhenIWork : import7shifts)(shiftsFile.texts, { location: loc || undefined }) : importShiftsCsv(shiftsFile.text, { location: loc || undefined, use: use === "" ? undefined : use });
       if (r.shifts) { $("#shifts").value = r.shiftsText; persist(); }
       status.textContent = r.shifts ? `Imported ${r.shifts} shift ${r.shifts === 1 ? "line" : "lines"} from ${shiftsFile.name}. ${r.notes.join(" ")}${r.skipped.length ? " Skipped: " + r.skipped.join("; ") + "." : ""}` : r.notes.join(" ");
@@ -813,7 +813,8 @@
     };
     $("#import-shifts-file").addEventListener("change", (e) => {
       const files = [...e.target.files]; if (!files.length) return;
-      Promise.all(files.map((f) => f.text())).then((texts) => {
+      Promise.all([Promise.all(files.map((f) => f.text())), shiftImporters()]).then(([texts, mod]) => {
+        shiftsMod = mod;
         const json = texts.every((t) => /^\s*[{[]/.test(t));
         shiftsFile = { name: files.map((f) => f.name).join(", "), text: texts[0], texts, json };
         $("#import-shifts-loc").value = ""; $("#import-shifts-use").value = "";
@@ -824,7 +825,7 @@
         $("#import-shifts-loc").hidden = $("#import-shifts-loc").previousElementSibling.hidden = r.locations.length < 2;
         $("#import-shifts-use").hidden = $("#import-shifts-use").previousElementSibling.hidden = r.families.length < 2;
         $("#import-shifts-pick").hidden = r.locations.length < 2 && r.families.length < 2;
-      });
+      }, () => { status.textContent = "Could not load the importer. Check the connection and choose the file again."; });
     });
     $("#import-shifts-loc").addEventListener("change", runShiftsImport);
     $("#import-shifts-use").addEventListener("change", runShiftsImport);

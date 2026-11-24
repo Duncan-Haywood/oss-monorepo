@@ -710,6 +710,7 @@ ventures/lomb-scargle-periodogram/usage.mjs
 ventures/lot-split-calculator/usage.mjs
 ventures/ltl-freight-class-estimator/usage.mjs
 ventures/lumper-fee-reimbursement-calculator/usage.mjs
+ventures/machine-shop-guides/usage.mjs
 ventures/mailchimp-audience-csv-check/usage.mjs
 ventures/maintenance-planner/usage.mjs
 ventures/mann-kendall-trend/usage.mjs
