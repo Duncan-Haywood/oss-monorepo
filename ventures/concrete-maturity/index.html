@@ -389,6 +389,8 @@
       setTimeout(() => {
         const best = { datum: collapseFit(p.cubes, 'nurse-saul'), energy: collapseFit(p.cubes, 'equivalent-age') };
         calLast.best = best;
+        if (best.datum) el('calDatumNote').textContent += ` Best single curve: ${best.datum.value.toFixed(1)} °C.`;
+        if (best.energy) el('calEnergyNote').textContent += ` Best single curve: ${Math.round(best.energy.value).toLocaleString('en-US')} J/mol.`;
         ct.replaceChildren();
         const rows = collapseReport(p.cubes, cal, best);
         const minR = Math.min(...rows.map(r => r.rmse).filter(Number.isFinite));
