@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKmiYkVxfb8jTFGgTfU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T05:08:53Z",
+  "ended": "2026-11-24T05:18:38Z",
+  "wall_minutes": 10.2,
+  "tokens_in": 5306130,
+  "tokens_out": 37561,
+  "cost_usd": 2.8346,
+  "tool_calls": 49,
+  "task": "xer-schedule-check flagship 13, buildable item 3: relationship dates (extend aref/arls decoding to links with a started end)",
+  "projects": [
+    "ventures/xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18545",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/xer-schedule-check/eval/corpus-fetch.sh",
+      "issue": "fetches six XERs but eval/relationship-dates-2026-11-20.md also measures Harbour Pointe (djouallah/Xer-Reader-PowerBI xerfile/), which the script does not fetch; cloned it by hand from the md5 in eval/edited-durations-2026-11-19.md"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "xer-schedule-check buildable: is at its 600-character cap, so naming what is left for an item means trimming another item's wording"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-p6-lag-edits-on-work-in-progress.md",
+    "ventures/xer-schedule-check/eval/relationship-dates-started-2026-11-24.md"
+  ],
+  "goal": "deepen a flagship: read back lag edits on work in progress from P6's own relationship dates",
+  "notes": "Decoded TASKPRED aref/arls on links with an in-progress or finished end: dates carry max(0, lag - work since pred actual finish (FS/FF) or start (SS)). arls 11,610/11,610 on six public P6 files (was 1,894 checked on such links). reldates.mjs startedLink/unspentLag; dcma.mjs lists at-most bounds (lagWasAtMost). eval/relationship-dates.mjs section 5: 380 planted, 185 visible all named (173 exact, 12 bounds hold), 195 invisible not listed, 0 false; sections 1-4 unchanged and reproduce 2026-11-20 exactly. Local checks: run_venture_tests.py xer-schedule-check ok (527 tests, the 5 new ones included); venture-preflight in the run's log; check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a07bd20c-5d37-5a3f-ba34-cb169ebbaa55",
+    "transcripts": 1,
+    "first": "2026-11-24T05:08:53Z",
+    "last": "2026-11-24T05:19:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 88,
+        "output": 37561,
+        "thinking": 8658,
+        "cache_read": 5175043,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130999,
+        "api_equivalent_usd": 2.8346,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 88,
+      "output": 37561,
+      "thinking": 8658,
+      "cache_read": 5175043,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130999,
+      "api_equivalent_usd": 2.8346,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 45,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.2,
+      "active_minutes": 10.2,
+      "model_minutes": 7.58,
+      "tool_minutes": 2.62,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a scheduling-tool engineer decoding P6 relationship dates on started links, writing the rule, eval and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 211.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
