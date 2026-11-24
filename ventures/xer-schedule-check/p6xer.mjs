@@ -306,8 +306,9 @@ export function p6XerText(text, { projectId = "", activityIds = "auto", deadline
     sched_calendar_on_relationship_lag: so.sched_calendar_on_relationship_lag || "rcal_Successor",
     sched_progress_override: so.sched_progress_override || "N",
     sched_use_project_end_date_for_float: so.sched_use_project_end_date_for_float || "Y",
+    sched_open_critical_flag: so.sched_open_critical_flag || "N",
   }, {
-    sched_outer_depend_type: "SD_Both", sched_open_critical_flag: "N", sched_lag_early_start_flag: "Y", sched_setplantoforecast: "N",
+    sched_outer_depend_type: "SD_Both", sched_lag_early_start_flag: "Y", sched_setplantoforecast: "N",
     sched_use_expect_end_flag: "N", level_float_thrs_cnt: "0", level_outer_assign_flag: "N", level_outer_assign_priority: "5", level_over_alloc_pct: "25",
     level_within_float_flag: "N", level_keep_sched_date_flag: "Y", level_all_rsrc_flag: "Y", enable_multiple_longest_path_calc: "N",
     limit_multiple_longest_path_calc: "Y", max_multiple_longest_path: "10", use_total_float_multiple_longest_paths: "Y", LevelPriorityList: "priority_type,ASC_BY_FIELD/ASC",

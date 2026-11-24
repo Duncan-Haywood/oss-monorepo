@@ -483,6 +483,10 @@ export function parseMspdi(text, { textUdf, interim = "keep", skipFields = [] } 
     sched_retained_logic: "Y",
     sched_progress_override: "N",
     sched_use_project_end_date_for_float: "Y",
+    // "Calculate multiple critical paths": a task with no successor gets its
+    // early finish as its late finish, as P6's "make open-ended activities
+    // critical" does
+    sched_open_critical_flag: val(proj, "MultipleCriticalPaths") === "1" ? "Y" : "N",
   }];
 
   // tasks

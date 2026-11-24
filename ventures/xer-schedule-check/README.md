@@ -1001,6 +1001,28 @@ file, 1,628 of 2,495 activities in progress keep a remaining duration shorter th
 planted defects named with their kind on three seeds, with no unplanted activity's flags changed.
 The thresholds are review conventions, not a standard, and are options.
 
+## Make open-ended activities critical (2026-11-24)
+
+P6's schedule option **Make open-ended activities critical** (`sched_open_critical_flag` in the
+XER's SCHEDOPTIONS) and Microsoft Project's **Calculate multiple critical paths**
+(`<MultipleCriticalPaths>` in Project XML) do the same thing: an activity with no successor
+gets its early finish as its late finish, so it has no float, and neither has the chain that
+drives it. The file's flag was read but not applied until now, so a schedule saved with the
+option on showed the open ends' float running to the project finish where P6 shows zero. Now the
+backward pass applies it (`cpm.mjs`), the Project XML reader takes it from
+`MultipleCriticalPaths`, the XER-to-Project converter writes it, and the Project-to-XER
+converter carries it to P6.
+
+Checked: `open-critical.test.mjs` (a side chain with 24 h of float goes to 0 with the option on,
+no early date moves, an open end that is already late keeps its negative float, and the flag
+survives XER to Project XML to XER). None of the six public XERs sets the option, so
+`eval/open-critical.mjs` turns it on in a copy (eval/open-critical-2026-11-24.md): no early date
+moves and no float grows on any of 19,841 open activities; with the flag off every date and
+float is what the file's own setting gives. What it would show: 14,541 activities lose float
+and 628 more become critical (817 to 1,445), from 137 open ends. A reviewer who sees a file
+with the flag on now gets the same critical count P6 does; one who sees it off can read the
+eval's numbers as what open ends are hiding.
+
 ## Redundant logic: links that can never drive (2026-11-23)
 
 `redundant.mjs`, `--redundant [--csv links.csv] [--cleaned out.xer] [--include-check]`, and the
@@ -1697,7 +1719,7 @@ run as a formula in Excel or Sheets.
 Screening metrics, not a verdict: a schedule can pass all fourteen and still be
 unrealistic, and some failures are justified. Expected finish dates are
 checked on one public file only (23 activities; the rule is read from the
-durations P6 stored, not from a second P6 run). Not modelled: "make open-ended activities critical"; time impact analysis models the delay but not its cause, entitlement or apportionment, and is checked against planted fragnets, not a real TIA exhibit; multiple float
+durations P6 stored, not from a second P6 run). Not modelled: time impact analysis models the delay but not its cause, entitlement or apportionment, and is checked against planted fragnets, not a real TIA exhibit; multiple float
 paths follow P6's "free float" style but are not compared with P6's own (no
 public file stores them), and P6's "total float" option is not offered (resource levelling is the separate `level.mjs` step; the checks always
 use the unlevelled dates; it is a serial pass like P6's, not P6's code, so its
