@@ -37,7 +37,7 @@ export function parseCubeText(text, { tempUnit = 'C', ageUnit = 'h' } = {}) {
     const line = raw.replace(/#.*/, '').trim();
     if (!line) return;
     const isSet = /^set(ting)?\b/i.test(line);
-    const nums = line.replace(/^set(ting)?\b/i, '').split(/[\s,;\t]+/).filter(Boolean).map(Number);
+    const nums = splitCells(line.replace(/^set(ting)?\b/i, '')).map(toNum);
     if (!nums.length || nums.some(n => !Number.isFinite(n))) {
       if (i === 0 && !isSet) return; // header
       errors.push(`Line ${i + 1}: expected numbers, got "${raw.trim()}".`);
@@ -55,6 +55,17 @@ export function parseCubeText(text, { tempUnit = 'C', ageUnit = 'h' } = {}) {
   });
   return { cubes, setting, errors };
 }
+
+// "10, 26.2, 6,000" is three cells: a comma followed by a space, a semicolon,
+// a tab or a space separates cells, and a comma inside a cell is a thousands
+// separator. Only a line with no such separator ("10,26.2,6000") is split on
+// bare commas, as plain CSV.
+function splitCells(line) {
+  const t = line.trim().replace(/^[,;]\s*/, '');
+  const cells = t.split(/,\s+|\s*;\s*|\t+|\s+/).filter(Boolean);
+  return cells.length === 1 && t.includes(',') ? t.split(',').filter(Boolean) : cells;
+}
+function toNum(cell) { return /^[-+]?\d{1,3}(,\d{3})+(\.\d+)?$/.test(cell) ? Number(cell.replace(/,/g, '')) : Number(cell); }
 
 function round1(v) { return Math.round(v * 10) / 10; }
 

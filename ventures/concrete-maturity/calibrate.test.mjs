@@ -135,3 +135,10 @@ test('the made-up example parses back and calibrates near the mix it was made fr
   assert.ok(Math.abs(c.activation.activationEnergy - 42000) < 6000, String(c.activation.activationEnergy));
   assert.ok(c.datum.datumC > -10 && c.datum.datumC < 10);
 });
+
+test('a thousands comma stays inside its number', () => {
+  const p = parseCubeText('10, 26.2, 6,000\n10; 52; 1,250.5\n10,104,3000\nset, 10, 13.1\n');
+  assert.deepEqual(p.errors, []);
+  assert.deepEqual(p.cubes.map(c => [c.ageH, c.strength]), [[26.2, 6000], [52, 1250.5], [104, 3000]]);
+  assert.deepEqual(p.setting, [{ tempC: 10, hours: 13.1 }]);
+});
