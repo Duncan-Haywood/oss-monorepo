@@ -26,7 +26,7 @@ export const RATES_KNOWN_THROUGH = "2026-12-31";
 /** Lower-cased header tokens of the first non-empty line. */
 function header(text) {
   const line = String(text || "").split(/\r?\n/).find((l) => l.trim() !== "") || "";
-  return splitLine(line, delimOf(line)).map((h) => h.replace(/^﻿/, "").trim().toLowerCase());
+  return splitLine(line, delimOf(line)).map((h) => h.replace(/^\uFEFF/, "").trim().toLowerCase());
 }
 
 function delimOf(line) {
@@ -71,7 +71,7 @@ const ALIASES = {
 function columns(h) {
   const col = {};
   for (const [k, names] of Object.entries(ALIASES)) {
-    const i = h.findIndex((x) => names.includes(x));
+    const i = names.map((n) => h.indexOf(n)).find((j) => j >= 0) ?? -1;
     if (i >= 0) col[k] = i;
   }
   return col;
@@ -86,9 +86,9 @@ export function isTripLog(text) {
 /** "2026-03-04", "3/4/2026", "03/04/26" -> "2026-03-04"; "" when not a date. */
 export function isoDate(s) {
   const v = String(s || "").trim();
-  let m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  let m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/);
   if (m) return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
-  m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})\b/);
+  m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4}|\d{2})(?!\d)/);
   if (m) {
     const y = m[3].length === 2 ? "20" + m[3] : m[3];
     return `${y}-${m[1].padStart(2, "0")}-${m[2].padStart(2, "0")}`;
@@ -96,8 +96,12 @@ export function isoDate(s) {
   return "";
 }
 
+// Commas are read by shape: "1,234.5" is thousands, "12,5" is a decimal comma.
 const amount = (s) => {
-  const n = Number(String(s ?? "").replace(/[$,\s]/g, ""));
+  let t = String(s ?? "").replace(/[$\s]/g, "");
+  if (/^-?\d{1,3}(,\d{3})+(\.\d*)?$/.test(t)) t = t.split(",").join("");
+  else if (/^-?\d+,\d{1,2}$/.test(t)) t = t.replace(",", ".");
+  const n = Number(t);
   return Number.isFinite(n) ? n : 0;
 };
 
@@ -123,7 +127,7 @@ export function parseTrips(text) {
   const first = lines.findIndex((l) => l.trim() !== "");
   if (first < 0) return { trips: [], skipped: 0 };
   const d = delimOf(lines[first]);
-  const h = splitLine(lines[first], d).map((x) => x.replace(/^﻿/, "").trim().toLowerCase());
+  const h = splitLine(lines[first], d).map((x) => x.replace(/^\uFEFF/, "").trim().toLowerCase());
   const c = columns(h);
   const trips = [];
   let skipped = 0;
