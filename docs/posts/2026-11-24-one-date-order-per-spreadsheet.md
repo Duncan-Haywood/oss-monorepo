@@ -2,8 +2,8 @@
 title: "05/01/2027 is two dates: read the order once per file, not once per cell"
 seo_title: "Day-first or month-first dates: decide per file"
 date: 2026-11-24
-tags: [dates, csv, parsing, red-team, scheduling]
-description: "A UK holiday blackout of 20/12/2026 to 05/01/2027 blocked 133 days of a league season, not 17. Three tools read each date alone. Now each reads the order once for the whole input."
+tags: [dates, csv, parsing, redteam, scheduling]
+description: "A UK holiday blackout of 20/12/2026 to 05/01/2027 blocked 133 days, not 17. Three tools read each date alone; now each picks one order per input."
 ---
 
 A common rule for a date like `05/01/2027` goes: read it US-style
