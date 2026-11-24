@@ -1,0 +1,33 @@
+BBQ (classical, log level, monthly Bry-Boschan durations) on FRED PAYEMS vs NBER monthly peaks and troughs
+
+file: n 1051 (1939-01 to 2026-07), NBER turns 26
+label check, USREC vs tis (data/nber-recessions.csv): only USREC 2020-02p; only tis 2019-12p
+NBER: 1945-02p 1945-10t 1948-11p 1949-10t 1953-07p 1954-05t 1957-08p 1958-04t 1960-04p 1961-02t 1969-12p 1970-11t 1973-11p 1975-03t 1980-01p 1980-07t 1981-07p 1982-11t 1990-07p 1991-03t 2001-03p 2001-11t 2007-12p 2009-06t 2020-02p 2020-04t
+
+A defaults: BBQ turns 22, matched 17/26 (0.654), false 4
+  BBQ: 1943-11p 1945-09t 1948-09p 1949-10t 1953-07p 1954-08t 1957-04p 1958-05t 1960-04p 1961-02t 1970-03p 1970-11t 1974-07p 1975-04t 1981-07p 1982-12t 1990-06p 1991-05t 2001-02p 2003-08t 2007-12p 2010-02t
+  missed: 1945-02p 1957-08p 1973-11p 1980-01p 1980-07t 2001-11t 2009-06t 2020-02p 2020-04t; false: 1943-11p 1974-07p 2003-08t 2010-02t
+  months from NBER on matched turns: -1 -2 0 0 3 1 0 0 3 0 1 0 1 -1 2 -1 0
+  F1 0.760, random 0.263 (+0.497), p 0.000
+  P1 fails; P2 passes
+
+B bigMove 0.05: BBQ turns 24, matched 19/26 (0.731), false 4
+  BBQ: 1943-11p 1945-09t 1948-09p 1949-10t 1953-07p 1954-08t 1957-04p 1958-05t 1960-04p 1961-02t 1970-03p 1970-11t 1974-07p 1975-04t 1981-07p 1982-12t 1990-06p 1991-05t 2001-02p 2003-08t 2007-12p 2010-02t 2020-02p 2020-04t
+  missed: 1945-02p 1957-08p 1973-11p 1980-01p 1980-07t 2001-11t 2009-06t; false: 1943-11p 1974-07p 2003-08t 2010-02t
+  months from NBER on matched turns: -1 -2 0 0 3 1 0 0 3 0 1 0 1 -1 2 -1 0 0 0
+  F1 0.808, random 0.271 (+0.537), p 0.000
+  P1 fails; P2 passes
+
+shipped drift model on the level: 13 cuts, F1 0.293
+
+vintages (printed, no bar):
+  us-payems-vintage-2024.csv A defaults: matched 17, false 4; from 2000: 2001-02p 2003-08t 2008-01p 2010-02t
+  us-payems-vintage-2024.csv B bigMove 0.05: matched 19, false 4; from 2000: 2001-02p 2003-08t 2008-01p 2010-02t 2020-02p 2020-04t
+  us-payems-vintage-2026-10.csv A defaults: matched 17, false 4; from 2000: 2001-02p 2003-08t 2007-12p 2010-02t
+  us-payems-vintage-2026-10.csv B bigMove 0.05: matched 19, false 4; from 2000: 2001-02p 2003-08t 2007-12p 2010-02t 2020-02p 2020-04t
+
+scored against the tis labels instead (printed, no bar):
+  A defaults: matched 17/26, false 4
+  B bigMove 0.05: matched 19/26, false 4
+
+decision: neither arm passes both bars; nothing ships

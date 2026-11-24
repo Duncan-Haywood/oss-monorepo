@@ -69,10 +69,13 @@ function ends(x, turns) {
 }
 
 // one pass of the duration rules; returns null when nothing offends
-function enforceOnce(x, s, minPhase, minCycle) {
+// bigMove: a phase shorter than minPhase is kept when the series moves at least this much across it
+// (on a logged series, 0.05 is about 5%). Off by default (Infinity), which is Bry-Boschan's rule as written.
+function enforceOnce(x, s, minPhase, minCycle, bigMove = Infinity) {
   let worst = null;
   for (let j = 0; j + 1 < s.length; j++) {
     const d = s[j + 1].i - s[j].i;
+    if (Math.abs(x[s[j + 1].i] - x[s[j].i]) >= bigMove) continue;
     if (d < minPhase && (!worst || d < worst.d)) worst = { type: 'phase', j, d };
   }
   for (let j = 0; j + 2 < s.length; j++) {
@@ -97,7 +100,7 @@ export function bbq(x, opts = {}) {
   if (x.some((v) => !Number.isFinite(v))) throw new Error('bbq needs finite numbers (fill or drop gaps first)');
   let s = ends(x, alternate(x, candidates(x, o.window)));
   for (let guard = 0; guard < 10 * x.length; guard++) {
-    const next = enforceOnce(x, s, o.minPhase, o.minCycle);
+    const next = enforceOnce(x, s, o.minPhase, o.minCycle, o.bigMove);
     if (!next) break;
     s = ends(x, next);
   }
