@@ -1,0 +1,42 @@
+name: Cloudflare short-lived token
+description: >-
+  Mints a Cloudflare API token limited to one profile's permissions and
+  account/zone, expiring in ttl_minutes, and deletes it when the job ends
+  (post step, runs on failure too). See README.md.
+inputs:
+  minter_token:
+    description: The minter secret (permission to create API tokens, nothing else).
+    required: true
+  account_id:
+    description: Cloudflare account id (not a secret; a repository variable).
+    required: true
+  profile:
+    description: A profile name from profiles.json.
+    required: true
+  zone_id:
+    description: Limit zone permissions to this zone (default every zone in the account).
+    required: false
+    default: ""
+  ttl_minutes:
+    description: Override the profile's lifetime (5 to 360).
+    required: false
+    default: ""
+  owner:
+    description: "`user` if the minter is a user API token, `account` if it is an account-owned token."
+    required: false
+    default: user
+  export_env:
+    description: Also set CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID for the job's later steps.
+    required: false
+    default: "true"
+outputs:
+  token:
+    description: The minted token (masked in logs).
+  token_id:
+    description: Its id, for audit.
+  expires_on:
+    description: When Cloudflare stops accepting it.
+runs:
+  using: node24
+  main: main.mjs
+  post: post.mjs
