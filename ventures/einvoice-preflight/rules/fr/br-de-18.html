@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BR-DE-18: La ligne d'escompte (Skonto) n'a pas le format exigé</title>
+<meta name="description" content="BR-DE-18: XRechnung lit l'escompte pour paiement anticipé dans les conditions de paiement (BT-20) sous une forme fixe, lisible par machine : une ligne par…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/fr/br-de-18">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/br-de-18">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/br-de-18">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/br-de-18">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/br-de-18">
+<meta property="og:title" content="BR-DE-18: La ligne d'escompte (Skonto) n'a pas le format exigé">
+<meta property="og:description" content="BR-DE-18: XRechnung lit l'escompte pour paiement anticipé dans les conditions de paiement (BT-20) sous une forme fixe, lisible par machine : une ligne par…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Que signifie BR-DE-18 ?","acceptedAnswer":{"@type":"Answer","text":"XRechnung lit l'escompte pour paiement anticipé dans les conditions de paiement (BT-20) sous une forme fixe, lisible par machine : une ligne par escompte, exactement #SKONTO#TAGE=14#PROZENT=2.00#, éventuellement avec #BASISBETRAG=500.00# avant le # final. Chaque ligne de la première note des conditions de paiement qui commence par # doit suivre ce modèle, et la dernière ligne d'escompte doit être suivie d'un saut de ligne ; les lignes de texte libre sans # initial ne sont pas contrôlées."}},{"@type":"Question","name":"Comment corriger BR-DE-18 ?","acceptedAnswer":{"@type":"Answer","text":"Écrire chaque escompte sur sa propre ligne sous la forme #SKONTO#TAGE=n#PROZENT=n.nn#, en majuscules et sans espace ; TAGE est un nombre entier de jours, PROZENT a un point et exactement deux décimales. N'ajouter #BASISBETRAG=n.nn# (deux décimales, avant le # final) que si l'escompte porte sur une partie seulement du montant à payer. Terminer chaque ligne d'escompte, y compris la dernière, par un saut de ligne ; un texte ordinaire peut suivre à la ligne suivante. Placer ces lignes dans la première cbc:Note de cac:PaymentTerms (UBL) ou la première ram:Description de ram:SpecifiedTradePaymentTerms (CII), et ne commencer aucune autre ligne par #."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">Règle de facture électronique expliquée · XRechnung</p>
+<h1>BR-DE-18: La ligne d'escompte (Skonto) n'a pas le format exigé</h1>
+<nav class="langs" aria-label="Autres langues"><a href="../en/br-de-18.html" hreflang="en" lang="en">English</a><a href="../de/br-de-18.html" hreflang="de" lang="de">Deutsch</a><a href="index.html">Toutes les règles</a></nav>
+</header>
+<section>
+<h2>Message officiel</h2>
+<blockquote lang="de">Skonto Zeilen in müssen diesem regulärem Ausdruck entsprechen: . Die Informationen zur Gewährung von Skonto müssen wie folgt im Element &quot;Payment terms&quot; (BT-20) übermittelt werden: Anzugeben ist im ersten Segment &quot;SKONTO&quot;, im zweiten &quot;TAGE=n&quot;, im dritten &quot;PROZENT=n&quot;. Prozentzahlen sind ohne Vorzeichen sowie mit Punkt getrennt von zwei Nachkommastellen anzugeben. Liegt dem zu berechnenden Betrag nicht BT-115, &quot;fälliger Betrag&quot; zugrunde, sondern nur ein Teil des fälligen Betrags der Rechnung, ist der Grundwert zur Berechnung von Skonto als viertes Segment &quot;BASISBETRAG=n&quot; gemäß dem semantischen Datentypen Amount anzugeben. Jeder Eintrag beginnt mit einer #, die Segmente sind mit einer # getrennt und eine Zeile schließt mit einer # ab. Am Ende einer vollständigen Skontoangabe muss ein XML-konformer Zeilenumbruch folgen. Alle Angaben zur Gewährung von Skonto müssen in Großbuchstaben gemacht werden. Zusätzliches Whitespace (Leerzeichen, Tabulatoren oder Zeilenumbrüche) ist nicht zulässig. Andere Zeichen oder Texte als in den oberen Vorgaben genannt sind nicht zulässig.</blockquote>
+<blockquote lang="de">Skonto Zeilen in muessen diesem regulärem Ausdruck entsprechen: . Die Informationen zur Gewährung von Skonto müssen wie folgt im Element &quot;Payment terms&quot; (BT-20) übermittelt werden: Anzugeben ist im ersten Segment &quot;SKONTO&quot;, im zweiten &quot;TAGE=n&quot;, im dritten &quot;PROZENT=n&quot;. Prozentzahlen sind ohne Vorzeichen sowie mit Punkt getrennt von zwei Nachkommastellen anzugeben. Liegt dem zu berechnenden Betrag nicht BT-115, &quot;fälliger Betrag&quot; zugrunde, sondern nur ein Teil des fälligen Betrags der Rechnung, ist der Grundwert zur Berechnung von Skonto als viertes Segment &quot;BASISBETRAG=n&quot; gemäß dem semantischen Datentypen Amount anzugeben. Jeder Eintrag beginnt mit einer #, die Segmente sind mit einer # getrennt und eine Zeile schließt mit einer # ab. Am Ende einer vollständigen Skontoangabe muss ein XML-konformer Zeilenumbruch folgen. Alle Angaben zur Gewährung von Skonto müssen in Großbuchstaben gemacht werden. Zusätzliches Whitespace (Leerzeichen, Tabulatoren oder Zeilenumbrüche) ist nicht zulässig. Andere Zeichen oder Texte als in den oberen Vorgaben genannt sind nicht zulässig.</blockquote>
+<dl>
+<dt>Gravité</dt><dd>Erreur (la facture est rejetée)</dd>
+<dt>Vérifiée en</dt><dd>UBL, CII</dd>
+<dt>Termes métier</dt><dd>BT-20</dd>
+</dl>
+</section>
+<section>
+<h2>Que signifie BR-DE-18 ?</h2>
+<p>XRechnung lit l'escompte pour paiement anticipé dans les conditions de paiement (BT-20) sous une forme fixe, lisible par machine : une ligne par escompte, exactement #SKONTO#TAGE=14#PROZENT=2.00#, éventuellement avec #BASISBETRAG=500.00# avant le # final. Chaque ligne de la première note des conditions de paiement qui commence par # doit suivre ce modèle, et la dernière ligne d'escompte doit être suivie d'un saut de ligne ; les lignes de texte libre sans # initial ne sont pas contrôlées.</p>
+<h2>Causes fréquentes</h2>
+<ul>
+<li>Le pourcentage n'a pas exactement deux décimales ou utilise une virgule (PROZENT=2 ou PROZENT=2,00 au lieu de PROZENT=2.00).</li>
+<li>La ligne contient des minuscules, des espaces ou du texte en plus (#Skonto#, #SKONTO# TAGE=14#, « 2 % d'escompte » après le dernier #).</li>
+<li>La dernière ligne d'escompte termine la note sans saut de ligne après son # final.</li>
+<li>Une autre ligne de la note commence par # sans être une ligne d'escompte, par exemple un commentaire ou un numéro de référence.</li>
+</ul>
+</section>
+<section>
+<h2>Comment corriger BR-DE-18 ?</h2>
+<ol>
+<li>Écrire chaque escompte sur sa propre ligne sous la forme #SKONTO#TAGE=n#PROZENT=n.nn#, en majuscules et sans espace ; TAGE est un nombre entier de jours, PROZENT a un point et exactement deux décimales.</li>
+<li>N'ajouter #BASISBETRAG=n.nn# (deux décimales, avant le # final) que si l'escompte porte sur une partie seulement du montant à payer.</li>
+<li>Terminer chaque ligne d'escompte, y compris la dernière, par un saut de ligne ; un texte ordinaire peut suivre à la ligne suivante.</li>
+<li>Placer ces lignes dans la première cbc:Note de cac:PaymentTerms (UBL) ou la première ram:Description de ram:SpecifiedTradePaymentTerms (CII), et ne commencer aucune autre ligne par #.</li>
+</ol>
+<h2>XML corrigé (exemple minimal rédigé par nous)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;cac:PaymentTerms&gt;
+  &lt;cbc:Note&gt;#SKONTO#TAGE=14#PROZENT=2.00#
+#SKONTO#TAGE=30#PROZENT=1.00#BASISBETRAG=500.00#
+Zahlbar innerhalb von 45 Tagen netto&lt;/cbc:Note&gt;
+&lt;/cac:PaymentTerms&gt;</code></pre>
+<p><strong>CII</strong></p>
+<pre><code>&lt;ram:SpecifiedTradePaymentTerms&gt;
+  &lt;ram:Description&gt;#SKONTO#TAGE=14#PROZENT=2.00#
+#SKONTO#TAGE=30#PROZENT=1.00#BASISBETRAG=500.00#
+Zahlbar innerhalb von 45 Tagen netto&lt;/ram:Description&gt;
+&lt;/ram:SpecifiedTradePaymentTerms&gt;</code></pre>
+<p class="note">Valeurs d'exemple uniquement. Remplacez ou complétez les éléments de votre fichier ; l'ordre des éléments est imposé dans les deux syntaxes.</p>
+</section>
+<section>
+<h2>Vérifier votre fichier gratuitement</h2>
+<p>Le vérificateur gratuit exécute les règles officielles EN 16931, XRechnung et Peppol dans votre navigateur. Votre fichier n'est pas envoyé.</p>
+<p><a class="button" href="../../index.html">Ouvrir le vérificateur gratuit</a></p>
+</section>
+<section class="cta">
+<p><span class="state">En développement — accès anticipé</span></p>
+<h2>Corriger et expliquer, pour les experts-comptables et les équipes de facturation</h2>
+<p>Un service payant qui explique chaque règle en échec en français, en allemand ou en anglais clair et propose un fichier corrigé est en cours de développement. <a href="https://example.invalid/industries/e-invoicing/">Accès anticipé</a></p>
+</section>
+<section>
+<h2>Source</h2>
+<p>Identifiant et message officiel de la règle : KoSIT XRechnung Schematron, v2.6.0 (for XRechnung 3.0) (Apache-2.0), compilés depuis le commit amont 7e3ddbe. L'explication, les causes, la correction et le XML de cette page sont les nôtres, pas ceux de l'éditeur de la règle. <a href="https://github.com/itplr-kosit/xrechnung-schematron/tree/v2.6.0" rel="noopener">KoSIT XRechnung Schematron v2.6.0 (for XRechnung 3.0)</a></p>
+</section>
+<footer>
+<p><strong>Ni conseil fiscal ni conseil juridique.</strong> Cette page explique ce que vérifie une règle de validation et comment faire passer un fichier. Elle ne dit pas quel régime de TVA s'applique à votre vente ; demandez à votre expert-comptable. <strong>Sans garantie (no warranty) :</strong> gratuit et fourni en l'état ; vérifiez le résultat avant de vous y fier.</p>
+<p>Notre code et nos explications sont sous licence MIT. Les messages officiels des règles sont cités sous la licence de leur éditeur (EUPL-1.2, Apache-2.0, MPL-2.0), indiquée sur chaque page.</p>
+</footer>
+</main></body></html>
