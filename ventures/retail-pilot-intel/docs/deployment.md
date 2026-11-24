@@ -16,7 +16,7 @@ CI: `scripts/ci.ts` (typecheck, lint, build, bootstrap).
 | Layer | Purpose |
 |-------|---------|
 | **Private GitHub repo** | Source control |
-| **GitHub Pages (private repo)** or **Vercel Deployment Protection** | Network boundary |
+| **Cloudflare Access** (optional, free up to 50 users) | Network boundary in front of the Worker |
 | **`VITE_DOCS_PASSCODE`** + **`VITE_DOCS_GATE_ENABLED`** | Browser session gate (12h, `sessionStorage`) |
 | **`X-Robots-Tag: noindex`** | Discourage indexing if URL leaks |
 
@@ -29,14 +29,20 @@ Local dev: gate off by default. Force on with `VITE_DOCS_GATE_ENABLED=true`. Def
 3. Optional **`DOCS_SITE_URL`** repository variable for canonical meta
 4. Push to `main` → publishes `apps/docs/dist`
 
-## Vercel (custom domain)
+## Cloudflare (replaces Vercel, 2026-11-24)
 
-1. Import repo — use root **`vercel.docs.json`** (monorepo build) or **`apps/docs/vercel.json`** (project root = `apps/docs`)
-2. **Domains** → e.g. `docs.retailpilotintel.com` (CNAME → `cname.vercel-dns.com`)
-3. Env: `VITE_DOCS_PASSCODE`, `VITE_DOCS_GATE_ENABLED=true`, `VITE_DOCS_SITE_URL`
-4. **Deployment Protection** (password or SSO)
+The docs are a free-plan Cloudflare Worker of their own, `retail-pilot-intel-docs`, serving
+`apps/docs/dist` as static files (`apps/docs/wrangler.toml`; headers in `apps/docs/public/_headers`).
+Address: `https://retail-pilot-intel-docs.<account subdomain>.workers.dev/`.
 
-Optional CI job `deploy-vercel` when repository variable `VERCEL_DEPLOY=true` and secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` are set.
+CI job `deploy-cloudflare` in `.github/workflows/retail-pilot-intel-deploy-docs.yml` publishes it on
+a manual run, or on every docs push once the repository variable `RETAIL_PILOT_INTEL_DOCS_CLOUDFLARE`
+is `true`. It uses the `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` secrets the portfolio site
+already uses. Optional: `DOCS_SITE_URL` for canonical meta, and Cloudflare Access on the workers.dev
+host for a real login in front of the passcode.
+
+Vercel: the old `deploy-vercel` job never published (`VERCEL_DEPLOY` was never set, so every run
+skipped it), so no Vercel URL needs a redirect. `vercel.json` and `vercel.docs.json` are removed.
 
 ## Docker / LAN
 
