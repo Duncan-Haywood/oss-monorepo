@@ -5,7 +5,7 @@ market evidence, not by how much open design already sits in this repository
 (owner, 2026-11-24: open hardware becomes long-term **outsourced** hardware
 companies; invest by promise and value, not sunk cost; SMB customers
 preferred; construction a favourite). The software bets and the scoring method
-are in `bets.md` (added by PR #18675, awaiting the owner); this file uses the same method plus one more
+are in `bets.md`; this file uses the same method plus one more
 column, because hardware carries a certification and safety burden that
 software does not.
 

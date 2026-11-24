@@ -106,3 +106,22 @@ test('the site structured data declares a search action the hub answers', () => 
   assert.equal(site.publisher['@id'], org['@id']);
   assert.deepEqual(org.sameAs, ['https://github.com/x/y']);
 });
+
+test('the Organization names only the live products it offers, with no price', () => {
+  const none = siteStructuredData({ baseUrl: 'https://e.test/', siteName: 'S', description: 'D', repoUrl: 'r', logo: 'l' });
+  assert.equal(none['@graph'].find((n) => n['@type'] === 'Organization').makesOffer, undefined);
+
+  const data = siteStructuredData({
+    baseUrl: 'https://e.test/', siteName: 'S', description: 'D', organizationDescription: 'S builds software.', repoUrl: 'r', logo: 'l',
+    offers: [{ name: 'P', url: 'https://e.test/p/', audience: 'small nonprofits', description: 'P does a thing.' }],
+  });
+  const org = data['@graph'].find((n) => n['@type'] === 'Organization');
+  assert.equal(org.description, 'S builds software.');
+  assert.equal(org.makesOffer.length, 1);
+  const [offer] = org.makesOffer;
+  assert.equal(offer['@type'], 'Offer');
+  assert.equal(offer.itemOffered.name, 'P');
+  assert.equal(offer.itemOffered.url, 'https://e.test/p/');
+  assert.equal(offer.itemOffered.audience.audienceType, 'small nonprofits');
+  assert.equal(offer.price, undefined, 'prices live on the product page, not here');
+});

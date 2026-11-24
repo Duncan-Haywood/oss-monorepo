@@ -94,7 +94,7 @@ class of pin the agent action itself already carried. R4 now reads zero too.
 
 The zero is load-bearing. R3 is the canonical GitHub Actions script-injection
 class — the one every published scanner leads with — and this repository has
-none of it. `opencode-high-throughput.yml` passes its one dispatch input through
+none of it. `priv-opencode-high-throughput.yml` passes its one dispatch input through
 an `env:` binding and then regex-validates it, which is the correct pattern. So
 the interesting finding here could not be the famous one, and turned out to be
 R7.
@@ -549,7 +549,7 @@ separate diffs, as the bullets below record. Specifically:
   so nothing here adds or re-enables automation, which is the direction
   `CLAUDE.md` actually gates.
 - **R5 was posture, not a defect, and is now fixed too (2026-09-02).** The fix
-  was exactly what this bullet used to say it would be: `opencode-high-throughput.yml`'s
+  was exactly what this bullet used to say it would be: `priv-opencode-high-throughput.yml`'s
   file-level `permissions:` granted `contents: write`, `pull-requests: write`
   and `id-token: write` to every job in the file by position, including
   `resolve-config`, which only computes a matrix and echoes it to

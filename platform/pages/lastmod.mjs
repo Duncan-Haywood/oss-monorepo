@@ -9,7 +9,7 @@
  *
  * The one-pass `git log --name-only` is deliberate: one process rather than
  * one per page. The Pages workflow checks out 3,000 commits on main (see
- * `fetch-depth` in `portfolio-pages.yml`), and a pull-request build is depth 1.
+ * `fetch-depth` in `priv-portfolio-pages.yml`), and a pull-request build is depth 1.
  * In a shallow clone the oldest commit appears to touch every file it
  * contains, so dates from the shallow boundary are dropped, not trusted.
  */

@@ -12,7 +12,7 @@
 # (run 41172448053). A PR opened from here would not help: a PR created with
 # GITHUB_TOKEN starts no workflow, so the required checks (conflict-markers,
 # control-plane) would never report and it could not merge unattended. Same
-# pattern as security-alert-queue.yml and its `security-alerts` branch.
+# pattern as priv-security-alert-queue.yml and its `security-alerts` branch.
 # Sessions read the branch with `node platform/counter/usage-data.mjs show`
 # and copy it into portfolio/usage/ with `... sync` when a PR should carry it
 # (portfolio/usage/README.md, "Where the daily pull lands").
@@ -135,7 +135,7 @@ jobs:
           cat > "$d/README.md" <<'MD'
           # usage-data
 
-          Written daily by `.github/workflows/site-usage-pull.yml` on main. Holds only
+          Written daily by `.github/workflows/priv-site-usage-pull.yml` on main. Holds only
           generated, aggregate files; never merged as a branch, never edited by hand.
           Read: `node platform/counter/usage-data.mjs show` (from a main checkout).
           Google Search Console, per page and query: search-console.json.

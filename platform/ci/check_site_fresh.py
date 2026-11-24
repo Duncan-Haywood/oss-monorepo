@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Fail when the live site has not been rebuilt for longer than deploys allow.
 
-The deploy (`.github/workflows/portfolio-pages.yml`) runs on every merge and
+The deploy (`.github/workflows/priv-portfolio-pages.yml`) runs on every merge and
 every three hours, and each build writes `version.json` with its commit and
 build time (`platform/pages/build.mjs`, `buildVersion`). A healthy site is
 therefore never much more than three hours old. On 2026-11-03 every deploy

@@ -306,7 +306,7 @@ for it to get back in the repo so the agents can review it somehow."
 | What | Path into the repo | Who reads it |
 |---|---|---|
 | Bug reports and ideas from people with a GitHub account | Issue forms in `.github/ISSUE_TEMPLATE/`, linked from every tool's footer through `feedback/?tool=<slug>` | Agents, with `search_issues` and `label:site-feedback` |
-| Bug reports and ideas from people without one | The form on the site's `feedback/` page, stored by `platform/edge/` in D1, then `.github/workflows/site-usage-pull.yml` runs `platform/edge/pull-feedback.mjs` daily and commits `site-feedback.json` to the `usage-data` branch (next section) | Agents, by reading that file |
+| Bug reports and ideas from people without one | The form on the site's `feedback/` page, stored by `platform/edge/` in D1, then `.github/workflows/priv-site-usage-pull.yml` runs `platform/edge/pull-feedback.mjs` daily and commits `site-feedback.json` to the `usage-data` branch (next section) | Agents, by reading that file |
 | Page loads per day and page | `pf-site.js` beacon, `platform/edge/` `/hit` into D1, then the same workflow runs `platform/counter/pull.mjs` and commits `site-visits.json` to the same branch | The router, the review track, any session |
 | GitHub repo views, clones, referring sites and popular paths | GitHub's traffic API (14-day window), pulled by the same workflow with `platform/counter/pull-github-traffic.mjs` into `portfolio/usage/github-traffic.json` | Same |
 | Every request Cloudflare's edge served for https://marisstella.app/: totals, countries, statuses, requests by kind of client (browser, named crawler, script, probe) and top pages per kind, plus Worker invocations against the free plan's limit | Cloudflare's GraphQL Analytics API, pulled by the same workflow with `platform/counter/pull-cloudflare.mjs` into `portfolio/usage/cloudflare-analytics.json`. Browser strings are reduced to a class and dropped; scanner paths and 404s are never written | Same. Read it beside `site-visits.json`: the beacon counts page loads that ran the page's script, Cloudflare counts requests, and on 2026-10-30 the two differed by three orders of magnitude |
@@ -321,7 +321,7 @@ that push failed with `GH013` (run 41172448053, 2026-10-31 05:24 UTC), so
 when a session ran the pull scripts by hand. Opening a PR from the workflow was
 ruled out: a PR created with `GITHUB_TOKEN` starts no workflow, so the required
 checks (`conflict-markers`, `control-plane`) would never report and the PR
-would sit unmergeable. The branch follows `security-alert-queue.yml`'s
+would sit unmergeable. The branch follows `priv-security-alert-queue.yml`'s
 `security-alerts` precedent: generated files only, at the branch root, never
 merged as a branch, kept by `platform/ci/branch_cleanup.py`.
 

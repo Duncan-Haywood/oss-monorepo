@@ -21,7 +21,7 @@
  * is automated; the sign-up itself is a few minutes of the owner's time.
  *
  * --check catches the drift that would make that checklist wrong:
- *   - a secret or variable a distribute-*.yml workflow reads that no account
+ *   - a secret or variable a priv-distribute-*.yml workflow reads that no account
  *     row lists (a new channel added a credential nobody will be asked for);
  *   - a name an account lists that none of its workflows reads (stale);
  *   - a channel id in `unlocks` that is not in channels.yaml;
@@ -102,7 +102,7 @@ export function problems({ accounts, channels, email, workflows }) {
     }
   }
   for (const [f, text] of Object.entries(workflows)) {
-    if (!f.startsWith('distribute-')) continue;
+    if (!f.replace(/^priv-/, '').startsWith('distribute-')) continue;
     const n = namesIn(text);
     for (const kind of ['secrets', 'variables']) {
       for (const name of n[kind]) {

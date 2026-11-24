@@ -221,7 +221,8 @@ function aggregateAds(rows) {
   for (const r of rows) {
     const key = `${r.campaign}\u0001${r.adset}\u0001${r.ad}`;
     let a = m.get(key);
-    if (!a) { a = { key, campaign: r.campaign, adset: r.adset, ad: r.ad, spend: 0, impr: 0, reach: 0, freqWeighted: 0, clicks: 0, results: 0, value: 0, rows: 0, daily: [] }; m.set(key, a); }
+    if (!a) { a = { key, campaign: r.campaign, adset: r.adset, ad: r.ad, spend: 0, impr: 0, reach: 0, maxReach: 0, freqWeighted: 0, clicks: 0, results: 0, value: 0, rows: 0, daily: [] }; m.set(key, a); }
+    if (r.reach > a.maxReach) a.maxReach = r.reach;
     a.spend += r.spend; a.impr += r.impr; a.reach += r.reach; a.clicks += r.clicks; a.results += r.results; a.value += r.value; a.rows++;
     a.freqWeighted += r.freq * r.impr;
     if (r.day !== null) a.daily.push(r);
@@ -231,7 +232,12 @@ function aggregateAds(rows) {
     // frequency is the impression-weighted average of the reported ones.
     let freq = a.impr && a.freqWeighted ? a.freqWeighted / a.impr : 0;
     if (!freq && a.rows === 1 && a.reach) freq = a.impr / a.reach;
-    return { ...a, freq, ctr: a.impr ? a.clicks / a.impr : null, cpa: a.results ? a.spend / a.results : null, roas: a.spend && a.value ? a.value / a.spend : null, clickRate: a.clicks ? a.results / a.clicks : null };
+    // With a Day breakdown each row's frequency is that day's (reach is
+    // per-day), so the average understates the period figure. Period reach is
+    // at least the largest day's, which bounds period frequency from above.
+    const dailyFreq = new Set(a.daily.map((r) => r.day)).size > 1;
+    const freqUpper = dailyFreq && a.maxReach ? a.impr / a.maxReach : null;
+    return { ...a, freq, dailyFreq, freqUpper, ctr: a.impr ? a.clicks / a.impr : null, cpa: a.results ? a.spend / a.results : null, roas: a.spend && a.value ? a.value / a.spend : null, clickRate: a.clicks ? a.results / a.clicks : null };
   });
 }
 
@@ -274,16 +280,28 @@ export function analyze(rows, { targetCpa = null, freqThreshold = 3, minImpr = 1
   const medCpa = median(eligible.filter((a) => a.results > 0).map((a) => a.cpa));
   const medRoas = hasValue ? median(eligible.filter((a) => a.roas !== null).map((a) => a.roas)) : null;
 
+  // The weak signals an ad at or above the frequency threshold is checked for.
+  function weakSignals(a) {
+    const out = [];
+    if (medCtr && a.ctr !== null && a.ctr < 0.8 * medCtr) out.push(`CTR ${(a.ctr * 100).toFixed(2)}% is below 80% of the account median ${(medCtr * 100).toFixed(2)}%`);
+    if (medCpa && a.cpa !== null && a.cpa > 1.25 * medCpa) out.push(`cost per result ${a.cpa.toFixed(2)} is above 125% of the account median ${medCpa.toFixed(2)}`);
+    if (a.results <= 0 && a.spend >= cpaRef) out.push(`spent ${a.spend.toFixed(2)} (over one result's cost) with no results`);
+    if (a.trend && a.trend.change <= -0.25) out.push(`daily CTR fell ${Math.round(-a.trend.change * 100)}% from the first to the last third of its days`);
+    return out;
+  }
   for (const a of ads) {
     a.reasons = [];
     a.fatigued = false;
     if (a.impr >= minImpr && a.freq >= freqThreshold) {
-      if (medCtr && a.ctr !== null && a.ctr < 0.8 * medCtr) a.reasons.push(`CTR ${(a.ctr * 100).toFixed(2)}% is below 80% of the account median ${(medCtr * 100).toFixed(2)}%`);
-      if (medCpa && a.cpa !== null && a.cpa > 1.25 * medCpa) a.reasons.push(`cost per result ${a.cpa.toFixed(2)} is above 125% of the account median ${medCpa.toFixed(2)}`);
-      if (a.results <= 0 && a.spend >= cpaRef) a.reasons.push(`spent ${a.spend.toFixed(2)} (over one result's cost) with no results`);
-      if (a.trend && a.trend.change <= -0.25) a.reasons.push(`daily CTR fell ${Math.round(-a.trend.change * 100)}% from the first to the last third of its days`);
-      a.fatigued = a.reasons.length > 0;
+      a.reasons.push(...weakSignals(a));
+    } else if (a.impr >= minImpr && a.dailyFreq && a.trend && a.trend.change <= -0.25) {
+      // A daily export's per-day frequency rarely reaches a period threshold,
+      // but the same ad's CTR falling over its own days is the fatigue
+      // pattern itself, so the trend signal is not gated on it.
+      const bound = a.freqUpper ? `; period frequency is at most ${a.freqUpper.toFixed(1)} (impressions over the largest day's reach)` : "";
+      a.reasons.push(`daily CTR fell ${Math.round(-a.trend.change * 100)}% from the first to the last third of its days (daily frequency averages ${a.freq.toFixed(1)}, which is per-day, so the frequency threshold is not applied${bound})`);
     }
+    a.fatigued = a.reasons.length > 0;
   }
   const fatigued = ads.filter((a) => a.fatigued).sort((a, b) => b.spend - a.spend);
 
@@ -317,7 +335,7 @@ export function analyze(rows, { targetCpa = null, freqThreshold = 3, minImpr = 1
   const m2 = (v) => v.toFixed(2);
   const findings = [];
   findings.push({ severity: summary.zeroShare > 0.3 ? "high" : summary.zeroShare > 0.15 ? "medium" : "info", title: `${pc(summary.zeroShare)} of spend went to ads with no results`, detail: `${m2(zeroSpend)} of ${m2(spend)}. ${m2(buckets.proven)} is proven (${Number.isFinite(needed) ? needed + "+ link clicks" : "enough link clicks"} and nothing, which at the account's ${(rate * 100).toFixed(1)}% click-to-result rate would happen by chance under ${Math.round((1 - confidence) * 100)}% of the time), ${m2(buckets.overspent)} spent more than ${m2(cpaRef)} (${targetCpa ? "your target" : "the account average"} cost per result) with none, and ${m2(buckets.watch)} is too little data to judge.` });
-  if (fatigued.length) findings.push({ severity: "high", title: `${fatigued.length} ad(s) show fatigue signals, with ${m2(summary.fatiguedSpend)} spent`, detail: `Frequency at or above ${freqThreshold} plus at least one weak signal against the account median. The heaviest: ${fatigued.slice(0, 3).map((a) => `“${a.ad}” (frequency ${a.freq.toFixed(1)})`).join("; ")}. This is a pattern in the file, not proof that the creative is worn out: audience size, seasonality and budget changes move the same numbers.` });
+  if (fatigued.length) findings.push({ severity: "high", title: `${fatigued.length} ad(s) show fatigue signals, with ${m2(summary.fatiguedSpend)} spent`, detail: `Frequency at or above ${freqThreshold} plus at least one weak signal against the account median, or, in a daily export, CTR falling by a quarter across the ad's own days. The heaviest: ${fatigued.slice(0, 3).map((a) => `“${a.ad}” (frequency ${a.freq.toFixed(1)})`).join("; ")}. This is a pattern in the file, not proof that the creative is worn out: audience size, seasonality and budget changes move the same numbers.` });
   if (scale.length) findings.push({ severity: "medium", title: `${scale.length} ad(s) beat the account median with enough results`, detail: `Each has at least ${minResults} results, a cost per result at least 20% under the median${medRoas ? " (or a return at least 25% above it)" : ""}, and frequency under ${freqThreshold}. That describes the period in the file; it does not predict what more budget would do.` });
   if (!hasClicks) findings.push({ severity: "info", title: "No link clicks column", detail: "Without link clicks the proven tier and CTR checks are unavailable: no-result spend is graded by cost only." });
   if (eligible.length < 5) findings.push({ severity: "info", title: "Few ads have enough impressions", detail: `Only ${eligible.length} ad(s) reach ${minImpr} impressions, so the account medians are thin. Treat flags as leads.` });
