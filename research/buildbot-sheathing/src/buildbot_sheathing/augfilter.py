@@ -30,6 +30,7 @@ import numpy as np
 from . import closedloop as C
 
 N_DIM = 3
+_Q0_CACHE = {}
 
 
 class Q0:
@@ -68,18 +69,17 @@ def read(P, s):
 def pee_sequence(n, starts, tau, pre, sigma, s, sheets, tare_at, sb, post_read):
     """Pee at the reading of each sheet k = 1 .. sheets - 1 (the value the tare decision and the carried
     sheet see when sheet k is not tared), for the fixed tare set `tare_at`; entry 0 is 0 (wall start)."""
-    zmask = np.zeros(n, bool)
-    zmask[list(starts)] = True
+    last = max(starts) if len(starts) else None
     P = (0.0, 0.0, sb ** 2)
     if post_read:
         P, _ = read(P, s)
     out = [0.0]
     for k in range(1, sheets):
         ee, eb, bb = P
-        for l in range(n):
-            if zmask[l]:
-                ee, eb = 0.0, 0.0
-            ee += sigma ** 2 * tau
+        if last is None:
+            ee += sigma ** 2 * tau * n
+        else:                               # an in-sheet re-zero clears e; the presses after it remain
+            ee, eb = sigma ** 2 * tau * (n - last), 0.0
         ee += sigma ** 2 * pre
         P, _ = read((ee, eb, bb), s)
         out.append(P[0])
@@ -118,7 +118,10 @@ def plan(allow, tau, pre, sheets, sigma, s, eps, risk, LS_sheet, sb, post_read):
     cut = [0] + list(starts) + [n]
     f0 = 1.0 - np.exp(sum(LS_sheet[a][b - a - 1] for a, b in zip(cut[:-1], cut[1:])))
     none = pee_sequence(n, starts, tau, pre, sigma, s, sheets, set(), sb, post_read)
-    q0 = Q0(risk, starts, rest, max(none))
+    key = (id(risk), tuple(starts), round(rest, 12), round(max(none), 15))
+    if key not in _Q0_CACHE:
+        _Q0_CACHE[key] = Q0(risk, starts, rest, max(none))
+    q0 = _Q0_CACHE[key]
     tare_at, cost = schedule(q0, f0, n, starts, tau, pre, sigma, s, sheets, sb, post_read, eps * sheets)
     return starts, tare_at, cost, q0, f0
 

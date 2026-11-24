@@ -42,7 +42,23 @@ STRESS_ROWS = [("g1", "BANDS k+0", 0.1), ("g1", "LAYOUT", 0.1), ("h1", "LAYOUT",
 STRESS = [0.02, 0.04]                 # fixed beta along x at sb 0.02, s 0.01 (1 and 2 prior sd)
 
 
+CACHE = os.environ.get("M78_CACHE")   # optional directory: finished rows are kept there, so a restart resumes
+
+
 def one_row(arg):
+    k, a = arg
+    if CACHE:
+        f = os.path.join(CACHE, "|".join(map(str, k)).replace("|", "_").replace(" ", "-") + ".json")
+        if os.path.exists(f):
+            return json.load(open(f))
+    r = _one_row(arg)
+    if CACHE:
+        json.dump(r, open(f + ".tmp", "w"))
+        os.replace(f + ".tmp", f)
+    return r
+
+
+def _one_row(arg):
     (n, plan, d1), a = arg
     a = np.asarray(a, float)
     m = len(a)
