@@ -359,6 +359,12 @@ feeds. One part of the sentence can be read two ways: whether demoted
 items keep a marketing page of their own. This report assumes products get
 full marketing pages and demoted items keep a plain page linking to a
 product. The owner can correct that.
+The owner added: "specialization and niching down very useful. better
+niched down multiple products for very specific users than multiple broad
+products." So a promotion targets one specific kind of user (a roofing
+estimator, a youth-league scheduler), not a broad category. Tools fold into
+the narrow product whose user needs them. A broad product is split by user
+when the users' jobs differ.
 `portfolio/monetization/transition.py` already sorts the 1,446 ventures into
 20 products and about 1,420 MIT tools; the promote-or-demote pass builds on
 it rather than starting over.

@@ -580,7 +580,11 @@ tasks:
     notes: >-
       Owner, 2026-11-24: "projects tools and products get moved into products
       or demoted and get marrketing pages". Archiving removes from navigation
-      and sitemaps, not from git; old URLs redirect to the product they feed.
+      and sitemaps, not from git; old URLs redirect to the product they feed. Owner, same day:
+      "better niched down multiple products for very specific users than
+      multiple broad products", so each promoted product names one specific
+      user, and a broad product that serves users with different jobs is
+      proposed as a split.
 
   - id: product-marketing-pages
     direction: promote-or-demote
