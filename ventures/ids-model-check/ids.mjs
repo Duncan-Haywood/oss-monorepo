@@ -592,7 +592,9 @@ export class AttributeFacet {
 // AttributeFacet.shape codes (non-zero: 0 marks "not yet read" in a cache).
 const SHAPE_NO_ATTR = 1, SHAPE_UNSET = 2, SHAPE_EMPTY = 3, SHAPE_UNCOMPARABLE = 4, SHAPE_SCALARS = 5;
 
-const fmt = (v) => (v && v.enum ? "." + v.enum + "." : JSON.stringify(v));
+// Infinity and NaN (read from an exporter's 1.#INF / -1.#IND, step.mjs) print as
+// themselves: JSON.stringify would print them as null.
+const fmt = (v) => (v && v.enum ? "." + v.enum + "." : typeof v === "number" && !Number.isFinite(v) ? String(v) : JSON.stringify(v));
 
 export const QUANTITY_MEASURE = {
   IFCQUANTITYLENGTH: ["LengthValue", "IFCLENGTHMEASURE"],

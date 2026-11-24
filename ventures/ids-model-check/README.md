@@ -173,6 +173,15 @@ open. MIT licensed, no dependencies, nothing uploaded.
   8 of 8 specs). The set's dataType is now the commonest across classes, not
   the first one seen. 19,300 of 19,300 pass.
   `eval/mixed-type-own-props-2026-11-24.md`.
+  **A property written as 1.#INF** (2026-11-24): on xBIM's 128 test files
+  (all read; 3,786 of 3,786 offers pass; 24,290 of 24,290 strings the same as
+  IfcOpenShell 0.9.0 reads them), one file holds the Microsoft C runtime's
+  `1.#INF` and `-1.#IND`, which exporters write for an infinite or undefined
+  double. The reader dropped such a record, so a property holding one went
+  missing and an optional check on it passed. It now reads them as Infinity
+  and NaN with a reader note; checks fail them ("is Infinity, not <= 1") and
+  the editor's row says the export wrote a fault.
+  `eval/xbim-test-files-2026-11-24.md`.
   **Attribute values and classification codes** (2026-11-17): attribute rows
   (Name, ObjectType, Tag, PredefinedType...) and classification rows offer
   the values and codes the model holds the same way. On four real exports, 243

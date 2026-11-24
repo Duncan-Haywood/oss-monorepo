@@ -355,7 +355,10 @@
     }
     if (offer && r.cardinality !== "prohibited") {
       const shown = offer.values.slice(0, 8).map(([v, n]) => `${v === "" ? "(empty)" : v} (${n})`).join(", ");
-      const nVals = offer.complete ? `${offer.values.length} different value${offer.values.length === 1 ? "" : "s"}` : `more than ${offer.values.length} different values`;
+      // A number row whose only values left out are INF / NaN still knows its full list.
+      const fullNums = !offer.complete && offer.nonFinite && offer.nonFinite.length && mprop && !mprop.more && offer.values.length + offer.nonFinite.length >= (mprop.distinct || 0);
+      const noun = offer.complete ? "value" : "number";
+      const nVals = offer.complete || fullNums ? `${offer.values.length} different ${noun}${offer.values.length === 1 ? "" : "s"}` : `more than ${offer.values.length} different values`;
       let mv = `In the model: ${nVals}${offer.values.length ? ": " + shown + (offer.values.length > 8 ? ", ..." : "") : ""}.`;
       const n12 = (x) => String(Number(x.toPrecision(12)));
       if (offer.min !== null && offer.max !== null) mv += ` They range from ${n12(offer.min)} to ${n12(offer.max)} (${r.kind === "property" ? "SI units" : "as the model writes them"})${offer.rangeMin !== n12(offer.min) || offer.rangeMax !== n12(offer.max) ? `; as written, ${offer.min} to ${offer.max}, and IDS ranges take no rounding tolerance, so the model's range is ${offer.rangeMin} to ${offer.rangeMax}` : ""}.`;
@@ -363,6 +366,7 @@
       // writes them (a range of exactly those passes every object with one).
       if (offer.tmin !== null && offer.tmax !== null) mv += ` They run from ${offer.tmin} to ${offer.tmax}.`;
       else if (temporal && mprop && mprop.tkind === "mixed") mv += ` Not every value is ${temporal === "duration" ? "an ISO duration" : temporal === "time" ? "an ISO time" : temporal === "dateTime" ? "an ISO date-time" : "an ISO date"} in one form, so no range passes them all.`;
+      if (offer.nonFinite && offer.nonFinite.length) mv += ` ${offer.nonFinite.map(([v, n]) => `${v} (${n})`).join(" and ")} ${offer.nonFinite.length === 1 ? "is" : "are"} not ${offer.nonFinite.length === 1 ? "a number" : "numbers"}: the export wrote 1.#INF or -1.#IND, a fault in the tool that wrote it. Any range or value check fails ${offer.nonFinite.reduce((a, [, n]) => a + n, 0) === 1 ? "that object" : "those objects"}; fix the source model or re-export.`;
       if (offer.outside.length) mv += ` It also writes ${offer.outside.slice(0, 5).map(([v, n]) => `${v} (${n})`).join(", ")}${offer.outside.length > 5 ? ", ..." : ""}, which the standard does not list; a one-of check fails those objects.`;
       const listedAll = offer.oneOf && r.mode === "oneOf" && r.oneOf.length === offer.oneOf.length && offer.oneOf.every((v) => r.oneOf.includes(v));
       const rangeAll = offer.min !== null && offer.max !== null && valueKind === "number" && !(r.mode === "range" && r.min === offer.rangeMin && r.max === offer.rangeMax && !r.minEx && !r.maxEx);
