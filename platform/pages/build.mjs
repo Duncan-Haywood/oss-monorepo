@@ -35,6 +35,7 @@ import { promisify } from 'node:util';
 import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
+import { buildNonprofitsPage } from './industry-nonprofits.mjs';
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
 import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, loadPosts, WRITING_PATH } from './writing.mjs';
@@ -12655,7 +12656,7 @@ ${entries.join('\n')}
  * own — they are the same kind of page (this build's, not a venture's) and a
  * crawler following `robots.txt` reaches them through the same index.
  */
-export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys = [], researchSlugs = [], writingSlugs = []) {
+export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys = [], researchSlugs = [], writingSlugs = [], extraPaths = []) {
   const urls = [`  <url><loc>${baseUrl}</loc></url>`]
     // The Tools section's index of every category page.
     .concat([`  <url><loc>${baseUrl}${CATEGORY_PATH_PREFIX}/</loc></url>`])
@@ -12680,6 +12681,8 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     .concat(writingSlugs.map((slug) => `  <url><loc>${baseUrl}${WRITING_PATH}${slug}/</loc></url>`))
     // The fiction section, a hub-level page this build always writes.
     .concat([`  <url><loc>${baseUrl}${STORIES_PATH}</loc></url>`])
+    // Hub-level pages written by their own modules (industries/nonprofits/ ...).
+    .concat(extraPaths.map((p) => `  <url><loc>${baseUrl}${p}</loc></url>`))
     // The open book: updates and the changelog. Both change with every merge,
     // which is what a crawler deciding how often to come back wants to see.
     .concat([`  <url><loc>${baseUrl}${UPDATES_PATH}</loc></url>`, `  <url><loc>${baseUrl}${CHANGELOG_PATH}</loc></url>`, `  <url><loc>${baseUrl}${QUEUE_PATH}</loc></url>`])
@@ -13773,6 +13776,16 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   const feedbackDir = path.join(outDir, FEEDBACK_PATH);
   await fs.mkdir(feedbackDir, { recursive: true });
   await fs.writeFile(path.join(feedbackDir, 'index.html'), renderFeedbackPage({ surfaces, baseUrl: base }));
+  // The nonprofits industry page (2026-11-24 pivot): small nonprofits'
+  // common problems, Grant Autopilot, and the free nonprofit tools. See
+  // `industry-nonprofits.mjs`.
+  const industryPages = [
+    await buildNonprofitsPage(outDir, base, {
+      published: new Set(surfaces.map((s) => s.slug)),
+      footer: `${disclaimerHtml('../../', surfaces)}\n      ${renderSiteFooterNav({ toRoot: '../../' })}`,
+      tail: `  <script src="../../${CHROME_MODULE_FILE}" ${CHROME_SLUG_ATTR}="industry-nonprofits" defer></script>`,
+    }),
+  ];
   const customDevDir = path.join(outDir, CUSTOM_DEV_PATH);
   const customRequests = loadRequests();
   const researchDirs = researchDirections();
@@ -13934,6 +13947,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       compareProducts.map((group) => group.key),
       [...researchSlugs, ...researchTopics, ...researchApps],
       writingPages,
+      industryPages,
     ),
   );
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
