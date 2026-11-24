@@ -348,6 +348,14 @@ opt-out, not people. Browsers sending DNT/GPC were left out until 2026-11-23
 and are counted from 2026-11-24, so earlier days read lower
 (`docs/legal/privacy-baseline.md`, "What changed on 2026-11-24").
 
+For "which free pages send people toward a product?", the `fn:` keys hold
+funnel events (product-CTA impressions and clicks, industry-page and
+`/products/` views, outbound product clicks), counted from 2026-11-24 on pages
+that carry `data-funnel` markup: `node platform/counter/funnel-report.mjs`
+summarises them per industry, page and product
+(`platform/counter/FUNNEL.md`; how to read it:
+`docs/reports/2026-11-24-funnel-events.md`).
+
 `sync` lets the branch copy win but merges visit days (larger count) and
 feedback records (by id) with main's, so a hand-run pull is never lost.
 Readers that open `portfolio/usage/*.json` on main (`platform/distribution/hub.mjs`,

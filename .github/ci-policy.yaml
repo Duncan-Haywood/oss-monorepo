@@ -34,6 +34,8 @@ actions:
     - c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
   opentofu/setup-opentofu:
     - 9d84900f3238fab8cd84ce47d658d25dd008be2f # v1.0.8
+  pypa/gh-action-pypi-publish:
+    - 7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3 (PR #18671)
   pnpm/action-setup:
     - b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
 

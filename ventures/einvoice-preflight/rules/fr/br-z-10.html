@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BR-Z-10: Ventilation au taux zéro : motif d'exonération interdit</title>
+<meta name="description" content="BR-Z-10: Une entrée de ventilation de catégorie Z (taux zéro) ne doit contenir ni code de motif d'exonération (BT-121) ni texte de motif (BT-120). Dans la…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/fr/br-z-10">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/br-z-10">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/br-z-10">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/br-z-10">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/br-z-10">
+<meta property="og:title" content="BR-Z-10: Ventilation au taux zéro : motif d'exonération interdit">
+<meta property="og:description" content="BR-Z-10: Une entrée de ventilation de catégorie Z (taux zéro) ne doit contenir ni code de motif d'exonération (BT-121) ni texte de motif (BT-120). Dans la…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Que signifie BR-Z-10 ?","acceptedAnswer":{"@type":"Answer","text":"Une entrée de ventilation de catégorie Z (taux zéro) ne doit contenir ni code de motif d'exonération (BT-121) ni texte de motif (BT-120). Dans la norme EN 16931, le taux zéro est un taux imposable de 0 %, pas une exonération : les champs de motif n'y ont donc pas leur place."}},{"@type":"Question","name":"Comment corriger BR-Z-10 ?","acceptedAnswer":{"@type":"Answer","text":"Vérifiez que Z est bien la catégorie voulue ; la catégorie applicable à votre vente est une question fiscale, à voir avec votre conseiller en cas de doute. Si Z est correcte, supprimez TaxExemptionReason et TaxExemptionReasonCode (CII : ram:ExemptionReason et ram:ExemptionReasonCode) de cette entrée. Pour expliquer le taux zéro à l'acheteur, utilisez plutôt une note de facture (BT-22)."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">Règle de facture électronique expliquée · EN 16931</p>
+<h1>BR-Z-10: Ventilation au taux zéro : motif d'exonération interdit</h1>
+<nav class="langs" aria-label="Autres langues"><a href="../en/br-z-10.html" hreflang="en" lang="en">English</a><a href="../de/br-z-10.html" hreflang="de" lang="de">Deutsch</a><a href="index.html">Toutes les règles</a></nav>
+</header>
+<section>
+<h2>Message officiel</h2>
+<blockquote lang="en">A VAT breakdown (BG-23) with VAT Category code (BT-118) &quot;Zero rated&quot; shall not have a VAT exemption reason code (BT-121) or VAT exemption reason text (BT-120).</blockquote>
+<blockquote lang="en">A VAT Breakdown (BG-23) with VAT Category code (BT-118) &quot;Zero rated&quot; shall not have a VAT exemption reason code (BT-121) or VAT exemption reason text (BT-120).</blockquote>
+<dl>
+<dt>Gravité</dt><dd>Erreur (la facture est rejetée)</dd>
+<dt>Vérifiée en</dt><dd>UBL, CII</dd>
+<dt>Termes métier</dt><dd>BG-23, BT-118, BT-121, BT-120</dd>
+</dl>
+</section>
+<section>
+<h2>Que signifie BR-Z-10 ?</h2>
+<p>Une entrée de ventilation de catégorie Z (taux zéro) ne doit contenir ni code de motif d'exonération (BT-121) ni texte de motif (BT-120). Dans la norme EN 16931, le taux zéro est un taux imposable de 0 %, pas une exonération : les champs de motif n'y ont donc pas leur place.</p>
+<h2>Causes fréquentes</h2>
+<ul>
+<li>Le logiciel ajoute un motif d'exonération à toute entrée à 0 %, quelle que soit la catégorie.</li>
+<li>Un modèle prévu pour des factures exonérées (E) ou en autoliquidation (AE) a été réutilisé avec la catégorie Z.</li>
+<li>Une autre catégorie était sans doute visée et Z a été choisie uniquement parce que le taux est de 0 %.</li>
+</ul>
+</section>
+<section>
+<h2>Comment corriger BR-Z-10 ?</h2>
+<ol>
+<li>Vérifiez que Z est bien la catégorie voulue ; la catégorie applicable à votre vente est une question fiscale, à voir avec votre conseiller en cas de doute.</li>
+<li>Si Z est correcte, supprimez TaxExemptionReason et TaxExemptionReasonCode (CII : ram:ExemptionReason et ram:ExemptionReasonCode) de cette entrée.</li>
+<li>Pour expliquer le taux zéro à l'acheteur, utilisez plutôt une note de facture (BT-22).</li>
+</ol>
+<h2>XML corrigé (exemple minimal rédigé par nous)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;cac:TaxSubtotal&gt;
+  &lt;cbc:TaxableAmount currencyID=&quot;EUR&quot;&gt;250.00&lt;/cbc:TaxableAmount&gt;
+  &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;0.00&lt;/cbc:TaxAmount&gt;
+  &lt;cac:TaxCategory&gt;
+    &lt;cbc:ID&gt;Z&lt;/cbc:ID&gt;
+    &lt;cbc:Percent&gt;0&lt;/cbc:Percent&gt;
+    &lt;cac:TaxScheme&gt;
+      &lt;cbc:ID&gt;VAT&lt;/cbc:ID&gt;
+    &lt;/cac:TaxScheme&gt;
+  &lt;/cac:TaxCategory&gt;
+&lt;/cac:TaxSubtotal&gt;</code></pre>
+<p class="note">Valeurs d'exemple uniquement. Remplacez ou complétez les éléments de votre fichier ; l'ordre des éléments est imposé dans les deux syntaxes.</p>
+</section>
+<section>
+<h2>Vérifier votre fichier gratuitement</h2>
+<p>Le vérificateur gratuit exécute les règles officielles EN 16931, XRechnung et Peppol dans votre navigateur. Votre fichier n'est pas envoyé.</p>
+<p><a class="button" href="../../index.html">Ouvrir le vérificateur gratuit</a></p>
+</section>
+<section class="cta">
+<p><span class="state">En développement — accès anticipé</span></p>
+<h2>Corriger et expliquer, pour les experts-comptables et les équipes de facturation</h2>
+<p>Un service payant qui explique chaque règle en échec en français, en allemand ou en anglais clair et propose un fichier corrigé est en cours de développement. <a href="https://example.invalid/industries/e-invoicing/">Accès anticipé</a></p>
+</section>
+<section>
+<h2>Source</h2>
+<p>Identifiant et message officiel de la règle : CEN/TC 434 EN 16931 validation artefacts, validation-1.3.17 (EUPL-1.2), compilés depuis le commit amont 6e35e0a. L'explication, les causes, la correction et le XML de cette page sont les nôtres, pas ceux de l'éditeur de la règle. <a href="https://github.com/ConnectingEurope/eInvoicing-EN16931/tree/validation-1.3.17" rel="noopener">CEN/TC 434 EN 16931 validation artefacts validation-1.3.17</a></p>
+</section>
+<footer>
+<p><strong>Ni conseil fiscal ni conseil juridique.</strong> Cette page explique ce que vérifie une règle de validation et comment faire passer un fichier. Elle ne dit pas quel régime de TVA s'applique à votre vente ; demandez à votre expert-comptable. <strong>Sans garantie (no warranty) :</strong> gratuit et fourni en l'état ; vérifiez le résultat avant de vous y fier.</p>
+<p>Notre code et nos explications sont sous licence MIT. Les messages officiels des règles sont cités sous la licence de leur éditeur (EUPL-1.2, Apache-2.0, MPL-2.0), indiquée sur chaque page.</p>
+</footer>
+</main></body></html>

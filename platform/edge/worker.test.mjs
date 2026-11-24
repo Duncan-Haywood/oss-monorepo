@@ -278,3 +278,16 @@ test('/inbox routes only GET (read) and DELETE (erase); any other method or path
   const del = await worker.fetch(req('/inbox?id=1', { method: 'DELETE', headers: auth }), e);
   assert.deepEqual(await del.json(), { deleted: 1 });
 });
+
+test('/hit with a funnel event adds one to its fn: key and nothing else (no page load, geo or device)', async () => {
+  const e = env();
+  const day = new Date().toISOString().slice(0, 10);
+  await worker.fetch(req('/hit', { body: JSON.stringify({ p: 'c/restaurants', e: 'cta_click', i: 'restaurants', t: 'menu-suite' }), cf: { country: 'US' } }), e);
+  await worker.fetch(req('/hit', { body: JSON.stringify({ p: 'products', e: 'products_view' }) }), e);
+  await worker.fetch(req('/hit', { body: JSON.stringify({ p: 'products', e: 'signup' }) }), e);
+  await worker.fetch(req('/hit', { body: JSON.stringify({ p: 'products', e: 'products_view' }), headers: { 'user-agent': 'Googlebot/2.1' } }), e);
+  assert.deepEqual(Object.fromEntries(e.DB.counts), {
+    [`${day}|fn:cta_click:restaurants:menu-suite:c/restaurants`]: 1,
+    [`${day}|fn:products_view:_:_:products`]: 1,
+  });
+});

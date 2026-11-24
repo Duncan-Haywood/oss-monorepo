@@ -110,12 +110,13 @@
       "signup_with": "accounts",
       "unlocks": ["npm-cli-packages", "mcp-server"],
       "workflows": ["priv-distribute-npm.yml", "priv-distribute-mcp.yml", "priv-distribute-tool-releases.yml", "priv-distribute-homebrew.yml"],
-      "secrets": ["NPM_TOKEN"],
+      "secrets": [],
       "variables": ["DISTRIBUTE_NPM", "NPM_SCOPE", "DISTRIBUTE_MCP"],
       "steps": [
         "Sign up with accounts@marisstella.app and turn on two-factor authentication (npm asks for it to publish).",
         "Create an organisation for the scope (NPM_SCOPE); two names are taken by other projects without one (portfolio/distribution/README.md).",
-        "Access Tokens > Generate: a granular token limited to that scope, with an expiry. Store it as NPM_TOKEN; set NPM_SCOPE, DISTRIBUTE_NPM=true and, for the MCP server, DISTRIBUTE_MCP=true."
+        "No token: CI publishes through npm trusted publishing (OIDC). Publish each package's first version from your machine, then add its trusted publisher, per the table in docs/security/trusted-publishing-setup.md.",
+        "Set NPM_SCOPE, DISTRIBUTE_NPM=true and, for the MCP server, DISTRIBUTE_MCP=true."
       ]
     },
     {
@@ -126,11 +127,11 @@
       "signup_with": "accounts",
       "unlocks": ["pypi-python-clis", "pypi-pyproject-packages"],
       "workflows": ["priv-distribute-pypi.yml", "priv-distribute-pypi-packages.yml", "priv-distribute-tool-releases.yml"],
-      "secrets": ["PYPI_TOKEN"],
+      "secrets": [],
       "variables": ["DISTRIBUTE_PYPI"],
       "steps": [
         "Sign up with accounts@marisstella.app and turn on two-factor authentication (PyPI requires it).",
-        "Account settings > API tokens: create one. Store it as PYPI_TOKEN and set DISTRIBUTE_PYPI=true."
+        "No token: Your account > Publishing > add a pending GitHub publisher for each project in docs/security/trusted-publishing-setup.md (CI uploads with OIDC). Then set DISTRIBUTE_PYPI=true."
       ]
     },
     {
@@ -141,11 +142,11 @@
       "signup_with": null,
       "unlocks": ["homebrew-tap"],
       "workflows": ["priv-distribute-homebrew.yml"],
-      "secrets": ["HOMEBREW_TAP_TOKEN"],
-      "variables": ["DISTRIBUTE_HOMEBREW", "HOMEBREW_TAP_REPO"],
+      "secrets": ["HOMEBREW_TAP_APP_PRIVATE_KEY"],
+      "variables": ["DISTRIBUTE_HOMEBREW", "HOMEBREW_TAP_REPO", "HOMEBREW_TAP_APP_ID"],
       "steps": [
         "Create an empty public repository named homebrew-<something> under your account.",
-        "Create a fine-grained token with Contents: write on that repository only. Store it as HOMEBREW_TAP_TOKEN.",
+        "Create a GitHub App with Contents: read and write, install it on that repository only, and store its private key as HOMEBREW_TAP_APP_PRIVATE_KEY and its App ID as the variable HOMEBREW_TAP_APP_ID (docs/security/trusted-publishing-setup.md, 'Homebrew tap').",
         "Set HOMEBREW_TAP_REPO (owner/name) and DISTRIBUTE_HOMEBREW=true. Needs the npm channel live first (formulae install the npm packages)."
       ]
     },
