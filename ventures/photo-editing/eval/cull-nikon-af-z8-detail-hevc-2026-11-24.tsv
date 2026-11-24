@@ -1,0 +1,53 @@
+file	source	x	y	in_focus	rank	rank_mirrored
+IMAGE_001.NEF	Nikon AFInfo2 405-point	0.56	0.503	1	0.247	0.229
+IMAGE_002.NEF	Nikon AFInfo2 405-point	0.504	0.453	1	0.828	0.922
+IMAGE_003.NEF	Nikon AFInfo2 (AF area)	0.364	0.67	1	0.932	0.589
+IMAGE_004.NEF	Nikon AFInfo2 (AF area)	0.633	0.586	1	0.966	0.547
+IMAGE_005.NEF	Nikon AFInfo2 405-point	0.384	0.408	1	0.969	0.732
+IMAGE_006.NEF	Nikon AFInfo2 405-point	0.625	0.48	1	0.203	0.911
+IMAGE_007.NEF	Nikon AFInfo2 405-point	0.608	0.356	1	0.997	0.833
+IMAGE_008.NEF	Nikon AFInfo2 405-point	0.473	0.542	1	0.924	0.878
+IMAGE_009.NEF	Nikon AFInfo2 405-point	0.501	0.507	1	1.0	
+IMAGE_011.NEF	Nikon AFInfo2 405-point	0.57	0.51	1	0.844	0.771
+IMAGE_012.NEF	Nikon AFInfo2 (AF area)	0.524	0.199	1	0.385	0.237
+IMAGE_013.NEF	Nikon AFInfo2 405-point	0.531	0.463	1	0.948	0.919
+IMAGE_014.NEF	Nikon AFInfo2 (AF area)	0.63	0.494	1	0.859	0.977
+IMAGE_015.NEF	Nikon AFInfo2 405-point	0.487	0.465	1	0.812	0.768
+IMAGE_016.NEF	Nikon AFInfo2 405-point	0.497	0.5	1	0.812	
+IMAGE_017.NEF	Nikon AFInfo2 405-point	0.414	0.633	1	0.945	0.797
+IMAGE_018.NEF	Nikon AFInfo2 405-point	0.453	0.448	1	0.865	0.667
+IMAGE_019.NEF	Nikon AFInfo2 405-point	0.606	0.477	1	0.924	0.177
+IMAGE_020.NEF	Nikon AFInfo2 405-point	0.491	0.451	1	0.938	0.997
+IMAGE_021.NEF	Nikon AFInfo2 (AF area)	0.491	0.451	1	0.953	0.87
+IMAGE_022.NEF	Nikon AFInfo2 405-point	0.495	0.416	1	0.984	0.846
+IMAGE_023.NEF	Nikon AFInfo2 405-point	0.52	0.551	1	0.602	0.539
+IMAGE_024.NEF	Nikon AFInfo2 405-point	0.5	0.5	1	0.432	
+IMAGE_025.NEF	Nikon AFInfo2 405-point	0.701	0.578	1	0.974	0.203
+IMAGE_026.NEF	Nikon AFInfo2 405-point	0.517	0.74	1	0.906	0.234
+IMAGE_027.NEF	Nikon AFInfo2 405-point	0.5	0.578	1	0.979	0.555
+IMAGE_028.NEF	Nikon AFInfo2 405-point	0.494	0.51	1	0.964	
+# 27 files with an AF point; median rank of detail at the point 0.924 (0.5 = no better than a random spot); 22 of 27 in the top quarter
+# turned control: rank as read 0.247, mirrored 0.229
+# turned control: rank as read 0.828, mirrored 0.922
+# turned control: rank as read 0.932, mirrored 0.589
+# turned control: rank as read 0.966, mirrored 0.547
+# turned control: rank as read 0.969, mirrored 0.732
+# turned control: rank as read 0.203, mirrored 0.911
+# turned control: rank as read 0.997, mirrored 0.833
+# turned control: rank as read 0.924, mirrored 0.878
+# turned control: rank as read 0.844, mirrored 0.771
+# turned control: rank as read 0.385, mirrored 0.237
+# turned control: rank as read 0.948, mirrored 0.919
+# turned control: rank as read 0.859, mirrored 0.977
+# turned control: rank as read 0.812, mirrored 0.768
+# turned control: rank as read 0.945, mirrored 0.797
+# turned control: rank as read 0.865, mirrored 0.667
+# turned control: rank as read 0.924, mirrored 0.177
+# turned control: rank as read 0.938, mirrored 0.997
+# turned control: rank as read 0.953, mirrored 0.870
+# turned control: rank as read 0.984, mirrored 0.846
+# turned control: rank as read 0.602, mirrored 0.539
+# turned control: rank as read 0.974, mirrored 0.203
+# turned control: rank as read 0.906, mirrored 0.234
+# turned control: rank as read 0.979, mirrored 0.555
+# off-centre points: as read beats mirrored on 19 of 23; median as read 0.924, mirrored 0.768

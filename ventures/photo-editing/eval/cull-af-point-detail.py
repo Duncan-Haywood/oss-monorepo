@@ -6,7 +6,8 @@ AF box when larger) centred on the point, ranked among the same window slid
 over the whole preview on a 24 x 16 grid. A correct reading on an in-focus
 frame should rank high: the camera focused on something with edges. For
 Canon, the same rank at the point mirrored top-to-bottom tests the sign of
-the Y positions. Prints a TSV and a summary.
+the Y positions; for Nikon, the point turned through the centre (both axes)
+is the control. Prints a TSV and a summary.
 """
 import json
 import sys
@@ -38,7 +39,7 @@ def main(path):
         im = Image.open(r["jpg"]).convert("L")
         g = np.asarray(im, dtype=np.float32)
         h, w = g.shape
-        box = max([p.get("w", 0) * w for p in af["points"]] + [0.06 * w])
+        box = max([p.get("w", 0) * w for p in af["points"] if p.get("inFocus")] + [0.06 * w])
         half = box / 2
         grid = [lap_var(g, (i + 0.5) * w / 24, (j + 0.5) * h / 16, half) for i in range(24) for j in range(16)]
         grid = np.array(grid)
@@ -49,6 +50,12 @@ def main(path):
             mv = lap_var(g, af["x"] * w, (1 - af["y"]) * h, half)
             mr = float((grid < mv).mean())
             mranks.append((rank, mr))
+        elif af["source"].startswith("Nikon") and max(abs(af["x"] - 0.5), abs(af["y"] - 0.5)) > 0.02:
+            # Nikon grids (nikon-af-grids.mjs) and coordinates: the point turned through the centre is the
+            # control a misplaced grid (wrong body, flipped axis, swapped row/column) would look like.
+            mv = lap_var(g, (1 - af["x"]) * w, (1 - af["y"]) * h, half)
+            mr = float((grid < mv).mean())
+            mranks.append((rank, mr))
         ranks.append(rank)
         print("\t".join(str(c) for c in [r["file"], af["source"], round(af["x"], 3), round(af["y"], 3),
                                          int(bool(af.get("inFocus"))), round(rank, 3), mr if mr == "" else round(mr, 3)]))
@@ -56,7 +63,11 @@ def main(path):
         print(f"# {len(ranks)} files with an AF point; median rank of detail at the point {np.median(ranks):.3f} "
               f"(0.5 = no better than a random spot); {sum(r >= 0.75 for r in ranks)} of {len(ranks)} in the top quarter")
     for a, b in mranks:
-        print(f"# Canon Y sign: rank as read {a:.3f}, mirrored {b:.3f}")
+        print(f"# turned control: rank as read {a:.3f}, mirrored {b:.3f}")
+    if mranks:
+        wins = sum(a > b for a, b in mranks)
+        print(f"# off-centre points: as read beats mirrored on {wins} of {len(mranks)}; median as read "
+              f"{np.median([a for a, _ in mranks]):.3f}, mirrored {np.median([b for _, b in mranks]):.3f}")
 
 
 if __name__ == "__main__":
