@@ -573,6 +573,16 @@ up from 156; 799 rows fixed and 22 made worse. The six real P6 files stay at
 held-out score, and no public real file has crews on other hours than their
 activities. What is left: `eval/p6-probes-rd-2026-11-24.md`, "What is left".
 
+**Progress override and links out of work under way (2026-11-24).** Under
+progress override P6 lays a successor of work under way by an SS or SF link
+from the data date itself, the lag not yet spent run on from there, not
+from the predecessor's restart (a data date at Fri 17:00: the successor
+starts Fri 17:00 on its own 24-hour calendar, not Mon 08:00), and the
+started predecessor's free float no longer stops at that successor. The
+engine does the same now: **3,822 of 5,199** probe rows match on all six
+values (92 fixed, 0 made worse), the six real files unchanged
+(`eval/po-ss-data-date-2026-11-24.md`, `po-data-date.test.mjs`).
+
 ## Schedule health trend across updates (2026-11-22)
 
 A lender's monitor or an owner's scheduler reading a job month after month
@@ -1786,7 +1796,9 @@ run as a formula in Excel or Sheets.
   activities on their crews' calendars"; `eval/p6-probes-rd-2026-11-24.md`):
   with P6's own import laid over each probe file, **3,730 of 5,199** rows match
   (468 of 936 resource-dependent ones), 799 fixed and 22 made worse, the real
-  files unchanged.
+  files unchanged. With SS and SF successors of work under way laid from the
+  data date under progress override (`eval/po-ss-data-date-2026-11-24.md`):
+  **3,822 of 5,199**, 92 more fixed, none made worse.
 - **Free float against P6** (`eval/free-float-2026-11-19.md`,
   `eval/free-float-expected-2026-11-20.md`): the same files,
   **19,820 of 19,822 (99.99%)** equal P6's stored free float (19,810 before

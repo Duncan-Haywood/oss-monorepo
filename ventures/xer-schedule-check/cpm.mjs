@@ -347,7 +347,7 @@ export function schedule(xer, options = {}) {
   const proj = (t) => projects.get(t.proj) || { dataDate: model.anchor ?? null, retainedLogic: true, progressOverride: false, floatType: "FT_FF" };
   const done = (t) => t.status === "TK_Complete";
   const active = (t) => t.status === "TK_Active";
-  const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ssActivePred: "maxleft", ssDoneNode: true, bwSSActivePred: "rem", bwDoneNode: true, bwDoneSS: "nolag", bwDoneFS: "nolag", bwDoneSuccLag: ["PR_FS"], bwRsrcRemain: "zero", bwDoneSSLeft: true, bwDoneLagLeft: true, alapActive: true, activeSSLeft: "future", ffOpenEnd: "early", ffDoneSucc: true, ffSSActivePred: true, ffFloor: true, ffExpected: true, sfActiveSucc: true, rsrcDep: true, rdFinNext: "snap", rdSnapAct: "iter", rdIter: 2, rdSnapActBw: true, rdLinkEarly: false, rdLinkStart: false, rdFinishEarly: true, rdStartF: "active", ...(options.variant || {}) };
+  const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ssActivePred: "maxleft", ssDoneNode: true, bwSSActivePred: "rem", bwDoneNode: true, bwDoneSS: "nolag", bwDoneFS: "nolag", bwDoneSuccLag: ["PR_FS"], bwRsrcRemain: "zero", bwDoneSSLeft: true, bwDoneLagLeft: true, alapActive: true, activeSSLeft: "future", ffOpenEnd: "early", ffDoneSucc: true, ffSSActivePred: true, ffFloor: true, ffExpected: true, sfActiveSucc: true, poDataDate: true, reSFRestart: false, poFreeFloat: true, rsrcDep: true, rdFinNext: "snap", rdSnapAct: "iter", rdIter: 2, rdSnapActBw: true, rdLinkEarly: false, rdLinkStart: false, rdFinishEarly: true, rdStartF: "active", ...(options.variant || {}) };
   // An SF lag runs from the predecessor's actual start, so the working time
   // from that start to the data date is spent; what is left still holds a
   // predecessor's start before a started successor's finish (P6 23.12 on the
@@ -470,7 +470,21 @@ export function schedule(xer, options = {}) {
       const rdE = rdLink.get(r.predId);
       const pS = rdE && V.rdLinkStart ? rdE[0] : V.ssFromRem ? pv.remES : pv.es;
       const pF = rdE ? rdE[1] : pv.ef;
-      if (r.type === "PR_FS") starts.push(lc.addWork(pF, r.lag));
+      // Progress override: an SS or SF link out of work under way is laid
+      // from the data date itself (not the predecessor's restart), with the
+      // lag not yet spent at the data date run on from there, under either
+      // "lag from" setting (P6 23.12 probes h3s-pe, -pe24, -pa, -pw: P1B
+      // at Fri 17:00 where the restart is Mon 08:00; eval/po-ss-data-date-2026-11-24.md)
+      const poBase = V.poDataDate && (r.type === "PR_SS" || r.type === "PR_SF") && active(pr) && proj(pr).progressOverride && p.dataDate !== null && p.dataDate !== undefined;
+      if (poBase) {
+        const left = r.lag - (r.lag > 0 ? lc.workBetween(pr.actStart ?? dd, dd) : 0);
+        const v = left > 0 || r.lag < 0 ? lc.addWork(dd, r.lag > 0 ? left : r.lag) : dd;
+        (r.type === "PR_SS" ? starts : fins).push(v);
+      }
+      // Retained logic: an SF link out of work under way counts from the
+      // restart, as SS does (P6 23.12 probe h3s-re P5B)
+      else if (V.reSFRestart && r.type === "PR_SF" && active(pr) && !proj(pr).progressOverride) fins.push(lc.addWork(pv.remES, r.lag));
+      else if (r.type === "PR_FS") starts.push(lc.addWork(pF, r.lag));
       else if (r.type === "PR_SS" && active(tasks.get(r.predId)) && V.ssActivePred !== "es") {
         if (V.ssActivePred === "rem") starts.push(pv.remES);
         else {
@@ -786,6 +800,11 @@ export function schedule(xer, options = {}) {
         // this one may slip until it would push that node
         gap = rel.type === "PR_SF" ? Infinity
           : t.cal.workBetween(rel.type === "PR_SS" ? r.remES : r.ef, sv.ef);
+      } else if (V.poFreeFloat && active(t) && proj(t).progressOverride && (rel.type === "PR_SS" || rel.type === "PR_SF")) {
+        // progress override: the successor is laid from the data date, not
+        // from this activity, so this one may slip without moving it (P6
+        // 23.12 probes h3s-pe/-pa/-pw: free float 384 h = to the finish)
+        continue;
       } else if (active(s) && (rel.type === "PR_SS" || rel.type === "PR_SF")) {
         // mirror of the forward rule for a started successor: an SF link is
         // met, and an SS link waits only for this one's remaining work to
