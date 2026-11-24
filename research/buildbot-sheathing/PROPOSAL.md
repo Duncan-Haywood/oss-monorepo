@@ -618,6 +618,13 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    (H303 refuted), and the G1's cliff is structural (96 against 99, H302 held). Milestone 73's Monte Carlo calibration
    overshot 1% on 5 of 18 rows (up to 1.31%), and so did 3 of milestone 74's allocations; milestone 74's lower bound is
    attained on 5 rows. Next: a closed-loop schedule; a warm-up transient; a logged drift trace.
+76. **A closed-loop schedule** (done 2026-11-24, `experiments/m76_closedloop/`, offline): one free-air bias reading a
+   sheet, filtered and subtracted from the sensor offset, needs no tares on 16 of 18 rows at 0.01 N of reading noise a
+   axis, and 49 against the open-loop optimum's 96 on the G1's weakest plan (H310 held); triggering tares from the
+   reading instead needs 38.4 there at zero noise (H308 held). At 0.02 N the G1's weak pose is back at its cliff (H309
+   held), and a 0.02 N gravity-model error unknown to the filter raises the wall's failure to 10 to 12% where a policy
+   runs near its margin (H312 refuted, for both policies). Next: a tare schedule optimised for the tracked residual; a
+   pose-dependent gravity-model error; a warm-up transient; a logged drift trace.
 
 ## Target venue
 
