@@ -10,7 +10,7 @@ import { modelInventory } from "./inventory.mjs";
 import { fillModel, fillReport, toFillCsv, readValues } from "./model-fill.mjs";
 import { measureModel, geometryLookup } from "./geometry-quantities.mjs";
 import { toStep } from "./step-writer.mjs";
-import { conformance, conformanceSummary } from "./conformance.mjs";
+import { conformance, conformanceSummary, markModelRules } from "./conformance.mjs";
 import { cobieFromModel, cobieToXlsx, cobieQc, qcText, numberRows, placementFromTakeoff, SHEETS } from "./cobie.mjs";
 
 const cache = {};
@@ -177,7 +177,9 @@ self.onmessage = async (ev) => {
         const sid = (schemaOf(ifc) || "").toUpperCase();
         const key = sid.startsWith("IFC4X3") ? "IFC4X3" : sid.startsWith("IFC4") ? "IFC4" : sid.startsWith("IFC2X3") ? "IFC2X3" : null;
         const rules = key ? { [key]: await json(`rules-${key.toLowerCase()}.json`).catch(() => null) } : null;
-        report.conformance = conformanceSummary(conformance(ifc, modelSchemas(id, schemas), { rules }));
+        const conf = conformance(ifc, modelSchemas(id, schemas), { rules });
+        markModelRules(report, conf);
+        report.conformance = conformanceSummary(conf);
       }
       catch (e) { report.conformance = { error: e.message }; }
     }

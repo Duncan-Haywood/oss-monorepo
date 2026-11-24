@@ -191,7 +191,7 @@ export function htmlReport(r, opts = {}) {
     if (s.failed.length) {
       const rows = s.failed.slice(0, maxRows);
       h.push(`<div class="tablewrap"><table><thead><tr><th>Element</th><th>Name</th><th>GlobalId</th><th>Why</th></tr></thead><tbody>`);
-      for (const f of rows) h.push(`<tr data-el="${elKey(f)}"><td>#${f.id} ${esc(f.type)}</td><td>${esc(f.name)}</td><td><code>${esc(f.globalId)}</code></td><td>${f.reasons.map(esc).join("<br>")}</td></tr>`);
+      for (const f of rows) h.push(`<tr data-el="${elKey(f)}"><td>#${f.id} ${esc(f.type)}</td><td>${esc(f.name)}</td><td><code>${esc(f.globalId)}</code></td><td>${f.reasons.map(esc).join("<br>")}${(f.modelRules || []).map((m) => `<br><em>${esc(m)}</em>`).join("")}</td></tr>`);
       h.push(`</tbody></table></div>`);
       if (fc > rows.length) h.push(`<p class="muted">Showing ${n(rows.length)} of ${n(fc)} failing elements.${s.failed.length > rows.length ? " The CSV and JSON downloads list all the check kept." : ""}</p>`);
     }

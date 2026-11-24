@@ -482,7 +482,7 @@
       if (s.note) h += `<p>${esc(s.note)}</p>`;
       if (s.failed.length) {
         h += `<div class="tablewrap"><table><thead><tr><th>Element</th><th>Name</th><th>GlobalId</th><th>Why</th></tr></thead><tbody>`;
-        for (const f of s.failed.slice(0, 300)) h += `<tr><td>#${f.id} ${esc(f.type)}</td><td>${esc(f.name)}</td><td><code>${esc(f.globalId)}</code></td><td>${esc(f.reasons.join("; "))}</td></tr>`;
+        for (const f of s.failed.slice(0, 300)) h += `<tr><td>#${f.id} ${esc(f.type)}</td><td>${esc(f.name)}</td><td><code>${esc(f.globalId)}</code></td><td>${esc(f.reasons.join("; "))}${(f.modelRules || []).map((m) => `<br><em>${esc(m)}</em>`).join("")}</td></tr>`;
         h += `</tbody></table></div>`;
         if (s.failed.length > 300) h += `<p class="muted">Showing 300 of ${s.failed.length}; the downloads hold them all.</p>`;
       }
