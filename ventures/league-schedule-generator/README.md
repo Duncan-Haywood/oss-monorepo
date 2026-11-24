@@ -20,6 +20,28 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
+## Big bowling leagues: 26 teams over 12 and over 38 weeks at an even lane split, from a mirror (2026-11-24, latest)
+
+Two bowling seasons that every earlier solver had left off the even split are now at it: 26 teams over
+12 weeks (each team on 12 different lane pairs, never one twice; stored 3 off) and 26 teams over 38 weeks
+(every team on every pair 2 or 3 times; stored 1 off). The page builds both at the bound on every seed.
+
+**The idea.** The circle method's round r plays {r+k, r-k} (mod n-1) and {r, the fixed team}. Reflecting
+the teams, t -> W-1-t, turns round r into round W-1-r with the same matches in the same order. So
+`eval/bowling-mirror-cpsat.py --mirror` asks only for lane plans that look the same under that reflection,
+up to a fixed swap of pair labels (p <-> p xor 1). That halves the free choices and cuts the search the
+solver has to rule out. On 22 x 10 (already solved) the CP-SAT model went from 20.3 s to 0.4 s; on 26 x 12
+it found an answer in 24 s where pairwise CaDiCaL had none in 900 s; on 26 x 38 in 478 s, where kissat had
+none in 2,400 s.
+
+**Where it cannot help.** With an odd number of weeks the middle round is its own mirror image, which
+forces the label swap to be the identity; then the fixed team bowls on the same pair in weeks r and
+W-1-r, so its count is even on every pair but one. That rules out 24 x 11, 28 x 13 and 22 x 33 (checked:
+infeasible in 0.0 s), so the script refuses odd W. Kissat without the mirror found nothing for 24 x 11 and
+28 x 13 in 25 min each. The mirror found nothing on 24 x 24, 24 x 36, 26 x 26 and 28 x 28 in 25 min each on
+one core. Whether those seasons have a mirrored answer at all is still open. Every run is in
+`eval/bowling-mirror-2026-11-24.txt`; `bowling.test.mjs` checks both new seasons (36 pass).
+
 ## Club player ratings: season-long Glicko-2 for singles and doubles (2026-11-24)
 
 **What it is.** `player-ratings.html` and `season-ratings.mjs`. Paste a season of results, one game
