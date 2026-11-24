@@ -2,14 +2,15 @@
 """Draw a research programme or track the way research/PROJECTS.md "Picking work" says.
 
 First, with probability PROGRAMME_SHARE, an open programme from research/PROGRAMMES.md:
-the default since 2026-10-24, so most runs advance one hard question toward a paper.
+the default since 2026-10-24, so most runs advance one hard question toward a paper. Since
+2026-11-24 only programmes whose triage column says `product-linked` or `finish-paper` are
+drawn (owner: "research work gets pivoted into products"; research/CLAUDE.md).
 Otherwise a track, whose run opens a new programme in that area or advances one there.
 
 r < 0.05 is a free-choice run; otherwise track = 1 + floor((r - 0.05) / 0.95 * N), N = len(PREFIX),
 except that with probability FOCUS_SHARE the same position maps onto the FOCUS tracks only, and
-programmes in FOCUS are drawn first that often (owner, 2026-10-31: deep tech industrial, energy,
-real estate development and construction, construction data; widened 2026-11-01 to chips and
-robot co-design; prompts/goals.md, "Direction: research at PhD+ level, aimed at deep tech").
+programmes in FOCUS go first with probability PROGRAMME_FOCUS_SHARE (owner, 2026-11-24:
+construction and manufacturing SMBs first; FOCUS was the 2026-10-31/11-01 deep-tech list).
 Pass a number to map a draw you already have: pick_track.py 0.11
 It starts with LAND FIRST: the open PRs titled research/... (older than 3 h: land,
 finish or close them first; newer: a sibling's live claim); --land prints only that list.
@@ -52,18 +53,24 @@ PREFIX = ["selfrep", "ambient", "chip", "robofab", "simdesign", "garment",
           "infra", "aerolog", "marine", "civ", "heavy"]
 SATURATED = 40
 PROGRAMME_SHARE = 0.65
-# The owner's overarching directions from 2026-10-31: construction and real estate
-# development (house, buildbot, heavy), imaging and sensing (sensing), energy (energy),
-# industrial deep tech (infra) and autonomy (osrobot, aerolog, marine); widened on
-# 2026-11-01 ("phd+ level with applications in deep tech") to chips (chip, eda, accel)
-# and robot co-design (codesign). Half of all track and programme draws go to these
-# first; the rest stay uniform, so about 76% of track draws land here, and no other
-# track is closed.
-FOCUS = ["house", "buildbot", "heavy", "sensing", "energy", "infra", "osrobot", "aerolog", "marine",
-         "chip", "eda", "accel", "codesign"]
+# Owner, 2026-11-24: "research work gets pivoted into products" and "we don't invest dev
+# effort in sunken ships"; construction and manufacturing SMBs are the favourite customers
+# (research/CLAUDE.md, portfolio/monetization/bets.md). FOCUS is now the construction and
+# manufacturing tracks: residential construction (house), site robots (buildbot), heavy
+# equipment (heavy), the site robot's cameras (sensing) and robot manufacturing (robofab).
+# Half of all track draws go to these first; the rest stay uniform, so no track is closed
+# (a run there opens a product-linked programme). The 2026-10-31/11-01 deep-tech list
+# (energy, infra, osrobot, aerolog, marine, chip, eda, accel, codesign) was dropped from
+# FOCUS: its programmes were triaged wound-down or finish-paper on 2026-11-24.
+FOCUS = ["house", "buildbot", "heavy", "sensing", "robofab"]
 FOCUS_SHARE = 0.5
+# Programme draws put the FOCUS programmes first this often ("construction/manufacturing first").
+PROGRAMME_FOCUS_SHARE = 0.75
 # Programmes whose slug does not start with a FOCUS prefix but belong to it.
-FOCUS_PROGRAMMES = {"sim2real-inference", "build-data", "verified-dse", "cell-fidelity"}
+FOCUS_PROGRAMMES = {"build-data"}
+# The triage column of PROGRAMMES.md (2026-11-24). Only DRAWABLE states are drawn.
+TRIAGE_STATES = ("product-linked", "finish-paper", "wound-down")
+DRAWABLE = ("product-linked", "finish-paper")
 RESEARCH = Path(__file__).resolve().parents[1]
 
 
@@ -77,7 +84,7 @@ def pick(r, focus_share=FOCUS_SHARE):
 
 
 def is_focus(slug):
-    """True when programme `slug` belongs to the owner's deep-tech focus (2026-10-31, 2026-11-01)."""
+    """True when programme `slug` is a construction or manufacturing one (owner, 2026-11-24)."""
     return slug in FOCUS_PROGRAMMES or slug.split("-")[0] in FOCUS
 
 
@@ -498,6 +505,39 @@ def programmes():
     return [(slug, (RESEARCH / slug / "PROPOSAL.md").is_file()) for slug in rows]
 
 
+def triage(text=None):
+    """{slug: state} from the triage column of the "Open programmes" table (2026-11-24).
+
+    The state is the first cell after "Builds on" that is a backticked TRIAGE_STATES value;
+    a row without one is missing from the dict (and so not drawable)."""
+    if text is None:
+        f = RESEARCH / "PROGRAMMES.md"
+        text = f.read_text() if f.is_file() else ""
+    text = text.split("## Open programmes", 1)[-1]
+    out = {}
+    for line in text.splitlines():
+        m = re.match(r"\| *\[?`([\w-]+)`", line)
+        if not m:
+            continue
+        for cell in line.strip().strip("|").split("|")[3:]:
+            s = re.fullmatch(r"\s*`([\w-]+)`\s*", cell)
+            if s and s.group(1) in TRIAGE_STATES:
+                out[m.group(1)] = s.group(1)
+                break
+    return out
+
+
+def drawable(progs, states=None):
+    """The programmes a draw may land on: those triaged product-linked or finish-paper.
+
+    Owner, 2026-11-24: no new effort for programmes with no product case. If the table
+    carries no triage at all (an old checkout), every programme stays drawable."""
+    states = triage() if states is None else states
+    if not states:
+        return list(progs)
+    return [p for p in progs if states.get(p[0]) in DRAWABLE]
+
+
 def track_programmes(t, text=None):
     """Open programmes for track `t`: a row whose "Builds on" names the track ("track 15",
     "tracks 12 and 20"), whose slug starts with the track's prefix (`sensing-selfcal`), or
@@ -626,7 +666,7 @@ def track_fallback_lines(t, progs_here, down, all_progs=None, claimed=open_prs_f
         else:
             return []
     if all_progs is None:
-        all_progs = [s for s, _ in programmes()]
+        all_progs = [s for s, _ in drawable(programmes())]
     rest = [s for s in all_progs if s not in progs_here and not is_blocked(s) and not claimed(s)]
     rest = [s for s in rest if not unreachable(s)]
     if t != "free" and PREFIX[t - 1] in FOCUS and any(is_focus(s) for s in rest):
@@ -760,7 +800,7 @@ def next_steps(name, width=400):
     return text if len(text) <= width else text[:width].rstrip() + "..."
 
 
-def draw_programme(r, progs, claimed=open_prs_for, focus_share=FOCUS_SHARE, unreachable=unreachable_hosts):
+def draw_programme(r, progs, claimed=open_prs_for, focus_share=PROGRAMME_FOCUS_SHARE, unreachable=unreachable_hosts):
     """(slug, has_proposal, skipped): the drawn programme, redrawn among those no open PR names.
 
     Runs drew a programme two draft PRs already held and picked another by hand (friction
@@ -915,13 +955,13 @@ if __name__ == "__main__":
             print(f"note: {problem}; the commit checks below read the local origin/main")
     for line in land_first_lines():
         print(line)
-    progs = programmes()
+    progs = drawable(programmes())
     if progs and random.Random(r).random() < PROGRAMME_SHARE:
         slug, has, skipped = draw_programme(r, progs)
         for line in skipped:
             why = "its data host does not answer" if line.endswith("did not answer from this session") else "open PR"
             print(f"redrawn past a programme ({why}): {line}")
-        print(f"draw {r:.3f} -> programme {slug} (research/PROGRAMMES.md)")
+        print(f"draw {r:.3f} -> programme {slug} (research/PROGRAMMES.md, triage: {triage().get(slug, 'none')})")
         landed = recent_landed(slug)
         if landed:
             print("newest commits on origin/main for this programme (fetch origin main first; skip a milestone already here):")
@@ -951,7 +991,7 @@ if __name__ == "__main__":
     t = pick(r)
     focus = t != "free" and PREFIX[t - 1] in FOCUS
     print(f"draw {r:.3f} -> {'free-choice' if t == 'free' else 'track ' + str(t)}"
-          + (" (a focus track: prompts/goals.md, 'Direction: industrial, energy and construction')" if focus else ""))
+          + (" (a focus track: construction and manufacturing, research/CLAUDE.md, 2026-11-24)" if focus else ""))
     if t != "free" and projects(PREFIX[t - 1])[0] >= SATURATED:
         open_tracks = [i + 1 for i, x in enumerate(PREFIX) if len(list(RESEARCH.glob(x + "-*"))) < SATURATED]
         # A focus draw stays in the focus area when an open focus track is left.
@@ -962,7 +1002,7 @@ if __name__ == "__main__":
             old, t = t, random.Random(r).choice(open_tracks)
             print(f"track {old} has {SATURATED}+ projects; redrawn -> track {t}")
     if t == "free":
-        for line in free_choice_lines(programmes()):
+        for line in free_choice_lines(drawable(programmes())):
             print(line)
     behind = commits_behind()
     if behind:
@@ -972,6 +1012,11 @@ if __name__ == "__main__":
         print(f"track runs open a programme in this area or advance one (research/PROGRAMMES.md); "
               "the listed milestones are raw material, not separate projects")
         progs_here = track_programmes(t)
+        states = triage()
+        down_wound = [s for s in progs_here if states and states.get(s) not in DRAWABLE]
+        if down_wound:
+            print(f"wound down (no new effort; research/PROGRAMMES.md, triage 2026-11-24): {', '.join(down_wound)}")
+            progs_here = [s for s in progs_here if s not in down_wound]
         if progs_here:
             down = {s: unreachable_hosts(s) for s in progs_here if not is_blocked(s)}
             print(f"open programme(s) for track {t}: "
@@ -989,8 +1034,9 @@ if __name__ == "__main__":
                     for line in host_recheck_lines(s):
                         print(f"  {line}")
         else:
-            print(f"no open programme in research/PROGRAMMES.md names track {t} or starts with "
-                  f"`{PREFIX[t - 1]}-`: opening one (a PROPOSAL.md and a table row) is the default")
+            print(f"no drawable programme in research/PROGRAMMES.md names track {t} or starts with "
+                  f"`{PREFIX[t - 1]}-`: opening one (a PROPOSAL.md and a table row, `product-linked`, naming the "
+                  "product and customer it changes; research/CLAUDE.md) is the default")
         n, newest = projects(PREFIX[t - 1])
         shallow = is_shallow()
         label = "some (shallow clone: commit dates are flattened, so this is not newest-first)" if shallow else "newest"
