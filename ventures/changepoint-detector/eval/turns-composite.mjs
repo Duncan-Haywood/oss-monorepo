@@ -16,6 +16,8 @@
 //   W875RX1 real personal income less transfer receipts (data/us-w875rx1.csv)
 //   INDPRO  industrial production (data/us-indpro.csv)
 //   CMRMTSPL real manufacturing and trade sales (data/us-cmrmtspl.csv)
+// Added after the first attempt crashed on the blank, before any output: CE16OV's 2025-10 is blank (no household
+// survey in the October 2025 shutdown) and is filled halfway between 2025-09 and 2025-11; nothing else changed.
 // Real personal consumption (PCEC96) starts in 2002 and is left out; CMRMTSPL carries retail sales.
 //
 // Composite: compositeIndex() in ../composite-index.mjs (the Conference Board's method: symmetric changes,
@@ -73,7 +75,14 @@ function readMonthly(file) {
   const m = new Map();
   for (const l of readFileSync(join(ROOT, 'data', file), 'utf8').trim().split('\n').slice(1)) {
     const [k, v] = l.split(',');
-    m.set(k, Number(v));
+    m.set(k, v === undefined || v.trim() === '' ? NaN : Number(v));
+  }
+  // one blank month between two filled ones is filled on the straight line between them (CE16OV 2025-10: the
+  // household survey was not taken in the October 2025 shutdown; FRED leaves it blank). Longer gaps stay NaN.
+  const keys = [...m.keys()];
+  for (let j = 1; j + 1 < keys.length; j++) {
+    const [a, b, c] = [m.get(keys[j - 1]), m.get(keys[j]), m.get(keys[j + 1])];
+    if (Number.isNaN(b) && Number.isFinite(a) && Number.isFinite(c)) m.set(keys[j], (a + c) / 2);
   }
   return m;
 }
