@@ -2,7 +2,7 @@
 
 > Free QIF checker: finds why a QIF file imports with the wrong month, twice, or not at all (no !Type header, missing ^, mixed date order, bad amounts, unbalanced splits), with line numbers, and writes a repaired file. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free and open source (MIT). The file is read in your browser and never uploaded. It checks the structure of bank, card, cash and investment (!Type:Invst) records and of the list sections of a full Quicken export; it does not check that balances or categories are right. Not legal, tax, financial or professional advice.
 
 ## Pages
 
