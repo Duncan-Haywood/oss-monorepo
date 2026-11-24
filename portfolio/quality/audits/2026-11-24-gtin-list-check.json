@@ -1,0 +1,317 @@
+{
+  "date": "2026-11-24",
+  "subject": "ventures/gtin-list-check",
+  "stratum": "venture",
+  "seed": "2026-11-24-596f",
+  "drawn_by": "reaudit",
+  "auditor": "agent session (Claude), quality track reaudit mode, see run record",
+  "status": "audited",
+  "professional": "a GS1 data / retail catalogue specialist who cleans supplier item files before marketplace upload; they check first that GTIN-14 prefixes are read after the indicator digit, that rounded scientific notation is never 'repaired', and that an 8-digit code is read as UPC-E or GTIN-8 deliberately",
+  "prior_audit": "portfolio/quality/audits/2026-11-12-gtin-list-check.json",
+  "prior_defects": [
+    {
+      "index": 0,
+      "severity": "high",
+      "basis": "assumed",
+      "status": "closed",
+      "what": "sci notation with lost digits: classify('1.0009E+11') now sci-lost (calc.mjs:108 returns sci-lost for any lost > 0); test at calc.test.mjs:183"
+    },
+    {
+      "index": 1,
+      "severity": "high",
+      "basis": "assumed",
+      "status": "closed",
+      "what": "GTIN-14 prefix rules now read value.slice(1) (calc.mjs:202): 04006381333931, 05000159484695, 20036000291456 give no restricted-prefix warning; 10200000000001 (indicator 1 over an 02 RCN) is flagged"
+    },
+    {
+      "index": 2,
+      "severity": "medium",
+      "basis": "assumed",
+      "status": "open",
+      "what": "01234565 still kept as GTIN-8 with no finding; listing it beside 012345000065 gives only 'Mixed code lengths'",
+      "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18548"
+    },
+    {
+      "index": 3,
+      "severity": "medium",
+      "basis": "assumed",
+      "status": "partial",
+      "what": "tests now cover GTIN-14 prefixes and 1.0009E+11, but the 04-rule, UPC-E g=4 and 'lost > 1' sci-guard mutants still survive (3 of 4 seeded)",
+      "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18548"
+    },
+    {
+      "index": 4,
+      "severity": "low",
+      "basis": "assumed",
+      "status": "open",
+      "what": "9800000000007 and 20123451 still produce no finding",
+      "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18548"
+    },
+    {
+      "index": 5,
+      "severity": "low",
+      "basis": "assumed",
+      "status": "open",
+      "what": "'4,006381333931E+12' in a ';' file still 'Not a barcode: non-digit characters'",
+      "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18548"
+    },
+    {
+      "index": 6,
+      "severity": "low",
+      "basis": "assumed",
+      "status": "partial",
+      "what": "page line no longer says '7, 11 or 13', but README still says lost zeros are 'restored only when the check digit proves it' and the FAQ says 'the check digit confirms it'",
+      "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18548"
+    },
+    {
+      "index": 7,
+      "severity": "low",
+      "basis": "assumed",
+      "status": "open",
+      "what": "repair('sku,gtin\\r\\nA,036000291452\\r\\n,\\r\\nB,12345678905\\r\\n') still drops the ',' row and writes LF",
+      "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18548"
+    },
+    {
+      "index": 8,
+      "severity": "low",
+      "basis": "assumed",
+      "status": "closed",
+      "what": "README test command is now node --test 'ventures/gtin-list-check/*.test.mjs', which runs"
+    }
+  ],
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 3,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Independent GS1 mod-10 (GS1 General Specifications 7.9.1, written by the auditor in the probe script) agrees with computeCheck on 100,000 random 7/11/12/13-digit bodies (0 disagreements). Hand-worked body 400638133393 -> 1 matches; ISBN-10 080442957X -> 9780804429573 (ISO 2108 mod-11 then 978 + mod-10) matches; UPC-E 01234543 -> 012340000053 matches the GS1 zero-suppression table. Both high-severity wrong outputs of 2026-11-12 are gone: 1.0009E+11 is sci-lost, and GTIN-14 forms of ordinary German/UK EAN-13s no longer raise restricted-prefix warnings. Remaining wrong outputs on arrival are medium/low: the UPC-E/GTIN-8 ambiguity is silent and 980/RCN-8 codes pass without a finding.",
+    "completeness": "Claimed features re-run: check digits with swap hint, leading zeros, sci expansion and sci-lost, duplicates across forms, ISBN-10, UPC-E expansion, GTIN-14 case-pack linking, write-back. All work as listed; README 'Known gaps' honestly listed the four defects still open on arrival. 41 tests on arrival.",
+    "verification": "node --test '*.test.mjs' in ventures/gtin-list-check: 41 pass, 0 fail on arrival. Four mutants via quality_mutate.py: the 04 rule (calc.mjs:151), UPC-E g=4 layout (calc.mjs:38) and sci guard lost > 0 -> lost > 1 (calc.mjs:108) all SURVIVED; GTIN-14 body slice removed (calc.mjs:202) caught. 3 of 4 survive, the same three as on 2026-11-12: the fix PR added tests for the cases it fixed only. After PR #18548: 48 pass and all three are caught.",
+    "craft": "Read calc.mjs (284 lines on arrival), calc.test.mjs, index.html. Still pure and dependency-free, tests against the shipped module. The duplicated delimiter ranking (calc.mjs:54-55) remained on arrival (cleaned in PR #18548). Fix for GTIN-14 prefixes is a one-line slice with a comment; acceptable to a senior JS reviewer.",
+    "claims": "No-upload claim backed by page.test.mjs (pass). Disclaimer and 'read from memory of public GS1 specifications' present. The high-severity claim failure (sci 'the check digit confirms it' for rounded values) is gone. Remaining: README:5 'restored only when the check digit proves it' and FAQ 'the check digit confirms it' overstate mod-10 (a low overclaim); page list of prefixes omitted 980. Known gaps section disclosed the open defects, so a reader was not misled about them.",
+    "fitness": "Walked the job again with a PIM-style GTIN-14 export (04006381333931, 05000159484695, 20036000291456) and a sci-notation cell: no false prefix warnings, no fabricated code in the repaired file. A catalogue specialist can now use it for UPC/EAN/GTIN-14 lists; North American UPC-E data still leaves about 1 in 10 short codes silently as GTIN-8 on arrival.",
+    "domain": "Against GS1 General Specifications: mod-10, GTIN-14 indicator semantics (prefix read after the indicator), UPC-E table and Bookland conversion now right. Departures on arrival: an 8-digit string valid as both GTIN-8 and UPC-E is not reported as ambiguous although a 0-prefixed GTIN-8 is an RCN-8 (GS1-8 prefixes 0 and 2) and the UPC-E reading is the likely one in North American data; 980 refund receipts not flagged."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "computeCheck vs independent GS1 mod-10 over 100,000 random bodies",
+      "method": "auditor's implementation from GS1 General Specifications 7.9.1",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/0ff59136-4242-5da2-a3bc-01d4af768e5e/scratchpad/gtin/probe.mjs $PWD/ventures/gtin-list-check/calc.mjs (from the repo root, on main as found)",
+      "expected": "0 disagreements",
+      "observed": "RANDOM disagreements 0",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "hand-worked check digit of body 400638133393",
+      "method": "by hand: 3,9,3,3,3,1,8,3,6,0,0,4 from the right x 3,1,3,... = 89; 90-89 = 1",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/0ff59136-4242-5da2-a3bc-01d4af768e5e/scratchpad/gtin/probe.mjs $PWD/ventures/gtin-list-check/calc.mjs (from the repo root, on main as found)",
+      "expected": "1",
+      "observed": "1",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "ISBN-10 080442957X to ISBN-13",
+      "method": "ISO 2108 mod-11, then 978 + GS1 mod-10",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/0ff59136-4242-5da2-a3bc-01d4af768e5e/scratchpad/gtin/probe.mjs $PWD/ventures/gtin-list-check/calc.mjs (from the repo root, on main as found)",
+      "expected": "9780804429573",
+      "observed": "9780804429573",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "UPC-E g=4 01234543",
+      "method": "GS1 UPC-E zero-suppression table",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/0ff59136-4242-5da2-a3bc-01d4af768e5e/scratchpad/gtin/probe.mjs $PWD/ventures/gtin-list-check/calc.mjs (from the repo root, on main as found)",
+      "expected": "012340000053",
+      "observed": "012340000053",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "sci notation with rounded-away digits (1.0009E+11; prior high defect 0)",
+      "method": "lost digits are unknowable",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/0ff59136-4242-5da2-a3bc-01d4af768e5e/scratchpad/gtin/probe.mjs $PWD/ventures/gtin-list-check/calc.mjs (from the repo root, on main as found)",
+      "expected": "sci-lost",
+      "observed": "sci-lost, 'About 7 trailing digits were rounded away'",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "GTIN-14 forms 04006381333931, 05000159484695, 20036000291456 (prior high defect 1)",
+      "method": "GS1: prefix starts after the indicator digit",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/0ff59136-4242-5da2-a3bc-01d4af768e5e/scratchpad/gtin/probe.mjs $PWD/ventures/gtin-list-check/calc.mjs (from the repo root, on main as found)",
+      "expected": "no restricted-prefix warning",
+      "observed": "[] for all three",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "indicator-1 GTIN-14 over an 02 RCN, 10200000000001",
+      "method": "GS1: RCN wrapped in a non-zero indicator is still an RCN",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/0ff59136-4242-5da2-a3bc-01d4af768e5e/scratchpad/gtin/probe.mjs $PWD/ventures/gtin-list-check/calc.mjs (from the repo root, on main as found)",
+      "expected": "Restricted prefix 02",
+      "observed": "Restricted prefix 02 (variable-weight / in-store use)",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "8-digit code valid as GTIN-8 and UPC-E (01234565) beside its UPC-A",
+      "method": "GS1: GS1-8 prefix 0 is RCN-8; UPC-E 01234565 = UPC-A 012345000065",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/0ff59136-4242-5da2-a3bc-01d4af768e5e/scratchpad/gtin/probe.mjs $PWD/ventures/gtin-list-check/calc.mjs (from the repo root, on main as found)",
+      "expected": "ambiguity or duplicate warning",
+      "observed": "['Mixed code lengths'] only",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "980 refund receipt and RCN-8 20123451",
+      "method": "GS1 prefix list",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/0ff59136-4242-5da2-a3bc-01d4af768e5e/scratchpad/gtin/probe.mjs $PWD/ventures/gtin-list-check/calc.mjs (from the repo root, on main as found)",
+      "expected": "a warning for each",
+      "observed": "[] for both",
+      "result": "fail"
+    },
+    {
+      "dimension": "fitness",
+      "what": "decimal-comma sci '4,006381333931E+12' in a ';' file",
+      "method": "EU-locale Excel CSV export",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/0ff59136-4242-5da2-a3bc-01d4af768e5e/scratchpad/gtin/probe.mjs $PWD/ventures/gtin-list-check/calc.mjs (from the repo root, on main as found)",
+      "expected": "read as scientific notation",
+      "observed": "Not a barcode: non-digit characters",
+      "result": "fail"
+    },
+    {
+      "dimension": "craft",
+      "what": "repair keeps an all-empty row and CRLF",
+      "method": "run repair on a CRLF file with a ',' row",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/0ff59136-4242-5da2-a3bc-01d4af768e5e/scratchpad/gtin/probe.mjs $PWD/ventures/gtin-list-check/calc.mjs (from the repo root, on main as found)",
+      "expected": "row and CRLF kept",
+      "observed": "\"sku,gtin\\nA,036000291452\\nB,012345678905\\n\"",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite on arrival",
+      "method": "run",
+      "command": "node --test '*.test.mjs' (in ventures/gtin-list-check)",
+      "expected": "all pass",
+      "observed": "41 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README test command (prior defect 8)",
+      "method": "run on Node 22",
+      "command": "node --test 'ventures/gtin-list-check/*.test.mjs'",
+      "expected": "tests run",
+      "observed": "README now gives the quoted glob; the suite runs",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'restored only when the check digit proves it' (README:5) and FAQ 'the check digit confirms it'",
+      "method": "mod-10 rejects 9 in 10 wrong candidates",
+      "command": "grep -n 'proves it\\|confirms it' ventures/gtin-list-check/README.md ventures/gtin-list-check/index.html",
+      "expected": "no proof claim",
+      "observed": "both phrases present on arrival",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "no-upload claim",
+      "method": "page.test.mjs asserts no network calls",
+      "command": "node --test page.test.mjs (in ventures/gtin-list-check)",
+      "expected": "pass",
+      "observed": "pass",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:151",
+      "change": "[/^04/, \"04 -> [/^0404/, \"04",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:38",
+      "change": "a + b + c + d + \"00000\" + f -> a + b + c + \"00000\" + d + f",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:108",
+      "change": "if (lost > 0) return -> if (lost > 1) return",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:202",
+      "change": "c.value.length === 14 ? c.value.slice(1) -> c.value.length === 14 ? c.value",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "An 8-digit code valid as both GTIN-8 and UPC-E (01234565) is kept as an RCN-8 GTIN-8 with no warning and is not matched against its UPC-A form (carried over from prior defect 2).",
+      "where": "ventures/gtin-list-check/calc.mjs:120",
+      "category": "domain-rule",
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18548"
+    },
+    {
+      "severity": "medium",
+      "what": "Three of four seeded mutants in core logic survive (04 rule, UPC-E g=4, sci guard at one lost digit): the fix PR #15073 tested only what it fixed, so prior defect 3 stayed open.",
+      "where": "ventures/gtin-list-check/calc.test.mjs:134",
+      "category": "untested-core",
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18548"
+    },
+    {
+      "severity": "low",
+      "what": "980 refund receipts and GTIN-8 prefixes 0 and 2 (RCN-8) are not flagged: 9800000000007 and 20123451 give no finding.",
+      "where": "ventures/gtin-list-check/calc.mjs:150",
+      "category": "scope-gap",
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18548"
+    },
+    {
+      "severity": "low",
+      "what": "Decimal-comma scientific notation ('4,006381333931E+12') is reported as non-digit characters.",
+      "where": "ventures/gtin-list-check/calc.mjs:97",
+      "category": "input-handling",
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18548"
+    },
+    {
+      "severity": "low",
+      "what": "README:5 'restored only when the check digit proves it' and the FAQ 'the check digit confirms it' present a 9-in-10 check as proof.",
+      "where": "ventures/gtin-list-check/README.md:5",
+      "category": "overclaim",
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18548"
+    },
+    {
+      "severity": "low",
+      "what": "repair() drops all-empty rows and rewrites CRLF as LF, though it documents untouched rows as left exactly as they were.",
+      "where": "ventures/gtin-list-check/calc.mjs:59",
+      "category": "logic-error",
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18548"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/18548"
+  ],
+  "verdict": "Does not meet the bar on arrival (verification 2; correctness 3, claims 3, median 3); finished (completeness 3). Re-audit of the 2026-11-12 file, whose 9 defects were all counted fixed by the blanket fix_prs rule: on arrival 3 were closed (both highs: rounded scientific notation is never 'confirmed', GTIN-14 prefixes read after the indicator; and the README test command), 2 were partial and 4 were still open, the same four the README's own Known gaps listed. The mod-10 core remains exact (0 disagreements in 100,000 random bodies against an independent implementation). The binding gap is verification: the same three seeded mutants survived as on 2026-11-12, because the fix PR tested only the two bugs it fixed. PR #18548 fixes the six open or partial defects, adds seven tests and kills all three mutants (48 tests pass); a later round should re-audit before the score moves."
+}
