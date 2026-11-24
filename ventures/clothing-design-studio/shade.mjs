@@ -130,9 +130,14 @@ export function readShift(clause) {
  * Move a colour. `move` is readShift's result. Returns
  *   { hex, name, catalogue, deltaE, moved: { L, C, W } }
  * or { none: reason } when the colour cannot go further that way on a
- * screen. `baseName` names the starting colour ("royal blue").
+ * screen. `baseName` names the starting colour ("royal blue"). `near` is
+ * how far (CIEDE2000) a palette colour may sit from the target and still be
+ * used by name; with `customOk: false` a miss returns { none } instead of a
+ * custom colour (used to look for a stocked colour further out, with
+ * `strict: true` so the substitute keeps the hue, greyness and lightness the
+ * edit did not ask to change).
  */
-export function shiftColour(hex, move, { baseName = null, palette = COLOURS } = {}) {
+export function shiftColour(hex, move, { baseName = null, palette = COLOURS, near = NEAR, customOk = true, strict = false } = {}) {
   const lab = labOfHex(hex);
   if (!lab) return { none: "I can't read that colour." };
   const { moves, word, amount } = move;
@@ -162,10 +167,20 @@ export function shiftColour(hex, move, { baseName = null, palette = COLOURS } = 
     // Lightness and vividness edits keep the hue of a coloured garment.
     if (!moves.W && C0 > 8 && DIMS.C(q) > 8 && hueGap(q, lab) > 30) continue;
     if (!moves.W && C0 > 8 && moves.C !== -1 && DIMS.C(q) <= 8) continue;
+    // Looking further out (`strict`), a substitute must not change what the
+    // edit left alone: a grey stays grey, a colour keeps its hue (within 20
+    // degrees, 45 for a warmth edit), lightness moves only when asked for.
+    if (strict) {
+      if (!moves.C && C0 <= 8 && DIMS.C(q) > 12) continue;
+      if (C0 > 8 && DIMS.C(q) > 8 && hueGap(q, lab) > (moves.W ? 45 : 20)) continue;
+      if (moves.W && C0 > 8 && DIMS.C(q) <= 8) continue;
+      if (!moves.L && Math.abs(DIMS.L(q) - L0) > 1.25 * STEP * amount) continue;
+    }
     const dE = ciede2000(q, target);
-    if (dE <= NEAR && (!best || dE < best.dE)) best = { name, hex: h, dE };
+    if (dE <= near && (!best || dE < best.dE)) best = { name, hex: h, dE };
   }
   if (best) return { hex: best.hex, name: best.name, catalogue: true, deltaE: Math.round(best.dE * 10) / 10, moved: movedOf(labOfHex(best.hex)) };
+  if (!customOk) return { none: "No listed colour goes that way." };
   const out = toHex(fromLab(target));
   const q = labOfHex(out);
   if (!goesTheWay(q, 0)) {

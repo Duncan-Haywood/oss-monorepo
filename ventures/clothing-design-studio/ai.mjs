@@ -52,15 +52,15 @@ export function cleanModelLines(text) {
  * Interpret an utterance. Resolves to
  *   { result: parseCommand output, source: "model" | "fallback", rewritten?: string[], error?: string, local: boolean }
  */
-export async function interpret(text, design, config, { fetch, timeline } = {}) {
-  const deterministic = () => ({ result: parseCommand(text, design, timeline) });
+export async function interpret(text, design, config, { fetch, timeline, sheet = null } = {}) {
+  const deterministic = () => ({ result: parseCommand(text, design, timeline, { sheet }) });
   const viaModel = async cfg => {
     const reply = await complete(cfg, { system: systemPrompt(), prompt: `${describeDesign(design)}\nDesigner said: ${String(text).slice(0, 600)}`, maxTokens: 300, fetch });
     const lines = cleanModelLines(reply.text);
     if (!lines.length) throw new Error("the model returned no commands");
     const merged = { steps: [], unmatched: [], declined: [], questions: [] };
     for (const line of lines) {
-      const r = parseCommand(line, design, timeline);
+      const r = parseCommand(line, design, timeline, { sheet });
       merged.steps.push(...r.steps);
       merged.unmatched.push(...r.unmatched);
       merged.declined.push(...(r.declined || []));
