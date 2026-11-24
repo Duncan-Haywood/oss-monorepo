@@ -69,6 +69,14 @@ class T(unittest.TestCase):
                 self.assertEqual(check_posts.main(["--root", d, "--fix", str(target)]), 0)
             self.assertIn("tags: [benchmarks]", target.read_text(encoding="utf-8"))
 
+    def test_slug_reused_from_another_date_fails(self):
+        code, out = self._run({"2026-10-24-same.md": post(1), "2026-10-20-same.md": post(2, "other " * 80),
+                               "2026-10-20-not-same.md": post(3, "third " * 80)},
+                              ["2026-10-24-same.md"])
+        self.assertEqual(code, 1)
+        self.assertIn("slug already used by 2026-10-20-same.md", out)
+        self.assertNotIn("not-same", out)
+
     def test_nothing_changed_is_a_pass(self):
         lines = []
         self.assertEqual(check_posts.run([], out=lines.append), 0)

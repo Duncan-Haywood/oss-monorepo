@@ -450,6 +450,11 @@ def park_candidates(value: str, over: int, keep: tuple[str, ...] = ()) -> list[t
                 or LANDED.search(body)
                 or len(body) < 12 or not _balanced(body) or SENTENCE.search(body)):
             continue
+        head = result_head(body)
+        if head and not holds_new(head, keep):
+            # Only the finished result moves (to HISTORY.md); its open tail
+            # ("next A, B, C") stays in the row (see result_head).
+            body = head
         gain = len(body) + 2
         out.append((body, gain))
         freed += gain
@@ -575,6 +580,7 @@ def remove_items(value: str, items: list[str]) -> str:
     out = re.sub(r"\s+([;,.:])(?=\s|$)", r"\1", out)  # "a ; b" / "a ." -> "a; b" / "a."
     out = re.sub(r"[;,]+\.(?=\s|$)", ".", out)          # "a;. Note" -> "a. Note"
     out = re.sub(r"[;,]\s*(?=" + re.escape(PARK_POINTER) + ")", ". ", out)  # "a; More open" -> "a. More open"
+    out = re.sub(r";\s*:\s+", "; ", out)              # "a; : next b" (result_head cut) -> "a; next b"
     out = re.sub(r"([:.])\s*;\s*", r"\1 ", out)        # "next: ; b" -> "next: b"
     out = re.sub(r";\s*$", ".", out.strip())
     out = re.sub(r"^[;,.]\s*", "", out)
@@ -819,6 +825,68 @@ def is_result(item: str) -> bool:
         return True
     m = DATED_EVIDENCE.search(body)
     return bool(m and (EVIDENCE.search(m.group(1)) or _count(m.group(1))))
+
+
+# A dated result whose item goes on with the row's open list: "on-device
+# closed-eye flag 2026-11-24 (1 closed face flagged, eval/cull-closed-eyes-*;
+# next a real blink set): next Nikon AF grids, a real card ..., a Lightroom
+# read". Why: on 2026-11-24 (PR #18514's record) an implicit park filed that
+# whole item in NEXT.md as one open item, so a result went to the open list
+# and the row lost its three headline next steps, which the run put back by
+# hand. is_result rejects the item (it says "next"), and the head alone too
+# (its bracket says "next"), so the head is judged on its dated evidence.
+README_CITE = re.compile(r'README "([^"]+)"')
+_BRACKETS = re.compile(r"\([^()]*(?:\([^()]*\)[^()]*)*\)")
+OPEN_TAIL = re.compile(r":\s+(?=(?:next|then|open)\b)", re.I)
+
+
+def result_head(item: str) -> str:
+    """The dated result that opens `item` when the rest of it is an open
+    tail (": next ..."), else "". The head must end in DATED_EVIDENCE that
+    cites a file or a matched count, and say nothing open outside brackets."""
+    depth = 0
+    for i, ch in enumerate(item):
+        if ch in "([{":
+            depth += 1
+        elif ch in ")]}":
+            depth = max(depth - 1, 0)
+        elif ch == ":" and depth == 0 and OPEN_TAIL.match(item, i):
+            head = item[:i].strip()
+            m = DATED_EVIDENCE.search(head)
+            if (m and (EVIDENCE.search(m.group(1)) or _count(m.group(1)))
+                    and not STILL_OPEN.search(_BRACKETS.sub("", head))):
+                return head
+            return ""
+    return ""
+
+
+# An item that cites a README section ("Mixpanel (README "Mixpanel as a
+# source")") and says nothing open outside its brackets names documented work.
+# Why: on 2026-11-24 (PR #18513's record) a park filed changepoint-detector's
+# "Plausible, PostHog, Umami (README "Umami as a source"; ...), Mixpanel
+# (README "Mixpanel as a source"), Matomo (...)", five shipped sources, in
+# NEXT.md as open work. The section must exist as a heading in the venture's
+# README, so a pointer to a section still to write does not count. On main
+# that day the rule matched 3 other items, all finished (shift-roster-builder).
+
+
+def reads_result(item: str, readme: str = "") -> bool:
+    """is_result, or a piece whose evidence says it is done though its words
+    do not: a dated result with a file or count (result_head's test, for a
+    bracket that mentions a next step), or, given the venture's README text,
+    an item citing a README heading that exists. Never a numbered entry of the
+    open list, and never with an open cue outside brackets."""
+    if is_result(item):
+        return True
+    body = " ".join(item.split()).strip(" ;")
+    if NUMBERED.match(body) or STILL_OPEN.search(_BRACKETS.sub("", body)):
+        return False
+    m = DATED_EVIDENCE.search(body)
+    if m and (EVIDENCE.search(m.group(1)) or _count(m.group(1))):
+        return True
+    heads = [h.lower() for h in re.findall(r"^#+\s+(.*)$", readme, re.M)]
+    cites = [c.lower() for c in README_CITE.findall(body)]
+    return bool(cites) and any(c in h for c in cites for h in heads)
 
 
 def _count(text: str) -> bool:
@@ -1226,8 +1294,10 @@ def _main(argv: list[str]) -> int:
                     print(f"{'would park' if args.dry_run else 'parking'} {len(auto)} item(s), "
                           f"{sum(len(i) + 2 for i in auto)} chars: `next:` was {before} of "
                           f"{FLAGSHIP_NEXT_MAX} after the edit; {how}", file=sys.stderr)
+                readme_path = args.ventures_dir / args.venture / "README.md"
+                readme = readme_path.read_text() if readme_path.exists() else ""
                 for item in auto:
-                    if is_result(item):
+                    if reads_result(item, readme):
                         # a finished result: HISTORY.md, not NEXT.md's open list (RESULTISH)
                         history.append(item)
                         print(f"{'would move' if args.dry_run else 'moving'} to HISTORY.md, "
