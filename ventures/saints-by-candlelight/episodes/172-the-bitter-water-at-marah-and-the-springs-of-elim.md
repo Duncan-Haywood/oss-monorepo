@@ -1,0 +1,271 @@
+---
+number: 172
+slug: the-bitter-water-at-marah-and-the-springs-of-elim
+title: The Bitter Water at Marah and the Springs of Elim
+published: 2026-11-24
+summary: Three days after the song on the far shore of the sea, the people of Israel find water at last, and it is too bitter to drink, until the Lord shows Moses a piece of wood; and then they come to Elim, with twelve springs and seventy palm trees, and rest. Told from the Book of Exodus, chapter fifteen.
+figures: Moses; the people of Israel in the wilderness of Shur; with Ziva, an invented girl of fifteen with a tambourine, her mother and her little brother, carried over from episode one hundred and seventy
+tradition: Catholic and Orthodox; both read the Book of Exodus as Scripture and honour Moses among the holy prophets, as the Jewish tradition from which the story comes honours him too
+feast: Moses the prophet is remembered on the fourth of September in the Orthodox Church and in the Roman Martyrology; the Orthodox Church remembers the righteous of the Old Testament together on the Sunday of the Holy Forefathers in the weeks before Christmas
+history: the story is Scripture, the Book of Exodus, chapter fifteen, verses twenty-two to twenty-seven, told straight in a plain rendering, with the same stages in the Book of Numbers, chapter thirty-three; where Marah and Elim were is uncertain, and the traditional places are given as traditions
+legend: none told as fact; the Christian reading of the wood as a picture of the Cross is told as the reading of Tertullian and Saint Ambrose, and Origen's reading of the twelve springs and seventy palms as his reading; later travellers' identifications of the two places are told as guesses
+fiction: Ziva, her mother, her little brother and her tambourine are our own invention, carried over from episode one hundred and seventy, and so are every word they say, the look of the march and the camps, and the mending of the drum; nothing is added to what Moses, the Lord or the people say or do in the book
+sources:
+  - The Book of Exodus, chapter three, verse eighteen, chapter five, verse three, chapter fifteen, verses one to twenty-seven, and chapter sixteen, verse one
+  - The Book of Numbers, chapter thirty-three, verses eight to ten
+  - The Book of Genesis, chapter sixteen, verse seven, on the spring on the way to Shur
+  - The Book of Ruth, chapter one, verse twenty
+  - The Book of Sirach, chapter thirty-eight, verses four and five
+  - The Book of Psalms, Psalm twenty-three, verses two and three, and Psalm one hundred and seven, verses thirty-three to thirty-five, in the Hebrew numbering
+  - The Second Book of Kings, chapter two, verses nineteen to twenty-two, on the spring at Jericho
+  - The Gospel according to Luke, chapter ten, verse one
+  - Tertullian, On Baptism, chapter nine
+  - Saint Ambrose, On the Mysteries, chapter three
+  - Origen, Homilies on Exodus, homily seven
+---
+
+It is evening, and the sun is low and orange over a flat brown country with nothing in it.
+
+Nothing, that is, except a great many tired people, and a great many tired goats, and, at the bottom of a shallow dip in the ground, a pool of water.
+
+A girl of about fifteen is kneeling at the edge of it. She has a little boy on her back, holding on round her neck, and he has been saying the same two words for most of the afternoon. I'm thirsty. I'm thirsty. I'm thirsty. And the girl has been saying, nearly there, nearly there, for so long that she has stopped believing it herself.
+
+But here it is. Water. Real water, with the sky in it.
+
+She cups her hands. She lifts them to her mouth. She drinks.
+
+And then she spits it out, all of it, onto the sand, and sits back on her heels, and looks at the pool as if it had played a very unkind trick on her. Which, in a way, it had.
+
+But we're getting ahead of ourselves.
+
+[pause]
+
+Hello, and welcome to Saints by Candlelight, stories of saints, angels and patriarchs from the Catholic and Orthodox traditions, told for bedtime. These episodes are written by an AI and read by a synthetic voice, and they try very hard to be faithful. Tonight's story is the bitter water at Marah and the twelve springs of Elim, the first days of the people of Israel in the wilderness, from the Book of Exodus, which Catholic and Orthodox Christians read as Scripture, and a girl called Ziva with a mended tambourine, and the small conversations around her, are our own invention, told in the spirit of the original. So get comfortable. Dim the lights. And let's begin.
+
+[pause]
+
+Let me tell you where we are.
+
+If you were listening a little while ago, you will remember a beach. A crowd of people, wet to the knees and sandy to the elbows, standing on the far shore of the sea, and behind them the water flat and grey and quiet, as if it had never done anything unusual in its life. And you will remember an old woman, Miriam, the sister of Moses, taking a tambourine from a girl beside her and lifting it up and striking it, and all the women following her down the sand, singing. Sing to the Lord, for he has triumphed gloriously. Horse and rider he has thrown into the sea.
+
+That girl was Ziva. She is our own invention, so you will not find her in the Bible, but she was there, in our telling, and the drum was hers. By the end of that day it had a tear in the skin from all the hitting, and her mother had said she would fix it.
+
+Well. Her mother has not fixed it yet. There has not been time. Because the very next verse of the Book of Exodus, after the song, says this. Then Moses led Israel onward from the Red Sea, and they went out into the wilderness of Shur.
+
+And that is where we are tonight. The wilderness of Shur.
+
+Now, I want to be honest with you about wildernesses, because the word can sound rather romantic, as if it meant a forest with deer in it. This is not that kind of wilderness. The land between Egypt and the country of Canaan, on the far side of the sea, is mostly desert. Some of it is sand, and some of it is gravel, and some of it is hard, cracked, stony ground with low brown hills on the horizon that never seem to get any closer. There are a few thorny bushes. There are lizards, who are perfectly happy there and cannot see what the fuss is about. And in the middle of the day the sun comes down like a weight on the back of your neck.
+
+Shur seems to have meant something like a wall, and people have guessed that it was named after a line of forts the Egyptians built along their eastern border, or after the long wall of cliffs you can see from the coast. Nobody is quite sure. But it was an old name even then. Hundreds of years earlier, when Hagar, the servant of Abraham, ran away into the desert, an angel of the Lord found her by a spring of water in the wilderness, on the way to Shur. So it was a road that people had walked before, in trouble. And it was a road where, at least once, someone in trouble had found a spring.
+
+That is worth keeping in mind.
+
+* * *
+
+The thing you need most in a desert, more than food, more than shade, more than anything, is water.
+
+You can go quite a long time without food. It is not pleasant, but people have done it for weeks. Water is different. A grown person walking in the heat needs a great deal of it every day, several big jugs of it, and a child needs it too, and so do the animals, and so do the old. In those days people carried water in skins, which were exactly what they sound like. The whole skin of a goat, sewn up tight at the legs and the neck, so that you could fill it and sling it over a donkey or over your own shoulder, and it sloshed and swung as you walked. They were heavy. They leaked a little. And they did not last for ever.
+
+So let us imagine Ziva and her family, on the first morning after the sea.
+
+Her father has two skins on the donkey and one on his back. Her mother has a smaller one. Ziva has her little brother, who is about four, and who weighs, she says, about the same as a full-grown ox. And she has her bundle, and in her bundle, wrapped up in a shawl, is the tambourine with the tear in it.
+
+On the first day, everybody is still singing. You can hear it all down the long, straggling line of people, bits of Miriam's song breaking out here and there, somebody starting it up and other people joining in. Horse and rider. Horse and rider. The children have made it into a game, galloping about and falling over into the sand, being the horses, being the sea. It is hot, but nobody minds. They have seen the sea go back. They have seen the morning come. Nothing, they think, can possibly go wrong now.
+
+On the second day, there is less singing.
+
+The skins are lighter. People are starting to look at them, and do sums in their heads. Her father lets the little boy have a drink, and then Ziva, and then her mother, and then he takes one himself, a small one, and ties the neck of the skin up again very carefully. And they walk, and walk, and the brown hills on the horizon stay exactly where they are.
+
+On the third day, nobody sings at all.
+
+The book is very simple about this. They went three days in the wilderness, it says, and found no water.
+
+Three days. I wonder if you noticed that number. Because, way back at the beginning of the story, when Moses first went to Pharaoh, what he asked for, again and again, was this. Let us go a three days' journey into the wilderness, that we may sacrifice to the Lord our God. Three days into the wilderness. That was the plan. That was what they had been asking for all along. And now here they are. Three days into the wilderness. And it turns out that the wilderness, when you actually get there, is very dry.
+
+* * *
+
+So on the evening of the third day, someone at the front of the line shouts.
+
+And the shout goes back down the line the way shouts do, from person to person, getting louder. Water! There is water! And people who have been walking with their heads down for hours lift them up, and start to hurry, and the goats, who can smell it, start to hurry too, and nearly knock over a small grandfather. And there it is. At the bottom of a dip in the ground, a pool, with a few scrubby plants around it and the evening sky reflected in it, pink and gold.
+
+And Ziva runs. She does not mean to, but she does, with her brother bouncing on her back and shrieking with delight. She gets to the edge before almost anyone. She kneels down. She cups her hands. She drinks.
+
+And you know what happened next, because I told you at the beginning.
+
+The book says it like this. When they came to Marah, they could not drink the water of Marah, because it was bitter. Therefore it was named Marah.
+
+Marah, in Hebrew, means bitter. So the place got its name from the water, the way a lot of places do. There is a village somewhere, I expect, called Muddy Ford, or Cold Spring, or Too Many Flies, and nobody now remembers who named it, but everybody who has ever been there knows exactly why. And for ever afterwards, when the people of Israel told this story, they called the place by what it tasted like. Marah. Bitter.
+
+Water in the desert is sometimes like that. Even now, there are springs in that part of the world that rise up through the rock and come out full of salts and minerals, so that the water tastes of salt, or of something sharper and worse, and if you drink very much of it, it will make you sick. It looks like water. It is shaped like water. It has the sky in it. But you cannot live on it.
+
+And there is something about that, isn't there, which is worse than finding no water at all. To walk for three days, and to see it at last, and to run, and to kneel, and then to find that it is no good.
+
+Ziva sits back on her heels. Her little brother, who has not had any yet, is pulling at her and saying, me, me, my turn. And Ziva does not know how to tell him.
+
+* * *
+
+And then the grumbling starts.
+
+The book says that the people murmured against Moses, saying, what shall we drink?
+
+Now, I would like to be fair to these people, because it is very easy, sitting in a comfortable bed with a glass of water on the table beside you, to be rather superior about them. It was only three days ago, you might say, that they watched the sea go back. Surely, after that, they could trust God about a drink?
+
+And yes. They should have. The book does not pretend otherwise. This is the first of a long line of times in the wilderness that the people complain, and over and over again, the book shows us how quickly they forgot.
+
+But I think it is also worth saying that thirst is a real thing. A child crying for water is a real thing. And the question they asked was a real question. What shall we drink? It is not a wicked question. It is a frightened one. The trouble was not so much the question as the way they asked it, which was not to God at all, but at Moses, with their arms folded, as if it were all his fault.
+
+I imagine Ziva's mother, who has been quiet for three days, finally sitting down on a rock with her face in her hands. And I imagine the people around her starting up. Why did we come? Who said this was a good idea? There was water in Egypt. Bad water, perhaps, and taskmasters with sticks, but water. And some of the men gathering at the front, near where Moses is, and their voices getting louder.
+
+And Ziva, kneeling by the bitter pool with her brother pulling at her sleeve, looks over at the tambourine in her bundle, with its torn skin. Three days ago she was dancing. And she thinks, I suppose, what everybody thinks at times like this. That the happy day was a long time ago. That perhaps it was not really as happy as she remembered. That perhaps nothing good is going to happen ever again.
+
+Which is how it feels, by the bitter water. But it is not true.
+
+* * *
+
+And here is what Moses did.
+
+He did not argue with the people. He did not shout back. He did not try to explain that the water was not his fault, though it was not. The book says, very simply, that he cried to the Lord.
+
+I like that word, cried. It does not mean he said a neat little prayer with his hands folded. It means he called out. Loudly, probably. The way you call out when you are at the end of what you can do. Moses was about eighty years old, and he had a whole people behind him, thirsty and angry and frightened, and he did not know what to do. So he did the only thing he knew how to do. He told God.
+
+And the Lord showed him a tree.
+
+That is how a lot of old translations put it, a tree. The Hebrew word can mean a tree, or a piece of wood, a branch, a log, a stick. We do not know exactly what it was. Probably not a whole tree with its roots on, which would have been a lot for an old man to throw. A piece of wood, lying on the ground, or a branch from one of those scrubby bushes around the pool.
+
+And there is a lovely little thing in the Hebrew here, which many readers have noticed. The word for showed is a word that also means taught, or pointed out, or gave instruction. It comes from the same root as the word Torah, which is what the Jewish people call the law of God, the teaching. So you could almost say, the Lord taught him a piece of wood. As if God were saying, here. Look. This. And Moses, who had been looking at nothing but the bitter water and the angry faces, looked where he was shown.
+
+He threw the wood into the water.
+
+And the water became sweet.
+
+* * *
+
+Now, people have wondered for a very long time how that happened.
+
+Some have suggested that the wood was a particular kind of plant, with something in it that drew the bitterness out of the water. And there is an old book of the Bible, the Book of Sirach, written about two hundred years before Christ, which has a whole lovely passage about doctors and medicines. The Lord created medicines out of the earth, it says, and a sensible man will not despise them. And then it says, was not water made sweet with a tree, in order that his power might be known?
+
+So the old wise man who wrote Sirach saw no problem at all in thinking that God might have used a plant, a real piece of wood with a real property in it, to heal the water. God made the wood, after all, and God made the water, and God made whatever it was in the wood that the water needed. But Sirach is very clear, and so is the Book of Exodus, about who did it. It was not a trick that Moses knew. It was not magic in the stick. Moses did not even know which piece of wood to pick up until the Lord showed him. The healing was God's.
+
+And I think that matters. Because if Moses had just been a clever old desert man who knew a good herb, he would have said so. He would have gone straight to it. Instead, he was standing there just as stuck as everybody else, until he cried out, and was shown.
+
+So. The water became sweet.
+
+And I would like you to imagine the sound of that. A great many very thirsty people, who had been grumbling a minute ago, falling silent one by one as the word goes round. It's good. It's good. Try it. And then the sound of a great many people drinking, which is not an elegant sound, but is a very happy one. Slurping, and gulping, and children splashing, and goats wading in up to their knees, and the donkeys sticking their whole noses in and blowing bubbles. And somebody laughing. And somebody crying. And the skins being filled, one after another, gurgling.
+
+And Ziva's little brother, at last, at long last, with his face in his sister's cupped hands, drinking and drinking and drinking until he has to stop to breathe. And then looking up at her, with water all down his chin, and saying, very seriously, more.
+
+* * *
+
+The book does not end the scene there. It goes on, and this next part is easy to rush past, so let us go slowly.
+
+There, it says, at Marah, the Lord made for them a statute and an ordinance, and there he tested them. And he said: if you will listen carefully to the voice of the Lord your God, and do what is right in his sight, and give ear to his commandments and keep all his statutes, I will put none of the diseases upon you that I put upon the Egyptians. For I am the Lord, who heals you.
+
+I am the Lord, who heals you.
+
+This is the first time in the whole story that God tells them that about himself. Not, I am the Lord who is powerful, though he is. Not, I am the Lord who will punish you if you misbehave, though they will find out later that disobedience has its consequences. But this. I am the Lord, who heals you. The Lord your healer. The Lord your doctor, you might almost say.
+
+And he says it beside a pool that he has just healed.
+
+I think that is how God teaches, very often. He does not just tell us things. He shows us, first, and then he tells us what we have seen. The water was bitter. Now it is sweet. That is what I do. I am the one who makes bitter things sweet.
+
+The book also says that there, at Marah, he tested them, which is a word that will keep coming back on the journey, and I will not pretend I understand all of what it means. But I think part of it is simply this. They had been shown the sea go back, which was a very big thing. Now they were being shown something smaller, a pool of water and a stick. And they were being asked whether they could trust God not only on the great days, when the whole sea moves, but on the ordinary dry days, when it is just you, and a child, and nothing to drink.
+
+That is a harder test, I think, than the sea. Most of us are very good at trusting God on the big days. It is the third day of walking that is difficult.
+
+* * *
+
+They stayed at Marah that night. And I imagine Ziva sitting with her mother by a small fire of dried thorn bushes, with her brother asleep across both their laps, full of water and as heavy as an ox.
+
+And Ziva says, I thought it was all over. When I drank it. I thought, this is it, we came all this way for nothing.
+
+And her mother says, I know. So did I.
+
+And then her mother says, you know, my grandmother used to say that the Lord never gives you a sea without giving you a desert afterwards. So that you don't get above yourself.
+
+And Ziva says, that's a horrible thing to say.
+
+And her mother laughs, for the first time in three days, and says, yes, she was a horrible old woman. I loved her very much. And then she says, but she also used to say the other thing. That he never gives you a desert without a spring in it somewhere. You just have to keep walking long enough to find it.
+
+And Ziva looks at the pool, which has the stars in it now, and is sweet.
+
+* * *
+
+And now, the best part. And it is short, because the book tells it in one verse, as if it knew that by now we were all very tired and needed a rest.
+
+Then they came to Elim, it says, where there were twelve springs of water and seventy palm trees. And they camped there, by the water.
+
+That is all. One verse. But oh, what a verse.
+
+I want you to imagine walking for a day or two more, through that same flat brown country, with the sweet water from Marah sloshing in your skins. And then, ahead of you, a line of dark green. Getting closer. And closer. Until it is trees. Tall, swaying palm trees, seventy of them, their great feathery leaves moving in the wind with that dry rustling sound that palms make, like someone shuffling paper in another room. And under them, shade. Real shade, cool and deep, the first since Egypt. And among the trees, here and there, the glint of water. Not one spring. Twelve. Bubbling up out of the ground, clear and cold, and running away in little streams between the roots.
+
+The name Elim probably has to do with big trees. Which, if you have just walked out of the wilderness of Shur, is exactly what you would call it.
+
+Twelve springs. There were twelve tribes of Israel, twelve families descended from the twelve sons of Jacob. And I like to imagine that each tribe found its own spring and camped around it, though the book does not say so, and perhaps they all just piled in together wherever there was room. And seventy palm trees. Seventy, you may remember, was the number of people in Jacob's family who came down into Egypt in the first place, long ago. A small family who went down. A whole people who came out. And here are seventy palm trees waiting for them, as if someone had counted.
+
+* * *
+
+They camped there by the water.
+
+The book does not say how long. The next chapter tells us that they set out from Elim and came into the next wilderness on the fifteenth day of the second month after leaving Egypt, so it could have been some days, or a week, or more. Long enough, I think, to rest.
+
+And let us spend the rest of tonight there, at Elim, because I think it is a very good place to fall asleep.
+
+The goats have found the grass under the palms and are eating it with great seriousness. The donkeys are lying down, which donkeys only do when they feel safe. The water skins have been washed out in the streams and hung up on the lower branches to dry, and they look like a row of fat brown animals asleep in the trees. Children are paddling. Old men are sitting with their feet in the water and their eyes closed. Somebody, somewhere, is baking bread on a hot stone, and the smell of it is drifting between the trunks.
+
+And under one of the seventy palm trees, Ziva's mother is sitting with the tambourine in her lap.
+
+She has a new piece of goatskin, from one of the goats who did not make it across the desert, poor thing. She has soaked it in the spring to make it soft. And now she is cutting away the old torn skin, very carefully, with a little knife, and lacing on the new one, pulling it tight, round and round the hoop. Ziva is watching. Her little brother is asleep in the shade.
+
+There, says her mother at last, and she taps it with one finger. It makes a good, round, low sound. Not as loud as before. A bit deeper.
+
+It sounds different, says Ziva.
+
+It is different, says her mother. It's mended. Mended things always sound a bit different. And she hands it back. Don't hit it quite so hard next time.
+
+And Ziva takes it, and holds it in her lap, and runs her thumb over the new skin, and decides, all over again, that she will keep it for ever. Which, as some of you may know, she did.
+
+[pause]
+
+Now, before you go to sleep, let me tell you a little of what people have made of this story since.
+
+When the Book of Ruth tells about a woman called Naomi, who lost her husband and both her sons in a foreign country, and came home again with nothing, it has her say to the women of Bethlehem, do not call me Naomi, which means pleasant. Call me Mara. Bitter. For the Almighty has dealt very bitterly with me. It is the same word as the bitter water. And by the end of her story, of course, Naomi is holding a grandson on her lap, and the women of the town are saying, blessed be the Lord. Bitter water, made sweet. It seems to be something God does.
+
+A long time after Moses, the prophet Elisha came to the city of Jericho, and the men of the city told him, the water here is bad. And he asked for a new bowl with salt in it, and threw the salt into the spring, and said, thus says the Lord, I have healed this water. Again, notice who does the healing. Not Elisha. The Lord.
+
+And the first Christians, reading this story, could hardly help seeing something else in that piece of wood. Tertullian, writing in North Africa about two hundred years after Christ, in a little book about baptism, says that the bitter water was healed by the wood that Moses threw in, and that the wood was Christ. And Saint Ambrose, the bishop of Milan, explaining baptism to the newly baptised in the fourth century, told them about Marah. The water was bitter, he said, and Moses cast wood into it, and it became sweet. And water without the preaching of the Lord's cross is of no use for salvation. That is their reading, the wood as a picture of the Cross, which makes the bitter things of the world sweet. The Book of Exodus does not say it, but it is a very old reading, and a very beautiful one.
+
+Origen, the great scholar of Alexandria, had a reading for Elim too. He saw in the twelve springs the twelve apostles, and in the seventy palm trees the seventy disciples whom Jesus sent out two by two, in the Gospel of Luke, though some of the oldest copies of Luke say seventy-two, which would have spoiled the arithmetic slightly. First the bitter water and the wood, he said, and then the springs and the palms. First the Cross, and then rest.
+
+The psalms remembered it too, in their own way. There is a long psalm, Psalm one hundred and seven, which is a sort of thank-you song from people God has rescued. Some wandered in desert wastes, it says, finding no way to a city to dwell in, hungry and thirsty, their soul fainting within them. Then they cried to the Lord in their trouble, and he delivered them from their distress. And a little further on it says this. He turns a desert into pools of water, a parched land into springs of water. And there he lets the hungry dwell.
+
+I do not know if whoever wrote that psalm was thinking of Elim. But I like to think so. Because that is exactly what happened. People in a desert, crying to the Lord. And then springs. And a place to stay.
+
+And as for where Marah and Elim actually were, nobody knows for certain. It depends on which way the people went, which is itself an open question. Travellers and pilgrims for many centuries have pointed to a bitter spring on the eastern side of the Gulf of Suez, and to a green valley with palms and water a little further south, and said, there. They may be right. It would not surprise me if they were wrong. Deserts have many bitter springs, and a few green valleys, and the book did not leave us a map.
+
+But I think the people who first told this story would say that it does not much matter. Because every one of us knows Marah. We have all knelt by some water that we thought would save us, and found it bitter. And most of us, if we have lived long enough, have also known an Elim. A morning after a long night. A friend who turned up. A meal, a kindness, a rest, a mending. Shade.
+
+[pause]
+
+So tonight, as you lie in the dark, I would like you to think about that piece of wood.
+
+It was lying there all the time, by the bitter pool. Nobody had noticed it. Moses had not noticed it. It was only when he stopped and cried out to God, and was shown, that he saw it. I wonder how often that is true. That the thing we need is already lying very near us, and we are too thirsty, and too tired, and too busy grumbling, to see it, until we stop and ask.
+
+And I would like you to think about Elim. It was only a few days further on. The people at Marah did not know that. They could not see it from where they were. If they had known, perhaps they would not have been so frightened. But they did not know, and neither do we, most of the time, how near the springs are.
+
+So if tonight is a Marah sort of night for you, I hope you will remember that the water at Marah was made sweet. And that Elim is not very far. Twelve springs, and seventy palm trees, and a place to camp by the water.
+
+Somewhere in the desert, under a palm tree, in the dark, the streams are running between the roots with a sound like someone talking very softly in the next room. The goats are asleep. The donkeys are asleep. The water skins hang in the branches like sleeping animals. A little boy is lying curled up on a blanket, full of water and bread. And a girl of fifteen is lying beside him, holding a mended tambourine against her chest, listening to the springs, and thinking that perhaps, after all, good things will happen again.
+
+[pause]
+
+Some notes for the curious.
+
+Tonight's story comes from the Book of Exodus, which Catholic and Orthodox Christians read as Scripture, chapter fifteen, verses twenty-two to twenty-seven. The wilderness of Shur, the three days without water, the bitter water, the name Marah, what shall we drink, Moses crying to the Lord, the wood he was shown, the water made sweet, the statute and the testing, I am the Lord who heals you, and Elim with its twelve springs and seventy palm trees, are all there, in a plain rendering. The same stages are listed in the Book of Numbers, chapter thirty-three. The departure from Elim is in Exodus, chapter sixteen, verse one. The three days' journey that Moses asked Pharaoh for is in Exodus, chapters three and five. Hagar's spring on the way to Shur is in Genesis, chapter sixteen.
+
+The meaning of the name Shur, and of the name Elim, are guesses. Where the two places were is not known; the bitter spring and the palm valley shown to travellers are later identifications. Sirach on the wood and the water is in chapter thirty-eight, and the desert turned into pools in Psalm one hundred and seven. Naomi's Mara is in Ruth, chapter one, and Elisha at Jericho in Second Kings, chapter two. Tertullian's reading is in his book On Baptism, Saint Ambrose's in his On the Mysteries, and Origen's in his seventh homily on Exodus. They are told as their readings.
+
+And Ziva, her mother, her little brother, her grandmother's sayings, the mending of the tambourine, and every word they say, are our own invention.
+
+[pause]
+
+That's the story of the bitter water at Marah and the springs of Elim for tonight. Moses the prophet is remembered on the fourth of September, in the Orthodox Church and in the Roman Martyrology. Thank you for listening to Saints by Candlelight. If you enjoyed it, share it with someone who could use a gentle story at the end of a long day. And here is a prayer for you tonight, from the Psalms: The Lord is my shepherd, I shall not want. He makes me lie down in green pastures. He leads me beside still waters. He restores my soul. Goodnight, and God bless.
