@@ -14,15 +14,24 @@ import { fileURLToPath } from 'node:url';
 
 const VENTURES = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'ventures');
 
+/** `s` with every match of `re` removed, repeated until none remain, so a removal cannot splice a new match together. */
+function removeAll(s, re) {
+  let prev;
+  do {
+    prev = s;
+    s = s.replace(re, '');
+  } while (s !== prev);
+  return s;
+}
+
 /** The page without script, style, pre, code and template blocks or comments, removed until none remain. */
 function withoutHidden(html) {
   let text = html;
   let prev;
   do {
     prev = text;
-    text = text
-      .replace(/<(script|style|pre|code|template)\b[\s\S]*?<\/\1\b[^>]*>/gi, '')
-      .replace(/<!--[\s\S]*?--!?>/g, '');
+    text = removeAll(text, /<(script|style|pre|code|template)\b[\s\S]*?<\/\1\b[^>]*>/gi);
+    text = removeAll(text, /<!--[\s\S]*?--!?>/g);
   } while (text !== prev);
   return text;
 }

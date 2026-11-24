@@ -33,15 +33,22 @@ export const MAX_H1_REM = 3;
  */
 export const MAX_H1_CHARS = 90;
 
-/** Apply `step` until the string stops changing, so a removal cannot splice a new match together. */
-const untilStable = (s, step) => { let prev; do { prev = s; s = step(s); } while (s !== prev); return s; };
+/** Tags removed until none remain, so a removal cannot splice a new tag together. */
+function stripTags(s) {
+  let prev;
+  do {
+    prev = s;
+    s = s.replace(/<[^>]+>/g, '');
+  } while (s !== prev);
+  return s;
+}
 
 /** The visible text of the first h1 in a page's HTML, entities decoded and whitespace collapsed, or null. */
 export function h1Text(html) {
   const m = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i);
   if (!m) return null;
   const ent = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', rsquo: '\u2019', lsquo: '\u2018', mdash: '\u2014', ndash: '\u2013', hellip: '\u2026' };
-  return untilStable(m[1], (s) => s.replace(/<[^>]+>/g, ''))
+  return stripTags(m[1])
     .replace(/&#x([0-9a-f]+);/gi, (_, h) => codePointOr(parseInt(h, 16)))
     .replace(/&#(\d+);/g, (_, d) => codePointOr(Number(d)))
     .replace(/&([a-z]+);/gi, (e, n) => ent[n.toLowerCase()] ?? e)
@@ -97,7 +104,8 @@ async function main() {
   const srv = http.createServer((q, r) => {
     const rel = decodeURIComponent(q.url.split('?')[0]);
     let p = path.resolve(dist, `.${rel}`);
-    if (p !== dist && !p.startsWith(dist + path.sep)) { r.writeHead(403); r.end(); return; }
+    const within = path.relative(dist, p);
+    if (within === '..' || within.startsWith(`..${path.sep}`) || path.isAbsolute(within)) { r.writeHead(403); r.end(); return; }
     if (rel.endsWith('/')) p = path.join(p, 'index.html');
     fs.readFile(p, (e, d) => {
       if (e) { r.writeHead(404); r.end(); return; }

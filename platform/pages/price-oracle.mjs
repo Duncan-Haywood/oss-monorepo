@@ -92,8 +92,10 @@ function serve(dist) {
     try {
       const rel = decodeURIComponent(req.url.split('?')[0]);
       const root = path.resolve(dist);
-      let fp = path.resolve(root, `.${rel}`);
-      if (fp !== root && !fp.startsWith(root + path.sep)) throw new Error('outside the site root');
+      const asked = path.resolve(root, `.${rel}`);
+      const within = path.relative(root, asked);
+      if (within === '..' || within.startsWith(`..${path.sep}`) || path.isAbsolute(within)) throw new Error('outside the site root');
+      let fp = asked;
       try {
         if ((await stat(fp)).isDirectory()) fp = path.join(fp, 'index.html');
       } catch {

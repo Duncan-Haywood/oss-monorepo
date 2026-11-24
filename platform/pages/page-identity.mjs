@@ -15,14 +15,27 @@ const SKIP = new Set(['404.html', 'offline.html']);
 // whole question, up to 246 characters; the ceiling stops that coming back.
 export const MAX_TITLE_LENGTH = 130;
 
-/** Apply `step` until the string stops changing, so a removal cannot splice a new match together. */
-const untilStable = (s, step) => { let prev; do { prev = s; s = step(s); } while (s !== prev); return s; };
+/** `s` with every match of `re` removed, repeated until none remain, so a removal cannot splice a new match together. */
+function removeAll(s, re) {
+  let prev;
+  do {
+    prev = s;
+    s = s.replace(re, '');
+  } while (s !== prev);
+  return s;
+}
 
+/** Scripts, templates and comments, removed until none remain (a removal cannot splice a new one together). */
 export function stripNonMarkup(html) {
-  return untilStable(html, (s) => s
-    .replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, '')
-    .replace(/<template\b[^>]*>[\s\S]*?<\/template\b[^>]*>/gi, '')
-    .replace(/<!--[\s\S]*?--!?>/g, ''));
+  let s = html;
+  let prev;
+  do {
+    prev = s;
+    s = removeAll(s, /<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi);
+    s = removeAll(s, /<template\b[^>]*>[\s\S]*?<\/template\b[^>]*>/gi);
+    s = removeAll(s, /<!--[\s\S]*?--!?>/g);
+  } while (s !== prev);
+  return s;
 }
 
 export function titleOf(html) {
@@ -60,7 +73,7 @@ export function checkPageIdentity(pages) {
 
 function h1TextOf(html) {
   const m = /<h1[^>]*>([\s\S]*?)<\/h1>/i.exec(stripNonMarkup(html));
-  return m ? untilStable(m[1], (s) => s.replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim() : '';
+  return m ? removeAll(m[1], /<[^>]+>/g).replace(/\s+/g, ' ').trim() : '';
 }
 
 /**

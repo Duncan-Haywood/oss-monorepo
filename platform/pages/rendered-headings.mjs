@@ -86,7 +86,8 @@ if (invokedDirectly) {
   const srv = http.createServer((q, r) => {
     const rel = decodeURIComponent(q.url.split('?')[0]);
     let p = path.resolve(dist, `.${rel}`);
-    if (p !== dist && !p.startsWith(dist + path.sep)) { r.writeHead(403); r.end(); return; }
+    const within = path.relative(dist, p);
+    if (within === '..' || within.startsWith(`..${path.sep}`) || path.isAbsolute(within)) { r.writeHead(403); r.end(); return; }
     if (rel.endsWith('/')) p = path.join(p, 'index.html');
     fs.readFile(p, (e, d) => {
       if (e) { r.writeHead(404); r.end(); return; }
