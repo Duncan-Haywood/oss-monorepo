@@ -20,7 +20,40 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
-## Already have a schedule? The league page runs on it as it is (2026-11-23, newest)
+## Big bowling leagues: three more seasons at an even lane split, from a change of encoding (2026-11-24, newest)
+
+Three bowling seasons had sat one count off an even lane split since 2026-11-23 (the table two
+sections down): 22 teams over 10 weeks, 22 over 21 and 24 over 23. Each now has every team on every
+lane pair `floor(W/P)` to `ceil(W/P)` times, stored in `bowling-lane-table.mjs` and checked by
+`bowling.test.mjs` (a permutation every week, off 0 on seeds 1 and 2).
+
+| teams x weeks | page before | page now | back-to-back repeats, before -> now |
+|---|---|---|---|
+| 22 x 10 | 1 | **0** (every team on 10 different pairs) | 0 -> 0 |
+| 22 x 21 | 1 | **0** | 20 -> 13 |
+| 24 x 23 | 1 | **0** | 19 -> 24 |
+
+The solver did not change; the way the CNF writes the count limits did. Same model as
+`eval/bowling-lane-table.py` (each week a permutation of matches onto pairs, week 1 fixed):
+
+- **22 x 10** has `ceil(10/11) = 1`: each team at most once on each pair. Written as a sequential
+  counter, CaDiCaL 1.5.3 found no answer in 420 s (2026-11-23) or in 180 s re-run today; written
+  pairwise (one clause per two of a team's matches) it answers in 14.7 s, and in 1.5 s with the
+  week permutations pairwise too. The four SAT scripts (`bowling-lane-table.py`, `bowling-lane-sat.py`,
+  `bowling-repeat-sat.py`, `bowling-bound-proof.py`) now use pairwise whenever the limit is 1.
+- **22 x 21 and 24 x 23** (1 to 2 visits per pair) fell to kissat 4.0.4 through python-sat with a
+  totalizer for the limits, in about 23 and 21 minutes on 4 shared cores; CaDiCaL with the sequential
+  counter had none in 420 s.
+- **Not found:** a cyclic family (pair = sigma(match) + c x round, mod P) has no answer for any of
+  the four; the wider family sigma(match) + tau(round) is UNSAT for 22 x 10 (proved), and gave nothing
+  in 400 s for the others. 24 x 11, 26 x 12 and 28 x 13 (also limit 1) gave nothing in 900 s with the
+  pairwise encoding, and 26 x 38 (2 to 3 visits) none in 2,400 s with kissat. Every run: `eval/bowling-encoding-2026-11-24.txt`; the runner is `eval/bowling-encoding.py`. CaDiCaL also solves 22 x 21 in about 4 minutes when "at most 2" is written as forbidden triples and "at least 1" as one clause (`direct`).
+
+The odd pair: 22 teams over 11 weeks is proved out of reach (`bowling-proofs.mjs`), yet 10 weeks
+is reachable. The 24 x 23 season trades 5 more back-to-back repeats for the even split; the page
+keeps balance first, as everywhere else on the bowling page.
+
+## Already have a schedule? The league page runs on it as it is (2026-11-23)
 
 Until now the self-hosted league page (`server.mjs`) only ran on a season it built itself. Most
 organisers who would host it already have a season: one they typed into a spreadsheet, or one exported
@@ -103,7 +136,7 @@ Over the 17 seasons, 251 counts off before and 103 now, the same on seeds 1 and 
 season in Node (`node eval/bowling-lane-near-check.mjs`, `eval/bowling-lane-near.txt`). Eight seasons
 (24 x 25, 24 x 37, 26 x 14, 26 x 27, 26 x 40, 28 x 15, 28 x 27, 28 x 29) did not move: the
 tabu search ended where the page does. Whether 1 off is the least for 22 x 10, 22 x 21, 24 x 23 and
-26 x 38 is open: neither solver proved it either way. `bowling.test.mjs` checks every stored near
+26 x 38 is open: neither solver proved it either way (2026-11-24: 22 x 10, 22 x 21 and 24 x 23 are now at 0, section above; 26 x 38 is still 1). `bowling.test.mjs` checks every stored near
 entry (a permutation each week, exactly as far off as recorded, below its `page` figure) and that the
 page builds no worse than it on seeds 1 and 2.
 

@@ -407,9 +407,9 @@ flagships:
       0 wrong); next: a real league's published numbers. More: NEXT.md.
     buildable: >-
       Search work in NEXT.md, no outside input: 12 teams below 132 carry-over or
-      124-130 ruled out (eval/window-refill.c); bowling 22-28 team seasons 1 off the
-      bound (22x10, 22x21, 24x23, 26x38: an answer or a proof,
-      bowling-lane-near.mjs); 47/49 on 8x9 night designs (a split or resumable
+      124-130 ruled out (eval/window-refill.c); bowling 26x38 1 off the bound and
+      limit-1 seasons 24x11, 26x12, 28x13 (eval/bowling-encoding.py: pick the
+      encoding, kissat404); 47/49 on 8x9 night designs (a split or resumable
       search). Each is a hard combinatorial search; judge its worth before taking
       it.
   - venture: open-tennis-robots
