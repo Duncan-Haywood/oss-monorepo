@@ -404,11 +404,12 @@ Every story, by collection and newest first, with its reading time and whether i
 - [Thirty-Nine Minutes](stories/thirty-nine-minutes.md) (2026-10-21; 20 min read, 26 min audio)
 - [The Slowest Bell on the Moon](stories/the-slowest-bell-on-the-moon.md) (2026-10-20; 18 min read, 25 min audio)
 
-### For Other Minds (77 stories)
+### For Other Minds (78 stories)
 
 - [The Hedgehogs That Came a Year Late](stories/the-hedgehogs-that-came-a-year-late.md) (2026-11-24; 18 min read, text only)
 - [The Highest Number in the Drawer](stories/the-highest-number-in-the-drawer.md) (2026-11-24; 20 min read, text only)
 - [The Ones on Both Lists](stories/the-ones-on-both-lists.md) (2026-11-24; 18 min read, text only)
+- [The Reserve That Went to Nought on a Tuesday](stories/the-reserve-that-went-to-nought-on-a-tuesday.md) (2026-11-24; 19 min read, text only)
 - [A Sixth of the Extra Hour](stories/a-sixth-of-the-extra-hour.md) (2026-11-23; 21 min read, text only)
 - [The Ones Who Got the Most Visits](stories/the-ones-who-got-the-most-visits.md) (2026-11-23; 17 min read, text only)
 - [As of Monday](stories/as-of-monday.md) (2026-11-22; 19 min read, text only)
