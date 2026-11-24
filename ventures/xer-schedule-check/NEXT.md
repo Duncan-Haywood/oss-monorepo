@@ -76,6 +76,7 @@
   (eval/rsrc-udfs-2026-11-21.md).
 - (2026-11-21) constraints log's "past late start" now says whether a row moves anything (eval/constraints-slack-2026-11-20.md: 65/65)
 - (2026-11-21) its forward gap searched 2026-11-20, no rule (one link; eval/relationship-dates-2026-11-20.md)
+- (2026-11-24) relationship dates on links with a started end decoded (eval/relationship-dates-started-2026-11-24.md: arls 11,610/11,610 against the unspent lag; planted 185/185 visible edits named, 173 exact, 12 as an at-most bound). Still open: SF links, SS on a lag calendar other than the predecessor's, a real statused P6 file with a lag edited on work in progress
 - (2026-11-21) relationship dates (TASKPRED aref/arls) decoded 2026-11-20 (reldates.mjs, eval/relationship-dates-2026-11-20.md: arls 40,476/40,476; lags changed after the run read back, 1,200/1,200 planted): the 5-node SS chain is P6 contradicting its own arls (closed), the 608 h lag was not edited
 - (2026-11-21) next a real P6 import
 - (2026-11-21) Notebooks: P6 notebooks <-> Project task notes shipped

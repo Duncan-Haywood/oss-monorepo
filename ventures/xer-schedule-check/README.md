@@ -1687,6 +1687,17 @@ run as a formula in Excel or Sheets.
   planted links added after the run named, 0 false listings). They also close
   the last finished-node residual: CFNS103317C0's stored late date contradicts
   the relationship date P6 wrote on its own link, which the engine matches.
+  **Links with a started end** (2026-11-24,
+  `eval/relationship-dates-started-2026-11-24.md`): where either end is in
+  progress or the predecessor finished, P6 writes both dates with only the lag
+  still unspent at the data date (less the work since the predecessor's actual
+  finish, FS and FF, or actual start, SS). `arls` agrees on **11,610 of
+  11,610** such links (9,716 more than were checked before), so a lag edited
+  on work under way is listed too: with the old lag exactly when some was
+  unspent (173 of 173 planted), or, when P6's dates show none left, as "at
+  most" the work already spent (12 of 12 bounds hold); 195 planted changes
+  that leave nothing unspent either way move no date and are not listed, and
+  nothing unplanted is.
 - **Free float against P6** (`eval/free-float-2026-11-19.md`,
   `eval/free-float-expected-2026-11-20.md`): the same files,
   **19,820 of 19,822 (99.99%)** equal P6's stored free float (19,810 before

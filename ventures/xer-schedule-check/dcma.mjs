@@ -403,12 +403,17 @@ export function assess(xer, opts = {}) {
   // its old value, and a link with no relationship dates was added since
   // (reldates.mjs; eval/relationship-dates-2026-11-20.md: 40,476 of 40,476
   // links on six P6 files decode exactly, 360 of 360 planted edits recovered).
+  // Links with a started end carry only the lag unspent at the data date
+  // (eval/relationship-dates-started-2026-11-24.md); where none was left the
+  // old lag is only bounded by the work already spent (atMost).
   const relDates = xer.format !== "mspdi" ? relationshipLags(model) : { links: [], added: [] };
   const inOpen = new Set(open.map((t) => t.id));
-  const wasLag = new Map([...relDates.links, ...(relDates.finished?.was || [])].map((l) => [l.rel.id, l.was]));
-  const sameLag = relDates.finished?.agree || new Set();
+  const started = relDates.started || relDates.finished;
+  const wasLag = new Map([...relDates.links, ...(started?.was || [])].map((l) => [l.rel.id, l.was]));
+  const atMostLag = new Map((started?.atMost || []).map((l) => [l.rel.id, l.atMost]));
+  const sameLag = started?.agree || new Set();
   const addedRel = new Set(relDates.added.map((l) => l.rel.id));
-  for (const l of [...relDates.links, ...(relDates.finished?.was || []), ...relDates.added]) {
+  for (const l of [...relDates.links, ...(started?.was || []), ...(started?.atMost || []), ...relDates.added]) {
     if (!inOpen.has(l.succ.id) || editedLags.some((e) => e.rel.id === l.rel.id)) continue;
     editedLags.push({ t: l.succ, pr: l.pred, rel: l.rel, room: null, side: "rel" });
   }
@@ -418,7 +423,7 @@ export function assess(xer, opts = {}) {
   if (editedLags.length && stale.length && !opts.result) {
     // the lag P6's relationship dates name where there is one, else the
     // room the stored dates leave; a link added since the run comes out
-    const implied = new Map(editedLags.filter((e) => !addedRel.has(e.rel.id)).map((e) => [e.rel.id, (wasLag.has(e.rel.id) ? wasLag.get(e.rel.id) : e.room) / 60]));
+    const implied = new Map(editedLags.filter((e) => !addedRel.has(e.rel.id)).map((e) => [e.rel.id, (wasLag.has(e.rel.id) ? wasLag.get(e.rel.id) : atMostLag.has(e.rel.id) ? atMostLag.get(e.rel.id) : e.room) / 60]));
     const TASKPRED = (xer.tables.TASKPRED || []).filter((r) => !addedRel.has(r.task_pred_id)).map((r) => (implied.has(r.task_pred_id) ? { ...r, lag_hr_cnt: String(implied.get(r.task_pred_id)) } : r));
     const again = schedule({ ...xer, tables: { ...xer.tables, TASKPRED } }).tasks;
     lagsExplained = 0;
@@ -444,11 +449,13 @@ export function assess(xer, opts = {}) {
         ? `between ${pr.code}'s stored late ${fromS} ${fromS === "finish" ? pr.row.late_end_date : pr.row.late_start_date} and this activity's stored late ${toS}`
         : `after ${pr.code} ${fromLabel(pr, rel)}`;
       const was = wasLag.has(rel.id) ? wasLag.get(rel.id) / 60 : null;
+      const most = atMostLag.has(rel.id) ? atMostLag.get(rel.id) / 60 : null;
       const p6 = was !== null ? `; P6's own relationship dates for this link were written with a lag of ${round1(was)} h (${round1(days(t, was))} d) at the last schedule run`
+        : most !== null ? `; P6's own relationship date for this link was written with none of the lag left at the data date, so at the last schedule run the lag was at most ${round1(most)} h (${round1(days(t, most))} d), the working time already spent since ${pr.code}'s actual ${rel.type === "PR_SS" ? "start" : "finish"}`
         : sameLag.has(rel.id) ? `; but P6's own relationship date for this link (arls) was written with this same lag, so the lag was not changed: P6's forward pass at its last run left this gap itself` : "";
       if (addedRel.has(rel.id)) return { code: t.code, name: t.name, pred: pr.code, why: `${lagTxt}: added after the last schedule run (P6 wrote relationship dates for every other link, none for this one)` };
-      if (room === null) return { code: t.code, name: t.name, pred: pr.code, lagWas: was, why: `${lagTxt}${p6}, so the lag was changed after that run` };
-      return { code: t.code, name: t.name, pred: pr.code, lagWas: was, why: (room < 0
+      if (room === null) return { code: t.code, name: t.name, pred: pr.code, lagWas: was, ...(most !== null ? { lagWasAtMost: most } : {}), why: `${lagTxt}${p6}, so the lag was changed after that run` };
+      return { code: t.code, name: t.name, pred: pr.code, lagWas: was, ...(most !== null ? { lagWasAtMost: most } : {}), why: (room < 0
         ? `${lagTxt}: the stored dates break it even with no lag (${round1(-room / 60)} h short ${between}), so the link was added or changed after the last schedule run`
         : `${lagTxt}; the stored dates leave ${round1(room / 60)} h (${round1(days(t, room / 60))} d) ${between}`) + p6 };
     });

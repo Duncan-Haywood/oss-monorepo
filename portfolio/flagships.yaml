@@ -562,7 +562,7 @@ flagships:
       Test files: bash eval/corpus-fetch.sh DIR [--mpxj] (the six public XERs to
       DIR/xer, 5 s; --mpxj adds MPXJ junit/data). Constraints log on more planted
       seeds or files: node eval/constraints-check.mjs (section 4,
-      eval/constraints-slack-2026-11-20.md); relationship dates: node
+      eval/constraints-slack-2026-11-20.md); reldates SF/off-calendar SS:
       eval/relationship-dates.mjs; windows check (eval/windows-check.mjs, series
       made by status.mjs); redundant: node eval/redundant-check.mjs DIR/xer;
       converter/hand-made XERs: node eval/converter-corpus.mjs; MSPDI:
