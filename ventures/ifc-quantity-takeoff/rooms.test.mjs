@@ -451,3 +451,25 @@ test("a door's stored height is measured down from its head: a frame set into th
   close(c.openingArea, 1.01 * 2.25 + 1 * 2.25);
   close(heightShare([0, 0, -0.15, 1, 1, 2.25], [0, 0, 0, 1, 1, 3], 2.25), 1);
 });
+
+// 2026-11-24 red-team run: two seeded faults in qto.mjs's room reading escaped.
+test("a footprint room's bounding box corner sets where its solid starts in z", () => {
+  // the studio's box corner raised 300 mm: the room runs 0.3 to 2.8 m above its storey, not 0 to 2.5
+  const raised = roomsFileText()
+    .replace("#2045=IFCBOUNDINGBOX(#22,", "#2045=IFCBOUNDINGBOX(#2048,")
+    .replace("#2046=IFCGEOMETRICCURVESET", "#2048=IFCCARTESIANPOINT((0.,0.,300.));\n#2046=IFCGEOMETRICCURVESET");
+  assert.ok(raised.includes("#2048=IFCCARTESIANPOINT"), "fixture edit applied");
+  const base = roomsFile().rooms[1], up = takeoff(parseStep(Buffer.from(raised, "latin1"))).rooms[1];
+  assert.equal(up.from, "footprint");
+  close(up.computed.volume, 50);
+  close(up.box[2] - base.box[2], 0.3);
+  close(up.box[5] - base.box[5], 0.3);
+});
+
+test("a room's solid, placement and unit stay off its own fields (JSON, CSV)", () => {
+  const office = roomsFile().rooms[0];
+  for (const k of ["solid", "world", "lengthUnit"]) {
+    assert.ok(!Object.keys(office).includes(k), `${k} is enumerable`);
+    assert.ok(office[k] != null, `${k} is kept for the room checks`);
+  }
+});

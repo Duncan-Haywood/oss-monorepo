@@ -1763,3 +1763,39 @@ test("explanations: a Revit wall split at a level stores the whole on one piece 
   explainChecks(off);
   assert.notEqual(off[0].check.gross.reason, "split-held");
 });
+
+// 2026-11-24 red-team run: seeded faults in qto.mjs the suite let through.
+test("glass: a surface style drawn fully see-through (transparency 1) is a void, not a pane", () => {
+  // the pane's style at transparency 1 and a plain name: nothing is glazing, so nothing is left out
+  const frame = 0.1;
+  const text = glazedFile(frame, frame, frame).replace("#35=IFCSURFACESTYLERENDERING(#30,0.49,", "#35=IFCSURFACESTYLERENDERING(#30,1.,").replace("'Glas - algemeen'", "'Pane'");
+  assert.ok(text.includes("(#30,1.,"), "fixture edit applied");
+  const [w] = takeoff(parseStep(text)).rows;
+  assert.equal(w.computed.glazing, undefined);
+  // just under 1 is still see-through glass
+  const almost = takeoff(parseStep(text.replace("(#30,1.,", "(#30,0.99,"))).rows[0];
+  close(almost.computed.glazing, 0.9 * 0.02 * 0.9);
+});
+
+test("compoundFactor: a computed volume under one unit still finds its square-foot slip", async () => {
+  const { compoundFactor, SQFT } = await import("./qto.mjs");
+  // a 0.4 m3 slab stored as litres over square feet: 0.4 x 1000 / 10.7639
+  close(compoundFactor(0.4, (0.4 * 1000) / SQFT), 1000 / SQFT);
+  close(compoundFactor(0.4, 0.4 * SQFT * 10), SQFT * 10);
+  assert.equal(compoundFactor(0, 1), null);
+  assert.equal(compoundFactor(0.4, 0.4), null); // k = 0 is no slip
+});
+
+test("a stored quantity that overflows to Infinity is no unit slip", async () => {
+  // 2026-11-24 red-team run: near(x, Infinity) held for any x (Infinity <= tol x Infinity), so a model
+  // storing GrossVolume 1.E400 read "unit-slip, factor 10.7639" against a 3 m3 wall
+  const { unitSlip, compoundFactor } = await import("./qto.mjs");
+  assert.equal(unitSlip(3, Infinity), null);
+  assert.equal(unitSlip(Infinity, 3), null);
+  assert.equal(compoundFactor(3, Infinity), null);
+  const text = readFileSync(new URL("./samples/sample-office.ifc", import.meta.url), "latin1").replace("IFCQUANTITYVOLUME('GrossVolume',$,$,3.,$);", "IFCQUANTITYVOLUME('GrossVolume',$,$,1.E400,$);");
+  assert.ok(text.includes("1.E400"), "fixture edit applied");
+  const wall = takeoff(parseStep(text)).rows.find((r) => r.name === "Wall A");
+  assert.notEqual(wall.check.gross.reason, "unit-slip");
+  assert.equal(wall.check.gross.factor, undefined);
+});

@@ -5,7 +5,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parseStep } from "./step.mjs";
-import { Geometry, Unresolved, apply, earClip, signedArea } from "./geom.mjs";
+import { Geometry, Unresolved, apply, earClip, signedArea, solidVolume } from "./geom.mjs";
 
 const file = (body) => `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC4'));ENDSEC;DATA;\n${body}\nENDSEC;END-ISO-10303-21;`;
 const geometry = (body) => new Geometry(parseStep(file(body)));
@@ -127,4 +127,68 @@ ENDSEC;END-ISO-10303-21;`;
   // a 100 x 100 x 100 cm block is a cubic metre
   const cm = vol(".CENTI.", "#20=IFCRECTANGLEPROFILEDEF(.AREA.,'r',#13,100.,100.);\n#21=IFCEXTRUDEDAREASOLID(#20,#11,#16,100.);");
   assert.ok(Math.abs(cm - 1) < 1e-9, `centimetre ${cm}`);
+});
+
+// 2026-11-24 red-team run: five seeded faults in geom.mjs escaped the suite.
+test("earClip: a comb with three teeth is cut into triangles that cover it", () => {
+  // three 1-wide teeth 2 high on a 5 x 1 base: area 5 + 3 x 2 = 11
+  const P = [[0, 0], [5, 0], [5, 3], [4, 3], [4, 1], [3, 1], [3, 3], [2, 3], [2, 1], [1, 1], [1, 3], [0, 3]];
+  const tris = earClip(P);
+  assert.equal(tris.length, P.length - 2);
+  let sum = 0;
+  for (const t of tris) {
+    const a = signedArea(t.map((i) => P[i]));
+    assert.ok(a > 0, `triangle ${t} has signed area ${a}`);
+    sum += a;
+  }
+  assert.ok(Math.abs(sum - 11) < 1e-12, `triangles sum to ${sum}`);
+});
+
+test("a line trimmed by parameters runs from origin + t1 x vector to origin + t2 x vector", () => {
+  const g = geometry(`#1=IFCCARTESIANPOINT((1.,2.));
+#2=IFCDIRECTION((1.,0.));
+#3=IFCVECTOR(#2,2.);
+#4=IFCLINE(#1,#3);
+#5=IFCTRIMMEDCURVE(#4,(IFCPARAMETERVALUE(2.)),(IFCPARAMETERVALUE(5.)),.T.,.PARAMETER.);`);
+  assert.deepEqual(g.curve(5), [[5, 2], [11, 2]]);
+});
+
+test("an indexed poly curve's arc through three points stays on their circle", () => {
+  // centre (1, 1), radius 1: from (2, 1) through (1, 2) to (0, 1)
+  const g = geometry(`#1=IFCCARTESIANPOINTLIST2D(((2.,1.),(1.,2.),(0.,1.)));
+#2=IFCINDEXEDPOLYCURVE(#1,(IFCARCINDEX((1,2,3))),.F.);`);
+  const pts = g.curve(2);
+  assert.ok(pts.length > 3);
+  for (const [x, y] of pts) assert.ok(Math.abs(Math.hypot(x - 1, y - 1) - 1) < 1e-9, `(${x}, ${y}) is off the circle`);
+  assert.ok(pts.every(([, y]) => y >= 1 - 1e-9), "the arc goes over the top, through (1, 2)");
+});
+
+test("T section: the flange and the web below it", () => {
+  // depth 300, flange width 200, web 10, flange 20
+  const g = geometry("#1=IFCTSHAPEPROFILEDEF(.AREA.,$,$,300.,200.,10.,20.,$,$,$,$,$);");
+  const [loop] = g.profile(1);
+  assert.equal(area([loop]), 200 * 20 + (300 - 20) * 10);
+  for (const [x, y] of loop.pts) assert.ok(loop.pts.some((q) => q[0] === -x && q[1] === y), `no mirror for (${x}, ${y})`);
+});
+
+test("a polygonal bounded half space placed off the origin cuts only inside its boundary's prism", () => {
+  // a 10 x 10 x 10 block less the part below z = 5 inside a 2 x 2 square centred at (3, 0)
+  const g = geometry(`#1=IFCCARTESIANPOINT((0.,0.,0.));
+#2=IFCAXIS2PLACEMENT3D(#1,$,$);
+#3=IFCRECTANGLEPROFILEDEF(.AREA.,$,$,10.,10.);
+#4=IFCDIRECTION((0.,0.,1.));
+#5=IFCEXTRUDEDAREASOLID(#3,#2,#4,10.);
+#6=IFCCARTESIANPOINT((0.,0.,5.));
+#7=IFCAXIS2PLACEMENT3D(#6,$,$);
+#8=IFCPLANE(#7);
+#9=IFCCARTESIANPOINT((3.,0.,0.));
+#10=IFCAXIS2PLACEMENT3D(#9,$,$);
+#11=IFCCARTESIANPOINT((-1.,-1.));
+#12=IFCCARTESIANPOINT((1.,-1.));
+#13=IFCCARTESIANPOINT((1.,1.));
+#14=IFCCARTESIANPOINT((-1.,1.));
+#15=IFCPOLYLINE((#11,#12,#13,#14,#11));
+#16=IFCPOLYGONALBOUNDEDHALFSPACE(#8,.T.,#10,#15);
+#17=IFCBOOLEANCLIPPINGRESULT(.DIFFERENCE.,#5,#16);`);
+  assert.ok(Math.abs(solidVolume(g.item(17)) - (1000 - 2 * 2 * 5)) < 1e-9);
 });
