@@ -8,6 +8,13 @@ description: >-
 stage: prototype
 owner: duncan
 
+# Free edition (2026-11-24, LICENSING_TRANSITION.md "How one product moves",
+# step 1): this public copy is frozen as git tag wall-framing-takeoff-free-v1 and gets
+# lead-magnet maintenance only (fixes, page polish), not new depth; imported into private-monorepo apps/wall-framing-takeoff (PR #8).
+# The paid edition is in development, not for sale; its page is
+# https://marisstella.app/industries/construction/ (early access). Record:
+# portfolio/monetization/transition.py MOVED.
+
 # Started 2026-10-21 on the owner's direction that day: tools that automate part
 # of US new-home construction to drop prices, "a long standing project to work
 # on continually". ROADMAP.md holds the program; this is its first tool.

@@ -87,11 +87,26 @@ OVERRIDES: dict[str, dict[str, str]] = {
 
 COMMONS_PREFIXES = ("open-",)
 
-# Products already imported into the private repository (step 2 of "How one
-# product moves" in LICENSING_TRANSITION.md), with where it landed.
-MOVED: dict[str, str] = {
-    "wall-framing-takeoff": "private-monorepo apps/wall-framing-takeoff (PR #8, 2026-11-24)",
+# Products on their way to the private repository ("How one product moves" in
+# LICENSING_TRANSITION.md). status "moved": imported (step 2) and the public
+# copy frozen as the free edition (step 1); "moving": the free edition is
+# frozen and the import is next. `free_tag` is the git tag of the frozen free
+# edition; `paid_page` is where the paid edition is announced (in development).
+MOVED: dict[str, dict[str, str]] = {
+    "wall-framing-takeoff": {
+        "status": "moved",
+        "where": "private-monorepo apps/wall-framing-takeoff (PR #8, 2026-11-24)",
+        "free_tag": "wall-framing-takeoff-free-v1",
+        "paid_page": "https://marisstella.app/industries/construction/",
+    },
+    "einvoice-preflight": {
+        "status": "moving",
+        "where": "free edition frozen 2026-11-24; import to private-monorepo apps/einvoice-preflight is next",
+        "free_tag": "einvoice-preflight-free-v1",
+        "paid_page": "https://marisstella.app/industries/e-invoicing/",
+    },
 }
+MOVE_STATUSES = ("moving", "moved")
 
 SUBSCRIPTION_FILE = re.compile(r"(^|[-_])(server|api|sync|wrangler)([-_.]|$)|^wrangler\.", re.I)
 SUBSCRIPTION_TEXT = re.compile(
