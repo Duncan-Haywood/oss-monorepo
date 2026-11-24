@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { frameVars, expandTemplate, frameIptc, mergeIptc, readIptc, splitKeywords } from "./iptc.mjs";
+import { frameVars, expandTemplate, frameIptc, mergeIptc, readIptc, splitKeywords, keywordTree, normalizeKeyword, parseCodes, applyCodes } from "./iptc.mjs";
 import { xmpSidecar, mergeXmpSidecar, readXmp } from "./rawpreview.mjs";
 
 const LR = `<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 7.0">
@@ -120,4 +120,50 @@ test("readIptc loads a template from a captioned sidecar", () => {
   const r = readIptc(LR);
   assert.deepEqual(r, { title: "Old title", keywords: ["wedding & rings", "Bride"], city: "Leeds" });
   assert.equal(readIptc("plain text"), null);
+});
+
+test("keywordTree splits paths into levels and keeps flat keywords in the tree", () => {
+  const t = keywordTree(["Sport > Ice hockey", "Sport|Ice hockey|Final", "Leeds", "sport", "Ice hockey"]);
+  assert.deepEqual(t.flat, ["Sport", "Ice hockey", "Final", "Leeds"]);
+  assert.deepEqual(t.paths, ["Sport|Ice hockey", "Sport|Ice hockey|Final", "Leeds"]);
+  assert.deepEqual(keywordTree(["a", "b"]), { flat: ["a", "b"], paths: [] });
+  assert.equal(normalizeKeyword(" Places |  Leeds  | "), "Places|Leeds");
+  assert.equal(normalizeKeyword("Rock>Roll"), "Rock>Roll"); // ">" needs spaces round it to be a level break
+});
+
+test("mergeIptc writes lr:hierarchicalSubject next to every level in dc:subject", () => {
+  const out = mergeIptc(LR, { keywords: ["Sport|Ice hockey", "Bride"] });
+  const back = readIptc(out);
+  assert.deepEqual(back.keywords, ["Sport|Ice hockey", "wedding & rings", "Bride"]);
+  const subj = /<dc:subject>([\s\S]*?)<\/dc:subject>/.exec(out)[1];
+  assert.deepEqual([...subj.matchAll(/<rdf:li>([^<]*)</g)].map((m) => m[1]), ["wedding &amp; rings", "Bride", "Sport", "Ice hockey"]);
+  assert.match(out, /xmlns:lr="http:\/\/ns.adobe.com\/lightroom\/1.0\/"/);
+  const hs = /<lr:hierarchicalSubject>([\s\S]*?)<\/lr:hierarchicalSubject>/.exec(out)[1];
+  assert.deepEqual([...hs.matchAll(/<rdf:li>([^<]*)</g)].map((m) => m[1]), ["Sport|Ice hockey", "wedding &amp; rings", "Bride"]);
+  // A second pass adds to the existing tree without duplicating it.
+  const again = mergeIptc(out, { keywords: ["Sport|Ice hockey|Final", "Places|Leeds"] });
+  assert.deepEqual(readIptc(again).keywords, ["Sport|Ice hockey", "Sport|Ice hockey|Final", "Places|Leeds", "wedding & rings", "Bride"]);
+  assert.equal((again.match(/<lr:hierarchicalSubject>/g) || []).length, 1);
+  // Flat keywords only: no tree is written.
+  assert.doesNotMatch(mergeIptc(LR, { keywords: ["a"] }), /hierarchicalSubject/);
+  assert.match(again, /crs:Exposure2012="\+0.35"/);
+});
+
+test("codes replace \\code\\ in fields, frame keywords and frame captions", () => {
+  const codes = parseCodes("23\tJane Roe (Leeds, 23)\tRoe\nLDS=Leeds United\n\nno separator here\nbad code\tx\n");
+  assert.equal(codes.size, 2);
+  assert.equal(applyCodes("\\23\\ beats \\99\; \\23#2\\, \\23#3\\, \\lds\\", codes), "Jane Roe (Leeds, 23) beats \\99\; Roe, \\23#3\\, Leeds United");
+  const f = frameIptc(
+    { caption: "{caption} {monthname} {day}, {year}.", keywords: "\\LDS\\, Sport|Football", headline: "\\LDS\\ win" },
+    { ...FRAME, caption: "\\23\\ scores {seq}.", keywords: ["\\23#2\\"] },
+    codes,
+  );
+  assert.equal(f.caption, "Jane Roe (Leeds, 23) scores 7. June 14, 2026.");
+  assert.equal(f.headline, "Leeds United win");
+  assert.deepEqual(f.keywords, ["Leeds United", "Sport|Football", "Roe"]);
+  // A frame caption replaces a template caption without {caption}; {caption} with none is dropped.
+  assert.equal(frameIptc({ caption: "General." }, { ...FRAME, caption: "Own." }).caption, "Own.");
+  assert.equal(frameIptc({ caption: "{caption}General." }, FRAME).caption, "General.");
+  // The frame's own text is not expanded twice.
+  assert.equal(frameIptc({ caption: "A {caption}" }, { ...FRAME, caption: "{{year}}" }).caption, "A {2026}");
 });
