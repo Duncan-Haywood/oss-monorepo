@@ -87,6 +87,12 @@ export function splitKeywords(s) {
   return out;
 }
 
+// Entries as written, first spelling kept, duplicates (case ignored) and empties dropped.
+function uniqueCi(list) {
+  const seen = new Set();
+  return list.filter((v) => v && !seen.has(v.toLowerCase()) && seen.add(v.toLowerCase()));
+}
+
 /** "Sport > Ice hockey" or " Sport | Ice  hockey " -> "Sport|Ice hockey"; a flat keyword is trimmed. Empty levels are dropped. */
 export function normalizeKeyword(raw) {
   const parts = String(raw).split(/\||\s>\s/).map((x) => x.trim().replace(/\s+/g, " ")).filter(Boolean);
@@ -308,9 +314,17 @@ export function mergeIptc(text, fields = {}) {
       const p = prefixFor(out, NS[nsKey]), f = p && findProp(out, p, name);
       return !f ? [] : f.form === "attr" ? [unesc(f.inner)] : liValues(f.inner).map((l) => l.value);
     };
-    const t = keywordTree([...have("dc", "subject"), ...have(...HIERARCHY), ...fields.keywords]);
-    fields.keywords = t.flat;
-    if (t.paths.length) fields.hierarchy = t.paths;
+    // A flat keyword already in dc:subject is kept as written, never read as
+    // a path: "Before > After" or "AC|DC" typed in another program is one
+    // keyword, and a "|" must not leak into dc:subject. Only the tree and
+    // the new keywords are parsed for paths.
+    const flatHave = have("dc", "subject");
+    const t = keywordTree([...have(...HIERARCHY), ...fields.keywords]);
+    const paths = t.paths.filter((x) => x.includes("|"));
+    const inPath = new Set(paths.flatMap((x) => x.split("|")).map((x) => x.toLowerCase()));
+    fields.keywords = uniqueCi([...flatHave, ...t.flat]);
+    const flats = [...flatHave, ...t.paths.filter((x) => !x.includes("|"))].filter((k) => !inPath.has(k.toLowerCase()));
+    if (paths.length) fields.hierarchy = uniqueCi([...paths, ...flats]);
   }
   const keys = Object.keys(WRITTEN).filter((k) => (WRITTEN[k][2] === "bag" ? fields[k] && fields[k].length : fields[k]));
   if (!keys.length) return out;
@@ -347,7 +361,7 @@ export function mergeIptc(text, fields = {}) {
     let value = fields[key];
     if (kind === "bag" && f) {
       const have = f.form === "attr" ? [unesc(f.inner)] : liValues(f.inner).map((l) => l.value);
-      value = splitKeywords([...have, ...value]);
+      value = uniqueCi([...have, ...value]);
     }
     if (kind === "alt" && f && f.form === "elem") {
       // Keep other languages; replace x-default (or the only entry).

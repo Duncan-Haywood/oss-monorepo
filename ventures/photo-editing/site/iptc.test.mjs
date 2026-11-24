@@ -167,3 +167,15 @@ test("codes replace \\code\\ in fields, frame keywords and frame captions", () =
   // The frame's own text is not expanded twice.
   assert.equal(frameIptc({ caption: "A {caption}" }, { ...FRAME, caption: "{{year}}" }).caption, "A {2026}");
 });
+
+test("mergeIptc keeps a sidecar's own flat keywords as written: no path parsing, no '|' in dc:subject", () => {
+  const own = `<x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:lr="http://ns.adobe.com/lightroom/1.0/"><dc:subject><rdf:Bag><rdf:li>Events</rdf:li><rdf:li>Wedding</rdf:li><rdf:li>Before &gt; After</rdf:li><rdf:li>AC|DC</rdf:li><rdf:li>two  spaces</rdf:li></rdf:Bag></dc:subject><lr:hierarchicalSubject><rdf:Bag><rdf:li>Events|Wedding</rdf:li></rdf:Bag></lr:hierarchicalSubject></rdf:Description></rdf:RDF></x:xmpmeta>`;
+  const out = mergeIptc(own, { keywords: ["Events|wedding", "People|Bride"] });
+  const bag = (name) => [...out.match(new RegExp(`<${name}>([\\s\\S]*?)</${name}>`))[1].matchAll(/<rdf:li>([^<]*)<\/rdf:li>/g)].map((m) => m[1]);
+  assert.deepEqual(bag("dc:subject"), ["Events", "Wedding", "Before &gt; After", "AC|DC", "two  spaces", "People", "Bride"]);
+  assert.deepEqual(bag("lr:hierarchicalSubject"), ["Events|Wedding", "People|Bride", "Before &gt; After", "AC|DC", "two  spaces"]);
+  // With no path anywhere, nothing is rewritten and no tree is added.
+  const flat = mergeIptc(own.replace(/<lr:hierarchicalSubject>[\s\S]*<\/lr:hierarchicalSubject>/, ""), { keywords: ["new"] });
+  assert.ok(!/hierarchicalSubject/.test(flat));
+  assert.match(flat, /<rdf:li>Before &gt; After<\/rdf:li>/);
+});
