@@ -1,0 +1,40 @@
+:root { --ink: #1b1f2a; --head: #3b2a14; --muted: #54503f; --bg: #f3f4f1; --card: #fff; --line: #dad6c8; --rule: #e8e4d6; --accent: #7a3e0a; --soft: #efe8d8; --input: #b9b39c; font: 16px/1.55 system-ui, sans-serif; color: var(--ink); background: var(--bg); }
+@media (prefers-color-scheme: dark) {
+  :root { --ink: #e9e6dc; --head: #f3e3c4; --muted: #b8b19b; --bg: #17150f; --card: #221f17; --line: #3d382a; --rule: #332f23; --accent: #e8a45f; --soft: #3a3121; --input: #5c5540; }
+}
+body { max-width: 1040px; margin: auto; padding: 28px; background: var(--bg); }
+a { color: var(--accent); }
+h1 { font-size: clamp(1.8rem, 4.8vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: var(--head); }
+h2 { font-size: 1.2rem; margin: 26px 0 10px; color: var(--head); }
+.card h2:first-child { margin-top: 0; }
+h3 { font-size: 1rem; margin: 18px 0 4px; }
+.kicker, .note, footer { font-size: .86rem; color: var(--muted); }
+.kicker { letter-spacing: .05em; text-transform: uppercase; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px; margin: 18px 0; }
+nav.guides { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .92rem; margin: 6px 0 18px; }
+label { display: block; font-weight: 600; margin: 10px 0 4px; }
+input { width: 100%; box-sizing: border-box; padding: 8px 9px; border: 1px solid var(--input); border-radius: 7px; font: 15px system-ui, sans-serif; background: var(--card); color: var(--ink); }
+table.sov-input { table-layout: fixed; min-width: 820px; }
+table.sov-input td input { width: 100%; min-width: 0; padding: 6px 7px; font-size: 14px; }
+table.sov-input th { white-space: normal; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+button { border: 0; border-radius: 8px; padding: 10px 14px; background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; margin: 12px 8px 0 0; font: 700 15px system-ui, sans-serif; }
+@media (prefers-color-scheme: dark) { button { color: #17150f; } }
+button.secondary { background: var(--soft); color: var(--head); }
+button.x { background: transparent; color: var(--muted); margin: 0; padding: 4px 8px; }
+table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+th, td { text-align: left; padding: 8px 7px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-size: .74rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr.total td { font-weight: 700; border-top: 2px solid var(--head); }
+.scroll { overflow-x: auto; }
+.due { font-size: 1.7rem; font-weight: 800; color: var(--head); }
+.finding { padding: 6px 0; }
+.pill { display: inline-block; font-size: .68rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: var(--soft); color: var(--head); }
+.pill.high { background: #fde8e8; color: #9a3412; }
+pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px; overflow-x: auto; }
+.cta { border: 2px solid var(--accent); }
+.cta h2 { margin-top: 0; }
+footer { margin-top: 28px; border-top: 1px solid var(--line); padding-top: 16px; }
+@media (max-width: 720px) { body { padding: 16px; } }
+@media print { body { background: #fff; color: #000; padding: 0; } .card { border: 0; } button, nav, footer, .cta, #inputs { display: none; } }
