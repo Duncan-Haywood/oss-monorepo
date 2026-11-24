@@ -1576,6 +1576,12 @@ function computeAreas(type, solids, W, f) {
       if (P) out.plan.planes = P.map((p) => p.area * f2);
     }
   }
+  // the whole skin of a steel part (coatingArea): net of its openings and
+  // holes when the cut body can be summed face by face, else the uncut body
+  if (COATED_CLASS.test(type)) {
+    const g = surfaceArea(body), nt = net && net !== body ? surfaceArea(net) : null;
+    if (g != null) out.surface = { gross: g * f2, net: nt == null ? null : nt * f2 };
+  }
   if (AREA_KINDS.cross.test(type)) {
     // a faceted member has no extrusion: its length runs along the face
     // normal (an end face's) in whose direction the body is longest
@@ -1623,6 +1629,37 @@ export function memberLength(type, body, f) {
 export const STEEL_DENSITY = 7850;
 const STEEL_NAME = /\b(steel|stahl|staal|acier|acero|acciaio|stål|teräs|stal|metal\s*-\s*steel|s(?:185|235|275|355|420|450|460|690)(?:[a-z0-9+]*)|a(?:36|500|572|588|913|992)|q(?:235|345|355)[a-z]*|ss400|sm490)\b/i;
 const NOT_STEEL = /concrete|beton|béton|hormig|calcestruzzo|timber|wood|holz|hout|glulam|stainless|inox|edelstahl|rvs|alumin|fibre|fiber|faser|reinforc|rebar|bewehr|wapening|neoprene|rubber|elastomer|grout|mortar|paint|coating|insulat|isol/i;
+
+// ---- coating area -----------------------------------------------------------
+//
+// The area a painter, galvaniser or fire-protection applicator prices on
+// structural steel: every face of the part, ends and edges included (Tekla
+// writes this figure as a beam's or column's OuterSurfaceArea and as a
+// plate's NetArea: eval/coating-area-2026-11-24.md). Only steel parts of
+// the framing classes; bars, tendons, ducts and fasteners are not coated.
+export const COATED_CLASS = /^IFC(BEAM|COLUMN|MEMBER|PLATE|PILE|RAILING|STAIRFLIGHT)/;
+
+/**
+ * A steel part's coating area in m2 and where it came from, or null when the
+ * part is not a coated steel part. Source order: the body's own faces
+ * ("computed"), then a stored whole-skin figure ("stored": OuterSurfaceArea,
+ * GrossSurfaceArea, or a plate NetArea explainAreas named whole-surface).
+ * `stored` / `agree` report the stored skin beside the computed one.
+ */
+export function coatingArea(r) {
+  if (!COATED_CLASS.test(r.ifcType ?? "") || !isSteel(r.material)) return null;
+  const S = r.computed?.status === "ok" ? r.computed.areas?.surface : null;
+  const computed = S ? S.net ?? S.gross : null;
+  let stored = null, storedName = null;
+  for (const [k, q] of Object.entries(r.stored || {})) {
+    if (q.kind === "area" && /^(outer|gross|net)surfacearea$/i.test(k.replace(/\s+/g, ""))) { stored = q.value; storedName = k; break; }
+  }
+  if (stored == null) for (const [k, c] of Object.entries(r.areaCheck || {})) if (c.reason === "whole-surface" && c.surface != null) { stored = c.surface; storedName = k; break; }
+  const agree = computed != null && stored != null ? Math.abs(computed - stored) <= 0.02 * Math.max(computed, stored) : null;
+  if (computed != null) return { area: computed, source: "computed", holes: S.net != null, stored, storedName, agree };
+  if (stored != null) return { area: stored, source: "stored", holes: null, stored, storedName, agree };
+  return { area: null, source: null, holes: null, stored: null, storedName: null, agree: null };
+}
 
 const NOT_REBAR_STEEL = /gfrp|frp|glass|basalt|carbon|aramid|fibre|fiber|faser|stainless|inox|edelstahl|rvs|alumin|timber|wood/i;
 
@@ -1782,7 +1819,7 @@ export function boq(rows, by = ["class", "type"], rule = null, opts = {}) {
     const key = by.map((k) => GROUP_KEYS[k](r));
     const k = JSON.stringify(key);
     let L = lines.get(k);
-    if (!L) { L = { key, count: 0, volume: 0, volumeStored: 0, volumeComputed: 0, volumeMissing: 0, area: 0, areaComputed: 0, length: 0, weight: 0, lengthComputed: 0, weightComputed: 0, lengthMissing: 0, weightMissing: 0, disagree: 0, voidsLeft: 0, areaChange: 0, volumeChange: 0, ruleSkipped: 0, volumeDoubt: { count: 0, stored: 0, computed: 0 }, areaDoubt: { count: 0, stored: 0, computed: 0 } }; lines.set(k, L); }
+    if (!L) { L = { key, count: 0, volume: 0, volumeStored: 0, volumeComputed: 0, volumeMissing: 0, area: 0, areaComputed: 0, length: 0, weight: 0, lengthComputed: 0, weightComputed: 0, lengthMissing: 0, weightMissing: 0, disagree: 0, voidsLeft: 0, areaChange: 0, volumeChange: 0, ruleSkipped: 0, volumeDoubt: { count: 0, stored: 0, computed: 0 }, areaDoubt: { count: 0, stored: 0, computed: 0 }, coating: 0, coatingStored: 0, coatingMissing: 0, coatingDisagree: 0 }; lines.set(k, L); }
     const q = measured ? applyRule(r, rowQuantities(r, opts), rule) : rowQuantities(r, opts);
     for (const [d, D] of [[q.volumeDoubt, L.volumeDoubt], [q.areaDoubt, L.areaDoubt]]) if (d) { D.count++; D.stored += d.stored; D.computed += d.computed; }
     if (measured) { L.voidsLeft += q.voidsLeft; L.areaChange += q.areaChange; L.volumeChange += q.volumeChange; if (q.ruleNotes.length) L.ruleSkipped++; }
@@ -1791,6 +1828,8 @@ export function boq(rows, by = ["class", "type"], rule = null, opts = {}) {
     if (q.area != null) { L.area += q.area; if (q.areaSource === "computed") L.areaComputed++; }
     if (q.length != null) { L.length += q.length; if (q.lengthSource === "computed") L.lengthComputed++; } else if (LINEAR_CLASS.test(r.ifcType)) L.lengthMissing++;
     if (q.weight != null) { L.weight += q.weight; if (q.weightSource !== "stored") L.weightComputed++; } else if (LINEAR_CLASS.test(r.ifcType)) L.weightMissing++;
+    const ca = coatingArea(r);
+    if (ca) { if (ca.area != null) { L.coating += ca.area; if (ca.source === "stored") L.coatingStored++; } else L.coatingMissing++; if (ca.agree === false) L.coatingDisagree++; }
     if ((r.check && ((r.check.gross && !r.check.gross.agree) || (r.check.net && !r.check.net.agree))) || Object.values(r.areaCheck || {}).some((c) => !c.agree)) L.disagree++;
   }
   return [...lines.values()].sort((a, b) => a.key.join("\u0000").localeCompare(b.key.join("\u0000")));
@@ -1810,15 +1849,15 @@ const doubtCells = (D) => (D && D.count ? [D.count, D.stored, D.computed] : [0, 
 /** `opts.unexplained` labels which figure the lines summed for rows in doubt. */
 export function boqCsv(lines, by, rates = {}, rule = null, opts = {}) {
   const measured = ruleActive(rule);
-  const head = [...by.map(keyLabel), "Count", "Volume m3", "Area m2", "Length m", "Weight kg", "Volume from model's stored quantities", "Volume computed here", "No volume", "Areas computed here", "Rows where stored and computed disagree", "Rate", "Rate unit", "Amount", "Lengths computed here", "Weights from steel density (7850 kg/m3)", "Members with no length", "Members with no weight", "Volumes in doubt (disagree for no known cause)", "Their stored volume m3", "Their geometry volume m3", "Areas in doubt (disagree for no known cause)", "Their stored area m2", "Their geometry area m2", "Summed for those"];
+  const head = [...by.map(keyLabel), "Count", "Volume m3", "Area m2", "Length m", "Weight kg", "Volume from model's stored quantities", "Volume computed here", "No volume", "Areas computed here", "Rows where stored and computed disagree", "Rate", "Rate unit", "Amount", "Lengths computed here", "Weights from steel density (7850 kg/m3)", "Members with no length", "Members with no weight", "Volumes in doubt (disagree for no known cause)", "Their stored volume m3", "Their geometry volume m3", "Areas in doubt (disagree for no known cause)", "Their stored area m2", "Their geometry area m2", "Summed for those", "Coating area m2 (steel parts' whole surface)", "Coating areas from stored figures", "Steel parts with no coating area", "Coating areas where stored and geometry disagree"];
   if (measured) head.push(`Voids not deducted (${ruleLabel(rule)})`, "Area added back m2", "Volume added back m3", "Rows the rule could not adjust");
   const out = [head.map(csvCell).join(",")];
   for (const L of lines) {
     const k = JSON.stringify(L.key);
     const rate = rates[k];
     let amount = null;
-    if (rate && Number.isFinite(rate.rate)) amount = rate.rate * ({ each: L.count, m3: L.volume, m2: L.area, m: L.length, kg: L.weight }[rate.unit] ?? 0);
-    const cells = [...L.key, L.count, L.volume, L.area, L.length, L.weight, L.volumeStored, L.volumeComputed, L.volumeMissing, L.areaComputed, L.disagree, rate ? rate.rate : null, rate ? rate.unit : null, amount, L.lengthComputed, L.weightComputed, L.lengthMissing, L.weightMissing, ...doubtCells(L.volumeDoubt), ...doubtCells(L.areaDoubt), L.volumeDoubt?.count || L.areaDoubt?.count ? (opts.unexplained === "geometry" ? "geometry" : "stored") : null];
+    if (rate && Number.isFinite(rate.rate)) amount = rate.rate * ({ each: L.count, m3: L.volume, m2: L.area, m: L.length, kg: L.weight, "m2 coat": L.coating }[rate.unit] ?? 0);
+    const cells = [...L.key, L.count, L.volume, L.area, L.length, L.weight, L.volumeStored, L.volumeComputed, L.volumeMissing, L.areaComputed, L.disagree, rate ? rate.rate : null, rate ? rate.unit : null, amount, L.lengthComputed, L.weightComputed, L.lengthMissing, L.weightMissing, ...doubtCells(L.volumeDoubt), ...doubtCells(L.areaDoubt), L.volumeDoubt?.count || L.areaDoubt?.count ? (opts.unexplained === "geometry" ? "geometry" : "stored") : null, ...(L.coating || L.coatingMissing ? [L.coating, L.coatingStored, L.coatingMissing, L.coatingDisagree] : [null, null, null, null])];
     if (measured) cells.push(L.voidsLeft, L.areaChange, L.volumeChange, L.ruleSkipped);
     out.push(cells.map(csvCell).join(","));
   }

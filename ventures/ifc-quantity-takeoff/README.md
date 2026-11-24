@@ -11,8 +11,12 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
 - **A bill of quantities** grouped by class, type, storey, material,
   classification code or **Uniformat II element** (an elemental estimate:
   A1010 Standard Foundations, B2010 Exterior Walls, C1010 Partitions ...): count, volume (m3), area (m2), length (m) and weight
-  (kg) per line. Type a rate on a line (per each, m3, m2, m or kg) and the page
-  prices it and totals the priced lines. Download as CSV.
+  (kg) per line, and for steel a **coating area** (m2): every face of each
+  steel beam, column, member, plate, pile, railing or stair flight, ends and
+  edges included, the area a painter, galvaniser or fire-protection
+  applicator prices. Type a rate on a line (per each, m3, m2, m, kg or
+  "m2 coat") and the page prices it and totals the priced lines. Download as
+  CSV.
 - **A room schedule.** Every room (IfcSpace) measured from its own solid:
   floor area and perimeter cut 1 cm above its floor, height, wall area
   (perimeter x height, before doors and windows), volume, each checked

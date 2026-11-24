@@ -80,7 +80,7 @@ test("CSV: rates multiply out, and spreadsheet formulas in names are neutralised
   const k = JSON.stringify(["IfcSlab"]);
   const csv = boqCsv(lines, ["class"], { [k]: { rate: 150, unit: "m3" } });
   const row = csv.split("\r\n").find((l) => l.startsWith("IfcSlab"));
-  assert.match(row, /,150,m3,750,0,0,0,0,0,,,0,,,$/);
+  assert.match(row, /,150,m3,750,0,0,0,0,0,,,0,,,,,,,$/);
   const res = sample();
   res.rows[0].name = "=HYPERLINK(\"x\")";
   assert.match(rowsCsv(res.rows), /"'=HYPERLINK\(""x""\)"/);
@@ -1151,7 +1151,7 @@ test("steel: a member with no quantity set gets its length from the body and its
   // a per-kg rate now prices the bare steel beam
   const csv = boqCsv(lines, ["class", "material"], { [JSON.stringify(steel.key)]: { rate: 2, unit: "kg" } });
   const row = csv.split("\r\n").find((l) => l.includes("S355JR") && l.startsWith("IfcBeam"));
-  assert.match(row, /,6,942,.*,2,kg,1884,1,1,0,0,0,,,0,,,$/);
+  assert.match(row, /,6,942,.*,2,kg,1884,1,1,0,0,0,,,0,,,,3.64,0,0,0$/);
   for (const m of ["Steel", "STEEL/S235JR", "Stahl S235", "ASTM A992", "Structural Steel - S275", "05 Staal_bordes_hoeklijnen"]) assert.ok(isSteel(m), m);
   for (const m of [null, "Concrete / Steel", "STEEL/NEOPRENE", "Stainless steel", "Steel fibre concrete", "Timber", "Aluminium"]) assert.ok(!isSteel(m), String(m));
 });
@@ -1815,4 +1815,52 @@ test("explanations: a holed Revit wall's GrossSideArea is one face net of its op
   // no openings: a net face cannot be why
   assert.notEqual(rows[1].areaCheck.GrossSideArea.reason, "net-on-a-face");
   assert.equal(rows[2].areaCheck.GrossSideArea.reason, "unexplained");
+});
+
+test("coating: a steel part's whole surface is its coating area, priced per m2 coat; concrete has none", async () => {
+  const { coatingArea } = await import("./qto.mjs");
+  const res = takeoff(parseStep(bareBeams));
+  const [S, C, K] = res.rows;
+  // 100 x 200 x 6000: four sides 2 x 0.3 x 6 plus two ends 0.02 each
+  const cs = coatingArea(S);
+  close(cs.area, 3.64); assert.equal(cs.source, "computed"); assert.equal(cs.stored, null);
+  assert.equal(coatingArea(C), null, "a concrete beam is not coated");
+  // the column stores a 2.95 m length; its coating is read off its 3 m body
+  close(coatingArea(K).area, 1.84);
+  const lines = boq(res.rows, ["material"]);
+  const steel = lines.find((l) => l.key[0] === "S355JR"), conc = lines.find((l) => l.key[0] === "Concrete C30/37");
+  close(steel.coating, 3.64 + 1.84); assert.equal(steel.coatingMissing, 0);
+  assert.equal(conc.coating, 0); assert.equal(conc.coatingMissing, 0);
+  const csv = boqCsv(lines, ["material"], { [JSON.stringify(steel.key)]: { rate: 10, unit: "m2 coat" } });
+  const rows = csv.split("\r\n");
+  assert.ok(rows[0].includes("Coating area m2 (steel parts' whole surface)"));
+  const sr = rows.find((l) => l.startsWith("S355JR")).split(",");
+  assert.equal(sr[rows[0].split(",").indexOf("Amount")], "54.8");
+  // a line with no steel parts leaves the coating cells empty
+  assert.match(rows.find((l) => l.startsWith("Concrete")), /,,,,$/);
+});
+
+test("coating: a stored skin stands in when the body gives none, and a disagreeing one is counted", async () => {
+  const { coatingArea, boq } = await import("./qto.mjs");
+  const base = { ifcType: "IFCBEAM", ifcClass: "IfcBeam", material: "STEEL/S235JR", type: null, storey: null };
+  // no geometry read: Tekla's OuterSurfaceArea is summed
+  const a = { ...base, id: 1, stored: { OuterSurfaceArea: { kind: "area", value: 8.55 } }, computed: { status: "not read" } };
+  assert.deepEqual([coatingArea(a).area, coatingArea(a).source], [8.55, "stored"]);
+  // geometry read and agreeing with the stored skin (M3D-CON #7619, to 1e-12)
+  const b = { ...base, id: 2, stored: { OuterSurfaceArea: { kind: "area", value: 8.55274825676747 } }, computed: { status: "ok", areas: { surface: { gross: 8.55274825677029, net: null } } } };
+  assert.equal(coatingArea(b).agree, true); assert.equal(coatingArea(b).source, "computed");
+  // M3D-CON-CD #493775's bottom part: stored 0.00533, its faces 0.00805
+  const c = { ...base, ifcType: "IFCCOLUMN", id: 3, stored: { OuterSurfaceArea: { kind: "area", value: 0.00532973256899668 } }, computed: { status: "ok", areas: { surface: { gross: 0.008053351810948543, net: null } } } };
+  assert.equal(coatingArea(c).agree, false); close(coatingArea(c).area, 0.008053351810948543);
+  // a Tekla plate whose NetArea explainAreas named whole-surface
+  const p = { ...base, ifcType: "IFCPLATE", ifcClass: "IfcPlate", id: 4, stored: { NetArea: { kind: "area", value: 28.299 } }, areaCheck: { NetArea: { reason: "whole-surface", surface: 28.299, trust: false } }, computed: { status: "not read" } };
+  assert.equal(coatingArea(p).area, 28.299); assert.equal(coatingArea(p).storedName, "NetArea");
+  // a steel part with nothing to read is counted as missing
+  const d = { ...base, id: 5, stored: {}, computed: { status: "not read" } };
+  const [L] = boq([a, b, c, p, d], ["material"]);
+  close(L.coating, 8.55 + 8.55274825677029 + 0.008053351810948543 + 28.299);
+  assert.deepEqual([L.coatingStored, L.coatingMissing, L.coatingDisagree], [2, 1, 1]);
+  // bars and fasteners are not coated
+  assert.equal(coatingArea({ ...base, ifcType: "IFCREINFORCINGBAR" }), null);
+  assert.equal(coatingArea({ ...base, ifcType: "IFCMECHANICALFASTENER" }), null);
 });

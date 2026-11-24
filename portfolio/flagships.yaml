@@ -620,9 +620,9 @@ flagships:
       unexplained areas (eval/curved-and-faces-2026-11-22.md, The 14 left); figures
       in doubt (node eval/in-doubt.mjs; HHS walls and Tekla plates named 2026-11-24,
       eval/split-held-2026-11-24.md): 1 volume, 3 areas left (net-on-a-face
-      2026-11-24; eval/net-on-a-face-2026-11-24.md); a coating-area BoQ column from
-      whole-surface; revisions: EngiWorld's Archicad gui and cross-software pairs
-      (eval/engiworld-archicad-diff-2026-11-23.md, Left).
+      2026-11-24; eval/net-on-a-face-2026-11-24.md); revisions: EngiWorld's Archicad
+      gui and cross-software pairs (eval/engiworld-archicad-diff-2026-11-23.md,
+      Left).
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/; search guides 2026-11-22. its
