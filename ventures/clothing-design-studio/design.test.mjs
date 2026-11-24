@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { newDesign, applyOp, History, variants, splitSizes, encodeDesign, decodeDesign, sanitizeDesign, OpError, SIZES } from "./design.mjs";
+import { COLOURS } from "./catalogue.mjs";
 import { GARMENTS } from "./catalogue.mjs";
 
 const withHalo = () => applyOp(newDesign(), { op: "add", kind: "motif", motif: "halo", w: 20 });
@@ -93,4 +94,40 @@ test("an uploaded image keeps its original pixel size for the print check, throu
   assert.deepEqual(back.placements[0].srcPx, { w: 3000, h: 3750 });
   d = applyOp(newDesign(), { op: "add", kind: "image", src: "data:image/png;base64,AA", srcPx: { w: -1, h: "x" } });
   assert.equal(d.placements[0].srcPx, undefined);
+});
+
+test("alternatives: first colour from the sheet's stock list when it has one", async () => {
+  const { EXAMPLE_SUPPLIER } = await import("./suppliers.mjs");
+  const d = withHalo(); // black heavyweight cotton
+  assert.equal(variants(d)[0].design.colourName, "cream");
+  const [v] = variants(d, { sheet: EXAMPLE_SUPPLIER });
+  assert.equal(v.design.colourName, "off white");
+  assert.equal(v.stocked, true);
+  assert.match(v.why, /Stocked in/);
+  assert.equal(v.design.placements[0].ink, "#2a1d0e"); // dark ink on a light garment
+});
+
+test("alternatives: no opposite-lightness stock falls back to the furthest stocked colour", () => {
+  const sheet = { fabrics: { "heavyweight-cotton": 8 }, colours: [{ name: "black", hex: COLOURS.black, fabrics: null }, { name: "navy", hex: COLOURS.navy, fabrics: null }, { name: "bottle green", hex: "#1d4a33", fabrics: null }] };
+  const [v] = variants(withHalo(), { sheet });
+  assert.ok(["navy", "bottle green"].includes(v.design.colourName));
+  assert.equal(v.stocked, true);
+  assert.match(v.why, /stocks no light colour/);
+  assert.equal(v.design.placements[0].ink, "#e9cf8f"); // light ink stays readable on a dark garment
+});
+
+test("alternatives: a sheet stocking only the current colour marks the pool colour dyed to order", () => {
+  const sheet = { fabrics: { "heavyweight-cotton": 8 }, colours: [{ name: "black", hex: COLOURS.black, fabrics: null }] };
+  const v = variants(withHalo(), { sheet });
+  assert.equal(v[0].design.colourName, "cream");
+  assert.equal(v[0].stocked, false);
+  assert.match(v[0].why, /dyed to order/);
+});
+
+test("alternatives: the fabric alternative says when the colour is not stocked in it", () => {
+  const sheet = { fabrics: { "heavyweight-cotton": 8, "organic-cotton": 7 }, colours: [{ name: "black", hex: COLOURS.black, fabrics: ["heavyweight-cotton"] }, { name: "off white", hex: COLOURS["off white"], fabrics: null }] };
+  const v = variants(newDesign(), { sheet });
+  assert.equal(v[2].design.fabric, "organic-cotton");
+  assert.equal(v[2].stocked, false);
+  assert.match(v[2].why, /does not stock black/);
 });
