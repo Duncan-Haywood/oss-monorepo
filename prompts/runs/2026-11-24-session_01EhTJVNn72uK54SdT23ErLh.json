@@ -47,7 +47,7 @@
     "docs/reports/polish-2026-11-24-league-ebay-babysitting-titles.md"
   ],
   "goal": null,
-  "notes": "check_title_meta.py: long-title 1088 -> 1059, no-description 17 -> 0 (4235 pages). Nine no-description pages were noindex samples; the checker now skips noindex pages (test added, run by hand: no pytest in container). Eight internal viability reports marked noindex. Title baseline refreshed with title-length.mjs --write. Local results for the venture suites are in the PR's CI.",
+  "notes": "check_title_meta.py: long-title 1088 -> 1059, no-description 17 -> 0 (4235 pages). Nine no-description pages were noindex samples; the checker now skips noindex pages (test added, run by hand: no pytest in container). Eight internal viability reports marked noindex. Title baseline refreshed with title-length.mjs --write. Local: league-schedule-generator 1023 pass, ebay-fee-calculator 505 pass, babysitting-business-kit 334 pass, platform/pages/title-length.test.mjs 4 pass; 0 fail.",
   "corrections": [],
   "redteam": null
 }
