@@ -1,9 +1,9 @@
 ---
-title: "A 40% margin floor for our paid plans, and what it did to Grant Autopilot's prices"
+title: "A 40% margin floor for our subscriptions, and what it did to Grant Autopilot's prices"
 seo_title: "A 40% margin floor for AI subscription plans"
 date: 2026-11-24
-tags: [portfolio, monetization, pricing, saas, llm-costs]
-description: "Every paid plan must now keep at least a 40% margin at full use, checked by a unit test. Grant Autopilot moves from $5/$20/$100 to $10/$29/$149."
+tags: [portfolio, monetization, pricing, saas, llm-cost]
+description: "Every subscription tier must now keep at least a 40% margin at full use, checked by a unit test. Grant Autopilot moves from $5/$20/$100 to $10/$29/$149."
 ---
 
 Our paid products now have a margin rule. Every paid plan has to keep **at
