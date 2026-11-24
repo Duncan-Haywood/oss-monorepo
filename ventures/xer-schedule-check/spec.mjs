@@ -58,7 +58,7 @@ export const RULES = [
   { key: "contractValue", type: "number", label: "Contract value the budget must sum to", unit: "currency" },
   { key: "valueTolerancePct", type: "number", label: "Tolerance on the contract value", unit: "%", hint: "default 0.5" },
   { key: "maxActivityValuePct", type: "number", label: "Most of the budget on one activity", unit: "%" },
-  { key: "milestones", type: "text", label: "Contract milestones that must be in the schedule", hint: "one per line; matched to a milestone's name or ID, case and spacing ignored" },
+  { key: "milestones", type: "text", label: "Contract milestones that must be in the schedule", hint: "one per line; matched to a milestone's ID or whole words of its name, case and spacing ignored" },
   { key: "retainedLogic", type: "bool", label: "Scheduled with retained logic (not progress override)" },
   { key: "minActivities", type: "number", label: "Fewest activities", unit: "activities" },
   { key: "maxActivities", type: "number", label: "Most activities", unit: "activities" },
@@ -324,10 +324,12 @@ export function specCheck(xer, rules0, { model: model0 = null, projId = null } =
     const found = [];
     for (const want of list(rules.milestones)) {
       const w = norm(want);
-      const hit = ms.find((t) => norm(t.name) === w || norm(t.code) === w) || ms.find((t) => norm(t.name).includes(w) || (w && norm(t.code) === w));
+      // whole words only: "Milestone 1" must not be met by "Milestone 12"
+      const words = (s) => w !== "" && ` ${norm(s)} `.includes(` ${w} `);
+      const hit = w === "" ? null : ms.find((t) => norm(t.name) === w || norm(t.code) === w) || ms.find((t) => words(t.name));
       if (hit) found.push(`${want} = ${hit.code}`);
       else {
-        const near = acts.find((t) => norm(t.name).includes(w));
+        const near = acts.find((t) => words(t.name));
         items.push({ code: "", name: want, why: near ? `no milestone by this name; ${near.code} "${near.name}" matches but is not a milestone` : "no milestone by this name or ID" });
       }
     }

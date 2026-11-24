@@ -210,3 +210,47 @@ test("typed numbers: commas read by shape, not stripped", () => {
   assert.ok(Number.isNaN(readNumber("12,3456")));
   assert.equal(parseRules({ contractValue: "12,3456" }).problems.length, 1);
 });
+
+test("milestones: a required name matches whole words, so 'Milestone 1' is not met by 'Milestone 12'", () => {
+  const b = BASE();
+  b.tasks[4].task_name = "Milestone 12 complete";
+  b.tasks.push(task("M1X", { task_type: "TT_Task", task_name: "Milestone 1 paperwork" }));
+  const r = specCheck(build(b), { milestones: ["Milestone 1", "Milestone 12", "Notice"] });
+  const x = res(r, "milestones");
+  assert.deepEqual(x.items.map((i) => i.name), ["Milestone 1"]);
+  assert.match(x.items[0].why, /M1X "Milestone 1 paperwork" matches but is not a milestone/);
+  assert.match(x.text, /1 of 3/);
+  // a want that normalises to nothing must not match the first milestone it sees
+  assert.equal(res(specCheck(build(BASE()), { milestones: ["---"] }), "milestones").status, "fail");
+});
+
+test("maxDuration items are listed longest first", () => {
+  const b = BASE();
+  b.tasks[1].target_drtn_hr_cnt = 96; b.tasks[2].target_drtn_hr_cnt = 160; b.tasks[3].target_drtn_hr_cnt = 120;
+  const x = res(specCheck(build(b), { maxDuration: 10 }), "maxDuration");
+  assert.deepEqual(x.items.map((i) => i.code), ["B", "C", "A"]);
+});
+
+test("costLoaded: an assignment budgeted at zero is not cost loading", () => {
+  const b = BASE();
+  b.extra = {
+    RSRC: [{ rsrc_id: "R1", rsrc_type: "RT_Labor" }],
+    TASKRSRC: [{ taskrsrc_id: "1", task_id: "A", rsrc_id: "R1", target_cost: 0 }, { taskrsrc_id: "2", task_id: "B", rsrc_id: "R1", target_cost: 5 }, { taskrsrc_id: "3", task_id: "C", rsrc_id: "R1", target_cost: 5 }],
+  };
+  const r = specCheck(build(b), { costLoaded: true, resourceLoaded: true });
+  assert.deepEqual(res(r, "costLoaded").items.map((i) => i.code), ["A"]);
+  assert.equal(res(r, "resourceLoaded").status, "pass");
+});
+
+test("rulesJson leaves out rules switched off and empty lists, keeps an empty constraint list", () => {
+  const o = JSON.parse(rulesJson({ noLeads: false, requiredCodes: [], allowedConstraints: [], maxLag: 5 }));
+  assert.deepEqual(o, { maxLag: 5, allowedConstraints: [] });
+});
+
+test("HTML: a note result shows a note pill, not 'not met'", () => {
+  const r = specCheck(build(BASE()), { maxActivityValuePct: 10 });
+  assert.equal(res(r, "maxActivityValuePct").status, "note");
+  const h = specTableHtml(r);
+  assert.match(h, /pill warn">note</);
+  assert.ok(!/not met/.test(h));
+});
