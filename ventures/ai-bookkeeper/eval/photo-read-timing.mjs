@@ -28,19 +28,18 @@ const local = (u) => {
   const m = u.match(/\/npm\/(@?[^@/]+(?:\/[^@/]+)?)@([\d.]+)\/(.*)$/); if (!m) return null;
   return join(unpacked, m[1].replace("@", "").replace("/", "-") + "-" + m[2], m[3]);
 };
-// a request path resolved inside base; anything that climbs out (../, an absolute path) is refused
-const inside = (base, rel) => {
-  const b = resolve(base), p = resolve(b, rel.replace(/^\/+/, ""));
-  if (p !== b && !p.startsWith(b + sep)) throw new Error("outside the served folder");
-  return p;
-};
 const types = { ".html": "text/html", ".mjs": "text/javascript", ".js": "text/javascript" };
 const server = createServer(async (req, res) => {
   const url = decodeURIComponent(req.url.split("?")[0]);
   try {
-    if (url.startsWith("/photo/")) return res.writeHead(200, { "content-type": "image/jpeg" }).end(await readFile(inside(src, url.slice(7))));
     if (url === "/") return res.writeHead(200, { "content-type": "text/html" }).end("<!doctype html><title>timing</title>");
-    const p = inside(root, url); res.writeHead(200, { "content-type": types[extname(p)] || "text/plain" }).end(await readFile(p));
+    // the request path resolved inside the photos folder (/photo/...) or the venture folder;
+    // anything that climbs out (../, an absolute path) is refused (the folder itself is no file either)
+    const photo = url.startsWith("/photo/");
+    const b = resolve(photo ? src : root), p = resolve(b, (photo ? url.slice(7) : url).replace(/^\/+/, ""));
+    if (!p.startsWith(b + sep)) throw new Error("outside the served folder");
+    if (photo) return res.writeHead(200, { "content-type": "image/jpeg" }).end(await readFile(p));
+    res.writeHead(200, { "content-type": types[extname(p)] || "text/plain" }).end(await readFile(p));
   } catch { res.writeHead(404).end(); }
 });
 await new Promise((r) => server.listen(0, "127.0.0.1", r));

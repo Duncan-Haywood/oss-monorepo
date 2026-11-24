@@ -5,7 +5,7 @@
 import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
 import { readFile, stat } from 'node:fs/promises';
-import { join, resolve, extname, sep } from 'node:path';
+import { join, resolve, extname, sep, relative, isAbsolute } from 'node:path';
 
 export const MIME = {
   '.html': 'text/html; charset=utf-8', '.htm': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
@@ -30,8 +30,12 @@ export async function serveStatic(dir, { port = 0 } = {}) {
   const root = resolve(dir);
   if (!(await stat(root).catch(() => null))?.isDirectory()) throw new Error(`--serve: ${dir} is not a directory`);
   const server = createServer(async (req, res) => {
-    let file = safePath(root, req.url || '/');
-    if (!file || !(file === root || file.startsWith(root + sep))) { res.writeHead(403).end(); return; }
+    const full = safePath(root, req.url || '/');
+    if (!full) { res.writeHead(403).end(); return; }
+    // Checked again where the file is read: the resolved path must not climb out of root.
+    const rel = relative(root, full);
+    if (rel === '..' || rel.startsWith('..' + sep) || isAbsolute(rel)) { res.writeHead(403).end(); return; }
+    let file = full;
     try {
       const s = await stat(file).catch(() => null);
       if (s?.isDirectory()) {
