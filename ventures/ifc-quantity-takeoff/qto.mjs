@@ -1633,7 +1633,7 @@ function computeAreas(type, solids, W, f) {
       out.plan.faces = { gross: [a.gross, b.gross], net: [a.net, b.net] };
       // each plane's face area: ArchiCAD stores a sill's top or a corbel's
       // side as the "area" of an element extruded another way
-      const P = planeAreas(body);
+      const P = planeAreas(body, true);
       if (P) out.plan.planes = P.map((p) => p.area * f2);
     }
   }
