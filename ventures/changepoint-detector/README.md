@@ -10435,3 +10435,49 @@ make with a fresh seed (an agency's billable hours, pipeline, invoices and headc
 K1-K5. A fair replacement for K2 would be a selection rule that can be used in advance (such as each line's own
 sticky/noisy diagnostics). It cannot be added after seeing these numbers, so it would be tested as a separate,
 pre-registered arm.
+
+## A short-phase rule for composites, third make: an agency's lines (2026-11-24, pre-registered; P3 beats shipped again, but the composite trails a single line picked in advance, so nothing ships)
+
+The item above: P3 (minimum phase 3 months) beat the shipped composite rule on the SaaS make but missed the
+hindsight bar. This round runs P3 alone on a fresh make and seed, an agency's pipeline (leads 3 months, lumpy),
+billable hours (on time), invoices (lag 2) and headcount (lag 4, smooth, moves 0.4 times as much), with
+contractions of 4-14 months that fall faster than expansions rise. It also replaces hindsight as the shipping bar
+with something a user could do: an **advance pick**, the line whose dated turns agree most with the other lines'
+dated turns, picked without the truth. The rules, bars and the changed ship rule are in the header of
+`eval/turns-agency-lines.mjs`, committed before it first ran (commit "pre-register the agency-lines round"); output
+`eval/turns-agency-lines.out.txt` (0.7 s); test `turns-agency-lines.test.mjs`. 500 draws, seed 20261126, about 6.5
+true turns a draw. K4 and K5 were already known to pass for P3 (deterministic, from the SaaS round) and the header
+says so; the fresh evidence is K1, K2, K2a and K3.
+
+| bar (agency make, 144 months, typical noise) | P3 | |
+|---|---|---|
+| K1 beats shipped on the composite by 0.02 F1, sign test p <= 0.05 | 0.755 vs 0.708, +0.047, wins 107, losses 7 | **passes** |
+| K2 within 0.03 of the hindsight-best line (reported, not a gate) | 0.948, 0.193 short | **fails** |
+| K2a no worse than the advance pick (0.857) | 0.102 short; the pick wins 330 draws, loses 128 | **fails** |
+| K3 false turns a draw at most shipped's (0.15) + 0.10 | 0.19 | **passes** |
+| K4 FRED composite dates NBER's 16 of 16, at most 2 false | 16 of 16, 2 false | **passes** |
+| K5 no loss on the shop round's draws (0.932) | 0.974 | **passes** |
+
+What it shows:
+
+- **P3 is the better composite rule for the third make running.** +0.082 on SaaS lines, +0.042 on the shop's, +0.047
+  here, losing 3, 2 and 7 draws of 500. The gain holds at half and double noise (+0.042, +0.047) and at 96 and 240
+  months (+0.049, +0.045).
+- **But here a composite of all four lines is the wrong tool.** Billable hours alone date the cycle at 0.934; the
+  composite reaches 0.708 (shipped) or 0.755 (P3). The advance pick chooses billable hours or invoices in 98% of
+  draws and scores 0.857. On the shop and SaaS makes the P3 composite beats the advance pick (+0.040, +0.006), so
+  whether a composite or one well-chosen line wins depends on the make; this round is where it lost.
+- **Why (post-hoc, `eval/turns-agency-lines-posthoc.mjs`, not a result):** the Conference Board weights each line by
+  one over its volatility, so the smooth headcount line takes a mean 70% of the weight (pipeline 5%, hours 16%,
+  invoices 8%). Headcount turns 4 months late, beyond the 3-month match window, and scores 0.110 on its own; the
+  composite inherits its lateness (median +2 months). Rebuilt without headcount, the P3 composite dates 0.924; with
+  equal weights, 0.865. Both were found by looking and neither ships.
+- **What a user should take from it now:** the CLI and page already print each column's weight. A line that is
+  both the smoothest and the latest (headcount, MRR, active customers) will dominate the composite and delay it;
+  dating with that column left out, or reading it with `--column` alone, is worth a look. That is advice from a
+  simulation, not a shipped rule, and the "How far to trust it" text is unchanged.
+
+By the rules written beforehand nothing changes in the CLI or on the page. Next, if this line continues: a
+pre-registered warning (or a weight cap) for a composite whose heaviest column is also its latest, using
+`line-leads.mjs` to read each column's lead against the others, on a fourth make and fresh seed, with the shop,
+SaaS and agency draws and NBER's 16 of 16 as guards.
