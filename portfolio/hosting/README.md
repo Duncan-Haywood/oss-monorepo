@@ -16,7 +16,7 @@ Read it for study; nothing in it is current instruction.
   paths the router runs for (`platform/pages/cloudflare/README.md`). Two free-plan
   Workers serve it as static files, because one free Worker holds at most
   20,000 files and the site is past that: `platform/pages/cloudflare/README.md`.
-  `.github/workflows/portfolio-pages.yml` builds for that origin and deploys
+  `.github/workflows/priv-portfolio-pages.yml` builds for that origin and deploys
   on every merge and every three hours. `vars.PAGES_ENABLED=false` pauses it;
   `vars.PAGES_BASE_URL` overrides the origin the build names.
 - **GitHub Pages now serves redirect pages.** The old address,
@@ -41,11 +41,20 @@ Read it for study; nothing in it is current instruction.
 - **Readers that are known to be stale.** `pages_state.py`'s "source" and
   "snapshot" lines still describe the retired `gh-pages` branch route.
   `session_gate.py`'s "published snapshot" row no longer uses them: since
-  2026-11-17 it reads `portfolio-pages.yml`'s deploy runs on `main`.
-  `indexnow_state.py` reads `portfolio-pages.yml`'s deploy runs and is
+  2026-11-17 it reads `priv-portfolio-pages.yml`'s deploy runs on `main`.
+  `indexnow_state.py` reads `priv-portfolio-pages.yml`'s deploy runs and is
   current. No session can fetch `github.io` (the egress proxy returns 403),
   so `github-pages-origin` in `portfolio/ledger/infra_state.yaml` stays
   `unknown` until the owner loads the site logged out.
+
+- **Decided 2026-11-24: everything moves to AWS.** The owner chose one
+  platform for the whole repository: the site to S3 and CloudFront, DNS to
+  Route 53, SaaS apps and native-app backends on one AWS starter, client
+  projects in their own AWS accounts, Cloudflare and all self-deploy paths
+  retired, security first. Until each piece is cut over, the lines above
+  still describe what serves traffic. Plan and order:
+  [`docs/reports/2026-11-24-cloud-provider-comparison.md`](../../docs/reports/2026-11-24-cloud-provider-comparison.md),
+  §7; tasks: `python3 portfolio/work/workctl.py list --direction aws-consolidation`.
 
 ## How a product gets served
 
@@ -156,7 +165,7 @@ stale site.
 
 ### When the site stops updating
 
-1. List the recent `portfolio-pages.yml` runs on `main` and find the last
+1. List the recent `priv-portfolio-pages.yml` runs on `main` and find the last
    `success`. A run that is `cancelled` and has no `build` job, or whose
    build job never got past its first steps, was a pending run replaced by a
    newer merge. That is normal. A `cancelled` run whose `build` job ran right
@@ -180,12 +189,12 @@ Each is one line of what happened and what it suggests. The evidence is in
 the history file.
 
 - **One workflow deploys Pages.** On 2026-08-26 `pages.yml` and
-  `portfolio-pages.yml` were written within the hour from the same reasoning,
+  `priv-portfolio-pages.yml` were written within the hour from the same reasoning,
   both merged deploying under one owner variable, and they raced:
   `actions/deploy-pages` replaces the whole site, so the live site was
   whichever finished last. `publish_surface.py --check` now fails if one
   variable would arm two deployments. A workflow gated on its own variable
-  (as `retail-pilot-intel-deploy-docs.yml` is, on `RETAIL_PILOT_INTEL_PAGES`)
+  (as `priv-retail-pilot-intel-deploy-docs.yml` is, on `RETAIL_PILOT_INTEL_PAGES`)
   is fine.
 - **Variable names starting with `GITHUB_` cannot be set.** The deploy gate
   was first called `GITHUB_PAGES_ENABLED`; GitHub rejects that prefix, so the

@@ -67,7 +67,7 @@ repos:
       1. Getting built products in front of users. 164 finished tools
          under ventures/ are assembled into a public site by
          platform/pages/build.mjs and deployed to Cloudflare by
-         .github/workflows/portfolio-pages.yml. Anything that makes that
+         .github/workflows/priv-portfolio-pages.yml. Anything that makes that
          path more reliable, or fixes a tool that is broken once
          published, beats new features nobody can reach.
       2. CI and deployment. GitHub Actions is in scope. A workflow that

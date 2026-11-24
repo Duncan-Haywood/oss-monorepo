@@ -6,7 +6,7 @@ on:
     paths:
       - "ventures/real-estate-agent-photo-app/docs-site/**"
       - "ventures/real-estate-agent-photo-app/process/**"
-      - ".github/workflows/real-estate-agent-photo-app-deploy-docs.yml"
+      - ".github/workflows/priv-real-estate-agent-photo-app-deploy-docs.yml"
   workflow_dispatch:
 
 permissions:

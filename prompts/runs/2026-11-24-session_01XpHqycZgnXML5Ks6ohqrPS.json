@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01XpHqycZgnXML5Ks6ohqrPS",
+  "track": "process",
+  "prompt_version": 0,
+  "input": "Owner-directed: replace owner approval for all CI changes with two tiers (priv- workflows owned; others policy-checked by a required ci-policy check).",
+  "input_sha256": "df1af8d510d8ff93f2ed4d00e26495ae94fffb13e9e4d93ef9c6e66024aca045",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T22:46:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Two tiers of CI: priv-*.yml owner-only, every other workflow policy-checked by a new required ci-policy check",
+  "projects": [
+    "platform/ci",
+    "docs/security"
+  ],
+  "pr": 18725,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 84,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Names portfolio-pages.yml; updated to priv-portfolio-pages.yml here, but the rename touches agent-instruction files so this PR needs owner approval regardless."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Control-plane PR: left open for the owner's one-time approval instead of self-merging, as the owner's brief asked.",
+      "did": "opened the PR, did not merge",
+      "result": "awaiting owner"
+    },
+    {
+      "file": ".github/workflows/conflict-markers-ci.yml",
+      "why": "Brief kept non-secret workflows unowned, but conflict-markers is a required check; an unowned required check can be edited to always pass, so it moved to priv- with its script.",
+      "did": "renamed to priv-conflict-markers-ci.yml",
+      "result": "ci-policy refuses unowned jobs that could report as a required check"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-two-tiers-of-ci-for-an-agent-run-repo.md",
+    "docs/security/agent-hardening.md"
+  ],
+  "goal": "Drop owner approval for CI changes that cannot hand an agent a secret, write token or weaker merge gate",
+  "notes": "Local verification: ci_policy_check passes on all 130 workflows (97 unprivileged, 33 priv-); control_plane_guard --check-coverage passes (31 samples); test_ci_policy_check 84 tests OK, mutation-checked; platform/ci workflow suites 691+ pass; publish-surface snapshot regenerated; devstats, setup, harness tests pass. run_workflow_locally --for-changes: remaining failures are pre-existing on main and untouched by this diff (machine-shop-guides VENTURE.yaml evidence/launch date, verticals JSON, pages catch-all count, hardware-bets dead links, deploy-concurrency finding on uitest, tofu not installed). Outcome partial until the owner approves and applies the ruleset. Holes found beyond the brief: required-check name squatting, cache/artifact poisoning into privileged jobs, script-dir module shadowing of the guard (now run with python3 -I), and unowned code run by privileged jobs (9 residual risks listed in agent-hardening.md).",
+  "corrections": [],
+  "redteam": null
+}

@@ -33,7 +33,7 @@ issued by this script itself (read-only, no credential beyond the repo access
 the session already has) — see `refresh_origin_main`'s docstring for why that
 fetch turned out not to be optional.
 
-It also reads the deploy runs of `portfolio-pages.yml` to say whether the live
+It also reads the deploy runs of `priv-portfolio-pages.yml` to say whether the live
 site is built from the tip of `main`, because `portfolio/DIRECTION.md` ranks a
 stale site above all new work and nothing else in a generic session's opening
 minute says it. That read is best-effort and degrades to `unknown`, never to
@@ -255,7 +255,7 @@ def refresh_origin_main(timeout: float = 20.0) -> bool:
 
 # The workflow that builds and deploys the live site on every push to `main`
 # and every three hours (`portfolio/hosting/README.md`, "What is served now").
-DEPLOY_WORKFLOW = "portfolio-pages.yml"
+DEPLOY_WORKFLOW = "priv-portfolio-pages.yml"
 DEPLOY_RUNS_PATH = (
     "repos/{owner}/{repo}/actions/workflows/" + DEPLOY_WORKFLOW + "/runs?branch=main&per_page=30"
 )
@@ -279,7 +279,7 @@ def _parse_time(value) -> float | None:
 def deploy_freshness(runs: list[dict], head_sha: str | None, now: float | None = None) -> tuple[str, str]:
     """Whether the live site is built from the tip of `main`, from the deploy runs.
 
-    `runs` is the `workflow_runs` list for `portfolio-pages.yml` on `main`,
+    `runs` is the `workflow_runs` list for `priv-portfolio-pages.yml` on `main`,
     newest first, as GitHub returns it. The states:
 
     - `current`: the newest successful run was built from the tip.
@@ -350,7 +350,7 @@ def published_snapshot() -> tuple[str, str]:
     known-stale reader). So every gate run spent 3.8 s of its 4.2 s on seven
     sequential API calls and then printed "THE PUBLISHED SNAPSHOT IS BEHIND
     `main`" against a branch nothing deploys from any more. It now reads the
-    deploy runs of `portfolio-pages.yml` itself: two API calls, issued
+    deploy runs of `priv-portfolio-pages.yml` itself: two API calls, issued
     concurrently (`docs/history/session-gate-perf-2026-11-17.md`).
 
     Failure is never `current`. No token, no network, an unreadable run list:
@@ -751,7 +751,7 @@ def report(
         # DIRECTION.md ranks it above the work the verdict is about to name.
         reasons = [
             "THE PUBLISHED SNAPSHOT IS BEHIND `main`. The site deploys from "
-            "Actions (`portfolio-pages.yml`, on every merge and every three "
+            "Actions (`priv-portfolio-pages.yml`, on every merge and every three "
             "hours), not the `gh-pages` branch, so do NOT run "
             "`publish-branch.sh`. Look at the run named below "
             "(`python3 platform/ci/ci_starvation.py --run <id>` classifies a "
@@ -762,7 +762,7 @@ def report(
         reasons = reasons + [
             f"Published-snapshot state is `{snap}`, not a clean `current` — "
             f"{snap_reason}. Treat that as unread, never as fine: check the "
-            "latest `portfolio-pages.yml` run on `main` before assuming the "
+            "latest `priv-portfolio-pages.yml` run on `main` before assuming the "
             "live site serves what `main` contains."
         ]
     if stale_streak >= STALE_PR_STREAK_THRESHOLD:

@@ -579,7 +579,7 @@ class ReservedGithubNamesTest(unittest.TestCase):
     """Invariant 5: a `GITHUB_`-prefixed variable or secret can never be set."""
 
     def test_a_reserved_github_prefixed_variable_is_rejected(self):
-        # The shape of the bug that shipped: portfolio-pages.yml gated its
+        # The shape of the bug that shipped: priv-portfolio-pages.yml gated its
         # whole deploy job on `vars.GITHUB_PAGES_ENABLED`, a name GitHub will
         # not let anyone create, so the gate was always false and the run was
         # always green.
@@ -699,7 +699,7 @@ class UnguardedShallowFetchTest(unittest.TestCase):
         )
 
     def test_a_trailing_depth_flag_is_flagged_too(self):
-        # `opencode-high-throughput.yml` spelled it this way, after a
+        # `priv-opencode-high-throughput.yml` spelled it this way, after a
         # `fetch-depth: 0` checkout -- so it discarded the full history the
         # checkout had just been asked for, on the runner as well as locally.
         self.assert_flagged("git fetch origin main --depth=50")

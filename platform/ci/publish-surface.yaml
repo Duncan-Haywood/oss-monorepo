@@ -44,16 +44,7 @@ workflows:
 - workflow: actions-timeout-check-ci.yml
   classification: none
   publishes: []
-- workflow: adopt-stranded-branches.yml
-  classification: none
-  publishes: []
-- workflow: agent-cross-review.yml
-  classification: none
-  publishes: []
 - workflow: agent-permission-harness-ci.yml
-  classification: none
-  publishes: []
-- workflow: agent-pr-auto-merge.yml
   classification: none
   publishes: []
 - workflow: agentic-trading-lab-ci.yml
@@ -65,16 +56,7 @@ workflows:
 - workflow: ai-first-markets-ci.yml
   classification: none
   publishes: []
-- workflow: ai-first-markets-deploy.yml
-  classification: dispatch
-  publishes:
-  - job: deploy
-    step: runs 'npm run deploy'
-    gates: []
 - workflow: backup-verification-evidence-ci.yml
-  classification: none
-  publishes: []
-- workflow: branch-cleanup.yml
   classification: none
   publishes: []
 - workflow: browser-checks-ci.yml
@@ -87,15 +69,6 @@ workflows:
   classification: none
   publishes: []
 - workflow: ci-profile-ci.yml
-  classification: none
-  publishes: []
-- workflow: cloudflare-email.yml
-  classification: none
-  publishes: []
-- workflow: conflict-markers-ci.yml
-  classification: none
-  publishes: []
-- workflow: control-plane-guard.yml
   classification: none
   publishes: []
 - workflow: coverage-drop-check-ci.yml
@@ -119,64 +92,7 @@ workflows:
 - workflow: devsec-toolkit-ci.yml
   classification: none
   publishes: []
-- workflow: direction-report.yml
-  classification: none
-  publishes: []
-- workflow: distribute-bluesky.yml
-  classification: none
-  publishes: []
-- workflow: distribute-desktop.yml
-  classification: dispatch
-  publishes:
-  - job: release
-    step: runs 'gh release create'
-    gates:
-    - vars.DISTRIBUTE_DESKTOP == 'true'
-- workflow: distribute-devto.yml
-  classification: none
-  publishes: []
-- workflow: distribute-ghcr.yml
-  classification: none
-  publishes: []
-- workflow: distribute-hashnode.yml
-  classification: none
-  publishes: []
-- workflow: distribute-homebrew.yml
-  classification: none
-  publishes: []
-- workflow: distribute-hub.yml
-  classification: none
-  publishes: []
-- workflow: distribute-mastodon.yml
-  classification: none
-  publishes: []
-- workflow: distribute-mcp.yml
-  classification: none
-  publishes: []
-- workflow: distribute-npm.yml
-  classification: none
-  publishes: []
-- workflow: distribute-pypi-packages.yml
-  classification: dispatch
-  publishes:
-  - job: publish
-    step: uses pypa/gh-action-pypi-publish
-    gates:
-    - ${{ vars.DISTRIBUTE_PYPI == 'true' && hashFiles('dist/*') != '' }}
-- workflow: distribute-pypi.yml
-  classification: dispatch
-  publishes:
-  - job: publish
-    step: uses pypa/gh-action-pypi-publish
-    gates:
-    - ${{ vars.DISTRIBUTE_PYPI == 'true' && hashFiles('dist/*') != '' }}
-- workflow: distribute-releases.yml
-  classification: none
-  publishes: []
 - workflow: distribute-shorts.yml
-  classification: none
-  publishes: []
-- workflow: distribute-tool-releases.yml
   classification: none
   publishes: []
 - workflow: distribution-versions-ci.yml
@@ -209,13 +125,6 @@ workflows:
 - workflow: eaa-wcag-triage-ci.yml
   classification: none
   publishes: []
-- workflow: edge-deploy.yml
-  classification: gated
-  publishes:
-  - job: deploy
-    step: runs 'wrangler deploy'
-    gates:
-    - ${{ needs.gate.outputs.ready == 'true' }}
 - workflow: einvoice-preflight-ci.yml
   classification: none
   publishes: []
@@ -285,9 +194,6 @@ workflows:
 - workflow: openapi-breaking-change-check-ci.yml
   classification: none
   publishes: []
-- workflow: opencode-high-throughput.yml
-  classification: none
-  publishes: []
 - workflow: page-integrity-ci.yml
   classification: none
   publishes: []
@@ -306,7 +212,110 @@ workflows:
 - workflow: pinned-actions-check-ci.yml
   classification: none
   publishes: []
-- workflow: portfolio-pages.yml
+- workflow: portfolio-validate.yml
+  classification: none
+  publishes: []
+- workflow: print-atelier-ci.yml
+  classification: none
+  publishes: []
+- workflow: priv-adopt-stranded-branches.yml
+  classification: none
+  publishes: []
+- workflow: priv-agent-cross-review.yml
+  classification: none
+  publishes: []
+- workflow: priv-agent-pr-auto-merge.yml
+  classification: none
+  publishes: []
+- workflow: priv-ai-first-markets-deploy.yml
+  classification: dispatch
+  publishes:
+  - job: deploy
+    step: runs 'npm run deploy'
+    gates: []
+- workflow: priv-branch-cleanup.yml
+  classification: none
+  publishes: []
+- workflow: priv-ci-policy.yml
+  classification: none
+  publishes: []
+- workflow: priv-cloudflare-email.yml
+  classification: none
+  publishes: []
+- workflow: priv-conflict-markers-ci.yml
+  classification: none
+  publishes: []
+- workflow: priv-control-plane-guard.yml
+  classification: none
+  publishes: []
+- workflow: priv-direction-report.yml
+  classification: none
+  publishes: []
+- workflow: priv-distribute-bluesky.yml
+  classification: none
+  publishes: []
+- workflow: priv-distribute-desktop.yml
+  classification: dispatch
+  publishes:
+  - job: release
+    step: runs 'gh release create'
+    gates:
+    - vars.DISTRIBUTE_DESKTOP == 'true'
+- workflow: priv-distribute-devto.yml
+  classification: none
+  publishes: []
+- workflow: priv-distribute-ghcr.yml
+  classification: none
+  publishes: []
+- workflow: priv-distribute-hashnode.yml
+  classification: none
+  publishes: []
+- workflow: priv-distribute-homebrew.yml
+  classification: none
+  publishes: []
+- workflow: priv-distribute-hub.yml
+  classification: none
+  publishes: []
+- workflow: priv-distribute-mastodon.yml
+  classification: none
+  publishes: []
+- workflow: priv-distribute-mcp.yml
+  classification: none
+  publishes: []
+- workflow: priv-distribute-npm.yml
+  classification: none
+  publishes: []
+- workflow: priv-distribute-pypi-packages.yml
+  classification: dispatch
+  publishes:
+  - job: publish
+    step: uses pypa/gh-action-pypi-publish
+    gates:
+    - ${{ vars.DISTRIBUTE_PYPI == 'true' && hashFiles('dist/*') != '' }}
+- workflow: priv-distribute-pypi.yml
+  classification: dispatch
+  publishes:
+  - job: publish
+    step: uses pypa/gh-action-pypi-publish
+    gates:
+    - ${{ vars.DISTRIBUTE_PYPI == 'true' && hashFiles('dist/*') != '' }}
+- workflow: priv-distribute-releases.yml
+  classification: none
+  publishes: []
+- workflow: priv-distribute-tool-releases.yml
+  classification: none
+  publishes: []
+- workflow: priv-edge-deploy.yml
+  classification: gated
+  publishes:
+  - job: deploy
+    step: runs 'wrangler deploy'
+    gates:
+    - ${{ needs.gate.outputs.ready == 'true' }}
+- workflow: priv-opencode-high-throughput.yml
+  classification: none
+  publishes: []
+- workflow: priv-portfolio-pages.yml
   classification: gated
   publishes:
   - job: deploy-cloudflare
@@ -325,10 +334,35 @@ workflows:
     - ${{ !cancelled() && needs.build.result == 'success' && (needs.gate.outputs.cloudflare != 'true'
       || needs.deploy-cloudflare.result == 'success') && github.ref == 'refs/heads/main' && github.event_name
       != 'pull_request' && vars.PAGES_ENABLED != 'false' }}
-- workflow: portfolio-validate.yml
+- workflow: priv-real-estate-agent-photo-app-deploy-docs.yml
+  classification: gated
+  publishes:
+  - job: deploy
+    step: uses cloudflare/wrangler-action
+    gates:
+    - env.CLOUDFLARE_API_TOKEN != ''
+- workflow: priv-research-archive.yml
   classification: none
   publishes: []
-- workflow: print-atelier-ci.yml
+- workflow: priv-retail-pilot-intel-deploy-docs.yml
+  classification: gated
+  publishes:
+  - job: deploy
+    step: uses actions/deploy-pages
+    gates:
+    - ${{ vars.RETAIL_PILOT_INTEL_PAGES == 'true' }}
+  - job: deploy-cloudflare
+    step: runs 'wrangler deploy'
+    gates:
+    - ${{ github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || vars.RETAIL_PILOT_INTEL_DOCS_CLOUDFLARE
+      == 'true') }}
+- workflow: priv-security-alert-queue.yml
+  classification: none
+  publishes: []
+- workflow: priv-site-usage-pull.yml
+  classification: none
+  publishes: []
+- workflow: priv-uitest-ci.yml
   classification: none
   publishes: []
 - workflow: prompts-ci.yml
@@ -355,13 +389,6 @@ workflows:
 - workflow: real-estate-agent-photo-app-ci.yml
   classification: none
   publishes: []
-- workflow: real-estate-agent-photo-app-deploy-docs.yml
-  classification: gated
-  publishes:
-  - job: deploy
-    step: uses cloudflare/wrangler-action
-    gates:
-    - env.CLOUDFLARE_API_TOKEN != ''
 - workflow: register-change-rate-ci.yml
   classification: none
   publishes: []
@@ -371,34 +398,16 @@ workflows:
 - workflow: required-checks-drift-check-ci.yml
   classification: none
   publishes: []
-- workflow: research-archive.yml
-  classification: none
-  publishes: []
 - workflow: research-ci.yml
   classification: none
   publishes: []
 - workflow: retail-pilot-intel-ci.yml
   classification: none
   publishes: []
-- workflow: retail-pilot-intel-deploy-docs.yml
-  classification: gated
-  publishes:
-  - job: deploy
-    step: uses actions/deploy-pages
-    gates:
-    - ${{ vars.RETAIL_PILOT_INTEL_PAGES == 'true' }}
-  - job: deploy-cloudflare
-    step: runs 'wrangler deploy'
-    gates:
-    - ${{ github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || vars.RETAIL_PILOT_INTEL_DOCS_CLOUDFLARE
-      == 'true') }}
 - workflow: sbom-diff-check-ci.yml
   classification: none
   publishes: []
 - workflow: secrets-inventory-ci.yml
-  classification: none
-  publishes: []
-- workflow: security-alert-queue.yml
   classification: none
   publishes: []
 - workflow: shed-designer-browser.yml
@@ -413,9 +422,6 @@ workflows:
 - workflow: sibling-links-ci.yml
   classification: none
   publishes: []
-- workflow: site-usage-pull.yml
-  classification: none
-  publishes: []
 - workflow: source-silence-detector-ci.yml
   classification: none
   publishes: []
@@ -423,9 +429,6 @@ workflows:
   classification: none
   publishes: []
 - workflow: ubuntu-agent-server-ci.yml
-  classification: none
-  publishes: []
-- workflow: uitest-ci.yml
   classification: none
   publishes: []
 - workflow: vendor-change-evidence-ci.yml

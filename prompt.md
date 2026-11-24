@@ -17,7 +17,7 @@ Unless the starting message names a task, read the security queue first:
 If the fetch says `couldn't find remote ref`, the queue is empty (the hourly workflow creates
 the branch only when an alert exists): go to step 1. Otherwise take the top alert with no
 `security-fix/code-scanning-<n>` branch (`git ls-remote`); its
-`alerts/<n>.md` says how. `security-alert-queue.yml` regenerates it hourly (owner, 2026-10-30).
+`alerts/<n>.md` says how. `priv-security-alert-queue.yml` regenerates it hourly (owner, 2026-10-30).
 
 ## 1. Route
 

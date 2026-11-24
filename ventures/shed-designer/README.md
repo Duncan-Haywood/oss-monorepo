@@ -165,7 +165,7 @@ The size pages get a hero each. `renders/manifest.json` gives each picture's fil
 
 A price, a name or a change elsewhere in the tool does not change it.
 
-The Pages build (`portfolio-pages.yml`, "Redraw stale Shed Designer pictures") redraws any stale design before it builds. It then runs `renders.test.mjs` with `RENDERS_STRICT=1`, where a stale picture fails the publish. Everywhere else, including pull requests, a stale picture is only reported (a test diagnostic), so the twenty-odd lanes changing these designs are not blocked. The picker draws a changed preset live.
+The Pages build (`priv-portfolio-pages.yml`, "Redraw stale Shed Designer pictures") redraws any stale design before it builds. It then runs `renders.test.mjs` with `RENDERS_STRICT=1`, where a stale picture fails the publish. Everywhere else, including pull requests, a stale picture is only reported (a test diagnostic), so the twenty-odd lanes changing these designs are not blocked. The picker draws a changed preset live.
 
 `renders.test.mjs` always fails when:
 - a file is missing, stray or over budget;

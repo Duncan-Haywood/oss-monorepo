@@ -10,7 +10,7 @@ were meant to do not run. Measured 2026-10-24 over the 300 newest merged PRs
   * every one carries a Copilot review, and every one of those says Copilot
     "was unable to review this pull request because the user who requested the
     review has insufficient remaining quota";
-  * the four cross-review App jobs (`agent-cross-review.yml`) skip, because the
+  * the four cross-review App jobs (`priv-agent-cross-review.yml`) skip, because the
     App secrets were never set, and they start minutes after the PR merged;
   * a PR merges a median 22 seconds after it opens.
 

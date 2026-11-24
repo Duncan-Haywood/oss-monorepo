@@ -923,3 +923,36 @@ def test_mid_p_interval_known_values():
         ml, mh = G.mid_p(x, 200)
         cl, ch = V.clopper_pearson(x, 200)
         assert cl < ml < x / 200 < mh < ch
+
+
+def test_high_tail_hull_7bh_summary_matches_the_log_and_paper():
+    """7bh: the committed summary and per-cell diagnostic hold the numbers the log, README and paper quote."""
+    here = Path(__file__).resolve().parent
+    txt = (here / "experiments" / "h7bh_high_tail_hull.txt").read_text()
+    assert "cells run: 39; errors (cell with < 2 labels): 0" in txt
+    assert "P1 w3 under 93% in 3 of 39 cells: yes" in txt and "q15 sadness p0.02 n 200 92.0" in txt
+    assert "P2 hm10 93%+ in every cell: yes" in txt and "P4a mean cost 0.0446" in txt
+    assert "Decision rule (b)" in txt
+    hm = next(l for l in txt.splitlines() if l.startswith("hm10: "))
+    assert "lowest coverage 95.7" in hm and "largest +0.0980" in hm
+    byx = (here / "experiments" / "h7bh_high_tail_hull_byx.txt").read_text()
+    assert "x 7: 3986 | 80.3 | 85.8" in byx and "replay check" in byx
+    paper = (here / "paper" / "paper.md").read_text()
+    assert "7bh" in paper and "0.045 of pooled" in paper and "94.4%" in paper
+
+
+def test_hull_interval_only_widens():
+    """7bh's hull: never narrower than the shipped interval for 3 <= x < top, untouched at x >= top, Wilson below 3."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "experiments"))
+    import h7bh_high_tail_hull as H
+    import h7av_rare_fallback as V
+    fb = H.FALLBACKS["hm10"]
+    for x in range(3, 10):
+        lo, hi = x / 200 - 0.001, x / 200 + 0.001
+        l2, h2, fired = H.hull_interval(x, 200, lo, hi, fb)
+        assert l2 <= lo and h2 >= hi and fired
+        l3, h3, _ = H.hull_interval(x, 200, lo, hi, H.FALLBACKS["hml10"])
+        assert l3 == l2 and h3 == hi
+    assert H.hull_interval(12, 200, 0.05, 0.07, fb) == (0.05, 0.07, False)
+    assert H.hull_interval(2, 200, 0.0, 1.0, fb)[:2] == V.wilson_labels(2, 200)
