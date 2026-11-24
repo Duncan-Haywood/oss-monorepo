@@ -34,6 +34,8 @@ jobs:
   deploy:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
+    # The minter secret lives in this environment, limited to main.
+    environment: cloudflare
     permissions:
       contents: read
       deployments: write
@@ -47,9 +49,14 @@ jobs:
           cache: npm
           cache-dependency-path: ventures/ai-first-markets/package-lock.json
       - run: npm ci
+      # A token for this job only, gone when it ends (platform/ci/cloudflare_mint).
+      - name: Short-lived Cloudflare token
+        uses: ./platform/ci/cloudflare_mint
+        with:
+          minter_token: ${{ secrets.CLOUDFLARE_MINTER_TOKEN }}
+          account_id: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          profile: ai-first-markets-deploy
       - name: Build and deploy
         run: npm run deploy
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}

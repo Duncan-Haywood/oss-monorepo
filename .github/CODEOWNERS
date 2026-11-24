@@ -27,6 +27,9 @@
 /platform/ci/agent_review/        @Duncan-Haywood
 /platform/ci/control_plane_guard.py      @Duncan-Haywood
 /platform/ci/test_control_plane_guard.py @Duncan-Haywood
+# Runs with the Cloudflare minter secret in every deploy job: a change here
+# could hand that secret anywhere.
+/platform/ci/cloudflare_mint/      @Duncan-Haywood
 # agent-pr-auto-merge.yml pip-installs this inside its write-token job.
 /portfolio/router/requirements.txt @Duncan-Haywood
 

@@ -3,9 +3,9 @@
 # included). Run by hand: Actions → Cloudflare email routing → Run workflow,
 # with "apply" ticked to write; unticked it only prints the plan.
 #
-# Secrets: CLOUDFLARE_API_TOKEN (needs Email Routing permissions, see the
-# script's header), CLOUDFLARE_ACCOUNT_ID, and EMAIL_FORWARD_TO, the inbox
-# every address forwards to. Cloudflare's API is free; nothing here pushes.
+# Cloudflare access: a token minted for this run from CLOUDFLARE_MINTER_TOKEN
+# (profile email-routing, this zone only, 15 minutes; platform/ci/cloudflare_mint).
+# EMAIL_FORWARD_TO is the inbox every address forwards to. Cloudflare's API is free; nothing here pushes.
 name: Cloudflare email routing
 
 on:
@@ -26,8 +26,6 @@ jobs:
     environment:
       name: cloudflare
     env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID }}
       EMAIL_FORWARD_TO: ${{ secrets.EMAIL_FORWARD_TO }}
       APPLY: ${{ inputs.apply && '1' || '0' }}
     steps:
@@ -38,4 +36,12 @@ jobs:
         with:
           node-version: "22"
       - run: node --test platform/pages/cloudflare/email-routing.test.mjs
+      # A token for this job only, gone when it ends (platform/ci/cloudflare_mint).
+      - name: Short-lived Cloudflare token
+        uses: ./platform/ci/cloudflare_mint
+        with:
+          minter_token: ${{ secrets.CLOUDFLARE_MINTER_TOKEN }}
+          account_id: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          profile: email-routing
+          zone_id: ${{ vars.CLOUDFLARE_ZONE_ID }}
       - run: node platform/pages/cloudflare/email-routing.mjs
