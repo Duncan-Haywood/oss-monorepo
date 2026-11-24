@@ -121,7 +121,11 @@ paid automation, secrets. Payment code on the deployer's own keys is fine
    browser only with the consent the law requires; nothing personal committed.
    Follow the law, no stricter (owner, 2026-10-20): cookies a feature needs are
    fine. Rules and the file readings land in: [`portfolio/usage/`](portfolio/usage/README.md).
-3. **Free full access** for now — no paywalls; optional GitHub Sponsors/donate link OK.
+3. **A free path, plus a paid offer where one fits** — never paywall what the
+   page calls free; paid extras are new depth, priced at cost plus (1.5 to 2
+   times cost) and built dark until the checkout link exists
+   (`prompts/goals.md`, "Direction: for profit, priced at cost plus").
+   GitHub Sponsors/donate link OK.
 4. **A LICENSE and the discoverability basics** — landing copy in the user's
    search words, meta description, JSON-LD, sitemap, crawlable robots.txt.
    Search and AI-assistant discovery are the growth channel, so they ship with

@@ -41,6 +41,17 @@ reach is [`docs/reports/2026-10-30-billing-plan.md`](../../docs/reports/2026-10-
 (Option A: a hosted checkout link and a licence-key validate call, no secret
 anywhere).
 
+**Pricing (owner, 2026-11-24): cost plus, 1.5 to 2 times cost.** "setting
+the goal further to turn projects more in the for profit direction. cost plus
+1.5-2x cost sort of thing." A row's price is its cost to deliver one sale
+(per-buyer running cost, merchant fee, support time, and the paid feature's
+build cost from `prompts/runcost.py` spread over a stated buyer count) times
+1.5 to 2, with the sum written in the row's `price_hypothesis`
+and comparables kept as a plausibility check. The price hypotheses below
+were set against comparables before this; a run that touches a row redoes
+its price as cost plus. Method: `prompts/goals.md`, "Direction: for profit,
+priced at cost plus".
+
 ## The constraint that matters most: traffic
 
 Revenue is visitors × the share who buy × price. The site's own first-party
