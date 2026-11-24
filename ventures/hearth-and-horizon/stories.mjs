@@ -153,6 +153,17 @@ export const coverPath = (shelfId) => `covers/${shelfId}.png`;
 // the tail (platform/ci/check_title_meta.py flags anything over 70). Keep the
 // longest description that fits after the story's own title.
 export const TITLE_MAX = 70;
+// A search snippet shows about 160 characters (platform/pages/description-length.mjs,
+// MAX), so the meta description is the summary cut at the last word that fits, with an
+// ellipsis when anything was cut. The full summary stays on the page as its lede.
+export function metaDescription(summary, max = 160) {
+  const text = String(summary).replace(/\s+/g, ' ').trim();
+  if (text.length <= max) return text;
+  const room = text.slice(0, max - 1);
+  const cut = room.lastIndexOf(' ');
+  return `${(cut > 40 ? room.slice(0, cut) : room).replace(/[\s,;:.\u2013\u2014-]+$/, '')}\u2026`;
+}
+
 export function storyTitle(story, shelf, hasAudio = false) {
   const kind = shelf.title === 'Little Lamps' ? 'a Catholic bedtime story' : 'a free science fiction short story';
   const short = shelf.title === 'Little Lamps' ? 'a bedtime story' : 'a short story';
@@ -340,7 +351,7 @@ ${markdownToHtml(story.body)}
 </section>`;
   return page({
     title: storyTitle(story, shelf, Boolean(a)),
-    description: `${story.summary}`.slice(0, 300),
+    description: metaDescription(story.summary),
     canonical: storyUrl(story),
     image: `${SITE}${coverPath(shelf.id)}`,
     jsonLd,
