@@ -42,9 +42,23 @@ about the tool in a card grid.
 - Before/after on `c/services` at 390 px: `img/polish-2026-11-24-cards-before.png`,
   `img/polish-2026-11-24-cards-after.png`.
 
-## Trap for the next run
+## Traps for the next run
 
-A post's front-matter `description` over 160 characters throws in
+- Four research-algorithm pages (roc-analysis, ordinal-regression,
+  pairwise-ranking, contingency-table-tests) have page tests that assert a
+  verified number appears in the HTML, and the og line was its only copy.
+  The new lines keep those numbers. Run `python3 platform/ci/run_venture_tests.py`
+  on every venture whose copy you touch; grepping tests for the old string misses
+  regex asserts.
+- `deploy-concurrency-check-ci.yml` runs the tool over `.github/workflows/`
+  with `--fail-on-risk`, and that is red on main (11 findings: the
+  distribute-* workflows and cloudflare-email.yml have no concurrency group,
+  plus split groups for `cloudflare`, `publish` and `paid-agents`, and
+  uitest-ci.yml cancels in progress). Any PR touching that venture goes red
+  for an unrelated reason. The fix lives in `.github/` (CODEOWNERS), so it is
+  its own small PR awaiting the owner.
+
+- A post's front-matter `description` over 160 characters throws in
 `writing.mjs` and kills the whole site build at the very end (after ~10
 minutes). Check the length before starting a build.
 

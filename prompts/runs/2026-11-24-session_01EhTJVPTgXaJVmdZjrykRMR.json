@@ -35,10 +35,17 @@
       "issue": "A post description over 160 characters throws only at the end of a ~10-minute site build; a cheaper pre-check (or a fast test over docs/posts front matter) would catch it before the build."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "why": "Merged with one red check (deploy-concurrency-check-ci test) that is red on main and unrelated to this diff; its fix is a CODEOWNERS-gated .github change.",
+      "did": "Verified locally that the scan fails on main's unchanged workflows; documented in the report and run record.",
+      "result": "pending"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "188 tool cards that still ended in an ellipsis now end on a sentence: 188 -> 0 of 1,435, and 304 -> 0 '\u2026</p>' on built category pages. Local verification: node platform/pages/build.mjs exit 0; check.mjs: 13,050 pages, no dead links; node --test 'platform/pages/*.test.mjs' 1938/1938 pass; catholic-shorts 11, saints-by-candlelight 20, self-hosted-saas-stack 7 pass after regeneration.",
+  "notes": "188 tool cards that still ended in an ellipsis now end on a sentence: 188 -> 0 of 1,435, and 304 -> 0 '\u2026</p>' on built category pages. Local verification: node platform/pages/build.mjs exit 0; check.mjs: 13,050 pages, no dead links; node --test 'platform/pages/*.test.mjs' 1938/1938 pass; catholic-shorts 11, saints-by-candlelight 20, self-hosted-saas-stack 7 pass after regeneration. CI: four research venture page tests asserted verified numbers that only the old og lines carried; the new lines restore them (4 suites pass locally). agent-workroom: fixed a pre-existing keyup TypeError the blank-inputs browser sweep caught. deploy-concurrency-check-ci 'test' is red on main independent of this diff: its dogfood scan of .github/workflows finds 11 deploy-race findings (exit 1 locally on an unchanged .github). Fixing that needs .github edits (owner-gated), so it is left for its own PR and noted in the report.",
   "corrections": [],
   "redteam": null
 }
