@@ -1,8 +1,9 @@
 ---
-title: "Red team: the flag value read as the schedule, and seven untested scheduling paths"
+title: "Red team: the flag value read as the schedule, and seven untested paths"
+seo_title: "XER Schedule Check red team: a CLI flag read as the schedule"
 date: 2026-11-24
-tags: [red-team, testing, construction, scheduling, primavera-p6, xer]
-description: "Seeding 20 faults into XER Schedule Check's CPM engine and Project XML reader: 13 caught, 7 now guarded. And a real CLI defect: `--risk 1000 schedule.xer` tried to open a file named 1000."
+tags: [redteam, testing, construction, scheduling, primavera-p6, xer]
+description: "20 faults seeded in XER Schedule Check's CPM engine and Project XML reader: 13 caught, 7 now guarded. And `--risk 1000 file.xer` opened a file named 1000."
 ---
 
 This red-team run aimed at [XER Schedule Check](../../ventures/xer-schedule-check/),
