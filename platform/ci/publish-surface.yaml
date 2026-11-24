@@ -71,6 +71,9 @@ workflows:
 - workflow: ci-profile-ci.yml
   classification: none
   publishes: []
+- workflow: codeql.yml
+  classification: none
+  publishes: []
 - workflow: coverage-drop-check-ci.yml
   classification: none
   publishes: []
@@ -233,6 +236,15 @@ workflows:
   - job: deploy
     step: runs 'npm run deploy'
     gates: []
+- workflow: priv-aws-apply.yml
+  classification: none
+  publishes: []
+- workflow: priv-aws-plan.yml
+  classification: none
+  publishes: []
+- workflow: priv-aws-worker-secret-sync.yml
+  classification: none
+  publishes: []
 - workflow: priv-branch-cleanup.yml
   classification: none
   publishes: []
@@ -360,6 +372,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: priv-security-alert-queue.yml
+  classification: none
+  publishes: []
+- workflow: priv-security-gate.yml
   classification: none
   publishes: []
 - workflow: priv-site-usage-pull.yml
