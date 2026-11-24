@@ -55,7 +55,8 @@ async function main() {
     if (file === root) file = path.join(root, 'index.html');
     if (!file.startsWith(root + path.sep)) return notFound();
     if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html');
-    if (!fs.existsSync(file)) return notFound();
+    // Check the final path (a directory's index.html) again right before it is read.
+    if (!file.startsWith(root + path.sep) || !fs.existsSync(file)) return notFound();
     res.setHeader('content-type', types[path.extname(file)] || 'application/octet-stream');
     fs.createReadStream(file).pipe(res);
   }).listen(0);

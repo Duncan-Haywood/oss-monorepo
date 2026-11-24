@@ -103,7 +103,8 @@ async function sweepPages(log) {
     if (file === ROOT) file = join(ROOT, "index.html");
     if (!file.startsWith(ROOT + sep)) return notFound();
     if (existsSync(file) && statSync(file).isDirectory()) file = join(file, "index.html");
-    if (!existsSync(file)) return notFound();
+    // Check the final path (a directory's index.html) again right before it is read.
+    if (!file.startsWith(ROOT + sep) || !existsSync(file)) return notFound();
     res.setHeader("content-type", types[file.slice(file.lastIndexOf("."))] || "application/octet-stream");
     createReadStream(file).pipe(res);
   }).listen(0);
