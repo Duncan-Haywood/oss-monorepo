@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVNL38YSPrSLZRPCJ6Y",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T00:08:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship photo-editing (row 3): the browser cull page reads the camera's AF point from maker notes and ranks bursts by detail there",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": 18503,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Cloning exiftool from GitHub as a reference decoder was refused by the auto-mode classifier",
+      "fix": "used metadata-extractor's decoded dumps shipped with the sample repo, plus a detail-rank test on the photos"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here named the third buildable item (HDR+ noise-ramp prep), noise tuning that recent sessions judged spent; took a user-facing gap in the same flagship instead: the cull page's documented flaw (soft subject on a sharp background wins the burst).",
+      "did": "AF-point readers for five makers plus page integration",
+      "result": "22/22 agree with metadata-extractor; 18/24 points on above-median detail"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-photo-editing-cull-reads-the-af-point.md",
+    "ventures/photo-editing/eval/cull-af-point-2026-11-24.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: node --test site/rawpreview.test.mjs 30/30 pass; eval/cull-af-point-reference.py 22 of 22 agree; eval/cull-af-point-detail.py median rank 0.892, 18 of 24 above 0.5; sparse read 52/52 same; Playwright: 52 raws in 2.1 s, no console errors. check_posts ok; validate.py ok. Venture suite and venture-preflight ran in the background; results recorded in the PR before merging.",
+  "corrections": [],
+  "redteam": null
+}
