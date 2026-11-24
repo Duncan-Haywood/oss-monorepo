@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import io
+import json
 import contextlib
 import os
 import shutil
@@ -2714,6 +2715,53 @@ class PostPrecheck(unittest.TestCase):
 
     def test_no_post_check_sweeps_anyway(self):
         code, _, pick = self._sweep(no_post_check=True)
+        self.assertEqual(code, 0)
+        pick.assert_called_once()
+
+
+class RecordPrecheck(unittest.TestCase):
+    """A changed run record with outcome null stops --for-changes before the sweep."""
+
+    def setUp(self):
+        self.repo = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.repo, True)
+        os.makedirs(os.path.join(self.repo, "prompts", "runs"))
+
+    def record(self, name, outcome):
+        path = f"prompts/runs/{name}.json"
+        with open(os.path.join(self.repo, path), "w") as f:
+            json.dump({"date": "2026-11-24", "outcome": outcome}, f)
+        return path
+
+    def test_only_null_outcomes_are_named(self):
+        blank = self.record("2026-11-24-a", None)
+        filled = self.record("2026-11-24-b", "success")
+        with open(os.path.join(self.repo, "prompts/runs/bad.json"), "w") as f:
+            f.write("{not json")
+        changed = [blank, filled, "prompts/runs/bad.json", "prompts/runs/gone.json",
+                   "prompts/runs/README.md", "README.md"]
+        self.assertEqual(runner.blank_records(changed, repo=self.repo), [blank])
+
+    def _sweep(self, **kw):
+        args = argparse.Namespace(for_changes="origin/main", list=False, workflow_timeout=0,
+                                  no_post_check=True, no_browser_sweeps=True, **kw)
+        out = io.StringIO()
+        with mock.patch.object(runner, "changed_paths", return_value=["prompts/runs/r.json"]), \
+             mock.patch.object(runner, "blank_records", return_value=["prompts/runs/r.json"]), \
+             mock.patch.object(runner, "pick_workflows", return_value=([], [])) as pick, \
+             mock.patch.object(runner, "_run_selected", return_value=0), \
+             contextlib.redirect_stdout(out):
+            code = runner.run_for_changes(args)
+        return code, out.getvalue(), pick
+
+    def test_the_sweep_stops_before_selecting_workflows(self):
+        code, out, pick = self._sweep()
+        self.assertEqual(code, 1)
+        self.assertIn("prompts/runs/r.json still have outcome null", out)
+        pick.assert_not_called()
+
+    def test_no_record_check_sweeps_anyway(self):
+        code, _, pick = self._sweep(no_record_check=True)
         self.assertEqual(code, 0)
         pick.assert_called_once()
 
