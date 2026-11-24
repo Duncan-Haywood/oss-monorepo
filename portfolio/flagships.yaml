@@ -42,6 +42,20 @@
 # Why depth, argued at more length (an opinion, not a rule):
 # portfolio/opinions/2026-10-20-build-what-an-agent-would-rather-call.md
 #
+# RE-RANKED 2026-11-24 to the paid bets (owner, that day: "we don't invest dev
+# effort in sunken ships. invest in things that have most promise and most
+# value"; north star $10k MRR). The top rows are the bets of
+# portfolio/monetization/bets.md, in its order, each with:
+#   bet: <N>    its rank in bets.md (validate.py: rows 1..N first, in order);
+#   app: private-monorepo/apps/<slug>  where its deepening work happens. Attach
+#               that repository with add_repo (push access). A bet with no
+#               ventures/<slug> directory still gets a Deepen row in
+#               allocate.py from `app:`.
+# Every other row carries `demoted: <reason>` and sits below the bets; it keeps
+# its `next:` for runs that hold one of its inputs, but a free run takes a bet.
+# Change the order with evidence in bets.md, not here. Each bet's paid model is
+# its `app:` row in portfolio/monetization/models.yaml.
+#
 # Chosen 2026-10-20 from an audit of the largest ventures by source size,
 # keeping those whose code works today and whose next step is a hard business
 # or engineering problem. Passed over for now: local-site-studio (real
@@ -50,47 +64,172 @@
 # retail-pilot-intel, print-atelier and real-estate-agent-photo-app (mostly
 # plans and demo UI), workflow-audit and marketplace-fee-compare (thin).
 flagships:
-  # Added 2026-10-21 second, on the owner's direction that day: "I want to make
-  # tools that can automate part of the new home construction process in the
-  # us. to drop prices and increase efficiency this is a long standing project
-  # to work on continually." The program is ventures/wall-framing-takeoff/ROADMAP.md.
-  # Moved first on 2026-10-31, on the owner's direction that day to make "deep
-  # tech industrial, energy real estate dev and construction" the overarching
-  # directions (prompts/goals.md, "Direction: industrial, energy and construction").
-  - venture: wall-framing-takeoff
-    inputs_only: >-
-      a real builder's draw schedule, permitted deck plan, architect's DXF,
-      framer's takeoff, plumber's drain runs or sub's bids
+  # Bet 1 in portfolio/monetization/bets.md (2026-11-24 ranking).
+  - venture: payapps
+    bet: 1
+    app: private-monorepo/apps/payapps
     why: >-
-      Wall layout engine (studs on layout, kings, jacks, headers, cripples,
-      plate splices over studs) with a per-wall self-check, and a Gilmore-Gomory
-      cutting-stock order within 0.02% of its LP bound on whole houses; page,
-      CLI and agent engine. First tool of the new-home construction program.
+      Bet 1 (score 22): specialty subcontractors and small GCs prepare monthly AIA
+      G702/G703 pay applications, track retainage, chase lien waivers and change
+      orders, and QuickBooks has no native retainage. Comparables run $39.99 to
+      $199+ a month (PayAppHub, Trimble Pay, SubLien) and suites $49 to $332
+      (bets.md, with sources). The wedge grows into a contractor suite (job costing,
+      RFIs, estimating; bet 6 becomes its estimating module). The owner's favourite
+      vertical. New app, nothing built yet.
     next: >-
-      History, dates and how each slice was checked:
-      ventures/wall-framing-takeoff/README.md and ROADMAP.md (recent: whole-house
-      run on the Schultz IFC frames every wood wall on all three floors with
-      `--whole-house`; `--stack` 2026-11-08 orders several floors' plans together
-      (run on the Schultz floors 2026-11-08: 49 walls, 0.28% less than ordering
-      apart); stepped walls, door and window schedule, wall panels, schedule and
-      cash flow; deck ledger fastener check 2026-11-08; winder support boards
-      2026-11-08). Wanted, all needing real inputs: a real builder's activity list
-      and draw schedule for `--schedule` (payment lag, retainage); a real permitted
-      deck plan (deck framing, guards and stairs are hand arithmetic only); stair
-      stringer and landing post tables, winder radial supports, lateral-load
-      connector and anchor sizes; a real architect's DXF; a real US wood-framed IFC
-      and a framer's takeoff of the Schultz house to compare with (Window Wall
-      French door 39 in sill is in the model's placement, not the engine, ROADMAP
-      2026-11-09 later; open: 2nd Floor Int 1 and 3rd Floor Int 9 tees and
-      door-near-end cases, README); a plumber's real drain runs for `--drilling`; an
-      electrician's real cable-hole count against `cableHoles` (receptacle runs only); a
-      real foundation plan; ceiling steps against a real soffit; trim, drywall and
-      siding against real orders and hangs; bid leveling on real bids and a real
-      sub's labor rates; gable sheathing nested on real sheets; insulation against a
-      real order. Cutting-stock speed is settled for now (exact steepest-edge
-      weights measured, not worth building, ROADMAP 2026-11-09 later). When a slice
-      lands, replace its item here and put its history in the README.
+      Build in private-monorepo (attach it with add_repo, push access; scaffold from
+      apps/grants: Worker, accounts, BillingProvider port with the Paddle adapter,
+      dark). Milestones, in order: (1) a job with its schedule of values; a monthly
+      G702/G703 pay app computed from percent complete and stored materials, with
+      retainage held and released, as a PDF in the AIA layout (own layout and
+      wording, not AIA's copyrighted forms); unit tests on the arithmetic; (2)
+      change orders that roll into the schedule of values; (3) conditional and
+      unconditional lien waiver tracking per pay app, with state-form templates only
+      where the statute text is public, and a disclaimer; (4) QuickBooks Online
+      invoice export with retainage as its own line (sandbox only; the owner opens
+      the Intuit developer account); (5) a free G702/G703 template page in this
+      repository as the front door, linking to the app. Paid path dark on Paddle per
+      portfolio/monetization/models.yaml (row app: payapps). A run that lands a
+      slice replaces its item here.
+  # Bet 2 in portfolio/monetization/bets.md (2026-11-24 ranking).
+  - venture: jobshop-quote
+    bet: 2
+    app: private-monorepo/apps/jobshop-quote
+    why: >-
+      Bet 2 (score 19, ranked up for willingness to pay): CNC and fabrication job
+      shops turn RFQs (drawings, CAD, email) into priced quotes by hand, often hours
+      each. QuotedPart lists $199 a month a shop, ProShop $650 to $715; Forgepoint,
+      CloudNC and Uptool raised money for AI quoting in 2025-26 (bets.md, with
+      sources), so ship narrow and soon. Same buyers as bet 4 (CMMC). The public
+      cnc-machining-quote-calculator is a lead magnet for it. New app.
+    next: >-
+      Build in private-monorepo (add_repo, push access), scaffolded from apps/grants
+      with Paddle dark. Milestones: (1) a shop profile (machines, hourly rates,
+      setup minutes, material prices, margin) and a quote engine from part features
+      (stock size, material, operations, quantity breaks) with unit tests; (2) STEP
+      file in: bounding box, volume and removed volume from an open STEP parser,
+      feeding the engine; (3) an RFQ email or PDF drawing in, the model extracting
+      part number, material, quantity, tolerances and finish into the form for the
+      estimator to confirm (bring-your-own-key or the app's key, cost metered per
+      RFQ); (4) a quote PDF and a won/lost log that recalibrates the shop's rates;
+      (5) a marketing page and llms.txt. A run that lands a slice replaces its item
+      here.
+  # Bet 3 in portfolio/monetization/bets.md (2026-11-24 ranking).
+  - venture: einvoice-preflight
+    bet: 3
+    app: private-monorepo/apps/einvoice-preflight
+    why: >-
+      Bet 3 (score 21, hard legal deadlines): Germany requires issuing e-invoices
+      above EUR 800k turnover from 1 Jan 2027 and for everyone from 2028; France's
+      SMEs from 1 Sep 2027 (bets.md, with sources). Validation alone is a commodity;
+      the bet is fix-and-explain. The public engine (EN 16931, XRechnung, Peppol,
+      Factur-X, 60+ countries of rules, cross-checked against Saxon) is the base to
+      import (LICENSING_TRANSITION.md, "How one product moves"). Its public history
+      and open rule items: ventures/einvoice-preflight/README.md and NEXT.md.
+    next: >-
+      Import with private-monorepo/scripts/import-venture.mjs einvoice-preflight if
+      not yet done (record it in transition.py MOVED), then build there: (1) each
+      failed rule explained in plain German, French and Dutch (what is wrong, where,
+      how to fix), written once per rule, not generated per call; (2) a safe
+      auto-fix for the mechanical failures (rounding, missing codes with one valid
+      value, date formats) that returns a corrected file plus a list of exactly what
+      changed, and refuses to guess amounts or tax; (3) accounts with a client list
+      for accountants (one workspace per client, history of runs); (4) a metered API
+      key for small invoicing vendors; (5) Paddle dark per
+      portfolio/monetization/models.yaml (row app: einvoice-preflight). Keep the
+      rule set current in the app (Peppol BIS 3.1.0 rebuild once OpenPeppol tags it:
+      NEXT.md). A run that lands a slice replaces its item here.
+  # Bet 4 in portfolio/monetization/bets.md (2026-11-24 ranking).
+  - venture: cmmc
+    bet: 4
+    app: private-monorepo/apps/cmmc
+    why: >-
+      Bet 4 (score 19): CMMC Phase 1 took effect 10 Nov 2025 and Level 1/2
+      self-assessments remain required after Phase 2's suspension; the DoD estimates
+      337,968 affected contractors, 229,818 small. FutureFeed lists $99 and $399 a
+      month, PreVeil Pass $450 for 3 users, consultants $3k to $25k for an SSP and
+      POA&M (bets.md, with sources). Same machine shops as bet 2. New app.
+    next: >-
+      Build in private-monorepo (add_repo, push access), scaffolded from apps/grants
+      with Paddle dark. Milestones: (1) the 110 NIST SP 800-171 Rev. 2 requirements
+      and their assessment objectives from NIST's public text, with a per-control
+      status, evidence notes and the DoD assessment methodology's SPRS score
+      (weights from the published method; unit tests on the scoring); (2) a System
+      Security Plan and POA&M generated from those answers as documents; (3) the 15
+      Level 1 requirements as a free self-assessment page in this repository (the
+      front door); (4) ISO 9001 / AS9100 clause checklist sharing the evidence
+      store. Never claim certification or C3PAO status, and tell users not to upload
+      CUI. A run that lands a slice replaces its item here.
+  # Bet 5 in portfolio/monetization/bets.md (2026-11-24 ranking).
+  - venture: seller-books
+    bet: 5
+    app: private-monorepo/apps/seller-books
+    why: >-
+      Bet 5 (score 21, but a $10 to $20 wedge price): multi-platform resellers
+      (eBay, Poshmark, Mercari, Whatnot, Depop) need fees split out, cost of goods
+      and mileage tracked and a Schedule C-ready P&L. A2X lists $29 a month per
+      channel, Seller Ledger $10/$20/$50, Link My Books about $21 to $136 (bets.md,
+      with sources). No bank feed needed. The public reseller-books venture and the
+      payout calculators are its lead magnets and its engine's starting point.
+    next: >-
+      Build in private-monorepo (add_repo, push access), starting from
+      ventures/reseller-books' engines (import with import-venture.mjs, then rename
+      to seller-books), scaffolded from apps/grants with Paddle dark. Milestones:
+      (1) accounts and saved imports: payout and order CSVs from eBay, Poshmark,
+      Mercari, Whatnot and Depop parsed into one ledger with fees, shipping and
+      refunds split out, deduplicated across re-uploads; (2) inventory with cost of
+      goods matched to sales; (3) mileage log at the IRS standard rate with its
+      source cited; (4) a Schedule C line-mapped P&L export and a CSV for the
+      accountant; (5) a marketing page that does not sell on 1099-K fear (the
+      federal threshold is back at $20,000 and 200 transactions). A run that lands a
+      slice replaces its item here.
+  # Bet 6 in portfolio/monetization/bets.md (2026-11-24 ranking).
+  - venture: wall-framing-takeoff
+    bet: 6
+    app: private-monorepo/apps/wall-framing-takeoff
+    why: >-
+      Bet 6 (score 18): remodelers, roofers and framers buy takeoff (Togal.AI
+      $249.99 to $299.99 a month, Handoff from $149, Buildxact about $199, roof
+      reports about $13 to $38 each; 128,187 remodeler establishments; bets.md with
+      sources). Imported to private-monorepo (PR #8 there). Its engine frames every
+      wall and orders lumber within 0.02% of the LP bound; it becomes the estimating
+      module of the bet 1 contractor suite. The free edition stays at
+      ventures/wall-framing-takeoff (its real-input items: ROADMAP.md and NEXT.md).
+    next: >-
+      Work in private-monorepo/apps/wall-framing-takeoff (add_repo, push access).
+      Milestones: (1) roofing and siding material lists from a PDF plan set: roof
+      planes, pitch, ridge, hip, valley and eave lengths to squares, underlayment,
+      drip edge and starter; wall areas less openings to siding squares and trim,
+      reusing the public pdf-plan-takeoff parser (MIT) for scale and measurement;
+      (2) accounts with saved jobs and a branded bid package across framing, roof
+      and siding; (3) Paddle dark per portfolio/monetization/models.yaml (row app:
+      wall-framing-takeoff); (4) an export the bet 1 app can read as a change order
+      or schedule of values line. A run that lands a slice replaces its item here.
+  # Bet 7 in portfolio/monetization/bets.md (2026-11-24 ranking).
+  - venture: grants
+    bet: 7
+    app: private-monorepo/apps/grants
+    why: >-
+      Bet 7 (score 16, live): Grant Autopilot for small nonprofits, live at
+      marisstella.app/grants, with a cost-plus pricing test and the reference Paddle
+      adapter (apps/grants/src/worker/ports/billing/paddle.ts). Instrumentl lists
+      $299 to $999 a month and reviewers call it pricey for small nonprofits
+      (bets.md, with sources). Finishing its paid path is cheap; no large new build.
+    next: >-
+      Work in private-monorepo/apps/grants (add_repo, push access). Milestones: (1)
+      the Paddle checkout end to end in Paddle's sandbox with webhook-driven plan
+      changes and a test that a lapsed subscription loses paid features; (2) the
+      Paddle catalogue (products, prices) as code with an apply step, so the owner
+      only pastes the API key (goals.md, "Minimise click ops"); (3) onboarding to a
+      first useful draft in one session; (4) a marketing page and llms.txt that say
+      exactly what it does. The owner sets live ids. A run that lands a slice
+      replaces its item here.
   - venture: ai-bookkeeper
+    demoted: >-
+      2026-11-24: no bet. Freelancer and small-business books ranked "not now" in
+      bets.md (QuickBooks Solopreneur $0 to $20, needs a bank feed, search owned by
+      incumbents). Its reconciliation and categorizer engines feed bet 5
+      (seller-books); deepen it only through that.
     why: >-
       A double-entry ledger in integer cents with a four-layer categorizer that
       learns from each filed line (rules, payee memory, naive Bayes, built-in
@@ -138,10 +277,12 @@ flagships:
       (eval/receipt-ocr-ru-page-*). SROIE (zzzDavid/ICDAR-2019-SROIE) merchants:
       eval/sroie-five-readings-2026-11-18
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
-
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
   - venture: sales-agent
+    demoted: >-
+      2026-11-24: no bet; it is the portfolio's own outbound tool (goals.md, the
+      pivot's point 7), worked on when the sales machine for the bets needs it.
     inputs_only: >-
       a strong second reader (a person or a hosted model of another family, which needs a key), real
       outreach replies and call notes, a real mailbox with a Google or Microsoft app, a HubSpot or
@@ -178,6 +319,8 @@ flagships:
   # algorithms as tools (prompts/goals.md). New tools of that kind follow
   # portfolio/research-tools/README.md; this entry deepens the first one.
   - venture: changepoint-detector
+    demoted: >-
+      2026-11-24: no bet; a research-derived tool with no SMB buyer in bets.md.
     why: >-
       PELT and Bayesian online changepoint detection from the papers, exact
       against brute force and a closed-form evidence check, reproducing the
@@ -208,55 +351,10 @@ flagships:
       false turns, no match (README "Japan's coincident index"; BBQ short-phase bug
       fixed); next: a committee that dates short recessions (CEPR euro area);
       t-walk. More open items: NEXT.md.
-  - venture: einvoice-preflight
-    hosts: [https://github.com/, https://pypi.org/, https://repo1.maven.org/]
-    # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag.
-    # 2026-11-24: still untagged (newest tag 3.0.22, QA2 head 90f078a unchanged);
-    # a batch readiness page shipped instead. Check `git ls-remote` for the tag.
-    not_before: 2026-11-27
-    why: >-
-      Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
-      XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
-      deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
-    next: >-
-      History: README and git (latest: Peppol BIS 3.1.0 readiness for a folder of
-      sent invoices, page + CLI, 147-row rule diff
-      (eval/peppol-readiness-2026-11-24.md); Peppol BIS Self-Billing 3.0.2/3.1.0
-      rules in place of Billing's (eval/peppol-self-billing-2026-11-18.md); Peppol
-      BIS 3.1.0 preview, new findings marked, 1,138/1,138 unit asserts; fontoxpath
-      format-integer padding fixed, ZATCA BR-CO-17/BR-S-09
-      (eval/peppol-bis-3.1.0-2026-11-18.md); open: a real sender's files through
-      eval/peppol-next-diff.mjs; the browser's official rules read whitespace as
-      Saxon does, 161 of 528 to 0 vs SaxonC-HE, XML-VALUE-01 on 160 of 160 Saxon
-      aborts (eval/xml-whitespace-crosscheck-2026-11-17.md); INV-041 endpoint ids as
-      OpenPeppol's PEPPOL-COMMON rules check them, 0 of 21,264 off
-      (eval/endpoint-peppol-differential-2026-11-17.md); Peppol's warning-level
-      IT/NL id formats as INV-061 warnings, 0 of 23,999 off
-      (eval/endpoint-peppol-warnings-2026-11-17.md); INV-062/063: the same rules on
-      PartyIdentification/CompanyID, GlobalID/legal org ID
-      (eval/party-id-peppol-differential-2026-11-17.md); France Flux 10 e-reporting,
-      PPF Annexe 7 controls 147/147 vs Saxon (eval/flux10-crosscheck-2026-11-17.md);
-      open: a real Flux 10 file, a PPF rejection; BR-FR 264/264 vs Saxon, all 384
-      BR-FR/CDV messages in English (br-fr-error-codes.html); CDAR (BR-FR-CDV)
-      780/780 vs Saxon (eval/cdar-crosscheck-*); Extended-CTC-FR and Factur-X
-      EXTENDED bases 175/175 vs Saxon (eval/extended-base-crosscheck-2026-11-17.md);
-      open: a real PA extended file, CDAR _WARNING set (37/43 rules hit, 6 dead:
-      FR-CDV-105..107 cover them), a real PA rejection or status; VERI*FACTU
-      (README): open: a production SIF's records and replies). Open: a real HU
-      report with NAV's businessValidationMessages or SCHEMA_VIOLATION text; HU:
-      open: a real chain with NAV's replies. A run that lands a slice replaces its
-      item here. More open items: NEXT.md.
-    buildable: >-
-      Peppol BIS 3.1.0 (in force 2027-02-24) runs as an opt-in preview, from
-      OpenPeppol's branch 2026-Q4-QA2 at 90f078a, 1,138/1,138 unit asserts
-      (eval/peppol-bis-3.1.0-2026-11-18.md). Once tagged (none 2026-11-24), rebuild
-      peppol-next-* from the 3.1.0 tag on master (EINVOICE_PEPPOL_NEXT_BRANCH,
-      build-plain-rules.mjs) and diff; peppol-sb-next likewise (Self-Billing, branch
-      selfbilling-2026-Q4-QA2; eval/peppol-self-billing-2026-11-18.md). Every
-      plain-only set already matches SaxonC on whitespace and CASTABLE
-      (eval/datetime-leaves-2026-11-18.md). No network beyond PyPI, Maven and
-      GitHub.
   - venture: shift-roster-builder
+    demoted: >-
+      2026-11-24: no bet; free tiers and plans from $2.50 a user a month anchor its
+      market (models.yaml), and it scored below the ranked bets.
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
       read, real 7shifts, When I Work, Square or Homebase accounts, dated
@@ -298,6 +396,9 @@ flagships:
       INFO and write role: cells in import-deputy-staff.mjs (time off landed
       2026-11-19, README "Deputy time off"). Homebase stays account-gated.
   - venture: photo-editing
+    demoted: >-
+      2026-11-24: no bet. AI photo culling ranked "not now" in bets.md (Aftershoot's
+      scale, prices falling to about $10 a month).
     hosts: [https://raw.pixls.us/, https://github.com/, https://storage.googleapis.com/]
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
@@ -339,8 +440,10 @@ flagships:
       Lightroom's own import, needs Lightroom; K autocomplete from the list). Nikon
       AF points, half faces at the edge 2026-11-24 (eval/cull-nikon-af-*,
       eval/cull-edge-mirror-*). More open items: NEXT.md.
-
   - venture: quick-pick-survey
+    demoted: >-
+      2026-11-24: no bet; not among the candidates bets.md scored as SMB paid
+      products.
     inputs_only: >-
       a real survey's answers and answer times ((c), (d11), (bw), (h)) or
       search-traffic data for (r)
@@ -371,8 +474,10 @@ flagships:
       not), whether real people have warm-ups, blocks, slot runs or spread-out
       carelessness, and how noisy real pairwise answers are
       (scripts/coin-flip-gate-real.ts --honest-lapse). More open items: NEXT.md.
-
   - venture: league-schedule-generator
+    demoted: >-
+      2026-11-24: no bet; volunteer buyers with small budgets (models.yaml), not an
+      SMB bet.
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
       assignment under rest constraints, blackouts, play-offs, ladders and
@@ -414,6 +519,9 @@ flagships:
       8x9 night designs (a split or resumable search). Each is a hard combinatorial
       search; judge its worth before taking it.
   - venture: open-tennis-robots
+    demoted: >-
+      2026-11-24: no bet. Open hardware is a long-term track, not a ranked bet
+      (bets.md, "Hardware": paper-only first step).
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed
       CAD work and every check: cad/README.md (2026-11-21: switches, post wedges,
@@ -458,6 +566,8 @@ flagships:
   # "would be fun to make as a long term project. also being able to publish to
   # spotify etc." Placed last so it does not displace the construction programme.
   - venture: chant-forge
+    demoted: >-
+      2026-11-24: no bet; a commons project (MIT), not a paid product.
     hosts: [https://archive.org/]
     why: >-
       Long-term music production programme: public-domain chant (GABC) to MIDI
@@ -503,6 +613,9 @@ flagships:
   # checking of IFC models, in a browser tab or CI. Depth: a full IDS engine
   # scored on buildingSMART's 334 test pairs and cross-checked against IfcTester.
   - venture: ids-model-check
+    demoted: >-
+      2026-11-24: no bet. IFC/IDS model checking ranked "not now" in bets.md (free
+      ifctester and EUR 15 to 69 add-ins).
     why: >-
       Checks IFC2X3/IFC4/IFC4X3 models against IDS 1.0 in the browser with nothing
       uploaded, or in CI; BCF 2.1, CSV and JSON exports. 334/334 on buildingSMART's
@@ -552,6 +665,9 @@ flagships:
   # construction"): a P6 schedule engine is a hard, open-ended engineering
   # problem with a paid market (schedule analytics, update reviews, claims).
   - venture: xer-schedule-check
+    demoted: >-
+      2026-11-24: no bet. P6/XER checking ranked "not now" as a standalone bet
+      (about 2k P6 companies); fine later as a module of bet 1.
     why: >-
       Reads Primavera P6 XER files in the browser and recomputes the critical path
       with P6's calendar, link, constraint and progress rules: 19,820 of 19,822
@@ -600,6 +716,9 @@ flagships:
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).
   - venture: ifc-quantity-takeoff
+    demoted: >-
+      2026-11-24: no bet. IFC tooling ranked "not now" in bets.md; residential
+      takeoff (bet 6) works from PDF plan sets instead.
     why: >-
       Bill of quantities from an IFC model in the browser, every element's volume
       recomputed from its body (signed convex pieces: extrusions, clips incl.
