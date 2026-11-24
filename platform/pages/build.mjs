@@ -35,6 +35,7 @@ import { promisify } from 'node:util';
 import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
+import { renderHardwarePage, HARDWARE_PATH } from './hardware-page.mjs';
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
 import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, loadPosts, WRITING_PATH } from './writing.mjs';
@@ -12668,6 +12669,8 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     .concat([`  <url><loc>${baseUrl}${ASK_PATH}</loc></url>`])
     // Open custom development, on the same terms.
     .concat([`  <url><loc>${baseUrl}${CUSTOM_DEV_PATH}</loc></url>`])
+    // The hardware designs page, on the same terms.
+    .concat([`  <url><loc>${baseUrl}${HARDWARE_PATH}</loc></url>`])
     .concat(loadRequests().filter((r) => /^R-\d{4}$/.test(r.id || '')).map((r) => `  <url><loc>${baseUrl}${customRequestPath(r.id)}</loc></url>`))
     // And the comparison index, on exactly the same terms: a hub-level page
     // this build writes, so it is listed here or nowhere.
@@ -12936,6 +12939,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
       ? `- [Short index](${baseUrl}llms.txt): the same tools with one-sentence descriptions, small enough to read in one fetch.`
       : `- [Full text](${baseUrl}llms-full.txt): every tool with its complete description and the LLM docs a product ships; large (several hundred KB), fetch only when the index does not answer the question.`,
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, the country code and the device type, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [Open hardware designs for businesses](${baseUrl}${HARDWARE_PATH}): robots for tennis clubs (ball collection), cleaning companies (floor cleaning) and grounds crews (a wire-free mower), open house plans for builders, and construction robotics research, each with its honest stage. Every design is MIT licensed and at the CAD and simulation stage: nothing has been built, nothing is for sale, and there are no prices or dates. Each card links the site's feedback form so a business can say it would use one.`,
     `- [Free custom software for your business](${baseUrl}${CUSTOM_DEV_PATH}): describe your problem and it gets built. How a business, or anyone, can ask the agents that build this site for a new tool, free and in public, the one condition (the result stays MIT licensed, held by the repository owner), and every request so far with its status. Each request has its own page (custom-development/R-0001/ and so on) showing its stage and what is still open, with a form for feedback on it.`,
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
@@ -13773,6 +13777,15 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   const feedbackDir = path.join(outDir, FEEDBACK_PATH);
   await fs.mkdir(feedbackDir, { recursive: true });
   await fs.writeFile(path.join(feedbackDir, 'index.html'), renderFeedbackPage({ surfaces, baseUrl: base }));
+  // The open hardware designs as future products for businesses (see `hardware-page.mjs`).
+  const hardwareDir = path.join(outDir, HARDWARE_PATH);
+  await fs.mkdir(hardwareDir, { recursive: true });
+  await fs.writeFile(path.join(hardwareDir, 'index.html'), renderHardwarePage({
+    baseUrl: base,
+    footerHtml: disclaimerHtml('../', surfaces),
+    chromeScript: `<script src="${escapeHtml(`../${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="hardware" defer></script>`,
+    socialCard: `${base}${SOCIAL_CARD_FILE}`,
+  }));
   const customDevDir = path.join(outDir, CUSTOM_DEV_PATH);
   const customRequests = loadRequests();
   const researchDirs = researchDirections();
