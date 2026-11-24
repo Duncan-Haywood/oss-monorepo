@@ -49,5 +49,5 @@ test("next-month carry-forward is on the page and the suite pitch claims no sale
   assert.match(suite, /in development/);
   assert.match(suite, /not on sale yet/);
   assert.doesNotMatch(suite, /\$\s?\d/);
-  assert.match(suite, /\.\.\/feedback\/\?type=idea&amp;tool=pay-application-generator/);
+  assert.match(suite, /https:\/\/marisstella\.app\/feedback\/\?type=idea&amp;tool=pay-application-generator/);
 });
