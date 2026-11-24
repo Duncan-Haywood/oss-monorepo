@@ -1,0 +1,336 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKkb3GhDVY6UzqXqwc3",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T13:13:49Z",
+  "ended": "2026-11-24T13:16:52Z",
+  "wall_minutes": 9.44,
+  "tokens_in": 2856283,
+  "tokens_out": 18023,
+  "cost_usd": 1.4772,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18605",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list (13 entries) is now entirely control-plane follow-ups or a redesign; nothing in it is fixable by an ordinary run, so step 0 cost a read and no fix. A filter (e.g. `redteam.py open --fixable`) would save the time."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`targets` with no flags lists a random-looking 20 files, so it can't confirm a chosen --target is in the guarded set; I timed the suite by hand instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix every open defect first; all 13 are control-plane (own PR, owner approval) or need a product redesign/eval set.",
+      "did": "Skipped them and seeded a fresh target.",
+      "result": "Run time went to a never-audited product; one real defect fixed."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Mutant at line 69 is a real gap but pinning the boundary would freeze a rule that may itself be wrong (open defect), and the primary sources were unreachable.",
+      "did": "Triaged gap, left caught_after_fix false, wrote the fix into real_defects[1].",
+      "result": "One gap stays open by design."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-shared-parental-pay-before-april-2025.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/uk-shared-parental-pay-planner/calc.mjs (suite 0.13 s). 12 mutants, 8 caught, 1 equivalent; catch rate 0.727 -> 0.909 after two new tests (rerun confirmed). Real defects: pre-2025-04-06 dates silently used 2025/26 rates (patched with a finding + test); possible over-strict 26-week count (open, gov.uk/legislation.gov.uk unreachable: proxy 403 / DNS). Local sweep (run_workflow_locally --for-changes): pages.yml and ventures-tests.yml run: steps passed; prompts-ci failed only on this record before it was filled in; cross-review and deploy jobs not runnable locally. No new automated guard (4b): the class 'rate table fallback without warning' is product-specific; noted for a later run.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+        "test": "node --test ventures/uk-shared-parental-pay-planner/**/*.test.mjs  (in .)",
+        "seed": 1028176909,
+        "commit": "d309971ba",
+        "sites": 177,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 21,
+            "col": 31,
+            "operator": "div-to-times",
+            "before": "{ from: Date.UTC(2026, 3, 6) / 86400000, standard: 194.32, lel: 129, label: \"2026/27\" },",
+            "after": "{ from: Date.UTC(2026, 3, 6) * 86400000, standard: 194.32, lel: 129, label: \"2026/27\" },",
+            "line_text": "  { from: Date.UTC(2026, 3, 6) / 86400000, standard: 194.32, lel: 129, label: \"2026/27\" },",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 37,
+            "col": 61,
+            "operator": "const-plus-one",
+            "before": "if (d.getUTCFullYear() !== +m[1] || d.getUTCMonth() !== +m[2] - 1 || d.getUTCDate() !== +m[3]) return null;",
+            "after": "if (d.getUTCFullYear() !== +m[1] || d.getUTCMonth() !== +m[3] - 1 || d.getUTCDate() !== +m[3]) return null;",
+            "line_text": "  if (d.getUTCFullYear() !== +m[1] || d.getUTCMonth() !== +m[2] - 1 || d.getUTCDate() !== +m[3]) return null;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 41,
+            "col": 65,
+            "operator": "plus-to-minus",
+            "before": "const weekday = (n) => ((new Date(n * DAY).getUTCDay() + 6) % 7) + 1; // Mon=1..Sun=7",
+            "after": "const weekday = (n) => ((new Date(n * DAY).getUTCDay() + 6) % 7) - 1; // Mon=1..Sun=7",
+            "line_text": "const weekday = (n) => ((new Date(n * DAY).getUTCDay() + 6) % 7) + 1; // Mon=1..Sun=7",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 68,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "const qwRate = rateAt(qualifyingWeek + 6);",
+            "after": "const qwRate = rateAt(qualifyingWeek + 7);",
+            "line_text": "  const qwRate = rateAt(qualifyingWeek + 6);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "qualifyingWeek is a Sunday, so +6 is a Saturday and +7 the next Sunday. Every RATES boundary is 6 April and rateAt falls back to RATES[0] before the first one; the only later boundary (2026-04-06) is a Monday, so no Saturday/Sunday pair straddles a rate change and the LEL looked up is identical. Becomes live if an earlier year (2024/25, 6 April 2024 a Saturday) is added."
+          },
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 69,
+            "col": 63,
+            "operator": "const-plus-one",
+            "before": "const employedWeeks = Math.floor((qualifyingWeek + 6 - emp + 1) / 7);",
+            "after": "const employedWeeks = Math.floor((qualifyingWeek + 6 - emp + 2) / 7);",
+            "line_text": "  const employedWeeks = Math.floor((qualifyingWeek + 6 - emp + 1) / 7);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": false,
+            "note": "Off by one day at the 26-week boundary (start on the Monday 25 weeks before the qualifying week). Not pinned: the current formula itself may be up to 6 days too strict (real_defects[1]); a test fixing the boundary should come with that decision."
+          },
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 85,
+            "col": 27,
+            "operator": "times-to-div",
+            "before": "const wk = start + 7 * i;",
+            "after": "const wk = start + 7 / i;",
+            "line_text": "      const wk = start + 7 * i;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test priced SMP weeks across an April uprating; added 'each SMP week takes the standard rate in force on its own date'."
+          },
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 88,
+            "col": 49,
+            "operator": "min-to-max",
+            "before": "const amount = r2(high ? 0.9 * motherAwe : Math.min(rateAt(wk).standard, 0.9 * motherAwe));",
+            "after": "const amount = r2(high ? 0.9 * motherAwe : Math.max(rateAt(wk).standard, 0.9 * motherAwe));",
+            "line_text": "      const amount = r2(high ? 0.9 * motherAwe : Math.min(rateAt(wk).standard, 0.9 * motherAwe));",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 107,
+            "col": 14,
+            "operator": "eq-flip",
+            "before": "if (who === \"Partner\") partnerTotal = r2(partnerTotal + amount); else motherSharedTotal = r2(motherSharedTotal + amount);",
+            "after": "if (who !== \"Partner\") partnerTotal = r2(partnerTotal + amount); else motherSharedTotal = r2(motherSharedTotal + amount);",
+            "line_text": "      if (who === \"Partner\") partnerTotal = r2(partnerTotal + amount); else motherSharedTotal = r2(motherSharedTotal + amount);",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 135,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "const qualifyingWeek = ewcWeek - 15 * 7;",
+            "after": "const qualifyingWeek = ewcWeek - 15 * 8;",
+            "line_text": "  const qualifyingWeek = ewcWeek - 15 * 7;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 150,
+            "col": 13,
+            "operator": "neq-flip",
+            "before": "if (wanted !== null && wanted > shared) findings.push({ severity: \"medium\", title: `Only ${shared} shared weeks remain after ${smpWeeks} weeks of SMP; the plan uses ${shared} for the partner instead of ${wanted}.` });",
+            "after": "if (wanted === null && wanted > shared) findings.push({ severity: \"medium\", title: `Only ${shared} shared weeks remain after ${smpWeeks} weeks of SMP; the plan uses ${shared} for the partner instead of ${wanted}.` });",
+            "line_text": "  if (wanted !== null && wanted > shared) findings.push({ severity: \"medium\", title: `Only ${shared} shared weeks remain after ${smpWeeks} weeks of SMP; the plan uses ${shared} for the partner instead of ${wanted}.` });",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 154,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (let p = 4; p < shared; p += 4) set.add(p);",
+            "after": "for (let p = 5; p < shared; p += 4) set.add(p);",
+            "line_text": "  for (let p = 4; p < shared; p += 4) set.add(p);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Scenario test only checked 0, the plan and the end; added the exact 0/4/8/12/13 grid."
+          },
+          {
+            "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+            "line": 162,
+            "col": 73,
+            "operator": "times-to-div",
+            "before": "const mRate = mother.eligible ? Math.min(rateAt(ewcWeek).standard, 0.9 * mAwe) : 0;",
+            "after": "const mRate = mother.eligible ? Math.min(rateAt(ewcWeek).standard, 0.9 / mAwe) : 0;",
+            "line_text": "  const mRate = mother.eligible ? Math.min(rateAt(ewcWeek).standard, 0.9 * mAwe) : 0;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+        "issue": "Due dates before 6 April 2025 were priced with the 2025/26 standard rate (a 2024-09-01 due date paid 2024/25 weeks at \u00a3187.18, not the 2024/25 rate) and tested against the 2025/26 LEL, with no warning (only the future edge had one). Reproduced with compute(); fixed with a 'before 6 April 2025' finding and a failing-first test.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18605"
+      },
+      {
+        "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
+        "issue": "Possible: eligibility() counts whole 7-day blocks back from the end of the qualifying week, so a parent must have started by the Sunday 25 weeks before the qualifying week. HMRC's Statutory Payments Manual (SPM250800, via search summary) says a week counts if any work was done in it, and ERA 1996 s.212(1) counts a week employed in part, which would allow a start any day up to that Saturday (6 days later). Not fixed: gov.uk and legislation.gov.uk were unreachable from this session (proxy 403 / DNS), so the rule could not be confirmed from the primary text. Fix if confirmed: lengthOk = emp <= qualifyingWeek - 169 (and employedWeeks computed from sundayOnOrBefore(emp)); then pin the boundary with a test, which also guards mutant at line 69.",
+        "patched": false
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7aeab119-badf-561c-aaf5-cdfc93fc6ff4",
+    "transcripts": 1,
+    "first": "2026-11-24T13:13:49Z",
+    "last": "2026-11-24T13:23:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 76,
+        "output": 18023,
+        "thinking": 6132,
+        "cache_read": 2786310,
+        "cache_write_5m": 0,
+        "cache_write_1h": 69897,
+        "api_equivalent_usd": 1.4772,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 76,
+      "output": 18023,
+      "thinking": 6132,
+      "cache_read": 2786310,
+      "cache_write_5m": 0,
+      "cache_write_1h": 69897,
+      "api_equivalent_usd": 1.4772,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 30,
+      "WebFetch": 3,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.44,
+      "active_minutes": 9.44,
+      "model_minutes": 3.72,
+      "tool_minutes": 5.72,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "mutation campaign, rule research, two fixes, tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 203.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

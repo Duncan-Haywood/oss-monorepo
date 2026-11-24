@@ -88,6 +88,28 @@ test("weeks beyond the last known rate are flagged", () => {
   assert.ok(r.findings.some((f) => /6 April 2027/.test(f.title)));
 });
 
+test("dates before the first known rate year are flagged (red team 2026-11-24)", () => {
+  const early = run({ expectedDate: "2024-09-01", motherEmploymentStart: "2020-01-01", partnerEmploymentStart: "2020-01-01" });
+  assert.ok(early.findings.some((f) => /before 6 April 2025/.test(f.title)));
+  // A qualifying week before 6 April 2025 with all paid weeks after it still warns.
+  const qwOnly = run({ expectedDate: "2025-07-15", motherEmploymentStart: "2020-01-01", partnerEmploymentStart: "2020-01-01" });
+  assert.equal(qwOnly.current.before, false);
+  assert.ok(qwOnly.findings.some((f) => /before 6 April 2025/.test(f.title)));
+  assert.ok(!run({}).findings.some((f) => /before 6 April 2025/.test(f.title)));
+});
+
+test("each SMP week takes the standard rate in force on its own date (red team 2026-11-24)", () => {
+  // Due week starts 2026-01-11: SMP weeks 7-12 fall before 6 April 2026, the rest after.
+  const r = run({ expectedDate: "2026-01-15", motherEmploymentStart: "2020-01-01", smpWeeks: "39", partnerWeeks: "" });
+  const smp = r.current.rows.filter((x) => /SMP at the lower/.test(x.phase));
+  assert.deepEqual(smp.map((x) => [x.weekly, x.weeks]), [[187.18, 7], [194.32, 26]]);
+});
+
+test("the scenario table steps the partner's share by 4 weeks from 0 (red team 2026-11-24)", () => {
+  const r = run({});
+  assert.deepEqual(r.scenarios.map((s) => s.partnerWeeks), [0, 4, 8, 12, 13]);
+});
+
 test("summary names the verify line and the disclaimer", () => {
   const t = summaryText(run({}));
   assert.match(t, /GOV\.UK/);
