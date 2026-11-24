@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKjanNTwfZSHCF4Dqn3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T16:18:57Z",
+  "ended": "2026-11-24T16:33:14Z",
+  "wall_minutes": 14.5,
+  "tokens_in": 5800334,
+  "tokens_out": 24208,
+  "cost_usd": 2.5289,
+  "tool_calls": 57,
+  "task": "ifc-quantity-takeoff (flagship 14): figures in doubt, buildable item 2",
+  "projects": [
+    "ventures/ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18628",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ifc-quantity-takeoff/eval/curved-and-faces-2026-11-22.md",
+      "issue": "'The 14 left' called the afdekker copings a CSG difference the face reader cannot take a face off; they are a plain extrusion whose arc profile is held as signed pieces, and planeAreas only declined multi-term bodies by choice. The description sent me toward boolean-clipping code first."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-archicad-coping-area-is-its-underside.md",
+    "ventures/ifc-quantity-takeoff/eval/signed-faces-2026-11-24.md"
+  ],
+  "goal": "Name the last areas in doubt over the 15 public models",
+  "notes": "planeAreas(s, signed) sums each term's loops times its sign per plane; used only by the plan check (surfaceArea/coating unchanged). Before/after sweep over 15 models (HHS architect, construction + 13 web-ifc public files): 6 rows change cause (schependomlaan #44220, #691798, #739532 GrossArea/NetArea unexplained -> a-body-face), BoQ totals identical on all 15. in-doubt: areas 3 -> 0, models clean 13 -> 14 of 15; 1 volume left (ARK_NUS #1167770). Local: run_venture_tests.py ifc-quantity-takeoff ok (286 tests), check_posts ok, venture-preflight clean, validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "848ea87b-49d6-56d1-81d9-a0bc2a67d89c",
+    "transcripts": 1,
+    "first": "2026-11-24T16:18:57Z",
+    "last": "2026-11-24T16:33:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 106,
+        "output": 24208,
+        "thinking": 6033,
+        "cache_read": 5686858,
+        "cache_write_5m": 0,
+        "cache_write_1h": 113370,
+        "api_equivalent_usd": 2.5289,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 106,
+      "output": 24208,
+      "thinking": 6033,
+      "cache_read": 5686858,
+      "cache_write_5m": 0,
+      "cache_write_1h": 113370,
+      "api_equivalent_usd": 2.5289,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 52,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.5,
+      "active_minutes": 14.5,
+      "model_minutes": 4.77,
+      "tool_minutes": 9.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an estimator-developer tracing the coping's STEP, generalising the face reader and re-sweeping 15 models",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 237.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
