@@ -78,7 +78,8 @@ and creates nothing: run it once after setup.
 - **Workers Scripts Write**: upload Workers, set Worker secrets, workers.dev, Workflows.
 - **Account Settings Read**: wrangler reads the account on every command.
 - **D1 Write**: list/create/migrate/export databases. **Workers R2 Storage Write**,
-  **Vectorize Write**, **Queues Write**: what grants' bindings provision.
+  **Vectorize Write**, **Queues Write**, **Workers AI Read**: what grants' bindings
+  provision or bind (the list in private-monorepo `apps/grants/docs/DEPLOY.md`).
 - **Pages Write**: `wrangler pages deploy`. **Access: Apps and Policies Write**
   and **Access: Organizations, Identity Providers, and Groups Read**: the docs
   site's Access app and its login domain.

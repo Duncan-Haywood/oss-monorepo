@@ -44,6 +44,7 @@
       "Workers R2 Storage Write",
       "Vectorize Write",
       "Queues Write",
+      "Workers AI Read",
       "Account Settings Read"
     ],
     "zone": ["Zone Read", "DNS Write", "Workers Routes Write"],
