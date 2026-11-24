@@ -35,6 +35,7 @@ import { promisify } from 'node:util';
 import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
+import { renderHardwarePage, HARDWARE_PATH } from './hardware-page.mjs';
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
 import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, loadPosts, WRITING_PATH } from './writing.mjs';
@@ -184,6 +185,8 @@ import {
   siteStructuredData,
 } from './home.mjs';
 import { servedPath } from './served-path.mjs';
+import { liveIndustries, pruneDoors, renderPageDoor, renderToolDoor } from './front-doors.mjs';
+import { loadFunnel, offerTable, OFFER_ATTR, renderProductOffer } from './product-offer.mjs';
 import { acquireBuildLock, waitForBuildLock } from './build-lock.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -6607,6 +6610,8 @@ const CATEGORY_STYLE = `
          letter-spacing: -.04em; margin: 0 0 14px; }
     .lede { font-size: 1.06rem; line-height: 1.55; color: var(--muted); margin: 0 0 10px; }
     .count { font-size: .85rem; color: var(--soft); margin: 0; }
+    .door { margin: 0 0 18px; max-width: 70ch; line-height: 1.55; padding: 10px 14px; border: 1px solid var(--line);
+            border-left: 4px solid var(--pf-cat, var(--accent)); border-radius: 8px; background: var(--panel); font-size: .95rem; }
     .subgroup { margin-top: 30px; scroll-margin-top: 14px; }
     .subgroup h2 { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em;
                    color: var(--muted); font-weight: 700; margin: 0 0 12px;
@@ -6782,6 +6787,18 @@ export function audienceQuestions(tools, guides, limit = 8) {
  * `data-search` payload, which is a meaningful weight saving on the 112-tool
  * trades page.
  */
+/**
+ * A category page's visible headline: its search title without the leading
+ * "Free". Owner, 2026-11-24: free single-purpose tools are front doors to paid
+ * products, so "free" is a fact on these pages (the count line under the hero
+ * says it), not the pitch. The <title>, og:title and JSON-LD keep the search
+ * title unchanged, so the page's search snippet is the same.
+ */
+export function heroTitle(title) {
+  const rest = String(title).replace(/^Free\s+/, '');
+  return rest === title ? title : rest.charAt(0).toUpperCase() + rest.slice(1);
+}
+
 export function renderCategoryPage({
   category,
   items,
@@ -6964,15 +6981,15 @@ ${otherAudiences
   <div class="wrap"${category.accent ? ` style="--pf-cat:${escapeHtml(category.accent)}"` : ''}>
     <header class="pf-hero">
       <p class="eyebrow">${escapeHtml(category.title)}</p>
-      <h1>${escapeHtml(copy.title)}</h1>
+      <h1>${escapeHtml(heroTitle(copy.title))}</h1>
       <p class="lede">${escapeHtml(copy.intro)}</p>${
         copy.starting
           ? `
       <p class="starting">${escapeHtml(copy.starting)}</p>`
           : ''
       }
-      <p class="count">${formatCount(items.length)} free tool${items.length === 1 ? '' : 's'} · no account · ${countPrivacyClaim}</p>${countExceptionList}
-    </header>
+      <p class="count">${formatCount(items.length)} tool${items.length === 1 ? '' : 's'} · free, no account · ${countPrivacyClaim}</p>${countExceptionList}
+    </header>${renderPageDoor({ pageId: category.id, toRoot })}
 ${copy.lead ?? ''}${jumps}
 ${filter}
 
@@ -10894,7 +10911,8 @@ const CHROME_CSS = `
 .pf-chrome-foot ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px 18px;
   grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr))}
 .pf-chrome-foot li{margin:0}
-.pf-chrome-foot p.pf-ask{margin:0 0 18px;padding:10px 14px;border:1px solid var(--pf-line);border-left-width:4px;border-radius:8px}
+.pf-chrome-foot p.pf-ask,.pf-chrome-foot p.pf-product{margin:0 0 18px;padding:10px 14px;border:1px solid var(--pf-line);border-left-width:4px;border-radius:8px}
+.pf-chrome-foot p.pf-door{margin:0 0 12px;padding:10px 14px;border:1px solid var(--pf-line);border-left-width:4px;border-radius:8px}
 .pf-ci{margin:0 0 14px}
 .pf-ci summary{cursor:pointer;font-weight:600}
 .pf-ci pre{overflow-x:auto;margin:0 0 10px;padding:8px 10px;border:1px solid var(--pf-line);border-radius:6px;font-size:.82rem}
@@ -11090,6 +11108,8 @@ const CHROME_SCRIPT = ({ counterUrl = '' } = {}) => `
       if(!t)return;
       var a=t.closest('[data-pf-to]');
       if(a)bump('cross_tool_click:'+a.getAttribute('data-pf-to'));
+      var o=t.closest('[${OFFER_ATTR}]');
+      if(o)bump('product_offer_click:'+o.getAttribute('${OFFER_ATTR}'));
       if(t.closest('[${SPONSOR_LINK_ATTR}]'))bump('${SPONSOR_CLICK_EVENT}');
     });
   }catch(e){}
@@ -12123,7 +12143,7 @@ function crumbShort(name) {
  */
 export const FOOTER_LEAD_NOT_A_BROWSER_TOOL = 'More from the same free, open-source catalogue.';
 
-export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [], linkedCss = '', browserTool = true }) {
+export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [], linkedCss = '', browserTool = true, offer = null, offerName = '', door = '' }) {
   if (html.includes(CHROME_MARKER)) return html;
   const initialBody = locateBody(html);
   if (!initialBody) return html;
@@ -12248,9 +12268,12 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   // "somewhat prominent without being dominant"): one bordered line at the top
   // of the footer, below everything the tool itself shows.
   const askLine = `    <p class="pf-ask"><strong>Need this tool to do more?</strong> <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}?kind=feature&tool=${encodeURIComponent(slug)}#request`)}">Request a feature</a>, built free and in public, or <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}?kind=problem&tool=${encodeURIComponent(slug)}#request`)}">tell us what is wrong</a>.</p>\n`;
+  // `door` (front-doors.mjs): on a mapped tool only, the paid product its
+  // visitors are plausibly customers for, first in the footer so the free
+  // tool above keeps the page.
   const footer = `<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
   <div class="pf-inner">
-${askLine}    <h2>More free tools</h2>
+${door}${askLine}${renderProductOffer({ offer, name: offerName, toRoot })}    <h2>More free tools</h2>
     <p>${externalCallHosts.length
       ? `Everything on this page runs in your browser too, except this one lookup: what you type here also goes to ${listProse(externalCallHosts)}, because that is what checking it means — see the note on this page for exactly what is sent.`
       : browserTool
@@ -12392,6 +12415,11 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
 
   // Every footer's related tools, ranked and balanced once (`relatedToolsTable`).
   const relatedTable = relatedToolsTable(surfaces);
+  // The industry pages already written, so a tool's front door never links a
+  // page that is not there (front-doors.mjs).
+  const liveDoors = liveIndustries(outDir);
+  // The product each free tool's footer names, if any (`product-offer.mjs`).
+  const offers = offerTable(loadFunnel(), new Set(surfaces.map((surface) => surface.slug)));
   const perSurface = await mapLimit(surfaces, 16, async (surface) => {
     const found = { wrapped: [], rated: [], saved: [], shared: [], described: [], highlighted: [], narrowed: [], embedded: [] };
     const { wrapped, rated, saved, shared, described, highlighted, narrowed, embedded } = found;
@@ -12435,6 +12463,11 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         // electronics academy's index pages are hubs; their calculators are
         // pages inside them).
         browserTool: (names.get(surface.slug)?.browserTool ?? true) || hasOwnControls(html),
+        // One pitch per footer: a tool that already names a specific product
+        // (`product-offer.mjs`) keeps that line and gets no industry door.
+        door: offers.has(surface.slug) ? '' : renderToolDoor({ slug: surface.slug, toRoot, live: liveDoors }),
+        offer: offers.get(surface.slug) ?? null,
+        offerName: offers.has(surface.slug) ? names.get(offers.get(surface.slug).product)?.name : '',
       })), toRoot);
       // After the chrome, which guarantees the canonical this repairs, and read
       // from the venture's *own* markup: a deep SEO page inside a tool has its
@@ -12668,6 +12701,8 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     .concat([`  <url><loc>${baseUrl}${ASK_PATH}</loc></url>`])
     // Open custom development, on the same terms.
     .concat([`  <url><loc>${baseUrl}${CUSTOM_DEV_PATH}</loc></url>`])
+    // The hardware designs page, on the same terms.
+    .concat([`  <url><loc>${baseUrl}${HARDWARE_PATH}</loc></url>`])
     .concat(loadRequests().filter((r) => /^R-\d{4}$/.test(r.id || '')).map((r) => `  <url><loc>${baseUrl}${customRequestPath(r.id)}</loc></url>`))
     // And the comparison index, on exactly the same terms: a hub-level page
     // this build writes, so it is listed here or nowhere.
@@ -12936,6 +12971,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
       ? `- [Short index](${baseUrl}llms.txt): the same tools with one-sentence descriptions, small enough to read in one fetch.`
       : `- [Full text](${baseUrl}llms-full.txt): every tool with its complete description and the LLM docs a product ships; large (several hundred KB), fetch only when the index does not answer the question.`,
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, the country code and the device type, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [Open hardware designs for businesses](${baseUrl}${HARDWARE_PATH}): robots for tennis clubs (ball collection), cleaning companies (floor cleaning) and grounds crews (a wire-free mower), open house plans for builders, and construction robotics research, each with its honest stage. Every design is MIT licensed and at the CAD and simulation stage: nothing has been built, nothing is for sale, and there are no prices or dates. Each card links the site's feedback form so a business can say it would use one.`,
     `- [Free custom software for your business](${baseUrl}${CUSTOM_DEV_PATH}): describe your problem and it gets built. How a business, or anyone, can ask the agents that build this site for a new tool, free and in public, the one condition (the result stays MIT licensed, held by the repository owner), and every request so far with its status. Each request has its own page (custom-development/R-0001/ and so on) showing its stage and what is still open, with a form for feedback on it.`,
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
@@ -13773,6 +13809,15 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   const feedbackDir = path.join(outDir, FEEDBACK_PATH);
   await fs.mkdir(feedbackDir, { recursive: true });
   await fs.writeFile(path.join(feedbackDir, 'index.html'), renderFeedbackPage({ surfaces, baseUrl: base }));
+  // The open hardware designs as future products for businesses (see `hardware-page.mjs`).
+  const hardwareDir = path.join(outDir, HARDWARE_PATH);
+  await fs.mkdir(hardwareDir, { recursive: true });
+  await fs.writeFile(path.join(hardwareDir, 'index.html'), renderHardwarePage({
+    baseUrl: base,
+    footerHtml: disclaimerHtml('../', surfaces),
+    chromeScript: `<script src="${escapeHtml(`../${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="hardware" defer></script>`,
+    socialCard: `${base}${SOCIAL_CARD_FILE}`,
+  }));
   const customDevDir = path.join(outDir, CUSTOM_DEV_PATH);
   const customRequests = loadRequests();
   const researchDirs = researchDirections();
@@ -14015,6 +14060,21 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   const {
     wrapped, rated, saved, shared, described, highlighted, narrowed, embedded,
   } = await addSiteChrome({ outDir, surfaces, baseUrl: base });
+
+  // Category and audience pages were written before the industry pages
+  // they may point at; drop any front door whose page is not in the site
+  // (front-doors.mjs). After the chrome pass, which reads the same set.
+  {
+    const live = liveIndustries(outDir);
+    const categoryRoot = path.join(outDir, CATEGORY_PATH_PREFIX);
+    for (const id of (await exists(categoryRoot)) ? await fs.readdir(categoryRoot) : []) {
+      const file = path.join(categoryRoot, id, 'index.html');
+      if (!(await exists(file))) continue;
+      const html = await fs.readFile(file, 'utf8');
+      const pruned = pruneDoors(html, live);
+      if (pruned !== html) await fs.writeFile(file, pruned);
+    }
+  }
 
   // After the chrome pass, which writes the sponsor line into the footer of
   // every page it wraps -- marking before it would leave those unmarked and
