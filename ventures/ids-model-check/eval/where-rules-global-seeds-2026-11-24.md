@@ -86,7 +86,41 @@ The earlier eight families on the same 102 files:
 
 ## Beside IfcOpenShell
 
-IFCOS_RESULT
+`ifcopenshell.validate` 0.9.0.post1 (`express_rules=True`) ran on the 542
+seeded copies of the seven new families in the 100 files it opens (it refuses
+web-ifc's IFC4X2 bridge and IFC4X3_RC2 road). **It gives the same answer:
+526 of 526 seeds fired, and the same new failures as here on all 542
+copies.** That includes the schema's typo. IfcOpenShell reads the same `.exp`
+text, so it also passes the moved origin in all 44 IFC2X3 and IFC4 files it
+opens, and fails it in all 56 IFC4X3 ones.
+
+| Family | Files | Seeds | Fired | Extra | Missed | Same new failures as here |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `second-project` | 100 | 100 | 100 | 0 | 0 | 100 |
+| `context-rotated-wcs` | 100 | 100 | 100 | 0 | 0 | 100 |
+| `context-moved-wcs` | 100 | 56 | 56 | 0 | 0 | 100 |
+| `si-unit-wrong-dimension` | 100 | 100 | 100 | 0 | 0 | 100 |
+| `aggregate-self-reference` | 56 | 84 | 84 | 0 | 0 | 56 |
+| `material-on-non-element` | 71 | 71 | 71 | 0 | 0 | 71 |
+| `material-on-opening` | 15 | 15 | 15 | 0 | 0 | 15 |
+
+It took 11 min 24 s with 4 workers; the harness here took 3 min 54 s for all
+15 families on all 102 files.
+
+## The `context-origin` note
+
+`conformance.mjs` now checks whether the schema's `IfcSameAxis2Placement`
+compares `ap1.Location` with itself. If it does and
+`IfcRepresentationContextSameWCS` passed, it runs that one global rule again
+with IFC4X3's comparison, using the same interpreter, derived attributes and
+functions, with no other WHERE rule. If that run fails, the model gets a
+`context-origin` finding that names the contexts and says why the schema
+rule missed it. None of the 102 public originals gets it, nor do
+IfcOpenShell's `annotation.ifc` and `bug_2517_test2.ifc`, whose context rule
+is UNKNOWN (`eval/where-rules-2026-11-24.md`). All 45 IFC2X3 and IFC4
+moved-origin copies get it. A turned axis, which the schema rule does catch,
+gets no second note, and neither does IFC4X3. `where-rules-seeded.test.mjs`
+pins all four cases.
 
 ## Reproduce
 
@@ -96,9 +130,9 @@ git clone --filter=blob:none --no-checkout --depth 1 https://github.com/ThatOpen
 # + buildingSMART/Sample-Test-Files (5030f65) and buildingSMART/IFC4.3.x-sample-models (ef22440), '*.ifc'
 find webifc/tests/ifcfiles/public -name '*.ifc' -size -16M | sort > files.txt
 find stf s43 -name '*.ifc' -size -16M | sort >> files.txt       # 102 files
-tr '\n' '\0' < files.txt | xargs -0 node --stack-size=8000 eval/where-rules-seeded.mjs /tmp/seeded   # RUN_TIME
+tr '\n' '\0' < files.txt | xargs -0 node --stack-size=8000 eval/where-rules-seeded.mjs /tmp/seeded   # 3 min 54 s
 python -m venv v && v/bin/pip install ifcopenshell==0.9.0.post1 pytest
-v/bin/python eval/where_rules_seeded_ifcopenshell.py /tmp/seeded/manifest.json --jobs 4
+v/bin/python eval/where_rules_seeded_ifcopenshell.py /tmp/seeded/manifest.json --jobs 4   # leave out the IFC4X2 and IFC4X3_RC2 files' entries: it refuses them
 ```
 
 `where-rules-seeded.test.mjs` pins every family on the bundled sample, and
@@ -108,7 +142,8 @@ pins the IFC4 / IFC4X3 split of `context-moved-wcs`.
 
 - The BCF export and the CI outputs (JUnit, annotations) still do not carry
   the `modelRules` notes.
-- A warning of its own for a context whose origin differs from the first
-  context's in IFC2X3 and IFC4 files, since their schema rule cannot see it.
-  It is a few lines on top of the interpreter: run IFC4X3's
-  `IfcSameAxis2Placement` on IFC4 contexts.
+- An `IfcRelAggregates` cycle across two records (A holds B, B holds A). No
+  WHERE rule names it, so measure what catches it (inverse counts, a spatial
+  WR41) and add a check if nothing does.
+- Look for other self-comparisons like `ap1.Location, ap1.Location` in the
+  three schemas' functions (an argument compared with itself).

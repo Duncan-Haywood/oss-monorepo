@@ -626,6 +626,8 @@ with one systematic fault gives one line:
   material on a space, storey or project, a material on an opening) in 102
   public files: 538 seeds, each firing where it was put and nowhere else; with
   the first eight families on the same files, 1,283 seeds in 15 families.
+  `ifcopenshell.validate` 0.9.0 agrees on all 542 seeded copies it opens
+  (526 of 526 seeds).
   The run found a typo in the IFC2X3 and IFC4 schemas: their
   `IfcSameAxis2Placement` compares the first placement's Location with
   itself, so `IfcRepresentationContextSameWCS` never sees contexts whose

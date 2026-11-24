@@ -37,6 +37,8 @@ Tekla, BlenderBIM and others) and both buildingSMART sample sets, in IFC2X3,
 IFC4 and IFC4X3. With the first eight families that made **1,283 seeds.
 Every one fired on the record it was written into, under the rule it was
 aimed at. No other failure appeared, and none of the original's went away.**
+IfcOpenShell's validator gave the same answer on all 542 new seeded copies
+it can open.
 
 ## The one that didn't fire, and why that's right
 
