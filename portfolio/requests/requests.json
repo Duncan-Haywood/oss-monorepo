@@ -43,7 +43,7 @@
    "status": "building",
    "updated": "2026-11-24",
    "project": "portfolio/monetization",
-   "next": "Plan and per-product models written; seven paid paths built dark and waiting on the owner's checkout link (golive.py). `python3 portfolio/monetization/monetization.py next` names the next step: since 2026-11-24, the first for-profit product in LICENSING_TRANSITION.md with no models.yaml row (photo-editing; 12 lack one)."
+   "next": "Plan and per-product models written; seven paid paths built dark and waiting on the owner's checkout link (golive.py). `python3 portfolio/monetization/monetization.py next` names the next step: the paid bets first (PR #18705), then the first for-profit product in LICENSING_TRANSITION.md with no models.yaml row (photo-editing; 12 lack one)."
   },
   {
    "id": "R-0005",

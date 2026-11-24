@@ -29,7 +29,9 @@ What changed:
 
 - `monetization.py --check` now fails a row that says its agent part is done
   but is not marked as waiting on the owner. The two stale rows are fixed.
-- When no agent-doable row is left, `next` names the first for-profit product
+- A parallel change landed the same hour (PR #18705): the seven ranked paid
+  bets now have subscription rows and come first in the queue. After them,
+  when no agent-doable row is left, `next` names the first for-profit product
   with no row, in the licensing plan's order, and says what the row needs.
   If the planned model is a one-off, it says why that matters: only
   subscriptions count toward MRR.

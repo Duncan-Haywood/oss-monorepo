@@ -272,7 +272,7 @@ export function lanes(repo, rows, now) {
   const item = (lane, area, title, next) => ({ lane, area, title, next: next ? clip(next, 200) : null, runs_7d: area ? round(count(area, from7), 1) : null, runs_30d: area ? round(count(area, from30), 1) : null });
   const product = [];
   if (requests) for (const r of [...requests.outside, ...requests.owner]) product.push(item(`Request ${r.id ?? ''} (${r.status})`.trim(), requestDir(r), r.title, r.next));
-  (flagships ?? []).forEach((f, i) => product.push(item(`Flagship ${i + 1}`, `ventures/${f.venture}`, f.venture, f.next)));
+  (flagships ?? []).forEach((f, i) => product.push(item(`Flagship ${i + 1}`, f.app ?? `ventures/${f.venture}`, f.venture, f.next)));
   const research = (programmes ?? []).map((p) => item('Programme', `research/${p.slug}`, p.slug, p.question));
   return {
     product: requests || flagships ? product : null,

@@ -9,7 +9,8 @@
   "evidence": [
     "python3 portfolio/monetization/monetization.py on main 2026-11-24: 9 rows, 7 built-dark one-off packs, 0 of 7 checkout links set (golive.py)",
     "transition.json 'proprietary': 20 products; 12 without a models.yaml row (monetization.py now prints them on its 'No row yet' line)",
-    "models.yaml shift-roster-builder `model`: 'a hosted subscription ... PRODUCT_PLAYBOOK.md section 2 rules out'; transition.json: model subscription"
+    "models.yaml shift-roster-builder `model`: 'a hosted subscription ... PRODUCT_PLAYBOOK.md section 2 rules out'; transition.json: model subscription",
+    "PR #18705 (merged 2026-11-24) added subscription `app:` rows for the seven paid bets, which now lead the queue; the nine older venture rows and the 12 gaps are unchanged"
   ],
   "change": "One run per product, in monetization.py next's order: add or rewrite the row to the pivot (a subscription offer where the buyer pays monthly elsewhere, with comparables read from vendors' pages, or a line saying why a one-off fits), then build it dark. Reconcile with portfolio/monetization/bets.md if PR #18691 lands it.",
   "touches": [
