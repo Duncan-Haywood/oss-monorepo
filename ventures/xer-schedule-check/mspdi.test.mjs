@@ -311,3 +311,38 @@ test("a split task's gap is added to its span and moves with it (eval/split-task
   const resumed = build(active, asg(2, -65535, rows)).replace("<ActualStart>2024-03-04T08:00:00</ActualStart>", "<ActualStart>2024-03-04T08:00:00</ActualStart><Resume>2024-03-06T08:00:00</Resume>");
   assert.deepEqual(ef(resumed), ["2024-03-06 17:00", "2024-03-07 17:00"]);
 });
+
+// Red-team guards (2026-11-24): each test below fails with one seeded fault
+// in mspdi.mjs that the rest of the suite let through.
+test("a file with no Title or Name gets a readable project name; Name alone loses its .xml", () => {
+  const bare = (head) => `<?xml version="1.0"?><Project xmlns="http://schemas.microsoft.com/project">${head}<StartDate>2026-01-05T08:00:00</StartDate><Tasks><Task><UID>1</UID><ID>1</ID><Name>T1</Name><OutlineLevel>1</OutlineLevel><Duration>PT8H0M0S</Duration></Task></Tasks></Project>`;
+  assert.equal(parseMspdi(bare("")).tables.PROJECT[0].proj_short_name, "Microsoft Project schedule");
+  assert.equal(parseMspdi(bare("<Name>Tower B.xml</Name>")).tables.PROJECT[0].proj_short_name, "Tower B");
+});
+
+test("Project's critical slack limit, in days, becomes P6's critical float in hours on the file's day length", () => {
+  const xml = project({ tasks: BASE }).replace("<MinutesPerDay>480</MinutesPerDay>", "<MinutesPerDay>480</MinutesPerDay><CriticalSlackLimit>2</CriticalSlackLimit>");
+  assert.equal(parseMspdi(xml).tables.PROJECT[0].critical_drtn_hr_cnt, "16");
+  assert.equal(parseMspdi(project({ tasks: BASE })).tables.PROJECT[0].critical_drtn_hr_cnt, "0");
+});
+
+test("an outline level-2 task after a plain level-1 task is not filed under an earlier summary", () => {
+  // malformed outline (Project would not save it, but a hand-edited or
+  // third-party export can): S > A, then plain task T at level 1, then U at 2
+  const x = parseMspdi(project({ tasks: [
+    { uid: 1, name: "S", summary: true }, { uid: 2, name: "A", level: 2 },
+    { uid: 3, name: "T" }, { uid: 4, name: "U", level: 2 },
+  ] }));
+  const wbs = (uid) => x.tables.TASK.find((t) => t.task_id === String(uid)).wbs_id;
+  assert.notEqual(wbs(4), wbs(2));
+  assert.equal(wbs(4), wbs(3));
+});
+
+test("a text field is an activity code up to 20 tasks with distinct values; from 21 it reads as per-task notes", () => {
+  const task = (uid, v) => `<Task><UID>${uid}</UID><ID>${uid}</ID><Name>T${uid}</Name><OutlineLevel>1</OutlineLevel><Duration>PT8H0M0S</Duration><ExtendedAttribute><FieldID>188743734</FieldID><Value>${v}</Value></ExtendedAttribute></Task>`;
+  const file = (n) => `<?xml version="1.0"?><Project xmlns="http://schemas.microsoft.com/project"><StartDate>2026-01-05T08:00:00</StartDate><Tasks>${Array.from({ length: n }, (_, i) => task(i + 1, `Room ${i}`)).join("")}</Tasks></Project>`;
+  assert.deepEqual(parseMspdi(file(20)).tables.ACTVTYPE.map((t) => t.actv_code_type), ["Text2"]);
+  const many = parseMspdi(file(21));
+  assert.equal(many.tables.ACTVTYPE?.length ?? 0, 0);
+  assert.ok(many.warnings.some((w) => /different value on every task.*Text2/.test(w)));
+});
