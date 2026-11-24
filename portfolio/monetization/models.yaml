@@ -27,9 +27,9 @@
 
 as_of: 2026-11-02
 rail:
-  provider: undecided (Polar recommended; docs/reports/2026-10-31-payout-rail-next-steps.md)
+  provider: paddle  # owner, 2026-11-24, "we have payment rails thorugh paddle now"
   rule_change_pr: https://github.com/Duncan-Haywood/oss-monorepo/pull/12243
-  stage: owner-gated
+  stage: open
 
 products:
   - venture: wall-framing-takeoff

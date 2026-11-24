@@ -105,5 +105,5 @@ depth. wall-framing-takeoff is first: its licence-key and checkout modules
   `README.md` row 8 used to rule that out, and the "Original work is
   MIT-licensed" line in `prompts/goals.md` still says otherwise. Both lines are
   amended in a separate control-plane PR that needs the owner's approval.
-- **The merchant-of-record account** (PR #12243, Polar recommended). Until it
-  exists, every paid path ships dark. That blocks no move.
+- **The merchant-of-record account** is Paddle (owner, 2026-11-24). A paid
+  path ships dark until the owner sets that product's Paddle config. That blocks no move.

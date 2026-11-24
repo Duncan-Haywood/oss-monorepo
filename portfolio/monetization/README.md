@@ -124,8 +124,9 @@ re-measure that revenue is $0").
 ## Open questions for the owner
 
 1. **Approve [PR #12243](https://github.com/Duncan-Haywood/oss-monorepo/pull/12243)**
-   and open the merchant-of-record account (Polar recommended). Until then
-   every paid path ships dark, which blocks no agent work.
+   and open the merchant-of-record account. **Done 2026-11-24: Paddle**
+   (owner: "we have payment rails thorugh paddle now"). Each paid path still
+   ships dark until the owner sets its Paddle price ids and checkout config.
 2. **Paid priority lane on custom development?** Requests stay free and MIT;
    a buyer could pay to be built next. It earns from the people most likely
    to pay (businesses with a named job) but it is a promise with a deadline.

@@ -105,7 +105,8 @@ replace that work.
   [`portfolio/monetization/mrr.yaml`](../portfolio/monetization/mrr.yaml).
   Only the owner can read the merchant dashboard, so only the owner fills in a
   reading. An empty month is unmeasured, never zero.
-- **Where it comes from.** It comes from the subscription products in
+- **Where it comes from.** Payments run through Paddle (Guardrails,
+  "Payments"). The revenue comes from the subscription products in
   [`LICENSING_TRANSITION.md`](../portfolio/monetization/LICENSING_TRANSITION.md)
   (built in `private-monorepo`), plus the traffic, SEO, distribution and sales
   work that brings them buyers. For example, $10k is about 340 customers at
@@ -1027,6 +1028,13 @@ when they don't, do the sensible thing and record it as a deviation
     (`docs/reports/2026-10-30-billing-plan.md`, Option A).
   - Payment code in a product stays off by default and runs on keys that
     whoever deploys it supplies, so a fork pays its deployer, never the owner.
+  - **The provider is Paddle** (owner, 2026-11-24: "we have payment rails
+    thorugh paddle now"). Build paid paths against Paddle (price ids,
+    Paddle.js or hosted checkout, webhooks; `private-monorepo`'s
+    `apps/grants/src/worker/ports/billing/paddle.ts` is the reference
+    adapter), and keep them dark until the owner sets the product's ids and
+    secrets in owner-only config. Agents never hold the Paddle login, API key
+    or webhook secret.
   - GitHub Sponsors donations stay allowed alongside.
   - **For profit, without blocking work** (owner, 2026-11-01: "I want to
     turn on for profit in this repo. don't let it block work from getting
