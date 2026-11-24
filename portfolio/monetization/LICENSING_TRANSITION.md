@@ -5,6 +5,18 @@ Owner, 2026-11-24: "moving the apps to subscription and one off saases";
 prop esp for the for profit and non lead magnet ones"; model chosen by
 per-use cost; "use ur judgement on the way to do it".
 
+> **Superseded in part, 2026-11-24 (later the same day).** The owner then set
+> that products are vertical software suites for small and medium businesses,
+> chosen by promise and value rather than by how much code already exists
+> ("we don't invest dev effort in sunken ships"), with business tools as the
+> first path and construction the favourite vertical (`prompts/goals.md`,
+> "Where effort goes"). So the 20-product list below is a **licence** list,
+> not a work queue: which products get built is decided by
+> [`bets.md`](bets.md). The licence mechanics (what a move can and cannot do,
+> how one product moves) still apply to whatever is chosen. The 1,400+
+> lead-magnet rows are demoted: no new depth, work only where a tool is the
+> front door to a chosen paid product.
+
 This file is how. [`transition.py`](transition.py) applies the rules below to
 every venture and writes [`transition.json`](transition.json) (the move list,
 in order). Run `python3 portfolio/monetization/transition.py` for the table.

@@ -18,6 +18,20 @@ rather than into new slugs. The bar, the open programmes and how a run picks one
 [`PROGRAMMES.md`](PROGRAMMES.md); `research/_shared/programme_check.py` (research CI) holds new
 directories to it. The tracks in [`PROJECTS.md`](PROJECTS.md) say which areas programmes come from.
 
+**Research gets pivoted into products** (owner, 2026-11-24: "research work gets pivoted into
+products", and "we don't invest dev effort in sunken ships. invest in things that have most
+promise and most value"). This now outranks the PhD+ paragraphs below where they conflict. New
+effort goes to research that advances a paid bet in
+[`portfolio/monetization/bets.md`](../portfolio/monetization/bets.md): a new programme names the
+product and the customer (preferably a small or medium business; construction, engineering and
+manufacturing are the owner's favourites) and what the result changes in that product. Programmes
+with no product case take no new effort; one close to a paper that lends a chosen product
+credibility may be finished. Papers and write-ups stay public and MIT as marketing; product code
+built on them goes to the private repository. The integrity rules are unchanged: the product
+claims only what the research showed. Open-hardware research (`buildbot-*`, `osrobot-*`,
+`marine-*`, `heavy-*`) feeds the long-term hardware-company track (`prompts/goals.md`, "Where
+effort goes").
+
 **PhD+, with deep-tech applications** (owner, 2026-11-01: "move the research into phd+ level
 with applications in deep tech applications"). New effort goes to programmes whose answer an
 engineer in chips, robotics and autonomy, sensing, energy, construction or heavy equipment would

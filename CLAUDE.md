@@ -20,7 +20,11 @@ goal in the repo hit 10k mrr"; the stretch is $10k monthly recurring
 profit, so margin counts too). Every track serves it: when choosing work,
 pick the task that unlocks paying subscribers fastest (paid tier, pricing,
 checkout shipped dark, onboarding, then traffic to those products, then
-retention), inside the hard limits. Build the best product for the user,
+retention), inside the hard limits. Which products: vertical software suites
+for small and medium businesses, chosen by promise rather than sunk cost,
+with construction the owner's favourite (`goals.md`, "Where effort goes";
+ranking in `portfolio/monetization/bets.md`). Research pivots into those
+products; open hardware is a long-term hardware-company track. Build the best product for the user,
 with accounts, hosted features and paid tiers where they help; static, free
 and no-accounts are options, not defaults. For-profit products are the
 highest priority; free tools and posts are there for traffic and leads to
@@ -70,16 +74,20 @@ when the next run needs to know something (owner, 2026-10-21 and 2026-10-24:
 empty queue, a vague brief or a task that already landed means look wider,
 not stop. Restated blockers, ledger-only edits and re-verifying unchanged
 work do not count. Never fabricate or lower the bar to have something to
-ship. For venture work, the for-profit products come first (the North star
-above; `portfolio/monetization/LICENSING_TRANSITION.md`). After them, the
-default is an open website request in
-[`portfolio/requests/`](portfolio/requests/README.md) (owner, 2026-11-02: a
-free custom dev shop for businesses, the results MIT licensed and owned by the
-repository owner; `prompt.md`, "Website requests come next"), then the top
-flagship in [`portfolio/flagships.yaml`](portfolio/flagships.yaml) (owner,
-2026-10-20: deepen "existing projects that have real depth"). Aim the main effort at projects
+ship. For venture work, the for-profit products come first, chosen by promise
+and value, not by how much already exists (owner, 2026-11-24: "we don't
+invest dev effort in sunken ships"): software suites for one kind of small or
+medium business, construction, engineering and manufacturing first, ranked
+with evidence in
+[`portfolio/monetization/bets.md`](portfolio/monetization/bets.md)
+(`goals.md`, "Where effort goes"). Free single-purpose tools are demoted: no
+new ones, and work on an old one only when it is the front door to a chosen
+paid product. Website requests in
+[`portfolio/requests/`](portfolio/requests/README.md) and the flagships in
+[`portfolio/flagships.yaml`](portfolio/flagships.yaml) come after the bets,
+and only where they serve one. Aim the main effort at projects
 a person would estimate at about 300 hours or more, built up over many sessions
-(owner, 2026-10-29, a suggestion, not a hard bar, updating the 2026-10-21 twenty-hour one; `goals.md`,
+(owner, 2026-10-29, a suggestion, not a hard bar; `goals.md`,
 "Direction: depth over calculators").
 
 The owner's standing directions (SEO, compliant distribution, measurement,

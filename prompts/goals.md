@@ -54,8 +54,9 @@ replace that work.
   requests, flagships or a free draw, it prefers the step that brings the first
   (and then the next) paying subscriber soonest. The owner, same day:
   "moving the free stuff to traffic and lead magnets and pushing stuff that
-  is for profit as highest priority." So the for-profit products (the
-  `proprietary` track in `LICENSING_TRANSITION.md`) come first. Free tools,
+  is for profit as highest priority." So the for-profit products (the ranked
+  bets in `portfolio/monetization/bets.md`; see "Where effort goes" below)
+  come first. Free tools,
   posts and pages exist to bring traffic and leads to them, and new free work
   is judged by that. In rough order:
   1. whatever stands between a subscription product and a sale: a working
@@ -121,6 +122,83 @@ replace that work.
   to move MRR leaves the money on the table. Missing revenue never blocks a
   merge, and runs do not spend time re-measuring that MRR is $0 (Guardrails,
   "Payments").
+
+## Where effort goes: promise, verticals, SMBs (owner, 2026-11-24)
+
+Later the same day the owner set how the North star is pursued. Read these
+together; where older directions below pull another way, these win.
+
+- **Invest by promise and value, not by sunk cost.** The owner: "we don't
+  invest dev effort in sunken ships. invest in things that have most promise
+  and most value." Work is chosen by what the market says, not by how much of
+  it already exists in this repository: willingness to pay, size of the
+  reachable buyer group, distribution without a sales team, margin, and time to
+  first dollar. Existing code is a tiebreaker between bets that already score
+  well, never a reason on its own. A product, programme or tool that scores
+  poorly stops getting new effort, however large it is. The ranked bets, their
+  evidence and their sources live in
+  [`portfolio/monetization/bets.md`](../portfolio/monetization/bets.md); a
+  run that wants to change the order brings evidence in a PR.
+- **Vertical paid products for small and medium businesses.** The owner: "i
+  think we move into more vertically integrated paid products targeting
+  specific types of customers. idk keeping 1400 free and only monetizing 20
+  seems off to me", and "moving more towards tools that are more valuable and
+  have higher profit target. I personally like smbs as customers", and "help
+  them with anything ai and software can do. full software suites for them."
+  So a product is a software suite built for one kind of business, covering
+  whatever software and AI can do for it, grown job by job from a sharp first
+  wedge, not a single-purpose tool. It has accounts, saved data, imports and
+  integrations, and is priced for a business (tens to hundreds of dollars a
+  month), not for a hobbyist. SMBs are the preferred customer. Consumer and
+  prosumer products rank below them unless the evidence is much stronger.
+- **Construction is the owner's favourite vertical.** The owner: "I also like
+  as deep tech construction tools", "like a lot into construction." So
+  construction SMBs (general contractors, specialty subcontractors,
+  estimators, schedulers, developers) get extra weight when bets are close,
+  and the deep-tech side (takeoff from drawings and models, schedule
+  analytics, BIM checking, permit and build-time data, site sensing) is where
+  this repository's research is most likely to become a product. The owner
+  also welcomes the neighbouring industrial verticals: "I'm also happy doing
+  software for engineering manufacturing etc etc etc." So engineering firms
+  and small manufacturers (job shops, fabricators, design consultancies) are
+  in scope on the same terms. The evidence still decides which customer and
+  which wedge come first.
+- **Business tools are the first path to $10k MRR.** The owner: "but business
+  tools is very good i think for first path to 10kmrr." So the first bets are
+  software that runs a business's money and operations (bookkeeping,
+  invoicing and e-invoicing, billing, quoting and estimating, sales and
+  customer tools), sold to SMBs, because businesses already pay for these
+  every month and the buyers are easy to find. Construction, engineering and
+  manufacturing suites are where those business tools go deepest; the deep-tech
+  construction tools are the longer build beside them.
+- **Free tools are demoted.** The owner, on "most of the 1,400 free tools get
+  no new development": "demote some of this." No new free single-purpose tools
+  and no new depth in existing ones. A free tool gets work only when it is the
+  front door to a chosen paid product (a link into it, a page fix that keeps
+  its search traffic). The rest stay up as they are; nobody needs to retire
+  them, and nobody needs to maintain them. This replaces the lead-magnet rows
+  of `LICENSING_TRANSITION.md` as a source of work.
+- **Research gets pivoted into products.** The owner: "research work gets
+  pivoted into products." New research serves a paid bet: a programme names
+  the product and customer it advances, and the result ships in that product.
+  Programmes with no product case stop taking new effort; one close to a paper
+  that helps a chosen product's credibility may be finished. Papers and posts
+  stay public as marketing. The research integrity rules below are unchanged,
+  and the product claims only what the research showed. See
+  `research/CLAUDE.md`.
+- **Open hardware: real hardware companies, long term.** The owner: "the open
+  hardware becomes long term goals for real hardware companies run entirely in
+  an automated way outsourcing what is needed to be done physically such ad
+  supply chain etc." Agents do the knowledge work (design, sourced BOMs,
+  supplier comparison, quote requests drafted for the owner, listings,
+  support, reorder planning); contract partners do the physical work (board
+  fabs, machining, assembly, fulfilment, certification labs). This is a long
+  horizon, not current work: hardware scores worst on cash and time to first
+  dollar. Every purchase order, supplier account, inventory spend, insurance
+  and certification decision is the owner's (Hard limits), and a product with
+  blades, batteries or radios ships only after the safety and certification
+  work. The designs can stay open; the business is built units, support and
+  the brand.
 
 ## Mission
 
@@ -1116,7 +1194,7 @@ glad to see, never work that embarrasses them or the author.
 - Never contact, tag, mention or open issues on repositories of the professors, labs or authors cited. Outreach is the repository owner's decision.
 
 **Licensing and attribution.**
-- Original work is MIT-licensed.
+- Original work in this public repository is MIT-licensed. The paid products the owner chose to sell (owner, 2026-11-24) are built in the private repository under a proprietary licence; code already published here stays MIT (`portfolio/monetization/LICENSING_TRANSITION.md`).
 - Third-party code keeps its original license. Check compatibility before vendoring. Prefer dependencies over copying where you can (a default: it keeps licences and updates someone else's job).
 - Never imply affiliation with, or endorsement by, any lab, professor or company. Say "builds on" or "reproduces", never "with" or "for".
 
