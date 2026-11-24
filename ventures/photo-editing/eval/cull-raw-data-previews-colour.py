@@ -42,8 +42,11 @@ def lab(rgb):
     return np.stack([116 * f[..., 1] - 16, 500 * (f[..., 0] - f[..., 1]), 200 * (f[..., 1] - f[..., 2])], -1)
 
 
+def y(a):
+    return a @ M[1]
+
+
 def compare(page, ref):
-    y = lambda a: a @ M[1]
     ok = (page.max(-1) < 0.9) & (ref.max(-1) < 0.9) & (y(ref) > 0.002)
     if ok.sum() < 100:
         return None
@@ -54,11 +57,12 @@ def compare(page, ref):
     return float(np.median(d)), float(np.percentile(d, 90)), float(np.median(dc))
 
 
+TRANSPOSES = {2: Image.FLIP_LEFT_RIGHT, 3: Image.ROTATE_180, 4: Image.FLIP_TOP_BOTTOM, 5: Image.TRANSPOSE,
+              6: Image.ROTATE_270, 7: Image.TRANSVERSE, 8: Image.ROTATE_90}
+
+
 def orient(img, o):
-    return {2: Image.FLIP_LEFT_RIGHT, 3: Image.ROTATE_180, 4: Image.FLIP_TOP_BOTTOM, 5: Image.TRANSPOSE,
-            6: Image.ROTATE_270, 7: Image.TRANSVERSE, 8: Image.ROTATE_90}.get(o) and img.transpose(
-        {2: Image.FLIP_LEFT_RIGHT, 3: Image.ROTATE_180, 4: Image.FLIP_TOP_BOTTOM, 5: Image.TRANSPOSE,
-         6: Image.ROTATE_270, 7: Image.TRANSVERSE, 8: Image.ROTATE_90}[o]) or img
+    return img.transpose(TRANSPOSES[o]) if o in TRANSPOSES else img
 
 
 out = Path(sys.argv[1])
@@ -85,10 +89,10 @@ for meta in sorted(out.glob("*.json")):
         try:
             im = Image.open(io.BytesIO(data[j:]))
             im.load()
-            if im.size[0] >= 640 and (best is None or im.size[0] > best.size[0]):
-                best = im
-        except Exception:
-            pass
+        except (OSError, ValueError, SyntaxError):  # a JPEG marker inside other data, or a truncated stream
+            im = None
+        if im is not None and im.size[0] >= 640 and (best is None or im.size[0] > best.size[0]):
+            best = im
         j = data.find(b"\xff\xd8\xff", j + 3)
     if best is not None:
         bo = orient(best, info.get("orientation") or 1)
