@@ -71,5 +71,5 @@ mapping was read from the upstream repositories:
 The pages are not tax advice. They say what a file must contain for the VAT
 category you already chose, never which category applies to your sale. A
 paid service that explains every failed rule in your file and proposes a
-corrected one is in development, with early access on the
-[e-invoicing page](https://marisstella.app/industries/e-invoicing/).
+corrected one is in development (early access only, not on sale), and each
+rule page links to it.
