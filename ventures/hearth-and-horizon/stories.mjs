@@ -340,7 +340,9 @@ ${markdownToHtml(story.body)}
 </section>`;
   return page({
     title: storyTitle(story, shelf, Boolean(a)),
-    description: `${story.summary}`.slice(0, 300),
+    // An optional `description:` front-matter line (160 characters or fewer) is the
+    // search snippet; older stories fall back to the start of the summary.
+    description: story.description || `${story.summary}`.slice(0, 300),
     canonical: storyUrl(story),
     image: `${SITE}${coverPath(shelf.id)}`,
     jsonLd,
