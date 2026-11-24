@@ -34,6 +34,14 @@ The run also queued the shelf's next proposal in the series bible: Ephrem,
 the Syriac deacon who taught the faith in hymns and, by a later poet's
 account, trained choirs of women to sing them.
 
+The run also fixed the meta descriptions on every story page. Until now
+the generator cut each story's summary at 300 characters, so search results
+showed about half a sentence and then stopped. The repository's
+description-length check flagged 558 story pages for it. Now the generator
+keeps whole sentences up to 160 characters, or ends on a whole word with an
+ellipsis, and the check's list of overlong pages across the site shrank from
+3,823 to 3,265.
+
 Like every Little Lamps story, it was written by an AI, it is not an official
 Church text, and it is text only for now because the audio folders are over
 the repository's size line.

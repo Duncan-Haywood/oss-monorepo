@@ -159,6 +159,27 @@ export function storyTitle(story, shelf, hasAudio = false) {
   const suffixes = [`: ${kind}${hasAudio ? ' (text and audio)' : ''}`, `: ${kind}`, `: ${short}`, ''];
   return suffixes.map((s) => `${story.title}${s}`).find((t) => t.length <= TITLE_MAX) || story.title;
 }
+// Search results show about 160 characters of a meta description
+// (platform/pages/description-length.mjs fails a new page over that). Keep
+// whole sentences of the summary while they fit, else cut at a word and add
+// an ellipsis. The full summary still goes to the feeds and JSON-LD.
+export const DESCRIPTION_MAX = 160;
+export function metaDescription(summary, max = DESCRIPTION_MAX) {
+  const text = String(summary).replace(/\s+/g, ' ').trim();
+  if (text.length <= max) return text;
+  const sentences = text.match(/[^.!?]+[.!?]+(?=\s|$)/g) || [];
+  let kept = '';
+  for (const s of sentences) {
+    const next = (kept + s).trim();
+    if (next.length > max) break;
+    kept = next + ' ';
+  }
+  kept = kept.trim();
+  if (kept.length >= 80) return kept;
+  const cut = text.slice(0, max - 1);
+  const at = cut.lastIndexOf(' ');
+  return `${cut.slice(0, at > 0 ? at : cut.length).replace(/[\s,;:]+$/, '')}\u2026`;
+}
 const readingMinutes = (words) => Math.max(1, Math.round(words / 230));
 
 function formatDuration(seconds) {
@@ -340,7 +361,7 @@ ${markdownToHtml(story.body)}
 </section>`;
   return page({
     title: storyTitle(story, shelf, Boolean(a)),
-    description: `${story.summary}`.slice(0, 300),
+    description: metaDescription(story.summary),
     canonical: storyUrl(story),
     image: `${SITE}${coverPath(shelf.id)}`,
     jsonLd,

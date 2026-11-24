@@ -35,6 +35,10 @@
     {
       "file": "prompt.md",
       "issue": "'For-profit products come first' applies to scheduled venture runs, but the weighted draw sent this no-task run to creative; it was unclear whether the for-profit priority should override the draw. Followed the draw."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Nothing says story pages must keep meta descriptions at or under 160 characters. The hearth-and-horizon generator cut summaries at 300, so every new story failed description-length.test.mjs in the pages CI, which node --test in the venture does not run. Fixed in the generator."
     }
   ],
   "deviations": [],
@@ -42,7 +46,7 @@
     "docs/posts/2026-11-24-little-lamps-john-baptist-de-la-salle.md"
   ],
   "goal": null,
-  "notes": "Project: Hearth & Horizon, Little Lamps shelf (drawn by creative_due.py). Piece: john-baptist-de-la-salle-and-the-lessons-in-french (~1,530 words, text only: audio at 581 MB of the 400 MB cap). Claimed the BIBLE proposal first in draft PR. Checked: Easter 1719 = 9 April Gregorian, so 7 April was Good Friday; birth 30 April 1651; canonry 1667, resigned 1683; Nyel 1679; teachers housed 1681; heroic vow 21 Nov 1691 with Vuyart and Drolin; Conduct MS c.1704-06, printed 1720; writing-masters lawsuits 1704/1706; canonized 1900; patron of teachers 15 May 1950. Added the next Little Lamps proposal (Ephrem). node --test 21/21 pass; check_posts ok; risk_review: no owner review, only the standard usage script on the generated page. No agent doc: nothing new for the next run beyond the BIBLE proposal.",
+  "notes": "Project: Hearth & Horizon, Little Lamps shelf (drawn by creative_due.py). Piece: john-baptist-de-la-salle-and-the-lessons-in-french (~1,530 words, text only: audio at 581 MB of the 400 MB cap). Claimed the BIBLE proposal first in draft PR. Checked: Easter 1719 = 9 April Gregorian, so 7 April was Good Friday; birth 30 April 1651; canonry 1667, resigned 1683; Nyel 1679; teachers housed 1681; heroic vow 21 Nov 1691 with Vuyart and Drolin; Conduct MS c.1704-06, printed 1720; writing-masters lawsuits 1704/1706; canonized 1900; patron of teachers 15 May 1950. Added the next Little Lamps proposal (Ephrem). node --test 21/21 pass; check_posts ok; risk_review: no owner review, only the standard usage script on the generated page. No agent doc: nothing new for the next run beyond the BIBLE proposal. CI then failed platform/pages description-length.test.mjs: the new page's meta description was over 160 characters, because stories.mjs cut summaries at 300 (the-stall-that-paid-double on main failed the same way). Fixed it in the generator with metaDescription(): whole sentences up to 160 characters, else a word cut plus an ellipsis, with a new unit test. Regenerated 559 pages; the baseline went from 3823 to 3265 (all hearth-and-horizon story pages now fit). changed-ventures also flagged platform/distribution/webext.test.mjs, an unwired tree test this diff does not touch.",
   "corrections": [],
   "redteam": null,
   "usage": {
