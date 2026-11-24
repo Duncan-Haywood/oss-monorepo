@@ -27,6 +27,9 @@ import { renderSiteHeader, renderSiteFooterNav, siteStyleLink, siteTitle, SITE_N
 export const INDUSTRY_E_INVOICING_PATH = 'industries/e-invoicing/';
 
 /** The day the deadline sources below were last read. */
+/** Kept within check.mjs's 160-character snippet budget. */
+export const DESCRIPTION = 'E-invoicing deadlines in Germany, France, Belgium and Poland, each from the official source, and how to fix rejected XRechnung, ZUGFeRD and Factur-X files.';
+
 export const SOURCES_CHECKED = '2026-11-24';
 
 const CHECKER = 'einvoice-preflight/';
@@ -185,7 +188,7 @@ export function renderEInvoicingIndustryPage({ baseUrl, disclaimer = '', chromeS
   const url = `${baseUrl}${INDUSTRY_E_INVOICING_PATH}`;
   const checker = `${toRoot}${CHECKER}`;
   const title = 'E-invoicing deadlines and fixes for SMEs and accountants: Germany, France, Belgium, Poland';
-  const description = 'When German, French, Belgian and Polish businesses must send e-invoices, each date linked to the official source, and how to fix rejected XRechnung, ZUGFeRD, Factur-X and Peppol invoices. Free checker; paid fix-and-explain in early access.';
+  const description = DESCRIPTION;
   const earlyAccess = `mailto:${EARLY_ACCESS_MAIL}?subject=${encodeURIComponent(`${PRODUCT.name}: early access`)}`;
 
   const rows = DEADLINES.map((r) => `

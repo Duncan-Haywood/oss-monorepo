@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   renderEInvoicingIndustryPage, DEADLINES, PROBLEMS, FAQ, PRODUCT, SOURCES_CHECKED,
-  INDUSTRY_E_INVOICING_PATH, longDate,
+  INDUSTRY_E_INVOICING_PATH, longDate, DESCRIPTION,
 } from './industry-e-invoicing.mjs';
 import { renderHubSitemap, renderCustomDevelopmentPage } from './build.mjs';
 import { SITE_OWN_DIRS } from './check.mjs';
@@ -69,6 +69,7 @@ test('not tax advice, in English, German and French, with lang-tagged summaries'
 
 test('indexable, canonical, FAQ data matches the visible FAQ', () => {
   assert.ok(!/content="noindex"/.test(html));
+  assert.ok(DESCRIPTION.length <= 160, `${DESCRIPTION.length} characters`);
   assert.ok(html.includes(`<link rel="canonical" href="${base}${INDUSTRY_E_INVOICING_PATH}">`));
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
   assert.equal(ld['@type'], 'FAQPage');
