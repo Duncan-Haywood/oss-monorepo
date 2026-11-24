@@ -10854,3 +10854,58 @@ vintages (median 70); the shipped four-component composite on today's files call
 month moving (e.g. a turn counts as called once a turn of its kind stays within 6 months), judged on these
 vintages; the fourth component's vintages (CMRMTSPLx is in FRED-MD; a copy holding it, or stlouisfed.org); and
 FRED-MD vintages before 1999 do not exist, so earlier turns stay pseudo-real-time.
+
+## A tolerant call rule on real vintages: the jobless recovery, not the window, is what is late (2026-11-24, pre-registered; T1, T3 and T4 pass, T2 fails, nothing ships)
+
+The next item from "Turns on real vintages": its strict call rule (a turn of the kind within 3 months of NBER's
+month at every later cut-off) turned two four-month dating shifts into calls a decade late. This round counts a
+turn as called once a turn of its kind stays within 6 months of NBER's month at every later cut-off (rule T6), on
+the same FRED-MD vintages, three components, cut-offs and shipped monthly composite defaults as that section, with
+today's files as the baseline. So that a wider window cannot pass by catching anything, the six NBER turns shifted
+12 months either way (same kind; 10 targets left after dropping two too near the data's end) were scored as
+placebos under both rules. Rules, bars and the expectation in the header of `eval/turns-vintages-tolerant.mjs`,
+committed before it first ran (commit "pre-register the tolerant call rule round on real vintages"); output
+`eval/turns-vintages-tolerant.out.txt` (1.4 s); test `turns-vintages-tolerant.test.mjs`.
+
+| NBER turn | V strict (delay) | V T6 (delay) | P T6 (delay) | NBER announced |
+|---|---|---|---|---|
+| peak 2001-03 | 156 | **2** (dated 2000-09, at the window's edge) | 7 | 2001-11 |
+| trough 2001-11 | 61 | **61** | 8 | 2003-07 |
+| peak 2007-12 | 8 | 8 | 7 | 2008-12 |
+| trough 2009-06 | 132 | **7** | 8 | 2010-09 |
+| peak 2020-02 | 7 | 7 | 7 | 2020-06 |
+| trough 2020-04 | 7 | 7 | 7 | 2021-07 |
+
+| bar | result | |
+|---|---|---|
+| T1 arm V calls all six under T6 | 6 | **passes** |
+| T2 V's median at most 2 over P's, no turn more than 6 later | medians 7 and 7, but the 2001-11 trough +53 | **fails** |
+| T3 V before NBER's announcement on at least P's - 1 | 4 against 5 | **passes** |
+| T4 placebos: at most 2 of 10 called under T6, at most 1 more than the strict rule | 1 against 0 | **passes** |
+
+What it shows:
+
+- **The two four-month shifts are a window problem, and a 6-month window fixes them.** The 2009 trough is called
+  7 months after it (strict: 132), before NBER's announcement; the 2001 peak after 2, because the 2001-03 vintages
+  already dated a peak at 2000-09. That is six months early, on the window's edge, and should be read as a lucky
+  early call, not a fast one. A 4-month window (printed, no bar) rescues the trough but not the peak (56).
+- **The 2001 trough is a different thing: on the data as published in 2004 to 2006, the recession did not end in
+  2001.** At 24 cut-offs from 2004-02 to 2006-11 (and six in early 2002, before any trough could yet be dated) the composite
+  showed one contraction from 2000-11 to 2003-04, 17 months after NBER's trough. Payrolls carry about 60% of the
+  weight, and payrolls as published then kept falling into 2003: the jobless recovery. Later benchmark revisions
+  pulled the trough back to 2001-12/2002-01 and left 2002-03 as a separate soft patch. No window under 17 months
+  calls it (9 months: still 61), and MAD weights only shorten it to 45.
+- **The wider window costs one placebo.** The 2002-11 placebo trough is "called" from 2020-06 on, because the
+  soft-patch trough at 2003-04 sits five months from it. The strict rule calls no placebo.
+
+Read it for what it is: six turns, one composite of three series, one vintage archive. T2 failed, so as the header
+said nothing in the CLI or page changes. What a user should take from the two vintage rounds together: a mild
+turn's dated month can move by four to six months as data are revised, and a recession whose recovery is
+jobless can show, on payroll-heavy data as published, as a longer contraction than NBER later dates, for years.
+Next, if this line continues: a composite less heavy in payrolls in real time (MAD weights made payrolls heavier,
+not lighter), or the fourth component's vintages; a second make (a state coincident index).
+
+Also corrected on the page and in `llms.txt` (not part of this round): the trust note said the composite dated
+NBER's 16 turns "with no false turn", true of 6-month phases only; under the 3-month default monthly composites
+have used since "P3 and the heavy-late warning together", it also dates the 2002-03 soft patch. The note now says
+so, as the CLI's already did.
