@@ -1,0 +1,798 @@
+[
+  {
+    "id": "BR-DE-CVD-01",
+    "source": "xrechnung",
+    "terms": [
+      "BT-12"
+    ],
+    "en": {
+      "title": "Contract reference is missing on a Clean Vehicles invoice",
+      "meaning": "This rule only runs on invoices that declare the XRechnung extension for the Clean Vehicles Directive, that is when the specification identifier (BT-24) is exactly urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0#compliant#urn:xeinkauf.de:kosit:xrechnung:cvd_0.9. Such an invoice must carry a non-empty contract reference (BT-12), the number of the contract the vehicle was bought under.",
+      "causes": [
+        "The invoice was switched to the CVD identifier but the contract number was never filled in.",
+        "The contract number was written into a note, the order reference (BT-13) or the buyer reference (BT-10) instead of BT-12.",
+        "The element is there but empty or contains only spaces."
+      ],
+      "fix": [
+        "Take the contract number from the public buyer's award letter or contract.",
+        "Put it in cac:ContractDocumentReference/cbc:ID (UBL) or ram:ContractReferencedDocument/ram:IssuerAssignedID inside ram:ApplicableHeaderTradeAgreement (CII).",
+        "If the invoice is not about a vehicle reported under the Clean Vehicles Directive, use the normal XRechnung identifier in BT-24 instead of the CVD one."
+      ]
+    },
+    "de": {
+      "title": "Vertragsnummer fehlt bei einer Rechnung nach der Clean-Vehicles-Richtlinie",
+      "meaning": "Diese Regel greift nur bei Rechnungen, die die XRechnung-Erweiterung für die Richtlinie über saubere Fahrzeuge (Clean Vehicles Directive, CVD) angeben, also wenn die Spezifikationskennung (BT-24) genau urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0#compliant#urn:xeinkauf.de:kosit:xrechnung:cvd_0.9 lautet. Eine solche Rechnung muss eine ausgefüllte Vertragsnummer (BT-12) enthalten, also die Nummer des Vertrags, unter dem das Fahrzeug beschafft wurde.",
+      "causes": [
+        "Die Rechnung wurde auf die CVD-Kennung umgestellt, die Vertragsnummer aber nie eingetragen.",
+        "Die Vertragsnummer steht in einer Bemerkung, in der Bestellnummer (BT-13) oder in der Käuferreferenz (BT-10) statt in BT-12.",
+        "Das Element ist vorhanden, aber leer oder enthält nur Leerzeichen."
+      ],
+      "fix": [
+        "Entnehmen Sie die Vertragsnummer dem Zuschlag oder dem Vertrag des öffentlichen Auftraggebers.",
+        "Tragen Sie sie in cac:ContractDocumentReference/cbc:ID (UBL) bzw. ram:ContractReferencedDocument/ram:IssuerAssignedID in ram:ApplicableHeaderTradeAgreement (CII) ein.",
+        "Betrifft die Rechnung kein nach der Clean-Vehicles-Richtlinie zu meldendes Fahrzeug, verwenden Sie in BT-24 die normale XRechnung-Kennung statt der CVD-Kennung."
+      ]
+    },
+    "fr": {
+      "title": "Référence du contrat manquante sur une facture « véhicules propres »",
+      "meaning": "Cette règle ne s'applique qu'aux factures qui déclarent l'extension XRechnung pour la directive sur les véhicules propres (Clean Vehicles Directive, CVD), c'est-à-dire quand l'identifiant de spécification (BT-24) vaut exactement urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0#compliant#urn:xeinkauf.de:kosit:xrechnung:cvd_0.9. Une telle facture doit porter une référence de contrat (BT-12) renseignée : le numéro du contrat sous lequel le véhicule a été acheté.",
+      "causes": [
+        "La facture a reçu l'identifiant CVD, mais le numéro de contrat n'a jamais été saisi.",
+        "Le numéro de contrat figure dans une note, dans la référence de commande (BT-13) ou dans la référence acheteur (BT-10) au lieu de BT-12.",
+        "L'élément existe mais il est vide ou ne contient que des espaces."
+      ],
+      "fix": [
+        "Reprenez le numéro de contrat dans la notification d'attribution ou le contrat de l'acheteur public.",
+        "Indiquez-le dans cac:ContractDocumentReference/cbc:ID (UBL) ou ram:ContractReferencedDocument/ram:IssuerAssignedID dans ram:ApplicableHeaderTradeAgreement (CII).",
+        "Si la facture ne porte pas sur un véhicule à déclarer au titre de la directive véhicules propres, utilisez dans BT-24 l'identifiant XRechnung habituel au lieu de l'identifiant CVD."
+      ]
+    },
+    "ubl": "<cac:ContractDocumentReference>\n  <cbc:ID>V-2026-0815</cbc:ID>\n</cac:ContractDocumentReference>",
+    "cii": "<ram:ApplicableHeaderTradeAgreement>\n  <ram:BuyerReference>04011000-12345-34</ram:BuyerReference>\n  <ram:ContractReferencedDocument>\n    <ram:IssuerAssignedID>V-2026-0815</ram:IssuerAssignedID>\n  </ram:ContractReferencedDocument>\n</ram:ApplicableHeaderTradeAgreement>"
+  },
+  {
+    "id": "BR-DE-CVD-02",
+    "source": "xrechnung",
+    "terms": [
+      "BT-17"
+    ],
+    "en": {
+      "title": "Tender or lot reference is missing on a Clean Vehicles invoice",
+      "meaning": "On an invoice that declares the XRechnung Clean Vehicles (CVD) extension in BT-24, the tender or lot reference (BT-17) must be filled in: the number of the procurement procedure or lot the vehicle was awarded under. Invoices with the ordinary XRechnung identifier are not checked by this rule.",
+      "causes": [
+        "The procurement or lot number was not taken over from the tender documents.",
+        "It was put in the contract reference (BT-12) or a note only.",
+        "In CII, an additional referenced document was added but without type code 50, or with an empty number."
+      ],
+      "fix": [
+        "Look up the procedure or lot number in the buyer's tender documents or award notice.",
+        "In UBL, put it in cac:OriginatorDocumentReference/cbc:ID.",
+        "In CII, add a ram:AdditionalReferencedDocument in ram:ApplicableHeaderTradeAgreement with the number in ram:IssuerAssignedID and ram:TypeCode 50."
+      ]
+    },
+    "de": {
+      "title": "Vergabe- oder Losnummer fehlt bei einer Rechnung nach der Clean-Vehicles-Richtlinie",
+      "meaning": "Bei einer Rechnung, die in BT-24 die XRechnung-Erweiterung für saubere Fahrzeuge (CVD) angibt, muss die Vergabe- oder Losnummer (BT-17) ausgefüllt sein, also die Nummer des Vergabeverfahrens oder Loses, in dem das Fahrzeug den Zuschlag erhielt. Rechnungen mit der normalen XRechnung-Kennung prüft diese Regel nicht.",
+      "causes": [
+        "Die Vergabe- oder Losnummer wurde nicht aus den Ausschreibungsunterlagen übernommen.",
+        "Sie steht nur in der Vertragsnummer (BT-12) oder in einer Bemerkung.",
+        "In CII wurde ein zusätzliches Referenzdokument angelegt, aber ohne Typcode 50 oder mit leerer Nummer."
+      ],
+      "fix": [
+        "Entnehmen Sie die Verfahrens- oder Losnummer den Vergabeunterlagen oder der Zuschlagsmitteilung des Auftraggebers.",
+        "In UBL gehört sie in cac:OriginatorDocumentReference/cbc:ID.",
+        "In CII legen Sie in ram:ApplicableHeaderTradeAgreement ein ram:AdditionalReferencedDocument mit der Nummer in ram:IssuerAssignedID und ram:TypeCode 50 an."
+      ]
+    },
+    "fr": {
+      "title": "Référence de l'appel d'offres ou du lot manquante sur une facture « véhicules propres »",
+      "meaning": "Sur une facture qui déclare dans BT-24 l'extension XRechnung pour les véhicules propres (CVD), la référence de l'appel d'offres ou du lot (BT-17) doit être renseignée : le numéro de la procédure de marché ou du lot attribué pour le véhicule. Les factures portant l'identifiant XRechnung habituel ne sont pas contrôlées par cette règle.",
+      "causes": [
+        "Le numéro de procédure ou de lot n'a pas été repris des documents de consultation.",
+        "Il figure seulement dans la référence du contrat (BT-12) ou dans une note.",
+        "En CII, un document référencé supplémentaire a été ajouté, mais sans code de type 50 ou avec un numéro vide."
+      ],
+      "fix": [
+        "Retrouvez le numéro de procédure ou de lot dans les documents de consultation ou l'avis d'attribution de l'acheteur.",
+        "En UBL, indiquez-le dans cac:OriginatorDocumentReference/cbc:ID.",
+        "En CII, ajoutez dans ram:ApplicableHeaderTradeAgreement un ram:AdditionalReferencedDocument avec le numéro dans ram:IssuerAssignedID et ram:TypeCode 50."
+      ]
+    },
+    "ubl": "<cac:OriginatorDocumentReference>\n  <cbc:ID>VG-2026-117-LOS-2</cbc:ID>\n</cac:OriginatorDocumentReference>",
+    "cii": "<ram:ApplicableHeaderTradeAgreement>\n  <ram:BuyerReference>04011000-12345-34</ram:BuyerReference>\n  <ram:AdditionalReferencedDocument>\n    <ram:IssuerAssignedID>VG-2026-117-LOS-2</ram:IssuerAssignedID>\n    <ram:TypeCode>50</ram:TypeCode>\n  </ram:AdditionalReferencedDocument>\n</ram:ApplicableHeaderTradeAgreement>"
+  },
+  {
+    "id": "BR-DE-CVD-03",
+    "source": "xrechnung",
+    "terms": [
+      "BG-25",
+      "BT-158",
+      "BT-160"
+    ],
+    "en": {
+      "title": "No invoice line identifies the clean vehicle",
+      "meaning": "An invoice that declares the XRechnung Clean Vehicles (CVD) extension in BT-24 must have at least one invoice line whose item has both a classification code with scheme identifier CVD (BT-158) and an item attribute named cva (BT-160). That line is how the buyer's systems find the vehicle to report.",
+      "causes": [
+        "The vehicle line has no item classification, or one with another scheme (for example a CPV code) instead of CVD.",
+        "The attribute name is written differently, for example CVA or clean vehicle; the test compares it exactly with lower-case cva.",
+        "The classification and the attribute were put on two different lines instead of the same one."
+      ],
+      "fix": [
+        "On the line that invoices the vehicle, add an item classification code with listID CVD and the vehicle category (M1, M2, M3, N1, N2 or N3).",
+        "On the same line, add an item attribute with name cva and value clean, zero-emission or other.",
+        "If no line is about a vehicle under the Clean Vehicles Directive, use the normal XRechnung identifier in BT-24 instead of the CVD one."
+      ]
+    },
+    "de": {
+      "title": "Keine Rechnungsposition kennzeichnet das saubere Fahrzeug",
+      "meaning": "Eine Rechnung, die in BT-24 die XRechnung-Erweiterung für saubere Fahrzeuge (CVD) angibt, braucht mindestens eine Rechnungsposition, deren Artikel sowohl eine Klassifizierung mit dem Schema CVD (BT-158) als auch ein Artikelattribut mit dem Namen cva (BT-160) hat. Über diese Position findet der Auftraggeber das zu meldende Fahrzeug.",
+      "causes": [
+        "Die Fahrzeugposition hat keine Artikelklassifizierung oder nur eine mit anderem Schema (etwa einen CPV-Code) statt CVD.",
+        "Der Attributname ist anders geschrieben, etwa CVA oder clean vehicle; die Prüfung vergleicht genau mit dem kleingeschriebenen cva.",
+        "Klassifizierung und Attribut stehen in zwei verschiedenen Positionen statt in derselben."
+      ],
+      "fix": [
+        "Ergänzen Sie in der Position mit dem Fahrzeug einen Klassifizierungscode mit listID CVD und der Fahrzeugklasse (M1, M2, M3, N1, N2 oder N3).",
+        "Ergänzen Sie in derselben Position ein Artikelattribut mit dem Namen cva und dem Wert clean, zero-emission oder other.",
+        "Betrifft keine Position ein Fahrzeug nach der Clean-Vehicles-Richtlinie, verwenden Sie in BT-24 die normale XRechnung-Kennung statt der CVD-Kennung."
+      ]
+    },
+    "fr": {
+      "title": "Aucune ligne de facture n'identifie le véhicule propre",
+      "meaning": "Une facture qui déclare dans BT-24 l'extension XRechnung pour les véhicules propres (CVD) doit contenir au moins une ligne dont l'article porte à la fois un code de classification avec l'identifiant de schéma CVD (BT-158) et un attribut d'article nommé cva (BT-160). C'est par cette ligne que l'acheteur retrouve le véhicule à déclarer.",
+      "causes": [
+        "La ligne du véhicule n'a pas de classification, ou une classification d'un autre schéma (par exemple un code CPV) au lieu de CVD.",
+        "Le nom de l'attribut est écrit autrement, par exemple CVA ou clean vehicle ; le contrôle le compare exactement à cva en minuscules.",
+        "La classification et l'attribut sont sur deux lignes différentes au lieu de la même."
+      ],
+      "fix": [
+        "Sur la ligne qui facture le véhicule, ajoutez un code de classification avec listID CVD et la catégorie du véhicule (M1, M2, M3, N1, N2 ou N3).",
+        "Sur la même ligne, ajoutez un attribut d'article nommé cva avec la valeur clean, zero-emission ou other.",
+        "Si aucune ligne ne porte sur un véhicule relevant de la directive véhicules propres, utilisez dans BT-24 l'identifiant XRechnung habituel au lieu de l'identifiant CVD."
+      ]
+    },
+    "ubl": "<cac:Item>\n  <cbc:Name>Electric city bus, 12 m</cbc:Name>\n  <cac:CommodityClassification>\n    <cbc:ItemClassificationCode listID=\"CVD\">M3</cbc:ItemClassificationCode>\n  </cac:CommodityClassification>\n  <cac:AdditionalItemProperty>\n    <cbc:Name>cva</cbc:Name>\n    <cbc:Value>zero-emission</cbc:Value>\n  </cac:AdditionalItemProperty>\n</cac:Item>",
+    "cii": "<ram:SpecifiedTradeProduct>\n  <ram:Name>Electric city bus, 12 m</ram:Name>\n  <ram:ApplicableProductCharacteristic>\n    <ram:Description>cva</ram:Description>\n    <ram:Value>zero-emission</ram:Value>\n  </ram:ApplicableProductCharacteristic>\n  <ram:DesignatedProductClassification>\n    <ram:ClassCode listID=\"CVD\">M3</ram:ClassCode>\n  </ram:DesignatedProductClassification>\n</ram:SpecifiedTradeProduct>"
+  },
+  {
+    "id": "BR-DE-CVD-04",
+    "source": "xrechnung",
+    "terms": [
+      "BT-158"
+    ],
+    "en": {
+      "title": "Vehicle category code is not an allowed value",
+      "meaning": "On an invoice that declares the XRechnung Clean Vehicles (CVD) extension in BT-24, every item classification code with scheme identifier CVD (BT-158) must be one of the vehicle categories M1, M2, M3, N1, N2 or N3. Roughly, M1 is a passenger car, M2 and M3 are buses, N1 is a light commercial vehicle and N2 and N3 are heavier trucks.",
+      "causes": [
+        "A description such as bus or truck was entered instead of the category code.",
+        "The code is in lower case (m1) or has an extra character (M-1, N 2); only surrounding spaces are ignored.",
+        "A category outside the list, for example L for two-wheelers or O for trailers, was used with the CVD scheme."
+      ],
+      "fix": [
+        "Take the vehicle's EU category from its registration or type-approval papers.",
+        "Enter exactly one of M1, M2, M3, N1, N2, N3 as the code, keeping listID CVD.",
+        "If the item is not a vehicle covered by these categories, do not classify it with the CVD scheme."
+      ]
+    },
+    "de": {
+      "title": "Fahrzeugklasse ist kein zulässiger Wert",
+      "meaning": "Bei einer Rechnung, die in BT-24 die XRechnung-Erweiterung für saubere Fahrzeuge (CVD) angibt, muss jeder Klassifizierungscode mit dem Schema CVD (BT-158) eine der Fahrzeugklassen M1, M2, M3, N1, N2 oder N3 sein. Grob gesagt ist M1 ein Pkw, M2 und M3 sind Busse, N1 ist ein leichtes Nutzfahrzeug, N2 und N3 sind schwerere Lkw.",
+      "causes": [
+        "Statt des Klassencodes wurde eine Beschreibung wie Bus oder Lkw eingetragen.",
+        "Der Code ist kleingeschrieben (m1) oder enthält ein zusätzliches Zeichen (M-1, N 2); nur Leerzeichen am Anfang und Ende werden ignoriert.",
+        "Mit dem CVD-Schema wurde eine Klasse außerhalb der Liste verwendet, etwa L für Zweiräder oder O für Anhänger."
+      ],
+      "fix": [
+        "Entnehmen Sie die EU-Fahrzeugklasse der Zulassungsbescheinigung oder den Typgenehmigungsunterlagen.",
+        "Tragen Sie genau einen der Werte M1, M2, M3, N1, N2, N3 ein und lassen Sie listID auf CVD.",
+        "Ist der Artikel kein Fahrzeug dieser Klassen, klassifizieren Sie ihn nicht mit dem CVD-Schema."
+      ]
+    },
+    "fr": {
+      "title": "Le code de catégorie du véhicule n'est pas une valeur autorisée",
+      "meaning": "Sur une facture qui déclare dans BT-24 l'extension XRechnung pour les véhicules propres (CVD), chaque code de classification avec l'identifiant de schéma CVD (BT-158) doit être l'une des catégories de véhicules M1, M2, M3, N1, N2 ou N3. En gros, M1 est une voiture particulière, M2 et M3 sont des autobus, N1 un véhicule utilitaire léger, N2 et N3 des camions plus lourds.",
+      "causes": [
+        "Une description comme bus ou camion a été saisie à la place du code de catégorie.",
+        "Le code est en minuscules (m1) ou contient un caractère en trop (M-1, N 2) ; seuls les espaces en début et en fin sont ignorés.",
+        "Une catégorie hors liste, par exemple L pour les deux-roues ou O pour les remorques, a été utilisée avec le schéma CVD."
+      ],
+      "fix": [
+        "Relevez la catégorie européenne du véhicule sur son certificat d'immatriculation ou ses documents de réception.",
+        "Indiquez exactement l'un des codes M1, M2, M3, N1, N2, N3, en gardant listID CVD.",
+        "Si l'article n'est pas un véhicule de ces catégories, ne le classez pas avec le schéma CVD."
+      ]
+    },
+    "ubl": "<cac:CommodityClassification>\n  <cbc:ItemClassificationCode listID=\"CVD\">M3</cbc:ItemClassificationCode>\n</cac:CommodityClassification>",
+    "cii": "<ram:DesignatedProductClassification>\n  <ram:ClassCode listID=\"CVD\">M3</ram:ClassCode>\n</ram:DesignatedProductClassification>"
+  },
+  {
+    "id": "BR-DE-CVD-05",
+    "source": "xrechnung",
+    "terms": [
+      "BG-32",
+      "BT-160",
+      "BT-161"
+    ],
+    "en": {
+      "title": "Clean vehicle attribute has a value that is not allowed",
+      "meaning": "On an invoice that declares the XRechnung Clean Vehicles (CVD) extension in BT-24, every item attribute named cva (BT-160) must have as its value (BT-161) exactly clean, zero-emission or other. The comparison is case-sensitive; only spaces at the start and end are ignored.",
+      "causes": [
+        "The value is written differently, for example Clean, zero emission or emission-free.",
+        "A free description of the drive (electric, hydrogen, diesel) was entered instead of one of the three values.",
+        "The value was left empty."
+      ],
+      "fix": [
+        "Check which category the vehicle falls into under the Clean Vehicles Directive, from the tender documents or ask the buyer if unsure.",
+        "Enter exactly clean, zero-emission or other, in lower case and with the hyphen.",
+        "Keep the attribute name cva unchanged."
+      ]
+    },
+    "de": {
+      "title": "Attribut für saubere Fahrzeuge hat einen unzulässigen Wert",
+      "meaning": "Bei einer Rechnung, die in BT-24 die XRechnung-Erweiterung für saubere Fahrzeuge (CVD) angibt, muss jedes Artikelattribut mit dem Namen cva (BT-160) als Wert (BT-161) genau clean, zero-emission oder other haben. Groß- und Kleinschreibung zählt; nur Leerzeichen am Anfang und Ende werden ignoriert.",
+      "causes": [
+        "Der Wert ist anders geschrieben, etwa Clean, zero emission oder emissionsfrei.",
+        "Statt eines der drei Werte wurde die Antriebsart frei beschrieben (elektrisch, Wasserstoff, Diesel).",
+        "Der Wert wurde leer gelassen."
+      ],
+      "fix": [
+        "Klären Sie anhand der Vergabeunterlagen, in welche Kategorie der Clean-Vehicles-Richtlinie das Fahrzeug fällt; fragen Sie im Zweifel den Auftraggeber.",
+        "Tragen Sie genau clean, zero-emission oder other ein, kleingeschrieben und mit Bindestrich.",
+        "Lassen Sie den Attributnamen cva unverändert."
+      ]
+    },
+    "fr": {
+      "title": "L'attribut « véhicule propre » a une valeur non autorisée",
+      "meaning": "Sur une facture qui déclare dans BT-24 l'extension XRechnung pour les véhicules propres (CVD), chaque attribut d'article nommé cva (BT-160) doit avoir pour valeur (BT-161) exactement clean, zero-emission ou other. La comparaison respecte les majuscules ; seuls les espaces en début et en fin sont ignorés.",
+      "causes": [
+        "La valeur est écrite autrement, par exemple Clean, zero emission ou électrique.",
+        "Une description libre de la motorisation (électrique, hydrogène, diesel) a été saisie au lieu de l'une des trois valeurs.",
+        "La valeur a été laissée vide."
+      ],
+      "fix": [
+        "Vérifiez dans quelle catégorie de la directive véhicules propres le véhicule se classe, d'après les documents du marché ; en cas de doute, demandez à l'acheteur.",
+        "Saisissez exactement clean, zero-emission ou other, en minuscules et avec le trait d'union.",
+        "Gardez le nom d'attribut cva tel quel."
+      ]
+    },
+    "ubl": "<cac:AdditionalItemProperty>\n  <cbc:Name>cva</cbc:Name>\n  <cbc:Value>zero-emission</cbc:Value>\n</cac:AdditionalItemProperty>",
+    "cii": "<ram:ApplicableProductCharacteristic>\n  <ram:Description>cva</ram:Description>\n  <ram:Value>zero-emission</ram:Value>\n</ram:ApplicableProductCharacteristic>"
+  },
+  {
+    "id": "BR-DE-CVD-06-a",
+    "source": "xrechnung",
+    "terms": [
+      "BT-158",
+      "BT-160"
+    ],
+    "en": {
+      "title": "Line with a CVD vehicle category needs exactly one cva attribute",
+      "meaning": "On an invoice that declares the XRechnung Clean Vehicles (CVD) extension in BT-24, any line whose item has a classification code with scheme CVD (BT-158) must also have exactly one item attribute named cva (BT-160). None fails, and so do two or more.",
+      "causes": [
+        "The vehicle category was added but the cva attribute was forgotten.",
+        "The cva attribute appears twice on the line, for example once from the item master data and once added by hand.",
+        "The attribute name is spelled differently (CVA, cva with a typo), so it is not counted."
+      ],
+      "fix": [
+        "On each line classified with listID CVD, keep exactly one item attribute named cva.",
+        "Give it the value clean, zero-emission or other, and delete any duplicate.",
+        "If the line is not a vehicle, remove the CVD classification instead."
+      ]
+    },
+    "de": {
+      "title": "Position mit CVD-Fahrzeugklasse braucht genau ein cva-Attribut",
+      "meaning": "Bei einer Rechnung, die in BT-24 die XRechnung-Erweiterung für saubere Fahrzeuge (CVD) angibt, muss jede Position, deren Artikel einen Klassifizierungscode mit dem Schema CVD (BT-158) hat, auch genau ein Artikelattribut mit dem Namen cva (BT-160) haben. Fehlt es, schlägt die Prüfung fehl, ebenso bei zwei oder mehr.",
+      "causes": [
+        "Die Fahrzeugklasse wurde ergänzt, das cva-Attribut aber vergessen.",
+        "Das cva-Attribut steht zweimal in der Position, etwa einmal aus den Artikelstammdaten und einmal von Hand ergänzt.",
+        "Der Attributname ist anders geschrieben (CVA oder mit Tippfehler) und wird deshalb nicht gezählt."
+      ],
+      "fix": [
+        "Lassen Sie in jeder Position mit listID CVD genau ein Artikelattribut mit dem Namen cva stehen.",
+        "Geben Sie ihm den Wert clean, zero-emission oder other und löschen Sie Duplikate.",
+        "Ist die Position kein Fahrzeug, entfernen Sie stattdessen die CVD-Klassifizierung."
+      ]
+    },
+    "fr": {
+      "title": "Une ligne avec une catégorie CVD doit avoir exactement un attribut cva",
+      "meaning": "Sur une facture qui déclare dans BT-24 l'extension XRechnung pour les véhicules propres (CVD), toute ligne dont l'article porte un code de classification de schéma CVD (BT-158) doit aussi avoir exactement un attribut d'article nommé cva (BT-160). Aucun attribut fait échouer le contrôle, deux ou plus aussi.",
+      "causes": [
+        "La catégorie du véhicule a été ajoutée, mais l'attribut cva a été oublié.",
+        "L'attribut cva figure deux fois sur la ligne, par exemple une fois depuis la fiche article et une fois ajouté à la main.",
+        "Le nom de l'attribut est écrit autrement (CVA, faute de frappe) et n'est donc pas compté."
+      ],
+      "fix": [
+        "Sur chaque ligne classée avec listID CVD, gardez exactement un attribut d'article nommé cva.",
+        "Donnez-lui la valeur clean, zero-emission ou other, et supprimez les doublons.",
+        "Si la ligne ne porte pas sur un véhicule, retirez plutôt la classification CVD."
+      ]
+    },
+    "ubl": "<cac:Item>\n  <cbc:Name>Electric city bus, 12 m</cbc:Name>\n  <cac:CommodityClassification>\n    <cbc:ItemClassificationCode listID=\"CVD\">M3</cbc:ItemClassificationCode>\n  </cac:CommodityClassification>\n  <cac:AdditionalItemProperty>\n    <cbc:Name>cva</cbc:Name>\n    <cbc:Value>zero-emission</cbc:Value>\n  </cac:AdditionalItemProperty>\n</cac:Item>",
+    "cii": "<ram:SpecifiedTradeProduct>\n  <ram:Name>Electric city bus, 12 m</ram:Name>\n  <ram:ApplicableProductCharacteristic>\n    <ram:Description>cva</ram:Description>\n    <ram:Value>zero-emission</ram:Value>\n  </ram:ApplicableProductCharacteristic>\n  <ram:DesignatedProductClassification>\n    <ram:ClassCode listID=\"CVD\">M3</ram:ClassCode>\n  </ram:DesignatedProductClassification>\n</ram:SpecifiedTradeProduct>"
+  },
+  {
+    "id": "BR-DE-CVD-06-b",
+    "source": "xrechnung",
+    "terms": [
+      "BT-158",
+      "BT-160"
+    ],
+    "en": {
+      "title": "Line with a cva attribute needs exactly one CVD vehicle category",
+      "meaning": "On an invoice that declares the XRechnung Clean Vehicles (CVD) extension in BT-24, any line whose item has an attribute named cva (BT-160) must also have exactly one classification code with scheme CVD (BT-158). None fails, and so do two or more on the same line.",
+      "causes": [
+        "The cva attribute was added but the vehicle category classification was forgotten.",
+        "The category was given with another scheme identifier, or with none, instead of listID CVD.",
+        "Two CVD classifications were put on one line, for example for two vehicles invoiced together."
+      ],
+      "fix": [
+        "On each line with a cva attribute, add exactly one item classification code with listID CVD and the category M1, M2, M3, N1, N2 or N3.",
+        "If one line covers vehicles of different categories, split it into one line per category.",
+        "If the line is not a vehicle, remove the cva attribute instead."
+      ]
+    },
+    "de": {
+      "title": "Position mit cva-Attribut braucht genau eine CVD-Fahrzeugklasse",
+      "meaning": "Bei einer Rechnung, die in BT-24 die XRechnung-Erweiterung für saubere Fahrzeuge (CVD) angibt, muss jede Position, deren Artikel ein Attribut mit dem Namen cva (BT-160) hat, auch genau einen Klassifizierungscode mit dem Schema CVD (BT-158) haben. Fehlt er, schlägt die Prüfung fehl, ebenso bei zwei oder mehr in derselben Position.",
+      "causes": [
+        "Das cva-Attribut wurde ergänzt, die Klassifizierung mit der Fahrzeugklasse aber vergessen.",
+        "Die Klasse wurde mit einer anderen oder ohne Schemakennung angegeben statt mit listID CVD.",
+        "In einer Position stehen zwei CVD-Klassifizierungen, etwa für zwei gemeinsam abgerechnete Fahrzeuge."
+      ],
+      "fix": [
+        "Ergänzen Sie in jeder Position mit cva-Attribut genau einen Klassifizierungscode mit listID CVD und der Klasse M1, M2, M3, N1, N2 oder N3.",
+        "Deckt eine Position Fahrzeuge verschiedener Klassen ab, teilen Sie sie in eine Position je Klasse auf.",
+        "Ist die Position kein Fahrzeug, entfernen Sie stattdessen das cva-Attribut."
+      ]
+    },
+    "fr": {
+      "title": "Une ligne avec un attribut cva doit avoir exactement une catégorie CVD",
+      "meaning": "Sur une facture qui déclare dans BT-24 l'extension XRechnung pour les véhicules propres (CVD), toute ligne dont l'article porte un attribut nommé cva (BT-160) doit aussi avoir exactement un code de classification de schéma CVD (BT-158). Aucun code fait échouer le contrôle, deux ou plus sur la même ligne aussi.",
+      "causes": [
+        "L'attribut cva a été ajouté, mais la classification de la catégorie du véhicule a été oubliée.",
+        "La catégorie a été indiquée avec un autre identifiant de schéma, ou sans, au lieu de listID CVD.",
+        "Deux classifications CVD figurent sur une seule ligne, par exemple pour deux véhicules facturés ensemble."
+      ],
+      "fix": [
+        "Sur chaque ligne portant un attribut cva, ajoutez exactement un code de classification avec listID CVD et la catégorie M1, M2, M3, N1, N2 ou N3.",
+        "Si une ligne couvre des véhicules de catégories différentes, scindez-la en une ligne par catégorie.",
+        "Si la ligne ne porte pas sur un véhicule, retirez plutôt l'attribut cva."
+      ]
+    },
+    "ubl": "<cac:Item>\n  <cbc:Name>Electric city bus, 12 m</cbc:Name>\n  <cac:CommodityClassification>\n    <cbc:ItemClassificationCode listID=\"CVD\">M3</cbc:ItemClassificationCode>\n  </cac:CommodityClassification>\n  <cac:AdditionalItemProperty>\n    <cbc:Name>cva</cbc:Name>\n    <cbc:Value>zero-emission</cbc:Value>\n  </cac:AdditionalItemProperty>\n</cac:Item>",
+    "cii": "<ram:SpecifiedTradeProduct>\n  <ram:Name>Electric city bus, 12 m</ram:Name>\n  <ram:ApplicableProductCharacteristic>\n    <ram:Description>cva</ram:Description>\n    <ram:Value>zero-emission</ram:Value>\n  </ram:ApplicableProductCharacteristic>\n  <ram:DesignatedProductClassification>\n    <ram:ClassCode listID=\"CVD\">M3</ram:ClassCode>\n  </ram:DesignatedProductClassification>\n</ram:SpecifiedTradeProduct>"
+  },
+  {
+    "id": "BR-CO-09",
+    "source": "en16931",
+    "terms": [
+      "BT-31",
+      "BT-63",
+      "BT-48"
+    ],
+    "en": {
+      "title": "VAT identifier does not start with a valid country code",
+      "meaning": "Every VAT identifier on the invoice (seller BT-31, seller's tax representative BT-63, buyer BT-48) must start with a two-letter country code in capitals from the rule's list, for example DE123456789. Surprisingly, the list in the current official rules contains GR but not EL, so a Greek VAT number written with EL fails here even though the message says EL is allowed (the older 1.3.8 rules still accepted EL).",
+      "causes": [
+        "The number was entered without its country prefix, for example 123456789.",
+        "The prefix is in lower case (de123456789) or preceded by a space.",
+        "A national tax number (Steuernummer, SIREN) was put in a VAT identifier field: in UBL a PartyTaxScheme with tax scheme VAT, in CII a SpecifiedTaxRegistration with schemeID VA.",
+        "A Greek VAT number uses the prefix EL."
+      ],
+      "fix": [
+        "Write each VAT identifier with its two-letter country prefix in capitals and no leading space, as it appears on the VAT registration.",
+        "Put a national tax number that is not a VAT identifier in its own field (in UBL a PartyTaxScheme with a scheme other than VAT, in CII schemeID FC), not in the VAT one.",
+        "For a Greek EL number, check with the receiver which version of the rules they validate against before changing anything."
+      ]
+    },
+    "de": {
+      "title": "USt-IdNr. beginnt nicht mit einem gültigen Ländercode",
+      "meaning": "Jede Umsatzsteuer-Identifikationsnummer in der Rechnung (Verkäufer BT-31, Steuervertreter des Verkäufers BT-63, Käufer BT-48) muss mit einem zweistelligen Ländercode in Großbuchstaben aus der Liste der Regel beginnen, zum Beispiel DE123456789. Überraschend: Die Liste der aktuellen offiziellen Regeln enthält GR, aber nicht EL. Eine griechische USt-IdNr. mit EL fällt hier also durch, obwohl die Meldung EL ausdrücklich erlaubt (die älteren Regeln 1.3.8 akzeptierten EL noch).",
+      "causes": [
+        "Die Nummer wurde ohne Länderpräfix eingetragen, etwa 123456789.",
+        "Das Präfix ist kleingeschrieben (de123456789) oder es steht ein Leerzeichen davor.",
+        "Eine nationale Steuernummer wurde in ein Feld für die USt-IdNr. eingetragen: in UBL ein PartyTaxScheme mit Steuerschema VAT, in CII eine SpecifiedTaxRegistration mit schemeID VA.",
+        "Eine griechische USt-IdNr. verwendet das Präfix EL."
+      ],
+      "fix": [
+        "Schreiben Sie jede USt-IdNr. mit dem zweistelligen Länderpräfix in Großbuchstaben und ohne führendes Leerzeichen, so wie sie in der Bestätigung des Bundeszentralamts für Steuern bzw. der ausländischen Behörde steht.",
+        "Eine Steuernummer, die keine USt-IdNr. ist, gehört in ihr eigenes Feld (in UBL ein PartyTaxScheme mit anderem Schema als VAT, in CII schemeID FC), nicht in das der USt-IdNr.",
+        "Bei einer griechischen EL-Nummer klären Sie mit dem Empfänger, gegen welche Version der Regeln er prüft, bevor Sie etwas ändern."
+      ]
+    },
+    "fr": {
+      "title": "Le numéro de TVA ne commence pas par un code pays valide",
+      "meaning": "Chaque numéro de TVA intracommunautaire de la facture (vendeur BT-31, représentant fiscal du vendeur BT-63, acheteur BT-48) doit commencer par un code pays à deux lettres majuscules figurant dans la liste de la règle, par exemple DE123456789. Point surprenant : la liste des règles officielles actuelles contient GR mais pas EL ; un numéro grec écrit avec EL échoue donc ici, alors que le message dit qu'EL est admis (les anciennes règles 1.3.8 l'acceptaient encore).",
+      "causes": [
+        "Le numéro a été saisi sans préfixe pays, par exemple 123456789.",
+        "Le préfixe est en minuscules (fr12345678901) ou précédé d'un espace.",
+        "Un identifiant fiscal national (SIREN, Steuernummer) a été placé dans un champ de numéro de TVA : en UBL un PartyTaxScheme de schéma VAT, en CII une SpecifiedTaxRegistration avec schemeID VA.",
+        "Un numéro de TVA grec utilise le préfixe EL."
+      ],
+      "fix": [
+        "Écrivez chaque numéro de TVA avec son préfixe pays à deux lettres majuscules, sans espace devant, tel qu'il figure sur l'attestation d'immatriculation à la TVA.",
+        "Placez un identifiant fiscal qui n'est pas un numéro de TVA dans son propre champ (en UBL un PartyTaxScheme d'un autre schéma que VAT, en CII schemeID FC), pas dans celui de la TVA.",
+        "Pour un numéro grec en EL, demandez au destinataire contre quelle version des règles il valide avant de modifier quoi que ce soit."
+      ]
+    },
+    "ubl": "<cac:PartyTaxScheme>\n  <cbc:CompanyID>DE123456789</cbc:CompanyID>\n  <cac:TaxScheme>\n    <cbc:ID>VAT</cbc:ID>\n  </cac:TaxScheme>\n</cac:PartyTaxScheme>",
+    "cii": "<ram:SpecifiedTaxRegistration>\n  <ram:ID schemeID=\"VA\">DE123456789</ram:ID>\n</ram:SpecifiedTaxRegistration>"
+  },
+  {
+    "id": "BR-CO-10",
+    "source": "en16931",
+    "terms": [
+      "BT-106",
+      "BT-131"
+    ],
+    "en": {
+      "title": "Sum of line net amounts does not match the invoice lines",
+      "meaning": "The sum of invoice line net amounts in the totals (BT-106) must equal the net amounts of all invoice lines (BT-131) added up and rounded to two decimals. For example, lines of 100.00 and 50.00 need a BT-106 of exactly 150.00; 149.99 or 150.01 fails.",
+      "causes": [
+        "Line amounts were rounded differently from the total, for example the total was computed from unrounded line values.",
+        "A line was added, deleted or changed after the totals were calculated.",
+        "The software put the amount after document-level allowances or charges into BT-106 instead of the plain sum of lines."
+      ],
+      "fix": [
+        "Add up the net amount of every invoice line as written in the file (100.00 + 50.00 = 150.00).",
+        "Write that sum in cbc:LineExtensionAmount in cac:LegalMonetaryTotal (UBL) or ram:LineTotalAmount in the header monetary summation (CII).",
+        "Put document-level allowances and charges in their own totals (BT-107, BT-108), not into BT-106."
+      ]
+    },
+    "de": {
+      "title": "Summe der Positionsnettobeträge passt nicht zu den Rechnungspositionen",
+      "meaning": "Die Summe der Nettobeträge der Rechnungspositionen in den Gesamtbeträgen (BT-106) muss genau der auf zwei Nachkommastellen gerundeten Summe der Nettobeträge aller Positionen (BT-131) entsprechen. Beispiel: Bei Positionen über 100,00 und 50,00 muss BT-106 genau 150,00 sein; 149,99 oder 150,01 schlägt fehl.",
+      "causes": [
+        "Positionsbeträge und Summe wurden unterschiedlich gerundet, etwa weil die Summe aus ungerundeten Positionswerten gebildet wurde.",
+        "Eine Position wurde nach der Berechnung der Summen ergänzt, gelöscht oder geändert.",
+        "Die Software hat in BT-106 den Betrag nach Nachlässen oder Zuschlägen auf Belegebene eingetragen statt der reinen Positionssumme."
+      ],
+      "fix": [
+        "Addieren Sie die Nettobeträge aller Positionen so, wie sie in der Datei stehen (100,00 + 50,00 = 150,00).",
+        "Tragen Sie die Summe in cbc:LineExtensionAmount in cac:LegalMonetaryTotal (UBL) bzw. ram:LineTotalAmount in der Summenzeile des Kopfs (CII) ein.",
+        "Nachlässe und Zuschläge auf Belegebene gehören in ihre eigenen Summen (BT-107, BT-108), nicht in BT-106."
+      ]
+    },
+    "fr": {
+      "title": "La somme des montants nets des lignes ne correspond pas aux lignes",
+      "meaning": "La somme des montants nets des lignes figurant dans les totaux (BT-106) doit être égale à la somme des montants nets de toutes les lignes (BT-131), arrondie à deux décimales. Par exemple, avec des lignes de 100,00 et 50,00, BT-106 doit valoir exactement 150,00 ; 149,99 ou 150,01 échoue.",
+      "causes": [
+        "Les montants des lignes et le total ont été arrondis différemment, par exemple un total calculé sur des valeurs de ligne non arrondies.",
+        "Une ligne a été ajoutée, supprimée ou modifiée après le calcul des totaux.",
+        "Le logiciel a placé dans BT-106 le montant après remises ou charges au niveau du document au lieu de la simple somme des lignes."
+      ],
+      "fix": [
+        "Additionnez le montant net de chaque ligne tel qu'il figure dans le fichier (100,00 + 50,00 = 150,00).",
+        "Inscrivez cette somme dans cbc:LineExtensionAmount de cac:LegalMonetaryTotal (UBL) ou dans ram:LineTotalAmount du récapitulatif d'en-tête (CII).",
+        "Mettez les remises et charges au niveau du document dans leurs propres totaux (BT-107, BT-108), pas dans BT-106."
+      ]
+    },
+    "ubl": "<cac:LegalMonetaryTotal>\n  <cbc:LineExtensionAmount currencyID=\"EUR\">150.00</cbc:LineExtensionAmount>\n</cac:LegalMonetaryTotal>\n<cac:InvoiceLine>\n  <cbc:ID>1</cbc:ID>\n  <cbc:InvoicedQuantity unitCode=\"C62\">2</cbc:InvoicedQuantity>\n  <cbc:LineExtensionAmount currencyID=\"EUR\">100.00</cbc:LineExtensionAmount>\n</cac:InvoiceLine>\n<cac:InvoiceLine>\n  <cbc:ID>2</cbc:ID>\n  <cbc:InvoicedQuantity unitCode=\"C62\">1</cbc:InvoicedQuantity>\n  <cbc:LineExtensionAmount currencyID=\"EUR\">50.00</cbc:LineExtensionAmount>\n</cac:InvoiceLine>",
+    "cii": "<ram:IncludedSupplyChainTradeLineItem>\n  <ram:SpecifiedLineTradeSettlement>\n    <ram:SpecifiedTradeSettlementLineMonetarySummation>\n      <ram:LineTotalAmount>100.00</ram:LineTotalAmount>\n    </ram:SpecifiedTradeSettlementLineMonetarySummation>\n  </ram:SpecifiedLineTradeSettlement>\n</ram:IncludedSupplyChainTradeLineItem>\n<ram:IncludedSupplyChainTradeLineItem>\n  <ram:SpecifiedLineTradeSettlement>\n    <ram:SpecifiedTradeSettlementLineMonetarySummation>\n      <ram:LineTotalAmount>50.00</ram:LineTotalAmount>\n    </ram:SpecifiedTradeSettlementLineMonetarySummation>\n  </ram:SpecifiedLineTradeSettlement>\n</ram:IncludedSupplyChainTradeLineItem>\n<ram:ApplicableHeaderTradeSettlement>\n  <ram:SpecifiedTradeSettlementHeaderMonetarySummation>\n    <ram:LineTotalAmount>150.00</ram:LineTotalAmount>\n  </ram:SpecifiedTradeSettlementHeaderMonetarySummation>\n</ram:ApplicableHeaderTradeSettlement>"
+  },
+  {
+    "id": "BR-CO-13",
+    "source": "en16931",
+    "terms": [
+      "BT-109",
+      "BT-131",
+      "BT-107",
+      "BT-108"
+    ],
+    "en": {
+      "title": "Total without VAT does not match lines, allowances and charges",
+      "meaning": "The invoice total without VAT (BT-109) must equal the sum of line net amounts (BT-106) minus the sum of document-level allowances (BT-107) plus the sum of document-level charges (BT-108), rounded to two decimals; a missing allowance or charge total counts as zero. For example, 150.00 − 10.00 + 5.00 = 145.00.",
+      "causes": [
+        "The total without VAT was copied from the line sum and the document-level allowance or charge was forgotten.",
+        "An allowance was subtracted twice, once in the lines and once at document level.",
+        "Allowance and charge totals were swapped, or an allowance was entered as a negative charge."
+      ],
+      "fix": [
+        "Compute BT-109 as BT-106 − BT-107 + BT-108 (150.00 − 10.00 + 5.00 = 145.00).",
+        "In UBL put it in cbc:TaxExclusiveAmount; in CII in ram:TaxBasisTotalAmount.",
+        "Make sure BT-107 and BT-108 themselves are the sums of the document-level allowances and charges."
+      ]
+    },
+    "de": {
+      "title": "Gesamtbetrag ohne USt passt nicht zu Positionen, Nachlässen und Zuschlägen",
+      "meaning": "Der Rechnungsgesamtbetrag ohne Umsatzsteuer (BT-109) muss der Summe der Positionsnettobeträge (BT-106) minus der Summe der Nachlässe auf Belegebene (BT-107) plus der Summe der Zuschläge auf Belegebene (BT-108) entsprechen, gerundet auf zwei Nachkommastellen; eine fehlende Nachlass- oder Zuschlagssumme zählt als null. Beispiel: 150,00 − 10,00 + 5,00 = 145,00.",
+      "causes": [
+        "Der Betrag ohne USt wurde aus der Positionssumme übernommen und der Nachlass oder Zuschlag auf Belegebene vergessen.",
+        "Ein Nachlass wurde doppelt abgezogen, einmal in den Positionen und einmal auf Belegebene.",
+        "Nachlass- und Zuschlagssumme wurden vertauscht oder ein Nachlass als negativer Zuschlag erfasst."
+      ],
+      "fix": [
+        "Berechnen Sie BT-109 als BT-106 − BT-107 + BT-108 (150,00 − 10,00 + 5,00 = 145,00).",
+        "In UBL gehört er in cbc:TaxExclusiveAmount, in CII in ram:TaxBasisTotalAmount.",
+        "Prüfen Sie, dass BT-107 und BT-108 selbst die Summen der Nachlässe und Zuschläge auf Belegebene sind."
+      ]
+    },
+    "fr": {
+      "title": "Le total hors TVA ne correspond pas aux lignes, remises et charges",
+      "meaning": "Le montant total de la facture hors TVA (BT-109) doit être égal à la somme des montants nets des lignes (BT-106), moins la somme des remises au niveau du document (BT-107), plus la somme des charges au niveau du document (BT-108), arrondi à deux décimales ; un total de remises ou de charges absent compte pour zéro. Par exemple, 150,00 − 10,00 + 5,00 = 145,00.",
+      "causes": [
+        "Le total hors TVA a été repris de la somme des lignes en oubliant la remise ou la charge au niveau du document.",
+        "Une remise a été déduite deux fois, une fois dans les lignes et une fois au niveau du document.",
+        "Les totaux des remises et des charges ont été inversés, ou une remise a été saisie comme une charge négative."
+      ],
+      "fix": [
+        "Calculez BT-109 = BT-106 − BT-107 + BT-108 (150,00 − 10,00 + 5,00 = 145,00).",
+        "En UBL, inscrivez-le dans cbc:TaxExclusiveAmount ; en CII, dans ram:TaxBasisTotalAmount.",
+        "Vérifiez que BT-107 et BT-108 sont bien les sommes des remises et charges au niveau du document."
+      ]
+    },
+    "ubl": "<cac:LegalMonetaryTotal>\n  <cbc:LineExtensionAmount currencyID=\"EUR\">150.00</cbc:LineExtensionAmount>\n  <cbc:TaxExclusiveAmount currencyID=\"EUR\">145.00</cbc:TaxExclusiveAmount>\n  <cbc:TaxInclusiveAmount currencyID=\"EUR\">172.55</cbc:TaxInclusiveAmount>\n  <cbc:AllowanceTotalAmount currencyID=\"EUR\">10.00</cbc:AllowanceTotalAmount>\n  <cbc:ChargeTotalAmount currencyID=\"EUR\">5.00</cbc:ChargeTotalAmount>\n  <cbc:PayableAmount currencyID=\"EUR\">172.55</cbc:PayableAmount>\n</cac:LegalMonetaryTotal>",
+    "cii": "<ram:SpecifiedTradeSettlementHeaderMonetarySummation>\n  <ram:LineTotalAmount>150.00</ram:LineTotalAmount>\n  <ram:ChargeTotalAmount>5.00</ram:ChargeTotalAmount>\n  <ram:AllowanceTotalAmount>10.00</ram:AllowanceTotalAmount>\n  <ram:TaxBasisTotalAmount>145.00</ram:TaxBasisTotalAmount>\n  <ram:TaxTotalAmount currencyID=\"EUR\">27.55</ram:TaxTotalAmount>\n  <ram:GrandTotalAmount>172.55</ram:GrandTotalAmount>\n  <ram:DuePayableAmount>172.55</ram:DuePayableAmount>\n</ram:SpecifiedTradeSettlementHeaderMonetarySummation>"
+  },
+  {
+    "id": "BR-CO-14",
+    "source": "en16931",
+    "terms": [
+      "BT-110",
+      "BT-117"
+    ],
+    "en": {
+      "title": "Total VAT does not equal the sum of the VAT breakdown",
+      "meaning": "The invoice total VAT amount (BT-110) must equal the VAT amounts of all VAT breakdown rows (BT-117) added up and rounded to two decimals. For example, 19.00 at 19 % plus 3.15 at 7 % gives a total VAT of 22.15. In UBL, a tax total with no breakdown rows inside it is not checked, which is how the second tax total in the VAT accounting currency (BT-111) passes.",
+      "causes": [
+        "The total VAT was computed line by line while the breakdown was computed per rate, so they differ by rounding.",
+        "A VAT rate or category was added or removed in the breakdown without updating the total.",
+        "In UBL, the breakdown rows were put in a second cac:TaxTotal instead of the one carrying BT-110."
+      ],
+      "fix": [
+        "Add up the VAT amount of every breakdown row (19.00 + 3.15 = 22.15) and use that as the total VAT.",
+        "In UBL put the total in cac:TaxTotal/cbc:TaxAmount with the rows as cac:TaxSubtotal in the same cac:TaxTotal; in CII put it in ram:TaxTotalAmount with currencyID equal to the invoice currency.",
+        "If rounding per line and per rate disagree, take the breakdown amounts as the reference and adjust the total."
+      ]
+    },
+    "de": {
+      "title": "Umsatzsteuer-Gesamtbetrag entspricht nicht der Summe der Aufschlüsselung",
+      "meaning": "Der Umsatzsteuer-Gesamtbetrag der Rechnung (BT-110) muss der auf zwei Nachkommastellen gerundeten Summe der Steuerbeträge aller Zeilen der Umsatzsteueraufschlüsselung (BT-117) entsprechen. Beispiel: 19,00 zu 19 % plus 3,15 zu 7 % ergibt eine Umsatzsteuer von 22,15. In UBL wird ein TaxTotal ohne Aufschlüsselungszeilen nicht geprüft; so besteht das zweite TaxTotal in der Steuerwährung (BT-111) die Prüfung.",
+      "causes": [
+        "Die Gesamtsteuer wurde positionsweise berechnet, die Aufschlüsselung je Steuersatz, sodass sie sich durch Rundung unterscheiden.",
+        "In der Aufschlüsselung wurde ein Steuersatz oder eine Kategorie ergänzt oder entfernt, ohne die Summe anzupassen.",
+        "In UBL stehen die Aufschlüsselungszeilen in einem zweiten cac:TaxTotal statt in dem mit BT-110."
+      ],
+      "fix": [
+        "Addieren Sie die Steuerbeträge aller Aufschlüsselungszeilen (19,00 + 3,15 = 22,15) und verwenden Sie das als Gesamtsteuer.",
+        "In UBL gehört die Summe in cac:TaxTotal/cbc:TaxAmount, die Zeilen als cac:TaxSubtotal in dasselbe cac:TaxTotal; in CII in ram:TaxTotalAmount mit currencyID gleich der Rechnungswährung.",
+        "Weichen Rundung je Position und je Steuersatz voneinander ab, nehmen Sie die Beträge der Aufschlüsselung als Maßstab und passen Sie die Summe an."
+      ]
+    },
+    "fr": {
+      "title": "Le total de TVA n'est pas égal à la somme de la ventilation",
+      "meaning": "Le montant total de TVA de la facture (BT-110) doit être égal à la somme des montants de TVA de toutes les lignes de ventilation (BT-117), arrondie à deux décimales. Par exemple, 19,00 à 19 % plus 3,15 à 7 % donnent un total de TVA de 22,15. En UBL, un TaxTotal sans lignes de ventilation n'est pas contrôlé ; c'est ainsi que le second TaxTotal dans la devise de comptabilisation de la TVA (BT-111) passe.",
+      "causes": [
+        "La TVA totale a été calculée ligne par ligne et la ventilation par taux, d'où un écart d'arrondi.",
+        "Un taux ou une catégorie de TVA a été ajouté ou retiré de la ventilation sans mettre à jour le total.",
+        "En UBL, les lignes de ventilation ont été placées dans un second cac:TaxTotal au lieu de celui qui porte BT-110."
+      ],
+      "fix": [
+        "Additionnez le montant de TVA de chaque ligne de ventilation (19,00 + 3,15 = 22,15) et utilisez-le comme total de TVA.",
+        "En UBL, mettez le total dans cac:TaxTotal/cbc:TaxAmount avec les lignes en cac:TaxSubtotal dans le même cac:TaxTotal ; en CII, dans ram:TaxTotalAmount avec un currencyID égal à la devise de la facture.",
+        "Si les arrondis par ligne et par taux divergent, prenez les montants de la ventilation comme référence et ajustez le total."
+      ]
+    },
+    "ubl": "<cac:TaxTotal>\n  <cbc:TaxAmount currencyID=\"EUR\">22.15</cbc:TaxAmount>\n  <cac:TaxSubtotal>\n    <cbc:TaxableAmount currencyID=\"EUR\">100.00</cbc:TaxableAmount>\n    <cbc:TaxAmount currencyID=\"EUR\">19.00</cbc:TaxAmount>\n    <cac:TaxCategory>\n      <cbc:ID>S</cbc:ID>\n      <cbc:Percent>19</cbc:Percent>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:TaxCategory>\n  </cac:TaxSubtotal>\n  <cac:TaxSubtotal>\n    <cbc:TaxableAmount currencyID=\"EUR\">45.00</cbc:TaxableAmount>\n    <cbc:TaxAmount currencyID=\"EUR\">3.15</cbc:TaxAmount>\n    <cac:TaxCategory>\n      <cbc:ID>S</cbc:ID>\n      <cbc:Percent>7</cbc:Percent>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:TaxCategory>\n  </cac:TaxSubtotal>\n</cac:TaxTotal>",
+    "cii": "<ram:ApplicableHeaderTradeSettlement>\n  <ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>\n  <ram:ApplicableTradeTax>\n    <ram:CalculatedAmount>19.00</ram:CalculatedAmount>\n    <ram:TypeCode>VAT</ram:TypeCode>\n    <ram:BasisAmount>100.00</ram:BasisAmount>\n    <ram:CategoryCode>S</ram:CategoryCode>\n    <ram:RateApplicablePercent>19</ram:RateApplicablePercent>\n  </ram:ApplicableTradeTax>\n  <ram:ApplicableTradeTax>\n    <ram:CalculatedAmount>3.15</ram:CalculatedAmount>\n    <ram:TypeCode>VAT</ram:TypeCode>\n    <ram:BasisAmount>45.00</ram:BasisAmount>\n    <ram:CategoryCode>S</ram:CategoryCode>\n    <ram:RateApplicablePercent>7</ram:RateApplicablePercent>\n  </ram:ApplicableTradeTax>\n  <ram:SpecifiedTradeSettlementHeaderMonetarySummation>\n    <ram:LineTotalAmount>145.00</ram:LineTotalAmount>\n    <ram:TaxBasisTotalAmount>145.00</ram:TaxBasisTotalAmount>\n    <ram:TaxTotalAmount currencyID=\"EUR\">22.15</ram:TaxTotalAmount>\n    <ram:GrandTotalAmount>167.15</ram:GrandTotalAmount>\n    <ram:DuePayableAmount>167.15</ram:DuePayableAmount>\n  </ram:SpecifiedTradeSettlementHeaderMonetarySummation>\n</ram:ApplicableHeaderTradeSettlement>"
+  },
+  {
+    "id": "BR-CO-15",
+    "source": "en16931",
+    "terms": [
+      "BT-112",
+      "BT-109",
+      "BT-110"
+    ],
+    "en": {
+      "title": "Total with VAT does not equal total without VAT plus VAT",
+      "meaning": "The invoice total with VAT (BT-112) must equal the total without VAT (BT-109) plus the total VAT amount (BT-110), rounded to two decimals; for example 145.00 + 27.55 = 172.55. In UBL the test also needs exactly one tax total amount whose currencyID is the invoice currency, so a missing or duplicated one fails too. In CII the rule also passes when BT-112 simply equals BT-109.",
+      "causes": [
+        "The total with VAT was computed from unrounded amounts or before a last change to the VAT.",
+        "In UBL, the VAT total's currencyID differs from cbc:DocumentCurrencyCode, or two cac:TaxTotal elements both carry an amount in the invoice currency.",
+        "The prepaid amount or a rounding amount was subtracted from BT-112 instead of from the amount due (BT-115)."
+      ],
+      "fix": [
+        "Compute BT-112 as BT-109 + BT-110 (145.00 + 27.55 = 172.55).",
+        "In UBL, give exactly one cac:TaxTotal/cbc:TaxAmount the currencyID of the invoice currency; a second tax total in another accounting currency is fine.",
+        "Leave prepayments and rounding to BT-113, BT-114 and the amount due."
+      ]
+    },
+    "de": {
+      "title": "Gesamtbetrag mit USt ist nicht Betrag ohne USt plus USt",
+      "meaning": "Der Rechnungsgesamtbetrag einschließlich Umsatzsteuer (BT-112) muss dem Gesamtbetrag ohne Umsatzsteuer (BT-109) plus dem Umsatzsteuer-Gesamtbetrag (BT-110) entsprechen, gerundet auf zwei Nachkommastellen; Beispiel: 145,00 + 27,55 = 172,55. In UBL verlangt die Prüfung außerdem genau einen Steuergesamtbetrag, dessen currencyID die Rechnungswährung ist; fehlt er oder gibt es ihn doppelt, schlägt sie ebenfalls fehl. In CII besteht die Regel auch dann, wenn BT-112 einfach gleich BT-109 ist.",
+      "causes": [
+        "Der Bruttobetrag wurde aus ungerundeten Beträgen oder vor einer letzten Änderung der Umsatzsteuer berechnet.",
+        "In UBL weicht die currencyID des Steuerbetrags von cbc:DocumentCurrencyCode ab, oder zwei cac:TaxTotal tragen beide einen Betrag in Rechnungswährung.",
+        "Die Vorauszahlung oder ein Rundungsbetrag wurde von BT-112 abgezogen statt vom fälligen Betrag (BT-115)."
+      ],
+      "fix": [
+        "Berechnen Sie BT-112 als BT-109 + BT-110 (145,00 + 27,55 = 172,55).",
+        "Geben Sie in UBL genau einem cac:TaxTotal/cbc:TaxAmount die currencyID der Rechnungswährung; ein zweites TaxTotal in einer anderen Steuerwährung ist zulässig.",
+        "Vorauszahlungen und Rundung gehören in BT-113, BT-114 und den fälligen Betrag."
+      ]
+    },
+    "fr": {
+      "title": "Le total TTC n'est pas égal au total HT plus la TVA",
+      "meaning": "Le montant total de la facture TVA comprise (BT-112) doit être égal au total hors TVA (BT-109) plus le montant total de TVA (BT-110), arrondi à deux décimales ; par exemple 145,00 + 27,55 = 172,55. En UBL, le contrôle exige en plus exactement un montant total de TVA dont le currencyID est la devise de la facture : s'il manque ou s'il est en double, la règle échoue aussi. En CII, la règle passe aussi quand BT-112 est simplement égal à BT-109.",
+      "causes": [
+        "Le total TTC a été calculé à partir de montants non arrondis ou avant une dernière modification de la TVA.",
+        "En UBL, le currencyID du montant de TVA diffère de cbc:DocumentCurrencyCode, ou deux cac:TaxTotal portent chacun un montant dans la devise de la facture.",
+        "L'acompte ou un montant d'arrondi a été déduit de BT-112 au lieu du montant à payer (BT-115)."
+      ],
+      "fix": [
+        "Calculez BT-112 = BT-109 + BT-110 (145,00 + 27,55 = 172,55).",
+        "En UBL, donnez à exactement un cac:TaxTotal/cbc:TaxAmount le currencyID de la devise de la facture ; un second TaxTotal dans une autre devise de comptabilisation est admis.",
+        "Laissez les acomptes et l'arrondi à BT-113, BT-114 et au montant à payer."
+      ]
+    },
+    "ubl": "<cbc:DocumentCurrencyCode>EUR</cbc:DocumentCurrencyCode>\n<cac:TaxTotal>\n  <cbc:TaxAmount currencyID=\"EUR\">27.55</cbc:TaxAmount>\n  <cac:TaxSubtotal>\n    <cbc:TaxableAmount currencyID=\"EUR\">145.00</cbc:TaxableAmount>\n    <cbc:TaxAmount currencyID=\"EUR\">27.55</cbc:TaxAmount>\n    <cac:TaxCategory>\n      <cbc:ID>S</cbc:ID>\n      <cbc:Percent>19</cbc:Percent>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:TaxCategory>\n  </cac:TaxSubtotal>\n</cac:TaxTotal>\n<cac:LegalMonetaryTotal>\n  <cbc:LineExtensionAmount currencyID=\"EUR\">145.00</cbc:LineExtensionAmount>\n  <cbc:TaxExclusiveAmount currencyID=\"EUR\">145.00</cbc:TaxExclusiveAmount>\n  <cbc:TaxInclusiveAmount currencyID=\"EUR\">172.55</cbc:TaxInclusiveAmount>\n  <cbc:PayableAmount currencyID=\"EUR\">172.55</cbc:PayableAmount>\n</cac:LegalMonetaryTotal>",
+    "cii": "<ram:SpecifiedTradeSettlementHeaderMonetarySummation>\n  <ram:LineTotalAmount>145.00</ram:LineTotalAmount>\n  <ram:TaxBasisTotalAmount>145.00</ram:TaxBasisTotalAmount>\n  <ram:TaxTotalAmount currencyID=\"EUR\">27.55</ram:TaxTotalAmount>\n  <ram:GrandTotalAmount>172.55</ram:GrandTotalAmount>\n  <ram:DuePayableAmount>172.55</ram:DuePayableAmount>\n</ram:SpecifiedTradeSettlementHeaderMonetarySummation>"
+  },
+  {
+    "id": "BR-CO-16",
+    "source": "en16931",
+    "terms": [
+      "BT-115",
+      "BT-112",
+      "BT-113",
+      "BT-114"
+    ],
+    "en": {
+      "title": "Amount due does not equal total minus prepaid plus rounding",
+      "meaning": "The amount due for payment (BT-115) must equal the total with VAT (BT-112) minus the amount already paid (BT-113) plus the rounding amount (BT-114); a missing paid or rounding amount counts as zero. For example, 172.55 − 50.00 = 122.55, or with a rounding amount of −0.05, 172.55 − 50.00 − 0.05 = 122.50. The UBL test rounds to two decimals; the CII test compares the values exactly.",
+      "causes": [
+        "A prepayment or deposit was deducted from the amount due but not entered as paid amount (BT-113).",
+        "A cash rounding was applied to the amount due without entering it as rounding amount (BT-114), or with the wrong sign.",
+        "The paid amount was subtracted from the total with VAT (BT-112) instead of only from the amount due."
+      ],
+      "fix": [
+        "Compute BT-115 as BT-112 − BT-113 + BT-114 (172.55 − 50.00 + 0.00 = 122.55).",
+        "In UBL use cbc:PrepaidAmount, cbc:PayableRoundingAmount and cbc:PayableAmount; in CII ram:TotalPrepaidAmount, ram:RoundingAmount and ram:DuePayableAmount.",
+        "Enter a rounding down as a negative rounding amount and a rounding up as a positive one."
+      ]
+    },
+    "de": {
+      "title": "Fälliger Betrag ist nicht Gesamtbetrag minus Vorauszahlung plus Rundung",
+      "meaning": "Der fällige Zahlungsbetrag (BT-115) muss dem Gesamtbetrag mit Umsatzsteuer (BT-112) minus dem bereits gezahlten Betrag (BT-113) plus dem Rundungsbetrag (BT-114) entsprechen; ein fehlender gezahlter Betrag oder Rundungsbetrag zählt als null. Beispiel: 172,55 − 50,00 = 122,55, oder mit einem Rundungsbetrag von −0,05: 172,55 − 50,00 − 0,05 = 122,50. Die UBL-Prüfung rundet auf zwei Nachkommastellen, die CII-Prüfung vergleicht die Werte exakt.",
+      "causes": [
+        "Eine Anzahlung oder Abschlagszahlung wurde vom fälligen Betrag abgezogen, aber nicht als gezahlter Betrag (BT-113) eingetragen.",
+        "Eine Bargeldrundung wurde auf den fälligen Betrag angewandt, ohne sie als Rundungsbetrag (BT-114) einzutragen, oder mit falschem Vorzeichen.",
+        "Der gezahlte Betrag wurde vom Bruttobetrag (BT-112) abgezogen statt nur vom fälligen Betrag."
+      ],
+      "fix": [
+        "Berechnen Sie BT-115 als BT-112 − BT-113 + BT-114 (172,55 − 50,00 + 0,00 = 122,55).",
+        "In UBL verwenden Sie cbc:PrepaidAmount, cbc:PayableRoundingAmount und cbc:PayableAmount, in CII ram:TotalPrepaidAmount, ram:RoundingAmount und ram:DuePayableAmount.",
+        "Tragen Sie eine Abrundung als negativen, eine Aufrundung als positiven Rundungsbetrag ein."
+      ]
+    },
+    "fr": {
+      "title": "Le montant à payer n'est pas le total moins l'acompte plus l'arrondi",
+      "meaning": "Le montant à payer (BT-115) doit être égal au total TVA comprise (BT-112), moins le montant déjà payé (BT-113), plus le montant d'arrondi (BT-114) ; un montant payé ou un arrondi absent compte pour zéro. Par exemple, 172,55 − 50,00 = 122,55, ou avec un arrondi de −0,05 : 172,55 − 50,00 − 0,05 = 122,50. Le contrôle UBL arrondit à deux décimales, le contrôle CII compare les valeurs exactement.",
+      "causes": [
+        "Un acompte a été déduit du montant à payer sans être saisi comme montant payé (BT-113).",
+        "Un arrondi de caisse a été appliqué au montant à payer sans être saisi comme montant d'arrondi (BT-114), ou avec le mauvais signe.",
+        "Le montant payé a été déduit du total TTC (BT-112) au lieu du seul montant à payer."
+      ],
+      "fix": [
+        "Calculez BT-115 = BT-112 − BT-113 + BT-114 (172,55 − 50,00 + 0,00 = 122,55).",
+        "En UBL, utilisez cbc:PrepaidAmount, cbc:PayableRoundingAmount et cbc:PayableAmount ; en CII, ram:TotalPrepaidAmount, ram:RoundingAmount et ram:DuePayableAmount.",
+        "Saisissez un arrondi vers le bas comme montant d'arrondi négatif et un arrondi vers le haut comme montant positif."
+      ]
+    },
+    "ubl": "<cac:LegalMonetaryTotal>\n  <cbc:LineExtensionAmount currencyID=\"EUR\">145.00</cbc:LineExtensionAmount>\n  <cbc:TaxExclusiveAmount currencyID=\"EUR\">145.00</cbc:TaxExclusiveAmount>\n  <cbc:TaxInclusiveAmount currencyID=\"EUR\">172.55</cbc:TaxInclusiveAmount>\n  <cbc:PrepaidAmount currencyID=\"EUR\">50.00</cbc:PrepaidAmount>\n  <cbc:PayableAmount currencyID=\"EUR\">122.55</cbc:PayableAmount>\n</cac:LegalMonetaryTotal>",
+    "cii": "<ram:SpecifiedTradeSettlementHeaderMonetarySummation>\n  <ram:LineTotalAmount>145.00</ram:LineTotalAmount>\n  <ram:TaxBasisTotalAmount>145.00</ram:TaxBasisTotalAmount>\n  <ram:TaxTotalAmount currencyID=\"EUR\">27.55</ram:TaxTotalAmount>\n  <ram:GrandTotalAmount>172.55</ram:GrandTotalAmount>\n  <ram:TotalPrepaidAmount>50.00</ram:TotalPrepaidAmount>\n  <ram:DuePayableAmount>122.55</ram:DuePayableAmount>\n</ram:SpecifiedTradeSettlementHeaderMonetarySummation>"
+  },
+  {
+    "id": "BR-CO-17",
+    "source": "en16931",
+    "terms": [
+      "BT-117",
+      "BT-116",
+      "BT-119"
+    ],
+    "en": {
+      "title": "VAT amount in the breakdown does not match base times rate",
+      "meaning": "In each VAT breakdown row, the VAT amount (BT-117) should be the taxable amount (BT-116) times the rate (BT-119) divided by 100, rounded to two decimals; for example 145.00 × 19 % = 27.55. The official test is looser than its message: it accepts any amount less than 1.00 away from that result (up to 1.00 inclusive in CII). With a rate of 0, or no rate, the VAT amount must round to zero, that is be under 0.50.",
+      "causes": [
+        "The VAT amount was copied from another row or another invoice.",
+        "The taxable amount was changed (for example by a document-level allowance) without recalculating the VAT.",
+        "A 0 % row (exempt, reverse charge, export) carries a VAT amount.",
+        "The rate was entered as a fraction (0.19) instead of a percentage (19)."
+      ],
+      "fix": [
+        "Recalculate each row: taxable amount × rate ÷ 100, rounded to two decimals (145.00 × 19 ÷ 100 = 27.55).",
+        "For a 0 % category, set the VAT amount of the row to 0.00.",
+        "Enter the rate as a percentage in cbc:Percent (UBL) or ram:RateApplicablePercent (CII)."
+      ]
+    },
+    "de": {
+      "title": "Steuerbetrag der Aufschlüsselung passt nicht zu Bemessungsgrundlage mal Steuersatz",
+      "meaning": "In jeder Zeile der Umsatzsteueraufschlüsselung soll der Steuerbetrag (BT-117) der Bemessungsgrundlage (BT-116) mal Steuersatz (BT-119) geteilt durch 100 entsprechen, gerundet auf zwei Nachkommastellen; Beispiel: 145,00 × 19 % = 27,55. Die offizielle Prüfung ist großzügiger als ihre Meldung: Sie akzeptiert jeden Betrag, der weniger als 1,00 von diesem Ergebnis abweicht (in CII bis einschließlich 1,00). Bei einem Steuersatz von 0 oder ohne Steuersatz muss der Steuerbetrag auf null runden, also unter 0,50 liegen.",
+      "causes": [
+        "Der Steuerbetrag wurde aus einer anderen Zeile oder Rechnung übernommen.",
+        "Die Bemessungsgrundlage wurde geändert (etwa durch einen Nachlass auf Belegebene), ohne die Steuer neu zu berechnen.",
+        "Eine Zeile mit 0 % (steuerfrei, Reverse Charge, Ausfuhr) enthält einen Steuerbetrag.",
+        "Der Steuersatz wurde als Bruch (0.19) statt als Prozentwert (19) eingetragen."
+      ],
+      "fix": [
+        "Berechnen Sie jede Zeile neu: Bemessungsgrundlage × Steuersatz ÷ 100, gerundet auf zwei Nachkommastellen (145,00 × 19 ÷ 100 = 27,55).",
+        "Setzen Sie bei einer Kategorie mit 0 % den Steuerbetrag der Zeile auf 0,00.",
+        "Tragen Sie den Steuersatz als Prozentwert in cbc:Percent (UBL) bzw. ram:RateApplicablePercent (CII) ein."
+      ]
+    },
+    "fr": {
+      "title": "Le montant de TVA de la ventilation ne correspond pas à base × taux",
+      "meaning": "Dans chaque ligne de ventilation de la TVA, le montant de TVA (BT-117) doit être la base imposable (BT-116) multipliée par le taux (BT-119) divisé par 100, arrondi à deux décimales ; par exemple 145,00 × 19 % = 27,55. Le contrôle officiel est plus souple que son message : il accepte tout montant qui s'écarte de ce résultat de moins de 1,00 (jusqu'à 1,00 inclus en CII). Avec un taux de 0 ou sans taux, le montant de TVA doit s'arrondir à zéro, c'est-à-dire être inférieur à 0,50.",
+      "causes": [
+        "Le montant de TVA a été recopié d'une autre ligne ou d'une autre facture.",
+        "La base imposable a été modifiée (par exemple par une remise au niveau du document) sans recalculer la TVA.",
+        "Une ligne à 0 % (exonération, autoliquidation, exportation) porte un montant de TVA.",
+        "Le taux a été saisi en fraction (0.19) au lieu d'un pourcentage (19)."
+      ],
+      "fix": [
+        "Recalculez chaque ligne : base imposable × taux ÷ 100, arrondi à deux décimales (145,00 × 19 ÷ 100 = 27,55).",
+        "Pour une catégorie à 0 %, mettez le montant de TVA de la ligne à 0,00.",
+        "Saisissez le taux en pourcentage dans cbc:Percent (UBL) ou ram:RateApplicablePercent (CII)."
+      ]
+    },
+    "ubl": "<cac:TaxSubtotal>\n  <cbc:TaxableAmount currencyID=\"EUR\">145.00</cbc:TaxableAmount>\n  <cbc:TaxAmount currencyID=\"EUR\">27.55</cbc:TaxAmount>\n  <cac:TaxCategory>\n    <cbc:ID>S</cbc:ID>\n    <cbc:Percent>19</cbc:Percent>\n    <cac:TaxScheme>\n      <cbc:ID>VAT</cbc:ID>\n    </cac:TaxScheme>\n  </cac:TaxCategory>\n</cac:TaxSubtotal>",
+    "cii": "<ram:ApplicableTradeTax>\n  <ram:CalculatedAmount>27.55</ram:CalculatedAmount>\n  <ram:TypeCode>VAT</ram:TypeCode>\n  <ram:BasisAmount>145.00</ram:BasisAmount>\n  <ram:CategoryCode>S</ram:CategoryCode>\n  <ram:RateApplicablePercent>19</ram:RateApplicablePercent>\n</ram:ApplicableTradeTax>"
+  },
+  {
+    "id": "BR-CO-26",
+    "source": "en16931",
+    "terms": [
+      "BT-29",
+      "BT-30",
+      "BT-31"
+    ],
+    "en": {
+      "title": "Seller has no identifier, registration number or VAT ID",
+      "meaning": "So that the buyer can identify the seller automatically, the seller must have at least one of: a seller identifier (BT-29), a legal registration identifier such as a commercial register number (BT-30), or a VAT identifier (BT-31). A national tax number (BT-32, the German Steuernummer) does not count, and in UBL neither does a party identification with schemeID SEPA, which is the creditor identifier for direct debits.",
+      "causes": [
+        "Only the seller's name and address were filled in.",
+        "The seller only gave a national tax number (Steuernummer) and no VAT identifier, for example a small business without a VAT ID.",
+        "In UBL, the only cac:PartyIdentification is the SEPA creditor identifier.",
+        "In CII, the VAT identifier was sent with schemeID FC instead of VA."
+      ],
+      "fix": [
+        "Add the seller's VAT identifier if it has one: in UBL a cac:PartyTaxScheme with tax scheme VAT, in CII ram:SpecifiedTaxRegistration with schemeID VA.",
+        "Or add the commercial register number or other legal registration in cac:PartyLegalEntity/cbc:CompanyID (UBL) or ram:SpecifiedLegalOrganization/ram:ID (CII).",
+        "Or add a seller identifier, such as a GLN or an ID the buyer assigned, in cac:PartyIdentification/cbc:ID (UBL) or ram:ID / ram:GlobalID (CII)."
+      ]
+    },
+    "de": {
+      "title": "Verkäufer hat weder Kennung noch Registernummer noch USt-IdNr.",
+      "meaning": "Damit der Käufer den Verkäufer automatisch zuordnen kann, braucht der Verkäufer mindestens eines davon: eine Verkäuferkennung (BT-29), eine Registernummer wie die Handelsregisternummer (BT-30) oder eine USt-IdNr. (BT-31). Die Steuernummer (BT-32) zählt nicht, in UBL ebenso wenig eine Partei-Kennung mit schemeID SEPA, denn das ist die Gläubiger-ID für Lastschriften.",
+      "causes": [
+        "Es wurden nur Name und Anschrift des Verkäufers ausgefüllt.",
+        "Der Verkäufer hat nur eine Steuernummer und keine USt-IdNr. angegeben, etwa ein Kleinunternehmer ohne USt-IdNr.",
+        "In UBL ist die einzige cac:PartyIdentification die SEPA-Gläubiger-ID.",
+        "In CII wurde die USt-IdNr. mit schemeID FC statt VA übermittelt."
+      ],
+      "fix": [
+        "Ergänzen Sie die USt-IdNr. des Verkäufers, falls vorhanden: in UBL ein cac:PartyTaxScheme mit Steuerschema VAT, in CII ram:SpecifiedTaxRegistration mit schemeID VA.",
+        "Oder ergänzen Sie die Handelsregisternummer bzw. eine andere Registrierung in cac:PartyLegalEntity/cbc:CompanyID (UBL) oder ram:SpecifiedLegalOrganization/ram:ID (CII).",
+        "Oder ergänzen Sie eine Verkäuferkennung, etwa eine GLN oder eine vom Käufer vergebene Lieferantennummer, in cac:PartyIdentification/cbc:ID (UBL) oder ram:ID bzw. ram:GlobalID (CII)."
+      ]
+    },
+    "fr": {
+      "title": "Le vendeur n'a ni identifiant, ni numéro d'immatriculation, ni numéro de TVA",
+      "meaning": "Pour que l'acheteur puisse identifier automatiquement le vendeur, celui-ci doit avoir au moins l'un des éléments suivants : un identifiant du vendeur (BT-29), un identifiant d'immatriculation légale comme le SIREN ou un numéro de registre du commerce (BT-30), ou un numéro de TVA (BT-31). Un identifiant fiscal national (BT-32) ne compte pas, et en UBL pas davantage une identification de partie avec schemeID SEPA, qui est l'identifiant de créancier pour le prélèvement.",
+      "causes": [
+        "Seuls le nom et l'adresse du vendeur ont été renseignés.",
+        "Le vendeur n'a indiqué qu'un identifiant fiscal national, sans numéro de TVA, par exemple une petite entreprise sans numéro de TVA.",
+        "En UBL, la seule cac:PartyIdentification est l'identifiant de créancier SEPA.",
+        "En CII, le numéro de TVA a été transmis avec schemeID FC au lieu de VA."
+      ],
+      "fix": [
+        "Ajoutez le numéro de TVA du vendeur s'il en a un : en UBL un cac:PartyTaxScheme de schéma VAT, en CII ram:SpecifiedTaxRegistration avec schemeID VA.",
+        "Ou ajoutez le numéro d'immatriculation (SIREN, registre du commerce) dans cac:PartyLegalEntity/cbc:CompanyID (UBL) ou ram:SpecifiedLegalOrganization/ram:ID (CII).",
+        "Ou ajoutez un identifiant du vendeur, comme un GLN ou un numéro fournisseur attribué par l'acheteur, dans cac:PartyIdentification/cbc:ID (UBL) ou ram:ID / ram:GlobalID (CII)."
+      ]
+    },
+    "ubl": "<cac:AccountingSupplierParty>\n  <cac:Party>\n    <cac:PartyTaxScheme>\n      <cbc:CompanyID>DE123456789</cbc:CompanyID>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:PartyTaxScheme>\n    <cac:PartyLegalEntity>\n      <cbc:RegistrationName>Muster GmbH</cbc:RegistrationName>\n      <cbc:CompanyID>HRB 12345</cbc:CompanyID>\n    </cac:PartyLegalEntity>\n  </cac:Party>\n</cac:AccountingSupplierParty>",
+    "cii": "<ram:SellerTradeParty>\n  <ram:Name>Muster GmbH</ram:Name>\n  <ram:SpecifiedLegalOrganization>\n    <ram:ID>HRB 12345</ram:ID>\n  </ram:SpecifiedLegalOrganization>\n  <ram:SpecifiedTaxRegistration>\n    <ram:ID schemeID=\"VA\">DE123456789</ram:ID>\n  </ram:SpecifiedTaxRegistration>\n</ram:SellerTradeParty>"
+  }
+]

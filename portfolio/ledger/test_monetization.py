@@ -12,7 +12,7 @@ def row(**kw):
     base = dict(
         venture="wall-framing-takeoff", buyer="b", liability="medium", model="m",
         first_offer="o", price_hypothesis="p", comparables=[], stage="planned",
-        next="do it", next_owner=False,
+        next="do it", next_owner=False, billing="subscription",
     )
     base.update(kw)
     return base
@@ -141,3 +141,34 @@ def test_empty_queue_names_the_first_for_profit_product_with_no_row():
 
 def test_committed_proprietary_list_loads():
     assert len(m.load_proprietary()) >= 1
+
+
+def test_venture_row_needs_billing_and_a_reason_when_not_subscription():
+    errs = m.check({"products": [row(billing="monthly")]})
+    assert any("billing must be one of" in e for e in errs)
+    errs = m.check({"products": [row(billing="one-off")]})
+    assert any("needs `billing_why`" in e for e in errs)
+    assert m.check({"products": [row(billing="one-off", billing_why="bought once per project")]}) == []
+
+
+def test_checkout_on_another_provider_is_not_an_owner_step(tmp_path):
+    v = tmp_path / "ventures" / "pack"
+    v.mkdir(parents=True)
+    (v / "checkout.mjs").write_text('export const VALIDATE_URL = "https://api.lemonsqueezy.com/v1/licenses/validate";')
+    data = {"rail": {"provider": "paddle"}, "products": [row(venture="pack", next_owner=True)]}
+    errs = m.check(data, repo=tmp_path)
+    assert any("checkout calls lemonsqueezy but the rail is paddle" in e for e in errs)
+    data["products"][0]["next_owner"] = False
+    assert m.check(data, repo=tmp_path) == []
+    (v / "checkout.mjs").write_text('const u = "https://sandbox-api.paddle.com/";')
+    data["products"][0]["next_owner"] = True
+    assert m.check(data, repo=tmp_path) == []
+
+
+def test_billing_summary_counts_the_for_profit_products():
+    data = {"products": [row(venture="a"), row(venture="b", billing="one-off", billing_why="x")]}
+    prop = [{"venture": "a", "model": "subscription"}, {"venture": "b", "model": "subscription"},
+            {"venture": "c", "model": "one-off"}]
+    out = m.billing_summary(data, prop)
+    assert "1 subscription row(s), 1 not a subscription with a reason, 1 with no row" in out
+    assert "b (one-off, planned subscription)" in out

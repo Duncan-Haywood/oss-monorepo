@@ -38,10 +38,10 @@
     }
   },
   "counts": {
-    "ventures": 1441,
+    "ventures": 1442,
     "by_vertical": {
       "construction": 164,
-      "manufacturing-engineering": 7,
+      "manufacturing-engineering": 8,
       "online-sellers": 105,
       "eu-einvoicing-accounting": 12,
       "nonprofits": 10,
@@ -56,7 +56,7 @@
     },
     "front_doors_by_bet": {
       "payapps": 153,
-      "jobshop-quote": 9,
+      "jobshop-quote": 10,
       "einvoice": 12,
       "cmmc": 2,
       "seller-books": 105,
@@ -64,7 +64,7 @@
       "grants": 9
     },
     "by_status": {
-      "front-door": 301,
+      "front-door": 302,
       "frozen": 1140
     }
   },
@@ -5825,6 +5825,14 @@
       "site_category": "logistics",
       "front_door_for": null,
       "status": "frozen"
+    },
+    {
+      "venture": "machine-shop-guides",
+      "vertical": "manufacturing-engineering",
+      "rule": "slug",
+      "site_category": "more",
+      "front_door_for": "jobshop-quote",
+      "status": "front-door"
     },
     {
       "venture": "mailchimp-audience-csv-check",
