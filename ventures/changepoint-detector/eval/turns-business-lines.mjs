@@ -48,6 +48,11 @@
 // composite matches or beats the hindsight-best line; the composite's median signed timing error against the
 // truth (expected late, since the stickiest line weighs most); an equal-weight composite.
 //
+// Added after the run (label only, no number changed): the 'equal-weight composite' printed below is not equal
+// weight. The code averages each line's log level divided by its own sd of monthly change, so it carries the same
+// inverse-sd proportions as the Conference Board index on a scale about 50x larger, which makes bigMove 0.05 keep
+// nearly every short phase. It is printed as 'rescaled composite' (README "Several business lines").
+//
 // usage: node eval/turns-business-lines.mjs > eval/turns-business-lines.out.txt
 import { fileURLToPath } from 'node:url';
 import { turningPoints } from '../turning-points.mjs';
@@ -196,7 +201,7 @@ const f3 = (v) => v.toFixed(3);
 const sg = (v) => `${v >= 0 ? '+' : ''}${v.toFixed(3)}`;
 function describe(a) {
   const out = [`n ${a.n}, noise x${a.scale}, ${a.draws} draws, ${a.truthMean.toFixed(2)} true turns a draw on average`];
-  out.push(`  mean F1: composite ${f3(a.fc)}; ${LINES.map((l, i) => `${l.name} ${f3(a.fl[i])}`).join(', ')}; equal-weight composite ${f3(a.fe)}`);
+  out.push(`  mean F1: composite ${f3(a.fc)}; ${LINES.map((l, i) => `${l.name} ${f3(a.fl[i])}`).join(', ')}; rescaled composite (see header) ${f3(a.fe)}`);
   out.push(`  hindsight-best line ${f3(a.best)}; composite at least as good in ${(100 * a.atLeastBest).toFixed(1)}% of draws`);
   out.push(`  composite - revenue ${sg(a.dRev)} (wins ${a.wins}, losses ${a.losses}, sign test p ${a.pSign.toExponential(2)})`);
   out.push(`  composite - heaviest-weight line ${sg(a.dHeavy)} (95% CI ${sg(a.ci[0])} to ${sg(a.ci[1])}); heaviest: ${LINES.map((l, i) => `${l.name} ${a.heavyCount[i]}`).join(', ')}`);

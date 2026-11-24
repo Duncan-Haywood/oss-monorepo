@@ -10335,3 +10335,57 @@ engine's message in the card, no console errors, and no horizontal scroll at 390
 item on this line: a business-shaped check, where no committee dates exist (simulated shop or SaaS lines that
 share a cycle but lag and differ in noise), to measure whether the composite dates a business's turns better than
 its best single line; and the composite in real time on ALFRED's vintages when that host answers.
+
+## Several business lines that share a cycle (2026-11-24, pre-registered; S1 and S2 pass, S3 and S4 fail, nothing new ships)
+
+The item above: `--turns --columns` shipped on NBER's indicators, where a committee's dates exist to score against.
+A business has no committee, so this round simulates one: four monthly lines over twelve years that share a hidden
+cycle (expansions 24-60 months, contractions 6-18) but turn at different times and differ in noise. Orders lead by
+a month and are noisy; revenue is on time; active customers lag two months, move 0.6 times as much and are sticky
+(AR(1) 0.6); staff hours lag a month. Each line also has its own drift. The hidden cycle's switch months are the
+truth. The rules, written and committed before the first run (commit "pre-register the business-lines round"), are
+in the header of `eval/turns-business-lines.mjs`; output `eval/turns-business-lines.out.txt` (5 s); test
+`turns-business-lines.test.mjs`. Dating is the shipped `--turns` default (monthly durations, bigMove 0.05) on each
+line and on the Conference Board composite of all four; 500 draws, about 5 true turns each.
+
+| bar (typical noise, 144 months) | result | |
+|---|---|---|
+| S1 composite beats revenue alone by 0.05 F1, sign test p <= 0.05 | 0.932 vs 0.869, +0.063; wins 262, losses 90, p 1e-20 | **passes** |
+| S2 composite beats the line it weighs most (customers, every draw), 95% CI above 0 | +0.060, CI +0.047 to +0.073 | **passes** |
+| S3 composite within 0.03 of the best line picked with hindsight in each draw | 0.932 vs 0.974, 0.042 short | **fails** |
+| S4 each line's lead against revenue read within a month in 75% of draws | orders 69.0%, customers 73.3%, hours 75.5% | **fails** |
+
+What it shows:
+
+- **Revenue alone invents turns; the composite mostly does not.** Of about 5 true turns a draw, revenue alone misses
+  0.56 and adds 0.83 false ones; the composite misses 0.48 and adds 0.08 (counts from the post-hoc script, same
+  draws). Each single line scores F1 0.85-0.87; the composite 0.93. On noisier lines (twice the noise, printed)
+  the gap widens: revenue 0.62, the composite 0.87, ahead of revenue in 449 draws and behind in 34.
+- **It does not beat hindsight.** In each draw one of the four lines happens to date best, and picking it after the
+  fact scores 0.974. Nobody can pick it in advance (the line the composite weighs most, the least volatile one,
+  scores 0.872), but the bar was set and missed.
+- **Why it falls short (post-hoc, not a result):** the misses are short contractions. The composite leans on the
+  sticky customers line (weight 0.50), so its swings are small and the lags of the four lines smear a 6-month
+  contraction; BBQ's 6-month phase minimum then drops it, and bigMove 0.05 does not rescue it because the move is
+  under 5%. Stretching the index tenfold, so that nearly every short phase counts as a big move, scores 0.974 with
+  misses down from 0.48 to 0.14 a draw and false turns up from 0.08 to 0.10 (`eval/turns-business-lines-posthoc.mjs`,
+  same draws). A printed arm meant as an equal-weight composite did the same thing by accident (it rescales; the
+  pre-registration mislabelled it, and its header now says so). Neither is shipped: both were found by looking.
+  Scaling bigMove to the series' volatility instead does not help: anchored on payrolls (0.05 is 12.7 standard
+  deviations of payrolls' monthly change, 1939-2019), it would raise the threshold here.
+- **The lead/lag readout is right on average, not draw by draw.** The median reading is the true lag for every line
+  (orders -1, customers +2, hours +1), and on calm lines (half the noise, printed) it is within a month in 91-95% of
+  draws, but at typical noise only 69-76%, under the 75% bar for two lines. `line-leads.mjs` stays a module and is not
+  printed by the CLI.
+- **The composite turns about a month late** (median +1 against the hidden cycle), because the lagging customers line
+  weighs most. Shorter (96 months) and longer (240) histories give the same picture: composite ahead of revenue by
+  0.07, short of hindsight by 0.02-0.04.
+
+Read it for what it is: a simulation whose make (lags, loadings, noise, drifts) was chosen before the run, not
+fitted to any business. It supports what `--turns --columns` already does (several lines date a cycle better than
+one), and it names the next fix to test: the phase-length rule on a composite of business lines.
+
+Next, if this line continues: a fresh pre-registered round (new seed, a different make, such as a SaaS company's
+sign-ups, active users, MRR and paid invoices) on a short-phase rule for composites (minimum phase 3 months, or a
+short phase kept when it moves a set share of the composite's median phase move), with NBER's 16 of 16 on the FRED
+composite kept as a bar.
