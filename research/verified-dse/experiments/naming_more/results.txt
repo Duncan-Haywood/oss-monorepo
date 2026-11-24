@@ -1,0 +1,32 @@
+# Milestone 164: two more random namings on the six near-zero designs (flow run)
+
+Yosys 0.71 (mlbh), OpenROAD 26Q3 (p9p4), ss_100C_1v60, 40% utilisation; Y, C, R, A3 = milestone 162's arms; R2, R3 = fresh random renamings; A5 = geometric mean of the five; tie-break seed m162
+analysed designs (longest complete prefix of the order): 6 of 6: gtc24r, dot6r, gtc12r, clamp2r, dot4l, div12l
+control 1 (rung 1 and mapped rung equal build B's row): 1235 of 1235 R2/R3 runs
+control 2 (arm A3's d reproduces milestone 162's to 0.01): True
+
+design | d Y | d C | d R | d R2 | d R3 | d A3 | d A5 | s163 | s5 | s(1) | s(2) | s(3) | s(4) | flip share vs A5 | namings for 95% sign (s5, d A5)
+gtc24r | -3.08 | -0.63 | -1.36 | +0.07 | -4.16 | -0.42 | -1.24 | 1.29 | 1.63 | 1.54 | 1.05 | 0.77 | 0.44 | 0.175 | 7
+dot6r | -0.12 | -1.18 | -0.01 | -2.11 | -0.14 | -0.58 | -0.80 | 0.70 | 0.95 | 0.87 | 0.62 | 0.42 | 0.30 | 0.300 | 6
+gtc12r | +0.19 | +1.08 | -0.36 | -3.83 | -2.65 | -0.89 | -1.23 | 1.05 | 1.25 | 1.21 | 0.97 | 0.68 | 0.44 | 0.195 | 4
+clamp2r | +1.09 | +0.47 | +1.95 | +3.60 | +4.69 | +0.89 | +2.05 | 1.07 | 1.58 | 1.70 | 1.06 | 0.73 | 0.41 | 0.080 | 3
+dot4l | -2.05 | +1.70 | -4.39 | -3.95 | -3.69 | -2.08 | -1.00 | 1.57 | 1.75 | 1.64 | 1.40 | 0.98 | 0.58 | 0.070 | 12
+div12l | -5.24 | +0.59 | -3.60 | -2.74 | -0.59 | -2.98 | -1.89 | 1.45 | 1.37 | 1.47 | 0.96 | 0.68 | 0.43 | 0.015 | 3
+
+## Predictions
+
+(1) PRIMARY: fresh d(R2), d(R3) within 2 s163 of d(A3): 7 of 12 (needed >= 10.0; outside: gtc24r R3, dot6r R2, gtc12r R2, clamp2r R2, clamp2r R3): refuted
+(2) median s5 / s163 1.23 (needed 0.67 to 1.5): held
+(3) |d(A5)| < 3 on all: max |d(A5)| 2.05: held
+(4) mean |d(A5) - d(A3)| 0.78 (needed < 1.0): held
+(5) median s(1)/s(3) 2.03 (law 2.45; needed 1.8 to 3.1): held
+
+## Reported, not predicted
+
+median s(1)/s(2) 1.43 (law 1.63)
+median s(1)/s(3) 2.03 (law 2.45)
+median s(1)/s(4) 3.15 (law 4.00)
+mean |d(R2) - d(R3)| 1.81; mean |d(R2) - d(R)| 1.66
+median tau-b R2 against R3 0.762 (range 0.638 to 0.836)
+sign of d(A5) equals sign of d(A3) on 6 of 6
+R2 or R3 runs failed where build B's row is ok: 1
