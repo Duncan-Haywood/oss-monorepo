@@ -786,7 +786,9 @@ def frame_noise(c, pat, *, pct: float = FRAME_PCT, scale: float = FRAME_SCALE,
 # 111 HDR+ phone bursts (+0.08 dB colour, +0.12 dB luma over what ships, none 0.1 dB worse, no new loser to
 # directional). It passed the drawn-noise check on 11 Bayer camera raws no noise read had been scored on (76 clean-truth
 # rows: +0.12 dB colour, +0.22 dB luma, none 0.1 dB worse; eval/camera-drawn-mpcws-2026-11-23.md), so since then it
-# is ``DevelopSettings.noise_read``'s default. ``frame_noise_read``'s own default stays "ship" (what callers asked for).
+# was ``DevelopSettings.noise_read``'s default until a re-check on 9 fresh camera raws failed h4o on one GH4 tile
+# (2026-11-24, eval/camera-drawn-mpcws-fresh-2026-11-24.md); it is opt-in again. ``frame_noise_read``'s own default is
+# "ship" (what callers asked for).
 NOISE_READS = ("ship", "mpcws")
 MPCWS_COLOUR_RAMP = (0.3, 1.0)
 MPCWS_COLLAPSE = 0.6
