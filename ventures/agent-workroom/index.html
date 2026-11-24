@@ -337,7 +337,7 @@
     if (k === "r") { Object.assign(cam, START); applyCamera(); return; }
     if (MOVE_KEYS[k] || TURN_KEYS[k]) { e.preventDefault(); held.add(k); tick(); }
   });
-  scene.addEventListener("keyup", (e) => held.delete(e.key.length === 1 ? e.key.toLowerCase() : e.key));
+  scene.addEventListener("keyup", (e) => { const k = e.key ?? ""; held.delete(k.length === 1 ? k.toLowerCase() : k); });
   scene.addEventListener("blur", () => held.clear(), true);
   let ticking = false;
   function tick() {
