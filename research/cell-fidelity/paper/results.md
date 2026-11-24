@@ -241,16 +241,30 @@ interval changes sign (&theta;D &minus; &theta; &minus;14.35, &minus;27.01 to &m
    drift after the gates were fixed: with seven conditions no honest-margin interval excluded zero
    (finding 6), so the eighth cell is what moves it, and the reading is "the correction pays wherever the
    drift is large and one-directional", not a new breadth result.
+10. **A gate that tests the drift's direction (7ze) is right on seven of the eight sets.** gS, the drift
+   gate plus a direction share of at least 0.80 among the training designs' multipliers, is off on
+   `Chen2020`, `OKane2022` and `Ai2020` (shares 0.50 to 0.75) and on for both f = 30 cells, 7za's cell and
+   the SEI cell (0.85 to 1.00). Over eight conditions &theta;S saves 15.4 cycles per design against &theta;
+   (&minus;28.0 to &minus;3.2; 20 cheaper, 4 dearer, sign p = 0.002) and meets 37 of 40 folds, against
+   &theta;N's 36 and &theta;'s 35. Without the engineered SEI cell, its seven-condition interval ends at
+   exactly zero (&minus;25.1 to 0.0), the closest any gated rule has come. It is wrong on `NCA_Kim2011`,
+   whose drift is one-directional (shares 0.93 to 0.97) and which still misses a held-out pool when
+   corrected; that set, not the direction test, is now what separates the deployable gates from the
+   oracle. Thresholds 0.70 and 0.90 change one set decision each. The gate was designed after seeing that
+   direction is what gD missed, so the eight conditions are not an out-of-sample test; on the f = 10 cells,
+   the nearest one, it fixes `Ecker2015` (gD on, oracle off) but cannot reach `Mohtat2020`, whose drift is
+   too small for gD.
 
 For a practitioner this is the conditional step of the recipe (section 5.1): correct the ten-cycle forecast
 when a gate on the training pools' drift size (or the out-of-fold error gate) says so, and otherwise run the
-straight forecast with triage. Neither gate tests the direction of the drift, which is what separates the
-cells where the correction pays (one-way) from the published sets (both ways); a gate on the sign
-agreement of the per-design drift is the untried candidate, though it would still correct `NCA_Kim2011`,
-which drifts one way (median 0.23) and misses a held-out pool when corrected. Whether a cell is plating-limited is not
+straight forecast with triage. Add the direction test (finding 10): correct only when at least 80% of
+the training designs drift the same way. That switches the correction off on three of the four published
+sets, though it still corrects `NCA_Kim2011`, which drifts one way (median 0.23) and misses a held-out pool
+when corrected. Whether a cell is plating-limited is not
 the condition: the plating-free cell of 7zc gains as much as the plating cells. What no gate tried does is
 separate `NCA_Kim2011` (one-directional drift, misses a held-out pool when corrected) from the cells where
-the correction pays, so on the committed sets every gated rule still meets 17 of 20 folds against triage's 19.
+the correction pays, so on the committed sets the direction-gated rule meets 18 of 20 folds against triage's 19
+(the size-only gates 17).
 
 ## 4.8 Results that did not hold
 
