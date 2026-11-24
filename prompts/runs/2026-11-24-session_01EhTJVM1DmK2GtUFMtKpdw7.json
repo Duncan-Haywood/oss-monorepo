@@ -47,7 +47,7 @@
     "docs/posts/2026-11-24-dating-a-business-cycle-from-four-lines-instead-of-revenue.md"
   ],
   "goal": null,
-  "notes": "Pre-registered round committed before running (commit 'pre-register the business-lines round'). Typical noise, 500 draws: composite F1 0.932 vs revenue 0.869 (S1 pass), vs heaviest-weight line +0.060 CI +0.047..+0.073 (S2 pass), vs hindsight-best 0.974 (S3 fail), lead/lag readout 69-76% within 1 month (S4 fail). Per pre-registration nothing new ships in the CLI; line-leads.mjs stays a module. Post-hoc: misses are short contractions cut by the 6-month phase minimum; volatility-anchored bigMove (12.7 payroll sds) would raise the threshold, so not pursued. Tests: node --test turns-business-lines.test.mjs 3/3; run_venture_tests and venture-preflight results below.",
+  "notes": "Pre-registered round committed before running (commit 'pre-register the business-lines round'). Typical noise, 500 draws: composite F1 0.932 vs revenue 0.869 (S1 pass), vs heaviest-weight line +0.060 CI +0.047..+0.073 (S2 pass), vs hindsight-best 0.974 (S3 fail), lead/lag readout 69-76% within 1 month (S4 fail). Per pre-registration nothing new ships in the CLI; line-leads.mjs stays a module. Post-hoc: misses are short contractions cut by the 6-month phase minimum; volatility-anchored bigMove (12.7 payroll sds) would raise the threshold, so not pursued. Tests: node --test turns-business-lines.test.mjs 3/3; run_venture_tests.py changepoint-detector: ok, 1172 tests, 460.6 s, 0 failed; venture-preflight.mjs changepoint-detector: preflight clean.",
   "corrections": [],
   "redteam": null
 }
