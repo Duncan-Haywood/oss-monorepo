@@ -44,6 +44,7 @@ footer p{margin:.6rem 0}
 <section>
 <h2>First, what these codes are not</h2>
 <p><code>INV-</code> codes are this tool's own identifiers for its own checks. They are <strong>not</strong> EN&nbsp;16931 <code>BR-</code> business rules, not Peppol validation artefact identifiers, and not the rejection codes a tax authority or submission network sends back. The preflight reads the file in front of it and reports arithmetic and structural observations before you submit; it never contacts a network, and it does not decide tax treatment or legal validity.</p>
+<p>Got an official code from a portal or access point instead, such as <code>BR-DE-15</code>, <code>BR-CO-15</code> or <code>PEPPOL-EN16931-R003</code>? Each has its own page with the official message, the usual causes, the fix and corrected XML, in <a href="rules/en/index.html">English</a>, <a href="rules/de/index.html" hreflang="de">Deutsch</a> and <a href="rules/fr/index.html" hreflang="fr">français</a> (<a href="rules/index.html">all languages</a>).</p>
 <p>That distinction matters in both directions. A network validator may reject a document this tool passes, because it applies country and scheme rules this tool does not implement. It may also accept one this tool flags, because some of these checks are stricter than a network requires — the remittance and reference checks in particular are about getting paid, not about passing validation. When you contact your network or service provider, quote <em>their</em> code, not this one.</p>
 </section>
 
