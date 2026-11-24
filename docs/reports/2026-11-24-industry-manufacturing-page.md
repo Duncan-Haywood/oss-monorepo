@@ -1,3 +1,7 @@
+---
+kind: note
+subjects: [pages]
+---
 # Manufacturing industry page: what landed and the follow-up
 
 `platform/pages/industry-manufacturing.mjs` builds `industries/manufacturing/`
