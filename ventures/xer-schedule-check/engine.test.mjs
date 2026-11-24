@@ -368,6 +368,20 @@ test("CPM: as late as possible takes up free float; loops are found and reported
   assert.equal(lo.loops[0].length, 3);
 });
 
+test("CPM: an ALAP milestone stays zero-length even when the file gives it a remaining duration", () => {
+  // P6 exports and converted files can carry hours on a milestone; the forward
+  // pass ignores them, so ALAP must too (red team 2026-11-24: the milestone test escaped)
+  for (const type of ["TT_FinMile", "TT_Mile"]) {
+    const x = project(
+      [task("1", "A", 8), task("2", "M", 8, { task_type: type, cstr_type: "CS_ALAP" }), task("3", "C", 24), task("4", "End", 0, { task_type: "TT_FinMile" })],
+      [link("1", "2", "1"), link("2", "4", "2"), link("3", "4", "3")],
+    );
+    const m = at(schedule(x), x, "M");
+    assert.equal(m.es, m.ef, type);
+    assert.equal(m.tf, 0, type);
+  }
+});
+
 test("DCMA: each point counts what it should on a small schedule", () => {
   const x = project(
     [
