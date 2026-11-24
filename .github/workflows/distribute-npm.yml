@@ -16,13 +16,15 @@ concurrency:
   cancel-in-progress: false
 jobs:
   publish:
-    # Secrets live in the `publish` environment, limited to main
-    # (docs/security/agent-hardening.md, step 4).
+    # Trusted publishing: npm accepts this job's OIDC token for the packages
+    # that name this workflow and the `publish` environment (limited to main),
+    # so no npm token is stored (docs/security/trusted-publishing-setup.md).
     environment: publish
     permissions:
       contents: read
       id-token: write
-    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    # npm trusted publishing does not accept self-hosted runners.
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -31,9 +33,9 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
-          registry-url: 'https://registry.npmjs.org'
+      # Trusted publishing needs npm 11.5.1 or later; Node 22 ships npm 10.
+      - run: npm install -g npm@11.21.2
       - run: node platform/distribution/npm.mjs
         env:
           DISTRIBUTE_NPM: ${{ vars.DISTRIBUTE_NPM }}
           NPM_SCOPE: ${{ vars.NPM_SCOPE }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
