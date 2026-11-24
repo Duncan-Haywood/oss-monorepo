@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKimSYnHHZggt33GrNd",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T10:09:31Z",
+  "ended": "2026-11-24T10:25:37Z",
+  "wall_minutes": 16.32,
+  "tokens_in": 10876940,
+  "tokens_out": 50644,
+  "cost_usd": 4.4802,
+  "tool_calls": 80,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18583",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First inverse pass missed 1 dental_clinic line (counted distinct records; bare inverses count repeats) and wrongly reported 10 (skipped mis-sized pointer records; an IFC4X2 bridge's outside-schema pointers). A suppression fix for the latter then lost 18 real lines on beam-standard-case.ifc; replaced by reporting them with the outside-schema pointer named. All caught by the record-by-record compare before commit.",
+    "First draft of the eval table gave DefinesType counts 'up to 22' from the first finding shown; recomputed over all findings (2-169) before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ids-model-check/eval/conformance-2026-11-24.md",
+      "issue": "Its Next guessed most inverse lines were shapes/placements shared by types and that blanket inverse findings would be noise; on IfcOpenShell's files all 47 are count-0 (unused), and matching them all was the useful result."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "The buildable field had 7 spare characters, so replacing a landed item needed --history to park an old result; the error message says so, which helped."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-ids-model-check-inverse-counts.md",
+    "ventures/ids-model-check/eval/inverse-counts-2026-11-24.md"
+  ],
+  "goal": null,
+  "notes": "Flagship ids-model-check item 2 (inverse counts). conformance.mjs inverse-count + schema inverseBounds. Compare vs ifcopenshell.validate 0.9.0.post1: IfcOpenShell set 275 both/10 only here/0 only IOS (47/47 inverse lines); web-ifc 2,344/234/0 (1,038/1,038; the 8 extra inverse findings are ifcbridge-model01, which IfcOpenShell refuses); bSI and opensourceBIM sets unchanged. Venture suite: run_venture_tests.py ids-model-check ok, 585 tests, 2 skipped. web-ifc sweep 15.8 s -> 20.3 s. Shipped sample tiny-house.ifc had a layer listed twice in its set; fixed with twins.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f491b2e0-5a01-5a49-b639-f4d94bfa886d",
+    "transcripts": 1,
+    "first": "2026-11-24T10:09:31Z",
+    "last": "2026-11-24T10:25:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 146,
+        "output": 50644,
+        "thinking": 10398,
+        "cache_read": 10711228,
+        "cache_write_5m": 0,
+        "cache_write_1h": 165566,
+        "api_equivalent_usd": 4.4802,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 146,
+      "output": 50644,
+      "thinking": 10398,
+      "cache_read": 10711228,
+      "cache_write_5m": 0,
+      "cache_write_1h": 165566,
+      "api_equivalent_usd": 4.4802,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 76,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.32,
+      "active_minutes": 16.32,
+      "model_minutes": 10.63,
+      "tool_minutes": 5.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a BIM software engineer adding EXPRESS inverse bounds to a schema generator and validator, then reconciling against ifcopenshell.validate on 492 files",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 357.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
