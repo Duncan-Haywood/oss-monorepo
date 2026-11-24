@@ -401,6 +401,27 @@ CHECKS = [
     ('hold_level_results.txt', 'L3 HX < 1e-7 in every layout under GL at x1: held', '4 of 6, 4 of 6 and 5 of 6 predictions'),
     ('collision_target_results.txt', 'k= 5 h= 13.33  enr  1.33e-17', 'ten orders of magnitude inside 1e-7'),
     ('hold_level_results.txt', 'HX 3.85e-08 [max 2.68e-07]', 'in its worst layout (2.68e-07)'),
+    # 11bi stale Remote ID tracks
+    ('stale_track_results.txt', 'acc 0.3 m/s: q 0: FR r 52.3 m hold 0.0321', '**52.3 m** and **52.2 m**'),
+    ('stale_track_results.txt', 'acc 0.3 m/s: q 0: FR r 52.2 m hold 0.0293', '**0.0321 s** and **0.0293 s**'),
+    ('transit_hold_results.txt', 'hold x1 0.0296 s', "part (b)'s 0.0296 s and 0.0257 s"),
+    ('transit_hold_results.txt', 'hold x1 0.0257 s', "part (b)'s 0.0296 s and 0.0257 s"),
+    ('stale_track_results.txt', 'q 0.5: FR r 76.2 m hold 0.072 ', '**76.2 m** and holds **0.072 s**'),
+    ('stale_track_results.txt', 'q 0.5: FR r 76 m hold 0.0646 ', '**0.0646 s** per flight'),
+    ('stale_track_results.txt', 'q 0.9: FR r 106 m hold 0.156 ', '106 m and 0.156 s and 0.136 s'),
+    ('stale_track_results.txt', 'q 0.9: FR r 106 m hold 0.136 ', '106 m and 0.156 s and 0.136 s'),
+    ('stale_track_results.txt', 'acc 3 m/s: q 0: FR r 234 m hold 1.13 ', 'it needs 234 m to 384 m; the hold is 1.13 to 4.31 s'),
+    ('stale_track_results.txt', 'q 0.9: FR r 384 m hold 4.31 ', 'it needs 234 m to 384 m; the hold is 1.13 to 4.31 s'),
+    ('stale_track_results.txt', 'q 0.75: FR r 269 m hold 37.8 [636]', '**37.8 s** and **23.5 s** per flight (636 s'),
+    ('stale_track_results.txt', 'q 0.75: FR r 268 m hold 23.5 ', '**37.8 s** and **23.5 s**'),
+    ('stale_track_results.txt', 'acc 3 m/s: q 0: FR r 225 m', '(225 to 381 m)'),
+    ('stale_track_results.txt', 'q 0.9: FR r 381 m hold 4.2 ', '(225 to 381 m)'),
+    ('stale_track_results.txt', 'q 0.9: FR r 106 m hold 0.156 [0.284], AR 0.105', '0.67 and 0.68 of FR'),
+    ('stale_track_results.txt', 'q 0.9: FR r 106 m hold 0.136 [0.243], AR 0.0929', '0.67 and 0.68 of FR'),
+    ('stale_track_results.txt', 'S1 FR, 1 m/s, q 0.5: hold < 1 s: held', 'part (d) (11bi) held 4 of 6'),
+    ('stale_track_results.txt', 'S2 FR, 3 m/s, q 0.75: hold > 10 s: refuted', 'part (d) (11bi) held 4 of 6'),
+    ('stale_track_results.txt', 'S3 AR <= FR / 3 (q >= 0.5, 1 and 3 m/s): refuted', 'cuts the hold only at q = 0.9'),
+    ('stale_track_results.txt', 'S6 speed accuracy 1 -> 3 m/s raises FR', 'multiplies the hold by 16 to 17'),
 ]
 
 
