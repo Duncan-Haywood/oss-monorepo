@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKkUcphZh4fAY4G12VC",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T14:19:52Z",
+  "ended": "2026-11-24T14:35:00Z",
+  "wall_minutes": 15.91,
+  "tokens_in": 12454185,
+  "tokens_out": 55504,
+  "cost_usd": 5.1264,
+  "tool_calls": 88,
+  "task": "Deepen (flagship 13) xer-schedule-check: item 2, SF and off-calendar SS relationship dates",
+  "projects": [
+    "ventures/xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18615",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "A git stash/pop round trip to measure the before state also stashed the run's own edits; they came back intact (checked with git diff --stat), but `git stash` was the wrong tool for one file's before-number."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/xer-schedule-check/eval/relationship-dates-started-2026-11-24.md",
+      "issue": "Named Harbour Pointe's source repo and md5 but eval/corpus-fetch.sh did not fetch it, so a run rebuilding the seven-file set had to clone it by hand; --probes now fetches it."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "xer-schedule-check next: sat at 1988 of 2000 characters, so landing one item meant trimming dates off two other clauses to fit a 30-character note."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py (item 2: reldates SF/off-calendar SS)",
+      "why": "Only 3 SF links and 0 SS links off the predecessor's calendar exist in public P6 files with relationship dates, so the item as written could close only its SF half.",
+      "did": "Decoded the 3 SF links, then used a public P6 23.12 probe set found while searching (338 files, P6's own values) to score the whole engine and fix the SF rule it exposed.",
+      "result": "SF reldates decoded (arls 40,478/40,478); probes 2,929 -> 2,953 of 5,199 with 0 regressions; six real files unchanged; off-calendar SS left open with the reason recorded."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-scoring-a-p6-engine-against-338-public-p6-probe-files.md",
+    "ventures/xer-schedule-check/eval/p6-probes-2026-11-24.md"
+  ],
+  "goal": "Deepen the P6 schedule checker's CPM engine against P6's own output on rare link types.",
+  "notes": "Checks run here: node eval/p6-probes.mjs on 337 probe files (2,953/5,199; 24 fixed, 0 newly wrong vs before); node eval/cpm-vs-p6.mjs on six P6 files + Harbour Pointe (19,908/19,935 before and after); node eval/relationship-dates.mjs (arls 40,478/40,478, started 11,611/11,611, planted 0 wrong 0 missed); python3 platform/ci/run_venture_tests.py xer-schedule-check (539 tests pass, before and after the llms.txt edit). Probe source: danafitkowski/cpp-cpm-engine @ f4554cb (MIT), not committed. Largest gap found: TT_Rsrc work on resource calendars (156/936 rows) -> NEXT.md.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1b4f6e1f-e563-5a87-97e0-252403945a9a",
+    "transcripts": 1,
+    "first": "2026-11-24T14:19:52Z",
+    "last": "2026-11-24T14:35:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 159,
+        "output": 55504,
+        "thinking": 14428,
+        "cache_read": 12258531,
+        "cache_write_5m": 0,
+        "cache_write_1h": 195495,
+        "api_equivalent_usd": 5.1264,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 159,
+      "output": 55504,
+      "thinking": 14428,
+      "cache_read": 12258531,
+      "cache_write_5m": 0,
+      "cache_write_1h": 195495,
+      "api_equivalent_usd": 5.1264,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 88,
+    "tools": {
+      "Bash": 82,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.91,
+      "active_minutes": 15.91,
+      "model_minutes": 12.83,
+      "tool_minutes": 3.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a scheduling engineer finding the probe set, writing the scorer, deriving and testing the SF rule against P6's values and the six real files, and writing it up: about a day and a half",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 195.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
