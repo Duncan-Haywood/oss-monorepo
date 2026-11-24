@@ -233,6 +233,14 @@ moves** (the site to S3 and CloudFront, DNS to Route 53, Cloudflare retired);
 Fly/Render/Docker scaffolds). It is indexed as `aws-consolidation` in
 `portfolio/work/directions.yaml`, with its tasks in `portfolio/work/tasks.yaml`.
 
+**Payments stay outside AWS** (owner, 2026-11-24, confirming: "keep paddle
+external but move platform and everything to aws"). Paddle remains the merchant
+of record: checkout, subscriptions, dunning and sales tax/VAT. AWS has no
+equivalent: AWS Marketplace bills only AWS customers on their AWS invoice (a
+possible second channel for enterprise products later, not the checkout), and
+Amazon Pay is a payment method, not a merchant of record. On AWS live only the
+Paddle webhook receiver and the entitlement data it writes.
+
 ### Why AWS over GCP and Azure, for this decision
 
 | | AWS | GCP | Azure |
