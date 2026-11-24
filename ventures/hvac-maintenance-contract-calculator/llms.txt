@@ -2,7 +2,7 @@
 
 > Free HVAC maintenance contract pricing calculator. Price preventive visits, callbacks, parts reserve, overhead, and target margin without underbidding the agreement.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hvac-maintenance-contract-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hvac-maintenance-contract-calculator): FSL-1.1-MIT licensed.

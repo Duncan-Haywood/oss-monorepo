@@ -112,4 +112,4 @@ The page counts two anonymous events (`check_run`, `example_loaded`) in
 Privacy Control, and has a button that deletes the counts and turns counting
 off.
 
-MIT licensed. No warranty: see the page footer.
+FSL-1.1-MIT licensed. No warranty: see the page footer.

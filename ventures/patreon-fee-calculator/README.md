@@ -26,4 +26,4 @@ Everything runs in your browser. Your plan, patron counts, pledges, billing choi
 
 This calculator produces arithmetic observations from numbers and rates you supply. It does not audit your payout history, confirm a deposit amount, or replace your own accountant. Not affiliated with, endorsed by, or sponsored by Patreon. Patreon is a trademark of Patreon, Inc., named here only to describe what this tool calculates — its platform fee percentages and payment processing rates change over time; verify every figure against your own current Patreon creator dashboard.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

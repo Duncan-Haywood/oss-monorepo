@@ -23,4 +23,4 @@ attorney. Not affiliated with any pickleball brand. It models no market data,
 taxes, seasonality, churn or price response. Unverified against a real
 facility: tested on hand-calculated examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

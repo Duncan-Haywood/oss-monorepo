@@ -215,4 +215,4 @@ about half a second.
 
 Free and as-is, without warranty of any kind. Statistical output from the
 data you supply; not legal, tax or financial advice, and not a substitute for
-a statistician. MIT licence (`LICENSE`).
+a statistician. FSL-1.1-MIT licence (`LICENSE`).

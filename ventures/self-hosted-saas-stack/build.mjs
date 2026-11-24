@@ -6,12 +6,12 @@ import { GROUPS, ALL } from "./stack.mjs";
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const TITLE = "Self-Hosted SaaS Stack: Open-Source Alternatives to Calendly, Sentry, LaunchDarkly and Help Scout";
-const DESC = `${ALL.length} open-source, self-hosted tools that replace the small-SaaS subscriptions a founder pays for: booking, help center, error tracking, feature flags, analytics, email, referrals, billing metrics and e-signature. MIT licensed, zero dependencies, one-click deploy.`;
+const DESC = `${ALL.length} open-source, self-hosted tools that replace the small-SaaS subscriptions a founder pays for: booking, help center, error tracking, feature flags, analytics, email, referrals, billing metrics and e-signature. FSL-1.1-MIT licensed, zero dependencies, one-click deploy.`;
 // The hub's card and a share preview show about 180 characters; DESC is for search.
-const OG_DESC = `${ALL.length} open-source, self-hosted tools that replace a founder's small-SaaS subscriptions, from booking to e-signature. MIT licensed, one-click deploy.`;
+const OG_DESC = `${ALL.length} open-source, self-hosted tools that replace a founder's small-SaaS subscriptions, from booking to e-signature. FSL-1.1-MIT licensed, one-click deploy.`;
 
 const FAQ = [
-  ["Are these really free?", "Yes. Every tool is MIT licensed. You pay only for wherever you choose to run it, which for most of them is a single small Node process on a free or low-cost host. There is no per-seat fee and no usage cap beyond your own server."],
+  ["Are these really free?", "Yes. Every tool is FSL-1.1-MIT licensed. You pay only for wherever you choose to run it, which for most of them is a single small Node process on a free or low-cost host. There is no per-seat fee and no usage cap beyond your own server."],
   ["How do I deploy one?", "Each tool is a zero-dependency Node server with a Dockerfile, a docker-compose file, and Render and Fly.io configuration. Clone the repository, open the tool's folder and run node server.mjs, or use the one-click deploy button where the tool's page offers it. Your data stays on the server you run."],
   ["How do these compare with Calendly, Sentry or LaunchDarkly?", "They cover the core job a small team needs, not every feature of a paid platform. Each tool's page has an honest limits section naming what it does not do, for example single admin key instead of team logins. If you need enterprise permissions, audit certifications or a vendor to call, a paid product is still the right call."],
   ["Who maintains them?", "They are built and maintained in the open in one repository, with automated tests for every tool. They are provided as-is, with no warranty and no uptime or delivery guarantee, so read the code and test it against your own needs before relying on it."],
@@ -60,7 +60,7 @@ ${LD.map((o) => `  <script type="application/ld+json">${JSON.stringify(o)}</scri
 <body>
   <main>
   <h1>The small-SaaS stack you can host yourself.</h1>
-  <p>${ALL.length} open-source tools, each replacing a subscription a founder or small team usually pays for: booking pages, a help center, error tracking, feature flags, web analytics, lifecycle email, referral programs, Stripe revenue metrics and e-signature. Every one is MIT licensed, a zero-dependency Node server, and deployable to your own cloud with no vendor in between. Pick the one you need; none requires another.</p>
+  <p>${ALL.length} open-source tools, each replacing a subscription a founder or small team usually pays for: booking pages, a help center, error tracking, feature flags, web analytics, lifecycle email, referral programs, Stripe revenue metrics and e-signature. Every one is FSL-1.1-MIT licensed, a zero-dependency Node server, and deployable to your own cloud with no vendor in between. Pick the one you need; none requires another.</p>
 
 ${groups}
 
@@ -79,7 +79,7 @@ ${FAQ.map(([q, a]) => `    <h3>${esc(q)}</h3>\n    <p>${esc(a)}</p>`).join("\n")
   </main>
   <footer>
     <p><strong>No warranty.</strong> Free and as-is, with no uptime or delivery guarantee. This is not legal, tax, or financial advice, and product names above are used only to say what each tool is compared with; they belong to their owners and none of them endorses this project. Everything on this page runs in your browser and nothing is uploaded or tracked.</p>
-    <p>MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> to support the work.</p>
+    <p>FSL-1.1-MIT licence. <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> to support the work.</p>
   </footer>
 </body>
 </html>

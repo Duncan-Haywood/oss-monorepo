@@ -46,4 +46,4 @@ not faked, when npm's copy is not found (`SPDX_ORACLE_DIR`). All matched on
 rather than an expression ("GNU General Public License v3 (GPLv3)") is read
 whole; before 2026-11-19 it was read by its first word and came out unknown.
 
-MIT licensed. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
+FSL-1.1-MIT licensed. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.

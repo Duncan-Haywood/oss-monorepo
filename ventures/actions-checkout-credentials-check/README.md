@@ -32,7 +32,7 @@ you can tell a deliberate credential from a forgotten one), so a finding is a
 prompt to look, not a verdict. It
 reads one pattern only; it is not a substitute for a full workflow linter such
 as zizmor. Informational tool: no legal, security or compliance advice, and
-no warranty (MIT, see `LICENSE`).
+no warranty (FSL-1.1-MIT, see `LICENSE`).
 
 ## Browser version
 
@@ -48,4 +48,4 @@ Control, and has a button that turns counting off. The CLI collects nothing.
 
 ## Support
 
-Free and MIT-licensed. Optional: GitHub Sponsors on the repository.
+Free and FSL-1.1-MIT-licensed. Optional: GitHub Sponsors on the repository.

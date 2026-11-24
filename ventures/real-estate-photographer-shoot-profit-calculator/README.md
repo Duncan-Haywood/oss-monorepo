@@ -19,4 +19,4 @@ The example numbers are illustrative, not a benchmark. Not legal, tax or financi
 
 ## Run
 
-Open `index.html` in a browser. Tests: `node --test`. MIT licensed; no secrets, no accounts, no network calls.
+Open `index.html` in a browser. Tests: `node --test`. FSL-1.1-MIT licensed; no secrets, no accounts, no network calls.

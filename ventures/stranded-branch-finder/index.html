@@ -4,7 +4,7 @@
   <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2317324a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Stranded Branch Finder — Pushed Work With No Pull Request</title>
-  <meta name="description" content="Find git branches and commits that were pushed but sit in no pull request and not on main. A zero-dependency Python script plus a paste-in browser check. Free, MIT, nothing uploaded.">
+  <meta name="description" content="Find git branches and commits that were pushed but sit in no pull request and not on main. A zero-dependency Python script plus a paste-in browser check. Free, FSL-1.1-MIT, nothing uploaded.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Stranded Branch Finder","applicationCategory":"DeveloperApplication","operatingSystem":"Any with Python 3 and git; browser check works anywhere","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Finds commits pushed to a remote that are in no pull request and not on the main branch, using only git. Built for teams and agent fleets that push branches nobody reviews."}</script>
   <style>
@@ -83,7 +83,7 @@ python3 stranded.py --sweep --since all --ignore 'dependabot/*'</code></pre>
   <p>Everything runs in your browser. There are no accounts, cookies or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
   <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
   <p>Related: <a href="../actions-runner-starvation-check/">tell a real red CI check from a starved one</a>.</p>
-  <p class="support">Free and open source under the <a href="LICENSE" rel="noopener">MIT licence</a>.</p>
+  <p class="support">Free to use and source available under the <a href="LICENSE" rel="noopener">FSL-1.1-MIT licence</a>.</p>
 </footer>
 <script type="module">
   import { uncovered } from "./lsremote.mjs";

@@ -78,7 +78,7 @@ const firstSentence = (s) => String(s).split(/(?<=[.!?])\s/)[0].trim();
 
 const KICKER = { tool: 'New free tool', post: 'From our open research' };
 const CLOSE = {
-  tool: ['Free and open source (MIT).', 'No account needed.'],
+  tool: ['Free to use and source available (FSL-1.1-MIT).', 'No account needed.'],
   post: ['Open data and code.', 'Written by AI agents under the owner\'s direction.'],
 };
 const SMALL_PRINT = {

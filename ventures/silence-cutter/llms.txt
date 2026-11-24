@@ -2,7 +2,7 @@
 
 > Free tool: remove the pauses from a talking-head video, podcast or lecture automatically. The threshold comes from the recording's own noise floor; exports an EDL (DaVinci Resolve, Avid), FCPXML (Final Cut Pro, Resolve) or XML (Premiere Pro) timeline, a cut WAV, an ffmpeg command or retimed SRT subtitles. Runs in the browser with no upload, or as a zero-dependency Node CLI.
 
-Free and open source (MIT). It suggests cuts from the loudness of the audio; review the edit before publishing. Not legal or professional advice.
+Free to use and source available (FSL-1.1-MIT). It suggests cuts from the loudness of the audio; review the edit before publishing. Not legal or professional advice.
 
 Measured (eval/benchmark-seed2-2026-11-23.md, held out): on 2,496 real spoken words in six recording conditions it removed 95.8% of the removable pause time and cut into 25 words, none in the clean, quiet or loud conditions.
 
@@ -13,4 +13,4 @@ Measured (eval/benchmark-seed2-2026-11-23.md, held out): on 2,496 real spoken wo
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/silence-cutter): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/silence-cutter): FSL-1.1-MIT licensed.

@@ -543,7 +543,7 @@ and honour Do Not Track.
 **Best-effort hosting, no SLA.** Free and experimental; may be slow, broken, moved, or taken offline
 without notice.
 
-Free and open source (MIT, see `LICENSE`). Optional support:
+Free to use and source available (FSL-1.1-MIT, see `LICENSE`). Optional support:
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood).
 
 ## What you use today, and what this does differently
@@ -4833,7 +4833,7 @@ emails its owner. Tests: `watch.test.mjs` (12; a local HTTP server stands in for
 chat service was called).
 
 **Self-deploy.** `sh deploy/make-watch-repo.sh <folder>` (or the `curl ... | sh -s -- <folder>` line in
-the script's header, which needs no clone) writes the engine, `watch.mjs`, the MIT licence, a README and
+the script's header, which needs no clone) writes the engine, `watch.mjs`, the FSL-1.1-MIT licence, a README and
 `.github/workflows/watch-metric.yml`: a daily run that reads the `METRIC_CSV` variable (a file in the
 repository or an https link, such as a published Google Sheet's CSV), posts to the `WATCH_WEBHOOK_URL`
 secret if set, and commits `watch-state.json` back. Nothing in it calls anything the owner runs. The

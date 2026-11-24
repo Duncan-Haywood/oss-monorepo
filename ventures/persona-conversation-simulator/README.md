@@ -79,4 +79,4 @@ Track and Global Privacy Control are honoured.
 `cli.mjs`, `index.html`, `big-five-personality-conflict-styles.html`, `usage.mjs`. Tests:
 `node --test ventures/persona-conversation-simulator/`.
 
-MIT licensed. Free; support via [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional.
+FSL-1.1-MIT licensed. Free; support via [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional.

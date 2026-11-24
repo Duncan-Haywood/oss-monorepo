@@ -2,7 +2,7 @@
 
 > Free tool for small warehouses, 3PLs and online sellers: paste SKU locations (SKU, aisle, bay) and a day of orders, and get carts of orders, a pick list per cart in walking order on the provably shortest route through parallel aisles (Ratliff-Rosenthal dynamic programme), and the walking, hours and wages saved against one order per trip on an S-shape route. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -15,4 +15,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pick-path-optimizer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pick-path-optimizer): FSL-1.1-MIT licensed.

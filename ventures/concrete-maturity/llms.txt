@@ -2,7 +2,7 @@
 
 > Free, open-source concrete maturity calculator: reads a temperature logger's CSV and the lab breaks for a mix, fits the strength-maturity curve (logarithmic, hyperbolic or exponential), and estimates each sensor's in-place strength and when it reaches a target, by Nurse-Saul or equivalent age (the maturity method described in ASTM C1074). Runs in the browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates, not engineering advice; confirm with field-cured specimens or other in-place tests before stripping forms or post-tensioning.
+Free to use and source available (FSL-1.1-MIT). Results are estimates, not engineering advice; confirm with field-cured specimens or other in-place tests before stripping forms or post-tensioning.
 
 ## Pages
 
@@ -18,4 +18,4 @@ Free and open source (MIT). Results are estimates, not engineering advice; confi
 
 ## Source
 
-- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/concrete-maturity): MIT licensed. `node cli.mjs logger.csv --cal breaks.txt --target 3000`.
+- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/concrete-maturity): FSL-1.1-MIT licensed. `node cli.mjs logger.csv --cal breaks.txt --target 3000`.

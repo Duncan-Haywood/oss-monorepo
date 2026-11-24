@@ -7,7 +7,7 @@ used to mean paying a webhook gateway per event or writing a queue yourself.
 
 **Live tool:** https://marisstella.app/webhook-relay/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`**: an outage simulator (how long can your app be down before
   an event is parked?) and a route-config builder. Runs in the browser;

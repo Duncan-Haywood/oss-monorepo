@@ -111,4 +111,4 @@ opt-out button (`usage.mjs`).
 Free and as-is, without warranty of any kind. Not legal, security or professional advice. Not affiliated with or
 endorsed by the EditorConfig project. Your editor's plugin is the final word on what it applies.
 
-MIT licensed ([LICENSE](LICENSE)).
+FSL-1.1-MIT licensed ([LICENSE](LICENSE)).

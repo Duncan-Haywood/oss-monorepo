@@ -2,7 +2,7 @@
 
 > Free return level calculator. Paste annual maxima (river peaks, rainfall, wind gusts, peak loads) or a long daily or hourly series, and get the 10-, 100- or 500-year level from GEV and Gumbel fits to annual maxima and a generalized Pareto fit to declustered peaks over a threshold, with profile-likelihood and delta-method intervals, threshold stability, a trend test and design-life risk. Checked against scipy. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not engineering, legal, tax, financial or professional advice, and not a regulatory flood study (US federal flood frequency follows Bulletin 17C).
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not engineering, legal, tax, financial or professional advice, and not a regulatory flood study (US federal flood frequency follows Bulletin 17C).
 
 ## Pages
 
@@ -24,4 +24,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/extreme-value-analysis): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/extreme-value-analysis): FSL-1.1-MIT licensed.

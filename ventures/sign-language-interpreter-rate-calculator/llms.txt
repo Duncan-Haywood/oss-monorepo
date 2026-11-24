@@ -2,7 +2,7 @@
 
 > Turn an assignment request's hours, travel, and setting into a defensible interpreting fee, plus a late-cancellation fee calculator. Entirely client-side.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sign-language-interpreter-rate-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sign-language-interpreter-rate-calculator): FSL-1.1-MIT licensed.

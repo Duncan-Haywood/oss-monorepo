@@ -19,4 +19,4 @@ legal or clinical advice. It does not model referral flow, client attrition,
 credentialing costs or contract terms. Unverified against a real practice's books:
 tested on hand-calculated examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

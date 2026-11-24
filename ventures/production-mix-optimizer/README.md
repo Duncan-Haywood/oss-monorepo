@@ -51,4 +51,4 @@ address you control.
 - Nothing runs on the author's accounts. The Docker image has not been built in the session that added these files,
   so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

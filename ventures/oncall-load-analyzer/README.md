@@ -28,4 +28,4 @@ Not modelled: per-person timezones, primary/secondary roles, effort behind a pag
 Pages are not stress; use this to start a conversation, not to rate a person.
 No warranty; see the page footer.
 
-Tests: `node --test`. MIT licensed (`LICENSE`); no secrets, no private dependencies.
+Tests: `node --test`. FSL-1.1-MIT licensed (`LICENSE`); no secrets, no private dependencies.

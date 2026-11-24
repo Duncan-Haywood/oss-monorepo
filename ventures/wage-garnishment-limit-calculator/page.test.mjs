@@ -122,7 +122,7 @@ test("the sample, what-if, letter and CSV download are wired", () => {
 
 test("README, LICENSE and VENTURE.yaml exist and carry the disclaimer and the venture name", () => {
   assert.match(page("README.md"), /No warranty/);
-  assert.match(page("LICENSE"), /MIT License/);
+  assert.match(page("LICENSE"), /Functional Source License/);
   assert.match(page("VENTURE.yaml"), /^name: wage-garnishment-limit-calculator$/m);
 });
 

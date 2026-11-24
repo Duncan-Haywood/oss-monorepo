@@ -13,7 +13,7 @@
 // week-long rollouts a quarter cover about 15% of the days. A low chance is not proof the event caused the change
 // either; it is the base rate a reader should hold the coincidence against.
 //
-// Statistical analysis of data you supply, not advice. MIT licence.
+// Statistical analysis of data you supply, not advice. FSL-1.1-MIT licence.
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 const dayNumber = (d) => Date.parse(`${d}T00:00:00Z`) / 86400000;

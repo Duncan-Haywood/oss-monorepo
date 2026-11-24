@@ -27,7 +27,7 @@ owner: duncan
 # Hackers asking "launchdarkly alternative", "self hosted feature flags",
 # "open source feature toggle". Volume not measured with an external tool.
 #
-# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# Path to revenue (payments stay off): free and FSL-1.1-MIT as the lead magnet;
 # done-for-you setup and SDK integration, a hosted copy under the deployer's own
 # name, a dashboard UI as a later paid add-on, or GitHub Sponsors are the paid
 # steps. Hosting under the public name and billing are owner-gated.

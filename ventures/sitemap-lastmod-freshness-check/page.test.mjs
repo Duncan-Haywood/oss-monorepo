@@ -65,10 +65,10 @@ test('the sponsor link points at the correct GitHub Sponsors profile on all thre
   }
 });
 
-test('the MIT license is linked from index', async () => {
+test('the FSL-1.1-MIT license is linked from index', async () => {
   const html = await read('index.html');
   assert.match(html, /href="LICENSE"/);
-  assert.match(html, /MIT licen[cs]e/);
+  assert.match(html, /FSL-1.1-MIT licen[cs]e/);
 });
 
 test('a usage opt-out control exists', async () => {

@@ -92,6 +92,6 @@ export function techPackHtml(design, pack = techPack(design)) {
 <table><tr><th>Garment</th><td>${esc(pack.garment)}</td></tr><tr><th>Fabric</th><td>${esc(pack.fabric.type)}, ${esc(pack.fabric.composition)}, ${pack.fabric.weightGsm} gsm</td></tr><tr><th>Colour</th><td>${esc(pack.colour.name)} (${esc(pack.colour.screenHex)}). ${esc(pack.colour.note)}</td></tr><tr><th>Quantity</th><td>${pack.quantity}: ${Object.entries(pack.sizes).filter(([, n]) => n).map(([s, n]) => `${s} ${n}`).join(", ")}</td></tr><tr><th>Labels</th><td>${esc(pack.labels)}</td></tr><tr><th>Packaging</th><td>${esc(pack.packaging)}</td></tr></table>
 <h2>Measurements (finished garment, flat, cm)</h2>${specTable(pack.spec)}
 <h2>Decoration</h2><table><tr><th>Ref</th><th>Artwork</th><th>Location</th><th>Method</th><th>Size (cm)</th><th>Top from HPS (cm)</th><th>From centre (cm)</th><th>Rotation</th></tr>${rows || '<tr><td colspan="8">No decoration.</td></tr>'}</table>
-<p class="muted">No warranty. This tech pack is a draft from the studio's drawing, not a production specification, and it is not legal, tax, financial or professional advice. You are responsible for reviewing and verifying it before relying on it. Free and open source (MIT).</p>
+<p class="muted">No warranty. This tech pack is a draft from the studio's drawing, not a production specification, and it is not legal, tax, financial or professional advice. You are responsible for reviewing and verifying it before relying on it. Free to use and source available (FSL-1.1-MIT).</p>
 </body></html>`;
 }

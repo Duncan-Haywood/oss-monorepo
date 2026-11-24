@@ -28,7 +28,7 @@ Options:
 Citations:
 ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}.${p.doi ? ` doi:${p.doi}` : ""} ${p.url}`).join("\n")}
 
-Statistical matching on your data; check groups before deleting anything. No warranty. MIT licence.
+Statistical matching on your data; check groups before deleting anything. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/fuzzy-dedupe/`;
 
 export function parseArgs(argv) {

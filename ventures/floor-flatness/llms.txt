@@ -2,7 +2,7 @@
 
 > Free, open-source FF/FL calculator for concrete floors: reads elevation readings taken every 12 inches (typed sample lines, a grid CSV from a laser level or total station, or a laser-scan point cloud as x y z text), and works out FF flatness and FL levelness F-numbers after the ASTM E1155 method, per sample line, per section (all lines pooled) and overall (area-weighted). Checks them against specified overall and minimum local values, reports the largest gap under a straightedge laid along every line, draws a heat map and line profiles, and estimates how much grinding would lift FF to a target. Runs in the browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates, not engineering advice and not a test by a qualified testing agency. The FF and FL equations follow published secondary sources; the standard's own text was not read.
+Free to use and source available (FSL-1.1-MIT). Results are estimates, not engineering advice and not a test by a qualified testing agency. The FF and FL equations follow published secondary sources; the standard's own text was not read.
 
 ## Pages
 
@@ -25,4 +25,4 @@ Free and open source (MIT). Results are estimates, not engineering advice and no
 
 ## Source
 
-- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/floor-flatness): MIT licensed. `node cli.mjs readings.csv --ff 35 --fl 25 --grind 40`.
+- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/floor-flatness): FSL-1.1-MIT licensed. `node cli.mjs readings.csv --ff 35 --fl 25 --grind 40`.

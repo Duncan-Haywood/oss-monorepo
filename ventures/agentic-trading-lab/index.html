@@ -9,7 +9,7 @@
   <meta property="og:title" content="Agentic Trading Lab">
   <meta property="og:description" content="An AI research agent for trading strategies that refused all three of its own best backtests. Here is why, and the code.">
   <meta property="og:type" content="website">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Agentic Trading Lab","applicationCategory":"FinanceApplication","operatingSystem":"Linux, macOS, Windows (Python 3.10+)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT","description":"Backtesting and research agent for rules-based strategies with Deflated Sharpe Ratio and Probability of Backtest Overfitting gates, plus guarded paper and live execution on the user's own broker account."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Agentic Trading Lab","applicationCategory":"FinanceApplication","operatingSystem":"Linux, macOS, Windows (Python 3.10+)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://spdx.org/licenses/FSL-1.1-MIT.html","description":"Backtesting and research agent for rules-based strategies with Deflated Sharpe Ratio and Probability of Backtest Overfitting gates, plus guarded paper and live execution on the user's own broker account."}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
     {"@type":"Question","name":"Can I use this with Robinhood?","acceptedAnswer":{"@type":"Answer","text":"For crypto, yes: it signs requests to Robinhood's official Crypto Trading API with keys you create. Robinhood publishes no API for stocks, so for automated stock and ETF trading it supports Alpaca, which has free paper trading."}},
     {"@type":"Question","name":"Can I run a fund with it?","acceptedAnswer":{"@type":"Answer","text":"No. It is built for one person trading their own account. Managing or pooling other people's money is regulated (investment adviser, investment company and securities offering rules in the US); see LEGAL.md and talk to a securities lawyer first."}},
@@ -51,7 +51,7 @@
 </head>
 <body>
 <main>
-  <p class="note">Free, MIT-licensed, runs on your machine. For your own account only.</p>
+  <p class="note">Free, FSL-1.1-MIT-licensed, runs on your machine. For your own account only.</p>
   <h1>Agentic Trading Lab</h1>
   <p class="lede">An AI research agent for rules-based trading that keeps score honestly. It backtests published
     momentum and trend strategies on a century of US data and on crypto. It charges for every idea it tries, and it
@@ -172,7 +172,7 @@ tradelab rebalance --broker alpaca --report report.json --execute   # Alpaca pap
       machine and sends your broker keys only to your broker. Your data is never uploaded to us. We count anonymous
       page events in your browser's storage (nothing about who you are).</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
-    <p>Free and open source under the <a href="LICENSE">MIT licence</a>.
+    <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>.
       <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/agentic-trading-lab">Source</a> ·
       <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support the work</a> (optional; it never changes what the tool does).
       Built with AI assistance.</p>

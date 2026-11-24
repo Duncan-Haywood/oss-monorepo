@@ -7,7 +7,7 @@ paying a licensing platform per license or writing the plumbing yourself.
 
 **Live tool:** https://marisstella.app/license-keeper/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`**: generate an Ed25519 key pair, sign a test license and verify
   any key, in the browser. Nothing is uploaded.

@@ -31,4 +31,4 @@ rate that changes mid-period, and state penalties. Not tax advice.
 ## Run
 
 Static ES modules, no build step: open `index.html`, or `node --test`.
-MIT licensed; support is optional via GitHub Sponsors.
+FSL-1.1-MIT licensed; support is optional via GitHub Sponsors.

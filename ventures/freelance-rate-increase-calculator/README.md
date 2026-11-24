@@ -17,4 +17,4 @@ advice. It does not model taxes, ramp-up time for new clients, contract terms, o
 raise changes the odds a client leaves. Unverified against a real business's books: tested on
 hand-calculated examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

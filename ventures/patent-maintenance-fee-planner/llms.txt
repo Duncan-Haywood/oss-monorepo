@@ -2,7 +2,7 @@
 
 > When is each US patent maintenance fee due, when does the surcharge start, and when does the patent expire? Paste your patents and grant dates for every deadline, a multi-year fee budget, what dropping a patent saves, and a calendar file. Free, runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/patent-maintenance-fee-planner): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/patent-maintenance-fee-planner): FSL-1.1-MIT licensed.

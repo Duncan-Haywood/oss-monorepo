@@ -4,8 +4,9 @@
 Why this exists
 ---------------
 "Only code we can relicense" is one of the hard limits in
-`prompts/goals.md`: everything original here is MIT under the repository
-owner's copyright, and anything that is not original keeps its own licence
+`prompts/goals.md`: everything original here is the repository owner's
+copyright, under FSL-1.1-MIT (MIT for `research/` and for work done before
+2026-11-24), and anything that is not original keeps its own licence
 and its notice. Until this check there was no machine guard for that line at
 all. The repository holds 1,459 licence files, and about 40 of them belong to
 someone else (Apache-2.0 email corpora, an MIT XPath engine bundled into a
@@ -20,12 +21,13 @@ inventory that also renders as `THIRD_PARTY.md` at the repository root.
 Signals
 -------
 * **licence file**: a file named like `LICENSE`, `LICENCE-x.md`,
-  `COPYING`, `NOTICE` or `x.LICENSE.txt` that is not the owner's own MIT
-  licence (its copyright line names a holder outside `owner_holders`, or its
-  text is not MIT);
+  `COPYING`, `NOTICE` or `x.LICENSE.txt` that is not the owner's own MIT or
+  FSL-1.1-MIT licence (its copyright line names a holder outside
+  `owner_holders`, or its text is neither);
 * **copyright line** in source code (`.js`, `.py`, `.rs` and the like) whose
   holder is not one of `owner_holders`;
-* **SPDX-License-Identifier** in source code naming anything but MIT;
+* **SPDX-License-Identifier** in source code naming anything but MIT or
+  FSL-1.1-MIT;
 * **licence banner** in source code: the opening words of the GPL family,
   Apache-2.0, MPL, EPL, EUPL, BUSL, SSPL or a Creative Commons non-commercial
   licence;
@@ -109,6 +111,11 @@ BANNERS = [
 COPYRIGHT_WORD = re.compile(r"copyright", re.IGNORECASE)
 PREFILTERS = {"CC non-commercial": lambda text: "Attribution-NonCommercial" in text or "BY-NC" in text}
 MIT_TEXT = re.compile(r"Permission is hereby granted, free of charge", re.IGNORECASE)
+# The owner's licence for new work since 2026-11-24 (portfolio/monetization/
+# relicense_fsl.py). Its MIT future grant also matches MIT_TEXT, so a file is
+# told apart by this heading.
+FSL_TEXT = re.compile(r"^# Functional Source License, Version 1\.1, MIT Future License", re.MULTILINE)
+OWNER_SPDX = {"MIT", "FSL-1.1-MIT"}
 
 STRONG = re.compile(r"\b(?:A?GPL|SSPL|BUSL)|-NC\b|NonCommercial", re.IGNORECASE)
 WEAK = re.compile(r"\b(?:LGPL|MPL|EUPL|EPL|CDDL)", re.IGNORECASE)
@@ -168,10 +175,12 @@ def scan_file(rel: str, text: str, owners: list[str]) -> list[Signal]:
     if ext in LICENSE_EXT and LICENSE_NAME.match(base):
         holders = [clean_holder(m.group(2)) for m in COPYRIGHT.finditer(text[:6000])]
         holders = [h for h in holders if h]
-        mit = bool(MIT_TEXT.search(text))
+        fsl = bool(FSL_TEXT.search(text))
+        mit = fsl or bool(MIT_TEXT.search(text))
         if not (mit and holders and all(holder_is_owner(h, owners) for h in holders)):
             who = ", ".join(holders) if holders else "no copyright line"
-            signals.append(Signal(rel, "licence file", f"{'MIT' if mit else 'not MIT'}; {who}"))
+            kind = "FSL-1.1-MIT" if fsl else "MIT" if mit else "not MIT"
+            signals.append(Signal(rel, "licence file", f"{kind}; {who}"))
         return signals
 
     if ext not in CODE_EXT:
@@ -210,7 +219,7 @@ def scan_file(rel: str, text: str, owners: list[str]) -> list[Signal]:
         m = SPDX.search(line) if spdx else None
         if m:
             ident = m.group(1).strip()
-            if ident and ident != "MIT":
+            if ident and ident not in OWNER_SPDX:
                 signals.append(Signal(rel, "spdx", ident, lineno))
         for name, pat in banners:
             if pat.search(line):
@@ -298,10 +307,11 @@ def render_markdown(inventory: dict) -> str:
     lines = [
         "# Third-party material in this repository",
         "",
-        "Everything original in this repository is MIT-licensed under the owner's",
-        "copyright (`LICENSE`). The files below are not original: each keeps its own",
-        "licence and notice, and is listed here so a reader, a fork or a packager can",
-        "see the exceptions in one place.",
+        "Everything original in this repository is the owner's copyright, under",
+        "FSL-1.1-MIT (`LICENSE`; `research/` and work before 2026-11-24 are MIT).",
+        "The files below are not original: each keeps its own licence and notice,",
+        "and is listed here so a reader, a fork or a packager can see the",
+        "exceptions in one place.",
         "",
         "This page is generated from `platform/ci/third_party.json` by",
         "`python3 platform/ci/check_third_party.py --write-md`; the same script fails",

@@ -42,7 +42,7 @@ ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}.${p.doi 
 
 Estimates from a statistical model of the readings you give. Not engineering,
 surveying, environmental or professional advice; a regulator or standard may
-require a different method. No warranty. MIT licence.
+require a different method. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/kriging-interpolation/`;
 
 const WITH_VALUE = ["--value", "--coords", "--model", "--estimator", "--lags", "--max-lag", "--nugget", "--psill", "--range", "--predict", "--grid-x", "--mask"];

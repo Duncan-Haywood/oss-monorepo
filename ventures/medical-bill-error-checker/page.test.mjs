@@ -119,7 +119,7 @@ test("the sample-data button and the CSV download are wired", () => {
 test("README, LICENSE and VENTURE.yaml exist and carry the disclaimer and the venture name", () => {
   assert.match(page("README.md"), /No warranty/);
   assert.match(page("README.md"), /Nothing is uploaded|nothing is uploaded/);
-  assert.match(page("LICENSE"), /MIT License/);
+  assert.match(page("LICENSE"), /Functional Source License/);
   assert.match(page("VENTURE.yaml"), /^name: medical-bill-error-checker$/m);
 });
 

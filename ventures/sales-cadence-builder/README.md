@@ -77,4 +77,4 @@ contact everyone on your list.
 an AI key, only one prospect's name, title, company and trigger, your offer
 fields and the draft go from your browser to the provider you chose.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

@@ -60,7 +60,7 @@ There is nothing to host: the page is static (`index.html` plus three modules), 
 
 ## Disclaimer
 
-No warranty. Not legal, tax, accounting, compliance or financial advice, and no promise about search rankings or traffic. Not affiliated with any search engine or platform. MIT licence. Optional support: https://github.com/sponsors/Duncan-Haywood
+No warranty. Not legal, tax, accounting, compliance or financial advice, and no promise about search rankings or traffic. Not affiliated with any search engine or platform. FSL-1.1-MIT licence. Optional support: https://github.com/sponsors/Duncan-Haywood
 
 ## Known gaps (quality audit 2026-11-20)
 

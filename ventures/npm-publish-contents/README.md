@@ -95,6 +95,6 @@ Provided free and as-is, without warranty of any kind. Not legal, security or pr
 reads file names, not contents. Check the real list with `npm pack --dry-run` before you publish. Not affiliated
 with or endorsed by npm, Inc. or the npm CLI maintainers; npm is a trademark of npm, Inc.
 
-MIT licensed. The engine is written from the behaviour of npm-packlist and ignore-walk (ISC, npm, Inc.), minimatch
+FSL-1.1-MIT licensed. The engine is written from the behaviour of npm-packlist and ignore-walk (ISC, npm, Inc.), minimatch
 (ISC, Isaac Z. Schlueter) and brace-expansion (MIT, Julian Gruber); the brace-expansion algorithm follows that
 module's structure.

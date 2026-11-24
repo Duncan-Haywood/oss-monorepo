@@ -2,7 +2,7 @@
 
 > Free employer payroll tax calculator: enter a salary and state to see Social Security, Medicare, FUTA, state unemployment, workers' comp, match and health cost, and the true cost of a hire. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## What it answers
 
@@ -14,4 +14,4 @@ In 2026 an employer pays 6.2% Social Security tax on each employee's first $184,
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/employer-payroll-tax-cost-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/employer-payroll-tax-cost-calculator): FSL-1.1-MIT licensed.

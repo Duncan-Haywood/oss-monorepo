@@ -2,7 +2,7 @@
 
 > Free online ROC analysis for one or more scores measured on the same cases: ROC curves, the AUC with DeLong's interval, DeLong, DeLong & Clarke-Pearson's (1988) paired test of every pair of AUCs and the chi-square test that all are equal (placements by midranks, Sun & Xu 2014), cut-offs by Youden's J, closest to the corner, a target sensitivity or a target specificity, sensitivity, specificity and predictive values with Wilson intervals, likelihood ratios with log-method intervals (Simel, Samsa & Matchar 1991), the McClish-standardised partial AUC with a bootstrap interval, and decision curves (Vickers & Elkin 2006) for predicted probabilities. Matches scipy 1.18.1 and a direct O(mn) DeLong computation. On 569 breast biopsies (UCI Wisconsin Diagnostic), worst perimeter (AUC 0.975) and worst concave points (0.967) cannot be told apart (paired p = 0.24), while a cross-validated model combining features beats both (p <= 0.0001). Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not medical, legal, tax, financial or professional advice, and not an evaluation of a diagnostic device.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not medical, legal, tax, financial or professional advice, and not an evaluation of a diagnostic device.
 
 ## Pages
 
@@ -25,4 +25,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/roc-analysis): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/roc-analysis): FSL-1.1-MIT licensed.

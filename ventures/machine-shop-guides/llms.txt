@@ -2,7 +2,7 @@
 
 > Free tools for small machine shops: an SPRS score calculator for the 110 NIST SP 800-171 requirements (DoD Assessment Methodology, 110 minus 5/3/1 per gap), a job-shop quote calculator from the shop's own rates, and guides to CMMC Level 1 vs Level 2, SSPs and POA&Ms, and pricing a machined part.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, compliance, financial or engineering advice. A calculated score is a self-check, not a CMMC assessment or certification; not affiliated with or endorsed by the DoD. CMMC status on the pages was checked 24 November 2026 (Phase 2 suspended since 13 July 2026).
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, compliance, financial or engineering advice. A calculated score is a self-check, not a CMMC assessment or certification; not affiliated with or endorsed by the DoD. CMMC status on the pages was checked 24 November 2026 (Phase 2 suspended since 13 July 2026).
 
 ## Tools
 
@@ -21,4 +21,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code, README and SOURCES.md](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/machine-shop-guides): MIT licensed.
+- [Source code, README and SOURCES.md](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/machine-shop-guides): FSL-1.1-MIT licensed.

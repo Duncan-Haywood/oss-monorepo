@@ -15,4 +15,4 @@ hoping it matched the rule (the least of designated, actual cost and fair rental
 
 Modelled: section 107 exclusion for owned, rented and parsonage housing, taxable excess, missed exclusion, income tax saved, simplified SE tax with the wage base,
 suggested designation with a cushion, resolution text. Not modelled: Form 4361 exemption, state rule differences, Additional Medicare tax, retirement plans.
-Not tax advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+Not tax advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

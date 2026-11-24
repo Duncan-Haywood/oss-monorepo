@@ -2,7 +2,7 @@
 
 > Price a low-slope TPO, EPDM, PVC, or modified-bitumen roof from the membrane squares a per-square special cannot see, the tear-off, the insulation, and the parapet — plus walk-away price and proposed-price margin check.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/flat-roof-bid-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/flat-roof-bid-calculator): FSL-1.1-MIT licensed.

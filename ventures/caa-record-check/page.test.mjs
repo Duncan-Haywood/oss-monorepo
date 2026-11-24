@@ -64,11 +64,11 @@ test('the sponsor link points at the correct GitHub Sponsors profile', () => {
   assert.match(html, /https:\/\/github\.com\/sponsors\/Duncan-Haywood/);
 });
 
-test('the MIT license is linked on the index, guide, and vs pages', () => {
+test('the FSL-1.1-MIT license is linked on the index, guide, and vs pages', () => {
   assert.match(html, /href="LICENSE"/);
-  assert.match(html, /MIT licen[cs]e/);
+  assert.match(html, /FSL-1.1-MIT licen[cs]e/);
   assert.match(vsHtml, /href="LICENSE"/);
-  assert.match(vsHtml, /MIT licen[cs]e/);
+  assert.match(vsHtml, /FSL-1.1-MIT licen[cs]e/);
 });
 
 test('a usage opt-out control exists', () => {
