@@ -923,3 +923,28 @@ older and a newer vintage, used only for a printed vintage check; the older one 
   monthly round reads USREC instead.
 - **Licence:** US government statistics, public domain. Only the numbers were taken.
 - **Used by:** `eval/turns-payems.mjs`, `turns-payems.test.mjs`.
+
+## US coincident indicators (FRED W875RX1, INDPRO, CMRMTSPL, CE16OV)
+
+`us-w875rx1.csv`: real personal income excluding current transfer receipts, billions of chained 2017 dollars,
+seasonally adjusted annual rate, monthly 1959-01 to 2026-08 (BEA). `us-indpro.csv`: industrial production index,
+2017 = 100, seasonally adjusted, 1919-01 to 2026-09 (Federal Reserve Board). `us-cmrmtspl.csv`: real manufacturing
+and trade industries sales, millions of chained 2017 dollars, seasonally adjusted, 1967-01 to 2026-07 (FRED,
+from Census and BEA data). `us-ce16ov.csv`: employment level from the household survey, thousands of persons,
+seasonally adjusted, 1948-01 to 2026-09 (BLS CPS); 2025-10 is blank, as in FRED (no survey in the October 2025
+shutdown).
+
+- **Retrieved:** 2026-11-24. fred.stlouisfed.org refused this session's proxy (as on 2026-11-24 for PAYEMS), so
+  the files are FRED downloads committed in a public GitHub repository, read through raw.githubusercontent.com:
+  `rasmuspeterk-ctrl/recession:v5/data/raw/2026-10-27/` (W875RX1 blob 17abea62, CMRMTSPL ef8d5017, CE16OV
+  4873460e, INDPRO from the same folder). That folder's PAYEMS agrees with `us-payems.csv` on every month but its
+  last two. Independent copies: W875RX1 `fartbagxp/economics:data/raw/w875rx1.csv` (643ea041) and
+  `anthonythomashall3-rgb/bristow-hall-live:.../fred_latest/W875RX1.csv` (312c2375) agree on all 812 shared months
+  but the last two; CMRMTSPL from the second (5491dab7) agrees on 715 months but the last; CE16OV
+  `jalonso1979/puremacro:curso/notebooks/data_curso/CE16OV.csv` (3837a112) agrees on all 941; INDPRO
+  `bdecon/US-chartbook:chartbook/data/indpro.csv` (9f28b057, 1989 on) is within 0.2% on every month (a different
+  vintage of the Fed's annual revisions). An older CMRMTSPL copy (`someshrai/WQU_MScFE_data`, 2014-2020) differs
+  by up to 7%: a pre-benchmark vintage, not used. Date columns were cut to `YYYY-MM`; values are unchanged.
+- **Licence:** US government statistics, public domain. Only the numbers were taken.
+- **Used by:** `eval/turns-composite.mjs`, `turns-composite.test.mjs`.
+
