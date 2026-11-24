@@ -18,3 +18,13 @@
    26    38   2..3   | --mirror, 2 workers                               | SAT 477.8 s (stored 1 off; kissat + totalizer none in 2400 s)
    24    11   0..1   | bowling-encoding.py seq kissat404 (no mirror: W odd) | none in 1500 s
    28    13   0..1   | bowling-encoding.py seq kissat404 (no mirror: W odd) | none in 1500 s
+   24    24   2..2   | --mirror, 1 worker (4 runs sharing 4 cores)      | none in 1500 s (stored 4 off)
+   24    36   3..3   | --mirror, 1 worker                                | none in 1500 s (stored 4 off)
+   26    26   2..2   | --mirror, 1 worker                                | none in 1500 s (stored 10 off)
+   28    28   2..2   | --mirror, 1 worker                                | none in 1500 s (stored 16 off)
+#
+# Stored: 26,12 and 26,38 moved from bowling-lane-near.mjs (off 3 and 1) to bowling-lane-table.mjs (off 0),
+# each re-checked with offBound (bowling.mjs) on roundRobin's rounds before storing.
+# node --test bowling.test.mjs: 36 pass, 0 fail (two new tests: atBound 26 for 26 x 12 and 26 x 38).
+# node eval/bowling-lane-near-check.mjs after: the 10 remaining near entries unchanged on seeds 1 and 2.
+# Not tried: the mirror with a hint from the stored near answers, or more than one worker on the exact seasons.
