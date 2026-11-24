@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKkmGBa3JnRhWmXXMLG",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T22:18:22Z",
+  "ended": "2026-11-24T22:23:05Z",
+  "wall_minutes": 4.93,
+  "tokens_in": 3497758,
+  "tokens_out": 18847,
+  "cost_usd": 1.9571,
+  "tool_calls": 36,
+  "task": null,
+  "projects": [
+    "pay-application-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18709",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start-here still points at a flagship row (ids-model-check) while the 2026-11-24 north star says for-profit bets come first; ~20 open PRs the same hour were on paid-bet pages, so the router's pick and the goal disagree (PR #18705/#18691 are re-ranking this)."
+    },
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "issue": "'No new calculator work' collides with the north star's 'free tools as lead magnets for paid products'; had to judge that a front-door feature for bet 1 is allowed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "North star (goals.md, 2026-11-24) ranks work toward the paid bets above flagship deepening; bet 1 (pay-app suite) has its paid product in a private repo out of this session's scope, so its free front door was the closest reachable step.",
+      "did": "Added next-month carry-forward and an early-access card to pay-application-generator instead of the router's ids-model-check pick.",
+      "result": "Shipped; 29 tests pass."
+    },
+    {
+      "file": "ventures/pay-application-generator/VENTURE.yaml",
+      "why": "The old revenue note reserved carry-forward for a paid version; under the new plan the paid suite's value is saved multi-job billing, retainage release, waivers and change orders, and a file-based roll of one job is a better lead magnet than a withheld feature.",
+      "did": "Shipped file-based carry-forward free; recorded the reasoning in VENTURE.yaml.",
+      "result": "Paid scope now stated as saved jobs, PDF, waivers."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-rolling-a-pay-application-to-next-month.md"
+  ],
+  "goal": "Front door for paid bet 1 (pay-app suite): demonstrates the monthly workflow and routes to early access.",
+  "notes": "node --test in ventures/pay-application-generator: 29/29 pass (run_venture_tests.py). Playwright 390px: example -> next month -> work out: app no 5, period 2026-11-30, previous certs 220770.00, due $0.00; no console errors; scrollWidth 390. venture-preflight run in background, result in PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "963604f1-f185-593c-8661-b55fe49c620e",
+    "transcripts": 1,
+    "first": "2026-11-24T22:18:22Z",
+    "last": "2026-11-24T22:23:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 65,
+        "output": 18847,
+        "thinking": 3437,
+        "cache_read": 3384825,
+        "cache_write_5m": 0,
+        "cache_write_1h": 112868,
+        "api_equivalent_usd": 1.9571,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 65,
+      "output": 18847,
+      "thinking": 3437,
+      "cache_read": 3384825,
+      "cache_write_5m": 0,
+      "cache_write_1h": 112868,
+      "api_equivalent_usd": 1.9571,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 32,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.93,
+      "active_minutes": 4.93,
+      "model_minutes": 3.67,
+      "tool_minutes": 1.26,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "spec, implement and test carry-forward plus page and post for a small billing tool",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 204.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

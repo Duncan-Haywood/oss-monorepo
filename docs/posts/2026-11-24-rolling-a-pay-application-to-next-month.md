@@ -3,7 +3,7 @@ title: "Rolling a pay application forward to next month, to the cent"
 seo_title: "Carry a schedule of values forward to the next pay app"
 date: 2026-11-24
 tags: [construction, subcontractors, pay-applications, retainage]
-description: "The free pay application generator now rolls a schedule of values to next month and carries previous certificates exactly, so the payment due is not an estimate."
+description: "The free pay application generator now rolls a schedule of values to next month and carries previous certificates exactly, so payment due is not an estimate."
 ---
 
 The [pay application generator](https://marisstella.app/pay-application-generator/)
