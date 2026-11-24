@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVKWEi6nJYPttQJLyx1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products; merge when done.",
+  "input_sha256": "58b5cec786884831b6143a6022f8fc3e1c0cbaf7a02482c3dab18d5ce8f79fa6",
+  "follow_up_inputs": [],
+  "model": "null",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T18:56:52Z",
+  "ended": "2026-11-24T19:04:32Z",
+  "wall_minutes": 7.84,
+  "tokens_in": 6273737,
+  "tokens_out": 27679,
+  "cost_usd": 2.785,
+  "tool_calls": 58,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18646",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "Without --item it printed YIELD for a sibling PR on a different item of the same flagship (#18645, windows); rerunning with --item gave HOLD. Start here's text says to run it without --item first."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "xer-schedule-check's next: is at 1999 of 2000 characters, so even a short status update for item (24) could not be written (flagship_field.py --make-room could not find room); the result went to NEXT.md and README instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Left xer-schedule-check's next: unchanged: at its cap and the landed item (b) is listed in NEXT.md, which I updated.",
+      "did": "Updated NEXT.md item (b)/(d) and README, not the flagship row.",
+      "result": "Row stays accurate; no conflict with sibling PR #18645."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-progress-override-starts-at-the-data-date.md",
+    "ventures/xer-schedule-check/eval/po-ss-data-date-2026-11-24.md"
+  ],
+  "goal": null,
+  "notes": "xer-schedule-check CPM engine: under progress override an SS/SF successor of work under way is laid from the data date plus unspent lag, and the started predecessor's free float skips SS/SF successors. P6 23.12 probes 3,730 -> 3,822 of 5,199 (92 fixed, 0 worse); six real P6 files unchanged at 19,908/19,935. A retained-logic SF-from-restart rule was tried and shipped off (net -9). Local: run_venture_tests.py xer-schedule-check ok (559 tests); check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "26063add-94fa-55f0-ac81-a3c23feb85fb",
+    "transcripts": 1,
+    "first": "2026-11-24T18:56:52Z",
+    "last": "2026-11-24T19:04:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 107,
+        "output": 27679,
+        "thinking": 5668,
+        "cache_read": 6148468,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125162,
+        "api_equivalent_usd": 2.785,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 107,
+      "output": 27679,
+      "thinking": 5668,
+      "cache_read": 6148468,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125162,
+      "api_equivalent_usd": 2.785,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 54,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.84,
+      "active_minutes": 7.84,
+      "model_minutes": 5.47,
+      "tool_minutes": 2.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a scheduling engineer reading P6 probe values, isolating the rule, coding, testing and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 215.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
