@@ -1,4 +1,11 @@
+---
+kind: polish
+topics: [design, seo]
+date: 2026-11-24
+---
 # Polish 2026-11-24: the last 188 cut tool cards
+
+PR #18590.
 
 Picked item 1 of "Still weakest" in `polish-2026-11-24-card-sentences.md`:
 188 tool cards still ended "…" after `cardCopy` landed.
