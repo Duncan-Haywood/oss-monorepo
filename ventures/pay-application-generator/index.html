@@ -9,7 +9,7 @@
   <meta property="og:description" content="Paste your schedule of values. Get the payment due, retainage held and balance to finish, and catch over-billed lines before the owner does.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Pay Application Generator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a pay application?", "acceptedAnswer": {"@type": "Answer", "text": "A pay application (also called a payment application, progress billing or draw request) is the document a contractor sends the owner each period to be paid for the work done so far. It shows the contract sum, change orders, how much is complete and stored, the retainage held back, what was already paid, and what is due now."}}, {"@type": "Question", "name": "How is retainage calculated on a pay application?", "acceptedAnswer": {"@type": "Answer", "text": "Retainage is a percentage of the work completed and stored to date, commonly 5 to 10 percent. This page multiplies each line's completed work by the work rate and its stored materials by the stored rate, rounds to the cent per line, and adds them. It can also drop the rate once the job passes a completion point, if your contract allows it."}}, {"@type": "Question", "name": "How do I fill in the previous certificates line?", "acceptedAnswer": {"@type": "Answer", "text": "Take it from your last application: the current payment due that was certified, summed across all earlier applications. If you leave it blank this page estimates it as previous work less retainage at today's rate, and says so in the findings, because that only holds if the rate never changed."}}, {"@type": "Question", "name": "How do change orders work?", "acceptedAnswer": {"@type": "Answer", "text": "Add each approved change order as its own line with a negative or positive scheduled value, and put CO in the item column (CO-1, CO-2) or in a Type column. They are separated from the original contract sum and shown as the net change."}}, {"@type": "Question", "name": "Is this the AIA G702 and G703 form?", "acceptedAnswer": {"@type": "Answer", "text": "No. It produces the same kind of summary and line-by-line table, in plain text and CSV, but it is not the AIA form, which is copyrighted, and it is not affiliated with the American Institute of Architects. If your owner requires the AIA form, use the numbers here to fill it in."}}, {"@type": "Question", "name": "Is my project data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The schedule is read in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a pay application?", "acceptedAnswer": {"@type": "Answer", "text": "A pay application (also called a payment application, progress billing or draw request) is the document a contractor sends the owner each period to be paid for the work done so far. It shows the contract sum, change orders, how much is complete and stored, the retainage held back, what was already paid, and what is due now."}}, {"@type": "Question", "name": "How is retainage calculated on a pay application?", "acceptedAnswer": {"@type": "Answer", "text": "Retainage is a percentage of the work completed and stored to date, commonly 5 to 10 percent. This page multiplies each line's completed work by the work rate and its stored materials by the stored rate, rounds to the cent per line, and adds them. It can also drop the rate once the job passes a completion point, if your contract allows it."}}, {"@type": "Question", "name": "How do I fill in the previous certificates line?", "acceptedAnswer": {"@type": "Answer", "text": "Take it from your last application: the current payment due that was certified, summed across all earlier applications. If you leave it blank this page estimates it as previous work less retainage at today's rate, and says so in the findings, because that only holds if the rate never changed."}}, {"@type": "Question", "name": "How do change orders work?", "acceptedAnswer": {"@type": "Answer", "text": "Add each approved change order as its own line with a negative or positive scheduled value, and put CO in the item column (CO-1, CO-2) or in a Type column. They are separated from the original contract sum and shown as the net change."}}, {"@type": "Question", "name": "How do I carry the schedule forward to next month?", "acceptedAnswer": {"@type": "Answer", "text": "After working out an application, use Next month. Each line's previous column becomes previous plus this period, this period goes to zero, stored materials stay in the stored column until you bill them as installed, and previous certificates become this application's total earned less retainage. Start it on the page straight away, or download the CSV and open it next month. If the owner certified a different amount than you billed, type the certified figure into previous certificates."}}, {"@type": "Question", "name": "Is this the AIA G702 and G703 form?", "acceptedAnswer": {"@type": "Answer", "text": "No. It produces the same kind of summary and line-by-line table, in plain text and CSV, but it is not the AIA form, which is copyrighted, and it is not affiliated with the American Institute of Architects. If your owner requires the AIA form, use the numbers here to fill it in."}}, {"@type": "Question", "name": "Is my project data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The schedule is read in your browser and nothing is sent; a test in the code asserts there are no network calls."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
     body { max-width: 1040px; margin: auto; padding: 28px; }
@@ -42,7 +42,7 @@
     textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
     pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
     .scroll { overflow-x: auto; }
-    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, #suite, #next, header { display: none; } }
   </style>
 </head>
 <body>
@@ -89,6 +89,18 @@
     <div id="report-findings"></div>
     <div class="scroll"><table><thead><tr><th scope="col">Item</th><th scope="col">Description</th><th scope="col" class="n">Scheduled</th><th scope="col" class="n">Previous</th><th scope="col" class="n">This period</th><th scope="col" class="n">Stored</th><th scope="col" class="n">Completed</th><th scope="col" class="n">%</th><th scope="col" class="n">Balance</th><th scope="col" class="n">Retainage</th></tr></thead><tbody id="rows"></tbody></table></div>
     <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download schedule (CSV)</button> <button type="button" class="secondary" id="print">Print</button></p>
+    <div id="next">
+    <h2 style="margin-top:20px">Next month</h2>
+    <p class="note">Roll this application forward: each line's previous becomes previous plus this period, this period starts at zero, stored materials stay stored, the application number goes up by one, and previous certificates become this application's total earned less retainage, so next month's payment due is exact rather than estimated. Keep the downloaded file with this month's application and open it next month.</p>
+    <p><button type="button" id="next-start">Start next month's application here</button> <button type="button" class="secondary" id="next-dl">Download next month's schedule (CSV)</button></p>
+    <ul class="note" id="next-notes" hidden></ul>
+    </div>
+  </section>
+
+  <section class="card" id="suite">
+    <h2>Billing every month on several jobs?</h2>
+    <p>A hosted pay-app suite for subcontractors and small general contractors is <strong>in development</strong>: schedules of values saved per job and carried forward for you, retainage tracked line by line until release, lien waivers produced with each application and checked against the payment, and approved change orders landing on the next bill. It is not on sale yet and has no price. This free page stays free.</p>
+    <p><a href="../feedback/?type=idea&amp;tool=pay-application-generator">Tell us how you bill today</a> to ask for early access. That form is public, so leave out names, prices and anything private.</p>
   </section>
 
   <section class="card" id="rules">
@@ -111,6 +123,8 @@
     <p>Take it from your last application: the current payment due that was certified, summed across all earlier applications. If you leave it blank this page estimates it as previous work less retainage at today's rate, and says so in the findings, because that only holds if the rate never changed.</p>
     <h3>How do change orders work?</h3>
     <p>Add each approved change order as its own line with a negative or positive scheduled value, and put CO in the item column (CO-1, CO-2) or in a Type column. They are separated from the original contract sum and shown as the net change.</p>
+    <h3>How do I carry the schedule forward to next month?</h3>
+    <p>After working out an application, use Next month. Each line's previous column becomes previous plus this period, this period goes to zero, stored materials stay in the stored column until you bill them as installed, and previous certificates become this application's total earned less retainage. Start it on the page straight away, or download the CSV and open it next month. If the owner certified a different amount than you billed, type the certified figure into previous certificates.</p>
     <h3>Is this the AIA G702 and G703 form?</h3>
     <p>No. It produces the same kind of summary and line-by-line table, in plain text and CSV, but it is not the AIA form, which is copyrighted, and it is not affiliated with the American Institute of Architects. If your owner requires the AIA form, use the numbers here to fill it in.</p>
     <h3>Is my project data uploaded anywhere?</h3>
@@ -123,7 +137,7 @@
     <p><strong>Not affiliated with the American Institute of Architects.</strong> AIA, G702 and G703 are the property of their owner. This tool is independent and produces its own plain-text summary and CSV; it does not reproduce the AIA form.</p>
     <p><strong>Project data.</strong> A schedule of values can be commercially sensitive. This page runs in your browser and sends nothing anywhere, and the portfolio never receives it. Closing the tab discards it; downloads are files on your own device.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_calculated</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_calculated</code>, <code>example_loaded</code>, <code>summary_downloaded</code>, <code>csv_downloaded</code>, <code>next_period_started</code>, <code>next_period_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../contractor-wip-schedule/">contractor WIP schedule</a> and the <a href="../mechanics-lien-deadline-calculator/">mechanics lien deadline calculator</a> sit on either side of a pay application. The <a href="../lien-waiver-checker/">lien waiver checker</a> reads the waiver that comes back with the payment.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -131,7 +145,7 @@
   </footer>
 
   <script type="module">
-    import { compute, sampleList, SAMPLE_SETTINGS, summaryText, scheduleCsv, dollars, pctText } from "./calc.mjs";
+    import { compute, sampleList, SAMPLE_SETTINGS, summaryText, scheduleCsv, dollars, pctText, nextPeriod } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -185,6 +199,28 @@
     $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("pay-application-summary.txt", summaryText(last.r, last.s), "text/plain"); } });
     $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("pay-application-schedule.csv", scheduleCsv(last.r), "text/csv"); } });
     $("#print").addEventListener("click", () => window.print());
+    const fill = (e) => {
+      $("#ret").value = e.retainagePct ?? ""; $("#sret").value = e.storedRetainagePct ?? ""; $("#reduce-at").value = e.reduceAtPct ?? ""; $("#reduced").value = e.reducedPct ?? "";
+      $("#prev").value = e.previousCertificates ?? ""; $("#project").value = e.project ?? ""; $("#appno").value = e.applicationNo ?? ""; $("#period").value = e.periodTo ?? "";
+      $("#contractor").value = e.contractor ?? ""; $("#owner").value = e.owner ?? "";
+    };
+    const showNotes = (notes) => { const ul = $("#next-notes"); ul.innerHTML = notes.map((x) => `<li>${esc(x)}</li>`).join(""); ul.hidden = !notes.length; };
+    $("#next-dl").addEventListener("click", () => {
+      const n = last && nextPeriod(last.r, last.s);
+      if (!n) return;
+      record("next_period_downloaded");
+      download(`pay-application-${n.settings.applicationNo || "next"}-schedule.csv`, n.csv, "text/csv");
+      showNotes(n.notes);
+    });
+    $("#next-start").addEventListener("click", () => {
+      const n = last && nextPeriod(last.r, last.s);
+      if (!n) return;
+      record("next_period_started");
+      $("#paste").value = n.csv; $("#file").value = ""; fill(n.settings);
+      report.hidden = true; last = null;
+      status.textContent = `Application ${n.settings.applicationNo || ""} started from the last one. Enter this period's work on each line, move any installed stored materials into This period, then click Work out the application. ${n.notes.join(" ")}`.replace(/\s+/g, " ");
+      $("#inputs").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
   </script>
