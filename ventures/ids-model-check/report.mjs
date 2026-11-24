@@ -13,6 +13,12 @@ export function textReport(r, { maxFailures = 10 } = {}) {
     for (const d of dups.slice(0, maxFailures)) out.push(`  ${d.globalId}: ${d.elements.map((e) => `#${e.id} ${e.type}${e.name ? ` "${e.name}"` : ""}`).join(", ")}`);
     if (dups.length > maxFailures) out.push(`  ... and ${dups.length - maxFailures} more`);
   }
+  const cf = r.conformance;
+  if (cf && cf.total) {
+    out.push(`model warning: ${cf.total} place(s) where the file breaks its own ${cf.schema} schema (an IDS check may test the wrong value there; --conformance lists them all):`);
+    for (const g of cf.groups.slice(0, maxFailures)) out.push(`  ${g.count > 1 ? `${g.count} x ` : ""}${g.message}`);
+    if (cf.groups.length > maxFailures || cf.more) out.push(`  ... and ${cf.groups.length - Math.min(maxFailures, cf.groups.length) + (cf.more || 0)} more kind(s)`);
+  }
   for (const s of r.specs) {
     out.push("");
     out.push(`[${s.status.toUpperCase()}] ${s.name} (${s.optionality})`);
