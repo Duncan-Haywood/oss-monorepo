@@ -35,6 +35,10 @@
     {
       "file": "prompts/redteam/prompt-0.md",
       "issue": "Step 0's open list is mostly control-plane items (9 of 14) a session cannot land; a filter (redteam.py open --landable) would save each run re-reading them."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Directional-revamp sessions on 2026-11-24 merged work whose checks were red on main (stale verticals.json, invalid VENTURE.yaml evidence, links to a file in an unmerged control-plane PR); each later PR inherits the red and must fix it."
     }
   ],
   "deviations": [
@@ -108,9 +112,9 @@
             "line": 40,
             "col": 25,
             "operator": "plus-to-minus",
-            "before": "const money = (n) => \"\u00a3\" + (Math.round(n * 100) / 100).toFixed(2);",
-            "after": "const money = (n) => \"\u00a3\" - (Math.round(n * 100) / 100).toFixed(2);",
-            "line_text": "const money = (n) => \"\u00a3\" + (Math.round(n * 100) / 100).toFixed(2);",
+            "before": "const money = (n) => \"£\" + (Math.round(n * 100) / 100).toFixed(2);",
+            "after": "const money = (n) => \"£\" - (Math.round(n * 100) / 100).toFixed(2);",
+            "line_text": "const money = (n) => \"£\" + (Math.round(n * 100) / 100).toFixed(2);",
             "caught": false,
             "seconds": 0.1,
             "triage": "gap",
@@ -320,6 +324,12 @@
       {
         "file": "portfolio/monetization/verticals.json",
         "issue": "main red: machine-shop-guides (2026-11-24) landed without verticals.py --write, so test_verticals.py::test_committed_json_is_consistent failed in ventures-tests' unwired checks. Regenerated; --check passes. Same session closed the machine-shop-guides sibling orphan (return link from cnc-machining-quote-calculator, page test, siblings-budget 1 -> 0).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18719"
+      },
+      {
+        "file": "ventures/machine-shop-guides/VENTURE.yaml; portfolio/monetization/hardware-bets.md",
+        "issue": "main red in PR CI: hypotheses evidence 'usage' (router accepts customer-contact|in-repo) and two links to portfolio/monetization/bets.md, which only PR #18675 (owner approval) adds. Set evidence to in-repo (usage counters are read in-repo); links made plain text naming PR #18675.",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18719"
       }
