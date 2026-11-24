@@ -1022,7 +1022,7 @@ function glazingLeftOut(r, c, tol) {
  */
 export const COMPOUND_SLIP_MIN = 3;
 export function compoundFactor(computed, stored, tol = 0.005) {
-  if (!(computed > 0) || !(stored > 0)) return null;
+  if (!(computed > 0 && computed < Infinity) || !(stored > 0 && stored < Infinity)) return null;
   for (const f of [SQFT, 1 / SQFT]) {
     const k = Math.round(Math.log10(stored / (computed * f)));
     if (k === 0 || Math.abs(k) > 9) continue;
@@ -1059,7 +1059,8 @@ export const SQFT = 10.7639104;
  * one random ratio in twenty at a 2% tolerance.
  */
 export function unitSlip(computed, stored, tol = 0.005) {
-  if (!(computed > 0) || !(stored > 0)) return null;
+  // finite only: near(x, Infinity) holds for every x (a stored 1.E400 parses to Infinity)
+  if (!(computed > 0 && computed < Infinity) || !(stored > 0 && stored < Infinity)) return null;
   // a slipped unit scales an exact figure: a quarter of the agreement
   // tolerance keeps chance matches on small parts out
   const near = (a, b) => Math.abs(a - b) <= tol * Math.abs(b);
