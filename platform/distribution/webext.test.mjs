@@ -88,3 +88,18 @@ test('the real shift-roster-builder qualifies', async () => {
   const { ok } = await plan({ slugs: ['shift-roster-builder'] });
   assert.equal(ok.length, 1);
 });
+
+test('a dynamic import of a local file is packaged, not read as the network', async () => {
+  // shift-roster-builder loads its importers on first use (PR #18712); the
+  // packager skipped it as "inline script reaches the network"
+  const ok = rewritePage('<script type="module">const f = () => import("./a.mjs");</script>');
+  assert.equal(ok.skip, undefined);
+  for (const body of ['import("https://x.example/a.js")', 'import(name)', 'import(`./${n}.mjs`)']) {
+    assert.match(rewritePage(`<script type="module">${body}</script>`).skip ?? '', /network/, body);
+  }
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'webext-dyn-'));
+  await fs.writeFile(path.join(dir, 'a.mjs'), 'export const a = () => import("./b.mjs");\n');
+  await fs.writeFile(path.join(dir, 'b.mjs'), 'export const b = 1;\n');
+  const imp = await importedFiles(dir, ['const f = () => import("./a.mjs");']);
+  assert.deepEqual(imp.files, ['a.mjs', 'b.mjs']);
+});

@@ -361,7 +361,10 @@ equipment) kept as the spreadsheet the site team already has, one row per
 constraint, pasted or opened as a CSV. Columns are found by name (activity
 ID, constraint, type, owner, need by, expected, cleared, notes; only the
 activity column is required, and a row may name several activities); dates
-read as typed (2026-04-14, 4/14/2026, 14-Apr-26, an Excel day number). Each
+read as typed (2026-04-14, 4/14/2026, 14-Apr-26, an Excel day number;
+slash dates take one order for the whole log, day first when any of them has
+a day over 12, so a UK log's 03/12/2026 is 3 December, and a log mixing both
+orders gets a warning). Each
 row gets the date the schedule needs it by (the activity's remaining early
 start, or now for work under way), the latest start before a deadline moves,
 the working days to spare, and a status: **overdue** (open, its promised

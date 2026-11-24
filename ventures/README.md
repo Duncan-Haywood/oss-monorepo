@@ -1,6 +1,6 @@
 # Free business calculators, CSV checkers and self-hosted apps: the full catalogue
 
-Every tool in this folder (1438 when this list was last generated), grouped the way the live site
+Every tool in this folder (1439 when this list was last generated), grouped the way the live site
 groups them. Each line links to the **free web version**, which needs no account and, for all but the
 self-hosted apps, runs entirely in your browser, and to its **source code** here, FSL-1.1-MIT licensed, so you
 can run, fork or self-host your own copy.
@@ -15,7 +15,7 @@ free tools for each one (roofers, Etsy sellers, landlords, freelancers and more)
 - [Sales, quotes & invoicing](#sales-quotes--invoicing) (16)
 - [Import & upload file checks](#import--upload-file-checks) (22)
 - [Marketplace seller tools](#marketplace-seller-tools) (95)
-- [Trade & contractor bids](#trade--contractor-bids) (213)
+- [Trade & contractor bids](#trade--contractor-bids) (215)
 - [Restaurant, bar & food truck pricing](#restaurant-bar--food-truck-pricing) (69)
 - [Service business pricing & quotes](#service-business-pricing--quotes) (193)
 - [Logistics, freight & cloud cost](#logistics-freight--cloud-cost) (37)
@@ -31,7 +31,7 @@ free tools for each one (roofers, Etsy sellers, landlords, freelancers and more)
 - [Learning & practice](#learning--practice) (7)
 - [Open hardware, robots & house plans](#open-hardware-robots--house-plans) (4)
 - [Music & audio](#music--audio) (1)
-- [More free tools](#more-free-tools) (6)
+- [More free tools](#more-free-tools) (5)
 - [Other directories](#other-directories) (6)
 
 ## Self-hosted business apps
@@ -345,6 +345,8 @@ Bid a job the way the trade does — materials, crew hours, burden, overhead, an
 - [Parking Lot Striping Bid Calculator](https://marisstella.app/parking-lot-striping-bid-calculator/) · [code](parking-lot-striping-bid-calculator/)
 - [Patio Door Bid Calculator](https://marisstella.app/patio-door-bid-calculator/) · [code](patio-door-bid-calculator/)
 - [Paver Patio Bid Calculator](https://marisstella.app/paver-patio-bid-calculator/) · [code](paver-patio-bid-calculator/)
+- [Schedule of values and continuation sheet calculator, free and private](https://marisstella.app/pay-app-guides/) · [code](pay-app-guides/)
+- [Progress billing and retainage, worked out line by line — free, private](https://marisstella.app/pay-application-generator/) · [code](pay-application-generator/)
 - [PDF Plan Takeoff — free scale-checked takeoff in your browser](https://marisstella.app/pdf-plan-takeoff/) · [code](pdf-plan-takeoff/)
 - [Pergola Bid Calculator](https://marisstella.app/pergola-bid-calculator/) · [code](pergola-bid-calculator/)
 - [Pest Control Bid Calculator](https://marisstella.app/pest-control-bid-calculator/) · [code](pest-control-bid-calculator/)
@@ -616,6 +618,7 @@ Price a visit, a route, a booking, or a licence — for the service businesses t
 - [Law Firm Realization Rate Calculator — free, private](https://marisstella.app/law-firm-realization-rate-calculator/) · [code](law-firm-realization-rate-calculator/)
 - [League Schedule Generator — free, private, in your browser](https://marisstella.app/league-schedule-generator/) · [code](league-schedule-generator/)
 - [Check a lien waiver before you sign it — free, private](https://marisstella.app/lien-waiver-checker/) · [code](lien-waiver-checker/)
+- [Machine Shop Guides: Free SPRS Score and Job-Shop Quote Calculators](https://marisstella.app/machine-shop-guides/) · [code](machine-shop-guides/)
 - [Massage Therapist Profit Calculator — free, private, in your browser](https://marisstella.app/massage-therapist-profit-calculator/) · [code](massage-therapist-profit-calculator/)
 - [Medical billing pricing calculator: percent vs per-claim vs flat](https://marisstella.app/medical-billing-pricing-calculator/) · [code](medical-billing-pricing-calculator/)
 - [Mini-golf course profit calculator: does the course pay for itself? Free, private](https://marisstella.app/mini-golf-course-profit-calculator/) · [code](mini-golf-course-profit-calculator/)
@@ -636,7 +639,6 @@ Price a visit, a route, a booking, or a licence — for the service businesses t
 - [Party Bus Charter Profit Calculator — true profit, margin and lowest quote per charter](https://marisstella.app/party-bus-charter-profit-calculator/) · [code](party-bus-charter-profit-calculator/)
 - [Patent Maintenance Fee Planner](https://marisstella.app/patent-maintenance-fee-planner/) · [code](patent-maintenance-fee-planner/)
 - [Pawn loan profit calculator for pawnbrokers](https://marisstella.app/pawn-loan-profit-calculator/) · [code](pawn-loan-profit-calculator/)
-- [Progress billing and retainage, worked out line by line — free, private](https://marisstella.app/pay-application-generator/) · [code](pay-application-generator/)
 - [Dog boarding and daycare calculator: what occupancy do you need to break even? Free, private](https://marisstella.app/pet-boarding-daycare-profit-calculator/) · [code](pet-boarding-daycare-profit-calculator/)
 - [Pet sitting platform fee calculator](https://marisstella.app/pet-sitting-platform-fee-calculator/) · [code](pet-sitting-platform-fee-calculator/)
 - [Pet waste removal route calculator: what does your route really pay per hour? Free, private](https://marisstella.app/pet-waste-removal-route-calculator/) · [code](pet-waste-removal-route-calculator/)
@@ -1571,7 +1573,6 @@ Make and check music in your browser: turn public-domain Gregorian chant into MI
 Everything else that runs entirely in your browser. [Browse this section on the site →](https://marisstella.app/c/more/)
 
 - [Agentic Trading Lab](https://marisstella.app/agentic-trading-lab/) · [code](agentic-trading-lab/)
-- [Machine Shop Guides: Free SPRS Score and Job-Shop Quote Calculators](https://marisstella.app/machine-shop-guides/) · [code](machine-shop-guides/)
 - [Missed-call text-back for trades — free, source available](https://marisstella.app/missed-call-textback/) · [code](missed-call-textback/)
 - [Simulate conversations between fictional personalities](https://marisstella.app/persona-conversation-simulator/) · [code](persona-conversation-simulator/)
 - [Price drop alerts for any shop, on your own GitHub](https://marisstella.app/price-drop-watcher/) · [code](price-drop-watcher/)

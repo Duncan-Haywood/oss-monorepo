@@ -25,8 +25,8 @@ file's own working tree were ever a PR's own checkout, a PR could edit this
 file (or those validators) to force its own approval or merge regardless of
 its actual content. The CI workflows that call this script pin their
 checkout to the base branch for exactly this reason — see the SECURITY
-comments in .github/workflows/agent-cross-review.yml and
-.github/workflows/agent-pr-auto-merge.yml. A local, human-directed run
+comments in .github/workflows/priv-agent-cross-review.yml and
+.github/workflows/priv-agent-pr-auto-merge.yml. A local, human-directed run
 against a manually checked-out PR (to validate that PR's own files) is fine;
 an unattended, write-capable CI job must not do that.
 """

@@ -1,0 +1,17 @@
+# Pay app guides: schedule of values calculator and pay application guides
+
+> Free, private schedule of values / continuation sheet calculator for construction subcontractors (work completed, stored materials, retainage held and released, balance to finish, current payment due), plus plain-English guides on filling out a pay application, retainage with cited public retainage caps for 12 US states, conditional vs unconditional lien waivers, and change orders. Runs in the browser; nothing is uploaded.
+
+Free to use and source available (FSL-1.1-MIT). Not legal, tax, accounting or financial advice. Not affiliated with the American Institute of Architects and does not reproduce the AIA G702/G703 forms. Statutes were read on 2026-11-24; check the linked statute before relying on it. Hosted pay-app billing for subcontractors is in development, with early access; nothing is for sale yet.
+
+## Pages
+
+- [Schedule of values calculator](https://marisstella.app/pay-app-guides/): continuation-sheet arithmetic, over-billing check, summary, CSV.
+- [How to fill out a pay application](https://marisstella.app/pay-app-guides/how-to-fill-out-a-pay-application.html): every column and summary line with a worked example.
+- [Retainage explained](https://marisstella.app/pay-app-guides/retainage-explained.html): calculation, reduction, release, flow-down, and public retainage caps for CA, TX, FL, NY, PA, IL, NC, MI, VA, WA, MA, AZ with official statute links.
+- [Conditional vs unconditional lien waivers](https://marisstella.app/pay-app-guides/conditional-vs-unconditional-lien-waivers.html): the four waiver types, when to sign each, California and Florida statutory forms.
+- [Change orders and the schedule of values](https://marisstella.app/pay-app-guides/change-orders-schedule-of-values.html): approved and deductive change orders on the SOV and summary.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pay-app-guides): FSL-1.1-MIT licensed.

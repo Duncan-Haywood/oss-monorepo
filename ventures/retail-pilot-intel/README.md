@@ -52,7 +52,7 @@ Only people with access to this repository can view private Pages. The client pa
 
 `apps/docs/wrangler.toml` serves the built docs from a free-plan Cloudflare Worker,
 `retail-pilot-intel-docs`, on its workers.dev address. The `deploy-cloudflare` job in
-`.github/workflows/retail-pilot-intel-deploy-docs.yml` publishes it on a manual run, or on every
+`.github/workflows/priv-retail-pilot-intel-deploy-docs.yml` publishes it on a manual run, or on every
 docs push once the repository variable `RETAIL_PILOT_INTEL_DOCS_CLOUDFLARE=true`. For a login in
 front of the passcode, add a Cloudflare Access application for that host (free up to 50 users).
 

@@ -956,7 +956,7 @@ class TestHeadlineNumbersAgainstThisRepo(unittest.TestCase):
         agent_workflows = {
             f.workflow for f in self.findings if f.rule == "R6-agent-holds-write-scope"
         }
-        self.assertEqual(agent_workflows, {".github/workflows/opencode-high-throughput.yml"})
+        self.assertEqual(agent_workflows, {".github/workflows/priv-opencode-high-throughput.yml"})
 
     def test_no_workflow_references_a_script_that_is_absent(self):
         # Was pinned the other way: R1's one hit was the fleet's guarded call to

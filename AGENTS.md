@@ -80,7 +80,7 @@ venture's row in `portfolio/usage/usage.yaml`. `usage.yaml` zero means
 unmeasured, not unwanted: GitHub Pages self-reports nothing.
 
 **Deploy what is already built before starting another product.** GitHub
-Pages is live, and `.github/workflows/portfolio-pages.yml` redeploys it on
+Pages is live, and `.github/workflows/priv-portfolio-pages.yml` redeploys it on
 every merge that touches a site input, so merging is publishing.
 
 Use traditional software patterns. Add AI where it clearly helps; avoid

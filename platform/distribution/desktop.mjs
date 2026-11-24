@@ -3,7 +3,7 @@
  * them, into a Tauri v2 project that builds an offline macOS (.dmg), Windows
  * (.msi, .exe) and Linux (.AppImage, .deb) app. The page and the files it
  * imports ship inside the app; nothing is fetched at run time. Off by default;
- * this writes inputs only. `.github/workflows/distribute-desktop.yml` builds
+ * this writes inputs only. `.github/workflows/priv-distribute-desktop.yml` builds
  * unsigned installers when the owner sets `DISTRIBUTE_DESKTOP=true` and runs
  * it by hand. Code signing, notarisation and store or winget submission are
  * the owner's steps. See portfolio/distribution/README.md.
@@ -433,7 +433,7 @@ To redraw the icons from one 1024 px PNG: \`npx tauri icon path/to/icon.png\`.
 
 ## Or let the workflow build all three
 
-\`.github/workflows/distribute-desktop.yml\` is \`workflow_dispatch\` only and does nothing unless the repository variable \`DISTRIBUTE_DESKTOP\` is \`true\`. Run it with \`${target}\` as the target: it builds on macOS, Windows and Ubuntu runners and attaches the unsigned installers and filled-in winget manifests to a pre-release.
+\`.github/workflows/priv-distribute-desktop.yml\` is \`workflow_dispatch\` only and does nothing unless the repository variable \`DISTRIBUTE_DESKTOP\` is \`true\`. Run it with \`${target}\` as the target: it builds on macOS, Windows and Ubuntu runners and attaches the unsigned installers and filled-in winget manifests to a pre-release.
 
 ## Signing and notarisation (owner steps)
 

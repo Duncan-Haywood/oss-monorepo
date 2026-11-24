@@ -341,3 +341,310 @@ tasks:
       about every ten minutes (baseline report, finding 3), so the cache
       that should make repeat visits instant is replaced on almost every
       visit, and its cache-first navigations serve the last build first.
+
+  # --- security-first and aws-consolidation (owner, 2026-11-24) ------------
+  # Decision, order of work and baselines: docs/reports/2026-11-24-cloud-provider-comparison.md, §7.
+  # Security tasks come first: no production workload lands in AWS until
+  # sec-scan-pipeline gates PRs and aws-org-baseline is applied.
+  - id: sec-scan-pipeline
+    direction: security-first
+    title: Scan every PR for secrets, code, dependencies, IaC, containers and workflows
+    done_when: >-
+      Scripts under platform/security/ (with tests) run gitleaks, Semgrep,
+      OSV-Scanner, Checkov, Trivy (config and image) and zizmor, pinned by
+      version and checksum, on the changed paths, and write findings to a
+      JSON file; a baseline file records accepted findings with a reason; a
+      report in docs/reports/ gives the first full-repo numbers. The
+      workflow that runs them on PRs and makes them required is its own
+      control-plane PR for the owner.
+    hours: 16
+    status: open
+    added: 2026-11-24
+    notes: CodeQL is a GitHub setting plus a workflow; include it in the control-plane PR.
+
+  - id: sec-codeowners-scan-gate
+    direction: security-first
+    title: Make the scanners a required check and route findings into the security alert queue
+    done_when: >-
+      The ruleset or branch protection (as code where GitHub allows) requires
+      the scan workflow; new findings above the baseline land in the queue
+      that .github/workflows/security-alert-queue.yml already keeps, as files.
+    hours: 4
+    status: open
+    added: 2026-11-24
+    blocked_on: Control-plane paths; needs the owner's approval after sec-scan-pipeline lands.
+
+  - id: aws-org-baseline
+    direction: security-first
+    title: Write the AWS Organization and security baseline as OpenTofu
+    done_when: >-
+      platform/aws/ holds OpenTofu for: the Organization and accounts (log
+      archive, security, shared infra, apps, payments, sandbox); SCPs (deny
+      leaving the org, disabling CloudTrail/GuardDuty/Config, unapproved
+      regions, root use); an org CloudTrail to an object-locked bucket;
+      GuardDuty, Security Hub (FSBP and CIS), Config and IAM Access Analyzer
+      everywhere; account-level S3 Block Public Access and default
+      encryption; GitHub OIDC roles scoped per repository, branch and
+      environment, with no long-lived keys. `tofu validate`, the scanners
+      and `tofu plan` against a mocked provider pass.
+    hours: 24
+    status: open
+    added: 2026-11-24
+    blocked_on: Applying needs the owner's AWS management account (root MFA, card, IAM Identity Center). Writing and testing it does not.
+
+  - id: aws-spend-guards
+    direction: aws-consolidation
+    title: Guard spend per account with budgets, native spend limits and a tested kill switch
+    done_when: >-
+      OpenTofu for a budget with actions per account, native spend limits
+      where the plan allows, and a Lambda that stops or detaches the
+      offending resources, with unit tests; a README says what stops, what
+      keeps running and how to resume.
+    hours: 8
+    status: open
+    added: 2026-11-24
+
+  - id: aws-route53-zone
+    direction: aws-consolidation
+    title: Mirror the marisstella.app zone into Route 53 as code
+    done_when: >-
+      OpenTofu for the hosted zone holds every record Cloudflare serves today
+      (exported, not retyped), including mail records; a script diffs the
+      two zones and prints zero differences before the nameserver change.
+    hours: 6
+    status: open
+    added: 2026-11-24
+    blocked_on: The record export needs a Cloudflare token with Zone Read; the nameserver change is the owner's.
+
+  - id: aws-site-cloudfront
+    direction: aws-consolidation
+    title: Serve the built site from S3 and CloudFront beside the Workers, then cut over
+    done_when: >-
+      OpenTofu for a private bucket, CloudFront with Origin Access Control,
+      WAF managed rules, security headers, and a CloudFront Function that
+      reproduces the Workers' redirects and _headers; a deploy script that
+      syncs build.mjs output; check_site_fresh.py and verify-live.sh pass
+      against the CloudFront address before DNS moves; the single-site
+      layout replaces the two-Worker split and router.
+    hours: 16
+    status: open
+    added: 2026-11-24
+    notes: The deploy workflow change in portfolio-pages.yml is control plane, so it is its own PR.
+
+  - id: aws-edge-api
+    direction: aws-consolidation
+    title: Move the edge API (view counts, feedback, request intake) and its analytics pull to AWS
+    done_when: >-
+      platform/edge's endpoints run on Lambda behind CloudFront with the same
+      rate limits and caps, data in DynamoDB or Postgres migrated from D1, and
+      platform/counter reads CloudFront and Lambda metrics instead of
+      Cloudflare GraphQL; the existing tests pass against the new handler.
+    hours: 12
+    status: open
+    added: 2026-11-24
+
+  - id: aws-ses-email
+    direction: aws-consolidation
+    title: Move all email to SES with consent and suppression in our own database
+    done_when: >-
+      SES sending identities as code for three domains (transactional,
+      marketing, a separate domain for cold outbound) with DKIM, SPF, DMARC
+      and a configuration set; inbound receiving replaces Cloudflare Email
+      Routing for support addresses; an SES adapter behind the existing
+      EmailSender port; one suppression and consent table every sender
+      checks; Resend and Cloudflare Email Service retired after cutover.
+    hours: 16
+    status: open
+    added: 2026-11-24
+    notes: SES production access (leaving the sandbox) is a request the owner submits.
+
+  - id: aws-saas-starter
+    direction: aws-consolidation
+    title: Build the SaaS and native-app starter that every product moves onto
+    done_when: >-
+      platform/aws/saas-starter/ holds a web-standard app on Lambda (or
+      Fargate for long jobs), RDS Postgres with IAM auth and encryption,
+      Cognito sign-in usable from web and native apps, SNS mobile push, Paddle
+      webhooks verified in the payments account, all as OpenTofu, scanned
+      clean, with an end-to-end test; a README on how a product moves onto it.
+    hours: 40
+    status: open
+    added: 2026-11-24
+
+  - id: aws-move-products
+    direction: aws-consolidation
+    title: Move each Workers-hosted product onto the starter, one PR each
+    done_when: >-
+      ai-first-markets, shift-roster-builder, the real-estate-agent-photo-app
+      and retail-pilot-intel docs, and Grant Autopilot (private repository)
+      run on AWS; their wrangler configs and deploy workflows are removed;
+      local-site-studio's Convex backend is moved or its exception written
+      down.
+    hours: 40
+    status: open
+    added: 2026-11-24
+
+  - id: aws-client-accounts
+    direction: aws-consolidation
+    title: Vend one AWS account per client project and report its cost for cost-plus billing
+    done_when: >-
+      An OpenTofu module creates a client account under the Organization with
+      the security baseline, SCPs and a budget; a tested script reads the Cost
+      and Usage Report and prints each client's monthly statement (AWS cost
+      by service, the margin as its own line, the total) in a form the
+      client can be shown; a handover runbook moves an account out of the
+      Organization to the client.
+    hours: 16
+    status: open
+    added: 2026-11-24
+    blocked_on: The margin, invoicing rail and client terms are the owner's to set.
+
+  - id: requests-voice-agent-intake
+    direction: website-requests
+    title: Let small businesses request custom dev through an AI voice and chat agent
+    done_when: >-
+      A chat agent on custom-development/ (voice as a second mode) asks what
+      the business needs, screens it with portfolio/requests' injection
+      screen, and writes a `received` entry through intake.mjs; transcripts
+      are stored only with consent and the privacy line says so; tests cover
+      the screen and the intake path.
+    hours: 20
+    status: open
+    added: 2026-11-24
+    notes: >-
+      Owner, 2026-11-24: "requests for dev still worthwhile. ai voice and agent
+      potential customer dev requests possible", "dev fee not necessary",
+      "free dev service offered at operating cost plus transparent profit
+      margin in exchange for ease of mind less headaches etc." Building is
+      free; running a client's project is operating cost plus a visible
+      margin (aws-client-accounts). The agent should say so plainly.
+
+  - id: retire-self-deploy
+    direction: aws-consolidation
+    title: Retire every self-deploy path
+    done_when: >-
+      platform/deploy/ (page, templates, scaffold_static_deploy.py), the
+      per-venture Dockerfile/fly.toml/render.yaml self-host files and the
+      deploy-iac-check workflow are removed; the deploy page's URL redirects
+      to custom-development/; site-nav, check.mjs, PRODUCT_PLAYBOOK.md and
+      venture READMEs stop pointing at it; tests pass.
+    hours: 10
+    status: open
+    added: 2026-11-24
+    notes: The workflow removal and prompt/README mentions under control-plane paths go in their own PR.
+
+  - id: retire-cloudflare
+    direction: aws-consolidation
+    title: Retire Cloudflare once every piece runs on AWS
+    done_when: >-
+      No wrangler config, Cloudflare workflow, token or secret remains; the
+      zone's nameservers point at Route 53; a runbook lists the owner's
+      closing steps (revoke tokens, close the account); portfolio/hosting/README.md
+      describes AWS as what is served.
+    hours: 6
+    status: open
+    added: 2026-11-24
+
+  - id: pm-system-design
+    direction: agent-org-tooling
+    title: Design one project management system to replace the scattered queues
+    done_when: >-
+      A report in docs/reports/ inventories every place work is tracked today
+      (portfolio/work/tasks.yaml, flagships.yaml, requests/requests.json,
+      research/PROGRAMMES.md, pipeline/candidates.yaml, ledger/asks.yaml and
+      decision_queue.py, IDEAS.md, the security alert queue) with counts and
+      overlaps, names what the owner and agents each need from it (status at
+      a glance, owner decisions, client projects, dependencies), and proposes
+      one schema and view with a migration plan, files first.
+    hours: 8
+    status: open
+    added: 2026-11-24
+    notes: >-
+      Owner, 2026-11-24: "we really need a better project management system
+      too as well I think." Scope is the owner's to confirm; this task is the
+      inventory and proposal, not the build.
+
+  - id: promote-or-demote-pass
+    direction: promote-or-demote
+    title: Cluster every venture by specific user into niche products; demote only duplicates and thin tools
+    done_when: >-
+      A tested script assigns each of the ~1,446 ventures to a specific-user
+      cluster (landlord, roofer, payroll admin, marketplace seller...) from its
+      VENTURE.yaml, page copy and catalogue category; proposes a niche product
+      for each cluster big enough to pay (named user, the tools it bundles,
+      what accounts/history/reports add, subscription or one-off by per-use
+      cost); marks near-duplicates and thin tools for demotion with reasons;
+      and writes the result beside transition.json. A report gives the
+      clusters, counts and a launch order, for the owner to skim.
+    hours: 16
+    status: open
+    added: 2026-11-24
+    notes: >-
+      Owner, 2026-11-24: "projects tools and products get moved into products
+      or demoted and get marrketing pages"; "better niched down multiple
+      products for very specific users than multiple broad products"; "only
+      promoting 20 to paid seems a bit silly to me unless the 1400 are really
+      quite useless". The 20 came from a 5,000-lines rule that measures code
+      size, not willingness to pay; usage is unmeasured, not zero. Archiving
+      removes from navigation and sitemaps, not from git; old URLs redirect
+      to the product they feed.
+
+  - id: platform-pro-tier
+    direction: promote-or-demote
+    title: Add one paid tier every tool inherits from the platform
+    done_when: >-
+      Shared, tested platform code gives any tool, without per-tool work:
+      accounts, saved scenarios and history, branded PDF reports a
+      professional can send to clients, CSV/batch runs, an API key, and a
+      white-label embed for a business's own site; gated by the billing port
+      (dark until the merchant account is open); the free single calculation
+      is unchanged.
+    hours: 40
+    status: open
+    added: 2026-11-24
+    notes: Runs on the AWS SaaS starter (aws-saas-starter). The embed also feeds the custom dev shop.
+
+  - id: tool-usage-measured
+    direction: promote-or-demote
+    title: Get real per-tool usage so launch order follows use, not line counts
+    done_when: >-
+      Per-tool page views and calculations for at least two weeks are in
+      portfolio/usage/ from the analytics pipeline (Cloudflare now, CloudFront
+      after the move), bots separated; the cluster launch order is re-ranked
+      by it.
+    hours: 6
+    status: open
+    added: 2026-11-24
+    blocked_on: The Cloudflare analytics token lacks Zone Analytics Read (portfolio/usage/cloudflare-analytics.json last_pull errors); an owner step.
+
+  - id: product-marketing-pages
+    direction: promote-or-demote
+    title: Give every promoted product a marketing page built from one template
+    done_when: >-
+      A shared page template (problem, who it is for, what it does, pricing
+      from the Paddle catalogue, screenshots, FAQ, the disclaimer, llms.txt
+      link) renders a page for each promoted product from a data file; no
+      fake reviews or claims a file can't back; check.mjs verifies each
+      product has one; a post introduces the line-up.
+    hours: 20
+    status: open
+    added: 2026-11-24
+
+  - id: risk-review-ci
+    direction: security-first
+    title: Run the cyber and legal risk review on every PR in CI, with an AI reviewer that is not the author
+    done_when: >-
+      A required check runs `platform/security/risk_review.py --strict` on each
+      PR and posts its checklist to the job summary; an AI reviewer (not the
+      PR's author) answers each triggered check from the diff and fails the
+      check on a real finding; owner-escalation items are labelled on the PR;
+      tests cover a clean PR, a finding, and each escalation trigger.
+    hours: 12
+    status: open
+    added: 2026-11-24
+    notes: >-
+      Owner, 2026-11-24: "can we instead have maybe a review process on cysec
+      and legal risks instead?" The script and process landed with this task
+      (docs/security/risk-review.md); this task automates it. The workflow
+      calls a paid model API, so it is a priv- workflow and the owner switches
+      its key on once.

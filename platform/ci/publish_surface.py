@@ -639,14 +639,14 @@ def check_single_pages_deployer(rows) -> list[str]:
 
     The invariant is therefore about a single owner action: **no one variable flip
     may arm two Pages deployments.** Two workflows gated on *different* variables
-    are a deliberate either/or — `retail-pilot-intel-deploy-docs.yml` is gated on
+    are a deliberate either/or — `priv-retail-pilot-intel-deploy-docs.yml` is gated on
     `RETAIL_PILOT_INTEL_PAGES` precisely so the portfolio flip does not publish it —
     and that stays legal. Two gated on the *same* variable, or any that is ungated,
     is the bug.
 
     This is a real incident, not a hypothetical. On 2026-08-26 two sessions
     independently solved "the portfolio has no public URL" and both landed:
-    `pages.yml` (#1724, a Python builder) and `portfolio-pages.yml` (#1718, a Node
+    `pages.yml` (#1724, a Python builder) and `priv-portfolio-pages.yml` (#1718, a Node
     one). Each reasoned -- correctly, in isolation -- that it should reuse the
     existing `GITHUB_PAGES_ENABLED` variable rather than open a second owner ask.
     Neither could see the other.
