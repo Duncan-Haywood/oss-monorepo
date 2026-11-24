@@ -21,15 +21,18 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+/** Apply `step` until the string stops changing, so a removal cannot splice a new match together. */
+const untilStable = (s, step) => { let prev; do { prev = s; s = step(s); } while (s !== prev); return s; };
+
 /** Every heading in document order, without the parts a browser does not render as headings. */
 export function headings(html) {
-  const body = String(html)
-    .replace(/<!--[\s\S]*?-->/g, '')
-    .replace(/<(script|style|template|noscript|svg)\b[\s\S]*?<\/\1>/gi, '');
+  const body = untilStable(String(html), (s) => s
+    .replace(/<!--[\s\S]*?--!?>/g, '')
+    .replace(/<(script|style|template|noscript|svg)\b[\s\S]*?<\/\1\b[^>]*>/gi, ''));
   const out = [];
   for (const m of body.matchAll(/<h([1-6])\b([^>]*)>([\s\S]*?)<\/h\1>/gi)) {
     if (/\bhidden\b|aria-hidden="true"/.test(m[2])) continue;
-    out.push({ level: Number(m[1]), text: m[3].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 60) });
+    out.push({ level: Number(m[1]), text: untilStable(m[3], (s) => s.replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim().slice(0, 60) });
   }
   return out;
 }

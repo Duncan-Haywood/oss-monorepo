@@ -30,7 +30,7 @@ export const MAX_PRELOADS = 80;
 // `import x from '...'`, `import {a} from "..."`, `import '...'`,
 // `export {a} from '...'`, `export * from '...'`. Not `import('...')`.
 const IMPORT_RE = /(?:^|[\s;}])(?:import|export)\s*(?:[\w$*{}\s,]+?\s*from\s*)?(['"])([^'"\n]+)\1/g;
-const MODULE_SCRIPT_RE = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
+const MODULE_SCRIPT_RE = /<script\b([^>]*)>([\s\S]*?)<\/script\b[^>]*>/gi;
 
 /** Static import specifiers in module source, in order, de-duplicated. */
 export function staticImports(source) {

@@ -108,7 +108,12 @@ export function parseIdeas(src) {
   const start = src.indexOf('## New');
   const end = src.indexOf('## Picked up', start);
   if (start < 0 || end < 0) return null;
-  const body = src.slice(start + '## New'.length, end).replace(/<!--[\s\S]*?-->/g, '');
+  let body = src.slice(start + '## New'.length, end);
+  let prev;
+  do {
+    prev = body;
+    body = body.replace(/<!--[\s\S]*?--!?>/g, '');
+  } while (body !== prev);
   return body
     .split(/\n\s*\n/)
     .map((para) =>

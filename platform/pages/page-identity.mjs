@@ -15,11 +15,14 @@ const SKIP = new Set(['404.html', 'offline.html']);
 // whole question, up to 246 characters; the ceiling stops that coming back.
 export const MAX_TITLE_LENGTH = 130;
 
+/** Apply `step` until the string stops changing, so a removal cannot splice a new match together. */
+const untilStable = (s, step) => { let prev; do { prev = s; s = step(s); } while (s !== prev); return s; };
+
 export function stripNonMarkup(html) {
-  return html
-    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
-    .replace(/<template\b[^>]*>[\s\S]*?<\/template>/gi, '')
-    .replace(/<!--[\s\S]*?-->/g, '');
+  return untilStable(html, (s) => s
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, '')
+    .replace(/<template\b[^>]*>[\s\S]*?<\/template\b[^>]*>/gi, '')
+    .replace(/<!--[\s\S]*?--!?>/g, ''));
 }
 
 export function titleOf(html) {
@@ -57,7 +60,7 @@ export function checkPageIdentity(pages) {
 
 function h1TextOf(html) {
   const m = /<h1[^>]*>([\s\S]*?)<\/h1>/i.exec(stripNonMarkup(html));
-  return m ? m[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim() : '';
+  return m ? untilStable(m[1], (s) => s.replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim() : '';
 }
 
 /**

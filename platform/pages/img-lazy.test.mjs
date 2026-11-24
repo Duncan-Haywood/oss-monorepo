@@ -14,10 +14,21 @@ import { fileURLToPath } from 'node:url';
 
 const VENTURES = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'ventures');
 
+/** The page without script, style, pre, code and template blocks or comments, removed until none remain. */
+function withoutHidden(html) {
+  let text = html;
+  let prev;
+  do {
+    prev = text;
+    text = text
+      .replace(/<(script|style|pre|code|template)\b[\s\S]*?<\/\1\b[^>]*>/gi, '')
+      .replace(/<!--[\s\S]*?--!?>/g, '');
+  } while (text !== prev);
+  return text;
+}
+
 export function eagerLaterImages(html) {
-  const text = html
-    .replace(/<(script|style|pre|code|template)\b[\s\S]*?<\/\1>/gi, '')
-    .replace(/<!--[\s\S]*?-->/g, '');
+  const text = withoutHidden(html);
   const imgs = [...text.matchAll(/<img\b[^>]*>/gi)].map((m) => m[0]);
   return imgs.filter((t, i) => i > 0 && !/\bloading\s*=/.test(t));
 }
@@ -25,9 +36,7 @@ export function eagerLaterImages(html) {
 // An <img> with a src and no width and height lets the page jump as it loads.
 // Images with no src are filled in by script at run time and are exempt.
 export function undimensionedImages(html) {
-  const text = html
-    .replace(/<(script|style|pre|code|template)\b[\s\S]*?<\/\1>/gi, '')
-    .replace(/<!--[\s\S]*?-->/g, '');
+  const text = withoutHidden(html);
   return [...text.matchAll(/<img\b[^>]*>/gi)]
     .map((m) => m[0])
     .filter((t) => /\bsrc\s*=/.test(t) && !(/\bwidth\s*=/.test(t) && /\bheight\s*=/.test(t)));

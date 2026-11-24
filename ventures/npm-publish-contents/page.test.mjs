@@ -40,11 +40,11 @@ test("SEO basics on every page", () => {
     const html = page(p);
     assert.match(html, /<title>[^<]{20,}<\/title>/, p);
     assert.match(html, /<meta name="description" content="[^"]{80,320}"/, p);
-    assert.match(html, new RegExp(`<link rel="canonical" href="\\./${p.replace(/\./g, "\\.")}">`), p);
+    assert.ok(html.includes(`<link rel="canonical" href="./${p}">`), p);
     assert.match(html, /<meta property="og:title"/, p);
     assert.equal((html.match(/<h1>/g) || []).length, 1, p);
     assert.match(html, /<html lang="en">/, p);
-    assert.match(page("sitemap.xml"), new RegExp(p === "index.html" ? "npm-publish-contents/<" : p.replace(/\./g, "\\.")));
+    assert.ok(page("sitemap.xml").includes(p === "index.html" ? "npm-publish-contents/<" : p), p);
   }
 });
 
@@ -106,7 +106,7 @@ test("links: siblings, guide, robots, sitemap, README, llms.txt, LICENSE and VEN
     assert.match(html, new RegExp(`href="\\.\\./${s}/"`));
     assert.ok(readFileSync(new URL(`../${s}/index.html`, import.meta.url)));
   }
-  assert.match(html, new RegExp(`href="${GUIDE.replace(/\./g, "\\.")}"`));
+  assert.ok(html.includes(`href="${GUIDE}"`), GUIDE);
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("README.md"), /No warranty/);
   assert.match(page("llms.txt"), /^# npm Publish Contents/);

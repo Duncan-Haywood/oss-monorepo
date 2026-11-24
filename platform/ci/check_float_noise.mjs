@@ -44,8 +44,9 @@ async function main() {
   const root = process.cwd();
   const types = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml' };
   const server = http.createServer((req, res) => {
-    let file = path.join(root, decodeURIComponent(req.url.split('?')[0]));
-    if (!file.startsWith(root)) { res.statusCode = 403; return res.end(); }
+    // Resolve under root and refuse anything that escapes it (../, encoded or not).
+    let file = path.resolve(root, '.' + path.sep + decodeURIComponent(req.url.split('?')[0]));
+    if (file !== root && !file.startsWith(root + path.sep)) { res.statusCode = 403; return res.end(); }
     if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html');
     if (!fs.existsSync(file)) { res.statusCode = 404; return res.end(); }
     res.setHeader('content-type', types[path.extname(file)] || 'application/octet-stream');

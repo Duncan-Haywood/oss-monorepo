@@ -91,7 +91,9 @@ function serve(dist) {
   return http.createServer(async (req, res) => {
     try {
       const rel = decodeURIComponent(req.url.split('?')[0]);
-      let fp = path.join(dist, rel);
+      const root = path.resolve(dist);
+      let fp = path.resolve(root, `.${rel}`);
+      if (fp !== root && !fp.startsWith(root + path.sep)) throw new Error('outside the site root');
       try {
         if ((await stat(fp)).isDirectory()) fp = path.join(fp, 'index.html');
       } catch {

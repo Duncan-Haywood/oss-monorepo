@@ -40,7 +40,7 @@ function defaultSlugs() {
     const f = path.join(ventures, s, 'index.html');
     if (!fs.existsSync(f) || !fs.existsSync(path.join(dist, s, 'index.html'))) return false;
     const html = fs.readFileSync(f, 'utf8');
-    return [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].some((m) => /<h[3-6][\s>]/.test(m[1]));
+    return [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\b[^>]*>/gi)].some((m) => /<h[3-6][\s>]/.test(m[1]));
   }).sort();
 }
 
@@ -84,8 +84,10 @@ if (invokedDirectly) {
   const vary = !process.argv.includes('--no-vary');
   const slugs = arg('slugs')?.split(',').filter(Boolean) ?? defaultSlugs();
   const srv = http.createServer((q, r) => {
-    let p = path.join(dist, decodeURIComponent(q.url.split('?')[0]));
-    if (p.endsWith(path.sep) || p.endsWith('/')) p = path.join(p, 'index.html');
+    const rel = decodeURIComponent(q.url.split('?')[0]);
+    let p = path.resolve(dist, `.${rel}`);
+    if (p !== dist && !p.startsWith(dist + path.sep)) { r.writeHead(403); r.end(); return; }
+    if (rel.endsWith('/')) p = path.join(p, 'index.html');
     fs.readFile(p, (e, d) => {
       if (e) { r.writeHead(404); r.end(); return; }
       r.writeHead(200, { 'content-type': TYPES[path.extname(p)] || 'application/octet-stream' });
