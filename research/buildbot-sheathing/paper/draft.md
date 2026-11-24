@@ -966,6 +966,15 @@ Carlo calibration above overshoots the 1% target on 5 of the 18 cases, up to 1.3
 The two codes agree where they should: the lower bound above is at or below the exact optimum on all 18 cases and
 equal to it on 5, the G1's 96 among them, while 3 of the 18 simulation-calibrated allocations exceed 1% when scored on
 the chain (up to 1.22%). Against the exact optimum, allocation saves at most 149 to 142 re-zeros.
+Reading the bias does what scheduling cannot (milestone 76, offline). Once a sheet, in the sense stage, the tool hangs
+in free air and its bias can be read through a gravity model with noise s a axis; a Kalman filter turns the readings into
+e ~ N(m, P I), and the chain above, started from the noncentral chi law of the carried residual, prices a sheet that
+skips its tare. Moving the offset by m at every reading (TRACK) needs no tares on 16 of the 18 cases at s = 0.01 N, and
+49 on the G1's LAYOUT plan at 0.1 N against the open-loop optimum's 96; using the reading only to trigger a tare (READ)
+needs 38.4 there even with perfect readings. At s = 0.02 N the G1's weak pose is back at its cliff (95.7 at best), and
+TRACK, whose tare decision is the same on every path, tares every sheet or never. A fixed 0.02 N reading error unknown to
+the filter takes the wall's failure to 9.9 to 12.4% where a policy runs near its margin. The reading is worth 3.45 s a
+sheet on the G1's banded plan at c = 15 s.
 
 ### 5.12 What the remedies cost (milestone 13)
 

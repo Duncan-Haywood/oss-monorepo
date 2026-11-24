@@ -1,0 +1,30 @@
+CCA_R03_dt_24Oct11SC.xer seed 1: planted 8/9, split exact 8, side 8, named 8, adds up true, sorted true, 16086 ms
+CCA_R03_dt_24Oct11SC.xer seed 2: planted 8/9, split exact 8, side 8, named 8, adds up true, sorted true, 13316 ms
+CCA_R03_dt_24Oct11SC.xer seed 3: planted 8/9, split exact 8, side 8, named 8, adds up true, sorted true, 13363 ms
+Expressway_Project.xer seed 1: planted 3/9, split exact 3, side 3, named 3, adds up true, sorted true, 1429 ms
+Expressway_Project.xer seed 2: planted 3/9, split exact 3, side 3, named 3, adds up true, sorted true, 1224 ms
+Expressway_Project.xer seed 3: planted 4/9, split exact 4, side 4, named 4, adds up true, sorted true, 1232 ms
+example_xer_file.xer seed 1: planted 3/9, split exact 3, side 3, named 3, adds up true, sorted true, 237 ms
+example_xer_file.xer seed 2: planted 5/9, split exact 5, side 5, named 5, adds up true, sorted true, 159 ms
+example_xer_file.xer seed 3: planted 8/9, split exact 8, side 8, named 8, adds up true, sorted true, 170 ms
+hotel-project.xer seed 1: planted 0/9, split exact 0, side 0, named 0, adds up true, sorted true, 2061 ms
+hotel-project.xer seed 2: planted 0/9, split exact 0, side 0, named 0, adds up true, sorted true, 2310 ms
+hotel-project.xer seed 3: planted 0/9, split exact 0, side 0, named 0, adds up true, sorted true, 2453 ms
+sample.xer seed 1: planted 4/9, split exact 4, side 4, named 4, adds up true, sorted true, 28 ms
+sample.xer seed 2: planted 4/9, split exact 4, side 4, named 4, adds up true, sorted true, 29 ms
+sample.xer seed 3: planted 3/9, split exact 3, side 3, named 3, adds up true, sorted true, 23 ms
+terminal-building-airport.xer seed 1: planted 7/9, split exact 7, side 7, named 7, adds up true, sorted true, 40 ms
+terminal-building-airport.xer seed 2: planted 5/9, split exact 5, side 5, named 5, adds up true, sorted true, 28 ms
+terminal-building-airport.xer seed 3: planted 7/9, split exact 7, side 7, named 7, adds up true, sorted true, 26 ms
+
+kind          planted  moved  split-exact  right-side  named
+late-start          5      5            5           5      5
+gain                9      7            9           9      9
+early-finish        9      6            9           9      9
+constraint         12     12           12          12     12
+added              10     10           10          10     10
+link-deleted        6      3            6           6      6
+calendar            4      4            4           4      4
+cut                12      9           12          12     12
+type               13      9           13          13     13
+series 18, adding up 18, sorted 18, errors 0

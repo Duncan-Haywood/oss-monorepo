@@ -1633,14 +1633,18 @@ function computeAreas(type, solids, W, f) {
       out.plan.faces = { gross: [a.gross, b.gross], net: [a.net, b.net] };
       // each plane's face area: ArchiCAD stores a sill's top or a corbel's
       // side as the "area" of an element extruded another way
-      const P = planeAreas(body);
+      const P = planeAreas(body, true);
       if (P) out.plan.planes = P.map((p) => p.area * f2);
     }
   }
   // the whole skin of a steel part (coatingArea): net of its openings and
   // holes when the cut body can be summed face by face, else the uncut body
+  // a steel beam, column or member asks for its skin twice (coating and
+  // cross-section checks): sum its faces once
+  let skin;
+  const skinOf = () => (skin === undefined ? (skin = surfaceArea(body)) : skin);
   if (COATED_CLASS.test(type)) {
-    const g = surfaceArea(body), nt = net && net !== body ? surfaceArea(net) : null;
+    const g = skinOf(), nt = net && net !== body ? surfaceArea(net) : null;
     if (g != null) out.surface = { gross: g * f2, net: nt == null ? null : nt * f2 };
   }
   if (AREA_KINDS.cross.test(type)) {
@@ -1651,7 +1655,7 @@ function computeAreas(type, solids, W, f) {
       out.cross = cut(n);
       // the body's whole surface: Revit writes half of it as some members'
       // CrossSectionArea (HHS architect's mullions)
-      const S = surfaceArea(body);
+      const S = skinOf();
       if (S != null) out.cross.surface = S * f2;
     }
   }

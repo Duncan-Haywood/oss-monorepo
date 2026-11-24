@@ -1,0 +1,24 @@
+# Every row whose named cause changed between main (net-on-a-face, 2026-11-24) and signed faces, over the 15 models; BoQ volume and area totals are identical on all 15 before and after.
+
+architect.ifc TOTAL vol 1127.350 area 8900.38
+construction.ifc TOTAL vol 2357.790 area 7622.47
+AC20-FZK-Haus.ifc TOTAL vol 136.788 area 610.73
+C20-Institute-Var-2.ifc TOTAL vol 1834.466 area 6122.41
+ISSUE_159_kleine_Wohnung_R22.ifc TOTAL vol 767.711 area 4264.73
+ISSUE_021_Mini Project.ifc TOTAL vol 337.889 area 23.49
+schependomlaan.ifc TOTAL vol 1055.444 area 6280.72
+ISSUE_068_ARK_NUS_skolebygg.ifc TOTAL vol 8368.560 area 34586.01
+S_Office_Integrated Design Archi.ifc TOTAL vol 1794.594 area 3838.24
+dental_clinic.ifc TOTAL vol 1933.713 area 15423.66
+Office_A_20110811.ifc TOTAL vol 1173.354 area 9260.15
+duplex.ifc TOTAL vol 379.983 area 1517.10
+ISSUE_034_HouseZ.ifc TOTAL vol 393.792 area 1393.19
+FM_ARC_DigitalHub.ifc TOTAL vol 9109.298 area 19293.33
+ISSUE_102_M3D-CON-CD.ifc TOTAL vol 7375.060 area 458.98
+
+schependomlaan.ifc #44220 IfcCovering GrossArea: unexplained -> a-body-face
+schependomlaan.ifc #44220 IfcCovering NetArea: unexplained -> a-body-face
+schependomlaan.ifc #691798 IfcCovering GrossArea: unexplained -> a-body-face
+schependomlaan.ifc #691798 IfcCovering NetArea: unexplained -> a-body-face
+schependomlaan.ifc #739532 IfcCovering GrossArea: unexplained -> a-body-face
+schependomlaan.ifc #739532 IfcCovering NetArea: unexplained -> a-body-face

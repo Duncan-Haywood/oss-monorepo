@@ -422,6 +422,24 @@ CHECKS = [
     ('stale_track_results.txt', 'S2 FR, 3 m/s, q 0.75: hold > 10 s: refuted', 'part (d) (11bi) held 4 of 6'),
     ('stale_track_results.txt', 'S3 AR <= FR / 3 (q >= 0.5, 1 and 3 m/s): refuted', 'cuts the hold only at q = 0.9'),
     ('stale_track_results.txt', 'S6 speed accuracy 1 -> 3 m/s raises FR', 'multiplies the hold by 16 to 17'),
+    # 11bj bursty Remote ID loss
+    ('burst_loss_results.txt', 'acc 1 q 0.5: indep: r 76.2 h 0.072 [0.127]; 3 s: r 77.5 h 0.075 [0.133]; 10 s: r 98.8 h 0.133', 'grows from 76.2 m to **98.8 m** and **98.4 m**'),
+    ('burst_loss_results.txt', 'acc 1 q 0.5: indep: r 76 h 0.0646 [0.108]; 3 s: r 77.2 h 0.0672 [0.113]; 10 s: r 98.4 h 0.116', '**0.133 s** and **0.116 s**'),
+    ('burst_loss_results.txt', '10 s: r 98.8 h 0.133 [0.243]; 30 s: r 201 h 0.773', '**201 m** and **200 m** at 30 s'),
+    ('burst_loss_results.txt', '10 s: r 98.4 h 0.116 [0.208]; 30 s: r 200 h 0.635', '**0.773 s** and **0.635 s** per flight'),
+    ('burst_loss_results.txt', 'acc 1 q 0.12: indep: r 74.7 h 0.0688 [0.121]; 3 s: r 75.3 h 0.0701 [0.124]; 10 s: r 83.8 h 0.09 ', 'it is 0.09 s and 0.0798 s'),
+    ('burst_loss_results.txt', '10 s: r 83.4 h 0.0798', 'it is 0.09 s and 0.0798 s'),
+    ('burst_loss_results.txt', 'acc 1 m/s: q 0.12: 50.1; q 0.5: 35.5; q 0.75: 31.6; q 0.9: 31.6', 'mean bursts of 32 to 56 s at <1 m/s'),
+    ('burst_loss_results.txt', 'acc 1 m/s: q 0.12: 56.2; q 0.5: 39.8; q 0.75: 35.5; q 0.9: 35.5', 'mean bursts of 32 to 56 s at <1 m/s'),
+    ('burst_loss_results.txt', 'acc 0.3 m/s: q 0.12: 200; q 0.5: 141; q 0.75: 126; q 0.9: 126', '126 to 224 s at <0.3 m/s'),
+    ('burst_loss_results.txt', 'acc 0.3 m/s: q 0.12: 224; q 0.5: 158', '126 to 224 s at <0.3 m/s'),
+    ('burst_loss_results.txt', '10 s: r 351 h 3.33', '10 s bursts already cost 3.33 s and 2.69 s'),
+    ('burst_loss_results.txt', '10 s: r 349 h 2.69', '10 s bursts already cost 3.33 s and 2.69 s'),
+    ('burst_loss_results.txt', '30 s: r 201 h 11.5', '30 s bursts at <1 m/s cost 11.5 s and 8.4 s'),
+    ('burst_loss_results.txt', '30 s: r 200 h 8.4 ', '30 s bursts at <1 m/s cost 11.5 s and 8.4 s'),
+    ('burst_loss_results.txt', 'G4 B 3 -> 30 s raises the hold more than q 0.5 -> 0.9: held', '**10.3** and **9.4** times'),
+    ('burst_loss_results.txt', 'G1 1 m/s, q 0.5, B 10 s: hold > 2x independent: refuted', 'part (e) (11bj) 2 of 6'),
+    ('burst_loss_results.txt', 'G6 coded q 0.12, B 10 s, 1 m/s: hold < 0.1 s: held', 'part (e) (11bj) 2 of 6'),
 ]
 
 

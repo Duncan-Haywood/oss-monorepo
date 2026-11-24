@@ -78,6 +78,13 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   with the openings taken out (five walls in two models, to 1e-5). It named
   three of ARK_NUS's last unexplained areas; 1 volume and 3 areas remain
   (ARK_NUS #1167770, 2.04%, and schependomlaan's three zinc copings).
+  Then ([eval/signed-faces-2026-11-24.md](eval/signed-faces-2026-11-24.md)):
+  those copings are a brick band extruded along its run, and ArchiCAD stores
+  its flat underside (groove left out) as GrossArea. A body built as a signed
+  sum of pieces now has its faces read plane by plane with the pieces' signs,
+  so shared faces cancel; the underside matches to 1e-9 and is named
+  `a-body-face`. 0 areas and 1 volume remain in doubt; 14 of 15 models have
+  nothing in doubt. BoQ totals unchanged on all 15.
 
 **Guides** (2026-11-22, worked examples on the sample office, every number
 checked against the engine by `guides.test.mjs`):

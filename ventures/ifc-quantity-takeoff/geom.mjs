@@ -727,32 +727,75 @@ export function surfaceArea(s) {
  * inner bounds that run against their face. null on the same terms as
  * surfaceArea. ArchiCAD stores some coverings' and walls' areas as one of
  * these (a sill's top, a coping's underside: eval/curved-and-faces-2026-11-22.md).
+ * `signed` reads a body of several signed terms too (a profile with arcs is
+ * built as a signed sum of pieces): each term's loops count with its sign,
+ * so the faces pieces share cancel plane by plane and what is left is the
+ * body's own boundary (eval/signed-faces-2026-11-24.md).
  */
-export function planeAreas(s) {
+export function planeAreas(s, signed = false) {
   if (s.mesh && !s.shells) return null;
-  const loops = [];
-  if (s.terms.length > 1) return null;
-  for (const t of s.terms) loops.push(...t.faces);
-  if (s.shells) for (const sh of s.shells) loops.push(...sh.loops);
-  if (!loops.length) return null;
-  let scale = 0;
-  for (const l of loops) for (const p of l) scale = Math.max(scale, Math.abs(p[0]), Math.abs(p[1]), Math.abs(p[2]));
-  const planes = new Map();
-  for (const l of loops) {
-    if (l.length < 3) continue;
-    const a = mulS(newell(l), 0.5);
-    const n = unit(a);
-    if (!n) continue;
-    // one key for both orientations of a plane
-    const i = Math.abs(n[0]) > 1e-9 ? 0 : Math.abs(n[1]) > 1e-9 ? 1 : 2;
-    const c = n[i] < 0 ? mulS(n, -1) : n;
-    const r = (x, q) => Math.round(x / q);
-    const key = `${r(c[0], 1e-6)},${r(c[1], 1e-6)},${r(c[2], 1e-6)},${r(dot(c, l[0]), 1e-6 * (scale || 1))}`;
-    const v = planes.get(key);
-    planes.set(key, v ? add(v, a) : a);
-  }
+  if (s.terms.length > 1 && !signed) return null;
+  // every loop with its term's or shell's sign, without a pair per loop
+  const each = (fn) => {
+    for (const t of s.terms) for (const f of t.faces) fn(t.s, f);
+    if (s.shells) for (const sh of s.shells) for (const l of sh.loops) fn(sh.s ?? 1, l);
+  };
+  let count = 0, scale = 0;
+  each((sg, l) => { count++; for (const p of l) scale = Math.max(scale, Math.abs(p[0]), Math.abs(p[1]), Math.abs(p[2])); });
+  if (!count) return null;
+  // planes keyed by their rounded normal and offset. The four rounded keys
+  // are compared as SameValueZero, which matches the `${a},${b},${c},${d}`
+  // strings this replaced (-0 and 0 one key, NaN one key), in an open
+  // addressed table of plane numbers rather than a Map of strings, and the
+  // vectors are worked in scalars with the same operations in the same
+  // order, so no string or array is made for a loop that adds to a plane
+  // already met (2.9 million loops, 2.1 million planes on Viadotto Acerno;
+  // docs/history/ifc-takeoff-perf-2026-11-24.md). Planes come out in the
+  // order first met, as before.
+  const sums = [], K0 = [], K1 = [], K2 = [], K3 = [];
+  let slots = new Int32Array(64), mask = 63;
+  const hashOf = (a, b, c, d) => {
+    let h = Math.imul(a | 0, 0x9e3779b1) ^ Math.imul(b | 0, 0x85ebca77) ^ Math.imul(c | 0, 0xc2b2ae3d) ^ Math.imul(d | 0, 0x27d4eb2f);
+    h ^= h >>> 15; h = Math.imul(h, 0x2c1b3c6d); h ^= h >>> 12;
+    return h;
+  };
+  const place = (j) => { let at = hashOf(K0[j], K1[j], K2[j], K3[j]) & mask; while (slots[at]) at = (at + 1) & mask; slots[at] = j + 1; };
+  const r = (x, q) => Math.round(x / q);
+  const same = (x, y) => x === y || (x !== x && y !== y);
+  const q3 = 1e-6 * (scale || 1);
+  each((sg, l) => {
+    if (l.length < 3) return;
+    // the loop's area vector: half its Newell normal (newell, mulS)
+    let x = 0, y = 0, z = 0;
+    for (let i = 0; i < l.length; i++) {
+      const p = l[i], q = l[(i + 1) % l.length];
+      x += (p[1] - q[1]) * (p[2] + q[2]);
+      y += (p[2] - q[2]) * (p[0] + q[0]);
+      z += (p[0] - q[0]) * (p[1] + q[1]);
+    }
+    const h = 0.5 * (signed ? sg : 1);
+    const ax = x * h, ay = y * h, az = z * h;
+    // its unit normal (unit), one key for both orientations of a plane
+    const len = Math.hypot(ax, ay, az);
+    if (!(len > 0)) return;
+    const inv = 1 / len;
+    let nx = ax * inv, ny = ay * inv, nz = az * inv;
+    const lead = Math.abs(nx) > 1e-9 ? nx : Math.abs(ny) > 1e-9 ? ny : nz;
+    if (lead < 0) { nx *= -1; ny *= -1; nz *= -1; }
+    const o = l[0];
+    const k0 = r(nx, 1e-6), k1 = r(ny, 1e-6), k2 = r(nz, 1e-6), k3 = r(nx * o[0] + ny * o[1] + nz * o[2], q3);
+    let at = hashOf(k0, k1, k2, k3) & mask, j;
+    while ((j = slots[at]) && !(same(K0[j - 1], k0) && same(K1[j - 1], k1) && same(K2[j - 1], k2) && same(K3[j - 1], k3))) at = (at + 1) & mask;
+    if (j) { const v = sums[j - 1]; v[0] += ax; v[1] += ay; v[2] += az; return; }
+    slots[at] = sums.length + 1;
+    K0.push(k0); K1.push(k1); K2.push(k2); K3.push(k3); sums.push([ax, ay, az]);
+    if (2 * sums.length > mask) {
+      slots = new Int32Array(2 * (mask + 1)); mask = 2 * mask + 1;
+      for (let i = 0; i < sums.length; i++) place(i);
+    }
+  });
   const out = [];
-  for (const v of planes.values()) { const area = norm(v); if (area > 0) out.push({ n: mulS(v, 1 / area), area }); }
+  for (const v of sums) { const area = norm(v); if (area > 0) out.push({ n: mulS(v, 1 / area), area }); }
   return out;
 }
 
@@ -2303,8 +2346,26 @@ export function orientShell(faces0) {
   // undirected edge key -> slot; per slot, how many face sides use the edge
   // and the first two as face * 2 + forward (numbers, not objects: the
   // takeoff spent much of its time collecting garbage here, perf 2026-11-21)
-  const edges = new Map();
-  const uses = [], sideA = [], sideB = [];
+  // The edges sit in an open addressed table by their two point ids, not a
+  // Map keyed lo * 2^26 + hi: keys above 2^31 are heap numbers, and the Map
+  // was a third of the takeoff's own time on FM_ARC_DigitalHub
+  // (docs/history/ifc-takeoff-perf-2026-11-24.md). Slots are numbered in
+  // the order edges are first met, as before.
+  const uses = [], sideA = [], sideB = [], edgeLo = [], edgeHi = [];
+  let table = new Int32Array(256), mask = 255;
+  const hashOf = (lo, hi) => { let h = Math.imul(lo, 0x9e3779b1) ^ Math.imul(hi, 0x85ebca77); h ^= h >>> 15; return Math.imul(h, 0x2c1b3c6d) ^ (h >>> 13); };
+  const slotOf = (lo, hi) => {
+    let at = hashOf(lo, hi) & mask, k;
+    while ((k = table[at]) && !(edgeLo[k - 1] === lo && edgeHi[k - 1] === hi)) at = (at + 1) & mask;
+    if (k) return k - 1;
+    table[at] = uses.length + 1;
+    edgeLo.push(lo); edgeHi.push(hi);
+    if (2 * (uses.length + 1) > mask) {
+      table = new Int32Array(2 * (mask + 1)); mask = 2 * mask + 1;
+      for (let e = 0; e <= uses.length; e++) { let p = hashOf(edgeLo[e], edgeHi[e]) & mask; while (table[p]) p = (p + 1) & mask; table[p] = e + 1; }
+    }
+    return -1;
+  };
   // each point object keyed once: equal coordinates, one integer id. Keyed
   // by x, then y, then z: Map keys compare as SameValueZero, which matches
   // the `${x},${y},${z}` strings this replaced (0 and -0 one key, NaN one key)
@@ -2328,10 +2389,9 @@ export function orientShell(faces0) {
       const a = idOf(l[i]), b = idOf(l[(i + 1) % l.length]);
       if (a === b) continue;
       const fwd = a < b;
-      const key = fwd ? a * 67108864 + b : b * 67108864 + a;
       const side = fi * 2 + (fwd ? 1 : 0);
-      const k = edges.get(key);
-      if (k === undefined) { edges.set(key, uses.length); uses.push(1); sideA.push(side); sideB.push(-1); }
+      const k = fwd ? slotOf(a, b) : slotOf(b, a);
+      if (k < 0) { uses.push(1); sideA.push(side); sideB.push(-1); }
       else if (uses[k]++ === 1) sideB[k] = side;
     }
   }
@@ -2343,8 +2403,9 @@ export function orientShell(faces0) {
     if (pfi === qfi) continue;
     // same direction on both sides: one of the two must turn
     const mustFlip = (sideA[k] & 1) === (sideB[k] & 1);
-    adj[pfi].push([qfi, mustFlip]);
-    adj[qfi].push([pfi, mustFlip]);
+    // neighbour * 2 + must-flip, a number rather than a pair per edge
+    adj[pfi].push(qfi * 2 + (mustFlip ? 1 : 0));
+    adj[qfi].push(pfi * 2 + (mustFlip ? 1 : 0));
   }
   const turn = new Array(faces.length).fill(null);
   const piece = new Array(faces.length).fill(-1);
@@ -2357,7 +2418,8 @@ export function orientShell(faces0) {
     const stack = [s];
     while (stack.length) {
       const i = stack.pop();
-      for (const [j, mustFlip] of adj[i]) {
+      for (const e of adj[i]) {
+        const j = e >> 1, mustFlip = (e & 1) === 1;
         const want = turn[i] !== mustFlip;
         if (turn[j] === null) { turn[j] = want; piece[j] = pieces; stack.push(j); } else if (turn[j] !== want) closed = false;
       }
@@ -2420,12 +2482,17 @@ export function orientLoops(faces0) {
 }
 
 function newell(l) {
-  let n = [0, 0, 0];
+  // summed component by component in the same order as adding [x, y, z]
+  // terms, without two arrays per edge (planeAreas runs it on every loop of
+  // every body; docs/history/ifc-takeoff-perf-2026-11-24.md)
+  let x = 0, y = 0, z = 0;
   for (let i = 0; i < l.length; i++) {
     const a = l[i], b = l[(i + 1) % l.length];
-    n = add(n, [(a[1] - b[1]) * (a[2] + b[2]), (a[2] - b[2]) * (a[0] + b[0]), (a[0] - b[0]) * (a[1] + b[1])]);
+    x += (a[1] - b[1]) * (a[2] + b[2]);
+    y += (a[2] - b[2]) * (a[0] + b[0]);
+    z += (a[0] - b[0]) * (a[1] + b[1]);
   }
-  return n;
+  return [x, y, z];
 }
 
 /** A face's loops with every inner bound running against the outer (the largest). */
