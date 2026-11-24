@@ -278,6 +278,23 @@ directions:
       - platform/ci/check_site_fresh.py
       - platform/ci/site_probe*.py
 
+  - id: cloud-portability
+    title: Ready to switch clouds (stay on Cloudflare, keep a move to AWS or GCP short)
+    kind: area
+    set: 2026-11-24
+    source: docs/reports/2026-11-24-cloud-provider-comparison.md
+    section: "7. Owner direction: prepare for a switch-over (2026-11-24, later the same day)"
+    status: active
+    # Weight 1: preparation, not a migration. The North star ($10k MRR) still
+    # comes first; these tasks mostly shape how new SaaS backends are built.
+    weight: 1
+    paths:
+      - platform/hosting/**
+      - platform/deploy/templates/aws/**
+      - platform/deploy/templates/gcp/**
+      - platform/deploy/templates/portable-saas/**
+      - docs/runbooks/cloud-switch*
+
   # --- principles (how to work; no tasks) ----------------------------------
   - id: depth-over-calculators
     title: Depth over calculators

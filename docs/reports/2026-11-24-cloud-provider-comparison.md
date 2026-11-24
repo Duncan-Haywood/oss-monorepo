@@ -212,3 +212,66 @@ providers only for the jobs Cloudflare does badly.
   question in step 1 has to be answered first. Collapsing to one Worker also
   touches `.github/workflows/portfolio-pages.yml`, a control-plane path that
   belongs in its own PR.
+
+## 7. Owner direction: prepare for a switch-over (2026-11-24, later the same day)
+
+After reading the comparison, the owner said: "idk I think a aws migration
+might be worthwhile eventually", then, after the AWS, GCP and Azure
+comparison below: "I think we add preparing for a switch over into the goals
+and task queue." So the standing direction is **stay on Cloudflare now, and
+build so that moving the apps to AWS or GCP is a short, rehearsed job when a
+trigger fires.** It is indexed as `cloud-portability` in
+`portfolio/work/directions.yaml`, with its tasks in `portfolio/work/tasks.yaml`.
+
+### AWS, GCP and Azure for us
+
+Figures as in §2a (search extracts of each provider's pages); the qualitative
+rows are judgment.
+
+| | AWS | GCP | Azure |
+|---|---|---|---|
+| Running web apps | Lambda, ECS/Fargate: capable, more setup | **Cloud Run**: any container, scale to zero, per-request billing | Container Apps: similar, less polished |
+| Smallest Postgres | RDS ≈ $12/mo | Cloud SQL ≈ $8/mo, no SLA on shared core | ≈ $12/mo, free 12 months |
+| Hard spend cap | native limits, Paid-plan accounts only | **none** (budget → function that unlinks billing) | **none** on pay-as-you-go |
+| Bulk email | **SES, $0.10 per 1k** | none native | ≈ $0.25 per 1k |
+| Egress | 100 GB free, then ≈ $0.09/GB | ≈ $0.12/GB | 100 GB free, then ≈ $0.087/GB |
+| Models | Bedrock (Claude, others) | Vertex (Claude, Gemini) | Foundry (OpenAI; Claude per late-2025 news, unverified) |
+| H100 per GPU-hour | ≈ $6.88, 8-GPU only | ≈ $11, single GPU | ≈ $12.29, 8-GPU only |
+| Work for agents | IAM and networking: powerful, easy to get wrong | simplest: a project per product | heaviest |
+
+Reading: **GCP (Cloud Run) is the likeliest landing place for the apps**,
+**AWS for specialist services** (SES, Textract, Marketplace), and Azure only
+if customers are Microsoft-centric enterprises. None of the three has a cap as
+dependable as Cloudflare's, so a budget kill switch is part of any move.
+
+### Defaults that keep the move cheap (no-regret, starting now)
+
+1. **SaaS data in Postgres** (Neon or Supabase now, through Hyperdrive), not
+   D1. D1 stays for small edge state such as counters. Moving Postgres is a
+   dump and restore.
+2. **Web-standard request handlers** (Hono or plain `fetch` handlers) with a
+   thin adapter per host: Workers, Node in a container, Lambda.
+3. **Object storage through the S3 API.** R2 speaks it, so a later move is a
+   bucket sync.
+4. **Cloudflare-only primitives at the edges.** Durable Objects, KV, Workers
+   AI and Queues are fine for caching, rate limits and extras, behind an
+   interface; core logic does not call them directly.
+5. **Heavy or long jobs as containers**, which run on Cloudflare Containers,
+   Cloud Run, Fargate or a VM unchanged.
+6. **Every resource in OpenTofu.** `platform/deploy/templates/{aws,gcp,azure}/tofu/`
+   already holds static-site modules for visitors' own accounts. Reuse them.
+7. **The AWS account opened early, for SES or Textract only** (owner step),
+   so sending reputation and the IAM pattern exist before anything depends
+   on them.
+
+### Triggers that start the actual move
+
+Any one of:
+- hosting spend reaches a few hundred dollars a month;
+- a customer requires AWS or GCP, a region, or a certification;
+- a product needs long-running processes or heavy compute Cloudflare
+  Containers cannot host;
+- most of the backend already runs on one hyperscaler;
+- startup credits make a hyperscaler cheaper for a year or more.
+
+Until one fires, the switch-over is prepared, not performed.

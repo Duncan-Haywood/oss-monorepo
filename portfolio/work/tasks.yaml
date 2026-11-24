@@ -341,3 +341,112 @@ tasks:
       about every ten minutes (baseline report, finding 3), so the cache
       that should make repeat visits instant is replaced on almost every
       visit, and its cache-first navigations serve the last build first.
+
+  # --- cloud-portability (owner, 2026-11-24) --------------------------------
+  # Reasoning and defaults: docs/reports/2026-11-24-cloud-provider-comparison.md, §7.
+  - id: cloud-lockin-audit
+    direction: cloud-portability
+    title: Script an inventory of every Cloudflare-only dependency and write the baseline
+    done_when: >-
+      platform/hosting/lockin_audit.py (with tests) lists, per venture and
+      platform directory, each wrangler config and binding (D1, KV, R2,
+      Durable Objects, Queues, AI, send_email, service bindings) and each
+      use of Workers-only APIs in code, rated portable / adapter needed /
+      rewrite; a report in docs/reports/ with the numbers from main.
+    hours: 6
+    status: open
+    added: 2026-11-24
+    notes: Software for the routine; later runs re-run it instead of re-reading code.
+
+  - id: cloud-portable-saas-template
+    direction: cloud-portability
+    title: Build a portable SaaS starter that runs unchanged on Workers, Node in a container and Cloud Run or Lambda
+    done_when: >-
+      platform/deploy/templates/portable-saas/ holds a web-standard app
+      (Hono or plain fetch handlers), Postgres access through one module,
+      object storage through the S3 API, a Dockerfile and a wrangler config;
+      tests run the same request suite against `wrangler dev` and the Node
+      container; a README says which adapter each host uses.
+    hours: 20
+    status: open
+    added: 2026-11-24
+    notes: >-
+      New SaaS backends start from this, so portability is the default
+      rather than a later rewrite. Auth and Paddle webhooks belong in it once
+      the first product has settled them.
+
+  - id: cloud-postgres-default
+    direction: cloud-portability
+    title: Make Postgres the documented default for SaaS data, with a D1 to Postgres export
+    done_when: >-
+      PRODUCT_PLAYBOOK.md names Postgres (Neon or Supabase behind Hyperdrive)
+      for SaaS data and D1 for small edge state; a tested script exports a D1
+      database (starting with platform/edge's) to a Postgres dump.
+    hours: 6
+    status: open
+    added: 2026-11-24
+
+  - id: cloud-static-site-fallback
+    direction: cloud-portability
+    title: Rehearse serving the built site from S3 and CloudFront or Cloud Storage
+    done_when: >-
+      A script turns `platform/pages/build.mjs` output into what the
+      existing platform/deploy/templates/{aws,gcp}/tofu modules serve
+      (including the _headers and redirects the Workers apply), with tests;
+      `tofu validate` and `tofu plan` against a mock or local backend pass;
+      a note lists any behaviour that would be lost.
+    hours: 8
+    status: open
+    added: 2026-11-24
+
+  - id: cloud-cost-model
+    direction: cloud-portability
+    title: Model the monthly bill on Cloudflare, AWS and GCP from our own usage files
+    done_when: >-
+      A tested script reads portfolio/usage/ and the site's file counts and
+      prints the monthly cost of today's workload and of 10x and 100x on
+      Cloudflare, AWS and GCP, with every price a dated constant citing its
+      page; the result is in docs/reports/.
+    hours: 6
+    status: open
+    added: 2026-11-24
+    notes: >-
+      ventures/cloudflare-bill-estimator already models the Cloudflare side;
+      reuse its engine rather than writing a second one.
+
+  - id: cloud-switch-triggers
+    direction: cloud-portability
+    title: Check the switch-over triggers from repository data and report which have fired
+    done_when: >-
+      A tested script evaluates the triggers in the report's §7 from files
+      (costs in portfolio/monetization/mrr.yaml, usage readings, the lock-in
+      audit's output) and prints fired / not fired / unmeasured for each;
+      unmeasured is never reported as not fired.
+    hours: 4
+    status: open
+    added: 2026-11-24
+
+  - id: cloud-switch-runbook
+    direction: cloud-portability
+    title: Write the cutover runbook for moving the apps to GCP or AWS
+    done_when: >-
+      docs/runbooks/cloud-switch.md covers: lowering DNS TTLs, running both
+      hosts side by side, moving Postgres, syncing R2 to S3 or GCS, moving
+      secrets, the budget kill switch, the order of products, a rollback at
+      each step, and which steps are the owner's (accounts, cards).
+    hours: 6
+    status: open
+    added: 2026-11-24
+
+  - id: cloud-budget-kill-switch
+    direction: cloud-portability
+    title: Write a budget kill switch for AWS and GCP as OpenTofu, unapplied
+    done_when: >-
+      OpenTofu modules (a budget, a notification and a function that stops
+      or detaches billing for the project or account) pass `tofu validate`
+      and have unit tests for the function; a README says what stops and
+      what keeps running.
+    hours: 8
+    status: open
+    added: 2026-11-24
+    blocked_on: Applying it needs the owner's AWS or GCP account; writing and testing it does not.
