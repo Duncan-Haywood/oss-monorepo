@@ -10,6 +10,12 @@ image, which forces pi = identity. The fixed team then bowls on the same pair in
 every pair's count for it is even except the middle week's: impossible at a limit of 1, and for
 22 x 33 (every pair 3 times) and 26 x 25 (every pair 1-2 times, 13 pairs from 7 values) too
 (22 x 33 checked: INFEASIBLE in 0.0 s). So --mirror refuses odd W.
+--soft lets counts leave floor..ceil and minimises the total out-of-bounds count (offBound in bowling.mjs),
+so with --hint it can return a stored near answer made closer rather than nothing; Ctrl-free: the best
+answer at the time limit is printed with its "off".
+--hint starts the search from the stored near answer (bowling-lane-near.mjs) for this season: without
+--mirror its pair labels are renamed so week 1 reads 0..P-1 (counts are unchanged by a renaming); with
+--mirror the hint is the near answer as stored (not symmetric, so only a starting point).
 Prints {"n","W","status","plan","seconds"}; plan[w][m] = pair of match m of week w (roundRobin order).
 Needs ortools (pip install ortools).
 """
@@ -32,9 +38,16 @@ for w in range(W):
         for p in range(P): m.Add(L[w][k] == p).OnlyEnforceIf(X[w][k][p])
     for p in range(P): m.AddExactlyOne(X[w][k][p] for k in range(P))
     m.AddAllDifferent(L[w])
+soft = "--soft" in args
+offs = []
 for t in range(n):
     seen = [(w, k) for w, wk in enumerate(rounds) for k, (a, b) in enumerate(wk) if t in (a, b)]
-    if hi == 1:
+    if soft:  # counts outside lo..hi allowed and paid for: the objective is offBound's total
+        for p in range(P):
+            c = sum(X[w][k][p] for w, k in seen)
+            ov, un = m.NewIntVar(0, W, ""), m.NewIntVar(0, W, "")
+            m.Add(c - ov <= hi); m.Add(c + un >= lo); offs += [ov, un]
+    elif hi == 1:
         m.AddAllDifferent([L[w][k] for w, k in seen])
         for p in range(P): m.AddAtMostOne(X[w][k][p] for w, k in seen)
     else:
@@ -53,9 +66,23 @@ if mirror:
         for k, (a, b) in enumerate(rounds[w]):
             k2 = idx[W - 1 - w][frozenset((img(a), img(b)))]
             for p in range(P): m.Add(X[W - 1 - w][k2][pi(p)] == X[w][k][p])
+if "--hint" in args:
+    near = subprocess.check_output(["node", "--input-type=module", "-e",
+        f"import {{ LANE_NEAR }} from '{here.parent / 'bowling-lane-near.mjs'}'; process.stdout.write(LANE_NEAR['{n},{W}'].code)"]).decode()
+    plan = [[int(near[w * P + k], 36) for k in range(P)] for w in range(W)]
+    if not mirror:
+        ren = {plan[0][k]: k for k in range(P)}
+        plan = [[ren[p] for p in row] for row in plan]
+    for w in range(W):
+        for k in range(P):
+            m.AddHint(L[w][k], plan[w][k])
+            for p in range(P): m.AddHint(X[w][k][p], int(plan[w][k] == p))
+    out_hint = True
+if soft: m.Minimize(sum(offs))
 s = cp_model.CpSolver(); s.parameters.max_time_in_seconds = secs; s.parameters.num_workers = workers
 t0 = time.time(); r = s.Solve(m)
-out = {"n": n, "W": W, "status": s.StatusName(r), "mirror": mirror, "seconds": round(time.time() - t0, 1)}
+out = {"n": n, "W": W, "status": s.StatusName(r), "mirror": mirror, "hint": "--hint" in args, "seconds": round(time.time() - t0, 1)}
 if r in (cp_model.OPTIMAL, cp_model.FEASIBLE):
+    if soft: out["off"] = int(s.ObjectiveValue())
     out["plan"] = [[s.Value(L[w][k]) for k in range(P)] for w in range(W)]
 print(json.dumps(out), flush=True)
