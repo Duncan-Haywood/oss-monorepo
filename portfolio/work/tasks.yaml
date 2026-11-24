@@ -563,3 +563,34 @@ tasks:
       Owner, 2026-11-24: "we really need a better project management system
       too as well I think." Scope is the owner's to confirm; this task is the
       inventory and proposal, not the build.
+
+  - id: promote-or-demote-pass
+    direction: promote-or-demote
+    title: Decide promote (product or feature of one) or demote for every venture, by script
+    done_when: >-
+      A tested script extends portfolio/monetization/transition.py with an
+      outcome per venture: promote-product, fold-into:<product>, lead-magnet
+      (feeds a named product) or archive, from merit scores
+      (portfolio/scoring/venture-scores.yaml), measured usage where it exists
+      (unmeasured is never zero) and fit with the 20 products; a report gives
+      the counts and the list of folds and archives for the owner to skim.
+    hours: 12
+    status: open
+    added: 2026-11-24
+    notes: >-
+      Owner, 2026-11-24: "projects tools and products get moved into products
+      or demoted and get marrketing pages". Archiving removes from navigation
+      and sitemaps, not from git; old URLs redirect to the product they feed.
+
+  - id: product-marketing-pages
+    direction: promote-or-demote
+    title: Give every promoted product a marketing page built from one template
+    done_when: >-
+      A shared page template (problem, who it is for, what it does, pricing
+      from the Paddle catalogue, screenshots, FAQ, the disclaimer, llms.txt
+      link) renders a page for each promoted product from a data file; no
+      fake reviews or claims a file can't back; check.mjs verifies each
+      product has one; a post introduces the line-up.
+    hours: 20
+    status: open
+    added: 2026-11-24

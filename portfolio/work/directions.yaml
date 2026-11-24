@@ -294,6 +294,20 @@ directions:
       - docs/runbooks/aws-*
       - platform/deploy/**
 
+  - id: promote-or-demote
+    title: Every project, tool and product is promoted into a product or demoted; products get marketing pages
+    kind: area
+    set: 2026-11-24
+    source: docs/reports/2026-11-24-cloud-provider-comparison.md
+    section: "Products: promote or demote (owner, 2026-11-24)"
+    status: active
+    # Weight 2: it decides what moves onto the AWS platform and what is sold.
+    weight: 2
+    paths:
+      - portfolio/monetization/transition*
+      - portfolio/monetization/promote*
+      - platform/marketing/product-pages*
+
   - id: security-first
     title: Security as the priority (scanned dev workflow, hardened AWS baseline, SOC 2 controls)
     kind: area

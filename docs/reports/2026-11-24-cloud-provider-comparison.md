@@ -346,7 +346,24 @@ Open questions for the owner: whether Paddle (a merchant of record for
 software) can bill pass-through hosting for services, or whether another
 invoicing rail is needed; the margin; and the terms page.
 
-### Order of work
+### Products: promote or demote (owner, 2026-11-24)
+
+The owner, same conversation: "projects tools and products get moved into
+products or demoted and get marrketing pages".
+
+Read here as: every venture is either **promoted**, meaning it becomes a
+product on the AWS platform or a feature folded into one, with a marketing
+page aimed at its users, or **demoted**: archived off the site's main
+navigation, or kept as a free lead magnet that points at the product it
+feeds. One part of the sentence can be read two ways: whether demoted
+items keep a marketing page of their own. This report assumes products get
+full marketing pages and demoted items keep a plain page linking to a
+product. The owner can correct that.
+`portfolio/monetization/transition.py` already sorts the 1,446 ventures into
+20 products and about 1,420 MIT tools; the promote-or-demote pass builds on
+it rather than starting over.
+
+
 
 1. Security scanning pipeline in CI (no AWS needed).
 2. Organisation, accounts, SCPs, OIDC roles, security services, spend
