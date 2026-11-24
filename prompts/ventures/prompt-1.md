@@ -42,19 +42,13 @@ no venture has a single measured visitor. That is not the brief. So:
 - **Build something with depth:** a real workflow, data, an algorithm, an
   integration, AI/ML that clearly helps, or a mobile or desktop app. Land a
   first working version in one run and deepen it over later runs.
-- **Products are hosted SaaS; free tools can be self-deployed** (owner,
+- **Hosted SaaS, not self-deploy** (owner,
   2026-11-24: "I think the hosted saas for them is better for business. I am happy to give away value but I'm not running a charity primarily. giving away value is good to do"). A product with depth is done when a stranger
   can sign up, pay through Paddle (shipped dark until the owner sets the
-  product's config) and use it on the owner's hosting. The older
-  self-deploy model below now applies to the free MIT tools only.
-- **Free tools: one-click, self-deployed** (the earlier model). The owner,
-  2026-10-15: "the model I'm thinking is fully developing one click deploy actual businesses with a web page with some inputs for credentials so people can spin up their own copies of the venture. then I'm not hosting and not liable. it's someone else. but still with a donate to the creator button."
-  A venture is done when a stranger can open its page, enter their own
-  credentials, click Deploy, and end up running their own copy in their
-  own accounts, with the "donate to the creator" link still in it. Credentials
-  go straight to the deployer's cloud or fork and never pass through anything
-  the owner runs (`prompts/goals.md`, Mission). Taking an existing venture
-  all the way there counts as much as anything new.
+  product's config) and use it on the owner's hosting. Free tools are
+  hosted too. Self-deploy is built only when a specific request asks for it
+  ("i think the free tools and self host we can move away from. i think hosted saas generally simplifies and is actually better value for most customers unless there is a speciifc request otherwise"). This replaces the 2026-10-15 one-click
+  self-deploy finish line (`prompts/goals.md`, Mission).
 - **Deepen a flagship by default** (owner, 2026-10-20, quoted in
   `prompts/goals.md`). Unless your brief names other work, take the top
   "Deepen (flagship N)" row of `python3 portfolio/router/allocate.py` and

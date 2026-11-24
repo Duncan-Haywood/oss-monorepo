@@ -144,11 +144,16 @@ and one platform that runs them:
   **Superseded for products, 2026-11-24.** The owner: "I think the hosted saas for them is better for business. I am happy to give away value but I'm not running a charity primarily. giving away value is good to do". Products
   (the `proprietary` track in `portfolio/monetization/LICENSING_TRANSITION.md`)
   are now **hosted SaaS** that the owner runs and sells by subscription
-  through Paddle, or one-off licences. One-click self-deploy is no longer a
-  product's finish line. It stays a good option for the MIT tools and open
-  projects given away for traffic and goodwill, and for `sales-agent`. For a
-  product it can be a paid self-hosted tier where buyers ask for one. No run
-  spends time removing deploy pages that already exist.
+  through Paddle, or one-off licences. The owner then extended it to everything:
+  "i think the free tools and self host we can move away from. i think hosted saas generally simplifies and is actually better value for most customers unless there is a speciifc request otherwise". So **hosted is the default for every product and free tool**:
+  the owner runs it, and a customer signs up and uses it. Self-deploy pages,
+  multi-cloud deploy setups and deployer docs are no longer built by default.
+  Make one only when a specific request asks for it, or as a paid
+  self-hosted tier that buyers want. `sales-agent` is built to be run by
+  whoever deploys it and keeps its deploy path. Being the operator is
+  accepted (owner, same day: "which is fine"). The protection is now Paddle
+  as merchant of record, accurate terms and privacy pages, and the existing
+  disclaimers. No run spends time removing deploy pages that already exist.
   **Infrastructure as code** (the owner, 2026-10-16): "the deploy should be
   tf or similar i think as a suggestion but not a hard rule. iac sort of
   mentality." Prefer OpenTofu/Terraform (or the platform's own declarative
