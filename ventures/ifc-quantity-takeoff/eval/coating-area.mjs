@@ -31,6 +31,9 @@ for (const file of args) {
   out.push({ model: basename(file), steelParts: parts.length, geometry: geo.length, netOfHoles: geo.filter((x) => x.c.holes).length, stored: st.length, none: none.length, noneWhy, both: both.length, agree: agree.length, coating: area, steelKg: kg, byClass, off });
   console.log([basename(file), parts.length, geo.length, geo.filter((x) => x.c.holes).length, st.length, none.length, both.length, agree.length, f(area, 2), f(kg, 1), kg > 0 ? f(area / (kg / 1000), 1) : "-"].join(" | "));
   console.log(`    by class: ${Object.entries(byClass).map(([k, b]) => `${k} ${b.n} (${f(b.area, 2)} m2${b.none ? `, ${b.none} none` : ""})`).join("; ")}`);
+  const inside = parts.reduce((a, { c }) => a + (c.inside || 0), 0), hollow = parts.filter(({ c }) => c.inside > 0).length;
+  out[out.length - 1].inside = inside; out[out.length - 1].hollow = hollow;
+  if (hollow) console.log(`    inside of ${hollow} hollow sections: ${f(inside, 2)} m2 (not in the coating column)`);
   if (none.length) console.log(`    none: ${Object.entries(noneWhy).map(([k, n]) => `${n} ${k}`).join(", ")}`);
   for (const o of off) console.log(`    disagree #${o.id} ${o.class} ${JSON.stringify(o.name ?? "")}: stored ${o.storedName} ${f(o.stored, 5)}, faces ${f(o.computed, 5)} (x${f(o.ratio, 3)})`);
 }

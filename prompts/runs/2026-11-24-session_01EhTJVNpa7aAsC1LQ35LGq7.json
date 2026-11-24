@@ -7,33 +7,124 @@
   "input_sha256": "d5ab922f5fbfba81953a7d3510cb959795ad232bfb629f886d92a50e05a41c5d",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T13:55:56Z",
   "ended": "2026-11-24T14:03:07Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
-  "repo": null,
+  "wall_minutes": 16.01,
+  "tokens_in": 19636061,
+  "tokens_out": 70174,
+  "cost_usd": 6.9897,
+  "tool_calls": 111,
+  "task": "Deepen (flagship 14) ifc-quantity-takeoff: a coating-area BoQ column from whole-surface",
+  "projects": [
+    "ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18609",
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First eval sweep summed weight over every row of a BoQ line (0.7 m2/t); fixed to the steel parts' own weights and rerun.",
+    "A fallback through view-mesh termBoundary passed its enclosed-volume check but doubled a W410X60 web face (internal faces cancel in volume, not in area); caught against section tables, replaced by the profile-outline route."
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "A hook refuses pkill -f '[c]oating-area.mjs' when the same text appears elsewhere on the command line; the rule (split into two calls) is in the hook's message, not in CLAUDE.md's pkill note."
+    }
+  ],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-24-steel-paint-area-from-an-ifc-model.md",
+    "ventures/ifc-quantity-takeoff/eval/coating-area-2026-11-24.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Coating column (outside skin of steel framing parts; hollow-section bores apart; rate unit 'm2 coat' on page, CSV and change-order delta). Sources: faces, else extruded profile outline (mapped/clipped, filleted), else stored OuterSurfaceArea/whole-surface. 30 public models: 797 of 825 steel parts covered; 310UC96.8 1.794 m2/m vs table 1.79, 300PFC 0.934 vs 0.93, W410x60 1.485 vs 1.48. Stored skins agree within 2% for 185 of 295; ArchiCAD flat bars store wide faces only (160/176). Left: 28 S_Office coped beams (extrusion minus faceted breps). Verified: run_venture_tests ifc-quantity-takeoff 285 pass; venture-preflight clean; check_posts ok; validate.py ok.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d4b1cfcd-f790-5c09-84ad-6524ffdeab82",
+    "transcripts": 1,
+    "first": "2026-11-24T13:55:56Z",
+    "last": "2026-11-24T14:11:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 114,
+        "input": 226,
+        "output": 70174,
+        "thinking": 18233,
+        "cache_read": 19423257,
+        "cache_write_5m": 0,
+        "cache_write_1h": 212578,
+        "api_equivalent_usd": 6.9897,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 114,
+      "input": 226,
+      "output": 70174,
+      "thinking": 18233,
+      "cache_read": 19423257,
+      "cache_write_5m": 0,
+      "cache_write_1h": 212578,
+      "api_equivalent_usd": 6.9897,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 111,
+    "tools": {
+      "Bash": 105,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.01,
+      "active_minutes": 15.13,
+      "model_minutes": 11.45,
+      "tool_minutes": 3.69,
+      "waiting_on_human_minutes": 0.88,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an estimator-developer adding a steel paint-area column with profile perimeters, hollow-section handling and a 30-model check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 143.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }

@@ -11,10 +11,12 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
 - **A bill of quantities** grouped by class, type, storey, material,
   classification code or **Uniformat II element** (an elemental estimate:
   A1010 Standard Foundations, B2010 Exterior Walls, C1010 Partitions ...): count, volume (m3), area (m2), length (m) and weight
-  (kg) per line, and for steel a **coating area** (m2): every face of each
-  steel beam, column, member, plate, pile, railing or stair flight, ends and
-  edges included, the area a painter, galvaniser or fire-protection
-  applicator prices. Type a rate on a line (per each, m3, m2, m, kg or
+  (kg) per line, and for steel a **coating area** (m2): every outside face
+  of each steel beam, column, member, plate, pile, railing or stair flight,
+  ends and edges included, the area a painter, galvaniser or fire-protection
+  applicator prices (hollow sections' insides in a column of their own; on 8
+  public models 797 of 825 steel parts, matching published section tables:
+  [eval/coating-area-2026-11-24.md](eval/coating-area-2026-11-24.md)). Type a rate on a line (per each, m3, m2, m, kg or
   "m2 coat") and the page prices it and totals the priced lines. Download as
   CSV.
 - **A room schedule.** Every room (IfcSpace) measured from its own solid:
@@ -64,6 +66,12 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   BoQ counting 129.17 m2 of wall area and 11.18 m3 of concrete twice.
   `whole-surface`: Tekla writes a plate's NetArea as every face of its body
   (its paint area: 28.30 m2 on a 12.88 m2 plate), so the BoQ sums the plan.
+  2026-11-24 ([eval/coating-area-2026-11-24.md](eval/coating-area-2026-11-24.md)):
+  that skin is now a BoQ column for every steel part, from its faces, else
+  its extruded profile's outline (filleted, mapped and clipped members), else
+  a stored OuterSurfaceArea: 797 of 825 steel parts on 8 models, 3,116 m2;
+  310UC96.8 1.794 m2/m against the table's 1.79. Stored skins agree within
+  2% for 185 of 295; ArchiCAD's flat bars store the two wide faces only.
   Now 13 of 15 models have nothing in doubt; 1 volume and 6 areas remain.
   Later that day ([eval/net-on-a-face-2026-11-24.md](eval/net-on-a-face-2026-11-24.md)):
   `net-on-a-face`, a holed Revit wall whose GrossSideArea is its longer face
