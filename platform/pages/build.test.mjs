@@ -5345,6 +5345,8 @@ test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask
     `${BASE}about/`,
     `${BASE}ask/`,
     `${BASE}custom-development/`,
+    // The construction industry landing page (industry-construction.mjs).
+    `${BASE}industries/construction/`,
     // Each request's own page, one per entry in portfolio/requests/requests.json.
     ...loadRequests().map((r) => `${BASE}custom-development/${r.id}/`),
     `${BASE}${COMPARE_PATH}`,

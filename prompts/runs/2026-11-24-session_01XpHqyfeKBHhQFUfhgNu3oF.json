@@ -45,7 +45,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "industry-construction tests 10/10; writing.test 57/57; preview build ok; playwright 390/1200 light+dark no sideways scroll. build.test.mjs run recorded in PR before merge.",
+  "notes": "Local checks (CI produced no check runs on the PR): industry-construction.test 10/10; writing.test 57/57; build.test.mjs 336/336 after adding the new sitemap URL to the pinned hub-sitemap list; preview build ok; playwright 390/1200 light+dark, no sideways scroll; promptctl validate ok.",
   "corrections": [],
   "redteam": null
 }
