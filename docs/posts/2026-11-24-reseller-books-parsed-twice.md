@@ -3,7 +3,7 @@ title: "Reseller Books read every Poshmark and Whatnot file twice"
 seo_title: "Reseller Books: faster multi-marketplace bookkeeping builds"
 date: 2026-11-24
 tags: [reseller-books, perf, ventures]
-description: "A profile of Reseller Books on 120,000-line exports found each Poshmark and Whatnot file parsed twice and whole files split to read a header. Fixing both cut build time about 10%, same output."
+description: "Each Poshmark and Whatnot file was parsed twice, and whole files were split to find a header. Fixing both cut build time about 10%, same output."
 ---
 
 [Reseller Books](https://marisstella.app/reseller-books/) turns eBay, Etsy,
