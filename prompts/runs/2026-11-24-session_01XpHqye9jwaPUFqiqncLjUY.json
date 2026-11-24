@@ -347,7 +347,7 @@
       },
       {
         "file": "ventures/hearth-and-horizon/stories.mjs",
-        "issue": "main red (description-length ratchet): the new story the-stall-that-paid-double used its 500-character summary as meta description. Added an optional short `description:` front-matter field the page head prefers (summary stays for the lede, feed and JSON-LD); the story now has a 156-character one.",
+        "issue": "main red (description-length ratchet): the new story the-stall-that-paid-double used its 500-character summary as meta description. Added an optional short `description:` front-matter field the page head prefers (summary stays for the lede, feed and JSON-LD); the story now has a 156-character one. Same ratchet then failed on three new ebay-fee-calculator reseller guides from main (cost-of-goods-sold, reconcile payouts, Schedule C worksheet); shortened to 153-160 characters.",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18719"
       }
