@@ -28,7 +28,18 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
 export const VERSION = '0.1.0';
 const REPO_URL = 'https://github.com/duncan-haywood/oss-monorepo';
-const SCRIPT_RE = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
+const SCRIPT_RE = /<script\b([^>]*)>([\s\S]*?)<\/script\b[^>]*>/gi;
+
+/** The page without its script elements, repeated until nothing changes. */
+function withoutScripts(html) {
+  let prev;
+  let out = html;
+  do {
+    prev = out;
+    out = out.replace(SCRIPT_RE, '');
+  } while (out !== prev);
+  return out;
+}
 const NETWORK_RE = /\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts|\bimport\s*\(/;
 
 /** Names Chrome shows: the title up to its first dash, at most 45 characters. */
@@ -48,12 +59,12 @@ export function clipDescription(text) {
  * ld+json blocks are data, not code, and stay inline.
  */
 export function rewritePage(html) {
-  if (/\son[a-z]+\s*=\s*["']|javascript:/i.test(html.replace(SCRIPT_RE, ''))) return { skip: 'inline event handlers or javascript: URLs' };
+  if (/\son[a-z]+\s*=\s*["']|javascript:/i.test(withoutScripts(html))) return { skip: 'inline event handlers or javascript: URLs' };
   if (/(?:src|href)\s*=\s*["']\/\//i.test(html) || /<(?:script|link)\b[^>]*(?:src|href)\s*=\s*["']https?:/i.test(html)) return { skip: 'loads a file from another origin' };
   const scripts = {};
   let n = 0;
   let skip = null;
-  const out = html.replace(SCRIPT_RE, (whole, attrs, body) => {
+  const rewrite = (whole, attrs, body) => {
     if (/type\s*=\s*["']application\/ld\+json["']/i.test(attrs)) return whole;
     if (/\bsrc\s*=/i.test(attrs)) return whole;
     if (!body.trim()) return whole;
@@ -63,7 +74,16 @@ export function rewritePage(html) {
     scripts[file] = `${body.trim()}\n`;
     const module = /type\s*=\s*["']module["']/i.test(attrs) ? ' type="module"' : '';
     return `<script${module} src="${file}"></script>`;
-  });
+  };
+  // Each script element is swapped for its external replacement in one pass
+  // over the page; the text between them is copied through unchanged.
+  let out = '';
+  let last = 0;
+  for (const m of html.matchAll(SCRIPT_RE)) {
+    out += html.slice(last, m.index) + rewrite(m[0], m[1], m[2]);
+    last = m.index + m[0].length;
+  }
+  out += html.slice(last);
   return skip ? { skip } : { html: out, scripts };
 }
 

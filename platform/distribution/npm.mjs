@@ -178,7 +178,7 @@ export async function run({ env = process.env, fetchImpl = fetch, log = console.
   for (const p of ok) {
     if (fresh.length >= MAX_PER_RUN) break;
     if (!versions[p.slug]) { log(`  skip ${p.slug}: no version in versions.json (run versions.mjs --write)`); continue; }
-    const res = await fetchImpl(`https://registry.npmjs.org/${p.name.replace('/', '%2F')}`);
+    const res = await fetchImpl(`https://registry.npmjs.org/${p.name.replace(/\//g, '%2F')}`);
     if (res.status === 200) {
       const doc = await res.json();
       if (!isOurs(doc)) { log(`  skip ${p.name}: the name belongs to another project (set NPM_SCOPE to publish under a scope)`); continue; }
