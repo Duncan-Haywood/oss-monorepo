@@ -1,7 +1,8 @@
-// A preview developed from a DNG's own sensor data, for the raws that carry
+// A preview developed from a raw's own sensor data, for the raws that carry
 // no JPEG inside (phone DNGs such as the Nexus 5X's and the Pixel bursts in
-// Google's HDR+ set). The cull page uses it only when rawpreview.mjs finds no
-// embedded preview.
+// Google's HDR+ set) or only a thumbnail (the 2000s Olympus compacts' ORF,
+// findOrfMosaic below). The cull page uses it only when rawpreview.mjs finds
+// no embedded preview of 640 px or more. TIFF and BigTIFF containers.
 //
 // What it reads: the full-resolution CFA image (NewSubfileType 0,
 // Photometric 32803) stored uncompressed (8 to 16 bits, any packing DNG
@@ -36,7 +37,7 @@ const TAG = {
   CalibrationIlluminant1: 50778, CalibrationIlluminant2: 50779, ActiveArea: 50829, OpcodeList2: 51009, OpcodeList3: 51022,
 };
 
-const SIZES = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 6: 1, 7: 1, 8: 2, 9: 4, 10: 8, 11: 4, 12: 8, 13: 4, 16: 8 };
+const SIZES = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 6: 1, 7: 1, 8: 2, 9: 4, 10: 8, 11: 4, 12: 8, 13: 4, 16: 8, 17: 8, 18: 8 };
 
 export class MosaicError extends Error {}
 
@@ -48,29 +49,40 @@ function tiff(b) {
   if (!little && !(b[0] === 0x4d && b[1] === 0x4d)) return null;
   const v = new DataView(b.buffer, b.byteOffset, b.byteLength);
   const magic = v.getUint16(2, little);
-  if (magic !== 42) return null; // BigTIFF (43) and the vendor magics are not DNG mosaics this reads
-  return { v, little, first: v.getUint32(4, little) };
+  // BigTIFF (43): 8-byte offsets, counts and next pointers, 20-byte entries.
+  if (magic === 43) {
+    if (b.length < 16 || v.getUint16(4, little) !== 8 || v.getUint16(6, little) !== 0) return null;
+    return { v, little, magic, big: true, first: Number(v.getBigUint64(8, little)) };
+  }
+  // 0x5352 ("RS"): the Olympus compacts' ORF, read only for its packed layout (findOrfMosaic).
+  if (magic !== 42 && magic !== 0x5352) return null;
+  return { v, little, magic, big: false, first: v.getUint32(4, little) };
 }
 
 function readIfd(t, off) {
-  const { v, little } = t;
+  const { v, little, big } = t;
   const tags = new Map();
-  if (off + 2 > v.byteLength) return { tags, next: 0 };
-  const n = v.getUint16(off, little);
-  if (off + 2 + 12 * n + 4 > v.byteLength) return { tags, next: 0 };
+  const u64 = (o) => Number(v.getBigUint64(o, little));
+  const head = big ? 8 : 2, entry = big ? 20 : 12, tail = big ? 8 : 4, inline = big ? 8 : 4;
+  if (off + head > v.byteLength) return { tags, next: 0 };
+  const n = big ? u64(off) : v.getUint16(off, little);
+  if (n > 4096 || off + head + entry * n + tail > v.byteLength) return { tags, next: 0 };
   for (let i = 0; i < n; i++) {
-    const e = off + 2 + 12 * i;
-    const type = v.getUint16(e + 2, little), count = v.getUint32(e + 4, little);
+    const e = off + head + entry * i;
+    const type = v.getUint16(e + 2, little);
+    const count = big ? u64(e + 4) : v.getUint32(e + 4, little);
     const size = (SIZES[type] || 1) * count;
-    const at = size <= 4 ? e + 8 : v.getUint32(e + 8, little);
+    const at = size <= inline ? e + (big ? 12 : 8) : big ? u64(e + 12) : v.getUint32(e + 8, little);
     tags.set(v.getUint16(e, little), { type, count, at, size });
   }
-  return { tags, next: v.getUint32(off + 2 + 12 * n, little) };
+  const nx = off + head + entry * n;
+  return { tags, next: big ? u64(nx) : v.getUint32(nx, little) };
 }
 
 /** Every value of a tag as numbers (rationals divided out). */
 function nums(t, tag) {
   if (!tag) return [];
+  if (tag.synth) return tag.synth.slice(); // a value stated by a vendor reader (findOrfMosaic), not stored as a TIFF tag
   const { v, little } = t;
   const { type, count, at } = tag;
   if (at + (SIZES[type] || 1) * count > v.byteLength) return [];
@@ -87,6 +99,8 @@ function nums(t, tag) {
       case 10: { const d = v.getInt32(at + 8 * i + 4, little); out[i] = d ? v.getInt32(at + 8 * i, little) / d : 0; break; }
       case 11: out[i] = v.getFloat32(at + 4 * i, little); break;
       case 12: out[i] = v.getFloat64(at + 8 * i, little); break;
+      case 16: case 18: out[i] = Number(v.getBigUint64(at + 8 * i, little)); break;
+      case 17: out[i] = Number(v.getBigInt64(at + 8 * i, little)); break;
       default: out[i] = 0;
     }
   }
@@ -118,6 +132,7 @@ export function findMosaic(bytes) {
   const t = tiff(b);
   if (!t) return null;
   const ifds = allIfds(t);
+  if (t.magic === 0x5352) return findOrfMosaic(t, b, ifds);
   if (!ifds.length || !ifds[0].tags.has(50706)) return null; // DNGVersion: only DNGs
   const one = (ifd, tag, dflt) => { const x = nums(t, ifd.tags.get(tag)); return x.length ? x[0] : dflt; };
   const raw = ifds.find((d) => one(d, TAG.NewSubfileType, 0) === 0 && one(d, TAG.Photometric, 0) === 32803);
@@ -127,6 +142,97 @@ export function findMosaic(bytes) {
   const lens = nums(t, raw.tags.get(tiled ? TAG.TileByteCounts : TAG.StripByteCounts));
   if (!offs.length || offs.length !== lens.length) return null;
   return { t, b, ifd0: ifds[0], raw, one, tiled, offs, lens, ranges: offs.map((o, i) => [o, lens[i]]) };
+}
+
+// ---------------------------------------------------------------- Olympus compacts' ORF
+
+// The 2002-2008 Olympus compacts (C-5050 Zoom, C-8080, SP-350, SP-500 UZ in
+// the public samples) write an ORF with magic "IIRS" whose only JPEG is a
+// 160 x 120 thumbnail. Their sensor data is 12-bit, packed MSB first, stored
+// interlaced: the even rows, then the odd rows from the next 2048-byte
+// boundary. When the TIFF height is odd the camera stored one row more, past
+// the strips the TIFF lists. The data is already black-subtracted, white is
+// 4095, the CFA phase is the EXIF CFAPattern, and the as-shot balance is the
+// "OLYMP\0" maker note's RedBalance and BlueBalance (0x1017, 0x1018; green is
+// 256). The same layout and tags as shootflow's orf.py, which is checked
+// sensel for sensel against LibRaw (eval/olympus-orf-reader-2026-11-14.md).
+// Other ORF layouts are not read here: those bodies carry a full-size JPEG.
+
+const ORF_FIELD_ALIGN = 2048;
+
+function findOrfMosaic(t, b, ifds) {
+  if (!ifds.length) return null;
+  const ifd0 = ifds[0];
+  const one = (ifd, tag, dflt) => { const x = nums(t, ifd.tags.get(tag)); return x.length ? x[0] : dflt; };
+  const width = one(ifd0, TAG.Width, 0), height0 = one(ifd0, TAG.Height, 0);
+  const offs = nums(t, ifd0.tags.get(TAG.StripOffsets)), lens = nums(t, ifd0.tags.get(TAG.StripByteCounts));
+  if (!width || !height0 || !offs.length || offs.length !== lens.length) return null;
+  const total = lens.reduce((a, x) => a + x, 0);
+  if (2 * total !== 3 * width * height0 || one(ifd0, TAG.Compression, 1) !== 1) return null; // not the packed layout
+  const height = height0 + (height0 & 1);
+  const rowBytes = (width * 3) / 2;
+  const half = (height + 1) >> 1;
+  const start = offs[0];
+  const second = start + Math.ceil((half * rowBytes) / ORF_FIELD_ALIGN) * ORF_FIELD_ALIGN;
+  const end = second + (height >> 1) * rowBytes;
+
+  // EXIF CFAPattern (0xA302): 2 x 2 dims as 16-bit values (some writers swap
+  // their byte order), then the colours.
+  const exifOff = one(ifd0, 34665, 0);
+  const exif = exifOff ? readIfd(t, exifOff) : { tags: new Map() };
+  const cfa = exif.tags.get(0xa302);
+  let pattern = null;
+  if (cfa && cfa.size >= 8 && cfa.at + 8 <= b.length) {
+    const d1 = t.v.getUint16(cfa.at, t.little), d2 = t.v.getUint16(cfa.at + 2, t.little);
+    const e1 = t.v.getUint16(cfa.at, !t.little), e2 = t.v.getUint16(cfa.at + 2, !t.little);
+    if ((d1 === 2 && d2 === 2) || (e1 === 2 && e2 === 2)) pattern = Array.from(b.subarray(cfa.at + 4, cfa.at + 8));
+  }
+  if (!pattern || [...pattern].sort().join() !== "0,1,1,2") return null;
+
+  // White balance from the older maker note: "OLYMP\0", IFD at +8, offsets from the file's TIFF header.
+  const notes = [];
+  let neutral = null;
+  const mn = exif.tags.get(37500);
+  if (mn && mn.size > 16 && mn.at + 8 <= b.length && String.fromCharCode(...b.subarray(mn.at, mn.at + 5)) === "OLYMP" && b[mn.at + 5] === 0) {
+    const note = readIfd(t, mn.at + 8);
+    const red = nums(t, note.tags.get(0x1017))[0], blue = nums(t, note.tags.get(0x1018))[0];
+    if (red > 0 && blue > 0) neutral = [256 / red, 1, 256 / blue];
+  }
+  if (!neutral) notes.push("no Olympus RedBalance/BlueBalance");
+  const synth = (x) => ({ synth: x });
+  const raw = {
+    tags: new Map([
+      [TAG.Width, synth([width])], [TAG.Height, synth([height])], [TAG.Bits, synth([12])],
+      [TAG.Compression, synth([1])], [TAG.SamplesPerPixel, synth([1])], [TAG.Photometric, synth([32803])],
+      [TAG.CFARepeatPatternDim, synth([2, 2])], [TAG.CFAPattern, synth(pattern)],
+      [TAG.BlackLevel, synth([0])], [TAG.WhiteLevel, synth([4095])],
+    ]),
+  };
+  const head = { tags: new Map(ifd0.tags) };
+  if (neutral) head.tags.set(TAG.AsShotNeutral, synth(neutral));
+  return {
+    t, b, ifd0: head, raw, one, tiled: false, offs, lens, orf: { start, second, width, height, rowBytes, end },
+    ranges: [[start, end - start]], notes,
+  };
+}
+
+function decodeOrfInterlaced(m) {
+  const { b } = m;
+  const { start, second, width, height, rowBytes, end } = m.orf;
+  if (end > b.length) throw new MosaicError(`interlaced ORF data runs past the end of the file (${end} > ${b.length} bytes)`);
+  const data = new Uint16Array(width * height);
+  const half = (height + 1) >> 1;
+  for (let r = 0; r < height; r++) {
+    let p = (r & 1 ? second + (r >> 1) * rowBytes : start + (r >> 1) * rowBytes);
+    let o = r * width;
+    for (let x = 0; x + 1 < width; x += 2, p += 3) {
+      const a = b[p], c = b[p + 1], d = b[p + 2];
+      data[o++] = (a << 4) | (c >> 4);
+      data[o++] = ((c & 15) << 8) | d;
+    }
+    if (width & 1) data[o] = (b[p] << 4) | (b[p + 1] >> 4);
+  }
+  return { width, height, data };
 }
 
 // ---------------------------------------------------------------- lossless JPEG
@@ -304,6 +410,7 @@ function unpack(b, at, len, bits, little, count, rowSamples, out, outAt) {
  * Uncompressed or lossless-JPEG strips and tiles; one sample per pixel.
  */
 export function decodeMosaic(m) {
+  if (m.orf) return decodeOrfInterlaced(m);
   const { t, b, raw, one, tiled, offs, lens } = m;
   const width = one(raw, TAG.Width, 0), height = one(raw, TAG.Height, 0);
   const bits = one(raw, TAG.Bits, 16), comp = one(raw, TAG.Compression, 1);
@@ -474,6 +581,112 @@ function pickMatrix(m) {
   return { matrix: null, illuminant: 0 };
 }
 
+// ---------------------------------------------------------------- colour from the camera's own JPEG
+
+const srgbDecode = (() => {
+  const lut = new Float32Array(256);
+  for (let i = 0; i < 256; i++) { const c = i / 255; lut[i] = c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
+  return lut;
+})();
+
+function solve3(A, y) {
+  // A 3 x 3 symmetric system by Cramer's rule; null when singular.
+  const inv = inverse3(A);
+  if (!inv) return null;
+  return [0, 1, 2].map((i) => inv[i][0] * y[0] + inv[i][1] * y[1] + inv[i][2] * y[2]);
+}
+
+/**
+ * A camera-to-sRGB matrix for a raw that states none (the Olympus compacts'
+ * ORF), fitted to the camera's own small JPEG of the same frame: each block
+ * of the white-balanced camera image is averaged over the JPEG pixel it falls
+ * in, the JPEG is decoded to linear sRGB, and each output row is the least
+ * squares fit of that channel on camera R, G, B, then scaled to sum to 1 so a
+ * neutral stays neutral (white balance stays the camera's). Pixels near black,
+ * near white or clipped in the raw are left out. The camera's tone curve is
+ * not modelled, so the fit is a culling preview's colour, not a profile.
+ * Returns { matrix, used } or { matrix: null, reason }.
+ */
+export function fitToReference(img, clip, w, h, wb, ref, { mode = "constrained" } = {}) {
+  const rw = ref.width, rh = ref.height;
+  if (!rw || !rh || ref.rgba.length < rw * rh * 4) return { matrix: null, reason: "no reference pixels" };
+  // The JPEG must show the same frame: the same shape within 3%.
+  const ar = w / h, rar = rw / rh;
+  if (Math.abs(ar / rar - 1) > 0.03) return { matrix: null, reason: `reference is ${rw}x${rh}, not this frame's shape` };
+  const lo = mode === "free" ? 8 : 40, hi = mode === "free" ? 245 : 215;
+  const cams = [], outs = [];
+  for (let j = 0; j < rh; j++) {
+    const y0 = Math.floor((j * h) / rh), y1 = Math.max(y0 + 1, Math.floor(((j + 1) * h) / rh));
+    for (let i = 0; i < rw; i++) {
+      const q = (j * rw + i) * 4;
+      const R = ref.rgba[q], G = ref.rgba[q + 1], B = ref.rgba[q + 2];
+      if (Math.min(R, G, B) < lo || Math.max(R, G, B) > hi) continue;
+      const x0 = Math.floor((i * w) / rw), x1 = Math.max(x0 + 1, Math.floor(((i + 1) * w) / rw));
+      let c0 = 0, c1 = 0, c2 = 0, n = 0, bad = false;
+      for (let y = y0; y < y1 && !bad; y++) for (let x = x0; x < x1; x++) {
+        const k = y * w + x;
+        if (clip[k]) { bad = true; break; }
+        c0 += img[3 * k] * wb[0]; c1 += img[3 * k + 1] * wb[1]; c2 += img[3 * k + 2] * wb[2]; n++;
+      }
+      if (bad || !n) continue;
+      const c = [c0 / n, c1 / n, c2 / n];
+      if (Math.max(...c) >= 1 || Math.min(...c) <= 0) continue;
+      cams.push(c); outs.push([srgbDecode[R], srgbDecode[G], srgbDecode[B]]);
+    }
+  }
+  const used = cams.length;
+  if (used < 0.1 * rw * rh) return { matrix: null, reason: `only ${used} usable reference pixels` };
+  const M = [];
+  if (mode === "free") {
+    const XtX = [[0, 0, 0], [0, 0, 0], [0, 0, 0]], Xty = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+    for (let k = 0; k < used; k++) for (let a = 0; a < 3; a++) {
+      for (let b2 = 0; b2 < 3; b2++) XtX[a][b2] += cams[k][a] * cams[k][b2];
+      for (let o = 0; o < 3; o++) Xty[o][a] += cams[k][a] * outs[k][o];
+    }
+    for (let o = 0; o < 3; o++) {
+      const row = solve3(XtX, Xty[o]);
+      if (!row) return { matrix: null, reason: "reference fit is singular" };
+      const sum = row[0] + row[1] + row[2];
+      if (!(sum > 0)) return { matrix: null, reason: "reference fit has no positive gain" };
+      M.push(row.map((x) => x / sum));
+    }
+  } else {
+    // Each pixel on its own exposure: camera and JPEG colours divided by
+    // their own sum, so the JPEG's tone curve and exposure drop out and only
+    // the mix is fitted. Rows sum to 1 (a neutral stays neutral): out_o - c_B
+    // = a (c_R - c_B) + b (c_G - c_B), least squares on (a, b) per row.
+    const A = [[0, 0], [0, 0]], Y = [[0, 0], [0, 0], [0, 0]];
+    for (let k = 0; k < used; k++) {
+      const c = cams[k], sc = c[0] + c[1] + c[2];
+      const o = outs[k], so = o[0] + o[1] + o[2];
+      const u = (c[0] - c[2]) / sc, v = (c[1] - c[2]) / sc, cb = c[2] / sc;
+      A[0][0] += u * u; A[0][1] += u * v; A[1][1] += v * v;
+      for (let r = 0; r < 3; r++) { const t = o[r] / so - cb; Y[r][0] += u * t; Y[r][1] += v * t; }
+    }
+    A[1][0] = A[0][1];
+    const det = A[0][0] * A[1][1] - A[0][1] * A[1][0];
+    if (!det) return { matrix: null, reason: "reference fit is singular" };
+    for (let r = 0; r < 3; r++) {
+      const a = (A[1][1] * Y[r][0] - A[0][1] * Y[r][1]) / det, b2 = (A[0][0] * Y[r][1] - A[1][0] * Y[r][0]) / det;
+      M.push([a, b2, 1 - a - b2]);
+    }
+  }
+  // A plausible camera matrix: each channel mostly from its own colour, no
+  // wild negative mixes.
+  for (let o = 0; o < 3; o++) {
+    if (M[o][o] < 0.5 || M[o][o] > 3 || M[o].some((x) => x < -1.5)) return { matrix: null, reason: "reference fit is implausible", rejected: M };
+  }
+  return { matrix: M, used };
+}
+
+// For a raw that states no colour matrix: the mean of the sRGB-from-camera
+// matrices (srgbFromCamera) that five cameras wrote into their own DNGs in the
+// public samples (DJI Phantom 4, LG Nexus 5X, Leica T, Leica X Vario, Pentax
+// Q-S1). Rows sum to 1, so the camera's white balance is kept. Chosen over a
+// fit to the camera's thumbnail and over no matrix on the Olympus compacts
+// against LibRaw (eval/cull-orf-compacts-2026-11-24.md).
+export const GENERIC_SRGB_FROM_CAMERA = [[1.703, -0.577, -0.126], [-0.246, 1.691, -0.445], [0.008, -0.517, 1.509]];
+
 const srgbEncode = (() => {
   const lut = new Uint8ClampedArray(4096);
   for (let i = 0; i < 4096; i++) {
@@ -490,11 +703,11 @@ const srgbEncode = (() => {
  * is at most `maxSide`. Orientation is not applied (the page does that from
  * the raw's own tag). Throws MosaicError for files it cannot read.
  */
-export function developMosaic(bytes, { maxSide = 2400, found = null } = {}) {
+export function developMosaic(bytes, { maxSide = 2400, found = null, reference = null, fitMode = "generic" } = {}) {
   const m = found || findMosaic(bytes);
   if (!m) throw new MosaicError("no CFA image in this file");
   const { t, raw, ifd0, one } = m;
-  const notes = [];
+  const notes = [...(m.notes || [])];
   const mos = decodeMosaic(m);
   const get = (tag) => nums(t, raw.tags.get(tag));
   const dim = get(TAG.CFARepeatPatternDim);
@@ -635,8 +848,18 @@ export function developMosaic(bytes, { maxSide = 2400, found = null } = {}) {
     wb = wb.map((x) => x / mn);
   } else notes.push("no AsShotNeutral: no white balance");
   const { matrix, illuminant } = pickMatrix(m);
-  if (!matrix) notes.push("no ColorMatrix: camera colours shown as they are");
-  const M = srgbFromCamera(matrix);
+  let M = srgbFromCamera(matrix), fit = null;
+  // A vendor raw (the Olympus compacts' ORF) has no matrix by design; a DNG
+  // without one is malformed and keeps the camera's own colours.
+  if (!matrix && m.orf && fitMode === "generic") {
+    M = GENERIC_SRGB_FROM_CAMERA.map((r) => r.slice());
+    fit = { matrix: M, generic: true };
+    notes.push("no ColorMatrix: a typical Bayer sensor's matrix");
+  } else if (!matrix) {
+    fit = reference ? fitToReference(img, clip, w, h, wb, reference, { mode: fitMode }) : null;
+    if (fit && fit.matrix) { M = fit.matrix; notes.push(`colours matched to the camera's own ${reference.width}x${reference.height} JPEG (${fit.used} pixels)`); }
+    else notes.push(`no ColorMatrix: camera colours shown as they are${fit ? ` (${fit.reason})` : ""}`);
+  }
 
   const n = w * h;
   const rgb = new Float32Array(n * 3);
@@ -673,7 +896,7 @@ export function developMosaic(bytes, { maxSide = 2400, found = null } = {}) {
   return {
     width: w, height: h, rgba,
     source: `raw data, ${pr}x${pc} blocks${f > 1 ? `, shrunk ${f}x` : ""}`,
-    block: [pr, pc], shrink: f, gain, baselineExposure: be, illuminant, wb, notes,
+    block: [pr, pc], shrink: f, gain, baselineExposure: be, illuminant, wb, notes, colour: fit && fit.generic ? "generic" : fit && fit.matrix ? "reference" : matrix ? "ColorMatrix" : "camera", M,
     sensor: [mos.width, mos.height], area: [top, left, bottom, right],
   };
 }
