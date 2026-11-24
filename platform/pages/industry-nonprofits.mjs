@@ -130,7 +130,7 @@ export function renderNonprofitsPage({ baseUrl = '/', published = null, footer =
   const ga = GRANT_AUTOPILOT;
   const title = 'Software for small nonprofits: grants, reports and donors';
   const description =
-    'For small nonprofits: find grants that fit, draft applications from your own documents, and keep up with deadlines and reports. Grant Autopilot from $5 a month, plus free tools.';
+    'Small nonprofits: find grants that fit, draft from your own documents, keep up with reports. Grant Autopilot from $5 a month, plus free tools.';
 
   const toolList = (slugs) => {
     const shown = slugs.filter(live);

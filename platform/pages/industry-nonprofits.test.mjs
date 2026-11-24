@@ -79,3 +79,13 @@ test('build.mjs writes the page and lists it in the hub sitemap', () => {
   assert.match(build, /buildNonprofitsPage\(outDir/);
   assert.match(build, /industryPages,\n\s*\),/);
 });
+
+test('check.mjs treats Worker-served /grants/ links as live and nothing else', async () => {
+  const { isWorkerServed, SITE_OWN_DIRS } = await import('./check.mjs');
+  assert.ok(isWorkerServed('grants/'));
+  assert.ok(isWorkerServed('grants/pricing'));
+  assert.ok(isWorkerServed('grants'));
+  assert.ok(!isWorkerServed('grant-deadline-tracker/'));
+  assert.ok(!isWorkerServed('grantsx/'));
+  assert.ok(SITE_OWN_DIRS.has('industries'));
+});
