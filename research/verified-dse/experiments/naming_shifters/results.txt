@@ -1,0 +1,43 @@
+# Milestone 166: two more namings of the 13 decided shifter designs below 32 gates (flow run)
+
+Yosys 0.70 (dzsihg5w), OpenROAD 26Q3 (p9p4), tt_025C_1v80, 40% utilisation; Y = each design's own milestone table; R2, R3 = fresh random renamings; A3 = geometric mean of the three; cells and tie-break seeds as each source milestone
+analysed designs (longest complete prefix of the order): 13 of 13: funnel128, rotmask128, xor8, crc7s16, bcd2, gray0, lane4k1, addsh128, cmp16, pmul3, fpalign128, avg5, sad1b8
+control (a) (orig netlist re-placed reproduces arm Y on every OUTCOME field): 52 of 52
+control (b) (rung 1 equals arm Y): 5396 of 5396 runs
+control (c) (arm Y's d reproduces milestone 165 to 0.01): True
+
+design | milestone | gate depth | d Y | d R2 | d R3 | d A3 | class Y | class R2 | class R3 | class A3 | spread of d (max - min, Y R2 R3)
+funnel128 | 118 | 0 | +36.06 | +11.31 | +14.29 | +22.48 | loss | loss | loss | loss | 24.74
+rotmask128 | 119 | 0 | +7.33 | +12.22 | +9.01 | +10.43 | loss | loss | loss | loss | 4.89
+xor8 | 123 | 15 | +16.87 | +12.92 | +12.87 | +16.04 | loss | loss | loss | loss | 4.00
+crc7s16 | 133 | 18 | +5.83 | +6.44 | +0.67 | +4.55 | loss | loss | tie | loss | 5.77
+bcd2 | 133 | 20 | -5.23 | -3.51 | -2.68 | -4.52 | win | tie | tie | win | 2.55
+gray0 | 132 | 24 | +8.37 | +11.66 | +11.20 | +9.73 | loss | loss | loss | loss | 3.29
+lane4k1 | 125 | 25 | -4.99 | -5.65 | -8.77 | -4.38 | win | win | win | win | 3.79
+addsh128 | 121 | 27 | +13.82 | +9.99 | +2.71 | +7.87 | loss | loss | tie | loss | 11.10
+cmp16 | 133 | 28 | -6.21 | -5.06 | -6.03 | -5.74 | win | win | win | win | 1.15
+pmul3 | 125 | 28 | -11.52 | -19.53 | -12.14 | -15.52 | win | win | win | win | 8.00
+fpalign128 | 121 | 30 | +12.61 | +19.59 | +22.06 | +17.83 | loss | loss | loss | loss | 9.44
+avg5 | 125 | 31 | -9.37 | -7.90 | -7.74 | -8.72 | win | win | win | win | 1.63
+sad1b8 | 124 | 31 | +9.42 | +6.95 | +5.69 | +7.70 | loss | loss | loss | loss | 3.72
+
+## Predictions
+
+(1) PRIMARY: sign(d(A3)) = sign(d(Y)) on 13 of 13 (needed >= 10): held
+(2) |d(A3)| >= 4 with Y's sign on 13 of 13 (needed >= 9): held
+(3) arm-Y losses with d(A3) >= 4: 8 of 8 (needed >= 6; none not): held
+(4) arm-Y wins with d(A3) <= -4: 5 of 5 (needed >= 3; none not): held
+(5) median |d(Rj) - d(Y)| 3.51 points (needed <= 4; max 24.74): held
+(6) A3 decided wins / losses 5 / 8, sign p = 0.5811 (needed > 0.05): held
+(7) mean d(A3) +4.44 (needed > 0): held
+
+## Reported, not predicted
+
+mean |d(R2) - d(R3)| 2.76; mean |d(Rj) - d(Y)| 5.09
+arm Y: wins 5, losses 8, ties 0, mean d +5.61, sign p 0.5811
+arm R2: wins 4, losses 8, ties 1, mean d +3.80, sign p 0.3877
+arm R3: wins 4, losses 6, ties 3, mean d +3.16, sign p 0.7539
+arm A3: wins 5, losses 8, ties 0, mean d +4.44, sign p 0.5811
+31-gate pair: avg5 d(A3) -8.72 (win)
+31-gate pair: sad1b8 d(A3) +7.70 (loss)
+R2 or R3 runs not ok: 12

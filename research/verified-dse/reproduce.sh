@@ -77,3 +77,5 @@ $PY experiments/netlist_noise/run.py --analyse   # milestone 161 (no flow; run.p
 $PY experiments/naming_ladder/run.py --analyse   # milestone 162 (no flow; run.py --lib /tmp/ss.lib re-runs the flow, about 2 h on 4 cores for the 13 analysed designs, --resume continues)
 $PY experiments/naming_draws/run.py   # milestone 163 (no flow; about 4 min on 4 cores)
 $PY experiments/naming_more/run.py --analyse   # milestone 164 (no flow; about 3 min on 4 cores; run.py --lib /tmp/ss.lib re-runs the 1,440-run flow, about 52 min on 4 cores)
+$PY experiments/tie_rule/run.py   # milestone 165 (no flow; under a second)
+$PY experiments/naming_shifters/run.py --analyse   # milestone 166 (no flow; about 2 min; run.py re-runs the 5,408-run flow, about 2 h 20 min on 4 cores with the nix Yosys 0.70 and OpenROAD p9p4, --resume continues)
