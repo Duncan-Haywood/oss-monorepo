@@ -40,12 +40,24 @@ stored figure is one face, gross). Neither fits alone: Revit takes the face
 named `net-as-gross`, so the quantity set is consistent: Revit's "gross" is
 net in both.
 
+The rule reached two more walls, already named before by a looser cause
+(`matches-stored-volume`: stored side area x width = stored volume, within
+2%), whose stored area is also the longer face net of openings, to 1e-5:
+
+| wall | openings | stored GrossSideArea m2 | middle plane, gross | longer face net |
+|---|---:|---:|---:|---:|
+| ARK_NUS #911379 IVA 6.1 302mm | 3 | 28.206874 | 34.039 | 28.206874 |
+| kleine_Wohnung_R22 #87331 Ziegel 0.24 m (Revit, German template) | 4 | 38.79919 | 54.267 | 38.79880 |
+
+So five walls in two Revit models, every one the longer face.
+
 `explainAreas` now names it `net-on-a-face`: a wall's stored gross side area
 equals one face's net area within 0.5%, and the wall has an opening. Like
 `net-as-gross`, it is a named cause, not a reason to distrust the figure: the
 BoQ still sums the stored area (it is a real, measured face), but it no longer
-counts as in doubt. The BoQ totals do not move; what changes is that the
-line no longer warns about these three.
+counts as in doubt. The BoQ volume and area totals are identical on all 15 models
+before and after; what changes is that the lines no longer warn about these
+three, and the five rows that changed are the only ones that did.
 
 ## The volume: left in doubt
 
@@ -80,9 +92,14 @@ off ([curved-and-faces-2026-11-22.md](curved-and-faces-2026-11-22.md), "The
 
 ## What this does not show
 
-- That Revit always writes a holed wall's `GrossSideArea` this way. Three
-  walls of one model do. HHS's and the other Revit models' holed walls
-  already agree or carry another named cause, so they do not test it.
-- Which face Revit picks. In all three it is the longer; with three cases,
-  "longer" and "exterior" and "the face the location line is on" cannot be
-  told apart, so the rule accepts either face.
+- That Revit always writes a holed wall's `GrossSideArea` this way. Five
+  walls of two models do; most holed Revit walls in these files store a
+  figure that agrees with the middle plane or carries another named cause
+  (`net-as-gross` among them), so which Revit setting or version writes the
+  face is not known.
+- Which face Revit picks. In all five it is the longer; "longer", "exterior"
+  and "the face the location line is on" are not told apart here, so the
+  rule accepts either face.
+- `net-on-a-face` is checked before `matches-stored-volume`, so the two
+  walls that met both now carry the tighter one (0.5% against 2%). Neither
+  cause changes what the BoQ sums.
