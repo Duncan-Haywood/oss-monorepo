@@ -1,5 +1,9 @@
 # Research log
 
+## 2026-11-24 · Method of record on the confirmation split: outcome. Rule CF lowers the cost of all 18 finishers of 33 unused cases, never dearer than CP (cheaper on 10, P = 0.002); mean gap +0.767 to +0.662 points, median +0.115 to +0.089. On reactive-stage points CP is stuck on 7 of 8, CF moves all 8
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-24); numbers in `research/infra-dcopf/experiments/results_confirm_cf.txt`. M0 to M4 and M6 held; M5 refuted (arm J mean +1.139 against a +1.000 bar, held up by case2848_rte TYP at +6.208 %).
+- Next: the 15 confirmation non-finishers, starting with the case2869_pegase overload stalls (2 to 4 overloads).
+
 ## 2026-11-24 · Method of record on the confirmation split: frozen repair, reactive stage and rule CF on its 18 finishers (plan)
 - Plan, arms J and R and predictions M0 to M6: `research/infra-dcopf/LOG.md` (2026-11-24); script `research/infra-dcopf/experiments/run_confirm_cf.py`. Rule CP is run alongside for comparison; nothing is tuned on this split.
 
