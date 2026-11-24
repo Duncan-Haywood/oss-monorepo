@@ -3,7 +3,7 @@
  "data_through": "2026-11-24",
  "latest_day": {
   "day": "2026-11-24",
-  "page_loads": 22
+  "page_loads": 24
  },
  "weeks": [
   {
@@ -65,9 +65,9 @@
    "week": "2026-W48",
    "monday": "2026-11-23",
    "days": 2,
-   "page_loads": 87,
-   "tool_loads": 77,
-   "tools": 25,
+   "page_loads": 89,
+   "tool_loads": 79,
+   "tools": 27,
    "top_tool": "xer-schedule-check",
    "feedback": 0,
    "crawler_beacons": 30365
