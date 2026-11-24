@@ -3,7 +3,7 @@ title: "29 more page titles that fit a search result, and no page left without a
 seo_title: "Shorter search titles for league, eBay and babysitting tools"
 date: 2026-11-24
 tags: [polish, seo, league-schedule-generator, ebay-fee-calculator, babysitting-business-kit]
-description: "League Schedule Generator, eBay Fee Calculator and Babysitting Business Kit had 29 page titles a search result cuts off. All now fit in 70 characters, and every indexable venture page has a meta description."
+description: "29 league, eBay and babysitting page titles were cut off in search results. All now fit in 70 characters, and no indexable page lacks a description."
 ---
 
 A search result shows roughly 60 to 70 characters of a page's `<title>`
