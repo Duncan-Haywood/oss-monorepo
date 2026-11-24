@@ -361,19 +361,19 @@ class NoiseFromFrameFlagTests(unittest.TestCase):
 
 
 class NoiseReadTests(unittest.TestCase):
-    """``--noise-read mpcws`` (the default since 2026-11-23, eval/hdrplus-joint-check-j4-2026-11-23.md and
-    eval/camera-drawn-mpcws-2026-11-23.md): Bayer only, its own
+    """``--noise-read mpcws`` (opt-in; the default from 2026-11-23 to 2026-11-24, eval/camera-drawn-mpcws-2026-11-23.md
+    and eval/camera-drawn-mpcws-fresh-2026-11-24.md): Bayer only, its own
     colour ramp, and exactly the shipped read where the ``mpcws`` read collapses."""
 
-    def test_flag_and_setting_default_mpcws(self):
+    def test_flag_and_setting_default_ship(self):
         from shootflow.cli import _build_parser
         from shootflow.raw_develop import DevelopSettings
 
         p = _build_parser()
-        self.assertEqual(p.parse_args(["develop", "x.dng", "--out", "o"]).noise_read, "mpcws")
+        self.assertEqual(p.parse_args(["develop", "x.dng", "--out", "o"]).noise_read, "ship")
         self.assertEqual(p.parse_args(["develop", "x.dng", "--out", "o", "--noise-read", "ship"]).noise_read, "ship")
         self.assertEqual(p.parse_args(["develop", "x.dng", "--out", "o", "--noise-read", "mpcws"]).noise_read, "mpcws")
-        self.assertEqual(DevelopSettings().noise_read, "mpcws")  # the default since 2026-11-23
+        self.assertEqual(DevelopSettings().noise_read, "ship")  # the default again since 2026-11-24
 
     @unittest.skipUnless(has_numpy(), "numpy not installed")
     def test_read_rules(self):
@@ -481,14 +481,15 @@ class DevelopNoiseAwareTests(unittest.TestCase):
         self.assertEqual(frep.demosaic, "directional")
         self.assertTrue(any("NoiseProfile" in n and "--no-noise-from-frame" in n for n in frep.notes), frep.notes)
         self.assertEqual(list(fpx), list(dpx2))
-        # --noise-read mpcws (the default since 2026-11-23, eval/camera-drawn-mpcws-2026-11-23.md): the default bytes
-        _, _, mpx, mrep = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware", noise_read="mpcws")
-        self.assertEqual(mrep.demosaic, "noise-aware")
-        self.assertEqual(len(mpx), len(epx))
-        self.assertEqual(list(mpx), list(epx))  # the default is the mpcws read
+        # --noise-read ship (the default again since 2026-11-24, eval/camera-drawn-mpcws-fresh-2026-11-24.md): the
+        # default bytes; mpcws stays opt-in
         _, _, spx, srep = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware", noise_read="ship")
         self.assertEqual(srep.demosaic, "noise-aware")
         self.assertEqual(len(spx), len(epx))
+        self.assertEqual(list(spx), list(epx))  # the default is the shipped read
+        _, _, mpx, mrep = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware", noise_read="mpcws")
+        self.assertEqual(mrep.demosaic, "noise-aware")
+        self.assertEqual(len(mpx), len(epx))
         _, _, _, hfrep = self._develop(self._dng(None), engine="numpy", demosaic="noise-aware", half=True)
         self.assertEqual(hfrep.demosaic, "noise-aware")
         # A file with a profile ignores the flag either way: the profile drives the blend.

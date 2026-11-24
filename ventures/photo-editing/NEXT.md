@@ -50,12 +50,19 @@
   falls back on 31 (slope exactly 0 on 22, mostly still gaining); the J4 ratio line passes the same draw (0 worse),
   so it stays. (2026-11-23, eval/camera-drawn-mpcws-2026-11-23.md) The drawn-noise check on 11 Bayer camera raws
   from rawpy, OpenImageIO and darktable test folders passed all four tests (76 clean-truth rows: +0.22 luma, +0.12
-  colour, none 0.1 dB worse), so `mpcws` is the Bayer default and `--noise-read ship` the old bytes. Next: any new collapse
+  colour, none 0.1 dB worse), so `mpcws` was the Bayer default. (2026-11-24, eval/camera-drawn-mpcws-fresh-2026-11-24.md)
+  The same check on 9 fresh raws (immich's test-assets) passed h1-h3 (+0.20 luma, +0.12 colour) and failed h4o on one
+  GH4 tile at SNR 60 (-0.13 luma, an under-read at the tile's own grain floor), so the default is `ship` again and
+  `mpcws` opt-in. Next: a read that does not go under the shipped one near a tile's grain floor, scored on both
+  camera row sets and a third unseen one; any new collapse
   test on the read's level at a few greys, not its shot/read split, with a full reading of the five lists first. raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) is still unread. (2026-11-24,
   eval/xtrans-drawn-mpcws-2026-11-24.md) X-Trans, drawn noise on 2 unseen darktable-tests RAFs: `mpcws` with the
   X-Trans ramp failed h2 and h4o (colour), so X-Trans keeps Chen's read; with Bayer's ramp (0.3, 1.0) it passed
   h1-h3 (+0.41 luma, +0.29 colour) and failed h4o on 2 chart rows at SNR 12. Next: that form, pre-registered, on
-  a blind set of 6+ non-chart X-Trans bodies.
+  a blind set of 6+ non-chart X-Trans bodies. Sources searched 2026-11-24 (raw.pixls.us refused): of 23 public
+  GitHub repositories' trees, only immich-app/test-assets `formats/raw/Fujifilm/X100V_compressed.RAF` is a fresh
+  X-Trans file (1 of the 6; exiv2's RAFs are fuzz cases, OpenImageIO's is SuperCCD). immich's 9 Bayer raws are
+  spent for noise reads (eval/camera-drawn-mpcws-fresh-2026-11-24.md).
 - Dense foliage over-reads are not in the eigenvalues (the quietest direction is full too). On D780 DSC_0336
   [0, 0] the bins' sigma climbs from 0.001 (dark) to 0.035 (bright), steeper than shot noise allows.
   (2026-11-22, eval/noise-envelope-fit-2026-11-22.md) A lower-envelope fit (drop bins over 1.5x the line,

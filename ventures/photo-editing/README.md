@@ -1986,6 +1986,16 @@ oracle does not and adds a loser to directional, so it fails and `shootflow deve
 Bayer's colour ramp the same read passes three of the four tests (+0.29 colour) and fails the last on two test-chart
 rows at the lowest SNR; that form is the candidate for a larger, blind X-Trans set. `eval/xtrans-drawn-mpcws-2026-11-24.md`.
 
+**Back to the shipped read on Bayer (2026-11-24, afternoon).** The 2026-11-23 check named its own follow-up: read
+the new default against `--noise-read ship` on the next camera files. Nine Bayer raws from immich's public test
+folder (Canon 30D, 70D and G12, Nikon D700 and D80, Panasonic GH4, Ricoh GR III, Sony A6300 and A7 II), none used
+here before, went through the same sweep and the same four tests, committed before any file was scored, with the rule
+that a fail on h1, h2 or h4o puts the default back. On 102 clean-truth rows `mpcws` gains +0.20 dB luma and +0.12
+colour (yesterday's set: +0.22 / +0.12) with no loser to directional, but one GH4 tile at SNR 60 loses 0.13 dB of
+luma where the true noise model does not: the read goes under the drawn noise at the level where it meets the scene's
+own grain. So `shootflow develop` reads Bayer noise the shipped way again, and `--noise-read mpcws` is opt-in.
+`eval/camera-drawn-mpcws-fresh-2026-11-24.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,
