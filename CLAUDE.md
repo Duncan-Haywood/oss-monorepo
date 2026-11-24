@@ -28,7 +28,10 @@ products; open hardware is a long-term hardware-company track. Build the best pr
 with accounts, hosted features and paid tiers where they help; static, free
 and no-accounts are options, not defaults. For-profit products are the
 highest priority; free tools and posts are there for traffic and leads to
-them (owner, same day). Definition and readings:
+them (owner, same day). The same day's whole pivot (hosted SaaS by default,
+tools grown into full web and native apps, hosting chosen from first
+principles, minimal click ops, aggressive lawful sales and marketing) is
+summarised in `prompts/goals.md`, "The 2026-11-24 pivot, in one place". Definition and readings:
 [`prompts/goals.md`](prompts/goals.md), "North star", and
 [`portfolio/monetization/mrr.yaml`](portfolio/monetization/mrr.yaml).
 

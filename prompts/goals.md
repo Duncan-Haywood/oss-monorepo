@@ -200,6 +200,73 @@ together; where older directions below pull another way, these win.
   work. The designs can stay open; the business is built units, support and
   the brand.
 
+## The 2026-11-24 pivot, in one place
+
+The owner, 2026-11-24: "again this is a big pivot for the whole thing." Every
+direction below is the owner's, from that day. It wins over older text in
+this file, `PRODUCT_PLAYBOOK.md`, `DIRECTION.md` and the track prompts that
+says otherwise. The hard limits under Guardrails still hold.
+
+1. **Goal: $10k MRR, then $10k MRP.** For-profit products come first. See
+   "North star" above.
+2. **Best product for the user.** Drop the static-page, free-first, privacy-
+   as-feature and no-accounts defaults. See "North star".
+3. **Hosted SaaS by default** for products and free tools alike. Self-deploy
+   is built only when a request asks for it. Being the operator is fine. See
+   Mission, "The business model".
+4. **Productize the tools.** "I think we also want to productize a lot of the
+   tools move them to potentially more feature rich"; "move things away from
+   static pages into full feature web apps to deliver more value. also the
+   possibility for ios android macos ipados etc native apps. no need to shy
+   away from those." So a tool worth keeping grows into a real web app, with
+   accounts, saved work, history, team use, integrations and a paid tier where
+   one fits. Native iOS, iPadOS, Android and macOS apps are welcome where users
+   would reach for them (`platform/distribution/`). Publishing to an app store
+   under the owner's developer account stays an owner step, but building the
+   app is not.
+5. **Hosting from first principles.** "idt default is a good reason. it is
+   soo easy to migrate that if from first principles anoterh provider is
+   better it makes sense to move." Cloudflare is where things run today, not
+   a rule. When AWS, GCP, Azure, Hetzner, Vercel, Fly, a managed Postgres or
+   anything else fits a product better on cost, features, reliability or
+   speed, write the reasoning down (a short `docs/reports/` note) and move it.
+   Opening or paying for a new provider account is still the owner's step.
+6. **Minimise click ops.** "I think one of the things is to minimize click
+   ops as much as possible." Every provider setting that has an API or a
+   Terraform/OpenTofu provider lives in the repo with an apply step: DNS,
+   Workers, databases, email domains, the Paddle catalogue (products, prices,
+   discounts, webhooks), app-store metadata. What stays manual is only what
+   providers force to be manual (signing up, identity checks, a bank, a card)
+   and pasting secret values. When something has to be clicked, write down the
+   exact clicks in the repo so it is done once. See also "Direction:
+   everything as code".
+7. **Aggressive sales and marketing.** "I think we also want to move to a more
+   aggressive outreach through ai sales outbound and inbound email marketing
+   and a lot of marketing and sales work including organic etc." Build and run
+   the machine for this:
+   - AI-assisted outbound to businesses that fit a product;
+   - inbound: lead magnets, opt-in lists, newsletters, nurture sequences;
+   - organic: SEO and AEO, posts, comparisons, communities and social.
+   "Aggressive" means volume and persistence inside the law and the platforms'
+   rules, never past them:
+   - cold email follows CAN-SPAM in the US and GDPR/PECR in the EU and UK.
+     Every message identifies the sender, has a working unsubscribe that is
+     honoured, and avoids deceptive subject lines. Consumer marketing email
+     needs opt-in;
+   - no bought or scraped personal lists where the law forbids them;
+   - no sockpuppets or fake engagement, and nothing that breaks a
+     platform's terms;
+   - the honest-marketing hard limit applies to every message.
+   Agents build the sequences, lists, targeting and tooling. Sending
+   under the portfolio's name and any paid send volume are switched on once by
+   the owner (Hard limits, "Owner-only actions"), and after that they run.
+8. **Where effort goes.** Promise and value over sunk cost; vertical software
+   suites for SMBs, business tools first, construction the favourite with
+   engineering and manufacturing beside it; free single-purpose tools demoted
+   to front doors; research pivots into products; open hardware becomes a
+   long-term outsourced hardware-company track. See "Where effort goes" above
+   and the ranked bets in `portfolio/monetization/bets.md`.
+
 ## Mission
 
 One public repository for the owner's open-source work, with two portfolios
@@ -219,6 +286,19 @@ and one platform that runs them:
   stored or sent anywhere else. How to build this:
   `PRODUCT_PLAYBOOK.md` §2, "Rule of thumb: anyone can deploy it
   themselves".
+  **Superseded for products, 2026-11-24.** The owner: "I think the hosted saas for them is better for business. I am happy to give away value but I'm not running a charity primarily. giving away value is good to do". Products
+  (the `proprietary` track in `portfolio/monetization/LICENSING_TRANSITION.md`)
+  are now **hosted SaaS** that the owner runs and sells by subscription
+  through Paddle, or one-off licences. The owner then extended it to everything:
+  "i think the free tools and self host we can move away from. i think hosted saas generally simplifies and is actually better value for most customers unless there is a speciifc request otherwise". So **hosted is the default for every product and free tool**:
+  the owner runs it, and a customer signs up and uses it. Self-deploy pages,
+  multi-cloud deploy setups and deployer docs are no longer built by default.
+  Make one only when a specific request asks for it, or as a paid
+  self-hosted tier that buyers want. `sales-agent` is built to be run by
+  whoever deploys it and keeps its deploy path. Being the operator is
+  accepted (owner, same day: "which is fine"). The protection is now Paddle
+  as merchant of record, accurate terms and privacy pages, and the existing
+  disclaimers. No run spends time removing deploy pages that already exist.
   **Infrastructure as code** (the owner, 2026-10-16): "the deploy should be
   tf or similar i think as a suggestion but not a hard rule. iac sort of
   mentality." Prefer OpenTofu/Terraform (or the platform's own declarative
