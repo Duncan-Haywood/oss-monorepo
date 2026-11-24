@@ -160,6 +160,7 @@ import {
 } from './site-nav.mjs';
 import { ASK_PATH, ASSISTANT_LAUNCHER_JS, ASSISTANT_VOICE_CSS, renderAskPage, renderAssistantFiles } from './assistant.mjs';
 import { formatCount } from './count.mjs';
+import { ONLINE_SELLERS_PATH, renderOnlineSellersPage } from './industry-online-sellers.mjs';
 import { loadResearchRegistry } from './research-registry.mjs';
 import {
   HERO_BACKDROP_HTML,
@@ -8806,6 +8807,24 @@ function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, directions
 }
 
 /** The `<head>` shared by the custom development pages. */
+/**
+ * The online sellers industry page with this build's head, disclaimer and
+ * chrome script (which counts usage) handed in, so the module stays free of a
+ * build.mjs import.
+ */
+export function renderOnlineSellersIndustryPage({ surfaces = [], baseUrl }) {
+  const toRoot = '../../';
+  return renderOnlineSellersPage({
+    baseUrl,
+    surfaces,
+    shell: {
+      head: customDevHead,
+      disclaimer: disclaimerHtml(toRoot, surfaces),
+      tail: `<script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="industry-online-sellers" defer></script>`,
+    },
+  });
+}
+
 function customDevHead({ title, description, url, toRoot, baseUrl, extraHead = '' }) {
   return `<!doctype html>
 <html lang="en">
@@ -12668,6 +12687,8 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     .concat([`  <url><loc>${baseUrl}${ASK_PATH}</loc></url>`])
     // Open custom development, on the same terms.
     .concat([`  <url><loc>${baseUrl}${CUSTOM_DEV_PATH}</loc></url>`])
+    // The online sellers industry page, on the same terms.
+    .concat([`  <url><loc>${baseUrl}${ONLINE_SELLERS_PATH}</loc></url>`])
     .concat(loadRequests().filter((r) => /^R-\d{4}$/.test(r.id || '')).map((r) => `  <url><loc>${baseUrl}${customRequestPath(r.id)}</loc></url>`))
     // And the comparison index, on exactly the same terms: a hub-level page
     // this build writes, so it is listed here or nowhere.
@@ -12936,6 +12957,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
       ? `- [Short index](${baseUrl}llms.txt): the same tools with one-sentence descriptions, small enough to read in one fetch.`
       : `- [Full text](${baseUrl}llms-full.txt): every tool with its complete description and the LLM docs a product ships; large (several hundred KB), fetch only when the index does not answer the question.`,
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, the country code and the device type, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [Bookkeeping and profit tools for online sellers](${baseUrl}${ONLINE_SELLERS_PATH}): for resellers and small shops on eBay, Etsy, Poshmark, Mercari, Whatnot, Depop, Shopify and Amazon. The problems (true profit after fees, payouts that do not match sales, cost of goods, mileage, Schedule C, 1099-K and state thresholds), Seller Books (a multi-platform books product in development, early access, not tax advice), and the best free seller calculators.`,
     `- [Free custom software for your business](${baseUrl}${CUSTOM_DEV_PATH}): describe your problem and it gets built. How a business, or anyone, can ask the agents that build this site for a new tool, free and in public, the one condition (the result stays MIT licensed, held by the repository owner), and every request so far with its status. Each request has its own page (custom-development/R-0001/ and so on) showing its stage and what is still open, with a form for feedback on it.`,
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
@@ -13788,6 +13810,10 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     await fs.mkdir(dir, { recursive: true });
     await fs.writeFile(path.join(dir, 'index.html'), renderCustomRequestPage({ request, surfaces, baseUrl: base, requests: customRequests, directions: researchDirs, showcase }));
   }
+  // The online sellers industry page (industry-online-sellers.mjs): the
+  // problems, the product in development, and the free seller tools as the way in.
+  await fs.mkdir(path.join(outDir, ONLINE_SELLERS_PATH), { recursive: true });
+  await fs.writeFile(path.join(outDir, ONLINE_SELLERS_PATH, 'index.html'), renderOnlineSellersIndustryPage({ surfaces, baseUrl: base }));
   // The request form's tool and research-direction pickers, fetched on demand.
   await fs.writeFile(path.join(outDir, REQUEST_OPTIONS_FILE), JSON.stringify(renderRequestFormOptions({ surfaces, directions: researchDirs })));
 

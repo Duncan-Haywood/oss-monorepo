@@ -461,6 +461,21 @@ hides inside another word (`pet-` in `carpet-`, `tutor` in `statutory`);
 listing two tools is a doorway page, not an answer. The root `README.md` links
 every audience page, and a test keeps that list in step with `AUDIENCES`.
 
+### Industry pages (`industries/<who>/`)
+
+An industry page is the room behind a set of free tools: the problems one kind
+of business has, in its own words, the paid product being built for them
+(stated as in development until it takes money), and a curated handful of the
+free tools as the way in. `industry-online-sellers.mjs` writes
+`industries/online-sellers/` (resellers and small shops on eBay, Etsy,
+Poshmark, Mercari, Whatnot, Depop, Shopify and Amazon). The module imports only
+`site-nav.mjs`; build.mjs hands in the head, disclaimer and chrome script, so
+there is no import cycle. A tool the build did not publish is left off the
+page. Its tests pin the honesty lines: in development, no price, not tax
+advice, the 1099-K threshold cited to irs.gov and no scare copy. When
+`business.mjs` (home, `/products/`, the `industries/` index) lands, the
+product data should come from there.
+
 ### The contents index
 
 Grouping alone does not shorten the page. The hub is **36,400px — 43 screens —
