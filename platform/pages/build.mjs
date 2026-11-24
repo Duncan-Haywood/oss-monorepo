@@ -35,6 +35,7 @@ import { promisify } from 'node:util';
 import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
+import { renderHardwarePage, HARDWARE_PATH } from './hardware-page.mjs';
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
 import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, loadPosts, WRITING_PATH } from './writing.mjs';
@@ -12668,6 +12669,8 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     .concat([`  <url><loc>${baseUrl}${ASK_PATH}</loc></url>`])
     // Open custom development, on the same terms.
     .concat([`  <url><loc>${baseUrl}${CUSTOM_DEV_PATH}</loc></url>`])
+    // The hardware designs page, on the same terms.
+    .concat([`  <url><loc>${baseUrl}${HARDWARE_PATH}</loc></url>`])
     .concat(loadRequests().filter((r) => /^R-\d{4}$/.test(r.id || '')).map((r) => `  <url><loc>${baseUrl}${customRequestPath(r.id)}</loc></url>`))
     // And the comparison index, on exactly the same terms: a hub-level page
     // this build writes, so it is listed here or nowhere.
@@ -13773,6 +13776,15 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   const feedbackDir = path.join(outDir, FEEDBACK_PATH);
   await fs.mkdir(feedbackDir, { recursive: true });
   await fs.writeFile(path.join(feedbackDir, 'index.html'), renderFeedbackPage({ surfaces, baseUrl: base }));
+  // The open hardware designs as future products for businesses (see `hardware-page.mjs`).
+  const hardwareDir = path.join(outDir, HARDWARE_PATH);
+  await fs.mkdir(hardwareDir, { recursive: true });
+  await fs.writeFile(path.join(hardwareDir, 'index.html'), renderHardwarePage({
+    baseUrl: base,
+    footerHtml: disclaimerHtml('../', surfaces),
+    chromeScript: `<script src="${escapeHtml(`../${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="hardware" defer></script>`,
+    socialCard: `${base}${SOCIAL_CARD_FILE}`,
+  }));
   const customDevDir = path.join(outDir, CUSTOM_DEV_PATH);
   const customRequests = loadRequests();
   const researchDirs = researchDirections();
