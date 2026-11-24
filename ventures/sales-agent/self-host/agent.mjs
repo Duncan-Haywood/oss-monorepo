@@ -291,7 +291,8 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
       audit("sent", { id, to, messageId: msg.id, server: reply }); save();
       return it;
     } catch (e) {
-      const error = String(e.message || e).replace(env.SMTP_PASS || "\0", "***");
+      // Only the message reaches the page and the audit log, never the error object (and so never its stack).
+      const error = (e instanceof Error ? e.message : String(e)).replace(env.SMTP_PASS || "\0", "***");
       delete it.sendingAt; audit("send_error", { id, to, error }); save();
       return { error };
     }
@@ -304,7 +305,7 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
     const url = new URL(req.url, "http://x");
     if (url.pathname === "/healthz") return json(res, 200, { ok: true, lastPoll: state.lastPoll, lastError: state.lastError });
     if (!authed(req)) { res.writeHead(401, { "content-type": "text/plain", "www-authenticate": "Bearer" }); return res.end("Add ?token=YOUR_ADMIN_TOKEN"); }
-    if (req.method === "GET" && url.pathname === "/") { res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "referrer-policy": "no-referrer" }); return res.end(page(state, url.searchParams.get("token") || "", !!env.SMTP_HOST, !!(crm && Object.keys(crm.stages).length), daysOff(), upcomingHolidays(daysOff(), iso(now()), 5))); }
+    if (req.method === "GET" && url.pathname === "/") { res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "referrer-policy": "no-referrer" }); const queryToken = url.searchParams.get("token") || ""; return res.end(page(state, env.ADMIN_TOKEN && safeEq(queryToken, env.ADMIN_TOKEN) ? String(env.ADMIN_TOKEN) : "", !!env.SMTP_HOST, !!(crm && Object.keys(crm.stages).length), daysOff(), upcomingHolidays(daysOff(), iso(now()), 5))); }
     if (req.method === "GET" && url.pathname === "/voice.mjs") { res.writeHead(200, { "content-type": "text/javascript; charset=utf-8", "cache-control": "no-store" }); return res.end(readFileSync(new URL("../voice.mjs", import.meta.url))); }
     if (req.method === "GET" && url.pathname === "/api/queue") return json(res, 200, { lastPoll: state.lastPoll, lastError: state.lastError, items: state.items });
     if (req.method === "GET" && url.pathname === "/api/prospects.csv") { res.writeHead(200, { "content-type": "text/csv" }); return res.end(toCsv(state.prospects, ["email", "first_name", "company", "status", "stage", "paused_until", "last_reply"])); }
@@ -403,7 +404,7 @@ ${it.decision === "pending" ? `<button data-d="approved">Approve</button> <butto
 <p><button id="cd-follow">Draft the follow-up</button> <button id="cd-dictate" hidden>Dictate notes</button> <button id="cd-read" hidden>Read it aloud</button></p>
 <p id="cd-status" role="status"></p><pre id="cd-out" hidden style="white-space:pre-wrap"></pre>
 <p id="cd-voice" hidden style="font-size:14px;opacity:.8">Voice is optional and uses your browser's own speech tools; in Chrome and Edge dictation sends audio to the browser maker's speech service. Say "next point" for a new line. This page records and stores nothing.</p></section>
-<script>const T=${JSON.stringify(token)};const H={authorization:"Bearer "+T,"content-type":"application/json"};
+<script>const T=${JSON.stringify(token).replace(/</g, "\\u003c")};const H={authorization:"Bearer "+T,"content-type":"application/json"};
 const dqEl=(tag,text,attrs)=>{const e=document.createElement(tag);if(text!=null)e.textContent=text;for(const k in attrs||{})e.setAttribute(k,attrs[k]);return e};
 const dqMark=async(email,step,undo,outcome)=>{const r=await fetch("/api/daily/done",{method:"POST",headers:H,body:JSON.stringify({email,step,undo,outcome})});if(!r.ok){alert((await r.json()).error);return}dqBuild()};
 const dqBuild=async(tasks)=>{const body={holidays:document.getElementById("dq-holidays").value};if(tasks)body.tasks=tasks;const r=await fetch("/api/daily",{method:"POST",headers:H,body:JSON.stringify(body)});const j=await r.json();const o=document.getElementById("dq-out");if(!r.ok){document.getElementById("dq-status").textContent=j.error;return}
