@@ -1,7 +1,7 @@
 import os, sys, tempfile, unittest
 import contextlib, io
 import signal, subprocess
-from wait_for import main, wait, wait_until, wait_pid, pid_alive, matching, wait_gone, ancestors
+from wait_for import main, stale_marker, wait, wait_until, wait_pid, pid_alive, matching, wait_gone, ancestors
 
 
 class WaitFor(unittest.TestCase):
@@ -28,6 +28,12 @@ class WaitFor(unittest.TestCase):
             # a second marker ending the log ends the wait even while held
             open(p, "a").write("DONE\n")
             self.assertTrue(wait(p, timeout=1, held=lambda: [(1, "bash")])[0])
+
+    def test_stale_marker_counts_quiet_lines_only_when_asked(self):
+        # red team 2026-11-24: the quiet=False default had no test of its own
+        lines, held = ["done", "phase 2"], lambda: [(1, "bash")]
+        self.assertFalse(stale_marker(lines, ("DONE",), held))
+        self.assertTrue(stale_marker(lines, ("DONE",), held, True))
 
     def test_real_holder_keeps_stale_marker_waiting(self):
         with tempfile.TemporaryDirectory() as d:

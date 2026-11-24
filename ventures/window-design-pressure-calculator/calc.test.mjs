@@ -212,3 +212,36 @@ test("Infinity and overflowing numbers are refused, not carried into a = Infinit
   assert.ok(analyze({ openings: "A, 36, 60, 3, Infinity" }).error, "count Infinity");
   assert.equal(parseOpenings("A, -Infinity, 60").openings.length, 0);
 });
+
+test("red team 2026-11-24: a first opening written with units is an opening, not a header", () => {
+  const p = parseOpenings("Garage door, 192in, 84in, 2\nKitchen, 48, 36");
+  assert.equal(p.openings.length + p.problems.length, 2, "the garage door line is not silently dropped");
+  assert.ok(analyze({ openings: "Garage door, 192in, 84in, 2\nKitchen, 48, 36" }).error, "unit suffixes are explained");
+  assert.equal(parseOpenings("Mark, Width (in), Height (in)\nKitchen, 48, 36").openings.length, 1, "a real header is still skipped");
+});
+
+test("red team 2026-11-24: an elevation that is not a number is refused, not read as sea level", () => {
+  assert.match(analyze({ ...sampleInput(), elevation: "5,280" }).error, /elevation/);
+  assert.match(analyze({ ...sampleInput(), elevation: "high" }).error, /elevation/);
+  assert.equal(analyze({ ...sampleInput(), elevation: "" }).Ke, 1);
+  assert.equal(analyze({ ...sampleInput(), elevation: "  " }).Ke, 1);
+  assert.ok(ke(1) < 1, "1 ft above sea level already reduces Ke");
+});
+
+test("red team 2026-11-24: beyond the hill's zone of influence the page does not claim a 0% raise", () => {
+  const r = analyze({ ...sampleInput(), topo: "escarpment", hillH: "80", hillLh: "100", hillX: "2000", hillSide: "downwind" });
+  assert.equal(r.Kzt, 1);
+  assert.ok(!r.findings.some((f) => /raises the pressure by 0%/.test(f.title)));
+  assert.ok(r.findings.some((f) => /Kzt = 1/.test(f.title)));
+});
+
+test("red team 2026-11-24: Lh = 0 is refused; H = 15 ft qualifies in exposure C", () => {
+  assert.equal(kzt({ shape: "escarpment", H: 80, Lh: 0, x: 50, side: "upwind", z: 20, exposure: "C" }).invalid, true);
+  assert.equal(kzt({ shape: "hill", H: 15, Lh: 30, x: 0, side: "upwind", z: 20, exposure: "C" }).applies, true);
+  assert.equal(kzt({ shape: "hill", H: 15, Lh: 30, x: 0, side: "upwind", z: 20, exposure: "B" }).applies, false);
+});
+
+test("red team 2026-11-24: the factor table shows a to one decimal", () => {
+  const rows = factorRows(analyze(sampleInput()));
+  assert.match(rows.find((x) => /^Corner zone width a/.test(x[0]))[1], /^\d+\.\d$/);
+});
