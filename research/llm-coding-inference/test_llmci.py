@@ -956,3 +956,25 @@ def test_hull_interval_only_widens():
         assert l3 == l2 and h3 == hi
     assert H.hull_interval(12, 200, 0.05, 0.07, fb) == (0.05, 0.07, False)
     assert H.hull_interval(2, 200, 0.0, 1.0, fb)[:2] == V.wilson_labels(2, 200)
+
+
+def test_lower_band_7bi_moves_only_the_lower_bound_inside_its_band():
+    """7bi's band: for bottom <= x < top only the lower bound can drop; outside it the shipped interval is kept,
+    Wilson below 3; the 90% band is never lower than the 95% one."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "experiments"))
+    import h7bi_lower_band as B
+    import h7av_rare_fallback as V
+    l7, l7n, l5 = B.FALLBACKS["l7"], B.FALLBACKS["l7n"], B.FALLBACKS["l5"]
+    for x in range(3, 12):
+        lo, hi = x / 200 - 0.001, x / 200 + 0.004
+        l2, h2, fired = B.hull_interval(x, 200, lo, hi, l7)
+        assert h2 == hi and l2 <= lo
+        assert fired == (7 <= x < 10)
+        if not 7 <= x < 10:
+            assert (l2, h2) == (lo, hi)
+        ln, _, _ = B.hull_interval(x, 200, lo, hi, l7n)
+        assert ln >= l2
+        assert B.hull_interval(x, 200, lo, hi, l5)[2] == (5 <= x < 10)
+    assert B.hull_interval(2, 200, 0.0, 1.0, l7)[:2] == V.wilson_labels(2, 200)
+    assert B.hull_interval(5, 200, 0.02, 0.04, B.FALLBACKS["w3"]) == (0.02, 0.04, False)
