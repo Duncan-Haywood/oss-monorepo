@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVKwns7USYPeViMH3v6",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T15:14:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore: new venture pv-row-spacing-optimizer (solar row spacing/GCR and tilt by NPV, fixed tilt and trackers)",
+  "projects": [
+    "pv-row-spacing-optimizer"
+  ],
+  "pr": 18619,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 35,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "PVGIS (re.jrc.ec.europa.eu) refused by the egress proxy (403)",
+      "fix": "used the two NREL TMY3 files redistributed in pvlib/data instead"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says open the PR as a draft while working; the harness says create it ready for review. Followed the harness."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-solar-row-spacing-the-9-to-3-rule-against-the-money-answer.md",
+    "ventures/pv-row-spacing-optimizer/solar-row-spacing-gcr.html"
+  ],
+  "goal": null,
+  "notes": "Explore idea: ground-mount PV row spacing and tilt optimizer priced by NPV/LCOE (no venture covered the layout step). Engine checked against pvlib 0.16.1: sun within 0.013 deg of SPA, Ineichen within 0.01 W/m2, shaded_fraction1d and singleaxis backtracking identical, annual row beam+sky within 0.04% of infinite_sheds. Measured on pvlib's two TMY3 files: the 9-to-3 rule adds $0.26/MWh at 36N and $7.21/MWh at 55N; clear-sky design overstates yield 41%/94%. Verification: run_venture_tests.py pv-row-spacing-optimizer 35 pass + site page checks; Playwright drive with TMY3 upload, no console errors, no overflow at 390px; run_workflow_locally --for-changes (see PR). Next: survey many TMY sites once a source is reachable; parcel-aware table counting.",
+  "corrections": [],
+  "redteam": null
+}

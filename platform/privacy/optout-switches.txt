@@ -926,6 +926,7 @@ ventures/pte-tax-election-calculator/usage.mjs
 ventures/pto-accrual-liability-calculator/usage.mjs
 ventures/public-record-watch/usage.js
 ventures/publish-kit/usage.mjs
+ventures/pv-row-spacing-optimizer/usage.mjs
 ventures/pv-string-sizer/usage.mjs
 ventures/pwa-installability-check/usage.mjs
 ventures/pypi-provenance-check/usage.mjs
