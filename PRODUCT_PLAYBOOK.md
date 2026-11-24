@@ -26,6 +26,12 @@ A niche is good enough to build for when you can answer all four:
 | What does the problem cost them? | "It's annoying" | "A failed audit is a lost contract" |
 | Why hasn't a big vendor solved it? | (no answer) | "The market is 4,000 firms — too small for a sales-led vendor, fine for us" |
 
+**Default audience (owner, 2026-11-24):** small-business owners and the people
+they delegate to (office manager, bookkeeper, shift lead, outside accountant).
+That is the segment, not the niche: still pick the trade, size and job, as in
+the table. Strategy, product fit and outreach plans:
+[`portfolio/smb/README.md`](portfolio/smb/README.md).
+
 Where to find them: places where a rule changed and nobody has shipped the
 boring tool for it yet (a new reporting requirement, a deprecated format, a
 platform migration); trades where the money is real and the software is

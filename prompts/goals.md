@@ -182,6 +182,54 @@ says otherwise. The hard limits under Guardrails still hold.
    Agents build the sequences, lists, targeting and tooling. Sending
    under the portfolio's name and any paid send volume are switched on once by
    the owner (Hard limits, "Owner-only actions"), and after that they run.
+8. **Small-business owners and their delegates are the default audience.**
+   See the next section.
+
+## Direction: small-business owners and their delegates (owner, 2026-11-24)
+
+The owner, 2026-11-24: "i want to work on getting more smb owner/delegated
+users as a target audience for most work going forward", then: "creating
+marketing sales outreach plans of attack and strategies product strategies
+etc."
+
+**Who.** Owners and operators of small and medium businesses, and the people
+they hand the work to: the office manager, bookkeeper, shift lead,
+assistant, outside accountant or contractor doing the job on the owner's
+behalf. The owner signs up and pays; the delegate is often the daily user.
+A product for this audience serves both. That means seats or invites, roles
+(owner, staff, outside adviser), a hand-off that doesn't need the owner's
+password, an owner view that shows what was done, and an owner who can
+revoke access.
+
+**How it steers work.** For most work, ventures and the sales, marketing and
+lead-magnet work that feeds them, this is the audience a run designs, prices
+and writes for unless it has a reason not to:
+- **Choosing work:** among options of similar value to the North star,
+  prefer the one an SMB owner or delegate would pay for: a back-office job
+  done every week (books, invoices, rosters, scheduling, quotes, compliance
+  filings, grant and bid paperwork, a website, getting found locally).
+- **Product:** plain language, setup in minutes, the owner's existing
+  exports and tools as inputs (bank CSVs, POS and payment exports,
+  spreadsheets, email), monthly pricing a small business can expense, and
+  the delegate features above once a product has accounts.
+- **Marketing and sales:** pages, posts, lead magnets and outbound written
+  for the owner's problem in the owner's words, by trade and by job
+  ("bookkeeping for a three-chair salon", not "AI accounting"). The
+  outreach rules in item 7 of the pivot above apply unchanged; B2B cold
+  email to a business address is the channel to build, consumer opt-in
+  rules where the recipient is a sole trader in a jurisdiction that treats
+  them as a consumer.
+- **Still name a niche.** "Small businesses" is the segment, not the niche
+  (`PRODUCT_PLAYBOOK.md` §1): each product and campaign still picks the
+  trade, size and job it is for.
+
+**What it does not change.** Research keeps its own brief
+(`research/CLAUDE.md`), creative work and free choice keep their shares, and
+products already built for another audience (construction model checks,
+research tools) are not abandoned; they get an SMB angle only where one is
+real. The working strategy, product fit and plans of attack live in
+[`portfolio/smb/README.md`](../portfolio/smb/README.md); runs update that
+file, not this section, as evidence comes in.
 
 ## Mission
 
