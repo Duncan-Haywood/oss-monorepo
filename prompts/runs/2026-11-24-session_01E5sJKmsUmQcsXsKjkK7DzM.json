@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKmsUmQcsXsKjkK7DzM",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T06:09:27Z",
+  "ended": "2026-11-24T06:49:13Z",
+  "wall_minutes": 39.95,
+  "tokens_in": 6095891,
+  "tokens_out": 39434,
+  "cost_usd": 2.9691,
+  "tool_calls": 56,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18554",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "experiments/m7an_bisect/run.py first imported 7am's run.py with `import run`, which collided with m6_poshold's `import run` (sys.modules name clash); fixed by loading it with importlib under another name and popping sys.modules['run'] while it loads",
+    "the image's /usr/bin/python3.13 (from pyenv.py) lacked cma, which m6_poshold imports; pip-installed it"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "pyenv.py pytest numpy matplotlib scipy returned an interpreter without cma, which every codesign-cant experiment needs through m6_poshold; the project's pyproject lists it, so `pyenv.py -r` style install from pyproject would have avoided a failed first import"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-drone-safe-start-radius-every-direction-cant-side-force.md",
+    "research/codesign-cant/LOG.md (milestone 7an entry)",
+    "research/codesign-cant/README.md (new headline section)"
+  ],
+  "goal": null,
+  "notes": "Milestone 7an of codesign-cant: bisected each flight's critical start offset along 16 directions for 7am's 36 designs x 64 plants (quiet+O 16 angles, full 8), 1,618 s on 4 cores. Predictions RC0-RC6 committed before the run script; RC0, RC1, RC5 held, RC2, RC3, RC4, RC6 refuted. Post hoc ablation (couple=False) traces the x/y asymmetry to the cant side force. Added poshold.rollout start_off (inert by default; reproduces 7am's 464 deaths exactly with the reference offsets; test added). Checks run locally: tests/test_bisect_7an.py, test_roa_kp_7am.py, test_paper_numbers.py, test_poshold.py pass; research/_homepage/build.py ok; research_live_links, check_md_links, check_posts, programme_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ccab2d27-5888-5948-b39a-a8a7d3a54d4c",
+    "transcripts": 1,
+    "first": "2026-11-24T06:09:27Z",
+    "last": "2026-11-24T06:49:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 108,
+        "output": 39434,
+        "thinking": 10150,
+        "cache_read": 5972597,
+        "cache_write_5m": 0,
+        "cache_write_1h": 123186,
+        "api_equivalent_usd": 2.9691,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 108,
+      "output": 39434,
+      "thinking": 10150,
+      "cache_read": 5972597,
+      "cache_write_5m": 0,
+      "cache_write_1h": 123186,
+      "api_equivalent_usd": 2.9691,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 53,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 39.95,
+      "active_minutes": 39.95,
+      "model_minutes": 7.61,
+      "tool_minutes": 32.34,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a controls researcher scripting a per-direction bisection over 36 designs, an ablation and the write-up: about a working day plus",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 336.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
