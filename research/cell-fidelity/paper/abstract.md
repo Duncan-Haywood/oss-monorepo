@@ -32,12 +32,15 @@ the uniform run length (&minus;30.0 to &minus;29.4; 15 of 15 folds cheaper) whil
 [7zc]. Gated on the training designs' drift size, the correction saves 14.7 cycles per design against
 triage alone over eight set-conditions (&minus;27.7 to &minus;1.8; 36 of 40 folds met against 35), an
 interval that excludes zero only with the engineered cell included; a gate on plating share switches the
-correction off on that cell and is dropped. On the four published sets the correction still costs 1.4 to
-3.3 cycles per design more than triage and meets fewer folds, and no gate tried separates them from the
-cells where it pays (Table 3). The recipe for practitioners is therefore drift-score triage, plus the corrected forecast
-gated on drift size or out-of-fold error rather than on mechanism, at a cost of +1.9 to +3.3 cycles per
-design and two folds on the published sets, where the gates cannot tell two-way drift from one-way. All
-results are model-to-model; a check against measured cells remains open.
+correction off on that cell and is dropped. Adding a test that the drift runs one way (at least 80% of the
+training designs on one side of the straight forecast) switches the correction off on three of the four
+published sets, whose drift runs both ways, and saves 15.4 cycles per design against triage over the eight
+(&minus;28.0 to &minus;3.2; 37 of 40 folds met) [7ze; Table 3]. On the four published sets the
+direction-gated correction still costs 1.75 cycles per design more than triage and meets 18 of 20 folds
+against 19, all of it on `NCA_Kim2011`, whose drift is large and one-directional and which no gate tried
+separates from the cells where the correction pays. The recipe for practitioners is therefore drift-score
+triage, plus the corrected forecast gated on the training pools' drift size and direction rather than on
+mechanism. All results are model-to-model; a check against measured cells remains open.
 
 ---
 
@@ -48,8 +51,10 @@ After 7zc and 7zd the correction's condition changed from "plating-limited" to "
 drift": a plating-free cell gains as much as the plating cells, and the plating-share gate is the one gate
 that gets it wrong. Two
 claims are deliberately absent: that the threshold rule beats a uniform run length across chemistries
-(no interval that includes every tuned rate excludes zero), and that a gate says when to correct on the published sets (none does; even a hindsight per-set oracle
-chooses the straight forecast there).
+(no interval that includes every tuned rate excludes zero), and that a gate says when to correct on the published sets (the
+direction gate of 7ze is right on three of the four, but it still corrects `NCA_Kim2011`, and a hindsight per-set oracle
+chooses the straight forecast on all four). The direction gate was designed after seeing what the size-only gate missed, so
+its eight conditions are in-sample for the gate's form.
 
 **Numbers, and where each comes from.**
 
@@ -71,3 +76,7 @@ chooses the straight forecast there).
 | eight set-conditions, drift gate vs theta | &minus;14.67 (&minus;27.70 to &minus;1.77), 36/40 vs 35/40 | Table 3, eighth column; `LOG.md` 7zc |
 | eight, plating-share gate vs theta | &minus;10.46 (&minus;22.23 to +0.12) | Table 3, eighth column |
 | eight, 7zd's resistive cell swapped in | &minus;14.35 (&minus;27.01 to &minus;1.73) | Table 3, eighth column; `LOG.md` 7zd |
+| eight, direction-aware gate vs theta | &minus;15.42 (&minus;28.03 to &minus;3.21), 37/40 vs 35/40 | Table 3, &theta;S row; `LOG.md` 7ze, H379 |
+| seven, direction-aware gate vs theta | &minus;12.03 (&minus;25.07 to 0.00) | Table 3, &theta;S row; `LOG.md` 7ze, H380 |
+| committed sets, direction-aware gate vs theta | +1.75 (0.00 to +5.25), 18/20 vs 19/20 | Table 3, committed pairs |
+| six set-conditions, direction-aware gate met | 28/30, as many as theta | Table 3, &theta;S row (`results.md` 4.7, finding 11) |
