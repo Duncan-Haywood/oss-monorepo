@@ -145,6 +145,12 @@
 - (2026-11-23) on own ramps the oracle's 14 losses go to 0
 - (2026-11-23) per-colour ratios + Chen's level (mpcw) default on Bayer 2026-11-21: held +0.09 dB luma, +0.21 wb SNR 25/12, 0 new losers (eval/noise-pca-whitened-level-*)
 
+## From the cull page's closed-eye check (2026-11-24, eval/cull-closed-eyes-2026-11-24.md)
+
+- A licensed set with many real closed and half-closed eyes to set the 0.45 line from a curve (one closed face
+  brackets it now); sunglasses read as open.
+- The same detector behind `SHOOTFLOW_FACE_DETECTOR` for the CLI cull (`toDetectorJson` writes faces.py's contract).
+
 ## From the cull page's AF point (2026-11-24, eval/cull-af-point-2026-11-24.md)
 
 - Nikon phase-detect AF points: map point numbers to positions per body (51-point D300/D800/D810 grid, 39-point

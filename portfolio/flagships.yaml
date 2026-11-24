@@ -329,14 +329,13 @@ flagships:
       (eval/near-clean-truth-noise-2026-11-19.md); a lower-envelope line fit
       (opt-in) rescued 3 of 6 K-1 II losers but failed h1 2026-11-22 (-0.2 dB luma
       at SNR 12 wb: wb bins are not on one line; eval/noise-envelope-fit-*; next on
-      whitened bins); drawn noise on 11 fresh camera raws passed 2026-11-23
-      (+0.12/+0.22 dB, eval/camera-drawn-mpcws-*), so mpcws is the Bayer default;
-      next read it against --noise-read ship on new camera files. Browser cull page
-      2026-11-23 (site/cull.html; 520-file card 25.8 s; merges existing sidecars,
-      eval/cull-existing-sidecars-*); AF points from maker notes 2026-11-24 (22 of
-      22 = metadata-extractor, eval/cull-af-point-*): next Nikon AF grids, a real
-      card of 500+ raws with picks, a Lightroom read of merged sidecars. More open
-      items: NEXT.md.
+      whitened bins); next read it against --noise-read ship on new camera files.
+      Browser cull page 2026-11-23 (site/cull.html; 520-file card 25.8 s; merges
+      existing sidecars, eval/cull-existing-sidecars-*); AF points 2026-11-24 (22 of
+      22 = metadata-extractor, eval/cull-af-point-*); on-device closed-eye flag
+      2026-11-24 (1 closed face flagged, no open one, eval/cull-closed-eyes-*; next
+      a real blink set): next Nikon AF grids, a real card of 500+ raws with picks, a
+      Lightroom read of merged sidecars. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-

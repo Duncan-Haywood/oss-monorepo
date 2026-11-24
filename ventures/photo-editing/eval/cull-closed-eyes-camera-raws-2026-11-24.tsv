@@ -1,0 +1,68 @@
+# status: Eyes checked on 61 frames in 5.0 s: 6 with faces, 0 with eyes closed.
+# wall: 3.4 s to load, 5.7 s for the eye check (model load included), 65 files; tiles tagged "eyes closed": 0; Eyes closed filter shows 0
+file	faces	eyes_closed	blink_max	sharpest_in_burst	error
+Sony ILCE-7M3 (A7M3).arw	0	0		1	
+Sony DSLR-A500.arw	0	0		1	
+Sony ILCE-5000 (A5000).arw	0	0		1	
+Sony ILCE-7M4 (A7M4).ARW	0	0		1	
+Sony NEX-7.arw	0	0		1	
+Sony NEX-5N.arw	0	0		1	
+Canon EOS 350D.CR2	0	0		1	
+Canon EOS 600D.CR2	0	0		1	
+Canon EOS R3.cr3	0	0		1	
+IMG_0041.CR3	0	0		1	
+Canon EOS 70D.cr2	0	0		1	
+IMG_0036.CR3	0	0		1	
+Canon EOS 7D.cr2	0	0		1	
+DJI Phantom 4 (2).dng	0	0		1	
+DJI Phantom 4 (1).dng	0	0		1	
+_MG_0039.CR3	0	0		1	
+_MG_0045.CR3	0	0		1	
+Leica T (Typ 701).dng	0	0		1	
+bigtiff.dng				1	not a camera raw or JPEG file
+Leica X VARIO (Typ 107).dng	0	0		1	
+bigtiff_be.dng				1	not a camera raw or JPEG file
+LG Nexus 5X.dng				1	no embedded JPEG preview found
+Issue 247-1.nef	1	0	0.185	1	
+Issue 247-2.nef	1	0	0.005	1	
+Pentax QS1.dng	0	0		1	
+Issue 247-4.nef	1	0	0.045	1	
+Issue 247-3.nef	1	0	0.010	1	
+Nikon 800E.nef	0	0		1	
+Nikon D300.nef	0	0		1	
+Nikon D70.nef	0	0		1	
+Nikon D810.nef	1	0	0.008	1	
+Nikon D90.nef	0	0		1	
+Nikon D5100.nef	0	0		1	
+NikonD200.nef	0	0		1	
+Olympus C5050Z.orf	0	0		1	
+OM System TG-7.ORF	0	0		1	
+OM Sytem OM-1.orf	0	0		1	
+Olympus E-PL7.orf	0	0		1	
+Olympus E-M5.orf	0	0		1	
+Olympus E-M10.orf	0	0		1	
+Olympus C8080.orf	0	0		1	
+Olympus E410.orf	0	0		1	
+Olympus E-PM1.orf	2	0	0.003	1	
+Olympus E30.orf	0	0		1	
+Olympus E600.orf	0	0		1	
+Olympus PEN E-P3.orf	0	0		1	
+Olympus Pen E-PL1.orf	0	0		1	
+Olympus SP500UZ.orf	0	0		1	
+Olympus SP350.orf	0	0		1	
+Olympus TG-4.orf	0	0		1	
+Olympus TG-6.ORF	0	0		1	
+Olympus XZ1.orf	0	0		1	
+FujiFilm FinePix S5500.raf	0	0		1	
+Fujifilm X-E1.raf	0	0		1	
+FujiFilm EX-2.raf	0	0		1	
+Issue 419.rw2				1	no embedded JPEG preview found
+Panasonic DMC-GF1.rw2	0	0		1	
+Panasonic DMC-GF3.rw2	0	0		1	
+Panasonic DMC-GF7.rw2	0	0		1	
+Pentax K-1 Mark II.pef	0	0		1	
+Panasonic Lumix DMC-LX7.rw2	0	0		1	
+Samsung EK-GN120 (Galaxy NX).srw	0	0		1	
+Samsung NX20.srw	0	0		1	
+Samsung NX1.srw	0	0		1	
+Samsung NX3000.srw	0	0		1	
