@@ -1,12 +1,11 @@
 name: lemonsqueezy-payout-to-journal
 description: >-
-  Free browser tool that turns a Lemon Squeezy earnings export into balanced accounting journals for Xero,
-  QuickBooks Online and QuickBooks Desktop (IIF). It splits every order into product sales income, shipping income,
-  tax collected and Lemon Squeezy's fee, books refunds separately instead of the net payout, proves the rows add up
-  to the payout (from a payout row, a payout ID column, or a deposit typed in from the bank), splits a payout
-  that straddles a month end into one journal per month, and balances each to a Lemon Squeezy clearing account.
-  Differences no rule explains are journalled to an uncategorised account rather than dropped. The export is
-  read locally and never uploaded.
+  Free browser tool that turns Lemon Squeezy's Orders export (amounts in USD cents) into balanced accounting
+  journals for Xero, QuickBooks Online and QuickBooks Desktop (IIF). It splits every order into product sales,
+  discounts and Lemon Squeezy's fee (estimated at the published 5% + 50c plus a surcharge you enter, since the
+  export has no fee column), reverses refunds, leaves out merchant-of-record tax, books payout fees, checks the
+  total against the bank deposit, splits a payout that straddles a month end into one journal per month, and
+  balances each to a Lemon Squeezy clearing account. The export is read locally and never uploaded.
 stage: prototype
 owner: duncan
 

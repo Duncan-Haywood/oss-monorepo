@@ -1,0 +1,275 @@
+{
+  "date": "2026-11-24",
+  "subject": "ventures/lemonsqueezy-payout-to-journal",
+  "stratum": "venture",
+  "seed": "2026-11-24-c264",
+  "drawn_by": "reaudit",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "prior_audit": "portfolio/quality/audits/2026-11-13-lemonsqueezy-payout-to-journal.json",
+  "professional": "a bookkeeper who closes the books for SaaS and digital-product sellers paid through Lemon Squeezy",
+  "scores": {
+    "correctness": 1,
+    "completeness": 1,
+    "verification": 1,
+    "craft": 2,
+    "claims": 1,
+    "fitness": 1,
+    "domain": 1
+  },
+  "evidence": {
+    "correctness": "Scored on arrival (main at 92b8bd438, before PR 18611). Ran a node script against calc.mjs at 92b8bd438 (the same three inputs are now tests in calc.test.mjs: the Orders export, the discount_total and the payout-fee tests, so `git show 92b8bd438:ventures/lemonsqueezy-payout-to-journal/calc.mjs` plus those tests reproduces it): (1) a file with the documented Orders export columns (identifier, order_number, product_name, variant_name, subtotal, discount_total, tax, total, tax_name, tax_rate, date_utc; one $20 + $4 VAT order in cents) is still refused: 'Missing column: net total'. (2) a discounted order (subtotal 20, discount 5, fee 1.25, net 13.75) still books $5 to uncategorised. (3) 1,000.00 of rows against a 990.00 deposit (1% non-US payout fee) is still an error with no payout-fee category. The docs' France example in a hand-built CSV still gives fee 2.06, net 17.94 (pass). On the only file a Lemon Squeezy user has, nothing is produced: 1.",
+    "completeness": "Fix PR 15600 added a 'Known gap' note to the page, README and llms.txt, renamed the eyebrow, switched the deposit box to parseAmount and added date_utc as an alias. Reading the Orders export, cents, discounts, payout fees and the fee rate were not built. The core input path still does not work end to end: 1.",
+    "verification": "cd ventures/lemonsqueezy-payout-to-journal && node --test '*.test.mjs': 42 pass, 0 fail on arrival. Both mutants that survived on 2026-11-13 still survive (quality_mutate.py): a $1 tolerance on the payout check (calc.mjs:203), and ignoring a partial refunded amount (calc.mjs:168). Every fixture is still the Patreon layout: 1.",
+    "craft": "Read calc.mjs (353 lines), index.html, both test files. Still the Patreon engine: 'pledge amount' in the missing-column error (calc.mjs:129), the 'pledge'/'tier'/'patron' aliases, Supporter/Patron tier samples with shipping and fees split 70/30 into platform and processing fees (calc.mjs:314-341), 'product' listed twice in the aliases (calc.mjs:124). The integer-cents code is otherwise tidy: 2.",
+    "claims": "Arrival copy: the header note now admits the Orders export is not read (backed), but the meta description and the title still claim 'tax you collected, Lemon Squeezy platform and processing fees', the FAQ (JSON-LD and the visible text) still says 'Export your earnings CSV from Lemon Squeezy (Orders or Payouts export), paste it here' and 'This page books pledges', and the footer still says 'Lemon Squeezy, Inc.'. The disclaimer and the no-upload test are backed. Part of the page now contradicts the rest: 1.",
+    "fitness": "Walked the job: a bookkeeper exports Orders (the CSV arrives by email), pastes it, and gets an error. They would have to convert cents to dollars, compute each fee, and add a net column themselves; that is the whole job. 1.",
+    "domain": "Compared against Lemon Squeezy's fees page (5% + 50c; +1.5% international, +1.5% PayPal, +0.5% subscriptions; 1% non-US bank and PayPal payout fees) and merchant-of-record tax treatment. Still Patreon's model: two fee columns, shipping, no discount line, no payout fee, no knowledge that amounts are in cents. The clearing-account method is sound: 1."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "documented Orders export (one $20 + $4 VAT order, cents) is read",
+      "method": "column list from docs.lemonsqueezy.com/help/orders/exporting-orders as cited by the 2026-11-13 audit (the host does not resolve from this session)",
+      "command": "node scratchpad/arrival.mjs",
+      "expected": "a journal: sales 20.00, the fee estimated",
+      "observed": "error 'Missing column: net total'",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "discounted order: subtotal 20, discount 5, fee 1.25 (5% of 15 + 0.50), net 13.75",
+      "method": "Lemon Squeezy fee formula, by hand",
+      "command": "node scratchpad/arrival.mjs",
+      "expected": "discount Dr 5.00, no uncategorised line",
+      "observed": "uncategorised Dr 5.00",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "payout with a 1% non-US payout fee (rows 1,000.00, deposit 990.00)",
+      "method": "Lemon Squeezy fees page, payout fees",
+      "command": "node scratchpad/arrival.mjs",
+      "expected": "payout-fee line Dr 10.00, agrees",
+      "observed": "error 'rows add up to 1,000.00 USD but the payout is 990.00 USD'",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "docs example: France, $20 + 20% VAT, card",
+      "method": "docs fees page example: fee $2.06, net $17.94",
+      "command": "node -e (validate with a hand-built Order ID,Date,Subtotal,Tax,Fee,Net row)",
+      "expected": "clearing 1794, no tax line",
+      "observed": "1794, no tax line",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite on arrival",
+      "method": "run",
+      "command": "cd ventures/lemonsqueezy-payout-to-journal && node --test '*.test.mjs'",
+      "expected": "pass",
+      "observed": "42 pass, 0 fail; every fixture is the Patreon layout",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "meta description and FAQ say it reads the Orders/Payouts export and books 'tax you collected'",
+      "method": "grep index.html on arrival",
+      "command": "grep -n 'tax you collected\\|Orders or Payouts' ventures/lemonsqueezy-payout-to-journal/index.html",
+      "expected": "no such claim",
+      "observed": "present in the meta description, JSON-LD and visible FAQ, next to a 'Known gap' note that contradicts them",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "served eyebrow no longer says PATREON",
+      "method": "read index.html header (page.test.mjs asserts it)",
+      "command": "grep -c 'PATREON PAYOUT' ventures/lemonsqueezy-payout-to-journal/index.html",
+      "expected": "0",
+      "observed": "0",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "deposit box reads '1,262.00' correctly",
+      "method": "index.html now uses parseAmount; parseAmount('1,262.00') run in node",
+      "command": "node -e (parseAmount('1,262.00'))",
+      "expected": "126200",
+      "observed": "126200",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "Patreon leftovers in code",
+      "method": "grep",
+      "command": "grep -c 'Patreon\\|pledge\\|Pledge\\|tier' ventures/lemonsqueezy-payout-to-journal/calc.mjs",
+      "expected": "0",
+      "observed": "11",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "after PR 18611: the docs example read from an Orders export row with a 1.5% surcharge",
+      "method": "docs fees page: fee $2.06, net $17.94",
+      "command": "cd ventures/lemonsqueezy-payout-to-journal && node --test '*.test.mjs'",
+      "expected": "fee 206, clearing 1794, no tax line",
+      "observed": "fee 206, clearing 1794 (test 'Lemon Squeezy's fee worked example')",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "after PR 18611: sample Orders export recomputed by hand",
+      "method": "by hand: Sep 19200 revenue - fees 195+944+120; Oct 18400 - 795+195+258",
+      "command": "cd ventures/lemonsqueezy-payout-to-journal && node --test '*.test.mjs'",
+      "expected": "clearing 17941 and 17152, deposit 350.93",
+      "observed": "17941 and 17152; the page in Chromium shows 350.93 agreeing",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:203",
+      "change": "else if (s.stated !== sum) -> else if (Math.abs(s.stated - sum) > 100)",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:168",
+      "change": "push(\"refunds\", -(amts.refundAmt ||  -> push(\"refunds\", -(0 || ",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "prior_defects": [
+    {
+      "index": 0,
+      "severity": "high",
+      "basis": "assumed",
+      "status": "open",
+      "what": "the Orders export is still refused on arrival",
+      "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18611"
+    },
+    {
+      "index": 1,
+      "severity": "high",
+      "basis": "assumed",
+      "status": "open",
+      "what": "cents are not read as cents (no Orders-export path)",
+      "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18611"
+    },
+    {
+      "index": 2,
+      "severity": "high",
+      "basis": "assumed",
+      "status": "closed",
+      "what": "eyebrow and placeholder no longer say Patreon (page.test.mjs asserts it)"
+    },
+    {
+      "index": 3,
+      "severity": "high",
+      "basis": "assumed",
+      "status": "partial",
+      "what": "a Known-gap note was added, but the title, meta, FAQ and VENTURE.yaml still claim the export is read and 'tax you collected'",
+      "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18611"
+    },
+    {
+      "index": 4,
+      "severity": "medium",
+      "basis": "assumed",
+      "status": "partial",
+      "what": "the Patreon menu pointer is gone, but the error still asks for a 'pledge amount'",
+      "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18611"
+    },
+    {
+      "index": 5,
+      "severity": "medium",
+      "basis": "assumed",
+      "status": "open",
+      "what": "the sample fees are still about double 5% + 50c, split 70/30",
+      "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18611"
+    },
+    {
+      "index": 6,
+      "severity": "medium",
+      "basis": "assumed",
+      "status": "open",
+      "what": "discount_total is still booked to uncategorised",
+      "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18611"
+    },
+    {
+      "index": 7,
+      "severity": "medium",
+      "basis": "assumed",
+      "status": "open",
+      "what": "there is still no payout-fee category",
+      "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18611"
+    },
+    {
+      "index": 8,
+      "severity": "medium",
+      "basis": "assumed",
+      "status": "closed",
+      "what": "the deposit box uses parseAmount"
+    },
+    {
+      "index": 9,
+      "severity": "medium",
+      "basis": "assumed",
+      "status": "closed",
+      "what": "date_utc is aliased, and a test pins it"
+    },
+    {
+      "index": 10,
+      "severity": "medium",
+      "basis": "assumed",
+      "status": "open",
+      "what": "both earlier mutants still survive on arrival",
+      "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18611"
+    },
+    {
+      "index": 11,
+      "severity": "low",
+      "basis": "assumed",
+      "status": "open",
+      "what": "still a copy of the Patreon engine with its aliases and samples",
+      "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18611"
+    },
+    {
+      "index": 12,
+      "severity": "low",
+      "basis": "assumed",
+      "status": "open",
+      "what": "the footer still names 'Lemon Squeezy, Inc.'",
+      "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18611"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "PR 15600 is recorded as the fix for 13 defects, but it closed 3 (2 of them low-effort copy) and left both high-severity input defects open; the queue counted all 13 as fixed",
+      "where": "portfolio/quality/audits/2026-11-13-lemonsqueezy-payout-to-journal.json:1",
+      "category": "other",
+      "origin": "audit",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18611"
+    },
+    {
+      "severity": "medium",
+      "what": "Fee is an estimate after the fix: one surcharge percentage per file, so a file mixing US and non-US buyers will not agree to the cent; Lemon Squeezy's per-fee rounding is unpublished",
+      "where": "ventures/lemonsqueezy-payout-to-journal/calc.mjs:233",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Orders are not assigned to payouts by the 1st/15th schedule and hold; the user must export one payout's orders",
+      "where": "ventures/lemonsqueezy-payout-to-journal/calc.mjs:250",
+      "category": "scope-gap",
+      "origin": "spec"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/18611"
+  ],
+  "verdict": "On arrival the fix recorded against the 2026-11-13 audit (PR 15600) had closed 3 of 13 defects: the eyebrow, the deposit parse and the date_utc alias. It had only documented the two high-severity input defects, so the tool still refused Lemon Squeezy's own Orders export. Scores are unchanged from the first audit except claims (0 to 1, for the honest note); the subject does not meet the bar. PR 18611, by the same session, reads the export (cents, discounts, status, merchant-of-record tax), estimates the fee at 5% + 50c plus a surcharge, books payout fees, removes the Patreon residue and adds tests that catch all four seeded mutants. A later round should re-audit it, ideally against a real export, which no session has had."
+}
