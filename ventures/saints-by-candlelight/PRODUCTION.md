@@ -225,7 +225,7 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - The graves of craving at Kibroth-hattaavah, the second quails and the rabble who wept for the cucumbers and leeks of Egypt, told carefully (Numbers 11:4-6 and 31-35; left by episode 173).
 - On eagles' wings to the foot of the mountain, the three days of washing and the boundary set round Sinai, Ziva's family carried on (Exodus 19, with Deuteronomy 32:11; left by episode 174, after episode 140's Jethro).
 - The second Meribah remembered: Psalm ninety-five and the Invitatory, told as a quieter episode about morning prayer, 'today, if you hear his voice' (Psalm 95, with Hebrews 3:7 to 4:11; left by episode 174).
-- The bronze serpent on the pole, the people who looked and lived (Numbers 21:4-9, with Wisdom 16:5-7 and John 3:14-15; left by episode 163).
+- *(Drafting, 2026-11-24.)* The bronze serpent on the pole, the people who looked and lived (Numbers 21:4-9, with Wisdom 16:5-7 and John 3:14-15; left by episode 163).
 
 ## Audio status
 
