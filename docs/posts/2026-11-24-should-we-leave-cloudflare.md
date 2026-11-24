@@ -3,7 +3,7 @@ title: "Should we leave Cloudflare? Comparing AWS, GCP, Azure, Vercel, Fly, Hetz
 seo_title: "Cloudflare vs AWS, GCP, Azure and GPU neoclouds for a small SaaS"
 date: 2026-11-24
 tags: [hosting, cloudflare, aws, gpu, infrastructure]
-description: "At 415 MB of traffic a month, egress prices decide nothing. Spend caps, everything as code and credential scoping do. The answer: $5 of Workers Paid, a Postgres specialist and Modal, not a migration."
+description: "At 415 MB of traffic a month, egress price decides nothing; spend caps and IaC do. Answer: $5 Workers Paid, a Postgres host and Modal, not a migration."
 ---
 
 The owner asked for a first-principles comparison of cloud providers, from
