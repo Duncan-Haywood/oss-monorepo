@@ -3,7 +3,7 @@ title: "One character reference, 28 crashes: red team on the photo culler's capt
 seo_title: "String.fromCodePoint RangeError: decoding &#...; safely in JavaScript"
 date: 2026-11-24
 tags: [redteam, testing, mutation-testing, photo-editing, xmp, iptc, javascript, security, redos, ventures]
-description: "Red team on the photo culler's IPTC sidecar writer: 21 of 30 seeded bugs caught, six real defects fixed, one of them a crash shared by 28 decoders in the repository."
+description: "Red team on the photo culler's IPTC sidecar writer: 21 of 30 seeded bugs caught, six real defects fixed, one a crash shared by 28 more decoders."
 ---
 
 Today's red-team run went after `iptc.mjs`, the module that writes captions,
