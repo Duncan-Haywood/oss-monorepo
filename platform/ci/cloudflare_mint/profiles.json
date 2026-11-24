@@ -1,0 +1,63 @@
+{
+  "_comment": "One profile per kind of job: the least Cloudflare can grant for it. `account` names apply to the one account (CLOUDFLARE_ACCOUNT_ID), `zone` names to the zone in zone_id or else every zone of that account. Names are Cloudflare permission-group names, matched case-insensitively ('X:Edit' == 'X Write'); an unknown name fails the job before any token is made. Why each permission: README.md, 'Profiles'.",
+  "site-deploy": {
+    "used_by": ["oss-monorepo .github/workflows/portfolio-pages.yml deploy-cloudflare"],
+    "account": ["Workers Scripts Write", "Account Settings Read"],
+    "ttl_minutes": 60
+  },
+  "edge-deploy": {
+    "used_by": ["oss-monorepo .github/workflows/edge-deploy.yml deploy"],
+    "account": ["Workers Scripts Write", "D1 Write", "Account Settings Read"],
+    "ttl_minutes": 30
+  },
+  "email-routing": {
+    "used_by": ["oss-monorepo .github/workflows/cloudflare-email.yml email-routing"],
+    "zone": ["Zone Read", "Email Routing Rules Write", "Zone Settings Write"],
+    "ttl_minutes": 15
+  },
+  "usage-analytics": {
+    "used_by": ["oss-monorepo .github/workflows/site-usage-pull.yml pull"],
+    "account": ["Account Analytics Read"],
+    "zone": ["Zone Read", "Analytics Read"],
+    "ttl_minutes": 15
+  },
+  "ai-first-markets-deploy": {
+    "used_by": ["oss-monorepo .github/workflows/ai-first-markets-deploy.yml deploy"],
+    "account": ["Workers Scripts Write", "Account Settings Read"],
+    "ttl_minutes": 30
+  },
+  "listing-lens-docs-deploy": {
+    "used_by": ["oss-monorepo .github/workflows/real-estate-agent-photo-app-deploy-docs.yml deploy"],
+    "account": ["Pages Write", "Account Settings Read"],
+    "ttl_minutes": 30
+  },
+  "listing-lens-access": {
+    "used_by": ["oss-monorepo .github/workflows/real-estate-agent-photo-app-deploy-docs.yml apply-access"],
+    "account": ["Access: Apps and Policies Write", "Access: Organizations, Identity Providers, and Groups Read"],
+    "ttl_minutes": 15
+  },
+  "grants-deploy": {
+    "used_by": ["private-monorepo .github/workflows/grants-deploy.yml deploy"],
+    "account": [
+      "Workers Scripts Write",
+      "D1 Write",
+      "Workers R2 Storage Write",
+      "Vectorize Write",
+      "Queues Write",
+      "Workers AI Read",
+      "Account Settings Read"
+    ],
+    "zone": ["Zone Read", "DNS Write", "Workers Routes Write"],
+    "ttl_minutes": 60
+  },
+  "grants-backup": {
+    "used_by": ["private-monorepo .github/workflows/grants-backup.yml backup"],
+    "account": ["D1 Write", "Workers R2 Storage Write", "Account Settings Read"],
+    "ttl_minutes": 75
+  },
+  "grants-set-admins": {
+    "used_by": ["private-monorepo .github/workflows/grants-set-admins.yml set"],
+    "account": ["Workers Scripts Write"],
+    "ttl_minutes": 15
+  }
+}

@@ -13,6 +13,7 @@ the same PR, so the next run picks up where it left off (owner, 2026-11-02:
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -22,14 +23,37 @@ import yaml
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent
 MODELS = HERE / "models.yaml"
+TRANSITION = HERE / "transition.json"
 
 STAGES = ["none", "planned", "built-dark", "test-paid", "live"]
 LIABILITY = ["low", "medium", "high"]
 REQUIRED = [
-    "venture", "buyer", "liability", "model", "first_offer",
+    "buyer", "liability", "model", "first_offer",
     "price_hypothesis", "comparables", "stage", "next", "next_owner",
 ]
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+# A `next` that says the agent part is finished. Why: league-schedule-generator
+# ("Nothing agent-doable is left until the link is set") and quick-pick-survey
+# ("agent steps done. Owner step: ...") kept next_owner: false, so `next`
+# named a finished row from 2026-11-07 to 2026-11-24 and no run was sent to a
+# product with no paid offer at all (process critique, 2026-11-24).
+NO_AGENT_STEP = re.compile(r"\bnothing agent-doable is left\b|\bagent steps (?:are )?done\b", re.I)
+
+# A paid bet (portfolio/monetization/bets.md, 2026-11-24) is built in the
+# private repository and named by `app:` instead of `venture:`. Its row adds:
+APP_PREFIX = "private-monorepo/apps/"
+BET_REQUIRED = ["bet", "billing", "tiers", "cost_drivers", "rail", "checkout"]
+BILLING = ["subscription", "one-off"]
+CHECKOUT = ["dark", "live"]
+
+
+def row_name(row: dict, i: int = 0) -> str:
+    """`venture` for a public venture's row, `app:<slug>` for a private bet's."""
+    if row.get("venture"):
+        return str(row["venture"])
+    if row.get("app"):
+        return "app:" + str(row["app"]).removeprefix(APP_PREFIX)
+    return f"row {i}"
 
 
 def load(path: Path = MODELS) -> dict:
@@ -45,7 +69,7 @@ def check(data: dict, repo: Path = REPO) -> list[str]:
         return ["models.yaml: `products` must be a non-empty list"]
     seen: set[str] = set()
     for i, row in enumerate(products):
-        name = row.get("venture", f"row {i}")
+        name = row_name(row, i)
         where = f"models.yaml {name}"
         for key in REQUIRED:
             if key not in row:
@@ -53,7 +77,13 @@ def check(data: dict, repo: Path = REPO) -> list[str]:
         if name in seen:
             errors.append(f"{where}: listed twice")
         seen.add(name)
-        if not (repo / "ventures" / str(name)).is_dir():
+        if row.get("venture") and row.get("app"):
+            errors.append(f"{where}: set `venture` or `app`, not both")
+        elif row.get("app"):
+            errors.extend(check_bet_row(row, where))
+        elif not row.get("venture"):
+            errors.append(f"{where}: missing `venture` (or `app` for a private bet)")
+        elif not (repo / "ventures" / str(name)).is_dir():
             errors.append(f"{where}: no ventures/{name} directory")
         if row.get("stage") not in STAGES:
             errors.append(f"{where}: stage must be one of {STAGES}")
@@ -71,6 +101,9 @@ def check(data: dict, repo: Path = REPO) -> list[str]:
                 errors.append(f"{where}: comparable {c.get('what')!r} needs a price")
         # A row may not claim money it can't show: a live row must say where
         # its sale is recorded.
+        if row.get("next_owner") is False and NO_AGENT_STEP.search(str(row.get("next", ""))):
+            errors.append(f"{where}: `next` says no agent step is left; set next_owner: true "
+                          "(or write the agent step)")
         if row.get("stage") in ("test-paid", "live") and not row.get("evidence"):
             errors.append(f"{where}: stage {row.get('stage')} needs `evidence` (a file path)")
         ev = row.get("evidence")
@@ -79,17 +112,56 @@ def check(data: dict, repo: Path = REPO) -> list[str]:
     return errors
 
 
-def queue(data: dict) -> list[dict]:
-    """Agent-doable rows, best first: furthest along, then lowest liability.
+def check_bet_row(row: dict, where: str) -> list[str]:
+    """A private bet's row: where it is built, how it bills, and proposed tiers
+    that say they are proposals until a sale is recorded (no invented prices)."""
+    errors = []
+    app = str(row.get("app"))
+    if not app.startswith(APP_PREFIX) or len(app) == len(APP_PREFIX):
+        errors.append(f"{where}: `app` must be {APP_PREFIX}<slug>")
+    for key in BET_REQUIRED:
+        if key not in row:
+            errors.append(f"{where}: missing `{key}`")
+    if "billing" in row and row["billing"] not in BILLING:
+        errors.append(f"{where}: billing must be one of {BILLING}")
+    if "checkout" in row and row["checkout"] not in CHECKOUT:
+        errors.append(f"{where}: checkout must be one of {CHECKOUT}")
+    if row.get("checkout") == "live" and row.get("stage") != "live":
+        errors.append(f"{where}: checkout live needs stage live")
+    if "rail" in row and row["rail"] != "paddle":
+        errors.append(f"{where}: rail must be paddle (owner, 2026-11-24)")
+    tiers = row.get("tiers")
+    if "tiers" in row and not (isinstance(tiers, list) and tiers):
+        errors.append(f"{where}: `tiers` must be a non-empty list")
+    for t in tiers if isinstance(tiers, list) else []:
+        label = t.get("name", "?") if isinstance(t, dict) else t
+        if not isinstance(t, dict) or not t.get("name") or not t.get("price"):
+            errors.append(f"{where}: tier {label!r} needs `name` and `price`")
+            continue
+        if row.get("stage") not in ("test-paid", "live") and t.get("status") != "proposal":
+            errors.append(f"{where}: tier {label!r} must say `status: proposal` until a sale is recorded")
+        if t.get("status") == "proposal" and not str(t.get("why") or "").strip():
+            errors.append(f"{where}: proposed tier {label!r} needs `why` (its reasoning)")
+    drivers = row.get("cost_drivers")
+    if "cost_drivers" in row and not (isinstance(drivers, list) and drivers):
+        errors.append(f"{where}: `cost_drivers` must be a non-empty list")
+    return errors
 
-    Finishing one product's paid path beats starting a second, and a
-    low-liability product beats a high one at the same stage.
+
+def queue(data: dict) -> list[dict]:
+    """Agent-doable rows, best first: the paid bets in bets.md order, then the
+    rest furthest along, then lowest liability.
+
+    The bets come first (owner, 2026-11-24: invest by promise, north star $10k
+    MRR). Among the other rows, finishing one product's paid path beats
+    starting a second, and a low-liability product beats a high one.
     """
     rows = [
         (i, r) for i, r in enumerate(data.get("products") or [])
         if r.get("stage") != "live" and not r.get("next_owner") and not r.get("parked")
     ]
     rows.sort(key=lambda ir: (
+        (0, ir[1]["bet"]) if isinstance(ir[1].get("bet"), int) else (1, 0),
         -STAGES.index(ir[1]["stage"]),
         LIABILITY.index(ir[1]["liability"]),
         ir[0],
@@ -97,25 +169,63 @@ def queue(data: dict) -> list[dict]:
     return [r for _, r in rows]
 
 
+def load_proprietary(path: Path = TRANSITION) -> list[dict]:
+    """The for-profit products of LICENSING_TRANSITION.md, in move order."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            rows = json.load(fh).get("proprietary") or []
+    except (OSError, ValueError):
+        return []
+    return sorted_proprietary(rows)
+
+
+def sorted_proprietary(rows: list[dict]) -> list[dict]:
+    return sorted(rows, key=lambda r: (r.get("move_order") or 999, r.get("venture", "")))
+
+
+def gaps(data: dict, proprietary: list[dict]) -> list[dict]:
+    """For-profit products with no models.yaml row: no buyer, offer or price yet.
+
+    Why: on 2026-11-24, 12 of the 20 products LICENSING_TRANSITION.md moves to
+    paid models had no row, so nothing routed a run to define their paid tier
+    (goals.md, "North star": a working paid tier comes first)."""
+    have = {r.get("venture") for r in data.get("products") or []}
+    return [p for p in proprietary if p.get("venture") not in have]
+
+
 def owner_rows(data: dict) -> list[dict]:
     return [r for r in data.get("products") or [] if r.get("next_owner")]
 
 
-def next_task(data: dict) -> str:
+def next_task(data: dict, proprietary: list[dict] | None = None) -> str:
     q = queue(data)
     if not q:
+        missing = gaps(data, proprietary or [])
+        if missing:
+            p = missing[0]
+            kind = p.get("model") or "paid"
+            mrr = (" Only subscriptions count toward MRR (prompts/goals.md, \"North star\"), "
+                   "so say in the row why if a one-off fits this buyer better."
+                   if kind != "subscription" else "")
+            return (f"Monetize ({p['venture']}, no models.yaml row; for-profit product "
+                    f"{p.get('move_order', '?')} in LICENSING_TRANSITION.md, planned {kind}): add its row "
+                    "to portfolio/monetization/models.yaml (buyer, first paid offer, price hypothesis, "
+                    "comparables read from vendors' pricing pages with source and date: README.md, "
+                    f"'Adding a product'), then build that offer dark in the product.{mrr} "
+                    f"{len(missing) - 1} more for-profit product(s) have no row "
+                    "(`monetization.py` lists them).")
         return ("Monetize: no agent-doable row in portfolio/monetization/models.yaml. "
                 "Add a product (README.md, 'Adding a product') or unpark one whose blocker landed.")
     r = q[0]
-    return (f"Monetize ({r['venture']}, stage {r['stage']}): {' '.join(str(r['next']).split())} "
+    return (f"Monetize ({row_name(r)}, stage {r['stage']}): {' '.join(str(r['next']).split())} "
             "Then move its `stage` and rewrite its `next` in portfolio/monetization/models.yaml.")
 
 
 def table(data: dict) -> str:
-    lines = [f"{'venture':28} {'stage':11} {'liability':9} {'next by':7} first offer"]
+    lines = [f"{'product':28} {'stage':11} {'liability':9} {'next by':7} first offer"]
     for r in data.get("products") or []:
         who = "owner" if r.get("next_owner") else ("parked" if r.get("parked") else "agent")
-        lines.append(f"{r['venture']:28} {r['stage']:11} {r['liability']:9} {who:7} {r['first_offer']}")
+        lines.append(f"{row_name(r):28} {r['stage']:11} {r['liability']:9} {who:7} {r['first_offer']}")
     rail = data.get("rail") or {}
     lines.append("")
     lines.append(f"Payout rail: {rail.get('stage', '?')} ({rail.get('provider', '?')})")
@@ -128,6 +238,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--check", action="store_true", help="validate models.yaml and exit")
     args = ap.parse_args(argv)
     data = load()
+    proprietary = load_proprietary()
     errors = check(data)
     if args.check or errors:
         for e in errors:
@@ -136,13 +247,17 @@ def main(argv: list[str] | None = None) -> int:
             print("models.yaml: ok" if not errors else f"models.yaml: {len(errors)} problem(s)")
         return 1 if errors else 0
     if args.command == "next":
-        print(next_task(data))
+        print(next_task(data, proprietary))
         return 0
     print(table(data))
+    missing = gaps(data, proprietary)
+    if missing:
+        print(f"No row yet ({len(missing)} for-profit products in LICENSING_TRANSITION.md): "
+              + ", ".join(p["venture"] for p in missing))
     print()
-    print("Next: " + next_task(data))
+    print("Next: " + next_task(data, proprietary))
     for r in owner_rows(data):
-        print(f"Waiting on the owner: {r['venture']}: {' '.join(str(r['next']).split())}")
+        print(f"Waiting on the owner: {row_name(r)}: {' '.join(str(r['next']).split())}")
     return 0
 
 

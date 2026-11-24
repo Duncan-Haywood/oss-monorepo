@@ -11,6 +11,13 @@ command-line tool and an engine AI agents can call.
 
 **Live tool:** https://marisstella.app/wall-framing-takeoff/
 
+**This is the free edition** (frozen 2026-11-24 at main commit `cf0b6311f`, to be tagged `wall-framing-takeoff-free-v1`).
+It stays MIT, public and working; from now on it gets lead-magnet maintenance
+only (fixes, page polish), not new depth. New work goes into a paid edition in
+the owner's private repository, which is **in development** and not for sale
+yet: [early access](https://marisstella.app/industries/construction/). Why and
+how: `portfolio/monetization/LICENSING_TRANSITION.md`.
+
 After using this, you can hand a lumberyard an order and a framing crew a cut
 list and layout marks for every wall, instead of an allowance of "one stud per
 foot plus 10%".

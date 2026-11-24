@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKjTDTT4HPwJw4ZdKN2",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T22:09:31Z",
+  "ended": "2026-11-24T22:30:49Z",
+  "wall_minutes": 21.47,
+  "tokens_in": 6473552,
+  "tokens_out": 23399,
+  "cost_usd": 2.7321,
+  "tool_calls": 61,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18703",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "run_workflow_locally.py --for-changes did not finish in ~13 min (stuck on 'Test the site builder'); stopped it when main moved and relied on PR CI plus the targeted checks"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "`measure` printed nothing but its shallow-fetch line, and `measure --no-fetch` was still silent after 100 s (timeout 124); I counted doc_friction by file from prompts/runs/*.json by hand instead"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "bare python3 lacks pytest; /usr/bin/python3.13 had pytest and yaml, which saved the pyenv.py install"
+    },
+    {
+      "file": "portfolio/monetization/hardware-bets.md",
+      "issue": "main is red on check_md_links: hardware-bets.md (PR #18699) links bets.md, which only open PR #18691 adds; this PR's 'check' job failed on it, not on its own files"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "why": "Critique lens chosen from today's North star rather than the top doc_friction file (allocate.py, already patched 3+ times today)",
+      "did": "audited the monetization queue tool; fixed it, filed P072",
+      "result": "monetization.py next stopped naming finished rows; 12 for-profit gaps now listed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-a-to-do-list-that-pointed-at-finished-work.md",
+    "prompts/process/backlog/P072-models-yaml-predates-subscription-pivot.json"
+  ],
+  "goal": null,
+  "notes": "Backlog: filed P072 (open). P071 left unverified. Mode: Critique. Serves the North star: the tool that routes monetization work now ranks paid bets (from #18705) then the 12 for-profit products with no paid offer. Checks: pytest test_monetization+test_transition 31 passed; monetization.py --check ok; promptctl validate ok; unittest discover -s prompts 136 OK; check_posts ok; main_health 318/318 on main before the merge.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f210727c-d8b6-5823-b966-597cdf8d55e6",
+    "transcripts": 1,
+    "first": "2026-11-24T22:09:31Z",
+    "last": "2026-11-24T22:30:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 118,
+        "output": 23399,
+        "thinking": 5246,
+        "cache_read": 6349210,
+        "cache_write_5m": 0,
+        "cache_write_1h": 124224,
+        "api_equivalent_usd": 2.7321,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 118,
+      "output": 23399,
+      "thinking": 5246,
+      "cache_read": 6349210,
+      "cache_write_5m": 0,
+      "cache_write_1h": 124224,
+      "api_equivalent_usd": 2.7321,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 54,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__get_job_logs": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.47,
+      "active_minutes": 21.47,
+      "model_minutes": 5.28,
+      "tool_minutes": 16.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "audit of one tool, small fix with tests, backlog item and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 73.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
