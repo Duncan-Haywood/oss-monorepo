@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23471b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='white'%3EL%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Split a League into Divisions by Location: Least Travel, Free</title>
+  <meta name="description" content="Paste each team's home ground and how many divisions you want: get even-sized divisions with the least driving between rivals, club teams kept apart, and the saving against your current split.">
+  <meta property="og:title" content="Split a regional league into divisions by location, with the least travel">
+  <meta property="og:description" content="Even divisions, the least total distance between division rivals, a club's teams kept apart. Free, no sign-up, nothing uploaded.">
+  <link rel="canonical" href="./divisions-by-location.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I split a league into divisions by location?", "acceptedAnswer": {"@type": "Answer", "text": "List each team with its home ground's latitude and longitude, choose how many divisions, and the page searches for divisions of even size (within one team of each other) with the least total distance between teams that play each other. Every team visits every division rival, so that total is what the season's driving depends on."}}, {"@type": "Question", "name": "Can two teams from the same club be kept in different divisions?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Put them on one line in the keep-apart box, for example 'Hawks A, Hawks B'. Every team on a line goes to a different division, and the split is the least-travel one that respects it."}}, {"@type": "Question", "name": "Is the split the best possible?", "acceptedAnswer": {"@type": "Answer", "text": "The search runs from 64 starts and says how many reached the split it shows; when many do, it is very likely the best. On every small league it was tested on (up to 12 teams) it matched a check of every possible split, and on the NFL's 32 towns it matched an exhaustive check of each conference."}}, {"@type": "Question", "name": "Is anything uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The search runs in your browser and nothing is sent anywhere."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Divisions by location", "applicationCategory": "SportsApplication", "operatingSystem": "Any (browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "url": "./divisions-by-location.html"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 900px; margin: 0 auto; padding: 24px 16px 64px; line-height: 1.5; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.035em; line-height: 1.08; margin-bottom: .3em; }
+    h2 { font-size: 1.2rem; margin-top: 1.6em; }
+    h3 { font-size: 1rem; margin: .2em 0 .4em; }
+    a { color: #1d5a3f; }
+    .card { background: #fff; border: 1px solid #d4dad2; border-radius: 12px; padding: 16px; margin: 16px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 90px; font: 14px/1.4 ui-monospace, monospace; padding: 8px; border: 1px solid #b9c2b6; border-radius: 8px; }
+    input, select { font: inherit; padding: 7px 8px; border: 1px solid #b9c2b6; border-radius: 8px; background: #fff; }
+    input[type=number] { width: 4.5em; }
+    .row { display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: end; }
+    .check { font-weight: 400; display: flex; gap: 6px; align-items: center; }
+    button { font: inherit; font-weight: 650; padding: 10px 14px; border-radius: 8px; border: 0; background: #1d5a3f; color: #fff; cursor: pointer; margin: 8px 8px 0 0; }
+    a.btn { display: inline-block; font-weight: 650; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #fff; text-decoration: none; margin: 8px 8px 0 0; }
+    button.secondary { background: #e4e9e2; color: #1d2330; }
+    .note { color: #4a5148; font-size: .92rem; }
+    .err { color: #9b2c1f; white-space: pre-line; }
+    .divs { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 12px; }
+    .div { border: 1px solid #d4dad2; border-radius: 10px; padding: 10px 12px; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    th, td { padding: 3px 4px; border-bottom: 1px solid #e4e9e2; text-align: right; }
+    th:first-child, td:first-child { text-align: left; overflow-wrap: anywhere; }
+    th { font-size: .78rem; color: #4a5148; font-weight: 650; }
+    .big { font-size: 1.15rem; font-weight: 650; }
+    pre { white-space: pre-wrap; background: #f7f8f6; padding: 8px; border-radius: 8px; font-size: .9rem; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+    @media print { #setup, .actions, footer, #topnav { display: none !important; } .card { border: 0; } }
+  </style>
+</head>
+<body>
+<main>
+  <p id="topnav"><a href="./">&larr; League schedule generator</a></p>
+  <h1>Split a league into divisions by location</h1>
+  <p>For regional leagues whose teams play at their own grounds: youth soccer across towns, a county darts or pool league, a school conference. Every team visits every division rival, so <strong>who is in which division decides most of a season's driving</strong>. Paste each team's home ground, choose how many divisions, and get divisions of even size with the least total distance between rivals, a club's teams kept in different divisions, and the saving against the split you use now. Then send the divisions straight to the <a href="./multi-division-league-schedule.html">multi-division scheduler</a>. Nothing is uploaded.</p>
+
+  <section class="card" id="setup">
+    <h2 style="margin-top:0">Teams and divisions</h2>
+    <label for="teams">One team per line: Name @ latitude, longitude (its home ground; right-click a map pin to copy them)</label>
+    <textarea id="teams" rows="8" spellcheck="false" autocomplete="off" placeholder="Hawks @ 40.7128, -74.0060"></textarea>
+    <div class="row">
+      <div><label for="k">Divisions</label><input id="k" type="number" min="1" max="40" value="4" inputmode="numeric"></div>
+      <div><label for="unit">Distances in</label><select id="unit"><option value="km">km</option><option value="mi">miles</option></select></div>
+      <div><label class="check"><input type="checkbox" id="double"> Double round robin (home and away)</label></div>
+    </div>
+    <label for="apart">Keep apart (optional): one group per line, every team on a line in a different division</label>
+    <textarea id="apart" rows="2" spellcheck="false" placeholder="Hawks A, Hawks B"></textarea>
+    <label for="current">Your current divisions (optional, to see the saving): Name: team, team, team</label>
+    <textarea id="current" rows="3" spellcheck="false" placeholder="North: Hawks, Owls, Lynx"></textarea>
+    <div class="actions">
+      <button type="button" id="go">Find the divisions</button>
+      <button type="button" class="secondary" id="example">Load an example (16 New Jersey towns)</button>
+    </div>
+    <p id="status" class="err" role="status"></p>
+  </section>
+
+  <section class="card" id="result" hidden>
+    <h2 style="margin-top:0">Divisions with the least travel</h2>
+    <p id="summary" class="big"></p>
+    <p id="evidence" class="note"></p>
+    <div class="divs" id="divs"></div>
+    <h3 style="margin-top:1em">Copy into the multi-division scheduler</h3>
+    <pre id="text"></pre>
+    <div class="actions">
+      <a id="open-multi" class="btn" href="./multi-division-league-schedule.html">Schedule these divisions</a>
+      <button type="button" class="secondary" id="copy">Copy the divisions</button>
+    </div>
+  </section>
+
+  <section class="guide">
+    <h2>How it works</h2>
+    <p>The page measures the straight-line (great-circle) distance between every pair of grounds and looks for the split into divisions of even size, within one team of each other, where the distances between teams in the same division add up to the least. That total is what changes from one split to another: in a single round robin each pair meets once, so one side drives there and back; in a double, both do. Road distance is roughly 1.2 to 1.4 times the straight line, so the saving in percent carries over.</p>
+    <p>Finding the very best split is a hard search (there are about 59 billion billion ways to split 32 teams into 8 divisions of 4). The page runs a local search from 64 starts, each improved by swapping teams between divisions until no swap helps, then shaken and improved again, and tells you how many starts reached the split it shows. It was checked against every possible split of 60 random leagues of 8 to 12 teams and matched each one, and against every split of each NFL conference (2.6 million each).</p>
+    <h3>Where do I get the coordinates?</h3>
+    <p>In most map apps, right-click (or long-press) the ground and copy the two numbers it shows, latitude first. A town centre is close enough if the ground is in town.</p>
+    <h3>What it does not do</h3>
+    <p>It does not balance team strength or use drive times from a road map; if one ground is across a river with one bridge, list it in the keep-apart box against the teams it should not join, or adjust by hand. Use it as a starting proposal for the league meeting.</p>
+  </section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. Distances are straight-line estimates, not driving directions; check the divisions before announcing them. The example teams are town names with town-centre coordinates (GeoNames, CC BY 4.0), not real clubs.</p>
+  <p><strong>Independent.</strong> Not affiliated with any league, federation or mapping service.</p>
+  <p>Everything runs in your browser. Anonymous feature events (<code>regions_built</code>, <code>regions_example</code>, <code>regions_compared</code>, <code>regions_copied</code>, <code>regions_to_multi</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+  <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free and open source under an <a href="LICENSE">MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+<script type="module">
+  import { parseTeamLocations, parseKeepApart, splitByLocation, splitCost, haversineKm, describeSplit, divisionsText, multiDivisionFragment } from "./regions.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const EXAMPLE = `Princeton @ 40.34872, -74.65905
+Trenton @ 40.21705, -74.74294
+New Brunswick @ 40.48622, -74.45182
+Morristown @ 40.79677, -74.48154
+Montclair @ 40.82593, -74.20903
+Hoboken @ 40.74399, -74.03236
+Paterson @ 40.91677, -74.17181
+Toms River @ 39.95373, -74.19792
+Freehold @ 40.26011, -74.27376
+Flemington @ 40.51233, -74.85933
+Somerville @ 40.57427, -74.60988
+Edison @ 40.51872, -74.4121
+Red Bank @ 40.34705, -74.06431
+Hackensack @ 40.88593, -74.04347
+Newton @ 41.05815, -74.75267
+Phillipsburg @ 40.69371, -75.19018`;
+  const EXAMPLE_CURRENT = "A: Princeton, Trenton, New Brunswick, Morristown\nB: Montclair, Hoboken, Paterson, Toms River\nC: Freehold, Flemington, Somerville, Edison\nD: Red Bank, Hackensack, Newton, Phillipsburg";
+
+  function readCurrent(text, names) {
+    const idx = new Map(names.map((n, i) => [n.toLowerCase(), i])), groups = [], errors = [], seen = new Set();
+    for (const raw of text.split(/\r?\n/)) {
+      const line = raw.trim();
+      if (!line) continue;
+      const m = line.match(/^[^:]+:(.*)$/);
+      if (!m) { errors.push(`"${line}": write a division as "Name: team, team".`); continue; }
+      const g = [];
+      for (const t of m[1].replace(/\(double\)\s*$/i, "").split(",").map((s) => s.trim()).filter(Boolean)) {
+        if (!idx.has(t.toLowerCase())) errors.push(`Current divisions: ${t} is not in the team list.`);
+        else if (seen.has(t.toLowerCase())) errors.push(`Current divisions: ${t} is listed twice.`);
+        else { seen.add(t.toLowerCase()); g.push(idx.get(t.toLowerCase())); }
+      }
+      groups.push(g);
+    }
+    return { groups, errors };
+  }
+
+  function build() {
+    const { teams, errors } = parseTeamLocations($("#teams").value);
+    const names = teams.map((t) => t.name);
+    const ap = parseKeepApart($("#apart").value, names);
+    const cur = $("#current").value.trim() ? readCurrent($("#current").value, names) : null;
+    const k = Number($("#k").value);
+    const errs = [...errors, ...ap.errors, ...(cur ? cur.errors : [])];
+    if (teams.length < 2) errs.push("List at least two teams.");
+    if (!(k >= 1 && k <= teams.length)) errs.push(`Divisions must be from 1 to the number of teams (${teams.length}).`);
+    if (errs.length) { $("#status").textContent = errs.join("\n"); $("#result").hidden = true; return; }
+    const pts = teams.map((t) => [t.lat, t.lon]);
+    let r;
+    try { r = splitByLocation(pts, { divisions: k, apart: ap.groups }); } catch (e) { $("#status").textContent = e.message; return; }
+    $("#status").textContent = "";
+    const mi = $("#unit").value === "mi", f = mi ? 0.621371 : 1, u = mi ? "mi" : "km";
+    const legs = $("#double").checked ? 4 : 2; // round trips: one side per pair in a single, both in a double
+    const fmt = (km) => Math.round(km * f).toLocaleString();
+    const desc = describeSplit(r.groups, teams);
+    $("#summary").textContent = `Division games add up to about ${fmt(r.km * legs)} ${u} of travel a season (straight line, there and back).`;
+    let ev = `${r.startsAtBest} of ${r.starts} search starts reached this split.`;
+    if (r.apartBroken) ev += ` ${r.apartBroken} keep-apart pair(s) could not be separated with ${k} divisions.`;
+    if (cur) {
+      const d = pts.map((p) => pts.map((q) => haversineKm(p, q)));
+      const old = splitCost(cur.groups, d);
+      const missing = teams.length - cur.groups.flat().length;
+      ev += ` Your current divisions: ${fmt(old * legs)} ${u}` + (old > 0 ? `, so this split saves ${fmt((old - r.km) * legs)} ${u} (${Math.round(100 * (old - r.km) / old)}%).` : ".");
+      if (missing) ev += ` (${missing} team(s) are not in your current divisions, so the comparison is not like for like.)`;
+      record("regions_compared");
+    }
+    $("#evidence").textContent = ev;
+    $("#divs").innerHTML = desc.map((dv) => `<div class="div"><h3>${esc(dv.name)} <span class="note">(${dv.teams.length} teams)</span></h3>
+      <table><tr><th>Team</th><th>Avg to rivals</th><th>Farthest</th></tr>${dv.teams.map((t) => `<tr><td>${esc(t.name)}</td><td>${fmt(t.avgKm)} ${u}</td><td>${fmt(t.maxKm)} ${u}</td></tr>`).join("")}</table>
+      <p class="note">Longest trip: ${esc(dv.longest.a)} to ${esc(dv.longest.b)}, ${fmt(dv.longest.km)} ${u}.</p></div>`).join("");
+    const text = divisionsText(desc, { double: $("#double").checked });
+    $("#text").textContent = text;
+    $("#open-multi").href = "./multi-division-league-schedule.html" + multiDivisionFragment(text);
+    $("#result").hidden = false;
+    record("regions_built");
+  }
+
+  $("#go").addEventListener("click", build);
+  $("#example").addEventListener("click", () => { $("#teams").value = EXAMPLE; $("#current").value = EXAMPLE_CURRENT; $("#k").value = 4; record("regions_example"); build(); });
+  $("#copy").addEventListener("click", async () => { try { await navigator.clipboard.writeText($("#text").textContent); $("#copy").textContent = "Copied"; } catch { $("#copy").textContent = "Select the text above to copy"; } record("regions_copied"); });
+  $("#open-multi").addEventListener("click", () => record("regions_to_multi"));
+  $("#optout").addEventListener("click", () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; });
+  if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+</script>
+</body>
+</html>
