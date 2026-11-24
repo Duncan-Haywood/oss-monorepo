@@ -21,7 +21,7 @@ import { applyRule, ruleActive, ruleLabel } from "./measure.mjs";
 import { assignUniformat, uniformatLabel } from "./uniformat.mjs";
 import { roomGeometry, checkRoom, roomLabel, assignRooms, footprintSolid, deductOpenings, connectionArea, OPENING_CLASS } from "./rooms.mjs";
 import { planRect, roofFaces, assignEnvelope, assignRailingSides } from "./envelope.mjs";
-import { Geometry, Unresolved, det, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, surfaceArea, planeAreas, bendsInPlan, curvedFaces, prismAxis, thinnestNormal, solidExtent, barExtent, shellPlanArea } from "./geom.mjs";
+import { Geometry, Unresolved, det, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, surfaceArea, planeAreas, boundaryArea, bendsInPlan, curvedFaces, prismAxis, thinnestNormal, solidExtent, barExtent, shellPlanArea } from "./geom.mjs";
 
 const NOT_ELEMENTS = new Set([
   "IFCPROJECT", "IFCSITE", "IFCBUILDING", "IFCBUILDINGSTOREY", "IFCSPACE", "IFCOPENINGELEMENT", "IFCOPENINGSTANDARDCASE",
@@ -613,6 +613,23 @@ export function takeoff(model, opts = {}) {
             const k = profileSkin(E, geo, bodyRepresentation(E, refId(e.args[6])), row.computed.solids.body);
             if (k && (!row.computed.areas.surface || k.inside > 0)) row.computed.areas.surface = { gross: k.area * f * f, net: null, inside: k.inside * f * f, fromProfile: true, clipped: k.clipped };
           } catch { /* no skin */ }
+          // a steel body of signed pieces whose faces neither route reads (an
+          // extrusion less faceted cut-outs: S_Office's 28 coped members), or a
+          // clipped profile whose sides the volume ratio only scales: its faces
+          // summed plane by plane as a winding (boundaryArea), exact for
+          // polygons (eval/coped-coating-2026-11-24.md). A hollow section keeps
+          // the profile route, which sets its bore apart.
+          const S = row.computed.areas.surface;
+          if (isSteel(row.material) && (!S || (S.fromProfile && S.clipped && !(S.inside > 0)))) {
+            try {
+              const { body, net } = row.computed.solids;
+              const g = body.terms.length > 1 || S ? boundaryArea(body) : null;
+              if (g != null) {
+                const nt = net && net !== body ? boundaryArea(net) : null;
+                row.computed.areas.surface = { gross: g * f * f, net: nt == null ? null : nt * f * f, inside: 0, fromFaces: true, clipped: !!S?.clipped };
+              }
+            } catch { /* no skin */ }
+          }
         }
         try { const L = memberLength(e.type, row.computed.solids.body, f); if (L != null) row.computed.length = L; } catch { /* no length */ }
         // a reinforcing bar's shapes and the author's schedule figures (rebar.mjs)

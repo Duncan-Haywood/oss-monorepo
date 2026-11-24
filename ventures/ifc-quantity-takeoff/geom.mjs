@@ -800,6 +800,163 @@ export function planeAreas(s, signed = false) {
 }
 
 /**
+ * The area of a body's boundary when it is a signed sum of pieces (an
+ * extrusion less faceted cut-outs: S_Office's coped beams), or null when it
+ * is a mesh or too large. planeAreas(s, true) sums each plane's loops as one
+ * area vector, which is exact only while the body faces one way on that
+ * plane. A cope's cut is flush with the flange: the flange's underside faces
+ * down and the web's top, left by the cope, faces up on the same plane, and
+ * the vector sum takes one from the other (SB-168, 0.0072 m2 short of
+ * IfcOpenShell's faces; eval/coped-coating-2026-11-24.md). Here each plane's
+ * loops are added as a winding function, each loop with its piece's sign and
+ * its side of the plane, and the face area is the integral of |winding|:
+ * pieces' shared faces cancel to 0, a face up and a face down on one plane
+ * both count. The integral is taken in slabs between every vertex and edge
+ * crossing, where the winding is constant between neighbouring edges, so it
+ * is exact for polygons. Planes are grouped within 1e-4 in the cosine of
+ * their normals and 2e-5 of the body's size in offset, as pieces clipped
+ * from different cutters do not meet to the last bit.
+ */
+export function boundaryArea(s, maxLoops = 40000) {
+  if (s.mesh && !s.shells) return null;
+  const loops = [];
+  for (const t of s.terms) for (const f of t.faces) loops.push([t.s, f]);
+  if (s.shells) for (const sh of s.shells) for (const l of sh.loops) loops.push([sh.s ?? 1, l]);
+  if (!loops.length || loops.length > maxLoops) return null;
+  let scale = 0;
+  for (const [, l] of loops) for (const p of l) scale = Math.max(scale, Math.abs(p[0]), Math.abs(p[1]), Math.abs(p[2]));
+  // planes in two passes. First loops whose planes agree to 1e-7 (a face two
+  // pieces share, read from the same points, lands here as a pair). Then
+  // whole groups within 1e-4 in the cosine of their normals and 2e-5 of the
+  // body's size in offset are joined, as pieces clipped by different cutters
+  // do not meet to the last bit (S_Office's cutters sit 0.001 mm off the
+  // flanges). Joining groups, never splitting one, keeps a shared face's two
+  // loops together: a filleted profile's fan of near-parallel diagonals
+  // (planes 1e-4 apart) split loop by loop would leave faces uncancelled.
+  const scaleOf = scale || 1;
+  const groups = cluster(loops.map(([sg, l]) => {
+    if (l.length < 3) return null;
+    const a = newell(l), len = norm(a);
+    if (!(len > 0)) return null;
+    // one sense per plane, led by its first component within 1e-6 of the
+    // largest (a leading component of -2e-9, or a 45-degree plane's two
+    // equal ones, must not split a plane in two)
+    let n = mulS(a, 1 / len);
+    const top = Math.max(Math.abs(n[0]), Math.abs(n[1]), Math.abs(n[2])) - 1e-6;
+    const big = Math.abs(n[0]) >= top ? 0 : Math.abs(n[1]) >= top ? 1 : 2;
+    if (n[big] < 0) n = mulS(n, -1);
+    let c = [0, 0, 0];
+    for (const p of l) c = add(c, p);
+    return { n, d: dot(n, c) / l.length, loops: [[sg, l]] };
+  }).filter(Boolean), 1e-7, 1e-7 * scaleOf);
+  const planes = cluster(groups, 1e-4, 2e-5 * scaleOf);
+  let A = 0;
+  for (const P of planes) A += planeWindingArea(P);
+  return A;
+}
+
+/**
+ * Planes joined when their normals agree within `nt` (1 - cosine) and their
+ * offsets within `dt`, transitively (union-find over neighbouring normal
+ * cells); each item keeps its loops, a joined plane takes the first's n, d.
+ */
+function cluster(items, nt, dt) {
+  // cells by rounded normal and offset, looked up with their neighbours
+  const cd = Math.max(dt, 1e-12);
+  const parent = items.map((_, i) => i);
+  const find = (i) => { while (parent[i] !== i) i = parent[i] = parent[parent[i]]; return i; };
+  const cells = new Map();
+  items.forEach((P, i) => {
+    for (const k of neighbourKeys(P.n, P.d, cd)) for (const j of cells.get(k) ?? []) {
+      const Q = items[j];
+      if (dot(P.n, Q.n) >= 1 - nt && Math.abs(P.d - Q.d) <= dt) { const a = find(i), b = find(j); if (a !== b) parent[Math.max(a, b)] = Math.min(a, b); }
+    }
+    const key = `${P.n.map((x) => Math.round(x * 1e2)).join(",")},${Math.round(P.d / cd)}`;
+    if (!cells.has(key)) cells.set(key, []);
+    cells.get(key).push(i);
+  });
+  const out = new Map();
+  items.forEach((P, i) => {
+    const r = find(i);
+    const o = out.get(r);
+    if (o) o.loops.push(...P.loops); else out.set(r, { n: items[r].n, d: items[r].d, loops: P.loops.slice() });
+  });
+  return [...out.values()];
+}
+
+function neighbourKeys(n, d, cd) {
+  const r = n.map((x) => Math.round(x * 1e2)), q = Math.round(d / cd), out = [];
+  for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) for (let k = -1; k <= 1; k++) for (let m = -1; m <= 1; m++) out.push(`${r[0] + i},${r[1] + j},${r[2] + k},${q + m}`);
+  return out;
+}
+
+/** ∫|winding| over one plane's signed loops, in the plane's own units squared. */
+function planeWindingArea(P) {
+  const n = P.n;
+  const ax = Math.abs(n[0]) >= Math.abs(n[1]) && Math.abs(n[0]) >= Math.abs(n[2]) ? 0 : Math.abs(n[1]) >= Math.abs(n[2]) ? 1 : 2;
+  const iu = (ax + 1) % 3, iv = (ax + 2) % 3, side = Math.sign(n[ax]), stretch = 1 / Math.abs(n[ax]);
+  // a lone loop, or loops that all face one way: their summed area vector
+  // (planeAreas' figure) is exact and needs no sweep
+  let one = true, s0 = 0, vec = [0, 0, 0];
+  for (const [sg, l] of P.loops) {
+    const a = newell(l), w = sg * Math.sign(dot(a, n));
+    if (!s0) s0 = w; else if (w !== s0) one = false;
+    vec = add(vec, mulS(a, sg / 2));
+  }
+  if (one) return norm(vec);
+  // edges in (u, v), x0 < x1, each with the winding it adds crossing it upwards
+  const sums = new Map(), q = 1e-9 * (Math.abs(P.d) + 1);
+  for (const [sg, l] of P.loops) {
+    const c = sg * side;
+    for (let i = 0; i < l.length; i++) {
+      const p = l[i], r = l[(i + 1) % l.length];
+      let x0 = p[iu], y0 = p[iv], x1 = r[iu], y1 = r[iv], w = c;
+      if (x0 === x1) continue;
+      if (x0 > x1) { [x0, x1] = [x1, x0]; [y0, y1] = [y1, y0]; w = -w; }
+      // an edge two pieces share, run both ways, cancels here
+      const k = `${Math.round(x0 / q)},${Math.round(y0 / q)},${Math.round(x1 / q)},${Math.round(y1 / q)}`;
+      const e = sums.get(k);
+      if (e) e.w += w; else sums.set(k, { x0, y0, x1, y1, w });
+    }
+  }
+  const E = [...sums.values()].filter((e) => e.w !== 0);
+  if (!E.length) return 0;
+  const xs = [];
+  for (const e of E) xs.push(e.x0, e.x1);
+  // edges cross only where both span the same x: sweep them sorted by x0
+  E.sort((a, b) => a.x0 - b.x0);
+  for (let i = 0; i < E.length; i++) {
+    const a = E[i];
+    for (let j = i + 1; j < E.length && E[j].x0 < a.x1; j++) {
+      const b = E[j], lo = Math.max(a.x0, b.x0), hi = Math.min(a.x1, b.x1);
+      if (!(hi > lo)) continue;
+      const ya = (x) => a.y0 + ((a.y1 - a.y0) * (x - a.x0)) / (a.x1 - a.x0), yb = (x) => b.y0 + ((b.y1 - b.y0) * (x - b.x0)) / (b.x1 - b.x0);
+      const d0 = ya(lo) - yb(lo), d1 = ya(hi) - yb(hi);
+      if ((d0 < 0 && d1 > 0) || (d0 > 0 && d1 < 0)) xs.push(lo + ((hi - lo) * d0) / (d0 - d1));
+    }
+  }
+  xs.sort((a, b) => a - b);
+  let area = 0;
+  const at = [];
+  for (let s = 0; s + 1 < xs.length; s++) {
+    const xa = xs[s], xb = xs[s + 1];
+    if (!(xb > xa)) continue;
+    const xm = (xa + xb) / 2;
+    at.length = 0;
+    for (let i = 0; i < E.length && E[i].x0 < xb; i++) {
+      const e = E[i];
+      if (e.x0 <= xm && e.x1 >= xm) at.push([e.y0 + ((e.y1 - e.y0) * (xm - e.x0)) / (e.x1 - e.x0), e.w]);
+    }
+    if (at.length < 2) continue;
+    at.sort((a, b) => a[0] - b[0]);
+    let w = 0, len = 0;
+    for (let i = 0; i + 1 < at.length; i++) { w += at[i][1]; if (w) len += Math.abs(w) * (at[i + 1][0] - at[i][0]); }
+    area += len * (xb - xa);
+  }
+  return area * stretch;
+}
+
+/**
  * The extrusion axis of a faceted prism: the direction along which its side
  * faces lie (perpendicular to their normals) with the most face area. A
  * prism's side faces all lie along its axis, its end faces, square or mitred,

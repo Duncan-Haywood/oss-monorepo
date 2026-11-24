@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKijm636eEqnh88fvz4",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T19:08:43Z",
+  "ended": "2026-11-24T19:34:36Z",
+  "wall_minutes": 26.11,
+  "tokens_in": 16863275,
+  "tokens_out": 96679,
+  "cost_usd": 6.9815,
+  "tool_calls": 110,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18647",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First boundaryArea used a lead-sign rule (first component above 1e-9) that left some loops unflipped and split planes; then a greedy tolerant clustering split a filleted I's fan planes and doubled its area. Both caught by checks against IfcOpenShell and the existing filleted-I test before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here's item 2 for ifc-quantity-takeoff was 'figures in doubt: 0 areas left', a finished result rather than open work; took the NEXT.md coped-beams item instead."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Venture tests ran in 4 s for this venture; the warning that suites outlast the 120 s timeout did not apply here (no cost, just noting)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "The 'second open item' rule pointed at a finished result (0 areas left in doubt).",
+      "did": "Took item 7 (28 coped beams' coating area), which no open PR names.",
+      "result": "Landed: 825 of 825 steel parts coated, independently checked."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-coped-steel-coating-area-from-ifc.md",
+    "ventures/ifc-quantity-takeoff/eval/coped-coating-2026-11-24.md"
+  ],
+  "goal": null,
+  "notes": "Local verification: run_venture_tests.py ifc-quantity-takeoff passes (290 tests); check_posts ok; validate.py ok. Independent checks: IfcOpenShell 0.9, Monte Carlo volume and Crofton area scripts (eval/coped-*.py).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "89a1bdae-9a5a-5e07-b9f3-5d206e7d89dd",
+    "transcripts": 1,
+    "first": "2026-11-24T19:08:43Z",
+    "last": "2026-11-24T19:34:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 103,
+        "input": 192,
+        "output": 96679,
+        "thinking": 33382,
+        "cache_read": 16648402,
+        "cache_write_5m": 0,
+        "cache_write_1h": 214681,
+        "api_equivalent_usd": 6.9815,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 103,
+      "input": 192,
+      "output": 96679,
+      "thinking": 33382,
+      "cache_read": 16648402,
+      "cache_write_5m": 0,
+      "cache_write_1h": 214681,
+      "api_equivalent_usd": 6.9815,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 110,
+    "tools": {
+      "Bash": 103,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "Edit": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.11,
+      "active_minutes": 26.11,
+      "model_minutes": 17.8,
+      "tool_minutes": 8.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior engineer deriving and verifying an exact boolean-body face-area routine with three independent checks",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 143.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
