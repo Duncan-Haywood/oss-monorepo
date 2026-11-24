@@ -82,6 +82,21 @@ the next vertical. The owner can change it per suite. The open PRs above
 proposed 1.3–2.0× and "about cost plus 100%". The calculator takes any value,
 but never one below 1.0.
 
+**Hold the price as shops join.** If the price is recomputed at every new
+shop count, profit per shop shrinks as the shared cost spreads, and monthly
+profit grows slowly. On the placeholder basis, that is under $6k at 250
+home-services shops. So each suite's price is set once, at its planned shop
+count (`plan_shops`), and reviewed yearly. Later savings go into the shared
+core and the next vertical, and the cost lines stay published so customers
+can see why. `cost_plus.py` prints both views: the held price's path to $10k
+MRP, and the curve if the price were recomputed.
+
+**Support is the cost that decides the price.** Under the placeholder
+basis, half an hour of support a month is about 90% of a trade shop's
+variable cost. Tokens and hosting come to $3–6. Self-serve onboarding and
+support that answers itself are therefore the margin, more than any choice of
+model or host (`VERTICALS.md`, "What the cost basis says").
+
 ## Three price lines
 
 | Line | What it covers | How it is priced | Counts as |

@@ -1,0 +1,67 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01XpHqyeksYfPqRtGNAvHEEm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "i think one of the target goals we have is basically moving from free to cost plus offers to smbs. we do custom software. we handle compliance etc. ... iterate the specific most common problems for specific and niche smbs. / regional businesses sort of thing generally stay away from large enterprise and stick with smbs.",
+  "input_sha256": "79fb5e06fb83de6d9e656ad353bb6358433904235bafcab9329902a24c5331ca",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T22:22:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Cost-plus offer to regional SMBs: offer design, sourced pain points for 18 verticals, cost-plus pricing calculator, post",
+  "projects": [
+    "portfolio/smb"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18702",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    "All vertical evidence was read through web-search result summaries: page fetches failed for every host the research agents tried. Labelled in verticals.yaml, VERTICALS.md and the post; rows with no source moved to `unsourced`.",
+    "A first draft of VERTICALS.md said labour ranked first or second in 16 of 18 verticals; a count over the data gave 14, corrected before commit."
+  ],
+  "doc_friction": [
+    {
+      "file": "prompts/routing.json",
+      "issue": "The router drew the quality track for a run that was a direct owner request; there is no SMB/sales track on main (PR #18008 proposes one), so the run was recorded under ventures."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Four open PRs (#18008, #18486, #18546, #18675, #18697) all rewrite the SMB/cost-plus direction in owner-gated files; two of them add the same new file portfolio/smb/README.md. They conflict with each other and wait on the owner."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Did not follow the routed quality track: the owner gave a direct task in the session.",
+      "did": "Built the owner's cost-plus SMB direction instead.",
+      "result": "Landed offer, evidence and calculator."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Did not add the owner's 2026-11-24 cost-plus/regional words to prompts/goals.md: that file is owner-gated and four open PRs already carry overlapping text; a fifth would add to the conflict.",
+      "did": "Quoted the owner in portfolio/smb/OFFER.md instead.",
+      "result": "No owner-gated file touched; PR can merge without review."
+    }
+  ],
+  "writeups": [],
+  "goal": "North star: a paid, cost-plus SMB offer with evidence for which verticals to build first.",
+  "notes": "Checks run here: python3 portfolio/smb/cost_plus.py --check (ok); python3 -m pytest -q portfolio/smb/ (11 passed). Cost basis: Paddle, Cloudflare and model per-token prices are published; every labour and volume line is an assumption, so 100% of each modelled price rests on assumptions until a pilot shop is measured. Findings: support time is ~90% of variable cost under the placeholders; prices must be held at the planned shop count to reach $10k MRP (124-200 shops per wave-1 vertical).",
+  "corrections": [],
+  "redteam": null,
+  "build_ok": true
+}

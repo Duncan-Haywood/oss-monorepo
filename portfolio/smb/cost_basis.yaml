@@ -46,7 +46,12 @@ custom_work:
 suites:
   - slug: home-services
     name: Field-service suite for regional HVAC, plumbing and electrical shops
+    vertical: hvac-plumbing-electrical
     plan_shops: 50
+    incumbent:
+      name: Housecall Pro
+      price: "Essentials $149/mo annual, $189 monthly, up to 5 users (third-party listing, may date from 2023)"
+      source: https://capterra.com/p/140363/HouseCall-Pro/pricing/
     amortize_build_months: 24
     shared_monthly:
       - item: Upkeep, rule-change watching and support across the vertical
@@ -74,9 +79,109 @@ suites:
         kind: assumption
         why: Half an hour a month at the custom_work rate.
     build_once:
-      - item: First release (scheduling, quotes and invoices, refrigerant log)
+      - item: First release (call capture and booking, quotes and invoices, refrigerant log)
         usd: 22500
         kind: assumption
         why: >-
           300 hours (the repo's depth guideline, CLAUDE.md) at the custom_work
-          rate. A planning figure, not a measured build.
+          rate. A planning figure, not a measured build. It includes the
+          shared core (accounts, booking, invoices, the compliance-log engine)
+          that later suites reuse.
+
+  # Later suites reuse the core built for the first one, so their build is
+  # the trade-specific part only. Same rates, same caveats.
+  - slug: pest-control
+    name: Route and records suite for regional pest-control companies
+    vertical: pest-control
+    plan_shops: 40
+    incumbent:
+      name: GorillaDesk
+      price: "Basic $49/mo, Pro $99/mo, Growth $299/mo (third-party listing; another source says $49/$99/$149)"
+      source: https://www.capterra.com/p/130290/GorillaDesk/pricing/
+    shared_monthly:
+      - item: Upkeep and state pesticide-rule watching
+        usd: 450
+        kind: assumption
+        why: About 6 hours a month at the custom_work rate; states change use-record rules separately.
+    per_shop_monthly:
+      - item: Model tokens (service notes, report drafts) on claude-sonnet-5-5
+        usd: 2.00
+        kind: assumption
+        why: Fewer drafted documents than home-services; token volume is the assumption, the $2/$10 rate is published.
+      - item: Database, storage and request overage per shop
+        usd: 1.00
+        kind: assumption
+        why: Inside included quotas; floor so no shop is priced as free.
+      - item: Support time per shop
+        usd: 37.50
+        kind: assumption
+        why: Half an hour a month at the custom_work rate.
+    build_once:
+      - item: Chemical-use log with state-format records, routes and recurring billing on the shared core
+        usd: 11250
+        kind: assumption
+        why: 150 hours at the custom_work rate, on the assumption that the home-services core is reused.
+
+  - slug: craft-beverage
+    name: Inventory-to-TTB suite for craft breweries, wineries and distilleries
+    vertical: craft-beverage-producers
+    plan_shops: 40
+    incumbent:
+      name: BrewERP
+      price: "Starter $29, Pro $79, Business $149 per month flat (third-party listing); Ekos is quote only"
+      source: https://www.capterra.com/p/10037851/BrewERP/
+    shared_monthly:
+      - item: Upkeep and TTB form and filing-cycle watching
+        usd: 450
+        kind: assumption
+        why: About 6 hours a month at the custom_work rate.
+    per_shop_monthly:
+      - item: Model tokens (reconciliation notes, report checks) on claude-sonnet-5-5
+        usd: 1.50
+        kind: assumption
+        why: Mostly deterministic ledger arithmetic; few model calls. Token volume is the assumption.
+      - item: Database, storage and request overage per shop
+        usd: 1.00
+        kind: assumption
+        why: Inside included quotas; floor so no shop is priced as free.
+      - item: Support time per shop
+        usd: 37.50
+        kind: assumption
+        why: Half an hour a month at the custom_work rate.
+    build_once:
+      - item: Production inventory ledger that drafts TTB F 5130.9 / 5130.26 and excise returns
+        usd: 15000
+        kind: assumption
+        why: 200 hours at the custom_work rate; the ledger is new work, the account/billing core is reused.
+
+  - slug: small-property-managers
+    name: Trust-accounting and maintenance suite for property managers with 20-500 doors
+    vertical: small-property-managers
+    plan_shops: 40
+    incumbent:
+      name: DoorLoop
+      price: "DoorLoop One $2.50/unit/month with a $199/mo minimum (third-party listing); AppFolio has about a 50-unit minimum"
+      source: https://capterra.com/p/211768/DoorLoop/pricing/
+    shared_monthly:
+      - item: Upkeep and state trust-account and deposit-rule watching
+        usd: 600
+        kind: assumption
+        why: About 8 hours a month; trust-account and deposit rules differ by state.
+    per_shop_monthly:
+      - item: Model tokens (maintenance triage, owner updates) on claude-sonnet-5-5
+        usd: 4.00
+        kind: assumption
+        why: Maintenance requests and owner messages are the heaviest model use of the four; volume is the assumption.
+      - item: Database, storage and request overage per shop
+        usd: 2.00
+        kind: assumption
+        why: More records per firm (units, tenants, ledgers) than a trade shop.
+      - item: Support time per shop
+        usd: 75.00
+        kind: assumption
+        why: An hour a month; money-handling software draws more questions.
+    build_once:
+      - item: Three-way trust reconciliation, deposit ledger and maintenance triage on the shared core
+        usd: 18750
+        kind: assumption
+        why: 250 hours at the custom_work rate; accounting correctness needs more testing than the trade suites.
