@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVKYoF4qwCfa1Xyp6qR",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (stored brief)",
+  "input_sha256": "d5b1ecda643165101e8388140d8cc57cec1eba333f0f5162ff13ea18780ba370",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T18:01:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 18638,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "I ran a bare `route` (without --task) before rereading prompt.md, and it drew process for a scheduled brief that asks for venture work. This is the same cluster 68 earlier records report. Followed the route."
+    },
+    {
+      "file": "portfolio/router/test_flagship_field.py",
+      "issue": "Imports pytest, so `python3 -m unittest` from portfolio/router fails on a bare python3. Use the interpreter pyenv.py returns."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique lens: friction_rank --live --ungated --days 3 cluster #3 on allocate.py (photo-editing item list numbered raw.pixls.us items while the probe on the same screen said REFUSED). Fix: item_skip/item_lines take the refused host names, and --venture probes once (probe_hosts). Data: photo-editing's two raw.pixls.us items now name the host. Verified: test_allocate 155 OK; test_flagship_field+test_validate 128 passed (python3.13); validate.py OK; check_posts ok; live --venture photo-editing lists the 2 items unnumbered with the reason. No backlog id touched (only owner rows were open; P071 lives in the CODEOWNERS-gated backlog dir).",
+  "corrections": [],
+  "redteam": null
+}
