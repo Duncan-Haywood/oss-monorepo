@@ -28,6 +28,7 @@ const GUIDES = [
   "how-to-convert-p6-xml-to-xer.html",
   "how-to-review-the-calendars-in-a-p6-schedule.html",
   "how-to-check-a-p6-schedule-against-the-contract-specification.html",
+  "how-to-break-down-a-dcma-assessment-by-subcontractor.html",
 ];
 
 test("every guide is linked from the tool page, the sitemap and llms.txt", () => {
@@ -61,7 +62,7 @@ test("each guide: canonical, title and description lengths, FAQ markup equals th
 
 test("the buttons the guides name exist on the tool page", () => {
   const index = page("index.html");
-  for (const label of ["Review the calendars", "Download findings (CSV)", "Load an example schedule", "Load an example pair of updates", "Download for Microsoft Project (.xml)", "write activity code descriptions too", "Download for Excel (.xlsx)", "Run collapsed as-built", "Compare plan with as-built", "Example delay list", "Example fragnet", "Example with owner and contractor delays", "Run time impact analysis", "Printable exhibit (HTML)", "Impacted schedule (XER)", "without expected finish dates", "Finish date risk (Monte Carlo)", "Run the risk analysis", "Check against the specification", "Save rules (JSON)", "Download results (CSV)", "Rules from your contract"]) {
+  for (const label of ["Review the calendars", "Download findings (CSV)", "Load an example schedule", "Load an example pair of updates", "Download for Microsoft Project (.xml)", "write activity code descriptions too", "Download for Excel (.xlsx)", "Run collapsed as-built", "Compare plan with as-built", "Example delay list", "Example fragnet", "Example with owner and contractor delays", "Run time impact analysis", "Printable exhibit (HTML)", "Impacted schedule (XER)", "without expected finish dates", "Finish date risk (Monte Carlo)", "Run the risk analysis", "Check against the specification", "Save rules (JSON)", "Download results (CSV)", "Rules from your contract", "Break down the 14 points"]) {
     assert.ok(index.includes(label), label);
   }
 });

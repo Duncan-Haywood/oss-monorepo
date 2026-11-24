@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Break Down A DCMA Assessment By Subcontractor Or WBS</title>
+  <meta name="description" content="Score the DCMA 14 points separately for each subcontractor, area or WBS node of a P6 XER, so each party gets its own list. Free, in your browser.">
+  <meta property="og:title" content="How To Break Down A DCMA Assessment By Subcontractor Or WBS">
+  <meta property="og:description" content="Score the DCMA 14 points separately for each subcontractor, area or WBS node of a P6 XER, so each party gets its own list. Free, in your browser.">
+  <link rel="canonical" href="./how-to-break-down-a-dcma-assessment-by-subcontractor.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a ribbon analysis of a schedule?","acceptedAnswer":{"@type":"Answer","text":"A breakdown of schedule-quality metrics by a grouping in the schedule, such as WBS, responsibility, area or trade: one row per group, one column per metric. Commercial schedule-analysis tools sell it so a reviewer can see which part of a schedule is weak, not only that the schedule as a whole fails."}},{"@type":"Question","name":"Are the thresholds different per group?","acceptedAnswer":{"@type":"Answer","text":"No. Each group is scored against the same published DCMA thresholds (5% for most counts, 0 for leads, negative float, invalid dates and unresourced work, 90% finish-to-start), but on its own activities only. A small group can fail a percentage point on one activity; the count is shown with every cell."}},{"@type":"Question","name":"How are relationships assigned to a group?","acceptedAnswer":{"@type":"Answer","text":"A relationship counts under its successor's group, since the successor's scheduler owns the link into their work. A lead from a civil activity into an electrical one is the electrical group's finding."}},{"@type":"Question","name":"Why are points 12 to 14 not broken down?","acceptedAnswer":{"@type":"Answer","text":"The critical path test, the critical path length index and the baseline execution index describe the whole network or the whole project's progress. A subcontractor's share of them has no defined threshold, so they stay project-wide."}},{"@type":"Question","name":"Is the file uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The schedule is read and analysed in your browser tab. There is no server, account or upload."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.58; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.08; color: #163a59; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; color: #163a59; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a8c; }
+    code { background: #e6ecf1; padding: 1px 4px; border-radius: 4px; font-size: .92em; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d7e0e8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e5b66; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: #1d5a8c; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .88rem; color: #4e5b66; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4e5b66; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; XER Schedule Check</a></p>
+  <h1>How to break down a DCMA assessment by subcontractor or WBS</h1>
+  <p>A DCMA 14-point check on a whole schedule says "31% of links carry a lag" and stops there. The owner's rep then has to tell the general contractor, who has to work out which subcontractor's fragnet holds the lags. Commercial schedule-analysis seats solve this with a "ribbon" view: the same metrics broken down by WBS node or activity code. The free tool here does the same from a P6 XER: one row per WBS node or per value of any activity code the scheduler set up (responsibility, area, trade, subcontractor), points 1 to 11 scored on that group's own activities, worst first.</p>
+  <p><a class="cta" href="./#ribbon">Open the free schedule check</a> (open the XER, then press Break down the 14 points)</p>
+  <h2>Steps</h2>
+  <ol>
+    <li>Export the schedule from P6 as XER (File, Export, Primavera PM XER), or as P6 XML. A Microsoft Project XML file works too, grouped by its summary tasks.</li>
+    <li>Open it on the <a href="./">tool page</a>.</li>
+    <li>Under <b>DCMA by WBS, area or subcontractor</b>, choose <b>Group by</b>: WBS, or one of the activity code types the file carries. For WBS or a nested code, <b>Level</b> 1 is the top node, 2 one below.</li>
+    <li>Press <b>Break down the 14 points</b>. A red cell fails the DCMA threshold on that group's own activities; hover it for the count.</li>
+    <li>Press <b>Download (CSV)</b> for every group's count, population and value per point, to send each party its row. The activities behind each finding are in the 14-point lists above it.</li>
+  </ol>
+  <h2>A worked example: a public hotel schedule by responsibility</h2>
+  <p>A P6 file published on GitHub (a hotel project, 4,217 open activities; the project's <code>eval/ribbon-check-2026-11-24.md</code> names it) grouped by its <b>Responsibility</b> code. Five of the eleven points:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Responsibility</th><th>Open</th><th>Points failing</th><th>Logic</th><th>Lags</th><th>FS links</th><th>High duration</th><th>No resource</th></tr></thead>
+    <tbody>
+      <tr><td>(no Responsibility)</td><td>351</td><td>5</td><td>0.6%</td><td>6.4%</td><td>84.6%</td><td>13.7%</td><td>100%</td></tr>
+      <tr><td>ALU Aluminum specialized S/C</td><td>60</td><td>5</td><td>0%</td><td>35.9%</td><td>68%</td><td>21.8%</td><td>100%</td></tr>
+      <tr><td>MC Main Contractor</td><td>2311</td><td>4</td><td>0.2%</td><td>17.7%</td><td>67.6%</td><td>0.3%</td><td>97.6%</td></tr>
+      <tr><td>MEP MEP specialized S/C</td><td>1404</td><td>4</td><td>0%</td><td>20.4%</td><td>95%</td><td>1.2%</td><td>5.1%</td></tr>
+      <tr><td>SS Steel Strucure specialized S/C</td><td>91</td><td>3</td><td>0%</td><td>7.1%</td><td>91.5%</td><td>5.5%</td><td>100%</td></tr>
+      <tr><td>Whole project</td><td></td><td>5</td><td>0.2%</td><td>17.6%</td><td>78.1%</td><td>2.2%</td><td>70.5%</td></tr>
+    </tbody>
+  </table></div>
+  <p>Project-wide, the file fails 5 points. The breakdown shows they are not everyone's: the MEP subcontractor's work is resource loaded (5.1% unloaded) while the main contractor's is not (97.6%); the aluminium subcontractor's 60 activities carry the most lags (35.9% of their links) and the most long activities (21.8% over 44 working days). Each of those is a different conversation with a different party.</p>
+  <h2>How it is worked out</h2>
+  <p>The tool runs the DCMA assessment once on the whole file, then puts each finding in the group of the activity it names. A relationship finding (lead, lag, relationship type) goes to its successor's group. Each group's denominator is its share of the same population the project-wide point uses (open activities, open non-milestone activities, links into open work, or activities planned to finish by the data date), so the groups' counts add up to the project's and each cell can be read against the same threshold. Activities without a value of the chosen code are grouped as "no" that code; an activity filed above the chosen WBS level is grouped at its own node.</p>
+  <h2>How it was tested</h2>
+  <p>On six public P6 files, every WBS level from 1 to 3 and every activity code type the files carry (58 groupings): each point's group counts add up to the project-wide count, each group's pass flag matches its count against the threshold, and all 34,287 findings land in the same group when assigned a second way, by their activity ID text looked up in the file's own tables.</p>
+  <h2>Things to know</h2>
+  <ul>
+    <li><b>Small groups swing.</b> One activity in a group of three is 33%. Read the count beside the percentage before writing to a subcontractor.</li>
+    <li><b>The breakdown is only as good as the coding.</b> Work with no responsibility code lands in one "no" group; on the public hospital file that is 12,845 of 14,270 open activities by division.</li>
+    <li><b>Screening, not a verdict.</b> As with the project-wide check, a failing cell is something to fix or explain.</li>
+  </ul>
+  <h2>Questions</h2>
+  <h3>What is a ribbon analysis of a schedule?</h3>
+  <p>A breakdown of schedule-quality metrics by a grouping in the schedule, such as WBS, responsibility, area or trade: one row per group, one column per metric. Commercial schedule-analysis tools sell it so a reviewer can see which part of a schedule is weak, not only that the schedule as a whole fails.</p>
+  <h3>Are the thresholds different per group?</h3>
+  <p>No. Each group is scored against the same published DCMA thresholds (5% for most counts, 0 for leads, negative float, invalid dates and unresourced work, 90% finish-to-start), but on its own activities only. A small group can fail a percentage point on one activity; the count is shown with every cell.</p>
+  <h3>How are relationships assigned to a group?</h3>
+  <p>A relationship counts under its successor's group, since the successor's scheduler owns the link into their work. A lead from a civil activity into an electrical one is the electrical group's finding.</p>
+  <h3>Why are points 12 to 14 not broken down?</h3>
+  <p>The critical path test, the critical path length index and the baseline execution index describe the whole network or the whole project's progress. A subcontractor's share of them has no defined threshold, so they stay project-wide.</p>
+  <h3>Is the file uploaded?</h3>
+  <p>No. The schedule is read and analysed in your browser tab. There is no server, account or upload.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-find-redundant-logic-in-a-p6-schedule.html">How to find redundant logic in a P6 schedule</a></li>
+    <li><a href="./how-to-convert-p6-xml-to-xer.html">How to convert a P6 XML file to XER</a></li>
+    <li><a href="./how-to-find-critical-path-drag-in-a-p6-schedule.html">How to find critical path drag in a P6 schedule</a></li>
+    <li><a href="./how-to-run-a-dcma-14-point-schedule-assessment.html">How to run a DCMA 14-point schedule assessment, check by check</a></li>
+    <li><a href="./how-to-open-an-xer-file-without-primavera-p6.html">How to open an XER file without Primavera P6</a></li>
+    <li><a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">How to convert a P6 XER file to Microsoft Project</a></li>
+    <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
+    <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
+    <li><a href="./how-to-convert-an-xer-file-to-excel.html">How to convert a Primavera P6 XER file to Excel</a></li>
+    <li><a href="./how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html">How to assess a schedule against the GAO Schedule Assessment Guide</a></li>
+    <li><a href="./how-to-run-a-collapsed-as-built-delay-analysis.html">How to run a collapsed as-built delay analysis</a></li>
+    <li><a href="./how-to-run-a-time-impact-analysis-on-a-p6-schedule.html">How to run a time impact analysis on a P6 schedule</a></li>
+    <li><a href="./how-to-run-a-monte-carlo-schedule-risk-analysis-on-a-p6-schedule.html">How to run a Monte Carlo schedule risk analysis on a P6 schedule</a></li>
+    <li><a href="./how-to-run-an-as-planned-vs-as-built-schedule-analysis.html">How to run an as-planned vs as-built schedule analysis</a></li>
+      <li><a href="./how-to-split-concurrent-delay-between-owner-and-contractor.html">How to split concurrent delay between owner and contractor</a></li>
+    <li><a href="./how-to-review-the-calendars-in-a-p6-schedule.html">How to review the calendars in a P6 schedule</a></li>
+    <li><a href="./how-to-check-a-p6-schedule-against-the-contract-specification.html">How to check a P6 schedule against the contract specification</a></li>
+</ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or scheduling advice; the contract and a qualified scheduler decide. The example project is invented.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera, Microsoft or the Defense Contract Management Agency. Product names are trademarks of their owners and are named only to describe file formats.</p>
+    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

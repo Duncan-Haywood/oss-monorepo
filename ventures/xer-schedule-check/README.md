@@ -1037,6 +1037,32 @@ counts agree; 508 ms on the 16,146-activity CCA file. 16 unit tests pin each rul
 (`spec.test.mjs`). Not yet checked against a real contract's specification and a reviewer's own
 read of the same submittal.
 
+## DCMA by WBS, area or subcontractor: the ribbon view (2026-11-24)
+
+One project-wide DCMA score tells an owner's rep the schedule fails, not
+**whose** work fails. Schedule-analysis seats sell a "ribbon" view for that:
+the 14 points broken down by WBS node or activity code. Now this tool has it
+(`ribbon.mjs`, the page's "DCMA by WBS, area or subcontractor", CLI
+`--ribbon [wbs|CODE TYPE] [--level N] [--csv out.csv]`): one row per WBS node
+or per value of an activity code (responsibility, area, trade,
+subcontractor), points 1 to 11 scored on that group's own activities against
+the same thresholds, worst first, with a CSV to send each party its row.
+Relationship points (leads, lags, relationship types) count a link under its
+successor. Points 12 to 14 measure the whole network and are not broken
+down.
+
+Checked: `ribbon.test.mjs` (a two-subcontractor fixture scored by WBS, WBS
+level 2 and code, by name or id; the project row equals the project-wide
+checks; CSV and HTML escaping) and `eval/ribbon-check.mjs` on the six public
+files (eval/ribbon-check-2026-11-24.md): 58 groupings, every point's group
+counts add up to the project's, and all 34,287 findings land in the same
+group when attributed a second way, by their activity ID text. On the hotel
+file by Responsibility, the aluminium subcontractor's 60 activities fail 5
+points where the project fails 5 too, but for different reasons (35.9%
+lagged links); on the CCA hospital file by division, Fire Protection and
+Telecom have 92.7% and 98.3% of their open activities on negative float,
+which the project-wide figure hides.
+
 ## Make open-ended activities critical (2026-11-24)
 
 P6's schedule option **Make open-ended activities critical** (`sched_open_critical_flag` in the
