@@ -10530,3 +10530,52 @@ the page's FRED example it stays quiet.
 
 Next, if this line continues: the warning on a real company's monthly lines (needs outside data), or P3 and the
 warning together on a fifth make, pre-registered.
+
+## Turns called in pseudo-real time (2026-11-24, pre-registered; R1 and R2 fail, R3 and R4 pass, nothing ships)
+
+The open item from "A composite of NBER's monthly indicators dates every turn": how many months after a turn the
+rule calls it. ALFRED's vintages (alfred.stlouisfed.org) and the Philadelphia Fed's real-time data set were both
+refused by this session's proxy, so this round is pseudo-real-time: today's final vintage of the four FRED
+indicators (PAYEMS, W875RX1, INDPRO, CMRMTSPL) cut off at every month from 1970-01 to 2026-07, the composite
+rebuilt each time with the volatility weights over every month known then, and the shipped `--turns --columns`
+rule run on it. Data through a month counts as known two months later (real manufacturing and trade sales, the
+slowest line, comes out about then). A turn is *called* at the first cut-off from which every later cut-off has a
+turn of the same kind within 3 months of NBER's. Data revisions are not in it, so real vintages stay open. Rules and
+bars in the header of `eval/turns-realtime.mjs`, committed before it first ran (commit "pre-register the
+pseudo-real-time turns round"); output `eval/turns-realtime.out.txt` (0.4 s); test `turns-realtime.test.mjs`.
+
+| bar | result | |
+|---|---|---|
+| R1 all 16 NBER turns called, median delay at most 9 months | median 7, but the 2001-03 peak is never held for good | **fails** |
+| R2 called before NBER's announcement in at least 8 of the 12 turns since 1980 | 7 of 12 | **fails** |
+| R3 at most 6 retracted false alarms, 1970-2026 | 4 (troughs 1970-04; peaks 1979-03, 2002-11, 2012-12), each shown for 1-3 months | **passes** |
+| R4 a turn's survival rises with its age, and 90% or more once 12 months of data follow it | 65%, 74%, 85%, 90%, 100% by age 5, 6-8, 9-11, 12-17, 18+; 12+ 99.9% | **passes** |
+
+What it shows:
+
+- **A typical turn is called about 7 months after it happens** (12 of the 15 called turns took 7 or 8 months, counting
+  the 2-month release lag). The exceptions are the 1969 and 1980 peaks (18 and 19 months, when the contraction was
+  short or the next one followed quickly) and the 1980 trough (13).
+- **Against NBER the rule is fast on troughs and slow on short-notice peaks.** It called the trough before NBER's
+  announcement in all five since 1982 (NBER took 8-21 months, the rule 7-8), and the 1990 and 2007 peaks before NBER
+  (by 2 and 4 months). It came after NBER on the 1980, 1981 and 2020 peaks, where NBER announced in 4-6 months, and
+  on the 1980 trough. NBER's announcement dates were transcribed from its "US Business Cycle Expansions and
+  Contractions" table (nber.org was refused here, so they were not re-fetched); they are listed in the script.
+- **The 2001 peak is lost by the weights, not by the data.** On data to 2019 the rule dates the peak at 2000-12,
+  within 3 months of NBER's 2001-03. Once 2020's swings enter the volatility weights the composite's 2000 shape
+  changes and the peak moves to 2000-09, six months off. This is the full-sample result already printed in
+  "A composite of NBER's monthly indicators" (15 of 16 with volatility over every month), now seen to happen
+  in real time. With the weights fixed to 2019-12 (printed, no bar) the 2001 peak is called in 4 months and 8 of
+  12 turns beat NBER; a fifth false peak (2025-07, shown on one cut-off) appears. That arm was not the
+  pre-registered one, so the result stays as it is, but it supports the page's choice of `--sd-until 2019-12`
+  for its example.
+- **How far to trust the latest turn:** of the turns the replay showed with 5 months of data after them, 65% held;
+  with 9-11 months, 85%; with 12-17, 90%; none dated with 18 or more months of data after it ever moved. BBQ cannot
+  date a turn with fewer than 5 months after it (its window), so a turn on `--turns` output is a call from at least
+  5 months of evidence and is worth treating as provisional for about a year.
+
+Read it for what it is: one replay of one composite on revised data, not a forecast of how the rule would have
+done on the numbers people saw at the time. As the header said, a bar failed, so the survival note does not ship
+on the CLI or page. Next, if this line continues: real vintages (ALFRED) when its host answers, and a pre-registered
+round on how `--sd-until` should be set in real time (a fixed calm window, or volatility that leaves out the
+largest moves) with this replay as the test.
