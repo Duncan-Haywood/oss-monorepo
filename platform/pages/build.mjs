@@ -36,6 +36,7 @@ import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { FUNNEL_ATTRS, FUNNEL_TOKEN_RE } from '../counter/core.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
+import { buildConstructionPage, CONSTRUCTION_PATH } from './industry-construction.mjs';
 import { buildNonprofitsPage } from './industry-nonprofits.mjs';
 import { renderHardwarePage, HARDWARE_PATH } from './hardware-page.mjs';
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
@@ -12742,6 +12743,8 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     .concat([`  <url><loc>${baseUrl}${ASK_PATH}</loc></url>`])
     // Open custom development, on the same terms.
     .concat([`  <url><loc>${baseUrl}${CUSTOM_DEV_PATH}</loc></url>`])
+    // The construction industry landing page (industry-construction.mjs).
+    .concat([`  <url><loc>${baseUrl}${CONSTRUCTION_PATH}</loc></url>`])
     // The hardware designs page, on the same terms.
     .concat([`  <url><loc>${baseUrl}${HARDWARE_PATH}</loc></url>`])
     .concat(loadRequests().filter((r) => /^R-\d{4}$/.test(r.id || '')).map((r) => `  <url><loc>${baseUrl}${customRequestPath(r.id)}</loc></url>`))
@@ -13938,6 +13941,16 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // spent and is blocked on, read from the committed run records and history.
   // `noindex` and in no sitemap; see `engineering.mjs`.
   await buildEngineeringPage(outDir, base);
+
+  // The construction industry landing page (`industry-construction.mjs`):
+  // links only tools and research this build published.
+  await buildConstructionPage(outDir, {
+    baseUrl: base,
+    disclaimer: disclaimerHtml('../../', surfaces),
+    footer: renderSiteFooterNav({ toRoot: '../../' }),
+    liveSlugs: new Set(surfaces.map((surface) => surface.slug)),
+    researchSlugs: new Set(researchSlugs),
+  });
 
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
