@@ -49,11 +49,12 @@ new worth doing. world's an oyster."
 So land at least one thing of real value on `main`: a product feature or fix,
 a deployed page, a research result, an open-source tool, SEO or distribution
 work, or a write-up that uses real data to tell a reader something new.
-Most PRs also carry a **new blog post** in `docs/posts/` about the project
-or whatever the run found, short is fine, plus an agent doc in `docs/reports/`
-when the next run needs to know something (owner, 2026-10-21 and 2026-10-24:
-"I want the number of blog posts per day to increase significantly";
-`goals.md`, "Write about the work"). An
+Writing goes to **consolidated posts and SEO/marketing posts**, not a new
+short post per PR (owner, 2026-11-24: "consolidating blog posts to keep seo
+better", superseding the 2026-10-24 push for more posts per day): extend the
+project's existing post or fold thin ones together, and write pages aimed at
+the searches users make. Add an agent doc in `docs/reports/` when the next
+run needs to know something (`goals.md`, "Write about the work"). An
 empty queue, a vague brief or a task that already landed means look wider,
 not stop. Restated blockers, ledger-only edits and re-verifying unchanged
 work do not count. Never fabricate or lower the bar to have something to

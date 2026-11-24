@@ -381,11 +381,13 @@ and blog post according to its judgment on what." And again on 2026-10-24,
 after the post rate fell from about forty a day to two or four (8 of the last
 100 run records named a post): "I think it'd be nice if most of the prs
 included a blog post about the project or other. I want the number of blog
-posts per day to increase significantly." So the default for a PR that merges
-work is a **new blog post**, plus an agent doc when the run learned something
+posts per day to increase significantly." So the default for a PR that merged
+work became a new blog post (narrowed on 2026-11-24 to consolidated and
+SEO/marketing posts, below), plus an agent doc when the run learned something
 the next run needs:
 
-- **A blog post** in `docs/posts/`, one of the three kinds above, for a person
+- **A blog post** in `docs/posts/`, one of the three kinds above (new or
+  extended, see "Consolidate, for search"), for a person
   or an AI agent who has never seen the repository. The owner, 2026-10-21:
   "the blog is for humans and ai agents reading and the agent docs is for
   llms."
@@ -406,18 +408,32 @@ would want to read: a trap, a technique, a measurement, an argument. Write it
 for a model with tools: lead with what to do, cite repository paths, keep it
 dense. It is optional, and the guardrails below hold there too.
 
-The subject is the run's call: its own work, the project it touched, something
-it found on the way, or a gap from `writing-backlog.mjs`. Lean towards a new
-post, not a new section in an old one: a post is a dated entry in the feed,
-and an edit to last week's post adds nothing a reader of the feed sees. Extend
-an existing post only when the subject is the same (a correction, a rerun of
-the same numbers); a new result, a new feature or a different angle on a
-project already written about is a new post that links back to the old one.
-A small run still has something to write about: a short post (300 to 600
-words is fine) on what the project it touched does and who it is for, what
-the change shows, or one research track from the backlog. That is the default
-for a one-line fix too, unless the run truly has nothing true to say; then
-skip it and say why in the record's `deviations`. A padded or invented post is
+**Consolidate, for search (owner, 2026-11-24).** Narrowed by the owner on
+2026-11-24: "consolidating blog posts to keep seo better", with more of the
+writing moved to consolidated posts and to SEO and marketing. By then the blog
+held over 7,000 posts at about thirty a day, most of them one per PR, so many
+short pages on the same project competed with each other in search and none
+built up the depth a ranking page needs. This supersedes the 2026-10-24 "one
+post per PR" default above. The writing effort now goes to two kinds of post:
+
+- **Consolidated posts.** One substantial, kept-current page per subject (a
+  product, a research track, a recurring theme), not a new short post per
+  change. A run that changes a project already written about extends that
+  project's post, with a dated "What changed" entry, or folds several thin
+  posts into one and points the others at it, instead of adding another
+  short page. A periodic roundup (a week or a month across a project) is
+  also a consolidated post. Merging old thin posts into one is useful work
+  in its own right.
+- **SEO and marketing posts.** Pages written for the searches a product's
+  users actually make: the question in their words, a worked example from
+  real output, what it does not do, and a clear way to try it, under the
+  same rules as the marketing page below (no fake reviews, no claim a file
+  can't back).
+
+A new post is still right for a subject the blog doesn't cover yet, a
+research result a reader would cite on its own, or a story. A small run
+with nothing new to say skips the post (and says so in `deviations`) rather
+than adding a thin one. Short and true still beats padded. A padded or invented post is
 still worse than none, so short and true beats long. List the paths written or
 extended in the record's `writeups`, which `promptctl.py measure` counts along
 with posts per day. The blog index is searchable
