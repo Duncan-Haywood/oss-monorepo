@@ -42,6 +42,7 @@ import { doubleEscapedInChrome } from './entities.mjs';
 import { rawMarkdownLeaks } from './raw-markdown.mjs';
 import { mapLimit } from './share.mjs';
 import { servedPath } from './served-path.mjs';
+import { APP_DIRS } from './cloudflare/router.mjs';
 
 const execFileAsync = promisify(execFile);
 
@@ -1385,6 +1386,9 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
   const linkOutcomes = new Map();
   const deployIndex = path.resolve(site, DEPLOY_DIR, 'index.html');
   const devPrefix = path.resolve(site, DEV_DIR) + path.sep;
+  // Apps the site Worker serves itself (Grant Autopilot at grants/, router.mjs
+  // APP_DIRS): no file for them is in the artifact, and a link to one is live.
+  const appPrefixes = Object.keys(APP_DIRS).map((dir) => path.resolve(site, dir) + path.sep);
 
   // Files are read synchronously (see readPage); up to 32 callbacks overlap only
   // on the disk lookups for a link the walk did not list. Each file's problems
@@ -1416,6 +1420,7 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
     // Everything under dev/ (the dashboard, its stats.json and dev/analyses/)
     // is written by publish-branch.sh after this check, on the same terms.
     if (resolved.startsWith(devPrefix)) return SKIPPED;
+    if (appPrefixes.some((prefix) => resolved.startsWith(prefix))) return SKIPPED;
     if (!(await present(resolved))) return DEAD;
     return { resolved, page: resolved.endsWith('.html') ? siteRelative(resolved) : null };
   };

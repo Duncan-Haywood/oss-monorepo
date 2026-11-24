@@ -2,7 +2,7 @@
 title: "The front page now leads with products, not 1,400 free tools"
 seo_title: "Software for small businesses, one kind at a time"
 date: 2026-11-24
-tags: [site, products, small-business, marketing]
+tags: [site, product, small-business, marketing]
 description: "The home page now opens on products for specific small businesses: one live, five in early access, three hardware designs. The free tools sit under them."
 ---
 

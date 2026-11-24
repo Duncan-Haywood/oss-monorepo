@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01XpHqybzm8RDQD8jmKs3igB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Directional revamp foundation: business.mjs, products-first hero, /products/, /industries/, nav, sitemap, tests",
+  "input_sha256": "e1357733c10112b0aba48b8cac669dac7f1be81cc8aaaccedbecb21f29524fd6",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T22:31:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 18707,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/check.mjs",
+      "issue": "The dead-link walk and two build.test.mjs link tests did not know that grants/ is served by the site Worker (cloudflare/router.mjs APP_DIRS), so the first page to link the live product failed both. Both now skip APP_DIRS prefixes."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/pages/site-nav.mjs",
+      "why": "Two new nav items would overflow the one-row header budget, so the 'Deploy your own' label became 'Self-host'. The footer keeps 'Deploy your own copy'.",
+      "did": "relabelled",
+      "result": "site-nav width test passes with 10 items"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "business.mjs is the single product-line source (siblings import it); products.mjs writes /products/, /industries/ and a default industries/<slug>/ page each (construction, manufacturing, online-sellers, eu-e-invoicing, nonprofits) that a later sibling page replaces. Verification: platform/pages node --test *.test.mjs: 1958 pass, and the 3 failures (Worker-served grants/ links, sitemap list) were fixed then rerun; full build + check.mjs: 'looks publishable: 1437 products, 54 category pages, 13152 pages, no dead links'; --only preview screenshots at 1280 and 390 px, light and dark, no sideways scroll. Only Grant Autopilot marked live (test-enforced).",
+  "corrections": [],
+  "redteam": null
+}

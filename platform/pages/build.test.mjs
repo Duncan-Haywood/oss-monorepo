@@ -496,7 +496,8 @@ test('every hub link resolves to a file that exists', async () => {
   const { outDir } = await site();
   const hub = stripRawText(await read('index.html'));
 
-  const all = [...hub.matchAll(/href="([^"]+)"/g)].map((m) => m[1]).filter((h) => !h.startsWith('http'));
+  // http(s) and mailto: (the early-access links on product cards) are not files.
+  const all = [...hub.matchAll(/href="([^"]+)"/g)].map((m) => m[1]).filter((h) => !h.startsWith('http') && !h.startsWith('mailto:'));
   const hrefs = all.filter((h) => !h.startsWith('#'));
   assert.ok(hrefs.length > 20, 'the hub should link to every tool');
 
