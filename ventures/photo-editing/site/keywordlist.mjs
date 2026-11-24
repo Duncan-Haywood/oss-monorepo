@@ -37,7 +37,7 @@ const lc = (s) => s.toLowerCase();
  * the file has no tabs at all.
  */
 export function parseKeywordList(text) {
-  const lines = String(text ?? "").replace(/^﻿/, "").split(/\r\n|\r|\n/);
+  const lines = String(text ?? "").replace(/^\uFEFF/, "").split(/\r\n|\r|\n/);
   const anyTab = lines.some((l) => /^\t/.test(l));
   // Space-indented files: the smallest indent step found is one level.
   let step = 0;

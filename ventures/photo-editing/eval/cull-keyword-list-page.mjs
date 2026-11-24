@@ -17,7 +17,7 @@ const [url, dir, work] = process.argv.slice(2);
 mkdirSync(join(work, "out"), { recursive: true });
 const raws = ["nef/Nikon D810.nef", "nef/Nikon D300.nef"].map((r) => join(dir, r));
 const list = join(work, "lightroom-keywords.txt");
-writeFileSync(list, "﻿" + ["[People]", "\tJane Roe", "\t\t{Jane}", "Places", "\tYorkshire", "\t\tLeeds", "\t\t\t{Leodis}", "Sport", "\tIce hockey", "\t\t{hockey}", "\t\tFinal", "\tFootball", "\t\tFinal", ""].join("\r\n"));
+writeFileSync(list, "\uFEFF" + ["[People]", "\tJane Roe", "\t\t{Jane}", "Places", "\tYorkshire", "\t\tLeeds", "\t\t\t{Leodis}", "Sport", "\tIce hockey", "\t\t{hockey}", "\t\tFinal", "\tFootball", "\t\tFinal", ""].join("\r\n"));
 
 const { chromium } = await loadPlaywright();
 const browser = await chromium.launch();

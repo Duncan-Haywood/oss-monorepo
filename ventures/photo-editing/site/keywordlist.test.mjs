@@ -5,7 +5,7 @@ import { frameIptc, mergeIptc, readIptc } from "./iptc.mjs";
 
 // The layout Lightroom Classic's Metadata › Export Keywords writes (tabs,
 // [not exported], {synonym}), with a BOM and CRLF line ends.
-const LIST = "﻿" + [
+const LIST = "\uFEFF" + [
   "[People]",
   "\tJane Roe",
   "\t\t{Jane}",
@@ -71,7 +71,7 @@ test("keywordListText writes Lightroom's layout and round-trips a loaded list", 
   const v = keywordVocabulary(parseKeywordList(LIST));
   const all = v.nodes.map((n) => n.path);
   const text = keywordListText(all, v);
-  assert.equal(text, LIST.replace(/^﻿/, "").replace(/\r\n/g, "\n").replace(/\n$/, "") + "\n");
+  assert.equal(text, LIST.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").replace(/\n$/, "") + "\n");
   assert.equal(keywordListText(["Events|Wedding", "events|Party", "loose"]), "Events\n\tWedding\n\tParty\nloose\n");
   assert.equal(keywordListText([]), "");
 });
