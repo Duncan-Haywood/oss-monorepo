@@ -1,0 +1,297 @@
+{
+ "date": "2026-11-24",
+ "subject": "ventures/caa-record-check",
+ "stratum": "venture",
+ "seed": "2026-11-24-68d1",
+ "drawn_by": "reaudit",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "prior_audit": "portfolio/quality/audits/2026-11-08-caa-record-check.json",
+ "professional": "a PKI / certificate-operations engineer (CA/B Forum practitioner) who writes and debugs CAA policy; first checks: RFC 8659 section 3 alias handling (CAA(A(X)) then climb from P(X)), ancestor aliases, issuewild fallback, critical-flag and reserved-bit semantics (section 4.1), presentation-format parsing (4.1.1), and whether RFC 8657 account binding is reflected",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Probe script (scratchpad caa-record-check/probe.mjs) run against the code as found with an injected DoH resolver. Recomputed against RFC 8659 / RFC 3597 / RFC 8657: (C1) blog.example.com CNAME host.example.net, no CAA at either, example.com 'issue digicert.com': found at example.com, walked [blog.example.com, host.example.net, example.com], Let's Encrypt not-named; RFC 8659 section 3 answer, prior high defect closed. (C2) ancestor alias b.example.com CNAME x.other.org with a resolver that chases (CNAME + CAA in Answer, as recursive resolvers do): found at x.other.org. (C5) hand-built RFC 3597 hex for 0 issue \"letsencrypt.org\" decodes right. (C6) issue LE + issuewild ';': non-wildcard named, wildcard disallow-all (4.3). (C7) 128 tbs critical unknown flagged; uppercase ISSUE accepted case-insensitively. (C11) issue ';' plus issue LE authorizes LE. WRONG on arrival: (C3) '1 issue \"letsencrypt.org\"' rejected as malformed although RFC 8659 4.1 says interpreters MUST ignore reserved flag bits; the record was dropped and DigiCert came out 'authorized (no-issue-property-in-set)', a false authorization (the record does show as a MALFORMED finding and exit 1). (C4) unquoted '0 issue letsencrypt.org' (valid per 4.1.1) MALFORMED. (C9) 'https://Example.com/path' walked https://example.com/path -> com/path. Live DoH run not possible this session (proxy 403 to cloudflare-dns.com). The common path is right; two RFC departures in rarely-seen inputs, so 3.",
+  "completeness": "README claims checked: tree-walk (lookup tests + C1/C2), CNAME per RFC 8659 section 3 (C1, now true), issuewild fallback (C6), critical-unknown (C7), RFC 8657 parameters parsed (C8 parses; verdict ignores them, README Known gaps says so), both wire formats (C5), 8-CA shortlist plus any --ca (verdictForCustomCa), exit codes (usage exits 2, lookup failure exits 2 observed), --json (observed). No stubs or TODOs. Live path unverified this session.",
+  "verification": "cd ventures/caa-record-check && node --test '*.test.mjs': 78 pass, 0 fail on arrival. Five mutations with platform/ci/quality_mutate.py: climbing the CNAME target's labels (old bug) caught; issuewild fallback on non-disallow-all only caught; removing the typed-name alias query caught; dropping issuewild from STANDARD_TAGS (a critical issuewild then blocks every CA) SURVIVED; verdictForCustomCa wildcard using nonWildcardDisallowAll SURVIVED. Reserved-bit, unquoted-value and URL-input behaviour had no test. After this session's tests (84 pass) both survivors are caught.",
+  "craft": "Read parse.mjs, analyze.mjs, lookup.mjs, check.mjs, index.html script. Zero-dependency ESM shared by CLI and page, injected resolver, timeouts, errors surfaced. The lookup docstring is now clear (prior unfinished sentence gone). Still: verdictForCustomCa repeats verdictFor's rule chain as nested ternaries (the surviving mutant shows the drift risk is real and untested); the tag token check was dead (presentation regex already enforced it) and allowed '-', which RFC 8659 4.1 does not; parseArgs silently ignores unknown --flags.",
+  "claims": "index.html JSON-LD line 25 'Follows a CNAME at the name you enter to its target, then climbs your own name's parent labels, as RFC 8659 section 3 specifies': backed (C1). README CNAME paragraph: backed. 'Never contacts the hostname': lookup.mjs only calls cloudflare-dns.com. Disclaimer and no-warranty on README and page (page.test). Known gaps line in README accurate for accounturi, but listed unquoted values and normalisation (true on arrival). 'computed the way RFC 8659 says a CA must compute it' was not true for reserved flag bits (C3). llms.txt line 5 still the boilerplate 'estimates from the numbers typed in, not legal, tax, financial' (prior low defect). Served copy (node platform/pages/served-copy.mjs caa-record-check): no placeholder or retired origin; sitemap/canonical example.invalid is source-only.",
+  "fitness": "Job walked: a sysadmin whose SaaS-hosted subdomain (CNAME) cert fails to renew under a restrictive parent now gets the parent's set and the right per-CA verdict (C1), the case the prior audit failed. Pasting the URL from the browser bar (C9) gave a nonsense walk on arrival; account-bound records read 'authorized' with no caveat.",
+  "domain": "Compared with RFC 8659 sections 3, 4.1, 4.1.1, 4.2, 4.3, RFC 8657 and RFC 3597. Section 3 alias handling now matches (the prior high). Departs on: section 4.1 reserved flag bits rejected instead of ignored (MUST), dropping the record from the verdict; section 4.1.1 unquoted values rejected; section 4.1 tag charset (letters and digits) loosened to allow '-'; RFC 8657 accounturi/validationmethods not reflected in the verdict. A PKI engineer would accept the climb and alias handling and file the 4.1 MUST violation."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "CNAME to target with no CAA under a restrictive parent",
+   "method": "RFC 8659 section 3: R(X)=CAA(X), else CAA(A(X)), else R(P(X))",
+   "command": "node scratchpad/caa-record-check/probe.mjs (C1)",
+   "expected": "found at example.com, only digicert.com authorized",
+   "observed": "found example.com, walked blog.example.com, host.example.net, example.com; LE not-named",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "CNAME at an ancestor label, resolver chasing the alias",
+   "method": "RFC 8659 section 3 with RFC 1034 3.6.2 CNAME chasing in the recursive answer",
+   "command": "node scratchpad/caa-record-check/probe.mjs (C2)",
+   "expected": "set at x.other.org governs a.b.example.com",
+   "observed": "found x.other.org via b.example.com",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "reserved flag bit set: 1 issue \"letsencrypt.org\"",
+   "method": "RFC 8659 section 4.1: interpreters MUST ignore reserved flag bits",
+   "command": "node scratchpad/caa-record-check/probe.mjs (C3)",
+   "expected": "record counts; DigiCert not authorized",
+   "observed": "record MALFORMED and dropped; DigiCert authorized (no-issue-property-in-set)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "unquoted presentation value 0 issue letsencrypt.org",
+   "method": "RFC 8659 section 4.1.1: value is contiguous characters or a quoted string",
+   "command": "node scratchpad/caa-record-check/probe.mjs (C4)",
+   "expected": "issue letsencrypt.org",
+   "observed": "MALFORMED: matched neither format",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "RFC 3597 generic hex built by hand for 0 issue \"letsencrypt.org\"",
+   "method": "RFC 3597 section 5 and RFC 8659 4.1 wire layout (flag, tag length, tag, value)",
+   "command": "node scratchpad/caa-record-check/probe.mjs (C5)",
+   "expected": "flag 0, tag issue, value letsencrypt.org",
+   "observed": "flag 0, tag issue, value letsencrypt.org",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "issue letsencrypt.org plus issuewild \";\"",
+   "method": "RFC 8659 section 4.3, hand-derived",
+   "command": "node scratchpad/caa-record-check/probe.mjs (C6)",
+   "expected": "non-wildcard authorized, wildcard disallowed",
+   "observed": "named / disallow-all",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "128 tbs critical unknown tag; ISSUE in upper case",
+   "method": "RFC 8659 section 4.1 critical flag and case-insensitive tags",
+   "command": "node scratchpad/caa-record-check/probe.mjs (C7)",
+   "expected": "tbs flagged critical-unknown; ISSUE parsed as issue",
+   "observed": "criticalUnknown [tbs]; tag issue",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "two issue records, one ';' and one letsencrypt.org",
+   "method": "RFC 8659 section 4.2: authorized if any issue property names the CA",
+   "command": "node scratchpad/caa-record-check/probe.mjs (C11)",
+   "expected": "LE authorized",
+   "observed": "LE named",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "pasted URL as hostname",
+   "method": "what a user copies from the browser bar",
+   "command": "node scratchpad/caa-record-check/probe.mjs (C9)",
+   "expected": "queries example.com then com",
+   "observed": "queried https://example.com/path twice then com/path",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "RFC 8657 accounturi on an issue record",
+   "method": "RFC 8657 section 3: issuance restricted to that ACME account",
+   "command": "node scratchpad/caa-record-check/probe.mjs (C8)",
+   "expected": "verdict notes the account restriction",
+   "observed": "authorized, reason named, no caveat",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "subject test suite on arrival",
+   "method": "node --test",
+   "command": "cd ventures/caa-record-check && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "78 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live DoH run",
+   "method": "CLI against cloudflare-dns.com",
+   "command": "node ventures/caa-record-check/check.mjs letsencrypt.org --ca pki.goog",
+   "expected": "real record set",
+   "observed": "fetch failed (agent proxy 403 for cloudflare-dns.com); exit 2 as documented",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "served llms.txt, sitemap, canonical",
+   "method": "deploy rewrite",
+   "command": "node platform/pages/served-copy.mjs caa-record-check",
+   "expected": "no placeholder origin",
+   "observed": "no placeholder or retired origin left",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt disclaimer line",
+   "method": "read against the product",
+   "command": "sed -n 5p ventures/caa-record-check/llms.txt",
+   "expected": "a disclaimer that fits a DNS checker",
+   "observed": "'Results are estimates from the numbers typed in, not legal, tax, financial or professional advice'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "JSON-LD CNAME feature claim",
+   "method": "compare index.html line 25 with C1",
+   "command": "grep -n CNAME ventures/caa-record-check/index.html",
+   "expected": "claim matches RFC 8659 section 3 behaviour",
+   "observed": "matches",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "lookup.mjs:109",
+   "change": "climb canonicalName's labels instead of queriedName's (the pre-fix bug)",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "analyze.mjs:58",
+   "change": "issuewild override only when a non-disallow-all issuewild exists",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "lookup.mjs:115",
+   "change": "skip the CAA query at the typed name's alias target",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "analyze.mjs:31",
+   "change": "issuewild dropped from STANDARD_TAGS (critical issuewild blocks every CA)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "analyze.mjs:119",
+   "change": "verdictForCustomCa wildcard: wildcardDisallowAll -> nonWildcardDisallowAll",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "prior_defects": [
+  {
+   "index": 0,
+   "severity": "high",
+   "basis": "assumed",
+   "status": "closed",
+   "what": "CNAME handling now RFC 8659 section 3: CAA(target) exactly, then the typed name's parent (C1 pass; test at lookup.test.mjs pins it; mutant reverting it caught)"
+  },
+  {
+   "index": 1,
+   "severity": "medium",
+   "basis": "assumed",
+   "status": "closed",
+   "what": "ancestor CNAME/DNAME: each CAA query goes through a recursive resolver that chases aliases, and the code reads the CAA answers out of a chased response (C2 pass); only the typed name's alias is named in the report"
+  },
+  {
+   "index": 2,
+   "severity": "medium",
+   "basis": "assumed",
+   "status": "open",
+   "what": "unquoted presentation values still MALFORMED (C4); hostname still queried verbatim (C9)",
+   "closed_by": "PENDING"
+  },
+  {
+   "index": 3,
+   "severity": "medium",
+   "basis": "assumed",
+   "status": "open",
+   "what": "accounturi/validationmethods still ignored in the verdict (C8); README Known gaps now says so"
+  },
+  {
+   "index": 4,
+   "severity": "low",
+   "basis": "assumed",
+   "status": "partial",
+   "what": "github.io link gone and served copy clean (sitemap/canonical example.invalid is source-only); llms.txt tax/legal boilerplate still there",
+   "closed_by": "PENDING"
+  },
+  {
+   "index": 5,
+   "severity": "low",
+   "basis": "assumed",
+   "status": "partial",
+   "what": "unfinished docstring sentence fixed; verdictForCustomCa still duplicates verdictFor; dead tag-regex condition still dead"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "A record with reserved flag bits set (e.g. '1 issue \"letsencrypt.org\"') is rejected as malformed and dropped from the verdict, so every CA reads 'authorized' though RFC 8659 section 4.1 says interpreters MUST ignore reserved bits and the record restricts issuance to Let's Encrypt.",
+   "where": "ventures/caa-record-check/parse.mjs:70",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Unquoted presentation values (RFC 8659 4.1.1) reported MALFORMED, and a pasted URL, port or *. prefix is queried verbatim (carried over from 2026-11-08 defect 2).",
+   "where": "ventures/caa-record-check/parse.mjs:46; lookup.mjs:83",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Two seeded mutants survive 78 tests: issuewild dropped from the standard-tag set (a critical issuewild then blocks every CA) and verdictForCustomCa's wildcard branch reading the non-wildcard disallow flag.",
+   "where": "ventures/caa-record-check/analyze.test.mjs:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "RFC 8657 accounturi/validationmethods parsed but not reflected in the verdict: an account-bound record reads 'authorized (named)' with no caveat (carried over from 2026-11-08 defect 3).",
+   "where": "ventures/caa-record-check/analyze.mjs:72",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Tag check is dead (presentation regex already enforces it) and allows '-', where RFC 8659 4.1 permits only ASCII letters and digits.",
+   "where": "ventures/caa-record-check/parse.mjs:79",
+   "category": "domain-rule",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "verdictForCustomCa repeats verdictFor's decision chain as nested ternaries (carried over from 2026-11-08 defect 5).",
+   "where": "ventures/caa-record-check/analyze.mjs:102",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt says 'Results are estimates from the numbers typed in, not legal, tax, financial or professional advice', boilerplate that does not describe a DNS checker (carried over from 2026-11-08 defect 4).",
+   "where": "ventures/caa-record-check/llms.txt:5",
+   "category": "overclaim",
+   "origin": "claims"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The prior high defect is closed: CNAME handling now follows RFC 8659 section 3 (CAA at the alias target only, then the typed name's parent), a test pins it and a mutant that reverts it is caught; ancestor aliases are covered by the resolver chasing them. Re-checking found a new RFC departure in the other direction the prior audit worried about: a record with reserved flag bits was dropped as malformed, so every CA read 'authorized' where section 4.1 says the bits are ignored and the record restricts issuance. Unquoted values and pasted URLs were still mishandled, account binding is still not in the verdict, and two of five seeded mutants survived (a critical issuewild, the custom-CA wildcard branch). Scored as found: correctness 3, claims 3, verification 2, domain 2, so it does not meet the bar on verification. This session fixed the reserved-bit, unquoted-value, URL-input, tag-charset and llms.txt defects and added tests that kill both survivors (84 pass); accounturi and the duplicated rule chain remain in README Known gaps."
+}

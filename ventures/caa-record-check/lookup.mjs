@@ -20,6 +20,25 @@ function stripTrailingDot(name) {
   return String(name).replace(/\.$/, '');
 }
 
+/**
+ * Turns what a person pastes into the DNS name a CA would check:
+ * `https://Shop.Example.com:8443/cart?x=1` -> `shop.example.com`. A leading
+ * `*.` is dropped: CAs check a wildcard certificate's CAA at the base name
+ * (Let's Encrypt's Boulder strips the `*.` label before its CAA lookup), and
+ * the report's wildcard column is the issuewild/issue answer there. Sending
+ * the literal `*` label to DNS would instead match the zone's own wildcard
+ * records.
+ */
+export function normalizeHostname(input) {
+  let s = String(input ?? '').trim().toLowerCase();
+  s = s.replace(/^[a-z][a-z0-9+.-]*:\/\//, '');
+  s = s.split(/[/?#]/)[0];
+  s = s.replace(/^[^@]*@/, '');
+  s = s.replace(/:\d*$/, '');
+  s = s.replace(/^\*\./, '');
+  return stripTrailingDot(s);
+}
+
 /** One raw DNS query (CAA or CNAME) via Cloudflare's public DoH JSON API. */
 async function dohQuery(name, type, { fetchImpl = globalThis.fetch, timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
   if (typeof fetchImpl !== 'function') {
@@ -80,7 +99,7 @@ async function dohQuery(name, type, { fetchImpl = globalThis.fetch, timeoutMs = 
  * }}
  */
 export async function resolveCaaSet(hostname, { fetchImpl, timeoutMs, dohQueryFn = dohQuery } = {}) {
-  const queriedName = stripTrailingDot(hostname).toLowerCase();
+  const queriedName = normalizeHostname(hostname);
   const opts = { fetchImpl, timeoutMs };
 
   // The typed name's CNAME target, if any: reported to the user, and queried

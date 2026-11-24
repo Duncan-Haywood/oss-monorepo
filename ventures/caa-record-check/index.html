@@ -208,7 +208,7 @@
         ? `${requestedCaVerdict.name} is authorized to issue for ${lookup.queriedName}.`
         : `${requestedCaVerdict.name} is NOT authorized to issue for ${lookup.queriedName}.`;
     } else if (analysis.hasFindings) {
-      els.verdict.textContent = `${analysis.malformed.length} malformed record(s), ${analysis.criticalUnknown.length} critical unrecognized tag(s) found.`;
+      els.verdict.textContent = `${analysis.malformed.length} malformed record(s), ${analysis.criticalUnknown.length} critical unrecognized tag(s), ${analysis.reservedFlag.length} record(s) with reserved flag bits found.`;
     } else {
       els.verdict.textContent = analysis.noCaaAnywhere
         ? 'No CAA record found anywhere in the tree — any CA may issue.'
@@ -221,6 +221,9 @@
     }
     for (const c of analysis.criticalUnknown) {
       findingsHtml.push(`<div class="finding critical"><h3>Critical, unrecognized tag: ${escapeHtml(c.tag)}</h3><p>Any CA that does not implement this tag MUST refuse to issue for this name at all — in practice, every public CA that doesn't specifically support it.</p></div>`);
+    }
+    for (const f of analysis.reservedFlag || []) {
+      findingsHtml.push(`<div class="finding"><h3>Reserved flag bits set: ${escapeHtml(f.tag)} (flag ${escapeHtml(f.flag)})</h3><p>Only 0 and 128 are defined. CAs ignore the extra bits (RFC 8659 section 4.1), so this record still counts toward the verdict below, but the flag should be cleared.</p></div>`);
     }
     els.findings.innerHTML = findingsHtml.join('') || '<p>No syntax findings.</p>';
 

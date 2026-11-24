@@ -115,3 +115,27 @@ test('issue "; accounturi=..." (no issuer, with parameters) disallows every CA (
   assert.equal(a.nonWildcardDisallowAll, true);
   for (const v of a.caVerdicts) assert.equal(v.nonWildcard.authorized, false, v.domain);
 });
+
+// Quality audit 2026-11-24: RFC 8659 section 4.1 says reserved flag bits MUST
+// be ignored. Rejecting the record dropped it and left DigiCert "authorized".
+test('a record with reserved flag bits still restricts issuance, and is reported', () => {
+  const a = analyzeCaaSet([parseCaaData('1 issue "letsencrypt.org"')]);
+  assert.equal(verdictForCustomCa(a, 'digicert.com').nonWildcard.authorized, false);
+  assert.equal(verdictForCustomCa(a, 'letsencrypt.org').nonWildcard.authorized, true);
+  assert.equal(a.reservedFlag.length, 1);
+  assert.equal(a.hasFindings, true);
+  assert.equal(classify('example.com', { ok: true, records: [parseCaaData('1 issue "letsencrypt.org"')] }).category, 'has-findings');
+});
+
+test('a critical issuewild record is a known tag, not a blocking unknown one', () => {
+  const a = analyzeCaaSet([parseCaaData('0 issue "letsencrypt.org"'), parseCaaData('128 issuewild "digicert.com"')]);
+  assert.equal(a.criticalUnknown.length, 0);
+  assert.equal(verdictForCustomCa(a, 'digicert.com').wildcard.authorized, true);
+});
+
+test('verdictForCustomCa for a CA outside the shortlist applies issuewild ";" to wildcards only', () => {
+  const a = analyzeCaaSet([parseCaaData('0 issue "custom-ca.example"'), parseCaaData('0 issuewild ";"')]);
+  const v = verdictForCustomCa(a, 'custom-ca.example');
+  assert.deepEqual(v.nonWildcard, { authorized: true, reason: 'named' });
+  assert.deepEqual(v.wildcard, { authorized: false, reason: 'disallow-all' });
+});
