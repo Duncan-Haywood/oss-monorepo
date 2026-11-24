@@ -140,7 +140,9 @@ export function orderRequests(requests) {
 }
 
 /**
- * Flagships from `portfolio/flagships.yaml`, in file order: { venture, why, next }.
+ * Flagships from `portfolio/flagships.yaml`, in file order: { venture, why, next }
+ * plus `app` when the row has one: its `app: private-monorepo/apps/<slug>` (a paid bet built in the
+ * private repository, 2026-11-24).
  * The file is a flat list whose `why:` and `next:` are folded `>-` scalars,
  * so a line reader is enough (and keeps the site build free of a YAML parser).
  */
@@ -158,6 +160,12 @@ export function parseFlagships(src) {
       continue;
     }
     if (!cur) continue;
+    const app = line.match(/^    app: (\S+)\s*$/);
+    if (app) {
+      cur.app = app[1];
+      key = null;
+      continue;
+    }
     const field = line.match(/^    (why|next): ?(>-|>|\|)?\s*(.*)$/);
     if (field) {
       key = field[1];
@@ -393,7 +401,7 @@ export function renderQueue(data, { baseUrl = '', socialCard = '' } = {}) {
     const dir = requestDir(r);
     if (dir) rows.push({ lane: 'Request', anchor: 'requests', name: r.title || r.id || dir, dir, status: r.status });
   }
-  for (const f of data.flagships ?? []) rows.push({ lane: 'Flagship', anchor: 'flagships', name: f.venture, dir: `ventures/${f.venture}` });
+  for (const f of data.flagships ?? []) rows.push({ lane: 'Flagship', anchor: 'flagships', name: f.venture, dir: f.app ?? `ventures/${f.venture}` });
   for (const p of data.programmes ?? []) rows.push({ lane: 'Research', anchor: 'research', name: p.slug, dir: `research/${p.slug}` });
   const glance =
     data.merges === undefined || !rows.length
@@ -471,7 +479,7 @@ ${
               return `<li><div class="card"><h3>${name}</h3>
 ${f.why ? `<p class="muted">${inline(clip(f.why, 240), '', { linkPrs: false })}</p>` : ''}
 ${f.next ? `<p><strong>Working towards:</strong> ${inline(clip(f.next, 300), '', { linkPrs: false })}</p>${f.next.length > 300 ? `<details><summary>Full milestone</summary><p>${inline(f.next, '', { linkPrs: false })}</p></details>` : ''}` : ''}
-<p class="meta"><a href="${REPO_URL}/tree/main/ventures/${esc(f.venture)}">Source</a></p>${progressHtml(progress(`ventures/${f.venture}`))}</div></li>`;
+${f.app ? `<p class="meta">Built in the private repository (<code>${esc(f.app)}</code>)</p>` : `<p class="meta"><a href="${REPO_URL}/tree/main/ventures/${esc(f.venture)}">Source</a></p>${progressHtml(progress(`ventures/${f.venture}`))}`}</div></li>`;
             })
             .join('')}</ol>`
         : '<p class="note">No flagships are listed.</p>',

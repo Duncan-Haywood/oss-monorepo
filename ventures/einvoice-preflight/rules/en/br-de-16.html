@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BR-DE-16: Seller VAT ID, tax number or tax representative is missing</title>
+<meta name="description" content="BR-DE-16: If any invoice line or document-level allowance or charge uses VAT category S, Z, E, AE, K, G, L or M, XRechnung requires at least one of: the…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/en/br-de-16">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/br-de-16">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/br-de-16">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/br-de-16">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/br-de-16">
+<meta property="og:title" content="BR-DE-16: Seller VAT ID, tax number or tax representative is missing">
+<meta property="og:description" content="BR-DE-16: If any invoice line or document-level allowance or charge uses VAT category S, Z, E, AE, K, G, L or M, XRechnung requires at least one of: the…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does BR-DE-16 mean?","acceptedAnswer":{"@type":"Answer","text":"If any invoice line or document-level allowance or charge uses VAT category S, Z, E, AE, K, G, L or M, XRechnung requires at least one of: the seller's VAT identifier (BT-31), the seller's tax registration number such as the German Steuernummer (BT-32), or a seller tax representative (BG-11). In practice that is almost every invoice; only one where everything is category O (not subject to VAT) escapes the rule."}},{"@type":"Question","name":"How do I fix BR-DE-16?","acceptedAnswer":{"@type":"Answer","text":"Send the seller's VAT ID, its tax number, or both: in UBL each as cbc:CompanyID in the seller's cac:PartyTaxScheme (with tax scheme VAT for the VAT ID); in CII as ram:SpecifiedTaxRegistration/ram:ID with schemeID=\"VA\" or schemeID=\"FC\". If a tax representative issues the invoice for you, send the tax representative group (BG-11) instead. Store these numbers in your company settings so every invoice carries them."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-invoice rule explained · XRechnung</p>
+<h1>BR-DE-16: Seller VAT ID, tax number or tax representative is missing</h1>
+<nav class="langs" aria-label="Other languages"><a href="../de/br-de-16.html" hreflang="de" lang="de">Deutsch</a><a href="../fr/br-de-16.html" hreflang="fr" lang="fr">Français</a><a href="index.html">All rules</a></nav>
+</header>
+<section>
+<h2>Official message</h2>
+<blockquote lang="de">Wenn in einer Rechnung die Steuercodes S, Z, E, AE, K, G, L oder M verwendet werden, muss mindestens eines der Elemente &quot;Seller VAT identifier&quot; (BT-31), &quot;Seller tax registration identifier&quot; (BT-32) oder &quot;SELLER TAX REPRESENTATIVE PARTY&quot; (BG-11) übermittelt werden.</blockquote>
+<dl>
+<dt>Severity</dt><dd>Error (the invoice is rejected)</dd>
+<dt>Checked in</dt><dd>UBL, CII</dd>
+<dt>Business terms</dt><dd>BT-31, BT-32, BG-11</dd>
+</dl>
+</section>
+<section>
+<h2>What does BR-DE-16 mean?</h2>
+<p>If any invoice line or document-level allowance or charge uses VAT category S, Z, E, AE, K, G, L or M, XRechnung requires at least one of: the seller's VAT identifier (BT-31), the seller's tax registration number such as the German Steuernummer (BT-32), or a seller tax representative (BG-11). In practice that is almost every invoice; only one where everything is category O (not subject to VAT) escapes the rule.</p>
+<h2>Usual causes</h2>
+<ul>
+<li>The company's VAT ID and tax number are not set up in the invoicing software.</li>
+<li>They are printed on the PDF footer but not written into the XML.</li>
+<li>In CII, the tax registration was sent without schemeID &quot;VA&quot; (VAT ID) or &quot;FC&quot; (tax number), so the check does not count it.</li>
+</ul>
+</section>
+<section>
+<h2>How do I fix BR-DE-16?</h2>
+<ol>
+<li>Send the seller's VAT ID, its tax number, or both: in UBL each as cbc:CompanyID in the seller's cac:PartyTaxScheme (with tax scheme VAT for the VAT ID); in CII as ram:SpecifiedTaxRegistration/ram:ID with schemeID=&quot;VA&quot; or schemeID=&quot;FC&quot;.</li>
+<li>If a tax representative issues the invoice for you, send the tax representative group (BG-11) instead.</li>
+<li>Store these numbers in your company settings so every invoice carries them.</li>
+</ol>
+<h2>Corrected XML (minimal example we wrote)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;cac:AccountingSupplierParty&gt;
+  &lt;cac:Party&gt;
+    &lt;!-- endpoint, name and address come first --&gt;
+    &lt;cac:PartyTaxScheme&gt;
+      &lt;cbc:CompanyID&gt;DE123456789&lt;/cbc:CompanyID&gt;
+      &lt;cac:TaxScheme&gt;
+        &lt;cbc:ID&gt;VAT&lt;/cbc:ID&gt;
+      &lt;/cac:TaxScheme&gt;
+    &lt;/cac:PartyTaxScheme&gt;
+    &lt;!-- legal entity and contact follow --&gt;
+  &lt;/cac:Party&gt;
+&lt;/cac:AccountingSupplierParty&gt;</code></pre>
+<p><strong>CII</strong></p>
+<pre><code>&lt;ram:SellerTradeParty&gt;
+  &lt;ram:Name&gt;Example GmbH&lt;/ram:Name&gt;
+  &lt;!-- contact and postal address come here --&gt;
+  &lt;ram:SpecifiedTaxRegistration&gt;
+    &lt;ram:ID schemeID=&quot;VA&quot;&gt;DE123456789&lt;/ram:ID&gt;
+  &lt;/ram:SpecifiedTaxRegistration&gt;
+&lt;/ram:SellerTradeParty&gt;</code></pre>
+<p class="note">Example values only. Put the elements in place of, or beside, what your file has; element order matters in both syntaxes.</p>
+</section>
+<section>
+<h2>Check your file for free</h2>
+<p>The free checker runs the official EN 16931, XRechnung and Peppol rules in your browser. Your file is not uploaded.</p>
+<p><a class="button" href="../../index.html">Open the free checker</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In development — early access</span></p>
+<h2>Fix-and-explain for accountants and invoicing teams</h2>
+<p>A paid service that explains every failed rule in plain German, French or English and proposes a corrected file is in development. <a href="https://example.invalid/industries/e-invoicing/">Early access</a></p>
+</section>
+<section>
+<h2>Source</h2>
+<p>Rule id and official message from the KoSIT XRechnung Schematron, v2.6.0 (for XRechnung 3.0) (Apache-2.0), compiled from upstream commit 7e3ddbe. The explanation, causes, fix and XML on this page are our own, not the rule publisher's. <a href="https://github.com/itplr-kosit/xrechnung-schematron/tree/v2.6.0" rel="noopener">KoSIT XRechnung Schematron v2.6.0 (for XRechnung 3.0)</a></p>
+</section>
+<footer>
+<p><strong>Not tax or legal advice.</strong> This page explains what a validation rule checks and how to make a file pass it. It does not say which VAT treatment applies to your sale; ask a tax adviser. <strong>No warranty:</strong> provided free and as-is; check the result before you rely on it.</p>
+<p>Our code and explanations are FSL-1.1-MIT-licensed. Official rule messages are quoted under their publishers' licences (EUPL-1.2, Apache-2.0, MPL-2.0), named on each page.</p>
+</footer>
+</main></body></html>

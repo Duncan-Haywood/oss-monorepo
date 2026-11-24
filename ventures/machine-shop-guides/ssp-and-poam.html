@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>What Goes in an SSP and a POA&amp;M (NIST SP 800-171)</title>
+  <meta name="description" content="What a small shop's NIST SP 800-171 system security plan and plan of action and milestones contain, and the CMMC POA&amp;M limits in 32 CFR 170.21.">
+  <meta property="og:title" content="What Goes in an SSP and a POA&amp;M (NIST SP 800-171)">
+  <meta property="og:description" content="What a small shop's NIST SP 800-171 system security plan and plan of action and milestones contain, and the CMMC POA&amp;M limits in 32 CFR 170.21.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://marisstella.app/machine-shop-guides/ssp-and-poam.html">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232c4a3e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "What Goes in an SSP and a POA&amp;M (NIST SP 800-171)", "description": "What a small shop's NIST SP 800-171 system security plan and plan of action and milestones contain, and the CMMC POA&amp;M limits in 32 CFR 170.21.", "datePublished": "2026-11-24", "dateModified": "2026-11-24"}</script>
+</head>
+<body data-page="ssp-and-poam">
+<nav class="crumbs"><a href="./">Machine shop guides</a></nav>
+<main>
+<h1>What goes in an SSP and a POA&amp;M</h1>
+<p class="lede">Two documents carry most of a small shop's NIST SP 800-171 effort: the <strong>system security plan (SSP)</strong>, which says what your system is and how each requirement is met, and the <strong>plan of action and milestones (POA&amp;M)</strong>, which says how and when you will close what is not. Without an SSP there is no score at all; with a weak POA&amp;M the score you post has nothing behind it.</p>
+
+<h2>The SSP: requirement 3.12.4</h2>
+<p>NIST SP 800-171 Rev. 2 requirement 3.12.4 asks you to develop, document and periodically update system security plans that describe system boundaries, system environments of operation, how security requirements are implemented, and the relationships with or connections to other systems. The DoD Assessment Methodology (v1.2.1, 24 June 2020) gives 3.12.4 no point value because without an SSP an assessment cannot be completed. In practice, for a small machine shop, that means:</p>
+<ol>
+  <li><strong>Scope and boundary.</strong> Which people, computers, accounts, cloud services and machines store, process or transmit CUI. Name them: the estimator's PC, the CAM workstation, the file share, the email service, the shop-floor DNC or controllers that receive programs, the printers that produce travelers.</li>
+  <li><strong>Network diagram and data flow.</strong> How a CUI drawing gets from the customer to the spindle and to the inspection report, and where it is stored at each step.</li>
+  <li><strong>Asset inventory.</strong> Hardware, software and services in scope, with owners. Requirement 3.4.1 asks for baseline configurations and inventories anyway.</li>
+  <li><strong>One implementation statement per requirement.</strong> For each of the 110: met, not met or partially met (for 3.5.3 and 3.13.11), how it is done in your shop, who is responsible, and where the evidence is (a setting, a log, a signed form).</li>
+  <li><strong>Connections to other systems.</strong> Your managed service provider, your ERP or quoting software, your customer's portal, any vendor with remote access to a machine.</li>
+  <li><strong>Roles and review date.</strong> Who owns the plan and when it is next reviewed.</li>
+</ol>
+<p>Write the implementation statements in plain language about what actually happens. An assessor (or your own senior official, who affirms the score) should be able to read a statement and know where to look to see it working.</p>
+
+<h2>The POA&amp;M: requirement 3.12.2</h2>
+<p>Requirement 3.12.2 asks you to develop and implement plans of action designed to correct deficiencies and reduce or eliminate vulnerabilities. NIST does not prescribe a format. A workable POA&amp;M row has: the requirement, the weakness as you found it, the planned action, who is responsible, the resources needed, milestone dates, and the current status. The <a href="sprs-score-calculator.html">SPRS score calculator</a> downloads your gaps in exactly those columns as a starter.</p>
+<p>When you post a Basic assessment in SPRS, you also give the date you expect to reach a score of 110. Your POA&amp;M milestones are where that date comes from.</p>
+
+<h2>POA&amp;M limits under CMMC</h2>
+<p><a href="https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.21">32 CFR 170.21</a> limits what a CMMC Level 2 assessment can leave open:</p>
+<ul>
+  <li>Conditional status needs a score of at least 80% of the maximum (88 of 110).</li>
+  <li>Open items are generally limited to 1-point requirements. The stated exception is 3.13.11 when you encrypt CUI but the cryptography is not FIPS-validated (a 3-point partial deduction).</li>
+  <li>Section 170.21(a)(2) names further requirements that can never be on a POA&amp;M. Read the list there.</li>
+  <li>Open items must be closed and confirmed by a closeout assessment within 180 days, or the conditional status expires.</li>
+  <li>Level 1 allows no POA&amp;M at all (<a href="https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.15">32 CFR 170.15</a>).</li>
+</ul>
+<p>So for planning, sort your gaps by weight. Every 5- and 3-point gap has to be closed before a Level 2 assessment, not deferred to a POA&amp;M. The calculator flags those for you.</p>
+
+<h2>Keep them alive</h2>
+<p>Both documents go stale the day a new machine, a new laptop or a new customer portal arrives. Under <a href="https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.16">32 CFR 170.16</a> a Level 2 (Self) shop affirms compliance every year and keeps assessment artifacts for six years; that affirmation means the SSP still describes the shop as it is.</p>
+</main>
+<section class="card cta" id="early-access">
+  <h2>In development — early access</h2>
+  <p>We are building two paid products for small machine shops: an <strong>RFQ-to-quote assistant</strong> that turns a drawing and an email into a priced quote from your own rates, and a <strong>CMMC Level 1/2 and ISO 9001 workspace</strong> that keeps your SSP, POA&amp;M and SPRS score in one place. Neither is released yet. Read what is planned and how to get early access on the <a href="https://marisstella.app/industries/manufacturing/">manufacturing page</a>.</p>
+  <p class="note">Neither product certifies anyone. Only an authorized C3PAO (or the government) can issue a CMMC Level 2 certification; software can help you prepare, nothing more.</p>
+</section>
+<footer>
+  <p><a href="./">Machine shop guides</a> · <a href="sprs-score-calculator.html">SPRS score calculator</a> · <a href="job-shop-quote-calculator.html">Job-shop quote calculator</a> · <a href="cmmc-level-1-vs-level-2.html">CMMC Level 1 vs Level 2</a> · <a href="ssp-and-poam.html">SSP and POA&amp;M</a> · <a href="how-to-price-a-machined-part.html">How to price a machined part</a> · <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/machine-shop-guides">Source (FSL-1.1-MIT)</a></p>
+  <p><strong>Not affiliated with or endorsed by the Department of Defense (Department of War), NIST, the Cyber AB or any C3PAO.</strong> A score you calculate here is a self-check, not a CMMC assessment, a certification or an SPRS submission. Regulations are summarised with dates in <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/machine-shop-guides/SOURCES.md">SOURCES.md</a>; read the official text before you rely on it, because the rules change.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, compliance, financial or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  <p>Privacy: nothing you type leaves your browser. This page keeps an anonymous visit count in your own browser's storage only. <button type="button" class="secondary" id="usage-toggle">Turn off counting</button></p>
+</footer>
+<script type="module">
+  import { recordUsage, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+  const btn = document.getElementById("usage-toggle");
+  const paint = () => { btn.textContent = usageOptedOut() ? "Turn counting back on" : "Turn off counting"; };
+  btn.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); paint(); });
+  paint();
+  recordUsage("view:" + (document.body.dataset.page || "page"));
+</script>
+</body>
+</html>

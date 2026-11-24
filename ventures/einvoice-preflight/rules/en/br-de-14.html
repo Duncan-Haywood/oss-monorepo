@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BR-DE-14: VAT breakdown has no VAT rate</title>
+<meta name="description" content="BR-DE-14: XRechnung requires every VAT breakdown (one per VAT category and rate) to state its VAT rate (BT-119). Unlike EN 16931 rule BR-48, which excuses…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/en/br-de-14">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/br-de-14">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/br-de-14">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/br-de-14">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/br-de-14">
+<meta property="og:title" content="BR-DE-14: VAT breakdown has no VAT rate">
+<meta property="og:description" content="BR-DE-14: XRechnung requires every VAT breakdown (one per VAT category and rate) to state its VAT rate (BT-119). Unlike EN 16931 rule BR-48, which excuses…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does BR-DE-14 mean?","acceptedAnswer":{"@type":"Answer","text":"XRechnung requires every VAT breakdown (one per VAT category and rate) to state its VAT rate (BT-119). Unlike EN 16931 rule BR-48, which excuses category O (not subject to VAT), this check makes no exception: a 0% breakdown, for example for exempt, reverse-charge or not-subject sales, still needs the rate written as 0."}},{"@type":"Question","name":"How do I fix BR-DE-14?","acceptedAnswer":{"@type":"Answer","text":"Add the rate to each VAT breakdown: cbc:Percent in cac:TaxSubtotal/cac:TaxCategory (UBL) or ram:RateApplicablePercent in the header ram:ApplicableTradeTax (CII). Write 0 for categories without VAT, and the same rate as on the matching invoice lines for taxed categories. Which category and rate apply to your sale is a tax question; ask your tax adviser if unsure."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-invoice rule explained · XRechnung</p>
+<h1>BR-DE-14: VAT breakdown has no VAT rate</h1>
+<nav class="langs" aria-label="Other languages"><a href="../de/br-de-14.html" hreflang="de" lang="de">Deutsch</a><a href="../fr/br-de-14.html" hreflang="fr" lang="fr">Français</a><a href="index.html">All rules</a></nav>
+</header>
+<section>
+<h2>Official message</h2>
+<blockquote lang="de">Das Element &quot;VAT category rate&quot; (BT-119) muss übermittelt werden.</blockquote>
+<dl>
+<dt>Severity</dt><dd>Error (the invoice is rejected)</dd>
+<dt>Checked in</dt><dd>UBL, CII</dd>
+<dt>Business terms</dt><dd>BT-119</dd>
+</dl>
+</section>
+<section>
+<h2>What does BR-DE-14 mean?</h2>
+<p>XRechnung requires every VAT breakdown (one per VAT category and rate) to state its VAT rate (BT-119). Unlike EN 16931 rule BR-48, which excuses category O (not subject to VAT), this check makes no exception: a 0% breakdown, for example for exempt, reverse-charge or not-subject sales, still needs the rate written as 0.</p>
+<h2>Usual causes</h2>
+<ul>
+<li>The software leaves the rate out for 0% categories such as E (exempt), AE (reverse charge) or O (not subject to VAT).</li>
+<li>The rate is given on the invoice lines but not repeated in the VAT breakdown.</li>
+<li>The breakdown was built by hand or by a converter that only writes amounts.</li>
+</ul>
+</section>
+<section>
+<h2>How do I fix BR-DE-14?</h2>
+<ol>
+<li>Add the rate to each VAT breakdown: cbc:Percent in cac:TaxSubtotal/cac:TaxCategory (UBL) or ram:RateApplicablePercent in the header ram:ApplicableTradeTax (CII).</li>
+<li>Write 0 for categories without VAT, and the same rate as on the matching invoice lines for taxed categories.</li>
+<li>Which category and rate apply to your sale is a tax question; ask your tax adviser if unsure.</li>
+</ol>
+<h2>Corrected XML (minimal example we wrote)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;cac:TaxSubtotal&gt;
+  &lt;cbc:TaxableAmount currencyID=&quot;EUR&quot;&gt;500.00&lt;/cbc:TaxableAmount&gt;
+  &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;0.00&lt;/cbc:TaxAmount&gt;
+  &lt;cac:TaxCategory&gt;
+    &lt;cbc:ID&gt;AE&lt;/cbc:ID&gt;
+    &lt;cbc:Percent&gt;0&lt;/cbc:Percent&gt;
+    &lt;cbc:TaxExemptionReason&gt;Reverse charge&lt;/cbc:TaxExemptionReason&gt;
+    &lt;cac:TaxScheme&gt;
+      &lt;cbc:ID&gt;VAT&lt;/cbc:ID&gt;
+    &lt;/cac:TaxScheme&gt;
+  &lt;/cac:TaxCategory&gt;
+&lt;/cac:TaxSubtotal&gt;</code></pre>
+<p><strong>CII</strong></p>
+<pre><code>&lt;ram:ApplicableTradeTax&gt;
+  &lt;ram:CalculatedAmount&gt;0.00&lt;/ram:CalculatedAmount&gt;
+  &lt;ram:TypeCode&gt;VAT&lt;/ram:TypeCode&gt;
+  &lt;ram:ExemptionReason&gt;Reverse charge&lt;/ram:ExemptionReason&gt;
+  &lt;ram:BasisAmount&gt;500.00&lt;/ram:BasisAmount&gt;
+  &lt;ram:CategoryCode&gt;AE&lt;/ram:CategoryCode&gt;
+  &lt;ram:RateApplicablePercent&gt;0&lt;/ram:RateApplicablePercent&gt;
+&lt;/ram:ApplicableTradeTax&gt;</code></pre>
+<p class="note">Example values only. Put the elements in place of, or beside, what your file has; element order matters in both syntaxes.</p>
+</section>
+<section>
+<h2>Check your file for free</h2>
+<p>The free checker runs the official EN 16931, XRechnung and Peppol rules in your browser. Your file is not uploaded.</p>
+<p><a class="button" href="../../index.html">Open the free checker</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In development — early access</span></p>
+<h2>Fix-and-explain for accountants and invoicing teams</h2>
+<p>A paid service that explains every failed rule in plain German, French or English and proposes a corrected file is in development. <a href="https://example.invalid/industries/e-invoicing/">Early access</a></p>
+</section>
+<section>
+<h2>Source</h2>
+<p>Rule id and official message from the KoSIT XRechnung Schematron, v2.6.0 (for XRechnung 3.0) (Apache-2.0), compiled from upstream commit 7e3ddbe. The explanation, causes, fix and XML on this page are our own, not the rule publisher's. <a href="https://github.com/itplr-kosit/xrechnung-schematron/tree/v2.6.0" rel="noopener">KoSIT XRechnung Schematron v2.6.0 (for XRechnung 3.0)</a></p>
+</section>
+<footer>
+<p><strong>Not tax or legal advice.</strong> This page explains what a validation rule checks and how to make a file pass it. It does not say which VAT treatment applies to your sale; ask a tax adviser. <strong>No warranty:</strong> provided free and as-is; check the result before you rely on it.</p>
+<p>Our code and explanations are FSL-1.1-MIT-licensed. Official rule messages are quoted under their publishers' licences (EUPL-1.2, Apache-2.0, MPL-2.0), named on each page.</p>
+</footer>
+</main></body></html>

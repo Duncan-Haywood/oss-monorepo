@@ -1,6 +1,6 @@
 # Free business calculators, CSV checkers and self-hosted apps: the full catalogue
 
-Every tool in this folder (1437 when this list was last generated), grouped the way the live site
+Every tool in this folder (1438 when this list was last generated), grouped the way the live site
 groups them. Each line links to the **free web version**, which needs no account and, for all but the
 self-hosted apps, runs entirely in your browser, and to its **source code** here, FSL-1.1-MIT licensed, so you
 can run, fork or self-host your own copy.
@@ -31,7 +31,7 @@ free tools for each one (roofers, Etsy sellers, landlords, freelancers and more)
 - [Learning & practice](#learning--practice) (7)
 - [Open hardware, robots & house plans](#open-hardware-robots--house-plans) (4)
 - [Music & audio](#music--audio) (1)
-- [More free tools](#more-free-tools) (5)
+- [More free tools](#more-free-tools) (6)
 - [Other directories](#other-directories) (6)
 
 ## Self-hosted business apps
@@ -1553,7 +1553,7 @@ Learn a language or a technical skill by doing it: hands-free speaking drills, g
 
 ## Open hardware, robots & house plans
 
-Things you can build, change and sell: FSL-1.1-MIT-licensed robot CAD with laser-cut and 3D-print files, firmware, bills of materials and a browser simulator for each (a robot vacuum and mop, a robotic lawn mower, tennis ball robots), and a generator of public-domain house plans with drawings, IFC and DXF. [Browse this section on the site →](https://marisstella.app/c/open-hardware/)
+Things you can build and change: FSL-1.1-MIT-licensed robot CAD with laser-cut and 3D-print files, firmware, bills of materials and a browser simulator for each (a robot vacuum and mop, a robotic lawn mower, tennis ball robots), and a generator of public-domain house plans with drawings, IFC and DXF. [Browse this section on the site →](https://marisstella.app/c/open-hardware/)
 
 - [Open Floor Robots — DIY robot vacuum, robot mop and vacuum-mop combo](https://marisstella.app/open-floor-robots/) · [code](open-floor-robots/)
 - [Open House Plans: free, parametric house plans you can download](https://marisstella.app/open-house-plans/) · [code](open-house-plans/)
@@ -1571,6 +1571,7 @@ Make and check music in your browser: turn public-domain Gregorian chant into MI
 Everything else that runs entirely in your browser. [Browse this section on the site →](https://marisstella.app/c/more/)
 
 - [Agentic Trading Lab](https://marisstella.app/agentic-trading-lab/) · [code](agentic-trading-lab/)
+- [Machine Shop Guides: Free SPRS Score and Job-Shop Quote Calculators](https://marisstella.app/machine-shop-guides/) · [code](machine-shop-guides/)
 - [Missed-call text-back for trades — free, source available](https://marisstella.app/missed-call-textback/) · [code](missed-call-textback/)
 - [Simulate conversations between fictional personalities](https://marisstella.app/persona-conversation-simulator/) · [code](persona-conversation-simulator/)
 - [Price drop alerts for any shop, on your own GitHub](https://marisstella.app/price-drop-watcher/) · [code](price-drop-watcher/)

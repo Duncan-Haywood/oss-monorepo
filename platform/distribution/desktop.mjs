@@ -406,7 +406,7 @@ export function wingetManifests({ name, description, homepage, version = VERSION
   return {
     [`${pkgId}.yaml`]: `${head('version')}DefaultLocale: en-US\n${tail('version')}`,
     [`${pkgId}.installer.yaml`]: `${head('installer')}InstallerType: wix\nInstallers:\n  - Architecture: x64\n    InstallerUrl: ${y(installerUrl)}\n    InstallerSha256: ${sha256.toUpperCase()}\n${tail('installer')}`,
-    [`${pkgId}.locale.en-US.yaml`]: `${head('defaultLocale')}PackageLocale: en-US\nPublisher: ${y(owner)}\nPublisherUrl: ${y(BASE_URL)}\nPackageName: ${y(name)}\nPackageUrl: ${y(tagUrl(homepage, 'desktop'))}\nLicense: MIT\nLicenseUrl: ${y(`${REPO_URL}/blob/main/LICENSE`)}\nShortDescription: ${y(shortDescription(description))}\nTags:\n  - offline\n  - open-source\n${tail('defaultLocale')}`,
+    [`${pkgId}.locale.en-US.yaml`]: `${head('defaultLocale')}PackageLocale: en-US\nPublisher: ${y(owner)}\nPublisherUrl: ${y(BASE_URL)}\nPackageName: ${y(name)}\nPackageUrl: ${y(tagUrl(homepage, 'desktop'))}\nLicense: FSL-1.1-MIT\nLicenseUrl: ${y(`${REPO_URL}/blob/main/LICENSE`)}\nShortDescription: ${y(shortDescription(description))}\nTags:\n  - offline\n  - open-source\n${tail('defaultLocale')}`,
   };
 }
 

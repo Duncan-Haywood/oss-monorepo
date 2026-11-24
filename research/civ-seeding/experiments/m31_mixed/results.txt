@@ -1,0 +1,105 @@
+# Milestone 31: homophily past its grid edges (L+) and homophily plus reinforcement (M)
+grid 6400 points (750 H: mu [0.3, 0.4, 0.5, 0.6, 0.75] x kappa [2.0, 5.0, 20.0]; 1200 L: sigma [0.5, 1.0, 1.5, 2.0] x rho [0.5, 2.0, 8.0] x delta [0.0, -0.5]; 3000 L+: sigma [0.5, 1.0, 1.5, 2.0, 2.5] x rho [0.5, 2.0, 8.0, 32.0] x delta [0.0, -0.5, -1.0]; 1800 M: sigma [1.0, 1.5, 2.0] x rho [8.0, 32.0] x delta [-0.5, -1.0] x gamma [0.05, 0.1, 0.2]), S = 75, seeds (0, 1), 200 datasets per process; share bins ((0.0, 0.0), (1e-12, 0.39999999999900004), (0.4, 0.599999999999), (0.6, 1.0))
+grid simulated in 678 s
+
+## (a) real data, seven families (L = milestone 29's grid; L+ = L's grid extended; M = L+'s latent propensity plus reinforcement); race over I, T, R, H, L+, M (leave one village out; paired Bayesian bootstrap)
+  identity X   : LOO I 0.1742, T 0.1837, R 0.1906, H 0.1930, L 0.1759, L+ 0.1791, M 0.1769; lowest of race I; in-sample Q I 0.0042, T 0.0034, R 0.0025, H 0.0028, L 0.0014, L+ 0.0010, M 0.0014
+      fits: I qN=0.050 qP=0.3; T qN=0.075 qP=0.1 theta=0.60; R qN=0.100 qP=0.1 gamma=0.10 delta=-0.25; H qN=0.05 qP=0.1 mu=0.75 kappa=2; L qN=0.075 qP=0.2 sigma=1.5 rho=8 delta=-0.5; L qN=0.15 qP=0.2 sigma=2.0 rho=8 delta=-1.0; M qN=0.1 qP=0.3 sigma=1.0 rho=8 delta=-0.5 gamma=0.05
+      I vs T: lower in 0.762 of draws; mean diff -0.0095 [-0.0418, +0.0240]; T better in 19/43
+      I vs R: lower in 0.872 of draws; mean diff -0.0164 [-0.0406, +0.0213]; R better in 13/43
+      I vs H: lower in 0.811 of draws; mean diff -0.0188 [-0.0594, +0.0298]; H better in 16/43
+      I vs L+: lower in 0.554 of draws; mean diff -0.0049 [-0.0424, +0.0168]; L+ better in 25/43
+      I vs M: lower in 0.701 of draws; mean diff -0.0027 [-0.0156, +0.0077]; M better in 21/43
+      M vs L+: lower in 0.476 of draws; mean diff -0.0022 [-0.0292, +0.0111]; L+ better in 32/43
+      L+ vs L: lower in 0.436 of draws; mean diff +0.0033 [-0.0095, +0.0267]; L better in 16/43
+  identity XS0 : LOO I 0.2642, T 0.2783, R 0.2774, H 0.2703, L 0.2444, L+ 0.2437, M 0.2686; lowest of race L+; in-sample Q I 0.0139, T 0.0178, R 0.0070, H 0.0061, L 0.0024, L+ 0.0013, M 0.0022
+      fits: I qN=0.050 qP=0.4; T qN=0.075 qP=0.1 theta=0.75; R qN=0.075 qP=0.6 gamma=0.15 delta=-0.50; H qN=0.05 qP=0.1 mu=0.75 kappa=2; L qN=0.075 qP=0.2 sigma=1.5 rho=8 delta=-0.5; L qN=0.15 qP=0.2 sigma=2.0 rho=8 delta=-1.0; M qN=0.1 qP=0.9 sigma=1.5 rho=32 delta=-1.0 gamma=0.1
+      L+ vs I: lower in 0.905 of draws; mean diff -0.0205 [-0.0456, +0.0182]; I better in 14/43
+      L+ vs T: lower in 0.918 of draws; mean diff -0.0345 [-0.0770, +0.0225]; T better in 12/43
+      L+ vs R: lower in 0.861 of draws; mean diff -0.0337 [-0.0829, +0.0475]; R better in 10/43
+      L+ vs H: lower in 0.779 of draws; mean diff -0.0266 [-0.0925, +0.0717]; H better in 14/43
+      L+ vs M: lower in 0.999 of draws; mean diff -0.0249 [-0.0391, -0.0118]; M better in 10/43
+      M vs L+: lower in 0.000 of draws; mean diff +0.0249 [+0.0114, +0.0385]; L+ better in 33/43
+      L+ vs L: lower in 0.615 of draws; mean diff -0.0007 [-0.0140, +0.0219]; L better in 17/43
+  sd-data  X   : LOO I 8.4223, T 8.2088, R 8.2865, H 9.2433, L 8.0309, L+ 7.9103, M 7.7902; lowest of race M; in-sample Q I 0.4282, T 0.2676, R 0.1474, H 0.2651, L 0.1161, L+ 0.0929, M 0.1142
+      fits: I qN=0.050 qP=0.2; T qN=0.075 qP=0.1 theta=0.60; R qN=0.100 qP=0.1 gamma=0.10 delta=-0.25; H qN=0.05 qP=0.1 mu=0.75 kappa=2; L qN=0.1 qP=0.2 sigma=1.5 rho=8 delta=-0.5; L qN=0.15 qP=0.3 sigma=2.0 rho=8 delta=-1.0; M qN=0.1 qP=0.3 sigma=2.0 rho=32 delta=-1.0 gamma=0.05
+      M vs I: lower in 0.965 of draws; mean diff -0.6320 [-1.2852, +0.0511]; I better in 19/43
+      M vs T: lower in 0.764 of draws; mean diff -0.4185 [-1.7673, +1.0847]; T better in 21/43
+      M vs R: lower in 0.856 of draws; mean diff -0.4963 [-1.3604, +0.6108]; R better in 15/43
+      M vs H: lower in 0.961 of draws; mean diff -1.4530 [-2.8635, +0.1893]; H better in 11/43
+      M vs L+: lower in 0.645 of draws; mean diff -0.1201 [-0.7288, +0.2409]; L+ better in 24/43
+      L+ vs L: lower in 0.743 of draws; mean diff -0.1206 [-0.5200, +0.4285]; L better in 17/43
+  sd-data  XS0 : LOO I 13.3853, T 14.6091, R 13.8110, H 13.1319, L 11.8573, L+ 11.7439, M 12.3397; lowest of race L+; in-sample Q I 1.2066, T 1.1042, R 0.4959, H 0.5593, L 0.2103, L+ 0.1337, M 0.1614
+      fits: I qN=0.050 qP=0.3; T qN=0.075 qP=0.1 theta=0.75; R qN=0.150 qP=0.3 gamma=0.15 delta=-0.50; H qN=0.075 qP=0.1 mu=0.75 kappa=5; L qN=0.1 qP=0.2 sigma=1.5 rho=8 delta=-0.5; L qN=0.15 qP=0.2 sigma=2.0 rho=8 delta=-1.0; M qN=0.15 qP=0.8 sigma=1.5 rho=32 delta=-1.0 gamma=0.1
+      L+ vs I: lower in 0.985 of draws; mean diff -1.6414 [-2.9058, -0.1839]; I better in 13/43
+      L+ vs T: lower in 0.990 of draws; mean diff -2.8652 [-5.0859, -0.5392]; T better in 13/43
+      L+ vs R: lower in 0.982 of draws; mean diff -2.0671 [-3.6639, -0.1972]; R better in 15/43
+      L+ vs H: lower in 0.909 of draws; mean diff -1.3880 [-3.3119, +0.8671]; H better in 15/43
+      L+ vs M: lower in 0.992 of draws; mean diff -0.5958 [-1.0070, -0.1298]; M better in 13/43
+      M vs L+: lower in 0.006 of draws; mean diff +0.5958 [+0.1503, +0.9856]; L+ better in 30/43
+      L+ vs L: lower in 0.635 of draws; mean diff -0.1134 [-0.8737, +0.8652]; L better in 16/43
+  sd-synth X   : LOO I 12.3715, T 13.0811, R 12.7960, H 13.4184, L 12.0315, L+ 11.9364, M 11.9314; lowest of race M; in-sample Q I 0.6453, T 0.3964, R 0.2234, H 0.3381, L 0.1579, L+ 0.1212, M 0.1679
+      fits: I qN=0.050 qP=0.3; T qN=0.075 qP=0.1 theta=0.60; R qN=0.075 qP=0.2 gamma=0.10 delta=-0.25; H qN=0.05 qP=0.1 mu=0.75 kappa=2; L qN=0.1 qP=0.2 sigma=1.5 rho=8 delta=-0.5; L qN=0.15 qP=0.3 sigma=2.0 rho=8 delta=-1.0; M qN=0.1 qP=0.3 sigma=2.0 rho=32 delta=-1.0 gamma=0.05
+      M vs I: lower in 0.858 of draws; mean diff -0.4402 [-1.2494, +0.3596]; I better in 20/43
+      M vs T: lower in 0.767 of draws; mean diff -1.1497 [-5.0040, +1.8115]; T better in 20/43
+      M vs R: lower in 0.859 of draws; mean diff -0.8646 [-2.3944, +1.1991]; R better in 15/43
+      M vs H: lower in 0.897 of draws; mean diff -1.4871 [-4.0468, +1.2673]; H better in 16/43
+      M vs L+: lower in 0.432 of draws; mean diff -0.0051 [-0.9655, +0.5981]; L+ better in 28/43
+      L+ vs L: lower in 0.672 of draws; mean diff -0.0951 [-0.6878, +0.7335]; L better in 16/43
+  sd-synth XS0 : LOO I 17.7569, T 21.3893, R 19.0577, H 18.5493, L 16.2127, L+ 16.4262, M 16.9292; lowest of race L+; in-sample Q I 1.4028, T 1.3152, R 0.5714, H 0.7058, L 0.2582, L+ 0.1878, M 0.2150
+      fits: I qN=0.050 qP=0.3; T qN=0.075 qP=0.1 theta=0.60; R qN=0.100 qP=0.4 gamma=0.15 delta=-0.50; H qN=0.075 qP=0.1 mu=0.6 kappa=20; L qN=0.1 qP=0.2 sigma=1.5 rho=8 delta=-0.5; L qN=0.15 qP=0.2 sigma=2.0 rho=8 delta=-1.0; M qN=0.15 qP=0.8 sigma=1.5 rho=32 delta=-1.0 gamma=0.1
+      L+ vs I: lower in 0.928 of draws; mean diff -1.3307 [-2.8591, +0.6674]; I better in 15/43
+      L+ vs T: lower in 0.991 of draws; mean diff -4.9631 [-10.7888, -0.8293]; T better in 12/43
+      L+ vs R: lower in 0.953 of draws; mean diff -2.6314 [-4.9926, +0.8139]; R better in 13/43
+      L+ vs H: lower in 0.890 of draws; mean diff -2.1231 [-5.4167, +1.7096]; H better in 14/43
+      L+ vs M: lower in 0.967 of draws; mean diff -0.5029 [-0.9986, +0.0349]; M better in 15/43
+      M vs L+: lower in 0.035 of draws; mean diff +0.5029 [-0.0440, +0.9976]; L+ better in 28/43
+      L+ vs L: lower in 0.339 of draws; mean diff +0.2135 [-0.6852, +1.3452]; L better in 15/43
+
+## (b) H process: H qN=0.075 qP=0.1 mu=0.75 kappa=5 (real in-sample fit, sd-data XS0)
+
+## (b) L+ process: L qN=0.15 qP=0.2 sigma=2.0 rho=8 delta=-1.0 (real in-sample fit, sd-data XS0)
+
+## (b) M process: M qN=0.15 qP=0.8 sigma=1.5 rho=32 delta=-1.0 gamma=0.1 (real in-sample fit, sd-data XS0)
+  real, mean over villages: share 0 0.109; share (0,0.4) 0.190; share [0.4,0.6) 0.288; share [0.6,1] 0.291
+  process I: share 0 0.090 (0.079-0.101; real at or above 0.985); share (0,0.4) 0.227 (0.216-0.236; real at or above 0.000); share [0.4,0.6) 0.231 (0.200-0.259; real at or above 1.000); share [0.6,1] 0.206 (0.167-0.248; real at or above 1.000); non-leader take-up 0.195
+  process T: share 0 0.108 (0.096-0.119; real at or above 0.455); share (0,0.4) 0.202 (0.192-0.211; real at or above 0.015); share [0.4,0.6) 0.196 (0.167-0.227; real at or above 1.000); share [0.6,1] 0.431 (0.387-0.479; real at or above 0.000); non-leader take-up 0.196
+  process R: share 0 0.105 (0.091-0.120; real at or above 0.665); share (0,0.4) 0.221 (0.210-0.232; real at or above 0.000); share [0.4,0.6) 0.226 (0.204-0.252; real at or above 1.000); share [0.6,1] 0.162 (0.132-0.192; real at or above 1.000); non-leader take-up 0.197
+  process H: share 0 0.105 (0.093-0.119; real at or above 0.680); share (0,0.4) 0.208 (0.197-0.218; real at or above 0.005); share [0.4,0.6) 0.227 (0.200-0.252; real at or above 1.000); share [0.6,1] 0.309 (0.267-0.352; real at or above 0.245); non-leader take-up 0.195
+  process L+: share 0 0.104 (0.090-0.118; real at or above 0.705); share (0,0.4) 0.193 (0.182-0.205; real at or above 0.360); share [0.4,0.6) 0.304 (0.265-0.340; real at or above 0.250); share [0.6,1] 0.295 (0.238-0.351; real at or above 0.455); non-leader take-up 0.191
+  process M: share 0 0.109 (0.095-0.125; real at or above 0.550); share (0,0.4) 0.196 (0.182-0.211; real at or above 0.290); share [0.4,0.6) 0.290 (0.253-0.326; real at or above 0.455); share [0.6,1] 0.285 (0.232-0.334; real at or above 0.650); non-leader take-up 0.196
+  real non-leader take-up (mean over villages) 0.187
+
+selection done in 1180 s
+
+## (c) recovery, 6 families, identity weights, rule loo
+  X   : I 0.530  T 0.485  R 0.480  H 0.480  L+ 0.520  M 0.445   (I->0.53/0.11/0.18/0.06/0.05/0.07; T->0.09/0.48/0.01/0.41/0.01/0.00; R->0.11/0.12/0.48/0.14/0.04/0.12; H->0.12/0.34/0.01/0.48/0.03/0.01; L+->0.11/0.03/0.08/0.02/0.52/0.24; M->0.06/0.01/0.15/0.02/0.31/0.45); M LOO below L+ on L+ data 0.335, on M data 0.590
+  XS0 : I 0.535  T 0.810  R 0.660  H 0.750  L+ 0.575  M 0.415   (I->0.54/0.01/0.20/0.01/0.15/0.10; T->0.00/0.81/0.00/0.19/0.00/0.00; R->0.09/0.00/0.66/0.00/0.10/0.15; H->0.01/0.24/0.00/0.75/0.01/0.00; L+->0.02/0.01/0.10/0.01/0.57/0.28; M->0.07/0.01/0.21/0.03/0.27/0.41); M LOO below L+ on L+ data 0.365, on M data 0.590
+
+## (c) recovery, 6 families, identity weights, rule in-sample
+  X   : I 0.105  T 0.070  R 0.155  H 0.030  L+ 0.565  M 0.695   (I->0.10/0.00/0.20/0.00/0.69/0.01; T->0.04/0.07/0.07/0.03/0.64/0.15; R->0.00/0.00/0.15/0.00/0.52/0.33; H->0.00/0.02/0.10/0.03/0.65/0.21; L+->0.00/0.00/0.04/0.00/0.56/0.40; M->0.00/0.00/0.01/0.00/0.29/0.69); M LOO below L+ on L+ data 0.335, on M data 0.590
+  XS0 : I 0.530  T 0.955  R 0.590  H 0.730  L+ 0.610  M 0.730   (I->0.53/0.00/0.26/0.01/0.20/0.00; T->0.00/0.95/0.00/0.04/0.00/0.00; R->0.00/0.00/0.59/0.00/0.32/0.10; H->0.00/0.05/0.01/0.73/0.20/0.01; L+->0.00/0.00/0.01/0.00/0.61/0.38; M->0.00/0.00/0.01/0.00/0.27/0.73); M LOO below L+ on L+ data 0.365, on M data 0.590
+
+## (c) recovery, 6 families, sd-data weights, rule loo
+  X   : I 0.630  T 0.515  R 0.625  H 0.395  L+ 0.530  M 0.475   (I->0.63/0.03/0.17/0.01/0.12/0.03; T->0.07/0.52/0.02/0.35/0.04/0.00; R->0.04/0.04/0.62/0.04/0.08/0.17; H->0.11/0.40/0.03/0.40/0.06/0.01; L+->0.03/0.02/0.06/0.01/0.53/0.35; M->0.01/0.01/0.19/0.00/0.32/0.47); M LOO below L+ on L+ data 0.410, on M data 0.630
+  XS0 : I 0.650  T 0.830  R 0.650  H 0.760  L+ 0.590  M 0.535   (I->0.65/0.00/0.13/0.00/0.20/0.02; T->0.01/0.83/0.00/0.17/0.00/0.00; R->0.02/0.00/0.65/0.00/0.12/0.20; H->0.01/0.20/0.01/0.76/0.02/0.00; L+->0.00/0.00/0.06/0.01/0.59/0.34; M->0.00/0.00/0.19/0.00/0.28/0.54); M LOO below L+ on L+ data 0.370, on M data 0.675
+
+## (c) recovery, 6 families, sd-data weights, rule in-sample
+  X   : I 0.250  T 0.080  R 0.310  H 0.070  L+ 0.510  M 0.705   (I->0.25/0.00/0.16/0.00/0.59/0.00; T->0.03/0.08/0.08/0.07/0.68/0.06; R->0.00/0.00/0.31/0.00/0.29/0.40; H->0.01/0.03/0.12/0.07/0.65/0.12; L+->0.00/0.01/0.06/0.00/0.51/0.42; M->0.00/0.00/0.09/0.00/0.21/0.70); M LOO below L+ on L+ data 0.410, on M data 0.630
+  XS0 : I 0.565  T 0.875  R 0.760  H 0.705  L+ 0.575  M 0.790   (I->0.56/0.00/0.20/0.00/0.24/0.00; T->0.00/0.88/0.00/0.12/0.00/0.00; R->0.00/0.00/0.76/0.00/0.14/0.10; H->0.00/0.02/0.02/0.70/0.21/0.04; L+->0.00/0.00/0.00/0.00/0.57/0.42; M->0.00/0.00/0.01/0.00/0.20/0.79); M LOO below L+ on L+ data 0.370, on M data 0.675
+
+## (c) recovery, 6 families, sd-synth weights, rule loo
+  X   : I 0.670  T 0.545  R 0.705  H 0.450  L+ 0.430  M 0.485   (I->0.67/0.03/0.06/0.01/0.21/0.01; T->0.04/0.55/0.02/0.33/0.06/0.01; R->0.01/0.01/0.70/0.04/0.07/0.16; H->0.10/0.34/0.04/0.45/0.06/0.01; L+->0.08/0.03/0.07/0.01/0.43/0.39; M->0.03/0.01/0.21/0.00/0.27/0.48); M LOO below L+ on L+ data 0.480, on M data 0.640
+  XS0 : I 0.600  T 0.840  R 0.705  H 0.810  L+ 0.625  M 0.535   (I->0.60/0.01/0.07/0.01/0.31/0.01; T->0.00/0.84/0.00/0.16/0.00/0.00; R->0.02/0.00/0.70/0.01/0.14/0.14; H->0.01/0.17/0.00/0.81/0.02/0.00; L+->0.00/0.00/0.08/0.01/0.62/0.29; M->0.00/0.01/0.20/0.02/0.24/0.54); M LOO below L+ on L+ data 0.345, on M data 0.710
+
+## (c) recovery, 6 families, sd-synth weights, rule in-sample
+  X   : I 0.390  T 0.085  R 0.735  H 0.070  L+ 0.475  M 0.675   (I->0.39/0.00/0.07/0.00/0.54/0.00; T->0.03/0.09/0.12/0.07/0.69/0.02; R->0.00/0.00/0.73/0.00/0.10/0.17; H->0.02/0.03/0.13/0.07/0.72/0.04; L+->0.00/0.01/0.09/0.00/0.47/0.43; M->0.00/0.00/0.14/0.00/0.18/0.68); M LOO below L+ on L+ data 0.480, on M data 0.640
+  XS0 : I 0.600  T 0.885  R 0.815  H 0.800  L+ 0.585  M 0.770   (I->0.60/0.00/0.10/0.00/0.30/0.00; T->0.00/0.89/0.00/0.12/0.00/0.00; R->0.00/0.00/0.81/0.00/0.14/0.04; H->0.00/0.01/0.01/0.80/0.17/0.01; L+->0.00/0.00/0.00/0.00/0.58/0.41; M->0.00/0.00/0.01/0.00/0.23/0.77); M LOO below L+ on L+ data 0.345, on M data 0.710
+
+## hypotheses
+H116 (sanity: real sd-data XS0 LOO I/T/R/H/L = m29 13.39/14.61/13.81/13.13/11.86, L fit unchanged): [13.39, 14.61, 13.81, 13.13, 11.86], L qN=0.1 qP=0.2 sigma=1.5 rho=8 delta=-0.5 -> held
+H117 (the edges hid little: L+ LOO >= L LOO - 0.5): L+ 11.7439 (L qN=0.15 qP=0.2 sigma=2.0 rho=8 delta=-1.0), L 11.8573 -> held
+H118 (no contagion remains: M lower than L+ in < 0.80 of draws; >= 0.95 refutes): 0.006, M fit M qN=0.15 qP=0.8 sigma=1.5 rho=32 delta=-1.0 gamma=0.1 -> held
+H119 (power: M datasets called M, 6 families, sd-data XS0 LOO, >= 0.70; refuted < 0.50): 0.535 -> inconclusive
+H120 (L+ datasets called L+, >= 0.70; refuted < 0.50): 0.590 -> inconclusive
+runtime 1180 s

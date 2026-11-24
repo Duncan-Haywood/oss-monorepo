@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PEPPOL-EN16931-R010: Buyer electronic address is missing</title>
+<meta name="description" content="PEPPOL-EN16931-R010: Peppol requires the Buyer electronic address (BT-49): the buyer's Peppol endpoint, the address the network delivers the invoice to. In…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-r010">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-r010">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/peppol-en16931-r010">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/peppol-en16931-r010">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-r010">
+<meta property="og:title" content="PEPPOL-EN16931-R010: Buyer electronic address is missing">
+<meta property="og:description" content="PEPPOL-EN16931-R010: Peppol requires the Buyer electronic address (BT-49): the buyer's Peppol endpoint, the address the network delivers the invoice to. In…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does PEPPOL-EN16931-R010 mean?","acceptedAnswer":{"@type":"Answer","text":"Peppol requires the Buyer electronic address (BT-49): the buyer's Peppol endpoint, the address the network delivers the invoice to. In UBL it is cbc:EndpointID in the buyer party, with a schemeID from the Peppol EAS code list; in CII it is ram:URIUniversalCommunication/ram:URIID in ram:BuyerTradeParty."}},{"@type":"Question","name":"How do I fix PEPPOL-EN16931-R010?","acceptedAnswer":{"@type":"Answer","text":"Ask the buyer for its Peppol participant ID, or look it up in the Peppol directory. It has two parts: a scheme code and the identifier, for example 0204 with a Leitweg-ID or 9930 with a German VAT number. Add it as the first element of the buyer party: cbc:EndpointID with the scheme code in schemeID (UBL), or ram:URIUniversalCommunication/ram:URIID with schemeID (CII). Use only scheme codes from the EAS list; other Peppol rules reject unknown codes."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-invoice rule explained · Peppol BIS</p>
+<h1>PEPPOL-EN16931-R010: Buyer electronic address is missing</h1>
+<nav class="langs" aria-label="Other languages"><a href="../de/peppol-en16931-r010.html" hreflang="de" lang="de">Deutsch</a><a href="../fr/peppol-en16931-r010.html" hreflang="fr" lang="fr">Français</a><a href="index.html">All rules</a></nav>
+</header>
+<section>
+<h2>Official message</h2>
+<blockquote lang="en">Buyer electronic address MUST be provided</blockquote>
+<dl>
+<dt>Severity</dt><dd>Error (the invoice is rejected)</dd>
+<dt>Checked in</dt><dd>UBL, CII</dd>
+<dt>Business terms</dt><dd>BT-49</dd>
+</dl>
+</section>
+<section>
+<h2>What does PEPPOL-EN16931-R010 mean?</h2>
+<p>Peppol requires the Buyer electronic address (BT-49): the buyer's Peppol endpoint, the address the network delivers the invoice to. In UBL it is cbc:EndpointID in the buyer party, with a schemeID from the Peppol EAS code list; in CII it is ram:URIUniversalCommunication/ram:URIID in ram:BuyerTradeParty.</p>
+<h2>Usual causes</h2>
+<ul>
+<li>The software does not export the buyer's endpoint because it is optional in plain EN 16931.</li>
+<li>The buyer's e-mail address or a customer number was put elsewhere and no endpoint was entered.</li>
+<li>The customer record in the software has no Peppol ID yet.</li>
+</ul>
+</section>
+<section>
+<h2>How do I fix PEPPOL-EN16931-R010?</h2>
+<ol>
+<li>Ask the buyer for its Peppol participant ID, or look it up in the Peppol directory. It has two parts: a scheme code and the identifier, for example 0204 with a Leitweg-ID or 9930 with a German VAT number.</li>
+<li>Add it as the first element of the buyer party: cbc:EndpointID with the scheme code in schemeID (UBL), or ram:URIUniversalCommunication/ram:URIID with schemeID (CII).</li>
+<li>Use only scheme codes from the EAS list; other Peppol rules reject unknown codes.</li>
+</ol>
+<h2>Corrected XML (minimal example we wrote)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;cac:AccountingCustomerParty&gt;
+  &lt;cac:Party&gt;
+    &lt;cbc:EndpointID schemeID=&quot;0204&quot;&gt;04011000-12345-34&lt;/cbc:EndpointID&gt;
+    &lt;cac:PartyName&gt;
+      &lt;cbc:Name&gt;Example Buyer GmbH&lt;/cbc:Name&gt;
+    &lt;/cac:PartyName&gt;
+  &lt;/cac:Party&gt;
+&lt;/cac:AccountingCustomerParty&gt;</code></pre>
+<p><strong>CII</strong></p>
+<pre><code>&lt;ram:BuyerTradeParty&gt;
+  &lt;ram:Name&gt;Example Buyer GmbH&lt;/ram:Name&gt;
+  &lt;ram:URIUniversalCommunication&gt;
+    &lt;ram:URIID schemeID=&quot;0204&quot;&gt;04011000-12345-34&lt;/ram:URIID&gt;
+  &lt;/ram:URIUniversalCommunication&gt;
+&lt;/ram:BuyerTradeParty&gt;</code></pre>
+<p class="note">Example values only. Put the elements in place of, or beside, what your file has; element order matters in both syntaxes.</p>
+</section>
+<section>
+<h2>Check your file for free</h2>
+<p>The free checker runs the official EN 16931, XRechnung and Peppol rules in your browser. Your file is not uploaded.</p>
+<p><a class="button" href="../../index.html">Open the free checker</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In development — early access</span></p>
+<h2>Fix-and-explain for accountants and invoicing teams</h2>
+<p>A paid service that explains every failed rule in plain German, French or English and proposes a corrected file is in development. <a href="https://example.invalid/industries/e-invoicing/">Early access</a></p>
+</section>
+<section>
+<h2>Source</h2>
+<p>Rule id and official message from the OpenPeppol BIS Billing 3 rules, 3.0.22 (MPL-2.0), compiled from upstream commit 38d693d. The explanation, causes, fix and XML on this page are our own, not the rule publisher's. <a href="https://github.com/OpenPEPPOL/peppol-bis-invoice-3/tree/3.0.22" rel="noopener">OpenPeppol BIS Billing 3 rules 3.0.22</a></p>
+</section>
+<footer>
+<p><strong>Not tax or legal advice.</strong> This page explains what a validation rule checks and how to make a file pass it. It does not say which VAT treatment applies to your sale; ask a tax adviser. <strong>No warranty:</strong> provided free and as-is; check the result before you rely on it.</p>
+<p>Our code and explanations are FSL-1.1-MIT-licensed. Official rule messages are quoted under their publishers' licences (EUPL-1.2, Apache-2.0, MPL-2.0), named on each page.</p>
+</footer>
+</main></body></html>

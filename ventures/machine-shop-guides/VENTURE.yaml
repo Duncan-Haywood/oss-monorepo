@@ -1,0 +1,52 @@
+name: machine-shop-guides
+description: Free front door for small machine shops on defense work — an SPRS score calculator for the 110 NIST SP 800-171 requirements (DoD Assessment Methodology, 110 minus 5/3/1), a job-shop quote calculator from the shop's own rates, and guides to CMMC Level 1 vs Level 2, SSPs and POA&Ms, and pricing a machined part — leading to the RFQ-to-quote and CMMC workspace products in development.
+stage: prototype
+
+owner: duncan
+
+# Built 2026-11-24 in the directional revamp as the free front door for bets
+# #2 (AI RFQ-to-quote for job shops) and #4 (CMMC L1/L2 + ISO 9001 workspace),
+# which sell to the same small machine shops (portfolio/monetization/bets.md on
+# branch claude/relaxed-planck-7fn5tx). Free content here exists only to bring
+# those shops to the products; the CTA says "in development — early access"
+# and links https://marisstella.app/industries/manufacturing/.
+#
+# Overlap: cnc-machining-quote-calculator is a deeper CNC costing model (bar
+# and plate yield, tool life, outside-process minimums). This venture's quote
+# calculator is a deliberately simpler front door and links to it; it does
+# not replace it. Nothing else in ventures/ touches SPRS, NIST SP 800-171 or
+# CMMC (grep for sprs/800-171/cmmc across ventures/ on 2026-11-24).
+#
+# Liability: the SPRS page is arithmetic on the user's own met/not-met marks
+# using the published Annex A weights; every page says a calculated score is
+# not an assessment, certification or SPRS submission and that the site is not
+# affiliated with the DoD. The quote calculator ships no rates. Regulatory
+# claims are dated and sourced in SOURCES.md, including what could not be
+# re-read from the official host in the building session.
+hypotheses:
+  - claim: Owners of small shops searching "SPRS score calculator" finish the 110-item self-check and download the POA&M starter.
+    status: untested
+    checked: null
+    evidence: usage
+  - claim: Visitors to the SPRS calculator follow the early-access link to the manufacturing page at a higher rate than visitors to the quoting pages.
+    status: untested
+    checked: null
+    evidence: usage
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic search or referral traffic detectable within 90 days of being reachable once a traffic signal exists (portfolio/usage/README.md).
+  - The CMMC and RFQ-to-quote products are dropped from portfolio/monetization/bets.md and these pages no longer lead anywhere paid.
+
+links:
+  production: https://marisstella.app/machine-shop-guides/
+  analytics: null
