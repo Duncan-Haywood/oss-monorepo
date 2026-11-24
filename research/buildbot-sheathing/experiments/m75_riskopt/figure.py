@@ -1,4 +1,4 @@
-"""Figure for milestone 74: python experiments/m74_riskopt/figure.py (reads results.json).
+"""Figure for milestone 75: python experiments/m75_riskopt/figure.py (reads results.json).
 
 Re-zeros per 100 sheets at a 1% wall risk under a random-walk bias, against the hour's drift magnitude D1: one
 uniform per-press risk (milestone 73's CAL, dotted) against the optimal schedule (solid), per pose plan; G1 left,

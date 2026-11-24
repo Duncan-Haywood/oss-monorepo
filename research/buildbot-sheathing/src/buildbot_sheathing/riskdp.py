@@ -1,4 +1,4 @@
-"""Optimal risk-constrained re-zero schedules for a random-walk force bias (milestone 74).
+"""Optimal risk-constrained re-zero schedules for a random-walk force bias (milestone 75).
 
 Milestone 73 gave every press one per-press risk eps (CAL) and let `rezero.greedy` place re-zeros at
 the resulting deadlines. Here the wall's risk budget alpha is spent where it buys the most.

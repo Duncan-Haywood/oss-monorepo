@@ -1,6 +1,6 @@
-"""Post-hoc comparator for milestone 74 (not registered): the best single per-press eps whose exact chain wall
+"""Post-hoc comparator for milestone 75 (not registered): the best single per-press eps whose exact chain wall
 failure is <= 1% (CAL*: milestone 73's CAL calibrated on the chain instead of 4,000 Monte Carlo paths), per row.
-python experiments/m74_riskopt/scan.py > experiments/m74_riskopt/scan.txt  (about 5 minutes on 4 processes)"""
+python experiments/m75_riskopt/scan.py > experiments/m75_riskopt/scan.txt  (about 5 minutes on 4 processes)"""
 import json
 import os
 import sys

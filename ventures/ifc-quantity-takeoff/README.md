@@ -792,9 +792,31 @@ IfcOpenShell 0.9's elevation change is exactly 100 times the text's (L, the
 segment length, once too often): -7.92 m at the end where the file's own
 EndPoint says 0, so here the sample text wins
 ([eval/cant-2026-11-23.md](eval/cant-2026-11-23.md)).
+**A second exporter: BridgeLink PGSuper (2026-11-24).** Three WSDOT
+PGSuper 8 bridges (the I-405/SR 167 flyover, 24 girders on a 324 m curve and
+a crest; two 5-girder spans) read in full, deck and railings included, where
+before the flyover's BoQ had no deck. Parabolic vertical curves written as
+`IfcPolynomialCurve` are read, and PGSuper's own way of writing the vertical
+is read from the file's placements, segment by segment: lengths as horizontal
+runs, parabolas carrying their start grade on a level RefDirection (turned
+onto it, as IfcOpenShell 0.9 does, each parabola tilts by its grade and the
+profile jumps 9 m), line grades written as sines. The elevations then match
+the file's own semantic vertical alignment to 3e-11 m at every metre. Its
+decks and railings are drawn in absolute elevation on a curve that adds it
+again (25 m over the girders as written, IfcOpenShell too); they are moved
+down onto the curve, with a note, and then sit a 7 to 20 cm haunch over the
+girder tops. Volumes match an independent integral (semantic grades and
+curvature, Pappus) to 3e-5 on the flyover's deck and 1.4e-4 on its railings.
+A lofted deck's plan area is now its top seen from above: the flyover's
+reads 3,399 m2 (a mid-depth plane cut caught 179), and Viadotto's identical
+314.2 m2 spans, which the cut read anywhere from 275.6 to 312.6 m2, all read
+314.2 m2. IfcOpenShell 0.9 crashes on the flyover's deck, railings and
+gradient curve
+([eval/pgsuper-bridges-2026-11-24.md](eval/pgsuper-bridges-2026-11-24.md)).
 Not read yet: spirals other than the clothoid and the cosine (sine and
-polynomial spirals), `IfcPolynomialCurve` and offset curves as directrices;
-the element on such a placement is "not read", and the rest of the file is.
+polynomial spirals), a polynomial curve with z coefficients, and offset
+curves as directrices; the element on such a placement is "not read", and
+the rest of the file is.
 
 **Reinforcing bars and grid placements (2026-11-22).** A bar swept as a disk
 along an `IfcIndexedPolyCurve` of line and arc segments (how bars, stirrups

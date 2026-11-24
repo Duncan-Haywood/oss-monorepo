@@ -21,7 +21,7 @@ import { applyRule, ruleActive, ruleLabel } from "./measure.mjs";
 import { assignUniformat, uniformatLabel } from "./uniformat.mjs";
 import { roomGeometry, checkRoom, roomLabel, assignRooms, footprintSolid, deductOpenings, connectionArea, OPENING_CLASS } from "./rooms.mjs";
 import { planRect, roofFaces, assignEnvelope, assignRailingSides } from "./envelope.mjs";
-import { Geometry, Unresolved, det, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, surfaceArea, planeAreas, bendsInPlan, curvedFaces, prismAxis, thinnestNormal, solidExtent, barExtent } from "./geom.mjs";
+import { Geometry, Unresolved, det, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, surfaceArea, planeAreas, bendsInPlan, curvedFaces, prismAxis, thinnestNormal, solidExtent, barExtent, shellPlanArea } from "./geom.mjs";
 
 const NOT_ELEMENTS = new Set([
   "IFCPROJECT", "IFCSITE", "IFCBUILDING", "IFCBUILDINGSTOREY", "IFCSPACE", "IFCOPENINGELEMENT", "IFCOPENINGSTANDARDCASE",
@@ -1493,6 +1493,14 @@ function computeAreas(type, solids, W, f) {
     // this way against 196 across the thinnest direction, while its slabs
     // agree 213 of 275 across the thinnest and 200 normal to up
     // (eval/areas-vs-stored-2026-11-20.md). A choice fitted on one model.
+    // a deck or course lofted along an alignment: its top faces seen from
+    // above, since no one plane cut fits a deck that curves, climbs and is
+    // crowned (the I-405/SR 167 flyover's mid-depth cut caught 179 m2 of
+    // about 6,000; eval/pgsuper-bridges-2026-11-24.md)
+    if (body.lofted && body.shells?.length) {
+      const g = shellPlanArea(body, v), nt = net?.lofted ? shellPlanArea(net, v) : g;
+      if (g != null) { out.plan = { gross: g * f2, net: nt == null ? null : nt * f2, n: v, lofted: true }; return out; }
+    }
     const meshUp = !body.terms.length && /^IFCCOVERING/.test(type);
     const n = body.axis ?? (meshUp ? v : thinnestNormal(body)?.n);
     if (n) {

@@ -38,6 +38,9 @@ function makeView(bytes, little) {
     u32: (o) => (o >= 0 && o + 4 <= n ? dv.getUint32(o, little) : 0),
     i32: (o) => (o >= 0 && o + 4 <= n ? dv.getInt32(o, little) : 0),
     i16: (o) => (o >= 0 && o + 2 <= n ? dv.getInt16(o, little) : 0),
+    // BigTIFF's 8-byte offsets and counts; files past 2^53 bytes are not a concern.
+    u64: (o) => (o >= 0 && o + 8 <= n ? Number(dv.getBigUint64(o, little)) : 0),
+    big: false,
   };
 }
 
@@ -127,9 +130,31 @@ const T = {
   XMP: 0x2bc, Rating: 0x4746,
 };
 
-const TYPE_SIZE = [0, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8, 4];
+const TYPE_SIZE = [0, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8, 4, 0, 0, 8, 8, 8];
+
+// BigTIFF (magic 43): 8-byte entry counts, 20-byte entries with 8-byte counts
+// and values (inline up to 8 bytes), 8-byte next-IFD offsets, and the types
+// LONG8, SLONG8 and IFD8 (16-18). DNG allows it for files past 4 GB
+// (large stitched panoramas, some scanner and phone writers).
+function readBigIfd(v, ifdOff, base) {
+  const tags = new Map();
+  const at = base + ifdOff;
+  need(at, 8);
+  const count = v.u64(at);
+  need(at + 8, count * 20 + 8);
+  if (!count || count > 1000 || at + 8 + count * 20 > v.n) return { tags, next: 0 };
+  for (let i = 0; i < count; i++) {
+    const e = at + 8 + i * 20;
+    const tag = v.u16(e), type = v.u16(e + 2), cnt = v.u64(e + 4);
+    const size = (TYPE_SIZE[type] || 1) * cnt;
+    const valueAt = size <= 8 ? e + 12 : base + v.u64(e + 12);
+    tags.set(tag, { type, count: cnt, at: valueAt, size });
+  }
+  return { tags, next: v.u64(at + 8 + count * 20) };
+}
 
 function readIfd(v, ifdOff, base = 0) {
+  if (v.big) return readBigIfd(v, ifdOff, base);
   const tags = new Map();
   const at = base + ifdOff;
   need(at, 2);
@@ -158,6 +183,7 @@ function tagNums(v, t) {
       case 4: case 9: case 13: out.push(v.u32(t.at + i * 4)); break;
       case 5: { const d = v.u32(t.at + i * 8 + 4); out.push(d ? v.u32(t.at + i * 8) / d : 0); break; }
       case 10: { const d = v.i32(t.at + i * 8 + 4); out.push(d ? v.i32(t.at + i * 8) / d : 0); break; }
+      case 16: case 18: out.push(v.u64(t.at + i * 8)); break;
       default: return out;
     }
   }
@@ -174,7 +200,14 @@ function tiffHeader(b, at = 0) {
   else return null;
   const v = makeView(b, little);
   const magic = v.u16(at + 2);
-  // 42 TIFF; 0x4f52/0x5352 Olympus ORF; 0x55 Panasonic RW2.
+  // 42 TIFF; 43 BigTIFF (offset size 8, then 0, then an 8-byte first offset);
+  // 0x4f52/0x5352 Olympus ORF; 0x55 Panasonic RW2.
+  if (magic === 43) {
+    need(at, 16);
+    if (v.u16(at + 4) !== 8 || v.u16(at + 6) !== 0) return null;
+    v.big = true;
+    return { v, magic, first: v.u64(at + 8) };
+  }
   if (magic !== 42 && magic !== 0x4f52 && magic !== 0x5352 && magic !== 0x55) return null;
   return { v, magic, first: v.u32(at + 4) };
 }
@@ -583,7 +616,7 @@ function detectFormat(b, name) {
   const h = tiffHeader(b, 0);
   if (h) {
     if (h.magic === 0x55) return "RW2";
-    if (h.magic !== 42) return "ORF";
+    if (h.magic !== 42 && h.magic !== 43) return "ORF";
     if (b[8] === 0x43 && b[9] === 0x52) return "CR2";
     const ext = (name || "").split(".").pop().toUpperCase();
     return ext && ext.length <= 4 ? ext : "TIFF";

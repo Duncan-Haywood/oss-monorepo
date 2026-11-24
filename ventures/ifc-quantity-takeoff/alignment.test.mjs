@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parseStep } from "./step.mjs";
-import { Geometry, Unresolved, apply } from "./geom.mjs";
+import { Geometry, Unresolved, apply, shellPlanArea } from "./geom.mjs";
 import { AlignmentReader } from "./alignment.mjs";
 import { takeoff } from "./qto.mjs";
 
@@ -284,4 +284,117 @@ ${sleeper(1100, 0)}`);
   const sn = Math.sin(roll), cs = Math.cos(roll);
   near(on.box, [99.875, -1.3 * cs, 0.075 - 1.3 * sn, 100.125, 1.3 * cs + 0.2 * sn, 0.075 + 1.3 * sn + 0.2 * cs], 1e-9, "tilted sleeper box");
   near(off.box, [-0.125, -1.3, 0, 0.125, 1.3, 0.2], 1e-9, "level sleeper box");
+});
+
+// IfcPolynomialCurve and the PGSuper vertical (eval/pgsuper-bridges-2026-11-24.md)
+test("polynomial curve: a parabola's point at an arc length, by inverting the arc length integral", () => {
+  const c = -0.000375, g0 = 0.04;
+  const body = `#1=IFCCARTESIANPOINT((0.,0.));
+#2=IFCDIRECTION((1.,0.));
+#3=IFCAXIS2PLACEMENT2D(#1,#2);
+#4=IFCPOLYNOMIALCURVE(#3,(0.,1.),(0.,${g0},${c}),$);`;
+  const A = new AlignmentReader(new Geometry(parseStep(file(body))));
+  const P = A.parent(4);
+  // arc length of y = g0 u + c u^2 from 0 to 80, in closed form
+  const S = (u) => { const t = g0 + 2 * c * u; return (t * Math.hypot(1, t) + Math.asinh(t)) / (4 * c); };
+  const s = S(80) - S(0);
+  near(P.at(s).p, [80, g0 * 80 + c * 6400], 1e-9, "end of the arc");
+  const t = P.at(s).t, slope = g0 + 2 * c * 80;
+  assert.ok(Math.abs(t[1] / t[0] - slope) < 1e-9, `tangent ${t}`);
+  assert.ok(Math.abs(P.param(80) - s) < 1e-9, "parameter value to arc length");
+  // z coefficients are a 3D curve the alignment reader does not draw
+  const z = new AlignmentReader(new Geometry(parseStep(file(body.replace("$);", "(0.,1.));")))));
+  assert.throws(() => z.parent(4), /z coefficients/);
+});
+
+test("PGSuper's vertical: a level parabola carrying its grade, lines graded by their sine, lengths as horizontal runs", () => {
+  // from elevation 10: an 80 m parabola from +4% to -2%, then two 60 m lines
+  // at -2%, then the zero-length closing segment PGSuper places at the last
+  // one's start (so the last line takes the reading the first one showed)
+  const c = (-0.02 - 0.04) / (2 * 80), z1 = 10 + 0.04 * 80 + c * 6400, gl = -0.02;
+  const PV = `
+#30=IFCCARTESIANPOINT((0.,10.));
+#31=IFCAXIS2PLACEMENT2D(#30,#2);
+#32=IFCAXIS2PLACEMENT2D(#1,#2);
+#33=IFCPOLYNOMIALCURVE(#32,(0.,1.),(0.,0.04,${c}),$);
+#34=IFCCURVESEGMENT(.CONTSAMEGRADIENT.,#31,IFCLENGTHMEASURE(0.),IFCLENGTHMEASURE(80.),#33);
+#35=IFCCARTESIANPOINT((80.,${z1}));
+#36=IFCDIRECTION((${Math.sqrt(1 - gl * gl)},${gl}));
+#37=IFCAXIS2PLACEMENT2D(#35,#36);
+#38=IFCLINE(#1,#4);
+#39=IFCCURVESEGMENT(.CONTSAMEGRADIENT.,#37,IFCLENGTHMEASURE(0.),IFCLENGTHMEASURE(60.),#38);
+#42=IFCCARTESIANPOINT((140.,${z1 + gl * 60}));
+#43=IFCAXIS2PLACEMENT2D(#42,#36);
+#44=IFCCURVESEGMENT(.CONTSAMEGRADIENT.,#43,IFCLENGTHMEASURE(0.),IFCLENGTHMEASURE(60.),#38);
+#40=IFCCURVESEGMENT(.CONTSAMEGRADIENT.,#43,IFCLENGTHMEASURE(0.),IFCLENGTHMEASURE(0.),#38);
+#41=IFCGRADIENTCURVE((#34,#39,#44,#40),.F.,#18,$);
+`;
+  const A = new AlignmentReader(new Geometry(parseStep(file(H + PV))));
+  const B = A.basis(41);
+  const want = (x) => (x <= 80 ? 10 + 0.04 * x + c * x * x : z1 + gl * (x - 80));
+  for (const x of [0, 20, 40, 79.9, 80, 120, 199]) assert.ok(Math.abs(B.frame(x).p[2] - want(x)) < 1e-9, `z at ${x}: ${B.frame(x).p[2]} vs ${want(x)}`);
+  assert.ok(Math.abs(B.frame(40).g - (0.04 + 2 * c * 40)) < 1e-9, "grade on the parabola");
+  assert.equal(A.levelled, 1);
+  assert.equal(A.runs, 3);
+  // the IFC text's reading (a curve length, turned onto RefDirection) is kept where it meets the placements: V above
+  const A2 = new AlignmentReader(new Geometry(parseStep(file(H + V))));
+  assert.ok(Math.abs(A2.basis(26).frame(150).p[2] - (10 + g2 * 150)) < 1e-9);
+  assert.equal(A2.runs ?? 0, 0);
+  assert.equal(A2.levelled ?? 0, 0);
+});
+
+test("PGSuper's decks: cross-sections in absolute elevation on a gradient curve are moved down onto it", () => {
+  const c = (-0.02 - 0.04) / (2 * 80);
+  const z = (x) => 10 + 0.04 * x + c * x * x;
+  const PV = `
+#30=IFCCARTESIANPOINT((0.,10.));
+#31=IFCAXIS2PLACEMENT2D(#30,#2);
+#32=IFCAXIS2PLACEMENT2D(#1,#2);
+#33=IFCPOLYNOMIALCURVE(#32,(0.,1.),(0.,0.04,${c}),$);
+#34=IFCCURVESEGMENT(.CONTSAMEGRADIENT.,#31,IFCLENGTHMEASURE(0.),IFCLENGTHMEASURE(80.),#33);
+#35=IFCCARTESIANPOINT((80.,${z(80)}));
+#36=IFCDIRECTION((${Math.sqrt(1 - 0.02 * 0.02)},-0.02));
+#37=IFCAXIS2PLACEMENT2D(#35,#36);
+#38=IFCLINE(#1,#4);
+#39=IFCCURVESEGMENT(.CONTSAMEGRADIENT.,#37,IFCLENGTHMEASURE(0.),IFCLENGTHMEASURE(120.),#38);
+#41=IFCGRADIENTCURVE((#34,#39),.F.,#18,$);
+`;
+  const deck = rect(8, 0.3).map(([x, y]) => [x, y - 0.3]);
+  const at = (d) => deck.map(([x, y]) => [x, y + z(d)]);
+  const rel = new Geometry(parseStep(file(H + PV + loft("#41", [deck, deck], [20, 60])))).item(1800);
+  const abs = new Geometry(parseStep(file(H + PV + loft("#41", [at(20), at(60)], [20, 60])))).item(1800);
+  assert.ok(Math.abs(abs.mesh / rel.mesh - 1) < 1e-12, `volume ${abs.mesh} vs ${rel.mesh}`);
+  assert.ok(abs.notes.some((n) => /absolute elevation \(10\.\d\d to 11\.\d\d m\)/.test(n)), abs.notes.join("; "));
+  assert.ok(!rel.notes.some((n) => /absolute elevation/.test(n)), rel.notes.join("; "));
+});
+
+test("sectioned solid: a section whose points meet (a haunch run to zero) is paired as written", () => {
+  const a = [[-1, 0], [-0.2, -0.1], [0.2, -0.1], [1, 0], [1, 1], [-1, 1]];
+  const b = [[-1, 0], [-0.2, 0], [-0.2 + 1e-12, 0], [1, 0], [1, 1], [-1, 1]];
+  const area = (p) => Math.abs(p.reduce((s, q, i) => { const r = p[(i + 1) % p.length]; return s + q[0] * r[1] - r[0] * q[1]; }, 0)) / 2;
+  const mid = a.map((p, i) => [(p[0] + b[i][0]) / 2, (p[1] + b[i][1]) / 2]);
+  const want = (20 / 6) * (area(a) + 4 * area(mid) + area(b));
+  const body = `#50=IFCCARTESIANPOINT((0.,0.,0.));
+#51=IFCCARTESIANPOINT((20.,0.,0.));
+#52=IFCPOLYLINE((#50,#51));
+${loft("#52", [a, b], [0, 20])}`;
+  const s = new Geometry(parseStep(file(body))).item(1800);
+  assert.ok(Math.abs(s.mesh / want - 1) < 1e-9, `volume ${s.mesh} vs ${want}`);
+  assert.ok(s.notes.some((n) => /paired on their points as written/.test(n)), s.notes.join("; "));
+});
+
+test("a lofted deck's plan area is its top seen from above, crowned and climbing", () => {
+  // a 2 m wide deck, crowned 0.05 m, 1 m deep under the crown, climbing 0.4 m over 30 m
+  const crowned = [[-1, 0], [1, 0], [1, 0.95], [0, 1], [-1, 0.95]];
+  const body = `#50=IFCCARTESIANPOINT((0.,0.,0.));
+#51=IFCCARTESIANPOINT((30.,0.,0.4));
+#52=IFCPOLYLINE((#50,#51));
+${loft("#52", [crowned, crowned], [0, Math.hypot(30, 0.4)])}`;
+  const s = new Geometry(parseStep(file(body))).item(1800);
+  assert.equal(s.lofted, true);
+  // the top (2 m x 30 m in plan, crown and climb whatever they are), plus the
+  // far end face: square to the climbing tangent, it looks up by sin(climb)
+  const plan = shellPlanArea(s, [0, 0, 1]);
+  const want = 60 + 1.95 * (0.4 / Math.hypot(30, 0.4));
+  assert.ok(Math.abs(plan - want) < 1e-9, `plan ${plan} vs ${want}`);
 });

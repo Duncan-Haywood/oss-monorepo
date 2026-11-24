@@ -1,4 +1,4 @@
-# Milestone 74: optimal re-zero schedules for a 1% wall risk under a random-walk bias (milestone 72's 100-sheet wall and pose plans, lateral 0; RW matched to D1, swept, not sourced; exact segment risk from the 3-D Bessel radial chain, dr = sigma sqrt(tau)/3, refinement dr/6; Monte Carlo check 4000 paths, seed 740)
+# Milestone 75: optimal re-zero schedules for a 1% wall risk under a random-walk bias (milestone 72's 100-sheet wall and pose plans, lateral 0; RW matched to D1, swept, not sourced; exact segment risk from the 3-D Bessel radial chain, dr = sigma sqrt(tau)/3, refinement dr/6; Monte Carlo check 4000 paths, seed 740)
 
 ## A. Re-zeros per 100 sheets (chain wall failure): robot | plan | D1 N | BONF | CAL (m73 MC fresh) | POSE2 (eps weak, rest) | OPT (MC) | OPT at dr/6 (its own; m74 OPT schedule) | OPT segment presses min/median/max
   g1 | LAYOUT | 0.05 | 40 (0.0000) | 24 (0.0056; 0.0057) | 24 (0.0056; 3.94e-04, 1.61e-06) | 24 (0.0056; 0.0065) | 24 (0.0055; 0.0055) | 215/248/281
@@ -41,10 +41,10 @@
   h1 | BEST | 0.2 | 0.43% | 1.29% | 2.59%
 
 ## C. Hypotheses (registered in LOG.md before this run)
-H295 (chain matches m73's CAL Monte Carlo within 3 SE + 0.001; BONF chain failure <= 1%): largest excess -0.0010, BONF max 0.0001 -> held
-H296 (dr/6 moves OPT by <= 1 re-zero and its failure < 10% relative): largest count change 1, largest relative failure change 3.5% -> held
-H297 (G1 LAYOUT D1 0.1: OPT >= 90 re-zeros): 96 -> held
-H298 (median OPT saving against CAL >= 15% over the 12 rows with CAL >= 5): median 1.0% (range -11.1% to 6.4%) -> refuted
-H299 (POSE2 within max(1, 10%) of OPT where CAL >= 5): worst excess +0.6 -> refuted
-H300 (OPT fails <= 2% of 4000 fresh Monte Carlo walls): worst 1.20% -> held
-H301 (G1 BANDS k+0 D1 0.1 c 15 s: OPT under 3% of the cycle): 2.97% -> held
+H300 (chain matches m73's CAL Monte Carlo within 3 SE + 0.001; BONF chain failure <= 1%): largest excess -0.0010, BONF max 0.0001 -> held
+H301 (dr/6 moves OPT by <= 1 re-zero and its failure < 10% relative): largest count change 1, largest relative failure change 3.5% -> held
+H302 (G1 LAYOUT D1 0.1: OPT >= 90 re-zeros): 96 -> held
+H303 (median OPT saving against CAL >= 15% over the 12 rows with CAL >= 5): median 1.0% (range -11.1% to 6.4%) -> refuted
+H304 (POSE2 within max(1, 10%) of OPT where CAL >= 5): worst excess +0.6 -> refuted
+H305 (OPT fails <= 2% of 4000 fresh Monte Carlo walls): worst 1.20% -> held
+H306 (G1 BANDS k+0 D1 0.1 c 15 s: OPT under 3% of the cycle): 2.97% -> held

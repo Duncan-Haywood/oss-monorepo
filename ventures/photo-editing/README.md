@@ -145,8 +145,8 @@ from 45.6 s, and takes 1.2 GB off the disk instead of 8.7 GB: `readRawFile`
 fetches only the byte ranges the parser asks for (2.1% of a raw; 65 of 65
 results identical to a whole read, `eval/cull-sparse-read.mjs`), the grid
 decodes a raw's ~1,620 px preview where it has one, and thumbnails are no
-longer copied on each redraw. Not done: BigTIFF DNGs (phone DNGs with no JPEG inside are developed since 2026-11-24, below),
-the 640 px previews of 2000s Olympus compacts (only their 160 px thumbnail).
+longer copied on each redraw. Phone DNGs with no JPEG inside, BigTIFF DNGs and the
+2000s Olympus compacts that keep only a 160 px thumbnail are handled since 2026-11-24 (below).
 
 ### Closed eyes (2026-11-24)
 
@@ -199,6 +199,28 @@ node --test site/rawmosaic.test.mjs
 node eval/cull-raw-data-previews.mjs DIR... OUT > report.tsv
 python3 eval/cull-raw-data-previews-check.py OUT     # sensels vs shootflow
 python3 eval/cull-raw-data-previews-colour.py OUT    # colour vs shootflow
+```
+
+### BigTIFF DNGs and the Olympus compacts' ORFs (2026-11-24, later)
+
+BigTIFF files (magic 43, 8-byte offsets; DNG allows it past 4 GB) are read by
+both the preview parser and the raw-data developer. The four older Olympus
+compacts in the public samples (C-5050 Zoom, C-8080, SP-350, SP-500 UZ) hold
+one JPEG, a 160 x 120 thumbnail; there is no larger one to find. So the page
+now develops a preview from their sensor data whenever a DNG or ORF has none
+or only one under 640 px: the "IIRS" layout (12-bit packed, odd rows after
+a 2048-byte boundary, the extra row past the strips), the maker note's
+RedBalance/BlueBalance, and, since these files state no colour matrix, a typical
+sensor's matrix (the mean of five cameras' own DNG matrices). Sensels equal
+shootflow's reader (and so LibRaw) on all four; previews are 1288 x 963 to
+1640 x 1227. Against LibRaw's development the colours are a median 1.0 to
+3.2 CIEDE2000 (no matrix: 2.1 to 4.4); a fit to the camera's own thumbnail was
+tried and lost (eval/cull-orf-compacts-2026-11-24.md).
+
+```bash
+node --test site/bigtiff-orf.test.mjs
+node eval/cull-orf-compacts.mjs OUT FILE... > OUT/rows.jsonl
+python eval/cull-orf-compacts-check.py score OUT FILE...   # rawpy, numpy, Pillow
 ```
 
 ## Keyword trees, code replacements and per-frame captions (2026-11-24)

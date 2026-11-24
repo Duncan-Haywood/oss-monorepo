@@ -1,4 +1,4 @@
-"""Milestone 74: exact radial-chain segment risk and the optimal risk-constrained schedule."""
+"""Milestone 75: exact radial-chain segment risk and the optimal risk-constrained schedule."""
 import numpy as np
 import pytest
 

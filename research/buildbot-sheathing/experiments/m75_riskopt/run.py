@@ -1,7 +1,7 @@
-"""Milestone 74: optimal risk-constrained re-zero schedules under a random-walk bias, offline from
+"""Milestone 75: optimal risk-constrained re-zero schedules under a random-walk bias, offline from
 milestones 72 and 73.
 
-python experiments/m74_riskopt/run.py  (numpy, scipy; about 10 minutes on 4 processes). Writes
+python experiments/m75_riskopt/run.py  (numpy, scipy; about 10 minutes on 4 processes). Writes
 results.txt and results.json.
 """
 import importlib.util
@@ -86,7 +86,7 @@ def main():
     rows = dict(zip(keys, res))
     L = []
     p = L.append
-    p("# Milestone 74: optimal re-zero schedules for a 1% wall risk under a random-walk bias (milestone 72's 100-sheet "
+    p("# Milestone 75: optimal re-zero schedules for a 1% wall risk under a random-walk bias (milestone 72's 100-sheet "
       "wall and pose plans, lateral 0; RW matched to D1, swept, not sourced; exact segment risk from the 3-D Bessel "
       f"radial chain, dr = sigma sqrt(tau)/3, refinement dr/6; Monte Carlo check {TRIALS} paths, seed {SEED_OPT})")
     p("\n## A. Re-zeros per 100 sheets (chain wall failure): robot | plan | D1 N | BONF | CAL (m73 MC fresh) | "
@@ -112,36 +112,36 @@ def main():
     se = lambda f: np.sqrt(max(f * (1 - f), 1e-12) / TRIALS)
     dev = [abs(r["CAL"][1] - r["CAL"][2]) - (3 * se(r["CAL"][1]) + 0.001) for r in rows.values()]
     bmax = max(r["BONF"][1] for r in rows.values())
-    H["H295"] = max(dev) <= 0 and bmax <= ALPHA and all(r["CAL"][0] == r["CAL"][3] for r in rows.values())
-    X["H295"] = (max(dev), bmax)
+    H["H300"] = max(dev) <= 0 and bmax <= ALPHA and all(r["CAL"][0] == r["CAL"][3] for r in rows.values())
+    X["H300"] = (max(dev), bmax)
     dk = max(abs(r["OPT"][0] - r["OPT_fine"][0]) for r in rows.values())
     rel = max(abs(r["OPT_fine"][2] - r["OPT"][1]) / max(r["OPT"][1], 1e-9) for r in rows.values() if r["OPT"][1] > 1e-6)
-    H["H296"] = dk <= 1 and rel < 0.10
-    X["H296"] = (dk, rel)
+    H["H301"] = dk <= 1 and rel < 0.10
+    X["H301"] = (dk, rel)
     g1 = rows[("g1", "LAYOUT", 0.1)]["OPT"][0]
-    H["H297"] = g1 >= 90
+    H["H302"] = g1 >= 90
     big = [r for r in rows.values() if r["CAL"][0] >= 5]
     sav = [1 - r["OPT"][0] / r["CAL"][0] for r in big]
-    H["H298"] = float(np.median(sav)) >= 0.15
-    X["H298"] = (float(np.median(sav)), len(big), float(min(sav)), float(max(sav)))
+    H["H303"] = float(np.median(sav)) >= 0.15
+    X["H303"] = (float(np.median(sav)), len(big), float(min(sav)), float(max(sav)))
     gap = [r["POSE2"][0] - r["OPT"][0] - max(1, 0.1 * r["OPT"][0]) if r["POSE2"] else 1e9 for r in big]
-    H["H299"] = max(gap) <= 0
+    H["H304"] = max(gap) <= 0
     mc = max(r["OPT"][2] for r in rows.values())
-    H["H300"] = mc <= 0.02
+    H["H305"] = mc <= 0.02
     sh = C["g1|BANDS k+0|0.1|15.0"]
-    H["H301"] = sh < 0.03
+    H["H306"] = sh < 0.03
     hv = lambda k: "held" if H[k] else "refuted"
     p("\n## C. Hypotheses (registered in LOG.md before this run)")
-    p(f"H295 (chain matches m73's CAL Monte Carlo within 3 SE + 0.001; BONF chain failure <= 1%): largest excess "
-      f"{X['H295'][0]:+.4f}, BONF max {bmax:.4f} -> {hv('H295')}")
-    p(f"H296 (dr/6 moves OPT by <= 1 re-zero and its failure < 10% relative): largest count change {dk}, largest "
-      f"relative failure change {100 * rel:.1f}% -> {hv('H296')}")
-    p(f"H297 (G1 LAYOUT D1 0.1: OPT >= 90 re-zeros): {g1} -> {hv('H297')}")
-    p(f"H298 (median OPT saving against CAL >= 15% over the {len(big)} rows with CAL >= 5): median "
-      f"{100 * X['H298'][0]:.1f}% (range {100 * X['H298'][2]:.1f}% to {100 * X['H298'][3]:.1f}%) -> {hv('H298')}")
-    p(f"H299 (POSE2 within max(1, 10%) of OPT where CAL >= 5): worst excess {max(gap):+.1f} -> {hv('H299')}")
-    p(f"H300 (OPT fails <= 2% of {TRIALS} fresh Monte Carlo walls): worst {100 * mc:.2f}% -> {hv('H300')}")
-    p(f"H301 (G1 BANDS k+0 D1 0.1 c 15 s: OPT under 3% of the cycle): {100 * sh:.2f}% -> {hv('H301')}")
+    p(f"H300 (chain matches m73's CAL Monte Carlo within 3 SE + 0.001; BONF chain failure <= 1%): largest excess "
+      f"{X['H300'][0]:+.4f}, BONF max {bmax:.4f} -> {hv('H300')}")
+    p(f"H301 (dr/6 moves OPT by <= 1 re-zero and its failure < 10% relative): largest count change {dk}, largest "
+      f"relative failure change {100 * rel:.1f}% -> {hv('H301')}")
+    p(f"H302 (G1 LAYOUT D1 0.1: OPT >= 90 re-zeros): {g1} -> {hv('H302')}")
+    p(f"H303 (median OPT saving against CAL >= 15% over the {len(big)} rows with CAL >= 5): median "
+      f"{100 * X['H303'][0]:.1f}% (range {100 * X['H303'][2]:.1f}% to {100 * X['H303'][3]:.1f}%) -> {hv('H303')}")
+    p(f"H304 (POSE2 within max(1, 10%) of OPT where CAL >= 5): worst excess {max(gap):+.1f} -> {hv('H304')}")
+    p(f"H305 (OPT fails <= 2% of {TRIALS} fresh Monte Carlo walls): worst {100 * mc:.2f}% -> {hv('H305')}")
+    p(f"H306 (G1 BANDS k+0 D1 0.1 c 15 s: OPT under 3% of the cycle): {100 * sh:.2f}% -> {hv('H306')}")
 
     out = {"alpha": ALPHA, "trials": TRIALS, "d1": D1S, "rows": {"|".join(map(str, k)): v for k, v in rows.items()},
            "C": C, "H": H, "X": X}

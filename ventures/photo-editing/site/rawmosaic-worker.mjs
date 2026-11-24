@@ -1,4 +1,4 @@
-// Develops a DNG with no embedded JPEG into a JPEG preview off the page's main
+// Develops a DNG or ORF with no usable embedded JPEG into a JPEG preview off the page's main
 // thread (site/rawmosaic.mjs does the work). Message in: { id, file };
 // out: { id, blob, width, height, source, notes } or { id, error }.
 import { developMosaic } from "./rawmosaic.mjs";
