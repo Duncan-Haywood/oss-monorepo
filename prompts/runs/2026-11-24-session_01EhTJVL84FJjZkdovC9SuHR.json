@@ -40,7 +40,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "61 head titles in clothing-design-studio and wall-framing-takeoff cut to <=70 chars; title-length tests added to both. check_title_meta long-title 1166->1105. Local: clothing page+journey 18 pass, wall-framing page 135 pass, new title tests pass. Did not run the full site build: change is head-title text only, no build code touched.",
+  "notes": "61 head titles in clothing-design-studio and wall-framing-takeoff cut to <=70 chars; title-length tests added to both. check_title_meta long-title 1166->1105. Local: clothing page+journey 18 pass, wall-framing page 135 pass, new title tests pass. Did not run the full site build: change is head-title text only, no build code touched. CI had no check runs at PR time; ran locally: full venture suites clothing-design-studio 745 pass / wall-framing-takeoff 1215 pass, check_md_links ok, check_code_refs ok, webcheck check_pages 4211 pages sound.",
   "corrections": [],
   "redteam": null
 }
