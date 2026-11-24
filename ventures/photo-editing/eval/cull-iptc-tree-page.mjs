@@ -1,7 +1,7 @@
 // The cull page's keyword tree, code replacements and per-frame captions, in
 // headless Chromium, read back by ExifTool. Loads three NEFs from DIR
 // (metadata-extractor-images) and a Lightroom-style sidecar for one of them
-// that already has a keyword tree (Places|Yorkshire) and a flat keyword;
+// that already has a keyword tree (Places|Yorkshire) and a flat keyword, plus a flat "Before > After" that must stay one keyword;
 // fills the template with a path keyword, codes and {caption}; gives the D300
 // its own keywords (K) and caption (C) using codes; rates two frames, downloads
 // the zip and writes each sidecar to WORK/out for ExifTool.
@@ -26,7 +26,7 @@ const lr = `<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 7.0">
    xmp:Rating="2"
    crs:Exposure2012="+0.35"
    crs:CropTop="0.05">
-   <dc:subject><rdf:Bag><rdf:li>landscape</rdf:li><rdf:li>Places</rdf:li><rdf:li>Yorkshire</rdf:li></rdf:Bag></dc:subject>
+   <dc:subject><rdf:Bag><rdf:li>landscape</rdf:li><rdf:li>Places</rdf:li><rdf:li>Yorkshire</rdf:li><rdf:li>Before &gt; After</rdf:li></rdf:Bag></dc:subject>
    <lr:hierarchicalSubject><rdf:Bag><rdf:li>Places|Yorkshire</rdf:li><rdf:li>landscape</rdf:li></rdf:Bag></lr:hierarchicalSubject>
    <dc:title><rdf:Alt><rdf:li xml:lang="x-default">Old</rdf:li><rdf:li xml:lang="fr-FR">Vieux</rdf:li></rdf:Alt></dc:title>
   </rdf:Description>

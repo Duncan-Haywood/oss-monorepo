@@ -207,6 +207,9 @@ The IPTC template below gained the three things a sports or event desk uses
 most. A keyword typed `Sport|Ice hockey` (or `Sport > Ice hockey`) is a path:
 each level goes into `dc:subject` and the path into `lr:hierarchicalSubject`,
 Lightroom's keyword tree, merged with any tree already in your sidecar.
+Keywords already in your sidecar's `dc:subject` are kept exactly as written
+and never read as paths, so a `Before > After` typed in Lightroom stays one
+keyword (fixed the same day, eval/cull-iptc-own-keywords-2026-11-24.md).
 Code replacements, as Photo Mechanic calls them: a list of `code<TAB>text`
 (or `code=text`) lines, typed or loaded from a .txt, so `\23\` in any box,
 keyword or caption becomes "Jane Roe (Northfield Owls, 23)" and `\23#2\` the

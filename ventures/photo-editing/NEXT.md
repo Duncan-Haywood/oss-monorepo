@@ -167,5 +167,6 @@
 ## From the cull page's IPTC template (2026-11-24, eval/cull-iptc-2026-11-24.md)
 
 - An import into Lightroom Classic, Capture One and Photo Mechanic to confirm each shows the fields.
-- Hierarchical keywords (`lr:hierarchicalSubject`, "Sport|Ice hockey") alongside `dc:subject`.
-- Code replacements (Photo Mechanic's short code to name list, e.g. a team roster) in captions.
+- (landed 2026-11-24, PR #18557, eval/cull-iptc-tree-codes-2026-11-24.md) Keyword trees and code replacements.
+  (2026-11-24, eval/cull-iptc-own-keywords-2026-11-24.md) A sidecar's own flat keywords stay as written (a
+  `Before > After` was being turned into a path). Next: Lightroom's Read Metadata from Files on these sidecars.
