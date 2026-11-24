@@ -14,7 +14,9 @@ import { COLOURS, FABRICS, GARMENTS } from "./catalogue.mjs";
 import { MOTIFS } from "./motifs.mjs";
 import { splitNegations } from "./negation.mjs";
 import { readQuestion, resolveReference } from "./refer.mjs";
-import { readShift, shiftColour, catalogueName, describeMove } from "./shade.mjs";
+import { readShift, shiftColour, catalogueName, describeMove, nearestCatalogue } from "./shade.mjs";
+import { stockColours } from "./suppliers.mjs";
+import { customDye } from "./costing.mjs";
 
 const WORD_NUMBERS = {
   zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
@@ -151,7 +153,9 @@ const TEXT_SUBJECT = /\b(text|words|letters|lettering|writing|slogan)\b/;
  * { ops, ui, did } (ops empty with a reason when nothing can change), or null
  * when the clause is not a relative colour edit.
  */
-function shadeClause(c, design) {
+const FAR = 20; // CIEDE2000: how far a stocked colour may sit from the exact move before dyeing to order is proposed
+
+function shadeClause(c, design, sheet = null) {
   const move = readShift(c);
   if (!move) return null;
   const named = colourIn(c);
@@ -167,11 +171,31 @@ function shadeClause(c, design) {
   if (!onInk) {
     const base = named ? COLOURS[named] : design.colour;
     const baseName = named ?? design.colourName ?? null;
-    const r = shiftColour(base, move, { baseName: baseName && !/^#/.test(baseName) ? baseName : null });
+    // With a supplier sheet that lists stock colours, the move picks among
+    // the colours this factory keeps for this fabric, not the whole catalogue.
+    const stock = sheet ? stockColours(sheet, design.fabric) : null;
+    const palette = stock && Object.keys(stock).length ? stock : COLOURS;
+    const where = palette === COLOURS ? "catalogue colour" : `stock colour on ${sheet.example ? "the example sheet" : "your supplier's sheet"} for ${design.fabric}`;
+    const opts = { baseName: baseName && !/^#/.test(baseName) ? baseName : null, palette };
+    let r = shiftColour(base, move, opts);
     if (r.none) return nothing(`${r.none} Nothing changed.`);
-    const how = r.catalogue
-      ? `catalogue colour ${r.name}`
-      : `custom colour ${r.hex} (nearest catalogue colour ${r.nearest.name}, ${r.nearest.deltaE} apart; a custom colour means a lab dip and usually a dye minimum at the mill)`;
+    let how;
+    if (r.catalogue) how = `${where} ${r.name}`;
+    else if (palette !== COLOURS) {
+      // A custom colour costs a dye lot, so look further out for a stocked
+      // colour that still goes the asked way, and keep the exact move as the
+      // alternative to ask for.
+      const exact = r;
+      const dye = customDye({ ...design, colour: exact.hex }, sheet);
+      const cost = dye ? ` would add about ${dye.perUnit} per garment at ${design.quantity}${dye.fillsLotAt && dye.spareMetres > 0 ? `; from ${dye.fillsLotAt} pieces the run fills the dye lot and only the set-up is left` : ""}` : "";
+      const wide = shiftColour(base, move, { ...opts, near: FAR, customOk: false, strict: true });
+      if (!wide.none) {
+        r = wide;
+        how = `${where} ${r.name}, the nearest stocked colour that way (${r.deltaE} from the exact move; dyeing the exact shade ${exact.hex} to order${cost})`;
+      } else {
+        how = `custom colour ${r.hex} (nearest ${where} ${r.nearest.name}, ${r.nearest.deltaE} apart; ${cost ? `dyeing it to order${cost}` : "dyed to order: a lab dip and usually a dye minimum at the mill"})`;
+      }
+    } else how = `custom colour ${r.hex} (nearest ${where} ${r.nearest.name}, ${r.nearest.deltaE} apart; a custom colour means a lab dip and usually a dye minimum at the mill)`;
     return { ops: [{ op: "colour", value: r.hex, name: r.name }], ui: [], did: `Make the garment ${move.word}: ${how}; ${describeMove(r.moved, move.moves)}` };
   }
   let target = selected;
@@ -202,7 +226,7 @@ function shadeClause(c, design) {
  * `ops` go to applyOp; `ui` are actions only the page can take (undo, show
  * variants, pick one, upload, export).
  */
-export function parseClause(raw, design) {
+export function parseClause(raw, design, { sheet = null } = {}) {
   const quoted = /"([^"]*)"/.exec(raw)?.[1] ?? null;
   const c = wordsToNumbers(raw.toLowerCase().replace(/"[^"]*"/g, " QUOTED ")).replace(/[’']/g, "'");
   const ops = [];
@@ -233,7 +257,7 @@ export function parseClause(raw, design) {
   }
 
   // Relative colour: "make it darker", "a bit more muted", "warmer ink".
-  const shade = design ? shadeClause(c, design) : null;
+  const shade = design ? shadeClause(c, design, sheet) : null;
   if (shade) return shade;
 
   // Adding artwork.
@@ -396,11 +420,23 @@ export function parseClause(raw, design) {
       did = [did, `Colour the artwork ${colour}`].filter(Boolean).join("; ");
     } else if (!ops.some(o => o.op === "add")) {
       ops.push({ op: "colour", value: colour });
-      did = [did, `Make the garment ${colour}`].filter(Boolean).join("; ");
+      did = [did, `Make the garment ${colour}${stockNote(colour, ops, design, sheet)}`].filter(Boolean).join("; ");
     }
   }
 
   return ops.length || ui.length ? { ops, ui, did } : null;
+}
+
+// " (not stocked ...)" when a sheet lists stock colours and the named one is
+// not among them for the fabric the design will have after this clause.
+function stockNote(colour, ops, design, sheet) {
+  if (!sheet || !design) return "";
+  const fabric = ops.find(o => o.op === "fabric")?.value ?? design.fabric;
+  const stock = stockColours(sheet, fabric);
+  if (!stock || !Object.keys(stock).length) return "";
+  if (Object.values(stock).includes(COLOURS[colour])) return "";
+  const near = nearestCatalogue(COLOURS[colour], stock);
+  return ` (not a stock colour for ${fabric} on ${sheet.example ? "the example sheet" : "your supplier's sheet"}: dyed to order, see "Custom colour dye" in the cost; nearest stock colour ${near.name}, ${near.deltaE} apart)`;
 }
 
 /**
@@ -413,9 +449,11 @@ export function parseClause(raw, design) {
  * information, listed in `questions` and never applied ("is embroidery more
  * expensive?"). With `timeline` (designs oldest first, the present last),
  * references to earlier versions are resolved: "go back to the cream", "the
- * previous colour", "undo the last two", "back to the original".
+ * previous colour", "undo the last two", "back to the original". With
+ * `sheet` (a supplier sheet), relative colour edits pick among the colours it
+ * stocks for the design's fabric, and a named colour it does not stock says so.
  */
-export function parseCommand(text, design, timeline = null) {
+export function parseCommand(text, design, timeline = null, { sheet = null } = {}) {
   const steps = [];
   const unmatched = [];
   const declined = [];
@@ -457,7 +495,7 @@ export function parseCommand(text, design, timeline = null) {
       if (n.negated.length && /^(?:but|instead|rather|just|only)$/i.test(cleaned)) continue;
       cleaned = cleaned.replace(/^(?:but|instead|rather|just|only)\s+/i, "");
     }
-    const r = parseClause(cleaned, design);
+    const r = parseClause(cleaned, design, { sheet });
     if (r) steps.push({ words: clause, ...r, ...(suggested ? { suggested: true, did: `Trying it (you asked): ${r.did ?? ""}`.trim() } : {}) });
     else unmatched.push(clause);
   }

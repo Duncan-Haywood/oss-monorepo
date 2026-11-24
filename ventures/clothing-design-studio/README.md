@@ -110,6 +110,48 @@ and run it yourself.
 MIT licence: [`LICENSE`](LICENSE). Sponsor: https://github.com/sponsors/Duncan-Haywood
 
 
+## "Make it darker" from what the factory stocks (2026-11-24)
+
+A garment colour has to be bought. Mills and blank makers keep a short list of
+colours dyed and on the shelf; anything else is dyed to order, which means a
+lab dip and a minimum dye lot. Until now "make it darker" picked from the
+studio's 50-name catalogue, so most edits landed on a colour the designer's
+factory may not stock, and the cost sheet never knew.
+
+The supplier sheet now carries **stock colours per fabric** and a **custom
+colour** price (lab dip and dye set-up, minimum dye lot in metres): typed on the
+studio page under "Supplier sheet", or as CSV rows (`colour,navy,#1f2a44|*`,
+`dye,setup,120`, `dye,minMetres,300`). With a list:
+
+- relative edits ("make it lighter", "tone it down", "warmer") pick among the
+  colours stocked for the design's fabric. When the exact move lands on none,
+  the studio looks further out (CIEDE2000 20) for a stocked colour that still
+  goes the asked way without changing what was not asked (a grey stays grey,
+  the hue stays within 20 degrees, lightness moves only on a lightness edit),
+  and says what dyeing the exact shade would cost instead;
+- a named colour the sheet does not stock ("make it dusty pink") says so, with
+  the nearest stock colour;
+- the cost adds a **Custom colour dye** line: set-up over the run, plus the
+  dye lot's unused metres at the fabric price (`customDye` in `costing.mjs`),
+  and the run size at which the run fills the lot;
+- swatches not on the list are drawn dashed ("dyed to order on this sheet").
+
+An empty list switches all of this off, and sheets saved before today have none.
+
+**Measured** ([`eval/stock-colour-edits.mjs`](eval/stock-colour-edits.mjs),
+[output](eval/stock-colour-edits-2026-11-24.txt)): the 16 colours the example
+sheet stocks on cotton jersey, times seven plain edits (112). Against the whole
+catalogue, 11 of 112 edits landed on a colour this sheet stocks; with the sheet,
+46 of 112, none going the wrong way. The first version of the wider search let
+charcoal "lighter" become olive and brown "lighter" become red (70 of 112
+stocked); the hue, grey and lightness guards above cut those, at the cost of
+24 edits now offered as a dyed shade instead. At 100 cotton-jersey tees the
+example figures put a dyed shade at 9.72 more per garment, 0.40 once the run
+fills the 300 m lot (232 pieces). **The stock list, dye set-up and lot size on
+the example sheet are placeholders, not a mill's**; the point is that the
+designer's own sheet now drives which colours the voice commands reach and what
+leaving them costs.
+
 ## "When it was darker": a version by how its colours compared (2026-11-18)
 
 Colour is the commonest thing a designer compares: "when it was darker", "the
