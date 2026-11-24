@@ -1,7 +1,9 @@
 # Control plane: the files that decide what every later agent reads, runs or
 # is allowed to merge. With "Require review from Code Owners" on in the `main`
 # ruleset (.github/rulesets/main.json), a PR touching any of these needs the
-# owner's approval; everything else still merges without review.
+# owner's approval; everything else still merges without review, including
+# workflows not named priv-*.yml (the `ci-policy` check keeps those read-only
+# and secret-free).
 #
 # Why each line is here: docs/security/agent-hardening.md. The guard in
 # platform/ci/control_plane_guard.py fails CI if a line it expects goes
@@ -22,13 +24,45 @@
 /.mcp.json                        @Duncan-Haywood
 /platform/agents/                 @Duncan-Haywood
 
-# CI, secrets, rulesets, and the merge gate itself.
-/.github/                         @Duncan-Haywood
+# The merge gate and the rules for CI itself. Workflows are in two tiers
+# (docs/security/agent-hardening.md, "Two tiers of CI"): `priv-*.yml` hold
+# secrets, write tokens or a required check and are owned here; every other
+# workflow is unowned, and the `ci-policy` required check fails it unless it
+# is read-only and secret-free.
+/.github/CODEOWNERS               @Duncan-Haywood
+/.github/rulesets/                @Duncan-Haywood
+/.github/ci-policy.yaml           @Duncan-Haywood
+/.github/workflows/priv-*         @Duncan-Haywood
+/.github/prompts/                 @Duncan-Haywood
+/.github/FUNDING.yml              @Duncan-Haywood
 /platform/ci/agent_review/        @Duncan-Haywood
 /platform/ci/control_plane_guard.py      @Duncan-Haywood
 /platform/ci/test_control_plane_guard.py @Duncan-Haywood
-# agent-pr-auto-merge.yml pip-installs this inside its write-token job.
+/platform/ci/ci_policy_check.py          @Duncan-Haywood
+/platform/ci/test_ci_policy_check.py     @Duncan-Haywood
+# priv-agent-pr-auto-merge.yml pip-installs this inside its write-token job.
 /portfolio/router/requirements.txt @Duncan-Haywood
+
+# Code that priv- workflows run in a job holding a secret, a write token or a
+# required check. ci_policy_check.py fails CI when such a job runs a repo file
+# that is neither owned here nor listed, with a reason, under
+# `privileged_code_accepted` in .github/ci-policy.yaml.
+/platform/ci/check_conflict_markers.py      @Duncan-Haywood
+/platform/ci/test_check_conflict_markers.py @Duncan-Haywood
+/platform/ci/repo_files.py        @Duncan-Haywood
+/platform/ci/adopt_stranded.py    @Duncan-Haywood
+/platform/ci/argtypes.py          @Duncan-Haywood
+/platform/ci/unlanded_work.py     @Duncan-Haywood
+/platform/ci/branch_cleanup.py    @Duncan-Haywood
+/platform/ci/research_archive.py  @Duncan-Haywood
+/platform/ci/security_alerts.py   @Duncan-Haywood
+/portfolio/direction/report.py    @Duncan-Haywood
+/platform/distribution/           @Duncan-Haywood
+/platform/counter/core.mjs        @Duncan-Haywood
+/platform/counter/counter.mjs     @Duncan-Haywood
+/platform/pages/cloudflare/email-routing.mjs      @Duncan-Haywood
+/platform/pages/cloudflare/email-routing.test.mjs @Duncan-Haywood
+/ventures/real-estate-agent-photo-app/docs-site/scripts/setup-cloudflare-access.sh @Duncan-Haywood
 
 # Data agents write on every run: no owner, so no review.
 /prompts/runs/

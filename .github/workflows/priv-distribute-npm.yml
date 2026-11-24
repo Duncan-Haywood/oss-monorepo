@@ -1,0 +1,41 @@
+# Publishes venture CLIs to npm, a few new packages per run.
+# Off by default: with vars.DISTRIBUTE_NPM unset this only prints a dry run.
+# Free registry, no paid spend, no commits pushed. Spec: portfolio/distribution/README.md
+name: distribute-npm
+on:
+  schedule:
+    - cron: '41 16 * * 3'
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+# One publish at a time: two overlapping runs could race to publish the same
+# version, and a slow older run could land last.
+concurrency:
+  group: distribute-npm
+  cancel-in-progress: false
+jobs:
+  publish:
+    # Trusted publishing: npm accepts this job's OIDC token for the packages
+    # that name this workflow and the `publish` environment (limited to main),
+    # so no npm token is stored (docs/security/trusted-publishing-setup.md).
+    environment: publish
+    permissions:
+      contents: read
+      id-token: write
+    # npm trusted publishing does not accept self-hosted runners.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      # Trusted publishing needs npm 11.5.1 or later; Node 22 ships npm 10.
+      - run: npm install -g npm@11.21.2
+      - run: node platform/distribution/npm.mjs
+        env:
+          DISTRIBUTE_NPM: ${{ vars.DISTRIBUTE_NPM }}
+          NPM_SCOPE: ${{ vars.NPM_SCOPE }}

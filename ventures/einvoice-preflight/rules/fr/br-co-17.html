@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BR-CO-17: EN 16931 expliquée</title>
+<meta name="description" content="BR-CO-17: Dans chaque ligne de ventilation de la TVA, le montant de TVA (BT-117) doit être la base imposable (BT-116) multipliée par le taux (BT-119) divisé…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/fr/br-co-17">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/br-co-17">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/br-co-17">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/br-co-17">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/br-co-17">
+<meta property="og:title" content="BR-CO-17: EN 16931 expliquée">
+<meta property="og:description" content="BR-CO-17: Dans chaque ligne de ventilation de la TVA, le montant de TVA (BT-117) doit être la base imposable (BT-116) multipliée par le taux (BT-119) divisé…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Que signifie BR-CO-17 ?","acceptedAnswer":{"@type":"Answer","text":"Dans chaque ligne de ventilation de la TVA, le montant de TVA (BT-117) doit être la base imposable (BT-116) multipliée par le taux (BT-119) divisé par 100, arrondi à deux décimales ; par exemple 145,00 × 19 % = 27,55. Le contrôle officiel est plus souple que son message : il accepte tout montant qui s'écarte de ce résultat de moins de 1,00 (jusqu'à 1,00 inclus en CII). Avec un taux de 0 ou sans taux, le montant de TVA doit s'arrondir à zéro, c'est-à-dire être inférieur à 0,50."}},{"@type":"Question","name":"Comment corriger BR-CO-17 ?","acceptedAnswer":{"@type":"Answer","text":"Recalculez chaque ligne : base imposable × taux ÷ 100, arrondi à deux décimales (145,00 × 19 ÷ 100 = 27,55). Pour une catégorie à 0 %, mettez le montant de TVA de la ligne à 0,00. Saisissez le taux en pourcentage dans cbc:Percent (UBL) ou ram:RateApplicablePercent (CII)."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">Règle de facture électronique expliquée · EN 16931</p>
+<h1>BR-CO-17: Le montant de TVA de la ventilation ne correspond pas à base × taux</h1>
+<nav class="langs" aria-label="Autres langues"><a href="../en/br-co-17.html" hreflang="en" lang="en">English</a><a href="../de/br-co-17.html" hreflang="de" lang="de">Deutsch</a><a href="index.html">Toutes les règles</a></nav>
+</header>
+<section>
+<h2>Message officiel</h2>
+<blockquote lang="en">VAT category tax amount (BT-117) = VAT category taxable amount (BT-116) x (VAT category rate (BT-119) / 100), rounded to two decimals.</blockquote>
+<dl>
+<dt>Gravité</dt><dd>Erreur (la facture est rejetée)</dd>
+<dt>Vérifiée en</dt><dd>UBL, CII</dd>
+<dt>Termes métier</dt><dd>BT-117, BT-116, BT-119</dd>
+</dl>
+</section>
+<section>
+<h2>Que signifie BR-CO-17 ?</h2>
+<p>Dans chaque ligne de ventilation de la TVA, le montant de TVA (BT-117) doit être la base imposable (BT-116) multipliée par le taux (BT-119) divisé par 100, arrondi à deux décimales ; par exemple 145,00 × 19 % = 27,55. Le contrôle officiel est plus souple que son message : il accepte tout montant qui s'écarte de ce résultat de moins de 1,00 (jusqu'à 1,00 inclus en CII). Avec un taux de 0 ou sans taux, le montant de TVA doit s'arrondir à zéro, c'est-à-dire être inférieur à 0,50.</p>
+<h2>Causes fréquentes</h2>
+<ul>
+<li>Le montant de TVA a été recopié d'une autre ligne ou d'une autre facture.</li>
+<li>La base imposable a été modifiée (par exemple par une remise au niveau du document) sans recalculer la TVA.</li>
+<li>Une ligne à 0 % (exonération, autoliquidation, exportation) porte un montant de TVA.</li>
+<li>Le taux a été saisi en fraction (0.19) au lieu d'un pourcentage (19).</li>
+</ul>
+</section>
+<section>
+<h2>Comment corriger BR-CO-17 ?</h2>
+<ol>
+<li>Recalculez chaque ligne : base imposable × taux ÷ 100, arrondi à deux décimales (145,00 × 19 ÷ 100 = 27,55).</li>
+<li>Pour une catégorie à 0 %, mettez le montant de TVA de la ligne à 0,00.</li>
+<li>Saisissez le taux en pourcentage dans cbc:Percent (UBL) ou ram:RateApplicablePercent (CII).</li>
+</ol>
+<h2>XML corrigé (exemple minimal rédigé par nous)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;cac:TaxSubtotal&gt;
+  &lt;cbc:TaxableAmount currencyID=&quot;EUR&quot;&gt;145.00&lt;/cbc:TaxableAmount&gt;
+  &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;27.55&lt;/cbc:TaxAmount&gt;
+  &lt;cac:TaxCategory&gt;
+    &lt;cbc:ID&gt;S&lt;/cbc:ID&gt;
+    &lt;cbc:Percent&gt;19&lt;/cbc:Percent&gt;
+    &lt;cac:TaxScheme&gt;
+      &lt;cbc:ID&gt;VAT&lt;/cbc:ID&gt;
+    &lt;/cac:TaxScheme&gt;
+  &lt;/cac:TaxCategory&gt;
+&lt;/cac:TaxSubtotal&gt;</code></pre>
+<p><strong>CII</strong></p>
+<pre><code>&lt;ram:ApplicableTradeTax&gt;
+  &lt;ram:CalculatedAmount&gt;27.55&lt;/ram:CalculatedAmount&gt;
+  &lt;ram:TypeCode&gt;VAT&lt;/ram:TypeCode&gt;
+  &lt;ram:BasisAmount&gt;145.00&lt;/ram:BasisAmount&gt;
+  &lt;ram:CategoryCode&gt;S&lt;/ram:CategoryCode&gt;
+  &lt;ram:RateApplicablePercent&gt;19&lt;/ram:RateApplicablePercent&gt;
+&lt;/ram:ApplicableTradeTax&gt;</code></pre>
+<p class="note">Valeurs d'exemple uniquement. Remplacez ou complétez les éléments de votre fichier ; l'ordre des éléments est imposé dans les deux syntaxes.</p>
+</section>
+<section>
+<h2>Vérifier votre fichier gratuitement</h2>
+<p>Le vérificateur gratuit exécute les règles officielles EN 16931, XRechnung et Peppol dans votre navigateur. Votre fichier n'est pas envoyé.</p>
+<p><a class="button" href="../../index.html">Ouvrir le vérificateur gratuit</a></p>
+</section>
+<section class="cta">
+<p><span class="state">En développement — accès anticipé</span></p>
+<h2>Corriger et expliquer, pour les experts-comptables et les équipes de facturation</h2>
+<p>Un service payant qui explique chaque règle en échec en français, en allemand ou en anglais clair et propose un fichier corrigé est en cours de développement. <a href="https://example.invalid/industries/e-invoicing/">Accès anticipé</a></p>
+</section>
+<section>
+<h2>Source</h2>
+<p>Identifiant et message officiel de la règle : CEN/TC 434 EN 16931 validation artefacts, validation-1.3.17 (EUPL-1.2), compilés depuis le commit amont 6e35e0a. L'explication, les causes, la correction et le XML de cette page sont les nôtres, pas ceux de l'éditeur de la règle. <a href="https://github.com/ConnectingEurope/eInvoicing-EN16931/tree/validation-1.3.17" rel="noopener">CEN/TC 434 EN 16931 validation artefacts validation-1.3.17</a></p>
+</section>
+<footer>
+<p><strong>Ni conseil fiscal ni conseil juridique.</strong> Cette page explique ce que vérifie une règle de validation et comment faire passer un fichier. Elle ne dit pas quel régime de TVA s'applique à votre vente ; demandez à votre expert-comptable. <strong>Sans garantie (no warranty) :</strong> gratuit et fourni en l'état ; vérifiez le résultat avant de vous y fier.</p>
+<p>Notre code et nos explications sont sous licence MIT. Les messages officiels des règles sont cités sous la licence de leur éditeur (EUPL-1.2, Apache-2.0, MPL-2.0), indiquée sur chaque page.</p>
+</footer>
+</main></body></html>

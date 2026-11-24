@@ -246,7 +246,7 @@ class PullRequestTrigger(unittest.TestCase):
         names = [u.node_name(p) for p in u.unwired_node_suites()]
         self.assertIn("platform/devlog/devlog.test.mjs", names)
         self.assertIn("platform/proposal/term-ids.test.mjs", names)
-        self.assertNotIn("platform/pages/home.test.mjs", names)  # portfolio-pages.yml runs it
+        self.assertNotIn("platform/pages/home.test.mjs", names)  # priv-portfolio-pages.yml runs it
 
     def test_underscore_named_node_suites_count(self):
         """2026-11-17: the six platform/ci/test_check_*.mjs suites matched no

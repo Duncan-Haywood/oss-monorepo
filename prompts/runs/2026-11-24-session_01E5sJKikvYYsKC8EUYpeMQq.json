@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKikvYYsKC8EUYpeMQq",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T23:09:21Z",
+  "ended": "2026-11-24T23:14:12Z",
+  "wall_minutes": 5.07,
+  "tokens_in": 3162385,
+  "tokens_out": 22748,
+  "cost_usd": 1.8102,
+  "tool_calls": 36,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18730",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "post-description length limit (160) is caught only by --for-changes, not when writing; cost one extra commit"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "track prompt describes a sample round; quality_audit.py mode chose reaudit for today",
+      "did": "followed README 'Five modes' reaudit procedure on one subject, did the recompute and mutations myself instead of spawning agents (single subject)",
+      "result": "one re-audit file, one high defect fixed with a test that fails on the old code"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-quality-reaudit-meta-ads-fatigue-analyzer.md"
+  ],
+  "goal": null,
+  "notes": "mode reaudit, seed 2026-11-24-f941, subject ventures/meta-ads-fatigue-analyzer (prior audit 2026-11-13, fix PR #15600). Prior defects: 2 closed, 2 partial, 3 open (incl. the high, which #15600 only documented). On arrival not at the bar (corr 2, claims 2, verif 3). Fix PR: #18730 (daily-export trend signal ungated with period-frequency upper bound; page discloses unverified column names). Tests: node --test '*.test.mjs' 35/35; new daily test fails on arrival calc.mjs (33 pass 1 fail). Mutations 6/6 caught. quality_audit.py validate: 673 files, 0 problems.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "df41d671-2d63-54c9-860e-ed0b58afdfd1",
+    "transcripts": 1,
+    "first": "2026-11-24T23:09:21Z",
+    "last": "2026-11-24T23:14:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 64,
+        "output": 22748,
+        "thinking": 3401,
+        "cache_read": 3069686,
+        "cache_write_5m": 0,
+        "cache_write_1h": 92635,
+        "api_equivalent_usd": 1.8102,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 64,
+      "output": 22748,
+      "thinking": 3401,
+      "cache_read": 3069686,
+      "cache_write_5m": 0,
+      "cache_write_1h": 92635,
+      "api_equivalent_usd": 1.8102,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.07,
+      "active_minutes": 5.07,
+      "model_minutes": 4.3,
+      "tool_minutes": 0.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "re-check 7 defects, recompute sample, write fix+test+post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 221.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

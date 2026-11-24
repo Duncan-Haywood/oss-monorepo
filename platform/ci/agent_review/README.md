@@ -48,7 +48,7 @@ Then add the repository **variable** (not a secret) `AGENT_REVIEW_ENABLED`
 with the value `true`. Both workflows skip before taking a runner until it is
 set, so the unconfigured scaffold no longer spends about 1,450 runs a day
 doing nothing (`docs/reports/2026-10-30-ci-platform-evolution.md`).
-`workflow_dispatch` of `agent-cross-review.yml` still runs without it.
+`workflow_dispatch` of `priv-agent-cross-review.yml` still runs without it.
 
 ### 3. Update the `main` ruleset
 
@@ -73,9 +73,9 @@ Copilot code review does **not** count toward required approvals.
 
 ## How it runs
 
-1. **`agent-cross-review.yml`** — on every non-draft PR push, four parallel jobs
+1. **`priv-agent-cross-review.yml`** — on every non-draft PR push, four parallel jobs
    each post a review from their App (skipping PRs they authored).
-2. **`agent-pr-auto-merge.yml`** — after reviews or CI completes, squash-merges
+2. **`priv-agent-pr-auto-merge.yml`** — after reviews or CI completes, squash-merges
    when `config.yaml`'s `required_approvals` (default **2**) allowed bot
    approvals exist and checks pass.
 3. **Agent sessions** — before new work, run review pending PRs (see
