@@ -1,0 +1,34 @@
+paired seeds: [0, 1, 2, 3, 4, 5, 6, 7]; torch ['2.15.0+cu132']; mean secs 1193
+round-60 reproduction: 48 of 48 bit-exact
+
+per round (seed mean (se)): T = recipe stopped at r - unc; Tfull = trunk - unc; inner = rk4 - unc mean inner loss; unc losses
+  r= 1: T train +0.0000 (0.0000) fresh +0.0000 (0.0000) | Tfull train +0.0448 | inner +0.0000 (0.0000) | unc train 2.9015 fresh 2.8986 | delta2 rk4/unc 1.000
+  r= 2: T train -0.0039 (0.0011) fresh -0.0032 (0.0016) | Tfull train +0.0062 | inner +0.0041 (0.0009) | unc train 2.5784 fresh 2.5684 | delta2 rk4/unc 1.087
+  r= 3: T train -0.0066 (0.0025) fresh -0.0063 (0.0031) | Tfull train +0.0028 | inner -0.0029 (0.0010) | unc train 2.4709 fresh 2.4597 | delta2 rk4/unc 1.065
+  r= 4: T train -0.0208 (0.0042) fresh -0.0194 (0.0049) | Tfull train -0.0095 | inner -0.0132 (0.0034) | unc train 2.3617 fresh 2.3570 | delta2 rk4/unc 1.112
+  r= 8: T train -0.0430 (0.0033) fresh -0.0305 (0.0019) | Tfull train -0.0368 | inner -0.0409 (0.0028) | unc train 2.0761 fresh 2.1162 | delta2 rk4/unc 1.050
+  r=12: T train -0.0494 (0.0017) fresh -0.0276 (0.0026) | Tfull train -0.0430 | inner -0.0452 (0.0023) | unc train 1.8991 fresh 1.9997 | delta2 rk4/unc 1.042
+  r=16: T train -0.0454 (0.0026) fresh -0.0348 (0.0032) | Tfull train -0.0390 | inner -0.0433 (0.0027) | unc train 1.7777 fresh 1.9206 | delta2 rk4/unc 1.059
+  r=20: T train -0.0410 (0.0032) fresh -0.0327 (0.0030) | Tfull train -0.0341 | inner -0.0404 (0.0029) | unc train 1.6971 fresh 1.8590 | delta2 rk4/unc 1.080
+  r=24: T train -0.0359 (0.0029) fresh -0.0309 (0.0041) | Tfull train -0.0296 | inner -0.0377 (0.0030) | unc train 1.6384 fresh 1.8116 | delta2 rk4/unc 1.093
+  r=28: T train -0.0359 (0.0022) fresh -0.0283 (0.0036) | Tfull train -0.0296 | inner -0.0341 (0.0032) | unc train 1.5948 fresh 1.7737 | delta2 rk4/unc 1.106
+  r=32: T train -0.0326 (0.0029) fresh -0.0259 (0.0030) | Tfull train -0.0269 | inner -0.0317 (0.0028) | unc train 1.5600 fresh 1.7465 | delta2 rk4/unc 1.104
+  r=36: T train -0.0301 (0.0020) fresh -0.0253 (0.0025) | Tfull train -0.0238 | inner -0.0290 (0.0028) | unc train 1.5296 fresh 1.7215 | delta2 rk4/unc 1.117
+  r=40: T train -0.0267 (0.0018) fresh -0.0192 (0.0021) | Tfull train -0.0211 | inner -0.0267 (0.0028) | unc train 1.5062 fresh 1.7004 | delta2 rk4/unc 1.111
+  r=44: T train -0.0252 (0.0022) fresh -0.0202 (0.0023) | Tfull train -0.0193 | inner -0.0252 (0.0026) | unc train 1.4851 fresh 1.6867 | delta2 rk4/unc 1.113
+  r=48: T train -0.0225 (0.0023) fresh -0.0139 (0.0024) | Tfull train -0.0164 | inner -0.0222 (0.0026) | unc train 1.4663 fresh 1.6702 | delta2 rk4/unc 1.113
+  r=52: T train -0.0210 (0.0020) fresh -0.0118 (0.0018) | Tfull train -0.0150 | inner -0.0208 (0.0026) | unc train 1.4514 fresh 1.6578 | delta2 rk4/unc 1.110
+  r=56: T train -0.0177 (0.0021) fresh -0.0124 (0.0021) | Tfull train -0.0119 | inner -0.0186 (0.0024) | unc train 1.4365 fresh 1.6509 | delta2 rk4/unc 1.114
+  r=60: T train -0.0170 (0.0023) fresh -0.0131 (0.0024) | Tfull train -0.0107 | inner -0.0173 (0.0023) | unc train 1.4235 fresh 1.6407 | delta2 rk4/unc 1.113
+
+onset: first round from which the seed-mean T(train) stays below zero through r = 60: 2
+rounds saved (unc's round-60 seed-mean loss, reached by the recipe-stopped-at-r curve at round x; saved = 60 - x): train 5.7, fresh 6.4
+theta2 at r = 15/30/45/60, unc vs rk4 clean: 15: 3799 vs 4731; 30: 6407 vs 8151; 45: 8925 vs 11543; 60: 11400 vs 14950
+
+H6ag-i   (round-60 scores reproduce the stored runs bit-exactly): held (48 of 48)
+H6ag-ii  (no early gain: T(train) over rounds 1 to 15 not below zero by > 2 se): refuted (-0.0346 (0.0017), -20.8 se)
+H6ag-iii (late gain: T(train) over rounds 46 to 59 below zero by > 2 se): held (-0.0204 (0.0022), -9.4 se)
+H6ag-iv  (onset in the second half, r* > 30): refuted (r* 2)
+H6ag-v   (seed-mean T(train) and T(fresh) traces correlate over rounds 16 to 60, r > 0.7): held (r +0.97)
+H6ag-vi  (workers' inner loss lower in the rk4 trunk over rounds 46 to 60 by > 2 se): held (-0.0201 (0.0024), -8.5 se)
+H6ag-vii (the recipe reaches unc's round-60 fresh loss at least 4 rounds early): held (6.414916383645817)
