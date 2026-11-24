@@ -8,7 +8,7 @@
 # on infrastructure the banner never looked at:
 #
 #   - `deploy-settings` (GitHub Pages) is built and published by
-#     `.github/workflows/portfolio-pages.yml`. That needs an Actions runner.
+#     `.github/workflows/priv-portfolio-pages.yml`. That needs an Actions runner.
 #   - the self-hosted runner stack that exists as insurance for exactly that
 #     (`gitops/ci/`) runs as pods on the k3s cluster.
 #   - the cluster is what `hetzner-ssh-key-is-a-public-key` reaches.
@@ -643,7 +643,7 @@ readings:
       Pages is on. It is one dropdown: Settings → Pages → Source → "Deploy
       from a branch" → `gh-pages` / (root). And it explains the darkness
       without needing the origin fetch: the Actions source deploys via
-      `portfolio-pages.yml`, whose deploy job is gated on
+      `priv-portfolio-pages.yml`, whose deploy job is gated on
       `vars.PAGES_ENABLED == 'true'` (skipped on every run measured to date)
       *and* needs a runner (`github-actions-runners` is down). Two independent
       reasons nothing has been published from it.

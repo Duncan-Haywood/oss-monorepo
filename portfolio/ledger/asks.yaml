@@ -434,7 +434,7 @@ decisions:
   blocked_by: []
   note: >-
     No money, no new account; reversible in the same settings pages. The
-    EMAIL_FORWARD_TO secret in cloudflare-email.yml is unused by the script
+    EMAIL_FORWARD_TO secret in priv-cloudflare-email.yml is unused by the script
     (PR 12773 removes it) and does not need to be set.
 
 - id: prompt-review-stalled

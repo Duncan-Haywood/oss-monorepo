@@ -40,12 +40,12 @@ no linting / no CI / no TypeScript" gaps. Checked directly against the
 filesystem (`find` for test files, `eslint`/`tsconfig` configs, `.github/workflows/`)
 rather than trusted from the original pass: `ai-first-markets` has 5 test
 files, a `vitest.config.mts`, an ESLint config, and two CI workflows
-(`ai-first-markets-ci.yml`, `ai-first-markets-deploy.yml`); `quick-pick-survey`
+(`ai-first-markets-ci.yml`, `priv-ai-first-markets-deploy.yml`); `quick-pick-survey`
 has 36 test files including integration tests, a `vitest.config.ts`, and
 `quick-pick-survey-ci.yml`; `retail-pilot-intel` is a pnpm workspace with a
 `tsconfig.base.json` plus six per-package `tsconfig.json` files, an
 `eslint.config.js`, 5 test files across its `pos`/`analytics` packages, and
-both `retail-pilot-intel-ci.yml` and `retail-pilot-intel-deploy-docs.yml`. All
+both `retail-pilot-intel-ci.yml` and `priv-retail-pilot-intel-deploy-docs.yml`. All
 three originally-claimed gaps were checked and found false for each of these
 three ventures. See each venture's corrected entry below for what documentation
 gap, if any, is still real and unverified rather than asserted either way.
@@ -123,7 +123,7 @@ gap, if any, is still real and unverified rather than asserted either way.
   - Linting: ✅ (ESLint configured)
   - Type checking: ✅ (TypeScript, `tsconfig.json`)
   - Package management: ✅ (`package.json` + `package-lock.json`)
-  - CI/CD: ✅ (`ai-first-markets-ci.yml`, `ai-first-markets-deploy.yml`)
+  - CI/CD: ✅ (`ai-first-markets-ci.yml`, `priv-ai-first-markets-deploy.yml`)
   - Documentation: 🟡 (no dedicated `docs/` directory found; API/JSDoc depth not verified)
 
 - **Next Steps**:
@@ -156,7 +156,7 @@ gap, if any, is still real and unverified rather than asserted either way.
   - Linting: ✅ (`eslint.config.js`)
   - Type checking: ✅ (`tsconfig.base.json` plus six per-package `tsconfig.json` files — this is a pnpm workspace, not a single-root app, which is why a root-level `tsconfig.json` alone does not show it)
   - Package management: ✅ (`pnpm-lock.yaml`, workspace `package.json`s)
-  - CI/CD: ✅ (`retail-pilot-intel-ci.yml`, `retail-pilot-intel-deploy-docs.yml`)
+  - CI/CD: ✅ (`retail-pilot-intel-ci.yml`, `priv-retail-pilot-intel-deploy-docs.yml`)
   - Documentation: 🟡 (has `apps/docs` and a `docs/` directory; API/data-model documentation depth not verified)
 
 - **Next Steps**:
