@@ -76,6 +76,13 @@ def _proxy_for(host):
     return p.hostname, p.port or 80
 
 
+def _tls_context():
+    """A verifying client context that refuses anything older than TLS 1.2."""
+    ctx = ssl.create_default_context()
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+    return ctx
+
+
 def probe_one(base, path, group="static", timeout=TIMEOUT, ctx=None, clock=time.perf_counter):
     """One request on a fresh connection, no retries. Returns a result dict.
 
@@ -89,7 +96,7 @@ def probe_one(base, path, group="static", timeout=TIMEOUT, ctx=None, clock=time.
     rec = {"t": _now_iso(), "path": path, "group": group, "status": None,
            "connect": None, "tls": None, "ttfb": None, "total": None,
            "bytes": None, "cache": None, "ray": None, "error": None}
-    ctx = ctx or ssl.create_default_context()
+    ctx = ctx or _tls_context()
     start = clock()
     sock = None
     try:
@@ -252,7 +259,7 @@ def main(argv=None):
     a = ap.parse_args(argv)
 
     if a.cmd == "probe":
-        ctx = ssl.create_default_context()
+        ctx = _tls_context()
         for i in range(a.rounds):
             t0 = time.monotonic()
             # Shuffled: the first connection of a round pays any warm-up (DNS,

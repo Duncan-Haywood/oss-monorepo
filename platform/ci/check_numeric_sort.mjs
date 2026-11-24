@@ -29,7 +29,7 @@ import { createReadStream, existsSync, mkdtempSync, readFileSync, rmSync, statSy
 import { createServer } from "node:http";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
-import { dirname, join, relative, resolve } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -96,9 +96,14 @@ async function sweepPages(log) {
   const { chromium } = require("playwright");
   const types = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml" };
   const server = createServer((req, res) => {
-    let file = join(ROOT, decodeURIComponent(req.url.split("?")[0]));
+    // Serve only files inside the repository: resolve the request path and refuse anything outside ROOT.
+    const notFound = () => { res.statusCode = 404; return res.end(); };
+    let file;
+    try { file = resolve(ROOT, "." + decodeURIComponent(req.url.split("?")[0])); } catch { return notFound(); }
+    if (file === ROOT) file = join(ROOT, "index.html");
+    if (!file.startsWith(ROOT + sep)) return notFound();
     if (existsSync(file) && statSync(file).isDirectory()) file = join(file, "index.html");
-    if (!file.startsWith(ROOT) || !existsSync(file)) { res.statusCode = 404; return res.end(); }
+    if (!existsSync(file)) return notFound();
     res.setHeader("content-type", types[file.slice(file.lastIndexOf("."))] || "application/octet-stream");
     createReadStream(file).pipe(res);
   }).listen(0);
