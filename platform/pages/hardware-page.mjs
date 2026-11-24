@@ -113,7 +113,7 @@ export const HARDWARE = Object.freeze([
     repo: 'research/buildbot-sheathing',
     page: null,
     tool: 'research',
-    licence: 'FSL-1.1-MIT (MIT two years after each release)',
+    licence: 'MIT',
   },
 ]);
 
