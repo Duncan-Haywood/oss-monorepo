@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKo4b37QiPBgo4pJ6NV",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T08:18:06Z",
+  "ended": "2026-11-24T08:26:37Z",
+  "wall_minutes": 23.55,
+  "tokens_in": 4993228,
+  "tokens_out": 42082,
+  "cost_usd": 2.8576,
+  "tool_calls": 49,
+  "task": "buildbot-sheathing milestone 74: re-zero risk allocated per press (M73's Next), exact DP and lower bound",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18572",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 15,
+  "outcome": "success",
+  "errors": [
+    "DPC's log-bisection never tests its upper end, so on two rows it could not reach zero re-zeros where CAL did; reported as part of H297's refutation, not patched post hoc"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Drew track 25 whose only programme (heavy-hydraulics) is OFFLINE; it listed takeable programmes elsewhere, which worked, but the draw itself was a wasted step"
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py returned /usr/bin/python3.13 (already had numpy/scipy/pytest) while bare python3 lacks numpy; worth stating up front that the system python3.13 is usually ready"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/buildbot-sheathing/LOG.md (M73 Next)",
+      "why": "M73's Next named a per-pose (two-class) epsilon split; solved the general per-press allocation exactly instead, which contains every per-pose split, plus a lower bound on any schedule",
+      "did": "layered DP over (re-zeros, last re-zero) with union and max-marginal segment risks",
+      "result": "answered the question more strongly: the G1 cliff is the wall's (LB 96 = DPC)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-sheathing-robot-rezero-risk-lower-bound.md",
+    "research/buildbot-sheathing/LOG.md (M74 plan and result)"
+  ],
+  "goal": null,
+  "notes": "Hypotheses H295-H299 committed in LOG.md (commit 1) before allocate.py existed. Run: experiments/m74_allocate/run.py, ~13 min on 4 processes. Local checks: tests/test_allocate.py + test_drift + test_rezero + reproduce/check_numbers tests 63 passed; paper/check_numbers.py 499/499 ok; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; check_posts ok. No agent doc in docs/reports: the LOG entry's Next carries the handoff.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f248c57c-6f27-55db-9c7c-e854a0ca98ec",
+    "transcripts": 1,
+    "first": "2026-11-24T08:18:06Z",
+    "last": "2026-11-24T08:41:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 85,
+        "output": 42082,
+        "thinking": 14209,
+        "cache_read": 4862761,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130382,
+        "api_equivalent_usd": 2.8576,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 85,
+      "output": 42082,
+      "thinking": 14209,
+      "cache_read": 4862761,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130382,
+      "api_equivalent_usd": 2.8576,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 41,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.55,
+      "active_minutes": 23.55,
+      "model_minutes": 8.26,
+      "tool_minutes": 15.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "an OR PhD student: formulate DP + bound, implement, test against brute force, run, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 419.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
