@@ -534,7 +534,9 @@ class LoadRealVenturesTests(unittest.TestCase):
             and (p / "VENTURE.yaml").is_file()
             and not (p / "NOT-A-VENTURE").is_file()
         }
-        self.assertEqual({v.name for v in ventures}, expected_dirs)
+        # Paid bets built only in private-monorepo come from their flagship `app:`.
+        app_only = {v.name for v in ventures if v.flagship_app and v.name not in expected_dirs}
+        self.assertEqual({v.name for v in ventures} - app_only, expected_dirs)
         self.assertTrue(ventures, "expected at least one venture with a VENTURE.yaml")
 
     def test_ranking_real_ventures_does_not_raise(self):
