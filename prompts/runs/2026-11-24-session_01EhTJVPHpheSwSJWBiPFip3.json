@@ -54,7 +54,7 @@
     "research/llm-coding-inference/LOG.md (7bh)"
   ],
   "goal": null,
-  "notes": "7bh: 39 fresh GoEmotions cells, 2,000 draws each, ~6 min on 4 cores. Default w3 misses in 3 cells (all 2%, n 200); mid-p hull for 3<=x<10 covers 95.7%+ everywhere but costs +0.045 of pooled width (bar 0.010); lower-only variant same coverage at +0.035. Decision (b): default stays. Local checks: test_llmci.py 52 passed; research/_homepage/build.py ok; check_posts ok; check_md_links reports 2 pre-existing dead links in portfolio/monetization/hardware-bets.md (not touched by this PR).",
+  "notes": "7bh: 39 fresh GoEmotions cells, 2,000 draws each, ~6 min on 4 cores. Default w3 misses in 3 cells (all 2%, n 200); mid-p hull for 3<=x<10 covers 95.7%+ everywhere but costs +0.045 of pooled width (bar 0.010); lower-only variant same coverage at +0.035. Decision (b): default stays. Local checks: test_llmci.py 52 passed; research/_homepage/build.py ok; check_posts ok; check_md_links was red on main (2 links to a bets.md that is not on main, in portfolio/monetization/hardware-bets.md); unlinked them in this PR, now ok.",
   "corrections": [],
   "redteam": null,
   "usage": {
