@@ -30,7 +30,8 @@
   "tests_added": 8,
   "outcome": "success",
   "errors": [
-    "First full build failed: the new post's description was 166 characters (writing.mjs caps it at 160); shortened and rebuilt."
+    "First full build failed: the new post's description was 166 characters (writing.mjs caps it at 160); shortened and rebuilt.",
+    "check.mjs flagged the page's meta description at 239 characters (budget 160); cut to 155 and pinned by a test."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -55,7 +56,7 @@
     "docs/posts/2026-11-24-e-invoicing-deadlines-four-countries-official-sources.md"
   ],
   "goal": null,
-  "notes": "Tests: node --test industry-e-invoicing.test.mjs custom-development-page.test.mjs, 26/26 passed. Full build plus check.mjs: see the follow-up commit. Follow-up: once business.mjs is on main, move PRODUCT onto it and link the industries/ index.",
+  "notes": "After merging main: node build.mjs exit 0; node check.mjs exit 0 ('dist looks publishable: 1437 products, 54 category pages, 13150 pages, no dead links'); node --test industry-e-invoicing.test.mjs custom-development-page.test.mjs 26/26 passed. Follow-up: once business.mjs is on main, move PRODUCT onto it and link the industries/ index.",
   "corrections": [],
   "redteam": null
 }
