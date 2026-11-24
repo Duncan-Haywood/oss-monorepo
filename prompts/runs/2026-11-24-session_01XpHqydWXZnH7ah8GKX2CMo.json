@@ -45,6 +45,10 @@
     {
       "file": "platform/pages/build.test.mjs",
       "issue": "'the catch-all holds only what no section claims' fails on main's tree (6 uncategorised tools) from ventures merged on main; not from this change, left for their owners."
+    },
+    {
+      "file": "platform/pages/build.test.mjs",
+      "issue": "'a category holding a documented external-call exception says so' expects '22 free tools \u00b7 no account' but main's #18701 now renders '22 tools \u00b7 free, no account'; the test was not updated with it."
     }
   ],
   "deviations": [
@@ -63,7 +67,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Verified: industry-online-sellers.test.mjs 9/9; build.test.mjs + check.test.mjs + heading-order targeted 447/447 before merging main; full build + check.mjs 'publishable: 1437 products, 54 category pages, 13147 pages, no dead links' before merging main; Playwright on dist (iPhone 13 and 1280px): no sideways scroll, no page errors, only dead links are the footer's deploy/ and dev/ pages written by later deploy steps. Post-merge full build/check/suite results in the PR body. After merging main: full build exit 0; llms.txt 49,598 bytes; check.mjs flagged only machine-shop-guides/ (no launch date, from main's PR #18708), fixed here with `launched.mjs --write` (1 line in launched.json). Full pages suite 1964 pass / 3 fail: two launch-date tests (the same machine-shop-guides gap, fixed by that line) and 'the catch-all holds only what no section claims' (6 tools, from ventures merged on main; a taxonomy call for their owners, left alone).",
+  "notes": "Verified: industry-online-sellers.test.mjs 9/9; build.test.mjs + check.test.mjs + heading-order targeted 447/447 before merging main; full build + check.mjs 'publishable: 1437 products, 54 category pages, 13147 pages, no dead links' before merging main; Playwright on dist (iPhone 13 and 1280px): no sideways scroll, no page errors, only dead links are the footer's deploy/ and dev/ pages written by later deploy steps. Post-merge full build/check/suite results in the PR body. After merging main: full build exit 0; llms.txt 49,598 bytes; check.mjs flagged only machine-shop-guides/ (no launch date, from main's PR #18708), fixed here with `launched.mjs --write` (1 line in launched.json). Full pages suite 1964 pass / 3 fail: two launch-date tests (the same machine-shop-guides gap, fixed by that line) and 'the catch-all holds only what no section claims' (6 tools, from ventures merged on main; a taxonomy call for their owners, left alone). Second merge of main brought #18685 (industries/nonprofits, which defined INDUSTRIES_DIR in check.mjs and an industryPages list feeding the hub sitemap) and #18701 (front-doors-map.mjs already pointing seller tools and five seller audience/category pages at industries/online-sellers/, pruned while the page was missing). Took main's check.mjs; moved this page into industryPages and dropped its own sitemap line. Targeted suites after that merge: 462 pass, 2 fail, both from main (catch-all at 6 tools; a category count-line wording change from #18701 that its test was not updated for). Final, after the second merge: full build exit 0; check.mjs 'publishable: 1438 products, 54 category pages, 13170 pages, no dead links'; llms.txt 49,598 bytes; sitemap-hub.xml lists industries/online-sellers/; the industry:online-sellers front door is present on ebay-fee-calculator, c/for-resellers and c/marketplace.",
   "corrections": [],
   "redteam": null
 }
