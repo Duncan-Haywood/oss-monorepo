@@ -12,6 +12,23 @@ heads, auto-merge runs the default-branch copy of `review.py`, and about thirty
 `actions-*` checks cover the usual workflow-injection mistakes. The gaps were
 in how much the repo trusts its own writers.
 
+
+**2026-11-24: agent instructions left the owner gate.** At the owner's request
+("i really don't like all this stuff that is blocking itself on my behalf ...
+can we instead have maybe a review process on cysec and legal risks
+instead?"), `CLAUDE.md`, `AGENTS.md`, `prompt.md`, `prompts/*.md` and
+`.github/prompts/` are no longer in `.github/CODEOWNERS`. Every PR gets a cyber
+and legal risk review instead ([`risk-review.md`](risk-review.md),
+`platform/security/risk_review.py`). The review escalates to the owner a cut
+to the guardrails or hard limits, a likely secret, a licence change and any
+owner-core file. What stays owned is the part a review cannot protect:
+- the gate and the review themselves;
+- `priv-*` workflows, which hold secrets;
+- code that runs at session start: hooks, MCP, `platform/agents/` and
+  `prompts/*.py`.
+
+The "Why each path is owned" list below predates this; read it with that
+change in mind.
 ## What the repo does now
 
 | Piece | File | What it stops |

@@ -46,13 +46,12 @@ API = os.environ.get("GITHUB_API_URL", "https://api.github.com")
 
 # Sample paths, not patterns: each must resolve to an owner (or to none).
 MUST_BE_OWNED = [
-    "CLAUDE.md",
-    "AGENTS.md",
-    "prompt.md",
-    "ventures/CLAUDE.md",
-    "research/CLAUDE.md",
-    "prompts/goals.md",
+    # Agent instructions (CLAUDE.md, prompts/*.md) left this list on
+    # 2026-11-24: they go through the cyber and legal risk review instead
+    # (docs/security/risk-review.md). Code agents run at session start stays.
     "prompts/promptctl.py",
+    "prompts/ideas.py",
+    "platform/security/risk_review.py",
     ".claude/settings.json",
     ".claude/hooks/block_pkill_f.py",
     ".cursor/environment.json",
@@ -69,7 +68,6 @@ MUST_BE_OWNED = [
     ".github/workflows/priv-control-plane-guard.yml",
     ".github/workflows/priv-ci-policy.yml",
     ".github/workflows/priv-some-future-deploy.yml",
-    ".github/prompts/land-your-work.md",
     "platform/ci/agent_review/config.yaml",
     "platform/ci/agent_review/review.py",
     "platform/ci/control_plane_guard.py",
@@ -82,6 +80,15 @@ MUST_BE_OWNED = [
     "platform/ci/check_conflict_markers.py",
 ]
 MUST_BE_UNOWNED = [
+    # Agent instructions: reviewed by platform/security/risk_review.py, which
+    # still sends a cut to the guardrails or hard limits to the owner.
+    "CLAUDE.md",
+    "AGENTS.md",
+    "prompt.md",
+    "ventures/CLAUDE.md",
+    "research/CLAUDE.md",
+    "prompts/goals.md",
+    ".github/prompts/land-your-work.md",
     # Unprivileged workflows merge without review; ci-policy keeps them
     # read-only and secret-free.
     ".github/workflows/ventures-tests.yml",

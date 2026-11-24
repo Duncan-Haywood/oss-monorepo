@@ -155,7 +155,7 @@ class PrSummary(unittest.TestCase):
         import os
         from unittest import mock
 
-        files = [{"filename": "CLAUDE.md"}, {"filename": "ventures/x/a.mjs"}]
+        files = [{"filename": ".mcp.json"}, {"filename": "ventures/x/a.mjs"}]
         out = []
         with mock.patch.dict(os.environ, {"GITHUB_REPOSITORY": "o/r"}), \
              mock.patch.object(guard, "gh_pages", return_value=files), \
@@ -163,7 +163,7 @@ class PrSummary(unittest.TestCase):
             code = guard.main(["--pr", "5"])
         self.assertEqual(code, 0)
         self.assertEqual(len(out), 1)
-        self.assertIn("- `CLAUDE.md`", out[0])
+        self.assertIn("- `.mcp.json`", out[0])
         self.assertNotIn("ventures/x/a.mjs", out[0])
 
 
