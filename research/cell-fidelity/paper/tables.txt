@@ -43,6 +43,7 @@ thetaH corrected, honest margin (7x)         17/20   0.64-0.95  46.8  10/10  10.
 thetaN out-of-fold error gate (7x)           17/20   0.64-0.95  45.4  10/10  10.0   6/10  23.8             -10.58  -24.33 to +2.50 10/5     0.302
 thetaP plating-share gate (7y)               17/20   0.64-0.95  45.4  10/10  10.0   6/10  19.8             -10.58  -24.33 to +2.50 10/5     0.302
 thetaD drift-size gate (7y)                  17/20   0.64-0.95  46.8  10/10  10.0   6/10  20.5              -9.67  -24.00 to +4.08 10/8     0.815
+thetaS direction-aware drift gate (7ze)      18/20   0.70-0.97  45.2  10/10  10.0   7/10  32.8             -10.67  -24.33 to +2.33 10/4     0.180
 oracle post hoc per-set oracle (7y)          19/20   0.76-0.99  43.5  10/10  10.0   7/10  32.1             -11.83  -24.33 to +0.00 10/0     0.002
 
 Committed sets only, rule - theta (20 folds): mean, set bootstrap 95%, cheaper/dearer, sign p:
@@ -52,6 +53,7 @@ Committed sets only, rule - theta (20 folds): mean, set bootstrap 95%, cheaper/d
   thetaN   +1.88  (+0.00 to +5.25)  0/5  p = 0.062
   thetaP   +1.88  (+0.00 to +5.25)  0/5  p = 0.062
   thetaD   +3.25  (+0.25 to +6.25)  0/8  p = 0.008
+  thetaS   +1.75  (+0.00 to +5.25)  0/4  p = 0.125
   oracle   +0.00  (+0.00 to +0.00)  0/0  p = 1.000
 
 Folds where two rules make the same decision (same cycles, same met flag), committed / f = 30 / f = 10:
@@ -59,20 +61,22 @@ Folds where two rules make the same decision (same cycles, same met flag), commi
   thetaD=thetaH   20/20  10/10   8/10  (Marquis2019 f = 30: 5/5; SEI rho 0: 5/5, rho 0.1: 5/5)
   thetaN=thetaH   17/20  10/10   7/10  (Marquis2019 f = 30: 5/5; SEI rho 0: 5/5, rho 0.1: 5/5)
   thetaC=thetaH   17/20  10/10   9/10  (Marquis2019 f = 30: 1/5; SEI rho 0: 5/5, rho 0.1: 5/5)
+  thetaS=thetaD   15/20  10/10   6/10  (Marquis2019 f = 30: 5/5; SEI rho 0: 5/5, rho 0.1: 5/5)
+  thetaS=thetaN   18/20  10/10   7/10  (Marquis2019 f = 30: 5/5; SEI rho 0: 5/5, rho 0.1: 5/5)
 
 Per set: target met / 5 and mean DFN cycles per design; oracle = the rule 7y's hindsight pick chose.
-condition:set                      U       theta      thetaC      thetaN      thetaP      thetaD  oracle
-four:Chen2020              4/5  42.0   4/5  44.7   4/5  44.7   4/5  45.2   4/5  45.2   4/5  45.2   theta
-four:OKane2022             5/5  50.0   5/5  46.3   4/5  46.3   4/5  46.3   4/5  46.3   4/5  46.3   theta
-four:NCA_Kim2011           5/5  50.0   5/5  40.0   3/5  40.0   4/5  47.0   4/5  47.0   4/5  47.0   theta
-four:Ai2020                5/5  50.0   5/5  43.0   5/5  48.5   5/5  43.0   5/5  43.0   5/5  48.5   theta
-f30:Mohtat2020             5/5  40.0   5/5  47.5   5/5  10.0   5/5  10.0   5/5  10.0   5/5  10.0  thetaH
-f30:Ecker2015              5/5  40.0   4/5  43.5   5/5  10.0   5/5  10.0   5/5  10.0   5/5  10.0  thetaH
-f10:Mohtat2020             3/5  24.0   2/5  23.0   2/5  21.6   2/5  21.0   2/5  21.6   2/5  23.0  thetaH
-f10:Ecker2015              5/5  46.0   5/5  42.6   4/5  10.0   4/5  26.6   4/5  18.0   4/5  18.0   theta
-m30:Marquis2019            4/5  44.0   2/5  34.8   2/5  15.9   4/5  14.6   4/5  14.6   4/5  14.6  thetaH
-sei:Marquis2019-SEI        5/5  50.0   5/5  49.2   5/5  10.0   5/5  10.0   5/5  49.2   5/5  10.0  thetaH
-sei1:Marquis2019-SEI       5/5  50.0   4/5  46.6   5/5  10.0   5/5  10.0   4/5  46.6   5/5  10.0  thetaH
+condition:set                      U       theta      thetaC      thetaN      thetaP      thetaD      thetaS  oracle
+four:Chen2020              4/5  42.0   4/5  44.7   4/5  44.7   4/5  45.2   4/5  45.2   4/5  45.2   4/5  44.7   theta
+four:OKane2022             5/5  50.0   5/5  46.3   4/5  46.3   4/5  46.3   4/5  46.3   4/5  46.3   5/5  46.3   theta
+four:NCA_Kim2011           5/5  50.0   5/5  40.0   3/5  40.0   4/5  47.0   4/5  47.0   4/5  47.0   4/5  47.0   theta
+four:Ai2020                5/5  50.0   5/5  43.0   5/5  48.5   5/5  43.0   5/5  43.0   5/5  48.5   5/5  43.0   theta
+f30:Mohtat2020             5/5  40.0   5/5  47.5   5/5  10.0   5/5  10.0   5/5  10.0   5/5  10.0   5/5  10.0  thetaH
+f30:Ecker2015              5/5  40.0   4/5  43.5   5/5  10.0   5/5  10.0   5/5  10.0   5/5  10.0   5/5  10.0  thetaH
+f10:Mohtat2020             3/5  24.0   2/5  23.0   2/5  21.6   2/5  21.0   2/5  21.6   2/5  23.0   2/5  23.0  thetaH
+f10:Ecker2015              5/5  46.0   5/5  42.6   4/5  10.0   4/5  26.6   4/5  18.0   4/5  18.0   5/5  42.6   theta
+m30:Marquis2019            4/5  44.0   2/5  34.8   2/5  15.9   4/5  14.6   4/5  14.6   4/5  14.6   4/5  14.6  thetaH
+sei:Marquis2019-SEI        5/5  50.0   5/5  49.2   5/5  10.0   5/5  10.0   5/5  49.2   5/5  10.0   5/5  10.0  thetaH
+sei1:Marquis2019-SEI       5/5  50.0   4/5  46.6   5/5  10.0   5/5  10.0   4/5  46.6   5/5  10.0   5/5  10.0  thetaH
 
 Table 3, seventh set-condition (7za, added after it reported): Marquis2019 at f = 30, a cell built after
 every rule and gate above was fixed, and the seven set-conditions (committed + both f = 30 cells +
@@ -86,6 +90,7 @@ thetaH      4/5   14.6  31/35   0.74-0.95  31.7               -11.17  -24.70 to 
 thetaN      4/5   14.6  31/35   0.74-0.95  30.9               -11.96  -25.00 to  +0.12 15/5    0.041    -14.28  -25.02 to  -4.42 25/4    0.000
 thetaP      4/5   14.6  31/35   0.74-0.95  30.9               -11.96  -25.00 to  +0.12 15/5    0.041    -14.28  -25.02 to  -4.42 25/4    0.000
 thetaD      4/5   14.6  31/35   0.74-0.95  31.7               -11.17  -24.70 to  +1.07 15/8    0.210    -13.49  -25.02 to  -3.79 23/4    0.000
+thetaS      4/5   14.6  32/35   0.78-0.97  30.8               -12.03  -25.07 to  +0.00 15/4    0.019    -14.35  -25.09 to  -4.62 25/4    0.000
 oracle      4/5   14.6  33/35   0.81-0.98  29.8               -13.03  -25.48 to  -2.88 15/0    0.000    -15.35  -25.09 to  -5.95 29/4    0.000
 
 Table 3, eighth set-condition (7zc and 7zd, added after both reported): Marquis2019 with plating off and the
@@ -100,6 +105,7 @@ thetaH      5/5   10.0   5/5   10.0  36/40   0.77-0.96  28.9               -14.6
 thetaN      5/5   10.0   5/5   10.0  36/40   0.77-0.96  28.3               -15.36  -27.98 to  -3.11 20/5    0.004    -17.49  -28.16 to  -6.85 30/4    0.000
 thetaP      5/5   49.2   4/5   46.6  36/40   0.77-0.96  33.2               -10.46  -22.23 to  +0.12 15/5    0.041    -12.59  -22.56 to  -3.62 26/4    0.000
 thetaD      5/5   10.0   5/5   10.0  36/40   0.77-0.96  28.9               -14.67  -27.70 to  -1.77 20/8    0.036    -16.80  -27.82 to  -5.55 28/4    0.000
+thetaS      5/5   10.0   5/5   10.0  37/40   0.80-0.97  28.2               -15.42  -28.03 to  -3.21 20/4    0.002    -17.55  -28.21 to  -6.93 30/4    0.000
 oracle      5/5   10.0   5/5   10.0  38/40   0.83-0.99  27.3               -16.30  -28.26 to  -4.69 20/0    0.000    -18.43  -28.42 to  -8.25 34/4    0.000
   eight, 7zd's rho 0.1 cell swapped in:
 U           5/5   50.0   5/5   50.0  38/40   0.83-0.99  45.8                +2.46   -1.79 to  +6.37 11/21   0.110  (reference)
@@ -109,4 +115,23 @@ thetaH      5/5   10.0   5/5   10.0  36/40   0.77-0.96  28.9               -14.3
 thetaN      5/5   10.0   5/5   10.0  36/40   0.77-0.96  28.3               -15.04  -27.29 to  -3.06 20/5    0.004    -17.49  -28.16 to  -6.85 30/4    0.000
 thetaP      5/5   49.2   4/5   46.6  35/40   0.74-0.95  32.8               -10.46  -22.23 to  +0.12 15/5    0.041    -12.92  -22.84 to  -4.16 27/4    0.000
 thetaD      5/5   10.0   5/5   10.0  36/40   0.77-0.96  28.9               -14.35  -27.01 to  -1.73 20/8    0.036    -16.80  -27.82 to  -5.55 28/4    0.000
+thetaS      5/5   10.0   5/5   10.0  37/40   0.80-0.97  28.2               -15.10  -27.29 to  -3.21 20/4    0.002    -17.55  -28.21 to  -6.93 30/4    0.000
 oracle      5/5   10.0   5/5   10.0  38/40   0.83-0.99  27.3               -15.97  -27.51 to  -4.58 20/0    0.000    -18.43  -28.42 to  -8.25 34/4    0.000
+
+Table 3, direction-aware drift gate (7ze, added after it reported): per fold, the share s of training designs
+whose drift multiplier m lies on the majority side of 1, the drift-size gate gD (median |m - 1| >= 0.10) and
+gS = gD and s >= 0.80 (y on, n off); a set is on where gS is on in at least 3 of 5 folds. f = 10 and the
+rho 0.1 rung are outside 7ze's eight verdict sets.
+condition:set             oracle  s per fold                         gD     gS  gS vs oracle
+four:Chen2020              theta  0.70 0.68 0.64 0.61 0.64        yyyyy  nnnnn  agrees
+four:OKane2022             theta  0.50 0.55 0.55 0.59 0.50        yyyyy  nnnnn  agrees
+four:NCA_Kim2011           theta  0.93 0.95 0.93 0.93 0.97        yyyyy  yyyyy  DISAGREES
+four:Ai2020                theta  0.65 0.68 0.62 0.65 0.75        yyyny  nnnnn  agrees
+f30:Mohtat2020            thetaH  0.90 0.86 0.86 0.93 0.85        yyyyy  yyyyy  agrees
+f30:Ecker2015             thetaH  0.95 0.95 0.95 0.98 0.97        yyyyy  yyyyy  agrees
+f10:Mohtat2020            thetaH  0.57 0.50 0.52 0.52 0.53        nnnnn  nnnnn  DISAGREES (not a verdict set)
+f10:Ecker2015              theta  0.65 0.67 0.64 0.67 0.68        yyyyy  nnnnn  agrees (not a verdict set)
+m30:Marquis2019           thetaH  0.97 0.95 0.98 0.95 0.94        yyyyy  yyyyy  agrees
+sei:Marquis2019-SEI       thetaH  1.00 1.00 1.00 1.00 1.00        yyyyy  yyyyy  agrees
+sei1:Marquis2019-SEI      thetaH  1.00 1.00 1.00 1.00 1.00        yyyyy  yyyyy  agrees (not a verdict set)
+  gS's set decision matches the oracle on 7 of 8 verdict sets; folds where gS and gD differ: 19

@@ -42,6 +42,11 @@ DFN-forecast lithium loss at cycle 100:
    at 37 of 40 folds met. It does not fix `NCA_Kim2011`, whose designs drift one way (share 0.93 to 0.97),
    so on the published sets it still costs +1.75 cycles per design with 18 of 20 folds against 19. The
    recipe's default gate is therefore gS, with the caveat that it was designed after seeing what gD missed.
+   Table 3's &theta;S row adds two things a practitioner weighs: over the six set-conditions it meets 28 of
+   30 folds, as many as step 3 alone and one more than every size-only gate, and at f = 10, where the
+   training drift runs both ways, it stays off and gives up the size-only gates' 9 to 17 cycle saving for
+   one more fold met (7 of 10 against 6). It is the conservative choice: it corrects less often, and where
+   it does correct the drift points one way.
 
 Figure 2 places every out-of-batch look at this rule against its two rivals. The threshold rule met the
 tail target on 75% to 95% of held-out pools at 38 to 44 DFN cycles per design. Running every design to a

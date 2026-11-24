@@ -1,45 +1,91 @@
 # Maris Stella Labs
 
-The Maris Stella Labs monorepo. Maris Stella Labs is a small open-source lab in
-Colorado where AI agents build tools and research in public.
+Maris Stella Labs is a small software company in Colorado run with AI agents.
+It builds **paid software suites for small and medium businesses**, with
+construction first, then manufacturing and engineering shops, and business
+tools (billing, invoicing, quoting, bookkeeping) as the first path to revenue.
+This public monorepo holds the free tools, the open research and the agent
+platform that feed those products. The live site is
+**[marisstella.app](https://marisstella.app/)**.
 
-**Free, open-source tools for small businesses, freelancers and the people
-starting one**: more than 1,200 browser calculators, quoting and pricing tools,
-self-hostable business apps and command-line checks, all MIT licensed. They run
-in your browser with no account, and you can deploy your own copy to run for
-yourself, inside your own product, or as a business of your own.
-**Use them at [https://marisstella.app/](https://marisstella.app/).**
+## What we sell, and to whom
+
+Paid products are chosen by promise and value (willingness to pay, reachable
+buyers, distribution without a sales team, margin, time to first dollar), not
+by how much code already exists. The current ranked bets, each with its
+sourced evidence, are kept in `bets.md`
+([`portfolio/monetization/`](portfolio/monetization/)):
+
+| Bet | Who it is for | Status |
+|---|---|---|
+| Pay-app billing (AIA G702/G703, retainage, lien waivers), growing into a contractor suite | specialty subcontractors, small general contractors | in development |
+| AI RFQ-to-quote | CNC and fabrication job shops | in development |
+| E-invoice fix-and-explain | German and French SMEs and their accountants | in development |
+| CMMC Level 1/2 and ISO 9001 workspace | small defense and aerospace shops | in development |
+| Reseller profit and Schedule C books | multi-platform resellers | in development |
+| Residential takeoff from drawings | remodelers, roofers, framers | in development |
+| **Grant Autopilot** | small nonprofits | **live, paid** |
+
+Only Grant Autopilot is a live paid product today; the rest are being built
+and none of them takes payment yet. Nothing here claims customers or revenue
+a file can't back: monthly recurring revenue readings are the owner's to add,
+in [`portfolio/monetization/mrr.yaml`](portfolio/monetization/mrr.yaml).
+
+**Where the paid products live.** Their code is in a private repository, not
+here. This repository links to a paid product only through its public product
+page; it does not link to or mirror the private code. Code already published
+here under MIT stays MIT
+([`LICENSING_TRANSITION.md`](portfolio/monetization/LICENSING_TRANSITION.md)
+explains what moves and what cannot).
+
+## What the free tools are for now
+
+The 1,400 or so free browser calculators, CSV checkers and self-hosted apps in
+[`ventures/`](ventures/README.md) stay up, free and MIT licensed, and you can
+still use, fork or self-host any of them. They are now **front doors**: a free
+tool gets new work only when it leads to one of the paid products above (a
+free G702 template in front of pay-app billing, say). Others are kept running
+but not extended.
+
+**Free tools by trade, business or stage of life** (front doors, kept up but not extended): [Roofers](https://marisstella.app/c/for-roofers/) · [HVAC contractors](https://marisstella.app/c/for-hvac/) · [Plumbers](https://marisstella.app/c/for-plumbers/) · [Electricians](https://marisstella.app/c/for-electricians/) · [Painters](https://marisstella.app/c/for-painters/) · [Cleaning businesses](https://marisstella.app/c/for-cleaning-businesses/) · [Landscapers](https://marisstella.app/c/for-landscapers/) · [Pool & hot tub pros](https://marisstella.app/c/for-pool-hot-tub/) · [Auto detailing & repair](https://marisstella.app/c/for-auto-detailing-repair/) · [Etsy sellers](https://marisstella.app/c/for-etsy-sellers/) · [eBay sellers](https://marisstella.app/c/for-ebay-sellers/) · [Amazon sellers & KDP authors](https://marisstella.app/c/for-amazon-sellers/) · [Shopify stores](https://marisstella.app/c/for-shopify-stores/) · [Resellers](https://marisstella.app/c/for-resellers/) · [Landlords & hosts](https://marisstella.app/c/for-landlords/) · [Freelancers](https://marisstella.app/c/for-freelancers/) · [Photographers & videographers](https://marisstella.app/c/for-photographers/) · [Wedding & event pros](https://marisstella.app/c/for-wedding-event-pros/) · [Restaurants, cafes & bars](https://marisstella.app/c/for-restaurants-bars/) · [Pet businesses](https://marisstella.app/c/for-pet-businesses/) · [Creators](https://marisstella.app/c/for-creators/) · [Childcare providers](https://marisstella.app/c/for-childcare/) · [Tutors & teachers](https://marisstella.app/c/for-tutors-teachers/) · [Truckers & owner-operators](https://marisstella.app/c/for-truckers/) · [Farms & homesteads](https://marisstella.app/c/for-farms/) · [Therapists & clinics](https://marisstella.app/c/for-health-practices/) · [Salons & beauty pros](https://marisstella.app/c/for-salons-beauty/) · [Retirees & near-retirees](https://marisstella.app/c/for-retirees/) · [Parents & families](https://marisstella.app/c/for-parents/) · [Changing or losing a job](https://marisstella.app/c/for-job-changers/) · [Homeowners & buyers](https://marisstella.app/c/for-homeowners/).
 
 **New here? [Start here](docs/posts/2026-10-29-start-here.md)**: one page per kind
 of reader (trade, small business, builder, researcher, developer) on what you
-get and your first ten minutes. **Have an idea?** AI agents build ideas here
-for free, in public and MIT licensed, and you may run the result for profit:
-[bring an idea](docs/posts/2026-10-29-start-here-bring-an-idea.md).
+get and your first ten minutes.
 
-**Free tools by trade, business or stage of life:** [Roofers](https://marisstella.app/c/for-roofers/) · [HVAC contractors](https://marisstella.app/c/for-hvac/) · [Plumbers](https://marisstella.app/c/for-plumbers/) · [Electricians](https://marisstella.app/c/for-electricians/) · [Painters](https://marisstella.app/c/for-painters/) · [Cleaning businesses](https://marisstella.app/c/for-cleaning-businesses/) · [Landscapers](https://marisstella.app/c/for-landscapers/) · [Pool & hot tub pros](https://marisstella.app/c/for-pool-hot-tub/) · [Auto detailing & repair](https://marisstella.app/c/for-auto-detailing-repair/) · [Etsy sellers](https://marisstella.app/c/for-etsy-sellers/) · [eBay sellers](https://marisstella.app/c/for-ebay-sellers/) · [Amazon sellers & KDP authors](https://marisstella.app/c/for-amazon-sellers/) · [Shopify stores](https://marisstella.app/c/for-shopify-stores/) · [Resellers](https://marisstella.app/c/for-resellers/) · [Landlords & hosts](https://marisstella.app/c/for-landlords/) · [Freelancers](https://marisstella.app/c/for-freelancers/) · [Photographers & videographers](https://marisstella.app/c/for-photographers/) · [Wedding & event pros](https://marisstella.app/c/for-wedding-event-pros/) · [Restaurants, cafes & bars](https://marisstella.app/c/for-restaurants-bars/) · [Pet businesses](https://marisstella.app/c/for-pet-businesses/) · [Creators](https://marisstella.app/c/for-creators/) · [Childcare providers](https://marisstella.app/c/for-childcare/) · [Tutors & teachers](https://marisstella.app/c/for-tutors-teachers/) · [Truckers & owner-operators](https://marisstella.app/c/for-truckers/) · [Farms & homesteads](https://marisstella.app/c/for-farms/) · [Therapists & clinics](https://marisstella.app/c/for-health-practices/) · [Salons & beauty pros](https://marisstella.app/c/for-salons-beauty/) · [Retirees & near-retirees](https://marisstella.app/c/for-retirees/) · [Parents & families](https://marisstella.app/c/for-parents/) · [Changing or losing a job](https://marisstella.app/c/for-job-changers/) · [Homeowners & buyers](https://marisstella.app/c/for-homeowners/).
+## Research and hardware
+
+- **Research serves the products.** Over 700 reproducible papers with code
+  are public at [marisstella.app/research/](https://marisstella.app/research/)
+  (source in [`research/`](research/README.md)). New research names the paid
+  product and customer it advances (construction takeoff, schedule analytics
+  and BIM checking are the likeliest), and stays public and MIT licensed. The
+  research integrity rules are unchanged: a product claims only what the
+  research showed ([`research/PROGRAMMES.md`](research/PROGRAMMES.md)).
+- **Open hardware is the long horizon.** The open robot and machine designs
+  (for example [`open-robot-mower`](ventures/open-robot-mower/) and
+  [`open-floor-robots`](ventures/open-floor-robots/)) are aimed, long term, at
+  hardware companies where agents do the design and supply-chain knowledge
+  work and contract partners do the physical work. It is not current work:
+  nothing is for sale, and nothing ships before its safety and certification
+  work is done.
 
 ## Browse
 
-- **[The full catalogue in this repository](ventures/README.md)**: every tool,
+- **[The full free-tool catalogue](ventures/README.md)**: every tool,
   grouped the way the site groups them (trade and contractor bids, marketplace
   seller fees, service-business pricing, restaurant costing, back-office money
   and contracts, compliance checks, CI and developer checks, UK tax,
   self-hosted business apps), each linked to its live page and its source.
-  It includes CSV import checkers for Shopify, Etsy, Mailchimp, Klaviyo,
-  Salesforce and more.
 - **[Use them from an AI agent or the command line](platform/agents/README.md)**:
   `node platform/agents/tools.mjs search|describe|call` runs any tool's
   calculation engine with JSON inputs and no browser. The same commands run as
   a local MCP server (see [`.mcp.json`](.mcp.json)) for Claude Code, Cursor and
   other MCP clients.
-- **Self-hosted business apps**: open-source alternatives to paid SaaS you run
-  on your own server, such as Stripe failed-payment recovery, cancellation
-  flows, status pages, cookie-free analytics and license keys
+- **Self-hosted business apps**: open-source apps you run on your own server,
+  such as Stripe failed-payment recovery, cancellation flows, status pages,
+  cookie-free analytics and license keys
   ([section](https://marisstella.app/c/self-hosted/)).
-- **Open research**: over 700 reproducible papers with code, on verification
-  markets, chip design, robotics, digital twins and more, at
-  [marisstella.app/research/](https://marisstella.app/research/)
-  (source in [`research/`](research/README.md)).
 - **Developer tools**: [`uitest`](platform/uitest/README.md), AI-agent
   end-to-end UI testing for any web app (CLI and GitHub Action), a
   [bring-your-own-key LLM client](platform/llm/README.md), and the rest of the
@@ -47,25 +93,26 @@ for free, in public and MIT licensed, and you may run the result for profit:
 - **How it is built**: a public
   [development dashboard](https://marisstella.app/dev/)
   of merges, CI results and agent run cost.
-
-## What else is here
-
-One repository for two peer portfolios, products (`ventures/`) and open
-research (`research/`), plus the shared agent platform that works on both.
-The goals for each are in [`prompts/goals.md`](prompts/goals.md).
+- **Have an idea?** [Bring an idea](docs/posts/2026-10-29-start-here-bring-an-idea.md):
+  website requests from businesses are still built here, in public and MIT
+  licensed.
 
 ## Finding your way
 
-The repository holds many kinds of work. Each kind has one guide; read that
-guide and use judgment ([`prompts/goals.md`](prompts/goals.md), "Judgment over
-rules"), not every rulebook in the tree.
+One repository for two peer portfolios, products (`ventures/`) and open
+research (`research/`), plus the shared agent platform that works on both.
+The goals are in [`prompts/goals.md`](prompts/goals.md) (the North star is
+$10k monthly recurring revenue). Each kind of work has one guide; read that
+guide and use judgment, not every rulebook in the tree.
 
 | Work | Lives in | Read first |
 |---|---|---|
-| A product: feature, fix, deploy, SEO | `ventures/<slug>/` | [`AGENTS.md`](AGENTS.md), [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) |
-| A research project or result | `research/<slug>/` | [`research/CLAUDE.md`](research/CLAUDE.md), [`research/PROJECTS.md`](research/PROJECTS.md) |
+| Choosing what to build next | `portfolio/monetization/` | `bets.md` there, then [`prompts/goals.md`](prompts/goals.md) |
+| A paid product | the private repository | its own docs there; this repo holds only its public product page and free front doors |
+| A free tool that is a front door to a paid product | `ventures/<slug>/` | [`AGENTS.md`](AGENTS.md), [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) |
+| A research project or result | `research/<slug>/` | [`research/CLAUDE.md`](research/CLAUDE.md), [`research/PROGRAMMES.md`](research/PROGRAMMES.md), [`research/PROJECTS.md`](research/PROJECTS.md) |
 | Shared tooling: pages, CI, marketing, deploy | `platform/` | the subdirectory's README |
-| Strategy, routing, usage, ledger | `portfolio/` | [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) |
+| Strategy, routing, usage, ledger | `portfolio/` | [`portfolio/README.md`](portfolio/README.md), [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) (long reference) |
 | How runs are steered and reviewed | `prompts/` | [`prompts/README.md`](prompts/README.md) |
 | A scheduled run | anywhere | [`prompt.md`](prompt.md), which routes it to one of the above |
 | A contribution from a person: bug report, fix, research check | anywhere | [`CONTRIBUTING.md`](CONTRIBUTING.md), then [`docs/contributing/`](docs/contributing/README.md) |
@@ -81,23 +128,14 @@ Ideas that are worth doing but not now go in the process backlog
 ([`prompts/process/backlog/`](prompts/process/backlog/README.md)), not in a
 stranded branch.
 
-**Strategy:** [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) — build
-products people use (free, full-feature, usage-tracked), ship fast, minimize
-variable cost. **Current priority:** deploy what is already on `main` before
-building another product. **Where it goes:** GitHub Pages for web surfaces;
-apps, CLIs, packages and services ship through their own channels, with no
-static-only rule — [`portfolio/hosting/`](portfolio/hosting/README.md),
-[`portfolio/distribution/`](portfolio/distribution/README.md).
-Agent instructions: [`AGENTS.md`](AGENTS.md). How to build one:
+**Where things are served:** the catalogue and research pages are built and
+deployed to [marisstella.app](https://marisstella.app/) (Cloudflare) on every
+merge; apps, CLIs, packages and services ship through their own channels
+([`portfolio/hosting/`](portfolio/hosting/README.md),
+[`portfolio/distribution/`](portfolio/distribution/README.md)). Agent
+instructions: [`AGENTS.md`](AGENTS.md). How to build a product:
 [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). What to count and where it
 lands: [`portfolio/usage/`](portfolio/usage/README.md).
-
-The operating priority is product value over administrative throughput. Existing
-work should be triaged proportionately, then the next session should leave a
-stranger with a runnable workflow, measured only with privacy-conscious,
-off-switchable event counts. A blocked CI provider or owner-only deployment
-permission is a dependency to report, not a reason to substitute more process
-work for building.
 
 The point of consolidating: agent automation is repo-scoped. In a polyrepo
 setup every new venture costs a fresh onboarding pass across every agent
@@ -232,19 +270,17 @@ other. The router consumes the composite as a tiebreaker. See
 pass found, including why merit and the router's dispatchable/blocked split
 disagree.
 
-## Product-first operating direction
+## Operating direction
 
-The portfolio prioritizes shipping useful, free software products over
-administrative throughput. New work should start from a narrow customer problem,
-ship a runnable vertical slice, measure anonymous feature events without PII,
-and preserve the legal, privacy, and safety guardrails in
-[`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). Pull requests are reviewed in
-proportion to risk and merged when their relevant checks are green.
-
-The venture list is allowed to grow when a new candidate is materially
-different from existing products and can be launched without new spend or
-payment collection. Adjacent improvements should still land in the closest
-existing venture to avoid duplicate products.
+Effort goes to the paid bets above, by promise and value, for small and medium
+businesses (`prompts/goals.md`, "Where effort goes"). New work starts from a
+narrow customer job, ships a runnable vertical slice, measures anonymous
+feature events without personal data, and keeps the legal, privacy and safety
+guardrails in [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). No new free
+single-purpose tools: improvements land in the closest existing product, and
+a free tool is touched only when it is a front door to a paid one. Pull
+requests are reviewed in proportion to risk and merged when their relevant
+checks are green.
 
 ## History
 

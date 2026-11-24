@@ -28,6 +28,13 @@ scheduled run with no task of its own, the oldest one is a good task: route
 with `--task "<the idea>"`, and in the same PR run `ideas.py take N --pr <url>`
 so the inbox records who picked it up.
 
+**For-profit products come first** (owner, 2026-11-24: "pushing stuff that
+is for profit as highest priority"; the goal is $10k MRR, then $10k monthly
+recurring profit, as set out in `prompts/goals.md`, "North star"). With no
+task of its own, a scheduled venture run takes the step that brings a paying
+subscriber to a for-profit product soonest, ahead of the requests
+below. Free tools are lead magnets for those products.
+
 **Website requests come next** (owner, 2026-11-02: feedback and feature
 requests from the website "should get moved up in priority. custom free dev
 shop for businesses", and "we own the ip from it under mit"). The same command

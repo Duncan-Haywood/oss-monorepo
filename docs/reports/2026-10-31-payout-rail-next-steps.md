@@ -10,6 +10,10 @@ ever sit where an agent can reach it) is
 [`2026-10-30-billing-plan.md`](2026-10-30-billing-plan.md); this file records
 the decision and what comes next.
 
+**Update 2026-11-24: the provider is Paddle.** The owner said "we have payment
+rails thorugh paddle now". The comparison below is history. What remains per
+product is in the `payout-rail` row of `portfolio/ledger/asks.yaml`.
+
 ## The decision
 
 Owner, 2026-10-31, answering `payout-rail` in `portfolio/ledger/asks.yaml`:

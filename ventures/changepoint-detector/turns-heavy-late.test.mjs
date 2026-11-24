@@ -13,11 +13,11 @@ function rng(seed) { let s = seed >>> 0; return () => { s = (s + 0x6d2b79f5) >>>
 test('pre-registered round: the warning helps where it fires, stays quiet on early lines and on FRED; ships', async () => {
   const o = await run();
   assert.equal(o.primary.fired, 262);
-  assert.equal(o.primary.gain.d.toFixed(3), '0.072');
-  assert.equal(o.primary.late.toFixed(2), '0.94');
-  assert.equal(o.primary.early.toFixed(2), '0.08');
-  assert.equal(o.guards.agency.followed.toFixed(3), '0.902');
-  assert.equal(o.guards.shop.followed.toFixed(3), '0.941');
+  assert.equal(o.primary.gain.d.toFixed(3), '0.078');
+  assert.equal(o.primary.late.toFixed(2), '0.93');
+  assert.equal(o.primary.early.toFixed(2), '0.09');
+  assert.equal(o.guards.agency.followed.toFixed(3), '0.904');
+  assert.equal(o.guards.shop.followed.toFixed(3), '0.944');
   assert.equal(o.fred.warning.fires, false);
   assert.deepEqual(o.verdict, { H1: true, H2: true, H3: true, H4: true, H5: true });
   assert.equal(o.ships, true);

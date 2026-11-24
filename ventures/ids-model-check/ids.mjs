@@ -1001,7 +1001,10 @@ export class PartOfFacet {
     while (queue.length) {
       const x = queue.shift();
       for (const p of step(x)) {
-        if (seen.has(p.id)) continue;
+        // In a cycle of wholes (A part of B, B part of A) the walk comes back
+        // to the element: it is not its own whole (conformance.mjs names the
+        // cycle, eval/decomposition-cycles-2026-11-24.md).
+        if (seen.has(p.id) || p.id === e.id) continue;
         seen.add(p.id);
         out.push(p);
         queue.push(p);

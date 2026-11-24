@@ -189,5 +189,39 @@ class CorrectedTable(unittest.TestCase):
                 self.assertEqual(T[r]["n"], 40, (name, r))
         self.assertEqual((self.C["total"]["eight"]["theta"]["met"], self.C["total"]["eight"]["thetaD"]["met"]), (35, 36))
 
+    def test_direction_gate_pairs_match_7ze(self):
+        z = t.load("dirgate7ze")["pair"]
+        for mine, ref in ((self.C["pair_eight"]["eight"]["thetaS"], z["eight"]["thetaS"]),
+                          (self.C["pair_eight_u"]["eight"]["thetaS"], z["eight_u"]["thetaS"]),
+                          (self.C["pair_eight"]["eight_r"]["thetaS"], z["eight_r"]["thetaS"]),
+                          (self.C["pair_seven"]["thetaS"], z["seven"]["thetaS"]),
+                          (self.C["pair_seven_u"]["thetaS"], z["seven_u"]["thetaS"]),
+                          (self.C["pair_four"]["thetaS"], z["four"]["thetaS"])):
+            self.assertAlmostEqual(mine["mean"], ref["mean"], places=9)
+            self.assertAlmostEqual(mine["boot"][0], ref["boot"][0], places=9)
+            self.assertAlmostEqual(mine["boot"][1], ref["boot"][1], places=9)
+            self.assertEqual((mine["cheaper"], mine["dearer"]), (ref["cheaper"], ref["dearer"]))
+
+    def test_direction_gate_totals_match_7ze(self):
+        z = t.load("dirgate7ze")["total"]
+        for name in ("eight", "eight_r", "seven", "four"):
+            for r in ("U", "theta", "thetaH", "thetaN", "thetaD", "thetaS"):
+                self.assertEqual(self.C["total"][name][r]["met"], z[name][r]["met"], (name, r))
+                self.assertAlmostEqual(self.C["total"][name][r]["cycles"], z[name][r]["cycles"], places=9, msg=(name, r))
+
+    def test_direction_gate_view(self):
+        G = self.C["gates"]
+        verdict = [k for k in G if k.split(":")[0] in ("four", "f30", "m30", "sei")]
+        self.assertEqual(len(verdict), 8)
+        self.assertEqual([k for k in verdict if not G[k]["agrees"]], ["four:NCA_Kim2011"])
+        for k, g in G.items():  # gS can only switch off what gD switched on
+            self.assertTrue(all(d or not s for d, s in zip(g["gD"], g["gS"])), k)
+            self.assertEqual(len(g["share"]), 5, k)
+
+    def test_direction_gate_differs_from_drift_gate_only_off_committed_and_f10(self):
+        same = self.C["same"]["thetaS=thetaD"]
+        self.assertEqual((same["f30"], same["m30"], same["sei"], same["sei1"]), (10, 5, 5, 5))
+        self.assertLess(same["four"], 20)
+
 if __name__ == "__main__":
     unittest.main()

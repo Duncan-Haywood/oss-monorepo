@@ -155,6 +155,7 @@ DFN cycles per design, with the set bootstrap and the exact sign test (cheaper /
 | &theta;N | out-of-fold error gate (7x) | 17/20 | 0.64&ndash;0.95 | 45.4 | 10/10 | 10.0 | 6/10 | 23.8 | &minus;10.58 | &minus;24.33 to +2.50 | 10 / 5 | 0.30 |
 | &theta;P | plating-share gate (7y) | 17/20 | 0.64&ndash;0.95 | 45.4 | 10/10 | 10.0 | 6/10 | 19.8 | &minus;10.58 | &minus;24.33 to +2.50 | 10 / 5 | 0.30 |
 | &theta;D | drift-size gate (7y) | 17/20 | 0.64&ndash;0.95 | 46.8 | 10/10 | 10.0 | 6/10 | 20.5 | &minus;9.67 | &minus;24.00 to +4.08 | 10 / 8 | 0.82 |
+| &theta;S | direction-aware drift gate (7ze) | 18/20 | 0.70&ndash;0.97 | 45.2 | 10/10 | 10.0 | 7/10 | 32.8 | &minus;10.67 | &minus;24.33 to +2.33 | 10 / 4 | 0.18 |
 | oracle | per-set hindsight pick, &theta; or &theta;H (7y, post hoc) | 19/20 | 0.76&ndash;0.99 | 43.5 | 10/10 | 10.0 | 7/10 | 32.1 | &minus;11.83 | &minus;24.33 to 0.00 | 10 / 0 | 0.002 |
 
 Four findings, all descriptive (no hypothesis is tested in this section):
@@ -190,6 +191,7 @@ rows and pools it with the six set-conditions (35 folds); 7za's stored seven-set
 | &theta;C | 2/5 | 15.9 | 28/35 | 0.64&ndash;0.90 | 30.8 | &minus;12.06 | &minus;25.07 to &minus;0.34 | 16 / 7 | 0.093 | &minus;14.38 | &minus;24.54 to &minus;4.69 | 24 / 4 |
 | &theta;H, &theta;D | 4/5 | 14.6 | 31/35 | 0.74&ndash;0.95 | 31.7 | &minus;11.17 | &minus;24.70 to +1.07 | 15 / 8 | 0.21 | &minus;13.49 | &minus;25.02 to &minus;3.79 | 23 / 4 |
 | &theta;N, &theta;P | 4/5 | 14.6 | 31/35 | 0.74&ndash;0.95 | 30.9 | &minus;11.96 | &minus;25.00 to +0.12 | 15 / 5 | 0.041 | &minus;14.28 | &minus;25.02 to &minus;4.42 | 25 / 4 |
+| &theta;S (7ze) | 4/5 | 14.6 | 32/35 | 0.78&ndash;0.97 | 30.8 | &minus;12.03 | &minus;25.07 to 0.00 | 15 / 4 | 0.019 | &minus;14.35 | &minus;25.09 to &minus;4.62 | 25 / 4 |
 | oracle | 4/5 | 14.6 | 33/35 | 0.81&ndash;0.98 | 29.8 | &minus;13.03 | &minus;25.48 to &minus;2.88 | 15 / 0 | 6e&minus;5 | &minus;15.35 | &minus;25.09 to &minus;5.95 | 29 / 4 |
 
 5. **Out of sample, the plating-cell saving recurs and the gates still collapse.** On `Marquis2019` every
@@ -221,6 +223,7 @@ eight-set pairs recur exactly.
 | &theta;H, &theta;D | 5/5 | 10.0 | 5/5 | 10.0 | 36/40 | 0.77&ndash;0.96 | 28.9 | &minus;14.67 | &minus;27.70 to &minus;1.77 | 20 / 8 | 0.036 | &minus;16.80 | &minus;27.82 to &minus;5.55 |
 | &theta;N | 5/5 | 10.0 | 5/5 | 10.0 | 36/40 | 0.77&ndash;0.96 | 28.3 | &minus;15.36 | &minus;27.98 to &minus;3.11 | 20 / 5 | 0.004 | &minus;17.49 | &minus;28.16 to &minus;6.85 |
 | &theta;P | 5/5 | 49.2 | 4/5 | 46.6 | 36/40 | 0.77&ndash;0.96 | 33.2 | &minus;10.46 | &minus;22.23 to +0.12 | 15 / 5 | 0.041 | &minus;12.59 | &minus;22.56 to &minus;3.62 |
+| &theta;S (7ze) | 5/5 | 10.0 | 5/5 | 10.0 | 37/40 | 0.80&ndash;0.97 | 28.2 | &minus;15.42 | &minus;28.03 to &minus;3.21 | 20 / 4 | 0.002 | &minus;17.55 | &minus;28.21 to &minus;6.93 |
 | oracle | 5/5 | 10.0 | 5/5 | 10.0 | 38/40 | 0.83&ndash;0.99 | 27.3 | &minus;16.30 | &minus;28.26 to &minus;4.69 | 20 / 0 | 2e&minus;6 | &minus;18.43 | &minus;28.42 to &minus;8.25 |
 
 With 7zd's &rho; = 0.1 cell in place of 7zc's, every row moves by at most 0.33 cycles per design and no
@@ -254,6 +257,19 @@ interval changes sign (&theta;D &minus; &theta; &minus;14.35, &minus;27.01 to &m
    direction is what gD missed, so the eight conditions are not an out-of-sample test; on the f = 10 cells,
    the nearest one, it fixes `Ecker2015` (gD on, oracle off) but cannot reach `Mohtat2020`, whose drift is
    too small for gD.
+11. **Table 3 with the &theta;S row (regenerated after 7ze reported; descriptive).** `paper/tables.py` reads
+   7ze's fold rows; its eight-, seven- and four-set pairs and totals recur exactly (`tests/test_paper_tables.py`).
+   Three numbers 7ze did not log: over the six set-conditions &theta;S saves 10.67 cycles per design against
+   &theta; (&minus;24.33 to +2.33; 10 cheaper, 4 dearer, sign p = 0.18) and meets 28 of 30 folds, the same
+   count as &theta; and one more than any other corrected rule (&theta;N, &theta;P 27; &theta;H, &theta;D 27;
+   &theta;C 26). It is the first corrected rule that gives up no folds to triage on six conditions, though with
+   six clusters its interval still crosses zero. At f = 10 gS is off on every fold, so &theta;S equals &theta;
+   there (7 of 10 at 32.8 cycles), one fold better than every size-only gate (6 of 10) at 9 to 17 more
+   cycles: the direction test trades the f = 10 saving for the fold. Against the oracle, &theta;S recovers
+   90%, 92% and 95% of the per-set ceiling on six, seven and eight conditions (&minus;10.67 / &minus;11.83,
+   &minus;12.03 / &minus;13.03, &minus;15.42 / &minus;16.30), and gS decides differently from gD on 19 of
+   the 55 folds, every one a fold where gD was on and the training drift ran both ways (`tables.txt`, the
+   direction-aware gate view).
 
 For a practitioner this is the conditional step of the recipe (section 5.1): correct the ten-cycle forecast
 when a gate on the training pools' drift size (or the out-of-fold error gate) says so, and otherwise run the
