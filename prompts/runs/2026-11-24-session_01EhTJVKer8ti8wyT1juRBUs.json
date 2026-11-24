@@ -31,7 +31,7 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 6,
+  "tests_added": 7,
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
@@ -344,6 +344,11 @@
       {
         "file": "ventures/shift-cover-optimizer/calc.mjs",
         "issue": "parseStamp read each POS export row alone, so in a UK export 27/10/2026 read day-first but 03/11/2026 as 11 March: every order on the 1st-12th of a month was bucketed under the wrong weekday in demandFromHistory. Fixed: stampOrder() over the time column (warning when mixed); test 'one day/month order for the whole export'; the old mixed-file test split into a US and a day-first file.",
+        "patched": true
+      },
+      {
+        "file": "platform/distribution/webext.mjs",
+        "issue": "Red on main: NETWORK_RE flagged every dynamic import(, so after PR #18712 made shift-roster-builder load its importers with import(\"./import-staff.mjs\") the browser-extension packager skipped it ('inline script reaches the network') and webext.test 'the real shift-roster-builder qualifies' failed in the unwired checks. Fixed: a relative string-literal import() is a local file (importsOf already follows and packages it); URLs, variables and templates still count as network. Test: 'a dynamic import of a local file is packaged'.",
         "patched": true
       }
     ]
