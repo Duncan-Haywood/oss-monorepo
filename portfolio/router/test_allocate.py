@@ -1065,6 +1065,44 @@ class StartHereTests(unittest.TestCase):
         none = item_lines([("next", "a real tournament")])
         self.assertIn("NEXT.md", none[0])
 
+    def test_items_list_skips_setup_advice_and_split_results(self):
+        # 2026-11-24: 11 of 53 numbered entries on main were setup or source
+        # lines, advice, or half of a result cut at ';' (photo-editing's item
+        # 2 "a 3-stop lift loses 0 of ..."), and four rows led with one.
+        from allocate import item_skip, open_items, item_lines
+        for body, why in (
+                ("tesseract via apt, RapidOCR via pip", "setup or source"),
+                ("Public samples, no key: github.com/x/y (sparse checkout)", "setup or source"),
+                ("DNG 1.7.1.0 spec PDF: URL in eval/opcode-spec-audit.md", "setup or source"),
+                ("Test files: bash eval/corpus-fetch.sh DIR (5 s)", "setup or source"),
+                ("CAD and firmware with no outside input (build123d: venv)", "setup or source"),
+                ("Each is a hard combinatorial search", "advice"),
+                ("judge its worth before taking it", "advice"),
+                ("preview runs from the QA branch, 1,138/1,138 unit asserts (eval/p.md)", "result")):
+            self.assertEqual(item_skip(body), why, body)
+        # Open work stays numbered: an open word beats a dated bracket, an
+        # unequal count is not a pass, a build cue beats a setup cue.
+        for body in ("figures in doubt 2026-11-23 (eval/in-doubt.md): HHS #1405",
+                     "47/49 on 8x9 night designs (a split or resumable search)",
+                     "Excel2IDS's tool runs here (venv: pip x): rerun it after changes"):
+            self.assertEqual(item_skip(body), "", body)
+        items = open_items(
+            "Interpolated sRGB encode 2026-11-17; a 3-stop lift loses 0 of the codes "
+            "(eval/shadow-lift.md). Every nut a joint; deep sockets 2026-11-22 (cad/README.md). "
+            "Next CAD: draw the bolts' tails; find the areas", None)
+        self.assertEqual([b for _, b in items], [
+            "Interpolated sRGB encode 2026-11-17; a 3-stop lift loses 0 of the codes "
+            "(eval/shadow-lift.md)",
+            "Every nut a joint; deep sockets 2026-11-22 (cad/README.md)",
+            "Next CAD: draw the bolts' tails", "find the areas"])
+        lines = item_lines(items)
+        self.assertEqual(lines[0], "  1. [buildable] Next CAD: draw the bolts' tails")
+        self.assertTrue(all("(result)" in l for l in lines[2:]), lines)
+        # The whole entry is judged; only the printed line is shortened.
+        long = "draw " + "x" * 200
+        self.assertEqual(open_items(long, None), [("buildable", long)])
+        self.assertTrue(item_lines([("buildable", long)])[0].endswith("\u2026"))
+
 
 class DateGateTests(unittest.TestCase):
     """A `buildable:` item dated after today is not buildable yet (2026-11-18:

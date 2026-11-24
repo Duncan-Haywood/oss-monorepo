@@ -177,7 +177,7 @@ def classify(slug: str, venture: Path, flagships: list[str], paid_rows: list[str
     elif slug in paid_rows:
         rec.update(track="proprietary", why="has a paid model in models.yaml")
     elif lines >= DEPTH_PRODUCT and not slug.endswith(LEAD_MAGNET_SUFFIXES):
-        rec.update(track="proprietary", why=f"{lines} lines of product code, more than a single-page tool")
+        rec.update(track="proprietary", why=f"over {DEPTH_PRODUCT} lines of product code, more than a single-page tool")
     else:
         rec.update(track="mit-lead-magnet", why="single-purpose free tool: its job is to be found")
     if rec["track"] == "proprietary":
@@ -218,6 +218,19 @@ def build() -> dict:
     }
 
 
+def decisions(data: dict) -> dict:
+    """`data` without the line counts, which every product PR moves. The
+    stale check compares this, so the committed file goes stale when a track,
+    model or move order changes, not when a flagship gains a line. Why: in its
+    first day on main (2026-11-23..24) transition.json was rewritten by four
+    unrelated venture PRs (#18553, #18558, #18562, #18566) and main_health
+    still found it red, each time for photo-editing's source_lines alone."""
+    out = json.loads(json.dumps(data))
+    for r in out["proprietary"]:
+        r.pop("source_lines", None)
+    return out
+
+
 def render(data: dict) -> str:
     out = [f"tracks: {data['counts']}", f"proprietary models: {data['models']}", ""]
     out.append(f"{'#':>3}  {'venture':32} {'model':12} {'lines':>6}  licences  why")
@@ -242,7 +255,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"wrote {OUT.relative_to(ROOT)}")
         return 0
     if args.check:
-        if not OUT.exists() or OUT.read_text() != text:
+        if not OUT.exists() or decisions(json.loads(OUT.read_text())) != decisions(data):
             print("transition.json is stale: run transition.py --write", file=sys.stderr)
             return 1
         return 0

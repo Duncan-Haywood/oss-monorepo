@@ -90,7 +90,7 @@ def test_nested_licences_are_listed(tmp_path, monkeypatch):
 
 def test_committed_json_is_current():
     data = t.build()
-    assert json.loads(t.OUT.read_text()) == data, "run transition.py --write"
+    assert t.decisions(json.loads(t.OUT.read_text())) == t.decisions(data), "run transition.py --write"
     assert data["counts"]["proprietary"] == len(data["proprietary"])
     assert [r["move_order"] for r in data["proprietary"]] == list(range(1, len(data["proprietary"]) + 1))
 
@@ -105,3 +105,12 @@ def test_moved_products_are_marked():
     data = t.build()
     moved = {r["venture"]: r["moved"] for r in data["proprietary"] if r["moved"]}
     assert set(moved) == set(t.MOVED)
+
+
+def test_line_counts_alone_do_not_make_it_stale():
+    data = t.build()
+    moved = json.loads(json.dumps(data))
+    moved["proprietary"][0]["source_lines"] += 256
+    assert t.decisions(moved) == t.decisions(data)
+    moved["proprietary"][0]["model"] = "other"
+    assert t.decisions(moved) != t.decisions(data)
