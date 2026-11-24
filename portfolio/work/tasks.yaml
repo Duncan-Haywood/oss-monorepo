@@ -629,3 +629,22 @@ tasks:
     hours: 20
     status: open
     added: 2026-11-24
+
+  - id: risk-review-ci
+    direction: security-first
+    title: Run the cyber and legal risk review on every PR in CI, with an AI reviewer that is not the author
+    done_when: >-
+      A required check runs `platform/security/risk_review.py --strict` on each
+      PR and posts its checklist to the job summary; an AI reviewer (not the
+      PR's author) answers each triggered check from the diff and fails the
+      check on a real finding; owner-escalation items are labelled on the PR;
+      tests cover a clean PR, a finding, and each escalation trigger.
+    hours: 12
+    status: open
+    added: 2026-11-24
+    notes: >-
+      Owner, 2026-11-24: "can we instead have maybe a review process on cysec
+      and legal risks instead?" The script and process landed with this task
+      (docs/security/risk-review.md); this task automates it. The workflow
+      calls a paid model API, so it is a priv- workflow and the owner switches
+      its key on once.

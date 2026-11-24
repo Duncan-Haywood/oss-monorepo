@@ -177,7 +177,10 @@ flagships:
       to seller-books), scaffolded from apps/grants with Paddle dark. Milestones:
       (1) accounts and saved imports: payout and order CSVs from eBay, Poshmark,
       Mercari, Whatnot and Depop parsed into one ledger with fees, shipping and
-      refunds split out, deduplicated across re-uploads; (2) inventory with cost of
+      refunds split out, deduplicated across re-uploads (the public engines now
+      read Mercari's Gross Sales Report from its help-centre field list, deduped by
+      Item ID, 2026-11-24; Depop's CSV headers are unpublished, so it needs a real
+      file); (2) inventory with cost of
       goods matched to sales; (3) mileage log at the IRS standard rate with its
       source cited; (4) a Schedule C line-mapped P&L export and a CSV for the
       accountant; (5) a marketing page that does not sell on 1099-K fear (the
