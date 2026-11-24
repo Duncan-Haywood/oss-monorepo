@@ -8,12 +8,13 @@
   <link rel="canonical" href="https://marisstella.app/photo-editing/cull.html">
   <meta property="og:title" content="Cull camera raw files in your browser | ShootFlow">
   <meta property="og:description" content="Rate and reject a shoot's raw files from their embedded previews, see where the camera focused, find the sharpest frame in each burst at its AF point, and download XMP sidecars for Lightroom, Capture One or darktable. Free, nothing uploaded.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"ShootFlow Cull","url":"https://marisstella.app/photo-editing/cull.html","applicationCategory":"MultimediaApplication","operatingSystem":"Any (runs in the browser)","browserRequirements":"A current Chrome, Edge, Firefox or Safari","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"A browser photo culler for camera raw files. It reads the JPEG preview each raw file carries, lets you rate, colour-label and reject by keyboard, reads the AF point from Canon, Sony, Fujifilm, Panasonic and Olympus maker notes, groups bursts and ranks them by detail at that point, and writes XMP sidecars with xmp:Rating and xmp:Label. Files never leave the computer."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"ShootFlow Cull","url":"https://marisstella.app/photo-editing/cull.html","applicationCategory":"MultimediaApplication","operatingSystem":"Any (runs in the browser)","browserRequirements":"A current Chrome, Edge, Firefox or Safari","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"A browser photo culler for camera raw files. It reads the JPEG preview each raw file carries, lets you rate, colour-label and reject by keyboard, reads the AF point from Canon, Sony, Fujifilm, Panasonic and Olympus maker notes, groups bursts and ranks them by detail at that point, flags closed eyes on request with an on-device face model, and writes XMP sidecars with xmp:Rating and xmp:Label. Files never leave the computer."}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
     {"@type":"Question","name":"Are my photos uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The page reads the files with your browser's File API on your own computer. Nothing is sent anywhere; you can disconnect from the internet after the page loads and it still works."}},
     {"@type":"Question","name":"Will Lightroom see my ratings?","acceptedAnswer":{"@type":"Answer","text":"Yes for raw files: put the downloaded .xmp files next to the raws before you import, and Lightroom Classic reads xmp:Rating (stars, −1 for rejected) and xmp:Label. Lightroom does not read sidecars for JPEG or DNG files, which keep metadata inside the file."}},
     {"@type":"Question","name":"Will my Lightroom edits survive?","acceptedAnswer":{"@type":"Answer","text":"Yes, if you drop the existing .xmp sidecars along with the raw files. The page reads the rating and colour label in them as each frame's start, and when you download, the zip carries those same sidecar files back under their own names with only xmp:Rating, xmp:Label and xmp:MetadataDate changed; develop settings, keywords and crops stay as they were. Without them, a fresh sidecar would replace the one on disk."}},
     {"@type":"Question","name":"Does it read ratings I set in the camera?","acceptedAnswer":{"@type":"Answer","text":"Yes, where the camera writes them into the raw file: the XMP packet many raws carry (in the public samples: recent Sony, Canon, Nikon, OM System, DJI and Pentax files), the XMP box of a Canon CR3, or the Rating tag OM System bodies write. A rating you set on this page before, or one in a dropped sidecar, comes first."}},
+    {"@type":"Question","name":"Does it find closed eyes?","acceptedAnswer":{"@type":"Answer","text":"Yes, if you tick \"Check for closed eyes\" above the grid. The face model is downloaded once (3.6 MB) and runs on your computer; your photos are still not uploaded. Blinking frames get an \"eyes closed\" tag, Show › Eyes closed lists them, and the sharpest-of-burst pick prefers a frame where everyone's eyes are open. It is a hint, measured on few closed faces so far: check before rejecting."}},
     {"@type":"Question","name":"Why does a preview look different from my raw editor?","acceptedAnswer":{"@type":"Answer","text":"It is the JPEG the camera made at capture, with the camera's picture style, not a development of the raw data. That is what makes culling fast, and it is what the camera's own screen showed you."}}
   ]}</script>
   <style>
@@ -54,6 +55,7 @@
     .tile .lab{position:absolute;left:0;top:0;width:100%;height:5px}
     .tile .badge{position:absolute;right:.3rem;top:.4rem;font-size:.68rem;font-weight:700;padding:.05rem .35rem;border-radius:6px;background:rgba(0,0,0,.65);color:#fff}
     .tile .rejmark{position:absolute;left:.4rem;top:.4rem;font-size:.75rem;font-weight:800;color:#fff;background:var(--rej);border-radius:6px;padding:0 .35rem}
+    .tile .eyes{position:absolute;right:.3rem;bottom:2rem;font-size:.66rem;font-weight:700;color:#1c1917;background:rgba(245,158,11,.92);border-radius:6px;padding:0 .3rem}
     .tile .burst{position:absolute;left:.4rem;bottom:2rem;font-size:.66rem;color:#fff;background:rgba(0,0,0,.55);border-radius:6px;padding:0 .3rem}
     #loupe{position:fixed;inset:0;background:rgba(10,10,12,.96);display:none;flex-direction:column;z-index:10;color:#eee}
     #loupe.open{display:flex}
@@ -91,6 +93,7 @@
     <span class="status" id="status" role="status" aria-live="polite"></span>
     <progress id="prog" max="1" value="0" hidden></progress>
     <span class="grow"></span>
+    <label class="status" title="Downloads a 3.6 MB face model once; the photos are checked on this computer"><input type="checkbox" id="eyesOn"> Check for closed eyes</label>
     <label class="status">Show <select id="filter">
       <option value="all">All</option>
       <option value="picks">Rated 1+</option>
@@ -98,6 +101,7 @@
       <option value="unrated">Unrated</option>
       <option value="rejected">Rejected</option>
       <option value="best">Sharpest of each burst</option>
+      <option value="eyesclosed">Eyes closed</option>
     </select></label>
     <label class="status">Sort <select id="sort">
       <option value="time">Capture time</option>
@@ -135,7 +139,7 @@
       <li><kbd>X</kbd> reject or un-reject</li>
       <li><kbd>6</kbd> red, <kbd>7</kbd> yellow, <kbd>8</kbd> green, <kbd>9</kbd> blue label</li>
       <li><kbd>Z</kbd> in the large view: 100% at the camera's AF point, or at the most detailed area when the file records none (focus check); click to zoom where you point</li>
-      <li><kbd>F</kbd> in the large view: show or hide the AF points</li>
+      <li><kbd>F</kbd> in the large view: show or hide the AF points and face boxes</li>
       <li><kbd>Esc</kbd> close the large view</li>
       <li><kbd>B</kbd> jump to the sharpest frame of this burst</li>
     </ul>
@@ -146,6 +150,7 @@
     <p>Every camera raw file carries a JPEG made by the camera at capture. On most bodies from the last decade it is full size (on the files we tested: every Canon CR3, the newer CR2 and NEF files, Pentax, Samsung and the Sony A7 IV; Sony before the A7 IV, Fujifilm and Panasonic store about 1,600 to 1,920 px). The page finds that JPEG by the file's own pointers (TIFF tags, CR3 boxes, the RAF header, the Olympus maker note), with a byte scan as the last resort, and reads the camera, lens, exposure and capture time from the file's EXIF.</p>
     <p>Bursts are frames from the same body taken no more than 1.5 s apart. "Detail" is the variance of a Laplacian filter in the busiest of 16 areas of the preview, the same kind of measure culling apps use for sharpness. It compares frames of the same scene well; it cannot tell a soft subject in front of a sharp background, and it favours busy scenes over plain ones. Treat the ranking as a hint and check focus at 100% with <kbd>Z</kbd>.</p>
     <p>Where the camera recorded where it focused, the page reads that too and draws it in the large view (in red the points the camera reports in focus): Canon (CR2 and CR3, including the 1,053-point grids of recent mirrorless bodies), Sony (bodies that write FocusLocation, such as the A7 III and A7 IV), Fujifilm, Panasonic, and Olympus and OM System. In a burst where every frame has an AF point, "sharpest" then means the most detail at that point, which is the subject the camera chose, so a soft subject in front of a busy background no longer wins; <kbd>Z</kbd> zooms to it. Nikon numbers its phase-detect points on a grid that differs by body and publishes no coordinates, so Nikon files fall back to the busiest area. On the public sample files, the point read agrees with metadata-extractor's own decoding on all 22 files it decodes, and sits on more detail than a random spot in 18 of 24 (median rank 0.89).</p>
+    <p>Closed eyes, if you tick "Check for closed eyes": the page downloads Google's MediaPipe Face Landmarker (Apache-2.0, a 3.6 MB model) once and runs it in the browser on a 1,024 px copy of each preview, after the card has loaded. A face counts as blinking when the model's blink score for both eyes is 0.45 or more; faces smaller than 1% of the frame (people in the background) are ignored. Frames with a blink get an "eyes closed" tag and their own filter, the large view boxes each face (amber closed, green open), and the burst pick skips blinking frames unless every frame in the burst has one. How far to trust it: on our check set of real and generated portraits, every open-eyed face (smiling and squinting included) scored 0.27 or less and the one closed pair 0.61 and 0.63, so the line sits between them; that is too few closed faces to give an error rate, and half-closed eyes, profiles, sunglasses and heavy motion blur are not covered. Treat the tag as a hint and look before you reject.</p>
     <p>It shows the camera's JPEG, not a development of the raw data, so white balance and picture style are what the camera chose. For developing raw files with checked colour, see <a href="./">ShootFlow's command-line tools</a>.</p>
     <p>Measured on 65 public sample files from 55 camera models (the <a href="https://github.com/drewnoakes/metadata-extractor-images">metadata-extractor-images</a> set): a preview was found in 61, and all 61 decode at the size read; in Chromium the page read all 65 (1.1 GB) in about 5 seconds. The four misses are two BigTIFF test files, a phone DNG with no JPEG inside and a truncated 368-byte file. Four 2005 to 2008 Olympus compacts give only a 160 × 120 thumbnail.</p>
   </section>
@@ -162,6 +167,8 @@
     <p>Yes, where the camera writes them into the raw file: the XMP packet many raws carry (in the public samples: recent Sony, Canon, Nikon, OM System, DJI and Pentax files), the XMP box of a Canon CR3, or the Rating tag OM System bodies write. A rating you set on this page before, or one in a dropped sidecar, comes first.</p>
     <h3>Does it show where the camera focused?</h3>
     <p>Yes for Canon, Sony (A7 III and later bodies that record it), Fujifilm, Panasonic, Olympus and OM System files: the AF points are drawn on the large view, <kbd>Z</kbd> zooms to 100% there, and the burst pick uses the detail at that point. Press <kbd>F</kbd> to hide them. Nikon files and older Sony bodies do not record a usable position, so the page uses the busiest area instead.</p>
+    <h3>Does it find closed eyes?</h3>
+    <p>Yes, if you tick "Check for closed eyes" above the grid. The face model is downloaded once (3.6 MB) and runs on your computer; your photos are still not uploaded. Blinking frames get an "eyes closed" tag, Show › Eyes closed lists them, and the sharpest-of-burst pick prefers a frame where everyone's eyes are open. It is a hint, measured on few closed faces so far: check before rejecting.</p>
     <h3>Why does a preview look different from my raw editor?</h3>
     <p>It is the JPEG the camera made at capture, with the camera's picture style, not a development of the raw data. That is what makes culling fast, and it is what the camera's own screen showed you.</p>
     <h3>Does it remember my ratings?</h3>
@@ -170,7 +177,7 @@
 
   <section aria-labelledby="priv">
     <h2 id="priv">Privacy and usage</h2>
-    <p>Your files never leave your computer. The page keeps a few counters in this browser's local storage (files opened, downloads made) so the project can tell whether anyone uses it; they contain no file names or photos and are never sent anywhere by this page. <button type="button" id="optout">Turn usage counting off</button></p>
+    <p>Your files never leave your computer. The page keeps a few counters in this browser's local storage (files opened, downloads made) so the project can tell whether anyone uses it; they contain no file names or photos and are never sent anywhere by this page. If you tick "Check for closed eyes", the browser fetches the face library from cdn.jsdelivr.net and its model from storage.googleapis.com (those hosts see an ordinary download request, as for any web page); the photos are checked locally and are not sent. <button type="button" id="optout">Turn usage counting off</button></p>
   </section>
   <section aria-labelledby="disc">
     <h2 id="disc">Disclaimer</h2>
@@ -195,6 +202,7 @@
 <script type="module">
 import { readRawFile, isCandidateFile, captureMillis, groupBursts, sharpness, detailAt, burstBest, orientPoint, xmpSidecar, sidecarName, zipStored, LABEL_KEYS, readXmp, mergeXmpSidecar, sidecarTarget } from "./rawpreview.mjs";
 import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+import { summarizeFaces, eyesOpenCandidates, describeFaces, loadFaceLandmarker } from "./eyes.mjs";
 
 const $ = (id) => document.getElementById(id);
 const grid = $("grid");
@@ -264,6 +272,7 @@ async function loadOne(file) {
     it.t = captureMillis(r.meta);
     it.body = [r.meta.make, r.meta.model, r.meta.serial].filter(Boolean).join(" ");
     const gp = gridPreview(r);
+    it.gp = gp;
     const bmp = await createImageBitmap(previewBlob(it, gp));
     bytesRead += gp.length;
     // Thumbnail, upright.
@@ -405,6 +414,7 @@ async function addFiles(fileList) {
   if (fresh.length >= 50) record("files_loaded_50_plus");
   if (fresh.some((it) => it.af?.at)) record("af_points_read");
   refresh(true);
+  if ($("eyesOn").checked) { checkEyes(); return; }
   $("status").textContent = `${items.length} files${bad ? `, ${bad} without a preview` : ""} (read ${fresh.length} in ${secs} s; ${mib(bytesRead - before)} of their ${mib(cardBytes)} read from disk)${startCounts()}.`;
 }
 
@@ -417,9 +427,10 @@ function computeBursts() {
   ids.forEach((id, i) => { items[i].burst = id; if (!groups.has(id)) groups.set(id, []); groups.get(id).push(i); });
   for (const g of groups.values()) {
     for (const i of g) { items[i].burstSize = g.length; items[i].best = false; }
-    const ok = g.filter((i) => !items[i].error);
-    const { index, basis } = burstBest(ok.map((i) => items[i]));
-    if (index >= 0) { items[ok[index]].best = true; items[ok[index]].bestBy = basis; }
+    // Frames found blinking drop out of the pick unless the whole burst blinks.
+    const ok = eyesOpenCandidates(g.filter((i) => !items[i].error).map((i) => items[i]));
+    const { index, basis } = burstBest(ok);
+    if (index >= 0) { ok[index].best = true; ok[index].bestBy = basis; ok[index].bestEyes = ok.some((it) => it.eyes) && ok.length < g.filter((i) => !items[i].error).length; }
     if (g.length === 1) items[g[0]].best = true;
     g.sort((a, b) => (items[a].t ?? 0) - (items[b].t ?? 0)).forEach((i, k) => { items[i].burstPos = k + 1; });
   }
@@ -434,6 +445,7 @@ function buildView() {
     if (f === "unrated") return !it.rating && !it.rejected;
     if (f === "rejected") return it.rejected;
     if (f === "best") return it.best && !it.error;
+    if (f === "eyesclosed") return !!it.eyes?.eyesClosed;
     return true;
   });
   const byName = (a, b) => items[a].name.localeCompare(items[b].name, undefined, { numeric: true });
@@ -447,9 +459,10 @@ function tileHtml(it) {
   const stars = it.rating ? "★".repeat(it.rating) : "";
   const lab = it.label ? `<span class="lab" style="background:${LABEL_COLOURS[it.label]}"></span>` : "";
   const rej = it.rejected ? `<span class="rejmark">✕</span>` : "";
-  const badge = it.error ? "" : it.burstSize > 1 && it.best ? `<span class="badge" title="${it.bestBy === "af" ? "Most detail at the camera's AF point in this burst" : "Most detail in this burst"}">sharpest${it.bestBy === "af" ? " at AF" : ""}</span>` : "";
+  const badge = it.error ? "" : it.burstSize > 1 && it.best ? `<span class="badge" title="${it.bestBy === "af" ? "Most detail at the camera's AF point in this burst" : "Most detail in this burst"}${it.bestEyes ? ", among the frames with eyes open" : ""}">sharpest${it.bestBy === "af" ? " at AF" : ""}</span>` : "";
   const burst = it.burstSize > 1 ? `<span class="burst">burst ${it.burstPos}/${it.burstSize}</span>` : "";
-  return `${lab}${rej}${badge}${burst}<div class="cap"><span class="name" title="${esc(it.name)}">${esc(it.name)}</span><span class="stars">${stars}</span></div>`;
+  const eyes = it.eyes?.eyesClosed ? `<span class="eyes" title="${esc(describeFaces(it.eyes))}">eyes closed</span>` : "";
+  return `${lab}${rej}${badge}${burst}${eyes}<div class="cap"><span class="name" title="${esc(it.name)}">${esc(it.name)}</span><span class="stars">${stars}</span></div>`;
 }
 const mib = (n) => n >= 2 ** 30 ? `${(n / 2 ** 30).toFixed(1)} GB` : `${Math.round(n / 2 ** 20)} MB`;
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -484,7 +497,7 @@ function updateTile(pos) {
   const it = items[view[pos]];
   el.className = "tile" + (pos === sel ? " sel" : "") + (it.rejected ? " rej" : "");
   el.setAttribute("aria-selected", pos === sel ? "true" : "false");
-  el.querySelectorAll(".lab,.rejmark,.badge,.burst,.cap").forEach((n) => n.remove());
+  el.querySelectorAll(".lab,.rejmark,.badge,.burst,.eyes,.cap").forEach((n) => n.remove());
   el.insertAdjacentHTML("beforeend", tileHtml(it));
 }
 
@@ -551,8 +564,17 @@ async function drawLoupe() {
 // the in-focus ones when the body lists hundreds (mirrorless whole-frame AF).
 let showAf = true;
 function drawAf(ctx, it, x0, y0, w, h) {
-  if (!showAf || !it.af) return;
+  if (!showAf) return;
   const dpr = devicePixelRatio || 1;
+  // Faces the eye check found: amber when both eyes are closed, green when open.
+  for (const f of it.eyes?.faces || []) {
+    if (!f.prominent) continue;
+    ctx.lineWidth = 2 * dpr; ctx.setLineDash([6 * dpr, 4 * dpr]);
+    ctx.strokeStyle = f.closed ? "rgba(245,158,11,0.95)" : "rgba(34,197,94,0.8)";
+    ctx.strokeRect(x0 + f.box[0] * w, y0 + f.box[1] * h, (f.box[2] - f.box[0]) * w, (f.box[3] - f.box[1]) * h);
+    ctx.setLineDash([]);
+  }
+  if (!it.af) return;
   const many = it.af.points.length > 64;
   const minBox = 18 * dpr;
   for (const p of it.af.points) {
@@ -581,6 +603,7 @@ function describe(it) {
   if (m.focalLength) parts.push(`${Math.round(m.focalLength)} mm`);
   if (m.lens) parts.push(m.lens);
   if (it.preview) parts.push(`preview ${it.preview.width}×${it.preview.height}`);
+  if (it.eyes) parts.push(describeFaces(it.eyes));
   if (it.af) parts.push(it.af.at ? `AF point: ${it.af.source}` : `AF: ${it.af.source}, none reported in focus`);
   if (m.captured) parts.push(m.captured.replace(/^(\d{4}):(\d{2}):(\d{2})/, "$1-$2-$3"));
   return parts.join(" · ");
@@ -684,14 +707,72 @@ $("dlPicks").onclick = () => {
 };
 $("dlCsv").onclick = () => {
   const q = (v) => { const s = v == null ? "" : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-  const rows = [["file", "rating", "rejected", "label", "burst", "sharpest_in_burst", "sharpest_by", "detail", "af_x", "af_y", "af_detail", "af_source", "captured", "camera", "lens", "exposure_s", "f_number", "iso", "focal_mm", "preview_w", "preview_h", "error"]];
+  const rows = [["file", "rating", "rejected", "label", "burst", "sharpest_in_burst", "sharpest_by", "detail", "af_x", "af_y", "af_detail", "af_source", "captured", "camera", "lens", "exposure_s", "f_number", "iso", "focal_mm", "preview_w", "preview_h", "faces", "eyes_closed", "blink_max", "error"]];
   for (const it of items) {
     const m = it.meta || {};
-    rows.push([it.name, it.rating, it.rejected ? 1 : 0, it.label, it.burst, it.best ? 1 : 0, it.best ? it.bestBy || "" : "", it.detail != null ? it.detail.toFixed(1) : "", it.af?.at ? it.af.at[0].toFixed(4) : "", it.af?.at ? it.af.at[1].toFixed(4) : "", it.afDetail != null ? it.afDetail.toFixed(1) : "", it.af?.source || "", m.captured, cameraName(m), m.lens, m.exposureTime, m.fNumber, m.iso, m.focalLength, it.preview?.width, it.preview?.height, it.error]);
+    rows.push([it.name, it.rating, it.rejected ? 1 : 0, it.label, it.burst, it.best ? 1 : 0, it.best ? it.bestBy || "" : "", it.detail != null ? it.detail.toFixed(1) : "", it.af?.at ? it.af.at[0].toFixed(4) : "", it.af?.at ? it.af.at[1].toFixed(4) : "", it.afDetail != null ? it.afDetail.toFixed(1) : "", it.af?.source || "", m.captured, cameraName(m), m.lens, m.exposureTime, m.fNumber, m.iso, m.focalLength, it.preview?.width, it.preview?.height, it.eyes ? it.eyes.prominent : "", it.eyes ? (it.eyes.eyesClosed ? 1 : 0) : "", it.eyes?.worstBlink != null ? it.eyes.worstBlink.toFixed(3) : "", it.error]);
   }
   download("shootflow-cull.csv", rows.map((r) => r.map(q).join(",")).join("\n") + "\n", "text/csv");
   record("csv_downloaded");
 };
+
+// ---------------------------------------------------------------- closed eyes
+
+// Opt-in: the face model runs on an upright copy of each frame's grid preview
+// (no larger than 1024 px), one frame at a time, after the card has loaded.
+const EYES_PREF = "shootflow-cull-eyes";
+let eyesRunning = false;
+async function eyeCanvas(it) {
+  const bmp = await createImageBitmap(previewBlob(it, it.gp || it.preview));
+  const [ow, oh] = orientedSize(bmp.width, bmp.height, it.orient);
+  const s = Math.min(1, 1024 / Math.max(ow, oh));
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(ow * s)); c.height = Math.max(1, Math.round(oh * s));
+  drawOriented(c.getContext("2d"), bmp, it.orient, c.width, c.height);
+  bmp.close?.();
+  return c;
+}
+async function checkEyes() {
+  if (eyesRunning) return;
+  const todo = items.filter((it) => it.preview && !it.error && !it.eyes);
+  if (!todo.length) return;
+  eyesRunning = true;
+  const prog = $("prog");
+  try {
+    $("status").textContent = "Loading the face model (3.6 MB, once)…";
+    const lm = await loadFaceLandmarker();
+    prog.hidden = false; prog.max = todo.length; prog.value = 0;
+    const t0 = performance.now();
+    let lastDraw = performance.now();
+    for (let k = 0; k < todo.length; k++) {
+      const it = todo[k];
+      try { it.eyes = summarizeFaces(lm.detect(await eyeCanvas(it))); }
+      catch { it.eyes = null; }
+      prog.value = k + 1;
+      $("status").textContent = `Checking eyes ${k + 1} of ${todo.length}…`;
+      if (performance.now() - lastDraw > 1000) { refresh(false); lastDraw = performance.now(); }
+    }
+    prog.hidden = true;
+    refresh(false);
+    if (loupeOpen) drawLoupe();
+    const closed = items.filter((it) => it.eyes?.eyesClosed).length;
+    const withFaces = items.filter((it) => it.eyes?.prominent).length;
+    $("status").textContent = `Eyes checked on ${todo.length} frames in ${((performance.now() - t0) / 1000).toFixed(1)} s: ${withFaces} with faces, ${closed} with eyes closed${closed ? " (Show › Eyes closed lists them)" : ""}.`;
+    record("eyes_checked");
+    if (closed) record("eyes_closed_found");
+  } catch (e) {
+    prog.hidden = true;
+    $("status").textContent = `The face model could not load (${e.message || e}); the rest of the page works without it.`;
+  } finally {
+    eyesRunning = false;
+  }
+}
+const eyesBox = $("eyesOn");
+try { eyesBox.checked = localStorage.getItem(EYES_PREF) === "1"; } catch { /* storage is optional */ }
+eyesBox.addEventListener("change", () => {
+  try { localStorage.setItem(EYES_PREF, eyesBox.checked ? "1" : "0"); } catch { /* storage is optional */ }
+  if (eyesBox.checked) checkEyes();
+});
 
 // ---------------------------------------------------------------- inputs
 

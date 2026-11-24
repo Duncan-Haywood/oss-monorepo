@@ -19,3 +19,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-22) mpcws (held +0.31 dB) failed on K-1 II not by a noisy truth: a green-pair truth read failed its validity tests 2026-11-22, and mpcws's own selection over-reads 2.3x there (eval/noise-pca-mpcws-noisy-truth-*)
 - (moved 2026-11-22) q ramps refit 2026-11-22 (eval/hdrplus-ramp-fit-*): ship's pick fails h3/h4 on 79 fresh bursts, ramps stay
 - (moved 2026-11-23) mpcws, colour ramp (0.3, 1.0), 4 blind draws (eval/hdrplus-joint-check-*): J4 passed on 111 HDR+ bursts, J5 held it on 126
+- (moved 2026-11-24) drawn noise on 11 fresh camera raws passed 2026-11-23 (+0.12/+0.22 dB, eval/camera-drawn-mpcws-*), so mpcws is the Bayer default

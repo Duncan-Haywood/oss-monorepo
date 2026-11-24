@@ -148,6 +148,19 @@ decodes a raw's ~1,620 px preview where it has one, and thumbnails are no
 longer copied on each redraw. Not done: BigTIFF DNGs, phone DNGs with no JPEG inside,
 the 640 px previews of 2000s Olympus compacts (only their 160 px thumbnail).
 
+### Closed eyes (2026-11-24)
+
+Tick "Check for closed eyes" and the page runs MediaPipe Face Landmarker
+(Apache-2.0, a 3.6 MB model fetched once from public CDNs) in the browser on a
+1,024 px copy of each preview. A face is eyes-closed when both blink scores are
+0.45 or more (`site/eyes.mjs`); faces under 1% of the frame are ignored. Frames
+get an "eyes closed" tag and filter, CSV columns, face boxes in the large view,
+and the burst pick leaves them out unless the whole burst blinks. Checked in
+Chromium on 10 portraits (one closed face, flagged; 12 open faces at 0.27 or
+less, none flagged) and on the 65 public camera raws (6 with faces, all open,
+none flagged; about 80 ms a frame): `eval/cull-closed-eyes-2026-11-24.md`. One
+closed face brackets the line; it is not an error rate.
+
 ### Existing sidecars and in-camera ratings (2026-11-23, later)
 
 Drop the `.xmp` sidecars with the raws and the page starts each frame from the

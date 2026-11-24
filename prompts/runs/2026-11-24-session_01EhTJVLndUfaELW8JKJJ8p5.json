@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVLndUfaELW8JKJJ8p5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (ventures brief)",
+  "input_sha256": "23807fdb69c209052f68cab1714c2eeba34532960894a2ed83cd4fea6f3467bd",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T01:09:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 7) photo-editing: opt-in on-device closed-eye check on the browser cull page",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18510",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The first `route` (no --task) drew the research track although the scheduled prompt is the ventures brief; prompt.md says to pass --task for a session's own message, which a scheduled run can miss on a first read."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Start here pointed at photo-editing's numbered items (noise-tuning sweeps, raw.pixls.us refused); took a product item instead: closed-eye flags, the feature AI culling apps lead with, on the cull page shipped 2026-11-23.",
+      "did": "Built site/eyes.mjs + cull.html wiring with MediaPipe Face Landmarker, checked end to end in Chromium",
+      "result": "1 closed face flagged, 0 open faces flagged on 10 portraits and 65 real camera raws"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-browser-culler-flags-closed-eyes.md",
+    "ventures/photo-editing/eval/cull-closed-eyes-2026-11-24.md"
+  ],
+  "goal": "Give ShootFlow Cull the closed-eye flag paid culling apps sell, without uploading photos",
+  "notes": "Checks run here: node --test site/eyes.test.mjs rawpreview.test.mjs usage.test.mjs (45 pass); eval/cull-closed-eyes.mjs on 10 portraits (MediaPipe test assets, Apache-2.0; eye-opener samples, MIT, AI-generated) and the 65 metadata-extractor raws: page flagged exactly the one closed frame, none of 12 open faces nor 6 real faced raws; ~80 ms/frame. Threshold 0.45 brackets 0.27 (max open) and 0.61 (min closed) on ONE closed face: not an error rate, disclosed on page. Library from jsDelivr 0.10.21, model from storage.googleapis.com; opt-in, photos stay local. Venture tests and venture-preflight results: see PR body.",
+  "corrections": [],
+  "redteam": null
+}
