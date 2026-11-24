@@ -56,3 +56,13 @@ test("links its sibling submittal-register (crawlable pair, platform/pages/sibli
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
   assert.match(html, /href="\.\.\/submittal-register\/"/);
 });
+
+test("an IFC4/IFC4X3 STEP result offers the model as ifcXML, written in the worker", () => {
+  const html = page("index.html");
+  assert.match(html, /id="as-ifcxml-go"/);
+  assert.match(html, /asIfcXml: state.ifcName/);
+  assert.match(html, /record\("as_ifcxml_downloaded"\)/);
+  const w = page("worker.mjs");
+  assert.match(w, /if \(asIfcXml\)/);
+  assert.match(w, /ifcxml-layout-\$\{target\.toLowerCase\(\)\}\.json/);
+});
