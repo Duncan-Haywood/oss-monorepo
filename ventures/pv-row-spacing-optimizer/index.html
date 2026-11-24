@@ -199,7 +199,7 @@
     function fill(x) {
       for (const k of KEYS) $("#" + k).value = x[k] === undefined ? "" : PCT.has(k) ? +(x[k] * 100).toFixed(4) : String(x[k]);
     }
-    const money = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 });
+    const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 }));
     const f = (n, d) => Number(n).toFixed(d);
 
     function chart(a) {
@@ -212,7 +212,7 @@
       const g0 = a.fixed.gcrs[0], g1 = a.fixed.gcrs[a.fixed.gcrs.length - 1];
       const x = (g) => L + ((g - g0) / (g1 - g0 || 1)) * (W - L - R);
       const y = (v) => T + (1 - (v - lo) / (hi - lo || 1)) * (H - T - B);
-      const fmt = (v) => key === "npv" ? (v < 0 ? "-$" : "$") + (Math.abs(v) >= 1e6 ? (Math.abs(v) / 1e6).toFixed(1) + "M" : (Math.abs(v) / 1e3).toFixed(0) + "k") : "$" + v.toFixed(1);
+      const fmt = (v) => key === "npv" ? ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(v) >= 1e6 ? (Math.abs(v) / 1e6).toFixed(1) + "M" : (Math.abs(v) / 1e3).toFixed(0) + "k") : "$" + v.toFixed(1);
       let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc($("#chart-title").textContent)}">`;
       for (let k = 0; k <= 4; k++) { const v = lo + ((hi - lo) * k) / 4; s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="#efe9da"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${fmt(v)}</text>`; }
       for (let g = Math.ceil(g0 * 10) / 10; g <= g1 + 1e-9; g += 0.1) s += `<text x="${x(g)}" y="${H - 12}" text-anchor="middle">${g.toFixed(1)}</text>`;

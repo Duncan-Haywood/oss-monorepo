@@ -85,7 +85,7 @@ const TAIR = [/^t2m$/, /^temperature$/, /^temp_?air$/, /^temp$/, /^tamb$/, /^dry
  * start or end of the hour), airTemp (when the file has no temperature).
  * Returns prepared weather plus `notes` and the file's own lat/lon. */
 export function parseWeatherFile(text, opts = {}) {
-  const lines = String(text).replace(/^﻿/, "").split(/\r?\n/);
+  const lines = String(text).replace(/^\uFEFF/, "").split(/\r?\n/);
   const notes = [];
   let lat = opts.lat, lon = opts.lon, fileLat = null, fileLon = null;
   let rows = null, source = null;

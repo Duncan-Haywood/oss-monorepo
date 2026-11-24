@@ -245,11 +245,18 @@ export function analyze(input = {}, weather = null) {
 
 export { MODEL_DEFAULTS };
 
+/** One CSV cell, with a spreadsheet formula-injection guard. */
+export function csvCell(v) {
+  let s = String(v);
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
 /** CSV of every GCR searched: fixed tilt at the best tilt, and the tracker. */
 export function reportCsv(a) {
   const rows = [["layout", "tilt_deg", "gcr", "pitch_m", "yield_kwh_per_kwp", "row_loss_pct", "kwp_dc", "acres", "npv_usd", "lcoe_usd_per_mwh"]];
   const r2 = (x, d) => (Number.isFinite(x) ? x.toFixed(d) : "");
   for (const r of a.fixed.curve) rows.push(["fixed", r.tilt, r2(r.gcr, 2), r2(r.pitch, 2), r2(r.yield, 1), r2(100 * r.rowLoss, 2), r2(r.kwp, 0), r2(r.acres, 2), r2(r.npv, 0), r2(r.lcoe, 2)]);
   for (const r of a.tracker.curve) rows.push(["tracker", "", r2(r.gcr, 2), r2(r.pitch, 2), r2(r.yield, 1), r2(100 * r.rowLoss, 2), r2(r.kwp, 0), r2(r.acres, 2), r2(r.npv, 0), r2(r.lcoe, 2)]);
-  return rows.map((r) => r.join(",")).join("\n") + "\n";
+  return rows.map((r) => r.map(csvCell).join(",")).join("\n") + "\n";
 }
