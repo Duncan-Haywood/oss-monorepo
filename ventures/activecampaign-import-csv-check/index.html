@@ -196,7 +196,7 @@
       const s = r.summary;
       const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
       const noun = { deals: "deal", accounts: "account", contacts: "contact" }[s.kind];
-      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · read as a ${s.kind} file · ${s.records} record${s.records === 1 ? "" : "s"}, ${s.columns} columns${s.suppressionLoaded ? ` · ${s.suppressed} on your do-not-email list` : ""}`;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · read as a ${esc(s.kind)} file · ${s.records} record${s.records === 1 ? "" : "s"}, ${s.columns} columns${s.suppressionLoaded ? ` · ${s.suppressed} on your do-not-email list` : ""}`;
       $("#th-email").textContent = s.kind === "deals" ? "Value" : s.kind === "accounts" ? "Website" : "Email";
       $("#th-co").textContent = s.kind === "deals" ? "Stage" : s.kind === "accounts" ? "City" : "Organization";
       $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;
