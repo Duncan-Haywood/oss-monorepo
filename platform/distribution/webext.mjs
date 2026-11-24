@@ -30,6 +30,7 @@ export const VERSION = '0.1.0';
 const REPO_URL = 'https://github.com/duncan-haywood/oss-monorepo';
 const SCRIPT_RE = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
 const NETWORK_RE = /\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts|\bimport\s*\(/;
+const LOCAL_DYNAMIC_IMPORT_RE = /\bimport\s*\(\s*(["'])\.\.?\/[^"']*\1\s*\)/g;
 
 /** Names Chrome shows: the title up to its first dash, at most 45 characters. */
 export function extensionName(title) {
@@ -57,7 +58,8 @@ export function rewritePage(html) {
     if (/type\s*=\s*["']application\/ld\+json["']/i.test(attrs)) return whole;
     if (/\bsrc\s*=/i.test(attrs)) return whole;
     if (!body.trim()) return whole;
-    if (NETWORK_RE.test(body)) { skip = 'inline script reaches the network'; return whole; }
+    // a relative import("./x.mjs") loads a file of the package, not the network; importedFiles() follows it
+    if (NETWORK_RE.test(body.replace(LOCAL_DYNAMIC_IMPORT_RE, ''))) { skip = 'inline script reaches the network'; return whole; }
     n += 1;
     const file = `inline-${n}.js`;
     scripts[file] = `${body.trim()}\n`;
