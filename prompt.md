@@ -12,12 +12,23 @@ measurements to improve the sub-prompts and the documentation.
 
 ## 0. Security alerts first
 
-Unless the starting message names a task, read the security queue first:
+Owner, 2026-10-30 and 2026-11-24: security findings are fixed "as soon as they arise",
+the backlog is cleared, and new ones are stopped "before they hit main". So, unless the
+starting message names a task, read the security queue first:
 `git fetch -q --depth=1 origin security-alerts && git show origin/security-alerts:QUEUE.md`.
-If the fetch says `couldn't find remote ref`, the queue is empty (the hourly workflow creates
-the branch only when an alert exists): go to step 1. Otherwise take the top alert with no
-`security-fix/code-scanning-<n>` branch (`git ls-remote`); its
-`alerts/<n>.md` says how. `priv-security-alert-queue.yml` regenerates it hourly (owner, 2026-10-30).
+
+- It lists alerts: take the top one with no `security-fix/code-scanning-<n>` branch
+  (`git ls-remote`); its `alerts/<n>.md` says how. This comes before ideas, website
+  requests and routing, every run, until the queue is empty.
+- It says `Unavailable:`: the alerts cannot be read (usually CodeQL has no analysis on
+  `main`). Check the last `CodeQL` and `Security alert queue` runs on `main`, fix what
+  is broken if it is outside the control plane, and otherwise note it in the run record's
+  `doc_friction` and go to step 1.
+- It says `Empty`, or the branch does not exist yet: go to step 1.
+
+`codeql.yml` analyses `main` on every merge; `priv-security-alert-queue.yml` regenerates the
+queue hourly. Your own PR must also pass the `codeql (...)` jobs: a finding on a line you
+wrote fails them, and the job log names it. Fix it in that PR; never suppress the rule.
 
 ## 1. Route
 
