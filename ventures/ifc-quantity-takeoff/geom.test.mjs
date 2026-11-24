@@ -192,3 +192,65 @@ test("a polygonal bounded half space placed off the origin cuts only inside its 
 #17=IFCBOOLEANCLIPPINGRESULT(.DIFFERENCE.,#5,#16);`);
   assert.ok(Math.abs(solidVolume(g.item(17)) - (1000 - 2 * 2 * 5)) < 1e-9);
 });
+
+// Toe (edge) radii on parametric steel sections, 2026-11-24
+// (eval/edge-radii-2026-11-24.md). A 90-degree corner rounded by radius r
+// loses (or, at a re-entrant root, gains) r^2 (1 - pi/4); the arcs are drawn as
+// chords, so allow a little under 0.1 mm2.
+const q = 1 - Math.PI / 4;
+const near = (a, b, tol = 0.1) => assert.ok(Math.abs(a - b) <= tol, `${a} vs ${b}`);
+
+test("L section: EdgeRadius rounds each leg's toe on its inner side, not the outer corners", () => {
+  // Mini Project's L200/100/10: root 15, toes 7.5; EN 10056-1 lists 29.2 cm2
+  const g = geometry("#1=IFCLSHAPEPROFILEDEF(.AREA.,'L200/100/10',$,200.,100.,10.,15.,7.5,$,$,$);");
+  const [loop] = g.profile(1);
+  near(area([loop]), 200 * 10 + 90 * 10 + 15 ** 2 * q - 2 * 7.5 ** 2 * q);
+  near(area([loop]) / 100, 29.24, 0.01);
+  // the heel and the two outer toe corners stay sharp
+  for (const p of [[-50, -100], [50, -100], [-50, 100]]) assert.ok(loop.pts.some((x) => x[0] === p[0] && x[1] === p[1]), `no corner at ${p}`);
+  // the inner toe corners are rounded away
+  for (const p of [[50, -90], [-40, 100]]) assert.ok(!loop.pts.some((x) => Math.hypot(x[0] - p[0], x[1] - p[1]) < 1e-9), `sharp toe at ${p}`);
+  // "no edge radii" is offered as a simplified section (root kept, toes square)
+  const v = g.sectionVariants(1).find((x) => x.label === "no edge radii");
+  assert.ok(v);
+  near(v.ratio * area([loop]), 2900 + 225 * q);
+});
+
+test("I, U, T and Z sections round their toes by their edge radii", () => {
+  // I: 4 flange tips (FlangeEdgeRadius 4), root 10
+  let g = geometry("#1=IFCISHAPEPROFILEDEF(.AREA.,$,$,100.,200.,6.,10.,10.,4.,$);");
+  near(area(g.profile(1)), 2 * 100 * 10 + 180 * 6 + 4 * 100 * q - 4 * 16 * q);
+  // U: 2 flange toes (EdgeRadius 5), root 8
+  g = geometry("#1=IFCUSHAPEPROFILEDEF(.AREA.,$,$,200.,75.,8.,11.,8.,5.,$);");
+  near(area(g.profile(1)), 2 * 75 * 11 + 178 * 8 + 2 * 64 * q - 2 * 25 * q);
+  // T: 2 flange tips (6), both corners of the web's foot (3), root 10
+  g = geometry("#1=IFCTSHAPEPROFILEDEF(.AREA.,$,$,300.,200.,10.,20.,10.,6.,3.,$,$);");
+  near(area(g.profile(1)), 200 * 20 + 280 * 10 + 2 * 100 * q - 2 * 36 * q - 2 * 9 * q);
+  // Z: roots (FilletRadius 8) and toes (EdgeRadius 4) were both left out before
+  g = geometry("#1=IFCZSHAPEPROFILEDEF(.AREA.,$,$,200.,80.,6.,10.,8.,4.);");
+  near(area(g.profile(1)), 2 * 80 * 10 + 180 * 6 + 2 * 64 * q - 2 * 16 * q);
+});
+
+test("a notched L200/100/10 (Mini Project's KOKER #10087) has the exact volume, toes included", () => {
+  // the angle 2630 long, less a 100 x 150 notch 515 long that takes the top
+  // 50 mm of the long leg over the last 455.85 mm: IfcOpenShell 0.00747 m3
+  const g = geometry(`#1=IFCCARTESIANPOINT((0.,0.));
+#2=IFCDIRECTION((1.,0.));
+#3=IFCAXIS2PLACEMENT2D(#1,#2);
+#4=IFCLSHAPEPROFILEDEF(.AREA.,'L200/100/10',#3,200.,100.,10.,15.,7.5,$,$,$);
+#5=IFCCARTESIANPOINT((2630.,0.,0.));
+#6=IFCDIRECTION((-1.,0.,0.));
+#7=IFCDIRECTION((0.,-1.,0.));
+#8=IFCAXIS2PLACEMENT3D(#5,#6,#7);
+#9=IFCDIRECTION((0.,0.,1.));
+#10=IFCEXTRUDEDAREASOLID(#4,#8,#9,2630.);
+#11=IFCRECTANGLEPROFILEDEF(.AREA.,'PL150*100',#3,100.,150.);
+#12=IFCCARTESIANPOINT((2689.14889348392,0.,125.));
+#13=IFCAXIS2PLACEMENT3D(#12,#6,#7);
+#14=IFCEXTRUDEDAREASOLID(#11,#13,#9,515.);
+#15=IFCBOOLEANRESULT(.DIFFERENCE.,#10,#14);`);
+  const section = 2900 + 225 * q - 2 * 56.25 * q;
+  const notch = (50 * 10 - 56.25 * q) * (2630 - (2689.14889348392 - 515));
+  const v = solidVolume(g.item(15));
+  assert.ok(Math.abs(v - (section * 2630 - notch)) < 40, `${v} vs ${section * 2630 - notch}`);
+});
