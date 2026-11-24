@@ -33,7 +33,7 @@
   "errors": [
     {
       "what": "CodeQL CLI bundle download (to size the backlog in-session) was refused by the session's permission classifier",
-      "effect": "backlog size unknown until codeql.yml analyses main"
+      "effect": "backlog sized later from the PR's own CodeQL run instead"
     }
   ],
   "integrity_issues": [],
@@ -60,7 +60,7 @@
     "docs/reports/2026-11-24-codeql-never-ran.md"
   ],
   "goal": null,
-  "notes": "Found that CodeQL was never enabled: no workflow, no default setup, no SARIF upload; the queue workflow logged HTTP 404 on every one of 581 runs and stayed green. Added codeql.yml (actions, js/ts, python; PR + main + weekly), codeql_gate.py (fails PRs on medium+ findings on their own changed lines, prints them to the job log for agents), a code_scanning ruleset rule (to apply after first analysis), loud failure + 'Unavailable:' QUEUE.md on API errors, prompt.md step 0 and verify-and-merge.md updates, policy doc. Supersedes open PRs 12885, 12939, 12975. Tests: test_codeql_gate.py + test_security_alerts.py 24 passed locally. Backlog not fixed in this run: unknown until first analysis; four hourly schedules (~96 sessions/day) are routed to it by step 0.",
+  "notes": "Found that CodeQL was never enabled: no workflow, no default setup, no SARIF upload; the queue workflow logged HTTP 404 on every one of 581 runs and stayed green. Added codeql.yml (actions, js/ts, python; PR + main + weekly), codeql_gate.py (fails PRs on medium+ findings on their own changed lines, prints them to the job log for agents), a code_scanning ruleset rule (to apply after first analysis), loud failure + 'Unavailable:' QUEUE.md on API errors, prompt.md step 0 and verify-and-merge.md updates, policy doc. Supersedes open PRs 12885, 12939, 12975. Tests: test_codeql_gate.py + test_security_alerts.py 24 passed locally. First CodeQL run on this PR: all 3 languages green, gate passed; backlog 977 medium+ (0 actions, 21 python, 956 js/ts). Backlog not fixed in this run; four hourly schedules (~96 sessions/day) are routed to it by step 0.",
   "corrections": [],
   "redteam": null
 }
