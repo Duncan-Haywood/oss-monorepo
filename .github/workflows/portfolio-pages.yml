@@ -94,9 +94,11 @@ jobs:
     steps:
       - id: check
         env:
-          # The account-id variable is the switch: set once the minter secret is in
-          # place (platform/ci/cloudflare_mint/README.md, owner setup).
-          CONFIGURED: ${{ vars.CLOUDFLARE_ACCOUNT_ID != '' }}
+          # The site lives on Cloudflare (2026-10-30), so this no longer depends on
+          # which credentials exist: deploy-cloudflare mints its own token
+          # (platform/ci/cloudflare_mint). CLOUDFLARE_HOSTING=false falls back to
+          # GitHub Pages.
+          CONFIGURED: ${{ vars.CLOUDFLARE_HOSTING != 'false' }}
           OVERRIDE: ${{ vars.PAGES_BASE_URL }}
           # The custom domain attached in platform/pages/cloudflare/wrangler.toml
           # (2026-10-30); the workers.dev address serves the same files.
