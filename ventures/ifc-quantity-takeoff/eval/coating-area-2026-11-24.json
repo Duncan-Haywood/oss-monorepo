@@ -1,0 +1,1306 @@
+[
+ {
+  "model": "AC20-FZK-Haus.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "C20-Institute-Var-2.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "FM_ARC_DigitalHub.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "ISSUE_005_haus.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "ISSUE_021_Mini Project.ifc",
+  "steelParts": 177,
+  "geometry": 175,
+  "netOfHoles": 0,
+  "stored": 2,
+  "none": 0,
+  "noneWhy": {},
+  "both": 175,
+  "agree": 109,
+  "coating": 605.0923485863408,
+  "steelKg": 10323.409057124582,
+  "byClass": {
+   "IfcMember": {
+    "n": 1,
+    "area": 0.0657,
+    "none": 0
+   },
+   "IfcBeam": {
+    "n": 168,
+    "area": 583.5884886617389,
+    "none": 0
+   },
+   "IfcColumn": {
+    "n": 8,
+    "area": 21.43815992460195,
+    "none": 0
+   }
+  },
+  "off": [
+   {
+    "id": 2089,
+    "class": "IfcBeam",
+    "name": "KOKER",
+    "stored": 0.038399999144,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.043498156343384414,
+    "ratio": 0.8827960164762295
+   },
+   {
+    "id": 4318,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285635,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.019181658520610642,
+    "ratio": 1.021085335635512
+   },
+   {
+    "id": 4345,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285635,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.019181658520610642,
+    "ratio": 1.021085335635512
+   },
+   {
+    "id": 4359,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285635,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.019181658520610642,
+    "ratio": 1.021085335635512
+   },
+   {
+    "id": 4370,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285635,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.019181658520610642,
+    "ratio": 1.021085335635512
+   },
+   {
+    "id": 4378,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285635,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.019181658520610642,
+    "ratio": 1.021085335635512
+   },
+   {
+    "id": 4386,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285635,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.019181658520610642,
+    "ratio": 1.021085335635512
+   },
+   {
+    "id": 4428,
+    "class": "IfcBeam",
+    "name": "OPLASSTUK",
+    "stored": 0.375705600097656,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.3848464265215998,
+    "ratio": 0.9762481192652293
+   },
+   {
+    "id": 4461,
+    "class": "IfcBeam",
+    "name": "KOKER",
+    "stored": 0.0720000113351201,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.07493469381434076,
+    "ratio": 0.9608367989533437
+   },
+   {
+    "id": 4483,
+    "class": "IfcBeam",
+    "name": "KOKER",
+    "stored": 0.0720000113351201,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.07493469381434076,
+    "ratio": 0.9608367989533437
+   },
+   {
+    "id": 4856,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285638,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.01918165852061065,
+    "ratio": 1.0210853356355274
+   },
+   {
+    "id": 4874,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285638,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.01918165852061065,
+    "ratio": 1.0210853356355274
+   },
+   {
+    "id": 4888,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285638,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.01918165852061065,
+    "ratio": 1.0210853356355274
+   },
+   {
+    "id": 4901,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285639,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.01918165852061065,
+    "ratio": 1.0210853356355327
+   },
+   {
+    "id": 4913,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285639,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.01918165852061065,
+    "ratio": 1.0210853356355327
+   },
+   {
+    "id": 4921,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285639,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.01918165852061065,
+    "ratio": 1.0210853356355327
+   },
+   {
+    "id": 5130,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285642,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.01918165852061065,
+    "ratio": 1.0210853356355483
+   },
+   {
+    "id": 5147,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285642,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.01918165852061065,
+    "ratio": 1.0210853356355483
+   },
+   {
+    "id": 5161,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285642,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.01918165852061065,
+    "ratio": 1.0210853356355483
+   },
+   {
+    "id": 5171,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285643,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.01918165852061065,
+    "ratio": 1.0210853356355536
+   },
+   {
+    "id": 5183,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285643,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.01918165852061065,
+    "ratio": 1.0210853356355536
+   },
+   {
+    "id": 5191,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285643,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.01918165852061065,
+    "ratio": 1.0210853356355536
+   },
+   {
+    "id": 5313,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285639,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.01918165852061065,
+    "ratio": 1.0210853356355327
+   },
+   {
+    "id": 5326,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285639,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.01918165852061065,
+    "ratio": 1.0210853356355327
+   },
+   {
+    "id": 5335,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285639,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.01918165852061065,
+    "ratio": 1.0210853356355327
+   },
+   {
+    "id": 5343,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285642,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.01918165852061065,
+    "ratio": 1.0210853356355483
+   },
+   {
+    "id": 5355,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285642,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.01918165852061065,
+    "ratio": 1.0210853356355483
+   },
+   {
+    "id": 5363,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0195861102285642,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.01918165852061065,
+    "ratio": 1.0210853356355483
+   },
+   {
+    "id": 5417,
+    "class": "IfcBeam",
+    "name": "OPLASSTUK",
+    "stored": 0.371240168840877,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.3820121881564461,
+    "ratio": 0.9718018962495574
+   },
+   {
+    "id": 10009,
+    "class": "IfcBeam",
+    "name": "KOKER",
+    "stored": 0.038399999144,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.043498156343384414,
+    "ratio": 0.8827960164762295
+   },
+   {
+    "id": 10040,
+    "class": "IfcBeam",
+    "name": "KOKER",
+    "stored": 0.038399999144,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.043498156343384414,
+    "ratio": 0.8827960164762295
+   },
+   {
+    "id": 12729,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0129861102285624,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.012581658520609934,
+    "ratio": 1.0321461361624094
+   },
+   {
+    "id": 12760,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0129861102285657,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.012581658520609934,
+    "ratio": 1.0321461361626716
+   },
+   {
+    "id": 12795,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0129861102285624,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.012581658520609934,
+    "ratio": 1.0321461361624094
+   },
+   {
+    "id": 12811,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0129861102285624,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.012581658520609934,
+    "ratio": 1.0321461361624094
+   },
+   {
+    "id": 12865,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0129861102285657,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.012581658520609934,
+    "ratio": 1.0321461361626716
+   },
+   {
+    "id": 12876,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0129861102285657,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.012581658520609934,
+    "ratio": 1.0321461361626716
+   },
+   {
+    "id": 12884,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0129861102285624,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.012581658520609934,
+    "ratio": 1.0321461361624094
+   },
+   {
+    "id": 12890,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0129861102285624,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.012581658520609934,
+    "ratio": 1.0321461361624094
+   },
+   {
+    "id": 12898,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0129861102285624,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.012581658520609934,
+    "ratio": 1.0321461361624094
+   },
+   {
+    "id": 12955,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0129861102285661,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.012581658520609626,
+    "ratio": 1.0321461361627289
+   },
+   {
+    "id": 12969,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0129861102285661,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.012581658520609626,
+    "ratio": 1.0321461361627289
+   },
+   {
+    "id": 12980,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0129861102285661,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.012581658520609626,
+    "ratio": 1.0321461361627289
+   },
+   {
+    "id": 13076,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0129861102285639,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.012581658520609626,
+    "ratio": 1.0321461361625541
+   },
+   {
+    "id": 13098,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0129861102285639,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.012581658520609626,
+    "ratio": 1.0321461361625541
+   },
+   {
+    "id": 13106,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0129861102285639,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.012581658520609626,
+    "ratio": 1.0321461361625541
+   },
+   {
+    "id": 13114,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0129861102285639,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.012581658520609626,
+    "ratio": 1.0321461361625541
+   },
+   {
+    "id": 13123,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0129861102285639,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.012581658520609626,
+    "ratio": 1.0321461361625541
+   },
+   {
+    "id": 13131,
+    "class": "IfcBeam",
+    "name": "INGIETSTUKONDERDEEL",
+    "stored": 0.0129861102285639,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.012581658520609626,
+    "ratio": 1.0321461361625541
+   },
+   {
+    "id": 17572,
+    "class": "IfcBeam",
+    "name": "LIGGER",
+    "stored": 22.1880000519674,
+    "storedName": "OuterSurfaceArea",
+    "computed": 22.774945803729064,
+    "ratio": 0.9742284457306782
+   },
+   {
+    "id": 17805,
+    "class": "IfcBeam",
+    "name": "LIGGER",
+    "stored": 22.0080000524017,
+    "storedName": "OuterSurfaceArea",
+    "computed": 22.587370513245098,
+    "ratio": 0.9743498048830581
+   },
+   {
+    "id": 18227,
+    "class": "IfcBeam",
+    "name": "LIGGER",
+    "stored": 22.0080000524017,
+    "storedName": "OuterSurfaceArea",
+    "computed": 22.587370513245098,
+    "ratio": 0.9743498048830581
+   },
+   {
+    "id": 28398,
+    "class": "IfcBeam",
+    "name": "KIKKERPLAAT",
+    "stored": 0.0268,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.0172,
+    "ratio": 1.558139534883721
+   },
+   {
+    "id": 28421,
+    "class": "IfcBeam",
+    "name": "KIKKERPLAAT",
+    "stored": 0.0268,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.0172,
+    "ratio": 1.558139534883721
+   },
+   {
+    "id": 28505,
+    "class": "IfcBeam",
+    "name": "INGIETSTUK",
+    "stored": 0.0181021318667101,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.017521944227545945,
+    "ratio": 1.0331120583212479
+   },
+   {
+    "id": 28528,
+    "class": "IfcBeam",
+    "name": "INGIETSTUK",
+    "stored": 0.0181021318667101,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.017521944227545945,
+    "ratio": 1.0331120583212479
+   },
+   {
+    "id": 28542,
+    "class": "IfcBeam",
+    "name": "INGIETSTUK",
+    "stored": 0.0181021318667101,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.017521944227545945,
+    "ratio": 1.0331120583212479
+   },
+   {
+    "id": 28553,
+    "class": "IfcBeam",
+    "name": "INGIETSTUK",
+    "stored": 0.01810213186671,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.017521944227545945,
+    "ratio": 1.033112058321242
+   },
+   {
+    "id": 28565,
+    "class": "IfcBeam",
+    "name": "INGIETSTUK",
+    "stored": 0.01810213186671,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.017521944227545945,
+    "ratio": 1.033112058321242
+   },
+   {
+    "id": 28573,
+    "class": "IfcBeam",
+    "name": "INGIETSTUK",
+    "stored": 0.01810213186671,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.017521944227545945,
+    "ratio": 1.033112058321242
+   },
+   {
+    "id": 28617,
+    "class": "IfcBeam",
+    "name": "INGIETSTUK",
+    "stored": 0.0181021318667843,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.017521944227566224,
+    "ratio": 1.033112058324287
+   },
+   {
+    "id": 28635,
+    "class": "IfcBeam",
+    "name": "INGIETSTUK",
+    "stored": 0.0181021318667843,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.017521944227566224,
+    "ratio": 1.033112058324287
+   },
+   {
+    "id": 28657,
+    "class": "IfcBeam",
+    "name": "INGIETSTUK",
+    "stored": 0.0181021318667866,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.017521944227566224,
+    "ratio": 1.0331120583244182
+   },
+   {
+    "id": 28671,
+    "class": "IfcBeam",
+    "name": "INGIETSTUK",
+    "stored": 0.0181021318667843,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.017521944227566224,
+    "ratio": 1.033112058324287
+   },
+   {
+    "id": 28682,
+    "class": "IfcBeam",
+    "name": "INGIETSTUK",
+    "stored": 0.0181021318667867,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.01752194422756623,
+    "ratio": 1.0331120583244235
+   },
+   {
+    "id": 28694,
+    "class": "IfcBeam",
+    "name": "INGIETSTUK",
+    "stored": 0.0181021318667866,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.017521944227566224,
+    "ratio": 1.0331120583244182
+   }
+  ],
+  "inside": 16.898801706323535,
+  "hollow": 6
+ },
+ {
+  "model": "ISSUE_034_HouseZ.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "ISSUE_044_test_IFCCOMPOSITEPROFILEDEF.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "ISSUE_068_ARK_NUS_skolebygg.ifc",
+  "steelParts": 1,
+  "geometry": 1,
+  "netOfHoles": 0,
+  "stored": 0,
+  "none": 0,
+  "noneWhy": {},
+  "both": 1,
+  "agree": 1,
+  "coating": 1.6408872200000093,
+  "steelKg": 55.63342704452135,
+  "byClass": {
+   "IfcBeam": {
+    "n": 1,
+    "area": 1.6408872200000093,
+    "none": 0
+   }
+  },
+  "off": []
+ },
+ {
+  "model": "ISSUE_098_R8_F1_MAB_AR_M3_XX_XXX_MO_7000.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "ISSUE_102_M3D-CON-CD.ifc",
+  "steelParts": 63,
+  "geometry": 63,
+  "netOfHoles": 0,
+  "stored": 0,
+  "none": 0,
+  "noneWhy": {},
+  "both": 63,
+  "agree": 35,
+  "coating": 60.65637048386393,
+  "steelKg": 20595.673501902693,
+  "byClass": {
+   "IfcPlate": {
+    "n": 7,
+    "area": 59.707176318300284,
+    "none": 0
+   },
+   "IfcBeam": {
+    "n": 24,
+    "area": 0.38274300307402814,
+    "none": 0
+   },
+   "IfcColumn": {
+    "n": 32,
+    "area": 0.5664511624896154,
+    "none": 0
+   }
+  },
+  "off": [
+   {
+    "id": 492953,
+    "class": "IfcBeam",
+    "name": "BOTTOM_PART",
+    "stored": 0.00532973256899668,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.008053351810948543,
+    "ratio": 0.6618030224075026
+   },
+   {
+    "id": 493229,
+    "class": "IfcBeam",
+    "name": "BOTTOM_PART",
+    "stored": 0.00285680099678565,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.004272116910460363,
+    "ratio": 0.668708524757531
+   },
+   {
+    "id": 493410,
+    "class": "IfcBeam",
+    "name": "BOTTOM_PART",
+    "stored": 0.0230448238843365,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.03354032613060623,
+    "ratio": 0.6870781099324978
+   },
+   {
+    "id": 493604,
+    "class": "IfcBeam",
+    "name": "BOTTOM_PART",
+    "stored": 0.00532973256899668,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.008053351810948543,
+    "ratio": 0.6618030224075026
+   },
+   {
+    "id": 493619,
+    "class": "IfcBeam",
+    "name": "BOTTOM_PART",
+    "stored": 0.00285680099678565,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.004272116910460363,
+    "ratio": 0.668708524757531
+   },
+   {
+    "id": 493630,
+    "class": "IfcBeam",
+    "name": "BOTTOM_PART",
+    "stored": 0.0230448238843365,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.03354032613060623,
+    "ratio": 0.6870781099324978
+   },
+   {
+    "id": 493653,
+    "class": "IfcBeam",
+    "name": "BOTTOM_PART",
+    "stored": 0.00532973256899669,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.008053351810948543,
+    "ratio": 0.6618030224075039
+   },
+   {
+    "id": 493676,
+    "class": "IfcBeam",
+    "name": "BOTTOM_PART",
+    "stored": 0.00285680099678564,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.004272116910460363,
+    "ratio": 0.6687085247575286
+   },
+   {
+    "id": 493691,
+    "class": "IfcBeam",
+    "name": "BOTTOM_PART",
+    "stored": 0.0230448238843365,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.03354032613060623,
+    "ratio": 0.6870781099324978
+   },
+   {
+    "id": 493726,
+    "class": "IfcBeam",
+    "name": "BOTTOM_PART",
+    "stored": 0.00532973256899669,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.008053351810948543,
+    "ratio": 0.6618030224075039
+   },
+   {
+    "id": 493741,
+    "class": "IfcBeam",
+    "name": "BOTTOM_PART",
+    "stored": 0.00285680099678564,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.004272116910460363,
+    "ratio": 0.6687085247575286
+   },
+   {
+    "id": 493752,
+    "class": "IfcBeam",
+    "name": "BOTTOM_PART",
+    "stored": 0.0230448238843365,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.03354032613060623,
+    "ratio": 0.6870781099324978
+   },
+   {
+    "id": 493775,
+    "class": "IfcColumn",
+    "name": "BOTTOM_PART",
+    "stored": 0.00532973256899668,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.008053351810948543,
+    "ratio": 0.6618030224075026
+   },
+   {
+    "id": 493799,
+    "class": "IfcColumn",
+    "name": "BOTTOM_PART",
+    "stored": 0.00285680099678565,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.004272116910460363,
+    "ratio": 0.668708524757531
+   },
+   {
+    "id": 493815,
+    "class": "IfcColumn",
+    "name": "BOTTOM_PART",
+    "stored": 0.0230448238843365,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.03354032613060623,
+    "ratio": 0.6870781099324978
+   },
+   {
+    "id": 493850,
+    "class": "IfcColumn",
+    "name": "BOTTOM_PART",
+    "stored": 0.00532973256899669,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.008053351810948543,
+    "ratio": 0.6618030224075039
+   },
+   {
+    "id": 493865,
+    "class": "IfcColumn",
+    "name": "BOTTOM_PART",
+    "stored": 0.00285680099678564,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.004272116910460363,
+    "ratio": 0.6687085247575286
+   },
+   {
+    "id": 493876,
+    "class": "IfcColumn",
+    "name": "BOTTOM_PART",
+    "stored": 0.0230448238843365,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.03354032613060623,
+    "ratio": 0.6870781099324978
+   },
+   {
+    "id": 493899,
+    "class": "IfcColumn",
+    "name": "BOTTOM_PART",
+    "stored": 0.00532973256899669,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.008053351810948543,
+    "ratio": 0.6618030224075039
+   },
+   {
+    "id": 493914,
+    "class": "IfcColumn",
+    "name": "BOTTOM_PART",
+    "stored": 0.00532973256899669,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.008053351810948543,
+    "ratio": 0.6618030224075039
+   },
+   {
+    "id": 493929,
+    "class": "IfcColumn",
+    "name": "BOTTOM_PART",
+    "stored": 0.00285680099678564,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.004272116910460363,
+    "ratio": 0.6687085247575286
+   },
+   {
+    "id": 493940,
+    "class": "IfcColumn",
+    "name": "BOTTOM_PART",
+    "stored": 0.0230448238843365,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.03354032613060623,
+    "ratio": 0.6870781099324978
+   },
+   {
+    "id": 493963,
+    "class": "IfcColumn",
+    "name": "BOTTOM_PART",
+    "stored": 0.00532973256899669,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.008053351810948543,
+    "ratio": 0.6618030224075039
+   },
+   {
+    "id": 493978,
+    "class": "IfcColumn",
+    "name": "BOTTOM_PART",
+    "stored": 0.00532973256899668,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.008053351810948543,
+    "ratio": 0.6618030224075026
+   },
+   {
+    "id": 493993,
+    "class": "IfcColumn",
+    "name": "BOTTOM_PART",
+    "stored": 0.00532973256899668,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.008053351810948543,
+    "ratio": 0.6618030224075026
+   },
+   {
+    "id": 494008,
+    "class": "IfcColumn",
+    "name": "BOTTOM_PART",
+    "stored": 0.00532973256899668,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.008053351810948543,
+    "ratio": 0.6618030224075026
+   },
+   {
+    "id": 494023,
+    "class": "IfcColumn",
+    "name": "BOTTOM_PART",
+    "stored": 0.00285680099678565,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.004272116910460363,
+    "ratio": 0.668708524757531
+   },
+   {
+    "id": 494034,
+    "class": "IfcColumn",
+    "name": "BOTTOM_PART",
+    "stored": 0.0230448238843365,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.03354032613060623,
+    "ratio": 0.6870781099324978
+   }
+  ],
+  "inside": 0,
+  "hollow": 0
+ },
+ {
+  "model": "ISSUE_102_M3D-CON.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "ISSUE_126_model.ifc",
+  "steelParts": 1,
+  "geometry": 1,
+  "netOfHoles": 0,
+  "stored": 0,
+  "none": 0,
+  "noneWhy": {},
+  "both": 0,
+  "agree": 0,
+  "coating": 5.711708000000001,
+  "steelKg": 143.393124,
+  "byClass": {
+   "IfcBeam": {
+    "n": 1,
+    "area": 5.711708000000001,
+    "none": 0
+   }
+  },
+  "off": []
+ },
+ {
+  "model": "ISSUE_129_N1540_17_EXE_MOD_448200_02_09_11SMC_IGC_V17.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "ISSUE_159_kleine_Wohnung_R22.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "ISSUE_171_IfcSurfaceCurveSweptAreaSolid.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "IfcOpenHouse_IFC4.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "KIT-Simple-Road-Test-Web-IFC4x3_RC2.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "Office_A_20110811.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "S_Office_Integrated Design Archi.ifc",
+  "steelParts": 306,
+  "geometry": 278,
+  "netOfHoles": 0,
+  "stored": 0,
+  "none": 28,
+  "noneWhy": {
+   "faces not summed": 28
+  },
+  "both": 0,
+  "agree": 0,
+  "coating": 1968.5256541580463,
+  "steelKg": 182883.40739338854,
+  "byClass": {
+   "IfcBeam": {
+    "n": 204,
+    "area": 1414.589421307413,
+    "none": 14
+   },
+   "IfcColumn": {
+    "n": 102,
+    "area": 553.9362328506334,
+    "none": 14
+   }
+  },
+  "off": []
+ },
+ {
+  "model": "Sample_entities.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "Viadotto Acerno.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "advanced_model.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "architect.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "construction.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "dental_clinic.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "duplex.ifc",
+  "steelParts": 8,
+  "geometry": 8,
+  "netOfHoles": 0,
+  "stored": 0,
+  "none": 0,
+  "noneWhy": {},
+  "both": 0,
+  "agree": 0,
+  "coating": 63.105143003187095,
+  "steelKg": 2653.150039653697,
+  "byClass": {
+   "IfcBeam": {
+    "n": 8,
+    "area": 63.105143003187095,
+    "none": 0
+   }
+  },
+  "off": []
+ },
+ {
+  "model": "example.ifc",
+  "steelParts": 73,
+  "geometry": 73,
+  "netOfHoles": 0,
+  "stored": 0,
+  "none": 0,
+  "noneWhy": {},
+  "both": 0,
+  "agree": 0,
+  "coating": 183.18972887367835,
+  "steelKg": 7687.35376432363,
+  "byClass": {
+   "IfcColumn": {
+    "n": 30,
+    "area": 59.36158972290268,
+    "none": 0
+   },
+   "IfcBeam": {
+    "n": 43,
+    "area": 123.82813915077568,
+    "none": 0
+   }
+  },
+  "off": [],
+  "inside": 15.872570797752688,
+  "hollow": 17
+ },
+ {
+  "model": "ifcbridge-model01.ifc",
+  "steelParts": 0
+ },
+ {
+  "model": "schependomlaan.ifc",
+  "steelParts": 196,
+  "geometry": 196,
+  "netOfHoles": 0,
+  "stored": 0,
+  "none": 0,
+  "noneWhy": {},
+  "both": 56,
+  "agree": 40,
+  "coating": 227.68656568752863,
+  "steelKg": 9069.050443214297,
+  "byClass": {
+   "IfcColumn": {
+    "n": 23,
+    "area": 23.019891462575817,
+    "none": 0
+   },
+   "IfcBeam": {
+    "n": 88,
+    "area": 157.24798813330347,
+    "none": 0
+   },
+   "IfcRailing": {
+    "n": 76,
+    "area": 25.7275021120318,
+    "none": 0
+   },
+   "IfcMember": {
+    "n": 9,
+    "area": 21.691183979617527,
+    "none": 0
+   }
+  },
+  "off": [
+   {
+    "id": 294923,
+    "class": "IfcBeam",
+    "name": "staallatei ??",
+    "stored": 0.0023767704027,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.003919741846827148,
+    "ratio": 0.6063589122900751
+   },
+   {
+    "id": 736842,
+    "class": "IfcBeam",
+    "name": "stripstaal 80/8",
+    "stored": 0.984479536356,
+    "storedName": "OuterSurfaceArea",
+    "computed": 1.0842075353179248,
+    "ratio": 0.9080176112844657
+   },
+   {
+    "id": 736986,
+    "class": "IfcBeam",
+    "name": "stripstaal 80/8",
+    "stored": 0.984479536356,
+    "storedName": "OuterSurfaceArea",
+    "computed": 1.0842075353179248,
+    "ratio": 0.9080176112844657
+   },
+   {
+    "id": 737154,
+    "class": "IfcBeam",
+    "name": "stripstaal 80/8",
+    "stored": 0.099199953725,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.11039995312796398,
+    "ratio": 0.8985506869737333
+   },
+   {
+    "id": 737294,
+    "class": "IfcBeam",
+    "name": "stripstaal 80/8",
+    "stored": 0.873119593331,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.9617115927969544,
+    "ratio": 0.9078809071976542
+   },
+   {
+    "id": 737434,
+    "class": "IfcBeam",
+    "name": "stripstaal 80/8",
+    "stored": 0.873119596045,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.9617115957819135,
+    "ratio": 0.9078809072018267
+   },
+   {
+    "id": 737602,
+    "class": "IfcBeam",
+    "name": "stripstaal 80/8",
+    "stored": 0.099199953725,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.11039995312796398,
+    "ratio": 0.8985506869737333
+   },
+   {
+    "id": 737770,
+    "class": "IfcBeam",
+    "name": "stripstaal 80/8",
+    "stored": 1.00431953802,
+    "storedName": "OuterSurfaceArea",
+    "computed": 1.1060315380714116,
+    "ratio": 0.9080387886327664
+   },
+   {
+    "id": 737938,
+    "class": "IfcBeam",
+    "name": "stripstaal 80/8",
+    "stored": 1.00431953802,
+    "storedName": "OuterSurfaceArea",
+    "computed": 1.1060315380714116,
+    "ratio": 0.9080387886327664
+   },
+   {
+    "id": 738078,
+    "class": "IfcBeam",
+    "name": "stripstaal 80/8",
+    "stored": 0.873119601625,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.9617116019207907,
+    "ratio": 0.9078809072087212
+   },
+   {
+    "id": 738218,
+    "class": "IfcBeam",
+    "name": "stripstaal 80/8",
+    "stored": 0.873119601625,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.9617116019207907,
+    "ratio": 0.9078809072087212
+   },
+   {
+    "id": 738386,
+    "class": "IfcBeam",
+    "name": "stripstaal 80/8",
+    "stored": 0.099199953725,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.11039995312796398,
+    "ratio": 0.8985506869737333
+   },
+   {
+    "id": 738554,
+    "class": "IfcBeam",
+    "name": "stripstaal 80/8",
+    "stored": 0.099199953725,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.11039995312796398,
+    "ratio": 0.8985506869737333
+   },
+   {
+    "id": 738722,
+    "class": "IfcBeam",
+    "name": "stripstaal 80/8",
+    "stored": 0.099199953725,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.11039995312796398,
+    "ratio": 0.8985506869737333
+   },
+   {
+    "id": 738890,
+    "class": "IfcBeam",
+    "name": "stripstaal 80/8",
+    "stored": 0.099199953725,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.11039995312796398,
+    "ratio": 0.8985506869737333
+   },
+   {
+    "id": 739030,
+    "class": "IfcBeam",
+    "name": "stripstaal 80/8",
+    "stored": 0.712778157072,
+    "storedName": "OuterSurfaceArea",
+    "computed": 0.7853360054334231,
+    "ratio": 0.9076091661920189
+   }
+  ],
+  "inside": 0,
+  "hollow": 0
+ },
+ {
+  "model": "tested_sample_project.ifc",
+  "steelParts": 0
+ }
+]
