@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231f5f86'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Peppol BIS 3.1.0 readiness check: which invoices fail in February</title>
+  <meta name="description" content="Drop a batch of sent Peppol invoices and see which pass BIS 3.0.22 today but are rejected under 3.1.0 from 24 February 2027, by rule, with the fix. Free, in your browser.">
+  <link rel="canonical" href="./peppol-bis-3-1-0-readiness.html">
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f6f9; }
+    body { max-width: 860px; margin: 0 auto; padding: 32px 16px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: -.03em; line-height: 1.1; }
+    a { color: #1f5f86; }
+    .drop { border: 2px dashed #8aa4b8; border-radius: 10px; padding: 22px; background: #fff; text-align: center; }
+    .drop.over { background: #e8f1f8; }
+    button { padding: 9px 14px; border-radius: 8px; border: 0; background: #1f5f86; color: #fff; font-weight: 650; cursor: pointer; margin: 6px 6px 0 0; }
+    button:disabled { background: #9aa8b3; cursor: default; }
+    .status { margin: 16px 0; padding: 12px 14px; border-radius: 8px; background: #fff; border-left: 5px solid #9aa8b3; }
+    .status.bad { border-color: #b3261e; } .status.good { border-color: #1e7a3c; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; background: #fff; font-size: .92rem; }
+    th, td { border: 1px solid #d5dde4; padding: 6px 8px; text-align: left; vertical-align: top; }
+    th { background: #eaf0f5; }
+    td code, li code { word-break: break-all; }
+    .fatal { color: #b3261e; font-weight: 650; } .warning { color: #8a5a00; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5560; }
+  </style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When does Peppol BIS Billing 3.1.0 apply?","acceptedAnswer":{"@type":"Answer","text":"OpenPeppol's release notes for 3.1.0 (branch 2026-Q4-QA2 of OpenPEPPOL/peppol-bis-invoice-3) give 23 November 2026 for publication and 24 February 2027 as the date access points must apply it. From that day a file that passes 3.0.22 can be rejected."}},{"@type":"Question","name":"Are my invoices uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The rules are downloaded with the page and every file is checked in your browser. Nothing you drop leaves your machine."}},{"@type":"Question","name":"What breaks most often?","acceptedAnswer":{"@type":"Answer","text":"On OpenPeppol's own published examples, five of seventeen files that passed 3.0.22 failed 3.1.0, all on PEPPOL-COMMON-R040: scheme 0088 now takes a 13-digit GLN only. Your files may break on other rules; the check lists them."}}]}</script>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; E-invoice preflight</a></p>
+  <h1>Which of your Peppol invoices will be rejected in February?</h1>
+  <p>Access points must apply <strong>Peppol BIS Billing 3.1.0</strong> from <strong>24 February 2027</strong>. It adds 130 rules to the UBL set and tightens others, so a file that your access point accepts today can bounce then. Drop a batch of invoices you have sent (UBL or CII XML, or a whole folder) and each one is checked against both releases: the files that pass 3.0.22 now and fail 3.1.0 are the ones to fix, and the rules they break are listed with what to change.</p>
+  <p>Free, no account, and the files stay on your machine: the rules come with this page and run in your browser.</p>
+
+  <div id="drop" class="drop">
+    <p><strong>Drop invoice XML files or a folder here</strong></p>
+    <input id="files" type="file" multiple accept=".xml,application/xml,text/xml">
+    <input id="folder" type="file" webkitdirectory multiple style="display:none">
+    <br><button id="pickFolder" type="button">Choose a folder</button><button id="sample" type="button">Try four sample invoices</button>
+  </div>
+  <div id="status" class="status" aria-live="polite">No files checked yet.</div>
+  <p><button id="csv" type="button" disabled>Download CSV</button><button id="md" type="button" disabled>Download summary (Markdown)</button></p>
+  <div id="out"></div>
+
+  <h2>What changes in 3.1.0</h2>
+  <p>Every rule that 3.1.0 adds, removes, raises from warning to fatal, or whose test changes, compared rule by rule between the compiled 3.0.22 and 3.1.0 sets this page runs (wording-only edits such as "should" to "SHOULD" are left out). The short version:</p>
+  <ul>
+    <li><strong>Scheme 0088 is GLN-only</strong> (PEPPOL-COMMON-R040): exactly 13 digits with a valid GS1 check digit. 3.0.22 took any length that passed the check digit.</li>
+    <li><strong>Dutch identifiers become rejections</strong> (R054, R055, R056-1, R056-2, R057): KVK, OIN, Dutch VAT and establishment numbers in the wrong format were warnings.</li>
+    <li><strong>Belgian and Luxembourg numbers</strong>: a Belgian enterprise number (0208) must start with 0 or 1 (R043); new warnings check Belgian VAT (R062), Luxembourg VAT (R058) and the Luxembourg Matricule, scheme 0240 (R059).</li>
+    <li><strong>"Exactly one" rules for UBL</strong> (PEPPOL-EN16931-R141 to R276): each element that may occur once under its parent must occur exactly once, so a repeated element that 3.0.22 let through is now fatal.</li>
+    <li><strong>National rules</strong>: German BT-124 URLs (DE-R-T02) and Danish UNSPSC versions in CII (DK-R-003) become fatal; Danish buyers' CVR scheme in CII (DK-R-017) and Slovak address rules (SK-R-001 to SK-R-007) are new; Norwegian and Swedish VAT checks in CII now look for scheme code VA, so they fire for the first time.</li>
+  </ul>
+  <div class="scroll">
+<!-- changes:start -->
+<table><thead><tr><th>Rule</th><th>Syntax</th><th>Change</th><th>Severity in 3.1.0</th><th>Rule text (3.1.0)</th></tr></thead><tbody>
+<tr><td><code>DE-R-T02</code></td><td>UBL</td><td>warning to fatal</td><td class="fatal">fatal</td><td>If both supplier and customer are located in Germany, BT-124 "External document location" MUST contain an absolute URL with valid scheme.</td></tr>
+<tr><td><code>GR-R-001-5</code></td><td>UBL</td><td>removed</td><td class="fatal">fatal</td><td>When Supplier is Greek, the Invoice Id in the fourth segment must be a valid greek document type</td></tr>
+<tr><td><code>PEPPOL-COMMON-R040</code></td><td>UBL, CII</td><td>test changed</td><td class="fatal">fatal</td><td>GLN13 MUST have a valid format according to GS1 rules.</td></tr>
+<tr><td><code>PEPPOL-COMMON-R043</code></td><td>UBL, CII</td><td>test changed</td><td class="fatal">fatal</td><td>Belgian enterprise number MUST be stated in the correct format.</td></tr>
+<tr><td><code>PEPPOL-COMMON-R054</code></td><td>UBL, CII</td><td>warning to fatal</td><td class="fatal">fatal</td><td>Dutch Chamber of Commerce (KVK) numbers (0106) MUST be stated in the correct format (12345678).</td></tr>
+<tr><td><code>PEPPOL-COMMON-R055</code></td><td>UBL, CII</td><td>warning to fatal</td><td class="fatal">fatal</td><td>Dutch organization identification numbers (0190) MUST be stated in the correct format (12345678901234567890).</td></tr>
+<tr><td><code>PEPPOL-COMMON-R056-1</code></td><td>UBL, CII</td><td>warning to fatal</td><td class="fatal">fatal</td><td>Dutch VAT numbers (9944) MUST be stated in the correct format (NL123456789B12).</td></tr>
+<tr><td><code>PEPPOL-COMMON-R056-2</code></td><td>UBL, CII</td><td>warning to fatal</td><td class="fatal">fatal</td><td>Dutch VAT numbers MUST have the format (NL123456789B12).</td></tr>
+<tr><td><code>PEPPOL-COMMON-R057</code></td><td>UBL, CII</td><td>warning to fatal</td><td class="fatal">fatal</td><td>Dutch Chamber of Commerce Establishment numbers (0217) MUST be stated in the correct format (123456789012).</td></tr>
+<tr><td><code>PEPPOL-COMMON-R058</code></td><td>UBL, CII</td><td>added</td><td class="warning">warning</td><td>Luxembourg VAT number MUST be stated in the correct format.</td></tr>
+<tr><td><code>PEPPOL-COMMON-R059</code></td><td>UBL, CII</td><td>added</td><td class="warning">warning</td><td>Luxembourg Register of Legal Persons number (Matricule) MUST be stated in the correct format.</td></tr>
+<tr><td><code>PEPPOL-COMMON-R062</code></td><td>UBL, CII</td><td>added</td><td class="warning">warning</td><td>Belgian VAT number MUST be stated in the correct format.</td></tr>
+<tr><td><code>PEPPOL-EN16931-P0100</code></td><td>UBL</td><td>test changed</td><td class="fatal">fatal</td><td>Invoice type code MUST be set according to the profile.</td></tr>
+<tr><td><code>PEPPOL-EN16931-P0112</code></td><td>UBL</td><td>test changed</td><td class="fatal">fatal</td><td>Invoice type codes 326 and 389 are only allowed when both buyer and seller are German organizations. Invoice type code 384 is only allowed when both buyer and seller are German organizations or both are Slovak organizations.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R141</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AccountingCustomerParty MUST contain exactly one cac:Party.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R142</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AccountingCustomerParty/cac:Party MUST contain exactly one cac:PartyLegalEntity.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R143</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AccountingCustomerParty/cac:Party/cac:PartyLegalEntity MUST contain exactly one cbc:RegistrationName.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R144</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AccountingCustomerParty/cac:Party/cac:PartyTaxScheme/cac:TaxScheme MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R145</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AccountingCustomerParty/cac:Party/cac:PartyTaxScheme MUST contain exactly one cbc:CompanyID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R146</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AccountingCustomerParty/cac:Party MUST contain exactly one cac:PostalAddress.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R148</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AccountingCustomerParty/cac:Party/cac:PostalAddress MUST contain exactly one cac:Country.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R149</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cac:Country MUST contain exactly one cbc:IdentificationCode.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R150</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AccountingCustomerParty/cac:Party MUST contain exactly one cbc:EndpointID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R151</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AccountingSupplierParty MUST contain exactly one cac:Party.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R152</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AccountingSupplierParty/cac:Party MUST contain exactly one cac:PartyLegalEntity.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R153</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity MUST contain exactly one cbc:RegistrationName.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R154</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AccountingSupplierParty/cac:Party/cac:PartyTaxScheme/cac:TaxScheme MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R155</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AccountingSupplierParty/cac:Party/cac:PartyTaxScheme MUST contain exactly one cbc:CompanyID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R156</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AccountingSupplierParty/cac:Party MUST contain exactly one cac:PostalAddress.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R158</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress MUST contain exactly one cac:Country.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R159</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cac:Country MUST contain exactly one cbc:IdentificationCode.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R160</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AccountingSupplierParty/cac:Party MUST contain exactly one cbc:EndpointID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R161</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AdditionalDocumentReference/cac:Attachment/cac:ExternalReference MUST contain exactly one cbc:URI.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R162</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AllowanceCharge MUST contain exactly one cac:TaxCategory.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R164</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AllowanceCharge/cac:TaxCategory/cac:TaxScheme MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R165</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:AllowanceCharge/cac:TaxCategory MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R166</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:BillingReference MUST contain exactly one cac:InvoiceDocumentReference.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R167</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:CreditNoteLine/cac:DocumentReference MUST contain exactly one cbc:DocumentTypeCode.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R168</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:CreditNoteLine MUST contain exactly one cac:Item.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R169</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:CreditNoteLine/cac:Item/cac:AdditionalItemProperty MUST contain exactly one cbc:Value.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R170</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:CreditNoteLine/cac:Item MUST contain exactly one cac:ClassifiedTaxCategory.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R172</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:CreditNoteLine/cac:Item/cac:ClassifiedTaxCategory/cac:TaxScheme MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R173</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:CreditNoteLine/cac:Item/cac:ClassifiedTaxCategory MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R174</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:CreditNoteLine/cac:Item/cac:CommodityClassification MUST contain exactly one cbc:ItemClassificationCode.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R175</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:CreditNoteLine/cac:Item/cac:OriginCountry MUST contain exactly one cbc:IdentificationCode.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R176</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:CreditNoteLine/cac:Item MUST contain exactly one cbc:Name.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R177</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:CreditNoteLine MUST contain exactly one cac:Price.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R178</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:CreditNoteLine MUST contain exactly one cbc:CreditedQuantity.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R179</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:CreditNoteLine MUST contain exactly one cbc:LineExtensionAmount.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R181</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:Delivery/cac:DeliveryLocation/cac:Address MUST contain exactly one cac:Country.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R182</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:Delivery/cac:DeliveryLocation/cac:Address/cac:Country MUST contain exactly one cbc:IdentificationCode.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R183</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:Delivery/cac:DeliveryParty MUST contain exactly one cac:PartyName.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R184</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:LegalMonetaryTotal MUST contain exactly one cbc:LineExtensionAmount.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R185</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:LegalMonetaryTotal MUST contain exactly one cbc:TaxExclusiveAmount.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R186</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:LegalMonetaryTotal MUST contain exactly one cbc:TaxInclusiveAmount.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R187</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:PayeeParty/cac:PartyLegalEntity MUST contain exactly one cbc:CompanyID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R188</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:PayeeParty MUST contain exactly one cac:PartyName.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R189</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:PaymentMeans/cac:PayeeFinancialAccount/cac:FinancialInstitutionBranch MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R190</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:PaymentMeans/cac:PayeeFinancialAccount MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R191</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:PaymentMeans/cac:PaymentMandate/cac:PayerFinancialAccount MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R192</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:PaymentTerms MUST contain exactly one cbc:Note.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R193</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:TaxRepresentativeParty MUST contain exactly one cac:PartyName.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R194</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:TaxRepresentativeParty MUST contain exactly one cac:PartyTaxScheme.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R195</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:TaxRepresentativeParty/cac:PartyTaxScheme/cac:TaxScheme MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R196</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:TaxRepresentativeParty/cac:PartyTaxScheme MUST contain exactly one cbc:CompanyID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R197</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:TaxRepresentativeParty MUST contain exactly one cac:PostalAddress.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R199</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:TaxRepresentativeParty/cac:PostalAddress MUST contain exactly one cac:Country.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R200</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:TaxRepresentativeParty/cac:PostalAddress/cac:Country MUST contain exactly one cbc:IdentificationCode.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R202</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R203</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R204</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote/cac:TaxTotal/cac:TaxSubtotal MUST contain exactly one cbc:TaxableAmount.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R205</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote MUST contain exactly one cbc:CreditNoteTypeCode.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R206</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote MUST contain exactly one cbc:CustomizationID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R207</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote MUST contain exactly one cbc:DocumentCurrencyCode.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R208</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-creditnote:CreditNote MUST contain exactly one cbc:ProfileID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R210</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AccountingCustomerParty MUST contain exactly one cac:Party.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R211</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AccountingCustomerParty/cac:Party MUST contain exactly one cac:PartyLegalEntity.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R212</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AccountingCustomerParty/cac:Party/cac:PartyLegalEntity MUST contain exactly one cbc:RegistrationName.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R213</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AccountingCustomerParty/cac:Party/cac:PartyTaxScheme/cac:TaxScheme MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R214</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AccountingCustomerParty/cac:Party/cac:PartyTaxScheme MUST contain exactly one cbc:CompanyID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R215</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AccountingCustomerParty/cac:Party MUST contain exactly one cac:PostalAddress.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R217</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AccountingCustomerParty/cac:Party/cac:PostalAddress MUST contain exactly one cac:Country.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R218</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cac:Country MUST contain exactly one cbc:IdentificationCode.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R219</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AccountingCustomerParty/cac:Party MUST contain exactly one cbc:EndpointID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R220</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AccountingSupplierParty MUST contain exactly one cac:Party.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R221</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AccountingSupplierParty/cac:Party MUST contain exactly one cac:PartyLegalEntity.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R222</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity MUST contain exactly one cbc:RegistrationName.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R223</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyTaxScheme/cac:TaxScheme MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R224</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyTaxScheme MUST contain exactly one cbc:CompanyID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R225</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AccountingSupplierParty/cac:Party MUST contain exactly one cac:PostalAddress.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R227</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress MUST contain exactly one cac:Country.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R228</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cac:Country MUST contain exactly one cbc:IdentificationCode.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R229</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AccountingSupplierParty/cac:Party MUST contain exactly one cbc:EndpointID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R230</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AdditionalDocumentReference/cac:Attachment/cac:ExternalReference MUST contain exactly one cbc:URI.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R231</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AllowanceCharge MUST contain exactly one cac:TaxCategory.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R233</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AllowanceCharge/cac:TaxCategory/cac:TaxScheme MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R234</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:AllowanceCharge/cac:TaxCategory MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R235</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:BillingReference MUST contain exactly one cac:InvoiceDocumentReference.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R237</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:Delivery/cac:DeliveryLocation/cac:Address MUST contain exactly one cac:Country.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R238</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:Delivery/cac:DeliveryLocation/cac:Address/cac:Country MUST contain exactly one cbc:IdentificationCode.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R239</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:Delivery/cac:DeliveryParty MUST contain exactly one cac:PartyName.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R240</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:InvoiceLine/cac:DocumentReference MUST contain exactly one cbc:DocumentTypeCode.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R241</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:InvoiceLine/cac:Item/cac:AdditionalItemProperty MUST contain exactly one cbc:Value.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R242</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:InvoiceLine/cac:Item MUST contain exactly one cac:ClassifiedTaxCategory.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R244</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:InvoiceLine/cac:Item/cac:ClassifiedTaxCategory/cac:TaxScheme MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R245</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:InvoiceLine/cac:Item/cac:ClassifiedTaxCategory MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R246</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:InvoiceLine/cac:Item/cac:CommodityClassification MUST contain exactly one cbc:ItemClassificationCode.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R247</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:InvoiceLine/cac:Item/cac:OriginCountry MUST contain exactly one cbc:IdentificationCode.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R248</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:InvoiceLine/cac:Item MUST contain exactly one cbc:Name.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R249</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:InvoiceLine MUST contain exactly one cac:Price.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R250</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:InvoiceLine MUST contain exactly one cbc:InvoicedQuantity.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R252</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:LegalMonetaryTotal MUST contain exactly one cbc:LineExtensionAmount.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R253</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:LegalMonetaryTotal MUST contain exactly one cbc:TaxExclusiveAmount.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R254</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:LegalMonetaryTotal MUST contain exactly one cbc:TaxInclusiveAmount.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R255</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:PayeeParty/cac:PartyLegalEntity MUST contain exactly one cbc:CompanyID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R256</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:PayeeParty MUST contain exactly one cac:PartyName.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R257</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:PaymentMeans/cac:PayeeFinancialAccount/cac:FinancialInstitutionBranch MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R258</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:PaymentMeans/cac:PayeeFinancialAccount MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R259</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:PaymentMeans/cac:PaymentMandate/cac:PayerFinancialAccount MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R260</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:PaymentTerms MUST contain exactly one cbc:Note.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R261</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:TaxRepresentativeParty MUST contain exactly one cac:PartyName.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R262</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:TaxRepresentativeParty MUST contain exactly one cac:PartyTaxScheme.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R263</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:TaxRepresentativeParty/cac:PartyTaxScheme/cac:TaxScheme MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R264</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:TaxRepresentativeParty/cac:PartyTaxScheme MUST contain exactly one cbc:CompanyID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R265</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:TaxRepresentativeParty MUST contain exactly one cac:PostalAddress.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R267</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:TaxRepresentativeParty/cac:PostalAddress MUST contain exactly one cac:Country.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R268</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:TaxRepresentativeParty/cac:PostalAddress/cac:Country MUST contain exactly one cbc:IdentificationCode.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R270</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R271</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory MUST contain exactly one cbc:ID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R272</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice/cac:TaxTotal/cac:TaxSubtotal MUST contain exactly one cbc:TaxableAmount.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R273</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice MUST contain exactly one cbc:CustomizationID.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R274</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice MUST contain exactly one cbc:DocumentCurrencyCode.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R275</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice MUST contain exactly one cbc:InvoiceTypeCode.</td></tr>
+<tr><td><code>PEPPOL-EN16931-R276</code></td><td>UBL</td><td>added</td><td class="fatal">fatal</td><td>ubl-invoice:Invoice MUST contain exactly one cbc:ProfileID.</td></tr>
+<tr><td><code>SK-R-001</code></td><td>UBL</td><td>added</td><td class="warning">warning</td><td>If both supplier and customer are located in Slovakia, and if "Invoice type code" (BT-3) contains the code 384 (Corrected invoice), "Preceding invoice reference" (BG-3) SHOULD be provided at least once.</td></tr>
+<tr><td><code>SK-R-002</code></td><td>UBL</td><td>added</td><td class="warning">warning</td><td>For domestic Slovak transactions, BT-35 Seller street name shall be provided.</td></tr>
+<tr><td><code>SK-R-003</code></td><td>UBL</td><td>added</td><td class="warning">warning</td><td>For domestic Slovak transactions, BT-37 Seller city name shall be provided.</td></tr>
+<tr><td><code>SK-R-004</code></td><td>UBL</td><td>added</td><td class="warning">warning</td><td>For domestic Slovak transactions, BT-38 Seller postal code shall be provided.</td></tr>
+<tr><td><code>SK-R-005</code></td><td>UBL</td><td>added</td><td class="warning">warning</td><td>For domestic Slovak transactions, BT-50 Buyer street name shall be provided.</td></tr>
+<tr><td><code>SK-R-006</code></td><td>UBL</td><td>added</td><td class="warning">warning</td><td>For domestic Slovak transactions, BT-52 Buyer city name shall be provided.</td></tr>
+<tr><td><code>SK-R-007</code></td><td>UBL</td><td>added</td><td class="warning">warning</td><td>For domestic Slovak transactions, BT-53 Buyer postal code shall be provided.</td></tr>
+<tr><td><code>DK-R-003</code></td><td>CII</td><td>warning to fatal</td><td class="fatal">fatal</td><td>If ItemClassification is provided from Danish suppliers, UNSPSC version 19.05.01 or 26.08.01 MUST be used</td></tr>
+<tr><td><code>DK-R-017</code></td><td>CII</td><td>added</td><td class="fatal">fatal</td><td>For Danish Customers it is mandatory to specify schemeID as "0184" (DK CVR-number) when SpecifiedLegalOrganization is used for BuyerTradeParty</td></tr>
+<tr><td><code>NO-R-001</code></td><td>CII</td><td>test changed</td><td class="fatal">fatal</td><td>For Norwegian suppliers, a VAT number MUST be the country code prefix NO followed by a valid Norwegian organization number (nine numbers) followed by the letters MVA.</td></tr>
+<tr><td><code>SE-R-001</code></td><td>CII</td><td>test changed</td><td class="fatal">fatal</td><td>For Swedish suppliers, Swedish VAT-numbers must consist of 14 characters.</td></tr>
+<tr><td><code>SE-R-002</code></td><td>CII</td><td>test changed</td><td class="fatal">fatal</td><td>For Swedish suppliers, the Swedish VAT-numbers must have the trailing 12 characters in numeric form</td></tr>
+</tbody></table>
+<!-- changes:end -->
+  </div>
+
+  <h2>When does Peppol BIS Billing 3.1.0 apply?</h2>
+  <p>OpenPeppol's release notes for 3.1.0 (branch <code>2026-Q4-QA2</code> of OpenPEPPOL/peppol-bis-invoice-3) give 23 November 2026 for publication and 24 February 2027 as the date access points must apply it. From that day a file that passes 3.0.22 can be rejected. On 24 November 2026 the release was not yet tagged on OpenPeppol's GitHub, so the rules here are compiled from that release-candidate branch at commit <code>90f078a</code>; they pass all 1,138 of OpenPeppol's own unit-test asserts. They will be rebuilt from the tag when it appears.</p>
+  <h2>Are my invoices uploaded?</h2>
+  <p>No. The rules are downloaded with the page and every file is checked in your browser. Nothing you drop leaves your machine.</p>
+  <h2>What breaks most often?</h2>
+  <p>On OpenPeppol's own published examples, five of seventeen files that passed 3.0.22 failed 3.1.0, all on PEPPOL-COMMON-R040: scheme 0088 now takes a 13-digit GLN only. Your files may break on other rules; the check lists them.</p>
+  <h2>Thousands of files?</h2>
+  <p>The same check runs from a terminal on a folder of any size and writes a CSV: <code>node peppol-readiness-cli.mjs ./sent-invoices --csv readiness.csv</code> (MIT licensed, in the <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/einvoice-preflight">source</a>). To check a single file against every rule, not only what changes, use the <a href="./">full checker</a>.</p>
+  <p><label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label></p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p>A preflight observation, not a statement that any invoice is valid or will be accepted; your access point's own validation decides. Not affiliated with OpenPeppol or any access point. Best-effort hosting, no SLA.</p>
+  <p>The optional local counter records only an event name and the day (<code>peppol_readiness_checked</code>) in this browser, never filenames or invoice data. Off with the box above, Do Not Track or Global Privacy Control.</p>
+</footer>
+<script type="module">
+  import { loadPlainRunner } from "./official-browser.mjs";
+  import { classifyFile, isPeppolFile, summarize, toCsv, toMarkdown, headline, VERDICTS } from "./peppol-readiness.mjs";
+  import { recordUsage, usageStorage, writeOptOut, readOptOut } from "./usage.mjs";
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const status = $("status"), out = $("out");
+  let latest = null, runner = null;
+  try { $("usageOptOut").checked = readOptOut(usageStorage()); } catch {}
+  $("usageOptOut").addEventListener("change", (e) => { try { writeOptOut(usageStorage(), e.target.checked); } catch {} });
+
+  async function getRunner() {
+    if (!runner) runner = await loadPlainRunner();
+    return runner;
+  }
+
+  async function check(entries) {
+    const xmls = entries.filter((e) => /\.xml$/i.test(e.name));
+    if (!xmls.length) { status.className = "status"; status.textContent = "No .xml files among those."; return; }
+    status.className = "status"; status.textContent = `Loading the rules...`;
+    const run = await getRunner();
+    if (!run) { status.className = "status bad"; status.textContent = "The rules could not be loaded on this copy of the page, so nothing was checked."; return; }
+    const rows = [];
+    for (const [i, e] of xmls.entries()) {
+      status.textContent = `Checking ${i + 1} of ${xmls.length}: ${e.name}`;
+      const xml = await e.text();
+      if (!isPeppolFile(xml)) { rows.push(classifyFile(e.name, null, null, { peppol: false })); continue; }
+      const go = async (opts) => { try { return await run(xml, opts); } catch (err) { return { error: err.message }; } };
+      rows.push(classifyFile(e.name, await go({}), await go({ peppolNext: true })));
+    }
+    latest = summarize(rows);
+    render(latest);
+    recordUsage(usageStorage(), $("usageOptOut").checked, "peppol_readiness_checked");
+  }
+
+  function render(s) {
+    status.className = "status " + (s.counts["newly-rejected"] ? "bad" : s.peppol ? "good" : "");
+    status.textContent = headline(s);
+    $("csv").disabled = $("md").disabled = false;
+    let html = '<div class="scroll"><table><thead><tr><th>Verdict</th><th>Files</th></tr></thead><tbody>';
+    for (const [k, label] of Object.entries(VERDICTS)) if (s.counts[k]) html += `<tr><td>${esc(label)}</td><td>${s.counts[k]}</td></tr>`;
+    html += "</tbody></table></div>";
+    if (s.rules.length) {
+      html += `<h3>What ${esc(s.release)} adds to these files, by rule</h3><div class="scroll"><table><thead><tr><th>Rule</th><th>Severity</th><th>Files</th><th>What to change</th></tr></thead><tbody>`;
+      for (const r of s.rules) html += `<tr><td><code>${esc(r.rule)}</code></td><td class="${esc(r.severity)}">${esc(r.severity)}</td><td>${r.files.length}</td><td>${esc(r.advice || "")}${r.advice ? "<br>" : ""}<small>${esc(r.message)}${r.fix ? " Fix: " + esc(r.fix) : ""}</small></td></tr>`;
+      html += "</tbody></table></div>";
+    }
+    const flagged = s.rows.filter((r) => r.added.length || r.verdict === "unreadable");
+    if (flagged.length) {
+      html += '<h3>Files</h3><div class="scroll"><table><thead><tr><th>File</th><th>Verdict</th><th>New in 3.1.0</th></tr></thead><tbody>';
+      for (const r of flagged) html += `<tr><td>${esc(r.name)}</td><td>${esc(VERDICTS[r.verdict])}</td><td>${r.added.map((f) => `<span class="${esc(f.severity)}">${esc(f.rule)}</span> <code>${esc(f.path)}</code>`).join("<br>") || esc(r.reason || "")}</td></tr>`;
+      html += "</tbody></table></div>";
+    }
+    out.innerHTML = html;
+  }
+
+  function download(name, text, type) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type }));
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+  $("csv").addEventListener("click", () => latest && download("peppol-3.1.0-readiness.csv", toCsv(latest), "text/csv"));
+  $("md").addEventListener("click", () => latest && download("peppol-3.1.0-readiness.md", toMarkdown(latest), "text/markdown"));
+
+  const fromFiles = (list) => [...list].map((f) => ({ name: f.webkitRelativePath || f.name, text: () => f.text() }));
+  $("files").addEventListener("change", (e) => check(fromFiles(e.target.files)));
+  $("folder").addEventListener("change", (e) => check(fromFiles(e.target.files)));
+  $("pickFolder").addEventListener("click", () => $("folder").click());
+  const drop = $("drop");
+  drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+  drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+  drop.addEventListener("drop", async (e) => {
+    e.preventDefault();
+    drop.classList.remove("over");
+    const items = [...(e.dataTransfer.items || [])].map((i) => i.webkitGetAsEntry?.()).filter(Boolean);
+    if (!items.length) return check(fromFiles(e.dataTransfer.files));
+    const files = [];
+    const walk = async (entry, prefix) => {
+      if (entry.isFile) files.push(await new Promise((ok, bad) => entry.file((f) => ok({ name: prefix + f.name, text: () => f.text() }), bad)));
+      else if (entry.isDirectory) {
+        const reader = entry.createReader();
+        for (;;) {
+          const batch = await new Promise((ok, bad) => reader.readEntries(ok, bad));
+          if (!batch.length) break;
+          for (const child of batch) await walk(child, prefix + entry.name + "/");
+        }
+      }
+    };
+    for (const it of items) await walk(it, "");
+    check(files);
+  });
+
+  // The bundled Peppol example, as shipped and with the two edits 3.1.0 rejects: a
+  // 19-digit 0088 address (R040) and a Dutch KVK number in the wrong format (R054).
+  $("sample").addEventListener("click", async () => {
+    const base = await (await fetch("./examples/peppol-credit-note.xml")).text();
+    const nl = await (await fetch("./examples/peppol-nl-credit-note.xml")).text();
+    const gln = base.replace(/(<cbc:EndpointID schemeID="0088">)4012345000009</, "$19482348239847239874<");
+    const kvk = nl.replace(/<cbc:EndpointID schemeID="0106">\d+</, '<cbc:EndpointID schemeID="0106">1234567<');
+    check([
+      { name: "peppol-credit-note.xml", text: async () => base },
+      { name: "credit-note-19-digit-0088.xml", text: async () => gln },
+      { name: "peppol-nl-credit-note.xml", text: async () => nl },
+      { name: "nl-credit-note-short-kvk.xml", text: async () => kvk },
+    ]);
+  });
+</script>
+</body>
+</html>
