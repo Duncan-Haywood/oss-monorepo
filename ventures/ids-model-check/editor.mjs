@@ -723,7 +723,10 @@ export function modelValueOffer(mp, kind, enumVals = null, temporal = null) {
     : kind === "text" ? values.map(([v]) => v).sort()
     : kind === "number" && values.length <= NUMBER_ONEOF_MAX && exact ? [...exact] : null;
   const num = kind === "number" && typeof mp.min === "number" && typeof mp.max === "number";
-  return { values, outside, complete, min: num ? mp.min : null, max: num ? mp.max : null,
+  // INF, -INF and NaN: an exporter's 1.#INF / -1.#IND (inventory.mjs lexical),
+  // which every range or value check fails.
+  const nonFinite = kind === "number" ? mp.values.filter(([v]) => v === "INF" || v === "-INF" || v === "NaN") : [];
+  return { values, outside, complete, nonFinite, min: num ? mp.min : null, max: num ? mp.max : null,
     rangeMin: num ? outwardBound(mp.min, -1) : null, rangeMax: num ? outwardBound(mp.max, 1) : null, oneOf, empty: mp.empty || 0,
     ...modelTemporalRange(mp, temporal) };
 }

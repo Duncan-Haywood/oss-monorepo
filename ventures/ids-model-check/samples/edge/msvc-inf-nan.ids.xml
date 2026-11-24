@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://standards.buildingsmart.org/IDS http://standards.buildingsmart.org/IDS/1.0/ids.xsd">
+<info><title>Exporter infinity and NaN</title></info>
+<specifications>
+<specification name="U below 1" ifcVersion="IFC4"><applicability minOccurs="0" maxOccurs="unbounded"><entity><name><simpleValue>IFCWALL</simpleValue></name></entity></applicability>
+<requirements><property dataType="IFCTHERMALTRANSMITTANCEMEASURE" cardinality="optional"><propertySet><simpleValue>Acme</simpleValue></propertySet><baseName><simpleValue>ThermalTransmittance</simpleValue></baseName><value><xs:restriction base="xs:double"><xs:maxInclusive value="1"/></xs:restriction></value></property></requirements></specification>
+<specification name="Thickness set" ifcVersion="IFC4"><applicability minOccurs="0" maxOccurs="unbounded"><entity><name><simpleValue>IFCWALL</simpleValue></name></entity><property><propertySet><simpleValue>Acme</simpleValue></propertySet><baseName><simpleValue>Thickness</simpleValue></baseName></property></applicability>
+<requirements><property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Acme</simpleValue></propertySet><baseName><simpleValue>Thickness</simpleValue></baseName><value><xs:restriction base="xs:double"><xs:minInclusive value="0"/></xs:restriction></value></property></requirements></specification>
+</specifications></ids>
