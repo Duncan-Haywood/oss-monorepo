@@ -936,7 +936,8 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const agentBlog = loadPosts(undefined, AGENT_POSTS_DIR).length ? 1 : 0;
   // Plus one per tool that calls the network, under "Tools that call the network".
   const network = externalCallExceptions(surfaces).length;
-  assert.equal(bullets.length, surfaces.length + 12 + audiences + topics + agentBlog + network);
+  // Plus the open hardware designs page (hardware-page.mjs), added under "Optional" on 2026-11-24.
+  assert.equal(bullets.length, surfaces.length + 13 + audiences + topics + agentBlog + network);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -5352,6 +5353,9 @@ test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask
     `${BASE}about/`,
     `${BASE}ask/`,
     `${BASE}custom-development/`,
+    // The open hardware designs page (hardware-page.mjs), listed right after
+    // custom development by renderHubSitemap.
+    `${BASE}hardware/`,
     // Each request's own page, one per entry in portfolio/requests/requests.json.
     ...loadRequests().map((r) => `${BASE}custom-development/${r.id}/`),
     `${BASE}${COMPARE_PATH}`,
