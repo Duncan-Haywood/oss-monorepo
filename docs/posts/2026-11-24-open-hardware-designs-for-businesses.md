@@ -3,7 +3,7 @@ title: "The open hardware designs, as products for the businesses that would use
 seo_title: "Open hardware designs for small businesses"
 date: 2026-11-24
 tags: [hardware, robotics, open-source, smb]
-description: "Robots for tennis clubs, cleaning companies and grounds crews, house plans for builders, and construction robotics research, on one page, with nothing built yet and no price on anything."
+description: "Robots for tennis clubs, cleaning firms and grounds crews, house plans for builders, and construction robotics research. Nothing built yet, nothing for sale."
 ---
 
 The site now has a [hardware page](https://marisstella.app/hardware/). It

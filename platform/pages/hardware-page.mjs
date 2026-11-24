@@ -201,7 +201,7 @@ export function renderHardwarePage({ baseUrl, footerHtml = '', chromeScript = ''
   const toRoot = '../';
   const url = `${baseUrl}${HARDWARE_PATH}`;
   const title = 'Open hardware designs for businesses';
-  const description = 'Robots for tennis clubs, cleaning companies and grounds crews, house plans for builders, and construction robotics research. Every design is open (MIT) and at the CAD and simulation stage: nothing has been built or is for sale yet.';
+  const description = 'Open (MIT) robot designs for tennis clubs, cleaners and grounds crews, plus house plans for builders. CAD and simulation only: nothing built or for sale yet.';
   const generalInterest = `${toRoot}${FEEDBACK_PATH}?type=idea&tool=hardware`;
   return `<!doctype html>
 <html lang="en">
