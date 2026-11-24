@@ -20,7 +20,28 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
-## Big bowling leagues: 26 teams over 12 and over 38 weeks at an even lane split, from a mirror (2026-11-24, latest)
+## Bowling seasons that cannot be even: the page now says when its split is the best possible (2026-11-24, latest)
+
+44 bowling seasons were already proved to have no lane deal that gives every team its even split (every
+season exactly as long as the lane pairs, from 4 to 30 teams, and the 4-team leagues). The page said so,
+but not whether its own deal was as close as any deal could get. `eval/bowling-mirror-cpsat.py --soft`
+now lets counts leave their floor..ceil and minimises the same out-of-target total the page measures
+(`offBound`); `--hint` starts it from a stored answer.
+
+**Proved minimums.** CP-SAT proved the minimum on 39 of the 44 seasons (all up to 20 teams; 18 x 9 in
+152 s, 20 x 10 in 114 s). The page's own search already reaches it on 38. The 39th, 20 teams over 10
+weeks, had 22 counts off where 20 is the minimum; the CP-SAT answer is stored (`bowling-lane-near.mjs`)
+and the page now builds 20. For these 39 seasons the page now says the deal is the most even one possible
+(`laneOffMin`, `laneProvedBest` from `bowlingSchedule`, `bowling-lane-min.mjs`). On 22 to 30 teams the
+solver proved no useful bound in 600 s, so the page makes no such claim there.
+
+**Two big seasons closer.** 26 teams over 13 weeks went from 30 to 28 off (a new stored answer) and 26
+over 39 weeks from 14 to 12 (the stored answer, improved from its hint). Hinted runs on 24 x 11, 28 x 13,
+26 x 26, 28 x 14 and 28 x 28 kept the stored answers (3, 3, 10, 32, 16), and the mirror with 4 workers
+found nothing on 24 x 24 in 30 minutes. Every run: `eval/bowling-lane-min-2026-11-24.txt`;
+`node --test bowling.test.mjs`: 38 pass.
+
+## Big bowling leagues: 26 teams over 12 and over 38 weeks at an even lane split, from a mirror (2026-11-24, later)
 
 Two bowling seasons that every earlier solver had left off the even split are now at it: 26 teams over
 12 weeks (each team on 12 different lane pairs, never one twice; stored 3 off) and 26 teams over 38 weeks
