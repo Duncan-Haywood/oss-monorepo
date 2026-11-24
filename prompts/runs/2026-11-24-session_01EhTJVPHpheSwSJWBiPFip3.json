@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVPHpheSwSJWBiPFip3",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T22:55:41Z",
+  "ended": "2026-11-24T23:05:22Z",
+  "wall_minutes": 9.93,
+  "tokens_in": 3871726,
+  "tokens_out": 27078,
+  "cost_usd": 2.1906,
+  "tool_calls": 38,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18720",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Draw sent the run to track 24 (civ-*), which is wound down, with the default being to open a new product-linked programme; a curiosity track has no credible product, so I advanced an existing product-linked programme instead."
+    },
+    {
+      "file": "research/build-data/HOSTS",
+      "issue": "All four Socrata hosts refused at CONNECT again (curl 000), so the construction-focus programme was not runnable this session."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "why": "Track 24 draw says open a new product-linked civ- programme; no product fits a network-seeding curiosity track, and build-data's hosts were refused.",
+      "did": "Advanced llm-coding-inference (product-linked: LLM qualitative coding with valid prevalence intervals) with milestone 7bh.",
+      "result": "Pre-registered step landed with a decisive (b) outcome and a practical audit-size recommendation."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-rare-category-audit-hull-fix-costs-too-much.md",
+    "research/llm-coding-inference/LOG.md (7bh)"
+  ],
+  "goal": null,
+  "notes": "7bh: 39 fresh GoEmotions cells, 2,000 draws each, ~6 min on 4 cores. Default w3 misses in 3 cells (all 2%, n 200); mid-p hull for 3<=x<10 covers 95.7%+ everywhere but costs +0.045 of pooled width (bar 0.010); lower-only variant same coverage at +0.035. Decision (b): default stays. Local checks: test_llmci.py 52 passed; research/_homepage/build.py ok; check_posts ok; check_md_links reports 2 pre-existing dead links in portfolio/monetization/hardware-bets.md (not touched by this PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c76572c9-2e2f-55d0-8313-40b6e21d9344",
+    "transcripts": 1,
+    "first": "2026-11-24T22:55:41Z",
+    "last": "2026-11-24T23:05:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 73,
+        "output": 27078,
+        "thinking": 4791,
+        "cache_read": 3759551,
+        "cache_write_5m": 0,
+        "cache_write_1h": 112102,
+        "api_equivalent_usd": 2.1906,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 73,
+      "output": 27078,
+      "thinking": 4791,
+      "cache_read": 3759551,
+      "cache_write_5m": 0,
+      "cache_write_1h": 112102,
+      "api_equivalent_usd": 2.1906,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 34,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.93,
+      "active_minutes": 9.93,
+      "model_minutes": 4.58,
+      "tool_minutes": 5.35,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, run and write up one pre-registered simulation study by a methods PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 273.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
