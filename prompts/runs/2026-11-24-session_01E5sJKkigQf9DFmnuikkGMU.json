@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKkigQf9DFmnuikkGMU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T15:18:30Z",
+  "ended": "2026-11-24T15:37:23Z",
+  "wall_minutes": 20.48,
+  "tokens_in": 7978965,
+  "tokens_out": 33502,
+  "cost_usd": 3.223,
+  "tool_calls": 75,
+  "task": "photo-editing flagship: read the Bayer mpcws default against --noise-read ship on new camera files",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18621",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "A git ls-tree -l on blob:none clones fetched every blob to get sizes and stalled past 5 min; --name-only fixed it."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here named item 3 (blind 6-body X-Trans set), which needs raw.pixls.us; the host probe printed in the same output said raw.pixls.us REFUSED, but the item was still numbered as buildable."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "The second item, the H 25 IT8.7-2 card raw, needs an outside file. Item 3 needs 6 fresh X-Trans bodies, and 23 public GitHub test folders gave only 1.",
+      "did": "Took item 4 (read the mpcws default against ship on new camera files) on a source found while searching, immich-app/test-assets.",
+      "result": "The pre-registered check failed h4o on one GH4 tile; the Bayer default went back to ship."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-photo-editing-noise-read-default-reverted.md",
+    "ventures/photo-editing/eval/camera-drawn-mpcws-fresh-2026-11-24.md"
+  ],
+  "goal": "Deepen flagship 7 (photo-editing)",
+  "notes": "Rule committed in its own commit before the sweep. Sweep: 120 rows, 9 files, about 6 min on 4 cores. Judge (near_clean_gate.py drawn): h1 pass (+0.199 luma, +0.124 colour), h2 pass, h3 pass, h4o FAIL (4_3.rw2 [192,336] SNR 60 equal, luma -0.130, oracle -0.01). Verification: python3 platform/ci/run_venture_tests.py photo-editing -> ok, 1616 tests, 9 skipped, 0 failed; site page checks ok; check_posts ok; portfolio/router/validate.py ok. The X100V RAF from immich is recorded in NEXT.md as 1 of the 6 X-Trans bodies needed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a368521a-3b90-5c5f-9350-d1911bff2def",
+    "transcripts": 1,
+    "first": "2026-11-24T15:18:30Z",
+    "last": "2026-11-24T15:38:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 147,
+        "output": 33502,
+        "thinking": 6973,
+        "cache_read": 7856181,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122637,
+        "api_equivalent_usd": 3.223,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 147,
+      "output": 33502,
+      "thinking": 6973,
+      "cache_read": 7856181,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122637,
+      "api_equivalent_usd": 3.223,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 65,
+      "ToolSearch": 4,
+      "TaskStop": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.48,
+      "active_minutes": 20.39,
+      "model_minutes": 8.89,
+      "tool_minutes": 11.5,
+      "waiting_on_human_minutes": 0.09,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an imaging engineer finding a fresh data source, pre-registering, running and judging a sweep, reverting a default and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 186.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
