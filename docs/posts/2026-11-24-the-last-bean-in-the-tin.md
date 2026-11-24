@@ -1,6 +1,6 @@
 ---
 title: "A new story: how many packets of an old gardener's beans bring back all 24 varieties?"
-seo_title: "The coupon collector's problem in a seed library: a story and its numbers"
+seo_title: "The coupon collector's problem in a seed library: a story"
 date: 2026-11-24
 tags: [fiction, hearth-and-horizon, coupon-collector, probability, seed-saving]
 description: "A seed library guesses 48 packets will bring back 24 bean varieties. Equal shares need about 91; the gardener's own rows say 158. A story with its model."
