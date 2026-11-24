@@ -215,6 +215,12 @@ test("26 teams over 12 weeks: every team on 12 different pairs (stored 2026-11-2
   assert.equal(laneReport(s).atBound, 26);
 });
 
+test("26 teams over 38 weeks: every team on every pair 2 or 3 times (stored 2026-11-24, mirrored CP-SAT; was 1 off)", () => {
+  assert.ok(LANE_TABLE["26,38"] && !LANE_NEAR["26,38"]);
+  const s = bowlingSchedule({ teams: names(26), weeks: 38, start: START });
+  assert.equal(laneReport(s).atBound, 26);
+});
+
 test("seasons a solver proved out of reach are flagged, and only those", () => {
   assert.ok(OUT_OF_REACH.length >= 20, `${OUT_OF_REACH.length} proofs`);
   // Every listed season really is off the bound in the page's own season: a proof can never sit

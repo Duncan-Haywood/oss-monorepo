@@ -1,12 +1,15 @@
 """Bowling lane-pair seasons at the bound as a CP-SAT model, with an optional mirror symmetry.
 
-    python3 eval/bowling-limit1-cpsat.py <teams> <weeks> <seconds> [--mirror] [--workers N] > answer.json
+    python3 eval/bowling-mirror-cpsat.py <teams> <weeks> <seconds> [--mirror] [--workers N] > answer.json
 Same model as eval/bowling-encoding.py: each week a permutation of its matches onto the
-P lane pairs (week 1 fixed: match m on pair m), and every team on every pair floor(W/P)..ceil(W/P) times (off = 0). At a
-limit of 1 (W <= P) written as one AllDifferent per week and per team; otherwise as linear counts. --mirror (W even only) adds the reflection of the circle method: t -> W-1-t (mod n-1,
+P lane pairs (week 1 fixed, match m on pair m, without --mirror), and every team on every pair floor(W/P)..ceil(W/P) times (off = 0). At a
+limit of 1 (W <= P) written as one AllDifferent per week and per team; otherwise as linear counts. --mirror adds the reflection of the circle method: t -> W-1-t (mod n-1,
 the fixed team fixed) maps round r's match k to round W-1-r's match k, and the answer is asked to send
 that match to pi(pair) for pi(p) = p xor 1 (P odd: the last pair fixed). With W odd the middle round is its own
-image, which forces pi = identity, and then the fixed team repeats a pair, so --mirror refuses odd W.
+image, which forces pi = identity. The fixed team then bowls on the same pair in weeks r and W-1-r, so
+every pair's count for it is even except the middle week's: impossible at a limit of 1, and for
+22 x 33 (every pair 3 times) and 26 x 25 (every pair 1-2 times, 13 pairs from 7 values) too
+(22 x 33 checked: INFEASIBLE in 0.0 s). So --mirror refuses odd W.
 Prints {"n","W","status","plan","seconds"}; plan[w][m] = pair of match m of week w (roundRobin order).
 Needs ortools (pip install ortools).
 """
@@ -39,7 +42,7 @@ for t in range(n):
 if not mirror:  # with --mirror, pi already uses the label freedom: fixing week 1 too would over-constrain
     for k in range(P): m.Add(L[0][k] == k)
 if mirror:
-    if W % 2: sys.exit("--mirror needs an even number of weeks")
+    if W % 2: sys.exit("--mirror needs an even number of weeks (see the header)")
     q = n - 1 if n % 2 == 0 else n
     # match of round r identified by its unordered team pair; image under t -> W-1-t (mod q), q-1 fixed... the
     # fixed team of roundRobin is N-1 = n-1 (n even).
