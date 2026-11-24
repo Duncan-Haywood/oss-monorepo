@@ -157,11 +157,19 @@ workflows:
   classification: none
   publishes: []
 - workflow: distribute-pypi-packages.yml
-  classification: none
-  publishes: []
+  classification: dispatch
+  publishes:
+  - job: publish
+    step: uses pypa/gh-action-pypi-publish
+    gates:
+    - ${{ vars.DISTRIBUTE_PYPI == 'true' && hashFiles('dist/*') != '' }}
 - workflow: distribute-pypi.yml
-  classification: none
-  publishes: []
+  classification: dispatch
+  publishes:
+  - job: publish
+    step: uses pypa/gh-action-pypi-publish
+    gates:
+    - ${{ vars.DISTRIBUTE_PYPI == 'true' && hashFiles('dist/*') != '' }}
 - workflow: distribute-releases.yml
   classification: none
   publishes: []
@@ -384,6 +392,9 @@ workflows:
     gates:
     - ${{ vars.VERCEL_DEPLOY == 'true' }}
 - workflow: sbom-diff-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: secrets-inventory-ci.yml
   classification: none
   publishes: []
 - workflow: security-alert-queue.yml
