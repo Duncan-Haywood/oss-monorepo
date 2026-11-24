@@ -149,7 +149,7 @@
 
 - A licensed set with many real closed and half-closed eyes to set the 0.45 line from a curve (one closed face
   brackets it now); sunglasses read as open.
-- The same detector behind `SHOOTFLOW_FACE_DETECTOR` for the CLI cull (`toDetectorJson` writes faces.py's contract).
+- (landed 2026-11-24, eval/blink-rule-agreement-2026-11-24.md) One rule for the page and the CLI detector: the more-closed eye over 0.5 (the page asked for both at 0.45 and flagged 4 of 7 closed photos; now 6 of 7, 0 of 108 others). Next: edge-mirror search on the page (its one miss is a half face at the edge), opt-in or gated, timed on a 500-file card; a real wink, which now counts as a blink.
 
 ## From the cull page's AF point (2026-11-24, eval/cull-af-point-2026-11-24.md)
 

@@ -561,6 +561,55 @@ ifcXML (entity for entity, `iN` for `#N`) and `samples/tiny-house.ifczip` the
 
 No API key, account or server is involved, so there is nothing to configure.
 
+### Does the file follow its own IFC schema? (2026-11-24)
+
+An IDS check reads each value by its position in the record and by its type.
+When the file itself breaks the IFC schema, the check can test the wrong value
+or skip one, and say nothing. For example: an `IFCPERSON` with 7 attributes where
+IFC4 gives it 8, `NominalValue` written as a bare `0.2` where IFC needs
+`IFCREAL(0.2)` or a measure, `IFCLABEL(0.5)`, an enumeration value the schema does not list, `*` where `$` belongs, or an `IfcOwnerHistory` whose
+application is a cartesian point. `conformance.mjs` reads every record of a STEP
+file against its schema and names each fault, folded by kind, so an export
+with one systematic fault gives one line:
+
+- **What it checks:** the attribute count; `*` only in derived slots and `$` only in
+  optional ones; references to records that exist and are of an allowed class;
+  typed values in selects (the type exists, the select allows it, something is
+  inside, and the inside is the right kind); a bare value where the type is not
+  a select; enumeration values the schema lists; NaN; the least size of a list
+  (`SET [1:?]`) and fixed inner sizes (2D points in a 2D list); abstract classes
+  written as records; the three header records' shapes (ISO 10303-21); and three
+  rules the schema files here do not carry: IfcApplication's two UNIQUE rules,
+  and IFC2X3's IfcGroup grouped by exactly one IfcRelAssignsToGroup. Classes
+  outside the schema and duplicate GlobalIds were already reader notes and
+  model findings, and are not repeated.
+- **Where it shows:** `node cli.mjs --conformance MODEL.ifc [--json]` (exit 1 on
+  any fault, with the outside-schema notes and duplicate GlobalIds). It is also
+  a model warning in every check of a STEP file up to 40 MB, on the page (a
+  MODEL block beside the duplicate GlobalIds) and in the CLI's text and JSON
+  report (`--no-conformance` turns it off). Like duplicate GlobalIds, it does not
+  change the IDS verdict.
+- **How it was checked** (`eval/conformance-2026-11-24.md`): IfcOpenShell's
+  labelled broken files (`test/fixtures/validate`): all 25 `fail-*` files
+  flagged with their fault, and 0 notes on the 13 `pass-*` files. Then
+  `ifcopenshell.validate` 0.9.0 on 492 public files (IfcOpenShell's 293,
+  buildingSMART's IFC 4.3 samples and Sample-Test-Files, opensourceBIM,
+  web-ifc's 108 readable): the same files flagged, 492 of 492, and on records
+  none IfcOpenShell flags that this misses, once inverse cardinalities and
+  ids.mjs's own notes (outside-schema classes, duplicate GlobalIds) are set apart. The two tools differ in three places. Inverse
+  cardinalities (`ShapeOfProduct`, `PlacesObject`) are not checked here, apart
+  from IFC2X3's IfcGroup. And IfcOpenShell lets `$` stand in a derived slot,
+  where ISO 10303-21 writes `*`. And IfcOpenShell refuses the draft schemas
+  IFC4X2 and IFC4X3_RC2, which this reads as IFC4 and IFC4X3_ADD2 behind a
+  first note.
+- **What the public files hold:** a Bonsai classification library whose 1,010
+  references `$$` (no comma) leaves unread; IfcOpenShell's own IFC4 property
+  set template file with three templates one attribute short; Bonsai's IFC2X3
+  demo library and template whose owner histories name a cartesian point as the
+  application; a bridge declaring the draft IFC4X2 (read as IFC4, now said
+  first; IfcOpenShell will not open it) whose `.BASE_PLATE.`, `.EDGEBEAM.` and
+  `.RETAININGWALL.` IFC4 does not list; 940 `IfcCurveBoundedPlane`s with `$` where IFC4 needs an empty set.
+
 ### COBie 2.4 handover workbook and its QC (2026-11-23)
 
 `cobie.html` (and `node cli.mjs --cobie MODEL.ifc -o OUT.xlsx`) writes the nine

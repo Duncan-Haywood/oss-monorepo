@@ -1718,3 +1718,48 @@ test("a leaning face still fails the swept check with ends counted: a wall whose
   assert.ok(G, "the faces are read");
   assert.ok(Math.abs((G.swept + G.ends) / V - 1) > 0.05, `swept + ends ${G.swept + G.ends} vs ${V}`);
 });
+
+test("explanations: a Tekla plate's NetArea is every face of its body (M3D-CON-CD #30876), summed as its plan", async () => {
+  const { explainAreas } = await import("./qto.mjs");
+  const planes = [1.0545, 11.823976368386917, 0.111, 11.823981803309128, 1.0544945800784191, 0.11100121948242242, 1.160004109342071, 1.160004109342071];
+  const total = planes.reduce((a, b) => a + b, 0);
+  const row = (stored) => ({
+    id: 30876, tag: "x", ifcClass: "IfcPlate", type: null, pathJoins: [], box: [0, 0, 0, 1.11, 11.6, 0.1],
+    stored: { NetArea: { kind: "area", value: stored } },
+    areaCheck: { NetArea: { kind: "plan", which: "net", stored, computed: 12.8787, agree: false } },
+    computed: { openings: 0, areas: { plan: { gross: 12.8787, net: 12.8787, planes } } },
+  });
+  const rows = [row(total), { ...row(20), tag: "y" }];
+  explainAreas(rows);
+  assert.equal(rows[0].areaCheck.NetArea.reason, "whole-surface");
+  assert.equal(rows[0].areaCheck.NetArea.trust, false);
+  assert.equal(rows[1].areaCheck.NetArea.reason, "unexplained");
+});
+
+test("explanations: a Revit wall split at a level stores the whole on one piece (HHS construction #1405 + #1493)", async () => {
+  const { explainChecks, explainAreas } = await import("./qto.mjs");
+  const holder = (otherGross, otherSide = 13.4745) => [
+    {
+      id: 1405, tag: "573323", ifcClass: "IfcWallStandardCase", pathJoins: [], assembly: null,
+      stored: { Length: { kind: "length", value: 3.9 }, Height: { kind: "length", value: 3.7058 }, Width: { kind: "length", value: 0.2 } },
+      check: { gross: { stored: 5.252, computed: 2.6565, agree: false } },
+      areaCheck: { GrossSideArea: { kind: "side", which: "gross", stored: 26.7572, computed: 13.2827, agree: false } },
+      computed: { status: "ok", gross: 2.6565, net: 2.6565, openings: 0, areas: { side: { gross: 13.2827, net: 13.2827, width: 0.2, faces: { gross: [13.2827], net: [13.2827] } } } },
+    },
+    {
+      id: 1493, tag: "573323", ifcClass: "IfcWall", pathJoins: [], assembly: null, stored: {},
+      computed: { status: "ok", gross: otherGross, net: otherGross, openings: 0, areas: { side: { gross: otherSide, net: otherSide, width: 0.2 } } },
+    },
+  ];
+  const rows = holder(2.5955);
+  explainChecks(rows); explainAreas(rows);
+  assert.equal(rows[0].check.gross.reason, "split-held");
+  assert.equal(rows[0].check.gross.pieces, 2);
+  assert.equal(rows[0].trustStored, false);
+  assert.equal(rows[0].areaCheck.GrossSideArea.reason, "split-held");
+  assert.equal(rows[0].areaCheck.GrossSideArea.trust, false);
+  // the other piece a different size: no longer the whole wall
+  const off = holder(1.9);
+  explainChecks(off);
+  assert.notEqual(off[0].check.gross.reason, "split-held");
+});

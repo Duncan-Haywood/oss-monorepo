@@ -1,0 +1,125 @@
+{
+ "date": "2026-11-24",
+ "session": "https://claude.ai/code/session_01E5sJKkoqxS8vfvXLVsm1Fo",
+ "track": "ventures",
+ "prompt_version": 1,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-opus-5-5",
+ "models_seen": [
+  "claude-opus-5-5"
+ ],
+ "started": "2026-11-24T09:18:10Z",
+ "ended": "2026-11-24T09:30:47Z",
+ "wall_minutes": 12.81,
+ "tokens_in": 5381613,
+ "tokens_out": 28349,
+ "cost_usd": 2.5387,
+ "tool_calls": 53,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18578",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [
+  "A first unit test for split-held used side areas derived from volumes (otherGross/0.2), 1.9% off the real figure, so the 0.5% rule rightly refused it; fixed the fixture to the model's real 13.4745 m2."
+ ],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "ventures/ifc-quantity-takeoff/eval/in-doubt-2026-11-23.md",
+   "issue": "Names the 15 models but gives no copy-paste sparse-checkout command; the file list had to be rebuilt from stored-vs-computed-2026-11-23-nominal.txt plus the two extras (non-cone sparse-checkout also warns without a leading slash)."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-11-24-a-revit-wall-split-at-a-level-was-counted-twice.md",
+  "ventures/ifc-quantity-takeoff/eval/split-held-2026-11-24.md"
+ ],
+ "goal": null,
+ "notes": "Flagship 14 (ifc-quantity-takeoff), item 'figures in doubt'. Two causes named in qto.mjs: split-held (Revit wall split at a level, whole figure on one piece, other piece an IfcWall with none; pieces sum to 1e-4) and whole-surface (Tekla plate NetArea = sum of all body faces, to 1e-6). On 15 public models, a main-vs-branch diff of every row's cause changes exactly 17 rows (eval/split-held-whole-surface-reasons-2026-11-24.txt); HHS construction BoQ area 7,751.64 -> 7,622.47 m2 (129.17 double-counted), volume 2,368.97 -> 2,357.79; M3D-CON-CD area 491.54 -> 458.98. Models with nothing in doubt 11 -> 13 of 15. Tests: run_venture_tests.py ifc-quantity-takeoff ok (270 tests); check_posts ok; validate.py ok; venture-preflight clean (exit 0).",
+ "corrections": [],
+ "redteam": null,
+ "usage": {
+  "measured_by": "prompts/runcost.py v1",
+  "session_id": "93adeb15-0f96-527d-8aff-935a2cc1befc",
+  "transcripts": 1,
+  "first": "2026-11-24T09:18:10Z",
+  "last": "2026-11-24T09:30:58Z",
+  "primary_model": "claude-opus-5-5",
+  "models": {
+   "claude-opus-5-5": {
+    "requests": 50,
+    "input": 98,
+    "output": 28349,
+    "thinking": 6813,
+    "cache_read": 5266769,
+    "cache_write_5m": 0,
+    "cache_write_1h": 114746,
+    "api_equivalent_usd": 2.5387,
+    "fast_requests": 0
+   }
+  },
+  "totals": {
+   "requests": 50,
+   "input": 98,
+   "output": 28349,
+   "thinking": 6813,
+   "cache_read": 5266769,
+   "cache_write_5m": 0,
+   "cache_write_1h": 114746,
+   "api_equivalent_usd": 2.5387,
+   "api_equivalent_complete": true
+  },
+  "cache_hit_share": 0.979,
+  "tool_calls": 53,
+  "tools": {
+   "Bash": 51,
+   "ToolSearch": 1,
+   "mcp__github__create_pull_request": 1
+  },
+  "web_searches": 0,
+  "time": {
+   "wall_minutes": 12.81,
+   "active_minutes": 12.81,
+   "model_minutes": 5.99,
+   "tool_minutes": 6.82,
+   "waiting_on_human_minutes": 0.0,
+   "human_prompts": 1,
+   "stalls": 0,
+   "subagent_minutes": 0.0
+  },
+  "pricing": {
+   "as_of": "2026-10-06",
+   "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+  },
+  "human_equivalent": {
+   "hours": 6.0,
+   "basis": "tracing two exporter faults in two IFC models, writing and testing two rules, corpus diff and write-up",
+   "rate_usd_per_hour": 100.0,
+   "usd": 600.0
+  },
+  "leverage": 236.3,
+  "certainty": {
+   "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+   "model": "high: the `model` field on each API response, not the configured model",
+   "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+   "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+   "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+  },
+  "not_counted": [
+   "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+   "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+   "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+   "CI minutes and the reviewer bots' own model calls"
+  ]
+ }
+}

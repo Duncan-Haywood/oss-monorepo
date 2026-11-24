@@ -3,6 +3,9 @@
 //
 //   node cli.mjs MODEL.ifc SPEC.ids [--layer LAYER.ifcx ...] [--json] [--bcf out.bcfzip] [--junit out.xml] [--html report.html] [--max-failures N] [--no-audit]
 //   node ci-cli.mjs --models GLOB --ids GLOB ...  # many files, for CI (action.yml)
+//   node cli.mjs --conformance MODEL.ifc [--json]  # does the model follow its own IFC schema (conformance.mjs):
+//                                              # attribute counts, typed values, enumerations, * and $, references,
+//                                              # header; exit 1 on any fault
 //   node cli.mjs --audit SPEC.ids [--json] [--bsdd]
 //                                              # check the IDS itself, no model; --bsdd also looks each
 //                                              # facet uri up in buildingSMART's Data Dictionary (bsdd.mjs:
@@ -298,6 +301,26 @@ if (flag("--cobie") && files.length === 1) {
   if (!opt("-o")) { console.error("name the workbook with -o OUT.xlsx"); process.exit(2); }
   writeFileSync(opt("-o"), excel2IdsToXlsx(w.rows));
   process.exitCode = w.kept === w.total ? 0 : 1;
+} else if (flag("--conformance") && files.length === 1) {
+  // Does the model follow its own IFC schema? (conformance.mjs) Exit 0 when
+  // nothing is found, 1 on any fault, 2 when the file cannot be read.
+  const { conformance, conformanceText } = await import("./conformance.mjs");
+  const { duplicateGlobalIds } = await import("./ids.mjs");
+  let r, model;
+  try {
+    const read = await readModel(files[0]);
+    r = conformance(read.bytes, resources().schemas);
+    model = parseModel(read.bytes);
+  } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
+  const notes = model.parseErrors.filter((n) => / is not an? IFC/.test(n));
+  const dups = duplicateGlobalIds(model);
+  if (flag("--json")) console.log(JSON.stringify({ schema: r.schema, records: r.records, findings: r.findings, outsideSchema: model.outsideSchema, duplicateGlobalIds: dups }, null, 1));
+  else {
+    process.stdout.write(conformanceText(r));
+    for (const n of notes) console.log(n);
+    if (dups.length) console.log(`${dups.length} duplicate GlobalId(s), e.g. ${dups[0].globalId} on ${dups[0].elements.map((e) => `#${e.id} ${e.type}`).join(", ")}`);
+  }
+  process.exitCode = r.findings.length || notes.length || dups.length ? 1 : 0;
 } else if (flag("--audit") && files.length === 1) {
   let ids;
   try { ids = parseIds(readFileSync(files[0], "utf8")); } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
@@ -309,7 +332,7 @@ if (flag("--cobie") && files.length === 1) {
   else console.log(auditReport(ids.title, ids.specs, issues) + (bsdd ? "\n" + bsddReport(bsdd) : ""));
   process.exitCode = issues.some((x) => x.level === "error") || (bsdd && bsdd.findings.some((x) => x.level === "error")) ? 1 : 0;
 } else if (files.length !== 2 || flag("--help")) {
-  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.json|.ifcx|.ifczip SPEC.ids [--layer LAYER.ifcx ...] [--json] [--bcf out.bcfzip] [--junit out.xml] [--html report.html] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx\n       node cli.mjs --diff OLD.ids NEW.ids [MODEL.ifc] [--json]\n       node cli.mjs --to-doc SPEC.ids [-o OUT.md|OUT.html]\n       node cli.mjs --fill MODEL.ifc SPEC.ids -o OUT.ifc [--values FILLED.csv] [--to-fill TODO.csv] [--from-geometry [--densities D.csv]]\n       node cli.mjs --to-step MODEL.ifcxml|.json|.ifcx -o OUT.ifc\n       node cli.mjs --cobie MODEL.ifc -o OUT.xlsx [--from-geometry] [--stage design|handover] [--contact EMAIL,COMPANY,PHONE] [--created-on ISO] [--na]\n       node cli.mjs --cobie-qc WORKBOOK.xlsx|CSV-DIR [--stage design|handover] [--json]");
+  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.json|.ifcx|.ifczip SPEC.ids [--layer LAYER.ifcx ...] [--json] [--bcf out.bcfzip] [--junit out.xml] [--html report.html] [--max-failures N] [--no-audit]\n       node cli.mjs --conformance MODEL.ifc [--json]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx\n       node cli.mjs --diff OLD.ids NEW.ids [MODEL.ifc] [--json]\n       node cli.mjs --to-doc SPEC.ids [-o OUT.md|OUT.html]\n       node cli.mjs --fill MODEL.ifc SPEC.ids -o OUT.ifc [--values FILLED.csv] [--to-fill TODO.csv] [--from-geometry [--densities D.csv]]\n       node cli.mjs --to-step MODEL.ifcxml|.json|.ifcx -o OUT.ifc\n       node cli.mjs --cobie MODEL.ifc -o OUT.xlsx [--from-geometry] [--stage design|handover] [--contact EMAIL,COMPANY,PHONE] [--created-on ISO] [--na]\n       node cli.mjs --cobie-qc WORKBOOK.xlsx|CSV-DIR [--stage design|handover] [--json]");
   process.exit(2);
 } else {
   let [ifcPath, idsPath] = files;
@@ -321,6 +344,12 @@ if (flag("--cobie") && files.length === 1) {
     const input = layers.length ? [model.text, ...layers.map((f) => readFileSync(f, "utf8"))] : model.bytes;
     report = check(readFileSync(idsPath, "utf8"), input, { audit: !flag("--no-audit") });
     if (model.name !== ifcPath) report.modelFile = model.name;
+    // Schema faults the check reads past (conformance.mjs), as on the page:
+    // STEP files up to 40 MB.
+    if (report.format === "STEP" && !layers.length && model.bytes.length <= 40e6 && !flag("--no-conformance")) {
+      const { conformance, conformanceSummary } = await import("./conformance.mjs");
+      try { report.conformance = conformanceSummary(conformance(model.bytes, resources().schemas)); } catch (e) { report.conformance = { error: e.message }; }
+    }
     report.seconds = (Date.now() - t0) / 1000;
   } catch (e) {
     console.error(`error: ${e.message}`);

@@ -245,3 +245,11 @@ test("red team 2026-11-24: the factor table shows a to one decimal", () => {
   const rows = factorRows(analyze(sampleInput()));
   assert.match(rows.find((x) => /^Corner zone width a/.test(x[0]))[1], /^\d+\.\d$/);
 });
+
+test("red team 2026-11-24: a least horizontal dimension of 0 is an error, not the 3 ft zone floor", () => {
+  // zoneWidth(0, h) is 3 ft (the floor), so accepting 0 would quietly print a
+  // schedule for a building with no plan size.
+  assert.match(analyze({ leastDim: "0" }).error, /least horizontal dimension/);
+  assert.match(analyze({ leastDim: "-40" }).error, /least horizontal dimension/);
+  assert.ok(!analyze({ leastDim: "0.5" }).error, "any positive size is accepted");
+});

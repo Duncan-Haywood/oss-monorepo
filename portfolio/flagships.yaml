@@ -333,14 +333,14 @@ flagships:
       (eval/near-clean-truth-noise-2026-11-19.md); next read it against --noise-read
       ship on new camera files. Browser cull page 2026-11-23 (site/cull.html;
       520-file card 25.8 s; merges existing sidecars,
-      eval/cull-existing-sidecars-*); AF points 2026-11-24 (22 of 22 =
-      metadata-extractor, eval/cull-af-point-*); DNGs with no JPEG developed in-page
-      2026-11-24 (32 of 32 = shootflow sensels, eval/cull-raw-data-previews-*; next
-      JPEG XL DNGs; BigTIFF and the 2000s Olympus compacts' ORFs developed in-page
+      eval/cull-existing-sidecars-*); DNGs with no JPEG developed in-page 2026-11-24
+      (32 of 32 = shootflow sensels, eval/cull-raw-data-previews-*; next JPEG XL
+      DNGs; BigTIFF and the 2000s Olympus compacts' ORFs developed in-page
       2026-11-24, eval/cull-orf-compacts-*); keyword trees, code replacements, C
       captions 2026-11-24 (ExifTool, eval/cull-iptc-tree-codes-*; next Lightroom's
-      import of the tree). Next Nikon AF grids, a real card of 500+ raws with picks,
-      a Lightroom read of merged sidecars. More open items: NEXT.md.
+      import of the tree). Closed eyes: page = CLI rule 2026-11-24 (6 of 7,
+      eval/blink-rule-agreement-*). Next Nikon AF grids, a real card of 500+ raws
+      with picks, a Lightroom read of merged sidecars. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -515,8 +515,8 @@ flagships:
       rerun it after excel2ids.mjs changes. IFC4X3 ifcXML: none public (searched
       2026-11-18); B-spline control points cut into rows from knot counts 2026-11-18
       (eval/ifcxml-twins-2026-11-18.md); IfcOpenShell's 294 files swept and set
-      beside IfcTester 2026-11-24 (eval/ifcopenshell-test-files-*); next: its
-      validate/ fixtures' faults as reader notes; STEP exports as nested ifcXML
+      beside IfcTester 2026-11-24 (eval/ifcopenshell-test-files-*); next: inverse
+      counts (eval/conformance-2026-11-24.md); STEP exports as nested ifcXML
       (eval/ifc4-layout.mjs). IFC5: eval/ifcx-twins.mjs on new IFC5-development
       files.
     hosts: [https://github.com]
@@ -618,10 +618,10 @@ flagships:
       The 8 public models in eval/areas-vs-stored-2026-11-19.md (sparse clones of
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public): 14
       unexplained areas (eval/curved-and-faces-2026-11-22.md, The 14 left); figures
-      in doubt 2026-11-23 (eval/in-doubt-2026-11-23.md, node eval/in-doubt.mjs): HHS
-      construction #1405/#4407, M3D-CON-CD's 7 Tekla plates (#207997 settled: faces
-      vs circles, eval/off-edges-2026-11-23.md); revisions: EngiWorld's Archicad gui
-      and cross-software pairs (eval/engiworld-archicad-diff-2026-11-23.md, Left).
+      in doubt (node eval/in-doubt.mjs; HHS walls and Tekla plates named 2026-11-24,
+      eval/split-held-2026-11-24.md): 1 volume, 6 areas left; a coating-area BoQ
+      column from whole-surface; revisions: EngiWorld's Archicad gui and
+      cross-software pairs (eval/engiworld-archicad-diff-2026-11-23.md, Left).
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/; search guides 2026-11-22. its

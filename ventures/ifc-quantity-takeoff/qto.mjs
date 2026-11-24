@@ -744,6 +744,11 @@ function readStored(E, idx, id, units, row) {
  *                Tag and class (Revit's split-by-level export writes the whole
  *                wall's quantities on every piece), and the pieces' computed
  *                volumes (gross or net) sum to it;
+ *   split-held   the whole element's stored value on one piece only, and the
+ *                other pieces with its Tag (another class of the same kind,
+ *                IfcWall beside IfcWallStandardCase) store none; their bodies
+ *                and its own sum to it, to 0.5% (heldSplit below; HHS
+ *                construction's two Revit walls split at a level);
  *   repeated     the same, but the pieces in the file do not sum to it (some
  *                pieces are in another file or were not exported);
  *   unit-slip    the stored volume is the computed one times a power of ten
@@ -834,6 +839,8 @@ export function explainChecks(rows, tol = 0.02) {
         }
       }
       if (c.stored === 0 && c.computed > 0) { c.reason = "not-stored"; r.trustStored = false; continue; }
+      const held = heldSplit(r, rows, (q) => (w === "net" ? q.computed?.net ?? q.computed?.gross : q.computed?.gross), (q) => q.check?.[w] != null, c.stored, tol / 4);
+      if (held) { c.reason = "split-held"; c.pieces = held; r.trustStored = false; continue; }
       const dims = lhw(r);
       const slip = unitSlip(c.computed, c.stored, tol / 4);
       if (slip) { c.reason = "unit-slip"; c.factor = slip; r.trustStored = false; continue; }
@@ -863,6 +870,36 @@ export function explainChecks(rows, tol = 0.02) {
   }
   compoundSlips(rows, tol);
   return rows;
+}
+
+/**
+ * split-held: Revit splits a wall at a level and exports one piece as
+ * IfcWallStandardCase with the whole wall's quantities and the rest as IfcWall
+ * with none, all under one Tag (HHS construction #1405 + #1493 = 2.6565 +
+ * 2.5955 = 5.2520 m3 stored; eval/split-held-2026-11-24.md). The pieces are
+ * the rows sharing r's Tag whose class is r's with StandardCase or
+ * ElementedCase dropped (the same kind of element), and that store nothing
+ * for this figure (has(q) false). Returns how many pieces sum to the stored
+ * value within tol, counting r, else 0. A fit to six digits on the two walls
+ * seen; tol (0.5%) leaves room for an exporter that rounds.
+ */
+const tagIndex = new WeakMap();
+const kindOf = (cls) => (cls || "").replace(/(StandardCase|ElementedCase)$/, "");
+export function heldSplit(r, rows, size, has, stored, tol) {
+  if (!r.tag || !(stored > 0)) return 0;
+  let idx = tagIndex.get(rows);
+  if (!idx) {
+    idx = new Map();
+    for (const q of rows) if (q.tag) { const k = `${q.tag}|${kindOf(q.ifcClass)}`; if (!idx.has(k)) idx.set(k, []); idx.get(k).push(q); }
+    tagIndex.set(rows, idx);
+  }
+  const others = (idx.get(`${r.tag}|${kindOf(r.ifcClass)}`) || []).filter((q) => q !== r && !q.isAssembly && !has(q));
+  if (!others.length) return 0;
+  const own = size(r);
+  if (!(own > 0)) return 0;
+  let sum = own;
+  for (const q of others) { const v = size(q); if (!(v > 0)) return 0; sum += v; }
+  return Math.abs(sum - stored) <= tol * stored ? others.length + 1 : 0;
 }
 
 /**
@@ -1037,6 +1074,8 @@ export function unitSlip(computed, stored, tol = 0.005) {
  *   split / repeated  as for volumes: one stored area on every piece of a
  *                     wall split by level (the pieces' areas sum to it, or not);
  *   unit-slip         stored = computed x a power of ten, or x 10.7639 (ft2/m2);
+ *   split-held        as for volumes: the whole area on one piece only, the
+ *                     other pieces under its Tag storing none;
  *   net-as-gross      a stored gross area equals the computed net;
  *   gross-as-net      a stored net area equals the computed gross: the
  *                     openings were not taken out;
@@ -1056,6 +1095,10 @@ export function unitSlip(computed, stored, tol = 0.005) {
  *                     length: one figure copied onto every piece (skolebygg's
  *                     mullions carry their curtain wall's Revit Area and
  *                     Length);
+ *   whole-surface     a plate's stored plan area is the total area of its
+ *                     body's faces, within 0.5% (Tekla: M3D-CON-CD's "JD-1"
+ *                     28.30 m2 on a 12.88 m2 plate): a coating figure, so the
+ *                     BoQ sums the plan cut;
  *   half-surface      a member's stored CrossSectionArea is half the total
  *                     area of its body's faces (HHS architect's Revit
  *                     mullions: 0.66 m2 on a 0.0095 m2 post, its surface
@@ -1135,6 +1178,8 @@ export function explainAreas(rows, tol = 0.02) {
       }
       const slip = unitSlip(c.computed, c.stored, tol / 4);
       if (slip) { c.reason = "unit-slip"; c.factor = slip; c.trust = false; continue; }
+      const held = heldSplit(r, rows, (q) => q.computed?.areas?.[c.kind]?.[c.which], (q) => q.areaCheck?.[k] != null, c.stored, tol / 4);
+      if (held) { c.reason = "split-held"; c.pieces = held; c.trust = false; continue; }
       const open = r.computed.openings > 0;
       if (c.which === "gross" && open && A.net != null && near(A.net, c.stored)) { c.reason = "net-as-gross"; continue; }
       if (c.which === "net" && open && A.gross != null && near(A.gross, c.stored)) { c.reason = "gross-as-net"; continue; }
@@ -1163,6 +1208,10 @@ export function explainAreas(rows, tol = 0.02) {
       // its reference length at the centre times its thickness
       const Lc = storedNamed(r, /^Length of the Wall at the Center$/, "length"), T = storedNamed(r, /^Thickness$/, "length");
       if (c.kind === "plan" && Lc > 0 && T > 0 && exact(Lc * T)) { c.reason = "centre-line"; continue; }
+      // Tekla writes a plate's NetArea as every face of its body added up (the
+      // area a painter or galvaniser prices), not its plan: M3D-CON-CD's 7
+      // plates (eval/whole-surface-2026-11-24.md); the BoQ sums the plan
+      if (c.kind === "plan" && A.planes?.length > 2 && exact(A.planes.reduce((x, y) => x + y, 0))) { c.reason = "whole-surface"; c.surface = c.stored; c.trust = false; continue; }
       if (c.kind === "plan" && A.planes?.some((x) => exact(x))) { c.reason = "a-body-face"; continue; }
       if (c.kind === "side" && A.curved) { c.reason = "curved"; continue; }
       c.reason = "unexplained";
@@ -1256,6 +1305,7 @@ function scalesWithLength(r, k, c, rows, near) {
 }
 
 export const AREA_REASON_TEXT = {
+  "split-held": "the whole element's stored area is written on one piece of an element split by level (Revit); the other pieces under its Tag store none, and the pieces' geometry sums to it, so the BoQ sums each piece's own",
   "scales-with-length": "the stored cross-section area grows with the element's length (length x a constant): a face area, not a section",
   split: "the same stored area is written on every piece of an element split by level; the pieces' geometry sums to it",
   repeated: "the same stored area is written on several pieces of one element, and the pieces in this file do not sum to it",
@@ -1266,6 +1316,7 @@ export const AREA_REASON_TEXT = {
   "matches-stored-volume": "the stored area agrees with the stored volume, but both describe a different body than the geometry",
   zero: "the stored area is 0 while the geometry has one: the exporter left the figure unfilled",
   "host-figure": "the same stored cross-section area and length are written on several members of different lengths: a figure copied from their host (a curtain wall's area and length), not the member's section",
+  "whole-surface": "the stored area is the total area of every face of the body (as Tekla writes a plate's area: the surface a painter or galvaniser prices), not its plan, so the BoQ sums the plan area",
   "half-surface": "the stored cross-section area is half the total area of the member's faces: a surface figure (as some Revit exports write it), not its section",
   "own-profile": "the stored cross-section area is the member's own stored width x height; the piece is about as short as it is wide, so its axis cannot be read from the geometry and the cut went across another direction",
   "joins-off": "the stored side area is the mean of the wall's two faces with the strips covered by the walls joined to it taken off (a finishes figure, as ArchiCAD measures it)",
@@ -1280,6 +1331,7 @@ export const AREA_REASON_TEXT = {
 };
 
 export const REASON_TEXT = {
+  "split-held": "the whole element's stored volume is written on one piece of an element split by level (Revit: one IfcWallStandardCase with quantities, the rest IfcWall with none); the pieces' geometry sums to it, so the BoQ sums each piece's own",
   split: "the same stored volume is written on every piece of an element split by level; the pieces' geometry sums to it",
   repeated: "the same stored volume is written on several pieces of one element, and the pieces in this file do not sum to it",
   "unit-slip": "the stored volume is the geometry's times a power of ten, the square-foot factor 10.7639, or both: written in the wrong unit",

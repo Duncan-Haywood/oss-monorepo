@@ -53,6 +53,14 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   1000 (`nominal-slip`): 6,415 m3 of concrete not in the model, 43% of its
   bill, now summed from the geometry. On 11 of 15 public models nothing the
   BoQ sums is in doubt; on the other four, 3 volumes and 13 areas are (5 volumes before the fix).
+  2026-11-24 ([eval/split-held-2026-11-24.md](eval/split-held-2026-11-24.md)):
+  two more causes named. `split-held`: a Revit wall split at a level stores
+  the whole wall on one piece and nothing on the other (an `IfcWall` under the
+  same Tag); the pieces' bodies sum to it to 1e-4. It found HHS construction's
+  BoQ counting 129.17 m2 of wall area and 11.18 m3 of concrete twice.
+  `whole-surface`: Tekla writes a plate's NetArea as every face of its body
+  (its paint area: 28.30 m2 on a 12.88 m2 plate), so the BoQ sums the plan.
+  Now 13 of 15 models have nothing in doubt; 1 volume and 6 areas remain.
 
 **Guides** (2026-11-22, worked examples on the sample office, every number
 checked against the engine by `guides.test.mjs`):

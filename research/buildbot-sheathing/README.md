@@ -970,6 +970,18 @@ the lower bound** (median 1.3%, H298 held), so the risk allocation is close to s
 Brownian walk; statics.
 
 ![Re-zeros per 100 sheets at 1% wall risk: uniform level, per-press allocation and the lower bound, G1 and H1](experiments/m74_allocate/figure.png)
+**Milestone 75: is there a better way to spend a 1% wall risk?** (offline, `experiments/m75_riskopt/`,
+`src/buildbot_sheathing/riskdp.py`). Under a random walk the bias's norm is a 3-D Bessel process, a Markov chain on one
+variable, so the chance a stretch of presses all stay inside their allowances can be computed exactly rather than
+simulated. Re-zeros reset the walk, so the fewest re-zeros at a 1% wall risk is a dynamic programme over the wall (OPT).
+**The optimum saves at most 7% over one per-press risk level** calibrated with the same exact calculation (0 on 12 of 18
+rows; 142 against 149 at worst, G1 LAYOUT at 0.2 N/h), so splitting risk by pose is not worth the complexity (H303
+refuted). **The G1's cliff is structural**: OPT needs 96 re-zeros per 100 sheets against 99 (H302 held), because the
+1.2 m pose's deadline sits at the 116 s sheet period. The exact chain also shows that milestone 73's calibration on
+4,000 simulated walls overshot the 1% target on 5 of 18 rows, up to 1.31%: the H1 needs 10 re-zeros at 0.1 N, not 9.
+Milestone 74's lower bound (a separate code) sits at or below OPT on all 18 rows and is attained on 5, the G1's 96 among them; scored exactly, 3 of its simulation-calibrated schedules exceed 1% (up to 1.22%), so allocation's real gain is at most 149 to 142. Checked against Monte Carlo and a finer grid (H300, H301, H305 held). RW only, drift swept; statics.
+
+![Re-zeros per 100 sheets at 1% wall risk under a random-walk bias: optimal schedule against one per-press risk, G1 and H1](experiments/m75_riskopt/figure.png)
 
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
