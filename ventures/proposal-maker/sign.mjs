@@ -13,7 +13,7 @@ const fail = (status, message) => Object.assign(new Error(message), { status });
 
 export function titleOf(html) {
   const m = /<title>([^<]{0,200})<\/title>/i.exec(html);
-  return m ? m[1].replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").trim() : "Proposal";
+  return m ? m[1].replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&").trim() : "Proposal";
 }
 
 const isEmail = (s) => /^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']+$/.test(s) && s.length <= 254;
