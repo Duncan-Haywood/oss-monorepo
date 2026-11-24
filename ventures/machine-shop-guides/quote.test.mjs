@@ -1,0 +1,46 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { costLot, quoteBreaks, validate } from "./quote.mjs";
+
+const base = {
+  materialPerPart: 10, scrapPct: 0, setupHours: 2, setupRate: 50,
+  programHours: 2, programRate: 50, lotsOverProgramLife: 1,
+  cycleMinutes: 30, machineRate: 60, markupPct: 20,
+  ops: [{ name: "Deburr", minutesPerPart: 6, rate: 30, lotCharge: 0 }, { name: "Anodize", minutesPerPart: 0, rate: 0, lotCharge: 75 }],
+};
+
+test("costs one lot line by line from the user's numbers", () => {
+  const r = costLot(base, 10);
+  assert.equal(r.lines.material, 100);
+  assert.equal(r.lines.setup, 100);
+  assert.equal(r.lines.programming, 100);
+  assert.equal(r.lines.machining, 300);
+  assert.equal(r.lines.ops, 30 + 75);
+  assert.equal(r.cost, 705);
+  assert.equal(r.price, 846);
+  assert.equal(r.priceEach, 84.6);
+});
+
+test("scrap and program life change material and programming", () => {
+  const r = costLot({ ...base, scrapPct: 10, lotsOverProgramLife: 4 }, 10);
+  assert.ok(Math.abs(r.lines.material - 110) < 1e-9);
+  assert.equal(r.lines.programming, 25);
+});
+
+test("price per part falls with quantity because fixed costs spread", () => {
+  const rows = quoteBreaks(base, [100, 1, 10, 10]);
+  assert.deepEqual(rows.map((r) => r.quantity), [1, 10, 100]);
+  for (let i = 1; i < rows.length; i++) assert.ok(rows[i].priceEach < rows[i - 1].priceEach);
+});
+
+test("zero inputs give zero, not NaN", () => {
+  const r = costLot({}, 5);
+  assert.equal(r.cost, 0);
+  assert.equal(r.priceEach, 0);
+});
+
+test("validation catches negatives", () => {
+  assert.deepEqual(validate(base), []);
+  assert.ok(validate({ ...base, machineRate: -1 }).length);
+  assert.ok(validate({ ...base, lotsOverProgramLife: 0 }).length);
+});
