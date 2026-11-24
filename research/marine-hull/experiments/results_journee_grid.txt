@@ -1,0 +1,53 @@
+Milestone 7zzd: Journee's Wigley I and III peaks at Fn 0.2 to 0.4 on three grids (panels per half section, stations)
+7zg damping (zeta3 0.0375, zeta5 0); sigma = R / (rho g a^2 B^2 / L); peak on lambda/L +-0.12 by 0.01 around 7zu's; GB+F = GB plus Faltinsen reflection; measured peaks second-hand (7zk)
+  I Fn 0.2 P16 S30: measured 31.8; GB+F 22.254@1.01 (0.700); NF-P 34.162@1.01 (1.074); NF-PG 22.716@1.02 (0.714)
+  I Fn 0.3 P16 S30: measured 27.6; GB+F 27.479@1.21 (0.996); NF-P 43.590@1.22 (1.579); NF-PG 29.053@1.22 (1.053)
+  I Fn 0.4 P16 S30: measured 14.9; GB+F 27.972@1.40 (1.877); NF-P 49.437@1.40 (3.318); NF-PG 33.248@1.40 (2.231)
+  (I P16 S30: 72 s)
+  I Fn 0.2 P24 S40: measured 31.8; GB+F 22.610@1.01 (0.711); NF-P 34.905@1.01 (1.098); NF-PG 23.115@1.02 (0.727)
+  I Fn 0.3 P24 S40: measured 27.6; GB+F 28.073@1.21 (1.017); NF-P 45.107@1.21 (1.634); NF-PG 29.763@1.21 (1.078)
+  I Fn 0.4 P24 S40: measured 14.9; GB+F 28.730@1.40 (1.928); NF-P 51.890@1.40 (3.483); NF-PG 34.476@1.39 (2.314)
+  (I P24 S40: 205 s)
+  I Fn 0.2 P32 S60: measured 31.8; GB+F 22.689@1.01 (0.713); NF-P 35.062@1.01 (1.103); NF-PG 23.241@1.02 (0.731)
+  I Fn 0.3 P32 S60: measured 27.6; GB+F 28.149@1.21 (1.020); NF-P 45.280@1.21 (1.641); NF-PG 29.875@1.21 (1.082)
+  I Fn 0.4 P32 S60: measured 14.9; GB+F 28.800@1.40 (1.933); NF-P 52.051@1.40 (3.493); NF-PG 34.563@1.39 (2.320)
+  (I P32 S60: 450 s)
+III Fn 0.2 P16 S30: measured 22.2; GB+F 17.382@0.89 (0.783); NF-P 27.192@0.90 (1.225); NF-PG 18.006@0.91 (0.811)
+III Fn 0.3 P16 S30: measured 20.2; GB+F 25.387@1.08 (1.257); NF-P 40.884@1.08 (2.024); NF-PG 27.028@1.09 (1.338)
+III Fn 0.4 P16 S30: measured 27.7; GB+F 27.802@1.25 (1.004); NF-P 48.619@1.26 (1.755); NF-PG 31.693@1.26 (1.144)
+  (III P16 S30: 72 s)
+III Fn 0.2 P24 S40: measured 22.2; GB+F 17.474@0.89 (0.787); NF-P 27.371@0.90 (1.233); NF-PG 18.136@0.91 (0.817)
+III Fn 0.3 P24 S40: measured 20.2; GB+F 25.487@1.08 (1.262); NF-P 41.135@1.08 (2.036); NF-PG 27.200@1.09 (1.347)
+III Fn 0.4 P24 S40: measured 27.7; GB+F 27.889@1.25 (1.007); NF-P 48.902@1.26 (1.765); NF-PG 31.856@1.26 (1.150)
+  (III P24 S40: 204 s)
+III Fn 0.2 P32 S60: measured 22.2; GB+F 17.529@0.89 (0.790); NF-P 27.476@0.90 (1.238); NF-PG 18.223@0.91 (0.821)
+III Fn 0.3 P32 S60: measured 20.2; GB+F 25.539@1.08 (1.264); NF-P 41.283@1.09 (2.044); NF-PG 27.311@1.09 (1.352)
+III Fn 0.4 P32 S60: measured 27.7; GB+F 27.930@1.25 (1.008); NF-P 49.058@1.26 (1.771); NF-PG 31.962@1.26 (1.154)
+  (III P32 S60: 450 s)
+## G0. (16, 30) against 7zu's section B peaks (results_nearfield_longwave.txt)
+G0 worst |peak - 7zu| 0.0042 sigma (<= 0.01, 7zu printed 2 decimals) -> held; peaks on a window edge: none
+## per-peak change from (16, 30), and indicative observed order
+  I Fn 0.2: (24, 40) / (32, 60) over (16, 30): GB+F +1.60% / +1.95% (order 3.71); NF-P +2.18% / +2.64% (order 3.83); NF-PG +1.76% / +2.31% (order 2.85)
+  I Fn 0.3: (24, 40) / (32, 60) over (16, 30): GB+F +2.16% / +2.44% (order 5.09); NF-P +3.48% / +3.88% (order 5.35); NF-PG +2.44% / +2.83% (order 4.55)
+  I Fn 0.4: (24, 40) / (32, 60) over (16, 30): GB+F +2.71% / +2.96% (order 5.88); NF-P +4.96% / +5.29% (order 6.71); NF-PG +3.69% / +3.95% (order 6.54)
+III Fn 0.2: (24, 40) / (32, 60) over (16, 30): GB+F +0.53% / +0.85% (order 1.29); NF-P +0.66% / +1.04% (order 1.31); NF-PG +0.73% / +1.21% (order 1.01)
+III Fn 0.3: (24, 40) / (32, 60) over (16, 30): GB+F +0.39% / +0.60% (order 1.60); NF-P +0.62% / +0.98% (order 1.31); NF-PG +0.64% / +1.05% (order 1.09)
+III Fn 0.4: (24, 40) / (32, 60) over (16, 30): GB+F +0.31% / +0.46% (order 1.83); NF-P +0.58% / +0.90% (order 1.46); NF-PG +0.51% / +0.85% (order 1.05)
+G1 largest |change| of a GB+F or NF-PG peak, (16, 30) to (32, 60): 3.95% (< 3%) -> refuted
+G2 GB+F and NF-PG peaks that rise from (16, 30) to (32, 60): 12 of 12 (all) -> held
+NF-PG / GB+F at the peak on the three grids: I Fn 0.2 1.0207/1.0224/1.0243 (+0.35%); I Fn 0.3 1.0573/1.0602/1.0613 (+0.39%); I Fn 0.4 1.1886/1.2000/1.2001 (+0.96%); III Fn 0.2 1.0359/1.0379/1.0396 (+0.35%); III Fn 0.3 1.0646/1.0672/1.0694 (+0.44%); III Fn 0.4 1.1400/1.1422/1.1444 (+0.39%)
+G3 largest |change| of NF-PG / GB+F, (16, 30) to (32, 60): 0.96% (< 1%) -> held
+rms and mean of ln(peak / measured) over Journee's five clean peaks (I at Fn 0.4 noisy at source):
+    GB+F P16 S30: rms 0.219, mean -0.075
+    GB+F P24 S40: rms 0.214, mean -0.065
+    GB+F P32 S60: rms 0.212, mean -0.062
+    NF-P P16 S30: rms 0.462, mean +0.400
+    NF-P P24 S40: rms 0.474, mean +0.415
+    NF-P P32 S60: rms 0.477, mean +0.418
+   NF-PG P16 S30: rms 0.229, mean -0.014
+   NF-PG P24 S40: rms 0.226, mean -0.002
+   NF-PG P32 S60: rms 0.226, mean +0.003
+G4 rms change (16, 30) to (32, 60): GB+F -0.007, NF-PG -0.003 (each under 0.02 in magnitude) -> held
+G5 |change| of GB+F's peak, Fn 0.4 against Fn 0.2: I 2.96% vs 1.95%, III 0.46% vs 0.85% (Fn 0.4 larger on both) -> refuted
+Fn 0.2 peak over Journee's measured on the three grids (Table III's quantity): I GB+F 0.700/0.711/0.713; I NF-PG 0.714/0.727/0.731; III GB+F 0.783/0.787/0.790; III NF-PG 0.811/0.817/0.821
+(elapsed 1452 s)
