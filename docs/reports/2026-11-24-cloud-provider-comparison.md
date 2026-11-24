@@ -212,3 +212,200 @@ providers only for the jobs Cloudflare does badly.
   question in step 1 has to be answered first. Collapsing to one Worker also
   touches `.github/workflows/portfolio-pages.yml`, a control-plane path that
   belongs in its own PR.
+
+## 7. Owner decision: consolidate everything onto AWS, security first (2026-11-24, later the same day)
+
+§§1–6 are the morning's reasoning and recommended staying on Cloudflare. The
+owner weighed it and decided otherwise, in four messages:
+
+- "idk I think a aws migration might be worthwhile eventually."
+- "I think we add preparing for a switch over into the goals and task queue."
+- "I think we want to move to more consolidated system for platform and
+  hosting across the repo move away from each specific thing having multiple
+  hosting options and move towards unified hosting saas can have native apps
+  and stuff move onto one of the big three."
+- "unified hosting set up all iac and very heavily security scanned for the
+  dev workflow and everything security as a priority."
+
+Asked to choose, the owner picked: **AWS** as the one home; **everything
+moves** (the site to S3 and CloudFront, DNS to Route 53, Cloudflare retired);
+**all self-deploy retired** (`platform/deploy/` templates and the
+Fly/Render/Docker scaffolds). It is indexed as `aws-consolidation` in
+`portfolio/work/directions.yaml`, with its tasks in `portfolio/work/tasks.yaml`.
+
+**Payments stay outside AWS** (owner, 2026-11-24, confirming: "keep paddle
+external but move platform and everything to aws"). Paddle remains the merchant
+of record: checkout, subscriptions, dunning and sales tax/VAT. AWS has no
+equivalent: AWS Marketplace bills only AWS customers on their AWS invoice (a
+possible second channel for enterprise products later, not the checkout), and
+Amazon Pay is a payment method, not a merchant of record. On AWS live only the
+Paddle webhook receiver and the entitlement data it writes.
+
+### Why AWS over GCP and Azure, for this decision
+
+| | AWS | GCP | Azure |
+|---|---|---|---|
+| Running web apps | Lambda, ECS/Fargate | Cloud Run (simplest) | Container Apps |
+| Smallest Postgres | RDS ≈ $12/mo | Cloud SQL ≈ $8/mo, no SLA on shared core | ≈ $12/mo, free 12 months |
+| Hard spend cap | native limits, Paid-plan accounts only | none (budget → function that unlinks billing) | none on pay-as-you-go |
+| Email, marketing included | SES ≈ $0.10 per 1k | none native | ≈ $0.25 per 1k |
+| Native-app backend | Cognito, SNS push, Device Farm | Firebase (strongest) | Notification Hubs, Entra |
+| Documents, models | Textract, Bedrock (Claude) | Document AI, Vertex (Claude, Gemini) | Document Intelligence, Foundry |
+| Sales channel | Marketplace (largest) | Marketplace | Marketplace |
+| Security services | GuardDuty, Security Hub, Config, CloudTrail, IAM Access Analyzer, SCPs | Security Command Center, org policies | Defender, Policy |
+
+Figures from §2a (search extracts of each provider's pages). The deciding
+facts for "one place": AWS is the only one of the three that also covers
+email (transactional and marketing), document reading, real-device testing
+and a native spend limit, so consolidating there leaves the fewest outside
+providers. GCP's Cloud Run and Firebase are easier; that is the trade made.
+
+### What this reverses
+
+- §4's "stay on Cloudflare" and the morning's provider consolidation onto
+  Cloudflare (`docs/reports/2026-11-24-cloudflare-consolidation.md`: the
+  retail-pilot-intel docs Worker, Cloudflare Email Service for Grant
+  Autopilot). Those still work and keep serving until their AWS replacement
+  is live; nothing is torn down first.
+- Pivot point 3's "self-deploy is built only when a request asks for it":
+  now none is kept.
+
+### Principles for the move
+
+1. **Security first, before traffic.** No production workload lands in AWS
+   until the account baseline (below) is applied and the scanning pipeline
+   gates every PR.
+2. **Everything is OpenTofu**, applied from CI by short-lived GitHub OIDC
+   roles. No long-lived AWS keys anywhere, no console changes except the
+   ones AWS forces (sign-up, root MFA, card), each written down once.
+3. **Account isolation.** An AWS Organization with separate accounts: logs
+   and security (write-once), shared infrastructure (DNS, site), apps,
+   **payments** (Paddle secrets; its deploy role is not reachable from this
+   public repository's Actions), and a sandbox. Service control policies
+   deny leaving the organisation, disabling CloudTrail or GuardDuty, using
+   unapproved regions, and root use.
+4. **Spend guarded in layers.** Native spend limits where AWS allows them,
+   budgets with actions per account, a tested kill switch, and alerts. AWS
+   caps are weaker than Cloudflare's; this is the cost of the decision.
+5. **Run both, then cut over.** Each piece runs on AWS beside Cloudflare,
+   is verified, then DNS moves. Rollback stays possible until Cloudflare is
+   retired at the end.
+6. **Portable where it is free.** Postgres, web-standard handlers and the
+   S3 API keep the next move cheap too.
+
+### Security baseline (AWS side)
+
+CloudTrail organisation trail to the log account with object lock;
+GuardDuty, Security Hub (AWS Foundational Security Best Practices and CIS),
+AWS Config and IAM Access Analyzer in every account; KMS keys per account;
+default EBS and S3 encryption, S3 Block Public Access at account level;
+CloudFront with WAF managed rules and Origin Access Control (no public
+buckets); Secrets Manager for every secret; IAM Identity Center with MFA for
+the owner; findings exported into the repository's existing alert queue
+(`.github/workflows/security-alert-queue.yml`), files first.
+
+### Scanning baseline (dev workflow side)
+
+Every PR runs, and a failure blocks merge:
+- **secrets:** gitleaks over the diff and history; GitHub secret scanning
+  with push protection (owner switch, `docs/security/agent-hardening.md`);
+- **IaC:** `tofu validate` and `tofu plan` against the real state for
+  changed stacks, Checkov and Trivy config scans, and a policy check that
+  denies public buckets, wildcard IAM and unencrypted storage;
+- **code:** CodeQL and Semgrep;
+- **dependencies:** OSV-Scanner and the existing SBOM diff check;
+- **containers:** Trivy image scan, with images pinned by digest;
+- **workflows:** zizmor beside the existing `workflow-self-audit.yml`.
+
+The scanners run pinned by commit SHA, need no secrets on PRs, and write
+their findings to files, so a session can read them.
+
+### Client work: the custom dev shop on the same platform
+
+The owner, same conversation: "requests for dev still worthwhile. ai voice
+and agent potential customer dev requests possible."; "some of it is custom
+dev shop for what smbs need offered at cost plus."; "dev fee not necessary.";
+"free dev service offered at operating cost plus transparent profit margin in
+exchange for ease of mind less headaches etc."
+
+So: website and custom-dev requests (`portfolio/requests/`) stay worthwhile;
+small businesses can also ask through an AI voice or chat agent; **building
+is free**, and a client pays **the operating cost of running their project
+plus a profit margin they can see**. What they buy is peace of mind: someone
+else runs, patches, monitors and backs up the thing. The margin's size, the
+invoicing rail and the terms are the owner's to set. The MIT-licence term on
+request work (`portfolio/requests/README.md`) is unchanged.
+
+AWS fits this directly:
+- **one AWS account per client project**, vended from the Organization by
+  OpenTofu with the same security baseline and SCPs as our own accounts.
+  Clients are isolated from each other and from the payments account;
+- **exact cost per client** from consolidated billing (per-account costs and
+  cost-allocation tags), so the cost-plus invoice is a script over the Cost
+  and Usage Report, not an estimate. Because the margin is meant to be
+  transparent, the client sees the same line items: AWS cost, margin, total;
+- **a budget and spend guard per client account**, so one client's runaway
+  usage cannot reach the owner's other bills;
+- **handover without self-deploy:** if a client wants to own their hosting,
+  their account leaves the Organization with them (an AWS-supported move),
+  instead of the retired self-deploy templates.
+
+Open questions for the owner: whether Paddle (a merchant of record for
+software) can bill pass-through hosting for services, or whether another
+invoicing rail is needed; the margin; and the terms page.
+
+### Products: promote or demote (owner, 2026-11-24)
+
+The owner, same conversation, summing it up: **"moving from a bunch of
+projects to a bunch of specialized products."** Before that: "projects tools
+and products get moved into products or demoted and get marrketing pages".
+
+Read here as: every venture is either **promoted**, meaning it becomes a
+product on the AWS platform or a feature folded into one, with a marketing
+page aimed at its users, or **demoted**: archived off the site's main
+navigation, or kept as a free lead magnet that points at the product it
+feeds. One part of the sentence can be read two ways: whether demoted
+items keep a marketing page of their own. This report assumes products get
+full marketing pages and demoted items keep a plain page linking to a
+product. The owner can correct that.
+The owner added: "specialization and niching down very useful. better
+niched down multiple products for very specific users than multiple broad
+products." So a promotion targets one specific kind of user (a roofing
+estimator, a youth-league scheduler), not a broad category. Tools fold into
+the narrow product whose user needs them. A broad product is split by user
+when the users' jobs differ.
+`portfolio/monetization/transition.py` sorts the 1,446 ventures into 20
+products and about 1,420 MIT tools by a 5,000-line rule. The owner: "only
+promoting 20 to paid seems a bit silly to me unless the 1400 are really quite
+useless." Measured here, by non-test source lines: 428 under 500, 562 from
+500 to 1,000, 272 from 1,000 to 2,000, 151 from 2,000 to 5,000, 31 above.
+By name: 654 calculators, 234 checks or checkers, about 130 analyzers or
+planners. Usage is unmeasured. Line count measures size, not whether anyone
+pays. So the pass changes shape:
+- **cluster by specific user** into niche products that bundle the tools that
+  user needs (plausibly dozens of products, not 20);
+- **one platform-wide paid tier** every tool inherits: saved work, branded
+  client reports, batch runs, an API, and a white-label embed;
+- **demote only** near-duplicates and thin tools;
+- **let measured usage order the launches.**
+
+
+
+1. Security scanning pipeline in CI (no AWS needed).
+2. Organisation, accounts, SCPs, OIDC roles, security services, spend
+   guards, as OpenTofu (written now; applied once the owner opens the
+   account).
+3. DNS zone in Route 53 as code, records mirrored from Cloudflare.
+4. The site on S3 and CloudFront beside the Workers; then cutover.
+5. The edge API (counts, feedback) and its analytics pull.
+6. Email on SES: transactional, marketing and inbound, consent and
+   suppression in our own database.
+7. The SaaS and native-app starter (Lambda or Fargate, RDS Postgres,
+   Cognito, SNS push); products move one at a time, Convex last.
+8. Client-account vending and the cost-plus cost report, then the voice and
+   agent intake for requests.
+9. Retire self-deploy, then Cloudflare.
+
+**Owner steps:** open the AWS management account with root MFA and a card;
+enable IAM Identity Center; then approve the control-plane PRs that add the
+deploy workflows. Everything else is agents' work in this repository.
