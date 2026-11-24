@@ -20,6 +20,7 @@
       "model": "one-off",
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
+      "moved": "private-monorepo apps/wall-framing-takeoff (PR #8, 2026-11-24)",
       "move_order": 1
     },
     {
@@ -30,6 +31,7 @@
       "model": "subscription",
       "model_why": "holds a business's books, imports bank feeds and calls a model every month",
       "third_party_licences": [],
+      "moved": null,
       "move_order": 2
     },
     {
@@ -40,6 +42,7 @@
       "model": "one-off",
       "model_why": "statistics run on the user's own data in the browser or CLI; nothing to serve per user",
       "third_party_licences": [],
+      "moved": null,
       "move_order": 3
     },
     {
@@ -53,6 +56,7 @@
         "ventures/einvoice-preflight/eval/nfe-corpus/nfelib/LICENSE-nfelib",
         "ventures/einvoice-preflight/fixtures/hungary-nav/LICENCE-NAV.md"
       ],
+      "moved": null,
       "move_order": 4
     },
     {
@@ -63,6 +67,7 @@
       "model": "subscription",
       "model_why": "runs a server-side part (server.mjs): a monthly cost per user",
       "third_party_licences": [],
+      "moved": null,
       "move_order": 5
     },
     {
@@ -73,6 +78,7 @@
       "model": "one-off",
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
+      "moved": null,
       "move_order": 6
     },
     {
@@ -83,6 +89,7 @@
       "model": "one-off",
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
+      "moved": null,
       "move_order": 7
     },
     {
@@ -93,6 +100,7 @@
       "model": "subscription",
       "model_why": "runs a server-side part (server.mjs): a monthly cost per user",
       "third_party_licences": [],
+      "moved": null,
       "move_order": 8
     },
     {
@@ -105,6 +113,7 @@
       "third_party_licences": [
         "ventures/ids-model-check/samples/bsi-ifc43/LICENSE.md"
       ],
+      "moved": null,
       "move_order": 9
     },
     {
@@ -115,6 +124,7 @@
       "model": "one-off",
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
+      "moved": null,
       "move_order": 10
     },
     {
@@ -125,6 +135,7 @@
       "model": "one-off",
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
+      "moved": null,
       "move_order": 11
     },
     {
@@ -135,6 +146,7 @@
       "model": "subscription",
       "model_why": "hosted sites for local businesses (hosting, domain, edits) are a monthly cost per customer",
       "third_party_licences": [],
+      "moved": null,
       "move_order": 12
     },
     {
@@ -145,6 +157,7 @@
       "model": "one-off",
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
+      "moved": null,
       "move_order": 13
     },
     {
@@ -155,6 +168,7 @@
       "model": "one-off",
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
+      "moved": null,
       "move_order": 14
     },
     {
@@ -167,6 +181,7 @@
       "third_party_licences": [
         "ventures/print-atelier/site/LICENSE"
       ],
+      "moved": null,
       "move_order": 15
     },
     {
@@ -177,6 +192,7 @@
       "model": "one-off",
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
+      "moved": null,
       "move_order": 16
     },
     {
@@ -187,6 +203,7 @@
       "model": "subscription",
       "model_why": "runs a server-side part (automations-server.mjs): a monthly cost per user",
       "third_party_licences": [],
+      "moved": null,
       "move_order": 17
     },
     {
@@ -197,6 +214,7 @@
       "model": "one-off",
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
+      "moved": null,
       "move_order": 18
     },
     {
@@ -209,6 +227,7 @@
       "third_party_licences": [
         "ventures/real-estate-agent-photo-app/site/LICENSE"
       ],
+      "moved": null,
       "move_order": 19
     },
     {
@@ -219,6 +238,7 @@
       "model": "one-off",
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
+      "moved": null,
       "move_order": 20
     }
   ],

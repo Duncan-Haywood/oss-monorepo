@@ -87,6 +87,12 @@ OVERRIDES: dict[str, dict[str, str]] = {
 
 COMMONS_PREFIXES = ("open-",)
 
+# Products already imported into the private repository (step 2 of "How one
+# product moves" in LICENSING_TRANSITION.md), with where it landed.
+MOVED: dict[str, str] = {
+    "wall-framing-takeoff": "private-monorepo apps/wall-framing-takeoff (PR #8, 2026-11-24)",
+}
+
 SUBSCRIPTION_FILE = re.compile(r"(^|[-_])(server|api|sync|wrangler)([-_.]|$)|^wrangler\.", re.I)
 SUBSCRIPTION_TEXT = re.compile(
     r"\bAI[- ](first|enhance|assisted|powered)|\bLLM\b|@anthropic-ai/sdk|\bhosted\b|\bmarketplace\b|\bbank feed",
@@ -177,6 +183,7 @@ def classify(slug: str, venture: Path, flagships: list[str], paid_rows: list[str
     if rec["track"] == "proprietary":
         rec["model"], rec["model_why"] = pick_model(slug, venture, desc)
         rec["third_party_licences"] = nested_licences(venture)
+        rec["moved"] = MOVED.get(slug)
         rec["priority"] = (flagships.index(slug) if slug in flagships else 100) * 1_000_000 - lines
     return rec
 

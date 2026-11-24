@@ -91,6 +91,10 @@ retail-pilot-intel, sales-export-to-journal).
 4. **Route runs**: the venture's flagship row (if any) points deepening work at
    the private app, and `transition.json` marks it `moved`.
 
+Status (2026-11-24): **wall-framing-takeoff is imported** (step 2,
+private-monorepo PR #8, 304 files, its tests pass there); steps 1, 3 and 4 are
+next. `MOVED` in `transition.py` records each import.
+
 Order: `move_order` in `transition.json`, which follows flagship rank and then
 depth. wall-framing-takeoff is first: its licence-key and checkout modules
 (`licence.mjs`, `checkout.mjs`) are already built dark.

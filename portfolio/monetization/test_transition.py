@@ -99,3 +99,9 @@ def test_licence_named_source_is_not_a_licence_file(tmp_path, monkeypatch):
     monkeypatch.setattr(t, "ROOT", tmp_path)
     v = make(tmp_path, "studio", {"lib/licence.mjs": "x", "lib/LICENSE": "MIT"})
     assert t.nested_licences(v) == ["studio/lib/LICENSE"]
+
+
+def test_moved_products_are_marked():
+    data = t.build()
+    moved = {r["venture"]: r["moved"] for r in data["proprietary"] if r["moved"]}
+    assert set(moved) == set(t.MOVED)
