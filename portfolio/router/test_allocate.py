@@ -840,6 +840,16 @@ class FlagshipTests(unittest.TestCase):
         self.assertIn("archive.org REFUSED; github.com answers", out)
         self.assertNotIn("probed just now", venture_report("deep", [v]))
 
+    def test_venture_report_leaves_an_item_on_a_refused_host_unnumbered(self):
+        # friction 2026-11-21..24: hosts line said REFUSED, item still numbered
+        v = self.flag("deep", 0, "history. Next: fit the ramp on the github.com set; "
+                                 "next: a vintage read from alfred.stlouisfed.org")
+        out = venture_report("deep", [v], probe=lambda url: "github" in url)
+        self.assertIn("1. [next] fit the ramp on the github.com set", out)
+        self.assertIn("(alfred.stlouisfed.org REFUSED just now) a vintage read", out)
+        self.assertNotIn("2. [next]", out)
+        self.assertIn("2. [next] a vintage", venture_report("deep", [v]))
+
     def test_load_flagship_hosts_takes_a_list_or_a_string(self):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "flagships.yaml"
@@ -1064,26 +1074,6 @@ class StartHereTests(unittest.TestCase):
                                  "  -  [next] (needs outside input) a real club's month"])
         none = item_lines([("next", "a real tournament")])
         self.assertIn("NEXT.md", none[0])
-
-    def test_items_list_skips_items_naming_a_refused_host(self):
-        # 2026-11-24: --venture photo-editing printed "raw.pixls.us REFUSED"
-        # above a numbered raw.pixls.us item; the rank sent a session there.
-        from allocate import item_lines, item_skip
-        refused = frozenset({"raw.pixls.us"})
-        self.assertEqual(item_skip("blind 6-body set, raw.pixls.us", refused=refused),
-                         "needs raw.pixls.us, REFUSED here")
-        self.assertEqual(item_skip("blind 6-body set, raw.pixls.us"), "")
-        # A subdomain of a refused host is refused too; other hosts are not.
-        self.assertEqual(item_skip("fetch from cdn.raw.pixls.us", refused=refused),
-                         "needs cdn.raw.pixls.us, REFUSED here")
-        self.assertEqual(item_skip("draw from github.com/x/y", refused=refused), "")
-        # Another reason wins: a setup line stays a setup line.
-        self.assertEqual(item_skip("Public samples, no key: raw.pixls.us (CC0)", refused=refused),
-                         "setup or source")
-        lines = item_lines([("next", "blind 6-body set, raw.pixls.us"),
-                            ("next", "JPEG XL DNGs")], refused=refused)
-        self.assertEqual(lines, ["  1. [next] JPEG XL DNGs",
-                                 "  -  [next] (needs raw.pixls.us, REFUSED here) blind 6-body set, raw.pixls.us"])
 
     def test_items_list_skips_setup_advice_and_split_results(self):
         # 2026-11-24: 11 of 53 numbered entries on main were setup or source

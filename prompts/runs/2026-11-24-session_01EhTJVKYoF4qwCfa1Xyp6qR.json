@@ -37,12 +37,16 @@
     {
       "file": "portfolio/router/test_flagship_field.py",
       "issue": "Imports pytest, so `python3 -m unittest` from portfolio/router fails on a bare python3. Use the interpreter pyenv.py returns."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Two sessions fixed the same friction_rank cluster within minutes (#18637 and #18638). friction_rank lists clusters without checking open PRs, so the second session finds the duplicate only when its merge conflicts."
     }
   ],
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Critique lens: friction_rank --live --ungated --days 3 cluster #3 on allocate.py (photo-editing item list numbered raw.pixls.us items while the probe on the same screen said REFUSED). Fix: item_skip/item_lines take the refused host names, and --venture probes once (probe_hosts). Data: photo-editing's two raw.pixls.us items now name the host. Verified: test_allocate 155 OK; test_flagship_field+test_validate 128 passed (python3.13); validate.py OK; check_posts ok; live --venture photo-editing lists the 2 items unnumbered with the reason. No backlog id touched (only owner rows were open; P071 lives in the CODEOWNERS-gated backlog dir).",
+  "notes": "Critique lens: friction_rank --live --ungated --days 3 cluster on allocate.py (photo-editing items needing raw.pixls.us were numbered while the probe said REFUSED). While CI ran, PR #18637 (another session) merged the same allocate.py check. On merging main I kept its code and dropped mine and my post, which were near-duplicates. What this PR still adds: photo-editing's 'blind 6-body set' and 'JPEG XL DNGs' items named no host, so the check could not see them. They now name raw.pixls.us (from eval/xtrans-drawn-mpcws-2026-11-24.md line 81), and one finished result moved to HISTORY.md to stay under the cap. Verified: allocate.py --venture photo-editing on merged main lists both items unnumbered '(raw.pixls.us REFUSED just now)'; earlier CI on the branch was green. Small gap left in #18637: a setup line naming a refused host shows the refused reason instead of 'setup or source' (cosmetic). No backlog id touched.",
   "corrections": [],
   "redteam": null
 }

@@ -522,8 +522,8 @@ def refused_rows(ventures: list["Venture"], probe=table_probe) -> dict[str, list
     return out
 
 
-def probe_hosts(urls: list[str], answers=host_answers) -> dict[str, bool]:
-    """{url: answers} for `urls`, probed in parallel."""
+def probe_urls(urls: list[str], answers=host_answers) -> dict[str, bool]:
+    """{url: answered} for `urls`, probed in parallel."""
     if not urls:
         return {}
     from concurrent.futures import ThreadPoolExecutor
@@ -531,16 +531,16 @@ def probe_hosts(urls: list[str], answers=host_answers) -> dict[str, bool]:
         return dict(zip(urls, ex.map(answers, urls)))
 
 
-def _host_name(url: str) -> str:
+def url_host(url: str) -> str:
     return re.sub(r"^[a-z]+://", "", url, flags=re.I).split("/", 1)[0].lower()
 
 
-def hosts_line(urls: list[str], answers=host_answers, probed: Optional[dict] = None) -> str:
-    """One line saying which of `urls` answer from this session right now
-    (`probed`, when given, is a probe_hosts result already in hand)."""
+def hosts_line(urls: list[str], answers=host_answers, ok: Optional[dict[str, bool]] = None) -> str:
+    """One line saying which of `urls` answer from this session right now.
+    `ok` is a probe_urls result to reuse instead of probing again."""
     if not urls:
         return ""
-    ok = probed if probed is not None else probe_hosts(urls, answers)
+    ok = ok if ok is not None else probe_urls(urls, answers)
     parts = [re.sub(r"^[a-z]+://", "", u, flags=re.I).rstrip("/") + (" answers" if ok[u] else " REFUSED")
              for u in urls]
     return ("hosts, probed just now (trust this over any 'answers 403' or 'serves files' note "
@@ -1530,29 +1530,22 @@ def _unbracketed(text: str) -> str:
 
 def item_skip(body: str, today: Optional[str] = None, refused: frozenset = frozenset()) -> str:
     """Why `body` is not counted as an open item ("result", "needs outside
-    input", "waits for <date>", "needs <host>, REFUSED here"), or "" when it
+    input", "waits for <date>", "<host> REFUSED just now"), or "" when it
     looks buildable here. `refused` holds host names this session's probe
-    refused; an entry naming one is not buildable from this session.
-
-    Why: on 2026-11-24 the `--venture photo-editing` output printed
-    "raw.pixls.us REFUSED" two lines above an item list whose rank pointed a
-    session at a raw.pixls.us item, and the session found out only by reading
-    the row's history (allocate.py doc_friction, 2026-11-21..24, 4 reports)."""
-    why = _item_skip(body, today)
-    if why or not refused:
-        return why
-    for m in _HOST_RE.finditer(body):
-        name = m.group(1).lower()
-        if any(name == h or name.endswith("." + h) for h in refused):
-            return f"needs {name}, REFUSED here"
-    return ""
-
-
-def _item_skip(body: str, today: Optional[str] = None) -> str:
-    """item_skip without the host check."""
+    could not reach."""
     from flagship_field import DATED_EVIDENCE, is_result
     if _NEEDS_INPUT.search(body):
         return "needs outside input"
+    # Why: the hosts line said "REFUSED" while the numbered list still
+    # counted the item that needs that host, so Start here's rank sent runs
+    # to it (photo-editing raw.pixls.us, changepoint-detector
+    # alfred.stlouisfed.org; 4 allocate.py doc_friction reports 2026-11-21..24,
+    # `friction_rank.py --live --ungated --days 3`). The row-level demotion
+    # (refused_rows) misses an item whose host is not in `buildable:`.
+    if refused:
+        bad = sorted({m.group(1).lower() for m in _HOST_RE.finditer(body)} & refused)
+        if bad:
+            return f"{', '.join(bad)} REFUSED just now"
     gates = future_gates(body, today)
     if gates and body.lower().startswith(("after", "from", "not before")):
         return f"waits for {gates[0]}"
@@ -1582,8 +1575,7 @@ ITEM_WIDTH = 150
 def item_lines(items: list[tuple[str, str]], today: Optional[str] = None,
                refused: frozenset = frozenset()) -> list[str]:
     """The `items:` lines: buildable-looking entries numbered, the rest
-    listed after them unnumbered with the reason (item_skip; `refused` is the
-    host names this session's probe refused)."""
+    listed after them unnumbered with the reason."""
     lines, skipped, n = [], [], 0
     for field_name, body in items:
         why = item_skip(body, today, refused)
@@ -1868,12 +1860,12 @@ def venture_report(name: str, ventures: list[Venture],
                         if v.flagship_not_before else ""))
         if v.flagship_buildable:
             lines.append("buildable here: " + v.flagship_buildable)
-        refused_here: frozenset = frozenset()
+        refused: frozenset = frozenset()
         if probe is not None:
             urls = row_hosts(v)
-            probed = probe_hosts(urls, probe)
-            refused_here = frozenset(_host_name(u) for u, ok in probed.items() if not ok)
-            line = hosts_line(urls, probe, probed)
+            ok = probe_urls(urls, probe)
+            refused = frozenset(url_host(u) for u, a in ok.items() if not a)
+            line = hosts_line(urls, ok=ok)
             if line:
                 lines.append(line)
         lines.append(f"next: ({next_budget(v)}; portfolio/router/validate.py fails a longer one, "
@@ -1883,9 +1875,10 @@ def venture_report(name: str, ventures: list[Venture],
         if items:
             lines.append("items: (numbered from the two fields above for Start here's item "
                          "rank; results, setup or source lines, advice, entries needing outside input or a host "
-                         "refused above, and dated waits are listed unnumbered after them. A heuristic split: take a skipped "
+                         "refused just now, and dated waits are "
+                         "listed unnumbered after them. A heuristic split: take a skipped "
                          "entry if you can do it)")
-            lines.extend(item_lines(items, refused=refused_here))
+            lines.extend(item_lines(items, refused=refused))
     else:
         lines.append("task: " + next_task(v))
     if v.flagship and left is not None:
