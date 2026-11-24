@@ -2002,6 +2002,15 @@ test('renderRobots allows crawling', () => {
   assert.match(renderRobots(BASE), /User-agent: \*\nAllow: \//);
 });
 
+test('renderRobots keeps Grant Autopilot private paths out and names its sitemap', () => {
+  const robots = renderRobots(BASE);
+  for (const p of ['/grants/orgs', '/grants/api', '/grants/invite', '/grants/onboarding']) {
+    assert.ok(robots.includes(`Disallow: ${p}\n`), p);
+  }
+  assert.ok(robots.includes(`Sitemap: ${BASE}grants/sitemap.xml`));
+  assert.ok(robots.includes(`Sitemap: ${BASE}sitemap.xml`));
+});
+
 test('links that escape the site are repointed at the repository, not left broken', async () => {
   // This used to read a naturally-occurring case out of real venture content
   // (ai-engineering-academy's own README link). That coupled the test to
