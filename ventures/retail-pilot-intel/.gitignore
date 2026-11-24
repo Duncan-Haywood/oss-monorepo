@@ -41,3 +41,6 @@ __pycache__/
 logs/
 data/*
 !data/.gitkeep
+
+# wrangler dev / deploy state (apps/docs/wrangler.toml)
+.wrangler/

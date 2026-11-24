@@ -1,3 +1,9 @@
+---
+kind: note
+date: 2026-11-24
+subjects: [retail-pilot-intel]
+topics: [hosting]
+---
 # Consolidating providers onto Cloudflare (2026-11-24)
 
 Owner, 2026-11-24: move providers onto Cloudflare where it does not raise cost much or lower
