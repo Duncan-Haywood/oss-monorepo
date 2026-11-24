@@ -518,8 +518,8 @@ flagships:
       beside IfcTester 2026-11-24 (eval/ifcopenshell-test-files-*); WHERE rules and
       seeded faults 2026-11-24 (eval/where-rules-*); global RULEs seeded 2026-11-24
       (eval/where-rules-global-seeds-*); next: a 2-record aggregation cycle
-      (NEXT.md); STEP exports as nested ifcXML (eval/ifc4-layout.mjs). IFC5:
-      eval/ifcx-twins.mjs on new IFC5-development files.
+      (NEXT.md); --to-ifcxml 2026-11-24 (eval/ifcxml-export-*); next: the page's
+      .ifcxml download. IFC5: eval/ifcx-twins.mjs on new IFC5-development files.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked") and HISTORY.md.
@@ -566,10 +566,11 @@ flagships:
       DIR/xer, 5 s; --mpxj adds MPXJ junit/data). Constraints log on more planted
       seeds or files: node eval/constraints-check.mjs (section 4,
       eval/constraints-slack-2026-11-20.md); P6 probes: eval/p6-probes.mjs
-      (NEXT.md); windows check (eval/windows-check.mjs, series made by status.mjs);
-      redundant: node eval/redundant-check.mjs DIR/xer; converter/hand-made XERs:
-      node eval/converter-corpus.mjs; MSPDI: eval/cpm-vs-project.mjs on MPXJ files;
-      XML out: eval/msproject-check.mjs, msproject-mpxj.py (pip mpxj jpype1).
+      (NEXT.md); windows: several change kinds in one window
+      (eval/windows-kinds-check.mjs); redundant: node eval/redundant-check.mjs
+      DIR/xer; converter/hand-made XERs: node eval/converter-corpus.mjs; MSPDI:
+      eval/cpm-vs-project.mjs on MPXJ files; XML out: eval/msproject-check.mjs,
+      msproject-mpxj.py (pip mpxj jpype1).
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/. Next, most valuable first:
@@ -617,11 +618,10 @@ flagships:
       The 8 public models in eval/areas-vs-stored-2026-11-19.md (sparse clones of
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public): 14
       unexplained areas (eval/curved-and-faces-2026-11-22.md, The 14 left); figures
-      in doubt (node eval/in-doubt.mjs; HHS walls and Tekla plates named 2026-11-24,
-      eval/split-held-2026-11-24.md): 1 volume, 3 areas left (net-on-a-face
-      2026-11-24; eval/net-on-a-face-2026-11-24.md); revisions: EngiWorld's Archicad
-      gui and cross-software pairs (eval/engiworld-archicad-diff-2026-11-23.md,
-      Left).
+      in doubt (node eval/in-doubt.mjs): 0 areas left 2026-11-24 (copings'
+      undersides, eval/signed-faces-2026-11-24.md); 1 volume, ARK_NUS #1167770,
+      needs a second Revit join case; revisions: EngiWorld's Archicad gui and
+      cross-software pairs (eval/engiworld-archicad-diff-2026-11-23.md, Left).
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/; search guides 2026-11-22. its

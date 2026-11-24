@@ -61,6 +61,10 @@ test("schema detection reads the namespace, not a FILE_SCHEMA line", () => {
   assert.equal(ifcXmlSchemaId(file("samples/tiny-house.ifcxml")), "IFC4");
   assert.equal(ifcXmlSchemaId('<?xml version="1.0"?><ex:iso_10303_28 xmlns:ex="urn:iso.org:standard:10303:part(28):version(2):xmlschema:common"><uos xmlns="http://www.iai-tech.org/ifcXML/IFC2x3/FINAL"/></ex:iso_10303_28>'), "IFC2X3");
   assert.equal(ifcXmlSchemaId('<ifcXML xmlns="https://standards.buildingsmart.org/IFC/RELEASE/IFC4_3/ifcXML"/>'), "IFC4X3");
+  // IFC4X3 ADD2's XSD namespace, and a development build's.
+  assert.equal(ifcXmlSchemaId('<ifcXML xmlns="https://standards.buildingsmart.org/IFC/RELEASE/IFC4/3/ADD2"/>'), "IFC4X3");
+  assert.equal(ifcXmlSchemaId('<ifc:ifcXML xmlns:ifc="https://standards.buildingsmart.org/IFC/DEV/IFC4/3/ADD2/DEV/20260526"/>'), "IFC4X3");
+  assert.equal(ifcXmlSchemaId('<ifcXML xmlns="https://standards.buildingsmart.org/IFC/RELEASE/IFC4/Add2TC1"/>'), "IFC4");
   assert.equal(ifcXmlSchemaId("ISO-10303-21;"), null);
   assert.throws(() => new Model('<?xml version="1.0"?><root/>', schemas), /not supported/);
 });

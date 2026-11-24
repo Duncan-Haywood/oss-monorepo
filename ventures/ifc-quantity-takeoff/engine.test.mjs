@@ -1923,3 +1923,25 @@ test("coating: a tube's outside is its coating area, its bore summed apart (Mini
   const [L] = boq([M], ["class"]);
   close(L.coatingInside, c.inside);
 });
+
+// schependomlaan's "afdekker" copings (eval/signed-faces-2026-11-24.md): a
+// profile built as a signed sum of pieces. Read with `signed`, the faces the
+// pieces share cancel, and the underside is the flat strip either side of the
+// drip groove, as ArchiCAD stores it (Bottom Surface Area = GrossArea)
+test("planeAreas signed: a coping cut by a groove, two boxes sharing a face", async () => {
+  const { planeAreas } = await import("./geom.mjs");
+  const rect = (x0, y0, x1, y1) => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
+  const coping = { terms: [{ s: 1, faces: prism(rect(0, 0, 0.15, 0.07), [0, 0, 0.47]) }, { s: -1, faces: prism(rect(0.115, 0, 0.135, 0.01), [0, 0, 0.47]) }], mesh: 0, shells: [] };
+  assert.equal(planeAreas(coping), null);
+  const P = planeAreas(coping, true);
+  const at = () => P.filter((p) => Math.abs(Math.abs(p.n[1]) - 1) < 1e-9).map((p) => +p.area.toFixed(9)).sort();
+  // underside 0.13 x 0.47, the groove's roof 0.02 x 0.47, the top 0.15 x 0.47
+  assert.deepEqual(at(), [0.0094, 0.0611, 0.0705]);
+  // the two ends: the profile less the groove
+  const ends = P.filter((p) => Math.abs(Math.abs(p.n[2]) - 1) < 1e-9).map((p) => +p.area.toFixed(9));
+  assert.deepEqual(ends, [0.0103, 0.0103]);
+  // two boxes side by side: the face they share is no part of the surface
+  const two = { terms: [{ s: 1, faces: prism(rect(0, 0, 1, 1), [0, 0, 1]) }, { s: 1, faces: prism(rect(1, 0, 2, 1), [0, 0, 1]) }], mesh: 0, shells: [] };
+  const S = planeAreas(two, true).map((p) => +p.area.toFixed(9)).sort((a, b) => a - b);
+  assert.deepEqual(S, [1, 1, 2, 2, 2, 2]);
+});

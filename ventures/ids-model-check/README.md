@@ -462,6 +462,7 @@ Command line (Node 20+):
 ```
 node cli.mjs model.ifc spec.ids                 # text report, exit 1 on a fail
 node cli.mjs model.ifcxml spec.ids              # ifcXML, or an .ifczip, the same way
+node cli.mjs --to-ifcxml model.ifc -o model.ifcxml   # an IFC4/IFC4X3 model as XSD-laid-out ifcXML
 node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --html report.html  # the check as one HTML file to send back
 node cli.mjs --fill model.ifc spec.ids -o filled.ifc --to-fill todo.csv  # write what the IDS fixes; list the rest
@@ -734,6 +735,38 @@ the file bounds on one side now takes the room geometry finds on the other. On D
 IfcOpenShell's ifcfm writes the same counts of floors, rooms, zones, types and
 components, and the QC of its workbook finds the 38 components it leaves at
 `n/a`.
+
+### STEP models written as ifcXML that validates (2026-11-24)
+
+The other way round: `node cli.mjs --to-ifcxml model.ifc -o model.ifcxml`
+writes an IFC4 or IFC4X3 STEP model as ifcXML, the standard's XML form, for
+pipelines that query XML (XPath, XSLT, an XML database) or a client who asks
+for it. The layout is the one buildingSMART's XSD gives, not a guess: which
+values are XML attributes, the order of child elements (supertype levels
+first), and which relationships nest under which objects are read from the
+XSD by `schema/gen-ifcxml-layout.py` into `schema/ifcxml-layout-*.json`
+(names only). The spatial tree hangs from the IfcProject, property sets sit
+under the objects they describe, and every entity is written in full once and
+by `href` after that, as buildingSMART's own Annex E examples are.
+
+How it was checked (`eval/ifcxml-export-2026-11-24.md`, `eval/ifcxml-export.mjs`):
+the tiny-house sample, buildingSMART's 41 IFC4 Annex E STEP examples and five
+public exports up to 33 MB (ARCHICAD, Revit and a bridge model, 901,550
+entities) were written and read back: every entity's arguments equal the STEP
+reader's, and the checker's 540 verdicts from the 68 IDS files are the same on
+each export as on its STEP file (3,240 of 3,240). Against the IFC4 ADD2 XSD
+(xmllint) 37 of the 42 small files validate, and every XSD error in the large
+ones is accounted for: either the source left a required attribute `$` (1,137,
+which `--conformance` reports on the STEP file too) or the XSD cannot hold the
+model (680). IFC4's XSD allows one `HasOpenings` per element although EXPRESS
+gives a set, so a wall's second opening keeps its pointer to the wall; the file
+reads back whole, and the command says how many and exits 1. Lists of lists
+are written flat, as the XSD's "list list" says, with `ifc:arraySize` giving
+the rows, which the reader now uses to cut them back. The IFC4X3 ADD2 XSD as published does
+not compile in xmllint (`maxOccurs="?"` in three places and list types built on
+complex types), so IFC4X3 exports follow its layout but are checked by reading
+back only. The check found one reader fault, fixed: an ifcXML file in IFC4X3
+ADD2's own namespace (`.../IFC/RELEASE/IFC4/3/ADD2`) was opened as IFC4.
 
 ### ifcXML, ifcJSON and IFC5 models written as a STEP .ifc (2026-11-22)
 
@@ -2297,6 +2330,12 @@ faster than IfcTester; its point is needing no install.
 - ifcXML and ifcZIP test files: xBIM Toolkit, `github.com/xBimTeam/XbimEssentials`
   (`Tests/TestFiles`, CDDL; fetched by `eval/fetch-xbim-samples.sh`, not
   copied here).
+- ifcXML schemas IFC4 ADD2 (`IFC/RELEASE/IFC4/ADD2/XML/IFC4_ADD2.xsd`) and
+  IFC4X3 ADD2 (`IFC/RELEASE/IFC4_3/HTML/IFC4X3_ADD2.xsd`),
+  `github.com/buildingSMART/Standards-builds`, (c) buildingSMART International
+  Limited, used in software development with full attribution; reduced to
+  element and attribute names in `schema/ifcxml-layout-*.json` by
+  `schema/gen-ifcxml-layout.py`, fetched by `eval/fetch-ifcxml-xsd.sh`.
 - STEP/ifcXML twins: buildingSMART's IFC4 ADD2 TC1 Annex E examples,
   `github.com/buildingSMART/Standards-builds`, and two from
   `github.com/GeometryGym/GeometryGymIFCExamples` (MIT); fetched by

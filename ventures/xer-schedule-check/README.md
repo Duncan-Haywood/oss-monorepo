@@ -146,6 +146,19 @@ most windows are listed first. The contemporaneous-period analysis a claims
 consultant bills for, as a first pass from the files alone; who is responsible
 for each delay stays the analyst's call. `node cli.mjs --windows *.xer`.
 
+**Gains and nine more kinds of change in the windows** (2026-11-24): the
+windows analysis was checked on late starts, gains, early finishes,
+constraints, inserted activities, deleted and retyped links, calendar swaps
+and duration cuts, one planted per window on series made from the six public
+files: 80 of 80 planted windows split exactly, on the right side, and named.
+Two fixes came out of it. A window that recovered time now names the work
+that recovered it (work under way now forecast to finish earlier, marked as a
+gain and kept out of the "named in the most windows" list); before, 0 of 9
+gains were named. And revisions are named when they touch the half-step
+schedule's driving path as well as the paths at either end of the window, since
+progress can move the path mid-window (a deleted link that pulled the finish
+in 2.9 days had been missed) (eval/windows-kinds-check-2026-11-24.md).
+
 **Written review** (2026-11-19): one document for the contractor, built from
 the assessment and, when loaded, the comparison: a summary (forecast against
 the must-finish date, the half-step split), every correction ranked **high**

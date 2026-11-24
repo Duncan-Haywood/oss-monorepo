@@ -47,6 +47,12 @@
 //                                              # the model written as a STEP .ifc file (step-writer.mjs),
 //                                              # for tools that read only .ifc; exit 1 when a value could
 //                                              # not be carried over exactly (listed on stderr)
+//   node cli.mjs --to-ifcxml MODEL.ifc|.ifczip -o OUT.ifcxml
+//                                              # an IFC4 or IFC4X3 STEP model written as ifcXML in the
+//                                              # layout buildingSMART's XSD gives (ifcxml-writer.mjs): the
+//                                              # spatial tree under the IfcProject, property sets under their
+//                                              # objects; exit 1 when a relationship had to keep a pointer the
+//                                              # XSD leaves out (IFC4 allows one HasOpenings per element)
 //   node cli.mjs --from-bsdd CLASS_URI... [-o OUT.ids] [--sets Pset_A,Pset_B] [--schema IFC4]
 //                                              # one specification per bSDD class from its property list
 //                                              # (bsdd-spec.mjs; goes on the network like --bsdd); stdout
@@ -89,6 +95,8 @@ import { diffIds, revisionImpact, revisionReport } from "./revision.mjs";
 import { parseModel } from "./node.mjs";
 import { fillModel, toFillCsv, readValues, fillReport } from "./model-fill.mjs";
 import { toStep } from "./step-writer.mjs";
+import { writeIfcXml, ifcXmlSchemaFor } from "./ifcxml-writer.mjs";
+import { openSync, writeSync, closeSync } from "node:fs";
 
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(n);
@@ -217,6 +225,25 @@ if (flag("--cobie") && files.length === 1) {
   console.error(`wrote ${w.entities.toLocaleString("en-US")} entities from the ${m.format} model (${m.schemaRaw}) to ${opt("-o")}`);
   for (const n of w.notes) console.error("  not carried over exactly: " + n);
   process.exitCode = w.notes.length ? 1 : 0;
+} else if (flag("--to-ifcxml") && files.length === 1) {
+  if (!opt("-o")) { console.error("--to-ifcxml needs -o OUT.ifcxml"); process.exit(2); }
+  let m, id, st;
+  try {
+    m = parseModel((await readModel(files[0])).bytes);
+    if (m.format !== "STEP") throw new Error(`--to-ifcxml reads STEP models (this one is ${m.format})`);
+    id = ifcXmlSchemaFor(m.schemaRaw);
+    if (!id) throw new Error(`ifcXML is written for IFC4 and IFC4X3 models (this one is ${m.schemaRaw})`);
+    const fd = openSync(opt("-o"), "w");
+    try { st = writeIfcXml(m, id, (s) => writeSync(fd, s), { name: basename(files[0]) }); } finally { closeSync(fd); }
+  } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
+  console.error(`wrote ${st.entities.toLocaleString("en-US")} entities (${m.schemaRaw}) as ${id} ifcXML to ${opt("-o")}; ${st.nestedRelationships.toLocaleString("en-US")} relationships nested under their objects`);
+  if (st.unknownTypes) console.error(`  ${st.unknownTypes} entities of classes the ${id} schema lacks left out`);
+  for (const [k, n] of Object.entries(st.keptPointerTypes)) console.error(`  ${n} ${k} written with the pointer the XSD leaves out (the object they point at has no inverse the XSD lets hold them, or IFC4's one HasOpenings is taken), so the file reads back whole but breaks the XSD there`);
+  if (st.spacedListItems) console.error(`  ${st.spacedListItems} list item(s) hold a space, which an XSD list attribute splits`);
+  if (st.raggedLists) console.error(`  ${st.raggedLists} list(s) of lists with rows of different lengths kept their row wrappers, which the XSD does not have`);
+  if (st.danglingRefs) console.error(`  ${st.danglingRefs} reference(s) to entities the file does not have left out`);
+  if (st.binaryBits) console.error(`  ${st.binaryBits} binary value(s) not a whole number of bytes, written padded`);
+  process.exitCode = st.keptPointers || st.unknownTypes || st.spacedListItems || st.raggedLists || st.danglingRefs || st.binaryBits ? 1 : 0;
 } else if (flag("--fix") && files.length === 1) {
   // Exit 0 when the repaired file breaks ids.xsd nowhere, 1 when faults that
   // need a person remain (listed on stderr), 2 when the file is not XML.
@@ -333,7 +360,7 @@ if (flag("--cobie") && files.length === 1) {
   else console.log(auditReport(ids.title, ids.specs, issues) + (bsdd ? "\n" + bsddReport(bsdd) : ""));
   process.exitCode = issues.some((x) => x.level === "error") || (bsdd && bsdd.findings.some((x) => x.level === "error")) ? 1 : 0;
 } else if (files.length !== 2 || flag("--help")) {
-  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.json|.ifcx|.ifczip SPEC.ids [--layer LAYER.ifcx ...] [--json] [--bcf out.bcfzip] [--junit out.xml] [--html report.html] [--max-failures N] [--no-audit]\n       node cli.mjs --conformance MODEL.ifc [--json] [--no-rules]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx\n       node cli.mjs --diff OLD.ids NEW.ids [MODEL.ifc] [--json]\n       node cli.mjs --to-doc SPEC.ids [-o OUT.md|OUT.html]\n       node cli.mjs --fill MODEL.ifc SPEC.ids -o OUT.ifc [--values FILLED.csv] [--to-fill TODO.csv] [--from-geometry [--densities D.csv]]\n       node cli.mjs --to-step MODEL.ifcxml|.json|.ifcx -o OUT.ifc\n       node cli.mjs --cobie MODEL.ifc -o OUT.xlsx [--from-geometry] [--stage design|handover] [--contact EMAIL,COMPANY,PHONE] [--created-on ISO] [--na]\n       node cli.mjs --cobie-qc WORKBOOK.xlsx|CSV-DIR [--stage design|handover] [--json]");
+  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.json|.ifcx|.ifczip SPEC.ids [--layer LAYER.ifcx ...] [--json] [--bcf out.bcfzip] [--junit out.xml] [--html report.html] [--max-failures N] [--no-audit]\n       node cli.mjs --conformance MODEL.ifc [--json] [--no-rules]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx\n       node cli.mjs --diff OLD.ids NEW.ids [MODEL.ifc] [--json]\n       node cli.mjs --to-doc SPEC.ids [-o OUT.md|OUT.html]\n       node cli.mjs --fill MODEL.ifc SPEC.ids -o OUT.ifc [--values FILLED.csv] [--to-fill TODO.csv] [--from-geometry [--densities D.csv]]\n       node cli.mjs --to-step MODEL.ifcxml|.json|.ifcx -o OUT.ifc\n       node cli.mjs --to-ifcxml MODEL.ifc -o OUT.ifcxml\n       node cli.mjs --cobie MODEL.ifc -o OUT.xlsx [--from-geometry] [--stage design|handover] [--contact EMAIL,COMPANY,PHONE] [--created-on ISO] [--na]\n       node cli.mjs --cobie-qc WORKBOOK.xlsx|CSV-DIR [--stage design|handover] [--json]");
   process.exit(2);
 } else {
   let [ifcPath, idsPath] = files;

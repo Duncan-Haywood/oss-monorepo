@@ -727,20 +727,24 @@ export function surfaceArea(s) {
  * inner bounds that run against their face. null on the same terms as
  * surfaceArea. ArchiCAD stores some coverings' and walls' areas as one of
  * these (a sill's top, a coping's underside: eval/curved-and-faces-2026-11-22.md).
+ * `signed` reads a body of several signed terms too (a profile with arcs is
+ * built as a signed sum of pieces): each term's loops count with its sign,
+ * so the faces pieces share cancel plane by plane and what is left is the
+ * body's own boundary (eval/signed-faces-2026-11-24.md).
  */
-export function planeAreas(s) {
+export function planeAreas(s, signed = false) {
   if (s.mesh && !s.shells) return null;
   const loops = [];
-  if (s.terms.length > 1) return null;
-  for (const t of s.terms) loops.push(...t.faces);
-  if (s.shells) for (const sh of s.shells) loops.push(...sh.loops);
+  if (s.terms.length > 1 && !signed) return null;
+  for (const t of s.terms) for (const f of t.faces) loops.push([t.s, f]);
+  if (s.shells) for (const sh of s.shells) for (const l of sh.loops) loops.push([sh.s ?? 1, l]);
   if (!loops.length) return null;
   let scale = 0;
-  for (const l of loops) for (const p of l) scale = Math.max(scale, Math.abs(p[0]), Math.abs(p[1]), Math.abs(p[2]));
+  for (const [, l] of loops) for (const p of l) scale = Math.max(scale, Math.abs(p[0]), Math.abs(p[1]), Math.abs(p[2]));
   const planes = new Map();
-  for (const l of loops) {
+  for (const [sg, l] of loops) {
     if (l.length < 3) continue;
-    const a = mulS(newell(l), 0.5);
+    const a = mulS(newell(l), 0.5 * (signed ? sg : 1));
     const n = unit(a);
     if (!n) continue;
     // one key for both orientations of a plane
