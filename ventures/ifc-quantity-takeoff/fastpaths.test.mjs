@@ -5,7 +5,8 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { prism, clipPoly, clipByPlanes, beyondAPlane, polyPlanes, orientShell, solidExtent, solidPoints } from "./geom.mjs";
+import { prism, clipPoly, clipByPlanes, beyondAPlane, polyPlanes, orientShell, solidExtent, solidPoints, planeAreas, apply, IDENTITY } from "./geom.mjs";
+import { planRect } from "./envelope.mjs";
 
 // ---- the code as it was before (reference) ----
 const EPS_REL = 1e-9;
@@ -203,3 +204,122 @@ test("solidExtent is the min and max over solidPoints", () => {
 });
 // solidPoints yields open shells' `loose` loops once PR #18042 lands; until then add them here
 const solidPointsHasLoose = [...solidPoints({ terms: [], shells: null, loose: [[[1, 2, 3]]] })].length > 0;
+
+// ---- 2026-11-24: planeAreas, planRect and orientShell's edge table --------
+// (docs/history/ifc-takeoff-perf-2026-11-24.md). The code they replaced,
+// copied verbatim: planeAreas keyed its planes by a string per loop,
+// planRect read every corner of every face, orientShell's edges were a Map.
+
+function newellOld(l) {
+  let n = [0, 0, 0];
+  for (let i = 0; i < l.length; i++) {
+    const a = l[i], b = l[(i + 1) % l.length];
+    n = add(n, [(a[1] - b[1]) * (a[2] + b[2]), (a[2] - b[2]) * (a[0] + b[0]), (a[0] - b[0]) * (a[1] + b[1])]);
+  }
+  return n;
+}
+function planeAreasOld(s, signed = false) {
+  if (s.mesh && !s.shells) return null;
+  const loops = [];
+  if (s.terms.length > 1 && !signed) return null;
+  for (const t of s.terms) for (const f of t.faces) loops.push([t.s, f]);
+  if (s.shells) for (const sh of s.shells) for (const l of sh.loops) loops.push([sh.s ?? 1, l]);
+  if (!loops.length) return null;
+  let scale = 0;
+  for (const [, l] of loops) for (const p of l) scale = Math.max(scale, Math.abs(p[0]), Math.abs(p[1]), Math.abs(p[2]));
+  const planes = new Map();
+  for (const [sg, l] of loops) {
+    if (l.length < 3) continue;
+    const a = mulS(newellOld(l), 0.5 * (signed ? sg : 1));
+    const n = unit(a);
+    if (!n) continue;
+    // one key for both orientations of a plane
+    const i = Math.abs(n[0]) > 1e-9 ? 0 : Math.abs(n[1]) > 1e-9 ? 1 : 2;
+    const c = n[i] < 0 ? mulS(n, -1) : n;
+    const r = (x, q) => Math.round(x / q);
+    const key = `${r(c[0], 1e-6)},${r(c[1], 1e-6)},${r(c[2], 1e-6)},${r(dot(c, l[0]), 1e-6 * (scale || 1))}`;
+    const v = planes.get(key);
+    planes.set(key, v ? add(v, a) : a);
+  }
+  const out = [];
+  for (const v of planes.values()) { const area = norm(v); if (area > 0) out.push({ n: mulS(v, 1 / area), area }); }
+  return out;
+}
+const STEPS = 90;
+function planRectOld(body, W, f = 1) {
+  const pts = [];
+  let z0 = Infinity, z1 = -Infinity;
+  for (const p of solidPoints(body)) {
+    const q = apply(W, p);
+    pts.push(q[0] * f, q[1] * f);
+    if (q[2] * f < z0) z0 = q[2] * f;
+    if (q[2] * f > z1) z1 = q[2] * f;
+  }
+  if (!pts.length) return null;
+  const ext = (a) => {
+    const nx = Math.cos(a), ny = Math.sin(a);
+    let lo = Infinity, hi = -Infinity;
+    for (let i = 0; i < pts.length; i += 2) { const d = pts[i] * nx + pts[i + 1] * ny; if (d < lo) lo = d; if (d > hi) hi = d; }
+    return [lo, hi];
+  };
+  let best = 0, bw = Infinity;
+  for (let k = 0; k < STEPS; k++) { const a = (k * Math.PI) / STEPS; const [lo, hi] = ext(a); if (hi - lo < bw) { bw = hi - lo; best = a; } }
+  for (let d = -10; d <= 10; d++) { const a = best + (d * Math.PI) / STEPS / 10; const [lo, hi] = ext(a); if (hi - lo < bw - 1e-12) { bw = hi - lo; best = a; } }
+  const n = [Math.cos(best), Math.sin(best)], u = [-n[1], n[0]];
+  const [nlo, nhi] = ext(best), [ulo, uhi] = ext(best + Math.PI / 2);
+  const cn = (nlo + nhi) / 2, cu = (ulo + uhi) / 2;
+  return { c: [cn * n[0] + cu * u[0], cn * n[1] + cu * u[1]], u, hl: (uhi - ulo) / 2, ht: (nhi - nlo) / 2, z0, z1 };
+}
+
+// a triangulated grid: n x n quads, two triangles each, sharing corner
+// arrays the way faceted shells do; `bumpy` gives most triangles a plane of
+// their own (the lofted decks' case), flat puts them all on one plane
+function grid(n, bumpy, sc = 1) {
+  const P = [];
+  for (let i = 0; i <= n; i++) { P.push([]); for (let j = 0; j <= n; j++) P[i].push([sc * i, sc * j, bumpy ? sc * 0.01 * rnd() : 0]); }
+  const tris = [];
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    tris.push([P[i][j], P[i + 1][j], P[i + 1][j + 1]]);
+    tris.push([P[i][j], P[i + 1][j + 1], P[i][j + 1]]);
+  }
+  return tris;
+}
+
+test("planeAreas sums the same planes, in the same order, as the string-keyed version", () => {
+  const cases = [];
+  for (let i = 0; i < 400; i++) {
+    const sc = [1, 1000, 1e-3][i % 3];
+    const terms = [{ s: 1, faces: randomPrism(sc) }];
+    if (i % 4 === 1) terms.push({ s: -1, faces: randomPrism(sc) });
+    const shells = i % 2 ? [{ s: i % 3 === 0 ? -1 : 1, loops: randomPrism(sc, [sc, 0, 0]) }, { loops: randomPrism(sc) }] : null;
+    cases.push({ terms, shells });
+  }
+  // many planes at once (the table grows), one plane many times over, -0
+  // and 0 in one key, degenerate and short loops, an infinite coordinate
+  cases.push({ terms: [], shells: [{ s: 1, loops: grid(60, true) }] });
+  cases.push({ terms: [], shells: [{ s: 1, loops: grid(40, false) }, { s: -1, loops: grid(5, true, 7) }] });
+  cases.push({ terms: [{ s: 1, faces: [[[0, 0, -0], [1, 0, 0], [1, 1, -0]], [[-0, 0, 0], [0, 1, 0], [0, 1, 1]], [[0, 0, 0], [1, 1, 1], [2, 2, 2]], [[0, 0, 0], [1, 0, 0]]] }] });
+  cases.push({ terms: [{ s: 1, faces: [[[0, 0, 0], [Infinity, 0, 0], [0, 1, 0]], [[0, 0, 0], [1, 0, 0], [0, 1, 0]]] }] });
+  cases.push({ terms: [], shells: [] }, { terms: [], mesh: true });
+  for (const s of cases) for (const signed of [false, true]) assert.deepEqual(planeAreas(s, signed), planeAreasOld(s, signed));
+});
+
+test("planRect reads each shared corner once and gives the same rectangle", () => {
+  const W = [Math.cos(0.3), -Math.sin(0.3), 0, 5, Math.sin(0.3), Math.cos(0.3), 0, -2, 0, 0, 1, 0.5];
+  for (let i = 0; i < 300; i++) {
+    const sc = [1, 1000, 1e-3][i % 3];
+    const body = { terms: [{ s: 1, faces: randomPrism(sc) }], shells: i % 2 ? [{ s: 1, loops: grid(6, true, sc) }] : null };
+    if (i % 5 === 0) body.loose = randomPrism(sc);
+    for (const m of [IDENTITY, W]) assert.deepEqual(planRect(body, m, [1, 0.001][i % 2]), planRectOld(body, m, [1, 0.001][i % 2]));
+  }
+  assert.equal(planRect({ terms: [] }, IDENTITY), null);
+});
+
+test("orientShell's edge table gives the same answer as the Map on large and open shells", () => {
+  for (let i = 0; i < 20; i++) {
+    // thousands of edges: the table grows several times
+    const tris = grid(20 + i, i % 2 === 0).map((l) => [rnd() < 0.3 ? l.slice().reverse() : l]);
+    if (i % 3 === 0) tris.splice(5, 1);
+    assert.deepEqual(orientShell(tris), orientShellOld(tris));
+  }
+});
