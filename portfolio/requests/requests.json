@@ -41,9 +41,9 @@
    "source": "owner",
    "ask": "looking into monetization plans and business model for the things in this repo. this should be a continual thing to focus on.",
    "status": "building",
-   "updated": "2026-11-02",
+   "updated": "2026-11-24",
    "project": "portfolio/monetization",
-   "next": "Plan and per-product models written; `python3 portfolio/monetization/monetization.py next` names the next step (first: a dark paid path on wall-framing-takeoff). No sale yet: the payout rail waits on the owner."
+   "next": "Plan and per-product models written; seven paid paths built dark and waiting on the owner's checkout link (golive.py). `python3 portfolio/monetization/monetization.py next` names the next step: since 2026-11-24, the first for-profit product in LICENSING_TRANSITION.md with no models.yaml row (photo-editing; 12 lack one)."
   },
   {
    "id": "R-0005",

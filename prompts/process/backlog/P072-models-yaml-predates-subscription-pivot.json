@@ -1,0 +1,25 @@
+{
+  "id": "P072",
+  "title": "models.yaml's paid offers predate the 2026-11-24 subscription pivot: 8 of 9 are one-off packs, and 12 for-profit products have no row",
+  "status": "open",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 2,
+  "problem": "The North star counts only subscription revenue as MRR (prompts/goals.md, 'North star'), but portfolio/monetization/models.yaml was written 2026-11-02..07 under the free-first, zero-per-user-cost model: its first offers are one-off branded packs (wall-framing-takeoff, league-schedule-generator, shed-designer, quick-pick-survey, changepoint-detector, shift-roster-builder, einvoice-preflight), and shift-roster-builder's `model` text still says a hosted subscription is ruled out while transition.json plans it as a subscription. 12 of the 20 products LICENSING_TRANSITION.md moves to paid models (photo-editing first) have no row at all, so no buyer, offer or price is written down for them.",
+  "evidence": [
+    "python3 portfolio/monetization/monetization.py on main 2026-11-24: 9 rows, 7 built-dark one-off packs, 0 of 7 checkout links set (golive.py)",
+    "transition.json 'proprietary': 20 products; 12 without a models.yaml row (monetization.py now prints them on its 'No row yet' line)",
+    "models.yaml shift-roster-builder `model`: 'a hosted subscription ... PRODUCT_PLAYBOOK.md section 2 rules out'; transition.json: model subscription"
+  ],
+  "change": "One run per product, in monetization.py next's order: add or rewrite the row to the pivot (a subscription offer where the buyer pays monthly elsewhere, with comparables read from vendors' pages, or a line saying why a one-off fits), then build it dark. Reconcile with portfolio/monetization/bets.md if PR #18691 lands it.",
+  "touches": [
+    "portfolio/monetization/models.yaml",
+    "ventures/*"
+  ],
+  "metric": "for-profit products (transition.json proprietary) with a models.yaml row whose model is a subscription or states why not",
+  "baseline": "8 of 20 have a row; 1 of those 8 (ai-bookkeeper, parked) names a recurring offer, 2026-11-24",
+  "opened": "2026-11-24",
+  "source": "process critique, 2026-11-24 (monetization.py next named finished rows for 17 days)",
+  "pr": null,
+  "result": null
+}
