@@ -1664,8 +1664,24 @@ in more than 5\% of draws, and none above 3 points flips at all; the two
 that flip in more than 20\% (gtc12r, dot6r, flip shares 0.38 and 0.37)
 have edges within a point of zero, which no affordable number of namings
 resolves. So per-design wins and losses of more than about 3 points in
-this paper survive naming noise, and smaller ones should be read as ties
-unless several namings agree. Two intermediate releases (0.47, 0.51)
+this paper survive per-point naming noise, and smaller ones should be read as ties
+unless several namings agree. Milestone 164
+(\texttt{experiments/\allowbreak{}naming\_\allowbreak{}more/\allowbreak{}}; flow run,
+five predictions committed before it ran, four held, the primary refuted)
+placed and routed two more random namings of every mapped netlist of the
+six designs whose edge is under 3 points (1,440 runs). The fresh
+whole-table values of d fall within two of milestone 163's per-point
+standard deviations of the three-naming edge on only 7 of 12, and move it
+by up to 3.8 points (clamp2r, gtc24r): a naming applied to a whole table
+moves its points together, so a per-design table read off one naming is
+noisier than per-point draws suggest, and five namings give a per-point
+standard deviation 1.23 times the three-naming one. Averaged over the five
+namings all six designs stay within 2.1 points of zero with the sign of
+their edge unchanged, and averaging $k$ namings shrinks the noise somewhat
+slower than $1/\sqrt{k}$ (the ratio of the $k = 1$ to $k = 3$ standard
+deviations is 2.03 against 2.45 for independent noise sampled without
+replacement). Per-design differences under about 4 points in a table built
+from one naming are therefore ties. Two intermediate releases (0.47, 0.51)
 split the flow's \texttt{abc\ -g} gate list at the commas when it is
 passed with \texttt{-p}; with the commands in a script file
 (\texttt{-s}, which reproduces the 0.70 table exactly) they run and give
