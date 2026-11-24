@@ -62,6 +62,7 @@
     .swatches { display: flex; flex-wrap: wrap; gap: 5px; }
     .swatch { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--line); cursor: pointer; padding: 0; }
     .swatch[aria-pressed=true] { box-shadow: 0 0 0 2px var(--accent); }
+    .swatch.dyed { border-style: dashed; border-color: var(--line); opacity: .7; }
     .motifs { display: flex; flex-wrap: wrap; gap: 6px; }
     .motifs button { width: 54px; height: 54px; padding: 6px; border: 1px solid var(--line); border-radius: 10px; background: #fff; cursor: pointer; color: #3a2a12; }
     .motifs svg { width: 100%; height: 100%; }
@@ -325,6 +326,13 @@
             <div><label for="s-dest">Look it up for selling in</label><select id="s-dest"><option value="">Choose a market</option><option value="US">United States</option><option value="EU">European Union</option><option value="UK">United Kingdom</option></select></div>
             <div><label for="s-origin">Made in</label><select id="s-origin"><option value="">Other</option><option>Bangladesh</option><option>Cambodia</option><option>Nepal</option></select></div>
           </div>
+          <div><label for="s-colours">Stock colours for this fabric (names or name #RRGGBB, comma-separated)</label><textarea id="s-colours" rows="2"></textarea></div>
+          <div class="row3">
+            <div><label for="s-dye-setup">Custom colour: lab dip and dye set-up</label><input id="s-dye-setup" type="number" min="0" step="1"></div>
+            <div><label for="s-dye-min">Custom colour: minimum dye lot (metres)</label><input id="s-dye-min" type="number" min="0" step="10"></div>
+            <div><p class="muted" id="s-colour-note" aria-live="polite"></p></div>
+          </div>
+          <p class="muted">"Make it darker" and the other colour edits pick among these stock colours. Any other garment colour is dyed to order: the cost adds the set-up and the dye lot's unused metres. Leave the list empty to skip the check.</p>
           <p class="muted" id="s-duty-note">Fills the duty box from the tariff heading for this garment and fabric (rates typed from memory, unchecked: see <a href="duty.html">import duty</a>). Check the figure with your customs broker.</p>
           <div class="bar">
             <button class="btn small" type="button" id="sheet-export">Download sheet (CSV)</button>
@@ -562,7 +570,7 @@
     import { interpret } from "./ai.mjs";
     import { renderDesign, placementBox, esc } from "./render.mjs";
     import { renderTurntable } from "./turntable.mjs";
-    import { EXAMPLE_SUPPLIER, supplierToCsv, supplierFromCsv } from "./suppliers.mjs";
+    import { EXAMPLE_SUPPLIER, supplierToCsv, supplierFromCsv, stockColours, colourStock, parseStockColours, setStockList } from "./suppliers.mjs";
     import { dutyPctFor } from "./duty.mjs";
     import { economics, quantityBreaks, money, DEFAULT_PLAN } from "./costing.mjs";
     import { loadBomExtras } from "./bom.mjs";
@@ -645,7 +653,7 @@
 
     async function runCommand(text, via = "typed") {
       if (!text.trim()) return;
-      const out = await interpret(text, d(), aiConfig(), { timeline: [...history.past, history.present] });
+      const out = await interpret(text, d(), aiConfig(), { timeline: [...history.past, history.present], sheet });
       recordUsage(via === "voice" ? "voice_command" : "command");
       const engine = out.source === "model" ? `model (${out.local ? "on your computer" : $("#ai-provider").value})` : "built-in";
       $("#engine-label").textContent = `Last command: ${engine}${out.error ? ` (model failed: ${out.error}; used built-in)` : ""}`;
@@ -854,6 +862,13 @@
     sheetNum("s-packaging", (s, v) => { s.packagingPerUnit = v; });
     sheetNum("s-freight", (s, v) => { s.freightPerUnit = v; });
     sheetNum("s-duty", (s, v) => { s.dutyPct = v; });
+    sheetNum("s-dye-setup", (s, v) => { s.customColour = { ...(s.customColour || { minMetres: 0 }), setup: v }; });
+    sheetNum("s-dye-min", (s, v) => { s.customColour = { ...(s.customColour || { setup: 0 }), minMetres: v }; });
+    $("#s-colours").addEventListener("change", e => {
+      const r = parseStockColours(e.target.value);
+      if (r.errors.length) { $("#s-colour-note").textContent = r.errors.join(" "); return; }
+      sheetEdited(s => setStockList(s, d().fabric, r.colours));
+    });
     {
       const e = loadBomExtras();
       if (e) {
@@ -1255,6 +1270,13 @@
       $("#s-packaging").value = sheet.packagingPerUnit ?? 0;
       $("#s-freight").value = sheet.freightPerUnit ?? 0;
       $("#s-duty").value = sheet.dutyPct ?? 0;
+      const stock = stockColours(sheet, design.fabric);
+      $("#s-colours").value = stock ? Object.entries(stock).map(([n, h]) => COLOURS[n] === h ? n : `${n} ${h}`).join(", ") : "";
+      $("#s-dye-setup").value = sheet.customColour?.setup ?? 0;
+      $("#s-dye-min").value = sheet.customColour?.minMetres ?? 0;
+      const cs = colourStock(sheet, design.fabric, design.colour);
+      $("#s-colour-note").textContent = !cs.listed ? "No stock list: colour not checked." : cs.stocked ? `${design.colourName ?? "This colour"} is stocked for ${design.fabric}.` : `${design.colourName ?? "This colour"} is not stocked for ${design.fabric}: dyed to order.`;
+      document.querySelectorAll(".swatch").forEach(b => { const ok = colourStock(sheet, design.fabric, COLOURS[b.dataset.colour]).stocked; b.classList.toggle("dyed", !ok); b.title = ok ? b.dataset.colour : `${b.dataset.colour} (dyed to order on this sheet)`; b.setAttribute("aria-label", b.title); });
       renderCost();
       renderMarketing(); renderClearance();
       $("#quote").textContent = quoteRequest(design);
