@@ -947,6 +947,14 @@ D1 = 0.1 N, the schedule built as if the drift were linear fails the 100-sheet w
 against a 116 s sheet, and one step past it the failure is 11.0%. Starting the G1's bands at the bottom of the grip range
 cuts the count to 24 (75.8%, against 57.1% under linear drift), from 12.8% to 3.10% of the cycle at 15 s a re-zero.
 Holding every nail at the best pose would pay at 0.313 s a move (0.020 s under linear drift).
+Sharing the risk differently does not help (milestone 74, offline). Under a pure walk the bias norm is a 3-D Bessel
+process, so a segment's survival follows exactly from a one-variable chain with a closed-form transition, and since
+re-zeros reset the walk the fewest re-zeros at a 1% wall risk is a layered dynamic programme. Its count is checked against
+brute force, against 4,000 fresh Monte Carlo walls (at most 1.20% failure) and against a grid twice as fine (at most one
+re-zero). Over 18 cases (three plans, two robots, D1 0.05 to 0.2 N) the optimum is never more than 7% below one
+per-press &epsilon; calibrated on the same exact chain, and equal to it on 12. On the G1 at 0.1 N it needs 96 against 99:
+the cliff above is set by the weak pose and the sheet period, not by a uniform &epsilon;. The same chain shows the Monte
+Carlo calibration above overshoots the 1% target on 5 of the 18 cases, up to 1.31%, so the H1 needs 10 re-zeros, not 9.
 
 ### 5.12 What the remedies cost (milestone 13)
 

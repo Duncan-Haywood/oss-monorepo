@@ -87,6 +87,7 @@ M70 = E + "m70_drift/results.txt"
 M71 = E + "m71_allowance/results.txt"
 M72 = E + "m72_rezero/results.txt"
 M73 = E + "m73_randomwalk/results.txt"
+M74 = E + "m74_riskopt/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -384,6 +385,11 @@ CHECKS = [
     (M73, "LAYOUT 12.80%, BANDS 3.10%", "from 12.8% to 3.10% of the cycle"),
     (M73, "g1 | RW | 0.1 | 46 | 0.313", "at 0.313 s a move"),
     ("experiments/m73_randomwalk/scan.txt", "g1 LAYOUT 1.86e-03 66 0.10975", "the failure is 11.0%"),
+    (M74, "g1 | LAYOUT | 0.1 | 99 (0.0000) | 99 (0.0000; 0.0000) | 99 (0.0000; 1.61e-06, 1.61e-06) | 96", "it needs 96 against 99"),
+    (M74, "H300 (OPT fails <= 2% of 4000 fresh Monte Carlo walls): worst 1.20%", "(at most 1.20% failure)"),
+    (M74, "largest count change 1,", "(at most one\nre-zero)"),
+    ("experiments/m74_riskopt/scan.txt", "h1 | BEST | 0.1 | 2 (0.0013; 2.57e-04) | 2 | 2 (0.0131)", "up to 1.31%"),
+    ("experiments/m74_riskopt/scan.txt", "h1 | LAYOUT | 0.1 | 10 (0.0071; 4.54e-04) | 10 | 9 (0.0103)", "needs 10 re-zeros, not 9"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

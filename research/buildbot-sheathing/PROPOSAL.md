@@ -605,6 +605,11 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    the H1 (0.56 times) but not the G1, whose weak pose's deadline sits at the sheet period (H291 refuted). The G1's band
    offset now cuts re-zeros 76% (H292 held), and the best pose pays at 0.31 s a move (H294 held). Next: risk allocated
    per pose; a warm-up transient; a logged drift trace.
+74. **Optimal risk allocation** (done 2026-11-24, `experiments/m74_riskopt/`, offline): an exact risk calculation
+   (the bias norm under a random walk is a one-variable Markov chain) and a dynamic programme give the fewest re-zeros of
+   any open-loop schedule at 1% wall risk. It saves at most 7% over one per-press risk level calibrated exactly
+   (H298 refuted), and the G1's cliff is structural (96 against 99, H297 held). Milestone 73's Monte Carlo calibration
+   overshot 1% on 5 of 18 rows (up to 1.31%). Next: a closed-loop schedule; a warm-up transient; a logged drift trace.
 
 ## Target venue
 
