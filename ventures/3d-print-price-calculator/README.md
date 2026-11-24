@@ -44,6 +44,31 @@ filament weight and print time from the slicer's own summary comments
 never uploaded. Cura reports length rather than weight, so grams are derived
 from 1.75 mm filament at 1.24 g/cm³ (PLA) and the page says so. See `gcode.mjs`.
 
+**No summary in the file? It is timed from the moves.** Files from other
+slicers, CAM output, or files a print host or post-processor stripped of
+comments carry no summary, and Cura sometimes leaves its unfilled template
+(`;TIME:6666`, `Filament used: 0m`). Then the page reads the whole file and
+`gcode-motion.mjs` estimates it: each G0/G1/G2/G3 is planned with a two-pass
+lookahead and timed as an accelerate-cruise-decelerate trapezoid, corners use
+Marlin-style jerk (or junction deviation with `M205 J`), and the limits the
+file sets with M201/M203/M204/M205 apply where they appear. Without them it
+uses PrusaSlicer's built-in defaults (1,500 mm/s², jerk 10 mm/s). Filament is
+the net of the E moves (volumetric `M200 D` and UltiGCode read as mm³).
+
+How close (run 2026-11-24, [`eval/motion-vs-prusaslicer-2026-11-24.md`](eval/motion-vs-prusaslicer-2026-11-24.md)):
+on 21 files PrusaSlicer 2.7.2 sliced from its bundled shapes and one part
+from this repository, the median gap to PrusaSlicer's own estimate is 0.2% and
+the worst 1.7%. A file that states no limits, on a printer tuned well away
+from the defaults, was off by 9.2% (fast) and -2.5% (slow). Heater waits,
+bed probing (G29) and firmware details (minimum segment time, input shaping,
+pressure advance) are not timed, so treat it as the slicer's kind of
+estimate, not a stopwatch. Rerun: `bash eval/slice-corpus.sh DIR && node
+eval/motion-vs-prusaslicer.mjs DIR`.
+
+PrusaSlicer writes `filament used [g] = 0.00` when the filament profile has
+no density; that is read as unknown, and the `[cm3]` figure in the same file
+is weighed instead (it used to come through as a 0 g print).
+
 The "check a price you're actually charging" panel recomputes the real
 profit and margin for a price you already picked — matching a competitor's
 listing, say — against the same break-even, the same way this portfolio's
@@ -65,7 +90,7 @@ From the 2026-11-13 quality audit ([`portfolio/quality/audits/2026-11-13-3d-prin
 Everything runs in your browser. Your costs and prices are never uploaded,
 there is no account, and nothing is saved when you close the tab unless you
 choose to save it (the Save button keeps your inputs in this browser only). We count anonymous local feature events
-only (`price-calculated`, `price-checked`, `gcode_imported`, `scenario_saved`, `link_copied`,
+only (`price-calculated`, `price-checked`, `gcode_imported`, `gcode_moves_estimated`, `scenario_saved`, `link_copied`,
 `sponsor_link_clicked`), with a visible opt-out. Do Not
 Track and Global Privacy Control disable counting automatically. No costs or
 prices are recorded. The counter is not sent to the maintainers.

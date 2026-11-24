@@ -244,7 +244,10 @@ test('G-code import is wired: labelled file input, local parser, counted, never 
   assert.match(html, /import \{ parseGcode \} from '\.\/gcode\.mjs'/);
   assert.match(html, /<label>Import grams and print time[^<]*<input id="gcodeFile" type="file"/);
   assert.match(html, /id="gcodeStatus" class="note" role="status" aria-live="polite"/);
-  assert.match(html, /recordEvent\('gcode_imported'\)/);
-  assert.match(html, /<code>gcode_imported<\/code>/);
+  assert.match(html, /recordEvent\(r\.motion \? 'gcode_moves_estimated' : 'gcode_imported'\)/);
+  assert.match(html, /<code>gcode_imported<\/code>, <code>gcode_moves_estimated<\/code>/);
+  // The head-and-tail pass never times moves (it would time a fragment); only the whole file does.
+  assert.match(html, /parseGcode\(`\$\{head\}\\n\$\{tail\}`, \{ readMoves: false \}\)/);
+  assert.match(html, /parseGcode\(await file\.text\(\)\)/);
   assert.match(html, /the file is never uploaded/);
 });
