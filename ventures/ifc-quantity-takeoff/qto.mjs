@@ -1083,6 +1083,9 @@ export function unitSlip(computed, stored, tol = 0.005) {
  *   on-a-face         a wall's side area equals the section on one of its
  *                     faces rather than its middle plane (a corner join makes
  *                     the faces differ in length);
+ *   net-on-a-face     a holed wall's stored gross side area is one of its
+ *                     faces with the openings taken out, within 0.5% (Revit:
+ *                     ARK_NUS_skolebygg's three such walls);
  *   matches-stored-volume  stored side area x the wall's width equals the
  *                     stored volume: the quantity set agrees with itself and
  *                     describes another body than the geometry;
@@ -1188,6 +1191,10 @@ export function explainAreas(rows, tol = 0.02) {
       // (Revit) or inner face (skolebygg, eval/curved-side-area-2026-11-23.md)
       if (c.kind === "side" && A.curved && A.chord && A.faces[c.which].some((x) => x > 0 && Math.abs(x - c.stored) <= 0.005 * Math.abs(c.stored))) { c.reason = "curved-face"; continue; }
       if ((c.kind === "side" || c.kind === "plan") && A.faces && A.faces[c.which].some((x) => x != null && near(x, c.stored))) { c.reason = "on-a-face"; continue; }
+      // Revit writes a holed wall's GrossSideArea as one face with its openings
+      // taken out: ARK_NUS's #556796, #1280178, #1483180 match a face's net to
+      // 1e-6 (eval/net-on-a-face-2026-11-24.md)
+      if (c.kind === "side" && c.which === "gross" && open && A.faces?.net?.some((x) => x > 0 && Math.abs(x - c.stored) <= 0.005 * Math.abs(c.stored))) { c.reason = "net-on-a-face"; continue; }
       if (c.kind === "cross" && scalesWithLength(r, k, c, rows, near)) { c.reason = "scales-with-length"; c.trust = false; continue; }
       const sv = storedVol(r, c.which);
       if (c.kind === "side" && sv != null && A.width > 0 && near(c.stored * A.width, sv)) { c.reason = "matches-stored-volume"; continue; }
@@ -1312,6 +1319,7 @@ export const AREA_REASON_TEXT = {
   repeated: "the same stored area is written on several pieces of one element, and the pieces in this file do not sum to it",
   "unit-slip": "the stored area is the geometry's times a power of ten or the square-foot factor 10.7639: converted twice or not at all",
   "net-as-gross": "the stored gross area equals the area with openings taken out (net)",
+  "net-on-a-face": "the stored gross side area is one face of the wall with its openings taken out (net), as Revit writes it",
   "gross-as-net": "the stored net area equals the gross: the openings were not taken out",
   "on-a-face": "the stored area is measured on one face of the element (a wall's side, a tapered or sloped slab's top or bottom), not its middle plane",
   "matches-stored-volume": "the stored area agrees with the stored volume, but both describe a different body than the geometry",

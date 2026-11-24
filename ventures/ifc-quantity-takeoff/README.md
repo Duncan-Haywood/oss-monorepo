@@ -61,6 +61,11 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   `whole-surface`: Tekla writes a plate's NetArea as every face of its body
   (its paint area: 28.30 m2 on a 12.88 m2 plate), so the BoQ sums the plan.
   Now 13 of 15 models have nothing in doubt; 1 volume and 6 areas remain.
+  Later that day ([eval/net-on-a-face-2026-11-24.md](eval/net-on-a-face-2026-11-24.md)):
+  `net-on-a-face`, a holed Revit wall whose GrossSideArea is its longer face
+  with the openings taken out (five walls in two models, to 1e-5). It named
+  three of ARK_NUS's last unexplained areas; 1 volume and 3 areas remain
+  (ARK_NUS #1167770, 2.04%, and schependomlaan's three zinc copings).
 
 **Guides** (2026-11-22, worked examples on the sample office, every number
 checked against the engine by `guides.test.mjs`):

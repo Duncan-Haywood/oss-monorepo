@@ -1799,3 +1799,20 @@ test("a stored quantity that overflows to Infinity is no unit slip", async () =>
   assert.notEqual(wall.check.gross.reason, "unit-slip");
   assert.equal(wall.check.gross.factor, undefined);
 });
+
+test("explanations: a holed Revit wall's GrossSideArea is one face net of its openings (ARK_NUS #1483180)", async () => {
+  const { explainAreas } = await import("./qto.mjs");
+  const row = (stored, openings = 3) => ({
+    id: 1483180, tag: null, ifcClass: "IfcWallStandardCase", type: null, pathJoins: [], box: [0, 0, 0, 4, 0.134, 3.65],
+    stored: { GrossSideArea: { kind: "area", value: stored }, GrossVolume: { kind: "volume", value: 1.24969 } },
+    areaCheck: { GrossSideArea: { kind: "side", which: "gross", stored, computed: 14.407372, agree: false } },
+    computed: { openings, areas: { side: { gross: 14.407372, net: 9.304372, width: 0.134, faces: { gross: [14.407372, 14.730227], net: [9.304372, 9.627227] } } } },
+  });
+  const rows = [row(9.627227), row(9.627227, 0), row(11.5)];
+  explainAreas(rows);
+  assert.equal(rows[0].areaCheck.GrossSideArea.reason, "net-on-a-face");
+  assert.equal(rows[0].areaCheck.GrossSideArea.trust, true);
+  // no openings: a net face cannot be why
+  assert.notEqual(rows[1].areaCheck.GrossSideArea.reason, "net-on-a-face");
+  assert.equal(rows[2].areaCheck.GrossSideArea.reason, "unexplained");
+});
