@@ -12,6 +12,8 @@
 // (header pointer), and plain JPEG. When the structured pointers give no
 // usable JPEG, a byte scan for JPEG streams is the fallback.
 
+import { NIKON_AF_BODIES, NIKON_AF_ALIASES, NIKON_AF_NAMES } from "./nikon-af-grids.mjs";
+
 const RAW_EXT = /\.(nef|nrw|arw|srf|sr2|cr2|cr3|crw|dng|pef|orf|rw2|raw|rwl|srw|raf|erf|3fr|fff|iiq|mos|dcr|kdc|mef|mrw|x3f|jpe?g)$/i;
 
 export function isCandidateFile(name) {
@@ -335,9 +337,8 @@ function olympusPreview(b, at, size, cands) {
 // reports none, the selected ones). Layouts follow ExifTool's tag tables
 // (Canon AFInfo/AFInfo2, Sony FocusLocation, Fujifilm FocusPixel, Panasonic
 // AFPointPosition); each is checked against metadata-extractor's decoding of
-// the public samples in eval/cull-af-point-*.md. Nikon's phase-detect points
-// are numbered on a per-body grid with no published coordinates, so only its
-// live-view (contrast-detect) area is read.
+// the public samples in eval/cull-af-point-*.md. Nikon names its points on
+// per-body grids; nikonPhaseAf places them (eval/cull-nikon-af-2026-11-24.md).
 function makerFocus(b, v, mn, base, meta, exifTags) {
   if (mn.size < 16) return;
   need(mn.at, 16);
@@ -390,6 +391,7 @@ function makerFocus(b, v, mn, base, meta, exifTags) {
           af = { source: "Nikon AFInfo2 (live view)", points: [{ x: x / W, y: y / H, w: aw / W, h: ah / H, inFocus: true }] };
         }
       }
+      if (!af) af = nikonPhaseAf(b, t.at, t.size, h.v, meta.model, nikonCrop(h.v, tags.get(0x1b)));
     }
   } else if (make.startsWith("CANON")) {
     af = canonAf(v, readIfd(v, at - base, base).tags);
@@ -422,6 +424,104 @@ function olympusAf(b, at, head) {
   return points.length ? { source: "Olympus AFAreas", points } : null;
 }
 
+// Nikon phase-detect AF points (viewfinder AF on DSLRs; the 81-point grid Z
+// bodies report when they write no coordinates). AFInfo2 names the points by
+// number and bit on a per-schema grid; layouts follow ExifTool's
+// AFInfo2V0100/V0101/V0300/V0400 tables:
+//   0100 (D3, D4, D300, D600, D7000, D7100, D800, D810, ...): byte 6 schema
+//        (1 = 51-point, 3 = 39-point), 7 PrimaryAFPoint, 8.. AFPointsUsed.
+//   0101 (D5, D500, D850, D7500): 6 schema (1, or 7 = 153-point),
+//        8.. AFPointsUsed, 0x30.. AFPointsInFocus, 0x44 PrimaryAFPoint.
+//   0300 (D6, D780, Z5-Z7, Z50, Zfc) and 04xx (Z8, Z9, Z6III, Zf, Z5II,
+//        Z50II): byte 7 says whether the AF area's centre and size were
+//        written in AF-image pixels (0300 at 0x2a.., 04xx at 0x3e..); if not,
+//        0300 gives AFPointsUsed at 0x0a and PrimaryAFPoint at 0x38 on the
+//        schema's grid (1 = 51, 8 = 81, 9 = 105 points), and 04xx in
+//        auto-area gives AFPointsUsed at 0x0a on the body's auto-area grid.
+// Grid positions per body are in nikon-af-grids.mjs (measured by the
+// Focus-Points Lightroom plugin's contributors, Apache-2.0). Every point of
+// the body's grid is returned, the used ones inFocus, so the page can draw
+// the coverage; `names` lists the used points' names.
+const NIKON_SCHEMA_POINTS = { 1: 51, 3: 39, 7: 153, 8: 81, 9: 105 };
+function nikonBody(model, n) {
+  const m = String(model || "").trim().toUpperCase().replace(/\s+/g, " ");
+  const tries = m === "NIKON D780" ? [`NIKON D780-${n === 81 ? 81 : 51}`] : [m, NIKON_AF_ALIASES[m]];
+  for (const k of tries) {
+    const g = k && NIKON_AF_BODIES[k];
+    const have = g ? Object.keys(g.pts).length : 0;
+    if (g && have === n) return g;
+  }
+  return null;
+}
+function nikonBits(b, at, len, names) {
+  const out = [];
+  for (let i = 0; i < len; i++) for (let j = 0; j < 8; j++) if (b[at + i] & (1 << j)) { const nm = names[i * 8 + j + 1]; if (nm) out.push(nm); }
+  return out;
+}
+// CropHiSpeed (0x1b): mode, full width, height, crop width, height, left, top.
+function nikonCrop(v, t) {
+  const c = tagNums(v, t);
+  if (c.length < 7 || !(c[1] > 0 && c[2] > 0 && c[3] > 0 && c[4] > 0)) return null;
+  if (c[3] >= c[1] * 0.97 && c[4] >= c[2] * 0.97) return null;
+  const x0 = c[5] || (c[1] - c[3]) / 2, y0 = c[6] || (c[2] - c[4]) / 2;
+  return { x0: x0 / c[1], y0: y0 / c[2], w: c[3] / c[1], h: c[4] / c[2] };
+}
+export function nikonPhaseAf(b, at, size, v, model, crop = null) {
+  if (size < 16) return null;
+  const ver = ascii(b, at, 4), schema = b[at + 6];
+  const u16 = (o) => (o + 2 <= size ? v.u16(at + o) : 0);
+  // Coordinates written by the camera (mirrorless, D780/D6 live view).
+  if (ver === "0300" || ver.startsWith("04")) {
+    const o = ver === "0300" ? 0x2a : 0x3e;
+    const W = u16(o), H = u16(o + 2), x = u16(o + 4), y = u16(o + 6), aw = u16(o + 8), ah = u16(o + 10);
+    if (b[at + 7] === 1 && W > 0 && H > 0 && x > 0 && y > 0 && x <= W && y <= H) {
+      return { source: "Nikon AFInfo2 (AF area)", points: [{ x: x / W, y: y / H, w: aw / W, h: ah / H, inFocus: true }] };
+    }
+  }
+  let n = NIKON_SCHEMA_POINTS[schema];
+  let used = [], primary = 0;
+  if (ver.startsWith("04")) {
+    // Auto-area and 3D-tracking (byte 5 = 197 or 207) before a subject is
+    // locked: AFPointsUsed at byte 10 on the body's auto-area grid (405
+    // points on Z8/Z9, 299 on Z6III/Zf/Z5II, 231 on Z50II).
+    if (b[at + 5] !== 197 && b[at + 5] !== 207) return null;
+    const m = String(model || "").trim().toUpperCase().replace(/\s+/g, " ");
+    const g = NIKON_AF_BODIES[m] || NIKON_AF_BODIES[NIKON_AF_ALIASES[m]];
+    n = g ? Object.keys(g.pts).length : 0;
+    if (!NIKON_AF_NAMES[n] || n < 231 || size < 10 + Math.ceil(n / 8)) return null;
+    used = nikonBits(b, at + 10, Math.ceil(n / 8), NIKON_AF_NAMES[n]);
+  }
+  if (!n) return null;
+  const names = NIKON_AF_NAMES[n];
+  const bytes = Math.ceil(n / 8);
+  if (ver.startsWith("04")) {
+    // AFPointsUsed was read above, on the auto-area grid.
+  } else if (ver === "0100" && (schema === 1 || schema === 3)) {
+    primary = b[at + 7];
+    if (size >= 8 + bytes) used = nikonBits(b, at + 8, bytes, names);
+  } else if (ver === "0101" && (schema === 1 || schema === 7)) {
+    if (size >= 0x30 + bytes) used = nikonBits(b, at + 0x30, bytes, names);
+    if (!used.length && size >= 8 + bytes) used = nikonBits(b, at + 8, bytes, names);
+    if (size > 0x44) primary = b[at + 0x44];
+  } else if (ver === "0300" && b[at + 7] === 0 && (schema === 1 || schema === 8 || schema === 9)) {
+    if (size >= 0x0a + bytes) used = nikonBits(b, at + 0x0a, bytes, names);
+    if (size > 0x38) primary = b[at + 0x38];
+  } else return null;
+  if (!used.length && primary && names[primary]) used = [names[primary]];
+  if (!used.length) return null;
+  const g = nikonBody(model, n);
+  if (!g) return null;
+  const on = new Set(used);
+  const points = [];
+  for (const [nm, p] of Object.entries(g.pts)) {
+    let [x, y, w, h] = p;
+    if (crop) { x = (x - crop.x0) / crop.w; y = (y - crop.y0) / crop.h; w /= crop.w; h /= crop.h; }
+    points.push({ x, y, w, h, inFocus: on.has(nm), name: nm, ...(p[4] ? { interpolated: true } : {}) });
+  }
+  if (!points.some((p) => p.inFocus)) return null;
+  return { source: `Nikon AFInfo2 ${n}-point`, names: used, points };
+}
+
 function single(source, x, y) {
   return { source, points: [{ x, y, w: 0, h: 0, inFocus: true }] };
 }
@@ -432,6 +532,7 @@ function finishAf(af) {
   let use = pts.filter((p) => p.inFocus);
   if (!use.length) use = pts.filter((p) => p.selected);
   const out = { source: af.source, points: pts };
+  if (af.names) out.names = af.names;
   if (use.length) {
     out.x = use.reduce((s, p) => s + p.x, 0) / use.length;
     out.y = use.reduce((s, p) => s + p.y, 0) / use.length;
