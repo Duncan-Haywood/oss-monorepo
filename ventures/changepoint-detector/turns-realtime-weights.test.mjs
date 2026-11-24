@@ -5,13 +5,13 @@ import assert from 'node:assert/strict';
 import { run, fullSample } from './eval/turns-realtime-weights.mjs';
 import { compositeIndex } from './composite-index.mjs';
 
-test('MAD weights in real time: 16 of 16 called, 8 of 12 before NBER, M3 fails on P3 only', () => {
+test('MAD weights in real time: 16 of 16 called, 8 of 12 before NBER, M3 fails (P3 8; P6 7 since the short-phase fix, 6 before)', () => {
   const r = run();
   assert.deepEqual([r.M1, r.M2, r.M3, r.M4, r.M5, r.ships], [true, true, false, true, true, false]);
   assert.equal(r.M[3].called, 16);
   assert.equal(r.M[3].before, 8);
   assert.equal(r.M[3].episodes.length, 8);
-  assert.equal(r.M[6].episodes.length, 6);
+  assert.equal(r.M[6].episodes.length, 7);
   const pk01 = (p) => r.M[p].calls.find((c) => c.month === '2001-03').delay;
   assert.equal(pk01(3), 6);
   assert.equal(r.M[3].calls.find((c) => c.month === '1969-12').delay, 5);
