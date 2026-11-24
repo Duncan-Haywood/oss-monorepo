@@ -20,7 +20,7 @@
     "platform/ci",
     "security"
   ],
-  "pr": null,
+  "pr": 18529,
   "repo": null,
   "commits": [],
   "lines_added": null,
