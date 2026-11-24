@@ -27,22 +27,36 @@
 //   import { writeIfcXml } from "./ifcxml-writer.mjs";
 //   const stats = writeIfcXml(step, "IFC4", (piece) => out.write(piece));
 //
+// In Node the schema and layout are read from ./schema; a browser page (no
+// node:fs) fetches the two JSON files itself and passes them in:
+//   writeIfcXml(step, makeIfcXmlTarget("IFC4", schemaJson, layoutJson), emit)
+//
 // eval/ifcxml-export-2026-11-24.md: how it was checked (xmllint against the
 // two XSDs, and every entity read back equal to the STEP reader's).
 
-import { readFileSync } from "node:fs";
 import { Schema } from "./ids.mjs";
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
   .replace(/\n/g, "&#10;").replace(/\r/g, "&#13;").replace(/\t/g, "&#9;");
 
+// A target from JSON already in hand: the schema table (schema/<id>.json, a
+// Schema built from it also does) and the layout (schema/ifcxml-layout-<id>.json).
+export function makeIfcXmlTarget(id, schema, layout) {
+  return { id, schema: schema instanceof Schema ? schema : new Schema(schema), layout };
+}
+
 const cache = new Map();
-// The schema and its ifcXML layout for "IFC4" or "IFC4X3".
+// The schema and its ifcXML layout for "IFC4" or "IFC4X3", read from
+// ./schema. Node only: node:fs is reached through process.getBuiltinModule
+// (Node 22.3+), so this module still loads in a browser, where callers pass
+// makeIfcXmlTarget's result instead.
 export function ifcXmlTarget(id) {
   let t = cache.get(id);
   if (t) return t;
-  const read = (f) => JSON.parse(readFileSync(new URL(`./schema/${f}`, import.meta.url)));
-  t = { id, schema: new Schema(read(`${id.toLowerCase()}.json`)), layout: read(`ifcxml-layout-${id.toLowerCase()}.json`) };
+  const fs = globalThis.process?.getBuiltinModule?.("node:fs");
+  if (!fs) throw new Error("ifcXmlTarget reads ./schema with node:fs; in a browser pass makeIfcXmlTarget(id, schemaJson, layoutJson)");
+  const read = (f) => JSON.parse(fs.readFileSync(new URL(`./schema/${f}`, import.meta.url)));
+  t = makeIfcXmlTarget(id, read(`${id.toLowerCase()}.json`), read(`ifcxml-layout-${id.toLowerCase()}.json`));
   cache.set(id, t);
   return t;
 }
@@ -61,8 +75,9 @@ export function ifcXmlSchemaFor(stepSchema) {
 // form otherwise. Never a decimal comma (the reader takes one, the XSD not).
 const num = (x) => (Number.isFinite(x) ? String(x) : x > 0 ? "INF" : x < 0 ? "-INF" : "NaN");
 
-export function writeIfcXml(step, id, emit, opts = {}) {
-  const { schema, layout } = ifcXmlTarget(id);
+// `target` is "IFC4" / "IFC4X3" (read by ifcXmlTarget) or makeIfcXmlTarget's result.
+export function writeIfcXml(step, target, emit, opts = {}) {
+  const { id, schema, layout } = typeof target === "string" ? ifcXmlTarget(target) : target;
   const E = schema.entities;
   const name = (t) => (E[t] ? E[t].name : t);
   const isA = (type, sup) => schema.isA(type, sup);
