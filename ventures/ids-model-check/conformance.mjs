@@ -6,15 +6,18 @@
 // schema does not list, `*` and `$` swapped, a reference to the wrong class,
 // a NaN, a short FILE_NAME header, IfcApplication's two UNIQUE rules, and
 // inverse cardinalities (how many records point at each one through the
-// attribute an INVERSE names, against its bounds: eval/inverse-counts-2026-11-24.md).
+// attribute an INVERSE names, against its bounds: eval/inverse-counts-2026-11-24.md)
+// and, given the rules JSON, the schema's WHERE rules, DERIVE attributes,
+// functions and global RULEs (where-rules.mjs: eval/where-rules-2026-11-24.md).
 //
 // Measured on IfcOpenShell's labelled broken files
 // (test/fixtures/validate: 25 fail-*, 13 pass-*) and set beside
 // ifcopenshell.validate on the public corpora:
 // eval/conformance-2026-11-24.md.
 //
-// conformance(text, schemas) -> { schema, records, findings: [{ code, id, type, attr, message }], groups }
-//   text: the STEP file (string or bytes); schemas: { IFC2X3, IFC4, IFC4X3 } as Schema or JSON.
+// conformance(text, schemas, { rules }) -> { schema, records, findings: [{ code, id, type, attr, message }], groups, whereStats }
+//   text: the STEP file (string or bytes); schemas: { IFC2X3, IFC4, IFC4X3 } as Schema or JSON;
+//   rules (optional): { IFC2X3, IFC4, IFC4X3 } as schema/rules-*.json, to run the WHERE rules.
 //   groups: findings folded by (code, type, attr) with a count and the first id,
 //   so a 100,000-record export with one systematic fault prints one line.
 // Duplicate GlobalIds and classes outside the schema are reported by ids.mjs
@@ -22,6 +25,7 @@
 
 import { parseStep, readStepArgs } from "./step.mjs";
 import { Schema } from "./ids.mjs";
+import { whereRules } from "./where-rules.mjs";
 
 const PRIM = { REAL: "real", NUMBER: "real", INTEGER: "integer", STRING: "string", BOOLEAN: "boolean", LOGICAL: "logical", BINARY: "binary" };
 
@@ -54,7 +58,7 @@ const show = (v) => {
 };
 const a = (w) => (/^(IFC|[AEIOU])/i.test(w) ? "an" : "a");
 
-export function conformance(text, schemas) {
+export function conformance(text, schemas, { rules = null } = {}) {
   const p = parseStep(text, { eager: true });
   const raw = (p.schema || "").toUpperCase();
   const id = raw.startsWith("IFC4X3") ? "IFC4X3" : raw.startsWith("IFC4") ? "IFC4" : raw.startsWith("IFC2X3") ? "IFC2X3" : raw;
@@ -308,6 +312,13 @@ export function conformance(text, schemas) {
     }
   }
   for (const h of header(text)) findings.push({ code: h.code, id: null, type: h.record, attr: null, message: h.message });
+  // The schema's own WHERE rules (where-rules.mjs), when their JSON is given.
+  let whereStats = null;
+  if (rules && rules[id]) {
+    const w = whereRules(p, S, rules[id]);
+    findings.push(...w.findings);
+    whereStats = w.stats;
+  }
 
   const groups = new Map();
   for (const f of findings) {
@@ -316,7 +327,7 @@ export function conformance(text, schemas) {
     if (g) g.count++;
     else groups.set(key, { code: f.code, type: f.type, attr: f.attr, count: 1, first: f.id, message: f.message });
   }
-  return { schema: raw, records, findings, groups: [...groups.values()] };
+  return { schema: raw, records, findings, groups: [...groups.values()], whereStats };
 }
 
 function recordText(text, rid) {
@@ -387,7 +398,7 @@ export function header(text) {
 // CLI and the text report.
 export function conformanceText(r, { max = 50 } = {}) {
   const gs = [...r.groups].sort((x, y) => y.count - x.count);
-  if (!gs.length) return `${r.schema}: ${r.records.toLocaleString("en-US")} records, every one follows the schema as far as this checks (attribute counts, types, enumerations, derived slots, references, header, IfcApplication rules, inverse counts)\n`;
+  if (!gs.length) return `${r.schema}: ${r.records.toLocaleString("en-US")} records, every one follows the schema as far as this checks (attribute counts, types, enumerations, derived slots, references, header, IfcApplication rules, inverse counts${r.whereStats ? `, ${r.whereStats.evaluated.toLocaleString("en-US")} WHERE rule checks` : ""})\n`;
   const out = [`${r.schema}: ${r.findings.length.toLocaleString("en-US")} schema fault(s) in ${gs.length} kind(s) across ${r.records.toLocaleString("en-US")} records`];
   for (const g of gs.slice(0, max)) out.push(`${g.count > 1 ? `${g.count.toLocaleString("en-US")} x ` : ""}${g.message}${g.count > 1 ? " (first shown)" : ""}`);
   if (gs.length > max) out.push(`and ${gs.length - max} more kind(s): --json lists every finding`);

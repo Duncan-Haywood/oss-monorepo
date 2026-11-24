@@ -172,7 +172,13 @@ self.onmessage = async (ev) => {
     // Schema faults the check reads past (conformance.mjs): STEP files up to
     // 40 MB, where a second, full read costs a few seconds at most.
     if (report.format === "STEP" && ifc.length <= 40e6) {
-      try { report.conformance = conformanceSummary(conformance(ifc, modelSchemas(id, schemas))); }
+      try {
+        // The WHERE rules of the model's own schema (where-rules.mjs, 80-180 kB).
+        const sid = (schemaOf(ifc) || "").toUpperCase();
+        const key = sid.startsWith("IFC4X3") ? "IFC4X3" : sid.startsWith("IFC4") ? "IFC4" : sid.startsWith("IFC2X3") ? "IFC2X3" : null;
+        const rules = key ? { [key]: await json(`rules-${key.toLowerCase()}.json`).catch(() => null) } : null;
+        report.conformance = conformanceSummary(conformance(ifc, modelSchemas(id, schemas), { rules }));
+      }
       catch (e) { report.conformance = { error: e.message }; }
     }
     report.seconds = (performance.now() - t0) / 1000;

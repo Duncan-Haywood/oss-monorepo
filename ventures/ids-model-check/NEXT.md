@@ -53,3 +53,9 @@
 - (2026-11-23) wall-hosted fittings by box sample 2026-11-23, 37/37, eval/cobie-wall-hosted-2026-11-23.md
 - (2026-11-23) Tekla twins by schema done 2026-11-23 (eval/beam-schema-twins-2026-11-23.md: no-fillet NetVolume 109/109, walls on their side 74/74). One-member railings read as members 2026-11-23 (eval/one-member-railings-2026-11-23.md: Tekla 16/16 in all three schemas). Left: a clipped Tekla extrusion's fillet share; an ARCHICAD/Revit rolled section's stored NetVolume
 - (2026-11-23) one-member railings (eval/one-member-railings-2026-11-23.md): a swept-disk handrail along a bent path is neither a top rail nor a prism; read it by its directrix once a public export stores its Length.
+
+## WHERE rules (2026-11-24, eval/where-rules-2026-11-24.md)
+
+- Seeded faults: write one fault per rule family into public files (USERDEFINED with ObjectType cleared, a type relationship pointed at another class's type, a duplicated pset name, a negative quantity, a 3D direction in a 2D placement) and show each rule fires on exactly the seeded records, beside ifcopenshell.validate. The public files exercise 87 of about 1,800 rules; the seeds would cover the IDS-relevant families on purpose.
+- An IDS-side cross-reference: when a spec's predefinedType or partOf facet fails on an element that also breaks CorrectPredefinedType / CorrectTypeAssigned / UniquePropertySetNames, say in that failure's row that the model itself breaks the rule (today the MODEL block and the spec rows are separate).
+- `LIKE` (unused by IFC rules) evaluates to UNKNOWN; implement it if a later schema uses it.
