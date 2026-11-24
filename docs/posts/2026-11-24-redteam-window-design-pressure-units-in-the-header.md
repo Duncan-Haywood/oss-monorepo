@@ -1,9 +1,9 @@
 ---
 title: "The garage door that became a header row: red team on a wind pressure calculator"
-seo_title: "Window design pressure calculator: units in a schedule, elevation typos and Kzt = 1"
+seo_title: "Window design pressure calculator: units, elevation typos, Kzt = 1"
 date: 2026-11-24
 tags: [redteam, testing, mutation-testing, window-design-pressure-calculator, asce-7, javascript, ventures]
-description: "Red team on the ASCE 7-16 window design pressure calculator: 6 of 10 seeded bugs caught, three real defects fixed, one of which dropped an opening from the schedule without a word."
+description: "Red team on an ASCE 7-16 window design pressure calculator: 6 of 10 seeded bugs caught, three real defects fixed, one dropping an opening silently."
 ---
 
 Today's red-team run aimed at the engine of the
