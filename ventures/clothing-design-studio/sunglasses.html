@@ -146,7 +146,23 @@
     $("#logo-case-method").innerHTML = Object.values(LOGO_METHODS).filter(m => m.where.includes("case")).map(m => `<option value="${m.id}">${m.label}</option>`).join("");
     const KEY = "clothing-design-studio-eyewear";
     let e;
-    try { e = { ...newEyewear(), ...(JSON.parse(localStorage.getItem(KEY) || "null") || {}) }; } catch { e = newEyewear(); }
+    // Saved state is rebuilt field by field: numbers through Number(), strings and
+    // logos kept only when they have the right type, so a tampered entry in
+    // localStorage cannot put markup into the drawing (the temple length, for
+    // one, is drawn as a bare number).
+    const fromSaved = s => {
+      const b = newEyewear();
+      if (!s || typeof s !== "object") return b;
+      const str = k => (typeof s[k] === "string" ? s[k] : b[k]);
+      const num = k => (s[k] !== undefined && s[k] !== null && s[k] !== "" && Number.isFinite(Number(s[k])) ? Number(s[k]) : b[k]);
+      const logos = Array.isArray(s.logos)
+        ? s.logos.filter(l => l && typeof l.text === "string").map(l => ({ where: String(l.where), text: l.text, method: String(l.method) }))
+        : b.logos;
+      return { ...b, name: str("name"), style: str("style"), material: str("material"), frameColour: str("frameColour"), lens: str("lens"),
+        polarised: typeof s.polarised === "boolean" ? s.polarised : b.polarised, lensWidth: num("lensWidth"), bridge: num("bridge"), temple: num("temple"),
+        logos, caseType: str("caseType"), caseColour: str("caseColour"), quantity: num("quantity"), price: num("price") };
+    };
+    try { e = fromSaved(JSON.parse(localStorage.getItem(KEY) || "null")); } catch { e = newEyewear(); }
     const read = () => {
       const logos = [];
       if ($("#logo-temple").value.trim()) logos.push({ where: "temple", text: $("#logo-temple").value.trim(), method: $("#logo-temple-method").value });
