@@ -29,4 +29,4 @@ node --test engine.test.mjs page.test.mjs usage.test.mjs
 Arithmetic on text and numbers you give it, at approximate list prices that are
 editable. It is not a guarantee of any provider's invoice and not telecom
 compliance advice. Consent and opt-out rules (TCPA, 10DLC) are yours.
-Nothing is uploaded; there is no network call. MIT licensed.
+Nothing is uploaded; there is no network call. FSL-1.1-MIT licensed.

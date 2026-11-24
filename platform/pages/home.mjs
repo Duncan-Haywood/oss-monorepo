@@ -81,7 +81,7 @@ export function renderHowItWorks({ toolCount = 0, appCount = 0 } = {}) {
     {
       glyph: 'code',
       title: 'Check how the answer is worked out',
-      body: 'Every formula, test and research result is open source under the MIT licence, so you can read exactly how a number was reached.',
+      body: 'Every formula, test and research result is published: tools under FSL-1.1-MIT, research under MIT, so you can read exactly how a number was reached.',
     },
     {
       glyph: 'deploy',

@@ -2,7 +2,7 @@
 
 > Free checker for whether your company still owes a federal Corporate Transparency Act beneficial ownership report after FinCEN's August 2026 final rule permanently exempted every U.S.-formed entity. Applies to foreign-formed entities registered to do business in the U.S. Entirely client-side, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/boi-reporting-exemption-checker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/boi-reporting-exemption-checker): FSL-1.1-MIT licensed.

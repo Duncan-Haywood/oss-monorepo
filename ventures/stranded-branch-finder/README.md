@@ -46,5 +46,5 @@ a sweep of tips since 2026-11-03 on this repository returns 2 branches, one of
 them the generated `usage-data` branch that `--ignore usage-data` would skip.
 No outside user yet; the hypotheses in `VENTURE.yaml` are untested.
 
-MIT licensed. No warranty; review each listed branch before acting, since some
+FSL-1.1-MIT licensed. No warranty; review each listed branch before acting, since some
 are parked on purpose.

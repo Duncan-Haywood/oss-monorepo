@@ -2,7 +2,7 @@
 
 > Turn one price into a purchasing-power (PPP) price table for about 50 countries: damped discounts, a floor, .99 rounding, price tiers, regional discount groups and a revenue what-if for your own traffic mix. Free, in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ppp-pricing-table-generator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ppp-pricing-table-generator): FSL-1.1-MIT licensed.

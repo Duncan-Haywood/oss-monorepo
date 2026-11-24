@@ -137,4 +137,4 @@ broker; with `--proposer claude`, trial summaries (configurations and Sharpe rat
 Anthropic's API under your key. The web page loads only its own `results/study.json` and keeps anonymous event counts
 in your browser's storage, with a switch to turn them off.
 
-MIT licence. Built with AI assistance. [Support the work](https://github.com/sponsors/Duncan-Haywood) (optional).
+FSL-1.1-MIT licence. Built with AI assistance. [Support the work](https://github.com/sponsors/Duncan-Haywood) (optional).

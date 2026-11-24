@@ -112,5 +112,5 @@ are never uploaded, and there are no accounts, tracking cookies, or analytics
 vendor. The page counts anonymous feature events in local storage only and
 honours Do Not Track; the button in its footer turns counting off.
 
-Not affiliated with Knapsack Pro, Buildkite or CircleCI. MIT licence. Support is
+Not affiliated with Knapsack Pro, Buildkite or CircleCI. FSL-1.1-MIT licence. Support is
 optional: <https://github.com/sponsors/Duncan-Haywood>.

@@ -28,7 +28,7 @@ owner: duncan
 # "calendly free alternative", "cal.com too complicated". Volume not measured
 # with an external tool.
 #
-# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# Path to revenue (payments stay off): free and FSL-1.1-MIT as the lead magnet;
 # done-for-you setup, a hosted copy under the deployer's own name, or GitHub
 # Sponsors are the paid steps; hosting under the public name is owner-gated.
 

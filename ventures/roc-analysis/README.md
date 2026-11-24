@@ -127,4 +127,4 @@ Methods: DeLong, DeLong & Clarke-Pearson 1988; Sun & Xu 2014; Hanley & McNeil
 Vickers & Elkin 2006 (`PAPERS` in `engine.mjs`). Implemented from the papers'
 mathematics; no third-party code was ported. Example data: Wolberg,
 Mangasarian, Street & Street 1993, UCI Machine Learning Repository, CC BY 4.0.
-MIT licence.
+FSL-1.1-MIT licence.

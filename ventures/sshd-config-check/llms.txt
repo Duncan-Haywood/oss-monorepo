@@ -2,7 +2,7 @@
 
 > Paste /etc/ssh/sshd_config and the files in /etc/ssh/sshd_config.d: the tool reads them in sshd's order and shows the value that wins for each setting (sshd keeps the first value it reads), lines sshd ignores (a cloud-init drop-in's PasswordAuthentication yes beating your no), drop-ins it never reads (names without .conf), flush-left lines that still belong to a Match block, keywords that stop sshd starting, and PermitRootLogin yes, password logins (also through PAM keyboard-interactive), weak ciphers, MACs and key exchange, StrictModes no, PermitUserEnvironment and forwarding options. Each finding has its file, line and fix. Free, runs in your browser, nothing uploaded.
 
-Free and open source (MIT). A static read of the files you give it, not a security audit and not sshd -T; a clean result is not proof a server is safe. The reading follows OpenSSH 9.6p1's servconf.c and the sshd_config(5) manual of that release (Ubuntu 24.04's version), and agrees with that release's real sshd -t and sshd -T -C on 2,000 generated configurations (82,598 checks, including Match all, which overrides earlier settings for every connection rather than returning to global scope); defaults may differ on other releases. Not affiliated with the OpenSSH project.
+Free to use and source available (FSL-1.1-MIT). A static read of the files you give it, not a security audit and not sshd -T; a clean result is not proof a server is safe. The reading follows OpenSSH 9.6p1's servconf.c and the sshd_config(5) manual of that release (Ubuntu 24.04's version), and agrees with that release's real sshd -t and sshd -T -C on 2,000 generated configurations (82,598 checks, including Match all, which overrides earlier settings for every connection rather than returning to global scope); defaults may differ on other releases. Not affiliated with the OpenSSH project.
 
 ## Pages
 
@@ -15,5 +15,5 @@ Free and open source (MIT). A static read of the files you give it, not a securi
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sshd-config-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sshd-config-check): FSL-1.1-MIT licensed.
 - [Parity run against real sshd 9.6p1](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sshd-config-check/parity): generator, runner and recorded output.

@@ -23,7 +23,7 @@ owner: duncan
 # stripe", "affiliate tracking stripe payment links". Volume not measured with
 # an external tool.
 #
-# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# Path to revenue (payments stay off): free and FSL-1.1-MIT as the lead magnet;
 # done-for-you setup, a hosted copy under the deployer's own name, or GitHub
 # Sponsors are the paid steps; hosting under the public name and billing are
 # owner-gated.

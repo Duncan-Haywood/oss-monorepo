@@ -2,7 +2,7 @@
 
 > Paste your git log and get estimated hours per day, a client-ready work summary in Markdown or CSV, and an invoice figure at your hourly rate. Free, private, runs in your browser; CLI included.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/git-timesheet): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/git-timesheet): FSL-1.1-MIT licensed.

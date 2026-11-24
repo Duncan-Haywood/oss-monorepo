@@ -10,13 +10,15 @@ what a move involves: LICENSING_TRANSITION.md in this directory.
 Tracks:
   proprietary   a product: new work continues in the private repository under
                 a proprietary licence and is sold as a subscription or a
-                one-off licence. What is already published here stays MIT.
+                one-off licence. What is already published here stays MIT (or
+                FSL-1.1-MIT, for anything published after 2026-11-24).
   mit-lead-magnet  a small free tool whose job is to be found and send
-                visitors to the products. Stays MIT and public.
+                visitors to the products. Stays public, under FSL-1.1-MIT since
+                2026-11-24 (the track keeps its old name).
   mit-commons   open hardware, open data and devotional work whose point is
-                being open. Stays MIT.
+                being open. Stays public, FSL-1.1-MIT.
   mit-deployer-run  the deployer must be the operator (sender of record,
-                merchant): stays MIT and self-hosted.
+                merchant): stays public (FSL-1.1-MIT) and self-hosted.
 
 Model (proprietary only), by per-use cost:
   subscription  serving a user costs money every month (model calls, a server,

@@ -733,7 +733,7 @@ const CATEGORY_RULES = [
     // meta description and llms.txt. A category whose blurb fits needs none
     // (build.test.mjs, "every category tile ends on a whole sentence").
     card: 'Business software you run on your own server, from failed-payment recovery to status pages. Your keys, your data.',
-    blurb: 'Open-source business software you run on your own server: failed-payment recovery, cancellation flows, MRR and revenue recognition, lifecycle email, referrals, feature flags, status pages, help centres, booking pages, cookie-free analytics and more. Deploy your own copy with your own keys; you own the data.',
+    blurb: 'Source-available business software you run on your own server: failed-payment recovery, cancellation flows, MRR and revenue recognition, lifecycle email, referrals, feature flags, status pages, help centres, booking pages, cookie-free analytics and more. Deploy your own copy with your own keys; you own the data.',
     // Named apps first; then any venture that ships a server and a deploy
     // manifest (surfaceKind 'app') that no other section claims, so the next
     // self-hosted app lands here instead of in the catch-all.
@@ -4155,8 +4155,8 @@ const CATEGORY_RULES = [
     id: 'open-hardware',
     title: 'Open hardware, robots & house plans',
     accent: '#7a4a12',
-    card: 'Things you can build, change and sell: MIT-licensed robot CAD, firmware and simulators, and public-domain house plans.',
-    blurb: 'Things you can build, change and sell: MIT-licensed robot CAD with laser-cut and 3D-print files, firmware, bills of materials and a browser simulator for each (a robot vacuum and mop, a robotic lawn mower, tennis ball robots), and a generator of public-domain house plans with drawings, IFC and DXF.',
+    card: 'Things you can build, change and sell: FSL-1.1-MIT-licensed robot CAD, firmware and simulators, and public-domain house plans.',
+    blurb: 'Things you can build, change and sell: FSL-1.1-MIT-licensed robot CAD with laser-cut and 3D-print files, firmware, bills of materials and a browser simulator for each (a robot vacuum and mop, a robotic lawn mower, tennis ball robots), and a generator of public-domain house plans with drawings, IFC and DXF.',
     test: (slug) => ['open-floor-robots', 'open-robot-mower', 'open-tennis-robots', 'open-house-plans'].includes(slug),
   },
   {
@@ -6488,7 +6488,7 @@ export function disclaimerHtml(toRoot, surfaces = [], { counter = counterOn() } 
         or taken offline without notice. We do not promise uptime, backups of
         anything you type, or that a URL will keep working. Do not use them as
         a system of record. If a tool needs to survive, export your inputs —
-        every one of them is open source and runs from a local file.
+        every one of them is source available and runs from a local file.
       </p>
       <h2>Privacy</h2>
       <p>
@@ -8185,13 +8185,14 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
     <main class="prose">
       <h2>Who makes this</h2>
       <p>
-        ${escapeHtml(SITE_NAME)} is a small open-source lab in Colorado, founded
+        ${escapeHtml(SITE_NAME)} is a small source-available lab in Colorado, founded
         and run by Duncan Haywood. AI coding agents build the tools and the
         research in public, in one
         <a href="${escapeHtml(REPO_WEB_URL)}">GitHub repository</a>; every change
         is tested before it ships, and the history of every merge is public.
-        Everything is MIT licensed, so you can use it, change it, or run your own
-        copy as a business of your own.
+        The tools are FSL-1.1-MIT licensed: use them, change them and run your own
+        copy for any purpose except a competing commercial product, and each
+        version becomes MIT two years after it is published. Research stays MIT.
       </p>
 
       <h2>What this is</h2>
@@ -8301,7 +8302,7 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
       <ul>
         <li><strong>${formatCount(total)} tools</strong> across ${categoryCount} categories, all free, none gated.</li>
         <li><strong>Runs client-side.</strong> Static pages; no account, no third-party analytics; works offline once opened.${exceptions.length ? ` ${listed ? `The <a href="#outside-services">${exceptions.length} ${EXCEPTION_NOUN}</a> listed above are` : `${exceptionNames} ${exceptions.length === 1 ? 'is' : 'are'}`} the documented exception${exceptions.length === 1 ? '' : 's'}.` : ' No upload.'}</li>
-        <li><strong>MIT licensed.</strong> Every tool ships its licence text alongside it — open any tool and add <code>LICENSE</code> to its address.</li>
+        <li><strong>FSL-1.1-MIT licensed.</strong> Every tool ships its licence text alongside it — open any tool and add <code>LICENSE</code> to its address.</li>
         <li><strong>Front page:</strong> <a href="${escapeHtml(toRoot)}" data-pf-to="hub">${escapeHtml(baseUrl)}</a></li>
       </ul>
       <p>
@@ -8409,7 +8410,7 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
         <p class="fb-terms">Ideas, research questions and topics join the
         <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}`)}">custom development</a> queue,
         are built free and in public, and come ahead of routine work. What is built is published under the MIT
-        licence with the repository owner's copyright notice; you get no exclusive
+        licence with the repository owner's copyright notice, in the tool's own directory; you get no exclusive
         rights to it.</p>
         <p id="fb-tool-line" hidden>About: <a id="fb-tool-link" href="${escapeHtml(toRoot)}"></a></p>
         <label for="fb-message">Your message</label>
@@ -9026,7 +9027,7 @@ ${built ? '' : `      <h2>What has been built this way</h2>
       <h2>The terms</h2>
       <ul>
         <li><strong>Free.</strong> No fee for the engineering, the hosting or the agent compute.</li>
-        <li><strong>MIT licensed, held by the repository owner.</strong> What is built is published in <a href="${escapeHtml(REPO_URL)}">this repository</a> under its <a href="${escapeHtml(`${REPO_URL}/blob/main/LICENSE`)}">MIT licence</a>, with the owner's copyright notice. Anything you attach, you must be allowed to share, and you agree to its publication on those terms.</li>
+        <li><strong>MIT licensed, held by the repository owner.</strong> What is built is published in <a href="${escapeHtml(REPO_URL)}">this repository</a> under the <a href="https://opensource.org/license/mit">MIT licence</a> (an MIT <code>LICENSE</code> in the tool's own directory; the rest of the repository is FSL-1.1-MIT), with the owner's copyright notice. Anything you attach, you must be allowed to share, and you agree to its publication on those terms.</li>
         <li><strong>You may use it commercially</strong>, as anyone may: deploy it, change it, sell a service on it. The licence is the same for everyone, so there is no exclusivity.</li>
         <li><strong>No promise of a date or of acceptance.</strong> Agent time is shared across the whole repository. A request is weighed on how useful it is, how well it fits, and whether it can be built and run legally at no per-user cost.</li>
         <li><strong>Public by default.</strong> Requests, code and discussion are visible to everyone. Leave out names, addresses and anything private.</li>
@@ -9423,7 +9424,7 @@ export function renderHub(
     name: SITE_NAME,
     url: baseUrl,
     description:
-      'Free, open-source browser tools, self-hostable business apps, command-line checks and research projects, each with its own page.',
+      'Free, source-available browser tools, self-hostable business apps, command-line checks and research projects, each with its own page.',
     isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: baseUrl },
     mainEntity: {
       '@type': 'ItemList',
@@ -9495,7 +9496,7 @@ export function renderHub(
   <title>${escapeHtml(SITE_NAME)} | Free Tools, Self-Hostable Apps &amp; Research</title>
   <meta name="description" content="${escapeHtml(
     snippetize(
-      `Free bid calculators, fee checkers and pricing tools for small businesses: ${formatCount(browserCount)} open-source tools that run in your browser, plus self-hostable apps. No sign-up.`,
+      `Free bid calculators, fee checkers and pricing tools for small businesses: ${formatCount(browserCount)} source-available tools that run in your browser, plus self-hostable apps. No sign-up.`,
     ),
   )}">
   <link rel="canonical" href="${escapeHtml(baseUrl)}">${verificationHead()}
@@ -9506,7 +9507,7 @@ export function renderHub(
   <link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — new tools`)}" href="${escapeHtml(FEED_FILE)}">
   <meta property="og:type" content="website">
   <meta property="og:title" content="${escapeHtml(SITE_NAME)}">
-  <meta property="og:description" content="Free tools to price the job, check the fees and run your business. No sign-up, open source, and the numbers stay in your browser.">
+  <meta property="og:description" content="Free tools to price the job, check the fees and run your business. No sign-up, source available, and the numbers stay in your browser.">
   <meta property="og:url" content="${escapeHtml(baseUrl)}">
   <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
   <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
@@ -9518,7 +9519,7 @@ export function renderHub(
   <script type="application/ld+json">${jsonLd(siteStructuredData({
     baseUrl,
     siteName: SITE_NAME,
-    description: 'Free, open-source browser tools, self-hostable business apps and reproducible research.',
+    description: 'Free, source-available browser tools, self-hostable business apps and reproducible research.',
     repoUrl: REPO_WEB_URL,
     founder: SITE_FOUNDER,
     logo: `${baseUrl}icon-512.png`,
@@ -9761,7 +9762,7 @@ ${HOME_SECTIONS_CSS}
   <header class="hero">
 ${HERO_BACKDROP_HTML}
     <div class="hero-inner">
-      <p class="eyebrow">Free · No sign-up · Open source</p>
+      <p class="eyebrow">Free · No sign-up · Source available</p>
       <h1>Free tools to <span class="grad">price the job, check the fees</span> and run your business.</h1>
 ${
   audienceWords.length
@@ -9813,7 +9814,7 @@ ${
            problem and it gets built"). Terms are on the linked page. -->
       <section class="build-band" aria-labelledby="build-band-h">
         <h2 id="build-band-h">Run a business? Describe your problem and it gets built.</h2>
-        <p>No tool here does what you need? Tell us the job, and the AI agents that build this site may build it for you, free and in public. The one condition: the result stays open source (MIT).</p>
+        <p>No tool here does what you need? Tell us the job, and the AI agents that build this site may build it for you, free and in public. The one condition: the result is published under the MIT licence.</p>
         <a class="go" href="${CUSTOM_DEV_PATH}">Describe your problem</a>
       </section>
       </div>
@@ -9944,7 +9945,7 @@ ${renderLatestWriting(posts, { writingPath: WRITING_PATH })}
         <a class="pillar" href="deploy/">
           <span class="pillar-ico">${icon('deploy')}</span>
           <h3>Deploy your own copy</h3>
-          <p>Every app and tool is MIT licensed. Pick one, paste your own cloud credentials, and get a running copy in your own account. Nothing of ours sits in between.</p>
+          <p>Every app and tool is FSL-1.1-MIT licensed, so running your own copy is allowed. Pick one, paste your own cloud credentials, and get a running copy in your own account. Nothing of ours sits in between.</p>
           <span class="pillar-more">Deploy your own →</span>
         </a>
         <a class="pillar" href="${GUIDES_PATH}">
@@ -9963,7 +9964,7 @@ ${renderLatestWriting(posts, { writingPath: WRITING_PATH })}
       <ul class="principles">
         <li>No accounts or sign-up</li>
         <li>No tracking cookies</li>
-        <li>MIT licence throughout</li>
+        <li>Source available: FSL-1.1-MIT for tools, MIT for research</li>
         <li>Every change in the <a href="${CHANGELOG_PATH}">public changelog</a></li>
         <li>What gets built next, in order, on the <a href="${QUEUE_PATH}">work queue</a></li>
       </ul>
@@ -9983,7 +9984,7 @@ ${disclaimerHtml('', surfaces)}
         <label><input type="checkbox" id="optout"> Don't count my visit</label>
       </p>
       <p>
-        Open source — every tool is a static page, and one you have opened keeps
+        Source available — every tool is a static page, and one you have opened keeps
         working with no connection.
       </p>
       ${renderSiteFooterNav({ toRoot: '' })}
@@ -12121,7 +12122,7 @@ function crumbShort(name) {
  * desktop app, a watch face, a server or a page with nothing to type into.
  * This line claims nothing about the page above it.
  */
-export const FOOTER_LEAD_NOT_A_BROWSER_TOOL = 'More from the same free, open-source catalogue.';
+export const FOOTER_LEAD_NOT_A_BROWSER_TOOL = 'More from the same free, source-available catalogue.';
 
 export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [], linkedCss = '', browserTool = true }) {
   if (html.includes(CHROME_MARKER)) return html;
@@ -12614,7 +12615,7 @@ export function renderFeed(surfaces, baseUrl, launched = {}) {
   <link rel="alternate" type="text/html" href="${escapeHtml(baseUrl)}"/>
   <id>${escapeHtml(`tag:marisstella.dev,2026:${SITE_NAME.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`)}</id>
   <updated>${updated}</updated>
-  <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <rights>Tools are FSL-1.1-MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
 ${entries.map(entryXml).join('\n')}
 </feed>
 `;
@@ -12762,7 +12763,7 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
     {
       name: 'Free calculators for sellers, contractors, and small back offices',
       url: baseUrl,
-      license: 'MIT',
+      license: 'FSL-1.1-MIT',
       price: { amount: '0', currency: 'USD' },
       privacy: 'client-side-only',
       generated_by: 'platform/pages/build.mjs',
@@ -12838,7 +12839,7 @@ export function renderProductLlmsTxt({ slug, title, description, fullDescription
 ## Pages
 
 - [The tool](${baseUrl}${slug}/): the tool itself, with its own notes and disclaimer.
-- [Source and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/${slug}): MIT-licensed code, tests and notes.
+- [Source and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/${slug}): FSL-1.1-MIT-licensed code, tests and notes.
 - [All tools](${baseUrl}llms.txt): the catalogue this tool belongs to.
 
 ## Limits
@@ -13031,7 +13032,7 @@ ${full ? `\n${exceptions.map((x) => `- [${oneLine(toolProseName(x.title))}](${ba
 
   return `# ${SITE_NAME}
 
-> ${SITE_NAME} is an open-source lab where AI agents build tools and research in public, all MIT licensed. ${formatCount(surfaces.length)} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${formatCount(researchProjects)} reproducible research projects` : 'open research'}; no account or payment, and the numbers you type stay in your browser.
+> ${SITE_NAME} is a source-available lab where AI agents build tools and research in public: tools FSL-1.1-MIT, research MIT. ${formatCount(surfaces.length)} free, source-available tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${formatCount(researchProjects)} reproducible research projects` : 'open research'}; no account or payment, and the numbers you type stay in your browser.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional

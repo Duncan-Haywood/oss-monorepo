@@ -1,5 +1,5 @@
 name: cyclehound
-description: Free, open-source (MIT) circular-import checker for JavaScript and TypeScript written in Rust. One engine runs as a native CLI (a CI gate that exits 1 on a cycle) and, compiled to WebAssembly, in a browser page that uploads nothing. On 11,422 files of this repository it built the same import graph as madge 8.0.0, edge for edge, in 0.2 s and 20 MB against 14 to 18 s and about 350 MB (BENCHMARK.md).
+description: Free, source available (FSL-1.1-MIT) circular-import checker for JavaScript and TypeScript written in Rust. One engine runs as a native CLI (a CI gate that exits 1 on a cycle) and, compiled to WebAssembly, in a browser page that uploads nothing. On 11,422 files of this repository it built the same import graph as madge 8.0.0, edge for edge, in 0.2 s and 20 MB against 14 to 18 s and about 350 MB (BENCHMARK.md).
 stage: prototype
 
 owner: duncan

@@ -2,7 +2,7 @@
 
 > Free calculator for real estate photographers: what each listing package really earns per hour after drive, shoot, editing and admin time, the fee that hits your hourly target, add-on profit and whether to outsource editing. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/real-estate-photographer-shoot-profit-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/real-estate-photographer-shoot-profit-calculator): FSL-1.1-MIT licensed.

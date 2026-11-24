@@ -22,4 +22,4 @@ and a re-read of four partner agreements.
 headline terms; no live fetch and no real payout statement were available.
 Every rate the terms turn on is editable on the page.
 
-Run the tests with `node --test`. MIT licensed.
+Run the tests with `node --test`. FSL-1.1-MIT licensed.

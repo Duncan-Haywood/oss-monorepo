@@ -2,7 +2,7 @@
 
 > Free UK Making Tax Digital for Income Tax checker: enter your gross self-employment and property income to see if you must join, from which date (April 2026, 2027 or 2028), and your quarterly and final declaration deadlines. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-mtd-income-tax-checker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-mtd-income-tax-checker): FSL-1.1-MIT licensed.

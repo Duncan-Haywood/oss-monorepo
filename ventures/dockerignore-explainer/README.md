@@ -104,7 +104,7 @@ folder reads names and sizes, plus the `.dockerignore` and `Dockerfile` at its t
 
 Provided free and as-is, without warranty of any kind. It is not legal, security or professional advice. Results
 come from this tool's port of BuildKit's rules over the list you give it; it does not run Docker. Not affiliated
-with or endorsed by Docker, Inc. or the Moby project. MIT licensed (`LICENSE`), except that `matcher.mjs` is a
+with or endorsed by Docker, Inc. or the Moby project. FSL-1.1-MIT licensed (`LICENSE`), except that `matcher.mjs` is a
 translation of third-party code and keeps those licences: moby/patternmatcher (Apache-2.0, Docker, Inc.), Go's
 `path/filepath` (BSD-3-Clause, The Go Authors) and tonistiigi/fsutil (MIT, Tõnis Tiigi). See
 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). The oracle fetches those modules as dependencies; none is

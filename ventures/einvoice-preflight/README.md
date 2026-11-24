@@ -2172,7 +2172,7 @@ warning is seeded into it in `hungary-nav-product-fee.test.mjs` (8 tests). No re
 business's product fee invoice has been read.
 
 Tests: `hungary-nav.test.mjs` (14) and `hungary-nav-product-fee.test.mjs` (8) on
-six of NAV's files kept in `fixtures/hungary-nav/` with NAV's MIT licence.
+six of NAV's files kept in `fixtures/hungary-nav/` with NAV's FSL-1.1-MIT licence.
 
 ### The schema gate: invoiceData.xsd with NTCA common 1.0 (2026-11-15, latest)
 

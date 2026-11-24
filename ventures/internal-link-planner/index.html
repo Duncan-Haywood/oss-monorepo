@@ -6,7 +6,7 @@
   <title>Internal Link Planner — Find Orphan Pages and Missing Internal Links</title>
   <meta name="description" content="Free internal link audit and planner. Drop in your site's HTML files: it finds orphan pages and pages linked only from menus, then suggests the exact sentences in your other pages that should link to them, with the link-equity gain. Runs in your browser; nothing is uploaded.">
   <meta property="og:title" content="Internal Link Planner — orphan pages and missing links, found for you">
-  <meta property="og:description" content="Suggests which sentence on which page should link to the pages that need links, and shows the PageRank gain. Free, open source, private.">
+  <meta property="og:description" content="Suggests which sentence on which page should link to the pages that need links, and shows the PageRank gain. Free, source available, private.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Internal Link Planner", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Reads a site's HTML, builds its internal link graph, finds orphan and menu-only pages, and suggests where in the existing text to add links, with the internal PageRank effect of the whole plan. Runs locally in the browser or as a Node command line tool."}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is an orphan page?", "acceptedAnswer": {"@type": "Answer", "text": "A page that no other page on the site links to. Visitors cannot navigate to it and search engines can only find it through a sitemap, so it gets little or no internal link equity."}}, {"@type": "Question", "name": "How are the link suggestions chosen?", "acceptedAnswer": {"@type": "Answer", "text": "For each page that needs links, the tool looks for pages that already mention its title or headline words in their text but do not link to it. It ranks those by topical similarity (TF-IDF cosine), the source page's own link equity, and how specific the matched phrase is. The anchor text is the words already on the page."}}, {"@type": "Question", "name": "Does it upload my site?", "acceptedAnswer": {"@type": "Answer", "text": "No. The page reads the files you choose in your browser and makes no network requests. The command line version only fetches the sitemap URL you give it."}}, {"@type": "Question", "name": "Will the links improve my rankings?", "acceptedAnswer": {"@type": "Answer", "text": "Nobody can promise that. The tool reports how link equity inside your own site would move under a simplified PageRank model. Whether that changes rankings or traffic depends on much more than internal links."}}]}</script>
@@ -34,7 +34,7 @@
 <body>
   <main>
   <h1>Internal Link Planner</h1>
-  <p>Drop in your site's HTML files. It finds the pages nobody links to, then points to the exact sentences on your other pages where a link belongs, and shows how much link equity the plan moves. Free, open source, and your files never leave this page.</p>
+  <p>Drop in your site's HTML files. It finds the pages nobody links to, then points to the exact sentences on your other pages where a link belongs, and shows how much link equity the plan moves. Free, source available, and your files never leave this page.</p>
 
   <section class="card">
     <h2>1. Choose your pages</h2>
@@ -90,7 +90,7 @@
   </main>
   <footer>
     <p>No warranty. This is not legal, tax, accounting, compliance, or financial advice, and it makes no promise about search rankings or traffic. Everything runs in your browser: the files you pick are read locally and never uploaded. Not affiliated with any search engine or platform.</p>
-    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free to use and source available. If this helped, the <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">

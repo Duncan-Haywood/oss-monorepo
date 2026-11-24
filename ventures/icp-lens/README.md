@@ -89,7 +89,7 @@ Netlify, Cloudflare Pages or any web host, or serve it with
 
 ## Disclaimer
 
-Free and MIT, provided as-is with no warranty and no uptime guarantee. Fit scores
+Free and FSL-1.1-MIT, provided as-is with no warranty and no uptime guarantee. Fit scores
 are statistical rankings from the data you provide and can be wrong; they are not
 a prediction that anyone will buy, and not legal, tax or financial advice.
 AI-written drafts are drafts for you to check. You are responsible for who you

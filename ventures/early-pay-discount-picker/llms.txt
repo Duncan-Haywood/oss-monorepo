@@ -2,7 +2,7 @@
 
 > Free tool for small businesses with several 2/10 net 30 style supplier discounts and not enough cash to take them all: get the exact set of invoices to pay early after your cost of cash, compared with highest-rate-first and other rules. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/early-pay-discount-picker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/early-pay-discount-picker): FSL-1.1-MIT licensed.

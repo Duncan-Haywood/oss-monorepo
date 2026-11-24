@@ -22,4 +22,4 @@ seasonality, the extra bookings a marketplace or studio may send, or local marke
 prices. Unverified against a real photographer's books: tested on hand-calculated
 examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

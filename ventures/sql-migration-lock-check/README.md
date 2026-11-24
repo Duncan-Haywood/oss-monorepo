@@ -163,6 +163,6 @@ usage module.
 
 ## Licence
 
-MIT — see [LICENSE](./LICENSE).
+FSL-1.1-MIT — see [LICENSE](./LICENSE).
 [Sponsorship](https://github.com/sponsors/Duncan-Haywood) is optional and
 never changes what the tool does.

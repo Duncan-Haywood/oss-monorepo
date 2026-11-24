@@ -2,7 +2,7 @@
 
 > A free, open-source alternative to Customer.io, Loops and Userlist: your app posts events, sequences send onboarding, trial and win-back email, and a goal event stops the rest. Preview exactly what a person would receive and when, in your browser, then run the server in your own account.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/drip-keeper): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/drip-keeper): FSL-1.1-MIT licensed.

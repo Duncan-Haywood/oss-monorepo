@@ -75,4 +75,4 @@ replace your diocese's own rules, your chancery or a canon lawyer. **You are
 responsible for reviewing and verifying its output before relying on it.** To
 the maximum extent permitted by law, the authors accept no liability for any
 loss or damage arising from its use. Best-effort hosting, no SLA; do not use
-this as a system of record. MIT licensed (`LICENSE`).
+this as a system of record. FSL-1.1-MIT licensed (`LICENSE`).

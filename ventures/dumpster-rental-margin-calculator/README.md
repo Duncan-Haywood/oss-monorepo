@@ -67,4 +67,4 @@ This calculator produces arithmetic observations from numbers you supply. It
 does not audit your books, verify a rental or disposal agreement, predict
 actual load weight, or replace your own contract, insurance, or accountant.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

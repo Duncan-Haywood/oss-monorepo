@@ -2,7 +2,7 @@
 
 > Free DAC7 checker for online sellers and hosts: will the platform report your sales or rentals to the tax authority this year? Checks the 30-sales / EUR 2,000 goods exemption, headroom, what is sent and the TIN deadline. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dac7-seller-reporting-checker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dac7-seller-reporting-checker): FSL-1.1-MIT licensed.

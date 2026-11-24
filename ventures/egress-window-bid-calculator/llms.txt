@@ -2,7 +2,7 @@
 
 > Price an egress window from window count, hopper versus slider versus casement versus fiberglass, retrofit versus wood-cut versus masonry-cut versus poured-cut, plastic versus steel versus stone well, extras, and weekday versus Saturday — plus the walk-away price a $1,800 installed special cannot see.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -16,4 +16,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/egress-window-bid-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/egress-window-bid-calculator): FSL-1.1-MIT licensed.

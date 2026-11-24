@@ -2,7 +2,7 @@
 
 > Free multi-state residency day counter. Enter where you spent the year, see days per state against the 183-day and other statutory residency tests, the room you have left, the date you would cross a limit, and remote-work wages split by state. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -20,4 +20,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/state-residency-day-counter): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/state-residency-day-counter): FSL-1.1-MIT licensed.

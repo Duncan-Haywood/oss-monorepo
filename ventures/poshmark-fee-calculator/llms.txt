@@ -2,7 +2,7 @@
 
 > Free Poshmark seller fee calculator. The flat $2.95 fee under $15, 20% at $15+, the $14.75 break-even price, your real profit after item cost, and whether a lower offer costs you more than the discount. Nothing leaves your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -14,4 +14,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/poshmark-fee-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/poshmark-fee-calculator): FSL-1.1-MIT licensed.

@@ -2,7 +2,7 @@
 
 > Free hoarding and heavy-clutter cleanout bid calculator: enter floor area, how full the space is, crew, containers and dump fees, and get a price, the days and containers needed, a change-order rate per cubic yard and how far the volume can overrun. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hoarding-cleanout-bid-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hoarding-cleanout-bid-calculator): FSL-1.1-MIT licensed.

@@ -7,7 +7,7 @@ a per-link or per-click tier and without storing anyone's IP address.
 
 **Live tool:** https://marisstella.app/link-keeper/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`**: a campaign-link planner. Paste destinations, set
   `utm_source/medium/campaign`, and get the tagged URLs and short names, plus
@@ -100,7 +100,7 @@ the steps are at the top of `fly.toml`. Docker: `docker compose up -d` with
 
 ## Disclaimer
 
-Free and MIT, provided as-is with no warranty and no uptime guarantee. You run
+Free and FSL-1.1-MIT, provided as-is with no warranty and no uptime guarantee. You run
 it, so you are responsible for where your links point, for backups, and for
 following the privacy, marketing and consumer-protection rules that apply to
 you and your visitors. Not legal, tax or financial advice. If it helps,

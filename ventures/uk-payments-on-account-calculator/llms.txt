@@ -2,7 +2,7 @@
 
 > Free UK payments on account calculator: enter your Self Assessment bill to see the balancing payment, the two advance instalments, why your first January bill is about 150%, and what a reduction claim would defer. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-payments-on-account-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-payments-on-account-calculator): FSL-1.1-MIT licensed.

@@ -9,7 +9,7 @@
  *   node platform/distribution/launch-kit.mjs --slug <slug>   # one tool
  *   node platform/distribution/launch-kit.mjs --days 30 --max 5
  *
- * Every draft states what the tool is, that it is free MIT software from this
+ * Every draft states what the tool is, that it is free FSL-1.1-MIT software from this
  * portfolio, the page's own limits, and links to the canonical page. Each one
  * tells the owner to read the venue's rules on the day, because they change.
  */
@@ -39,7 +39,7 @@ export function composeKit({ title, description }, url, slug) {
   const name = shortTitle(title);
   const one = firstSentence(description);
   const repo = `https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/${slug}`;
-  const disclosure = 'It is free, MIT-licensed, runs in your browser, and needs no account. It is a calculator/checker, not professional advice.';
+  const disclosure = 'It is free, FSL-1.1-MIT-licensed, runs in your browser, and needs no account. It is a calculator/checker, not professional advice.';
   return {
     name,
     url,
@@ -57,7 +57,7 @@ export function composeKit({ title, description }, url, slug) {
     alternativeTo: {
       name,
       url,
-      license: 'Open source (MIT), free',
+      license: 'Source available (FSL-1.1-MIT), free',
       description: clip(description, 300),
     },
     awesomeListLine: `- [${name}](${url}) - ${clip(one, 140)}`,

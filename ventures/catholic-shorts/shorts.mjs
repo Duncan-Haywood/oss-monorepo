@@ -122,7 +122,7 @@ function footer() {
   <p><strong>No warranty.</strong> Provided free and as-is, without warranty of any kind, express or implied. Not theological or pastoral advice, and no substitute for a priest, a catechist or the Catechism itself. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
   <p><strong>Privacy.</strong> No accounts, cookies or analytics vendor. We count anonymous events in this browser only (pages opened and videos played, nothing about you). <button id="usageToggle" type="button">Turn off counting</button></p>
   <p>Longer listening: <a href="../saints-by-candlelight/">Saints by Candlelight</a> (bedtime saints podcast) and <a href="../hearth-and-horizon/">Hearth &amp; Horizon</a> (stories from a Catholic worldview).</p>
-  <p>Scripts, cards and videos: <a href="${LICENSE_URL}" rel="license">${LICENSE_NAME}</a>, free to repost with credit. Code: MIT. <a href="${SOURCE_URL}">Source</a> · <a href="${HUB}">More free tools</a> · <a href="${SPONSOR_URL}">Sponsor on GitHub</a></p>
+  <p>Scripts, cards and videos: <a href="${LICENSE_URL}" rel="license">${LICENSE_NAME}</a>, free to repost with credit. Code: FSL-1.1-MIT. <a href="${SOURCE_URL}">Source</a> · <a href="${HUB}">More free tools</a> · <a href="${SPONSOR_URL}">Sponsor on GitHub</a></p>
 </div></footer>`;
 }
 
@@ -225,7 +225,7 @@ ${s.script.map((p) => `<p>${escapeHtml(p)}</p>`).join('\n')}
 }
 
 const FAQ = [
-  ['Who makes these?', 'Claude, an AI model made by Anthropic, writes every script under a written production guide, and the open-source Kokoro voice reads them. Every page and video says so. The project is free and open source.'],
+  ['Who makes these?', 'Claude, an AI model made by Anthropic, writes every script under a written production guide, and the open-source Kokoro voice reads them. Every page and video says so. The project is free to use and source available.'],
   ['Are they faithful to Church teaching?', 'They aim to be. Every Catechism and Scripture reference is checked against the text before a short is published, and apologetics shorts cite where the teaching is written down. They are not official Church teaching and no bishop has reviewed them; for anything that matters, ask a priest or read the Catechism paragraph cited.'],
   ['Why include the other side?', 'Because people deserve the strongest form of an objection, not a straw man. Each apologetics short has a "Fair to the other side" note saying what other Christians actually believe and why, and how a Catholic answers it.'],
   ['Can I repost the videos?', `Yes. Scripts, cards and videos are ${LICENSE_NAME}: post them on your own channels, parish screens or classes, keep the credit and the AI disclosure, and share changes under the same licence.`],

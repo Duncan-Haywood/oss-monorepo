@@ -216,7 +216,7 @@ AS IS, WITHOUT WARRANTY OF ANY KIND. They have not been reviewed by a licensed
 architect or engineer. A real house needs a licensed review or the local code's
 prescriptive path, site and soils work, and a permit before anyone builds it.
 
-The software that generated them is MIT-licensed:
+The software that generated them is FSL-1.1-MIT-licensed:
 https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/open-house-plans
 `;
 

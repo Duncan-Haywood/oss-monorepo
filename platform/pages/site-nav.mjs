@@ -244,7 +244,7 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
       .map(([h, label]) => `<li><a href="${esc(href(h))}">${label}</a></li>`)
       .join('')}</ul></div>`)
     .join('');
-  return `<p class="pfs-support">${sponsorsNote()}</p><nav class="pfs-foot" aria-label="Site links">${cols}</nav><p class="pfs-foot pfs-credit">A ${esc(SITE_NAME)} project, MIT licensed.</p>`;
+  return `<p class="pfs-support">${sponsorsNote()}</p><nav class="pfs-foot" aria-label="Site links">${cols}</nav><p class="pfs-foot pfs-credit">A ${esc(SITE_NAME)} project. Tools FSL-1.1-MIT, research MIT.</p>`;
 }
 
 /**

@@ -2,7 +2,7 @@
 
 > Free tax deed auction max bid calculator. Enter resale price, repairs, surviving liens, quiet title, occupant, holding and cash costs and your target profit; it shows the maximum bid and stress-tests your bids. Private, in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tax-deed-auction-max-bid-planner): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tax-deed-auction-max-bid-planner): FSL-1.1-MIT licensed.

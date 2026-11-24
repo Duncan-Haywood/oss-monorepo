@@ -1,8 +1,8 @@
-// Generated from identify 2.6.20 and pre-commit 4.7.0 (both MIT licensed:
+// Generated from identify 2.6.20 and pre-commit 4.7.0 (both FSL-1.1-MIT licensed:
 // https://github.com/pre-commit/identify, https://github.com/pre-commit/pre-commit).
 // identify: Copyright (c) 2017 Chris Kuehl, Anthony Sottile (MIT).
 // pre-commit: Copyright (c) 2014 pre-commit dev team: Anthony Sottile, Ken Struys (MIT).
-// Both under the MIT licence, whose permission notice is the text of this
+// Both under the FSL-1.1-MIT licence, whose permission notice is the text of this
 // venture's LICENSE file (only the copyright lines differ).
 // Regenerate: see README, "Updating the tables". Do not edit by hand.
 export const PRE_COMMIT_VERSION = "4.7.0";

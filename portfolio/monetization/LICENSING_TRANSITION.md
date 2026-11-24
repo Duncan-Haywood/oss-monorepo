@@ -1,9 +1,14 @@
-# Licensing transition: products go proprietary and paid, tools stay MIT
+# Licensing transition: products go proprietary and paid, the public repository goes FSL
 
 Owner, 2026-11-24: "moving the apps to subscription and one off saases";
 "as direction transitioning everything that direction moving licenses to more
 prop esp for the for profit and non lead magnet ones"; model chosen by
 per-use cost; "use ur judgement on the way to do it".
+
+Later the same day the owner chose to restrict the public repository too: "I
+want to do the change to a more restrictive license", picking a
+source-available licence for the public repository over a non-commercial one.
+That move is the section "The public repository: FSL-1.1-MIT" below.
 
 This file is how. [`transition.py`](transition.py) applies the rules below to
 every venture and writes [`transition.json`](transition.json) (the move list,
@@ -14,9 +19,12 @@ in order). Run `python3 portfolio/monetization/transition.py` for the table.
 | Track | Count | Licence from here on | Where new work happens |
 |---|---|---|---|
 | `proprietary`: products with depth | 20 | proprietary, all rights reserved | `private-monorepo/apps/<slug>` |
-| `mit-lead-magnet`: single-purpose free tools | 1,415 | MIT, unchanged | this repository |
-| `mit-commons`: open hardware, open plans, devotional | 5 | MIT, unchanged | this repository |
-| `mit-deployer-run`: `sales-agent` | 1 | MIT, unchanged | this repository |
+| `mit-lead-magnet`: single-purpose free tools | 1,415 | FSL-1.1-MIT (was MIT) | this repository |
+| `mit-commons`: open hardware, open plans, devotional | 5 | FSL-1.1-MIT (was MIT) | this repository |
+| `mit-deployer-run`: `sales-agent` | 1 | FSL-1.1-MIT (was MIT) | this repository |
+
+The track names keep their `mit-` prefix because `transition.json` and its
+readers key on them; they now mean "stays public", not "stays MIT".
 
 Of the 20 products, **8 are subscriptions** (a model call, a server, storage or
 a rule set we keep current costs money each month per customer: ai-bookkeeper,
@@ -46,6 +54,64 @@ retail-pilot-intel, sales-export-to-journal).
   2.0× of the fully loaded cost, enforced by a unit test).
 - **Exceptions are named, with reasons**, in `OVERRIDES` in `transition.py`.
   Overturn one with evidence in a PR.
+
+## The public repository: FSL-1.1-MIT
+
+Since 2026-11-24 the original work in this repository is under the
+[Functional Source License 1.1, MIT future licence](../../LICENSE)
+(SPDX `FSL-1.1-MIT`, the text from fsl.software, verbatim).
+
+- **What it allows**: reading, running, changing and redistributing the code
+  for any purpose except a Competing Use, which is offering it to others in a
+  commercial product or service that substitutes for it or for a product we
+  offer with it. Internal use, teaching, non-commercial research and client
+  work on it are named as allowed.
+- **What it stops**: someone lifting a tool, or the whole catalogue, and
+  selling it as their own competing product. That is the risk a public MIT
+  repository carries once its products are sold.
+- **Why FSL over the alternatives** (the owner chose "source-available" over
+  "non-commercial"): PolyForm Noncommercial would stop a plumber using a quote
+  calculator in their business, which is the point of a lead magnet. BUSL needs
+  a per-product "additional use grant" and a change date chosen by hand, and is
+  flagged by more corporate licence scanners. AGPL is open source and does not
+  stop a hosted competitor who publishes their changes. FSL is short, fixed
+  text with one restriction and an automatic two-year conversion to MIT, so
+  nothing stays locked up for good.
+- **What it is not**: open source in the OSI sense. Pages that said "free and
+  open source" now say "free to use and source available"; the honest-marketing
+  rule (`goals.md`) applies to licence claims as much as any other.
+
+What moved, and how. [`relicense_fsl.py`](relicense_fsl.py) did it, and its
+`--check` mode exits 1 when anything still needs rewriting:
+
+- every licence file holding the owner's MIT text (1,446 under `ventures/`,
+  plus the root `LICENSE`) now holds the FSL text with the same copyright
+  line;
+- our own licence statements on pages, READMEs, `llms.txt` files, FAQ JSON-LD,
+  package manifests (`package.json`, `Cargo.toml`, `pyproject.toml`) and the
+  page tests that assert them; a sentence about someone else's open-source
+  project (Kokoro, zizmor, ggplot2) is left alone;
+- by hand: the site generators in `platform/pages/`, the distribution channels
+  in `platform/distribution/` (npm, PyPI, MCP, desktop, Homebrew, GHCR, Nix,
+  GitHub Actions, mobile and browser-extension builds now declare
+  `FSL-1.1-MIT`), `README.md`, `CONTRIBUTING.md`, `CITATION.cff` and the
+  third-party check (`platform/ci/check_third_party.py` accepts the owner's
+  FSL files and `SPDX-License-Identifier: FSL-1.1-MIT`).
+
+Left on MIT, each for a reason:
+
+- **`research/`**: built to be cited, reproduced and extended.
+- **Website-request results from outside requesters**: the intake forms
+  promise MIT. None exist yet; one gets an MIT `LICENSE` in its own directory.
+- **The WordPress "Free Tools Embed" plugin and the VS Code catalogue
+  extension** (`platform/distribution/wordpress.mjs`, `vscode.mjs`): launchers
+  that hold links, not tool code. WordPress.org lists only GPL-compatible
+  plugins, which FSL is not.
+- **Every version published before the change**: MIT grants are irrevocable.
+
+What waits on the owner: `prompts/goals.md` still says "Original work is
+MIT-licensed" under "Licensing and attribution". `prompts/` is control plane,
+so that line is amended in its own PR for the owner's approval.
 
 ## What a licence change can and cannot do
 

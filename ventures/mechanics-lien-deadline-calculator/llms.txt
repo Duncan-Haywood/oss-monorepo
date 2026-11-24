@@ -2,7 +2,7 @@
 
 > Free calculator for the preliminary notice and lien filing deadlines a subcontractor or supplier faces in California, Texas, Florida, Arizona, Washington, Georgia and Colorado. Enter your first and last day on the job; see both dates, weekend flags, and days left. Entirely client-side, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## What it covers
 
@@ -16,4 +16,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mechanics-lien-deadline-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mechanics-lien-deadline-calculator): FSL-1.1-MIT licensed.

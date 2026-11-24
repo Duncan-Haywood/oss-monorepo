@@ -2,7 +2,7 @@
 
 > Free Good Faith Estimate generator for the No Surprises Act: list services with codes and charges, get a printable estimate, the delivery deadline, a completeness check, a $400 dispute check and a review of your past estimates. Runs in your browser; no patient data leaves it.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/good-faith-estimate-generator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/good-faith-estimate-generator): FSL-1.1-MIT licensed.

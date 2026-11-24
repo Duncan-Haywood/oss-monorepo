@@ -40,7 +40,7 @@ async function fixture(files) {
 const PAGE = '<title>Demo Tool — x</title><meta name="description" content="Does a thing."><script type="module">import { f } from "./calc.mjs"; f();</script>';
 
 test('buildExtension bundles the closure, asks for no permissions, and has no remote code', async () => {
-  const dir = await fixture({ 'index.html': PAGE, 'calc.mjs': 'import {g} from "./g.mjs"; export const f=()=>g;', 'g.mjs': 'export const g=1', LICENSE: 'MIT License\n' });
+  const dir = await fixture({ 'index.html': PAGE, 'calc.mjs': 'import {g} from "./g.mjs"; export const f=()=>g;', 'g.mjs': 'export const g=1', LICENSE: 'Functional Source License\n' });
   const e = await buildExtension({ slug: 'demo', dir });
   const m = JSON.parse(e.files['manifest.json']);
   assert.equal(m.manifest_version, 3);
@@ -51,14 +51,14 @@ test('buildExtension bundles the closure, asks for no permissions, and has no re
   assert.equal(Buffer.from(e.files['icons/128.png']).subarray(1, 4).toString(), 'PNG');
 });
 
-test('buildExtension skips a tool with a package import, a missing import or no MIT licence', async () => {
-  const pkg = await fixture({ 'index.html': PAGE, 'calc.mjs': 'import x from "left-pad";', LICENSE: 'MIT License' });
+test('buildExtension skips a tool with a package import, a missing import or no FSL-1.1-MIT licence', async () => {
+  const pkg = await fixture({ 'index.html': PAGE, 'calc.mjs': 'import x from "left-pad";', LICENSE: 'Functional Source License' });
   assert.match((await buildExtension({ slug: 'a', dir: pkg })).skip, /left-pad/);
-  const miss = await fixture({ 'index.html': PAGE, LICENSE: 'MIT License' });
+  const miss = await fixture({ 'index.html': PAGE, LICENSE: 'Functional Source License' });
   assert.match((await buildExtension({ slug: 'a', dir: miss })).skip, /missing calc.mjs/);
   const lic = await fixture({ 'index.html': PAGE, 'calc.mjs': 'export const f=1', LICENSE: 'proprietary' });
   assert.match((await buildExtension({ slug: 'a', dir: lic })).skip, /MIT/);
-  const net = await fixture({ 'index.html': PAGE, 'calc.mjs': 'export const f=()=>fetch("x")', LICENSE: 'MIT License' });
+  const net = await fixture({ 'index.html': PAGE, 'calc.mjs': 'export const f=()=>fetch("x")', LICENSE: 'Functional Source License' });
   assert.match((await buildExtension({ slug: 'a', dir: net })).skip, /network/);
 });
 

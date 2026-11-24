@@ -38,5 +38,5 @@ A flag is a reason to look, never a diagnosis. No warranty; see the page footer.
 Sibling tools: `postgres-index-auditor` (unused and duplicate indexes),
 `postgres-explain-analyzer` (one plan), `sql-migration-lock-check`.
 
-Tests: `node --test`. MIT licensed (`LICENSE`); no secrets, no private
+Tests: `node --test`. FSL-1.1-MIT licensed (`LICENSE`); no secrets, no private
 dependencies, no personal data.

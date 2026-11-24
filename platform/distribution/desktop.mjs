@@ -220,7 +220,7 @@ function cargoToml(crate, description) {
 name = ${JSON.stringify(crate)}
 version = ${JSON.stringify(VERSION)}
 description = ${JSON.stringify(description)}
-license = "MIT"
+license = "FSL-1.1-MIT"
 repository = ${JSON.stringify(REPO_URL)}
 edition = "2021"
 
@@ -281,7 +281,7 @@ a{color:#12594a}span{color:#4a5752;font-size:.93rem}footer{margin-top:24px;font-
 </head>
 <body>
 <h1>${esc(title)}</h1>
-<p>${tools.length} free, open-source (MIT) tools. They run on this computer, offline; nothing you type is sent anywhere.</p>
+<p>${tools.length} free, source-available (FSL-1.1-MIT) tools. They run on this computer, offline; nothing you type is sent anywhere.</p>
 <ul>
 ${items}
 </ul>
@@ -359,12 +359,12 @@ export async function buildDesktop({ target, root = REPO_ROOT, slugs, baseUrl = 
       targets: 'all',
       category: 'Productivity',
       shortDescription: shortDescription(description),
-      longDescription: `${description}\n\nFree and open source (MIT). Runs offline with no account, no ads and no tracking; nothing you type leaves this computer. An aid, not legal, tax, financial or professional advice.`,
+      longDescription: `${description}\n\nFree to use and source available (FSL-1.1-MIT). Runs offline with no account, no ads and no tracking; nothing you type leaves this computer. An aid, not legal, tax, financial or professional advice.`,
       publisher: PUBLISHER,
       homepage: tagUrl(homepage, 'desktop'),
-      license: 'MIT',
+      license: 'FSL-1.1-MIT',
       licenseFile: '../LICENSE',
-      copyright: 'MIT License',
+      copyright: 'Copyright (c) 2026 Duncan Haywood',
       icon: ['icons/32x32.png', 'icons/128x128.png', 'icons/128x128@2x.png', 'icons/icon.icns', 'icons/icon.ico'],
       // Ad-hoc signature: Apple Silicon will not launch an unsigned bundle at all. Not a Developer ID.
       macOS: { minimumSystemVersion: '10.15', signingIdentity: '-' },
@@ -375,7 +375,7 @@ export async function buildDesktop({ target, root = REPO_ROOT, slugs, baseUrl = 
     name: crate,
     version: VERSION,
     private: true,
-    license: 'MIT',
+    license: 'FSL-1.1-MIT',
     scripts: { tauri: 'tauri', build: 'tauri build' },
     devDependencies: { '@tauri-apps/cli': TAURI_CLI },
   }, null, 2)}\n`;
@@ -454,7 +454,7 @@ The workflow does not read any of these secrets today. Wiring them in is a follo
 
 Identifier: \`${identifier}\`. Executable: \`${crate}\`. Source: ${REPO_URL}/tree/main/platform/distribution/desktop.mjs
 
-Free and open source (MIT). No warranty; an aid, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). No warranty; an aid, not legal, tax, financial or professional advice.
 `;
 }
 

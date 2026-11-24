@@ -2,7 +2,7 @@
 
 > Free adjunct pay calculator: enter the per-course pay, prep, grading, unpaid office hours, commute and cancellation risk to see what a course really pays per hour, compare up to three offers and find the largest class worth accepting. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/adjunct-course-offer-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/adjunct-course-offer-calculator): FSL-1.1-MIT licensed.

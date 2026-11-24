@@ -123,4 +123,4 @@ From the quality audit of 2026-11-19 ([`portfolio/quality/audits/2026-11-19-reta
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE).
+FSL-1.1-MIT — see [`LICENSE`](LICENSE).

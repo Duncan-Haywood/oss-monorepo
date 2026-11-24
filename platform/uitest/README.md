@@ -16,7 +16,7 @@ render but never respond.
   Action, and the same command works in GitLab, CircleCI, Jenkins or on a laptop.
 - **CI-native output**: JUnit XML, a Markdown job summary, JSON, and screenshots
   of every failure.
-- MIT licensed, no telemetry, and nothing from this project runs between you
+- FSL-1.1-MIT licensed, no telemetry, and nothing from this project runs between you
   and your model.
 
 ```yaml

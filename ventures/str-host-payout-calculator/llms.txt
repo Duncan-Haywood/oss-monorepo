@@ -2,7 +2,7 @@
 
 > Free short-term rental host payout calculator: compare Airbnb’s 15.5% 2026 host-only fee with Vrbo (5% + 3%) and direct booking. See annual take-home, the nightly raise that restores your old 3% payout, and how much occupancy you can lose going direct and still break even.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -16,4 +16,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/str-host-payout-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/str-host-payout-calculator): FSL-1.1-MIT licensed.
