@@ -100,3 +100,60 @@ test("months that cross January 1 carry a plan-year reset note; months that do n
   const within = compute({ ...base, months: 3, lossDate: "2026-03-31" });
   assert.ok(!within.notes.some((n) => /cross January 1/.test(n)));
 });
+
+// Quality re-audit 2026-11-24 (portfolio/quality/audits/2026-11-24-cobra-vs-marketplace-calculator.json).
+test("worst case across January 1 counts a full out-of-pocket maximum in each plan year (README example)", () => {
+  const r = compute({ ...base, lossDate: "2026-10-31" });
+  // Nov-Dec 2026 then Jan-Apr 2027: marketplace 6 x 210 + 9200 + 9200; COBRA 6 x 780 + (8000 - 2600) + 8000
+  assert.equal(r.worstCase.marketplace, 19660);
+  assert.equal(r.worstCase.cobra, 18080);
+  assert.ok(r.notes.some((n) => /each plan year/.test(n)));
+});
+
+test("the January boundary: Nov-Dec stays in one plan year, Nov-Jan crosses", () => {
+  assert.ok(!compute({ ...base, months: 2, lossDate: "2026-10-31" }).notes.some((n) => /cross January 1/.test(n)));
+  assert.equal(compute({ ...base, months: 2, lossDate: "2026-10-31" }).worstCase.marketplace, 2 * 210 + 9200);
+  assert.ok(compute({ ...base, months: 3, lossDate: "2026-10-31" }).notes.some((n) => /cross January 1/.test(n)));
+  // 18 months from January touch two plan years, from December three
+  assert.equal(compute({ ...base, months: 18, lossDate: "2026-12-31" }).worstCase.marketplace, 18 * 210 + 2 * 9200);
+  assert.equal(compute({ ...base, months: 18, lossDate: "2026-11-30" }).worstCase.marketplace, 18 * 210 + 3 * 9200);
+});
+
+test("coverage ending in December prices the next plan year without this year's carry-over", () => {
+  const same = { cobraPremium: 500, marketPremium: 450, months: 12, cobraDeductible: 3000, cobraDedMet: 3000, cobraOopMax: 8000, cobraOopMet: 7000, marketDeductible: 3000, marketOopMax: 8000 };
+  const r = compute({ ...same, lossDate: "2026-12-31" });
+  // identical plan terms, COBRA $50 a month dearer: the marketplace is cheaper at every level of care
+  assert.equal(r.breakeven.kind, "never");
+  assert.equal(r.worstCase.cobra, 6000 + 8000);
+  assert.ok(r.warnings.some((w) => /not carried over/.test(w)));
+  assert.equal(compute(same).breakeven.kind, "at"); // without a date the carry-over still counts
+});
+
+test("'never' does not credit COBRA with a lower deductible it does not have", () => {
+  const r = compute({ cobraPremium: 900, marketPremium: 200, months: 6, cobraDeductible: 6000, cobraOopMax: 9000, marketDeductible: 1000, marketOopMax: 5000 });
+  assert.equal(r.breakeven.kind, "never");
+  assert.doesNotMatch(r.text, /lower deductible/);
+});
+
+test("out-of-pocket already spent above the maximum is flagged", () => {
+  const r = compute({ ...base, cobraOopMet: 9000 });
+  assert.ok(r.warnings.some((w) => /larger than the COBRA out-of-pocket maximum/.test(w)));
+});
+
+test("a carried-over out-of-pocket maximum below the deductible is a corner of COBRA's cost curve", () => {
+  // COBRA pays min(s, 1000); marketplace 0.2 s. 5 x (100 - 200) + min(s, 1000) - 0.2 s changes sign at 625 and 2500.
+  const r = compute({ cobraPremium: 100, marketPremium: 200, months: 5, cobraDeductible: 3000, cobraOopMax: 6000, cobraOopMet: 5000, marketDeductible: 0, marketOopMax: 5000 });
+  assert.equal(r.breakeven.kind, "mixed");
+  assert.deepEqual(r.breakeven.crossings.map((c) => c.spend), [625, 2500]);
+});
+
+test("coverage ending mid-month reports the days a marketplace plan cannot cover", () => {
+  const d = deadlines({ lossDate: "2026-10-15" });
+  assert.equal(d.marketplaceGapFrom, "2026-10-16");
+  assert.equal(d.marketplaceNoGapPickBy, "2026-10-31");
+  assert.equal(deadlines({ lossDate: "2026-10-31" }).marketplaceGapFrom, null);
+});
+
+test("notes warn that the premium tax credit is reconciled on full-year income", () => {
+  assert.ok(compute(base).notes.some((n) => /Form 8962/.test(n) && /400% of the federal poverty line/.test(n)));
+});

@@ -2,7 +2,7 @@
 
 > Enter a hostname to see the CAA record set that governs certificate issuance per RFC 8659, and which CAs may issue. Only public DNS is read; nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free and open source (MIT). Results report what published CAA records authorize under RFC 8659; they are not a guarantee that a CA will issue, and not security or compliance advice.
 
 ## Pages
 

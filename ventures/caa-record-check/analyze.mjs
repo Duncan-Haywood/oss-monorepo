@@ -38,6 +38,9 @@ export function analyzeCaaSet(records) {
   const parsed = records.filter((r) => r.ok);
 
   const criticalUnknown = parsed.filter((r) => r.critical && !STANDARD_TAGS.has(r.tag));
+  // Reserved flag bits are ignored for the verdict (RFC 8659 section 4.1) but
+  // reported: the zone owner should clear them.
+  const reservedFlag = parsed.filter((r) => r.reservedFlagBits).map((r) => ({ tag: r.tag, value: r.value, flag: r.flag }));
 
   const issueRecords = parsed.filter((r) => r.tag === 'issue').map((r) => ({ ...r, parsedValue: parseIssueValue(r.value) }));
   const issuewildRecords = parsed.filter((r) => r.tag === 'issuewild').map((r) => ({ ...r, parsedValue: parseIssueValue(r.value) }));
@@ -82,6 +85,7 @@ export function analyzeCaaSet(records) {
     noCaaAnywhere,
     malformed,
     criticalUnknown: criticalUnknown.map((r) => ({ tag: r.tag, value: r.value })),
+    reservedFlag,
     nonWildcardAuthorized: [...nonWildcardAuthorized],
     wildcardAuthorized: [...wildcardAuthorized],
     nonWildcardDisallowAll,
@@ -89,7 +93,7 @@ export function analyzeCaaSet(records) {
     iodef: iodefRecords.map((r) => r.value),
     caVerdicts,
     /** True when this hostname has at least one issue worth a human's attention. */
-    hasFindings: malformed.length > 0 || criticalUnknown.length > 0,
+    hasFindings: malformed.length > 0 || criticalUnknown.length > 0 || reservedFlag.length > 0,
   };
 }
 
@@ -131,7 +135,7 @@ export function classify(hostname, lookup, requestedCa) {
   }
   const analysis = analyzeCaaSet(lookup.records);
   const requestedCaVerdict = requestedCa ? verdictForCustomCa(analysis, requestedCa) : null;
-  const category = analysis.malformed.length > 0 || analysis.criticalUnknown.length > 0
+  const category = analysis.hasFindings
     ? 'has-findings'
     : requestedCaVerdict && !requestedCaVerdict.nonWildcard.authorized
       ? 'requested-ca-blocked'

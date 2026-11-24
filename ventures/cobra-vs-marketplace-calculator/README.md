@@ -23,11 +23,11 @@ continuation laws. Not insurance or legal advice.
 
 ## Known gaps
 
-From the quality audit of 2026-11-12 ([`portfolio/quality/audits/2026-11-12-cobra-vs-marketplace-calculator.json`](../../portfolio/quality/audits/2026-11-12-cobra-vs-marketplace-calculator.json)):
+From the quality audits of 2026-11-12 ([`portfolio/quality/audits/2026-11-12-cobra-vs-marketplace-calculator.json`](../../portfolio/quality/audits/2026-11-12-cobra-vs-marketplace-calculator.json)) and the re-audit of 2026-11-24 ([`portfolio/quality/audits/2026-11-24-cobra-vs-marketplace-calculator.json`](../../portfolio/quality/audits/2026-11-24-cobra-vs-marketplace-calculator.json)):
 
-- Totals treat the whole period as one plan year. Marketplace plans reset deductibles and out-of-pocket maximums every January 1 (45 CFR 147.104(f)), and most employer plans do too. When a coverage end date is given and the months cross January, the tool now says so; it does not yet split the costs at the reset. On the README example, the worst case for the marketplace can reach $19,660 across two plan years, not the $10,460 shown.
-- There is no premium tax credit table: you type the premium after the credit. From 2026 the enhanced credits have lapsed: Rev. Proc. 2025-25 caps the credit at 400% of the poverty line again, with 2.10% to 9.96% of income expected. The credit is also reconciled on full-year income at tax time, including wages earned before the job ended. The tool warns about neither.
-- Fixed this round: the "COBRA is always cheaper" verdict looked only at $0 of care. It is now exact over both plans' cost curves and has a "COBRA cheaper below $X" verdict. The first premium date is the latest possible one, not the date counted from your own election.
+- The scenario totals treat the whole period as one plan year, because the tool does not know in which months the care falls. With a coverage end date, the worst case now counts a full out-of-pocket maximum in each plan year (README example: marketplace $19,660, COBRA $18,080), coverage ending in December drops this year's COBRA carry-over, and a note says when the months cross January 1. The plan year is assumed to start January 1, which is the rule for marketplace plans (45 CFR 147.104(f)) and common, not universal, for employer plans; there is no plan-year input.
+- Months are capped at 18 (job loss or cut in hours). The 29-month disability extension (premium up to 150%) and 36-month events for dependents are not modelled, and the tool cannot check the 102% premium cap without the plan's full cost.
+- There is no premium tax credit table: you type the premium after the credit. A note now says the credit is reconciled on full-year income (Form 8962) and that the 2026 rules (Rev. Proc. 2025-25) give no credit above 400% of the poverty line.
 
 ## Privacy
 
