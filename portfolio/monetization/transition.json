@@ -36,7 +36,7 @@
     },
     {
       "venture": "changepoint-detector",
-      "source_lines": 15812,
+      "source_lines": 15849,
       "track": "proprietary",
       "why": "flagship #4: the depth people pay for",
       "model": "one-off",
@@ -129,7 +129,7 @@
     },
     {
       "venture": "ifc-quantity-takeoff",
-      "source_lines": 10464,
+      "source_lines": 10701,
       "track": "proprietary",
       "why": "flagship #14: the depth people pay for",
       "model": "one-off",
