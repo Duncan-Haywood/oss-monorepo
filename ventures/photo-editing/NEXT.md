@@ -51,8 +51,11 @@
   so it stays. (2026-11-23, eval/camera-drawn-mpcws-2026-11-23.md) The drawn-noise check on 11 Bayer camera raws
   from rawpy, OpenImageIO and darktable test folders passed all four tests (76 clean-truth rows: +0.22 luma, +0.12
   colour, none 0.1 dB worse), so `mpcws` is the Bayer default and `--noise-read ship` the old bytes. Next: any new collapse
-  test on the read's level at a few greys, not its shot/read split, with a full reading of the five lists first. raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) is still unread. X-Trans has not
-  been tested with either read.
+  test on the read's level at a few greys, not its shot/read split, with a full reading of the five lists first. raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) is still unread. (2026-11-24,
+  eval/xtrans-drawn-mpcws-2026-11-24.md) X-Trans, drawn noise on 2 unseen darktable-tests RAFs: `mpcws` with the
+  X-Trans ramp failed h2 and h4o (colour), so X-Trans keeps Chen's read; with Bayer's ramp (0.3, 1.0) it passed
+  h1-h3 (+0.41 luma, +0.29 colour) and failed h4o on 2 chart rows at SNR 12. Next: that form, pre-registered, on
+  a blind set of 6+ non-chart X-Trans bodies.
 - Dense foliage over-reads are not in the eigenvalues (the quietest direction is full too). On D780 DSC_0336
   [0, 0] the bins' sigma climbs from 0.001 (dark) to 0.035 (bright), steeper than shot noise allows.
   (2026-11-22, eval/noise-envelope-fit-2026-11-22.md) A lower-envelope fit (drop bins over 1.5x the line,

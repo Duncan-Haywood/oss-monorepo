@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVQAQza8M1KPmHh3Ai1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T12:13:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing flagship: drawn-noise check of the mpcws noise read on X-Trans (NEXT.md open item)",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": 18597,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/photo-editing/tools/truth_noise_check.py",
+      "issue": "raw_grain is Bayer only and the sweep swallows that silently (truth_grain18 null on every X-Trans row), so X-Trans clean-truth judging falls back to truth_sigma18; noted in the eval file"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here named photo-editing item 3 (D780/D600 rows vs --noise-read ship on new camera files), which needs raw.pixls.us (403 this session). Took the same row's open NEXT.md item 'X-Trans has not been tested with either read' instead, using two unseen RAFs from darktable-tests.",
+      "did": "pre-registered and ran the X-Trans drawn-noise check",
+      "result": "candidate failed h2/h4o; X-Trans keeps Chen's read; Bayer-ramp form named as next candidate"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-photo-editing-xtrans-noise-read-check.md",
+    "ventures/photo-editing/eval/xtrans-drawn-mpcws-2026-11-24.md"
+  ],
+  "goal": null,
+  "notes": "Sweep: 48 rows, 38 clean-truth judged. xopt (mpcws + X-Trans ramp): h1 pass (+0.415 luma, +0.121 colour), h2 FAIL (1->2 losers), h3 pass, h4o FAIL (3 rows). xoptr (Bayer ramp, a reading): h1-h3 pass (+0.286 colour), h4o fails on 2 chart rows. Develop output unchanged. Tests: tests/test_demosaic_noise_aware.py + tests/test_near_clean_gate_split.py 35 passed locally; venture suite via run_venture_tests.py photo-editing.",
+  "corrections": [],
+  "redteam": null
+}

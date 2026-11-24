@@ -326,8 +326,9 @@ flagships:
       Near-clean leak closed on Bayer 2026-11-19 (k 12,
       eval/near-clean-gate-2026-11-19.md); X-Trans tuned on 51 fresh bodies the same
       day: no loser to fix, stays off; Bayer's 15 there were a noisy ISO 1600
-      reference (--clean-truths: 0 left; eval/near-clean-gate-xtrans-tune-*);
-      D780/D600: 6 of 11 losers are real over-reads on clean truths
+      reference; X-Trans mpcws read: own ramp failed, Bayer ramp 3 of 4
+      (eval/xtrans-drawn-mpcws-*; next blind 6-body set); D780/D600: 6 of 11 losers
+      are real over-reads on clean truths
       (eval/near-clean-truth-noise-2026-11-19.md); next read it against --noise-read
       ship on new camera files. Browser cull page 2026-11-23 (site/cull.html;
       520-file card 25.8 s; merges existing sidecars,

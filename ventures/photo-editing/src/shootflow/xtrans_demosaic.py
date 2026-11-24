@@ -796,19 +796,29 @@ def _sigma18(model) -> float:
     return float(max(model[0] * 0.18 + model[1], 0.0) ** 0.5)
 
 
-def frame_noise_read(c, pat, read: str = "ship") -> tuple[tuple[float, float], tuple[float, float] | None, bool]:
+def frame_noise_read(
+    c, pat, read: str = "ship", *, xtrans: str | None = None
+) -> tuple[tuple[float, float], tuple[float, float] | None, bool]:
     """The frame noise read ``read`` names (``NOISE_READS``) for the noise-aware blend: ``(noise, colour ramp or
     None for the CFA's default, fell back)``. ``"mpcws"`` applies on Bayer only; on X-Trans, and where the ``mpcws``
-    read collapses under ``MPCWS_COLLAPSE`` x the shipped read's sigma at 18% grey, it is exactly ``"ship"``."""
+    read collapses under ``MPCWS_COLLAPSE`` x the shipped read's sigma at 18% grey, it is exactly ``"ship"``.
+
+    ``xtrans`` (evaluation only, ``tools/near_clean_gate.py sweep --option``; eval/xtrans-drawn-mpcws-2026-11-24.md):
+    on X-Trans, ``"own"`` applies the ``mpcws`` read with the same collapse fallback and the X-Trans colour ramp,
+    ``"ramp"`` the same with ``MPCWS_COLOUR_RAMP``. Develop never passes it."""
 
     if read not in NOISE_READS:
         raise ValueError(f"unknown noise read {read!r} ({', '.join(NOISE_READS)})")
+    if xtrans not in (None, "own", "ramp"):
+        raise ValueError(f"unknown xtrans form {xtrans!r} (own, ramp)")
     ship = frame_noise(c, pat)
-    if read == "ship" or len(pat) != 4:
+    if read == "ship" or (len(pat) != 4 and xtrans is None):
         return ship, None, False
     m = frame_noise(c, pat, eig="mpcws")
     if _sigma18(m) < MPCWS_COLLAPSE * _sigma18(ship):
         return ship, None, True
+    if len(pat) != 4 and xtrans == "own":
+        return m, None, False
     return m, MPCWS_COLOUR_RAMP, False
 
 
