@@ -20,6 +20,10 @@
 //   V (candidate) real vintages: for each component the newest vintage published by V (vintageAsOf, rules in
 //     eval/fredmd-vintages.mjs), cut to 1967-01..E;
 //   P (baseline) pseudo-real time: today's files (data/us-payems.csv, us-w875rx1.csv, us-indpro.csv), 1967-01..E.
+// Amended before the first full run (the first attempt stopped while loading data, before any composite was built):
+// at 1999-11 the newest income row a user held (to 1999-10) starts in 1992-01 (R's na.contiguous cut it after a
+// gap in that vintage), and the older one ends 1999-08, before E; arm V keeps the previous cut-off's view there
+// (no new information), so its 1999-11 cut-off repeats 1999-10's. Arm P is unaffected.
 // Both build compositeIndex(parts, { scale: 'sd' }) with the standard deviations over every month to E (all a user
 // had) and turningPoints(index, { frequency: 'monthly', bigMove: 0.05, minPhase: 3 }): the shipped `--turns
 // --columns` monthly defaults (P3 since README "P3 and the heavy-late warning together").
@@ -94,7 +98,11 @@ export function cutoffs(arm) {
     let parts, used = null;
     if (arm === 'V') {
       used = PARTS.map((p) => vintageAsOf(readVintages(p), pub, LAGGED[p], FROM));
-      if (used.some((r) => !r || monthIndex(r.last) < V - LAG)) throw new Error(`vintage ${pub}: a component ends before ${E}`);
+      if (used.some((r) => !r || monthIndex(r.last) < V - LAG)) {
+        if (!out.length) throw new Error(`vintage ${pub}: a component ends before ${E}`);
+        out.push({ ...out[out.length - 1], pub, held: true });
+        continue;
+      }
       parts = used.map((r) => fromRow(r, FROM, E));
     } else parts = Object.values(rev).map((m) => window(m, FROM, E));
     out.push({ pub, E, parts, used: used && used.map((r) => r.last) });
@@ -103,11 +111,14 @@ export function cutoffs(arm) {
 }
 
 export function replay(arm, { minPhase = 3, scale = 'sd' } = {}) {
-  return cutoffs(arm).map((c) => {
+  const res = [];
+  for (const c of cutoffs(arm)) {
+    if (c.held) { res.push({ ...res[res.length - 1], pub: c.pub, held: true }); continue; }
     const comp = compositeIndex(c.parts, { scale });
     const tp = turningPoints(comp.index, { frequency: 'monthly', bigMove: BIG, minPhase });
-    return { ...c, parts: undefined, weights: comp.weights, turns: tp.turns.map((t) => ({ kind: t.kind, k: monthIndex(FROM) + t.i })) };
-  });
+    res.push({ ...c, parts: undefined, weights: comp.weights, turns: tp.turns.map((t) => ({ kind: t.kind, k: monthIndex(FROM) + t.i })) });
+  }
+  return res;
 }
 
 export const NBER = () => usrecTurns().filter((t) => t.month > monthLabel(monthIndex(FIRST) - LAG) && t.month <= monthLabel(monthIndex(LAST) - LAG))
