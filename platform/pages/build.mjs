@@ -3799,6 +3799,7 @@ const CATEGORY_RULES = [
     id: 'solo-earner',
     title: 'Creator & solo earner income',
     accent: '#7a3f8c',
+    card: 'What one person actually earns from their own work: a print, an ad slot, a delivery shift, a repo, a job application.',
     blurb:
       'What one person actually earns from their own work — a print, an ad slot, a delivery shift, a repo, a job application. Priced or checked before you commit to a number.',
     // Added 2026-09-08, because the catch-all guard asked for it: `More free
