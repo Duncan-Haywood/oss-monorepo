@@ -5,16 +5,37 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import router, { SHARD_DIRS, SITE_ORIGIN, WORKERS_DEV_HOST, inShard } from './router.mjs';
+import router, { APP_PREFIXES, SHARD_DIRS, SITE_ORIGIN, WORKERS_DEV_HOST, appFor, inShard } from './router.mjs';
 import { split, workersDevHeaders, securityHeaders, SECURITY_HEADERS } from './split.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
-test('wrangler.toml runs the router for exactly the shard directories', async () => {
+test('wrangler.toml runs the router for exactly the shard directories and app prefixes', async () => {
   const toml = await fs.readFile(path.join(HERE, 'wrangler.toml'), 'utf8');
   const line = toml.split('\n').find((l) => l.startsWith('run_worker_first'));
   const patterns = JSON.parse(line.slice(line.indexOf('=') + 1));
-  assert.deepEqual(patterns, SHARD_DIRS.flatMap((d) => [`/${d}`, `/${d}/*`]));
+  const dirs = [...SHARD_DIRS, ...APP_PREFIXES.map((a) => a.prefix)];
+  assert.deepEqual(patterns, dirs.flatMap((d) => [`/${d}`, `/${d}/*`]));
+  for (const { binding } of APP_PREFIXES) assert.match(toml, new RegExp(`binding = "${binding}"`));
+});
+
+test('app prefixes go to their Worker unchanged, prefix and query included', async () => {
+  const seen = [];
+  const env = {
+    ASSETS: { fetch: async () => new Response('site') },
+    SHARD: { fetch: async () => new Response('shard') },
+    GRANTS: { fetch: async (req) => (seen.push(req.url), new Response('grants')) },
+  };
+  const get = async (p) => (await router.fetch(new Request(`https://marisstella.app${p}`), env)).text();
+  assert.equal(await get('/grants'), 'grants');
+  assert.equal(await get('/grants/pricing?x=1'), 'grants');
+  assert.equal(await get('/grants/api/auth/session'), 'grants');
+  assert.deepEqual(seen, ['https://marisstella.app/grants', 'https://marisstella.app/grants/pricing?x=1', 'https://marisstella.app/grants/api/auth/session']);
+  assert.equal(await get('/grants-calculator/'), 'site');
+  assert.equal(appFor('/grantsy'), null);
+  // Without the binding (a local run), the path falls through to the assets.
+  const bare = { ASSETS: env.ASSETS, SHARD: env.SHARD };
+  assert.equal(await (await router.fetch(new Request('https://marisstella.app/grants/'), bare)).text(), 'site');
 });
 
 test('the router sends shard paths to the shard and everything else to its own assets', async () => {

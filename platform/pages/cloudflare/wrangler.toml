@@ -20,10 +20,18 @@ binding = "ASSETS"
 html_handling = "auto-trailing-slash"
 # Unknown paths get the site's 404.html with a 404 status.
 not_found_handling = "404-page"
-# Only these paths run router.mjs; everything else is served from assets
+# Only these paths run router.mjs (the shard directories, then router.mjs's
+# APP_PREFIXES); everything else is served from assets
 # without invoking any code.
-run_worker_first = ["/research", "/research/*", "/writing", "/writing/*", "/dev", "/dev/*", "/changepoint-detector", "/changepoint-detector/*", "/hearth-and-horizon", "/hearth-and-horizon/*"]
+run_worker_first = ["/research", "/research/*", "/writing", "/writing/*", "/dev", "/dev/*", "/changepoint-detector", "/changepoint-detector/*", "/hearth-and-horizon", "/hearth-and-horizon/*", "/grants", "/grants/*"]
 
 [[services]]
 binding = "SHARD"
 service = "monorepo-projects-site-shard"
+
+# Grant Autopilot, served at https://marisstella.app/grants/ (router.mjs,
+# APP_PREFIXES). Deployed from the private monorepo (apps/grants) to the same
+# Cloudflare account; that build sets its base path to /grants.
+[[services]]
+binding = "GRANTS"
+service = "grant-autopilot"

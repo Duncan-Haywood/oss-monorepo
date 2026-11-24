@@ -12473,8 +12473,33 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
   return { wrapped, rated, saved, shared, described, highlighted, narrowed, embedded };
 }
 
+/**
+ * Apps another Worker serves under this domain (cloudflare/router.mjs,
+ * APP_PREFIXES). robots.txt is only read at the host root, so their signed-in
+ * and API paths are disallowed here, and their own sitemaps are named here:
+ * they are built and deployed elsewhere, so this build's sitemap index (which
+ * check.mjs verifies against the files that ship) cannot list them.
+ */
+export const HOSTED_APPS = [
+  {
+    prefix: 'grants',
+    disallow: ['api/', 'orgs/', 'invite', 'onboarding'],
+  },
+];
+
 export function renderRobots(baseUrl) {
-  return `User-agent: *\nAllow: /\n\nSitemap: ${baseUrl}sitemap.xml\n`;
+  const root = new URL(baseUrl).pathname.replace(/\/?$/, '/');
+  const disallow = HOSTED_APPS.flatMap((app) => app.disallow.map((p) => `Disallow: ${root}${app.prefix}/${p}`));
+  const sitemaps = HOSTED_APPS.map((app) => `Sitemap: ${baseUrl}${app.prefix}/sitemap.xml`);
+  return [
+    'User-agent: *',
+    'Allow: /',
+    ...disallow,
+    '',
+    `Sitemap: ${baseUrl}sitemap.xml`,
+    ...sitemaps,
+    '',
+  ].join('\n');
 }
 
 /**

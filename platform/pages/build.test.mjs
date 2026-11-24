@@ -2000,6 +2000,13 @@ test('isPublishable keeps web assets and drops the rest', () => {
 
 test('renderRobots allows crawling', () => {
   assert.match(renderRobots(BASE), /User-agent: \*\nAllow: \//);
+  const robots = renderRobots('https://marisstella.app/');
+  // The site's own sitemap stays the first Sitemap line (check.mjs reads the first).
+  assert.match(robots, /^Sitemap: https:\/\/marisstella\.app\/sitemap\.xml$/m);
+  assert.ok(robots.indexOf('sitemap.xml\n') < robots.indexOf('grants/sitemap.xml'));
+  assert.match(robots, /^Disallow: \/grants\/api\/$/m);
+  assert.match(robots, /^Disallow: \/grants\/orgs\/$/m);
+  assert.doesNotMatch(robots, /^Disallow: \/$/m);
 });
 
 test('links that escape the site are repointed at the repository, not left broken', async () => {
