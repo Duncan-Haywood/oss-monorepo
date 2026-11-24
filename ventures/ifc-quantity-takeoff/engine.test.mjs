@@ -80,7 +80,7 @@ test("CSV: rates multiply out, and spreadsheet formulas in names are neutralised
   const k = JSON.stringify(["IfcSlab"]);
   const csv = boqCsv(lines, ["class"], { [k]: { rate: 150, unit: "m3" } });
   const row = csv.split("\r\n").find((l) => l.startsWith("IfcSlab"));
-  assert.match(row, /,150,m3,750,0,0,0,0,0,,,0,,,,,,,$/);
+  assert.match(row, /,150,m3,750,0,0,0,0,0,,,0,,,,,,,,$/);
   const res = sample();
   res.rows[0].name = "=HYPERLINK(\"x\")";
   assert.match(rowsCsv(res.rows), /"'=HYPERLINK\(""x""\)"/);
@@ -1151,7 +1151,7 @@ test("steel: a member with no quantity set gets its length from the body and its
   // a per-kg rate now prices the bare steel beam
   const csv = boqCsv(lines, ["class", "material"], { [JSON.stringify(steel.key)]: { rate: 2, unit: "kg" } });
   const row = csv.split("\r\n").find((l) => l.includes("S355JR") && l.startsWith("IfcBeam"));
-  assert.match(row, /,6,942,.*,2,kg,1884,1,1,0,0,0,,,0,,,,3.64,0,0,0$/);
+  assert.match(row, /,6,942,.*,2,kg,1884,1,1,0,0,0,,,0,,,,3.64,0,0,0,0$/);
   for (const m of ["Steel", "STEEL/S235JR", "Stahl S235", "ASTM A992", "Structural Steel - S275", "05 Staal_bordes_hoeklijnen"]) assert.ok(isSteel(m), m);
   for (const m of [null, "Concrete / Steel", "STEEL/NEOPRENE", "Stainless steel", "Steel fibre concrete", "Timber", "Aluminium"]) assert.ok(!isSteel(m), String(m));
 });
@@ -1833,11 +1833,11 @@ test("coating: a steel part's whole surface is its coating area, priced per m2 c
   assert.equal(conc.coating, 0); assert.equal(conc.coatingMissing, 0);
   const csv = boqCsv(lines, ["material"], { [JSON.stringify(steel.key)]: { rate: 10, unit: "m2 coat" } });
   const rows = csv.split("\r\n");
-  assert.ok(rows[0].includes("Coating area m2 (steel parts' whole surface)"));
+  assert.ok(rows[0].includes("Coating area m2 (steel parts' outside surface)"));
   const sr = rows.find((l) => l.startsWith("S355JR")).split(",");
   assert.equal(sr[rows[0].split(",").indexOf("Amount")], "54.8");
   // a line with no steel parts leaves the coating cells empty
-  assert.match(rows.find((l) => l.startsWith("Concrete")), /,,,,$/);
+  assert.match(rows.find((l) => l.startsWith("Concrete")), /,,,,,$/);
 });
 
 test("coating: a stored skin stands in when the body gives none, and a disagreeing one is counted", async () => {
@@ -1909,4 +1909,17 @@ test("coating: a filleted I section's skin comes from its profile outline, throu
   const cb = coatingArea(B);
   assert.equal(B.computed.areas.surface.clipped, true);
   close(cb.area, P * 4 + 2 * A, 2e-4);
+});
+
+test("coating: a tube's outside is its coating area, its bore summed apart (Mini Project's B193.7/8 columns)", async () => {
+  const { coatingArea } = await import("./qto.mjs");
+  const src = filletedI.replace("#20=IFCISHAPEPROFILEDEF(.AREA.,'I400',#13,200.,400.,10.,15.,12.,$,$);", "#20=IFCCIRCLEHOLLOWPROFILEDEF(.AREA.,'B193.7/8',#13,96.85,8.);").replace(/#21=IFCEXTRUDEDAREASOLID\(#20,#11,#16,5000\.\);/, "#21=IFCEXTRUDEDAREASOLID(#20,#11,#16,3000.);");
+  const res = takeoff(parseStep(src));
+  const M = res.rows[0];
+  const R = 0.09685, r = R - 0.008;
+  const c = coatingArea(M);
+  close(c.area, 2 * Math.PI * R * 3 + 2 * Math.PI * (R * R - r * r), 1e-3);
+  close(c.inside, 2 * Math.PI * r * 3, 1e-3);
+  const [L] = boq([M], ["class"]);
+  close(L.coatingInside, c.inside);
 });
