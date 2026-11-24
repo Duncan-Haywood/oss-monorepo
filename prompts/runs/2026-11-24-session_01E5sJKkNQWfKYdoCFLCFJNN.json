@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKkNQWfKYdoCFLCFJNN",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T16:11:40Z",
+  "ended": "2026-11-24T16:35:35Z",
+  "wall_minutes": 32.5,
+  "tokens_in": 22961711,
+  "tokens_out": 100413,
+  "cost_usd": 8.5532,
+  "tool_calls": 142,
+  "task": "ids-model-check flagship 12, buildable item 3: STEP exports as nested ifcXML (eval/ifc4-layout.mjs), shipped as cli.mjs --to-ifcxml",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18626",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    "The eval writer's output (eval/ifc4-layout.mjs), which our own reader read back 857,301 of 857,301 entities, failed buildingSMART's IFC4 ADD2 XSD on the first element: a permissive reader had hidden it. The shipped writer now reads its layout from the XSD.",
+    "First full Annex E run found four writer faults (lists of lists wrapped per row, STEP binary digit in hexBinary, a simple value wrapped in an element, a dangling reference written as an abstract element); fixed and re-run before merge."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "xmllint compiling the 630 KB IFC4 XSD takes about 8 s per file, so a 42-file validation loop outlasts the 120 s foreground timeout; nothing warns about schema-validation loops (run them with run_in_background)."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes ran prompts-ci against a run record written mid-session and failed on outcome=None; expected, but the order (record first vs local workflows first) is not stated in verify-and-merge.md."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-ids-model-check-ifcxml-export-against-the-xsd.md",
+    "ventures/ids-model-check/eval/ifcxml-export-2026-11-24.md"
+  ],
+  "goal": "Ship a real product feature on a flagship: ifcXML export that validates against buildingSMART's XSD, checked on public files.",
+  "notes": "Shipped ifcxml-writer.mjs + cli.mjs --to-ifcxml; layout tables generated from IFC4_ADD2.xsd and IFC4X3_ADD2.xsd (Standards-builds 0c0b3d1). Checks: 41 Annex E + sample: 37/42 validate (5 failures = 2 HasOpenings limit, 3 source files with required Maps $), 5,125/5,130 entities identical (5 = source/schema mismatches). Five public exports (ThatOpen engine_web-ifc 024cd31), 901,550 of 901,550 entities identical; 1,817 XSD errors on the 4 IFC4 files = 680 kept pointers (IFC4 XSD allows one HasOpenings; IfcShapeAspect on IfcRepresentationMap) + 1,137 required attributes $ in the source (also flagged by --conformance). IDS verdicts 3,240/3,240 identical (68 IDS files x 6 models). Found and fixed a reader fault: IFC4X3 ADD2's official namespace .../IFC4/3/ADD2 opened as IFC4 (127/540 verdicts differed on Viadotto). Found that IFC4X3_ADD2.xsd as published does not compile in xmllint. Local: venture suite 614 tests pass (run_venture_tests.py ids-model-check); run_workflow_locally --for-changes all pass except prompts-ci on the then-unfilled record; check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a4536d06-c0c7-5def-bd1a-471ca90eeaa8",
+    "transcripts": 1,
+    "first": "2026-11-24T16:11:40Z",
+    "last": "2026-11-24T16:44:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 133,
+        "input": 252,
+        "output": 100413,
+        "thinking": 27426,
+        "cache_read": 22711248,
+        "cache_write_5m": 0,
+        "cache_write_1h": 250211,
+        "api_equivalent_usd": 8.5532,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 133,
+      "input": 252,
+      "output": 100413,
+      "thinking": 27426,
+      "cache_read": 22711248,
+      "cache_write_5m": 0,
+      "cache_write_1h": 250211,
+      "api_equivalent_usd": 8.5532,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 142,
+    "tools": {
+      "Bash": 133,
+      "Write": 7,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 32.5,
+      "active_minutes": 32.5,
+      "model_minutes": 19.35,
+      "tool_minutes": 13.15,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "senior BIM/IFC developer: read two XSDs, write a layout generator, an XSD-driven ifcXML writer and reader fixes, validate 47 files with xmllint and trace every error, ~2 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 187.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
