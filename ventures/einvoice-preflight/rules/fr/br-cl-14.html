@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BR-CL-14: Code pays non conforme à l'ISO 3166-1</title>
+<meta name="description" content="BR-CL-14: Chaque code pays de la facture (adresses du vendeur, de l'acheteur, de livraison, pays d'origine d'un article) doit être un code ISO 3166-1 alpha-2…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/fr/br-cl-14">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/br-cl-14">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/br-cl-14">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/br-cl-14">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/br-cl-14">
+<meta property="og:title" content="BR-CL-14: Code pays non conforme à l'ISO 3166-1">
+<meta property="og:description" content="BR-CL-14: Chaque code pays de la facture (adresses du vendeur, de l'acheteur, de livraison, pays d'origine d'un article) doit être un code ISO 3166-1 alpha-2…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Que signifie BR-CL-14 ?","acceptedAnswer":{"@type":"Answer","text":"Chaque code pays de la facture (adresses du vendeur, de l'acheteur, de livraison, pays d'origine d'un article) doit être un code ISO 3166-1 alpha-2 de deux lettres en majuscules, comme FR, DE ou BE. La liste accepte aussi XI pour l'Irlande du Nord et 1A pour le Kosovo."}},{"@type":"Question","name":"Comment corriger BR-CL-14 ?","acceptedAnswer":{"@type":"Answer","text":"Recherchez le code ISO 3166-1 à deux lettres de chaque pays figurant sur la facture. Saisissez-le en majuscules, sans espace, dans chaque champ pays : cbc:IdentificationCode en UBL, ram:CountryID en CII. Corrigez les fiches clients et fournisseurs pour que la prochaine facture soit juste."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">Règle de facture électronique expliquée · EN 16931</p>
+<h1>BR-CL-14: Code pays non conforme à l'ISO 3166-1</h1>
+<nav class="langs" aria-label="Autres langues"><a href="../en/br-cl-14.html" hreflang="en" lang="en">English</a><a href="../de/br-cl-14.html" hreflang="de" lang="de">Deutsch</a><a href="index.html">Toutes les règles</a></nav>
+</header>
+<section>
+<h2>Message officiel</h2>
+<blockquote lang="en">Country codes in an invoice MUST be coded using ISO code list 3166-1</blockquote>
+<dl>
+<dt>Gravité</dt><dd>Erreur (la facture est rejetée)</dd>
+<dt>Vérifiée en</dt><dd>UBL, CII</dd>
+
+</dl>
+</section>
+<section>
+<h2>Que signifie BR-CL-14 ?</h2>
+<p>Chaque code pays de la facture (adresses du vendeur, de l'acheteur, de livraison, pays d'origine d'un article) doit être un code ISO 3166-1 alpha-2 de deux lettres en majuscules, comme FR, DE ou BE. La liste accepte aussi XI pour l'Irlande du Nord et 1A pour le Kosovo.</p>
+<h2>Causes fréquentes</h2>
+<ul>
+<li>Le nom du pays (« France », « Allemagne ») ou un code à trois lettres (FRA) a été saisi à la place du code à deux lettres.</li>
+<li>Le code est en minuscules (fr) ou contient une espace.</li>
+<li>Un préfixe de TVA a servi de code pays : EL pour la Grèce (le code pays est GR) ou UK pour le Royaume-Uni (le code pays est GB).</li>
+</ul>
+</section>
+<section>
+<h2>Comment corriger BR-CL-14 ?</h2>
+<ol>
+<li>Recherchez le code ISO 3166-1 à deux lettres de chaque pays figurant sur la facture.</li>
+<li>Saisissez-le en majuscules, sans espace, dans chaque champ pays : cbc:IdentificationCode en UBL, ram:CountryID en CII.</li>
+<li>Corrigez les fiches clients et fournisseurs pour que la prochaine facture soit juste.</li>
+</ol>
+<h2>XML corrigé (exemple minimal rédigé par nous)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;cac:PostalAddress&gt;
+  &lt;cbc:StreetName&gt;Musterstraße 1&lt;/cbc:StreetName&gt;
+  &lt;cbc:CityName&gt;Berlin&lt;/cbc:CityName&gt;
+  &lt;cbc:PostalZone&gt;10115&lt;/cbc:PostalZone&gt;
+  &lt;cac:Country&gt;
+    &lt;cbc:IdentificationCode&gt;DE&lt;/cbc:IdentificationCode&gt;
+  &lt;/cac:Country&gt;
+&lt;/cac:PostalAddress&gt;</code></pre>
+<p><strong>CII</strong></p>
+<pre><code>&lt;ram:PostalTradeAddress&gt;
+  &lt;ram:PostcodeCode&gt;10115&lt;/ram:PostcodeCode&gt;
+  &lt;ram:LineOne&gt;Musterstraße 1&lt;/ram:LineOne&gt;
+  &lt;ram:CityName&gt;Berlin&lt;/ram:CityName&gt;
+  &lt;ram:CountryID&gt;DE&lt;/ram:CountryID&gt;
+&lt;/ram:PostalTradeAddress&gt;</code></pre>
+<p class="note">Valeurs d'exemple uniquement. Remplacez ou complétez les éléments de votre fichier ; l'ordre des éléments est imposé dans les deux syntaxes.</p>
+</section>
+<section>
+<h2>Vérifier votre fichier gratuitement</h2>
+<p>Le vérificateur gratuit exécute les règles officielles EN 16931, XRechnung et Peppol dans votre navigateur. Votre fichier n'est pas envoyé.</p>
+<p><a class="button" href="../../index.html">Ouvrir le vérificateur gratuit</a></p>
+</section>
+<section class="cta">
+<p><span class="state">En développement — accès anticipé</span></p>
+<h2>Corriger et expliquer, pour les experts-comptables et les équipes de facturation</h2>
+<p>Un service payant qui explique chaque règle en échec en français, en allemand ou en anglais clair et propose un fichier corrigé est en cours de développement. <a href="https://example.invalid/industries/e-invoicing/">Accès anticipé</a></p>
+</section>
+<section>
+<h2>Source</h2>
+<p>Identifiant et message officiel de la règle : CEN/TC 434 EN 16931 validation artefacts, validation-1.3.17 (EUPL-1.2), compilés depuis le commit amont 6e35e0a. L'explication, les causes, la correction et le XML de cette page sont les nôtres, pas ceux de l'éditeur de la règle. <a href="https://github.com/ConnectingEurope/eInvoicing-EN16931/tree/validation-1.3.17" rel="noopener">CEN/TC 434 EN 16931 validation artefacts validation-1.3.17</a></p>
+</section>
+<footer>
+<p><strong>Ni conseil fiscal ni conseil juridique.</strong> Cette page explique ce que vérifie une règle de validation et comment faire passer un fichier. Elle ne dit pas quel régime de TVA s'applique à votre vente ; demandez à votre expert-comptable. <strong>Sans garantie (no warranty) :</strong> gratuit et fourni en l'état ; vérifiez le résultat avant de vous y fier.</p>
+<p>Notre code et nos explications sont sous licence MIT. Les messages officiels des règles sont cités sous la licence de leur éditeur (EUPL-1.2, Apache-2.0, MPL-2.0), indiquée sur chaque page.</p>
+</footer>
+</main></body></html>

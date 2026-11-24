@@ -9,7 +9,9 @@
 //                   Each counted load also adds one to its day's `geo:<country>`
 //                   (Cloudflare's own country lookup) and `dev:<class>`; a
 //                   crawler's beacon adds to `bot:<class>` and `botpage:<slug>`
-//                   instead of the page total (`core.mjs` has the lists).
+//                   instead of the page total (`core.mjs` has the lists). A
+//                   funnel event (`{p, e, i?, t?}`, see `platform/counter/FUNNEL.md`)
+//                   adds one to its `fn:` key and nothing else.
 //   GET  /counts    the daily aggregates, which `platform/counter/pull.mjs`
 //                   copies into `portfolio/usage/site-visits.json`.
 //   POST /feedback  the site's "Report a problem or suggest a feature" form,
@@ -53,6 +55,12 @@ async function countHit(request, env, headers, cf) {
     env.DB.prepare(
       'INSERT INTO counts (day, slug, n) VALUES (?1, ?2, 1) ON CONFLICT (day, slug) DO UPDATE SET n = n + 1 WHERE n < ?3',
     ).bind(day, slug, cap).run();
+  // A funnel event adds to its own key only: the page load it happened on was
+  // already counted, with its country and device, by that load's own beacon.
+  if (verdict.funnel) {
+    await add(verdict.funnel);
+    return;
+  }
   if (verdict.bot) {
     const r = await add(`${BOT_KEY}${verdict.bot}`);
     if (r?.meta?.changes && verdict.slug) await add(`${BOT_PAGE_KEY}${verdict.slug}`);
@@ -141,7 +149,7 @@ export default {
       if (request.method === 'GET' && url.pathname === '/healthz') return new Response('ok\n');
       if (request.method === 'GET' && url.pathname === '/counts') {
         const since = /^\d{4}-\d{2}-\d{2}$/.test(url.searchParams.get('since') || '') ? url.searchParams.get('since') : '0000-00-00';
-        return json(200, { unit: 'page loads by browsers that did not opt out; not people (bot: and botpage: keys are crawler beacons, not page loads)', days: await readCounts(env, since) },
+        return json(200, { unit: 'page loads by browsers that did not opt out; not people (bot: and botpage: keys are crawler beacons, not page loads; fn: keys are funnel events on pages already counted)', days: await readCounts(env, since) },
           { 'cache-control': 'no-store', 'access-control-allow-origin': '*' });
       }
       if (request.method === 'GET' && url.pathname === '/feedback') {

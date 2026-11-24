@@ -14,8 +14,9 @@ test('a counter URL adds one beacon (slug, plus a known channel tag), after the 
   const js = renderChromeModule({ counterUrl: 'https://count.example' });
   assert.equal(js.split('sendBeacon').length - 1, 1);
   assert.match(js, /var hit=\{p:slug\};/);
-  assert.match(js, /sendBeacon\("https:\/\/count\.example\/hit",new Blob\(\[JSON\.stringify\(hit\)\]/);
-  const beacon = js.indexOf('sendBeacon');
+  assert.match(js, /sendBeacon\("https:\/\/count\.example\/hit",new Blob\(\[JSON\.stringify\(o\)\]/);
+  assert.match(js, /send\(hit\);/);
+  const beacon = js.indexOf('send(hit)');
   for (const guard of ['portfolio-hub-optout', 'if(!slug)return']) {
     assert.ok(js.indexOf(guard) < beacon, `${guard} must run before the beacon`);
   }

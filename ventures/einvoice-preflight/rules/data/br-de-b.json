@@ -1,0 +1,837 @@
+[
+  {
+    "id": "BR-DE-18",
+    "source": "xrechnung",
+    "terms": ["BT-20"],
+    "en": {
+      "title": "Early-payment discount (Skonto) line is not in the required format",
+      "meaning": "XRechnung reads early-payment discounts from the payment terms (BT-20) in a fixed machine-readable form: one line per discount, exactly #SKONTO#TAGE=14#PROZENT=2.00#, optionally with #BASISBETRAG=500.00# before the closing #. Every line of the first payment-terms note that starts with # must match that pattern, and the last discount line must be followed by a line break; free-text lines without a leading # are ignored.",
+      "causes": [
+        "The percentage is written without exactly two decimals or with a comma (PROZENT=2 or PROZENT=2,00 instead of PROZENT=2.00).",
+        "The line uses lower case, spaces inside it or extra text (#Skonto#, #SKONTO# TAGE=14#, \"2 % Skonto\" after the last #).",
+        "The last discount line ends the note with no line break after its closing #.",
+        "Another line in the note starts with # but is not a discount line, for example a comment or reference number."
+      ],
+      "fix": [
+        "Write each discount on its own line as #SKONTO#TAGE=n#PROZENT=n.nn#, in capitals, with no spaces; TAGE is a whole number of days, PROZENT has a dot and exactly two decimals.",
+        "Add #BASISBETRAG=n.nn# (two decimals, before the final #) only when the discount applies to part of the amount due rather than all of it.",
+        "End every discount line, including the last one, with a line break; ordinary text may follow on the next line.",
+        "Put the lines in the first cbc:Note of cac:PaymentTerms (UBL) or the first ram:Description of ram:SpecifiedTradePaymentTerms (CII), and do not start any other line there with #."
+      ]
+    },
+    "de": {
+      "title": "Skonto-Zeile entspricht nicht dem vorgeschriebenen Format",
+      "meaning": "XRechnung liest Skonto aus den Zahlungsbedingungen (BT-20) in einer festen, maschinenlesbaren Form: je Skontostufe eine Zeile, genau #SKONTO#TAGE=14#PROZENT=2.00#, wahlweise mit #BASISBETRAG=500.00# vor der abschließenden #. Jede Zeile der ersten Zahlungsbedingungs-Notiz, die mit # beginnt, muss diesem Muster entsprechen, und nach der letzten Skonto-Zeile muss ein Zeilenumbruch folgen; Freitextzeilen ohne führende # werden nicht geprüft.",
+      "causes": [
+        "Der Prozentsatz hat nicht genau zwei Nachkommastellen oder ein Komma (PROZENT=2 oder PROZENT=2,00 statt PROZENT=2.00).",
+        "Die Zeile enthält Kleinbuchstaben, Leerzeichen oder zusätzlichen Text (#Skonto#, #SKONTO# TAGE=14#, „2 % Skonto“ nach der letzten #).",
+        "Die letzte Skonto-Zeile steht ohne Zeilenumbruch nach der abschließenden # am Ende der Notiz.",
+        "Eine andere Zeile in der Notiz beginnt mit #, ist aber keine Skonto-Zeile, etwa ein Kommentar oder eine Referenznummer."
+      ],
+      "fix": [
+        "Jede Skontostufe in eine eigene Zeile schreiben: #SKONTO#TAGE=n#PROZENT=n.nn#, in Großbuchstaben und ohne Leerzeichen; TAGE ist eine ganze Zahl, PROZENT hat einen Punkt und genau zwei Nachkommastellen.",
+        "#BASISBETRAG=n.nn# (zwei Nachkommastellen, vor der letzten #) nur angeben, wenn das Skonto nicht auf den gesamten fälligen Betrag, sondern nur auf einen Teil gewährt wird.",
+        "Jede Skonto-Zeile, auch die letzte, mit einem Zeilenumbruch abschließen; normaler Text darf in der nächsten Zeile folgen.",
+        "Die Zeilen in die erste cbc:Note von cac:PaymentTerms (UBL) bzw. die erste ram:Description von ram:SpecifiedTradePaymentTerms (CII) schreiben und dort keine andere Zeile mit # beginnen."
+      ]
+    },
+    "fr": {
+      "title": "La ligne d'escompte (Skonto) n'a pas le format exigé",
+      "meaning": "XRechnung lit l'escompte pour paiement anticipé dans les conditions de paiement (BT-20) sous une forme fixe, lisible par machine : une ligne par escompte, exactement #SKONTO#TAGE=14#PROZENT=2.00#, éventuellement avec #BASISBETRAG=500.00# avant le # final. Chaque ligne de la première note des conditions de paiement qui commence par # doit suivre ce modèle, et la dernière ligne d'escompte doit être suivie d'un saut de ligne ; les lignes de texte libre sans # initial ne sont pas contrôlées.",
+      "causes": [
+        "Le pourcentage n'a pas exactement deux décimales ou utilise une virgule (PROZENT=2 ou PROZENT=2,00 au lieu de PROZENT=2.00).",
+        "La ligne contient des minuscules, des espaces ou du texte en plus (#Skonto#, #SKONTO# TAGE=14#, « 2 % d'escompte » après le dernier #).",
+        "La dernière ligne d'escompte termine la note sans saut de ligne après son # final.",
+        "Une autre ligne de la note commence par # sans être une ligne d'escompte, par exemple un commentaire ou un numéro de référence."
+      ],
+      "fix": [
+        "Écrire chaque escompte sur sa propre ligne sous la forme #SKONTO#TAGE=n#PROZENT=n.nn#, en majuscules et sans espace ; TAGE est un nombre entier de jours, PROZENT a un point et exactement deux décimales.",
+        "N'ajouter #BASISBETRAG=n.nn# (deux décimales, avant le # final) que si l'escompte porte sur une partie seulement du montant à payer.",
+        "Terminer chaque ligne d'escompte, y compris la dernière, par un saut de ligne ; un texte ordinaire peut suivre à la ligne suivante.",
+        "Placer ces lignes dans la première cbc:Note de cac:PaymentTerms (UBL) ou la première ram:Description de ram:SpecifiedTradePaymentTerms (CII), et ne commencer aucune autre ligne par #."
+      ]
+    },
+    "ubl": "<cac:PaymentTerms>\n  <cbc:Note>#SKONTO#TAGE=14#PROZENT=2.00#\n#SKONTO#TAGE=30#PROZENT=1.00#BASISBETRAG=500.00#\nZahlbar innerhalb von 45 Tagen netto</cbc:Note>\n</cac:PaymentTerms>",
+    "cii": "<ram:SpecifiedTradePaymentTerms>\n  <ram:Description>#SKONTO#TAGE=14#PROZENT=2.00#\n#SKONTO#TAGE=30#PROZENT=1.00#BASISBETRAG=500.00#\nZahlbar innerhalb von 45 Tagen netto</ram:Description>\n</ram:SpecifiedTradePaymentTerms>"
+  },
+  {
+    "id": "BR-DE-19",
+    "source": "xrechnung",
+    "terms": ["BT-84", "BT-81"],
+    "en": {
+      "title": "Payee account is not a valid IBAN for a SEPA credit transfer",
+      "meaning": "When the payment means code (BT-81) is 58 (SEPA credit transfer), the payment account identifier (BT-84) should be a valid IBAN: two capital letters for the country, two check digits, then the account part, with a correct check sum. Spaces are ignored. This is a warning, and it is not applied to code 30.",
+      "causes": [
+        "A typo or a swapped digit makes the IBAN check sum fail.",
+        "A national account number, a BIC or text such as \"see letterhead\" was put in the account field.",
+        "The country code is in lower case (de02...) or the IBAN carries extra characters such as dashes."
+      ],
+      "fix": [
+        "Copy the IBAN from a bank statement or your bank's online banking rather than retyping it.",
+        "Put only the IBAN in cbc:ID of cac:PayeeFinancialAccount (UBL) or ram:IBANID of ram:PayeePartyCreditorFinancialAccount (CII); spaces are allowed, dashes and other text are not.",
+        "If you are not paid to an IBAN, use payment means code 30 instead of 58."
+      ]
+    },
+    "de": {
+      "title": "Zahlungskonto ist bei SEPA-Überweisung keine gültige IBAN",
+      "meaning": "Steht im Zahlungsartcode (BT-81) der Code 58 (SEPA-Überweisung), soll die Kennung des Zahlungskontos (BT-84) eine gültige IBAN sein: zwei Großbuchstaben für das Land, zwei Prüfziffern, dann der Kontoteil, mit stimmiger Prüfsumme. Leerzeichen werden ignoriert. Es handelt sich um eine Warnung, und sie gilt nicht für Code 30.",
+      "causes": [
+        "Ein Tippfehler oder vertauschte Ziffern lassen die IBAN-Prüfsumme scheitern.",
+        "Im Kontofeld steht eine alte Kontonummer, eine BIC oder ein Text wie „siehe Briefkopf“.",
+        "Der Ländercode ist kleingeschrieben (de02...) oder die IBAN enthält zusätzliche Zeichen wie Bindestriche."
+      ],
+      "fix": [
+        "Die IBAN aus dem Kontoauszug oder dem Online-Banking kopieren statt sie abzutippen.",
+        "Nur die IBAN in cbc:ID von cac:PayeeFinancialAccount (UBL) bzw. ram:IBANID von ram:PayeePartyCreditorFinancialAccount (CII) eintragen; Leerzeichen sind erlaubt, Bindestriche und Text nicht.",
+        "Wird nicht auf eine IBAN gezahlt, den Zahlungsartcode 30 statt 58 verwenden."
+      ]
+    },
+    "fr": {
+      "title": "Le compte du bénéficiaire n'est pas un IBAN valide pour un virement SEPA",
+      "meaning": "Quand le code du moyen de paiement (BT-81) est 58 (virement SEPA), l'identifiant du compte de paiement (BT-84) doit être un IBAN valide : deux lettres majuscules pour le pays, deux chiffres de contrôle, puis le numéro de compte, avec une clé de contrôle exacte. Les espaces sont ignorés. Il s'agit d'un avertissement, qui ne s'applique pas au code 30.",
+      "causes": [
+        "Une faute de frappe ou deux chiffres inversés font échouer la clé de contrôle de l'IBAN.",
+        "Le champ du compte contient un numéro de compte national, un BIC ou un texte comme « voir en-tête ».",
+        "Le code pays est en minuscules (de02...) ou l'IBAN contient d'autres caractères, comme des tirets."
+      ],
+      "fix": [
+        "Copier l'IBAN depuis un relevé de compte ou la banque en ligne plutôt que le ressaisir.",
+        "Ne mettre que l'IBAN dans cbc:ID de cac:PayeeFinancialAccount (UBL) ou ram:IBANID de ram:PayeePartyCreditorFinancialAccount (CII) ; les espaces sont admis, les tirets et le texte non.",
+        "Si le paiement n'arrive pas sur un IBAN, utiliser le code de moyen de paiement 30 au lieu de 58."
+      ]
+    },
+    "ubl": "<cac:PaymentMeans>\n  <cbc:PaymentMeansCode>58</cbc:PaymentMeansCode>\n  <cac:PayeeFinancialAccount>\n    <cbc:ID>DE02120300000000202051</cbc:ID>\n  </cac:PayeeFinancialAccount>\n</cac:PaymentMeans>",
+    "cii": "<ram:SpecifiedTradeSettlementPaymentMeans>\n  <ram:TypeCode>58</ram:TypeCode>\n  <ram:PayeePartyCreditorFinancialAccount>\n    <ram:IBANID>DE02120300000000202051</ram:IBANID>\n  </ram:PayeePartyCreditorFinancialAccount>\n</ram:SpecifiedTradeSettlementPaymentMeans>"
+  },
+  {
+    "id": "BR-DE-20",
+    "source": "xrechnung",
+    "terms": ["BT-91", "BT-81"],
+    "en": {
+      "title": "Debited account is not a valid IBAN for a SEPA direct debit",
+      "meaning": "When the payment means code (BT-81) is 59 (SEPA direct debit), the debited account identifier (BT-91), the buyer's account you will collect from, should be a valid IBAN with a correct check sum. Spaces are ignored. This is a warning.",
+      "causes": [
+        "The buyer's IBAN was mistyped when the mandate was entered in the system.",
+        "The seller's own IBAN was put in the debited account instead of the buyer's.",
+        "The field holds a placeholder such as \"per mandate\" or a masked IBAN with asterisks."
+      ],
+      "fix": [
+        "Take the buyer's IBAN from the signed SEPA mandate and check it against the original.",
+        "Put it in cbc:ID of cac:PayerFinancialAccount inside cac:PaymentMandate (UBL) or ram:IBANID of ram:PayerPartyDebtorFinancialAccount (CII).",
+        "If you are not collecting by direct debit, use the payment means code that matches how you will be paid."
+      ]
+    },
+    "de": {
+      "title": "Belastetes Konto ist bei SEPA-Lastschrift keine gültige IBAN",
+      "meaning": "Steht im Zahlungsartcode (BT-81) der Code 59 (SEPA-Lastschrift), soll die Kennung des zu belastenden Kontos (BT-91), also das Konto des Käufers, von dem eingezogen wird, eine gültige IBAN mit stimmiger Prüfsumme sein. Leerzeichen werden ignoriert. Es handelt sich um eine Warnung.",
+      "causes": [
+        "Die IBAN des Käufers wurde bei der Erfassung des Mandats falsch eingetippt.",
+        "Statt der IBAN des Käufers steht die eigene IBAN des Verkäufers im belasteten Konto.",
+        "Das Feld enthält einen Platzhalter wie „lt. Mandat“ oder eine mit Sternchen maskierte IBAN."
+      ],
+      "fix": [
+        "Die IBAN des Käufers aus dem unterschriebenen SEPA-Mandat übernehmen und mit dem Original abgleichen.",
+        "Sie in cbc:ID von cac:PayerFinancialAccount innerhalb von cac:PaymentMandate (UBL) bzw. in ram:IBANID von ram:PayerPartyDebtorFinancialAccount (CII) eintragen.",
+        "Wird nicht per Lastschrift eingezogen, den Zahlungsartcode verwenden, der zur tatsächlichen Zahlungsweise passt."
+      ]
+    },
+    "fr": {
+      "title": "Le compte débité n'est pas un IBAN valide pour un prélèvement SEPA",
+      "meaning": "Quand le code du moyen de paiement (BT-81) est 59 (prélèvement SEPA), l'identifiant du compte débité (BT-91), c'est-à-dire le compte de l'acheteur sur lequel vous prélevez, doit être un IBAN valide avec une clé de contrôle exacte. Les espaces sont ignorés. Il s'agit d'un avertissement.",
+      "causes": [
+        "L'IBAN de l'acheteur a été mal saisi lors de l'enregistrement du mandat.",
+        "L'IBAN du vendeur lui-même a été mis à la place de celui de l'acheteur.",
+        "Le champ contient un texte provisoire comme « selon mandat » ou un IBAN masqué par des astérisques."
+      ],
+      "fix": [
+        "Reprendre l'IBAN de l'acheteur dans le mandat SEPA signé et le comparer à l'original.",
+        "Le placer dans cbc:ID de cac:PayerFinancialAccount à l'intérieur de cac:PaymentMandate (UBL) ou dans ram:IBANID de ram:PayerPartyDebtorFinancialAccount (CII).",
+        "S'il n'y a pas de prélèvement, utiliser le code de moyen de paiement qui correspond au mode de paiement réel."
+      ]
+    },
+    "ubl": "<cac:PaymentMeans>\n  <cbc:PaymentMeansCode>59</cbc:PaymentMeansCode>\n  <cac:PaymentMandate>\n    <cbc:ID>MANDAT-2026-001</cbc:ID>\n    <cac:PayerFinancialAccount>\n      <cbc:ID>DE02120300000000202051</cbc:ID>\n    </cac:PayerFinancialAccount>\n  </cac:PaymentMandate>\n</cac:PaymentMeans>",
+    "cii": "<ram:SpecifiedTradeSettlementPaymentMeans>\n  <ram:TypeCode>59</ram:TypeCode>\n  <ram:PayerPartyDebtorFinancialAccount>\n    <ram:IBANID>DE02120300000000202051</ram:IBANID>\n  </ram:PayerPartyDebtorFinancialAccount>\n</ram:SpecifiedTradeSettlementPaymentMeans>"
+  },
+  {
+    "id": "BR-DE-21",
+    "source": "xrechnung",
+    "terms": ["BT-24"],
+    "en": {
+      "title": "Specification identifier is not the XRechnung 3.0 identifier",
+      "meaning": "The specification identifier (BT-24) should be exactly one of the XRechnung 3.0 identifiers, normally urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0 (or the variants for the XRechnung extension or the CVD profile). The comparison is character for character, so spaces or another version number fail it. This is a warning, but a file that does not declare XRechnung may not be treated as one by the receiving platform.",
+      "causes": [
+        "The software still writes an XRechnung 2.x identifier (for example xrechnung_2.3).",
+        "A plain EN 16931, Peppol or ZUGFeRD/Factur-X identifier was used for a file meant as XRechnung.",
+        "The identifier has a typo, a missing part or a space or line break around it."
+      ],
+      "fix": [
+        "Set cbc:CustomizationID (UBL) or ram:ID in ram:GuidelineSpecifiedDocumentContextParameter (CII) to urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0.",
+        "Use the #conformant#urn:xeinkauf.de:kosit:extension:xrechnung_3.0 variant only if the file really uses the XRechnung extension.",
+        "Update or reconfigure the invoicing software so it produces XRechnung 3.0 rather than an older version."
+      ]
+    },
+    "de": {
+      "title": "Spezifikationskennung ist nicht die Kennung für XRechnung 3.0",
+      "meaning": "Die Spezifikationskennung (BT-24) soll genau einer der Kennungen für XRechnung 3.0 entsprechen, in der Regel urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0 (oder den Varianten für die XRechnung-Extension bzw. das CVD-Profil). Verglichen wird Zeichen für Zeichen, Leerzeichen oder eine andere Versionsnummer führen also zum Fehler. Es ist eine Warnung, doch eine Datei, die sich nicht als XRechnung ausweist, wird von der Empfangsplattform womöglich nicht als solche behandelt.",
+      "causes": [
+        "Die Software schreibt noch eine Kennung für XRechnung 2.x (zum Beispiel xrechnung_2.3).",
+        "Für eine als XRechnung gedachte Datei wurde eine reine EN-16931-, Peppol- oder ZUGFeRD/Factur-X-Kennung verwendet.",
+        "Die Kennung hat einen Tippfehler, es fehlt ein Teil, oder vor bzw. nach ihr steht ein Leerzeichen oder Zeilenumbruch."
+      ],
+      "fix": [
+        "cbc:CustomizationID (UBL) bzw. ram:ID in ram:GuidelineSpecifiedDocumentContextParameter (CII) auf urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0 setzen.",
+        "Die Variante #conformant#urn:xeinkauf.de:kosit:extension:xrechnung_3.0 nur verwenden, wenn die Datei tatsächlich die XRechnung-Extension nutzt.",
+        "Die Rechnungssoftware aktualisieren oder umstellen, damit sie XRechnung 3.0 statt einer älteren Version erzeugt."
+      ]
+    },
+    "fr": {
+      "title": "L'identifiant de spécification n'est pas celui de XRechnung 3.0",
+      "meaning": "L'identifiant de spécification (BT-24) doit être exactement l'un des identifiants de XRechnung 3.0, en général urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0 (ou les variantes pour l'extension XRechnung ou le profil CVD). La comparaison se fait caractère par caractère : un espace ou un autre numéro de version suffit à échouer. C'est un avertissement, mais un fichier qui ne se déclare pas XRechnung risque de ne pas être traité comme tel par la plateforme destinataire.",
+      "causes": [
+        "Le logiciel écrit encore un identifiant XRechnung 2.x (par exemple xrechnung_2.3).",
+        "Un identifiant EN 16931 simple, Peppol ou ZUGFeRD/Factur-X a été utilisé pour un fichier destiné à être une XRechnung.",
+        "L'identifiant contient une faute de frappe, une partie manquante, ou un espace ou saut de ligne autour."
+      ],
+      "fix": [
+        "Mettre cbc:CustomizationID (UBL) ou ram:ID dans ram:GuidelineSpecifiedDocumentContextParameter (CII) à urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0.",
+        "N'utiliser la variante #conformant#urn:xeinkauf.de:kosit:extension:xrechnung_3.0 que si le fichier utilise réellement l'extension XRechnung.",
+        "Mettre à jour ou reconfigurer le logiciel de facturation pour qu'il produise XRechnung 3.0 et non une version plus ancienne."
+      ]
+    },
+    "ubl": "<cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0</cbc:CustomizationID>",
+    "cii": "<rsm:ExchangedDocumentContext>\n  <ram:GuidelineSpecifiedDocumentContextParameter>\n    <ram:ID>urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0</ram:ID>\n  </ram:GuidelineSpecifiedDocumentContextParameter>\n</rsm:ExchangedDocumentContext>"
+  },
+  {
+    "id": "BR-DE-22",
+    "source": "xrechnung",
+    "terms": ["BT-125"],
+    "en": {
+      "title": "Two embedded attachments have the same file name",
+      "meaning": "Every attachment embedded in the invoice (BT-125) must have a different file name in its filename attribute. The comparison is exact, so report.pdf and Report.pdf count as different, but two report.pdf do not.",
+      "causes": [
+        "The software names every attachment the same way, for example attachment.pdf or Anlage.pdf.",
+        "The same document was attached twice.",
+        "Files with the same name from different folders were attached, and the folder part was dropped."
+      ],
+      "fix": [
+        "Give each attachment a distinct file name, for example timesheet-2026-10.pdf and delivery-note-4711.pdf.",
+        "Remove an attachment that is an exact duplicate of another.",
+        "Check the filename attribute of every cbc:EmbeddedDocumentBinaryObject (UBL) or ram:AttachmentBinaryObject (CII) after export."
+      ]
+    },
+    "de": {
+      "title": "Zwei eingebettete Anlagen haben denselben Dateinamen",
+      "meaning": "Jede in die Rechnung eingebettete Anlage (BT-125) muss im Attribut filename einen anderen Dateinamen tragen. Verglichen wird exakt: bericht.pdf und Bericht.pdf gelten als verschieden, zweimal bericht.pdf nicht.",
+      "causes": [
+        "Die Software benennt jede Anlage gleich, etwa anhang.pdf oder Anlage.pdf.",
+        "Dasselbe Dokument wurde zweimal angehängt.",
+        "Gleichnamige Dateien aus verschiedenen Ordnern wurden angehängt, und der Ordnername ging dabei verloren."
+      ],
+      "fix": [
+        "Jeder Anlage einen eigenen Dateinamen geben, zum Beispiel stundenzettel-2026-10.pdf und lieferschein-4711.pdf.",
+        "Eine Anlage entfernen, die eine exakte Kopie einer anderen ist.",
+        "Nach dem Export das Attribut filename jedes cbc:EmbeddedDocumentBinaryObject (UBL) bzw. ram:AttachmentBinaryObject (CII) prüfen."
+      ]
+    },
+    "fr": {
+      "title": "Deux pièces jointes intégrées portent le même nom de fichier",
+      "meaning": "Chaque pièce jointe intégrée à la facture (BT-125) doit avoir un nom de fichier différent dans son attribut filename. La comparaison est exacte : rapport.pdf et Rapport.pdf sont différents, deux rapport.pdf ne le sont pas.",
+      "causes": [
+        "Le logiciel nomme toutes les pièces jointes de la même façon, par exemple piece-jointe.pdf.",
+        "Le même document a été joint deux fois.",
+        "Des fichiers de même nom provenant de dossiers différents ont été joints et le nom du dossier s'est perdu."
+      ],
+      "fix": [
+        "Donner à chaque pièce jointe un nom distinct, par exemple feuille-de-temps-2026-10.pdf et bon-de-livraison-4711.pdf.",
+        "Supprimer une pièce jointe qui est la copie exacte d'une autre.",
+        "Vérifier après l'export l'attribut filename de chaque cbc:EmbeddedDocumentBinaryObject (UBL) ou ram:AttachmentBinaryObject (CII)."
+      ]
+    },
+    "ubl": "<cac:AdditionalDocumentReference>\n  <cbc:ID>ANL-1</cbc:ID>\n  <cac:Attachment>\n    <cbc:EmbeddedDocumentBinaryObject mimeCode=\"application/pdf\" filename=\"stundenzettel-2026-10.pdf\">JVBERi0xLjQK</cbc:EmbeddedDocumentBinaryObject>\n  </cac:Attachment>\n</cac:AdditionalDocumentReference>\n<cac:AdditionalDocumentReference>\n  <cbc:ID>ANL-2</cbc:ID>\n  <cac:Attachment>\n    <cbc:EmbeddedDocumentBinaryObject mimeCode=\"application/pdf\" filename=\"lieferschein-4711.pdf\">JVBERi0xLjQK</cbc:EmbeddedDocumentBinaryObject>\n  </cac:Attachment>\n</cac:AdditionalDocumentReference>"
+  },
+  {
+    "id": "BR-DE-23-a",
+    "source": "xrechnung",
+    "terms": ["BT-81", "BG-17"],
+    "en": {
+      "title": "Credit transfer without the payee account",
+      "meaning": "When a payment means uses a credit transfer code (30 or 58 in BT-81), it must carry the credit transfer group (BG-17), that is the account the buyer should pay into. The check is made for each payment means separately.",
+      "causes": [
+        "The bank details are printed only on the PDF or in a note, not in the structured payment means.",
+        "Code 30 or 58 was chosen as a default even though no account is given.",
+        "The account was put in the wrong place, for example under the payer's account instead of the payee's."
+      ],
+      "fix": [
+        "Add cac:PayeeFinancialAccount with your IBAN in cbc:ID inside the same cac:PaymentMeans (UBL), or ram:PayeePartyCreditorFinancialAccount with ram:IBANID (CII).",
+        "Optionally add the account name and the BIC in the same group.",
+        "If the buyer pays another way (card, direct debit), use the code that matches it instead of 30 or 58."
+      ]
+    },
+    "de": {
+      "title": "Überweisung ohne Zahlungskonto des Empfängers",
+      "meaning": "Enthält eine Zahlungsanweisung einen Code für Überweisung (30 oder 58 in BT-81), muss sie die Gruppe Überweisung (BG-17) enthalten, also das Konto, auf das der Käufer zahlen soll. Geprüft wird jede Zahlungsanweisung einzeln.",
+      "causes": [
+        "Die Bankverbindung steht nur auf dem PDF oder in einer Bemerkung, nicht in den strukturierten Zahlungsanweisungen.",
+        "Code 30 oder 58 wurde als Voreinstellung gewählt, obwohl kein Konto angegeben ist.",
+        "Das Konto steht an der falschen Stelle, etwa beim Konto des Zahlers statt beim Konto des Empfängers."
+      ],
+      "fix": [
+        "In derselben cac:PaymentMeans cac:PayeeFinancialAccount mit Ihrer IBAN in cbc:ID ergänzen (UBL) bzw. ram:PayeePartyCreditorFinancialAccount mit ram:IBANID (CII).",
+        "Kontoinhaber und BIC können in derselben Gruppe mitgegeben werden.",
+        "Zahlt der Käufer anders (Karte, Lastschrift), den dazu passenden Code statt 30 oder 58 verwenden."
+      ]
+    },
+    "fr": {
+      "title": "Virement sans compte du bénéficiaire",
+      "meaning": "Quand un moyen de paiement utilise un code de virement (30 ou 58 en BT-81), il doit contenir le groupe virement (BG-17), c'est-à-dire le compte sur lequel l'acheteur doit payer. Le contrôle porte sur chaque moyen de paiement séparément.",
+      "causes": [
+        "Les coordonnées bancaires figurent seulement sur le PDF ou dans une note, pas dans les moyens de paiement structurés.",
+        "Le code 30 ou 58 a été choisi par défaut alors qu'aucun compte n'est indiqué.",
+        "Le compte a été placé au mauvais endroit, par exemple comme compte du payeur au lieu de celui du bénéficiaire."
+      ],
+      "fix": [
+        "Ajouter dans le même cac:PaymentMeans un cac:PayeeFinancialAccount avec votre IBAN dans cbc:ID (UBL), ou ram:PayeePartyCreditorFinancialAccount avec ram:IBANID (CII).",
+        "Le nom du titulaire et le BIC peuvent figurer dans le même groupe.",
+        "Si l'acheteur paie autrement (carte, prélèvement), utiliser le code correspondant au lieu de 30 ou 58."
+      ]
+    },
+    "ubl": "<cac:PaymentMeans>\n  <cbc:PaymentMeansCode>58</cbc:PaymentMeansCode>\n  <cac:PayeeFinancialAccount>\n    <cbc:ID>DE02120300000000202051</cbc:ID>\n    <cbc:Name>Beispiel GmbH</cbc:Name>\n  </cac:PayeeFinancialAccount>\n</cac:PaymentMeans>",
+    "cii": "<ram:SpecifiedTradeSettlementPaymentMeans>\n  <ram:TypeCode>58</ram:TypeCode>\n  <ram:PayeePartyCreditorFinancialAccount>\n    <ram:IBANID>DE02120300000000202051</ram:IBANID>\n    <ram:AccountName>Beispiel GmbH</ram:AccountName>\n  </ram:PayeePartyCreditorFinancialAccount>\n</ram:SpecifiedTradeSettlementPaymentMeans>"
+  },
+  {
+    "id": "BR-DE-23-b",
+    "source": "xrechnung",
+    "terms": ["BT-81", "BG-18", "BG-19"],
+    "en": {
+      "title": "Credit transfer also carries card or direct debit details",
+      "meaning": "A payment means with a credit transfer code (30 or 58 in BT-81) must not also contain payment card information (BG-18) or direct debit information (BG-19). In UBL the check looks inside that payment means; in CII it also fails if the invoice anywhere carries a mandate reference, a creditor identifier (BT-90) or a debited account IBAN, because CII keeps those outside the payment means.",
+      "causes": [
+        "A template fills in card or mandate fields for every invoice, whatever the payment means.",
+        "The invoice offers several ways to pay but puts them all into one payment means.",
+        "In CII, a creditor identifier or mandate reference from a direct debit customer was left in a credit transfer invoice."
+      ],
+      "fix": [
+        "Remove cac:CardAccount and cac:PaymentMandate from the credit transfer cac:PaymentMeans (UBL).",
+        "In CII, remove ram:ApplicableTradeSettlementFinancialCard, ram:PayerPartyDebtorFinancialAccount, ram:CreditorReferenceID and ram:DirectDebitMandateID when you are paid by transfer.",
+        "If the buyer can choose, give each way of paying its own payment means with its own code."
+      ]
+    },
+    "de": {
+      "title": "Überweisung enthält zusätzlich Karten- oder Lastschriftangaben",
+      "meaning": "Eine Zahlungsanweisung mit Überweisungscode (30 oder 58 in BT-81) darf nicht zusätzlich Kartenangaben (BG-18) oder Lastschriftangaben (BG-19) enthalten. In UBL wird innerhalb dieser Zahlungsanweisung geprüft; in CII schlägt die Prüfung auch fehl, wenn die Rechnung irgendwo eine Mandatsreferenz, eine Gläubiger-ID (BT-90) oder die IBAN eines zu belastenden Kontos enthält, weil CII diese Angaben außerhalb der Zahlungsanweisung führt.",
+      "causes": [
+        "Eine Vorlage füllt Karten- oder Mandatsfelder bei jeder Rechnung aus, unabhängig von der Zahlungsart.",
+        "Die Rechnung bietet mehrere Zahlungswege an, packt sie aber alle in eine Zahlungsanweisung.",
+        "In CII blieb eine Gläubiger-ID oder Mandatsreferenz eines Lastschriftkunden in einer Überweisungsrechnung stehen."
+      ],
+      "fix": [
+        "cac:CardAccount und cac:PaymentMandate aus der Überweisungs-cac:PaymentMeans entfernen (UBL).",
+        "In CII bei Zahlung per Überweisung ram:ApplicableTradeSettlementFinancialCard, ram:PayerPartyDebtorFinancialAccount, ram:CreditorReferenceID und ram:DirectDebitMandateID entfernen.",
+        "Kann der Käufer wählen, jeden Zahlungsweg als eigene Zahlungsanweisung mit eigenem Code angeben."
+      ]
+    },
+    "fr": {
+      "title": "Le virement contient aussi des données de carte ou de prélèvement",
+      "meaning": "Un moyen de paiement avec un code de virement (30 ou 58 en BT-81) ne doit pas contenir en plus des informations de carte (BG-18) ou de prélèvement (BG-19). En UBL le contrôle porte sur ce moyen de paiement ; en CII il échoue aussi si la facture contient, n'importe où, une référence de mandat, un identifiant de créancier (BT-90) ou l'IBAN d'un compte à débiter, car le CII place ces données hors du moyen de paiement.",
+      "causes": [
+        "Un modèle remplit les champs de carte ou de mandat sur toutes les factures, quel que soit le moyen de paiement.",
+        "La facture propose plusieurs façons de payer mais les regroupe dans un seul moyen de paiement.",
+        "En CII, un identifiant de créancier ou une référence de mandat d'un client en prélèvement est resté sur une facture payée par virement."
+      ],
+      "fix": [
+        "Supprimer cac:CardAccount et cac:PaymentMandate du cac:PaymentMeans de virement (UBL).",
+        "En CII, pour un paiement par virement, supprimer ram:ApplicableTradeSettlementFinancialCard, ram:PayerPartyDebtorFinancialAccount, ram:CreditorReferenceID et ram:DirectDebitMandateID.",
+        "Si l'acheteur a le choix, indiquer chaque mode de paiement dans son propre moyen de paiement avec son propre code."
+      ]
+    },
+    "ubl": "<cac:PaymentMeans>\n  <cbc:PaymentMeansCode>58</cbc:PaymentMeansCode>\n  <cac:PayeeFinancialAccount>\n    <cbc:ID>DE02120300000000202051</cbc:ID>\n  </cac:PayeeFinancialAccount>\n</cac:PaymentMeans>"
+  },
+  {
+    "id": "BR-DE-24-a",
+    "source": "xrechnung",
+    "terms": ["BT-81", "BG-18"],
+    "en": {
+      "title": "Card payment without payment card information",
+      "meaning": "When a payment means uses a card payment code (48, 54 or 55 in BT-81), it must carry the payment card group (BG-18) with the card details. The official message says exactly one, but the test only checks that the group is there.",
+      "causes": [
+        "A card code was chosen but no card details were exported.",
+        "The card details are only in a free-text note.",
+        "Code 48 was used for a payment that is actually a transfer or direct debit."
+      ],
+      "fix": [
+        "Add cac:CardAccount inside the same cac:PaymentMeans (UBL) or ram:ApplicableTradeSettlementFinancialCard (CII).",
+        "Give only the last four to six digits of the card number, never the full number, plus the card network and, if known, the holder's name.",
+        "If the payment is not by card, use the code that matches the real payment method."
+      ]
+    },
+    "de": {
+      "title": "Kartenzahlung ohne Kartenangaben",
+      "meaning": "Enthält eine Zahlungsanweisung einen Code für Kartenzahlung (48, 54 oder 55 in BT-81), muss sie die Gruppe Kartenangaben (BG-18) enthalten. Die amtliche Meldung spricht von genau einer Gruppe, der Test prüft aber nur, dass sie vorhanden ist.",
+      "causes": [
+        "Es wurde ein Kartencode gewählt, aber keine Kartendaten exportiert.",
+        "Die Kartenangaben stehen nur in einer Freitext-Bemerkung.",
+        "Code 48 wurde für eine Zahlung verwendet, die tatsächlich eine Überweisung oder Lastschrift ist."
+      ],
+      "fix": [
+        "In derselben cac:PaymentMeans cac:CardAccount ergänzen (UBL) bzw. ram:ApplicableTradeSettlementFinancialCard (CII).",
+        "Nur die letzten vier bis sechs Ziffern der Kartennummer angeben, nie die vollständige Nummer, dazu das Kartennetz und, falls bekannt, den Karteninhaber.",
+        "Wird nicht per Karte gezahlt, den Code der tatsächlichen Zahlungsart verwenden."
+      ]
+    },
+    "fr": {
+      "title": "Paiement par carte sans informations de carte",
+      "meaning": "Quand un moyen de paiement utilise un code de paiement par carte (48, 54 ou 55 en BT-81), il doit contenir le groupe informations de carte (BG-18). Le message officiel parle d'exactement un groupe, mais le test vérifie seulement sa présence.",
+      "causes": [
+        "Un code carte a été choisi sans que les données de la carte soient exportées.",
+        "Les informations de carte figurent seulement dans une note en texte libre.",
+        "Le code 48 a été utilisé pour un paiement qui est en réalité un virement ou un prélèvement."
+      ],
+      "fix": [
+        "Ajouter cac:CardAccount dans le même cac:PaymentMeans (UBL) ou ram:ApplicableTradeSettlementFinancialCard (CII).",
+        "N'indiquer que les quatre à six derniers chiffres du numéro de carte, jamais le numéro complet, avec le réseau de la carte et, si connu, le nom du titulaire.",
+        "Si le paiement ne se fait pas par carte, utiliser le code du mode de paiement réel."
+      ]
+    },
+    "ubl": "<cac:PaymentMeans>\n  <cbc:PaymentMeansCode>54</cbc:PaymentMeansCode>\n  <cac:CardAccount>\n    <cbc:PrimaryAccountNumberID>1234</cbc:PrimaryAccountNumberID>\n    <cbc:NetworkID>VISA</cbc:NetworkID>\n    <cbc:HolderName>Erika Mustermann</cbc:HolderName>\n  </cac:CardAccount>\n</cac:PaymentMeans>",
+    "cii": "<ram:SpecifiedTradeSettlementPaymentMeans>\n  <ram:TypeCode>54</ram:TypeCode>\n  <ram:ApplicableTradeSettlementFinancialCard>\n    <ram:ID>1234</ram:ID>\n    <ram:CardholderName>Erika Mustermann</ram:CardholderName>\n  </ram:ApplicableTradeSettlementFinancialCard>\n</ram:SpecifiedTradeSettlementPaymentMeans>"
+  },
+  {
+    "id": "BR-DE-24-b",
+    "source": "xrechnung",
+    "terms": ["BT-81", "BG-17", "BG-19"],
+    "en": {
+      "title": "Card payment also carries transfer or direct debit details",
+      "meaning": "A payment means with a card payment code (48, 54 or 55 in BT-81) must not also contain a payee account for credit transfer (BG-17) or direct debit information (BG-19). In CII the test also fails if the invoice anywhere carries a mandate reference, a creditor identifier (BT-90) or a debited account IBAN.",
+      "causes": [
+        "The seller's bank account is added to every payment means by default.",
+        "Several ways to pay were put into one payment means instead of separate ones.",
+        "In CII, direct debit fields from another customer's template were left in the invoice."
+      ],
+      "fix": [
+        "Remove cac:PayeeFinancialAccount and cac:PaymentMandate from the card cac:PaymentMeans (UBL).",
+        "In CII, remove ram:PayeePartyCreditorFinancialAccount and ram:PayerPartyDebtorFinancialAccount from the card payment means, and ram:CreditorReferenceID and ram:DirectDebitMandateID from the invoice.",
+        "If the buyer may also pay by transfer, add a second payment means with code 58 and the account there."
+      ]
+    },
+    "de": {
+      "title": "Kartenzahlung enthält zusätzlich Überweisungs- oder Lastschriftangaben",
+      "meaning": "Eine Zahlungsanweisung mit Kartencode (48, 54 oder 55 in BT-81) darf nicht zusätzlich ein Empfängerkonto für Überweisung (BG-17) oder Lastschriftangaben (BG-19) enthalten. In CII schlägt der Test auch fehl, wenn die Rechnung irgendwo eine Mandatsreferenz, eine Gläubiger-ID (BT-90) oder die IBAN eines zu belastenden Kontos enthält.",
+      "causes": [
+        "Das Bankkonto des Verkäufers wird standardmäßig jeder Zahlungsanweisung hinzugefügt.",
+        "Mehrere Zahlungswege stehen in einer Zahlungsanweisung statt in getrennten.",
+        "In CII sind Lastschriftfelder aus der Vorlage eines anderen Kunden in der Rechnung stehen geblieben."
+      ],
+      "fix": [
+        "cac:PayeeFinancialAccount und cac:PaymentMandate aus der Karten-cac:PaymentMeans entfernen (UBL).",
+        "In CII ram:PayeePartyCreditorFinancialAccount und ram:PayerPartyDebtorFinancialAccount aus der Kartenzahlungsanweisung sowie ram:CreditorReferenceID und ram:DirectDebitMandateID aus der Rechnung entfernen.",
+        "Darf der Käufer auch überweisen, eine zweite Zahlungsanweisung mit Code 58 und dort das Konto angeben."
+      ]
+    },
+    "fr": {
+      "title": "Le paiement par carte contient aussi des données de virement ou de prélèvement",
+      "meaning": "Un moyen de paiement avec un code de carte (48, 54 ou 55 en BT-81) ne doit pas contenir en plus un compte bénéficiaire pour virement (BG-17) ou des informations de prélèvement (BG-19). En CII le test échoue aussi si la facture contient, n'importe où, une référence de mandat, un identifiant de créancier (BT-90) ou l'IBAN d'un compte à débiter.",
+      "causes": [
+        "Le compte bancaire du vendeur est ajouté par défaut à chaque moyen de paiement.",
+        "Plusieurs modes de paiement ont été mis dans un seul moyen de paiement au lieu de moyens séparés.",
+        "En CII, des champs de prélèvement repris du modèle d'un autre client sont restés dans la facture."
+      ],
+      "fix": [
+        "Supprimer cac:PayeeFinancialAccount et cac:PaymentMandate du cac:PaymentMeans de carte (UBL).",
+        "En CII, supprimer ram:PayeePartyCreditorFinancialAccount et ram:PayerPartyDebtorFinancialAccount du moyen de paiement par carte, ainsi que ram:CreditorReferenceID et ram:DirectDebitMandateID de la facture.",
+        "Si l'acheteur peut aussi payer par virement, ajouter un second moyen de paiement avec le code 58 et y indiquer le compte."
+      ]
+    },
+    "ubl": "<cac:PaymentMeans>\n  <cbc:PaymentMeansCode>54</cbc:PaymentMeansCode>\n  <cac:CardAccount>\n    <cbc:PrimaryAccountNumberID>1234</cbc:PrimaryAccountNumberID>\n    <cbc:NetworkID>VISA</cbc:NetworkID>\n  </cac:CardAccount>\n</cac:PaymentMeans>\n<cac:PaymentMeans>\n  <cbc:PaymentMeansCode>58</cbc:PaymentMeansCode>\n  <cac:PayeeFinancialAccount>\n    <cbc:ID>DE02120300000000202051</cbc:ID>\n  </cac:PayeeFinancialAccount>\n</cac:PaymentMeans>"
+  },
+  {
+    "id": "BR-DE-25-a",
+    "source": "xrechnung",
+    "terms": ["BT-81", "BG-19"],
+    "en": {
+      "title": "Direct debit without direct debit information",
+      "meaning": "When a payment means uses the direct debit code 59 in BT-81, the invoice must carry the direct debit group (BG-19). In UBL that is a cac:PaymentMandate inside the same payment means; in CII it is enough that a mandate reference, a creditor identifier or a debited account IBAN is present. The official message says exactly one, but the test only checks presence.",
+      "causes": [
+        "Code 59 was chosen but the mandate details were not exported.",
+        "The mandate reference is only written in a note or the payment terms text.",
+        "Code 59 was used for an invoice the buyer will actually pay by transfer."
+      ],
+      "fix": [
+        "Add cac:PaymentMandate with the mandate reference (cbc:ID) and the buyer's IBAN in cac:PayerFinancialAccount to the same cac:PaymentMeans (UBL).",
+        "In CII give ram:DirectDebitMandateID in ram:SpecifiedTradePaymentTerms, ram:CreditorReferenceID and ram:PayerPartyDebtorFinancialAccount/ram:IBANID.",
+        "If you do not collect by direct debit, use code 58 or 30 with your own account instead."
+      ]
+    },
+    "de": {
+      "title": "Lastschrift ohne Lastschriftangaben",
+      "meaning": "Enthält eine Zahlungsanweisung den Lastschriftcode 59 in BT-81, muss die Rechnung die Gruppe Lastschrift (BG-19) enthalten. In UBL ist das ein cac:PaymentMandate in derselben Zahlungsanweisung; in CII genügt eine vorhandene Mandatsreferenz, Gläubiger-ID oder IBAN des zu belastenden Kontos. Die amtliche Meldung spricht von genau einer Gruppe, der Test prüft aber nur das Vorhandensein.",
+      "causes": [
+        "Code 59 wurde gewählt, aber die Mandatsdaten wurden nicht exportiert.",
+        "Die Mandatsreferenz steht nur in einer Bemerkung oder im Text der Zahlungsbedingungen.",
+        "Code 59 wurde für eine Rechnung verwendet, die der Käufer tatsächlich überweist."
+      ],
+      "fix": [
+        "In derselben cac:PaymentMeans cac:PaymentMandate mit der Mandatsreferenz (cbc:ID) und der IBAN des Käufers in cac:PayerFinancialAccount ergänzen (UBL).",
+        "In CII ram:DirectDebitMandateID in ram:SpecifiedTradePaymentTerms, ram:CreditorReferenceID und ram:PayerPartyDebtorFinancialAccount/ram:IBANID angeben.",
+        "Wird nicht per Lastschrift eingezogen, stattdessen Code 58 oder 30 mit dem eigenen Konto verwenden."
+      ]
+    },
+    "fr": {
+      "title": "Prélèvement sans informations de prélèvement",
+      "meaning": "Quand un moyen de paiement utilise le code de prélèvement 59 en BT-81, la facture doit contenir le groupe prélèvement (BG-19). En UBL il s'agit d'un cac:PaymentMandate dans le même moyen de paiement ; en CII il suffit qu'une référence de mandat, un identifiant de créancier ou l'IBAN du compte débité soit présent. Le message officiel parle d'exactement un groupe, mais le test vérifie seulement sa présence.",
+      "causes": [
+        "Le code 59 a été choisi sans que les données du mandat soient exportées.",
+        "La référence du mandat figure seulement dans une note ou dans le texte des conditions de paiement.",
+        "Le code 59 a été utilisé pour une facture que l'acheteur paiera en réalité par virement."
+      ],
+      "fix": [
+        "Ajouter dans le même cac:PaymentMeans un cac:PaymentMandate avec la référence du mandat (cbc:ID) et l'IBAN de l'acheteur dans cac:PayerFinancialAccount (UBL).",
+        "En CII, indiquer ram:DirectDebitMandateID dans ram:SpecifiedTradePaymentTerms, ram:CreditorReferenceID et ram:PayerPartyDebtorFinancialAccount/ram:IBANID.",
+        "S'il n'y a pas de prélèvement, utiliser plutôt le code 58 ou 30 avec votre propre compte."
+      ]
+    },
+    "ubl": "<cac:PaymentMeans>\n  <cbc:PaymentMeansCode>59</cbc:PaymentMeansCode>\n  <cac:PaymentMandate>\n    <cbc:ID>MANDAT-2026-001</cbc:ID>\n    <cac:PayerFinancialAccount>\n      <cbc:ID>DE02120300000000202051</cbc:ID>\n    </cac:PayerFinancialAccount>\n  </cac:PaymentMandate>\n</cac:PaymentMeans>",
+    "cii": "<ram:ApplicableHeaderTradeSettlement>\n  <ram:CreditorReferenceID>DE98ZZZ09999999999</ram:CreditorReferenceID>\n  <ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>\n  <ram:SpecifiedTradeSettlementPaymentMeans>\n    <ram:TypeCode>59</ram:TypeCode>\n    <ram:PayerPartyDebtorFinancialAccount>\n      <ram:IBANID>DE02120300000000202051</ram:IBANID>\n    </ram:PayerPartyDebtorFinancialAccount>\n  </ram:SpecifiedTradeSettlementPaymentMeans>\n  <ram:SpecifiedTradePaymentTerms>\n    <ram:DirectDebitMandateID>MANDAT-2026-001</ram:DirectDebitMandateID>\n  </ram:SpecifiedTradePaymentTerms>\n</ram:ApplicableHeaderTradeSettlement>"
+  },
+  {
+    "id": "BR-DE-25-b",
+    "source": "xrechnung",
+    "terms": ["BT-81", "BG-17", "BG-18"],
+    "en": {
+      "title": "Direct debit also carries transfer account or card details",
+      "meaning": "A payment means with the direct debit code 59 in BT-81 must not also contain a payee account for credit transfer (BG-17) or payment card information (BG-18). In CII the test also refuses the payee's and the payer's bank (BIC) elements inside that payment means.",
+      "causes": [
+        "The seller's own IBAN is added to every payment means, including direct debits.",
+        "The seller's IBAN was entered where the buyer's debited account belongs.",
+        "In CII, a BIC element (ram:PayeeSpecifiedCreditorFinancialInstitution or ram:PayerSpecifiedDebtorFinancialInstitution) was left in the direct debit payment means."
+      ],
+      "fix": [
+        "Remove cac:PayeeFinancialAccount and cac:CardAccount from the direct debit cac:PaymentMeans (UBL); the buyer's IBAN belongs in cac:PaymentMandate/cac:PayerFinancialAccount.",
+        "In CII remove ram:PayeePartyCreditorFinancialAccount, ram:ApplicableTradeSettlementFinancialCard and both financial institution elements from that payment means.",
+        "If the buyer may also pay by transfer, add that as a separate payment means with code 58."
+      ]
+    },
+    "de": {
+      "title": "Lastschrift enthält zusätzlich Überweisungskonto oder Kartenangaben",
+      "meaning": "Eine Zahlungsanweisung mit dem Lastschriftcode 59 in BT-81 darf nicht zusätzlich ein Empfängerkonto für Überweisung (BG-17) oder Kartenangaben (BG-18) enthalten. In CII lehnt der Test in dieser Zahlungsanweisung auch die Angaben zur Bank (BIC) von Zahlungsempfänger und Zahler ab.",
+      "causes": [
+        "Die eigene IBAN des Verkäufers wird jeder Zahlungsanweisung hinzugefügt, auch Lastschriften.",
+        "Die IBAN des Verkäufers wurde dort eingetragen, wo das zu belastende Konto des Käufers hingehört.",
+        "In CII ist ein BIC-Element (ram:PayeeSpecifiedCreditorFinancialInstitution oder ram:PayerSpecifiedDebtorFinancialInstitution) in der Lastschrift-Zahlungsanweisung stehen geblieben."
+      ],
+      "fix": [
+        "cac:PayeeFinancialAccount und cac:CardAccount aus der Lastschrift-cac:PaymentMeans entfernen (UBL); die IBAN des Käufers gehört in cac:PaymentMandate/cac:PayerFinancialAccount.",
+        "In CII ram:PayeePartyCreditorFinancialAccount, ram:ApplicableTradeSettlementFinancialCard und beide Bank-Elemente aus dieser Zahlungsanweisung entfernen.",
+        "Darf der Käufer auch überweisen, dafür eine eigene Zahlungsanweisung mit Code 58 anlegen."
+      ]
+    },
+    "fr": {
+      "title": "Le prélèvement contient aussi un compte de virement ou des données de carte",
+      "meaning": "Un moyen de paiement avec le code de prélèvement 59 en BT-81 ne doit pas contenir en plus un compte bénéficiaire pour virement (BG-17) ou des informations de carte (BG-18). En CII le test refuse aussi, dans ce moyen de paiement, les éléments de banque (BIC) du bénéficiaire et du payeur.",
+      "causes": [
+        "L'IBAN du vendeur est ajouté à chaque moyen de paiement, y compris aux prélèvements.",
+        "L'IBAN du vendeur a été saisi là où doit figurer le compte débité de l'acheteur.",
+        "En CII, un élément BIC (ram:PayeeSpecifiedCreditorFinancialInstitution ou ram:PayerSpecifiedDebtorFinancialInstitution) est resté dans le moyen de paiement par prélèvement."
+      ],
+      "fix": [
+        "Supprimer cac:PayeeFinancialAccount et cac:CardAccount du cac:PaymentMeans de prélèvement (UBL) ; l'IBAN de l'acheteur va dans cac:PaymentMandate/cac:PayerFinancialAccount.",
+        "En CII, supprimer de ce moyen de paiement ram:PayeePartyCreditorFinancialAccount, ram:ApplicableTradeSettlementFinancialCard et les deux éléments d'établissement financier.",
+        "Si l'acheteur peut aussi payer par virement, l'indiquer dans un moyen de paiement séparé avec le code 58."
+      ]
+    },
+    "ubl": "<cac:PaymentMeans>\n  <cbc:PaymentMeansCode>59</cbc:PaymentMeansCode>\n  <cac:PaymentMandate>\n    <cbc:ID>MANDAT-2026-001</cbc:ID>\n    <cac:PayerFinancialAccount>\n      <cbc:ID>DE02120300000000202051</cbc:ID>\n    </cac:PayerFinancialAccount>\n  </cac:PaymentMandate>\n</cac:PaymentMeans>"
+  },
+  {
+    "id": "BR-DE-26",
+    "source": "xrechnung",
+    "terms": ["BT-3", "BG-3"],
+    "en": {
+      "title": "Corrected invoice does not reference the invoice it corrects",
+      "meaning": "When the invoice type code (BT-3) is 384 (corrected invoice), the file should name at least one preceding invoice (BG-3), so the buyer can tell which invoice is being replaced. This is a warning.",
+      "causes": [
+        "The software sets code 384 but has no field for the original invoice number.",
+        "The original invoice number is only mentioned in a note or the invoice title.",
+        "Code 384 was used for a normal new invoice instead of 380."
+      ],
+      "fix": [
+        "Add the number of the original invoice, and ideally its date, in cac:BillingReference/cac:InvoiceDocumentReference (UBL) or ram:InvoiceReferencedDocument (CII).",
+        "Check the buyer agrees on how corrections are sent; some prefer a credit note (381) plus a new invoice.",
+        "If the invoice is not a correction, use type code 380."
+      ]
+    },
+    "de": {
+      "title": "Rechnungskorrektur ohne Bezug auf die korrigierte Rechnung",
+      "meaning": "Steht im Rechnungsartcode (BT-3) der Code 384 (Rechnungskorrektur), soll die Datei mindestens eine vorausgegangene Rechnung (BG-3) nennen, damit der Käufer erkennt, welche Rechnung ersetzt wird. Es handelt sich um eine Warnung.",
+      "causes": [
+        "Die Software setzt Code 384, hat aber kein Feld für die ursprüngliche Rechnungsnummer.",
+        "Die ursprüngliche Rechnungsnummer steht nur in einer Bemerkung oder im Rechnungstitel.",
+        "Code 384 wurde für eine normale neue Rechnung statt 380 verwendet."
+      ],
+      "fix": [
+        "Die Nummer der ursprünglichen Rechnung, am besten mit Datum, in cac:BillingReference/cac:InvoiceDocumentReference (UBL) bzw. ram:InvoiceReferencedDocument (CII) angeben.",
+        "Mit dem Käufer klären, wie Korrekturen übermittelt werden sollen; manche bevorzugen eine Gutschrift (381) und eine neue Rechnung.",
+        "Ist die Rechnung keine Korrektur, den Rechnungsartcode 380 verwenden."
+      ]
+    },
+    "fr": {
+      "title": "La facture rectificative ne référence pas la facture corrigée",
+      "meaning": "Quand le code de type de facture (BT-3) est 384 (facture rectificative), le fichier doit citer au moins une facture antérieure (BG-3), pour que l'acheteur sache quelle facture est remplacée. Il s'agit d'un avertissement.",
+      "causes": [
+        "Le logiciel met le code 384 mais n'a pas de champ pour le numéro de la facture d'origine.",
+        "Le numéro de la facture d'origine figure seulement dans une note ou dans le titre de la facture.",
+        "Le code 384 a été utilisé pour une nouvelle facture ordinaire au lieu de 380."
+      ],
+      "fix": [
+        "Indiquer le numéro de la facture d'origine, et si possible sa date, dans cac:BillingReference/cac:InvoiceDocumentReference (UBL) ou ram:InvoiceReferencedDocument (CII).",
+        "Vérifier avec l'acheteur comment il souhaite recevoir les corrections ; certains préfèrent un avoir (381) suivi d'une nouvelle facture.",
+        "Si la facture n'est pas une rectification, utiliser le code de type 380."
+      ]
+    },
+    "ubl": "<cac:BillingReference>\n  <cac:InvoiceDocumentReference>\n    <cbc:ID>RE-2026-0042</cbc:ID>\n    <cbc:IssueDate>2026-10-01</cbc:IssueDate>\n  </cac:InvoiceDocumentReference>\n</cac:BillingReference>",
+    "cii": "<ram:ApplicableHeaderTradeSettlement>\n  <ram:InvoiceReferencedDocument>\n    <ram:IssuerAssignedID>RE-2026-0042</ram:IssuerAssignedID>\n  </ram:InvoiceReferencedDocument>\n</ram:ApplicableHeaderTradeSettlement>"
+  },
+  {
+    "id": "BR-DE-27",
+    "source": "xrechnung",
+    "terms": ["BT-42"],
+    "en": {
+      "title": "Seller contact telephone number has fewer than three digits",
+      "meaning": "The seller contact's telephone number (BT-42) should contain at least three digits; spaces, plus signs, brackets and dashes are allowed around them. The check runs whenever a seller contact is present, so it also warns when the telephone element is missing. This is a warning.",
+      "causes": [
+        "The field holds a placeholder such as \"-\", \"n/a\" or \"see website\".",
+        "An extension number such as 12 was given without the main number.",
+        "The contact was exported without any telephone number."
+      ],
+      "fix": [
+        "Enter a full telephone number for the seller contact, for example +49 30 1234567.",
+        "Put it in cbc:Telephone of cac:Contact in the seller party (UBL) or ram:CompleteNumber in ram:TelephoneUniversalCommunication (CII).",
+        "Keep email addresses and names out of this field."
+      ]
+    },
+    "de": {
+      "title": "Telefonnummer des Verkäuferkontakts hat weniger als drei Ziffern",
+      "meaning": "Die Telefonnummer des Verkäuferkontakts (BT-42) soll mindestens drei Ziffern enthalten; Leerzeichen, Pluszeichen, Klammern und Bindestriche dazwischen sind erlaubt. Die Prüfung läuft, sobald ein Verkäuferkontakt vorhanden ist, sie warnt also auch, wenn das Telefonelement ganz fehlt. Es handelt sich um eine Warnung.",
+      "causes": [
+        "Im Feld steht ein Platzhalter wie „-“, „k. A.“ oder „siehe Website“.",
+        "Es wurde nur eine Durchwahl wie 12 ohne Hauptnummer angegeben.",
+        "Der Kontakt wurde ganz ohne Telefonnummer exportiert."
+      ],
+      "fix": [
+        "Eine vollständige Telefonnummer für den Verkäuferkontakt eintragen, zum Beispiel +49 30 1234567.",
+        "Sie in cbc:Telephone von cac:Contact beim Verkäufer (UBL) bzw. in ram:CompleteNumber von ram:TelephoneUniversalCommunication (CII) angeben.",
+        "E-Mail-Adressen und Namen nicht in dieses Feld schreiben."
+      ]
+    },
+    "fr": {
+      "title": "Le téléphone du contact vendeur compte moins de trois chiffres",
+      "meaning": "Le numéro de téléphone du contact du vendeur (BT-42) doit contenir au moins trois chiffres ; espaces, signe plus, parenthèses et tirets sont admis autour. Le contrôle s'applique dès qu'un contact vendeur est présent, il avertit donc aussi quand l'élément téléphone manque. Il s'agit d'un avertissement.",
+      "causes": [
+        "Le champ contient un texte provisoire comme « - », « n/a » ou « voir site web ».",
+        "Seul un numéro de poste comme 12 a été donné, sans le numéro principal.",
+        "Le contact a été exporté sans aucun numéro de téléphone."
+      ],
+      "fix": [
+        "Saisir un numéro de téléphone complet pour le contact du vendeur, par exemple +49 30 1234567.",
+        "Le placer dans cbc:Telephone de cac:Contact de la partie vendeur (UBL) ou dans ram:CompleteNumber de ram:TelephoneUniversalCommunication (CII).",
+        "Ne pas mettre d'adresse e-mail ni de nom dans ce champ."
+      ]
+    },
+    "ubl": "<cac:Contact>\n  <cbc:Name>Erika Mustermann</cbc:Name>\n  <cbc:Telephone>+49 30 1234567</cbc:Telephone>\n  <cbc:ElectronicMail>rechnung@example.com</cbc:ElectronicMail>\n</cac:Contact>",
+    "cii": "<ram:DefinedTradeContact>\n  <ram:PersonName>Erika Mustermann</ram:PersonName>\n  <ram:TelephoneUniversalCommunication>\n    <ram:CompleteNumber>+49 30 1234567</ram:CompleteNumber>\n  </ram:TelephoneUniversalCommunication>\n  <ram:EmailURIUniversalCommunication>\n    <ram:URIID>rechnung@example.com</ram:URIID>\n  </ram:EmailURIUniversalCommunication>\n</ram:DefinedTradeContact>"
+  },
+  {
+    "id": "BR-DE-28",
+    "source": "xrechnung",
+    "terms": ["BT-43"],
+    "en": {
+      "title": "Seller contact email address is not well formed",
+      "meaning": "The seller contact's email (BT-43) should be one plain address: exactly one @, no spaces, and a domain with at least one dot and no empty parts (no dot right after the @, at the end, or two dots in a row). The official message says two characters on each side of the @, but the test accepts a single character before it. It runs whenever a seller contact is present, so a missing email also warns; it is a warning.",
+      "causes": [
+        "Two addresses were put in one field, separated by a comma, semicolon or space.",
+        "The domain has no dot or a stray one, for example info@example or info@.example.com.",
+        "The field holds a name, a placeholder or a display form such as \"Billing <billing@example.com>\"."
+      ],
+      "fix": [
+        "Enter exactly one address, such as rechnung@example.com, with nothing else in the field.",
+        "Put it in cbc:ElectronicMail of cac:Contact in the seller party (UBL) or ram:URIID in ram:EmailURIUniversalCommunication (CII).",
+        "If several people should get replies, use one shared mailbox address."
+      ]
+    },
+    "de": {
+      "title": "E-Mail-Adresse des Verkäuferkontakts ist nicht korrekt aufgebaut",
+      "meaning": "Die E-Mail-Adresse des Verkäuferkontakts (BT-43) soll eine einzige, schlichte Adresse sein: genau ein @, keine Leerzeichen und eine Domain mit mindestens einem Punkt ohne leere Teile (kein Punkt direkt nach dem @, am Ende oder zwei Punkte hintereinander). Die amtliche Meldung nennt zwei Zeichen auf jeder Seite des @, der Test akzeptiert aber ein einzelnes Zeichen davor. Er läuft, sobald ein Verkäuferkontakt vorhanden ist, warnt also auch bei fehlender E-Mail; es handelt sich um eine Warnung.",
+      "causes": [
+        "Zwei Adressen stehen in einem Feld, getrennt durch Komma, Semikolon oder Leerzeichen.",
+        "Der Domain fehlt ein Punkt oder sie hat einen überzähligen, etwa info@example oder info@.example.com.",
+        "Im Feld steht ein Name, ein Platzhalter oder eine Anzeigeform wie „Buchhaltung <rechnung@example.com>“."
+      ],
+      "fix": [
+        "Genau eine Adresse eintragen, zum Beispiel rechnung@example.com, und sonst nichts.",
+        "Sie in cbc:ElectronicMail von cac:Contact beim Verkäufer (UBL) bzw. in ram:URIID von ram:EmailURIUniversalCommunication (CII) angeben.",
+        "Sollen mehrere Personen Antworten erhalten, eine gemeinsame Sammeladresse verwenden."
+      ]
+    },
+    "fr": {
+      "title": "L'adresse e-mail du contact vendeur est mal formée",
+      "meaning": "L'adresse e-mail du contact du vendeur (BT-43) doit être une seule adresse simple : exactement un @, aucun espace, et un domaine avec au moins un point et sans partie vide (pas de point juste après le @, à la fin ou deux points de suite). Le message officiel parle de deux caractères de chaque côté du @, mais le test accepte un seul caractère avant. Il s'applique dès qu'un contact vendeur est présent, une adresse absente déclenche donc aussi l'avertissement.",
+      "causes": [
+        "Deux adresses figurent dans le même champ, séparées par une virgule, un point-virgule ou un espace.",
+        "Le domaine n'a pas de point ou en a un de trop, par exemple info@example ou info@.example.com.",
+        "Le champ contient un nom, un texte provisoire ou une forme d'affichage comme « Comptabilité <factures@example.com> »."
+      ],
+      "fix": [
+        "Saisir exactement une adresse, par exemple factures@example.com, et rien d'autre.",
+        "La placer dans cbc:ElectronicMail de cac:Contact de la partie vendeur (UBL) ou dans ram:URIID de ram:EmailURIUniversalCommunication (CII).",
+        "Si plusieurs personnes doivent recevoir les réponses, utiliser une adresse de boîte partagée."
+      ]
+    },
+    "ubl": "<cac:Contact>\n  <cbc:Name>Erika Mustermann</cbc:Name>\n  <cbc:Telephone>+49 30 1234567</cbc:Telephone>\n  <cbc:ElectronicMail>rechnung@example.com</cbc:ElectronicMail>\n</cac:Contact>",
+    "cii": "<ram:DefinedTradeContact>\n  <ram:PersonName>Erika Mustermann</ram:PersonName>\n  <ram:TelephoneUniversalCommunication>\n    <ram:CompleteNumber>+49 30 1234567</ram:CompleteNumber>\n  </ram:TelephoneUniversalCommunication>\n  <ram:EmailURIUniversalCommunication>\n    <ram:URIID>rechnung@example.com</ram:URIID>\n  </ram:EmailURIUniversalCommunication>\n</ram:DefinedTradeContact>"
+  },
+  {
+    "id": "BR-DE-30",
+    "source": "xrechnung",
+    "terms": ["BG-19", "BT-90"],
+    "en": {
+      "title": "Direct debit without the creditor identifier",
+      "meaning": "When the invoice contains direct debit information (BG-19), it must give the bank-assigned creditor identifier (BT-90), the SEPA creditor ID (Gläubiger-Identifikationsnummer) under which you collect. In UBL it is a party identifier with schemeID=\"SEPA\" on the seller or the payee; in CII it is ram:CreditorReferenceID.",
+      "causes": [
+        "The creditor ID is set up in the banking software but not in the invoicing software.",
+        "In UBL the creditor ID was given without schemeID=\"SEPA\", or with another scheme, so the test does not find it.",
+        "The creditor ID was written only in a note or the payment terms text."
+      ],
+      "fix": [
+        "Find your creditor ID (in Germany it starts with DE and contains ZZZ, for example DE98ZZZ09999999999); in Germany the Deutsche Bundesbank issues it.",
+        "In UBL add cac:PartyIdentification/cbc:ID with schemeID=\"SEPA\" to the seller party (or to cac:PayeeParty if a separate payee collects).",
+        "In CII put it in ram:CreditorReferenceID at the start of ram:ApplicableHeaderTradeSettlement."
+      ]
+    },
+    "de": {
+      "title": "Lastschrift ohne Gläubiger-Identifikationsnummer",
+      "meaning": "Enthält die Rechnung Lastschriftangaben (BG-19), muss sie die von der Bank vergebene Kennung des Gläubigers (BT-90) enthalten, also die SEPA-Gläubiger-Identifikationsnummer, unter der Sie einziehen. In UBL ist das eine Partei-Kennung mit schemeID=\"SEPA\" beim Verkäufer oder beim Zahlungsempfänger, in CII ram:CreditorReferenceID.",
+      "causes": [
+        "Die Gläubiger-ID ist in der Banking-Software hinterlegt, aber nicht in der Rechnungssoftware.",
+        "In UBL wurde die Gläubiger-ID ohne schemeID=\"SEPA\" oder mit einem anderen Schema angegeben, sodass der Test sie nicht findet.",
+        "Die Gläubiger-ID steht nur in einer Bemerkung oder im Text der Zahlungsbedingungen."
+      ],
+      "fix": [
+        "Die eigene Gläubiger-ID heraussuchen (in Deutschland beginnt sie mit DE und enthält ZZZ, zum Beispiel DE98ZZZ09999999999); sie wurde von der Bundesbank vergeben.",
+        "In UBL beim Verkäufer (oder bei cac:PayeeParty, wenn ein abweichender Zahlungsempfänger einzieht) cac:PartyIdentification/cbc:ID mit schemeID=\"SEPA\" ergänzen.",
+        "In CII die Nummer in ram:CreditorReferenceID am Anfang von ram:ApplicableHeaderTradeSettlement eintragen."
+      ]
+    },
+    "fr": {
+      "title": "Prélèvement sans identifiant de créancier",
+      "meaning": "Quand la facture contient des informations de prélèvement (BG-19), elle doit indiquer l'identifiant de créancier attribué par la banque (BT-90), c'est-à-dire l'identifiant créancier SEPA (ICS) sous lequel vous prélevez. En UBL c'est un identifiant de partie avec schemeID=\"SEPA\" sur le vendeur ou le bénéficiaire ; en CII c'est ram:CreditorReferenceID.",
+      "causes": [
+        "L'identifiant de créancier est configuré dans le logiciel bancaire mais pas dans le logiciel de facturation.",
+        "En UBL l'identifiant a été donné sans schemeID=\"SEPA\" ou avec un autre schéma, si bien que le test ne le trouve pas.",
+        "L'identifiant de créancier figure seulement dans une note ou dans le texte des conditions de paiement."
+      ],
+      "fix": [
+        "Retrouver votre identifiant de créancier SEPA (en Allemagne il commence par DE et contient ZZZ, par exemple DE98ZZZ09999999999 ; en France par FR).",
+        "En UBL, ajouter cac:PartyIdentification/cbc:ID avec schemeID=\"SEPA\" à la partie vendeur (ou à cac:PayeeParty si un bénéficiaire distinct prélève).",
+        "En CII, le placer dans ram:CreditorReferenceID au début de ram:ApplicableHeaderTradeSettlement."
+      ]
+    },
+    "ubl": "<cac:AccountingSupplierParty>\n  <cac:Party>\n    <cac:PartyIdentification>\n      <cbc:ID schemeID=\"SEPA\">DE98ZZZ09999999999</cbc:ID>\n    </cac:PartyIdentification>\n    <cac:PartyName>\n      <cbc:Name>Beispiel GmbH</cbc:Name>\n    </cac:PartyName>\n  </cac:Party>\n</cac:AccountingSupplierParty>",
+    "cii": "<ram:ApplicableHeaderTradeSettlement>\n  <ram:CreditorReferenceID>DE98ZZZ09999999999</ram:CreditorReferenceID>\n  <ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>\n</ram:ApplicableHeaderTradeSettlement>"
+  },
+  {
+    "id": "BR-DE-31",
+    "source": "xrechnung",
+    "terms": ["BG-19", "BT-91"],
+    "en": {
+      "title": "Direct debit without the debited account",
+      "meaning": "When the invoice contains direct debit information (BG-19), it must give the debited account identifier (BT-91), the buyer's account the amount will be collected from. In UBL that is cac:PayerFinancialAccount/cbc:ID inside cac:PaymentMandate; in CII ram:IBANID in ram:PayerPartyDebtorFinancialAccount.",
+      "causes": [
+        "Only the mandate reference was exported, not the buyer's IBAN.",
+        "The buyer's IBAN was placed in the payee account instead of the payer account.",
+        "The software leaves the IBAN out for privacy and refers to the mandate instead."
+      ],
+      "fix": [
+        "Take the buyer's IBAN from the signed SEPA mandate.",
+        "Add it as cac:PayerFinancialAccount/cbc:ID inside cac:PaymentMandate (UBL) or ram:PayerPartyDebtorFinancialAccount/ram:IBANID in the payment means (CII).",
+        "If you do not collect by direct debit, remove the mandate details and use the code for the real payment method."
+      ]
+    },
+    "de": {
+      "title": "Lastschrift ohne zu belastendes Konto",
+      "meaning": "Enthält die Rechnung Lastschriftangaben (BG-19), muss sie die Kennung des zu belastenden Kontos (BT-91) enthalten, also das Konto des Käufers, von dem der Betrag eingezogen wird. In UBL ist das cac:PayerFinancialAccount/cbc:ID innerhalb von cac:PaymentMandate, in CII ram:IBANID in ram:PayerPartyDebtorFinancialAccount.",
+      "causes": [
+        "Es wurde nur die Mandatsreferenz exportiert, nicht die IBAN des Käufers.",
+        "Die IBAN des Käufers steht beim Empfängerkonto statt beim Konto des Zahlers.",
+        "Die Software lässt die IBAN aus Datenschutzgründen weg und verweist stattdessen auf das Mandat."
+      ],
+      "fix": [
+        "Die IBAN des Käufers aus dem unterschriebenen SEPA-Mandat übernehmen.",
+        "Sie als cac:PayerFinancialAccount/cbc:ID in cac:PaymentMandate (UBL) bzw. als ram:PayerPartyDebtorFinancialAccount/ram:IBANID in der Zahlungsanweisung (CII) ergänzen.",
+        "Wird nicht per Lastschrift eingezogen, die Mandatsangaben entfernen und den Code der tatsächlichen Zahlungsart verwenden."
+      ]
+    },
+    "fr": {
+      "title": "Prélèvement sans compte débité",
+      "meaning": "Quand la facture contient des informations de prélèvement (BG-19), elle doit indiquer l'identifiant du compte débité (BT-91), le compte de l'acheteur sur lequel le montant sera prélevé. En UBL c'est cac:PayerFinancialAccount/cbc:ID dans cac:PaymentMandate ; en CII ram:IBANID dans ram:PayerPartyDebtorFinancialAccount.",
+      "causes": [
+        "Seule la référence du mandat a été exportée, pas l'IBAN de l'acheteur.",
+        "L'IBAN de l'acheteur a été placé dans le compte du bénéficiaire au lieu de celui du payeur.",
+        "Le logiciel omet l'IBAN par souci de confidentialité et renvoie au mandat."
+      ],
+      "fix": [
+        "Reprendre l'IBAN de l'acheteur dans le mandat SEPA signé.",
+        "L'ajouter comme cac:PayerFinancialAccount/cbc:ID dans cac:PaymentMandate (UBL) ou comme ram:PayerPartyDebtorFinancialAccount/ram:IBANID dans le moyen de paiement (CII).",
+        "S'il n'y a pas de prélèvement, supprimer les données du mandat et utiliser le code du mode de paiement réel."
+      ]
+    },
+    "ubl": "<cac:PaymentMeans>\n  <cbc:PaymentMeansCode>59</cbc:PaymentMeansCode>\n  <cac:PaymentMandate>\n    <cbc:ID>MANDAT-2026-001</cbc:ID>\n    <cac:PayerFinancialAccount>\n      <cbc:ID>DE02120300000000202051</cbc:ID>\n    </cac:PayerFinancialAccount>\n  </cac:PaymentMandate>\n</cac:PaymentMeans>",
+    "cii": "<ram:SpecifiedTradeSettlementPaymentMeans>\n  <ram:TypeCode>59</ram:TypeCode>\n  <ram:PayerPartyDebtorFinancialAccount>\n    <ram:IBANID>DE02120300000000202051</ram:IBANID>\n  </ram:PayerPartyDebtorFinancialAccount>\n</ram:SpecifiedTradeSettlementPaymentMeans>"
+  },
+  {
+    "id": "BR-DE-TMP-32",
+    "source": "xrechnung",
+    "terms": ["BT-72", "BG-14", "BG-26"],
+    "en": {
+      "title": "No delivery date or service period given",
+      "meaning": "An XRechnung should state when the goods were delivered or the service was performed: either an actual delivery date (BT-72), an invoicing period for the whole invoice (BG-14), or an invoice line period (BG-26) on every line. This is an information message only; it does not reject the file, but a German invoice normally has to show the date of supply.",
+      "causes": [
+        "The delivery date is printed only in a note or on the PDF.",
+        "Only some invoice lines carry a period, not all of them.",
+        "The software assumes the issue date doubles as the delivery date and writes nothing."
+      ],
+      "fix": [
+        "For a one-off delivery, add cbc:ActualDeliveryDate in cac:Delivery (UBL) or ram:OccurrenceDateTime in ram:ActualDeliverySupplyChainEvent (CII).",
+        "For a service over time, add cac:InvoicePeriod with start and end date (UBL) or ram:BillingSpecifiedPeriod in ram:ApplicableHeaderTradeSettlement (CII).",
+        "If you prefer per-line periods, give one on every line, not only on some."
+      ]
+    },
+    "de": {
+      "title": "Kein Liefer- oder Leistungsdatum angegeben",
+      "meaning": "Eine XRechnung sollte angeben, wann geliefert oder geleistet wurde: entweder ein tatsächliches Lieferdatum (BT-72), einen Abrechnungszeitraum für die ganze Rechnung (BG-14) oder einen Abrechnungszeitraum (BG-26) in jeder Rechnungsposition. Es handelt sich nur um einen Hinweis, die Datei wird nicht abgelehnt; eine deutsche Rechnung muss den Leistungszeitpunkt aber in aller Regel nennen.",
+      "causes": [
+        "Das Lieferdatum steht nur in einer Bemerkung oder auf dem PDF.",
+        "Nur einige Rechnungspositionen haben einen Zeitraum, nicht alle.",
+        "Die Software geht davon aus, dass das Rechnungsdatum zugleich Lieferdatum ist, und schreibt nichts."
+      ],
+      "fix": [
+        "Bei einer einzelnen Lieferung cbc:ActualDeliveryDate in cac:Delivery (UBL) bzw. ram:OccurrenceDateTime in ram:ActualDeliverySupplyChainEvent (CII) angeben.",
+        "Bei einer Leistung über einen Zeitraum cac:InvoicePeriod mit Beginn und Ende (UBL) bzw. ram:BillingSpecifiedPeriod in ram:ApplicableHeaderTradeSettlement (CII) angeben.",
+        "Wer Zeiträume je Position angeben möchte, muss das in jeder Position tun, nicht nur in einigen."
+      ]
+    },
+    "fr": {
+      "title": "Aucune date de livraison ni période de prestation",
+      "meaning": "Une XRechnung doit indiquer quand les biens ont été livrés ou la prestation réalisée : soit une date de livraison effective (BT-72), soit une période de facturation pour toute la facture (BG-14), soit une période (BG-26) sur chaque ligne de facture. Ce n'est qu'un message d'information, le fichier n'est pas rejeté, mais une facture allemande doit en principe mentionner la date de la livraison ou de la prestation.",
+      "causes": [
+        "La date de livraison figure seulement dans une note ou sur le PDF.",
+        "Seules certaines lignes de facture portent une période, pas toutes.",
+        "Le logiciel considère que la date de facture vaut date de livraison et n'écrit rien."
+      ],
+      "fix": [
+        "Pour une livraison ponctuelle, ajouter cbc:ActualDeliveryDate dans cac:Delivery (UBL) ou ram:OccurrenceDateTime dans ram:ActualDeliverySupplyChainEvent (CII).",
+        "Pour une prestation sur une durée, ajouter cac:InvoicePeriod avec date de début et de fin (UBL) ou ram:BillingSpecifiedPeriod dans ram:ApplicableHeaderTradeSettlement (CII).",
+        "Si vous préférez des périodes par ligne, en indiquer une sur chaque ligne, pas seulement sur certaines."
+      ]
+    },
+    "ubl": "<cac:InvoicePeriod>\n  <cbc:StartDate>2026-10-01</cbc:StartDate>\n  <cbc:EndDate>2026-10-31</cbc:EndDate>\n</cac:InvoicePeriod>\n<cac:Delivery>\n  <cbc:ActualDeliveryDate>2026-10-15</cbc:ActualDeliveryDate>\n</cac:Delivery>",
+    "cii": "<ram:ApplicableHeaderTradeDelivery>\n  <ram:ActualDeliverySupplyChainEvent>\n    <ram:OccurrenceDateTime>\n      <udt:DateTimeString format=\"102\">20261015</udt:DateTimeString>\n    </ram:OccurrenceDateTime>\n  </ram:ActualDeliverySupplyChainEvent>\n</ram:ApplicableHeaderTradeDelivery>"
+  }
+]

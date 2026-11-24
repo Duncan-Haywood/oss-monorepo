@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="de"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BR-S-08: EN 16931 erklärt</title>
+<meta name="description" content="BR-S-08: Für jeden Normalsteuersatz (Kategorie S) in der Umsatzsteuer-Aufschlüsselung muss die Bemessungsgrundlage (BT-116) gleich der Summe der…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/de/br-s-08">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/br-s-08">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/br-s-08">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/br-s-08">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/br-s-08">
+<meta property="og:title" content="BR-S-08: EN 16931 erklärt">
+<meta property="og:description" content="BR-S-08: Für jeden Normalsteuersatz (Kategorie S) in der Umsatzsteuer-Aufschlüsselung muss die Bemessungsgrundlage (BT-116) gleich der Summe der…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Was bedeutet BR-S-08?","acceptedAnswer":{"@type":"Answer","text":"Für jeden Normalsteuersatz (Kategorie S) in der Umsatzsteuer-Aufschlüsselung muss die Bemessungsgrundlage (BT-116) gleich der Summe der Positionsnettobeträge mit diesem Satz sein, zuzüglich Zuschlägen und abzüglich Nachlässen auf Belegebene mit diesem Satz. Die UBL-Prüfung lässt eine Abweichung unter 1,00 zu und schlägt auch fehl, wenn gar keine Position, kein Nachlass und kein Zuschlag diesen Satz verwendet; die CII-Prüfung vergleicht nach Rundung jeder Summe auf zwei Nachkommastellen exakt."}},{"@type":"Question","name":"Wie behebe ich BR-S-08?","acceptedAnswer":{"@type":"Answer","text":"Gruppieren Sie Positionen, Nachlässe und Zuschläge der Kategorie S nach ihrem genauen Steuersatz. Addieren Sie je Satz die Positionsnettobeträge (BT-131), zählen Sie Zuschläge hinzu und ziehen Sie Nachlässe ab; dieser Wert ist die Bemessungsgrundlage. Legen Sie je Satz genau einen Aufschlüsselungseintrag mit demselben Satz wie in den Positionen an und berechnen Sie Steuerbetrag und Rechnungssummen neu."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-Rechnungs-Prüfregel erklärt · EN 16931</p>
+<h1>BR-S-08: Bemessungsgrundlage zum Normalsatz passt nicht zu den Positionen</h1>
+<nav class="langs" aria-label="Andere Sprachen"><a href="../en/br-s-08.html" hreflang="en" lang="en">English</a><a href="../fr/br-s-08.html" hreflang="fr" lang="fr">Français</a><a href="index.html">Alle Regeln</a></nav>
+</header>
+<section>
+<h2>Offizielle Meldung</h2>
+<blockquote lang="en">For each different value of VAT category rate (BT-119) where the VAT category code (BT-118) is &quot;Standard rated&quot;, the VAT category taxable amount (BT-116) in a VAT breakdown (BG-23) shall equal the sum of Invoice line net amounts (BT-131) plus the sum of document level charge amounts (BT-99) minus the sum of document level allowance amounts (BT-92) where the VAT category code (BT-151, BT-102, BT-95) is &quot;Standard rated&quot; and the VAT rate (BT-152, BT-103, BT-96) equals the VAT category rate (BT-119).</blockquote>
+<dl>
+<dt>Schweregrad</dt><dd>Fehler (die Rechnung wird abgewiesen)</dd>
+<dt>Geprüft in</dt><dd>UBL, CII</dd>
+<dt>Geschäftsbegriffe</dt><dd>BT-119, BT-118, BT-116, BG-23, BT-131, BT-99, BT-92, BT-151, BT-102, BT-95, BT-152, BT-103, BT-96</dd>
+</dl>
+</section>
+<section>
+<h2>Was bedeutet BR-S-08?</h2>
+<p>Für jeden Normalsteuersatz (Kategorie S) in der Umsatzsteuer-Aufschlüsselung muss die Bemessungsgrundlage (BT-116) gleich der Summe der Positionsnettobeträge mit diesem Satz sein, zuzüglich Zuschlägen und abzüglich Nachlässen auf Belegebene mit diesem Satz. Die UBL-Prüfung lässt eine Abweichung unter 1,00 zu und schlägt auch fehl, wenn gar keine Position, kein Nachlass und kein Zuschlag diesen Satz verwendet; die CII-Prüfung vergleicht nach Rundung jeder Summe auf zwei Nachkommastellen exakt.</p>
+<h2>Typische Ursachen</h2>
+<ul>
+<li>Ein Nachlass oder Zuschlag auf Belegebene wurde in der Bemessungsgrundlage vergessen oder doppelt gezählt.</li>
+<li>Der Satz in der Position weicht vom Satz in der Aufschlüsselung ab (etwa 19 in den Positionen und 16 in der Aufschlüsselung), sodass die Positionen nicht mitgezählt werden.</li>
+<li>Positionen mit unterschiedlichen Normalsätzen wurden in einem Aufschlüsselungseintrag zusammengefasst.</li>
+<li>Die Bemessungsgrundlage wurde aus ungerundeten Beträgen oder Preisen statt aus den gerundeten Positionsnettobeträgen berechnet.</li>
+</ul>
+</section>
+<section>
+<h2>Wie behebe ich BR-S-08?</h2>
+<ol>
+<li>Gruppieren Sie Positionen, Nachlässe und Zuschläge der Kategorie S nach ihrem genauen Steuersatz.</li>
+<li>Addieren Sie je Satz die Positionsnettobeträge (BT-131), zählen Sie Zuschläge hinzu und ziehen Sie Nachlässe ab; dieser Wert ist die Bemessungsgrundlage.</li>
+<li>Legen Sie je Satz genau einen Aufschlüsselungseintrag mit demselben Satz wie in den Positionen an und berechnen Sie Steuerbetrag und Rechnungssummen neu.</li>
+</ol>
+<h2>Korrigiertes XML (minimales Beispiel von uns)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;!-- Lines at S 19%: 100.00 + 50.00 = 150.00; 150.00 + 10.00 charge - 20.00 allowance = 140.00 --&gt;
+&lt;cac:AllowanceCharge&gt;
+  &lt;cbc:ChargeIndicator&gt;true&lt;/cbc:ChargeIndicator&gt;
+  &lt;cbc:AllowanceChargeReason&gt;Freight&lt;/cbc:AllowanceChargeReason&gt;
+  &lt;cbc:Amount currencyID=&quot;EUR&quot;&gt;10.00&lt;/cbc:Amount&gt;
+  &lt;cac:TaxCategory&gt;
+    &lt;cbc:ID&gt;S&lt;/cbc:ID&gt;
+    &lt;cbc:Percent&gt;19&lt;/cbc:Percent&gt;
+    &lt;cac:TaxScheme&gt;
+      &lt;cbc:ID&gt;VAT&lt;/cbc:ID&gt;
+    &lt;/cac:TaxScheme&gt;
+  &lt;/cac:TaxCategory&gt;
+&lt;/cac:AllowanceCharge&gt;
+&lt;cac:AllowanceCharge&gt;
+  &lt;cbc:ChargeIndicator&gt;false&lt;/cbc:ChargeIndicator&gt;
+  &lt;cbc:AllowanceChargeReason&gt;Discount&lt;/cbc:AllowanceChargeReason&gt;
+  &lt;cbc:Amount currencyID=&quot;EUR&quot;&gt;20.00&lt;/cbc:Amount&gt;
+  &lt;cac:TaxCategory&gt;
+    &lt;cbc:ID&gt;S&lt;/cbc:ID&gt;
+    &lt;cbc:Percent&gt;19&lt;/cbc:Percent&gt;
+    &lt;cac:TaxScheme&gt;
+      &lt;cbc:ID&gt;VAT&lt;/cbc:ID&gt;
+    &lt;/cac:TaxScheme&gt;
+  &lt;/cac:TaxCategory&gt;
+&lt;/cac:AllowanceCharge&gt;
+&lt;cac:TaxTotal&gt;
+  &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;26.60&lt;/cbc:TaxAmount&gt;
+  &lt;cac:TaxSubtotal&gt;
+    &lt;cbc:TaxableAmount currencyID=&quot;EUR&quot;&gt;140.00&lt;/cbc:TaxableAmount&gt;
+    &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;26.60&lt;/cbc:TaxAmount&gt;
+    &lt;cac:TaxCategory&gt;
+      &lt;cbc:ID&gt;S&lt;/cbc:ID&gt;
+      &lt;cbc:Percent&gt;19&lt;/cbc:Percent&gt;
+      &lt;cac:TaxScheme&gt;
+        &lt;cbc:ID&gt;VAT&lt;/cbc:ID&gt;
+      &lt;/cac:TaxScheme&gt;
+    &lt;/cac:TaxCategory&gt;
+  &lt;/cac:TaxSubtotal&gt;
+&lt;/cac:TaxTotal&gt;</code></pre>
+<p class="note">Nur Beispielwerte. Ersetzen oder ergänzen Sie die Elemente in Ihrer Datei; die Reihenfolge der Elemente ist in beiden Syntaxen vorgeschrieben.</p>
+</section>
+<section>
+<h2>Datei kostenlos prüfen</h2>
+<p>Der kostenlose Prüfer führt die offiziellen Regeln für EN 16931, XRechnung und Peppol in Ihrem Browser aus. Ihre Datei wird nicht hochgeladen.</p>
+<p><a class="button" href="../../index.html">Zum kostenlosen Prüfer</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In Entwicklung — früher Zugang</span></p>
+<h2>Prüfen und erklären für Steuerberater und Rechnungsteams</h2>
+<p>Ein kostenpflichtiger Dienst, der jede verletzte Regel verständlich auf Deutsch, Französisch oder Englisch erklärt und eine korrigierte Datei vorschlägt, ist in Entwicklung. <a href="https://example.invalid/industries/e-invoicing/">Frühen Zugang anfragen</a></p>
+</section>
+<section>
+<h2>Quelle</h2>
+<p>Regel-ID und offizielle Meldung aus: CEN/TC 434 EN 16931 validation artefacts, validation-1.3.17 (EUPL-1.2), kompiliert aus dem Upstream-Commit 6e35e0a. Erklärung, Ursachen, Lösung und XML auf dieser Seite stammen von uns, nicht vom Herausgeber der Regel. <a href="https://github.com/ConnectingEurope/eInvoicing-EN16931/tree/validation-1.3.17" rel="noopener">CEN/TC 434 EN 16931 validation artefacts validation-1.3.17</a></p>
+</section>
+<footer>
+<p><strong>Keine Steuer- oder Rechtsberatung.</strong> Diese Seite erklärt, was eine Prüfregel kontrolliert und wie eine Datei sie besteht. Sie sagt nicht, welche umsatzsteuerliche Behandlung für Ihren Umsatz gilt; fragen Sie dazu Ihre Steuerberatung. <strong>Ohne Gewähr (no warranty):</strong> kostenlos und wie besehen; prüfen Sie das Ergebnis, bevor Sie sich darauf verlassen.</p>
+<p>Unser Code und unsere Erklärungen stehen unter der MIT-Lizenz. Offizielle Regelmeldungen werden unter den Lizenzen ihrer Herausgeber zitiert (EUPL-1.2, Apache-2.0, MPL-2.0), die auf jeder Seite genannt sind.</p>
+</footer>
+</main></body></html>

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="de"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PEPPOL-EN16931-R120: Peppol BIS erklärt</title>
+<meta name="description" content="PEPPOL-EN16931-R120: In jeder Position muss der Nettobetrag (BT-131) gleich Menge (BT-129) mal Nettopreis (BT-146) geteilt durch die Basismenge des Preises…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/de/peppol-en16931-r120">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-r120">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/peppol-en16931-r120">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/peppol-en16931-r120">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-r120">
+<meta property="og:title" content="PEPPOL-EN16931-R120: Peppol BIS erklärt">
+<meta property="og:description" content="PEPPOL-EN16931-R120: In jeder Position muss der Nettobetrag (BT-131) gleich Menge (BT-129) mal Nettopreis (BT-146) geteilt durch die Basismenge des Preises…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Was bedeutet PEPPOL-EN16931-R120?","acceptedAnswer":{"@type":"Answer","text":"In jeder Position muss der Nettobetrag (BT-131) gleich Menge (BT-129) mal Nettopreis (BT-146) geteilt durch die Basismenge des Preises (BT-149) plus Zuschläge (BT-141) minus Abschläge (BT-136) der Position sein. Eine Abweichung bis 0,02 wird toleriert. Die Zu- und Abschläge werden summiert und auf zwei Nachkommastellen gerundet; fehlt die Menge oder die Basismenge, zählt sie als 1, ein fehlender Preis als 0."}},{"@type":"Question","name":"Wie behebe ich PEPPOL-EN16931-R120?","acceptedAnswer":{"@type":"Answer","text":"Rechnen Sie nach: Menge x Preis / Basismenge + Zuschläge - Abschläge, auf zwei Nachkommastellen gerundet, und tragen Sie das Ergebnis in cbc:LineExtensionAmount ein. Gilt der Preis pro 100 Stück, geben Sie cbc:BaseQuantity 100 mit derselben Mengeneinheit wie bei der Menge an. Geben Sie den Stückpreis mit so vielen Nachkommastellen an, dass die Rechnung aufgeht, oder berücksichtigen Sie jeden Rabatt nur einmal (im Preis oder als Abschlag)."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-Rechnungs-Prüfregel erklärt · Peppol BIS</p>
+<h1>PEPPOL-EN16931-R120: Positions-Nettobetrag passt nicht zu Menge, Preis und Zu- oder Abschlägen</h1>
+<nav class="langs" aria-label="Andere Sprachen"><a href="../en/peppol-en16931-r120.html" hreflang="en" lang="en">English</a><a href="../fr/peppol-en16931-r120.html" hreflang="fr" lang="fr">Français</a><a href="index.html">Alle Regeln</a></nav>
+</header>
+<section>
+<h2>Offizielle Meldung</h2>
+<blockquote lang="en">Invoice line net amount MUST equal (Invoiced quantity * (Item net price/item price base quantity) + Sum of invoice line charge amount - sum of invoice line allowance amount</blockquote>
+<dl>
+<dt>Schweregrad</dt><dd>Fehler (die Rechnung wird abgewiesen)</dd>
+<dt>Geprüft in</dt><dd>UBL, CII</dd>
+<dt>Geschäftsbegriffe</dt><dd>BT-131, BT-129, BT-146, BT-149, BT-136, BT-141</dd>
+</dl>
+</section>
+<section>
+<h2>Was bedeutet PEPPOL-EN16931-R120?</h2>
+<p>In jeder Position muss der Nettobetrag (BT-131) gleich Menge (BT-129) mal Nettopreis (BT-146) geteilt durch die Basismenge des Preises (BT-149) plus Zuschläge (BT-141) minus Abschläge (BT-136) der Position sein. Eine Abweichung bis 0,02 wird toleriert. Die Zu- und Abschläge werden summiert und auf zwei Nachkommastellen gerundet; fehlt die Menge oder die Basismenge, zählt sie als 1, ein fehlender Preis als 0.</p>
+<h2>Typische Ursachen</h2>
+<ul>
+<li>Der Preis gilt pro 100 oder 1.000 Stück, die Basismenge (cbc:BaseQuantity) fehlt aber, sodass die Prüfung von einem Preis pro Stück ausgeht.</li>
+<li>Der Nettobetrag wurde mit einem genaueren Stückpreis berechnet als dem, der in der Datei steht.</li>
+<li>Ein Positionsrabatt wurde vom Preis abgezogen und zusätzlich als Abschlag angegeben und zählt so doppelt.</li>
+<li>Bei einer Gutschrift ist die Menge negativ, Preis oder Betrag haben aber nicht das passende Vorzeichen.</li>
+</ul>
+</section>
+<section>
+<h2>Wie behebe ich PEPPOL-EN16931-R120?</h2>
+<ol>
+<li>Rechnen Sie nach: Menge x Preis / Basismenge + Zuschläge - Abschläge, auf zwei Nachkommastellen gerundet, und tragen Sie das Ergebnis in cbc:LineExtensionAmount ein.</li>
+<li>Gilt der Preis pro 100 Stück, geben Sie cbc:BaseQuantity 100 mit derselben Mengeneinheit wie bei der Menge an.</li>
+<li>Geben Sie den Stückpreis mit so vielen Nachkommastellen an, dass die Rechnung aufgeht, oder berücksichtigen Sie jeden Rabatt nur einmal (im Preis oder als Abschlag).</li>
+</ol>
+<h2>Korrigiertes XML (minimales Beispiel von uns)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;cac:InvoiceLine&gt;
+  &lt;cbc:ID&gt;1&lt;/cbc:ID&gt;
+  &lt;cbc:InvoicedQuantity unitCode=&quot;C62&quot;&gt;10&lt;/cbc:InvoicedQuantity&gt;
+  &lt;cbc:LineExtensionAmount currencyID=&quot;EUR&quot;&gt;245.00&lt;/cbc:LineExtensionAmount&gt;
+  &lt;cac:AllowanceCharge&gt;
+    &lt;cbc:ChargeIndicator&gt;false&lt;/cbc:ChargeIndicator&gt;
+    &lt;cbc:AllowanceChargeReason&gt;Discount&lt;/cbc:AllowanceChargeReason&gt;
+    &lt;cbc:Amount currencyID=&quot;EUR&quot;&gt;5.00&lt;/cbc:Amount&gt;
+  &lt;/cac:AllowanceCharge&gt;
+  &lt;cac:Item&gt;
+    &lt;cbc:Name&gt;Widget&lt;/cbc:Name&gt;
+    &lt;cac:ClassifiedTaxCategory&gt;
+      &lt;cbc:ID&gt;S&lt;/cbc:ID&gt;
+      &lt;cbc:Percent&gt;19&lt;/cbc:Percent&gt;
+      &lt;cac:TaxScheme&gt;
+        &lt;cbc:ID&gt;VAT&lt;/cbc:ID&gt;
+      &lt;/cac:TaxScheme&gt;
+    &lt;/cac:ClassifiedTaxCategory&gt;
+  &lt;/cac:Item&gt;
+  &lt;cac:Price&gt;
+    &lt;cbc:PriceAmount currencyID=&quot;EUR&quot;&gt;25.00&lt;/cbc:PriceAmount&gt;
+    &lt;cbc:BaseQuantity unitCode=&quot;C62&quot;&gt;1&lt;/cbc:BaseQuantity&gt;
+  &lt;/cac:Price&gt;
+&lt;/cac:InvoiceLine&gt;</code></pre>
+<p class="note">Nur Beispielwerte. Ersetzen oder ergänzen Sie die Elemente in Ihrer Datei; die Reihenfolge der Elemente ist in beiden Syntaxen vorgeschrieben.</p>
+</section>
+<section>
+<h2>Datei kostenlos prüfen</h2>
+<p>Der kostenlose Prüfer führt die offiziellen Regeln für EN 16931, XRechnung und Peppol in Ihrem Browser aus. Ihre Datei wird nicht hochgeladen.</p>
+<p><a class="button" href="../../index.html">Zum kostenlosen Prüfer</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In Entwicklung — früher Zugang</span></p>
+<h2>Prüfen und erklären für Steuerberater und Rechnungsteams</h2>
+<p>Ein kostenpflichtiger Dienst, der jede verletzte Regel verständlich auf Deutsch, Französisch oder Englisch erklärt und eine korrigierte Datei vorschlägt, ist in Entwicklung. <a href="https://example.invalid/industries/e-invoicing/">Frühen Zugang anfragen</a></p>
+</section>
+<section>
+<h2>Quelle</h2>
+<p>Regel-ID und offizielle Meldung aus: OpenPeppol BIS Billing 3 rules, 3.0.22 (MPL-2.0), kompiliert aus dem Upstream-Commit 38d693d. Erklärung, Ursachen, Lösung und XML auf dieser Seite stammen von uns, nicht vom Herausgeber der Regel. <a href="https://github.com/OpenPEPPOL/peppol-bis-invoice-3/tree/3.0.22" rel="noopener">OpenPeppol BIS Billing 3 rules 3.0.22</a></p>
+</section>
+<footer>
+<p><strong>Keine Steuer- oder Rechtsberatung.</strong> Diese Seite erklärt, was eine Prüfregel kontrolliert und wie eine Datei sie besteht. Sie sagt nicht, welche umsatzsteuerliche Behandlung für Ihren Umsatz gilt; fragen Sie dazu Ihre Steuerberatung. <strong>Ohne Gewähr (no warranty):</strong> kostenlos und wie besehen; prüfen Sie das Ergebnis, bevor Sie sich darauf verlassen.</p>
+<p>Unser Code und unsere Erklärungen stehen unter der MIT-Lizenz. Offizielle Regelmeldungen werden unter den Lizenzen ihrer Herausgeber zitiert (EUPL-1.2, Apache-2.0, MPL-2.0), die auf jeder Seite genannt sind.</p>
+</footer>
+</main></body></html>

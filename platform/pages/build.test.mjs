@@ -143,6 +143,12 @@ import {
 } from './build.mjs';
 import { IN_DEVELOPMENT, LIVE_PRODUCTS } from './company.mjs';
 import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER, VENTURE_CHROME_CSS } from './site-nav.mjs';
+import { APP_DIRS } from './cloudflare/router.mjs';
+import { productSitemapPaths } from './products.mjs';
+
+// Paths the site Worker serves from an app of its own (Grant Autopilot at
+// grants/), so no file for them exists in the build output.
+const workerServed = (href) => Object.keys(APP_DIRS).some((dir) => href.replace(/^(\.\.\/)+/, '') .startsWith(`${dir}/`));
 import { STORIES_PATH, STORY_VENTURES } from './stories.mjs';
 import { ASSISTANT_VOICE_CSS } from './assistant.mjs';
 import { STICKY_FIT_CSS } from './sticky-fit.mjs';
@@ -491,7 +497,8 @@ test('every hub link resolves to a file that exists', async () => {
   const { outDir } = await site();
   const hub = stripRawText(await read('index.html'));
 
-  const all = [...hub.matchAll(/href="([^"]+)"/g)].map((m) => m[1]).filter((h) => !h.startsWith('http'));
+  // http(s) and mailto: (the early-access links on product cards) are not files.
+  const all = [...hub.matchAll(/href="([^"]+)"/g)].map((m) => m[1]).filter((h) => !h.startsWith('http') && !h.startsWith('mailto:'));
   const hrefs = all.filter((h) => !h.startsWith('#'));
   assert.ok(hrefs.length > 20, 'the hub should link to every tool');
 
@@ -499,6 +506,7 @@ test('every hub link resolves to a file that exists', async () => {
   for (const href of hrefs) {
     // deploy/ and dev/ (and dev/daily/ under it) are written after the site build.
     if (LATE_NAV_DIRS.some((dir) => href.startsWith(`${dir}/`))) continue;
+    if (workerServed(href)) continue;
     // A fragment names a section of the target page, not a file.
     await fs.access(hrefTarget(href.split('#')[0], hub_, outDir));
   }
@@ -926,8 +934,8 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const { surfaces } = await site();
   const bullets = (await read('llms-full.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Thirteen trailing bullets (the first links the other llms file) under "Optional" describe the site's own surfaces
-  // rather than a tool — About, the hardware designs, open custom development, Ask, updates, the changelog and the work queue, the comparison
+  // Fourteen trailing bullets (the first links the other llms file) under "Optional" describe the site's own surfaces
+  // rather than a tool — About, the hardware designs page, the online sellers industry page, open custom development, Ask, updates, the changelog and the work queue, the comparison
   // index, the guides index, catalog.json, the agent CLI, the sitemap and the
   // Atom feed, plus the agent-to-agent blog once `docs/agent-posts/` has a
   // post. Above the tools, one bullet per audience page; below them, one per
@@ -939,7 +947,7 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const network = externalCallExceptions(surfaces).length;
   // Plus one per live product under "Products" (company.mjs); products in
   // development are bold, not linked, so they are not "- [" bullets.
-  assert.equal(bullets.length, surfaces.length + 13 + audiences + topics + agentBlog + network + LIVE_PRODUCTS.length);
+  assert.equal(bullets.length, surfaces.length + 14 + audiences + topics + agentBlog + network + LIVE_PRODUCTS.length);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -2273,6 +2281,7 @@ test('every injected link resolves to a page that exists', async () => {
     for (const [, ref] of html.matchAll(/href="([^"]+)"[^>]*data-pf-to=/g)) {
       // 404.html links absolutely: it is served under whatever path was mistyped.
       if (/^https?:/.test(ref)) continue;
+      if (workerServed(ref)) continue;
       const resolved = path.resolve(path.dirname(file), ref);
       const target = ref.endsWith('/') ? path.join(resolved, 'index.html') : resolved;
       assert.ok(
@@ -5366,7 +5375,7 @@ test('the About page documents the embed feature that #2561 shipped, not just th
   assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
-test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask, custom development, /hardware/, the request pages, /compare/, /research/, Stories, updates, the changelog, the work queue and /guides/, and nothing else', () => {
+test('the hub sitemap holds the hub, the product pages, the Tools index, the categories, About, Ask, custom development, /hardware/, the request pages, /compare/, /research/, Stories, updates, the changelog, the work queue and /guides/, and nothing else', () => {
   const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   // About, the comparison index and the guides index are hub-level pages
@@ -5374,12 +5383,16 @@ test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask
   // any of them.
   assert.deepEqual(locs, [
     BASE,
+    // The product pages (products.mjs): /products/, /industries/ and each industry.
+    ...productSitemapPaths().map((p) => `${BASE}${p}`),
     `${BASE}c/`,
     `${BASE}c/marketplace/`,
     `${BASE}c/trades/`,
     `${BASE}about/`,
     `${BASE}ask/`,
     `${BASE}custom-development/`,
+    // The construction industry landing page (industry-construction.mjs).
+    `${BASE}industries/construction/`,
     `${BASE}hardware/`,
     // Each request's own page, one per entry in portfolio/requests/requests.json.
     ...loadRequests().map((r) => `${BASE}custom-development/${r.id}/`),

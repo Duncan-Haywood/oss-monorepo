@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVMQnbSD8Erfmd51Ydz",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T21:56:10Z",
+  "ended": "2026-11-24T22:28:12Z",
+  "wall_minutes": 34.02,
+  "tokens_in": 10262595,
+  "tokens_out": 53371,
+  "cost_usd": 4.3132,
+  "tool_calls": 83,
+  "task": "perf: subscription products (league-schedule-generator search, shift-roster-builder page load)",
+  "projects": [
+    "shift-roster-builder",
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18712",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "Ran the two 600 s venture suites concurrently for the first reading, so their wall times (5m58s, 5m19s) are two-at-a-time on 4 cores, not idle-core times.",
+    "Spent about an hour on two league-search speed-ups (incremental coeTracker, carry-over-first mixed cost) that kept every answer but were 2.4x and 1.15x slower; both reverted, documented as dead ends."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Item 3 points at venture suites, but the two slowest (league 11 passes, shift-roster 6) are tight inner loops by now; suite_file_times.py prints the earlier pass count, and that count should steer a run away sooner. Two dead ends here."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The north star says for-profit work first, while the weighted router still sends ~5% of runs to perf with no for-profit hint; this run aimed perf at subscription products from LICENSING_TRANSITION.md by its own judgment."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Both perf backlog items are owner-gated; per the north star I aimed items 3 and 4 at subscription products rather than the largest consumer overall.",
+      "did": "Profiled league-schedule-generator's search (two dead ends, documented), then shipped shift-roster-builder's on-demand importers.",
+      "result": "DCL -19% on a subscription product's page; dead ends recorded so they are not retried."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-the-incremental-counter-that-lost-to-a-full-recount.md",
+    "docs/history/shift-roster-page-perf-2026-11-24.md"
+  ],
+  "goal": "north star $10k MRR: faster first load on a subscription product's page (shift-roster-builder)",
+  "notes": "METRIC: shift-roster-builder index.html throttled time to domContentLoadedEventEnd (local gzip server, Chromium, CDP 150 ms latency, 1.6 Mbit/s down, CPU 4x, cache off), median of 7. BEFORE 1,731 ms (1,757 in a second set), 14 files, 214 kB on wire; AFTER 1,404 ms, 7 files, 167 kB. Static graph 178 kB gz/13 files -> 133 kB/6 files (platform/perf/module-exclusive.mjs). Same answers: Playwright A/B old vs new page on 7 importer file sets, 7/7 identical (status, textareas, picker options), no page errors. League search dead ends (bench: 30 carryOverTry calls n=8,9,12,13,14 tries 0-5, hash c869bf4e8b7a5cad unchanged in both): incremental coeTracker 57.7 s -> 136 s; carry-over-first mixed cost on n=9,12 29.1 s -> 33.4 s. Both reverted. TESTS: python3 platform/ci/run_venture_tests.py shift-roster-builder: ok, 786 tests, 0 failed (215.7 s), plus site page checks ok; page.test.mjs 25 pass. ALSO: portfolio-validate 'validate' was red on main since PR #18682 (machine-shop-guides/VENTURE.yaml hypotheses evidence 'usage', not in {customer-contact,in-repo}); fixed forward in this PR to customer-contact (usage claims need visitors no session can start); portfolio/router/validate.py: all 1441 valid. Local workflows: conflict-markers, doc-refs, page-integrity, sibling-links, link-contrast, prompts-ci, checklist-coverage, control-plane-guard, portfolio-pages, pages all exit 0 (uses:/secret steps not run).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "100ac80d-919c-596e-83bc-0c970cfed6ab",
+    "transcripts": 1,
+    "first": "2026-11-24T21:56:10Z",
+    "last": "2026-11-24T22:30:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 86,
+        "input": 174,
+        "output": 53371,
+        "thinking": 16432,
+        "cache_read": 10109527,
+        "cache_write_5m": 0,
+        "cache_write_1h": 152894,
+        "api_equivalent_usd": 4.3132,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 86,
+      "input": 174,
+      "output": 53371,
+      "thinking": 16432,
+      "cache_read": 10109527,
+      "cache_write_5m": 0,
+      "cache_write_1h": 152894,
+      "api_equivalent_usd": 4.3132,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 83,
+    "tools": {
+      "Bash": 78,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 34.02,
+      "active_minutes": 21.47,
+      "model_minutes": 9.92,
+      "tool_minutes": 11.55,
+      "waiting_on_human_minutes": 12.55,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "profiling two engines, two measured dead ends, page split with A/B harness and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 115.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

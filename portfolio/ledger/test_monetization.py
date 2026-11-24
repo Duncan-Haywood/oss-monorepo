@@ -12,7 +12,7 @@ def row(**kw):
     base = dict(
         venture="wall-framing-takeoff", buyer="b", liability="medium", model="m",
         first_offer="o", price_hypothesis="p", comparables=[], stage="planned",
-        next="do it", next_owner=False,
+        next="do it", next_owner=False, billing="subscription",
     )
     base.update(kw)
     return base
@@ -60,7 +60,7 @@ def test_queue_prefers_further_stage_then_lower_liability():
 
 
 def test_next_task_names_the_file_to_update():
-    task = m.next_task(m.load())
+    task = m.next_task(m.load(), m.load_proprietary())
     assert task.startswith("Monetize (")
     assert "portfolio/monetization/models.yaml" in task
 
@@ -119,3 +119,56 @@ def test_committed_file_has_a_row_per_flagship_bet():
     bets = {e["app"]: e["bet"] for e in flag["flagships"] if "bet" in e}
     rows = {r["app"]: r["bet"] for r in m.load()["products"] if r.get("app")}
     assert bets and rows == bets
+
+def test_agent_row_whose_next_says_nothing_is_left_is_reported():
+    errs = m.check({"products": [row(next="Built. Nothing agent-doable is left until the link is set.")]})
+    assert any("no agent step is left" in e for e in errs)
+    assert not any("no agent step" in e for e in m.check({"products": [
+        row(next="Built. Nothing agent-doable is left until the link is set.", next_owner=True)]}))
+
+
+def test_empty_queue_names_the_first_for_profit_product_with_no_row():
+    data = {"products": [row(venture="a", next_owner=True)]}
+    prop = [{"venture": "c", "move_order": 3, "model": "one-off"},
+            {"venture": "a", "move_order": 1, "model": "subscription"},
+            {"venture": "b", "move_order": 2, "model": "subscription"}]
+    assert [p["venture"] for p in m.gaps(data, m.sorted_proprietary(prop))] == ["b", "c"]
+    task = m.next_task(data, m.sorted_proprietary(prop))
+    assert task.startswith("Monetize (b, no models.yaml row")
+    assert "Only subscriptions count" not in task
+    assert "1 more" in task
+
+
+def test_committed_proprietary_list_loads():
+    assert len(m.load_proprietary()) >= 1
+
+
+def test_venture_row_needs_billing_and_a_reason_when_not_subscription():
+    errs = m.check({"products": [row(billing="monthly")]})
+    assert any("billing must be one of" in e for e in errs)
+    errs = m.check({"products": [row(billing="one-off")]})
+    assert any("needs `billing_why`" in e for e in errs)
+    assert m.check({"products": [row(billing="one-off", billing_why="bought once per project")]}) == []
+
+
+def test_checkout_on_another_provider_is_not_an_owner_step(tmp_path):
+    v = tmp_path / "ventures" / "pack"
+    v.mkdir(parents=True)
+    (v / "checkout.mjs").write_text('export const VALIDATE_URL = "https://api.lemonsqueezy.com/v1/licenses/validate";')
+    data = {"rail": {"provider": "paddle"}, "products": [row(venture="pack", next_owner=True)]}
+    errs = m.check(data, repo=tmp_path)
+    assert any("checkout calls lemonsqueezy but the rail is paddle" in e for e in errs)
+    data["products"][0]["next_owner"] = False
+    assert m.check(data, repo=tmp_path) == []
+    (v / "checkout.mjs").write_text('const u = "https://sandbox-api.paddle.com/";')
+    data["products"][0]["next_owner"] = True
+    assert m.check(data, repo=tmp_path) == []
+
+
+def test_billing_summary_counts_the_for_profit_products():
+    data = {"products": [row(venture="a"), row(venture="b", billing="one-off", billing_why="x")]}
+    prop = [{"venture": "a", "model": "subscription"}, {"venture": "b", "model": "subscription"},
+            {"venture": "c", "model": "one-off"}]
+    out = m.billing_summary(data, prop)
+    assert "1 subscription row(s), 1 not a subscription with a reason, 1 with no row" in out
+    assert "b (one-off, planned subscription)" in out
