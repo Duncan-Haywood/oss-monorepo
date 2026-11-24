@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 3,
   "review_findings": null,
   "tests_added": 39,
   "outcome": "partial",
@@ -33,6 +33,10 @@
     {
       "what": "First push failed five CI checks: README lacked the live-page link (venture_live_links.py), no launch date (launched.mjs), .swift files would be published, no tab icon (favicons.py), and the new page had no sibling link (siblings.mjs).",
       "fix": "Added the link, launch date and favicon; moved ios/ under mobile/ (excluded from publishing); linked cheap-meal-plan-optimizer <-> photo-nutrition-agent with page tests."
+    },
+    {
+      "what": "Second and third CI rounds: share-location privacy check flagged the OAuth redirect's query parameters in server/auth.mjs, and build.test.mjs failed because the new venture landed in the 'More free tools' catch-all (6 > budget).",
+      "fix": "Moved the server to self-host/ (the repository's convention for deployer-run server code, skipped by the check because OAuth needs query parameters); added photo-nutrition-agent to HOUSEHOLD_SLUGS beside cheap-meal-plan-optimizer."
     }
   ],
   "integrity_issues": [],
@@ -44,6 +48,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "run_workflow_locally.py --for-changes ran for over ten minutes and blocks editing tracked files while it runs; the faster path was to read the CI logs once checks started."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "Its 'site page checks' run three platform/pages tests, but not build.test.mjs (catch-all budget), share-location.test.mjs, launched.mjs or favicons.py, which are what a brand-new venture trips; and the GitHub MCP log tool caps at 5,000 lines, so a failure early in the 1,963-test pages suite is invisible in CI logs (running each test file in parallel locally found it in about 3 minutes)."
     }
   ],
   "deviations": [
