@@ -57,7 +57,7 @@ for (const f of files) {
   const byId = new Map([...model.tasks.values()].map((t) => [t.id, t]));
   for (const rel of model.rels) {
     const p = byId.get(rel.predId), s = byId.get(rel.succId);
-    if (!p || !s || p.span || s.span || p.status !== "TK_NotStart" || s.status !== "TK_NotStart" || rel.type === "PR_SF") continue;
+    if (!p || !s || p.span || s.span || p.status !== "TK_NotStart" || s.status !== "TK_NotStart") continue;
     if (!p.row.early_start_date || !p.row.early_end_date || !s.row.late_start_date || !s.row.late_end_date) continue;
     const w = impliedLags(model, rel, p, s);
     if (!w) continue;
@@ -130,7 +130,7 @@ for (const f of files) {
   const ST = { TK_NotStart: "N", TK_Active: "A", TK_Complete: "C" };
   const startedRels = model.rels.filter((rel) => {
     const p = byId.get(rel.predId), s = byId.get(rel.succId);
-    return p && s && !p.span && !s.span && rel.type !== "PR_SF" && s.status !== "TK_Complete" && !(p.status === "TK_NotStart" && s.status === "TK_NotStart");
+    return p && s && !p.span && !s.span && s.status !== "TK_Complete" && !(p.status === "TK_NotStart" && s.status === "TK_NotStart");
   });
   for (const rel of startedRels) {
     const k = `${ST[byId.get(rel.predId).status]}${ST[byId.get(rel.succId).status]} ${rel.type.slice(3)}`;

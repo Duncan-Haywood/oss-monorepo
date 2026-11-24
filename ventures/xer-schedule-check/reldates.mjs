@@ -12,6 +12,10 @@
 //   arls = the late date the link gives the predecessor:
 //            FS: succ late start - lag       FF: succ late finish - lag
 //            SS: succ late start - lag - the predecessor's duration
+//            SF: aref = (pred early start + lag) less the successor's
+//            duration; arls = succ late finish - lag - the predecessor's
+//            duration (2026-11-24: the three SF links in seven files,
+//            eval/p6-probes-2026-11-24.md)
 //
 // Both are written in the same run as the activities' stored dates, so they
 // carry the lag P6 used. A lag edited afterwards (lengthened or shortened)
@@ -94,7 +98,7 @@ export function relationshipLags(model) {
 
 // The lag each stored relationship date implies for one link between two
 // unstarted activities with stored dates: { fromA, fromL } in minutes (null
-// where that date is empty or not decoded), or null for an SF link.
+// where that date is empty or not decoded).
 export function impliedLags(model, rel, pred, succ) {
   const p = pred.row, s = succ.row;
   const pES = parseDate(p.early_start_date), pEF = parseDate(p.early_end_date);
@@ -118,19 +122,26 @@ export function impliedLags(model, rel, pred, succ) {
     if (aref !== null) fromA = span(pEF, succ.cal.addWork(aref, succ.remain));
     if (arls !== null) fromL = span(arls, sLF);
     break;
+    case "PR_SF":
+    // the SS and FF shapes together: aref is the successor's early start,
+    // arls a late date less the predecessor's duration
+    if (aref !== null) fromA = span(pES, succ.cal.addWork(aref, succ.remain));
+    if (arls !== null && lc === pred.cal) fromL = span(arls, sLF) - pred.remain;
+    break;
     default:
-    return null; // SF: one link in seven files, not decoded
+    return null;
   }
   return { fromA, fromL };
 }
 
 // The part of a link's lag P6 counts at the data date: all of it, less the
 // lag calendar's working time already spent since the predecessor's actual
-// finish (FS, FF) or actual start (SS). Returns { spent, eff } in minutes, or
+// finish (FS, FF) or actual start (SS, SF). Returns { spent, eff } in minutes, or
 // null when a date it needs is missing.
 export function unspentLag(model, rel, pred, succ) {
-  const from = pred.status === "TK_Complete" && rel.type !== "PR_SS" ? pred.actEnd
-    : pred.status !== "TK_NotStart" && rel.type === "PR_SS" ? pred.actStart : undefined;
+  const fromStart = rel.type === "PR_SS" || rel.type === "PR_SF";
+  const from = pred.status === "TK_Complete" && !fromStart ? pred.actEnd
+    : pred.status !== "TK_NotStart" && fromStart ? pred.actStart : undefined;
   if (from === undefined) return { spent: 0, eff: rel.lag };
   const dd = model.projects.get(succ.proj)?.dataDate;
   if (from === null || dd === null || dd === undefined) return null;
@@ -143,7 +154,6 @@ export function unspentLag(model, rel, pred, succ) {
 // ones), against the unspent lag instead of the whole lag; a finished
 // predecessor has no early dates, so arls is its only witness.
 function startedLink(model, rel, pred, succ, acc) {
-  if (rel.type === "PR_SF") return;
   const u = unspentLag(model, rel, pred, succ);
   if (!u) return;
   const p = pred.row, s = succ.row;
@@ -157,6 +167,10 @@ function startedLink(model, rel, pred, succ, acc) {
   if (rel.type === "PR_SS") {
     fromA = span(pES, aref);
     if (arls !== null && sLS !== null && lc === pred.cal) fromL = span(arls, sLS) - (pred.status === "TK_Complete" ? 0 : pred.remain);
+  }
+  if (rel.type === "PR_SF") {
+    fromA = aref === null || pES === null ? null : span(pES, succ.cal.addWork(aref, succ.remain));
+    if (arls !== null && sLF !== null && lc === pred.cal) fromL = span(arls, sLF) - (pred.status === "TK_Complete" ? 0 : pred.remain);
   }
   if (rel.type === "PR_FF") { fromA = aref === null || pEF === null ? null : span(pEF, succ.cal.addWork(aref, succ.remain)); fromL = span(arls, sLF); }
   if (fromA === null && fromL === null) return;

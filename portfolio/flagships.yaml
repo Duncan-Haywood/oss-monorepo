@@ -564,12 +564,11 @@ flagships:
       Test files: bash eval/corpus-fetch.sh DIR [--mpxj] (the six public XERs to
       DIR/xer, 5 s; --mpxj adds MPXJ junit/data). Constraints log on more planted
       seeds or files: node eval/constraints-check.mjs (section 4,
-      eval/constraints-slack-2026-11-20.md); reldates SF/off-calendar SS:
-      eval/relationship-dates.mjs; windows check (eval/windows-check.mjs, series
-      made by status.mjs); redundant: node eval/redundant-check.mjs DIR/xer;
-      converter/hand-made XERs: node eval/converter-corpus.mjs; MSPDI:
-      eval/cpm-vs-project.mjs on MPXJ files; XML out: eval/msproject-check.mjs,
-      msproject-mpxj.py (pip mpxj jpype1).
+      eval/constraints-slack-2026-11-20.md); P6 probes: eval/p6-probes.mjs
+      (NEXT.md); windows check (eval/windows-check.mjs, series made by status.mjs);
+      redundant: node eval/redundant-check.mjs DIR/xer; converter/hand-made XERs:
+      node eval/converter-corpus.mjs; MSPDI: eval/cpm-vs-project.mjs on MPXJ files;
+      XML out: eval/msproject-check.mjs, msproject-mpxj.py (pip mpxj jpype1).
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/. Next, most valuable first:
@@ -578,28 +577,27 @@ flagships:
       read 2026-11-21 (2,446 of 2,491 = Project's, eval/split-tasks-2026-11-21.md);
       next a Project open of those rows, a P6 import of a curve, timephased late
       dates. (13) XER to Project XML shipped 2026-11-21; next a Project check. Open
-      ends critical 2026-11-24 (eval/open-critical-2026-11-24.md); next a P6 file
-      with it on. (14) P6 XML read and to XER 2026-11-23 (pmxml.mjs,
-      eval/pmxml-2026-11-23.md: 21,441/21,441 same schedule); next a P6 import of
-      one, a large real P6 XML export. Expenses <-> cost resources and fixed costs
-      2026-11-21 next a P6-written XER with expenses, a P6 import (category by
-      name?). next: a P6 import of the result. next a real scheduler's read.
-      Levelling on P6 resource curves 2026-11-22 (--curves,
-      eval/level-curves-2026-11-22.md); next a P6-levelled file with a curve.
-      branches in TIA 2026-11-22, next a real TIA exhibit with alternatives.. (16)
-      next a real schedule with its GAO assessment. (17) Collapsed as-built,
-      as-planned vs as-built 2026-11-23 (collapse.mjs, asplanned.mjs;
-      eval/asplanned-check-2026-11-23.md); next a real baseline + final update with
-      a claim's delay list. (18) TIA by party, events step by step in date order and
-      newest first 2026-11-23 (eval/tia-party-check-2026-11-23.md,
+      ends critical (eval/open-critical-2026-11-24.md); next a P6 file with it on.
+      (14) P6 XML read and to XER 2026-11-23 (pmxml.mjs, eval/pmxml-2026-11-23.md:
+      21,441/21,441 same schedule); next a P6 import of one, a large real P6 XML
+      export. Expenses <-> cost resources and fixed costs 2026-11-21 next a
+      P6-written XER with expenses, a P6 import (category by name?). next: a P6
+      import of the result. next a real scheduler's read. Levelling on P6 resource
+      curves (--curves, eval/level-curves-2026-11-22.md); next a P6-levelled file
+      with a curve. branches in TIA 2026-11-22, next a real TIA exhibit with
+      alternatives.. (16) next a real schedule with its GAO assessment. (17)
+      Collapsed as-built, as-planned vs as-built 2026-11-23 (collapse.mjs,
+      asplanned.mjs; eval/asplanned-check-2026-11-23.md); next a real baseline +
+      final update with a claim's delay list. (18) TIA by party, events step by step
+      in date order and newest first 2026-11-23 (eval/tia-party-check-2026-11-23.md,
       eval/tia-steps-check-2026-11-23.md); next a real claim's parties and dated
       event list. (19) Redundant logic 2026-11-23 (redundant.mjs, --redundant;
       eval/redundant-logic-2026-11-23.md); next a real P6 reschedule with holidays
       extended. (21) Progress review 2026-11-23 (progress.mjs,
       eval/progress-review-2026-11-23.md); next a real pay-app review's list. (22)
-      Spec check 2026-11-24 (spec.mjs); next a real contract's spec section. (23)
-      DCMA per WBS/code 2026-11-24 (ribbon.mjs); next a sub's read. More: NEXT.md.
-      More open items: NEXT.md.
+      Spec check 2026-11-24 (spec.mjs); next a real contract's spec section. (24)
+      p6-probes: TT_Rsrc next. (23) DCMA per WBS/code 2026-11-24 (ribbon.mjs); next
+      a sub's read. More: NEXT.md. More open items: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).

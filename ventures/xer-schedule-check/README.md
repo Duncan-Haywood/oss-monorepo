@@ -1724,6 +1724,22 @@ run as a formula in Excel or Sheets.
   most" the work already spent (12 of 12 bounds hold); 195 planted changes
   that leave nothing unspent either way move no date and are not listed, and
   nothing unplanted is.
+- **SF links and P6 23.12's probe files** (2026-11-24,
+  `eval/p6-probes-2026-11-24.md`, `eval/p6-probes.mjs`): the three SF links in
+  the P6 files decode too (`aref` = predecessor early start + lag less the
+  successor's duration; `arls` = successor late finish - lag - the
+  predecessor's duration), so `arls` now agrees on **40,478 of 40,478**
+  unstarted links and 11,611 of 11,611 started ones. A second P6 oracle: 338
+  public synthetic probe files (danafitkowski/cpp-cpm-engine, MIT), each
+  scheduled in P6 Professional 23.12.1 by their author with P6's six values
+  per activity recorded. The engine matches **2,953 of 5,199** rows on all six
+  (2,929 before one new rule: an SF link into a started successor holds As
+  Late As Possible work by the SF lag still unspent from the predecessor's
+  actual start; under progress override it holds only work not yet started).
+  The probes isolate hard cases, so the share is not the engine's accuracy
+  on real files (those are unchanged at 19,908 of 19,935). What they show is
+  the largest gap: resource-dependent activities are scheduled on the activity
+  calendar, not the resources' (156 of 936 such rows match).
 - **Free float against P6** (`eval/free-float-2026-11-19.md`,
   `eval/free-float-expected-2026-11-20.md`): the same files,
   **19,820 of 19,822 (99.99%)** equal P6's stored free float (19,810 before

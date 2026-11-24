@@ -289,6 +289,35 @@ test("CPM: five more P6 rules from the CCA file (lag back into a finished node, 
   assert.equal(at(schedule(five, { variant: off(["activeSSLeft"]) }), five, "S").es, "2025-12-03 08:00");
 });
 
+test("CPM: an SF link into a started successor holds the predecessor by the SF lag left unspent (P6 23.12 probes h6s-an, h4s-a)", () => {
+  // X (as late as possible) and Y both started Mon 1 Dec; data date Wed 3 Dec
+  // 08:00, so 16 h of X's SF lag ran from X's actual start. Y finishes Fri 5
+  // Dec 17:00; the project runs to L's finish.
+  const off = (k) => Object.fromEntries(k.map((n) => [n, false]));
+  const shape = (lag, extra = {}, opt = {}) => project(
+    [task("1", "X", 8, { status_code: "TK_Active", act_start_date: "2025-12-01 08:00", target_drtn_hr_cnt: 24, cstr_type: "CS_ALAP", ...extra }),
+      task("2", "Y", 24, { status_code: "TK_Active", act_start_date: "2025-12-01 08:00", target_drtn_hr_cnt: 40 }), task("3", "L", 80)],
+    [link("1", "2", "1", "PR_SF", lag)],
+    { last_recalc_date: "2025-12-03 08:00" }, opt,
+  );
+  // lag 24 h, 8 h left: X's remaining start may slide to 8 h before Y's finish
+  const a = shape(24);
+  assert.equal(at(schedule(a), a, "X").es, "2025-12-05 08:00");
+  assert.equal(at(schedule(a), a, "X").ef, "2025-12-05 17:00");
+  // all of the lag spent: to Y's finish, the next working morning
+  const b = shape(16);
+  assert.equal(at(schedule(b), b, "X").es, "2025-12-08 08:00");
+  // before this rule the link held nothing and X slid to the project's end
+  assert.equal(at(schedule(a, { variant: off(["sfActiveSucc"]) }), a, "X").es, "2025-12-16 08:00");
+  // late dates: 24 h left of a 40 h lag hold X's late start 24 h before Y's late finish
+  const c = shape(40, { cstr_type: "" });
+  assert.equal(at(schedule(c), c, "X").ls, "2025-12-12 08:00");
+  assert.equal(at(schedule(c, { variant: off(["sfActiveSucc"]) }), c, "X").ls, "2025-12-16 08:00");
+  // under progress override an SF link out of started work is met: X slides past it
+  const d = shape(24, {}, { sched_progress_override: "Y", sched_retained_logic: "N" });
+  assert.equal(at(schedule(d), d, "X").es, "2025-12-16 08:00");
+});
+
 test("CPM: as late as possible takes up free float; loops are found and reported", () => {
   const x = project(
     [task("1", "A", 8), task("2", "B", 8, { cstr_type: "CS_ALAP" }), task("3", "C", 24), task("4", "End", 0, { task_type: "TT_FinMile" })],
