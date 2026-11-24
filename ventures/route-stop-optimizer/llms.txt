@@ -7,15 +7,18 @@
 - Orders a day's stops to cut drive time, with service minutes and customer time windows, split across up to 20 drivers; exact (Held-Karp) up to 12 stops on one route.
 - Optional per-stop load and vehicle capacity: each driver's load stays within it, and stops that fit no driver are named.
 - Routing engine: string-removal ruin and recreate with simulated annealing (vrptw.mjs). On the 56 Solomon VRPTW benchmark instances it averages 0.44% above the best-known distance and equals it on 26 (eval/solomon-2026-11-18.md).
+- Weekly route planner (weekly.html): for recurring customers (pool, lawn, pest, cleaning), chooses which day(s) each customer is served, with 1-7 visits a week on spread patterns and allowed days, plus every day's routes within a shift; compares with the customers' current days and lists who to move. 85 of 85 small weeks equal the enumerated optimum; on invented books it cut weekly drive time 35-43% against grown days and 12-26% against pie-slice zoning (eval/weekly-2026-11-24.md).
 - Travel times are straight-line miles times a road factor at an average speed: an estimate, not a road network.
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
-- [The tool](https://marisstella.app/route-stop-optimizer/)
+- [The daily tool](https://marisstella.app/route-stop-optimizer/)
+- [Weekly route planner](https://marisstella.app/route-stop-optimizer/weekly.html)
 
 ## Source
 
+- [Weekly planner measurement, 2026-11-24](https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/route-stop-optimizer/eval/weekly-2026-11-24.md)
 - [Solomon benchmark, 2026-11-18](https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/route-stop-optimizer/eval/solomon-2026-11-18.md)
 - [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/route-stop-optimizer): MIT licensed.

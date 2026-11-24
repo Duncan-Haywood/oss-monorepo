@@ -72,8 +72,36 @@ and invented data. Not legal, tax, or financial advice.
    balanced multi-driver days too; and a Web Worker so a 150-stop plan does not hold the page.
 3. Driver shifts and breaks, pickup-and-delivery pairs, and road-network times from a deployer's own OSRM or Valhalla
    (an env var, off by default).
-4. Recurring routes (the same customers weekly, a fixed day per customer): the planning problem paid route planners
-   charge per vehicle for.
+4. Recurring routes: first version landed 2026-11-24 as the weekly planner (below).
+
+## Weekly route planner (2026-11-24)
+
+**Page:** [`weekly.html`](weekly.html) (https://marisstella.app/route-stop-optimizer/weekly.html). For routes that
+serve the same customers every week (pool service, lawn care, pest control, cleaning, meter reading): paste
+`name, lat, lng, service minutes, visits a week, allowed days, current days`, and it chooses **which day(s) each customer is
+served** and **every day's routes** for your drivers within a shift, then shows what that saves against the days the
+customers have now (both weeks routed by the same engine) and lists the customers to move.
+
+- **Why someone would use it:** recurring-route planning is what paid field-service and route tools sell per vehicle
+  (route optimisation add-ons in pool and lawn software, OptimoRoute's and Route4Me's territory and recurring-route
+  features); the free alternatives are a spreadsheet, a wall map and pie slices by hand. This is free, private, needs
+  no account, handles twice- and three-times-weekly customers with spread patterns, and charges a per-move cost so it
+  does not reshuffle the whole book to save a minute.
+- **Engine (`weekly.mjs`):** periodic vehicle routing by ruin and recreate with simulated annealing; visit patterns
+  spread across the week (two a week = Mon+Thu, Mon+Fri or Tue+Fri on five days); shift overtime charged at 100
+  driving minutes per minute, ramped up from 0.1 during the search; 2-opt on touched routes.
+- **Measured** ([eval/weekly-2026-11-24.md](eval/weekly-2026-11-24.md)): 85 of 85 small weeks equal the enumerated
+  optimum; on invented books of 40 / 80 / 150 customers, 43% / 40% / 35% less weekly drive time than days dealt out
+  as books grow, 26% / 21% / 12% less than pie-slice zoning, no overtime left. Five seeds land within 2 to 4%.
+- **Limits:** no road network, no in-day time windows, no driver consistency, no every-other-week customers; a
+  150-customer, 3-driver week takes about 2 s per plan in Node and holds the tab while it runs.
+
+### Weekly planner, next
+
+1. A published PVRP benchmark (Cordeau-Gendreau-Laporte p01-p32 with their best-known values) once a host serves the
+   files, and an exchange move for tight shifts (the 2 to 4% seed spread).
+2. Every-other-week customers (a 10-working-day cycle), and keeping a customer with the same driver.
+3. Run the search in a Web Worker so a 300-customer book does not hold the page.
 
 ## Run
 

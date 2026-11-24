@@ -8,7 +8,9 @@ description: >-
   Solomon benchmark solutions), split across up to 20 drivers. Shows arrival
   times, what it saves against your current order in miles, hours, fuel and
   labor (per day and per year), and what the customer windows cost. Exports CSV
-  and opens the route in Google Maps. Nothing is uploaded.
+  and opens the route in Google Maps. A weekly planner (weekly.html) chooses
+  which day(s) each recurring customer is served and every day's routes within a
+  shift, against the customers' current days. Nothing is uploaded.
 stage: prototype
 owner: duncan
 
