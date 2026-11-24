@@ -42,7 +42,12 @@ no venture has a single measured visitor. That is not the brief. So:
 - **Build something with depth:** a real workflow, data, an algorithm, an
   integration, AI/ML that clearly helps, or a mobile or desktop app. Land a
   first working version in one run and deepen it over later runs.
-- **Finish ventures as one-click, self-deployed businesses.** The owner,
+- **Products are hosted SaaS; free tools can be self-deployed** (owner,
+  2026-11-24: "I think the hosted saas for them is better for business. I am happy to give away value but I'm not running a charity primarily. giving away value is good to do"). A product with depth is done when a stranger
+  can sign up, pay through Paddle (shipped dark until the owner sets the
+  product's config) and use it on the owner's hosting. The older
+  self-deploy model below now applies to the free MIT tools only.
+- **Free tools: one-click, self-deployed** (the earlier model). The owner,
   2026-10-15: "the model I'm thinking is fully developing one click deploy actual businesses with a web page with some inputs for credentials so people can spin up their own copies of the venture. then I'm not hosting and not liable. it's someone else. but still with a donate to the creator button."
   A venture is done when a stranger can open its page, enter their own
   credentials, click Deploy, and end up running their own copy in their

@@ -141,6 +141,14 @@ and one platform that runs them:
   stored or sent anywhere else. How to build this:
   `PRODUCT_PLAYBOOK.md` §2, "Rule of thumb: anyone can deploy it
   themselves".
+  **Superseded for products, 2026-11-24.** The owner: "I think the hosted saas for them is better for business. I am happy to give away value but I'm not running a charity primarily. giving away value is good to do". Products
+  (the `proprietary` track in `portfolio/monetization/LICENSING_TRANSITION.md`)
+  are now **hosted SaaS** that the owner runs and sells by subscription
+  through Paddle, or one-off licences. One-click self-deploy is no longer a
+  product's finish line. It stays a good option for the MIT tools and open
+  projects given away for traffic and goodwill, and for `sales-agent`. For a
+  product it can be a paid self-hosted tier where buyers ask for one. No run
+  spends time removing deploy pages that already exist.
   **Infrastructure as code** (the owner, 2026-10-16): "the deploy should be
   tf or similar i think as a suggestion but not a hard rule. iac sort of
   mentality." Prefer OpenTofu/Terraform (or the platform's own declarative

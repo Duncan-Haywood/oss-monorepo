@@ -18,6 +18,10 @@ the rest, and nothing of ours runs in between. This is the business model
 (`../prompts/ventures/prompt-1.md`). Details, including how OpenTofu is set up and the Buy Me a
 Coffee exception: `../PRODUCT_PLAYBOOK.md` §2, "Rule of thumb: anyone can
 deploy it themselves".
+**Updated 2026-11-24:** that model now covers only the free MIT tools.
+Products are hosted SaaS sold by subscription or licence (owner: "I think
+the hosted saas for them is better for business ... I'm not running a
+charity primarily"; `../prompts/goals.md`, Mission and "North star").
 
 **Deploy-first.** Products already on `main` with no public URL outrank new
 candidates: give them a way to reach people (a GitHub Pages page, a package,

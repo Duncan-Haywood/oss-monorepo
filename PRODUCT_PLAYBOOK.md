@@ -96,6 +96,12 @@ open, so it needs a stated reason Pages cannot meet.
 
 ### Rule of thumb: anyone can deploy it themselves (owner, 2026-10-15)
 
+**Now for free tools only (owner, 2026-11-24:** "I think the hosted saas for them is better for business. I am happy to give away value but I'm not running a charity primarily. giving away value is good to do"**).** Products
+are hosted SaaS on the owner's infrastructure, sold through Paddle by
+subscription or one-off licence. Self-deploy, as described below, is for
+the free MIT tools, and for a product only as a paid self-hosted tier where
+buyers want one.
+
 Build every app so that a stranger can run their own copy of it, in their own
 cloud account, without us. That lets other people set up businesses from
 this repo. The flow is: pick an app, pick a cloud provider, paste in
