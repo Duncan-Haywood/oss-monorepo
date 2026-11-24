@@ -129,6 +129,18 @@ export const ASK_DIR = 'ask';
 export const LAB_DIR = 'lab';
 // The fiction section (`stories.mjs`): an indexed page linking the story ventures.
 export const STORIES_DIR = 'stories';
+// The company's product pages (`products.mjs`): /products/ and the /industries/
+// index. Marketing pages about the site's own products, not tools.
+export const PRODUCTS_DIR = 'products';
+// Industry pages (2026-11-24 pivot): industries/<id>/, one per kind of
+// business, each written by its own module (industry-nonprofits.mjs, ...).
+export const INDUSTRIES_DIR = 'industries';
+// Paths the site Worker serves from another binding, so they are never in
+// this artifact: Grant Autopilot at /grants/ (cloudflare/router.mjs, GRANTS;
+// build.mjs GRANTS_ROBOTS). A link into one is live, not dead.
+export const WORKER_SERVED_PREFIXES = Object.freeze(['grants/']);
+export const isWorkerServed = (rootRelative) =>
+  WORKER_SERVED_PREFIXES.some((prefix) => rootRelative === prefix.slice(0, -1) || rootRelative.startsWith(prefix));
 
 // Directories the site builds for itself. They are not products, so the
 // reachability check below must not demand a `data-tool` card on the hub for
@@ -158,7 +170,7 @@ export const CUSTOM_DEV_DIR = 'custom-development';
 // linked from the footer, not a tool.
 export const HARDWARE_DIR = 'hardware';
 
-export const SITE_OWN_DIRS = new Set([HARDWARE_DIR, CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, CUSTOM_DEV_DIR, ASK_DIR, STORIES_DIR]);
+export const SITE_OWN_DIRS = new Set([HARDWARE_DIR, CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, CUSTOM_DEV_DIR, ASK_DIR, STORIES_DIR, INDUSTRIES_DIR, PRODUCTS_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -833,7 +845,17 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
     }
   }
 
-  for (const dir of [UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, STORIES_DIR, HARDWARE_DIR]) {
+  // Industry pages: each carries the disclaimer. Reachability comes from the
+  // industries index and the hub sitemap, not a direct hub link.
+  const industryEntries = await fs.readdir(path.join(site, INDUSTRIES_DIR), { withFileTypes: true }).catch(() => []);
+  for (const entry of industryEntries.filter((e) => e.isDirectory())) {
+    const relative = path.join(INDUSTRIES_DIR, entry.name, 'index.html');
+    const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
+    if (html === null) problems.push(`${INDUSTRIES_DIR}/${entry.name}/ has no index.html`);
+    else if (!DISCLAIMER_MARKER.test(html)) problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+  }
+
+  for (const dir of [UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, STORIES_DIR, HARDWARE_DIR, PRODUCTS_DIR, INDUSTRIES_DIR]) {
     // Optional, like the writing pages: a fixture build may write neither.
     const relative = path.join(dir, 'index.html');
     const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
@@ -1468,6 +1490,7 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
       if (isExternal(target)) continue;
       const cleaned = decodeURIComponent(target.split('#')[0].split('?')[0]);
       if (!cleaned) continue;
+      if (!cleaned.startsWith('/') && isWorkerServed(path.posix.normalize(path.posix.join(dir.split(path.sep).join('/'), cleaned)))) continue;
 
       const key = `${isHtml ? 'h' : 'o'}${dir}\0${cleaned}`;
       let outcome = linkOutcomes.get(key);

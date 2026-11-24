@@ -1,0 +1,737 @@
+[
+  {
+    "id": "BR-DE-1",
+    "source": "xrechnung",
+    "terms": ["BG-16"],
+    "en": {
+      "title": "Payment instructions are missing",
+      "meaning": "XRechnung requires every invoice and credit note to carry payment instructions (BG-16). The check only looks for the group itself (cac:PaymentMeans in UBL), but the group always needs at least a payment means code saying how the money is paid, for example 58 for a SEPA credit transfer.",
+      "causes": [
+        "The invoicing software leaves the payment block out because it is optional in plain EN 16931.",
+        "The bank details are only printed in a free-text note or the footer of a PDF, not in the structured fields.",
+        "A credit note was exported without payment instructions because no payment was expected."
+      ],
+      "fix": [
+        "Add one payment instructions group with a payment means code (BT-81), such as 58 for SEPA credit transfer or 59 for SEPA direct debit.",
+        "For a credit transfer, give the account the buyer should pay into (IBAN in BT-84) and, if you like, a remittance reference (BT-83).",
+        "In UBL this is cac:PaymentMeans; in CII it is ram:SpecifiedTradeSettlementPaymentMeans inside ram:ApplicableHeaderTradeSettlement."
+      ]
+    },
+    "de": {
+      "title": "Zahlungsanweisungen fehlen",
+      "meaning": "XRechnung verlangt in jeder Rechnung und Gutschrift die Gruppe Zahlungsanweisungen (BG-16). Die Prüfung sucht nur nach der Gruppe selbst (cac:PaymentMeans in UBL), die Gruppe braucht aber immer mindestens einen Code für die Zahlungsart, zum Beispiel 58 für eine SEPA-Überweisung.",
+      "causes": [
+        "Die Rechnungssoftware lässt den Zahlungsblock weg, weil er in der reinen EN 16931 optional ist.",
+        "Die Bankverbindung steht nur in einem Freitext oder in der Fußzeile des PDFs, nicht in den strukturierten Feldern.",
+        "Eine Gutschrift wurde ohne Zahlungsanweisungen erzeugt, weil keine Zahlung erwartet wurde."
+      ],
+      "fix": [
+        "Fügen Sie eine Gruppe Zahlungsanweisungen mit dem Code der Zahlungsart (BT-81) ein, etwa 58 für SEPA-Überweisung oder 59 für SEPA-Lastschrift.",
+        "Geben Sie bei einer Überweisung das Konto an, auf das der Käufer zahlen soll (IBAN in BT-84), und auf Wunsch einen Verwendungszweck (BT-83).",
+        "In UBL ist das cac:PaymentMeans, in CII ram:SpecifiedTradeSettlementPaymentMeans innerhalb von ram:ApplicableHeaderTradeSettlement."
+      ]
+    },
+    "fr": {
+      "title": "Les moyens de paiement sont absents",
+      "meaning": "XRechnung exige dans chaque facture et chaque avoir le groupe des instructions de paiement (BG-16). Le contrôle vérifie seulement la présence du groupe (cac:PaymentMeans en UBL), mais ce groupe doit toujours contenir au moins un code de moyen de paiement, par exemple 58 pour un virement SEPA.",
+      "causes": [
+        "Le logiciel de facturation omet le bloc de paiement, car il est facultatif dans la norme EN 16931 seule.",
+        "Les coordonnées bancaires figurent seulement dans une note libre ou en pied de page du PDF, pas dans les champs structurés.",
+        "Un avoir a été exporté sans instructions de paiement parce qu'aucun paiement n'était attendu."
+      ],
+      "fix": [
+        "Ajoutez un groupe d'instructions de paiement avec un code de moyen de paiement (BT-81), par exemple 58 pour un virement SEPA ou 59 pour un prélèvement SEPA.",
+        "Pour un virement, indiquez le compte sur lequel l'acheteur doit payer (IBAN en BT-84) et, si vous le souhaitez, une référence de paiement (BT-83).",
+        "En UBL, il s'agit de cac:PaymentMeans ; en CII, de ram:SpecifiedTradeSettlementPaymentMeans dans ram:ApplicableHeaderTradeSettlement."
+      ]
+    },
+    "ubl": "<cac:PaymentMeans>\n  <cbc:PaymentMeansCode>58</cbc:PaymentMeansCode>\n  <cbc:PaymentID>RE-2026-0042</cbc:PaymentID>\n  <cac:PayeeFinancialAccount>\n    <cbc:ID>DE02120300000000202051</cbc:ID>\n  </cac:PayeeFinancialAccount>\n</cac:PaymentMeans>",
+    "cii": "<ram:ApplicableHeaderTradeSettlement>\n  <ram:PaymentReference>RE-2026-0042</ram:PaymentReference>\n  <ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>\n  <ram:SpecifiedTradeSettlementPaymentMeans>\n    <ram:TypeCode>58</ram:TypeCode>\n    <ram:PayeePartyCreditorFinancialAccount>\n      <ram:IBANID>DE02120300000000202051</ram:IBANID>\n    </ram:PayeePartyCreditorFinancialAccount>\n  </ram:SpecifiedTradeSettlementPaymentMeans>\n  <!-- VAT breakdown and totals follow -->\n</ram:ApplicableHeaderTradeSettlement>"
+  },
+  {
+    "id": "BR-DE-2",
+    "source": "xrechnung",
+    "terms": ["BG-6"],
+    "en": {
+      "title": "Seller contact is missing",
+      "meaning": "XRechnung requires a seller contact (BG-6) on every invoice, so the buyer knows whom to ask about it. This rule only checks that the contact group exists; rules BR-DE-5, BR-DE-6 and BR-DE-7 then require a name, a telephone number and an email address inside it.",
+      "causes": [
+        "The software only exports the company's name and address, not a contact person.",
+        "The contact details are printed on the PDF but not written into the XML.",
+        "The contact was placed under the buyer or the payee instead of the seller."
+      ],
+      "fix": [
+        "Add a contact group to the seller party: cac:Contact in UBL, ram:DefinedTradeContact in CII.",
+        "Fill in a contact name or department, a telephone number and an email address at the same time, so BR-DE-5 to BR-DE-7 pass too.",
+        "If your software has a field for an invoicing contact or clerk, fill it in your company settings so every invoice carries it."
+      ]
+    },
+    "de": {
+      "title": "Kontaktdaten des Verkäufers fehlen",
+      "meaning": "XRechnung verlangt in jeder Rechnung einen Ansprechpartner des Verkäufers (BG-6), damit der Käufer weiß, an wen er sich wenden kann. Diese Regel prüft nur, ob die Kontaktgruppe vorhanden ist; die Regeln BR-DE-5, BR-DE-6 und BR-DE-7 verlangen darin dann Name, Telefonnummer und E-Mail-Adresse.",
+      "causes": [
+        "Die Software gibt nur Firmenname und Anschrift aus, aber keinen Ansprechpartner.",
+        "Die Kontaktdaten stehen auf dem PDF, wurden aber nicht in die XML-Datei übernommen.",
+        "Der Kontakt wurde beim Käufer oder beim Zahlungsempfänger statt beim Verkäufer eingetragen."
+      ],
+      "fix": [
+        "Ergänzen Sie beim Verkäufer eine Kontaktgruppe: cac:Contact in UBL, ram:DefinedTradeContact in CII.",
+        "Tragen Sie gleich Name oder Abteilung, Telefonnummer und E-Mail-Adresse ein, damit auch BR-DE-5 bis BR-DE-7 erfüllt sind.",
+        "Hat Ihre Software ein Feld für den Rechnungsansprechpartner oder Sachbearbeiter, pflegen Sie es in den Firmenstammdaten, damit jede Rechnung es enthält."
+      ]
+    },
+    "fr": {
+      "title": "Le contact du vendeur est absent",
+      "meaning": "XRechnung exige sur chaque facture un contact chez le vendeur (BG-6), pour que l'acheteur sache à qui s'adresser. Cette règle vérifie seulement la présence du groupe contact ; les règles BR-DE-5, BR-DE-6 et BR-DE-7 y exigent ensuite un nom, un numéro de téléphone et une adresse e-mail.",
+      "causes": [
+        "Le logiciel n'exporte que le nom et l'adresse de l'entreprise, sans personne à contacter.",
+        "Les coordonnées figurent sur le PDF mais n'ont pas été reprises dans le fichier XML.",
+        "Le contact a été placé chez l'acheteur ou chez le bénéficiaire du paiement au lieu du vendeur."
+      ],
+      "fix": [
+        "Ajoutez un groupe contact au vendeur : cac:Contact en UBL, ram:DefinedTradeContact en CII.",
+        "Renseignez en même temps un nom ou un service, un numéro de téléphone et une adresse e-mail, pour que BR-DE-5 à BR-DE-7 passent aussi.",
+        "Si votre logiciel prévoit un champ « contact facturation », remplissez-le dans les paramètres de l'entreprise pour qu'il figure sur chaque facture."
+      ]
+    },
+    "ubl": "<cac:AccountingSupplierParty>\n  <cac:Party>\n    <!-- endpoint, name, address and tax details come before the contact -->\n    <cac:Contact>\n      <cbc:Name>Accounts team</cbc:Name>\n      <cbc:Telephone>+49 30 1234567</cbc:Telephone>\n      <cbc:ElectronicMail>invoices@example.com</cbc:ElectronicMail>\n    </cac:Contact>\n  </cac:Party>\n</cac:AccountingSupplierParty>",
+    "cii": "<ram:SellerTradeParty>\n  <ram:Name>Example GmbH</ram:Name>\n  <ram:DefinedTradeContact>\n    <ram:PersonName>Accounts team</ram:PersonName>\n    <ram:TelephoneUniversalCommunication>\n      <ram:CompleteNumber>+49 30 1234567</ram:CompleteNumber>\n    </ram:TelephoneUniversalCommunication>\n    <ram:EmailURIUniversalCommunication>\n      <ram:URIID>invoices@example.com</ram:URIID>\n    </ram:EmailURIUniversalCommunication>\n  </ram:DefinedTradeContact>\n  <!-- postal address and tax registration follow -->\n</ram:SellerTradeParty>"
+  },
+  {
+    "id": "BR-DE-3",
+    "source": "xrechnung",
+    "terms": ["BT-37"],
+    "en": {
+      "title": "Seller city is missing",
+      "meaning": "XRechnung requires the seller's postal address to include a city (BT-37). The check runs on the seller address and fails when the city is absent or contains only spaces.",
+      "causes": [
+        "The city and post code were typed into one street line instead of their own fields.",
+        "The company master data in the invoicing software has no city filled in.",
+        "An export template writes the city into a free-text address line (cbc:AddressLine) only."
+      ],
+      "fix": [
+        "Put the seller's city in its own field: cbc:CityName in the seller's cac:PostalAddress (UBL) or ram:CityName in ram:PostalTradeAddress (CII).",
+        "Correct your company master data once so later invoices carry it.",
+        "Check the post code at the same time, since BR-DE-4 requires it too."
+      ]
+    },
+    "de": {
+      "title": "Ort des Verkäufers fehlt",
+      "meaning": "XRechnung verlangt in der Postanschrift des Verkäufers einen Ort (BT-37). Die Prüfung läuft auf der Verkäuferanschrift und schlägt fehl, wenn der Ort fehlt oder nur Leerzeichen enthält.",
+      "causes": [
+        "Postleitzahl und Ort wurden zusammen in die Straßenzeile geschrieben statt in eigene Felder.",
+        "In den Firmenstammdaten der Rechnungssoftware ist kein Ort hinterlegt.",
+        "Eine Exportvorlage schreibt den Ort nur in eine freie Adresszeile (cbc:AddressLine)."
+      ],
+      "fix": [
+        "Tragen Sie den Ort des Verkäufers in das eigene Feld ein: cbc:CityName in cac:PostalAddress des Verkäufers (UBL) bzw. ram:CityName in ram:PostalTradeAddress (CII).",
+        "Korrigieren Sie einmalig die Firmenstammdaten, damit spätere Rechnungen den Ort enthalten.",
+        "Prüfen Sie gleich auch die Postleitzahl, denn BR-DE-4 verlangt sie ebenfalls."
+      ]
+    },
+    "fr": {
+      "title": "La ville du vendeur est absente",
+      "meaning": "XRechnung exige que l'adresse postale du vendeur comporte une ville (BT-37). Le contrôle porte sur l'adresse du vendeur et échoue si la ville manque ou ne contient que des espaces.",
+      "causes": [
+        "Le code postal et la ville ont été saisis dans la ligne de rue au lieu de leurs propres champs.",
+        "Les données de l'entreprise dans le logiciel de facturation ne comportent pas de ville.",
+        "Un modèle d'export écrit la ville seulement dans une ligne d'adresse libre (cbc:AddressLine)."
+      ],
+      "fix": [
+        "Indiquez la ville du vendeur dans son propre champ : cbc:CityName dans cac:PostalAddress du vendeur (UBL) ou ram:CityName dans ram:PostalTradeAddress (CII).",
+        "Corrigez une fois les données de l'entreprise pour que les factures suivantes la contiennent.",
+        "Vérifiez en même temps le code postal, que BR-DE-4 exige aussi."
+      ]
+    },
+    "ubl": "<cac:PostalAddress>\n  <cbc:StreetName>Musterstraße 1</cbc:StreetName>\n  <cbc:CityName>Berlin</cbc:CityName>\n  <cbc:PostalZone>10115</cbc:PostalZone>\n  <cac:Country>\n    <cbc:IdentificationCode>DE</cbc:IdentificationCode>\n  </cac:Country>\n</cac:PostalAddress>",
+    "cii": "<ram:PostalTradeAddress>\n  <ram:PostcodeCode>10115</ram:PostcodeCode>\n  <ram:LineOne>Musterstraße 1</ram:LineOne>\n  <ram:CityName>Berlin</ram:CityName>\n  <ram:CountryID>DE</ram:CountryID>\n</ram:PostalTradeAddress>"
+  },
+  {
+    "id": "BR-DE-4",
+    "source": "xrechnung",
+    "terms": ["BT-38"],
+    "en": {
+      "title": "Seller post code is missing",
+      "meaning": "XRechnung requires the seller's postal address to include a post code (BT-38), which plain EN 16931 leaves optional. The check fails when the post code is absent or contains only spaces.",
+      "causes": [
+        "Post code and city were typed together into the city field or a street line.",
+        "The company master data has no post code filled in.",
+        "The seller is in a country without post codes and the field was left out."
+      ],
+      "fix": [
+        "Put the seller's post code in its own field: cbc:PostalZone in the seller's cac:PostalAddress (UBL) or ram:PostcodeCode in ram:PostalTradeAddress (CII).",
+        "Keep the city on its own in the city field (BR-DE-3).",
+        "If your country really has no post codes, ask the buyer or its platform what they accept, since the rule has no exception for that case."
+      ]
+    },
+    "de": {
+      "title": "Postleitzahl des Verkäufers fehlt",
+      "meaning": "XRechnung verlangt in der Postanschrift des Verkäufers eine Postleitzahl (BT-38), die in der reinen EN 16931 optional ist. Die Prüfung schlägt fehl, wenn die Postleitzahl fehlt oder nur Leerzeichen enthält.",
+      "causes": [
+        "Postleitzahl und Ort wurden zusammen in das Ortsfeld oder eine Straßenzeile geschrieben.",
+        "In den Firmenstammdaten ist keine Postleitzahl hinterlegt.",
+        "Der Verkäufer sitzt in einem Land ohne Postleitzahlen, und das Feld wurde weggelassen."
+      ],
+      "fix": [
+        "Tragen Sie die Postleitzahl in das eigene Feld ein: cbc:PostalZone in cac:PostalAddress des Verkäufers (UBL) bzw. ram:PostcodeCode in ram:PostalTradeAddress (CII).",
+        "Lassen Sie im Ortsfeld nur den Ort stehen (BR-DE-3).",
+        "Gibt es in Ihrem Land wirklich keine Postleitzahlen, fragen Sie den Käufer oder seine Plattform, was akzeptiert wird; die Regel kennt dafür keine Ausnahme."
+      ]
+    },
+    "fr": {
+      "title": "Le code postal du vendeur est absent",
+      "meaning": "XRechnung exige que l'adresse postale du vendeur comporte un code postal (BT-38), facultatif dans la norme EN 16931 seule. Le contrôle échoue si le code postal manque ou ne contient que des espaces.",
+      "causes": [
+        "Le code postal et la ville ont été saisis ensemble dans le champ ville ou dans une ligne de rue.",
+        "Les données de l'entreprise ne comportent pas de code postal.",
+        "Le vendeur est établi dans un pays sans code postal et le champ a été omis."
+      ],
+      "fix": [
+        "Indiquez le code postal du vendeur dans son propre champ : cbc:PostalZone dans cac:PostalAddress du vendeur (UBL) ou ram:PostcodeCode dans ram:PostalTradeAddress (CII).",
+        "Laissez seulement la ville dans le champ ville (BR-DE-3).",
+        "Si votre pays n'a vraiment pas de codes postaux, demandez à l'acheteur ou à sa plateforme ce qu'ils acceptent : la règle ne prévoit pas d'exception."
+      ]
+    },
+    "ubl": "<cac:PostalAddress>\n  <cbc:StreetName>Musterstraße 1</cbc:StreetName>\n  <cbc:CityName>Berlin</cbc:CityName>\n  <cbc:PostalZone>10115</cbc:PostalZone>\n  <cac:Country>\n    <cbc:IdentificationCode>DE</cbc:IdentificationCode>\n  </cac:Country>\n</cac:PostalAddress>",
+    "cii": "<ram:PostalTradeAddress>\n  <ram:PostcodeCode>10115</ram:PostcodeCode>\n  <ram:LineOne>Musterstraße 1</ram:LineOne>\n  <ram:CityName>Berlin</ram:CityName>\n  <ram:CountryID>DE</ram:CountryID>\n</ram:PostalTradeAddress>"
+  },
+  {
+    "id": "BR-DE-5",
+    "source": "xrechnung",
+    "terms": ["BT-41"],
+    "en": {
+      "title": "Seller contact name is missing",
+      "meaning": "When the seller contact group is present, XRechnung requires a contact point (BT-41): a person's name or a department. In UBL this is cbc:Name in the seller's cac:Contact; in CII either ram:PersonName or ram:DepartmentName is accepted.",
+      "causes": [
+        "The contact group carries only a phone number or email address.",
+        "No clerk or invoicing contact is set up in the software, so the name is written empty.",
+        "The name was put in another field, such as the company name."
+      ],
+      "fix": [
+        "Fill in a contact name or a department such as \"Accounts\": cbc:Name in the seller's cac:Contact (UBL), ram:PersonName or ram:DepartmentName in ram:DefinedTradeContact (CII).",
+        "Set a default invoicing contact in your company settings so every invoice carries one.",
+        "Keep the telephone number and email address in the same group (BR-DE-6, BR-DE-7)."
+      ]
+    },
+    "de": {
+      "title": "Ansprechpartner des Verkäufers fehlt",
+      "meaning": "Ist die Kontaktgruppe des Verkäufers vorhanden, verlangt XRechnung einen Ansprechpartner (BT-41): den Namen einer Person oder eine Abteilung. In UBL ist das cbc:Name im cac:Contact des Verkäufers; in CII wird ram:PersonName oder ram:DepartmentName akzeptiert.",
+      "causes": [
+        "Die Kontaktgruppe enthält nur eine Telefonnummer oder E-Mail-Adresse.",
+        "In der Software ist kein Sachbearbeiter oder Rechnungsansprechpartner hinterlegt, daher bleibt der Name leer.",
+        "Der Name wurde in einem anderen Feld eingetragen, etwa beim Firmennamen."
+      ],
+      "fix": [
+        "Tragen Sie einen Namen oder eine Abteilung wie „Buchhaltung“ ein: cbc:Name im cac:Contact des Verkäufers (UBL), ram:PersonName oder ram:DepartmentName in ram:DefinedTradeContact (CII).",
+        "Hinterlegen Sie in den Firmeneinstellungen einen Standard-Ansprechpartner, damit jede Rechnung einen enthält.",
+        "Lassen Sie Telefonnummer und E-Mail-Adresse in derselben Gruppe stehen (BR-DE-6, BR-DE-7)."
+      ]
+    },
+    "fr": {
+      "title": "Le nom du contact du vendeur est absent",
+      "meaning": "Lorsque le groupe contact du vendeur est présent, XRechnung exige un point de contact (BT-41) : le nom d'une personne ou d'un service. En UBL, c'est cbc:Name dans le cac:Contact du vendeur ; en CII, ram:PersonName ou ram:DepartmentName est accepté.",
+      "causes": [
+        "Le groupe contact ne contient qu'un numéro de téléphone ou une adresse e-mail.",
+        "Aucun interlocuteur facturation n'est configuré dans le logiciel, le nom est donc vide.",
+        "Le nom a été saisi dans un autre champ, par exemple la raison sociale."
+      ],
+      "fix": [
+        "Indiquez un nom ou un service comme « Comptabilité » : cbc:Name dans le cac:Contact du vendeur (UBL), ram:PersonName ou ram:DepartmentName dans ram:DefinedTradeContact (CII).",
+        "Définissez un contact facturation par défaut dans les paramètres de l'entreprise pour que chaque facture en ait un.",
+        "Gardez le téléphone et l'adresse e-mail dans le même groupe (BR-DE-6, BR-DE-7)."
+      ]
+    },
+    "ubl": "<cac:Contact>\n  <cbc:Name>Accounts team</cbc:Name>\n  <cbc:Telephone>+49 30 1234567</cbc:Telephone>\n  <cbc:ElectronicMail>invoices@example.com</cbc:ElectronicMail>\n</cac:Contact>",
+    "cii": "<ram:DefinedTradeContact>\n  <ram:DepartmentName>Accounts</ram:DepartmentName>\n  <ram:TelephoneUniversalCommunication>\n    <ram:CompleteNumber>+49 30 1234567</ram:CompleteNumber>\n  </ram:TelephoneUniversalCommunication>\n  <ram:EmailURIUniversalCommunication>\n    <ram:URIID>invoices@example.com</ram:URIID>\n  </ram:EmailURIUniversalCommunication>\n</ram:DefinedTradeContact>"
+  },
+  {
+    "id": "BR-DE-6",
+    "source": "xrechnung",
+    "terms": ["BT-42"],
+    "en": {
+      "title": "Seller contact telephone number is missing",
+      "meaning": "When the seller contact group is present, XRechnung requires a telephone number (BT-42) in it. The check only tests that the field is not empty; it does not check the number's format.",
+      "causes": [
+        "The contact carries a name and email address but no phone number.",
+        "The phone number is only printed in the PDF letterhead.",
+        "The number was put in the buyer's contact or in a note instead of the seller's contact."
+      ],
+      "fix": [
+        "Add the phone number: cbc:Telephone in the seller's cac:Contact (UBL) or ram:CompleteNumber in ram:TelephoneUniversalCommunication (CII).",
+        "Use the number your accounts team answers, ideally in international form such as +49 30 1234567.",
+        "Store it with your default invoicing contact so later invoices include it."
+      ]
+    },
+    "de": {
+      "title": "Telefonnummer des Verkäufers fehlt",
+      "meaning": "Ist die Kontaktgruppe des Verkäufers vorhanden, verlangt XRechnung darin eine Telefonnummer (BT-42). Geprüft wird nur, dass das Feld nicht leer ist, nicht das Format der Nummer.",
+      "causes": [
+        "Der Kontakt enthält Name und E-Mail-Adresse, aber keine Telefonnummer.",
+        "Die Telefonnummer steht nur im Briefkopf des PDFs.",
+        "Die Nummer wurde beim Kontakt des Käufers oder in einer Bemerkung statt beim Verkäufer eingetragen."
+      ],
+      "fix": [
+        "Ergänzen Sie die Telefonnummer: cbc:Telephone im cac:Contact des Verkäufers (UBL) bzw. ram:CompleteNumber in ram:TelephoneUniversalCommunication (CII).",
+        "Nehmen Sie die Nummer, unter der Ihre Buchhaltung erreichbar ist, am besten international wie +49 30 1234567.",
+        "Hinterlegen Sie sie beim Standard-Ansprechpartner, damit spätere Rechnungen sie enthalten."
+      ]
+    },
+    "fr": {
+      "title": "Le téléphone du contact du vendeur est absent",
+      "meaning": "Lorsque le groupe contact du vendeur est présent, XRechnung y exige un numéro de téléphone (BT-42). Le contrôle vérifie seulement que le champ n'est pas vide, pas le format du numéro.",
+      "causes": [
+        "Le contact comporte un nom et une adresse e-mail, mais pas de téléphone.",
+        "Le numéro figure seulement dans l'en-tête du PDF.",
+        "Le numéro a été saisi dans le contact de l'acheteur ou dans une note au lieu du contact du vendeur."
+      ],
+      "fix": [
+        "Ajoutez le numéro : cbc:Telephone dans le cac:Contact du vendeur (UBL) ou ram:CompleteNumber dans ram:TelephoneUniversalCommunication (CII).",
+        "Indiquez le numéro où votre service comptable répond, de préférence au format international comme +49 30 1234567.",
+        "Enregistrez-le avec votre contact facturation par défaut pour que les factures suivantes le contiennent."
+      ]
+    },
+    "ubl": "<cac:Contact>\n  <cbc:Name>Accounts team</cbc:Name>\n  <cbc:Telephone>+49 30 1234567</cbc:Telephone>\n  <cbc:ElectronicMail>invoices@example.com</cbc:ElectronicMail>\n</cac:Contact>",
+    "cii": "<ram:DefinedTradeContact>\n  <ram:PersonName>Accounts team</ram:PersonName>\n  <ram:TelephoneUniversalCommunication>\n    <ram:CompleteNumber>+49 30 1234567</ram:CompleteNumber>\n  </ram:TelephoneUniversalCommunication>\n  <ram:EmailURIUniversalCommunication>\n    <ram:URIID>invoices@example.com</ram:URIID>\n  </ram:EmailURIUniversalCommunication>\n</ram:DefinedTradeContact>"
+  },
+  {
+    "id": "BR-DE-7",
+    "source": "xrechnung",
+    "terms": ["BT-43"],
+    "en": {
+      "title": "Seller contact email address is missing",
+      "meaning": "When the seller contact group is present, XRechnung requires an email address (BT-43) in it. This rule only checks that the field is not empty; other XRechnung rules check the address's form.",
+      "causes": [
+        "The contact carries a name and phone number but no email address.",
+        "The email address is only shown on the PDF or in the sender's email, not in the XML.",
+        "The address was put in the seller's electronic address (BT-34) instead of the contact."
+      ],
+      "fix": [
+        "Add the email address: cbc:ElectronicMail in the seller's cac:Contact (UBL) or ram:URIID in ram:EmailURIUniversalCommunication (CII).",
+        "Use a mailbox someone reads, such as your accounts address.",
+        "Keep it in the contact even if you already send it as the seller's electronic address (BT-34): the two are separate fields."
+      ]
+    },
+    "de": {
+      "title": "E-Mail-Adresse des Verkäufers fehlt",
+      "meaning": "Ist die Kontaktgruppe des Verkäufers vorhanden, verlangt XRechnung darin eine E-Mail-Adresse (BT-43). Diese Regel prüft nur, dass das Feld nicht leer ist; die Form der Adresse prüfen andere XRechnung-Regeln.",
+      "causes": [
+        "Der Kontakt enthält Name und Telefonnummer, aber keine E-Mail-Adresse.",
+        "Die E-Mail-Adresse steht nur auf dem PDF oder in der Absenderzeile der Mail, nicht in der XML-Datei.",
+        "Die Adresse wurde als elektronische Adresse des Verkäufers (BT-34) statt beim Kontakt eingetragen."
+      ],
+      "fix": [
+        "Ergänzen Sie die E-Mail-Adresse: cbc:ElectronicMail im cac:Contact des Verkäufers (UBL) bzw. ram:URIID in ram:EmailURIUniversalCommunication (CII).",
+        "Nehmen Sie ein Postfach, das gelesen wird, etwa die Adresse Ihrer Buchhaltung.",
+        "Tragen Sie sie beim Kontakt ein, auch wenn sie schon als elektronische Adresse des Verkäufers (BT-34) übermittelt wird: Das sind zwei getrennte Felder."
+      ]
+    },
+    "fr": {
+      "title": "L'adresse e-mail du contact du vendeur est absente",
+      "meaning": "Lorsque le groupe contact du vendeur est présent, XRechnung y exige une adresse e-mail (BT-43). Cette règle vérifie seulement que le champ n'est pas vide ; d'autres règles XRechnung contrôlent la forme de l'adresse.",
+      "causes": [
+        "Le contact comporte un nom et un téléphone, mais pas d'adresse e-mail.",
+        "L'adresse e-mail figure seulement sur le PDF ou comme expéditeur du courriel, pas dans le XML.",
+        "L'adresse a été mise dans l'adresse électronique du vendeur (BT-34) au lieu du contact."
+      ],
+      "fix": [
+        "Ajoutez l'adresse e-mail : cbc:ElectronicMail dans le cac:Contact du vendeur (UBL) ou ram:URIID dans ram:EmailURIUniversalCommunication (CII).",
+        "Utilisez une boîte réellement consultée, par exemple celle de votre comptabilité.",
+        "Indiquez-la dans le contact même si elle est déjà transmise comme adresse électronique du vendeur (BT-34) : ce sont deux champs distincts."
+      ]
+    },
+    "ubl": "<cac:Contact>\n  <cbc:Name>Accounts team</cbc:Name>\n  <cbc:Telephone>+49 30 1234567</cbc:Telephone>\n  <cbc:ElectronicMail>invoices@example.com</cbc:ElectronicMail>\n</cac:Contact>",
+    "cii": "<ram:DefinedTradeContact>\n  <ram:PersonName>Accounts team</ram:PersonName>\n  <ram:TelephoneUniversalCommunication>\n    <ram:CompleteNumber>+49 30 1234567</ram:CompleteNumber>\n  </ram:TelephoneUniversalCommunication>\n  <ram:EmailURIUniversalCommunication>\n    <ram:URIID>invoices@example.com</ram:URIID>\n  </ram:EmailURIUniversalCommunication>\n</ram:DefinedTradeContact>"
+  },
+  {
+    "id": "BR-DE-8",
+    "source": "xrechnung",
+    "terms": ["BT-52"],
+    "en": {
+      "title": "Buyer city is missing",
+      "meaning": "XRechnung requires the buyer's postal address to include a city (BT-52). The check runs on the buyer address and fails when the city is absent or contains only spaces.",
+      "causes": [
+        "The customer record in the invoicing software has no city.",
+        "City and post code were typed together into a street line.",
+        "The buyer's address was imported from an order where it only exists as free text."
+      ],
+      "fix": [
+        "Put the buyer's city in its own field: cbc:CityName in cac:AccountingCustomerParty/cac:Party/cac:PostalAddress (UBL) or ram:CityName in the buyer's ram:PostalTradeAddress (CII).",
+        "Fix the customer record once so later invoices to this buyer carry it.",
+        "Check the buyer's post code at the same time (BR-DE-9)."
+      ]
+    },
+    "de": {
+      "title": "Ort des Käufers fehlt",
+      "meaning": "XRechnung verlangt in der Postanschrift des Käufers einen Ort (BT-52). Die Prüfung läuft auf der Käuferanschrift und schlägt fehl, wenn der Ort fehlt oder nur Leerzeichen enthält.",
+      "causes": [
+        "Im Kundenstamm der Rechnungssoftware ist kein Ort hinterlegt.",
+        "Ort und Postleitzahl wurden zusammen in die Straßenzeile geschrieben.",
+        "Die Käuferanschrift stammt aus einer Bestellung, in der sie nur als Freitext vorliegt."
+      ],
+      "fix": [
+        "Tragen Sie den Ort des Käufers in das eigene Feld ein: cbc:CityName in cac:AccountingCustomerParty/cac:Party/cac:PostalAddress (UBL) bzw. ram:CityName in der ram:PostalTradeAddress des Käufers (CII).",
+        "Korrigieren Sie einmalig den Kundenstamm, damit spätere Rechnungen an diesen Käufer den Ort enthalten.",
+        "Prüfen Sie gleich auch die Postleitzahl des Käufers (BR-DE-9)."
+      ]
+    },
+    "fr": {
+      "title": "La ville de l'acheteur est absente",
+      "meaning": "XRechnung exige que l'adresse postale de l'acheteur comporte une ville (BT-52). Le contrôle porte sur l'adresse de l'acheteur et échoue si la ville manque ou ne contient que des espaces.",
+      "causes": [
+        "La fiche client du logiciel de facturation ne comporte pas de ville.",
+        "La ville et le code postal ont été saisis ensemble dans une ligne de rue.",
+        "L'adresse de l'acheteur provient d'une commande où elle n'existe qu'en texte libre."
+      ],
+      "fix": [
+        "Indiquez la ville de l'acheteur dans son propre champ : cbc:CityName dans cac:AccountingCustomerParty/cac:Party/cac:PostalAddress (UBL) ou ram:CityName dans la ram:PostalTradeAddress de l'acheteur (CII).",
+        "Corrigez une fois la fiche client pour que les factures suivantes à cet acheteur la contiennent.",
+        "Vérifiez en même temps le code postal de l'acheteur (BR-DE-9)."
+      ]
+    },
+    "ubl": "<cac:AccountingCustomerParty>\n  <cac:Party>\n    <cac:PostalAddress>\n      <cbc:StreetName>Amtsweg 5</cbc:StreetName>\n      <cbc:CityName>Bonn</cbc:CityName>\n      <cbc:PostalZone>53111</cbc:PostalZone>\n      <cac:Country>\n        <cbc:IdentificationCode>DE</cbc:IdentificationCode>\n      </cac:Country>\n    </cac:PostalAddress>\n  </cac:Party>\n</cac:AccountingCustomerParty>",
+    "cii": "<ram:BuyerTradeParty>\n  <ram:Name>Example Authority</ram:Name>\n  <ram:PostalTradeAddress>\n    <ram:PostcodeCode>53111</ram:PostcodeCode>\n    <ram:LineOne>Amtsweg 5</ram:LineOne>\n    <ram:CityName>Bonn</ram:CityName>\n    <ram:CountryID>DE</ram:CountryID>\n  </ram:PostalTradeAddress>\n</ram:BuyerTradeParty>"
+  },
+  {
+    "id": "BR-DE-9",
+    "source": "xrechnung",
+    "terms": ["BT-53"],
+    "en": {
+      "title": "Buyer post code is missing",
+      "meaning": "XRechnung requires the buyer's postal address to include a post code (BT-53), which plain EN 16931 leaves optional. The check fails when the post code is absent or contains only spaces.",
+      "causes": [
+        "The customer record has no post code, or it is typed into the city field.",
+        "A PO box or internal mail code was entered instead and the post code left out.",
+        "The buyer is abroad in a country without post codes."
+      ],
+      "fix": [
+        "Put the buyer's post code in its own field: cbc:PostalZone in the buyer's cac:PostalAddress (UBL) or ram:PostcodeCode in the buyer's ram:PostalTradeAddress (CII).",
+        "Take the address the buyer gave for invoices, for a public buyer usually from the order or its invoicing instructions.",
+        "If the buyer's country has no post codes, ask the buyer what to send, since the rule has no exception for that case."
+      ]
+    },
+    "de": {
+      "title": "Postleitzahl des Käufers fehlt",
+      "meaning": "XRechnung verlangt in der Postanschrift des Käufers eine Postleitzahl (BT-53), die in der reinen EN 16931 optional ist. Die Prüfung schlägt fehl, wenn die Postleitzahl fehlt oder nur Leerzeichen enthält.",
+      "causes": [
+        "Im Kundenstamm fehlt die Postleitzahl, oder sie steht im Ortsfeld.",
+        "Statt der Postleitzahl wurde ein Postfach oder eine interne Hauspostkennung eingetragen.",
+        "Der Käufer sitzt im Ausland in einem Land ohne Postleitzahlen."
+      ],
+      "fix": [
+        "Tragen Sie die Postleitzahl des Käufers in das eigene Feld ein: cbc:PostalZone in der cac:PostalAddress des Käufers (UBL) bzw. ram:PostcodeCode in seiner ram:PostalTradeAddress (CII).",
+        "Übernehmen Sie die Rechnungsanschrift, die der Käufer angegeben hat, bei öffentlichen Auftraggebern meist aus der Bestellung oder den Rechnungshinweisen.",
+        "Hat das Land des Käufers keine Postleitzahlen, fragen Sie den Käufer, was Sie angeben sollen; die Regel kennt dafür keine Ausnahme."
+      ]
+    },
+    "fr": {
+      "title": "Le code postal de l'acheteur est absent",
+      "meaning": "XRechnung exige que l'adresse postale de l'acheteur comporte un code postal (BT-53), facultatif dans la norme EN 16931 seule. Le contrôle échoue si le code postal manque ou ne contient que des espaces.",
+      "causes": [
+        "La fiche client n'a pas de code postal, ou il a été saisi dans le champ ville.",
+        "Une boîte postale ou un code de courrier interne a été saisi à la place du code postal.",
+        "L'acheteur est établi dans un pays sans code postal."
+      ],
+      "fix": [
+        "Indiquez le code postal de l'acheteur dans son propre champ : cbc:PostalZone dans la cac:PostalAddress de l'acheteur (UBL) ou ram:PostcodeCode dans sa ram:PostalTradeAddress (CII).",
+        "Reprenez l'adresse de facturation donnée par l'acheteur ; pour un acheteur public, elle figure en général dans la commande ou ses consignes de facturation.",
+        "Si le pays de l'acheteur n'a pas de codes postaux, demandez-lui quoi indiquer : la règle ne prévoit pas d'exception."
+      ]
+    },
+    "ubl": "<cac:AccountingCustomerParty>\n  <cac:Party>\n    <cac:PostalAddress>\n      <cbc:StreetName>Amtsweg 5</cbc:StreetName>\n      <cbc:CityName>Bonn</cbc:CityName>\n      <cbc:PostalZone>53111</cbc:PostalZone>\n      <cac:Country>\n        <cbc:IdentificationCode>DE</cbc:IdentificationCode>\n      </cac:Country>\n    </cac:PostalAddress>\n  </cac:Party>\n</cac:AccountingCustomerParty>",
+    "cii": "<ram:BuyerTradeParty>\n  <ram:Name>Example Authority</ram:Name>\n  <ram:PostalTradeAddress>\n    <ram:PostcodeCode>53111</ram:PostcodeCode>\n    <ram:LineOne>Amtsweg 5</ram:LineOne>\n    <ram:CityName>Bonn</ram:CityName>\n    <ram:CountryID>DE</ram:CountryID>\n  </ram:PostalTradeAddress>\n</ram:BuyerTradeParty>"
+  },
+  {
+    "id": "BR-DE-10",
+    "source": "xrechnung",
+    "terms": ["BT-77", "BG-15"],
+    "en": {
+      "title": "Delivery address has no city",
+      "meaning": "If the invoice gives a deliver-to address (BG-15), XRechnung requires it to include a city (BT-77). An invoice without a delivery address is not affected by this rule.",
+      "causes": [
+        "Only a street or a building name was entered for the delivery address.",
+        "The software writes an empty delivery address block even when nothing was delivered elsewhere.",
+        "City and post code were typed into one address line."
+      ],
+      "fix": [
+        "Add the city of the delivery place: cbc:CityName in cac:Delivery/cac:DeliveryLocation/cac:Address (UBL) or ram:CityName in ram:ShipToTradeParty/ram:PostalTradeAddress (CII).",
+        "Complete the post code (BR-DE-11) and country code at the same time.",
+        "If goods were not delivered to a different address, leave the delivery address out altogether rather than sending an incomplete one."
+      ]
+    },
+    "de": {
+      "title": "Lieferanschrift ohne Ort",
+      "meaning": "Enthält die Rechnung eine Lieferanschrift (BG-15), verlangt XRechnung darin einen Ort (BT-77). Rechnungen ohne Lieferanschrift betrifft diese Regel nicht.",
+      "causes": [
+        "Für die Lieferanschrift wurde nur eine Straße oder ein Gebäudename eingetragen.",
+        "Die Software schreibt einen leeren Lieferadressblock, auch wenn nicht an eine andere Adresse geliefert wurde.",
+        "Ort und Postleitzahl stehen zusammen in einer Adresszeile."
+      ],
+      "fix": [
+        "Ergänzen Sie den Ort des Lieferorts: cbc:CityName in cac:Delivery/cac:DeliveryLocation/cac:Address (UBL) bzw. ram:CityName in ram:ShipToTradeParty/ram:PostalTradeAddress (CII).",
+        "Vervollständigen Sie dabei auch Postleitzahl (BR-DE-11) und Ländercode.",
+        "Wurde nicht an eine abweichende Adresse geliefert, lassen Sie die Lieferanschrift lieber ganz weg, statt sie unvollständig zu senden."
+      ]
+    },
+    "fr": {
+      "title": "L'adresse de livraison n'a pas de ville",
+      "meaning": "Si la facture indique une adresse de livraison (BG-15), XRechnung exige qu'elle comporte une ville (BT-77). Une facture sans adresse de livraison n'est pas concernée par cette règle.",
+      "causes": [
+        "Seule une rue ou un nom de bâtiment a été saisi pour l'adresse de livraison.",
+        "Le logiciel écrit un bloc d'adresse de livraison vide même sans livraison à une autre adresse.",
+        "La ville et le code postal ont été saisis dans une seule ligne d'adresse."
+      ],
+      "fix": [
+        "Ajoutez la ville du lieu de livraison : cbc:CityName dans cac:Delivery/cac:DeliveryLocation/cac:Address (UBL) ou ram:CityName dans ram:ShipToTradeParty/ram:PostalTradeAddress (CII).",
+        "Complétez en même temps le code postal (BR-DE-11) et le code pays.",
+        "Si rien n'a été livré à une autre adresse, omettez plutôt l'adresse de livraison que de l'envoyer incomplète."
+      ]
+    },
+    "ubl": "<cac:Delivery>\n  <cbc:ActualDeliveryDate>2026-11-20</cbc:ActualDeliveryDate>\n  <cac:DeliveryLocation>\n    <cac:Address>\n      <cbc:StreetName>Lagerstraße 7</cbc:StreetName>\n      <cbc:CityName>Potsdam</cbc:CityName>\n      <cbc:PostalZone>14467</cbc:PostalZone>\n      <cac:Country>\n        <cbc:IdentificationCode>DE</cbc:IdentificationCode>\n      </cac:Country>\n    </cac:Address>\n  </cac:DeliveryLocation>\n</cac:Delivery>",
+    "cii": "<ram:ApplicableHeaderTradeDelivery>\n  <ram:ShipToTradeParty>\n    <ram:Name>Example Authority, warehouse</ram:Name>\n    <ram:PostalTradeAddress>\n      <ram:PostcodeCode>14467</ram:PostcodeCode>\n      <ram:LineOne>Lagerstraße 7</ram:LineOne>\n      <ram:CityName>Potsdam</ram:CityName>\n      <ram:CountryID>DE</ram:CountryID>\n    </ram:PostalTradeAddress>\n  </ram:ShipToTradeParty>\n</ram:ApplicableHeaderTradeDelivery>"
+  },
+  {
+    "id": "BR-DE-11",
+    "source": "xrechnung",
+    "terms": ["BT-78", "BG-15"],
+    "en": {
+      "title": "Delivery address has no post code",
+      "meaning": "If the invoice gives a deliver-to address (BG-15), XRechnung requires it to include a post code (BT-78). An invoice without a delivery address is not affected by this rule.",
+      "causes": [
+        "The delivery address was entered with street and city only.",
+        "The software writes an empty or partial delivery address block by default.",
+        "The post code was typed into the city field."
+      ],
+      "fix": [
+        "Add the post code of the delivery place: cbc:PostalZone in cac:Delivery/cac:DeliveryLocation/cac:Address (UBL) or ram:PostcodeCode in ram:ShipToTradeParty/ram:PostalTradeAddress (CII).",
+        "Complete the city (BR-DE-10) and country code at the same time.",
+        "If goods were not delivered to a different address, leave the delivery address out altogether rather than sending an incomplete one."
+      ]
+    },
+    "de": {
+      "title": "Lieferanschrift ohne Postleitzahl",
+      "meaning": "Enthält die Rechnung eine Lieferanschrift (BG-15), verlangt XRechnung darin eine Postleitzahl (BT-78). Rechnungen ohne Lieferanschrift betrifft diese Regel nicht.",
+      "causes": [
+        "Die Lieferanschrift wurde nur mit Straße und Ort erfasst.",
+        "Die Software schreibt standardmäßig einen leeren oder unvollständigen Lieferadressblock.",
+        "Die Postleitzahl steht im Ortsfeld."
+      ],
+      "fix": [
+        "Ergänzen Sie die Postleitzahl des Lieferorts: cbc:PostalZone in cac:Delivery/cac:DeliveryLocation/cac:Address (UBL) bzw. ram:PostcodeCode in ram:ShipToTradeParty/ram:PostalTradeAddress (CII).",
+        "Vervollständigen Sie dabei auch Ort (BR-DE-10) und Ländercode.",
+        "Wurde nicht an eine abweichende Adresse geliefert, lassen Sie die Lieferanschrift lieber ganz weg, statt sie unvollständig zu senden."
+      ]
+    },
+    "fr": {
+      "title": "L'adresse de livraison n'a pas de code postal",
+      "meaning": "Si la facture indique une adresse de livraison (BG-15), XRechnung exige qu'elle comporte un code postal (BT-78). Une facture sans adresse de livraison n'est pas concernée par cette règle.",
+      "causes": [
+        "L'adresse de livraison a été saisie avec seulement la rue et la ville.",
+        "Le logiciel écrit par défaut un bloc d'adresse de livraison vide ou partiel.",
+        "Le code postal a été saisi dans le champ ville."
+      ],
+      "fix": [
+        "Ajoutez le code postal du lieu de livraison : cbc:PostalZone dans cac:Delivery/cac:DeliveryLocation/cac:Address (UBL) ou ram:PostcodeCode dans ram:ShipToTradeParty/ram:PostalTradeAddress (CII).",
+        "Complétez en même temps la ville (BR-DE-10) et le code pays.",
+        "Si rien n'a été livré à une autre adresse, omettez plutôt l'adresse de livraison que de l'envoyer incomplète."
+      ]
+    },
+    "ubl": "<cac:Delivery>\n  <cbc:ActualDeliveryDate>2026-11-20</cbc:ActualDeliveryDate>\n  <cac:DeliveryLocation>\n    <cac:Address>\n      <cbc:StreetName>Lagerstraße 7</cbc:StreetName>\n      <cbc:CityName>Potsdam</cbc:CityName>\n      <cbc:PostalZone>14467</cbc:PostalZone>\n      <cac:Country>\n        <cbc:IdentificationCode>DE</cbc:IdentificationCode>\n      </cac:Country>\n    </cac:Address>\n  </cac:DeliveryLocation>\n</cac:Delivery>",
+    "cii": "<ram:ApplicableHeaderTradeDelivery>\n  <ram:ShipToTradeParty>\n    <ram:Name>Example Authority, warehouse</ram:Name>\n    <ram:PostalTradeAddress>\n      <ram:PostcodeCode>14467</ram:PostcodeCode>\n      <ram:LineOne>Lagerstraße 7</ram:LineOne>\n      <ram:CityName>Potsdam</ram:CityName>\n      <ram:CountryID>DE</ram:CountryID>\n    </ram:PostalTradeAddress>\n  </ram:ShipToTradeParty>\n</ram:ApplicableHeaderTradeDelivery>"
+  },
+  {
+    "id": "BR-DE-14",
+    "source": "xrechnung",
+    "terms": ["BT-119"],
+    "en": {
+      "title": "VAT breakdown has no VAT rate",
+      "meaning": "XRechnung requires every VAT breakdown (one per VAT category and rate) to state its VAT rate (BT-119). Unlike EN 16931 rule BR-48, which excuses category O (not subject to VAT), this check makes no exception: a 0% breakdown, for example for exempt, reverse-charge or not-subject sales, still needs the rate written as 0.",
+      "causes": [
+        "The software leaves the rate out for 0% categories such as E (exempt), AE (reverse charge) or O (not subject to VAT).",
+        "The rate is given on the invoice lines but not repeated in the VAT breakdown.",
+        "The breakdown was built by hand or by a converter that only writes amounts."
+      ],
+      "fix": [
+        "Add the rate to each VAT breakdown: cbc:Percent in cac:TaxSubtotal/cac:TaxCategory (UBL) or ram:RateApplicablePercent in the header ram:ApplicableTradeTax (CII).",
+        "Write 0 for categories without VAT, and the same rate as on the matching invoice lines for taxed categories.",
+        "Which category and rate apply to your sale is a tax question; ask your tax adviser if unsure."
+      ]
+    },
+    "de": {
+      "title": "Umsatzsteueraufschlüsselung ohne Steuersatz",
+      "meaning": "XRechnung verlangt, dass jede Aufschlüsselung der Umsatzsteuer (je Steuerkategorie und Satz) ihren Steuersatz (BT-119) nennt. Anders als die EN-16931-Regel BR-48, die Kategorie O (nicht steuerbar) ausnimmt, kennt diese Prüfung keine Ausnahme: Auch eine 0-%-Aufschlüsselung, etwa für steuerfreie, Reverse-Charge- oder nicht steuerbare Umsätze, braucht den Satz als 0.",
+      "causes": [
+        "Die Software lässt den Satz bei 0-%-Kategorien wie E (steuerbefreit), AE (Reverse Charge) oder O (nicht steuerbar) weg.",
+        "Der Steuersatz steht in den Rechnungspositionen, wird aber in der Aufschlüsselung nicht wiederholt.",
+        "Die Aufschlüsselung wurde von Hand oder von einem Konverter erzeugt, der nur Beträge schreibt."
+      ],
+      "fix": [
+        "Ergänzen Sie in jeder Aufschlüsselung den Satz: cbc:Percent in cac:TaxSubtotal/cac:TaxCategory (UBL) bzw. ram:RateApplicablePercent in der ram:ApplicableTradeTax auf Kopfebene (CII).",
+        "Schreiben Sie 0 für Kategorien ohne Umsatzsteuer und bei steuerpflichtigen Kategorien denselben Satz wie in den zugehörigen Positionen.",
+        "Welche Kategorie und welcher Satz für Ihren Umsatz gelten, ist eine Steuerfrage; fragen Sie im Zweifel Ihre Steuerberatung."
+      ]
+    },
+    "fr": {
+      "title": "La ventilation de TVA n'indique pas de taux",
+      "meaning": "XRechnung exige que chaque ventilation de TVA (une par catégorie et taux) indique son taux (BT-119). Contrairement à la règle EN 16931 BR-48, qui dispense la catégorie O (hors champ de la TVA), ce contrôle ne prévoit aucune exception : une ventilation à 0 %, par exemple pour une opération exonérée, en autoliquidation ou hors champ, doit quand même porter le taux 0.",
+      "causes": [
+        "Le logiciel omet le taux pour les catégories à 0 % comme E (exonéré), AE (autoliquidation) ou O (hors champ).",
+        "Le taux figure sur les lignes de facture mais n'est pas repris dans la ventilation.",
+        "La ventilation a été construite à la main ou par un convertisseur qui n'écrit que les montants."
+      ],
+      "fix": [
+        "Ajoutez le taux à chaque ventilation : cbc:Percent dans cac:TaxSubtotal/cac:TaxCategory (UBL) ou ram:RateApplicablePercent dans le ram:ApplicableTradeTax d'en-tête (CII).",
+        "Indiquez 0 pour les catégories sans TVA et, pour les catégories taxées, le même taux que sur les lignes correspondantes.",
+        "La catégorie et le taux applicables à votre vente sont une question fiscale ; en cas de doute, demandez à votre conseiller fiscal."
+      ]
+    },
+    "ubl": "<cac:TaxSubtotal>\n  <cbc:TaxableAmount currencyID=\"EUR\">500.00</cbc:TaxableAmount>\n  <cbc:TaxAmount currencyID=\"EUR\">0.00</cbc:TaxAmount>\n  <cac:TaxCategory>\n    <cbc:ID>AE</cbc:ID>\n    <cbc:Percent>0</cbc:Percent>\n    <cbc:TaxExemptionReason>Reverse charge</cbc:TaxExemptionReason>\n    <cac:TaxScheme>\n      <cbc:ID>VAT</cbc:ID>\n    </cac:TaxScheme>\n  </cac:TaxCategory>\n</cac:TaxSubtotal>",
+    "cii": "<ram:ApplicableTradeTax>\n  <ram:CalculatedAmount>0.00</ram:CalculatedAmount>\n  <ram:TypeCode>VAT</ram:TypeCode>\n  <ram:ExemptionReason>Reverse charge</ram:ExemptionReason>\n  <ram:BasisAmount>500.00</ram:BasisAmount>\n  <ram:CategoryCode>AE</ram:CategoryCode>\n  <ram:RateApplicablePercent>0</ram:RateApplicablePercent>\n</ram:ApplicableTradeTax>"
+  },
+  {
+    "id": "BR-DE-15",
+    "source": "xrechnung",
+    "terms": ["BT-10"],
+    "en": {
+      "title": "Buyer reference (Leitweg-ID) is missing",
+      "meaning": "XRechnung requires the Buyer reference (BT-10) on every invoice. For German public buyers this field carries the Leitweg-ID, the routing number that tells the receiving platform which authority the invoice is for.",
+      "causes": [
+        "The invoicing software leaves BT-10 empty because it is optional in plain EN 16931.",
+        "The Leitweg-ID was typed into a note, the order reference (BT-13) or the buyer's name instead of BT-10.",
+        "A template made for private customers was used for a public buyer."
+      ],
+      "fix": [
+        "Ask the buyer for the reference they expect; a public buyer gives you its Leitweg-ID with the order.",
+        "Put it in cbc:BuyerReference (UBL) or ram:BuyerReference inside ram:ApplicableHeaderTradeAgreement (CII).",
+        "For a private German buyer with no Leitweg-ID, agree another reference (for example their order number) and send that."
+      ]
+    },
+    "de": {
+      "title": "Käuferreferenz (Leitweg-ID) fehlt",
+      "meaning": "XRechnung verlangt in jeder Rechnung die Käuferreferenz (BT-10). Bei deutschen öffentlichen Auftraggebern steht hier die Leitweg-ID, die Adressierungsnummer, mit der die Empfangsplattform erkennt, für welche Behörde die Rechnung bestimmt ist.",
+      "causes": [
+        "Die Rechnungssoftware lässt BT-10 leer, weil das Feld in der reinen EN 16931 optional ist.",
+        "Die Leitweg-ID wurde in eine Bemerkung, die Bestellnummer (BT-13) oder den Namen des Käufers geschrieben statt in BT-10.",
+        "Für einen öffentlichen Auftraggeber wurde eine Vorlage für Privatkunden verwendet."
+      ],
+      "fix": [
+        "Fragen Sie den Käufer nach der erwarteten Referenz; ein öffentlicher Auftraggeber nennt Ihnen seine Leitweg-ID mit der Bestellung.",
+        "Tragen Sie sie in cbc:BuyerReference (UBL) bzw. ram:BuyerReference innerhalb von ram:ApplicableHeaderTradeAgreement (CII) ein.",
+        "Hat ein privater deutscher Käufer keine Leitweg-ID, vereinbaren Sie eine andere Referenz (zum Beispiel seine Bestellnummer) und übermitteln Sie diese."
+      ]
+    },
+    "fr": {
+      "title": "La référence acheteur (Leitweg-ID) est absente",
+      "meaning": "XRechnung exige la référence acheteur (BT-10) sur chaque facture. Pour les acheteurs publics allemands, ce champ porte la Leitweg-ID, le code d'acheminement qui indique à la plateforme de réception à quelle administration la facture est destinée.",
+      "causes": [
+        "Le logiciel de facturation laisse BT-10 vide, car il est facultatif dans la norme EN 16931 seule.",
+        "La Leitweg-ID a été saisie dans une note, la référence de commande (BT-13) ou le nom de l'acheteur au lieu de BT-10.",
+        "Un modèle prévu pour les clients privés a été utilisé pour un acheteur public."
+      ],
+      "fix": [
+        "Demandez à l'acheteur la référence qu'il attend ; un acheteur public vous communique sa Leitweg-ID avec la commande.",
+        "Indiquez-la dans cbc:BuyerReference (UBL) ou ram:BuyerReference dans ram:ApplicableHeaderTradeAgreement (CII).",
+        "Pour un acheteur privé allemand sans Leitweg-ID, convenez d'une autre référence (par exemple son numéro de commande) et transmettez-la."
+      ]
+    },
+    "ubl": "<cbc:BuyerReference>04011000-12345-34</cbc:BuyerReference>",
+    "cii": "<ram:ApplicableHeaderTradeAgreement>\n  <ram:BuyerReference>04011000-12345-34</ram:BuyerReference>\n</ram:ApplicableHeaderTradeAgreement>"
+  },
+  {
+    "id": "BR-DE-16",
+    "source": "xrechnung",
+    "terms": ["BT-31", "BT-32", "BG-11"],
+    "en": {
+      "title": "Seller VAT ID, tax number or tax representative is missing",
+      "meaning": "If any invoice line or document-level allowance or charge uses VAT category S, Z, E, AE, K, G, L or M, XRechnung requires at least one of: the seller's VAT identifier (BT-31), the seller's tax registration number such as the German Steuernummer (BT-32), or a seller tax representative (BG-11). In practice that is almost every invoice; only one where everything is category O (not subject to VAT) escapes the rule.",
+      "causes": [
+        "The company's VAT ID and tax number are not set up in the invoicing software.",
+        "They are printed on the PDF footer but not written into the XML.",
+        "In CII, the tax registration was sent without schemeID \"VA\" (VAT ID) or \"FC\" (tax number), so the check does not count it."
+      ],
+      "fix": [
+        "Send the seller's VAT ID, its tax number, or both: in UBL each as cbc:CompanyID in the seller's cac:PartyTaxScheme (with tax scheme VAT for the VAT ID); in CII as ram:SpecifiedTaxRegistration/ram:ID with schemeID=\"VA\" or schemeID=\"FC\".",
+        "If a tax representative issues the invoice for you, send the tax representative group (BG-11) instead.",
+        "Store these numbers in your company settings so every invoice carries them."
+      ]
+    },
+    "de": {
+      "title": "USt-IdNr., Steuernummer oder Steuervertreter des Verkäufers fehlt",
+      "meaning": "Verwendet eine Rechnungsposition oder ein Nachlass oder Zuschlag auf Belegebene die Steuerkategorie S, Z, E, AE, K, G, L oder M, verlangt XRechnung mindestens eines davon: die Umsatzsteuer-Identifikationsnummer des Verkäufers (BT-31), seine Steuernummer (BT-32) oder einen Steuervertreter (BG-11). Praktisch betrifft das fast jede Rechnung; nur wenn alles in Kategorie O (nicht steuerbar) steht, greift die Regel nicht.",
+      "causes": [
+        "USt-IdNr. und Steuernummer des Unternehmens sind in der Rechnungssoftware nicht hinterlegt.",
+        "Sie stehen in der Fußzeile des PDFs, wurden aber nicht in die XML-Datei übernommen.",
+        "In CII wurde die Steuerregistrierung ohne schemeID „VA“ (USt-IdNr.) oder „FC“ (Steuernummer) übermittelt, daher zählt die Prüfung sie nicht."
+      ],
+      "fix": [
+        "Übermitteln Sie die USt-IdNr., die Steuernummer oder beide: in UBL jeweils als cbc:CompanyID im cac:PartyTaxScheme des Verkäufers (für die USt-IdNr. mit dem Steuerschema VAT), in CII als ram:SpecifiedTaxRegistration/ram:ID mit schemeID=\"VA\" bzw. schemeID=\"FC\".",
+        "Stellt ein Steuervertreter die Rechnung für Sie aus, übermitteln Sie stattdessen die Gruppe Steuervertreter (BG-11).",
+        "Hinterlegen Sie die Nummern in den Firmenstammdaten, damit jede Rechnung sie enthält."
+      ]
+    },
+    "fr": {
+      "title": "Numéro de TVA, numéro fiscal ou représentant fiscal du vendeur absent",
+      "meaning": "Si une ligne de facture, une remise ou une charge au niveau du document utilise la catégorie de TVA S, Z, E, AE, K, G, L ou M, XRechnung exige au moins l'un des éléments suivants : le numéro de TVA intracommunautaire du vendeur (BT-31), son numéro d'enregistrement fiscal, par exemple la Steuernummer allemande (BT-32), ou un représentant fiscal (BG-11). En pratique, cela concerne presque toutes les factures ; seule une facture entièrement en catégorie O (hors champ de la TVA) y échappe.",
+      "causes": [
+        "Le numéro de TVA et le numéro fiscal de l'entreprise ne sont pas configurés dans le logiciel de facturation.",
+        "Ils figurent en pied de page du PDF mais n'ont pas été repris dans le XML.",
+        "En CII, l'enregistrement fiscal a été transmis sans schemeID « VA » (numéro de TVA) ou « FC » (numéro fiscal) : le contrôle ne le prend donc pas en compte."
+      ],
+      "fix": [
+        "Transmettez le numéro de TVA, le numéro fiscal ou les deux : en UBL chacun comme cbc:CompanyID dans le cac:PartyTaxScheme du vendeur (avec le régime VAT pour le numéro de TVA) ; en CII comme ram:SpecifiedTaxRegistration/ram:ID avec schemeID=\"VA\" ou schemeID=\"FC\".",
+        "Si un représentant fiscal émet la facture pour vous, transmettez plutôt le groupe représentant fiscal (BG-11).",
+        "Enregistrez ces numéros dans les paramètres de l'entreprise pour qu'ils figurent sur chaque facture."
+      ]
+    },
+    "ubl": "<cac:AccountingSupplierParty>\n  <cac:Party>\n    <!-- endpoint, name and address come first -->\n    <cac:PartyTaxScheme>\n      <cbc:CompanyID>DE123456789</cbc:CompanyID>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:PartyTaxScheme>\n    <!-- legal entity and contact follow -->\n  </cac:Party>\n</cac:AccountingSupplierParty>",
+    "cii": "<ram:SellerTradeParty>\n  <ram:Name>Example GmbH</ram:Name>\n  <!-- contact and postal address come here -->\n  <ram:SpecifiedTaxRegistration>\n    <ram:ID schemeID=\"VA\">DE123456789</ram:ID>\n  </ram:SpecifiedTaxRegistration>\n</ram:SellerTradeParty>"
+  },
+  {
+    "id": "BR-DE-17",
+    "source": "xrechnung",
+    "terms": ["BT-3"],
+    "en": {
+      "title": "Invoice type code is not one XRechnung expects",
+      "meaning": "XRechnung expects the invoice type code (BT-3) to be one of 326 (partial invoice), 380 (commercial invoice), 384 (corrected invoice), 389 (self-billed invoice), 381 (credit note), 875, 876 or 877 (partial, partial final and final construction invoices). This is a warning, not an error: the file is still valid, but a receiving platform may handle other codes differently or reject them.",
+      "causes": [
+        "The software uses another UNTDID 1001 code, such as 386 (prepayment invoice), 383 (debit note) or 393 (factored invoice).",
+        "A credit note was sent with a credit-note code other than 381.",
+        "A proprietary or old document type number was mapped straight into BT-3."
+      ],
+      "fix": [
+        "Use 380 for a normal invoice and 381 for a credit note; use 326, 384, 389 or 875 to 877 only when the document really is that type.",
+        "Set the code in cbc:InvoiceTypeCode (or cbc:CreditNoteTypeCode in a UBL credit note) or ram:TypeCode inside rsm:ExchangedDocument (CII).",
+        "If you need a different code for a specific buyer, check with that buyer that they accept it."
+      ]
+    },
+    "de": {
+      "title": "Rechnungsart-Code ist keiner der von XRechnung erwarteten",
+      "meaning": "XRechnung erwartet als Code für die Rechnungsart (BT-3) einen von 326 (Teilrechnung), 380 (Handelsrechnung), 384 (korrigierte Rechnung), 389 (Gutschrift im Gutschriftsverfahren), 381 (Rechnungskorrektur/Gutschrift), 875, 876 oder 877 (Abschlags-, Teilschluss- und Schlussrechnung im Bau). Das ist eine Warnung, kein Fehler: Die Datei bleibt gültig, aber eine Empfangsplattform kann andere Codes anders behandeln oder ablehnen.",
+      "causes": [
+        "Die Software verwendet einen anderen UNTDID-1001-Code, etwa 386 (Vorauszahlungsrechnung), 383 (Belastungsanzeige) oder 393 (Factoring-Rechnung).",
+        "Eine Gutschrift wurde mit einem anderen Code als 381 versendet.",
+        "Eine hauseigene oder veraltete Belegart-Nummer wurde direkt in BT-3 übernommen."
+      ],
+      "fix": [
+        "Verwenden Sie 380 für eine normale Rechnung und 381 für eine Rechnungskorrektur oder Gutschrift; 326, 384, 389 oder 875 bis 877 nur, wenn der Beleg wirklich diese Art ist.",
+        "Der Code steht in cbc:InvoiceTypeCode (bzw. cbc:CreditNoteTypeCode in einer UBL-Gutschrift) oder in ram:TypeCode innerhalb von rsm:ExchangedDocument (CII).",
+        "Brauchen Sie für einen bestimmten Käufer einen anderen Code, klären Sie mit ihm, ob er ihn annimmt."
+      ]
+    },
+    "fr": {
+      "title": "Le code de type de facture n'est pas l'un de ceux attendus par XRechnung",
+      "meaning": "XRechnung attend comme code de type de facture (BT-3) l'un des codes 326 (facture partielle), 380 (facture commerciale), 384 (facture rectificative), 389 (autofacturation), 381 (avoir), 875, 876 ou 877 (situations de travaux partielle, partielle finale et finale dans le bâtiment). C'est un avertissement, pas une erreur : le fichier reste valide, mais une plateforme de réception peut traiter autrement ou refuser d'autres codes.",
+      "causes": [
+        "Le logiciel utilise un autre code UNTDID 1001, par exemple 386 (facture d'acompte), 383 (note de débit) ou 393 (facture affacturée).",
+        "Un avoir a été envoyé avec un code autre que 381.",
+        "Un numéro de type de document interne ou ancien a été repris tel quel dans BT-3."
+      ],
+      "fix": [
+        "Utilisez 380 pour une facture ordinaire et 381 pour un avoir ; 326, 384, 389 ou 875 à 877 seulement si le document est réellement de ce type.",
+        "Le code se place dans cbc:InvoiceTypeCode (ou cbc:CreditNoteTypeCode dans un avoir UBL) ou dans ram:TypeCode à l'intérieur de rsm:ExchangedDocument (CII).",
+        "Si un acheteur particulier vous demande un autre code, vérifiez avec lui qu'il l'accepte."
+      ]
+    },
+    "ubl": "<cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>",
+    "cii": "<rsm:ExchangedDocument>\n  <ram:ID>RE-2026-0042</ram:ID>\n  <ram:TypeCode>380</ram:TypeCode>\n  <ram:IssueDateTime>\n    <udt:DateTimeString format=\"102\">20261124</udt:DateTimeString>\n  </ram:IssueDateTime>\n</rsm:ExchangedDocument>"
+  }
+]

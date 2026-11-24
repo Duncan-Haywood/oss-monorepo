@@ -34,7 +34,10 @@ import { promisify } from 'node:util';
 
 import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
+import { FUNNEL_ATTRS, FUNNEL_TOKEN_RE } from '../counter/core.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
+import { buildConstructionPage, CONSTRUCTION_PATH } from './industry-construction.mjs';
+import { buildNonprofitsPage } from './industry-nonprofits.mjs';
 import { renderHardwarePage, HARDWARE_PATH } from './hardware-page.mjs';
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
 import { moveAudioToCdn } from './audio-cdn.mjs';
@@ -42,6 +45,8 @@ import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, loadPosts,
 import { loadPages, resolvePostTitleClashes } from './page-identity.mjs';
 import { addModulePreloads } from './preload.mjs';
 import { buildStories, STORIES_PATH, STORY_VENTURES } from './stories.mjs';
+import { buildProducts, productSitemapPaths, PRODUCT_CARD_CSS, renderProductGrid, PRODUCTS_PATH, INDUSTRIES_PATH } from './products.mjs';
+import { PRODUCT_LINES, softwareLines, hardwareLines } from './business.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { buildQueue, clip, QUEUE_PATH } from './queue.mjs';
@@ -6527,7 +6532,13 @@ export function disclaimerHtml(toRoot, surfaces = [], { counter = counterOn() } 
         or desktop.</li>
         <li><strong>Never stored:</strong> anything you type, a cookie, your IP
         address. Its host sees each request the way any web server does.</li>
-      </ul>` : `
+      </ul>
+      <p>
+        On pages that point to one of our paid products, a separate daily
+        tally also counts that the product's link was shown or clicked, with
+        the page, industry and product names the page itself wrote. It is not
+        linked to the page load or to you.
+      </p>` : `
         Browsers sending
         <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
         not counted at all.
@@ -8240,7 +8251,7 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
         </p>
         <ul>
           <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
-          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${counterOn() ? ' (the page-view ping described below carries only the page name and where-from labels; the counter adds the country code and device type from the request)' : ''}${exceptions.length ? ` — except ${exceptionRef}, which call an outside service (${EXCEPTION_KINDS}). What you give one of those goes to the host it names and nowhere else on this site` : ''}.</li>
+          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${counterOn() ? ' (the page-view ping described below carries only the page name and where-from labels, the counter adds the country code and device type from the request, and a product-link ping carries only the page, industry and product names the page itself wrote)' : ''}${exceptions.length ? ` — except ${exceptionRef}, which call an outside service (${EXCEPTION_KINDS}). What you give one of those goes to the host it names and nowhere else on this site` : ''}.</li>
           <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. ${exceptions.length ? `Besides the live API call${exceptions.length === 1 ? '' : 's'} ${exceptionRef} make${exceptions.length === 1 ? 's' : ''}, the` : 'The'} only outside addresses on this site are links you can choose to click.</li>
           <li><strong>No cookies and no cross-site identifiers.</strong></li>${feedbackOn() ? `
           <li><strong>Feedback is sent only when you send it.</strong> The <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a> posts the message you write, the type you pick and the tool it is about, and nothing else, to this site's own small server, and is then published in the site's public GitHub repository. Nothing about you is stored with it, and email addresses are removed from the text first. Don't include anything you would not want published.</li>` : ''}
@@ -8263,7 +8274,11 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
         code, such as <code>US</code>) and whether the browser string is a
         phone's, a tablet's or a desktop's. It keeps one number per page, per
         channel, per kind of site, per country and per device type, per day,
-        and none of these is linked to another or to you. Self-declared
+        and none of these is linked to another or to you. On pages that point
+        to one of this site's products, a separate ping says that a product
+        link was shown or clicked, carrying the page's name, the industry and
+        the product the page itself names, and nothing else; it is tallied the
+        same way, per day. Self-declared
         crawlers are tallied separately by name (such as <code>googlebot</code>)
         and never counted as visits. No IP address, cookie, browser string or
         referring address is stored. The daily totals are committed to the public
@@ -9443,7 +9458,7 @@ export function renderHub(
     name: SITE_NAME,
     url: baseUrl,
     description:
-      'Free, open-source browser tools, self-hostable business apps, command-line checks and research projects, each with its own page.',
+      'Software and hardware products for specific small businesses, plus free open-source browser tools, self-hostable apps and research projects.',
     isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: baseUrl },
     mainEntity: {
       '@type': 'ItemList',
@@ -9505,6 +9520,10 @@ export function renderHub(
   const marqueeRows = [shelf.filter((_, i) => i % 2 === 0), shelf.filter((_, i) => i % 2 === 1)];
   const titles = new Map(surfaces.map((s) => [s.slug, shortName(s)]));
   const audienceWords = audiencePages.map(({ audience }) => audience.name).slice(0, 14);
+  // The product lines (business.mjs). Tools the build did not publish drop out of the cards.
+  const publishedTools = new Map(surfaces.map((s) => [s.slug, cardName(s.title)]));
+  const liveLines = PRODUCT_LINES.filter((l) => l.status === 'live');
+  const liveNames = liveLines.map((l) => l.name).join(' and ') || 'None';
 
   return `<!doctype html>
 <html lang="en">
@@ -9512,10 +9531,10 @@ export function renderHub(
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="./favicon.ico" sizes="16x16">
-  <title>${escapeHtml(SITE_NAME)} | Free Tools, Self-Hostable Apps &amp; Research</title>
+  <title>${escapeHtml(SITE_NAME)} | Software &amp; Hardware for Small Businesses</title>
   <meta name="description" content="${escapeHtml(
     snippetize(
-      `Free bid calculators, fee checkers and pricing tools for small businesses: ${formatCount(browserCount)} open-source tools that run in your browser, plus self-hostable apps. No sign-up.`,
+      `Software for specific small businesses: contractor billing, job shop quoting, e-invoicing, reseller books and grants. Plus ${formatCount(browserCount)} free tools for the same businesses.`,
     ),
   )}">
   <link rel="canonical" href="${escapeHtml(baseUrl)}">${verificationHead()}
@@ -9526,7 +9545,7 @@ export function renderHub(
   <link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — new tools`)}" href="${escapeHtml(FEED_FILE)}">
   <meta property="og:type" content="website">
   <meta property="og:title" content="${escapeHtml(SITE_NAME)}">
-  <meta property="og:description" content="Free tools to price the job, check the fees and run your business. No sign-up, open source, and the numbers stay in your browser.">
+  <meta property="og:description" content="Software and hardware for specific small businesses, built around the jobs each finds hardest, plus free tools for the same businesses.">
   <meta property="og:url" content="${escapeHtml(baseUrl)}">
   <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
   <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
@@ -9614,12 +9633,22 @@ export function renderHub(
                 font-variant-numeric: tabular-nums; }
     .stats dd a { color: var(--ink); text-decoration: none; }
     .stats dd a:hover, .stats dd a:focus-visible { color: var(--accent); }
-    .build-band { margin: 22px 0 0; max-width: 820px; padding: 16px 18px; border: 1px solid var(--accent);
+    /* The hero's two calls to action (2026-11-24): the products first. */
+    .hero-cta { display: flex; flex-wrap: wrap; gap: 10px 12px; margin: 16px 0 0; }
+    .hero-cta a { display: inline-block; font-weight: 650; padding: 10px 18px; border-radius: 10px; text-decoration: none; }
+    .hero-cta a.go { background: #fff; color: #0b1f3a; } /* the hero is dark in both themes */
+    .hero-cta a.ghost { border: 1px solid rgba(220,232,250,.55); color: #e8f0fb; }
+    .hero-cta a:hover, .hero-cta a:focus-visible { text-decoration: underline; }
+    .hero .search { margin-top: 22px; }
+    .products-band .pl-grid { margin-top: 18px; }
+    .products-more { margin: 14px 0 0; color: var(--muted); }
+${PRODUCT_CARD_CSS}
+    .build-band { margin: 28px 0 0; max-width: 820px; padding: 16px 18px; border: 1px solid var(--accent);
                   border-radius: 14px; background: var(--panel); }
     .build-band h2 { margin: 0; font-size: 1.15rem; letter-spacing: -.01em; }
     .build-band p { margin: 6px 0 0; color: var(--muted); line-height: 1.5; }
     .build-band a.go { display: inline-block; margin-top: 10px; font-weight: 650; padding: 8px 16px; border-radius: 9px;
-                       background: #fff; color: #0b1f3a; text-decoration: none; } /* the hero is dark in both themes */
+                       background: var(--accent); color: var(--accent-ink); text-decoration: none; } /* under the products since 2026-11-24, on the page's own palette */
     .build-band a.go:hover, .build-band a.go:focus-visible { text-decoration: underline; }
     @media (max-width: 640px) {
       .stats { grid-template-columns: repeat(2, 1fr); }
@@ -9781,33 +9810,33 @@ ${HOME_SECTIONS_CSS}
   <header class="hero">
 ${HERO_BACKDROP_HTML}
     <div class="hero-inner">
-      <p class="eyebrow">Free · No sign-up · Open source</p>
-      <h1>Free tools to <span class="grad">price the job, check the fees</span> and run your business.</h1>
+      <p class="eyebrow">Software &amp; hardware for small businesses</p>
+      <h1>Software built for <span class="grad">your kind of business</span> and the jobs it finds hardest.</h1>
 ${
   audienceWords.length
     ? `      <p class="ticker" data-longest="${escapeHtml(longestWord(audienceWords))}"><span>Built for <b data-words="${escapeHtml(JSON.stringify(audienceWords))}">${escapeHtml(audienceWords[0])}</b> and anyone with numbers to run.</span></p>\n`
     : ''
 }
-      <!-- Two sentences, so the search box sits above the fold on a phone
-           (polish 2026-11-12: the old five-sentence lede ran 13 lines at
-           320 px). "Open source", "check how a number was reached" and "run
-           your own copy" are steps 2 and 3 of the how-it-works band below;
-           research is in the search label and the stats. -->
+      <!-- The company voice (owner, 2026-11-24): product lines first, every
+           status from business.mjs, so "live" is only said of what is live.
+           Kept short so the calls to action and the search stay near the top
+           on a phone (hub-lede.test.mjs holds the budget). -->
       <div class="hero-grid">
       <div class="hero-main">
       <p class="lede">
-        Bid calculators for the trades, fee checkers for marketplace sellers, and
-        pricing, tax and back-office tools for service businesses. Type your
-        numbers and get an answer: no account, no paywall, and the arithmetic
-        happens on your device.
+        Billing for subcontractors, quoting for machine shops, e-invoicing for
+        European firms, books for resellers and grants for nonprofits.
+        ${escapeHtml(liveNames)} ${liveLines.length === 1 ? 'is' : 'are'} live; the rest are in early access, and
+        free tools for the same businesses work today.
       </p>
+      <p class="hero-cta"><a class="go" href="${PRODUCTS_PATH}" data-pf-to="products">See the products</a><a class="ghost" href="${INDUSTRIES_PATH}" data-pf-to="industries">Find your industry</a></p>
 
       <!-- The search runs over a JSON index of every tool and research project
            (search-index.json), fetched when a visitor first types. Without
            JavaScript the category grid below is the way in: every tool is on
            its category's page. -->
       <form class="search" id="${SEARCH_ANCHOR}" role="search" action="./" method="get">
-        <label for="q">Search ${formatCount(surfaces.length)} tools${researchCount ? ` and ${formatCount(researchCount)} research projects` : ''}</label>
+        <label for="q">Or search ${formatCount(surfaces.length)} free tools${researchCount ? ` and ${formatCount(researchCount)} research projects` : ''}</label>
         <div class="search-row">
           <input id="q" name="q" type="search" placeholder="eBay fees, roofing bid, freight, VAT, scoring rules…"
                  autocomplete="off" spellcheck="false">
@@ -9828,14 +9857,6 @@ ${
         <div><dt>Research projects</dt><dd><a href="${RESEARCH_PATH}">${formatCount(researchCount)}</a></dd></div>
       </dl>
 
-      <!-- The open custom development offer, aimed at businesses (owner,
-           2026-11-02: "advertise to businesses more"; tagline "describe your
-           problem and it gets built"). Terms are on the linked page. -->
-      <section class="build-band" aria-labelledby="build-band-h">
-        <h2 id="build-band-h">Run a business? Describe your problem and it gets built.</h2>
-        <p>No tool here does what you need? Tell us the job, and the AI agents that build this site may build it for you, free and in public. The one condition: the result stays open source (MIT).</p>
-        <a class="go" href="${CUSTOM_DEV_PATH}">Describe your problem</a>
-      </section>
       </div>
 ${renderHeroArt(showcase.shots, (slug) => titles.get(slug) ?? slug)}
       </div>
@@ -9896,6 +9917,29 @@ ${renderMarquee(marqueeRows)}
         clearing your browser data clears it.
       </p>
       <ul id="yoursList"></ul>
+    </section>
+
+    <section class="band products-band" id="products" aria-labelledby="products-h">
+      <p class="section-eyebrow">Products</p>
+      <h2 id="products-h">One product for each kind of business, built around its hardest jobs</h2>
+      <p class="band-lede">Live means you can use it today. Early access means it is being built, and the free tools listed with it already do part of the job.</p>
+${renderProductGrid(softwareLines(), { toRoot: '', published: publishedTools, anchor: true })}
+      <p class="products-more"><a href="${PRODUCTS_PATH}">All products, and the ${hardwareLines().length} hardware designs →</a> · <a href="${INDUSTRIES_PATH}">Browse by industry →</a></p>
+      <!-- The open custom development offer, aimed at businesses (owner,
+           2026-11-02: "advertise to businesses more"; tagline "describe your
+           problem and it gets built"). Terms are on the linked page. Moved
+           here from the hero on 2026-11-24, under the products. -->
+      <section class="build-band" aria-labelledby="build-band-h">
+        <h2 id="build-band-h">Don’t see your business? Describe your problem and it gets built.</h2>
+        <p>Tell us the job, and the AI agents that build this site may build it for you, free and in public. The one condition: the result stays open source (MIT).</p>
+        <a class="go" href="${CUSTOM_DEV_PATH}">Describe your problem</a>
+      </section>
+    </section>
+
+    <section class="band" id="free-tools" aria-labelledby="free-tools-h">
+      <p class="section-eyebrow">Free tools</p>
+      <h2 id="free-tools-h">Free tools for the same businesses</h2>
+      <p class="band-lede">${formatCount(browserCount)} calculators, checkers and converters for the trades, shops and sellers the products serve. No account, and each does one job well. Search them at the top of this page, or browse below.</p>
     </section>
 
 ${renderHowItWorks({ toolCount: browserCount, appCount: apps.length })}
@@ -11094,7 +11138,36 @@ const CHROME_SCRIPT = ({ counterUrl = '' } = {}) => `
       var rh=document.referrer?new URL(document.referrer).hostname:'';
       if(rh&&rh!==location.hostname){var src=(${sourceOf.toString()})(rh,${JSON.stringify(SOURCE_HOSTS)},${JSON.stringify(SOURCE_LABELS)});if(src)hit.s=src;}
     }catch(e){}
-    try{navigator.sendBeacon(${JSON.stringify(`${counterUrl}/hit`)},new Blob([JSON.stringify(hit)],{type:'text/plain'}));}catch(e){}` : ''}
+    var send=function(o){try{navigator.sendBeacon(${JSON.stringify(`${counterUrl}/hit`)},new Blob([JSON.stringify(o)],{type:'text/plain'}));}catch(e){}};
+    send(hit);
+    try{
+      var FA=${JSON.stringify(FUNNEL_ATTRS)},TOK=${FUNNEL_TOKEN_RE.toString()};
+      var tok=function(el,a){var h=el.closest('['+a+']');var v=h?h.getAttribute(a)||'':'';return TOK.test(v)?v:'';};
+      var prod=function(el){return tok(el,'data-funnel-product')||tok(el,'data-pf-offer');};
+      var fev=function(el,ev){var o={p:slug,e:ev},i=tok(el,'data-funnel-industry'),t=prod(el);if(i)o.i=i;if(t)o.t=t;send(o);};
+      var seen={};
+      var once=function(el,ev){var k=ev+'|'+tok(el,'data-funnel-industry')+'|'+prod(el);if(seen[k])return;seen[k]=1;fev(el,ev);};
+      var scan=function(){
+        var els=document.querySelectorAll('[data-funnel],[data-pf-offer]'),io=null;
+        if(typeof IntersectionObserver==='function')io=new IntersectionObserver(function(es){es.forEach(function(x){
+          if(x.isIntersecting&&(x.intersectionRatio>=0.5||(x.rootBounds&&x.intersectionRect.height>=x.rootBounds.height/2))){io.unobserve(x.target);once(x.target,FA.cta);}
+        });},{threshold:[0,0.5,1]});
+        for(var j=0;j<els.length;j++){
+          var el=els[j],v=el.getAttribute('data-funnel')||'cta';
+          if(v==='cta'){if(io)io.observe(el);else once(el,FA.cta);}
+          else if(v!=='outbound'&&Object.prototype.hasOwnProperty.call(FA,v))once(el,FA[v]);
+        }
+      };
+      if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
+      document.addEventListener('click',function(e){
+        var t=e.target&&e.target.closest?e.target:null;
+        if(!t)return;
+        var c=t.closest('[data-funnel="cta"],[data-pf-offer]');
+        if(c)fev(c,'cta_click');
+        var o=t.closest('[data-funnel="outbound"]');
+        if(o)fev(o,FA.outbound);
+      });
+    }catch(e){}` : ''}
     if(navigator.doNotTrack==='1'||navigator.globalPrivacyControl===true)return;
     var k='portfolio-hub-usage';
     var bump=function(event){
@@ -12691,8 +12764,10 @@ ${entries.join('\n')}
  * own — they are the same kind of page (this build's, not a venture's) and a
  * crawler following `robots.txt` reaches them through the same index.
  */
-export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys = [], researchSlugs = [], writingSlugs = []) {
+export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys = [], researchSlugs = [], writingSlugs = [], extraPaths = []) {
   const urls = [`  <url><loc>${baseUrl}</loc></url>`]
+    // The company's product pages (products.mjs), always written.
+    .concat(productSitemapPaths().map((p) => `  <url><loc>${baseUrl}${p}</loc></url>`))
     // The Tools section's index of every category page.
     .concat([`  <url><loc>${baseUrl}${CATEGORY_PATH_PREFIX}/</loc></url>`])
     .concat(categoryIds.map((id) => `  <url><loc>${baseUrl}${categoryPagePath(id)}</loc></url>`))
@@ -12704,6 +12779,8 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     .concat([`  <url><loc>${baseUrl}${ASK_PATH}</loc></url>`])
     // Open custom development, on the same terms.
     .concat([`  <url><loc>${baseUrl}${CUSTOM_DEV_PATH}</loc></url>`])
+    // The construction industry landing page (industry-construction.mjs).
+    .concat([`  <url><loc>${baseUrl}${CONSTRUCTION_PATH}</loc></url>`])
     // The hardware designs page, on the same terms.
     .concat([`  <url><loc>${baseUrl}${HARDWARE_PATH}</loc></url>`])
     .concat(loadRequests().filter((r) => /^R-\d{4}$/.test(r.id || '')).map((r) => `  <url><loc>${baseUrl}${customRequestPath(r.id)}</loc></url>`))
@@ -12718,6 +12795,9 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     .concat(writingSlugs.map((slug) => `  <url><loc>${baseUrl}${WRITING_PATH}${slug}/</loc></url>`))
     // The fiction section, a hub-level page this build always writes.
     .concat([`  <url><loc>${baseUrl}${STORIES_PATH}</loc></url>`])
+    // Hub-level pages written by their own modules (industries/nonprofits/ ...).
+    // (Ones products.mjs already listed above are not repeated.)
+    .concat(extraPaths.filter((p) => !productSitemapPaths().includes(p)).map((p) => `  <url><loc>${baseUrl}${p}</loc></url>`))
     // The open book: updates and the changelog. Both change with every merge,
     // which is what a crawler deciding how often to come back wants to see.
     .concat([`  <url><loc>${baseUrl}${UPDATES_PATH}</loc></url>`, `  <url><loc>${baseUrl}${CHANGELOG_PATH}</loc></url>`, `  <url><loc>${baseUrl}${QUEUE_PATH}</loc></url>`])
@@ -12973,7 +13053,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     full
       ? `- [Short index](${baseUrl}llms.txt): the same tools with one-sentence descriptions, small enough to read in one fetch.`
       : `- [Full text](${baseUrl}llms-full.txt): every tool with its complete description and the LLM docs a product ships; large (several hundred KB), fetch only when the index does not answer the question.`,
-    `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, the country code and the device type, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, the country code and the device type, plus daily tallies of product links shown and clicked, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
     `- [Open hardware designs for businesses](${baseUrl}${HARDWARE_PATH}): robots for tennis clubs (ball collection), cleaning companies (floor cleaning) and grounds crews (a wire-free mower), open house plans for builders, and construction robotics research, each with its honest stage. Every design is MIT licensed and at the CAD and simulation stage: nothing has been built, nothing is for sale, and there are no prices or dates. Each card links the site's feedback form so a business can say it would use one.`,
     `- [Free custom software for your business](${baseUrl}${CUSTOM_DEV_PATH}): describe your problem and it gets built. How a business, or anyone, can ask the agents that build this site for a new tool, free and in public, the one condition (the result stays MIT licensed, held by the repository owner), and every request so far with its status. Each request has its own page (custom-development/R-0001/ and so on) showing its stage and what is still open, with a form for feedback on it.`,
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
@@ -13711,6 +13791,10 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // Stills and a recording of real tools for the hub (showcase/capture.mjs).
   const showcase = loadShowcase(surfaces.map((s) => s.slug));
   log(`Published ${await copyShowcase(outDir, showcase)} showcase file(s).`);
+  // The product pages (products.mjs, from business.mjs). Written before the hub
+  // and before anything else, so a richer industries/<slug>/ page a later step
+  // writes replaces the plain one.
+  await buildProducts(outDir, base, { published: new Map(surfaces.map((s) => [s.slug, cardName(s.title)])) });
   await fs.writeFile(
     path.join(outDir, 'index.html'),
     renderHub(surfaces, base, { researchCount: researchProjectCount(), research, showcase, posts: loadPosts(), flagships: flagshipSlugs() }),
@@ -13812,6 +13896,16 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   const feedbackDir = path.join(outDir, FEEDBACK_PATH);
   await fs.mkdir(feedbackDir, { recursive: true });
   await fs.writeFile(path.join(feedbackDir, 'index.html'), renderFeedbackPage({ surfaces, baseUrl: base }));
+  // The nonprofits industry page (2026-11-24 pivot): small nonprofits'
+  // common problems, Grant Autopilot, and the free nonprofit tools. See
+  // `industry-nonprofits.mjs`.
+  const industryPages = [
+    await buildNonprofitsPage(outDir, base, {
+      published: new Set(surfaces.map((s) => s.slug)),
+      footer: `${disclaimerHtml('../../', surfaces)}\n      ${renderSiteFooterNav({ toRoot: '../../' })}`,
+      tail: `  <script src="../../${CHROME_MODULE_FILE}" ${CHROME_SLUG_ATTR}="industry-nonprofits" defer></script>`,
+    }),
+  ];
   // The open hardware designs as future products for businesses (see `hardware-page.mjs`).
   const hardwareDir = path.join(outDir, HARDWARE_PATH);
   await fs.mkdir(hardwareDir, { recursive: true });
@@ -13888,6 +13982,16 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // spent and is blocked on, read from the committed run records and history.
   // `noindex` and in no sitemap; see `engineering.mjs`.
   await buildEngineeringPage(outDir, base);
+
+  // The construction industry landing page (`industry-construction.mjs`):
+  // links only tools and research this build published.
+  await buildConstructionPage(outDir, {
+    baseUrl: base,
+    disclaimer: disclaimerHtml('../../', surfaces),
+    footer: renderSiteFooterNav({ toRoot: '../../' }),
+    liveSlugs: new Set(surfaces.map((surface) => surface.slug)),
+    researchSlugs: new Set(researchSlugs),
+  });
 
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
@@ -13982,6 +14086,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       compareProducts.map((group) => group.key),
       [...researchSlugs, ...researchTopics, ...researchApps],
       writingPages,
+      industryPages,
     ),
   );
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));

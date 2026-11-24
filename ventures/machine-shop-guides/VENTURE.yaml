@@ -27,11 +27,11 @@ hypotheses:
   - claim: Owners of small shops searching "SPRS score calculator" finish the 110-item self-check and download the POA&M starter.
     status: untested
     checked: null
-    evidence: customer-contact  # usage: site counters on the SPRS calculator and early-access link
+    evidence: customer-contact
   - claim: Visitors to the SPRS calculator follow the early-access link to the manufacturing page at a higher rate than visitors to the quoting pages.
     status: untested
     checked: null
-    evidence: customer-contact  # usage: site counters on the SPRS calculator and early-access link
+    evidence: customer-contact
 
 economics:
   currency: USD
