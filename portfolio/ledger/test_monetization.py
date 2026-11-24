@@ -60,7 +60,7 @@ def test_queue_prefers_further_stage_then_lower_liability():
 
 
 def test_next_task_names_the_file_to_update():
-    task = m.next_task(m.load())
+    task = m.next_task(m.load(), m.load_proprietary())
     assert task.startswith("Monetize (")
     assert "portfolio/monetization/models.yaml" in task
 
@@ -119,3 +119,25 @@ def test_committed_file_has_a_row_per_flagship_bet():
     bets = {e["app"]: e["bet"] for e in flag["flagships"] if "bet" in e}
     rows = {r["app"]: r["bet"] for r in m.load()["products"] if r.get("app")}
     assert bets and rows == bets
+
+def test_agent_row_whose_next_says_nothing_is_left_is_reported():
+    errs = m.check({"products": [row(next="Built. Nothing agent-doable is left until the link is set.")]})
+    assert any("no agent step is left" in e for e in errs)
+    assert not any("no agent step" in e for e in m.check({"products": [
+        row(next="Built. Nothing agent-doable is left until the link is set.", next_owner=True)]}))
+
+
+def test_empty_queue_names_the_first_for_profit_product_with_no_row():
+    data = {"products": [row(venture="a", next_owner=True)]}
+    prop = [{"venture": "c", "move_order": 3, "model": "one-off"},
+            {"venture": "a", "move_order": 1, "model": "subscription"},
+            {"venture": "b", "move_order": 2, "model": "subscription"}]
+    assert [p["venture"] for p in m.gaps(data, m.sorted_proprietary(prop))] == ["b", "c"]
+    task = m.next_task(data, m.sorted_proprietary(prop))
+    assert task.startswith("Monetize (b, no models.yaml row")
+    assert "Only subscriptions count" not in task
+    assert "1 more" in task
+
+
+def test_committed_proprietary_list_loads():
+    assert len(m.load_proprietary()) >= 1
