@@ -42,6 +42,10 @@
     {
       "file": "portfolio/router/flagship_field.py",
       "issue": "The buildable field had 7 spare characters, so replacing a landed item needed --history to park an old result; the error message says so, which helped."
+    },
+    {
+      "file": "ventures/ids-model-check/eval/fetch-ifcopenshell-samples.sh",
+      "issue": "Clones IfcOpenShell (with its COPYING files) inside the venture at eval/ifcopenshell; it is gitignored, but portfolio/monetization/transition.py's licence scan still reads it, so run_workflow_locally's ventures-tests step fails test_committed_json_is_current until the clone is deleted."
     }
   ],
   "deviations": [],
@@ -50,7 +54,7 @@
     "ventures/ids-model-check/eval/inverse-counts-2026-11-24.md"
   ],
   "goal": null,
-  "notes": "Flagship ids-model-check item 2 (inverse counts). conformance.mjs inverse-count + schema inverseBounds. Compare vs ifcopenshell.validate 0.9.0.post1: IfcOpenShell set 275 both/10 only here/0 only IOS (47/47 inverse lines); web-ifc 2,344/234/0 (1,038/1,038; the 8 extra inverse findings are ifcbridge-model01, which IfcOpenShell refuses); bSI and opensourceBIM sets unchanged. Venture suite: run_venture_tests.py ids-model-check ok, 585 tests, 2 skipped. web-ifc sweep 15.8 s -> 20.3 s. Shipped sample tiny-house.ifc had a layer listed twice in its set; fixed with twins.",
+  "notes": "Flagship ids-model-check item 2 (inverse counts). conformance.mjs inverse-count + schema inverseBounds. Compare vs ifcopenshell.validate 0.9.0.post1: IfcOpenShell set 275 both/10 only here/0 only IOS (47/47 inverse lines); web-ifc 2,344/234/0 (1,038/1,038; the 8 extra inverse findings are ifcbridge-model01, which IfcOpenShell refuses); bSI and opensourceBIM sets unchanged. Venture suite: run_venture_tests.py ids-model-check ok, 585 tests, 2 skipped. web-ifc sweep 15.8 s -> 20.3 s. Shipped sample tiny-house.ifc had a layer listed twice in its set; fixed with twins. Local run_workflow_locally --for-changes: 10/11 passed; the 11th (monetization test_transition) failed only because of the ignored local eval/ifcopenshell clone, passes after deleting it.",
   "corrections": [],
   "redteam": null,
   "usage": {
