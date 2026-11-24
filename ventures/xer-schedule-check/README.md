@@ -159,6 +159,18 @@ schedule's driving path as well as the paths at either end of the window, since
 progress can move the path mid-window (a deleted link that pulled the finish
 in 2.9 days had been missed) (eval/windows-kinds-check-2026-11-24.md).
 
+**Several kinds of change in one window** (2026-11-24): the same check with
+a progress change and one or two revisions planted together in each window,
+the revisions picked on the path the earlier changes left. 149 of 149 planted
+windows split exactly (84 of them holding two or three changes); 238 of 241
+changes named on their own side, none on the wrong one. Of the 3 not named,
+2 moved nothing; the third is a limit: a duration cut that drove the finish
+only on a path an earlier revision in the same window opened, so it is on
+none of the start, half-step or end paths the drivers are read from (its 0.3
+days still land on the revision side). Also found: planting a "gain" on work
+with an expected finish date, or whose finish an FF predecessor holds, gains
+nothing, and the tool rightly names nothing (eval/windows-mixed-check-2026-11-24.md).
+
 **Written review** (2026-11-19): one document for the contractor, built from
 the assessment and, when loaded, the comparison: a summary (forecast against
 the must-finish date, the half-step split), every correction ranked **high**

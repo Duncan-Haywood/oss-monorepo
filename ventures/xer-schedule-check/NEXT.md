@@ -27,6 +27,7 @@
 - (2026-11-20) (3) GitHub ERMHDR search, size-split 2026-11-19: a seventh P6 file (Harbour Pointe 17.12) 113/113 once 8 durations edited after its last run are put back
 - (2026-11-20) next a real site's log
 - (2026-11-21) next a real series of updates to check the split and drivers against (windows in the review shipped 2026-11-19)
+- (2026-11-24) Windows drivers with several changes per window (eval/windows-mixed-check-2026-11-24.md: 149/149 split exact, 238/241 named): a revision that drives only on a path an earlier revision in the same window opened is not named (CCA seed 2 W3, `--mixed 3`). Next: leave-one-out attribution (take each revision out of the end file, re-run, name those that move the finish), capped or limited to revisions near the paths so a real update's hundreds of edits stay fast (about 1 s per CPM run on CCA)
 - (2026-11-21) next a real baseline and update pair, a P6 layout export to check value order ties
 - (2026-11-21) Doubled quotes: read as one reader-wide and written back doubled
   shipped 2026-11-21 (eval/quotes-2026-11-21.md). Still open: a P6 Web export

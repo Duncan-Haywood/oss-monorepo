@@ -126,16 +126,23 @@ const planters = {
     const after = pathOf(st, projId);
     // not work with an expected finish date: P6 (and cpm.mjs) recompute its
     // remaining duration from that date, so a cut there is no gain at all
-    // (7 of 21 --mixed gains on 2026-11-24 were such, all split 0 and unnamed)
     const cands = after.path.filter((t) => t.status === "TK_Active" && t.remain >= 2 * hpd * 60 && !t.expEnd);
-    if (!cands.length) return null;
-    const t = cands[Math.floor(rand() * cands.length)];
-    const maxG = Math.floor(t.remain / 60 / hpd) - 1;
-    const G = 1 + Math.floor(rand() * Math.min(5, maxG));
-    const x = cloneXer(st);
-    const row = taskRow(x, t.code, projId);
-    row.remain_drtn_hr_cnt = String((num(row.remain_drtn_hr_cnt) ?? 0) - G * hpd);
-    return { full: x, progOnly: x, target: t.code, nominal: -G, detail: `${t.code} ${G} days less left` };
+    // and only a cut that brings the activity's own forecast finish in: work
+    // whose finish an FF predecessor holds (CCA's metal studs) gains nothing
+    // from less remaining. 7 of 21 --mixed gains on the 2026-11-24 first run
+    // were one or the other, each split 0 and rightly not named
+    const order = cands.map((t) => [rand(), t]).sort((a, b) => a[0] - b[0]).map((a) => a[1]);
+    for (const t of order) {
+      const maxG = Math.floor(t.remain / 60 / hpd) - 1;
+      const G = 1 + Math.floor(rand() * Math.min(5, maxG));
+      const x = cloneXer(st);
+      const row = taskRow(x, t.code, projId);
+      row.remain_drtn_hr_cnt = String((num(row.remain_drtn_hr_cnt) ?? 0) - G * hpd);
+      // cloneXer keeps task ids, so the model ids match
+      const ef0 = after.res.tasks.get(t.id).ef, ef1 = schedule(x).tasks.get(t.id)?.ef;
+      if (ef1 !== undefined && ef1 < ef0) return { full: x, progOnly: x, target: t.code, nominal: -G, detail: `${t.code} ${G} days less left` };
+    }
+    return null;
   },
   "early-finish"(prev, st, projId, dd, rand) {
     const after = pathOf(st, projId);

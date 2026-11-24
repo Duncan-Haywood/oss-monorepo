@@ -49,6 +49,13 @@ or link is among the window's drivers on its own side.
 | cut | 12 | 9 | 12 | 12 | 12 |
 | type | 13 | 9 | 13 | 13 | 13 |
 
+Rerun 2026-11-24 after the gain planter was tightened
+(`windows-mixed-check-2026-11-24.md`: no work with an expected finish, and only
+a cut that brings the activity's own finish in): the committed `.txt`/`.json`
+are that rerun. Planted, split exact, right side and named are unchanged;
+the new random draws alter some picks, so "Finish moved" now reads
+early-finish 5, link-deleted 4, cut 7.
+
 All 18 series add up (sum of windows = first-to-last movement) and come back
 in data-date order after being handed over shuffled. The first check, rerun
 after the fixes: 144 of 144 windows split exactly, 86 of 86 planted named,
