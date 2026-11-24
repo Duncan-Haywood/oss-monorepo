@@ -39,7 +39,8 @@ radius of its 2-D map at the answer reaches 1: that happens at a corner of 35 of
 corners completely (all 53 with &rho; &ge; 1 stall over 1 px; all 569 with &rho; &lt; 0.9 converge within 0.01 px). Over the whole image the
 default criterion is off by more than 1 px on a median 5.7% of pixels, an outer ring. Fix: pass
 `criteria=(cv2.TERM_CRITERIA_COUNT | cv2.TERM_CRITERIA_EPS, n, eps)`; a bigger count alone does not help. Four of five predictions held
-(the radial-only slope missed 10 corners where tangential terms matter). [Log](LOG.md).
+(the radial-only slope missed 10 corners where tangential terms matter). The port, `experiments/m3zg_loop/loop.py`, keeps OpenCV's license
+(Apache-2.0, original notice in its header), not MIT. [Log](LOG.md).
 
 ![Corner round-trip error against the undamped map's spectral radius for 169 Duckiebots, and the default criterion's error over a median Duckiebot image](experiments/m3zg_loop/loop.png)
 
