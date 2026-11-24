@@ -225,12 +225,13 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - The graves of craving at Kibroth-hattaavah, the second quails and the rabble who wept for the cucumbers and leeks of Egypt, told carefully (Numbers 11:4-6 and 31-35; left by episode 173).
 - On eagles' wings to the foot of the mountain, the three days of washing and the boundary set round Sinai, Ziva's family carried on (Exodus 19, with Deuteronomy 32:11; left by episode 174, after episode 140's Jethro).
 - The second Meribah remembered: Psalm ninety-five and the Invitatory, told as a quieter episode about morning prayer, 'today, if you hear his voice' (Psalm 95, with Hebrews 3:7 to 4:11; left by episode 174).
-- The bronze serpent on the pole, the people who looked and lived (Numbers 21:4-9, with Wisdom 16:5-7 and John 3:14-15; left by episode 163).
+- Nicodemus and the conversation by night in Jerusalem, born of water and the Spirit, the wind that blows where it wills, and the man who later brought a hundred pounds of myrrh and aloes (John 3:1-21, 7:50-52 and 19:39-42; left by episode 176).
+- The song of the well at Beer, 'Spring up, O well, sing to it', the well the princes dug with their staffs, and the stages from Oboth to the valley of the Arnon (Numbers 21:10-20; left by episode 176).
 
 ## Audio status
 
 <!-- audio-status: written by node generate.mjs from episodes/ and audio/manifest.json -->
-Audio: 29 of 175 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 175.
+Audio: 29 of 176 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 176.
 <!-- /audio-status -->
 
 Whether to add audio is the creative prompt's call, not this file's: `prompts/creative/prompt-0.md`, "Audio size", says text only while the `du` it names is over 400 MB (577 MB on 2026-11-18), and the higher layer wins. The case that the cap is stale (audio has been served from jsDelivr, outside the deploy artifact, since 2026-10-24, so the cost left is git history) is in [`docs/reports/2026-11-13-audio-cap-is-stale.md`](../../docs/reports/2026-11-13-audio-cap-is-stale.md); changing the rule is a `prompts/` edit, which waits on the owner's approval. This paragraph used to recommend voicing the backlog against the prompt, and five run records from 2026-11-16 to 2026-11-18 reported the two guides disagreeing. When the rule allows audio, voice the backlog in episode order, about 60 MB a run (episodes 20 to 24 took 7 to 11 minutes each on 4 cores, 2026-11-15). Read the episode for names first and add any the voice would trip on to `SAY` in `render_audio.py`. The line above is regenerated with the pages, so a new episode or render needs no edit here. If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 8 to 15 minutes.
