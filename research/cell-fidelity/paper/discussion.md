@@ -35,6 +35,13 @@ DFN-forecast lithium loss at cycle 100:
    folds met against 35. Up to milestone 7zb this step said "only on cells known to be plating-limited";
    7zc's plating-free cell gains as much, and a gate on plating share switches it off there, so plating
    share is dropped as the condition (7zc, 7zd).
+   Milestone 7ze adds the direction test as a third gate (gS: the drift gate, and at least 80% of the
+   training designs drifting the same way). It switches the correction off on three of the four published
+   sets (direction shares 0.50 to 0.75) and is the cheapest deployable gate over the eight conditions,
+   &minus;15.4 cycles per design against step 3 (&minus;28.0 to &minus;3.2; 20 cheaper, 4 dearer, p = 0.002)
+   at 37 of 40 folds met. It does not fix `NCA_Kim2011`, whose designs drift one way (share 0.93 to 0.97),
+   so on the published sets it still costs +1.75 cycles per design with 18 of 20 folds against 19. The
+   recipe's default gate is therefore gS, with the caveat that it was designed after seeing what gD missed.
 
 Figure 2 places every out-of-batch look at this rule against its two rivals. The threshold rule met the
 tail target on 75% to 95% of held-out pools at 38 to 44 DFN cycles per design. Running every design to a

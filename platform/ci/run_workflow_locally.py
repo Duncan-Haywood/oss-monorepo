@@ -95,6 +95,7 @@ import argparse
 import copy
 import functools
 import hashlib
+import json
 import os
 import re
 import shlex
@@ -2169,6 +2170,12 @@ def run_for_changes(args) -> int:
             print(POST_PRECHECK_STOP, flush=True)
             return 1
 
+    if not args.list and not getattr(args, "no_record_check", False):
+        blank = blank_records(changed)
+        if blank:
+            print(RECORD_PRECHECK_STOP.format(paths=", ".join(blank)), flush=True)
+            return 1
+
     if not args.list and not getattr(args, "no_browser_sweeps", False):
         code, output = browser_sweep_precheck(changed)
         if output:
@@ -2289,6 +2296,35 @@ def post_precheck(changed, repo: str = REPO) -> tuple[bool, str]:
     if done.returncode == 0:
         return False, ""
     return True, (done.stdout + done.stderr).rstrip()
+
+
+# `promptctl record` writes a record with outcome null, and prompts-ci's
+# validate step fails on it ("fill it in before merging"). A sweep started
+# after writing the record but before filling it in ran 10 to 15 minutes to
+# report that one expected failure (doc friction on this file, 2026-11-23 and
+# 2026-11-24, three run records). The record is in the diff, so the sweep
+# checks it first and stops in under a second.
+RECORD_PRECHECK_STOP = (
+    "Stopped before the sweep: run record(s) {paths} still have outcome null, "
+    "so prompts-ci's validate step would fail on them. Fill in outcome (and "
+    "pr) first, or sweep before writing the record (--no-record-check sweeps "
+    "anyway).")
+
+
+def blank_records(changed, repo: str = REPO) -> list[str]:
+    """The diff's prompts/runs/*.json records whose outcome is still null."""
+    out = []
+    for p in changed:
+        if not (p.startswith("prompts/runs/") and p.endswith(".json") and p.count("/") == 2):
+            continue
+        try:
+            with open(os.path.join(repo, p), encoding="utf-8") as f:
+                rec = json.load(f)
+        except (OSError, ValueError):
+            continue  # deleted or unparseable: validate reports the latter itself
+        if isinstance(rec, dict) and "outcome" in rec and rec["outcome"] is None:
+            out.append(p)
+    return out
 
 
 # Seven browser sweeps (platform/ci/check_*.js) found 40-odd live venture bugs
@@ -2999,6 +3035,9 @@ def _main(argv=None) -> int:
                     help="with --for-changes: sweep even when a changed post "
                          "fails check_post_frontmatter (by default the sweep "
                          "stops first; see POST_PRECHECK_STOP)")
+    ap.add_argument("--no-record-check", action="store_true",
+                    help="with --for-changes: sweep even when a changed run "
+                         "record still has outcome null (see RECORD_PRECHECK_STOP)")
     ap.add_argument("--full", action="store_true",
                     help="with --for-changes on a content-only diff (no "
                          "platform/, portfolio/, .github/ or prompts/ code): "

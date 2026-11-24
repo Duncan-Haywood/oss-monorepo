@@ -604,6 +604,7 @@ const HOUSEHOLD_SLUGS = new Set([
       'mortgage-escrow-analysis-checker',
       'mortgage-extra-payment-vs-invest-calculator',
       'mortgage-points-break-even-calculator',
+      'photo-nutrition-agent',
       'property-tax-appeal-calculator',
       'pslf-vs-refinance-calculator',
       'rent-vs-buy-breakeven-calculator',

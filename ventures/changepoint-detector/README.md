@@ -10909,3 +10909,74 @@ Also corrected on the page and in `llms.txt` (not part of this round): the trust
 NBER's 16 turns "with no false turn", true of 6-month phases only; under the 3-month default monthly composites
 have used since "P3 and the heavy-late warning together", it also dates the 2002-03 soft patch. The note now says
 so, as the CLI's already did.
+
+## A second make: the Philadelphia Fed's coincident index misses 1980 and dates 2008-09 four months late (2026-11-24, pre-registered; U1 fails, U2 and U3 pass, nothing ships)
+
+The open item from the two vintage rounds: a second make, "a state coincident index against its state's dated
+recessions". What this session could reach set the shape. stlouisfed.org and philadelphiafed.org refuse its proxy,
+and GitHub code search found no public file of dated state recessions (Owyang-Piger-Wall or Hamilton-Owyang dates,
+FRED-SD; Ahn and Eo's 2026 FEDS note has state recession probabilities as figures only). It did find five public
+copies of the Philadelphia Fed's US coincident index (USPHCI), saved on different dates, and one of California's
+(CAPHCI). USPHCI is the national index of the same maker and method as the 50 state indexes: a dynamic factor
+model of payroll employment, the unemployment rate, manufacturing hours and wage and salary disbursements,
+re-estimated each month so its history revises. It is a composite we did not build, so this round scores the
+shipped one-column `--turns` default (monthly, 6-month phases, big move 5%, the path `turnsResult` runs) on it
+against NBER's 12 turns since 1979, with the four older copies as vintages. California is printed with no bar.
+Rules and bars in the header of `eval/turns-usphci.mjs`, committed before it first ran (commit "pre-register the
+second-make round"); output `eval/turns-usphci.out.txt` (0.3 s); test `turns-usphci.test.mjs`; data and checks in
+`data/SOURCE.md`, "USPHCI".
+
+| NBER turn | USPHCI dates it | months off |
+|---|---|---|
+| peak 1980-01 | not dated | (next peak 1981-07) |
+| trough 1980-07 | not dated | |
+| peak 1981-07 | 1981-07 | 0 (1-2 late on older copies) |
+| trough 1982-11 | 1982-11 | 0 |
+| peak 1990-07 | 1990-10 | +3 |
+| trough 1991-03 | 1991-05 | +2 |
+| peak 2001-03 | 2001-05 | +2 |
+| trough 2001-11 | 2001-12 | +1 |
+| peak 2007-12 | 2008-04 | **+4** |
+| trough 2009-06 | 2009-10 | **+4** |
+| peak 2020-02 | 2020-02 | 0 |
+| trough 2020-04 | 2020-04 | 0 |
+
+| bar | result | |
+|---|---|---|
+| U1 at least 10 of 12 within 3 months, at most 2 false turns | 8 of 12, no false turn | **fails** |
+| U2 F1 at least +0.15 over random cuts, p <= 0.05 | 0.917 against 0.260, p < 0.001 | **passes** |
+| U3 the eight matched turns matched on all five copies, dated month moving at most 3 | spread 2 (1981-07), 0 elsewhere | **passes** |
+
+What it shows:
+
+- **The expectation was wrong where it mattered.** Written beforehand: the index leans on payrolls and the
+  unemployment rate, so the troughs after the jobless recoveries (1991, 2001) might come late, as payrolls as
+  published dated 2001's in 2003. They do not: 1991-05 and 2001-12, two months and one. On this make the
+  jobless-recovery lag of the FRED-MD vintage round does not appear.
+- **The 1980 recession is too short and too shallow for the one-column rule.** The index fell 0.6% from 1980-01 to
+  1980-07, and its own contraction ran four months (1980-03 to 1980-07, 1.0%): under the 6-month phase minimum and
+  far under the 5% move that keeps a short phase. With 3-month phases (the composite default, printed with no bar)
+  it is dated 1980-03 peak and 1980-07 trough and the count is 10 of 12, still with no false turn. That is a look
+  after the result, not a pass: whether a published composite fed in as one column should take the 3-month default
+  needs its own pre-registered round on a make not seen here.
+- **2008-09 is late at both ends, by the same four months.** The index rose 0.4% from 2007-12 to its 2008-04 peak
+  and fell 0.5% more from 2009-06 to its 2009-10 trough. Wages and salaries kept the index up into 2008 and the
+  unemployment rate, which peaked at 10% in 2009-10, held it down after NBER's trough. These are the index's own
+  turning points, not the rule's: every copy has them.
+- **Revisions did not move the dates.** The five copies (through 2021-12, 2023-05, 2023-10, 2024-10 and 2026-07)
+  differ by a median 0.01 to 0.015 percentage points of monthly growth (at most 0.46), and the dated months agree
+  on every turn but the 1981 peak (1981-07 to 1981-09). Five copies over four and a half years are not a full
+  vintage archive, but on this make the dates were stable where FRED-MD's three-series composite moved by four
+  months.
+- **California, printed with no bar.** CAPHCI dates 10 of the 12 national turns within 4 months, misses 1980 the
+  same way, and adds a 1991-10 to 1992-06 second dip with no national turn near it (California's early-1990s
+  defence and aerospace cuts are the usual account; no state dating in reach confirms it). That is what a state
+  dating would have to score, and why national dates are not its labels.
+
+Read it for what it is: one maker's national index, 12 turns, five copies. U1 failed, so as the header said
+nothing in the CLI, page or `llms.txt` changes. What a user should take from it: run `--turns` on a published
+coincident index and the dates are the index's own; a mild, short recession like 1980 needs `--min-phase 3` to be
+seen, and an index that carries the unemployment rate will put a trough where unemployment peaked. Next, if this
+line continues: a pre-registered round on whether a published composite should default to 3-month phases, on a
+make not seen here (the Conference Board's coincident index, or another country's composite with an official
+dating committee, e.g. CEPR's euro-area dates); a state dating to score CAPHCI against.
