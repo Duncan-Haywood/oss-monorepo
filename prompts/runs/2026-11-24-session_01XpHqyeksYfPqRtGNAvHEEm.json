@@ -60,7 +60,7 @@
   ],
   "writeups": [],
   "goal": "North star: a paid, cost-plus SMB offer with evidence for which verticals to build first.",
-  "notes": "Checks run here: python3 portfolio/smb/cost_plus.py --check (ok); python3 -m pytest -q portfolio/smb/ (11 passed). Cost basis: Paddle, Cloudflare and model per-token prices are published; every labour and volume line is an assumption, so 100% of each modelled price rests on assumptions until a pilot shop is measured. Findings: support time is ~90% of variable cost under the placeholders; prices must be held at the planned shop count to reach $10k MRP (124-200 shops per wave-1 vertical).",
+  "notes": "Checks run here: python3 portfolio/smb/cost_plus.py --check (ok); python3 -m pytest -q portfolio/ledger/test_smb_cost_plus.py (11 passed; kept under portfolio/ledger so the checklist line covers it). Cost basis: Paddle, Cloudflare and model per-token prices are published; every labour and volume line is an assumption, so 100% of each modelled price rests on assumptions until a pilot shop is measured. Findings: support time is ~90% of variable cost under the placeholders; prices must be held at the planned shop count to reach $10k MRP (124-200 shops per wave-1 vertical).",
   "corrections": [],
   "redteam": null,
   "build_ok": true

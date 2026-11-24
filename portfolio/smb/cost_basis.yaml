@@ -1,6 +1,6 @@
 # Cost basis for the cost-plus SMB suites (portfolio/smb/OFFER.md).
 # Read by cost_plus.py; validated by `python3 portfolio/smb/cost_plus.py --check`
-# and portfolio/smb/test_cost_plus.py.
+# and portfolio/ledger/test_smb_cost_plus.py.
 #
 # Every money line has `kind`:
 #   published  - a provider's list price: needs `source` and `read`

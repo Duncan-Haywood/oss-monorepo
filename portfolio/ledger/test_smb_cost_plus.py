@@ -1,4 +1,9 @@
-"""Tests for portfolio/smb/cost_plus.py and the committed YAML it reads."""
+"""Tests for portfolio/smb/cost_plus.py and the committed YAML it reads.
+
+Kept here, not in portfolio/smb/, so the merge checklist's existing
+portfolio/ledger line runs them (the same arrangement as test_monetization.py);
+adding a checklist line means editing an owner-gated file.
+"""
 from __future__ import annotations
 
 import sys
@@ -7,7 +12,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "smb"))
 import cost_plus as cp  # noqa: E402
 
 
