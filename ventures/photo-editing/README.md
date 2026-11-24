@@ -201,6 +201,22 @@ python3 eval/cull-raw-data-previews-check.py OUT     # sensels vs shootflow
 python3 eval/cull-raw-data-previews-colour.py OUT    # colour vs shootflow
 ```
 
+## Keyword trees, code replacements and per-frame captions (2026-11-24)
+
+The IPTC template below gained the three things a sports or event desk uses
+most. A keyword typed `Sport|Ice hockey` (or `Sport > Ice hockey`) is a path:
+each level goes into `dc:subject` and the path into `lr:hierarchicalSubject`,
+Lightroom's keyword tree, merged with any tree already in your sidecar.
+Code replacements, as Photo Mechanic calls them: a list of `code<TAB>text`
+(or `code=text`) lines, typed or loaded from a .txt, so `\23\` in any box,
+keyword or caption becomes "Jane Roe (Northfield Owls, 23)" and `\23#2\` the
+second column. `C` gives a frame its own caption, which replaces the
+template's or fills `{caption}` in it. Checked (eval/cull-iptc-tree-codes-2026-11-24.md):
+12 unit tests; in Chromium, the zip read back by ExifTool 12.76 with the tree,
+every level, the codes and the frame caption as intended, an existing
+`Places|Yorkshire` tree and develop settings kept, `-validate` OK. Not yet
+checked: Lightroom's own import of the tree.
+
 ## The cull page writes IPTC captions, keywords and copyright (2026-11-24)
 
 After picking, a photo desk captions: creator, copyright line, where, and

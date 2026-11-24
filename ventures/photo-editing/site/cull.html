@@ -132,7 +132,7 @@
     </div>
     <details id="iptcBox">
       <summary><strong>Captions, keywords and copyright (IPTC)</strong> <span class="status" id="iptcState">off: sidecars carry ratings and labels only</span></summary>
-      <p class="muted">Fill in what every frame should carry, like a Photo Mechanic stationery pad. It goes into the same sidecars as standard IPTC fields that Lightroom, Bridge, Capture One, darktable and digiKam read. Empty boxes are left alone, so a caption already in your own sidecar is kept; keywords are added to the ones already there. Press <kbd>K</kbd> on a frame to add keywords to that frame only. Variables: <code>{date}</code> <code>{year}</code> <code>{monthname}</code> <code>{day}</code> <code>{time}</code> <code>{camera}</code> <code>{lens}</code> <code>{file}</code> <code>{stem}</code> <code>{seq}</code> <code>{iso}</code> <code>{aperture}</code> <code>{shutter}</code> <code>{focal}</code>.</p>
+      <p class="muted">Fill in what every frame should carry, like a Photo Mechanic stationery pad. It goes into the same sidecars as standard IPTC fields that Lightroom, Bridge, Capture One, darktable and digiKam read. Empty boxes are left alone, so a caption already in your own sidecar is kept; keywords are added to the ones already there. Press <kbd>K</kbd> on a frame to add keywords to that frame only, <kbd>C</kbd> to give it its own caption (it replaces the caption below, or fills <code>{caption}</code> in it). A keyword typed as <code>Sport|Ice hockey</code> or <code>Sport &gt; Ice hockey</code> goes into Lightroom's keyword tree (<code>lr:hierarchicalSubject</code>) and each level into the flat keywords. Variables: <code>{date}</code> <code>{year}</code> <code>{monthname}</code> <code>{day}</code> <code>{time}</code> <code>{camera}</code> <code>{lens}</code> <code>{file}</code> <code>{stem}</code> <code>{seq}</code> <code>{iso}</code> <code>{aperture}</code> <code>{shutter}</code> <code>{focal}</code> <code>{caption}</code>.</p>
       <div class="iptc">
         <label>Creator (photographer; separate several with ;)<input id="ip_creator" autocomplete="name"></label>
         <label>Copyright notice<input id="ip_copyright" placeholder="© {year} Your Name"></label>
@@ -147,11 +147,13 @@
         <label>State or province<input id="ip_state"></label>
         <label>Country<input id="ip_country"></label>
         <label class="wide">Instructions<input id="ip_instructions" placeholder="Embargoed until …"></label>
+        <label class="wide">Code replacements (one per line: code, a tab or =, then the text; type <code>\code\</code> in any box, caption or keyword, <code>\code#2\</code> for a second tab column)<textarea id="ipCodes" rows="3" spellcheck="false" placeholder="23=Jane Roe (Leeds Rhinos, 23)&#10;LR=Leeds Rhinos"></textarea></label>
       </div>
       <div class="bar">
         <label class="btnlike">Load from a captioned .xmp<input type="file" id="ipLoad" accept=".xmp"></label>
         <button type="button" id="ipSave">Save template (.json)</button>
         <label class="btnlike">Open template (.json)<input type="file" id="ipOpen" accept=".json,application/json"></label>
+        <label class="btnlike">Load codes (.txt, tab separated)<input type="file" id="ipCodesFile" accept=".txt,.tsv,.csv,text/plain"></label>
         <button type="button" id="ipClear">Clear</button>
         <span class="status" id="ipPreview"></span>
       </div>
@@ -176,7 +178,8 @@
       <li><kbd>F</kbd> in the large view: show or hide the AF points and face boxes</li>
       <li><kbd>Esc</kbd> close the large view</li>
       <li><kbd>B</kbd> jump to the sharpest frame of this burst</li>
-      <li><kbd>K</kbd> add keywords to this frame (IPTC, written into its sidecar)</li>
+      <li><kbd>K</kbd> add keywords to this frame (IPTC, written into its sidecar; <code>Sport|Ice hockey</code> for a keyword tree)</li>
+      <li><kbd>C</kbd> give this frame its own caption (codes like <code>\23\</code> work)</li>
     </ul>
   </section>
 
@@ -242,7 +245,7 @@
 import { readRawFile, isCandidateFile, captureMillis, groupBursts, sharpness, detailAt, burstBest, orientPoint, xmpSidecar, sidecarName, zipStored, LABEL_KEYS, readXmp, mergeXmpSidecar, sidecarTarget } from "./rawpreview.mjs";
 import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 import { summarizeFaces, eyesOpenCandidates, describeFaces, loadFaceLandmarker } from "./eyes.mjs";
-import { IPTC_FIELDS, frameIptc, mergeIptc, readIptc, splitKeywords } from "./iptc.mjs";
+import { IPTC_FIELDS, frameIptc, mergeIptc, readIptc, splitKeywords, parseCodes } from "./iptc.mjs";
 
 const $ = (id) => document.getElementById(id);
 const grid = $("grid");
@@ -260,7 +263,7 @@ let marks = loadMarks();
 function saveMarks() {
   for (const it of items) {
     const k = `${it.name}|${it.size}`;
-    if (it.rating || it.rejected || it.label || it.keywords?.length) marks[k] = { r: it.rating, x: it.rejected ? 1 : 0, l: it.label, ...(it.keywords?.length ? { k: it.keywords } : {}) };
+    if (marked(it)) marks[k] = { r: it.rating, x: it.rejected ? 1 : 0, l: it.label, ...(it.keywords?.length ? { k: it.keywords } : {}), ...(it.caption ? { c: it.caption } : {}) };
     else delete marks[k];
   }
   try { localStorage.setItem(STORE, JSON.stringify(marks)); } catch { /* storage is optional */ }
@@ -397,7 +400,7 @@ async function loadOne(file) {
   // marked on this page before (this browser), a sidecar dropped with it, the
   // rating set in the camera.
   const m = marks[`${it.name}|${it.size}`];
-  if (m) { it.rating = m.r || 0; it.rejected = !!m.x; it.label = m.l || ""; it.from = "here"; if (Array.isArray(m.k)) it.keywords = m.k; }
+  if (m) { it.rating = m.r || 0; it.rejected = !!m.x; it.label = m.l || ""; it.from = "here"; if (Array.isArray(m.k)) it.keywords = m.k; if (typeof m.c === "string") it.caption = m.c; }
   else if (it.meta && (it.meta.cameraRating || it.meta.cameraLabel)) {
     const r = it.meta.cameraRating || 0;
     it.rating = r > 0 ? r : 0; it.rejected = r === -1; it.label = it.meta.cameraLabel || ""; it.from = "camera";
@@ -749,6 +752,13 @@ document.addEventListener("keydown", (e) => {
     if (typed === null) return;
     mark((x) => { x.keywords = splitKeywords(typed); });
     if (it.keywords.length) record("frame_keywords");
+  } else if (k === "c" || k === "C") {
+    const it = items[view[sel]]; if (!it) return;
+    const typed = prompt(`Caption for ${it.name} (codes like \\23\\ and variables like {date} work; clear the box to use the template's):`, it.caption || "");
+    if (typed === null) return;
+    mark((x) => { x.caption = typed.trim(); });
+    if (it.caption) record("frame_caption");
+    templateChanged();
   } else if (k === "b" || k === "B") {
     const it = items[view[sel]];
     const p = view.findIndex((i) => items[i].burst === it.burst && items[i].best);
@@ -767,11 +777,13 @@ function download(name, data, type) {
   const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
-const marked = (it) => it.rating || it.rejected || it.label || it.keywords?.length;
+const marked = (it) => it.rating || it.rejected || it.label || it.keywords?.length || it.caption;
 
 // ---------------------------------------------------------------- IPTC template
 
 const IP_STORE = "shootflow-cull-iptc";
+const CODES_STORE = "shootflow-cull-codes";
+const codes = () => parseCodes($("ipCodes").value);
 const ipKeys = Object.keys(IPTC_FIELDS);
 function readTemplate() { const t = {}; for (const k of ipKeys) { const v = $(`ip_${k}`).value.trim(); if (v) t[k] = v; } return t; }
 function fillTemplate(t) { for (const k of ipKeys) $(`ip_${k}`).value = Array.isArray(t?.[k]) ? t[k].join(", ") : (t?.[k] || ""); templateChanged(); }
@@ -780,16 +792,28 @@ function templateChanged() {
   try { localStorage.setItem(IP_STORE, JSON.stringify(t)); } catch { /* optional */ }
   $("iptcState").textContent = n ? `on: ${n} field${n > 1 ? "s" : ""} go into every sidecar` : "off: sidecars carry ratings and labels only";
   const it = items[view[sel]] || items[0];
-  const f = it ? frameIptc(t, { ...it, seq: items.indexOf(it) + 1 }) : null;
+  const c = codes();
+  try { localStorage.setItem(CODES_STORE, $("ipCodes").value); } catch { /* optional */ }
+  if (c.size) $("iptcState").textContent += ` · ${c.size} code${c.size > 1 ? "s" : ""}`;
+  const f = it ? frameIptc(t, { ...it, seq: items.indexOf(it) + 1 }, c) : null;
   $("ipPreview").textContent = f && (f.caption || f.copyright) ? `${it.name}: ${[f.caption, f.copyright].filter(Boolean).join(" · ")}` : "";
 }
+try { $("ipCodes").value = localStorage.getItem(CODES_STORE) || ""; } catch { /* optional */ }
 try { fillTemplate(JSON.parse(localStorage.getItem(IP_STORE) || "{}")); } catch { /* optional */ }
+$("ipCodes").addEventListener("input", templateChanged);
+$("ipCodesFile").onchange = async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const text = await f.text(), n = parseCodes(text).size;
+  if (!n) $("ipPreview").textContent = `${f.name} has no code lines (code, a tab, then the text).`;
+  else { $("ipCodes").value = text.replace(/\r\n/g, "\n").trimEnd(); templateChanged(); $("ipPreview").textContent = `Loaded ${n} codes from ${f.name}.`; record("iptc_codes_loaded"); }
+  e.target.value = "";
+};
 for (const k of ipKeys) $(`ip_${k}`).addEventListener("input", templateChanged);
 $("ipClear").onclick = () => fillTemplate({});
-$("ipSave").onclick = () => { download("shootflow-iptc-template.json", JSON.stringify(readTemplate(), null, 2) + "\n", "application/json"); record("iptc_template_saved"); };
+$("ipSave").onclick = () => { download("shootflow-iptc-template.json", JSON.stringify({ ...readTemplate(), ...($("ipCodes").value.trim() ? { codes: $("ipCodes").value } : {}) }, null, 2) + "\n", "application/json"); record("iptc_template_saved"); };
 $("ipOpen").onchange = async (e) => {
   const f = e.target.files[0]; if (!f) return;
-  try { fillTemplate(JSON.parse(await f.text())); $("ipPreview").textContent = `Template opened from ${f.name}.`; }
+  try { const t = JSON.parse(await f.text()); if (typeof t.codes === "string") $("ipCodes").value = t.codes; fillTemplate(t); $("ipPreview").textContent = `Template opened from ${f.name}.`; }
   catch { $("ipPreview").textContent = `${f.name} is not a template file.`; }
   e.target.value = "";
 };
@@ -808,9 +832,9 @@ $("dlXmp").onclick = () => {
   // settings, keywords and crops in it survive the unzip.
   // IPTC fields (template plus the frame's own keywords) go into the same file.
   let merged = 0, captioned = 0;
-  const tpl = readTemplate();
+  const tpl = readTemplate(), cds = codes();
   const withIptc = (xmp, it) => {
-    const f = frameIptc(tpl, { ...it, seq: items.indexOf(it) + 1 });
+    const f = frameIptc(tpl, { ...it, seq: items.indexOf(it) + 1 }, cds);
     if (!Object.keys(f).length) return xmp;
     captioned++;
     return mergeIptc(xmp, f) ?? xmp;
@@ -834,10 +858,10 @@ $("dlPicks").onclick = () => {
 };
 $("dlCsv").onclick = () => {
   const q = (v) => { const s = v == null ? "" : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-  const rows = [["file", "rating", "rejected", "label", "burst", "sharpest_in_burst", "sharpest_by", "detail", "af_x", "af_y", "af_detail", "af_source", "captured", "camera", "lens", "exposure_s", "f_number", "iso", "focal_mm", "preview_w", "preview_h", "faces", "eyes_closed", "blink_max", "keywords", "error"]];
+  const rows = [["file", "rating", "rejected", "label", "burst", "sharpest_in_burst", "sharpest_by", "detail", "af_x", "af_y", "af_detail", "af_source", "captured", "camera", "lens", "exposure_s", "f_number", "iso", "focal_mm", "preview_w", "preview_h", "faces", "eyes_closed", "blink_max", "keywords", "caption", "error"]];
   for (const it of items) {
     const m = it.meta || {};
-    rows.push([it.name, it.rating, it.rejected ? 1 : 0, it.label, it.burst, it.best ? 1 : 0, it.best ? it.bestBy || "" : "", it.detail != null ? it.detail.toFixed(1) : "", it.af?.at ? it.af.at[0].toFixed(4) : "", it.af?.at ? it.af.at[1].toFixed(4) : "", it.afDetail != null ? it.afDetail.toFixed(1) : "", it.af?.source || "", m.captured, cameraName(m), m.lens, m.exposureTime, m.fNumber, m.iso, m.focalLength, it.preview?.width, it.preview?.height, it.eyes ? it.eyes.prominent : "", it.eyes ? (it.eyes.eyesClosed ? 1 : 0) : "", it.eyes?.worstBlink != null ? it.eyes.worstBlink.toFixed(3) : "", (it.keywords || []).join("; "), it.error]);
+    rows.push([it.name, it.rating, it.rejected ? 1 : 0, it.label, it.burst, it.best ? 1 : 0, it.best ? it.bestBy || "" : "", it.detail != null ? it.detail.toFixed(1) : "", it.af?.at ? it.af.at[0].toFixed(4) : "", it.af?.at ? it.af.at[1].toFixed(4) : "", it.afDetail != null ? it.afDetail.toFixed(1) : "", it.af?.source || "", m.captured, cameraName(m), m.lens, m.exposureTime, m.fNumber, m.iso, m.focalLength, it.preview?.width, it.preview?.height, it.eyes ? it.eyes.prominent : "", it.eyes ? (it.eyes.eyesClosed ? 1 : 0) : "", it.eyes?.worstBlink != null ? it.eyes.worstBlink.toFixed(3) : "", (it.keywords || []).join("; "), it.caption || "", it.error]);
   }
   download("shootflow-cull.csv", rows.map((r) => r.map(q).join(",")).join("\n") + "\n", "text/csv");
   record("csv_downloaded");

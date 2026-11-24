@@ -334,10 +334,11 @@ flagships:
       eval/cull-existing-sidecars-*); AF points 2026-11-24 (22 of 22 =
       metadata-extractor, eval/cull-af-point-*); DNGs with no JPEG developed in-page
       2026-11-24 (32 of 32 = shootflow sensels, eval/cull-raw-data-previews-*; next
-      JPEG XL DNGs); IPTC captions/keywords template 2026-11-24 (13 fields read back
-      by ExifTool, eval/cull-iptc-*; next a Lightroom import, hierarchical
-      keywords). Next Nikon AF grids, a real card of 500+ raws with picks, a
-      Lightroom read of merged sidecars. More open items: NEXT.md.
+      JPEG XL DNGs); IPTC template 2026-11-24 (13 fields, eval/cull-iptc-*); keyword
+      trees, code replacements, C captions 2026-11-24 (ExifTool,
+      eval/cull-iptc-tree-codes-*; next Lightroom's import of the tree). Next Nikon
+      AF grids, a real card of 500+ raws with picks, a Lightroom read of merged
+      sidecars. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
