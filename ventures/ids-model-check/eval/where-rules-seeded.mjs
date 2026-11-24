@@ -229,7 +229,163 @@ const FAMILIES = {
     }
     return out.expect.length ? out : null;
   },
+  // ---- families an IDS reads less directly, and the two global RULEs ----
+  // A second IfcProject: IfcSingleProjectInstance (SIZEOF(IfcProject) <= 1).
+  // An IDS check's applicability and its units are read through the one project.
+  "second-project"(ctx) {
+    const { recs, text, newId } = ctx;
+    const p = [...recs.values()].find((r) => r.type === "IFCPROJECT");
+    if (!p || ctx.already(null, "IfcSingleProjectInstance")) return null;
+    const a = argsOf(text, p);
+    a[0] = gid(); a[2] = "'seeded second project'";
+    return { edits: new Map(), append: [`#${newId()}=IFCPROJECT(${a.join(",")});`], expect: [{ id: null, rule: "IfcSingleProjectInstance" }] };
+  },
+  // A second root context whose world coordinate system is turned a quarter
+  // turn about its axis: IfcRepresentationContextSameWCS. Geometry in the two
+  // contexts then disagrees about which way the model's x axis points.
+  "context-rotated-wcs"(ctx) { return otherWcs(ctx, "rotate"); },
+  // The same with the origin moved 1000 units along x instead. In IFC2X3 and
+  // IFC4, IfcSameAxis2Placement compares ap1.Location with ap1.Location (a
+  // typo in the schema), so a moved origin never breaks the rule; IFC4X3
+  // compares ap1 with ap2. The seed expects a failure only in IFC4X3.
+  "context-moved-wcs"(ctx) { return otherWcs(ctx, "move"); },
+  // An SI unit whose Name has another dimension than its UnitType (a length
+  // unit named SQUARE_METRE): IfcNamedUnit.WR1. Every quantity and length an
+  // IDS range checks is read in the project's units.
+  "si-unit-wrong-dimension"(ctx) {
+    const { S, R, recs, text } = ctx;
+    const own = ruleOwner(R, S, "IFCSIUNIT", "WR1");
+    if (!own) return null;
+    const other = { LENGTHUNIT: "SQUARE_METRE", AREAUNIT: "CUBIC_METRE", VOLUMEUNIT: "METRE", PLANEANGLEUNIT: "METRE", MASSUNIT: "METRE", TIMEUNIT: "METRE" };
+    const ats = S.attrs("IFCSIUNIT");
+    const ti = ats.index.get("UnitType"), ni = ats.index.get("Name");
+    for (const r of recs.values()) {
+      if (r.type !== "IFCSIUNIT" || ctx.already(r.id, own.name)) continue;
+      const a = argsOf(text, r);
+      const ut = a[ti].replace(/\./g, "");
+      if (!other[ut]) continue;
+      a[ni] = "." + other[ut] + ".";
+      return { edits: new Map([[r.id, a]]), append: [], expect: [{ id: r.id, rule: own.name }] };
+    }
+    return null;
+  },
+  // An object listed among its own parts: IfcRelAggregates.NoSelfReference
+  // (IFC2X3 IfcRelDecomposes.WR31). An IDS partOf facet walks this tree.
+  "aggregate-self-reference"(ctx) {
+    const { S, R, recs, text } = ctx;
+    const ats = S.attrs("IFCRELAGGREGATES");
+    const oi = ats.index.get("RelatingObject"), li = ats.index.get("RelatedObjects");
+    let own = null;
+    for (let t = "IFCRELAGGREGATES"; t && S.entities[t] && !own; t = S.entities[t].super) {
+      const w = ((R.entities[t] || {}).where || []).find((x) => /RelatingObject\s*:=:\s*Temp/i.test(x[1]));
+      if (w) own = { name: t + "." + w[0] };
+    }
+    if (!own) return null;
+    // Not the project: a project that decomposes itself also breaks IfcProject's
+    // own rule. An assembly (a stair, a curtain wall, an element assembly) is
+    // taken first. A spatial element that lists itself also decomposes twice,
+    // which IfcSpatialStructureElement.WR41 forbids, so that seed expects both.
+    const cands = [];
+    for (const r of recs.values()) {
+      if (r.type !== "IFCRELAGGREGATES" || ctx.already(r.id, own.name)) continue;
+      const a = argsOf(text, r);
+      const whole = recs.get(refs(a[oi])[0]);
+      if (!whole || !S.has(whole.type) || whole.type === "IFCPROJECT") continue;
+      const spatial = S.isA(whole.type, "IFCSPATIALSTRUCTUREELEMENT");
+      if (!spatial) { cands.unshift({ r, a, whole }); break; }
+      if (!cands.length) cands.push({ r, a, whole, spatial });
+    }
+    const c = cands[0];
+    if (!c) return null;
+    const expect = [{ id: c.r.id, rule: own.name }];
+    if (c.spatial) {
+      const w41 = ruleOwner(R, S, c.whole.type, "WR41");
+      if (!w41 || ctx.already(c.whole.id, w41.name)) return null;
+      expect.push({ id: c.whole.id, rule: w41.name });
+    }
+    c.a[li] = c.a[li].replace(/\)\s*$/, `,#${c.whole.id})`);
+    return { edits: new Map([[c.r.id, c.a]]), append: [], expect };
+  },
+  // A material on something that is not an element or element type (a space,
+  // a storey; in IFC2X3, where spaces are products, the project):
+  // IfcRelAssociatesMaterial.AllowedElements (IFC2X3 WR22).
+  "material-on-non-element"(ctx) { return materialOn(ctx, false); },
+  // A material on an opening: IfcRelAssociatesMaterial.NoVoidElement (IFC2X3 WR21).
+  // A material facet on openings would then read the void's "material".
+  "material-on-opening"(ctx) { return materialOn(ctx, true); },
 };
+
+function otherWcs(ctx, how) {
+  const { S, recs, text, newId } = ctx;
+  if (ctx.already(null, "IfcRepresentationContextSameWCS")) return null;
+  // The rule compares every context with the first in the population; a
+  // subcontext's WorldCoordinateSystem is derived from its parent's.
+  const ctxs = [...recs.values()].filter((r) => r.type === "IFCGEOMETRICREPRESENTATIONCONTEXT" || r.type === "IFCGEOMETRICREPRESENTATIONSUBCONTEXT").sort((x, y) => x.id - y.id);
+  let first = ctxs[0];
+  for (let n = 0; first && first.type === "IFCGEOMETRICREPRESENTATIONSUBCONTEXT" && n < 4; n++) first = recs.get(refs(argsOf(text, first)[S.attrs(first.type).index.get("ParentContext")])[0]);
+  if (!first || first.type !== "IFCGEOMETRICREPRESENTATIONCONTEXT") return null;
+  const fa = argsOf(text, first);
+  const wcs = recs.get(refs(fa[4])[0]);
+  if (!wcs || !/^IFCAXIS2PLACEMENT[23]D$/.test(wcs.type)) return null;
+  const d3 = wcs.type === "IFCAXIS2PLACEMENT3D";
+  const wa = argsOf(text, wcs);
+  const ratios = (arg) => { const r = recs.get(refs(arg)[0]); return r ? argsOf(text, r)[0].replace(/[()\s]/g, "").split(",").map(Number) : null; };
+  const fmt = (v) => (Number.isInteger(v) ? v + "." : String(v).replace(/e/, "E"));
+  const append = [];
+  if (how === "move") {
+    const xyz = ratios(wa[0]);
+    if (!xyz || xyz.some((v) => !Number.isFinite(v))) return null;
+    xyz[0] += 1000;
+    const pid = newId();
+    append.push(`#${pid}=IFCCARTESIANPOINT((${xyz.map(fmt).join(",")}));`);
+    wa[0] = "#" + pid;
+  } else {
+    // A new RefDirection along a unit axis that is neither the old one nor the Axis.
+    const norm = (v) => { const l = Math.hypot(...v); return l ? v.map((x) => x / l) : null; };
+    const axis = d3 ? norm(ratios(wa[1]) || [0, 0, 1]) : null;
+    const ref = norm(ratios(wa[d3 ? 2 : 1]) || (d3 ? [1, 0, 0] : [1, 0]));
+    if (!ref || (d3 && !axis)) return null;
+    const dot = (u, v) => u.reduce((s, x, i) => s + x * v[i], 0);
+    const pick = (d3 ? [[0, 1, 0], [1, 0, 0], [0, 0, 1]] : [[0, 1], [1, 0]]).find((u) => Math.abs(dot(u, ref)) < 0.5 && (!d3 || Math.abs(dot(u, axis)) < 0.5));
+    if (!pick) return null;
+    const did = newId();
+    append.push(`#${did}=IFCDIRECTION((${pick.map(fmt).join(",")}));`);
+    wa[d3 ? 2 : 1] = "#" + did;
+    // A 3D placement gives both Axis and RefDirection or neither (AxisAndRefDirProvision).
+    if (d3 && !refs(wa[1]).length) { const xid = newId(); append.push(`#${xid}=IFCDIRECTION((0.,0.,1.));`); wa[1] = "#" + xid; }
+  }
+  const aid = newId(), cid = newId();
+  append.push(`#${aid}=${wcs.type}(${wa.join(",")});`, `#${cid}=IFCGEOMETRICREPRESENTATIONCONTEXT('Seeded','Model',${fa[2]},${fa[3]},#${aid},$);`);
+  // Only IFC4X3's IfcSameAxis2Placement compares the two locations.
+  const fires = how === "rotate" || /IfcSameCartesianPoint\s*\(\s*ap1\.Location\s*,\s*ap2\.Location/i.test(String(ctx.R.functions.IFCSAMEAXIS2PLACEMENT || ""));
+  return { edits: new Map(), append, expect: fires ? [{ id: null, rule: "IfcRepresentationContextSameWCS" }] : [] };
+}
+
+function materialOn(ctx, voids) {
+  const { S, R, recs, text, newId } = ctx;
+  const w = (R.entities.IFCRELASSOCIATESMATERIAL || {}).where || [];
+  const rule = w.find((x) => (voids ? /FEATUREELEMENTSUBTRACTION/ : /TYPEPRODUCT|ELEMENTTYPE/).test(x[1]));
+  const mat = [...recs.values()].find((r) => r.type === "IFCMATERIAL");
+  if (!rule || !mat) return null;
+  let target;
+  if (voids) target = [...recs.values()].find((r) => S.has(r.type) && S.isA(r.type, "IFCFEATUREELEMENTSUBTRACTION"));
+  else {
+    const allowed = [...rule[1].matchAll(/'IFC[\w]*\.(\w+)'/g)].map((m) => m[1]).filter((t) => S.has(t));
+    for (const want of ["IFCSPACE", "IFCBUILDINGSTOREY", "IFCBUILDING", "IFCSITE", "IFCPROJECT"]) {
+      if (allowed.some((t) => S.isA(want, t))) continue;
+      target = [...recs.values()].find((r) => r.type === want);
+      if (target) break;
+    }
+  }
+  if (!target) return null;
+  const oh = [...recs.values()].find((r) => r.type === "IFCOWNERHISTORY");
+  const rid = newId();
+  return {
+    edits: new Map(),
+    append: [`#${rid}=IFCRELASSOCIATESMATERIAL(${gid()},${oh ? "#" + oh.id : "$"},$,$,(#${target.id}),#${mat.id});`],
+    expect: [{ id: rid, rule: "IFCRELASSOCIATESMATERIAL." + rule[0] }],
+  };
+}
 
 function placement2D(ctx, attr, mk) {
   const { S, R, recs, text, newId } = ctx;
@@ -298,9 +454,15 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   mkdirSync(outDir, { recursive: true });
   const manifest = [];
   const tally = {};
+  const usedNames = new Set();
   for (const f of files) {
     const text = readFileSync(f, "utf8");
-    const base = basename(f).replace(/\.ifc$/i, "");
+    // Several sets share file names (the SketchUp scene in three schemas,
+    // basin-tessellation in two repositories): number the later ones, or their
+    // copies overwrite the earlier ones' and the IfcOpenShell pass reads the wrong file.
+    let base = basename(f).replace(/\.ifc$/i, "");
+    for (let n = 2; usedNames.has(base); n++) base = basename(f).replace(/\.ifc$/i, "") + "-" + n;
+    usedNames.add(base);
     const orig = join(outDir, `${base}~original.ifc`);
     writeFileSync(orig, text);
     const before = runRules(text);

@@ -46,3 +46,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 ## Moved from flagships.yaml `buildable:`
 
 - (moved 2026-11-24) IFC4X3 ifcXML: none public (searched 2026-11-18)
+- (moved 2026-11-24) B-spline control points cut into rows from knot counts 2026-11-18 (eval/ifcxml-twins-2026-11-18.md)

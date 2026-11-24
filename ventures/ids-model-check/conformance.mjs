@@ -318,6 +318,8 @@ export function conformance(text, schemas, { rules = null } = {}) {
     const w = whereRules(p, S, rules[id]);
     findings.push(...w.findings);
     whereStats = w.stats;
+    const o = contextOrigins(p, S, rules[id], w.findings);
+    if (o) findings.push(o);
   }
   const elementRules = whereStats ? ruleLinks(E, S, findings) : null;
 
@@ -329,6 +331,34 @@ export function conformance(text, schemas, { rules = null } = {}) {
     else groups.set(key, { code: f.code, type: f.type, attr: f.attr, count: 1, first: f.id, message: f.message });
   }
   return { schema: raw, records, findings, groups: [...groups.values()], whereStats, elementRules };
+}
+
+// IFC2X3's and IFC4's IfcSameAxis2Placement ends with
+// IfcSameCartesianPoint(ap1.Location, ap1.Location, ...): it compares the first
+// placement's origin with itself, so IfcRepresentationContextSameWCS never sees
+// two contexts whose origins differ (IFC4X3 reads ap2.Location). Run the global
+// rule once more with the comparison IFC4X3 makes, and say so if only that
+// fails (eval/where-rules-global-seeds-2026-11-24.md).
+const SELF_POINT = /IfcSameCartesianPoint\s*\(\s*ap1\.Location\s*,\s*ap1\.Location/i;
+const fixedRules = new WeakMap();
+function contextOrigins(p, S, R, found) {
+  const fn = R.functions && R.functions.IFCSAMEAXIS2PLACEMENT;
+  const rule = (R.rules || []).find((r) => r.name === "IfcRepresentationContextSameWCS");
+  if (!fn || !rule || !SELF_POINT.test(fn)) return null;
+  if (found.some((f) => f.attr === rule.name)) return null;
+  let F = fixedRules.get(R);
+  if (!F) {
+    // Only the derived attributes (a subcontext's WCS, a placement's P) and the
+    // functions: no WHERE rule but this one runs.
+    const entities = {};
+    for (const [k, v] of Object.entries(R.entities)) { const { where, ...rest } = v; entities[k] = rest; }
+    F = { ...R, entities, types: {}, rules: [rule], functions: { ...R.functions, IFCSAMEAXIS2PLACEMENT: fn.replace(SELF_POINT, "IfcSameCartesianPoint(ap1.Location, ap2.Location") } };
+    fixedRules.set(R, F);
+  }
+  const w = whereRules(p, S, F);
+  if (!w.findings.some((f) => f.attr === rule.name)) return null;
+  const ctx = [...p.entities.values()].filter((e) => e.type === "IFCGEOMETRICREPRESENTATIONCONTEXT").map((e) => "#" + e.id);
+  return { code: "context-origin", id: null, type: null, attr: "IfcRepresentationContextSameWCS", message: `the representation contexts (${ctx.slice(0, 4).join(", ")}${ctx.length > 4 ? ", ..." : ""}) do not share one world origin, so geometry in one sits offset from geometry in another. ${R.schema}'s own rule IfcRepresentationContextSameWCS cannot see this (its IfcSameAxis2Placement compares the first placement's Location with itself; IFC4X3 fixed it), so this is the check IFC4X3 makes` };
 }
 
 // The WHERE rules an IDS facet leans on, tied to the element they change the

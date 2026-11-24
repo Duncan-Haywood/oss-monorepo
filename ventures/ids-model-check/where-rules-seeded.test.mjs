@@ -7,15 +7,17 @@ import { readFileSync } from "node:fs";
 import { FAMILY_NAMES, seedAndCheck, runRules, splitArgs } from "./eval/where-rules-seeded.mjs";
 
 const tiny = readFileSync(new URL("./samples/tiny-house.ifc", import.meta.url), "utf8");
-// The sample has no 2D placement; give it one so the two placement families have a target.
-const withProfile = tiny.replace(/\nENDSEC;\s*END-ISO/, "\n#900=IFCCARTESIANPOINT((0.,0.));\n#901=IFCAXIS2PLACEMENT2D(#900,$);\n#902=IFCRECTANGLEPROFILEDEF(.AREA.,$,#901,200.,100.);\nENDSEC;\nEND-ISO");
+// The sample has no 2D placement and no representation context; give it one
+// of each so the placement and context families have a target.
+const withProfile = tiny.replace(/\nENDSEC;\s*END-ISO/, "\n#900=IFCCARTESIANPOINT((0.,0.));\n#901=IFCAXIS2PLACEMENT2D(#900,$);\n#902=IFCRECTANGLEPROFILEDEF(.AREA.,$,#901,200.,100.);\n#903=IFCCARTESIANPOINT((0.,0.,0.));\n#904=IFCAXIS2PLACEMENT3D(#903,$,$);\n#905=IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.E-05,#904,$);\nENDSEC;\nEND-ISO");
 
 test("every seed family fires on exactly the seeded records of the sample", () => {
   const before = runRules(withProfile);
   for (const fam of FAMILY_NAMES) {
     const r = seedAndCheck(withProfile, fam, before);
     assert.ok(r, `${fam} found something to seed`);
-    assert.ok(r.want.length > 0, fam);
+    // The sample is IFC4, whose IfcSameAxis2Placement never compares locations.
+    if (fam !== "context-moved-wcs") assert.ok(r.want.length > 0, fam);
     assert.deepEqual([...r.added].sort(), [...r.want].sort(), fam);
     assert.deepEqual(r.lost, [], fam);
   }
@@ -28,6 +30,28 @@ test("seeds name the rules an IDS check leans on", () => {
   assert.deepEqual(rules("duplicate-pset-name"), ["IFCOBJECT.UNIQUEPROPERTYSETNAMES"]);
   assert.deepEqual(rules("duplicate-property-name"), ["IFCPROPERTYSET.UNIQUEPROPERTYNAMES"]);
   assert.deepEqual(rules("3d-refdirection-in-2d"), ["IFCAXIS2PLACEMENT2D.REFDIRIS2D"]);
+});
+
+test("the global RULEs and the less direct families name their rules", () => {
+  const rules = (fam) => seedAndCheck(withProfile, fam).want.map((k) => k.split(" ")[1]);
+  assert.deepEqual(rules("second-project"), ["IFCSINGLEPROJECTINSTANCE"]);
+  assert.deepEqual(rules("context-rotated-wcs"), ["IFCREPRESENTATIONCONTEXTSAMEWCS"]);
+  assert.deepEqual(rules("si-unit-wrong-dimension"), ["IFCNAMEDUNIT.WR1"]);
+  assert.deepEqual(rules("material-on-non-element"), ["IFCRELASSOCIATESMATERIAL.ALLOWEDELEMENTS"]);
+  assert.deepEqual(rules("material-on-opening"), ["IFCRELASSOCIATESMATERIAL.NOVOIDELEMENT"]);
+  // The sample's aggregations are all spatial, so the self-reference also breaks WR41.
+  assert.deepEqual(rules("aggregate-self-reference").sort(), ["IFCRELAGGREGATES.NOSELFREFERENCE", "IFCSPATIALSTRUCTUREELEMENT.WR41"]);
+});
+
+test("a moved world origin breaks IfcRepresentationContextSameWCS only in IFC4X3", () => {
+  // IFC2X3 and IFC4's IfcSameAxis2Placement compares ap1.Location with itself.
+  const r4 = seedAndCheck(withProfile, "context-moved-wcs");
+  assert.deepEqual(r4.added, []);
+  const x3 = withProfile.replace(/FILE_SCHEMA\s*\(\s*\('IFC4'\)\s*\)/, "FILE_SCHEMA(('IFC4X3_ADD2'))");
+  assert.notEqual(x3, withProfile);
+  const r = seedAndCheck(x3, "context-moved-wcs");
+  assert.deepEqual(r.want, ["null IFCREPRESENTATIONCONTEXTSAMEWCS"]);
+  assert.ok(r.added.includes("null IFCREPRESENTATIONCONTEXTSAMEWCS"));
 });
 
 test("a seed skips a record that already breaks its rule", () => {
@@ -68,4 +92,19 @@ test("a failing IDS row says when the model breaks a rule the facet leans on", a
   // Rows of elements the model does not break carry no note.
   for (const s of report.specs) for (const f of s.failed) if (f.id !== 21) assert.equal(f.modelRules, undefined, `#${f.id}`);
   assert.match(textReport(report), /note: the model breaks IfcWall\.CorrectPredefinedType/);
+});
+
+test("conformance warns on a moved context origin the IFC4 rule cannot see", async () => {
+  const { resources } = await import("./node.mjs");
+  const { conformance } = await import("./conformance.mjs");
+  const R = resources();
+  const codes = (text) => conformance(text, R.schemas, { rules: R.rules }).findings.filter((f) => f.attr === "IfcRepresentationContextSameWCS").map((f) => f.code);
+  assert.deepEqual(codes(withProfile), []);
+  const moved = seedAndCheck(withProfile, "context-moved-wcs").text;
+  assert.deepEqual(codes(moved), ["context-origin"]);
+  // A turned axis the schema's own rule catches: no second note.
+  assert.deepEqual(codes(seedAndCheck(withProfile, "context-rotated-wcs").text), ["where-rule"]);
+  // IFC4X3's rule compares origins itself.
+  const x3 = moved.replace(/FILE_SCHEMA\s*\(\s*\('IFC4'\)\s*\)/, "FILE_SCHEMA(('IFC4X3_ADD2'))");
+  assert.deepEqual(codes(x3), ["where-rule"]);
 });
