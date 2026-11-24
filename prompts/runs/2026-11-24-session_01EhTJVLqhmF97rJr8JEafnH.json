@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVLqhmF97rJr8JEafnH",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T19:00:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 4) changepoint-detector: a call rule tolerant of a moving month on real FRED-MD vintages",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": 18644,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-the-recession-that-ended-in-2003.md"
+  ],
+  "goal": "pre-registered round: does a 6-month call window make real-vintage turn calls match the revised replays",
+  "notes": "Pre-registered eval/turns-vintages-tolerant.mjs (header committed before the first run). T1, T3, T4 pass; T2 fails: the 2001-11 trough stays 61 months late because 2004-06 vintages date one contraction 2000-11..2003-04 (jobless recovery, payroll-heavy weights). 6-month window rescues the 2001 peak (edge call, dated 6 early) and 2009 trough (7). Placebos 1 of 10 vs 0 strict. Nothing ships in CLI per pre-registration. Separately corrected the page/llms.txt trust note ('no false turn' held for 6-month phases only; P3 default dates the 2002-03 soft patch, as the CLI already said). Verified: node --test turns-vintages-tolerant.test.mjs 3/3; run_venture_tests.py changepoint-detector (see PR); check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}
