@@ -52,9 +52,12 @@ and the profile built from it was no longer planar. The checker was right, and
 the seed was too blunt. The seeder now leaves conics' placements alone, so each
 seed tests one rule, and the knock-on is written up as a finding.
 
-The same seeded files went through `ifcopenshell.validate` with
-`express_rules=True`; the comparison is in
-`eval/where-rules-seeded-2026-11-24.md`.
+The same seeded files then went through `ifcopenshell.validate` with
+`express_rules=True`. On every copy IfcOpenShell can open, it gives the same
+answer: 332 of 332 seeds, and the same new failures on all 109 copies. The
+remaining 26 seeds are in two files with draft schemas (IFC4X2 and
+IFC4X3_RC2), which IfcOpenShell refuses to open. Details are in
+`eval/where-rules-seeded-2026-11-24.md` in the repository.
 
 ## The part users see
 
