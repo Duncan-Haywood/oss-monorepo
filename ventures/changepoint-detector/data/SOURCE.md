@@ -972,3 +972,32 @@ of chained dollars (each vintage's own base year), industrial production as an i
 - **Licence:** US government statistics compiled by the St. Louis Fed; public domain numbers. The source
   repository has no licence file; only the numbers were taken, not its code.
 - **Used by:** `eval/turns-vintages.mjs`, `turns-vintages.test.mjs`.
+
+
+## USPHCI: the Philadelphia Fed's US coincident index, five copies 1979-01 to 2021-12 ... 2026-07; CAPHCI to 2023-10
+
+`us-usphci.csv` (1979-01 to 2026-07), `us-usphci-vintage-2021-12.csv`, `-2023-05.csv`, `-2023-10.csv`,
+`-2024-10.csv` (each from 1979-01 to the month in its name) and `ca-caphci-vintage-2023-10.csv`: the Federal Reserve
+Bank of Philadelphia's coincident index for the United States and for California (FRED series USPHCI and
+CAPHCI, index 2007 = 100, seasonally adjusted, monthly), each copy as it was downloaded from FRED on a different
+date, so each holds that month's re-estimated history.
+
+- **Retrieved:** 2026-11-24. stlouisfed.org and philadelphiafed.org refused this session's proxy; the copies were
+  found by GitHub code search and read from raw.githubusercontent.com. Each file's git blob matches the search
+  hit's (checked with `git hash-object`):
+  - main, to 2026-07: kennethlarotyamat/kennethlarotyamat.github.io (commit 6a8762f2500f31e5a1fde30919b6460e4cd8074d),
+    `mba775/las vegas visitor data for lab assignment 1/USPHCI.csv`, blob 8ae99a1a;
+  - to 2024-10: Marianojgm86/Data-Warehouse (c92c285db7f45d73e00c2e4c0bbe1e88c993fb11), `raw/US/USPHCI.csv`, blob 05b72a2d;
+  - to 2023-10: open-datahub/unemployment (89be22bf4082fabd33c6ed0c89986dbf7bc2c837), `USPHCI.csv`, blob 65fe30f9,
+    and `CAPHCI.csv`, blob 71250e6e;
+  - to 2023-05: maxweinig/InflationNarratives (53f2d0756245790d130d175de0e9b2af8e11dc0d),
+    `data/localprojections/USPHCI.csv`, blob 38206285;
+  - to 2021-12: woomora/POS_replication (0c7cf8b7d3efb1266d23d80b1f0d8c4d9ba07569),
+    `data/source/Monthly Indexes/USA/USPHCI.csv`, blob fd5cce3c.
+- **Checks:** every copy is a contiguous monthly run from 1979-01 with no missing value. The four older copies'
+  monthly growth differs from the main copy's by a median 0.011 to 0.015 percentage points (largest 0.33 to 0.46),
+  and they share 0 to 6 identical values with it: different re-estimates, not one file copied. Date columns were
+  cut to `YYYY-MM` and headers renamed (`month,usphci`); values are unchanged.
+- **Licence:** statistics published by a Federal Reserve Bank through FRED; only the numbers were taken. The
+  source repositories' code was not used.
+- **Used by:** `eval/turns-usphci.mjs`, `turns-usphci.test.mjs`.
