@@ -99,3 +99,6 @@ hearth-and-horizon | Matthew effect | a grants panel or a choir's solo rota wher
 for-other-minds | gambler's ruin, random walk | a food bank's reserve whose donations average exactly its spending, and still runs dry
 for-other-minds | Hawthorne | a parish hall's new lighting that seems to make the volunteers faster, until the trial ends and it stops
 for-other-minds | clustering illusion | three falls on the same church step in a fortnight, and whether a run like that needs a cause
+hearth-and-horizon | stable matching, deferred acceptance, Gale-Shapley | placing school-leavers with boatyards or farms in a small town: first-come offers leave pairs who would both rather swap, and deferred acceptance ends the swapping, at a cost to whichever side does not propose
+hearth-and-horizon | Buffon's needle | a parish floor of pine boards and a dropped box of matches: counting how many cross a seam estimates pi, slowly, and teaches a child why one afternoon's answer is rough
+hearth-and-horizon | Arrow's theorem, ranked voting | a village choosing a new name or a hall colour by ranked ballot, where every counting rule the committee tries has a flaw someone can point to
