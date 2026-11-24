@@ -22,7 +22,7 @@ function alignColumns(csv, columns, labelColumn) {
   return { labels, series: maps.map((m) => labels.map((l) => m.get(l))), names: parsed.map((p) => p.column), dropped };
 }
 
-export function turnsResult({ csv, column = null, columns = null, labelColumn = null, frequency = 'monthly', bigMove = null, sdUntil = null }) {
+export function turnsResult({ csv, column = null, columns = null, labelColumn = null, frequency = 'monthly', bigMove = null, sdUntil = null, withSeries = false }) {
   if (frequency !== 'monthly' && frequency !== 'quarterly') throw new Error('--frequency takes monthly or quarterly.');
   const src = csv ?? DEFAULTS.csv;
   let labels, x, composite = null;
@@ -54,7 +54,10 @@ export function turnsResult({ csv, column = null, columns = null, labelColumn = 
     const a = turns[j], b = turns[j + 1];
     phases.push({ from: a.label, to: b.label, kind: a.kind === 'peak' ? 'contraction' : 'expansion', length: b.index - a.index, change: Number((Math.log(b.value / a.value)).toFixed(4)) });
   }
-  return { method: 'bbq', frequency, bigMove: rule.bigMove === undefined || rule.bigMove === Infinity ? null : rule.bigMove, n: x.length, first: labels[0], last: labels[labels.length - 1], composite, turns, phases };
+  const out = { method: 'bbq', frequency, bigMove: rule.bigMove === undefined || rule.bigMove === Infinity ? null : rule.bigMove, n: x.length, first: labels[0], last: labels[labels.length - 1], composite, turns, phases };
+  // The page draws the dated series (the composite index when there are several columns).
+  if (withSeries) out.series = { labels, values: x.map((v) => Number(v.toPrecision(6))) };
+  return out;
 }
 
 const pct = (v) => `${v >= 0 ? '+' : ''}${(100 * (Math.exp(v) - 1)).toFixed(1)}%`;
