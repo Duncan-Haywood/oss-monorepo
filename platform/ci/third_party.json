@@ -201,12 +201,12 @@
       "notice": "inline"
     },
     {
-      "name": "OpenCV 5.1.0 undistortPointsInternal (pinhole.cpp), ported to Python",
+      "name": "OpenCV 5.1.0 undistortPointsInternal, translated to Python",
       "paths": [
         "research/sensing-selfcal/experiments/m3zg_loop/loop.py"
       ],
-      "license": "Apache-2.0",
-      "source": "https://github.com/opencv/opencv modules/geometry/src/pinhole.cpp at tag 5.1.0 (commit dd8d9c3833e6fbda076660cfbf2ae45611723481); the file's own Intel / Willow Garage BSD notice is reproduced",
+      "license": "Apache-2.0 AND BSD-3-Clause",
+      "source": "https://github.com/opencv/opencv (modules/geometry/src/pinhole.cpp, 5.1.0); OpenCV is distributed under Apache-2.0 and the source file carries the Intel / Willow Garage BSD-style notice, reproduced in the file header",
       "notice": "inline"
     }
   ],
