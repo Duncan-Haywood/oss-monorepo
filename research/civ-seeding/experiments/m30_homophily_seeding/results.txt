@@ -1,0 +1,182 @@
+# Milestone 30: seeding rules under the contagion fits and the homophily fit
+villages 43, seeds 1140 (each village's leader count); greedy S = 32 with common random numbers; scoring S = 200 (seed 5); random = 200 independent seed sets, one run each; bootstrap B = 1000
+process I: {'qN': 0.05, 'qP': 0.3}
+process T: {'qN': 0.075, 'qP': 0.1, 'theta': 0.5, 'delta': -0.25}
+process R: {'qN': 0.1, 'qP': 0.1, 'gamma': 0.1, 'delta': -0.25}
+process H: {'qN': 0.075, 'qP': 0.1, 'theta_beta': (0.75, 5.0)}
+process L: {'qN': 0.1, 'qP': 0.2, 'delta': -0.5, 'latent': (1.5, 8.0)}
+process Ls1: {'qN': 0.1, 'qP': 0.2, 'delta': -0.5, 'latent': (1.0, 8.0)}
+process Lr2: {'qN': 0.1, 'qP': 0.2, 'delta': -0.5, 'latent': (1.5, 2.0)}
+greedy searches done in 293 s
+
+## sanity: leaders rule, simulated non-leader take-up (data 0.1868)
+  I 0.1946, T 0.1820, R 0.1973, H 0.1953, L 0.2013, Ls1 0.1733, Lr2 0.2014
+  mean seed degree: leaders 12.9, degree 23.1, eigenvector 22.0, diffusion 22.6, ball 18.9, patches 20.6, spread-degree 13.3, single-discount 22.8, degree-discount 20.5, greedy-I 12.0, greedy-T 15.0, greedy-R 14.6, greedy-H 14.7, greedy-L 12.4
+  greedy-L seed overlap: greedy-I 0.41, greedy-T 0.40, greedy-R 0.43, greedy-H 0.46, greedy-L 1.00, degree-discount 0.32
+
+## adopters (mean per village; share of households) and regret against the best rule
+### process I: best rule greedy-H
+  greedy-H           44.75 (0.2109)  regret  0.000  [0.000, 0.000]
+  greedy-I           44.67 (0.2105)  regret  0.002  [0.000, 0.004]
+  greedy-R           44.53 (0.2098)  regret  0.005  [0.003, 0.007]
+  greedy-L           44.53 (0.2098)  regret  0.005  [0.003, 0.007]
+  greedy-T           44.45 (0.2094)  regret  0.007  [0.005, 0.009]
+  degree-discount    44.03 (0.2075)  regret  0.016  [0.013, 0.019]
+  single-discount    43.69 (0.2059)  regret  0.024  [0.021, 0.027]
+  spread-degree      43.63 (0.2056)  regret  0.025  [0.022, 0.029]
+  patches            43.40 (0.2045)  regret  0.030  [0.027, 0.034]
+  degree             43.23 (0.2037)  regret  0.034  [0.030, 0.039]
+  diffusion          42.32 (0.1994)  regret  0.054  [0.047, 0.063]
+  leaders            41.90 (0.1974)  regret  0.064  [0.054, 0.078]
+  random             41.80 (0.1970)  regret  0.066  [0.056, 0.081]
+  eigenvector        41.68 (0.1964)  regret  0.069  [0.058, 0.083]
+  ball               41.52 (0.1956)  regret  0.072  [0.060, 0.090]
+### process T: best rule greedy-T
+  greedy-T           43.91 (0.2069)  regret  0.000  [0.000, 0.002]
+  greedy-H           43.89 (0.2068)  regret  0.000  [0.000, 0.003]
+  degree-discount    43.56 (0.2052)  regret  0.008  [0.004, 0.013]
+  greedy-R           43.50 (0.2049)  regret  0.010  [0.007, 0.013]
+  greedy-L           42.94 (0.2023)  regret  0.022  [0.020, 0.026]
+  single-discount    42.87 (0.2020)  regret  0.024  [0.019, 0.029]
+  greedy-I           42.79 (0.2016)  regret  0.026  [0.022, 0.031]
+  spread-degree      42.44 (0.2000)  regret  0.034  [0.029, 0.040]
+  patches            42.34 (0.1995)  regret  0.036  [0.031, 0.042]
+  degree             42.11 (0.1984)  regret  0.041  [0.035, 0.049]
+  diffusion          40.46 (0.1906)  regret  0.079  [0.068, 0.092]
+  eigenvector        39.52 (0.1862)  regret  0.100  [0.085, 0.119]
+  leaders            39.34 (0.1853)  regret  0.104  [0.092, 0.121]
+  ball               39.31 (0.1852)  regret  0.105  [0.089, 0.127]
+  random             38.76 (0.1826)  regret  0.117  [0.105, 0.135]
+### process R: best rule greedy-H
+  greedy-H           45.67 (0.2152)  regret  0.000  [0.000, 0.000]
+  degree-discount    45.51 (0.2144)  regret  0.003  [0.000, 0.006]
+  greedy-R           45.50 (0.2144)  regret  0.004  [0.002, 0.006]
+  greedy-T           45.42 (0.2140)  regret  0.005  [0.003, 0.008]
+  single-discount    45.20 (0.2130)  regret  0.010  [0.007, 0.013]
+  greedy-L           45.16 (0.2128)  regret  0.011  [0.009, 0.014]
+  greedy-I           45.08 (0.2124)  regret  0.013  [0.010, 0.016]
+  patches            44.79 (0.2110)  regret  0.019  [0.016, 0.023]
+  degree             44.75 (0.2108)  regret  0.020  [0.017, 0.024]
+  spread-degree      44.74 (0.2108)  regret  0.020  [0.017, 0.025]
+  diffusion          43.69 (0.2059)  regret  0.043  [0.037, 0.052]
+  eigenvector        42.98 (0.2025)  regret  0.059  [0.048, 0.073]
+  leaders            42.69 (0.2012)  regret  0.065  [0.055, 0.080]
+  ball               42.58 (0.2006)  regret  0.068  [0.054, 0.087]
+  random             42.19 (0.1988)  regret  0.076  [0.064, 0.094]
+### process H: best rule greedy-H
+  greedy-H           47.01 (0.2215)  regret  0.000  [0.000, 0.000]
+  greedy-T           46.50 (0.2191)  regret  0.011  [0.008, 0.013]
+  greedy-R           46.47 (0.2190)  regret  0.011  [0.009, 0.014]
+  greedy-L           46.25 (0.2179)  regret  0.016  [0.014, 0.019]
+  degree-discount    46.17 (0.2175)  regret  0.018  [0.014, 0.022]
+  greedy-I           46.06 (0.2170)  regret  0.020  [0.017, 0.024]
+  single-discount    45.64 (0.2151)  regret  0.029  [0.025, 0.033]
+  spread-degree      45.30 (0.2134)  regret  0.036  [0.032, 0.041]
+  patches            45.10 (0.2125)  regret  0.041  [0.036, 0.045]
+  degree             44.94 (0.2118)  regret  0.044  [0.040, 0.049]
+  diffusion          43.44 (0.2047)  regret  0.076  [0.067, 0.086]
+  eigenvector        42.51 (0.2003)  regret  0.096  [0.082, 0.113]
+  leaders            42.50 (0.2002)  regret  0.096  [0.086, 0.110]
+  ball               42.27 (0.1992)  regret  0.101  [0.086, 0.120]
+  random             42.05 (0.1981)  regret  0.105  [0.094, 0.122]
+### process L: best rule greedy-H
+  greedy-H           45.40 (0.2139)  regret  0.000  [0.000, 0.000]
+  greedy-L           45.31 (0.2135)  regret  0.002  [0.000, 0.004]
+  greedy-I           45.20 (0.2130)  regret  0.005  [0.003, 0.007]
+  greedy-R           45.18 (0.2129)  regret  0.005  [0.003, 0.007]
+  greedy-T           45.12 (0.2126)  regret  0.006  [0.004, 0.008]
+  degree-discount    44.81 (0.2111)  regret  0.013  [0.010, 0.016]
+  single-discount    44.55 (0.2099)  regret  0.019  [0.016, 0.021]
+  spread-degree      44.44 (0.2094)  regret  0.021  [0.019, 0.024]
+  patches            44.32 (0.2088)  regret  0.024  [0.021, 0.027]
+  degree             44.24 (0.2084)  regret  0.026  [0.022, 0.030]
+  diffusion          43.56 (0.2053)  regret  0.041  [0.035, 0.048]
+  leaders            43.10 (0.2031)  regret  0.051  [0.043, 0.062]
+  eigenvector        43.05 (0.2029)  regret  0.052  [0.043, 0.063]
+  random             42.92 (0.2022)  regret  0.055  [0.045, 0.069]
+  ball               42.84 (0.2018)  regret  0.057  [0.045, 0.072]
+### process Ls1: best rule greedy-H
+  greedy-H           39.13 (0.1844)  regret  0.000  [0.000, 0.000]
+  greedy-L           39.02 (0.1839)  regret  0.003  [0.001, 0.005]
+  greedy-R           38.95 (0.1835)  regret  0.005  [0.003, 0.007]
+  greedy-I           38.94 (0.1835)  regret  0.005  [0.003, 0.007]
+  greedy-T           38.89 (0.1833)  regret  0.006  [0.004, 0.008]
+  degree-discount    38.58 (0.1818)  regret  0.014  [0.011, 0.017]
+  single-discount    38.36 (0.1807)  regret  0.020  [0.017, 0.022]
+  spread-degree      38.24 (0.1802)  regret  0.023  [0.020, 0.026]
+  patches            38.14 (0.1797)  regret  0.025  [0.022, 0.029]
+  degree             38.07 (0.1794)  regret  0.027  [0.024, 0.032]
+  diffusion          37.45 (0.1765)  regret  0.043  [0.037, 0.051]
+  leaders            37.02 (0.1744)  regret  0.054  [0.046, 0.067]
+  eigenvector        37.00 (0.1743)  regret  0.055  [0.046, 0.066]
+  random             36.89 (0.1738)  regret  0.057  [0.048, 0.072]
+  ball               36.80 (0.1734)  regret  0.060  [0.048, 0.076]
+### process Lr2: best rule greedy-H
+  greedy-H           45.44 (0.2141)  regret  0.000  [0.000, 0.000]
+  greedy-L           45.33 (0.2136)  regret  0.002  [0.001, 0.004]
+  greedy-R           45.20 (0.2130)  regret  0.005  [0.004, 0.007]
+  greedy-I           45.19 (0.2129)  regret  0.005  [0.003, 0.008]
+  greedy-T           45.14 (0.2127)  regret  0.007  [0.005, 0.009]
+  degree-discount    44.85 (0.2113)  regret  0.013  [0.010, 0.015]
+  single-discount    44.61 (0.2102)  regret  0.018  [0.015, 0.020]
+  spread-degree      44.47 (0.2095)  regret  0.021  [0.019, 0.024]
+  patches            44.36 (0.2090)  regret  0.024  [0.021, 0.027]
+  degree             44.29 (0.2087)  regret  0.025  [0.022, 0.029]
+  diffusion          43.60 (0.2054)  regret  0.040  [0.034, 0.048]
+  leaders            43.12 (0.2032)  regret  0.051  [0.043, 0.063]
+  eigenvector        43.09 (0.2030)  regret  0.052  [0.043, 0.063]
+  random             42.94 (0.2023)  regret  0.055  [0.045, 0.069]
+  ball               42.88 (0.2021)  regret  0.056  [0.045, 0.072]
+
+## payoff of choosing seeds (adopters per village over the leaders rule / over random seeds)
+  I    best - leaders  2.85 (0.068)   best - random  2.95 (0.071)
+  T    best - leaders  4.58 (0.116)   best - random  5.16 (0.133)
+  R    best - leaders  2.97 (0.070)   best - random  3.47 (0.082)
+  H    best - leaders  4.52 (0.106)   best - random  4.96 (0.118)
+  L    best - leaders  2.30 (0.053)   best - random  2.48 (0.058)
+  Ls1  best - leaders  2.11 (0.057)   best - random  2.24 (0.061)
+  Lr2  best - leaders  2.31 (0.054)   best - random  2.49 (0.058)
+  ratio L / I of the gain over leaders: 0.807  [bootstrap 5-95% 0.776, 0.837]; Ls1 / I 0.741, Lr2 / I 0.812
+
+## worst-case regret over the five fitted families {I, T, R, H, L} (and over I, T, R as in milestones 4 to 5)
+  greedy-H         worst5 0.000 [0.000, 0.003]  worst3 0.000  I 0.000  T 0.000  R 0.000  H 0.000  L 0.000  Ls1 0.000  Lr2 0.000
+  greedy-T         worst5 0.011 [0.008, 0.013]  worst3 0.007  I 0.007  T 0.000  R 0.005  H 0.011  L 0.006  Ls1 0.006  Lr2 0.007
+  greedy-R         worst5 0.011 [0.009, 0.014]  worst3 0.010  I 0.005  T 0.010  R 0.004  H 0.011  L 0.005  Ls1 0.005  Lr2 0.005
+  degree-discount  worst5 0.018 [0.014, 0.022]  worst3 0.016  I 0.016  T 0.008  R 0.003  H 0.018  L 0.013  Ls1 0.014  Lr2 0.013
+  greedy-L         worst5 0.022 [0.020, 0.026]  worst3 0.022  I 0.005  T 0.022  R 0.011  H 0.016  L 0.002  Ls1 0.003  Lr2 0.002
+  greedy-I         worst5 0.026 [0.022, 0.031]  worst3 0.026  I 0.002  T 0.026  R 0.013  H 0.020  L 0.005  Ls1 0.005  Lr2 0.005
+  single-discount  worst5 0.029 [0.026, 0.033]  worst3 0.024  I 0.024  T 0.024  R 0.010  H 0.029  L 0.019  Ls1 0.020  Lr2 0.018
+  spread-degree    worst5 0.036 [0.032, 0.042]  worst3 0.034  I 0.025  T 0.034  R 0.020  H 0.036  L 0.021  Ls1 0.023  Lr2 0.021
+  patches          worst5 0.041 [0.037, 0.045]  worst3 0.036  I 0.030  T 0.036  R 0.019  H 0.041  L 0.024  Ls1 0.025  Lr2 0.024
+  degree           worst5 0.044 [0.040, 0.050]  worst3 0.041  I 0.034  T 0.041  R 0.020  H 0.044  L 0.026  Ls1 0.027  Lr2 0.025
+  diffusion        worst5 0.079 [0.068, 0.092]  worst3 0.079  I 0.054  T 0.079  R 0.043  H 0.076  L 0.041  Ls1 0.043  Lr2 0.040
+  eigenvector      worst5 0.100 [0.085, 0.119]  worst3 0.100  I 0.069  T 0.100  R 0.059  H 0.096  L 0.052  Ls1 0.055  Lr2 0.052
+  leaders          worst5 0.104 [0.092, 0.121]  worst3 0.104  I 0.064  T 0.104  R 0.065  H 0.096  L 0.051  Ls1 0.054  Lr2 0.051
+  ball             worst5 0.105 [0.089, 0.127]  worst3 0.105  I 0.072  T 0.105  R 0.068  H 0.101  L 0.057  Ls1 0.060  Lr2 0.056
+  random           worst5 0.117 [0.105, 0.135]  worst3 0.117  I 0.066  T 0.117  R 0.076  H 0.105  L 0.055  Ls1 0.057  Lr2 0.055
+  minimax-regret rule over I, T, R, H, L: greedy-H (worst 0.000; minimax in 1.000 of draws)
+  minimax-regret rule over I, T, R, H, Ls1: greedy-H (worst 0.000; minimax in 1.000 of draws)
+  minimax-regret rule over I, T, R, H, Lr2: greedy-H (worst 0.000; minimax in 1.000 of draws)
+
+## cross-process: greedy-X scored under Y (regret)
+  greedy-I: I 0.002  T 0.026  R 0.013  H 0.020  L 0.005  Ls1 0.005  Lr2 0.005
+  greedy-T: I 0.007  T 0.000  R 0.005  H 0.011  L 0.006  Ls1 0.006  Lr2 0.007
+  greedy-R: I 0.005  T 0.010  R 0.004  H 0.011  L 0.005  Ls1 0.005  Lr2 0.005
+  greedy-H: I 0.000  T 0.000  R 0.000  H 0.000  L 0.000  Ls1 0.000  Lr2 0.000
+  greedy-L: I 0.005  T 0.022  R 0.011  H 0.016  L 0.002  Ls1 0.003  Lr2 0.002
+
+## Kendall tau between processes' rankings of the 15 rules
+  L-I 0.943
+  L-T 0.771
+  L-R 0.733
+  L-H 0.848
+
+## hypotheses
+random scored as milestone 4 did (one shared draw for all 200 sets), adopters per village: I 41.60, T 38.61, R 41.56, H 41.57, L 46.08, Ls1 39.20, Lr2 44.57
+H110 (sanity: m4 regrets under I to 0.001: max diff 0.0004; dd vs m5 to 0.003: I 0.014, T 0.008, R 0.000, max diff 0.0004; leaders non-leader take-up H 0.1953, L 0.2013, max diff 0.0145) -> held
+H111 (gain over leaders under L <= 0.75 x under I): 0.807 -> refuted
+H112 (degree-discount worst over I,T,R,H,L <= 0.020 and bootstrap 95th <= 0.030): 0.018, 0.022 -> held
+H113 (greedy-I regret under L <= 0.010): 0.005 -> held
+H114 (Kendall tau L-I over 15 rules >= 0.8): 0.943 -> held
+H115 (minimax rule unchanged with Ls1, Lr2 in place of L): {'L': 'greedy-H', 'Ls1': 'greedy-H', 'Lr2': 'greedy-H'} -> held
+runtime 304 s
