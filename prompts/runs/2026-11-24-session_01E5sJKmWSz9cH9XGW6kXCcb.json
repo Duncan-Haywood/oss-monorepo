@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "Probed ventures/changepoint-detector's full suite as a --target candidate: it ran past 120 s and was stopped; let the tool draw a probed target instead."
+    "Probed ventures/changepoint-detector's full suite as a --target candidate: it ran past 120 s and was stopped; let the tool draw a probed target instead.",
+    "First push edited only the solar-pv copy of the vendored proposal.test.mjs; proposal-module-ci sync.test.mjs failed; fixed by editing the canonical file and syncing."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -264,7 +265,7 @@
             "seconds": 0.2,
             "triage": "gap",
             "caught_after_fix": true,
-            "note": "The real-date test refused 0000-01-01 but never accepted 0001-01-01, so moving the bound to year < 2 passed. Added an acceptance of 0001-01-01 to 'issue date must be a real calendar date'."
+            "note": "The real-date test refused 0000-01-01 but never accepted 0001-01-01, so moving the bound to year < 2 passed. Added an acceptance of 0001-01-01 to 'issue date must be a real calendar date'. proposal.test.mjs is vendored: added to platform/proposal/proposal.test.mjs and synced to all 120 venture copies (all pass; sync.test.mjs green)."
           },
           {
             "file": "ventures/solar-pv-bid-calculator/proposal.mjs",

@@ -44,7 +44,7 @@ early suite was copied a lot. The rest came from seven other sources.
 A second campaign, on the solar PV bid calculator's proposal builder, let one
 fault through out of eight. The date check refused year 0000 but never
 accepted year 0001, so moving the bound up by one still passed. One assertion
-pins it now. Across both campaigns the suites caught 12 of 16 faults before
+pins it now, in the shared proposal test every venture with a proposal builder carries. Across both campaigns the suites caught 12 of 16 faults before
 the fixes and 16 of 16 after.
 
 The general point: a test named for a guard is not the guard. A copied test
