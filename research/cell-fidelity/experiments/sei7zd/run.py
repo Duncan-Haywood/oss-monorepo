@@ -59,6 +59,20 @@ _m.main(Path(__file__).resolve().parent, sys.argv[1:])
 '''
 
 
+class _Exp:
+    """experiments/ for 7za's and 7v's code, which find a source as EXP / <dir name>: a rung's name maps into sei7zd/.
+    (Found on the first rung: 7zb's report passes HERE.name, which assumes a directory directly under experiments/.)"""
+
+    def __truediv__(self, part):
+        return HERE / part if str(part).startswith("rho") else EXP / part
+
+
+def _patch_exp():
+    Z = B._mod("marq7za_run", EXP / "marq7za" / "run.py")
+    Z.EXP = _Exp()
+    Z._y()._x()._v().EXP = _Exp()
+
+
 def rho_of(d):
     return float(d.name[3:])
 
@@ -69,6 +83,8 @@ def main(d, argv):
     if cmd == "child":
         print(json.dumps(C.child(json.loads(argv[1]), int(argv[2]))))
         return
+    if cmd in ("all", "report"):
+        _patch_exp()
     steps = ("probe", "choose", "bench", "rows", "report") if cmd == "all" else (cmd,)
     for s in steps:
         if s in ("bench", "rows", "report") and not json.loads((d / "choose.json").read_text())["kept"]:

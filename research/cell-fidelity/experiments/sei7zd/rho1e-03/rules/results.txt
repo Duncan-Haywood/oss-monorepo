@@ -1,0 +1,38 @@
+cell-fidelity milestone 7za: 7v to 7y's corrected ten-cycle forecast and gates on 7z's new plating cell
+(Marquis2019@2x with OKane2022's plating at 30x), every rule and threshold fixed before the cell existed.
+7p's pools, lopo5 (five folds). Cycles are DFN cycles per design; negative = first rule cheaper. No new simulation.
+
+control: max |E10(m_hat = 1) - rows.json E10| = 4.44e-16; replay of theta/U vs 7z's lopo5 (cycles + met mismatches) = 0.00e+00; nested thetaH with m_hat = 1 vs theta = 0.00e+00
+
+Marquis2019: gates N yyyyy  P nnnnn  D yyyyy;  C picks O3/O3/O3/O3/O3
+training medians per fold, phi10 / |m-1| / |median m - 1|: 0.000/0.636/0.636  0.000/0.635/0.635  0.000/0.637/0.637  0.000/0.634/0.634  0.000/0.635/0.635
+  theta 5/5 49.2  U 5/5 50.0  thetaC 5/5 10.0  thetaH 5/5 10.0  thetaN 5/5 10.0  thetaP 5/5 49.2  thetaD 5/5 10.0
+pair                mean  cheaper  dearer  sign p
+thetaC-U          -40.00        5       0   0.062
+thetaH-U          -40.00        5       0   0.062
+thetaP-U           -0.80        1       0   1.000
+thetaP-theta       +0.00        0       0   1.000
+thetaD-theta      -39.20        5       0   0.062
+thetaN-theta      -39.20        5       0   0.062
+theta-U            -0.80        1       0   1.000
+thetaC policies: p1 15>=inf 0.031/0.324; p2 15>=inf 0.062/0.306; p3 15>=inf 0.052/0.312; p4 15>=inf 0.023/0.339; p5 15>=inf 0.043/0.326
+thetaH policies: p1 15>=inf 0.031/0.324; p2 15>=inf 0.062/0.306; p3 15>=inf 0.052/0.312; p4 15>=inf 0.023/0.339; p5 15>=inf 0.043/0.326
+post hoc per-set oracle (7y's): picks thetaH (5/5 10.0)
+
+pooling                                   mean        set boot 95%  cheaper  dearer  sign p
+seven (four + f30 x2 + new) thetaP-theta   -9.07   -23.50 to +2.07       10       5   0.302
+seven (four + f30 x2 + new) thetaD-theta  -13.89   -29.64 to -0.36       15       8   0.210
+seven (four + f30 x2 + new) thetaN-theta  -14.67   -29.67 to -1.60       15       5   0.041
+seven (four + f30 x2 + new) thetaH-theta  -13.89   -29.64 to -0.36       15       8   0.210
+seven (four + f30 x2 + new) thetaP-U    -10.19   -21.09 to -1.43       21       4   0.001
+six (7y, four + f30 x2) thetaP-theta    -10.58   -24.33 to +2.50       10       5   0.302
+three f = 30 cells thetaP-U             -20.27   -30.00 to -0.80       11       0   0.001
+three f = 30 cells thetaP-theta         -23.67   -37.50 to +0.00       10       0   0.002
+three f = 30 cells thetaH-theta         -36.73   -39.20 to -33.50       15       0   0.000
+seven, f10 cells instead thetaP-theta    -2.64   -10.67 to +2.80        5       6   1.000
+  seven-set totals: theta 33/35 44.9  U 34/35 46.0  thetaH 32/35 31.0  thetaN 32/35 30.2  thetaP 32/35 35.8  thetaD 32/35 31.0
+
+H358 (new cell, 5-fold mean of thetaC - U < 0): supported
+H359 (thetaH meets >= 4 of 5 folds on the new cell): supported
+H360 (new cell, 5-fold mean of thetaP - U <= -25): refuted
+H361 (seven-set bootstrap 95% interval of thetaP - theta below zero): inconclusive
