@@ -211,17 +211,20 @@ flagships:
       straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://github.com/, https://pypi.org/, https://repo1.maven.org/]
-    # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
-    # due after 2026-11-23; four runs left the row on 2026-11-17/18 for that.
-    not_before: 2026-11-24
+    # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag.
+    # 2026-11-24: still untagged (newest tag 3.0.22, QA2 head 90f078a unchanged);
+    # a batch readiness page shipped instead. Check `git ls-remote` for the tag.
+    not_before: 2026-11-27
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: Peppol BIS Self-Billing 3.0.2/3.1.0 rules in
-      place of Billing's (eval/peppol-self-billing-2026-11-18.md); Peppol BIS 3.1.0
-      preview, new findings marked, 1,138/1,138 unit asserts; fontoxpath
+      History: README and git (latest: Peppol BIS 3.1.0 readiness for a folder of
+      sent invoices, page + CLI, 147-row rule diff
+      (eval/peppol-readiness-2026-11-24.md); Peppol BIS Self-Billing 3.0.2/3.1.0
+      rules in place of Billing's (eval/peppol-self-billing-2026-11-18.md); Peppol
+      BIS 3.1.0 preview, new findings marked, 1,138/1,138 unit asserts; fontoxpath
       format-integer padding fixed, ZATCA BR-CO-17/BR-S-09
       (eval/peppol-bis-3.1.0-2026-11-18.md); open: a real sender's files through
       eval/peppol-next-diff.mjs; the browser's official rules read whitespace as
@@ -247,8 +250,8 @@ flagships:
     buildable: >-
       Peppol BIS 3.1.0 (in force 2027-02-24) runs as an opt-in preview, from
       OpenPeppol's branch 2026-Q4-QA2 at 90f078a, 1,138/1,138 unit asserts
-      (eval/peppol-bis-3.1.0-2026-11-18.md). After 2026-11-23: rebuild peppol-next-*
-      from the 3.1.0 tag on master (EINVOICE_PEPPOL_NEXT_BRANCH,
+      (eval/peppol-bis-3.1.0-2026-11-18.md). Once tagged (none 2026-11-24), rebuild
+      peppol-next-* from the 3.1.0 tag on master (EINVOICE_PEPPOL_NEXT_BRANCH,
       build-plain-rules.mjs) and diff; peppol-sb-next likewise (Self-Billing, branch
       selfbilling-2026-Q4-QA2; eval/peppol-self-billing-2026-11-18.md). Every
       plain-only set already matches SaxonC on whitespace and CASTABLE

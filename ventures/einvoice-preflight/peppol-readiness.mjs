@@ -109,7 +109,7 @@ export function headline(s) {
 const csvCell = (v) => {
   const s = String(v ?? "");
   // A leading =, +, - or @ is read as a formula by spreadsheet apps.
-  const safe = /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;
+  const safe = /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `'${s}` : s;
   return /[",\n\r]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
 };
 

@@ -4,6 +4,7 @@
 // so the page lists exactly what the checker runs. Rerun after build-plain-rules.mjs;
 // peppol-readiness.test.mjs fails when the page and the rules disagree.
 import { readFileSync, writeFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 import { ruleChanges } from "./peppol-readiness.mjs";
 
 const here = new URL("./", import.meta.url);
@@ -29,7 +30,7 @@ export function renderPage(html = readFileSync(PAGE, "utf8")) {
   return html.replace(/<!-- changes:start -->[\s\S]*<!-- changes:end -->/, `<!-- changes:start -->\n${changesTable()}\n<!-- changes:end -->`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   writeFileSync(PAGE, renderPage());
   console.log(`Wrote the 3.1.0 change table to ${PAGE.pathname}`);
 }

@@ -103,8 +103,8 @@ test("a file failing 3.0.22 already is not counted as newly rejected; unreadable
 });
 
 test("CSV cells that a spreadsheet would read as a formula are quoted as text", () => {
-  const s = summarize([{ name: "=HYPERLINK(\"x\")", verdict: "newly-rejected", added: [{ rule: "R", severity: "fatal", path: "/a", message: "+1", fix: "-2" }] }]);
-  assert.equal(toCsv(s).split("\n")[1], `"'=HYPERLINK(""x"")",newly-rejected,R,fatal,/a,'+1,'-2`);
+  const s = summarize([{ name: "=HYPERLINK(\"x\")", verdict: "newly-rejected", added: [{ rule: "R", severity: "fatal", path: "/a", message: "+1", fix: "-2.50" }] }]);
+  assert.equal(toCsv(s).split("\n")[1], `"'=HYPERLINK(""x"")",newly-rejected,R,fatal,/a,'+1,-2.50`);
   assert.equal(stripNote("x. [New in Peppol BIS 3.1.0, rejected from 2027-02-24; 3.0.22, in force today, does not raise this.]"), "x.");
 });
 

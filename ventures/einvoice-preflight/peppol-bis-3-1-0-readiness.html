@@ -36,8 +36,8 @@
 
   <div id="drop" class="drop">
     <p><strong>Drop invoice XML files or a folder here</strong></p>
-    <input id="files" type="file" multiple accept=".xml,application/xml,text/xml">
-    <input id="folder" type="file" webkitdirectory multiple style="display:none">
+    <input id="files" type="file" aria-label="Invoice XML files" multiple accept=".xml,application/xml,text/xml">
+    <input id="folder" type="file" aria-label="Folder of invoices" webkitdirectory multiple style="display:none">
     <br><button id="pickFolder" type="button">Choose a folder</button><button id="sample" type="button">Try four sample invoices</button>
   </div>
   <div id="status" class="status" aria-live="polite">No files checked yet.</div>
