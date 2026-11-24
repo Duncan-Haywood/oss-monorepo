@@ -1,0 +1,13 @@
+7zd: SEI film-resistivity ladder (plating off; Marquis2019@2x; rho = multiplier of 2e5 Ohm m; 0 is 7zc, 1 is 7zb)
+    rho    Ohm m  fade@1e5  tch@1e5  slope  kept g  med m  |m-1|  gD  gP  oracle  D-theta     C-U  met/cycles theta, U, thetaH, thetaD
+      0        0    0.0372    0.992   0.49  100000  0.365  0.635   5   0  thetaH   -39.20  -40.00  5/49.2  5/50.0  5/10.0  5/10.0
+  0.001      200    0.0372    0.991   0.49  100000  0.365  0.635   5   0  thetaH   -39.20  -40.00  5/49.2  5/50.0  5/10.0  5/10.0
+   0.01     2000    0.0371    0.984   0.48  100000  0.362  0.638   5   0  thetaH   -39.20  -40.00  5/49.2  5/50.0  5/10.0  5/10.0
+    0.1    20000    0.0356    0.913   0.48  100000  0.342  0.658   5   0  thetaH   -36.60  -40.00  4/46.6  5/50.0  5/10.0  5/10.0
+      1   200000    0.0084    0.100   0.19       -      -      -   -   -       -        -       -  
+
+H372 (some rho in [0.001, 0.01, 0.1] keeps a cell (passes 7zb's probe rule at some g)): supported
+H373 (at g = 1e5, fade and charge-time ratio fall strictly from rho = 0 to rho = 1): supported
+H374 (every kept middle rung drifts large: median |m - 1| >= 0.10): supported
+H375 (on every kept rung (0 included) gD's majority matches 7y's oracle (on <=> thetaH)): supported
+H376 (on every kept middle rung thetaD - theta <= 0 (five-fold mean)): supported
