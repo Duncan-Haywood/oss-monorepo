@@ -2,8 +2,9 @@
 // written from memory, no live lookup:
 //  - Qualifying week = the 15th week before the expected week of childbirth
 //    (EWC); weeks run Sunday to Saturday.
-//  - Employee must have been continuously employed for 26 weeks ending with
-//    the qualifying week, and average weekly earnings (AWE) in the 8 weeks
+//  - Employee must have been continuously employed for 26 weeks into the
+//    qualifying week, a part week counting as a whole one (checked against
+//    GOV.UK's employer calculator and HMRC SPM250800 on 2026-11-24), and average weekly earnings (AWE) in the 8 weeks
 //    to the end of that week must be at least the lower earnings limit (LEL).
 //  - SMP lasts up to 39 weeks: 90% of AWE for the first 6 weeks, then the
 //    LOWER of the standard weekly rate and 90% of AWE for 33 weeks. It can
@@ -73,8 +74,11 @@ export function compute(input) {
   const qualifyingWeek = ewcWeek - 15 * 7;
   const earliestStart = ewcWeek - 11 * 7;
   const qwRate = rateAt(qualifyingWeek + 6);
-  const employedFor = qualifyingWeek + 6 - emp + 1; // days employed to end of QW
-  const employedWeeks = Math.floor(employedFor / 7);
+  // Weeks run Sunday to Saturday and a part week counts as a whole one (ERA 1996
+  // s.212(1); HMRC SPM250800), so a start on any day up to the Saturday of the
+  // 26th week back qualifies, as GOV.UK's employer calculator asks. Red team
+  // 2026-11-24 (was whole 7-day blocks, 6 days too strict).
+  const employedWeeks = (qualifyingWeek - sundayOnOrBefore(emp)) / 7 + 1;
   const lengthOk = employedWeeks >= 26;
   const earningsOk = awe >= qwRate.lel;
   const eligible = lengthOk && earningsOk;

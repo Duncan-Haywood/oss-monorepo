@@ -48,10 +48,12 @@ test("fewer than 26 weeks employed is not eligible", () => {
   assert.ok(r.findings.some((f) => /26 are needed/.test(f.title)));
 });
 
-test("exactly 26 weeks ending with the qualifying week passes", () => {
-  // QW ends Sat 2026-08-08; 26 weeks = 182 days, so start 2026-02-08 passes, 2026-02-09 fails.
+test("26 weeks into the qualifying week: the boundary is a Saturday", () => {
+  // QW starts Sun 2026-08-02; the 26th week back runs Sun 2026-02-08 to Sat
+  // 2026-02-14 and counts if employed on any day of it (GOV.UK calculator).
   assert.equal(run({ employmentStart: "2026-02-08" }).lengthOk, true);
-  assert.equal(run({ employmentStart: "2026-02-09" }).lengthOk, false);
+  assert.equal(run({ employmentStart: "2026-02-14" }).lengthOk, true);
+  assert.equal(run({ employmentStart: "2026-02-15" }).lengthOk, false);
 });
 
 test("earnings below the lower earnings limit is not eligible", () => {
@@ -90,4 +92,19 @@ test("summary names the verify line and the disclaimer", () => {
   const s = summaryText(run({}));
   assert.match(s, /GOV\.UK/);
   assert.match(s, /No warranty/);
+});
+
+// A part week counts as a whole week (ERA 1996 s.212(1); SPM250800). GOV.UK's
+// employer calculator, due 2026-11-20, asks for a contract "covering
+// 14 February 2026": the Saturday of the 26th week back from the qualifying
+// week (2026-08-02). Red team 2026-11-24.
+test("continuous employment: a start any day of the 26th week back qualifies", () => {
+  for (const d of ["2026-02-08", "2026-02-11", "2026-02-14"]) {
+    const r = run({ employmentStart: d });
+    assert.equal(r.lengthOk, true, d);
+    assert.equal(r.employedWeeks, 26, d);
+  }
+  const late = run({ employmentStart: "2026-02-15" });
+  assert.equal(late.lengthOk, false);
+  assert.equal(late.employedWeeks, 25);
 });

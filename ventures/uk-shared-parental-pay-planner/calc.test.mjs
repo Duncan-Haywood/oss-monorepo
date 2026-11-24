@@ -116,3 +116,19 @@ test("summary names the verify line and the disclaimer", () => {
   assert.match(t, /Not legal, payroll or employment advice/);
   assert.match(t, /<- your plan/);
 });
+
+// A part week counts as a whole week (ERA 1996 s.212(1); ShPP (General)
+// Regs 2014 reg 34; SPM250800). GOV.UK's employer calculator, due 2026-11-20,
+// asks for a contract "covering 14 February 2026": the Saturday of the 26th
+// week back from the qualifying week (2026-08-02). Red team 2026-11-24.
+test("continuous employment: a start any day of the 26th week back qualifies", () => {
+  for (const d of ["2026-02-08", "2026-02-11", "2026-02-14"]) {
+    const r = run({ motherEmploymentStart: d, partnerEmploymentStart: d });
+    assert.equal(r.mother.lengthOk, true, d);
+    assert.equal(r.partner.lengthOk, true, d);
+    assert.equal(r.mother.employedWeeks, 26, d);
+  }
+  const late = run({ motherEmploymentStart: "2026-02-15" });
+  assert.equal(late.mother.lengthOk, false);
+  assert.equal(late.mother.employedWeeks, 25);
+});

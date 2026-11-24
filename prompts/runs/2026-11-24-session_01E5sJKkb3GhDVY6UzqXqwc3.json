@@ -245,14 +245,15 @@
     "real_defects": [
       {
         "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
-        "issue": "Due dates before 6 April 2025 were priced with the 2025/26 standard rate (a 2024-09-01 due date paid 2024/25 weeks at \u00a3187.18, not the 2024/25 rate) and tested against the 2025/26 LEL, with no warning (only the future edge had one). Reproduced with compute(); fixed with a 'before 6 April 2025' finding and a failing-first test.",
+        "issue": "Due dates before 6 April 2025 were priced with the 2025/26 standard rate (a 2024-09-01 due date paid 2024/25 weeks at £187.18, not the 2024/25 rate) and tested against the 2025/26 LEL, with no warning (only the future edge had one). Reproduced with compute(); fixed with a 'before 6 April 2025' finding and a failing-first test.",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18605"
       },
       {
         "file": "ventures/uk-shared-parental-pay-planner/calc.mjs",
         "issue": "Possible: eligibility() counts whole 7-day blocks back from the end of the qualifying week, so a parent must have started by the Sunday 25 weeks before the qualifying week. HMRC's Statutory Payments Manual (SPM250800, via search summary) says a week counts if any work was done in it, and ERA 1996 s.212(1) counts a week employed in part, which would allow a start any day up to that Saturday (6 days later). Not fixed: gov.uk and legislation.gov.uk were unreachable from this session (proxy 403 / DNS), so the rule could not be confirmed from the primary text. Fix if confirmed: lengthOk = emp <= qualifyingWeek - 169 (and employedWeeks computed from sundayOnOrBefore(emp)); then pin the boundary with a test, which also guards mutant at line 69.",
-        "patched": false
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pulls (redteam 2026-11-24 session_01XpHqye9jwaPUFqiqncLjUY; PR url set below)"
       }
     ]
   },
