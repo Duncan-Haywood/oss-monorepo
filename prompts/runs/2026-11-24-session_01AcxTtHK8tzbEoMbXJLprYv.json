@@ -1,139 +1,149 @@
 {
-  "date": "2026-11-24",
-  "session": "https://claude.ai/code/session_01AcxTtHK8tzbEoMbXJLprYv",
-  "track": "research",
-  "prompt_version": 0,
-  "input": "read ./prompt.md and follow the instructions there",
-  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
-  "follow_up_inputs": [],
-  "model": "claude-opus-5-5",
-  "models_seen": [
-    "claude-opus-5-5"
-  ],
-  "started": "2026-11-24T23:06:31Z",
-  "ended": "2026-11-24T23:16:46Z",
-  "wall_minutes": 10.44,
-  "tokens_in": 4732985,
-  "tokens_out": 37826,
-  "cost_usd": 2.6406,
-  "tool_calls": 46,
-  "task": null,
-  "projects": [],
-  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18726",
-  "repo": null,
-  "commits": [],
-  "lines_added": null,
-  "lines_removed": null,
-  "merged": null,
-  "ci_failures_before_green": null,
-  "review_findings": null,
-  "tests_added": null,
-  "outcome": "success",
-  "errors": [
-    "First analysis run had a sign slip in additive_radius (2I - J_f instead of I - J_f); caught by disagreement with milestone 3zh, fixed, and pinned by a new test before the write-up.",
-    "Full test suite first failed to collect: the pyenv interpreter lacked scipy (requirements.txt lists it); installed and reran, 230 passed."
-  ],
-  "integrity_issues": [],
-  "doc_friction": [
-    {
-      "file": "research/CLAUDE.md",
-      "issue": "Recommends `pyenv.py pytest numpy matplotlib` or `-r requirements.txt`; I asked for a subset without scipy and the project suite then failed to collect. Asking for the project's requirements.txt from the start would have saved a rerun."
-    },
-    {
-      "file": "platform/ci/check_md_links.py",
-      "issue": "Reports 2 dead links in portfolio/monetization/hardware-bets.md that are already on main, unrelated to this PR, so a clean research PR still shows a non-zero count."
-    }
-  ],
-  "deviations": [
-    {
-      "file": "prompt.md",
-      "why": "The master prompt says for-profit products come first on a scheduled run with no task; the router's weighted draw sent this run to research, and I followed the router.",
-      "did": "Advanced the drawn research programme (sensing-selfcal milestone 3zi).",
-      "result": "One milestone landed with a practitioner tool."
-    }
-  ],
-  "writeups": [
-    "docs/posts/2026-11-24-check-your-camera-undistortion-without-opencv.md",
-    "research/sensing-selfcal/LOG.md (milestone 3zi planned + result)"
-  ],
-  "goal": null,
-  "notes": "Milestone 3zi: src/undistcheck.py (stdlib). H318 and H320 held; H317 and H319 were refuted as stated, on tolerances tighter than OpenCV 5.1.0's own converged answer, which falls short of 1e-6 px at 28 corners. Local checks: tests 230 passed, build.py ok, check_numbers 444/444, check_short ok, check_posts ok.",
-  "corrections": [],
-  "redteam": null,
-  "usage": {
-    "measured_by": "prompts/runcost.py v1",
-    "session_id": "035ff511-a130-5534-b051-29a97036f360",
-    "transcripts": 1,
-    "first": "2026-11-24T23:06:31Z",
-    "last": "2026-11-24T23:16:57Z",
-    "primary_model": "claude-opus-5-5",
-    "models": {
-      "claude-opus-5-5": {
-        "requests": 43,
-        "input": 83,
-        "output": 37826,
-        "thinking": 7702,
-        "cache_read": 4612749,
-        "cache_write_5m": 0,
-        "cache_write_1h": 120153,
-        "api_equivalent_usd": 2.6406,
-        "fast_requests": 0
-      }
-    },
-    "totals": {
-      "requests": 43,
-      "input": 83,
-      "output": 37826,
-      "thinking": 7702,
-      "cache_read": 4612749,
-      "cache_write_5m": 0,
-      "cache_write_1h": 120153,
-      "api_equivalent_usd": 2.6406,
-      "api_equivalent_complete": true
-    },
-    "cache_hit_share": 0.975,
-    "tool_calls": 46,
-    "tools": {
-      "Bash": 41,
-      "Write": 2,
-      "ToolSearch": 1,
-      "mcp__github__create_pull_request": 1,
-      "mcp__github__update_pull_request": 1
-    },
-    "web_searches": 0,
-    "time": {
-      "wall_minutes": 10.44,
-      "active_minutes": 10.44,
-      "model_minutes": 6.22,
-      "tool_minutes": 4.22,
-      "waiting_on_human_minutes": 0.0,
-      "human_prompts": 1,
-      "stalls": 0,
-      "subagent_minutes": 0.0
-    },
-    "pricing": {
-      "as_of": "2026-10-06",
-      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
-    },
-    "human_equivalent": {
-      "hours": 6.0,
-      "basis": "a numerical-methods engineer writing, validating and documenting a small inverse-distortion tool against 179 calibrations",
-      "rate_usd_per_hour": 100.0,
-      "usd": 600.0
-    },
-    "leverage": 227.2,
-    "certainty": {
-      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
-      "model": "high: the `model` field on each API response, not the configured model",
-      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
-      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
-      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
-    },
-    "not_counted": [
-      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
-      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
-      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
-      "CI minutes and the reviewer bots' own model calls"
-    ]
+ "date": "2026-11-24",
+ "session": "https://claude.ai/code/session_01AcxTtHK8tzbEoMbXJLprYv",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-opus-5-5",
+ "models_seen": [
+  "claude-opus-5-5"
+ ],
+ "started": "2026-11-24T23:06:31Z",
+ "ended": "2026-11-24T23:16:46Z",
+ "wall_minutes": 10.44,
+ "tokens_in": 4732985,
+ "tokens_out": 37826,
+ "cost_usd": 2.6406,
+ "tool_calls": 46,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18726",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [
+  "First analysis run had a sign slip in additive_radius (2I - J_f instead of I - J_f); caught by disagreement with milestone 3zh, fixed, and pinned by a new test before the write-up.",
+  "Full test suite first failed to collect: the pyenv interpreter lacked scipy (requirements.txt lists it); installed and reran, 230 passed."
+ ],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "Recommends `pyenv.py pytest numpy matplotlib` or `-r requirements.txt`; I asked for a subset without scipy and the project suite then failed to collect. Asking for the project's requirements.txt from the start would have saved a rerun."
+  },
+  {
+   "file": "platform/ci/check_md_links.py",
+   "issue": "Reports 2 dead links in portfolio/monetization/hardware-bets.md that are already on main, unrelated to this PR, so a clean research PR still shows a non-zero count."
+  },
+  {
+   "file": "ventures/hearth-and-horizon/stories.mjs",
+   "issue": "Story pages use the full summary (up to 300 characters) as the meta description, so every new story breaks platform/pages/description-length.test.mjs until someone baselines it. The generator should cut the description to 160 characters at a word boundary."
   }
+ ],
+ "deviations": [
+  {
+   "file": "prompt.md",
+   "why": "The master prompt says for-profit products come first on a scheduled run with no task; the router's weighted draw sent this run to research, and I followed the router.",
+   "did": "Advanced the drawn research programme (sensing-selfcal milestone 3zi).",
+   "result": "One milestone landed with a practitioner tool."
+  },
+  {
+   "file": "prompts/research/prompt-0.md",
+   "why": "Research work stays inside research/, but portfolio-pages' description-length test was red on main (PRs #18706 and #18718), which blocked this PR's green CI.",
+   "did": "Shortened three ebay-fee-calculator guide descriptions to 160 characters or fewer and baselined the new hearth-and-horizon story page, as its generator uses the full summary by design (559 story pages are already in the baseline).",
+   "result": "description-length.test.mjs 5/5 and reseller-guides.test.mjs 12/12 pass locally."
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-11-24-check-your-camera-undistortion-without-opencv.md",
+  "research/sensing-selfcal/LOG.md (milestone 3zi planned + result)"
+ ],
+ "goal": null,
+ "notes": "Milestone 3zi: src/undistcheck.py (stdlib). H318 and H320 held; H317 and H319 were refuted as stated, on tolerances tighter than OpenCV 5.1.0's own converged answer, which falls short of 1e-6 px at 28 corners. Local checks: tests 230 passed, build.py ok, check_numbers 444/444, check_short ok, check_posts ok.",
+ "corrections": [],
+ "redteam": null,
+ "usage": {
+  "measured_by": "prompts/runcost.py v1",
+  "session_id": "035ff511-a130-5534-b051-29a97036f360",
+  "transcripts": 1,
+  "first": "2026-11-24T23:06:31Z",
+  "last": "2026-11-24T23:16:57Z",
+  "primary_model": "claude-opus-5-5",
+  "models": {
+   "claude-opus-5-5": {
+    "requests": 43,
+    "input": 83,
+    "output": 37826,
+    "thinking": 7702,
+    "cache_read": 4612749,
+    "cache_write_5m": 0,
+    "cache_write_1h": 120153,
+    "api_equivalent_usd": 2.6406,
+    "fast_requests": 0
+   }
+  },
+  "totals": {
+   "requests": 43,
+   "input": 83,
+   "output": 37826,
+   "thinking": 7702,
+   "cache_read": 4612749,
+   "cache_write_5m": 0,
+   "cache_write_1h": 120153,
+   "api_equivalent_usd": 2.6406,
+   "api_equivalent_complete": true
+  },
+  "cache_hit_share": 0.975,
+  "tool_calls": 46,
+  "tools": {
+   "Bash": 41,
+   "Write": 2,
+   "ToolSearch": 1,
+   "mcp__github__create_pull_request": 1,
+   "mcp__github__update_pull_request": 1
+  },
+  "web_searches": 0,
+  "time": {
+   "wall_minutes": 10.44,
+   "active_minutes": 10.44,
+   "model_minutes": 6.22,
+   "tool_minutes": 4.22,
+   "waiting_on_human_minutes": 0.0,
+   "human_prompts": 1,
+   "stalls": 0,
+   "subagent_minutes": 0.0
+  },
+  "pricing": {
+   "as_of": "2026-10-06",
+   "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+  },
+  "human_equivalent": {
+   "hours": 6.0,
+   "basis": "a numerical-methods engineer writing, validating and documenting a small inverse-distortion tool against 179 calibrations",
+   "rate_usd_per_hour": 100.0,
+   "usd": 600.0
+  },
+  "leverage": 227.2,
+  "certainty": {
+   "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+   "model": "high: the `model` field on each API response, not the configured model",
+   "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+   "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+   "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+  },
+  "not_counted": [
+   "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+   "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+   "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+   "CI minutes and the reviewer bots' own model calls"
+  ]
+ }
 }
