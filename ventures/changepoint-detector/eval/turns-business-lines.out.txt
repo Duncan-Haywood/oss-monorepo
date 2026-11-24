@@ -1,12 +1,12 @@
 Primary (bars):
 n 144, noise x1, 500 draws, 5.02 true turns a draw on average
-  mean F1: composite 0.932; orders 0.870, revenue 0.869, customers 0.872, hours 0.852; rescaled composite (see header) 0.975
-  hindsight-best line 0.974; composite at least as good in 71.4% of draws
-  composite - revenue +0.063 (wins 262, losses 90, sign test p 1.30e-20)
-  composite - heaviest-weight line +0.060 (95% CI +0.047 to +0.073); heaviest: orders 0, revenue 0, customers 500, hours 0
+  mean F1: composite 0.933; orders 0.871, revenue 0.870, customers 0.877, hours 0.862; rescaled composite (see header) 0.975
+  hindsight-best line 0.975; composite at least as good in 72.0% of draws
+  composite - revenue +0.063 (wins 262, losses 89, sign test p 6.59e-21)
+  composite - heaviest-weight line +0.056 (95% CI +0.042 to +0.068); heaviest: orders 0, revenue 0, customers 500, hours 0
   mean weights: orders 0.126, revenue 0.157, customers 0.502, hours 0.215
   composite timing vs truth (matched turns): median 1, mean |error| 1.11 months
-  lead/lag vs revenue: orders true -1, median read -1, within 1 in 342/496 (69.0%); customers true +2, median read 2, within 1 in 359/490 (73.3%); hours true +1, median read 1, within 1 in 373/494 (75.5%)
+  lead/lag vs revenue: orders true -1, median read -1, within 1 in 341/497 (68.6%); customers true +2, median read 2, within 1 in 362/491 (73.7%); hours true +1, median read 1, within 1 in 375/496 (75.6%)
   S1 composite beats revenue by >= 0.05, sign test p <= 0.05: PASS
   S2 composite beats the heaviest-weight line, CI above 0: PASS
   S3 composite within 0.03 of the hindsight-best line: FAIL
@@ -15,34 +15,34 @@ Decision: S1-S3 do not all pass: no recommendation; readout not offered.
 
 Printed, no bar:
 n 144, noise x0.5, 500 draws, 5.02 true turns a draw on average
-  mean F1: composite 0.954; orders 0.967, revenue 0.964, customers 0.958, hours 0.947; rescaled composite (see header) 0.989
+  mean F1: composite 0.954; orders 0.969, revenue 0.966, customers 0.958, hours 0.949; rescaled composite (see header) 0.989
   hindsight-best line 0.996; composite at least as good in 79.4% of draws
-  composite - revenue -0.010 (wins 69, losses 75, sign test p 6.77e-1)
+  composite - revenue -0.013 (wins 65, losses 76, sign test p 4.00e-1)
   composite - heaviest-weight line -0.005 (95% CI -0.014 to +0.004); heaviest: orders 0, revenue 0, customers 500, hours 0
   mean weights: orders 0.139, revenue 0.175, customers 0.451, hours 0.235
   composite timing vs truth (matched turns): median 1, mean |error| 0.91 months
-  lead/lag vs revenue: orders true -1, median read -1, within 1 in 453/499 (90.8%); customers true +2, median read 2, within 1 in 470/498 (94.4%); hours true +1, median read 1, within 1 in 471/498 (94.6%)
+  lead/lag vs revenue: orders true -1, median read -1, within 1 in 455/499 (91.2%); customers true +2, median read 2, within 1 in 471/498 (94.6%); hours true +1, median read 1, within 1 in 470/498 (94.4%)
 n 144, noise x2, 500 draws, 5.02 true turns a draw on average
-  mean F1: composite 0.873; orders 0.630, revenue 0.619, customers 0.716, hours 0.605; rescaled composite (see header) 0.889
-  hindsight-best line 0.822; composite at least as good in 74.2% of draws
-  composite - revenue +0.254 (wins 449, losses 34, sign test p 1.60e-93)
-  composite - heaviest-weight line +0.157 (95% CI +0.138 to +0.176); heaviest: orders 0, revenue 0, customers 500, hours 0
+  mean F1: composite 0.882; orders 0.630, revenue 0.619, customers 0.736, hours 0.604; rescaled composite (see header) 0.889
+  hindsight-best line 0.833; composite at least as good in 74.6% of draws
+  composite - revenue +0.263 (wins 454, losses 30, sign test p 2.27e-98)
+  composite - heaviest-weight line +0.146 (95% CI +0.127 to +0.165); heaviest: orders 0, revenue 0, customers 500, hours 0
   mean weights: orders 0.119, revenue 0.149, customers 0.527, hours 0.204
-  composite timing vs truth (matched turns): median 1, mean |error| 1.30 months
-  lead/lag vs revenue: orders true -1, median read -0.5, within 1 in 256/486 (52.7%); customers true +2, median read 1, within 1 in 235/482 (48.8%); hours true +1, median read 0.5, within 1 in 265/486 (54.5%)
+  composite timing vs truth (matched turns): median 1, mean |error| 1.31 months
+  lead/lag vs revenue: orders true -1, median read -0.5, within 1 in 257/486 (52.9%); customers true +2, median read 1, within 1 in 239/486 (49.2%); hours true +1, median read 0.5, within 1 in 266/488 (54.5%)
 n 96, noise x1, 500 draws, 3.32 true turns a draw on average
-  mean F1: composite 0.938; orders 0.859, revenue 0.870, customers 0.847, hours 0.826; rescaled composite (see header) 0.971
-  hindsight-best line 0.981; composite at least as good in 81.8% of draws
-  composite - revenue +0.068 (wins 195, losses 57, sign test p 7.56e-19)
-  composite - heaviest-weight line +0.090 (95% CI +0.072 to +0.109); heaviest: orders 0, revenue 0, customers 500, hours 0
+  mean F1: composite 0.938; orders 0.859, revenue 0.873, customers 0.854, hours 0.836; rescaled composite (see header) 0.971
+  hindsight-best line 0.984; composite at least as good in 81.4% of draws
+  composite - revenue +0.065 (wins 193, losses 58, sign test p 3.96e-18)
+  composite - heaviest-weight line +0.084 (95% CI +0.065 to +0.102); heaviest: orders 0, revenue 0, customers 500, hours 0
   mean weights: orders 0.125, revenue 0.158, customers 0.500, hours 0.217
   composite timing vs truth (matched turns): median 1, mean |error| 1.13 months
-  lead/lag vs revenue: orders true -1, median read -1, within 1 in 289/471 (61.4%); customers true +2, median read 2, within 1 in 320/464 (69.0%); hours true +1, median read 1, within 1 in 301/465 (64.7%)
+  lead/lag vs revenue: orders true -1, median read -1, within 1 in 287/471 (60.9%); customers true +2, median read 2, within 1 in 324/467 (69.4%); hours true +1, median read 1, within 1 in 305/469 (65.0%)
 n 240, noise x1, 500 draws, 8.55 true turns a draw on average
-  mean F1: composite 0.944; orders 0.867, revenue 0.871, customers 0.875, hours 0.854; rescaled composite (see header) 0.979
-  hindsight-best line 0.961; composite at least as good in 66.8% of draws
-  composite - revenue +0.073 (wins 316, losses 106, sign test p 2.46e-25)
-  composite - heaviest-weight line +0.069 (95% CI +0.059 to +0.079); heaviest: orders 0, revenue 0, customers 500, hours 0
+  mean F1: composite 0.945; orders 0.868, revenue 0.873, customers 0.882, hours 0.862; rescaled composite (see header) 0.979
+  hindsight-best line 0.962; composite at least as good in 66.8% of draws
+  composite - revenue +0.072 (wins 316, losses 105, sign test p 1.23e-25)
+  composite - heaviest-weight line +0.063 (95% CI +0.054 to +0.073); heaviest: orders 0, revenue 0, customers 500, hours 0
   mean weights: orders 0.126, revenue 0.158, customers 0.501, hours 0.216
   composite timing vs truth (matched turns): median 1, mean |error| 1.12 months
-  lead/lag vs revenue: orders true -1, median read -1, within 1 in 390/500 (78.0%); customers true +2, median read 1.5, within 1 in 400/500 (80.0%); hours true +1, median read 0.5, within 1 in 432/500 (86.4%)
+  lead/lag vs revenue: orders true -1, median read -1, within 1 in 393/500 (78.6%); customers true +2, median read 1.5, within 1 in 404/500 (80.8%); hours true +1, median read 0.5, within 1 in 428/500 (85.6%)

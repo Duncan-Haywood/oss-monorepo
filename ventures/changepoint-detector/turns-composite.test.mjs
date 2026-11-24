@@ -15,7 +15,7 @@ test('composite of four coincident indicators 1967-2026: A 16 of 16, no false tu
   assert.ok(a.C1 && a.C2 && a.C3);
   assert.equal(b.matched, 15); assert.equal(b.falses, 0);
   assert.equal(o.decision, 'A');
-  assert.deepEqual(o.comps.map((c) => [c.name, c.matched]), [['PAYEMS', 11], ['W875RX1', 12], ['INDPRO', 14], ['CMRMTSPL', 10], ['CE16OV', 9]]);
+  assert.deepEqual(o.comps.map((c) => [c.name, c.matched]), [['PAYEMS', 11], ['W875RX1', 10], ['INDPRO', 14], ['CMRMTSPL', 12], ['CE16OV', 9]]);
   assert.equal(a.plain.matched, 14); // without bigMove, 2020 is thrown out as too short
 });
 
