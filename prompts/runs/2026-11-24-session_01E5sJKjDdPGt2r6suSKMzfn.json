@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKjDdPGt2r6suSKMzfn",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T20:09:39Z",
+  "ended": "2026-11-24T20:26:12Z",
+  "wall_minutes": 16.74,
+  "tokens_in": 6370882,
+  "tokens_out": 30363,
+  "cost_usd": 2.7662,
+  "tool_calls": 67,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18658",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/history/sales-export-to-journal-perf-2026-11-24.md",
+      "issue": "'Not changed' item 1 ranked a repo-wide toLocaleString/Intl.NumberFormat sweep first; in Chromium a construction is 13-19 us after a one-off ~11 ms ICU set-up, so it pays only past ~10k amounts per task. Ranked down in the new note."
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Item 4 (what visitors wait on) gives no hint that a 4x-throttled sampling profile inflates one-off engine set-up into a large self-time line; counting calls first would have saved a measurement round."
+    },
+    {
+      "file": "platform/ci/check_third_party.py",
+      "issue": "No pull-request workflow runs it directly, so #18649 merged a new OpenCV port without an inventory entry and the next PR touching ventures inherited the red unwired check."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-a-135-ms-profile-line-that-cost-a-tenth-of-a-millisecond.md",
+    "docs/history/clothing-design-studio-drape-perf-2026-11-24.md"
+  ],
+  "goal": null,
+  "notes": "Metric: drapeGarment wall time, six cases x3 reps, Node 22, median of three alternating rounds: 12,440 -> 11,742 ms (-5.6%); three-case run 7,766/7,749 -> 7,253/7,249 ms. Chromium, same three cases: medians 7,599 -> 7,399 (~-3%, noise); drape.html 'Settled in' median 2,158 -> 2,176 ms (no change). Output hash d174f2adad39cb1c identical. Before/after taken with the bench script in the history doc. Dud lead: money() Intl.NumberFormat cache, index.html throttled load 2,144 -> 2,080 ms (noise), reverted. Verification: run_venture_tests.py clothing-design-studio 755 tests 0 failed + site page checks. Also timed shift-roster-builder suite: 238 s wall, 681 s CPU (not changed). Also fixed main's red unwired check: check_third_party.py failed on research/sensing-selfcal/experiments/m3zg_loop/loop.py (OpenCV Apache-2.0 port from #18649, Intel/Willow Garage copyrights not inventoried); added a third_party.json entry, but another run landed the same fix on main first (Apache-2.0 AND BSD-3-Clause, more precise), so the merge took main's version; net change from this PR there is none. Local run_workflow_locally --for-changes: 5/6 workflows passed before the fix, the failure was that check.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "03e7b399-3c29-567b-8c81-303023583c08",
+    "transcripts": 1,
+    "first": "2026-11-24T20:09:39Z",
+    "last": "2026-11-24T20:26:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 126,
+        "output": 30363,
+        "thinking": 6545,
+        "cache_read": 6257392,
+        "cache_write_5m": 0,
+        "cache_write_1h": 113364,
+        "api_equivalent_usd": 2.7662,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 126,
+      "output": 30363,
+      "thinking": 6545,
+      "cache_read": 6257392,
+      "cache_write_5m": 0,
+      "cache_write_1h": 113364,
+      "api_equivalent_usd": 2.7662,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 64,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.74,
+      "active_minutes": 16.74,
+      "model_minutes": 7.19,
+      "tool_minutes": 9.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profiling, A/B benches in Node and Chromium, exact refactor, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 108.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

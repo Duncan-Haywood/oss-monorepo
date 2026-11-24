@@ -282,6 +282,26 @@ export function sectionAt(body, y) {
   return { a: L[L.length - 1].a, b: L[L.length - 1].b };
 }
 
+/* sectionAt without the object, for pushOut's five lookups per vertex per substep:
+   the same branches and arithmetic, so the same a and b to the bit, written into SEC.
+   Returns false where sectionAt returns null (2026-11-24: about 6% off a drape in Node,
+   output byte-identical; docs/history/clothing-design-studio-drape-perf-2026-11-24.md). */
+const SEC = [0, 0];
+function sectionInto(body, y) {
+  const L = body.levels;
+  if (y > body.top) return false;
+  if (y <= L[0].y) { SEC[0] = L[0].a; SEC[1] = L[0].b; return true; }
+  for (let i = 1; i < L.length; i++) {
+    if (y <= L[i].y) {
+      const t = (y - L[i - 1].y) / (L[i].y - L[i - 1].y || 1);
+      SEC[0] = L[i - 1].a + t * (L[i].a - L[i - 1].a); SEC[1] = L[i - 1].b + t * (L[i].b - L[i - 1].b);
+      return true;
+    }
+  }
+  SEC[0] = L[L.length - 1].a; SEC[1] = L[L.length - 1].b;
+  return true;
+}
+
 /** Girth (m) of the body at height y (Ramanujan). */
 export function girthAt(body, y) {
   const s = sectionAt(body, y);
@@ -536,9 +556,8 @@ const NRM = [0, 0, 0];
 /** Push vertex k out of the body along the surface normal; returns the depth corrected (m). */
 function pushOut(body, pos, k, thick) {
   let x = pos[k], y = pos[k + 1], z = pos[k + 2];
-  const s = sectionAt(body, y);
-  if (!s) return 0;
-  const a = s.a + thick, b = s.b + thick;
+  if (!sectionInto(body, y)) return 0;
+  const a = SEC[0] + thick, b = SEC[1] + thick;
   const f = (x / a) ** 2 + (z / b) ** 2;
   if (f >= 1) return 0;
   if (body.soft) {
@@ -561,13 +580,16 @@ function pushOut(body, pos, k, thick) {
   const x0 = x, y0 = y, z0 = z;
   // Newton steps on F = (x/a(y))^2 + (z/b(y))^2 - 1 with the y-slope of the section
   for (let it = 0; it < 3; it++) {
-    const s0 = sectionAt(body, y);
-    if (!s0) break;
-    const A = s0.a + thick, B = s0.b + thick;
+    if (!sectionInto(body, y)) break;
+    const a0 = SEC[0], b0 = SEC[1];
+    const A = a0 + thick, B = b0 + thick;
     const F = (x / A) ** 2 + (z / B) ** 2 - 1;
     if (F >= -1e-9) break;
-    const e = 1e-4, s1 = sectionAt(body, y + e) || s0, s2 = sectionAt(body, y - e) || s0;
-    const dA = (s1.a - s2.a) / (2 * e), dB = (s1.b - s2.b) / (2 * e);
+    const e = 1e-4;
+    let a1 = a0, b1 = b0, a2 = a0, b2 = b0; // a missing section falls back to s0, as before
+    if (sectionInto(body, y + e)) { a1 = SEC[0]; b1 = SEC[1]; }
+    if (sectionInto(body, y - e)) { a2 = SEC[0]; b2 = SEC[1]; }
+    const dA = (a1 - a2) / (2 * e), dB = (b1 - b2) / (2 * e);
     const gx = 2 * x / (A * A), gz = 2 * z / (B * B);
     const gy = -2 * x * x / (A * A * A) * dA - 2 * z * z / (B * B * B) * dB;
     let g2 = gx * gx + gy * gy + gz * gz;
@@ -575,9 +597,8 @@ function pushOut(body, pos, k, thick) {
     x -= F * gx / g2; y -= F * gy / g2; z -= F * gz / g2;
   }
   // guarantee outside: final horizontal scale
-  const s3 = sectionAt(body, y);
-  if (s3) {
-    const f3 = (x / (s3.a + thick)) ** 2 + (z / (s3.b + thick)) ** 2;
+  if (sectionInto(body, y)) {
+    const f3 = (x / (SEC[0] + thick)) ** 2 + (z / (SEC[1] + thick)) ** 2;
     if (f3 < 1 && f3 > 0) { const r = 1 / Math.sqrt(f3); x *= r; z *= r; }
   }
   const dx = x - x0, dy = y - y0, dz = z - z0, d = Math.sqrt(dx * dx + dy * dy + dz * dz);
