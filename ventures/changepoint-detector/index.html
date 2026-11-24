@@ -182,6 +182,27 @@
     <button type="button" class="secondary" id="multi-download">Download per-point results (CSV)</button>
   </section>
 
+  <section class="card" id="turns-card" aria-labelledby="turns-h">
+    <h2 id="turns-h">Peaks and troughs: when did the cycle turn?</h2>
+    <p>A changepoint asks where a level jumped. A turning point asks where a series stopped rising and started falling, and back: the dates of a business's good and bad stretches, or of a recession. This dates them by Bry and Boschan's rule, the one official business-cycle daters use: a peak is the highest point within 5 months either side (2 quarters for quarterly data), peaks and troughs alternate, and every phase lasts at least 6 months (2 quarters) and every cycle 15 months (5 quarters). It reads the data box above: the Value column in one-column mode, or with &ldquo;several columns&rdquo; chosen, a composite index of the Columns you list (orders, revenue, active customers, hours), so one noisy line does not decide the dates.</p>
+    <div class="grid">
+      <div><label for="turns-frequency">Rows are</label><select id="turns-frequency"><option value="monthly">Months</option><option value="quarterly">Quarters</option></select></div>
+      <div><label for="turns-bigmove">Keep a phase shorter than 6 months when it moves at least (%; blank = never; monthly only)</label><input id="turns-bigmove" type="number" min="0" step="any" value="5"></div>
+      <div><label for="turns-sduntil">Several columns: measure each column's volatility only up to this row (optional, e.g. 2019-12 to keep 2020 from setting the weights)</label><input id="turns-sduntil" type="text" placeholder="e.g. 2019-12"></div>
+    </div>
+    <button type="button" id="turns-run">Date peaks and troughs</button>
+    <button type="button" class="secondary" id="example-turns">Load example: US payrolls, real income, production and sales, 1967&ndash;2026</button>
+    <p class="error" id="turns-error" role="alert"></p>
+    <div id="turns-results" hidden>
+      <p class="summary" id="turns-summary"></p>
+      <div class="legend"><span>&mdash; series (log scale)</span><span style="color:#c0392b">&#9650; peak</span><span style="color:#1f5f86">&#9660; trough</span><span style="color:#888">&#9646; contraction</span></div>
+      <div id="turns-chart"></div>
+      <div id="turns-body" aria-live="polite"></div>
+      <p class="note">How far to trust it: on FRED's payrolls, real income less transfers, industrial production and real sales, 1967&ndash;2026, the composite dated all 16 of NBER's peaks and troughs within 3 months, with no false turn; any one of those series alone missed 2 to 6 (README, &ldquo;A composite of NBER's monthly indicators&rdquo;). The last turn can move as new data arrive: a peak needs months of decline after it before it is confirmed. Weekly or daily data: total it to months first. A dated turn is a description of the data, not a forecast.</p>
+      <button type="button" class="secondary" id="turns-download">Download the series with its turns (CSV)</button>
+    </div>
+  </section>
+
   <section class="card" id="report-card" aria-labelledby="report-h" hidden>
     <h2 id="report-h">Branded change report</h2>
     <p class="note">The result above on your own letterhead: your name and logo, the chart, the plain-language reading, the change and segment tables and a statement of assumptions (with several columns: each column's chart and agreed changes and the one segmentation for all of them), as one page to print or save as PDF. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; the detector, the CSV and everything else stay free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
@@ -283,6 +304,8 @@
     import { multiChartSvg, agreedTableHtml, jointTableHtml, multiSummary, multiCsv } from "./multi-view.mjs";
     import { parseColumns } from "./multivariate.mjs";
     import { multiReportHtml } from "./multi-report.mjs";
+    import { turnsResult } from "./turns-cli.mjs";
+    import { turnsHtml, turnsChartSvg, turnsSummary, turnsCsv } from "./turns-view.mjs";
     import { driftReportHtml } from "./drift-report.mjs";
     import { driftPagePenalty, driftIgnored, driftSummary, driftNotes, driftChartSvg, driftTableHtml, driftSegmentsHtml, driftCsv } from "./drift-view.mjs";
 
@@ -670,6 +693,45 @@
     $("#eager-run").addEventListener("click", runEagerness);
     $("#eager-use").addEventListener("click", () => { $("#watch-detector").value = $("#eager-use").dataset.value; $("#watch-detector").focus(); });
     $("#run").addEventListener("click", run);
+    // Peaks and troughs (turns-cli.mjs, the CLI's --turns): Bry-Boschan dating on one column, or on a
+    // composite index of several. Fast (milliseconds on 700 months), so it runs here, not in the worker.
+    let lastTurns = null;
+    function runTurns() {
+      $("#turns-error").textContent = "";
+      const multi = $("#shape").value === "multi";
+      const cols = $("#columns").value.split(",").map((c) => c.trim()).filter(Boolean);
+      const bm = $("#turns-bigmove").value.trim();
+      const frequency = $("#turns-frequency").value;
+      try {
+        if (multi && cols.length < 2) throw new Error("A composite needs two or more names in the Columns box (or choose one column).");
+        const r = turnsResult({ csv: $("#csv").value, column: multi ? null : $("#column").value.trim() || null, columns: multi ? cols : null, frequency, bigMove: frequency === "monthly" ? (bm === "" ? "off" : Number(bm) / 100) : null, sdUntil: multi ? $("#turns-sduntil").value.trim() || null : null, withSeries: true });
+        lastTurns = r;
+        $("#turns-summary").textContent = turnsSummary(r);
+        $("#turns-chart").innerHTML = turnsChartSvg(r);
+        $("#turns-body").innerHTML = turnsHtml(r);
+        $("#turns-results").hidden = false;
+        record("turns_run");
+      } catch (e) {
+        lastTurns = null; $("#turns-results").hidden = true;
+        $("#turns-error").textContent = String(e.message || e).replace(/--turns --columns/g, "A composite").replace(/--(columns|column)/g, "the Columns box").replace(/--sd-until/g, "The volatility row").replace(/--big-move/g, "The short-phase move").replace(/--turns/g, "Dating");
+      }
+    }
+    $("#turns-run").addEventListener("click", runTurns);
+    $("#example-turns").addEventListener("click", async () => {
+      const { TURNS_CSV, TURNS_COLUMNS, TURNS_SD_UNTIL } = await import("./example-turns.mjs");
+      $("#csv").value = TURNS_CSV; $("#shape").value = "multi"; $("#columns").value = TURNS_COLUMNS; $("#columns").disabled = false; $("#jointNoise").disabled = false; $("#column").disabled = true;
+      $("#turns-frequency").value = "monthly"; $("#turns-bigmove").value = "5"; $("#turns-sduntil").value = TURNS_SD_UNTIL;
+      record("example_loaded"); runTurns();
+    });
+    $("#turns-download").addEventListener("click", () => {
+      if (!lastTurns) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([turnsCsv(lastTurns)], { type: "text/csv" }));
+      a.download = "turning-points.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
     $("#example-prop99").addEventListener("click", async () => {
       const { PROP99_CSV, PROP99_COVARIATES, PROP99_DONORS } = await import("./example-prop99.mjs");
       $("#csv").value = PROP99_CSV; $("#shape").value = "one"; $("#columns").disabled = true; $("#column").disabled = false; $("#column").value = "CA"; $("#model").value = "mean";
