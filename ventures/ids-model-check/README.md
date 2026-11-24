@@ -578,9 +578,14 @@ with one systematic fault gives one line:
   inside, and the inside is the right kind); a bare value where the type is not
   a select; enumeration values the schema lists; NaN; the least size of a list
   (`SET [1:?]`) and fixed inner sizes (2D points in a 2D list); abstract classes
-  written as records; the three header records' shapes (ISO 10303-21); and three
-  rules the schema files here do not carry: IfcApplication's two UNIQUE rules,
-  and IFC2X3's IfcGroup grouped by exactly one IfcRelAssignsToGroup. Classes
+  written as records; the three header records' shapes (ISO 10303-21);
+  IfcApplication's two UNIQUE rules; and (2026-11-24) inverse cardinalities:
+  how many records point at each one through the attribute an INVERSE names,
+  against every bound other than `[0:?]` (48 in IFC2X3 and IFC4, 52 in IFC4X3,
+  now in `schema/*.json` as `inverseBounds`). So an opening that voids no
+  element, an IFC2X3 placement or shape no product uses, a wall contained in two
+  storeys, or a property set shared by several IFC2X3 types each get a line
+  saying what it means for a reader (`eval/inverse-counts-2026-11-24.md`). Classes
   outside the schema and duplicate GlobalIds were already reader notes and
   model findings, and are not repeated.
 - **Where it shows:** `node cli.mjs --conformance MODEL.ifc [--json]` (exit 1 on
@@ -595,13 +600,14 @@ with one systematic fault gives one line:
   `ifcopenshell.validate` 0.9.0 on 492 public files (IfcOpenShell's 293,
   buildingSMART's IFC 4.3 samples and Sample-Test-Files, opensourceBIM,
   web-ifc's 108 readable): the same files flagged, 492 of 492, and on records
-  none IfcOpenShell flags that this misses, once inverse cardinalities and
-  ids.mjs's own notes (outside-schema classes, duplicate GlobalIds) are set apart. The two tools differ in three places. Inverse
-  cardinalities (`ShapeOfProduct`, `PlacesObject`) are not checked here, apart
-  from IFC2X3's IfcGroup. And IfcOpenShell lets `$` stand in a derived slot,
-  where ISO 10303-21 writes `*`. And IfcOpenShell refuses the draft schemas
-  IFC4X2 and IFC4X3_RC2, which this reads as IFC4 and IFC4X3_ADD2 behind a
-  first note.
+  none IfcOpenShell flags that this misses, once ids.mjs's own notes
+  (outside-schema classes, duplicate GlobalIds) are set apart. That includes,
+  since 2026-11-24, all 1,085 of IfcOpenShell's inverse-cardinality lines
+  (47 on its own files, 1,038 on web-ifc's), matched record for record
+  (`eval/inverse-counts-2026-11-24.md`). The two tools differ in two places.
+  IfcOpenShell lets `$` stand in a derived slot, where ISO 10303-21 writes `*`.
+  And IfcOpenShell refuses the draft schemas IFC4X2 and IFC4X3_RC2, which this
+  reads as IFC4 and IFC4X3_ADD2 behind a first note.
 - **What the public files hold:** a Bonsai classification library whose 1,010
   references `$$` (no comma) leaves unread; IfcOpenShell's own IFC4 property
   set template file with three templates one attribute short; Bonsai's IFC2X3

@@ -4,9 +4,9 @@
 // the schema lacks or that its select does not allow, an untyped number where
 // a select needs a type, a label holding a number, an enumeration value the
 // schema does not list, `*` and `$` swapped, a reference to the wrong class,
-// a NaN, a short FILE_NAME header, and three rules the schema files here do
-// not carry (IfcApplication's two UNIQUE rules; IFC2X3's IfcGroup grouped by
-// exactly one IfcRelAssignsToGroup).
+// a NaN, a short FILE_NAME header, IfcApplication's two UNIQUE rules, and
+// inverse cardinalities (how many records point at each one through the
+// attribute an INVERSE names, against its bounds: eval/inverse-counts-2026-11-24.md).
 //
 // Measured on IfcOpenShell's labelled broken files
 // (test/fixtures/validate: 25 fail-*, 13 pass-*) and set beside
@@ -159,7 +159,6 @@ export function conformance(text, schemas) {
   // Records.
   let records = 0;
   const apps = [];
-  const groupRels = new Map();
   for (const e of E.values()) {
     records++;
     if (!S.has(e.type)) continue; // ids.mjs Model notes these already
@@ -205,10 +204,6 @@ export function conformance(text, schemas) {
       if (r) add(r.code, e, at.name, `#${e.id}: ${e.type}.${at.name}: ${r.msg}`);
     }
     if (e.type === "IFCAPPLICATION") apps.push(e);
-    if (e.type === "IFCRELASSIGNSTOGROUP" || S.isA(e.type, "IFCRELASSIGNSTOGROUP")) {
-      const g = e.args[attrs.findIndex((x) => x.name === "RelatingGroup")];
-      if (g && g.ref !== undefined) groupRels.set(g.ref, (groupRels.get(g.ref) || 0) + 1);
-    }
   }
   for (const err of p.errors) {
     const m = /^#(\d+): (.*)$/.exec(err);
@@ -230,12 +225,86 @@ export function conformance(text, schemas) {
       else seen.set(key, e.id);
     }
   }
-  // IFC2X3 IfcGroup: INVERSE IsGroupedBy : IfcRelAssignsToGroup FOR RelatingGroup (exactly one).
-  if (id === "IFC2X3") {
-    for (const e of E.values()) {
-      if (!S.has(e.type) || !S.isA(e.type, "IFCGROUP")) continue;
-      const n = groupRels.get(e.id) || 0;
-      if (n !== 1) add("group-assignments", e, "IsGroupedBy", `#${e.id}: ${e.type} is the RelatingGroup of ${n} IfcRelAssignsToGroup; IFC2X3 needs exactly one${n ? " (merge them into one relationship)" : " (an empty group: give it its members, or drop it)"}`);
+  // Inverse cardinalities: how many records point at each one through the
+  // relationship attribute an INVERSE names, against its bounds other than
+  // [0:?] (schema/*.json inverseBounds; a bare "Name : IfcRelX FOR Attr" is
+  // exactly one). IFC2X3's IfcGroup.IsGroupedBy keeps its own code.
+  const invCache = new Map();
+  const invOf = (type) => {
+    let list = invCache.get(type);
+    if (list) return list;
+    list = [];
+    const seen = new Set();
+    for (let t = type; t && S.entities[t]; t = S.entities[t].super) {
+      const en = S.entities[t];
+      for (const [name, [ent, attr]] of Object.entries(en.inverseFor || {})) {
+        if (seen.has(name)) continue; // a subtype's redeclaration wins
+        seen.add(name);
+        const b = en.inverseBounds && en.inverseBounds[name];
+        if (b) list.push({ name, ent, attr, min: b[0], max: b[1], bag: !!b[2], entName: (S.entities[ent] || {}).name || ent });
+      }
+    }
+    invCache.set(type, list);
+    return list;
+  };
+  const wanted = new Map(); // attr -> Set of relationship classes
+  for (const e of E.values()) if (S.has(e.type)) for (const iv of invOf(e.type)) {
+    if (!wanted.has(iv.attr)) wanted.set(iv.attr, new Set());
+    wanted.get(iv.attr).add(iv.ent);
+  }
+  const pointers = new Map(); // "target|ent|attr" -> [record ids], a record once per reference
+  const outside = new Map(); // record id -> the first record of a class outside the schema pointing at it
+  if (wanted.size) {
+    const refsIn = (v, out) => { if (Array.isArray(v)) for (const x of v) refsIn(x, out); else if (v && typeof v === "object" && "ref" in v) out.push(v.ref); return out; };
+    // Per class, the (slot, relationship class, attribute) triples it can
+    // point through, worked out once: most classes have none.
+    const slots = new Map();
+    const slotsOf = (type) => {
+      let l = slots.get(type);
+      if (l) return l;
+      l = [];
+      const ats = S.attrs(type);
+      for (const [attr, ents] of wanted) {
+        const i = ats.index.get(attr);
+        if (i !== undefined) for (const ent of ents) if (S.isA(type, ent)) l.push([i, ent, attr]);
+      }
+      slots.set(type, l);
+      return l;
+    };
+    for (const r of E.values()) {
+      if (!S.has(r.type)) { for (const t of refsIn(r.args, [])) if (!outside.has(t)) outside.set(t, r); continue; }
+      // A record with the wrong attribute count is read by position, as
+      // ifcopenshell.validate reads it (it is flagged above already).
+      for (const [i, ent, attr] of slotsOf(r.type)) {
+        if (i >= r.args.length) continue;
+        for (const target of refsIn(r.args[i], [])) {
+          const key = `${target}|${ent}|${attr}`;
+          let list = pointers.get(key);
+          if (!list) pointers.set(key, (list = []));
+          list.push(r.id);
+        }
+      }
+    }
+  }
+  const range = (iv) => `[${iv.min}:${iv.max === null ? "?" : iv.max}]`;
+  for (const e of E.values()) {
+    if (!S.has(e.type)) continue;
+    for (const iv of invOf(e.type)) {
+      const list = pointers.get(`${e.id}|${iv.ent}|${iv.attr}`) || [];
+      const distinct = [...new Set(list)];
+      const n = iv.bag ? list.length : distinct.length;
+      if (n >= iv.min && (iv.max === null || n <= iv.max)) continue;
+      const by = distinct.slice(0, 3).map((x) => "#" + x).join(", ") + (distinct.length > 3 ? ", ..." : "") + (distinct.length < n ? ` (${distinct.length < 2 ? "one record" : distinct.length + " records"} listing it ${n} times)` : "");
+      if (id === "IFC2X3" && iv.name === "IsGroupedBy") {
+        add("group-assignments", e, "IsGroupedBy", `#${e.id}: ${e.type} is the RelatingGroup of ${n} IfcRelAssignsToGroup; IFC2X3 needs exactly one${n ? " (merge them into one relationship)" : " (an empty group: give it its members, or drop it)"}`);
+        continue;
+      }
+      // ifcopenshell.validate counts these too. When a record of a class the
+      // schema lacks points here (IFC4X3's IFCBEAMSTANDARDCASE, an IFC4X2
+      // bridge part), that is the likelier cause: say so.
+      const o = outside.get(e.id);
+      const msg = o ? `${inverseMessage(e, iv, n, by, raw, range(iv)).split(". ")[0]}. #${o.id}, ${a(o.type)} ${o.type}, also points here, but ${raw} has no such class, so it is not counted: give that record a ${raw} class and this goes` : inverseMessage(e, iv, n, by, raw, range(iv));
+      add("inverse-count", e, iv.name, `#${e.id}: ${msg}`);
     }
   }
   for (const h of header(text)) findings.push({ code: h.code, id: null, type: h.record, attr: null, message: h.message });
@@ -254,6 +323,32 @@ function recordText(text, rid) {
   const t = typeof text === "string" ? text : new TextDecoder().decode(text);
   const m = new RegExp(`#${rid}\\s*=[^;]*;`).exec(t);
   return m ? m[0] : "";
+}
+
+// What an inverse count outside its bounds means, in words, for the cases
+// the public files hold most (eval/inverse-counts-2026-11-24.md); the rest
+// get the bare count. None of these moves a value an IDS check reads, apart
+// from the [0:1] links a partOf facet follows (ContainedInStructure,
+// Decomposes, FillsVoids, Nests), where a second link makes the answer
+// depend on which one a tool takes.
+function inverseMessage(e, iv, n, by, raw, range) {
+  const ent = iv.entName;
+  const head = `${e.type}.${iv.name} counts ${n} ${ent}${n === 1 ? "" : "s"} (${iv.attr} pointing here${by ? ": " + by : ""}), ${raw} gives ${range}`;
+  if (iv.name === "ShapeOfProduct" && n === 0) return `${head}. A shape no product uses: nothing reads it, and a type's geometry belongs in an IfcRepresentationMap (the type's RepresentationMaps) instead`;
+  if (iv.name === "ShapeOfProduct") return `${head}. One IfcProductDefinitionShape shared by ${n} products: each reads the same geometry, so quantities stay right, but ${raw} wants one per product (share it through an IfcRepresentationMap and IfcMappedItem)`;
+  if (iv.name === "PlacesObject" && n === 0) return `${head}. A placement no product uses (often one only other placements are relative to): harmless to read, but ${raw} wants each IfcObjectPlacement to place exactly one product`;
+  if (iv.name === "PlacesObject") return `${head}. One placement shared by ${n} products: they sit in the same place, harmless to read, but ${raw} wants one placement per product`;
+  if (iv.name === "VoidsElements" && n === 0) return `${head}. An opening that voids no element: a quantity takeoff subtracts it from nothing, and an IDS check on the wall it was meant for cannot see it`;
+  if (iv.name === "ProjectsElements" && n === 0) return `${head}. A projection attached to no element`;
+  if (iv.name === "AssociatedTo" && n === 0) return `${head}. A material usage (layer or profile set usage) no IfcRelAssociatesMaterial attaches to anything, so no element reads it`;
+  if (iv.name === "DefinesType") return `${head}. One property set shared by ${n} types: each type reads the same values, so an IDS property check gives each the same answer, but ${raw} wants one type per set, and an edit to it changes them all`;
+  if (iv.name === "StyledByItem") return `${head}. ${n} styles on one geometry item: its colour or material look depends on which one a viewer takes`;
+  if (iv.name === "ToMaterialLayerSet" && by.includes("listing it")) return `${head}. One layer record listed ${n} times in one set (often the same board on both faces): each place in the set should be its own IfcMaterialLayer, so its thickness and material can differ`;
+  if (iv.name === "ToMaterialLayerSet") return `${head}. One material layer in ${n} layer sets: a layer thickness or material edited for one set changes the others`;
+  if (iv.name === "ContainedIn" && n === 0) return `${head}. A port that belongs to no element (no IfcRelConnectsPortToElement): a system check cannot tell what it connects`;
+  if (iv.max === 1 && /^(ContainedInStructure|Decomposes|FillsVoids|Nests|IsTypedBy|IsDeclaredBy)$/.test(iv.name)) return `${head}. An IDS partOf or type check follows one of these links; with ${n}, the answer depends on which one a tool takes`;
+  if (iv.min > 0 && n === 0) return `${head}. Nothing points at it, so it is orphaned: a reader that walks from the model's root never reaches it`;
+  return `${head}`;
 }
 
 // The three header records ISO 10303-21 requires, against their fixed
@@ -292,7 +387,7 @@ export function header(text) {
 // CLI and the text report.
 export function conformanceText(r, { max = 50 } = {}) {
   const gs = [...r.groups].sort((x, y) => y.count - x.count);
-  if (!gs.length) return `${r.schema}: ${r.records.toLocaleString("en-US")} records, every one follows the schema as far as this checks (attribute counts, types, enumerations, derived slots, references, header, IfcApplication and IFC2X3 group rules)\n`;
+  if (!gs.length) return `${r.schema}: ${r.records.toLocaleString("en-US")} records, every one follows the schema as far as this checks (attribute counts, types, enumerations, derived slots, references, header, IfcApplication rules, inverse counts)\n`;
   const out = [`${r.schema}: ${r.findings.length.toLocaleString("en-US")} schema fault(s) in ${gs.length} kind(s) across ${r.records.toLocaleString("en-US")} records`];
   for (const g of gs.slice(0, max)) out.push(`${g.count > 1 ? `${g.count.toLocaleString("en-US")} x ` : ""}${g.message}${g.count > 1 ? " (first shown)" : ""}`);
   if (gs.length > max) out.push(`and ${gs.length - max} more kind(s): --json lists every finding`);
