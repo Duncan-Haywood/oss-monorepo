@@ -185,6 +185,7 @@ import {
   siteStructuredData,
 } from './home.mjs';
 import { servedPath } from './served-path.mjs';
+import { loadFunnel, offerTable, OFFER_ATTR, renderProductOffer } from './product-offer.mjs';
 import { acquireBuildLock, waitForBuildLock } from './build-lock.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -10895,7 +10896,7 @@ const CHROME_CSS = `
 .pf-chrome-foot ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px 18px;
   grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr))}
 .pf-chrome-foot li{margin:0}
-.pf-chrome-foot p.pf-ask{margin:0 0 18px;padding:10px 14px;border:1px solid var(--pf-line);border-left-width:4px;border-radius:8px}
+.pf-chrome-foot p.pf-ask,.pf-chrome-foot p.pf-product{margin:0 0 18px;padding:10px 14px;border:1px solid var(--pf-line);border-left-width:4px;border-radius:8px}
 .pf-ci{margin:0 0 14px}
 .pf-ci summary{cursor:pointer;font-weight:600}
 .pf-ci pre{overflow-x:auto;margin:0 0 10px;padding:8px 10px;border:1px solid var(--pf-line);border-radius:6px;font-size:.82rem}
@@ -11091,6 +11092,8 @@ const CHROME_SCRIPT = ({ counterUrl = '' } = {}) => `
       if(!t)return;
       var a=t.closest('[data-pf-to]');
       if(a)bump('cross_tool_click:'+a.getAttribute('data-pf-to'));
+      var o=t.closest('[${OFFER_ATTR}]');
+      if(o)bump('product_offer_click:'+o.getAttribute('${OFFER_ATTR}'));
       if(t.closest('[${SPONSOR_LINK_ATTR}]'))bump('${SPONSOR_CLICK_EVENT}');
     });
   }catch(e){}
@@ -12124,7 +12127,7 @@ function crumbShort(name) {
  */
 export const FOOTER_LEAD_NOT_A_BROWSER_TOOL = 'More from the same free, open-source catalogue.';
 
-export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [], linkedCss = '', browserTool = true }) {
+export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [], linkedCss = '', browserTool = true, offer = null, offerName = '' }) {
   if (html.includes(CHROME_MARKER)) return html;
   const initialBody = locateBody(html);
   if (!initialBody) return html;
@@ -12251,7 +12254,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   const askLine = `    <p class="pf-ask"><strong>Need this tool to do more?</strong> <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}?kind=feature&tool=${encodeURIComponent(slug)}#request`)}">Request a feature</a>, built free and in public, or <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}?kind=problem&tool=${encodeURIComponent(slug)}#request`)}">tell us what is wrong</a>.</p>\n`;
   const footer = `<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
   <div class="pf-inner">
-${askLine}    <h2>More free tools</h2>
+${askLine}${renderProductOffer({ offer, name: offerName, toRoot })}    <h2>More free tools</h2>
     <p>${externalCallHosts.length
       ? `Everything on this page runs in your browser too, except this one lookup: what you type here also goes to ${listProse(externalCallHosts)}, because that is what checking it means — see the note on this page for exactly what is sent.`
       : browserTool
@@ -12393,6 +12396,8 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
 
   // Every footer's related tools, ranked and balanced once (`relatedToolsTable`).
   const relatedTable = relatedToolsTable(surfaces);
+  // The product each free tool's footer names, if any (`product-offer.mjs`).
+  const offers = offerTable(loadFunnel(), new Set(surfaces.map((surface) => surface.slug)));
   const perSurface = await mapLimit(surfaces, 16, async (surface) => {
     const found = { wrapped: [], rated: [], saved: [], shared: [], described: [], highlighted: [], narrowed: [], embedded: [] };
     const { wrapped, rated, saved, shared, described, highlighted, narrowed, embedded } = found;
@@ -12436,6 +12441,8 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         // electronics academy's index pages are hubs; their calculators are
         // pages inside them).
         browserTool: (names.get(surface.slug)?.browserTool ?? true) || hasOwnControls(html),
+        offer: offers.get(surface.slug) ?? null,
+        offerName: offers.has(surface.slug) ? names.get(offers.get(surface.slug).product)?.name : '',
       })), toRoot);
       // After the chrome, which guarantees the canonical this repairs, and read
       // from the venture's *own* markup: a deep SEO page inside a tool has its
