@@ -1681,7 +1681,17 @@ their edge unchanged, and averaging $k$ namings shrinks the noise somewhat
 slower than $1/\sqrt{k}$ (the ratio of the $k = 1$ to $k = 3$ standard
 deviations is 2.03 against 2.45 for independent noise sampled without
 replacement). Per-design differences under about 4 points in a table built
-from one naming are therefore ties. Two intermediate releases (0.47, 0.51)
+from one naming are therefore ties. Milestone 165 (\texttt{experiments/\allowbreak{}tie\_\allowbreak{}rule/};
+replay, six predictions committed before it ran, four held) re-reads the
+blind shifter designs of milestones 118 to 133 with that rule: 31 of the
+56 with a shift-amount gate depth are ties (12 of them because SWC never
+took the ladder branch). At 32 gates or more the ladder wins 11 decided
+designs and loses 1 (sign p 0.006); below 32 it wins 5 and loses 8
+(p 0.58), with mean edge +3.18 points against -3.25 above, carried by a
+few large losses (funnel128, xor8, addsh128, fpalign128). The gate-depth
+guard's random routing below the cut is therefore insurance against rare
+large losses rather than the avoidance of a reliable one, and decided
+designs alone do not place the cut more finely than 19 to 32 gates. Two intermediate releases (0.47, 0.51)
 split the flow's \texttt{abc\ -g} gate list at the commas when it is
 passed with \texttt{-p}; with the commands in a script file
 (\texttt{-s}, which reproduces the 0.70 table exactly) they run and give
