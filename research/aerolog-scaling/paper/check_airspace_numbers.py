@@ -362,6 +362,27 @@ CHECKS = [
     ('collision_target_results.txt', 'target 1e-07 (total): k_T {1: 24}; binds (k_T < k*) in 24 of 24', 'binds in 48 of 48 layouts under every error model'),
     ('collision_target_results.txt', 'K3 1e-7 (total) never binds under G1: refuted', '4 of 6 predictions held'),
     ('collision_target_results.txt', 'GS gap sd 1.593 m', 'sd 1.593 m'),
+    # 11bg transit hold
+    ('transit_hold_results.txt', 'one band costs F(1)/F(k*) median 4.18', '**4.18** (12 operators)'),
+    ('transit_hold_results.txt', 'one band costs F(1)/F(k*) median 4.24', '**4.24** (16)'),
+    ('transit_hold_results.txt', 'sigma 12.54: r 49.9 [max 51.5], hold x1 0.0296 s, x10 0.308 s', '**49.9 m** (12 operators)'),
+    ('transit_hold_results.txt', 'sigma 12.54: r 49.7 [max 51.0], hold x1 0.0257 s, x10 0.266 s', '**49.7 m** (16)'),
+    ('transit_hold_results.txt', 'hold x1 0.0296 s, x10 0.308 s', '**0.0296 s** and **0.0257 s**'),
+    ('transit_hold_results.txt', 'hold x1 0.0257 s, x10 0.266 s', '0.308 and 0.266 s'),
+    ('transit_hold_results.txt', 'sigma 12.54: r 62.1', '(62 m for 2.5e-9)'),
+    ('transit_hold_results.txt', 'sigma 2.12: r 9.6', 'needs 9.6 m'),
+    ('transit_hold_results.txt', 'sigma 0.14: r 2.0', 'RTK 2.0 m'),
+    ('transit_hold_results.txt', "top-1% transits' share median 0.135", '0.135 and 0.118'),
+    ('transit_hold_results.txt', "top-1% transits' share median 0.118", '0.135 and 0.118'),
+    ('transit_hold_results.txt', 'hub share of hold median 0.260', 'hubs 0.26'),
+    ('transit_hold_results.txt', 'x1: median 4.07e-08 max 3.04e-07', '**3.04e-07**'),
+    ('transit_hold_results.txt', 'x1: median 8.12e-08 max 2.37e-07', '4.07e-08 and 8.12e-08'),
+    ('transit_hold_results.txt', 'r=50 1.16 [18.4]', '1.16 s (worst layout 18.4 s)'),
+    ('transit_hold_results.txt', 'r=50 1.36e+03', '1 360 s and 102 s'),
+    ('transit_hold_results.txt', 'r=50 102 [', '1 360 s and 102 s'),
+    ('transit_hold_results.txt', 'c_samp/c_full - 1 median +0.005 [-0.082, +0.084]', 'within 8.4%'),
+    ('transit_hold_results.txt', 'T5 hover exposure < 1e-7 per flight hour in every layout: refuted', '4 of 6 predictions held. At the Remote ID'),
+    ('transit_hold_results.txt', 'T6 Remote ID bound: hold at the 1e-7 radius < 1 s (median, both M): held', 'meets 1e-7 for under 0.31 s per flight'),
 ]
 
 
