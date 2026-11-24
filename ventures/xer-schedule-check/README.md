@@ -1001,6 +1001,42 @@ file, 1,628 of 2,495 activities in progress keep a remaining duration shorter th
 planted defects named with their kind on three seeds, with no unplanted activity's flags changed.
 The thresholds are review conventions, not a standard, and are options.
 
+## Contract specification check (2026-11-24)
+
+Every contract with a CPM schedule has a scheduling section (CSI 01 32 16, UFGS 01 32 01.00 10
+on US federal work, a state DOT's progress-schedule article) that says what the baseline and
+each update must look like. The owner's reviewer checks each submittal against that list before
+accepting it. The numbers differ contract by contract, so `spec.mjs` builds none in: the reviewer
+types them from their own contract (a rule left blank is not checked), saves them as a small JSON
+rules file, and runs every update against the same file. The rules it can check:
+
+- longest original duration in working days on the activity's own calendar (open work;
+  milestones, level of effort and WBS summaries left out), with words that exempt an activity
+  by ID or name (procurement, submittals, curing);
+- longest lag, no leads, no start-to-finish links;
+- which P6 constraint types are allowed, and the most open activities that may carry one;
+- one start and one finish activity only;
+- largest stored total float on open work;
+- activity code types every activity must carry (by the code type's name);
+- shortest activity name, and no two activities with the same name in one WBS;
+- every activity resource-loaded, every activity cost-loaded, the budget summing to the contract
+  value within a tolerance, and no activity holding more than a set share of the budget;
+- named contract milestones present as milestones (an ordinary activity with the name is
+  pointed out);
+- retained logic, the activity count, and the submittal's data date.
+
+Each rule comes back met or not met (or a note when the file cannot answer it, such as a float
+rule on a file with no stored float), with every activity or relationship behind a miss. On the
+page: **Check against the specification**, **Save rules (JSON)**, **Load rules**, and the CSV.
+CLI: `node cli.mjs schedule.xer --spec rules.json [--csv spec.csv] [--json] [--project CODE]`,
+which exits 1 when a rule is not met, so a folder of updates can be screened in a script.
+
+**How it was checked** (eval/spec-check-2026-11-24.md): on the six public XERs, each rule's
+count of failures recounted straight from the raw tables, without the scheduling model: 64 of 64
+counts agree; 508 ms on the 16,146-activity CCA file. 16 unit tests pin each rule's edges
+(`spec.test.mjs`). Not yet checked against a real contract's specification and a reviewer's own
+read of the same submittal.
+
 ## Make open-ended activities critical (2026-11-24)
 
 P6's schedule option **Make open-ended activities critical** (`sched_open_critical_flag` in the
@@ -1165,6 +1201,7 @@ button drifts. Search impressions not measured yet.
 | A schedule-quality trend from a paid analytics subscription, or a spreadsheet of each month's DCMA scores kept by hand | Per-update quality scores and float trends, per project or per seat, or whatever the scheduler copies across | The DCMA points, critical counts and driving-path churn for every update at once, BEI against the first update rather than the planned dates P6 resets, what newly fails each month by activity, and the activities losing float with months to zero, free in the browser |
 | An as-planned vs as-built exhibit made by hand (baseline and final update printed side by side, a critical path picked by eye, bars coloured in Excel), or billed by a claims consultant | Shows the plan beside the record; the path and the attribution are argued about because nobody can see how they were picked | The as-built critical path found from the actual dates (a model that lands every activity on them), the plan beside actual activity by activity, and the delay split into late starts, longer durations and planned gaps used up that add up exactly to the delay, free in the browser |
 | A collapsed as-built built by hand by a claims consultant (actual durations typed in, "as-built lags" set link by link until the dates line up, delays deleted, rescheduled in P6), billed by the hour | A model that may or may not reproduce the as-built dates, often not shown; a week of expert time per analysis | The model from the final XER in seconds, with a count of how many activities it lands on their as-built dates; the but-for finish by party and by event and the concurrent days; every as-built gap listed; the model and the collapsed schedule as XERs to check in P6 |
+| Checking a submittal against the contract's scheduling section by hand (a P6 layout filtered per requirement), or a paid analytics product's custom metric library | An afternoon per update for whoever holds P6; the paid products set custom thresholds per seat | Type the limits from the contract once (durations, lags, constraints allowed, required codes, cost loading to the contract value, milestones), save them as a rules file, and get met / not met with every activity behind a miss for each update, free in the browser |
 | A GAO Schedule Assessment Guide review done by hand (layouts filtered practice by practice), or a paid analytics product's GAO metric library | An auditor's or scheduler's afternoon per update; a per-seat licence | The ten practices scored from the XER, every test with its threshold and the activities behind each failure, practice 10 against the real baseline file, a printable scorecard and CSV, free in the browser |
 | Paid P6 XML to XER converters, or importing the XML into a P6 database and exporting an XER (needs a P6 seat) | Get an EPPM or Primavera Cloud export into the XER a reviewer or claims tool asks for | The XER straight from the P6 XML in a browser tab, free, nothing uploaded, and every check on this page runs on the XML itself; checked against MPXJ on six public files (239,338 of 239,338 fields read the same) |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
@@ -1731,6 +1768,8 @@ values) downloads as a CSV from the page or `node cli.mjs file.xer --schedule ou
 
 ## Files
 
+`spec.mjs` is the contract specification check (`specCheck`, `parseRules`, `rulesJson`, `specText`,
+`specCsv`, `specTableHtml`, `RULES`); `eval/spec-check.mjs` recounts each rule from the raw tables.
 `progress.mjs` is the progress review (`progressReview`, `progressText`, `progressCsv`,
 `progressTableHtml`); `eval/progress-check.mjs` plants progress defects in the public files.
 `calreview.mjs` is the calendar review (`calendarReview`, `calendarText`, `calendarCsv`,

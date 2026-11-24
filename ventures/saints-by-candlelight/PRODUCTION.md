@@ -218,7 +218,8 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Job's three daughters, Jemimah, Keziah and Keren-happuch, the end of the book told gently, the inheritance among their brothers (Job 42:7-17; left by episode 166).
 - The twelve leaders and the dedication of the altar, twelve days and the same gift each day, six covered wagons and twelve oxen for the Levites (Numbers 7; left by episode 167).
 - The cloud over the tabernacle and the two silver trumpets, setting out from Sinai, Hobab asked to be their eyes, and 'Arise, O Lord' when the ark set out (Numbers 9:15 to 10:36; left by episode 167).
-- Rachel on the road to Ephrath, the midwife who said do not be afraid, Ben-oni who became Benjamin, and the pillar on her grave (Genesis 35:16-20, with Jeremiah 31:15 and Matthew 2:18; left by episode 171).
+- The new king who did not know Joseph and the store cities of Pithom and Raamses, the bricks and the people who multiplied anyway, told as a quieter episode about work and its dignity (Exodus 1:1-14, with Genesis 50:22-26; left by episode 171).
+- Rachel on the road to Ephrathah and the midwife who said do not be afraid, Benjamin, son of my sorrow and son of my right hand (Genesis 35:16-20; left by episode 171).
 - The bitter water at Marah and the piece of wood thrown in, then Elim with its twelve springs and seventy palm trees (Exodus 15:22-27; left by episode 170).
 - The bronze serpent on the pole, the people who looked and lived (Numbers 21:4-9, with Wisdom 16:5-7 and John 3:14-15; left by episode 163).
 

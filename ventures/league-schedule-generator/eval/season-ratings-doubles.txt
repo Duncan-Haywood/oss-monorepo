@@ -1,0 +1,43 @@
+Synthetic doubles: 16 players, 4 courts x 4 rounds a night, games to 11 played rally by rally, 200 seasons per cell.
+Mean Spearman rho between each table's order and the true order (1 = exact). Bracket: 2.5th-97.5th percentile over seasons.
+
+
+Random partners and opponents every round (Americano-style):
+method | 2 nights | 4 nights | 8 nights | 12 nights
+win percentage | 0.372 [-0.12, 0.73] | 0.486 [0.08, 0.77] | 0.627 [0.29, 0.87] | 0.705 [0.43, 0.90]
+points difference (Americano table) | 0.396 [-0.12, 0.74] | 0.522 [0.08, 0.79] | 0.669 [0.36, 0.88] | 0.745 [0.51, 0.92]
+Glicko-2, wins only | 0.337 [-0.24, 0.68] | 0.453 [0.02, 0.76] | 0.589 [0.17, 0.84] | 0.664 [0.31, 0.89]
+Glicko-2, margin 0.5 | 0.354 [-0.21, 0.69] | 0.476 [0.03, 0.77] | 0.617 [0.24, 0.84] | 0.693 [0.36, 0.90]
+Glicko-2, margin 1 | 0.393 [-0.14, 0.74] | 0.508 [0.03, 0.79] | 0.650 [0.31, 0.88] | 0.726 [0.46, 0.91]
+Whole-season fit, wins only | 0.334 [-0.16, 0.66] | 0.452 [0.01, 0.80] | 0.615 [0.23, 0.86] | 0.693 [0.38, 0.89]
+Whole-season fit, margin 0.5 | 0.354 [-0.19, 0.67] | 0.483 [0.06, 0.80] | 0.642 [0.29, 0.88] | 0.718 [0.46, 0.91]
+Whole-season fit, margin 1 (points share) | 0.381 [-0.16, 0.71] | 0.522 [0.09, 0.80] | 0.681 [0.38, 0.89] | 0.750 [0.51, 0.92]
+
+Mexicano draw: after round 1, courts by the season table, 1 & 4 v 2 & 3 (strong meet strong):
+method | 2 nights | 4 nights | 8 nights | 12 nights
+win percentage | 0.383 [-0.07, 0.74] | 0.475 [0.05, 0.81] | 0.610 [0.24, 0.84] | 0.676 [0.39, 0.89]
+points difference (Americano table) | 0.401 [-0.09, 0.72] | 0.517 [0.14, 0.81] | 0.672 [0.32, 0.87] | 0.742 [0.49, 0.90]
+Glicko-2, wins only | 0.365 [-0.13, 0.74] | 0.473 [0.01, 0.81] | 0.620 [0.22, 0.87] | 0.695 [0.34, 0.88]
+Glicko-2, margin 0.5 | 0.387 [-0.10, 0.73] | 0.486 [0.03, 0.82] | 0.631 [0.26, 0.87] | 0.707 [0.37, 0.90]
+Glicko-2, margin 1 | 0.401 [-0.08, 0.73] | 0.504 [0.08, 0.81] | 0.642 [0.29, 0.89] | 0.713 [0.42, 0.90]
+Whole-season fit, wins only | 0.370 [-0.15, 0.73] | 0.474 [0.01, 0.80] | 0.643 [0.26, 0.87] | 0.725 [0.44, 0.91]
+Whole-season fit, margin 0.5 | 0.387 [-0.10, 0.74] | 0.493 [0.06, 0.81] | 0.658 [0.29, 0.88] | 0.738 [0.46, 0.91]
+Whole-season fit, margin 1 (points share) | 0.407 [-0.06, 0.72] | 0.511 [0.09, 0.82] | 0.675 [0.30, 0.88] | 0.749 [0.49, 0.92]
+
+Box league, singles, boxes of 4, one round = a round robin in each box, then 1 up 1 down (rounds instead of nights):
+method | 2 rounds | 4 rounds | 8 rounds | 12 rounds
+box ladder order (box, then points) | 0.703 [0.37, 0.90] | 0.743 [0.52, 0.89] | 0.773 [0.56, 0.91] | 0.785 [0.59, 0.92]
+win percentage | 0.378 [0.04, 0.70] | 0.505 [0.21, 0.76] | 0.651 [0.36, 0.83] | 0.731 [0.53, 0.88]
+points difference (Americano table) | 0.400 [-0.00, 0.70] | 0.535 [0.19, 0.79] | 0.692 [0.47, 0.89] | 0.776 [0.60, 0.89]
+Glicko-2, wins only | 0.470 [0.13, 0.77] | 0.700 [0.43, 0.88] | 0.828 [0.64, 0.94] | 0.877 [0.76, 0.96]
+Glicko-2, margin 0.5 | 0.499 [0.18, 0.79] | 0.721 [0.47, 0.90] | 0.841 [0.66, 0.94] | 0.887 [0.78, 0.96]
+Glicko-2, margin 1 | 0.526 [0.15, 0.78] | 0.743 [0.53, 0.90] | 0.855 [0.69, 0.96] | 0.901 [0.80, 0.96]
+Whole-season fit, wins only | 0.546 [0.19, 0.85] | 0.739 [0.46, 0.90] | 0.835 [0.66, 0.95] | 0.880 [0.74, 0.96]
+Whole-season fit, margin 0.5 | 0.585 [0.20, 0.85] | 0.759 [0.51, 0.91] | 0.849 [0.67, 0.95] | 0.891 [0.76, 0.96]
+Whole-season fit, margin 1 (points share) | 0.613 [0.27, 0.85] | 0.780 [0.54, 0.92] | 0.866 [0.73, 0.96] | 0.907 [0.82, 0.97]
+
+Paired, same 200 box seasons: seasons where the method's rho beats the box ladder's (ties count half).
+points difference (Americano table) | 21 of 200 | 18 of 200 | 48.5 of 200 | 87.5 of 200
+Glicko-2, margin 0.5 | 30 of 200 | 79.5 of 200 | 174 of 200 | 184 of 200
+Whole-season fit, margin 0.5 | 53 of 200 | 116.5 of 200 | 165.5 of 200 | 180.5 of 200
+Whole-season fit, margin 1 (points share) | 59 of 200 | 137.5 of 200 | 176.5 of 200 | 190 of 200

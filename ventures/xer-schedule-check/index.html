@@ -25,6 +25,10 @@
     @media (max-width: 720px) { body { padding: 16px; } }
     button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d5a8c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
     button.secondary { background: #e3ebf2; color: #163a59; }
+    .spec-form p label, .spec-form fieldset label { display: inline; font-weight: 400; margin: 0; }
+    .spec-form legend label { font-weight: 600; }
+    label[for=spec-load] { display: inline-block; border-radius: 8px; padding: 11px 15px; background: #e3ebf2; color: #163a59; font-weight: 700 !important; cursor: pointer; margin: 14px 8px 0 0 !important; }
+    label[for=spec-load]:has(+ #spec-load:focus-visible) { outline: 2px solid #1d5a8c; }
     .drop { border: 2px dashed #9fb3c4; border-radius: 12px; padding: 18px; text-align: center; margin-top: 10px; }
     .drop.over { background: #e8f1f8; border-color: #1d5a8c; }
     .tablewrap { overflow-x: auto; }
@@ -305,6 +309,17 @@
     </p>
     <p class="note" id="prog-status"></p>
     <div id="prog-out" class="tablewrap"></div>
+    <h2 style="margin-top:22px" id="spec">Contract specification check: does the submittal meet the scheduling section?</h2>
+    <p class="note">Every contract with a CPM schedule has a scheduling section (CSI 01 32 16, a federal or state DOT progress-schedule article) that says what a baseline and each update must look like: no activity longer than so many working days, no lags over so many days, no leads, which constraints are allowed, the activity codes every activity carries, the budget cost-loaded to the contract value, the contract milestones present. Type the limits from your own contract (a blank rule is not checked; none are built in, because every contract differs), save them as a rules file, and run each update against the same file. Each requirement gets met or not met, with every activity behind a miss.</p>
+    <details id="spec-rules-box"><summary>Rules from your contract</summary><div id="spec-form" class="spec-form"></div></details>
+    <p class="row">
+      <button type="button" id="spec-run" class="secondary">Check against the specification</button>
+      <button type="button" id="spec-save" class="secondary">Save rules (JSON)</button>
+      <label for="spec-load">Load rules</label><input type="file" id="spec-load" accept=".json,application/json" style="position:absolute;opacity:0;width:1px;height:1px">
+      <button type="button" id="spec-csv" class="secondary" hidden>Download results (CSV)</button>
+    </p>
+    <p class="note" id="spec-status"></p>
+    <div id="spec-out" class="tablewrap"></div>
     <h2 style="margin-top:22px" id="calendars">Calendar review: holidays, hours per day and working weeks</h2>
     <p class="note">Every date is counted on a work calendar, and calendars are the part of a schedule reviewers read least. This reads each one and flags a holiday list that stops before the work does (the late years then count Christmas, New Year and every public holiday as working days, so the forecast is early), and says how far the finish moves when the missing years get the calendar's own holidays back. It also flags an Hours per Day figure that differs from the hours the days hold (a 9-hour calendar labelled 8 shows a 10-day activity that takes 8.9 of its days), calendars named for a different week than they work, no holidays at all, critical work on seven-day calendars, duplicates and unused calendars. Three of the six public P6 files tried had a holiday list that ran out.</p>
     <p class="row">
@@ -536,6 +551,7 @@
       <li><a href="./how-to-find-critical-path-drag-in-a-p6-schedule.html">How to find critical path drag in a P6 schedule</a></li>
       <li><a href="./how-to-find-redundant-logic-in-a-p6-schedule.html">How to find redundant logic in a P6 schedule</a></li>
       <li><a href="./how-to-review-the-calendars-in-a-p6-schedule.html">How to review the calendars in a P6 schedule</a></li>
+      <li><a href="./how-to-check-a-p6-schedule-against-the-contract-specification.html">How to check a P6 schedule against the contract specification</a></li>
       <li><a href="./how-to-convert-p6-xml-to-xer.html">How to convert a P6 XML file to XER</a></li>
       <li><a href="./how-to-run-a-collapsed-as-built-delay-analysis.html">How to run a collapsed as-built delay analysis</a></li>
       <li><a href="./how-to-run-an-as-planned-vs-as-built-schedule-analysis.html">How to run an as-planned vs as-built schedule analysis</a></li>
@@ -549,7 +565,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal, contractual or scheduling advice, and it does not replace a qualified scheduler, the scheduling software of record or the contract's own requirements. Results are computed from the file you open and may differ from your scheduling software. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera or the Defense Contract Management Agency. Primavera and P6 are trademarks of their owners and are named only to describe the file format this tool reads.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you open, or that a URL will keep working. Do not use this as a system of record: nothing you open is saved anywhere.</p>
-    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>tia_party_split</code>, <code>tia_stepwise</code>, <code>collapse_run</code>, <code>as_planned_compared</code>, <code>drag_run</code>, <code>redundant_found</code>, <code>progress_reviewed</code>, <code>calendars_reviewed</code>, <code>gao_scored</code>, <code>crash_run</code>, <code>converted_to_project</code>, <code>converted_to_excel</code>, <code>converted_to_p6</code>, <code>narrative_written</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your schedule is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>, <code>updates_compared</code>, <code>windows_analysed</code>, <code>constraints_log_used</code>, <code>tia_run</code>, <code>tia_party_split</code>, <code>tia_stepwise</code>, <code>collapse_run</code>, <code>as_planned_compared</code>, <code>drag_run</code>, <code>redundant_found</code>, <code>progress_reviewed</code>, <code>spec_checked</code>, <code>calendars_reviewed</code>, <code>gao_scored</code>, <code>crash_run</code>, <code>converted_to_project</code>, <code>converted_to_excel</code>, <code>converted_to_p6</code>, <code>narrative_written</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More for builders: <a href="../submittal-register/">submittal register from the spec book</a>, <a href="../ids-model-check/">IFC model check against an IDS</a>, <a href="../wall-framing-takeoff/">wall framing takeoff</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -591,6 +607,7 @@
     const dragModule = onDemand(() => import("./drag.mjs"));
     const redModule = onDemand(() => import("./redundant.mjs"));
     const progModule = onDemand(() => import("./progress.mjs"));
+    const specModule = onDemand(() => import("./spec.mjs"));
     const calModule = onDemand(() => import("./calreview.mjs"));
     const exampleSeriesModule = onDemand(() => import("./example-series.mjs"));
     const calslackModule = onDemand(() => import("./calslack.mjs"));
@@ -986,6 +1003,82 @@
       }, 20);
     });
     $("#prog-csv").addEventListener("click", async () => { if (!lastProg) return; const { progressCsv } = await progModule(); save(new Blob([progressCsv(lastProg)], { type: "text/csv" }), `${fileName}-progress-review.csv`); record("findings_downloaded"); });
+    // contract specification check: the form is built from spec.mjs's RULES
+    let lastSpec = null, specBuilt = false;
+    const SPEC_KEY = "xer-spec-rules";
+    const specRead = () => { try { return localStorage.getItem(SPEC_KEY) || ""; } catch { return ""; } };
+    const specKeep = (txt) => { try { localStorage.setItem(SPEC_KEY, txt); } catch { /* private mode */ } };
+    async function specForm(fill = null) {
+      const { RULES, CONSTRAINTS, parseRules } = await specModule();
+      const vals = fill || parseRules(specRead() || "{}").rules;
+      const box = $("#spec-form");
+      box.innerHTML = RULES.map((r) => {
+        const id = `spec-${r.key}`, v = vals[r.key];
+        const hint = r.hint ? `<span class="note" style="display:block;font-weight:400">${esc(r.hint)}</span>` : "";
+        if (r.type === "bool") return `<p style="margin:10px 0"><input type="checkbox" id="${id}"${v ? " checked" : ""}> <label for="${id}">${esc(r.label)}</label></p>`;
+        if (r.type === "constraints") {
+          const on = v !== undefined;
+          return `<fieldset style="border:1px solid #c5ced6;border-radius:7px;margin:12px 0"><legend><input type="checkbox" id="${id}-on"${on ? " checked" : ""}> <label for="${id}-on">${esc(r.label)}</label></legend>${hint}${CONSTRAINTS.map(([c, n]) => `<span style="display:inline-block;margin:4px 12px 4px 0"><input type="checkbox" id="spec-cstr-${c}" data-cstr="${c}"${on && v.includes(c) ? " checked" : ""}> <label for="spec-cstr-${c}">${esc(n)}</label></span>`).join("")}</fieldset>`;
+        }
+        const val = Array.isArray(v) ? v.join(r.key === "milestones" ? "\n" : ", ") : v ?? "";
+        const unit = r.unit && r.unit !== "currency" ? ` (${esc(r.unit)})` : "";
+        if (r.key === "milestones") return `<label for="${id}">${esc(r.label)}${hint}</label><textarea id="${id}" rows="3">${esc(val)}</textarea>`;
+        const type = r.type === "number" ? "number" : r.type === "date" ? "date" : "text";
+        return `<label for="${id}">${esc(r.label)}${unit}${hint}</label><input type="${type}" id="${id}" value="${esc(val)}"${type === "number" ? ' min="0" step="any"' : ""}>`;
+      }).join("");
+      specBuilt = true;
+    }
+    async function specValues() {
+      const { RULES } = await specModule();
+      const o = {};
+      for (const r of RULES) {
+        const el = document.getElementById(`spec-${r.key}`);
+        if (r.type === "bool") { if (el && el.checked) o[r.key] = true; continue; }
+        if (r.type === "constraints") { if ($(`#spec-${r.key}-on`).checked) o[r.key] = [...document.querySelectorAll("#spec-form [data-cstr]")].filter((x) => x.checked).map((x) => x.dataset.cstr); continue; }
+        if (el && el.value.trim() !== "") o[r.key] = el.value.trim();
+      }
+      return o;
+    }
+    $("#spec-rules-box").addEventListener("toggle", () => { if (!specBuilt) specForm(); });
+    $("#spec-run").addEventListener("click", async () => {
+      const st = $("#spec-status");
+      if (!specBuilt) { await specForm(); $("#spec-rules-box").open = true; }
+      if (!xer || !last) { st.textContent = "Open a schedule first (or load the example above)."; return; }
+      const { specCheck, specTableHtml, parseRules, rulesJson } = await specModule();
+      const raw = await specValues();
+      const { rules } = parseRules(raw);
+      if (!Object.keys(rules).length) { $("#spec-rules-box").open = true; st.textContent = "Type at least one limit from your contract's scheduling section first."; return; }
+      specKeep(rulesJson(rules));
+      st.textContent = "Checking...";
+      setTimeout(() => {
+        try {
+          const r = specCheck(xer, raw);
+          lastSpec = r;
+          st.innerHTML = `<b>${esc(r.failed)}</b> of ${esc(r.checked)} requirements not met, ${esc(r.passed)} met (${esc(r.activities)} activities, ${esc(r.relationships)} relationships).`;
+          $("#spec-out").innerHTML = specTableHtml(r) + (r.warnings.length ? `<p class="note">${r.warnings.map(esc).join("<br>")}</p>` : "");
+          $("#spec-csv").hidden = !r.results.length;
+          record("spec_checked");
+        } catch (e) { st.textContent = `Could not run: ${e.message}`; $("#spec-out").innerHTML = ""; }
+      }, 20);
+    });
+    $("#spec-save").addEventListener("click", async () => {
+      if (!specBuilt) await specForm();
+      const { parseRules, rulesJson } = await specModule();
+      const { rules } = parseRules(await specValues());
+      save(new Blob([rulesJson(rules)], { type: "application/json" }), "schedule-spec-rules.json");
+    });
+    $("#spec-load").addEventListener("change", async (ev) => {
+      const f = ev.target.files[0];
+      if (!f) return;
+      const { parseRules, rulesJson } = await specModule();
+      const { rules, problems } = parseRules(await f.text());
+      await specForm(rules);
+      $("#spec-rules-box").open = true;
+      specKeep(rulesJson(rules));
+      $("#spec-status").textContent = `Loaded ${Object.keys(rules).length} rules from ${f.name}${problems.length ? `; ${problems.join("; ")}` : ""}.`;
+      ev.target.value = "";
+    });
+    $("#spec-csv").addEventListener("click", async () => { if (!lastSpec) return; const { specCsv } = await specModule(); save(new Blob([specCsv(lastSpec)], { type: "text/csv" }), `${fileName}-specification-check.csv`); record("findings_downloaded"); });
     let lastDrag = null;
     $("#drag-run").addEventListener("click", () => {
       const st = $("#drag-status");

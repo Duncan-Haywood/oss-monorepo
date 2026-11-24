@@ -1,0 +1,450 @@
+{
+  "rules": "see header",
+  "files": [
+    {
+      "file": "CCA_R03_dt_24Oct11SC.xer",
+      "activities": 16146,
+      "relationships": 47286,
+      "ms": 508,
+      "fallbackCalendar": false,
+      "agree": true,
+      "rows": [
+        {
+          "rule": "maxDuration",
+          "specCheck": 9005,
+          "raw": 9005,
+          "agree": true
+        },
+        {
+          "rule": "maxLag",
+          "specCheck": 2340,
+          "raw": 2340,
+          "agree": true
+        },
+        {
+          "rule": "noLeads",
+          "specCheck": 3,
+          "raw": 3,
+          "agree": true
+        },
+        {
+          "rule": "noStartToFinish",
+          "specCheck": 1,
+          "raw": 1,
+          "agree": true
+        },
+        {
+          "rule": "allowedConstraints",
+          "specCheck": 36,
+          "raw": 36,
+          "agree": true
+        },
+        {
+          "rule": "singleStartFinish",
+          "specCheck": 3,
+          "raw": 3,
+          "agree": true
+        },
+        {
+          "rule": "minNameLength",
+          "specCheck": 3,
+          "raw": 3,
+          "agree": true
+        },
+        {
+          "rule": "resourceLoaded",
+          "specCheck": 0,
+          "raw": 0,
+          "agree": true
+        },
+        {
+          "rule": "costLoaded",
+          "specCheck": 13703,
+          "raw": 13703,
+          "agree": true
+        },
+        {
+          "rule": "maxActivityValuePct",
+          "specCheck": 1,
+          "raw": 1,
+          "agree": true
+        },
+        {
+          "rule": "requiredCodes",
+          "specCheck": 15719,
+          "raw": 15719,
+          "agree": true
+        }
+      ]
+    },
+    {
+      "file": "Expressway_Project.xer",
+      "activities": 823,
+      "relationships": 1094,
+      "ms": 19,
+      "fallbackCalendar": false,
+      "agree": true,
+      "rows": [
+        {
+          "rule": "maxDuration",
+          "specCheck": 399,
+          "raw": 399,
+          "agree": true
+        },
+        {
+          "rule": "maxLag",
+          "specCheck": 27,
+          "raw": 27,
+          "agree": true
+        },
+        {
+          "rule": "noLeads",
+          "specCheck": 38,
+          "raw": 38,
+          "agree": true
+        },
+        {
+          "rule": "noStartToFinish",
+          "specCheck": 0,
+          "raw": 0,
+          "agree": true
+        },
+        {
+          "rule": "allowedConstraints",
+          "specCheck": 0,
+          "raw": 0,
+          "agree": true
+        },
+        {
+          "rule": "singleStartFinish",
+          "specCheck": 112,
+          "raw": 112,
+          "agree": true
+        },
+        {
+          "rule": "minNameLength",
+          "specCheck": 17,
+          "raw": 17,
+          "agree": true
+        },
+        {
+          "rule": "resourceLoaded",
+          "specCheck": 223,
+          "raw": 223,
+          "agree": true
+        },
+        {
+          "rule": "costLoaded",
+          "specCheck": 800,
+          "raw": 800,
+          "agree": true
+        },
+        {
+          "rule": "maxActivityValuePct",
+          "specCheck": 3,
+          "raw": 3,
+          "agree": true
+        }
+      ]
+    },
+    {
+      "file": "example_xer_file.xer",
+      "activities": 425,
+      "relationships": 555,
+      "ms": 12,
+      "fallbackCalendar": true,
+      "agree": true,
+      "rows": [
+        {
+          "rule": "maxDuration",
+          "specCheck": 42,
+          "raw": 42,
+          "agree": true
+        },
+        {
+          "rule": "maxLag",
+          "specCheck": 8,
+          "raw": 8,
+          "agree": true
+        },
+        {
+          "rule": "noLeads",
+          "specCheck": 18,
+          "raw": 18,
+          "agree": true
+        },
+        {
+          "rule": "noStartToFinish",
+          "specCheck": 0,
+          "raw": 0,
+          "agree": true
+        },
+        {
+          "rule": "allowedConstraints",
+          "specCheck": 0,
+          "raw": 0,
+          "agree": true
+        },
+        {
+          "rule": "singleStartFinish",
+          "specCheck": 41,
+          "raw": 41,
+          "agree": true
+        },
+        {
+          "rule": "minNameLength",
+          "specCheck": 0,
+          "raw": 0,
+          "agree": true
+        },
+        {
+          "rule": "resourceLoaded",
+          "specCheck": 109,
+          "raw": 109,
+          "agree": true
+        },
+        {
+          "rule": "costLoaded",
+          "specCheck": 109,
+          "raw": 109,
+          "agree": true
+        },
+        {
+          "rule": "maxActivityValuePct",
+          "specCheck": 2,
+          "raw": 2,
+          "agree": true
+        },
+        {
+          "rule": "requiredCodes",
+          "specCheck": 425,
+          "raw": 425,
+          "agree": true
+        }
+      ]
+    },
+    {
+      "file": "hotel-project.xer",
+      "activities": 4236,
+      "relationships": 7586,
+      "ms": 68,
+      "fallbackCalendar": false,
+      "agree": true,
+      "rows": [
+        {
+          "rule": "maxDuration",
+          "specCheck": 277,
+          "raw": 277,
+          "agree": true
+        },
+        {
+          "rule": "maxLag",
+          "specCheck": 547,
+          "raw": 547,
+          "agree": true
+        },
+        {
+          "rule": "noLeads",
+          "specCheck": 1,
+          "raw": 1,
+          "agree": true
+        },
+        {
+          "rule": "noStartToFinish",
+          "specCheck": 1,
+          "raw": 1,
+          "agree": true
+        },
+        {
+          "rule": "allowedConstraints",
+          "specCheck": 20,
+          "raw": 20,
+          "agree": true
+        },
+        {
+          "rule": "singleStartFinish",
+          "specCheck": 46,
+          "raw": 46,
+          "agree": true
+        },
+        {
+          "rule": "minNameLength",
+          "specCheck": 8,
+          "raw": 8,
+          "agree": true
+        },
+        {
+          "rule": "resourceLoaded",
+          "specCheck": 2807,
+          "raw": 2807,
+          "agree": true
+        },
+        {
+          "rule": "costLoaded",
+          "specCheck": 2861,
+          "raw": 2861,
+          "agree": true
+        },
+        {
+          "rule": "maxActivityValuePct",
+          "specCheck": 0,
+          "raw": 0,
+          "agree": true
+        },
+        {
+          "rule": "requiredCodes",
+          "specCheck": 475,
+          "raw": 475,
+          "agree": true
+        }
+      ]
+    },
+    {
+      "file": "sample.xer",
+      "activities": 52,
+      "relationships": 61,
+      "ms": 1,
+      "fallbackCalendar": false,
+      "agree": true,
+      "rows": [
+        {
+          "rule": "maxDuration",
+          "specCheck": 0,
+          "raw": 0,
+          "agree": true
+        },
+        {
+          "rule": "maxLag",
+          "specCheck": 0,
+          "raw": 0,
+          "agree": true
+        },
+        {
+          "rule": "noLeads",
+          "specCheck": 0,
+          "raw": 0,
+          "agree": true
+        },
+        {
+          "rule": "noStartToFinish",
+          "specCheck": 0,
+          "raw": 0,
+          "agree": true
+        },
+        {
+          "rule": "allowedConstraints",
+          "specCheck": 0,
+          "raw": 0,
+          "agree": true
+        },
+        {
+          "rule": "singleStartFinish",
+          "specCheck": 0,
+          "raw": 0,
+          "agree": true
+        },
+        {
+          "rule": "minNameLength",
+          "specCheck": 35,
+          "raw": 35,
+          "agree": true
+        },
+        {
+          "rule": "resourceLoaded",
+          "specCheck": 30,
+          "raw": 30,
+          "agree": true
+        },
+        {
+          "rule": "costLoaded",
+          "specCheck": 30,
+          "raw": 30,
+          "agree": true
+        },
+        {
+          "rule": "maxActivityValuePct",
+          "specCheck": "note",
+          "raw": "note",
+          "agree": true
+        }
+      ]
+    },
+    {
+      "file": "terminal-building-airport.xer",
+      "activities": 66,
+      "relationships": 84,
+      "ms": 1,
+      "fallbackCalendar": false,
+      "agree": true,
+      "rows": [
+        {
+          "rule": "maxDuration",
+          "specCheck": 21,
+          "raw": 21,
+          "agree": true
+        },
+        {
+          "rule": "maxLag",
+          "specCheck": 7,
+          "raw": 7,
+          "agree": true
+        },
+        {
+          "rule": "noLeads",
+          "specCheck": 0,
+          "raw": 0,
+          "agree": true
+        },
+        {
+          "rule": "noStartToFinish",
+          "specCheck": 0,
+          "raw": 0,
+          "agree": true
+        },
+        {
+          "rule": "allowedConstraints",
+          "specCheck": 1,
+          "raw": 1,
+          "agree": true
+        },
+        {
+          "rule": "singleStartFinish",
+          "specCheck": 0,
+          "raw": 0,
+          "agree": true
+        },
+        {
+          "rule": "minNameLength",
+          "specCheck": 15,
+          "raw": 15,
+          "agree": true
+        },
+        {
+          "rule": "resourceLoaded",
+          "specCheck": 7,
+          "raw": 7,
+          "agree": true
+        },
+        {
+          "rule": "costLoaded",
+          "specCheck": 63,
+          "raw": 63,
+          "agree": true
+        },
+        {
+          "rule": "maxActivityValuePct",
+          "specCheck": "note",
+          "raw": "note",
+          "agree": true
+        },
+        {
+          "rule": "requiredCodes",
+          "specCheck": 15,
+          "raw": 15,
+          "agree": true
+        }
+      ]
+    }
+  ],
+  "allAgree": true
+}
