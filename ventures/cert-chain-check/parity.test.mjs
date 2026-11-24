@@ -1,5 +1,5 @@
 // The engine against what OpenSSL 3.0 itself said about the same files
-// (fixtures/openssl.json, written by tools/gen-fixtures.mjs).
+// (tests/fixtures/openssl.json, written by tools/gen-fixtures.mjs).
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -9,8 +9,8 @@ import { parseCertificate, pemBlocks, CURVES, KU_BITS } from "./x509.mjs";
 import { scan, hostMatches, sha256Hex, canonicalIp } from "./scan.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const rec = JSON.parse(readFileSync(path.join(here, "fixtures/openssl.json"), "utf8"));
-const load = (f) => readFileSync(path.join(here, "fixtures", f), "utf8");
+const rec = JSON.parse(readFileSync(path.join(here, "tests/fixtures/openssl.json"), "utf8"));
+const load = (f) => readFileSync(path.join(here, "tests", "fixtures", f), "utf8");
 const parse = (f) => parseCertificate(pemBlocks(load(f))[0].bytes);
 
 // OpenSSL's display names for what x509.mjs reads.

@@ -132,7 +132,7 @@ certificates tested are the roots above.
 - `check.mjs`: the CLI.
 - `index.html`, `certificate-chain-errors-explained.html`: the pages.
 - `usage.mjs`: local-only feature counters with an opt-out.
-- `fixtures/`, `tools/gen-fixtures.mjs`: the parity data and its generator.
+- `tests/fixtures/`, `tools/gen-fixtures.mjs`: the parity data and its generator.
 
 ## Licence
 

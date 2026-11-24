@@ -7,7 +7,7 @@ import { scan, TYPES, dnsNameMatches, canonicalIp, maxValidityFor, fullchainPem,
 import { pemBlocks, parseCertificate, DerError } from "./x509.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const fx = (f) => readFileSync(path.join(here, "fixtures", f), "utf8");
+const fx = (f) => readFileSync(path.join(here, "tests", "fixtures", f), "utf8");
 const AT = "2026-11-24T12:00:00Z";
 const types = (r) => r.findings.map((f) => f.type);
 

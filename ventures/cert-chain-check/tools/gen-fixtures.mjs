@@ -6,7 +6,7 @@
 //   node tools/gen-fixtures.mjs     (needs openssl 3.x on PATH)
 //
 // Keys are made in a temporary directory and deleted; only certificates
-// and OpenSSL's output are written to fixtures/.
+// and OpenSSL's output are written to tests/fixtures/.
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, writeFileSync, readFileSync, mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -14,7 +14,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const out = path.join(here, "..", "fixtures");
+const out = path.join(here, "..", "tests", "fixtures");
 const tmp = mkdtempSync(path.join(tmpdir(), "cert-chain-fixtures-"));
 const AT = "2026-11-24T12:00:00Z";
 const AT_EPOCH = String(Date.parse(AT) / 1000);
@@ -189,4 +189,4 @@ for (const s of SCENARIOS) {
 
 writeFileSync(path.join(out, "openssl.json"), JSON.stringify({ openssl: ossl(["version"]).trim(), at: AT, certs: certFacts, chains: chainFacts }, null, 2) + "\n");
 rmSync(tmp, { recursive: true, force: true });
-console.log(`${Object.keys(C).length} certificates, ${SCENARIOS.length} chains -> fixtures/`);
+console.log(`${Object.keys(C).length} certificates, ${SCENARIOS.length} chains -> tests/fixtures/`);

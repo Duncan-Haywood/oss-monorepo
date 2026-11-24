@@ -37,7 +37,7 @@ compared with OpenSSL 3.0.13 three ways:
   the same subject, serial, fingerprint and expiry as OpenSSL, and all 120
   self-signatures verify with Web Crypto.
 
-All of it is recorded in the repository (`fixtures/openssl.json`) and
+All of it is recorded in the repository (`tests/fixtures/openssl.json`) and
 re-checked by `node --test`.
 
 ## Where it must disagree

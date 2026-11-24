@@ -201,6 +201,7 @@ ventures/cd-treasury-ladder-planner/usage.mjs
 ventures/cdl-school-payback-calculator/usage.mjs
 ventures/cdn-bandwidth-pricing-calculator/usage.mjs
 ventures/cell-tower-lease-buyout-calculator/usage.mjs
+ventures/cert-chain-check/usage.mjs
 ventures/certified-payroll-calculator/usage.mjs
 ventures/change-order-margin-calculator/usage.mjs
 ventures/changelog-keeper/usage.mjs

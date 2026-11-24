@@ -28,7 +28,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": 1,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 37,
   "outcome": "success",
@@ -36,6 +36,10 @@
     {
       "what": "run_workflow_locally --for-changes failed twice on first pass: post description 171 chars (limit 160) and sibling-links orphan budget 0 for the new venture",
       "fix": "shortened description; added a footer link and test in caa-record-check"
+    },
+    {
+      "what": "PR CI failed: validate (platform/privacy/optout-switches.txt lacked the new usage.mjs) and portfolio-pages build check (no launch date; .pem fixtures had no served Content-Type)",
+      "fix": "sync_tree_counts.py, launched.mjs --write, moved fixtures to tests/fixtures (excluded from the build); rebuilt site locally and check.mjs passed"
     }
   ],
   "integrity_issues": [],
@@ -47,6 +51,10 @@
     {
       "file": "platform/ci/run_venture_tests.py",
       "issue": "Runs check_posts.py only via the unwired checks in the full workflow run, so a per-venture run passes while the post fails; noted in its own output, but easy to miss."
+    },
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "A new venture also needs launched.mjs --write, sync_tree_counts.py (opt-out list) and only served file types outside tests/; none is in run_workflow_locally --for-changes (portfolio-pages deferred to PR CI), so they surfaced only on the PR. A 'new venture checklist' line would save a CI round."
     }
   ],
   "deviations": [],

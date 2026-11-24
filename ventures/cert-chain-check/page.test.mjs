@@ -80,7 +80,7 @@ test("the guide's worked example is the CLI's real output", () => {
 test("the page's example is the fixture certificates and finds what its status line says", async () => {
   const { scan } = await import("./scan.mjs");
   const ex = JSON.parse(index.match(/const EXAMPLE = ("[\s\S]*?");\n/)[1]);
-  assert.equal(ex, read("fixtures/certs/int.pem") + read("fixtures/certs/leaf.pem") + read("fixtures/certs/int-ec.pem"));
+  assert.equal(ex, read("tests/fixtures/certs/int.pem") + read("tests/fixtures/certs/leaf.pem") + read("tests/fixtures/certs/int-ec.pem"));
   const r = await scan(ex, { host: "api.example.test", at: "2026-11-24T12:00:00Z" });
   const types = r.findings.map((f) => f.type);
   for (const t of ["wrong-order", "unrelated-certificate", "hostname-mismatch"]) assert.ok(types.includes(t), t);
@@ -88,7 +88,7 @@ test("the page's example is the fixture certificates and finds what its status l
 });
 
 test("the parity counts on the pages are the recorded run's", () => {
-  const rec = JSON.parse(read("fixtures/openssl.json"));
+  const rec = JSON.parse(read("tests/fixtures/openssl.json"));
   const nc = Object.keys(rec.certs).length, nch = rec.chains.length;
   const hosts = rec.chains.reduce((a, c) => a + Object.keys(c.opensslHostMatch).length, 0);
   for (const page of [index, read("llms.txt"), read("README.md")]) {
@@ -103,11 +103,11 @@ test("CLI: usage errors exit 1, risk exits 2 with --fail-on-risk, --fix prints P
   assert.equal(run([]).code, 1);
   assert.equal(run(["--bogus", "x"]).code, 1);
   assert.equal(run([path.join(here, "nope.pem")]).code, 1);
-  const leafOnly = path.join(here, "fixtures/chains/leaf-only.pem");
+  const leafOnly = path.join(here, "tests/fixtures/chains/leaf-only.pem");
   assert.equal(run([leafOnly, "--at", "2026-11-24", "--fail-on-risk"]).code, 2);
-  assert.equal(run([path.join(here, "fixtures/chains/good-rsa.pem"), "--at", "2026-11-24", "--fail-on-risk"]).code, 0);
+  assert.equal(run([path.join(here, "tests/fixtures/chains/good-rsa.pem"), "--at", "2026-11-24", "--fail-on-risk"]).code, 0);
   const j = JSON.parse(run([leafOnly, "--at", "2026-11-24", "--format", "json"]).out);
   assert.equal(j.verdict, "risky");
-  const fixed = run([path.join(here, "fixtures/chains/wrong-order.pem"), "--fix", "--at", "2026-11-24"]).out;
-  assert.equal(fixed, read("fixtures/certs/leaf.pem") + read("fixtures/certs/int.pem"));
+  const fixed = run([path.join(here, "tests/fixtures/chains/wrong-order.pem"), "--fix", "--at", "2026-11-24"]).out;
+  assert.equal(fixed, read("tests/fixtures/certs/leaf.pem") + read("tests/fixtures/certs/int.pem"));
 });

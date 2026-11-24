@@ -16,4 +16,4 @@ Free and open source (MIT). A static read of the certificates you give it, not a
 ## Source
 
 - [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cert-chain-check): MIT licensed.
-- [Parity fixtures and OpenSSL's recorded output](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cert-chain-check/fixtures)
+- [Parity fixtures and OpenSSL's recorded output](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cert-chain-check/tests/fixtures)
