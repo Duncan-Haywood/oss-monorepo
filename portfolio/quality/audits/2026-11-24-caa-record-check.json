@@ -216,7 +216,7 @@
    "basis": "assumed",
    "status": "open",
    "what": "unquoted presentation values still MALFORMED (C4); hostname still queried verbatim (C9)",
-   "closed_by": "PENDING"
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
   },
   {
    "index": 3,
@@ -231,7 +231,7 @@
    "basis": "assumed",
    "status": "partial",
    "what": "github.io link gone and served copy clean (sitemap/canonical example.invalid is source-only); llms.txt tax/legal boilerplate still there",
-   "closed_by": "PENDING"
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
   },
   {
    "index": 5,
@@ -247,21 +247,24 @@
    "what": "A record with reserved flag bits set (e.g. '1 issue \"letsencrypt.org\"') is rejected as malformed and dropped from the verdict, so every CA reads 'authorized' though RFC 8659 section 4.1 says interpreters MUST ignore reserved bits and the record restricts issuance to Let's Encrypt.",
    "where": "ventures/caa-record-check/parse.mjs:70",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
   },
   {
    "severity": "medium",
    "what": "Unquoted presentation values (RFC 8659 4.1.1) reported MALFORMED, and a pasted URL, port or *. prefix is queried verbatim (carried over from 2026-11-08 defect 2).",
    "where": "ventures/caa-record-check/parse.mjs:46; lookup.mjs:83",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
   },
   {
    "severity": "medium",
    "what": "Two seeded mutants survive 78 tests: issuewild dropped from the standard-tag set (a critical issuewild then blocks every CA) and verdictForCustomCa's wildcard branch reading the non-wildcard disallow flag.",
    "where": "ventures/caa-record-check/analyze.test.mjs:1",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
   },
   {
    "severity": "medium",
@@ -275,7 +278,8 @@
    "what": "Tag check is dead (presentation regex already enforces it) and allows '-', where RFC 8659 4.1 permits only ASCII letters and digits.",
    "where": "ventures/caa-record-check/parse.mjs:79",
    "category": "domain-rule",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
   },
   {
    "severity": "low",
@@ -289,9 +293,10 @@
    "what": "llms.txt says 'Results are estimates from the numbers typed in, not legal, tax, financial or professional advice', boilerplate that does not describe a DNS checker (carried over from 2026-11-08 defect 4).",
    "where": "ventures/caa-record-check/llms.txt:5",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"],
  "verdict": "The prior high defect is closed: CNAME handling now follows RFC 8659 section 3 (CAA at the alias target only, then the typed name's parent), a test pins it and a mutant that reverts it is caught; ancestor aliases are covered by the resolver chasing them. Re-checking found a new RFC departure in the other direction the prior audit worried about: a record with reserved flag bits was dropped as malformed, so every CA read 'authorized' where section 4.1 says the bits are ignored and the record restricts issuance. Unquoted values and pasted URLs were still mishandled, account binding is still not in the verdict, and two of five seeded mutants survived (a critical issuewild, the custom-CA wildcard branch). Scored as found: correctness 3, claims 3, verification 2, domain 2, so it does not meet the bar on verification. This session fixed the reserved-bit, unquoted-value, URL-input, tag-charset and llms.txt defects and added tests that kill both survivors (84 pass); accounturi and the duplicated rule chain remain in README Known gaps."
 }

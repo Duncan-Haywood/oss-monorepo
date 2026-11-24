@@ -196,7 +196,7 @@
    "basis": "assumed",
    "status": "partial",
    "what": "plan-year reset: a note now says the months cross January 1, but totals and worst case stay single-year (README example worst case $10,460 vs $19,660); this session splits the worst case by plan year and drops the December carry-over, scenario totals remain single-year",
-   "closed_by": "PENDING"
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
   },
   {
    "index": 1,
@@ -225,7 +225,7 @@
    "basis": "assumed",
    "status": "open",
    "what": "no 400% FPL / Form 8962 reconciliation warning on arrival; this session adds the note",
-   "closed_by": "PENDING"
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
   },
   {
    "index": 5,
@@ -233,7 +233,7 @@
    "basis": "assumed",
    "status": "open",
    "what": "mid-month loss gap not flagged (2026-10-15 still 'pick by 10-31 to start 11-01'); this session adds marketplaceGapFrom and the CLI/page line, and qualifies the guide's 'no gap'",
-   "closed_by": "PENDING"
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
   },
   {
    "index": 6,
@@ -248,7 +248,7 @@
    "basis": "assumed",
    "status": "open",
    "what": "OOP spent above the OOP max accepted silently; 'never' text says 'COBRA's lower deductible' when it is higher; this session adds both warnings and fixes the wording",
-   "closed_by": "PENDING"
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
   }
  ],
  "defects": [
@@ -257,42 +257,48 @@
    "what": "Coverage ending in December prices the next plan year with this year's COBRA deductible and OOP carry-over: identical terms, COBRA $50/mo dearer, gives 'COBRA costs less past $750' and COBRA worst case $7,000 instead of 'never' and $14,000, while the note on the same output says the carry-over helps for '0 months'.",
    "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:95",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
   },
   {
    "severity": "high",
    "what": "Worst case ignores the January 1 reset when the months cross it (carried over from 2026-11-12 defect 0): README example shows marketplace $10,460, two plan years allow $19,660; scenario totals are single-year too.",
    "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:143",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
   },
   {
    "severity": "medium",
    "what": "Two seeded mutants in core logic survive 27 tests: the January-crossing threshold (> 12 -> > 13) and the Math.min(oopLeft, dedLeft) corner of the cost curve.",
    "where": "ventures/cobra-vs-marketplace-calculator/engine.test.mjs:96",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
   },
   {
    "severity": "medium",
    "what": "No warning that 2026 credits stop at 400% FPL (Rev. Proc. 2025-25) or that APTC is reconciled on full-year income including pre-layoff wages (carried over from 2026-11-12 defect 4).",
    "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:160",
    "category": "scope-gap",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
   },
   {
    "severity": "low",
    "what": "Guide says 'Late in the year ... that can make COBRA cheaper' with no mention of the January reset, and 'begins the first day of the next month with no gap' though a mid-month loss leaves a gap; the tool does not flag the gap either (carried over from 2026-11-12 defect 5 and claims evidence).",
    "where": "ventures/cobra-vs-marketplace-calculator/cobra-election-deadlines-explained.html:61",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
   },
   {
    "severity": "low",
    "what": "'never' verdict hard-codes 'COBRA's lower deductible never catches up' even when COBRA's deductible is higher; OOP spent above the OOP max is accepted without a warning (carried over from 2026-11-12 defect 7).",
    "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:170",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
   },
   {
    "severity": "low",
@@ -302,6 +308,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"],
  "verdict": "Of the eight defects the 2026-11-12 audit recorded, three are closed (the 'always' high among them: the break-even is now an exact corner walk that agrees with an independent grid model on 300 of 300 random plan pairs; the first-premium date is worded as the latest one; the carried-over OOP is tested), one high is only partly closed (the January 1 reset is a note, while the worst case and totals stay single-year: README example marketplace worst $10,460 against $19,660 over two plan years), and four were open on arrival, all counted fixed only by the blanket fix_prs reading. The partial fix also left a new high: a December 31 loss credits this year's carry-over to next year's months, reversing the verdict on identical plans. Deadlines check out against the CFR. It does not meet the bar on arrival: correctness 2, claims 2, verification 2 (two real mutants survive). This session's change splits the worst case per plan year, drops the December carry-over with a stated calendar-year assumption, flags mid-month gaps, adds the PTC reconciliation / 400% FPL note, fixes the 'never' wording and the guide, and adds eight tests that kill both survivors; scenario totals across January and the disability extension stay in README Known gaps, and a later audit should re-score."
 }
