@@ -296,6 +296,15 @@ CLAIMS = [
     ("results_dx_fixed_point.txt", "over 3D: sdx 1.362, dx1 1.182, dxc 1.189, dx200 1.187"),
     ("results_dx_fixed_point.txt", "over 3D: sdx 1.092, dx1 1.009, dxc 0.999, dx200 0.999"),
 
+    # milestone 7zzf: Journee's tabulated Wigley III values (boatmath's tests), strip model at (16, 30) and (24, 40)
+    ("results_journee_tables.txt", "E3 Fn 0.2 heave ratios (7zg) 1.006 0.971 0.979 all within 15%: True"),
+    ("results_journee_tables.txt", "row 0.3 1.250 1.28 1.179 0.921"),
+    ("results_journee_tables.txt", "row 1.750 0.515 0.542 1.053 0.600 0.666 1.110"),
+    ("results_journee_tables.txt", "row 2.000 0.577 0.608 1.054 0.658 0.730 1.109"),
+    ("results_journee_tables.txt", "row 2.22 0.707 0.632 0.894 1.963 2.235 1.139"),
+    ("results_journee_tables.txt", "row 3.34 0.465 0.414 0.891"),
+    ("results_journee_tables.txt", "E5 largest move from (16, 30) to (24, 40): -0.47%"),
+
 ]
 
 def check(claims=CLAIMS, root=EXP):
