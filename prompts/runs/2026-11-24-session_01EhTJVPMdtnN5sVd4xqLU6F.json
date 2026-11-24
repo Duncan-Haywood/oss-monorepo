@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVPMdtnN5sVd4xqLU6F",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (full prompt in prompts/ventures/prompt-1.md)",
+  "input_sha256": "68c7977b8c1e8b30f009308ddc63fc30cc85bd4f51c44ad14afa2e062424e7a8",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T01:56:45Z",
+  "ended": "2026-11-24T02:50:01Z",
+  "wall_minutes": 53.63,
+  "tokens_in": 8502059,
+  "tokens_out": 37331,
+  "cost_usd": 3.3969,
+  "tool_calls": 87,
+  "task": "Deepen (flagship 9) league-schedule-generator: bowling 22-28 team seasons 1 off the lane-pair bound (allocate.py Start here, item 2)",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18518",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "sed append of a trailing comment landed inside the CardEnc call in four SAT scripts (SyntaxError)",
+      "fix": "moved the comment after .clauses); py_compile on all four"
+    },
+    {
+      "what": "first pysat runs failed: pip install had gone to a different interpreter path while the jobs started",
+      "fix": "python3 -m pip install python-sat, reran"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "the pkill/pgrep -f hook also rejects a bracketed pattern when the same word appears elsewhere in the command line (e.g. a later 'python3 full.py' launch); split into two calls. The CLAUDE.md note only says to bracket the first letter."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-bowling-lanes-sat-encoding-pairwise.md",
+    "ventures/league-schedule-generator/eval/bowling-encoding-2026-11-24.txt",
+    "ventures/league-schedule-generator/README.md (2026-11-24 section)"
+  ],
+  "goal": "Get the four bowling seasons stuck 1 off the even lane split to 0 or prove them out of reach",
+  "notes": "3 of 4 seasons now at the bound (22x10, 22x21, 24x23) and stored in bowling-lane-table.mjs; 26x38 still 1 (kissat 2400 s, no answer). Key finding: writing the limit-1 count as pairwise AMO instead of a sequential counter takes 22x10 from no answer in 420 s to 1.5 s; limit-2 seasons fell to kissat404+totalizer (~21-23 min) and 22x21 to cadical153 with direct forbidden triples (~4 min). Cyclic families sigma(k)+c*r and sigma(k)+tau(r): none (22x10 UNSAT in the second). Limit-1 24x11, 26x12, 28x13: none in 900 s pairwise. Verification: node --test bowling.test.mjs 34 pass 0 fail (new test 22 teams 10 weeks atBound 22); offBound 0 re-checked in node for all three answers; eval/bowling-lane-near-check.mjs unchanged for the remaining rows; back-to-back repeats 22x21 20->13, 24x23 19->24 (balance first); check_posts ok; validate.py ok. run_venture_tests.py league-schedule-generator: ok, 997 tests, 250.7 s; site page checks ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6a0045c8-477b-5d47-9071-b6e6368aedc8",
+    "transcripts": 1,
+    "first": "2026-11-24T01:56:45Z",
+    "last": "2026-11-24T02:50:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 79,
+        "input": 153,
+        "output": 37331,
+        "thinking": 11897,
+        "cache_read": 8380202,
+        "cache_write_5m": 0,
+        "cache_write_1h": 121704,
+        "api_equivalent_usd": 3.3969,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 79,
+      "input": 153,
+      "output": 37331,
+      "thinking": 11897,
+      "cache_read": 8380202,
+      "cache_write_5m": 0,
+      "cache_write_1h": 121704,
+      "api_equivalent_usd": 3.3969,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 87,
+    "tools": {
+      "Bash": 82,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "TaskStop": 1,
+      "Edit": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 53.63,
+      "active_minutes": 53.63,
+      "model_minutes": 7.17,
+      "tool_minutes": 46.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "SAT encoding experiments on 4 seasons, solver runs, storing and testing answers, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 176.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
