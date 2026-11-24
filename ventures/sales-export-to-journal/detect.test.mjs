@@ -20,6 +20,17 @@ for (const p of PLATFORMS) {
     assert.equal(detect(sampleBrokenReport(p.id)).id, p.id);
   });
 
+  // A month of a busy shop is hundreds of rows. The signature boost was a flat 400 points while every
+  // kept row is worth ten, so a reader that half-understood a foreign file outscored the right one past
+  // ~270 to ~460 rows (Shopify read as AdSense, Gumroad as KDP). 800 rows covers every old flip point.
+  test(`${p.id}: an 800-row export still detects as ${p.id}`, () => {
+    const [head, ...rest] = sampleReport(p.id).split(/\r?\n/);
+    const body = rest.filter(Boolean), rows = [head];
+    while (rows.length <= 800) rows.push(...body);
+    const d = detect(rows.join("\n"));
+    assert.equal(d.id, p.id, JSON.stringify(d.ranked.slice(0, 3)));
+  });
+
   test(`${p.id}: forcing another platform does not silently use ${p.id}`, () => {
     const other = PLATFORMS.find((q) => q.id !== p.id);
     const c = convert(sampleReport(p.id), { platform: other.id });
