@@ -37,6 +37,7 @@ function makeView(bytes, little) {
     u16: (o) => (o >= 0 && o + 2 <= n ? dv.getUint16(o, little) : 0),
     u32: (o) => (o >= 0 && o + 4 <= n ? dv.getUint32(o, little) : 0),
     i32: (o) => (o >= 0 && o + 4 <= n ? dv.getInt32(o, little) : 0),
+    i16: (o) => (o >= 0 && o + 2 <= n ? dv.getInt16(o, little) : 0),
   };
 }
 
@@ -245,6 +246,10 @@ function walkTiff(b, base, meta, cands, opts = {}) {
       const mn = tags.get(T.MakerNote);
       if (mn) olympusPreview(b, mn.at, mn.size, cands);
     }
+    const mnote = tags.get(T.MakerNote);
+    if (mnote && meta.af === undefined) {
+      try { makerFocus(b, v, mnote, base, meta, tags); } catch { /* a maker note we misread gives no AF point, never a failed file */ }
+    }
     const sub = tags.get(T.SubIFDs);
     if (sub) for (const s of tagNums(v, sub)) visit(s, depth + 1, "SubIFD");
     const ex = tags.get(T.ExifIFD);
@@ -288,6 +293,181 @@ function olympusPreview(b, at, size, cands) {
   if (valid !== 0 && start && len) cands.push({ offset: at + start, length: len, source: "Olympus maker note" });
 }
 
+// ---------------------------------------------------------------- AF point
+
+// Where the camera focused, from the maker note, as fractions of the sensor
+// frame (x right, y down, before the orientation tag is applied):
+//   meta.af = { source, points: [{ x, y, w, h, inFocus }], x, y }
+// x, y is the centre of the points the camera reports in focus (or, when it
+// reports none, the selected ones). Layouts follow ExifTool's tag tables
+// (Canon AFInfo/AFInfo2, Sony FocusLocation, Fujifilm FocusPixel, Panasonic
+// AFPointPosition); each is checked against metadata-extractor's decoding of
+// the public samples in eval/cull-af-point-*.md. Nikon's phase-detect points
+// are numbered on a per-body grid with no published coordinates, so only its
+// live-view (contrast-detect) area is read.
+function makerFocus(b, v, mn, base, meta, exifTags) {
+  if (mn.size < 16) return;
+  need(mn.at, 16);
+  const at = mn.at;
+  const head = ascii(b, at, 12);
+  const make = (meta.make || "").toUpperCase();
+  let af = null;
+  if (head.startsWith("FUJIFILM")) {
+    // Little-endian IFD at the offset in bytes 8-11, offsets from the note.
+    const lv = makeView(b, true);
+    const { tags } = readIfd(lv, lv.u32(at + 8), at);
+    const fp = tagNums(lv, tags.get(0x1023));
+    // FocusPixel is in the frame of the JPEG whose EXIF holds the note
+    // (1920 x 1280 on the X-E1: 961 641 is its centre).
+    const w = tagNum(v, exifTags.get(0xa002)), h = tagNum(v, exifTags.get(0xa003));
+    if (fp.length >= 2 && w > 0 && h > 0 && fp[0] <= w && fp[1] <= h) af = single("Fujifilm FocusPixel", fp[0] / w, fp[1] / h);
+  } else if (head.startsWith("Panasonic")) {
+    const { tags } = readIfd(v, at + 12 - base, base);
+    const p = tagNums(v, tags.get(0x4d));
+    // Two rationals, fractions of the frame; 0xffffffff/256 means none.
+    if (p.length >= 2 && p[0] >= 0 && p[0] <= 1 && p[1] >= 0 && p[1] <= 1) af = single("Panasonic AFPointPosition", p[0], p[1]);
+  } else if (head.startsWith("SONY") || (make.startsWith("SONY") && !head.startsWith("Nikon"))) {
+    const off = head.startsWith("SONY") ? 12 : 0;
+    const { tags } = readIfd(v, at + off - base, base);
+    // FocusLocation (0x2027) and FocusLocation2 (0x204a, newer bodies):
+    // full-size width, height, then the focus x, y.
+    for (const tag of [0x204a, 0x2027]) {
+      const q = tagNums(v, tags.get(tag));
+      if (q.length >= 4 && q[0] > 0 && q[1] > 0 && q[2] > 0 && q[3] > 0 && q[2] <= q[0] && q[3] <= q[1]) {
+        af = single(tag === 0x2027 ? "Sony FocusLocation" : "Sony FocusLocation2", q[2] / q[0], q[3] / q[1]);
+        break;
+      }
+    }
+  } else if (head.startsWith("Nikon")) {
+    // "Nikon\0" ver(4) then a TIFF header at +10; offsets from that header.
+    const h = tiffHeader(b, at + 10);
+    if (!h) return;
+    const { tags } = readIfd(h.v, h.first, at + 10);
+    const t = tags.get(0xb7);
+    if (t && t.size >= 30) {
+      need(t.at, t.size);
+      const ver = ascii(b, t.at, 4);
+      const nv = makeView(b, false);
+      // AFInfo2 0100: byte 4 ContrastDetectAF; 16 AFImageWidth, 18 height,
+      // 20 AFAreaXPosition, 22 Y (centre), 24 width, 26 height.
+      if (ver === "0100" && b[t.at + 4] > 0) {
+        const W = nv.u16(t.at + 16), H = nv.u16(t.at + 18), x = nv.u16(t.at + 20), y = nv.u16(t.at + 22);
+        const aw = nv.u16(t.at + 24), ah = nv.u16(t.at + 26);
+        if (W > 0 && H > 0 && x > 0 && y > 0 && x <= W && y <= H) {
+          af = { source: "Nikon AFInfo2 (live view)", points: [{ x: x / W, y: y / H, w: aw / W, h: ah / H, inFocus: true }] };
+        }
+      }
+    }
+  } else if (make.startsWith("CANON")) {
+    af = canonAf(v, readIfd(v, at - base, base).tags);
+  } else if (head.startsWith("OLYMP") || head.startsWith("OM SYSTEM")) {
+    af = olympusAf(b, at, head);
+  }
+  if (af) meta.af = finishAf(af);
+}
+
+// Olympus / OM System: CameraSettings (0x2020) AFAreas (0x304), up to 64
+// boxes packed as left, top, right, bottom bytes in 255ths of the frame.
+function olympusAf(b, at, head) {
+  let v, ifd, rel;
+  if (head.startsWith("OLYMPUS")) { v = makeView(b, b[at + 8] === 0x49); ifd = 12; rel = at; }
+  else if (head.startsWith("OM SYSTEM")) { v = makeView(b, b[at + 12] === 0x49); ifd = 16; rel = at; }
+  else return null; // the oldest "OLYMP\0" notes keep no AFAreas
+  const top = readIfd(v, ifd, rel);
+  const cs = top.tags.get(0x2020);
+  if (!cs) return null;
+  const csOff = cs.type === 13 || cs.type === 4 ? v.u32(cs.at) : cs.at - rel;
+  const inner = readIfd(v, csOff, rel);
+  const areas = tagNums(v, inner.tags.get(0x304));
+  const points = [];
+  for (const a of areas) {
+    if (!a) continue;
+    const x1 = a >>> 24, y1 = (a >>> 16) & 255, x2 = (a >>> 8) & 255, y2 = a & 255;
+    if (x2 <= x1 || y2 <= y1) continue;
+    points.push({ x: (x1 + x2) / 510, y: (y1 + y2) / 510, w: (x2 - x1) / 255, h: (y2 - y1) / 255, inFocus: true });
+  }
+  return points.length ? { source: "Olympus AFAreas", points } : null;
+}
+
+function single(source, x, y) {
+  return { source, points: [{ x, y, w: 0, h: 0, inFocus: true }] };
+}
+
+function finishAf(af) {
+  const pts = af.points.filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y) && p.x >= 0 && p.x <= 1 && p.y >= 0 && p.y <= 1);
+  if (!pts.length) return undefined;
+  let use = pts.filter((p) => p.inFocus);
+  if (!use.length) use = pts.filter((p) => p.selected);
+  const out = { source: af.source, points: pts };
+  if (use.length) {
+    out.x = use.reduce((s, p) => s + p.x, 0) / use.length;
+    out.y = use.reduce((s, p) => s + p.y, 0) / use.length;
+    out.inFocus = use.some((p) => p.inFocus);
+  }
+  return out;
+}
+
+// Canon AFInfo2 (0x26; most bodies since about 2008) or AFInfo (0x12):
+// point positions in pixels from the centre of an AF image, x right, y up.
+export function canonAf(v, tags) {
+  const s16 = (n) => (n > 32767 ? n - 65536 : n);
+  const t2 = tags.get(0x26);
+  if (t2) {
+    // Mirrorless bodies list over a thousand points (the R8: 1,053, 4,419
+    // values), past tagNums' cap, so this reads the array itself.
+    if (t2.type !== 3 && t2.type !== 8) return null;
+    const cnt = Math.min(t2.count, 1 << 15);
+    need(t2.at, cnt * 2);
+    const a = new Array(cnt);
+    for (let i = 0; i < cnt; i++) a[i] = v.u16(t2.at + i * 2);
+    const n = a[2], W = a[6] || a[4], H = a[7] || a[5];
+    if (!(n > 0 && n <= 4096 && W > 0 && H > 0 && a.length >= 8 + 4 * n)) return null;
+    const words = Math.ceil(n / 16);
+    const wOff = 8, hOff = 8 + n, xOff = 8 + 2 * n, yOff = 8 + 3 * n, fOff = 8 + 4 * n;
+    // After AFPointsInFocus some bodies add AFPointsSelected (same width);
+    // ExifTool reads it when the array is long enough to hold it.
+    const hasSel = a.length >= fOff + 2 * words + 1;
+    const bit = (off, i) => off + (i >> 4) < a.length && (a[off + (i >> 4)] >> (i & 15)) & 1;
+    const points = [];
+    for (let i = 0; i < Math.min(n, a[3] || n); i++) {
+      const w = a[wOff + i], h = a[hOff + i];
+      if (!w || !h) continue;
+      points.push({
+        x: 0.5 + s16(a[xOff + i]) / W, y: 0.5 - s16(a[yOff + i]) / H, w: w / W, h: h / H,
+        inFocus: !!bit(fOff, i), selected: hasSel ? !!bit(fOff + words, i) : false,
+      });
+    }
+    return { source: "Canon AFInfo2", points };
+  }
+  const t1 = tags.get(0x12);
+  if (t1) {
+    const a = tagNums(v, t1);
+    const n = a[0], W = a[4] || a[2], H = a[5] || a[3], aw = a[6], ah = a[7];
+    if (!(n > 0 && n <= 64 && W > 0 && H > 0 && a.length >= 8 + 2 * n + 1)) return null;
+    const fOff = 8 + 2 * n;
+    const points = [];
+    for (let i = 0; i < n; i++) {
+      points.push({ x: 0.5 + s16(a[8 + i]) / W, y: 0.5 - s16(a[8 + n + i]) / H, w: aw / W, h: ah / H, inFocus: !!((a[fOff + (i >> 4)] >> (i & 15)) & 1) });
+    }
+    return { source: "Canon AFInfo", points };
+  }
+  return null;
+}
+
+/** An AF point (fractions of the sensor frame) after EXIF orientation `o`. */
+export function orientPoint(x, y, o = 1) {
+  switch (o) {
+    case 2: return [1 - x, y];
+    case 3: return [1 - x, 1 - y];
+    case 4: return [x, 1 - y];
+    case 5: return [y, x];
+    case 6: return [1 - y, x];
+    case 7: return [1 - y, 1 - x];
+    case 8: return [y, 1 - x];
+    default: return [x, y];
+  }
+}
+
 // ---------------------------------------------------------------- CR3
 
 const UUID_CANON = "85c0b687820f11e08111f4ce462b6a48";
@@ -325,6 +505,10 @@ function readCr3(b, meta, cands) {
         if (box.uuid === UUID_CANON) {
           for (const c of boxes(b, box.body, box.end)) {
             if (/^CMT[1-4]$/.test(c.type)) walkTiff(b, c.body, meta, cands, { metaOnly: true });
+            if (c.type === "CMT3" && meta.af === undefined) {
+              const h = tiffHeader(b, c.body);
+              if (h) { const af = canonAf(h.v, readIfd(h.v, h.first, c.body).tags); if (af) meta.af = finishAf(af); }
+            }
             if (c.type === "THMB") {
               // version/flags(4) w(2) h(2) size(4) ...JPEG
               const len = be32(b, c.body + 8);
@@ -602,6 +786,39 @@ export function sharpness(grey, w, h, grid = 4) {
   }
   const sorted = [...cells].sort((a, b) => a - b);
   return { peak: sorted[sorted.length - 1], median: sorted[Math.floor(sorted.length / 2)] };
+}
+
+/**
+ * Laplacian variance in a square window of side `side` px centred on (x, y),
+ * given as fractions of the image: the detail where the camera focused.
+ * Comparable between frames of one burst whatever their AF point, since it
+ * measures the subject the camera chose rather than the busiest area.
+ */
+export function detailAt(grey, w, h, x, y, side) {
+  const half = Math.max(4, side / 2);
+  const x0 = Math.max(1, Math.round(x * w - half)), x1 = Math.min(w - 1, Math.round(x * w + half));
+  const y0 = Math.max(1, Math.round(y * h - half)), y1 = Math.min(h - 1, Math.round(y * h + half));
+  let s = 0, s2 = 0, n = 0;
+  for (let yy = y0; yy < y1; yy++) {
+    const r = yy * w;
+    for (let xx = x0; xx < x1; xx++) {
+      const l = grey[r + xx - 1] + grey[r + xx + 1] + grey[r + xx - w] + grey[r + xx + w] - 4 * grey[r + xx];
+      s += l; s2 += l * l; n++;
+    }
+  }
+  return n ? s2 / n - (s / n) ** 2 : 0;
+}
+
+/**
+ * The frame to mark sharpest in a burst: by detail at the AF point when every
+ * frame has one (the subject the camera chose), else by whole-frame detail.
+ * `frames` are { detail, afDetail }; returns the winning index and the basis.
+ */
+export function burstBest(frames) {
+  const useAf = frames.length > 0 && frames.every((f) => f.afDetail != null);
+  let best = -1, bestV = -1;
+  frames.forEach((f, i) => { const v = (useAf ? f.afDetail : f.detail) ?? -1; if (v > bestV) { bestV = v; best = i; } });
+  return { index: best, basis: useAf ? "af" : "frame" };
 }
 
 // ---------------------------------------------------------------- XMP sidecars

@@ -144,3 +144,15 @@
 - (2026-11-23) gain and over-read share a cause, so this set is spent (eval/noise-pca-mpcw1-*)
 - (2026-11-23) on own ramps the oracle's 14 losses go to 0
 - (2026-11-23) per-colour ratios + Chen's level (mpcw) default on Bayer 2026-11-21: held +0.09 dB luma, +0.21 wb SNR 25/12, 0 new losers (eval/noise-pca-whitened-level-*)
+
+## From the cull page's AF point (2026-11-24, eval/cull-af-point-2026-11-24.md)
+
+- Nikon phase-detect AF points: map point numbers to positions per body (51-point D300/D800/D810 grid, 39-point
+  D5100/D7000, 153-point D5/D850), e.g. measured from frames shot with a known point; only live-view (AFInfo2 0100
+  contrast-detect) areas are placed now.
+- Sony before the A7 III (NEX-5N, NEX-7, A5000, A500): no FocusLocation; the enciphered 0x9400/0x9416 blocks may hold
+  one (ExifTool's Sony.pm decipher table).
+- Canon AFInfo2 0x26 on bodies that add AFPointsSelected: `selected` is set only when the array is long enough; check
+  on a 1D X / 5D IV file that the selected bits are where ExifTool reads them.
+- Whether ranking a burst by detail at the AF point picks the frames a photographer keeps (needs a real card + picks;
+  the CSV has `af_detail` and `sharpest_by`).

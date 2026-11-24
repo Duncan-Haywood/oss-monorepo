@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cull camera raw files in your browser, with Lightroom XMP ratings | ShootFlow</title>
-  <meta name="description" content="Free raw photo culler: drop a card's NEF, CR3, ARW, RAF, ORF or DNG files, rate and reject by keyboard, and download XMP sidecars Lightroom reads. Nothing uploaded.">
+  <meta name="description" content="Free raw photo culler: drop NEF, CR3, ARW, RAF or ORF files, see the camera's AF point, rate by keyboard, download Lightroom XMP sidecars. Nothing uploaded.">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://marisstella.app/photo-editing/cull.html">
   <meta property="og:title" content="Cull camera raw files in your browser | ShootFlow">
-  <meta property="og:description" content="Rate and reject a shoot's raw files from their embedded previews, find the sharpest frame in each burst, and download XMP sidecars for Lightroom, Capture One or darktable. Free, nothing uploaded.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"ShootFlow Cull","url":"https://marisstella.app/photo-editing/cull.html","applicationCategory":"MultimediaApplication","operatingSystem":"Any (runs in the browser)","browserRequirements":"A current Chrome, Edge, Firefox or Safari","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"A browser photo culler for camera raw files. It reads the JPEG preview each raw file carries, lets you rate, colour-label and reject by keyboard, groups bursts and ranks them by detail, and writes XMP sidecars with xmp:Rating and xmp:Label. Files never leave the computer."}</script>
+  <meta property="og:description" content="Rate and reject a shoot's raw files from their embedded previews, see where the camera focused, find the sharpest frame in each burst at its AF point, and download XMP sidecars for Lightroom, Capture One or darktable. Free, nothing uploaded.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"ShootFlow Cull","url":"https://marisstella.app/photo-editing/cull.html","applicationCategory":"MultimediaApplication","operatingSystem":"Any (runs in the browser)","browserRequirements":"A current Chrome, Edge, Firefox or Safari","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"description":"A browser photo culler for camera raw files. It reads the JPEG preview each raw file carries, lets you rate, colour-label and reject by keyboard, reads the AF point from Canon, Sony, Fujifilm, Panasonic and Olympus maker notes, groups bursts and ranks them by detail at that point, and writes XMP sidecars with xmp:Rating and xmp:Label. Files never leave the computer."}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
     {"@type":"Question","name":"Are my photos uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The page reads the files with your browser's File API on your own computer. Nothing is sent anywhere; you can disconnect from the internet after the page loads and it still works."}},
     {"@type":"Question","name":"Will Lightroom see my ratings?","acceptedAnswer":{"@type":"Answer","text":"Yes for raw files: put the downloaded .xmp files next to the raws before you import, and Lightroom Classic reads xmp:Rating (stars, −1 for rejected) and xmp:Label. Lightroom does not read sidecars for JPEG or DNG files, which keep metadata inside the file."}},
@@ -103,6 +103,7 @@
       <option value="time">Capture time</option>
       <option value="name">File name</option>
       <option value="sharp">Detail (most first)</option>
+      <option value="afsharp">Detail at the AF point (most first)</option>
     </select></label>
   </div>
 
@@ -133,7 +134,8 @@
       <li><kbd>1</kbd>–<kbd>5</kbd> stars, <kbd>0</kbd> clear stars</li>
       <li><kbd>X</kbd> reject or un-reject</li>
       <li><kbd>6</kbd> red, <kbd>7</kbd> yellow, <kbd>8</kbd> green, <kbd>9</kbd> blue label</li>
-      <li><kbd>Z</kbd> in the large view: 100% at the most detailed area (focus check); click to zoom where you point</li>
+      <li><kbd>Z</kbd> in the large view: 100% at the camera's AF point, or at the most detailed area when the file records none (focus check); click to zoom where you point</li>
+      <li><kbd>F</kbd> in the large view: show or hide the AF points</li>
       <li><kbd>Esc</kbd> close the large view</li>
       <li><kbd>B</kbd> jump to the sharpest frame of this burst</li>
     </ul>
@@ -143,6 +145,7 @@
     <h2 id="how-h">How it works, and what it does not do</h2>
     <p>Every camera raw file carries a JPEG made by the camera at capture. On most bodies from the last decade it is full size (on the files we tested: every Canon CR3, the newer CR2 and NEF files, Pentax, Samsung and the Sony A7 IV; Sony before the A7 IV, Fujifilm and Panasonic store about 1,600 to 1,920 px). The page finds that JPEG by the file's own pointers (TIFF tags, CR3 boxes, the RAF header, the Olympus maker note), with a byte scan as the last resort, and reads the camera, lens, exposure and capture time from the file's EXIF.</p>
     <p>Bursts are frames from the same body taken no more than 1.5 s apart. "Detail" is the variance of a Laplacian filter in the busiest of 16 areas of the preview, the same kind of measure culling apps use for sharpness. It compares frames of the same scene well; it cannot tell a soft subject in front of a sharp background, and it favours busy scenes over plain ones. Treat the ranking as a hint and check focus at 100% with <kbd>Z</kbd>.</p>
+    <p>Where the camera recorded where it focused, the page reads that too and draws it in the large view (in red the points the camera reports in focus): Canon (CR2 and CR3, including the 1,053-point grids of recent mirrorless bodies), Sony (bodies that write FocusLocation, such as the A7 III and A7 IV), Fujifilm, Panasonic, and Olympus and OM System. In a burst where every frame has an AF point, "sharpest" then means the most detail at that point, which is the subject the camera chose, so a soft subject in front of a busy background no longer wins; <kbd>Z</kbd> zooms to it. Nikon numbers its phase-detect points on a grid that differs by body and publishes no coordinates, so Nikon files fall back to the busiest area. On the public sample files, the point read agrees with metadata-extractor's own decoding on all 22 files it decodes, and sits on more detail than a random spot in 18 of 24 (median rank 0.89).</p>
     <p>It shows the camera's JPEG, not a development of the raw data, so white balance and picture style are what the camera chose. For developing raw files with checked colour, see <a href="./">ShootFlow's command-line tools</a>.</p>
     <p>Measured on 65 public sample files from 55 camera models (the <a href="https://github.com/drewnoakes/metadata-extractor-images">metadata-extractor-images</a> set): a preview was found in 61, and all 61 decode at the size read; in Chromium the page read all 65 (1.1 GB) in about 5 seconds. The four misses are two BigTIFF test files, a phone DNG with no JPEG inside and a truncated 368-byte file. Four 2005 to 2008 Olympus compacts give only a 160 × 120 thumbnail.</p>
   </section>
@@ -157,6 +160,8 @@
     <p>Yes, if you drop the existing .xmp sidecars along with the raw files. The page reads the rating and colour label in them as each frame's start, and when you download, the zip carries those same sidecar files back under their own names with only <code>xmp:Rating</code>, <code>xmp:Label</code> and <code>xmp:MetadataDate</code> changed; develop settings, keywords and crops stay as they were. Without them, a fresh sidecar would replace the one on disk.</p>
     <h3>Does it read ratings I set in the camera?</h3>
     <p>Yes, where the camera writes them into the raw file: the XMP packet many raws carry (in the public samples: recent Sony, Canon, Nikon, OM System, DJI and Pentax files), the XMP box of a Canon CR3, or the Rating tag OM System bodies write. A rating you set on this page before, or one in a dropped sidecar, comes first.</p>
+    <h3>Does it show where the camera focused?</h3>
+    <p>Yes for Canon, Sony (A7 III and later bodies that record it), Fujifilm, Panasonic, Olympus and OM System files: the AF points are drawn on the large view, <kbd>Z</kbd> zooms to 100% there, and the burst pick uses the detail at that point. Press <kbd>F</kbd> to hide them. Nikon files and older Sony bodies do not record a usable position, so the page uses the busiest area instead.</p>
     <h3>Why does a preview look different from my raw editor?</h3>
     <p>It is the JPEG the camera made at capture, with the camera's picture style, not a development of the raw data. That is what makes culling fast, and it is what the camera's own screen showed you.</p>
     <h3>Does it remember my ratings?</h3>
@@ -188,7 +193,7 @@
 </div>
 
 <script type="module">
-import { readRawFile, isCandidateFile, captureMillis, groupBursts, sharpness, xmpSidecar, sidecarName, zipStored, LABEL_KEYS, readXmp, mergeXmpSidecar, sidecarTarget } from "./rawpreview.mjs";
+import { readRawFile, isCandidateFile, captureMillis, groupBursts, sharpness, detailAt, burstBest, orientPoint, xmpSidecar, sidecarName, zipStored, LABEL_KEYS, readXmp, mergeXmpSidecar, sidecarTarget } from "./rawpreview.mjs";
 import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
 const $ = (id) => document.getElementById(id);
@@ -280,6 +285,22 @@ async function loadOne(file) {
     const s = sharpness(grey, c.width, c.height, 4);
     it.detail = s.peak;
     it.peakCell = peakCell(grey, c.width, c.height, 4);
+    // Where the camera focused (maker note), turned upright like the image;
+    // the browser applied a preview's own orientation, the raw's is ours.
+    const af = r.meta.af;
+    if (af) {
+      const o = r.preview.ownOrientation || r.meta.orientation || 1;
+      const swap = o >= 5;
+      it.af = {
+        source: af.source,
+        at: af.x != null ? orientPoint(af.x, af.y, o) : null,
+        points: af.points.map((p) => ({ c: orientPoint(p.x, p.y, o), w: swap ? p.h : p.w, h: swap ? p.w : p.h, inFocus: p.inFocus })),
+      };
+      if (it.af.at) {
+        const box = Math.max(...it.af.points.filter((p) => p.inFocus).map((p) => Math.max(p.w * c.width, p.h * c.height)), 0);
+        it.afDetail = detailAt(grey, c.width, c.height, it.af.at[0], it.af.at[1], Math.max(box, 0.06 * Math.max(c.width, c.height)));
+      }
+    }
     bmp.close?.();
   } catch (e) {
     it.error = e.message || String(e);
@@ -382,6 +403,7 @@ async function addFiles(fileList) {
   const secs = ((performance.now() - t0) / 1000).toFixed(1);
   record("files_loaded");
   if (fresh.length >= 50) record("files_loaded_50_plus");
+  if (fresh.some((it) => it.af?.at)) record("af_points_read");
   refresh(true);
   $("status").textContent = `${items.length} files${bad ? `, ${bad} without a preview` : ""} (read ${fresh.length} in ${secs} s; ${mib(bytesRead - before)} of their ${mib(cardBytes)} read from disk)${startCounts()}.`;
 }
@@ -394,9 +416,10 @@ function computeBursts() {
   const groups = new Map();
   ids.forEach((id, i) => { items[i].burst = id; if (!groups.has(id)) groups.set(id, []); groups.get(id).push(i); });
   for (const g of groups.values()) {
-    let best = -1, bestV = -1;
-    for (const i of g) { items[i].burstSize = g.length; items[i].best = false; if ((items[i].detail ?? -1) > bestV) { bestV = items[i].detail ?? -1; best = i; } }
-    if (g.length > 1 && best >= 0) items[best].best = true;
+    for (const i of g) { items[i].burstSize = g.length; items[i].best = false; }
+    const ok = g.filter((i) => !items[i].error);
+    const { index, basis } = burstBest(ok.map((i) => items[i]));
+    if (index >= 0) { items[ok[index]].best = true; items[ok[index]].bestBy = basis; }
     if (g.length === 1) items[g[0]].best = true;
     g.sort((a, b) => (items[a].t ?? 0) - (items[b].t ?? 0)).forEach((i, k) => { items[i].burstPos = k + 1; });
   }
@@ -416,6 +439,7 @@ function buildView() {
   const byName = (a, b) => items[a].name.localeCompare(items[b].name, undefined, { numeric: true });
   if (s === "name") view.sort(byName);
   else if (s === "sharp") view.sort((a, b) => (items[b].detail ?? -1) - (items[a].detail ?? -1) || byName(a, b));
+  else if (s === "afsharp") view.sort((a, b) => (items[b].afDetail ?? -1) - (items[a].afDetail ?? -1) || (items[b].detail ?? -1) - (items[a].detail ?? -1) || byName(a, b));
   else view.sort((a, b) => (items[a].t ?? Infinity) - (items[b].t ?? Infinity) || byName(a, b));
 }
 
@@ -423,7 +447,7 @@ function tileHtml(it) {
   const stars = it.rating ? "★".repeat(it.rating) : "";
   const lab = it.label ? `<span class="lab" style="background:${LABEL_COLOURS[it.label]}"></span>` : "";
   const rej = it.rejected ? `<span class="rejmark">✕</span>` : "";
-  const badge = it.error ? "" : it.burstSize > 1 && it.best ? `<span class="badge" title="Most detail in this burst">sharpest</span>` : "";
+  const badge = it.error ? "" : it.burstSize > 1 && it.best ? `<span class="badge" title="${it.bestBy === "af" ? "Most detail at the camera's AF point in this burst" : "Most detail in this burst"}">sharpest${it.bestBy === "af" ? " at AF" : ""}</span>` : "";
   const burst = it.burstSize > 1 ? `<span class="burst">burst ${it.burstPos}/${it.burstSize}</span>` : "";
   return `${lab}${rej}${badge}${burst}<div class="cap"><span class="name" title="${esc(it.name)}">${esc(it.name)}</span><span class="stars">${stars}</span></div>`;
 }
@@ -506,6 +530,7 @@ async function drawLoupe() {
   if (!zoom) {
     const s = Math.min(W / ow, H / oh);
     ctx.drawImage(up, (W - ow * s) / 2, (H - oh * s) / 2, ow * s, oh * s);
+    drawAf(ctx, it, (W - ow * s) / 2, (H - oh * s) / 2, ow * s, oh * s);
     $("loupe").classList.remove("zoom");
   } else {
     // 1:1 in device pixels, kept inside the image; centred when smaller.
@@ -514,7 +539,29 @@ async function drawLoupe() {
     const vw = Math.min(W, ow), vh = Math.min(H, oh);
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(up, sx, sy, vw, vh, (W - vw) / 2, (H - vh) / 2, vw, vh);
+    ctx.save(); ctx.beginPath(); ctx.rect((W - vw) / 2, (H - vh) / 2, vw, vh); ctx.clip();
+    drawAf(ctx, it, (W - vw) / 2 - sx, (H - vh) / 2 - sy, ow, oh);
+    ctx.restore();
     $("loupe").classList.add("zoom");
+  }
+}
+
+// The camera's AF points over the image drawn at (x0, y0) with size w x h:
+// in-focus points solid, the others (the selectable grid) faint, and only
+// the in-focus ones when the body lists hundreds (mirrorless whole-frame AF).
+let showAf = true;
+function drawAf(ctx, it, x0, y0, w, h) {
+  if (!showAf || !it.af) return;
+  const dpr = devicePixelRatio || 1;
+  const many = it.af.points.length > 64;
+  const minBox = 18 * dpr;
+  for (const p of it.af.points) {
+    if (many && !p.inFocus) continue;
+    const bw = Math.max(p.w * w, minBox), bh = Math.max(p.h * h, minBox);
+    const cx = x0 + p.c[0] * w, cy = y0 + p.c[1] * h;
+    ctx.lineWidth = (p.inFocus ? 2 : 1) * dpr;
+    ctx.strokeStyle = p.inFocus ? "rgba(255,64,64,0.95)" : "rgba(255,255,255,0.35)";
+    ctx.strokeRect(cx - bw / 2, cy - bh / 2, bw, bh);
   }
 }
 
@@ -534,13 +581,21 @@ function describe(it) {
   if (m.focalLength) parts.push(`${Math.round(m.focalLength)} mm`);
   if (m.lens) parts.push(m.lens);
   if (it.preview) parts.push(`preview ${it.preview.width}×${it.preview.height}`);
+  if (it.af) parts.push(it.af.at ? `AF point: ${it.af.source}` : `AF: ${it.af.source}, none reported in focus`);
   if (m.captured) parts.push(m.captured.replace(/^(\d{4}):(\d{2}):(\d{2})/, "$1-$2-$3"));
   return parts.join(" · ");
 }
 
 function openLoupe() { if (!view.length) return; loupeOpen = true; zoom = null; $("loupe").classList.add("open"); drawLoupe(); }
 function closeLoupe() { loupeOpen = false; $("loupe").classList.remove("open"); grid.focus(); }
-function toggleZoom() { const it = items[view[sel]]; zoom = zoom ? null : (it?.peakCell || [0.5, 0.5]); drawLoupe(); }
+// 100% at the camera's AF point when the file records one, else at the
+// busiest area.
+function toggleZoom() {
+  const it = items[view[sel]];
+  zoom = zoom ? null : (it?.af?.at || it?.peakCell || [0.5, 0.5]);
+  if (zoom && it?.af?.at) record("af_zoom");
+  drawLoupe();
+}
 $("lClose").onclick = closeLoupe;
 $("lZoom").onclick = toggleZoom;
 $("loupeCanvas").addEventListener("click", (e) => {
@@ -584,6 +639,7 @@ document.addEventListener("keydown", (e) => {
   else if (k >= "6" && k <= "9") mark((it) => { const l = LABEL_KEYS[+k]; it.label = it.label === l ? "" : l; });
   else if (k === "x" || k === "X") mark((it) => { it.rejected = !it.rejected; });
   else if ((k === "z" || k === "Z") && loupeOpen) toggleZoom();
+  else if ((k === "f" || k === "F") && loupeOpen) { showAf = !showAf; drawLoupe(); }
   else if (k === "b" || k === "B") {
     const it = items[view[sel]];
     const p = view.findIndex((i) => items[i].burst === it.burst && items[i].best);
@@ -628,10 +684,10 @@ $("dlPicks").onclick = () => {
 };
 $("dlCsv").onclick = () => {
   const q = (v) => { const s = v == null ? "" : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-  const rows = [["file", "rating", "rejected", "label", "burst", "sharpest_in_burst", "detail", "captured", "camera", "lens", "exposure_s", "f_number", "iso", "focal_mm", "preview_w", "preview_h", "error"]];
+  const rows = [["file", "rating", "rejected", "label", "burst", "sharpest_in_burst", "sharpest_by", "detail", "af_x", "af_y", "af_detail", "af_source", "captured", "camera", "lens", "exposure_s", "f_number", "iso", "focal_mm", "preview_w", "preview_h", "error"]];
   for (const it of items) {
     const m = it.meta || {};
-    rows.push([it.name, it.rating, it.rejected ? 1 : 0, it.label, it.burst, it.best ? 1 : 0, it.detail != null ? it.detail.toFixed(1) : "", m.captured, cameraName(m), m.lens, m.exposureTime, m.fNumber, m.iso, m.focalLength, it.preview?.width, it.preview?.height, it.error]);
+    rows.push([it.name, it.rating, it.rejected ? 1 : 0, it.label, it.burst, it.best ? 1 : 0, it.best ? it.bestBy || "" : "", it.detail != null ? it.detail.toFixed(1) : "", it.af?.at ? it.af.at[0].toFixed(4) : "", it.af?.at ? it.af.at[1].toFixed(4) : "", it.afDetail != null ? it.afDetail.toFixed(1) : "", it.af?.source || "", m.captured, cameraName(m), m.lens, m.exposureTime, m.fNumber, m.iso, m.focalLength, it.preview?.width, it.preview?.height, it.error]);
   }
   download("shootflow-cull.csv", rows.map((r) => r.map(q).join(",")).join("\n") + "\n", "text/csv");
   record("csv_downloaded");

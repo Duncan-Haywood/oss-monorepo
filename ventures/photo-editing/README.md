@@ -168,6 +168,34 @@ node eval/cull-page-previews.mjs mei OUT > report.tsv   # mei = the sample clone
 python3 eval/cull-page-previews-decode.py OUT           # needs Pillow
 ```
 
+## The cull page reads where the camera focused (2026-11-24)
+
+The cull page's detail score looked at the busiest of 16 cells, so a soft
+subject in front of a sharp background won its burst. `site/rawpreview.mjs`
+now reads the AF point from the maker note (`meta.af`): Canon AFInfo2/AFInfo
+in CR2 and CR3 (including the R8's 1,053-point grid), Sony FocusLocation
+(A7 III and later), Fujifilm FocusPixel, Panasonic AFPointPosition, and
+Olympus/OM System AFAreas. The large view draws the points (red where the
+camera reports focus; `F` hides them), `Z` zooms to 100% at the AF point, a
+burst's "sharpest" is the frame with most detail at its AF point when every
+frame has one, there is a sort by that, and the CSV gains `af_x`, `af_y`,
+`af_detail`, `af_source` and `sharpest_by`. Nikon phase-detect points have no
+published coordinates, so Nikon files keep the busiest-cell score.
+
+Checked (`eval/cull-af-point-2026-11-24.md`) on the public sample raws: the
+point agrees with metadata-extractor's own decoding on all 22 files it
+decodes (Sony, Canon AFInfo, Fujifilm, Panasonic, Olympus, including the 7
+with no point); on all 24 files with a point, the detail there ranks above the
+middle of the frame in 18 (median 0.89); Canon's Y-up sign wins over the
+mirrored reading on 4 of 5 off-centre files; the sparse read gives the same
+points as a whole read on 52 of 52.
+
+```bash
+node eval/cull-af-point.mjs mei OUT > OUT/af.jsonl
+python3 eval/cull-af-point-reference.py mei OUT/af.jsonl
+python3 eval/cull-af-point-detail.py OUT/af.jsonl     # numpy, Pillow
+```
+
 ## Current repository state
 
 This repo currently contains the first testable core utilities:
