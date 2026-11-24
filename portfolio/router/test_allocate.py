@@ -1442,7 +1442,7 @@ class ClaimCheckTest(unittest.TestCase):
         self.assertEqual(self.decide(prs, "x", mine=8)["verdict"], "HOLD")
 
     def test_mine_is_found_by_branch(self):
-        prs = [self.pr(2, "x: mine", "2026-11-12T14:05:00Z", branch="claude/me"),
+        prs = [self.pr(2, "x: claim", "2026-11-12T14:05:00Z", branch="claude/me"),
                self.pr(1, "x: theirs", "2026-11-12T14:00:00Z")]
         r = self.decide(prs, "x", branch="claude/me")
         self.assertEqual(r["mine"]["number"], 2)
@@ -1512,8 +1512,30 @@ class ClaimCheckTest(unittest.TestCase):
         r = self.decide(prs, "changepoint-detector", mine=15411, item="round 10 on NAB real series")
         self.assertEqual(r["verdict"], "HOLD")
         self.assertEqual([x["number"] for x in r["sharing"]], [15407])
-        # Without --item the check stays slug-only.
-        self.assertEqual(self.decide(prs, "changepoint-detector", mine=15411)["verdict"], "YIELD")
+        # Without --item, my own title names the item, so #15407 still shares.
+        r = self.decide(prs, "changepoint-detector", mine=15411)
+        self.assertEqual((r["verdict"], r["item_source"]), ("HOLD", "title"))
+        self.assertEqual([x["number"] for x in r["sharing"]], [15407])
+
+    def test_bare_title_without_item_stays_slug_only(self):
+        prs = [self.pr(1, "x: deferred revenue", "2026-11-12T14:00:00Z"),
+               self.pr(2, "x: claim (WIP)", "2026-11-12T14:05:00Z")]
+        r = self.decide(prs, "x", mine=2)
+        self.assertEqual((r["verdict"], r["item_source"]), ("YIELD", None))
+
+    def test_title_item_still_yields_to_the_same_item(self):
+        # 2026-11-24: #18645 (windows) made a later photo-editing session on another
+        # item YIELD on a bare check; a same-item title must still block.
+        prs = [self.pr(18645, "photo-editing: windows check for cull", "2026-11-12T14:00:00Z"),
+               self.pr(18650, "photo-editing: Lightroom keyword list", "2026-11-12T14:05:00Z"),
+               self.pr(18651, "photo-editing: windows check, second pass", "2026-11-12T14:06:00Z")]
+        self.assertEqual(self.decide(prs, "photo-editing", mine=18650)["verdict"], "HOLD")
+        r = self.decide(prs, "photo-editing", mine=18651)
+        self.assertEqual(r["verdict"], "YIELD")
+        self.assertEqual([x["number"] for x in r["older"]], [18645])
+        from claim_check import report
+        lines = report(self.decide(prs, "photo-editing", mine=18650), "photo-editing", self.NOW, 24)
+        self.assertIn("Item read from your PR title", lines[0])
 
     def test_item_still_yields_to_the_same_item_or_a_bare_claim(self):
         same = [self.pr(1, "x: deferred revenue register", "2026-11-12T14:00:00Z"),
@@ -1620,12 +1642,13 @@ class ClaimCheckTest(unittest.TestCase):
         lines = report(r, "open-tennis-robots", now, 24, "edge-time drop fit")
         self.assertTrue(any(l.startswith("LANDED:") for l in lines), lines)
         self.assertTrue(any("#16574 (merged 2026-11-16T12:59:41Z, 5 min ago)" in l for l in lines), lines)
-        # A merge on another item, or a slug-only check, never blocks: busy flagships land daily.
+        # A merge on another item never blocks: busy flagships land daily.
         other = decide(mine, "open-tennis-robots", mine=16579, now=now, item="hopper refill alarm",
                        merged=merged[:1])
         self.assertEqual(other["verdict"], "HOLD")
-        self.assertEqual(decide(mine, "open-tennis-robots", mine=16579, now=now,
-                                merged=merged)["verdict"], "HOLD")
+        # Without --item, my title (it names the edge-time fit) catches the #16574 merge too.
+        bare = decide(mine, "open-tennis-robots", mine=16579, now=now, merged=merged)
+        self.assertEqual((bare["verdict"], bare["item_source"]), ("LANDED", "title"))
 
     def test_merges_the_clone_already_holds_and_one_word_overlaps_do_not_land(self):
         from datetime import datetime, timezone
