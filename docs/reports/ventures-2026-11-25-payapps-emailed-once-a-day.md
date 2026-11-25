@@ -1,5 +1,5 @@
 ---
-kind: fix
+kind: note
 date: 2026-11-25
 ---
 # PayApps (bet #1): one "emailed" history row per chase, not one per click
