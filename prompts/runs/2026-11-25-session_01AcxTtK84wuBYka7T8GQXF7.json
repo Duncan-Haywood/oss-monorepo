@@ -1,0 +1,158 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtK84wuBYka7T8GQXF7",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T16:08:54Z",
+  "ended": "2026-11-25T16:31:03Z",
+  "wall_minutes": 22.48,
+  "tokens_in": 6076062,
+  "tokens_out": 45905,
+  "cost_usd": 3.3027,
+  "tool_calls": 49,
+  "task": "aerolog-scaling milestone 11bl (written as 11bk): age-scheduled Remote ID protection radius vs one radius and a track-age cut-off",
+  "projects": [
+    "research/aerolog-scaling"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19020",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "GitHub (git remote and the GitHub MCP server) returned 503 'credential service temporarily unavailable' for roughly the first 15 minutes of the run; security-queue fetch, claim check and pushes were delayed until it recovered",
+    "first rerun with the risk diagnostic crashed (pick() returned rows inside the bisection); fixed and rerun",
+    "milestone collision: PR #18704 landed a different 11bk (certified track-age cut-off with Pareto tails) on 2026-11-24 while this run's checkout was 18 h stale and GitHub was down, so the claim check was blind; found at merge time (conflicts), renumbered to 11bl / paper part 6.10(g) / Q18 and reframed to build on 11bk"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Landing step 3 asks to push the first commit and open the PR within minutes; with GitHub down there is no documented fallback for pre-registration (local commit timestamp used)"
+    },
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "with origin unreachable it still draws a track but every CLAIM CHECK is blind; fine, but it could say to re-run once the remote is back"
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "main gained 'Paused 2026-11-25: the research track gets no scheduled runs' after this run was routed to research; promptctl route on the stale checkout still drew research"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/aerolog-scaling/experiments/hub_airspace/track_age.py",
+      "why": "pre-registration convention is 'committed and pushed before computing'; GitHub was down (503)",
+      "did": "committed predictions locally (2d1bb62f0) before any hold was computed and pushed it once GitHub recovered; LOG says so",
+      "result": "predictions are on the branch history ahead of the results commit"
+    },
+    {
+      "file": "research/aerolog-scaling/experiments/hub_airspace/track_age.py",
+      "why": "after the first results, OR-W was seen to concentrate risk on old tracks (up to 253x b); reporting only the unconstrained optimum would overstate the usable saving",
+      "did": "added a risk profile and a capped variant OR-C, flagged in the docstring, LOG and paper as added after the predictions with no prediction",
+      "result": "OR-C keeps almost all the saving (0.172 vs 0.171 s at 30 s bursts)"
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "why": "the research pause landed on main mid-run; the step was already computed, complements 11bk and finishes a strand of a paper close to v0",
+      "did": "landed the finished step instead of discarding it; no new programme opened",
+      "result": "merged as 11bl; next runs should follow the pause"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-aerolog-remote-id-age-scaled-radius.md",
+    "research/aerolog-scaling/LOG.md (11bl entry)",
+    "research/aerolog-scaling/paper/airspace_layers.md Section 6.10(g), Q18"
+  ],
+  "goal": "research programme step (PhD+ track 22, aerolog-scaling)",
+  "notes": "Verification run here: research/aerolog-scaling tests 363 passed; paper/check_airspace_numbers.py 439 of 439 after merging main; research/_homepage/build.py ok; check_md_links ok; check_posts ok; research_live_links 0 updated. Checks inside the results: OR/FR-1 max +2.0% (grid/binning), OR-W/OR-1 max +0.27%. 4 of 6 predictions held (K1 refuted: best cut-off is none; K6 refuted: 30% saved even at 0.3 m/s).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "700592d8-58b3-50be-bfc5-f700e3004af4",
+    "transcripts": 1,
+    "first": "2026-11-25T16:08:54Z",
+    "last": "2026-11-25T16:31:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 93,
+        "output": 45905,
+        "thinking": 15651,
+        "cache_read": 5926089,
+        "cache_write_5m": 0,
+        "cache_write_1h": 149880,
+        "api_equivalent_usd": 3.3027,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 93,
+      "output": 45905,
+      "thinking": 15651,
+      "cache_read": 5926089,
+      "cache_write_5m": 0,
+      "cache_write_1h": 149880,
+      "api_equivalent_usd": 3.3027,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 45,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.48,
+      "active_minutes": 22.48,
+      "model_minutes": 8.91,
+      "tool_minutes": 13.57,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "design of four hold rules, Lagrangian solver, 6-min analysis, paper section and post by a PhD-level analyst",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 363.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
