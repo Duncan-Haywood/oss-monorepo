@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtJt1MjjJwKJxVvoxon",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-25T11:14:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "explore: jobshop-quote (bet #2) launch item 1, email verification + password reset, ported from payapps",
+  "projects": [
+    "private-monorepo/apps/jobshop-quote"
+  ],
+  "pr": null,
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [
+    "2335193004d5af3e2840201e35efcac32886cf0a"
+  ],
+  "lines_added": 1713,
+  "lines_removed": 44,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "The private-monorepo steps worked first time: add_repo, then a clone in under a minute, then pnpm install --filter in 6 s. The 'clone refused' warning didn't apply this session."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The hook that refuses `pkill -f` also refuses a command whose other half mentions the process name. CLAUDE.md says this, but it is easy to trip when stopping a demo and checking git status in the same call."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Every run writes or extends a post. An auth plumbing change (email verification, reset) tells a job-shop customer nothing new, and the existing jobshop-quote post covers the product.",
+      "did": "No post. The detail is in private-monorepo apps/jobshop-quote/docs/EMAIL.md and ROADMAP.md.",
+      "result": "The launch blocker is cleared without a thin post."
+    },
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "The explore slot invites free choice, but the North star favours unlocking paid launch. jobshop-quote's ROADMAP marked email verification as a launch blocker, and payapps already had a tested version to port.",
+      "did": "Spent the slot on bet #2's first launch item, not a novel idea.",
+      "result": "Merged as private PR #82, with 76 unit tests, 38 worker tests and a browser check."
+    }
+  ],
+  "writeups": [],
+  "goal": "Move bet #2 (AI RFQ-to-quote for job shops) toward a paid launch: sign-up must be verified before accounts and billing can go live.",
+  "notes": "Idea: port payapps' email verification, password reset and durable auth rate limits into jobshop-quote (ROADMAP launch item 1). Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/82 merged. Also: invitations now need a confirmed address, /api/health reports whether mail is delivered, and there are new account pages (/verify-email, /forgot-password, /reset-password). Checks run locally because the private CI got no runner. biome ci clean; typecheck clean; test:unit 76 passed; test:worker 38 passed (new: auth-email 9 incl. unverified-invitee, auth-rate-limit, email port unit); build OK; Chromium at 390 px on pnpm demo: forgot/reset/verify error and success states, no horizontal scroll. The launch items left for bet #2 are 3 (deploy pipeline) and 4 (billing behind a BillingProvider port).",
+  "corrections": [],
+  "redteam": null
+}
