@@ -161,28 +161,9 @@ jobs:
     # 2026-08-26 to 2026-09-01).
     timeout-minutes: 35
     steps:
-      # Everything but research/ and the audio and video (22k + 116 of 81k
-      # files; the pack drops from 1.2 GB to 342 MB): no step reads them. An
-      # strace of all 106 steps (2026-11-25) found three kinds of touch:
-      # doc_index.project_slugs lists research/<slug> from `git ls-tree`
-      # (the tree, not the disk); some walks stat an .mp3 without opening
-      # it; and test_checklist_coverage's live scan, whose research/ half is
-      # the full-tree gate checklist-coverage.yml runs on every PR that
-      # could open a gap there (any test file, verify-and-merge.md,
-      # pyproject.toml). Non-cone `/*` keeps a new top-level directory in.
-      # blob:none fetches only what the sparse tree needs; without the
-      # media exclusions it was slower than a full checkout (49 s vs 43 s).
-      # docs/history/ci-perf-2026-11-25-validate-sparse.md.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false  # read-only job; nothing here pushes
-          filter: blob:none
-          sparse-checkout-cone-mode: false
-          sparse-checkout: |
-            /*
-            !/research/
-            !*.mp3
-            !*.mp4
 
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
