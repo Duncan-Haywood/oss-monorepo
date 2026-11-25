@@ -7,7 +7,7 @@ Free to use and source available (FSL-1.1-MIT). Not legal, tax, accounting or fi
 ## Pages
 
 - [Schedule of values calculator](https://marisstella.app/pay-app-guides/): continuation-sheet arithmetic, over-billing check, summary, CSV.
-- [How to fill out a pay application](https://marisstella.app/pay-app-guides/how-to-fill-out-a-pay-application.html): every column and summary line with a worked example.
+- [How to fill out a pay application](https://marisstella.app/pay-app-guides/how-to-fill-out-a-pay-application.html): every column and summary line with a worked example, what to attach, and how to send the backup as one PDF (and the HEIC photos, locked PDFs and spreadsheets that get in the way).
 - [Retainage explained](https://marisstella.app/pay-app-guides/retainage-explained.html): calculation, reduction, release, lines with their own rate or none (bond lines), flow-down, and public retainage caps for CA, TX, FL, NY, PA, IL, NC, MI, VA, WA, MA, AZ, MN, NV, OR, UT with official statute links.
 - [Conditional vs unconditional lien waivers](https://marisstella.app/pay-app-guides/conditional-vs-unconditional-lien-waivers.html): the four waiver types, when to sign each, California and Florida statutory forms.
 - [Free schedule of values template (Excel)](https://marisstella.app/pay-app-guides/schedule-of-values-template.html): a blank .xlsx continuation sheet and summary with the formulas in (total completed and stored, percent, balance to finish, per-line retainage, payment due, an over-billing check), plus a filled-in example. No macros or external links; opens in Excel, Google Sheets and LibreOffice.
