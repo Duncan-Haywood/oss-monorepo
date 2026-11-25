@@ -31,12 +31,7 @@
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [
-    {
-      "file": "CLAUDE.md",
-      "issue": "Says 'git checkout -b' style branch creation is needed; the harness had already created claude/confident-newton-5yz5kf, so checkout -b failed and a chained edit silently did not run (cost one turn)."
-    }
-  ],
+  "doc_friction": [],
   "deviations": [
     {
       "file": "prompts/process/prompt-1.md",
