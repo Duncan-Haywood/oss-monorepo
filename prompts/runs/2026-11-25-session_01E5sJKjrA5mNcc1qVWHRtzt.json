@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKjrA5mNcc1qVWHRtzt",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T16:19:40Z",
+  "ended": "2026-11-25T16:24:29Z",
+  "wall_minutes": 4.98,
+  "tokens_in": 3862508,
+  "tokens_out": 18174,
+  "cost_usd": 1.7539,
+  "tool_calls": 49,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19023",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "GitHub git and API access returned 503 ('credential service temporarily unavailable') for the first ~10 minutes; the security-queue fetch and issue searches failed then, and succeeded on retry later"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--history TEXT accepted a piece with its own '; next ...' step (PR #18387's record); fixed in this PR"
+    },
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "Solve/Verify write backlog rows under prompts/, which CODEOWNERS gates, so every process run that touches the backlog needs a second owner-held PR; the prompt does not say so"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "why": "backlog rows (P071 result, P072) are control-plane paths; CLAUDE.md says keep those in their own small PR",
+      "did": "shipped the fix, re-park, post and record in PR #19023 and the backlog JSON in a separate PR",
+      "result": "main work merges without waiting on the owner"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-a-finished-result-with-a-next-step-attached.md"
+  ],
+  "goal": null,
+  "notes": "Backlog: verified P071 (history_pieces over 14 rows: 5 offered, 0 with next/misses; baseline 3), filed and shipped P072. open_tail over 131 HISTORY.md '(moved ...)' entries on main: 6 hold an open step, 0 false positives read; 2 league steps re-parked. Verification: pytest portfolio/router 287 passed; check_posts ok; validate.py ok; main_health.py 313/313 ok. Security queue: empty (triaged only).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e2f520dc-8673-5554-ba61-362eebcc4c0d",
+    "transcripts": 1,
+    "first": "2026-11-25T16:19:40Z",
+    "last": "2026-11-25T16:24:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 89,
+        "output": 18174,
+        "thinking": 3223,
+        "cache_read": 3783246,
+        "cache_write_5m": 0,
+        "cache_write_1h": 79173,
+        "api_equivalent_usd": 1.7539,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 89,
+      "output": 18174,
+      "thinking": 3223,
+      "cache_read": 3783246,
+      "cache_write_5m": 0,
+      "cache_write_1h": 79173,
+      "api_equivalent_usd": 1.7539,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 45,
+      "Edit": 1,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.98,
+      "active_minutes": 4.98,
+      "model_minutes": 3.65,
+      "tool_minutes": 1.33,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "find fault in run records, write guard + tests, sweep HISTORY files, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 114.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
