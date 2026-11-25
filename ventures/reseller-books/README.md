@@ -70,6 +70,14 @@ donated, lost or damaged, and after rows marked sold in the year that no report 
 35 + 36 - 41, carried to line 4, at cost (33a). Lines 37 to 39 are left to the preparer. Unmatched sold units are listed.
 With the log's opening figure, line 42 equals the FIFO cost of matched units plus units sold elsewhere (asserted in
 tests). The log also gives each SKU and title its average unit cost for the per-channel profit; typed costs win.
+Stock by age (`agedStock` in `inventory.mjs`, tested in `aged.test.mjs` against hand-counted days): every unit left on
+hand after the FIFO matching is aged to December 31 of the Part III year (Dec 31 less its purchase date) and put in a
+bucket (0 to 90 days, 91 to 180, 181 to 365, over a year, no purchase date); the buckets add up to line 41 by construction.
+Items are grouped by SKU (else title) and listed longest-waiting money first (cost x cost-weighted average age), with
+the share of the year's available units (on hand at Jan 1 plus bought, less units marked personal, donated or lost) that
+sold, in the reports or marked sold elsewhere. Stock bought over a year before Dec 31 is a finding, with a reminder to
+count it before signing off line 41. Both tables are in the CSV download. No valuation advice: it is a list to count and
+act on, at cost.
 The worksheet groups totals under Schedule C lines and says where placement is a preparer's
 choice. Not tax advice.
 
