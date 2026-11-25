@@ -161,3 +161,19 @@ export const PARTIAL = {
 };
 
 export const MAX_SCORE = 110;
+
+/**
+ * Level 2 requirements that may never be on a POA&M, whatever their point
+ * value: 32 CFR 170.21(a)(2)(iii)(A)-(F). The DoD CIO CMMC FAQ counts six.
+ * All six carry 1 point (3.12.4 none), so the general "1-point only" rule
+ * would otherwise let them through. Read through search excerpts of the
+ * eCFR page on 25 Nov 2026 (eCFR not reachable directly); see SOURCES.md.
+ */
+export const POAM_PROHIBITED = {
+  "3.1.20": "AC.L2-3.1.20 External Connections (CUI Data)",
+  "3.1.22": "AC.L2-3.1.22 Control Public Information (CUI Data)",
+  "3.12.4": "CA.L2-3.12.4 System Security Plan",
+  "3.10.3": "PE.L2-3.10.3 Escort Visitors (CUI Data)",
+  "3.10.4": "PE.L2-3.10.4 Physical Access Logs (CUI Data)",
+  "3.10.5": "PE.L2-3.10.5 Manage Physical Access (CUI Data)",
+};

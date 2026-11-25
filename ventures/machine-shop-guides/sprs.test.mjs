@@ -95,3 +95,40 @@ test("CSV guard defuses tab and CR prefixes but lets plain numbers through", () 
   assert.match(row, /^'\tx,/);
   assert.match(row, /,-1,/);
 });
+
+test("32 CFR 170.21(a)(2)(iii): six requirements never go on a POA&M", async () => {
+  const { POAM_PROHIBITED } = await import("./sprs-data.mjs");
+  assert.deepEqual(Object.keys(POAM_PROHIBITED).sort(), ["3.1.20", "3.1.22", "3.10.3", "3.10.4", "3.10.5", "3.12.4"]);
+  for (const id of Object.keys(POAM_PROHIBITED)) {
+    assert.ok(REQUIREMENTS.some((r) => r.id === id), id);
+    assert.match(POAM_PROHIBITED[id], new RegExp("L2-" + id.replace(/\./g, "\\.") + " "));
+  }
+  // Each is a 1-pointer (or 3.12.4), so the weight rule alone would let it through.
+  for (const id of ["3.1.20", "3.1.22", "3.10.3", "3.10.4", "3.10.5"]) {
+    const st = all("met");
+    st[id] = "not_met";
+    st["3.1.3"] = "not_met"; // an allowed 1-pointer alongside
+    const s = scoreSprs(st);
+    assert.equal(s.score, 108);
+    assert.equal(s.conditional.scoreOk, true);
+    assert.deepEqual(s.conditional.prohibited, [id]);
+    assert.deepEqual(s.conditional.overWeight, []);
+    assert.deepEqual(s.conditional.blocking, [id]);
+    assert.equal(s.conditional.possible, false, id);
+  }
+});
+
+test("POA&M starter says which gaps the rule allows", () => {
+  const st = all("met");
+  st["3.1.3"] = "not_met";
+  st["3.1.5"] = "not_met";
+  st["3.10.4"] = "not_met";
+  st["3.13.11"] = "partial";
+  const s = scoreSprs(st);
+  const byId = Object.fromEntries(s.gaps.map((g) => [g.id, g.poam]));
+  assert.deepEqual(byId, { "3.1.3": "allowed", "3.1.5": "over_one_point", "3.10.4": "prohibited", "3.13.11": "allowed" });
+  const lines = gapsToCsv(s.gaps).trim().split("\n");
+  assert.match(lines[0], /POA&M allowed \(32 CFR 170\.21\)/);
+  assert.ok(lines.find((l) => l.startsWith("3.10.4,")).includes("No: listed in 32 CFR 170.21(a)(2)(iii)"));
+  assert.ok(lines.find((l) => l.startsWith("3.1.3,")).includes(",Yes,"));
+});
