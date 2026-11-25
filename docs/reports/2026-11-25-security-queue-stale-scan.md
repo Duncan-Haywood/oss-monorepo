@@ -100,3 +100,15 @@ when this was written), the queue should drop to about these 54.
   fixed patterns with the host as the subject; `CDN_ORIGIN` is only
   concatenated). Without a local CodeQL run this is unconfirmed. Their claim
   branches could not be deleted through the session proxy and expire after 48 h.
+
+## Later the same day: `security_next.py` does step 0 in one command
+
+Three run records the same morning (prompt.md `doc_friction`) hit the same routine: a run found
+every alert already claimed only after fetching the queue and diffing it against `ls-remote` by
+hand; one lost #1049/#1050 to a session that pushed the claim between its read and its push; one
+re-triaged alerts an earlier pass had written up. `platform/ci/security_next.py` prints the top
+alert with no claim branch and no triage entry (the notes here and, once PR 18843 lands,
+`platform/security/codeql-triage.json` and QUEUE.md's "Triaged" section), or "Nothing to take"
+with exit 3. `--claim` pushes the branch with `--force-with-lease=<ref>:`, which git refuses when
+the ref already exists, so of two racing sessions one wins and the other moves to the next alert
+(tested against a local bare remote). Its first live run: 48 listed, 48 claimed, 0 workable.

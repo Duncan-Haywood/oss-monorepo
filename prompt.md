@@ -15,10 +15,13 @@ measurements to improve the sub-prompts and the documentation.
 Owner, 2026-10-30 and 2026-11-24: security findings are fixed "as soon as they arise",
 the backlog is cleared, and new ones are stopped "before they hit main". So, unless the
 starting message names a task, read the security queue first:
-`git fetch -q --depth=1 origin security-alerts && git show origin/security-alerts:QUEUE.md`.
+`python3 platform/ci/security_next.py` prints the top alert with no claim branch that the
+triage notes (`docs/reports/*security-queue*.md`) don't already cover, or "Nothing to take"
+(exit 3); `--claim` also pushes its claim branch, create-only, so two sessions racing for one
+alert cannot both win. The raw queue: `git show origin/security-alerts:QUEUE.md`.
 
 - It lists alerts: take the top one with no `security-fix/code-scanning-<n>` branch
-  (`git ls-remote`); its `alerts/<n>.md` says how. This comes before ideas, website
+  (`security_next.py --claim`); its `alerts/<n>.md` says how. This comes before ideas, website
   requests and routing, every run, until the queue is empty.
   The queue mirrors the last *completed* analysis of `main`, about an hour behind merges:
   QUEUE.md names the scanned commit, so check `git log <sha>..origin/main` for a bulk fix first.
