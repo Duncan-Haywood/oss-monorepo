@@ -95,7 +95,7 @@ function snippet(text, index, len) {
 }
 
 function numbersIn(s) {
-  return [...s.matchAll(/\d[\d,]*/g)]
+  return [...s.matchAll(/\d[\d,]{0,12}/g)]
     .map((m) => Number(m[0].replace(/,/g, "")))
     .filter((n) => Number.isInteger(n) && n >= 1 && n <= MAX_QTY);
 }
@@ -106,19 +106,19 @@ export function findQuantities(text) {
   const evidence = [];
   const add = (nums, m) => { for (const n of nums) qty.add(n); if (nums.length) evidence.push(snippet(text, m.index, m[0].length)); };
   // "Qty: 10, 25, 50", "QTY 10/25/50", "quantities of 5, 10 and 25"
-  for (const m of text.matchAll(/\b(?:qty|qtys|quantit(?:y|ies))\.?\s*(?:of|:|=|-|breaks?:?)?\s*((?:\(?\d[\d,]*\)?\s*(?:pcs|pieces|ea|each|units|parts|off)?\s*(?:,|\/|&|\band\b|\bor\b|\s)\s*){0,8}\(?\d[\d,]*\)?)/gi)) {
+  for (const m of text.matchAll(/\b(?:qty|qtys|quantit(?:y|ies))\.?\s*(?:of|:|=|-|breaks?:?)?\s*((?:\(?\d[\d,]{0,12}\)?\s*(?:pcs|pieces|ea|each|units|parts|off)?\s*(?:,|\/|&|\band\b|\bor\b|\s)\s*){0,8}\(?\d[\d,]{0,12}\)?)/gi)) {
     add(numbersIn(m[1]), m);
   }
   // "50 pcs", "(25) pieces", "100 ea", "10-off"
-  for (const m of text.matchAll(/\(?\b(\d[\d,]*)\)?\s*(?:pcs|pieces|pc|ea|each|units|parts|off)\b/gi)) {
+  for (const m of text.matchAll(/\(?\b(\d[\d,]{0,12})\)?\s*(?:pcs|pieces|pc|ea|each|units|parts|off)\b/gi)) {
     add(numbersIn(m[1]), m);
   }
   // "price on 100 of the attached", "need 40 of these"
-  for (const m of text.matchAll(/\b(\d[\d,]*)\s+of\s+(?:the|these|this|those|each|part|item)\b/gi)) {
+  for (const m of text.matchAll(/\b(\d[\d,]{0,12})\s+of\s+(?:the|these|this|those|each|part|item)\b/gi)) {
     add(numbersIn(m[1]), m);
   }
   let annual = null;
-  const a = text.match(/\b(?:EAU|annual (?:usage|volume|quantity|demand)|per year|\/\s?yr|a year)\b\s*(?:of|:|=|-|is)?\s*(\d[\d,]*)|(\d[\d,]*)\s*(?:pcs|pieces|parts|units)?\s*(?:per year|\/\s?yr|a year|annually)\b/i);
+  const a = text.match(/\b(?:EAU|annual (?:usage|volume|quantity|demand)|per year|\/\s?yr|a year)\b\s*(?:of|:|=|-|is)?\s*(\d[\d,]{0,12})|\b(\d[\d,]{0,12})\s*(?:pcs|pieces|parts|units)?\s*(?:per year|\/\s?yr|a year|annually)\b/i);
   if (a) {
     const n = Number((a[1] || a[2]).replace(/,/g, ""));
     if (Number.isInteger(n) && n >= 1 && n <= MAX_QTY) annual = { quantity: n, evidence: snippet(text, a.index, a[0].length) };
@@ -131,7 +131,7 @@ export function findQuantities(text) {
 /** Tolerances in inches (mm converted) and surface finish callouts. */
 export function findTolerances(text, tightInches = 0.001) {
   const out = [];
-  const re = /(?:±|\+\/-|\+-|\+\s?\/\s?-|plus or minus)\s*(\d*\.\d+|\d+(?:\.\d+)?)\s*(mm|millimet(?:er|re)s?|"|in(?:ch(?:es)?)?\b|thou\b)?/gi;
+  const re = /(?:±|\+\/-|\+-|\+\s?\/\s?-|plus or minus)\s*(\d{0,6}\.\d{1,8}|\d{1,6}(?:\.\d{1,8})?)\s*(mm|millimet(?:er|re)s?|"|in(?:ch(?:es)?)?\b|thou\b)?/gi;
   for (const m of text.matchAll(re)) {
     let v = Number(m[1]);
     const unit = (m[2] || "").toLowerCase();

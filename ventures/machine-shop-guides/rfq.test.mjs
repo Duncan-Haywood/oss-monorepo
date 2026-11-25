@@ -143,3 +143,11 @@ test("clause titles are pinned to the GSA source text", () => {
   const sources = readFileSync(new URL("./SOURCES.md", import.meta.url), "utf8");
   assert.ok(sources.includes(hash.slice(0, 16)), `SOURCES.md should name the clause title hash ${hash.slice(0, 16)}`);
 });
+
+test("long digit and comma runs stay linear (no regex backtracking blow-up)", () => {
+  for (const s of ["+/- " + "1".repeat(20000) + ".", "Ra " + "9".repeat(20000) + "x", "1".repeat(100000), "1,".repeat(50000), "qty " + "(1) pcs , ".repeat(5000)]) {
+    const t = Date.now();
+    readRfq(s);
+    assert.ok(Date.now() - t < 1000, `took ${Date.now() - t} ms on a ${s.length}-char input`);
+  }
+});

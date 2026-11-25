@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "CSV cell guard first defused plain negative numbers; platform/ci/check_csv_formula_guard.py (run by run_venture_tests) caught it locally, fixed before merge",
-    "rfq-review.html meta description was 166 chars; platform/pages description-length test (pages CI 'test' job) caught it; shortened to 155"
+    "rfq-review.html meta description was 166 chars; platform/pages description-length test (pages CI 'test' job) caught it; shortened to 155",
+    "Unbounded \\d[\\d,]* without a word boundary made 20k-digit inputs take ~3 s (quadratic backtracking); found by a local stress test while full-repo CodeQL ran 30+ min; bounded to {0,12} and pinned by a timing test"
   ],
   "integrity_issues": [],
   "doc_friction": [
