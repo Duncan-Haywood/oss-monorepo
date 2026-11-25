@@ -1,6 +1,6 @@
 # Turn a Square export into a Xero or QuickBooks journal
 
-> Free Square transactions to journal converter: checks every payment, books gross sales, discounts, sales tax, tips, refunds and Square fees separately by month, keeps cash and Square gift card payments out of Square clearing, totals each Deposit ID for your bank feed, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop.
+> Free Square transactions to journal converter: checks every payment, books gross sales, discounts, sales tax, tips, refunds (with their sales tax taken back out of the payable) and Square fees separately by month, keeps cash and Square gift card payments out of Square clearing, totals each Deposit ID for your bank feed, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop.
 
 Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
