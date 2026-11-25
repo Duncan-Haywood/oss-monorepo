@@ -52,9 +52,15 @@ poppler.
 
 ## After
 
-This PR's own CI runs the changed workflow. Step timings are in the run record's
-`notes`, taken from `actions/runs/<id>/jobs`. The 44 workflows changed the same
-way earlier on 2026-11-25 went from a 43 s median checkout to 2 s.
+This PR's own CI (run 45546690166; step timestamps from `actions/runs/<id>/jobs`), all three jobs green:
+
+| | before (pool reading) | after |
+|---|---:|---:|
+| checkout per job | 57 s median | **3 s median** (2, 3, 4 s) |
+| job | 67 s median | **9 s median** (cli 8 s, examples 9 s, browser 51 s) |
+
+That saves about 54 s of runner time per job, or about 2.7 job-minutes on every
+e-invoice PR. The browser job's 51 s is now the `npm i` and the 2332-test suite.
 
 ## Not changed, ranked for the next run
 
