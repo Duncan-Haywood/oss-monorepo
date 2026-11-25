@@ -107,7 +107,9 @@ The fill path (a post with fewer than n scored candidates) is unchanged.
   date tie-break is caught by the two existing ranking tests, not by this
   one.
 - `writing.test.mjs` and `writing-backlog.test.mjs`: 68 of 68 pass (69 with
-  the new test).
+  the new test). Whole suite after: 2,093 of 2,094. The one failure was the
+  determinism test, which flagged this doc being written under `docs/` during
+  the run. `build.test.mjs` re-run with no edits: 339 of 339.
 
 ## After
 
@@ -115,7 +117,7 @@ The fill path (a post with fewer than n scored candidates) is unchanged.
 |---|---:|---:|
 | `relatedPosts` over all posts (3 runs) | 2.31 / 2.47 / 2.49 s | 0.54 / 0.64 / 0.61 s |
 | `buildWriting` alone into a temp dir (3 runs each) | 11.37 / 12.16 / 13.51 s | 7.60 / 7.28 / 8.69 s |
-| Whole Pages suite, cold card cache, 4 cores | 431 s | see the run record's `notes` |
+| Whole Pages suite, cold card cache, 4 cores (one run each, noisy) | 431 s | 406 s |
 
 `buildWriting` takes the related tables for more than one post list (the
 blog, then the lists `siblingTargets` grows), so it saves more than the

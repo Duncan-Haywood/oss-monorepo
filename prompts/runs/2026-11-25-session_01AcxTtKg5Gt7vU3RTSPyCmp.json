@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtKg5Gt7vU3RTSPyCmp",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T12:07:31Z",
+  "ended": "2026-11-25T12:35:05Z",
+  "wall_minutes": 28.03,
+  "tokens_in": 10499611,
+  "tokens_out": 36767,
+  "cost_usd": 3.9232,
+  "tool_calls": 97,
+  "task": "perf: rankRelated top-n selection and reused score buffer in platform/pages/writing.mjs",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18966",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First after-run of the full Pages suite had 1 failure (an identical build produces an identical cache name), caused by writing the history doc under docs/ while the suite ran; the test's own message named the edit. Re-ran build.test.mjs with no edits in flight.",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "'Where to look' item 1 sends runs to P063, but P063 has been unsafe since 2026-11-13 (ventures-tests runs unwired_checks.py across the whole tree) and four stale PRs (#13748, #13868, #14240, #14251) carry its old change; the backlog row still reads 'open'. PR #18954 adds a history note; the row should be closed."
+    },
+    {
+      "file": "platform/pages/build.mjs",
+      "issue": "The comment above the first 'await researchBuild' says 'Pass 1 takes minutes and the research build about two seconds, so this await costs nothing'; since the 2026-11-11 parallel copy pass 1 takes ~2 s and the await idles 2.9 s in fixture builds."
+    },
+    {
+      "file": "platform/pages/build.test.mjs",
+      "issue": "Editing any file under docs/ while the Pages suite runs fails the determinism test; easy to trip when writing the history doc in parallel with the after-measurement. The message says so, which saved time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Skipped backlog item P063 although its workflow is no longer owner-only: a sparse checkout would silently narrow the whole-tree unwired checks that job now runs.",
+      "did": "Took a fresh pool reading, then item 3 (the Pages suite's build code), and recorded why P063 is unsafe in the history doc.",
+      "result": "Landed a byte-identical 4x speed-up of related-post ranking."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No post in docs/posts: an internal build-speed change interests no customer of the paid products, and the owner asks for consolidated customer/SEO posts rather than one per PR.",
+      "did": "Wrote the agent doc docs/history/pages-build-perf-2026-11-25-related-posts-top-n.md only.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/history/pages-build-perf-2026-11-25-related-posts-top-n.md"
+  ],
+  "goal": null,
+  "notes": "Metric: buildWriting seconds (one call, real posts, temp dir, 4-core sandbox): before 11.37/12.16/13.51 s, after 7.60/7.28/8.69 s (median 12.16 -> 7.60). relatedPosts over all 7,369 posts: 2.31/2.47/2.49 s -> 0.54/0.64/0.61 s; list hash 284f58be370e57da before and after. Fixture site build (custom-domain shape, 10,068 files) diff -rq old vs new: only build timestamps in version.json and feed.xml differ. Whole Pages suite, cold card cache, `time node --test \"*.test.mjs\" \"cloudflare/*.test.mjs\"`: before 431 s wall (2093/2093), after 406 s wall (2093/2094; the 1 failure was my concurrent docs edit, see errors). Wall time across single runs is noisy on this sandbox. Pool reading for context: ci_profile.py --runs 300 --top 20 at 2026-11-25T12:07Z, 484.8 job-min, checkout 174.5. build.test.mjs re-run with no edits in flight: 339/339 pass (384 s).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d595f8b6-fa61-50d4-8b51-12c87e48e968",
+    "transcripts": 1,
+    "first": "2026-11-25T12:07:31Z",
+    "last": "2026-11-25T12:35:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 91,
+        "input": 172,
+        "output": 36767,
+        "thinking": 9348,
+        "cache_read": 10360050,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139389,
+        "api_equivalent_usd": 3.9232,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 91,
+      "input": 172,
+      "output": 36767,
+      "thinking": 9348,
+      "cache_read": 10360050,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139389,
+      "api_equivalent_usd": 3.9232,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 97,
+    "tools": {
+      "Bash": 87,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "Monitor": 2,
+      "Edit": 2,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 28.03,
+      "active_minutes": 28.03,
+      "model_minutes": 7.41,
+      "tool_minutes": 20.62,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "profile a 400 s test suite, find and rewrite a ranking hot path with byte-identical verification and a test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 102.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
