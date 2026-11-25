@@ -1562,9 +1562,12 @@ test('the hub ships one stemmer, not a second copy that can drift', async () => 
   const html = await read('index.html');
   // The browser gets searchVariants by source injection. If that ever becomes
   // a hand-written duplicate, this catches it: the shipped text must be the
-  // function the tests above actually exercised.
+  // function the tests above actually exercised. The hub's comment lines are
+  // stripped at build time (stripInlineScriptComments), so compare the source
+  // with its whole-line comments removed and every code line as written.
+  const shipped = searchVariants.toString().split('\n').filter((line) => !/^\s*\/\//.test(line)).join('\n');
   assert.ok(
-    html.includes(searchVariants.toString()),
+    html.includes(shipped),
     'hub page does not carry the exact searchVariants source that build.mjs exports',
   );
 });
