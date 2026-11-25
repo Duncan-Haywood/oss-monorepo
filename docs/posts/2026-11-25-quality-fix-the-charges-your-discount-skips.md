@@ -1,9 +1,9 @@
 ---
 title: "Quality fix: the workers' comp charges your premium discount skips"
-seo_title: "Workers' comp terrorism and catastrophe charges: why the premium discount and mod skip them"
+seo_title: "Workers' comp terrorism and catastrophe charges, outside the discount"
 date: 2026-11-25
 tags: [quality-audit, workers-comp-premium-calculator, for-customers, construction, insurance]
-description: "The free workers' comp premium calculator now prices terrorism and catastrophe charges per $100 of payroll, outside the mod and the premium discount, and its tests now pin which amount the discount is taken on."
+description: "The free workers' comp calculator now prices terrorism and catastrophe per $100 of payroll, outside the mod and premium discount."
 ---
 
 A contractor's workers' compensation quote has two kinds of line. Most of the
