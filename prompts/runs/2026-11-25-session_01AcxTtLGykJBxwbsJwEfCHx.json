@@ -47,7 +47,7 @@
     "prompts/process/backlog/P073-north-star-in-non-venture-prompts.json"
   ],
   "goal": null,
-  "notes": "Critique mode (backlog had only owner/blocked rows). Shipped P073: North star paragraph in six non-venture prompt-0.md files. Baseline 4/57 runs naming the gap (prompts/runs 2026-11-24..25). main_health.py: see PR; validate ok; unittest prompts OK. main_health.py on main: 319/322; fixed all three red here: transition.json and verticals.json stale (refreshed with --write), test_friction_rank asserted Markdown prompts are CODEOWNERS-gated though PR #18736 moved them to the risk review (test updated). Re-ran: 24 + 27 passed.",
+  "notes": "Critique mode (backlog had only owner/blocked rows). Shipped P073: North star paragraph in six non-venture prompt-0.md files. Baseline 4/57 runs naming the gap (prompts/runs 2026-11-24..25). main_health.py: see PR; validate ok; unittest prompts OK. main_health.py on main: 319/322; fixed all three red here: transition.json and verticals.json stale (refreshed with --write), test_friction_rank asserted Markdown prompts are CODEOWNERS-gated though PR #18736 moved them to the risk review (main fixed the same test meanwhile; took main's version at merge). Re-ran: 24 + 27 passed.",
   "corrections": [],
   "redteam": null,
   "usage": {
