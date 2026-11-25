@@ -68,11 +68,14 @@ Georgia, Massachusetts and Mississippi are often said to have statutory forms, b
 open their official text, so they are not listed rather than listed from memory.
 
 **Where this goes.** The pay-app product we are building for specialty subcontractors already
-prints the Arizona, Florida, Michigan, Missouri, Nevada, Texas and Utah waivers word for word from the
+prints the Arizona, Florida, Michigan, Missouri, Nevada, Texas, Utah and Wyoming waivers word for word from the
 statute, with a test that rebuilds each form and compares it with the law. Michigan's forms
 leave the "does / does not" choice for you to circle by hand. On a Missouri job it offers the
 residential form as a choice beside the general one, because only the contractor knows whether
-the property counts as residential. Wyoming is next. It is in
+the property counts as residential. For a Wyoming job it also prints the preliminary notice
+of right to lien, the "NOTICE TO OWNER" of W.S. 29-10-101(a), with the blank waiver form the
+notice says is attached. It does not work out your deadline to send it: that is in W.S. 29-2-112,
+which we have not encoded, so read it or ask counsel. The product is in
 development with early access, and nothing is for sale yet:
 [construction tools and early access](https://marisstella.app/industries/construction/).
 To check a waiver you were sent for the common traps, the free
