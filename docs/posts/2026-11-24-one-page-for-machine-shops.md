@@ -552,3 +552,32 @@ now uses the shop's own quote log for this:
 
 Everything stays inside the shop's own account: no other shop's quotes are
 read, and nothing here estimates a price the shop has not set.
+
+## Update, 25 November 2026: which routing fits this part, from your own history
+
+Routing templates save an estimator from re-entering setups and cycle
+times, but only once they find the right one. A shop with forty routings
+("6061 bracket", "turned shaft", "weldment prep") still has to remember which
+fits a new part.
+
+The RFQ-to-quote app (bet #2, still in private development, not yet on sale)
+now suggests up to three routings above each quote line's picker:
+
+- **From what the shop has done, not a guess.** A routing is suggested when
+  earlier lines in the same shop used its operations, counting more when they
+  were in the same material and more again when the quote was won. It also
+  counts words from the line's description that appear in the routing's
+  name or part family, or in the descriptions of the parts it was used on. A
+  routing with none of this behind it is not suggested.
+- **It shows its reasons.** Each suggestion reads like "Used on 3 earlier
+  lines in Aluminum 6061-T6 plate (2 won); its name matches "bracket"", so the
+  estimator can see why it came up and ignore it when it doesn't fit.
+- **Small edits still count.** A line that used a routing and then had a
+  cycle time tuned, or had the routing added after other operations, still
+  counts as using it: the match is on machines and operation labels, in
+  order.
+- **The estimator still decides.** Clicking a suggestion selects it in the
+  picker. Nothing changes until *Use routing* is pressed, and the line is
+  then priced from today's rate card like any other edit.
+
+As before, only the shop's own routings and quotes are read.
