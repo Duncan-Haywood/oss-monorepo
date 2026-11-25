@@ -1,7 +1,7 @@
 ---
 title: "Pay applications: the monthly paperwork subcontractors pay to escape"
 date: 2026-11-24
-tags: [construction, subcontractors, billing, retainage, lien-waivers, stored-materials, pay-app-guides, for-customers]
+tags: [construction, subcontractors, billing, retainage, lien-waivers, stored-materials, schedule-of-values, pay-app-guides, for-customers]
 description: "What a monthly pay application involves for a trade sub, what billing tools charge today (sourced), and the product we are building. In development."
 ---
 
@@ -160,6 +160,8 @@ Still in development and not for sale. Built and tested so far:
 
 A short pay does not change the next pay application: line 7 on the summary subtracts earlier *certificates*, not earlier payments. So the unpaid balance has to be chased on its own, and a report that only knows "paid" or "not paid" would hide it.
 
+**Closing a balance that will not come.** Some short balances are never paid: the GC took a backcharge, the amount is in dispute, or it is not worth chasing. Left as "owed", that balance sits in the aging report for ever and the next follow-up call is about money that is not coming. The build now closes it on the application as a backcharge, disputed or written off, with a date and a note. The cash report then counts only the money received as paid and lists the rest under its reason, with totals per job and across jobs. A disputed balance keeps a next step, because the contractor still claims it. The unconditional waiver the build asks for, and prefills, covers only the money received. Reopening the balance, or deleting a payment, puts it back as owed. (Added 2026-11-25; still in development.)
+
 The working price range in our notes is about $99 to $249 a month. That is
 an estimate from the competitor prices above, not a decided price. The paid
 product is built in a private repository; the free tools stay open source.
@@ -257,6 +259,22 @@ are the starting point, not the product:
   "previous" was last month's total less only the stored material since
   installed; it is last month's total less all of last month's stored. Fixed.
   ([source](../../ventures/pay-app-guides/stored.mjs))
+- [Front-loading a schedule of values](https://marisstella.app/pay-app-guides/front-loading-schedule-of-values.html)
+  (added 2026-11-25): put your estimated cost next to each SOV line and the
+  check shows each line's markup against the job's, the value pulled onto
+  early lines, and the late lines (testing, closeout, punch list) priced
+  below cost, which is the part that hurts if the job stops or the final pay
+  app is held. It writes a balanced SOV (every line at the job's markup) and
+  the smallest cost-weighted change that keeps every line within a tolerance
+  you choose, both rounded so they add up to the contract to the cent. With
+  start and finish months it shows billing, over-billing and job cash by
+  month. On the page's 10-line example ($580,000 on $499,000 of cost),
+  $40,431 sits above balance on early lines, the lowest job cash point is
+  $23,000 as submitted against $1,582 balanced, and at a 9% cost of money
+  that early cash is worth about $2,066: the trade a sub is making against a
+  rejected SOV. It makes no claim about what a given contract allows; a
+  mobilization cap is entered from your own contract.
+  ([source](../../ventures/pay-app-guides/frontload.mjs))
 
 - [Free schedule of values template](https://marisstella.app/pay-app-guides/schedule-of-values-template.html)
   (added 2026-11-25): for subs who would rather keep the spreadsheet. A blank
@@ -424,6 +442,29 @@ given state or which statutory form applies. Those are in the
 guide, each linked to the statute; this page checks the log against itself.
 In the hosted product, each pay app will carry its own waiver list, so the
 chasing happens on the job rather than in a separate sheet.
+
+### Paid short: splitting the gap before you call the GC
+
+When the check is smaller than line 8, the gap usually has one of three
+causes. The GC certified less than you applied for, which is a cut to the
+application, billed again next month once agreed. Or it deducted a backcharge,
+which you should ask to see in writing with its backup. Or it is holding money
+without saying why, often for a missing waiver, insurance certificate or
+certified payroll.
+
+The free [paid-short reconciler](https://marisstella.app/pay-app-guides/paid-short.html)
+takes four inputs: what the application asked for, the certified amount, each
+payment received and each deduction the GC named. It splits the shortfall
+into those three parts and says what to ask about each. It lists one
+unconditional waiver per payment actually received, for that payment's
+amount, and says not to waive the balance. It also drafts the email to the GC.
+
+In the built-in example a $45,000 application is certified at $42,000, with a
+$1,800 cleanup backcharge, and one $38,000 check comes in. Of the $7,000 short,
+$3,000 is the cut, $1,800 the backcharge, and $2,200 has no reason given:
+that $2,200 is the question for the GC. The logic is in `shortpay.mjs`, with
+four tests in `shortpay.test.mjs`. It is arithmetic on what you type. It does
+not read your subcontract.
 
 ## Early access
 
