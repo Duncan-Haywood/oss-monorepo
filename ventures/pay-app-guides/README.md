@@ -17,6 +17,7 @@ Live: <https://marisstella.app/pay-app-guides/>
 | `how-to-fill-out-a-pay-application.html` | The continuation sheet column by column and the summary page line by line, one worked example, what to attach. |
 | `retainage-explained.html` | How retainage is calculated, reduced, released and flowed down, and a table of public retainage caps for 12 states, each linked to the official statute. |
 | `conditional-vs-unconditional-lien-waivers.html` | The four waiver types, when to sign each, exceptions to write in, California and Florida statutory forms. |
+| `lien-waiver-forms-by-state.html` | Statutory lien waiver forms by state: AZ, NV, TX, UT, FL, MI, WY read on the official legislature sites on 2026-11-25 (CA linked, not re-read), number of forms, how strict, what each requires. Every quoted phrase was checked against the fetched statute text; `page.test.mjs` checks each row links an official site. |
 | `change-orders-schedule-of-values.html` | How approved and deductive change orders enter the SOV and the summary, with a worked example. |
 
 ## Spec sources
