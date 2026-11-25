@@ -189,6 +189,90 @@ jobs:
       - name: Test the development dashboard and the daily brief
         run: node --test platform/devstats/*.test.mjs platform/daily/*.test.mjs
 
+  # Writes the `test` job's share-card cache, which nothing else did. `test`
+  # saves it only off pull requests, and since it skips pushes that meant the
+  # three-hourly schedule alone, whose runs wait in this workflow's queue
+  # behind a push run and are replaced by the next push: on 2026-11-25 all four
+  # scheduled runs that day ended `cancelled`. So no `test-share-cards-` entry
+  # existed, every pull request's `test` fell back to the deploy's cards (drawn
+  # for the live origin, not the suite's example.test one) and drew the
+  # suite's cards cold: the shared build was 290 of a 348 s step
+  # (docs/history/pages-test-perf-2026-11-25-test-card-cache-never-saved.md).
+  #
+  # On a push it looks up today's entry (a sparse, blob-less checkout of the
+  # three key inputs, lookup only) and stops there when it exists, which is
+  # every push but the day's first. Otherwise it runs the same suite once and
+  # saves what it drew, so the day's pull requests restore warm cards. Same
+  # key, same suite, same save rule as `test`; contents: read, no secrets.
+  test-cards:
+    if: github.event_name == 'push'
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    permissions:
+      contents: read
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /platform/pages/sharecard.mjs
+            /platform/pages/fontraster.mjs
+            /platform/pages/fonts/
+
+      - name: Day for the share-card cache
+        id: cards
+        run: echo "day=$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Is today's entry already saved?
+        id: lookup
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ${{ runner.temp }}/share-cards
+          key: test-share-cards-${{ hashFiles('platform/pages/sharecard.mjs', 'platform/pages/fontraster.mjs', 'platform/pages/fonts/**') }}-${{ steps.cards.outputs.day }}
+          lookup-only: true
+
+      # The whole tree from here on, as `test` checks it out.
+      - name: Check out the rest of the tree
+        if: ${{ steps.lookup.outputs.cache-hit != 'true' }}
+        run: git sparse-checkout disable
+
+      - if: ${{ steps.lookup.outputs.cache-hit != 'true' }}
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+
+      - name: Restore the share cards
+        if: ${{ steps.lookup.outputs.cache-hit != 'true' }}
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ${{ runner.temp }}/share-cards
+          key: test-share-cards-${{ hashFiles('platform/pages/sharecard.mjs', 'platform/pages/fontraster.mjs', 'platform/pages/fonts/**') }}-${{ steps.cards.outputs.day }}
+          restore-keys: |
+            test-share-cards-${{ hashFiles('platform/pages/sharecard.mjs', 'platform/pages/fontraster.mjs', 'platform/pages/fonts/**') }}-
+            share-cards-${{ hashFiles('platform/pages/sharecard.mjs', 'platform/pages/fontraster.mjs', 'platform/pages/fonts/**') }}-
+
+      - name: Test the site builder (drawing the cards)
+        id: site-tests
+        if: ${{ steps.lookup.outputs.cache-hit != 'true' }}
+        env:
+          PAGES_CARD_CACHE: ${{ runner.temp }}/share-cards
+        run: node --test "*.test.mjs" "cloudflare/*.test.mjs"
+        working-directory: platform/pages
+
+      # As in `test`: saved whether or not the suite passed, since the cards
+      # are keyed by what they are drawn from.
+      - name: Drop cards unused for a day
+        if: ${{ !cancelled() && steps.lookup.outputs.cache-hit != 'true' && steps.site-tests.outcome != 'skipped' }}
+        run: find "$RUNNER_TEMP/share-cards" -name '*.png' -mmin +1440 -delete
+
+      - if: ${{ !cancelled() && steps.lookup.outputs.cache-hit != 'true' && steps.site-tests.outcome != 'skipped' }}
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ${{ runner.temp }}/share-cards
+          key: test-share-cards-${{ hashFiles('platform/pages/sharecard.mjs', 'platform/pages/fontraster.mjs', 'platform/pages/fonts/**') }}-${{ steps.cards.outputs.day }}
+
   # The Cloudflare Web Analytics site token for the live site
   # (platform/analytics/provision.mjs): the committed one in
   # platform/analytics/site.json, else found or created through the API.
