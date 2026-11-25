@@ -1,3 +1,8 @@
+---
+kind: note
+date: 2026-11-25
+topics: [security-alerts]
+---
 # Security queue: alerts checked and found false or already fixed (2026-11-25)
 
 For the next run that opens `origin/security-alerts:QUEUE.md`, and for the owner, who is the only one who
