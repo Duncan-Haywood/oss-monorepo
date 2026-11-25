@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtHrYmJmTSruNB4LYq7",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-25T16:16:30Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Lead-magnet funnel: point free tools' footers at the for-profit product they feed (goals.md North star, step 2)",
+  "projects": [
+    "platform/pages",
+    "portfolio/monetization"
+  ],
+  "pr": null,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "partial",
+  "errors": [
+    "GitHub git credential service and the GitHub MCP server returned 503 for the whole session: security-alerts queue unreadable, no push, no PR, no merge."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says to deepen the top flagship row here, but LICENSING_TRANSITION.md (2026-11-24) says new depth for the 20 proprietary products happens in private-monorepo; the routed row (league-schedule-generator) is one of them, and allocate.py does not yet say which applies."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Flagship rows still point deepening at this repo for products transition.json marks proprietary; nothing flags the conflict."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here row (league-schedule-generator: bowling lane-minimum proofs) is a hard combinatorial search with little MRR value, and the product is due to move to private-monorepo; goals.md North star ranks buyer-acquisition work above it.",
+      "did": "Built a hand-curated free-tool -> product funnel in the site footer instead.",
+      "result": "63 feeder pages carry the line; verified on a preview build."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "'Every session lands its own work': GitHub returned 503 to every git and MCP call all session.",
+      "did": "Committed on the work branch locally and notified the owner.",
+      "result": "Not pushed or merged in this session."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-matching-free-tools-to-products-by-hand.md",
+    "portfolio/monetization/README.md (Funnels section)"
+  ],
+  "goal": "North star step 2 (getting buyers to the for-profit products): 63 free tools now link, with a tracked footer line, to one of 14 proprietary products.",
+  "notes": "Checks run here: node --test platform/pages/product-funnel.test.mjs (4/4), related-tools/cta-row-phone/counter-wiring/feedback-page tests (18/18), writing.test.mjs (57/57), check_post_frontmatter/links/posts ok, preview build --only=stripe-payout-to-journal,sales-export-to-journal renders the line on the feeder and not on the product; screenshot at 390px shows no horizontal scroll. build.test.mjs: see final commit. Word-overlap matching was prototyped first and rejected (whole groups mispaired).",
+  "corrections": [],
+  "redteam": null
+}
