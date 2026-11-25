@@ -45,7 +45,7 @@
     },
     {
       "file": "prompts/process/backlog/",
-      "issue": "PRs #18884 and #18882 both merged backlog id P075, turning main's validate check red; renumbered the clone-refused item to P076 in this PR. Two runs picking the next free id at the same time collide; the id check only runs after merge."
+      "issue": "PRs #18884 and #18882 both merged backlog id P075, turning main's validate check red; renumbered the clone-refused item to P076 in this PR. Two runs picking the next free id at the same time collide; the id check only runs after merge. PR #18886 landed the same rename on main in parallel; the merge kept one copy."
     }
   ],
   "deviations": [
@@ -60,7 +60,7 @@
     "docs/posts/2026-11-25-prompt-payment-laws-for-subcontractors.md (new section on joint checks)"
   ],
   "goal": null,
-  "notes": "node --test *.test.mjs in ventures/pay-app-guides: 117 pass 0 fail. check_post_frontmatter and check_posts ok. risk_review: nothing blocked. Playwright at 390px: no errors, no horizontal scroll. Also fixed main's red validate (duplicate backlog id P075 -> P076).",
+  "notes": "node --test *.test.mjs in ventures/pay-app-guides: 117 pass 0 fail. check_post_frontmatter and check_posts ok. risk_review: nothing blocked. Playwright at 390px: no errors, no horizontal scroll. Also fixed main's red validate (duplicate backlog id P075 -> P076). Merged main after #18878/#18883/#18890: joint-checks.html added to nav.mjs GROUPS, nav regenerated; 130 tests pass.",
   "corrections": [],
   "redteam": null,
   "usage": {
