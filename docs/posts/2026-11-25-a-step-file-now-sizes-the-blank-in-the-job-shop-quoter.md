@@ -203,6 +203,29 @@ This was private-monorepo PR #167. The pricing engine did not change: the blank 
 the estimator can edit it before pricing. The thickness is a new optional column, `sheet_thickness_in`,
 in migration 0017.
 
+## Big STEP files no longer slow the upload
+
+Private-monorepo PR #169 fixed a failure that hadn't happened yet, before any customer could hit
+it. The app measured every CAD file inside the upload request. On Cloudflare Workers, a request
+gets 30 seconds of CPU, and when it runs out the whole request fails, not just the slow file. An
+RFQ can carry ten files of up to 15 MB each. So one large assembly STEP could have taken the
+drawings and the email text down with it.
+
+The fix: STEP and DXF files over 1 MB are stored straight away and marked "Not measured yet".
+The estimator clicks **Measure**, and that one file is measured in a request of its own. If it
+runs out of CPU, only that click fails, and the file can be tried again or entered by hand. A
+measured file is then linked to its part the same way extraction links it (the file name holds
+the part number, or it is the only file on a one-part RFQ). So the quote still opens with the
+blank and the CAD operations filled in. If a file gives nothing back, it is marked once, and the
+button is not offered again.
+
+Why 1 MB: the parser took 76 ms on the 166 KB public bracket above, about 0.5 ms per KB, so ten
+1 MB files come to about 5 s of CPU. That is a straight-line estimate. A real 10–15 MB STEP has
+not been timed yet, and that is the next check on the list. Files of 1 MB or less are still
+measured at upload, as before. All the job-shop tests pass (262 unit and 149
+Worker tests), including new ones for the deferred path, the role check and isolation between
+shops.
+
 ## Next
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
