@@ -1,0 +1,445 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtGzn6EoszmfRGySEQ3",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T12:07:05Z",
+  "ended": "2026-11-25T12:10:03Z",
+  "wall_minutes": 6.6,
+  "tokens_in": 2769759,
+  "tokens_out": 15592,
+  "cost_usd": 1.4931,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18961",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "'redteam.py targets --probe 20' printed nothing for pay-app-guides files (the listing is a random sample of ~21 targets), so checking a chosen --target needed a manual node --test timing instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: the 3 open defects each need a control-plane workflow edit (owner-only, own PR) or a help-center eval set that does not exist yet.",
+      "did": "Left them open, unchanged.",
+      "result": "No progress on them; still listed by redteam.py open."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b: the defect (negative and '1 days' age wording) is a wording class that has no cheap lint without false positives across hundreds of ventures.",
+      "did": "Fixed it with a unit test, not a repo-wide check.",
+      "result": "Guarded in tmlog.test.mjs only."
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "'Write about the work': a red-team test-and-wording fix gives a customer post nothing new to say.",
+      "did": "No post; the PR body and this record carry the outcome.",
+      "result": "null"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Targets: ventures/pay-app-guides/tmlog.mjs (new on main, bet #1 front door) and forecast.mjs. 20 mutants: 11 caught, 3 equivalent, 6 gaps, all now caught (rerun). Suite: run_venture_tests.py pay-app-guides ok, 234 tests. risk_review.py: blocked on nothing.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/pay-app-guides/tmlog.mjs",
+        "test": "node --test ventures/pay-app-guides/**/*.test.mjs  (in .)",
+        "seed": 709255196,
+        "commit": "c457f45ef",
+        "sites": 155,
+        "baseline_seconds": 2.2,
+        "mutants": [
+          {
+            "file": "ventures/pay-app-guides/tmlog.mjs",
+            "line": 54,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "if (!/^\\d+(\\.\\d{1,4})?$/.test(t)) return null;",
+            "after": "if (!/^\\d+(\\.\\d{2,4})?$/.test(t)) return null;",
+            "line_text": "  if (!/^\\d+(\\.\\d{1,4})?$/.test(t)) return null;",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/tmlog.mjs",
+            "line": 56,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "return parseInt(d, 10) * 10000 + parseInt((f + \"0000\").slice(0, 4), 10);",
+            "after": "return parseInt(d, 10) * 10001 + parseInt((f + \"0000\").slice(0, 4), 10);",
+            "line_text": "  return parseInt(d, 10) * 10000 + parseInt((f + \"0000\").slice(0, 4), 10);",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/tmlog.mjs",
+            "line": 60,
+            "col": 51,
+            "operator": "times-to-div",
+            "before": "const mulRound = (qty4, cents) => Math.floor((qty4 * cents + 5000) / 10000);",
+            "after": "const mulRound = (qty4, cents) => Math.floor((qty4 / cents + 5000) / 10000);",
+            "line_text": "const mulRound = (qty4, cents) => Math.floor((qty4 * cents + 5000) / 10000);",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/tmlog.mjs",
+            "line": 69,
+            "col": 70,
+            "operator": "const-plus-one",
+            "before": "const bp = parseInt(d, 10) * 100 + parseInt((f + \"00\").slice(0, 2), 10);",
+            "after": "const bp = parseInt(d, 10) * 100 + parseInt((f + \"00\").slice(0, 2), 11);",
+            "line_text": "  const bp = parseInt(d, 10) * 100 + parseInt((f + \"00\").slice(0, 2), 10);",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/tmlog.mjs",
+            "line": 115,
+            "col": 13,
+            "operator": "eq-flip",
+            "before": "if (type === null) type = \"other\";",
+            "after": "if (type !== null) type = \"other\";",
+            "line_text": "    if (type === null) type = \"other\";",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/tmlog.mjs",
+            "line": 138,
+            "col": 70,
+            "operator": "lt-to-le",
+            "before": "if (date != null) { t.dates.add(date); if (t.date == null || date < t.date) t.date = date; }",
+            "after": "if (date != null) { t.dates.add(date); if (t.date == null || date <= t.date) t.date = date; }",
+            "line_text": "    if (date != null) { t.dates.add(date); if (t.date == null || date < t.date) t.date = date; }",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "date <= t.date only fires when date equals t.date, where it reassigns the same value: no visible change."
+          },
+          {
+            "file": "ventures/pay-app-guides/tmlog.mjs",
+            "line": 180,
+            "col": 72,
+            "operator": "eq-flip",
+            "before": "if (t.costTotal > 0 && t.signed && t.hours === 0 && t.cost.material === 0 && t.cost.equipment === 0) F(\"info\", `${L}: priced as a lump sum only. A T&M ticket normally lists hours and materials; a lump sum is a change order quote.`);",
+            "after": "if (t.costTotal > 0 && t.signed && t.hours === 0 && t.cost.material !== 0 && t.cost.equipment === 0) F(\"info\", `${L}: priced as a lump sum only. A T&M ticket normally lists hours and materials; a lump sum is a change order quote.`);",
+            "line_text": "    if (t.costTotal > 0 && t.signed && t.hours === 0 && t.cost.material === 0 && t.cost.equipment === 0) F(\"info\", `${L}: priced as a lump sum only. A T&M ticket normally lists hours and materials; a lump sum is a change order quote.`);",
+            "caught": false,
+            "seconds": 1.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test had a signed material-only ticket; added the lump-sum note test (material-only and equipment-only are not lump sums)."
+          },
+          {
+            "file": "ventures/pay-app-guides/tmlog.mjs",
+            "line": 187,
+            "col": 74,
+            "operator": "eq-flip",
+            "before": "out.findings.sort((a, b) => (a.severity === b.severity ? 0 : a.severity === \"high\" ? -1 : 1));",
+            "after": "out.findings.sort((a, b) => (a.severity === b.severity ? 0 : a.severity !== \"high\" ? -1 : 1));",
+            "line_text": "  out.findings.sort((a, b) => (a.severity === b.severity ? 0 : a.severity === \"high\" ? -1 : 1));",
+            "caught": false,
+            "seconds": 1.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test mixed high and info findings, so the sort order was unchecked; added 'high findings are listed before info findings'."
+          },
+          {
+            "file": "ventures/pay-app-guides/tmlog.mjs",
+            "line": 187,
+            "col": 88,
+            "operator": "const-plus-one",
+            "before": "out.findings.sort((a, b) => (a.severity === b.severity ? 0 : a.severity === \"high\" ? -1 : 1));",
+            "after": "out.findings.sort((a, b) => (a.severity === b.severity ? 0 : a.severity === \"high\" ? -2 : 1));",
+            "line_text": "  out.findings.sort((a, b) => (a.severity === b.severity ? 0 : a.severity === \"high\" ? -1 : 1));",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Only two severities exist; -2 and -1 have the same sign, so Array.sort orders identically."
+          },
+          {
+            "file": "ventures/pay-app-guides/tmlog.mjs",
+            "line": 191,
+            "col": 24,
+            "operator": "div-to-times",
+            "before": "const cents = (c) => (c / 100).toFixed(2);",
+            "after": "const cents = (c) => (c * 100).toFixed(2);",
+            "line_text": "const cents = (c) => (c / 100).toFixed(2);",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/pay-app-guides/forecast.mjs",
+        "test": "node --test ventures/pay-app-guides/**/*.test.mjs  (in .)",
+        "seed": 61979346,
+        "commit": "c457f45ef",
+        "sites": 231,
+        "baseline_seconds": 1.8,
+        "mutants": [
+          {
+            "file": "ventures/pay-app-guides/forecast.mjs",
+            "line": 47,
+            "col": 25,
+            "operator": "and-to-or",
+            "before": "return /^\\d+$/.test(t) && +t <= max ? +t : null;",
+            "after": "return /^\\d+$/.test(t) || +t <= max ? +t : null;",
+            "line_text": "  return /^\\d+$/.test(t) && +t <= max ? +t : null;",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/forecast.mjs",
+            "line": 92,
+            "col": 105,
+            "operator": "const-plus-one",
+            "before": "out.jobs.push({ row: r + 1, job, gc: get(\"gc\"), monthly, retainage, submit, owner, gcDays: gcDays ?? 0, gcDaysBlank: gcDays === undefined, months, state });",
+            "after": "out.jobs.push({ row: r + 1, job, gc: get(\"gc\"), monthly, retainage, submit, owner, gcDays: gcDays ?? 1, gcDaysBlank: gcDays === undefined, months, state });",
+            "line_text": "    out.jobs.push({ row: r + 1, job, gc: get(\"gc\"), monthly, retainage, submit, owner, gcDays: gcDays ?? 0, gcDaysBlank: gcDays === undefined, months, state });",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Blank GC days was never checked to mean a same-day GC payment; boundaries test pins expected = submitted + owner days."
+          },
+          {
+            "file": "ventures/pay-app-guides/forecast.mjs",
+            "line": 135,
+            "col": 77,
+            "operator": "le-to-lt",
+            "before": "const weeks = wRaw === \"\" ? 13 : /^\\d+$/.test(wRaw) && +wRaw >= 4 && +wRaw <= 52 ? +wRaw : null;",
+            "after": "const weeks = wRaw === \"\" ? 13 : /^\\d+$/.test(wRaw) && +wRaw >= 4 && +wRaw < 52 ? +wRaw : null;",
+            "line_text": "  const weeks = wRaw === \"\" ? 13 : /^\\d+$/.test(wRaw) && +wRaw >= 4 && +wRaw <= 52 ? +wRaw : null;",
+            "caught": false,
+            "seconds": 1.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Upper bound of 52 weeks untested; boundaries test accepts 52 and refuses 53."
+          },
+          {
+            "file": "ventures/pay-app-guides/forecast.mjs",
+            "line": 141,
+            "col": 71,
+            "operator": "const-plus-one",
+            "before": "if ((spend === null && spendRaw !== \"\") || (spend != null && spend < 0)) { out.errors.push(\"Weekly spending is not a positive dollar figure.\"); return out; }",
+            "after": "if ((spend === null && spendRaw !== \"\") || (spend != null && spend < 1)) { out.errors.push(\"Weekly spending is not a positive dollar figure.\"); return out; }",
+            "line_text": "  if ((spend === null && spendRaw !== \"\") || (spend != null && spend < 0)) { out.errors.push(\"Weekly spending is not a positive dollar figure.\"); return out; }",
+            "caught": false,
+            "seconds": 1.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Zero weekly spend untested; boundaries test accepts spend 0."
+          },
+          {
+            "file": "ventures/pay-app-guides/forecast.mjs",
+            "line": 174,
+            "col": 35,
+            "operator": "plus-to-minus",
+            "before": "const prev = dayInMonth(Y, M + m - 1, j.submit), cut = dayInMonth(Y, M + m, j.submit);",
+            "after": "const prev = dayInMonth(Y, M - m - 1, j.submit), cut = dayInMonth(Y, M + m, j.submit);",
+            "line_text": "      const prev = dayInMonth(Y, M + m - 1, j.submit), cut = dayInMonth(Y, M + m, j.submit);",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/forecast.mjs",
+            "line": 179,
+            "col": 44,
+            "operator": "lt-to-le",
+            "before": "const last = dayInMonth(Y, M, j.submit) < asOf ? 0 : -1;",
+            "after": "const last = dayInMonth(Y, M, j.submit) <= asOf ? 0 : -1;",
+            "line_text": "    const last = dayInMonth(Y, M, j.submit) < asOf ? 0 : -1;",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/forecast.mjs",
+            "line": 192,
+            "col": 135,
+            "operator": "const-plus-one",
+            "before": "out.receipts.push({ kind: \"planned\", job: j.job, gc: j.gc, app: \"\", submitted: sub, expected, amount: net, partial: false, late: 0 });",
+            "after": "out.receipts.push({ kind: \"planned\", job: j.job, gc: j.gc, app: \"\", submitted: sub, expected, amount: net, partial: false, late: 1 });",
+            "line_text": "      out.receipts.push({ kind: \"planned\", job: j.job, gc: j.gc, app: \"\", submitted: sub, expected, amount: net, partial: false, late: 0 });",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/forecast.mjs",
+            "line": 209,
+            "col": 25,
+            "operator": "or-to-and",
+            "before": "if (lowest == null || balance < lowest.balance) lowest = { balance, from };",
+            "after": "if (lowest == null && balance < lowest.balance) lowest = { balance, from };",
+            "line_text": "      if (lowest == null || balance < lowest.balance) lowest = { balance, from };",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/forecast.mjs",
+            "line": 210,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "if (balance < 0 && firstShort == null) firstShort = week;",
+            "after": "if (balance < 1 && firstShort == null) firstShort = week;",
+            "line_text": "      if (balance < 0 && firstShort == null) firstShort = week;",
+            "caught": false,
+            "seconds": 1.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "A balance of exactly $0 was never checked; boundaries test ends at 0 and expects no short week."
+          },
+          {
+            "file": "ventures/pay-app-guides/forecast.mjs",
+            "line": 253,
+            "col": 40,
+            "operator": "gt-to-ge",
+            "before": "if (gcs.size > 1 && top && t.expected > 0 && top[1] * 2 > t.expected) F(\"info\", `${top[0]} accounts for ${Math.round((top[1] * 100) / t.expected)}% of the money expected in this forecast (${dollars(top[1])}). If that GC pays late, most of the forecast moves with it.`);",
+            "after": "if (gcs.size > 1 && top && t.expected >= 0 && top[1] * 2 > t.expected) F(\"info\", `${top[0]} accounts for ${Math.round((top[1] * 100) / t.expected)}% of the money expected in this forecast (${dollars(top[1])}). If that GC pays late, most of the forecast moves with it.`);",
+            "line_text": "  if (gcs.size > 1 && top && t.expected > 0 && top[1] * 2 > t.expected) F(\"info\", `${top[0]} accounts for ${Math.round((top[1] * 100) / t.expected)}% of the money expected in this forecast (${dollars(top[1])}). If that GC pays late, most of the forecast moves with it.`);",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "When t.expected is 0, top[1] is 0 too (every GC sum is part of expected), so top[1]*2 > t.expected is false either way."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/pay-app-guides/tmlog.mjs",
+        "issue": "The unsigned-ticket finding printed a negative age for a ticket dated after the as-of date ('is -5 days old'), and the stale finding said 'was signed N days ago' although N counts from the work date (the log has no signing date), with '1 days' for one day. Fixed: age wording from the work date, singular day, no negative age; test 'age wording...'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18961"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0407baec-db8b-50fb-81f0-eb0c855c139f",
+    "transcripts": 1,
+    "first": "2026-11-25T12:07:05Z",
+    "last": "2026-11-25T12:13:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 69,
+        "output": 15592,
+        "thinking": 3716,
+        "cache_read": 2689302,
+        "cache_write_5m": 0,
+        "cache_write_1h": 80388,
+        "api_equivalent_usd": 1.4931,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 69,
+      "output": 15592,
+      "thinking": 3716,
+      "cache_read": 2689302,
+      "cache_write_5m": 0,
+      "cache_write_1h": 80388,
+      "api_equivalent_usd": 1.4931,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 32,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.6,
+      "active_minutes": 6.6,
+      "model_minutes": 2.9,
+      "tool_minutes": 3.7,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

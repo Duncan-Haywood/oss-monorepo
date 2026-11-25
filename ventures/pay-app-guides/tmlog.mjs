@@ -70,6 +70,9 @@ export function parsePct(s) {
   return bp > 10000 ? null : bp;
 }
 
+// Age is counted from the work date: the log has no signing date, so no finding says when a ticket was signed.
+const daysOld = (n) => `${n} day${n === 1 ? "" : "s"} old`;
+
 const SIGN_NO = ["", "no", "n", "unsigned", "none", "pending", "not signed", "refused", "-"];
 const signedBy = (s) => {
   const t = String(s ?? "").trim();
@@ -167,8 +170,8 @@ export function compute(text, settings = {}) {
       if (!t.signed) { totals.unsigned += t.total; totals.unsignedCount++; }
       else if (t.age != null && t.age > chase) { totals.stale += t.total; totals.staleCount++; }
     }
-    if (!t.signed && !t.co) F("high", `${L} (${dollars(t.total)}) has no GC signature${t.age != null ? ` and is ${t.age} days old` : ""}. An unsigned ticket is the hardest kind of extra to collect: get it signed by the GC's super, or send it with a dated cover note now while the work is fresh.`);
-    else if (t.status === "signed" && t.age != null && t.age > chase) F("high", `${L} (${dollars(t.total)}) was signed ${t.age} days ago and is on no change order. Send a change order request for it; a signed ticket is usually still not billable on the pay application until a change order is executed.`);
+    if (!t.signed && !t.co) F("high", `${L} (${dollars(t.total)}) has no GC signature${t.age != null && t.age >= 0 ? ` and is ${daysOld(t.age)}` : ""}. An unsigned ticket is the hardest kind of extra to collect: get it signed by the GC's super, or send it with a dated cover note now while the work is fresh.`);
+    else if (t.status === "signed" && t.age != null && t.age > chase) F("high", `${L} (${dollars(t.total)}) is signed, ${daysOld(t.age)} (from the work date) and on no change order. Send a change order request for it; a signed ticket is usually still not billable on the pay application until a change order is executed.`);
     if (t.date == null) F("info", `${L}: no date. A ticket should say the day the work was done.`);
     if (t.dates.size > 1) F("info", `${L} covers ${t.dates.size} different days. One ticket per day per crew is easier to get signed and harder to dispute.`);
     if (t.date != null && t.date > asOf) F("info", `${L} is dated after the as-of date.`);
