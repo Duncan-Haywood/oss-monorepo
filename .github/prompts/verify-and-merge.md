@@ -39,6 +39,10 @@ python3 platform/ci/run_venture_tests.py --changed   # every venture your branch
 # No pytest/numpy? PY=$(python3 platform/ci/pyenv.py pytest numpy), then "$PY" -m pytest: some images split python3 from what pip/apt install into.
 (cd platform/ci && rc=0; for m in test_*.py; do python3 -m unittest "${m%.py}" || { echo "FAILED $m"; rc=1; }; done; exit $rc)  # runs every module, lists each failure
 (cd platform/ci/agent_review && python3 -m unittest test_review)
+python3 -m unittest discover -s platform/ci/adversarial_gate -p 'test_*.py'   # the adversarial gate (rules, LLM-verdict validation, materialize)
+python3 -m unittest discover -s platform/security -p 'test_*.py'   # scanner runner: parsers, new-vs-base, baseline
+python3 -m pytest platform/aws/stacks/app-identity/rotator -q
+python3 -m pytest platform/aws/stacks/spend/kill_switch -q
 (cd platform/security && python3 -m unittest test_risk_review)  # the cyber and legal risk review (docs/security/risk-review.md)
 python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline -q  # >4 min in a shallow clone (router's real-portfolio tests; run reports 2026-10-19): run_in_background
 python3 -m pytest portfolio/work -q                      # directions and tasks registry (workctl.py), under 1 s
@@ -142,6 +146,15 @@ longer served, so there is no need to run `publish-branch.sh` by hand.
 
 ## Reading CI (moved from `CLAUDE.md`, 2026-10-20)
 
+- **A red `codeql (<language>)` job is yours to fix before merging** (owner,
+  2026-11-24: new CodeQL findings are fixed "before they hit main"). Its gate
+  step fails only on a medium-or-worse finding on a line your PR adds or
+  changes, and prints the rule, `file:line` and message in the job log
+  (`get_job_logs`). Fix the root cause in the same PR. No suppression
+  comments, no weakened tests, no merging around it. A genuine false positive:
+  explain it in the PR body and the run record's `notes` and leave it to the
+  owner. Older findings it lists as warnings are already queued; they are not
+  yours to fix in this PR unless you touched those lines.
 - **Absent CI is not failed CI, and red is not always real.** Agent PRs
   authenticate with a PAT and do trigger workflows, so a blank check list is
   something to verify, not the default.

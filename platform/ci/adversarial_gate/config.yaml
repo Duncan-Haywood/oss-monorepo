@@ -1,0 +1,183 @@
+# Adversarial gate configuration, read by gate.py (the `adversarial-gate`
+# required check). The copy on `main` judges every PR: a PR that edits this
+# file is judged by the old one, so a change here takes effect for the PR
+# after it lands. Model and reasons: docs/security/agent-hardening.md.
+
+# Control-plane paths come from .github/CODEOWNERS (a path with an owner is
+# control plane); the GitHub-side owner review is off since 2026-11-24, the
+# file stays as the path map. These are extra control-plane patterns
+# (fnmatch, matched against the whole repo path).
+# Scanner configuration and suppression files: one in the PR's tree could
+# switch a scanner off for the PR that adds it. Control plane, and refused
+# outside fixture trees (`scanner-suppressed`); scanner settings live in
+# platform/security/.
+scanner_config_files:
+  - "**/.gitleaks.toml"
+  - "**/.gitleaksignore"
+  - "**/.semgrepignore"
+  - "**/.semgrep.yml"
+  - "**/.semgrep.yaml"
+  - "**/.checkov.yml"
+  - "**/.checkov.yaml"
+  - "**/.trivyignore"
+  - "**/.trivyignore.yaml"
+  - "**/trivy.yaml"
+  - "**/zizmor.yml"
+  - "**/zizmor.yaml"
+  - "**/osv-scanner.toml"
+
+control_plane_extra:
+  # Agent instructions. They left .github/CODEOWNERS on 2026-11-24 (no owner
+  # review; docs/security/risk-review.md), but a PR that rewrites what every
+  # later agent reads still gets this gate's strictest tier and the LLM review.
+  - "CLAUDE.md"
+  - "**/CLAUDE.md"
+  - "AGENTS.md"
+  - "**/AGENTS.md"
+  - "prompt.md"
+  - "prompts/*.md"
+  - ".github/prompts/*"
+  # Files other agent tools load as instructions or run on their own.
+  - "**/.cursorrules"
+  - "**/.windsurfrules"
+  - "**/GEMINI.md"
+  - "**/.github/copilot-instructions.md"
+  - "**/.clinerules"
+  - "**/.aider.conf.yml"
+
+# Paths that run code on someone's machine or in CI without anyone choosing
+# to run them, or that decide what gets installed. Not control plane, but a
+# PR touching one gets the stricter rules and the LLM review.
+high_risk:
+  - ".github/workflows/*"
+  - "**/action.yml"
+  - "**/action.yaml"
+  - "**/package.json"
+  - "**/package-lock.json"
+  - "**/pnpm-lock.yaml"
+  - "**/yarn.lock"
+  - "**/requirements*.txt"
+  - "**/pyproject.toml"
+  - "**/uv.lock"
+  - "**/poetry.lock"
+  - "**/Pipfile"
+  - "**/Pipfile.lock"
+  - "**/go.mod"
+  - "**/go.sum"
+  - "**/Cargo.toml"
+  - "**/Cargo.lock"
+  - "**/Dockerfile"
+  - "**/Dockerfile.*"
+  - "**/*.tf"
+  - "**/*.tofu"
+  - "**/.gitattributes"
+  - ".gitmodules"
+  - "**/.pre-commit-config.yaml"
+  - "**/.husky/*"
+  - "**/.githooks/*"
+  - "**/lefthook.yml"
+  - "**/.envrc"
+  - "**/.vscode/tasks.json"
+  - "**/.vscode/settings.json"
+  - "**/.devcontainer/*"
+  - "**/Makefile"
+  - "**/wrangler.toml"
+  - "**/wrangler.jsonc"
+
+# Files an agent reads as instructions. Prompt-injection and guardrail rules
+# apply to lines added here.
+agent_instructions:
+  - "CLAUDE.md"
+  - "**/CLAUDE.md"
+  - "AGENTS.md"
+  - "**/AGENTS.md"
+  - "prompt.md"
+  - "prompts/*"
+  - ".github/prompts/*"
+  - ".claude/*"
+  - ".cursor/*"
+  - ".mcp.json"
+  - "**/.cursorrules"
+  - "**/.windsurfrules"
+  - "**/.clinerules"
+  - "**/GEMINI.md"
+  - "**/.github/copilot-instructions.md"
+  - "PRODUCT_PLAYBOOK.md"
+  - "README.md"
+
+# Run data agents write every session: never treated as instructions.
+agent_instructions_exempt:
+  - "prompts/runs/*"
+  - "prompts/derived/*"
+  - "prompts/drift/*"
+
+# Fixture and test-data trees: the content rules (secrets, hidden Unicode,
+# payloads, injection phrases) still report there, but as warnings, because
+# scanner tests need malicious samples. Never applies to control-plane paths.
+fixture_paths:
+  - "**/fixtures/*"
+  - "**/testdata/*"
+  - "**/__fixtures__/*"
+
+# Files whose job is to name attack patterns: the gate's rules and the
+# scanners' rules. Content rules (secrets, curl | sh, TLS-off, exfiltration
+# shapes) only warn there; these are control plane, so the LLM reviewer reads
+# every change to them.
+pattern_sources:
+  - "platform/ci/adversarial_gate/gate.py"
+  - "platform/ci/adversarial_gate/llm_review.py"
+  - "platform/security/semgrep/*"
+  - "platform/ci/ci_policy_check.py"
+  - "platform/ci/check_hidden_unicode.py"
+  - "platform/ci/compliance_scan.py"
+
+# Hosts that may appear in network calls in control-plane and high-risk code
+# without a finding. A new host anywhere else is reported, not blocked.
+known_hosts:
+  - api.github.com
+  - github.com
+  - raw.githubusercontent.com
+  - uploads.github.com
+  - objects.githubusercontent.com
+  - registry.npmjs.org
+  - pypi.org
+  - files.pythonhosted.org
+  - proxy.golang.org
+  - sum.golang.org
+  - api.anthropic.com
+  - api.cloudflare.com
+  - marisstella.app
+  - duncan-haywood.github.io
+  - api.osv.dev
+  - semgrep.dev
+  - localhost
+  - 127.0.0.1
+  - example.com
+  - sts.amazonaws.com
+  - token.actions.githubusercontent.com
+  - platform.claude.com
+
+# Owners whose actions may be added to .github/ci-policy.yaml's allowlist
+# without a finding. Anything else is a new trust decision (`ci-policy-trust`).
+trusted_action_owners:
+  - actions
+  - github
+  - aws-actions
+  - cloudflare
+  - docker
+  - pypa
+  - pnpm
+  - opentofu
+  - hashicorp
+  - astral-sh
+
+# A control-plane or high-risk PR whose reviewed diff is larger than this
+# (characters) is not sent to the LLM reviewer. With a reviewer configured it
+# is blocked with "split the PR"; without one the deterministic rules decide.
+llm_max_diff_chars: 300000
+
+# Popular package names. A new dependency one edit away from one of these,
+# and not itself on the list, is a likely typosquat (`dependency-typosquat`).
+popular_packages:
+  npm: [react, react-dom, express, lodash, axios, chalk, commander, debug, dotenv, eslint, jest, vitest, typescript, webpack, vite, next, vue, zod, yargs, moment, dayjs, uuid, ws, cors, body-parser, jsonwebtoken, bcrypt, mongoose, pg, mysql2, redis, prettier, rollup, esbuild, playwright, puppeteer, cheerio, marked, sharp, hono, wrangler, stripe, openai, undici, nanoid, semver, glob, minimist, rimraf, mkdirp, colors, inquirer, ora, execa, got, node-fetch, cross-env, nodemon, ts-node, tsx, biome, "@anthropic-ai/sdk", "@cloudflare/workers-types"]
+  pypi: [requests, numpy, pandas, scipy, matplotlib, pytest, pyyaml, flask, django, fastapi, uvicorn, pydantic, httpx, boto3, botocore, urllib3, certifi, idna, setuptools, wheel, pip, click, rich, jinja2, sqlalchemy, psycopg2, beautifulsoup4, lxml, pillow, scikit-learn, torch, tensorflow, openai, anthropic, python-dateutil, pytz, six, attrs, cryptography, pyjwt, aiohttp, tqdm, black, ruff, mypy, playwright, selenium, redis, celery, stripe, colorama, tabulate, openpyxl, xlrd, networkx, sympy]
