@@ -39,6 +39,10 @@
     {
       "file": "prompt.md",
       "issue": "Step 0 says to take the top alert with no claim branch, but a run that finds it is a false positive has no durable place to mark it, so the next run takes the same alert. The notes pointer helps; a real fix is the owner dismissing them."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Claim branches for #65/#849 did not exist when this run checked, yet PR #18837 fixed both in parallel; the fourth-pass run apparently did not push claim branches, so claiming only helps if every run does it."
     }
   ],
   "deviations": [
@@ -46,7 +50,7 @@
       "file": "origin/security-alerts:alerts/7.md",
       "why": "Top alert #7 (and #12-#43) are known false positives; changing a gate file to quiet CodeQL adds risk.",
       "did": "Skipped to the next fixable alerts (#65, #849, #862, same rule) and batched them.",
-      "result": "Three alerts fixed with tests passing."
+      "result": "One alert (#862) is unique to this run; #65/#849 duplicated PR #18837 and were dropped in the merge."
     },
     {
       "file": "CLAUDE.md",
@@ -59,7 +63,7 @@
     "docs/reports/2026-11-25-security-queue-false-positives.md (extended, third pass)"
   ],
   "goal": null,
-  "notes": "False positives for the owner to dismiss: #7, #12, #34, #38, #39, #42, #43 (see the notes file). #741 left by design (WooCommerce \\, escape). Local checks: tools.test.mjs 22/22, pay-app-guides template.test.mjs 5/5, test_security_alerts 18/18.",
+  "notes": "Fixed #862 (replaceAll). #65 and #849 were fixed in parallel by PR #18837; on merge this branch kept main's versions. QUEUE.md header now points to docs/reports/*security-queue*.md. False positives for the owner to dismiss are in that notes file (#7, #12, #34, #38, #39, #42, #43 among them). Local checks: tools.test.mjs 22/22, pay-app-guides template.test.mjs 5/5 (pre-merge), test_security_alerts 18/18. CI all green before the merge-main conflict.",
   "corrections": [],
   "redteam": null,
   "usage": {

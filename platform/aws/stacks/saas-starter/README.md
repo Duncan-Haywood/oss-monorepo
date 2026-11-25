@@ -113,6 +113,18 @@ the system browser (ASWebAuthenticationSession / Custom Tabs), so neither ships 
 `__migrate` and `__scheduled` are top-level invocation fields that API Gateway never produces,
 so an HTTP request cannot trigger them.
 
+## Static sites, public or behind a sign-in gate (`runtime/src/site.mjs`)
+
+For a product that is a folder of built files (a Next.js `output: "export"`, a Vite `dist`): `node runtime/build.mjs
+site <name> <dir>` bundles the starter's site app with the files beside it, and the stack makes one `app-service` call
+with `vars`: `GATE_EMAILS` (comma-separated; empty = public), `ROBOTS = "noindex"`, `SPA` (fallback file) and
+`NOT_FOUND`. With a gate, `/auth/login` signs in through the product's Cognito pool (code + PKCE), POSTs the ID token
+to `/api/session` (route behind the JWT authorizer, so the token is checked by API Gateway), and the app sets a
+12-hour HMAC-signed `__Host-` cookie; the key is a row in the product's own database (`runtime/site-migrations`), so
+nothing leaves the VPC and no secret enters state. Set the pool to `self_sign_up = false`, `mfa = "ON"` and create
+the allowed accounts with `aws cognito-idp admin-create-user`. It replaces Cloudflare Pages + Access. Checked by
+`runtime/test/site.test.mjs` and, in Chromium, `runtime/test/site-browser.check.mjs`. First user: `stacks/listing-lens`.
+
 ## Moving a Workers product (Grant Autopilot first)
 
 Grant Autopilot is the first product to move. Its `apps/grants/docs/ARCHITECTURE.md` lives in

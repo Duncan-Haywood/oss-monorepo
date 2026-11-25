@@ -68,10 +68,11 @@ test('commentFor returns the comment above an export and the module header', () 
   assert.equal(commentFor(src, 'bare'), '');
 });
 
-test('commentFor matches names with regex metacharacters literally', () => {
-  const src = '// Dollar.\nexport const $el = 1;\n// Other.\nexport const xel = 2;\n';
-  assert.equal(commentFor(src, '$el'), 'Dollar.');
-  assert.equal(commentFor(src, '.el'), '');
+test('commentFor matches the export name literally, not as a pattern', () => {
+  const src = '// Dollar.\nexport const $q = 1;\n// Other.\nexport const axb = 2;\n';
+  assert.equal(commentFor(src, '$q'), 'Dollar.');
+  // A name with pattern characters must not match a different export ('a.b' is not 'axb').
+  assert.equal(commentFor(src + '// Dot.\nexport const a = {};\n', 'a.b'), '');
 });
 
 test('toJson keeps Maps, Sets, Infinity and BigInt readable', () => {
