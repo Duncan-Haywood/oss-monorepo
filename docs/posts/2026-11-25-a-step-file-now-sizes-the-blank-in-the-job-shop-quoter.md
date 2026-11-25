@@ -132,9 +132,9 @@ It leaves things out in the same cases as the roughing suggestion, plus two of i
   lines, not bends. The parser rates those low, and no bend time is suggested. Lines on a layer
   named for bends are used.
 - **Cut speed depends on the material and its thickness**, and a DXF carries neither. The label
-  names the speed it used, so the estimator can check it against the sheet being quoted. A cut
-  speed per material and thickness is the next step on the roadmap. (The sheet blank sized from
-  the flat pattern has since landed: see the next section.)
+  names the speed it used, so the estimator can check it against the sheet being quoted. (A cut
+  speed per material and thickness, and the sheet blank sized from the flat pattern, have since
+  landed: see the sections below.)
 
 A shop that keeps its rates in a spreadsheet can import them. A column headed "IPM" or "feed rate"
 is read as the cut speed, not as the hourly rate. A pierce or bend time given in minutes is refused
@@ -202,6 +202,34 @@ What it does not do, on purpose:
 This was private-monorepo PR #167. The pricing engine did not change: the blank is an input, and
 the estimator can edit it before pricing. The thickness is a new optional column, `sheet_thickness_in`,
 in migration 0017.
+
+## Cut speed per material and thickness
+
+One cut speed per machine was a weak point. A fiber laser cuts thin sheet several times faster
+than thick plate, so the "Cut from DXF" minutes were only right for the sheet the shop had in mind
+when it typed the speed. And a shop with both a laser and a plasma table got no cut suggestion at
+all, because two machines had a speed.
+
+Private-monorepo PR #176 adds a "Cut speeds by material" card to the rate card. The shop picks a
+cutting machine and one of its material rows, then types the speed from its own cut chart, and a
+pierce time if it differs from the machine's. A material row already carries its sheet thickness
+(the previous section), so one row is one alloy at one gauge: "A36 plate 0.5 in" on the plasma at
+80 in/min with 3 s pierces, say.
+
+When a DXF part is quoted in that material:
+
+- the cut is timed at that speed, and the label says where it came from: "Cut from DXF: 84.3 in at
+  80 in/min + 5 pierces × 3 s (rate for A36 plate 0.5 in)", or 1.31 min;
+- if only one machine has a speed for the material, that machine gets the cut, even when both
+  the laser and the plasma have a default speed. If two machines have a speed for the same
+  material, the choice is still left to the estimator;
+- with no speed for the material, the machine's default applies, as before.
+
+The app never fills in a speed itself. Published cut charts vary by machine power, assist gas and
+nozzle, so the speed has to come from the shop. A speed on a retired machine is ignored, a mill
+cannot be given one, and only owners and admins can change them. The rows live in a new
+`cut_speeds` table (migration 0018). The tests include a check that one shop cannot read, set or
+delete another shop's speeds. Import and export of these speeds from a spreadsheet are next.
 
 ## Big STEP files no longer slow the upload
 
