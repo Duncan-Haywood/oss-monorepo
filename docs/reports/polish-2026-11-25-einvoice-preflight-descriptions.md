@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-25
+---
 # Polish 2026-11-25: einvoice-preflight meta descriptions
 
 Picked item 1 of "Still weakest" in
