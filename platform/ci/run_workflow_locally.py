@@ -2501,7 +2501,7 @@ GONE = "-"  # a tracked path deleted from the worktree
 DRIFT_PATHS_SHOWN = 5
 
 
-def tracked_content(cwd: str = REPO, chunk: int = 200) -> dict[str, str] | None:
+def tracked_content(cwd: str | None = None, chunk: int = 200) -> dict[str, str] | None:
     """{tracked path: git blob id of the bytes the worktree holds}.
 
     Blob ids come from the index for a path the worktree matches, and from
@@ -2515,6 +2515,7 @@ def tracked_content(cwd: str = REPO, chunk: int = 200) -> dict[str, str] | None:
     None when git cannot answer, so "could not measure" stays distinguishable
     from "nothing changed" (see `checkout_fingerprint`).
     """
+    cwd = cwd or REPO  # read at call time: --repo-root moves it
     try:
         ls = subprocess.run(["git", "ls-files", "-s", "-z"], cwd=cwd,
                             capture_output=True, text=True, timeout=120)
@@ -2568,12 +2569,13 @@ class Fingerprint(typing.NamedTuple):
 UNTRACKED_CAP = 2000  # past this, skip the lookup (a build tree left unignored)
 
 
-def untracked_content(cwd: str = REPO, chunk: int = 200) -> dict[str, str]:
+def untracked_content(cwd: str | None = None, chunk: int = 200) -> dict[str, str]:
     """{untracked, non-ignored path: blob id}, or {} when git cannot answer.
 
     {} only loses the allowance for committing a new file; it never hides a
     change, so failure degrades to the stricter old behaviour.
     """
+    cwd = cwd or REPO  # read at call time: --repo-root moves it
     try:
         ls = subprocess.run(["git", "ls-files", "-o", "--exclude-standard", "-z"],
                             cwd=cwd, capture_output=True, text=True, timeout=120)
@@ -3074,11 +3076,27 @@ def _main(argv=None) -> int:
                          "none); steps past it report TIMEOUT instead of "
                          "hanging the sweep. Pooled: time a workflow leaves "
                          "unused goes to the later ones (pooled_budget)")
+    ap.add_argument("--repo-root", metavar="DIR",
+                    help="run the named workflow(s) of another checkout, e.g. "
+                         "/home/user/private-monorepo, whose Actions jobs get "
+                         "no runner (see set_repo_root)")
     ap.add_argument("--foreground", action="store_true",
                     help="never hand a long run to the background (see "
                          "HANDOFF_S); the default under an agent harness is "
                          "to detach after 100 s and print the log path")
     args = ap.parse_args(argv)
+
+    if args.repo_root:
+        if args.tree or args.for_changes or (args.list and not args.workflow):
+            print("--repo-root runs named workflows only (e.g. --repo-root "
+                  "/home/user/private-monorepo payapps-ci); --tree and "
+                  "--for-changes select by this repository's own rules",
+                  file=sys.stderr)
+            return 2
+        problem = set_repo_root(args.repo_root)
+        if problem:
+            print(problem, file=sys.stderr)
+            return 2
 
     if args.step and (args.tree or args.for_changes or args.only
                       or len(args.workflow) != 1):
@@ -3132,6 +3150,23 @@ def _main(argv=None) -> int:
         codes.append((name, _run_one(name, args)))
         print(flush=True)
     return combine_named(codes)
+
+
+def set_repo_root(path: str) -> str | None:
+    """Point REPO and WORKFLOWS at another checkout; a refusal message or None.
+
+    private-monorepo's `*-ci.yml` jobs end red in 1-10 s with no runner and a
+    404 log on every PR (about twenty 2026-11-25 run records said so), so each
+    run there re-typed the workflow's steps by hand. Steps run in that
+    checkout, with its `working-directory` defaults, under the same screen.
+    """
+    root = os.path.abspath(os.path.expanduser(path))
+    workflows = os.path.join(root, ".github", "workflows")
+    if not os.path.isdir(workflows):
+        return f"--repo-root {path}: no .github/workflows/ there"
+    global REPO, WORKFLOWS
+    REPO, WORKFLOWS = root, workflows
+    return None
 
 
 def pick_steps(steps, text: str):

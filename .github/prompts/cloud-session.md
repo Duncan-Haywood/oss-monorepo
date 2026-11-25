@@ -66,9 +66,11 @@ pay-app-guides within the hour and conflicted on its shared lists. Say
 `private-monorepo-clone` row in `portfolio/ledger/asks.yaml`.
 
 The PR there is opened and merged with the same MCP tools (`repo: private-monorepo`).
-Its `*-ci.yml` jobs fail in about 10 s with no steps and no logs (no runner, as on
-every payapps PR since at least PR 42 there): run the workflow's steps locally,
-put the output in the PR body, and merge.
+Its `*-ci.yml` jobs end red in 1-10 s with a 404 log (no runner, on every PR
+there since at least PR 42): that is starvation, not a failure. Run them with
+`python3 platform/ci/run_workflow_locally.py --repo-root /home/user/private-monorepo <app>-ci`
+from this clone (it runs that workflow's `run:` steps in that checkout), put
+its summary in the PR body, and merge.
 The run record still lands here, in a PR of its own if nothing else changed.
 
 ## Python and tests
