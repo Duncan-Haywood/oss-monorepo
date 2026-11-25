@@ -43,13 +43,12 @@ build with nothing to edit. A new shelf or fiction venture needs a line in
 
 ## Pick one piece of work
 
-Spread the runs: `python3 platform/ci/creative_due.py` draws the shelf for
-this session from the stories' own front matter (weighted to the one longest
-without a piece, so concurrent runs spread; `git log` on a shallow clone
-cannot tell), and also prints the audio-cap reading and the post front-matter
-limits. Take its pick unless something below is more urgent. Then search open
-PRs (`search_pull_requests`, the shelf's slug `in:title`) so you do not write
-the story or episode another session is already writing.
+Spread the runs: `python3 platform/ci/creative_due.py` names the shelf due
+for a piece (read from front matter, since `git log` on a shallow clone holds
+only a few commits) and whether new audio fits the cap; take its `due:` shelf
+unless something below is more urgent. Then search open PRs (`search_pull_requests`,
+`hearth-and-horizon in:title` or `saints-by-candlelight in:title`) so you do
+not write the story or episode another session is already writing.
 
 Any of these counts as the run's deliverable:
 
