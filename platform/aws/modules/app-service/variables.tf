@@ -38,6 +38,8 @@ variable "auth" {
     tier                 = optional(string, "LITE")
     ses_identity_arn     = optional(string)
     from_email           = optional(string)
+    self_sign_up         = optional(bool, true)         # false: only accounts made by an admin (internal sites)
+    mfa                  = optional(string, "OPTIONAL") # OFF, OPTIONAL or ON (TOTP)
   })
 }
 
