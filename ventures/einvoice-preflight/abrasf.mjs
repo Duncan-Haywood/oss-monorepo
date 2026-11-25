@@ -40,17 +40,9 @@ export { ABRASF_NS, SOURCE };
 const SCHEMA_RULES = new Set(["ABR-002", "ABR-003", "ABR-004", "ABR-005", "ABR-006"]);
 const finding = (rule, message, fix, path) => ({ rule, message, fix, path });
 
-const OWN_NS = /sistema\.com\.br\/Nfse\/arquivos\/nfse_3\.xsd|isscuritiba\.curitiba\.pr\.gov\.br\/iss\/nfse\.xsd|www\.e-nfs\.com\.br/;
-export function looksLikeAbrasf(text) {
-  const head = String(text).slice(0, 8192);
-  // Ginfes 1.00 (www.ginfes.com.br/..._v03.xsd) and WebISS 1.00 (www.abrasf.org.br/nfse) are
-  // ABRASF-model provider layouts with their own namespaces, read as such; so are ISSNet 1.00
-  // (www.issnetonline.com.br/webserviceabrasf/vsd/...) and Betha 1.00
-  // (www.betha.com.br/e-nota-contribuinte-ws).
-  // The single-file 1.0x layouts add SimplISS 1.00 (www.sistema.com.br/Nfse/arquivos/nfse_3.xsd),
-  // Curitiba's (isscuritiba.curitiba.pr.gov.br/iss/nfse.xsd) and Abaco 1.00 (www.e-nfs.com.br).
-  return OWN_NS.test(head) || head.includes("abrasf.org.br/nfse.xsd") || head.includes("www.ginfes.com.br/") || head.includes("issnetonline.com.br/webserviceabrasf/vsd/") || head.includes("betha.com.br/e-nota-contribuinte-ws") || /abrasf\.org\.br\/nfse["'&]/.test(head) || head.includes("abrasf.org.br/ABRASF/arquivos/nfse.xsd") || /&lt;[A-Za-z]+[^&]*xmlns=&quot;http:\/\/www\.abrasf\.org\.br\/nfse\.xsd/.test(head);
-}
+// The sniffer lives in national-sniff.mjs so report.mjs can call it without loading this module.
+import { ABRASF_OWN_NS as OWN_NS } from "./national-sniff.mjs";
+export { looksLikeAbrasf } from "./national-sniff.mjs";
 
 // ---------- IBGE municipality codes ----------
 
