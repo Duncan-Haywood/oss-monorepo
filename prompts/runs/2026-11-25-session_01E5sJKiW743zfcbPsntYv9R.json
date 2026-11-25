@@ -38,7 +38,7 @@
     },
     {
       "file": "platform/security/test_scan.py",
-      "issue": "main_health.py on main: 2 of 323 red, both from a test class defined after the __main__ guard; fixed here."
+      "issue": "main_health.py on main: 2 of 323 red, both from a test class defined after the __main__ guard; fixed here. A parallel PR fixed it first; dropped from this PR on merge (main_health.py names red checks but not who is already fixing them, as an earlier record also said)."
     }
   ],
   "deviations": [
@@ -51,7 +51,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Security queue empty; IDEAS.md and requests empty; route drew process/1. Backlog has no agent-owned item, so Critique mode: measure --section 'doc friction' named risk_review.py (3 live reports). Added stale_base_warning() (merge with a parent the base lacks -> stderr warning naming the commit and fix; >150 files on a shallow clone -> softer warning; no merge base -> exit 2 with a hint; --gate unchanged). StaleBaseTests in a temp git repo. main_health: 321/323, both reds from test_scan.py guard order; moved the guard. Checks: test_risk_review 21 OK, test_scan 24 OK, check_main_guard_last 0 files, risk_review on branch nothing blocked. Skipped the fiction-page keyword noise report: it only adds checklist rows, never blocks, and narrowing the regexes would loosen the gate.",
+  "notes": "Security queue empty; IDEAS.md and requests empty; route drew process/1. Backlog has no agent-owned item, so Critique mode: measure --section 'doc friction' named risk_review.py (3 live reports). Added stale_base_warning() (merge with a parent the base lacks -> stderr warning naming the commit and fix; >150 files on a shallow clone -> softer warning; no merge base -> exit 2 with a hint; --gate unchanged). StaleBaseTests in a temp git repo. main_health: 321/323, both reds from test_scan.py guard order; moved the guard. Checks: test_risk_review 21 OK, test_scan 24 OK, check_main_guard_last 0 files, risk_review on branch nothing blocked. Skipped the fiction-page keyword noise report: it only adds checklist rows, never blocks, and narrowing the regexes would loosen the gate. Before merge, main had already moved test_scan.py's guard (a parallel PR adding ContainerImages tests); merge took main's file, so this PR ships only the risk_review change.",
   "corrections": [],
   "redteam": null,
   "usage": {
