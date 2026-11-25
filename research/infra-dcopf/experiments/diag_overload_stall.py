@@ -63,7 +63,7 @@ DEFAULT = [("case2869_pegase", "typ"), ("case2869_pegase", "api"), ("case2869_pe
 TOLV = 1e-7       # a left-out row broken by more than this is added
 FEAS_TOL = 1e-7   # phase-1 optimum above this (row-scaled units) counts as empty
 MAXPASS = 40
-LP_SECS = 900.0   # per HiGHS solve; a solve that hits it is reported as 'timeout', never as an answer
+LP_SECS = 300.0   # per HiGHS solve; a solve that hits it is reported as 'timeout', never as an answer
 
 
 def bounds_of(ppc, lin, margin, ptrust, vtrust, t=1.0):
@@ -320,21 +320,35 @@ def summary(cases):
         for d in r.get("diag", []):
             e = lambda k: "E" if d.get(k) == "empty" else ("-" if d.get(k) == "feasible" else "?")  # noqa: E731
             t = d.get("t")
+            if d.get("NBM") != "empty" and d.get("NBM") != "feasible":  # TE was skipped on an unsettled NBM
+                d = {**d, "TE": None, "TE_status": "?", "TE_ends": []}
             ends = " ".join(f"{x['br']}{x['end']}:{x['excess']:.4f}" for x in d.get("TE_ends", [])[:5])
             more = len(d.get("TE_ends", [])) - 5
             te = d.get("TE")
             L.append(f"  {d.get('it', '?'):>2}  {e('H')}  {e('NB')}  {e('NM')}  {e('NBM')}   "
-                     f"{('%.3g' % t) if t else '-':<8} {('%.5f' % te) if te is not None else d.get('TE_status', '?'):<9} "
+                     f"{('%.3g' % t) if t else ('?' if d.get('NB') == 'feasible' else '-'):<8} {('%.5f' % te) if te is not None else d.get('TE_status', '?'):<9} "
                      f"{ends}{f' +{more}' if more > 0 else ''}" + (f"  ERR {d['error']}" if "error" in d else ""))
         L.append("")
     allr = [d for r in res for d in r.get("diag", []) if "error" not in d]
     n = len(allr)
     L.append(f"pooled: {n} failed hard QPs over {len(res)} cases")
     if n:
-        cnt = lambda k: sum(1 for d in allr if d.get(k) == "empty")  # noqa: E731
-        L.append(f"  empty: H {cnt('H')}, NB {cnt('NB')}, NM {cnt('NM')}, NBM {cnt('NBM')} of {n}")
-        te_pos = sum(1 for d in allr if (d.get("TE") or 0) > 1e-6)
-        L.append(f"  thermal phase-1 positive (linear model cannot relieve every rating, no box, no margins): {te_pos} of {n}")
+        for k in ("H", "NB", "NM", "NBM"):
+            ce = sum(1 for d in allr if d.get(k) == "empty")
+            cf = sum(1 for d in allr if d.get(k) == "feasible")
+            L.append(f"  {k:<3}: empty {ce}, not empty {cf}, not settled (LP time limit) {n - ce - cf} of {n}")
+        nm_clears = sum(1 for d in allr if d.get("H") == "empty" and d.get("NM") == "feasible")
+        L.append(f"  dropping the margins alone gives a non-empty set (H empty, NM not): {nm_clears} of {n}")
+        te_pos = sum(1 for d in allr if d.get("NBM") == "empty" and (d.get("TE") or 0) > 1e-6)
+        te_known = sum(1 for d in allr if d.get("NBM") in ("empty", "feasible"))
+        L.append(f"  thermal phase-1 positive (linear model cannot relieve every rating, no box, no margins): {te_pos} "
+                 f"of {te_known} settled")
+        ts = [d["t"] for d in allr if d.get("t")]
+        if ts:
+            L.append(f"  box scale t needed (times the round's own box), {len(ts)} settled: min {min(ts):.3g}, "
+                     f"median {float(np.median(ts)):.3g}, max {max(ts):.3g}; t <= 2 on {sum(1 for x in ts if x <= 2)}")
+        unsettled = sum(1 for d in allr if d.get("NB") == "feasible" and not d.get("t"))
+        L.append(f"  box LP not settled where NB is not empty: {unsettled}")
     return "\n".join(L), res
 
 

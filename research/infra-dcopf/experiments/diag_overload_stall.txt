@@ -1,0 +1,30 @@
+Why do the case2869_pegase overload stalls stall? (diag_overload_stall.py; plan in LOG.md 2026-11-24)
+Every round whose hard QP (frozen margins, trust box) fails on Clarabel, re-asked of HiGHS:
+H as run, NB no box, NM no margins, NBM neither (E = empty, - = not empty); t = smallest box scale with a
+non-empty set; TE = least total thermal excess (fraction of rating) the linear model allows with no box
+and no margins, every other limit hard; ends = branch ends carrying it.
+
+case2869_pegase TYP: gate D0 PASSED; 10 failed hard QPs of 20 rounds; final 3 overloads, max 110.02 %, worst branch 2082; 4569 s
+  it  H  NB NM NBM  t        TE        ends (branch:end excess)
+   1  E  -  E  -   1.04     0.00000   
+  10  E  -  E  -   1.06     0.00000   
+  12  E  -  E  -   1.11     0.00000   
+  13  E  ?  E  -   -        0.00000   
+  15  E  -  E  -   2.15     0.00000   
+  16  E  -  E  -   4.29     0.00000   
+  17  E  -  E  -   7.15     0.00000   
+  18  E  -  E  -   2.55     0.00000   
+  19  E  -  E  -   5.03     0.00000   
+  20  E  -  E  -   1.54     0.00000   
+
+case2869_pegase API: not run
+case2869_pegase SAD: not run
+pooled: 10 failed hard QPs over 1 cases
+  H  : empty 10, not empty 0, not settled (LP time limit) 0 of 10
+  NB : empty 0, not empty 9, not settled (LP time limit) 1 of 10
+  NM : empty 10, not empty 0, not settled (LP time limit) 0 of 10
+  NBM: empty 0, not empty 10, not settled (LP time limit) 0 of 10
+  dropping the margins alone gives a non-empty set (H empty, NM not): 0 of 10
+  thermal phase-1 positive (linear model cannot relieve every rating, no box, no margins): 0 of 10 settled
+  box scale t needed (times the round's own box), 9 settled: min 1.04, median 2.15, max 7.15; t <= 2 on 4
+  box LP not settled where NB is not empty: 0
