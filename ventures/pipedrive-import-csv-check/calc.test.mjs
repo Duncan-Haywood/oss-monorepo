@@ -111,7 +111,7 @@ test("repair changes formatting only and lists each change", () => {
   const out = parseCsv(fix.text).rows.map((r) => r.cells);
   assert.equal(out[0][0], "Deal title");
   assert.ok(out.every((r) => r.length === out[0].length));
-  assert.ok(fix.text.includes("$12,000".replace(",", ",")) || fix.text.includes('"$12,000"'), "values are left alone");
+  assert.ok(fix.text.includes("$12,000") || fix.text.includes('"$12,000"'), "values are left alone");
   assert.ok(fix.text.includes("Closed Won"), "statuses with no single reading are left alone");
   assert.ok(fix.text.includes("March 4, 2026"), "dates are left alone");
   assert.ok(fix.text.includes("USD") && !fix.text.includes("usd"));

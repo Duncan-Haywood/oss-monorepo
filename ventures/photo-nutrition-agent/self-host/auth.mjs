@@ -7,15 +7,42 @@
 //   apps and Claude custom connectors discover it through RFC 9728 protected
 //   resource metadata and register with RFC 7591 dynamic client registration).
 // The authorization page asks for OWNER_PASSWORD; there are no other users.
-import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
+import { createHash, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 
-const sha = (s) => createHash("sha256").update(String(s)).digest();
+// SHA-256 is only for the server's own 256-bit random tokens (codes, access and refresh tokens), looked up by hash.
 const shaHex = (s) => createHash("sha256").update(String(s)).digest("hex");
 const b64url = (buf) => Buffer.from(buf).toString("base64url");
 
 export function safeEqual(a, b) {
   if (typeof a !== "string" || typeof b !== "string") return false;
-  return timingSafeEqual(sha(a), sha(b));
+  const x = Buffer.from(a, "utf8");
+  const y = Buffer.from(b, "utf8");
+  // Only the length can leak; the comparison itself is constant-time.
+  if (x.length !== y.length) {
+    timingSafeEqual(x, x);
+    return false;
+  }
+  return timingSafeEqual(x, y);
+}
+
+// Client secrets can be chosen by hand (OAUTH_STATIC_CLIENT), so they are stored with a salted, memory-hard KDF.
+const SCRYPT_PREFIX = "scrypt:";
+export function hashClientSecret(secret) {
+  const salt = randomBytes(16);
+  return `${SCRYPT_PREFIX}${b64url(salt)}:${b64url(scryptSync(String(secret), salt, 32))}`;
+}
+
+/** Checks a presented client secret against a stored hash: scrypt, or a SHA-256 hex hash stored by an earlier version. */
+export function verifyClientSecret(secret, stored) {
+  if (typeof secret !== "string" || !secret || typeof stored !== "string") return false;
+  if (stored.startsWith(SCRYPT_PREFIX)) {
+    const [salt, hash] = stored.slice(SCRYPT_PREFIX.length).split(":");
+    if (!salt || !hash) return false;
+    const want = Buffer.from(hash, "base64url");
+    const got = scryptSync(secret, Buffer.from(salt, "base64url"), want.length || 32);
+    return want.length === got.length && timingSafeEqual(got, want);
+  }
+  return safeEqual(shaHex(secret), stored);
 }
 
 const ACCESS_TTL_S = 3600;
@@ -116,7 +143,7 @@ export class Auth {
     if (method !== "none") secret = b64url(randomBytes(24));
     this.store.db
       .prepare("INSERT INTO oauth_clients(client_id, data_json, created_at) VALUES (?, ?, ?)")
-      .run(client.client_id, JSON.stringify({ ...client, secret_hash: secret ? shaHex(secret) : null }), this.store.nowIso());
+      .run(client.client_id, JSON.stringify({ ...client, secret_hash: secret ? hashClientSecret(secret) : null }), this.store.nowIso());
     return secret ? { ...client, client_secret: secret, client_secret_expires_at: 0 } : client;
   }
 
@@ -126,7 +153,7 @@ export class Auth {
     if (existing) return;
     this.store.db
       .prepare("INSERT INTO oauth_clients(client_id, data_json, created_at) VALUES (?, ?, ?)")
-      .run(id, JSON.stringify({ client_id: id, client_name: "static", redirect_prefix: redirectPrefix, redirect_uris: [], token_endpoint_auth_method: "client_secret_post", secret_hash: shaHex(secret) }), this.store.nowIso());
+      .run(id, JSON.stringify({ client_id: id, client_name: "static", redirect_prefix: redirectPrefix, redirect_uris: [], token_endpoint_auth_method: "client_secret_post", secret_hash: hashClientSecret(secret) }), this.store.nowIso());
   }
 
   client(id) {
@@ -188,7 +215,12 @@ export class Auth {
     const client = this.client(id);
     if (!client) throw oauthError("invalid_client", "unknown client", 401);
     if (client.secret_hash) {
-      if (!secret || !safeEqual(shaHex(secret), client.secret_hash)) throw oauthError("invalid_client", "bad client secret", 401);
+      if (!verifyClientSecret(secret, client.secret_hash)) throw oauthError("invalid_client", "bad client secret", 401);
+      if (!client.secret_hash.startsWith(SCRYPT_PREFIX)) {
+        // Upgrade a hash stored by an earlier version now that the secret is known to be right.
+        client.secret_hash = hashClientSecret(secret);
+        this.store.db.prepare("UPDATE oauth_clients SET data_json = ? WHERE client_id = ?").run(JSON.stringify(client), client.client_id);
+      }
     }
     return client;
   }
@@ -238,12 +270,12 @@ export class Auth {
 }
 
 function bearer(header) {
-  const m = /^Bearer\s+(.+)$/i.exec(header || "");
+  const m = /^Bearer\s+(\S.*)$/i.exec(header || "");
   return m ? m[1].trim() : null;
 }
 
 export function oauthError(error, description, status = 400) {
-  return Object.assign(new Error(description), { oauth: { error, error_description: description }, status });
+  return Object.assign(new Error(description), { protocolError: { error, error_description: description }, status });
 }
 
 export function authorizePage(q, message = "") {

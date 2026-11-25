@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { compareScenarios } from "./calc.mjs";
+const stripScripts = (s) => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ""); } while (s !== p); return s; };
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
@@ -187,7 +188,7 @@ test("the Azure comparison page's FAQ schema is visible copy, and it routes read
   const faq = JSON.parse(block[1]);
   assert.equal(faq["@type"], "FAQPage");
   assert.ok(faq.mainEntity.length >= 3);
-  const visible = vsAzure.replace(/<script[\s\S]*?<\/script>/g, "");
+  const visible = stripScripts(vsAzure);
   for (const entry of faq.mainEntity) {
     assert.match(visible, new RegExp(`<h3>${entry.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</h3>`));
     const firstSentence = entry.acceptedAnswer.text.split(". ")[0];
@@ -244,7 +245,7 @@ test("the spreadsheet comparison page's FAQ schema is visible copy", () => {
   const faq = JSON.parse(block[1]);
   assert.equal(faq["@type"], "FAQPage");
   assert.ok(faq.mainEntity.length >= 3);
-  const visible = vsSpreadsheet.replace(/<script[\s\S]*?<\/script>/g, "");
+  const visible = stripScripts(vsSpreadsheet);
   for (const entry of faq.mainEntity) {
     assert.match(visible, new RegExp(`<h3>${entry.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</h3>`));
     const firstSentence = entry.acceptedAnswer.text.split(". ")[0];
@@ -258,7 +259,7 @@ test("the comparison page's FAQ schema is visible copy, and it routes readers to
   const faq = JSON.parse(block[1]);
   assert.equal(faq["@type"], "FAQPage");
   assert.ok(faq.mainEntity.length >= 3);
-  const visible = vsGoogle.replace(/<script[\s\S]*?<\/script>/g, "");
+  const visible = stripScripts(vsGoogle);
   for (const entry of faq.mainEntity) {
     assert.match(visible, new RegExp(`<h3>${entry.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</h3>`));
     // A sentence long enough to be distinctive, so the schema cannot drift

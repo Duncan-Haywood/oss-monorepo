@@ -87,7 +87,7 @@ def _strip_comment(value):
     return re.sub(r"\s+#.*$", "", value).strip()
 
 
-def _billing_note(runs_on, job_text):
+def _runner_minutes_note(runs_on, job_text):
     """Describe the worst case for one hung job from its runner label."""
     haystack = (runs_on + "\n" + job_text if "${{" in runs_on else runs_on).lower()
     if "self-hosted" in haystack:
@@ -189,7 +189,7 @@ def scan_text(text, filename="<workflow>"):
                     "file": filename,
                     "line": block["line"],
                     "type": JOB_MISSING_TIMEOUT,
-                    "detail": f"{detail_head}: no timeout-minutes; {_billing_note(runs_on, job_text)}",
+                    "detail": f"{detail_head}: no timeout-minutes; {_runner_minutes_note(runs_on, job_text)}",
                     "remediation": _REMEDIATION,
                 }
             )
@@ -202,7 +202,7 @@ def scan_text(text, filename="<workflow>"):
                     "file": filename,
                     "line": block["line"],
                     "type": JOB_TIMEOUT_AT_DEFAULT,
-                    "detail": f"{detail_head}: timeout-minutes: {number.group(1)}; {_billing_note(runs_on, job_text)}",
+                    "detail": f"{detail_head}: timeout-minutes: {number.group(1)}; {_runner_minutes_note(runs_on, job_text)}",
                     "remediation": _AT_DEFAULT_REMEDIATION,
                 }
             )

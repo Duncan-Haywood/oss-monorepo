@@ -164,6 +164,32 @@ import { formatCount } from './count.mjs';
 import { normalizeBid, normalizeOutcome, stripForInjection } from './jobs.mjs';
 
 const BASE = 'https://example.test/site/';
+
+/** The page without its script elements, repeated until nothing changes. */
+function withoutScripts(html) {
+  let prev;
+  let out = html;
+  do {
+    prev = out;
+    out = out.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, '');
+  } while (out !== prev);
+  return out;
+}
+
+/** Every absolute http(s) URL written in `text`, parsed (unparseable ones skipped). */
+function urlsIn(text) {
+  const urls = [];
+  for (const [raw] of text.matchAll(/https?:\/\/[^\s"'<>`)\]]+/g)) {
+    try { urls.push(new URL(raw)); } catch { /* not a URL */ }
+  }
+  return urls;
+}
+
+/** True when `text` links to `base` or to a page under it (same origin, path inside). */
+function linksUnder(text, base) {
+  const root = new URL(base);
+  return urlsIn(text).some((u) => u.origin === root.origin && u.pathname.startsWith(root.pathname));
+}
 const VENTURES = path.join(REPO_ROOT, 'ventures');
 
 // The suite builds from the live checkout, so a file written under docs/,
@@ -453,7 +479,7 @@ test('no page still points at the placeholder origin', async () => {
   for (const file of textFiles) {
     // The origin, not the bare host: a changelog line quoting a merge titled
     // "... example.invalid placeholders" is prose, not a leaked URL.
-    if ((await readText(file)).includes('https://example.invalid')) {
+    if (urlsIn(await readText(file)).some((u) => u.protocol === 'https:' && u.hostname === 'example.invalid')) {
       stale.push(path.relative(outDir, file));
     }
   }
@@ -482,7 +508,13 @@ test('venture sitemaps are rewritten to the real origin', async () => {
  * builds markup in script is one edit away from the same false positive.
  */
 function stripRawText(html) {
-  return html.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, '');
+  let prev;
+  let out = html;
+  do {
+    prev = out;
+    out = out.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\b[^>]*>/gi, '');
+  } while (out !== prev);
+  return out;
 }
 
 test('every discovered tool has a landing page in the output', async () => {
@@ -659,12 +691,12 @@ test('the hub declares structured data listing every section', async () => {
 
 test('every tool is reachable from the hub without JavaScript, in at most two clicks', async () => {
   const { surfaces } = await site();
-  const hub = (await read('index.html')).replace(/<script\b[\s\S]*?<\/script>/g, '');
+  const hub = withoutScripts(await read('index.html'));
   const reachable = new Set([...hub.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
   const categories = [...hub.matchAll(/href="c\/([^"/]+)\/" data-category="\1"/g)].map((m) => m[1]);
   assert.ok(categories.length >= groupByCategory(surfaces).length, 'the hub links every category page');
   for (const id of categories) {
-    const page = (await read(CATEGORY_PATH_PREFIX, id, 'index.html')).replace(/<script\b[\s\S]*?<\/script>/g, '');
+    const page = withoutScripts(await read(CATEGORY_PATH_PREFIX, id, 'index.html'));
     for (const [, slug] of page.matchAll(/data-tool="([^"]+)" data-pf-to/g)) reachable.add(slug);
   }
   const missing = surfaces.map((s) => s.slug).filter((slug) => !reachable.has(slug));
@@ -886,7 +918,7 @@ test('.nojekyll is emitted so Pages serves the tree verbatim', async () => {
 
 test('a 404 page routes visitors back to the index', async () => {
   const notFound = await read('404.html');
-  assert.ok(notFound.includes(BASE));
+  assert.ok(linksUnder(notFound, BASE));
 });
 
 // ---------------------------------------------------------------------------
@@ -1376,7 +1408,7 @@ test('the search index lists every tool and every research project, and the hub 
   }
   // The front door no longer carries the catalogue: a handful of example and
   // featured links, not one card per tool.
-  const hub = (await read('index.html')).replace(/<script\b[\s\S]*?<\/script>/g, '');
+  const hub = withoutScripts(await read('index.html'));
   const linked = new Set([...hub.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
   assert.ok(linked.size > 10 && linked.size < surfaces.length / 4, `the hub links ${linked.size} tools directly`);
   assert.doesNotMatch(hub, /data-search=/);
@@ -1968,7 +2000,7 @@ test('every discovered tool lands on exactly one category page', async () => {
   const { surfaces } = await site();
   const counts = new Map(surfaces.map((s) => [s.slug, 0]));
   for (const { category } of groupByCategory(surfaces)) {
-    const page = (await read(CATEGORY_PATH_PREFIX, category.id, 'index.html')).replace(/<script\b[\s\S]*?<\/script>/g, '');
+    const page = withoutScripts(await read(CATEGORY_PATH_PREFIX, category.id, 'index.html'));
     for (const [, slug] of page.matchAll(/data-tool="([^"]+)"/g)) counts.set(slug, (counts.get(slug) ?? 0) + 1);
   }
   for (const [slug, n] of counts) assert.equal(n, 1, `${slug} is on ${n} category pages`);
@@ -2005,7 +2037,7 @@ test('a long category page is sub-divided with jump links, and a short one stays
 // Heading order is how a screen-reader user browses a directory this long.
 test('no heading level is skipped on the hub or a category page', async () => {
   for (const parts of [['index.html'], [CATEGORY_PATH_PREFIX, 'trades', 'index.html'], [CATEGORY_PATH_PREFIX, 'index.html']]) {
-    const html = (await read(...parts)).replace(/<script\b[\s\S]*?<\/script>/g, '');
+    const html = withoutScripts(await read(...parts));
     const levels = [...html.matchAll(/<h([1-6])[ >]/g)].map((m) => Number(m[1]));
     const skip = levels.slice(1).find((level, i) => level > levels[i] + 1);
     assert.equal(skip, undefined, `${parts.join('/')} skips a heading level`);
@@ -2329,7 +2361,8 @@ test('the header fits itself inline, before the page below it is laid out', () =
   assert.ok(after[1].includes("querySelector('nav.pf-chrome.pf-chrome-top')"));
   assert.equal(out.split(HEADER_MARKER).length - 1, 1, 'still one header marker on the page');
   assert.ok(out.indexOf(after[1]) < out.indexOf('<h1>Tool</h1>'), 'it runs before the venture markup');
-  assert.equal(out.match(/<script>/g).length, 1);
+  const inline = [...out.matchAll(/<script\b([^>]*)>/gi)].filter((m) => !/\bsrc\s*=/i.test(m[1]));
+  assert.equal(inline.length, 1, 'one inline script');
   assert.doesNotThrow(() => new Function(after[1].slice(8, -9)));
 });
 
@@ -3726,7 +3759,7 @@ test('a navigation that fails with nothing cached lands on the offline page', as
   assert.match(sw, /caches\.match\(OFFLINE_PAGE\)/);
   const offlinePage = await read('offline.html');
   assert.match(offlinePage, /offline/i);
-  assert.ok(offlinePage.includes(BASE), 'it routes back to the hub');
+  assert.ok(linksUnder(offlinePage, BASE), 'it routes back to the hub');
 });
 
 test('the save-for-offline bundle covers every tool and only real files', async () => {
@@ -4130,7 +4163,7 @@ test('every tool page declares the breadcrumb trail it shows', async () => {
     const visible = /class="pfs-crumbs(?: [^"]*)?"[^>]*>([\s\S]*?)<\/span><\/nav>/.exec(html);
     if (!crumb || !visible) { mismatched.push(`${rel}: ${crumb ? 'no visible trail' : 'no BreadcrumbList'}`); continue; }
     const labels = [...visible[1].matchAll(/<(?:a|span aria-current="page")[^>]*>([^<]*)</g)].map((m) =>
-      m[1].replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>'));
+      m[1].replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&'));
     // A venture that wrote its own trail keeps it; only the build's must match.
     if (crumb.itemListElement[0].name !== 'Maris Stella Labs') continue;
     const names = crumb.itemListElement.map((i) => i.name);

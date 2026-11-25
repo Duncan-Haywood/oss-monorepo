@@ -81,9 +81,6 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "model": "subscription",
         "why": "hosted sites for local businesses (hosting, domain, edits) are a monthly cost per customer",
     },
-    # PR #18757 wrote this row into transition.json by hand, so the stale
-    # check (test_committed_json_is_current) went red on main; the decision
-    # belongs here, where `--write` reproduces it.
     "photo-editing": {
         "model": "subscription",
         "why": "the cull and pipeline run on the user's machine and stay free; the paid part is hosted proofing galleries, which have a per-user storage cost (models.yaml, 2026-11-25)",

@@ -8,7 +8,7 @@ const VS_PAGE = "vs-checking-each-states-law-by-hand.html";
 
 test("index links to the docs page", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(page, new RegExp(`href="${DOCS_PAGE.replace(/\./g, "\\.")}"`));
+  assert.match(page, new RegExp(`href="${DOCS_PAGE.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
 });
 
 test("docs page links back to the tool", async () => {
@@ -123,7 +123,7 @@ test("the states table on index lists all 51 jurisdictions via the real engine",
 
 test("index links to the comparison page", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(page, new RegExp(`href="${VS_PAGE.replace(/\./g, "\\.")}"`));
+  assert.match(page, new RegExp(`href="${VS_PAGE.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
 });
 
 test("the comparison page links back to the checker and its FAQPage JSON-LD matches the visible text", async () => {
@@ -148,7 +148,7 @@ test("the comparison page carries the disclaimers, names no product, and is list
   assert.match(vs, /Nothing leaves your browser/);
   assert.match(vs, /names no specific product/i);
   const sitemap = await readFile(new URL("./sitemap.xml", import.meta.url), "utf8");
-  assert.match(sitemap, new RegExp(VS_PAGE.replace(/\./g, "\\.")));
+  assert.match(sitemap, new RegExp(VS_PAGE.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
 });
 
 test("the comparison page does not repeat a question the index or docs page already answers", async () => {
@@ -168,7 +168,7 @@ test("the comparison page does not repeat a question the index or docs page alre
 
 test("docs page is listed in the venture sitemap", async () => {
   const sitemap = await readFile(new URL("./sitemap.xml", import.meta.url), "utf8");
-  assert.match(sitemap, new RegExp(DOCS_PAGE.replace(/\./g, "\\.")));
+  assert.match(sitemap, new RegExp(DOCS_PAGE.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
 });
 
 test("docs page's jurisdiction-count claim holds against the real engine", async () => {

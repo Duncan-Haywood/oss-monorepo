@@ -88,7 +88,7 @@ test("rows with no Payout ID are grouped apart and warned about", () => {
 });
 
 test("a sale in one currency paid out in another is warned about", () => {
-  const csv = sampleReport().replace(/,USD,\"Oct 8, 2026\"/, ",USD,\"Oct 8, 2026\"").replace(/46\.10,USD,--/, "46.10,GBP,--");
+  const csv = sampleReport().replace(/46\.10,USD,--/, "46.10,GBP,--");
   assert.ok(validate(csv).findings.some((f) => /sold in GBP but paid out in USD/.test(f.title)));
 });
 

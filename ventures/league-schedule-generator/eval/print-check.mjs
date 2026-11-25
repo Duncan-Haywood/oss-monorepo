@@ -10,7 +10,7 @@ import { createServer } from "node:http";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { extname, join } from "node:path";
+import { extname, join, resolve } from "node:path";
 import { buildSchedule, readSpec, scoreSheetsHtml, leaguePageHtml, assignOfficials, parseOfficials } from "../calc.mjs";
 import { buildDivisions, readDivisionsSpec, divisionsScoreSheetsHtml, divisionsTeamSheetsHtml, singleAsDivisions, parseDivisionDuties, assignDivisionDuties } from "../divisions.mjs";
 import { printPackHtml } from "../printpack.mjs";
@@ -67,7 +67,8 @@ docs.push({ name: "single-team-sheets", html: divisionsTeamSheetsHtml(s9d, { tit
 const types = { ".html": "text/html", ".mjs": "text/javascript", ".json": "application/json", ".js": "text/javascript", ".css": "text/css" };
 const server = createServer(async (req, res) => {
   try {
-    const p = join(root, decodeURIComponent(req.url.split("?")[0]));
+    const p = resolve(root, "." + decodeURIComponent(req.url.split("?")[0]));
+    if (!p.startsWith(root)) throw new Error("path outside the served root");
     res.writeHead(200, { "content-type": types[extname(p)] || "text/plain" }).end(await readFile(p));
   } catch { res.writeHead(404).end(); }
 });

@@ -16,7 +16,11 @@ for (const slug of slugs) {
   const page = new URL(`ventures/${slug}/index.html`, root);
   if (!existsSync(page)) continue;
   test(`${slug} has a call-to-action link under its h1`, () => {
-    const html = readFileSync(page, 'utf8').replace(/<script[\s\S]*?<\/script>/g, '');
+    let html = readFileSync(page, 'utf8');
+    for (let previous; previous !== html; ) {
+      previous = html;
+      html = html.replace(/<script\b[\s\S]*?<\/script\b[^>]*>/gi, '');
+    }
     const h1 = html.search(/<h1[\s>]/);
     assert.ok(h1 >= 0, 'page has an h1');
     const cta = html.slice(h1).search(/<a[^>]*class="[^"]*\bcta\b/);

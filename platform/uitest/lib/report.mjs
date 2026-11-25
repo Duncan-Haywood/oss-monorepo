@@ -80,7 +80,7 @@ export function toJUnit(run) {
   return out.join('\n');
 }
 
-const md = s => String(s ?? '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
+const md = s => String(s ?? '').replace(/\\/g, '\\\\').replace(/\|/g, '\\|').replace(/\n/g, ' ');
 
 export function toMarkdown(run) {
   const { counts, usage, total } = summarise(run);

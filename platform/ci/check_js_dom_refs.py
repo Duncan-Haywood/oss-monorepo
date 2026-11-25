@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from page_pool import map_pages  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
-SCRIPT = re.compile(r"<script\b([^>]*)>(.*?)</script>", re.S | re.I)
+SCRIPT = re.compile(r"<script\b([^>]*)>(.*?)</script\b[^>]*>", re.S | re.I)
 SRC = re.compile(r'\bsrc\s*=\s*["\']([^"\']+)["\']', re.I)
 COMMENT = re.compile(r"<!--.*?-->", re.S)
 LOOKUP = re.compile(r"""getElementById\(\s*(['"])([A-Za-z][\w:.-]*)\1\s*\)|querySelector\(\s*(['"])#([A-Za-z][\w-]*)\3\s*\)""")

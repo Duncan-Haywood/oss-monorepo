@@ -45,8 +45,8 @@ const INLINE = [
 function visibleText(html) {
   return decodeEntities(
     html
-      .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<script\b[\s\S]*?<\/script\b[^>]*>/gi, ' ')
+      .replace(/<style\b[\s\S]*?<\/style\b[^>]*>/gi, ' ')
       // Inline tags close up rather than separating, because they mark up a
       // word rather than ending one: `V<sub>out</sub>` reads "Vout" to a
       // visitor, and replacing the tags with spaces made it "V out" -- a

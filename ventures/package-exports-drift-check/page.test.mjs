@@ -3,13 +3,14 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { parsePackageJson, extractExportEntries, classifyExportEntries, normalizePath, parseFileList, diffExports, summarize } from "./engine.mjs";
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const DOCS_PAGE = "why-package-json-exports-fields-drift-from-what-you-actually-publish.html";
 
 test("index links to the docs page", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(
     page,
-    new RegExp(`href="${DOCS_PAGE.replace(/\./g, "\\.")}"`),
+    new RegExp(`href="${escapeRegExp(DOCS_PAGE)}"`),
     "index must link the secondary docs page so crawlers can reach it",
   );
 });

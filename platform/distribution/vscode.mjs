@@ -75,7 +75,7 @@ export function manifest(count, version = VERSION) {
     categories: ['Other'],
     keywords: ['calculator', 'checker', 'tools', 'free', 'open source'],
     repository: { type: 'git', url: `${REPO_URL}.git` },
-    homepage: toolUrl('').replace(/\/$/, '/'),
+    homepage: toolUrl('').replace(/\/+$/, '/'),
     main: './extension.js',
     activationEvents: [],
     capabilities: { untrustedWorkspaces: { supported: true }, virtualWorkspaces: true },

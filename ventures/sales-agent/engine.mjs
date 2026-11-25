@@ -258,7 +258,9 @@ export function parseReplies(text) {
     while (i < lines.length && /^(from|subject|date|to|cc|x-signal|x-failed-recipient):\s*/i.test(lines[i])) { const [, k, v] = lines[i].match(/^([\w-]+):\s*(.*)$/); head[k.toLowerCase()] = v.trim(); i++; }
     const body = stripQuoted(lines.slice(i).join("\n"));
     const from = (head.from || "").match(EMAIL_RE)?.[0]?.toLowerCase() || "";
-    const name = (head.from || "").replace(/<[^>]*>/, "").replace(EMAIL_RE, "").replace(/["']/g, "").trim();
+    let bare = head.from || "", prev;
+    do { prev = bare; bare = bare.replace(/<[^>]*>/g, ""); } while (bare !== prev); // drop every <address>, nested ones too
+    const name = bare.replace(EMAIL_RE, "").replace(/["']/g, "").trim();
     out.push({ from, name, subject: head.subject || "", date: head.date || "", body, raw, ...(head["x-signal"] ? { signal: head["x-signal"] } : {}), ...(head["x-failed-recipient"] ? { failed: head["x-failed-recipient"].toLowerCase() } : {}) });
   }
   return out;

@@ -301,9 +301,22 @@
   }
 
   $('#check-image').addEventListener('click', () => {
-    const url = els.imageUrl.value.trim();
-    if (!url) {
+    const input = els.imageUrl.value.trim();
+    if (!input) {
       els.imageStatus.innerHTML = '<span class="error">Paste an image URL first.</span>';
+      return;
+    }
+    // Only web and in-page image URLs are loaded; anything else (javascript:,
+    // vbscript:, ...) is refused before it reaches an element's src.
+    let url = null;
+    try {
+      const parsed = new URL(input, location.href);
+      if (['http:', 'https:', 'data:', 'blob:'].includes(parsed.protocol)) url = parsed.href;
+    } catch {
+      url = null;
+    }
+    if (url === null) {
+      els.imageStatus.innerHTML = '<span class="error">Could not load that URL as an image.</span>';
       return;
     }
     els.imageStatus.textContent = 'Loading…';

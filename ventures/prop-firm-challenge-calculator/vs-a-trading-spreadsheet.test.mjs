@@ -33,7 +33,7 @@ test('the FAQPage schema matches the visible FAQ verbatim', () => {
   const schema = JSON.parse(m[1]);
   assert.ok(schema.mainEntity.length >= 3);
   const squash = (t) => t.replace(/\s+/g, ' ').trim().toLowerCase();
-  const visible = squash(html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&'));
+  const visible = squash(html.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&'));
   for (const q of schema.mainEntity) {
     assert.ok(html.includes(`<h3>${q.name}</h3>`), `no <h3> for "${q.name}"`);
     assert.ok(visible.includes(squash(q.acceptedAnswer.text)), `answer for "${q.name}" is not visible verbatim`);

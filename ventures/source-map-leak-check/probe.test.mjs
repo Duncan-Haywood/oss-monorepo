@@ -224,7 +224,7 @@ test('checkPage truncates at maxScripts and reports truncated', () =>
   }));
 
 test('an unreachable script reports a clean error rather than throwing', async () => {
-  const result = await checkScript('http://127.0.0.1:1/x.js', { timeoutMs: 500 });
+  const result = await checkScript('https://127.0.0.1:1/x.js', { timeoutMs: 500 });
   assert.equal(result.hasReference, false);
   assert.ok(result.error);
 });

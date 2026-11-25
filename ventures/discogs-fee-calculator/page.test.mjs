@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { calculateSale, feeLadder, INPUT_IDS } from './calc.mjs';
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const page = name => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 const markup = page('index.html');
@@ -48,7 +49,7 @@ test('robots and sitemap let crawlers find every page', () => {
   assert.match(robots, /Allow: \//);
   assert.match(sitemap, /discogs-fee-calculator\/<\/loc>/);
   for (const name of readdirSync(new URL('./', import.meta.url)).filter(n => n.endsWith('.html') && n !== 'index.html')) {
-    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+    assert.match(sitemap, new RegExp(escapeRegExp(name)), `${name} is missing from sitemap.xml`);
   }
 });
 
@@ -82,7 +83,7 @@ test('every FAQPage question is also visible copy', () => {
   const faq = blocks.map(b => JSON.parse(b[1])).find(j => j['@type'] === 'FAQPage');
   assert.ok(faq);
   for (const entity of faq.mainEntity) {
-    assert.ok(markup.includes(entity.name.replace(/'/g, "'")), entity.name);
+    assert.ok(markup.includes(entity.name), entity.name);
     assert.ok(markup.includes(entity.acceptedAnswer.text.slice(0, 40).replace(/&/g, '&amp;')), entity.name);
   }
 });

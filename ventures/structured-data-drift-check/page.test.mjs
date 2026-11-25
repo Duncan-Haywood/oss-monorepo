@@ -7,9 +7,8 @@ const DOCS_PAGE = "why-google-requires-structured-data-to-match-visible-text.htm
 
 test("index links to the docs page", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(
-    page,
-    new RegExp(`href="${DOCS_PAGE.replace(/\./g, "\\.")}"`),
+  assert.ok(
+    page.includes(`href="${DOCS_PAGE}"`),
     "index must link the secondary docs page so crawlers can reach it",
   );
 });
@@ -89,9 +88,8 @@ const VS_PAGE = "vs-google-rich-results-test.html";
 
 test("index links to the vs-google-rich-results-test comparison page", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(
-    page,
-    new RegExp(`href="${VS_PAGE.replace(/\./g, "\\.")}"`),
+  assert.ok(
+    page.includes(`href="${VS_PAGE}"`),
     "index must link the comparison page so crawlers can reach it",
   );
 });
@@ -117,9 +115,8 @@ const VS_BY_EYE_PAGE = "vs-checking-it-by-eye.html";
 
 test("index links to the vs-checking-it-by-eye comparison page", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(
-    page,
-    new RegExp(`href="${VS_BY_EYE_PAGE.replace(/\./g, "\\.")}"`),
+  assert.ok(
+    page.includes(`href="${VS_BY_EYE_PAGE}"`),
     "index must link the comparison page so crawlers can reach it",
   );
 });

@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { NUMERIC_IDS, OPTIONAL_NUMERIC_IDS, ALL_INPUT_IDS } from './calc.mjs';
 
+// Escape every regular-expression metacharacter so the text matches literally.
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const page = name => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 const markup = page('index.html');
 const ids = new Set([...markup.matchAll(/\bid="([^"]+)"/g)].map(m => m[1]));
@@ -187,7 +190,7 @@ test('the worked comparison in the SEO copy is the number the calculator produce
   const money = n => `$${Math.round(n).toLocaleString('en-US')}`;
   assert.match(html, new RegExp(`\\$${comparison.currentRatePerHour.toFixed(2)} / h`));
   assert.match(html, new RegExp(`\\$${Math.abs(comparison.gapPerHour).toFixed(2)}`));
-  assert.match(html, new RegExp(money(Math.abs(comparison.annualGap)).replace('$', '\\$')));
+  assert.match(html, new RegExp(escapeRegExp(money(Math.abs(comparison.annualGap)))));
   assert.match(html, new RegExp(`${comparison.marginAtCurrentRate.toFixed(1)}%`));
   assert.match(html, new RegExp(`${Math.round(comparison.requiredBillableHours).toLocaleString('en-US')} h`));
   assert.match(html, new RegExp(`${comparison.requiredUtilization.toFixed(0)}%`));

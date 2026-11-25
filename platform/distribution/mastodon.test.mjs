@@ -10,7 +10,7 @@ const page = '<title>Mileage Log — Free Tracker</title><meta name="description
 
 test('composeStatus fits 500 with links weighing 23, labels itself automated', () => {
   const url = toolUrl('a');
-  const t = composeStatus({ title: 'Élan — x', description: 'Long. '.repeat(300).replace(/\. /g, '. ') }, url);
+  const t = composeStatus({ title: 'Élan — x', description: 'Long. '.repeat(300) }, url);
   assert.ok([...t].length - [...url].length + 23 <= MAX_CHARS);
   assert.match(t, /Automated post\.$/);
   assert.ok(t.includes(url));

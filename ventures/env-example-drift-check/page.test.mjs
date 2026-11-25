@@ -4,13 +4,15 @@ import { readFile } from "node:fs/promises";
 import { readdirSync } from "node:fs";
 import { parseExampleFile, scanSource, diffEnv, summarize } from "./engine.mjs";
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const DOCS_PAGE = "why-env-example-files-drift-from-the-code-that-reads-them.html";
 
 test("index links to the docs page", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(
     page,
-    new RegExp(`href="${DOCS_PAGE.replace(/\./g, "\\.")}"`),
+    new RegExp(`href="${escapeRegExp(DOCS_PAGE)}"`),
     "index must link the secondary docs page so crawlers can reach it",
   );
 });
@@ -59,7 +61,7 @@ test("every .html file in the venture is reachable from the sitemap", async () =
   const htmlFiles = readdirSync(dir).filter((name) => name.endsWith(".html"));
   for (const name of htmlFiles) {
     if (name === "index.html") continue;
-    assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
+    assert.match(sitemap, new RegExp(escapeRegExp(name)), `${name} is missing from sitemap.xml`);
   }
 });
 

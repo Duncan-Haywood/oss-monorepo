@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKmGdXpGzFD7839KSht",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T00:18:02Z",
+  "ended": "2026-11-25T00:25:32Z",
+  "wall_minutes": 7.72,
+  "tokens_in": 4733540,
+  "tokens_out": 34781,
+  "cost_usd": 2.5089,
+  "tool_calls": 50,
+  "task": "Flagship 1 (payapps) front door: Excel workbook export with live formulas and a free blank pay application template in ventures/pay-application-generator",
+  "projects": [
+    "pay-application-generator",
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18769",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    "git clone of private-monorepo (after add_repo succeeded) was denied by the auto-mode permission classifier as unauthorized access; did not work around it"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Flagships 1-7 all need private-monorepo; when a session cannot clone it, the top 'BUILDABLE HERE' row is ai-bookkeeper, whose remaining items mostly need outside input. A hint pointing to in-repo front doors of the private flagships (e.g. pay-application-generator for payapps) would save the search."
+    },
+    {
+      "file": "ventures/pay-application-generator/VENTURE.yaml",
+      "issue": "Says 'an owner-ready PDF ... stay in the paid suite', which ruled out the printable-PDF idea; it was not clear whether a spreadsheet counts. I took a spreadsheet to be the free tier, because subs already use one."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Top flagship (payapps) is in private-monorepo and the clone was denied",
+      "did": "Shipped payapps milestone (5), its free front door in this repo, instead of milestone (1) in the private app",
+      "result": "Excel workbook + blank template merged, verified against LibreOffice"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-a-pay-application-template-whose-totals-cannot-drift.md"
+  ],
+  "goal": "North star: traffic to the pay-app paid bet via its top search phrase (g702 g703 template excel)",
+  "notes": "39/39 venture tests pass; run_venture_tests ok; LibreOffice headless recalculation matched compute() to the cent on a sample with reduced rate, own-rate line and deductive CO; Playwright download check clean; check_posts ok; validate.py ok. Page copy narrowed to 'checked in LibreOffice' (Numbers/Google Sheets not tested). No agent doc in docs/reports: README and VENTURE.yaml carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c6d21fbb-6452-5602-86df-54666034c09c",
+    "transcripts": 1,
+    "first": "2026-11-25T00:18:02Z",
+    "last": "2026-11-25T00:25:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 92,
+        "output": 34781,
+        "thinking": 7110,
+        "cache_read": 4622395,
+        "cache_write_5m": 0,
+        "cache_write_1h": 111053,
+        "api_equivalent_usd": 2.5089,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 92,
+      "output": 34781,
+      "thinking": 7110,
+      "cache_read": 4622395,
+      "cache_write_5m": 0,
+      "cache_write_1h": 111053,
+      "api_equivalent_usd": 2.5089,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 42,
+      "Write": 3,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Edit": 1,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.72,
+      "active_minutes": 7.72,
+      "model_minutes": 5.87,
+      "tool_minutes": 1.86,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "xlsx writer, two-sheet formula layout, tests, LibreOffice cross-check, page and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 239.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -82,7 +82,8 @@ test('every row of the route-density table is what the calculator returns', () =
   const near = calculate({ ...DEFAULTS, driveMinutes: 5, mileage: 2 });
   const far = calculate({ ...DEFAULTS, driveMinutes: 20, mileage: 9 });
   assert.ok(far.finalPrice > near.finalPrice * 1.5);
-  assert.match(page, new RegExp(`${money(near.finalPrice).replace(/\$/, '\\$')} job and a ${money(far.finalPrice).replace(/\$/, '\\$')} job`));
+  const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  assert.match(page, new RegExp(`${esc(money(near.finalPrice))} job and a ${esc(money(far.finalPrice))} job`));
 });
 
 test('the route-revenue and income-gap figures match the calculator', () => {
