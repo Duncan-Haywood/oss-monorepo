@@ -1,0 +1,94 @@
+data: Journee (1992) DUT-SHL 0909, Wigley III; B55 at omega' 2.2 and the A55 summary as quoted in boatmath docs/seakeeping-findings.md (commit 2d4b3acf; second-hand)
+hull: Wigley III (alpha 0), L 3 B 0.3 d 0.1875, kyy 0.25 L, grid (16, 30), damping zeta3 0.0375 zeta5 0.0
+## P0. code checks
+pitch_adjust (0, 0) identical to the default: True
+## A. the strip's pitch coefficients: Fn omega' A55'' B55'' B55''_meas B55''_boatmath ours/meas
+row 0.2 2.20 0.0299 0.0901 0.074 0.108 1.218
+row 0.3 2.20 0.0367 0.0901 0.073 0.130 1.234
+row 0.4 2.20 0.0462 0.0901 0.066 0.162 1.365
+# Fn 0.2 across frequency: omega' A55'' B55''
+freq 1.50 0.0572 0.0798
+freq 1.75 0.0440 0.0852
+freq 2.00 0.0351 0.0886
+freq 2.25 0.0288 0.0903
+freq 2.50 0.0243 0.0904
+freq 2.75 0.0211 0.0892
+freq 3.00 0.0187 0.0868
+freq 3.25 0.0170 0.0835
+freq 3.50 0.0158 0.0794
+freq 3.75 0.0151 0.0746
+freq 4.00 0.0147 0.0695
+freq 4.25 0.0146 0.0642
+freq 4.50 0.0147 0.0588
+freq 4.75 0.0149 0.0534
+freq 5.00 0.0153 0.0482
+## B. variants at Fn 0.2 (B scale = 0.074 / 0.0901 = 0.821, A scale 1.429)
+# variant: heave ratios at lambda/L 1.25 1.5 2.0; pitch RAO peak |theta|/(k zeta) at lambda/L; GB+F peak, lam, ratio; NF-PG peak, lam, ratio; NF-PG/GB+F
+var base heave 1.006 0.971 0.979; pitch peak 1.147 at 1.02; GB+F 17.38 at 0.89 ratio 0.783; NF-PG 18.01 at 0.91 ratio 0.811; NF-PG/GB+F 1.036
+var A    heave 1.055 0.986 0.981; pitch peak 1.310 at 1.08; GB+F 19.96 at 0.94 ratio 0.899; NF-PG 21.20 at 0.95 ratio 0.955; NF-PG/GB+F 1.062
+var B    heave 0.987 0.958 0.973; pitch peak 1.322 at 0.96; GB+F 24.51 at 0.89 ratio 1.104; NF-PG 22.31 at 0.90 ratio 1.005; NF-PG/GB+F 0.910
+var AB   heave 1.037 0.971 0.974; pitch peak 1.524 at 1.02; GB+F 28.18 at 0.94 ratio 1.269; NF-PG 26.53 at 0.95 ratio 1.195; NF-PG/GB+F 0.941
+## C. bracket at Fn 0.2, GB+F: A scale, B scale, peak ratio, peak lam, heave within 15% at all three
+cell 1.0 0.4 3.966 0.90 True heave 0.916 0.921 0.958
+cell 1.0 0.5 2.671 0.90 True heave 0.936 0.931 0.962
+cell 1.0 0.6 1.930 0.89 True heave 0.954 0.940 0.965
+cell 1.0 0.7 1.466 0.89 True heave 0.970 0.948 0.969
+cell 1.0 0.8 1.156 0.89 True heave 0.984 0.957 0.972
+cell 1.0 0.9 0.940 0.89 True heave 0.996 0.964 0.976
+cell 1.0 1.0 0.783 0.89 True heave 1.006 0.971 0.979
+cell 1.1 0.4 4.133 0.91 True heave 0.923 0.922 0.958
+cell 1.1 0.5 2.780 0.91 True heave 0.944 0.932 0.962
+cell 1.1 0.6 2.006 0.91 True heave 0.963 0.942 0.965
+cell 1.1 0.7 1.522 0.91 True heave 0.980 0.951 0.969
+cell 1.1 0.8 1.200 0.91 True heave 0.994 0.959 0.973
+cell 1.1 0.9 0.975 0.91 True heave 1.006 0.967 0.976
+cell 1.1 1.0 0.811 0.91 True heave 1.016 0.974 0.979
+cell 1.2 0.4 4.281 0.92 True heave 0.932 0.923 0.958
+cell 1.2 0.5 2.880 0.92 True heave 0.954 0.933 0.961
+cell 1.2 0.6 2.078 0.92 True heave 0.973 0.943 0.965
+cell 1.2 0.7 1.577 0.92 True heave 0.990 0.953 0.969
+cell 1.2 0.8 1.243 0.92 True heave 1.005 0.962 0.973
+cell 1.2 0.9 1.009 0.92 True heave 1.017 0.970 0.976
+cell 1.2 1.0 0.839 0.92 True heave 1.027 0.978 0.980
+cell 1.3 0.4 4.407 0.93 True heave 0.941 0.924 0.957
+cell 1.3 0.5 2.970 0.93 True heave 0.964 0.935 0.961
+cell 1.3 0.6 2.145 0.93 True heave 0.985 0.946 0.965
+cell 1.3 0.7 1.628 0.93 True heave 1.002 0.956 0.969
+cell 1.3 0.8 1.283 0.93 True heave 1.017 0.965 0.973
+cell 1.3 0.9 1.042 0.93 True heave 1.029 0.973 0.977
+cell 1.3 1.0 0.866 0.93 True heave 1.039 0.981 0.981
+cell 1.4 0.4 4.545 0.95 True heave 0.952 0.925 0.957
+cell 1.4 0.5 3.056 0.95 True heave 0.977 0.937 0.961
+cell 1.4 0.6 2.205 0.94 True heave 0.998 0.948 0.965
+cell 1.4 0.7 1.675 0.94 True heave 1.016 0.958 0.969
+cell 1.4 0.8 1.321 0.94 True heave 1.030 0.968 0.973
+cell 1.4 0.9 1.073 0.94 True heave 1.042 0.977 0.977
+cell 1.4 1.0 0.892 0.94 True heave 1.051 0.985 0.981
+cell 1.5 0.4 4.678 0.96 True heave 0.965 0.927 0.957
+cell 1.5 0.5 3.147 0.96 True heave 0.991 0.939 0.961
+cell 1.5 0.6 2.269 0.96 True heave 1.013 0.951 0.965
+cell 1.5 0.7 1.720 0.96 True heave 1.031 0.962 0.970
+cell 1.5 0.8 1.356 0.95 True heave 1.045 0.972 0.974
+cell 1.5 0.9 1.102 0.95 True heave 1.056 0.981 0.978
+cell 1.5 1.0 0.917 0.95 True heave 1.065 0.989 0.982
+cell 1.6 0.4 4.788 0.97 True heave 0.981 0.929 0.956
+cell 1.6 0.5 3.226 0.97 True heave 1.008 0.942 0.961
+cell 1.6 0.6 2.329 0.97 True heave 1.030 0.954 0.966
+cell 1.6 0.7 1.766 0.97 True heave 1.048 0.965 0.970
+cell 1.6 0.8 1.391 0.97 True heave 1.062 0.976 0.974
+cell 1.6 0.9 1.129 0.96 True heave 1.072 0.985 0.979
+cell 1.6 1.0 0.940 0.96 True heave 1.080 0.994 0.983
+## D. added after P0 to P5 were read (not registered): variant B at Fn 0.3 and 0.4, B55 scaled by the measured/strip ratio at omega' 2.2 at that Fn
+# Fn variant: B scale; heave ratios at Table 8-III points (Fn 0.3); GB+F peak, lam, ratio; NF-PG peak, lam, ratio
+fn 0.3 base x1.000; heave 0.921 0.955 1.001 0.989; GB+F 25.39 at 1.08 ratio 1.257; NF-PG 27.03 at 1.09 ratio 1.338
+fn 0.3 B    x0.810; heave 0.950 0.943 0.980 0.976; GB+F 35.56 at 1.09 ratio 1.760; NF-PG 33.99 at 1.09 ratio 1.682
+fn 0.4 base x1.000; heave -; GB+F 27.80 at 1.25 ratio 1.004; NF-PG 31.69 at 1.26 ratio 1.144
+fn 0.4 B    x0.733; heave -; GB+F 42.70 at 1.27 ratio 1.542; NF-PG 43.01 at 1.28 ratio 1.553
+## expectations (registered in LOG.md, 792de2922)
+P0 identity True; base GB+F 17.382 (7zu 17.38), NF-PG 18.006 (7zu 18.01): True
+P1 B55'' Fn 0.2 -> 0.4 change -0.0% (under 10%): True
+P1b B55'' above the measured at all three Fn: True
+P2 variant A moves the GB+F ratio by +0.116 (more than 0.05 in size): True
+P3 variant B raises the GB+F ratio by +0.321 (more than +0.05): True
+P4 best bracket cell with heave within 15%: A x1.6, B x0.4, ratio 4.788; none at 0.95 or above: False
+P5 NF-PG/GB+F over the four variants 0.910 to 1.062 (16.7%, under 3%): False
