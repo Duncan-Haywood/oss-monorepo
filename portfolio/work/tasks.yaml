@@ -415,6 +415,12 @@ tasks:
     status: open
     added: 2026-11-24
     blocked_on: The record export needs a Cloudflare token with Zone Read; the nameserver change is the owner's.
+    notes: >-
+      2026-11-25: apply-ready in platform/aws/stacks/dns (hosted zone, query logs,
+      planned CAA/null MX/SPF/DMARC, cf_export.py, zone_diff.py, cutover and
+      rollback runbook in its README). records.json is an unverified seed
+      from public lookups; the stack refuses it until cf_export.py replaces
+      it. Not applied: no AWS account yet.
 
   - id: aws-site-cloudfront
     direction: aws-consolidation
@@ -429,7 +435,15 @@ tasks:
     hours: 16
     status: open
     added: 2026-11-24
-    notes: The deploy workflow change in portfolio-pages.yml is control plane, so it is its own PR.
+    notes: >-
+      The deploy workflow change in portfolio-pages.yml is control plane, so
+      it is its own PR. 2026-11-25: apply-ready in platform/aws/stacks/site and
+      platform/aws/modules/static-site (private bucket, OAC, WAF, headers
+      policy, CloudFront Functions reproducing auto-trailing-slash and the
+      router, publish.mjs, an emulator that runs verify-live.sh and
+      check_site_fresh.py against the AWS serving path); the job for
+      priv-portfolio-pages.yml is drafted in platform/aws/stacks/site/ci/. Not
+      applied: no AWS account yet.
 
   - id: aws-edge-api
     direction: aws-consolidation
