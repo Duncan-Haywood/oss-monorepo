@@ -185,7 +185,7 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 
 - Egeria and Lent with the bishop's catechesis (Travels, chapters 27-28 and 45-46; a sequel to episode 133).
 - Valerius of Bierzo and the letter in praise of the blessed Egeria, the seventh-century Spanish monk who gave her name back (Valerius's letter to the monks of the Bierzo; a coda to episodes 127-137).
-- Hiram king of Tyre and the cedars of Lebanon floated down the coast in rafts, the friend of David who sent Solomon timber for the temple (First Kings 5 and Second Chronicles 2; left by episode 156).
+- *(Drafting, 2026-11-25, as episode 178: the friendship, the twenty towns called Cabul and Tyre down to Acts 21, since episode 138 already told the rafts.)* Hiram king of Tyre and the cedars of Lebanon floated down the coast in rafts, the friend of David who sent Solomon timber for the temple (First Kings 5 and Second Chronicles 2; left by episode 156).
 - The ships of Tarshish and the throne of ivory with twelve lions on six steps, the years when silver was counted as nothing in Jerusalem, told as a quieter episode about trade and its dangers, with Deuteronomy 17:16-17 (First Kings 10:14-29; left by episode 156).
 - Saint Theognius or Saint Abraamius, Cyril of Scythopolis's other short desert lives.
 - Saint Cyriacus the Anchorite, whose Life Cyril also wrote.
