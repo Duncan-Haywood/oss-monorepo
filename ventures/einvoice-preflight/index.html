@@ -216,8 +216,11 @@
       a Peppol, EN 16931, or tax-law validator and it does not submit anything.
     </p>
     <p class="muted">
-      Prefer a pipeline? The same checks run from
-      <code>python3 -m einvoice_preflight invoice.json</code> in this directory.
+      Prefer a pipeline? For JSON, UBL, CII and Factur-X files the built-in checks also run from
+      <code>python3 -m einvoice_preflight invoice.json</code> in this directory: on the 42 such files shipped
+      with the tool it reports the same rules as this page, except the PDF/A notes, which only this page shows.
+      National formats (FatturaPA, KSeF, CFDI, NAV, NF-e, Facturae, VERI*FACTU and others) and the official
+      Schematron box are this page and the Node API only.
     </p>
   </section>
   <h2>Common questions</h2>

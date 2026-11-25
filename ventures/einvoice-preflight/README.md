@@ -43,7 +43,7 @@ and PDF-004 (XMP `fx:ConformanceLevel` names a different profile than the XML's
 guideline ID). Tested on hand-built PDFs only (`pdf-envelope.test.mjs`); the
 shipped example PDFs have no XMP, so they draw PDF-001. Not run on a real
 Mustang, Ghostscript or Acrobat export, and not a PDF/A validator (veraPDF unrun).
-The browser page and the Node CLI/server get these; the Python CLI does not yet.
+The browser page and the Node CLI/server get these; the Python CLI does not yet (see "Page and Python CLI: what differs" below).
 
 **Two more envelope notes (2026-10-31).** PDF-005 (the embedded file's stream has
 no `/Subtype`, the MIME type PDF/A-3 requires, `/text#2Fxml` for XML) and PDF-006
@@ -1214,6 +1214,32 @@ After: 104 of 126 unwrap, 18 are clean. The 24 ZUGFeRD 1.0 files and one unstruc
 ## Measured on Mustang's test PDFs (2026-10-28)
 
 `node eval/facturx-corpus.mjs <ZUGFeRD/mustangproject checkout>` (read, not copied): 36 PDFs from other generators. One Aspose.Words invoice (2026-03-24) was refused as "compressed in a way this tool cannot read": `/Subtype /application#2Foctet-stream` contains the word `stream`, so the reader began inside the dictionary. Fixed in `facturx.mjs` (keyword must be followed by a line break; test in `facturx.test.mjs`). Unwrapped 18 before, 19 after; the rest hold no invoice XML. Remaining findings on the others are placeholder VAT ids, a bank checksum in a French sample and a missing remittance.
+
+## Page and Python CLI: what differs (measured 2026-11-25)
+
+Four quality audits reported that the page and the Python CLI do not run the
+same rules while the page said "the same checks run from `python3 -m
+einvoice_preflight`". `eval/page-cli-parity.mjs` now measures it: every invoice
+file shipped in `examples/`, `fixtures/` and `tests/` (104) goes through the
+page's built-in route (`preflightDocuments`, default options) and through the
+CLI (`--format json`), and the rule ids are compared
+([`eval/page-cli-parity-2026-11-25.md`](eval/page-cli-parity-2026-11-25.md)).
+
+- **42 files both read (JSON, UBL, CII, Factur-X):** 39 give the same rule ids;
+  3 differ only by PDF-001, a PDF/A note the CLI does not run. Before this run
+  a fourth file differed: the CLI's CII reader stored the payment means code
+  under a key no check reads, so INV-044/045/046 never ran on a CII file in the
+  CLI (`formats.py`, fixed; `tests/test_means.py`).
+- **61 files only the page reads:** CFDI, NAV, KSeF FA(3), FatturaPA, NF-e,
+  NFS-e, Facturae, VERI*FACTU, CDAR and Flux 10. The CLI used to answer these
+  with "UBL document root must be Invoice, CreditNote, or DebitNote"; it now
+  names the file's root and says the page and the Node API check that format.
+- **Known, not measured here:** the CLI has no warning or note severity, so it
+  is silent on INV-061/063/064 and PDF-001..006; Norway and Switzerland VAT and
+  the profile options are JS only; some fix texts differ. The comparison is on
+  rule ids, not messages, and on shipped files, not generated ones.
+
+The page now says exactly this under "Prefer a pipeline?".
 
 ## Privacy and usage
 

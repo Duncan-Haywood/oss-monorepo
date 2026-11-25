@@ -30,7 +30,7 @@
 
 [`portfolio/quality/audits/2026-11-19-einvoice-preflight.json`](../../portfolio/quality/audits/2026-11-19-einvoice-preflight.json). The large-amount rounding defect is fixed (PR #17724); BR-CO-17's one-unit tolerance is matched on the built-in route as a warning (2026-11-25, eval/brco17-tolerance-2026-11-25.md); remainder-10 BG/CZ VAT numbers are tested and cross-checked, 0 of 9,000 off vs python-stdnum (2026-11-25, eval/vat-remainder10-2026-11-25.md); open:
 
-- The page and the Python CLI do not run the same rules (Norway and Switzerland VAT, profiles, PDF checks are JS only; fix texts differ), though `checks.mjs` and the page say they do. Fourth audit to report it.
+- The page and the Python CLI do not run the same rules (Norway and Switzerland VAT, profiles, PDF checks are JS only; fix texts differ). 2026-11-25: the claims are corrected (the page and `checks.mjs` now say what differs), and `eval/page-cli-parity.mjs` measures it: on the 42 shipped JSON/UBL/CII/Factur-X files both read, the rule ids now differ only by PDF-001 on 3 PDFs (one CII bug fixed on the way: the CLI never ran INV-044/045/046 on CII). Open: port Norway/Switzerland VAT and the PDF envelope checks, compare fix texts, and run the harness on generated files, not only shipped ones.
 - CI runs `node --test` without slimdom and fontoxpath, so the 139 tests of the official route are skipped there.
 - The cent-rounding idiom is copied in seven files; one integer-cents helper would remove the class of bug.
 
