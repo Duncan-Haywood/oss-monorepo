@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtLEkJPCce2RXpAdTWJ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T19:07:15Z",
+  "ended": "2026-11-25T19:18:07Z",
+  "wall_minutes": 11.07,
+  "tokens_in": 8861442,
+  "tokens_out": 31662,
+  "cost_usd": 3.4512,
+  "tool_calls": 77,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19066",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Write tool turned the \\u2028/\\u2029 escapes in a regex into literal characters (tsc: unterminated regex); swapped in the existing sanitizeHeaderValue helper instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Private CI ('lint, types, tests, build, migrations') fails in 2-3 s with a 404 log on every private PR (149, 150); nothing says to verify private PRs locally or how to classify it (ci_starvation.py covers only this repo)."
+    },
+    {
+      "file": "apps/payapps/ROADMAP.md (private)",
+      "issue": "Every free Next item is either source-blocked (California statute: leginfo/Justia/FindLaw 403 via proxy) or gated on 'once a customer asks', so bet #1 looks takeable but isn't; roadmap_claim.py could mark gated items."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Top bet #1 (PayApps) had no workable free item, so I took bet #2 (Job Shop Quote) item 8 part 2",
+      "did": "built RFQ arrival emails in private PR 150",
+      "result": "merged; full suites green locally"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Private CI never starts a runner, so merged on local verification of every CI step",
+      "did": "ran biome ci, typecheck, unit, worker, build, provision test and drizzle drift check locally",
+      "result": "all pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (extended)",
+    "docs/reports/ventures-2026-11-25-jobshop-rfq-arrival-email.md"
+  ],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/150 merged (4350d15). Local: unit 215/215, worker 116/116, biome ci clean, tsc clean, build ok, provision.test 5/5, drizzle check + generate no drift. Migration 0010 checked against private main (latest 0009).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "db5123e5-762f-524e-8ebd-d9fff216e33f",
+    "transcripts": 1,
+    "first": "2026-11-25T19:07:15Z",
+    "last": "2026-11-25T19:18:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 147,
+        "output": 31662,
+        "thinking": 5078,
+        "cache_read": 8727304,
+        "cache_write_5m": 0,
+        "cache_write_1h": 133991,
+        "api_equivalent_usd": 3.4512,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 147,
+      "output": 31662,
+      "thinking": 5078,
+      "cache_read": 8727304,
+      "cache_write_5m": 0,
+      "cache_write_1h": 133991,
+      "api_equivalent_usd": 3.4512,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 63,
+      "ToolSearch": 4,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "WebFetch": 1,
+      "Write": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.07,
+      "active_minutes": 11.07,
+      "model_minutes": 6.5,
+      "tool_minutes": 4.57,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: opt-in notify table+API+UI, abuse-safe email, 5 tests, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 173.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
