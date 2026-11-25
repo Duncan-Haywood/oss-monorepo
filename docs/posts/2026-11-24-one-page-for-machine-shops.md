@@ -293,3 +293,36 @@ now keeps routing templates:
 This is the first part of a larger item. Next comes editing a routing in
 place, then offering a part's quote history on the RFQ screen before a
 quote exists.
+
+## Update, 25 November 2026: RFQs sent straight to the shop's inbox
+
+Most RFQs arrive as email: a buyer's note, a PDF drawing or three, sometimes
+a STEP model. Until now the estimator copied the text into the quoting app
+and uploaded each attachment by hand. The RFQ-to-quote app (bet #2, still in
+private development, not yet on sale) now gives each shop its own address.
+Forward an RFQ to it, or give it to customers, and the message lands in the
+shop's RFQ inbox with its drawings attached.
+
+- **What comes across.** The subject, who sent it, the text of the email
+  (an HTML-only email is turned into plain text), and the attachments the
+  app can use: PDF drawings, text, images and CAD files (STEP, IGES, STL,
+  DXF), up to ten files of 15 MB each. A forwarded message attached whole
+  is opened too, so the customer's original note and drawings come along.
+- **What doesn't, and says so.** A Word file, an oversized drawing or an
+  Outlook `winmail.dat` is not stored, and the RFQ lists each one with the
+  reason, so the estimator knows to ask for it again. Small logos in email
+  signatures are dropped.
+- **Nothing is read by AI until a person asks.** An emailed RFQ waits in the
+  inbox until an estimator presses "Extract with AI", the same as a pasted
+  one. Someone who finds the address can't use up the shop's monthly RFQ
+  allowance, and a spoofed email is only an inbox item a person looks at.
+- **One email, one RFQ.** If the mail system delivers the same message
+  twice, the shop still gets one RFQ.
+- **The address can be replaced.** An admin can replace the address at any
+  time, and mail to the old one is then refused. They can also turn it off.
+  Each shop accepts up to 50 emailed RFQs a day, so a flood of junk can't
+  bury the real ones.
+
+The address only starts working once the app is deployed and the receiving
+domain is routed to it. Until then the RFQs page doesn't show the option at
+all.
