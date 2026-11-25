@@ -175,13 +175,18 @@ function findSpecs(text) {
   return [...seen].map(([spec, evidence]) => ({ spec, evidence }));
 }
 
+// Escape every regex metacharacter (backslash included), not just dots.
+export function escapeRegExp(s) {
+  return String(s).replace(/[\\^$.*+?()[\]{}|\/-]/g, "\\$&");
+}
+
 function findClauses(text) {
   const out = [];
   for (const c of CLAUSES) {
     // Clause numbers are written "252.204-7012", "DFARS 7012", "252.204.7012"
     const [part, num] = c.id.split("-");
     const tail = num.length === 4 && c.id.startsWith("252") ? `|\\bDFARS\\s*(?:clause\\s*)?${num}\\b` : "";
-    const re = new RegExp(`(?<![\\d.])${part.replace(/\./g, "\\.")}[-.\\s]?${num}(?!\\d)${tail}`, "i");
+    const re = new RegExp(`(?<![\\d.])${escapeRegExp(part)}[-.\\s]?${num}(?!\\d)${tail}`, "i");
     const m = text.match(re);
     if (m) out.push({ ...c, evidence: snippet(text, m.index, m[0].length) });
   }

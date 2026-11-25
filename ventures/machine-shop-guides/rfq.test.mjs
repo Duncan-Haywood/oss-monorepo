@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { readRfq, findQuantities, findTolerances, reviewCsv, draftEmail, breaksFor, CLAUSES } from "./rfq.mjs";
+import { readRfq, findQuantities, findTolerances, reviewCsv, draftEmail, breaksFor, CLAUSES, escapeRegExp } from "./rfq.mjs";
 
 // Invented RFQs written for these tests, in the shapes buyers send. No real
 // company, part or contract.
@@ -150,4 +150,11 @@ test("long digit and comma runs stay linear (no regex backtracking blow-up)", ()
     readRfq(s);
     assert.ok(Date.now() - t < 1000, `took ${Date.now() - t} ms on a ${s.length}-char input`);
   }
+});
+
+test("escapeRegExp escapes backslashes and every metacharacter", () => {
+  const raw = String.raw`a\b.c*d+e?f(g)h[i]j{k}l|m^n$o/p-q`;
+  assert.ok(new RegExp(`^${escapeRegExp(raw)}$`).test(raw));
+  assert.equal(escapeRegExp("252.204"), String.raw`252\.204`);
+  assert.equal(escapeRegExp("\\"), "\\\\");
 });
