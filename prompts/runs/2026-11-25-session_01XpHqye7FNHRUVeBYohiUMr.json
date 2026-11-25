@@ -1,0 +1,155 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqye7FNHRUVeBYohiUMr",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T20:39:23Z",
+  "ended": "2026-11-25T20:45:30Z",
+  "wall_minutes": 7.74,
+  "tokens_in": 12264138,
+  "tokens_out": 37068,
+  "cost_usd": 4.3346,
+  "tool_calls": 96,
+  "task": "Bet #2 jobshop-quote ROADMAP item 5 (geometry): Drill from CAD from STEP hole locations (claim geometry-drill-holes)",
+  "projects": [
+    "private-monorepo/apps/jobshop-quote",
+    "private-monorepo/packages/cad-features",
+    "private-monorepo/apps/jobshop-site"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19090",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": 432,
+  "lines_removed": 19,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "private-monorepo CI jobs failed in 3 s with no downloadable logs (no runner); verified locally instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Says ToolSearch can't find register_repo_root; add_repo's result still tells you to call it. Skipped as advised, no harm."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "ci_starvation.py takes this repo's run ids; there's no documented way to classify a private-monorepo run, whose 3 s failures come with HTTP 404 logs. Treated as starved by analogy."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "Fails on the shallow clone ('no merge base'); --base HEAD~1 works, worth naming in CLAUDE.md next to the command."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Default is the top bet (#1 payapps); its free Next items were each blocked on a customer, usage data or new dependencies (OCR), and the rest were claimed by parallel runs.",
+      "did": "Took bet #2 (job shop quote), whose geometry item had a free, well-defined part.",
+      "result": "Shipped and merged in private PR 166."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Private CI had no runners.",
+      "did": "Ran every step of jobshop-quote-ci and cad-features-ci locally before merging.",
+      "result": "All green locally (see notes)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-a-step-file-now-sizes-the-blank-in-the-job-shop-quoter.md (extended with a drilling section)"
+  ],
+  "goal": "$10k MRR: deepen the job-shop quoter's wedge (less typing per quote) before launch",
+  "notes": "Product PR: private-monorepo PR 166, merged as 1a8392390. Local verification (private-monorepo, branch claude/jobshop-geometry-drill-holes): apps/jobshop-quote biome ci clean, typecheck 0 errors, unit 23 files/254 tests pass, worker 22 files/143 tests pass, vite build ok, provision.test.mjs 5/5, drizzle-kit check + generate no drift (migration 0016_machine_seconds_per_hole, checked origin/main had no 0016 before merging). packages/cad-features node --test 36/36, biome ci clean, typecheck clean; NEMA 17 bracket public fixture -> 5 hole locations (4x 3.3 mm, 1x 32 mm). apps/jobshop-site unit 42/42, biome clean. Counterbore STEP fixture volume matches the hand calculation, so the new test helper geometry is right.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f5f52925-f162-52ad-8fb5-4c416070e3af",
+    "transcripts": 1,
+    "first": "2026-11-25T20:39:23Z",
+    "last": "2026-11-25T20:47:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 93,
+        "input": 180,
+        "output": 37068,
+        "thinking": 6720,
+        "cache_read": 12117844,
+        "cache_write_5m": 0,
+        "cache_write_1h": 146114,
+        "api_equivalent_usd": 4.3346,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 93,
+      "input": 180,
+      "output": 37068,
+      "thinking": 6720,
+      "cache_read": 12117844,
+      "cache_write_5m": 0,
+      "cache_write_1h": 146114,
+      "api_equivalent_usd": 4.3346,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 96,
+    "tools": {
+      "Bash": 86,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Read": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.74,
+      "active_minutes": 7.74,
+      "model_minutes": 5.76,
+      "tool_minutes": 1.98,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "parser axis grouping + rate-card column + costing rule + tests, a mid-level engineer's day plus",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 230.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
