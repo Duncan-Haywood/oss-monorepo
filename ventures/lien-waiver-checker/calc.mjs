@@ -232,7 +232,7 @@ export function analyze(rawText, settings = {}) {
   if (settings.project && !low.includes(settings.project.trim().toLowerCase())) {
     findings.push(f("project-missing", "medium", `The project "${settings.project.trim()}" is not named in the waiver`, "A waiver should identify the job or property it releases.", "Ask for the project and property to be identified."));
   }
-  const verified = settings.state && VERIFIED_FORM_RULES[settings.state];
+  const verified = settings.state && Object.hasOwn(VERIFIED_FORM_RULES, settings.state) ? VERIFIED_FORM_RULES[settings.state] : null;
   if (verified) {
     findings.push(f("statutory-form", "info", `${FORM_STATES[settings.state]} sets the waiver wording by statute (${verified.cite})`,
       `Under ${verified.cite}, ${verified.rule}.`,
