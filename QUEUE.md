@@ -16,13 +16,13 @@ Scanned commit: `9834d57689b0` (the commit most open alerts were last seen on). 
 Read and judged false positives (`platform/security/codeql-triage.json`): not work
 for a session. The owner dismisses each on its alert page.
 
-- [high] #7 `py/clear-text-storage-sensitive-data` in `platform/security/risk_review.py:490`: alerts/7.md
+- [high] #7 `py/clear-text-storage-sensitive-data` in `platform/security/risk_review.py:539`: alerts/7.md
 - [high] #12 `py/clear-text-logging-sensitive-data` in `platform/ci/secrets_inventory.py:261`: alerts/12.md
 - [high] #34 `py/clear-text-logging-sensitive-data` in `ventures/einvoice-preflight/src/einvoice_preflight/cli.py:853`: alerts/34.md
 - [high] #38 `py/clear-text-logging-sensitive-data` in `portfolio/monetization/monetization.py:323`: alerts/38.md
 - [high] #39 `py/clear-text-logging-sensitive-data` in `portfolio/monetization/monetization.py:331`: alerts/39.md
-- [high] #42 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:484`: alerts/42.md
-- [high] #43 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:491`: alerts/43.md
+- [high] #42 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:533`: alerts/42.md
+- [high] #43 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:540`: alerts/43.md
 - [high] #104 `js/regex-injection` in `platform/ci/copy_drift.mjs:189`: alerts/104.md
 - [high] #105 `js/regex-injection` in `platform/ci/copy_drift.mjs:190`: alerts/105.md
 - [high] #106 `js/regex-injection` in `ventures/dxf-nesting/dxf.mjs:174`: alerts/106.md
