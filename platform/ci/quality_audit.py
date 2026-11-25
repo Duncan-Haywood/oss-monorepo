@@ -11,6 +11,7 @@ numbers (share meeting the bar, with Wilson intervals, by stratum and round).
     python3 platform/ci/quality_audit.py summary [--md]
     python3 platform/ci/quality_audit.py metrics [--md]   # detailed: gates, defect taxonomy, mutations, fixes, coverage
     python3 platform/ci/quality_audit.py census | queue | mode | coverage   # see quality_metrics.py
+    python3 platform/ci/quality_audit.py claim <subject> [--note N | --release]   # before fixing a queue row
 
 Standard library only, so it runs in a bare container. It lives in platform/ci
 (tests: platform/ci/test_quality_audit.py) beside post_merge_review.py; the
@@ -552,7 +553,8 @@ def main(argv: list[str] | None = None) -> int:
     qu.add_argument("--severity", choices=SEVERITIES, default="medium")
     qu.add_argument("--limit", type=int, default=40)
     qu.add_argument("--no-git", action="store_true", help="skip the per-subject 'changed since audit' git check")
-    qu.add_argument("--no-prs", action="store_true", help="skip the open-PR search that marks rows another PR already names")
+    qu.add_argument("--no-prs", action="store_true",
+                    help="skip the open-PR search and the claim-branch read that mark rows another session already has")
     qu.add_argument("--seed", default=None,
                     help="default: today's date plus a random tail; subjects are shuffled by it within a severity")
     qu.add_argument("--oldest-first", action="store_true", help="the fixed order (oldest audit first), no shuffle")
@@ -565,6 +567,10 @@ def main(argv: list[str] | None = None) -> int:
     mf.add_argument("--all", action="store_true", help="every defect that has no fixed_by yet")
     mf.add_argument("--force", action="store_true", help="replace a different fixed_by")
     mf.add_argument("--dry-run", action="store_true")
+    cl = sub.add_parser("claim", help="claim a subject before fixing its defects (create-only branch; exit 4 if taken)")
+    cl.add_argument("subject", help="as queue prints it, e.g. research/energy-store-hx")
+    cl.add_argument("--note", default="", help="which defects this session fixes")
+    cl.add_argument("--release", action="store_true", help="drop your own claim")
     mo = sub.add_parser("mode", help="which mode today's quality session runs")
     mo.add_argument("--date", default=dt.date.today().isoformat())
     mo.add_argument("--seed", default=None)
@@ -624,6 +630,10 @@ def main(argv: list[str] | None = None) -> int:
         sys.path.insert(0, str(Path(__file__).parent))
         import quality_mark_fixed
         return quality_mark_fixed.run(args.file, args.defects, args.pr, args.all, args.force, args.dry_run, validate_audit)
+    if args.cmd == "claim":
+        sys.path.insert(0, str(Path(__file__).parent))
+        import quality_claim
+        return quality_claim.claim(args.subject, args.note, args.release)
     audits = load_audits()
     if args.cmd == "census" and not args.seed:
         # The date alone gave every census session on a day the same draw (doc_friction, 2026-11-15T07:08).

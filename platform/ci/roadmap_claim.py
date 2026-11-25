@@ -108,18 +108,21 @@ def claim_info(repo: str, app: str, claims: dict[str, tuple[int, str]]) -> dict[
     return info
 
 
-def push_claim(repo: str, ref: str, message: str) -> bool:
-    """Create-only push of a fresh empty orphan commit; False if the ref already exists.
+def push_claim(repo: str, ref: str, message: str, base: str | None = None) -> bool:
+    """Create-only push of a fresh claim commit; False if the ref already exists.
 
     The commit carries a random token so no other run can push the same sha (an identical
-    sha would read "Everything up-to-date" and both runs would think they won).
+    sha would read "Everything up-to-date" and both runs would think they won). With no
+    `base` it is an empty orphan commit; with one (quality_claim.py passes origin/main) it
+    has `base` as parent and base's tree, so it changes no path against that branch.
     """
     env = {"GIT_AUTHOR_NAME": "roadmap-claim", "GIT_AUTHOR_EMAIL": "roadmap-claim@invalid",
            "GIT_COMMITTER_NAME": "roadmap-claim", "GIT_COMMITTER_EMAIL": "roadmap-claim@invalid"}
-    tree = git(repo, "mktree", env=env)
+    tree = git(repo, "rev-parse", f"{base}^{{tree}}") if base else git(repo, "mktree", env=env)
     if tree.returncode != 0:
         return False
-    made = git(repo, "commit-tree", tree.stdout.strip(),
+    parent = ["-p", base] if base else []
+    made = git(repo, "commit-tree", tree.stdout.strip(), *parent,
                "-m", f"{message} ({secrets.token_hex(6)})", env=env)
     if made.returncode != 0:
         return False
