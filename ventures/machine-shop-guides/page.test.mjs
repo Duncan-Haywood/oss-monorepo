@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const PAGES = ["index", "cmmc-level-1-self-assessment", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "stock-size-from-step-file", "job-shop-quote-calculator", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual"];
+const PAGES = ["index", "cmmc-level-1-self-assessment", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual"];
 const read = (p) => readFileSync(new URL(`./${p}.html`, import.meta.url), "utf8");
 
 for (const p of PAGES) {
@@ -75,4 +75,16 @@ test("incident page builds the DOM from text, never innerHTML, and keeps nothing
   assert.match(html, /id="keep-draft"(?![^>]*checked)/);
   assert.match(html, /https:\/\/dibnet\.dod\.mil/);
   assert.match(html, /within 72 hours of discovery of any cyber incident/);
+});
+
+test("RFQ review page keeps pasted text out of storage and renders findings as text", () => {
+  const html = read("rfq-review");
+  assert.doesNotMatch(html, /localStorage|setItem\(/);
+  assert.doesNotMatch(html, /innerHTML|insertAdjacentHTML|document\.write/);
+  assert.match(html, /recordUsage\("rfq-review"\)/);
+});
+
+test("quote calculator accepts quantity breaks handed over from the RFQ review", () => {
+  assert.match(read("job-shop-quote-calculator"), /get\("breaks"\)/);
+  assert.match(read("rfq-review"), /job-shop-quote-calculator\.html\?breaks=/);
 });
