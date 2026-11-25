@@ -23,6 +23,17 @@ Only the steps that need a card, an identity, a legal acceptance or admin
 rights on GitHub. Everything else is done by agents through pull requests.
 
 1. **Create the AWS account** (card, phone, root MFA). Region: us-east-1.
+   If sign-up offers a Free or a Paid plan, pick Paid: the Organization and
+   budget actions need the full set of services. Then, still as root
+   (about 5 minutes; both are root-only, so they cannot be code):
+   - Account → *IAM user and role access to Billing information* →
+     Activate, so your Identity Center login (step 4) can see the bill.
+   - Billing: if the console offers *Spending limits* (AWS's per-project
+     cap, in limited rollout for new accounts since September 2026), set
+     one a little above the sum of `monthly_limits_usd` in
+     `platform/aws/stacks/spend/variables.tf`. If it is not offered, skip
+     it: `stacks/spend` (anomaly alerts, budgets, the freeze SCP, the kill
+     switch) does not depend on it.
 2. **Open AWS CloudShell** in that account (us-east-1) and paste:
    ```sh
    curl -fsSLO https://raw.githubusercontent.com/Duncan-Haywood/oss-monorepo/main/platform/aws/bootstrap/bootstrap.yaml
@@ -34,7 +45,11 @@ rights on GitHub. Everything else is done by agents through pull requests.
    so the adversarial gate reviews this tree at its strictest tier.) On your computer run
    `bash platform/aws/github/configure.sh <account-id>` (or, by hand: create
    environments `aws-prod` and `aws-llm` limited to the `main` branch and set
-   the repository variable `AWS_ACCOUNT_ID`). The next merge under
+   the repository variable `AWS_ACCOUNT_ID`). Also set the repository
+   variable `AWS_BUDGET_ALERT_EMAIL` to where spend alerts should go, then
+   click the confirmation link AWS emails after the first apply: without it
+   budget and anomaly alerts reach only the SNS topic. (The stack marks the
+   address sensitive, so plans and applies do not print it.) The next merge under
    `platform/aws/` builds the Organization. **Do not create an Organization or
    enable IAM Identity Center before that apply** (Identity Center needs the
    Organization, and `stacks/org` creates it). If one already exists,
@@ -59,6 +74,23 @@ rights on GitHub. Everything else is done by agents through pull requests.
    portfolio.
 7. **At the end (phase 5):** close the Anthropic first-party account and the
    Resend account, and delete their keys.
+8. **Move DNS to Route 53** (independent of the LLM and email phases; when
+   an agent's PR says `zone_diff.py` prints zero differences and the site
+   and edge API serve from AWS). The steps, in
+   [`platform/aws/stacks/dns/README.md`](../../platform/aws/stacks/dns/README.md),
+   that are yours: give a Cloudflare token with *Zone → Zone → Read* and
+   *Zone → DNS → Read* on marisstella.app for the export (its step 1),
+   lower TTLs a day ahead (step 4), check DNSSEC and the registrar (step 6:
+   **Cloudflare Registrar cannot point at other nameservers**, so transfer
+   the domain first, and turn DNSSEC off before moving), then change the
+   nameservers (step 7). Only the account holder can mint the token or
+   log in to the registrar; a transfer is a paid order in your name.
+9. **Retire Cloudflare** (after the `retire-cloudflare` task's PR has
+   merged and the nameservers have pointed at Route 53 for a week):
+   revoke every Cloudflare API token, delete the `CLOUDFLARE_*` secrets and
+   the `cloudflare` environment in GitHub, delete the Workers, cancel
+   Workers Paid or any other subscription, then remove the zone and close
+   (or leave empty) the account. These are billing actions in your name.
 
 Only if the `dns` job reports a permission error: give the Cloudflare token
 in the `cloudflare` environment *Zone → DNS → Edit* on marisstella.app.
