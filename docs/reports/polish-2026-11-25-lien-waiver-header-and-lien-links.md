@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-25
+---
 # Polish 2026-11-25: lien waiver guide header trimmed, every pay-app header capped, lien tools cross-linked (bet #1)
 
 Follows item 1 and 2 of `polish-2026-11-25-pay-app-calculator-header.md` ("Next").
