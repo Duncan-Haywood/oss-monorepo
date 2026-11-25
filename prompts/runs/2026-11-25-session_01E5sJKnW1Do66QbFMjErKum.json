@@ -29,7 +29,7 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 15,
+  "tests_added": 16,
   "outcome": "success",
   "errors": [
     "Cloning private-monorepo after add_repo was refused by the auto-mode permission classifier, so the bet's private code could not be worked on this run."
@@ -57,7 +57,7 @@
     "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (new section: The sworn statement)"
   ],
   "goal": "$10k MRR via bet #1 pay-app billing: a search front door for 'contractor sworn statement' (Illinois and Michigan) leading to the early-access CTA",
-  "notes": "Local: node --test *.test.mjs in ventures/pay-app-guides gives 121 pass, 0 fail. Playwright at 390px: the example ties out, a mismatched request is flagged, no console errors, no horizontal scroll. Statutes read through WebSearch limited to ilga.gov and legislature.mi.gov on 2026-11-25; the page says so. venture-preflight was started in the background; see the PR for its result.",
+  "notes": "Local: node --test *.test.mjs in ventures/pay-app-guides gives 122 pass, 0 fail. Playwright at 390px: the example ties out, a mismatched request is flagged, no console errors, no horizontal scroll. Statutes read through WebSearch limited to ilga.gov and legislature.mi.gov on 2026-11-25; the page says so. venture-preflight first failed on two findings: no CSV formula-injection guard in sworn.mjs, and agent-session wording ('this session could not load') on the page. Both were fixed (sworn.mjs now uses calc.mjs csvCell, with a test) and the rerun was clean.",
   "corrections": [],
   "redteam": null,
   "usage": {
