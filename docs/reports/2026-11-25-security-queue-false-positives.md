@@ -93,3 +93,13 @@ Run in parallel with the third pass and merged after it. This pass adds:
 - **Also checked (session_01E5sJKmkUbQ6HRKzyLaAjMJ, same day):** #1050 `js/incomplete-url-substring-sanitization`,
   `platform/pages/custom-domain.test.mjs:151`: the same `body.includes(PLACEHOLDER_ORIGIN)` build check as #1049, in its test,
   so it is a false positive for the same reason. With this, every alert in the queue is claimed or recorded here.
+
+## Fifth pass, same day (overlaps the third and fourth)
+
+This run took #65, #849 and #862 in parallel with the fourth pass. It kept main's fixes for #65 and #849 and adds:
+
+- **#862 fixed** (`use-data-app.js:315`): `replaceAll("..", " – ")`. The fourth pass is right that React escapes
+  the output, so it was never an XSS. A range label with a second `..` still showed it, and `replaceAll`
+  clears the alert without depending on that.
+- **`QUEUE.md` now names these notes** (`platform/ci/security_alerts.py`, header line, with a test). Three passes
+  re-read #7 to #43 the same day because nothing in the queue said this file existed.

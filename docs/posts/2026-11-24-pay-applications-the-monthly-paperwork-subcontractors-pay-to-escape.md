@@ -100,6 +100,16 @@ application a due date. It then splits what is owed into *past due* and
 its due date. A job with no terms entered is left out of the forecast. The
 forecast does not guess a default. (Added 2026-11-25; still in development.)
 
+The waiver exchange has a second half that is easy to drop. The conditional
+waiver goes out with the application; once the check clears, the GC often
+wants the unconditional one for that payment, as the list above says. The build now tracks that second half. When an application is
+paid and a conditional waiver on it was sent, it says the unconditional waiver
+is next, on the application's page and in the cash view. It never asks while
+an application is unpaid or paid short. An unconditional waiver for money not
+yet received is the costly mistake from the list above. Utah's statute has no
+unconditional form, so a Utah job is never asked. (Added 2026-11-25; still in
+development.)
+
 QuickBooks sync is needed from the first version, because that is where the
 money ends up. Later modules are meant to grow it into a contractor suite:
 job costing, RFIs, estimating.
@@ -112,7 +122,8 @@ Still in development and not for sale. Built and tested so far:
 - schedule-of-values import from the contractor's own spreadsheet, and a start partway through a job;
 - lien waiver tracking, with the statutory form printed for the states encoded so far;
 - invitations for a team;
-- a cash and retainage report across jobs.
+- a cash and retainage report across jobs;
+- sending a pay application to QuickBooks Online as an invoice, with retainage kept in its own account (below).
 
 **Short pays.** The newest piece handles a GC that pays an application in pieces or short:
 
@@ -120,12 +131,44 @@ Still in development and not for sale. Built and tested so far:
 - The cash report counts what came in and ages only the balance still owed.
 - After 30 days it flags the application as paid short and names the amount.
 - The application counts as paid once the payments reach the amount the GC certified.
+- Lien waivers follow the checks. Say a $45,000 application is paid as $30,000 and then $15,000, and the unconditional waiver for the first check has gone out. The build then asks for a second unconditional waiver for $15,000, not for the full $45,000. It prefills that amount. (Added 2026-11-25; still in development.)
 
 A short pay does not change the next pay application: line 7 on the summary subtracts earlier *certificates*, not earlier payments. So the unpaid balance has to be chased on its own, and a report that only knows "paid" or "not paid" would hide it.
 
 The working price range in our notes is about $99 to $249 a month. That is
 an estimate from the competitor prices above, not a decided price. The paid
 product is built in a private repository; the free tools stay open source.
+
+### Getting retainage into QuickBooks (added 2026-11-25; still in development)
+
+Because QuickBooks has no retainage field in most companies, the build sends
+each pay application as an ordinary invoice built so the books still show
+what is held. Take a first application on a $100,000 job at 10% retainage
+that bills $20,000 of work and $5,000 of stored materials:
+
+| Invoice line | Item | Amount |
+| --- | --- | --- |
+| 1 Rough-in | Contract Billing (income) | $20,000.00 |
+| 2 Fixtures (materials stored) | Contract Billing (income) | $5,000.00 |
+| Retainage held, pay application #1 | Retainage (Retainage Receivable, an asset) | −$2,500.00 |
+| **Total: line 8, current payment due** | | **$22,500.00** |
+
+Income is booked in full as the work is billed. The GC owes $22,500 now,
+and the $2,500 sits in a Retainage Receivable account, so that account's
+balance is the retainage held across all jobs. When retainage comes back, the
+release is a positive line on the same item. Each work line is what the
+application adds to its schedule line (work this period plus the change in
+stored materials), so materials installed next month are not billed twice.
+
+Three rules keep it honest. The invoice total is always the application's
+own line 8: the retainage line is the difference, never a figure worked out
+again from a rate. Each application is sent once, under a number like
+`PA24-117-03`, and a retry looks that number up before creating anything.
+And nothing posts without the contractor pressing the button after seeing
+the lines. A test runs a job across three applications, with stored
+materials installed and a cut in the retainage rate, and checks that the
+invoices add up to the last application's line 6 (total earned less
+retainage). It has not yet run against a real QuickBooks company.
 
 ## What exists now, free
 
@@ -142,6 +185,19 @@ are the starting point, not the product:
 - [Construction Retainage Calculator](https://marisstella.app/retainage-cashflow-calculator/):
   the cash tied up in retainage and what waiting costs.
   ([source](../../ventures/retainage-cashflow-calculator/README.md))
+- [Change Order Log](https://marisstella.app/pay-app-guides/change-order-log.html)
+  (added 2026-11-25): paste or open your change order log and see the
+  revised contract sum, how much is pending and unsigned, and how long each
+  pending change has waited. It flags money billed on pending, rejected or
+  void changes, and billing outside zero to the approved amount. It writes
+  the approved change orders as schedule-of-values lines (CO-1, CO-2, with
+  billed to date as "previous") in the columns the Pay Application Generator
+  reads; a test feeds them through the generator and checks the net change
+  and revised contract sum match to the cent. It also drafts the exceptions
+  line for a progress lien waiver, listing the open change orders. The
+  hosted product keeps one log per job and adds each change order to the
+  next pay application the month it is signed.
+  ([source](../../ventures/pay-app-guides/README.md))
 
 - [Free schedule of values template](https://marisstella.app/pay-app-guides/schedule-of-values-template.html)
   (added 2026-11-25): for subs who would rather keep the spreadsheet. A blank

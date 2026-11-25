@@ -97,7 +97,10 @@ test('formula desc is the package description, not the raw VENTURE.yaml', async 
 test('command line: runs when invoked directly and prints the dry-run summary', async () => {
   const { execFileSync } = await import('node:child_process');
   const script = fileURLToPath(new URL('./homebrew.mjs', import.meta.url));
-  const out = execFileSync(process.execPath, [script], { encoding: 'utf8', env: { ...process.env, DISTRIBUTE_HOMEBREW: '' } });
+  // The real CLI asks registry.npmjs.org for each tarball; a preloaded stub answers 404 so the test never
+  // depends on the network (an npm 429 or proxy refusal used to fail it at random in CI).
+  const offline = 'data:text/javascript,globalThis.fetch = async () => ({ status: 404 });';
+  const out = execFileSync(process.execPath, ['--import', offline, script], { encoding: 'utf8', env: { ...process.env, DISTRIBUTE_HOMEBREW: '' } });
   assert.match(out, /npm-allow-listed CLIs qualify/);
   assert.match(out, /DRY RUN/);
 });

@@ -53,6 +53,7 @@ BRANCH_PREFIX = "security-fix/code-scanning-"
 RANK = {"critical": 0, "high": 1, "error": 1, "medium": 2, "warning": 2,
         "low": 3, "note": 4}
 MESSAGE_CHARS = 600
+TRIAGE_NOTES = "docs/reports/*security-queue*.md"
 SAFE_PATH = re.compile(r"[\w./@+\[\]-]+")
 
 
@@ -149,6 +150,11 @@ def render(alerts: list[dict]) -> dict[str, str]:
         "`.github/workflows/priv-security-alert-queue.yml` from `platform/ci/security_alerts.py`;",
         "do not edit by hand. Take the first one whose claim branch",
         f"(`{BRANCH_PREFIX}<n>`) does not exist; its file says how.",
+        "",
+        # Runs re-triaged the same false positives (#7, #12, #42 ...) because nothing here
+        # said an earlier run had already read them (2026-11-25 run record, doc_friction).
+        f"Triaged already: `{TRIAGE_NOTES}` on main lists alerts earlier runs found false "
+        "or already fixed; skip those (only the owner can dismiss them).",
         "",
     ]
     # The alerts mirror the last *completed* analysis of main, which lags merges by about
