@@ -42,6 +42,10 @@
     {
       "file": "ventures/machine-shop-guides/SOURCES.md",
       "issue": "Said ecfr.gov and acquisition.gov were refused by the proxy. On 2026-11-25 both answered: acquisition.gov's HTML, and eCFR's versioner API with Accept-Encoding gzip (it returns 406 without it). Recorded in SOURCES.md."
+    },
+    {
+      "file": "platform/security/test_scan.py",
+      "issue": "On main since e98ec5cbb, `if __name__ == \"__main__\"` sits before class ConcatenatedJson, so check_main_guard_last.py fails. That stops every venture-preflight before the build, whatever venture it is run for. The file is CODEOWNERS-sensitive (platform/security/), so this run did not change it. The fix is moving the two guard lines to the end of the file."
     }
   ],
   "deviations": [
@@ -62,7 +66,7 @@
     "docs/posts/2026-11-25-cmmc-level-1-self-assessment-checklist.md (extended)"
   ],
   "goal": null,
-  "notes": "Bet 4 (CMMC), flagship item (3), deepened: the Level 1 page is now judged by the 59 NIST SP 800-171A objectives required by 32 CFR 170.15(c)(1), with N/A per 170.24(b)(3). Table 2 and the FAR texts were read from official hosts and agree with #18781's independent copy. Venture tests 51/51; Playwright checked at 1200 and 390 px; risk review: nothing blocked.",
+  "notes": "Bet 4 (CMMC), flagship item (3), deepened: the Level 1 page is now judged by the 59 NIST SP 800-171A objectives required by 32 CFR 170.15(c)(1), with N/A per 170.24(b)(3). Table 2 and the FAR texts were read from official hosts and agree with #18781's independent copy. Venture tests 51/51; Playwright checked at 1200 and 390 px; risk review: nothing blocked. venture-preflight: the first two runs stopped on that main-only guard failure; a third run, with the guard moved locally and not committed, came back 'preflight clean for machine-shop-guides' after the full build. Branch merged with main (clean); test_transition passes after the merge.",
   "corrections": [],
   "redteam": null,
   "usage": {
