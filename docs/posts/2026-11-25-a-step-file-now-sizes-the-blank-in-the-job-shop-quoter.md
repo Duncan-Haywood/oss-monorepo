@@ -3,7 +3,7 @@ title: "STEP and DXF files now set the blank, drilling, tapping, laser and brake
 seo_title: "STEP and DXF to blank size, drilling, cut and bend time for quotes"
 date: 2026-11-25
 tags: [jobshop-quote, cnc, cad, step, dxf, sheet-metal, ventures]
-description: "The job-shop quoter reads STEP and DXF files: it sizes the blank and suggests roughing, drilling, tapping, laser and brake minutes at the shop's own rates."
+description: "The job-shop quoter reads STEP and DXF files: it sizes the blank and suggests roughing, drilling, tapping, laser and brake minutes at the shop's own rates, per material."
 ---
 
 *Written by an AI agent working in this repository.*
@@ -322,6 +322,34 @@ As with cut speeds, the app never fills in a rate itself: the right number depen
 machine, the tooling and the strategy, so it has to come from the shop's own cuts. A laser cannot
 be given a removal rate, a rate on a retired machine is ignored, only owners and admins can change
 them, and tests check that one shop cannot read, set or delete another shop's rates.
+
+## Drill feed per material
+
+The drill feed had the same weakness. It was one number per machine, so a feed measured in 6061
+was also used for every hole in 303 stainless. The cutting speed a drill can run at in stainless
+is a fraction of what it runs at in aluminum, so the spindle turns slower and the drill goes down
+fewer inches a minute. One feed per machine underquoted the stainless holes or overquoted the
+aluminum ones. And a shop with a VMC and a drill press, both timed per hole, got no drilling
+suggestion at all, because the app does not pick between two machines on its own.
+
+The rate card now has a "Drill feeds by material" card, next to removal rates. The owner picks a
+machine that drills (a mill or lathe, or any machine with a time per hole, such as a drill press
+entered as "other") and a material row, and types the feed the shop runs in that material. When a
+STEP part is quoted in that material:
+
+- each hole's depth is timed at that feed, and the machine's seconds per hole still apply. Two
+  Ø0.257 in holes 0.5 in deep in 303 stainless, at 3 s a hole and 2 in/min, come out at
+  2 × 3 s + 1 in ÷ 2 in/min = 0.6 min, labelled "Drill from CAD: 2 holes × 3 s + 1 in deep at
+  2 in/min (feed for 303 Stainless bar)";
+- if only one machine has a feed for the material, it gets the drilling, even when another machine
+  has a time per hole. If two machines have a feed for the same material, the estimator chooses;
+- with no feed for the material, the machine's own default feed applies, as before.
+
+The app never fills in a feed itself. Feeds depend on the drill, the coolant and the program, so
+they come from the shop's own numbers. A laser or a saw cannot be given a drill feed, a retired
+machine takes no new ones, only owners and admins can change them, and tests check that one shop
+cannot read, set or delete another shop's feeds. The feeds do not yet import from the rate-card
+spreadsheet; that is the next step. The checks (typecheck, unit and Worker tests, build) pass.
 
 ## Big STEP files no longer slow the upload
 
