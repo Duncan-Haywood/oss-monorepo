@@ -1,5 +1,11 @@
 # Research instructions
 
+**Paused 2026-11-25.** The owner: "drop the research if you have to do r and d you can but as
+part of actual paid projects. not as independent academic research". The research track gets
+no scheduled runs; programmes here are paused, kept for the record and for product runs to
+reuse. R&D happens inside a paid product's own tree (`prompts/goals.md`, "The 2026-11-24
+pivot", point 11). The rest of this file is the bar such R&D still meets.
+
 `research/` is the open research portfolio: one directory per project, MIT licensed
 (`research/LICENSE`). The standing brief is the research track of the prompt system:
 [`prompts/research/`](../prompts/research/), routed by the master prompt (`prompt.md`), with

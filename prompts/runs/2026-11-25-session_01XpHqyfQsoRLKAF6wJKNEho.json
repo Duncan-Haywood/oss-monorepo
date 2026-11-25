@@ -1,0 +1,71 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyfQsoRLKAF6wJKNEho",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "System-delivered brief from the orchestrating session: aws-site-cloudfront + aws-route53-zone (one of six parallel AWS agents)",
+  "input_sha256": "391255e4b54f6a065b1ee600834067e5d644796c2c376c22d71d133c1f4659aa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-25T00:20:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "aws-site-cloudfront, aws-route53-zone",
+  "projects": [
+    "platform/aws/stacks/site",
+    "platform/aws/stacks/dns",
+    "platform/aws/modules/static-site"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18760",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "Downloading the OpenTofu release binary was refused twice by this session's permission classifier; the orchestrating session ran fmt/validate/test on the branch and reported results; four test-file bugs (random mock ARNs, an over-nested one(), a config-argument override, function calls in run variables, a list/tuple conditional) were fixed from its reports.",
+    "First AWS SDK pin (3.913.0) had critical advisories in fast-xml-parser; re-pinned to 3.1165.0 (newest release older than two weeks), npm audit 0.",
+    "run_workflow_locally --for-changes: checklist-coverage failed because the new Python test directory was not in verify-and-merge.md; added the lines."
+  ],
+  "integrity_issues": [
+    "records.json is a seed from public lookups, not the Cloudflare export the task asks for; it is marked verified:false and the stack refuses to apply it without an explicit override.",
+    "Cost figures in site/README.md are list prices from memory, labelled as such, to be confirmed before apply."
+  ],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The brief asks agents to install OpenTofu from its GitHub release, but the cloud session's auto-mode classifier refuses downloading and running a release binary; the brief cannot be followed as written in such sessions."
+    },
+    {
+      "file": "docs/reports/2026-11-24-cloud-provider-comparison.md",
+      "issue": "Six parallel agents got a shared convention (platform/aws/<stack>/, state key stacks/<stack>/...) that a sibling PR (18749) then changed to platform/aws/stacks/<stack>/ and <stack>/terraform.tfstate mid-run; the layout was moved here, the state key left as briefed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "tofu validate/test could not run in this session (binary download refused).",
+      "did": "Asked the orchestrating session, which has tofu, to run fmt/validate/test on each push; fixed test-file errors from its output.",
+      "result": "tofu test 19/19, fmt -check and validate OK in modules/static-site, stacks/site, stacks/dns."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-moving-a-40000-file-site-from-workers-to-cloudfront.md",
+    "docs/reports/2026-11-25-aws-site-and-dns.md",
+    "platform/aws/stacks/site/README.md",
+    "platform/aws/stacks/dns/README.md"
+  ],
+  "goal": null,
+  "notes": "OpenTofu checks, run by the orchestrating session (session_01XpHqyg67hsc8jwznhdKwsa) with OpenTofu 1.10.7 and hashicorp/aws 6.74.0, tofu init -backend=false, because this session could not download tofu: on 964fb638b fmt and validate OK in all three dirs, tests 9 pass / 3 fail / 3 skip; on 9735b59ba site 4/4, dns 5/5, static-site 4 pass 1 fail; on d8809c86a site 4/4, dns 7/7, static-site 4 pass 1 fail 3 skip; with the one-line flatten([s.Action]) fix (pushed as 832aab815) static-site 8/8: 19/19 total, fmt -check OK. Local here: node 21/21, python 12/12, Checkov 45/0/12, checklist_coverage ok.",
+  "corrections": [],
+  "redteam": null
+}

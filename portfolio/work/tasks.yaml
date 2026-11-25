@@ -358,9 +358,18 @@ tasks:
       workflow that runs them on PRs and makes them required is its own
       control-plane PR for the owner.
     hours: 16
-    status: open
+    status: done
     added: 2026-11-24
-    notes: CodeQL is a GitHub setting plus a workflow; include it in the control-plane PR.
+    notes: >-
+      platform/security/scan.py + tools.yaml + baseline.yaml (tests in
+      test_scan.py, parsers checked on real tool output); run on PRs as the
+      required `security-scan` check by .github/workflows/priv-security-gate.yml
+      (no owner step: the owner replaced his review with automated checks on
+      2026-11-24). It fails only on findings a PR adds (base and head scanned
+      alike). First numbers: docs/reports/2026-11-24-first-security-scan.md.
+      Not done: Trivy image scanning (no container image is built in CI yet;
+      add it with the first image) and CodeQL, which PR #18529 adds as its
+      own layer.
 
   - id: sec-codeowners-scan-gate
     direction: security-first
@@ -372,7 +381,13 @@ tasks:
     hours: 4
     status: open
     added: 2026-11-24
-    blocked_on: Control-plane paths; needs the owner's approval after sec-scan-pipeline lands.
+    notes: >-
+      Half done 2026-11-24: .github/rulesets/main.json requires
+      `security-scan` and `adversarial-gate` (and Code Owner review is off;
+      the adversarial gate replaced it, docs/security/agent-hardening.md).
+      The file takes effect only when an admin applies it (nothing in the
+      repo holds an admin token, on purpose). Left: a scheduled full-repo run
+      of scan.py whose findings go to the alert queue as files.
 
   - id: aws-org-baseline
     direction: security-first
@@ -415,6 +430,12 @@ tasks:
     status: open
     added: 2026-11-24
     blocked_on: The record export needs a Cloudflare token with Zone Read; the nameserver change is the owner's.
+    notes: >-
+      2026-11-25: apply-ready in platform/aws/stacks/dns (hosted zone, query logs,
+      planned CAA/null MX/SPF/DMARC, cf_export.py, zone_diff.py, cutover and
+      rollback runbook in its README). records.json is an unverified seed
+      from public lookups; the stack refuses it until cf_export.py replaces
+      it. Not applied: no AWS account yet.
 
   - id: aws-site-cloudfront
     direction: aws-consolidation
@@ -429,7 +450,15 @@ tasks:
     hours: 16
     status: open
     added: 2026-11-24
-    notes: The deploy workflow change in portfolio-pages.yml is control plane, so it is its own PR.
+    notes: >-
+      The deploy workflow change in portfolio-pages.yml is control plane, so
+      it is its own PR. 2026-11-25: apply-ready in platform/aws/stacks/site and
+      platform/aws/modules/static-site (private bucket, OAC, WAF, headers
+      policy, CloudFront Functions reproducing auto-trailing-slash and the
+      router, publish.mjs, an emulator that runs verify-live.sh and
+      check_site_fresh.py against the AWS serving path); the job for
+      priv-portfolio-pages.yml is drafted in platform/aws/stacks/site/ci/. Not
+      applied: no AWS account yet.
 
   - id: aws-edge-api
     direction: aws-consolidation
@@ -442,6 +471,15 @@ tasks:
     hours: 12
     status: open
     added: 2026-11-24
+    notes: >-
+      Apply-ready 2026-11-25: platform/aws/stacks/edge-api/ (Lambda + function URL
+      behind CloudFront with an origin secret, DynamoDB, inbox bucket, DLQ,
+      alarms; tofu test + Checkov clean), platform/edge/store.mjs port with
+      D1 and DynamoDB stores, aws/lambda.mjs adapter (Worker scenarios pass
+      through it), aws/migrate-d1.mjs, platform/counter/pull-aws.mjs. Left:
+      apply (after the foundation stacks), the site stack attaching the
+      origin, the migration run and the site.json cutover commit
+      (platform/aws/stacks/edge-api/README.md, "Apply order").
 
   - id: aws-ses-email
     direction: aws-consolidation
@@ -456,7 +494,18 @@ tasks:
     hours: 16
     status: open
     added: 2026-11-24
-    notes: SES production access (leaving the sandbox) is a request the owner submits.
+    notes: >-
+      SES production access (leaving the sandbox) is a request the owner
+      submits. Identities, DKIM, MAIL FROM, configuration sets and the SES ->
+      SNS -> SQS event feed are platform/aws/stacks/email (PR #18749; a cold
+      domain is one more entry in its `domains`). Apply-ready 2026-11-25 on
+      top of it: platform/aws/stacks/email-ops/ (inbound receipt rule from
+      email-routing.json into the edge-api inbox, MX cutover behind
+      receive_mail; the email-consent table fed from that queue; one-click
+      unsubscribe) and its sender/ (maySend policy, consent store, sesSender
+      behind the venture send() port, senderFromEnv switch). Owner: postal
+      address, the cold domain, production access. Left: apply, inbound
+      cutover, moving each venture (aws-move-products), retiring Resend.
 
   - id: aws-saas-starter
     direction: aws-consolidation

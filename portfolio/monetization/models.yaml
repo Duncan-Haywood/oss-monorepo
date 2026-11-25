@@ -445,6 +445,61 @@ products:
       figure stays a comparison-site snippet.
     next_owner: false
 
+  - venture: photo-editing
+    buyer: working photographers (weddings, portraits, events, sport) who cull a shoot and send clients proofs to choose from
+    liability: low
+    model: >-
+      ShootFlow's cull page, raw readers and command-line pipeline stay free;
+      they are the lead magnet and the SEO surface for photographers. The
+      charge is for hosting, the part with a per-user cost: the client
+      proofing gallery the cull page already builds as a zip (2026-11-25),
+      served behind a private share link, with the client's hearts synced
+      back to the photographer's cull instead of pasted, expiry dates, a
+      download switch and the photographer's own logo. Proofing-gallery
+      services sell exactly this monthly (Pixieset, ShootProof, Pic-Time);
+      ShootFlow's angle is the cull and the gallery in one step, from the
+      raw card, with no import into a catalogue first. No advice or claims;
+      the photos are the photographer's and are deleted when a gallery
+      expires or the plan ends.
+    first_offer: >-
+      ShootFlow Galleries: hosted proofing galleries made from the cull
+      page's picks in one click, favourites synced back as colour labels,
+      monthly plan by storage. The offline zip version stays free.
+    price_hypothesis: >-
+      $9 a month (about 50 GB) and $19 a month (about 250 GB); unvalidated
+      proposal. Below Pixieset Plus and ShootProof Standard on purpose (no
+      store, booking or website builder yet). Cost driver is storage: a
+      300-frame set at 2,048 px is roughly 250 MB, and Cloudflare R2 lists
+      $0.015 per GB-month (from memory, re-read before pricing), so a full 50 GB plan costs under $1 a month
+      to hold before egress and Paddle's fee, inside the 40% margin floor
+      (PR #18739) even at the low tier.
+    comparables:
+      - what: Pixieset Client Gallery (vendor pricing page)
+        price: "Free (3 GB); Basic $10 a month ($8 billed annually), Plus $20 ($16), Pro $30 ($24), Ultimate $50 ($40)"
+        source: https://pixieset.com/pricing/
+        read: 2026-11-25
+      - what: ShootProof (vendor pricing page; the page text mixes currencies, so the figures are approximate)
+        price: "Free plan; paid plans from about $10.99 a month to $60 a month billed monthly"
+        source: https://www.shootproof.com/pricing/
+        read: 2026-11-25
+      - what: Narrative Select (AI culling, the cull half of the workflow)
+        price: "Lite $15 a month ($10 billed yearly), Standard $29 ($20), Premium $59 ($40), Ultra $79 ($60)"
+        source: https://narrative.so/pricing
+        read: 2026-11-25
+    billing: subscription
+    stage: planned
+    next: >-
+      Agent step: build ShootFlow Galleries dark on the owner's hosting
+      (Cloudflare, marisstella.app): an upload endpoint the cull page posts
+      the proofing set to, a share-link gallery page served from object
+      storage, hearts stored per gallery and pulled back into the cull
+      page, expiry and deletion; accounts and a Paddle subscription
+      (platform/billing once PR #18756 lands) left off until the owner
+      sets the price ids; then a marketing page with a sample gallery.
+      Built so far: the free offline proofing set (cull page, 2026-11-25,
+      ventures/photo-editing/eval/cull-proofing-set-2026-11-25.md).
+    next_owner: false
+
   # Construction review tools without a row before 2026-11-24 (backlog P072).
   # Each sells new hosted depth (saved projects, history across model or
   # schedule drops, team sharing); everything the public page calls free

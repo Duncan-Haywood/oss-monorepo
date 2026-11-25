@@ -94,13 +94,32 @@ class MainTest(unittest.TestCase):
             self.assertEqual(self._run({}, ["--repo", "o/r", "--out", d]), 2)
             fetch.assert_not_called()
 
-    def test_http_error_leaves_queue_untouched_and_exits_0(self):
+    def test_http_error_marks_queue_unavailable_keeps_alerts_and_exits_1(self):
         err = urllib.error.HTTPError("u", 403, "no", {}, None)
         with tempfile.TemporaryDirectory() as d:
-            (Path(d) / "QUEUE.md").write_text("old")
-            with mock.patch.object(security_alerts, "fetch_alerts", side_effect=err):
-                self.assertEqual(self._run({"GITHUB_TOKEN": "t"}, ["--repo", "o/r", "--out", d]), 0)
-            self.assertEqual((Path(d) / "QUEUE.md").read_text(), "old")
+            write_tree(Path(d), render([alert(7, "high")]))
+            with mock.patch.object(security_alerts, "fetch_alerts", side_effect=err), \
+                    mock.patch("sys.stdout", io.StringIO()):
+                self.assertEqual(self._run({"GITHUB_TOKEN": "t"}, ["--repo", "o/r", "--out", d]), 1)
+            text = (Path(d) / "QUEUE.md").read_text()
+            self.assertTrue(text.splitlines()[2].startswith(security_alerts.UNAVAILABLE))
+            self.assertIn("HTTP 403", text)
+            self.assertIn("- [high] #7", text)
+            self.assertTrue((Path(d) / "alerts" / "7.md").exists())
+
+    def test_404_names_the_api_message_and_missing_codeql(self):
+        body = io.BytesIO(b'{"message": "no analysis found"}')
+        err = urllib.error.HTTPError("u", 404, "Not Found", {}, body)
+        with tempfile.TemporaryDirectory() as d:
+            out = Path(d) / "fresh"
+            with mock.patch.object(security_alerts, "fetch_alerts", side_effect=err), \
+                    mock.patch("sys.stdout", io.StringIO()) as stdout:
+                self.assertEqual(self._run({"GITHUB_TOKEN": "t"}, ["--repo", "o/r", "--out", str(out)]), 1)
+            text = (out / "QUEUE.md").read_text()
+            self.assertIn("(no analysis found)", text)
+            self.assertIn("priv-codeql.yml", text)
+            self.assertNotIn("- [", text)
+            self.assertIn("::error::", stdout.getvalue())
 
     def test_success_writes_queue_and_exits_0(self):
         with tempfile.TemporaryDirectory() as d, mock.patch("sys.stdout", io.StringIO()), \

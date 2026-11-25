@@ -37,6 +37,10 @@ export const IN_DEVELOPMENT = Object.freeze([
   ['Residential takeoff', 'for remodelers, roofers and framers: quantities and material lists from plan PDFs'],
 ]);
 
-/** The industries the products are built for, most weight first. */
+/**
+ * The industries the products are built for, most weight first. Owner,
+ * 2026-11-25: most kinds of small business ("most types of smbs"); the full
+ * list, and which have a product yet, is INDUSTRIES in business.mjs.
+ */
 export const INDUSTRIES =
-  'construction first (specialty subcontractors, general contractors, remodelers, roofers, estimators), then machine shops, fabricators, small manufacturers and engineering firms; small nonprofits; and any small business facing the new e-invoicing formats';
+  'construction first (specialty subcontractors, general contractors, remodelers, roofers, estimators), then machine shops, fabricators, small manufacturers and engineering firms; online resellers; small nonprofits; and any small business facing the new e-invoicing formats. Free tools, with products to follow, also serve restaurants, home services, salons, health practices, fitness studios, retail shops, auto shops, professional services, landlords, trucking, farms, childcare and education, events, and freelancers';

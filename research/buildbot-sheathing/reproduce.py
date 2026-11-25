@@ -143,6 +143,7 @@ EXPERIMENTS = {
     "m75_riskopt": ("numpy, scipy; imports m73_randomwalk/run.py, reads m73's results.json", 15, []),
     "m76_closedloop": ("numpy, scipy; imports m73_randomwalk/run.py, reads m75's results.json", 45, []),
     "m77_balance": ("numpy, scipy; imports m73_randomwalk/run.py, reads m75's and m76's results.json", 15, []),
+    "m78_augfilter": ("numpy, scipy; imports m73_randomwalk/run.py, reads m75's and m77's results.json", 45, []),
 }
 QUICK = [n for n, (needs, mins, _) in EXPERIMENTS.items()
          if mins <= 2 and "mujoco" not in needs and "drake" not in needs]

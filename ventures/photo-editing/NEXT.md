@@ -4,6 +4,10 @@
 
 ## Parked from flagships.yaml `next:`
 
+- (moved 2026-11-25) X-Trans tuned on 51 fresh bodies 2026-11-19: no loser to fix, stays off; Bayer's 15 there were a noisy ISO 1600 reference
+- (moved 2026-11-25) Nikon AF points, half faces at the edge on the cull page 2026-11-24 (eval/cull-nikon-af-*, eval/cull-edge-mirror-*)
+- (2026-11-25) proofing set: a real client's reply through the list reader; Safari / iOS Files / Android opening the unzipped gallery (file:// storage); a real raw card through it (eval/cull-proofing-set-2026-11-25.md)
+
 - (2026-11-16) photos with a real horizon and human tilt labels
 - (2026-11-16) a real shoot's picks through the blink detector (eval/blink-*; half faces at the frame edge found by mirroring since 2026-11-16, but under 100 px only 4 of 22: eval/blink-edge-mirror-2026-11-16.md)
 - (2026-11-16) an Adobe render of a known frame (settles `--default-tone-curve always`)

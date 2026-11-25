@@ -31,7 +31,17 @@
           { "context": "conflict-markers", "integration_id": 15368 },
           { "context": "control-plane", "integration_id": 15368 },
           { "context": "ci-policy", "integration_id": 15368 },
-          { "context": "risk-review", "integration_id": 15368 }
+          { "context": "risk-review", "integration_id": 15368 },
+          { "context": "security-scan", "integration_id": 15368 },
+          { "context": "adversarial-gate", "integration_id": 15368 }
+        ]
+      }
+    },
+    {
+      "type": "code_scanning",
+      "parameters": {
+        "code_scanning_tools": [
+          { "tool": "CodeQL", "security_alerts_threshold": "medium_or_higher", "alerts_threshold": "errors" }
         ]
       }
     }
