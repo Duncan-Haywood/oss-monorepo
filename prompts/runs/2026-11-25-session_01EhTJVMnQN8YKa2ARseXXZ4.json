@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVMnQN8YKa2ARseXXZ4",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T07:56:44Z",
+  "ended": "2026-11-25T08:10:45Z",
+  "wall_minutes": 14.37,
+  "tokens_in": 16541330,
+  "tokens_out": 57485,
+  "cost_usd": 5.9925,
+  "tool_calls": 111,
+  "task": "Bet #1 (pay-app billing): close a balance paid short as backcharge/disputed/written off in PayApps (private PR 64), plus a public paid-short reconciler as its front door",
+  "projects": [
+    "private-monorepo/apps/payapps",
+    "ventures/pay-app-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18901",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    "private-monorepo PR 64: the CI job 'lint, types, tests, build, migrations' failed in 3 s with no steps (no runner, as cloud-session.md describes). Ran the workflow's steps locally instead: biome ci, typecheck, 198 unit + 136 worker tests, build, provision test, drizzle check and drift generate, all clean.",
+    "private PR 64 first merge attempt: 405 merge conflict in apps/payapps/ROADMAP.md (PR 63, the deploy workflow, landed meanwhile). Merged main in, kept both entries, re-ran the CI steps, then merged.",
+    "My own worker run caught two CSV-header assertions in existing tests (reports.test.ts, waiver-followup.test.ts) that pinned the last column; updated them for the three new columns."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo's result tells you to call a register_repo_root tool, but ToolSearch finds no such tool. Reading private-monorepo's CLAUDE.md by hand worked; the doc could say so."
+    },
+    {
+      "file": "ventures/pay-app-guides/page.test.mjs",
+      "issue": "The 'guide tables stack on a phone' test excludes script-filled tool pages by a hard-coded list of names, so each new tool page fails it until it is added. A marker (e.g. an id on the tbody) would avoid the edit."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No new free tools, except as a front door to a ranked bet. The paid-short reconciler is a new small tool.",
+      "did": "Built it only as the front door to the feature that shipped in PayApps the same run. It says what the product does and links early access.",
+      "result": "Merged with page tests; it adds the gap-splitting arithmetic the guide set lacked."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (new section 'Paid short: splitting the gap before you call the GC' and a 'closing a balance' paragraph under Where it stands)",
+    "private-monorepo apps/payapps/ROADMAP.md and docs/QUICKBOOKS.md (agent-facing: what closing short does and why nothing goes to QuickBooks)"
+  ],
+  "goal": "$10k MRR: bet #1 product depth (cash report accuracy for short pays) and its SEO front door",
+  "notes": "Security queue: none to take (exit 3). Ideas inbox: empty. Route: ventures/1 by weighted draw. private-monorepo clone worked first time via add_repo (push access). Private PR 64 merged as db526a9. Public: run_venture_tests pay-app-guides passed 150 tests + site page checks; Chromium at 390 px, example loaded, no page errors, scrollWidth 390. venture-preflight.mjs pay-app-guides: 'preflight clean for pay-app-guides' (exit 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d0f912c6-2439-5063-9cca-2554a331ec89",
+    "transcripts": 1,
+    "first": "2026-11-25T07:56:44Z",
+    "last": "2026-11-25T08:11:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 106,
+        "input": 204,
+        "output": 57485,
+        "thinking": 6837,
+        "cache_read": 16344484,
+        "cache_write_5m": 0,
+        "cache_write_1h": 196642,
+        "api_equivalent_usd": 5.9925,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 106,
+      "input": 204,
+      "output": 57485,
+      "thinking": 6837,
+      "cache_read": 16344484,
+      "cache_write_5m": 0,
+      "cache_write_1h": 196642,
+      "api_equivalent_usd": 5.9925,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 111,
+    "tools": {
+      "Bash": 101,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.37,
+      "active_minutes": 14.37,
+      "model_minutes": 9.94,
+      "tool_minutes": 4.43,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "estimate: ~7h for the PayApps feature (migration, service, report, UI, tests) plus ~3h for the public reconciler page and post section",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 166.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
