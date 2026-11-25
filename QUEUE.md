@@ -7,12 +7,8 @@ do not edit by hand. Take the first one whose claim branch
 
 Triaged already: alerts in `platform/security/codeql-triage.json` are listed apart, at the end; `docs/reports/*security-queue*.md` on main has earlier runs' notes. A false positive you find goes in the JSON file with its reason (only the owner can dismiss alerts).
 
-Scanned commit: `7191601d63f7` (the commit most open alerts were last seen on). Fixes merged after it are still listed until CodeQL finishes on a newer main: `git diff --stat 7191601d63f7 origin/main -- <path>` before fixing (each alert file says how).
+Scanned commit: `b4e10edd2d39` (the commit most open alerts were last seen on). Fixes merged after it are still listed until CodeQL finishes on a newer main: `git diff --stat b4e10edd2d39 origin/main -- <path>` before fixing (each alert file says how).
 
-- [high] #65 `js/incomplete-sanitization` in `ventures/pay-app-guides/template.test.mjs:62`: alerts/65.md
-- [high] #849 `js/incomplete-sanitization` in `platform/agents/tools.mjs:170`: alerts/849.md
-- [high] #862 `js/incomplete-sanitization` in `research/marriage-divorce-evidence/report-app/src/use-data-app.js:315`: alerts/862.md
-- [high] #1050 `js/incomplete-url-substring-sanitization` in `platform/pages/custom-domain.test.mjs:151`: alerts/1050.md
 - [high] #1246 `js/bad-tag-filter` in `ventures/machine-shop-guides/ssp.test.mjs:123`: alerts/1246.md
 
 ## Triaged, awaiting dismissal
@@ -35,6 +31,7 @@ for a session. The owner dismisses each on its alert page.
 - [high] #968 `js/xss-through-dom` in `ventures/shed-designer/hoa-page.mjs:59`: alerts/968.md
 - [high] #969 `js/xss-through-dom` in `ventures/silence-cutter/index.html:258`: alerts/969.md
 - [high] #1049 `js/incomplete-url-substring-sanitization` in `platform/pages/check.mjs:1470`: alerts/1049.md
+- [high] #1050 `js/incomplete-url-substring-sanitization` in `platform/pages/custom-domain.test.mjs:151`: alerts/1050.md
 - [high] #1086 `js/disabling-certificate-validation` in `ventures/status-keeper/certs.mjs:12`: alerts/1086.md
 - [high] #1181 `js/redos` in `ventures/regex-redos-check/cli.test.mjs:81`: alerts/1181.md
 - [high] #1182 `js/redos` in `ventures/regex-redos-check/engine.test.mjs:9`: alerts/1182.md
