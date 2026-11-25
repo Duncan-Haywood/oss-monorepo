@@ -527,14 +527,14 @@ def main():
     q = lambda c, p: float(np.nanpercentile(d[c], p))
 
     def ifirs(c, what, question):
-        spouse = 'husband' if c.startswith('H_') else 'wife'
+        role = 'husband' if c.startswith('H_') else 'wife'
         return dict(
-            description=(f"{spouse.capitalize()}'s {what}, coded by trained observers with the Iowa Family Interaction Rating Scales (IFIRS, "
+            description=(f"{role.capitalize()}'s {what}, coded by trained observers with the Iowa Family Interaction Rating Scales (IFIRS, "
                          f'1-9 scale), averaged over three videotaped discussions at baseline. Sample range {d[c].min():.2f}-{d[c].max():.2f}, '
                          f'median {d[c].median():.2f}.'),
             measured_by='trained observers (IFIRS), not self-report',
             self_report_proxy=dict(
-                question=question.format(spouse=spouse),
+                question=question.format(spouse=role),
                 answers={'Almost never': round(q(c, 10), 3), 'Rarely': round(q(c, 30), 3), 'Sometimes': round(q(c, 50), 3),
                          'Often': round(q(c, 70), 3), 'Almost always': round(q(c, 90), 3)},
                 mapping='Each answer maps to the sample\'s 10th/30th/50th/70th/90th percentile of the observed code.',

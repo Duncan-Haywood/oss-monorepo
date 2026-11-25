@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { tokenize, parse, scanFiles, hasRisk, summaryLine, TYPES } from "./scan.mjs";
@@ -153,7 +154,7 @@ test("a snippet of location blocks is read in server context", () => {
 });
 
 test("every finding type is documented and covered", () => {
-  const readme = execFileSync("cat", [path.join(here, "README.md")], { encoding: "utf8" });
+  const readme = readFileSync(path.join(here, "README.md"), "utf8");
   for (const t of TYPES) assert.ok(readme.includes(`\`${t}\``), `README does not document ${t}`);
 });
 

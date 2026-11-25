@@ -59,7 +59,8 @@ def mod97(s):
     return r
 
 
-def iban_with_check(cc, bban):
+def with_check_digits(cc, bban):
+    """Country code + ISO 7064 mod 97 check digits + BBAN: a synthetic test case, not anyone's account."""
     cd = 98 - mod97(bban + cc + "00")
     return f"{cc}{cd:02d}{bban}"
 
@@ -90,7 +91,7 @@ def gen_iban(rnd, per):
     for cc, struct in sorted(reg.items()):
         for _ in range(per):
             bban = draw_struct(struct, rnd)
-            good = iban_with_check(cc, bban)
+            good = with_check_digits(cc, bban)
             emit("iban", good, iban.is_valid(good, check_country=False), "valid", cc)
             t = typo(good, rnd, start=2)
             emit("iban", t, iban.is_valid(t, check_country=False), "typo", cc)
@@ -98,21 +99,21 @@ def gen_iban(rnd, per):
             if s:
                 emit("iban", s, iban.is_valid(s, check_country=False), "swap", cc)
             # one character dropped or added, check digits recomputed: only the length can catch it
-            longer = iban_with_check(cc, bban + rnd.choice(DIGITS))
+            longer = with_check_digits(cc, bban + rnd.choice(DIGITS))
             emit("iban", longer, iban.is_valid(longer, check_country=False), "length+1", cc)
-            shorter = iban_with_check(cc, bban[:-1])
+            shorter = with_check_digits(cc, bban[:-1])
             emit("iban", shorter, iban.is_valid(shorter, check_country=False), "length-1", cc)
         # check digits 97, 98 and 02 have aliases 00, 01 and 99 that also leave remainder 1
         for _ in range(per):
             bban = draw_struct(struct, rnd)
-            good = iban_with_check(cc, bban)
+            good = with_check_digits(cc, bban)
             alias = {"97": "00", "98": "01", "02": "99"}.get(good[2:4])
             if alias:
                 v = good[:2] + alias + good[4:]
                 emit("iban", v, iban.is_valid(v, check_country=False), "cd-alias", cc)
     # country codes outside the registry, valid mod 97
     for cc in ("US", "CA", "AU", "XX", "ZZ"):
-        v = iban_with_check(cc, "".join(rnd.choice(DIGITS) for _ in range(16)))
+        v = with_check_digits(cc, "".join(rnd.choice(DIGITS) for _ in range(16)))
         emit("iban", v, iban.is_valid(v, check_country=False), "no-country", cc)
 
 

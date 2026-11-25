@@ -8,7 +8,7 @@ const copied = () => read("./Dockerfile").match(/^COPY (.+) \/usr\/share\/nginx\
 test("the Dockerfile copies every module and page the site loads", () => {
   const pages = fs.readdirSync(new URL(".", import.meta.url)).filter((n) => n.endsWith(".html"));
   const files = copied();
-  const globToRe = (g) => new RegExp("^" + g.replace(/[.]/g, "\\.").replace(/\*/g, ".*") + "$");
+  const globToRe = (g) => new RegExp("^" + g.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*") + "$");
   const inImage = (f) => files.some((c) => globToRe(c).test(f));
   for (const p of pages) {
     assert.ok(inImage(p), `${p} would not be in the image`);

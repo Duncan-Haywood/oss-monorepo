@@ -48,6 +48,7 @@ pytest/discover over a folder holding it. About 13 s serial.
 import argparse
 import functools
 import glob
+import json
 import re
 import shlex
 import subprocess
@@ -347,7 +348,34 @@ def run_node_suite(path, timeout=NODE_TIMEOUT, root=ROOT):
         return name, main_health.TIMED_OUT, f"timed out after {timeout} s"
     except FileNotFoundError:
         return name, 0, f"{SKIPPED} no node on this machine"
-    return name, r.returncode, (r.stdout + r.stderr).strip()
+    out = (r.stdout + r.stderr).strip()
+    if r.returncode != 0 and (pkg := missing_npm_package(out, path.parent, root)):
+        return name, 0, f"{SKIPPED} needs npm package {pkg} (declared in its package.json, not installed here)"
+    return name, r.returncode, out
+
+
+def missing_npm_package(out, here, root=ROOT):
+    """The npm package a node suite failed to import, or None. Like
+    missing_module: only a package the suite's nearest package.json declares
+    and node_modules lacks counts as "not installed"; an undeclared import
+    is a real break (2026-11-25: saas-starter's @aws-sdk/client-s3)."""
+    m = re.search(r"Cannot find package '((?:@[\w.-]+/)?[\w.-]+)'", out)
+    if not m:
+        return None
+    pkg, here, root = m.group(1), Path(here).resolve(), Path(root).resolve()
+    for d in [here, *here.parents]:
+        manifest = d / "package.json"
+        if manifest.is_file():
+            try:
+                data = json.loads(manifest.read_text(encoding="utf-8"))
+            except ValueError:
+                return None
+            declared = {k for f in ("dependencies", "devDependencies", "optionalDependencies")
+                        for k in (data.get(f) or {})}
+            return pkg if pkg in declared and not (d / "node_modules" / pkg).exists() else None
+        if d == root:
+            break
+    return None
 
 
 def unwired_extra(here=HERE, workflows=WORKFLOWS):

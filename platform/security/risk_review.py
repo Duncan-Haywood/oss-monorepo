@@ -310,7 +310,7 @@ def gate_weakenings(path: str, base: str | None, head: str | None) -> list[str]:
         if path == ".github/CODEOWNERS":
             gone = _owned_patterns(base) - _owned_patterns(head)
             return [f"no longer owned: {', '.join(sorted(gone))}"] if gone else []
-        if path.startswith(".github/rulesets/"):
+        if path.startswith(".github/rulesets/") and path.endswith(".json"):
             bt, bc, be = _ruleset_facts(base)
             ht, hc, he = _ruleset_facts(head)
             out = []
@@ -423,6 +423,29 @@ def git(*args: str) -> str:
     return subprocess.run(["git", *args], capture_output=True, text=True, check=True).stdout
 
 
+def stale_base_warning(base: str, head: str, merge_base: str, nfiles: int) -> str | None:
+    """Say so when the diff is likely inflated by a stale --base.
+
+    A branch that merged a newer main than the local `base` ref diffs main's
+    own changes too: hundreds of files and false gate blocks (2026-11-25 run
+    records). The sign is a merge on the branch whose merged-in parent `base`
+    does not contain."""
+    merges = git("rev-list", "--merges", f"{merge_base}..{head}").split()
+    for m in merges:
+        parents = git("rev-list", "--parents", "-n", "1", m).split()[2:]
+        for p in parents:
+            if subprocess.run(["git", "merge-base", "--is-ancestor", p, base],
+                              capture_output=True).returncode != 0:
+                return (f"warning: {head} merged {p[:12]} (in {m[:12]}), which {base} does not contain, "
+                        f"so these {nfiles} file(s) may include another branch's or a newer main's changes. "
+                        f"If it was main: `git fetch --depth=40 origin main` and rerun, or pass --base {p[:12]}.")
+    shallow = git("rev-parse", "--is-shallow-repository").strip() == "true"
+    if shallow and nfiles > 150:
+        return (f"warning: {nfiles} changed files in a shallow clone; if that is more than this branch "
+                f"changed, {base} is stale: `git fetch --depth=40 origin main` and rerun, or pass --base HEAD~<n>.")
+    return None
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--base", default="origin/main")
@@ -431,7 +454,12 @@ def main(argv=None) -> int:
     ap.add_argument("--strict", action="store_true", help="exit 1 when a likely secret is added")
     ap.add_argument("--gate", action="store_true", help="CI verdict: exit 1 on anything blocked")
     args = ap.parse_args(argv)
-    merge_base = git("merge-base", args.base, args.head).strip()
+    try:
+        merge_base = git("merge-base", args.base, args.head).strip()
+    except subprocess.CalledProcessError:
+        print(f"no merge base between {args.base} and {args.head} (a shallow clone?): "
+              f"`git fetch --deepen=500 origin main`, or pass --base HEAD~<n>", file=sys.stderr)
+        return 2
     diff = git("diff", "-U0", "--no-color", "--no-renames", f"{merge_base}...{args.head}")
 
     def base_text(path):
@@ -446,7 +474,12 @@ def main(argv=None) -> int:
         except subprocess.CalledProcessError:
             return None
 
-    result = review(parse_unified_diff(diff), base_text, head_text=head_text)
+    files = parse_unified_diff(diff)
+    if not args.gate:
+        warning = stale_base_warning(args.base, args.head, merge_base, len(files))
+        if warning:
+            print(warning, file=sys.stderr)
+    result = review(files, base_text, head_text=head_text)
     text = render(result)
     print(json.dumps(result, indent=2) if args.json else text, end="" if not args.json else "\n")
     if args.gate:

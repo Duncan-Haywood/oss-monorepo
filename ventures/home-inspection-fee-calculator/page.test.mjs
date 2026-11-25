@@ -3,6 +3,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { calculateQuote, DEFAULTS } from './calc.mjs';
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const guideHtml = readFileSync(new URL('./how-to-price-a-home-inspection.html', import.meta.url), 'utf8');
 
@@ -120,7 +122,7 @@ test('every .html file in the venture is reachable from the sitemap', () => {
   const htmlFiles = readdirSync(dir).filter((name) => name.endsWith('.html'));
   for (const name of htmlFiles) {
     if (name === 'index.html') continue;
-    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+    assert.match(sitemap, new RegExp(escapeRegExp(name)), `${name} is missing from sitemap.xml`);
   }
 });
 

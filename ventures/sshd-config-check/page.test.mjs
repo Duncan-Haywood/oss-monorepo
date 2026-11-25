@@ -6,6 +6,13 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+// Remove every <script> element, case-insensitively and until nothing is left to strip.
+const stripScripts = (s, sub = "") => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, sub); } while (s !== p); return s; };
+// Remove every tag, repeating until no tag-shaped text is left.
+const stripTags = (s, sub = "") => { let p; do { p = s; s = s.replace(/<[^>]*>/g, sub); } while (s !== p); return s; };
+// Escape every regular-expression metacharacter so the text matches literally.
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const here = path.dirname(fileURLToPath(import.meta.url));
 const index = readFileSync(path.join(here, "index.html"), "utf8");
 const guide = readFileSync(path.join(here, "sshd-config-mistakes-explained.html"), "utf8");
@@ -34,7 +41,7 @@ test("disclaimers, privacy, sources and sponsor link are on both pages", () => {
 
 test("no unqualified safety claim", () => {
   for (const page of [index, guide]) {
-    const prose = page.replace(/<script[\s\S]*?<\/script>/g, "");
+    const prose = stripScripts(page);
     for (const m of prose.matchAll(/\b(?:is|are)\s+(?:safe|secure)\b/gi)) {
       const before = prose.slice(Math.max(0, m.index - 60), m.index);
       const after = prose.slice(m.index + m[0].length).trimStart();
@@ -53,7 +60,7 @@ test("FAQPage JSON-LD matches the visible questions and parses", () => {
   const blocks = [...index.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
   const faq = blocks.find((b) => b["@type"] === "FAQPage");
   const names = faq.mainEntity.map((q) => q.name);
-  const headings = [...index.replace(/<script[\s\S]*?<\/script>/g, "").matchAll(/<h3>(.*?)<\/h3>/g)].map((m) => m[1].replace(/<[^>]+>/g, "").trim());
+  const headings = [...stripScripts(index).matchAll(/<h3>(.*?)<\/h3>/g)].map((m) => stripTags(m[1]).trim());
   assert.deepEqual(headings, names);
   JSON.parse(guide.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
 });
@@ -62,7 +69,7 @@ test("index links the guide, guide links back, sitemap lists every page", () => 
   assert.match(index, /href="sshd-config-mistakes-explained\.html"/);
   assert.match(guide, /href="\.\/"/);
   const sitemap = readFileSync(path.join(here, "sitemap.xml"), "utf8");
-  for (const n of readdirSync(here).filter((n) => n.endsWith(".html"))) assert.match(sitemap, new RegExp(n.replace(/\./g, "\\.")));
+  for (const n of readdirSync(here).filter((n) => n.endsWith(".html"))) assert.match(sitemap, new RegExp(escapeRegExp(n)));
 });
 
 test("the guide explains every finding type", async () => {

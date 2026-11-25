@@ -141,7 +141,7 @@ test('the featureList and FAQ answer describe the share/save feature that now ex
   // a search engine and an AI answer engine each read a different one of
   // the two, and #3367 shipped the button without updating either.
   assert.ok(index.includes('Is my bid data uploaded anywhere?'));
-  const jsonLdAnswer = /"Is my bid data uploaded anywhere\?","acceptedAnswer":\{"@type":"Answer","text":"([^"]*(?:\\.[^"]*)*)"\}/
+  const jsonLdAnswer = /"Is my bid data uploaded anywhere\?","acceptedAnswer":\{"@type":"Answer","text":"((?:[^"\\]|\\.)*)"\}/
     .exec(index);
   assert.ok(jsonLdAnswer, 'the FAQPage JSON-LD entry for this question is missing');
   assert.match(jsonLdAnswer[1], /Copy bid link/, 'the JSON-LD privacy answer does not mention the share link');

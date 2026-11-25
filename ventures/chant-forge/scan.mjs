@@ -1042,7 +1042,9 @@ export function gabcSteps(src) {
   const re = /([^()]*)\(([^)]*)\)/g;
   let m;
   while ((m = re.exec(clean))) {
-    const text = m[1].replace(/<[^>]*>/g, '').trim();
+    let text = m[1], prevText;
+    do { prevText = text; text = text.replace(/<[^>]*>/g, ''); } while (text !== prevText);
+    text = text.trim();
     let g = m[2].split('|')[0].replace(/\[[^\]]*\]/g, '');
     const clefs = [...g.matchAll(/(?:^|[^a-m])([cf])b?([1-5])/g)];
     // a clef token is a whole group like (c4) or (cb3), or after @/ :: in a clef change

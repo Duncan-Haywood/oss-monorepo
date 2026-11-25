@@ -46,9 +46,12 @@ function toSeconds(v) {
 // attributes the grouping step needs. CDATA and comments are removed first so a
 // "<testcase" string inside captured output cannot be mistaken for a test.
 export function parseJUnit(xml, report = 0) {
-  const clean = String(xml)
-    .replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, "")
-    .replace(/<!--[\s\S]*?-->/g, "");
+  let clean = String(xml).replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, "");
+  // Repeat until stable so removing one comment cannot splice a new "<!--" together.
+  for (let prev; prev !== clean; ) {
+    prev = clean;
+    clean = clean.replace(/<!--[\s\S]*?--!?>/g, "");
+  }
   const tagRe = /<(\/?)(testsuite|testcase)\b((?:"[^"]*"|'[^']*'|[^>"'])*?)(\/?)>/g;
   const stack = [];
   const tests = [];

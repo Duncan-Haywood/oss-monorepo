@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyeeU5UxeK1akARDsKT",
+  "track": "process",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-25T00:42:03Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 18773,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/goals.md",
+      "issue": "Four direction PRs (18675, 18770, 18541, 18691) sat as drafts 'waiting for owner approval' although pivot point 10 says nothing waits for the owner; 18675 also edited a guardrail line in place, which risk-review blocks. Consolidated here with the guardrail line kept."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Merged other sessions' branches into this one instead of landing each PR separately: this session may push only its own branch.",
+      "did": "one squashed commit carrying four PRs plus new work",
+      "result": "one PR to verify and merge"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-the-blog-now-leads-with-guides-for-customers.md"
+  ],
+  "goal": null,
+  "notes": "Owner direction 2026-11-25: demote passion projects; dev time, site space and blog to paid products. routing creative 0.10->0.03, ventures 0.61; header drops Research/Stories/Self-host; blog topic 'business' (614 posts) pinned first. Tests: prompts/test_promptctl.py OK; node --test site-nav, stories, writing, home, deploy/build pass.",
+  "corrections": [],
+  "redteam": null
+}

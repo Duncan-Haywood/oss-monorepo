@@ -138,6 +138,7 @@
     const $ = (id) => document.getElementById(id);
     const KEYS = Object.keys(DEFAULTS);
     const raw = () => Object.fromEntries(KEYS.map((k) => [k, $(k).value]));
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
     const labelOf = (k) => (document.querySelector(`label[for="${k}"]`)?.textContent || k).trim();
     const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
     const pct = (x) => (x * 100).toFixed(0) + "%";
@@ -145,7 +146,7 @@
     function run() {
       const { o, bad } = readInputs(raw());
       for (const k of KEYS) $(k).setAttribute("aria-invalid", bad.includes(k) ? "true" : "false");
-      if (bad.length) { $("result").innerHTML = `<div class="finding"><span class="pill">Check inputs</span> Not a number: ${bad.map(labelOf).join(", ")}. Leave a field blank for zero.</div>`; $("out").hidden = false; return; }
+      if (bad.length) { $("result").innerHTML = `<div class="finding"><span class="pill">Check inputs</span> Not a number: ${bad.map((k) => esc(labelOf(k))).join(", ")}. Leave a field blank for zero.</div>`; $("out").hidden = false; return; }
       const q = price(o);
       if (!q.valid) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Your margin and card fee leave nothing to price against. Keep them well under 100% together.</div>'; $("out").hidden = false; return; }
       if (!(q.totalHours > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">No hours</span> Enter welding, setup or driving time.</div>'; $("out").hidden = false; return; }

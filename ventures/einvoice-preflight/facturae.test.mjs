@@ -85,7 +85,7 @@ test("summary invoices need InvoicingPeriod; foreign currency needs the exchange
 });
 
 test("modality, version and dates", () => {
-  assert.ok(rules(VALID.replace("<Modality>I<", "<Modality>L<").replace("<InvoicesCount>1<", "<InvoicesCount>1<")).includes("ES-002"));
+  assert.ok(rules(VALID.replace("<Modality>I<", "<Modality>L<")).includes("ES-002"));
   assert.ok(rules(VALID.replace("<SchemaVersion>3.2.2<", "<SchemaVersion>3.2.1<")).includes("ES-001"));
   assert.ok(rules(VALID.replace("<IssueDate>2026-11-02<", "<IssueDate>2026-12-02<")).includes("ES-037"));
   const old = run(VALID.replace("http://www.facturae.gob.es/formato/Versiones/Facturaev3_2_2.xml", "http://www.facturae.es/Facturae/2009/v3.2/Facturae"));

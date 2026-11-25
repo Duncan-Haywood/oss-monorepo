@@ -183,10 +183,10 @@
       const el = document.createElement("div");
       el.className = "court" + (s ? " done" : "");
       const dis = readOnly ? " disabled" : "";
-      el.innerHTML = `<h3>Court ${m.court}</h3>
-        <div class="side"><span>${esc(p[m.a[0]])} &amp; ${esc(p[m.a[1]])}</span><input type="number" min="0" max="999" inputmode="numeric" aria-label="Court ${m.court} score for ${esc(p[m.a[0]])} and ${esc(p[m.a[1]])}" data-c="${m.court}" data-s="0" value="${s ? s[0] : ""}"${dis}></div>
+      el.innerHTML = `<h3>Court ${esc(m.court)}</h3>
+        <div class="side"><span>${esc(p[m.a[0]])} &amp; ${esc(p[m.a[1]])}</span><input type="number" min="0" max="999" inputmode="numeric" aria-label="Court ${esc(m.court)} score for ${esc(p[m.a[0]])} and ${esc(p[m.a[1]])}" data-c="${esc(m.court)}" data-s="0" value="${s ? esc(s[0]) : ""}"${dis}></div>
         <div class="vs">vs</div>
-        <div class="side"><span>${esc(p[m.b[0]])} &amp; ${esc(p[m.b[1]])}</span><input type="number" min="0" max="999" inputmode="numeric" aria-label="Court ${m.court} score for ${esc(p[m.b[0]])} and ${esc(p[m.b[1]])}" data-c="${m.court}" data-s="1" value="${s ? s[1] : ""}"${dis}></div>`;
+        <div class="side"><span>${esc(p[m.b[0]])} &amp; ${esc(p[m.b[1]])}</span><input type="number" min="0" max="999" inputmode="numeric" aria-label="Court ${esc(m.court)} score for ${esc(p[m.b[0]])} and ${esc(p[m.b[1]])}" data-c="${esc(m.court)}" data-s="1" value="${s ? esc(s[1]) : ""}"${dis}></div>`;
       box.appendChild(el);
     }
     $("#byes").textContent = round.byes.length ? `Sitting out: ${round.byes.map((i) => p[i]).join(", ")}` : "";
