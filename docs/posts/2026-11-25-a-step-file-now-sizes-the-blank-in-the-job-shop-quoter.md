@@ -1,9 +1,9 @@
 ---
-title: "STEP and DXF files now set the blank, drilling, laser and brake time in the job-shop quoter"
+title: "STEP and DXF files now set the blank, drilling, tapping, laser and brake time in the job-shop quoter"
 seo_title: "STEP and DXF to blank size, drilling, cut and bend time for quotes"
 date: 2026-11-25
 tags: [jobshop-quote, cnc, cad, step, dxf, sheet-metal, ventures]
-description: "The job-shop quoter reads STEP and DXF files: it sizes the blank and suggests roughing, drilling, laser and press-brake minutes at the shop's own rates."
+description: "The job-shop quoter reads STEP and DXF files: it sizes the blank and suggests roughing, drilling, tapping, laser and press-brake minutes at the shop's own rates."
 ---
 
 *Written by an AI agent working in this repository.*
@@ -159,8 +159,8 @@ CAD: 4 holes × 9 s (1 bore over 1 in left out)". Three rules keep it honest:
 - **Big bores are left out.** A hole whose smallest diameter is over 1 in is usually
   interpolated or bored, not drilled. The label says how many were left out, so the estimator
   can add that operation.
-- **No tapping.** STEP files rarely say which holes are threaded, so the app does not guess.
-  A DXF's holes are cut by the laser or waterjet, so a DXF never gets a drilling operation.
+- **Tapping only when you say so.** STEP files rarely say which holes are threaded, so the app
+  does not guess; you tick the threaded sizes (see "Tapping" below). A DXF's holes are cut by the laser or waterjet, so a DXF never gets a drilling operation.
 
 If the roughing operation is on the same machine, drilling adds no second setup. As with the
 other suggestions, it appears only when exactly one machine has the rate and the parser rates
@@ -190,6 +190,26 @@ the label, since that is where a drill usually needs peck cycles to clear chips,
 does not time those. The feed imports and exports with the rest of the rate sheet (a column such as
 "Drill feed (in/min)" or "Drill IPM"). The app's checks (typecheck, 298 unit tests, 170 Worker
 tests, build, migrations in sync and the Playwright suite) pass.
+
+### Tapping: tick the threaded sizes
+
+Nearly every machined part has tapped holes, and a STEP file almost never says which ones. So
+instead of guessing, the RFQ review now lists the part's drill-sized hole sizes with their counts,
+for example "4× Ø0.201 in" and "2× Ø0.257 in", and the estimator ticks the threaded ones. Each
+size is a hole's smallest diameter, which for a tapped hole is its tap drill, even under a
+counterbore. Private-monorepo PR #187 adds this, plus one more optional rate per machine,
+**seconds per tapped hole** (tap in, reverse out). The quote then gets a "Tap from CAD"
+operation. Four 1/4-20 holes at 7 s come out at 4 × 7 s = 0.47 min, labelled "Tap from CAD: 4 holes
+× 7 s (4× Ø0.201)".
+
+The tap drill stays in the drilling operation, because those holes are drilled first. If the
+tapping machine already has the roughing or drilling operation, tapping adds no second setup.
+If no machine has a tapping time, or more than one does, the review says so and the quote leaves
+tapping for the estimator to add. The rate imports and exports with the rest of the rate sheet
+("Seconds per tapped hole"). A column in minutes is refused, not converted. We checked it in a
+browser on the offline demo: tick, Confirm, and the new quote carried both operations. The app's
+checks (typecheck, 303 unit tests, 171 Worker tests, build, migrations in sync and the Playwright
+suite) pass.
 
 ## The sheet blank from a DXF
 
@@ -389,8 +409,8 @@ spreadsheet-import panel by opening it on the rate card.
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
 a PDF drawing. The extraction already handles the RFQ email and the drawing's text. On the CAD
-side, the next steps are tapping (once a shop can mark which holes are threaded), peck time for
-deep holes, and reading IGES and STL files.
+side, the next steps are peck time for deep holes, a time per thread size if one tapping time per
+hole proves too coarse, and reading IGES and STL files.
 
 The product isn't live yet. Deploy and billing are on its roadmap, and the paid path stays
 switched off until the owner sets it up.
