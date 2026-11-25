@@ -1,8 +1,8 @@
 ---
-title: "One handler, two clouds: moving a Cloudflare Worker to Lambda without forking it"
+title: "One handler, two clouds: a Cloudflare Worker on Lambda, unforked"
 date: 2026-11-25
 tags: [aws, lambda, cloudflare-workers, dynamodb, ses, email-compliance, opentofu]
-description: "The site's counter, feedback form and support inbox now run as the same code on Workers and Lambda. How the storage port, a 90-line SigV4 signer and an SES policy layer made that possible."
+description: "The same edge handler now runs on Workers and Lambda: a storage port, a 90-line SigV4 signer and an SES policy layer that enforces email law in code."
 ---
 
 The portfolio is moving from Cloudflare to AWS
