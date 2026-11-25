@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Stock Size from a STEP or STL File: Bounding Box and Bar Size for Quoting</title>
-  <meta name="description" content="Drop a customer's STEP or STL file and get the part's bounding box, the round bar it turns from and the stock to cut, with your allowance, in your browser. Nothing is uploaded.">
-  <meta property="og:title" content="Stock Size from a STEP or STL File: Bounding Box and Bar Size for Quoting">
+  <title>Stock Size from a STEP or STL File: Bounding Box and Bar Size</title>
+  <meta name="description" content="Drop a STEP or STL file: bounding box, the round bar it turns from and the stock to cut with your allowance. Read in your browser, never uploaded.">
+  <meta property="og:title" content="Stock Size from a STEP or STL File: Bounding Box and Bar Size">
   <meta property="og:description" content="Bounding box, round-bar diameter and stock size from a STEP or STL file, with your own allowance and rounding, read in your browser. Nothing is uploaded.">
   <meta property="og:type" content="website">
   <link rel="canonical" href="https://marisstella.app/machine-shop-guides/stock-size-from-step-file.html">
@@ -193,14 +193,21 @@
   $("to-quote").addEventListener("click", () => {
     if (firstCost === null) return;
     const value = firstCost.toFixed(2);
+    // handed over through this browser's storage, never the address bar
+    let saved = false;
     try {
       const store = usageStorage();
-      const d = JSON.parse(store?.getItem(QUOTE_KEY) || "{}") || {};
-      d.materialPerPart = value;
-      store?.setItem(QUOTE_KEY, JSON.stringify(d));
+      if (store) {
+        let d = {};
+        try { d = JSON.parse(store.getItem(QUOTE_KEY) || "{}") || {}; } catch {}
+        d.materialPerPart = value;
+        store.setItem(QUOTE_KEY, JSON.stringify(d));
+        saved = true;
+      }
     } catch {}
+    if (!saved) { alert(`This browser blocks site storage, so type ${value} into the quote calculator's material field.`); return; }
     recordUsage("stock-to-quote");
-    location.href = `job-shop-quote-calculator.html?materialPerPart=${encodeURIComponent(value)}`;
+    location.href = "job-shop-quote-calculator.html";
   });
 </script>
 </main>

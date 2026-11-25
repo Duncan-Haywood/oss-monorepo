@@ -99,9 +99,6 @@
     if (!opsBody.rows.length) { addOp({ name: "Deburr" }); addOp({ name: "Inspection" }); }
   }
   try { write(JSON.parse(store?.getItem(KEY) || "{}") || {}); } catch { write({}); }
-  // material cost handed over from the stock-size page (?materialPerPart=12.34)
-  const handed = new URLSearchParams(location.search).get("materialPerPart");
-  if (handed && /^\d+(\.\d+)?$/.test(handed)) f.elements.materialPerPart.value = handed;
   document.getElementById("add-op").addEventListener("click", () => addOp());
   document.getElementById("clear").addEventListener("click", () => { f.reset(); write({}); try { store?.removeItem(KEY); } catch {} document.getElementById("out").hidden = true; });
   f.addEventListener("submit", (e) => {
