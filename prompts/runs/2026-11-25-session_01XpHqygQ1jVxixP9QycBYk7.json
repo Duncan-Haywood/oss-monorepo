@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqygQ1jVxixP9QycBYk7",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T12:39:41Z",
+  "ended": "2026-11-25T12:50:58Z",
+  "wall_minutes": 11.68,
+  "tokens_in": 15060058,
+  "tokens_out": 45965,
+  "cost_usd": 5.3924,
+  "tool_calls": 95,
+  "task": "Bet #1 PayApps: change order history on its row (ROADMAP History part 3)",
+  "projects": [
+    "private-monorepo/apps/payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18971",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "First slice (pay-when-paid outer limit, complete with tests) duplicated private PR 95, merged by a parallel session ~40 min into this run under the same branch name; push rejected, work discarded."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "apps/payapps/ROADMAP.md (private-monorepo)",
+      "issue": "Parallel scheduled runs read the same 'Next' list and pick the same top item; there is no claim mechanism, so a run can build a whole feature that lands elsewhere first. Re-check origin/main and ls-remote just before the first push, and prefer items lower down."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md (Write about the work)",
+      "why": "No customer post: the feature is pre-launch and small; a post would be thin.",
+      "did": "agent doc only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-25-payapps-change-order-history.md"
+  ],
+  "goal": "$10k MRR: bet #1 PayApps feature depth before launch",
+  "notes": "private-monorepo clone worked first time via add_repo (push). Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/96 merged after local payapps-ci steps: biome ci clean (1 pre-existing warning in billing.ts), typecheck, unit 341/341, worker 215/215, build, drizzle drift none. No blog post: an internal pre-launch feature with no customer-facing page change; the agent doc covers it.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "886d3e0d-b99e-50c8-b82a-4d39451fc22b",
+    "transcripts": 1,
+    "first": "2026-11-25T12:39:41Z",
+    "last": "2026-11-25T12:51:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 94,
+        "input": 180,
+        "output": 45965,
+        "thinking": 7172,
+        "cache_read": 14872647,
+        "cache_write_5m": 0,
+        "cache_write_1h": 187231,
+        "api_equivalent_usd": 5.3924,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 94,
+      "input": 180,
+      "output": 45965,
+      "thinking": 7172,
+      "cache_read": 14872647,
+      "cache_write_5m": 0,
+      "cache_write_1h": 187231,
+      "api_equivalent_usd": 5.3924,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 95,
+    "tools": {
+      "Bash": 87,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.68,
+      "active_minutes": 11.68,
+      "model_minutes": 6.72,
+      "tool_minutes": 4.95,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "two features of ~3h each for a senior full-stack dev, one discarded as duplicate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 111.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
