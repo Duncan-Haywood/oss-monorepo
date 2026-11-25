@@ -71,3 +71,22 @@ Checked by reading `main` at `578f7f19a`; the flagged files are unchanged since 
   - `js/disabling-certificate-validation` #1086 (`status-keeper/certs.mjs:12`): an expiry checker has to read the certificate of a server whose certificate is expired or untrusted. It records `socket.authorized` and `authorizationError` and reports an untrusted certificate as not ok (strict mode, the default). No data is sent over the connection.
   - `js/incomplete-sanitization` #741 (`shopify-to-woocommerce-converter/converter.mjs:69`): `esc` writes WooCommerce's `\,` list-separator escape. WooCommerce's importer has no backslash escape, so escaping backslashes would corrupt values instead of protecting them.
   - `js/incomplete-sanitization` #849 (`platform/agents/tools.mjs:170`): `name` is a JavaScript export identifier, and `$` is the only regex metacharacter an identifier can hold. That character is escaped.
+
+## Fourth pass, same day (overlaps the third; checked on main at `20071c007`)
+
+Run in parallel with the third pass and merged after it. This pass adds:
+
+- **Fixed (they close on the next completed scan):**
+  - #849 `js/incomplete-sanitization`, `platform/agents/tools.mjs:170`. The third pass is right that an identifier
+    can only carry `$`. The escape now covers every regex metacharacter anyway, so the rule is satisfied and
+    nothing depends on that assumption. Test added in `tools.test.mjs`.
+  - #65 `js/incomplete-sanitization`, `ventures/pay-app-guides/template.test.mjs:62`. The label escape in the test
+    now covers every metacharacter, not just `.`.
+- **False positives not covered above (dismiss):**
+  - #862 `js/incomplete-sanitization`, `research/marriage-divorce-evidence/report-app/src/use-data-app.js:315`.
+    `replace("..", " – ")` turns a range filter into display text that React renders escaped. It is formatting.
+  - #1049 `js/incomplete-url-substring-sanitization`, `platform/pages/check.mjs` (now ~line 1470).
+    `text.includes(PLACEHOLDER_ORIGIN)` is a build check that the placeholder origin never ships, not a URL allow-list.
+  - #1181 to #1203 `js/redos` in `regex-redos-check/*.test.mjs`, and #1208 in `devsec-toolkit/tests/fixtures/vulnerable-repo/`:
+    deliberately vulnerable patterns that a ReDoS checker's tests and fixtures exist to detect.
+- **Claimed elsewhere:** #274, #275, #574, #997 have `security-fix/` branches.
