@@ -28,7 +28,7 @@ export const SOLID_JOBS = 15;
 export function parseCsv(text) {
   const rows = [];
   let row = [], field = "", inQ = false;
-  const s = String(text ?? "").replace(/^﻿/, "");
+  const s = String(text ?? "").replace(/^\uFEFF/, "");
   const delim = detectDelimiter(s);
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
@@ -102,13 +102,23 @@ export function readOutcome(v) {
   return "";
 }
 
-const toNum = (v) => {
+// Numbers are read by the shape of their comma, so a European export's "1,5"
+// is one and a half, never fifteen: "1,234.5" has thousands commas; "1,5" and
+// "1.234,5" have a decimal comma; in a semicolon file (where Excel puts a
+// decimal comma) "1,500" is one and a half too. Any other comma is not a number.
+export function toNum(v, decimalComma = false) {
   if (v === undefined || v === null) return null;
-  const s = String(v).trim().replace(/[$,\s]/g, "");
+  let s = String(v).trim().replace(/[$\s]/g, "");
   if (s === "") return null;
+  if (s.includes(",")) {
+    if (decimalComma && /^-?(\d+|\d{1,3}(\.\d{3})+),\d+$/.test(s)) s = s.replace(/\./g, "").replace(",", ".");
+    else if (/^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) s = s.split(",").join("");
+    else if (/^-?(\d+|\d{1,3}(\.\d{3})+),\d{1,2}$/.test(s)) s = s.replace(/\./g, "").replace(",", ".");
+    else return NaN;
+  }
   const n = Number(s);
   return Number.isFinite(n) ? n : NaN;
-};
+}
 
 /**
  * Rows in, jobs out. Each job: { line, job, machine, quantity, quotedSetup,
@@ -118,6 +128,7 @@ const toNum = (v) => {
  */
 export function readJobs(text) {
   const rows = parseCsv(text);
+  const decimalComma = detectDelimiter(String(text ?? "").replace(/^\uFEFF/, "")) === ";";
   if (!rows.length) return { jobs: [], quotes: [], skipped: [], columns: null, error: "No rows found." };
   const columns = mapColumns(rows[0]);
   const { map, units } = columns;
@@ -132,9 +143,9 @@ export function readJobs(text) {
     const line = r + 1;
     const get = (k) => (map[k] === undefined ? undefined : cells[map[k]]);
     const vals = {
-      quotedSetup: toNum(get("quotedSetup")), actualSetup: toNum(get("actualSetup")),
-      quotedCycle: toNum(get("quotedCycle")), actualCycle: toNum(get("actualCycle")),
-      quantity: toNum(get("quantity")),
+      quotedSetup: toNum(get("quotedSetup"), decimalComma), actualSetup: toNum(get("actualSetup"), decimalComma),
+      quotedCycle: toNum(get("quotedCycle"), decimalComma), actualCycle: toNum(get("actualCycle"), decimalComma),
+      quantity: toNum(get("quantity"), decimalComma),
     };
     const bad = Object.entries(vals).filter(([, v]) => Number.isNaN(v) || (v !== null && v < 0));
     if (bad.length) { skipped.push({ line, reason: `not a number or negative: ${bad.map(([k]) => k).join(", ")}` }); continue; }
@@ -238,7 +249,8 @@ export function calibrate(text, { rate } = {}) {
 export function reportCsv(report) {
   const esc = (v) => {
     let s = v === null || v === undefined ? "" : String(v);
-    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; // keep a spreadsheet from running a cell as a formula
+    // keep a spreadsheet from running a cell as a formula, but leave -0.4 a number
+    if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
     return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const f = (n, d = 3) => (n === null || n === undefined ? "" : Number(n.toFixed(d)));

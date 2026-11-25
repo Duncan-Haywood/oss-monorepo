@@ -1,11 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseCsv, mapColumns, readOutcome, readJobs, quantile, summarise, calibrate, reportCsv, EXAMPLE_CSV, MIN_JOBS } from "./calibrate.mjs";
+import { toNum, parseCsv, mapColumns, readOutcome, readJobs, quantile, summarise, calibrate, reportCsv, EXAMPLE_CSV, MIN_JOBS } from "./calibrate.mjs";
 
 const close = (a, b, eps = 1e-9) => assert.ok(Math.abs(a - b) < eps, `${a} != ${b}`);
 
 test("CSV: quotes, doubled quotes, CRLF, BOM, semicolons and blank lines", () => {
-  assert.deepEqual(parseCsv('﻿a,b\r\n"x, y","say ""hi"""\r\n\r\n1,2'), [["a", "b"], ["x, y", 'say "hi"'], ["1", "2"]]);
+  assert.deepEqual(parseCsv('\uFEFFa,b\r\n"x, y","say ""hi"""\r\n\r\n1,2'), [["a", "b"], ["x, y", 'say "hi"'], ["1", "2"]]);
   assert.deepEqual(parseCsv("a;b\n1,5;2"), [["a", "b"], ["1,5", "2"]]);
   assert.deepEqual(parseCsv("a\tb\n1\t2\n"), [["a", "b"], ["1", "2"]]);
 });
@@ -126,4 +126,24 @@ test("report CSV: one row per group and kind, formula-looking cells defused", ()
   assert.equal(lines.length, 1 + 3 * 2);
   const evil = reportCsv(calibrate("job,machine,quoted_setup_hours,actual_setup_hours\nA,=HYPERLINK(1),1,1"));
   assert.match(evil, /\n'=HYPERLINK\(1\),setup/);
+});
+
+test("numbers by comma shape: thousands, decimal comma, semicolon files", () => {
+  assert.equal(toNum("1,234.5"), 1234.5);
+  assert.equal(toNum("1,5"), 1.5);
+  assert.equal(toNum("1.234,5"), 1234.5);
+  assert.equal(toNum("1,500"), 1500);
+  assert.equal(toNum("1,500", true), 1.5);
+  assert.ok(Number.isNaN(toNum("1,2,3")));
+  assert.equal(toNum(" $12 "), 12);
+  assert.equal(toNum(""), null);
+  const { jobs } = readJobs("job;quoted setup h;actual setup h\nA;1,5;2,25");
+  assert.equal(jobs[0].quotedSetup, 1.5);
+  assert.equal(jobs[0].actualSetup, 2.25);
+});
+
+test("report CSV keeps a negative number a number", () => {
+  const csv = reportCsv(calibrate("job,quoted_setup_hours,actual_setup_hours\nA,2,1.6"));
+  assert.match(csv, /,-0\.4,/);
+  assert.doesNotMatch(csv, /'-0/);
 });
