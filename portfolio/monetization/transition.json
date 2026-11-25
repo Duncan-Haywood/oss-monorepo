@@ -82,11 +82,11 @@
     },
     {
       "venture": "photo-editing",
-      "source_lines": 77937,
+      "source_lines": 78142,
       "track": "proprietary",
       "why": "flagship #12: the depth people pay for",
-      "model": "subscription",
-      "model_why": "the cull and pipeline run on the user's machine and stay free; the paid part is hosted proofing galleries, which have a per-user storage cost (models.yaml, 2026-11-25)",
+      "model": "one-off",
+      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
       "moved": null,
       "move_order": 6
