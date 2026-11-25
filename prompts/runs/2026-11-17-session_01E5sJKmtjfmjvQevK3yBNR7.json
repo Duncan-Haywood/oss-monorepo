@@ -434,7 +434,7 @@
         "file": ".github/workflows/proposal-module-ci.yml",
         "issue": "paths omit ventures/*/proposal-terms.mjs and ventures/*/share.mjs, so sync.test.mjs and overlong-agrees.test.mjs do not run on a venture-only edit of those vendored copies. Fix: add both globs to the pull_request and push paths lists (control plane, own PR, owner approval).",
         "patched": true,
-        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18834"
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18785"
       }
     ]
   },

@@ -719,7 +719,6 @@ class BackfillPrTest(unittest.TestCase):
             self.assertEqual(json.loads((root / "runs" / "b.json").read_text())["pr"], "5")
 
 
-
 class MeasureToleratesFreeTextEntriesTest(unittest.TestCase):
     def test_newest_orders_by_time_not_file_order(self):
         got = promptctl._newest(["2026-10-18T00:20: c", "2026-10-17T00:38: a", "undated", "2026-10-17T09:00: b"], 3)

@@ -159,6 +159,27 @@ and were left alone.
 Notes and the ranked list of what is left:
 [`docs/history/ci-perf-2026-11-25-venture-workflow-sparse.md`](/docs/history/ci-perf-2026-11-25-venture-workflow-sparse.md).
 
+## Same day: the blog's search box downloaded 18 MB
+
+The blog's search box searches whole posts, not just titles, so it fetches
+a full-text index on the first keystroke. That index was every post's body
+in full: 18.3 MB, or 6.7 MB compressed, at 7,749 posts. On a slow mobile
+link (1.6 Mbit/s), a reader waited 40 seconds for the first result.
+
+The search only asks one question: does a typed word appear somewhere in a
+post? A typed word has no spaces, so it can only match inside a single word
+of the post. That means each distinct word can be stored once for the whole
+blog, with the list of posts it appears in. This is an inverted index, the
+oldest trick in search engines. The file fell to 2.5 MB compressed, parsing
+went from 121 ms to 17 ms, and the same throttled search now answers in 18
+seconds.
+
+The check that the answers did not change was a direct comparison. On the
+real corpus, 21 search terms, from single letters to accented characters,
+returned identical post sets from the old full-text file and from the new
+index. A seeded test now keeps it that way. Notes:
+[`docs/history/pages-build-perf-2026-11-25-writing-search-index.md`](/docs/history/pages-build-perf-2026-11-25-writing-search-index.md).
+
 ## The general lesson
 
 "Rewrite it in Rust" assumes the time goes into your own code, running

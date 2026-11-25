@@ -44,3 +44,17 @@ judged by the adversarial gate, and is not made here.
 Everything else in the queue, including the 84 `js/path-injection` alerts. Most are in local CI and eval
 scripts that take a path from their own argv (`platform/ci/check_*.mjs`,
 `ventures/wall-framing-takeoff/eval-*.mjs`), so they are likely false positives, but nobody has read them yet.
+
+## Second pass, same day (queue scanned before `f67c21c96`)
+
+Checked by reading `main` at `f67c21c96`. No code change was needed.
+
+- **Already fixed on main; they close on the next completed scan:**
+  - `js/regex-injection`: #99 (`redis-conf-check/scan.mjs`), #100 and #101 (`regex-redos-check/engine.mjs`, which now uses `escapeRegExp`), and #102 and #103 (`ids-model-check/eval/*`, which now uses a plain `endsWith` suffix test).
+  - `js/unvalidated-dynamic-method-call`: #107 (`shed-designer/hoa-page.mjs`, which now checks `Object.hasOwn(PRESETS, key)`).
+  - `js/biased-cryptographic-random`: #95 (`quick-pick-survey/src/lib/couples.ts`, which now uses `randomInt`).
+  - `js/double-escaping`: #115 to #118. Each decoder now decodes `&amp;` last, and `sales-agent/mime.mjs` strips tags until the text stops changing. The flagged line numbers no longer match the code, so these files changed after the scan.
+- **False positives, by design (dismiss as "used in tests" or "won't fix"):**
+  - `js/regex-injection` #104 and #105 (`platform/ci/copy_drift.mjs:189-190`). `--name` and `--skip` are regex flags typed by whoever runs the local CI script.
+  - `js/regex-injection` #106 (`dxf-nesting/dxf.mjs:174`). "Ignore layers matching" is a regex the user types into their own browser tab or CLI, and no one else's input reaches it.
+- **Still unchecked:** the remaining `js/double-escaping` alerts, #119 onward. Most of them are in `*.test.mjs` files, and the same reasoning as the test-file note above applies.

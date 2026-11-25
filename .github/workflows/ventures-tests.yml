@@ -12,10 +12,9 @@ on:
   pull_request:
     paths:
       - "ventures/**"
-      # The unwired checks (unwired_checks.py: platform/ci unit tests no other
-      # workflow runs, `doc_index.py check`) run here on every --since run, so a
-      # PR touching only these paths must start this job too (red team 2026-11-13:
-      # two reds reached main that way). With no venture changed it is ~20 s.
+      # The unwired tree checks (unwired_checks.py, doc_index.py check) run
+      # from this workflow, so a PR touching only these trees must start it
+      # too (red-team findings 2026-11-06 and 2026-11-13).
       - "platform/ci/**"
       - "platform/pages/*.mjs"
       - "docs/reports/**"
@@ -25,10 +24,9 @@ on:
     branches: [main]
     paths:
       - "ventures/**"
-      # The unwired checks (unwired_checks.py: platform/ci unit tests no other
-      # workflow runs, `doc_index.py check`) run here on every --since run, so a
-      # PR touching only these paths must start this job too (red team 2026-11-13:
-      # two reds reached main that way). With no venture changed it is ~20 s.
+      # The unwired tree checks (unwired_checks.py, doc_index.py check) run
+      # from this workflow, so a PR touching only these trees must start it
+      # too (red-team findings 2026-11-06 and 2026-11-13).
       - "platform/ci/**"
       - "platform/pages/*.mjs"
       - "docs/reports/**"

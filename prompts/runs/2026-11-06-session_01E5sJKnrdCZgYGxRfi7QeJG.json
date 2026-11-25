@@ -176,7 +176,7 @@
         "file": ".github/workflows",
         "issue": "No PR workflow runs platform/ci/test_doc_index.py or `doc_index.py check`, so report-taxonomy breakage reaches main unseen. Fix: add a step to portfolio-validate.yml (control plane, own PR, owner approval).",
         "patched": true,
-        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18834"
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18785"
       }
     ]
   }

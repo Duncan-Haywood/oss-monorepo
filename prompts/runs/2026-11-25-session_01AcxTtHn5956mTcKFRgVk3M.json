@@ -1,0 +1,309 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtHn5956mTcKFRgVk3M",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T01:06:58Z",
+  "ended": "2026-11-25T01:15:28Z",
+  "wall_minutes": 12.52,
+  "tokens_in": 9476872,
+  "tokens_out": 30048,
+  "cost_usd": 3.5041,
+  "tool_calls": 96,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18785",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Ran git stash while the budget.mjs campaign had a mutant applied; the stash swallowed the mutant and one test run ran against the original. Restored my files from the stash without budget.mjs, deleted the compromised record and re-ran the campaign with the same seed (same 6/8 result)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Many open entries say 'control plane, own PR, owner approval', but the owner removed the review gate on 2026-11-24 and the three workflows aren't in CODEOWNERS; the step-0 text should say such fixes now land in the red-team PR."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`campaign --target` on a constants-only file (wall-framing-takeoff/checkout.mjs) finds 0 sites after a 30 s baseline; `targets --probe` doesn't show site counts."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "The 'don't read or edit the target mid-campaign' warning should also say never git stash / checkout the tree while a campaign runs."
+    },
+    {
+      "file": "ventures/einvoice-preflight/repair-facturx.test.mjs",
+      "issue": "Fails in cloud containers whose pdfdetach wrapper refuses -save; not a code defect, but it makes the suite's baseline red locally so a campaign can't target einvoice-preflight here."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Main moved three times during this PR's ~45 min CI cycles and two other runs landed the same fixes (#18779, #18818); the duplicate-PR search at open time can't see work started minutes later, and each merge restarts the full CI wait."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Open entries were marked 'own PR, owner approval'; the 2026-11-24 direction removed owner review, so I fixed five of them in this PR and consolidate stalled PR #14698 (same einvoice change) into it.",
+      "did": "Fixed einvoice CI deps, proposal-module paths, ventures-tests paths (covers the doc_index entry too), test_promptctl guard.",
+      "result": "13 open entries -> 8."
+    },
+    {
+      "file": "prompt.md",
+      "why": "No blog post: the work is CI and test wiring with nothing a customer reads; the record and commit messages carry it.",
+      "did": "No post.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Red: budget.mjs (wall-framing-takeoff, construction bet) 8 mutants, 6 caught, 1 equivalent (stair labor >=0), 1 gap (dormer roof <1 sq ft) now tested; catch rate 0.857 -> 1.0. checkout.mjs had 0 sites. Blue/guards: unwired_checks (run on every venture PR, and now on platform/ci, platform/pages, docs/reports PRs) was red on main with 6 failures: 4 real defects fixed, 1 flaky test fixed, 1 the saas-starter suites (now a declared-dep skip). einvoice-preflight browser-test now installs slimdom/fontoxpath: 144 -> 16 skipped, 128 more tests run, all pass locally (2315 pass; the 1 fail is this container's pdfdetach wrapper). shift-roster-builder repair-flow test failed once in CI under full-suite load (pre-existing, timing-dependent; logged as an open defect, re-run used).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/wall-framing-takeoff/budget.mjs",
+        "test": "node --test ventures/wall-framing-takeoff/**/*.test.mjs  (in .)",
+        "seed": 343936298,
+        "commit": "96cf808b7",
+        "sites": 389,
+        "baseline_seconds": 18.3,
+        "mutants": [
+          {
+            "file": "ventures/wall-framing-takeoff/budget.mjs",
+            "line": 233,
+            "col": 38,
+            "operator": "and-to-or",
+            "before": "if (fa?.ok && fa.wallBracing?.count && P(\"wallBrace\") == null && fa.wallBracing.price == null && fa.wallBracing.pricePerFoot != null) add(\"Fasteners\", \"Wall braces (by the foot)\", fa.wallBracing.feet, \"ft\", fa.wallBracing.pricePerFoot, `${fa.wallBracing.count} brace(s) at ${fa.wallBracing.angle} degrees, one per ${fa.wallBracing.spacing} in of wall`);",
+            "after": "if (fa?.ok && fa.wallBracing?.count || P(\"wallBrace\") == null && fa.wallBracing.price == null && fa.wallBracing.pricePerFoot != null) add(\"Fasteners\", \"Wall braces (by the foot)\", fa.wallBracing.feet, \"ft\", fa.wallBracing.pricePerFoot, `${fa.wallBracing.count} brace(s) at ${fa.wallBracing.angle} degrees, one per ${fa.wallBracing.spacing} in of wall`);",
+            "line_text": "  if (fa?.ok && fa.wallBracing?.count && P(\"wallBrace\") == null && fa.wallBracing.price == null && fa.wallBracing.pricePerFoot != null) add(\"Fasteners\", \"Wall braces (by the foot)\", fa.wallBracing.feet, \"ft\", fa.wallBracing.pricePerFoot, `${fa.wallBracing.count} brace(s) at ${fa.wallBracing.angle} degrees, one per ${fa.wallBracing.spacing} in of wall`);",
+            "caught": true,
+            "seconds": 18.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/budget.mjs",
+            "line": 286,
+            "col": 17,
+            "operator": "and-to-or",
+            "before": "if (laborTyped && dk?.ok && dk.area > 0) add(\"Labor\", \"Deck framing, decking and rails\", dk.area, \"sq ft\", P(\"laborDeckSqFt\"), \"deck.area x typed laborDeckSqFt\");",
+            "after": "if (laborTyped || dk?.ok && dk.area > 0) add(\"Labor\", \"Deck framing, decking and rails\", dk.area, \"sq ft\", P(\"laborDeckSqFt\"), \"deck.area x typed laborDeckSqFt\");",
+            "line_text": "  if (laborTyped && dk?.ok && dk.area > 0) add(\"Labor\", \"Deck framing, decking and rails\", dk.area, \"sq ft\", P(\"laborDeckSqFt\"), \"deck.area x typed laborDeckSqFt\");",
+            "caught": true,
+            "seconds": 18.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/budget.mjs",
+            "line": 287,
+            "col": 231,
+            "operator": "const-plus-one",
+            "before": "const stairRisers = (result.stairs || []).reduce((/** @type {number} */ t, /** @type {any} */ x) => t + (x.flights ? x.flights.reduce((/** @type {number} */ u, /** @type {any} */ g) => u + (g.risers || 0), 0) : (x.risers || 0)), 0);",
+            "after": "const stairRisers = (result.stairs || []).reduce((/** @type {number} */ t, /** @type {any} */ x) => t + (x.flights ? x.flights.reduce((/** @type {number} */ u, /** @type {any} */ g) => u + (g.risers || 0), 0) : (x.risers || 0)), 1);",
+            "line_text": "  const stairRisers = (result.stairs || []).reduce((/** @type {number} */ t, /** @type {any} */ x) => t + (x.flights ? x.flights.reduce((/** @type {number} */ u, /** @type {any} */ g) => u + (g.risers || 0), 0) : (x.risers || 0)), 0);",
+            "caught": true,
+            "seconds": 18.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/budget.mjs",
+            "line": 288,
+            "col": 32,
+            "operator": "gt-to-ge",
+            "before": "if (laborTyped && stairRisers > 0) add(\"Labor\", \"Stair building and installation\", stairRisers, \"risers\", P(\"laborStairRiser\"), \"sum of stairs risers (each flight of a landing stair) x typed laborStairRiser\");",
+            "after": "if (laborTyped && stairRisers >= 0) add(\"Labor\", \"Stair building and installation\", stairRisers, \"risers\", P(\"laborStairRiser\"), \"sum of stairs risers (each flight of a landing stair) x typed laborStairRiser\");",
+            "line_text": "  if (laborTyped && stairRisers > 0) add(\"Labor\", \"Stair building and installation\", stairRisers, \"risers\", P(\"laborStairRiser\"), \"sum of stairs risers (each flight of a landing stair) x typed laborStairRiser\");",
+            "caught": false,
+            "seconds": 18.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "stairRisers >= 0 only differs at 0, and add() returns early on !(qty > 0), so no line is added either way"
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/budget.mjs",
+            "line": 289,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "if (laborTyped && dm?.ok && dm.areas?.roofSqFt > 0) add(\"Labor\", \"Dormer framing and roofing\", dm.areas.roofSqFt, \"sq ft\", P(\"laborDormerSqFt\"), \"dormer.areas.roofSqFt x typed laborDormerSqFt\");",
+            "after": "if (laborTyped && dm?.ok && dm.areas?.roofSqFt > 1) add(\"Labor\", \"Dormer framing and roofing\", dm.areas.roofSqFt, \"sq ft\", P(\"laborDormerSqFt\"), \"dormer.areas.roofSqFt x typed laborDormerSqFt\");",
+            "line_text": "  if (laborTyped && dm?.ok && dm.areas?.roofSqFt > 0) add(\"Labor\", \"Dormer framing and roofing\", dm.areas.roofSqFt, \"sq ft\", P(\"laborDormerSqFt\"), \"dormer.areas.roofSqFt x typed laborDormerSqFt\");",
+            "caught": false,
+            "seconds": 18.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test had a dormer roof under 1 sq ft; budget.test.mjs now prices a 0.5 sq ft dormer roof"
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/budget.mjs",
+            "line": 303,
+            "col": 19,
+            "operator": "and-to-or",
+            "before": "if (okNum(amt) && amt > 0) lines.push({ section: \"Allowances\", item: name, qty: 1, unit: \"lump sum\", unitPrice: r2(amt), amount: r2(amt), source: \"typed allowance\", priceKey: null });",
+            "after": "if (okNum(amt) || amt > 0) lines.push({ section: \"Allowances\", item: name, qty: 1, unit: \"lump sum\", unitPrice: r2(amt), amount: r2(amt), source: \"typed allowance\", priceKey: null });",
+            "line_text": "    if (okNum(amt) && amt > 0) lines.push({ section: \"Allowances\", item: name, qty: 1, unit: \"lump sum\", unitPrice: r2(amt), amount: r2(amt), source: \"typed allowance\", priceKey: null });",
+            "caught": true,
+            "seconds": 18.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/budget.mjs",
+            "line": 313,
+            "col": 112,
+            "operator": "plus-to-minus",
+            "before": "const materials = r2(sections.filter((x) => x.name !== \"Labor\" && x.name !== \"Allowances\").reduce((s, x) => s + x.subtotal, 0));",
+            "after": "const materials = r2(sections.filter((x) => x.name !== \"Labor\" && x.name !== \"Allowances\").reduce((s, x) => s - x.subtotal, 0));",
+            "line_text": "  const materials = r2(sections.filter((x) => x.name !== \"Labor\" && x.name !== \"Allowances\").reduce((s, x) => s + x.subtotal, 0));",
+            "caught": true,
+            "seconds": 18.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/budget.mjs",
+            "line": 314,
+            "col": 95,
+            "operator": "const-plus-one",
+            "before": "const labor = r2(sections.filter((x) => x.name === \"Labor\").reduce((s, x) => s + x.subtotal, 0));",
+            "after": "const labor = r2(sections.filter((x) => x.name === \"Labor\").reduce((s, x) => s + x.subtotal, 1));",
+            "line_text": "  const labor = r2(sections.filter((x) => x.name === \"Labor\").reduce((s, x) => s + x.subtotal, 0));",
+            "caught": true,
+            "seconds": 18.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "portfolio/monetization/transition.json",
+        "issue": "PR #18757 hand-wrote photo-editing's subscription model into the generated file; transition.py never produced it, so test_committed_json_is_current (an unwired suite run on every venture PR) was red on main. Decision moved into transition.py OVERRIDES; --write now reproduces it plus the model counts the hand edit missed. PR #18779 added the same OVERRIDES row in parallel; this PR's merge regenerated transition.json, which main still had stale.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18785"
+      },
+      {
+        "file": "platform/security/test_scan.py",
+        "issue": "ConcatenatedJson tests sat below the __main__ guard (added in #18749); check_main_guard_last.py was red on main. Guard moved to the end.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18785"
+      },
+      {
+        "file": "platform/ci/unwired_checks.py",
+        "issue": "A node suite whose package.json dependency was not installed (platform/aws/stacks/saas-starter/runtime, #18765) counted as red, unlike a missing pip package, so every venture PR inherited two reds. Now a SKIP with an npm ci hint; undeclared packages stay red. The suites pass 8/8 with deps installed. Main's PR #18818 landed an equivalent fix while this PR waited on CI; this PR's copy was dropped in the merge in favour of main's.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18818"
+      },
+      {
+        "file": "platform/ci/test_wait_for.py",
+        "issue": "Gone test asserted matching(tag)==[] the instant p.wait() returned; the SIGKILLed group's forked child was still in /proc under unwired_checks' parallel load. Now waits up to 5 s with wait_gone.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18785"
+      },
+      {
+        "file": "ventures/shift-roster-builder/repair-flow.test.mjs",
+        "issue": "'the repair reserve is on by default from 300 copies' (line 132) builds a 252-person-week at timeBudgetMs 10000 and asserts optimality.coverRepairReserveMs === 1000; the reserve is only set once the cover passes start (~2.7 s idle, after eject ~1.4 s and scoreCG ~1 s), so on a loaded runner the budget runs out first and it reads null. Failed on PR #18785's changed-ventures job (all 511 suites ran because platform/ci changed). Tried: timeBudgetMs 30000 (scoreCG and floors scale with the budget: 32 s idle, too slow); scoreCG:false (the build then ran >200 s, ignoring its 10 s budget: a second defect worth its own look). Fix needs a way to start the cover passes early without timing (e.g. an option skipping eject, or exporting the reserve decision from buildRoster's option path), or reading the reserve from the plan before the passes run.",
+        "patched": false
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7568f760-7eff-530a-b489-03c9b393d9b2",
+    "transcripts": 1,
+    "first": "2026-11-25T01:06:58Z",
+    "last": "2026-11-25T01:19:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 87,
+        "input": 167,
+        "output": 30048,
+        "thinking": 8119,
+        "cache_read": 9347591,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129114,
+        "api_equivalent_usd": 3.5041,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 87,
+      "input": 167,
+      "output": 30048,
+      "thinking": 8119,
+      "cache_read": 9347591,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129114,
+      "api_equivalent_usd": 3.5041,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 96,
+    "tools": {
+      "Bash": 87,
+      "Edit": 4,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.52,
+      "active_minutes": 12.52,
+      "model_minutes": 6.8,
+      "tool_minutes": 5.72,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "triage and fix of 6 CI reds, 5 stale findings, one mutation campaign",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 114.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

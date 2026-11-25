@@ -17,8 +17,6 @@ on:
       - "platform/proposal/**"
       - "ventures/*/proposal.mjs"
       - "ventures/*/proposal.test.mjs"
-      # sync.test.mjs holds the vendored terms copies and overlong-agrees.test.mjs
-      # reads every share.mjs: an edit to one of those alone must run them too.
       - "ventures/*/proposal-terms.mjs"
       - "ventures/*/proposal-terms.test.mjs"
       - "ventures/*/share.mjs"
@@ -29,8 +27,6 @@ on:
       - "platform/proposal/**"
       - "ventures/*/proposal.mjs"
       - "ventures/*/proposal.test.mjs"
-      # sync.test.mjs holds the vendored terms copies and overlong-agrees.test.mjs
-      # reads every share.mjs: an edit to one of those alone must run them too.
       - "ventures/*/proposal-terms.mjs"
       - "ventures/*/proposal-terms.test.mjs"
       - "ventures/*/share.mjs"

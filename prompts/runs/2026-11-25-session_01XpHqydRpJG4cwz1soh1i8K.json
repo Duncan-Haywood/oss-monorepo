@@ -43,6 +43,10 @@
     {
       "file": "prompts/redteam.py",
       "issue": "targets --under ventures/shift-roster-builder and ventures/ai-bookkeeper: every file's suite is >20s, so the for-profit products the prompt says to prefer cannot be campaigned in a run. The draw fell back to a free tool's usage.mjs."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Two redteam runs on the same day took the same open-list entries. #18785 merged during this run, so most of the CI work was duplicated. Nothing claims an entry from `redteam.py open`, unlike security-fix/ claim branches."
     }
   ],
   "deviations": [
@@ -61,7 +65,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Fixed 6 open red-team defects. 8 open-list entries are marked patched_in this PR; doc_index is covered by the ventures-tests paths, and 2026-11-14's two entries both point to the run_suite fix. Local checks: python3 -m unittest discover -s prompts gives 142 tests, OK apart from this record before it was filled in; test_redteam has 18 OK, and 3 of them fail without the redteam.py change; test_check_main_guard_last 8 OK; platform/proposal node --test 116/116; einvoice-preflight node --test with the deps: 2315 pass, 16 skipped, 1 fail (the container's sandboxed pdfdetach); run_venture_tests --since HEAD: 293/295, 2 skipped. Still open: browser_checks framerate, control_plane_guard audit-commit (both likely moot now owner review is off), help-keeper stem, ids-model-check fetch-testcases.",
+  "notes": "Fixed 3 open red-team defects in prompts/redteam.py, each with a test that fails first. (1) suite_for: a usage.mjs target also runs CI's usage_contract.mjs (2026-11-15 patch). (2) rerun: runs each suite once without the mutant and skips its mutants when that clean run is red (2026-11-10). (3) run_suite: own process group, killpg on timeout (2026-11-14). I also wrote the four CI/test fixes (einvoice deps, proposal-module paths, ventures-tests paths, test_promptctl guard), but redteam #18785 landed the same fixes while this run was working, so the merge keeps main's copies. Also fixed main's red `validate`: payapps next: was 2126 of 2000 characters. Cut the landed SOV and invitations clauses, shortened the rate-limits clause, and noted that legal pages landed (private #50). Local checks: prompts unittest discover OK; test_redteam 18 OK, and 3 of them fail without the redteam.py change; portfolio/router/validate.py OK; check_main_guard_last 0. Mutation campaign on saas-feature-packaging-optimizer/usage.mjs: 6/8 caught before, 8/8 after (the contract catches both escapes).",
   "corrections": [],
   "redteam": {
     "campaigns": [

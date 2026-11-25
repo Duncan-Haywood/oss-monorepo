@@ -19,9 +19,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from repo_files import ls_files  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
-# Files allowed to keep a late guard. Empty since 2026-11-25 (red team moved the
-# last one, prompts/test_promptctl.py); the test fails if an entry goes stale.
-KNOWN = set()
+# Control plane (.github/CODEOWNERS): fixed in its own PR, owner approval. Listed
+# so this check starts green; the test fails once the file is clean, so the entry
+# cannot go stale.
+KNOWN: set[str] = set()
 
 
 def is_main_guard(node):

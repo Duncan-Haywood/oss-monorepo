@@ -60,11 +60,11 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
-      # The official PINT/ZATCA/plain-runner tests skip themselves without these
-      # two XPath libraries, so until 2026-11-25 about 128 of them never ran here
-      # (red team 2026-11-11: mutants in report.mjs escaped because of it).
-      # Pinned, no lockfile written, install scripts off.
-      - run: npm i --no-save --no-package-lock --ignore-scripts --no-audit --no-fund slimdom@4.3.5 fontoxpath@3.34.0
+      # The official-rules route (plain-schematron, PINT, ZATCA, CIUS-RO/PT/HR,
+      # BR-FR and others) needs slimdom and fontoxpath; without them those
+      # tests skip, and 128 of them never ran here (red-team finding,
+      # 2026-11-11, fixed 2026-11-25). Pinned, not saved to a lockfile.
+      - run: npm i --no-save --no-package-lock --ignore-scripts slimdom@4.3.5 fontoxpath@3.34.0
       - run: node --test
 
   examples:
