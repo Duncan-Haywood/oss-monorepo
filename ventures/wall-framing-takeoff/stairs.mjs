@@ -706,7 +706,7 @@ export function checkSpiral(s) {
   // Typed limits as in validateStair: a zero or text maxRiser gave Infinity or NaN risers and a "NaN in" headroom line (red-team 2026-11-25).
   for (const k of ["minClearWidth", "minWalkDepth", "maxRiser", "headroom"]) if (!(fin(L[k]) && L[k] > 0)) errors.push(`Limit ${k} must be a number over 0.`);
   if (!(fin(L.walkline) && L.walkline >= 0)) errors.push("Limit walkline must be a number of 0 or more.");
-  for (const [k, v, max] of [["totalRise", totalRise, 600], ["outerDiameter", outerDiameter, 240]]) {
+  for (const [k, v, max] of /** @type {[string, any, number][]} */ ([["totalRise", totalRise, 600], ["outerDiameter", outerDiameter, 240]])) {
     if (!(fin(v) && v > 0)) errors.push(`${k} is a positive number of inches.`);
     else if (v > max) errors.push(`${k} ${v} in is over ${max} in, outside what this check covers.`);
   }

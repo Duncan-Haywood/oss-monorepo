@@ -29,12 +29,18 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First push failed changed-ventures: my checkSpiral bounds loop tripped the // @ts-check typecheck (TS2365, a [string, number, number] tuple inferred as (string|number)[]); fixed with a JSDoc tuple cast. I had run the suites locally but not platform/pages/typecheck.mjs."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/redteam/prompt-0.md",
       "issue": "`targets --probe 20` probes every guarded file's suite one after another (74 files x ~18 s, about 20 min of wall time here, all hitting the same whole-venture suite); probing one file per distinct suite would give the same answer in seconds."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The local venture command (run_venture_tests.py) does not run platform/pages/typecheck.mjs, which changed-ventures does; a @ts-check file can pass locally and fail CI. run_workflow_locally.py --for-changes would have caught it."
     }
   ],
   "deviations": [
