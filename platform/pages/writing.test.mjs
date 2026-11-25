@@ -87,6 +87,13 @@ test('build writes an index, one page per post and a feed, each with a disclaime
     .find((b) => b['@type'] === 'BreadcrumbList');
   assert.deepEqual(crumb.itemListElement.map((i) => i.item), [BASE, `${BASE}writing/`, `${BASE}writing/hello/`]);
   assert.equal(crumb.itemListElement.at(-1).name, 'Hello <world>');
+  // The post's own structured data names its URL, publisher and author (article-ld.mjs).
+  const posting = [...page.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+    .map((m) => JSON.parse(m[1]))
+    .find((b) => b['@type'] === 'BlogPosting');
+  assert.equal(posting.mainEntityOfPage['@id'], `${BASE}writing/hello/`);
+  assert.equal(posting.publisher['@id'], `${BASE}#organization`);
+  assert.equal(posting.author['@type'], 'Organization');
   // Repository-relative links become GitHub links.
   assert.match(page, /href="https:\/\/github\.com\/Duncan-Haywood\/oss-monorepo\/blob\/main\/README\.md"/);
   assert.match(feed, new RegExp(`<id>${BASE}writing/hello/</id>`));
