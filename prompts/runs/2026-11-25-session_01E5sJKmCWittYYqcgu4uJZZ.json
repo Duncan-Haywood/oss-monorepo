@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKmCWittYYqcgu4uJZZ",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T06:09:43Z",
+  "ended": "2026-11-25T06:18:06Z",
+  "wall_minutes": 8.54,
+  "tokens_in": 4313203,
+  "tokens_out": 43680,
+  "cost_usd": 2.696,
+  "tool_calls": 43,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18874",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "CSV cell guard first defused plain negative numbers; platform/ci/check_csv_formula_guard.py (run by run_venture_tests) caught it locally, fixed before merge",
+    "rfq-review.html meta description was 166 chars; platform/pages description-length test (pages CI 'test' job) caught it; shortened to 155",
+    "Unbounded \\d[\\d,]* without a word boundary made 20k-digit inputs take ~3 s (quadratic backtracking); found by a local stress test while full-repo CodeQL ran 30+ min; bounded to {0,12} and pinned by a timing test"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Routes ventures runs to private-monorepo 'when this session can reach it'; add_repo attached it but the auto-mode classifier denied the clone, so reachability is not knowable until you try. Worth one line saying a denied clone means take the public side."
+    },
+    {
+      "file": "ventures/machine-shop-guides/SOURCES.md",
+      "issue": "acquisition.gov refused by proxy again; raw.githubusercontent.com/GSA/GSA-Acquisition-DFARS/master/dita/<clause>.dita works for DFARS clause text (the FAR route was already noted). Recorded in SOURCES.md."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a venture-only diff did not run the pages 'test' job (platform/pages *.test.mjs), which holds the 160-char description check for venture pages; CI caught it after merge-ready."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Bet #1 public side (pay-app-guides) already had 4 open PRs today; took bet #2's front door instead, a step (RFQ intake) no open PR covers.",
+      "did": "RFQ review checklist in machine-shop-guides",
+      "result": "shipped in PR 18874 with tests; three other open PRs touch the same venture, so README/index/footer lines may need a merge on whichever lands last"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (new section: read the RFQ before you quote)"
+  ],
+  "goal": null,
+  "notes": "Explore idea: deterministic RFQ intake reader (clauses with GSA-sourced titles, requirements, missing-info questions as an email, quantities into the quote calculator) as the free first step of bet #2. Verification: node --test *.test.mjs in machine-shop-guides 83/0; Playwright 390px no console errors, no horizontal scroll. Security queue: 5 alerts all claimed (exit 3). IDEAS and requests empty. Local replay (run_workflow_locally --for-changes): 11/12 workflows passed; ventures-tests failed on the CSV guard, fixed; priv-codeql and priv-security-gate need the PR as data (no local verdict), left to CI.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "45d95e65-ffff-5607-becb-c94949b67648",
+    "transcripts": 1,
+    "first": "2026-11-25T06:09:43Z",
+    "last": "2026-11-25T06:18:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 76,
+        "output": 43680,
+        "thinking": 7968,
+        "cache_read": 4190116,
+        "cache_write_5m": 0,
+        "cache_write_1h": 123011,
+        "api_equivalent_usd": 2.696,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 76,
+      "output": 43680,
+      "thinking": 7968,
+      "cache_read": 4190116,
+      "cache_write_5m": 0,
+      "cache_write_1h": 123011,
+      "api_equivalent_usd": 2.696,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 36,
+      "Write": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.54,
+      "active_minutes": 8.54,
+      "model_minutes": 7.44,
+      "tool_minutes": 1.1,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "estimate: regex reader + tests + page + clause sourcing for a mid-level dev",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 222.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

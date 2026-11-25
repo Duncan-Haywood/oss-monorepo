@@ -65,3 +65,42 @@ test("a nail box holds whole nails and ridgeVent is a true/false flag", () => {
   assert.ok(validateVentilation({ ridgeVent: "no" }).length > 0);
   assert.deepEqual(validateVentilation({ ridgeNailBox: 100, ridgeVent: false }), []);
 });
+
+// Red team 2026-11-25: a short hip ridge at 1/300 used to report the asked 50% as "high" when the
+// ridge supplied 22.5%, below the 40% the balanced 1/300 option needs, with no warning.
+test("a short ridge at 1/300 reports the share it really supplies and says the balanced option is not met", () => {
+  const roof = layoutRoof({ ...sampleRoof(), shape: "hip", hip: "2x8", width: 240, length: 300 }, plan());
+  const v = layoutVentilation({ ratio: 300 }, roof);
+  assert.ok(v.ok, JSON.stringify(v.errors));
+  assert.equal(v.ridgeSqIn, 3 * 18); // 5 ft ridge less 1 ft each end
+  assert.ok(Math.abs(v.upperShare - 54 / 240) < 1e-9); // 22.5%, not the 50% asked
+  assert.equal(v.upperShareAsked, 0.5);
+  assert.match(ventilationText(v)[0], /23% high/);
+  assert.ok(v.notes.some((n) => /below the 40%/.test(n) && /1\/150/.test(n)), v.notes.join("\n"));
+  // a ridge long enough for its half gets no such note, and 1/150 never needs the split
+  assert.ok(!layoutVentilation({ ratio: 300 }, gable()).notes.some((n) => /below the 40%/.test(n)));
+  assert.ok(!layoutVentilation({}, roof).notes.some((n) => /below the 40%/.test(n)));
+});
+
+// Guards for mutants that escaped the 2026-11-25 campaign.
+test("validation bounds sit where the messages say", () => {
+  assert.ok(validateVentilation({ ridgeNfaPerFt: 0 }).length > 0); // 0 sq in/ft would divide by zero
+  assert.deepEqual(validateVentilation({ ridgeNfaPerFt: 60, soffitUnitNfa: 200, soffitUnitWidth: 96, ridgeNailSpacing: 2 }), []);
+  assert.ok(validateVentilation({ soffitUnitNfa: 200.5 }).length > 0);
+  assert.ok(validateVentilation({ soffitUnitWidth: 96.5 }).length > 0);
+  assert.ok(validateVentilation({ ridgeNailSpacing: 1.5 }).length > 0);
+  const bad = layoutVentilation({ ratio: 200 }, gable());
+  assert.equal(bad.ok, false);
+  assert.ok(bad.errors.length > 0);
+});
+
+test("a square hip roof has no ridge to vent even with no end gap; baffles are one per rafter bay", () => {
+  const sq = layoutRoof({ ...sampleRoof(), shape: "hip", hip: "2x8", width: 240, length: 240 }, plan());
+  const v = layoutVentilation({ ridgeEndGap: 0 }, sq);
+  assert.equal(v.ridgeVentFeet, 0);
+  assert.equal(v.ridgePieces, 0);
+  const g = gable();
+  const b = layoutVentilation({}, g);
+  assert.equal(b.baffles, Math.ceil((g.roofing.eaveFeet * 12) / g.spacing - 1e-9)); // 84 ft x 12 / 16 = 63
+  assert.equal(b.baffles, 63);
+});
