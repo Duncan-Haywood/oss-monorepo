@@ -60,7 +60,9 @@ test("robots and sitemap list every page", () => {
 // card whose cells show their column header from data-label. A row added without labels would
 // show bare values on a phone, so every cell must carry its own column's header, in order.
 test("guide tables stack on a phone, every cell labelled with its column header", () => {
-  const guides = PAGES.filter((name) => name !== "index.html");
+  // index.html and change-order-log.html are tools: their result tables are rendered by script and
+  // scroll sideways inside .scroll instead of stacking, so only the written guides are checked.
+  const guides = PAGES.filter((name) => name !== "index.html" && name !== "change-order-log.html");
   for (const name of guides) {
     const html = page(name);
     const at = html.indexOf("<main>");
