@@ -78,7 +78,7 @@ class ClaimRaceTest(unittest.TestCase):
 
 class QueueMarksClaimsTest(unittest.TestCase):
     def test_claimed_row_goes_last_and_is_marked(self):
-        # ventures, not research: the queue skips paused research since P080 (#19010)
+        # ventures/, not research/: the queue drops paused research subjects (quality_metrics.PAUSED_PREFIXES).
         def audit(subject, f):
             return {"subject": subject, "date": "2026-11-20", "_file": f,
                     "defects": [{"severity": "high", "what": f"bug in {subject}", "where": "x"}]}

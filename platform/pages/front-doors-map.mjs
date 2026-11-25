@@ -40,7 +40,7 @@ const BUSINESS_CATEGORIES = ['trades', 'sales', 'backoffice', 'bookkeeping', 'ev
  * of them is the free tool the line sits on (`note`).
  */
 export const INDUSTRIES = {
-  'e-invoicing': {
+  'eu-e-invoicing': {
     label: 'E-invoicing',
     product: 'E-invoice fix-and-explain for EU SMEs and their accountants: every failed rule in plain language, with a corrected file',
     status: 'In development — early access',

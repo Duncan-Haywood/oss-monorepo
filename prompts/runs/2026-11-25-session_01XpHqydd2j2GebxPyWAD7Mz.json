@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "GitHub PR creation returned 503/500 five times (MCP and REST); succeeded on retry"
+    "GitHub PR creation returned 503/500 five times (MCP and REST); succeeded on retry",
+    "GitHub did not sync the PR head after two pushes for 15+ min during an outage (PR stuck at 30486a86)"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -63,7 +64,7 @@
     "ventures/xer-schedule-check/HISTORY.md (entry)"
   ],
   "goal": null,
-  "notes": "Targets: ventures/xer-schedule-check/windows.mjs and udf-ranges.mjs (construction scheduling, for-profit line). Catch rate 11/16 -> 16/16 after 5 gap tests. Real defect: early finish on the driving path tallied as lost time in recurring; patched with a failing test first. run_venture_tests.py xer-schedule-check: 590 tests ok. Also fixed a red unwired test on main (test_quality_claim.py) that failed this PR's changed-ventures job.",
+  "notes": "Targets: ventures/xer-schedule-check/windows.mjs and udf-ranges.mjs (construction scheduling, for-profit line). Catch rate 11/16 -> 16/16 after 5 gap tests. Real defect: early finish on the driving path tallied as lost time in recurring; patched with a failing test first. run_venture_tests.py xer-schedule-check: 590 tests ok. A red unwired test on main (test_quality_claim.py) failed this PR's changed-ventures job; fixed here, but PR #19015 fixed it in parallel, so main's version was kept.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -323,7 +324,7 @@
         "file": "platform/ci/test_quality_claim.py",
         "issue": "red on main: PR #19013's queue test used research/ subjects while PR #19010 (merged in parallel) made the queue skip paused research, so out.index('research/bbb') raised. Test moved to ventures/ subjects.",
         "patched": true,
-        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19016"
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19015 (fixed there in parallel; this PR's own fix was dropped in the merge)"
       }
     ]
   },
