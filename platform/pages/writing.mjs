@@ -1329,11 +1329,23 @@ const dayNumber = (iso) => (iso ? Date.parse(`${iso}T00:00:00Z`) / 86400000 : 0)
  * lists itself.
  */
 export function rankRelated(post, posts, n = 5) {
-  const { byTag, byWord, words, idf, days } = relatedIndex(posts);
-  const score = new Map();
+  const index = relatedIndex(posts);
+  const { byTag, byWord, words, idf, days } = index;
+  // Scores by post index, in one buffer the index keeps and this call zeroes
+  // again before it returns: every weight added is positive, so 0 means "not
+  // scored", and `touched` lists the indexes in first-scored order. Each index
+  // gets the same additions in the same order as the Map this replaced, so
+  // every score is the same double (2026-11-25,
+  // docs/history/pages-build-perf-2026-11-25-related-posts-top-n.md).
+  if (!index.score || index.score.length < posts.length) index.score = new Float64Array(posts.length);
+  const score = index.score;
+  const touched = [];
   const add = (list, weight) => {
     if (!weight) return;
-    for (const i of list) score.set(i, (score.get(i) ?? 0) + weight);
+    for (const i of list) {
+      if (score[i] === 0) touched.push(i);
+      score[i] += weight;
+    }
   };
   for (const t of new Set(post.tags ?? [])) add(byTag.get(t) ?? [], idf(byTag.get(t)));
   for (const w of words.get(post) ?? titleWords(post.title)) add(byWord.get(w) ?? [], idf(byWord.get(w)) / 2);
@@ -1341,12 +1353,24 @@ export function rankRelated(post, posts, n = 5) {
   const day = dayNumber(post.date);
   const gap = (x) => Math.abs((days[x.i] ?? dayNumber(x.p.date)) - day);
   const nearest = (a, b) => gap(a) - gap(b) || a.i - b.i;
-  const ranked = [...score]
-    .map(([i, s]) => ({ p: posts[i], i, s }))
-    .filter((x) => x.s > 0 && x.p.slug !== post.slug)
-    .sort((a, b) => b.s - a.s || nearest(a, b))
-    .slice(0, n)
-    .map((x) => x.p);
+  const order = (a, b) => b.s - a.s || nearest(a, b);
+  // The n best by `order`, kept sorted as candidates arrive. `order` is a total
+  // order (the index breaks every tie), so this is exactly the first n of a
+  // full sort, without sorting the hundreds of candidates a common tag brings.
+  const best = [];
+  for (const i of touched) {
+    const s = score[i];
+    score[i] = 0;
+    if (!(s > 0) || n < 1) continue;
+    const x = { p: posts[i], i, s };
+    if (x.p.slug === post.slug) continue;
+    if (best.length === n && order(x, best[n - 1]) >= 0) continue;
+    let at = best.length;
+    while (at > 0 && order(x, best[at - 1]) < 0) at--;
+    best.splice(at, 0, x);
+    if (best.length > n) best.pop();
+  }
+  const ranked = best.map((x) => x.p);
   if (ranked.length >= n) return ranked;
   const taken = new Set(ranked.map((p) => p.slug).concat(post.slug));
   const rest = posts.map((p, i) => ({ p, i })).filter((x) => !taken.has(x.p.slug));

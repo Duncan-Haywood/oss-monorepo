@@ -364,6 +364,33 @@ test('rankRelated ranks by rare shared tags and title words, not by recency', ()
   for (const p of posts.slice(2, 5)) assert.ok(!rankRelated(p, posts, 3).some((r) => r.slug.startsWith('new-')), p.slug);
 });
 
+test('rankRelated keeps the n best of the full ranking, ties included, and leaves no score behind', () => {
+  // rankRelated keeps a sorted top-n instead of sorting every scored candidate
+  // and keeps scores in a buffer it reuses across calls (2026-11-25,
+  // docs/history/pages-build-perf-2026-11-25-related-posts-top-n.md). Many
+  // equal scores and equal dates here, so a wrong tie-break or a score left in
+  // the buffer by an earlier call changes some list.
+  const tags = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
+  const posts = Array.from({ length: 90 }, (_, i) => ({
+    slug: `p${i}`,
+    date: `2026-10-${String(1 + (i % 7)).padStart(2, '0')}`,
+    topic: i % 3 ? 'tools' : 'research',
+    tags: [tags[i % 7], tags[(i * 3) % 7], `own-${i % 30}`],
+    title: `Post ${['hull', 'margin', 'quote', 'roster'][i % 4]} ${['estimate', 'check'][i % 2]}`,
+  }));
+  const slugs = (p, n) => rankRelated(p, posts, n).map((r) => r.slug);
+  const full = new Map(posts.map((p) => [p.slug, slugs(p, posts.length)]));
+  for (const p of posts) {
+    const all = full.get(p.slug);
+    assert.equal(all.length, posts.length - 1, p.slug);
+    assert.ok(!all.includes(p.slug), p.slug);
+    for (const n of [1, 2, 5, 12, 40]) assert.deepEqual(slugs(p, n), all.slice(0, n), `${p.slug} n=${n}`);
+  }
+  // A second pass, in reverse order, gives the same lists.
+  for (const p of [...posts].reverse()) assert.deepEqual(slugs(p, 5), full.get(p.slug).slice(0, 5), p.slug);
+  assert.deepEqual(rankRelated(posts[0], posts, 0), []);
+});
+
 test('relatedPosts gives every post an inbound link, taken from the weakest slot of its best match', () => {
   const mk = (slug, date, topic, tags) => ({ slug, date, topic, tags, title: slug });
   const posts = [
