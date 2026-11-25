@@ -9516,6 +9516,33 @@ function renderCategoryTile({ id, title, blurb, count, examples, note = '', acce
   });
 }
 
+/**
+ * Drops whole-line `//` comments from every inline `<script>` in a page.
+ *
+ * The hub's inline module is written with its reasoning beside the code, and
+ * until 2026-11-25 all of it shipped: 23 KB of the 87 KB of script on the
+ * front door was comment lines, 7 KB of its 44 KB brotli transfer, on the one
+ * page most visitors see first (docs/history/hub-perf-2026-11-25-script-comments.md).
+ *
+ * Only lines whose first non-space characters are `//` go, and nothing else
+ * moves: indentation, blank lines and every code line stay byte for byte. In
+ * code such a line can only be a comment (a regex cannot start with `//`, and
+ * a quoted string cannot span lines without a backslash continuation); inside
+ * a block comment, dropping it changes nothing. The one place it could be
+ * content is a multi-line template literal or a continued string, so a script
+ * holding a backtick or a backslash before a newline is left whole, and a
+ * comment line holding a block comment's closing mark is kept. JSON-LD
+ * and other typed data blocks are never touched.
+ */
+export function stripInlineScriptComments(html) {
+  return html.replace(/(<script(?: type="module")?>)([\s\S]*?)(<\/script>)/g, (all, open, body, close) => {
+    if (body.includes('`') || /\\\r?\n/.test(body)) return all;
+    // A `//` line holding `*/` may be the end of a block comment; it stays.
+    const kept = body.split('\n').filter((line) => !/^\s*\/\//.test(line) || line.includes('*/'));
+    return open + kept.join('\n') + close;
+  });
+}
+
 export function renderHub(
   surfaces,
   baseUrl,
@@ -9558,7 +9585,7 @@ export function renderHub(
   const liveLines = PRODUCT_LINES.filter((l) => l.status === 'live');
   const liveNames = liveLines.map((l) => l.name).join(' and ') || 'None';
 
-  return `<!doctype html>
+  return stripInlineScriptComments(`<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -10722,7 +10749,7 @@ ${OFFLINE_WIDGET_SCRIPT}
   </script>
 </body>
 </html>
-`;
+`);
 }
 
 // ---------------------------------------------------------------------------

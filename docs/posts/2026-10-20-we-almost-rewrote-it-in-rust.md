@@ -180,6 +180,25 @@ returned identical post sets from the old full-text file and from the new
 index. A seeded test now keeps it that way. Notes:
 [`docs/history/pages-build-perf-2026-11-25-writing-search-index.md`](/docs/history/pages-build-perf-2026-11-25-writing-search-index.md).
 
+## Same day: the front page shipped its own commentary
+
+The front page's main script is written with its reasoning next to the
+code, which is how this repository keeps an AI agent from undoing a choice
+it cannot see the reason for. All of that prose was being sent to visitors.
+Of 87 KB of inline script on the page, 23 KB was comment lines. After
+compression that was 7.1 KB of a 43.6 KB page, about one sixth.
+
+The fix strips whole-line comments from the page's inline scripts when the
+site is built. Comments stay in the source. The step is cautious: it skips
+any script holding a template literal or a continued string, because those
+are the only places a line starting with `//` could be content rather than a
+comment. To check that nothing else changed, we tokenised the old and new
+scripts with a JavaScript parser. All 14,708 tokens matched. Every other
+file on the site came out byte-identical. The front page fell from 43.6 KB
+to 36.5 KB with brotli (from 52.4 KB to 43.2 KB with gzip), and the browser
+now parses 23 KB less script. Notes:
+[`docs/history/hub-perf-2026-11-25-script-comments.md`](/docs/history/hub-perf-2026-11-25-script-comments.md).
+
 ## The general lesson
 
 "Rewrite it in Rust" assumes the time goes into your own code, running
