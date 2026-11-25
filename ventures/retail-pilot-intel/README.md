@@ -115,10 +115,10 @@ Full matrix with scores, monthly € math, and payback: `pnpm docs:dev` → **RO
 From the quality audit of 2026-11-19 ([`portfolio/quality/audits/2026-11-19-retail-pilot-intel.json`](../../portfolio/quality/audits/2026-11-19-retail-pilot-intel.json)):
 
 - Fixed since the audit: daily KPIs now use the store's local day (Europe/Rome by default, `--tz` to change; 23 h and 25 h on clock-change days) and one store at a time (`--store ID` on `report` and `serve-kpis`). A database holding two stores, or one day's sales in two currencies, gets an error (HTTP 409 from the KPI API) instead of a summed number. Hourly buckets are still not built.
-- A basket whose discount or refund line is rejected is still imported at full price (`packages/pos/src/importer.ts`).
-- `pnpm bootstrap` prints an all-zero report, because its sample events are marked synthetic and left out.
+- Fixed since the audit: a negative `unit_price_cents` line is a discount and is netted into its receipt's total; a receipt with any rejected row is reported and not imported (it used to be stored at full price without its bad discount line); a receipt with a negative net total is a refund and is reported, not imported. Revenue is net of in-basket discounts, not of later refunds.
+- Fixed since the audit: `pnpm bootstrap` reports its sample entry and sale (`report --include-synthetic`, labelled as a pipeline check); real reports and the KPI API still leave synthetic events out.
+- Fixed since the audit: the sales pages count gross profit, not revenue. At the pilot assumptions (€180 to €450 order value, 55% to 70% margin) one sale earns €99 to €315, so Core (€149 to €249 a month) takes about 0.5 to 2.5 extra sales a month (`apps/docs/test/pricing-claims.test.mjs`).
 - The door camera is a stub; SKU gap, upsell and experiments are demo data only.
-- The ROI page's "one extra sale a month pays for Core" uses gross revenue; at a 55% margin and the lowest order value, one sale earns about €99 against a €149 to €249 fee.
 - Italian workplace camera rules (Statuto dei Lavoratori, art. 4) are not covered on the privacy page.
 
 ## License

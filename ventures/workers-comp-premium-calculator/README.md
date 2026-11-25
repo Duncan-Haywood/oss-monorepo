@@ -17,7 +17,8 @@ opaque number from a broker.
 Workers' comp premium is arithmetic every small employer is charged and few
 can reproduce: `payroll / 100 × rate` per class, times the experience mod,
 adjusted by a discretionary schedule credit or debit, less any premium
-discount, plus flat charges. The policy is written on *estimated* payroll, so
+discount, plus the charges that are not discounted (terrorism and catastrophe
+per $100 of payroll, state assessments, the expense constant). The policy is written on *estimated* payroll, so
 a growing business is billed the difference at audit. Carrier calculators
 gate a quote behind a lead form; this one works from numbers you already hold.
 
@@ -44,11 +45,13 @@ All in [`calc.mjs`](calc.mjs), pure functions, no dependencies:
 ## Tests
 
 ```
-node --test ventures/workers-comp-premium-calculator/
+cd ventures/workers-comp-premium-calculator && node --test '*.test.mjs'
 ```
 
-Hand-counted figures for every step, overtime exclusion, audit direction,
-input validation and no-network assertions.
+Hand-counted figures for every step (including which amount the premium
+discount is taken on, and terrorism and catastrophe charges kept outside the
+mod and discount), overtime exclusion, audit direction, input validation at
+each limit's edge, the findings thresholds and no-network assertions.
 
 ## Limits
 

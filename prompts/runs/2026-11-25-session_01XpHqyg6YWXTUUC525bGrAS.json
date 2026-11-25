@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyg6YWXTUUC525bGrAS",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T21:39:16Z",
+  "ended": "2026-11-25T21:46:32Z",
+  "wall_minutes": 7.44,
+  "tokens_in": 5596894,
+  "tokens_out": 30629,
+  "cost_usd": 2.6452,
+  "tool_calls": 52,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19103",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "first scripted edit of importer.ts missed: the group key uses a NUL separator that terminal output renders as a space; matched on \\x00 instead",
+    "apps/docs test used the URL global and failed the venture's eslint no-undef; switched to node:path"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_mutate.py",
+      "issue": "for a pnpm workspace venture the private copy has no node_modules, so every baseline is red ('baseline failed'); seeded the 5 mutants by hand with a backup instead"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "fix mode with 0 open highs; took mediums of a for-profit product (retail-pilot-intel, transition row 18) instead of the queue's shuffled first row, per the track prompt's north-star preference",
+      "did": "fixed defects 3, 5, 6 and the importer half of 4",
+      "result": "all landed with tests; 5/5 seeded mutants caught"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "consolidated posts: extended today's retail-pilot-intel quality-fix post instead of a new quality-fix post",
+      "did": "added a section to 2026-11-25-quality-fix-the-sale-after-midnight-in-rome.md",
+      "result": "one post covers both fix sessions"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-quality-fix-the-sale-after-midnight-in-rome.md (extended)"
+  ],
+  "goal": null,
+  "notes": "mode fix (seed for queue 2026-11-25-2fb4); subject ventures/retail-pilot-intel; defects 3,5,6 marked fixed_by PR 19103; defect 4 partly addressed (importer quantity/zero-qty/currency, synthetic flag) and left open. Verification: pnpm run ci in the venture: typecheck, lint, 77 tests pass, builds present; pnpm bootstrap prints 1 entry/1 purchase/28500. Hand mutants caught: quantity ignored, quantity<0, refund check off, rejected-row check off, includeSynthetic ignored. No sample round so no share-meeting-bar figure.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "728a9608-0772-51dd-becc-1ce48e144625",
+    "transcripts": 1,
+    "first": "2026-11-25T21:39:16Z",
+    "last": "2026-11-25T21:46:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 100,
+        "output": 30629,
+        "thinking": 5332,
+        "cache_read": 5479764,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117030,
+        "api_equivalent_usd": 2.6452,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 100,
+      "output": 30629,
+      "thinking": 5332,
+      "cache_read": 5479764,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117030,
+      "api_equivalent_usd": 2.6452,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 49,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.44,
+      "active_minutes": 7.44,
+      "model_minutes": 4.39,
+      "tool_minutes": 3.05,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "senior dev: importer change + tests, report flag, pricing copy recompute across 8 docs, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 189.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

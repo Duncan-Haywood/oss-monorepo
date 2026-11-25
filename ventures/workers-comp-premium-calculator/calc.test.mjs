@@ -44,6 +44,60 @@ test("discount applies before surcharges and the flat constant", () => {
   assert.equal(r.total, 9550);
 });
 
+test("discount is taken on the scheduled premium; terrorism and catastrophe ride on payroll, outside mod and discount", () => {
+  // Hand count: 100000 / 100 x 10 = 10000 manual; x 1.2 = 12000; x 1.10 = 13200
+  // discountable; 5% discount = 660 (on 13200, not on the 12000 pre-schedule
+  // amount, which would give 600); 12540 after discount; 2% surcharge = 250.80;
+  // 0.02 per $100 on 100000 payroll = 20 (not 24: the mod does not apply);
+  // + 200 expense constant = 13010.80.
+  const r = policyPremium({ classes: [{ payroll: 100000, rate: 10 }], mod: 1.2, schedulePct: 10, discountPct: 5,
+    surchargePct: 2, payrollChargeRate: 0.02, expenseConstant: 200 });
+  assert.equal(r.scheduled, 13200);
+  assert.equal(r.discount, 660);
+  assert.equal(r.afterDiscount, 12540);
+  assert.equal(r.surcharges, 250.8);
+  assert.equal(r.payrollCharges, 20);
+  assert.equal(r.total, 13010.8);
+});
+
+test("terrorism and catastrophe use the premium basis, after the overtime exclusion", () => {
+  // 30000 overtime at 1.5x excludes 10000, so the basis is 90000: 900 x 0.03 = 27.
+  const r = policyPremium({ classes: [{ payroll: 100000, rate: 0, overtimeWages: 30000 }], payrollChargeRate: 0.03 });
+  assert.equal(r.payrollCharges, 27);
+  assert.equal(r.total, 27);
+});
+
+test("validation limits hold exactly at their edges", () => {
+  const one = [{ payroll: 1000, rate: 5 }];
+  assert.equal(policyPremium({ classes: one, schedulePct: 25 }).schedulePct, 25);
+  assert.equal(policyPremium({ classes: one, schedulePct: -25 }).schedulePct, -25);
+  assert.throws(() => policyPremium({ classes: one, schedulePct: 25.5 }), /schedule credit\/debit must be between -25 and 25/);
+  assert.throws(() => policyPremium({ classes: one, schedulePct: -25.5 }), /between -25 and 25/);
+  assert.equal(policyPremium({ classes: one, discountPct: 30 }).discountPct, 30);
+  assert.throws(() => policyPremium({ classes: one, discountPct: 30.5 }), /premium discount must be between 0 and 30/);
+  assert.equal(policyPremium({ classes: one, mod: 0.3 }).mod, 0.3);
+  assert.equal(policyPremium({ classes: one, mod: 3 }).mod, 3);
+  assert.throws(() => policyPremium({ classes: one, mod: 0.29 }), /experience mod must be between 0.3 and 3/);
+  assert.throws(() => policyPremium({ classes: one, payrollChargeRate: 5.01 }), /terrorism and catastrophe rate/);
+  assert.throws(() => policyPremium({ classes: one, payrollChargeRate: -0.01 }), /terrorism and catastrophe rate/);
+});
+
+test("mod sensitivity refuses a zero step instead of dividing by a made-up 1", () => {
+  assert.throws(() => modSensitivity({ classes: [{ payroll: 100000, rate: 10 }] }, 0), /mod step/);
+});
+
+test("findings thresholds: dominant class at 60%, flat charges above 15%", () => {
+  const at60 = findings(policyPremium({ classes: [{ label: "A", payroll: 60000, rate: 1 }, { label: "B", payroll: 40000, rate: 1 }] }));
+  assert.ok(at60.some((x) => /A drives 60%/.test(x.title)));
+  const under = findings(policyPremium({ classes: [{ label: "A", payroll: 59900, rate: 1 }, { label: "B", payroll: 40100, rate: 1 }] }));
+  assert.ok(!under.some((x) => /drives/.test(x.title)));
+  // 850 manual + 150 constant: exactly 15% of 1000 is not flagged; 849 + 151 is.
+  const flat15 = findings(policyPremium({ classes: [{ payroll: 8500, rate: 10 }], expenseConstant: 150 }));
+  assert.ok(!flat15.some((x) => /Flat charges/.test(x.title)));
+  const flat151 = findings(policyPremium({ classes: [{ payroll: 8490, rate: 10 }], expenseConstant: 151 }));
+  assert.ok(flat151.some((x) => /Flat charges are 15%/.test(x.title)));
+});
+
 test("mod sensitivity: 0.1 of mod on a 35906.67 manual premium", () => {
   const s = modSensitivity({ classes: [{ payroll: 100000, rate: 10 }], mod: 1 });
   assert.equal(s.up, 1000);

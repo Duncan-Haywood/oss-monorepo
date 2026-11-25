@@ -42,8 +42,14 @@ payapps there. On 2026-11-25 this worked first time:
    `git clone --depth 1 https://github.com/Duncan-Haywood/private-monorepo /home/user/private-monorepo`
    (it took under a minute). Push with `git -c push.negotiate=true push -u origin <branch>`.
 3. Read its `CLAUDE.md` and the app's `ROADMAP.md` by hand (add_repo's result
-   names a `register_repo_root` tool that ToolSearch does not find here; skip it); `pnpm install --frozen-lockfile --filter <app>...`
-   (backgrounded) gets the app's tests, `pnpm dev` and Playwright running.
+   names a `register_repo_root` tool that ToolSearch does not find here; skip it); `pnpm install --frozen-lockfile --filter "{./apps/<dir>}..."`
+   (backgrounded) gets the app's tests, `pnpm dev` and Playwright running. Select by
+   directory in braces: a bare name must be the package name (cmmc's is
+   `cmmc-workspace`, so `--filter cmmc...` matches nothing and exits 0), and
+   `./apps/<dir>...` without braces silently drops the app's workspace deps.
+   The risk review runs there from this clone's copy: `cd /home/user/private-monorepo &&
+   python3 /home/user/oss-monorepo/platform/security/risk_review.py`; its
+   "sensitive files" check reads *this* repo's CODEOWNERS, so check the private one by hand.
 4. **Claim the item before building it:** `python3 platform/ci/roadmap_claim.py <app>`
    lists the ROADMAP's Next items as free or claimed; `--claim N` (with `--slug`/`--note`
    for one part of an item) pushes a create-only `claim/<app>/<slug>` branch there and

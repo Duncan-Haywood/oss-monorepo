@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVKqy7vFNNYVcoajBRx",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T21:56:10Z",
+  "ended": "2026-11-25T22:11:11Z",
+  "wall_minutes": 15.21,
+  "tokens_in": 11012616,
+  "tokens_out": 54799,
+  "cost_usd": 4.4972,
+  "tool_calls": 89,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19109",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "roadmap_claim.py --claim printed the full claim list with no success line; a second run printed TAKEN for my own claim (0 min ago), which reads like a race lost. A clear 'claimed' line on success would save a re-check."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Private CI jobs fail in 3-8 s with a 404 log (no runner). ci_starvation.py is for this repo only, so there is no documented way to classify private-repo runs; I relied on the last run record's note."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Merged private PR 179 with red CI checks",
+      "did": "Verified locally: lien-waivers 220/220, payapps unit 500/500, worker 280/280, build, payapps-site 21/21",
+      "result": "merged; the checks had no runner (3-8 s, no log), same as earlier runs"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-which-states-make-you-use-their-lien-waiver-form.md (extended)",
+    "docs/reports/ventures-2026-11-25-payapps-ca-notice-log.md"
+  ],
+  "goal": null,
+  "notes": "Bet #1 PayApps, ROADMAP Next #1 part (CA preliminary notice part 2) shipped in private PR 179 (merged c5e4901): first-furnished date + \u00a7 8204(a) due date, a notices-given log (migration 0036), \u00a7 8116 completion, the \u00a7 8118 proof PDF, and a cash-report/digest reminder. Fixed '\u00a7' printing as '?' in all PDFs. The CCP 2015.5 perjury sentence is left out: leginfo bulk download and every mirror answered 403 or 000 through the proxy. Security queue empty; IDEAS empty.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e1899d3a-4723-59d6-96ea-23cdad2b7cdf",
+    "transcripts": 1,
+    "first": "2026-11-25T21:56:10Z",
+    "last": "2026-11-25T22:11:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 85,
+        "input": 163,
+        "output": 54799,
+        "thinking": 9482,
+        "cache_read": 10858854,
+        "cache_write_5m": 0,
+        "cache_write_1h": 153599,
+        "api_equivalent_usd": 4.4972,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 85,
+      "input": 163,
+      "output": 54799,
+      "thinking": 9482,
+      "cache_read": 10858854,
+      "cache_write_5m": 0,
+      "cache_write_1h": 153599,
+      "api_equivalent_usd": 4.4972,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 89,
+    "tools": {
+      "Bash": 78,
+      "Write": 2,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Read": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.21,
+      "active_minutes": 15.21,
+      "model_minutes": 9.53,
+      "tool_minutes": 5.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "schema+migration, pure statute rules with tests, 4 routes, UI panel, reminder, PDF fix: ~10 h for a senior full-stack engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 222.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -43,8 +43,8 @@ export function BusinessPlanPage() {
         ]}
       />
       <p className="stub">
-        Pricing anchors to one incremental sale per month, not sensor count — see
-        section 5.
+        Pricing anchors to the gross profit of a few incremental sales per month,
+        not sensor count — see section 5.
       </p>
 
       <h2>1. Executive summary</h2>
@@ -367,8 +367,10 @@ export function BusinessPlanPage() {
         ]}
       />
       <p>
-        Pricing anchors to <em>one incremental sale per month</em> at pilot AOV
-        (€180–€450), not to sensor count. Annual prepay discount (~2 months) for
+        Pricing anchors to the <em>gross profit of incremental sales</em> at pilot
+        AOV (€180–€450) and margin (55–70%), not to sensor count: one sale earns
+        €99–€315, so Core (€149–€249/mo) needs about 0.5 to 2.5 extra sales a
+        month. Annual prepay discount (~2 months) for
         cash-flow predictability.
       </p>
 
@@ -651,7 +653,8 @@ export function BusinessPlanPage() {
       <h3>Messaging pillars (digital copy)</h3>
       <ul>
         <li>
-          <strong>€ first:</strong> “One extra sale per month pays for this” —
+          <strong>€ first:</strong> “A couple of extra sales a month pays for
+          this” (one at a €350 bag and 57%+ margin) —
           link <Link to="/roi">ROI scenarios</Link>, not camera specs
         </li>
         <li>
@@ -761,8 +764,8 @@ export function BusinessPlanPage() {
         headers={["Input", "Assumption", "Implication"]}
         rows={[
           ["Entries / day", "~50", "350/week funnel numerator"],
-          ["AOV", "€350", "One incremental sale ≈ €350 gross/week"],
-          ["Core subscription", "€199/mo", "≈ 0.6 incremental sales/month to break even on fee"],
+          ["AOV", "€350", "One incremental sale ≈ €350 revenue, €193–€245 gross profit at 55–70% margin"],
+          ["Core subscription", "€199/mo", "≈ 0.8–1.0 incremental sales/month to cover the fee from gross profit (€199 ÷ €193–€245)"],
           [
             "+0.3 pp conversion",
             "~1 extra sale/week at 50 entries (350 × 0.003 = 1.05)",
@@ -776,8 +779,9 @@ export function BusinessPlanPage() {
         ]}
       />
       <p>
-        The pitch is not “analytics for €199” but “one belt or bag per month pays
-        for the system; everything else is upside.” Margin+ tier is justified when
+        The pitch is not “analytics for €199” but “about one €350 bag a month
+        covers the system from its margin; everything else is upside.” A belt at
+        a lower price does not: at €180 and 55% margin it takes two. Margin+ tier is justified when
         desirability-gap actions appear in the weekly ritual (Phase 2).
       </p>
 

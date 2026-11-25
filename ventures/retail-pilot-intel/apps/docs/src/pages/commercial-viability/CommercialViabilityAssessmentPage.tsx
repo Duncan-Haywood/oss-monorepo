@@ -145,7 +145,7 @@ export function CommercialViabilityAssessmentPage() {
           <tr><th>Metric</th><th>Planning figure</th><th>Assessment</th></tr>
         </thead>
         <tbody>
-          <tr><td>Monthly subscription</td><td>€199</td><td>Reasonable vs. one incremental sale at €350 AOV (~0.57 sales/month break-even on fee alone)</td></tr>
+          <tr><td>Monthly subscription</td><td>€199</td><td>Reasonable vs. one incremental sale at €350 AOV (~0.57 sales/month on revenue; 0.8–1.0 on 55–70% gross profit)</td></tr>
           <tr><td>Variable COGS</td><td>€25–€40</td><td>Credible for remote support + minimal telemetry; edge-first keeps cloud cost low</td></tr>
           <tr><td>Gross margin</td><td>65–75%</td><td>Achievable once install learning curve flattens; pilot months are margin-negative</td></tr>
           <tr><td>Owner ROI story</td><td>+1 sale/week → €18k+ gross/year</td><td>Mathematically sound; <em>behavioral</em> risk is owner not changing habits</td></tr>

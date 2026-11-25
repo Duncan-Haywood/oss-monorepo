@@ -1,7 +1,8 @@
 // The checker engine behind index.html, in one module the page loads on demand.
 //
-// These imports pull in 114 modules, about 3.3 MB before compression (rule
-// tables, XSD data, Mexico's postal catalogue). As static imports of the
+// These imports pull in 83 modules, about 360 kB compressed (rule tables and
+// XSD data; Mexico's and Brazil's checkers, 568 kB more, load from report.mjs
+// only for a file of their format, national-sniff.mjs). As static imports of the
 // page's inline module script they had to arrive and evaluate before any of
 // the page's handlers were attached, so on a slow connection the sample
 // buttons and "Check" did nothing for seconds. The page now imports this file
