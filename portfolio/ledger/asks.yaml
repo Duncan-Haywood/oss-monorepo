@@ -115,7 +115,7 @@ decisions:
       hour on 2026-11-25.
   blocked_by: []
   note: >-
-    Added 2026-11-25 by a process run (backlog P075). Count from
+    Added 2026-11-25 by a process run (backlog P076). Count from
     prompts/runs/2026-11-25-*.json: records naming private-monorepo whose
     text says the clone was refused, denied or blocked. No money, no new
     account, reversible.
