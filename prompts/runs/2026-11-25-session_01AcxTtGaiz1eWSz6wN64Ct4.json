@@ -47,7 +47,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Security queue: skipped. Top alerts are documented FPs, and #849/#65 are fixed in open PRs #18836/#18837. #1086 (status-keeper, cert verification off in its expiry probe) is by design: the probe reads expired certificates and reports socket.authorized. #968 (shed-designer hoa-page) is an FP: corner is only a key into CORNERS, and all text goes through esc(). Campaign: pay-app-guides/calc.mjs, 10 mutants, 7 caught before and 10 after. Guard added: preset vs page-table agreement test. Verification: run_venture_tests.py pay-app-guides ok; repair-flow.test.mjs 6/6; new tests fail on the old code (prompt-pay 2 fail, repair-flow 1 fail).",
+  "notes": "Security queue: skipped. Top alerts are documented FPs, and #849/#65 are fixed in open PRs #18836/#18837. #1086 (status-keeper, cert verification off in its expiry probe) is by design: the probe reads expired certificates and reports socket.authorized. #968 (shed-designer hoa-page) is an FP: corner is only a key into CORNERS, and all text goes through esc(). Campaign: pay-app-guides/calc.mjs, 10 mutants, 7 caught before and 10 after. Guard added: preset vs page-table agreement test. Verification: run_venture_tests.py pay-app-guides ok; repair-flow.test.mjs 6/6; new tests fail on the old code (prompt-pay 2 fail, repair-flow 1 fail). Merge with main: a concurrent run had fixed the blank rate and changed the table markup (phone cards). Kept main's calc.mjs plus the blank-days fix, kept both sides' tests, and made the preset/page guard parse cells with attributes (it still fails with Virginia set to 8). run_venture_tests.py pay-app-guides: ok after the merge.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -176,9 +176,9 @@
             "line": 230,
             "col": 82,
             "operator": "const-plus-one",
-            "before": "va: { state: \"Virginia (public work)\", law: \"Code of Virginia \u00a72.2-4354\", days: 7, rate: 0.01, per: \"month\", method: \"prorata\",",
-            "after": "va: { state: \"Virginia (public work)\", law: \"Code of Virginia \u00a72.2-4354\", days: 8, rate: 0.01, per: \"month\", method: \"prorata\",",
-            "line_text": "  va: { state: \"Virginia (public work)\", law: \"Code of Virginia \u00a72.2-4354\", days: 7, rate: 0.01, per: \"month\", method: \"prorata\",",
+            "before": "va: { state: \"Virginia (public work)\", law: \"Code of Virginia §2.2-4354\", days: 7, rate: 0.01, per: \"month\", method: \"prorata\",",
+            "after": "va: { state: \"Virginia (public work)\", law: \"Code of Virginia §2.2-4354\", days: 8, rate: 0.01, per: \"month\", method: \"prorata\",",
+            "line_text": "  va: { state: \"Virginia (public work)\", law: \"Code of Virginia §2.2-4354\", days: 7, rate: 0.01, per: \"month\", method: \"prorata\",",
             "caught": false,
             "seconds": 1.3,
             "triage": "gap",
@@ -211,9 +211,9 @@
       },
       {
         "file": "ventures/pay-app-guides/calc.mjs",
-        "issue": "A blank interest rate read as 0% (toRate('') is 0): the California and Pennsylvania presets leave the rate blank, so the page showed Interest $0.00. Now asks for a rate; an explicit 0 still works.",
+        "issue": "A blank interest rate read as 0% (toRate('') is 0): the California and Pennsylvania presets leave the rate blank, so the page showed Interest $0.00. Now asks for a rate; an explicit 0 still works. The same fix landed on main from a concurrent red-team run while this PR was open; on merge, main's version was kept and this run's duplicate test dropped.",
         "patched": true,
-        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18841"
+        "patched_in": "already fixed on main: concurrent red-team run (merge conflict in calc.mjs, 2026-11-25)"
       },
       {
         "file": "ventures/shift-roster-builder/calc.mjs",

@@ -165,3 +165,22 @@ test("QuickBooks lines refuse a negative retainage rate", () => {
   assert.deepEqual(quickbooksLines({ billed: "1000", rate: "150" }).errors, ["Retainage must be between 0% and 100%."]);
   assert.deepEqual(quickbooksLines({ billed: "1000", rate: "0" }).errors, []);
 });
+
+test("releasing all the retainage leaves none held (red team 2026-11-25)", () => {
+  const { totals: t } = compute(SAMPLE.lines, SAMPLE.settings);
+  const all = compute(SAMPLE.lines, { ...SAMPLE.settings, retainageReleased: String(t.retainageGross / 100) }).totals;
+  assert.equal(all.retainageHeld, 0);
+  assert.equal(all.earnedLessRetainage, all.completedStored);
+});
+
+test("money and percent cells are decimal numbers only: hex and exponents are refused (red team 2026-11-25)", () => {
+  // Number() reads "0x10" as 16 and "1e5" as 100000, so a typo became a bill.
+  for (const s of ["0x10", "1e5", "0b11", "Infinity", "1_000"]) assert.ok(Number.isNaN(toCents(s)), s);
+  assert.equal(toCents("+12.5"), 1250);
+  assert.equal(toCents(".5"), 50);
+  assert.equal(toCents("-3"), -300);
+  assert.equal(toCents("7."), 700);
+  const { findings } = compute([{ item: "1", description: "x", scheduled: "1e5", previous: "0", thisPeriod: "0", stored: "0" }], { workRetainage: "0x10" });
+  assert.ok(findings.some((f) => /could not be read/.test(f.msg)));
+  assert.ok(findings.some((f) => /between 0% and 100%/.test(f.msg)));
+});

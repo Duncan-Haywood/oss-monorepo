@@ -218,7 +218,8 @@
       {
         "file": "prompts/redteam.py",
         "issue": "rerun never checks the suite is green without the mutant, so a red suite (a still-failing new test, or an unrelated break) marks every gap caught_after_fix: true. Fix written with a failing test (test_rerun_on_a_red_suite_proves_nothing): run each suite clean once and record None plus a note when red. prompts/ is control plane, so it goes in its own PR from this branch after this one lands.",
-        "patched": false
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18834"
       }
     ]
   }

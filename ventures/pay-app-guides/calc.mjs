@@ -18,6 +18,8 @@
 
 // Commas are read by shape: "1,234.56" is thousands, "29,99" is a decimal
 // comma (as an EU-locale sheet writes it), any other comma is not a number.
+const DECIMAL = /^[+-]?(\d+\.?\d*|\.\d+)$/;
+
 export const toCents = (v) => {
   if (v === null || v === undefined) return 0;
   let s = String(v).replace(/[$\s]/g, "");
@@ -27,17 +29,16 @@ export const toCents = (v) => {
     else if (/^-?(\d+|\d{1,3}(\.\d{3})+),\d{1,2}$/.test(s)) s = s.split(".").join("").replace(",", ".");
     else return NaN;
   }
-  const n = Number(s);
-  if (!Number.isFinite(n)) return NaN;
-  return Math.round(n * 100);
+  // Plain decimals only: Number() would read "0x10" as 16 and "1e5" as 100000.
+  if (!DECIMAL.test(s)) return NaN;
+  return Math.round(Number(s) * 100);
 };
 
 // Percent typed as "10" or "10%" -> 0.10.
 export const toRate = (v) => {
   const s = String(v ?? "").replace(/[%\s]/g, "");
   if (s === "") return 0;
-  const n = Number(s);
-  return Number.isFinite(n) ? n / 100 : NaN;
+  return DECIMAL.test(s) ? Number(s) / 100 : NaN;
 };
 
 // A change order is an item numbered CO-1, CO1, CO 2, C.O. 3 or CO#4, or a
@@ -253,15 +254,15 @@ export function promptPayInterest({ amount, received, paid, days, rate, per = "m
   const r = toRate(rate);
   const rec = parseDate(received);
   const pd = parseDate(paid);
-  // A blank box is an error, not zero: Number("") is 0, which moved the due date to the day the GC was paid, and a blank
-  // rate (the presets leave it blank where no statutory rate was confirmed) showed $0.00 of interest (red team 2026-11-25).
-  const blank = (v) => String(v ?? "").trim() === "";
-  const n = blank(days) ? NaN : Number(String(days).trim());
+  // A blank day count is an error, not 0: Number("") is 0, which moved the due date to the day the GC was paid (red team 2026-11-25).
+  const n = String(days ?? "").trim() === "" ? NaN : Number(String(days).trim());
   if (Number.isNaN(a) || a <= 0) errors.push("Enter the amount owed to you as a positive number.");
   if (Number.isNaN(rec)) errors.push("Enter the date the contractor was paid as YYYY-MM-DD.");
   if (Number.isNaN(pd)) errors.push("Enter the date you were paid (or today) as YYYY-MM-DD.");
   if (!Number.isInteger(n) || n < 0 || n > 365) errors.push("Days to pay must be a whole number from 0 to 365.");
-  if (blank(rate)) errors.push("Enter the interest rate from the statute or your contract.");
+  // A blank rate is not 0%: the presets leave it blank where no statutory
+  // rate was confirmed, and reading it as 0 showed $0.00 owed.
+  if (String(rate ?? "").trim() === "") errors.push("Enter the interest rate from the statute or your contract (0 if it allows none).");
   else if (Number.isNaN(r) || r < 0 || r > 1) errors.push("The interest rate must be between 0% and 100%.");
   if (per !== "month" && per !== "year") errors.push("The rate must be per month or per year.");
   if (errors.length) return { errors };

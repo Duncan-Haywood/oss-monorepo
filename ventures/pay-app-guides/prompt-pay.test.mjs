@@ -55,7 +55,11 @@ test("every preset links an official legislature site, and rates are only where 
 test("each preset's statute link and day count match its row in the page's table", async () => {
   const { readFileSync } = await import("node:fs");
   const html = readFileSync(new URL("./prompt-payment-laws.html", import.meta.url), "utf8");
-  const rows = [...html.matchAll(/<tr><td>([^<]+)<\/td>(.*?)<\/tr>/g)].map(([, state, rest]) => ({ state, cells: rest.split("</td><td>") }));
+  // Cells may carry attributes (the phone-card markup adds role and data-label), so split on any opening <td>.
+  const rows = [...html.matchAll(/<tr[^>]*>(.*?)<\/tr>/g)]
+    .map(([, inner]) => inner.split(/<td[^>]*>/).slice(1).map((c) => c.replace(/<\/td>\s*$/, "")))
+    .filter((c) => c.length >= 3)
+    .map(([state, ...cells]) => ({ state, cells }));
   for (const [k, p] of Object.entries(PROMPT_PAY)) {
     const row = rows.find((r) => p.state.startsWith(r.state));
     assert.ok(row, `${k}: no row for ${p.state} in prompt-payment-laws.html`);
@@ -72,7 +76,23 @@ test("a blank day count is an error, not 0 days (red team 2026-11-25: clearing t
   assert.deepEqual(promptPayInterest({ amount: "1000", received: "2026-01-01", paid: "2026-02-01", days: "0", rate: "1" }).errors, []);
 });
 
-test("a blank rate asks for one instead of showing $0.00 of interest (the California and Pennsylvania presets leave it blank)", () => {
-  assert.deepEqual(promptPayInterest({ amount: "1000", received: "2026-01-01", paid: "2026-02-01", days: "7", rate: "" }).errors, ["Enter the interest rate from the statute or your contract."]);
-  assert.equal(promptPayInterest({ amount: "1000", received: "2026-01-01", paid: "2026-02-01", days: "7", rate: "0" }).interest, 0);
+test("a blank rate is asked for, not read as 0% (the CA, PA and FL presets leave it blank)", () => {
+  // Red team 2026-11-25: blank showed "Interest $0.00" for 45 days late, with no error.
+  const base = { amount: "40000", received: "2026-03-01", paid: "2026-04-22", days: 7 };
+  const r = promptPayInterest({ ...base, rate: "" });
+  assert.equal(r.errors.length, 1);
+  assert.match(r.errors[0], /rate/i);
+  assert.equal(r.interest, undefined);
+  // An explicit 0% is a real choice (a contract waiving interest) and computes.
+  const z = promptPayInterest({ ...base, rate: "0" });
+  assert.deepEqual(z.errors, []);
+  assert.equal(z.interest, 0);
+});
+
+test("a month past 12 or a day past the month's end is not a date", () => {
+  const base = { amount: "100", paid: "2027-03-01", days: 7, rate: "1" };
+  for (const d of ["2026-13-01", "2026-00-10", "2026-04-31", "2026-02-29"]) {
+    assert.equal(promptPayInterest({ ...base, received: d }).errors.length, 1, d);
+  }
+  assert.deepEqual(promptPayInterest({ ...base, received: "2028-02-29" }).errors, []); // a real leap day
 });
