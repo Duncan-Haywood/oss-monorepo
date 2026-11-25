@@ -1,0 +1,8 @@
+# First apply only. Copy to bootstrap_override.tf so OpenTofu keeps state in
+# a local file while it creates the bucket; delete it before migrating.
+# (*_override.tf files replace the matching block in versions.tf.)
+terraform {
+  backend "local" {
+    path = "bootstrap.tfstate"
+  }
+}

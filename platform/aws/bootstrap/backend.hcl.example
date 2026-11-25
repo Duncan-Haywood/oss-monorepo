@@ -1,0 +1,7 @@
+# Copy to backend.hcl (git-ignored), or generate it with
+# `./backend-config.sh <stack> > backend.hcl`. Every stack uses the same
+# bucket with its own key: stacks/<stack>/terraform.tfstate.
+# Encryption is the bucket's default (SSE-KMS with the state key).
+bucket = "oss-monorepo-tfstate-<management-account-id>-us-east-1"
+key    = "stacks/bootstrap/terraform.tfstate"
+region = "us-east-1"
