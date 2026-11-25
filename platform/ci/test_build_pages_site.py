@@ -182,6 +182,29 @@ class OffsiteLinkRepointing(unittest.TestCase):
         # link is left exactly as the venture wrote it.
         self.assertIn('href="../../elsewhere/NOTES.md"', repointed)
 
+    def test_a_tracked_path_missing_from_a_sparse_checkout_is_still_repointed(self):
+        """pages.yml checks out no research/, docs/ or prompts/. A link into
+        one must come out as it does from a full tree, so git's index answers
+        when the disk does not."""
+        out = self.tmp / "_site"
+        tracked = (
+            frozenset({"research/model/README.md"}),
+            frozenset({"research", "research/model"}),
+        )
+        with unittest.mock.patch.object(bp, "REPO_ROOT", self.tmp), \
+                unittest.mock.patch.object(bp, "_TRACKED", tracked):
+            result = bp.repoint_offsite_links(
+                '<a href="../../research/model/">m</a>'
+                '<a href="../../research/model/README.md">r</a>'
+                '<a href="../../research/missing/">x</a>',
+                page_source=self.tmp / "ventures" / "w" / "index.html",
+                page_dest=out / "w" / "index.html",
+                out_dir=out,
+            )
+        self.assertIn(f'href="{bp.SOURCE_TREE_PREFIX}research/model"', result)
+        self.assertIn(f'href="{bp.SOURCE_URL_PREFIX}research/model/README.md"', result)
+        self.assertIn('href="../../research/missing/"', result)
+
     def test_absolute_and_fragment_links_are_untouched(self):
         html = (
             '<a href="https://example.com/x">a</a>'

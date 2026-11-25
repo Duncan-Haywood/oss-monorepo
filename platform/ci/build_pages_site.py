@@ -37,6 +37,7 @@ import argparse
 import html
 import re
 import shutil
+import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -326,6 +327,56 @@ SOURCE_URL_PREFIX = "https://github.com/Duncan-Haywood/oss-monorepo/blob/main/"
 SOURCE_TREE_PREFIX = "https://github.com/Duncan-Haywood/oss-monorepo/tree/main/"
 
 _LOCAL_REF_RE = re.compile(r'((?:href|src)=")([^"]+)(")')
+
+
+_TRACKED: tuple[frozenset[str], frozenset[str]] | None = None
+
+
+def _tracked_paths() -> tuple[frozenset[str], frozenset[str]]:
+    """Every tracked file and directory under REPO_ROOT, from git's index.
+
+    pages.yml checks out a sparse tree (no research/, docs/ or prompts/), but
+    a venture page may link to one of those (wall-condensation-check links to
+    research/house-dewpoint/). The index lists every tracked path whether or
+    not it is checked out, so asking it as well as the disk gives the sparse
+    checkout the same output as a full one
+    (docs/history/ci-perf-2026-11-25-pages-site-build-sparse.md). Read once,
+    only when a link misses on disk; empty when git or the index is absent.
+    """
+    global _TRACKED
+    if _TRACKED is None:
+        try:
+            listing = subprocess.run(
+                ["git", "-C", str(REPO_ROOT), "ls-files", "-z"],
+                capture_output=True, check=True,
+            ).stdout.decode("utf-8", "surrogateescape")
+        except (OSError, subprocess.CalledProcessError):
+            listing = ""
+        files = {f for f in listing.split("\0") if f}
+        dirs = {parent for f in files for parent in _parents(f)}
+        _TRACKED = (frozenset(files), frozenset(dirs))
+    return _TRACKED
+
+
+def _parents(rel: str):
+    parts = rel.split("/")
+    for i in range(1, len(parts)):
+        yield "/".join(parts[:i])
+
+
+def _repo_path_kind(path: Path) -> str | None:
+    """'dir', 'file', or None: on disk first, then git's index (sparse checkouts)."""
+    if path.is_dir():
+        return "dir"
+    if path.exists():
+        return "file"
+    files, dirs = _tracked_paths()
+    rel = path.relative_to(REPO_ROOT).as_posix()
+    if rel in dirs:
+        return "dir"
+    if rel in files:
+        return "file"
+    return None
 _ABSOLUTE_REF_RE = re.compile(r"^(?:[a-z][a-z0-9+.-]*:|//|#)")
 
 
@@ -363,9 +414,12 @@ def repoint_offsite_links(text: str, page_source: Path, page_dest: Path, out_dir
             return whole
 
         in_repo = (page_source.resolve().parent / path_part).resolve()
-        if REPO_ROOT not in in_repo.parents or not in_repo.exists():
+        if REPO_ROOT not in in_repo.parents:
             return whole
-        prefix = SOURCE_TREE_PREFIX if in_repo.is_dir() else SOURCE_URL_PREFIX
+        kind = _repo_path_kind(in_repo)
+        if kind is None:
+            return whole
+        prefix = SOURCE_TREE_PREFIX if kind == "dir" else SOURCE_URL_PREFIX
         return f"{opener}{prefix}{in_repo.relative_to(REPO_ROOT).as_posix()}{closer}"
 
     return _LOCAL_REF_RE.sub(replace, text)
