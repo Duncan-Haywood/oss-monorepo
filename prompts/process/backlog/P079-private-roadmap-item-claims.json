@@ -1,7 +1,7 @@
 {
   "id": "P079",
   "title": "Claim a private-monorepo ROADMAP item before building it",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "effect": 3,
   "cost": 2,
@@ -18,7 +18,12 @@
   "baseline": "2 closed duplicates of one item on 2026-11-25 (PRs 107, 108)",
   "opened": "2026-11-25",
   "source": "prompts/runs/2026-11-25-session_01XpHqydVFvCareni32JhLEe.json",
-  "pr": null,
+  "pr": "this",
   "result": null,
-  "history": []
+  "history": [
+    {
+      "date": "2026-11-25",
+      "note": "platform/ci/roadmap_claim.py (list/claim/release, create-only orphan empty-commit branches claim/<app>/<slug>, 6 h staleness with generations) and step 4 in cloud-session.md 'Reaching private-monorepo'. Verify: count closed-unmerged duplicate PRs in private-monorepo over the next week."
+    }
+  ]
 }
