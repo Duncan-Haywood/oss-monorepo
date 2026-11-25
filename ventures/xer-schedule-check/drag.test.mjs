@@ -108,3 +108,30 @@ test("CSV: a name that starts like a formula is defused; negative drag stays a n
   assert.match(csv, /,'=HYPERLINK\(1\),/);
   assert.match(csv, /\r\nactivity,X,Activity X,,,,6,,[^,]*,-6,-48,/);
 });
+
+test("a cost per day that is negative or not a number is ignored", () => {
+  const x = project([task("A", 80), task("B", 160), task("C", 40), task("END", 0)], [link("B", "A"), link("C", "A"), link("END", "B"), link("END", "C")]);
+  for (const bad of [-1000, "abc", Infinity, 0]) {
+    const r = dragAnalysis(x, { costPerDay: bad });
+    assert.equal(r.costPerDay, null, `costPerDay ${bad}`);
+    assert.ok(r.activities.every((a) => a.drag.cost === null), `costPerDay ${bad}`);
+  }
+});
+
+test("an activity whose whole duration is drag is not 'limited by' a parallel path that only ties", () => {
+  // A(5d) -> END and a parallel zero-length Z -> END: zeroing A wins all 5 days; Z then ties A, it does not limit it
+  const x = project([task("A", 40), task("Z", 0), task("END", 0)], [link("END", "A"), link("END", "Z")]);
+  const a = dragAnalysis(x).activities.find((q) => q.code === "A");
+  assert.equal(a.drag.days, 5);
+  assert.ok(!a.notes.some((n) => /limited by/.test(n)), a.notes.join("; "));
+});
+
+test("the page lists every lag with drag, the first one included", () => {
+  const x = project([task("P1", 8), task("S1", 8), task("P2", 8), task("S2", 8), task("END", 0)],
+    [link("S1", "P1", "PR_FS", 24), link("P2", "S1"), link("S2", "P2", "PR_FS", 16), link("END", "S2")]);
+  const r = dragAnalysis(x);
+  const withDrag = r.lags.filter((l) => l.drag.hours !== 0);
+  assert.equal(withDrag.length, 2);
+  const html = dragTableHtml(r);
+  for (const l of withDrag) assert.match(html, new RegExp(`${l.pred} &rarr; ${l.succ} `));
+});

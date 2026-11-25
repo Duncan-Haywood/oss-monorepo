@@ -1219,7 +1219,7 @@ event graph on it (start and finish of each activity, FS/SS/FF/SF links between 
 finds the minimum cut by max flow, shortens the cut together by the least working time that wins
 what the step can (up to a day), and reschedules to measure the gain. A cut may also give back time
 bought at an earlier step (Phillips and Dessouky's un-crashing). Rates CSV: `activity_id,
-max_shorten_days, cost_per_day`; without one each task may lose 25% of its remaining duration at 1
+max_shorten_days, cost_per_day` (headers are read by name, in any order: a "crash cost" column is the cost, and a bare "days" column the room); without one each task may lose 25% of its remaining duration at 1
 per day, so the cost counts activity-days shortened. With `--drag-cost` it stops where a day costs
 more to win than a day of finish is worth. Milestones, mandatory constraints and expected-finish
 activities are never shortened.
