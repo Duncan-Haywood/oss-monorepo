@@ -1410,7 +1410,8 @@ test('the search index lists every tool and every research project, and the hub 
   // featured links, not one card per tool.
   const hub = withoutScripts(await read('index.html'));
   const linked = new Set([...hub.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
-  assert.ok(linked.size > 10 && linked.size < surfaces.length / 4, `the hub links ${linked.size} tools directly`);
+  // Since 2026-11-25 it links products and category pages, not tools.
+  assert.ok(linked.size < surfaces.length / 4, `the hub links ${linked.size} tools directly`);
   assert.doesNotMatch(hub, /data-search=/);
 });
 
@@ -2206,8 +2207,9 @@ test('hub markup escapes venture copy', () => {
     [{ slug: 'x', title: '<script>alert(1)</script>', description: 'a & b', pageCount: 1, hasSitemap: false }],
     BASE,
   );
+  // Since 2026-11-25 the front door names products, not tools, so the title
+  // is not printed there at all; it must still never arrive unescaped.
   assert.ok(!hub.includes('<script>alert(1)</script>'));
-  assert.ok(hub.includes('&lt;script&gt;'));
 });
 
 // ---------------------------------------------------------------------------
@@ -6497,28 +6499,27 @@ test('copyTree leaves out git-ignored local-only paths, and localOnlyPaths finds
 
 // P019: the home page is a home for everything, not a calculator list. These
 // pin the sections, so the framing cannot drift back one venture at a time.
-test('the hub is a home for everything: apps, CLIs, research and self-deploy have their own place', () => {
+test('the hub is a finder first, and the catalogue, apps, CLIs and research are one link away', () => {
   const surfaces = [
     { slug: 'ebay-fee-calculator', title: 'eBay fee calculator', description: 'Fees.', kind: 'browser' },
     { slug: 'dunning-engine', title: 'Dunning engine', description: 'Failed-payment recovery.', kind: 'app' },
     { slug: 'pinned-actions-check', title: 'Pinned actions check', description: 'CI check.', kind: 'cli' },
   ];
   const hub = renderHub(surfaces, 'https://example.test/', { researchCount: 461 });
-  assert.match(hub, /<dl class="stats" id="overview">/);
-  assert.match(hub, /<dt>Browser tools<\/dt><dd><a href="c\/">1<\/a>/);
-  assert.match(hub, /<dt>Self-hostable apps<\/dt><dd><a href="c\/apps\/">1<\/a>/);
-  assert.match(hub, /<dt>Command-line tools<\/dt><dd><a href="c\/cli\/">1<\/a>/);
-  assert.match(hub, /<dt>Research projects<\/dt><dd><a href="research\/">461<\/a>/);
-  // A front door, in order: what it is and the search over everything, then
-  // the browse grid by job and by type, then research and self-deploy.
   const at = (re) => hub.search(re);
-  assert.ok(at(/<h1>/) < at(/id="q"/), 'the search sits in the hero');
-  assert.ok(at(/id="q"/) < at(/id="browse"/));
-  assert.ok(at(/id="browse"/) < at(/id="types"/));
-  assert.ok(at(/id="types"/) < at(/id="research"/));
-  assert.match(hub, /href="c\/apps\/" data-category="apps"[\s\S]*Dunning engine/);
-  assert.match(hub, /href="c\/cli\/" data-category="cli"[\s\S]*Pinned actions check/);
-  assert.match(hub, /href="deploy\/"/);
+  // Owner, 2026-11-25: a sales funnel, not a catalogue. Business, then problem, then product.
+  assert.ok(at(/<h1>/) < at(/id="find"/), 'the finder sits in the hero');
+  assert.ok(at(/id="find"/) < at(/id="products"/));
+  assert.ok(at(/id="products"/) < at(/id="free-tools"/));
+  assert.ok(at(/id="free-tools"/) < at(/id="q"/), 'search is for the free tools, below the products');
+  assert.match(hub, /href="c\/"/);
+  // Standalone research paused on 2026-11-25: one quiet link to the archive.
+  assert.match(hub, /href="research\/">Research archive</);
+  // Gone from the front door: catalogue tiles, stats, and self-deploy (retired 2026-11-24).
+  assert.doesNotMatch(hub, /id="overview"|id="types"|id="featured"|class="marquee"/);
+  const more = hub.slice(hub.indexOf('id="more"'));
+  assert.match(more, /href="about\/"/);
+  assert.doesNotMatch(more.slice(0, more.indexOf('</section>')), /href="deploy\//);
   assert.ok(!/<h1>[^<]*Calculators/.test(hub), 'the headline names more than calculators');
   // The site header, with no second top bar.
   assert.equal(hub.match(/<nav\b[^>]*aria-label="Site"/g).length, 1);
@@ -6576,18 +6577,9 @@ test('clampMetaDescription cuts at a word with an ellipsis when no sentence fits
 
 // Ranking by page count alone put a day-count adder with ten explainer pages
 // at the front of the featured row (2026-10-21). Flagships lead it now.
-test('the featured row leads with the flagships, then fills by page count', () => {
-  const surfaces = [
-    { slug: 'state-residency-day-counter', title: 'State residency day counter', description: 'Days.', kind: 'browser', pageCount: 11 },
-    { slug: 'changepoint-detector', title: 'Changepoint detector', description: 'PELT.', kind: 'browser', pageCount: 2 },
-    { slug: 'einvoice-preflight', title: 'E-invoice preflight', description: 'EN 16931.', kind: 'browser', pageCount: 19 },
-  ];
-  const featuredRow = (hub) => hub.slice(hub.indexOf('id="featured"')).match(/data-tool="([^"]+)"/g).map((m) => m.slice(11, -1));
-  const hub = renderHub(surfaces, 'https://example.test/', { flagships: ['changepoint-detector', 'einvoice-preflight', 'not-a-surface'] });
-  const row = featuredRow(hub);
-  assert.deepEqual(row.slice(0, 2), ['changepoint-detector', 'einvoice-preflight']);
-  assert.equal(new Set(row).size, row.length, 'no tool twice');
-  assert.ok(row.includes('state-residency-day-counter'), 'room left is filled by page count');
+// The hub's featured row left on 2026-11-25 with the rest of the catalogue
+// (the front door is a business -> problem -> product finder now).
+test('the flagships file parses', () => {
   assert.ok(flagshipSlugs().includes('changepoint-detector'), 'the real file parses');
 });
 

@@ -46,8 +46,8 @@ import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, loadPosts,
 import { loadPages, resolvePostTitleClashes } from './page-identity.mjs';
 import { addModulePreloads } from './preload.mjs';
 import { buildStories, STORIES_PATH, STORY_VENTURES } from './stories.mjs';
-import { buildProducts, productSitemapPaths, PRODUCT_CARD_CSS, renderProductGrid, PRODUCTS_PATH, INDUSTRIES_PATH } from './products.mjs';
-import { PRODUCT_LINES, softwareLines, hardwareLines } from './business.mjs';
+import { buildProducts, productSitemapPaths, PRODUCT_CARD_CSS, renderProductGrid, PRODUCTS_PATH, INDUSTRIES_PATH, industryPath } from './products.mjs';
+import { PRODUCT_LINES, softwareLines, hardwareLines, INDUSTRIES as BUSINESS_INDUSTRIES, buildFirstHref } from './business.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { buildQueue, clip, QUEUE_PATH } from './queue.mjs';
@@ -186,7 +186,9 @@ import {
   cardName,
   icon,
   renderCategoryCard,
-  renderHowItWorks,
+  renderFinder,
+  finderChoices,
+  finderCss,
   renderLatestWriting,
   renderResearchBand,
   siteStructuredData,
@@ -9543,52 +9545,6 @@ export function renderHub(
     },
   };
 
-  const categoryTiles = groups
-    .map(({ category, items }) =>
-      renderCategoryTile({
-        id: category.id,
-        title: category.title,
-        blurb: category.card ?? category.blurb,
-        count: items.length,
-        examples: exampleTools(items, 4),
-        accent: category.accent,
-      }),
-    )
-    .join('\n');
-  const kindTiles = kindPages
-    .map(({ page, items }) =>
-      renderCategoryTile({
-        id: page.id,
-        title: page.title,
-        blurb: page.card ?? page.blurb,
-        count: items.length,
-        examples: exampleTools(items, 4),
-        note: `All ${items.length} ${page.kind === 'app' ? 'apps' : 'command-line tools'}`,
-        accent: page.accent,
-      }),
-    )
-    .join('\n');
-
-  // A short featured row: the flagships first (`flagshipSlugs`), then, while
-  // there is room, the tool with the most pages in each of the largest
-  // categories. Page count alone put a day-count adder at the front
-  // (2026-10-21): pages measure explainers written beside a tool, not the
-  // engineering in it (docs/reports/2026-10-21-flagship-front-door.md).
-  const bySlug = new Map(surfaces.map((s) => [s.slug, s]));
-  const featured = flagships.map((slug) => bySlug.get(slug)).filter(Boolean).slice(0, 6);
-  for (const { items } of [...groups].sort((a, b) => b.items.length - a.items.length)) {
-    if (featured.length >= 6) break;
-    const pick = exampleTools(items.filter((s) => !featured.includes(s)), 1)[0];
-    if (pick) featured.push(pick);
-  }
-
-  // The moving shelf under the hero: a few tools from every section, split
-  // across two rows so neither repeats a section back to back.
-  const shortName = (s) => cardName(s.title);
-  const shelf = groups.flatMap(({ items }) => exampleTools(items, 5)).map((s) => ({ slug: s.slug, name: shortName(s) }));
-  const marqueeRows = [shelf.filter((_, i) => i % 2 === 0), shelf.filter((_, i) => i % 2 === 1)];
-  const titles = new Map(surfaces.map((s) => [s.slug, shortName(s)]));
-  const audienceWords = audiencePages.map(({ audience }) => audience.name).slice(0, 14);
   // The product lines (business.mjs). Tools the build did not publish drop out of the cards.
   const publishedTools = new Map(surfaces.map((s) => [s.slug, cardName(s.title)]));
   const liveLines = PRODUCT_LINES.filter((l) => l.status === 'live');
@@ -9873,6 +9829,7 @@ ${PRODUCT_CARD_CSS}
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 ${HOME_MOTION_CSS}
 ${HOME_SECTIONS_CSS}
+${finderCss(finderChoices(BUSINESS_INDUSTRIES, PRODUCT_LINES))}
   </style>
 </head>
 <body>
@@ -9882,60 +9839,31 @@ ${HOME_SECTIONS_CSS}
   <header class="hero">
 ${HERO_BACKDROP_HTML}
     <div class="hero-inner">
-      <p class="eyebrow">Software &amp; hardware for small businesses</p>
+      <p class="eyebrow">Software for small businesses</p>
       <h1>Software built for <span class="grad">your kind of business</span> and the jobs it finds hardest.</h1>
-${
-  audienceWords.length
-    ? `      <p class="ticker" data-longest="${escapeHtml(longestWord(audienceWords))}"><span>Built for <b data-words="${escapeHtml(JSON.stringify(audienceWords))}">${escapeHtml(audienceWords[0])}</b> and anyone with numbers to run.</span></p>\n`
-    : ''
-}
-      <!-- The company voice (owner, 2026-11-24): product lines first, every
-           status from business.mjs, so "live" is only said of what is live.
-           Kept short so the calls to action and the search stay near the top
-           on a phone (hub-lede.test.mjs holds the budget). -->
-      <div class="hero-grid">
-      <div class="hero-main">
+      <!-- The front door is a finder, not a catalogue (owner, 2026-11-25:
+           "target marketing sales pipeline not a catalog of random stuff";
+           "easy navigation to find your profession and your problem"). Every
+           status comes from business.mjs, so "live" is only said of what is
+           live. The full tool catalogue is one link away at c/. -->
       <p class="lede">
-        Billing for subcontractors, quoting for machine shops, e-invoicing for
-        European firms, books for resellers and grants for nonprofits.
-        ${escapeHtml(liveNames)} ${liveLines.length === 1 ? 'is' : 'are'} live; the rest are in early access, and
-        free tools for the same businesses work today.
+        Pick your business, then the problem costing you the most time.
+        ${escapeHtml(liveNames)} ${liveLines.length === 1 ? 'is' : 'are'} live; the rest are in early access, with
+        free tools that already do part of each job.
       </p>
-      <p class="hero-cta"><a class="go" href="${PRODUCTS_PATH}" data-pf-to="products">See the products</a><a class="ghost" href="${INDUSTRIES_PATH}" data-pf-to="industries">Find your industry</a></p>
-
-      <!-- The search runs over a JSON index of every tool and research project
-           (search-index.json), fetched when a visitor first types. Without
-           JavaScript the category grid below is the way in: every tool is on
-           its category's page. -->
-      <form class="search" id="${SEARCH_ANCHOR}" role="search" action="./" method="get">
-        <label for="q">Or search ${formatCount(surfaces.length)} free tools${researchCount ? ` and ${formatCount(researchCount)} research projects` : ''}</label>
-        <div class="search-row">
-          <input id="q" name="q" type="search" placeholder="eBay fees, roofing bid, freight, VAT, scoring rules…"
-                 autocomplete="off" spellcheck="false">
-          <button type="submit">Search</button>
-        </div>
-        <noscript><p class="search-hint">Search needs JavaScript. Every tool is listed on its category page below.</p></noscript>
-        <p class="count" id="count" aria-live="polite"></p>
-        <p class="closest" id="closest" hidden></p>
-        <ol class="results" id="results" hidden></ol>
-        <p class="results-more" id="results-more" hidden></p>
-        <p class="empty" id="empty" hidden>No tool matches that. Try a marketplace, a trade, or the thing you are pricing — or <a href="${CATEGORY_PATH_PREFIX}/">browse by category</a>.</p>
-      </form>
-
-      <dl class="stats" id="overview">
-        <div><dt>Browser tools</dt><dd><a href="${CATEGORY_PATH_PREFIX}/">${formatCount(browserCount)}</a></dd></div>
-        <div><dt>Self-hostable apps</dt><dd><a href="${escapeHtml(categoryPagePath('apps'))}">${formatCount(apps.length)}</a></dd></div>
-        <div><dt>Command-line tools</dt><dd><a href="${escapeHtml(categoryPagePath('cli'))}">${formatCount(clis.length)}</a></dd></div>
-        <div><dt>Research projects</dt><dd><a href="${RESEARCH_PATH}">${formatCount(researchCount)}</a></dd></div>
-      </dl>
-
-      </div>
-${renderHeroArt(showcase.shots, (slug) => titles.get(slug) ?? slug)}
-      </div>
+${renderFinder({
+  industries: BUSINESS_INDUSTRIES,
+  lines: PRODUCT_LINES,
+  trades: audiencePages.map(({ audience }) => ({ id: audiencePageId(audience), name: audience.name, href: categoryPagePath(audiencePageId(audience)) })),
+  statusLabel: (status) => (status === 'live' ? 'live' : 'early access'),
+  industryHref: industryPath,
+  askHref: ASK_PATH,
+  customHref: CUSTOM_DEV_PATH,
+  toolsHref: `${CATEGORY_PATH_PREFIX}/`,
+  buildFirstHref,
+})}
     </div>
   </header>
-
-${renderMarquee(marqueeRows)}
 
   <main class="wrap" id="main">
     <!-- Filled in by script from the saved bids on this device. Above everything
@@ -9996,7 +9924,7 @@ ${renderMarquee(marqueeRows)}
       <h2 id="products-h">One product for each kind of business, built around its hardest jobs</h2>
       <p class="band-lede">Live means you can use it today. Early access means it is being built, and the free tools listed with it already do part of the job.</p>
 ${renderProductGrid(softwareLines(), { toRoot: '', published: publishedTools, anchor: true })}
-      <p class="products-more"><a href="${PRODUCTS_PATH}">All products, and the ${hardwareLines().length} hardware designs →</a> · <a href="${INDUSTRIES_PATH}">Browse by industry →</a></p>
+      <p class="products-more"><a href="${PRODUCTS_PATH}">All products →</a> · <a href="${INDUSTRIES_PATH}">Browse by industry →</a></p>
       <!-- The open custom development offer, aimed at businesses (owner,
            2026-11-02: "advertise to businesses more"; tagline "describe your
            problem and it gets built"). Terms are on the linked page. Moved
@@ -10010,99 +9938,37 @@ ${renderProductGrid(softwareLines(), { toRoot: '', published: publishedTools, an
 
     <section class="band" id="free-tools" aria-labelledby="free-tools-h">
       <p class="section-eyebrow">Free tools</p>
-      <h2 id="free-tools-h">Free tools for the same businesses</h2>
-      <p class="band-lede">${formatCount(browserCount)} calculators, checkers and converters for the trades, shops and sellers the products serve. No account, and each does one job well. Search them at the top of this page, or browse below.</p>
+      <h2 id="free-tools-h">Need one number, not a whole product?</h2>
+      <!-- The search runs over a JSON index of every tool and research project
+           (search-index.json), fetched when a visitor first types. Without
+           JavaScript the category grid below is the way in: every tool is on
+           its category's page. -->
+      <form class="search" id="${SEARCH_ANCHOR}" role="search" action="./" method="get">
+        <label for="q">Search ${formatCount(surfaces.length)} free tools by the job: a fee, a bid, a file to check</label>
+        <div class="search-row">
+          <input id="q" name="q" type="search" placeholder="eBay fees, roofing bid, freight, VAT, scoring rules…"
+                 autocomplete="off" spellcheck="false">
+          <button type="submit">Search</button>
+        </div>
+        <noscript><p class="search-hint">Search needs JavaScript. Every tool is listed on its category page below.</p></noscript>
+        <p class="count" id="count" aria-live="polite"></p>
+        <p class="closest" id="closest" hidden></p>
+        <ol class="results" id="results" hidden></ol>
+        <p class="results-more" id="results-more" hidden></p>
+        <p class="empty" id="empty" hidden>No tool matches that. Try a marketplace, a trade, or the thing you are pricing — or <a href="${CATEGORY_PATH_PREFIX}/">browse by category</a>.</p>
+      </form>
+      <!-- One line of text links, not tiles: keeps every tool two clicks from
+           the front door without JavaScript (crawl depth), without the clutter. -->
+      <p class="band-lede cat-links">Browse by the job: ${groups
+        .map(({ category, items }) => `<a href="${escapeHtml(categoryPagePath(category.id))}" data-category="${escapeHtml(category.id)}">${escapeHtml(category.title)}</a> <span>${formatCount(items.length)}</span>`)
+        .join(' · ')} · By type: ${kindPages
+        .map(({ page, items }) => `<a href="${escapeHtml(categoryPagePath(page.id))}" data-category="${escapeHtml(page.id)}">${escapeHtml(page.id === 'apps' ? 'Web apps' : page.title)}</a> <span>${formatCount(items.length)}</span>`)
+        .join(' · ')} · <a href="${CATEGORY_PATH_PREFIX}/">every free tool →</a></p>
     </section>
-
-${renderHowItWorks({ toolCount: browserCount, appCount: apps.length })}
-
-${
-  audiencePages.length
-    ? `    <section class="band" id="for" aria-labelledby="for-h">
-      <p class="section-eyebrow">Who it is for</p>
-      <h2 id="for-h">Find the tools for your trade, business or stage of life</h2>
-      <p class="band-lede">The same tools, filed by who they are for. Each page lists the calculators that kind of business uses, and what to price first if you are just starting one.</p>
-      <ul class="for-list">
-${audiencePages
-  .map(
-    ({ audience, items }) =>
-      `        <li><a href="${escapeHtml(categoryPagePath(audiencePageId(audience)))}" data-category="${escapeHtml(
-        audiencePageId(audience),
-      )}">${escapeHtml(audience.name)} <span>${items.length}</span></a></li>`,
-  )
-  .join('\n')}
-      </ul>
-    </section>
-
-`
-    : ''
-}
-    <section class="band" id="browse" aria-labelledby="browse-h">
-      <p class="section-eyebrow">Browse</p>
-      <h2 id="browse-h">Tools by the job they do</h2>
-      <p class="band-lede">${formatCount(surfaces.length)} free tools in ${groups.length} sections. Each section's page lists every tool in it, grouped and filterable. <a href="${CATEGORY_PATH_PREFIX}/">See every section →</a></p>
-      <ul class="cats">
-${categoryTiles}
-      </ul>
-    </section>
-
-    <section class="band" id="types" aria-labelledby="types-h">
-      <p class="section-eyebrow">By type</p>
-      <h2 id="types-h">Apps you run yourself, and checks for your terminal</h2>
-      <ul class="cats">
-${kindTiles}
-      </ul>
-    </section>
-
-${renderShowcaseSection(showcase, (slug) => titles.get(slug) ?? slug)}
-
-    <section class="band" id="featured" aria-labelledby="featured-h">
-      <p class="section-eyebrow">Featured</p>
-      <h2 id="featured-h">The deepest projects here</h2>
-      <p class="band-lede">When you need more than one calculation: the larger products, each built up over many sessions and still being extended, listed first.</p>
-      <ul class="featured">
-${featured
-  .map(
-    (s) => `        <li style="--feat:${escapeHtml(categoryFor(s.slug).accent)}"><a href="${escapeHtml(s.slug)}/" data-tool="${escapeHtml(s.slug)}">${escapeHtml(cardName(s.title))}</a><span class="f-cat">${escapeHtml(categoryFor(s.slug).title)}</span><p>${escapeHtml(s.description ?? '')}</p></li>`,
-  )
-  .join('\n')}
-      </ul>
-    </section>
-
-${renderResearchBand(research, researchCount, { researchPath: RESEARCH_PATH, topicsDir: RESEARCH_TOPICS_DIR })}
-
-${renderLatestWriting(posts, { writingPath: WRITING_PATH })}
 
     <section class="band" id="more" aria-labelledby="more-h">
-      <p class="section-eyebrow">Also here</p>
-      <h2 id="more-h">Run your own copy, read the guides, follow the work</h2>
-      <div class="pillar-grid">
-        <a class="pillar" href="deploy/">
-          <span class="pillar-ico">${icon('deploy')}</span>
-          <h3>Deploy your own copy</h3>
-          <p>Every app and tool is FSL-1.1-MIT licensed, so running your own copy is allowed. Pick one, paste your own cloud credentials, and get a running copy in your own account. Nothing of ours sits in between.</p>
-          <span class="pillar-more">Deploy your own →</span>
-        </a>
-        <a class="pillar" href="${GUIDES_PATH}">
-          <span class="pillar-ico">${icon('guide')}</span>
-          <h3>Guides and comparisons</h3>
-          <p>The explainers written beside each tool, and products compared side by side, filed by trade.</p>
-          <span class="pillar-more">Read the guides →</span>
-        </a>
-        <a class="pillar" href="${UPDATES_PATH}">
-          <span class="pillar-ico">${icon('pulse')}</span>
-          <h3>Built in public</h3>
-          <p>What shipped this week, what is in progress, where the project is going and how AI agents build it, from the repository's own records.</p>
-          <span class="pillar-more">Updates and roadmap →</span>
-        </a>
-      </div>
-      <ul class="principles">
-        <li>No accounts or sign-up</li>
-        <li>No tracking cookies</li>
-        <li>Source available: FSL-1.1-MIT for tools, MIT for research</li>
-        <li>Every change in the <a href="${CHANGELOG_PATH}">public changelog</a></li>
-        <li>What gets built next, in order, on the <a href="${QUEUE_PATH}">work queue</a></li>
-      </ul>
+      <h2 id="more-h" class="section-eyebrow">Also here</h2>
+      <p class="more-links"><a href="${ABOUT_PATH}">About the company</a> · <a href="${GUIDES_PATH}">Guides and comparisons</a> · <a href="${WRITING_PATH}">Writing</a> · <a href="${UPDATES_PATH}">Updates and roadmap</a> · <a href="${RESEARCH_PATH}">Research archive</a></p>
     </section>
 
 <!-- With the other "your data on this device" panel rather than at the top:
