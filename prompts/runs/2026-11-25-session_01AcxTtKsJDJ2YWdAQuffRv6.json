@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtKsJDJ2YWdAQuffRv6",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T21:07:02Z",
+  "ended": "2026-11-25T21:14:09Z",
+  "wall_minutes": 7.34,
+  "tokens_in": 4379777,
+  "tokens_out": 17773,
+  "cost_usd": 1.9374,
+  "tool_calls": 49,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19096",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "private-monorepo CI fails in 3 s with no downloadable logs (PRs 169 and 170); ci_starvation.py only reads this repo, so the starved-or-real call for private PRs is done by hand (compare to a merged PR's checks, then run the workflow's steps locally)."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "risk_review.py reads this repo's diff only; for a private-monorepo PR the checks were answered by hand in the PR body. Worth a line saying so."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/monetization/bets.md",
+      "why": "Bet #1 (payapps) had every Next item claimed or blocked on an outside source; took bet #4 (CMMC), whose ROADMAP flagged the .ics slice as needing nothing else.",
+      "did": "Claimed cmmc #3 as affirmation-reminders-ics and shipped it in private PR 170.",
+      "result": "Merged; 264 local tests pass."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Private CI runners did not start (3 s failure, no logs, same as merged PR 169).",
+      "did": "Ran the cmmc-ci steps locally: biome ci, test:unit 214 passed, test:worker 50 passed, build; no schema change, so the migration drift check does not apply.",
+      "result": "Merged on local verification."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-cmmc-level-1-self-assessment-checklist.md (extended: the calendar file)"
+  ],
+  "goal": null,
+  "notes": "private-monorepo PR 170 (merged 31518c7): src/shared/affirmation-ics.ts (RFC 5545 escaping and octet folding, alarms 60/7 days, stable UIDs), GET /api/orgs/:orgId/affirmations/calendar.ics, a download link on the Affirmations tab, a ROADMAP update. Next: a subscribable calendar URL with a revocable per-org token.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "19c56782-2558-5f0e-a35d-0c2768842a78",
+    "transcripts": 1,
+    "first": "2026-11-25T21:07:02Z",
+    "last": "2026-11-25T21:14:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 94,
+        "output": 17773,
+        "thinking": 1536,
+        "cache_read": 4289223,
+        "cache_write_5m": 0,
+        "cache_write_1h": 90460,
+        "api_equivalent_usd": 1.9374,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 94,
+      "output": 17773,
+      "thinking": 1536,
+      "cache_read": 4289223,
+      "cache_write_5m": 0,
+      "cache_write_1h": 90460,
+      "api_equivalent_usd": 1.9374,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 38,
+      "Write": 2,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.34,
+      "active_minutes": 7.34,
+      "model_minutes": 4.24,
+      "tool_minutes": 3.1,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "RFC 5545 export with folding/alarms, route, UI link, tests, post paragraph",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 206.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
