@@ -44,7 +44,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 
-import { buildSite, DEFAULT_BASE_URL } from './build.mjs';
+import { buildSite, DEFAULT_BASE_URL, COMPARE_PATH, GUIDES_PATH } from './build.mjs';
 
 // An origin root, not a subpath — the shape a custom domain produces, and the
 // one no other test in this directory exercises.
@@ -89,10 +89,17 @@ async function site() {
     // Carries a canonical already pointing at the *default* origin — the shape
     // of a venture page written since the Pages route went up. This is the one
     // that dies if `applyBaseUrl`'s default-origin rewrite is removed.
-    'index.html': page('Alpha Calculator', '<h1>Alpha Calculator</h1>', {
-      canonical: `${DEFAULT_BASE_URL}alpha-calculator/`,
-      extra: `<p>See <a href="${DEFAULT_BASE_URL}beta-calculator/">Beta</a>.</p>`,
-    }),
+    'index.html': page(
+      'Alpha Calculator',
+      '<h1>Alpha Calculator</h1><a href="how-much-to-charge.html">How much to charge</a>',
+      {
+        canonical: `${DEFAULT_BASE_URL}alpha-calculator/`,
+        extra: `<p>See <a href="${DEFAULT_BASE_URL}beta-calculator/">Beta</a>.</p>`,
+      },
+    ),
+    // A guide, for the /guides/ test below; a comparison page belongs to
+    // /compare/, not /guides/.
+    'how-much-to-charge.html': page('How much to charge', '<h1>How much to charge</h1>'),
     'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>', {
       canonical: `${DEFAULT_BASE_URL}alpha-calculator/vs-jobber.html`,
     }),
@@ -108,10 +115,13 @@ async function site() {
       canonical: `${PLACEHOLDER_ORIGIN}beta-calculator/`,
       extra: `<p>Docs at <a href="${PLACEHOLDER_ORIGIN}docs/guide.html">the guide</a>.</p>`,
     }),
+    // A second tool comparing itself with the same product, so /compare/
+    // groups two pages under one subject.
+    'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
   });
 
   const outDir = path.join(out, 'dist');
-  await buildSite({
+  const result = await buildSite({
     venturesDir: ventures,
     outDir,
     baseUrl: APEX,
@@ -121,7 +131,7 @@ async function site() {
     // card its own key, so drawing them cost ~7,000 cold draws.
     cards: false,
   });
-  built = { out, outDir };
+  built = { out, outDir, comparisons: result.comparisons };
   return built;
 }
 
@@ -270,4 +280,54 @@ test('every canonical tag names the custom origin', async () => {
     }
   }
   assert.ok(seen > 0, 'no canonical tags were found, so this asserted nothing');
+});
+
+// The /compare/ and /guides/ end-to-end tests. They lived in build.test.mjs
+// with a two-venture fixture build of their own, the same fixed work as the
+// build above (every post, research page and hub section) for two extra pages;
+// one fixture now serves both files' tests, one full fixture build fewer per
+// suite run (docs/history/pages-test-perf-2026-11-25-one-fixture-build.md).
+// Their URLs are on APEX, an origin root, as the old fixture's were.
+
+test('the built site publishes /compare/, links it, and lists it in the sitemap', async () => {
+  const { outDir: dist, comparisons } = await site();
+  assert.equal(comparisons.length, 1, 'both tools compare with one product');
+  assert.equal(comparisons[0].subject, 'Jobber');
+
+  const compare = await fs.readFile(path.join(dist, COMPARE_PATH, 'index.html'), 'utf8');
+  assert.ok(compare.includes('href="../alpha-calculator/vs-jobber.html"'));
+  assert.ok(compare.includes('href="../beta-calculator/vs-jobber.html"'));
+
+  const hub = await fs.readFile(path.join(dist, 'index.html'), 'utf8');
+  assert.ok(hub.includes(`href="${COMPARE_PATH}"`), 'the hub must link /compare/');
+
+  const hubSitemap = await fs.readFile(path.join(dist, 'sitemap-hub.xml'), 'utf8');
+  assert.ok(hubSitemap.includes(`<loc>${APEX}${COMPARE_PATH}</loc>`));
+
+  const llms = await fs.readFile(path.join(dist, 'llms.txt'), 'utf8');
+  assert.ok(llms.includes(`${APEX}${COMPARE_PATH}`), 'llms.txt must name /compare/');
+});
+
+test('the built site publishes /guides/, links it, and lists it in the sitemap', async () => {
+  // The end-to-end half of the guides index: the three places a page has to
+  // appear before anyone reaches it — a link a visitor can click, a sitemap
+  // entry a crawler follows, and an llms.txt line an assistant reads.
+  const { outDir: dist } = await site();
+
+  const guides = await fs.readFile(path.join(dist, GUIDES_PATH, 'index.html'), 'utf8');
+  assert.ok(guides.includes('href="../alpha-calculator/how-much-to-charge.html"'));
+  assert.ok(guides.includes('How much to charge'), 'the page’s own heading is the entry');
+  assert.ok(
+    !guides.includes('vs-jobber.html'),
+    'a comparison page has /compare/ and must not be listed twice',
+  );
+
+  const hub = await fs.readFile(path.join(dist, 'index.html'), 'utf8');
+  assert.ok(hub.includes(`href="${GUIDES_PATH}"`), 'the hub must link /guides/');
+
+  const hubSitemap = await fs.readFile(path.join(dist, 'sitemap-hub.xml'), 'utf8');
+  assert.ok(hubSitemap.includes(`<loc>${APEX}${GUIDES_PATH}</loc>`));
+
+  const llms = await fs.readFile(path.join(dist, 'llms.txt'), 'utf8');
+  assert.ok(llms.includes(`${APEX}${GUIDES_PATH}`), 'llms.txt must name /guides/');
 });
