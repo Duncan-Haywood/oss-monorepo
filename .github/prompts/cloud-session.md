@@ -44,6 +44,11 @@ payapps there. On 2026-11-25 this worked first time:
 3. Read its `CLAUDE.md` and the app's `ROADMAP.md` by hand (add_repo's result
    names a `register_repo_root` tool that ToolSearch does not find here; skip it); `pnpm install --frozen-lockfile --filter <app>...`
    (backgrounded) gets the app's tests, `pnpm dev` and Playwright running.
+4. **Claim the item before building it:** `python3 platform/ci/roadmap_claim.py <app>`
+   lists the ROADMAP's Next items as free or claimed; `--claim N` (with `--slug`/`--note`
+   for one part of an item) pushes a create-only `claim/<app>/<slug>` branch there and
+   exits 4 if another run got it first, so pick another. Open-PR checks missed this:
+   private PRs 106-108 built one item within 20 minutes (backlog P079).
 
 **If step 2 is refused by the permission layer** (a tool denial, not a git
 error), that is final for this session: do not retry, reword, or reach the
