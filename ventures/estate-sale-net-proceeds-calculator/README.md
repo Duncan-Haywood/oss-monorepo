@@ -61,6 +61,6 @@ Track/Global Privacy Control browser signals.
 
 ## License
 
-MIT — see [`LICENSE`](./LICENSE). Free and open source; a
+FSL-1.1-MIT — see [`LICENSE`](./LICENSE). Free to use and source available; a
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) link is
 present in the footer and entirely optional.

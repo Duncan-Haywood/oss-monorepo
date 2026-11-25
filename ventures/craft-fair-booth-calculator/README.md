@@ -59,4 +59,4 @@ node --test ventures/craft-fair-booth-calculator/*.test.mjs
 
 This calculator produces arithmetic observations from numbers you supply. It does not audit your books, predict how an event will actually go, read a booth contract, determine your sales-tax or vendor-permit obligations, or replace your own accountant. Sales tax you collect from a buyer and remit is not revenue — keep it out of the sales figure you enter.
 
-MIT licensed. See `LICENSE`. [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and never changes what the tool does.
+FSL-1.1-MIT licensed. See `LICENSE`. [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and never changes what the tool does.

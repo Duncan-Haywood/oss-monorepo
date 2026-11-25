@@ -124,4 +124,4 @@ sensitivity bounds (Rambachan & Roth 2023) for the pre-trends.
 No warranty. Statistical estimates from data you supply; not legal, tax,
 financial, medical or policy advice, and not proof of what caused an outcome.
 Not affiliated with the authors of the cited papers or the did, csdid, fixest
-or pyfixest projects. MIT licence.
+or pyfixest projects. FSL-1.1-MIT licence.

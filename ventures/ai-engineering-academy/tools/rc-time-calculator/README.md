@@ -22,4 +22,4 @@ Inputs never leave the browser. Anonymous feature-use events are counted locally
 node --test
 ```
 
-MIT licensed; see [`LICENSE`](LICENSE).
+FSL-1.1-MIT licensed; see [`LICENSE`](LICENSE).

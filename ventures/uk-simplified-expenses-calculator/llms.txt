@@ -2,7 +2,7 @@
 
 > Free UK simplified expenses calculator for sole traders: compare HMRC's 45p/25p mileage rate and £10/£18/£26 use-of-home flat rate with your actual costs and see which claim is bigger and what it saves in tax. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-simplified-expenses-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-simplified-expenses-calculator): FSL-1.1-MIT licensed.

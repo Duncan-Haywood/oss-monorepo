@@ -67,4 +67,4 @@ node --test              # stories.mjs and usage.mjs
 python3 -m http.server   # then open http://localhost:8000/
 ```
 
-MIT licensed. [Sponsor on GitHub](https://github.com/sponsors/Duncan-Haywood).
+FSL-1.1-MIT licensed. [Sponsor on GitHub](https://github.com/sponsors/Duncan-Haywood).

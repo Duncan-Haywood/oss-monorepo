@@ -2,7 +2,7 @@
 
 > Free calculator for storage-unit auction bidders: prices the buyer's premium, realistic resale recovery, resale fees, dump and labor cost, and holding cost, then reports the bid a target margin supports, the break-even bid, and what a flat percent-of-value rule of thumb would have told you to bid instead.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/storage-auction-max-bid-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/storage-auction-max-bid-calculator): FSL-1.1-MIT licensed.

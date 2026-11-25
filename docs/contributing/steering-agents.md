@@ -198,7 +198,7 @@ up the oldest first ([the ideas guide](ideas.md)).
   owner checklist and guardrails, ready for scheduled sessions.
 - **This repository's prompt system:** [`prompts/README.md`](../../prompts/README.md)
   explains the routing, run records and review loop, and works as a starting
-  point to copy. Everything here is MIT licensed.
+  point to copy. It is FSL-1.1-MIT licensed (MIT after two years), like the rest of the repository outside `research/`.
 
 Start small: one or two scheduled sessions an hour, a handful of direct asks
 a day, and a review session every day or two. Raise the rate when the

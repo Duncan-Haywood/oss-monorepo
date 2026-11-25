@@ -2,7 +2,7 @@
 
 > Free Form 5500 late filing calculator for 401(k) and retirement-plan sponsors: the due date with weekend rollover and the Form 5558 extension, days late, and the DOL DFVC programme cost beside IRS and DOL penalty exposure. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/form-5500-late-filing-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/form-5500-late-filing-calculator): FSL-1.1-MIT licensed.

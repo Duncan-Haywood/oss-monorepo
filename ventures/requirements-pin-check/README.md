@@ -38,4 +38,4 @@ still contain a vulnerable release. Not security advice. No warranty.
 node --test
 ```
 
-MIT licensed. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
+FSL-1.1-MIT licensed. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.

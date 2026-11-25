@@ -15,7 +15,7 @@
  *
  * Off by default and needs no account, token or publish step: the file is
  * committed, and pre-commit reads it from a clone. Qualification is exactly
- * ghaction.mjs's (stdlib-only, no network, no process spawning, MIT, a
+ * ghaction.mjs's (stdlib-only, no network, no process spawning, FSL-1.1-MIT, a
  * description), so the two channels cannot disagree. Hooks use
  * `language: script` on the venture's own check.py (one source of truth, so
  * the file must be executable), scan the whole repository and do not take

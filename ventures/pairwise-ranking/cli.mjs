@@ -35,7 +35,7 @@ Citations:
 ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}.${p.doi ? ` doi:${p.doi}` : ""}`).join("\n")}
 
 Statistics from the results you give. Not betting, financial or professional
-advice. No warranty. MIT licence.
+advice. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/pairwise-ranking/`;
 
 export function parseArgs(argv) {

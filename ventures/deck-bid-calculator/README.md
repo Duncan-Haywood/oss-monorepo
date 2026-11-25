@@ -114,4 +114,4 @@ damage arising from its use.
 It does not tell anyone what to charge or whether a deck may be built. It is
 not a building-code, structural, guardrail, permit, or insurance inspection.
 
-MIT licensed — see [`LICENSE`](LICENSE).
+FSL-1.1-MIT licensed — see [`LICENSE`](LICENSE).

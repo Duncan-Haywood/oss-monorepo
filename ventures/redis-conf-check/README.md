@@ -167,7 +167,7 @@ Privacy Control, and can be deleted with the page's opt-out button.
 
 ## Licence
 
-MIT. Built with AI assistance. Not affiliated with Redis Ltd.; Redis is a
+FSL-1.1-MIT. Built with AI assistance. Not affiliated with Redis Ltd.; Redis is a
 trademark of Redis Ltd., used here only to say which software the tool
 reads. Redis 7.0's source and example redis.conf, which the behaviour and the
 fixture come from, are BSD-3-Clause.

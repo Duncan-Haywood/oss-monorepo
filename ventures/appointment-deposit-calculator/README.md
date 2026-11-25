@@ -46,4 +46,4 @@ To measure your own no-show rate from a booking export first, see [`appointment-
 
 ## License
 
-MIT, see `LICENSE`.
+FSL-1.1-MIT, see `LICENSE`.

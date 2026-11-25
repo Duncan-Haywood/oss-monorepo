@@ -255,7 +255,7 @@ export function compute(input) {
       const lightOpen = p.openSource && !systemic;
       findings.push({ severity: systemic ? "high" : "medium", title: systemic ? "General-purpose model with systemic risk: it is presumed to have high-impact capabilities at 10^25 FLOP of training compute (Art 51(2))." : "General-purpose model provider duties apply (Art 53)." });
       if (lightOpen) {
-        findings.push({ severity: "info", title: "Models released under a free and open-source licence with public weights and parameters are exempt from the documentation duties in Art 53(1)(a)-(b), but not from the copyright policy and training-content summary, and the exemption ends at systemic risk (Art 53(2))." });
+        findings.push({ severity: "info", title: "Models released under a free to use and source available licence with public weights and parameters are exempt from the documentation duties in Art 53(1)(a)-(b), but not from the copyright policy and training-content summary, and the exemption ends at systemic risk (Art 53(2))." });
         add(duties, "General-purpose model provider (open-source)", GPAI_DUTIES.filter(([a]) => a !== "Art 53(1)(a)-(b)"));
       } else {
         add(duties, "General-purpose model provider", GPAI_DUTIES);

@@ -2,7 +2,7 @@
 
 > Free estimated tax penalty calculator: see your IRS Form 2210 underpayment penalty installment by installment, check the 90% and prior-year safe harbors, and get a catch-up plan. Runs in your browser, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/estimated-tax-penalty-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/estimated-tax-penalty-calculator): FSL-1.1-MIT licensed.

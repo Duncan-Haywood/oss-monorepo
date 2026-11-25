@@ -163,4 +163,4 @@ each against real sudo and closed all five. Still open:
 
 ## Licence
 
-MIT. See [`LICENSE`](LICENSE).
+FSL-1.1-MIT. See [`LICENSE`](LICENSE).

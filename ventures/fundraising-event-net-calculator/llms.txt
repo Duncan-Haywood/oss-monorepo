@@ -2,7 +2,7 @@
 
 > Free fundraising event calculator for galas, auctions and benefit dinners: enter tickets, sponsors, auction, giving and costs, and get net proceeds, cost per dollar raised, break-even guests and the ticket price that reaches your goal. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fundraising-event-net-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fundraising-event-net-calculator): FSL-1.1-MIT licensed.

@@ -26,4 +26,4 @@ where you operate. Review every shift before you share a schedule.
 **Privacy.** Everything runs in your browser; names, rates and shifts are never
 uploaded. Anonymous feature counts stay in local storage and can be switched off.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

@@ -2,7 +2,7 @@
 
 > Free lumper fee calculator for truckers and owner-operators: enter the lumper receipt, the dock wait and each way the broker might pay you back, and see what you are really out. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lumper-fee-reimbursement-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lumper-fee-reimbursement-calculator): FSL-1.1-MIT licensed.

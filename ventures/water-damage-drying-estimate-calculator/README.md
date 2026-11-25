@@ -12,4 +12,4 @@ After using this, you can now **size the equipment and see the margin before the
 2. Pure logic is in `calc.mjs` (`plan()`, `equipment()`, `jobCost()`, `encodeShare()`); tests: `node --test`.
 
 Modelled: air movers from floor, wall and ceiling ratios; dehumidifiers from cubic feet over a class factor; equipment billed per approved day and costed per day on site; technician set, pickup, monitoring and drive time; extraction and demo labour; consumables; margin against a target; margin by drying days; a share link. Not modelled: category 2 and 3 protocols, containment, air scrubbers, contents, mould or asbestos testing, subcontractors, permits, overhead and profit markups, regional price lists, carrier-specific rules.
-Not legal, tax or financial advice, and not a drying plan: follow your own standard and carrier guidelines. No warranty; see the page footer. MIT licensed (`LICENSE`).
+Not legal, tax or financial advice, and not a drying plan: follow your own standard and carrier guidelines. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

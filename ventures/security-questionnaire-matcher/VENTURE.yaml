@@ -8,7 +8,7 @@ owner: duncan
 #
 # First visitor: a SaaS founder, security lead or sales engineer at a small vendor selling to larger buyers, searching "security questionnaire template", "answer vendor security questionnaire faster", "SIG lite answers". Incumbents (Vanta, Drata, Conveyor, Loopio, Responsive) price per seat or per year inside broader platforms. Volume not measured.
 #
-# Path to revenue (payment rails stay off): free here as a lead magnet and open source (MIT); the business shape is a hosted team library with owners, review dates and XLSX/portal import, plus an optional draft-answer pass on the user's own API key. Not built here: accounts, XLSX import, LLM pass.
+# Path to revenue (payment rails stay off): free here as a lead magnet and source available (FSL-1.1-MIT); the business shape is a hosted team library with owners, review dates and XLSX/portal import, plus an optional draft-answer pass on the user's own API key. Not built here: accounts, XLSX import, LLM pass.
 #
 # Liability: output is a heuristic suggestion and says so on screen; every exported row is marked Review. The main harm is a stale or out-of-scope answer sent to a customer, mitigated by flagging changed figures and negations, showing the source question, and telling the reader to verify. Input never leaves the device; the library is stored locally only on an explicit click. No claim of affiliation with any framework body or vendor.
 hypotheses:

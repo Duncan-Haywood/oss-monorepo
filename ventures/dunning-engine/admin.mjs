@@ -20,7 +20,7 @@ input,button{font:inherit;padding:6px 10px}.banner{padding:8px 12px;border-radiu
 <div id="b" class="banner" hidden></div><div id="s" class="cards"></div>
 <div id="x" hidden></div>
 <table id="t" hidden><thead><tr><th>Invoice</th><th>Customer</th><th>Class</th><th>Status</th><th>Next steps</th><th></th></tr></thead><tbody></tbody></table>
-<p><small>Open source, MIT. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support the creator</a>. You operate this copy and are responsible for the emails it sends.</small></p>
+<p><small>Source available, FSL-1.1-MIT. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support the creator</a>. You operate this copy and are responsible for the emails it sends.</small></p>
 <script>
 var $=function(i){return document.getElementById(i)};
 function td(tr,t){var c=document.createElement("td");c.textContent=t==null?"":String(t);tr.appendChild(c)}

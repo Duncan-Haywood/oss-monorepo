@@ -33,7 +33,7 @@ Citations:
 ${PAPERS.map((p) => `  ${p.cite}${p.doi ? ` doi:${p.doi}` : ""}`).join("\n")}
 
 A statistical estimate from the answers you give, not a substitute for a
-psychometrician's review of a high-stakes test. No warranty. MIT licence.
+psychometrician's review of a high-stakes test. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/item-response-theory/`;
 
 export function parseArgs(argv) {

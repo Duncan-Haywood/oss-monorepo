@@ -37,7 +37,7 @@ ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}. ${p.url
 
 Statistical estimates from the study results you supply, not medical, legal, tax, financial or
 professional advice. A pooled number is only as good as the studies and how they were chosen.
-No warranty. MIT licence. Web version: https://marisstella.app/meta-analysis/`;
+No warranty. FSL-1.1-MIT licence. Web version: https://marisstella.app/meta-analysis/`;
 
 const FLAGS = { "--layout": "layout", "--columns": "columns", "--measure": "measure", "--ratio": "ratio", "--study": "study", "--method": "method", "--confidence": "confidence", "--moderator": "moderator", "--correction": "correction" };
 const NUMERIC = ["confidence", "correction"];

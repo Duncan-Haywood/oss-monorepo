@@ -2,7 +2,7 @@
 
 > Free EU DORA checker for financial entities and the software vendors that sell to them: whether Regulation (EU) 2022/2554 reaches you, which duty areas and Article 30 contract terms are still open, and the 4-hour, 72-hour and one-month major-incident report deadlines. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-dora-readiness-checker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-dora-readiness-checker): FSL-1.1-MIT licensed.

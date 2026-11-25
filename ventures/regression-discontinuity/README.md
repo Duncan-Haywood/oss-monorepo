@@ -129,4 +129,4 @@ rddensity test, and local randomisation inference for discrete scores.
 No warranty. Statistical estimates from data you supply; not legal, tax,
 financial, medical or policy advice, and not proof of what caused an outcome.
 Not affiliated with the authors of the cited papers or the rdrobust project.
-MIT licence.
+FSL-1.1-MIT licence.

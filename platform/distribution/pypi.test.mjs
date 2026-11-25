@@ -21,7 +21,7 @@ async function fixture(files) {
   }
   return root;
 }
-const MIT = 'MIT License\n\nCopyright (c) x';
+const MIT = 'Functional Source License\n\nCopyright (c) x';
 const SRC = '#!/usr/bin/env python3\nimport argparse, sys\nfrom pathlib import Path\n\ndef main(argv=None):\n    return 0\n\nif __name__ == "__main__":\n    sys.exit(main())\n';
 const venture = (name, over = {}) => ({
   [`ventures/${name}/check.py`]: SRC,

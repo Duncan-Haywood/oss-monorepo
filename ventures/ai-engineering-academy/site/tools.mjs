@@ -285,7 +285,7 @@ ${jsonLd}
     </p>
   </article>
   <footer>
-    <p>Part of <a href="../index.html">${siteName}</a>. MIT licensed.</p>
+    <p>Part of <a href="../index.html">${siteName}</a>. FSL-1.1-MIT licensed.</p>
   </footer>
 </main>
 </body>

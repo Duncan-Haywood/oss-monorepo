@@ -2,7 +2,7 @@
 
 > Free browser calculator for the mega backdoor Roth 401(k) strategy: enter your YTD elective deferral, employer contributions, and after-tax contributions and get your remaining after-tax headroom under the 2025/2026 IRS 415(c) limit, plus the per-paycheck amount to use it up by year-end.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mega-backdoor-roth-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mega-backdoor-roth-calculator): FSL-1.1-MIT licensed.

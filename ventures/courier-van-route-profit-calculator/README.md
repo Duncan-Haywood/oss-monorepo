@@ -20,4 +20,4 @@ dependencies. `node --test *.test.mjs` runs the suite.
 financial advice. Not affiliated with any delivery platform. **Privacy.** Everything runs in
 your browser; nothing is uploaded.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

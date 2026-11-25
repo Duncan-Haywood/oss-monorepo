@@ -189,5 +189,5 @@ and call counters keyed by budget, scope value and window.
 
 ## Licence
 
-MIT. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
+FSL-1.1-MIT. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
 Roadmap: [`ROADMAP.md`](ROADMAP.md).

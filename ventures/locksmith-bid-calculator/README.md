@@ -64,4 +64,4 @@ This calculator produces arithmetic observations from numbers you supply. It
 does not verify a locksmith license or bond, price a specific make or model
 of lock or fob, or replace your own insurance, contract, or accountant.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

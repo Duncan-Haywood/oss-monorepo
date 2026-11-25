@@ -2,7 +2,7 @@
 
 Copied from NAV's public repository
 [nav-gov-hu/Online-Invoice](https://github.com/nav-gov-hu/Online-Invoice) (`sample/Data sample`
-and `sample/API sample`), MIT licence, copyright (c) 2019 Nemzeti Adó- és Vámhivatal
+and `sample/API sample`), FSL-1.1-MIT licence, copyright (c) 2019 Nemzeti Adó- és Vámhivatal
 (`LICENCE-NAV.md`). The one edit: in `manageInvoice.xml` the sample's technical-user login,
 password hash, request signature and exchange token were replaced, since the checker never reads them.
 

@@ -7,7 +7,7 @@ tool a fee that grows with your contact list.
 
 **Live tool:** https://marisstella.app/drip-keeper/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`**: a timeline simulator. Paste your sequences, list what one
   person does ("0h signed_up, 60h created_project, 200h upgraded") and see

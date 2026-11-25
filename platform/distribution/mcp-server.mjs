@@ -31,7 +31,7 @@ export function loadCatalogue(file = path.join(HERE, 'tools.json')) {
 export const TOOLS = [
   {
     name: 'list_tools',
-    description: 'Search the catalogue of free, open-source command-line tools (calculators, checkers, estimators). Returns slug, one-line description and page URL. Leave query empty to list all.',
+    description: 'Search the catalogue of free, source-available command-line tools (calculators, checkers, estimators). Returns slug, one-line description and page URL. Leave query empty to list all.',
     inputSchema: { type: 'object', properties: { query: { type: 'string', description: 'Words to match against slug and description' }, limit: { type: 'integer', minimum: 1, maximum: 100 } }, additionalProperties: false },
     annotations: { readOnlyHint: true, openWorldHint: false },
   },
@@ -107,7 +107,7 @@ export async function handle(msg, ctx) {
   if (id === undefined) return null; // notification (initialized, cancelled, ...)
   switch (method) {
     case 'initialize':
-      return ok({ protocolVersion: PROTOCOL_VERSION, capabilities: { tools: {} }, serverInfo: { name: 'monorepo-projects-mcp', version: ctx.version ?? '0.1.0' }, instructions: 'Free, open-source (MIT) calculators and checkers. Start with list_tools. Outputs are estimates, not professional advice.' });
+      return ok({ protocolVersion: PROTOCOL_VERSION, capabilities: { tools: {} }, serverInfo: { name: 'monorepo-projects-mcp', version: ctx.version ?? '0.1.0' }, instructions: 'Free, source available (FSL-1.1-MIT) calculators and checkers. Start with list_tools. Outputs are estimates, not professional advice.' });
     case 'ping': return ok({});
     case 'tools/list': return ok({ tools: TOOLS });
     case 'tools/call':

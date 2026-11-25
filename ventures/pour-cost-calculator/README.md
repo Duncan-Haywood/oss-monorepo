@@ -81,7 +81,7 @@ damage arising from its use.
 slow, broken, moved, or taken offline without notice. Do not use it as a
 system of record.
 
-MIT licensed — see [`LICENSE`](LICENSE).
+FSL-1.1-MIT licensed — see [`LICENSE`](LICENSE).
 
 ## Distribution
 

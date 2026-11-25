@@ -7,7 +7,7 @@ your user count.
 
 **Live tool:** https://marisstella.app/feedback-board/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`**: the duplicate finder in your browser. Paste your existing
   requests, type a new one, see the closest matches. Nothing is uploaded.

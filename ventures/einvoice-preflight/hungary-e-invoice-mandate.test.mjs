@@ -10,7 +10,7 @@ const table = fs.readFileSync(new URL("./e-invoicing-mandates-by-country.html", 
 test("carries the no-warranty disclaimer and licence line", () => {
   assert.match(html, /<strong>No warranty\.<\/strong>/);
   assert.match(html, /not legal, tax, financial, or accounting advice/i);
-  assert.match(html, /Free and open source/);
+  assert.match(html, /Free to use and source available/);
 });
 
 test("states the reporting dates and says it is not an exchange mandate", () => {

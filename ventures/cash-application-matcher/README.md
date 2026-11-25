@@ -62,4 +62,4 @@ Everything runs in your browser (or on your machine with the CLI). Files are nev
 
 ## Licence
 
-MIT, see [LICENSE](LICENSE). Optional support: https://github.com/sponsors/Duncan-Haywood
+FSL-1.1-MIT, see [LICENSE](LICENSE). Optional support: https://github.com/sponsors/Duncan-Haywood

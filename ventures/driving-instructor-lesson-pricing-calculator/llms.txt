@@ -2,7 +2,7 @@
 
 > Free calculator for independent driving instructors: profit per lesson, break-even price, the price that reaches your pre-tax profit target and the cost of a block discount, after fuel, car wear, fixed costs, gaps and cancellations. Entirely client-side, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/driving-instructor-lesson-pricing-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/driving-instructor-lesson-pricing-calculator): FSL-1.1-MIT licensed.

@@ -4,7 +4,7 @@ After using this, a babysitter who runs their own business can **answer the righ
 
 **Live tool:** https://marisstella.app/babysitting-business-kit/ · **Guide:** [Babysitting taxes, explained](babysitting-taxes.html)
 
-Free and MIT. A browser app with no build step and no account, plus an optional one-file Node 22 server with zero dependencies that the sitter runs on their own hosting account.
+Free and FSL-1.1-MIT. A browser app with no build step and no account, plus an optional one-file Node 22 server with zero dependencies that the sitter runs on their own hosting account.
 
 ## Who it is for
 
@@ -145,4 +145,4 @@ Everything runs in your browser. Your data is never uploaded by the page, and th
 
 **Best-effort hosting, no SLA.** These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.
 
-MIT licence. Optional support: https://github.com/sponsors/Duncan-Haywood
+FSL-1.1-MIT licence. Optional support: https://github.com/sponsors/Duncan-Haywood
