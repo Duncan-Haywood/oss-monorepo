@@ -1,9 +1,9 @@
 ---
 title: "Quality fix: dropping an add-on is not a churned customer"
-seo_title: "Logo churn per customer, not per subscription: how to count it from Stripe"
+seo_title: "Logo churn per customer, not per subscription, from Stripe"
 date: 2026-11-25
 tags: [quality-audit, mrr-pulse, saas-metrics, stripe]
-description: "MRR Pulse now counts customers, logo churn, NRR and the MRR movements per Stripe customer, so an add-on dropped is contraction and a plan swap is expansion, not churn plus new."
+description: "MRR Pulse now counts logo churn, NRR and MRR movements per Stripe customer: a dropped add-on is contraction and a plan swap is expansion, not churn."
 ---
 
 Logo churn is the share of *customers* who stopped paying. Stripe stores
