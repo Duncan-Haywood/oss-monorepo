@@ -149,7 +149,10 @@ Script text starts here. Paragraphs are separated by blank lines.
 ```
 
 Front matter values are single lines (no wrapping). `sources` is the only
-list.
+list. Keep `summary` to about 140 characters: the page's og:description is the
+summary plus a fixed suffix, and `platform/pages/og-description-length.test.mjs`
+fails a new page over 200 (older episodes are in its baseline; episode 180's
+first CI run failed on it, and `--check-script` does not catch it).
 
 ## Making an episode
 
