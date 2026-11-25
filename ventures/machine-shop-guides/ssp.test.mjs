@@ -151,3 +151,17 @@ test("POA&M CSV lists gaps heaviest first with plan fields, formula-safe", () =>
   assert.match(lines[2], /^3\.1\.8,/);
   assert.match(lines[2], /"'=HYPERLINK\(""x""\)"/);
 });
+
+test("an open 170.21(a)(2)(iii) requirement is flagged and marked not POA&M-eligible", () => {
+  const d = filled();
+  d.requirements["3.10.3"] = { status: "not_met", plannedAction: "Visitor log and escort rule", responsible: "Pat", milestone: "2027-01-01" };
+  d.requirements["3.1.3"] = { status: "not_met", plannedAction: "Firewall rules", responsible: "Pat", milestone: "2027-01-01" };
+  const rv = reviewSsp(d, { today: "2026-11-25" });
+  assert.match(rv.issues.filter((i) => i.where === "3.10.3").map((i) => i.message).join(" "), /never allows this requirement on a POA&M/);
+  assert.ok(!rv.issues.some((i) => i.where === "3.1.3" && /never allows/.test(i.message)));
+  assert.deepEqual(rv.score.conditional.prohibited, ["3.10.3"]);
+  const lines = poamToCsv(d).trim().split("\n");
+  assert.match(lines[0], /,POA&M allowed \(32 CFR 170\.21\),/);
+  assert.match(lines.find((l) => l.startsWith("3.10.3,")), /,No: listed in 32 CFR 170\.21\(a\)\(2\)\(iii\); must be met,/);
+  assert.match(lines.find((l) => l.startsWith("3.1.3,")), /,Not met,Yes,/);
+});

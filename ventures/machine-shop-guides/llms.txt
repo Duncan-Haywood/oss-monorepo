@@ -7,7 +7,7 @@ Free to use and source available (FSL-1.1-MIT). Results are estimates from the n
 ## Tools
 
 - [CMMC Level 1 self-assessment checklist](https://marisstella.app/machine-shop-guides/cmmc-level-1-self-assessment.html): 15 requirements word for word from FAR 52.204-21(b)(1); 59 objectives from NIST SP 800-171A mapped by Table 2 to 32 CFR 170.15, FCI read for CUI; MET or NOT MET in its entirety (32 CFR 170.24(c)(1)); N/A counts as met.
-- [SPRS score calculator](https://marisstella.app/machine-shop-guides/sprs-score-calculator.html)
+- [SPRS score calculator](https://marisstella.app/machine-shop-guides/sprs-score-calculator.html): 110 minus 5/3/1 per gap; the CMMC Level 2 Conditional check (88 points, POA&M-eligible gaps only, and the six requirements 32 CFR 170.21(a)(2)(iii) never allows on a POA&M); POA&M starter CSV marking each gap allowed or not.
 - [NIST 800-171 SSP template](https://marisstella.app/machine-shop-guides/nist-800-171-ssp-template.html): system security plan builder in the browser; system boundary, environment, connections, users; status, implementation statement, owner, evidence and provider for each of the 110 requirements; review of what 3.12.4 still needs and rows an assessor would return; SSP as HTML or Markdown, POA&M as CSV, plan file as JSON; nothing uploaded.
 - [Job-shop quote calculator](https://marisstella.app/machine-shop-guides/job-shop-quote-calculator.html)
 

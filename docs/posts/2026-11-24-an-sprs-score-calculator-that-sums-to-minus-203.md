@@ -2,7 +2,7 @@
 title: "An SPRS score calculator whose weights sum to −203"
 seo_title: "Free SPRS score calculator for NIST SP 800-171"
 date: 2026-11-24
-tags: [manufacturing, cmmc, nist-800-171, sprs, machine-shops, quoting]
+tags: [for-customers, machine-shop-guides, manufacturing, cmmc, nist-800-171, sprs, machine-shops, quoting]
 description: "A free SPRS score calculator for small machine shops, the one-line check that every weight is in place, and where CMMC Phase 2 stands on 24 November 2026."
 ---
 
@@ -43,13 +43,46 @@ a session with direct access should re-read.
   a plan of action and milestones (POA&M) can generally carry only 1-point
   items, plus 3.13.11 at its partial value.
 - **The 88 line.** Conditional status needs at least 80% of 110. The page
-  tells you whether your marks clear 88 and which gaps would block it. It also
-  says what it does not check: the specific requirements that 170.21(a)(2)
-  bars from a POA&M.
+  tells you whether your marks clear 88 and which gaps would block it.
+- **The six that can never wait.** Added 25 November 2026: the check now
+  also covers the six requirements
+  [170.21(a)(2)(iii)](https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.21)
+  bars from a POA&M whatever their points (see below).
 - **A POA&M starter.** The gaps download as a CSV with the columns a plan
-  needs: action, owner, milestone date, resources.
+  needs: action, owner, milestone date, resources, and whether the rule lets
+  that gap sit on a POA&M at all.
 
 Nothing you mark leaves the browser.
+
+## Six 1-point gaps that still block Conditional status
+
+The general rule reads as "1-point gaps can wait". That is the trap. Section
+170.21(a)(2)(iii) names six Level 2 requirements that may never be on a
+POA&M, and five of them are worth only 1 point (the sixth, the SSP, is worth
+none):
+
+| Requirement | What it covers | Points |
+|---|---|---|
+| AC.L2-3.1.20 | Verify and control connections to external systems | 1 |
+| AC.L2-3.1.22 | Control CUI posted on publicly accessible systems | 1 |
+| CA.L2-3.12.4 | System security plan | none |
+| PE.L2-3.10.3 | Escort and monitor visitors | 1 |
+| PE.L2-3.10.4 | Keep physical access logs | 1 |
+| PE.L2-3.10.5 | Control and manage physical access devices | 1 |
+
+Three are about the shop floor: who walks in, whether anyone wrote it down,
+and who holds the keys and badges. A shop scoring 108 with a missing visitor
+log and one ordinary 1-point gap looks fine on the general rule. Under
+(a)(2)(iii) it cannot end a Level 2 assessment in Conditional status until
+the visitor log exists. The calculator now says so by name, the POA&M starter
+marks each row "Yes" or "No" with the reason, and the
+[SSP template](https://marisstella.app/machine-shop-guides/nist-800-171-ssp-template.html)
+flags these rows in its review.
+
+The list was read through search excerpts of the eCFR page, because the
+session that added it could not reach ecfr.gov directly. The DoD CIO's
+[CMMC FAQ](https://dodcio.defense.gov/Portals/0/Documents/CMMC/FAQsv6.pdf)
+confirms there are six. Re-read the section before an assessment.
 
 ## Where CMMC stands, 24 November 2026
 

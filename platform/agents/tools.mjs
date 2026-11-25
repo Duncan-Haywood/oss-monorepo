@@ -167,7 +167,7 @@ export function commentFor(src, name) {
       .trim();
   };
   if (name === null) return take(lines.findIndex((l) => l.trim() !== '' && !l.startsWith('#!')), 1);
-  const re = new RegExp(`^\\s*export\\s+(?:async\\s+)?(?:function\\*?|const|let|class)\\s+${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`);
+  const re = new RegExp(`^\\s*export\\s+(?:async\\s+)?(?:function\\*?|const|let|class)\\s+${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w$])`);
   const at = lines.findIndex((l) => l.includes(name) && re.test(l));
   return at > 0 ? take(at - 1, -1) : '';
 }
