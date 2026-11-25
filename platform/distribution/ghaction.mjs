@@ -14,7 +14,7 @@
  * The action runs the venture's own `check.py` straight from the checked-out
  * action repository (`github.action_path`), so there is one source of truth
  * and the tool never makes a network call. Qualification reuses the PyPI
- * channel's stdlib allowlist (no network, no process spawning) plus an MIT
+ * channel's stdlib allowlist (no network, no process spawning) plus an FSL-1.1-MIT
  * LICENSE and a description.
  */
 import fs from 'node:fs/promises';
@@ -92,14 +92,14 @@ export async function plan({ root = REPO_ROOT, slugs } = {}) {
     if (bad) { skipped.push({ slug, reason: `imports "${bad}"` }); continue; }
     if (!hasContract(src)) { skipped.push({ slug, reason: 'no --format/--fail-on-risk/path contract' }); continue; }
     const license = await fs.readFile(path.join(dir, 'LICENSE'), 'utf8').catch(() => '');
-    if (!/MIT License/i.test(license)) { skipped.push({ slug, reason: 'no MIT LICENSE' }); continue; }
+    if (!/Functional Source License/i.test(license)) { skipped.push({ slug, reason: 'no FSL-1.1-MIT LICENSE' }); continue; }
     const description = descriptionOf(await fs.readFile(path.join(dir, 'VENTURE.yaml'), 'utf8').catch(() => ''));
     if (!description) { skipped.push({ slug, reason: 'no description in VENTURE.yaml' }); continue; }
     ok.push({
       slug,
       files: {
         [`${ACTIONS_DIR}/${slug}/action.yml`]: actionYaml({ slug, description }),
-        [`${ACTIONS_DIR}/${slug}/README.md`]: `# ${title(slug)} (GitHub Action)\n\n${description}\n\n\`\`\`yaml\n- uses: actions/checkout@v4\n- uses: ${USES_PREFIX}/${slug}@main\n  with:\n    path: .\n\`\`\`\n\nFor a stable pin, replace \`@main\` with a full commit SHA, or with a \`${slug}-v<version>\` tag from this repository's Releases once one exists (portfolio/distribution/versions.json has the current version).\n\nRuns [\`ventures/${slug}/check.py\`](../../../../ventures/${slug}/check.py) (MIT, stdlib-only Python, no network calls). Docs: ${tagUrl(toolUrl(slug), 'gh-action')}\n`,
+        [`${ACTIONS_DIR}/${slug}/README.md`]: `# ${title(slug)} (GitHub Action)\n\n${description}\n\n\`\`\`yaml\n- uses: actions/checkout@v4\n- uses: ${USES_PREFIX}/${slug}@main\n  with:\n    path: .\n\`\`\`\n\nFor a stable pin, replace \`@main\` with a full commit SHA, or with a \`${slug}-v<version>\` tag from this repository's Releases once one exists (portfolio/distribution/versions.json has the current version).\n\nRuns [\`ventures/${slug}/check.py\`](../../../../ventures/${slug}/check.py) (FSL-1.1-MIT, stdlib-only Python, no network calls). Docs: ${tagUrl(toolUrl(slug), 'gh-action')}\n`,
       },
     });
   }

@@ -6,11 +6,11 @@
   <title>Agent Workroom VR — Run Your Coding Agents From a Headset, by Voice</title>
   <meta name="description" content="A WebXR room for Meta Quest and other headsets: your AI coding agents at desks, their pull requests on a task board, red CI on their monitors. Talk to it (push to talk, on-device speech) or point with the controllers, and ask Claude on a pull request without taking the headset off.">
   <meta property="og:title" content="Agent Workroom VR: run your coding agents from a headset">
-  <meta property="og:description" content="Agents at desks, pull requests on the wall, CI on the monitors. Push to talk; point and click with the controllers. Free, open source, nothing uploaded but what you send to GitHub.">
+  <meta property="og:description" content="Agents at desks, pull requests on the wall, CI on the monitors. Push to talk; point and click with the controllers. Free, source available, nothing uploaded but what you send to GitHub.">
   <link rel="canonical" href="./vr.html">
   <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b7e40'/%3E%3C/svg%3E">
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Agent Workroom VR","applicationCategory":"DeveloperApplication","operatingSystem":"Meta Quest Browser and other WebXR browsers; any WebGL browser for the preview","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"license":"https://opensource.org/licenses/MIT"}
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Agent Workroom VR","applicationCategory":"DeveloperApplication","operatingSystem":"Meta Quest Browser and other WebXR browsers; any WebGL browser for the preview","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isAccessibleForFree":true,"license":"https://spdx.org/licenses/FSL-1.1-MIT.html"}
   </script>
   <style>
     :root {
@@ -155,7 +155,7 @@
   <p><strong>Best-effort hosting, no SLA.</strong> Free and experimental; it may change or go offline without notice.</p>
   <p>Your tasks are never uploaded: there are no accounts, cookies or analytics vendors. Network calls: the GitHub API requests you ask for (pull requests, check runs, and a comment only when you confirm one); if you use on-device speech, the one-off download of the speech library from cdn.jsdelivr.net and the model from huggingface.co; and, if your browser's built-in recognition is used, whatever the browser maker's speech service does. Anonymous feature events (<code>vr_opened</code>, <code>vr_entered</code>, <code>vr_voice</code>, <code>vr_task_added</code>, <code>vr_pulled</code>, <code>vr_asked</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
   <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
-  <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional and never changes what the tool does.</p>
+  <p class="support">Free to use and source available under the <a href="LICENSE" rel="noopener">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional and never changes what the tool does.</p>
 </footer>
 
 <script type="module">

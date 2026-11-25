@@ -2,7 +2,7 @@
 
 > Free difference-in-differences tool for units that adopted a policy or change at different times. Upload a long panel CSV (one row per unit and period) with the first treated period or a 0/1 treatment column, and get Callaway and Sant'Anna group-time effects ATT(g,t), overall, event-time and cohort aggregations with influence-function standard errors, an event-study plot with a simultaneous bootstrap band, a Wald pre-test of parallel trends, the two-way fixed effects estimate with clustered errors and its Goodman-Bacon decomposition. Checked against csdid (a port of R's did) and pyfixest to 1e-9. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial, medical, policy or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not legal, tax, financial, medical, policy or professional advice.
 
 ## Pages
 
@@ -22,4 +22,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/difference-in-differences): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/difference-in-differences): FSL-1.1-MIT licensed.

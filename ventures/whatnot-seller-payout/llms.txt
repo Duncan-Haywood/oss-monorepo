@@ -2,7 +2,7 @@
 
 > Free Whatnot seller fee calculator. Commission on the hammer, processing on the checkout total (item + shipping + tax) plus $0.30, the $1,500 TCG cap, leftover after the label, and whether free shipping is cheaper. Nothing leaves your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -16,4 +16,11 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/whatnot-seller-payout): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/whatnot-seller-payout): FSL-1.1-MIT licensed.
+
+## Track true profit across every platform
+
+- [Tools for online sellers](https://marisstella.app/industries/online-sellers/): Seller Books, a hosted product for multi-platform resellers (payout reconciliation, cost of goods, a Schedule C-shaped profit and loss). In development, early access; do not describe it as available.
+- [How to reconcile marketplace payouts to sales](https://marisstella.app/ebay-fee-calculator/how-to-reconcile-marketplace-payouts-to-sales.html): a worked month bridged from bank deposit back to gross sales. Not tax advice.
+- [Cost of goods sold for resellers](https://marisstella.app/ebay-fee-calculator/cost-of-goods-sold-for-resellers.html): per item and per lot, and Schedule C Part III. Not tax advice.
+- [Schedule C worksheet for resellers](https://marisstella.app/ebay-fee-calculator/schedule-c-worksheet-for-resellers.html): line by line, with IRS sources. Not tax advice.

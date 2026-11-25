@@ -16,7 +16,7 @@ test('carries the best-effort hosting disclaimer', () => {
 });
 
 test('carries the support paragraph', () => {
-  assert.match(html, /Free and open source/);
+  assert.match(html, /Free to use and source available/);
   assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
 });
 

@@ -2,7 +2,7 @@
 
 > Enter a site URL to test eight well-known backup filenames (backup.zip, db.sql and more) for a publicly served site or database backup. Nothing uploaded to us.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/backup-file-exposure-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/backup-file-exposure-check): FSL-1.1-MIT licensed.

@@ -108,6 +108,21 @@ class Audit(unittest.TestCase):
     def test_untouched_control_plane_passes(self):
         self.assertEqual(guard.audit_verdict([], None, [], {"owner"})[0], 0)
 
+    def test_passing_risk_review_passes_without_owner(self):
+        code, _ = guard.audit_verdict(["CLAUDE.md"], {"number": 1, "user": {"login": "bot"}}, [], {"owner"}, True)
+        self.assertEqual(code, 0)
+
+    def test_risk_review_must_come_from_mains_workflow(self):
+        run = {"name": "risk-review", "conclusion": "success", "app": {"slug": "github-actions"},
+               "check_suite": {"id": 7}}
+        good = {7: {"path": ".github/workflows/priv-risk-review.yml", "event": "pull_request_target"}}
+        self.assertTrue(guard.risk_review_ok([run], good))
+        faked = {7: {"path": ".github/workflows/some-ci.yml", "event": "pull_request"}}
+        self.assertFalse(guard.risk_review_ok([run], faked))
+        wrong_event = {7: {"path": ".github/workflows/priv-risk-review.yml", "event": "pull_request"}}
+        self.assertFalse(guard.risk_review_ok([run], wrong_event))
+        self.assertFalse(guard.risk_review_ok([dict(run, conclusion="failure")], good))
+
     def test_owner_approval_passes(self):
         code, _ = guard.audit_verdict(["CLAUDE.md"], self.pr, [review("Owner")], {"owner"})
         self.assertEqual(code, 0)
@@ -155,7 +170,7 @@ class PrSummary(unittest.TestCase):
         import os
         from unittest import mock
 
-        files = [{"filename": "CLAUDE.md"}, {"filename": "ventures/x/a.mjs"}]
+        files = [{"filename": ".mcp.json"}, {"filename": "ventures/x/a.mjs"}]
         out = []
         with mock.patch.dict(os.environ, {"GITHUB_REPOSITORY": "o/r"}), \
              mock.patch.object(guard, "gh_pages", return_value=files), \
@@ -163,7 +178,7 @@ class PrSummary(unittest.TestCase):
             code = guard.main(["--pr", "5"])
         self.assertEqual(code, 0)
         self.assertEqual(len(out), 1)
-        self.assertIn("- `CLAUDE.md`", out[0])
+        self.assertIn("- `.mcp.json`", out[0])
         self.assertNotIn("ventures/x/a.mjs", out[0])
 
 

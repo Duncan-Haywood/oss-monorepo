@@ -625,6 +625,22 @@ solves.
    compute its fold radius: a two-term fit that folds inside the image corner (the Kinect's board fit, at 381 px)
    is not a safe default at the edge, and needs a recalibration with features reaching the corners and a third
    radial term.
+10. **Undistort with a damped loop, and check which one you have.** OpenCV's `undistortPoints` is a fixed-point
+   iteration that diverges where the spectral radius of its map at the answer reaches 1, as it does at an image
+   corner of 35 of 169 Duckietown robot calibrations (a 160&deg; lens, ROS's two-term fit). OpenCV damps it from
+   release 4.13.0 (opencv/opencv PR #27993), but only when the criterion carries the EPS flag; its default (COUNT, 5)
+   is undamped in every release and leaves 164 of 169 robots over 1 px at a corner. On the wheels for 4.5.5, 4.10.0
+   and 4.12.0, the releases ROS 1 and 2 distributions and most installed code run, no criterion damps: with
+   COUNT|EPS and 200 iterations 58 of 676 corners stay over 1 px. ORB-SLAM2/3 and ROS `image_geometry` call it with
+   the default, and Kornia's `undistort_points` runs the same undamped loop for 5 steps. VINS-Mono's additive loop,
+   x &larr; x<sub>d</sub> &minus; D(x), is a different map whose eigenvalues are about 1 &minus; &rho;&prime;(r) and
+   1 &minus; c(r): with its own 8 steps it lands a median Duckiebot's worst corner within 0.0085 px, and fails only
+   where &rho;&prime; &gt; 2. A robot that undistorts features near the image edge should pass
+   `(COUNT | EPS, 200, 1e-12)` on OpenCV 4.13 or later, or use a loop it has checked, and test the round trip at
+   the corners once per calibration. `src/undistcheck.py` does that test from the calibration file alone, in
+   stdlib Python: its copy of the undamped loop predicts OpenCV's default corner error to within
+   7.5 &times; 10<sup>&minus;13</sup> px on all 179 calibrations, and its Newton inverse is exact in at most 7 steps
+   at every corner that does not fold and refuses at the 6 that do.
 
 ## 9. Limitations
 

@@ -106,7 +106,7 @@ workflow for it, and that workflow appears in this listing with the synthetic
 path `dynamic/pages/pages-build-deployment` — the same shape as the
 `dynamic/dependabot/...` and `dynamic/agents/...` entries this repository
 already carries. When Pages serves **from Actions**, no such workflow is
-created; the repository's own `portfolio-pages.yml` does the deploying.
+created; the repository's own `priv-portfolio-pages.yml` does the deploying.
 
 So the absent entry is the measurement. Run on 2026-09-05 against all 232
 workflows in this repository, the three `dynamic/` paths were
@@ -204,7 +204,7 @@ PUBLISH_WORKFLOW = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
     ".github",
     "workflows",
-    "portfolio-pages.yml",
+    "priv-portfolio-pages.yml",
 )
 
 # GitHub's managed builder for a *branch*-sourced Pages site. It is not a file
@@ -745,7 +745,7 @@ def source_note(repo, base_url, source="unknown", source_reason=""):
     which *source* it points at, and the two possibilities need opposite
     actions:
 
-      * Source = "GitHub Actions" (what `portfolio-pages.yml` configures). The
+      * Source = "GitHub Actions" (what `priv-portfolio-pages.yml` configures). The
         site is dark because that workflow needs a runner and the metered
         allowance is spent. The owner's move is to switch the source to the
         `gh-pages` branch, which needs no runner at all.

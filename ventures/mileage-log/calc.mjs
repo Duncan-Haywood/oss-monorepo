@@ -190,7 +190,9 @@ export function addFix(track, fix, { maxAccuracy = 50, minStep = 0.02 } = {}) {
   return { last: fix, miles: (track.miles || 0) + d, points: (track.points || 0) + 1 };
 }
 
-const q = (v) => '"' + String(v ?? "").replace(/"/g, '""') + '"';
+// Text cells only. A cell starting =, +, -, @, tab or CR gets an apostrophe so a
+// spreadsheet does not run it as a formula (CWE-1236).
+const q = (v) => { let t = String(v ?? ""); if (/^[=+\-@\t\r]/.test(t) && !/^-?\d+(\.\d+)?$/.test(t)) t = "'" + t; return '"' + t.replace(/"/g, '""') + '"'; };
 export function toCsv(trips, { override = {} } = {}) {
   const head = ["date", "category", "from", "to", "purpose", "client", "odometer_start", "odometer_end", "miles", "rate_per_mile", "deduction", "tolls", "parking", "entered_at", "vehicle"];
   const body = [...trips].sort((a, b) => a.date.localeCompare(b.date)).map((t) => {

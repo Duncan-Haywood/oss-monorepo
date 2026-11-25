@@ -39,7 +39,7 @@ proposal shows a "Pay the deposit" button that opens a payment link from **your 
 
 - **Alternatives today:** Jobber, Housecall Pro, Workiz and Joist bundle online estimates into a per-month
   field-service subscription that also holds your customer list. This is the one piece most solo trades use first
-  (estimate out, acceptance back), on a server you own, MIT-licensed, with no per-seat price. It does not do
+  (estimate out, acceptance back), on a server you own, FSL-1.1-MIT-licensed, with no per-seat price. It does not do
   scheduling, invoicing, a customer database or card processing; if you need those, use one of them.
 - **What it stores:** only the customer-facing proposal (the same text and numbers as the printed one) and the
   customer's answer: typed name and time. Never your costs, wages, burden or margin. State is one JSON file.
@@ -96,5 +96,5 @@ After using this, you can now **price a job from cost to a margin-safe quote and
 know your walk-away number**, which used to be a markup guess that
 under-priced every job.
 
-MIT licensed ([`LICENSE`](LICENSE)). No warranty: arithmetic from your own
+FSL-1.1-MIT licensed ([`LICENSE`](LICENSE)). No warranty: arithmetic from your own
 inputs, not financial advice. Nothing leaves your browser.

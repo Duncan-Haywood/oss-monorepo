@@ -65,7 +65,7 @@ ${items}
 </ul>
 </main>
 <footer>
-<p>No warranty. Figures are estimates from the inputs you enter, not legal, tax, or financial advice, and not a quote of record. Check local licensing and written-estimate rules. MIT licensed, <a href="https://github.com/sponsors/Duncan-Haywood">support the creator</a>.</p>
+<p>No warranty. Figures are estimates from the inputs you enter, not legal, tax, or financial advice, and not a quote of record. Check local licensing and written-estimate rules. FSL-1.1-MIT licensed, <a href="https://github.com/sponsors/Duncan-Haywood">support the creator</a>.</p>
 <p><a href="./">Back to Estimate Maker</a></p>
 </footer>
 <script>

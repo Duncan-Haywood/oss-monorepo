@@ -14,4 +14,4 @@ which used to be a gut-feel price per shirt and a spreadsheet.
 2. Pure logic is in `calc.mjs` (`plan()`); tests: `node --test`.
 
 Screens = colours per location × locations. Spoiled blanks are bought and printed, so they sit in the cost. Not modelled:
-artwork time, flash and cure, shipping, tax, payment fees. No warranty; see the page footer. MIT licensed (`LICENSE`).
+artwork time, flash and cure, shipping, tax, payment fees. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

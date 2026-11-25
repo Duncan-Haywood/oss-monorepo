@@ -4,7 +4,7 @@ Drop a construction drawing set PDF and get the **sheet index**: every sheet's
 number, title, discipline and sheet type, with the cover sheet's drawing index
 checked against the sheets actually in the set. Drop **two issues** to see
 which sheets were added, removed, retitled, or had notes changed. Runs in the
-browser with no upload, or as a CLI. MIT licensed, no dependencies.
+browser with no upload, or as a CLI. FSL-1.1-MIT licensed, no dependencies.
 
 Live: https://marisstella.app/drawing-set-index/
 

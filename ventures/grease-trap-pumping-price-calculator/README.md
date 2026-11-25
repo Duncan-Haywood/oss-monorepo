@@ -12,4 +12,4 @@ After using this, you can now **bid a restaurant's grease trap from the dump tri
 2. Pure logic is in `calc.mjs` (`plan()`, `visitCost()`, `interval()`, `intervalTable()`, `encodeShare()`); tests: `node --test`.
 
 Modelled: visit time from drive, setup, pump rate and a share of the dump trip (one load serves several small traps), crew and truck cost per hour, disposal per gallon, manifest cost, margin as a share of the price and a minimum charge; the interval from one inspection reading against a pump-out limit; annual price by interval; disposal-fee sensitivity; a share link. Not modelled: sales tax, permits and local pretreatment fees, emergency call-outs, jetting or camera work, penalties from the local authority, local rates.
-Not legal, tax or financial advice, and not a statement of what your local authority requires: check your own FOG ordinance. No warranty; see the page footer. MIT licensed (`LICENSE`).
+Not legal, tax or financial advice, and not a statement of what your local authority requires: check your own FOG ordinance. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

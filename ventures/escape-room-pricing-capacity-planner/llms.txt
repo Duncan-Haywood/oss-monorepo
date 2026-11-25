@@ -2,7 +2,7 @@
 
 > Free escape room pricing calculator: rooms, hours, game and reset length, price per player, occupancy and costs in; monthly profit, break-even occupancy, best price per player and build-cost payback out. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/escape-room-pricing-capacity-planner): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/escape-room-pricing-capacity-planner): FSL-1.1-MIT licensed.

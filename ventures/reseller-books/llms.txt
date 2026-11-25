@@ -1,13 +1,13 @@
 # One set of books for every marketplace you sell on.
 
-> Free private tool for resellers: drop your eBay, Etsy, Poshmark, Whatnot and Shopify reports and get one monthly profit and loss, what each channel really keeps, and a Schedule C style worksheet. Nothing is uploaded.
+> Free private tool for resellers: drop your eBay, Etsy, Poshmark, Mercari, Whatnot and Shopify reports and get one monthly profit and loss, what each channel really keeps, and a Schedule C style worksheet. Add a mileage log CSV and sourcing and post office trips go on Schedule C line 9 at the IRS standard mileage rate for each trip's date (72.5 cents to June 30 2026, 76 cents from July 1 2026). Nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/reseller-books/)
+- [The tool](https://marisstella.app/reseller-books/)
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/reseller-books): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/reseller-books): FSL-1.1-MIT licensed.

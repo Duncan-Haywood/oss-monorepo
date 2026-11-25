@@ -2,7 +2,7 @@
 
 > Free online STL decomposition (Seasonal-Trend decomposition using Loess, Cleveland, Cleveland, McRae & Terpenning 1990). Paste a CSV with a date column and a value column and get the trend, the seasonal component, the remainder, the seasonally adjusted series, the strength of trend and of seasonality (Wang, Smith & Hyndman 2006), the seasonal profile by month, weekday or hour, and the points that stand out. The period is inferred from the dates; robust mode down-weights outliers. Several periods at once (24 and 168 for hourly data, 7 and 365 for daily) run MSTL (Bandara, Hyndman & Bergmeir 2021), with a seasonal component, strength and profile per cycle. Checked against statsmodels 0.15.0. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -26,4 +26,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stl-decomposition): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stl-decomposition): FSL-1.1-MIT licensed.

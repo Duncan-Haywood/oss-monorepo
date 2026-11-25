@@ -4,7 +4,9 @@
 
 export const SLUG_RE = /^[a-z0-9][a-z0-9._/-]{0,119}$/;
 export const BOT_RE = /bot|crawl|spider|slurp|preview|monitor|headless|lighthouse|curl|wget|python-requests|httpclient/i;
-export const MAX_BODY = 256;
+// 384 rather than 256 since the funnel events (below): a beacon then carries
+// an event name, an industry and a product beside the page slug.
+export const MAX_BODY = 384;
 // Distribution-channel tags a page may report (`?ref=<tag>`), kept here so the
 // image stays one file. `platform/distribution/attribution.mjs` maps each
 // channel to its tag, and its test fails if the two lists drift apart.
@@ -95,7 +97,43 @@ export function countryCode(c) {
   return typeof c === 'string' && /^[A-Z][A-Z0-9]$/.test(c) ? c : '';
 }
 
-/** True for a page slug, false for any `prefix:` breakdown key (ref, src, geo, dev, bot, botpage). */
+// Funnel events (2026-11-24): which free pages send people toward a paid
+// product. A page marks elements with `data-funnel` (the closed list
+// `FUNNEL_ATTRS` below; `platform/counter/FUNNEL.md` documents the markup) and
+// the shared chrome script sends one beacon per event: `{p, e, i?, t?}`, the
+// page slug, the event name, and optionally an industry and a product, each a
+// short lowercase token the page itself wrote. Nothing about the visitor rides
+// along. Each event adds one to its day's `fn:<event>:<industry>:<product>:<page>`
+// (`_` for an absent industry or product), and never to the page total: the
+// page load was already counted by its own beacon.
+export const FUNNEL_KEY = 'fn:';
+export const FUNNEL_EVENTS = Object.freeze(['industry_view', 'products_view', 'cta_view', 'cta_click', 'outbound_click']);
+// `data-funnel` value -> what is counted. `cta` counts an impression when the
+// element is half on screen (once per page load) and a click on it; the page
+// views count once per load; `outbound` counts a click.
+export const FUNNEL_ATTRS = Object.freeze({
+  'industry-page': 'industry_view',
+  'products-page': 'products_view',
+  cta: 'cta_view',
+  outbound: 'outbound_click',
+});
+export const FUNNEL_TOKEN_RE = /^[a-z0-9][a-z0-9-]{0,59}$/;
+export const FUNNEL_NONE = '_';
+
+/** The stored key for one funnel event. */
+export function funnelKey({ event, industry = '', product = '', slug }) {
+  return `${FUNNEL_KEY}${event}:${industry || FUNNEL_NONE}:${product || FUNNEL_NONE}:${slug}`;
+}
+
+/** `fn:` key -> { event, industry, product, page } ('' for `_`), or null for anything else. */
+export function parseFunnelKey(key) {
+  const parts = String(key).split(':');
+  if (parts.length !== 5 || `${parts[0]}:` !== FUNNEL_KEY || !FUNNEL_EVENTS.includes(parts[1])) return null;
+  const tok = (t) => (t === FUNNEL_NONE ? '' : t);
+  return { event: parts[1], industry: tok(parts[2]), product: tok(parts[3]), page: parts[4] };
+}
+
+/** True for a page slug, false for any `prefix:` breakdown key (ref, src, geo, dev, bot, botpage, fn). */
 export function isPageKey(key) {
   return !String(key).includes(':');
 }
@@ -129,12 +167,25 @@ export function classify({ method, url, headers = {}, body = '' }) {
   let slug;
   let ref;
   let src;
+  let event;
+  let industry;
+  let product;
   try {
-    ({ p: slug, r: ref, s: src } = JSON.parse(body));
+    ({ p: slug, r: ref, s: src, e: event, i: industry, t: product } = JSON.parse(body));
   } catch {
     return { count: false, reason: bot ? 'bot' : 'body', ...(bot && { bot }) };
   }
   const slugOk = typeof slug === 'string' && SLUG_RE.test(slug) && !slug.includes('..');
+  if (event !== undefined) {
+    // A funnel event is not a page load, and a crawler's is not even an
+    // event: no `bot` field, so a server adds nothing to its crawler tallies.
+    if (bot) return { count: false, reason: 'bot' };
+    if (!FUNNEL_EVENTS.includes(event)) return { count: false, reason: 'event' };
+    if (!slugOk) return { count: false, reason: 'slug' };
+    // A malformed industry or product is dropped, not refused, like a ref tag.
+    const tok = (t) => (typeof t === 'string' && FUNNEL_TOKEN_RE.test(t) ? t : '');
+    return { count: true, slug, funnel: funnelKey({ event, industry: tok(industry), product: tok(product), slug }) };
+  }
   // A crawler's beacon is not a page load. It is reported back, with the page
   // when that is valid, so a server can keep the separate `bot:` tallies.
   if (bot) return { count: false, reason: 'bot', bot, ...(slugOk && { slug }) };

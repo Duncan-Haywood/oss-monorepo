@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01XpHqydY17CmnLmViiGhP5z",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "I want to do the change to a more restrictive license (then chose: relicense public repo, source-available)",
+  "input_sha256": "01bc521cc7fe1e9a52018f21636515c7d54f87cd848d28895b02edfa216582f3",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T22:56:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Relicense the public repository's new work from MIT to FSL-1.1-MIT (owner's choice: source-available)",
+  "projects": [
+    "portfolio/monetization",
+    "platform/pages",
+    "platform/distribution"
+  ],
+  "pr": 18724,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first pass of relicense_fsl.py dropped the trailing e of licence and doubled the FSL prefix (FSL-1.1-FSL-1.1-MIT) on reruns",
+      "fix": "fixed the replacements, added a (?<!-) guard and an idempotence test, reset and reran"
+    },
+    {
+      "what": "a quoted \"MIT License\" rule rewrote pyproject-metadata-check's subject matter and changepoint-detector's generated watch-repo template",
+      "fix": "rule removed; those files take only the footer rewrite; the watch template was regenerated from its source"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/goals.md",
+      "issue": "'Original work is MIT-licensed' contradicted the new LICENSE; amended in control-plane PR 18728, which waits for the owner"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/distribution/wordpress.mjs",
+      "why": "WordPress.org lists only GPL-compatible plugins and the plugin holds no tool code, so the launcher stays MIT",
+      "did": "left MIT, documented in LICENSING_TRANSITION.md",
+      "result": "no listing blocker added"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-why-we-moved-from-mit-to-fsl.md"
+  ],
+  "goal": "north star: protect the paid products by stopping a competing commercial copy of public code",
+  "notes": "Local verification: relicense_fsl.py --check exits 0; venture tests that mention licence/footer text, 14,744 pass / 0 fail after one fix; venture tests with generator --check, 3,486 pass / 0 fail; platform/distribution 283 pass; platform/pages after merging main 2,296 pass / 6 fail: hardware-page licence test fixed in this PR; description-length and launched (3) fail identically on origin/main; the 2 build.test.mjs ones (catch-all size, imports count line) also fail identically on origin/main. Stays MIT: research/, outside website requests, the WordPress and VS Code launchers, and everything published before the change.",
+  "corrections": [],
+  "redteam": null
+}

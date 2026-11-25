@@ -260,4 +260,4 @@ choice can be checked; two-stage BKY reports rejections only.
 
 Free and as-is, without warranty of any kind. Statistical output from the
 data you supply; not medical, legal, tax or financial advice, and not a
-substitute for a statistician. MIT licence (`LICENSE`).
+substitute for a statistician. FSL-1.1-MIT licence (`LICENSE`).

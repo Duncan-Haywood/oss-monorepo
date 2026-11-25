@@ -2,7 +2,7 @@
 
 > Free UK pension withdrawal tax calculator: how much of a lump sum or UFPLS is tax-free, the tax you really owe, the emergency tax refund to expect and how spreading it over tax years saves. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-pension-withdrawal-tax-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-pension-withdrawal-tax-calculator): FSL-1.1-MIT licensed.

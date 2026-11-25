@@ -12,13 +12,13 @@
   https://doi.org/10.3368/jhr.48.3.821. Homicide counts come from the FBI
   Uniform Crime Reports.
 - **Retrieved from:** the `castle` dataset (`castle.dta`) in the `causaldata`
-  Python package, version 0.1.5, by Nick Huntington-Klein, MIT licence,
+  Python package, version 0.1.5, by Nick Huntington-Klein, FSL-1.1-MIT licence,
   downloaded from PyPI on 2026-11-17 (`causaldata-0.1.5.tar.gz`, SHA-256
   5604fb84000c6a8ae3e93630b3624e9f2af4f8700e4465ec3586998b3522fd1c). The
   package's metadata names the Federal Bureau of Investigation as the source of
   the crime data and says the data are used in the difference-in-differences
   chapter of Cunningham's *Causal Inference: The Mixtape*.
-- **Licence:** the package is MIT licensed; the underlying crime statistics are
+- **Licence:** the package is FSL-1.1-MIT licensed; the underlying crime statistics are
   a work of the US federal government.
 - **Processing:** kept the six columns above; derived `first_treated` from
   `post` (checked to switch on once and stay on in every state); rounded

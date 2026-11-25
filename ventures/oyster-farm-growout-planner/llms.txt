@@ -2,7 +2,7 @@
 
 > Free oyster farm planner: enter seed, survival, growout months, gear, lease and prices by grade, and see net per crop, break-even price and survival, and the cash needed before the first sale. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/oyster-farm-growout-planner): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/oyster-farm-growout-planner): FSL-1.1-MIT licensed.

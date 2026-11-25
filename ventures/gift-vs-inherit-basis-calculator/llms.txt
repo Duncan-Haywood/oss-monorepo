@@ -2,7 +2,7 @@
 
 > Free calculator: should you gift a house or stock to your child now or let them inherit it? Compares carryover basis against the stepped-up basis, the capital gains tax, Form 709 and estate tax. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gift-vs-inherit-basis-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gift-vs-inherit-basis-calculator): FSL-1.1-MIT licensed.

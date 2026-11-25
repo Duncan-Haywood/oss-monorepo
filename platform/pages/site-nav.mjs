@@ -75,6 +75,12 @@ export function sponsorsNote() {
 
 /** The primary navigation, in order. `href` is relative to the site root. */
 export const SITE_NAV = Object.freeze([
+  // The company's products first, then the industries they serve (owner,
+  // 2026-11-24: the site moves to "a for profit marketing style for portfolio
+  // of software and hardware products targeted to lots of specific smbs").
+  // Both pages are products.mjs; the lines themselves are business.mjs.
+  Object.freeze({ id: 'products', label: 'Products', href: 'products/' }),
+  Object.freeze({ id: 'industries', label: 'Industries', href: 'industries/' }),
   Object.freeze({ id: 'tools', label: 'Tools', href: 'c/' }),
   Object.freeze({ id: 'research', label: 'Research', href: 'research/' }),
   // The reading side is two items (owner, 2026-11-24: "move more of the blog
@@ -93,7 +99,10 @@ export const SITE_NAV = Object.freeze([
   // Labelled for businesses since 2026-11-02 (owner: "advertise to businesses
   // more", "describe your problem and it gets built").
   Object.freeze({ id: 'request', label: 'Get it built', href: 'custom-development/' }),
-  Object.freeze({ id: 'deploy', label: 'Deploy your own', href: 'deploy/' }),
+  // "Self-host" since 2026-11-24 (was "Deploy your own"): two new items had to
+  // fit the one-row header budget site-nav.test.mjs measures. The footer keeps
+  // the long name ("Deploy your own copy").
+  Object.freeze({ id: 'deploy', label: 'Self-host', href: 'deploy/' }),
   Object.freeze({ id: 'about', label: 'About', href: 'about/' }),
 ]);
 
@@ -224,6 +233,7 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
       ['about/', 'About &amp; press kit'],
       ['feedback/', 'Report a problem'],
       ['custom-development/', 'Custom development'],
+      ['hardware/', 'Hardware designs'],
       ['queue/', 'Work queue'],
       ['engineering/', 'Engineering status'],
       ['dev/', 'Development dashboard'],
@@ -244,7 +254,7 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
       .map(([h, label]) => `<li><a href="${esc(href(h))}">${label}</a></li>`)
       .join('')}</ul></div>`)
     .join('');
-  return `<p class="pfs-support">${sponsorsNote()}</p><nav class="pfs-foot" aria-label="Site links">${cols}</nav><p class="pfs-foot pfs-credit">A ${esc(SITE_NAME)} project, MIT licensed.</p>`;
+  return `<p class="pfs-support">${sponsorsNote()}</p><nav class="pfs-foot" aria-label="Site links">${cols}</nav><p class="pfs-foot pfs-credit">A ${esc(SITE_NAME)} project. Tools FSL-1.1-MIT, research MIT.</p>`;
 }
 
 /**

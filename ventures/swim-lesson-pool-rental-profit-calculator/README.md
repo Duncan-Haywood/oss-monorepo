@@ -12,4 +12,4 @@ After using this, you can now **choose which lesson format earns a rented pool h
 2. Pure logic is in `calc.mjs` (`plan()`, `formatLine()`, `poolHours()`, `volumeTable()`, `encodeShare()`); tests: `node --test`.
 
 Modelled: three lesson formats with classes per week, swimmers per class, price and minutes, cancellations (revenue and supplies fall, instructor and pool minutes do not), pool rental for class minutes plus the cost of rented-but-empty hours, instructor pay, supplies, card fee, weekly fixed cost, a target-margin price per format, break-even swimmers per class, profit per pool hour, a volume table, a share link. Not modelled: tips (ignored on purpose), lifeguard or deck staff beyond the instructor, insurance and certification beyond the fixed figure, sales tax, advertising, make-up lessons, closures, income tax.
-Not legal, tax or financial advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+Not legal, tax or financial advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

@@ -2,7 +2,7 @@
 
 > Free analyzer for Turo hosts: drop in your earnings or trip history CSV and see profit per car and per trip after Turo's fee, cleaning, fuel, delivery and monthly loan, insurance and depreciation, plus utilization and which cars lose money. Runs in your browser, the file is never uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/turo-earnings-report-analyzer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/turo-earnings-report-analyzer): FSL-1.1-MIT licensed.

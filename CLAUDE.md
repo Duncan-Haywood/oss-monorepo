@@ -143,12 +143,20 @@ Merge when it is verified. There is no human review gate; fix forward. That
 covers `ventures/*` product code as much as `platform/`, docs and CI. The
 cross-review bots (`platform/ci/agent_review/README.md`) can auto-merge a
 same-repo PR on two bot approvals and green CI; they assist, they are not a
-gate. The one exception is the control plane (owner, 2026-10-30, against
-rogue agents): a PR touching a path in `.github/CODEOWNERS` (agent
-instructions, hooks, MCP config, CI, the reviewer config) waits for the
-owner's approval once the ruleset is applied. Keep those edits in their own
-small PR so the rest of your work isn't held up
-([`docs/security/agent-hardening.md`](docs/security/agent-hardening.md)).
+gate. **Every PR gets a cyber and legal risk review instead of waiting for
+the owner** (owner, 2026-11-24: "i really don't like all this stuff that is
+blocking itself on my behalf ... can we instead have maybe a review process
+on cysec and legal risks instead?"). Run
+`python3 platform/security/risk_review.py`, answer each check it prints in
+the PR body, fix what it turns up, and merge. **Nothing waits for the owner's
+review** (owner, same day: "I don't need to review. just be extra careful for
+adversarial changes"). The required `risk-review` check runs main's copy of
+the script and blocks, with no approval path: a likely secret; removed lines
+in the guardrails or hard limits; an existing licence moved outside the
+allowed list; a change that shrinks the gate itself. Files in
+`.github/CODEOWNERS` are *sensitive*: review them hardest, as if the diff
+came from a prompt-injected agent. Threats and controls:
+[`docs/security/risk-review.md`](docs/security/risk-review.md).
 
 Before merging: CI green (or, when runners are starved, the checks your change
 reaches, run here, with the output in the run record's `notes` and a summary
@@ -167,7 +175,7 @@ is already asked; don't duplicate it.
 
 The catalogue is served by Cloudflare (free plan) at **https://marisstella.app/**
 (owner, 2026-10-30; the workers.dev address forwards to it), built and
-deployed by `.github/workflows/portfolio-pages.yml` on every merge (and every
+deployed by `.github/workflows/priv-portfolio-pages.yml` on every merge (and every
 three hours); the old GitHub Pages address serves redirect pages to it
 (owner, 2026-10-29). Merging is publishing; there is no branch to push by hand.
 The Hetzner/k3s route was retired on 2026-10-01 and its trees

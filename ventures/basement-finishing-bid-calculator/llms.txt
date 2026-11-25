@@ -2,7 +2,7 @@
 
 > Price a basement finish from finished square feet, rec-room versus framed-finish versus legal-living, drop ceiling versus drywall, carpet versus LVP, bath, egress, and extras — plus the walk-away price a $30 / SF special cannot see.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -15,4 +15,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/basement-finishing-bid-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/basement-finishing-bid-calculator): FSL-1.1-MIT licensed.

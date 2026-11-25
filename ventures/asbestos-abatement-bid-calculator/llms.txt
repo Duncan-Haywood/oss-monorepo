@@ -2,7 +2,7 @@
 
 > Free bid calculator for licensed asbestos abatement contractors: price a removal job by OSHA/EPA containment class (I/II/III), square footage, crew and supervisor rates, air monitoring, and waste disposal — and see the gap against a flat rate per square foot.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/asbestos-abatement-bid-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/asbestos-abatement-bid-calculator): FSL-1.1-MIT licensed.

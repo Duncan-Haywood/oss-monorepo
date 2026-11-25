@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BR-62: Seller electronic address has no scheme identifier</title>
+<meta name="description" content="BR-62: If the invoice gives the seller's electronic address (BT-34), it must say what kind of address it is with a scheme identifier (the schemeID attribute),…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/en/br-62">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/br-62">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/br-62">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/br-62">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/br-62">
+<meta property="og:title" content="BR-62: Seller electronic address has no scheme identifier">
+<meta property="og:description" content="BR-62: If the invoice gives the seller's electronic address (BT-34), it must say what kind of address it is with a scheme identifier (the schemeID attribute),…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does BR-62 mean?","acceptedAnswer":{"@type":"Answer","text":"If the invoice gives the seller's electronic address (BT-34), it must say what kind of address it is with a scheme identifier (the schemeID attribute), taken from the EAS code list, for example EM for an email address or 0088 for a GLN. In CII only the first electronic address of the seller is checked."}},{"@type":"Question","name":"How do I fix BR-62?","acceptedAnswer":{"@type":"Answer","text":"Find out which kind of address you are giving: an email address (EM), a GLN (0088), a VAT number (for Germany 9930) or another identifier from the EAS list. Add the matching EAS code as schemeID on cbc:EndpointID in cac:AccountingSupplierParty (CII: on ram:URIID in ram:URIUniversalCommunication). Keep only the identifier itself in the value, without any prefix."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-invoice rule explained · EN 16931</p>
+<h1>BR-62: Seller electronic address has no scheme identifier</h1>
+<nav class="langs" aria-label="Other languages"><a href="../de/br-62.html" hreflang="de" lang="de">Deutsch</a><a href="../fr/br-62.html" hreflang="fr" lang="fr">Français</a><a href="index.html">All rules</a></nav>
+</header>
+<section>
+<h2>Official message</h2>
+<blockquote lang="en">The Seller electronic address (BT-34) shall have a Scheme identifier.</blockquote>
+<dl>
+<dt>Severity</dt><dd>Error (the invoice is rejected)</dd>
+<dt>Checked in</dt><dd>UBL, CII</dd>
+<dt>Business terms</dt><dd>BT-34</dd>
+</dl>
+</section>
+<section>
+<h2>What does BR-62 mean?</h2>
+<p>If the invoice gives the seller's electronic address (BT-34), it must say what kind of address it is with a scheme identifier (the schemeID attribute), taken from the EAS code list, for example EM for an email address or 0088 for a GLN. In CII only the first electronic address of the seller is checked.</p>
+<h2>Usual causes</h2>
+<ul>
+<li>The address was written without the schemeID attribute, often because the software only stores the bare value.</li>
+<li>The scheme was written in another attribute or as a prefix in the value (for example &quot;0088:4000001000005&quot;).</li>
+<li>The schemeID attribute is present but empty.</li>
+</ul>
+</section>
+<section>
+<h2>How do I fix BR-62?</h2>
+<ol>
+<li>Find out which kind of address you are giving: an email address (EM), a GLN (0088), a VAT number (for Germany 9930) or another identifier from the EAS list.</li>
+<li>Add the matching EAS code as schemeID on cbc:EndpointID in cac:AccountingSupplierParty (CII: on ram:URIID in ram:URIUniversalCommunication).</li>
+<li>Keep only the identifier itself in the value, without any prefix.</li>
+</ol>
+<h2>Corrected XML (minimal example we wrote)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;cac:AccountingSupplierParty&gt;
+  &lt;cac:Party&gt;
+    &lt;cbc:EndpointID schemeID=&quot;EM&quot;&gt;invoices@example.com&lt;/cbc:EndpointID&gt;
+  &lt;/cac:Party&gt;
+&lt;/cac:AccountingSupplierParty&gt;</code></pre>
+<p><strong>CII</strong></p>
+<pre><code>&lt;ram:SellerTradeParty&gt;
+  &lt;ram:URIUniversalCommunication&gt;
+    &lt;ram:URIID schemeID=&quot;EM&quot;&gt;invoices@example.com&lt;/ram:URIID&gt;
+  &lt;/ram:URIUniversalCommunication&gt;
+&lt;/ram:SellerTradeParty&gt;</code></pre>
+<p class="note">Example values only. Put the elements in place of, or beside, what your file has; element order matters in both syntaxes.</p>
+</section>
+<section>
+<h2>Check your file for free</h2>
+<p>The free checker runs the official EN 16931, XRechnung and Peppol rules in your browser. Your file is not uploaded.</p>
+<p><a class="button" href="../../index.html">Open the free checker</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In development — early access</span></p>
+<h2>Fix-and-explain for accountants and invoicing teams</h2>
+<p>A paid service that explains every failed rule in plain German, French or English and proposes a corrected file is in development. <a href="https://example.invalid/industries/e-invoicing/">Early access</a></p>
+</section>
+<section>
+<h2>Source</h2>
+<p>Rule id and official message from the CEN/TC 434 EN 16931 validation artefacts, validation-1.3.17 (EUPL-1.2), compiled from upstream commit 6e35e0a. The explanation, causes, fix and XML on this page are our own, not the rule publisher's. <a href="https://github.com/ConnectingEurope/eInvoicing-EN16931/tree/validation-1.3.17" rel="noopener">CEN/TC 434 EN 16931 validation artefacts validation-1.3.17</a></p>
+</section>
+<footer>
+<p><strong>Not tax or legal advice.</strong> This page explains what a validation rule checks and how to make a file pass it. It does not say which VAT treatment applies to your sale; ask a tax adviser. <strong>No warranty:</strong> provided free and as-is; check the result before you rely on it.</p>
+<p>Our code and explanations are FSL-1.1-MIT-licensed. Official rule messages are quoted under their publishers' licences (EUPL-1.2, Apache-2.0, MPL-2.0), named on each page.</p>
+</footer>
+</main></body></html>

@@ -1,0 +1,9 @@
+# Response headers for Cloudflare Workers static assets (wrangler.toml).
+# The same set vercel.json sent: keep the internal docs out of search engines
+# and out of frames.
+/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  X-Content-Type-Options: nosniff

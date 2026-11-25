@@ -81,7 +81,7 @@ export function renderHowItWorks({ toolCount = 0, appCount = 0 } = {}) {
     {
       glyph: 'code',
       title: 'Check how the answer is worked out',
-      body: 'Every formula, test and research result is open source under the MIT licence, so you can read exactly how a number was reached.',
+      body: 'Every formula, test and research result is published: tools under FSL-1.1-MIT, research under MIT, so you can read exactly how a number was reached.',
     },
     {
       glyph: 'deploy',
@@ -227,8 +227,13 @@ ${latest
  * search box and a knowledge panel: the WebSite with its search action (the
  * hub reads `?q=` on load and runs the search), and the organisation behind
  * it. Kept separate from the hub's CollectionPage, which describes the page.
+ *
+ * `offers` lists live paid products only (company.mjs, LIVE_PRODUCTS): an
+ * Organization's `makesOffer` is a claim that something can be bought now,
+ * so a product in development never appears here. No price is stated; the
+ * product's own page carries its plans and its own Product markup.
  */
-export function siteStructuredData({ baseUrl, siteName, description, repoUrl, logo, founder }) {
+export function siteStructuredData({ baseUrl, siteName, description, organizationDescription, offers = [], repoUrl, logo, founder }) {
   return {
     '@context': 'https://schema.org',
     '@graph': [
@@ -251,8 +256,26 @@ export function siteStructuredData({ baseUrl, siteName, description, repoUrl, lo
         '@id': `${baseUrl}#organization`,
         name: siteName,
         url: baseUrl,
+        ...(organizationDescription ? { description: organizationDescription } : {}),
         logo: { '@type': 'ImageObject', url: logo, width: 512, height: 512 },
         sameAs: [repoUrl],
+        ...(offers.length
+          ? {
+              makesOffer: offers.map((o) => ({
+                '@type': 'Offer',
+                url: o.url,
+                itemOffered: {
+                  '@type': 'SoftwareApplication',
+                  name: o.name,
+                  url: o.url,
+                  applicationCategory: 'BusinessApplication',
+                  operatingSystem: 'Web',
+                  ...(o.description ? { description: o.description } : {}),
+                  ...(o.audience ? { audience: { '@type': 'Audience', audienceType: o.audience } } : {}),
+                },
+              })),
+            }
+          : {}),
         ...(founder ? { founder: { '@type': 'Person', name: founder } } : {}),
       },
     ],

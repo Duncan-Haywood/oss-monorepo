@@ -2,7 +2,7 @@
 
 > Free internal link audit and planner. Drop in your site's HTML files: it finds orphan pages and pages linked only from menus, then suggests the exact sentences in your other pages that should link to them, with the link-equity gain. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/internal-link-planner): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/internal-link-planner): FSL-1.1-MIT licensed.

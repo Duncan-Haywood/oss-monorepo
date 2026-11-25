@@ -30,4 +30,4 @@ Everything runs in your browser. Your sub counts, split, Bits, and income figure
 
 This calculator produces arithmetic observations from numbers you supply. It does not audit your payout history, confirm a deposit amount, or replace your own accountant. Twitch is a trademark of Twitch Interactive, Inc., named here only to describe what this tool calculates — this tool is not affiliated with, endorsed by, or sponsored by Twitch, and its subscription prices, split terms, and Bits pricing change over time; verify every figure against your own current Twitch dashboard.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

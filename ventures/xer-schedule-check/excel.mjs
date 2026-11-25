@@ -265,7 +265,7 @@ export function workbookSheets(xer, { projId = null, raw = false, result = undef
     ["Relationships, WBS, Resources, Assignments, Expenses, Calendars and Activity codes are the file's other tables with every internal id replaced by the name P6 shows."],
     ...(raw ? [["Sheets named \"XER <table>\" are the file's tables as they are, one column per field, under P6's own field names."]] : []),
     [""],
-    ["Made by XER Schedule Check (MIT licence): https://marisstella.app/xer-schedule-check/ . Nothing was uploaded: the file was read on your computer."],
+    ["Made by XER Schedule Check (FSL-1.1-MIT licence): https://marisstella.app/xer-schedule-check/ . Nothing was uploaded: the file was read on your computer."],
     ["Not scheduling, contractual or legal advice. Not affiliated with or endorsed by Oracle. Check figures against P6 before relying on them."],
   ];
   if (warnings.length) readme.push([""], ...warnings.map((w) => [`Note: ${w}`]));

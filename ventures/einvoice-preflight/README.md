@@ -8,6 +8,14 @@ PDF file, or run the CLI below. The page never uploads the invoice.
 
 **Live tool:** https://marisstella.app/einvoice-preflight/
 
+**This is the free edition** (frozen 2026-11-24 at main commit `cf0b6311f`, to be tagged `einvoice-preflight-free-v1`).
+It stays MIT, public and working; from now on it gets lead-magnet maintenance
+only (fixes, rule-page polish), not new depth. A paid edition that fixes and
+explains rejected e-invoices is **in development** in the owner's private
+repository and not for sale yet:
+[early access](https://marisstella.app/industries/e-invoicing/). Why and how:
+`portfolio/monetization/LICENSING_TRANSITION.md`.
+
 This free local CLI also checks a small, transparent JSON, UBL XML,
 UN/CEFACT CII (XRechnung CII / Factur-X), or Factur-X / ZUGFeRD PDF invoice
 for missing fields and arithmetic mistakes, then prints rule IDs and
@@ -2172,7 +2180,7 @@ warning is seeded into it in `hungary-nav-product-fee.test.mjs` (8 tests). No re
 business's product fee invoice has been read.
 
 Tests: `hungary-nav.test.mjs` (14) and `hungary-nav-product-fee.test.mjs` (8) on
-six of NAV's files kept in `fixtures/hungary-nav/` with NAV's MIT licence.
+six of NAV's files kept in `fixtures/hungary-nav/` with NAV's FSL-1.1-MIT licence.
 
 ### The schema gate: invoiceData.xsd with NTCA common 1.0 (2026-11-15, latest)
 

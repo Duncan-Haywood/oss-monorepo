@@ -280,7 +280,7 @@ does not outrank that deploy.
 
 ## License
 
-MIT — see `LICENSE`. The Connect IQ Store itself does not require an
+FSL-1.1-MIT — see `LICENSE`. The Connect IQ Store itself does not require an
 open-source license to publish, but the rest of this portfolio's ventures
 carry one and this face is not a reason to be the exception.
 

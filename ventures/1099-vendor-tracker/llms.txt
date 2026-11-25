@@ -2,7 +2,7 @@
 
 > Track which contractors need a 1099-NEC under the 2026 $2,000 reporting threshold (up from $600), check the corporation exemption, and see missing W-9s before the January 31 deadline. Runs in your browser, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/1099-vendor-tracker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/1099-vendor-tracker): FSL-1.1-MIT licensed.

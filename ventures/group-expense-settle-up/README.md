@@ -1,7 +1,7 @@
 # Group Expense Settle Up
 
 **Split a trip, a shared house or a party, and settle it in the fewest payments.**
-A free, open-source (MIT) browser page: log who paid what in any currency, split
+A free, source-available (FSL-1.1-MIT) browser page: log who paid what in any currency, split
 equally, by shares, exact amounts or percent, and get every balance to the cent
 and the smallest list of who pays whom. No app, no account, no limit; one share
 link carries the whole list.
@@ -142,4 +142,4 @@ use this as a system of record. Keep the share link or a CSV.
 
 ## Licence
 
-MIT, see `LICENSE`.
+FSL-1.1-MIT, see `LICENSE`.

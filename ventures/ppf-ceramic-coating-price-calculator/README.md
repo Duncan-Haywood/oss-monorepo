@@ -12,4 +12,4 @@ After using this, you can now **quote PPF and coating from the film, correction 
 2. Pure logic is in `calc.mjs` (`plan()`, `jobCost()`, `encodeShare()`); tests: `node --test`.
 
 Modelled: film footage by package and vehicle size with waste, install, correction and coating hours, tech days and cure days as bay days, bay overhead, an expected redo cost, margin as a share of the price, a minimum charge, every package side by side with profit per bay day, redo sensitivity, a share link. Not modelled: sales tax, insurance, brand warranty terms, extras such as headlight tint or chrome delete, travel, pattern-software cut figures.
-Not legal, tax or financial advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+Not legal, tax or financial advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

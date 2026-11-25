@@ -2,7 +2,7 @@
 
 > Free tool for restaurant owners: drop in your hourly sales and time-entry exports and see labor % of sales and sales per labor hour by daypart, weekday and hour, plus the labor above your target you could trim without going under a minimum crew. Runs in your browser, files are never uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/restaurant-labor-cost-daypart-analyzer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/restaurant-labor-cost-daypart-analyzer): FSL-1.1-MIT licensed.

@@ -163,7 +163,7 @@ reads the stamps as hour ending.
 Implemented from the papers' mathematics; no third-party code was ported.
 TensorLy was used only to produce `eval/reference.json`.
 
-**No warranty.** Free and as-is, MIT licensed. Statistical output from the
+**No warranty.** Free and as-is, FSL-1.1-MIT licensed. Statistical output from the
 data you supply, not legal, tax, financial or professional advice; a flagged
 cell is unusual against the table's pattern, not proof of an error or a
 cause. Not affiliated with the papers' authors, PJM, AEP, Kaggle or TensorLy.

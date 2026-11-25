@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BR-63: Adresse électronique de l'acheteur sans identifiant de schéma</title>
+<meta name="description" content="BR-63: Si la facture indique l'adresse électronique de l'acheteur (BT-49), elle doit préciser le type d'adresse par un identifiant de schéma (attribut…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/fr/br-63">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/br-63">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/br-63">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/br-63">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/br-63">
+<meta property="og:title" content="BR-63: Adresse électronique de l'acheteur sans identifiant de schéma">
+<meta property="og:description" content="BR-63: Si la facture indique l'adresse électronique de l'acheteur (BT-49), elle doit préciser le type d'adresse par un identifiant de schéma (attribut…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Que signifie BR-63 ?","acceptedAnswer":{"@type":"Answer","text":"Si la facture indique l'adresse électronique de l'acheteur (BT-49), elle doit préciser le type d'adresse par un identifiant de schéma (attribut schemeID) de la liste EAS, par exemple EM pour une adresse e-mail ou 0088 pour un GLN. En CII, seule la première adresse électronique est contrôlée."}},{"@type":"Question","name":"Comment corriger BR-63 ?","acceptedAnswer":{"@type":"Answer","text":"Déterminez le type d'adresse que vous indiquez : l'adresse que l'acheteur vous a communiquée, par exemple une Leitweg-ID allemande (0204), une adresse e-mail (EM) ou un GLN (0088). Ajoutez le code EAS correspondant en schemeID sur cbc:EndpointID dans cac:AccountingCustomerParty (CII : sur ram:URIID dans ram:URIUniversalCommunication). Ne laissez dans la valeur que l'identifiant lui-même, sans préfixe."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">Règle de facture électronique expliquée · EN 16931</p>
+<h1>BR-63: Adresse électronique de l'acheteur sans identifiant de schéma</h1>
+<nav class="langs" aria-label="Autres langues"><a href="../en/br-63.html" hreflang="en" lang="en">English</a><a href="../de/br-63.html" hreflang="de" lang="de">Deutsch</a><a href="index.html">Toutes les règles</a></nav>
+</header>
+<section>
+<h2>Message officiel</h2>
+<blockquote lang="en">The Buyer electronic address (BT-49) shall have a Scheme identifier.</blockquote>
+<dl>
+<dt>Gravité</dt><dd>Erreur (la facture est rejetée)</dd>
+<dt>Vérifiée en</dt><dd>UBL, CII</dd>
+<dt>Termes métier</dt><dd>BT-49</dd>
+</dl>
+</section>
+<section>
+<h2>Que signifie BR-63 ?</h2>
+<p>Si la facture indique l'adresse électronique de l'acheteur (BT-49), elle doit préciser le type d'adresse par un identifiant de schéma (attribut schemeID) de la liste EAS, par exemple EM pour une adresse e-mail ou 0088 pour un GLN. En CII, seule la première adresse électronique est contrôlée.</p>
+<h2>Causes fréquentes</h2>
+<ul>
+<li>L'adresse a été écrite sans attribut schemeID, souvent parce que le logiciel ne stocke que la valeur brute.</li>
+<li>Le schéma figure dans un autre attribut ou en préfixe de la valeur (par exemple « 0088:4000001000005 »).</li>
+<li>L'attribut schemeID est présent mais vide.</li>
+</ul>
+</section>
+<section>
+<h2>Comment corriger BR-63 ?</h2>
+<ol>
+<li>Déterminez le type d'adresse que vous indiquez : l'adresse que l'acheteur vous a communiquée, par exemple une Leitweg-ID allemande (0204), une adresse e-mail (EM) ou un GLN (0088).</li>
+<li>Ajoutez le code EAS correspondant en schemeID sur cbc:EndpointID dans cac:AccountingCustomerParty (CII : sur ram:URIID dans ram:URIUniversalCommunication).</li>
+<li>Ne laissez dans la valeur que l'identifiant lui-même, sans préfixe.</li>
+</ol>
+<h2>XML corrigé (exemple minimal rédigé par nous)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;cac:AccountingCustomerParty&gt;
+  &lt;cac:Party&gt;
+    &lt;cbc:EndpointID schemeID=&quot;0204&quot;&gt;04011000-12345-34&lt;/cbc:EndpointID&gt;
+  &lt;/cac:Party&gt;
+&lt;/cac:AccountingCustomerParty&gt;</code></pre>
+<p><strong>CII</strong></p>
+<pre><code>&lt;ram:BuyerTradeParty&gt;
+  &lt;ram:URIUniversalCommunication&gt;
+    &lt;ram:URIID schemeID=&quot;0204&quot;&gt;04011000-12345-34&lt;/ram:URIID&gt;
+  &lt;/ram:URIUniversalCommunication&gt;
+&lt;/ram:BuyerTradeParty&gt;</code></pre>
+<p class="note">Valeurs d'exemple uniquement. Remplacez ou complétez les éléments de votre fichier ; l'ordre des éléments est imposé dans les deux syntaxes.</p>
+</section>
+<section>
+<h2>Vérifier votre fichier gratuitement</h2>
+<p>Le vérificateur gratuit exécute les règles officielles EN 16931, XRechnung et Peppol dans votre navigateur. Votre fichier n'est pas envoyé.</p>
+<p><a class="button" href="../../index.html">Ouvrir le vérificateur gratuit</a></p>
+</section>
+<section class="cta">
+<p><span class="state">En développement — accès anticipé</span></p>
+<h2>Corriger et expliquer, pour les experts-comptables et les équipes de facturation</h2>
+<p>Un service payant qui explique chaque règle en échec en français, en allemand ou en anglais clair et propose un fichier corrigé est en cours de développement. <a href="https://example.invalid/industries/e-invoicing/">Accès anticipé</a></p>
+</section>
+<section>
+<h2>Source</h2>
+<p>Identifiant et message officiel de la règle : CEN/TC 434 EN 16931 validation artefacts, validation-1.3.17 (EUPL-1.2), compilés depuis le commit amont 6e35e0a. L'explication, les causes, la correction et le XML de cette page sont les nôtres, pas ceux de l'éditeur de la règle. <a href="https://github.com/ConnectingEurope/eInvoicing-EN16931/tree/validation-1.3.17" rel="noopener">CEN/TC 434 EN 16931 validation artefacts validation-1.3.17</a></p>
+</section>
+<footer>
+<p><strong>Ni conseil fiscal ni conseil juridique.</strong> Cette page explique ce que vérifie une règle de validation et comment faire passer un fichier. Elle ne dit pas quel régime de TVA s'applique à votre vente ; demandez à votre expert-comptable. <strong>Sans garantie (no warranty) :</strong> gratuit et fourni en l'état ; vérifiez le résultat avant de vous y fier.</p>
+<p>Notre code et nos explications sont sous licence MIT. Les messages officiels des règles sont cités sous la licence de leur éditeur (EUPL-1.2, Apache-2.0, MPL-2.0), indiquée sur chaque page.</p>
+</footer>
+</main></body></html>

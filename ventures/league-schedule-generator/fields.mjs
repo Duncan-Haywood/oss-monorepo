@@ -4,7 +4,7 @@
 // multi-division page with it, stop fetching the carry-over search and the night designs that schedule.mjs
 // imports (eval/page-weight.txt). schedule.mjs and calc.mjs re-export every name.
 
-import { parseTime, parseDateList } from "./dates.mjs";
+import { parseTime, parseDateList, dateOrder, MIXED_ORDER } from "./dates.mjs";
 
 /** Splits CSV text into rows of cells (quotes, doubled quotes, commas and newlines inside quotes; a BOM is dropped). */
 export function csvRows(text) {
@@ -30,6 +30,8 @@ export function csvRows(text) {
 export function parseCourtClosures(text, courts = null) {
   const closures = {};
   const errors = [];
+  const order = dateOrder(text);
+  if (order.mixed) errors.push(MIXED_ORDER);
   for (const [i, raw] of String(text ?? "").split(/\r?\n/).entries()) {
     const line = raw.trim();
     if (!line) continue;
@@ -38,7 +40,7 @@ export function parseCourtClosures(text, courts = null) {
     const name = m[1].trim();
     const hit = courts ? courts.find((x) => x.toLowerCase() === name.toLowerCase()) : name;
     if (!hit) { errors.push(`Line ${i + 1}: "${name}" is not one of the courts.`); continue; }
-    const { days, errors: e } = parseDateList(m[2]);
+    const { days, errors: e } = parseDateList(m[2], order.order ?? null);
     for (const x of e) errors.push(`Line ${i + 1}: ${x}`);
     if (days.length) closures[hit] = [...new Set([...(closures[hit] || []), ...days])].sort((a, b) => a - b);
   }

@@ -14,7 +14,7 @@ name: Duplicate symbols
 # own docstring and tests said one. Every check was green: both functions had
 # tests and each passed, because each was tested against itself.
 #
-# Sibling of `conflict-markers-ci.yml`, for the same reason and with the same
+# Sibling of `priv-conflict-markers-ci.yml`, for the same reason and with the same
 # shape: both exist because a fast-moving `main` produces defects that no test
 # suite is positioned to see, and neither can know in advance which file will
 # carry one. Separate workflows so a red check names its own cause.
@@ -50,7 +50,7 @@ jobs:
   # Named for what it checks, not `check`: the job name is what appears in the
   # PR's check list. Two rows both reading "check" defeat the reason this has
   # its own workflow -- that a red result should name its own cause without
-  # opening it. (`conflict-markers-ci.yml` renamed its job for the same reason.)
+  # opening it. (`priv-conflict-markers-ci.yml` renamed its job for the same reason.)
   duplicate-symbols:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     # Checkout, Python setup, and a grep-shaped scan over tracked .py files --

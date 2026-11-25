@@ -1,5 +1,5 @@
 // Reads the daily usage files from the `usage-data` branch, where
-// `.github/workflows/site-usage-pull.yml` commits them (main's ruleset takes
+// `.github/workflows/priv-site-usage-pull.yml` commits them (main's ruleset takes
 // changes only through a PR, so the workflow cannot push to main).
 //
 //   node platform/counter/usage-data.mjs status        # what the branch holds, per file

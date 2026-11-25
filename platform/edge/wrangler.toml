@@ -15,7 +15,7 @@ ALLOWED_ORIGIN = "https://marisstella.app,https://monorepo-projects-site.duncan-
 FEEDBACK_DAILY_CAP = "50"
 MAX_PER_SLUG_PER_DAY = "20000"
 # No secrets: the Worker holds no GitHub credential. Feedback and counts are
-# pulled into the repository by .github/workflows/site-usage-pull.yml.
+# pulled into the repository by .github/workflows/priv-site-usage-pull.yml.
 
 [[d1_databases]]
 binding = "DB"

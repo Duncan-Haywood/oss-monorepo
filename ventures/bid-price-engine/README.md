@@ -27,4 +27,4 @@ You do not need the author's site. Fork the repository and run your own:
 - **Render:** deploy from your fork with `render.yaml` (static site, no paid plan needed).
 - Nothing runs on the author's accounts, and nothing you type reaches a server. The Docker image has not been built in the session that added these files, so build it once and open the page before relying on it. Tests: `node --test deploy.test.mjs`.
 
-Defaults are planning starting points, not benchmarks. Not legal, tax or financial advice; no warranty. MIT licensed. Next after [Estimate Maker](../estimate-maker/) (turn the number into a document) and [Bid Win-Rate Optimizer](../bid-win-rate-optimizer/) (what price wins).
+Defaults are planning starting points, not benchmarks. Not legal, tax or financial advice; no warranty. FSL-1.1-MIT licensed. Next after [Estimate Maker](../estimate-maker/) (turn the number into a document) and [Bid Win-Rate Optimizer](../bid-win-rate-optimizer/) (what price wins).

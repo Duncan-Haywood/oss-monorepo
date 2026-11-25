@@ -33,7 +33,7 @@ Rules the code keeps, because a report that overstates is worse than none:
 
 ## Running it every day
 
-The data comes from `site-usage-pull.yml`, which pulls the counter at 05:23
+The data comes from `priv-site-usage-pull.yml`, which pulls the counter at 05:23
 UTC. Since 2026-10-31 that job fails at its last step: it pushes straight to
 `main`, and the repository ruleset now answers "Changes must be made through a
 pull request" (run 41276810850). So the committed `site-visits.json` stopped at
@@ -50,8 +50,8 @@ which `portfolio/usage/` and `docs/posts/` are not):
 2. commit to a branch `usage-data/<date>` instead of `main` and push it;
 3. `gh pr create` with the job token (`pull-requests: write`; needs the
    repository setting that lets Actions create pull requests);
-4. `gh workflow run conflict-markers-ci.yml --ref <branch>` and the same for
-   `control-plane-guard.yml` (`actions: write`), because a PR opened by the job
+4. `gh workflow run priv-conflict-markers-ci.yml --ref <branch>` and the same for
+   `priv-control-plane-guard.yml` (`actions: write`), because a PR opened by the job
    token starts no workflows by itself, but a dispatch does;
 5. `gh pr merge --squash --auto`.
 
