@@ -3,6 +3,48 @@
 #   cd platform/aws/stacks/site && tofu init -backend=false && tofu test
 
 mock_provider "aws" {
+  mock_resource "aws_cloudwatch_log_group" {
+    defaults = {
+      arn = "arn:aws:logs:us-east-1:111111111111:log-group:mock"
+    }
+  }
+  mock_resource "aws_wafv2_web_acl" {
+    defaults = {
+      arn = "arn:aws:wafv2:us-east-1:111111111111:global/webacl/mock/00000000-0000-0000-0000-000000000000"
+    }
+  }
+  mock_resource "aws_cloudfront_function" {
+    defaults = {
+      arn = "arn:aws:cloudfront::111111111111:function/mock"
+    }
+  }
+  mock_resource "aws_iam_role" {
+    defaults = {
+      arn = "arn:aws:iam::111111111111:role/site-publish"
+    }
+  }
+  mock_resource "aws_iam_openid_connect_provider" {
+    defaults = {
+      arn = "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+    }
+  }
+  mock_resource "aws_s3_bucket" {
+    defaults = {
+      arn = "arn:aws:s3:::example-site-111111111111"
+    }
+  }
+  mock_resource "aws_acm_certificate" {
+    defaults = {
+      arn = "arn:aws:acm:us-east-1:111111111111:certificate/00000000-0000-0000-0000-000000000000"
+    }
+  }
+  mock_resource "aws_cloudfront_distribution" {
+    defaults = {
+      arn            = "arn:aws:cloudfront::111111111111:distribution/E2EXAMPLE"
+      domain_name    = "d111111abcdef8.cloudfront.net"
+      hosted_zone_id = "Z2FDTNDATAQYW2"
+    }
+  }
   mock_data "aws_caller_identity" {
     defaults = {
       account_id = "222222222222"

@@ -4,6 +4,26 @@
 #   cd platform/aws/modules/static-site && tofu init -backend=false && tofu test
 
 mock_provider "aws" {
+  mock_resource "aws_cloudwatch_log_group" {
+    defaults = {
+      arn = "arn:aws:logs:us-east-1:111111111111:log-group:mock"
+    }
+  }
+  mock_resource "aws_cloudfront_function" {
+    defaults = {
+      arn = "arn:aws:cloudfront::111111111111:function/mock"
+    }
+  }
+  mock_resource "aws_iam_role" {
+    defaults = {
+      arn = "arn:aws:iam::111111111111:role/site-publish"
+    }
+  }
+  mock_resource "aws_acm_certificate" {
+    defaults = {
+      arn = "arn:aws:acm:us-east-1:111111111111:certificate/00000000-0000-0000-0000-000000000000"
+    }
+  }
   mock_data "aws_caller_identity" {
     defaults = {
       account_id = "111111111111"
@@ -202,7 +222,7 @@ run "publisher_role_is_least_privilege" {
   assert {
     condition = alltrue(flatten([
       for s in jsondecode(aws_iam_role_policy.publisher[0].policy).Statement : [
-        for a in (can(tolist(s.Action)) ? tolist(s.Action) : [s.Action]) : !strcontains(a, "*")
+        for a in(can(tolist(s.Action)) ? tolist(s.Action) : [s.Action]) : !strcontains(a, "*")
       ]
     ]))
     error_message = "The publisher policy must name every action (no wildcards)."

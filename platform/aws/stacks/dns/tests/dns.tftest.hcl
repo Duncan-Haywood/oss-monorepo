@@ -2,7 +2,24 @@
 # Plan-only: the zone has prevent_destroy, which an apply-and-destroy test
 # run would trip.
 
-mock_provider "aws" {}
+mock_provider "aws" {
+  mock_data "aws_caller_identity" {
+    defaults = {
+      account_id = "111111111111"
+    }
+  }
+  mock_resource "aws_cloudwatch_log_group" {
+    defaults = {
+      arn = "arn:aws:logs:us-east-1:111111111111:log-group:mock"
+    }
+  }
+  mock_resource "aws_route53_zone" {
+    defaults = {
+      arn     = "arn:aws:route53:::hostedzone/Z0000000EXAMPLE"
+      zone_id = "Z0000000EXAMPLE"
+    }
+  }
+}
 
 variables {
   deploy_role_arn = "arn:aws:iam::111111111111:role/gha-oss-monorepo-dns-plan"
