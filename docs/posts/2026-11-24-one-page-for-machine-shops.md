@@ -331,3 +331,31 @@ Building it turned up a real bug. Editing only a line's cost inputs through
 the API cleared that line's part revision and description. The app's own
 editor always sends every field, so users were not affected, but anything
 calling the API directly was. It is fixed, and a test now covers it.
+
+## Update, 25 November 2026: the customer sees what changed, and nothing more
+
+The "what changed" view above was for the estimator. Buyers ask the same
+question when Rev 2 lands in their inbox: what is different from the quote I
+already have? The RFQ-to-quote app (bet #2, still in private development,
+not yet on sale) can now answer it on the PDF itself.
+
+- **One checkbox per revision.** Ticking "Print 'Changes from Q-1001' on the
+  customer PDF" adds a short section to the quote, such as
+  "BRK-1001 Rev B, qty 50: $19.00 to $17.50 each", "qty 100: added at $15.00
+  each" or "Lead time: 3 weeks ARO to 2 weeks ARO". It is off by default, and
+  the estimator sees the exact lines before sending.
+- **Customer-safe by construction.** The section is built only from what the
+  PDF already prints: part numbers and revisions, descriptions, quantity
+  breaks with unit prices, and lead time. Machines, setup and cycle minutes,
+  material and blank sizes, finishing and extras are the shop's cost basis
+  and never reach it. A change to those alone prints nothing; the new price
+  speaks for itself. A test checks that none of them appear in the PDF.
+- **Frozen with the quote.** The sent PDF, section included, is the one
+  stored with its checksum, so the customer and the shop keep the same
+  document.
+- **Compare with any revision.** Once a quote has reached Rev 3, a picker on
+  the quote page compares it with Rev 1 or any other earlier revision, not
+  only the last one.
+
+Still to come in this item: an email to the estimator the day before a sent
+quote expires, so they can follow up or revise.
