@@ -450,7 +450,8 @@
       {
         "file": "ventures/ids-model-check/engine.test.mjs",
         "issue": "The 334-pair buildingSMART conformance test is skipped in CI (pairs are CC BY-ND, fetched by eval/fetch-testcases.sh, never fetched by a workflow), so engine faults it would catch (IDS '0' vs .F., value-less attribute requirements) escaped CI. Patched in part: committed tests now cover the 9 escaped faults. Remaining fix: a workflow step running eval/fetch-testcases.sh before the venture's node --test (control plane, own PR, owner approval).",
-        "patched": false
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18990"
       }
     ]
   }

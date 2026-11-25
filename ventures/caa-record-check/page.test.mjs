@@ -64,11 +64,11 @@ test('the sponsor link points at the correct GitHub Sponsors profile', () => {
   assert.match(html, /https:\/\/github\.com\/sponsors\/Duncan-Haywood/);
 });
 
-test('the MIT license is linked on the index, guide, and vs pages', () => {
+test('the FSL-1.1-MIT license is linked on the index, guide, and vs pages', () => {
   assert.match(html, /href="LICENSE"/);
-  assert.match(html, /MIT licen[cs]e/);
+  assert.match(html, /FSL-1.1-MIT licen[cs]e/);
   assert.match(vsHtml, /href="LICENSE"/);
-  assert.match(vsHtml, /MIT licen[cs]e/);
+  assert.match(vsHtml, /FSL-1.1-MIT licen[cs]e/);
 });
 
 test('a usage opt-out control exists', () => {
@@ -127,4 +127,9 @@ test('the report distinguishes the RFC 8659 tree-walk from a plain exact-name lo
 test('the critical-tag finding is explained in the page copy', () => {
   assert.match(html, /critical/i);
   assert.match(html, /unrecognized tag|unrecognised tag/i);
+});
+
+// Closest sibling: once CAA lets a CA issue, the certificate it issues is read by cert-chain-check.
+test('index links one hop to the cert-chain-check sibling', () => {
+  assert.match(html, /href="\.\.\/cert-chain-check\/"/, 'index must link ../cert-chain-check/ so crawlers reach the chain checker in one hop');
 });

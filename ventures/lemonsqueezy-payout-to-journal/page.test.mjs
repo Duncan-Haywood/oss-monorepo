@@ -69,7 +69,7 @@ test("every FAQ question in the structured data is also visible on the page", ()
 
 test("the sample payouts load from the page and the account list defaults to the library's", () => {
   const html = page("index.html");
-  assert.match(html, /sampleReport/);
+  assert.match(html, /sampleOrdersExport/);
   assert.match(html, /mappingText\(\)/);
 });
 
@@ -78,5 +78,7 @@ test("the page is labelled for Lemon Squeezy, not the tool it was copied from, a
   assert.doesNotMatch(html, /PATREON PAYOUT|Pledge Amount/i);
   assert.doesNotMatch(html, /parseFloat\(\$\("#expected"\)/);
   assert.match(html, /parseAmount\(\$\("#expected"\)\.value\)/);
-  assert.match(html, /Known gap/);
+  assert.match(html, /Fees are estimates/);
+  assert.match(html, /id="extra-pct"/);
+  assert.match(html, /id="payout-fee"/);
 });

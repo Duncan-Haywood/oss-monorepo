@@ -55,8 +55,8 @@ export function fakeDriver({ broken = false, nan = false, blank = false, url = '
 export function scriptedModel() {
   return async (_system, prompt) => {
     const page = prompt.slice(prompt.indexOf('<<<PAGE'));
-    const ref = name => Number(new RegExp(`\\[(\\d+)\\][^\\n]*"${name.replace(/[()]/g, '\\$&')}"`).exec(page)?.[1]);
-    const empty = name => new RegExp(`"${name.replace(/[()]/g, '\\$&')}" value=""`).test(page);
+    const ref = name => Number(new RegExp(`\\[(\\d+)\\][^\\n]*"${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`).exec(page)?.[1]);
+    const empty = name => new RegExp(`"${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}" value=""`).test(page);
     let action;
     if (empty('Wall width (ft)')) action = { thought: 'width', action: 'fill', ref: ref('Wall width (ft)'), value: '12' };
     else if (empty('Wall height (ft)')) action = { thought: 'height', action: 'fill', ref: ref('Wall height (ft)'), value: '8' };

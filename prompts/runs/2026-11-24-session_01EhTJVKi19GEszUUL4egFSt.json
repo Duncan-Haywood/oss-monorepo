@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVKi19GEszUUL4egFSt",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support revenue-generating products; merge when done)",
+  "input_sha256": "b7500b9239b18fba3bb072b60c0896a225258bf24a341fa06febf9b04a0f933c",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T12:59:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 18602,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "WebFetch could not resolve en.wikipedia.org or vaticanstate.va in this session; fact checks for the Little Lamps notes had to rely on WebSearch summaries, so the grown-ups note hedges figures and names only sources' consensus."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio folders at 581 MB, over the 400 MB line, so text and pages only, no audio.",
+      "did": "landed text, pages, feeds without MP3",
+      "result": "story live on next build, no audio"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon, Little Lamps shelf (longest without a piece: last 2026-11-23). Piece: turibius-and-the-catechism-in-three-languages (23 March, ~1,570 words before the note). Claimed in BIBLE.md via draft PR #18602 first. Checked: Easter 1606 Gregorian = 26 March so 23 March was Holy Thursday; Antonio Ricardo, Doctrina christiana 1584 trilingual; arrival 1581; Rose of Lima confirmed 1597 (already on shelf). Martin de Porres confirmation left out (sources disagree). Added a new Little Lamps proposal (John Baptist de la Salle, 7 April; Easter 1719 = 9 April so 7 April was Good Friday) so the shelf's Next up is not empty. node --test in hearth-and-horizon: 21 pass, 0 fail. Post docs/posts/2026-11-24-little-lamps-turibius-... passes frontmatter, similarity and link checks.",
+  "corrections": [],
+  "redteam": null
+}

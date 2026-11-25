@@ -1,0 +1,35 @@
+file	make	model	embedded_preview	compression	sensor	decode_ms	preview	develop_ms	gain	baseline_ev	illuminant	notes
+0006_20160722_115157_431.dng	google	sailfish	none	lossless JPEG	4048x3036	566	2024x1518	1055	2.98	0.01	21	
+0039_20141005_130438_317.dng			none	uncompressed	4208x3120	50	2104x1560	494	2.52	0.00	21	
+0043_20161103_114437_266.dng	Google	Pixel XL	none	lossless JPEG	4048x3036	599	2016x1510	1163	2.31	0.00	21	4 GainMap applied
+0155_20160816_115629_383.dng	google	marlin	none	lossless JPEG	4048x3036	511	2024x1518	953	4.03	0.01	21	
+0272_20160521_145117_858.dng	Huawei	Nexus 6P	none	uncompressed	4032x3024	45	2016x1512	444	1.47	0.00	21	
+0543_20150918_131451_875.dng	Huawei	angler	none	uncompressed	4032x3024	24	2016x1512	431	1.20	0.00	21	
+0919_20150905_181412_593.dng	Huawei	angler	none	uncompressed	4032x3024	24	2016x1512	503	2.07	0.00	21	
+0919_20150910_144305_624.dng	Huawei	angler	none	uncompressed	4032x3024	30	2016x1512	400	1.88	0.00	21	
+33TJ_20150612_205903_877.dng	motorola	Nexus 6	none	uncompressed	4208x3120	27	2072x1528	509	3.86	0.00	21	
+33TJ_20150626_104554_024.dng	motorola	Nexus 6	none	uncompressed	4208x3120	34	2072x1528	482	1.01	0.00	21	
+33TJ_20150810_140637_256.dng	motorola	Nexus 6	none	uncompressed	4208x3120	32	2072x1528	488	1.66	0.00	21	
+33TJ_20150822_185205_562.dng	motorola	Nexus 6	none	uncompressed	4208x3120	26	2072x1528	449	2.58	0.00	21	
+4742_20150919_084910_107.dng	LGE	bullhead	none	uncompressed	4032x3024	24	2016x1512	474	1.95	0.00	21	
+4KK2_20150823_152106_985.dng	motorola	Nexus 6	none	uncompressed	4208x3120	26	2104x1560	428	1.47	0.00	21	
+4WBR_20150516_120057_166.dng	motorola	Nexus 6	none	uncompressed	4208x3120	35	2072x1528	539	2.35	0.00	21	
+5066_20160504_184741_899.dng	Huawei	Nexus 6P	none	lossless JPEG	4032x3024	510	2016x1512	1083	2.21	0.00	21	
+5a9e_20141007_173502_483.dng			none	uncompressed	3280x2464	17	1640x1232	322	1.27	0.00	21	
+5a9e_20150328_173812_141.dng	LGE	Nexus 5	none	uncompressed	3280x2464	23	1640x1232	362	1.00	0.00	21	
+6FHF_20150307_154113_351.dng			none	uncompressed	4208x3120	27	2104x1560	492	1.18	0.00	21	
+6G7M_20150321_133419_065.dng			none	uncompressed	4208x3120	28	2104x1560	464	1.06	0.00	21	
+6G7M_20150328_170747_463.dng	motorola	Nexus 6	none	uncompressed	4208x3120	26	2104x1560	466	1.61	0.00	21	
+6G7M_20150404_132319_709.dng	motorola	Nexus 6	none	uncompressed	4208x3120	39	2104x1560	500	1.00	0.00	21	
+6G7M_20150417_063859_191.dng	motorola	Nexus 6	none	uncompressed	4208x3120	33	2072x1528	518	1.00	0.00	21	
+JN34_20150319_183334_317.dng			none	uncompressed	4208x3120	28	2104x1560	500	1.53	0.00	21	
+c1b1_20150408_154240_395.dng	LGE	Nexus 5	none	uncompressed	3280x2464	40	1640x1232	446	1.55	0.00	21	
+c1b1_20150424_203526_981.dng	LGE	Nexus 5	none	uncompressed	3280x2464	29	1608x1200	317	1.72	0.00	21	
+DJI Phantom 4 (1).dng	DJI	FC330	960x720	uncompressed	4000x3000	42	1996x1496	486	1.00	0.00	21	FixVignetteRadial applied; not run: WarpRectilinear (OpcodeList3)
+DJI Phantom 4 (2).dng	DJI	FC330	960x720	uncompressed	4000x3000	43	1996x1496	435	1.00	0.00	21	FixVignetteRadial applied; not run: WarpRectilinear (OpcodeList3)
+LG Nexus 5X.dng	LGE	Nexus 5X	none	uncompressed	4080x3028	25	2008x1504	736	1.23	0.00	21	4 GainMap applied
+Leica T (Typ 701).dng	LEICA CAMERA AG	LEICA T (Typ 701)	720x480	uncompressed	4944x3278	219	1232x815	857	1.00	0.00	21	not run: WarpRectilinear (OpcodeList3)
+Leica X VARIO (Typ 107).dng	LEICA CAMERA AG	LEICA X VARIO (Typ 107)	720x480	uncompressed	4944x3274	466	1232x815	680	1.41	0.00	21	not run: WarpRectilinear (OpcodeList3)
+Pentax QS1.dng	PENTAX	PENTAX Q-S1	4000x3000	uncompressed	4064x3000	262	2000x1500	656	1.76	-0.50	21	
+bigtiff.dng			none				no CFA image					
+bigtiff_be.dng			none				no CFA image					

@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKnnhp5yxfpPqZ2ETnZ",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T14:18:16Z",
+  "ended": "2026-11-25T14:26:43Z",
+  "wall_minutes": 8.72,
+  "tokens_in": 5314607,
+  "tokens_out": 25125,
+  "cost_usd": 2.3081,
+  "tool_calls": 58,
+  "task": "perf: wall-framing-takeoff page module graph (item 2 of the 2026-11-22 einvoice perf doc's not-changed list)",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18999",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First 'after' bench reading (197 ms DCL, 1 file) was an artefact: my scratch server's path guard refused a relative directory, so no modules loaded. Re-run with an absolute path."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both backlog perf items (P063, P064) are owner-gated or blocked; the prompt still lists them first, so every perf run re-reads them. A note in the backlog list that they are parked would save a few minutes."
+    },
+    {
+      "file": "platform/pages/typecheck.mjs",
+      "issue": "Passing TSC=/opt/node22/bin/tsc fails with 'Cannot find type definition file for node' yet exits 0; leaving TSC unset installs the pinned toolchain and works."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new or extended post in docs/posts/: a 26 kB / ~100 ms page-weight cut is an agent-doc finding, not something a reader or customer searches for.",
+      "did": "Wrote docs/history/wall-framing-takeoff-page-perf-2026-11-25.md only.",
+      "result": "write-up exists for the next perf run; no post."
+    }
+  ],
+  "writeups": [
+    "docs/history/wall-framing-takeoff-page-perf-2026-11-25.md"
+  ],
+  "goal": "bet #6 (residential takeoff) front door: faster first screen for visitors",
+  "notes": "Metric: wall-framing-takeoff index.html static module graph and throttled DCL. Before (88c95d249): module-exclusive.mjs 102 kB gz / 18 files; DCL median of 7 = 1,683 and 1,619 ms (two sets), 162 kB / 19 files on the wire. After: 76 kB gz / 16 files; DCL 1,558 and 1,533 ms, 136 kB / 17 files. Bench: scratchpad load.cjs (local gzip server, 150 ms latency, 1.6 Mbit/s, CPU x4, cache off, fresh context). Equivalence: Playwright before vs after on DXF open (2 fixtures), takeoff, schedule example + run, seeded sketch use: identical. Checks run locally: run_venture_tests.py wall-framing-takeoff (1,217 pass, 1 skipped), typecheck.mjs (0 diagnostics), doc_index.py check ok, risk_review.py (only 'risky sinks' prompt; no new sink).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "04846811-4db2-5818-870f-bb99f756b6bb",
+    "transcripts": 1,
+    "first": "2026-11-25T14:18:16Z",
+    "last": "2026-11-25T14:26:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 111,
+        "output": 25125,
+        "thinking": 4727,
+        "cache_read": 5219340,
+        "cache_write_5m": 0,
+        "cache_write_1h": 95156,
+        "api_equivalent_usd": 2.3081,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 111,
+      "output": 25125,
+      "thinking": 4727,
+      "cache_read": 5219340,
+      "cache_write_5m": 0,
+      "cache_write_1h": 95156,
+      "api_equivalent_usd": 2.3081,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 55,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.72,
+      "active_minutes": 8.72,
+      "model_minutes": 5.25,
+      "tool_minutes": 3.47,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "trace imports, refactor, bench and equivalence script, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 130.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

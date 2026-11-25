@@ -6,7 +6,7 @@
   <title>Why Did My AWS Bill Go Up? Free Cost Explorer CSV Explainer</title>
   <meta name="description" content="Paste the CSV from AWS Cost Explorer for two months and see which services explain the rise in your AWS bill, ranked, with partial-month normalisation and a checklist of common causes. Free, no signup, nothing uploaded.">
   <meta property="og:title" content="Why did my AWS bill go up this month?">
-  <meta property="og:description" content="Paste two months of Cost Explorer CSV and see which services moved the bill, what is new, and what to check first. Free, runs in your browser, with a CLI that fails a job when the bill jumps.">
+  <meta property="og:description" content="Paste two months of Cost Explorer CSV and see which services moved the AWS bill, what is new, and what to check first.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">
   {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "AWS Bill Change Explainer", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste the CSV from AWS Cost Explorer for two months and see which services explain a rise in the bill, ranked, with partial-month normalisation, a checklist of common causes per service, and a CLI that exits 1 when the bill rises past a threshold. Runs entirely in the browser; nothing is uploaded."}
@@ -142,7 +142,7 @@ node cli.mjs compare export.csv --max-increase-pct 15 --max-increase-usd 500</pr
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The bill you load is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>example_loaded</code>, <code>file_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
-    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free to use and source available. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">

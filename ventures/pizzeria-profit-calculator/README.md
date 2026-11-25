@@ -16,4 +16,4 @@ months burn**, which used to be a spreadsheet built from a blog post.
 2. Pure logic is in `calc.mjs` (`analyze()`); tests: `node --test`.
 
 Not modelled: seasonality, tax, equipment replacement, catering, alcohol, multiple locations. Every figure is yours; none is a
-market claim. Not financial advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+market claim. Not financial advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

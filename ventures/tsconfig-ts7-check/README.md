@@ -100,4 +100,4 @@ To rerun: install typescript@6.0.3 and @7.0.2 anywhere, then
 | `eval/` | compiler probes, corpus, results |
 | `*.test.mjs` | `node --test '*.test.mjs'` |
 
-MIT licensed. Not affiliated with Microsoft or the TypeScript project.
+FSL-1.1-MIT licensed. Not affiliated with Microsoft or the TypeScript project.

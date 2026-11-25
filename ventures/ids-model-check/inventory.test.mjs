@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { Model } from "./ids.mjs";
 import { resources, check, readModel } from "./node.mjs";
 import { modelInventory } from "./inventory.mjs";
-import { modelSets, setsFor, importIds, stateToDoc, buildIds, blankSpec, blankReq, valueTypes, modelAttributes, modelCodes, modelValueOffer, valueChoices, appMatchCount } from "./editor.mjs";
+import { modelSets, setsFor, importIds, stateToDoc, buildIds, blankSpec, blankReq, valueTypes, modelAttributes, modelCodes, modelValueOffer, valueChoices, appMatchCount, mixedModelTypes, untypeOwnRow } from "./editor.mjs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 
@@ -399,4 +399,57 @@ test("the inventory keeps each number exactly as held, beside its 12-digit tally
   assert.ok(h.values.some(([v, n]) => v === "2.4" && n === 2), "2.4 and 2.4000000000000004 share a 12-digit tally");
   for (const x of ["2.4", "2.4000000000000004", "2.8000000001193297"]) assert.ok(h.exact.includes(x), x);
   assert.ok(MAX_EXACT >= 24);
+});
+
+// ARK_NUS's Revit export writes Constraints.Level as IFCLABEL on 162 rooms and
+// IFCTEXT on 145: a one-of with the commonest dataType failed the 145, in this
+// checker and IfcTester (eval/mixed-type-own-props-2026-11-24.md).
+test("an own property written in two data types: counted per type, and offered with no dataType so every object passes", () => {
+  const extra = [
+    "#9101=IFCPROPERTYSET('1mXa0Lv5n0GQ6_kuh4Wa3J',$,'Acme_Wall',$,(#9102));",
+    "#9102=IFCPROPERTYSINGLEVALUE('Zone',$,IFCLABEL('North'),$);",
+    "#9103=IFCRELDEFINESBYPROPERTIES('2mXa0Lv5n0GQ6_kuh4Wa3J',$,$,$,(#20,#21),#9101);",
+    "#9104=IFCPROPERTYSET('3mXa0Lv5n0GQ6_kuh4Wa3J',$,'Acme_Wall',$,(#9105));",
+    "#9105=IFCPROPERTYSINGLEVALUE('Zone',$,IFCTEXT('South'),$);",
+    "#9106=IFCRELDEFINESBYPROPERTIES('0nXa0Lv5n0GQ6_kuh4Wa3J',$,$,$,(#22),#9104);",
+  ].join("\n");
+  const text = house.replace("ENDSEC;\nEND-ISO", `${extra}\nENDSEC;\nEND-ISO`);
+  const inv = inventoryOf(text);
+  const wall = inv.classes.find((c) => c.cls === "IFCWALL");
+  const zone = wall.sets.find((s) => s.name === "Acme_Wall").props.find((p) => p.name === "Zone");
+  assert.deepEqual(zone.typeCounts, [["IFCLABEL", 2], ["IFCTEXT", 1]]);
+  const q = modelSets(inv, ["IFCWALL"]).find((m) => m.name === "Acme_Wall").props.find((p) => p.name === "Zone");
+  assert.equal(q.dataType, "IFCLABEL");
+  assert.deepEqual(mixedModelTypes(q), [["IFCLABEL", 2], ["IFCTEXT", 1]]);
+  const o = modelValueOffer(q, "text", null);
+  const typed = { ...blankReq(), custom: true, set: "Acme_Wall", name: "Zone", dataType: "IFCLABEL", cardinality: "optional", mode: "oneOf", oneOf: o.oneOf };
+  const u = untypeOwnRow(S4, typed, q);
+  assert.equal(u.text, true);
+  assert.equal(u.dropped, false);
+  assert.equal(u.row.dataType, "");
+  assert.equal(u.row.untyped, true);
+  assert.deepEqual(u.row.oneOf, ["North", "South"]);
+  const run = (req) => {
+    const ids = buildIds(stateToDoc({ title: "t", schema: "IFC4", specs: [{ ...blankSpec(), name: "zone", cls: "IFCWALL", withSub: false, reqs: [req] }] }, L4), S4);
+    return check(ids, text).specs[0];
+  };
+  const before = run(typed);
+  assert.equal(before.status, "fail");
+  assert.equal(before.failed.length, 1, "the one wall written as IFCTEXT");
+  assert.equal(run(u.row).status, "pass");
+  // One type: nothing to offer.
+  const one = modelSets(inventoryOf(house), ["IFCWALL"]).find((m) => m.name === "Pset_WallCommon").props.find((p) => p.name === "IsExternal");
+  assert.equal(mixedModelTypes(one), null);
+  assert.equal(untypeOwnRow(S4, { ...typed, set: "Pset_WallCommon", name: "IsExternal" }, one), null);
+});
+
+test("untypeOwnRow keeps only presence when a boolean or number is among the types", () => {
+  const q = { name: "ADA Compliant", dataType: "IFCBOOLEAN", typeCounts: [["IFCBOOLEAN", 10], ["IFCLABEL", 8]] };
+  const r = { ...blankReq(), custom: true, set: "PSet_Revit_Type_Identity Data", name: "ADA Compliant", dataType: "IFCBOOLEAN", mode: "true" };
+  const u = untypeOwnRow(S4, r, q);
+  assert.equal(u.text, false);
+  assert.equal(u.dropped, true);
+  assert.equal(u.row.mode, "any");
+  assert.equal(untypeOwnRow(S4, { ...r, custom: false }, q), null, "standard rows go through untypeRow");
+  assert.equal(untypeOwnRow(S4, { ...r, untyped: true }, q), null);
 });

@@ -177,3 +177,11 @@ test("the page offers the conversion for P6 XML files and counts it", () => {
   assert.match(html, /record\("converted_to_xer"\)/);
   assert.match(html, /P6 XER file \(\.xer\), P6 XML \(\.xml\) or Microsoft Project XML \(\.xml\)/);
 });
+
+test("isPmxml: a run of comments before the root is linear, not exponential (ReDoS)", () => {
+  const t = Date.now();
+  assert.equal(isPmxml("<!---->".repeat(500) + "x"), false);
+  assert.ok(Date.now() - t < 500, `took ${Date.now() - t} ms`);
+  assert.equal(isPmxml('<?xml version="1.0"?>\n<!-- a - b -->\n<!-- c -->\n<APIBusinessObjects xmlns="x">'), true);
+  assert.equal(isPmxml("<!-- a --> --><APIBusinessObjects>"), false);
+});

@@ -27,4 +27,4 @@ Everything runs in your browser. Your site figures and route list are never uplo
 
 This calculator produces arithmetic observations from numbers you supply. It does not perform, certify, or replace a professional fire-extinguisher or life-safety-equipment inspection, and it does not determine or record NFPA 10 (or any other) fire-code compliance status. It does not audit your books, verify a service contract, or replace your own insurance, licensing, or accountant.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

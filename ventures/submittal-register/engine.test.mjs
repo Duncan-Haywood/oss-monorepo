@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildRegister, linesFromText, linesFromPdf, classify, isSubmittalHeading, toCsv, findSections, stripRunningLines, normalizeNumber } from "./engine.mjs";
+import { buildRegister, linesFromText, linesFromPdf, classify, isSubmittalHeading, isSubmitSentence, buriedCsv, withBuried, toCsv, findSections, stripRunningLines, normalizeNumber } from "./engine.mjs";
 import { extractPdfLines } from "./pdf-text.mjs";
 import { SAMPLE_TEXT } from "./sample.mjs";
 
@@ -179,4 +179,41 @@ test("PDF text: ordinary y-up page", async () => {
   const { pages } = await extractPdfLines(tinyPdf(content), async () => null);
   const r = buildRegister(linesFromPdf(pages));
   assert.equal(r.items[0].type, "Samples");
+});
+
+test("submit requirements outside Part 1: found, dated and matched to a Part 1 row", () => {
+  const r = reg(SAMPLE_TEXT);
+  assert.equal(r.items.length, 18); // Part 1 rows unchanged by Part 3 text
+  const b = r.buried.filter((x) => x.section === "09 91 23");
+  assert.deepEqual(b.map((x) => [x.id, x.part, x.article, x.para]), [
+    ["099123-P01", 1, "1.2 QUALITY ASSURANCE", "B"],
+    ["099123-P02", 3, "3.2 FIELD QUALITY CONTROL", "A"],
+    ["099123-P03", 3, "3.2 FIELD QUALITY CONTROL", "B"],
+  ]);
+  assert.equal(b[0].type, "Certificates");
+  assert.equal(b[0].when, "Before painting starts");
+  assert.equal(b[0].coveredBy, "");
+  assert.equal(b[1].type, "Test Reports");
+  assert.equal(b[1].when, "within three (3) days after testing");
+  assert.equal(b[1].coveredBy, "");
+  assert.equal(b[2].coveredBy, "099123-003"); // "Product List" already in 1.1
+  // "Apply paints as submitted and approved" and "Verify ..." are not requirements.
+  assert.equal(r.buried.some((x) => /as submitted|Verify/.test(x.text)), false);
+});
+
+test("submit sentences: obligations, not mentions or procedure", () => {
+  for (const s of ["Submit test reports within 24 hours", "Within 30 days after award, submit a quality control plan", "Mill certificates shall be submitted before delivery", "The contractor must submit the survey", "Furnish copies of test reports to the Architect", "Prepare and submit a pressure testing plan"]) assert.equal(isSubmitSentence(s), true, s);
+  for (const s of ["Install in accordance with approved submittals", "Submit in accordance with Section 01 33 00", "Comply with requirements in Section 01 33 00 Submittal Procedures", "Apply as submitted and approved", "Deliver materials to the Owner in original containers", "Submittal requirements are in Division 01"]) assert.equal(isSubmitSentence(s), false, s);
+});
+
+test("outside-Part-1 CSV and the merged register", () => {
+  const r = reg(SAMPLE_TEXT);
+  const csv = buriedCsv(r);
+  assert.match(csv, /^\ufeffRef,Spec Section,Section Title,Part,Article,Paragraph,Submittal Type,SD,Phase,Requirement,When,Covered By,File,Page\r\n/);
+  assert.match(csv, /099123-P02,09 91 23,INTERIOR PAINTING,3,3.2 FIELD QUALITY CONTROL,A,Test Reports,SD-06,Informational,Submit test reports to the Architect within three \(3\) days after testing,within three \(3\) days after testing,,/);
+  const m = withBuried(r);
+  assert.equal(m.items.length, r.items.length + 2); // the covered one is not added twice
+  const ids = m.items.filter((i) => i.section === "09 91 23").map((i) => i.id);
+  assert.deepEqual(ids, ["099123-001", "099123-002", "099123-003", "099123-P01", "099123-P02"]);
+  assert.deepEqual(m.items.find((i) => i.id === "099123-P02").flags, ["outside-part-1"]);
 });

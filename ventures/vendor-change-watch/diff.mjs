@@ -60,8 +60,8 @@ function decodeEntities(text) {
     sect: "§",
   };
   return String(text)
-    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
-    .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(Number(dec)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => codePointOr(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec) => codePointOr(Number(dec)))
     .replace(/&([a-z]+);/gi, (whole, name) => {
       const key = name.toLowerCase();
       return Object.prototype.hasOwnProperty.call(named, key) ? named[key] : whole;
@@ -399,3 +399,7 @@ export function markdownReport(report) {
   for (const limitation of report.limitations || LIMITATIONS) lines.push(`- ${limitation}`);
   return `${lines.join("\n")}\n`;
 }
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

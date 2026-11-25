@@ -77,3 +77,9 @@ test("the fit page loads the module and carries the disclaimer", () => {
   assert.match(html, /<output id="results" aria-live="polite">/);
   assert.match(html, /typical/i);
 });
+
+test("size-run shares: normal chest N(100, 9) split at the midpoints between size charts' chests, by hand (quality audit 2026-11-22, defect 4)", () => {
+  // edges 88, 96, 104, 112, 120 cm; shares from the normal CDF computed outside this code (Python math.erf):
+  // 9.1, 23.7, 34.3, 23.7, 7.8, 1.3 %. Moving the edges off the midpoints left every test green before this.
+  assert.deepEqual(sizeRun(1000).sharePct, { XS: 9.1, S: 23.7, M: 34.3, L: 23.7, XL: 7.8, XXL: 1.3 });
+});

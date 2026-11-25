@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtHrY25Lk1wdwCj8geD",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T02:07:20Z",
+  "ended": "2026-11-25T02:13:51Z",
+  "wall_minutes": 6.72,
+  "tokens_in": 3990211,
+  "tokens_out": 21493,
+  "cost_usd": 1.97,
+  "tool_calls": 44,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18809",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A stray `cat >> file` with no input blocked a foreground command until the 120 s timeout; stopped it and reran."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/security_alerts.py",
+      "issue": "alerts/<n>.md said to record a false positive only in the run record's notes, so the alert stayed at the head of the queue and every run re-triaged #1 (fixed in this PR with codeql-triage.json)."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 says to work the queue 'until it is empty', but about 1,240 alerts are open and the head was all false positives. Taken literally, no run would reach routing."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The alert files say to push a claim branch security-fix/code-scanning-<n>, but the cloud harness allows pushes only to the session branch. The two instructions conflict."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/security_alerts.py (alert file instructions)",
+      "why": "Claiming needs a push to security-fix/code-scanning-<n>, which the harness forbids, and claim branches expire after 48h anyway.",
+      "did": "Recorded the 11 verified false positives in a reviewed triage file that the queue honours, in place of claim branches and notes.",
+      "result": "After merge, the next hourly queue run moves them to 'Triaged, awaiting dismissal', and the head of the queue becomes alerts that still need checking."
+    },
+    {
+      "file": "prompt.md",
+      "why": "No new post: this is internal security tooling with no reader outside the repo.",
+      "did": "Put the explanation in the module docstring, the triage file's _about and the PR body.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "False positives for the owner to dismiss (reasons in platform/security/codeql-triage.json): #1-#7 (py/clear-text-storage-sensitive-data), #95, #949, #950, #951. Not triaged and possibly real: #113/#114 photo-nutrition auth.mjs:45 compares a hand-chosen legacy client secret by unsalted SHA-256 (scrypt is used for new ones). Checked but not concluded: #952, #954, #1178, #1087/#1088 (print-atelier on main already uses randomUUID). Verification: cd platform/ci && python3 -m unittest test_security_alerts gave 19 OK; with the old security_alerts.py, 6 errors. control_plane_guard --check-coverage OK. risk_review: nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "186bdc44-2511-58bf-9d2e-1f7b9929e1bd",
+    "transcripts": 1,
+    "first": "2026-11-25T02:07:20Z",
+    "last": "2026-11-25T02:14:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 81,
+        "output": 21493,
+        "thinking": 5629,
+        "cache_read": 3895031,
+        "cache_write_5m": 0,
+        "cache_write_1h": 95099,
+        "api_equivalent_usd": 1.97,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 81,
+      "output": 21493,
+      "thinking": 5629,
+      "cache_read": 3895031,
+      "cache_write_5m": 0,
+      "cache_write_1h": 95099,
+      "api_equivalent_usd": 1.97,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 38,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "TaskStop": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.72,
+      "active_minutes": 6.72,
+      "model_minutes": 4.15,
+      "tool_minutes": 2.57,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -32,11 +32,22 @@ export const put = (o, k, v) => {
   return o;
 };
 
+// MRR maps are keyed by customer, not subscription: SaaS metrics count logos
+// (ChartMogul, Baremetrics and the usual definitions of logo churn and NRR all
+// do). Keyed by subscription, a customer who dropped an add-on read as a
+// churned logo, and one who swapped plans by cancel-and-create read as churn
+// plus new instead of expansion (quality audit 2026-11-21, defect 0). A
+// subscription with no customer id (a CSV with no customer column) stands for
+// its own customer, as in breakdown() (Stripe's sub_ and cus_ prefixes keep
+// the two kinds of id apart).
+export const customerKey = (s) => s.customer || s.id;
+const add = (o, k, v) => put(o, k, (has(o, k) ? o[k] : 0) + v);
+
 export function liveMap(subs, { countPastDue = true } = {}) {
   const out = {};
   for (const s of subs) {
     const ok = s.status === "active" || (countPastDue && s.status === "past_due");
-    if (ok && s.mrr > 0) put(out, s.id, s.mrr);
+    if (ok && s.mrr > 0) add(out, customerKey(s), s.mrr);
   }
   return out;
 }
@@ -61,7 +72,7 @@ export function mapAt(subs, t) {
     if (!(s.mrr > 0) || !s.created || paidFrom(s) > t || NEVER_PAID_STATUS.has(s.status)) continue;
     if (s.endedAt && s.endedAt <= t) continue;
     if (!s.endedAt && !["active", "past_due", "canceled"].includes(s.status)) continue;
-    put(out, s.id, s.mrr);
+    add(out, customerKey(s), s.mrr);
   }
   return out;
 }
@@ -255,8 +266,8 @@ export function forecast(months, { horizon = 6, window = 3 } = {}) {
   return out;
 }
 
-// Customer concentration: how much of MRR sits with the largest subscriptions.
-// `live` is the {id: mrr} map of current subscriptions. Shares are of total
+// Customer concentration: how much of MRR sits with the largest customers.
+// `live` is the {customer: mrr} map from liveMap. Shares are of total
 // MRR; `top` lists the largest five by share only (no ids, so the API and the
 // dashboard carry no customer identifiers). Returns null with no MRR.
 export function concentration(live) {
@@ -265,7 +276,7 @@ export function concentration(live) {
   if (!total) return null;
   const share = (n) => v.slice(0, n).reduce((a, b) => a + b, 0) / total;
   const risk = share(1) >= 0.25 ? "high" : share(1) >= 0.1 || share(5) >= 0.5 ? "moderate" : "low";
-  return { subscriptions: v.length, top1: share(1), top5: share(5), top10: share(10), top: v.slice(0, 5).map((x) => x / total), risk };
+  return { customers: v.length, top1: share(1), top5: share(5), top10: share(10), top: v.slice(0, 5).map((x) => x / total), risk };
 }
 
 // Monthly history as CSV for a spreadsheet, an accountant or an investor deck.

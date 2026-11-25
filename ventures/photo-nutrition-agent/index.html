@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b3c'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Photo Nutrition Agent: log meals to Apple Health from Camera photos</title>
+<meta name="description" content="Open-source, self-hosted nutrition tracking: take a food photo with the iPhone Camera, and the meal is estimated, written to Apple Health and correctable from ChatGPT. Prototype.">
+<link rel="canonical" href="https://marisstella.app/photo-nutrition-agent/">
+<meta property="og:title" content="Photo Nutrition Agent">
+<meta property="og:description" content="Take a food photo with the ordinary Camera app. The meal reaches Apple Health and ChatGPT, with no logging.">
+<meta property="og:type" content="website">
+<style>
+:root{--bg:#fbfaf7;--fg:#1d1d1b;--muted:#5b5b57;--line:#e3e1da;--accent:#2f6b3f;--card:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#141413;--fg:#ecebe6;--muted:#a3a29c;--line:#2e2d2a;--accent:#7cc48d;--card:#1c1c1a}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.6 system-ui,-apple-system,sans-serif}
+main{max-width:46rem;margin:0 auto;padding:2.5rem 1rem 4rem}h1{font-size:2rem;line-height:1.2;margin:.2rem 0 1rem}
+h2{font-size:1.25rem;margin-top:2.4rem}.tag{display:inline-block;font-size:.8rem;border:1px solid var(--line);border-radius:999px;padding:.1rem .6rem;color:var(--muted)}
+.flow{display:grid;gap:.6rem;padding:0;list-style:none;counter-reset:s}.flow li{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.7rem .9rem;counter-increment:s}
+.flow li::before{content:counter(s) ". ";font-weight:600;color:var(--accent)}table{border-collapse:collapse;width:100%;font-size:.95rem}
+td,th{border-bottom:1px solid var(--line);padding:.45rem .3rem;text-align:left;vertical-align:top}a{color:var(--accent)}
+code{font-size:.9em;background:var(--card);border:1px solid var(--line);border-radius:4px;padding:0 .25rem}
+footer{margin-top:3rem;font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:1rem}
+</style>
+</head>
+<body>
+<main>
+<span class="tag">Open source · MIT · Prototype</span>
+<h1>Take a photo of your food. That's the whole logging step.</h1>
+<p>Photo Nutrition Agent watches your iPhone photo library for meals you photograph with the ordinary Camera app. It estimates what you ate, writes the nutrition to Apple Health, and lets you ask about it, or correct it, in ChatGPT. You run it yourself; nothing goes through us.</p>
+
+<h2>What happens after you put the phone away</h2>
+<ol class="flow">
+<li>Leaving the Camera triggers a one-time Shortcuts automation, so the agent wakes without opening anything.</li>
+<li>New photos are classified on the iPhone. Anything that isn't food never leaves the phone.</li>
+<li>Food photos go, downscaled and without location data, to your own server, where a vision model estimates items, portions and nutrients, with a range.</li>
+<li>Confident meals are logged; unsure ones wait as provisional; menus, groceries and a friend's plate are ignored.</li>
+<li>Apple Health gets calories, protein, carbs, fat, fiber, sugar and sodium. Corrections replace the old values instead of adding to them.</li>
+<li>In ChatGPT: "How much protein do I still need?", "That steak was 12 ounces", "Am I in a deficit since my last DEXA scan?"</li>
+</ol>
+
+<h2>Honest status</h2>
+<table>
+<tr><th>Part</th><th>State</th></tr>
+<tr><td>Server, records, chat tools (MCP + OpenAPI), sign-in</td><td>Built and tested</td></tr>
+<tr><td>iPhone agent</td><td>Source written, not yet run on a device</td></tr>
+<tr><td>ChatGPT Plus with write tools</td><td>Plan support unclear; a Custom GPT works as a fallback</td></tr>
+<tr><td>Estimate accuracy</td><td>Not yet measured. Photo estimates are approximate, and each meal shows a range</td></tr>
+</table>
+
+<h2>Built for people who already live in Apple Health and ChatGPT</h2>
+<p>For lifters cutting fat while keeping muscle, people tracking a high-protein diet, anyone tired of typing food into a diary. The analysis tools give weekly averages, protein adherence, a weight trend with an interval, an estimated deficit from intake and weight change, and changes between DEXA scans, each with the caveats a careful coach would add.</p>
+
+<h2>Get it</h2>
+<p>Code, install guide and the architecture decision are on <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/photo-nutrition-agent">GitHub</a>. You need a small server with HTTPS, an OpenAI-compatible vision API key, a Mac to build the iPhone app, and an iPhone.</p>
+
+<h2>Planning what to eat</h2>
+<p>To choose the foods in the first place, the free <a href="../cheap-meal-plan-optimizer/">cheap meal plan optimizer</a> builds the lowest-cost day that hits your calorie and protein targets.</p>
+
+<h2>Privacy</h2>
+<p>This page sets no cookies and loads no scripts. The software sends non-food photos nowhere. Food photos go to the server you run, and from there to the vision API you choose, and are deleted after 3 days by default. Records stay in your server's database and in Apple Health. There is no analytics or tracking in the app or the server.</p>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not medical, nutritional or dietary advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+</footer>
+</main>
+</body>
+</html>

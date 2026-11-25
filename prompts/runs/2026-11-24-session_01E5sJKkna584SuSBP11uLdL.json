@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKkna584SuSBP11uLdL",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T11:18:25Z",
+  "ended": "2026-11-24T11:26:23Z",
+  "wall_minutes": 8.22,
+  "tokens_in": 3324945,
+  "tokens_out": 34648,
+  "cost_usd": 2.1415,
+  "tool_calls": 38,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18592",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The For Other Minds and Hearth & Horizon 'Next up' lists held one proposal each; the H&H one was already claimed by open PR #18591, so the only free SF-shelf work needed a fresh proposal. subjects.txt had 0 unused for-other-minds candidates; added three."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "Drafted a seo_title of 82 chars and description of 161; the limits (70/160) are only surfaced by the checker, not in the creative prompt. Minor."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "Proposal's reasonable no was a member who will not stop setting pellets; I made it a member who had already stopped and will restart them, and kept toxicity claims out of the text since I could not verify a current hazard claim for legal pellets.",
+      "did": "Bernard threatens to restart pellets; the agent shows the slug count was 26 with and without pellets; he defers to 2058.",
+      "result": "Avoids an unverified factual claim about pellet harm while keeping the beat."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Picked the science fiction headline shelf's only free proposal path (For Other Minds) instead of the longest-idle project, because all three shelves and the podcast had landed pieces within a day and the H&H proposal was claimed.",
+      "did": "Wrote the FOM hedgehog story and a new FOM proposal.",
+      "result": "No duplicate with open PRs."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-for-other-minds-the-hedgehogs-that-came-a-year-late.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon (For Other Minds). Piece: the-hedgehogs-that-came-a-year-late, 4,330 words, text only (audio dirs at 581 MB, over the 400 MB cap). Lotka-Volterra model integrated by RK4 (period 5.16 y, hedgehog lag 0.94 y); every number in dialogue checked against it; weekdays computed. Adversarial re-read fixed 4 slips (pellet timeline, nine vs ten Junes, peak wording, model's age). node --test in ventures/hearth-and-horizon: 21 pass, 0 fail; check_posts ok. No agent doc in docs/reports: nothing the next run needs beyond the BIBLE proposal.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a73fa7d8-f179-539f-a6b5-c54ccaacfdef",
+    "transcripts": 1,
+    "first": "2026-11-24T11:18:25Z",
+    "last": "2026-11-24T11:26:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 69,
+        "output": 34648,
+        "thinking": 13955,
+        "cache_read": 3224460,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100416,
+        "api_equivalent_usd": 2.1415,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 69,
+      "output": 34648,
+      "thinking": 13955,
+      "cache_read": 3224460,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100416,
+      "api_equivalent_usd": 2.1415,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 33,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.22,
+      "active_minutes": 8.22,
+      "model_minutes": 7.25,
+      "tool_minutes": 0.97,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

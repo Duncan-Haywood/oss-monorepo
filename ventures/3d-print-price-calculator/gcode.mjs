@@ -11,10 +11,17 @@
 //   Cura        ;TIME:11234 (seconds)     ;Filament used: 12.345m
 //   Simplify3D  ;   Build time: 3 hours 12 minutes   ;   Plastic weight: 36.80 g
 //
+// With no summary at all (another slicer, CAM output, a print host or
+// post-processor that dropped the comments, or Cura's unfilled template) the
+// time and filament are estimated from the moves themselves by
+// gcode-motion.mjs, and `derived` says so.
+//
 // Cura reports length, not weight, so grams are derived from length with the
 // diameter and density the caller gives (defaults: 1.75 mm, PLA 1.24 g/cm3)
 // and the result says so in `derived`. Multi-material files list one value per
 // extruder separated by commas; they are summed.
+
+import { estimateMotion } from './gcode-motion.mjs';
 
 function sumList(text) {
   const parts = text.split(/[,;]/).map((s) => Number(s.trim())).filter((n) => Number.isFinite(n));
@@ -38,7 +45,7 @@ const line = (text, re) => {
   return m ? m[1].trim() : null;
 };
 
-export function parseGcode(text, { diameterMm = 1.75, densityGPerCm3 = 1.24 } = {}) {
+export function parseGcode(text, { diameterMm = 1.75, densityGPerCm3 = 1.24, readMoves = true, motionOptions } = {}) {
   const src = String(text ?? "");
   let grams = null;
   let seconds = null;
@@ -47,7 +54,22 @@ export function parseGcode(text, { diameterMm = 1.75, densityGPerCm3 = 1.24 } = 
   const derived = [];
 
   const g = line(src, /^;\s*(?:total )?filament (?:used \[g\]|weight \[g\])\s*[=:]\s*(.+)$/im);
-  if (g !== null) { grams = sumList(g); slicer = "PrusaSlicer-family"; }
+  if (g !== null) {
+    grams = sumList(g); slicer = "PrusaSlicer-family";
+    // PrusaSlicer writes 0.00 g when the filament profile has no density
+    // (filament_density = 0, as with no profile loaded): that is "unknown",
+    // not a free print, so the volume or length below is used instead.
+    if (grams === 0) grams = null;
+  }
+  const cm3 = line(src, /^;\s*filament used \[cm3\]\s*=\s*(.+)$/im);
+  if (grams === null && cm3 !== null) {
+    const v = sumList(cm3);
+    if (v !== null && v > 0) {
+      grams = v * densityGPerCm3;
+      slicer = slicer ?? "PrusaSlicer-family";
+      derived.push(`grams computed from the slicer's ${v} cm³ at ${densityGPerCm3} g/cm³ (its profile had no density)`);
+    }
+  }
 
   const t = line(src, /^;\s*estimated printing time \(normal mode\)\s*=\s*(.+)$/im)
     // Bambu Studio and Orca with a Bambu profile write both times on one line:
@@ -58,12 +80,16 @@ export function parseGcode(text, { diameterMm = 1.75, densityGPerCm3 = 1.24 } = 
   const mm = line(src, /^;\s*filament used \[mm\]\s*=\s*(.+)$/im);
   if (mm !== null) lengthMm = sumList(mm);
 
+  // Cura writes its header before it knows the answers and fills it in at the
+  // end; a file saved without that step keeps the template: ;TIME:6666,
+  // "Filament used: 0m" and bounds of +/-2.14748e+06. Those are not figures.
+  const curaTemplate = /^;MINX:2\.14748e\+06\s*$/im.test(src);
   const cura = line(src, /^;TIME:\s*(\d+(?:\.\d+)?)\s*$/im);
-  if (seconds === null && cura !== null) { seconds = Number(cura); slicer = "Cura"; }
+  if (seconds === null && cura !== null && !curaTemplate) { seconds = Number(cura); slicer = "Cura"; }
   const curaLen = line(src, /^;Filament used:\s*(.+)$/im);
-  if (curaLen !== null && lengthMm === null) {
+  if (curaLen !== null && lengthMm === null && !curaTemplate) {
     const metres = sumList(curaLen.replace(/m\b/gi, ""));
-    if (metres !== null) { lengthMm = metres * 1000; slicer = slicer ?? "Cura"; }
+    if (metres !== null && metres > 0) { lengthMm = metres * 1000; slicer = slicer ?? "Cura"; }
   }
 
   const s3d = line(src, /^;\s*Plastic weight:\s*([\d.]+)\s*g/im);
@@ -72,6 +98,27 @@ export function parseGcode(text, { diameterMm = 1.75, densityGPerCm3 = 1.24 } = 
   if (seconds === null && s3dTime !== null) { seconds = parseDuration(s3dTime); slicer = slicer ?? "Simplify3D"; }
   const s3dLen = line(src, /^;\s*Filament length:\s*([\d.]+)\s*mm/im);
   if (lengthMm === null && s3dLen !== null) lengthMm = Number(s3dLen);
+
+  // No summary (another slicer, CAM output, a host or post-processor that
+  // dropped the comments, or Cura's unfilled template): read the moves.
+  let motion = null;
+  if (readMoves && ((grams === null && lengthMm === null) || seconds === null)) {
+    motion = estimateMotion(src, motionOptions);
+    if (motion.moves === 0) motion = null;
+  }
+  if (motion) {
+    if (seconds === null) {
+      seconds = motion.seconds;
+      derived.push(`print time estimated from the ${motion.moves} moves (${motion.limits.printAccel} mm/s² printing, ${motion.cornering} cornering${motion.heaterWaits ? `; ${motion.heaterWaits} heater waits not timed` : ""}${motion.homes ? `; homing timed as a plain move` : ""})`);
+    }
+    if (grams === null && lengthMm === null && motion.filamentMm > 0) {
+      if (motion.volumetric) {
+        grams = (motion.filamentMm / 1000) * densityGPerCm3; // E was mm^3
+        derived.push(`grams computed from ${motion.filamentMm.toFixed(0)} mm³ of volumetric extrusion at ${densityGPerCm3} g/cm³`);
+      } else lengthMm = motion.filamentMm;
+    }
+    slicer = slicer ?? "no slicer summary";
+  }
 
   if (grams === null && lengthMm !== null) {
     const area = Math.PI * (diameterMm / 2) ** 2; // mm^2
@@ -87,6 +134,7 @@ export function parseGcode(text, { diameterMm = 1.75, densityGPerCm3 = 1.24 } = 
     hours: seconds === null ? null : Math.round((seconds / 3600) * 100) / 100,
     lengthMm,
     derived,
+    motion: motion ? { seconds: motion.seconds, filamentMm: motion.filamentMm, breakdown: motion.breakdown, moves: motion.moves } : null,
     missing: [grams === null ? "filament weight" : null, seconds === null ? "print time" : null].filter(Boolean),
   };
 }

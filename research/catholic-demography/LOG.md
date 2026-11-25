@@ -2,6 +2,52 @@
 
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
+## 2026-11-24 · Milestone 5b, eighteenth GSS-only step: the young-age fall in "raised Catholic" is not a mid-life drift; in 1977-94 older adults show it too, and after 1995 neither age group does
+
+Run: `experiments/m5s_age_period/run.py` (output `results.txt`, table `t51`; 500-draw stratified PSU bootstrap over the
+whole file, seed 1; all slopes and differences re-estimated in every draw). Data from `data/download_gssr.sh` (checksums
+passed). **Order of events:** the script with P1-P4 was committed (84b3f78d3) and pushed before any run; one 2-draw smoke
+run, exit code only, outputs deleted unread; then the full run, once, unchanged.
+Consistency check: the mothers-1937-49 slope at 25-44 (1977-2018) is **-0.357 [-0.924, +0.165]**, m5r's t49 value to
+the third decimal.
+
+Question. m5r placed the 1937-49 mothers' fall in reported Catholic upbringing at ages 25-44, all in the 1977-94
+surveys, and could not tell a mid-life re-reporting drift (age) from a change across those surveys (period). A period
+change would touch everyone interviewed in 1977-94; an age drift would not touch people interviewed at 57-79 then.
+Estimand: within-cohort slope of raised-Catholic on age (single-year cohort fixed effects), US-born, in person, by age
+segment (25-44, 45-56, 57-79) and era (1977-94, 1995-2018). All adults is the pre-registered group.
+
+- **P1 refuted (by its point condition).** All adults at 57-79 in 1977-94 (cohorts 1898-1937, n 5,760): **-0.213
+  [-0.448, +0.016]** points per year. The interval just includes zero, but the point is below the -0.15 line set in
+  advance: older adults in the same surveys show a fall at least as large as younger ones.
+- **P2 refuted, the main test.** Within 1977-94, slope at 25-44 (-0.143 [-0.322, +0.056], n 10,073) minus slope at 57-79:
+  **+0.070 [-0.182, +0.371]**. No sign that the young-age fall is specific to young ages. Women -0.064 [-0.413, +0.319],
+  mothers +0.152 [-0.220, +0.561].
+- **P3 supported, only just.** Slope at 57-79, 1977-94 minus 1995-2018 (+0.043 [-0.181, +0.249]): **-0.256 [-0.594,
+  +0.049]**. Low power (se 0.16).
+- **P4 supported, weakly.** Slope at 25-44 in 1995-2018: **-0.033 [-0.223, +0.153]** (negative point, near zero); minus
+  the 1977-94 slope: +0.109 [-0.147, +0.360]. It meets the wording; it does not show a recurring young-age fall.
+- **Pattern (a reading, not a pre-registered test).** Both 1977-94 slopes are negative (-0.14 young, -0.21 old) and both
+  1995-2018 slopes are near zero (-0.03, +0.04). That is what a period change in the 1977-94 surveys would produce and
+  not what a mid-life drift would; but no single contrast excludes zero, so neither reading is established.
+- **Mothers.** All mothers at 25-44 in 1977-94 (cohorts 1933-69): +0.062 [-0.214, +0.347]. The m5r cell (mothers 1937-49,
+  -0.357) is not typical of mothers at those ages and years; it is a small, noisy cell.
+- **Unpredicted: 45-56 in 1995-2018.** Women +0.584 [+0.121, +1.055], mothers +0.703 [+0.205, +1.235]: within cohorts
+  1940-73 the raised-Catholic share *rises* with age at 45-56. The 2006-10 panels show women born 1950-71 drifting the
+  other way (m5r, -0.31 a year at about 48), so if both hold, who is interviewed at those ages changes in the opposite
+  direction to the reports. Post hoc, two overlapping cells of 18 slopes; treat as a lead, not a finding.
+- **Implication.** m5r's closing reading (the 1937-49 mothers' D_R is a mid-life drift like the younger panel women's) is
+  not supported: the cross-sections give no age-specific young-age fall in 1977-94, and older adults in the same
+  surveys fall as much. The m5q netting (their current-Catholic fall moves with reported upbringing, so it is not
+  evidence of leaving) still holds whatever the cause, because a period change in how upbringing is reported would also
+  shift the D_R it subtracts; but the "drift with age" story behind it is weaker.
+- **Limits.** A period effect that touches only young adults cannot be told from an age effect. Cohorts differ across
+  cells (1898-1937 vs 1933-69 in 1977-94), so cohort-varying slopes would look like age or era differences. Linear
+  within-segment slopes. Intervals wide: the contrasts have standard errors of 0.13-0.20 points a year.
+- **Next.** Look for the period change directly: the 1977-94 surveys' `relig16` wording, position and imputation notes
+  in the GSS codebook and methodological reports (GSS MR series), and a pooled-age era contrast with cohort fixed effects
+  (pre-registered), then H5 or milestone 2.
+
 ## 2026-11-22 · Milestone 5b, seventeenth GSS-only step: the oldest mothers' own panel re-reports do not drift down at 57-73, and their cross-section fall in "raised Catholic" sits at 25-44, where no panel sees them
 
 Run: `experiments/m5r_old_cohort_panel/run.py` (output `results.txt`, tables `t49`, `t50`; cross-sections: 500-draw

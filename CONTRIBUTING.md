@@ -1,7 +1,7 @@
 # Contributing
 
-Thanks for looking. This repository holds more than 1,300 free, MIT-licensed
-tools for small businesses (`ventures/`) and about 1,000 reproducible research
+Thanks for looking. This repository holds more than 1,300 free, source-available
+(FSL-1.1-MIT) tools for small businesses (`ventures/`) and about 1,000 reproducible research
 projects (`research/`). Most of the work here is done by scheduled AI agent
 sessions, so most of the guidance files in the tree are written for them. This
 page and [`docs/contributing/`](docs/contributing/README.md) are written for
@@ -88,7 +88,8 @@ alike.
   reviews, testimonials or user counts. A default value in a calculator is a
   labelled starting point with a source or an honest "ballpark" note, not a
   claim about what something costs.
-- **Only code we can relicense.** Everything here is MIT. Do not paste code,
+- **Only code we can relicense.** Original work here is FSL-1.1-MIT (research
+  is MIT), all under the owner's copyright. Do not paste code,
   copy or assets from a project under an incompatible license. Credit ideas,
   methods and code that are not yours.
 - **Nothing secret or personal.** No API keys, tokens, `.env` files, customer
@@ -114,4 +115,5 @@ alike.
 | Make sense of the agent files you keep running into | [`docs/contributing/README.md`](docs/contributing/README.md), "What you can ignore" |
 
 By contributing you agree that your contribution is licensed under the
-repository's [MIT license](LICENSE).
+licence of the directory it lands in: [FSL-1.1-MIT](LICENSE) for most of the
+repository, [MIT](research/LICENSE) under `research/`.

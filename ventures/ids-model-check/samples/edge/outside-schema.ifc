@@ -1,0 +1,17 @@
+ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION(('ViewDefinition [ReferenceView]'),'2;1');
+FILE_NAME('outside-schema.ifc','2026-11-24T00:00:00',(''),(''),'hand-written sample','ids-model-check','');
+FILE_SCHEMA(('IFC4X3_ADD2'));
+ENDSEC;
+DATA;
+/* An IFC4X3 file that still writes IFC4's StandardCase classes, which IFC4X3 removed
+   (IfcOpenShell's test/fixtures/units/beam-standard-case.ifc does the same with 18 beams). */
+#1=IFCPROJECT('0juf4qyggSstrxA20Qwn01',$,'Outside-schema sample',$,$,$,$,$,$);
+#10=IFCBEAM('0juf4qyggSstrxA20Qwn10',$,'B-1',$,$,$,$,$,.BEAM.);
+#11=IFCBEAMSTANDARDCASE('0juf4qyggSstrxA20Qwn11',$,'B-2',$,$,$,$,$,.BEAM.);
+#12=IFCBEAMSTANDARDCASE('0juf4qyggSstrxA20Qwn12',$,$,$,$,$,$,$,.BEAM.);
+#13=IFCWALLSTANDARDCASE('0juf4qyggSstrxA20Qwn13',$,'W-1',$,$,$,$,$,.SOLIDWALL.);
+#20=IFCRELAGGREGATES('0juf4qyggSstrxA20Qwn20',$,$,$,#1,(#10,#11,#12,#13));
+ENDSEC;
+END-ISO-10303-21;

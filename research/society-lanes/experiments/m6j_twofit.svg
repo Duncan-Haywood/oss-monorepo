@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Time to cross 8 m against the density seen while crossing, fresh seeds, both entrances pooled by cell: 6i's pair, 6j's chosen pair and the real HERMES free-choice curve">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Milestone 6j: collision-free speed fitted on time gap and radius</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="260.7" y2="260.7" stroke="#ddd"/><text x="58" y="264.7" text-anchor="end" font-family="sans-serif" font-size="11">5</text>
+<line x1="64" x2="624" y1="197.4" y2="197.4" stroke="#ddd"/><text x="58" y="201.4" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="134.2" y2="134.2" stroke="#ddd"/><text x="58" y="138.2" text-anchor="end" font-family="sans-serif" font-size="11">15</text>
+<line x1="64" x2="624" y1="70.9" y2="70.9" stroke="#ddd"/><text x="58" y="74.9" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<text x="78.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.4</text>
+<text x="126.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.6</text>
+<text x="174.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.8</text>
+<text x="223.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="271.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.2</text>
+<text x="320.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.4</text>
+<text x="368.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.6</text>
+<text x="416.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.8</text>
+<text x="465.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">density seen while crossing (persons per m^2)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">time to cross 8 m (s)</text>
+<polyline points="64.0,243.3 65.9,243.3 141.9,239.1 143.0,240.0 207.6,237.4 220.5,234.5 246.2,234.4 258.2,233.3 260.9,232.7 261.0,232.7 264.8,232.1 271.6,231.3 324.8,224.9 328.8,213.9 353.0,225.2 372.2,221.6 409.5,212.2 558.1,137.5" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="243.3" r="3" fill="#c0392b"/>
+<circle cx="65.9" cy="243.3" r="3" fill="#c0392b"/>
+<circle cx="141.9" cy="239.1" r="3" fill="#c0392b"/>
+<circle cx="143.0" cy="240.0" r="3" fill="#c0392b"/>
+<circle cx="207.6" cy="237.4" r="3" fill="#c0392b"/>
+<circle cx="220.5" cy="234.5" r="3" fill="#c0392b"/>
+<circle cx="246.2" cy="234.4" r="3" fill="#c0392b"/>
+<circle cx="258.2" cy="233.3" r="3" fill="#c0392b"/>
+<circle cx="260.9" cy="232.7" r="3" fill="#c0392b"/>
+<circle cx="261.0" cy="232.7" r="3" fill="#c0392b"/>
+<circle cx="264.8" cy="232.1" r="3" fill="#c0392b"/>
+<circle cx="271.6" cy="231.3" r="3" fill="#c0392b"/>
+<circle cx="324.8" cy="224.9" r="3" fill="#c0392b"/>
+<circle cx="328.8" cy="213.9" r="3" fill="#c0392b"/>
+<circle cx="353.0" cy="225.2" r="3" fill="#c0392b"/>
+<circle cx="372.2" cy="221.6" r="3" fill="#c0392b"/>
+<circle cx="409.5" cy="212.2" r="3" fill="#c0392b"/>
+<circle cx="558.1" cy="137.5" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">6i: T 0.3 s, r 0.2 m</text>
+<polyline points="67.0,235.9 67.1,232.1 145.7,225.9 147.9,227.5 214.8,218.5 225.8,219.9 240.5,216.9 240.6,216.1 244.2,214.4 246.6,214.6 251.9,213.2 277.9,215.0 323.1,209.2 335.4,185.6 356.9,201.9 396.3,190.3 427.5,179.6 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="67.0" cy="235.9" r="3" fill="#1f6fb2"/>
+<circle cx="67.1" cy="232.1" r="3" fill="#1f6fb2"/>
+<circle cx="145.7" cy="225.9" r="3" fill="#1f6fb2"/>
+<circle cx="147.9" cy="227.5" r="3" fill="#1f6fb2"/>
+<circle cx="214.8" cy="218.5" r="3" fill="#1f6fb2"/>
+<circle cx="225.8" cy="219.9" r="3" fill="#1f6fb2"/>
+<circle cx="240.5" cy="216.9" r="3" fill="#1f6fb2"/>
+<circle cx="240.6" cy="216.1" r="3" fill="#1f6fb2"/>
+<circle cx="244.2" cy="214.4" r="3" fill="#1f6fb2"/>
+<circle cx="246.6" cy="214.6" r="3" fill="#1f6fb2"/>
+<circle cx="251.9" cy="213.2" r="3" fill="#1f6fb2"/>
+<circle cx="277.9" cy="215.0" r="3" fill="#1f6fb2"/>
+<circle cx="323.1" cy="209.2" r="3" fill="#1f6fb2"/>
+<circle cx="335.4" cy="185.6" r="3" fill="#1f6fb2"/>
+<circle cx="356.9" cy="201.9" r="3" fill="#1f6fb2"/>
+<circle cx="396.3" cy="190.3" r="3" fill="#1f6fb2"/>
+<circle cx="427.5" cy="179.6" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="222" y="32" width="14" height="10" fill="#1f6fb2"/><text x="242" y="41" font-family="sans-serif" font-size="11">6j: T 0.8 s, r 0.15 m</text>
+<polyline points="71.0,253.8 90.3,252.4 109.9,250.6 129.2,248.6 148.8,246.2 168.2,243.6 187.7,240.6 207.1,237.3 226.7,233.7 246.0,229.9 265.6,225.7 284.9,221.2 304.5,216.4 323.9,211.4 343.4,205.9 362.8,200.3 382.4,194.3 401.7,188.0 421.3,181.3 440.6,174.5 460.2,167.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="71.0" cy="253.8" r="3" fill="#2e8b57"/>
+<circle cx="90.3" cy="252.4" r="3" fill="#2e8b57"/>
+<circle cx="109.9" cy="250.6" r="3" fill="#2e8b57"/>
+<circle cx="129.2" cy="248.6" r="3" fill="#2e8b57"/>
+<circle cx="148.8" cy="246.2" r="3" fill="#2e8b57"/>
+<circle cx="168.2" cy="243.6" r="3" fill="#2e8b57"/>
+<circle cx="187.7" cy="240.6" r="3" fill="#2e8b57"/>
+<circle cx="207.1" cy="237.3" r="3" fill="#2e8b57"/>
+<circle cx="226.7" cy="233.7" r="3" fill="#2e8b57"/>
+<circle cx="246.0" cy="229.9" r="3" fill="#2e8b57"/>
+<circle cx="265.6" cy="225.7" r="3" fill="#2e8b57"/>
+<circle cx="284.9" cy="221.2" r="3" fill="#2e8b57"/>
+<circle cx="304.5" cy="216.4" r="3" fill="#2e8b57"/>
+<circle cx="323.9" cy="211.4" r="3" fill="#2e8b57"/>
+<circle cx="343.4" cy="205.9" r="3" fill="#2e8b57"/>
+<circle cx="362.8" cy="200.3" r="3" fill="#2e8b57"/>
+<circle cx="382.4" cy="194.3" r="3" fill="#2e8b57"/>
+<circle cx="401.7" cy="188.0" r="3" fill="#2e8b57"/>
+<circle cx="421.3" cy="181.3" r="3" fill="#2e8b57"/>
+<circle cx="440.6" cy="174.5" r="3" fill="#2e8b57"/>
+<circle cx="460.2" cy="167.2" r="3" fill="#2e8b57"/>
+<rect x="386.2" y="32" width="14" height="10" fill="#2e8b57"/><text x="406.2" y="41" font-family="sans-serif" font-size="11">HERMES free-choice curve (real)</text>
+</svg>

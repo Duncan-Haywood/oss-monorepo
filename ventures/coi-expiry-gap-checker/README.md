@@ -41,7 +41,7 @@ From the quality audit of 2026-11-12 (`portfolio/quality/audits/2026-11-12-coi-e
 
 ## License
 
-MIT. See `LICENSE`.
+FSL-1.1-MIT. See `LICENSE`.
 
 ## No warranty
 

@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKnUDZcuHU3zKgAPDfZ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T02:09:09Z",
+  "ended": "2026-11-24T02:33:12Z",
+  "wall_minutes": 24.22,
+  "tokens_in": 6259619,
+  "tokens_out": 50788,
+  "cost_usd": 3.4937,
+  "tool_calls": 51,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18519",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "`python3 platform/ci/pyenv.py pytest numpy` returned /usr/bin/python3.13 at once; the 'first install can take over 120 s' warning did not apply here, harmless."
+    },
+    {
+      "file": "research/aerolog-scaling/LOG.md",
+      "issue": "DJI hover-accuracy figures and the Remote ID accuracy bound had to come from search excerpts (dji.com, ecfr.gov not opened); the programme has no params table for surveillance accuracy yet, so the next run should reuse 11bg's docstring sources."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Adams (1936) DOI could not be live-checked (doi.org refused); cited from the Scilit record seen in search and marked 'not opened'.",
+      "did": "cited with an explicit provenance note in the paper and bib",
+      "result": "citation is honest about what was checked"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-aerolog-drone-transit-hold-rule.md",
+    "research/aerolog-scaling/LOG.md (11bg entry)",
+    "research/aerolog-scaling/paper/airspace_layers.md section 6.11"
+  ],
+  "goal": null,
+  "notes": "Milestone 11bg of aerolog-scaling: hold-until-clear transit procedure priced with Adams' delay on exact per-point flux over 48 NYC layouts; predictions pushed in 5e3356075 before the build; 4 of 6 held. Local checks: 347 aerolog tests pass, check_airspace_numbers 341/341, homepage build ok, check_posts ok, check_md_links ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a25b0a66-213c-50db-99bc-77a4a1f53d13",
+    "transcripts": 1,
+    "first": "2026-11-24T02:09:09Z",
+    "last": "2026-11-24T02:33:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 95,
+        "output": 50788,
+        "thinking": 23275,
+        "cache_read": 6102395,
+        "cache_write_5m": 0,
+        "cache_write_1h": 157129,
+        "api_equivalent_usd": 3.4937,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 95,
+      "output": 50788,
+      "thinking": 23275,
+      "cache_read": 6102395,
+      "cache_write_5m": 0,
+      "cache_write_1h": 157129,
+      "api_equivalent_usd": 3.4937,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 42,
+      "WebSearch": 3,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.22,
+      "active_minutes": 24.22,
+      "model_minutes": 9.88,
+      "tool_minutes": 14.34,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "an airspace researcher deriving the gap-acceptance model, coding the per-point flux sweep, running it and writing the section",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 458.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

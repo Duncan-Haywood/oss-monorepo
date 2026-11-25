@@ -1,5 +1,19 @@
 # Research log
 
+## 2026-11-25 · Why do the case2869_pegase overload stalls stall? Outcome. The trust box: every failed hard QP is non-empty without it (33 of 33 settled), the margins clear 1 of 38, and with no box and no margins the linear model always relieves every rating (34 of 34). Needed box 1.04 to 102 times the round's box
+- Plan (2026-11-24), outcome and Next (2026-11-25): `research/infra-dcopf/LOG.md`; numbers in `research/infra-dcopf/experiments/diag_overload_stall.txt`. D0, D2 held; D1, D3, D5 refuted; D4 untestable.
+- Next: a step rule that decouples step length from the box (the hard QP without the box, then backtracking along the step on the AC check), fixed on development and held-out first.
+
+## 2026-11-24 · Why do the case2869_pegase overload stalls stall? Hard-QP emptiness on every failed round (plan)
+- Plan, diagnostic and predictions D0 to D5: `research/infra-dcopf/LOG.md` (2026-11-24); script `research/infra-dcopf/experiments/diag_overload_stall.py`. Diagnostic only: the frozen repair is rerun unchanged.
+
+## 2026-11-24 · Method of record on the confirmation split: outcome. Rule CF lowers the cost of all 18 finishers of 33 unused cases, never dearer than CP (cheaper on 10, P = 0.002); mean gap +0.767 to +0.662 points, median +0.115 to +0.089. On reactive-stage points CP is stuck on 7 of 8, CF moves all 8
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-24); numbers in `research/infra-dcopf/experiments/results_confirm_cf.txt`. M0 to M4 and M6 held; M5 refuted (arm J mean +1.139 against a +1.000 bar, held up by case2848_rte TYP at +6.208 %).
+- Next: the 15 confirmation non-finishers, starting with the case2869_pegase overload stalls (2 to 4 overloads).
+
+## 2026-11-24 · Method of record on the confirmation split: frozen repair, reactive stage and rule CF on its 18 finishers (plan)
+- Plan, arms J and R and predictions M0 to M6: `research/infra-dcopf/LOG.md` (2026-11-24); script `research/infra-dcopf/experiments/run_confirm_cf.py`. Rule CP is run alongside for comparison; nothing is tuned on this split.
+
 ## 2026-11-23 · Rule CF: outcome. Never dearer than rule CP on any of 83 finishers, cheaper on 28; frozen-start mean gap development +0.229 to +0.209, held-out +0.508 to +0.494 (below CS on both). Adoption met: CF replaces CP in the method of record
 - Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-23); numbers in `research/infra-dcopf/experiments/results_fallback.txt`. T0 to T7 held.
 - The fallback fired on 183 rounds, 111 accepted. Next: the method of record (frozen repair, reactive stage, rule CF) on the confirmation split, fixed before it runs.

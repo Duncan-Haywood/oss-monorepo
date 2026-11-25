@@ -11,6 +11,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 EXP = os.path.join(HERE, "..", "experiments")
 
 CLAIMS = [
+    ("results_pitch_sensitivity.txt", "row 0.2 2.20 0.0299 0.0901 0.074 0.108 1.218"),
+    ("results_pitch_sensitivity.txt", "row 0.4 2.20 0.0462 0.0901 0.066 0.162 1.365"),
+    ("results_pitch_sensitivity.txt", "GB+F 24.51 at 0.89 ratio 1.104; NF-PG 22.31 at 0.90 ratio 1.005"),
+    ("results_pitch_sensitivity.txt", "var B    heave 0.987 0.958 0.973"),
+    ("results_pitch_sensitivity.txt", "GB+F 35.56 at 1.09 ratio 1.760"),
+    ("results_pitch_sensitivity.txt", "GB+F 42.70 at 1.27 ratio 1.542"),
     ("results_energy_split.txt", "minimum total 12.14 Wh/km at 1.00 m/s; range 823.7 km"),
     ("results_energy_split.txt", "propulsive share at minimum 0.314"),
     ("results_energy_split.txt", "wave share of hull resistance at 1.00 m/s 0.066"),
@@ -250,6 +256,13 @@ CLAIMS = [
     ("results_nearfield_convergence.txt", "S60 -0.008299 (-0.8%"),
     ("results_nearfield_convergence_b24.txt", "row P24 S40 GB motion 2.855 N loss30W_share025 3.41%"),
     ("results_nearfield_convergence_b24.txt", "row P24 S40 NF-PG motion 2.556 N loss30W_share025 3.06%"),
+    # milestone 7zzd: Journee's six peaks on three grids
+    ("results_journee_grid.txt", "I GB+F 0.700/0.711/0.713; I NF-PG 0.714/0.727/0.731; III GB+F 0.783/0.787/0.790; III NF-PG 0.811/0.817/0.821"),  # 7zze: both families share the Fn 0.2 shortfall
+    ("results_journee_grid.txt", "G1 largest |change| of a GB+F or NF-PG peak, (16, 30) to (32, 60): 3.95%"),
+    ("results_journee_grid.txt", "III Fn 0.2: (24, 40) / (32, 60) over (16, 30): GB+F +0.53% / +0.85% (order 1.29); NF-P +0.66% / +1.04% (order 1.31); NF-PG +0.73% / +1.21%"),
+    ("results_journee_grid.txt", "G3 largest |change| of NF-PG / GB+F, (16, 30) to (32, 60): 0.96%"),
+    ("results_journee_grid.txt", "GB+F P32 S60: rms 0.212"),
+    ("results_journee_grid.txt", "NF-PG P32 S60: rms 0.226"),
     # milestone 7zw: viscous damping on the relative heave velocity
     ("results_relative_damping.txt", "relative: best zeta3 0.0875 (edge False), SSE 0.5148"),
     ("results_relative_damping.txt", "hold-out strip+refl area 1.138 of the measured mean"),
@@ -288,6 +301,15 @@ CLAIMS = [
     ("results_dx_fixed_point.txt", "X1 dxc settles (1e-4 sigma within 12 passes) everywhere: T False (10 of 14 not)"),
     ("results_dx_fixed_point.txt", "over 3D: sdx 1.362, dx1 1.182, dxc 1.189, dx200 1.187"),
     ("results_dx_fixed_point.txt", "over 3D: sdx 1.092, dx1 1.009, dxc 0.999, dx200 0.999"),
+
+    # milestone 7zzf: Journee's tabulated Wigley III values (boatmath's tests), strip model at (16, 30) and (24, 40)
+    ("results_journee_tables.txt", "E3 Fn 0.2 heave ratios (7zg) 1.006 0.971 0.979 all within 15%: True"),
+    ("results_journee_tables.txt", "row 0.3 1.250 1.28 1.179 0.921"),
+    ("results_journee_tables.txt", "row 1.750 0.515 0.542 1.053 0.600 0.666 1.110"),
+    ("results_journee_tables.txt", "row 2.000 0.577 0.608 1.054 0.658 0.730 1.109"),
+    ("results_journee_tables.txt", "row 2.22 0.707 0.632 0.894 1.963 2.235 1.139"),
+    ("results_journee_tables.txt", "row 3.34 0.465 0.414 0.891"),
+    ("results_journee_tables.txt", "E5 largest move from (16, 30) to (24, 40): -0.47%"),
 
 ]
 

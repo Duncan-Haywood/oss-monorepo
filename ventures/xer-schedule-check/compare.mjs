@@ -222,12 +222,15 @@ export function compare(prevXer, curXer, opts = {}) {
   });
 
   // ---- half-step
-  let half = null;
+  let half = null, halfPath = [];
   try {
     const hx = halfStepXer(prevXer, curXer, A.p.id, B.p.id);
     const hr = schedule(hx);
     const hp = hr.projects.get(A.p.id);
     if (hp && hp.finish !== null) half = hp.finish;
+    // the driving path once this period's progress is in and before the
+    // revisions: the path the revisions act on
+    halfPath = drivingPath(hr, A.p.id).map((id) => hr.model.tasks.get(id)?.code).filter((c) => c !== undefined);
   } catch (e) {
     warnings.push(`half-step run failed: ${e.message}`);
   }
@@ -275,7 +278,7 @@ export function compare(prevXer, curXer, opts = {}) {
     constraints: cstrChanged,
     calendars: calChanged,
     float: { rows: floatRows, newlyCritical },
-    criticalPath: { previous: A.path, current: B.path, joined, left, trail },
+    criticalPath: { previous: A.path, current: B.path, halfStep: halfPath, joined, left, trail },
     warnings,
   };
 }

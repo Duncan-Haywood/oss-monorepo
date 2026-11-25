@@ -3,7 +3,7 @@
 Check an IFC building model against a buildingSMART **Information Delivery
 Specification (IDS 1.0)** file, in the browser or on the command line, and get
 every failing element with the reason, plus a BCF issue list your BIM tool can
-open. MIT licensed, no dependencies, nothing uploaded.
+open. FSL-1.1-MIT licensed, no dependencies, nothing uploaded.
 
 **Live tool:** https://marisstella.app/ids-model-check/
 
@@ -162,6 +162,38 @@ open. MIT licensed, no dependencies, nothing uploaded.
   the offers pass. "One of" now works on any text property or attribute (82.0%
   of the public files' facets editable, was 81.1%).
   `eval/model-values-2026-11-17.md`.
+  **A property written in two data types** (2026-11-24): on 28 more public
+  exports (engine_web-ifc's test models), 19,296 of 19,300 offers passed their
+  own model. The 4 that failed were a project's own properties that Revit
+  wrote as IFCLABEL on some objects and IFCTEXT on others (ARK_NUS's
+  Constraints.Level: 162 and 145 rooms). IDS names one dataType, so the
+  offered check failed 178 objects, in this checker and in IfcTester alike.
+  The row now gives the count for each type and offers **Accept any data
+  type**, which drops the dataType so every object passes (both tools agree,
+  8 of 8 specs). The set's dataType is now the commonest across classes, not
+  the first one seen. 19,300 of 19,300 pass.
+  `eval/mixed-type-own-props-2026-11-24.md`.
+  **A property written as 1.#INF** (2026-11-24): on xBIM's 128 test files
+  (all read; 3,786 of 3,786 offers pass; 24,290 of 24,290 strings the same as
+  IfcOpenShell 0.9.0 reads them), one file holds the Microsoft C runtime's
+  `1.#INF` and `-1.#IND`, which exporters write for an infinite or undefined
+  double. The reader dropped such a record, so a property holding one went
+  missing and an optional check on it passed. It now reads them as Infinity
+  and NaN with a reader note; checks fail them ("is Infinity, not <= 1") and
+  the editor's row says the export wrote a fault.
+  `eval/xbim-test-files-2026-11-24.md`.
+  **Classes the model's schema does not have** (2026-11-24): on IfcOpenShell's
+  294 test files (all read; 1,734 of 1,734 offers pass) and buildingSMART's 46
+  IFC4.3 samples, and against IfcTester on 293 models x 65 public IDS files
+  (126,781 specification results, 1,614 different, every one from a cause
+  already named in `eval/corpus-crosscheck-2026-11-17.md` or a file built to
+  be invalid), one IFC4X3 file writes its 18 beams as IFC4's
+  IFCBEAMSTANDARDCASE, a class IFC4X3 removed. IfcOpenShell drops them and
+  neither tool checked them: 7 of the 26 public IDS specifications that reach
+  IfcBeam passed a model whose beams nobody looked at. The reader now notes
+  each such class and its parent, and a specification on the parent says how
+  many elements it did not check and to re-export them (verdicts unchanged,
+  as IDS reads them). `eval/ifcopenshell-test-files-2026-11-24.md`.
   **Attribute values and classification codes** (2026-11-17): attribute rows
   (Name, ObjectType, Tag, PredefinedType...) and classification rows offer
   the values and codes the model holds the same way. On four real exports, 243
@@ -430,6 +462,7 @@ Command line (Node 20+):
 ```
 node cli.mjs model.ifc spec.ids                 # text report, exit 1 on a fail
 node cli.mjs model.ifcxml spec.ids              # ifcXML, or an .ifczip, the same way
+node cli.mjs --to-ifcxml model.ifc -o model.ifcxml   # an IFC4/IFC4X3 model as XSD-laid-out ifcXML
 node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --html report.html  # the check as one HTML file to send back
 node cli.mjs --fill model.ifc spec.ids -o filled.ifc --to-fill todo.csv  # write what the IDS fixes; list the rest
@@ -529,6 +562,130 @@ ifcXML (entity for entity, `iN` for `#N`) and `samples/tiny-house.ifczip` the
 
 No API key, account or server is involved, so there is nothing to configure.
 
+### Does the file follow its own IFC schema? (2026-11-24)
+
+An IDS check reads each value by its position in the record and by its type.
+When the file itself breaks the IFC schema, the check can test the wrong value
+or skip one, and say nothing. For example: an `IFCPERSON` with 7 attributes where
+IFC4 gives it 8, `NominalValue` written as a bare `0.2` where IFC needs
+`IFCREAL(0.2)` or a measure, `IFCLABEL(0.5)`, an enumeration value the schema does not list, `*` where `$` belongs, or an `IfcOwnerHistory` whose
+application is a cartesian point. `conformance.mjs` reads every record of a STEP
+file against its schema and names each fault, folded by kind, so an export
+with one systematic fault gives one line:
+
+- **What it checks:** the attribute count; `*` only in derived slots and `$` only in
+  optional ones; references to records that exist and are of an allowed class;
+  typed values in selects (the type exists, the select allows it, something is
+  inside, and the inside is the right kind); a bare value where the type is not
+  a select; enumeration values the schema lists; NaN; the least size of a list
+  (`SET [1:?]`) and fixed inner sizes (2D points in a 2D list); abstract classes
+  written as records; the three header records' shapes (ISO 10303-21);
+  IfcApplication's two UNIQUE rules; and (2026-11-24) inverse cardinalities:
+  how many records point at each one through the attribute an INVERSE names,
+  against every bound other than `[0:?]` (48 in IFC2X3 and IFC4, 52 in IFC4X3,
+  now in `schema/*.json` as `inverseBounds`). So an opening that voids no
+  element, an IFC2X3 placement or shape no product uses, a wall contained in two
+  storeys, or a property set shared by several IFC2X3 types each get a line
+  saying what it means for a reader (`eval/inverse-counts-2026-11-24.md`). Classes
+  outside the schema and duplicate GlobalIds were already reader notes and
+  model findings, and are not repeated.
+- **The schema's own WHERE rules** (2026-11-24, `where-rules.mjs`): all 363
+  IFC2X3, 677 IFC4 and 777 IFC4X3 rules, run by an interpreter for the EXPRESS
+  the schemas are written in, from the buildingSMART `.exp` text
+  (`schema/gen-rules.mjs` writes `schema/rules-*.json`). No rule is coded by
+  hand; DERIVE attributes, the 38-48 functions per schema and the two global
+  RULEs are evaluated too, with ISO 10303-11's three-valued logic (a rule fails
+  only when it is FALSE). The ones an IDS check leans on are said in IDS terms:
+  a wall whose PredefinedType is USERDEFINED with no ObjectType (where a
+  predefinedType facet then looks), a wall typed by a door type, two property
+  sets or two properties of one name. `--no-rules` skips them on the CLI.
+- **In the IDS rows themselves** (2026-11-24, `markModelRules` in
+  `conformance.mjs`): when an element fails a specification and the model
+  also breaks one of those four rules on it, its type, a property set
+  defining it or its type's property set, the failing row says so in a note
+  ("the model breaks IfcWall.CorrectPredefinedType: PredefinedType is
+  USERDEFINED with no name for it, so a predefinedType facet's answer depends
+  on the tool"). On the page, in the CLI text, CSV and HTML reports. In the
+  public files, 3,261 elements would carry such a note, almost all from
+  ISSUE_102's IFC2X3 export that names properties twice; 81 are the bridge
+  members typed by proxy types (`eval/where-rules-seeded-2026-11-24.md`).
+- **Seeded faults** (2026-11-24, `eval/where-rules-seeded.mjs`): eight fault
+  families an IDS check cares about (USERDEFINED with nothing naming it, an
+  occurrence typed by another class's type, two property sets of one name,
+  one property named twice, a negative quantity, a negative positive length,
+  a 3D direction or point in a 2D placement), written into 24 public files from
+  ARCHICAD, Revit, Tekla, SketchUp and others across IFC2X3, IFC4 and IFC4X3:
+  358 seeds, each rule firing on exactly the seeded record and nowhere else,
+  and no finding of the original lost. `ifcopenshell.validate` 0.9.0 agrees on
+  every seeded copy it opens (332 of 332 seeds, the same new failures on all
+  109; the other 26 are in the IFC4X2 and IFC4X3_RC2 files it refuses).
+  `where-rules-seeded.test.mjs` keeps every family on the bundled sample.
+- **Global RULEs and the less direct rules, seeded** (2026-11-24,
+  `eval/where-rules-global-seeds-2026-11-24.md`): seven more families (a second
+  `IfcProject`, a second context with a turned or a moved world origin, an SI
+  unit named for another dimension, an aggregation listing its own whole, a
+  material on a space, storey or project, a material on an opening) in 102
+  public files: 538 seeds, each firing where it was put and nowhere else; with
+  the first eight families on the same files, 1,283 seeds in 15 families.
+  `ifcopenshell.validate` 0.9.0 agrees on all 542 seeded copies it opens
+  (526 of 526 seeds).
+  The run found a typo in the IFC2X3 and IFC4 schemas: their
+  `IfcSameAxis2Placement` compares the first placement's Location with
+  itself, so `IfcRepresentationContextSameWCS` never sees contexts whose
+  origins differ (IFC4X3 fixed it; 57 of 57 IFC4X3 files catch a moved
+  origin, 0 of 45 IFC2X3/IFC4 files do). The conformance pass now runs
+  IFC4X3's comparison on IFC2X3 and IFC4 models too and says so as a
+  `context-origin` note when only that one fails (0 of the 102 public
+  originals; the seeded copies all do).
+- **Cycles of wholes (2026-11-24,
+  [eval/decomposition-cycles-2026-11-24.md](eval/decomposition-cycles-2026-11-24.md)).**
+  Two records that are each other's parts (an assembly holding an assembly
+  that holds it, a port nesting the element it belongs to, two tasks nesting
+  each other) break no WHERE rule and no inverse count in any of the three
+  schemas, and `ifcopenshell.validate` 0.9.0 passes them; IfcTester 0.9.0's
+  partOf check climbs such a chain with no memory of where it has been and
+  never returns. Seeded into the same 102 public files four ways (187 seeds),
+  the schema caught every spatial and containment cycle only because the whole
+  already had a parent, and caught 0 of 28 assembly cycles and 3 of 6 nest
+  cycles. The conformance pass now reports a `decomposition-cycle` for every
+  loop through aggregation, nesting, containment, groups, voids and fills
+  (187 of 187 seeds, 0 of the 102 originals), and a failing IDS row on an
+  element in or below the loop carries a note saying so. A partOf facet here
+  no longer lists an element as its own whole when the walk comes back to it.
+- **Where it shows:** `node cli.mjs --conformance MODEL.ifc [--json]` (exit 1 on
+  any fault, with the outside-schema notes and duplicate GlobalIds). It is also
+  a model warning in every check of a STEP file up to 40 MB, on the page (a
+  MODEL block beside the duplicate GlobalIds) and in the CLI's text and JSON
+  report (`--no-conformance` turns it off). Like duplicate GlobalIds, it does not
+  change the IDS verdict.
+- **How it was checked** (`eval/conformance-2026-11-24.md`): IfcOpenShell's
+  labelled broken files (`test/fixtures/validate`): all 25 `fail-*` files
+  flagged with their fault, and 0 notes on the 13 `pass-*` files. Then
+  `ifcopenshell.validate` 0.9.0 on 492 public files (IfcOpenShell's 293,
+  buildingSMART's IFC 4.3 samples and Sample-Test-Files, opensourceBIM,
+  web-ifc's 108 readable): the same files flagged, 492 of 492, and on records
+  none IfcOpenShell flags that this misses, once ids.mjs's own notes
+  (outside-schema classes, duplicate GlobalIds) are set apart. That includes,
+  since 2026-11-24, all 1,085 of IfcOpenShell's inverse-cardinality lines
+  (47 on its own files, 1,038 on web-ifc's), matched record for record
+  (`eval/inverse-counts-2026-11-24.md`). WHERE rules (2026-11-24,
+  `eval/where-rules-2026-11-24.md`): 26,013 rule failures found by both tools
+  on the same records across the 492 files. 21 more only here, all in one IFC4X3 file
+  that writes an IFC4 class, and 18 only from IfcOpenShell, each its own
+  runner's error (a Python TypeError, a derived attribute it cannot compute,
+  an indeterminate read as true). 0.31 s for AC20-FZK-Haus's 40,455 rule
+  evaluations, where IfcOpenShell's rule runner takes 4.0 s. The two tools differ in two places.
+  IfcOpenShell lets `$` stand in a derived slot, where ISO 10303-21 writes `*`.
+  And IfcOpenShell refuses the draft schemas IFC4X2 and IFC4X3_RC2, which this
+  reads as IFC4 and IFC4X3_ADD2 behind a first note.
+- **What the public files hold:** a Bonsai classification library whose 1,010
+  references `$$` (no comma) leaves unread; IfcOpenShell's own IFC4 property
+  set template file with three templates one attribute short; Bonsai's IFC2X3
+  demo library and template whose owner histories name a cartesian point as the
+  application; a bridge declaring the draft IFC4X2 (read as IFC4, now said
+  first; IfcOpenShell will not open it) whose `.BASE_PLATE.`, `.EDGEBEAM.` and
+  `.RETAININGWALL.` IFC4 does not list; 940 `IfcCurveBoundedPlane`s with `$` where IFC4 needs an empty set.
+
 ### COBie 2.4 handover workbook and its QC (2026-11-23)
 
 `cobie.html` (and `node cli.mjs --cobie MODEL.ifc -o OUT.xlsx`) writes the nine
@@ -593,6 +750,49 @@ the file bounds on one side now takes the room geometry finds on the other. On D
 IfcOpenShell's ifcfm writes the same counts of floors, rooms, zones, types and
 components, and the QC of its workbook finds the 38 components it leaves at
 `n/a`.
+
+### STEP models written as ifcXML that validates (2026-11-24)
+
+The other way round: `node cli.mjs --to-ifcxml model.ifc -o model.ifcxml`
+writes an IFC4 or IFC4X3 STEP model as ifcXML, the standard's XML form, for
+pipelines that query XML (XPath, XSLT, an XML database) or a client who asks
+for it. The layout is the one buildingSMART's XSD gives, not a guess: which
+values are XML attributes, the order of child elements (supertype levels
+first), and which relationships nest under which objects are read from the
+XSD by `schema/gen-ifcxml-layout.py` into `schema/ifcxml-layout-*.json`
+(names only). The spatial tree hangs from the IfcProject, property sets sit
+under the objects they describe, and every entity is written in full once and
+by `href` after that, as buildingSMART's own Annex E examples are.
+
+How it was checked (`eval/ifcxml-export-2026-11-24.md`, `eval/ifcxml-export.mjs`):
+the tiny-house sample, buildingSMART's 41 IFC4 Annex E STEP examples and five
+public exports up to 33 MB (ARCHICAD, Revit and a bridge model, 901,550
+entities) were written and read back: every entity's arguments equal the STEP
+reader's, and the checker's 540 verdicts from the 68 IDS files are the same on
+each export as on its STEP file (3,240 of 3,240). Against the IFC4 ADD2 XSD
+(xmllint) 37 of the 42 small files validate, and every XSD error in the large
+ones is accounted for: either the source left a required attribute `$` (1,137,
+which `--conformance` reports on the STEP file too) or the XSD cannot hold the
+model (680). IFC4's XSD allows one `HasOpenings` per element although EXPRESS
+gives a set, so a wall's second opening keeps its pointer to the wall; the file
+reads back whole, and the command says how many and exits 1. Lists of lists
+are written flat, as the XSD's "list list" says, with `ifc:arraySize` giving
+the rows, which the reader now uses to cut them back. The IFC4X3 ADD2 XSD as published does
+not compile in xmllint (`maxOccurs="?"` in three places and list types built on
+complex types), so IFC4X3 exports follow its layout but are checked by reading
+back only. The check found one reader fault, fixed: an ifcXML file in IFC4X3
+ADD2's own namespace (`.../IFC/RELEASE/IFC4/3/ADD2`) was opened as IFC4.
+
+### The page's "Download as .ifcxml" (2026-11-24)
+
+The checker page offers the same export: after a check of an IFC4 or IFC4X3
+STEP model, *Download as .ifcxml* writes it in the browser's worker with the
+same writer (`ifcxml-writer.mjs` no longer imports `node:fs`; the worker fetches
+`schema/ifcxml-layout-*.json` as it does the schemas). Driven in headless
+Chromium on the tiny-house sample and the three buildingSMART IFC4X3 samples,
+the downloaded files are byte for byte the CLI's apart from the time stamp, and
+the tiny-house download gives the same verdicts as its STEP file on all three
+sample IDS files (`eval/ifcxml-page-download-2026-11-24.md`).
 
 ### ifcXML, ifcJSON and IFC5 models written as a STEP .ifc (2026-11-22)
 
@@ -1654,7 +1854,9 @@ text is now copied in runs. Every report is identical.
 1. **buildingSMART's test suite.** `eval/fetch-testcases.sh` sparse-clones
    `github.com/buildingSMART/IDS` at commit `870f9c4` and
    `node eval/run-testcases.mjs` scores every pair: `pass-*` must pass,
-   `fail-*` and `invalid-*` must not. Result, 2026-11-16:
+   `fail-*` and `invalid-*` must not. Since 2026-11-25 CI fetches the pairs
+   (`ci-fetch.sh`, run by `platform/ci/run_venture_tests.py`), so
+   `engine.test.mjs` scores them on every change. Result, 2026-11-16:
 
    | facet | right |
    | --- | --- |
@@ -2156,6 +2358,12 @@ faster than IfcTester; its point is needing no install.
 - ifcXML and ifcZIP test files: xBIM Toolkit, `github.com/xBimTeam/XbimEssentials`
   (`Tests/TestFiles`, CDDL; fetched by `eval/fetch-xbim-samples.sh`, not
   copied here).
+- ifcXML schemas IFC4 ADD2 (`IFC/RELEASE/IFC4/ADD2/XML/IFC4_ADD2.xsd`) and
+  IFC4X3 ADD2 (`IFC/RELEASE/IFC4_3/HTML/IFC4X3_ADD2.xsd`),
+  `github.com/buildingSMART/Standards-builds`, (c) buildingSMART International
+  Limited, used in software development with full attribution; reduced to
+  element and attribute names in `schema/ifcxml-layout-*.json` by
+  `schema/gen-ifcxml-layout.py`, fetched by `eval/fetch-ifcxml-xsd.sh`.
 - STEP/ifcXML twins: buildingSMART's IFC4 ADD2 TC1 Annex E examples,
   `github.com/buildingSMART/Standards-builds`, and two from
   `github.com/GeometryGym/GeometryGymIFCExamples` (MIT); fetched by
@@ -2173,4 +2381,4 @@ judgment of the architect, engineer or BIM manager responsible for the model.
 
 ## License
 
-MIT, see `LICENSE`.
+FSL-1.1-MIT, see `LICENSE`.

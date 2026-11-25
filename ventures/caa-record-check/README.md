@@ -116,14 +116,14 @@ run yourself.
 
 ## License
 
-[MIT](LICENSE). Free and open source —
+[FSL-1.1-MIT](LICENSE). Free to use and source available —
 [support](https://github.com/sponsors/Duncan-Haywood) is entirely optional and never changes what
 the tool does.
 
 ## Tests
 
 ```
-cd ventures/caa-record-check && node --test
+cd ventures/caa-record-check && node --test '*.test.mjs'
 ```
 
 Assertions across the wire-format parser and RFC 8657 parameter parsing (`parse.test.mjs`), the DNS
@@ -132,6 +132,10 @@ CAA-set analysis and per-CA verdicts (`analyze.test.mjs`), the CLI's orchestrati
 parsing (`check.test.mjs`), the usage counter (`usage.test.mjs`), and the pages' structure and
 disclaimers (`page.test.mjs`).
 
-## Known gaps (quality audit 2026-11-08)
+## Known gaps (quality audits 2026-11-08 and [2026-11-24](../../portfolio/quality/audits/2026-11-24-caa-record-check.json))
 
-- Unquoted values (`0 issue letsencrypt.org`) are reported malformed; hostnames are not normalised; `accounturi` and `validationmethods` do not change the verdict.
+- `accounturi` and `validationmethods` (RFC 8657) are parsed but do not change the verdict: an account-bound `issue` record still reads "authorized (named)" for that CA, with no note that only one account or validation method may use it.
+- Ancestor CNAMEs and DNAMEs rely on the resolver chasing them inside the CAA query (Cloudflare's does); only the typed name gets its own CNAME query, so the report names an alias only there.
+- `verdictForCustomCa` repeats `verdictFor`'s rule chain instead of sharing it.
+
+Fixed 2026-11-24: unquoted presentation values (`0 issue letsencrypt.org`) parse (RFC 8659 section 4.1.1); a record with reserved flag bits is kept and counted, as RFC 8659 section 4.1 requires, and reported as a finding (it used to be dropped as malformed, which left every CA "authorized"); pasted URLs, ports, `*.` and trailing dots are normalised to the DNS name.

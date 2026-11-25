@@ -1,0 +1,526 @@
+file	faces	faces_at_edge	eyes_closed	blink_max	sharpest_in_burst	error
+c1-beach-rocky.jpg	0	0	0		1	
+c1-beach-dusk.jpg	0	0	0		1	
+c1-bicycle-park.jpg	0	0	0		1	
+c1-bike-brick-wall.jpg	0	0	0		1	
+c1-breakfast-in-bed.jpg	0	0	0		1	
+c1-burst-beach-1.jpg	0	0	0		1	
+c1-burst-beach-3.jpg	0	0	0		1	
+c1-burst-beach-2.jpg	0	0	0		1	
+c1-burst-beach-4.jpg	0	0	0		1	
+c1-burst-dog-1.jpg	0	0	0		1	
+c1-burst-dog-3.jpg	0	0	0		1	
+c1-burst-dog-2.jpg	0	0	0		1	
+c1-burst-friends-2.jpg	0	0	0		1	
+c1-burst-friends-3.jpg	0	0	0		1	
+c1-burst-friends-1.jpg	0	0	0		1	
+c1-burst-pizza-1.jpg	0	0	0		1	
+c1-burst-pizza-3.jpg	0	0	0		1	
+c1-cat-brown-eyes.jpg	0	0	0		1	
+c1-burst-pizza-2.jpg	0	0	0		1	
+c1-cat-ginger.jpg	0	0	0		1	
+c1-cat-window.jpg	0	0	0		1	
+c1-city-london.jpg	0	0	0		1	
+c1-city-night.jpg	0	0	0		1	
+c1-city-skyline-nyc.jpg	0	0	0		1	
+c1-coffee-kitchen.jpg	1	0	1	0.776	1	
+c1-concert-crowd.jpg	0	0	0		1	
+c1-coffee-flatlay.jpg	0	0	0		1	
+c1-concert-stage.jpg	0	0	0		1	
+c1-conference-room.jpg	0	0	0		1	
+c1-desert-road.jpg	0	0	0		1	
+c1-doc-application-form.jpg	0	0	0		1	
+c1-dinner-friends-wine.jpg	0	0	0		1	
+c1-doc-letter-handwritten.jpg	0	0	0		1	
+c1-doc-open-book.jpg	0	0	0		1	
+c1-doc-passport-form.jpg	0	0	0		1	
+c1-doc-field-notebook.jpg	0	0	0		1	
+c1-doc-telegram-1944.jpg	0	0	0		1	
+c1-doctor-tablet.jpg	1	0	0	0.120	1	
+c1-dog-beach.jpg	0	0	0		1	
+c1-doc-telegram-form.jpg	0	0	0		1	
+c1-family-beach-walk.jpg	0	0	0		1	
+c1-dog-snow.jpg	0	0	0		1	
+c1-dog-lake.jpg	0	0	0		1	
+c1-family-picnic-dog.jpg	3	0	0	0.277	1	
+c1-food-brunch.jpg	0	0	0		1	
+c1-food-cereal.jpg	0	0	0		1	
+c1-food-breakfast-diner.jpg	0	0	0		1	
+c1-food-cheeseburger.jpg	0	0	0		1	
+c1-friends-sunset-rocks.jpg	0	0	0		1	
+c1-forest-fog.jpg	0	0	0		1	
+c1-kitten-slipper.jpg	0	0	0		1	
+c1-friends-hilltop-laughing.jpg	0	0	0		1	
+c1-kitten-yawn.jpg	0	0	0		1	
+c1-lake-kayaks.jpg	0	0	0		1	
+c1-lake-mountains.jpg	0	0	0		1	
+c1-market-flowers.jpg	0	0	0		1	
+c1-market-produce.jpg	0	0	0		1	
+c1-matterhorn.jpg	0	0	0		1	
+c1-market-street.jpg	0	0	0		1	
+c1-mother-child-hug.jpg	0	0	0		1	
+c1-phone-selfie.jpg	0	0	0		1	
+c1-notes-circuit-sketch.jpg	0	0	0		1	
+c1-portrait-closeup.jpg	1	0	1	0.808	1	
+c1-office-woman-red-sweater.jpg	1	0	0	0.163	1	
+c1-portrait-field.jpg	1	0	1	0.680	1	
+c1-portrait-laughing.jpg	1	0	1	0.564	1	
+c1-portrait-lipstick.jpg	1	0	1	0.614	1	
+c1-portrait-smiling-woman.jpg	1	0	0	0.478	1	
+c1-puppy-bulldog.jpg	0	0	0		1	
+c1-puppy-running.jpg	0	0	0		1	
+c1-portrait-woman-white-background.jpg	1	1	1	0.703	1	
+c1-puppy-toy.jpg	0	0	0		1	
+c1-receipt-cafe-01.jpg	0	0	0		1	
+c1-receipt-breakfast.jpg	0	0	0		1	
+c1-receipt-creperie.jpg	0	0	0		1	
+c1-receipt-dimsum.jpg	0	0	0		1	
+c1-receipt-korea.jpg	0	0	0		1	
+c1-receipt-dumplings.jpg	0	0	0		1	
+c1-receipt-pay-the-bill.jpg	0	0	0		1	
+c1-receipt-handwritten.jpg	0	0	0		1	
+c1-receipt-restaurant-03.jpg	0	0	0		1	
+c1-receipt-pizza.jpg	0	0	0		1	
+c1-receipt-restaurant-02.jpg	0	0	0		1	
+c1-receipt-supermarket-01.jpg	0	0	0		1	
+c1-receipt-supermarket-02.jpg	0	0	0		1	
+c1-receipt-sushi-bbq.jpg	0	0	0		1	
+c1-receipt-wien.jpg	0	0	0		1	
+c1-restaurant-busy.jpg	0	0	0		1	
+c1-screenshot-browser-tabs.jpg	0	0	0		1	
+c1-screenshot-gnome-desktop.jpg	0	0	0		1	
+c1-screenshot-commons-app.jpg	0	0	0		1	
+c1-screenshot-kde-desktop.jpg	0	0	0		1	
+c1-screenshot-pdf-viewer.jpg	0	0	0		1	
+c1-screenshot-phone-browser.jpg	0	0	0		1	
+c1-screenshot-tasks-app.jpg	0	0	0		1	
+c1-screenshot-spreadsheet.jpg	0	0	0		1	
+c1-screenshot-travel-itinerary.jpg	0	0	0		1	
+c1-screenshot-wikipedia-app.jpg	0	0	0		1	
+c1-street-lights-evening.jpg	0	0	0		1	
+c1-silhouettes-sunset.jpg	0	0	0		1	
+c1-team-meeting-table.jpg	0	0	0		1	
+c1-sunset-boats.jpg	0	0	0		1	
+c1-trip-planning.jpg	0	0	0		1	
+c1-whiteboard-office.jpg	0	0	0		1	
+c2-beach-dusk.jpg	0	0	0		1	
+c1-whiteboard-sticky-notes.jpg	0	0	0		1	
+c2-bicycle-park.jpg	0	0	0		1	
+c2-beach-rocky.jpg	0	0	0		1	
+c2-breakfast-in-bed.jpg	0	0	0		1	
+c2-burst-beach-1.jpg	0	0	0		1	
+c2-bike-brick-wall.jpg	0	0	0		1	
+c2-burst-beach-2.jpg	0	0	0		1	
+c2-burst-beach-3.jpg	0	0	0		1	
+c2-burst-beach-4.jpg	0	0	0		1	
+c2-burst-dog-1.jpg	0	0	0		1	
+c2-burst-dog-2.jpg	0	0	0		1	
+c2-burst-friends-2.jpg	0	0	0		1	
+c2-burst-friends-3.jpg	0	0	0		1	
+c2-burst-dog-3.jpg	0	0	0		1	
+c2-burst-friends-1.jpg	0	0	0		1	
+c2-burst-pizza-3.jpg	0	0	0		1	
+c2-burst-pizza-1.jpg	0	0	0		1	
+c2-burst-pizza-2.jpg	0	0	0		1	
+c2-cat-brown-eyes.jpg	0	0	0		1	
+c2-cat-window.jpg	0	0	0		1	
+c2-cat-ginger.jpg	0	0	0		1	
+c2-city-london.jpg	0	0	0		1	
+c2-city-night.jpg	0	0	0		1	
+c2-coffee-flatlay.jpg	0	0	0		1	
+c2-concert-crowd.jpg	0	0	0		1	
+c2-coffee-kitchen.jpg	1	0	1	0.776	1	
+c2-city-skyline-nyc.jpg	0	0	0		1	
+c2-concert-stage.jpg	0	0	0		1	
+c2-conference-room.jpg	0	0	0		1	
+c2-desert-road.jpg	0	0	0		1	
+c2-dinner-friends-wine.jpg	0	0	0		1	
+c2-doc-letter-handwritten.jpg	0	0	0		0	
+c2-doc-application-form.jpg	0	0	0		1	
+c2-doc-field-notebook.jpg	0	0	0		1	
+c2-doc-open-book.jpg	0	0	0		1	
+c2-doc-telegram-1944.jpg	0	0	0		1	
+c2-doc-passport-form.jpg	0	0	0		1	
+c2-doctor-tablet.jpg	1	0	0	0.120	1	
+c2-doc-telegram-form.jpg	0	0	0		1	
+c2-dog-beach.jpg	0	0	0		1	
+c2-dog-lake.jpg	0	0	0		1	
+c2-dog-snow.jpg	0	0	0		1	
+c2-family-beach-walk.jpg	0	0	0		1	
+c2-food-brunch.jpg	0	0	0		1	
+c2-food-breakfast-diner.jpg	0	0	0		1	
+c2-food-cereal.jpg	0	0	0		1	
+c2-family-picnic-dog.jpg	3	0	0	0.277	1	
+c2-food-cheeseburger.jpg	0	0	0		1	
+c2-forest-fog.jpg	0	0	0		1	
+c2-friends-sunset-rocks.jpg	0	0	0		1	
+c2-friends-hilltop-laughing.jpg	0	0	0		1	
+c2-kitten-yawn.jpg	0	0	0		1	
+c2-lake-kayaks.jpg	0	0	0		1	
+c2-kitten-slipper.jpg	0	0	0		1	
+c2-lake-mountains.jpg	0	0	0		1	
+c2-market-produce.jpg	0	0	0		1	
+c2-market-flowers.jpg	0	0	0		1	
+c2-market-street.jpg	0	0	0		1	
+c2-matterhorn.jpg	0	0	0		1	
+c2-notes-circuit-sketch.jpg	0	0	0		1	
+c2-phone-selfie.jpg	0	0	0		1	
+c2-office-woman-red-sweater.jpg	1	0	0	0.163	1	
+c2-mother-child-hug.jpg	0	0	0		1	
+c2-portrait-closeup.jpg	1	0	1	0.808	1	
+c2-portrait-field.jpg	1	0	1	0.680	1	
+c2-portrait-laughing.jpg	1	0	1	0.564	1	
+c2-portrait-lipstick.jpg	1	0	1	0.614	1	
+c2-puppy-bulldog.jpg	0	0	0		1	
+c2-portrait-woman-white-background.jpg	1	1	1	0.703	1	
+c2-puppy-running.jpg	0	0	0		1	
+c2-portrait-smiling-woman.jpg	1	0	0	0.478	1	
+c2-receipt-breakfast.jpg	0	0	0		1	
+c2-receipt-cafe-01.jpg	0	0	0		1	
+c2-puppy-toy.jpg	0	0	0		1	
+c2-receipt-creperie.jpg	0	0	0		1	
+c2-receipt-dumplings.jpg	0	0	0		1	
+c2-receipt-dimsum.jpg	0	0	0		1	
+c2-receipt-handwritten.jpg	0	0	0		1	
+c2-receipt-korea.jpg	0	0	0		1	
+c2-receipt-pay-the-bill.jpg	0	0	0		1	
+c2-receipt-pizza.jpg	0	0	0		1	
+c2-receipt-restaurant-02.jpg	0	0	0		1	
+c2-receipt-restaurant-03.jpg	0	0	0		1	
+c2-receipt-supermarket-02.jpg	0	0	0		1	
+c2-receipt-sushi-bbq.jpg	0	0	0		1	
+c2-receipt-wien.jpg	0	0	0		1	
+c2-receipt-supermarket-01.jpg	0	0	0		1	
+c2-screenshot-browser-tabs.jpg	0	0	0		1	
+c2-restaurant-busy.jpg	0	0	0		1	
+c2-screenshot-commons-app.jpg	0	0	0		1	
+c2-screenshot-gnome-desktop.jpg	0	0	0		1	
+c2-screenshot-pdf-viewer.jpg	0	0	0		1	
+c2-screenshot-kde-desktop.jpg	0	0	0		1	
+c2-screenshot-spreadsheet.jpg	0	0	0		1	
+c2-screenshot-phone-browser.jpg	0	0	0		1	
+c2-screenshot-tasks-app.jpg	0	0	0		1	
+c2-screenshot-wikipedia-app.jpg	0	0	0		1	
+c2-screenshot-travel-itinerary.jpg	0	0	0		1	
+c2-silhouettes-sunset.jpg	0	0	0		1	
+c2-sunset-boats.jpg	0	0	0		1	
+c2-team-meeting-table.jpg	0	0	0		1	
+c2-street-lights-evening.jpg	0	0	0		1	
+c2-trip-planning.jpg	0	0	0		1	
+c3-beach-dusk.jpg	0	0	0		1	
+c2-whiteboard-sticky-notes.jpg	0	0	0		1	
+c2-whiteboard-office.jpg	0	0	0		1	
+c3-beach-rocky.jpg	0	0	0		1	
+c3-bicycle-park.jpg	0	0	0		1	
+c3-breakfast-in-bed.jpg	0	0	0		1	
+c3-burst-beach-1.jpg	0	0	0		1	
+c3-bike-brick-wall.jpg	0	0	0		1	
+c3-burst-beach-3.jpg	0	0	0		1	
+c3-burst-beach-2.jpg	0	0	0		1	
+c3-burst-beach-4.jpg	0	0	0		1	
+c3-burst-dog-1.jpg	0	0	0		1	
+c3-burst-dog-2.jpg	0	0	0		1	
+c3-burst-dog-3.jpg	0	0	0		1	
+c3-burst-friends-2.jpg	0	0	0		1	
+c3-burst-friends-1.jpg	0	0	0		1	
+c3-burst-friends-3.jpg	0	0	0		1	
+c3-burst-pizza-2.jpg	0	0	0		1	
+c3-burst-pizza-1.jpg	0	0	0		1	
+c3-burst-pizza-3.jpg	0	0	0		1	
+c3-cat-ginger.jpg	0	0	0		1	
+c3-cat-brown-eyes.jpg	0	0	0		1	
+c3-cat-window.jpg	0	0	0		1	
+c3-city-london.jpg	0	0	0		1	
+c3-city-night.jpg	0	0	0		1	
+c3-coffee-flatlay.jpg	0	0	0		1	
+c3-city-skyline-nyc.jpg	0	0	0		1	
+c3-coffee-kitchen.jpg	1	0	1	0.776	1	
+c3-concert-crowd.jpg	0	0	0		1	
+c3-concert-stage.jpg	0	0	0		1	
+c3-conference-room.jpg	0	0	0		1	
+c3-desert-road.jpg	0	0	0		1	
+c3-doc-application-form.jpg	0	0	0		1	
+c3-dinner-friends-wine.jpg	0	0	0		1	
+c3-doc-field-notebook.jpg	0	0	0		1	
+c3-doc-letter-handwritten.jpg	0	0	0		0	
+c3-doc-telegram-1944.jpg	0	0	0		1	
+c3-doc-passport-form.jpg	0	0	0		1	
+c3-doc-open-book.jpg	0	0	0		1	
+c3-doc-telegram-form.jpg	0	0	0		1	
+c3-dog-beach.jpg	0	0	0		1	
+c3-doctor-tablet.jpg	1	0	0	0.120	1	
+c3-dog-lake.jpg	0	0	0		1	
+c3-dog-snow.jpg	0	0	0		1	
+c3-family-beach-walk.jpg	0	0	0		1	
+c3-food-breakfast-diner.jpg	0	0	0		1	
+c3-food-brunch.jpg	0	0	0		1	
+c3-family-picnic-dog.jpg	3	0	0	0.277	1	
+c3-food-cheeseburger.jpg	0	0	0		1	
+c3-food-cereal.jpg	0	0	0		1	
+c3-forest-fog.jpg	0	0	0		1	
+c3-friends-hilltop-laughing.jpg	0	0	0		1	
+c3-friends-sunset-rocks.jpg	0	0	0		1	
+c3-kitten-yawn.jpg	0	0	0		1	
+c3-kitten-slipper.jpg	0	0	0		1	
+c3-lake-kayaks.jpg	0	0	0		1	
+c3-market-produce.jpg	0	0	0		1	
+c3-lake-mountains.jpg	0	0	0		1	
+c3-market-flowers.jpg	0	0	0		1	
+c3-market-street.jpg	0	0	0		1	
+c3-notes-circuit-sketch.jpg	0	0	0		1	
+c3-matterhorn.jpg	0	0	0		1	
+c3-mother-child-hug.jpg	0	0	0		1	
+c3-office-woman-red-sweater.jpg	1	0	0	0.163	1	
+c3-phone-selfie.jpg	0	0	0		1	
+c3-portrait-closeup.jpg	1	0	1	0.808	1	
+c3-portrait-laughing.jpg	1	0	1	0.564	1	
+c3-portrait-field.jpg	1	0	1	0.680	1	
+c3-portrait-lipstick.jpg	1	0	1	0.614	1	
+c3-portrait-smiling-woman.jpg	1	0	0	0.478	1	
+c3-puppy-bulldog.jpg	0	0	0		1	
+c3-portrait-woman-white-background.jpg	1	1	1	0.703	1	
+c3-puppy-running.jpg	0	0	0		1	
+c3-puppy-toy.jpg	0	0	0		1	
+c3-receipt-breakfast.jpg	0	0	0		1	
+c3-receipt-cafe-01.jpg	0	0	0		1	
+c3-receipt-dumplings.jpg	0	0	0		1	
+c3-receipt-dimsum.jpg	0	0	0		1	
+c3-receipt-creperie.jpg	0	0	0		1	
+c3-receipt-handwritten.jpg	0	0	0		1	
+c3-receipt-korea.jpg	0	0	0		1	
+c3-receipt-pay-the-bill.jpg	0	0	0		1	
+c3-receipt-pizza.jpg	0	0	0		1	
+c3-receipt-restaurant-02.jpg	0	0	0		1	
+c3-receipt-supermarket-01.jpg	0	0	0		1	
+c3-receipt-supermarket-02.jpg	0	0	0		1	
+c3-receipt-restaurant-03.jpg	0	0	0		1	
+c3-receipt-sushi-bbq.jpg	0	0	0		1	
+c3-screenshot-browser-tabs.jpg	0	0	0		1	
+c3-screenshot-commons-app.jpg	0	0	0		1	
+c3-receipt-wien.jpg	0	0	0		1	
+c3-restaurant-busy.jpg	0	0	0		1	
+c3-screenshot-pdf-viewer.jpg	0	0	0		1	
+c3-screenshot-kde-desktop.jpg	0	0	0		1	
+c3-screenshot-gnome-desktop.jpg	0	0	0		1	
+c3-screenshot-phone-browser.jpg	0	0	0		1	
+c3-screenshot-spreadsheet.jpg	0	0	0		1	
+c3-screenshot-wikipedia-app.jpg	0	0	0		1	
+c3-screenshot-tasks-app.jpg	0	0	0		1	
+c3-screenshot-travel-itinerary.jpg	0	0	0		1	
+c3-silhouettes-sunset.jpg	0	0	0		1	
+c3-street-lights-evening.jpg	0	0	0		1	
+c3-sunset-boats.jpg	0	0	0		1	
+c3-team-meeting-table.jpg	0	0	0		1	
+c4-beach-dusk.jpg	0	0	0		1	
+c3-whiteboard-office.jpg	0	0	0		1	
+c3-whiteboard-sticky-notes.jpg	0	0	0		1	
+c3-trip-planning.jpg	0	0	0		1	
+c4-bicycle-park.jpg	0	0	0		1	
+c4-beach-rocky.jpg	0	0	0		1	
+c4-breakfast-in-bed.jpg	0	0	0		1	
+c4-bike-brick-wall.jpg	0	0	0		1	
+c4-burst-beach-3.jpg	0	0	0		1	
+c4-burst-beach-1.jpg	0	0	0		1	
+c4-burst-beach-2.jpg	0	0	0		1	
+c4-burst-beach-4.jpg	0	0	0		1	
+c4-burst-dog-3.jpg	0	0	0		1	
+c4-burst-dog-1.jpg	0	0	0		1	
+c4-burst-dog-2.jpg	0	0	0		1	
+c4-burst-friends-1.jpg	0	0	0		1	
+c4-burst-friends-3.jpg	0	0	0		1	
+c4-burst-friends-2.jpg	0	0	0		1	
+c4-burst-pizza-1.jpg	0	0	0		1	
+c4-burst-pizza-2.jpg	0	0	0		1	
+c4-burst-pizza-3.jpg	0	0	0		1	
+c4-cat-brown-eyes.jpg	0	0	0		1	
+c4-cat-ginger.jpg	0	0	0		1	
+c4-cat-window.jpg	0	0	0		1	
+c4-city-london.jpg	0	0	0		1	
+c4-city-night.jpg	0	0	0		1	
+c4-city-skyline-nyc.jpg	0	0	0		1	
+c4-coffee-flatlay.jpg	0	0	0		1	
+c4-concert-stage.jpg	0	0	0		1	
+c4-concert-crowd.jpg	0	0	0		1	
+c4-coffee-kitchen.jpg	1	0	1	0.776	1	
+c4-conference-room.jpg	0	0	0		1	
+c4-doc-application-form.jpg	0	0	0		1	
+c4-desert-road.jpg	0	0	0		1	
+c4-dinner-friends-wine.jpg	0	0	0		1	
+c4-doc-field-notebook.jpg	0	0	0		1	
+c4-doc-passport-form.jpg	0	0	0		1	
+c4-doc-letter-handwritten.jpg	0	0	0		0	
+c4-doc-telegram-1944.jpg	0	0	0		1	
+c4-doc-open-book.jpg	0	0	0		1	
+c4-dog-beach.jpg	0	0	0		1	
+c4-doctor-tablet.jpg	1	0	0	0.120	1	
+c4-dog-lake.jpg	0	0	0		1	
+c4-doc-telegram-form.jpg	0	0	0		1	
+c4-family-beach-walk.jpg	0	0	0		1	
+c4-food-breakfast-diner.jpg	0	0	0		1	
+c4-dog-snow.jpg	0	0	0		1	
+c4-family-picnic-dog.jpg	3	0	0	0.277	1	
+c4-food-cereal.jpg	0	0	0		1	
+c4-food-brunch.jpg	0	0	0		1	
+c4-food-cheeseburger.jpg	0	0	0		1	
+c4-forest-fog.jpg	0	0	0		1	
+c4-friends-sunset-rocks.jpg	0	0	0		1	
+c4-kitten-slipper.jpg	0	0	0		1	
+c4-friends-hilltop-laughing.jpg	0	0	0		1	
+c4-kitten-yawn.jpg	0	0	0		1	
+c4-lake-kayaks.jpg	0	0	0		1	
+c4-market-produce.jpg	0	0	0		1	
+c4-market-flowers.jpg	0	0	0		1	
+c4-lake-mountains.jpg	0	0	0		1	
+c4-matterhorn.jpg	0	0	0		1	
+c4-market-street.jpg	0	0	0		1	
+c4-mother-child-hug.jpg	0	0	0		1	
+c4-notes-circuit-sketch.jpg	0	0	0		1	
+c4-phone-selfie.jpg	0	0	0		1	
+c4-portrait-closeup.jpg	1	0	1	0.808	1	
+c4-portrait-field.jpg	1	0	1	0.680	1	
+c4-office-woman-red-sweater.jpg	1	0	0	0.163	1	
+c4-portrait-laughing.jpg	1	0	1	0.564	1	
+c4-portrait-lipstick.jpg	1	0	1	0.614	1	
+c4-portrait-woman-white-background.jpg	1	1	1	0.703	1	
+c4-portrait-smiling-woman.jpg	1	0	0	0.478	1	
+c4-puppy-bulldog.jpg	0	0	0		1	
+c4-puppy-running.jpg	0	0	0		1	
+c4-puppy-toy.jpg	0	0	0		1	
+c4-receipt-breakfast.jpg	0	0	0		1	
+c4-receipt-dimsum.jpg	0	0	0		1	
+c4-receipt-cafe-01.jpg	0	0	0		1	
+c4-receipt-creperie.jpg	0	0	0		1	
+c4-receipt-dumplings.jpg	0	0	0		1	
+c4-receipt-pay-the-bill.jpg	0	0	0		1	
+c4-receipt-korea.jpg	0	0	0		1	
+c4-receipt-handwritten.jpg	0	0	0		1	
+c4-receipt-pizza.jpg	0	0	0		1	
+c4-receipt-restaurant-03.jpg	0	0	0		1	
+c4-receipt-supermarket-01.jpg	0	0	0		1	
+c4-receipt-restaurant-02.jpg	0	0	0		1	
+c4-receipt-supermarket-02.jpg	0	0	0		1	
+c4-restaurant-busy.jpg	0	0	0		1	
+c4-receipt-wien.jpg	0	0	0		1	
+c4-receipt-sushi-bbq.jpg	0	0	0		1	
+c4-screenshot-browser-tabs.jpg	0	0	0		1	
+c4-screenshot-kde-desktop.jpg	0	0	0		1	
+c4-screenshot-commons-app.jpg	0	0	0		1	
+c4-screenshot-gnome-desktop.jpg	0	0	0		1	
+c4-screenshot-pdf-viewer.jpg	0	0	0		1	
+c4-screenshot-spreadsheet.jpg	0	0	0		1	
+c4-screenshot-phone-browser.jpg	0	0	0		1	
+c4-screenshot-tasks-app.jpg	0	0	0		1	
+c4-screenshot-travel-itinerary.jpg	0	0	0		1	
+c4-screenshot-wikipedia-app.jpg	0	0	0		1	
+c4-silhouettes-sunset.jpg	0	0	0		1	
+c4-street-lights-evening.jpg	0	0	0		1	
+c4-sunset-boats.jpg	0	0	0		1	
+c4-team-meeting-table.jpg	0	0	0		1	
+c4-whiteboard-office.jpg	0	0	0		1	
+c4-trip-planning.jpg	0	0	0		1	
+c4-whiteboard-sticky-notes.jpg	0	0	0		1	
+c5-bicycle-park.jpg	0	0	0		1	
+c5-beach-dusk.jpg	0	0	0		1	
+c5-beach-rocky.jpg	0	0	0		1	
+c5-bike-brick-wall.jpg	0	0	0		1	
+c5-burst-beach-2.jpg	0	0	0		1	
+c5-breakfast-in-bed.jpg	0	0	0		1	
+c5-burst-beach-1.jpg	0	0	0		1	
+c5-burst-beach-3.jpg	0	0	0		1	
+c5-burst-beach-4.jpg	0	0	0		1	
+c5-burst-dog-2.jpg	0	0	0		1	
+c5-burst-dog-1.jpg	0	0	0		1	
+c5-burst-dog-3.jpg	0	0	0		1	
+c5-burst-friends-2.jpg	0	0	0		1	
+c5-burst-friends-3.jpg	0	0	0		1	
+c5-burst-pizza-1.jpg	0	0	0		1	
+c5-burst-friends-1.jpg	0	0	0		1	
+c5-burst-pizza-3.jpg	0	0	0		1	
+c5-burst-pizza-2.jpg	0	0	0		1	
+c5-cat-ginger.jpg	0	0	0		1	
+c5-cat-brown-eyes.jpg	0	0	0		1	
+c5-cat-window.jpg	0	0	0		1	
+c5-city-night.jpg	0	0	0		1	
+c5-city-london.jpg	0	0	0		1	
+c5-city-skyline-nyc.jpg	0	0	0		1	
+c5-coffee-flatlay.jpg	0	0	0		1	
+c5-coffee-kitchen.jpg	1	0	1	0.776	1	
+c5-concert-crowd.jpg	0	0	0		1	
+c5-concert-stage.jpg	0	0	0		1	
+c5-conference-room.jpg	0	0	0		1	
+c5-desert-road.jpg	0	0	0		1	
+c5-dinner-friends-wine.jpg	0	0	0		1	
+c5-doc-application-form.jpg	0	0	0		1	
+c5-doc-letter-handwritten.jpg	0	0	0		0	
+c5-doc-open-book.jpg	0	0	0		1	
+c5-doc-field-notebook.jpg	0	0	0		1	
+c5-doc-passport-form.jpg	0	0	0		1	
+c5-doc-telegram-1944.jpg	0	0	0		1	
+c5-doctor-tablet.jpg	1	0	0	0.120	1	
+c5-dog-beach.jpg	0	0	0		1	
+c5-doc-telegram-form.jpg	0	0	0		1	
+c5-family-beach-walk.jpg	0	0	0		1	
+c5-dog-snow.jpg	0	0	0		1	
+c5-dog-lake.jpg	0	0	0		1	
+c5-family-picnic-dog.jpg	3	0	0	0.277	1	
+c5-food-breakfast-diner.jpg	0	0	0		1	
+c5-food-brunch.jpg	0	0	0		1	
+c5-food-cereal.jpg	0	0	0		1	
+c5-food-cheeseburger.jpg	0	0	0		1	
+c5-kitten-slipper.jpg	0	0	0		1	
+c5-forest-fog.jpg	0	0	0		1	
+c5-friends-sunset-rocks.jpg	0	0	0		1	
+c5-friends-hilltop-laughing.jpg	0	0	0		1	
+c5-kitten-yawn.jpg	0	0	0		1	
+c5-lake-kayaks.jpg	0	0	0		1	
+c5-lake-mountains.jpg	0	0	0		1	
+c5-market-flowers.jpg	0	0	0		1	
+c5-market-produce.jpg	0	0	0		1	
+c5-matterhorn.jpg	0	0	0		1	
+c5-market-street.jpg	0	0	0		1	
+c5-mother-child-hug.jpg	0	0	0		1	
+c5-phone-selfie.jpg	0	0	0		1	
+c5-notes-circuit-sketch.jpg	0	0	0		1	
+c5-portrait-closeup.jpg	1	0	1	0.808	1	
+c5-office-woman-red-sweater.jpg	1	0	0	0.163	1	
+c5-portrait-laughing.jpg	1	0	1	0.564	1	
+c5-portrait-field.jpg	1	0	1	0.680	1	
+c5-portrait-lipstick.jpg	1	0	1	0.614	1	
+c5-portrait-smiling-woman.jpg	1	0	0	0.478	1	
+c5-puppy-bulldog.jpg	0	0	0		1	
+c5-puppy-running.jpg	0	0	0		1	
+c5-portrait-woman-white-background.jpg	1	1	1	0.703	1	
+c5-puppy-toy.jpg	0	0	0		1	
+c5-receipt-dimsum.jpg	0	0	0		1	
+c5-receipt-cafe-01.jpg	0	0	0		1	
+c5-receipt-breakfast.jpg	0	0	0		1	
+c5-receipt-creperie.jpg	0	0	0		1	
+c5-receipt-korea.jpg	0	0	0		1	
+c5-receipt-dumplings.jpg	0	0	0		1	
+c5-receipt-handwritten.jpg	0	0	0		1	
+c5-receipt-pay-the-bill.jpg	0	0	0		1	
+c5-receipt-restaurant-03.jpg	0	0	0		1	
+c5-receipt-pizza.jpg	0	0	0		1	
+c5-receipt-restaurant-02.jpg	0	0	0		1	
+c5-receipt-supermarket-01.jpg	0	0	0		1	
+c5-receipt-sushi-bbq.jpg	0	0	0		1	
+c5-receipt-supermarket-02.jpg	0	0	0		1	
+c5-receipt-wien.jpg	0	0	0		1	
+c5-restaurant-busy.jpg	0	0	0		1	
+c5-screenshot-browser-tabs.jpg	0	0	0		1	
+c5-screenshot-gnome-desktop.jpg	0	0	0		1	
+c5-screenshot-commons-app.jpg	0	0	0		1	
+c5-screenshot-kde-desktop.jpg	0	0	0		1	
+c5-screenshot-pdf-viewer.jpg	0	0	0		1	
+c5-screenshot-spreadsheet.jpg	0	0	0		1	
+c5-screenshot-phone-browser.jpg	0	0	0		1	
+c5-screenshot-tasks-app.jpg	0	0	0		1	
+c5-screenshot-travel-itinerary.jpg	0	0	0		1	
+c5-screenshot-wikipedia-app.jpg	0	0	0		1	
+c5-silhouettes-sunset.jpg	0	0	0		1	
+c5-street-lights-evening.jpg	0	0	0		1	
+c5-team-meeting-table.jpg	0	0	0		1	
+c5-sunset-boats.jpg	0	0	0		1	
+c5-trip-planning.jpg	0	0	0		1	
+c5-whiteboard-office.jpg	0	0	0		1	
+c5-whiteboard-sticky-notes.jpg	0	0	0		1	

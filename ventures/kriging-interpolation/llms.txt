@@ -2,7 +2,7 @@
 
 > Free online kriging tool. Give scattered readings (x, y, value or lon, lat, value: soil samples, wells, rain gauges, sensors) and get the empirical semivariogram (Matheron 1963; robust Cressie & Hawkins 1980), a spherical, exponential or Gaussian model fitted by Cressie's (1985) weighted least squares, an ordinary kriging map with a standard error at every place, longitude and latitude handled on the sphere by chordal distance (Gneiting 2013), and a closed-form leave-one-out check (Dubrule 1983) against inverse distance weighting (Shepard 1968) and the nearest reading. On ERA5 January 2024 wave heights (371 points) kriging misses by 0.39 m RMS against 0.62 m for inverse distance; on 40 simulated fields its 95% bands covered 95.1% of held-out values. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). A statistical estimate, not engineering, surveying or environmental advice. Isotropic variogram, constant mean, up to 1,000 locations.
+Free to use and source available (FSL-1.1-MIT). A statistical estimate, not engineering, surveying or environmental advice. Isotropic variogram, constant mean, up to 1,000 locations.
 
 ## Pages
 
@@ -26,4 +26,4 @@ Free and open source (MIT). A statistical estimate, not engineering, surveying o
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/kriging-interpolation): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/kriging-interpolation): FSL-1.1-MIT licensed.

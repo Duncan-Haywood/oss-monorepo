@@ -132,7 +132,8 @@ def right_offset(y, d, width):
 def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
              warmup=40.0, duration=160.0, dt=0.01, steer_every=0.1, record_every=0.1,
              model="sf", exit_frac=0.25, rule="always", robots=0, policy="crowd",
-             robot_speed=None, passes=False, agent_scale=None, time_gap=None, entry="edge"):
+             robot_speed=None, passes=False, agent_scale=None, time_gap=None, entry="edge",
+             radius=None):
     """Run one closed-loop corridor. Returns per-run statistics (dict).
 
     entry (milestone 6i): "edge" (default) places a re-entering walker 0.35 m inside its own end, where it
@@ -142,6 +143,9 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
 
     agent_scale (social force, Helbing's A in N; JuPedSim default 2000) and time_gap (collision-free
     speed, s; default CFSM_TIME_GAP): milestone 6h's spacing parameters; None keeps the defaults.
+
+    radius (milestone 6j, collision-free speed only, m): body radius in place of CFSM_RADIUS; None
+    keeps the default and every random draw.
 
     model: "sf" (JuPedSim SocialForceModel, Helbing et al. 2000 defaults, radius 0.25 m) or
     "avm" (JuPedSim AnticipationVelocityModel, Xu, Chraibi and Seyfried 2021, JuPedSim
@@ -157,7 +161,9 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
         raise ValueError(f"rule must be one of {RULES}")
     if entry not in ENTRIES:
         raise ValueError(f"entry must be one of {ENTRIES}")
-    radius = {"sf": RADIUS, "avm": AVM_RADIUS, "cfsm": CFSM_RADIUS}[model]
+    if radius is not None and model != "cfsm":
+        raise ValueError("radius override is for model='cfsm' only")
+    radius = {"sf": RADIUS, "avm": AVM_RADIUS, "cfsm": CFSM_RADIUS if radius is None else float(radius)}[model]
     rng = np.random.default_rng(seed)
     # walkable area runs 1.5 m past each end so leaving walkers are not held by an end wall
     area = [(-1.5, 0), (length + 1.5, 0), (length + 1.5, width), (-1.5, width)]

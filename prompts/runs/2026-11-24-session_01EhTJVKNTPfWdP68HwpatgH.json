@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVKNTPfWdP68HwpatgH",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T08:10:01Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "route-stop-optimizer: weekly route planner (periodic VRP: which day each recurring customer gets, plus every day's routes)",
+  "projects": [
+    "route-stop-optimizer"
+  ],
+  "pr": 18568,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Published PVRP benchmark hosts (neumann.hec.ca, neo.lcc.uma.es, bernabe.dorronsoro.es) unreachable through the proxy; GitHub copies found were the MDVRP set only",
+      "impact": "no published-benchmark gap; measured against brute force and invented books instead"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here row was open-tennis-robots (bolt tails in CAD), left by two earlier sessions for lack of a market path; the other Deepen flagships each had 40-115 commits in 7 days and their open items need outside input. Took route-stop-optimizer's own next item 4 (recurring routes), a problem paid route planners sell per vehicle and one buildable and verifiable here.",
+      "did": "weekly.mjs periodic VRP engine, week.mjs page layer, weekly.html page, eval",
+      "result": "85/85 small weeks equal brute force; 35-43% less weekly driving than grown days on invented books"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-which-day-each-customer-gets.md",
+    "ventures/route-stop-optimizer/eval/weekly-2026-11-24.md"
+  ],
+  "goal": "Ship a deep, revenue-adjacent feature: the recurring-route planning paid route tools charge per vehicle for.",
+  "notes": "node --test in ventures/route-stop-optimizer: 53 pass, 0 fail. eval/weekly-check.mjs: 40/40 exact; table in eval/weekly-2026-11-24.md. Page driven in Playwright at 390 px: example plans, no console errors, no horizontal scroll. check_posts ok. venture-preflight run (see PR).",
+  "corrections": [],
+  "redteam": null
+}

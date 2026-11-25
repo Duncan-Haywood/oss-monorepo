@@ -9,14 +9,18 @@
  *   fabric      = price per metre x metres per garment x (1 + wastage)
  *   decoration  = for each placement: setup / quantity + per-unit price
  *                 (per-colour methods: both multiplied by the ink colours)
- *   goods       = fabric + cut and sew + decoration + trims + packaging
+ *   custom dye  = when the sheet lists stock colours and the garment colour is
+ *                 not one of them for this fabric: dye set-up / quantity, plus
+ *                 the dye lot's unused metres (minimum lot - metres the run
+ *                 cuts, at the fabric price) / quantity
+ *   goods       = fabric + cut and sew + decoration + custom dye + trims + packaging
  *   landed      = goods + duty (duty % of goods) + freight per unit
  *   per sale    = price excluding sales tax - channel commission - payment fee
  *   margin      = (per sale - landed) / price excluding sales tax
  */
 
 import { METHODS } from "./catalogue.mjs";
-import { missingPrices } from "./suppliers.mjs";
+import { missingPrices, colourStock } from "./suppliers.mjs";
 
 export const DEFAULT_PLAN = Object.freeze({
   salesTaxPct: 0,        // VAT included in the shelf price (e.g. 22 in Italy); 0 when prices are shown before tax
@@ -60,7 +64,8 @@ export function unitCost(design, sheet) {
   const cutSew = sheet.cutAndSew[design.garment];
   const decoration = decorationLines(design, sheet);
   const decorationTotal = decoration.reduce((s, d) => s + d.perUnit, 0);
-  const goods = fabric + cutSew + decorationTotal + (sheet.trimsPerUnit || 0) + (sheet.packagingPerUnit || 0);
+  const dye = customDye(design, sheet);
+  const goods = fabric + cutSew + decorationTotal + (dye?.perUnit ?? 0) + (sheet.trimsPerUnit || 0) + (sheet.packagingPerUnit || 0);
   const duty = goods * (sheet.dutyPct || 0) / 100;
   const landed = goods + duty + (sheet.freightPerUnit || 0);
   return {
@@ -69,6 +74,7 @@ export function unitCost(design, sheet) {
       { label: "Fabric", value: round2(fabric), detail: `${sheet.fabrics[design.fabric]} per metre x ${sheet.metresPerGarment[design.garment]} m + ${sheet.wastagePct || 0}% wastage` },
       { label: "Cut and sew", value: round2(cutSew), detail: "per garment" },
       ...decoration.map(d => ({ label: `${METHODS[d.method]?.label ?? d.method} (${d.area})`, value: d.perUnit, detail: d.setupTotal ? `includes ${d.setupTotal} setup spread over ${design.quantity}` : "no setup" })),
+      ...(dye ? [{ label: "Custom colour dye", value: dye.perUnit, detail: dye.detail }] : []),
       { label: "Labels and trims", value: round2(sheet.trimsPerUnit || 0), detail: "per garment" },
       { label: "Packaging", value: round2(sheet.packagingPerUnit || 0), detail: "per garment" },
       { label: "Duty", value: round2(duty), detail: `${sheet.dutyPct || 0}% of goods` },
@@ -76,6 +82,37 @@ export function unitCost(design, sheet) {
     ],
     setupTotal: round2(decoration.reduce((s, d) => s + d.setupTotal, 0)),
     landed: round2(landed),
+    customColour: dye,
+  };
+}
+
+/**
+ * What dyeing the garment colour to order adds per garment, or null when the
+ * colour is stocked (or the sheet lists no colours). The run's cloth counts
+ * toward the dye lot; only metres the run does not use are charged extra.
+ */
+export function customDye(design, sheet) {
+  const st = colourStock(sheet, design.fabric, design.colour);
+  if (st.stocked) return null;
+  const qty = Math.max(1, design.quantity);
+  const setup = sheet.customColour?.setup ?? 0;
+  const minMetres = sheet.customColour?.minMetres ?? 0;
+  const perMetre = sheet.fabrics[design.fabric] ?? 0;
+  const runMetres = qty * (sheet.metresPerGarment[design.garment] ?? 0) * (1 + (sheet.wastagePct || 0) / 100);
+  const spareMetres = Math.max(0, minMetres - runMetres);
+  const perUnit = (setup + spareMetres * perMetre) / qty;
+  const parts = [`not one of the sheet's ${st.count} stock colours for ${design.fabric}`];
+  if (setup) parts.push(`${setup} lab dip and dye set-up`);
+  if (spareMetres > 0) parts.push(`${Math.round(spareMetres)} m of the ${minMetres} m dye lot left over after the run's ${Math.round(runMetres)} m`);
+  else if (minMetres) parts.push(`the run's ${Math.round(runMetres)} m covers the ${minMetres} m dye lot`);
+  return {
+    perUnit: round2(perUnit),
+    setup: round2(setup),
+    runMetres: round2(runMetres),
+    spareMetres: round2(spareMetres),
+    // The quantity at which the run alone fills the dye lot.
+    fillsLotAt: minMetres && runMetres > 0 ? Math.ceil(minMetres / (runMetres / qty)) : null,
+    detail: parts.join("; ") + `, spread over ${qty}`,
   };
 }
 

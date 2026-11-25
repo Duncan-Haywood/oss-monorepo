@@ -1,5 +1,12 @@
 # Agent instructions
 
+Start from what to build: the ranked paid bets in
+[`portfolio/monetization/bets.md`](portfolio/monetization/bets.md) and
+`prompts/goals.md`, "North star" and "Where effort goes" (owner, 2026-11-24:
+$10k MRR, vertical software for small and medium businesses, chosen by
+promise rather than sunk cost). Where anything below pulls the other way
+(free, static, no accounts, deepen what exists), those win.
+
 Skim [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) by section headings
 (`grep -n '^## '`; it is ~15k tokens, so read only what your task needs), then
 [`prompts/ventures/prompt-1.md`](prompts/ventures/prompt-1.md) (its depth rules
@@ -12,7 +19,7 @@ this repo.
 
 ## Your job
 
-**Build products people want to use.** Ship features, fix bugs, improve UX,
+**Build products people pay for.** Ship features, fix bugs, improve UX,
 write niche SEO content, wire usage analytics, and deploy runnable software.
 Default to action on `ventures/*`, not portfolio administration.
 
@@ -65,23 +72,27 @@ names the file, and it is how this file gets corrected
 
 Prefer products that:
 
-- Run on this environment (VM + GitHub + agents) without new spend
-- Deliver high value in a super-niche (especially: help users earn or save money)
-- Have low variable cost at launch (avoid per-user inference/API spikes)
-- Can go live free and full-featured while usage is recorded
-- Need only an API key (or similar) to unlock — build the product, document the key
+- Are a ranked bet in `portfolio/monetization/bets.md`, or the front door to one
+- Deliver high value to one kind of business (especially: help it earn or save money)
+- Keep each customer's running cost well under their price (margin counts toward MRP)
+- Need no new spend an agent would have to start: the owner switches on paid
+  infrastructure; build the hosted path ready and document what it needs
 
-Prefer deepening the most promising existing venture over starting a new
-one. Before a new venture, run
+(Until 2026-11-24 this list asked for "free and full-featured" products and
+"no new spend" at launch; the North star replaced that.)
+
+Prefer the most promising product over the most built one (owner,
+2026-11-24: "we don't invest dev effort in sunken ships"). Before a new venture, run
 `python3 portfolio/pipeline/duplicate_check.py "<one-line niche>"` and name
 where its first real visitor comes from (`PRODUCT_PLAYBOOK.md` §1). Before
 copying a sibling's feature (share link, save slot, export), check the
 venture's row in `portfolio/usage/usage.yaml`. `usage.yaml` zero means
 unmeasured, not unwanted: GitHub Pages self-reports nothing.
 
-**Deploy what is already built before starting another product.** GitHub
-Pages is live, and `.github/workflows/portfolio-pages.yml` redeploys it on
-every merge that touches a site input, so merging is publishing.
+**Deploying is cheap, so deploy what a bet needs.** The site redeploys on
+every merge that touches a site input (`.github/workflows/priv-portfolio-pages.yml`),
+so merging is publishing; built work that is not a bet or its front door
+does not jump the queue just because it exists.
 
 Use traditional software patterns. Add AI where it clearly helps; avoid
 AI-wrapping by default.
@@ -121,16 +132,18 @@ paid automation, secrets. Payment code on the deployer's own keys is fine
    browser only with the consent the law requires; nothing personal committed.
    Follow the law, no stricter (owner, 2026-10-20): cookies a feature needs are
    fine. Rules and the file readings land in: [`portfolio/usage/`](portfolio/usage/README.md).
-3. **Free full access** for now — no paywalls; optional GitHub Sponsors/donate link OK.
+3. **A paid tier where the product has depth** (owner, 2026-11-24; replaces
+   "free full access for now"): the checkout ships dark until the owner sets
+   it (`prompts/goals.md`, "Payments"), and nothing the site already promises
+   as free goes behind a paywall.
 4. **A LICENSE and the discoverability basics** — landing copy in the user's
    search words, meta description, JSON-LD, sitemap, crawlable robots.txt.
    Search and AI-assistant discovery are the growth channel, so they ship with
    v0, not later. Checklist: `PRODUCT_PLAYBOOK.md` §5e.
 
 **Building one from scratch?** `PRODUCT_PLAYBOOK.md` is the step-by-step:
-picking a niche, shapes that cost $0 per user, the API-key switch (product works
-fully without a key; a user's own key unlocks the AI parts), and the definition
-of done.
+picking a niche (start from `bets.md`), shapes, the API-key switch, and the
+definition of done.
 
 ## Graduating from the pipeline
 
@@ -140,13 +153,14 @@ for its users to run ([`portfolio/hosting/`](portfolio/hosting/README.md)).
 If something on `main` still has no public URL, fixing that tends to beat
 starting something new.
 
-If `session_gate.py` names a `build-now` candidate, graduate it:
+Pipeline candidates come after the ranked bets. If `session_gate.py` names a
+`build-now` candidate that serves a bet's customers, graduate it:
 
 - `graduate_as: venture` → create `ventures/<slug>/VENTURE.yaml` and build
 - `graduate_as: product-line` → add slug under host venture's `product_lines`
 
-Otherwise pick the highest-value niche not in `screened-out.md`, score it,
-and build.
+Otherwise take the next ranked bet; a new niche goes into `bets.md` with its
+evidence before it gets a build.
 
 ## Git hygiene
 

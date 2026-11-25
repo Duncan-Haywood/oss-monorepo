@@ -17,7 +17,7 @@ pnpm portal:dev    # http://localhost:5174 — sales demo portal (passcode: atel
 pnpm portal:build  # → apps/portal/dist
 ```
 
-Deploy the private docs site to Vercel with a custom domain and **Deployment Protection** — see `apps/docs/DEPLOY.md`.
+Deploy the private docs site to its own free-plan Cloudflare Worker (optionally behind Cloudflare Access) — see `apps/docs/DEPLOY.md`.
 
 ### Sales / marketing demo walkthrough
 
@@ -26,7 +26,7 @@ Deploy the private docs site to Vercel with a custom domain and **Deployment Pro
 3. Sign in as **Owner** — Business value is first in the nav; ROI banner on Overview
 4. Tour order for stakeholders: **Business value** → **Overview** → **Products** (SKU gap) → **Experiments** → **Trust** (privacy gate)
 5. Use the **Presenter guide** at the bottom of each page for talking points
-6. Optional live Overview KPIs: `pnpm bootstrap`, then `pnpm exec tsx packages/analytics/src/cli.ts serve-kpis`, then `VITE_PILOT_API_URL=http://127.0.0.1:8787 pnpm portal:dev`. Unset the env var to keep illustrative `demoStore` numbers.
+6. Optional live Overview KPIs: `pnpm bootstrap`, then `pnpm exec tsx packages/analytics/src/cli.ts serve-kpis` (add `--store <id>` once the database holds more than one store), then `VITE_PILOT_API_URL=http://127.0.0.1:8787 pnpm portal:dev`. Unset the env var to keep illustrative `demoStore` numbers.
 
 Built docs are verified in CI and uploaded as a GitHub Actions artifact. On push to `main`, they are also published to **private GitHub Pages** when enabled (see [Hosting docs](#hosting-docs-private)). Passcode gate + `noindex` by default.
 
@@ -48,13 +48,13 @@ Production builds gate the site with a passcode (`VITE_DOCS_PASSCODE`, default `
 
 Only people with access to this repository can view private Pages. The client passcode adds a second layer for shared links.
 
-### Vercel (optional — external stakeholders)
+### Cloudflare (external stakeholders; replaced Vercel on 2026-11-24)
 
-Use a separate Vercel project when you need a URL with **Deployment Protection** for people without GitHub access:
-
-1. Import this repo in Vercel; use `vercel.docs.json` (install/build/output).
-2. Enable [Deployment Protection → Password](https://vercel.com/docs/deployment-protection/methods-to-protect-deployments/password-protection) on the project.
-3. Set repository variable `VERCEL_DEPLOY=true` and secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` to enable the optional `deploy-vercel` job in `deploy-docs.yml`.
+`apps/docs/wrangler.toml` serves the built docs from a free-plan Cloudflare Worker,
+`retail-pilot-intel-docs`, on its workers.dev address. The `deploy-cloudflare` job in
+`.github/workflows/priv-retail-pilot-intel-deploy-docs.yml` publishes it on a manual run, or on every
+docs push once the repository variable `RETAIL_PILOT_INTEL_DOCS_CLOUDFLARE=true`. For a login in
+front of the passcode, add a Cloudflare Access application for that host (free up to 50 users).
 
 ### Local / LAN preview
 
@@ -114,7 +114,7 @@ Full matrix with scores, monthly € math, and payback: `pnpm docs:dev` → **RO
 
 From the quality audit of 2026-11-19 ([`portfolio/quality/audits/2026-11-19-retail-pilot-intel.json`](../../portfolio/quality/audits/2026-11-19-retail-pilot-intel.json)):
 
-- **Daily KPIs are by UTC date and not split by store** (`packages/analytics/src/report.ts`): a second store's receipts, or a sale after midnight in Rome, land in the wrong store or day, and EUR and USD are summed. Needs a `store_id` filter and Europe/Rome day boundaries.
+- Fixed since the audit: daily KPIs now use the store's local day (Europe/Rome by default, `--tz` to change; 23 h and 25 h on clock-change days) and one store at a time (`--store ID` on `report` and `serve-kpis`). A database holding two stores, or one day's sales in two currencies, gets an error (HTTP 409 from the KPI API) instead of a summed number. Hourly buckets are still not built.
 - A basket whose discount or refund line is rejected is still imported at full price (`packages/pos/src/importer.ts`).
 - `pnpm bootstrap` prints an all-zero report, because its sample events are marked synthetic and left out.
 - The door camera is a stub; SKU gap, upsell and experiments are demo data only.
@@ -123,4 +123,4 @@ From the quality audit of 2026-11-19 ([`portfolio/quality/audits/2026-11-19-reta
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE).
+FSL-1.1-MIT — see [`LICENSE`](LICENSE).

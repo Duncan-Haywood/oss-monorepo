@@ -258,7 +258,9 @@ function preferInvoiceAttachment(attachments) {
 function looksLikeInvoiceXml(data) {
   // Official ZUGFeRD samples open with a licence comment of several KB, which
   // pushes the root element past any fixed window: drop comments first.
-  const head = LATIN1.decode(data.subarray(0, 262144)).replace(/<!--[\s\S]*?-->/g, "").slice(0, 4096);
+  let head = LATIN1.decode(data.subarray(0, 262144)), prev;
+  do { prev = head; head = head.replace(/<!--[\s\S]*?-->/g, ""); } while (head !== prev);
+  head = head.slice(0, 4096);
   return (
     head.includes("urn:oasis:names:specification:ubl:schema:xsd:Invoice-2")
     || head.includes("urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2")

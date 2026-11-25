@@ -9,7 +9,13 @@
  *  run_worker_first must list the same ones (split.test.mjs checks). */
 // changepoint-detector and hearth-and-horizon moved here on 2026-11-20: the
 // site Worker reached 20,071 files and every deploy failed for five hours.
-export const SHARD_DIRS = ['research', 'writing', 'dev', 'changepoint-detector', 'hearth-and-horizon'];
+// The five after them moved on 2026-11-25 at 20,026 (deploys failing since
+// 11:29 UTC): MIT-commons and story directories, none a for-profit product's
+// page (portfolio/monetization/transition.py), so no paid page runs code.
+export const SHARD_DIRS = [
+  'research', 'writing', 'dev', 'changepoint-detector', 'hearth-and-horizon',
+  'open-tennis-robots', 'chant-forge', 'saints-by-candlelight', 'open-house-plans', 'open-floor-robots',
+];
 
 /** The site's own domain, and the Worker's first address, which now sends
  *  every visitor there (owner, 2026-10-31: "this should also redirect").
@@ -18,6 +24,22 @@ export const SHARD_DIRS = ['research', 'writing', 'dev', 'changepoint-detector',
  *  get a real 301. */
 export const SITE_ORIGIN = 'https://marisstella.app';
 export const WORKERS_DEV_HOST = 'monorepo-projects-site.duncan-andrew-haywood.workers.dev';
+
+/** Top-level directories served by another Worker on this account, by
+ *  service binding name. Grant Autopilot lives at /grants/ (owner,
+ *  2026-11-24: "move to the path and do redirect"); the request goes on
+ *  unchanged, so the app sees /grants/... and serves its own prefix. Its old
+ *  host, grants.marisstella.app, 301s here from that Worker. wrangler.toml's
+ *  run_worker_first lists these too (split.test.mjs checks). */
+export const APP_DIRS = Object.freeze({ grants: 'GRANTS' });
+
+/** The service binding for a path under one of APP_DIRS, or null. */
+export function appBinding(pathname) {
+  for (const [d, binding] of Object.entries(APP_DIRS)) {
+    if (pathname === `/${d}` || pathname.startsWith(`/${d}/`)) return binding;
+  }
+  return null;
+}
 
 export function inShard(pathname) {
   return SHARD_DIRS.some((d) => pathname === `/${d}` || pathname.startsWith(`/${d}/`));
@@ -29,6 +51,8 @@ export default {
     if (url.hostname === WORKERS_DEV_HOST) {
       return Response.redirect(`${SITE_ORIGIN}${url.pathname}${url.search}`, 301);
     }
+    const app = appBinding(url.pathname);
+    if (app && env[app]) return env[app].fetch(request);
     if (inShard(url.pathname)) return env.SHARD.fetch(request);
     return env.ASSETS.fetch(request);
   },

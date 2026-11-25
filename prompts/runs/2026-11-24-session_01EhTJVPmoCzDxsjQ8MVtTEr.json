@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVPmoCzDxsjQ8MVtTEr",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products; merge when done.",
+  "input_sha256": "58b5cec786884831b6143a6022f8fc3e1c0cbaf7a02482c3dab18d5ce8f79fa6",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T15:56:40Z",
+  "ended": "2026-11-24T16:07:55Z",
+  "wall_minutes": 11.4,
+  "tokens_in": 10970916,
+  "tokens_out": 47271,
+  "cost_usd": 4.516,
+  "tool_calls": 79,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18625",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "Without --item it printed YIELD to an older PR on a different item of the same flagship (#18624, windows check) and pointed to another flagship; the allocate.py instruction to pass --item only appears in the claim step, so a run that claimed with the empty commit and checked later is told to yield."
+    },
+    {
+      "file": "ventures/xer-schedule-check/eval/p6-probes-2026-11-24.md",
+      "issue": "Did not mention the probe folders' p6-imported-*.json (P6 re-sizes resource-dependent work on import); scoring the XER as written understates and misdirects resource-dependent fixes."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-p6-resource-dependent-activities-on-crew-calendars.md",
+    "ventures/xer-schedule-check/eval/p6-probes-rd-2026-11-24.md"
+  ],
+  "goal": null,
+  "notes": "Flagship xer-schedule-check, item P6 probes (a). TT_Rsrc activities scheduled per assignment on resource calendars; probe scorer lays P6's import. Probes 2,953 -> 3,730 of 5,199 (TT_Rsrc 156 -> 468 of 936; 799 fixed, 22 worse). eval/cpm-vs-p6.mjs on the six real files: 19,908/19,935 unchanged. node --test '*.test.mjs' in the venture: 541 pass, 0 fail (run_venture_tests.py xer-schedule-check: ok, 539 tests before the new test file). check_posts.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2e4011ab-e784-568b-98a7-c7cf9ff20951",
+    "transcripts": 1,
+    "first": "2026-11-24T15:56:40Z",
+    "last": "2026-11-24T16:08:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 76,
+        "input": 143,
+        "output": 47271,
+        "thinking": 12785,
+        "cache_read": 10794380,
+        "cache_write_5m": 0,
+        "cache_write_1h": 176393,
+        "api_equivalent_usd": 4.516,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 76,
+      "input": 143,
+      "output": 47271,
+      "thinking": 12785,
+      "cache_read": 10794380,
+      "cache_write_5m": 0,
+      "cache_write_1h": 176393,
+      "api_equivalent_usd": 4.516,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 79,
+    "tools": {
+      "Bash": 75,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.4,
+      "active_minutes": 11.4,
+      "model_minutes": 8.57,
+      "tool_minutes": 2.83,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "senior scheduling-software engineer: reading probe READMEs, implementing and tuning RD rules against 5,199 rows, write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 265.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

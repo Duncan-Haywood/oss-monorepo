@@ -160,7 +160,11 @@
             <IfcMaterial id="i70" Name="Timber frame" Category="wood"/>
           </Material>
         </IfcMaterialLayer>
-        <IfcMaterialLayer ref="i72" xsi:nil="true"/>
+        <IfcMaterialLayer id="i76" LayerThickness="12.5" Name="Lining">
+          <Material>
+            <IfcMaterial ref="i71" xsi:nil="true"/>
+          </Material>
+        </IfcMaterialLayer>
       </MaterialLayers>
     </RelatingMaterial>
   </IfcRelAssociatesMaterial>

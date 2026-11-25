@@ -106,4 +106,4 @@ switch.
 Free and as-is, without warranty of any kind. Not legal, security or professional advice. It does not run git;
 check anything that matters with `git check-ignore -v`. Not affiliated with the Git project or any vendor.
 
-MIT licensed. See [LICENSE](LICENSE).
+FSL-1.1-MIT licensed. See [LICENSE](LICENSE).

@@ -21,7 +21,7 @@ import { applyRule, ruleActive, ruleLabel } from "./measure.mjs";
 import { assignUniformat, uniformatLabel } from "./uniformat.mjs";
 import { roomGeometry, checkRoom, roomLabel, assignRooms, footprintSolid, deductOpenings, connectionArea, OPENING_CLASS } from "./rooms.mjs";
 import { planRect, roofFaces, assignEnvelope, assignRailingSides } from "./envelope.mjs";
-import { Geometry, Unresolved, det, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, surfaceArea, planeAreas, bendsInPlan, curvedFaces, prismAxis, thinnestNormal, solidExtent, barExtent } from "./geom.mjs";
+import { Geometry, Unresolved, det, asTerms, solidVolume, mul, invert, subtractCutters, cuttersOf, transformSolid, sectionArea, surfaceArea, planeAreas, boundaryArea, bendsInPlan, curvedFaces, prismAxis, thinnestNormal, solidExtent, barExtent, shellPlanArea } from "./geom.mjs";
 
 const NOT_ELEMENTS = new Set([
   "IFCPROJECT", "IFCSITE", "IFCBUILDING", "IFCBUILDINGSTOREY", "IFCSPACE", "IFCOPENINGELEMENT", "IFCOPENINGSTANDARDCASE",
@@ -435,6 +435,56 @@ function sweptProfile(E, repId) {
   return pid;
 }
 
+/**
+ * The skin of a body that is one extruded profile, optionally clipped by
+ * half-spaces: each profile edge swept along the extrusion (|edge x depth
+ * vector|) plus both ends. A clipped body's sides are scaled by its volume
+ * over the unclipped extrusion's (end cuts shorten every side alike); its
+ * ends are counted at the profile's area. Model units squared; null when the
+ * representation is anything else. {area: outside and ends, inside: the
+ * sides of the profile's holes (a tube's bore), clipped}
+ */
+export function profileSkin(E, geo, repId, body) {
+  const rep = repId != null ? E.get(repId) : null;
+  if (!rep || !Array.isArray(rep.args[3]) || rep.args[3].length !== 1) return null;
+  let x = E.get(refId(rep.args[3][0])), clipped = false;
+  // a mapped item (Revit's members): the one item of the map's representation;
+  // a scaled mapping fails the volume check below
+  for (let i = 0; x && x.type === "IFCMAPPEDITEM" && i < 10; i++) {
+    const r = E.get(refId(E.get(refId(x.args[0]))?.args[1]));
+    if (!r || !Array.isArray(r.args[3]) || r.args[3].length !== 1) return null;
+    x = E.get(refId(r.args[3][0]));
+  }
+  for (let i = 0; x && x.type === "IFCBOOLEANCLIPPINGRESULT" && i < 20; i++) { clipped = true; x = E.get(refId(x.args[1])); }
+  if (!x || x.type !== "IFCEXTRUDEDAREASOLID") return null;
+  const loops = geo.profile(refId(x.args[0]));
+  const d = geo.dir(x.args[2], [0, 0, 1]), depth = geo.num(x.args[3]);
+  if (!(depth > 0) || !loops?.length) return null;
+  const D = [d[0] * depth, d[1] * depth, d[2] * depth];
+  // outer loops' sides are the outside; a hole's (a tube's bore) the inside
+  let side = 0, inner = 0, area = 0;
+  for (const l of loops) {
+    const P = l.pts;
+    let a = 0, sw = 0;
+    for (let i = 0; i < P.length; i++) {
+      const p = P[i], q = P[(i + 1) % P.length];
+      const ex = q[0] - p[0], ey = q[1] - p[1];
+      // |(ex, ey, 0) x D|
+      sw += Math.hypot(ey * D[2], -ex * D[2], ex * D[1] - ey * D[0]);
+      a += p[0] * q[1] - q[0] * p[1];
+    }
+    if (l.s > 0) side += sw; else inner += sw;
+    area += l.s * Math.abs(a) / 2;
+  }
+  const full = Math.abs(area) * Math.abs(D[2]);
+  const V = body ? Math.abs(solidVolume(body)) : full;
+  if (!(full > 0) || !(V > 0) || V > full * 1.005) return null;
+  const k = clipped ? V / full : 1;
+  // an unclipped body that does not hold the extrusion's volume is not this profile
+  if (!clipped && Math.abs(V - full) > 0.005 * full) return null;
+  return { area: side * k + 2 * Math.abs(area), inside: inner * k, clipped };
+}
+
 export function isElement(e) {
   if (NOT_ELEMENTS.has(e.type) || e.type.endsWith("TYPE") || e.type.startsWith("IFCREL")) return false;
   const a = e.args;
@@ -553,6 +603,34 @@ export function takeoff(model, opts = {}) {
         if (pid != null) { const v = geo.sectionVariants(pid); if (v.length) row.computed.sectionVariants = v; }
         if (pid != null) { const v = geo.polygonSections(pid); if (v.length) row.computed.polygonSections = v; }
         try { row.computed.areas = computeAreas(e.type, row.computed.solids, worldOf(refId(e.args[5])), f); } catch (err) { row.computed.areas = { error: err.message }; }
+        // a steel member whose faces cannot be summed one by one (a profile
+        // with root radii is cut into many convex pieces): its skin from the
+        // extruded profile's own outline (profileSkin)
+        // A hollow section's faces include its inside, which paint and fire
+        // protection do not cover: its outside comes from the profile too
+        if (COATED_CLASS.test(e.type) && row.computed.areas && !row.computed.areas.error) {
+          try {
+            const k = profileSkin(E, geo, bodyRepresentation(E, refId(e.args[6])), row.computed.solids.body);
+            if (k && (!row.computed.areas.surface || k.inside > 0)) row.computed.areas.surface = { gross: k.area * f * f, net: null, inside: k.inside * f * f, fromProfile: true, clipped: k.clipped };
+          } catch { /* no skin */ }
+          // a steel body of signed pieces whose faces neither route reads (an
+          // extrusion less faceted cut-outs: S_Office's 28 coped members), or a
+          // clipped profile whose sides the volume ratio only scales: its faces
+          // summed plane by plane as a winding (boundaryArea), exact for
+          // polygons (eval/coped-coating-2026-11-24.md). A hollow section keeps
+          // the profile route, which sets its bore apart.
+          const S = row.computed.areas.surface;
+          if (isSteel(row.material) && (!S || (S.fromProfile && S.clipped && !(S.inside > 0)))) {
+            try {
+              const { body, net } = row.computed.solids;
+              const g = body.terms.length > 1 || S ? boundaryArea(body) : null;
+              if (g != null) {
+                const nt = net && net !== body ? boundaryArea(net) : null;
+                row.computed.areas.surface = { gross: g * f * f, net: nt == null ? null : nt * f * f, inside: 0, fromFaces: true, clipped: !!S?.clipped };
+              }
+            } catch { /* no skin */ }
+          }
+        }
         try { const L = memberLength(e.type, row.computed.solids.body, f); if (L != null) row.computed.length = L; } catch { /* no length */ }
         // a reinforcing bar's shapes and the author's schedule figures (rebar.mjs)
         if (REBAR_CLASS.test(e.type) && row.computed.solids.body?.bars?.length) {
@@ -744,6 +822,11 @@ function readStored(E, idx, id, units, row) {
  *                Tag and class (Revit's split-by-level export writes the whole
  *                wall's quantities on every piece), and the pieces' computed
  *                volumes (gross or net) sum to it;
+ *   split-held   the whole element's stored value on one piece only, and the
+ *                other pieces with its Tag (another class of the same kind,
+ *                IfcWall beside IfcWallStandardCase) store none; their bodies
+ *                and its own sum to it, to 0.5% (heldSplit below; HHS
+ *                construction's two Revit walls split at a level);
  *   repeated     the same, but the pieces in the file do not sum to it (some
  *                pieces are in another file or were not exported);
  *   unit-slip    the stored volume is the computed one times a power of ten
@@ -834,6 +917,8 @@ export function explainChecks(rows, tol = 0.02) {
         }
       }
       if (c.stored === 0 && c.computed > 0) { c.reason = "not-stored"; r.trustStored = false; continue; }
+      const held = heldSplit(r, rows, (q) => (w === "net" ? q.computed?.net ?? q.computed?.gross : q.computed?.gross), (q) => q.check?.[w] != null, c.stored, tol / 4);
+      if (held) { c.reason = "split-held"; c.pieces = held; r.trustStored = false; continue; }
       const dims = lhw(r);
       const slip = unitSlip(c.computed, c.stored, tol / 4);
       if (slip) { c.reason = "unit-slip"; c.factor = slip; r.trustStored = false; continue; }
@@ -863,6 +948,36 @@ export function explainChecks(rows, tol = 0.02) {
   }
   compoundSlips(rows, tol);
   return rows;
+}
+
+/**
+ * split-held: Revit splits a wall at a level and exports one piece as
+ * IfcWallStandardCase with the whole wall's quantities and the rest as IfcWall
+ * with none, all under one Tag (HHS construction #1405 + #1493 = 2.6565 +
+ * 2.5955 = 5.2520 m3 stored; eval/split-held-2026-11-24.md). The pieces are
+ * the rows sharing r's Tag whose class is r's with StandardCase or
+ * ElementedCase dropped (the same kind of element), and that store nothing
+ * for this figure (has(q) false). Returns how many pieces sum to the stored
+ * value within tol, counting r, else 0. A fit to six digits on the two walls
+ * seen; tol (0.5%) leaves room for an exporter that rounds.
+ */
+const tagIndex = new WeakMap();
+const kindOf = (cls) => (cls || "").replace(/(StandardCase|ElementedCase)$/, "");
+export function heldSplit(r, rows, size, has, stored, tol) {
+  if (!r.tag || !(stored > 0)) return 0;
+  let idx = tagIndex.get(rows);
+  if (!idx) {
+    idx = new Map();
+    for (const q of rows) if (q.tag) { const k = `${q.tag}|${kindOf(q.ifcClass)}`; if (!idx.has(k)) idx.set(k, []); idx.get(k).push(q); }
+    tagIndex.set(rows, idx);
+  }
+  const others = (idx.get(`${r.tag}|${kindOf(r.ifcClass)}`) || []).filter((q) => q !== r && !q.isAssembly && !has(q));
+  if (!others.length) return 0;
+  const own = size(r);
+  if (!(own > 0)) return 0;
+  let sum = own;
+  for (const q of others) { const v = size(q); if (!(v > 0)) return 0; sum += v; }
+  return Math.abs(sum - stored) <= tol * stored ? others.length + 1 : 0;
 }
 
 /**
@@ -985,7 +1100,7 @@ function glazingLeftOut(r, c, tol) {
  */
 export const COMPOUND_SLIP_MIN = 3;
 export function compoundFactor(computed, stored, tol = 0.005) {
-  if (!(computed > 0) || !(stored > 0)) return null;
+  if (!(computed > 0 && computed < Infinity) || !(stored > 0 && stored < Infinity)) return null;
   for (const f of [SQFT, 1 / SQFT]) {
     const k = Math.round(Math.log10(stored / (computed * f)));
     if (k === 0 || Math.abs(k) > 9) continue;
@@ -1022,7 +1137,8 @@ export const SQFT = 10.7639104;
  * one random ratio in twenty at a 2% tolerance.
  */
 export function unitSlip(computed, stored, tol = 0.005) {
-  if (!(computed > 0) || !(stored > 0)) return null;
+  // finite only: near(x, Infinity) holds for every x (a stored 1.E400 parses to Infinity)
+  if (!(computed > 0 && computed < Infinity) || !(stored > 0 && stored < Infinity)) return null;
   // a slipped unit scales an exact figure: a quarter of the agreement
   // tolerance keeps chance matches on small parts out
   const near = (a, b) => Math.abs(a - b) <= tol * Math.abs(b);
@@ -1037,12 +1153,17 @@ export function unitSlip(computed, stored, tol = 0.005) {
  *   split / repeated  as for volumes: one stored area on every piece of a
  *                     wall split by level (the pieces' areas sum to it, or not);
  *   unit-slip         stored = computed x a power of ten, or x 10.7639 (ft2/m2);
+ *   split-held        as for volumes: the whole area on one piece only, the
+ *                     other pieces under its Tag storing none;
  *   net-as-gross      a stored gross area equals the computed net;
  *   gross-as-net      a stored net area equals the computed gross: the
  *                     openings were not taken out;
  *   on-a-face         a wall's side area equals the section on one of its
  *                     faces rather than its middle plane (a corner join makes
  *                     the faces differ in length);
+ *   net-on-a-face     a holed wall's stored gross side area is one of its
+ *                     faces with the openings taken out, within 0.5% (Revit:
+ *                     ARK_NUS_skolebygg's three such walls);
  *   matches-stored-volume  stored side area x the wall's width equals the
  *                     stored volume: the quantity set agrees with itself and
  *                     describes another body than the geometry;
@@ -1056,6 +1177,10 @@ export function unitSlip(computed, stored, tol = 0.005) {
  *                     length: one figure copied onto every piece (skolebygg's
  *                     mullions carry their curtain wall's Revit Area and
  *                     Length);
+ *   whole-surface     a plate's stored plan area is the total area of its
+ *                     body's faces, within 0.5% (Tekla: M3D-CON-CD's "JD-1"
+ *                     28.30 m2 on a 12.88 m2 plate): a coating figure, so the
+ *                     BoQ sums the plan cut;
  *   half-surface      a member's stored CrossSectionArea is half the total
  *                     area of its body's faces (HHS architect's Revit
  *                     mullions: 0.66 m2 on a 0.0095 m2 post, its surface
@@ -1135,6 +1260,8 @@ export function explainAreas(rows, tol = 0.02) {
       }
       const slip = unitSlip(c.computed, c.stored, tol / 4);
       if (slip) { c.reason = "unit-slip"; c.factor = slip; c.trust = false; continue; }
+      const held = heldSplit(r, rows, (q) => q.computed?.areas?.[c.kind]?.[c.which], (q) => q.areaCheck?.[k] != null, c.stored, tol / 4);
+      if (held) { c.reason = "split-held"; c.pieces = held; c.trust = false; continue; }
       const open = r.computed.openings > 0;
       if (c.which === "gross" && open && A.net != null && near(A.net, c.stored)) { c.reason = "net-as-gross"; continue; }
       if (c.which === "net" && open && A.gross != null && near(A.gross, c.stored)) { c.reason = "gross-as-net"; continue; }
@@ -1142,6 +1269,10 @@ export function explainAreas(rows, tol = 0.02) {
       // (Revit) or inner face (skolebygg, eval/curved-side-area-2026-11-23.md)
       if (c.kind === "side" && A.curved && A.chord && A.faces[c.which].some((x) => x > 0 && Math.abs(x - c.stored) <= 0.005 * Math.abs(c.stored))) { c.reason = "curved-face"; continue; }
       if ((c.kind === "side" || c.kind === "plan") && A.faces && A.faces[c.which].some((x) => x != null && near(x, c.stored))) { c.reason = "on-a-face"; continue; }
+      // Revit writes a holed wall's GrossSideArea as one face with its openings
+      // taken out: ARK_NUS's #556796, #1280178, #1483180 match a face's net to
+      // 1e-6 (eval/net-on-a-face-2026-11-24.md)
+      if (c.kind === "side" && c.which === "gross" && open && A.faces?.net?.some((x) => x > 0 && Math.abs(x - c.stored) <= 0.005 * Math.abs(c.stored))) { c.reason = "net-on-a-face"; continue; }
       if (c.kind === "cross" && scalesWithLength(r, k, c, rows, near)) { c.reason = "scales-with-length"; c.trust = false; continue; }
       const sv = storedVol(r, c.which);
       if (c.kind === "side" && sv != null && A.width > 0 && near(c.stored * A.width, sv)) { c.reason = "matches-stored-volume"; continue; }
@@ -1163,6 +1294,10 @@ export function explainAreas(rows, tol = 0.02) {
       // its reference length at the centre times its thickness
       const Lc = storedNamed(r, /^Length of the Wall at the Center$/, "length"), T = storedNamed(r, /^Thickness$/, "length");
       if (c.kind === "plan" && Lc > 0 && T > 0 && exact(Lc * T)) { c.reason = "centre-line"; continue; }
+      // Tekla writes a plate's NetArea as every face of its body added up (the
+      // area a painter or galvaniser prices), not its plan: M3D-CON-CD's 7
+      // plates (eval/whole-surface-2026-11-24.md); the BoQ sums the plan
+      if (c.kind === "plan" && A.planes?.length > 2 && exact(A.planes.reduce((x, y) => x + y, 0))) { c.reason = "whole-surface"; c.surface = c.stored; c.trust = false; continue; }
       if (c.kind === "plan" && A.planes?.some((x) => exact(x))) { c.reason = "a-body-face"; continue; }
       if (c.kind === "side" && A.curved) { c.reason = "curved"; continue; }
       c.reason = "unexplained";
@@ -1256,16 +1391,19 @@ function scalesWithLength(r, k, c, rows, near) {
 }
 
 export const AREA_REASON_TEXT = {
+  "split-held": "the whole element's stored area is written on one piece of an element split by level (Revit); the other pieces under its Tag store none, and the pieces' geometry sums to it, so the BoQ sums each piece's own",
   "scales-with-length": "the stored cross-section area grows with the element's length (length x a constant): a face area, not a section",
   split: "the same stored area is written on every piece of an element split by level; the pieces' geometry sums to it",
   repeated: "the same stored area is written on several pieces of one element, and the pieces in this file do not sum to it",
   "unit-slip": "the stored area is the geometry's times a power of ten or the square-foot factor 10.7639: converted twice or not at all",
   "net-as-gross": "the stored gross area equals the area with openings taken out (net)",
+  "net-on-a-face": "the stored gross side area is one face of the wall with its openings taken out (net), as Revit writes it",
   "gross-as-net": "the stored net area equals the gross: the openings were not taken out",
   "on-a-face": "the stored area is measured on one face of the element (a wall's side, a tapered or sloped slab's top or bottom), not its middle plane",
   "matches-stored-volume": "the stored area agrees with the stored volume, but both describe a different body than the geometry",
   zero: "the stored area is 0 while the geometry has one: the exporter left the figure unfilled",
   "host-figure": "the same stored cross-section area and length are written on several members of different lengths: a figure copied from their host (a curtain wall's area and length), not the member's section",
+  "whole-surface": "the stored area is the total area of every face of the body (as Tekla writes a plate's area: the surface a painter or galvaniser prices), not its plan, so the BoQ sums the plan area",
   "half-surface": "the stored cross-section area is half the total area of the member's faces: a surface figure (as some Revit exports write it), not its section",
   "own-profile": "the stored cross-section area is the member's own stored width x height; the piece is about as short as it is wide, so its axis cannot be read from the geometry and the cut went across another direction",
   "joins-off": "the stored side area is the mean of the wall's two faces with the strips covered by the walls joined to it taken off (a finishes figure, as ArchiCAD measures it)",
@@ -1280,6 +1418,7 @@ export const AREA_REASON_TEXT = {
 };
 
 export const REASON_TEXT = {
+  "split-held": "the whole element's stored volume is written on one piece of an element split by level (Revit: one IfcWallStandardCase with quantities, the rest IfcWall with none); the pieces' geometry sums to it, so the BoQ sums each piece's own",
   split: "the same stored volume is written on every piece of an element split by level; the pieces' geometry sums to it",
   repeated: "the same stored volume is written on several pieces of one element, and the pieces in this file do not sum to it",
   "unit-slip": "the stored volume is the geometry's times a power of ten, the square-foot factor 10.7639, or both: written in the wrong unit",
@@ -1493,6 +1632,14 @@ function computeAreas(type, solids, W, f) {
     // this way against 196 across the thinnest direction, while its slabs
     // agree 213 of 275 across the thinnest and 200 normal to up
     // (eval/areas-vs-stored-2026-11-20.md). A choice fitted on one model.
+    // a deck or course lofted along an alignment: its top faces seen from
+    // above, since no one plane cut fits a deck that curves, climbs and is
+    // crowned (the I-405/SR 167 flyover's mid-depth cut caught 179 m2 of
+    // about 6,000; eval/pgsuper-bridges-2026-11-24.md)
+    if (body.lofted && body.shells?.length) {
+      const g = shellPlanArea(body, v), nt = net?.lofted ? shellPlanArea(net, v) : g;
+      if (g != null) { out.plan = { gross: g * f2, net: nt == null ? null : nt * f2, n: v, lofted: true }; return out; }
+    }
     const meshUp = !body.terms.length && /^IFCCOVERING/.test(type);
     const n = body.axis ?? (meshUp ? v : thinnestNormal(body)?.n);
     if (n) {
@@ -1503,9 +1650,19 @@ function computeAreas(type, solids, W, f) {
       out.plan.faces = { gross: [a.gross, b.gross], net: [a.net, b.net] };
       // each plane's face area: ArchiCAD stores a sill's top or a corbel's
       // side as the "area" of an element extruded another way
-      const P = planeAreas(body);
+      const P = planeAreas(body, true);
       if (P) out.plan.planes = P.map((p) => p.area * f2);
     }
+  }
+  // the whole skin of a steel part (coatingArea): net of its openings and
+  // holes when the cut body can be summed face by face, else the uncut body
+  // a steel beam, column or member asks for its skin twice (coating and
+  // cross-section checks): sum its faces once
+  let skin;
+  const skinOf = () => (skin === undefined ? (skin = surfaceArea(body)) : skin);
+  if (COATED_CLASS.test(type)) {
+    const g = skinOf(), nt = net && net !== body ? surfaceArea(net) : null;
+    if (g != null) out.surface = { gross: g * f2, net: nt == null ? null : nt * f2 };
   }
   if (AREA_KINDS.cross.test(type)) {
     // a faceted member has no extrusion: its length runs along the face
@@ -1515,7 +1672,7 @@ function computeAreas(type, solids, W, f) {
       out.cross = cut(n);
       // the body's whole surface: Revit writes half of it as some members'
       // CrossSectionArea (HHS architect's mullions)
-      const S = surfaceArea(body);
+      const S = skinOf();
       if (S != null) out.cross.surface = S * f2;
     }
   }
@@ -1554,6 +1711,39 @@ export function memberLength(type, body, f) {
 export const STEEL_DENSITY = 7850;
 const STEEL_NAME = /\b(steel|stahl|staal|acier|acero|acciaio|stål|teräs|stal|metal\s*-\s*steel|s(?:185|235|275|355|420|450|460|690)(?:[a-z0-9+]*)|a(?:36|500|572|588|913|992)|q(?:235|345|355)[a-z]*|ss400|sm490)\b/i;
 const NOT_STEEL = /concrete|beton|béton|hormig|calcestruzzo|timber|wood|holz|hout|glulam|stainless|inox|edelstahl|rvs|alumin|fibre|fiber|faser|reinforc|rebar|bewehr|wapening|neoprene|rubber|elastomer|grout|mortar|paint|coating|insulat|isol/i;
+
+// ---- coating area -----------------------------------------------------------
+//
+// The area a painter, galvaniser or fire-protection applicator prices on
+// structural steel: every outside face of the part, ends and edges included;
+// a hollow section's inside is summed apart (galvanising coats it, paint does
+// not) (Tekla
+// writes this figure as a beam's or column's OuterSurfaceArea and as a
+// plate's NetArea: eval/coating-area-2026-11-24.md). Only steel parts of
+// the framing classes; bars, tendons, ducts and fasteners are not coated.
+export const COATED_CLASS = /^IFC(BEAM|COLUMN|MEMBER|PLATE|PILE|RAILING|STAIRFLIGHT)/;
+
+/**
+ * A steel part's coating area in m2 and where it came from, or null when the
+ * part is not a coated steel part. Source order: the body's own faces
+ * ("computed"), then a stored whole-skin figure ("stored": OuterSurfaceArea,
+ * GrossSurfaceArea, or a plate NetArea explainAreas named whole-surface).
+ * `stored` / `agree` report the stored skin beside the computed one.
+ */
+export function coatingArea(r) {
+  if (!COATED_CLASS.test(r.ifcType ?? "") || !isSteel(r.material)) return null;
+  const S = r.computed?.status === "ok" ? r.computed.areas?.surface : null;
+  const computed = S ? S.net ?? S.gross : null;
+  let stored = null, storedName = null;
+  for (const [k, q] of Object.entries(r.stored || {})) {
+    if (q.kind === "area" && /^(outer|gross|net)surfacearea$/i.test(k.replace(/\s+/g, ""))) { stored = q.value; storedName = k; break; }
+  }
+  if (stored == null) for (const [k, c] of Object.entries(r.areaCheck || {})) if (c.reason === "whole-surface" && c.surface != null) { stored = c.surface; storedName = k; break; }
+  const agree = computed != null && stored != null ? Math.abs(computed - stored) <= 0.02 * Math.max(computed, stored) : null;
+  if (computed != null) return { area: computed, source: "computed", holes: S.net != null, inside: S.inside ?? 0, stored, storedName, agree };
+  if (stored != null) return { area: stored, source: "stored", holes: null, inside: 0, stored, storedName, agree };
+  return { area: null, source: null, holes: null, inside: 0, stored: null, storedName: null, agree: null };
+}
 
 const NOT_REBAR_STEEL = /gfrp|frp|glass|basalt|carbon|aramid|fibre|fiber|faser|stainless|inox|edelstahl|rvs|alumin|timber|wood/i;
 
@@ -1713,7 +1903,7 @@ export function boq(rows, by = ["class", "type"], rule = null, opts = {}) {
     const key = by.map((k) => GROUP_KEYS[k](r));
     const k = JSON.stringify(key);
     let L = lines.get(k);
-    if (!L) { L = { key, count: 0, volume: 0, volumeStored: 0, volumeComputed: 0, volumeMissing: 0, area: 0, areaComputed: 0, length: 0, weight: 0, lengthComputed: 0, weightComputed: 0, lengthMissing: 0, weightMissing: 0, disagree: 0, voidsLeft: 0, areaChange: 0, volumeChange: 0, ruleSkipped: 0, volumeDoubt: { count: 0, stored: 0, computed: 0 }, areaDoubt: { count: 0, stored: 0, computed: 0 } }; lines.set(k, L); }
+    if (!L) { L = { key, count: 0, volume: 0, volumeStored: 0, volumeComputed: 0, volumeMissing: 0, area: 0, areaComputed: 0, length: 0, weight: 0, lengthComputed: 0, weightComputed: 0, lengthMissing: 0, weightMissing: 0, disagree: 0, voidsLeft: 0, areaChange: 0, volumeChange: 0, ruleSkipped: 0, volumeDoubt: { count: 0, stored: 0, computed: 0 }, areaDoubt: { count: 0, stored: 0, computed: 0 }, coating: 0, coatingInside: 0, coatingStored: 0, coatingMissing: 0, coatingDisagree: 0 }; lines.set(k, L); }
     const q = measured ? applyRule(r, rowQuantities(r, opts), rule) : rowQuantities(r, opts);
     for (const [d, D] of [[q.volumeDoubt, L.volumeDoubt], [q.areaDoubt, L.areaDoubt]]) if (d) { D.count++; D.stored += d.stored; D.computed += d.computed; }
     if (measured) { L.voidsLeft += q.voidsLeft; L.areaChange += q.areaChange; L.volumeChange += q.volumeChange; if (q.ruleNotes.length) L.ruleSkipped++; }
@@ -1722,6 +1912,8 @@ export function boq(rows, by = ["class", "type"], rule = null, opts = {}) {
     if (q.area != null) { L.area += q.area; if (q.areaSource === "computed") L.areaComputed++; }
     if (q.length != null) { L.length += q.length; if (q.lengthSource === "computed") L.lengthComputed++; } else if (LINEAR_CLASS.test(r.ifcType)) L.lengthMissing++;
     if (q.weight != null) { L.weight += q.weight; if (q.weightSource !== "stored") L.weightComputed++; } else if (LINEAR_CLASS.test(r.ifcType)) L.weightMissing++;
+    const ca = coatingArea(r);
+    if (ca) { if (ca.area != null) { L.coating += ca.area; L.coatingInside += ca.inside; if (ca.source === "stored") L.coatingStored++; } else L.coatingMissing++; if (ca.agree === false) L.coatingDisagree++; }
     if ((r.check && ((r.check.gross && !r.check.gross.agree) || (r.check.net && !r.check.net.agree))) || Object.values(r.areaCheck || {}).some((c) => !c.agree)) L.disagree++;
   }
   return [...lines.values()].sort((a, b) => a.key.join("\u0000").localeCompare(b.key.join("\u0000")));
@@ -1741,15 +1933,15 @@ const doubtCells = (D) => (D && D.count ? [D.count, D.stored, D.computed] : [0, 
 /** `opts.unexplained` labels which figure the lines summed for rows in doubt. */
 export function boqCsv(lines, by, rates = {}, rule = null, opts = {}) {
   const measured = ruleActive(rule);
-  const head = [...by.map(keyLabel), "Count", "Volume m3", "Area m2", "Length m", "Weight kg", "Volume from model's stored quantities", "Volume computed here", "No volume", "Areas computed here", "Rows where stored and computed disagree", "Rate", "Rate unit", "Amount", "Lengths computed here", "Weights from steel density (7850 kg/m3)", "Members with no length", "Members with no weight", "Volumes in doubt (disagree for no known cause)", "Their stored volume m3", "Their geometry volume m3", "Areas in doubt (disagree for no known cause)", "Their stored area m2", "Their geometry area m2", "Summed for those"];
+  const head = [...by.map(keyLabel), "Count", "Volume m3", "Area m2", "Length m", "Weight kg", "Volume from model's stored quantities", "Volume computed here", "No volume", "Areas computed here", "Rows where stored and computed disagree", "Rate", "Rate unit", "Amount", "Lengths computed here", "Weights from steel density (7850 kg/m3)", "Members with no length", "Members with no weight", "Volumes in doubt (disagree for no known cause)", "Their stored volume m3", "Their geometry volume m3", "Areas in doubt (disagree for no known cause)", "Their stored area m2", "Their geometry area m2", "Summed for those", "Coating area m2 (steel parts' outside surface)", "Inside of hollow sections m2", "Coating areas from stored figures", "Steel parts with no coating area", "Coating areas where stored and geometry disagree"];
   if (measured) head.push(`Voids not deducted (${ruleLabel(rule)})`, "Area added back m2", "Volume added back m3", "Rows the rule could not adjust");
   const out = [head.map(csvCell).join(",")];
   for (const L of lines) {
     const k = JSON.stringify(L.key);
     const rate = rates[k];
     let amount = null;
-    if (rate && Number.isFinite(rate.rate)) amount = rate.rate * ({ each: L.count, m3: L.volume, m2: L.area, m: L.length, kg: L.weight }[rate.unit] ?? 0);
-    const cells = [...L.key, L.count, L.volume, L.area, L.length, L.weight, L.volumeStored, L.volumeComputed, L.volumeMissing, L.areaComputed, L.disagree, rate ? rate.rate : null, rate ? rate.unit : null, amount, L.lengthComputed, L.weightComputed, L.lengthMissing, L.weightMissing, ...doubtCells(L.volumeDoubt), ...doubtCells(L.areaDoubt), L.volumeDoubt?.count || L.areaDoubt?.count ? (opts.unexplained === "geometry" ? "geometry" : "stored") : null];
+    if (rate && Number.isFinite(rate.rate)) amount = rate.rate * ({ each: L.count, m3: L.volume, m2: L.area, m: L.length, kg: L.weight, "m2 coat": L.coating }[rate.unit] ?? 0);
+    const cells = [...L.key, L.count, L.volume, L.area, L.length, L.weight, L.volumeStored, L.volumeComputed, L.volumeMissing, L.areaComputed, L.disagree, rate ? rate.rate : null, rate ? rate.unit : null, amount, L.lengthComputed, L.weightComputed, L.lengthMissing, L.weightMissing, ...doubtCells(L.volumeDoubt), ...doubtCells(L.areaDoubt), L.volumeDoubt?.count || L.areaDoubt?.count ? (opts.unexplained === "geometry" ? "geometry" : "stored") : null, ...(L.coating || L.coatingMissing ? [L.coating, L.coatingInside, L.coatingStored, L.coatingMissing, L.coatingDisagree] : [null, null, null, null, null])];
     if (measured) cells.push(L.voidsLeft, L.areaChange, L.volumeChange, L.ruleSkipped);
     out.push(cells.map(csvCell).join(","));
   }

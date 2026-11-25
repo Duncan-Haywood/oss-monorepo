@@ -1,0 +1,267 @@
+[
+ {
+  "ident": "github-app",
+  "desc": "dangerous use of GitHub App tokens",
+  "url": "https://docs.zizmor.sh/audits/#github-app",
+  "determinations": {
+   "confidence": "High",
+   "severity": "High",
+   "persona": "Regular"
+  },
+  "locations": [
+   {
+    "symbolic": {
+     "key": {
+      "Local": {
+       "verbatim_path": "tree/.github/workflows/priv-agent-cross-review.yml"
+      }
+     },
+     "annotation": "app token inherits blanket installation permissions",
+     "route": {
+      "route": [
+       {
+        "Key": "jobs"
+       },
+       {
+        "Key": "review-gh"
+       },
+       {
+        "Key": "steps"
+       },
+       {
+        "Index": 4
+       },
+       {
+        "Key": "uses"
+       }
+      ]
+     },
+     "feature_kind": {
+      "Subfeature": {
+       "after": 0,
+       "fragment": {
+        "Raw": "actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547"
+       }
+      }
+     },
+     "kind": "Primary"
+    },
+    "concrete": {
+     "location": {
+      "start_point": {
+       "row": 109,
+       "column": 14
+      },
+      "end_point": {
+       "row": 109,
+       "column": 86
+      },
+      "offset_span": {
+       "start": 4966,
+       "end": 5038
+      }
+     },
+     "feature": "actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547",
+     "comments": [
+      "# v1"
+     ]
+    }
+   }
+  ],
+  "ignored": false,
+  "fixes": []
+ },
+ {
+  "ident": "adhoc-packages",
+  "desc": "ad-hoc installation of packages",
+  "url": "https://docs.zizmor.sh/audits/#adhoc-packages",
+  "determinations": {
+   "confidence": "High",
+   "severity": "Low",
+   "persona": "Regular"
+  },
+  "locations": [
+   {
+    "symbolic": {
+     "key": {
+      "Local": {
+       "verbatim_path": "tree/.github/workflows/browser-checks-ci.yml"
+      }
+     },
+     "annotation": "this step",
+     "route": {
+      "route": [
+       {
+        "Key": "jobs"
+       },
+       {
+        "Key": "browser-checks"
+       },
+       {
+        "Key": "steps"
+       },
+       {
+        "Index": 4
+       }
+      ]
+     },
+     "feature_kind": "Normal",
+     "kind": "Hidden"
+    },
+    "concrete": {
+     "location": {
+      "start_point": {
+       "row": 221,
+       "column": 8
+      },
+      "end_point": {
+       "row": 259,
+       "column": 47
+      },
+      "offset_span": {
+       "start": 12017,
+       "end": 14300
+      }
+     },
+     "feature": "name: Install Playwright and axe-core outside the checkout\n        env:\n          # 1.56.0 until 2026-10-30, when the ubuntu-latest image became\n          # Ubuntu 26.04 and 1.56 refused to install Chromium there (\"does not\n          # support chromium on ubuntu26.04-x64\"). 1.63.0 installs and runs\n          # on it (shed-designer-browser.yml, 2026-10-29).\n          PLAYWRIGHT_VERSION: \"1.63.0\"\n          AXE_VERSION: \"4.13.0\"\n        run: |\n          set -euo pipefail\n          mkdir -p \"$RUNNER_TEMP/browser-checks\"\n          cd \"$RUNNER_TEMP/browser-checks\"\n          npm init -y >/dev/null\n          npm install --no-audit --no-fund \\\n            \"playwright@$PLAYWRIGHT_VERSION\" \"axe-core@$AXE_VERSION\"\n\n      # Separate from the npm install so a browser-download failure names\n      # itself. This is the step most likely to fail for a reason that has\n      # nothing to do with the site -- a CDN hiccup, a runner without the\n      # shared libraries -- and reading it as \"the calculators broke\" is the\n      # exact conflation the exit-2 handling below exists to prevent.\n      #\n      # `--with-deps` apt-installs Chromium's shared libraries and therefore\n      # needs root. GitHub-hosted `ubuntu-latest` has passwordless sudo, so\n      # there it works. The self-hosted runner this repo can be switched to\n      # with `vars.CI_RUNNER` runs as its image's own unprivileged user\n      # (`gitops/tests/test_ci_runner.py` pins that), so there it cannot.\n      # Falling back to the plain install rather than failing is what keeps\n      # flipping that variable from turning this red -- the same class of gap\n      # #2608 fixed in three other workflows. If the libraries turn out to be\n      # missing too, the launch fails, `browser_checks.py` exits 2, and the\n      # step below reports a skip rather than inventing a site defect.\n      #\n      # The CLI is invoked at its path in the pinned install, not through\n      # `npx`. `npx --yes` prefers a local binary but silently fetches the\n      # latest when it does not find one, which would download a browser for a\n      # different Playwright than the one the checks then run -- exactly the\n      # build-number mismatch `sweep.mjs`'s header documents, arrived at by a\n      # route no version pin above would catch.",
+     "comments": [
+      "# Separate from the npm install so a browser-download failure names",
+      "# itself. This is the step most likely to fail for a reason that has",
+      "# nothing to do with the site -- a CDN hiccup, a runner without the",
+      "# shared libraries -- and reading it as \"the calculators broke\" is the",
+      "# exact conflation the exit-2 handling below exists to prevent.",
+      "#",
+      "# `--with-deps` apt-installs Chromium's shared libraries and therefore",
+      "# needs root. GitHub-hosted `ubuntu-latest` has passwordless sudo, so",
+      "# there it works. The self-hosted runner this repo can be switched to",
+      "# with `vars.CI_RUNNER` runs as its image's own unprivileged user",
+      "# (`gitops/tests/test_ci_runner.py` pins that), so there it cannot.",
+      "# Falling back to the plain install rather than failing is what keeps",
+      "# flipping that variable from turning this red -- the same class of gap",
+      "# #2608 fixed in three other workflows. If the libraries turn out to be",
+      "# missing too, the launch fails, `browser_checks.py` exits 2, and the",
+      "# step below reports a skip rather than inventing a site defect.",
+      "#",
+      "# The CLI is invoked at its path in the pinned install, not through",
+      "# `npx`. `npx --yes` prefers a local binary but silently fetches the",
+      "# latest when it does not find one, which would download a browser for a",
+      "# different Playwright than the one the checks then run -- exactly the",
+      "# build-number mismatch `sweep.mjs`'s header documents, arrived at by a",
+      "# route no version pin above would catch.",
+      "# 1.56.0 until 2026-10-30, when the ubuntu-latest image became",
+      "# Ubuntu 26.04 and 1.56 refused to install Chromium there (\"does not",
+      "# support chromium on ubuntu26.04-x64\"). 1.63.0 installs and runs",
+      "# on it (shed-designer-browser.yml, 2026-10-29)."
+     ]
+    }
+   },
+   {
+    "symbolic": {
+     "key": {
+      "Local": {
+       "verbatim_path": "tree/.github/workflows/browser-checks-ci.yml"
+      }
+     },
+     "annotation": "this step",
+     "route": {
+      "route": [
+       {
+        "Key": "jobs"
+       },
+       {
+        "Key": "browser-checks"
+       },
+       {
+        "Key": "steps"
+       },
+       {
+        "Index": 4
+       },
+       {
+        "Key": "run"
+       }
+      ]
+     },
+     "feature_kind": "KeyOnly",
+     "kind": "Related"
+    },
+    "concrete": {
+     "location": {
+      "start_point": {
+       "row": 229,
+       "column": 8
+      },
+      "end_point": {
+       "row": 229,
+       "column": 11
+      },
+      "offset_span": {
+       "start": 12455,
+       "end": 12458
+      }
+     },
+     "feature": "run",
+     "comments": []
+    }
+   },
+   {
+    "symbolic": {
+     "key": {
+      "Local": {
+       "verbatim_path": "tree/.github/workflows/browser-checks-ci.yml"
+      }
+     },
+     "annotation": "installs a package outside of a lockfile",
+     "route": {
+      "route": [
+       {
+        "Key": "jobs"
+       },
+       {
+        "Key": "browser-checks"
+       },
+       {
+        "Key": "steps"
+       },
+       {
+        "Index": 4
+       },
+       {
+        "Key": "run"
+       }
+      ]
+     },
+     "feature_kind": {
+      "Subfeature": {
+       "after": 113,
+       "fragment": {
+        "Regex": "npm\\s+install\\s+\\-\\-no\\-audit\\s+\\-\\-no\\-fund\\s+\\\\\\s+\"playwright@\\$PLAYWRIGHT_VERSION\"\\s+\"axe\\-core@\\$AXE_VERSION\""
+       }
+      }
+     },
+     "kind": "Primary"
+    },
+    "concrete": {
+     "location": {
+      "start_point": {
+       "row": 234,
+       "column": 10
+      },
+      "end_point": {
+       "row": 235,
+       "column": 68
+      },
+      "offset_span": {
+       "start": 12625,
+       "end": 12728
+      }
+     },
+     "feature": "|\n          set -euo pipefail\n          mkdir -p \"$RUNNER_TEMP/browser-checks\"\n          cd \"$RUNNER_TEMP/browser-checks\"\n          npm init -y >/dev/null\n          npm install --no-audit --no-fund \\\n            \"playwright@$PLAYWRIGHT_VERSION\" \"axe-core@$AXE_VERSION\"",
+     "comments": []
+    }
+   }
+  ],
+  "ignored": false,
+  "fixes": []
+ }
+]

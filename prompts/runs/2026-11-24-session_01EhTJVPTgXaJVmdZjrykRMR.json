@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVPTgXaJVmdZjrykRMR",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support products); merge when done",
+  "input_sha256": "c80ba5e82dd7c0d78cd065fda4c44b439a58dd31b05efd640ad8e8859ab0292e",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T11:08:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 18590,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/writing.mjs",
+      "issue": "A post description over 160 characters throws only at the end of a ~10-minute site build; a cheaper pre-check (or a fast test over docs/posts front matter) would catch it before the build."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "why": "Merged with one red check (deploy-concurrency-check-ci test) that is red on main and unrelated to this diff; its fix is a CODEOWNERS-gated .github change.",
+      "did": "Verified locally that the scan fails on main's unchanged workflows; documented in the report and run record.",
+      "result": "pending"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "188 tool cards that still ended in an ellipsis now end on a sentence: 188 -> 0 of 1,435, and 304 -> 0 '\u2026</p>' on built category pages. Local verification: node platform/pages/build.mjs exit 0; check.mjs: 13,050 pages, no dead links; node --test 'platform/pages/*.test.mjs' 1938/1938 pass; catholic-shorts 11, saints-by-candlelight 20, self-hosted-saas-stack 7 pass after regeneration. CI: four research venture page tests asserted verified numbers that only the old og lines carried; the new lines restore them (4 suites pass locally). agent-workroom: fixed a pre-existing keyup TypeError the blank-inputs browser sweep caught. deploy-concurrency-check-ci 'test' is red on main independent of this diff: its dogfood scan of .github/workflows finds 11 deploy-race findings (exit 1 locally on an unchanged .github). Fixing that needs .github edits (owner-gated), so it is left for its own PR and noted in the report.",
+  "corrections": [],
+  "redteam": null
+}

@@ -2,7 +2,7 @@
 // platforms wrote it (AdSense, Airbnb, Amazon, eBay, Etsy, Fiverr, Gumroad, KDP, Ko-fi/Buy Me a Coffee/Teachable, Paddle, Patreon/Lemon Squeezy, PayPal, Shopify, Square, Stripe, Upwork) by running each
 // platform's own reader over it and keeping the one that understands the most rows, then hands back
 // that engine's journals. The readers are unmodified copies of the per-platform tools in this
-// portfolio, so a fix to one is a copy away from the hub; detect.test.mjs feeds every engine's own
+// portfolio, kept byte-identical by copy-engines.mjs (engines.test.mjs fails on drift); detect.test.mjs feeds every engine's own
 // sample report to the hub and fails if the wrong platform wins.
 import * as adsense from "./engines/adsense.mjs";
 import * as airbnb from "./engines/airbnb.mjs";
@@ -63,10 +63,13 @@ const SIGNATURES = {
   stripe: ["automatic_payout_id", "reporting_category", "balance_transaction_id"],
   upwork: ["ref id", "amount in local currency"],
 };
-const signatureBoost = (id, text) => {
-  const head = String(text).split(/\r?\n/).slice(0, 40).join("\n").toLowerCase();
-  return SIGNATURES[id].some((t) => head.includes(t)) ? 400 : 0;
-};
+// The boost scales with the file. Scores grow ten points a row, and a reader that half-understands
+// a foreign file (rows it "kept" with a warning, not an error) ties the right reader row for row, so a
+// flat 400 decided small files and lost on large ones: a 462-row Shopify payout read as AdSense, a
+// 270-row Fiverr history as AdSense, a 301-row Gumroad export as KDP. At least 400 keeps every small
+// file's ranking as it was; the base score itself doubles a matching reader on a large file.
+const headOf = (text) => String(text).split(/\r?\n/, 40).join("\n").toLowerCase();
+const signatureBoost = (id, head, base) => (SIGNATURES[id].some((t) => head.includes(t)) ? Math.max(400, base) : 0);
 export const platform = (id) => PLATFORMS.find((p) => p.id === id);
 
 const REJECTED = /does not look like|file is empty|no header/i;
@@ -83,10 +86,11 @@ export function score(r) {
 }
 
 export function detect(text, opts = {}) {
+  const head = headOf(text); // once, not once per platform: the split was a tenth of a large file's read
   const ranked = PLATFORMS.map((p) => {
     const result = p.engine.validate(text, { ...opts, mapping: undefined });
     const base = score(result);
-    return { id: p.id, label: p.label, score: base ? base + signatureBoost(p.id, text) : 0 };
+    return { id: p.id, label: p.label, score: base ? base + signatureBoost(p.id, head, base) : 0 };
   }).sort((a, b) => b.score - a.score);
   const best = ranked[0];
   if (!best || best.score <= 0) return { id: null, ranked, confident: false };

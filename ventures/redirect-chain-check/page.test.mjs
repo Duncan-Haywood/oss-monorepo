@@ -78,10 +78,10 @@ test('the sponsor link points at the correct GitHub Sponsors profile on all four
   }
 });
 
-test('the MIT license is linked from index', async () => {
+test('the FSL-1.1-MIT license is linked from index', async () => {
   const html = await read('index.html');
   assert.match(html, /href="LICENSE"/);
-  assert.match(html, /MIT licen[cs]e/);
+  assert.match(html, /FSL-1.1-MIT licen[cs]e/);
 });
 
 test('a usage opt-out control exists', async () => {
@@ -103,13 +103,13 @@ test('engine.mjs and usage.mjs are imported as ES modules, not duplicated inline
 test('index links to the docs page and the docs page links back', async () => {
   const index = await read('index.html');
   const docs = await read(DOCS_PAGE);
-  assert.match(index, new RegExp(`href="${DOCS_PAGE.replace(/\./g, '\\.')}"`));
+  assert.match(index, new RegExp(`href="${DOCS_PAGE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`));
   assert.match(docs, /href="\.\/"/);
 });
 
 test('index links to the comparison page', async () => {
   const index = await read('index.html');
-  assert.match(index, new RegExp(`href="${VS_PAGE.replace(/\./g, '\\.')}"`));
+  assert.match(index, new RegExp(`href="${VS_PAGE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`));
 });
 
 test('vs-httpstatus-io page links back to the tool and carries required clauses', async () => {
@@ -152,7 +152,7 @@ test('the CLI file exists and the page documents it', async () => {
 
 test('index links to the by-hand comparison page', async () => {
   const index = await read('index.html');
-  assert.match(index, new RegExp(`href="${VS_HAND_PAGE.replace(/\./g, '\\.')}"`));
+  assert.match(index, new RegExp(`href="${VS_HAND_PAGE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`));
 });
 
 test('the by-hand comparison page links back to the tool and carries required clauses', async () => {
@@ -165,7 +165,7 @@ test('the by-hand comparison page links back to the tool and carries required cl
 
 test('the by-hand comparison page is listed in the venture sitemap', async () => {
   const sitemap = await read('sitemap.xml');
-  assert.match(sitemap, new RegExp(VS_HAND_PAGE.replace(/\./g, '\\.')));
+  assert.match(sitemap, new RegExp(VS_HAND_PAGE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 });
 
 test('the by-hand comparison page does not repeat a question the index or vs-httpstatus-io page already answers', async () => {

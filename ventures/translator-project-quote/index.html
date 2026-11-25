@@ -261,6 +261,19 @@ function readInput() {
 function money(n) {
   return `${el("currency").value.trim()} ${n.toFixed(2)}`;
 }
+// The currency label is free text from the page, so anything that goes into
+// innerHTML is escaped first.
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+function moneyHtml(n) {
+  return escapeHtml(money(n));
+}
 // A link wins over a saved draft: opening a link someone sent means seeing
 // their project, not the last one quoted on this device.
 const fromLink = decodeInputs(location.hash);
@@ -282,7 +295,7 @@ function draftValues() {
 function update() {
   try {
     const r = calculate(readInput());
-    el("result").innerHTML = `<strong>Recommended quote: ${money(r.recommended_price)}</strong><dl><dt>Weighted words</dt><dd>${r.weighted_words.toFixed(0)}</dd><dt>Translation time</dt><dd>${r.translation_hours.toFixed(1)} hours</dd><dt>Direct labor + add-ons</dt><dd>${money(r.direct_cost)}</dd><dt>Quote floor (minimum vs. cost)</dt><dd>${money(r.minimum_price)}</dd><dt>Target-margin price</dt><dd>${money(r.target_price)}</dd></dl><p>The recommended quote is the larger of the quote floor and the target-margin price, so a stated margin target still applies once a job is big enough that the flat minimum no longer binds. This is a modeled starting point from your inputs, not a promise of profitability — review your own assumptions before sending it.</p>`;
+    el("result").innerHTML = `<strong>Recommended quote: ${moneyHtml(r.recommended_price)}</strong><dl><dt>Weighted words</dt><dd>${r.weighted_words.toFixed(0)}</dd><dt>Translation time</dt><dd>${r.translation_hours.toFixed(1)} hours</dd><dt>Direct labor + add-ons</dt><dd>${moneyHtml(r.direct_cost)}</dd><dt>Quote floor (minimum vs. cost)</dt><dd>${moneyHtml(r.minimum_price)}</dd><dt>Target-margin price</dt><dd>${moneyHtml(r.target_price)}</dd></dl><p>The recommended quote is the larger of the quote floor and the target-margin price, so a stated margin target still applies once a job is big enough that the flat minimum no longer binds. This is a modeled starting point from your inputs, not a promise of profitability — review your own assumptions before sending it.</p>`;
     try { localStorage.setItem(storageKey, JSON.stringify(draftValues())); } catch {}
     if (location.hash) history.replaceState(null, "", `${location.pathname}#${encodeInputs({ ...fieldValues(), ...termValues() })}`);
   } catch (e) {

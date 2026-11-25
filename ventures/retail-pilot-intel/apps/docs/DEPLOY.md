@@ -28,24 +28,38 @@ pnpm docs:dev     # http://localhost:5173
 
 Private repo + passcode gate is suitable for stakeholder links. Add org SSO via GitHub if required.
 
-### Vercel (custom domain)
+### Cloudflare Worker (replaces Vercel, 2026-11-24)
 
-1. Import repo; use root **`vercel.docs.json`** (or set project root to repo root with that config).
-2. Add domain e.g. `docs.retailpilotintel.com` in **Project → Settings → Domains** (CNAME to `cname.vercel-dns.com`).
-3. Env vars (Production + Preview):
-   - `VITE_DOCS_PASSCODE` — stakeholder passcode (also set as GitHub secret `DOCS_PASSCODE` for Pages)
-   - `VITE_DOCS_GATE_ENABLED=true`
-   - `VITE_DOCS_SITE_URL=https://docs.retailpilotintel.com` — canonical URLs in page meta
-4. Enable **Deployment Protection** (password or Vercel Authentication) — network boundary beyond the client passcode
+`wrangler.toml` here deploys `dist/` as a static-assets Worker, `retail-pilot-intel-docs`, on the free
+plan (no code runs, so requests are never metered). `public/_headers` sends the same headers
+`vercel.json` did (`X-Robots-Tag: noindex`, `X-Frame-Options: DENY`, ...).
 
-Optional CI job `deploy-vercel` runs when repository variable `VERCEL_DEPLOY=true` and secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` are set.
+```bash
+pnpm docs:build
+cd apps/docs && npx wrangler@4.145.0 dev        # serve dist/ as Cloudflare would
+npx wrangler@4.145.0 deploy --dry-run           # check the config
+```
+
+CI: job `deploy-cloudflare` in `.github/workflows/priv-retail-pilot-intel-deploy-docs.yml` (manual run, or
+every docs push once `RETAIL_PILOT_INTEL_DOCS_CLOUDFLARE=true`). Build env: `DOCS_PASSCODE` secret,
+`DOCS_SITE_URL` variable. For a network boundary beyond the client passcode, put Cloudflare Access in
+front of the workers.dev host.
+
+### AWS (built 2026-11-25, not applied yet)
+
+`platform/aws/stacks/retail-pilot-intel` serves the same `dist/` from the AWS SaaS starter's site app, with the
+same response headers. Its `allowed_emails` variable adds the server-side sign-in gate this file suggested Cloudflare
+Access for (empty by default, so the passcode stays the only check until addresses are set). Build:
+`pnpm docs:build`, then in `platform/aws/stacks/saas-starter/runtime`:
+`node build.mjs site rpi_docs ../../../../../ventures/retail-pilot-intel/apps/docs/dist`. Apply and cutover steps:
+that stack's README. The Worker and its workflow stay until the cutover.
 
 ## Security layers
 
 | Layer | Purpose |
 |-------|---------|
 | Private GitHub repo | Source control |
-| GitHub Pages (private repo) or Vercel Deployment Protection | Network access |
+| Cloudflare Access (optional) | Network access |
 | `VITE_DOCS_PASSCODE` + `VITE_DOCS_GATE_ENABLED` | Browser session gate (12h) |
 | `X-Robots-Tag: noindex` | Discourage indexing if URL leaks |
 

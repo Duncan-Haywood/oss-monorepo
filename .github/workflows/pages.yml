@@ -6,7 +6,7 @@
 # no public URL -- and gated its deploy on `GITHUB_PAGES_ENABLED`, deliberately
 # reusing the one owner flip rather than opening a second ask.
 #
-# `portfolio-pages.yml` was written to close the same gap, from the same
+# `priv-portfolio-pages.yml` was written to close the same gap, from the same
 # reasoning, in the same hour. Neither pull request could see the other, and both
 # merged. GitHub serves exactly one Pages site per repository and
 # `actions/deploy-pages` replaces the whole of it, so with both deploying, the
@@ -21,7 +21,7 @@
 # enforced at creation time). The race this section describes was real, but
 # nobody could have flipped either variable to trigger it.
 #
-# `portfolio-pages.yml` keeps the deploy: it is the more developed of the two
+# `priv-portfolio-pages.yml` keeps the deploy: it is the more developed of the two
 # (site navigation, favicon, sitemap repair, the no-SLA clause check) and the
 # later Pages work built on it. Nothing here is deleted, because this builder is
 # still worth running: it is an independent implementation of the same site, so
@@ -71,6 +71,27 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          filter: blob:none
+          # Sparse and blob-less: the builder reads ventures/ and platform/;
+          # research/, docs/, prompts/ and media it never ships are not
+          # fetched (507 MB on disk instead of 2.3 GB). A venture link into a
+          # skipped path is still repointed at the repository, because
+          # build_pages_site.py asks git's index when the disk has no such
+          # file. Built site byte-identical to a full checkout
+          # (docs/history/ci-perf-2026-11-25-pages-site-build-sparse.md).
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/research/
+            !/docs/
+            !/prompts/
+            !*.mp3
+            !*.mp4
+            !*.gz
+            !*.zip
+            !*.step
+            !*.stl
+            !*.ttf
 
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:

@@ -1,8 +1,8 @@
 # Let your customers sell for you, and keep the affiliate ledger in your own account.
 
-> Run an affiliate or referral program on your own Stripe account: tracking link, recurring commissions, refund clawbacks, payout CSV. Plan what a program will cost you in your browser, then deploy the open-source server. Free, MIT, no revenue share.
+> Run an affiliate or referral program on your own Stripe account: tracking link, recurring commissions, refund clawbacks, payout CSV. Plan what a program will cost you in your browser, then deploy the source-available server. Free, FSL-1.1-MIT, no revenue share.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/referral-keeper): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/referral-keeper): FSL-1.1-MIT licensed.

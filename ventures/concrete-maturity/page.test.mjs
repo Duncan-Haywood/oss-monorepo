@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
-import { parseArgs, run, report } from './cli.mjs';
+import { parseArgs, run, report, runCalibrate, reportCalibrate } from './cli.mjs';
+import { exampleCubeText } from './calibrate.mjs';
 
 const read = name => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 const markup = read('index.html');
@@ -54,4 +55,14 @@ test('CLI reads files through the injected reader and reports bad calibration', 
   const ok = run(parseArgs(['log.csv', '--cal', 'cal.txt', '--target', '1200', '--method', 'equivalent-age']), p => files[p]);
   assert.equal(ok.result.sensors.length, 1);
   assert.equal(ok.result.sensors[0].reached.status, 'reached');
+});
+
+test('CLI calibrates a mix from cubes and reports both values', () => {
+  const r = runCalibrate(parseArgs(['--calibrate', 'cubes.txt']), () => exampleCubeText());
+  assert.equal(r.error, undefined);
+  const out = reportCalibrate(r);
+  assert.match(out, /Datum temperature: -?\d+\.\d °C/);
+  assert.match(out, /Activation energy: \d+ J\/mol/);
+  assert.match(out, /best single curve/);
+  assert.match(runCalibrate(parseArgs(['--calibrate', 'x']), () => '10, 5\n').error, /Line 1/);
 });

@@ -2,7 +2,7 @@
 
 > A free, open-source, opinionated website builder for Catholic monks and nuns. One form or one community.json builds a complete static site: horarium, vocations with an inquiry form, giving that links to the community's own donation page, prayer requests, visiting and the guesthouse, events, news, shop, contact and privacy, with structured data, a sitemap and llms.txt. Runs in the browser; nothing is uploaded.
 
-Free and open source (MIT). It handles no money and writes no tax claims: the giving page links to the community's own donation page. Not legal, tax or financial advice. Not affiliated with any order or diocese.
+Free to use and source available (FSL-1.1-MIT). It handles no money and writes no tax claims: the giving page links to the community's own donation page. Not legal, tax or financial advice. Not affiliated with any order or diocese.
 
 ## Pages
 

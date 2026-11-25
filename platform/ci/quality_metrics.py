@@ -31,6 +31,7 @@ import json
 import random
 import re
 import statistics
+import time
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -313,6 +314,33 @@ def census_free(audits: list[dict], pop: dict[str, list[str]], n: int, seed: str
     return picks, skipped
 
 
+# --- paused strata ------------------------------------------------------------------
+
+# Standalone research is paused (owner, 2026-11-25: "drop the research if you have to do r and d you can but
+# as part of actual paid projects. not as independent academic research"; prompts/goals.md, pivot point 11).
+# On that day 20 of the queue's 21 open high defects were research/ ones, so fix sessions and the fix-mode
+# trigger kept spending on paused work. The CLI leaves these out unless --research; the functions below keep
+# every subject so the metrics and coverage still count them.
+PAUSED_PREFIXES = ("research/",)
+
+
+def is_paused(subject: str) -> bool:
+    return subject.startswith(PAUSED_PREFIXES)
+
+
+def drop_paused(rows: list[dict], include: bool = False) -> tuple[list[dict], int]:
+    """(rows without paused subjects, how many were dropped); `include` keeps them all."""
+    if include:
+        return rows, 0
+    kept = [r for r in rows if not is_paused(r["subject"])]
+    return kept, len(rows) - len(kept)
+
+
+def paused_note(n: int, what: str) -> str:
+    return (f"({n} {what} under research/ left out: standalone research is paused since 2026-11-25,"
+            " prompts/goals.md pivot point 11; --research shows them)")
+
+
 # --- the open-defect queue ---------------------------------------------------------
 
 SEV_RANK = {"high": 0, "medium": 1, "low": 2}
@@ -518,10 +546,26 @@ def _shallow_boundary(git=_git) -> set[str]:
         return set()
 
 
+def _ref(git=_git) -> str:
+    return "origin/main" if git(["rev-parse", "--verify", "-q", "origin/main"]).strip() else "HEAD"
+
+
+def _boundary_dates(git=_git, ref: str | None = None, boundary: set[str] | None = None) -> list[str]:
+    """Commit dates of the shallow boundaries `ref` can reach. .git/shallow also lists the boundaries of
+    other shallow fetches: prompt.md step 0 fetches the security-alerts branch, whose boundary is a commit
+    from the same morning, so before 2026-11-25 every queue row read "history starts <today>" and
+    "unknown" even right after a successful deepen to the oldest audit (run-record doc_friction on
+    quality_audit.py, 2026-11-25, twice; friction_rank.py had the same fix)."""
+    ref = ref or _ref(git)
+    boundary = _shallow_boundary(git) if boundary is None else boundary
+    dates = [git(["log", "-1", "--format=%cs", b]).strip() for b in sorted(boundary)
+             if git(["merge-base", b, ref]).strip() == b]
+    return [d for d in dates if d]
+
+
 def history_start(git=_git) -> str | None:
-    """Commit date (YYYY-MM-DD) where a shallow clone's history begins, or None when it is complete."""
-    dates = [git(["log", "-1", "--format=%cs", b]).strip() for b in _shallow_boundary(git)]
-    dates = [d for d in dates if d]
+    """Commit date (YYYY-MM-DD) where a shallow clone's history of main begins, or None when it is complete."""
+    dates = _boundary_dates(git)
     return max(dates) if dates else None
 
 
@@ -573,11 +617,10 @@ def changes_since(subject: str, date: str, git=_git, audit_path: str | None = No
     The audit's own commit is not a change since the audit: given `audit_path`, the log starts after the commit that
     added that file. Before this, every queued row of a census day pointed at the census commit itself, which edits
     the subject's README (process run 2026-11-18T18:52 and #17455: 14 of 15 shown rows were that commit)."""
-    ref = "origin/main" if git(["rev-parse", "--verify", "-q", "origin/main"]).strip() else "HEAD"
+    ref = _ref(git)
     boundary = _shallow_boundary(git)
     if boundary:
-        dates = [git(["log", "-1", "--format=%cs", b]).strip() for b in boundary]
-        dates = [d for d in dates if d]
+        dates = _boundary_dates(git, ref, boundary)
         if dates and max(dates) > date:
             return {"status": "unknown", "commits": [],
                     "why": f"history starts {max(dates)}; git fetch --shallow-since={date} origin main"}
@@ -900,6 +943,8 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
         prs = None if getattr(args, "no_prs", False) else open_pr_titles()
         if prs is None and not getattr(args, "no_prs", False):
             print("(open-PR search failed: search open PRs by subject before auditing one)", file=sys.stderr)
+        if not getattr(args, "research", False):
+            pop = {k: [x for x in v if not is_paused(x)] for k, v in pop.items()}
         picks, skipped = census_free(audits, pop, args.n, args.seed, prs or [])
         print(f"seed {args.seed}  (--seed {args.seed} repeats this draw)")
         for p in picks:
@@ -908,7 +953,7 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
             print(f"  skipped   {subject}: open PR " + "; ".join(f"#{n} {t[:70]}" for n, t in naming[:2]))
     elif args.cmd == "queue":
         seed = getattr(args, "seed", None)
-        rows = queue(audits, args.severity, seed)
+        rows, n_paused = drop_paused(queue(audits, args.severity, seed), getattr(args, "research", False))
         seen: dict[tuple[str, str], dict] = {}
         changed = 0
         if rows and not getattr(args, "no_git", False) and not getattr(args, "no_fetch", False):
@@ -921,18 +966,34 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
             import sys
             print("(open-PR search failed: rows below may already have a PR in flight; search open PRs by subject)",
                   file=sys.stderr)
-        if prs:  # rows an open PR already names go last, so the top row is one nobody has claimed
-            rows.sort(key=lambda r: (SEV_RANK[r["severity"]], bool(prs_naming(r["subject"], prs))))
+        claims: dict = {}
+        if not getattr(args, "no_prs", False):
+            import quality_claim
+            got = quality_claim.live_claims()
+            if got is None:
+                import sys
+                print("(claim-branch read failed: another session may hold a row below)", file=sys.stderr)
+            claims = got or {}
+
+        def held(r):
+            return quality_claim.subject_slug(r["subject"]) in claims if claims else False
+        if prs or claims:  # rows an open PR names or a session claimed go last, so the top row is free
+            rows.sort(key=lambda r: (SEV_RANK[r["severity"]], bool(prs_naming(r["subject"], prs or [])) or held(r)))
         if seed:
             print(f"seed {seed}  (subjects shuffled within a severity so parallel fix sessions spread out;"
                   f" --seed {seed} repeats this order, --oldest-first gives the fixed one)")
         in_flight = 0
+        now = time.time()
         for r in rows[: args.limit]:
             print(f"[{r['severity']}] {r['subject']} ({r['audit']}#{r['index']}, {r['category']}): {r['what'][:200]}")
             naming = prs_naming(r["subject"], prs or [])
             if naming:
                 in_flight += 1
                 print("    open PR naming it: " + "; ".join(f"#{n} {t[:80]}" for n, t in naming[:3]))
+            elif held(r):
+                in_flight += 1
+                ts, msg = claims[quality_claim.subject_slug(r["subject"])]
+                print(f"    claimed {max(0, int((now - ts) / 60))} min ago by another session: {msg[:90]}")
             if getattr(args, "no_git", False):
                 continue
             key = (r["subject"], r["audit"])
@@ -947,9 +1008,13 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
             elif c["status"] == "unknown":
                 print(f"    changed since audit: unknown ({c['why']})")
         print(f"{len(rows)} open defects at {args.severity} or worse (no fix PR recorded; source-only left out)")
+        if n_paused:
+            print(paused_note(n_paused, "open defects"))
         if in_flight:
-            print(f"{in_flight} shown already have an open PR naming the subject: extend or wait for that PR,"
-                  " or pick another row (a fix PR that has not merged is not yet in fix_prs)")
+            print(f"{in_flight} shown already have an open PR naming the subject or a live claim: extend or wait for"
+                  " that PR, or pick another row (a fix PR that has not merged is not yet in fix_prs)")
+        print("Before fixing a row: `python3 platform/ci/quality_audit.py claim <subject>` (exit 4: another session"
+              " has it, take the next row)")
         if changed:
             print(f"{changed} shown sit under a subject changed since its audit: check whether a commit already fixed"
                   " it, and if so record that PR in the audit's fix_prs (and the defect's fixed_by) instead of fixing"
@@ -960,11 +1025,12 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
                   " fixed and are not shown; when you fix some of an audit's defects, set fixed_by on each one you"
                   " fixed (portfolio/quality/README.md, 'Fix forward')")
     elif args.cmd == "mode":
-        open_high = len(queue(audits, "high"))
-        print(json.dumps(mode_for(args.date, args.seed, last_reflection(), open_high, len(reaudit_due(audits))), indent=1))
+        open_high = len(drop_paused(queue(audits, "high"), getattr(args, "research", False))[0])
+        due = len(drop_paused(reaudit_due(audits), getattr(args, "research", False))[0])
+        print(json.dumps(mode_for(args.date, args.seed, last_reflection(), open_high, due), indent=1))
     elif args.cmd == "reaudit":
         prs = None if getattr(args, "no_prs", False) else open_pr_titles()
-        rows = reaudit_due(audits, args.seed)
+        rows, n_paused = drop_paused(reaudit_due(audits, args.seed), getattr(args, "research", False))
         if prs:  # subjects an open PR already names go last
             rows.sort(key=lambda r: bool(prs_naming(r["subject"], prs)))
         print(f"seed {args.seed}  (--seed {args.seed} repeats this order)")
@@ -979,4 +1045,6 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
         print(f"{len(rows)} subjects have a recorded fix no later audit has checked. Re-audit one in a new file with"
               ' "drawn_by": "reaudit": check every earlier defect (fixed or not) against the code as it is now and say'
               " which the fix closed (portfolio/quality/README.md, \"Five modes\").")
+        if n_paused:
+            print(paused_note(n_paused, "subjects"))
     return 0

@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+const stripTags = (s) => { let p; do { p = s; s = s.replace(/<[^>]*>/g, ""); } while (s !== p); return s; };
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const NETWORK = /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts|import\(/;
@@ -24,7 +25,7 @@ test("JSON-LD blocks parse and the FAQ matches the page", () => {
   assert.equal(blocks[0].offers.price, "0");
   assert.equal(blocks[1]["@type"], "FAQPage");
   assert.ok(blocks[1].mainEntity.length >= 5);
-  const text = html.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&");
+  const text = stripTags(html).replace(/&amp;/g, "&");
   for (const q of blocks[1].mainEntity) {
     assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
     assert.ok(text.includes(q.acceptedAnswer.text), `answer to "${q.name}" is not shown on the page`);
@@ -113,7 +114,7 @@ test("robots, sitemap, README, LICENSE, VENTURE.yaml and llms.txt exist", () => 
   assert.match(page("README.md"), /No warranty/);
   assert.match(page("README.md"), /https:\/\/marisstella\.app\/regression-discontinuity\//);
   assert.match(page("README.md"), /## Verification/);
-  assert.match(page("LICENSE"), /MIT License/);
+  assert.match(page("LICENSE"), /Functional Source License/);
   assert.match(page("VENTURE.yaml"), /^name: regression-discontinuity$/m);
   assert.match(page("llms.txt"), /regression discontinuity/i);
 });

@@ -2,7 +2,7 @@
 
 > Free browser tool for households with or considering a home battery: reads a year of the utility's smart-meter interval data (Green Button CSV or XML, Smart Meter Texas CSV, any timestamp + kWh CSV; solar exports as negative readings, a received column or a received ESPI series) into net kWh per hour, prices every hour on rate plans written in a short text format (time-of-use by season, day type and hour, US federal holidays, export credits flat, by period, as import minus a charge, or an hourly month-by-hour table, fixed monthly charge), and replays a battery (usable kWh, kW, round trip, backup reserve, grid charging and battery export switches) in self-powered mode, a time-based peak-only mode, and at the perfect-foresight ceiling (a dynamic programme within 0.21% of an exact linear programme on 32 test cases). Shows the yearly saving, payback, cycles, a size sweep and the cheapest of several plans with and without the battery. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice. The example data is synthetic and the example prices invented.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice. The example data is synthetic and the example prices invented.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/home-battery-planner): MIT licensed. CLI: `node cli.mjs --meter usage.csv --plans plans.txt`.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/home-battery-planner): FSL-1.1-MIT licensed. CLI: `node cli.mjs --meter usage.csv --plans plans.txt`.

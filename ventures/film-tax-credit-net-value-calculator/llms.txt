@@ -2,7 +2,7 @@
 
 > Free film and TV production tax credit calculator: the net cash a credit really puts in your budget after the cap, sale discount, fees, bridge-loan interest and the wait, plus the value of one more qualified dollar. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/film-tax-credit-net-value-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/film-tax-credit-net-value-calculator): FSL-1.1-MIT licensed.

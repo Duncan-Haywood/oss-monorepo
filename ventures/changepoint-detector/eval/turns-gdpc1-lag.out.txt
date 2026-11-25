@@ -1,0 +1,24 @@
+Quarters of data after the turn before BBQ calls it for good (final GDPC1 vintage, cut off each quarter)
+  1948Q4 peak   BBQ 1948Q4  called with data to 1949Q2  delay 2 q
+  1953Q3 peak   BBQ 1953Q2  called with data to 1953Q4  delay 2 q
+  1954Q2 trough BBQ 1954Q1  called with data to 1954Q3  delay 2 q
+  1957Q3 peak   BBQ 1957Q3  called with data to 1958Q1  delay 2 q
+  1958Q2 trough BBQ 1958Q1  called with data to 1958Q3  delay 2 q
+  1960Q2 peak   BBQ 1960Q1  called with data to 1960Q3  delay 2 q
+  1961Q1 trough BBQ 1960Q4  called with data to 1961Q2  delay 2 q
+  1969Q4 peak   BBQ 1969Q3  called with data to 1971Q2  delay 7 q
+  1970Q4 trough BBQ 1970Q4  called with data to 1971Q2  delay 2 q
+  1973Q4 peak   BBQ 1973Q4  called with data to 1974Q2  delay 2 q
+  1975Q1 trough BBQ 1975Q1  called with data to 1975Q3  delay 2 q
+  1980Q1 peak   BBQ 1980Q1  called with data to 1980Q3  delay 2 q
+  1980Q3 trough BBQ 1980Q3  called with data to 1981Q1  delay 2 q
+  1981Q3 peak   BBQ 1981Q3  called with data to 1982Q1  delay 2 q
+  1990Q3 peak   BBQ 1990Q3  called with data to 1991Q1  delay 2 q
+  1991Q1 trough BBQ 1991Q1  called with data to 1991Q3  delay 2 q
+  2009Q2 trough BBQ 2009Q2  called with data to 2009Q4  delay 2 q
+  2019Q4 peak   BBQ 2019Q4  called with data to 2020Q2  delay 2 q
+  2020Q2 trough BBQ 2020Q2  called with data to 2020Q4  delay 2 q
+
+19 turns; delay min 2, median 2, max 7 quarters
+  peaks: 2 2 2 2 2 2 2 2 2 7
+  troughs: 2 2 2 2 2 2 2 2 2

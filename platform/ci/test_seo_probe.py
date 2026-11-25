@@ -215,6 +215,28 @@ class Gsc(unittest.TestCase):
         self.assertEqual((x["found"], x["rank"], x["impressions"]), (True, 11.0, 40))
         self.assertEqual((brand["found"], brand["impressions"]), (False, 0))
 
+    def test_pages_rank_by_impressions_with_top_queries(self):
+        rows = [
+            {"keys": ["a", "https://marisstella.app/x/"], "clicks": 1, "impressions": 10, "position": 4.0},
+            {"keys": ["b", "https://marisstella.app/x/"], "clicks": 0, "impressions": 30, "position": 12.0},
+            {"keys": ["a", "https://marisstella.app/y/"], "clicks": 0, "impressions": 5, "position": 30.0},
+        ]
+        out = probe.gsc_pages(rows, "2026-10-01", "2026-10-28")
+        self.assertEqual((out["clicks"], out["impressions"]), (1, 45))
+        x, y = out["pages"]
+        self.assertEqual((x["page"], x["clicks"], x["impressions"], x["position"]),
+                         ("https://marisstella.app/x/", 1, 40, 10.0))
+        self.assertEqual(x["ctr"], 0.025)
+        self.assertEqual([q["query"] for q in x["top_queries"]], ["b", "a"])
+        self.assertEqual(y["page"], "https://marisstella.app/y/")
+        self.assertEqual(probe.gsc_pages([], "s", "e")["pages"], [])
+
+    def test_bad_secret_is_unmeasured_not_a_traceback(self):
+        with mock.patch.dict("os.environ", {"GSC_SERVICE_ACCOUNT_JSON": "not json"}, clear=True):
+            self.assertEqual(probe.main(["gsc"]), probe.EXIT_UNMEASURED)
+        with mock.patch.dict("os.environ", {"GSC_SERVICE_ACCOUNT_JSON": '{"type": "x"}'}, clear=True):
+            self.assertEqual(probe.main(["gsc"]), probe.EXIT_UNMEASURED)
+
     def test_jwt_signs_and_verifies_with_openssl(self):
         if not shutil.which("openssl"):
             self.skipTest("no openssl")

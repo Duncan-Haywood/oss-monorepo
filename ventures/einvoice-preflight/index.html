@@ -110,6 +110,7 @@
       official EN 16931, XRechnung and Peppol rules can run here too.
       Everything stays in this browser tab.
     </p>
+    <p class="note free-edition" id="free-edition"><strong>This is the free edition.</strong> It stays free and keeps working, with fixes and page polish. A paid edition that fixes and explains rejected e-invoices for SMEs and their accountants is <a href="https://marisstella.app/industries/eu-e-invoicing/">in development — early access</a>; nothing is for sale yet.</p>
     <details class="checks">
       <summary>What the built-in rules catch</summary>
       <ul>
@@ -177,7 +178,7 @@
     </section>
     <section class="card" id="pack-card" aria-labelledby="pack-h" hidden>
       <h2 id="pack-h">Branded audit pack</h2>
-      <p class="note">The result above as one evidence document on your own letterhead: your name and logo, a verdict, a row per file, findings grouped by rule with the fix, and a fixed statement of what a preflight does and does not show. Print it or save it as PDF for a client file or an audit trail. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; every check, repair, CSV and JSON download stays free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type or drop is uploaded; only the key is sent to the licence server.</p>
+      <p class="note">The result above as one evidence document on your own letterhead: your name and logo, a verdict, a row per file, findings grouped by rule with the fix, and a fixed statement of what a preflight does and does not show. Print it or save it as PDF for a client file or an audit trail. Unlock it with a licence key. The code is FSL-1.1-MIT, so the key is an honest-buyer convenience, not copy protection; every check, repair, CSV and JSON download stays free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type or drop is uploaded; only the key is sent to the licence server.</p>
       <p id="pack-buy-row" hidden><a id="pack-buy" rel="noopener" target="_blank">Buy a licence key</a></p>
       <p><label>Licence key <input id="pack-key" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="pack-check">Check key</button> <span id="pack-state" role="status"></span></p>
       <div id="pack-fields" hidden>
@@ -215,8 +216,11 @@
       a Peppol, EN 16931, or tax-law validator and it does not submit anything.
     </p>
     <p class="muted">
-      Prefer a pipeline? The same checks run from
-      <code>python3 -m einvoice_preflight invoice.json</code> in this directory.
+      Prefer a pipeline? For JSON, UBL, CII and Factur-X files the built-in checks also run from
+      <code>python3 -m einvoice_preflight invoice.json</code> in this directory: on the 42 such files shipped
+      with the tool it reports the same rules as this page, except the PDF/A notes, which only this page shows.
+      National formats (FatturaPA, KSeF, CFDI, NAV, NF-e, Facturae, VERI*FACTU and others) and the official
+      Schematron box are this page and the Node API only.
     </p>
   </section>
   <h2>Common questions</h2>
@@ -334,16 +338,17 @@
     <label><input id="peppol" type="checkbox" style="width:auto"> Also apply the Peppol BIS Billing 3.0 rules (business process, specification id, electronic addresses) &mdash; for invoices sent through a Peppol access point</label><br>
     <label><input id="france" type="checkbox" style="width:auto"> Also apply the French rules (SIREN/SIRET check digits, late-penalty, 40&nbsp;&euro; recovery indemnity and early-payment-discount mentions; with &ldquo;official Schematron&rdquo; ticked, also FNFE-MPE&rsquo;s BR-FR rules, the checks French approved platforms run) &mdash; for invoices to French buyers under the 2026 e-invoicing reform</label><br>
     <label><input id="slovakia" type="checkbox" style="width:auto"> Also apply the Slovak rules (the Peppol rules plus the address, DIČ electronic address and payment account fields the Financial Administration's table requires) &mdash; for domestic Slovak invoices from 1 January 2027</label><br>
-    <label><input id="peppolNext" type="checkbox" style="width:auto"> With the official Schematron, check a Peppol file against <strong>Peppol BIS 3.1.0</strong> instead of 3.0.22 &mdash; published 23 November 2026, enforced by access points from 24 February 2027; each finding the new release adds is marked (new Luxembourg and Belgian VAT checks, GLN-only scheme 0088, the Dutch identifier warnings becoming errors, mandatory-element rules)</label><br>
+    <label><input id="peppolNext" type="checkbox" style="width:auto"> With the official Schematron, check a Peppol file against <strong>Peppol BIS 3.1.0</strong> instead of 3.0.22 &mdash; due for publication on 23 November 2026 (not yet tagged on OpenPeppol&rsquo;s GitHub on 24 November; these rules are from its release-candidate branch), enforced by access points from 24 February 2027; each finding the new release adds is marked (new Luxembourg and Belgian VAT checks, GLN-only scheme 0088, the Dutch identifier warnings becoming errors, mandatory-element rules)</label><br>
     <label><input id="official" type="checkbox" style="width:auto"> Also run the official EN 16931 Schematron (and the XRechnung / Peppol add-ons for the chosen profile) &mdash; XML invoices only; runs in your browser from the rules published with this page (the file stays on your machine); only a copy without those rules <strong>sends the file to the server this page is served from</strong></label><br>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
     <p>This is a preflight observation, not a declaration that an invoice is valid or compliant. It never phrases a result as “you may submit” or “this invoice is legally valid.”</p>
     <p>Everything runs in your browser. Invoice contents are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day — <code>invoice_preflight_attempted</code> and <code>invoice_preflight_checked</code> — never filenames or invoice data. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Sending through Peppol? The <a href="peppol-bis-3-1-0-readiness.html">Peppol BIS 3.1.0 readiness check</a> takes a whole folder of sent invoices and lists the ones that pass today and will be rejected from 24 February 2027, by rule, with the fix.</p>
     <p>Keeping evidence for an auditor or a client? The <a href="audit-pack-for-accountants.html">printable audit pack for accountants</a> puts every file's preflight result in one report (<a href="sample-audit-pack.html">see a sample</a>).</p>
     <p>Also assembling evidence for a different kind of audit? The <a href="../fifo-pick-evidence/">FIFO pick evidence tool</a> turns a warehouse pick-log CSV into a portable exception report before a customer audit &mdash; nothing uploaded. Selling to EU consumers across borders? The <a href="../eu-vat-oss-calculator/">EU VAT OSS calculator</a> checks the EUR 10,000 threshold and builds the quarterly One-Stop-Shop return from a sales CSV.</p>
-    <p>Free and open source. If it caught a defect before a rejection, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+    <p>Free to use and source available. If it caught a defect before a rejection, the <a href="LICENSE">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. FSL-1.1-MIT licensed.</p>
   </footer>
   <script type="module">
     // The checker engine (114 modules, about 3.3 MB) loads on demand, so the
@@ -351,8 +356,7 @@
     let engine = null;
     let engineLoad = null;
     const loadEngine = () => (engineLoad ||= import("./page-engine.mjs").then((m) => (engine = m)));
-    import { buyLink, checkLicence } from "./licence.mjs";
-    import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
+    import { wireBuyButton, checkLicence } from "./licence.mjs";
     import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
 
     const VALID_EXAMPLE = {
@@ -567,13 +571,13 @@
     // Audit pack: dark until a checkout link is set in checkout.mjs (no card, no Buy button).
     {
       const $ = (id) => document.getElementById(id);
-      const buy = buyLink(CHECKOUT_URL);
+      const buy = wireBuyButton($("pack-buy"), { onKey: (k) => { $("pack-key").value = k; $("pack-check").click(); }, onStatus: (m) => { if (m) $("pack-state").textContent = m; } });
       let packLogo = "";
-      if (buy) { $("pack-buy").href = buy; $("pack-buy-row").hidden = false; $("pack-card").hidden = false; }
+      if (buy) { $("pack-buy-row").hidden = false; $("pack-card").hidden = false; }
       $("pack-logo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { packLogo = ""; return; } const r = new FileReader(); r.onload = () => { packLogo = String(r.result); }; r.readAsDataURL(f); });
       $("pack-check").addEventListener("click", async () => {
         $("pack-state").textContent = "Checking...";
-        const v = await checkLicence($("pack-key").value, { url: VALIDATE_URL });
+        const v = await checkLicence($("pack-key").value);
         $("pack-state").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason;
         $("pack-fields").hidden = !v.valid;
       });

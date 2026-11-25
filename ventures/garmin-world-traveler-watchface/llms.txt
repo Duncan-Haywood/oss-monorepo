@@ -2,7 +2,7 @@
 
 > A Garmin Connect IQ watch face with a fixed 24-hour ring and 42 world cities placed at their current local hour. No permissions, no network.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/garmin-world-traveler-watchface): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/garmin-world-traveler-watchface): FSL-1.1-MIT licensed.

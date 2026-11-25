@@ -94,3 +94,38 @@ hearth-and-horizon | Weber-Fechner, just-noticeable difference | a choir, a dimm
 hearth-and-horizon | Mpemba effect, Mpemba | the claim that hot water can freeze before cold: a school, a rink or an ice-maker tests it and finds it depends on the container, the frost and the definition of 'frozen'; a contested result, told as contested
 hearth-and-horizon | Zipf's law, Zipf | a parish library, a dictionary for a revived language or a word-learning app finds the hundredth word used about a hundredth as often as the first, so a short list covers most of speech and never quite all of it
 hearth-and-horizon | Rayleigh scattering, Rayleigh | why the sky is blue and the low sun red: short wavelengths scatter as the inverse fourth power, so a lamp, a filter or a mountain view chosen by colour turns on a ratio of about five and a half between violet and red
+hearth-and-horizon | rolling resistance | a parish's hand-pulled bier or a charity wheelchair push that is twice as hard on gravel; the coefficient, not the slope, sets the effort, and pumping the tyres up is the cheap fix someone has to be persuaded of
+hearth-and-horizon | Matthew effect | a grants panel or a choir's solo rota where whoever got the first chance gets the next; cumulative advantage from a small early lead, and a lottery as the fairer rule
+for-other-minds | gambler's ruin, random walk | a food bank's reserve whose donations average exactly its spending, and still runs dry
+for-other-minds | Hawthorne | a parish hall's new lighting that seems to make the volunteers faster, until the trial ends and it stops
+for-other-minds | clustering illusion | three falls on the same church step in a fortnight, and whether a run like that needs a cause
+hearth-and-horizon | stable matching, deferred acceptance, Gale-Shapley | placing school-leavers with boatyards or farms in a small town: first-come offers leave pairs who would both rather swap, and deferred acceptance ends the swapping, at a cost to whichever side does not propose
+hearth-and-horizon | Buffon's needle | a parish floor of pine boards and a dropped box of matches: counting how many cross a seam estimates pi, slowly, and teaches a child why one afternoon's answer is rough
+hearth-and-horizon | Arrow's theorem, ranked voting | a village choosing a new name or a hall colour by ranked ballot, where every counting rule the committee tries has a flaw someone can point to
+
+# Added 2026-11-24 (process run): each checked unused with overlap.mjs; about 95 obvious
+# subjects were tried and 70 were already taken, so look past the textbook names.
+hearth-and-horizon | gambler's fallacy | the raffle drum or the coin that "is due" for heads; independent draws have no memory
+hearth-and-horizon | prisoner's dilemma, tit for tat | two neighbouring stalls deciding whether to cut prices; repeated every week, cooperation can hold
+hearth-and-horizon | Bernoulli trial, negative binomial | how many raffle tickets to sell before the prize is likely claimed
+hearth-and-horizon | gear ratio, bicycle gear | why the low gear climbs the hill: turns of the pedal traded for force at the wheel
+hearth-and-horizon | flywheel | a potter's wheel or a hand pump with a heavy wheel that smooths out each push
+hearth-and-horizon | total internal reflection | why the underside of the water in a fish tank shines like a mirror
+hearth-and-horizon | chain fountain, Mould effect | beads that leap up out of a jar before falling to the floor
+hearth-and-horizon | catenary | a rope or power line hanging between two posts, and why pulling it straight needs infinite tension
+hearth-and-horizon | Brazil nut effect, granular convection | why the big nuts rise to the top of a shaken tin
+hearth-and-horizon | Maillard | why toast browns and boiled bread does not
+hearth-and-horizon | sound insulation, mass law | why a heavier wall stops more of the neighbour's music, and a gap undoes it
+hearth-and-horizon | Pareto principle, 80/20 | a fifth of the volunteers doing most of the work, and what that does to a rota
+hearth-and-horizon | compound interest, rule of 72 | a small parish savings fund growing over decades
+hearth-and-horizon | sunk cost | a half-built hall extension the committee keeps funding because of what it already cost
+hearth-and-horizon | pigeonhole principle | why two people in a town of a thousand must share initials
+for-other-minds | power analysis, statistical power | a trial of a new hall heating rota too small to show the effect it was meant to find
+for-other-minds | multi-armed bandit, explore-exploit | an agent choosing between a known good tool and an untried one, and how often to try the new one
+for-other-minds | Chesterton's fence | an agent finding an odd check in old code and asking why it is there before deleting it
+for-other-minds | Cromwell's rule | an agent that sets a probability of zero and can never be talked out of it
+for-other-minds | Occam, parsimony | two explanations that both fit a log, and why the shorter one is the better bet
+for-other-minds | Dunning-Kruger | a confidence that is highest where skill is lowest, and the shaky evidence for the effect itself
+for-other-minds | publication bias, file drawer | the studies that found nothing never printed, so the printed ones overstate
+for-other-minds | mediation, mediator | the new bus route raises attendance through earlier arrival, not through the route itself
+for-other-minds | omitted variable | a regression that credits the hymn books with what the new heating did

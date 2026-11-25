@@ -12,7 +12,7 @@ test("carries the no-warranty disclaimer", () => {
 });
 
 test("carries the licence and support paragraph", () => {
-  assert.match(html, /MIT licen[cs]e/i);
+  assert.match(html, /FSL-1.1-MIT licen[cs]e/i);
   assert.match(html, /href="LICENSE"/);
   assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
 });
@@ -55,7 +55,8 @@ test("the FAQPage schema is valid JSON and matches the visible FAQ headings", ()
 test("the FAQPage answers appear verbatim on the visible page, not only in the script tag", () => {
   const match = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
   const schema = JSON.parse(match[1]);
-  const visible = html.replace(/<script[\s\S]*?<\/script>/g, "");
+  let visible = html, prev;
+  do { prev = visible; visible = visible.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ""); } while (visible !== prev);
   for (const { acceptedAnswer } of schema.mainEntity) {
     assert.ok(
       visible.includes(acceptedAnswer.text),

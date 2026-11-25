@@ -2,7 +2,7 @@
 
 > Free inherited IRA 10-year rule calculator: plan how much to withdraw each year to empty the account by the deadline at the lowest tax, with the yearly required minimum if the owner had started RMDs. Runs in your browser, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/inherited-ira-10-year-withdrawal-planner): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/inherited-ira-10-year-withdrawal-planner): FSL-1.1-MIT licensed.

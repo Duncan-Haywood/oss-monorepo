@@ -189,14 +189,16 @@
       "what": "Sonnet 5.5 cache reads priced at $0.20/MTok; Anthropic's pricing page and the Claude API skill list $0.10 (0.05x input). Every Sonnet cost is overstated, so the headline is understated: matched cost 8.45x [6.37,10.64] not 6.31x, cost per call 2.70x not 2.00x, cost per self-estimated human hour 1.91x [1.50,2.38] not 1.43x [1.11,1.72]. The rate card is shared (prompts/pricing.json), so other cost studies inherit it",
       "where": "prompts/pricing.json:14",
       "category": "source-data",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19000"
     },
     {
       "severity": "high",
       "what": "README states 'cache reads cost the same (0.20)' and builds the per-call reading on it; with the published prices the 6.3x / 1.43x headline (README:1, :17, :23, project.json title/summary) is wrong",
       "where": "research/free-modelcost/README.md:25",
       "category": "overclaim",
-      "origin": "claims"
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15117"
     },
     {
       "severity": "medium",
@@ -217,7 +219,8 @@
       "what": "'cache reads dominate cost (swe-cachecost: 86%)' misquotes swe-cachecost, whose 86% is cache reads plus writes; the cache-read share of cost in this data is 0.46 (0.30 for Sonnet at the published price)",
       "where": "research/free-modelcost/README.md:25",
       "category": "overclaim",
-      "origin": "claims"
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15117"
     },
     {
       "severity": "medium",
@@ -250,7 +253,8 @@
   ],
   "fix_prs": [
     "https://github.com/Duncan-Haywood/oss-monorepo/pull/15117",
-    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15120"
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15120",
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/19000"
   ],
   "verdict": "The stratified estimator is implemented as described: an independent reimplementation on the same window reproduces tool calls 3.16x, cache-read per call 1.92x and human hours 3.62x. The cost results do not hold. The shared rate card prices Sonnet 5.5 cache reads at $0.20/MTok where Anthropic's pricing page lists $0.10, and the README repeats this ('cache reads cost the same'). At the published price an Opus run costs 8.45x a matched Sonnet run (not 6.31x) and 1.91x per self-estimated human hour (not 1.43x, outside the published interval). The README also misquotes swe-cachecost's 86% (reads plus writes), cannot be reproduced (run.py reads the growing run log; a rerun gives 5.02x over 101 Opus runs), cites no prior work on cost-aware agent evaluation, and its tests catch 1 of 6 seeded core mutations. Below the bar on correctness, claims and verification.",
   "notes": "Mutations reverted with git checkout under PYTHONDONTWRITEBYTECODE=1; git diff --stat research/free-modelcost empty afterwards. The pricing error lives in prompts/pricing.json (shared by runcost.py and other swe-* studies), so a fix there changes newly measured run records, not old ones; this study would need to re-price from token counts (recompute.py shows how)."

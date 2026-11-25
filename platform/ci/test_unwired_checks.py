@@ -246,7 +246,7 @@ class PullRequestTrigger(unittest.TestCase):
         names = [u.node_name(p) for p in u.unwired_node_suites()]
         self.assertIn("platform/devlog/devlog.test.mjs", names)
         self.assertIn("platform/proposal/term-ids.test.mjs", names)
-        self.assertNotIn("platform/pages/home.test.mjs", names)  # portfolio-pages.yml runs it
+        self.assertNotIn("platform/pages/home.test.mjs", names)  # priv-portfolio-pages.yml runs it
 
     def test_underscore_named_node_suites_count(self):
         """2026-11-17: the six platform/ci/test_check_*.mjs suites matched no
@@ -285,6 +285,27 @@ class PullRequestTrigger(unittest.TestCase):
             self.assertTrue(out.startswith(u.SKIPPED))
         self.assertIn("cd platform/s && node --test r.test.mjs",
                       u.report([("platform/s/r.test.mjs", 1, "boom")]))
+
+    def test_a_declared_but_uninstalled_npm_package_is_a_skip_not_a_red(self):
+        # platform/aws/stacks/saas-starter (PR 18765) imports @aws-sdk/client-s3
+        # from its own package.json; no workflow runs npm ci there, so every
+        # venture PR's changed-ventures job went red on main's code.
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "platform/s/test").mkdir(parents=True)
+            (root / "platform/s/package.json").write_text(
+                '{"dependencies": {"@aws-sdk/client-s3": "3.0.0"}}')
+            (root / "platform/s/test/n.test.mjs").write_text(
+                "import { test } from 'node:test';\nimport '@aws-sdk/client-s3';\ntest('x', () => {});\n")
+            (root / "platform/s/test/t.test.mjs").write_text(
+                "import { test } from 'node:test';\nimport 'not-declared-pkg';\ntest('x', () => {});\n")
+            name, rc, out = u.run_node_suite(root / "platform/s/test/n.test.mjs", root=root)
+            self.assertEqual(rc, 0, out)
+            self.assertTrue(out.startswith(u.SKIPPED), out)
+            self.assertIn("@aws-sdk/client-s3", out)
+            # An import nobody declared is a real break and stays red.
+            name, rc, out = u.run_node_suite(root / "platform/s/test/t.test.mjs", root=root)
+            self.assertNotEqual(rc, 0)
 
 
 class PortfolioSuites(unittest.TestCase):
@@ -334,6 +355,36 @@ class PortfolioSuites(unittest.TestCase):
     def test_a_portfolio_suite_says_how_to_rerun_it(self):
         self.assertIn("cd portfolio/ledger && python3 -m pytest -q test_x.py",
                       u.reproduce("portfolio/ledger/test_x.py"))
+
+
+class Triggers(unittest.TestCase):
+    """A suite this script runs is seen only on a pull request that starts
+    ventures-tests.yml (red-team finding 2026-11-25: platform/billing)."""
+
+    WF = ("on:\n  pull_request:\n    paths:\n      - \"ventures/**\"\n"
+          "      # a comment\n      - 'platform/ci/**'\n      - platform/pages/*.mjs\n"
+          "  push:\n    paths:\n      - \"push/only/**\"\njobs: {}\n")
+
+    def test_only_the_pull_request_paths_are_read(self):
+        self.assertEqual(u.pr_path_globs(self.WF),
+                         ["ventures/**", "platform/ci/**", "platform/pages/*.mjs"])
+        self.assertEqual(u.pr_path_globs("on:\n  pull_request:\njobs: {}\n"), [])
+
+    def test_a_star_stays_in_its_folder_and_a_double_star_does_not(self):
+        self.assertTrue(u.path_glob_re("platform/pages/*.mjs").match("platform/pages/a.mjs"))
+        self.assertFalse(u.path_glob_re("platform/pages/*.mjs").match("platform/pages/x/a.mjs"))
+        self.assertTrue(u.path_glob_re("platform/**").match("platform/billing/server.mjs"))
+
+    def test_a_suite_whose_folder_no_glob_covers_is_reported(self):
+        globs = u.pr_path_globs(self.WF)
+        got = u.untriggered([u.ROOT / "platform/billing/billing.test.mjs",
+                             u.ROOT / "platform/ci/x.test.mjs",
+                             u.ROOT / "platform/pages/y.test.mjs",
+                             u.ROOT / "push/only/z.test.mjs"], globs, u.ROOT)
+        self.assertEqual(got, ["platform/billing/billing.test.mjs", "push/only/z.test.mjs"])
+
+    def test_the_real_workflow_starts_for_every_suite_it_runs(self):
+        self.assertEqual(u.untriggered_suites(), [])
 
 if __name__ == "__main__":
     unittest.main()

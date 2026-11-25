@@ -1,0 +1,57 @@
+Milestone 7an: 36 designs x 64 plants; quiet+O at 16 angles, full at 8; bisection on [0.01, 3.0] m, 10 halvings; wall 1618 s
+  quiet+O: cells 36864, censored (alive at 3.0 m) 5484, dead at 0.01 m 0
+  full: cells 18432, censored (alive at 3.0 m) 3195, dead at 0.01 m 0
+RC0 7am quiet+O s=1: interpolated r_c predicts 0.9766 of 2304 flights (dead 464, predicted 410; bar >= 0.95) -> held
+RC1 quiet+O: 31380 finite r_c cells, share also dead at 1.5 r_c 0.9990 (bar >= 0.99) -> held
+RC2 quiet+O: 994 (design, plant) pairs finite at all angles; per-axis request has the smaller CV in 0.000 (median CV per-axis 0.407, vector 0.325; bar >= 0.75) -> REFUTED
+    median r_c(th) / its mean over angles: 0: 1.770, 22.5: 1.002, 45: 0.825, 67.5: 0.840, 90: 1.024, 112.5: 0.840, 135: 0.825, 157.5: 1.002, 180: 1.770, 202.5: 1.002, 225: 0.825, 247.5: 0.840, 270: 1.024, 292.5: 0.840, 315: 0.825, 337.5: 1.002
+RC3 quiet+O: per-design minimum per-axis critical request (alive bracket) min 3.17, median 4.03 m/s^2; designs below 4.0: 17 (bar: none) -> REFUTED
+    kp10: floor range 3.48-6.47 m/s^2
+    wide: floor range 3.17-3.91 m/s^2
+RC4 quiet+O: share of 30696 cells with r_c(th) / r_c(th+90) within 5% 0.315 (median |ratio-1| 0.1901; bar >= 0.90) -> REFUTED
+RC5: 13335 cells finite in both arms; median r_c(full) / r_c(quiet+O) 0.955 (IQR 0.863-1.028; bar 0.8-1.0) -> held
+RC6 cap at 3.0 m: deaths quiet+O 4 of 36864, full 5 of 18432 (bar: 0) -> REFUTED
+Per design (quiet+O): label geom seed kp | guaranteed radius min lo (m) at angle | kp * radius | worst angle by median r_c
+            t45 above 0 kp  9.99 | 0.559 m at 67.5 deg | 5.59 m/s^2 | median worst at 45 deg (1.016 m)
+            t45 above 1 kp  9.98 | 0.527 m at 67.5 deg | 5.26 m/s^2 | median worst at 45 deg (1.090 m)
+            t45 above 2 kp  9.98 | 0.518 m at 67.5 deg | 5.17 m/s^2 | median worst at 45 deg (0.952 m)
+            t45 above 3 kp  9.99 | 0.550 m at 67.5 deg | 5.49 m/s^2 | median worst at 45 deg (1.068 m)
+            t45 above 4 kp  9.99 | 0.509 m at 67.5 deg | 5.09 m/s^2 | median worst at 45 deg (0.849 m)
+            t45 above 5 kp 10.00 | 0.547 m at 67.5 deg | 5.47 m/s^2 | median worst at 45 deg (0.955 m)
+            t45 below 0 kp  9.99 | 0.612 m at 67.5 deg | 6.11 m/s^2 | median worst at 45 deg (0.890 m)
+            t45 below 1 kp 10.00 | 0.594 m at 67.5 deg | 5.94 m/s^2 | median worst at 45 deg (0.868 m)
+            t45 below 2 kp  9.99 | 0.644 m at 67.5 deg | 6.43 m/s^2 | median worst at 45 deg (0.903 m)
+            t45 below 3 kp  9.99 | 0.676 m at 67.5 deg | 6.75 m/s^2 | median worst at 45 deg (0.928 m)
+            t45 below 4 kp  9.98 | 0.652 m at 67.5 deg | 6.51 m/s^2 | median worst at 45 deg (0.906 m)
+            t45 below 5 kp  9.99 | 0.915 m at 45 deg | 9.14 m/s^2 | median worst at 0 deg (3.000 m)
+        t45 cap above 0 kp 10.00 | 0.436 m at 67.5 deg | 4.36 m/s^2 | median worst at 45 deg (0.711 m)
+        t45 cap above 1 kp 10.00 | 0.483 m at 67.5 deg | 4.83 m/s^2 | median worst at 45 deg (0.863 m)
+        t45 cap above 2 kp 10.00 | 0.466 m at 67.5 deg | 4.65 m/s^2 | median worst at 45 deg (0.766 m)
+        t45 cap above 3 kp  9.98 | 0.503 m at 67.5 deg | 5.02 m/s^2 | median worst at 45 deg (0.848 m)
+        t45 cap above 4 kp  9.98 | 0.503 m at 67.5 deg | 5.03 m/s^2 | median worst at 45 deg (0.949 m)
+        t45 cap above 5 kp  9.97 | 0.524 m at 67.5 deg | 5.22 m/s^2 | median worst at 45 deg (0.829 m)
+        t45 cap below 0 kp  9.96 | 0.638 m at 67.5 deg | 6.35 m/s^2 | median worst at 45 deg (0.895 m)
+        t45 cap below 1 kp  9.99 | 0.515 m at 67.5 deg | 5.15 m/s^2 | median worst at 67.5 deg (0.772 m)
+        t45 cap below 2 kp 10.00 | 0.626 m at 67.5 deg | 6.26 m/s^2 | median worst at 45 deg (0.890 m)
+        t45 cap below 3 kp  9.97 | 0.647 m at 67.5 deg | 6.45 m/s^2 | median worst at 45 deg (0.902 m)
+        t45 cap below 4 kp 10.00 | 0.565 m at 67.5 deg | 5.65 m/s^2 | median worst at 67.5 deg (0.784 m)
+        t45 cap below 5 kp  9.99 | 0.655 m at 67.5 deg | 6.54 m/s^2 | median worst at 45 deg (0.931 m)
+   t45 cap wide above 0 kp 28.33 | 0.153 m at 67.5 deg | 4.34 m/s^2 | median worst at 67.5 deg (0.225 m)
+   t45 cap wide above 1 kp 26.74 | 0.168 m at 67.5 deg | 4.48 m/s^2 | median worst at 45 deg (0.274 m)
+   t45 cap wide above 2 kp 26.48 | 0.162 m at 67.5 deg | 4.29 m/s^2 | median worst at 45 deg (0.271 m)
+   t45 cap wide above 3 kp 23.46 | 0.171 m at 67.5 deg | 4.00 m/s^2 | median worst at 67.5 deg (0.258 m)
+   t45 cap wide above 4 kp 28.58 | 0.153 m at 67.5 deg | 4.38 m/s^2 | median worst at 45 deg (0.258 m)
+   t45 cap wide above 5 kp 31.47 | 0.136 m at 90 deg | 4.27 m/s^2 | median worst at 67.5 deg (0.210 m)
+   t45 cap wide below 0 kp 24.09 | 0.197 m at 67.5 deg | 4.74 m/s^2 | median worst at 67.5 deg (0.287 m)
+   t45 cap wide below 1 kp 29.84 | 0.144 m at 90 deg | 4.31 m/s^2 | median worst at 67.5 deg (0.226 m)
+   t45 cap wide below 2 kp 30.23 | 0.159 m at 67.5 deg | 4.80 m/s^2 | median worst at 67.5 deg (0.235 m)
+   t45 cap wide below 3 kp 21.66 | 0.238 m at 67.5 deg | 5.15 m/s^2 | median worst at 67.5 deg (0.340 m)
+   t45 cap wide below 4 kp 28.64 | 0.179 m at 67.5 deg | 5.14 m/s^2 | median worst at 67.5 deg (0.260 m)
+   t45 cap wide below 5 kp 28.99 | 0.162 m at 67.5 deg | 4.69 m/s^2 | median worst at 67.5 deg (0.241 m)
+Post hoc vector floor: per-design minimum of kp * r_c (alive bracket, any angle) min 4.00, median 5.15 m/s^2; kp10 4.36-9.14, wide 4.00-5.15; cap A_P = 3.5 m/s^2
+Post hoc axis asymmetry: median r_c(0 deg) / r_c(90 deg) 1.126 (x censored at 3.0 m in 1310 of 2304; y in 1062); r_c(th) = r_c(th + 180) exactly in 0.999 of cells, r_c(th) = r_c(-th) in 0.999
+Post hoc capped deaths at 3.0 m: quiet+O: t45 cap wide below 2 plant 15 at 45 deg (uncapped r_c 0.174 m); t45 cap wide below 2 plant 15 at 135 deg (uncapped r_c 0.174 m); t45 cap wide below 2 plant 15 at 225 deg (uncapped r_c 0.174 m); t45 cap wide below 2 plant 15 at 315 deg (uncapped r_c 0.174 m)
+    full: t45 cap wide below 2 plant 15 at 90 deg (uncapped r_c 0.153 m); t45 cap wide below 2 plant 15 at 225 deg (uncapped r_c 0.147 m); t45 cap wide below 2 plant 30 at 225 deg (uncapped r_c 0.138 m); t45 cap wide below 2 plant 42 at 90 deg (uncapped r_c 0.174 m); t45 cap wide below 2 plant 42 at 225 deg (uncapped r_c 0.136 m)
+Post hoc side force off: r_c(0) and r_c(90) within 5% in 1.000 of 1065 cells (side force on: 0.000 of 994); censored 1239 and 1236 (on: 1310 and 1062)
+Post hoc side force off: r_c(45) and r_c(135) within 5% in 1.000 of 2258 cells (side force on: 1.000 of 2258); censored 46 and 46 (on: 46 and 46)
+    side force off, median r_c over flights finite at 45 deg: 0.830 m (on: 0.760 m)

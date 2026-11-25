@@ -71,13 +71,14 @@ test('a real build writes the page, a catalogue and one json per app', async () 
   // The page used to have no link back to the rest of the site at all.
   const page = await fs.readFile(path.join(out, 'index.html'), 'utf8');
   assert.match(page, /class="pfs-brand" href="\.\.\/" data-pf-to="hub"/);
-  assert.match(page, /data-pfs-nav="deploy" href="\.\.\/deploy\/" aria-current="page"/);
+  assert.match(page, /data-pfs-head/, "the site header is on the page");
+  assert.doesNotMatch(page, /data-pfs-nav="deploy"/, "Self-host left the top navigation on 2026-11-25");
   // Its own search box keeps its id; the header's is a different one.
   assert.equal(page.match(/id="q"/g).length, 1);
 }, { timeout: 120000 });
 
 test('the CLI the pages workflow runs builds into --out and says how many apps', async () => {
-  // portfolio-pages.yml runs `node platform/deploy/build.mjs --out=...`; the
+  // priv-portfolio-pages.yml runs `node platform/deploy/build.mjs --out=...`; the
   // entry block was untested (red team 2026-11-18: an off-by-one in the
   // --out= slice and a flipped main-module check both passed every test).
   const { execFileSync } = await import('node:child_process');

@@ -11,7 +11,7 @@ from einvoice_preflight.iban import inspect_payment_iban, looks_like_complete_ib
 from einvoice_preflight.ubl import parse_ubl_invoice
 
 
-def _invoice(iban=None):
+def _invoice(account=None):
     invoice = {
         "invoice_number": "INV-1",
         "issue_date": "2026-08-24",
@@ -21,8 +21,8 @@ def _invoice(iban=None):
         "lines": [{"description": "Work", "quantity": 2, "unit_price": 100, "tax_percent": 19, "net": 200}],
         "totals": {"net": 200, "tax": 38, "gross": 238},
     }
-    if iban is not None:
-        invoice["payment"] = {"iban": iban, "remittance": "INV-1"}
+    if account is not None:
+        invoice["payment"] = {"iban": account, "remittance": "INV-1"}
     return invoice
 
 

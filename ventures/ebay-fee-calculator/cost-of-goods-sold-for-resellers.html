@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e7d1b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cost of goods sold for resellers | eBay Fee &amp; Profit Calculator</title>
+  <meta name="description" content="How resellers cost each item and lot: price paid, sales tax and freight-in, splitting a mixed lot by resale value, and the Schedule C Part III inventory math.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="cost-of-goods-sold-for-resellers.html">
+  <meta property="og:title" content="Cost of goods sold for resellers">
+  <meta property="og:description" content="How resellers cost each item and each lot: what goes into cost (price paid, sales tax, freight-in), allocating a mixed lot by expected resale value, and the year-end inventory formula on Schedule C Part III.">
+  <meta property="og:type" content="article">
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.6; background: #eef2f7; }
+    a { color: #3569cb; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); letter-spacing: -.03em; line-height: 1.12; }
+    h2 { margin-top: 2rem; }
+    .scroller { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d3dce6; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a5666; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    tr.total td { font-weight: 650; border-top: 2px solid #1d2530; }
+    .note { font-size: .88rem; color: #4a5666; }
+    .cta { background: #fff; border: 1px solid #d3dce6; border-radius: 10px; padding: 14px 16px; margin: 1.6rem 0; }
+    .sources li { margin-bottom: .35rem; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4a5666; }
+  </style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What counts as cost of goods sold for a reseller?","acceptedAnswer":{"@type":"Answer","text":"What you paid for the items you sold: the purchase price, sales tax you paid on it, buyer's premiums, and freight-in to get it to you. Shipping to your buyer, marketplace fees and packaging are selling expenses, recorded separately."}},{"@type":"Question","name":"How do I split the cost of a lot or a pallet?","acceptedAnswer":{"@type":"Answer","text":"Divide the total cost (price, tax and freight-in) in proportion to each piece's expected resale value, write the method down, and use it consistently. In the worked example a $120.00 lot puts $21.82 on each $60 piece and $1.82 on each $5 piece, instead of $6.00 on everything."}},{"@type":"Question","name":"Can I deduct inventory I bought but have not sold?","acceptedAnswer":{"@type":"Answer","text":"Generally not in the year you buy it. Unsold items stay in ending inventory (Schedule C line 41) and are deducted as cost of goods sold when they sell. Small businesses that meet the gross-receipts test have simplified options described in Publication 334, but items are still deducted when sold under the materials-and-supplies treatment. Ask a tax professional which applies to you."}},{"@type":"Question","name":"What about items I pulled for personal use?","acceptedAnswer":{"@type":"Answer","text":"Their cost comes out of purchases on Schedule C line 36, so they are not deducted as goods sold."}}]}</script>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; eBay fee &amp; profit calculator</a></p>
+  <h1>Cost of goods sold for resellers: per item and per lot</h1>
+  <p>
+    Cost of goods sold is usually a reseller's largest deduction and the one most often
+    guessed. It is also the one that decides whether a sale was profitable at all: a
+    marketplace fee calculator can tell you what a sale <em>pays out</em>, but only your
+    cost tells you what it <em>earned</em>. This guide covers the two jobs: costing each
+    item when you buy it, and turning those costs into the year-end figure on
+    Schedule C, Part III.
+  </p>
+  <h2>What goes into an item's cost</h2>
+  <ul>
+    <li><strong>The price you paid</strong>, including sales tax you paid on the purchase and buyer's premiums at an auction.</li>
+    <li><strong>Getting it to you</strong> (freight-in): the shipping you paid to receive a lot or a pallet.</li>
+    <li><strong>Not</strong> your shipping to the buyer, marketplace fees or packaging: those are selling expenses, recorded when you sell (see the <a href="schedule-c-worksheet-for-resellers.html">Schedule C worksheet</a>).</li>
+  </ul>
+  <p>
+    Tag each item with its cost when you list it: a cost field in your listing tool, a
+    note in the SKU, or a column in your inventory sheet. Cost written down at purchase
+    is a record; cost reconstructed in April is a guess.
+  </p>
+  <h2>One item: the simple case</h2>
+  <p>
+    A jacket bought at a thrift store for $8.00 plus $0.64 of sales tax costs $8.64.
+    When it sells, $8.64 moves from inventory to cost of goods sold. If it never sells,
+    the $8.64 stays in inventory at year end; it is not deducted just because you paid for it.
+  </p>
+  <h2>A lot: split the cost by expected resale value</h2>
+  <p>
+    A mixed lot of 20 pieces costs $100.00, plus $12.00 to ship it to you and $8.00 of
+    sales tax: $120.00 in all. Splitting it equally puts $6.00 on every piece, which books
+    a guaranteed loss on every $5 item and makes the two $60 pieces look far better
+    than they are. Splitting by expected resale value spreads the cost in proportion to
+    what each piece should bring:
+  </p>
+  <div class="scroller">
+  <table>
+    <thead><tr><th scope="col">Pieces</th><th scope="col" class="num">Expected price each</th><th scope="col" class="num">Expected total</th><th scope="col" class="num">Cost each</th><th scope="col" class="num">Cost total</th></tr></thead>
+    <tbody>
+      <tr><td>2 premium</td><td class="num">$60.00</td><td class="num">$120.00</td><td class="num">$21.82</td><td class="num">$43.64</td></tr>
+      <tr><td>8 mid</td><td class="num">$20.00</td><td class="num">$160.00</td><td class="num">$7.27</td><td class="num">$58.16</td></tr>
+      <tr><td>10 low</td><td class="num">$5.00</td><td class="num">$50.00</td><td class="num">$1.82</td><td class="num">$18.20</td></tr>
+      <tr class="total"><td>20 pieces</td><td class="num"></td><td class="num">$330.00</td><td class="num"></td><td class="num">$120.00</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>
+    Each piece's cost is $120.00 &times; its expected price &divide; $330.00. Write the
+    method down and use it consistently; the IRS asks that your inventory method clearly
+    reflect income and be applied the same way from year to year. Pieces you donate,
+    keep or throw away come out of inventory too, not out of cost of goods sold at full value.
+  </p>
+  <p>
+    To see whether a lot is worth breaking up at all on eBay, the calculator's
+    <a href="should-i-break-an-ebay-lot-into-individual-listings.html">lot vs individual listings</a>
+    page prices both, including your listing time.
+  </p>
+  <h2>The year-end figure: Schedule C, Part III</h2>
+  <p>
+    Per-item costs are the working records. On the return, cost of goods sold is a
+    formula over the whole year (lines 35 to 42):
+  </p>
+  <div class="scroller">
+  <table>
+    <thead><tr><th scope="col">Line</th><th scope="col">What it is</th><th scope="col" class="num">Example</th></tr></thead>
+    <tbody>
+      <tr><td>35</td><td>Inventory at the beginning of the year (last year's line 41)</td><td class="num">$1,800.00</td></tr>
+      <tr><td>36</td><td>Purchases, less the cost of items withdrawn for personal use</td><td class="num">$6,400.00</td></tr>
+      <tr><td>37&ndash;39</td><td>Cost of labor, materials and supplies, other costs (often $0 for a pure reseller)</td><td class="num">$0.00</td></tr>
+      <tr><td>40</td><td>Add lines 35 through 39</td><td class="num">$8,200.00</td></tr>
+      <tr><td>41</td><td>Inventory at the end of the year: the cost of everything still unsold</td><td class="num">$2,100.00</td></tr>
+      <tr class="total"><td>42</td><td>Cost of goods sold (line 40 minus line 41), carried to line 4</td><td class="num">$6,100.00</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>
+    The ending inventory count is where per-item costs pay off: if every unsold item
+    carries its cost, line 41 is a sum, not an estimate. Line 33 asks which method you
+    used to value closing inventory (cost, lower of cost or market, or other).
+  </p>
+  <p>
+    Small businesses that meet the gross-receipts test can choose not to keep
+    inventories in the traditional way, treating inventory as non-incidental materials
+    and supplies or following the method in their own books (Publication 334, chapter 2;
+    Publication 538). Under the materials-and-supplies treatment an item is still
+    deducted when it is sold, not when it is bought, so per-item costs remain the record
+    you need. Whether that method suits you is a question for a tax professional.
+  </p>
+  <h2>Sources</h2>
+  <ul class="sources">
+    <li>IRS, <a href="https://www.irs.gov/instructions/i1040sc">Instructions for Schedule C (Form 1040)</a>, Part III, lines 33&ndash;42.</li>
+    <li>IRS, <a href="https://www.irs.gov/publications/p334">Publication 334, Tax Guide for Small Business</a>, chapter 2 (inventories) and chapter 6 (cost of goods sold).</li>
+    <li>IRS, <a href="https://www.irs.gov/publications/p538">Publication 538, Accounting Periods and Methods</a>, inventories.</li>
+  </ul>
+  <div class="cta">
+    <p><strong>Track true profit across every platform.</strong> This is the job we are building <strong>Seller Books</strong> for: payout files from eBay, Poshmark, Mercari, Whatnot, Depop and more in, fees split out, cost of goods per item or per lot, and a Schedule C-shaped profit and loss out. It is <strong>in development &mdash; early access</strong>: see <a href="https://marisstella.app/industries/online-sellers/">tools for online sellers</a>. Today you can already drop your exports into the free, in-browser <a href="../reseller-books/">Reseller Books tool</a>; nothing is uploaded.</p>
+  </div>
+  <h2 id="faq">Common questions</h2>
+  <h3>What counts as cost of goods sold for a reseller?</h3>
+  <p>What you paid for the items you sold: the purchase price, sales tax you paid on it, buyer's premiums, and freight-in to get it to you. Shipping to your buyer, marketplace fees and packaging are selling expenses, recorded separately.</p>
+  <h3>How do I split the cost of a lot or a pallet?</h3>
+  <p>Divide the total cost (price, tax and freight-in) in proportion to each piece's expected resale value, write the method down, and use it consistently. In the worked example a $120.00 lot puts $21.82 on each $60 piece and $1.82 on each $5 piece, instead of $6.00 on everything.</p>
+  <h3>Can I deduct inventory I bought but have not sold?</h3>
+  <p>Generally not in the year you buy it. Unsold items stay in ending inventory (Schedule C line 41) and are deducted as cost of goods sold when they sell. Small businesses that meet the gross-receipts test have simplified options described in Publication 334, but items are still deducted when sold under the materials-and-supplies treatment. Ask a tax professional which applies to you.</p>
+  <h3>What about items I pulled for personal use?</h3>
+  <p>Their cost comes out of purchases on Schedule C line 36, so they are not deducted as goods sold.</p>
+  <p class="note">Reseller bookkeeping guides: <a href="how-to-reconcile-marketplace-payouts-to-sales.html">How to reconcile marketplace payouts to sales</a> &middot; <a href="schedule-c-worksheet-for-resellers.html">Schedule C worksheet for resellers</a> &middot; <a href="./">eBay fee &amp; profit calculator</a></p>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> This free guide is not legal, tax, financial, or business advice, and it does not replace a qualified tax professional. Tax rules change and depend on your facts; check the IRS sources linked above for the year you are filing, and verify every fee rate against your own marketplace statements. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p>eBay, Etsy, Poshmark, Mercari, Whatnot, Depop and other marketplace names are trademarks of their owners, used here only to describe the reports a seller works with. This guide is not affiliated with, endorsed by, or sponsored by any of them, or by the IRS.</p>
+    <p><strong>Nothing leaves your browser.</strong> This page has no form and records nothing you type. <strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

@@ -24,7 +24,7 @@ function run({ stored = {}, persist, persisted = false, noStorageApi = false }) 
     localStorage: { getItem: (k) => store[k] ?? null, setItem: (k, v) => { store[k] = v; } },
     navigator: noStorageApi ? {} : { storage: { persisted: async () => persisted, persist: async () => persist } },
   };
-  vm.runInNewContext(GUARD_SCRIPT.replace(/^<script[^>]*>|<\/script>$/g, ''), ctx);
+  vm.runInNewContext(GUARD_SCRIPT.replace(/^<script\b[^>]*>|<\/script\b[^>]*>$/gi, ''), ctx);
   return { el, store, click: () => onClick({ target: { closest: () => ({}) } }) };
 }
 const tick = () => new Promise((r) => setTimeout(r, 0));

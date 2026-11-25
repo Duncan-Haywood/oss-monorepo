@@ -2,7 +2,7 @@
 
 > Free instrumental variables (IV) regression tool. Upload a CSV with an outcome, one or more endogenous regressors, excluded instruments and exogenous controls, and get OLS, two-stage least squares, LIML and Fuller (a = 1) side by side with unadjusted, heteroskedasticity-robust or cluster-robust standard errors; first-stage R-squared, partial R-squared, Shea's partial R-squared, the first-stage F and the Montiel Olea-Pflueger effective F; Sargan and Hansen J tests of the overidentifying restrictions; Durbin, Wu-Hausman and control-function tests of exogeneity; and the Anderson-Rubin confidence set (one endogenous regressor), which stays valid when instruments are weak. Matches linearmodels 7.1 within 1e-11. Runs in the browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial, medical, policy or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not legal, tax, financial, medical, policy or professional advice.
 
 ## Pages
 
@@ -22,4 +22,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/instrumental-variables): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/instrumental-variables): FSL-1.1-MIT licensed.

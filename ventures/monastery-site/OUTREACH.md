@@ -44,7 +44,7 @@ of doing it. This file only makes the emails good and lawful.
 ## What every email does
 
 - Says who is writing (the owner's real name) and why, in the first two lines.
-- Is honest: free, open source, no catch; what it does and what it does not do
+- Is honest: free, source available, no catch; what it does and what it does not do
   (it does not handle donations; it links to theirs).
 - Has a subject line that says what the email is ("A free website for your
   community's vocations and giving pages"), never a fake "Re:".

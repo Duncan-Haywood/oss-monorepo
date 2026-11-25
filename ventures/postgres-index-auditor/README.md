@@ -32,5 +32,5 @@ Not modelled: foreign keys that need a supporting index, replicas, statistics
 age, bloat. Statistics reset and are per-server; the output is a list of
 candidates to check, never a decision. No warranty; see the page footer.
 
-Tests: `node --test`. MIT licensed (`LICENSE`); no secrets, no private
+Tests: `node --test`. FSL-1.1-MIT licensed (`LICENSE`); no secrets, no private
 dependencies, no personal data.

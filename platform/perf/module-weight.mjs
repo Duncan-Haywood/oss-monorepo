@@ -1,21 +1,30 @@
 // Module weight sweep: for each ventures/<slug>/index.html, walk the static ES
 // import graph of its module scripts and print the gzip total, largest first.
-// Usage: node platform/perf/module-weight.mjs .   (repo root)
+// Usage: node platform/perf/module-weight.mjs [.]            (repo root: every venture)
+//        node platform/perf/module-weight.mjs ventures/<slug> (one venture)
 // A page over ~200 kB gzip makes its buttons wait for all of it; follow up
 // with module-exclusive.mjs to see what a dynamic import would save.
 import fs from 'node:fs'; import path from 'node:path'; import zlib from 'node:zlib';
-const root = process.argv[2];
+const arg = path.resolve(process.argv[2] || '.');
+// A venture dir (no ventures/ inside, an index.html of its own) is swept alone;
+// passing one used to crash with ENOENT on ventures/<slug>/ventures.
+const single = !fs.existsSync(path.join(arg,'ventures')) && fs.existsSync(path.join(arg,'index.html'));
+if (!single && !fs.existsSync(path.join(arg,'ventures'))) {
+  console.error(`module-weight: ${arg} is neither the repo root (no ventures/) nor a venture dir (no index.html)`);
+  process.exit(2);
+}
+const root = single ? path.dirname(path.dirname(arg)) : arg;
 // \s* (not \s+) around the clause so minified `import{a}from'./a.mjs'` counts too.
 const staticRe = /(?:^|[;\n}])\s*import\s*(?:[\w*{}\s,$]+?\s*from\s*)?['"]([^'"]+)['"]/g;
 const exportFromRe = /export\s*(?:\*(?:\s*as\s+[\w$]+)?|\{[^}]*\})\s*from\s*['"]([^'"]+)['"]/g;
 function deps(src){ const out=[]; for (const re of [staticRe, exportFromRe]) { re.lastIndex=0; let m; while((m=re.exec(src))) out.push(m[1]); } return out; }
 const rows=[];
-for (const v of fs.readdirSync(path.join(root,'ventures'))) {
+for (const v of single ? [path.basename(arg)] : fs.readdirSync(path.join(root,'ventures'))) {
   const html = path.join(root,'ventures',v,'index.html');
   if (!fs.existsSync(html)) continue;
   const h = fs.readFileSync(html,'utf8');
   const seen = new Map(); const stack=[];
-  const scriptRe = /<script\b([^>]*)>([\s\S]*?)<\/script>/g; let m;
+  const scriptRe = /<script\b([^>]*)>([\s\S]*?)<\/script\b[^>]*>/gi; let m;
   while ((m=scriptRe.exec(h))) {
     if (!/type=["']?module/.test(m[1])) continue;
     const srcm = /src=["']([^"']+)["']/.exec(m[1]);

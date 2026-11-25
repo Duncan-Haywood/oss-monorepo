@@ -73,7 +73,7 @@ ${body}
 <footer>
   ${DISCLAIMER}
   <p><strong>No warranty.</strong> These stories, recordings and videos are provided free and as-is, without warranty of any kind, express or implied. They are not theological, pastoral or philosophical advice, and they do not replace a priest, a catechist, a teacher or reading Thomas himself; check anything you rely on against the sources linked on each page. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
-  <p>Stories, audio and video: <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>, so parishes, teachers and creators may repost, cut and adapt them with credit. Code: MIT. Source: <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/sed-contra">GitHub</a>.</p>
+  <p>Stories, audio and video: <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>, so parishes, teachers and creators may repost, cut and adapt them with credit. Code: FSL-1.1-MIT. Source: <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/sed-contra">GitHub</a>.</p>
   <p>Related: <a href="../saints-by-candlelight/">Saints by Candlelight</a> (bedtime saints podcast) · <a href="../hearth-and-horizon/">Hearth &amp; Horizon</a> (Catholic science fiction).</p>
   <p><strong>Privacy.</strong> No accounts, cookies or analytics vendor. We count anonymous events in this browser only (pages opened, audio and video played). <button id="usageToggle" type="button">Turn off counting</button></p>
 </footer>

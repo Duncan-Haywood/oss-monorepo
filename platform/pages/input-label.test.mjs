@@ -36,7 +36,7 @@ import { fileURLToPath } from 'node:url';
 // Resolved from this file, not from the working directory. It was `'ventures'`
 // until 2026-09-07, which resolves only when the runner happens to stand in
 // the repository root -- and the workflow step that runs this suite does not:
-// `portfolio-pages.yml` invokes `node --test "*.test.mjs"` from
+// `priv-portfolio-pages.yml` invokes `node --test "*.test.mjs"` from
 // `platform/pages`. So the very first statement in the test threw
 // `ENOENT: scandir 'ventures'` and the run was red without ever reading a page.
 //

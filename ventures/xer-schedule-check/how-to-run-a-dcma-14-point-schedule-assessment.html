@@ -46,7 +46,7 @@
       <tr><td>7</td><td>Negative float</td><td>0%</td><td>A constraint or must-finish date the logic cannot meet: the schedule says the job is already late.</td></tr>
       <tr><td>8</td><td>High duration</td><td>&le; 5% over 44 days</td><td>Activities too coarse to status or manage month to month.</td></tr>
       <tr><td>9</td><td>Invalid dates</td><td>0</td><td>Actual dates after the data date, or forecast dates before it.</td></tr>
-      <tr><td>10</td><td>Resources</td><td>0% without resources or cost</td><td>The schedule cannot support resource or cost reports (only fails where the contract requires loading).</td></tr>
+      <tr><td>10</td><td>Resources</td><td>0% without resources or cost</td><td>The schedule cannot support resource or cost reports (only fails where the contract requires loading). A resource assignment or an expense (P6 PROJCOST, such as a subcontract or material line) both count as loading, the same as in the earned value report.</td></tr>
       <tr><td>11</td><td>Missed tasks</td><td>&le; 5%</td><td>Work planned to be done by now that finished late or not at all.</td></tr>
       <tr><td>12</td><td>Critical path test</td><td>Finish moves by the added delay</td><td>Something on the path (a constraint, lag or broken link) is absorbing delay, so the reported critical path cannot be trusted.</td></tr>
       <tr><td>13</td><td>Critical path length index (CPLI)</td><td>&ge; 0.95</td><td>The remaining path is longer than the time left to the required finish.</td></tr>
@@ -101,12 +101,14 @@
     <li><a href="./how-to-run-an-as-planned-vs-as-built-schedule-analysis.html">How to run an as-planned vs as-built schedule analysis</a></li>
       <li><a href="./how-to-split-concurrent-delay-between-owner-and-contractor.html">How to split concurrent delay between owner and contractor</a></li>
     <li><a href="./how-to-review-the-calendars-in-a-p6-schedule.html">How to review the calendars in a P6 schedule</a></li>
+    <li><a href="./how-to-check-a-p6-schedule-against-the-contract-specification.html">How to check a P6 schedule against the contract specification</a></li>
+    <li><a href="./how-to-break-down-a-dcma-assessment-by-subcontractor.html">How to break down a DCMA assessment by subcontractor or WBS</a></li>
 </ul>
 </main>
 <footer>
     <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or scheduling advice; the contract and a qualified scheduler decide. The example project is invented.</p>
     <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera, Microsoft or the Defense Contract Management Agency. Product names are trademarks of their owners and are named only to describe file formats.</p>
-    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free to use and source available under the FSL-1.1-MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
   </footer>
 </body>
 </html>

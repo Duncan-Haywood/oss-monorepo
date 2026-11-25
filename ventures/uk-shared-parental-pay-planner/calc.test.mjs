@@ -88,9 +88,62 @@ test("weeks beyond the last known rate are flagged", () => {
   assert.ok(r.findings.some((f) => /6 April 2027/.test(f.title)));
 });
 
+test("dates before the first known rate year are flagged (red team 2026-11-24)", () => {
+  const early = run({ expectedDate: "2024-09-01", motherEmploymentStart: "2020-01-01", partnerEmploymentStart: "2020-01-01" });
+  assert.ok(early.findings.some((f) => /before 6 April 2025/.test(f.title)));
+  // A qualifying week before 6 April 2025 with all paid weeks after it still warns.
+  const qwOnly = run({ expectedDate: "2025-07-15", motherEmploymentStart: "2020-01-01", partnerEmploymentStart: "2020-01-01" });
+  assert.equal(qwOnly.current.before, false);
+  assert.ok(qwOnly.findings.some((f) => /before 6 April 2025/.test(f.title)));
+  assert.ok(!run({}).findings.some((f) => /before 6 April 2025/.test(f.title)));
+});
+
+test("each SMP week takes the standard rate in force on its own date (red team 2026-11-24)", () => {
+  // Due week starts 2026-01-11: SMP weeks 7-12 fall before 6 April 2026, the rest after.
+  const r = run({ expectedDate: "2026-01-15", motherEmploymentStart: "2020-01-01", smpWeeks: "39", partnerWeeks: "" });
+  const smp = r.current.rows.filter((x) => /SMP at the lower/.test(x.phase));
+  assert.deepEqual(smp.map((x) => [x.weekly, x.weeks]), [[187.18, 7], [194.32, 26]]);
+});
+
+test("the scenario table steps the partner's share by 4 weeks from 0 (red team 2026-11-24)", () => {
+  const r = run({});
+  assert.deepEqual(r.scenarios.map((s) => s.partnerWeeks), [0, 4, 8, 12, 13]);
+});
+
 test("summary names the verify line and the disclaimer", () => {
   const t = summaryText(run({}));
   assert.match(t, /GOV\.UK/);
   assert.match(t, /Not legal, payroll or employment advice/);
   assert.match(t, /<- your plan/);
+});
+
+// A part week counts as a whole week (ERA 1996 s.212(1); ShPP (General)
+// Regs 2014 reg 34; SPM250800). GOV.UK's employer calculator, due 2026-11-20,
+// asks for a contract "covering 14 February 2026": the Saturday of the 26th
+// week back from the qualifying week (2026-08-02). Red team 2026-11-24.
+test("continuous employment: a start any day of the 26th week back qualifies", () => {
+  for (const d of ["2026-02-08", "2026-02-11", "2026-02-14"]) {
+    const r = run({ motherEmploymentStart: d, partnerEmploymentStart: d });
+    assert.equal(r.mother.lengthOk, true, d);
+    assert.equal(r.partner.lengthOk, true, d);
+    assert.equal(r.mother.employedWeeks, 26, d);
+  }
+  const late = run({ motherEmploymentStart: "2026-02-15" });
+  assert.equal(late.mother.lengthOk, false);
+  assert.equal(late.mother.employedWeeks, 25);
+});
+
+// Red team 2026-11-24: escaped mutants on row grouping and the same-rate note.
+test("rows keep SMP, partner and mother weeks apart even at the same weekly amount", () => {
+  const r = run({ partnerWeeks: "6" }); // both parents' ShPP and late SMP are all 194.32
+  const rows = r.current.rows;
+  assert.deepEqual(rows.map((x) => [x.phase.split(":")[0], x.weeks]), [["Mother", 6], ["Mother", 20], ["Partner", 6], ["Mother", 7]]);
+});
+
+test("the same-weekly-ShPP note needs equal rates, not just two eligible parents", () => {
+  const same = run({});
+  assert.equal(same.findings.some((f) => f.title.startsWith("Both parents get the same weekly ShPP")), true);
+  const diff = run({ motherWeekly: "150" }); // 90% = 135, below the standard rate
+  assert.equal(diff.mother.eligible && diff.partner.eligible, true);
+  assert.equal(diff.findings.some((f) => f.title.startsWith("Both parents get the same weekly ShPP")), false);
 });

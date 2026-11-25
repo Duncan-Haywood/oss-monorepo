@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="de"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E-Rechnung Fehlermeldungen erklärt: XRechnung, EN 16931, Peppol</title>
+<meta name="description" content="Was 74 Fehler bei XRechnung (BR-DE), EN 16931 (BR-CO, BR-S) und Peppol (PEPPOL-EN16931) bedeuten und wie Sie sie beheben, mit korrigiertem XML.">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/de/">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/">
+<meta property="og:title" content="E-Rechnung Fehlermeldungen erklärt: XRechnung, EN 16931, Peppol">
+<meta property="og:description" content="Was 74 Fehler bei XRechnung (BR-DE), EN 16931 (BR-CO, BR-S) und Peppol (PEPPOL-EN16931) bedeuten und wie Sie sie beheben, mit korrigiertem XML.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Woher stammen diese Regel-IDs?","acceptedAnswer":{"@type":"Answer","text":"Aus den offiziellen Prüfartefakten: dem XRechnung-Schematron der KoSIT für BR-DE-Regeln, den EN-16931-Validierungsartefakten von CEN/TC 434 für BR-Regeln und den BIS-Billing-3-Regeln von OpenPeppol für PEPPOL-Regeln. Jede Seite nennt die Version und verlinkt sie."}},{"@type":"Question","name":"Ist eine Warnung eine Abweisung?","acceptedAnswer":{"@type":"Answer","text":"Nein. Eine Regel mit dem Schweregrad Warnung oder Hinweis weist die Rechnung in den offiziellen Regelwerken nicht allein ab, eine empfangende Plattform kann aber strenger sein. Ein Fehler (fatal) führt zur Abweisung."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-invoice Preflight</p>
+<h1>Fehlermeldungen bei E-Rechnungen, erklärt</h1>
+<p>74 Prüfregeln, an denen E-Rechnungen scheitern oder die sie beanstanden, jeweils mit Bedeutung, typischen Ursachen, Lösung und korrigiertem XML-Ausschnitt. Regel-IDs und Meldungen stammen aus den offiziellen Regelwerken, die auf jeder Seite genannt sind.</p>
+<nav class="langs" aria-label="Andere Sprachen"><a href="../en/index.html" hreflang="en" lang="en">English</a><a href="../fr/index.html" hreflang="fr" lang="fr">Français</a></nav>
+</header>
+<section>
+<h2>EN 16931 Grundregeln (alle E-Rechnungen in der EU)</h2>
+<p class="note"><a href="https://github.com/ConnectingEurope/eInvoicing-EN16931/tree/validation-1.3.17" rel="noopener">CEN/TC 434 EN 16931 validation artefacts validation-1.3.17</a></p>
+<ul class="rules">
+<li><a href="br-27.html"><strong>BR-27</strong></a>: Nettopreis des Artikels ist negativ</li>
+<li><a href="br-49.html"><strong>BR-49</strong></a>: Zahlungsanweisungen ohne Code der Zahlungsart</li>
+<li><a href="br-61.html"><strong>BR-61</strong></a>: Überweisung ohne Empfängerkonto</li>
+<li><a href="br-62.html"><strong>BR-62</strong></a>: Elektronische Adresse des Verkäufers ohne Schema-Kennung</li>
+<li><a href="br-63.html"><strong>BR-63</strong></a>: Elektronische Adresse des Käufers ohne Schema-Kennung</li>
+<li><a href="br-ae-10.html"><strong>BR-AE-10</strong></a>: Umsatzsteuer-Aufschlüsselung „Reverse Charge“ ohne Befreiungsgrund</li>
+<li><a href="br-cl-14.html"><strong>BR-CL-14</strong></a>: Ländercode ist kein ISO-3166-1-Code</li>
+<li><a href="br-cl-23.html"><strong>BR-CL-23</strong></a>: Mengeneinheit ist kein Code nach UN/ECE-Empfehlung 20/21</li>
+<li><a href="br-co-09.html"><strong>BR-CO-09</strong></a>: USt-IdNr. beginnt nicht mit einem gültigen Ländercode</li>
+<li><a href="br-co-10.html"><strong>BR-CO-10</strong></a>: Summe der Positionsnettobeträge passt nicht zu den Rechnungspositionen</li>
+<li><a href="br-co-13.html"><strong>BR-CO-13</strong></a>: Gesamtbetrag ohne USt passt nicht zu Positionen, Nachlässen und Zuschlägen</li>
+<li><a href="br-co-14.html"><strong>BR-CO-14</strong></a>: Umsatzsteuer-Gesamtbetrag entspricht nicht der Summe der Aufschlüsselung</li>
+<li><a href="br-co-15.html"><strong>BR-CO-15</strong></a>: Gesamtbetrag mit USt ist nicht Betrag ohne USt plus USt</li>
+<li><a href="br-co-16.html"><strong>BR-CO-16</strong></a>: Fälliger Betrag ist nicht Gesamtbetrag minus Vorauszahlung plus Rundung</li>
+<li><a href="br-co-17.html"><strong>BR-CO-17</strong></a>: Steuerbetrag der Aufschlüsselung passt nicht zu Bemessungsgrundlage mal Steuersatz</li>
+<li><a href="br-co-26.html"><strong>BR-CO-26</strong></a>: Verkäufer hat weder Kennung noch Registernummer noch USt-IdNr.</li>
+<li><a href="br-dec-23.html"><strong>BR-DEC-23</strong></a>: Positionsnettobetrag mit mehr als zwei Nachkommastellen</li>
+<li><a href="br-e-10.html"><strong>BR-E-10</strong></a>: Umsatzsteuer-Aufschlüsselung „steuerfrei“ ohne Befreiungsgrund</li>
+<li><a href="br-s-01.html"><strong>BR-S-01</strong></a>: Normalsatz-Positionen ohne Umsatzsteuer-Aufschlüsselung zum Normalsatz</li>
+<li><a href="br-s-08.html"><strong>BR-S-08</strong></a>: Bemessungsgrundlage zum Normalsatz passt nicht zu den Positionen</li>
+<li><a href="br-s-09.html"><strong>BR-S-09</strong></a>: Umsatzsteuerbetrag zum Normalsatz ist nicht Bemessungsgrundlage mal Steuersatz</li>
+<li><a href="br-z-10.html"><strong>BR-Z-10</strong></a>: Aufschlüsselung zum Nullsatz darf keinen Befreiungsgrund enthalten</li>
+</ul>
+</section>
+<section>
+<h2>XRechnung (Deutschland, BR-DE)</h2>
+<p class="note"><a href="https://github.com/itplr-kosit/xrechnung-schematron/tree/v2.6.0" rel="noopener">KoSIT XRechnung Schematron v2.6.0 (for XRechnung 3.0)</a></p>
+<ul class="rules">
+<li><a href="br-de-1.html"><strong>BR-DE-1</strong></a>: Zahlungsanweisungen fehlen</li>
+<li><a href="br-de-2.html"><strong>BR-DE-2</strong></a>: Kontaktdaten des Verkäufers fehlen</li>
+<li><a href="br-de-3.html"><strong>BR-DE-3</strong></a>: Ort des Verkäufers fehlt</li>
+<li><a href="br-de-4.html"><strong>BR-DE-4</strong></a>: Postleitzahl des Verkäufers fehlt</li>
+<li><a href="br-de-5.html"><strong>BR-DE-5</strong></a>: Ansprechpartner des Verkäufers fehlt</li>
+<li><a href="br-de-6.html"><strong>BR-DE-6</strong></a>: Telefonnummer des Verkäufers fehlt</li>
+<li><a href="br-de-7.html"><strong>BR-DE-7</strong></a>: E-Mail-Adresse des Verkäufers fehlt</li>
+<li><a href="br-de-8.html"><strong>BR-DE-8</strong></a>: Ort des Käufers fehlt</li>
+<li><a href="br-de-9.html"><strong>BR-DE-9</strong></a>: Postleitzahl des Käufers fehlt</li>
+<li><a href="br-de-10.html"><strong>BR-DE-10</strong></a>: Lieferanschrift ohne Ort</li>
+<li><a href="br-de-11.html"><strong>BR-DE-11</strong></a>: Lieferanschrift ohne Postleitzahl</li>
+<li><a href="br-de-14.html"><strong>BR-DE-14</strong></a>: Umsatzsteueraufschlüsselung ohne Steuersatz</li>
+<li><a href="br-de-15.html"><strong>BR-DE-15</strong></a>: Käuferreferenz (Leitweg-ID) fehlt</li>
+<li><a href="br-de-16.html"><strong>BR-DE-16</strong></a>: USt-IdNr., Steuernummer oder Steuervertreter des Verkäufers fehlt</li>
+<li><a href="br-de-17.html"><strong>BR-DE-17</strong></a>: Rechnungsart-Code ist keiner der von XRechnung erwarteten</li>
+<li><a href="br-de-18.html"><strong>BR-DE-18</strong></a>: Skonto-Zeile entspricht nicht dem vorgeschriebenen Format</li>
+<li><a href="br-de-19.html"><strong>BR-DE-19</strong></a>: Zahlungskonto ist bei SEPA-Überweisung keine gültige IBAN</li>
+<li><a href="br-de-20.html"><strong>BR-DE-20</strong></a>: Belastetes Konto ist bei SEPA-Lastschrift keine gültige IBAN</li>
+<li><a href="br-de-21.html"><strong>BR-DE-21</strong></a>: Spezifikationskennung ist nicht die Kennung für XRechnung 3.0</li>
+<li><a href="br-de-22.html"><strong>BR-DE-22</strong></a>: Zwei eingebettete Anlagen haben denselben Dateinamen</li>
+<li><a href="br-de-23-a.html"><strong>BR-DE-23-a</strong></a>: Überweisung ohne Zahlungskonto des Empfängers</li>
+<li><a href="br-de-23-b.html"><strong>BR-DE-23-b</strong></a>: Überweisung enthält zusätzlich Karten- oder Lastschriftangaben</li>
+<li><a href="br-de-24-a.html"><strong>BR-DE-24-a</strong></a>: Kartenzahlung ohne Kartenangaben</li>
+<li><a href="br-de-24-b.html"><strong>BR-DE-24-b</strong></a>: Kartenzahlung enthält zusätzlich Überweisungs- oder Lastschriftangaben</li>
+<li><a href="br-de-25-a.html"><strong>BR-DE-25-a</strong></a>: Lastschrift ohne Lastschriftangaben</li>
+<li><a href="br-de-25-b.html"><strong>BR-DE-25-b</strong></a>: Lastschrift enthält zusätzlich Überweisungskonto oder Kartenangaben</li>
+<li><a href="br-de-26.html"><strong>BR-DE-26</strong></a>: Rechnungskorrektur ohne Bezug auf die korrigierte Rechnung</li>
+<li><a href="br-de-27.html"><strong>BR-DE-27</strong></a>: Telefonnummer des Verkäuferkontakts hat weniger als drei Ziffern</li>
+<li><a href="br-de-28.html"><strong>BR-DE-28</strong></a>: E-Mail-Adresse des Verkäuferkontakts ist nicht korrekt aufgebaut</li>
+<li><a href="br-de-30.html"><strong>BR-DE-30</strong></a>: Lastschrift ohne Gläubiger-Identifikationsnummer</li>
+<li><a href="br-de-31.html"><strong>BR-DE-31</strong></a>: Lastschrift ohne zu belastendes Konto</li>
+<li><a href="br-de-cvd-01.html"><strong>BR-DE-CVD-01</strong></a>: Vertragsnummer fehlt bei einer Rechnung nach der Clean-Vehicles-Richtlinie</li>
+<li><a href="br-de-cvd-02.html"><strong>BR-DE-CVD-02</strong></a>: Vergabe- oder Losnummer fehlt bei einer Rechnung nach der Clean-Vehicles-Richtlinie</li>
+<li><a href="br-de-cvd-03.html"><strong>BR-DE-CVD-03</strong></a>: Keine Rechnungsposition kennzeichnet das saubere Fahrzeug</li>
+<li><a href="br-de-cvd-04.html"><strong>BR-DE-CVD-04</strong></a>: Fahrzeugklasse ist kein zulässiger Wert</li>
+<li><a href="br-de-cvd-05.html"><strong>BR-DE-CVD-05</strong></a>: Attribut für saubere Fahrzeuge hat einen unzulässigen Wert</li>
+<li><a href="br-de-cvd-06-a.html"><strong>BR-DE-CVD-06-a</strong></a>: Position mit CVD-Fahrzeugklasse braucht genau ein cva-Attribut</li>
+<li><a href="br-de-cvd-06-b.html"><strong>BR-DE-CVD-06-b</strong></a>: Position mit cva-Attribut braucht genau eine CVD-Fahrzeugklasse</li>
+<li><a href="br-de-tmp-32.html"><strong>BR-DE-TMP-32</strong></a>: Kein Liefer- oder Leistungsdatum angegeben</li>
+</ul>
+</section>
+<section>
+<h2>Peppol BIS Billing 3</h2>
+<p class="note"><a href="https://github.com/OpenPEPPOL/peppol-bis-invoice-3/tree/3.0.22" rel="noopener">OpenPeppol BIS Billing 3 rules 3.0.22</a></p>
+<ul class="rules">
+<li><a href="peppol-en16931-p0112.html"><strong>PEPPOL-EN16931-P0112</strong></a>: Rechnungsart 326, 384 oder 389 außerhalb der zulässigen Länder</li>
+<li><a href="peppol-en16931-r001.html"><strong>PEPPOL-EN16931-R001</strong></a>: Geschäftsprozess (Profil-ID) fehlt</li>
+<li><a href="peppol-en16931-r003.html"><strong>PEPPOL-EN16931-R003</strong></a>: Weder Käuferreferenz noch Bestellnummer angegeben</li>
+<li><a href="peppol-en16931-r004.html"><strong>PEPPOL-EN16931-R004</strong></a>: Spezifikationskennung ist nicht die von Peppol BIS Billing 3.0</li>
+<li><a href="peppol-en16931-r007.html"><strong>PEPPOL-EN16931-R007</strong></a>: Geschäftsprozess-Kennung ist kein zugelassener Wert</li>
+<li><a href="peppol-en16931-r008.html"><strong>PEPPOL-EN16931-R008</strong></a>: Das Dokument enthält ein leeres Element</li>
+<li><a href="peppol-en16931-r010.html"><strong>PEPPOL-EN16931-R010</strong></a>: Elektronische Adresse des Käufers fehlt</li>
+<li><a href="peppol-en16931-r020.html"><strong>PEPPOL-EN16931-R020</strong></a>: Elektronische Adresse des Verkäufers fehlt</li>
+<li><a href="peppol-en16931-r046.html"><strong>PEPPOL-EN16931-R046</strong></a>: Artikel-Nettopreis ist nicht Bruttopreis minus Preisnachlass</li>
+<li><a href="peppol-en16931-r051.html"><strong>PEPPOL-EN16931-R051</strong></a>: Ein Betrag hat eine andere Währung als die Rechnungswährung</li>
+<li><a href="peppol-en16931-r053.html"><strong>PEPPOL-EN16931-R053</strong></a>: Es muss genau eine Umsatzsteuersumme mit Aufschlüsselung geben</li>
+<li><a href="peppol-en16931-r120.html"><strong>PEPPOL-EN16931-R120</strong></a>: Positions-Nettobetrag passt nicht zu Menge, Preis und Zu- oder Abschlägen</li>
+<li><a href="peppol-en16931-r121.html"><strong>PEPPOL-EN16931-R121</strong></a>: Basismenge des Preises ist null oder negativ</li>
+</ul>
+</section>
+<section>
+<h2>Datei kostenlos prüfen</h2>
+<p>Der kostenlose Prüfer führt die offiziellen Regeln für EN 16931, XRechnung und Peppol in Ihrem Browser aus. Ihre Datei wird nicht hochgeladen.</p>
+<p><a class="button" href="../../index.html">Zum kostenlosen Prüfer</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In Entwicklung — früher Zugang</span></p>
+<h2>Prüfen und erklären für Steuerberater und Rechnungsteams</h2>
+<p>Ein kostenpflichtiger Dienst, der jede verletzte Regel verständlich auf Deutsch, Französisch oder Englisch erklärt und eine korrigierte Datei vorschlägt, ist in Entwicklung. <a href="https://example.invalid/industries/eu-e-invoicing/">Frühen Zugang anfragen</a></p>
+</section>
+<section>
+<h2>Woher stammen diese Regel-IDs?</h2>
+<p>Aus den offiziellen Prüfartefakten: dem XRechnung-Schematron der KoSIT für BR-DE-Regeln, den EN-16931-Validierungsartefakten von CEN/TC 434 für BR-Regeln und den BIS-Billing-3-Regeln von OpenPeppol für PEPPOL-Regeln. Jede Seite nennt die Version und verlinkt sie.</p>
+<h2>Ist eine Warnung eine Abweisung?</h2>
+<p>Nein. Eine Regel mit dem Schweregrad Warnung oder Hinweis weist die Rechnung in den offiziellen Regelwerken nicht allein ab, eine empfangende Plattform kann aber strenger sein. Ein Fehler (fatal) führt zur Abweisung.</p>
+</section>
+<footer>
+<p><strong>Keine Steuer- oder Rechtsberatung.</strong> Diese Seite erklärt, was eine Prüfregel kontrolliert und wie eine Datei sie besteht. Sie sagt nicht, welche umsatzsteuerliche Behandlung für Ihren Umsatz gilt; fragen Sie dazu Ihre Steuerberatung. <strong>Ohne Gewähr (no warranty):</strong> kostenlos und wie besehen; prüfen Sie das Ergebnis, bevor Sie sich darauf verlassen.</p>
+<p>Unser Code und unsere Erklärungen stehen unter der MIT-Lizenz. Offizielle Regelmeldungen werden unter den Lizenzen ihrer Herausgeber zitiert (EUPL-1.2, Apache-2.0, MPL-2.0), die auf jeder Seite genannt sind.</p>
+</footer>
+</main></body></html>

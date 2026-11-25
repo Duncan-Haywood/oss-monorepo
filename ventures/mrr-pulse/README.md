@@ -7,7 +7,7 @@ list with it.
 
 **Live tool:** https://marisstella.app/mrr-pulse/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`**: paste a Stripe subscription export (or load sample data)
   and get MRR, ARR, 12 months of history, logo churn, net revenue retention
@@ -40,8 +40,15 @@ no multi-currency roll-up, no non-Stripe billing. It does not tell you what your
   (graduated or volume) prices (the dashboard counts them), fixed-amount
   coupons. (`COUNT_PAST_DUE=false` also drops past-due.)
 - **Movements**: new, expansion, contraction, churned and reactivated MRR,
-  from the difference between consecutive syncs. A customer who was seen
-  before and returns is *reactivation*, not *new*.
+  from the difference between consecutive syncs, per Stripe customer (since
+  2026-11-25): a customer who drops an add-on is *contraction*, one who swaps
+  a 5,000 plan for an 8,000 plan by cancel-and-create is 3,000 of
+  *expansion*, and only a customer with no paying subscription left counts as
+  a churned logo. The Customers tile counts customers. A CSV row with no
+  customer column (`Customer ID`) stands for its own customer. A customer who
+  was seen before and returns is *reactivation*, not *new*. State saved by an
+  older version (keyed by subscription) is re-keyed on the next sync, so the
+  upgrade books no false churn.
 - **Rates** use the last complete month: logo churn, revenue churn, NRR, GRR,
   quick ratio ((new + expansion + reactivation) ÷ (churn + contraction)).
 - **First sync is approximate.** Stripe has no price history, so the previous
@@ -68,10 +75,11 @@ no multi-currency roll-up, no non-Stripe billing. It does not tell you what your
   worst month, high = best month. Needs two complete months; arithmetic on
   the past, not a prediction.
 - **Customer concentration** (dashboard and `/v1/concentration`): the share of
-  MRR held by the largest subscription, the top 5 and the top 10, with a
-  low / moderate / high band (high: one subscription is 25% or more of MRR).
+  MRR held by the largest customer, the top 5 and the top 10, with a
+  low / moderate / high band (high: one customer is 25% or more of MRR).
   Shares only, no customer or subscription ids. A customer with several
-  subscriptions counts once per subscription.
+  subscriptions counts once (`customers` in the API; it was `subscriptions`
+  before 2026-11-25).
 - One currency per instance (`CURRENCY`, default: your most common); other
   subscriptions are left out and the dashboard says how many. A CSV in the
   browser demo does the same: rows in other currencies are listed as skipped.
@@ -132,10 +140,9 @@ Serve it over HTTPS only (Render does); the dashboard uses HTTP Basic auth.
 
 Found by the [quality audit of 2026-11-13](../../portfolio/quality/audits/2026-11-13-mrr-pulse.json); not fixed yet:
 
-- **Subscriptions, not customers.** Logo churn, the Customers tile and the
-  movements count subscriptions. A customer who drops an add-on shows as
-  churn; one who swaps a 5,000 plan for an 8,000 plan shows as churn plus new
-  rather than 3,000 of expansion.
+- **Signup cohorts are per subscription.** The retention table still counts
+  subscriptions (a customer with two counts twice); the headline, movements
+  and rates are per customer since the 2026-11-25 fix.
 - **Tiered prices are not in MRR.** Graduated and volume prices keep their
   amounts in `tiers`, which a subscription list cannot expand (Stripe allows
   four expansion levels; tiers are five deep). Since the 2026-11-21 re-audit
@@ -147,7 +154,7 @@ Found by the [quality audit of 2026-11-13](../../portfolio/quality/audits/2026-1
 
 No warranty; no uptime guarantee. Figures are computed from the data the API
 returns and are not accounting, tax or financial advice: reconcile against your
-books before using them with investors. MIT licensed. If it saves you a
+books before using them with investors. FSL-1.1-MIT licensed. If it saves you a
 subscription, you can [sponsor the author](https://github.com/sponsors/Duncan-Haywood).
 
 ## Other self-deploy paths

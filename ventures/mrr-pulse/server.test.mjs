@@ -108,3 +108,15 @@ test("/v1/concentration needs the key and returns shares without subscription id
     assert.match(await (await fetch(`${url}/`, { headers: AUTH })).text(), /Customer concentration/);
   } finally { s.close(); }
 });
+
+test("state saved keyed by subscription is re-keyed by customer, so an upgrade books no false churn", async () => {
+  const list = { current: [sub("a", 1000, "active", Date.UTC(2026, 5, 1), { customer: "cus_1" }), sub("b", 500, "active", Date.UTC(2026, 5, 1), { customer: "cus_1" })] };
+  const cfg = setup(list);
+  Object.assign(cfg.state, { last: { a: 1000, b: 500 }, ever: { a: 1, b: 1, gone: 1 }, months: { "2026-10": { month: "2026-10", mrr: 1500, customers: 2, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, reactivationCount: 0, startMrr: 1500, startCustomers: 2 } } });
+  delete cfg.state.keys;
+  await sync(cfg);
+  const row = cfg.state.months["2026-10"];
+  assert.deepEqual([row.churn, row.new, row.churnCount, row.newCount, row.customers, row.mrr], [0, 0, 0, 0, 1, 1500]);
+  assert.equal(cfg.state.keys, "customer");
+  assert.ok(cfg.state.ever.gone);
+});

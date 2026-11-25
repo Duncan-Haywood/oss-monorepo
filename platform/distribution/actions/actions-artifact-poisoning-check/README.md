@@ -11,4 +11,4 @@ Free, read-only checker that scans GitHub Actions workflow YAML for a workflow_r
 
 For a stable pin, replace `@main` with a full commit SHA, or with a `actions-artifact-poisoning-check-v<version>` tag from this repository's Releases once one exists (portfolio/distribution/versions.json has the current version).
 
-Runs [`ventures/actions-artifact-poisoning-check/check.py`](../../../../ventures/actions-artifact-poisoning-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://marisstella.app/actions-artifact-poisoning-check/?ref=gh-action
+Runs [`ventures/actions-artifact-poisoning-check/check.py`](../../../../ventures/actions-artifact-poisoning-check/check.py) (FSL-1.1-MIT, stdlib-only Python, no network calls). Docs: https://marisstella.app/actions-artifact-poisoning-check/?ref=gh-action

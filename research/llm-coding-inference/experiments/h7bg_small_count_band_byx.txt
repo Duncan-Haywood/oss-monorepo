@@ -1,0 +1,13 @@
+pooled draws of the 34 cells with 3 <= expected positives < 6, 2000 draws each, by human positives x in the audit (10 = 10 or more): draws | cv cov % | w3 cov % | w3c5 cov %
+x 0: 1033 | 0.0 | 51.6 | 51.6
+x 1: 4197 | 93.9 | 95.2 | 95.2
+x 2: 8108 | 100.0 | 100.0 | 100.0
+x 3: 11222 | 99.9 | 99.9 | 100.0
+x 4: 11969 | 99.7 | 99.7 | 100.0
+x 5: 10872 | 99.1 | 99.1 | 99.1
+x 6: 8200 | 97.6 | 97.6 | 97.6
+x 7: 5568 | 92.3 | 92.3 | 92.3
+x 8: 3311 | 84.7 | 84.7 | 84.7
+x 9: 1829 | 69.1 | 69.1 | 69.1
+x 10: 1691 | 42.5 | 42.5 | 42.5
+replay check: pooled cv, w3 and w3c5 coverage equal the draws file in every cell

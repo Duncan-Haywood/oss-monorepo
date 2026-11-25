@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVLnvq5Jk9k73U5Y71B",
+  "track": "process",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T18:00:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 18637,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Critique mode could name platform/ci/friction_rank.py --live --ungated --days 3 directly; it found today's fixable cluster in one call, as earlier records also said."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Says open the PR as a draft; the harness says ready for review. Opened it ready.",
+      "did": "opened ready for review",
+      "result": "no effect on landing"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique mode (backlog: only owner rows). Fixed allocate.py --venture: items naming a host the probe refused are now unnumbered (4 friction reports 2026-11-21..24; live case chant-forge archive.org). Gap: items that imply a host without naming it. Checks: test_allocate 154 OK; main_health 316/316; check_posts ok; promptctl validate before merge.",
+  "corrections": [],
+  "redteam": null
+}

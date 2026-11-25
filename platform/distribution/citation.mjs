@@ -46,15 +46,15 @@ export function bibEntry(slug, title) {
 export function citationCff() {
   return `cff-version: 1.2.0
 message: "If you use this software or its research results, please cite them as below."
-title: "oss-monorepo: open-source products and open research"
+title: "oss-monorepo: source-available products and open research"
 type: software
 authors:
   - name: "oss-monorepo contributors"
 repository-code: "${REPO_URL}"
 url: "https://marisstella.app/"
-license: MIT
+license: FSL-1.1-MIT
 abstract: >-
-  A monorepo of MIT-licensed free tools (ventures/) and open research (research/),
+  A monorepo of free tools (ventures/, FSL-1.1-MIT) and open research (research/, MIT),
   produced with AI assistance. The tools are browser calculators, quoting and
   pricing tools, CSV import checkers, CI checks and self-hostable business apps
   for small businesses, freelancers and developers. The research covers mechanism

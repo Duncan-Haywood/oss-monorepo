@@ -22,4 +22,4 @@ Not modelled: decommissioning security, indemnity, crop-damage and easement paym
 termination and assignment rights, income tax, the developer's economics. The tool holds no rate surveys;
 the example numbers are made up. Not legal, tax or financial advice. No warranty; see the page footer.
 
-Tests: `node --test`. MIT licensed (`LICENSE`); no secrets, no private dependencies.
+Tests: `node --test`. FSL-1.1-MIT licensed (`LICENSE`); no secrets, no private dependencies.

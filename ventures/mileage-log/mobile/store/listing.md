@@ -35,7 +35,7 @@ Private by design
 - Locations are stored only on this phone
 - No location is sent to any server, ours or anyone else's
 
-Free and open source (MIT). If it saves you money you can donate to the creator
+Free to use and source available (FSL-1.1-MIT). If it saves you money you can donate to the creator
 from the app. Mileage Log applies published rates to the trips you record. It
 is not tax advice; confirm rates and rules at irs.gov or with a tax professional.
 

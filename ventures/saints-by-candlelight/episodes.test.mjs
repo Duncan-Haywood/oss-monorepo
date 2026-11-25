@@ -153,3 +153,16 @@ test('every episode page title fits a search result, keeping the longest suffix 
   const long = 'Priscilla and Aquila and the Preacher from Alexandria';
   assert.equal(episodeTitle({ title: long }), long);
 });
+
+test('metaDescription keeps every episode page description to 160 characters', async () => {
+  const { metaDescription, META_MAX } = await import('./episodes.mjs');
+  const short = 'A short summary.';
+  assert.equal(metaDescription(short, 'Tag.'), 'A short summary. Tag.');
+  const long = `First sentence that is fine. ${'word '.repeat(60)}end.`;
+  assert.equal(metaDescription(long, 'Tag.'), 'First sentence that is fine. Tag.');
+  const run = `${'word '.repeat(60)}end.`;
+  const out = metaDescription(run, 'Tag.');
+  assert.ok(out.length <= META_MAX && out.endsWith('…'), out);
+  const { loadEpisodes } = await import('./generate.mjs');
+  for (const ep of loadEpisodes()) assert.ok(metaDescription(ep.summary, 'Free bedtime story, full script.').length <= META_MAX, ep.slug);
+});

@@ -56,6 +56,9 @@ function formatText(report) {
     if (analysis.criticalUnknown.length > 0) {
       lines.push(`  !! CRITICAL, UNRECOGNIZED TAG(S): ${analysis.criticalUnknown.map((c) => c.tag).join(', ')} -- any CA that does not implement this tag MUST refuse to issue for this name at all, per RFC 8659. In practice that is every public CA that doesn't specifically support it.`);
     }
+    for (const f of analysis.reservedFlag || []) {
+      lines.push(`  !! RESERVED FLAG BITS: ${f.tag} "${f.value}" has flag ${f.flag}; only 0 and 128 are defined. CAs ignore the extra bits (RFC 8659 section 4.1), so the record still counts, but clear them.`);
+    }
     if (analysis.iodef.length > 0) {
       lines.push(`  Violation reports go to: ${analysis.iodef.join(', ')}`);
     }

@@ -1,0 +1,70 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyfoT6vvnmT2NJ9DErz",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-25T04:41:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Land stalled PR #18793 (pay-app-guides change order log, bet #1 front door) on current main",
+  "projects": [
+    "pay-app-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18847",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "git clone of private-monorepo denied by the auto-mode permission classifier after add_repo succeeded",
+      "effect": "could not work on payapps itself; took the bet's public side"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "'git fetch --deepen=500 origin main' also moves origin/main to the newest main; I had reset to origin/main between fetches and briefly thought main had gone backwards (it had moved forward). Worth one line: re-read origin/main after any fetch."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "Security queue: every listed alert has a claim branch and the rest are triaged false positives awaiting dismissal, yet the queue still lists ~50 alerts; three open PRs (#18843, #18844, #18845) are each another 'triage pass'. Step 0 costs every run a read for no work."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Default is a new working slice of the top bet; the private repo was unreachable and a finished front-door feature for the same bet was stranded in PR #18793 with conflicts",
+      "did": "Merged main into it on my own branch, resolved conflicts (kept both sides), re-ran both suites and preflight, opened PR #18847",
+      "result": "54 + 64 tests pass; the stranded work lands"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new post: the PR's entry is folded into the existing consolidated pay-app post, per the 2026-11-24 consolidation direction",
+      "did": "Re-added the change order log entry to docs/posts/2026-11-24-pay-applications-...md",
+      "result": "one consolidated customer post"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (extended)"
+  ],
+  "goal": "$10k MRR: bet #1 front door (pay-app-guides) gains the change order log that feeds the paid payapps wedge",
+  "notes": "Security queue fully claimed (every alert has a security-fix branch). Routed ventures/1. pay-app-guides: node --test 54 pass 0 fail; pay-application-generator 64 pass 0 fail. Preflight result below.",
+  "corrections": [],
+  "redteam": null
+}

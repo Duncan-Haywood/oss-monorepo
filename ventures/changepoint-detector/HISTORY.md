@@ -23,3 +23,15 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-22) a calmer gate 2026-11-21 decides on the days before the change (README "A calmer wander gate": calm-site falls as Middle, 2% walk 12.50 to 5.42)
 - (moved 2026-11-22) rounds 4-5 2026-11-21: Christmas closure no effect, calm noise quietest
 - (moved 2026-11-23, restored 2026-11-23: PR #18422 dropped it from `next:` without filing it) Search Console and GA4 sources 2026-11-22 (README "Google Analytics 4 as a source")
+- (moved 2026-11-24) composite of 4 FRED coincident series 16/16, 0 false, --turns ships 2026-11-24 (README "A composite of NBER's monthly indicators"), on the page 2026-11-24 (README "Peaks and troughs on the page")
+- (moved 2026-11-24) business lines sim 2026-11-24: composite 0.932 vs revenue 0.869, short of hindsight 0.974 (README "Several business lines")
+- (moved 2026-11-24) SaaS make 2026-11-24: min phase 3 lifts the composite 0.833 to 0.915, NBER 16/16 kept, 0.045 short of hindsight (README "A short-phase rule for composites")
+- (moved 2026-11-24) agency make 2026-11-24: P3 +0.047 again but composite 0.755 vs advance-picked line 0.857, smooth late headcount takes 70% weight (README "third make")
+- (moved 2026-11-24) Curvature word ships under --shape-word panel (README "A curvature word"): slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37
+- (moved 2026-11-24) P3 + warning ship for composites 2026-11-24 (README "P3 and the heavy-late warning together": +0.032 freight, wins on 5 makes)
+- (moved 2026-11-24) pseudo-real-time replay 2026-11-24 (README "Turns called in pseudo-real time", 6-month rule): called ~7 months after, 7 of 12 before NBER, 2001 peak lost once 2020 sets the weights
+- (moved 2026-11-24) P3 replay 2026-11-24 (README "under P3": same call months, adds the 2002-03 pair, Q2 fails)
+- (moved 2026-11-24) MAD weights in real time 2026-11-24 (README "Composite weights set in real time": 16 of 16 called, 8 of 12 before NBER, M3 fails under P3, the 2002-03 pair kept)
+- (moved 2026-11-24) real vintages 2026-11-24 (README "Turns on real vintages": FRED-MD 1999-2021, 2001 peak and 2009 trough dated 4 months off for years, V2/V4 fail)
+- (moved 2026-11-24) heavy-late warning ships 2026-11-24 (README "A heaviest-is-latest warning")
+- (moved 2026-11-24) tolerant call rule 2026-11-24 (README "A tolerant call rule on real vintages": 6-month window calls 2001 peak and 2009 trough on time; the 2001 trough stays 61 months late, a jobless recovery on vintages)

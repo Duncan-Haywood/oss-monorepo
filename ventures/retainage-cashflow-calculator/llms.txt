@@ -2,7 +2,7 @@
 
 > Free construction retainage calculator for contractors and subcontractors. See retainage withheld, unpaid cash, carrying cost, when retainage typically releases, and copy a factual payment follow-up draft.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/retainage-cashflow-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/retainage-cashflow-calculator): FSL-1.1-MIT licensed.

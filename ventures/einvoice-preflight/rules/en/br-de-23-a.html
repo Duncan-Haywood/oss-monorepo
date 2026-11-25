@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BR-DE-23-a: Credit transfer without the payee account</title>
+<meta name="description" content="BR-DE-23-a: When a payment means uses a credit transfer code (30 or 58 in BT-81), it must carry the credit transfer group (BG-17), that is the account the…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/en/br-de-23-a">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/br-de-23-a">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/br-de-23-a">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/br-de-23-a">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/br-de-23-a">
+<meta property="og:title" content="BR-DE-23-a: Credit transfer without the payee account">
+<meta property="og:description" content="BR-DE-23-a: When a payment means uses a credit transfer code (30 or 58 in BT-81), it must carry the credit transfer group (BG-17), that is the account the…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does BR-DE-23-a mean?","acceptedAnswer":{"@type":"Answer","text":"When a payment means uses a credit transfer code (30 or 58 in BT-81), it must carry the credit transfer group (BG-17), that is the account the buyer should pay into. The check is made for each payment means separately."}},{"@type":"Question","name":"How do I fix BR-DE-23-a?","acceptedAnswer":{"@type":"Answer","text":"Add cac:PayeeFinancialAccount with your IBAN in cbc:ID inside the same cac:PaymentMeans (UBL), or ram:PayeePartyCreditorFinancialAccount with ram:IBANID (CII). Optionally add the account name and the BIC in the same group. If the buyer pays another way (card, direct debit), use the code that matches it instead of 30 or 58."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-invoice rule explained · XRechnung</p>
+<h1>BR-DE-23-a: Credit transfer without the payee account</h1>
+<nav class="langs" aria-label="Other languages"><a href="../de/br-de-23-a.html" hreflang="de" lang="de">Deutsch</a><a href="../fr/br-de-23-a.html" hreflang="fr" lang="fr">Français</a><a href="index.html">All rules</a></nav>
+</header>
+<section>
+<h2>Official message</h2>
+<blockquote lang="de">Wenn BT-81 &quot;Payment means type code&quot; einen Schlüssel für Überweisungen enthält (30, 58), muss BG-17 &quot;CREDIT TRANSFER&quot; übermittelt werden.</blockquote>
+<dl>
+<dt>Severity</dt><dd>Error (the invoice is rejected)</dd>
+<dt>Checked in</dt><dd>UBL, CII</dd>
+<dt>Business terms</dt><dd>BT-81, BG-17</dd>
+</dl>
+</section>
+<section>
+<h2>What does BR-DE-23-a mean?</h2>
+<p>When a payment means uses a credit transfer code (30 or 58 in BT-81), it must carry the credit transfer group (BG-17), that is the account the buyer should pay into. The check is made for each payment means separately.</p>
+<h2>Usual causes</h2>
+<ul>
+<li>The bank details are printed only on the PDF or in a note, not in the structured payment means.</li>
+<li>Code 30 or 58 was chosen as a default even though no account is given.</li>
+<li>The account was put in the wrong place, for example under the payer's account instead of the payee's.</li>
+</ul>
+</section>
+<section>
+<h2>How do I fix BR-DE-23-a?</h2>
+<ol>
+<li>Add cac:PayeeFinancialAccount with your IBAN in cbc:ID inside the same cac:PaymentMeans (UBL), or ram:PayeePartyCreditorFinancialAccount with ram:IBANID (CII).</li>
+<li>Optionally add the account name and the BIC in the same group.</li>
+<li>If the buyer pays another way (card, direct debit), use the code that matches it instead of 30 or 58.</li>
+</ol>
+<h2>Corrected XML (minimal example we wrote)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;cac:PaymentMeans&gt;
+  &lt;cbc:PaymentMeansCode&gt;58&lt;/cbc:PaymentMeansCode&gt;
+  &lt;cac:PayeeFinancialAccount&gt;
+    &lt;cbc:ID&gt;DE02120300000000202051&lt;/cbc:ID&gt;
+    &lt;cbc:Name&gt;Beispiel GmbH&lt;/cbc:Name&gt;
+  &lt;/cac:PayeeFinancialAccount&gt;
+&lt;/cac:PaymentMeans&gt;</code></pre>
+<p><strong>CII</strong></p>
+<pre><code>&lt;ram:SpecifiedTradeSettlementPaymentMeans&gt;
+  &lt;ram:TypeCode&gt;58&lt;/ram:TypeCode&gt;
+  &lt;ram:PayeePartyCreditorFinancialAccount&gt;
+    &lt;ram:IBANID&gt;DE02120300000000202051&lt;/ram:IBANID&gt;
+    &lt;ram:AccountName&gt;Beispiel GmbH&lt;/ram:AccountName&gt;
+  &lt;/ram:PayeePartyCreditorFinancialAccount&gt;
+&lt;/ram:SpecifiedTradeSettlementPaymentMeans&gt;</code></pre>
+<p class="note">Example values only. Put the elements in place of, or beside, what your file has; element order matters in both syntaxes.</p>
+</section>
+<section>
+<h2>Check your file for free</h2>
+<p>The free checker runs the official EN 16931, XRechnung and Peppol rules in your browser. Your file is not uploaded.</p>
+<p><a class="button" href="../../index.html">Open the free checker</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In development — early access</span></p>
+<h2>Fix-and-explain for accountants and invoicing teams</h2>
+<p>A paid service that explains every failed rule in plain German, French or English and proposes a corrected file is in development. <a href="https://example.invalid/industries/eu-e-invoicing/">Early access</a></p>
+</section>
+<section>
+<h2>Source</h2>
+<p>Rule id and official message from the KoSIT XRechnung Schematron, v2.6.0 (for XRechnung 3.0) (Apache-2.0), compiled from upstream commit 7e3ddbe. The explanation, causes, fix and XML on this page are our own, not the rule publisher's. <a href="https://github.com/itplr-kosit/xrechnung-schematron/tree/v2.6.0" rel="noopener">KoSIT XRechnung Schematron v2.6.0 (for XRechnung 3.0)</a></p>
+</section>
+<footer>
+<p><strong>Not tax or legal advice.</strong> This page explains what a validation rule checks and how to make a file pass it. It does not say which VAT treatment applies to your sale; ask a tax adviser. <strong>No warranty:</strong> provided free and as-is; check the result before you rely on it.</p>
+<p>Our code and explanations are FSL-1.1-MIT-licensed. Official rule messages are quoted under their publishers' licences (EUPL-1.2, Apache-2.0, MPL-2.0), named on each page.</p>
+</footer>
+</main></body></html>

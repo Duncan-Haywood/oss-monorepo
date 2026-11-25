@@ -33,15 +33,24 @@ export const MAX_H1_REM = 3;
  */
 export const MAX_H1_CHARS = 90;
 
+/** Tags removed until none remain, so a removal cannot splice a new tag together. */
+function stripTags(s) {
+  let prev;
+  do {
+    prev = s;
+    s = s.replace(/<[^>]+>/g, '');
+  } while (s !== prev);
+  return s;
+}
+
 /** The visible text of the first h1 in a page's HTML, entities decoded and whitespace collapsed, or null. */
 export function h1Text(html) {
   const m = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i);
   if (!m) return null;
   const ent = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', rsquo: '\u2019', lsquo: '\u2018', mdash: '\u2014', ndash: '\u2013', hellip: '\u2026' };
-  return m[1]
-    .replace(/<[^>]+>/g, '')
-    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+  return stripTags(m[1])
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => codePointOr(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => codePointOr(Number(d)))
     .replace(/&([a-z]+);/gi, (e, n) => ent[n.toLowerCase()] ?? e)
     .replace(/\s+/g, ' ')
     .trim();
@@ -93,8 +102,11 @@ async function main() {
   const slugs = arg('slugs')?.split(',') ?? fs.readdirSync(ventures).filter((s) => fs.existsSync(path.join(ventures, s, 'index.html')) && fs.existsSync(path.join(dist, s, 'index.html'))).sort();
   const pw = await requirePlaywright();
   const srv = http.createServer((q, r) => {
-    let p = path.join(dist, decodeURIComponent(q.url.split('?')[0]));
-    if (p.endsWith(path.sep) || p.endsWith('/')) p = path.join(p, 'index.html');
+    const rel = decodeURIComponent(q.url.split('?')[0]);
+    let p = path.resolve(dist, `.${rel}`);
+    const within = path.relative(dist, p);
+    if (within === '..' || within.startsWith(`..${path.sep}`) || path.isAbsolute(within)) { r.writeHead(403); r.end(); return; }
+    if (rel.endsWith('/')) p = path.join(p, 'index.html');
     fs.readFile(p, (e, d) => {
       if (e) { r.writeHead(404); r.end(); return; }
       r.writeHead(200, { 'content-type': TYPES[path.extname(p)] || 'application/octet-stream' });
@@ -150,3 +162,7 @@ async function main() {
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await main();
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

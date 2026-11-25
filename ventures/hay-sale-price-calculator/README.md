@@ -20,7 +20,7 @@ Not modelled: hay quality or relative feed value, moisture discounts, equipment 
 costs entered, taxes, seasonal price moves. The tool holds no price data; the example numbers are made up.
 Not legal, tax or financial advice. No warranty; see the page footer.
 
-Tests: `node --test`. MIT licensed (`LICENSE`); no secrets, no private dependencies.
+Tests: `node --test`. FSL-1.1-MIT licensed (`LICENSE`); no secrets, no private dependencies.
 
 ## Known gaps (quality census, 2026-11-15)
 

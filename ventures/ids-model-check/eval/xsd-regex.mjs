@@ -26,7 +26,7 @@ function walk(d, out = []) {
   }
   return out;
 }
-const unxml = (s) => s.replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16))).replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(+d))
+const unxml = (s) => s.replace(/&#x([0-9a-f]+);/gi, (_, h) => codePointOr(parseInt(h, 16))).replace(/&#(\d+);/g, (_, d) => codePointOr(+d))
   .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, "&");
 const corpus = new Map(); // pattern -> files
 for (const f of [...walk(join(here, "corpus")), ...walk(join(here, "IDS/Documentation/ImplementersDocumentation/TestCases"))]) {
@@ -124,3 +124,7 @@ for (const [p, files] of corpus) {
   if (!r.ok || r.notes.length || oldDiffers) rows.push({ p: p.length > 70 ? p.slice(0, 67) + "..." : p, files: files.size, xsd: r.ok ? "valid" : r.error, notes: r.notes.map((n) => n.code).join(" "), fix: fix && (fix.length > 50 ? fix.slice(0, 47) + "..." : fix), oldDiffers, where: [...files].map((f) => f.split("/").slice(-1)[0]).slice(0, 2).join("; ") });
 }
 for (const r of rows) console.log(JSON.stringify(r));
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

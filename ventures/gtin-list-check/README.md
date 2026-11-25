@@ -2,11 +2,11 @@
 
 Free browser tool that checks a product list's UPC, EAN, GTIN and ISBN column before it is uploaded
 to a marketplace or retailer: wrong check digits (with an adjacent-swap suggestion), leading zeros
-lost to Excel (restored only when the check digit proves it), scientific notation like 3.60003E+11
+lost to Excel (restored only when the check digit agrees), scientific notation like 3.60003E+11
 (expanded when provable, flagged as unrecoverable when digits were rounded away), duplicates (a UPC
 and its EAN-13 form count as one), blanks, placeholders, GS1 reserved prefixes and ISBN-10s, each
 with its line number. An 8-digit UPC-E short code that is not a valid GTIN-8 is expanded to its
-UPC-A form when the check digit proves it. A GTIN-14 case-pack code is linked to the item code it wraps when both are in the list. Zero-width characters, full-width digits, thousands separators and "UPC:"-style labels pasted in with a code are cleaned up the same way, only when the check digit proves the result. It writes the file back with every provable fix applied. The file is read
+UPC-A form when the check digit agrees; one that is valid both ways is kept and warned about. A GTIN-14 case-pack code is linked to the item code it wraps when both are in the list. Zero-width characters, full-width digits, thousands separators and "UPC:"-style labels pasted in with a code are cleaned up the same way, only when the check digit agrees with the result. It writes the file back with those fixes applied. The file is read
 locally and never uploaded.
 
 **Live tool:** https://marisstella.app/gtin-list-check/
@@ -32,7 +32,7 @@ node --test 'ventures/gtin-list-check/*.test.mjs'
 
 ## License
 
-MIT. See `LICENSE`.
+FSL-1.1-MIT. See `LICENSE`.
 
 ## No warranty
 
@@ -44,12 +44,16 @@ law, the authors accept no liability for any loss or damage arising from its use
 ## Known gaps
 
 From the quality audit of 2026-11-12
-([`portfolio/quality/audits/2026-11-12-gtin-list-check.json`](../../portfolio/quality/audits/2026-11-12-gtin-list-check.json)).
-Fixed in the same PR: scientific notation that lost digits is always reported as unrecoverable (a
-zero-filled guess used to be "confirmed" whenever it happened to pass the check digit, about 1 time in
-10), and prefix rules for a GTIN-14 read the item body, not the indicator digit. Still open:
+([`portfolio/quality/audits/2026-11-12-gtin-list-check.json`](../../portfolio/quality/audits/2026-11-12-gtin-list-check.json))
+and its re-audit of 2026-11-24
+([`portfolio/quality/audits/2026-11-24-gtin-list-check.json`](../../portfolio/quality/audits/2026-11-24-gtin-list-check.json)).
+All nine defects of the first audit are now fixed: scientific notation that lost digits is always
+unrecoverable; GTIN-14 prefix rules read the item body, not the indicator digit; an 8-digit code valid
+as both a GTIN-8 and a UPC-E is warned about and matched against its UPC-A form; 980 refund receipts
+and GTIN-8 codes starting with 0 or 2 (RCN-8) are flagged; decimal-comma scientific notation
+(`4,006381333931E+12`) is read; repair writes empty rows and CRLF line endings back as they were.
+Still not modelled:
 
-- About 1 in 10 UPC-E codes also pass as a GTIN-8; those are kept as an 8-digit code starting with 0 with no warning, and their UPC-A form is not matched as a duplicate.
-- The 980 refund-receipt prefix and GTIN-8 codes starting with 0 or 2 are not flagged.
-- European-format scientific notation (`4,006381333931E+12`) is reported as non-digit characters.
-- Repair drops all-empty rows and normalises line endings.
+- A check digit catches about 9 in 10 wrong guesses, so a restored leading zero is strong evidence,
+  not proof; an 11-digit number that lost a middle digit instead of a leading zero can pass.
+- The prefix list is the common GS1 ranges, not the full current GS1 prefix table.

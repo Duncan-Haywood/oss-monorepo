@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="de"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PEPPOL-EN16931-P0112: Peppol BIS erklärt</title>
+<meta name="description" content="PEPPOL-EN16931-P0112: Die Rechnungsarten 326 (Teilrechnung), 384 (korrigierte Rechnung) und 389 (Gutschrift im Gutschriftverfahren, Selbstfakturierung) sind…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/de/peppol-en16931-p0112">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-p0112">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/peppol-en16931-p0112">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/peppol-en16931-p0112">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-p0112">
+<meta property="og:title" content="PEPPOL-EN16931-P0112: Peppol BIS erklärt">
+<meta property="og:description" content="PEPPOL-EN16931-P0112: Die Rechnungsarten 326 (Teilrechnung), 384 (korrigierte Rechnung) und 389 (Gutschrift im Gutschriftverfahren, Selbstfakturierung) sind…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Was bedeutet PEPPOL-EN16931-P0112?","acceptedAnswer":{"@type":"Answer","text":"Die Rechnungsarten 326 (Teilrechnung), 384 (korrigierte Rechnung) und 389 (Gutschrift im Gutschriftverfahren, Selbstfakturierung) sind in Peppol nur erlaubt, wenn Verkäufer und Käufer beide deutsch sind, gemessen am Ländercode ihrer Postanschrift. Code 384 ist außerdem erlaubt, wenn beide slowakisch sind; dafür wird das Land aus dem Präfix der USt-IdNr. ermittelt (beim Verkäufer ersatzweise aus der des Steuervertreters), hilfsweise aus der Postanschrift. Andere Rechnungen sollten einen Code wie 380 verwenden."}},{"@type":"Question","name":"Wie behebe ich PEPPOL-EN16931-P0112?","acceptedAnswer":{"@type":"Answer","text":"Prüfen Sie die Ländercodes der Postanschriften (cac:Country/cbc:IdentificationCode) von Verkäufer und Käufer; bei zwei deutschen Parteien müssen beide DE sein. Andernfalls verwenden Sie den Code 380 (Handelsrechnung) in cbc:InvoiceTypeCode; zur Korrektur stellen Sie eine Gutschrift (Rechnungskorrektur) und eine neue Rechnung aus statt einer 384. Handelt es sich um eine Selbstfakturierung oder eine Teilrechnung, fragen Sie Ihren Peppol-Anbieter, wie der Empfänger sie gekennzeichnet haben möchte."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-Rechnungs-Prüfregel erklärt · Peppol BIS</p>
+<h1>PEPPOL-EN16931-P0112: Rechnungsart 326, 384 oder 389 außerhalb der zulässigen Länder</h1>
+<nav class="langs" aria-label="Andere Sprachen"><a href="../en/peppol-en16931-p0112.html" hreflang="en" lang="en">English</a><a href="../fr/peppol-en16931-p0112.html" hreflang="fr" lang="fr">Français</a><a href="index.html">Alle Regeln</a></nav>
+</header>
+<section>
+<h2>Offizielle Meldung</h2>
+<blockquote lang="en">Invoice type codes 326 and 389 are only allowed when both buyer and seller are German organizations. Invoice type code 384 is only allowed when both buyer and seller are German organizations or both are Slovak organizations.</blockquote>
+<dl>
+<dt>Schweregrad</dt><dd>Fehler (die Rechnung wird abgewiesen)</dd>
+<dt>Geprüft in</dt><dd>UBL</dd>
+<dt>Geschäftsbegriffe</dt><dd>BT-3</dd>
+</dl>
+</section>
+<section>
+<h2>Was bedeutet PEPPOL-EN16931-P0112?</h2>
+<p>Die Rechnungsarten 326 (Teilrechnung), 384 (korrigierte Rechnung) und 389 (Gutschrift im Gutschriftverfahren, Selbstfakturierung) sind in Peppol nur erlaubt, wenn Verkäufer und Käufer beide deutsch sind, gemessen am Ländercode ihrer Postanschrift. Code 384 ist außerdem erlaubt, wenn beide slowakisch sind; dafür wird das Land aus dem Präfix der USt-IdNr. ermittelt (beim Verkäufer ersatzweise aus der des Steuervertreters), hilfsweise aus der Postanschrift. Andere Rechnungen sollten einen Code wie 380 verwenden.</p>
+<h2>Typische Ursachen</h2>
+<ul>
+<li>Die Software verwendet 326, 384 oder 389 für alle Kunden, auch für ausländische.</li>
+<li>Verkäufer und Käufer sind beide deutsch, aber ein Ländercode in der Postanschrift fehlt oder ist nicht DE.</li>
+<li>Eine korrigierte Rechnung (384) wurde zwischen Parteien aus anderen Ländern als Deutschland oder der Slowakei verschickt.</li>
+</ul>
+</section>
+<section>
+<h2>Wie behebe ich PEPPOL-EN16931-P0112?</h2>
+<ol>
+<li>Prüfen Sie die Ländercodes der Postanschriften (cac:Country/cbc:IdentificationCode) von Verkäufer und Käufer; bei zwei deutschen Parteien müssen beide DE sein.</li>
+<li>Andernfalls verwenden Sie den Code 380 (Handelsrechnung) in cbc:InvoiceTypeCode; zur Korrektur stellen Sie eine Gutschrift (Rechnungskorrektur) und eine neue Rechnung aus statt einer 384.</li>
+<li>Handelt es sich um eine Selbstfakturierung oder eine Teilrechnung, fragen Sie Ihren Peppol-Anbieter, wie der Empfänger sie gekennzeichnet haben möchte.</li>
+</ol>
+<h2>Korrigiertes XML (minimales Beispiel von uns)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;cbc:InvoiceTypeCode&gt;380&lt;/cbc:InvoiceTypeCode&gt;</code></pre>
+<p class="note">Nur Beispielwerte. Ersetzen oder ergänzen Sie die Elemente in Ihrer Datei; die Reihenfolge der Elemente ist in beiden Syntaxen vorgeschrieben.</p>
+</section>
+<section>
+<h2>Datei kostenlos prüfen</h2>
+<p>Der kostenlose Prüfer führt die offiziellen Regeln für EN 16931, XRechnung und Peppol in Ihrem Browser aus. Ihre Datei wird nicht hochgeladen.</p>
+<p><a class="button" href="../../index.html">Zum kostenlosen Prüfer</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In Entwicklung — früher Zugang</span></p>
+<h2>Prüfen und erklären für Steuerberater und Rechnungsteams</h2>
+<p>Ein kostenpflichtiger Dienst, der jede verletzte Regel verständlich auf Deutsch, Französisch oder Englisch erklärt und eine korrigierte Datei vorschlägt, ist in Entwicklung. <a href="https://example.invalid/industries/eu-e-invoicing/">Frühen Zugang anfragen</a></p>
+</section>
+<section>
+<h2>Quelle</h2>
+<p>Regel-ID und offizielle Meldung aus: OpenPeppol BIS Billing 3 rules, 3.0.22 (MPL-2.0), kompiliert aus dem Upstream-Commit 38d693d. Erklärung, Ursachen, Lösung und XML auf dieser Seite stammen von uns, nicht vom Herausgeber der Regel. <a href="https://github.com/OpenPEPPOL/peppol-bis-invoice-3/tree/3.0.22" rel="noopener">OpenPeppol BIS Billing 3 rules 3.0.22</a></p>
+</section>
+<footer>
+<p><strong>Keine Steuer- oder Rechtsberatung.</strong> Diese Seite erklärt, was eine Prüfregel kontrolliert und wie eine Datei sie besteht. Sie sagt nicht, welche umsatzsteuerliche Behandlung für Ihren Umsatz gilt; fragen Sie dazu Ihre Steuerberatung. <strong>Ohne Gewähr (no warranty):</strong> kostenlos und wie besehen; prüfen Sie das Ergebnis, bevor Sie sich darauf verlassen.</p>
+<p>Unser Code und unsere Erklärungen stehen unter der MIT-Lizenz. Offizielle Regelmeldungen werden unter den Lizenzen ihrer Herausgeber zitiert (EUPL-1.2, Apache-2.0, MPL-2.0), die auf jeder Seite genannt sind.</p>
+</footer>
+</main></body></html>

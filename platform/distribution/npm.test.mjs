@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { importsOf, closure, descriptionOf, packageName, buildPackage, writePackage, discover, plan, run, isOurs, MAX_PER_RUN } from './npm.mjs';
+import { importsOf, closure, descriptionOf, packageName, buildPackage, writePackage, discover, plan, run, isOurs, MAX_PER_RUN, authMode } from './npm.mjs';
 import { parseAllowlist } from './versions.mjs';
 
 /** An allow-list and a versions manifest naming `slugs` for npm at `version`. */
@@ -22,7 +22,7 @@ async function fixture(files) {
   }
   return root;
 }
-const MIT = 'MIT License\n\nCopyright (c) x';
+const MIT = 'Functional Source License\n\nCopyright (c) x';
 const cli = (extra = '') => `#!/usr/bin/env node\nimport { f } from "./lib.mjs";\n${extra}\nif (import.meta.url === \`file://\${process.argv[1]}\`) console.log(f());\n`;
 const venture = (name, over = {}) => ({
   [`ventures/${name}/cli.mjs`]: cli(),
@@ -77,7 +77,7 @@ test('--pack applies NPM_SCOPE from the environment', () => {
   assert.match(r.stderr, /invalid package name BAD\/nope-slug-xyz/);
 });
 
-test('buildPackage refuses a CLI without shebang or MIT license', async () => {
+test('buildPackage refuses a CLI without shebang or FSL-1.1-MIT license', async () => {
   const noShebang = await fixture(venture('a', { 'ventures/a/cli.mjs': 'console.log(1)\n' }));
   assert.match((await buildPackage({ slug: 'a', dir: path.join(noShebang, 'ventures/a') })).skip, /shebang/);
   const noLicense = await fixture(venture('a', { 'ventures/a/LICENSE': 'All rights reserved' }));
@@ -88,7 +88,7 @@ test('the generated package runs through a bin symlink, which the bare CLI does 
   const root = await fixture(venture('hello-check'));
   const pkg = await buildPackage({ slug: 'hello-check', dir: path.join(root, 'ventures/hello-check') });
   const manifest = JSON.parse(pkg.files['package.json']);
-  assert.equal(manifest.license, 'MIT');
+  assert.equal(manifest.license, 'FSL-1.1-MIT');
   assert.deepEqual(manifest.bin, { 'hello-check': 'bin.mjs' });
   assert.match(pkg.files['README.md'], /not legal, tax or professional advice/i);
   const out = await fs.mkdtemp(path.join(os.tmpdir(), 'npmpkg-'));
@@ -174,5 +174,27 @@ test('package.json keywords keep slug words of 3+ characters, drop shorter ones,
   const slug = 'ab-abc-abcd-w-x1-y22-z33-q44';
   const root = await fixture(venture(slug));
   const r = await buildPackage({ slug, dir: path.join(root, 'ventures', slug) });
-  assert.deepEqual(JSON.parse(r.files['package.json']).keywords, ['cli', 'free', 'open-source', 'abc', 'abcd', 'y22', 'z33']);
+  assert.deepEqual(JSON.parse(r.files['package.json']).keywords, ['cli', 'free', 'source-available', 'abc', 'abcd', 'y22', 'z33']);
+});
+
+test('authMode: a real token, else OIDC in GitHub Actions; the setup-node placeholder is not a token', () => {
+  assert.equal(authMode({ NODE_AUTH_TOKEN: 'npm_x' }), 'token');
+  assert.equal(authMode({ NODE_AUTH_TOKEN: 'XXXXX-XXXXX-XXXXX-XXXXX', ACTIONS_ID_TOKEN_REQUEST_URL: 'https://x' }), 'oidc');
+  assert.equal(authMode({ ACTIONS_ID_TOKEN_REQUEST_URL: 'https://x' }), 'oidc');
+  assert.equal(authMode({ NODE_AUTH_TOKEN: 'XXXXX-XXXXX-XXXXX-XXXXX' }), '');
+  assert.equal(authMode({}), '');
+});
+
+test('OIDC run publishes new versions of existing packages and skips names npm does not have yet', async () => {
+  const root = await fixture({ ...venture('old-check'), ...venture('new-check') });
+  const fetchImpl = async (url) => (url.endsWith('/old-check')
+    ? { status: 200, json: async () => ({ ...OURS, versions: { '0.1.0': {} } }) }
+    : { status: 404 });
+  const seen = [];
+  const lines = [];
+  const r = await run({ env: { DISTRIBUTE_NPM: 'true', ACTIONS_ID_TOKEN_REQUEST_URL: 'https://x' }, fetchImpl, log: (l) => lines.push(l), root, ...listed(['old-check', 'new-check'], '0.1.1'),
+    publish: async (dir) => { seen.push(JSON.parse(await fs.readFile(path.join(dir, 'package.json'), 'utf8')).name); } });
+  assert.deepEqual(seen, ['old-check']);
+  assert.equal(r.published, 1);
+  assert.match(lines.join('\n'), /skip new-check: not on npm yet/);
 });

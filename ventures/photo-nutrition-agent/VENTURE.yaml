@@ -1,0 +1,29 @@
+name: photo-nutrition-agent
+description: 'Self-hosted, autonomous nutrition tracking from ordinary iPhone Camera photos. A minimal iOS agent finds new photos through PhotoKit persistent change history, classifies them on device, and uploads only likely food (downscaled, EXIF/GPS stripped) to your own zero-dependency Node server. A vision model estimates items, portions and nutrients with ranges; meals are versioned and written to Apple Health with HealthKit sync identifiers, so corrections replace rather than duplicate. ChatGPT (MCP or Custom GPT Actions) and Claude read, analyse and correct everything conversationally.'
+stage: prototype
+
+owner: duncan
+
+# Built at the owner's request (2026-11-24: an autonomous AI nutrition tracking
+# system where the only recurring action is taking a photo with the Camera
+# app). A deep, multi-session project in the 300-hour sense: an iOS agent, a
+# backend with an audit-grade record model, an MCP server with OAuth, and
+# longitudinal analysis. The owner is the first user; personal targets and body
+# data are runtime settings, never committed (public repository).
+#
+# Status 2026-11-24: server and MCP verified by 36 tests; iOS sources written
+# without an Apple toolchain and never compiled; live model call and ChatGPT
+# plan eligibility unverified. See docs/acceptance.md and docs/limitations.md.
+hypotheses:
+  - claim: After one-time setup, at least 80% of food photos taken over 14 days become meal records with no app open and no manual step (docs/acceptance.md, "Measuring the real level of automation").
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The Shortcuts "Camera is Closed" automation fires reliably enough on current iOS that the median photo-to-record latency is under two minutes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Corrections made in ChatGPT reach Apple Health without duplicate samples (HealthKit sync identifier/version replacement works for dietary samples as documented).
+    status: untested
+    checked: null
+    evidence: customer-contact

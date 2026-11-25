@@ -144,6 +144,6 @@ the note, and the PR for the fleet-wide version of the same defect.)
 - [Equipment rental break-even](../equipment-rental-break-even/) — pricing
   bookings on equipment you already own.
 
-Free and open source under an [MIT licence](LICENSE).
+Free to use and source available under the [FSL-1.1-MIT licence](LICENSE).
 [Sponsorship](https://github.com/sponsors/Duncan-Haywood) is entirely optional
 and never changes what the tool does.

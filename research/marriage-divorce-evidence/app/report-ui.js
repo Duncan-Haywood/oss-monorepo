@@ -121,7 +121,7 @@ function personCard(title, person, p, h, otherName) {
   if (Number.isFinite(median)) rows.push(`<tr class="ref"><th scope="row">The middle couple in the survey<small>population median${(p.withPartner?.standing || p.likely?.standing)?.model ? ' (of the reference model)' : ''}</small></th><td class="num"><b>${n100(median)}</b></td><td></td><td>${bar(median, median, median, maxRisk)}</td><td class="num">p50</td></tr>`);
   const missing = ['everyone', 'likely'].filter((k) => !p[k]?.available).map((k) => `<li><strong>${k === 'likely' ? 'Partners people like you marry' : 'Dating everyone'}:</strong> ${esc(p[k]?.reason || 'not available')}</li>`).join('');
   return `<section class="rep-card" aria-label="${esc(title)}">
-    <h3>${esc(title)} <small>${esc(person.sex || '')}${Number.isFinite(person.age) ? `, ${person.age}` : ''}</small></h3>
+    <h3>${esc(title)} <small>${esc(person.sex || '')}${Number.isFinite(person.age) ? `, ${esc(person.age)}` : ''}</small></h3>
     <div class="table-wrap"><table class="rep-table"><thead><tr><th scope="col">If married to…</th><th class="num" scope="col">Break-ups by ${fmtYears(h)} y</th><th class="num" scope="col">Model range</th><th scope="col"><span class="vh">Chart</span></th><th class="num" scope="col">Population percentile</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>
     ${missing ? `<ul class="small rep-miss">${missing}</ul>` : ''}
     ${standingText(p)}

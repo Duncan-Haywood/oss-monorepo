@@ -1,0 +1,55 @@
+International football results: 50093 matches, 1872-11-30 to 2026-11-17.
+Tuned on 1990-01-01..2010-01-01; held out from 2010-01-01. Every prediction uses only earlier results.
+Brier: squared error of the home side's expected score (win 1, draw 0.5, loss 0), all matches.
+Log loss and accuracy: decisive matches only (the favourite named by p > 0.5).
+
+Score margin sweep, Glicko-2 period month at the tuned win-only params ({"tau":2.5,"rd":350,"home":100}):
+  margin 0: tune Brier 0.1320  log loss 0.4906  accuracy 76.8% | held out Brier 0.1301  log loss 0.4773  accuracy 77.4%
+  margin 0.25: tune Brier 0.1319  log loss 0.4934  accuracy 76.8% | held out Brier 0.1301  log loss 0.4807  accuracy 77.4%
+  margin 0.5: tune Brier 0.1322  log loss 0.4969  accuracy 76.7% | held out Brier 0.1304  log loss 0.4847  accuracy 77.2%
+  margin 0.75: tune Brier 0.1327  log loss 0.5011  accuracy 76.5% | held out Brier 0.1310  log loss 0.4894  accuracy 77.1%
+  margin 1: tune Brier 0.1335  log loss 0.5059  accuracy 76.1% | held out Brier 0.1318  log loss 0.4946  accuracy 77.0%
+
+Base rate (home side's average score, no ratings)
+  tune 1990-2009 (16462): Brier 0.1774  log loss 0.6496  accuracy 64.4%
+  held out 2010- (16512): Brier 0.1824  log loss 0.6592  accuracy 62.2%
+
+Elo, win/draw/loss (K and home tuned)
+  params: {"k":40,"home":100}
+  tune 1990-2009 (16462): Brier 0.1355  log loss 0.5001  accuracy 76.0%
+  held out 2010- (16512): Brier 0.1321  log loss 0.4809  accuracy 76.8%
+
+World Football Elo constants (K by tournament, goal margin, home 100; untuned)
+  params: {"k":20,"home":100}
+  tune 1990-2009 (16462): Brier 0.1360  log loss 0.4933  accuracy 76.2%
+  held out 2010- (16512): Brier 0.1321  log loss 0.4725  accuracy 77.3%
+
+Elo + goal margin + K by tournament (scale and home tuned)
+  params: {"k":20,"home":100,"scale":1}
+  tune 1990-2009 (16462): Brier 0.1360  log loss 0.4933  accuracy 76.2%
+  held out 2010- (16512): Brier 0.1321  log loss 0.4725  accuracy 77.3%
+
+Glicko-2, win/draw/loss, period month (tau, RD, home tuned)
+  params: {"tau":2.5,"rd":350,"home":100,"margin":0}
+  tune 1990-2009 (16462): Brier 0.1320  log loss 0.4906  accuracy 76.8%
+  held out 2010- (16512): Brier 0.1301  log loss 0.4773  accuracy 77.4%
+
+Glicko-2 + score margin, period month (margin, tau, RD, home tuned)
+  params: {"tau":1,"rd":350,"home":100,"margin":0.25}
+  tune 1990-2009 (16462): Brier 0.1319  log loss 0.4930  accuracy 76.8%
+  held out 2010- (16512): Brier 0.1301  log loss 0.4801  accuracy 77.5%
+
+Glicko-2, win/draw/loss, period date (tau, RD, home tuned)
+  params: {"tau":2.5,"rd":350,"home":150,"margin":0}
+  tune 1990-2009 (16462): Brier 0.1372  log loss 0.4930  accuracy 75.5%
+  held out 2010- (16512): Brier 0.1350  log loss 0.4793  accuracy 76.3%
+
+Glicko-2 + score margin, period date (margin, tau, RD, home tuned)
+  params: {"tau":2.5,"rd":350,"home":150,"margin":0.75}
+  tune 1990-2009 (16462): Brier 0.1353  log loss 0.4967  accuracy 75.9%
+  held out 2010- (16512): Brier 0.1341  log loss 0.4862  accuracy 76.1%
+
+Paired bootstrap, held out 2010- (2,000 resamples):
+Glicko-2 month vs Elo tuned: Brier diff -0.0020 95% CI [-0.0026, -0.0013]; log loss diff -0.0036 95% CI [-0.0056, -0.0016] (negative = first is better)
+Glicko-2 month vs World Football Elo: Brier diff -0.0020 95% CI [-0.0028, -0.0012]; log loss diff 0.0048 95% CI [0.0024, 0.0073] (negative = first is better)
+Glicko-2 month + margin vs win only: Brier diff -0.0001 95% CI [-0.0002, 0.0001]; log loss diff 0.0028 95% CI [0.0024, 0.0033] (negative = first is better)

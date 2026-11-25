@@ -216,7 +216,16 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         raise ValueError(str(exc)) from exc
     root_name = root.tag.rsplit("}", 1)[-1]
     if root_name not in _DOCUMENT_ROOTS:
-        raise ValueError("UBL document root must be Invoice, CreditNote, or DebitNote")
+        # Name what the file is: a FatturaPA, CFDI or NAV file used to get only
+        # "UBL document root must be ...", which reads as a broken UBL file
+        # (eval/page-cli-parity-2026-11-25.md).
+        shown = "".join(ch for ch in root_name if ch.isalnum() or ch in "_-.")[:60] or "?"
+        raise ValueError(
+            f"UBL document root must be Invoice, CreditNote, or DebitNote (this file's root is <{shown}>). "
+            "The Python CLI reads JSON, UBL, UN/CEFACT CII and Factur-X/ZUGFeRD PDFs; national formats "
+            "(FatturaPA, KSeF FA(3), CFDI, NAV, NF-e, NFS-e, Facturae, VERI*FACTU and others) are checked "
+            "by the browser page and the Node API (server.mjs)."
+        )
     document_type, line_name, quantity_name = _DOCUMENT_ROOTS[root_name]
 
     lines = []

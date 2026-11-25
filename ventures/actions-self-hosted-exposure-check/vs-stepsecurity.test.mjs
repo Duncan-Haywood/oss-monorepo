@@ -2,6 +2,17 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
+// Drop every <script>...</script> block (any case, attributes, `</script >`),
+// repeating until stable so a nested fragment cannot reassemble a tag.
+const stripScripts = (s) => {
+  let prev;
+  do {
+    prev = s;
+    s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, '');
+  } while (s !== prev);
+  return s;
+};
+
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const page = readFileSync(new URL('./vs-stepsecurity.html', import.meta.url), 'utf8');
 const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
@@ -41,7 +52,7 @@ test('the standard clauses and the sponsor link are present', () => {
   assert.match(page, /provided free and as-is, without warranty/);
   assert.match(page, /Best-effort hosting, no SLA/);
   assert.match(page, /href="LICENSE"/);
-  assert.match(page, /MIT licen[cs]e/);
+  assert.match(page, /FSL-1.1-MIT licen[cs]e/);
   assert.match(page, /https:\/\/github\.com\/sponsors\/Duncan-Haywood/);
 });
 
@@ -84,7 +95,7 @@ test('every FAQPage schema question has a matching visible heading', () => {
 test('the FAQPage answers appear verbatim on the visible page, not only in the script tag', () => {
   const match = page.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
   const schema = JSON.parse(match[1]);
-  const visible = page.replace(/<script[\s\S]*?<\/script>/g, '');
+  const visible = stripScripts(page);
   for (const { acceptedAnswer } of schema.mainEntity) {
     assert.ok(
       visible.includes(acceptedAnswer.text),

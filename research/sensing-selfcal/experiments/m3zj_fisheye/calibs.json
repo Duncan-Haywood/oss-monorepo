@@ -1,0 +1,364 @@
+{
+ "files": 14,
+ "missing": [],
+ "changed_since_3ze": [],
+ "cameras": [
+  {
+   "url": "https://raw.githubusercontent.com/UZ-SLAMLab/ORB_SLAM3/master/Examples/Monocular/TUM-VI.yaml",
+   "sha256": "1196a6c12e1927884bb1f03431165cdd312f984bf7421c20b42c30dfc3a9dc6b",
+   "cam": "Camera1",
+   "fx": 190.978477,
+   "fy": 190.973307,
+   "cx": 254.931706,
+   "cy": 256.897442,
+   "width": 512.0,
+   "height": 512.0,
+   "k": [
+    0.003482389402,
+    0.000715034845,
+    -0.002053236141,
+    0.000202936736
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/UZ-SLAMLab/ORB_SLAM3/master/Examples/Monocular/RealSense_T265.yaml",
+   "sha256": "f09c33cd6bdf30bfe0ef967bfbaa402efa7e68b0e01c64d96481b10343e55004",
+   "cam": "Camera1",
+   "fx": 284.9501953125,
+   "fy": 285.115295410156,
+   "cx": 420.500213623047,
+   "cy": 400.738098144531,
+   "width": 848.0,
+   "height": 800.0,
+   "k": [
+    -0.00530046410858631,
+    0.0423333682119846,
+    -0.03949885815382,
+    0.00682387687265873
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/UZ-SLAMLab/ORB_SLAM3/master/Examples/Stereo/RealSense_T265.yaml",
+   "sha256": "69daf63ba482cb1b42c5289dbb3b53187253aef16bb001ac84681f00bbdca92c",
+   "cam": "Camera1",
+   "fx": 284.9501953125,
+   "fy": 285.115295410156,
+   "cx": 420.500213623047,
+   "cy": 400.738098144531,
+   "width": 848.0,
+   "height": 800.0,
+   "k": [
+    -0.00530046410858631,
+    0.0423333682119846,
+    -0.03949885815382,
+    0.00682387687265873
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/UZ-SLAMLab/ORB_SLAM3/master/Examples/Stereo/RealSense_T265.yaml",
+   "sha256": "69daf63ba482cb1b42c5289dbb3b53187253aef16bb001ac84681f00bbdca92c",
+   "cam": "Camera2",
+   "fx": 285.001312255859,
+   "fy": 284.914215087891,
+   "cx": 411.864196777344,
+   "cy": 403.41259765625,
+   "width": 848.0,
+   "height": 800.0,
+   "k": [
+    -0.00375203299336135,
+    0.0379297286272049,
+    -0.0352463386952877,
+    0.00548873096704
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/UZ-SLAMLab/ORB_SLAM3/master/Examples/Monocular-Inertial/TUM-VI.yaml",
+   "sha256": "2a32cf68bde86da4eecc6e583c48ea0146738f8719dcc184a15143f22f04d052",
+   "cam": "Camera1",
+   "fx": 190.978477,
+   "fy": 190.973307,
+   "cx": 254.931706,
+   "cy": 256.897442,
+   "width": 512.0,
+   "height": 512.0,
+   "k": [
+    0.003482389402,
+    0.000715034845,
+    -0.002053236141,
+    0.000202936736
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/UZ-SLAMLab/ORB_SLAM3/master/Examples/Monocular-Inertial/RealSense_T265.yaml",
+   "sha256": "6dd2a064aa9c8844a7004bb59c481137bbdb5245ba30de69bde734b393950e92",
+   "cam": "Camera1",
+   "fx": 284.9501953125,
+   "fy": 285.115295410156,
+   "cx": 420.500213623047,
+   "cy": 400.738098144531,
+   "width": 848.0,
+   "height": 800.0,
+   "k": [
+    -0.00530046410858631,
+    0.0423333682119846,
+    -0.03949885815382,
+    0.00682387687265873
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/rpng/open_vins/master/config/rpng_ironsides/kalibr_imucam_chain.yaml",
+   "sha256": "9ce260b6775f31e7c6a7257ef06db9caec673fc77f2dc18d5c48101ab2e65d4d",
+   "cam": "cam0",
+   "fx": 276.4850207717928,
+   "fy": 278.0310503180516,
+   "cx": 314.5836189313042,
+   "cy": 240.16980920673427,
+   "width": 640.0,
+   "height": 480.0,
+   "k": [
+    -0.03149689493503132,
+    0.07696336480701078,
+    -0.06608854732019281,
+    0.019667561645120218
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/rpng/open_vins/master/config/rpng_ironsides/kalibr_imucam_chain.yaml",
+   "sha256": "9ce260b6775f31e7c6a7257ef06db9caec673fc77f2dc18d5c48101ab2e65d4d",
+   "cam": "cam1",
+   "fx": 277.960323846132,
+   "fy": 279.4348778432714,
+   "cx": 322.404194404853,
+   "cy": 236.72685252691352,
+   "width": 640.0,
+   "height": 480.0,
+   "k": [
+    -0.02998039058251529,
+    0.07202819722706337,
+    -0.06178718820631651,
+    0.017655045017816777
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/rpng/open_vins/master/config/rs_t265/kalibr_imucam_chain.yaml",
+   "sha256": "d915f4f24bc5170e4d42472b64c3f26ffdb633c579ea8a5b41623271fdda1f23",
+   "cam": "cam0",
+   "fx": 282.019963259348,
+   "fy": 280.7145153126385,
+   "cx": 415.9558137753508,
+   "cy": 396.6613771975339,
+   "width": 848.0,
+   "height": 800.0,
+   "k": [
+    -0.003269003229949738,
+    0.05405258144204682,
+    -0.05159409563898941,
+    0.010749180190267004
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/rpng/open_vins/master/config/rs_t265/kalibr_imucam_chain.yaml",
+   "sha256": "d915f4f24bc5170e4d42472b64c3f26ffdb633c579ea8a5b41623271fdda1f23",
+   "cam": "cam1",
+   "fx": 281.49219856329046,
+   "fy": 280.3289056204996,
+   "cx": 414.09933409091184,
+   "cy": 406.02198481912353,
+   "width": 848.0,
+   "height": 800.0,
+   "k": [
+    -0.0028480208540388407,
+    0.05429895807264252,
+    -0.0516469474707301,
+    0.010954064142332987
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/rpng/open_vins/master/config/tum_vi/kalibr_imucam_chain.yaml",
+   "sha256": "072d26e3dd20844ae7402f508c51cf7e899a401634ba6b0db0e08cd2880b7dab",
+   "cam": "cam0",
+   "fx": 190.97847715128717,
+   "fy": 190.9733070521226,
+   "cx": 254.93170605935475,
+   "cy": 256.8974428996504,
+   "width": 512.0,
+   "height": 512.0,
+   "k": [
+    0.0034823894022493434,
+    0.0007150348452162257,
+    -0.0020532361418706202,
+    0.00020293673591811182
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/rpng/open_vins/master/config/tum_vi/kalibr_imucam_chain.yaml",
+   "sha256": "072d26e3dd20844ae7402f508c51cf7e899a401634ba6b0db0e08cd2880b7dab",
+   "cam": "cam1",
+   "fx": 190.44236969414825,
+   "fy": 190.4344384721956,
+   "cx": 252.59949716835982,
+   "cy": 254.91723064636983,
+   "width": 512.0,
+   "height": 512.0,
+   "k": [
+    0.0034003170790442797,
+    0.001766278153469831,
+    -0.00266312569781606,
+    0.0003299517423931039
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/rpng/open_vins/master/config/uzhfpv_indoor/kalibr_imucam_chain.yaml",
+   "sha256": "d94c73ba11927dadcc76e691f9a560c2f4efc60070aefb6a12e6c95f38399826",
+   "cam": "cam0",
+   "fx": 278.66723066149086,
+   "fy": 278.48991409740296,
+   "cx": 319.75221200593535,
+   "cy": 241.96858910358173,
+   "width": 640.0,
+   "height": 480.0,
+   "k": [
+    -0.013721808247486035,
+    0.020727425669427896,
+    -0.012786476702685545,
+    0.0025242267320687625
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/rpng/open_vins/master/config/uzhfpv_indoor/kalibr_imucam_chain.yaml",
+   "sha256": "d94c73ba11927dadcc76e691f9a560c2f4efc60070aefb6a12e6c95f38399826",
+   "cam": "cam1",
+   "fx": 277.61640629770613,
+   "fy": 277.63749695723294,
+   "cx": 314.8944703346039,
+   "cy": 236.04310050462587,
+   "width": 640.0,
+   "height": 480.0,
+   "k": [
+    -0.008456929295619607,
+    0.011407590938612062,
+    -0.006951788325762078,
+    0.0015368127092821786
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/rpng/open_vins/master/config/uzhfpv_outdoor/kalibr_imucam_chain.yaml",
+   "sha256": "bf21f11e5da367af2f8f7fcec7968812f775fc1e85f7086466f8b8fa0801c3f7",
+   "cam": "cam0",
+   "fx": 277.4786896484645,
+   "fy": 277.42548548840034,
+   "cx": 320.1052053576385,
+   "cy": 242.10083077857894,
+   "width": 640.0,
+   "height": 480.0,
+   "k": [
+    -0.005719912631104124,
+    0.004742449009601135,
+    0.0012060658036136048,
+    -0.001580292679344826
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/rpng/open_vins/master/config/uzhfpv_outdoor/kalibr_imucam_chain.yaml",
+   "sha256": "bf21f11e5da367af2f8f7fcec7968812f775fc1e85f7086466f8b8fa0801c3f7",
+   "cam": "cam1",
+   "fx": 276.78679780974477,
+   "fy": 276.79332134030807,
+   "cx": 314.2862327340746,
+   "cy": 236.51313088043128,
+   "width": 640.0,
+   "height": 480.0,
+   "k": [
+    -0.009025009906076716,
+    0.009967427035376123,
+    -0.0029538969814842117,
+    -0.0003503551771748748
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/rpng/open_vins/master/config/uzhfpv_indoor_45/kalibr_imucam_chain.yaml",
+   "sha256": "7c4da84ea194b0b6b7d92524cb7730501953fc2204b97338bd7d7b2734c45df7",
+   "cam": "cam0",
+   "fx": 275.46015578667294,
+   "fy": 274.9948095922592,
+   "cx": 315.958384100568,
+   "cy": 242.7123497822731,
+   "width": 640.0,
+   "height": 480.0,
+   "k": [
+    -6.545154718304953e-06,
+    -0.010379525898159981,
+    0.014935312423953146,
+    -0.005639061406567785
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/rpng/open_vins/master/config/uzhfpv_indoor_45/kalibr_imucam_chain.yaml",
+   "sha256": "7c4da84ea194b0b6b7d92524cb7730501953fc2204b97338bd7d7b2734c45df7",
+   "cam": "cam1",
+   "fx": 274.4628309070672,
+   "fy": 273.9261674470783,
+   "cx": 315.93654481793794,
+   "cy": 235.779167375461,
+   "width": 640.0,
+   "height": 480.0,
+   "k": [
+    -0.012138050918285051,
+    0.02244029339184358,
+    -0.013753165428754275,
+    0.002725090438517269
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/MIT-SPARK/Kimera-VIO/master/params/RealSenseIR/LeftCameraParams.yaml",
+   "sha256": "0304929eda04ed19f0e6715b0e04efc5e716571218ef094d1e4cb40002d13a3e",
+   "cam": "cam",
+   "fx": 384.5697007030446,
+   "fy": 385.6469026594307,
+   "cx": 324.92457920979194,
+   "cy": 239.78003927789618,
+   "width": 640.0,
+   "height": 480.0,
+   "k": [
+    0.34610989806637954,
+    0.11497394690333039,
+    0.09283198659020588,
+    0.011326272488628174
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/MIT-SPARK/Kimera-VIO/master/params/RealSenseIR/RightCameraParams.yaml",
+   "sha256": "cdf963d75197ff56b996f0008343ea956ed6773f6db3abae65e225b0d85e8689",
+   "cam": "cam",
+   "fx": 384.6517877875679,
+   "fy": 385.80743823947375,
+   "cx": 323.0940939324028,
+   "cy": 239.4007620255053,
+   "width": 640.0,
+   "height": 480.0,
+   "k": [
+    0.33272557213785425,
+    0.20855196388908398,
+    -0.14436817873485477,
+    0.2040126459333023
+   ]
+  },
+  {
+   "url": "https://raw.githubusercontent.com/lukasvst/dm-vio/master/configs/tumvi_calib/camera02.txt",
+   "sha256": "c16ddfa82f3c7f81d1f005b2384a9861a6721a1d021b20425450cca797b023cf",
+   "cam": "cam",
+   "fx": 190.978477,
+   "fy": 190.973307,
+   "cx": 254.931706,
+   "cy": 256.897443,
+   "width": 512.0,
+   "height": 512.0,
+   "k": [
+    0.00348238940225,
+    0.000715034845216,
+    -0.00205323614187,
+    0.000202936735918
+   ]
+  }
+ ]
+}

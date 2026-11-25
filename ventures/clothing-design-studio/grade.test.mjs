@@ -98,3 +98,25 @@ test("the cutting plan's neck band is the drafted one", () => {
     assert.ok(Math.abs(nb.l - (d.neckbandLengthCm + 3)) < 0.06, `${size}: marker ${nb.l} vs drafted ${d.neckbandLengthCm}`);
   }
 });
+
+test("armhole depth grades +0.96 cm per 8 cm chest step from M, and M keeps 0.235 x chest + 0.1 x ease (quality audit 2026-11-22, defect 1)", () => {
+  for (const garment of ["tee", "longsleeve", "crewneck", "hoodie"]) {
+    const gm = garmentMeasurements(garment, "regular");
+    const M = gm.M, ease = M.chest - M.bodyChest;
+    assert.ok(Math.abs(neckAndShoulder(M, { garment }).armholeDepthCm - (0.235 * 100 + 0.1 * ease)) < 1e-9, garment);
+    const ad = ["XS", "S", "M", "L", "XL", "XXL"].map(s => draft(garment, s).block.ad);
+    for (let i = 1; i < ad.length; i++) assert.ok(Math.abs(ad[i] - ad[i - 1] - 0.96) < 1e-9, `${garment} step ${i}: ${ad[i] - ad[i - 1]}`);
+  }
+  assert.ok(Math.abs(neckAndShoulder(garmentMeasurements("tee", "regular").XXL, { grade: { armhole: 0.2 } }).armholeDepthCm - (23.5 + 1.2 + 0.2 * 24)) < 1e-9);
+  assert.throws(() => gradeRule({ armhole: 1 }), /0 to 0.6/);
+});
+
+test("the drafted sleeve length matches the spec sheet's graded sleeve in every garment and size (quality audit 2026-11-22, defect 0)", () => {
+  for (const garment of ["tee", "longsleeve", "crewneck", "hoodie"]) {
+    const sp = specSheet({ garment });
+    for (const s of ["XS", "S", "M", "L", "XL", "XXL"]) {
+      const d = draft(garment, s);
+      assert.ok(Math.abs(d.checks.sleeveLengthCm - sp.sizes[s].sleeve) < 0.05, `${garment} ${s}: pattern ${d.checks.sleeveLengthCm} vs spec ${sp.sizes[s].sleeve}`);
+    }
+  }
+});

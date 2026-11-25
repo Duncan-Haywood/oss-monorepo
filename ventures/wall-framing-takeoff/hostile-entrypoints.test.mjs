@@ -33,7 +33,7 @@ for (const bad of [null, undefined, 5, {}]) {
   });
 }
 
-import { planFromSketch } from "./sketch.mjs";
+import { planFromSketch } from "./sketchplan.mjs";
 for (const bad of [null, undefined, 5, "x", {}, { walls: 3 }]) {
   test(`planFromSketch refuses ${JSON.stringify(bad)}`, () => {
     const r = planFromSketch(/** @type {any} */ (bad));

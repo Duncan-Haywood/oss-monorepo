@@ -36,7 +36,7 @@ if (!dir) { console.error("usage: node eval/calendar-review-check.mjs DIR [--jso
 
 const SERIAL = Date.UTC(1899, 11, 30) / 86400000;
 // one exception node: (0||k(d|N)()) or with work periods as children
-const EXC = /\(0\|\|\d+\(d\|(\d+)\)\((?:[\s\x7f]*\(0\|\|\d+\([^()]*\)\(\)\)[\s\x7f]*)*\)\)/g; // P6 writes line breaks in the field as 0x7F
+const EXC = /\(0\|\|\d+\(d\|(\d+)\)\([\s\x7f]*(?:\(0\|\|\d+\([^()]*\)\(\)\)[\s\x7f]*)*\)\)/g; // P6 writes line breaks in the field as 0x7F
 const yearOfSerial = (n) => new Date((n + SERIAL) * 86400000).getUTCFullYear();
 
 function withCalendar(xer, id, change) {

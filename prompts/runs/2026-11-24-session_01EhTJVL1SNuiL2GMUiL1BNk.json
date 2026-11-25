@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVL1SNuiL2GMUiL1BNk",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market revenue software; merge when done)",
+  "input_sha256": "024723cfd75d2ef5197635968247e0c450877ceb66a48b9d164c4870682f4e30",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T15:03:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore: concrete-maturity mix calibration (ASTM C1074 annex: datum temperature and activation energy from cubes at three temperatures) plus a best-single-curve estimator",
+  "projects": [
+    "ventures/concrete-maturity"
+  ],
+  "pr": 18616,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 16,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "local CI: check_thousands_split flagged a comma-split number parser in calibrate.mjs",
+      "fix": "cells split on comma+space/semicolon/tab/space; thousands commas kept inside a number; test added"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Explore track: Start here named league-schedule-generator; took concrete-maturity's own README Next item (annex calibration) instead, construction direction, a whole deliverable in one run",
+      "did": "built calibrate.mjs, page section, CLI, eval",
+      "result": "shipped with a measured finding"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-concrete-datum-temperature-from-three-cube-sets.md",
+    "ventures/concrete-maturity/eval/annex-methods-2026-11-24.md"
+  ],
+  "goal": null,
+  "notes": "Idea: concrete-maturity mix calibration. Implemented the ASTM C1074 annex procedure (per-temperature k by the 1/S line or a least-squares hyperbola, datum from k vs T, E from ln k vs 1/T, standard errors) and a third estimator not in the annex: the datum/E minimising scatter of all cubes about one curve. Monte Carlo on synthetic Arrhenius cubes (E=42 kJ/mol, 10/23/38 C, 200 sets x 3 noise levels x setting given/not): single-curve SD of E 2.4-5.7x smaller; annex k-line datum (~4.5 C) collapsed cubes worse than the 0 C default at every noise level (260 vs 210 psi at 3%), single-curve datum (~2 C) better than both. Synthetic only; next is a real three-temperature cube sheet. Verification: node --test calibrate/page/maturity 48 pass; run_workflow_locally --for-changes 9/11 passed, the 2 failures were the unfilled run record (now filled) and the thousands-split check (fixed); Playwright at 390 px: no horizontal overflow, no console errors, example calibrates and 'Use these values' fills the inputs.",
+  "corrections": [],
+  "redteam": null
+}

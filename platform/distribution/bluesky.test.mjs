@@ -53,7 +53,7 @@ test('a long unpunctuated description is clipped with an ellipsis and the post s
 
 test('the description is dropped once fewer than 21 graphemes of room remain', () => {
   const url = toolUrl('a');
-  const tail = `\n\n${url}\n\nFree and open source (MIT). Automated post.`;
+  const tail = `\n\n${url}\n\nFree to use and source available (FSL-1.1-MIT). Automated post.`;
   const titleLen = MAX_GRAPHEMES - grapheme('New free tool: ') - grapheme(tail) - 2 - 21;
   const withRoom = composePost({ title: 'T'.repeat(titleLen), description: 'Hello world.' }, url);
   assert.match(withRoom.text, /Hello world\./);

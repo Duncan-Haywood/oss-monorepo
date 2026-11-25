@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVNF6E2A5kuBHsmL9DB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled ventures brief: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (owner's standing prompt)",
+  "input_sha256": "63a7db43bede3197de1ec64cde0e61271d383bc9ce7f1e8677406c1056d9486c",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T02:55:54Z",
+  "ended": "2026-11-24T03:09:45Z",
+  "wall_minutes": 14.05,
+  "tokens_in": 11701571,
+  "tokens_out": 39603,
+  "cost_usd": 4.417,
+  "tool_calls": 92,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18524",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "model-inventory first run wrote to a relative path that did not exist (my typo); rerun with an absolute path",
+    "eval/model-values.mjs walk() rejected single files (ENOTDIR); fixed to accept files"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ids-model-check/eval/model-values.mjs",
+      "issue": "took directories only; passing one model failed with ENOTDIR (now accepts files)"
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "buildable item 'more real exports through model-inventory/attr-ranges' named no source of exports; ifc-quantity-takeoff's eval docs already used engine_web-ifc's 28 public models, which took a search to find"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-ids-model-check-label-or-text.md",
+    "ventures/ids-model-check/eval/mixed-type-own-props-2026-11-24.md"
+  ],
+  "goal": null,
+  "notes": "Router row 7 ids-model-check, item 2 (model sweeps on more real exports). Ran model-inventory, model-attr-ranges, model-attr-codes and model-values over engine_web-ifc tests/ifcfiles/public (28 models, c4a65a31). 4 of 19,300 property offers failed: Revit own properties written as IFCLABEL and IFCTEXT (ARK_NUS). Fix: typeCounts in inventory, modelSets sums types (commonest dataType), mixedModelTypes/untypeOwnRow, editor note + Accept any data type button; fixed an older note bug ('None of the model's objects has X' shown when the model has it). After: 19,300/19,300; IfcTester 0.9.0 8/8 same. Verification: node --test inventory.test.mjs 20/20; run_venture_tests.py ids-model-check 535 tests ok; Playwright drive of editor.html on a mixed-type sample, no page errors; check_posts ok; validate.py ok; venture-preflight run in background (result in PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "44882b3d-f82e-55cc-9dde-4572d9c5d312",
+    "transcripts": 1,
+    "first": "2026-11-24T02:55:54Z",
+    "last": "2026-11-24T03:09:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 87,
+        "input": 168,
+        "output": 39603,
+        "thinking": 7182,
+        "cache_read": 11536791,
+        "cache_write_5m": 0,
+        "cache_write_1h": 164612,
+        "api_equivalent_usd": 4.417,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 87,
+      "input": 168,
+      "output": 39603,
+      "thinking": 7182,
+      "cache_read": 11536791,
+      "cache_write_5m": 0,
+      "cache_write_1h": 164612,
+      "api_equivalent_usd": 4.417,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 92,
+    "tools": {
+      "Bash": 86,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.05,
+      "active_minutes": 14.05,
+      "model_minutes": 7.62,
+      "tool_minutes": 6.42,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior dev: sweep 28 models, diagnose, fix editor + tests + IfcTester crosscheck + writeup",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 135.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+A second make: shipped one-column `--turns` default on the Philadelphia Fed's US coincident index (USPHCI) vs NBER
+
+main file us-usphci.csv: n 571 (1979-01 to 2026-07), NBER turns 12: 1980-01p 1980-07t 1981-07p 1982-11t 1990-07p 1991-03t 2001-03p 2001-11t 2007-12p 2009-06t 2020-02p 2020-04t
+
+Dated turns per copy:
+  us-usphci.csv: dated 1981-07p 1982-11t 1990-10p 1991-05t 2001-05p 2001-12t 2008-04p 2009-10t 2020-02p 2020-04t
+  us-usphci-vintage-2021-12.csv: dated 1981-09p 1982-11t 1990-10p 1991-05t 2001-05p 2001-12t 2008-04p 2009-10t 2020-02p 2020-04t
+  us-usphci-vintage-2023-05.csv: dated 1981-09p 1982-11t 1990-10p 1991-05t 2001-05p 2001-12t 2008-04p 2009-10t 2020-02p 2020-04t
+  us-usphci-vintage-2023-10.csv: dated 1981-09p 1982-11t 1990-10p 1991-05t 2001-05p 2001-12t 2008-04p 2009-10t 2020-02p 2020-04t
+  us-usphci-vintage-2024-10.csv: dated 1981-08p 1982-11t 1990-10p 1991-05t 2001-05p 2001-12t 2008-04p 2009-10t 2020-02p 2020-04t
+
+Per NBER turn, months from NBER to the nearest dated turn of its kind (+ late, - early; * outside 3):
+  turn            main   2021-12   2023-05   2023-10   2024-10
+  1980-01p        +18*      +20*      +20*      +20*      +19*
+  1980-07t        +28*      +28*      +28*      +28*      +28*
+  1981-07p          +0        +2        +2        +2        +1
+  1982-11t          +0        +0        +0        +0        +0
+  1990-07p          +3        +3        +3        +3        +3
+  1991-03t          +2        +2        +2        +2        +2
+  2001-03p          +2        +2        +2        +2        +2
+  2001-11t          +1        +1        +1        +1        +1
+  2007-12p         +4*       +4*       +4*       +4*       +4*
+  2009-06t         +4*       +4*       +4*       +4*       +4*
+  2020-02p          +0        +0        +0        +0        +0
+  2020-04t          +0        +0        +0        +0        +0
+
+Per copy: matched, false turns (labels), F1:
+  us-usphci.csv: 8 of 12, false 0 (-), F1 0.917
+  us-usphci-vintage-2021-12.csv: 8 of 12, false 0 (-), F1 0.917
+  us-usphci-vintage-2023-05.csv: 8 of 12, false 0 (-), F1 0.917
+  us-usphci-vintage-2023-10.csv: 8 of 12, false 0 (-), F1 0.917
+  us-usphci-vintage-2024-10.csv: 8 of 12, false 0 (-), F1 0.917
+
+Bars (main file):
+  U1 matched 8/12 = 0.667 (>= 0.80) and false 0 (<= 2): FAIL
+  U2 F1 0.917 vs random 0.260 (+0.656, >= +0.15), p 0.0000 (<= 0.05): PASS
+  U3 turns matched on main, matched on every copy and moving <= 3 months: 1981-07 all spread 2; 1982-11 all spread 0; 1990-07 all spread 0; 1991-03 all spread 0; 2001-03 all spread 0; 2001-11 all spread 0; 2020-02 all spread 0; 2020-04 all spread 0: PASS
+
+Decision: nothing changes
+
+Printed, no bar (main file):
+  bigMoveOff: matched 6/12, false 0 (-), F1 0.818; dated 1981-07p 1982-11t 1990-10p 1991-05t 2001-05p 2001-12t 2008-04p 2009-10t
+  phase3: matched 10/12, false 0 (-), F1 1.000; dated 1980-03p 1980-07t 1981-07p 1982-11t 1990-10p 1991-05t 2001-05p 2001-12t 2008-04p 2009-10t 2020-02p 2020-04t
+
+California (ca-caphci-vintage-2023-10.csv, n 538, no state dating to score against; NBER's national turns beside it):
+  dated 1981-08p 1982-11t 1990-06p 1991-03t 1991-10p 1992-06t 2001-06p 2001-12t 2008-02p 2009-10t 2020-02p 2020-04t
+  nearest same-kind turn to each NBER turn (months): 1980-01p +19, 1980-07t +28, 1981-07p +1, 1982-11t +0, 1990-07p -1, 1991-03t +0, 2001-03p +3, 2001-11t +1, 2007-12p +2, 2009-06t +4, 2020-02p +0, 2020-04t +0
+  dated turns with no national turn of the kind within 6: 1991-10p 1992-06t

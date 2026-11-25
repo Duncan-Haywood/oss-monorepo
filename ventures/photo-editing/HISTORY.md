@@ -19,3 +19,12 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-22) mpcws (held +0.31 dB) failed on K-1 II not by a noisy truth: a green-pair truth read failed its validity tests 2026-11-22, and mpcws's own selection over-reads 2.3x there (eval/noise-pca-mpcws-noisy-truth-*)
 - (moved 2026-11-22) q ramps refit 2026-11-22 (eval/hdrplus-ramp-fit-*): ship's pick fails h3/h4 on 79 fresh bursts, ramps stay
 - (moved 2026-11-23) mpcws, colour ramp (0.3, 1.0), 4 blind draws (eval/hdrplus-joint-check-*): J4 passed on 111 HDR+ bursts, J5 held it on 126
+- (moved 2026-11-24) drawn noise on 11 fresh camera raws passed 2026-11-23 (+0.12/+0.22 dB, eval/camera-drawn-mpcws-*), so mpcws is the Bayer default
+- (moved 2026-11-24) a lower-envelope line fit (opt-in) rescued 3 of 6 K-1 II losers but failed h1 2026-11-22 (-0.2 dB luma at SNR 12 wb: wb bins are not on one line; eval/noise-envelope-fit-*; next on whitened bins)
+- (moved 2026-11-24) IPTC template 2026-11-24 (13 fields, eval/cull-iptc-*)
+- (moved 2026-11-24) AF points 2026-11-24 (22 of 22 = metadata-extractor, eval/cull-af-point-*)
+- 2026-11-24 closed-eye page asks MediaPipe for 32 faces, the CLI's MAX_FACES (was 20; red-team find, test pins the landmarker options and reads the CLI constants)
+- (moved 2026-11-24) Closed eyes: page = CLI rule 2026-11-24 (6 of 7, eval/blink-rule-agreement-*)
+- (moved 2026-11-24) mpcws opt-in again 2026-11-24 (a GH4 tile -0.13, eval/camera-drawn-mpcws-fresh-*)
+- (moved 2026-11-24) S1R II 177 MP = LibRaw snapshot 202611, every sensel (eval/panasonic-rw2-177mp-libraw-*)
+- (moved 2026-11-24) D780/D600: 6 of 11 losers are real over-reads on clean truths (eval/near-clean-truth-noise-2026-11-19.md)

@@ -17,7 +17,7 @@ barrels before you plan the expansion**, which used to be a tier calculation red
 Modelled: $3.50/bbl on the first 60,000 barrels (domestic brewers at 2 million barrels or fewer, shared across a controlled
 group), $16/bbl up to 6 million barrels, $18/bbl above; 31-gallon barrel; quarterly/annual filing thresholds as a hint.
 Not modelled: state and local beer tax, importers and contract-brewing assignments, tax-free removals and losses, refunds,
-the actual TTB return. Not tax advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+the actual TTB return. Not tax advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).
 
 ## Known gaps (quality census, 2026-11-15)
 

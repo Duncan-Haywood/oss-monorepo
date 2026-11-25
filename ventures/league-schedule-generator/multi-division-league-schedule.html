@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23471b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Multi-Division League Scheduler — U10, U12 and adult divisions on shared courts</title>
+  <title>Multi-Division League Scheduler: U10, U12 and Adult on Shared Courts</title>
   <meta name="description" content="Free multi-division league schedule maker. List your divisions, name the shared courts and venues, and get one schedule with no court double-booked, teams that share a coach kept apart, and fewer trips between venues. Runs in your browser; nothing is uploaded.">
   <meta property="og:title" content="Multi-Division League Scheduler — shared courts, linked teams, fewer venue trips">
   <meta property="og:description" content="One schedule for every division of a club that shares courts: U10, U12, adult. Free, private, in your browser.">
@@ -73,6 +73,7 @@
     <h2>1. Divisions</h2>
     <label for="divisions">One division per line: Name: team, team, team (add (double) for a double round robin)</label>
     <textarea id="divisions" class="mono" rows="5" placeholder="U10: Hawks, Owls, Lynx, Otters&#10;Adult: Rams, Kings, Stars, Comets (double)"></textarea>
+    <p class="note">Teams spread over several towns? <a href="./divisions-by-location.html">Draw the divisions by location</a> first, with the least travel between rivals.</p>
     <h2 style="margin-top:18px">2. Courts and times</h2>
     <div class="row4">
       <div><label for="courts">Shared courts (comma separated; Court @ Venue)</label><input id="courts" placeholder="Field 1 @ Park, Gym A @ School"></div>
@@ -208,7 +209,7 @@
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tool: the <a href="../shift-cover-optimizer/">shift cover optimizer</a> for staff rotas the <a href="../volunteer-shift-scheduler/">volunteer shift scheduler</a> for the people who run your league day, the <a href="../tournament-pairing-manager/">tournament pairing manager</a> for Swiss events and brackets, and the <a href="../youth-lineup-rotator/">youth lineup rotator</a> for who plays where inside each game.</p>
     <p>Running the league committee? <a href="../meeting-action-items/">Meeting action items</a> turns your meeting notes into owned, dated action items and a follow-up email.</p>
-    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free to use and source available. If this helped, the <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">

@@ -3,6 +3,16 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { readdirSync } from 'node:fs';
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const stripTags = (s) => {
+  let prev;
+  do {
+    prev = s;
+    s = s.replace(/<[^>]*>/g, "");
+  } while (s !== prev);
+  return s;
+};
+
 const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
 const guide = await readFile(new URL('./what-is-bus-factor.html', import.meta.url), 'utf8');
 
@@ -39,7 +49,7 @@ test('the page makes no network calls: no fetch, XHR, beacon or WebSocket in its
 
 test('the JSON-LD FAQPage questions match the visible FAQ headings', () => {
   const ld = index.match(/"@type":"FAQPage"[\s\S]*?<\/script>/)[0].replace(/\\"/g, '"');
-  const headings = [...index.matchAll(/<h3>(.*?)<\/h3>/g)].map((m) => m[1].replace(/<[^>]+>/g, '').trim());
+  const headings = [...index.matchAll(/<h3>(.*?)<\/h3>/g)].map((m) => stripTags(m[1]).trim());
   assert.ok(headings.length > 0);
   for (const h of headings) assert.ok(ld.includes(h), `heading not in FAQPage JSON-LD: ${h}`);
 });
@@ -73,7 +83,7 @@ test('every status the analyzer can emit is described on the guide page', async 
 test('every .html file is reachable from the sitemap', async () => {
   const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
   for (const name of readdirSync(new URL('./', import.meta.url)).filter((n) => n.endsWith('.html'))) {
-    if (name !== 'index.html') assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')));
+    if (name !== 'index.html') assert.match(sitemap, new RegExp(escapeRegExp(name)));
   }
 });
 

@@ -2,15 +2,21 @@
 
 > Free calculator for makers selling 3D-printed parts: price one print from filament, electricity, printer depreciation, failed-print rate, and post-processing labor, then check whether your marketplace fee and target margin actually clear at the price you're charging.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## What it reads from a sliced file
+
+- The slicer's own summary comments: PrusaSlicer, SuperSlicer, OrcaSlicer, Bambu Studio, Cura, Simplify3D (grams and print time; Cura's length is weighed as 1.75 mm PLA at 1.24 g/cm³).
+- A file with no summary (another slicer, CAM output, comments stripped by a print host, or Cura's unfilled `;TIME:6666` template) is timed from its moves: lookahead planning, trapezoid speed profiles, Marlin-style jerk or junction-deviation corners, and the M201/M203/M204/M205 limits the file sets. On 21 PrusaSlicer 2.7.2 files the median gap to PrusaSlicer's own estimate was 0.2% and the worst 1.7% (measured 2026-11-24; method and table in the source's eval/motion-vs-prusaslicer-2026-11-24.md). Heater waits and bed probing are not timed.
+- The file is read in the browser and never uploaded.
 
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/3d-print-price-calculator/)
-- [How much does a failed print actually cost you?](https://duncan-haywood.github.io/oss-monorepo/3d-print-price-calculator/how-much-does-a-failed-print-cost-you.html)
-- [This calculator vs. your slicer's cost estimate](https://duncan-haywood.github.io/oss-monorepo/3d-print-price-calculator/vs-slicer-cost-estimate.html)
-- [This calculator vs. the 3x filament rule](https://duncan-haywood.github.io/oss-monorepo/3d-print-price-calculator/vs-the-3x-filament-rule.html)
+- [The tool](https://marisstella.app/3d-print-price-calculator/)
+- [How much does a failed print actually cost you?](https://marisstella.app/3d-print-price-calculator/how-much-does-a-failed-print-cost-you.html)
+- [This calculator vs. your slicer's cost estimate](https://marisstella.app/3d-print-price-calculator/vs-slicer-cost-estimate.html)
+- [This calculator vs. the 3x filament rule](https://marisstella.app/3d-print-price-calculator/vs-the-3x-filament-rule.html)
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/3d-print-price-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/3d-print-price-calculator): FSL-1.1-MIT licensed.

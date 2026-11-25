@@ -947,6 +947,48 @@ D1 = 0.1 N, the schedule built as if the drift were linear fails the 100-sheet w
 against a 116 s sheet, and one step past it the failure is 11.0%. Starting the G1's bands at the bottom of the grip range
 cuts the count to 24 (75.8%, against 57.1% under linear drift), from 12.8% to 3.10% of the cycle at 15 s a re-zero.
 Holding every nail at the best pose would pay at 0.313 s a move (0.020 s under linear drift).
+Allocating the risk press by press does not get past the G1's cliff (milestone 74, offline). The fewest re-zeros under
+a total risk budget split into segments is an exact layered dynamic programme, and the wall is periodic, so a press's
+risk depends only on its place in the sheet and its time since the last re-zero. Bounding each segment's failure below by
+its largest marginal gives a lower bound on any schedule with 1% wall risk: 96 re-zeros on the G1's LAYOUT plan at
+D1 = 0.1 N, which the Monte Carlo-calibrated allocation reaches (against 99 at a uniform level). Against a calibrated
+uniform level the allocation saves at most 149 to 136, and it sits within 10% of the bound on every row with 10 or more
+re-zeros (median 1.3%). On the G1's banded plan it needs 23 (2.97% of the cycle). The pose plan, not the allocation,
+sets the count.
+Sharing the risk differently does not help (milestone 75, offline). Under a pure walk the bias norm is a 3-D Bessel
+process, so a segment's survival follows exactly from a one-variable chain with a closed-form transition, and since
+re-zeros reset the walk the fewest re-zeros at a 1% wall risk is a layered dynamic programme. Its count is checked against
+brute force, against 4,000 fresh Monte Carlo walls (at most 1.20% failure) and against a grid twice as fine (at most one
+re-zero). Over 18 cases (three plans, two robots, D1 0.05 to 0.2 N) the optimum is never more than 7% below one
+per-press &epsilon; calibrated on the same exact chain, and equal to it on 12. On the G1 at 0.1 N it needs 96 against 99:
+the cliff above is set by the weak pose and the sheet period, not by a uniform &epsilon;. The same chain shows the Monte
+Carlo calibration above overshoots the 1% target on 5 of the 18 cases, up to 1.31%, so the H1 needs 10 re-zeros, not 9.
+The two codes agree where they should: the lower bound above is at or below the exact optimum on all 18 cases and
+equal to it on 5, the G1's 96 among them, while 3 of the 18 simulation-calibrated allocations exceed 1% when scored on
+the chain (up to 1.22%). Against the exact optimum, allocation saves at most 149 to 142 re-zeros.
+Reading the bias does what scheduling cannot (milestone 76, offline). Once a sheet, in the sense stage, the tool hangs
+in free air and its bias can be read through a gravity model with noise s a axis; a Kalman filter turns the readings into
+e ~ N(m, P I), and the chain above, started from the noncentral chi law of the carried residual, prices a sheet that
+skips its tare. Moving the offset by m at every reading (TRACK) needs no tares on 16 of the 18 cases at s = 0.01 N, and
+49 on the G1's LAYOUT plan at 0.1 N against the open-loop optimum's 96; using the reading only to trigger a tare (READ)
+needs 38.4 there even with perfect readings. At s = 0.02 N the G1's weak pose is back at its cliff (95.7 at best), and
+TRACK, whose tare decision is the same on every path, tares every sheet or never. A fixed 0.02 N reading error unknown to
+the filter takes the wall's failure to 9.9 to 12.4% where a policy runs near its margin. The reading is worth 3.45 s a
+sheet on the G1's banded plan at c = 15 s.
+Because TRACK's filter variance after j sheets is the same on every path, each sheet's risk j sheets after a tare is a
+fixed table, and with it increasing the fewest tares at a union-bound wall budget are equal runs (milestone 77). This
+BALANCE schedule is never worse than TRACK on 90 cases and needs no more tares than either closed-loop policy at
+s = 0.01 N on all 11 cases with an open-loop optimum of at least 10, but saves a median of only 2.0% over TRACK: the gain
+is where a per-sheet level forced a tare every sheet (G1 LAYOUT at 0.2 N, s = 0.05 N: 116 against 199 and the
+open-loop optimum's 142). On the G1's weak pose at s = 0.02 N it needs 97, the open-loop optimum and no better, and a
+0.02 N gravity-model error still fails 11.9% of walls.
+That gravity-model error can be learnt (milestone 78). It is fixed at the reading pose, and a tare is exact, so a
+reading taken just after a tare sees it almost alone. Carrying it in the filter state with a prior N(0, 0.02&sup2;) N a
+axis and reading once right after every tare keeps all 72 cases at the 1% target (worst 1.09% on 10,000 fresh walls)
+and needs 67 re-zeros on the G1's weak pose at s = 0.01 N, against 48 with the error known to be zero and the open-loop
+optimum's 96; a filter that ignores it fails 51.5% of walls there, and a stricter risk level helps only by taring every sheet,
+or not at all, because its risk table says a carried sheet is safe. Over the cases needing at least 10 tares the median cost of learning the error is 7.7%,
+and a fixed error of twice the prior's standard deviation fails 0.78%.
 
 ### 5.12 What the remedies cost (milestone 13)
 

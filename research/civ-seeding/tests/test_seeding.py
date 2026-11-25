@@ -599,3 +599,26 @@ def test_m22_oracle_true_halves_only_false_ties():
     assert np.allclose(est, orc.sum(1))
     _, _, orc_hard = _census(v, 0.25, w=0.0, oracle_true=True)
     assert set(np.unique(orc_hard)) <= {0.0, 1.0}
+
+
+@pytest.mark.parametrize("name", ["H", "L"])
+def test_batch_of_one_matches_complex_simulate_h_l(setup, name):
+    """Milestone 30: the batched simulator reproduces complex.simulate for the H and L fits."""
+    V, beta = setup
+    mod = sd.MODELS[name]
+    for v in V[:3]:
+        a = cx.simulate(v, beta, mod["qN"], mod["qP"], 20, np.random.default_rng([3, v.village]),
+                        delta=mod.get("delta", 0.0), theta_beta=mod.get("theta_beta"),
+                        latent=mod.get("latent"))
+        b = sd.simulate_batch(v, beta, v.leader, 20, np.random.default_rng([3, v.village]),
+                              return_matrix=True, **mod)
+        assert (a == b).all()
+
+
+def test_batch_shares_latent_draws_across_seed_sets(setup):
+    """With shared draws, two identical seed columns give identical adoption under L."""
+    V, beta = setup
+    v = V[0]
+    X = np.stack([v.leader, v.leader], 1)
+    out = sd.simulate_batch(v, beta, X, 12, np.random.default_rng(5), **sd.MODELS["L"])
+    assert (out[0] == out[1]).all()

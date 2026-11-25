@@ -2,7 +2,7 @@
 
 > Free Airbnb earnings analyzer: drop in your Transaction history CSV and see net earnings, fee share, nightly rate and occupancy per listing, which months and stay lengths earn the most, and whether your cleaning fee covers your cleaning cost. Runs in your browser, the file is never uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/airbnb-earnings-report-analyzer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/airbnb-earnings-report-analyzer): FSL-1.1-MIT licensed.

@@ -36,7 +36,7 @@ Open `index.html` in a browser (or serve the folder). Tests: `node --test`.
 
 ## Licence
 
-MIT, see `LICENSE`. No warranty; not legal, tax or financial advice.
+FSL-1.1-MIT, see `LICENSE`. No warranty; not legal, tax or financial advice.
 
 ## Also
 

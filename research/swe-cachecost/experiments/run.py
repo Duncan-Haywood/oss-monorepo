@@ -1,9 +1,13 @@
-"""Where run cost goes, in prompts/runs/*.json. Prints results.txt. Run from anywhere."""
+"""Where run cost goes, in prompts/runs/*.json. Prints results.txt. Run from anywhere.
+
+Reads only records dated on or before UNTIL (the study window ends 2026-10-20), so later run
+records do not change the result; `python3 experiments/run.py --until YYYY-MM-DD` moves it."""
 import glob, json, math, os, statistics, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "src"))
 from swe_cachecost.cc import usable, totals, cost_shares, loglog, fit, slope_ci, quantile
 
+UNTIL = sys.argv[sys.argv.index("--until") + 1] if "--until" in sys.argv else "2026-10-20"
 root = os.path.join(HERE, "..", "..", "..", "prompts")
 prices = json.load(open(os.path.join(root, "pricing.json")))["models"]
 runs = []
@@ -12,7 +16,7 @@ for f in sorted(glob.glob(os.path.join(root, "runs", "*.json"))):
         r = json.load(open(f))
     except ValueError:
         continue
-    if isinstance(r, dict) and r.get("date") and r.get("outcome"):
+    if isinstance(r, dict) and r.get("date") and r.get("outcome") and str(r["date"])[:10] <= UNTIL:
         runs.append(r)
 u = [r for r in runs if usable(r) and cost_shares(r, prices)]
 print(f"records {len(runs)}   with per-component usage, cost and tool calls {len(u)}   dates {min(r['date'] for r in u)} to {max(r['date'] for r in u)}")

@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKkVWA4FW3bMVWDKNgd",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T10:17:41Z",
+  "ended": "2026-11-24T10:34:19Z",
+  "wall_minutes": 20.59,
+  "tokens_in": 10675977,
+  "tokens_out": 36851,
+  "cost_usd": 3.9088,
+  "tool_calls": 102,
+  "task": "polish: hub, category tiles and tool cards ending mid-phrase",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18587",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "my new tile test failed on solo-earner (167-char blurb cut cleanly by snippetize but over the 140 rule)",
+      "fix": "gave solo-earner a card line"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Screenshotting the hub without reducedMotion caught the stat count-up mid-way (230 vs 1,081 research projects) and looked like a data bug; the prompt could say to screenshot with reducedMotion:'reduce'."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The live site (marisstella.app) is unreachable through the cloud proxy (curl 000), so every polish run must do the 10-minute local build before it can look at anything."
+    },
+    {
+      "file": "platform/pages/build.test.mjs",
+      "issue": "A --test-name-pattern run of this file alone still outlasts the 120 s tool timeout; even a 4-test check needs run_in_background."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Last two polish reports' 'Still weakest' lists pointed at more title shortening, already claimed by open PR #18581.",
+      "did": "Chose a different defect found by screenshots (card copy ending mid-phrase) instead of the report queue.",
+      "result": "1,300 \u2192 188 cut tool cards; 19 \u2192 0 on the hub."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-cards-end-on-a-sentence.md",
+    "docs/reports/polish-2026-11-24-card-sentences.md"
+  ],
+  "goal": null,
+  "notes": "Full build + check.mjs exit 0 after the change. Full platform/pages suite: 1936/1937 pass before the solo-earner card fix; affected groups re-run 14/14. Two posts' seo_title collisions with product pages fixed (build warnings 2 \u2192 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3457af87-34fa-5f2f-90cd-cd0978b45c75",
+    "transcripts": 1,
+    "first": "2026-11-24T10:17:41Z",
+    "last": "2026-11-24T10:38:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 92,
+        "input": 177,
+        "output": 36851,
+        "thinking": 9652,
+        "cache_read": 10542997,
+        "cache_write_5m": 0,
+        "cache_write_1h": 132803,
+        "api_equivalent_usd": 3.9088,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 92,
+      "input": 177,
+      "output": 36851,
+      "thinking": 9652,
+      "cache_read": 10542997,
+      "cache_write_5m": 0,
+      "cache_write_1h": 132803,
+      "api_equivalent_usd": 3.9088,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 102,
+    "tools": {
+      "Bash": 85,
+      "Read": 14,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.59,
+      "active_minutes": 20.58,
+      "model_minutes": 6.61,
+      "tool_minutes": 13.98,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "survey of 7 surfaces, card-copy chooser and tests, 15 hand-written card lines, rebuild and report",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 102.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

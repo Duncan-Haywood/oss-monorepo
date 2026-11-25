@@ -14,4 +14,4 @@ node cli.mjs --price 6000 --hours 60 --file requests.txt --max-creep-pct 20   # 
 
 Browser version: `index.html` (nothing is uploaded). Node 18+, no dependencies, no network.
 
-Arithmetic on your own estimates; not a contract, a quote or legal advice. MIT licence.
+Arithmetic on your own estimates; not a contract, a quote or legal advice. FSL-1.1-MIT licence.

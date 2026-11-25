@@ -23,6 +23,30 @@ DFN-forecast lithium loss at cycle 100:
    plating sits at cycle 2 (section 4.4). The score costs no extra simulation.
 3. **Run the flagged designs on to cycle 50,** flagging by an absolute threshold on S<sub>C</sub> whose
    margin is set by nested leave-one-pool-out on earlier batches (section 4.6). Leave the rest at 10.
+4. **Correct the ten-cycle forecast where the training designs drift** (conditional; section 4.7, Table 3).
+   Fit the correction on the training pools and switch it on by a gate read out of fold: the drift-size
+   gate (median |m &minus; 1| &ge; 0.10 on the training designs) or the out-of-fold error gate. Neither
+   tests whether the drift runs one way, which is where the correction actually pays; both are on for
+   most published sets, whose drift runs both ways, and cost +3.25 (drift gate) and +1.88 (error gate)
+   cycles per design there with 17 of 20 folds met against step 3's 19.
+   Where it is on, every design stops at ten cycles. Over eight set-conditions, three of them tuned plating
+   cells and one an engineered plating-free cell, this saves 14.7 (drift gate) and 15.4 (error gate) DFN
+   cycles per design against step 3 alone (set bootstrap upper ends &minus;1.8 and &minus;3.1) at 36 of 40
+   folds met against 35. Up to milestone 7zb this step said "only on cells known to be plating-limited";
+   7zc's plating-free cell gains as much, and a gate on plating share switches it off there, so plating
+   share is dropped as the condition (7zc, 7zd).
+   Milestone 7ze adds the direction test as a third gate (gS: the drift gate, and at least 80% of the
+   training designs drifting the same way). It switches the correction off on three of the four published
+   sets (direction shares 0.50 to 0.75) and is the cheapest deployable gate over the eight conditions,
+   &minus;15.4 cycles per design against step 3 (&minus;28.0 to &minus;3.2; 20 cheaper, 4 dearer, p = 0.002)
+   at 37 of 40 folds met. It does not fix `NCA_Kim2011`, whose designs drift one way (share 0.93 to 0.97),
+   so on the published sets it still costs +1.75 cycles per design with 18 of 20 folds against 19. The
+   recipe's default gate is therefore gS, with the caveat that it was designed after seeing what gD missed.
+   Table 3's &theta;S row adds two things a practitioner weighs: over the six set-conditions it meets 28 of
+   30 folds, as many as step 3 alone and one more than every size-only gate, and at f = 10, where the
+   training drift runs both ways, it stays off and gives up the size-only gates' 9 to 17 cycle saving for
+   one more fold met (7 of 10 against 6). It is the conservative choice: it corrects less often, and where
+   it does correct the drift points one way.
 
 Figure 2 places every out-of-batch look at this rule against its two rivals. The threshold rule met the
 tail target on 75% to 95% of held-out pools at 38 to 44 DFN cycles per design. Running every design to a
@@ -173,9 +197,9 @@ shared container. The cheapest test of the continuation assumption is to rerun a
 to cycle 10, checkpoint, resume to cycle 50, and compare both the wall time and the cycle-50 lithium loss
 with the uninterrupted runs.
 
-Milestone 7zb tried to separate the two readings of where the corrected forecast pays (plating-dominated loss, or large one-directional drift) with a cell that drifts without plating. It could not build one: with plating off, no multiplier from 10 to 10<sup>6</sup> on `Marquis2019`'s SEI solvent diffusivity brings its cycle 2 to 20 lithium loss above 0.96% of n<sub>Li</sub>, because the film's resistance ends the charge step early and the loss limits itself. The recipe therefore keeps the plating-share gate, and the drift reading is untested.
+Milestone 7zb tried to separate the two readings of where the corrected forecast pays (plating-dominated loss, or large one-directional drift) with a cell that drifts without plating. It could not build one: with plating off, no multiplier from 10 to 10<sup>6</sup> on `Marquis2019`'s SEI solvent diffusivity brings its cycle 2 to 20 lithium loss above 0.96% of n<sub>Li</sub>, because the film's resistance ends the charge step early and the loss limits itself.
 
-Milestone 7zc removed the film's resistance and built the cell: with plating off and SEI film resistivity set to zero, the 10<sup>5</sup> rung loses 3.7% of n<sub>Li</sub> over cycles 2 to 20, grows as &radic;t, and drifts further from the straight forecast than any plating cell (median m 0.365). On it the corrected rule meets 5 of 5 folds at 10.0 DFN cycles per design against triage's 49.2, the plating-share gate is off on every fold and the drift gate on. Drift size, not plating, is what makes the correction pay, so the recipe's gate should be gD; the cell is engineered (a film with no resistance) and tests the gate's logic rather than a measured cell.
+Milestone 7zc removed the film's resistance and built the cell: with plating off and SEI film resistivity set to zero, the 10<sup>5</sup> rung loses 3.7% of n<sub>Li</sub> over cycles 2 to 20, grows as &radic;t, and drifts further from the straight forecast than any plating cell (median m 0.365). On it the corrected rule meets 5 of 5 folds at 10.0 DFN cycles per design against triage's 49.2, the plating-share gate is off on every fold and the drift gate on. Milestone 7zd gave the film back 200, 2,000 and 20,000 &Omega;&nbsp;m (a thousandth to a tenth of `Marquis2019`'s 200,000) and nothing changed: same fade band, same drift, same gate decisions, 5 of 5 folds at 10.0 cycles on every rung; the charge choking of 7zb sets in between 2 &times; 10<sup>4</sup> and 2 &times; 10<sup>5</sup> &Omega;&nbsp;m. Drift size, not plating, is what makes the correction pay, and step 4 of the recipe (section 5.1) now gates on it. Two limits go with that change. The cell is engineered and tests the gate's logic, not a measured cell; whether real SEI films sit below or above the takeover resistivity is a literature question still open. And the eight-set interval against triage excludes zero only because this cell is in it (Table 3, finding 9).
 
 For the paper, in order of value: (1) a fifth and sixth parameter set, since across-chemistry spread,
 not the number of pools, now limits the main claim (section 4.6, finding 2). Milestone 7p tried this and

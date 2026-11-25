@@ -88,7 +88,8 @@ test('a hit is counted per day and slug, and /counts returns it', async () => {
   assert.equal(res.status, 200);
   const { days } = await res.json();
   const [day] = Object.keys(days);
-  assert.deepEqual(days[day], { 'roof-bid': 3, 'ref:npm': 2, 'src:google': 2, 'dev:desktop': 3 }, 'a source outside the closed list is dropped');
+  // The DNT load counts too (anonymous first-party tally, 2026-11-24).
+  assert.deepEqual(days[day], { 'roof-bid': 4, 'ref:npm': 2, 'src:google': 2, 'dev:desktop': 4 }, 'a source outside the closed list is dropped; a DNT load is counted');
 });
 
 test('a load adds its country and device class; a crawler beacon adds to bot: keys, not the page', async () => {
@@ -276,4 +277,17 @@ test('/inbox routes only GET (read) and DELETE (erase); any other method or path
   assert.equal((await worker.fetch(req('/inbox', { method: 'GET', headers: auth }), e)).status, 200);
   const del = await worker.fetch(req('/inbox?id=1', { method: 'DELETE', headers: auth }), e);
   assert.deepEqual(await del.json(), { deleted: 1 });
+});
+
+test('/hit with a funnel event adds one to its fn: key and nothing else (no page load, geo or device)', async () => {
+  const e = env();
+  const day = new Date().toISOString().slice(0, 10);
+  await worker.fetch(req('/hit', { body: JSON.stringify({ p: 'c/restaurants', e: 'cta_click', i: 'restaurants', t: 'menu-suite' }), cf: { country: 'US' } }), e);
+  await worker.fetch(req('/hit', { body: JSON.stringify({ p: 'products', e: 'products_view' }) }), e);
+  await worker.fetch(req('/hit', { body: JSON.stringify({ p: 'products', e: 'signup' }) }), e);
+  await worker.fetch(req('/hit', { body: JSON.stringify({ p: 'products', e: 'products_view' }), headers: { 'user-agent': 'Googlebot/2.1' } }), e);
+  assert.deepEqual(Object.fromEntries(e.DB.counts), {
+    [`${day}|fn:cta_click:restaurants:menu-suite:c/restaurants`]: 1,
+    [`${day}|fn:products_view:_:_:products`]: 1,
+  });
 });

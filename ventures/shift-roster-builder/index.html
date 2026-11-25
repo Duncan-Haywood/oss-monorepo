@@ -4,7 +4,7 @@
   <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%235f1b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Shift Roster Builder — a free weekly employee schedule maker that follows your rules</title>
-  <meta name="description" content="Free employee schedule maker for restaurants, cafes, salons, shops and clinics. List the shifts to cover and your staff's availability, hour limits and wages; get a weekly roster that avoids overtime, respects rest gaps and shows which shifts could not be filled and why. Runs in your browser; nothing is uploaded.">
+  <meta name="description" content="Free employee schedule maker for restaurants, cafes, salons and shops: a weekly roster that follows availability, hour limits and rest gaps. Nothing uploaded.">
   <meta property="og:title" content="Shift Roster Builder — free, private, in your browser">
   <meta property="og:description" content="Assign named people to shifts by availability, hour limits, rest gaps and cost, and see who your schedule depends on.">
   <link rel="canonical" href="./index.html">
@@ -202,7 +202,7 @@
 
   <section class="card" id="pack-card" aria-labelledby="h-pack" hidden>
     <h2 id="h-pack">Branded staff schedule pack</h2>
-    <p class="note">This week on your own letterhead: your logo and colours, a wall grid, and one page per person to print or save as PDF and send. No pay appears on it. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; the roster and every other download here stay free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
+    <p class="note">This week on your own letterhead: your logo and colours, a wall grid, and one page per person to print or save as PDF and send. No pay appears on it. Unlock it with a licence key. The code is FSL-1.1-MIT, so the key is an honest-buyer convenience, not copy protection; the roster and every other download here stay free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
     <p id="pack-buy-row" hidden><a id="pack-buy" class="cta" rel="noopener" target="_blank">Buy a licence key</a></p>
     <p><label>Licence key <input id="pack-key" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="pack-check">Check key</button> <span id="pack-state" role="status"></span></p>
     <div id="pack-fields" hidden>
@@ -327,23 +327,21 @@
     <p>Related tools: the <a href="../shift-cover-optimizer/">shift-cover optimizer</a> (how many people each hour needs, and the cheapest shift lengths; it now reads a POS or booking export of timestamped orders), the <a href="../restaurant-labor-cost-daypart-analyzer/">restaurant labor cost daypart analyzer</a> and the <a href="../tip-pool-compliance-calculator/">tip pool compliance calculator</a>.</p>
     <p>Running a fixed rotation instead of a weekly rota? The <a href="../shift-rotation-schedule-generator/">shift rotation schedule generator</a> builds Pitman, DuPont, 4-on-4-off and 24/48 calendars with an .ics export.</p>
     <p>After the roster is set, <a href="../meeting-action-items/">meeting action items</a> turns the staff-meeting notes into who-does-what-by-when and a follow-up message.</p>
-    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free to use and source available. If this helped, the <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   <p class="more-pages">Also: <a href="availability.html">Send Your Work Availability To Your Manager</a> · <a href="shifts-from-sales.html">Shifts From Your Sales</a> · <a href="staff-schedule-pack-for-small-businesses.html">A branded staff schedule pack, with a sample</a></p>
   </footer>
 
   <script type="module">
-    import { importStaffCsv } from "./import-staff.mjs";
-    import { importShiftsCsv } from "./import-shifts.mjs";
-    import { import7shifts, import7shiftsStaff } from "./import-7shifts.mjs";
-    import { importWhenIWork, looksLikeWhenIWork } from "./import-wheniwork.mjs";
-    import { importSquare, looksLikeSquare } from "./import-square.mjs";
-    import { importDeputy, looksLikeDeputy } from "./import-deputy.mjs";
-    import { importDeputyStaff, looksLikeDeputyStaff } from "./import-deputy-staff.mjs";
     import { staffPackHtml } from "./staffpack.mjs";
-    import { buyLink, checkLicence } from "./licence.mjs";
-    import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
+    import { wireBuyButton, checkLicence } from "./licence.mjs";
     import { planWeeks, planFairness, parseAvailability, placeBreaks, placeRestBreaks, scheduleChanges, carryOverStaff, scheduleFlags, seniorityClaims, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, steadyRoster, steadyText, coverSlackText, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, siteSplit, trimOptions, coverOptions, coverChain, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, splitShiftPay, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, keepFromCsv, pinStarted, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    // The seven importers (about 46 kB gzip, a quarter of the page's script) run only when a file is
+    // chosen in the two import boxes, so they load then, once, instead of with the page. A failed load
+    // clears the memo, so choosing the file again retries.
+    const onDemand = (load) => { let p = null; return () => (p ??= load().catch((e) => { p = null; throw e; })); };
+    const staffImporters = onDemand(() => Promise.all([import("./import-staff.mjs"), import("./import-7shifts.mjs"), import("./import-deputy-staff.mjs")]).then(([a, b, c]) => ({ ...a, ...b, ...c })));
+    const shiftImporters = onDemand(() => Promise.all([import("./import-shifts.mjs"), import("./import-7shifts.mjs"), import("./import-wheniwork.mjs"), import("./import-square.mjs"), import("./import-deputy.mjs")]).then((ms) => Object.assign({}, ...ms)));
 
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
@@ -661,14 +659,14 @@
       document.body.classList.remove("print-wall");
     });
     {
-      const buy = buyLink(CHECKOUT_URL);
+      const buy = wireBuyButton($("#pack-buy"), { onKey: (k) => { $("#pack-key").value = k; $("#pack-check").click(); }, onStatus: (m) => { if (m) $("#pack-state").textContent = m; } });
       let packLogo = "";
-      // Dark until a checkout link is set in checkout.mjs: no card, no Buy button.
-      if (buy) { $("#pack-buy").href = buy; $("#pack-buy-row").hidden = false; $("#pack-card").hidden = false; }
+      // Dark until checkout.mjs carries a Paddle price id (platform/billing/catalogue.mjs): no card, no Buy button.
+      if (buy) { $("#pack-buy-row").hidden = false; $("#pack-card").hidden = false; }
       $("#pack-logo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { packLogo = ""; return; } const r = new FileReader(); r.onload = () => { packLogo = String(r.result); }; r.readAsDataURL(f); });
       $("#pack-check").addEventListener("click", async () => {
         $("#pack-state").textContent = "Checking...";
-        const v = await checkLicence($("#pack-key").value, { url: VALIDATE_URL });
+        const v = await checkLicence($("#pack-key").value);
         $("#pack-state").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason + (buy ? "" : " (the staff pack is not on sale yet)");
         $("#pack-fields").hidden = !v.valid;
         if (v.valid) record("staff_pack_unlocked");
@@ -786,15 +784,15 @@
       // Saved Deputy JSON (Employee, EmployeeAgreement, EmployeeWorkplace, Company; EmployeeAvailability and Leave become dated
       // off: cells when a week is picked), saved 7shifts JSON (users, roles,
       // locations, each user's assignments and wages) or a staff CSV.
-      Promise.all(fs.map((x) => x.text())).then((texts) => {
+      Promise.all([Promise.all(fs.map((x) => x.text())), staffImporters()]).then(([texts, { importStaffCsv, import7shiftsStaff, importDeputyStaff, looksLikeDeputyStaff }]) => {
         const f = { name: fs.length === 1 ? fs[0].name : `${fs.length} files` };
         const json = texts.every((t) => /^\s*[[{]/.test(t.replace(/^\uFEFF/, "")));
         const r = json ? (looksLikeDeputyStaff(texts) ? importDeputyStaff : import7shiftsStaff)(texts, $("#weekstart").value ? { week: $("#weekstart").value } : {}) : importStaffCsv(texts[0]); if (r.rows) { $("#staff").value = r.staffText; persist(); } status.textContent = r.rows ? `Imported ${r.rows} ${r.rows === 1 ? "person" : "people"} from ${f.name}. ${r.notes.join(" ")}${r.skipped.length ? " Skipped: " + r.skipped.join("; ") + "." : ""}` : r.notes.join(" ");
-      });
+      }, () => { status.textContent = "Could not load the importer. Check the connection and choose the file again."; });
     });
     // A schedule export with several locations, or with planned and worked (or first and final) shifts side by side,
     // gets two pickers; the file stays in memory only, so changing a picker re-reads it without another upload.
-    let shiftsFile = null;
+    let shiftsFile = null, shiftsMod = null;
     const famLabel = { schedule: "rostered shifts", final: "final shifts", "": "shifts", initial: "first-published shifts", timesheet: "worked times (timesheets)" };
     const runShiftsImport = () => {
       if (!shiftsFile) return;
@@ -802,6 +800,7 @@
       // Saved Deputy, Square, When I Work or 7shifts API responses are JSON (told apart by their fields; Deputy first, by its
       // capitalised StartTime, then Square since its
       // locations response looks like When I Work's); everything else is read as a CSV export.
+      const { importShiftsCsv, import7shifts, importWhenIWork, looksLikeWhenIWork, importSquare, looksLikeSquare, importDeputy, looksLikeDeputy } = shiftsMod;
       const r = shiftsFile.json ? (looksLikeDeputy(shiftsFile.texts) ? importDeputy : looksLikeSquare(shiftsFile.texts) ? importSquare : looksLikeWhenIWork(shiftsFile.texts) ? importWhenIWork : import7shifts)(shiftsFile.texts, { location: loc || undefined }) : importShiftsCsv(shiftsFile.text, { location: loc || undefined, use: use === "" ? undefined : use });
       if (r.shifts) { $("#shifts").value = r.shiftsText; persist(); }
       status.textContent = r.shifts ? `Imported ${r.shifts} shift ${r.shifts === 1 ? "line" : "lines"} from ${shiftsFile.name}. ${r.notes.join(" ")}${r.skipped.length ? " Skipped: " + r.skipped.join("; ") + "." : ""}` : r.notes.join(" ");
@@ -813,7 +812,8 @@
     };
     $("#import-shifts-file").addEventListener("change", (e) => {
       const files = [...e.target.files]; if (!files.length) return;
-      Promise.all(files.map((f) => f.text())).then((texts) => {
+      Promise.all([Promise.all(files.map((f) => f.text())), shiftImporters()]).then(([texts, mod]) => {
+        shiftsMod = mod;
         const json = texts.every((t) => /^\s*[{[]/.test(t));
         shiftsFile = { name: files.map((f) => f.name).join(", "), text: texts[0], texts, json };
         $("#import-shifts-loc").value = ""; $("#import-shifts-use").value = "";
@@ -824,7 +824,7 @@
         $("#import-shifts-loc").hidden = $("#import-shifts-loc").previousElementSibling.hidden = r.locations.length < 2;
         $("#import-shifts-use").hidden = $("#import-shifts-use").previousElementSibling.hidden = r.families.length < 2;
         $("#import-shifts-pick").hidden = r.locations.length < 2 && r.families.length < 2;
-      });
+      }, () => { status.textContent = "Could not load the importer. Check the connection and choose the file again."; });
     });
     $("#import-shifts-loc").addEventListener("change", runShiftsImport);
     $("#import-shifts-use").addEventListener("change", runShiftsImport);

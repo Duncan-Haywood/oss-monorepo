@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners, emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, moveCorner, moveWall, moveOpening, moveOpeningToWall, resizeOpening, planFromSketch, sketchToDxf, restoreSketch } from "./sketch.mjs";
+import { fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners, emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, removeWall, moveCorner, moveWall, moveOpening, moveOpeningToWall, resizeOpening, sketchToDxf, restoreSketch } from "./sketch.mjs";
+import { planFromSketch } from "./sketchplan.mjs";
 import { takeoff } from "./engine.mjs";
 
 const ft = (n) => n * 12;

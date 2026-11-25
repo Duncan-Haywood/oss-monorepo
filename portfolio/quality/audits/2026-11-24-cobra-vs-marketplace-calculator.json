@@ -1,0 +1,313 @@
+{
+ "date": "2026-11-24",
+ "subject": "ventures/cobra-vs-marketplace-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-24-68d1",
+ "drawn_by": "reaudit",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "prior_audit": "portfolio/quality/audits/2026-11-12-cobra-vs-marketplace-calculator.json",
+ "professional": "a licensed health-insurance broker / employee-benefits specialist who advises people leaving a job; first checks: the COBRA election and first-premium clocks (29 USC 1165, 26 CFR 54.4980B-6 Q&A-1, 54.4980B-8 Q&A-5), the 18/29/36-month durations and 102%/150% caps (29 USC 1162), the loss-of-coverage SEP and effective dates (45 CFR 155.420), the enrolled-not-eligible premium tax credit rule and reconciliation (IRC 36B, 26 CFR 1.36B-2(c)(3)(iv), Form 8962), and whether the cost comparison respects the January 1 plan-year reset",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Independent Python model (scratchpad cobra/model.py: deductible -> coinsurance -> OOP cap written from plan-design rules, and a $10-step grid scan of the cost difference from $0 to $300,000) against engine.mjs compute() on 300 random plan pairs, seeds 7 and 11: 300/300 verdict kinds and crossing points agree (within the $10 grid). README example recomputed: $4,680/$1,260, $5,660/$3,760, $6,960/$7,460, $10,080/$10,460, break-even $4,875 (closed form 3420 + 600 + 0.2(s - 600) = s). The prior 'always' case (COBRA $150/mo ded 9000; marketplace $400/mo OOP 1000; 12 months) now says 'COBRA is cheaper until ... about $3,750', matching 1800 + s = 4800 + 0.2s. Dates by Python date arithmetic: election 2026-12-30, latest first premium 2027-02-13, mid-month loss 2026-10-15 -> 2026-12-14; all match. Wrong on arrival: (1) the plan-year reset is a note only, so the README example still shows 'Worst case: marketplace $10,460' where two plan years (Nov-Dec 2026, Jan-Apr 2027) allow 1,260 + 9,200 + 9,200 = $19,660, a figure the README's own Known gaps quotes; (2) coverage ending 2026-12-31, 12 months, identical plan terms, COBRA $50/mo dearer with $3,000 deductible and $7,000 OOP already met in 2026: headline 'Marketplace is cheaper until ... about $750; past that, COBRA costs less' and COBRA worst case $7,000, while every priced month is in plan year 2027, so the carry-over is gone and the marketplace is cheaper at every level (COBRA worst 6,000 + 8,000 = $14,000). The note on the same page says the carry-over 'only helps for the 0 months before the reset', contradicting the table above it. Arithmetic and verdict search are exact; two outputs a user would act on are wrong: 2.",
+  "completeness": "Claims checked end to end: five-scenario totals (work), own-estimate row (test), exact break-even with 'below' and 'mixed' verdicts (work, 300/300), worst case (works within one plan year only), election / latest first-premium / SEP / pick-by / 18-month end dates (CLI and page), notice-date basis (works), JSON output, exit 2 on bad input, PTC and voluntary-termination notes, plan-year crossing note (present when a coverage end date is given), guide page, llms.txt and sitemap (served copy clean). No stubs or TODOs. 3.",
+  "verification": "node --test '*.test.mjs' in the subject: 27 pass, 0 fail on arrival (22 at the prior audit). Seven seeded mutations via platform/ci/quality_mutate.py on the arrival code: caught 4 (carried-over OOP dropped from oopLeft, 'always' boundary <= -> <, notice date ignored in the election base, the capAt corners removed); survived 3: the January-crossing test 'startMonth + f.months > 12' -> '> 13' (no boundary test: Nov-Jan vs Nov-Dec), the Math.min(oopLeft, dedLeft) corner removed (no case with a carried-over OOP left below the deductible left), and the break-even tail '+ 1e6' -> '+ 1000', which is an equivalent mutant (past the last corner both curves are flat). Two of the three survivors the prior audit named are now caught. Two real survivors in core logic: 2.",
+  "craft": "Read engine.mjs (178 lines), cli.mjs, index.html script, both test files. Pure, dependency-free, one engine for CLI and page, escapeHtml on rendered text, strict YYYY-MM-DD parsing. The break-even search is now an exact walk over the piecewise-linear corners (the prior audit's craft complaint closed). Remaining: lossDate is parsed twice (deadlines() and the note block), the plan-year logic is a note bolted on after the totals rather than part of the cost model, no validation that OOP spent <= OOP max or deductible met <= OOP spent, and the 'never' sentence hard-codes 'COBRA's lower deductible'. 3.",
+  "claims": "Backed: disclaimer on index footer, guide and README; no-network privacy claim (only usage.mjs local counting); 'first premium due 45 days after you elect (2027-02-13 at the latest)' (CLI and page, fixed since the prior audit); PTC enrolled-not-eligible note (26 CFR 1.36B-2(c)(3)(iv)); voluntary COBRA termination opens no SEP (45 CFR 155.420(e)); README Known gaps honestly states the single-plan-year limit. Unbacked: the 'never' verdict says 'COBRA's lower deductible never catches up' when COBRA's deductible is $6,000 vs the marketplace's $1,000 (CLI run); the guide's 'Late in the year ... that can make COBRA cheaper' (cobra-election-deadlines-explained.html:63) with no word that the advantage ends at the January 1 reset; the guide's 'begins the first day of the next month with no gap' is false for coverage ending mid-month (45 CFR 155.420(b)(2)(iv): earliest start is the 1st of the following month). Served copy: no placeholder or retired origin. 2.",
+  "fitness": "Walked the broker's client: job coverage ends 2026-10-31, deductible mostly met, 6 months needed. The tool gives the right premium/OOP trade-off for November-December and the right deadlines, warns that the months cross January 1, but its worst case and its carry-over credit are single-year, and for a December 31 loss it credits a carry-over that has already expired. No disability extension (29 months at up to 150%), no 36-month dependent events, no prompt that 2026 credits stop at 400% FPL and that APTC is reconciled on full-year income including pre-layoff wages, and no warning that a mid-month loss leaves days only COBRA can cover. Deadline section alone is usable: 2.",
+  "domain": "Compared against 29 USC 1162(2)(A) and 1162(3) / 26 CFR 54.4980B-8 Q&A-1 (18 months for job loss: matches; 29-month disability extension and 150% premium: not modelled; 102% cap: not checkable without the plan's full cost), 26 CFR 54.4980B-6 Q&A-1 (60-day election from the later of loss or notice: matches), 54.4980B-8 Q&A-5 (45 days after election: now worded as the latest date, matches), 45 CFR 155.420(c)(2), (b)(2)(iv), (e) (SEP 60 days, effective date, voluntary termination: match, mid-month gap not flagged), 45 CFR 147.104(f) (calendar policy year: noted, not modelled in totals or worst case), IRC 36B and Rev. Proc. 2025-25 (2026 applicable percentage table 2.10%-9.96%, top band 300-400% FPL: no warning). A broker signs off on the deadlines and the single-year arithmetic and rejects the cross-year worst case and the December carry-over: 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "verdict kind and crossing points on 300 random plan pairs",
+   "method": "independent Python model of deductible -> coinsurance -> OOP cap and a $10-step grid scan of the cost difference, 0..300,000",
+   "command": "python3 -I scratchpad/cobra/model.py 7; python3 -I scratchpad/cobra/model.py 11",
+   "expected": "engine verdicts agree with the grid",
+   "observed": "300/300 verdicts agree with grid model (both seeds)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "README example totals and break-even",
+   "method": "hand computation: 6 x 780 + min(OOP left, ...); closed form 3420 + 600 + 0.2(s - 600) = s",
+   "command": "cd ventures/cobra-vs-marketplace-calculator && node cli.mjs compare --cobra-premium 780 --market-premium 210 --cobra-deductible 3000 --cobra-deductible-met 2400 --cobra-oop-max 8000 --cobra-oop-met 2600 --market-deductible 5500 --market-oop-max 9200 --months 6 --coverage-ended 2026-10-31",
+   "expected": "$6,960 vs $7,460 at $9,000; $10,080 vs $10,460 at $40k; break-even $4,875",
+   "observed": "$6,960 / $7,460; $10,080 / $10,460; 'about $4,875'",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "prior 'always' case: COBRA $150/mo ded 9000 OOP 9200; marketplace $400/mo ded 0 OOP 1000; 12 months",
+   "method": "hand: 1800 + s = 4800 + 0.2 s -> s = 3750",
+   "command": "cd ventures/cobra-vs-marketplace-calculator && node cli.mjs compare --cobra-premium 150 --market-premium 400 --cobra-deductible 9000 --cobra-oop-max 9200 --market-deductible 0 --market-oop-max 1000 --months 12",
+   "expected": "COBRA cheaper below $3,750, marketplace above",
+   "observed": "'COBRA is cheaper until your care reaches about $3,750 ...'",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "COBRA election and latest first-premium dates, end-of-month and mid-month loss",
+   "method": "26 CFR 54.4980B-6 Q&A-1 and 54.4980B-8 Q&A-5; Python datetime arithmetic",
+   "command": "python3 -I scratchpad/cobra/model.py 7; node cli.mjs compare ... --coverage-ended 2026-10-31 / 2026-10-15",
+   "expected": "2026-12-30 and 2027-02-13; 2026-12-14",
+   "observed": "2026-12-30, '2027-02-13 at the latest'; 2026-12-14",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "worst case for the README example, Nov 2026 - Apr 2027",
+   "method": "45 CFR 147.104(f): calendar policy year, so a second OOP maximum from 2027-01-01; 1,260 + 9,200 + 9,200",
+   "command": "cd ventures/cobra-vs-marketplace-calculator && node cli.mjs compare --cobra-premium 780 --market-premium 210 --cobra-deductible 3000 --cobra-deductible-met 2400 --cobra-oop-max 8000 --cobra-oop-met 2600 --market-deductible 5500 --market-oop-max 9200 --months 6 --coverage-ended 2026-10-31 | grep Worst",
+   "expected": "marketplace up to $19,660",
+   "observed": "Worst case: COBRA $10,080, marketplace $10,460",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "coverage ends 2026-12-31, 12 months, identical terms, COBRA $50/mo dearer, $3,000 ded and $7,000 OOP met in 2026",
+   "method": "45 CFR 147.104(f) and a calendar employer plan year: all priced months are in 2027, carry-over is zero; identical terms + higher premium -> marketplace cheaper at every level, COBRA worst 6,000 + 8,000",
+   "command": "cd ventures/cobra-vs-marketplace-calculator && node cli.mjs compare --cobra-premium 500 --market-premium 450 --cobra-deductible 3000 --cobra-deductible-met 3000 --cobra-oop-max 8000 --cobra-oop-met 7000 --market-deductible 3000 --market-oop-max 8000 --months 12 --coverage-ended 2026-12-31",
+   "expected": "'never'; COBRA worst $14,000",
+   "observed": "'Marketplace is cheaper until ... about $750; past that, COBRA costs less'; COBRA worst $7,000; note says carry-over helps for '0 months'",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite on arrival",
+   "method": "run",
+   "command": "cd ventures/cobra-vs-marketplace-calculator && node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "27 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'never' verdict wording when COBRA's deductible is higher",
+   "method": "CLI run, COBRA ded 6000 vs marketplace ded 1000",
+   "command": "cd ventures/cobra-vs-marketplace-calculator && node cli.mjs compare --cobra-premium 900 --market-premium 200 --cobra-deductible 6000 --cobra-oop-max 9000 --market-deductible 1000 --market-oop-max 5000",
+   "expected": "no claim of a lower COBRA deductible",
+   "observed": "'... and COBRA's lower deductible never catches up.'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "first-premium date wording",
+   "method": "26 CFR 54.4980B-8 Q&A-5: 45 days after the election",
+   "command": "node cli.mjs compare ... --coverage-ended 2026-10-31 | grep 'first premium'",
+   "expected": "counted from the election, deadline-based date shown as the latest",
+   "observed": "'first premium due 45 days after you elect (2027-02-13 at the latest)'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "guide: 'Late in the year ... that can make COBRA cheaper' and 'begins the first day of the next month with no gap'",
+   "method": "45 CFR 147.104(f) (January reset); 45 CFR 155.420(b)(2)(iv) (earliest start 1st of month after loss)",
+   "command": "grep -n 'Late in the year\\|no gap' ventures/cobra-vs-marketplace-calculator/cobra-election-deadlines-explained.html",
+   "expected": "qualified by the reset and by a month-end loss",
+   "observed": "both unqualified (lines 61, 63)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "served copy URLs",
+   "method": "deploy rewrite",
+   "command": "node platform/pages/served-copy.mjs cobra-vs-marketplace-calculator",
+   "expected": "clean",
+   "observed": "no placeholder or retired origin",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "durations and caps",
+   "method": "29 USC 1162(2)(A), (3); 26 CFR 54.4980B-8 Q&A-1",
+   "command": "node cli.mjs compare --cobra-premium 780 --market-premium 210 --cobra-oop-max 8000 --market-oop-max 9200 --months 24",
+   "expected": "18 months for job loss; 29-month disability extension at up to 150% at least mentioned",
+   "observed": "'must be between 1 and 18, the COBRA maximum for a job loss'; no extension or cap mention",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "2026 premium tax credit cliff and reconciliation",
+   "method": "IRC 36B; Rev. Proc. 2025-25 (top band 300-400% FPL at 9.96%); Form 8962 reconciliation on full-year income",
+   "command": "grep -n '400\\|8962\\|reconcil' ventures/cobra-vs-marketplace-calculator/engine.mjs",
+   "expected": "a warning in the notes",
+   "observed": "none",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "engine.mjs:97",
+   "change": "oopLeft: Math.max(0, f.cobraOopMax - f.cobraOopMet) -> Math.max(0, f.cobraOopMax)",
+   "caught": true,
+   "test_cmd": "node --test engine.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "engine.mjs:138",
+   "change": "diffAt(0) <= 0 ? always -> diffAt(0) < 0",
+   "caught": true,
+   "test_cmd": "node --test engine.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "engine.mjs:130",
+   "change": "corners[last] + 1e6 -> + 1000 (equivalent: both curves flat past the last corner)",
+   "caught": false,
+   "test_cmd": "node --test engine.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "engine.mjs:155",
+   "change": "startMonth + f.months > 12 -> > 13 (January crossing)",
+   "caught": false,
+   "test_cmd": "node --test engine.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "engine.mjs:128",
+   "change": "Math.min(cobra.oopLeft, cobra.dedLeft) corner removed",
+   "caught": false,
+   "test_cmd": "node --test engine.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "engine.mjs:57",
+   "change": "election base: later of notice and loss -> loss",
+   "caught": true,
+   "test_cmd": "node --test engine.test.mjs page.test.mjs usage.test.mjs"
+  },
+  {
+   "where": "engine.mjs:128",
+   "change": "capAt(cobra), capAt(market) corners removed",
+   "caught": true,
+   "test_cmd": "node --test engine.test.mjs page.test.mjs usage.test.mjs"
+  }
+ ],
+ "prior_defects": [
+  {
+   "index": 0,
+   "severity": "high",
+   "basis": "assumed",
+   "status": "partial",
+   "what": "plan-year reset: a note now says the months cross January 1, but totals and worst case stay single-year (README example worst case $10,460 vs $19,660); this session splits the worst case by plan year and drops the December carry-over, scenario totals remain single-year",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
+  },
+  {
+   "index": 1,
+   "severity": "high",
+   "basis": "assumed",
+   "status": "closed",
+   "what": "'always' verdict decided at $0 only: the corner walk now gives 'COBRA is cheaper until about $3,750' on the prior case; 300/300 verdicts agree with an independent grid model"
+  },
+  {
+   "index": 2,
+   "severity": "medium",
+   "basis": "assumed",
+   "status": "closed",
+   "what": "first premium date: now 'due 45 days after you elect (<date> at the latest)' on CLI and page"
+  },
+  {
+   "index": 3,
+   "severity": "medium",
+   "basis": "assumed",
+   "status": "closed",
+   "what": "carried-over OOP and 'always' boundary mutants now caught; the scan-range mutant still survives but is equivalent"
+  },
+  {
+   "index": 4,
+   "severity": "medium",
+   "basis": "assumed",
+   "status": "open",
+   "what": "no 400% FPL / Form 8962 reconciliation warning on arrival; this session adds the note",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
+  },
+  {
+   "index": 5,
+   "severity": "low",
+   "basis": "assumed",
+   "status": "open",
+   "what": "mid-month loss gap not flagged (2026-10-15 still 'pick by 10-31 to start 11-01'); this session adds marketplaceGapFrom and the CLI/page line, and qualifies the guide's 'no gap'",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
+  },
+  {
+   "index": 6,
+   "severity": "low",
+   "basis": "assumed",
+   "status": "open",
+   "what": "no 29-month disability extension, 36-month events or 102% check; now listed in README Known gaps"
+  },
+  {
+   "index": 7,
+   "severity": "low",
+   "basis": "assumed",
+   "status": "open",
+   "what": "OOP spent above the OOP max accepted silently; 'never' text says 'COBRA's lower deductible' when it is higher; this session adds both warnings and fixes the wording",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Coverage ending in December prices the next plan year with this year's COBRA deductible and OOP carry-over: identical terms, COBRA $50/mo dearer, gives 'COBRA costs less past $750' and COBRA worst case $7,000 instead of 'never' and $14,000, while the note on the same output says the carry-over helps for '0 months'.",
+   "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:95",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
+  },
+  {
+   "severity": "high",
+   "what": "Worst case ignores the January 1 reset when the months cross it (carried over from 2026-11-12 defect 0): README example shows marketplace $10,460, two plan years allow $19,660; scenario totals are single-year too.",
+   "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:143",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
+  },
+  {
+   "severity": "medium",
+   "what": "Two seeded mutants in core logic survive 27 tests: the January-crossing threshold (> 12 -> > 13) and the Math.min(oopLeft, dedLeft) corner of the cost curve.",
+   "where": "ventures/cobra-vs-marketplace-calculator/engine.test.mjs:96",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
+  },
+  {
+   "severity": "medium",
+   "what": "No warning that 2026 credits stop at 400% FPL (Rev. Proc. 2025-25) or that APTC is reconciled on full-year income including pre-layoff wages (carried over from 2026-11-12 defect 4).",
+   "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:160",
+   "category": "scope-gap",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
+  },
+  {
+   "severity": "low",
+   "what": "Guide says 'Late in the year ... that can make COBRA cheaper' with no mention of the January reset, and 'begins the first day of the next month with no gap' though a mid-month loss leaves a gap; the tool does not flag the gap either (carried over from 2026-11-12 defect 5 and claims evidence).",
+   "where": "ventures/cobra-vs-marketplace-calculator/cobra-election-deadlines-explained.html:61",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
+  },
+  {
+   "severity": "low",
+   "what": "'never' verdict hard-codes 'COBRA's lower deductible never catches up' even when COBRA's deductible is higher; OOP spent above the OOP max is accepted without a warning (carried over from 2026-11-12 defect 7).",
+   "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:170",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"
+  },
+  {
+   "severity": "low",
+   "what": "Months capped at 18 with no 29-month disability extension (up to 150%), no 36-month dependent events and no 102% sanity check (carried over from 2026-11-12 defect 6).",
+   "where": "ventures/cobra-vs-marketplace-calculator/engine.mjs:91",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18601"],
+ "verdict": "Of the eight defects the 2026-11-12 audit recorded, three are closed (the 'always' high among them: the break-even is now an exact corner walk that agrees with an independent grid model on 300 of 300 random plan pairs; the first-premium date is worded as the latest one; the carried-over OOP is tested), one high is only partly closed (the January 1 reset is a note, while the worst case and totals stay single-year: README example marketplace worst $10,460 against $19,660 over two plan years), and four were open on arrival, all counted fixed only by the blanket fix_prs reading. The partial fix also left a new high: a December 31 loss credits this year's carry-over to next year's months, reversing the verdict on identical plans. Deadlines check out against the CFR. It does not meet the bar on arrival: correctness 2, claims 2, verification 2 (two real mutants survive). This session's change splits the worst case per plan year, drops the December carry-over with a stated calendar-year assumption, flags mid-month gaps, adds the PTC reconciliation / 400% FPL note, fixes the 'never' wording and the guide, and adds eight tests that kill both survivors; scenario totals across January and the disability extension stay in README Known gaps, and a later audit should re-score."
+}

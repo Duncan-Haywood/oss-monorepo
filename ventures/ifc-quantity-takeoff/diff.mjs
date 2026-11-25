@@ -459,22 +459,24 @@ export function roomChangeText(c, { short = false } = {}) {
 export function boqDelta(rowsA, rowsB, by = ["class", "type"], rates = {}) {
   const la = boq(rowsA, by), lb = boq(rowsB, by);
   const lines = new Map();
-  const blank = () => ({ count: 0, volume: 0, area: 0, length: 0, weight: 0 });
+  const blank = () => ({ count: 0, volume: 0, area: 0, length: 0, weight: 0, coating: 0 });
   for (const [side, L] of [["before", la], ["after", lb]]) {
     for (const l of L) {
       const k = JSON.stringify(l.key);
       if (!lines.has(k)) lines.set(k, { key: l.key, before: blank(), after: blank() });
       const t = lines.get(k)[side];
       for (const q of ["count", ...QTY]) t[q] = l[q];
+      t.coating = l.coating;
     }
   }
   const out = [];
   for (const [k, l] of lines) {
     l.delta = {};
     for (const q of ["count", ...QTY]) l.delta[q] = l.after[q] - l.before[q];
+    l.delta.coating = l.after.coating - l.before.coating;
     const rate = rates[k];
     if (rate && Number.isFinite(rate.rate)) {
-      const unitQ = { each: "count", m3: "volume", m2: "area", m: "length", kg: "weight" }[rate.unit];
+      const unitQ = { each: "count", m3: "volume", m2: "area", m: "length", kg: "weight", "m2 coat": "coating" }[rate.unit];
       if (unitQ) l.amount = { before: rate.rate * l.before[unitQ], after: rate.rate * l.after[unitQ], delta: rate.rate * l.delta[unitQ] };
     }
     out.push(l);

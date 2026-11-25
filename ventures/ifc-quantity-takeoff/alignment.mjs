@@ -18,7 +18,13 @@
 //   s^2 / (2 A |A|) from the inflection point), IfcCosineSpiral (curvature
 //   1/A1 cos(pi s / L) + 1/A0, L the IfcCurveSegment's length: a 300 to
 //   1000 m transition ends where buildingSMART's sample places the next
-//   segment, to 5e-7 m), IfcPolyline.
+//   segment, to 5e-7 m), IfcPolyline, IfcPolynomialCurve in the plane
+//   (PGSuper's parabolic vertical curves; arc length inverted numerically).
+// - Vertical segment lengths written as horizontal runs (PGSuper) as well as
+//   lengths along the curve (the IFC text; Viadotto Acerno), and parabolas
+//   whose start grade is in the polynomial on a level RefDirection (PGSuper):
+//   each segment is read the way the next segment's placement shows
+//   (readVertical).
 // - IfcCompositeCurve of IfcCurveSegment (the horizontal), IfcGradientCurve
 //   (horizontal + vertical), IfcPolyline as a bare basis curve.
 // - IfcSegmentedReferenceCurve (cant) over a gradient curve: each segment's
@@ -44,8 +50,8 @@
 //
 // What is not (each throws Unresolved, so the element is "not read" and the
 // rest of the file still is): spirals other than the clothoid and the
-// cosine (sine, polynomial spirals), IfcPolynomialCurve,
-// IfcOffsetCurveByDistances, a segmented reference curve over anything but
+// cosine (sine, polynomial spirals), a polynomial curve with z
+// coefficients, IfcOffsetCurveByDistances, a segmented reference curve over anything but
 // a gradient or composite curve.
 
 const GAUSS = [
@@ -189,6 +195,41 @@ export class AlignmentReader {
         const pl = this.polyline(e);
         return { at: pl.at, param: (u) => pl.paramToLength(u) };
       }
+      case "IFCPOLYNOMIALCURVE": {
+        // IfcPolynomialCurve(Position, CoefficientsX, CoefficientsY,
+        // CoefficientsZ): x(u) = sum CoefficientsX[i] u^i, likewise y. How
+        // PGSuper writes a parabolic vertical curve: x = u, y = g0 u + c u^2.
+        // An IfcLengthMeasure on the curve segment is arc length, so s maps
+        // to u by inverting the arc length integral (Newton on |P'(u)|).
+        const F = this.place2(e.args[0]);
+        const coef = (v) => (Array.isArray(v) ? v.map((c) => g.num(c) ?? c) : []);
+        const cx = coef(e.args[1]), cy = coef(e.args[2]), cz = coef(e.args[3]);
+        if (cz.some((c) => c)) this.fail("polynomial curve with z coefficients");
+        if (!cx.length && !cy.length) this.fail("polynomial curve with no coefficients");
+        const val = (c, u) => { let r = 0; for (let i = c.length - 1; i >= 0; i--) r = r * u + c[i]; return r; };
+        const der = (c, u) => { let r = 0; for (let i = c.length - 1; i >= 1; i--) r = r * u + i * c[i]; return r; };
+        const speed = (u) => Math.hypot(der(cx, u), der(cy, u));
+        const S = (u) => (u === 0 ? 0 : integrate(speed, 0, u, Math.max(2, Math.ceil(Math.abs(u) / 20))));
+        const U = (s) => {
+          let u = s / (speed(0) || 1);
+          for (let i = 0; i < 30; i++) {
+            const v = speed(u);
+            if (!(v > 1e-12)) this.fail("polynomial curve with a stationary point");
+            const du = (S(u) - s) / v;
+            u -= du;
+            if (Math.abs(du) < 1e-11 * (1 + Math.abs(u))) break;
+          }
+          return u;
+        };
+        return {
+          at: (s) => {
+            const u = U(s);
+            const dx = der(cx, u), dy = der(cy, u), n = Math.hypot(dx, dy) || 1;
+            return { p: onFrame(F, [val(cx, u), val(cy, u)]), t: dirOnFrame(F, [dx / n, dy / n]) };
+          },
+          param: (u) => S(u),
+        };
+      }
       default:
         this.fail(`alignment segment ${e.type}`);
     }
@@ -220,12 +261,16 @@ export class AlignmentReader {
     return { length: cum[cum.length - 1], at, paramToLength };
   }
 
-  /** IfcCurveSegment -> { length, at(u) } with u from 0 to |SegmentLength| */
-  segment(ref) {
+  /**
+   * IfcCurveSegment -> { length, at(u) } with u from 0 to |SegmentLength|.
+   * `level` keeps the parent's own direction instead of turning its start
+   * tangent onto Placement's RefDirection (readVertical says when).
+   */
+  segment(ref, level = false) {
     const g = this.geo;
     const e = g.get(ref);
     if (!e || e.type !== "IFCCURVESEGMENT") this.fail(`composite curve part ${e ? e.type : "missing"}`);
-    const P = this.place2(e.args[1]);
+    let P = this.place2(e.args[1]);
     const par = this.parent(e.args[4], Math.abs(g.num(e.args[3]) ?? 0));
     const toS = (v) => {
       const n = g.num(v) ?? 0;
@@ -236,6 +281,7 @@ export class AlignmentReader {
     const sign = L < 0 ? -1 : 1;
     const start = par.at(s0);
     const t0 = [start.t[0] * sign, start.t[1] * sign];
+    if (level) P = planeFrame(P.o, t0);
     // the parent's frame at the start, in the direction of travel
     const inv = (q) => {
       const d = [q[0] - start.p[0], q[1] - start.p[1]];
@@ -252,17 +298,120 @@ export class AlignmentReader {
     };
   }
 
+  /**
+   * A gradient curve's vertical segments, read the way the file's own
+   * placements show. Two things are settled per segment, by which reading
+   * puts its end on the next segment's Placement:
+   *
+   * - Length. The IFC 4.3 text makes an IfcLengthMeasure a length along the
+   *   parent curve, and Viadotto Acerno's vertical is written that way (a
+   *   134.0706 m line at -1.3% starts the next segment 134.0593 m on), but
+   *   BridgeLink PGSuper 8 writes the horizontal run: its 260.4303 m line at
+   *   +2.993% starts the next segment exactly 260.4303 m on, which read as a
+   *   curve length leaves a 0.117 m gap. A "run" segment is lengthened to the
+   *   arc that covers that run.
+   * - Turn. A segment is normally turned so its parent's start tangent lies
+   *   along Placement's RefDirection (IfcOpenShell 0.9 reads it so too).
+   *   PGSuper writes its parabolas as y = g0 u + c u^2 (the start grade in
+   *   the polynomial) on a level RefDirection, so turning them tilts each
+   *   parabola by its start grade: a 304.8 m crest misses the next segment by
+   *   11 m and the profile jumps. Read untilted ("level"), the same parabola
+   *   ends on the next placement to 1e-9 m and on the elevation and grade the
+   *   file's IfcAlignmentVerticalSegment gives (eval/pgsuper-bridges-2026-11-24.md).
+   *
+   * The readings are tried in the order (turned, arc), (turned, run),
+   * (level, arc), (level, run); the first that meets the next placement
+   * is taken (its point; RefDirection is what is in question). A segment none settles (the last, or
+   * PGSuper's zero-length closing segment, which it places at the last
+   * segment's start) takes the reading its own parent type showed elsewhere
+   * in the curve, else (turned, arc). `this.runs` and `this.levelled` count
+   * the segments read the other way.
+   */
+  readVertical(refs, parts) {
+    const g = this.geo;
+    const placeOf = (r) => this.place2(g.get(r).args[1]);
+    const kind = (r) => g.get(g.get(r).args[4])?.type;
+    const runLength = (seg) => {
+      const run = seg.length, x0 = seg.at(0).p[0];
+      // the arc length whose end lies `run` further along x (x rises with s on a vertical)
+      let lo = run, hi = run * 1.01 + 1e-6;
+      for (let i = 0; i < 40 && seg.at(hi).p[0] - x0 < run; i++) hi *= 2;
+      for (let i = 0; i < 80 && hi - lo > 1e-12 * (1 + hi); i++) {
+        const m = (lo + hi) / 2;
+        if (seg.at(m).p[0] - x0 < run) lo = m; else hi = m;
+      }
+      return (lo + hi) / 2;
+    };
+    const ORDER = [["turned", "arc"], ["turned", "run"], ["turned", "sine"], ["level", "arc"], ["level", "run"]];
+    const variant = (k, [turn, len]) => {
+      if (len === "sine") {
+        // a line whose RefDirection's vertical component is the grade itself:
+        // PGSuper writes grade g as the unit direction (sqrt(1 - g^2), g) and
+        // means a rise of g over the horizontal run (7.79468 m = 260.4303 m x
+        // 0.02993 on the flyover, the StartGradient its
+        // IfcAlignmentVerticalSegment gives). Read as a run along that
+        // direction the line ends L g^3 / 2 high (3.4 mm there, 17 mm on
+        // Br1's 274 m at 5%); read along the curve it ends L g^2 / 2 short.
+        const e = g.get(refs[k]);
+        if (g.get(e.args[4])?.type !== "IFCLINE") return null;
+        const P = this.place2(e.args[1]);
+        const run = parts[k].length, sine = P.x[1]; // place2 made it unit: the sine of the line's angle
+        if (!(P.x[0] > 0)) return null;
+        const n = Math.hypot(1, sine), t = [1 / n, sine / n];
+        return { length: run * n, at: (u) => ({ p: [P.o[0] + u * t[0], P.o[1] + u * t[1]], t }) };
+      }
+      const seg = turn === "level" ? this.segment(refs[k], true) : parts[k];
+      return { ...seg, length: len === "run" ? runLength(seg) : seg.length };
+    };
+    const readings = parts.map((part, k) => {
+      if (!(part.length > 0) || k + 1 >= parts.length) return undefined;
+      const N = placeOf(refs[k + 1]);
+      const tol = 1e-4 + 1e-8 * part.length;
+      for (const r of ORDER) {
+        const v = variant(k, r);
+        if (!v) continue;
+        const end = v.at(v.length);
+        // the point only: PGSuper's level RefDirection on a parabola is not
+        // the tangent the line before it ends on
+        if (Math.hypot(end.p[0] - N.o[0], end.p[1] - N.o[1]) <= tol) return r;
+      }
+      return undefined;
+    });
+    const usual = {};
+    readings.forEach((r, k) => {
+      if (!r) return;
+      const t = kind(refs[k]);
+      (usual[t] ??= {})[r.join()] = (usual[t]?.[r.join()] ?? 0) + 1;
+    });
+    for (let k = 0; k < parts.length; k++) {
+      if (!(parts[k].length > 0)) continue;
+      let r = readings[k];
+      if (!r) {
+        const seen = Object.entries(usual[kind(refs[k])] ?? {}).sort((a, b) => b[1] - a[1])[0];
+        r = seen ? seen[0].split(",") : ORDER[0];
+      }
+      if (r[0] === "turned" && r[1] === "arc") continue;
+      const v = variant(k, r);
+      if (!v) continue;
+      parts[k] = v;
+      if (r[1] !== "arc") this.runs = (this.runs || 0) + 1;
+      if (r[0] === "level") this.levelled = (this.levelled || 0) + 1;
+    }
+  }
+
   /** a horizontal or vertical curve made of segments, by arc length */
-  composite(ref) {
+  composite(ref, vertical = false) {
     const g = this.geo;
     const e = g.get(ref);
     if (!e) this.fail("missing composite curve");
     if (e.type === "IFCPOLYLINE") return this.polyline(e);
     if (e.type !== "IFCCOMPOSITECURVE" && e.type !== "IFCGRADIENTCURVE") this.fail(`basis curve ${e.type}`);
+    const refs = e.args[0] || [];
+    const parts = refs.map((r) => this.segment(r));
+    if (vertical) this.readVertical(refs, parts);
     const segs = [];
     let cum = 0;
-    for (const r of e.args[0] || []) {
-      const s = this.segment(r);
+    for (const s of parts) {
       segs.push({ start: cum, ...s });
       cum += s.length;
     }
@@ -296,7 +445,7 @@ export class AlignmentReader {
     let out;
     if (e.type === "IFCGRADIENTCURVE") {
       const H = this.composite(e.args[2]);
-      const V = this.composite(ref); // its own Segments are the vertical, in (distance, elevation)
+      const V = this.composite(ref, true); // its own Segments are the vertical, in (distance, elevation)
       const elevation = (d) => {
         // the vertical is drawn against distance along: find u with x(u) = d
         let lo = 0, hi = V.length;
@@ -472,8 +621,53 @@ export function sectionedSolidHorizontal(A, e, loopsOf) {
     if (p.length > 1 && Math.hypot(f[0] - z[0], f[1] - z[1]) < 1e-12) p.pop();
     return { s: l.s, pts: p };
   }));
+  const counts = (ss) => ss.map((s) => s.map((l) => l.pts.length).join(","));
+  if (new Set(counts(sections)).size > 1) {
+    // a section where two points meet (PGSuper's Br1 deck at station 616.015,
+    // where the girder haunches run to zero depth: four pairs 1e-12 to 3e-9 m
+    // apart) loses them to the repeated-point filter, and the sections no
+    // longer pair point for point. Pair them on the points as written: a
+    // zero-length edge lofts to faces of no area.
+    const raw = secRefs.map((r) => {
+      const pd = g.get(r);
+      const c = pd?.type === "IFCARBITRARYCLOSEDPROFILEDEF" ? g.get(pd.args[2]) : null;
+      if (c?.type !== "IFCPOLYLINE") return null;
+      const p = (c.args[0] || []).map((q) => g.point(q));
+      const f = p[0], z = p[p.length - 1];
+      if (p.length > 1 && Math.hypot(f[0] - z[0], f[1] - z[1]) < 1e-12) p.pop();
+      return p;
+    });
+    if (raw.every((p) => p && p.length === raw[0].length) && sections.every((s) => s.length === 1)) {
+      for (let i = 0; i < sections.length; i++) sections[i] = [{ s: sections[i][0].s, pts: raw[i].map((q) => [q[0], q[1]]) }];
+      notes.push("cross-sections paired on their points as written (repeated points kept)");
+    }
+  }
   const shape = sections[0].map((l) => l.pts.length).join(",");
   for (const s of sections) if (s.map((l) => l.pts.length).join(",") !== shape) A.fail("sectioned solid: cross-sections with different point counts");
+
+  // Cross-sections drawn in absolute elevation on a gradient curve, which adds
+  // the elevation again: BridgeLink PGSuper 8.0.3's decks and railings (the
+  // I-405/SR 167 flyover's deck section at station 387 spans y 27.06 to 28.54
+  // where the curve is at 27.8 m; read as written it floats 25 m over its
+  // girders, which are placed on their own 3D polylines, and IfcOpenShell 0.9
+  // draws it there too). Taken as such when every section's middle lies
+  // within 3 m of the curve's elevation at its station and the curve is more
+  // than 6 m from zero there, where a section drawn relative to the curve
+  // (a deck within a few metres of its profile grade line) cannot be; each
+  // section is then moved down by the curve's elevation at its station, and
+  // the solid says so (eval/pgsuper-bridges-2026-11-24.md).
+  if (B.kind === "gradient") {
+    const off = stations.map((st, i) => {
+      const ys = sections[i].flatMap((l) => l.pts.map((q) => q[1] + st.vert));
+      const mid = (Math.min(...ys) + Math.max(...ys)) / 2;
+      return { z: B.frame(st.d).p[2], mid };
+    });
+    if (off.every((o) => Math.abs(o.z) > 6 && Math.abs(o.mid - o.z) < 3)) {
+      for (let i = 0; i < sections.length; i++) sections[i] = sections[i].map((l) => ({ s: l.s, pts: l.pts.map((q) => [q[0], q[1] - off[i].z]) }));
+      const z = off.map((o) => o.z);
+      notes.push(`cross-sections drawn in absolute elevation (${Math.min(...z).toFixed(2)} to ${Math.max(...z).toFixed(2)} m) on a gradient curve that adds it again: moved down onto the curve`);
+    }
+  }
 
   // every slice: station d, its frame, and the profile there
   const slices = [];

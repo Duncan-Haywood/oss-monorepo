@@ -4,6 +4,9 @@ import { readFileSync, existsSync } from "node:fs";
 import { buildSpec, solve, verifyPlan, fmt, money2, SAMPLE_FIELDS, SAMPLE_ECON } from "./calc.mjs";
 import * as calc from "./calc.mjs";
 
+// Escape every regex metacharacter so a literal string can sit inside a RegExp.
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "how-to-price-spray-drone-application-per-acre.html";
 
@@ -108,7 +111,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
   assert.match(page("README.md"), /No warranty/);
-  assert.match(page("LICENSE"), /MIT License/);
+  assert.match(page("LICENSE"), /Functional Source License/);
   assert.match(page("VENTURE.yaml"), /^name: ag-spray-drone-quote-calculator$/m);
 });
 
@@ -133,10 +136,10 @@ test("the guide carries the clauses, links both ways, and its worked table match
   assert.match(guide, /No warranty/);
   assert.match(guide, /not agronomic, pesticide, aviation, legal, tax or financial advice/i);
   assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
-  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${GUIDE.replace(/\./g, "\\.")}">`));
+  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${escapeRegExp(GUIDE)}">`));
   assert.match(guide, /href="\.\/"/);
-  assert.match(page("index.html"), new RegExp(`href="\\./${GUIDE.replace(/\./g, "\\.")}"`));
-  assert.match(page("sitemap.xml"), new RegExp(GUIDE.replace(/\./g, "\\.")));
+  assert.match(page("index.html"), new RegExp(`href="\\./${escapeRegExp(GUIDE)}"`));
+  assert.ok(page("sitemap.xml").includes(GUIDE));
   const ld = JSON.parse(guide.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   assert.equal(ld["@type"], "FAQPage");
   for (const q of ld.mainEntity) assert.ok(guide.includes(`<h3>${q.name}</h3>`), q.name);

@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVQ5UL1R1Q8npekd1uc",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T21:56:11Z",
+  "ended": "2026-11-24T23:57:04Z",
+  "wall_minutes": 121.13,
+  "tokens_in": 5110747,
+  "tokens_out": 25923,
+  "cost_usd": 2.3264,
+  "tool_calls": 54,
+  "task": "research/verified-dse milestone 167: two fresh netlist namings of the 12 decided shifter designs at 32 gates or more",
+  "projects": [
+    "research/verified-dse"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18674",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "`sleep 60; ...` blocked by a hook; used an until-loop instead",
+      "cost": "one call"
+    },
+    {
+      "what": "first full test-suite run hit the 560 s tool timeout; reran in the background",
+      "cost": "10 min"
+    },
+    {
+      "what": "full verified-dse suite: 10 test_designs_are_unseen tests failed; 8 were already red on main since milestone 166's rerun table (naming_shifters), 2 added by naming_above. Fixed forward: those tests now skip the two rerun directories. Suite after the fix: 285 passed, 1 skipped",
+      "cost": "15 min"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "`PY=$(python3 platform/ci/pyenv.py pytest numpy)` printed /usr/bin/python3.13 but the bare `python3` (/usr/local/bin) has no pytest; the full path had to be used explicitly, which the line does say but is easy to miss after `cd`."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "'For-profit products come first' reads as overriding every scheduled run, but the router still drew research (weight 0.27) and the rule is phrased for venture runs only; one sentence saying a research draw stands would save the hesitation."
+    },
+    {
+      "file": "research/verified-dse/tests/test_*.py (designs_are_unseen)",
+      "issue": "each blind-test file excludes only its own directory, so any later rerun of its designs turns it red; milestone 166 landed with 8 such failures. A shared RERUNS list in a helper would stop this recurring."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-verified-dse-deep-shifter-namings.md",
+    "research/verified-dse/LOG.md (milestone 167 planned + result)"
+  ],
+  "goal": "research: PhD-level programme step (verified-dse)",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; router drew research, pick_track drew verified-dse. Tools realised from cache.nixos.org by hash (Yosys 0.70 dzsihg5w, OpenROAD 26Q3 p9p47153), PDK via research/chip-pnr/fetch_pdk.sh (ORFS e5cc6e79). Predictions committed in dcd8e8107 before the flow; flow 106 min on 4 cores, 4,992 runs (4,991 ok). All 7 predictions held; controls (a) 48/48, (b) 4991/4991, (c) 12/12. One pipeline check of the analysis after the first design, disclosed in LOG. Local checks: tests/test_naming_above167.py + test_naming_shifters166.py pass (6), research/_homepage/build.py ok, check_posts ok, cite_check 0 ids. No agent doc in docs/reports: the LOG's Next line is the hand-off for this programme. Fixed 8 pre-existing + 2 new 'designs_are_unseen' failures (rerun dirs excluded); full suite 285 passed, 1 skipped (670 s).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "81d9512f-feef-51ae-b8dd-6162dbabcf43",
+    "transcripts": 1,
+    "first": "2026-11-24T21:56:11Z",
+    "last": "2026-11-24T23:57:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 98,
+        "output": 25923,
+        "thinking": 3017,
+        "cache_read": 5009951,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100698,
+        "api_equivalent_usd": 2.3264,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 98,
+      "output": 25923,
+      "thinking": 3017,
+      "cache_read": 5009951,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100698,
+      "api_equivalent_usd": 2.3264,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 52,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 121.13,
+      "active_minutes": 121.13,
+      "model_minutes": 4.64,
+      "tool_minutes": 116.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an EDA researcher scripting, running and writing up a 5,000-run reroute with controls",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 257.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -73,3 +73,8 @@ test("errors PyYAML also raises", () => {
     assert.throws(() => loadYaml(t), YamlError, JSON.stringify(t));
   }
 });
+
+test("a \\U escape past U+10FFFF is a YamlError, not a RangeError", () => {
+  assert.throws(() => loadYaml('a: "\\UFFFFFFFF"\n'), YamlError);
+  assert.equal(loadYaml('a: "\\U0001F600"\n').get("a"), "😀");
+});

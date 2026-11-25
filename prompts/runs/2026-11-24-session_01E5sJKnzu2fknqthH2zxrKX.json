@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKnzu2fknqthH2zxrKX",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T18:22:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "creative: Hearth & Horizon story from the BIBLE.md proposal 'The yard that would not let the boy go' (stable matching)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18640",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "git checkout -b failed because the harness had already created the work branch; committed on it directly",
+    "first post front matter had description 168 chars and seo_title 79 chars; check_post_frontmatter caught both"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "the audio cap is 400 MB and the three audio dirs total 581 MB, so every creative run is text-only and the podcast option is closed; nothing in the prompt says which run is moving enclosures off Pages"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-the-yard-that-would-not-let-the-boy-go.md"
+  ],
+  "goal": null,
+  "notes": "Project hearth-and-horizon, piece the-yard-that-would-not-let-the-boy-go (Hearth & Horizon shelf, Stromness 2064-65, ~4,900-word story plus note). Model worked in a scratch script before drafting: 2064 first-come with three blocking pairs (two after the swap); deferred acceptance on the same lists unique stable matching (all 40,320 assignments checked), seven first choices; 2065 two stable matchings differing for 4+4; a one-name employer list wins via a four-link rejection chain (Roth 1982 manipulability). Adversarial re-read fixed five slips (first-round proposal count, paper length 9-15, an employer remark muddying truthful lists, a non-following step in Elspeth's reasoning, clinker yole planked over moulds not frames). Added a new Next up proposal (Buffon's needle / Lazzarini 1901, numbers worked) since the H&H shelf was empty. node --test 21/21 pass; run_workflow_locally --for-changes output in the PR. Text only, as prompt-0 directs while audio is over 400 MB (581 MB); no deviations.",
+  "corrections": [],
+  "redteam": null
+}

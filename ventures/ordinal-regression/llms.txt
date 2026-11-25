@@ -2,7 +2,7 @@
 
 > Free online ordinal logistic regression for ratings, Likert answers, grades and stages with 3 to 15 ordered levels: the proportional-odds model (McCullagh 1980; Walker & Duncan 1967) or the ordered probit, fitted by Newton-Raphson; coefficients with standard errors, z, p and Wald intervals; odds ratios per unit and per standard deviation; cut-points; the likelihood-ratio test and McFadden's pseudo R-squared; Brant's (1990) test of proportional odds, overall and per predictor, with the per-cut binary-logit slopes; predicted probabilities of every level at a profile and along each predictor; categorical predictors as dummies against a chosen reference. Matches statsmodels 0.15.0's OrderedModel (log-likelihoods within 3e-12). On 1,599 red wines (UCI Wine Quality), each extra percent of alcohol multiplies the odds of a higher grade by 2.43, but Brant's test rejects proportional odds: alcohol barely separates the 4s from the 5s. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not medical, legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not medical, legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -24,4 +24,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ordinal-regression): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ordinal-regression): FSL-1.1-MIT licensed.

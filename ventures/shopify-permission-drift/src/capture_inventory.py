@@ -219,18 +219,26 @@ def _webhook_value(app: dict) -> tuple[object | None, bool]:
     return None, False
 
 
+# Fields that can name an app, in order of preference: (source, field). Shopify's
+# "api_key" / "apiKey" is the app's public client identifier (it ships to browsers in
+# App Bridge), not the API secret; the secret is never read from an export.
+_APP_ID_FIELDS = (
+    ("app", "handle"),
+    ("nested", "handle"),
+    ("app", "id"),
+    ("nested", "id"),
+    ("app", "api_key"),
+    ("app", "apiKey"),
+    ("app", "api_client_id"),
+    ("app", "client_id"),
+)
+
+
 def _app_id(app: dict) -> str:
     nested = app.get("app") if isinstance(app.get("app"), dict) else {}
-    for candidate in (
-        app.get("handle"),
-        nested.get("handle"),
-        app.get("id"),
-        nested.get("id"),
-        app.get("api_key"),
-        app.get("apiKey"),
-        app.get("api_client_id"),
-        app.get("client_id"),
-    ):
+    sources = {"app": app, "nested": nested}
+    for source, field in _APP_ID_FIELDS:
+        candidate = sources[source].get(field)
         if isinstance(candidate, str) and candidate.strip():
             return candidate.strip()
         if isinstance(candidate, int):

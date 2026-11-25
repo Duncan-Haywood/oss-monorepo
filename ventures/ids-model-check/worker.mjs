@@ -10,6 +10,8 @@ import { modelInventory } from "./inventory.mjs";
 import { fillModel, fillReport, toFillCsv, readValues } from "./model-fill.mjs";
 import { measureModel, geometryLookup } from "./geometry-quantities.mjs";
 import { toStep } from "./step-writer.mjs";
+import { writeIfcXml, ifcXmlSchemaFor, makeIfcXmlTarget } from "./ifcxml-writer.mjs";
+import { conformance, conformanceSummary, markModelRules } from "./conformance.mjs";
 import { cobieFromModel, cobieToXlsx, cobieQc, qcText, numberRows, placementFromTakeoff, SHEETS } from "./cobie.mjs";
 
 const cache = {};
@@ -68,7 +70,7 @@ async function loadSchemas(ids) {
 }
 
 self.onmessage = async (ev) => {
-  const { ids, ifc, auditOnly, inventory, fill, values, geometry: measure, densities, req, asStep, cobie } = ev.data;
+  const { ids, ifc, auditOnly, inventory, fill, values, geometry: measure, densities, req, asStep, asIfcXml, cobie } = ev.data;
   // Echo the caller's request number (index.html drops stale replies).
   const postMessage = (m) => self.postMessage({ ...m, req });
   try {
@@ -128,6 +130,24 @@ self.onmessage = async (ev) => {
       postMessage({ step: { text: w.text, entities: w.entities, notes: w.notes, format: model.format } });
       return;
     }
+    // "Download as ifcXML (.ifcxml)": an IFC4 or IFC4X3 STEP model written as
+    // ifcXML laid out by buildingSMART's XSD (ifcxml-writer.mjs, the same
+    // writer as cli.mjs --to-ifcxml; its layout is fetched like the schemas).
+    // asIfcXml is the source file name, written in the header as the CLI does.
+    if (asIfcXml) {
+      const id = schemaOf(ifc);
+      if (id !== "IFC4" && id !== "IFC4X3") throw new Error("ifcXML is written for IFC4 and IFC4X3 STEP models");
+      const schemas = await loadSchemas([id]);
+      const model = new Model(ifc, { [id]: schemas[id] });
+      if (model.format !== "STEP") throw new Error(`ifcXML is written from STEP models (this one is ${model.format})`);
+      const target = ifcXmlSchemaFor(model.schemaRaw);
+      if (!target) throw new Error(`ifcXML is written for IFC4 and IFC4X3 models (this one is ${model.schemaRaw})`);
+      const layout = await json(`ifcxml-layout-${target.toLowerCase()}.json`);
+      const pieces = [];
+      const st = writeIfcXml(model, makeIfcXmlTarget(target, schemas[target] || await json(target.toLowerCase() + ".json"), layout), (p) => pieces.push(p), { name: asIfcXml });
+      postMessage({ ifcxml: { text: pieces.join(""), schemaRaw: model.schemaRaw, target, stats: st, seconds: (performance.now() - t0) / 1000 } });
+      return;
+    }
     if (auditOnly) {
       const parsed = parseIds(ids);
       const named = idsSchemas(ids);
@@ -168,6 +188,20 @@ self.onmessage = async (ev) => {
       return;
     }
     const report = checkIds(ids, ifc, { schemas: modelSchemas(id, schemas), auditSchemas: schemas, typeMap, measureUnits, psets });
+    // Schema faults the check reads past (conformance.mjs): STEP files up to
+    // 40 MB, where a second, full read costs a few seconds at most.
+    if (report.format === "STEP" && ifc.length <= 40e6) {
+      try {
+        // The WHERE rules of the model's own schema (where-rules.mjs, 80-180 kB).
+        const sid = (schemaOf(ifc) || "").toUpperCase();
+        const key = sid.startsWith("IFC4X3") ? "IFC4X3" : sid.startsWith("IFC4") ? "IFC4" : sid.startsWith("IFC2X3") ? "IFC2X3" : null;
+        const rules = key ? { [key]: await json(`rules-${key.toLowerCase()}.json`).catch(() => null) } : null;
+        const conf = conformance(ifc, modelSchemas(id, schemas), { rules });
+        markModelRules(report, conf);
+        report.conformance = conformanceSummary(conf);
+      }
+      catch (e) { report.conformance = { error: e.message }; }
+    }
     report.seconds = (performance.now() - t0) / 1000;
     postMessage({ report });
   } catch (e) {

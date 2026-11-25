@@ -29,7 +29,7 @@ node platform/daily/build.mjs --out=_site/dev/daily [--stats=_site/dev/stats.jso
 node --test platform/daily/*.test.mjs
 ```
 
-`portfolio-pages.yml` builds it after the dashboard on every publish and
+`priv-portfolio-pages.yml` builds it after the dashboard on every publish and
 every three hours. Editions cover the last seven complete UTC days and are
 rebuilt from git each time, so there is no stored state; each has a
 `facts.json` and both kinds are in `feed.xml` (Atom).

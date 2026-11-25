@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Machining Drawing Review: Read a Part Drawing PDF Before You Quote</title>
+  <meta name="description" content="Drop a part drawing PDF: title block, revision table, general tolerance block, notes and dimension callouts read in your browser, plus questions for the buyer.">
+  <meta property="og:title" content="Machining Drawing Review: Read a Part Drawing PDF Before You Quote">
+  <meta property="og:description" content="Drop a part drawing PDF: title block, revision table, general tolerance block, notes and dimension callouts read in your browser, plus questions for the buyer.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://marisstella.app/machine-shop-guides/drawing-review.html">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232c4a3e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Machining Drawing Review", "description": "Drop a part drawing PDF: title block, revision table, general tolerance block, notes and dimension callouts read in your browser, plus questions for the buyer.", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+</head>
+<body data-page="drawing-review">
+<nav class="crumbs"><a href="./">Machine shop guides</a></nav>
+<main>
+<h1>Drawing review: read a part drawing PDF before you quote</h1>
+<p class="lede">Drop the customer's drawing (a PDF exported from CAD). The page reads its text: the title block (part number, revision, material, finish, scale, CAGE code), the latest row of the revision table, the general tolerance block, the numbered notes and what each one costs, the dimension and thread callouts in the views, and any distribution or export marking. What is missing or contradicts itself becomes a question for the buyer. The dimensions and general tolerances go straight into the <a href="first-article-inspection.html">first article checker</a> as a starter characteristic list.</p>
+<p class="note">The file is read in this browser tab. It is never uploaded and not saved. The page reads the PDF's text layer by pattern: a scanned drawing, or dimensions drawn as lines rather than text, cannot be read, and it will say so. Every value shows the text it came from; check it against the drawing.</p>
+
+<form id="f" class="card" autocomplete="off">
+  <label for="pdf">Drawing PDF<span class="hint">A PDF exported from SolidWorks, Inventor, Fusion, Creo, NX, AutoCAD or similar. Up to 40 MB. Several sheets are fine.</span></label>
+  <input id="pdf" name="pdf" type="file" accept="application/pdf,.pdf">
+  <div class="grid">
+    <label>Flag tolerances tighter than (inches)<span class="hint">Your shop's line for "tight"; 0.001 to start</span><input name="tight" type="number" min="0" step="any" value="0.001" inputmode="decimal"></label>
+    <label>Your shop's name (for the email)<input name="shop" type="text"></label>
+    <label>Buyer's first name (for the email)<input name="buyer" type="text"></label>
+  </div>
+  <button type="submit">Read it</button>
+  <button type="button" class="secondary" id="example">Try an invented sample drawing</button>
+  <button type="button" class="secondary" id="clear">Clear</button>
+  <p class="note" id="status" role="status"></p>
+</form>
+
+<section id="out" aria-live="polite" hidden>
+  <section class="card">
+    <h2>Title block</h2>
+    <div class="scroller"><table>
+      <thead><tr><th>Field</th><th>Value</th><th>Found in</th></tr></thead>
+      <tbody id="fields"></tbody>
+    </table></div>
+    <p class="note" id="revtable"></p>
+  </section>
+  <section class="card">
+    <h2>General tolerances</h2>
+    <ul id="general"></ul>
+  </section>
+  <section class="card">
+    <h2>Notes</h2>
+    <ol id="notes"></ol>
+    <p class="note" id="notes-note"></p>
+  </section>
+  <section class="card">
+    <h2>Dimension and thread callouts found</h2>
+    <p id="dims-summary"></p>
+    <ul id="dims" class="cols"></ul>
+    <p><a id="fai-link" href="first-article-inspection.html">Open these in the first article checker</a> <span class="hint">(the list travels in the link's # part, which browsers never send to a server)</span></p>
+  </section>
+  <section class="card">
+    <h2>Specs, clauses and requirements</h2>
+    <div id="flags"></div>
+  </section>
+  <section class="card">
+    <h2>Questions for the buyer</h2>
+    <ol id="questions"></ol>
+    <button type="button" id="copy-email">Copy as an email</button>
+    <button type="button" class="secondary" id="csv">Download the review (CSV)</button>
+    <p class="note" id="copied" role="status"></p>
+  </section>
+</section>
+
+<section>
+<h2>How to read a drawing before you quote</h2>
+<p>The RFQ email says what the buyer wants. The drawing says what you are on the hook for. A review takes ten minutes on a simple part and saves the quote that forgot the anodize masking or the material cert. In order:</p>
+<h3>1. Title block and revision</h3>
+<p>Part number, revision, title, material and finish usually sit in the bottom-right block. Quote to the revision and write it on your quote. Then check the revision table (often top right): its last row should match the title block. When it doesn't, someone updated one and not the other, and you need to know which drawing the buyer will inspect against.</p>
+<h3>2. The general tolerance block</h3>
+<p>"Unless otherwise specified" sets the tolerance for every dimension that has none of its own, usually by decimal places (.XX, .XXX), plus angles and sometimes fractions. A drawing toleranced by an ISO 2768 class instead uses the tables in that standard, by size range. This block often decides the machine and the inspection more than the few toleranced callouts do, because it covers most of the part. If there is no block and no tolerance on a dimension, ask.</p>
+<h3>3. The notes</h3>
+<p>Notes are where cost hides: finish specs and masking, heat treat and hardness, part marking (MIL-STD-130 for IUID), edge breaks, cleanliness, packaging, certs and traceability, and "critical" or key characteristics that need 100% inspection. Read every note; this page tags each one with what it is likely to cost, and a gap in the numbering usually means a note is missing from your copy.</p>
+<h3>4. The tightest callouts</h3>
+<p>The tightest tolerance and the finest surface finish decide the process. If a tight callout looks like a default rather than a functional need, ask: buyers loosen tolerances more often than you'd think.</p>
+<h3>5. Markings</h3>
+<p>On defense drawings, a distribution statement sets who may receive the drawing. Statement A means approved for public release; B to F limit distribution, so check before you forward it to a plating or heat-treat house. A CUI marking means the systems that hold the file must meet NIST SP 800-171 (see the <a href="cmmc-level-1-vs-level-2.html">CMMC Level 1 vs Level 2 guide</a>), and an export-control (ITAR or EAR) warning limits who in the shop may see it.</p>
+<h3>6. Then price it</h3>
+<p>With the drawing read, the <a href="rfq-review.html">RFQ review</a> covers the buyer's terms, <a href="stock-size-from-step-file.html">stock size from the STEP file</a> gives the material and a first cycle time, and the <a href="job-shop-quote-calculator.html">quote calculator</a> prices it from your own rates.</p>
+</section>
+<script type="module">
+  import { extractPdfLines } from "./pdf-text.mjs";
+  import { inflate } from "./inflate-browser.mjs";
+  import { readDrawing, FIELDS, NOTE_TAGS, faiLink, drawingCsv } from "./drawing.mjs";
+  import { sampleDrawingPdf } from "./sample-drawing.mjs";
+  import { recordUsage } from "./usage.mjs";
+  const f = document.getElementById("f");
+  const status = document.getElementById("status");
+  const MAX = 40 * 1024 * 1024;
+  let last = null;
+  const el = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
+  const TAG = Object.fromEntries(NOTE_TAGS.map((t) => [t.id, t.label]));
+  function render(d) {
+    const tb = document.getElementById("fields"); tb.replaceChildren();
+    for (const fl of FIELDS) {
+      const v = d.fields[fl.id];
+      const tr = el("tr");
+      tr.append(el("td", fl.label), v ? el("td", v.value) : el("td", "not found", "bad"), el("td", v ? v.evidence : ""));
+      tb.append(tr);
+    }
+    const rt = document.getElementById("revtable");
+    rt.textContent = d.revisionTable ? `Revision table: ${d.revisionTable.rows.join(", ")}; latest ${d.revisionTable.latest} (“${d.revisionTable.evidence}”).` : "No revision table found.";
+    const g = document.getElementById("general"); g.replaceChildren();
+    const gl = d.general;
+    for (const k of [1, 2, 3, 4]) if (gl.linear[k] != null) g.append(el("li", `${k} decimal place${k > 1 ? "s" : ""} (${".".padEnd(k + 1, "X")}): ±${gl.linear[k]}`));
+    if (gl.angular != null) g.append(el("li", `Angles: ±${gl.angular}°`));
+    if (gl.fractional) g.append(el("li", `Fractions: ${gl.fractional.text}`));
+    if (gl.iso2768) g.append(el("li", `ISO 2768-${gl.iso2768}: tolerances by size range from that standard's tables (not applied here)`));
+    g.append(el("li", `Units: ${gl.units ?? "not stated"}`, gl.units ? null : "bad"));
+    if (gl.standard) g.append(el("li", `Dimensioning standard: ${gl.standard}`));
+    if (!gl.found) g.append(el("li", "No general tolerance block found.", "bad"));
+    const ol = document.getElementById("notes"); ol.replaceChildren();
+    for (const n of d.notes) {
+      const li = el("li", n.text);
+      li.value = n.n;
+      if (n.tags.length) li.append(el("span", ` (${n.tags.map((t) => TAG[t]).join(", ")})`, "hint"));
+      ol.append(li);
+    }
+    document.getElementById("notes-note").textContent = !d.notes.length ? "No numbered notes found." : d.notesSkipped.length ? `Numbering skips ${d.notesSkipped.join(", ")}.` : "";
+    const dl = document.getElementById("dims"); dl.replaceChildren();
+    for (const x of d.dimensions) dl.append(el("li", x.text + (d.pageCount > 1 ? ` (sheet ${x.page})` : "")));
+    document.getElementById("dims-summary").textContent = d.dimensions.length
+      ? `${d.dimensions.length} callout${d.dimensions.length > 1 ? "s" : ""} read from the text in the views, top to bottom. Dimensions drawn as lines, or split across pieces of text, are not in this list. Tightest tolerance: ${d.tightest == null ? "none found" : `±${Number(d.tightest.toFixed(5))}"`}.`
+      : "No dimension text found. The CAD export may draw dimensions as lines; ask for a PDF with text, or balloon the drawing by hand.";
+    document.getElementById("fai-link").href = faiLink(d);
+    const flags = document.getElementById("flags"); flags.replaceChildren();
+    if (d.specs.length) flags.append(el("p", `Specs named: ${d.specs.map((s) => s.spec).join(", ")}. Confirm you, or your processor, can work to each one and its revision.`));
+    for (const c of d.clauses) {
+      const box = el("div", null, "card");
+      box.append(el("h3", `${c.id.startsWith("252") ? "DFARS" : "FAR"} ${c.id}: ${c.title}`), el("p", c.why), el("p", `Found in: ${c.evidence}`, "note"));
+      flags.append(box);
+    }
+    for (const x of d.requirements) {
+      const box = el("div", null, "card");
+      box.append(el("h3", x.label), el("p", x.why), el("p", `Found in: ${x.evidence}`, "note"));
+      flags.append(box);
+    }
+    for (const m of d.markings) {
+      const text = m.id === "distribution" ? `Distribution statement ${m.statement}${m.statement === "A" ? " (approved for public release)." : ": distribution is limited. Check before you send the drawing to anyone outside the shop."}` : m.id === "cui" ? "Marked CUI." : m.id === "itar" ? "ITAR marking." : m.id === "ear" ? "EAR marking." : "Marked proprietary or confidential.";
+      flags.append(el("p", text, m.id === "distribution" && m.statement === "A" ? null : "bad"));
+    }
+    if (!flags.children.length) flags.append(el("p", "None found.", "note"));
+    const qs = document.getElementById("questions"); qs.replaceChildren();
+    for (const q of d.questions) qs.append(el("li", q));
+    if (!d.questions.length) qs.append(el("li", "Nothing obvious is missing. Read the notes once more before you quote."));
+    document.getElementById("out").hidden = false;
+  }
+  async function readBytes(bytes, what) {
+    status.textContent = "Reading…";
+    try {
+      const ex = await extractPdfLines(bytes, inflate);
+      if (ex.flags.notPdf) { status.textContent = "That file is not a PDF."; return; }
+      if (ex.flags.encrypted) { status.textContent = "The PDF is password-protected or encrypted. Ask for an unprotected copy."; return; }
+      last = readDrawing(ex, { tightInches: Number(f.elements.tight.value) || 0.001 });
+      const warn = [];
+      if (!last.readable) warn.push("No text found: a scan, or text drawn as lines.");
+      if (ex.flags.unreadableFonts) warn.push("Some text uses a font this reader cannot decode; values may be missing.");
+      if (ex.flags.undecodable) warn.push(`${ex.flags.undecodable} page stream${ex.flags.undecodable > 1 ? "s" : ""} could not be decompressed in this browser.`);
+      status.textContent = `${what}: ${last.pageCount} sheet${last.pageCount === 1 ? "" : "s"} read. ${warn.join(" ")}`;
+      render(last);
+    } catch {
+      status.textContent = "This PDF could not be read. Try exporting it again from CAD.";
+    }
+  }
+  f.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const file = f.elements.pdf.files[0];
+    if (!file) { status.textContent = "Choose a PDF first, or try the sample."; return; }
+    if (file.size > MAX) { status.textContent = "That file is over 40 MB."; return; }
+    await readBytes(new Uint8Array(await file.arrayBuffer()), file.name);
+    recordUsage("drawing-review");
+  });
+  document.getElementById("example").addEventListener("click", async () => { await readBytes(sampleDrawingPdf(), "Invented sample"); recordUsage("drawing-sample"); });
+  document.getElementById("clear").addEventListener("click", () => { f.reset(); last = null; status.textContent = ""; document.getElementById("out").hidden = true; });
+  function email(d) {
+    const pn = d.fields.partNumber?.value || d.fields.drawingNumber?.value;
+    const buyer = f.elements.buyer.value.trim(), shop = f.elements.shop.value.trim();
+    return [`Subject: Questions on the drawing${pn ? ` for ${pn}` : ""}${d.fields.revision ? ` rev ${d.fields.revision.value}` : ""}`, "", `Hi${buyer ? " " + buyer : ""},`, "", "Before we quote, a few questions on the drawing:", "", ...d.questions.map((q, i) => `${i + 1}. ${q}`), "", "Thanks,", shop || ""].join("\n").trimEnd() + "\n";
+  }
+  document.getElementById("copy-email").addEventListener("click", async () => {
+    if (!last) return;
+    const text = email(last);
+    const s = document.getElementById("copied");
+    try { await navigator.clipboard.writeText(text); s.textContent = "Copied. Paste it into a reply to the buyer."; }
+    catch { s.textContent = "Your browser blocked copying. The email is below; select and copy it."; const pre = el("pre", text); pre.style.whiteSpace = "pre-wrap"; s.after(pre); }
+    recordUsage("drawing-email");
+  });
+  document.getElementById("csv").addEventListener("click", () => {
+    if (!last) return;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([drawingCsv(last)], { type: "text/csv" }));
+    a.download = "drawing-review.csv"; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    recordUsage("drawing-csv");
+  });
+</script>
+</main>
+<section class="card cta" id="early-access">
+  <h2>In development — early access</h2>
+  <p>We are building two paid products for small machine shops: an <strong>RFQ-to-quote assistant</strong> that turns a drawing and an email into a priced quote from your own rates, and a <strong>CMMC Level 1/2 and ISO 9001 workspace</strong> that keeps your SSP, POA&amp;M and SPRS score in one place. Neither is released yet. Read what is planned and how to get early access on the <a href="https://marisstella.app/industries/manufacturing/">manufacturing page</a>.</p>
+  <p class="note">Neither product certifies anyone. Only an authorized C3PAO (or the government) can issue a CMMC Level 2 certification; software can help you prepare, nothing more.</p>
+</section>
+<footer>
+  <p><a href="./">Machine shop guides</a> · <a href="cmmc-level-1-self-assessment.html">CMMC Level 1 self-assessment</a> · <a href="cmmc-scoping-worksheet.html">CMMC scoping worksheet</a> · <a href="sprs-score-calculator.html">SPRS score calculator</a> · <a href="nist-800-171-ssp-template.html">SSP template</a> · <a href="dfars-7012-incident-reporting.html">DFARS 7012 incident reporting</a> · <a href="stock-size-from-step-file.html">Stock size from a STEP file</a> · <a href="job-shop-quote-calculator.html">Job-shop quote calculator</a> · <a href="rfq-review.html">RFQ review checklist</a> · <a href="drawing-review.html">Drawing review</a> · <a href="first-article-inspection.html">First article inspection checker</a> · <a href="quote-vs-actual.html">Quoted vs actual hours</a> · <a href="cmmc-level-1-vs-level-2.html">CMMC Level 1 vs Level 2</a> · <a href="ssp-and-poam.html">SSP and POA&amp;M</a> · <a href="how-to-price-a-machined-part.html">How to price a machined part</a> · <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/machine-shop-guides">Source (FSL-1.1-MIT)</a></p>
+  <p><strong>Not affiliated with or endorsed by the Department of Defense (Department of War), NIST, the Cyber AB or any C3PAO.</strong> A score you calculate here is a self-check, not a CMMC assessment, a certification or an SPRS submission. Regulations are summarised with dates in <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/machine-shop-guides/SOURCES.md">SOURCES.md</a>; read the official text before you rely on it, because the rules change.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, compliance, financial or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  <p>Privacy: nothing you type leaves your browser. This page keeps an anonymous visit count in your own browser's storage only. <button type="button" class="secondary" id="usage-toggle">Turn off counting</button></p>
+</footer>
+<script type="module">
+  import { recordUsage, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+  const btn = document.getElementById("usage-toggle");
+  const paint = () => { btn.textContent = usageOptedOut() ? "Turn counting back on" : "Turn off counting"; };
+  btn.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); paint(); });
+  paint();
+  recordUsage("view:" + (document.body.dataset.page || "page"));
+</script>
+</body>
+</html>

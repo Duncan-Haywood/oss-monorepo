@@ -38,4 +38,4 @@ Everything runs in the browser. Project data is never uploaded and there is no a
 
 ## License
 
-MIT. See [`LICENSE`](LICENSE).
+FSL-1.1-MIT. See [`LICENSE`](LICENSE).

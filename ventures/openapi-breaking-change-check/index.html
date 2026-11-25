@@ -6,7 +6,7 @@
   <title>OpenAPI Breaking Change Check — Did This API Version Break Existing Clients?</title>
   <meta name="description" content="Paste two OpenAPI 3.0/3.1 JSON documents and see exactly which changes would break an existing client — a removed endpoint, a parameter that became required, a narrowed type, a removed enum value. Free, runs in your browser, nothing uploaded.">
   <meta property="og:title" content="Did this API version break existing clients?">
-  <meta property="og:description" content="A code review of the implementation doesn't catch a required parameter added to an endpoint the frontend already calls. Paste your before and after OpenAPI documents and get the breaking changes — not just every change.">
+  <meta property="og:description" content="Paste your before and after OpenAPI documents and get the breaking changes, not just every change.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"OpenAPI Breaking Change Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Python 3, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compares two OpenAPI 3.0/3.1 JSON documents and classifies every difference as a breaking change (removed endpoint, newly-required parameter, narrowed type, removed enum value, request body now required) or a non-breaking one. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded and it makes no network calls of its own."}
@@ -114,7 +114,7 @@ python3 openapi_diff.py old.json new.json --fail-on-breaking  # exit 2 only if a
     <p>Everything runs in your browser. Both OpenAPI documents you paste are never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>diff_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Diffing a build artifact instead of an API contract: <a href="../sbom-diff-check/">SBOM Diff Check</a> compares two CycloneDX/SPDX SBOM documents and reports added, removed, and version-changed packages, and <a href="../sql-migration-lock-check/">SQL Migration Lock Check</a> reads a PostgreSQL migration for statements that would lock or rewrite a live table — three different slices of the same "did this change, and does it matter" question, each over a different artifact a developer already has.</p>
-    <p class="support">Free and open source. If this caught a breaking change before it shipped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free to use and source available. If this caught a breaking change before it shipped, the <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">

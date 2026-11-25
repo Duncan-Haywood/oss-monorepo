@@ -22,6 +22,7 @@ self-assessed" is the accurate phrase.
 | Vendors | [`soc2/vendors.md`](soc2/vendors.md) |
 | Vulnerability reports | [`/SECURITY.md`](../../SECURITY.md) |
 | Agent hardening (the control plane) | [`agent-hardening.md`](agent-hardening.md) |
+| Cyber and legal risk review on every PR (replaces owner approval outside a small core) | [`risk-review.md`](risk-review.md), `platform/security/risk_review.py` |
 | Privacy law baseline | [`../legal/privacy-baseline.md`](../legal/privacy-baseline.md) |
 
 ## Where it stands (2026-11-03)

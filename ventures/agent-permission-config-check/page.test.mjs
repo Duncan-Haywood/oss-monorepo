@@ -3,6 +3,9 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { parseConfig, analyze } from "./engine.mjs";
 
+// Escape every regex metacharacter so a literal string can sit inside a RegExp.
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const DOCS_PAGE = "why-ai-agent-permission-configs-need-a-linter.html";
 const COMPARISON_PAGE = "vs-manual-config-review.html";
 
@@ -10,14 +13,14 @@ test("index links to the docs page", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(
     page,
-    new RegExp(`href="${DOCS_PAGE.replace(/\./g, "\\.")}"`),
+    new RegExp(`href="${escapeRegExp(DOCS_PAGE)}"`),
     "index must link the secondary docs page so crawlers can reach it",
   );
 });
 
 test("index links to the comparison page", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(page, new RegExp(`href="${COMPARISON_PAGE.replace(/\./g, "\\.")}"`));
+  assert.match(page, new RegExp(`href="${escapeRegExp(COMPARISON_PAGE)}"`));
 });
 
 test("docs page links back to the tool", async () => {

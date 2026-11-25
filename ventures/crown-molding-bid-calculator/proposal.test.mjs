@@ -154,7 +154,7 @@ test('customer-supplied text cannot inject markup into the printed page', () => 
   }));
   // The property that matters is that no customer-supplied text survives as
   // markup: `onerror=` as escaped *text* is inert, `<img onerror=` is not.
-  assert.doesNotMatch(html, /<script>/);
+  assert.doesNotMatch(html, /<script\b/i);
   assert.doesNotMatch(html, /<img/i);
   assert.match(html, /&lt;script&gt;/);
   assert.match(html, /&lt;img src=x onerror=alert\(1\)&gt;/);
@@ -466,6 +466,8 @@ test('issue date must be a real calendar date, with or without a validity period
     assert.throws(() => buildProposal({ ...base, issuedOn, validDays: 30 }), /Issue date/, issuedOn);
   }
   assert.equal(buildProposal({ ...base, issuedOn: '2028-02-29' }).issuedOn, '2028-02-29');
+  // Year 0000 is refused and year 0001 is the first accepted: pins the `year < 1` bound.
+  assert.equal(buildProposal({ ...base, issuedOn: '0001-01-01' }).issuedOn, '0001-01-01');
   assert.throws(() => addDays('2026-02-30', 5), /real date/);
 });
 

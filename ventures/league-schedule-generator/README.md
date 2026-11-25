@@ -20,7 +20,218 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
-## Already have a schedule? The league page runs on it as it is (2026-11-23, newest)
+## Bowling seasons that cannot be even: the page now says when its split is the best possible (2026-11-24, latest)
+
+44 bowling seasons were already proved to have no lane deal that gives every team its even split (every
+season exactly as long as the lane pairs, from 4 to 30 teams, and the 4-team leagues). The page said so,
+but not whether its own deal was as close as any deal could get. `eval/bowling-mirror-cpsat.py --soft`
+now lets counts leave their floor..ceil and minimises the same out-of-target total the page measures
+(`offBound`); `--hint` starts it from a stored answer.
+
+**Proved minimums.** CP-SAT proved the minimum on 39 of the 44 seasons (all up to 20 teams; 18 x 9 in
+152 s, 20 x 10 in 114 s). The page's own search already reaches it on 38. The 39th, 20 teams over 10
+weeks, had 22 counts off where 20 is the minimum; the CP-SAT answer is stored (`bowling-lane-near.mjs`)
+and the page now builds 20. For these 39 seasons the page now says the deal is the most even one possible
+(`laneOffMin`, `laneProvedBest` from `bowlingSchedule`, `bowling-lane-min.mjs`). On 22 to 30 teams the
+solver proved no useful bound in 600 s, so the page makes no such claim there.
+
+**Two big seasons closer.** 26 teams over 13 weeks went from 30 to 28 off (a new stored answer) and 26
+over 39 weeks from 14 to 12 (the stored answer, improved from its hint). Hinted runs on 24 x 11, 28 x 13,
+26 x 26, 28 x 14 and 28 x 28 kept the stored answers (3, 3, 10, 32, 16), and the mirror with 4 workers
+found nothing on 24 x 24 in 30 minutes. Every run: `eval/bowling-lane-min-2026-11-24.txt`;
+`node --test bowling.test.mjs`: 38 pass.
+
+## Big bowling leagues: 26 teams over 12 and over 38 weeks at an even lane split, from a mirror (2026-11-24, later)
+
+Two bowling seasons that every earlier solver had left off the even split are now at it: 26 teams over
+12 weeks (each team on 12 different lane pairs, never one twice; stored 3 off) and 26 teams over 38 weeks
+(every team on every pair 2 or 3 times; stored 1 off). The page builds both at the bound on every seed.
+
+**The idea.** The circle method's round r plays {r+k, r-k} (mod n-1) and {r, the fixed team}. Reflecting
+the teams, t -> W-1-t, turns round r into round W-1-r with the same matches in the same order. So
+`eval/bowling-mirror-cpsat.py --mirror` asks only for lane plans that look the same under that reflection,
+up to a fixed swap of pair labels (p <-> p xor 1). That halves the free choices and cuts the search the
+solver has to rule out. On 22 x 10 (already solved) the CP-SAT model went from 20.3 s to 0.4 s; on 26 x 12
+it found an answer in 24 s where pairwise CaDiCaL had none in 900 s; on 26 x 38 in 478 s, where kissat had
+none in 2,400 s.
+
+**Where it cannot help.** With an odd number of weeks the middle round is its own mirror image, which
+forces the label swap to be the identity; then the fixed team bowls on the same pair in weeks r and
+W-1-r, so its count is even on every pair but one. That rules out 24 x 11, 28 x 13 and 22 x 33 (checked:
+infeasible in 0.0 s), so the script refuses odd W. Kissat without the mirror found nothing for 24 x 11 and
+28 x 13 in 25 min each. The mirror found nothing on 24 x 24, 24 x 36, 26 x 26 and 28 x 28 in 25 min each on
+one core. Whether those seasons have a mirrored answer at all is still open. Every run is in
+`eval/bowling-mirror-2026-11-24.txt`; `bowling.test.mjs` checks both new seasons (36 pass).
+
+## Club player ratings: season-long Glicko-2 for singles and doubles (2026-11-24)
+
+**What it is.** `player-ratings.html` and `season-ratings.mjs`. Paste a season of results, one game
+per line (`2026-01-06 Ana & Ben 11-7 Cy & Dee`, `Ana 3-1 Cy`, `Ben beat Dee`), and every player gets
+a rating, a ± (2 x RD), a W-L record, a provisional flag, and win chances for any two sides. It copies
+the table, the ranked names (to paste into the box league or balanced teams pages) or a CSV.
+This is what clubs pay rating services for (DUPR for pickleball, UTR for tennis, club Elo
+spreadsheets), for the club's own results, with nothing uploaded.
+
+**Two methods.**
+- *Whole season at once* (`fitSeason`, the page default): a doubles Bradley-Terry fit on side averages
+  (the Elo scale, 400 points = 10:1), as a MAP estimate under a normal prior (sd 300, or a starting
+  rating and RD per player), by Newton steps on the full Hessian. Order-free. The ± is the Laplace RD.
+- *Glicko-2 period by period* (`createRater`, `rateSeason`): Glickman's steps 1 to 8 with the Illinois
+  volatility search. Periods are each date, ISO week, month or game. A player who sits out k periods
+  has step 6 applied k times. Doubles use a composite opponent: the virtual opponent's rating makes the
+  one-on-one gap equal to the gap between side averages, and its RD carries the partner's and the
+  opponents'. Home advantage is optional.
+- Both take `margin` in 0..1: the outcome is (1 - margin) x win + margin x the share of points won.
+
+**Checks.** `season-ratings.test.mjs` (13 tests): Glickman's worked example (1464.06, RD 151.52,
+volatility 0.05999) through both the bare update and the rater; doubles partner effect; RD growth
+when sitting out; ISO week keys at year ends; the fit is order-free and respects priors; parser and
+page (FAQ JSON-LD equals visible text, every usage event listed in the footer). Rendered in headless
+Chromium at 390 px with the example season: no console errors, no horizontal scroll.
+
+**Real data: 50,093 international football results** (`eval/season-ratings-football.mjs`, data
+martj42/international_results, CC0, fetched 2026-11-24, sha256 `c1773d3e...`; not committed). Each
+method predicts every match from earlier results only. Parameters were tuned on 1990-2009 and
+scored on 16,512 held-out matches from 2010 on. Brier is on the home side's expected score; log loss
+and accuracy are on decisive matches.
+
+| method (held out 2010-) | Brier | log loss | accuracy |
+|---|---|---|---|
+| base rate (home side's average) | 0.1824 | 0.6592 | 62.2% |
+| Elo, K 40, home 100 (tuned) | 0.1321 | 0.4809 | 76.8% |
+| World Football Elo constants (K by tournament, goal margin, home 100) | 0.1321 | **0.4725** | 77.3% |
+| Glicko-2, monthly periods, tau 2.5, home 100 (tuned) | **0.1301** | 0.4773 | 77.4% |
+| Glicko-2 monthly + goal margin 0.25 (tuned) | 0.1301 | 0.4801 | 77.5% |
+
+Paired bootstrap (2,000 resamples): Glicko-2 monthly beats tuned Elo on Brier (-0.0020, 95% CI
+-0.0026 to -0.0013) and on log loss (-0.0036, CI -0.0056 to -0.0016). Against World Football Elo it
+has a lower Brier (-0.0020, CI -0.0028 to -0.0012) but a higher log loss (+0.0048, CI +0.0024 to
++0.0073). It is better on draws and less sharp on decisive games, so it is not a clean win. Goal margin
+does not help Glicko-2 here: Brier is unchanged (CI -0.0002 to +0.0001) and log loss is worse at
+every margin tried (sweep in the eval file). Periods of one date did worse than monthly periods
+(Brier 0.1350). With global periods, every date anyone plays ages everyone else's RD, so a national
+team that plays monthly hits the RD cap. A club league, where everyone plays on league nights, does
+not have this problem. tau tuned to the top of its grid (2.5), so national team strength moves fast.
+
+**Synthetic club seasons** (`eval/season-ratings-doubles.mjs`, 200 seasons per cell, 16 players, true
+levels 1250-1750, games to 11 played rally by rally). Spearman rho to the true order:
+
+| | random-partner nights (12) | Mexicano nights (12) | box league rounds (8) | box league rounds (12) |
+|---|---|---|---|---|
+| win percentage | 0.705 | 0.676 | 0.651 | 0.731 |
+| points difference | 0.745 | 0.742 | 0.692 | 0.776 |
+| box ladder's own order | | | 0.773 | 0.785 |
+| Glicko-2, margin 0.5 | 0.693 | 0.707 | 0.841 | 0.887 |
+| whole-season fit, margin 0.5 (page default) | 0.718 | 0.738 | 0.849 | 0.891 |
+| whole-season fit, margin 1 | 0.750 | 0.749 | 0.866 | 0.907 |
+
+- **Negative result: Americano and Mexicano nights.** When partners rotate and everyone meets
+  everyone, a plain points-difference table orders players as well as any rating tried, and better
+  than sequential Glicko-2. Under a rally model, total points difference is close to a sufficient
+  statistic. So the page does not claim a better Americano order. There it adds the ±, win chances
+  and carrying ratings across nights.
+- **Where ratings win: one table across boxes.** On the same 200 box seasons, the default fit beat
+  the box ladder's order in 166 of 200 after 8 rounds and in 181 of 200 after 12. Glicko-2 at
+  margin 0.5 beat it in 174 and 184. After 2 rounds the ladder wins most seasons (fit 53 of 200),
+  because it starts from the club's seeding and the fit starts everyone level.
+- Points share is favoured by construction here, since the simulation is a rally model. The real
+  football data did not reward goal margin, so the page defaults to 0.5 as a hedge, not as a finding.
+
+**Not yet:** a real club's season (box league or pickleball ladder results with dates) to check
+the box-league claim on people. The two-week DUPR-style "reliability" display. Wiring the ranked names
+straight into `box-league.html` seeding (today they are copied and pasted).
+## Divisions drawn by location: the least travel between rivals (2026-11-24, newest)
+
+A regional league (youth soccer across towns, a county darts league, a school conference) splits its teams into
+divisions before anything is scheduled, and that split decides most of the season's driving: every team visits every
+division rival. `divisions-by-location.html` (module `regions.mjs`, CLI `node regions.mjs teams.txt --divisions 4
+[--apart apart.txt]`) takes each team's home ground as `Team @ lat, lon`, a number of divisions, optional keep-apart
+groups (`Hawks A, Hawks B`: every team on a line in a different division) and, optionally, the current divisions, and
+returns divisions of even size (within one team) with the least total great-circle distance between division rivals,
+each team's average and farthest trip, the saving against the current split, and a button that opens the
+multi-division scheduler with the divisions filled in (same `#d=` fragment, decoded by `decodeDivisionFields` in the
+test).
+
+The search is iterated local search: 64 starts (farthest-point seeds grown greedily, alternating with random splits),
+each improved by the best swap of two teams between divisions (or a move from a division one larger to one smaller)
+until none helps, then shaken by 2-4 random swaps and improved again 30 times. Keep-apart pairs are priced above the
+whole league's travel, so one is broken only when no split avoids it, and the page says so.
+
+How it was checked (`regions.test.mjs`, `eval/nfl-divisions.mjs`, output in `eval/nfl-divisions.txt`):
+
+- **60 random leagues of 8 to 12 teams** (2 to 4 divisions, uneven sizes included): the search's split equals the best
+  of every possible split each time; 15 more with two keep-apart groups equal the best split that honours them.
+- **A real 32-team map: the NFL**, each team placed at its stadium's town centre (GeoNames via the `geonamescache`
+  3.0.2 wheel, CC BY 4.0; `eval/nfl-stadium-towns.txt` lists the geonameid of each). The 2025 divisions put
+  43,953 km between rivals; the least-travel split of the same 32 into 8 divisions of 4 has 28,018 km (-36%; 89 of
+  400 starts reached it). Keeping the two conferences, each conference's 2,627,625 splits into 4 divisions of 4 were
+  all checked: the exhaustive best (18,821 km AFC, 17,853 km NFC, 36,674 km together, -17%) is the search's split
+  in 64 of 64 starts for each conference.
+- **Not proved: the 32-team split.** `eval/nfl-divisions-proof.mjs` is a branch and bound over all 5.9 x 10^19 splits
+  with a nearest-three-rivals bound; it did not finish in 10 minutes here, so 28,018 km is the best found, not a proved
+  least. A tighter bound (a matching or LP relaxation) is the next step if a proof is wanted.
+
+What it does not do: road drive times, team strength balance, or travel between away games on one trip. Next: a real
+league's list of grounds and its current divisions.
+
+## Big bowling leagues: 26 and 28 teams over 12 and 13 weeks, one count closer (2026-11-24, latest)
+
+Two of the short seasons where a team should meet every lane pair at most once moved closer to an even
+split: 26 teams over 12 weeks from 4 counts off to **3**, and 28 teams over 13 weeks from 4 to **3**
+(`bowling-lane-near.mjs`, re-checked by `bowling.test.mjs`; the page builds 3 on seeds 1 and 2 for both).
+
+The search (`eval/bowling-week-lns.c`) frees one whole week at a time and puts its matches back on the
+pairs by an exact assignment (the Hungarian method) against the other weeks' counts. That works because a
+team plays once a week, so a week's share of the count is a sum over (match, pair) cells. Ties go at random,
+so the walk crosses plateaus, and a random swap is forced after a long stall.
+
+| teams x weeks | stored before | now |
+|---|---|---|
+| 26 x 12 | 4 | **3** |
+| 28 x 13 | 4 | **3** |
+| 24 x 11 | 3 | 3 (four seeds, never 2) |
+
+It only helps on short seasons. On every longer or exact season in the near table the old tabu search's
+answers are far better (28 x 28: 22 against 16), and on 22 x 10, which SAT puts at 0, the walk stalls at 2.
+Two other ideas found nothing. Fixing most weeks of the stored 26 x 38 (1 off) and asking SAT to finish 16 or
+22 freed weeks found nothing in 25 minutes each. Writing out the counts every answer must satisfy (each team
+short on exactly one pair, each pair short on exactly two teams) made 22 x 10 slower, 54 s against 1.5 s.
+Every run: `eval/bowling-week-lns-2026-11-24.txt`.
+
+## Big bowling leagues: three more seasons at an even lane split, from a change of encoding (2026-11-24)
+
+Three bowling seasons had sat one count off an even lane split since 2026-11-23 (the table two
+sections down): 22 teams over 10 weeks, 22 over 21 and 24 over 23. Each now has every team on every
+lane pair `floor(W/P)` to `ceil(W/P)` times, stored in `bowling-lane-table.mjs` and checked by
+`bowling.test.mjs` (a permutation every week, off 0 on seeds 1 and 2).
+
+| teams x weeks | page before | page now | back-to-back repeats, before -> now |
+|---|---|---|---|
+| 22 x 10 | 1 | **0** (every team on 10 different pairs) | 0 -> 0 |
+| 22 x 21 | 1 | **0** | 20 -> 13 |
+| 24 x 23 | 1 | **0** | 19 -> 24 |
+
+The solver did not change; the way the CNF writes the count limits did. Same model as
+`eval/bowling-lane-table.py` (each week a permutation of matches onto pairs, week 1 fixed):
+
+- **22 x 10** has `ceil(10/11) = 1`: each team at most once on each pair. Written as a sequential
+  counter, CaDiCaL 1.5.3 found no answer in 420 s (2026-11-23) or in 180 s re-run today; written
+  pairwise (one clause per two of a team's matches) it answers in 14.7 s, and in 1.5 s with the
+  week permutations pairwise too. The four SAT scripts (`bowling-lane-table.py`, `bowling-lane-sat.py`,
+  `bowling-repeat-sat.py`, `bowling-bound-proof.py`) now use pairwise whenever the limit is 1.
+- **22 x 21 and 24 x 23** (1 to 2 visits per pair) fell to kissat 4.0.4 through python-sat with a
+  totalizer for the limits, in about 23 and 21 minutes on 4 shared cores; CaDiCaL with the sequential
+  counter had none in 420 s.
+- **Not found:** a cyclic family (pair = sigma(match) + c x round, mod P) has no answer for any of
+  the four; the wider family sigma(match) + tau(round) is UNSAT for 22 x 10 (proved), and gave nothing
+  in 400 s for the others. 24 x 11, 26 x 12 and 28 x 13 (also limit 1) gave nothing in 900 s with the
+  pairwise encoding, and 26 x 38 (2 to 3 visits) none in 2,400 s with kissat. Every run: `eval/bowling-encoding-2026-11-24.txt`; the runner is `eval/bowling-encoding.py`. CaDiCaL also solves 22 x 21 in about 4 minutes when "at most 2" is written as forbidden triples and "at least 1" as one clause (`direct`).
+
+The odd pair: 22 teams over 11 weeks is proved out of reach (`bowling-proofs.mjs`), yet 10 weeks
+is reachable. The 24 x 23 season trades 5 more back-to-back repeats for the even split; the page
+keeps balance first, as everywhere else on the bowling page.
+
+## Already have a schedule? The league page runs on it as it is (2026-11-23)
 
 Until now the self-hosted league page (`server.mjs`) only ran on a season it built itself. Most
 organisers who would host it already have a season: one they typed into a spreadsheet, or one exported
@@ -103,7 +314,7 @@ Over the 17 seasons, 251 counts off before and 103 now, the same on seeds 1 and 
 season in Node (`node eval/bowling-lane-near-check.mjs`, `eval/bowling-lane-near.txt`). Eight seasons
 (24 x 25, 24 x 37, 26 x 14, 26 x 27, 26 x 40, 28 x 15, 28 x 27, 28 x 29) did not move: the
 tabu search ended where the page does. Whether 1 off is the least for 22 x 10, 22 x 21, 24 x 23 and
-26 x 38 is open: neither solver proved it either way. `bowling.test.mjs` checks every stored near
+26 x 38 is open: neither solver proved it either way (2026-11-24: 22 x 10, 22 x 21 and 24 x 23 are now at 0, section above; 26 x 38 is still 1). `bowling.test.mjs` checks every stored near
 entry (a permutation each week, exactly as far off as recorded, below its `page` figure) and that the
 page builds no worse than it on seeds 1 and 2.
 
@@ -662,7 +873,7 @@ play-off bracket, and add their own team's schedule to their calendar (`.ics`). 
 third party: zero dependencies, one JSON file on a disk you own.
 
 - **Alternatives today:** TeamSnap, LeagueApps and SportsEngine hold your players' data behind per-team accounts and
-  paid plans. This is the sign-up, publish-fixtures-and-table loop for one league, MIT-licensed. Team sign-ups take
+  paid plans. This is the sign-up, publish-fixtures-and-table loop for one league, FSL-1.1-MIT-licensed. Team sign-ups take
   the fee on the organiser's own payment link (it never handles a card); waivers, notices, availability and
   sportsmanship ratings are below. It has no in-app chat or card processing; use one of them if you need those.
 - **Secrets:** `ADMIN_KEY` unlocks `/admin`; `LEAGUE_TOKEN` is the secret in the player link. The server refuses to
@@ -922,7 +1133,7 @@ size from 2 to 24 teams.
 **Privacy.** Everything runs in your browser; team names and dates are never
 uploaded. Anonymous feature counts stay in local storage and can be switched off.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.
 
 **Returning each season.** The last setup is remembered in this browser's local storage only (Clear forgets it); share-by-link still carries a setup inside the URL.
 
@@ -5471,12 +5682,11 @@ rounds left go first, so they finish together) and which match gets which court 
 `printpack.mjs` builds one printable page set on the organiser's letterhead: a
 cover (league, season, logo, contact), the full schedule, one page per team
 (home/away, byes marked) and an optional rules page. It reuses the licence-key
-check from `ventures/wall-framing-takeoff` (`licence.mjs`; the provider's
-validate call is from memory of its docs and unrun). The card in `index.html`
-shows only when `CHECKOUT_URL` in `checkout.mjs` is a plain https link, which
-is empty today, so nothing is for sale. The schedule, CSV, calendar, web page
+check as the sibling packs (`licence.mjs`, `paddle.mjs`). The card in
+`index.html` shows only once `checkout.mjs` carries a Paddle price id (the
+2026-11-25 note below), so nothing is for sale today. The schedule, CSV, calendar, web page
 and score sheets stay free. The key is an honest-buyer convenience, not copy
-protection; the code is MIT. Checked: `node --test printpack.test.mjs`
+protection; the code is FSL-1.1-MIT. Checked: `node --test printpack.test.mjs`
 (5 cases: a page per team with each game once and the bye, escaping of every
 typed field, SVG and non-hex colour refused, the card dark, the key check never
 throwing offline); whole suite 312 passing. Not checked: a real checkout, or
@@ -6425,3 +6635,5 @@ Checked:
   run, slowest 650 ms against 811 ms. (The 14 ms in the race section above was the race alone,
   measured before magic numbers were added.)
 - Not checked: a real league's published clinch dates (none in the data).
+
+**Checkout moved to Paddle (2026-11-25).** The pack's Buy button now opens Paddle's overlay checkout, and its licence key is an Ed25519-signed token a separate billing Worker issues from Paddle's webhook and the page checks offline (`paddle.mjs`, a synced copy of `platform/billing/client.mjs`; `checkout.mjs` is generated from `platform/billing/catalogue.mjs`). The old Lemon Squeezy validate call is gone. It stays dark until the owner deploys that Worker and sets the catalogue's price id, client-side token and public key (`platform/billing/README.md`).

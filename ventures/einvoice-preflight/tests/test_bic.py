@@ -11,7 +11,7 @@ from einvoice_preflight.cli import main
 from einvoice_preflight.ubl import parse_ubl_invoice
 
 
-def _invoice(iban=None, bic=None):
+def _invoice(account=None, bic=None):
     invoice = {
         "invoice_number": "INV-1",
         "issue_date": "2026-08-24",
@@ -22,8 +22,8 @@ def _invoice(iban=None, bic=None):
         "totals": {"net": 200, "tax": 38, "gross": 238},
     }
     payment = {}
-    if iban is not None:
-        payment["iban"] = iban
+    if account is not None:
+        payment["iban"] = account
         payment["remittance"] = "INV-1"
     if bic is not None:
         payment["bic"] = bic

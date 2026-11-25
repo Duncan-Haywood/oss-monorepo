@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 test("index links to the docs page", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(
@@ -93,7 +95,7 @@ test("sitemap lists all published pages", async () => {
     "vs-pluto.html",
     "vs-checking-the-migration-guide-by-hand.html",
   ]) {
-    assert.match(sitemap, new RegExp(loc.replace(/\./g, "\\.")));
+    assert.match(sitemap, new RegExp(escapeRegExp(loc)));
   }
 });
 

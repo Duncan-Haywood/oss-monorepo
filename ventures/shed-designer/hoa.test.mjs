@@ -41,9 +41,9 @@ for (const [key, make] of Object.entries(PRESETS)) {
     const d = shed.design;
     const rows = Object.fromEntries(packetSummary(shed));
     assert.match(rows.Footprint, new RegExp(`${(d.length * d.width / 144).toFixed(0)} sq ft`));
-    assert.match(rows['Height to the peak'], new RegExp(fmtFtIn(shed.dims.peak).replace(/[-/]/g, '\\$&')));
+    assert.match(rows['Height to the peak'], new RegExp(fmtFtIn(shed.dims.peak).replace(/[.*+?^${}()|[\]\\/-]/g, '\\$&')));
     assert.match(rows.Roof, new RegExp(`${d.pitch}/12`));
-    assert.match(rows.Siding, new RegExp(d.sidingType.replace(/[-/]/g, '\\$&')));
+    assert.match(rows.Siding, new RegExp(d.sidingType.replace(/[.*+?^${}()|[\]\\/-]/g, '\\$&')));
     assert.match(rows.Roofing, new RegExp(d.roofColor));
     assert.match(rows.Trim, new RegExp(d.trimColor));
   });

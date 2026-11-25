@@ -106,4 +106,4 @@ Excel is a trademark of Microsoft Corporation; not affiliated with, endorsed by 
 Microsoft or any product named. Product names are used only to describe what this tool is and is
 not.
 
-MIT licensed. Optional support: https://github.com/sponsors/Duncan-Haywood
+FSL-1.1-MIT licensed. Optional support: https://github.com/sponsors/Duncan-Haywood

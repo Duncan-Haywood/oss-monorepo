@@ -1,7 +1,7 @@
 # Clothing Design Studio
 
 **Say what you want on the shirt. See it, change it, know what it costs.**
-A free, open-source (MIT) browser studio for independent clothing designers:
+A free, source-available (FSL-1.1-MIT) browser studio for independent clothing designers:
 design a tee, long-sleeve, sweatshirt or hoodie by talking, typing or dragging,
 compare three versions, cost every piece from your manufacturer's prices, and
 download a tech pack and quote request to send them.
@@ -53,7 +53,7 @@ only in this browser's local storage. `byok.mjs` is a synced copy of
 | File | What |
 |---|---|
 | `catalogue.mjs` | Garments (to scale), print areas, fabrics, methods, colours, compatibility notes |
-| `design.mjs` | The design model, every edit as an operation, undo, three variants, share links |
+| `design.mjs` | The design model, every edit as an operation, undo, three variants (the colour one from the supplier sheet's stock colours when it lists them, `eval/stock-alternatives-2026-11-24.txt`), share links |
 | `commands.mjs` | Spoken or typed sentences to operations, no model |
 | `shade.mjs` | "Make it darker", "a bit more muted", "warmer ink": a colour moved in CIELAB, a nearby catalogue colour used by name, otherwise a custom colour with the nearest stock colour named (`eval/shade-edits-2026-11-19.md`) |
 | `ai.mjs` | Optional model that rewrites free speech into commands |
@@ -107,8 +107,50 @@ uptime, backups of anything you type, or that a URL will keep working. Do not
 use this as a system of record. If a tool needs to survive, export your inputs
 and run it yourself.
 
-MIT licence: [`LICENSE`](LICENSE). Sponsor: https://github.com/sponsors/Duncan-Haywood
+FSL-1.1-MIT licence: [`LICENSE`](LICENSE). Sponsor: https://github.com/sponsors/Duncan-Haywood
 
+
+## "Make it darker" from what the factory stocks (2026-11-24)
+
+A garment colour has to be bought. Mills and blank makers keep a short list of
+colours dyed and on the shelf; anything else is dyed to order, which means a
+lab dip and a minimum dye lot. Until now "make it darker" picked from the
+studio's 50-name catalogue, so most edits landed on a colour the designer's
+factory may not stock, and the cost sheet never knew.
+
+The supplier sheet now carries **stock colours per fabric** and a **custom
+colour** price (lab dip and dye set-up, minimum dye lot in metres): typed on the
+studio page under "Supplier sheet", or as CSV rows (`colour,navy,#1f2a44|*`,
+`dye,setup,120`, `dye,minMetres,300`). With a list:
+
+- relative edits ("make it lighter", "tone it down", "warmer") pick among the
+  colours stocked for the design's fabric. When the exact move lands on none,
+  the studio looks further out (CIEDE2000 20) for a stocked colour that still
+  goes the asked way without changing what was not asked (a grey stays grey,
+  the hue stays within 20 degrees, lightness moves only on a lightness edit),
+  and says what dyeing the exact shade would cost instead;
+- a named colour the sheet does not stock ("make it dusty pink") says so, with
+  the nearest stock colour;
+- the cost adds a **Custom colour dye** line: set-up over the run, plus the
+  dye lot's unused metres at the fabric price (`customDye` in `costing.mjs`),
+  and the run size at which the run fills the lot;
+- swatches not on the list are drawn dashed ("dyed to order on this sheet").
+
+An empty list switches all of this off, and sheets saved before today have none.
+
+**Measured** ([`eval/stock-colour-edits.mjs`](eval/stock-colour-edits.mjs),
+[output](eval/stock-colour-edits-2026-11-24.txt)): the 16 colours the example
+sheet stocks on cotton jersey, times seven plain edits (112). Against the whole
+catalogue, 11 of 112 edits landed on a colour this sheet stocks; with the sheet,
+46 of 112, none going the wrong way. The first version of the wider search let
+charcoal "lighter" become olive and brown "lighter" become red (70 of 112
+stocked); the hue, grey and lightness guards above cut those, at the cost of
+24 edits now offered as a dyed shade instead. At 100 cotton-jersey tees the
+example figures put a dyed shade at 9.72 more per garment, 0.40 once the run
+fills the 300 m lot (232 pieces). **The stock list, dye set-up and lot size on
+the example sheet are placeholders, not a mill's**; the point is that the
+designer's own sheet now drives which colours the voice commands reach and what
+leaving them costs.
 
 ## "When it was darker": a version by how its colours compared (2026-11-18)
 
@@ -556,6 +598,12 @@ on a 30 degree grid, determinism, escaping). Wired into the studio page 2026-11-
 - 2026-11-08: `orderlines.mjs`, `orderlines.html`: colour x size order matrix with a per-colour minimum check, spares and a PO CSV. `node --test orderlines.test.mjs`. Arithmetic on typed shares; no real factory order.
 - 2026-11-08: `salestax.mjs` now covers every state with a sales tax plus DC (47 entries: 46 states and DC; the other 23 states added from memory, same unchecked label; the build host still cannot reach any revenue department site). Still to do: check each state against its own page; local taxes.
 - 2026-11-09: `salestax.mjs`: Illinois (200-order test dropped 2026-01-01), Kentucky (2026-08-01, HB 757), Utah (2025-07-01) and Alaska (2025-01-01) are now sales-only, from web search results citing Avalara (Apr 2026) and Taxually (Oct 2026); the revenue-department sites are still unreachable from the build host. Maine is listed as dropped by one source and left as typed. Test in `salestax.test.mjs`. Other states remain from memory.
+
+## Armhole and bicep graded from M, one sleeve everywhere (2026-11-25)
+
+The 2026-11-22 quality audit's remaining defects. The block took armhole depth as 0.235 of each size's chest (+1.88 cm a size) and the bicep as 0.34 of it (+2.72 cm round a size), about twice a common knit grade, so an XXL armhole came out about 3 cm too deep. Both now start from M's ratios and grade per cm of chest in `grade.mjs`: armhole depth +0.96 cm and bicep girth +2 cm per 8 cm step (typical steps written from general knowledge, not a factory's or standard's rule; `grade: { armhole, bicep }` replaces them). Grading the armhole alone flattened the solved cap by up to 0.73 cm a size; with the bicep graded too it holds within 0.6 cm in every garment and fit (it may dip a few mm at XS and S, where the shoulder is held by the armhole floor, so `grade()`'s monotone check no longer counts the cap). The cutting plan (`marker.mjs`) now sizes its sleeve box from the drafted sleeve rather than its own tee 22 / long sleeve 62 cm table, so it agrees with the pattern and the spec sheet. Regular tee, XS to XXL: armhole depth 22.78 to 27.58 cm (was 20.94 to 30.34).
+
+Checked by tests that recompute from outside the code: the spec sheet's graded sleeve against the drafted one (24 garment-size cases), the run-cost fabric factor against chest x length by hand (XS 0.809, XXL 1.317), and the size-run split against the normal CDF computed in Python (9.1, 23.7, 34.3, 23.7, 7.8, 1.3 %). Seeded mutations (armhole grade back to 0.235, bicep to 0.34, neck ratio 0.09 to 0.1, body length dropped from the fabric factor, size edges off the midpoints) each fail a test. Unproven: no real grade rule or sewn sample compared.
 
 ## One grade rule for the pattern and the spec sheet, and a neckband (2026-11-23)
 

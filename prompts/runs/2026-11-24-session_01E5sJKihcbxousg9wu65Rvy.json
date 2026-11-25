@@ -1,0 +1,382 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKihcbxousg9wu65Rvy",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T09:18:23Z",
+  "ended": "2026-11-24T09:19:04Z",
+  "wall_minutes": 7.32,
+  "tokens_in": 3576031,
+  "tokens_out": 19516,
+  "cost_usd": 1.7535,
+  "tool_calls": 43,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18579",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks each run to fix the open list, but 12 of 13 entries are control-plane and most already have a PR waiting for owner approval (about 20 such PRs back to 2026-11-03); every red-team run re-reads the same list for nothing. The list could mark entries whose fix PR is open."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`targets --probe 20` with no --under probes the whole catalogue and printed nothing within the tool timeout; `--under ventures/<slug>` was the usable form."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b prefers leaving an automated guard, usually a CI or control-plane edit. The control-plane queue already holds about 20 unapproved PRs, so another one would not run.",
+      "did": "Added mutant-killing tests to the two venture suites, which do run in CI, and no new workflow.",
+      "result": "Three gaps guarded in CI; no new control-plane PR."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-redteam-the-activity-that-finishes-last-still-has-a-successor.md"
+  ],
+  "goal": null,
+  "notes": "Suites: window-design-pressure-calculator 40/40, xer-schedule-check 536/536 (node --test). rerun: all 3 gaps caught_after_fix true. Real-defect hunt: hostile XER inputs (empty, header only, negative/NaN durations, self-link, dangling link, bad type, huge lag) all gave warnings or a clean error; 9e6 h activity -> 'addWork: ran past 1,000 years' exit 1 (blunt, not wrong). Window calc ASCE 7-16 constants checked and correct.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/window-design-pressure-calculator/calc.mjs",
+        "test": "node --test ventures/window-design-pressure-calculator/**/*.test.mjs  (in .)",
+        "seed": 761987880,
+        "commit": "e3421f199",
+        "sites": 239,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/window-design-pressure-calculator/calc.mjs",
+            "line": 105,
+            "col": 28,
+            "operator": "times-to-div",
+            "before": "const k1 = t.k1[exposure] * ratioUsed;",
+            "after": "const k1 = t.k1[exposure] / ratioUsed;",
+            "line_text": "  const k1 = t.k1[exposure] * ratioUsed;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/window-design-pressure-calculator/calc.mjs",
+            "line": 133,
+            "col": 35,
+            "operator": "ge-to-gt",
+            "before": "return { inRegion: false, why: V >= 130 ? \"V is 130-139 mph but the site is not within 1 mile of the coast\" : \"V is under 130 mph\" };",
+            "after": "return { inRegion: false, why: V > 130 ? \"V is 130-139 mph but the site is not within 1 mile of the coast\" : \"V is under 130 mph\" };",
+            "line_text": "  return { inRegion: false, why: V >= 130 ? \"V is 130-139 mph but the site is not within 1 mile of the coast\" : \"V is under 130 mph\" };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/window-design-pressure-calculator/calc.mjs",
+            "line": 166,
+            "col": 19,
+            "operator": "eq-flip",
+            "before": "else if (where === \"z5\") zone = 5;",
+            "after": "else if (where !== \"z5\") zone = 5;",
+            "line_text": "    else if (where === \"z5\") zone = 5;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/window-design-pressure-calculator/calc.mjs",
+            "line": 222,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "zone = 5;",
+            "after": "zone = 6;",
+            "line_text": "    zone = 5;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/window-design-pressure-calculator/calc.mjs",
+            "line": 226,
+            "col": 40,
+            "operator": "plus-to-minus",
+            "before": "const pPos = Math.max(ctx.qh * (g.pos + ctx.gcpi), MIN_PRESSURE);",
+            "after": "const pPos = Math.max(ctx.qh * (g.pos - ctx.gcpi), MIN_PRESSURE);",
+            "line_text": "  const pPos = Math.max(ctx.qh * (g.pos + ctx.gcpi), MIN_PRESSURE);",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/window-design-pressure-calculator/calc.mjs",
+            "line": 232,
+            "col": 13,
+            "operator": "max-to-min",
+            "before": "const dp = Math.max(asdPos, -asdNeg);",
+            "after": "const dp = Math.min(asdPos, -asdNeg);",
+            "line_text": "  const dp = Math.max(asdPos, -asdNeg);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/window-design-pressure-calculator/calc.mjs",
+            "line": 247,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "dpRequired: Math.ceil(dp * 10 - 1e-9) / 10,",
+            "after": "dpRequired: Math.ceil(dp * 11 - 1e-9) / 10,",
+            "line_text": "    dpRequired: Math.ceil(dp * 10 - 1e-9) / 10,",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/window-design-pressure-calculator/calc.mjs",
+            "line": 264,
+            "col": 17,
+            "operator": "gt-to-ge",
+            "before": "if (!(leastDim > 0)) return { error: \"Enter the building's least horizontal dimension in feet.\" };",
+            "after": "if (!(leastDim >= 0)) return { error: \"Enter the building's least horizontal dimension in feet.\" };",
+            "line_text": "  if (!(leastDim > 0)) return { error: \"Enter the building's least horizontal dimension in feet.\" };",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: leastDim 0 fell through to zoneWidth's 3 ft floor and printed a schedule; test 'a least horizontal dimension of 0 is an error' in calc.test.mjs"
+          }
+        ]
+      },
+      {
+        "target": "ventures/xer-schedule-check/cpm.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 290084419,
+        "commit": "e3421f199",
+        "sites": 549,
+        "baseline_seconds": 5.2,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 95,
+            "col": 34,
+            "operator": "or-to-and",
+            "before": "const o = opts.get(p.proj_id) || firstOpt;",
+            "after": "const o = opts.get(p.proj_id) && firstOpt;",
+            "line_text": "    const o = opts.get(p.proj_id) || firstOpt;",
+            "caught": true,
+            "seconds": 5.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 251,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "for (const [id, d] of indeg) if (d === 0) queue.push(id);",
+            "after": "for (const [id, d] of indeg) if (d === 1) queue.push(id);",
+            "line_text": "  for (const [id, d] of indeg) if (d === 0) queue.push(id);",
+            "caught": true,
+            "seconds": 4.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 297,
+            "col": 71,
+            "operator": "neq-flip",
+            "before": "do { w = stack.pop(); on.delete(w); comp.push(w); } while (w !== u);",
+            "after": "do { w = stack.pop(); on.delete(w); comp.push(w); } while (w === u);",
+            "line_text": "          do { w = stack.pop(); on.delete(w); comp.push(w); } while (w !== u);",
+            "caught": true,
+            "seconds": 5.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 578,
+            "col": 36,
+            "operator": "and-to-or",
+            "before": "else if (rel.type === \"PR_SS\" && V.bwSSActivePred && active(t)) starts.push(V.bwSSActivePred === \"rem\" ? sv.remLS : Math.min(sv.remLS, lc.subWork(sv.remLS, rel.lag)));",
+            "after": "else if (rel.type === \"PR_SS\" || V.bwSSActivePred && active(t)) starts.push(V.bwSSActivePred === \"rem\" ? sv.remLS : Math.min(sv.remLS, lc.subWork(sv.remLS, rel.lag)));",
+            "line_text": "      else if (rel.type === \"PR_SS\" && V.bwSSActivePred && active(t)) starts.push(V.bwSSActivePred === \"rem\" ? sv.remLS : Math.min(sv.remLS, lc.subWork(sv.remLS, rel.lag)));",
+            "caught": true,
+            "seconds": 5.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 578,
+            "col": 99,
+            "operator": "eq-flip",
+            "before": "else if (rel.type === \"PR_SS\" && V.bwSSActivePred && active(t)) starts.push(V.bwSSActivePred === \"rem\" ? sv.remLS : Math.min(sv.remLS, lc.subWork(sv.remLS, rel.lag)));",
+            "after": "else if (rel.type === \"PR_SS\" && V.bwSSActivePred && active(t)) starts.push(V.bwSSActivePred !== \"rem\" ? sv.remLS : Math.min(sv.remLS, lc.subWork(sv.remLS, rel.lag)));",
+            "line_text": "      else if (rel.type === \"PR_SS\" && V.bwSSActivePred && active(t)) starts.push(V.bwSSActivePred === \"rem\" ? sv.remLS : Math.min(sv.remLS, lc.subWork(sv.remLS, rel.lag)));",
+            "caught": false,
+            "seconds": 4.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: the default bwSSActivePred 'rem' rule (a started predecessor's SS lag does not pull its late start earlier) had no test that gave the successor float; new test in engine.test.mjs"
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 592,
+            "col": 42,
+            "operator": "neq-flip",
+            "before": "if (t.deadline !== null && t.deadline !== undefined) fins.push(t.deadline);",
+            "after": "if (t.deadline !== null && t.deadline === undefined) fins.push(t.deadline);",
+            "line_text": "    if (t.deadline !== null && t.deadline !== undefined) fins.push(t.deadline);",
+            "caught": true,
+            "seconds": 3.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 752,
+            "col": 15,
+            "operator": "neq-flip",
+            "before": "if (t.proj !== projId || t.span || t.status === \"TK_Complete\") continue;",
+            "after": "if (t.proj === projId || t.span || t.status === \"TK_Complete\") continue;",
+            "line_text": "    if (t.proj !== projId || t.span || t.status === \"TK_Complete\") continue;",
+            "caught": true,
+            "seconds": 3.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 754,
+            "col": 41,
+            "operator": "or-to-and",
+            "before": "if (r && r.ef === p.finish && (!last || t.succs.length === 0)) last = t;",
+            "after": "if (r && r.ef === p.finish && (!last && t.succs.length === 0)) last = t;",
+            "line_text": "    if (r && r.ef === p.finish && (!last || t.succs.length === 0)) last = t;",
+            "caught": false,
+            "seconds": 3.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: drivingPath with a finishing activity that has successors (SS to a shorter one) returned [] under the mutant; new test in engine.test.mjs"
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5fb52bf6-a827-52f9-adff-285c39cd0646",
+    "transcripts": 1,
+    "first": "2026-11-24T09:18:23Z",
+    "last": "2026-11-24T09:25:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 85,
+        "output": 19516,
+        "thinking": 5903,
+        "cache_read": 3492920,
+        "cache_write_5m": 0,
+        "cache_write_1h": 83026,
+        "api_equivalent_usd": 1.7535,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 85,
+      "output": 19516,
+      "thinking": 5903,
+      "cache_read": 3492920,
+      "cache_write_5m": 0,
+      "cache_write_1h": 83026,
+      "api_equivalent_usd": 1.7535,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.32,
+      "active_minutes": 7.32,
+      "model_minutes": 4.33,
+      "tool_minutes": 2.99,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "writing 3 targeted schedule/wind tests plus input probing and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 171.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

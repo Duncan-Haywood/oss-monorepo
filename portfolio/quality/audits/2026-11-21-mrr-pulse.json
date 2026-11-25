@@ -386,7 +386,8 @@
    "what": "Logo churn, the Customers tile and every MRR movement are still per subscription, not per customer (customer id used only in breakdown()). Add-on drop = 0.333 logo churn (expected 0); plan swap via cancel+create = logo churn 1.0, NRR 0 (expected NRR 1.6). Disclosed in README Known gaps since PR #15653 but not on the page, dashboard or llms.txt",
    "where": "ventures/mrr-pulse/metrics.mjs:147",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18955"
   },
   {
    "severity": "high",
@@ -442,6 +443,6 @@
   }
  ],
  "prior_defects_note": "basis and arrival status backfilled 2026-11-24 by reflection 3 from the prior audit's git history (fixed_by marks present before this re-audit) and this file's own findings",
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18065"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18065", "https://github.com/Duncan-Haywood/oss-monorepo/pull/18955"],
  "verdict": "Re-audit of the 2026-11-13 audit, whose listed fix PR #15653 only changed labels, the clone command and the README (it added a Known gaps section). Since then eight red-team PRs fixed real mechanics: zero-decimal currencies (#17099), Stripe-export alias priority so churn dates at Ended At (#16179), and coupon netting on new Stripe API versions via expand[] (#17855); tests grew from 62 to 119, all passing. Of the 12 prior defects, 5 are closed, 5 partial and 2 open. The headline defect is untouched: logo churn, Customers and the MRR bridge are per subscription, so a customer swapping a 5,000 plan for an 8,000 one shows logo churn 100% and NRR 0 instead of NRR 160%; tiered prices still count 0 MRR silently; an unpaid subscription's history vanishes. 3 of 8 seeded mutants survive, the same three the last audit found. Correctness, claims and verification stay at 2, so it does not meet the bar; it does what its README lists (completeness 3). Scores are unchanged from 2026-11-13: the fixes closed the narrower defects, not the gap a finance lead would hit first."
 }

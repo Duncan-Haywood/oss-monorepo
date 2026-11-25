@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import subprocess
 import tempfile
+import time
 import unittest
 from unittest import mock
 from pathlib import Path
@@ -74,6 +75,23 @@ class SuiteForTest(unittest.TestCase):
                 self.assertIsNotNone(redteam.suite_for(repo / "m.py", repo))
 
 
+
+def _running(pid: int) -> bool:
+    """Alive and not a zombie (a killed orphan waits for its new parent to reap it)."""
+    import os
+    stat = Path(f"/proc/{pid}/stat")
+    if stat.parent.parent.joinpath("self").exists():
+        try:
+            return stat.read_text().rsplit(")", 1)[1].split()[0] != "Z"
+        except (FileNotFoundError, ProcessLookupError):
+            return False
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    return True
+
+
 class CampaignTest(unittest.TestCase):
     def setUp(self):
         tmp = tempfile.TemporaryDirectory()
@@ -91,6 +109,22 @@ class CampaignTest(unittest.TestCase):
     def test_targets_and_suites(self):
         self.assertEqual(redteam.list_targets(self.repo), [self.target])
         self.assertIsNone(redteam.suite_for(self.venture / "calc.test.mjs", self.repo))
+
+    def test_usage_counter_suite_includes_the_ci_contract(self):
+        # A usage.mjs mutant that CI's usage_contract.mjs rejects is caught;
+        # the venture suite alone used to read it as escaped (2026-11-15).
+        (self.venture / "usage.mjs").write_text("export const x = 1;\n")
+        cmd, _ = redteam.suite_for(self.venture / "usage.mjs", self.repo)
+        self.assertEqual(cmd[0], "node")  # no contract in this repo: suite only
+        ci = self.repo / "platform" / "ci"
+        ci.mkdir(parents=True)
+        (ci / "usage_contract.mjs").write_text("process.exit(1);\n")
+        cmd, _ = redteam.suite_for(self.venture / "usage.mjs", self.repo)
+        self.assertEqual(cmd[:2], ["sh", "-c"])
+        self.assertIn("usage_contract.mjs", cmd[2])
+        self.assertFalse(redteam.run_suite(cmd, self.repo)[0])  # contract red: caught
+        cmd, _ = redteam.suite_for(self.target, self.repo)
+        self.assertEqual(cmd[0], "node")  # other files: unchanged
 
     def test_targets_probe_times_each_suite_once(self):
         from unittest import mock
@@ -142,6 +176,34 @@ class CampaignTest(unittest.TestCase):
         self.assertEqual(redteam.tally([rec])["catch_rate_after_fix"], 1.0)
         self.assertEqual(self.target.read_text(), CALC)
 
+    def test_rerun_on_a_red_suite_proves_nothing(self):
+        # A suite red without the mutant (a still-failing new test, an unrelated
+        # break) fails for every mutant too, so it used to mark every gap
+        # caught_after_fix: true (red team 2026-11-10).
+        camp = redteam.campaign(self.target, 10, seed=1, repo=self.repo)
+        record = self.repo / "run.json"
+        record.write_text(json.dumps({"redteam": None}))
+        redteam.add_to_record(record, camp)
+        with (self.venture / "calc.test.mjs").open("a") as fh:
+            fh.write("test('always red', () => { throw new Error('x'); });\n")
+        rec = redteam.rerun(record, repo=self.repo)
+        escaped = [m for m in rec["redteam"]["campaigns"][0]["mutants"] if not m["caught"]]
+        self.assertEqual([m["caught_after_fix"] for m in escaped], [None, None])
+        self.assertTrue(all("red without the mutant" in m["note"] for m in escaped))
+        self.assertEqual(self.target.read_text(), CALC)
+
+    def test_timeout_kills_the_suites_children_too(self):
+        # A looping mutant's per-file child outlived `node --test` when only the
+        # parent was killed (red team 2026-11-14): the whole group must go.
+        import os, signal
+        pidfile = self.repo / "child.pid"
+        cmd = ["sh", "-c", f"sh -c 'echo $$ > {pidfile}; while :; do sleep 1; done' & wait"]
+        passed, _ = redteam.run_suite(cmd, self.repo, timeout=2)
+        self.assertFalse(passed)
+        child = int(pidfile.read_text())
+        time.sleep(0.5)
+        self.assertFalse(_running(child))
+
     def test_red_baseline_and_dirty_file_are_refused(self):
         self.target.write_text(CALC + "\n")
         with self.assertRaisesRegex(SystemExit, "uncommitted"):
@@ -155,6 +217,25 @@ class CampaignTest(unittest.TestCase):
         with self.assertRaisesRegex(SystemExit, "baseline timed out"):
             with mock.patch.object(redteam, "run_suite", return_value=(False, 5.0)):
                 redteam.campaign(self.target, 2, seed=1, repo=self.repo, timeout=5)
+
+
+class FreshTest(unittest.TestCase):
+    def test_mutated_before_reads_campaign_targets_and_skips_bad_records(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            runs = Path(tmp)
+            (runs / "a.json").write_text(json.dumps({"redteam": {"campaigns": [
+                {"target": "ventures/x/a.mjs"}, {"target": 3}, "junk"]}}))
+            (runs / "b.json").write_text(json.dumps({"redteam": None, "track": "redteam"}))
+            (runs / "c.json").write_text(json.dumps({"redteam": {"campaigns": None}}))
+            (runs / "d.json").write_text("{not json")
+            (runs / "e.json").write_text(json.dumps([1, 2]))
+            self.assertEqual(redteam.mutated_before(runs), {"ventures/x/a.mjs"})
+
+    def test_drop_mutated_keeps_only_unseen_files(self):
+        repo = Path("/r")
+        files = [repo / "ventures/x/a.mjs", repo / "ventures/x/b.mjs"]
+        self.assertEqual(redteam.drop_mutated(files, {"ventures/x/a.mjs"}, repo),
+                         [repo / "ventures/x/b.mjs"])
 
 
 class RecordPathTest(unittest.TestCase):

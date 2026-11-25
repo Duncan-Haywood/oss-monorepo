@@ -282,7 +282,7 @@ def render_markdown(findings, errors, note=""):
             esc = lambda s: s.replace("|", "\\|").replace("\n", " ")
             out.append(f"| {f['severity']} | `{f['file']}:{f['line']}` | `{f['rule']}` | {esc(f['detail'])} | {esc(f['fix'])} |")
     out += [""] + [f"> warning: {e}" for e in errors]
-    out += ["", "_Pattern matching on workflow YAML, not a security audit. Free and MIT-licensed._"]
+    out += ["", "_Pattern matching on workflow YAML, not a security audit. Free and FSL-1.1-MIT-licensed._"]
     return "\n".join(out)
 
 

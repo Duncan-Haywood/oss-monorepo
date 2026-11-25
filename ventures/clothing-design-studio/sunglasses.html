@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Design Your Own Sunglasses Brand: Logo, Frame Size, Case, Cost and Factory Quote</title>
+  <title>Design Your Own Sunglasses Brand: Logo, Frame, Case and Factory Quote</title>
   <meta name="description" content="Free tool to start a sunglasses line: pick a stock frame shape, set lens, bridge and temple size, put your logo on the temple, lens and case, cost each pair from your factory's prices, and get a quote request with the EU and US test reports to ask for.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Ccircle%20cx='10'%20cy='17'%20r='5'%20fill='%23efe4cc'/%3E%3Ccircle%20cx='22'%20cy='17'%20r='5'%20fill='%23efe4cc'/%3E%3C/svg%3E">
   <meta property="og:type" content="website">
@@ -130,7 +130,7 @@
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, regulatory, tax, financial or manufacturing advice, and it does not replace a qualified professional. The notes on EU, UK and US requirements are prompts for questions to ask, not a compliance check. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including trademark and design rights in any frame shape or logo. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Privacy.</strong> Everything runs in your browser; nothing is uploaded. Anonymous counts of which features are used stay in this browser.</p>
-    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+    <p>Free to use and source available (FSL-1.1-MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
   </footer>
 
   <script type="module">
@@ -146,7 +146,23 @@
     $("#logo-case-method").innerHTML = Object.values(LOGO_METHODS).filter(m => m.where.includes("case")).map(m => `<option value="${m.id}">${m.label}</option>`).join("");
     const KEY = "clothing-design-studio-eyewear";
     let e;
-    try { e = { ...newEyewear(), ...(JSON.parse(localStorage.getItem(KEY) || "null") || {}) }; } catch { e = newEyewear(); }
+    // Saved state is rebuilt field by field: numbers through Number(), strings and
+    // logos kept only when they have the right type, so a tampered entry in
+    // localStorage cannot put markup into the drawing (the temple length, for
+    // one, is drawn as a bare number).
+    const fromSaved = s => {
+      const b = newEyewear();
+      if (!s || typeof s !== "object") return b;
+      const str = k => (typeof s[k] === "string" ? s[k] : b[k]);
+      const num = k => (s[k] !== undefined && s[k] !== null && s[k] !== "" && Number.isFinite(Number(s[k])) ? Number(s[k]) : b[k]);
+      const logos = Array.isArray(s.logos)
+        ? s.logos.filter(l => l && typeof l.text === "string").map(l => ({ where: String(l.where), text: l.text, method: String(l.method) }))
+        : b.logos;
+      return { ...b, name: str("name"), style: str("style"), material: str("material"), frameColour: str("frameColour"), lens: str("lens"),
+        polarised: typeof s.polarised === "boolean" ? s.polarised : b.polarised, lensWidth: num("lensWidth"), bridge: num("bridge"), temple: num("temple"),
+        logos, caseType: str("caseType"), caseColour: str("caseColour"), quantity: num("quantity"), price: num("price") };
+    };
+    try { e = fromSaved(JSON.parse(localStorage.getItem(KEY) || "null")); } catch { e = newEyewear(); }
     const read = () => {
       const logos = [];
       if ($("#logo-temple").value.trim()) logos.push({ where: "temple", text: $("#logo-temple").value.trim(), method: $("#logo-temple-method").value });

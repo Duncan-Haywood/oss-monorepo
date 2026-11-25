@@ -2,7 +2,7 @@
 
 > Free tool for medical and dental practices: drop in an X12 835 remittance file and see which service lines paid below your contract rates, which claims were denied and why, and what the payer took back. Runs in your browser; the file is never uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/era-835-underpayment-finder): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/era-835-underpayment-finder): FSL-1.1-MIT licensed.

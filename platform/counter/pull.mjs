@@ -79,7 +79,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const { days } = await res.json();
   const merged = mergeDays(existing, days);
   const doc = {
-    unit: 'page loads per UTC day by browsers that did not send DNT/GPC or opt out; not people. Keys with a prefix are breakdowns, not pages: ref:/src:/geo:/dev: split the same loads by channel link, referring-site kind, country and device; bot:/botpage: count crawler beacons, which are not page loads',
+    unit: 'page loads per UTC day by browsers that did not use the site opt-out (DNT/GPC browsers counted from 2026-11-24, not before); not people. Keys with a prefix are breakdowns, not pages: ref:/src:/geo:/dev: split the same loads by channel link, referring-site kind, country and device; bot:/botpage: count crawler beacons, which are not page loads; fn:<event>:<industry>:<product>:<page> counts funnel events (platform/counter/FUNNEL.md) on loads already counted',
     source: 'platform/edge Worker (first-party, cookieless; no IP, browser string or referring host stored, only the country code and device class)',
     days: merged,
   };

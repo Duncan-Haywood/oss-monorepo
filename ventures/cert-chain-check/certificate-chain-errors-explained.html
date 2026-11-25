@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231d4ed8'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EC%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Certificate Chain Errors Explained — Missing Intermediate, Wrong Order, Hostname Mismatch</title>
+  <meta name="description" content="Why curl says unable to get local issuer certificate when Chrome works, what order fullchain.pem needs, what a wildcard covers, why the CN no longer counts, and every other chain problem, each with its fix.">
+  <meta property="og:title" content="Certificate chain errors explained">
+  <meta property="og:description" content="Missing and re-keyed intermediates, chain order, wildcards, the ignored CN, expiry, keyUsage and the shrinking validity limit, each with its fix.">
+  <link rel="canonical" href="./certificate-chain-errors-explained.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "Certificate chain errors explained", "description": "What each certificate chain problem means for TLS clients and how to fix it: missing and re-keyed intermediates, order, hostname matching, expiry, key usage and validity limits.", "dateModified": "2026-11-24"}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #172033; background: #f3f6fb; }
+    body { max-width: 860px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.5rem); line-height: 1.1; color: #1e3a8a; }
+    h2 { font-size: 1.2rem; margin-top: 30px; color: #1e3a8a; }
+    h3 { font-size: 1rem; margin: 20px 0 4px; }
+    p, li { line-height: 1.6; }
+    pre { background: #fff; border: 1px solid #d6deeb; padding: 12px; border-radius: 8px; font-size: .78rem; line-height: 1.5; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note, footer { font-size: .86rem; color: #4b5567; }
+    footer { margin-top: 28px; border-top: 1px solid #d6deeb; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <main>
+  <p class="note"><a href="./">← Certificate Chain Check</a></p>
+  <h1>Certificate chain errors explained</h1>
+  <p>A TLS client trusts a server certificate only if it can build a path from it, certificate by certificate, to a root in its own trust store, and every step passes: names chain, signatures verify, every issuer is allowed to issue, nothing has expired and the name the client asked for is covered. The server's job is to send everything on that path except the root. Most chain problems are one of the cases below. The type in each heading is what <a href="./">the checker</a> reports.</p>
+
+  <h2>A worked example</h2>
+  <p>A server certificate on its own, checked for <code>example.test</code>. The certificate is a generated test certificate from the tool's fixtures:</p>
+  <pre><code>-----BEGIN CERTIFICATE-----
+MIIEKjCCAxKgAwIBAgICEAswDQYJKoZIhvcNAQELBQAwRjEeMBwGA1UEAwwVUGFy
+aXR5IFJTQSBJc3N1aW5nIENBMRcwFQYDVQQKDA5QYXJpdHkgVGVzdCBDQTELMAkG
+A1UEBhMCVVMwHhcNMjYxMTAxMDAwMDAwWhcNMjcwMzAxMDAwMDAwWjA2MRkwFwYD
+VQQDDBB3d3cuZXhhbXBsZS50ZXN0MRkwFwYDVQQKDBBQYXJpdHkgVGVzdCBTaXRl
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiniqm8W2SMBcgctwzugy
+I8b1/LKeDQauNoGzkVO8kNaHLpYt5jh8p9JO0UBV3/LQvPZ/jTU3CsMof4bcBigp
+C7YndNtWG6nNti/Lehh7uCm5eisO+0cLsWWobXeMrJO8+qnWTu5PU795WJPlsUXr
+1dgNw2xy+9mZvLHPtLlFkDHQltyDORgojQnqShPZXiFem7k0naGhgyPobxtjhf95
+7I+0OlxjimVGV2kSMxVtd0k9ajbKksKHalhB5QVULI79YnyZB5xXoE5nOvfdrRO2
+mhEZmwFhoOwh0olzFKM5qhsXwrgcl4MBSBIyH1Guys9IHhVwxBYLFuzVLhrOXcF6
+uwIDAQABo4IBMDCCASwwDAYDVR0TAQH/BAIwADAOBgNVHQ8BAf8EBAMCBaAwEwYD
+VR0lBAwwCgYIKwYBBQUHAwEwHQYDVR0OBBYEFCnsuUV7O05Jup2TafG9rMJG5xhY
+MB8GA1UdIwQYMBaAFES+iUMzjVks3a6pEQSmRK9ulfL/MGAGCCsGAQUFBwEBBFQw
+UjAqBggrBgEFBQcwAoYeaHR0cDovL2NhLmV4YW1wbGUudGVzdC9pbnQuZGVyMCQG
+CCsGAQUFBzABhhhodHRwOi8vb2NzcC5leGFtcGxlLnRlc3QwVQYDVR0RBE4wTIIQ
+d3d3LmV4YW1wbGUudGVzdIIMZXhhbXBsZS50ZXN0ghIqLmFwaS5leGFtcGxlLnRl
+c3SHBMAAAgqHECABDbgAAAAAAAAAAAAAABAwDQYJKoZIhvcNAQELBQADggEBAFxu
+aWlzmvKFoerra1Shx+UFCUYh3+K3wEjo2Kx7vFph5qzceOPTBO9RsKXgglhnSdOy
+zElH4P4ExGsrojU/KVI+aCz/hMNcxBUb1KxTRlcGnxGQMgFqyiXK3afuCJTfWCIO
+NKSrMLFdAIFGsm2A2Snc8dqEi4BxFSzD25rSj1tEf/Tcyzs95mNBfn+TCYUQMNVU
+mR47W+SC5XrLZPZ3lwtpe1DsCvIXmWeqefmu2kN+e/0M1dCpyZLanAJKwlbLjI88
+ayEU7a9Ir2O3nXq8Gj9eUN2LSa3TWEkSsHYIQafYpcXbQ94FqwCqpQ9i4UB8pAl8
+8S71Bn1c/rd/TBcqQyE=
+-----END CERTIFICATE-----</code></pre>
+  <p><code>node check.mjs leaf.pem --host example.test --at 2026-11-24T12:00:00Z</code> prints:</p>
+  <pre><code>RISKY: some clients will refuse this chain
+checked at 2026-11-24T12:00:00Z for example.test (matches DNS:example.test)
+chain: #1; works until 2027-03-01T00:00:00Z
+
+#1 server certificate: O=Parity Test Site,CN=www.example.test
+   issuer   C=US,O=Parity Test CA,CN=Parity RSA Issuing CA
+   valid    2026-11-01T00:00:00Z to 2027-03-01T00:00:00Z (120 days)
+   key      RSA 2048, signed sha256WithRSAEncryption
+   names    DNS:www.example.test, DNS:example.test, DNS:*.api.example.test, IP:192.0.2.10, IP:2001:db8::10
+   sha256   31:12:E0:09:92:CF:31:D9:7B:A7:E5:C7:5D:D5:86:F4:7E:32:8F:52:2B:02:D9:A8:AE:BC:71:15:90:D0:A9:D5
+
+HIGH   missing-intermediate [#1 (www.example.test)]
+       Only the server certificate is here; its issuer "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA" is not. Unless that issuer is itself a root in every client's trust store (the CA/Browser Forum Baseline Requirements, 6.1.7, forbid public roots from signing server certificates directly), add the intermediate after the server certificate. Browsers often hide this by fetching or caching it; curl, Python, Java, Go, Node, Android apps and API clients fail with "unable to get local issuer certificate". Its issuer can be downloaded from http://ca.example.test/int.der (DER; convert with openssl x509 -inform der).
+INFO   no-embedded-sct [#1 (www.example.test)]
+       No Certificate Transparency timestamps are embedded. Chrome and Safari require them for public certificates; a server can also send them in the TLS handshake or OCSP response. Normal for a private CA.</code></pre>
+  <p>The fix is to append the intermediate: <code>cat leaf.pem intermediate.pem &gt; fullchain.pem</code>, or use the <code>fullchain.pem</code> your ACME client already wrote instead of <code>cert.pem</code>.</p>
+
+  <h2>Is the chain complete and in order?</h2>
+  <h3><code>missing-intermediate</code></h3>
+  <p>Only the server certificate was sent. Public CAs never sign server certificates straight from a root (the CA/Browser Forum Baseline Requirements, section 6.1.7, forbid it), so an intermediate is always needed. Browsers often cope anyway: Chrome and Safari fetch the missing certificate from the URL in its Authority Information Access field, and Firefox ships a list of known intermediates. That is why a site looks fine in a browser while <code>curl</code>, Python's <code>requests</code>, Java, Go, Node and mobile apps fail with <em>unable to get local issuer certificate</em> or <em>PKIX path building failed</em>. Fix: serve the full chain (nginx <code>ssl_certificate</code> takes the leaf followed by intermediates; Apache 2.4.8+ reads the chain from <code>SSLCertificateFile</code>).</p>
+  <h3><code>key-id-mismatch</code></h3>
+  <p>An intermediate with the right name is present, but it is a different certificate with a different key: the server certificate's <em>authority key identifier</em> does not match its <em>subject key identifier</em>. CAs renew and re-key intermediates under the same name and publish cross-signed versions, and a bundle downloaded at a different time can hold the wrong one. Clients that select by key identifier skip it and fail as if it were missing. Fix: use the intermediate the CA returned with your certificate, or the one at the certificate's AIA <em>CA Issuers</em> URL.</p>
+  <h3><code>wrong-order</code></h3>
+  <p>TLS 1.2 (<a href="https://www.rfc-editor.org/rfc/rfc5246#section-7.4.2" rel="noopener">RFC 5246, 7.4.2</a>) says the sender's certificate comes first and each following certificate certifies the one before it. TLS 1.3 relaxes this for clients, but servers and load balancers often take the first certificate in the file as theirs, and Java, older Android and many embedded TLS stacks do not reorder. Fix: leaf first, then its issuer, and so on. The checker prints the corrected file.</p>
+  <h3><code>unrelated-certificate</code>, <code>duplicate-certificate</code>, <code>root-included</code></h3>
+  <p>Certificates that are not on the path, appear twice, or are the root itself. A root in the chain is harmless to most clients (they use their own copy) but adds bytes to every handshake; extra unrelated certificates can confuse clients that build in order. Fix: send only the leaf and its intermediates.</p>
+
+  <h2>Does every link hold?</h2>
+  <h3><code>bad-signature</code></h3>
+  <p>The names chain but the issuer's public key does not verify the signature. The certificate was edited, or the issuer is a same-named certificate with another key. Fix: fetch the correct intermediate from the CA.</p>
+  <h3><code>signature-unchecked</code></h3>
+  <p>The algorithm is outside what Web Crypto offers (for example Ed448, RSA-PSS with mixed hashes, or the secp256k1 curve), so the checker could not verify it. Names and key identifiers were still compared. Confirm with <code>openssl verify -untrusted chain.pem leaf.pem</code>.</p>
+  <h3><code>issuer-not-ca</code>, <code>issuer-no-keycertsign</code>, <code>path-length-exceeded</code></h3>
+  <p><a href="https://www.rfc-editor.org/rfc/rfc5280#section-6.1.4" rel="noopener">RFC 5280, 6.1.4</a>: a certificate that issues others must say <code>basicConstraints CA:TRUE</code>, its keyUsage (if present) must include <code>keyCertSign</code>, and a <code>pathlen</code> limits how many intermediate CAs may sit below it. A private CA built by hand with <code>openssl req -x509</code> plus a second <code>openssl x509 -req</code> step without an extensions file often gets these wrong. Fix: reissue the intermediate with the CA extensions.</p>
+
+  <h2>Is it valid now?</h2>
+  <h3><code>expired</code>, <code>not-yet-valid</code>, <code>expires-soon</code></h3>
+  <p>Each certificate's <code>notBefore</code> and <code>notAfter</code>, compared with the check time. <em>Not yet valid</em> for a fresh certificate usually means a client or server clock is wrong. <em>Expires soon</em> is reported within 30 days by default (<code>--warn-days</code>).</p>
+  <h3><code>chain-expires-first</code></h3>
+  <p>An intermediate expires before the server certificate. On that date the chain breaks even though the server certificate is still valid, unless the CA's replacement intermediate is installed. The checker reports the date the whole chain stops working.</p>
+  <h3><code>validity-too-long</code></h3>
+  <p>The CA/Browser Forum caps how long a publicly trusted TLS certificate may be valid, by the date it was issued: 398 days from 1 September 2020, then 200 days from 15 March 2026, 100 days from 15 March 2027 and 47 days from 15 March 2029 (<a href="https://cabforum.org/2025/04/11/ballot-sc081v3-introduce-schedule-of-reducing-validity-and-data-reuse-periods/" rel="noopener">ballot SC-081v3</a>). The period counts both ends, so it is <code>notAfter − notBefore + 1 second</code>. A private CA may issue longer certificates; browsers apply the cap only to publicly trusted ones.</p>
+
+  <h2>Does it cover the name?</h2>
+  <h3><code>hostname-mismatch</code></h3>
+  <p>Browsers follow <a href="https://www.rfc-editor.org/rfc/rfc6125#section-6.4.3" rel="noopener">RFC 6125, 6.4.3</a> strictly: names compare case-insensitively, a <code>*</code> is allowed only as the whole left-most label and matches exactly one label, and an IP address must be listed as an IP entry, not a DNS name. So <code>*.example.com</code> covers <code>www.example.com</code> but not <code>example.com</code> or <code>a.b.example.com</code>.</p>
+  <h3><code>no-san</code></h3>
+  <p>No subjectAltName at all. Chrome since version 58, Firefox, Safari and Go ignore the subject common name, so the certificate is valid for no name. OpenSSL's <code>-checkhost</code> still falls back to the CN, which is why such a certificate can pass an <code>openssl</code> test and fail in every browser.</p>
+  <h3><code>partial-wildcard</code></h3>
+  <p>A name such as <code>w*.example.com</code>. OpenSSL accepts it by default; browsers match nothing with it.</p>
+
+  <h2>Is it a server certificate?</h2>
+  <h3><code>no-server-auth</code></h3>
+  <p>The extendedKeyUsage list lacks <code>serverAuth</code> (TLS Web Server Authentication). Typical when a client certificate or a code-signing certificate is installed on a server by mistake.</p>
+  <h3><code>key-usage-mismatch</code></h3>
+  <p>A keyUsage that does not include <code>digitalSignature</code>. An ECDSA certificate cannot be used at all without it. An RSA certificate with only <code>keyEncipherment</code> works only for the old RSA key exchange, which TLS 1.3 removed, so strict clients refuse it.</p>
+  <h3><code>leaf-is-ca</code>, <code>self-signed-leaf</code></h3>
+  <p>A CA certificate in the server position usually means files were swapped. A self-signed server certificate is accepted only by clients told to trust exactly it.</p>
+  <h3><code>precertificate</code>, <code>no-embedded-sct</code></h3>
+  <p>A Certificate Transparency precertificate carries a poison extension so that no client accepts it; it is what the CA logs before issuing. Download the final certificate. Chrome and Safari also require proof of logging (signed certificate timestamps) for public certificates, usually embedded in the certificate; a server can send them instead in the handshake or a stapled OCSP response.</p>
+  <h3><code>must-staple</code></h3>
+  <p>The TLS Feature extension asks clients to insist on a stapled OCSP response. Firefox enforces it, so the server must have OCSP stapling on.</p>
+
+  <h2>Is the cryptography acceptable?</h2>
+  <h3><code>weak-rsa-key</code>, <code>weak-curve</code>, <code>dsa-key</code></h3>
+  <p>RSA keys under 2048 bits, curves other than P-256, P-384 and P-521, and DSA keys are refused by current browsers and by OpenSSL at its default security level in most distributions.</p>
+  <h3><code>weak-signature-hash</code></h3>
+  <p>A SHA-1 or MD5 signature on anything except the root's own self-signature. Browsers stopped accepting SHA-1 certificates in 2017.</p>
+  <h3><code>v1-certificate</code>, <code>negative-serial</code>, <code>duplicate-extension</code>, <code>signature-alg-mismatch</code>, <code>trailing-data</code></h3>
+  <p>Malformed or old-style certificates: X.509 version 1 (no extensions, so no names and no CA flag), a negative serial number, an extension that appears twice, an inner and outer signature algorithm that differ, or bytes after the certificate. Each one is refused by some libraries.</p>
+
+  <h2>What was pasted?</h2>
+  <h3><code>private-key-pasted</code></h3>
+  <p>A <code>PRIVATE KEY</code> block. The checker skips it without reading it. If that text went anywhere else (a ticket, a chat, a log), treat the key as exposed: make a new key and reissue the certificate.</p>
+  <h3><code>unreadable-block</code>, <code>not-a-certificate</code>, <code>no-certificates</code></h3>
+  <p>Text that is not a readable certificate: a cut-off copy, a CSR (send that to the CA, install what comes back), PKCS#7 (convert with <code>openssl pkcs7 -print_certs</code>) or nothing at all.</p>
+
+  <h2>What this check cannot see</h2>
+  <p>It reads the certificates you give it. It does not know which roots a given client trusts, whether a certificate was revoked, which certificate a server actually sends for each name (SNI), or the server's protocols and ciphers. Check the live server too: <code>openssl s_client -connect host:443 -servername host -showcerts</code> shows what is sent, and its output pastes straight into the checker.</p>
+  <p class="note">How it reads certificates: DER per ITU-T X.690 and the certificate profile in RFC 5280, re-implemented; signatures checked with the browser's Web Crypto API. Checked against OpenSSL 3.0.13 on generated chains and the Ubuntu CA bundle; see the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cert-chain-check" rel="noopener">source and parity tests</a>.</p>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This guide and the tool are provided free and as-is, without warranty of any kind. They are not a security audit and do not replace a qualified security professional; verify before relying on them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These pages may be moved or taken offline without notice.</p>
+    <p>Not affiliated with the OpenSSL project, the CA/Browser Forum or any certificate authority. Free to use and source available under the <a href="LICENSE" rel="noopener">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+  </footer>
+</body>
+</html>

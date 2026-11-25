@@ -70,7 +70,7 @@ def reference(episodes, seed, steps=None):
     return yaw, gust_n, gyro_n, ang_n, u0, off, pn, vn, wsign
 
 
-def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", couple=True, wind_step=WIND_STEP, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd", integ_clip=0.3, ffi_clip=1.0, steps=None, diag=None, dead_tilt_deg=60.0, mixer_ideal=False, torque_room=1.0, pos_scale=1.0, mix_mode="hover", tilt_cone=False, tilt_rate=None, perr_max=None, sp_rate=None, trace=None, acc_cmd=None, lean_exact=False, trace_tilt=None):
+def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", couple=True, wind_step=WIND_STEP, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd", integ_clip=0.3, ffi_clip=1.0, steps=None, diag=None, dead_tilt_deg=60.0, mixer_ideal=False, torque_room=1.0, pos_scale=1.0, mix_mode="hover", tilt_cone=False, tilt_rate=None, perr_max=None, sp_rate=None, trace=None, acc_cmd=None, lean_exact=False, trace_tilt=None, start_off=None):
     """gains (N,9) physical: attitude PID roll/pitch kp, kd, ki; yaw kp, kd, ki; position kp, kd, ki.
     Hold the origin from a random offset while yaw steps +-30 deg and the mean wind steps at 3 s. Roll and pitch references come from
     the position loop; every torque request passes the attitude-priority mixer with the collective held at hover.
@@ -116,6 +116,8 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
     instead of the small-angle a / g (exact for a request along one body axis); inert at its default.
     trace_tilt (milestone 7aj), if a list, receives each step's (roll, pitch) angle and (roll, pitch) tilt reference as one
     (N, E, 4) array, NaN once the episode has diverged; inert at its default.
+    start_off (milestone 7an probe), if given, is each (design, episode)'s initial horizontal offset in m, (N, E, 2) or anything that
+    broadcasts to it, in place of the reference's draws (which are still drawn, so every other random input is unchanged).
     Returns per design: RMS position error (m) over the episode, over the last 3 s (after the wind step), RMS yaw error (deg),
     RMS roll/pitch tracking error (deg), the share of episodes that diverged, and (dead_ep, (N, E)) which ones, with each episode's position RMS (pos_ep, (N, E))."""
     if steps is None:
@@ -125,6 +127,7 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
         steps = int(steps)
         yaw_ref, gust_n, gyro_n, ang_n, u0, off, pn, vn, wsign = reference(episodes, seed, steps)
     N, E = gains.shape[0], episodes
+    off = np.broadcast_to(off[None], (N, E, 2)) if start_off is None else np.broadcast_to(np.asarray(start_off, float), (N, E, 2))
     kp = np.stack([gains[:, 0], gains[:, 0], gains[:, 3]], 1)[:, None, :]
     kd = np.stack([gains[:, 1], gains[:, 1], gains[:, 4]], 1)[:, None, :]
     ki = np.stack([gains[:, 2], gains[:, 2], gains[:, 5]], 1)[:, None, :]
@@ -149,8 +152,8 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
     th_prev = np.zeros((N, E, 3)); om_prev = np.zeros((N, E, 3))
     lag_nom = sz["lag"][:, None, None]; m_nom = sz["mass"][:, None]
     tq_hat = np.zeros((N, E, 3)); f_ff = np.zeros((N, E, 2)); b_ff = (A.DT / np.maximum(np.broadcast_to(np.asarray(tau_ff, float), (N,)), A.DT))[:, None, None]
-    spt = np.zeros((N, E, 2)) + off[None] if sp_rate is not None else None; rp_cmd = np.zeros((N, E, 2))
-    pos = np.zeros((N, E, 2)) + off[None]; vel = np.zeros((N, E, 2)); pint = np.zeros((N, E, 2))
+    spt = np.zeros((N, E, 2)) + off if sp_rate is not None else None; rp_cmd = np.zeros((N, E, 2))
+    pos = np.zeros((N, E, 2)) + off; vel = np.zeros((N, E, 2)); pint = np.zeros((N, E, 2))
     s_ax = np.zeros((N, E, 2)); s_pos = np.zeros((N, E)); s_late = np.zeros((N, E)); s_yaw = np.zeros((N, E)); s_att = np.zeros((N, E))
     n_steps = steps
     alive = np.ones((N, E), bool)

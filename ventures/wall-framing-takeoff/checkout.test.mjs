@@ -1,22 +1,18 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
+import { PADDLE } from "./checkout.mjs";
 
-// The checkout link is a public link the owner sets by hand (never a key). A typo or a
-// plain-http link would send a buyer to a broken or unsafe page, so pin its shape.
-test("CHECKOUT_URL is empty (no Buy button) or a plain https link with no credentials", () => {
-  assert.equal(typeof CHECKOUT_URL, "string");
-  if (CHECKOUT_URL === "") return;
-  const u = new URL(CHECKOUT_URL);
-  assert.equal(u.protocol, "https:");
-  assert.equal(u.username + u.password, "");
-  assert.equal(CHECKOUT_URL, CHECKOUT_URL.trim());
-  assert.ok(!/[?&](key|token|secret|api_key)=/i.test(CHECKOUT_URL), "no secret in the link");
-});
-
-test("VALIDATE_URL is an https endpoint with no credentials or query secrets", () => {
-  const u = new URL(VALIDATE_URL);
-  assert.equal(u.protocol, "https:");
-  assert.equal(u.username + u.password, "");
-  assert.equal(u.search, "");
+// checkout.mjs is generated from platform/billing/catalogue.mjs and holds only public
+// values. Pin their shapes so a pasted secret or a typo fails here, not in a buyer's browser.
+test("PADDLE holds only public values of the expected shapes (empty while dark)", () => {
+  assert.equal(PADDLE.product, "wall-framing-takeoff");
+  assert.ok(PADDLE.priceId === "" || /^pri_[a-z0-9]+$/.test(PADDLE.priceId));
+  assert.ok(PADDLE.clientToken === "" || /^(live|test)_[A-Za-z0-9]+$/.test(PADDLE.clientToken), "a client-side token, never an API key");
+  assert.ok(PADDLE.publicKey === "" || /^[A-Za-z0-9_-]{43}$/.test(PADDLE.publicKey));
+  if (PADDLE.edge !== "") {
+    const u = new URL(PADDLE.edge);
+    assert.equal(u.protocol, "https:");
+    assert.equal(u.username + u.password + u.search, "");
+  }
+  assert.ok(["sandbox", "production"].includes(PADDLE.environment));
 });

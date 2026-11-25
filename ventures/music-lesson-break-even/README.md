@@ -24,4 +24,4 @@ Everything runs in the browser. Inputs never leave the device; there are no acco
 
 Optional [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) support never changes access.
 
-MIT licensed; see `LICENSE`.
+FSL-1.1-MIT licensed; see `LICENSE`.

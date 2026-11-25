@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKnz4gPtsFtw3W7a4qV",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T16:18:46Z",
+  "ended": "2026-11-24T17:03:05Z",
+  "wall_minutes": 44.47,
+  "tokens_in": 7363955,
+  "tokens_out": 35106,
+  "cost_usd": 3.2711,
+  "tool_calls": 61,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18629",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "m6j_twofit.py first reused m6i_lobby.run_all, which maps m6i's own _sim; the smoke run caught it (unpack error) before any result, fixed with a local run_all"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "the pyenv note says the first install can pass 120 s; jupedsim==1.4.2 installed into /usr/bin/python3.13 in about 2 min, but that interpreter has no numba or playwright, so figure screenshots had to go through node's playwright"
+    },
+    {
+      "file": "research/society-lanes/experiments/m6i_lobby.py",
+      "issue": "run_all is hard-wired to the module's _sim, so a later milestone cannot reuse it; a run_all(fn, todo, cache, cpath) helper would save the next step a copy"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-crowd-twin-fits-one-end-of-the-density-curve.md",
+    "research/society-lanes/LOG.md (6j plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "Free-choice research draw; took society-lanes milestone 6j (6i's Next). Predictions committed and PR opened before any run. 2,848 jupedsim runs (~35 min, 4 cores). F0 reproduction held exactly (0.9945 s); 3 of 9 predictions held. Checks run locally: society-lanes tests 100 passed 2 skipped (python3.13), research/_homepage/build.py ok, research_live_links ok, check_md_links ok, programme_check ok, check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7c353e90-bcea-57bf-82cb-29a7338890a3",
+    "transcripts": 1,
+    "first": "2026-11-24T16:18:46Z",
+    "last": "2026-11-24T17:03:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 115,
+        "output": 35106,
+        "thinking": 6471,
+        "cache_read": 7223358,
+        "cache_write_5m": 0,
+        "cache_write_1h": 140482,
+        "api_equivalent_usd": 3.2711,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 115,
+      "output": 35106,
+      "thinking": 6471,
+      "cache_read": 7223358,
+      "cache_write_5m": 0,
+      "cache_write_1h": 140482,
+      "api_equivalent_usd": 3.2711,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 54,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 44.47,
+      "active_minutes": 18.46,
+      "model_minutes": 5.91,
+      "tool_minutes": 12.55,
+      "waiting_on_human_minutes": 26.02,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a researcher writing the grid driver, running and reading ~2,900 crowd simulations and writing up the log, README and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 305.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

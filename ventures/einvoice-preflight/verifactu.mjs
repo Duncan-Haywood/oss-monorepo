@@ -61,8 +61,8 @@ const local = (name) => String(name || "").replace(/^[^:]*:/, "");
 const kids = (node, name) => (node?.children || []).filter((c) => local(c.name) === name);
 const kid = (node, name) => kids(node, name)[0] || null;
 const decode = (s) => String(s)
-  .replace(/&#x([0-9a-fA-F]+);/g, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-  .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+  .replace(/&#x([0-9a-fA-F]+);/g, (_, h) => codePointOr(parseInt(h, 16)))
+  .replace(/&#(\d+);/g, (_, d) => codePointOr(Number(d)))
   .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, "&");
 // The text of a leaf as written (entities decoded, whitespace kept): the fingerprint is
 // computed over this, so trimming here would hide a fault.
@@ -741,3 +741,7 @@ export function verifactuReport(file, records, batch = records.map((record) => (
     },
   };
 }
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

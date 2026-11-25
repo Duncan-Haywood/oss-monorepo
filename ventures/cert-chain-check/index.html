@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231d4ed8'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EC%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Certificate Chain Check — Order, Missing Intermediate, Hostname and Expiry, in Your Browser</title>
+  <meta name="description" content="Paste a PEM bundle, fullchain.pem or openssl s_client output: see the chain in order, a missing or wrong intermediate, signatures checked, whether the hostname is covered, expiry and what clients refuse. Fixed chain to copy. Free, nothing uploaded.">
+  <meta property="og:title" content="Will clients accept this certificate chain?">
+  <meta property="og:description" content="Paste PEM certificates: chain order, missing or re-keyed intermediates, signatures verified, hostname and expiry, and the fixed fullchain.pem. Runs in your browser.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Certificate Chain Check", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Reads PEM or DER X.509 certificates (a fullchain.pem, a CA bundle or openssl s_client -showcerts output), puts them in chain order, verifies each signature with Web Crypto, and reports what TLS clients refuse: a missing, wrong or re-keyed intermediate, wrong order, a hostname the certificate does not cover, expiry, an intermediate that expires first, no subjectAltName, weak keys and SHA-1, a missing serverAuth or keyUsage, and validity longer than the CA/Browser Forum allows. Prints the fixed chain. Nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does my site work in Chrome but curl says unable to get local issuer certificate?", "acceptedAnswer": {"@type": "Answer", "text": "The server sends only its own certificate, without the intermediate that issued it. Browsers often hide this: they cache intermediates from other sites or download the missing one from the URL in the certificate. curl, Python, Java, Go, Node and most API clients do not, so they cannot reach a trusted root. Serve the server certificate followed by the intermediate (fullchain.pem from an ACME client, or cat cert.pem intermediate.pem)."}}, {"@type": "Question", "name": "What order should the certificates be in?", "acceptedAnswer": {"@type": "Answer", "text": "The server's own certificate first, then the certificate that issued it, then the one that issued that, and so on. Leave out the root: clients use their own copy. TLS 1.3 lets clients accept other orders, but TLS 1.2 requires this one and older or embedded clients still enforce it."}}, {"@type": "Question", "name": "Does a wildcard certificate cover the bare domain or two levels?", "acceptedAnswer": {"@type": "Answer", "text": "No to both. *.example.com matches www.example.com and api.example.com, one whole label to the left. It does not match example.com itself or a.b.example.com. List example.com separately, and add *.b.example.com for the second level. A partial wildcard such as w*.example.com matches nothing in browsers."}}, {"@type": "Question", "name": "Is the common name (CN) still used to match the hostname?", "acceptedAnswer": {"@type": "Answer", "text": "Not by browsers. Chrome stopped reading the CN in version 58 (2017), and Firefox, Safari and Go also check only the subjectAltName. OpenSSL's own check still falls back to the CN when there is no DNS name, so a certificate can pass openssl and still fail in every browser."}}, {"@type": "Question", "name": "Does a clean result mean my TLS setup is secure?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads the certificates you paste. It cannot see which roots each client trusts, whether a certificate has been revoked, the protocol versions and cipher suites the server allows, or which certificate the server actually sends for each name. Test the live server too, and have a qualified person review anything that protects valuable data."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #172033; background: #f3f6fb; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #1e3a8a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1e3a8a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4b5567; }
+    .card { background: #fff; border: 1px solid #d6deeb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1e3a8a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a9b6cb; border-radius: 7px; font: 12px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #a9b6cb; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3eafa; color: #1e3a8a; }
+    .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin: 10px 0; }
+    .row label { font-size: .82rem; color: #4b5567; display: block; margin-bottom: 3px; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #166534; }
+    .verdict.risk { color: #9a3412; }
+    .verdict.broken { color: #991b1b; }
+    .chain { list-style: none; padding: 0; margin: 12px 0; }
+    .chain li { border: 1px solid #e1e7f2; border-left: 5px solid #1d4ed8; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; font-size: .9rem; }
+    .chain li.root { border-left-color: #6b7280; }
+    .chain li.stray { border-left-color: #b45309; }
+    .chain .meta { color: #4b5567; font-size: .82rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e8edf5; vertical-align: top; }
+    th { color: #4b5567; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; padding: 3px 8px; border-radius: 999px; background: #ffedd5; color: #9a3412; }
+    .pill.error { background: #fee2e2; color: #7f1d1d; }
+    .pill.low, .pill.info { background: #e8edf5; color: #1e3a8a; }
+    pre.cmd { background: #f5f7fb; padding: 12px; border-radius: 8px; font-size: .84rem; line-height: 1.55; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    footer { margin-top: 28px; border-top: 1px solid #d6deeb; padding-top: 16px; }
+    @media (max-width: 640px) {
+      #report-card table, #report-card tbody, #report-card tr, #report-card td { display: block; }
+      #report-card thead { display: none; }
+      #report-card tr { border-bottom: 1px solid #e8edf5; padding: 10px 0; }
+      #report-card td { border: 0; padding: 3px 0; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CERTIFICATE CHAIN CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Will clients accept this certificate chain?</h1>
+    <p>A server has to send its own certificate <strong>and</strong> the intermediates that issued it, in order. Browsers often paper over a missing intermediate, so the site looks fine in Chrome while <code>curl</code>, Java, Python and every API client fail with <em>unable to get local issuer certificate</em>. Paste the chain and see what each client will see.</p>
+  </header>
+  <main>
+  <section class="card" aria-labelledby="in-h">
+    <h2 id="in-h">Paste certificates</h2>
+    <p class="note">PEM text (<code>-----BEGIN CERTIFICATE-----</code>), a whole <code>fullchain.pem</code> or CA bundle, or the output of <code>openssl s_client -connect example.com:443 -servername example.com -showcerts</code>. Or open <code>.pem</code>, <code>.crt</code>, <code>.cer</code> or <code>.der</code> files. Never paste a private key: the page ignores one, and warns you.</p>
+    <label for="pem" class="note">Certificates</label>
+    <textarea id="pem" spellcheck="false" placeholder="-----BEGIN CERTIFICATE-----&#10;MIIF...&#10;-----END CERTIFICATE-----"></textarea>
+    <div class="row">
+      <div><label for="files">Or open certificate files</label><input type="file" id="files" multiple accept=".pem,.crt,.cer,.der,.ca-bundle,.txt"></div>
+      <div><label for="host">Hostname or IP the server answers for (optional)</label><input type="text" id="host" placeholder="www.example.com"></div>
+      <div><label for="at">Check as of (optional, default now)</label><input type="text" id="at" placeholder="2027-01-01"></div>
+    </div>
+    <button type="button" id="check">Check</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear">Clear</button>
+    <p id="status" class="note" role="status" aria-live="polite">Nothing is uploaded: the certificates are read and their signatures checked in this page.</p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-labelledby="verdict">
+    <p class="verdict" id="verdict"></p>
+    <p class="note" id="summary"></p>
+    <h2>The chain</h2>
+    <ol class="chain" id="chain"></ol>
+    <h2>Findings</h2>
+    <div style="overflow-x:auto"><table>
+      <thead><tr><th>Severity</th><th>Where</th><th>What</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <ul id="notes" class="note"></ul>
+    <div id="fix-block" hidden>
+      <h2>The chain in the right order</h2>
+      <p class="note">Server certificate first, then each intermediate, no root and nothing unrelated. Save it as the file your server's <code>ssl_certificate</code> (nginx), <code>SSLCertificateFile</code> (Apache 2.4.8+) or load balancer reads.</p>
+      <label for="fixed" class="note">Fixed chain (PEM)</label>
+      <textarea id="fixed" readonly spellcheck="false"></textarea>
+      <button type="button" class="secondary" id="copy-fixed">Copy</button>
+      <button type="button" class="secondary" id="download-fixed">Download fullchain.pem</button>
+      <button type="button" class="secondary" id="download-json">Download report (JSON)</button>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="what-h">
+    <h2 id="what-h">What it checks</h2>
+    <ul>
+      <li><strong>Order and completeness:</strong> builds the chain from the server certificate up, by issuer name and key identifier, and checks every signature with your browser's Web Crypto (RSA, RSA-PSS, ECDSA P-256/384/521, Ed25519). It names a missing intermediate, a wrong one with the same name (a re-keyed or cross-signed CA), certificates in the wrong order, duplicates, strays and an included root.</li>
+      <li><strong>What clients refuse:</strong> expired or not yet valid certificates, an intermediate that expires before the server certificate, an issuer that is not a CA or may not sign certificates, a path length constraint exceeded, no subjectAltName (browsers ignore the CN), a host the names do not cover, partial wildcards, no serverAuth, a keyUsage without digitalSignature, RSA keys under 2048 bits, SHA-1 and MD5 signatures, unusual curves and DSA keys, Certificate Transparency precertificates.</li>
+      <li><strong>Rules with dates:</strong> the longest validity a public CA may issue: 398 days, then 200 days from 15 March 2026, 100 days from 15 March 2027 and 47 days from 15 March 2029 (<a href="https://cabforum.org/2025/04/11/ballot-sc081v3-introduce-schedule-of-reducing-validity-and-data-reuse-periods/" rel="noopener">CA/Browser Forum ballot SC-081v3</a>).</li>
+    </ul>
+    <p>Every finding is explained, with the fix, in <a href="certificate-chain-errors-explained.html">certificate chain errors explained</a>. The reading was checked against OpenSSL 3.0: field for field on 37 generated certificates and all 120 roots in Ubuntu's CA bundle, and fault for fault against <code>openssl verify</code> on 30 chains (<a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cert-chain-check" rel="noopener">source and parity tests</a>).</p>
+  </section>
+
+  <section class="card" aria-labelledby="cli-h">
+    <h2 id="cli-h">From the command line</h2>
+    <p>The same checks as a zero-dependency Node 18+ script, for a CI step or a server:</p>
+<pre class="cmd">node check.mjs fullchain.pem --host www.example.com
+openssl s_client -connect example.com:443 -servername example.com -showcerts &lt;/dev/null | node check.mjs - --host example.com
+node check.mjs cert.pem chain.pem --fix &gt; fullchain.pem
+node check.mjs fullchain.pem --warn-days 21 --fail-on-risk     # exit 2 on an error, high or medium finding</pre>
+  </section>
+
+  <section class="card" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <h3>Why does my site work in Chrome but curl says unable to get local issuer certificate?</h3>
+    <p>The server sends only its own certificate, without the intermediate that issued it. Browsers often hide this: they cache intermediates from other sites or download the missing one from the URL in the certificate. <code>curl</code>, Python, Java, Go, Node and most API clients do not, so they cannot reach a trusted root. Serve the server certificate followed by the intermediate (<code>fullchain.pem</code> from an ACME client, or <code>cat cert.pem intermediate.pem</code>).</p>
+    <h3>What order should the certificates be in?</h3>
+    <p>The server's own certificate first, then the certificate that issued it, then the one that issued that, and so on. Leave out the root: clients use their own copy. TLS 1.3 lets clients accept other orders, but TLS 1.2 requires this one and older or embedded clients still enforce it.</p>
+    <h3>Does a wildcard certificate cover the bare domain or two levels?</h3>
+    <p>No to both. <code>*.example.com</code> matches <code>www.example.com</code> and <code>api.example.com</code>, one whole label to the left. It does not match <code>example.com</code> itself or <code>a.b.example.com</code>. List <code>example.com</code> separately, and add <code>*.b.example.com</code> for the second level. A partial wildcard such as <code>w*.example.com</code> matches nothing in browsers.</p>
+    <h3>Is the common name (CN) still used to match the hostname?</h3>
+    <p>Not by browsers. Chrome stopped reading the CN in version 58 (2017), and Firefox, Safari and Go also check only the subjectAltName. OpenSSL's own check still falls back to the CN when there is no DNS name, so a certificate can pass <code>openssl</code> and still fail in every browser.</p>
+    <h3>Does a clean result mean my TLS setup is secure?</h3>
+    <p>No. It reads the certificates you paste. It cannot see which roots each client trusts, whether a certificate has been revoked, the protocol versions and cipher suites the server allows, or which certificate the server actually sends for each name. Test the live server too, and have a qualified person review anything that protects valuable data.</p>
+  </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a static read of the certificates you paste, not a security audit, a penetration test or a guarantee of any system's security, and it does not replace a qualified security professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> Test a certificate change on a staging server or a copy first, and keep the old files to roll back to.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get the CLI from the repo and run it yourself.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Certificates are public data, but a private key is not: the page skips any private key block without reading it. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>fix_copied</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks: <a href="../caa-record-check/">CAA Record Check</a> reads which CAs may issue for a domain, <a href="../nginx-config-security-check/">nginx Config Security Check</a> reads the server's TLS settings, and <a href="../security-headers-check/">Security Headers Check</a> reads HSTS and the other response headers.</p>
+    <p class="support">Free to use and source available under the <a href="LICENSE" rel="noopener">FSL-1.1-MIT licence</a>. Not affiliated with the OpenSSL project, the CA/Browser Forum or any certificate authority. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { scan, fullchainPem } from "./scan.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    // Generated test certificates from tests/fixtures/ (int.pem, leaf.pem, int-ec.pem), out of order.
+    const EXAMPLE = "-----BEGIN CERTIFICATE-----\nMIID8zCCAlugAwIBAgICEAIwDQYJKoZIhvcNAQELBQAwSzEXMBUGA1UEAwwOUGFy\naXR5IFJvb3QgUjExIzAhBgNVBAoMGlBhcml0eSBUZXN0IFJvb3QgQXV0aG9yaXR5\nMQswCQYDVQQGEwJVUzAeFw0yNTAxMDEwMDAwMDBaFw0zMDAxMDEwMDAwMDBaMEYx\nHjAcBgNVBAMMFVBhcml0eSBSU0EgSXNzdWluZyBDQTEXMBUGA1UECgwOUGFyaXR5\nIFRlc3QgQ0ExCzAJBgNVBAYTAlVTMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB\nCgKCAQEA2MFIRbPvM+Kes9EukrWZQ4d0nRiaCaRosznRk6jj3sB9Li4n3f0F3b7R\n5t/i8jcXHS3u9u/S/hdq2s26FWDdS6Ayi05W0NPt+23+3Zyvv4QKgqRuvRksue0u\ncWIj4fJ8uRDlgAqo5gEK6pH9D124sQfXqGY+UfYplLux2m5R9nkKaApkV3yGL/GT\n26/nQ07AHqXeM2/b0Za4fbXa13eSmhxW/3bW57P+RIa+r0z6a9XzpKQMLb8I38zy\n5iffZw50J/StChcRVo0YDk/pX5SN9Y+bbXrWwBUw1N0EVqDuUmw+kLDHYkijtdQk\n8SKctGmjMQFjdfEHYussPLZ4WpLGPQIDAQABo2YwZDAOBgNVHQ8BAf8EBAMCAQYw\nHQYDVR0OBBYEFES+iUMzjVks3a6pEQSmRK9ulfL/MB8GA1UdIwQYMBaAFHRYujxR\nj7hDb5USxQVAs7TJf07UMBIGA1UdEwEB/wQIMAYBAf8CAQAwDQYJKoZIhvcNAQEL\nBQADggGBADwg9pCJiHioOFnJPSPUKi1V+pepmNOtwtLxQ93EaJpKnLr/mRstkUOJ\noxfKtGXif5qn2nFfECmH1Gzfiu2m/ynFaVD6wk454tOIk7o/fkNdTzy06XcN/zuh\njZuE4kLhIIJFEkLXiPWSYa3lPxrwmkw1WXkWTAr+dKMeeHDYp8Vm18nWd60nfaGA\nkDX5R6Q5gn2oqU3CtHzMDl8aUHRM+dkJ42+bBCVcF1m1dkeFl7aS3WgbZzow6c9N\nNAwTY3hls8pAXcNLVLfxzT77hIvZz7ZmjNA/4GMc66cl8Clfau/Z8oLORIvht4qH\nyPAhgPqBvGpZ23GorINalQMG6vfXgxlEG4hsaitMBpZPiuWCB8wj61ssj5wRPJIe\nsn6oeEI3fzd85OJXHBOvmGm6mRxZSuLZH16LNqYUSeIWjFMP7t7sqElBFxgyiqz7\nt9N3KQuvH99EhQW3a11y2Xlt3zyB8HjdxD4+YrSqrTBd9zzXwagbsWRQwZKZv485\niTm5s0pMjA==\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nMIIEKjCCAxKgAwIBAgICEAswDQYJKoZIhvcNAQELBQAwRjEeMBwGA1UEAwwVUGFy\naXR5IFJTQSBJc3N1aW5nIENBMRcwFQYDVQQKDA5QYXJpdHkgVGVzdCBDQTELMAkG\nA1UEBhMCVVMwHhcNMjYxMTAxMDAwMDAwWhcNMjcwMzAxMDAwMDAwWjA2MRkwFwYD\nVQQDDBB3d3cuZXhhbXBsZS50ZXN0MRkwFwYDVQQKDBBQYXJpdHkgVGVzdCBTaXRl\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiniqm8W2SMBcgctwzugy\nI8b1/LKeDQauNoGzkVO8kNaHLpYt5jh8p9JO0UBV3/LQvPZ/jTU3CsMof4bcBigp\nC7YndNtWG6nNti/Lehh7uCm5eisO+0cLsWWobXeMrJO8+qnWTu5PU795WJPlsUXr\n1dgNw2xy+9mZvLHPtLlFkDHQltyDORgojQnqShPZXiFem7k0naGhgyPobxtjhf95\n7I+0OlxjimVGV2kSMxVtd0k9ajbKksKHalhB5QVULI79YnyZB5xXoE5nOvfdrRO2\nmhEZmwFhoOwh0olzFKM5qhsXwrgcl4MBSBIyH1Guys9IHhVwxBYLFuzVLhrOXcF6\nuwIDAQABo4IBMDCCASwwDAYDVR0TAQH/BAIwADAOBgNVHQ8BAf8EBAMCBaAwEwYD\nVR0lBAwwCgYIKwYBBQUHAwEwHQYDVR0OBBYEFCnsuUV7O05Jup2TafG9rMJG5xhY\nMB8GA1UdIwQYMBaAFES+iUMzjVks3a6pEQSmRK9ulfL/MGAGCCsGAQUFBwEBBFQw\nUjAqBggrBgEFBQcwAoYeaHR0cDovL2NhLmV4YW1wbGUudGVzdC9pbnQuZGVyMCQG\nCCsGAQUFBzABhhhodHRwOi8vb2NzcC5leGFtcGxlLnRlc3QwVQYDVR0RBE4wTIIQ\nd3d3LmV4YW1wbGUudGVzdIIMZXhhbXBsZS50ZXN0ghIqLmFwaS5leGFtcGxlLnRl\nc3SHBMAAAgqHECABDbgAAAAAAAAAAAAAABAwDQYJKoZIhvcNAQELBQADggEBAFxu\naWlzmvKFoerra1Shx+UFCUYh3+K3wEjo2Kx7vFph5qzceOPTBO9RsKXgglhnSdOy\nzElH4P4ExGsrojU/KVI+aCz/hMNcxBUb1KxTRlcGnxGQMgFqyiXK3afuCJTfWCIO\nNKSrMLFdAIFGsm2A2Snc8dqEi4BxFSzD25rSj1tEf/Tcyzs95mNBfn+TCYUQMNVU\nmR47W+SC5XrLZPZ3lwtpe1DsCvIXmWeqefmu2kN+e/0M1dCpyZLanAJKwlbLjI88\nayEU7a9Ir2O3nXq8Gj9eUN2LSa3TWEkSsHYIQafYpcXbQ94FqwCqpQ9i4UB8pAl8\n8S71Bn1c/rd/TBcqQyE=\n-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----\nMIIB6zCCAXCgAwIBAgICEAMwCgYIKoZIzj0EAwMwPjEXMBUGA1UEAwwOUGFyaXR5\nIFJvb3QgRTExIzAhBgNVBAoMGlBhcml0eSBUZXN0IFJvb3QgQXV0aG9yaXR5MB4X\nDTI1MDEwMTAwMDAwMFoXDTMwMDEwMTAwMDAwMFowOTEeMBwGA1UEAwwVUGFyaXR5\nIEVDQyBJc3N1aW5nIENBMRcwFQYDVQQKDA5QYXJpdHkgVGVzdCBDQTBZMBMGByqG\nSM49AgEGCCqGSM49AwEHA0IABAH/O31nELsUW9mTifwxeiiWPvCnqGHrxK1pdGe2\nLwq8X9Y+ReupHSFPfVGbWSMjyH+oqEZZxTX0bZpE8w0PJvWjYzBhMA8GA1UdEwEB\n/wQFMAMBAf8wDgYDVR0PAQH/BAQDAgEGMB0GA1UdDgQWBBQ6gAun4nNtZKZPo0JB\ngAtN19wDSTAfBgNVHSMEGDAWgBStZODCksidlTOJXqTTeemUSe00UTAKBggqhkjO\nPQQDAwNpADBmAjEAiHOIhjq0y/zmb7r/CQpgNWDeZ02Q80Km0x+uXtXpJTn3/LWO\ntrAIEQvrqz3QdaikAjEAg/uRs9h7SJlxA10kLj2Z6vRWRhkV9n7NpG7DBWmoFQ12\nWDlL+RvQ8OajelHsVdID\n-----END CERTIFICATE-----\n";
+    const EXAMPLE_HOST = "api.example.test";
+    const EXAMPLE_AT = "2026-11-24T12:00:00Z";
+
+    let lastReport = null, fileBytes = null;
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const VERDICT = { ok: ["No problem found in what was checked", ""], risky: ["Some clients will refuse this chain", " risk"], broken: ["Clients will refuse this chain", " broken"], "no-certificates": ["No certificate found", " broken"] };
+
+    async function runCheck() {
+      const text = $("#pem").value;
+      const input = fileBytes && !text.trim() ? fileBytes : text;
+      if (!text.trim() && !fileBytes) { $("#status").textContent = "Paste certificates or open a file, then click Check."; return; }
+      const at = $("#at").value.trim();
+      if (at && Number.isNaN(Date.parse(at))) { $("#status").textContent = `"${at}" is not a date. Use a form like 2027-01-01.`; return; }
+      let r;
+      try { r = await scan(input, { host: $("#host").value.trim() || undefined, at: at || undefined }); }
+      catch (err) { $("#status").textContent = `Could not read the input: ${err.message}`; return; }
+      record("check_run");
+      lastReport = r;
+      const [label, cls] = VERDICT[r.verdict];
+      $("#verdict").textContent = label;
+      $("#verdict").className = "verdict" + cls;
+      $("#summary").textContent = r.certificates.length ? `${r.certificates.length} certificate${r.certificates.length > 1 ? "s" : ""} read; chain ${r.chain.map((i) => "#" + i).join(" → ")}${r.expires ? `; works until ${r.expires.slice(0, 10)}` : ""}${r.host ? `; ${r.host} ${r.hostMatch && r.hostMatch.ok ? `is covered by ${r.hostMatch.by}` : "is not covered"}` : ""}. Checked as of ${r.checkedAt.slice(0, 16).replace("T", " ")} UTC.` : "";
+      $("#chain").innerHTML = r.certificates.map((c) => `<li class="${c.role === "root" ? "root" : c.role === "not in chain" ? "stray" : ""}"><strong>#${c.index} ${escapeHtml(c.role)}</strong>: <code>${escapeHtml(c.subject || "(empty subject)")}</code><div class="meta">issued by <code>${escapeHtml(c.issuer)}</code><br>${escapeHtml(c.notBefore.slice(0, 10))} to ${escapeHtml(c.notAfter.slice(0, 10))} (${Math.round(c.validityDays)} days) · ${escapeHtml(c.key)} · ${escapeHtml(c.signatureAlgorithm)}${c.ca ? " · CA" : ""}${c.san.length ? `<br>names: ${escapeHtml(c.san.slice(0, 12).join(", "))}${c.san.length > 12 ? ` and ${c.san.length - 12} more` : ""}` : ""}<br>SHA-256 <code>${escapeHtml(c.sha256 || "")}</code></div></li>`).join("");
+      $("#rows").innerHTML = r.findings.map((f) => `<tr><td><span class="pill ${escapeHtml(f.severity)}">${escapeHtml(f.severity)}</span></td><td>${escapeHtml(f.where)}</td><td><strong><code>${escapeHtml(f.type)}</code></strong><br>${escapeHtml(f.message)}</td></tr>`).join("") || `<tr><td colspan="3">None of the listed problems found. That is not proof every client will connect.</td></tr>`;
+      $("#notes").innerHTML = r.notes.map((n) => `<li>${escapeHtml(n)}</li>`).join("");
+      const fixed = r.chain.length ? await fullchainPem(r, input) : "";
+      $("#fixed").value = fixed;
+      $("#fix-block").hidden = !fixed;
+      $("#report-card").hidden = false;
+      $("#status").textContent = "Checked.";
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    }
+
+    function download(name, text, type) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type }));
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    $("#files").addEventListener("change", async (e) => {
+      const files = [...e.target.files];
+      if (!files.length) return;
+      const bufs = await Promise.all(files.map((f) => f.arrayBuffer().then((b) => new Uint8Array(b))));
+      const isDer = (b) => b[0] === 0x30 && !new TextDecoder().decode(b.subarray(0, 64)).includes("-----");
+      if (bufs.length === 1 && isDer(bufs[0])) { fileBytes = bufs[0]; $("#pem").value = ""; $("#status").textContent = `${files[0].name} (DER) loaded. Click Check.`; return; }
+      fileBytes = null;
+      const toPem = (b) => { let s = ""; for (const x of b) s += String.fromCharCode(x); return `-----BEGIN CERTIFICATE-----\n${btoa(s).match(/.{1,64}/g).join("\n")}\n-----END CERTIFICATE-----\n`; };
+      $("#pem").value = bufs.map((b) => (isDer(b) ? toPem(b) : new TextDecoder().decode(b))).join("\n");
+      $("#status").textContent = `${files.length} file${files.length > 1 ? "s" : ""} loaded, in the order chosen. Click Check.`;
+    });
+    $("#check").addEventListener("click", runCheck);
+    $("#load-example").addEventListener("click", async () => {
+      fileBytes = null;
+      $("#pem").value = EXAMPLE;
+      $("#host").value = EXAMPLE_HOST;
+      $("#at").value = EXAMPLE_AT;
+      await runCheck();
+      record("example_loaded");
+      $("#status").textContent = "Worked example: the intermediate comes before the server certificate, an unrelated ECC CA is mixed in, and api.example.test is not covered: *.api.example.test matches one label below it, never the name itself. The fixed chain below drops the stray and puts the server certificate first.";
+    });
+    $("#clear").addEventListener("click", () => { fileBytes = null; $("#pem").value = ""; $("#host").value = ""; $("#at").value = ""; $("#files").value = ""; $("#report-card").hidden = true; $("#status").textContent = "Paste certificates or open a file, then click Check."; });
+    $("#copy-fixed").addEventListener("click", async () => { try { await navigator.clipboard.writeText($("#fixed").value); $("#status").textContent = "Fixed chain copied."; } catch { $("#fixed").select(); $("#status").textContent = "Select-all done: press Ctrl+C or Cmd+C to copy."; } record("fix_copied"); });
+    $("#download-fixed").addEventListener("click", () => { download("fullchain.pem", $("#fixed").value, "application/x-pem-file"); record("fix_copied"); });
+    $("#download-json").addEventListener("click", () => { if (lastReport) download("cert-chain-report.json", JSON.stringify(lastReport, null, 2), "application/json"); });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const u = document.getElementById("optout"); if (u) { u.textContent = "Usage counting is off"; u.disabled = true; } }
+  </script>
+</body>
+</html>

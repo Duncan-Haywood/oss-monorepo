@@ -71,8 +71,8 @@ test('the worked-example figures match calc.mjs on the shipped starting example'
 
   const hard = calculateBid(base);
   assert.equal(hard.hoursPerVisit.toFixed(1), '2.4');
-  assert.equal(hard.monthlyPrice.toFixed(2), '459.73');
-  assert.equal(hard.breakEvenMonthlyPrice.toFixed(2), '344.80');
+  assert.equal(hard.monthlyPrice.toFixed(2), '497.06');
+  assert.equal(hard.breakEvenMonthlyPrice.toFixed(2), '372.80');
   assert.equal(hard.turfAcres.toFixed(4), '0.2296');
 
   const mow = hard.services.find((s) => s.name === 'Turf mowing');
@@ -88,22 +88,22 @@ test('the worked-example figures match calc.mjs on the shipped starting example'
     oneWayMinutes: 0,
   });
   assert.equal(easy.hoursPerVisit.toFixed(1), '0.5');
-  assert.equal(easy.monthlyPrice.toFixed(2), '184.30');
-  assert.equal(easy.pricePerAcreMonth.toFixed(2), '802.82');
+  assert.equal(easy.monthlyPrice.toFixed(2), '221.64');
+  assert.equal(easy.pricePerAcreMonth.toFixed(2), '965.44');
 
   const flatMonthly = easy.pricePerAcreMonth * hard.turfAcres;
-  assert.equal(flatMonthly.toFixed(2), '184.30');
+  assert.equal(flatMonthly.toFixed(2), '221.64');
   assert.ok(flatMonthly < hard.breakEvenMonthlyPrice, 'the flat rate should quote below the harder stop\'s own break-even cost');
   assert.equal((hard.monthlyPrice - flatMonthly).toFixed(2), '275.43');
-  assert.equal((hard.breakEvenMonthlyPrice - flatMonthly).toFixed(2), '160.49');
+  assert.equal((hard.breakEvenMonthlyPrice - flatMonthly).toFixed(2), '151.16');
   assert.ok(hard.hoursPerVisit / easy.hoursPerVisit > 4.7);
 
-  assert.match(html, /\$184\.30/);
-  assert.match(html, /\$802\.82/);
-  assert.match(html, /\$459\.73/);
+  assert.match(html, /\$221\.64/);
+  assert.match(html, /\$965\.44/);
+  assert.match(html, /\$497\.06/);
   assert.match(html, /\$275\.43/);
-  assert.match(html, /\$160\.49/);
-  assert.match(html, /\$344\.80/);
+  assert.match(html, /\$151\.16/);
+  assert.match(html, /\$372\.80/);
   assert.match(html, /79\.1%/);
   assert.match(html, /4\.8 times/);
 });

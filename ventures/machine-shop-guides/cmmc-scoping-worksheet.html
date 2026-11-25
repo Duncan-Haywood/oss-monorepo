@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CMMC Scoping Worksheet: Asset Categories for a Machine Shop</title>
+  <meta name="description" content="Free CMMC Level 2 scoping worksheet: sort each asset, from CNC controllers to cloud mail, into the 32 CFR 170.19 categories and download the asset inventory.">
+  <meta property="og:title" content="CMMC Scoping Worksheet: Asset Categories for a Machine Shop">
+  <meta property="og:description" content="List your shop's computers, CNC controllers, CMM, printers and cloud services; answer a few questions each; see which 32 CFR 170.19 asset category your answers point to, what has to be documented, and download the asset inventory CSV.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://marisstella.app/machine-shop-guides/cmmc-scoping-worksheet.html">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232c4a3e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "CMMC Scoping Worksheet: Asset Categories for a Machine Shop", "description": "Sort each asset into the 32 CFR 170.19 CMMC asset categories (CUI Asset, Security Protection Asset, Contractor Risk Managed Asset, Specialized Asset, Out-of-Scope) and download the asset inventory.", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+</head>
+<body data-page="cmmc-scoping-worksheet">
+<nav class="crumbs"><a href="./">Machine shop guides</a></nav>
+<main>
+<h1>CMMC scoping worksheet: which assets are in scope</h1>
+<p class="lede">Before a CMMC assessment, the rule asks you to say which of your assets are in scope and in which category. In a machine shop that means the CAM workstations, the DNC server, the CNC controllers, the CMM, the printers, the phones and the email service, not only the office PCs. List them here, answer a few questions for each, and the page shows which category of 32 CFR 170.19 your answers point to, what each one has to have documented, and what is still open. Download the inventory as a CSV, or copy it into the <a href="nist-800-171-ssp-template.html">SSP template</a>.</p>
+<p class="note">A worksheet built from the rule's text, not an assessment and not legal advice. The categories are the rule's; the questions and the order they are asked in are ours. Nothing you type leaves your browser.</p>
+
+<section class="card sticky" id="result" aria-live="polite">
+  <div class="grid">
+    <div><span class="note">Assets listed</span><div class="big" id="n-all">0</div></div>
+    <div><span class="note">In scope</span><div class="big" id="n-in">0</div></div>
+    <div><span class="note">Out of scope</span><div class="big" id="n-out">0</div></div>
+    <div><span class="note">Open items</span><div class="big" id="n-open">0</div></div>
+  </div>
+</section>
+
+<form id="f" class="card" autocomplete="off">
+  <h2>Your scope</h2>
+  <div class="grid">
+    <label>Level
+      <select name="level"><option value="2">Level 2 (CUI, NIST SP 800-171)</option><option value="1">Level 1 (FCI only, FAR 52.204-21)</option></select></label>
+    <label>Company<input name="company"></label>
+  </div>
+  <label>The enclave in one paragraph <span class="hint">Where CUI lives: which mailbox, which share, which machines, which VLAN. An assessor reads this first.</span><textarea name="enclave"></textarea></label>
+</form>
+
+<section class="card">
+  <h2>Assets</h2>
+  <div class="grid">
+    <label>Add an asset of this kind<select id="add-kind"></select></label>
+    <div><button type="button" id="add">Add asset</button><button type="button" id="example" class="secondary">Load an invented example shop</button></div>
+  </div>
+  <div id="assets"></div>
+</section>
+
+<section class="card">
+  <h2>Summary by category</h2>
+  <div class="scroller"><table><thead><tr><th>Category</th><th class="num">Assets</th><th>Document in</th><th>How it is assessed</th></tr></thead><tbody id="summary"></tbody></table></div>
+  <h3>Still open</h3>
+  <ul id="issues"></ul>
+</section>
+
+<p id="actions">
+  <button type="button" id="csv">Download asset inventory (CSV)</button>
+  <button type="button" id="ssp" class="secondary">Copy lines for the SSP inventory box</button>
+  <button type="button" id="json" class="secondary">Save as a file (JSON)</button>
+  <label class="secondary" style="display:inline-block;font-weight:400">Open a saved file <input type="file" id="open" accept="application/json,.json"></label>
+  <button type="button" id="clear" class="secondary">Clear everything</button>
+</p>
+<p class="note" id="copied" aria-live="polite"></p>
+<p class="note"><label style="display:inline;font-weight:400"><input type="checkbox" id="keep-draft" style="width:auto"> Keep this worksheet in this browser between visits</label> (off by default: an asset list is a map of your network, so save the JSON file somewhere you control).</p>
+
+<section>
+<h2>The five categories, from the rule</h2>
+<p>For Level 2, table 3 to <a href="https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.19">32 CFR 170.19(c)(1)</a> sorts every asset into one of five categories. The descriptions below are quoted from it.</p>
+<ul>
+  <li><strong>CUI Assets:</strong> <q>Assets that process, store, or transmit CUI</q>. Documented in the asset inventory, the SSP and the network diagram, and assessed against all Level 2 requirements. In a shop: the mailbox the drawings arrive in, the file share, the CAM workstation, the DNC server.</li>
+  <li><strong>Security Protection Assets:</strong> <q>Assets that provide security functions or capabilities to the OSA's CMMC Assessment Scope</q>. Assessed against the requirements relevant to what they do. The firewall, MFA, endpoint protection, the log collector, the backup of in-scope systems.</li>
+  <li><strong>Contractor Risk Managed Assets (CRMA):</strong> <q>Assets that can, but are not intended to, process, store, or transmit CUI because of security policy, procedures, and practices in place</q>. <q>Assets are not required to be physically or logically separated from CUI assets.</q> The key word is policy: without a written rule that keeps CUI off it, an asset that can reach CUI is not a CRMA. If the SSP raises questions, <q>the assessor can conduct a limited check to identify deficiencies.</q></li>
+  <li><strong>Specialized Assets:</strong> <q>Assets that can process, store, or transmit CUI but are unable to be fully secured, including: Internet of Things (IoT) devices, Industrial Internet of Things (IIoT) devices, Operational Technology (OT), Government Furnished Equipment (GFE), Restricted Information Systems, and Test Equipment</q>. Documented, and you must <q>Show these assets are managed using the contractor's risk-based security policies, procedures, and practices.</q> Not assessed against the other requirements. This is where most CNC controllers, machine monitoring boxes and CMMs land: they run programs made from CUI drawings and often run old operating systems you cannot patch.</li>
+  <li><strong>Out-of-Scope Assets:</strong> <q>Assets that cannot process, store, or transmit CUI; and do not provide security protections for CUI Assets</q>, physically or logically separated from CUI assets. You have to <q>Prepare to justify the inability of an Out-of-Scope Asset to process, store, or transmit CUI</q>, and <q>Assets that fall into any in-scope asset category cannot be considered an Out-of-Scope Asset</q>. One special case: <q>An endpoint hosting a VDI client configured to not allow any processing, storage, or transmission of CUI beyond the Keyboard/Video/Mouse sent to the VDI client is considered an Out-of-Scope Asset</q>.</li>
+</ul>
+
+<h2>Outside services: email, cloud storage, your MSP</h2>
+<p>Table 4 to 170.19(c)(2)(i) scopes an External Service Provider by what it holds. A cloud provider that holds CUI: <q>The CSP shall meet the FedRAMP requirements in 48 CFR 252.204-7012</q>, which the clause words as security requirements equivalent to the FedRAMP Moderate baseline. A non-cloud provider that holds CUI is assessed as part of your assessment. A provider that holds only Security Protection Data (logs, configuration), such as an MSP's monitoring tool, is assessed as a Security Protection Asset. And <q>A service provider that does not process CUI or SPD does not meet the CMMC definition of an ESP</q>. Either way, the SSP describes the service and the provider's customer responsibility matrix says who does what.</p>
+
+<h2>Level 1 is simpler</h2>
+<p>For Level 1, paragraph (b): <q>OSA information systems which process, store, or transmit FCI are in scope for CMMC Level 1 and must be self-assessed against applicable CMMC security requirements.</q> <q>Specialized Assets are not part of the Level 1 CMMC Assessment Scope and are not assessed against CMMC security requirements.</q> And <q>There are no documentation requirements for out-of-scope assets.</q> Switch the level above to see the Level 1 sort; then work through the 15 requirements on the <a href="cmmc-level-1-self-assessment.html">Level 1 self-assessment</a>.</p>
+
+<h2>Why scope first</h2>
+<p>Every asset you put in scope as a CUI Asset has to meet all 110 requirements, and every one becomes a line in the <a href="sprs-score-calculator.html">SPRS score</a> and the <a href="nist-800-171-ssp-template.html">SSP</a>. A small enclave (one mailbox, one share, two workstations, the shop-floor machines as Specialized Assets) is often far less work than securing the whole office. Whether an enclave fits your contracts is your decision and your assessor's; the worksheet only makes the answers visible. For which level applies to you at all, see <a href="cmmc-level-1-vs-level-2.html">CMMC Level 1 vs Level 2</a>.</p>
+<p class="note">32 CFR 170.19 was read on 25 November 2026 from the eCFR (section as amended 16 December 2024); every quotation above is verbatim. DoD's Level 2 scoping guidance, referred to in appendix A of part 170, adds detail this page does not reproduce. Source notes are in SOURCES.md.</p>
+</section>
+
+<script type="module">
+  import { KINDS, CATEGORIES, L1_CATEGORIES, emptyAsset, emptyScope, normaliseScope, review, inventoryCsv, sspInventoryLines, scopeToJson, exampleScope } from "./scope.mjs";
+  import { recordUsage, usageStorage } from "./usage.mjs";
+  const KEY = "machine-shop-guides-scope";
+  const OPT = "machine-shop-guides-scope-keep";
+  const store = usageStorage();
+  const get = (k) => { try { return store?.getItem(k) ?? null; } catch { return null; } };
+  const set = (k, v) => { try { v === null ? store?.removeItem(k) : store?.setItem(k, v); } catch {} };
+  const keepBox = document.getElementById("keep-draft");
+  keepBox.checked = get(OPT) === "1";
+  let sc = emptyScope();
+  if (keepBox.checked) { try { sc = normaliseScope(JSON.parse(get(KEY) || "{}")); } catch { sc = emptyScope(); } }
+  const save = () => { if (keepBox.checked) set(KEY, JSON.stringify(sc)); };
+  keepBox.addEventListener("change", () => { set(OPT, keepBox.checked ? "1" : null); if (keepBox.checked) save(); else set(KEY, null); });
+
+  const KIND = Object.fromEntries(KINDS.map((k) => [k.id, k]));
+  const addKind = document.getElementById("add-kind");
+  for (const k of KINDS) { const o = document.createElement("option"); o.value = k.id; o.textContent = k.label; addKind.append(o); }
+
+  const f = document.getElementById("f");
+  const fill = () => { for (const el of f.elements) if (el.name && el.name in sc) el.value = sc[el.name]; };
+  f.addEventListener("input", (e) => { const el = e.target; if (el.name && el.name in sc) { sc[el.name] = el.value; save(); if (el.name === "level") build(); else paint(); } });
+
+  const el = (tag, props = {}, ...kids) => { const n = document.createElement(tag); Object.assign(n, props); n.append(...kids); return n; };
+  const sel = (value, opts, onChange, label) => {
+    const s = el("select"); s.setAttribute("aria-label", label);
+    for (const [v, t] of opts) s.append(el("option", { value: v, textContent: t }));
+    s.value = value; s.addEventListener("change", () => onChange(s.value)); return s;
+  };
+  const field = (labelText, input) => { const l = el("label", {}, labelText); l.append(input); return l; };
+  const text = (value, onInput, ph = "") => { const i = el("input", { value, placeholder: ph }); i.addEventListener("input", () => onInput(i.value)); return i; };
+
+  let outcomes = [];
+  function build() {
+    const wrap = document.getElementById("assets");
+    wrap.replaceChildren();
+    outcomes = [];
+    if (!sc.assets.length) wrap.append(el("p", { className: "note", textContent: "No assets yet. Add one above, or load the invented example to see how a shop's list sorts out." }));
+    sc.assets.forEach((a, i) => {
+      const k = KIND[a.kind];
+      const row = el("div", { className: "sspreq" });
+      const head = el("h3", { textContent: k.label });
+      const update = (patch, rebuild = false) => { Object.assign(sc.assets[i], patch); sc = normaliseScope(sc); save(); rebuild ? build() : paint(); };
+      const g1 = el("div", { className: "grid" },
+        field("Name", text(a.name, (v) => update({ name: v }), "as on your network diagram")),
+        field("Owner", text(a.owner, (v) => update({ owner: v }))),
+        field("Location", text(a.location, (v) => update({ location: v }))));
+      const g2 = el("div", { className: "grid" });
+      if (sc.level === "1") {
+        g2.append(field("Does it process, store or transmit FCI?", sel(a.fci, [["unknown", "Not answered"], ["yes", "Yes"], ["no", "No"]], (v) => update({ fci: v }), "FCI")));
+      } else if (k.service) {
+        g2.append(field("What does the service hold?", sel(a.espData, [["unknown", "Not answered"], ["cui", "CUI (with or without logs/config)"], ["spd", "Only security data: logs, configuration"], ["neither", "Neither"]], (v) => update({ espData: v }), "Service data")));
+        const cb = el("input", { type: "checkbox", checked: a.csp }); cb.style.width = "auto"; cb.addEventListener("change", () => update({ csp: cb.checked }));
+        const l = el("label", {}, cb, " It is a cloud service (not a person or company managing your own machines)"); g2.append(l);
+      } else {
+        g2.append(field("CUI on it?", sel(a.cui, [["unknown", "Not answered"], ["yes", "Yes, it processes, stores or sends CUI"], ["can", "It could, but is not meant to"], ["cannot", "It cannot: separated from CUI"]], (v) => update({ cui: v }, true), "CUI")));
+        const cb = el("input", { type: "checkbox", checked: a.security }); cb.style.width = "auto"; cb.addEventListener("change", () => update({ security: cb.checked }));
+        g2.append(el("label", {}, cb, " Provides a security function to the scope (firewall, MFA, EDR, logs, backup)"));
+      }
+      if (k.specialized) {
+        const cb = el("input", { type: "checkbox", checked: a.unsecurable }); cb.style.width = "auto"; cb.addEventListener("change", () => update({ unsecurable: cb.checked }));
+        g2.append(el("label", {}, cb, ` Cannot be fully secured (${k.specialized}: old OS, vendor-locked, no patches)`));
+      }
+      row.append(head, g1, g2);
+      if (sc.level === "2" && !k.service && a.cui === "can") row.append(field("The policy that keeps CUI off it", text(a.policy, (v) => update({ policy: v }), "e.g. CUI prints only on the enclave printer; this one is blocked from the CUI VLAN")));
+      if (sc.level === "2" && !k.service && a.cui === "cannot") row.append(field("How it is separated from CUI assets", text(a.separation, (v) => update({ separation: v }), "e.g. guest VLAN with no route to the CUI VLAN; no account on the CUI mail")));
+      const out = el("p", { className: "note" });
+      const rm = el("button", { type: "button", className: "secondary", textContent: "Remove" });
+      rm.addEventListener("click", () => { sc.assets.splice(i, 1); save(); build(); });
+      row.append(out, rm);
+      outcomes.push(out);
+      wrap.append(row);
+    });
+    paint();
+  }
+
+  let counted = false;
+  function paint() {
+    const r = review(sc);
+    r.rows.forEach((x, i) => {
+      const p = outcomes[i]; if (!p) return;
+      p.replaceChildren(el("strong", { textContent: x.label + (/scope/i.test(x.label) ? "" : x.inScope ? " (in scope)" : " (out of scope)") + ". " }), x.reason + (x.gaps.length ? " Open: " + x.gaps.join(" ") : ""));
+      p.className = "note " + (x.cat === "unresolved" ? "bad" : "");
+    });
+    document.getElementById("n-all").textContent = r.rows.length;
+    document.getElementById("n-in").textContent = r.inScope;
+    document.getElementById("n-out").textContent = r.outOfScope;
+    const open = document.getElementById("n-open"); open.textContent = r.issues.length; open.className = "big " + (r.issues.length ? "bad" : r.rows.length ? "good" : "");
+    const cats = r.level === "1" ? L1_CATEGORIES : CATEGORIES;
+    const tb = document.getElementById("summary"); tb.replaceChildren();
+    for (const [id, c] of Object.entries(cats)) {
+      if (id === "unresolved" && !r.counts.unresolved) continue;
+      tb.append(el("tr", {}, el("td", { textContent: c.label }), el("td", { className: "num", textContent: r.counts[id] || 0 }), el("td", { textContent: c.document.join("; ") || "—" }), el("td", { textContent: c.assessed })));
+    }
+    const ul = document.getElementById("issues"); ul.replaceChildren();
+    if (!r.issues.length) ul.append(el("li", { textContent: r.rows.length ? "Nothing open in your answers." : "Add your assets to start." }));
+    for (const i of r.issues) ul.append(el("li", { textContent: i }));
+    if (r.rows.length && !counted) { counted = true; recordUsage("scope-asset"); }
+  }
+
+  document.getElementById("add").addEventListener("click", () => { sc.assets.push(emptyAsset(addKind.value)); sc = normaliseScope(sc); save(); build(); });
+  document.getElementById("example").addEventListener("click", () => {
+    if (sc.assets.length && !confirm("Replace your list with the invented example?")) return;
+    sc = exampleScope(); fill(); save(); build(); recordUsage("scope-example");
+  });
+  const download = (name, type, body) => {
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([body], { type })); a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+  const stamp = () => new Date().toISOString().slice(0, 10);
+  document.getElementById("csv").addEventListener("click", () => { download(`cmmc-asset-inventory-${stamp()}.csv`, "text/csv", inventoryCsv(sc)); recordUsage("scope-csv"); });
+  document.getElementById("json").addEventListener("click", () => { download(`cmmc-scope-${stamp()}.json`, "application/json", scopeToJson(sc)); recordUsage("scope-json"); });
+  document.getElementById("ssp").addEventListener("click", async () => {
+    const msg = document.getElementById("copied");
+    const lines = sspInventoryLines(sc);
+    try { await navigator.clipboard.writeText(lines); msg.textContent = "Copied. Paste into \"Hardware, software and services in scope\" on the SSP template."; }
+    catch { msg.textContent = "Your browser blocked the clipboard. The lines are:\n" + lines; }
+    recordUsage("scope-ssp");
+  });
+  document.getElementById("open").addEventListener("change", async (e) => {
+    const file = e.target.files?.[0]; if (!file) return;
+    try { sc = normaliseScope(JSON.parse(await file.text())); fill(); save(); build(); } catch { alert("That file could not be read as a saved scoping worksheet."); }
+    e.target.value = "";
+  });
+  document.getElementById("clear").addEventListener("click", () => { if (!confirm("Clear the whole worksheet from this page?")) return; sc = emptyScope(); set(KEY, null); fill(); build(); });
+  fill();
+  build();
+</script>
+</main>
+<section class="card cta" id="early-access">
+  <h2>In development — early access</h2>
+  <p>We are building two paid products for small machine shops: an <strong>RFQ-to-quote assistant</strong> that turns a drawing and an email into a priced quote from your own rates, and a <strong>CMMC Level 1/2 and ISO 9001 workspace</strong> that keeps your scope, SSP, POA&amp;M and SPRS score in one place. Neither is released yet. Read what is planned and how to get early access on the <a href="https://marisstella.app/industries/manufacturing/">manufacturing page</a>.</p>
+  <p class="note">Neither product certifies anyone. Only an authorized C3PAO (or the government) can issue a CMMC Level 2 certification; software can help you prepare, nothing more.</p>
+</section>
+<footer>
+  <p><a href="./">Machine shop guides</a> · <a href="cmmc-level-1-self-assessment.html">CMMC Level 1 self-assessment</a> · <a href="cmmc-scoping-worksheet.html">CMMC scoping worksheet</a> · <a href="sprs-score-calculator.html">SPRS score calculator</a> · <a href="nist-800-171-ssp-template.html">SSP template</a> · <a href="dfars-7012-incident-reporting.html">DFARS 7012 incident reporting</a> · <a href="stock-size-from-step-file.html">Stock size from a STEP file</a> · <a href="job-shop-quote-calculator.html">Job-shop quote calculator</a> · <a href="rfq-review.html">RFQ review checklist</a> · <a href="drawing-review.html">Drawing review</a> · <a href="first-article-inspection.html">First article inspection checker</a> · <a href="quote-vs-actual.html">Quoted vs actual hours</a> · <a href="cmmc-level-1-vs-level-2.html">CMMC Level 1 vs Level 2</a> · <a href="ssp-and-poam.html">SSP and POA&amp;M</a> · <a href="how-to-price-a-machined-part.html">How to price a machined part</a> · <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/machine-shop-guides">Source (FSL-1.1-MIT)</a></p>
+  <p><strong>Not affiliated with or endorsed by the Department of Defense (Department of War), NIST, the Cyber AB or any C3PAO.</strong> A score you calculate here is a self-check, not a CMMC assessment, a certification or an SPRS submission. Regulations are summarised with dates in <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/machine-shop-guides/SOURCES.md">SOURCES.md</a>; read the official text before you rely on it, because the rules change.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, compliance, financial or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  <p>Privacy: nothing you type leaves your browser. This page keeps an anonymous visit count in your own browser's storage only. <button type="button" class="secondary" id="usage-toggle">Turn off counting</button></p>
+</footer>
+<script type="module">
+  import { recordUsage, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+  const btn = document.getElementById("usage-toggle");
+  const paint = () => { btn.textContent = usageOptedOut() ? "Turn counting back on" : "Turn off counting"; };
+  btn.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); paint(); });
+  paint();
+  recordUsage("view:" + (document.body.dataset.page || "page"));
+</script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 
 > Free Walmart Marketplace calculator: compare WFS vs seller-fulfilled profit, apply the referral-fee floor, and see whether matching a lower price still leaves money after Buy Box take.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -19,4 +19,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/walmart-marketplace-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/walmart-marketplace-calculator): FSL-1.1-MIT licensed.

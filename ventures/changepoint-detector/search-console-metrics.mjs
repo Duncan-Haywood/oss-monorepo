@@ -14,7 +14,7 @@
 // webmaster-tools/v1/searchanalytics/query), a token from Google's OAuth 2.0 server-to-server flow (RS256 JWT bearer
 // assertion, scope webmasters.readonly).
 //
-// Statistical analysis of data you supply, not advice. MIT licence.
+// Statistical analysis of data you supply, not advice. FSL-1.1-MIT licence.
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname } from 'node:path';

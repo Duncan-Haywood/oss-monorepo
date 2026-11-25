@@ -1,0 +1,52 @@
+Milestone 6j: collision-free speed fitted on time gap and radius, lobby entry (HERMES 3.6 m corridor)
+Part A 6 seeds, Part B 16 fresh seeds; 120 s runs, warm-up 40 s; B = 2000; bias 0.1; T in (0.1, 0.2, 0.3, 0.5, 0.8) s; radius in (0.15, 0.2, 0.25, 0.3) m; slope step 0.5/m^2.
+
+Real free curve: 1084 crossings; density 5th/95th 0.370/1.980; slope at 0.83 2.97, at 1.72 6.27 s per /m^2
+Operating densities: bo-360-090-090 0.830/m^2; bo-360-160-160 1.721/m^2
+
+Part A: per pair, level score L, slope score S, J = sqrt(L^2 + S^2), maximum 1.6 m cell density, operating N at both entrances
+  T 0.1  r 0.15: L 1.64 s (16 cells), S 1.56 s, J 2.27 s; max 1.55/m^2; N_op 0.9 53, 1.6 None; twin 95th 1.56; failed 0, no crossing 0, of 108  (not eligible)
+  T 0.1  r 0.2 : L 1.23 s (16 cells), S 1.24 s, J 1.75 s; max 1.56/m^2; N_op 0.9 52, 1.6 None; twin 95th 1.59; failed 0, no crossing 0, of 108  (not eligible)
+  T 0.1  r 0.25: L 0.41 s (16 cells), S 0.54 s, J 0.67 s; max 1.69/m^2; N_op 0.9 52, 1.6 None; twin 95th 1.64; failed 0, no crossing 0, of 108  (not eligible)
+  T 0.1  r 0.3 : L 3.20 s (16 cells), S 1.70 s, J 3.62 s; max 1.46/m^2; N_op 0.9 54, 1.6 None; twin 95th 1.55; failed 0, no crossing 6, of 108  (not eligible)
+  T 0.2  r 0.15: L 1.65 s (16 cells), S 1.60 s, J 2.30 s; max 1.57/m^2; N_op 0.9 53, 1.6 None; twin 95th 1.58; failed 0, no crossing 0, of 108  (not eligible)
+  T 0.2  r 0.2 : L 1.23 s (16 cells), S 1.24 s, J 1.75 s; max 1.63/m^2; N_op 0.9 53, 1.6 None; twin 95th 1.67; failed 0, no crossing 0, of 108  (not eligible)
+  T 0.2  r 0.25: L 1.15 s (15 cells), S 1.65 s, J 2.01 s; max 2.11/m^2; N_op 0.9 52, 1.6 144; twin 95th 2.08; failed 0, no crossing 0, of 108
+  T 0.2  r 0.3 : L 11.30 s (16 cells), S 5.31 s, J 12.48 s; max 1.66/m^2; N_op 0.9 53, 1.6 None; twin 95th 1.78; failed 0, no crossing 8, of 108  (not eligible)
+  T 0.3  r 0.15: L 1.57 s (16 cells), S 1.53 s, J 2.19 s; max 1.61/m^2; N_op 0.9 52, 1.6 None; twin 95th 1.61; failed 0, no crossing 0, of 108  (not eligible)
+  T 0.3  r 0.2 : L 0.99 s (15 cells), S 1.07 s, J 1.46 s; max 2.06/m^2; N_op 0.9 52, 1.6 129; twin 95th 1.91; failed 0, no crossing 0, of 108
+  T 0.3  r 0.25: L 3.20 s (14 cells), S 4.96 s, J 5.90 s; max 2.02/m^2; N_op 0.9 51, 1.6 117; twin 95th 2.16; failed 0, no crossing 1, of 108
+  T 0.3  r 0.3 : L 14.84 s (16 cells), S 10.25 s, J 18.03 s; max 1.85/m^2; N_op 0.9 55, 1.6 155; twin 95th 1.85; failed 0, no crossing 6, of 108
+  T 0.5  r 0.15: L 1.16 s (16 cells), S 1.41 s, J 1.83 s; max 1.71/m^2; N_op 0.9 50, 1.6 None; twin 95th 1.71; failed 0, no crossing 0, of 108  (not eligible)
+  T 0.5  r 0.2 : L 1.17 s (13 cells), S 1.03 s, J 1.56 s; max 2.67/m^2; N_op 0.9 50, 1.6 115; twin 95th 2.88; failed 0, no crossing 0, of 108
+  T 0.5  r 0.25: L 23.06 s (16 cells), S 9.83 s, J 25.07 s; max 1.92/m^2; N_op 0.9 50, 1.6 112; twin 95th 2.06; failed 0, no crossing 1, of 108
+  T 0.5  r 0.3 : L 35.87 s (16 cells), S 15.90 s, J 39.24 s; max 1.38/m^2; N_op 0.9 54, 1.6 None; twin 95th 1.58; failed 0, no crossing 18, of 108  (not eligible)
+  T 0.8  r 0.15: L 1.07 s (14 cells), S 0.50 s, J 1.18 s; max 2.19/m^2; N_op 0.9 51, 1.6 120; twin 95th 2.00; failed 0, no crossing 0, of 108
+  T 0.8  r 0.2 : L 9.77 s (12 cells), S 4.82 s, J 10.90 s; max 2.35/m^2; N_op 0.9 51, 1.6 107; twin 95th 2.77; failed 0, no crossing 1, of 108
+  T 0.8  r 0.25: L 32.24 s (16 cells), S 14.87 s, J 35.50 s; max 1.65/m^2; N_op 0.9 53, 1.6 None; twin 95th 1.75; failed 0, no crossing 5, of 108  (not eligible)
+  T 0.8  r 0.3 : L 42.50 s (16 cells), S 22.54 s, J 48.11 s; max 1.34/m^2; N_op 0.9 54, 1.6 None; twin 95th 1.44; failed 0, no crossing 32, of 108  (not eligible)
+  chosen pair: (0.8, 0.15) (J 1.18 s against 6i's pair 1.46 s)
+  level-only pick among eligible pairs (not registered, for comparison): (0.3, 0.2)
+
+Part B: fresh seeds
+  T 0.3 r 0.2 (6i): failed 0, no crossing 0, of 352; density 5th/95th 0.35/1.98; fresh-seed L 0.98 s, S 0.93 s, J 1.36 s
+    curve gap vs free over [0.37, 1.98]: 1.01 s [0.59, 1.63]
+    curve gap vs assigned-exit over [0.44, 1.98]: 0.88 s [0.57, 1.27]
+    bo-360-090-090 (entrance 0.9): N 52 vs 42: twin cost +0.07 s [-0.03, +0.17] (density 0.841 vs 0.690); real curve at those densities +0.41 s [+0.29, +0.56]; transit twin 6.83 s, real 6.56 s; own-right share 0.953, lane order 0.913
+    bo-360-160-160 (entrance 1.6): N 129 vs 103: twin cost +0.74 s [-0.14, +1.88] (density 1.731 vs 1.556); real curve at those densities +1.05 s [+0.72, +1.42]; transit twin 8.86 s, real 10.70 s; own-right share 0.906, lane order 0.839
+  T 0.8 r 0.15 (chosen): failed 0, no crossing 0, of 336; density 5th/95th 0.35/2.16; fresh-seed L 1.12 s, S 0.55 s, J 1.25 s
+    curve gap vs free over [0.37, 1.98]: 1.06 s [0.84, 1.40]
+    curve gap vs assigned-exit over [0.44, 2.16]: 1.09 s [0.83, 1.40]
+    bo-360-090-090 (entrance 0.9): N 51 vs 41: twin cost +0.18 s [+0.03, +0.32] (density 0.841 vs 0.691); real curve at those densities +0.41 s [+0.29, +0.56]; transit twin 7.92 s, real 6.55 s; own-right share 0.997, lane order 0.949
+    bo-360-160-160 (entrance 1.6): N 120 vs 96: twin cost +1.16 s [+0.77, +1.55] (density 1.716 vs 1.479); real curve at those densities +1.38 s [+0.96, +1.85]; transit twin 10.56 s, real 10.61 s; own-right share 0.836, lane order 0.903
+
+Registered predictions (LOG.md):
+F0 (6i's pair reproduces 6i's lobby Part A score, 0.99 s over 15 cells): held (0.9945 s over 15 cells)
+F1 (chosen pair's J at least 30% below 6i's pair's J): refuted ((0.8, 0.15): 1.185 against 1.463 s, ratio 0.810)
+F2 (chosen radius above 0.2 m): refuted ((0.8, 0.15))
+F3 (chosen time gap inside the grid (not 0.1 or 0.8 s)): refuted ((0.8, 0.15))
+F4 (fresh seeds: chosen pair's curve gap against the free-choice curve below 0.6 s): refuted (1.06 s [0.84, 1.40])
+F5 (fresh seeds: chosen pair's curve gap against the held-out assigned-exit curve below 0.6 s): refuted (1.09 s [0.83, 1.40])
+F6 (bo-360-090-090: chosen pair's marginal-walker cost inside the real interval): refuted (twin +0.18, real +0.41 [+0.29, +0.56])
+F7 (bo-360-160-160: chosen pair's marginal-walker cost inside the real interval): held (twin +1.16, real +1.38 [+0.96, +1.85])
+F8 (dense operating point: chosen pair's time to cross within 1.0 s of the real curve): held (twin 10.56 s, real 10.61 s)

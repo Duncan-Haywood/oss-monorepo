@@ -583,6 +583,13 @@ MANUSCRIPT_CHECKS = [
     ("1.469 against 1.015", "gear_pump_floor_results.txt", "Danfoss r 1.015, next casappa KP30 r 1.469 (gap -0.454)"),
     ("94.1% of its idle power", "gear_pump_floor_results.txt", "danfoss SNP3 1.252 2.390 1.909 1.015 94.1/ 95.2"),
     ("seven of nine families read above 1.55", "gear_pump_floor_results.txt", "7 of 9 read b > 1.55"),
+    # milestone 7zc: the r key, and the half-speed gear-pump speed caveat
+    ("rises from 0.0052 to 0.0057", "gear_pump_rkey_results.txt", "owdb   0.0052  (max 0.0060"),
+    ("rises from 0.0052 to 0.0057", "gear_pump_rkey_results.txt", "owdr   0.0057  (max 0.0063"),
+    ("own neutral curve it is 0.0050", "gear_pump_rkey_results.txt", "owdc   0.0050  (max 0.0058"),
+    ("the central 1.318", "gear_pump_rkey_results.txt", "b0 at the central setting 1.318"),
+    ("absorbs 0.31 to 0.66 of that idle power", "gear_pump_halfspeed_results.txt", "marzocchi ALP3   factorial  2.295  2.973  2.997 b 1.296 | own-speed  0.661  0.830  0.924 b 1.255 | ratio 0.308"),
+    ("absorbs 0.31 to 0.66 of that idle power", "gear_pump_halfspeed_results.txt", "danfoss SNP3     factorial  2.210  4.027  3.287 b 1.822 | own-speed  1.771  2.901  2.177 b 1.638 | ratio 0.662"),
 ]
 
 

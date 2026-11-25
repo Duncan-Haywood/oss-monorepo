@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23471b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>League Schedule Generator — free round-robin schedule maker for clubs and rec leagues</title>
-  <meta name="description" content="Free round robin schedule generator. Paste your team names and get a fair league schedule with real dates, balanced home and away, courts and time slots shared evenly, blackout dates, an optional play-off bracket, and CSV, calendar and text exports. Runs in your browser; nothing is uploaded.">
+  <title>League Schedule Generator — free round-robin schedules for rec leagues</title>
+  <meta name="description" content="Free round robin schedule generator: paste team names for a fair league schedule with dates, balanced home and away, shared courts and CSV or calendar export.">
   <meta property="og:title" content="League Schedule Generator — free, private, in your browser">
   <meta property="og:description" content="Round-robin schedules for rec leagues, youth sports, pickleball, darts and chess clubs. Dates, courts, home and away, blackout dates and play-offs.">
   <link rel="canonical" href="./index.html">
@@ -255,7 +255,7 @@
 
   <section class="card" id="pack-card" aria-labelledby="h-pack" hidden>
     <h2 id="h-pack">Branded season print pack</h2>
-    <p class="note">Your schedule on your own letterhead: a cover with your league name and logo, the full schedule, and one page per team to hand out. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; the schedule and every other download above stay free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
+    <p class="note">Your schedule on your own letterhead: a cover with your league name and logo, the full schedule, and one page per team to hand out. Unlock it with a licence key. The code is FSL-1.1-MIT, so the key is an honest-buyer convenience, not copy protection; the schedule and every other download above stay free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
     <p id="pack-buy-row" hidden><a id="pack-buy" class="cta" rel="noopener" target="_blank">Buy a licence key</a></p>
     <p><label>Licence key <input id="pack-key" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="pack-check">Check key</button> <span id="pack-state" role="status"></span></p>
     <div id="pack-fields" hidden>
@@ -324,6 +324,11 @@
     <p class="note">For youth leagues that hand out weekly practice slots on fields split into halves and quarters. <a href="./practice-schedule.html">Open the practice schedule maker</a>: list fields with their hours and capacity, teams with their size, coach and wishes, and get a weekly grid that overfills no field, double-books no coach, keeps game days and early finishes, and spreads the misses fairly; then a weekly calendar for every team.</p>
   </section>
 
+  <section class="card" id="regions-card">
+    <h2>Divisions by location: least travel for a regional league</h2>
+    <p class="note">Teams that play at their own grounds across several towns? <a href="./divisions-by-location.html">Split them into divisions by location</a>: even divisions with the least driving between rivals, a club's teams kept apart, and the saving against your current split, sent straight to the multi-division scheduler.</p>
+  </section>
+
   <section class="card" id="box-card">
     <h2>Box league: squash, badminton and tennis boxes</h2>
     <p class="note">For clubs that rank their members into boxes of four to six, play a round over a few weeks, then move the top of each box up and the bottom down. <a href="./box-league.html">Open the box league manager</a>: even boxes, results typed or pasted from the group chat, tables with tie-breaks, and next round's boxes with joiners and leavers.</p>
@@ -389,7 +394,7 @@
     <h3>Round robins and leagues</h3>
     <ul class="pf-guide-list"><li><a href="./how-to-make-a-round-robin-schedule.html">How to make a round-robin schedule, with a worked example</a></li><li><a href="./multi-division-league-schedule.html">Several divisions sharing courts</a></li><li><a href="./how-to-schedule-a-round-robin-with-an-odd-number-of-teams.html">Byes with an odd number of teams</a></li><li><a href="./how-to-balance-home-and-away-games-in-a-round-robin.html">Balancing home and away games</a></li><li><a href="./how-to-balance-carry-over-in-a-round-robin.html">Carry-over: not always meeting the side that just played the strongest</a></li><li><a href="./how-to-schedule-a-league-with-limited-courts-and-time-slots.html">Fitting a league onto limited courts and time slots</a></li><li><a href="./how-to-reschedule-a-rained-out-league-game.html">Rescheduling a rained-out game</a></li><li><a href="./how-to-break-ties-in-league-standings.html">Breaking ties in the standings</a></li><li><a href="./how-to-assign-referees-to-a-league-schedule.html">Sharing referees fairly</a></li><li><a href="./how-to-make-a-fantasy-football-schedule.html">A fantasy football season with repeat weeks</a></li></ul>
     <h3>Other formats</h3>
-    <ul class="pf-guide-list pf-cols"><li><a href="./swiss-pairing.html">Swiss pairing program: pair rounds, enter results by board, TRF in and out</a></li><li><a href="./how-to-run-a-swiss-tournament.html">Swiss pairings</a></li><li><a href="./how-to-run-a-box-league.html">Box leagues: boxes, points, up and down</a></li><li><a href="./how-to-make-a-practice-schedule-for-shared-fields.html">Practice slots on shared fields</a></li><li><a href="./how-to-run-a-single-elimination-bracket.html">Single elimination: seeds and byes</a></li><li><a href="./how-to-run-a-double-elimination-tournament.html">Double elimination and the grand final reset</a></li><li><a href="./how-to-run-an-americano-tournament.html">Americano rotation</a></li><li><a href="./how-to-run-a-mexicano-tournament.html">Mexicano draw</a></li><li><a href="./americano-night.html">Americano and Mexicano scorer: live leaderboard on your phone</a></li><li><a href="./how-to-run-a-ladder-league.html">Challenge ladder</a></li><li><a href="./balanced-teams.html">Balanced teams from a player list (skill, coed split, friend requests)</a></li></ul>
+    <ul class="pf-guide-list pf-cols"><li><a href="./swiss-pairing.html">Swiss pairing program: pair rounds, enter results by board, TRF in and out</a></li><li><a href="./how-to-run-a-swiss-tournament.html">Swiss pairings</a></li><li><a href="./how-to-run-a-box-league.html">Box leagues: boxes, points, up and down</a></li><li><a href="./how-to-make-a-practice-schedule-for-shared-fields.html">Practice slots on shared fields</a></li><li><a href="./how-to-run-a-single-elimination-bracket.html">Single elimination: seeds and byes</a></li><li><a href="./how-to-run-a-double-elimination-tournament.html">Double elimination and the grand final reset</a></li><li><a href="./how-to-run-an-americano-tournament.html">Americano rotation</a></li><li><a href="./how-to-run-a-mexicano-tournament.html">Mexicano draw</a></li><li><a href="./americano-night.html">Americano and Mexicano scorer: live leaderboard on your phone</a></li><li><a href="./how-to-run-a-ladder-league.html">Challenge ladder</a></li><li><a href="./balanced-teams.html">Balanced teams from a player list (skill, coed split, friend requests)</a></li><li><a href="./player-ratings.html">Club player ratings from your results: singles and doubles, Glicko-2</a></li></ul>
     <h3>Example schedules by sport</h3>
     <ul class="pf-guide-list pf-cols"><li><a href="./pickleball-league-schedule.html">Pickleball: 8 teams, 2 courts</a></li><li><a href="./tennis-league-schedule.html">Tennis: early-only teams and court limits</a></li><li><a href="./youth-soccer-league-schedule.html">Youth soccer: 9 teams, 2 fields, byes</a></li><li><a href="./adult-softball-league-schedule.html">Adult softball: 6 teams, a blackout night</a></li><li><a href="./rec-basketball-league-schedule.html">Rec basketball: 10 teams, 2 courts</a></li><li><a href="./volleyball-league-schedule.html">Volleyball: closed gym nights</a></li><li><a href="./cornhole-league-schedule.html">Cornhole: 8 teams, a skipped holiday</a></li><li><a href="./darts-league-schedule.html">Darts: home and away, 6 pub teams</a></li><li><a href="./bowling-league-schedule.html">Bowling: lane pairs rotated evenly</a></li><li><a href="./golf-league-schedule.html">Golf: tee times rotated, match play scored</a></li><li><a href="./weekend-tournament-schedule.html">Weekend tournament: divisions on shared fields, pools then brackets</a></li><li><a href="./chess-club-round-robin-schedule.html">Chess club: 7 players with byes</a></li></ul>
     <h3>Look-up tables and templates</h3>
@@ -423,7 +428,7 @@
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tool: the <a href="../shift-cover-optimizer/">shift cover optimizer</a> for staff rotas the <a href="../volunteer-shift-scheduler/">volunteer shift scheduler</a> for the people who run your league day, the <a href="../tournament-pairing-manager/">tournament pairing manager</a> for Swiss events and brackets, and the <a href="../youth-lineup-rotator/">youth lineup rotator</a> for who plays where inside each game.</p>
     <p>Running the league committee? <a href="../meeting-action-items/">Meeting action items</a> turns your meeting notes into owned, dated action items and a follow-up email.</p>
-    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free to use and source available. If this helped, the <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
@@ -444,8 +449,7 @@
     import { swissStandings, swissPairings } from "./swiss.mjs";
     import { printPackHtml } from "./printpack.mjs";
     import { CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, CARRY_OVER_POLISH, CARRY_OVER_FLOOR_PRICED } from "./carryover-core.mjs";
-    import { buyLink, checkLicence } from "./licence.mjs";
-    import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
+    import { wireBuyButton, checkLicence } from "./licence.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -1030,14 +1034,14 @@
       record("page_downloaded");
     });
     {
-      const buy = buyLink(CHECKOUT_URL);
+      const buy = wireBuyButton($("#pack-buy"), { onKey: (k) => { $("#pack-key").value = k; $("#pack-check").click(); }, onStatus: (m) => { if (m) $("#pack-state").textContent = m; } });
       let packLogo = "";
-      // Dark until a checkout link is set in checkout.mjs: no card, no Buy button.
-      if (buy) { $("#pack-buy").href = buy; $("#pack-buy-row").hidden = false; $("#pack-card").hidden = false; }
+      // Dark until checkout.mjs carries a Paddle price id (platform/billing/catalogue.mjs): no card, no Buy button.
+      if (buy) { $("#pack-buy-row").hidden = false; $("#pack-card").hidden = false; }
       $("#pack-logo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { packLogo = ""; return; } const r = new FileReader(); r.onload = () => { packLogo = String(r.result); }; r.readAsDataURL(f); });
       $("#pack-check").addEventListener("click", async () => {
         $("#pack-state").textContent = "Checking...";
-        const v = await checkLicence($("#pack-key").value, { url: VALIDATE_URL });
+        const v = await checkLicence($("#pack-key").value);
         $("#pack-state").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason + (buy ? "" : " (the print pack is not on sale yet)");
         $("#pack-fields").hidden = !v.valid;
         if (v.valid) record("print_pack_unlocked");

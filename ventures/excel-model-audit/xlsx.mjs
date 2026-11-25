@@ -69,7 +69,7 @@ export function decodeXml(s) {
     if (k === "quot") return '"';
     if (k === "apos") return "'";
     const n = k[1] === "x" ? parseInt(k.slice(2), 16) : parseInt(k.slice(1), 10);
-    return Number.isFinite(n) ? String.fromCodePoint(n) : m;
+    return Number.isFinite(n) ? codePointOr(n) : m;
   }).replace(/_x([0-9A-F]{4})_/g, (_, h) => String.fromCharCode(parseInt(h, 16)));
 }
 
@@ -221,3 +221,7 @@ export async function readWorkbook(bytes) {
   const hasMacros = [...entries.keys()].some((k) => /vbaProject\.bin$/i.test(k));
   return { sheets, names, iterate: calc.iterate === "1" || calc.iterate === "true", calcMode: calc.calcMode || "auto", externalLinks, hasMacros };
 }
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }
