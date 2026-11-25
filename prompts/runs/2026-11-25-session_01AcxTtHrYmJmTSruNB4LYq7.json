@@ -17,7 +17,7 @@
   "tokens_out": 32708,
   "cost_usd": 3.9037,
   "tool_calls": 86,
-  "task": "Lead-magnet funnel: point free tools' footers at the for-profit product they feed (goals.md North star, step 2)",
+  "task": "Lead-magnet funnel: free tools' footers name the for-profit product (goals.md North star, step 2)",
   "projects": [
     "platform/pages",
     "portfolio/monetization"
@@ -30,10 +30,11 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 4,
+  "tests_added": 0,
   "outcome": "partial",
   "errors": [
-    "GitHub git credential service and the GitHub MCP server returned 503 for most of the session (security queue read and push delayed ~40 min); recovered later and the PR was opened."
+    "GitHub git credential service and GitHub MCP returned 503 for ~40 minutes at the start: the security queue and the open-PR duplicate check could not run, and the push was delayed.",
+    "Duplicate work: PR #18677 (same hand-curated funnel, 85 feeders) merged to main while this run built its own; found as a merge conflict on PR #19021. Reverted this run's build code, test and post; kept 2 feeders."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -44,6 +45,10 @@
     {
       "file": "portfolio/router/allocate.py",
       "issue": "Flagship rows still point deepening at this repo for products transition.json marks proprietary; nothing flags the conflict."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Duplicate PRs' says search open PRs before opening one; when GitHub is down at the start there is no fallback, and a long run then collides with work that lands meanwhile. Suggest: re-fetch main before the main build and grep for the feature."
     }
   ],
   "deviations": [
@@ -51,15 +56,20 @@
       "file": "portfolio/router/allocate.py",
       "why": "Start-here row (league-schedule-generator: bowling lane-minimum proofs) is a hard combinatorial search with little MRR value, and the product is due to move to private-monorepo; goals.md North star ranks buyer-acquisition work above it.",
       "did": "Built a hand-curated free-tool -> product funnel in the site footer instead.",
-      "result": "63 feeder pages carry the line; verified on a preview build."
+      "result": "Built and verified (336/336 build tests, preview build), then superseded by PR #18677; 2 feeders kept."
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "'Write about the work': the post this run wrote described a feature PR #18677 already shipped with its own post.",
+      "did": "Dropped the post; added a dated section to the existing agent report instead.",
+      "result": "No duplicate post."
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-25-matching-free-tools-to-products-by-hand.md",
-    "portfolio/monetization/README.md (Funnels section)"
+    "docs/reports/2026-11-24-lead-magnet-funnel.md (2026-11-25 section)"
   ],
-  "goal": "North star step 2 (getting buyers to the for-profit products): 63 free tools now link, with a tracked footer line, to one of 14 proprietary products.",
-  "notes": "Checks run here: node --test platform/pages/product-funnel.test.mjs (4/4), related-tools/cta-row-phone/counter-wiring/feedback-page tests (18/18), writing.test.mjs (57/57), check_post_frontmatter/links/posts ok, preview build --only=stripe-payout-to-journal,sales-export-to-journal renders the line on the feeder and not on the product; screenshot at 390px shows no horizontal scroll. build.test.mjs 336/336 pass. Word-overlap matching was prototyped first and rejected (whole groups mispaired).",
+  "goal": "North star step 2. A concurrent session's PR #18677 shipped the same funnel first; this run's lasting contribution is 2 more vetted feeders (85 -> 87) and the comparison in docs/reports/2026-11-24-lead-magnet-funnel.md.",
+  "notes": "Verified before the duplicate was found: own funnel passed build.test.mjs 336/336, run_workflow_locally --for-changes 9/9, a preview build and a 390px screenshot. After rebasing on main: product-offer.test.mjs + funnel-wiring.test.mjs 15/15 with the 2 added feeders.",
   "corrections": [],
   "redteam": null,
   "usage": {

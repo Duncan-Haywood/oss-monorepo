@@ -50,11 +50,11 @@
     },
     "league-schedule-generator": {
       "pitch": "builds a fair round-robin season with real dates, balanced home and away, and courts shared evenly",
-      "feeders": ["tournament-pairing-manager", "sports-official-game-fee-calculator", "pickleball-facility-pro-forma"]
+      "feeders": ["tournament-pairing-manager", "sports-official-game-fee-calculator", "pickleball-facility-pro-forma", "padel-club-profit-calculator"]
     },
     "quick-pick-survey": {
       "pitch": "ranks a list from quick pairwise picks, with a rank range per option, and combines a whole team's picks",
-      "feeders": ["pairwise-ranking", "capex-budget-prioritizer", "ranked-ballot-counter", "survey-keeper"]
+      "feeders": ["pairwise-ranking", "capex-budget-prioritizer", "ranked-ballot-counter", "survey-keeper", "feedback-board"]
     },
     "changepoint-detector": {
       "pitch": "finds when a time series changed level or volatility, with PELT segmentation and Bayesian changepoint probabilities",
