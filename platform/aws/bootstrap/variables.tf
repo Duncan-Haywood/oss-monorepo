@@ -72,7 +72,7 @@ variable "stacks" {
     stacks/<stack>/, and only roles named gha-<repo>-<stack>-plan or
     gha-<repo>-<stack>-apply, in an account of this organization, reach it.
   EOT
-  type    = map(string)
+  type        = map(string)
   default = {
     spend-guards    = "oss-monorepo"
     dns             = "oss-monorepo"

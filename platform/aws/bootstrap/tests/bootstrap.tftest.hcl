@@ -17,6 +17,10 @@ variables {
 }
 
 run "state_bucket_is_private_encrypted_and_locked" {
+  # Plan only: every asserted value is computed from inputs, and an apply
+  # would end with a destroy that prevent_destroy refuses.
+  command = plan
+
   assert {
     condition = alltrue([
       aws_s3_bucket_public_access_block.state.block_public_acls,
@@ -59,6 +63,10 @@ run "state_bucket_is_private_encrypted_and_locked" {
 }
 
 run "bucket_policy_denies_plain_http_and_grants_only_scoped_roles" {
+  # Plan only: every asserted value is computed from inputs, and an apply
+  # would end with a destroy that prevent_destroy refuses.
+  command = plan
+
   assert {
     condition = anytrue([
       for s in jsondecode(aws_s3_bucket_policy.state.policy).Statement :
@@ -105,6 +113,10 @@ run "bucket_policy_denies_plain_http_and_grants_only_scoped_roles" {
 }
 
 run "first_apply_has_no_cross_account_grants" {
+  # Plan only: every asserted value is computed from inputs, and an apply
+  # would end with a destroy that prevent_destroy refuses.
+  command = plan
+
   variables {
     organization_id = null
   }
