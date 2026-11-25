@@ -1,0 +1,412 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKn9erYamKQQvNY1emh",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T19:18:44Z",
+  "ended": "2026-11-25T19:20:18Z",
+  "wall_minutes": 5.07,
+  "tokens_in": 3435810,
+  "tokens_out": 17280,
+  "cost_usd": 1.6495,
+  "tool_calls": 45,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19068",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "first `git reset --hard origin/main` to refresh the clone was refused by the auto-mode classifier; used `git merge --ff-only` instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py",
+      "issue": "suite_for only knew <stem>.test.mjs siblings outside ventures/, so `targets --under platform/billing` printed 0 and --target refused the Paddle server; 40 platform files were unreachable. Fixed in this PR."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "no blog post: a red-team run on tests and tooling has nothing a customer searches for; the findings are in this record and the PR",
+      "did": "record and PR only",
+      "result": "n/a"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "aimed at the paid path (billing webhook) instead of a random draw, per the track's north-star note; the tool needed a fix first",
+      "did": "fixed suite_for, then --target platform/billing/server.mjs",
+      "result": "found a forged-webhook test gap"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Guard added (4b): redteam.py now reaches directory-level suites, so 40 platform files (billing, email-ops sender, security headers, edge store) enter the random draw for every later campaign. Campaigns: server.mjs 7/10 -> 10/10 (mismatch->ok:true escaped: forged webhooks would mint keys); unsubscribe-token.mjs 5/8 -> 8/8. Step 0: both open entries still reproduce (framerate not in browser_checks CHECKS: control plane; help-keeper stem: gated on an eval set). Checks run: node --test platform/billing/billing.test.mjs (17 pass), node --test sender.test.mjs (10 pass), python3 -m unittest discover -s prompts -p test_redteam.py (21 ok), risk_review.py (nothing blocked).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/billing/server.mjs",
+        "test": "node --test platform/billing/billing.test.mjs  (in .)",
+        "seed": 544491573,
+        "commit": "304b40f8f",
+        "sites": 139,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "platform/billing/server.mjs",
+            "line": 23,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "export const TOLERANCE_SEC = 300;",
+            "after": "export const TOLERANCE_SEC = 301;",
+            "line_text": "export const TOLERANCE_SEC = 300;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test pinned the 300 s window; added boundary checks at NOW-300/-301/+301 and a pin"
+          },
+          {
+            "file": "platform/billing/server.mjs",
+            "line": 50,
+            "col": 54,
+            "operator": "const-plus-one",
+            "before": "const sigs = pairs.filter((p) => p[0] === \"h1\" && p[1]).map((p) => p[1].toLowerCase());",
+            "after": "const sigs = pairs.filter((p) => p[0] === \"h1\" && p[2]).map((p) => p[1].toLowerCase());",
+            "line_text": "  const sigs = pairs.filter((p) => p[0] === \"h1\" && p[1]).map((p) => p[1].toLowerCase());",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/billing/server.mjs",
+            "line": 55,
+            "col": 82,
+            "operator": "false-to-true",
+            "before": "return sigs.some((s) => sameString(s, want)) ? { ok: true, reason: \"\" } : { ok: false, reason: \"signature mismatch\" };",
+            "after": "return sigs.some((s) => sameString(s, want)) ? { ok: true, reason: \"\" } : { ok: true, reason: \"signature mismatch\" };",
+            "line_text": "  return sigs.some((s) => sameString(s, want)) ? { ok: true, reason: \"\" } : { ok: false, reason: \"signature mismatch\" };",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "tampered test read only .reason and the handler 401 test used a stale ts, so a mismatch reading ok:true (forged webhooks mint keys) passed; added a forged fresh-ts webhook through handleBilling and .ok checks"
+          },
+          {
+            "file": "platform/billing/server.mjs",
+            "line": 113,
+            "col": 49,
+            "operator": "eq-flip",
+            "before": "return { claims, claim, subscription: claims.t === \"subscription\" ? sub : null };",
+            "after": "return { claims, claim, subscription: claims.t !== \"subscription\" ? sub : null };",
+            "line_text": "  return { claims, claim, subscription: claims.t === \"subscription\" ? sub : null };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/billing/server.mjs",
+            "line": 167,
+            "col": 54,
+            "operator": "const-plus-one",
+            "before": "try { ev = JSON.parse(raw); } catch { return json(400, { error: \"body\" }); }",
+            "after": "try { ev = JSON.parse(raw); } catch { return json(401, { error: \"body\" }); }",
+            "line_text": "    try { ev = JSON.parse(raw); } catch { return json(400, { error: \"body\" }); }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/billing/server.mjs",
+            "line": 169,
+            "col": 12,
+            "operator": "or-to-and",
+            "before": "if (!ev || ev.event_type !== \"transaction.completed\") return json(200, { ok: true, ignored: String(ev && ev.event_type).slice(0, 60) });",
+            "after": "if (!ev && ev.event_type !== \"transaction.completed\") return json(200, { ok: true, ignored: String(ev && ev.event_type).slice(0, 60) });",
+            "line_text": "    if (!ev || ev.event_type !== \"transaction.completed\") return json(200, { ok: true, ignored: String(ev && ev.event_type).slice(0, 60) });",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test sent a transaction-shaped non-completed event; added transaction.paid/.updated with valid tx data (must be ignored, nothing stored) and a JSON null body"
+          },
+          {
+            "file": "platform/billing/server.mjs",
+            "line": 179,
+            "col": 40,
+            "operator": "or-to-and",
+            "before": "const c = url.searchParams.get(\"c\") || \"\";",
+            "after": "const c = url.searchParams.get(\"c\") && \"\";",
+            "line_text": "    const c = url.searchParams.get(\"c\") || \"\";",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/billing/server.mjs",
+            "line": 182,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "return key ? json(200, { key }, cors) : json(404, { error: \"not yet\" }, cors);",
+            "after": "return key ? json(200, { key }, cors) : json(405, { error: \"not yet\" }, cors);",
+            "line_text": "    return key ? json(200, { key }, cors) : json(404, { error: \"not yet\" }, cors);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/billing/server.mjs",
+            "line": 185,
+            "col": 21,
+            "operator": "eq-flip",
+            "before": "if (request.method === \"POST\" && url.pathname === \"/billing/renew\") {",
+            "after": "if (request.method !== \"POST\" && url.pathname === \"/billing/renew\") {",
+            "line_text": "  if (request.method === \"POST\" && url.pathname === \"/billing/renew\") {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/billing/server.mjs",
+            "line": 189,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "if (!k) return json(400, { error: \"key\" }, cors);",
+            "after": "if (!k) return json(401, { error: \"key\" }, cors);",
+            "line_text": "    if (!k) return json(400, { error: \"key\" }, cors);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "platform/aws/stacks/email-ops/sender/unsubscribe-token.mjs",
+        "test": "node --test platform/aws/stacks/email-ops/sender/sender.test.mjs  (in .)",
+        "seed": 632751537,
+        "commit": "304b40f8f",
+        "sites": 10,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "platform/aws/stacks/email-ops/sender/unsubscribe-token.mjs",
+            "line": 9,
+            "col": 107,
+            "operator": "const-plus-one",
+            "before": "const sig = (secret, payload) => createHmac('sha256', secret).update(payload).digest('base64url').slice(0, 22);",
+            "after": "const sig = (secret, payload) => createHmac('sha256', secret).update(payload).digest('base64url').slice(0, 23);",
+            "line_text": "const sig = (secret, payload) => createHmac('sha256', secret).update(payload).digest('base64url').slice(0, 22);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "sign and verify share sig(), so a changed length round-trips; but links in emails already sent stop unsubscribing after a deploy. Pinned a golden token"
+          },
+          {
+            "file": "platform/aws/stacks/email-ops/sender/unsubscribe-token.mjs",
+            "line": 19,
+            "col": 40,
+            "operator": "or-to-and",
+            "before": "const [payload, given] = String(token || '').split('.');",
+            "after": "const [payload, given] = String(token && '').split('.');",
+            "line_text": "  const [payload, given] = String(token || '').split('.');",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/aws/stacks/email-ops/sender/unsubscribe-token.mjs",
+            "line": 20,
+            "col": 14,
+            "operator": "or-to-and",
+            "before": "if (!secret || !payload || !given) return null;",
+            "after": "if (!secret && !payload || !given) return null;",
+            "line_text": "  if (!secret || !payload || !given) return null;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "with an empty secret the mutant accepts a token HMAC'd with the empty key; added a forged empty-key token"
+          },
+          {
+            "file": "platform/aws/stacks/email-ops/sender/unsubscribe-token.mjs",
+            "line": 20,
+            "col": 26,
+            "operator": "or-to-and",
+            "before": "if (!secret || !payload || !given) return null;",
+            "after": "if (!secret || !payload && !given) return null;",
+            "line_text": "  if (!secret || !payload || !given) return null;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/aws/stacks/email-ops/sender/unsubscribe-token.mjs",
+            "line": 23,
+            "col": 18,
+            "operator": "neq-flip",
+            "before": "if (want.length !== got.length || !timingSafeEqual(want, got)) return null;",
+            "after": "if (want.length === got.length || !timingSafeEqual(want, got)) return null;",
+            "line_text": "  if (want.length !== got.length || !timingSafeEqual(want, got)) return null;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/aws/stacks/email-ops/sender/unsubscribe-token.mjs",
+            "line": 23,
+            "col": 33,
+            "operator": "or-to-and",
+            "before": "if (want.length !== got.length || !timingSafeEqual(want, got)) return null;",
+            "after": "if (want.length !== got.length && !timingSafeEqual(want, got)) return null;",
+            "line_text": "  if (want.length !== got.length || !timingSafeEqual(want, got)) return null;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/aws/stacks/email-ops/sender/unsubscribe-token.mjs",
+            "line": 26,
+            "col": 20,
+            "operator": "eq-flip",
+            "before": "return typeof a === 'string' && typeof s === 'string' ? { address: a, stream: s } : null;",
+            "after": "return typeof a !== 'string' && typeof s === 'string' ? { address: a, stream: s } : null;",
+            "line_text": "    return typeof a === 'string' && typeof s === 'string' ? { address: a, stream: s } : null;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/aws/stacks/email-ops/sender/unsubscribe-token.mjs",
+            "line": 26,
+            "col": 33,
+            "operator": "and-to-or",
+            "before": "return typeof a === 'string' && typeof s === 'string' ? { address: a, stream: s } : null;",
+            "after": "return typeof a === 'string' || typeof s === 'string' ? { address: a, stream: s } : null;",
+            "line_text": "    return typeof a === 'string' && typeof s === 'string' ? { address: a, stream: s } : null;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a validly signed payload missing the stream returned {stream: undefined}; added missing-field tokens"
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "046f5c7e-4f98-5b1e-8be5-f95abef5edab",
+    "transcripts": 1,
+    "first": "2026-11-25T19:18:44Z",
+    "last": "2026-11-25T19:23:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 83,
+        "output": 17280,
+        "thinking": 4585,
+        "cache_read": 3356696,
+        "cache_write_5m": 0,
+        "cache_write_1h": 79031,
+        "api_equivalent_usd": 1.6495,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 83,
+      "output": 17280,
+      "thinking": 4585,
+      "cache_read": 3356696,
+      "cache_write_5m": 0,
+      "cache_write_1h": 79031,
+      "api_equivalent_usd": 1.6495,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 42,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.07,
+      "active_minutes": 5.07,
+      "model_minutes": 3.87,
+      "tool_minutes": 1.2,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "reading billing+email code, writing 3 tests and a tool fix",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 181.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
