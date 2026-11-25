@@ -133,8 +133,8 @@ It leaves things out in the same cases as the roughing suggestion, plus two of i
   named for bends are used.
 - **Cut speed depends on the material and its thickness**, and a DXF carries neither. The label
   names the speed it used, so the estimator can check it against the sheet being quoted. A cut
-  speed per material and thickness is the next step on the roadmap, along with a sheet blank
-  sized from the flat pattern.
+  speed per material and thickness is the next step on the roadmap. (The sheet blank sized from
+  the flat pattern has since landed: see the next section.)
 
 A shop that keeps its rates in a spreadsheet can import them. A column headed "IPM" or "feed rate"
 is read as the cut speed, not as the hourly rate. A pierce or bend time given in minutes is refused
@@ -171,6 +171,37 @@ Checked on the same public NEMA 17 bracket as above: it has four Ø3.3 mm screw 
 A counterbored test plate made for this check comes out at one location per hole, and its volume
 still matches the hand calculation. The job-shop suites (254 unit and 143 Worker tests) and the
 parser's 36 tests pass.
+
+## The sheet blank from a DXF
+
+The cut and bend minutes left one gap on a sheet-metal quote: the material. A DXF is a flat
+outline. It gives the part's width and height but not how thick the sheet is, so the quoter left
+the blank empty and the line could not price until the estimator typed one in.
+
+A material row in the rate card can now carry a sheet thickness in inches: "5052-H32 sheet,
+0.090" with 0.09 on it, for example. When a part's DXF comes with the RFQ and the part's material
+has a thickness, the new quote starts with a rectangular blank: the flat pattern's width and height,
+each rounded up to the next 1/8 in, times that thickness. A 12.3 × 6.45 in flat pattern on that
+sheet becomes a 12.375 × 6.5 × 0.09 in blank. At 5052's density of 0.0968 lb per cubic inch, that
+is 0.70 lb, and it is priced at the shop's $/lb like any other blank.
+
+What it does not do, on purpose:
+
+- **No nesting margin is added.** The space between parts on a nested sheet, and the skeleton
+  left over, depend on how the shop nests. That loss already has a place on the rate card: the
+  material's scrap %. So the blank is the part's own rectangle, and the shop's scrap % covers what
+  the nest wastes.
+- **No thickness on the material, no blank.** The quoter never guesses a gauge. A material without
+  a thickness leaves the blank empty, as before.
+- **A low-confidence size gives no blank.** That covers a DXF whose units the parser had to assume.
+- **A thickness column in mm or as a gauge number is refused on import.** Gauge tables differ by
+  metal (16 gauge steel is not 16 gauge aluminum), so a "Gauge" column cannot be turned into inches
+  safely. The import names the column and says to convert it. It reads "Sheet thickness (in)" or
+  "Thickness" as inches, and the export writes the column back out.
+
+This was private-monorepo PR #167. The pricing engine did not change: the blank is an input, and
+the estimator can edit it before pricing. The thickness is a new optional column, `sheet_thickness_in`,
+in migration 0017.
 
 ## Next
 
