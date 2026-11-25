@@ -72,14 +72,24 @@ Checked by reading `main` at `578f7f19a`; the flagged files are unchanged since 
   - `js/incomplete-sanitization` #741 (`shopify-to-woocommerce-converter/converter.mjs:69`): `esc` writes WooCommerce's `\,` list-separator escape. WooCommerce's importer has no backslash escape, so escaping backslashes would corrupt values instead of protecting them.
   - `js/incomplete-sanitization` #849 (`platform/agents/tools.mjs:170`): `name` is a JavaScript export identifier, and `$` is the only regex metacharacter an identifier can hold. That character is escaped.
 
-## Fourth pass, same day (queue scanned at `5f857bb81c00`)
+## Fourth pass, same day (overlaps the third; checked on main at `20071c007`)
 
-Checked by reading `main` at `271d5c6ed`. These were the only alerts in the queue with no `security-fix/code-scanning-<n>` claim branch. None needs a code change.
+Run in parallel with the third pass and merged after it. This pass adds:
 
-- **False positives (dismiss as "false positive"):**
-  - `js/incomplete-url-substring-sanitization` #1049 (`platform/pages/check.mjs`, now line 1470) and #1050 (`platform/pages/custom-domain.test.mjs:151`): `text.includes(PLACEHOLDER_ORIGIN)` asks whether a built page *still contains* the placeholder origin `https://example.invalid` anywhere, so that the build check can fail it. Matching anywhere is the point. Nothing is allowed through on the result, and no URL is being sanitised.
-- **Used in tests (dismiss as "used in tests"):**
-  - `js/redos` #1181 to #1203 (`ventures/regex-redos-check/engine.test.mjs`, `cli.test.mjs`): the tool detects catastrophic regexes, and these are the deliberately catastrophic patterns (`(a+)+$`, `(a|aa)+$` and so on) that its tests feed it. They are passed as strings to the analyser, and the probe runs them under a time limit.
-  - `js/redos` #1208 (`ventures/devsec-toolkit/tests/fixtures/vulnerable-repo/src/validate.js:1`): a fixture repository that exists to be vulnerable, so that the toolkit's scanner can be tested against it.
-
-With these, every alert in the queue is either claimed or recorded here as false, by design or already fixed. The next run that finds no unclaimed alert should go to step 1 of `prompt.md`.
+- **Fixed (they close on the next completed scan):**
+  - #849 `js/incomplete-sanitization`, `platform/agents/tools.mjs:170`. The third pass is right that an identifier
+    can only carry `$`. The escape now covers every regex metacharacter anyway, so the rule is satisfied and
+    nothing depends on that assumption. Test added in `tools.test.mjs`.
+  - #65 `js/incomplete-sanitization`, `ventures/pay-app-guides/template.test.mjs:62`. The label escape in the test
+    now covers every metacharacter, not just `.`.
+- **False positives not covered above (dismiss):**
+  - #862 `js/incomplete-sanitization`, `research/marriage-divorce-evidence/report-app/src/use-data-app.js:315`.
+    `replace("..", " – ")` turns a range filter into display text that React renders escaped. It is formatting.
+  - #1049 `js/incomplete-url-substring-sanitization`, `platform/pages/check.mjs` (now ~line 1470).
+    `text.includes(PLACEHOLDER_ORIGIN)` is a build check that the placeholder origin never ships, not a URL allow-list.
+  - #1181 to #1203 `js/redos` in `regex-redos-check/*.test.mjs`, and #1208 in `devsec-toolkit/tests/fixtures/vulnerable-repo/`:
+    deliberately vulnerable patterns that a ReDoS checker's tests and fixtures exist to detect.
+- **Claimed elsewhere:** #274, #275, #574, #997 have `security-fix/` branches.
+- **Also checked (session_01E5sJKmkUbQ6HRKzyLaAjMJ, same day):** #1050 `js/incomplete-url-substring-sanitization`,
+  `platform/pages/custom-domain.test.mjs:151`: the same `body.includes(PLACEHOLDER_ORIGIN)` build check as #1049, in its test,
+  so it is a false positive for the same reason. With this, every alert in the queue is claimed or recorded here.

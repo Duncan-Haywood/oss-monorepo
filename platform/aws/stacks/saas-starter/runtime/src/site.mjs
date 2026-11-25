@@ -5,7 +5,7 @@
 // Build: `node build.mjs site <name> <dir>` copies <dir> to dist/app-<name>/site beside this app's bundle.
 // Config (module `vars`, read as env.VARS; nothing secret):
 //   GATE_EMAILS  comma-separated addresses allowed in; empty or unset = public
-//   ROBOTS       "noindex" adds X-Robots-Tag: noindex, nofollow to every response
+//   ROBOTS       "noindex" adds X-Robots-Tag: noindex, nofollow to every response; any other value is sent as given
 //   SPA          a file to serve for unknown paths (e.g. "index.html"); unset = the 404 page
 //   NOT_FOUND    the 404 page (default "404.html"; a plain 404 when missing)
 //
@@ -144,7 +144,7 @@ export function makeSiteApp({ root = fileURLToPath(new URL("./site/", import.met
       const vars = env.VARS || {};
       const allow = parseEmails(vars.GATE_EMAILS);
       const gated = allow.length > 0;
-      const base = { "x-content-type-options": "nosniff", "referrer-policy": "strict-origin-when-cross-origin", "x-frame-options": "DENY", "permissions-policy": "camera=(), microphone=(), geolocation=()", ...(vars.ROBOTS === "noindex" ? { "x-robots-tag": "noindex, nofollow" } : {}) };
+      const base = { "x-content-type-options": "nosniff", "referrer-policy": "strict-origin-when-cross-origin", "x-frame-options": "DENY", "permissions-policy": "camera=(), microphone=(), geolocation=()", ...(vars.ROBOTS ? { "x-robots-tag": vars.ROBOTS === "noindex" ? "noindex, nofollow" : String(vars.ROBOTS) } : {}) };
       const reply = (body, status, headers = {}) => new Response(body, { status, headers: { ...base, ...headers } });
       if (url.pathname === "/healthz") return reply("ok\n", 200, { "content-type": "text/plain" });
 

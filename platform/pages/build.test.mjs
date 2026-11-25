@@ -2416,6 +2416,19 @@ test('a venture canonical pointing at index.html is repaired to the served URL',
   assert.deepEqual(found, [CANONICAL], 'exactly one canonical, and it is the served URL');
 });
 
+test("an Article's JSON-LD gets the url, card image, author and publisher it left out", () => {
+  // The pay-app guides' shape: headline and dates only (97 venture pages, 2026-11-25).
+  const page = '<html><head><title>Guide</title><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Guide", "datePublished": "2026-11-24"}</script></head><body>x</body></html>';
+  const out = injectDiscoveryTags(page, { canonical: CANONICAL, baseUrl: BASE, title: 'Guide', cardFile: 'flat-roof-bid-calculator/share-card.png' });
+  const ld = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(out)[1]);
+  assert.equal(ld.url, CANONICAL);
+  assert.equal(ld.mainEntityOfPage['@id'], CANONICAL);
+  assert.equal(ld.image, `${BASE}flat-roof-bid-calculator/share-card.png`, 'the same card og:image names');
+  assert.equal(ld.publisher['@id'], `${BASE}#organization`);
+  assert.equal(ld.author['@id'], `${BASE}#organization`);
+  assert.equal(ld.headline, 'Guide');
+});
+
 test('an already-correct canonical is left as it stands', () => {
   const page = `<html><head><link rel="canonical" href="${CANONICAL}"></head><body>x</body></html>`;
   const out = injectDiscoveryTags(page, { canonical: CANONICAL, baseUrl: BASE });
