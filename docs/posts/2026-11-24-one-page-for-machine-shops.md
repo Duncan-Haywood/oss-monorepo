@@ -229,3 +229,33 @@ now sends the quote itself, from the sent quote's page:
 Mail goes out through Cloudflare Email Service once the app is deployed.
 Until then, the page says plainly that nothing leaves the server, and the
 PDF download still works.
+
+## Update, 25 November 2026: which quotes you win, and at what price
+
+Most shops already keep a won/lost column somewhere. What it rarely tells
+them is *why* the rate is what it is: which customers send RFQs they never
+award, which materials or machines they price out of, and whether the jobs
+they lose were quoted at a higher markup than the jobs they win.
+
+The RFQ-to-quote app (bet #2, still in private development, not yet on sale)
+now has a **Win/loss** page, built only from the shop's own decided quotes:
+
+- **Win rate by customer, material, machine and markup band**, over the last
+  90 days, 12 months or all time. Win rate is won ÷ (won + lost); quotes
+  that expired with no answer are shown but not counted, and customer-supplied
+  material gets its own row.
+- **Markup on won quotes next to markup on lost quotes.** Markup is read from
+  the price the shop actually sent (markup plus any minimum-charge top-up,
+  over cost, at the smallest quantity), never recomputed. If lost quotes
+  average 38% and won quotes 22%, that is worth knowing before the next one.
+- **"What price did we win at."** For every part that has been won or lost,
+  the quotes it appeared on, newest first, with every quantity break's unit
+  price and a link back to the quote. A repeat RFQ can be priced against
+  what the same buyer accepted, and refused, last time.
+- **Lost reasons tallied**, from the reason typed when a quote is marked lost.
+- **Small samples are labelled.** Any row with fewer than five decided quotes
+  says "few": two wins out of two is not a 100% win rate.
+
+Nothing on the page is a forecast or a benchmark against other shops. It is
+a count of the shop's own log, visible to its own members, and never shown
+on a quote PDF or email.
