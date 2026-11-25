@@ -490,6 +490,46 @@ earlier lines in other 6061 stock (1 won)". Old lines in retired rows still coun
 tests cover the name reading, the scoring and a retired 6061 bar row; the job-shop unit suite
 (310 tests) passes locally.
 
+## A forged sender no longer gets past the shop's list
+
+A shop can give its RFQ email address a list of senders it will take mail from, such as
+`@acme.com` or one buyer's address. Private-monorepo PR #191 added that list today. It checked
+the addresses an email claims to come from, and anyone can write any address there. Someone who
+knew the shop's RFQ address and one of its customers' domains could still get an RFQ into the
+inbox under the customer's name.
+
+Private-monorepo PR #193 closes that gap. Cloudflare Email Routing, which receives the mail,
+checks SPF, DKIM and DMARC before the app sees the message. It puts the results in a header at
+the top, signed with its own name, `mx.cloudflare.net`. Cloudflare's documentation says to read
+only the first such header and only with that name, because a sender can add headers of their
+own. The quoter does that. A listed address now counts only when those results back it:
+
+- **The From address counts** when the customer's domain passed DMARC. For a domain with no DMARC
+  policy, it counts when a DKIM signature from that same domain passed.
+- **The envelope sender counts** when it passed SPF. This is how a shop's own mailbox forwarding
+  a customer's RFQ gets through.
+
+Mail that claims a listed sender but fails those checks is refused, with a reason telling the
+sender to contact the shop. On the settings card it shows as "failed SPF/DKIM/DMARC" and has no
+"Allow" button, since the address is already on the list. When the header is missing, the mail
+counts as unchecked and is refused. Shops with no list still take every email. When an email
+fails DMARC, the RFQ gets a note asking the estimator to confirm the request with the customer
+before quoting.
+
+The tests send six forgeries, and all six are refused:
+
+- mail with no results at all
+- mail whose checks failed
+- a "pass" header written under another server's name
+- a "pass" header placed below Cloudflare's
+- the same trick through the way the Workers runtime joins repeated headers
+- a pass for one domain used to cover another
+
+The real buyer's mail gets through both ways the app can read the header. The job-shop CI passed
+locally: lint, typecheck, unit and Worker tests, build, migrations check and the browser tests.
+The live header's exact fields won't be seen until the RFQ domain is switched on, so checking
+one real message is on the launch list.
+
 ## Next
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
