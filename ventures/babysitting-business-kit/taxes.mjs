@@ -252,6 +252,6 @@ export function yearSummaryHTML(desk, year, today) {
 <h2>Quarterly estimated payments (required: ${$(sh.required)}, ${esc(sh.basis)})</h2>
 <table><tr><th>Due</th><th class="n">Needed by then</th><th class="n">Paid by then</th><th class="n">Pay</th></tr>${sh.quarters.map((q) => `<tr><td>Q${q.quarter} ${esc(q.due)}${q.past ? " (past)" : ""}</td><td class="n">${$(q.requiredCum)}</td><td class="n">${$(q.paidCum)}</td><td class="n">${q.past ? (q.shortfall ? `short ${$(q.shortfall)}` : "") : $(q.toPay)}</td></tr>`).join("")}</table>
 ${sh.payments.length ? `<p>Payments made: ${sh.payments.map((x) => `${esc(x.date)} ${$(x.amount)}`).join("; ")}</p>` : ""}
-<p class="note"><b>No warranty.</b> Provided free and as-is, without warranty of any kind. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Figures use 2026 IRS tables and leave out credits; check them with a tax preparer before you file. Free and open source (MIT): https://github.com/sponsors/Duncan-Haywood</p>
+<p class="note"><b>No warranty.</b> Provided free and as-is, without warranty of any kind. It is not legal, tax, or financial advice, and it does not replace a qualified professional. Figures use 2026 IRS tables and leave out credits; check them with a tax preparer before you file. Free to use and source available (FSL-1.1-MIT): https://github.com/sponsors/Duncan-Haywood</p>
 </body></html>`;
 }

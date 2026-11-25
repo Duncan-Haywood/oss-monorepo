@@ -20,4 +20,4 @@ financial advice. It does not model payroll or self-employment tax, benefits,
 licensing, rebooking freed hours or local market prices. Unverified against a real
 practice's books: tested on hand-calculated examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

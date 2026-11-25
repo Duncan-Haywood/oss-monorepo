@@ -1,5 +1,5 @@
 // Shapes seen in a real business Chase checking export (Delta-Compute/DeltaCFOAgent, Chase3687_Q2_2024.CSV,
-// MIT licence, 53 rows Apr to Jun 2024; fetched at run time, every line here is written, not copied).
+// FSL-1.1-MIT licence, 53 rows Apr to Jun 2024; fetched at run time, every line here is written, not copied).
 // The reader took it as `chase-checking` with no problems. Before this change an outgoing wire to a third
 // party was filed as an own-account transfer (or, with a bank's name in it, as a utility), and an ACH
 // origination fee had no suggestion.

@@ -38,4 +38,4 @@ node --test
 The engine is checked against independent `node:crypto` computations, and the published
 snippets are executed against the signer.
 
-MIT licensed. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
+FSL-1.1-MIT licensed. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.

@@ -2,7 +2,7 @@
 
 > Price a client's extra requests on a fixed-price project as a change order, see what absorbing them would cost your hourly rate, and copy a client-ready message. Free, private, runs in your browser; CLI included.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/scope-creep-change-order-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/scope-creep-change-order-calculator): FSL-1.1-MIT licensed.

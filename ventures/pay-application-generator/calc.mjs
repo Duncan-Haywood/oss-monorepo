@@ -178,6 +178,47 @@ export function scheduleCsv(result) {
   return [head, ...rows].map((r) => r.map(q).join(",")).join("\n");
 }
 
+// Next month's application from this one. On a progress-billing continuation sheet, next period's "previous"
+// is this period's previous plus this period (work only; stored materials stay in their own column until they are
+// installed), "this period" starts at zero, and next period's previous certificates equal this application's
+// total earned less retainage (line 6). Carrying that figure forward exactly is what stops the estimate finding.
+// Returns { csv, settings, notes } or null when there is no result to roll.
+const isoDate = /^(\d{4})-(\d{2})-(\d{2})$/;
+export function nextPeriodEnd(periodTo) {
+  const m = isoDate.exec(String(periodTo ?? "").trim());
+  if (!m) return "";
+  const y = +m[1], mo = +m[2], d = +m[3];
+  if (mo < 1 || mo > 12 || d < 1 || d > 31) return "";
+  const lastDay = (yy, mm) => new Date(Date.UTC(yy, mm, 0)).getUTCDate(); // mm is 1-based here
+  const ny = mo === 12 ? y + 1 : y, nm = mo === 12 ? 1 : mo + 1;
+  // A period that ended on the last day of its month rolls to the last day of the next; otherwise the same day,
+  // clipped to the next month's length.
+  const nd = d >= lastDay(y, mo) ? lastDay(ny, nm) : Math.min(d, lastDay(ny, nm));
+  return `${ny}-${String(nm).padStart(2, "0")}-${String(nd).padStart(2, "0")}`;
+}
+
+export function nextPeriod(result, s = {}) {
+  if (!result || !result.summary || result.errors?.length) return null;
+  const ownRates = result.lines.some((l) => l.own != null);
+  const head = ["Item", "Description", "Type", "Scheduled value", "Previous", "This period", "Stored"].concat(ownRates ? ["Retainage"] : []);
+  const rows = result.lines.map((l) => [l.item, l.desc, l.isCo ? "CO" : "", plain(l.c), plain(l.d + l.e), "0.00", plain(l.f)]
+    .concat(ownRates ? [l.own == null ? "" : (l.own / 100).toFixed(2)] : []));
+  const csv = [head, ...rows].map((r) => r.map(q).join(",")).join("\n");
+  const appNo = String(s.applicationNo ?? "").trim();
+  const settings = {
+    ...s,
+    previousCertificates: plain(result.summary.earnedLess),
+    applicationNo: /^\d+$/.test(appNo) ? String(Number(appNo) + 1) : appNo,
+    periodTo: nextPeriodEnd(s.periodTo),
+  };
+  const notes = [`Previous certificates set to ${dollars(result.summary.earnedLess)}: this application's total earned less retainage, which is what will have been certified once it is paid. If the owner certified a different amount, enter that instead.`];
+  const stored = result.lines.filter((l) => l.f !== 0);
+  if (stored.length) notes.push(`Stored materials carried forward as still stored on ${stored.length} line${stored.length === 1 ? "" : "s"} (${stored.map((l) => l.desc).join(", ")}). When they are installed, take them out of Stored and bill them in This period.`);
+  const done = result.lines.filter((l) => l.c > 0 && l.balance <= 0).length;
+  if (done) notes.push(`${done} line${done === 1 ? " is" : "s are"} fully billed; leave This period at zero on ${done === 1 ? "it" : "them"}.`);
+  return { csv, settings, notes };
+}
+
 export function sampleList() {
   return [
     "Item,Description,Scheduled value,Previous,This period,Stored",

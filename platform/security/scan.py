@@ -285,7 +285,20 @@ def _json_out(proc: subprocess.CompletedProcess, ok_codes=(0, 1)):
     text = proc.stdout.strip()
     if not text:
         raise RuntimeError(f"exit {proc.returncode} with no output: {proc.stderr.strip()[-600:]}")
-    return json.loads(text)
+    return _loads_concatenated(text)
+
+
+def _loads_concatenated(text: str):
+    """One JSON document, or several back to back (Checkov prints one per
+    target when file and directory targets mix); several come back as a list."""
+    dec = json.JSONDecoder()
+    docs, i = [], 0
+    while i < len(text):
+        doc, i = dec.raw_decode(text, i)
+        docs.append(doc)
+        while i < len(text) and text[i].isspace():
+            i += 1
+    return docs[0] if len(docs) == 1 else docs
 
 
 def scan_tool(name: str, spec: dict, target: Path, files: list[str] | None, tools_dir: Path, work: Path) -> list[Finding]:

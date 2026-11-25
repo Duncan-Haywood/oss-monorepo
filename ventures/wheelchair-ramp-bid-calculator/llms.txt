@@ -2,7 +2,7 @@
 
 > Price a residential ADA-slope wheelchair ramp from the rise, the landings a lineal-foot special cannot see, both-side handrails, surface, demo, and permit — plus walk-away price and proposed-price margin check.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wheelchair-ramp-bid-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wheelchair-ramp-bid-calculator): FSL-1.1-MIT licensed.

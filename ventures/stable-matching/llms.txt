@@ -2,7 +2,7 @@
 
 > Free online stable matching tool. Give both sides' ranked lists (applicants and programmes, students and schools, mentees and mentors, volunteers and shifts) and get the deferred acceptance matching (Gale & Shapley 1962) with capacities on the second side and either side proposing; every stable matching, listed by McVitie & Wilson's (1971) break-marriage search, with the egalitarian (Irving, Leather & Gusfield 1987), minimum-regret (Gusfield 1987) and balanced picks; the rural hospitals theorem (Roth 1986) checked on every result; and the blocking pairs in a matching you already have. Checked against the Python matching package on 250 instances and a brute-force search on 1,000. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Arithmetic on the lists you supply, not legal or professional advice. Not affiliated with any matching programme; couples, ties and quotas are not handled.
+Free to use and source available (FSL-1.1-MIT). Arithmetic on the lists you supply, not legal or professional advice. Not affiliated with any matching programme; couples, ties and quotas are not handled.
 
 ## Pages
 
@@ -26,4 +26,4 @@ Free and open source (MIT). Arithmetic on the lists you supply, not legal or pro
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stable-matching): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stable-matching): FSL-1.1-MIT licensed.

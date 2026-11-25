@@ -2,7 +2,7 @@
 
 > Free bulk barcode checker: validates a list of UPC, EAN, GTIN and ISBN codes, finds bad check digits, leading zeros lost to Excel, scientific notation, duplicates and reserved prefixes, and writes the list back fixed. Runs in your browser; the file is never uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gtin-list-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gtin-list-check): FSL-1.1-MIT licensed.

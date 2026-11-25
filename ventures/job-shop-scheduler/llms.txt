@@ -2,7 +2,7 @@
 
 > Free tool for production planners, machine shops, operations engineers and students: type each job's routing (machine and time for each operation, in order) and get a short schedule by Giffler-Thompson dispatch rules and tabu search on the Nowicki-Smutnicki N5 neighbourhood, a proved lower bound (longest job, busiest machine, preemptive one-machine bound), an exact branch and bound on shops of up to 64 operations, a Gantt chart, machine utilisation and job waiting times. On the 162 JSPLIB benchmark instances at 4 seconds each it matched the recorded optimum on 66 of 103 instances that have one, proved 54 of 162 optimal, and averaged 1.01% above the recorded optimum or upper bound (bench/jsplib.md). Nothing uploaded.
 
-Free and open source (MIT). Results are planning estimates, not engineering or operations advice; setups, transport, alternative machines, due dates and breakdowns are not modelled.
+Free to use and source available (FSL-1.1-MIT). Results are planning estimates, not engineering or operations advice; setups, transport, alternative machines, due dates and breakdowns are not modelled.
 
 ## Pages
 
@@ -16,4 +16,4 @@ Free and open source (MIT). Results are planning estimates, not engineering or o
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/job-shop-scheduler): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/job-shop-scheduler): FSL-1.1-MIT licensed.

@@ -28,7 +28,7 @@ test('opaque icons are RGB with no alpha channel, as the App Store requires', ()
 });
 
 test('buildIos bundles the page and what it imports, and nothing from the extension', async () => {
-  const dir = await fixture({ 'index.html': PAGE, 'calc.mjs': CALC, LICENSE: 'MIT License\n' });
+  const dir = await fixture({ 'index.html': PAGE, 'calc.mjs': CALC, LICENSE: 'Functional Source License\n' });
   const p = await buildIos({ slug: 'demo-tool', dir });
   assert.equal(p.bundleId, 'io.github.duncanhaywood.demotool');
   const names = Object.keys(p.files);
@@ -41,7 +41,7 @@ test('buildIos bundles the page and what it imports, and nothing from the extens
 });
 
 test('project.yml is valid JSON-as-YAML naming the bundle id and an icon set', async () => {
-  const dir = await fixture({ 'index.html': PAGE, 'calc.mjs': CALC, LICENSE: 'MIT License\n' });
+  const dir = await fixture({ 'index.html': PAGE, 'calc.mjs': CALC, LICENSE: 'Functional Source License\n' });
   const p = await buildIos({ slug: 'demo-tool', dir });
   const spec = JSON.parse(p.files['project.yml']);
   const base = spec.targets.ToolApp.settings.base;
@@ -69,7 +69,7 @@ test('the Swift shell forbids the network and leaves the app only for Safari', (
 
 test('buildIos skips what the extension packager skips', async () => {
   assert.match((await buildIos({ slug: 'a', dir: await fixture({ 'index.html': PAGE, 'calc.mjs': CALC, LICENSE: 'x' }) })).skip, /MIT/);
-  const remote = await fixture({ 'index.html': `${PAGE}<script src="https://cdn.example/x.js"></script>`, LICENSE: 'MIT License' });
+  const remote = await fixture({ 'index.html': `${PAGE}<script src="https://cdn.example/x.js"></script>`, LICENSE: 'Functional Source License' });
   assert.match((await buildIos({ slug: 'a', dir: remote })).skip, /another origin/);
   assert.match((await buildIos({ slug: 'a', dir: await fixture({}) })).skip, /index.html/);
 });

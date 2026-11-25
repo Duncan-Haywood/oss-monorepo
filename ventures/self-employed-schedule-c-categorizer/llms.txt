@@ -2,7 +2,7 @@
 
 > Free tool for freelancers, sole proprietors and gig workers: drop in your bank or card CSV and get income and expenses sorted into Schedule C lines, with estimated-tax payments, health insurance and equipment held out, a platform-fee check against your 1099 gross, and a CSV for your preparer.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/self-employed-schedule-c-categorizer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/self-employed-schedule-c-categorizer): FSL-1.1-MIT licensed.

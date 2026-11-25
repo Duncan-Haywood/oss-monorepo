@@ -2,7 +2,7 @@
 
 > Free calculator for the IRS substantial presence test: enter your days in the US and see the 183-day weighted count (this year + a third of last year + a sixth of the year before), how many more days you can spend before you become a US tax resident, and when you crossed the line.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/us-substantial-presence-test-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/us-substantial-presence-test-calculator): FSL-1.1-MIT licensed.

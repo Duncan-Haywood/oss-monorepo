@@ -1,0 +1,83 @@
+{
+ "opencv": "5.1.0",
+ "calibrations": 179,
+ "duckiebots": 169,
+ "hypotheses": {
+  "H317": {
+   "held": 0.0,
+   "calibrations": 177,
+   "corners": 708,
+   "worst_newton_err_px": 9.094947017729282e-13,
+   "max_newton_iterations": 7,
+   "median_newton_iterations": 6.0,
+   "corners_where_opencv_converged": 680,
+   "worst_diff_vs_opencv_norm": 1.4130021597225095e-09
+  },
+  "H318": {
+   "held": true,
+   "corners_compared": 710,
+   "excluded_negative_break": 6,
+   "worst_abs_diff_px": 7.531752999057062e-13,
+   "duckiebots": 169,
+   "tool_over_1px": 164,
+   "opencv_over_1px": 164,
+   "verdict_mismatches": 0
+  },
+  "H319": {
+   "held": 0.0,
+   "corners": 708,
+   "worst_abs_diff": 7.642556967502045e-05
+  },
+  "H320": {
+   "held": true,
+   "negative_break_corners": 6,
+   "refused_of_those": 6,
+   "refused_elsewhere": 0,
+   "folding_calibrations": [
+    "duckietown/dt-core/0b91e7da68a9cdbb6df9ab7183ce5c3ecf47b077/packages/robots/duckiedrone/optical_flow/tests/scenario1/calibration-intrinsic-dd24.yaml",
+    "ApolloAuto/apollo/d53aa3da47a06a08e6d0cd175d5623a34fa0d6aa/modules/calibration/data/kitti_140/camera_params/camera_03_intrinsics.yaml"
+   ],
+   "refused_corners_total": 6
+  }
+ },
+ "unscored": {
+  "post_hoc": {
+   "note": "added after the first run; not scored",
+   "rho_analytic_vs_fd_same_point": 4.263342123778102e-09,
+   "opencv_eps200_not_within_1e6px": 28,
+   "opencv_eps200_worst_err_px": 0.009376377787630985,
+   "worst_newton_vs_opencv_px_where_opencv_within_1e6": 4.413251413110275e-07,
+   "rho_class_flips_vs_3zg": 0.0
+  },
+  "grid_share_vs_3zg": {
+   "duckiebots": 169,
+   "worst_abs_diff": 0.0,
+   "median_tool_share": 0.05734375,
+   "seconds": 54.573115281000014
+  },
+  "newton_iterations": {
+   "median": 6.0,
+   "max": 7,
+   "histogram": {
+    "2": 2,
+    "3": 4,
+    "4": 33,
+    "5": 161,
+    "6": 497,
+    "7": 11
+   }
+  },
+  "timing_pure_python_us_per_point": {
+   "points": 4800,
+   "newton_us": 13.439565833337497,
+   "loop5_us": 1.789044583328329,
+   "loop200_us": 48.56678729165509
+  },
+  "duckiebot_max_additive_radius": {
+   "median": 0.35839573584171375,
+   "max": 1.2840839842039864,
+   "over_1": 1.0
+  },
+  "corners_loop_radius_ge_1": 53.0
+ }
+}

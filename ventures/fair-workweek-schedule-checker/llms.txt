@@ -2,7 +2,7 @@
 
 > Free fair workweek and predictive scheduling checker for restaurants and retail. Paste your posted schedule and later changes, see late postings, short-notice change premiums, cancellation pay and clopening rest violations. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fair-workweek-schedule-checker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fair-workweek-schedule-checker): FSL-1.1-MIT licensed.

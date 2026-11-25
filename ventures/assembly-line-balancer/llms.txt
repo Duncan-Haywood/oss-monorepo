@@ -2,7 +2,7 @@
 
 > Free tool for manufacturing, industrial and lean engineers, plant managers and students: type tasks, times and direct predecessors, give a cycle time (takt, or available time and demand) or a number of stations, and get the fewest stations (SALBP-1) or the shortest cycle (SALBP-2) by an exact branch, bound and remember search that says when it has proved the answer optimal and otherwise gives the proved bound. Line efficiency, balance delay, smoothness index, idle time and a station load chart. On Scholl's 269 SALBP-1 benchmark problems it matched the published optimum on 258 of 269 at 4 seconds each (bench/salbp1.md). Nothing uploaded.
 
-Free and open source (MIT). Results are planning estimates, not engineering advice; zoning, ergonomics, tooling, variation and mixed models are not modelled.
+Free to use and source available (FSL-1.1-MIT). Results are planning estimates, not engineering advice; zoning, ergonomics, tooling, variation and mixed models are not modelled.
 
 ## Pages
 
@@ -16,4 +16,4 @@ Free and open source (MIT). Results are planning estimates, not engineering advi
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/assembly-line-balancer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/assembly-line-balancer): FSL-1.1-MIT licensed.

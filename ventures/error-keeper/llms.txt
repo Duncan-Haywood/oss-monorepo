@@ -2,7 +2,7 @@
 
 > A free, open-source alternative to Sentry and Rollbar for small teams: groups the same bug together, alerts on new errors, regressions and spikes, one Node process and one JSON file. Paste stack traces and see the grouping in your browser first.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/error-keeper): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/error-keeper): FSL-1.1-MIT licensed.

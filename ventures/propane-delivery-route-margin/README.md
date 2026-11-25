@@ -29,4 +29,4 @@ Everything runs in your browser. Your customer figures and route list are never 
 
 This calculator produces arithmetic observations from numbers you supply. It does not audit your books, verify a customer contract, forecast propane usage, or replace your own accountant.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

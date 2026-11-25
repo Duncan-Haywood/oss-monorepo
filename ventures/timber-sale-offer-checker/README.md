@@ -27,4 +27,4 @@ consulting forester has to add to pay for themselves**, which used to mean trust
 Not modelled: cull and defect deductions, roads and skidding, tops and pulpwood, taxes, contract terms.
 Not forestry, legal or tax advice. No warranty; see the page footer.
 
-Tests: `node --test`. MIT licensed (`LICENSE`); no secrets, no private dependencies.
+Tests: `node --test`. FSL-1.1-MIT licensed (`LICENSE`); no secrets, no private dependencies.

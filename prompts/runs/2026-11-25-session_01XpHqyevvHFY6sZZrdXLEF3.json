@@ -1,0 +1,86 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyevvHFY6sZZrdXLEF3",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "we want to migrate to aws and run the llm api and the email api through aws one provider instead of managing multiple accounts. get a killer cicd devsecops process too while we are at it. the one account I think will be good for managing security risks. we want to start setting up for the switch and when ready to do it without downtime we do the switch. you don't need me unless u need me for a key you can't get yourself. you also don't need me to change the cicd process. i want to kill that idea. replace my review with thorough cysec and reliability and liability checks not my human review. also adversarial analysis. we probably want reviews on prs at some point but.",
+  "input_sha256": "7588a27756bd1091a1f2ec6b82c29c287edc3187d27715649e2dd077fc22dfda",
+  "follow_up_inputs": [
+    "i mean basically what we are looking for is adversarial protection in the dev process.",
+    "but we don't want to kill dev on a crazy level by requiring human in the loop when the human will never actually look at the code and is 1000x less time on the repo than the agents roughly.",
+    "like we want good processes for security dev reliabiltiy etc but we don't want human in the loop",
+    "best effort. but really best effort."
+  ],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "move our LLM and email traffic to AWS (Claude Platform on AWS + SES) with a zero-downtime switch; replace the owner's review gate with automated adversarial security, reliability and liability checks",
+  "projects": [
+    "platform/aws",
+    "platform/ci/adversarial_gate",
+    "platform/security",
+    "private-monorepo apps/grants"
+  ],
+  "pr": 18749,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    {
+      "what": "The AWS keys present in the container environment are rejected by AWS (InvalidClientTokenId); no AWS account is usable",
+      "effect": "everything is written and tested as code against a mocked provider; applying needs the owner to create the account"
+    },
+    {
+      "what": "registry.opentofu.org is not reachable from the container, so provider lock files were first recorded from releases.hashicorp.com and CI rejected their hashes",
+      "effect": "lock files removed; the priv-aws-plan check job now regenerates them from the registry and prints the content to commit"
+    },
+    {
+      "what": "GitHub Actions assigned no runner to any job in private-monorepo (PR checks and every main run, 2026-11-24 23:00-23:45 UTC); the public repo was unaffected",
+      "effect": "private-monorepo#33 verified locally (biome, typecheck, 1604 unit + 605 worker tests, build, fake evals) and merged; likely an Actions minutes or spending limit on the private repo, the owner's billing setting"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "parses every file under .github/rulesets/ as JSON, so editing .github/rulesets/README.md blocks a PR; the README still describes Code Owner review. Fix: parse only *.json there, then update the README, in its own PR."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Six sessions worked on the AWS move at once (sibling orchestrator session_01XpHqyg67hsc8jwznhdKwsa); PRs 18748 and 18750 collided with this one on platform/aws/bootstrap and README. Resolved by message: this PR is the base, the others port additive pieces on top."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Says not to add unattended workflows that call paid APIs without owner approval. priv-aws-worker-secret-sync.yml (daily, reads Secrets Manager) and the adversarial gate's LLM review (per control-plane PR) are such workflows. The owner asked in this session for the AWS move and for LLM adversarial review with no human in the loop. Both are inert until the owner creates the AWS account or sets a credential, which is the approval point.",
+      "did": "added, dormant by default",
+      "result": "no spend until the owner acts"
+    },
+    {
+      "file": ".github/rulesets/README.md",
+      "why": "PR 18529 updated it; main's risk_review.py would block any edit there (doc_friction above)",
+      "did": "left that edit out when folding 18529 in",
+      "result": "README stale until the follow-up"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-replacing-human-review-with-an-adversarial-gate.md",
+    "docs/reports/2026-11-24-first-security-scan.md",
+    "docs/runbooks/aws-cutover.md",
+    "docs/posts/2026-11-24-the-security-queue-was-empty-because-codeql-never-ran.md"
+  ],
+  "notes": "Consolidates PR 18529 (CodeQL) under the two-tier CI policy: priv-codeql.yml, allowlisted action SHA, codeql_gate.py moved to a read-only job. Companion app change merged: Duncan-Haywood/private-monorepo#33 (Claude Platform on AWS + SES adapters with failover; defaults unchanged). Local verification on 7c6d24eb: pytest 409 passed (adversarial_gate, platform/security, control_plane_guard, platform/aws, codeql_gate, security_alerts, publish_surface, ci_policy_check); control_plane_guard --check-coverage, ci_policy_check, secrets_inventory (32), checklist_coverage, publish_surface --check, check_conflict_markers all rc 0; main's risk_review.py --gate: nothing blocked. tofu fmt/validate on 6 stacks, tofu test 9 runs, Checkov 0 failed, Trivy 0 high/critical. The gate run on this PR's own diff blocks 22 times (20 new privileged workflows, the bootstrap stack, the liability-scanner exception): expected for its introduction, which it cannot judge because its workflow is not on main yet."
+}

@@ -2,7 +2,7 @@
 
 > Free online Fisher's exact test calculator for 2x2 and r x c contingency tables (Fisher 1935; Freeman & Halton 1951, by the Mehta & Patel 1983 network algorithm), with Barnard's (1945) and Boschloo's (1970) unconditional exact tests, the mid-p (Lancaster 1961), Pearson, Yates and G chi-square, the conditional MLE odds ratio with its exact interval, risk difference (Newcombe 1998), risk ratio (Katz et al. 1978) and sample odds ratio (Woolf 1955); Cochran-Mantel-Haenszel with the Robins-Breslow-Greenland interval and Breslow-Day-Tarone homogeneity for stratified tables; McNemar's test for paired data. Matches scipy 1.18.1, statsmodels 0.15.0 and R's documented examples. Computed exactly: at 20 per group Fisher's exact test's real type I error averages 1.9% at a nominal 5%, and Boschloo's test detects 20% vs 50% with 49% power against Fisher's 41%. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the counts you supply, not legal, tax, financial, medical or professional advice. A significant difference is not proof of a cause.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the counts you supply, not legal, tax, financial, medical or professional advice. A significant difference is not proof of a cause.
 
 ## Pages
 
@@ -26,4 +26,4 @@ Free and open source (MIT). Results are statistical estimates from the counts yo
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/contingency-table-tests): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/contingency-table-tests): FSL-1.1-MIT licensed.

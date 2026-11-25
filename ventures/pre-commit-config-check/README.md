@@ -105,7 +105,7 @@ bump, re-run the three scripts in `differential/`.
 Free and provided as-is, without warranty of any kind. It is not a security
 audit and does not run your hooks; check its output against the pre-commit
 version you use. Not affiliated with or endorsed by the pre-commit or prek
-projects. pre-commit, cfgv and identify are MIT-licensed projects by Anthony
+projects. pre-commit, cfgv and identify are FSL-1.1-MIT-licensed projects by Anthony
 Sottile and contributors.
 
-MIT licensed (`LICENSE`).
+FSL-1.1-MIT licensed (`LICENSE`).

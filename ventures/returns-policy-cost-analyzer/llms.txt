@@ -2,7 +2,7 @@
 
 > Paste your orders and refunds and see what each return really costs, which product categories lose money after returns, and whether a return fee or restocking fee would pay. Free, runs in your browser, nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/returns-policy-cost-analyzer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/returns-policy-cost-analyzer): FSL-1.1-MIT licensed.

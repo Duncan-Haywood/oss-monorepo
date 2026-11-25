@@ -17,4 +17,4 @@ pages and guessing how a 30-cent fixed fee behaves on a $6 coffee.
 
 Modelled: percentage and fixed fees split by in-person/online, monthly fee, dispute fees, refund-fee policy, effective rate, yearly cost, sensitivity to
 average sale. Not modelled: per-card interchange, PCI and add-on fees, payout and currency fees, hardware, taxes. Not financial advice.
-No warranty; see the page footer. MIT licensed (`LICENSE`).
+No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

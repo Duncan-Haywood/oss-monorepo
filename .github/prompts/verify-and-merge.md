@@ -143,6 +143,15 @@ longer served, so there is no need to run `publish-branch.sh` by hand.
 
 ## Reading CI (moved from `CLAUDE.md`, 2026-10-20)
 
+- **A red `codeql (<language>)` job is yours to fix before merging** (owner,
+  2026-11-24: new CodeQL findings are fixed "before they hit main"). Its gate
+  step fails only on a medium-or-worse finding on a line your PR adds or
+  changes, and prints the rule, `file:line` and message in the job log
+  (`get_job_logs`). Fix the root cause in the same PR. No suppression
+  comments, no weakened tests, no merging around it. A genuine false positive:
+  explain it in the PR body and the run record's `notes` and leave it to the
+  owner. Older findings it lists as warnings are already queued; they are not
+  yours to fix in this PR unless you touched those lines.
 - **Absent CI is not failed CI, and red is not always real.** Agent PRs
   authenticate with a PAT and do trigger workflows, so a blank check list is
   something to verify, not the default.

@@ -2,7 +2,7 @@
 
 > Enter your monthly software revenue and average sale price and see what Stripe, Stripe Tax, Paddle, Lemon Squeezy and Polar take, your net payout, 12-month totals, and the revenue where running Stripe yourself beats a merchant of record. Free, runs in your browser, nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/merchant-of-record-fee-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/merchant-of-record-fee-calculator): FSL-1.1-MIT licensed.

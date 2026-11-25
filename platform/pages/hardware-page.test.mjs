@@ -29,9 +29,11 @@ test("each stage is still true: its README carries the evidence phrase", () => {
 
 test('the licences claimed are the licences committed', () => {
   for (const h of HARDWARE) {
-    const lic = path.join(ROOT, h.repo.startsWith('research/') ? 'LICENSE' : `${h.repo}/LICENSE`);
-    assert.match(readFileSync(lic, 'utf8'), /^MIT License/, lic);
-    assert.match(h.licence, /^MIT/);
+    // research/ stays MIT; ventures are FSL-1.1-MIT since 2026-11-24.
+    const research = h.repo.startsWith('research/');
+    const lic = path.join(ROOT, research ? 'research/LICENSE' : `${h.repo}/LICENSE`);
+    assert.match(readFileSync(lic, 'utf8'), research ? /^MIT License/ : /^# Functional Source License, Version 1\.1, MIT Future License/, lic);
+    assert.match(h.licence, research ? /^MIT/ : /^FSL-1\.1-MIT/);
   }
 });
 

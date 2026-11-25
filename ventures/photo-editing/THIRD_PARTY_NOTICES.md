@@ -1,6 +1,6 @@
 # Third-party data in this venture
 
-ShootFlow is MIT licensed (LICENSE). One generated file carries data from another project under its own licence:
+ShootFlow is FSL-1.1-MIT licensed (LICENSE). One generated file carries data from another project under its own licence:
 
 ## site/nikon-af-grids.mjs
 

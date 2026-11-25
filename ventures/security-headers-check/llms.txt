@@ -2,7 +2,7 @@
 
 > Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on missing clickjacking protection, X-Frame-Options: ALLOW-FROM being ignored by current browsers, a CSP that allows unsafe-inline or wildcard script sources, and missing HSTS. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/security-headers-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/security-headers-check): FSL-1.1-MIT licensed.

@@ -2,7 +2,7 @@
 
 > Free UK calculator: compare what you keep as a sole trader or limited company director in 2026/27. Finds the best salary and dividend split, shows every tax line, and flags the Making Tax Digital threshold. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Key facts (2026/27, England, Wales and Northern Ireland; as of 2026-11-13)
 
@@ -18,4 +18,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-sole-trader-vs-limited-company-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-sole-trader-vs-limited-company-calculator): FSL-1.1-MIT licensed.

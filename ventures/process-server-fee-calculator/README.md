@@ -27,4 +27,4 @@ Everything runs in your browser. Your job figures are saved locally on this devi
 
 This calculator produces arithmetic observations from numbers you supply. It does not determine whether service was validly effected under any state's rules of civil procedure, whether you are licensed, bonded, or registered to serve process in a jurisdiction, or whether an affidavit of service will hold up in court — verify all of that independently. It does not audit your books or replace your own insurance, bond, or accountant.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

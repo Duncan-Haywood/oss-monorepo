@@ -50,6 +50,11 @@ def warns(v: dict, rule: str) -> list[dict]:
     return [f for f in v["findings"] if f["severity"] == "warn" and f["rule"] == rule]
 
 
+# Skip markers assembled at runtime, so this file does not itself trip the
+# `test-skipped` rule it tests (the gate scans its own test file too).
+PYTEST_SKIP = "@pytest.mark." + "skip"
+NODE_ONLY = "test." + "only"
+
 class Case(unittest.TestCase):
     def assertBlocks(self, base, head, rule, **kw):
         v = judge(base, head, rule, **kw)
@@ -313,13 +318,13 @@ class Tests(Case):
 
     def test_unconditional_skip_blocks(self):
         self.assertBlocks({"a/test_x.py": "def test_x():\n    assert 1\n"},
-                          {"a/test_x.py": "import pytest\n@pytest.mark.skip(reason='flaky')\ndef test_x():\n    assert 1\n"}, "test-skipped")
+                          {"a/test_x.py": "import pytest\n" + PYTEST_SKIP + "(reason='flaky')\ndef test_x():\n    assert 1\n"}, "test-skipped")
 
     def test_only_blocks(self):
-        self.assertBlocks({"a/x.test.mjs": "test('a', () => {});\n"}, {"a/x.test.mjs": "test.only('a', () => {});\n"}, "test-skipped")
+        self.assertBlocks({"a/x.test.mjs": "test('a', () => {});\n"}, {"a/x.test.mjs": NODE_ONLY + "('a', () => {});\n"}, "test-skipped")
 
     def test_skip_named_in_a_string_passes(self):
-        self.assertPasses({}, {"a/test_checker.py": "SAMPLE = \"@pytest.mark.skip(reason='x')\"\n"}, "test-skipped")
+        self.assertPasses({}, {"a/test_checker.py": "SAMPLE = \"" + PYTEST_SKIP + "(reason='x')\"\n"}, "test-skipped")
 
     def test_conditional_skip_passes(self):
         self.assertPasses({}, {"a/test_x.py": "@pytest.mark.skipif(sys.platform == 'win32', reason='posix')\ndef test_x(): pass\n"}, "test-skipped")

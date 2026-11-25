@@ -148,7 +148,7 @@ Implemented from the papers' mathematics (`PAPERS` in `engine.mjs`): Lomb
 1976, Scargle 1982, Zechmeister & Kürster 2009, Baluev 2008, VanderPlas
 2018, Montgomery & O'Donoghue 1999. No third-party code was ported. Example
 data: Fulton et al. 2016 via radvel (MIT, notice in `data/SOURCE.md`).
-Code: MIT (`LICENSE`).
+Code: FSL-1.1-MIT (`LICENSE`).
 
 **No warranty.** Statistical output from data you supply; not legal, tax,
 financial, medical or professional advice. Not affiliated with the authors

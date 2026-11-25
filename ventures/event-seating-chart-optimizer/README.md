@@ -20,7 +20,7 @@ table number and who else sits there. Meals, groups and wishes are never shown. 
 zero dependencies, one JSON file on a disk you own.
 
 - **Alternatives today:** paid wedding sites (Zola, The Knot, WithJoy) and event apps (Social Tables, AllSeated) host the
-  guest list for you behind their accounts. This is only the optimise-and-look-up loop, MIT-licensed, on your box.
+  guest list for you behind their accounts. This is only the optimise-and-look-up loop, FSL-1.1-MIT-licensed, on your box.
 - **Deploy:** `docker compose up -d` with `ADMIN_KEY` and `GUEST_TOKEN` set (`openssl rand -hex 16`), `fly.toml` for Fly.io,
   or `render.yaml` for Render, each in your own account. Keep `STATE` on a persistent disk. Put it behind HTTPS.
 - **Meal picks (optional):** type your choices in the admin box ("Chicken, Fish, Vegetarian"); after finding their table each guest can pick a meal, you see the tally in `/admin` and download `/admin/meals.csv` (name, table, meal) for the caterer. Republishing drops picks for guests you removed. Anyone holding the guest link can set any listed guest's meal, so share it only with guests.
@@ -75,4 +75,4 @@ lists, not proven optimal on large ones.
 It is remembered in this browser's local storage so you can return as RSVPs arrive ("Forget saved data" removes it), and can be saved to or loaded from a `seating-setup.json` file (`setupJson`, `parseSetup` in `calc.mjs`). Anonymous feature counts stay in local storage and can be
 switched off.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

@@ -2,7 +2,7 @@
 
 > Free online species richness and diversity estimator for abundance data. Paste counts of individuals per species (long: species and count, optionally a site column; raw: one row per individual; wide: one count column per site) or a list of counts, and get Chao1 with Chao's (1987) log-normal interval and ACE (Chao and Lee 1992) for the species still undetected; Hill numbers of order 0, 1 and 2 (richness, the exponential of Shannon entropy, inverse Simpson) observed and estimated (Chao-Wang-Jost 2013 entropy estimator); rarefaction and extrapolation curves by sample size (Chao et al. 2014) and by sample coverage (Chao and Jost 2012) with seeded bootstrap intervals; how many more individuals reach 95% or 99% coverage; and every site compared at a common coverage and a common sample size, as the iNEXT R package does. Checked against an independent Python reference (scipy hypergeometric probabilities, mpmath, scikit-bio) on 13 assemblages. Example: ten years of Portal Project desert rodent captures (CC0), 24 plots under three treatments. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). A statistical estimate, not environmental-impact, regulatory or other professional advice. Assumes individuals were sampled at random and independently; Chao1 is a lower bound.
+Free to use and source available (FSL-1.1-MIT). A statistical estimate, not environmental-impact, regulatory or other professional advice. Assumes individuals were sampled at random and independently; Chao1 is a lower bound.
 
 ## Pages
 
@@ -25,4 +25,4 @@ Free and open source (MIT). A statistical estimate, not environmental-impact, re
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/species-diversity): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/species-diversity): FSL-1.1-MIT licensed.

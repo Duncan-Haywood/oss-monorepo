@@ -233,6 +233,15 @@ workflows:
   - job: deploy
     step: runs 'npm run deploy'
     gates: []
+- workflow: priv-aws-apply.yml
+  classification: none
+  publishes: []
+- workflow: priv-aws-plan.yml
+  classification: none
+  publishes: []
+- workflow: priv-aws-worker-secret-sync.yml
+  classification: none
+  publishes: []
 - workflow: priv-branch-cleanup.yml
   classification: none
   publishes: []
@@ -240,6 +249,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: priv-cloudflare-email.yml
+  classification: none
+  publishes: []
+- workflow: priv-codeql.yml
   classification: none
   publishes: []
 - workflow: priv-conflict-markers-ci.yml
@@ -356,7 +368,13 @@ workflows:
     gates:
     - ${{ github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || vars.RETAIL_PILOT_INTEL_DOCS_CLOUDFLARE
       == 'true') }}
+- workflow: priv-risk-review.yml
+  classification: none
+  publishes: []
 - workflow: priv-security-alert-queue.yml
+  classification: none
+  publishes: []
+- workflow: priv-security-gate.yml
   classification: none
   publishes: []
 - workflow: priv-site-usage-pull.yml

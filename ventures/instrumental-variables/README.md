@@ -216,4 +216,4 @@ No warranty. Statistical estimates from data you supply; not legal, tax,
 financial, medical or policy advice, and not proof of what caused an outcome.
 The exclusion restriction cannot be tested from the data. Not affiliated with
 the authors of the cited papers or the linearmodels, statsmodels, ivreg, AER
-or ivreg2 projects. MIT licence.
+or ivreg2 projects. FSL-1.1-MIT licence.

@@ -2,7 +2,7 @@
 
 > Free ball python morph pairing planner. Enter your females and males with their morphs and hets and what each morph sells for; get the genetics odds for every pairing, expected hatchlings, clutch profit and the best pairing. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ball-python-morph-pairing-planner): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ball-python-morph-pairing-planner): FSL-1.1-MIT licensed.

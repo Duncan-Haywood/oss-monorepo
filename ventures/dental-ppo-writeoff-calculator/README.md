@@ -129,6 +129,6 @@ No affiliation with, endorsement by, or sponsorship from any named company is im
 
 ## Licence
 
-MIT — see [LICENSE](LICENSE).
+FSL-1.1-MIT — see [LICENSE](LICENSE).
 [Sponsorship](https://github.com/sponsors/Duncan-Haywood) is entirely optional
 and never changes what the tool does.

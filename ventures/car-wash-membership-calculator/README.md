@@ -20,4 +20,4 @@ financial advice. It does not model sales tax, how many members a price change
 wins or loses, seasonality, plan tiers, fleet plans or failed-payment churn.
 Unverified against a real wash's books: tested on hand-calculated examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

@@ -51,4 +51,4 @@ taken offline without notice. We do not promise uptime, backups of anything you 
 keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run
 it yourself.
 
-MIT licensed (`LICENSE`).
+FSL-1.1-MIT licensed (`LICENSE`).
