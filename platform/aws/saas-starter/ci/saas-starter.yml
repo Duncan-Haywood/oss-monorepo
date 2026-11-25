@@ -1,0 +1,148 @@
+# DRAFT workflow for the owner (control plane): copy to .github/workflows/aws-saas-starter.yml
+# once the bootstrap stack has created the OIDC roles and the `aws-prod` environment exists.
+# Agents do not add workflows to .github/workflows/ themselves (CLAUDE.md, CODEOWNERS).
+#
+# PRs: runtime tests against Postgres 16, bundle build, tofu fmt/validate/test (mocked, no AWS),
+# Checkov, then `tofu plan` with the read-only plan role. main: apply with the apply role.
+# The payments stack is NOT here: its deploy role is not reachable from this public repository.
+#
+# Repository variables (not secrets; none of these grant anything on their own):
+#   AWS_APPS_PLAN_ROLE_ARN   arn:aws:iam::<apps>:role/gha-oss-monorepo-saas-starter-plan
+#   AWS_APPS_APPLY_ROLE_ARN  arn:aws:iam::<apps>:role/gha-oss-monorepo-saas-starter-apply
+#   AWS_APPS_ACCOUNT_ID, AWS_PAYMENTS_ACCOUNT_ID, TF_STATE_BUCKET (bootstrap output)
+name: aws-saas-starter
+
+on:
+  pull_request:
+    paths: ["platform/aws/saas-starter/**", "platform/aws/modules/app-*/**"]
+  push:
+    branches: [main]
+    paths: ["platform/aws/saas-starter/**", "platform/aws/modules/app-*/**"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aws-saas-starter-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  TOFU_VERSION: 1.10.7
+  RUNTIME: platform/aws/saas-starter/runtime
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16  # pin by digest when copying: postgres:16@sha256:<digest>
+        env:
+          POSTGRES_PASSWORD: localtest
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+      - run: npm ci
+        working-directory: ${{ env.RUNTIME }}
+      - run: node --test test/*.test.mjs
+        working-directory: ${{ env.RUNTIME }}
+        env:
+          PG_SUPERUSER_URL: postgres://postgres:localtest@localhost:5432/postgres
+      - uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1.0.6
+        with:
+          tofu_version: ${{ env.TOFU_VERSION }}
+          tofu_wrapper: false
+      - name: tofu fmt / validate / test (providers mocked)
+        working-directory: platform/aws
+        run: |
+          tofu fmt -check -recursive saas-starter modules
+          for d in saas-starter saas-starter/payments modules/app-*; do
+            (cd "$d" && tofu init -backend=false -input=false && tofu validate && tofu test)
+          done
+      - name: Checkov
+        working-directory: platform/aws
+        run: |
+          pipx run --spec 'checkov==3.4.10' checkov -d . --framework terraform --compact --quiet --skip-download
+
+  plan:
+    needs: test
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+      - name: Build bundles
+        working-directory: ${{ env.RUNTIME }}
+        run: npm ci && node build.mjs platform
+      - uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1.0.6
+        with:
+          tofu_version: ${{ env.TOFU_VERSION }}
+          tofu_wrapper: false
+      - uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df # v4.2.1
+        with:
+          role-to-assume: ${{ vars.AWS_APPS_PLAN_ROLE_ARN }}
+          aws-region: us-east-1
+      - name: tofu plan
+        working-directory: platform/aws/saas-starter
+        env:
+          TF_VAR_deploy_role_arn: ${{ vars.AWS_APPS_PLAN_ROLE_ARN }}
+          TF_VAR_allowed_account_ids: '["${{ vars.AWS_APPS_ACCOUNT_ID }}"]'
+          TF_VAR_payments_account_id: ${{ vars.AWS_PAYMENTS_ACCOUNT_ID }}
+        run: |
+          tofu init -input=false -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="key=stacks/saas-starter/terraform.tfstate" -backend-config="region=us-east-1" \
+            -backend-config="use_lockfile=true" -backend-config="encrypt=true"
+          tofu plan -input=false -lock=false -no-color -out=plan.bin | tee plan.txt
+
+  apply:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    environment: aws-prod
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+      - name: Build bundles
+        working-directory: ${{ env.RUNTIME }}
+        run: |
+          npm ci && node build.mjs platform
+          # one line per product, e.g.:
+          # node build.mjs product grants ../../../../products/grants/app.mjs ../../../../products/grants/migrations
+      - uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1.0.6
+        with:
+          tofu_version: ${{ env.TOFU_VERSION }}
+          tofu_wrapper: false
+      - uses: aws-actions/configure-aws-credentials@b47578312673ae6fa5b5096b330d9fbac3d116df # v4.2.1
+        with:
+          role-to-assume: ${{ vars.AWS_APPS_APPLY_ROLE_ARN }}
+          aws-region: us-east-1
+      - name: tofu apply
+        working-directory: platform/aws/saas-starter
+        env:
+          TF_VAR_deploy_role_arn: ${{ vars.AWS_APPS_APPLY_ROLE_ARN }}
+          TF_VAR_allowed_account_ids: '["${{ vars.AWS_APPS_ACCOUNT_ID }}"]'
+          TF_VAR_payments_account_id: ${{ vars.AWS_PAYMENTS_ACCOUNT_ID }}
+        run: |
+          tofu init -input=false -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="key=stacks/saas-starter/terraform.tfstate" -backend-config="region=us-east-1" \
+            -backend-config="use_lockfile=true" -backend-config="encrypt=true"
+          tofu apply -input=false -auto-approve -no-color

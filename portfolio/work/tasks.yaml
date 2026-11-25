@@ -468,8 +468,13 @@ tasks:
       webhooks verified in the payments account, all as OpenTofu, scanned
       clean, with an end-to-end test; a README on how a product moves onto it.
     hours: 40
-    status: open
+    status: done
     added: 2026-11-24
+    notes: >-
+      Built 2026-11-25 (not applied: no account yet). platform/aws/saas-starter/README.md has the
+      apply order, owner steps, cost (~$32/month fixed) and the Workers-to-AWS migration table.
+      The grants ARCHITECTURE.md check against that table moves to aws-move-products
+      (docs/reports/2026-11-25-aws-saas-starter.md).
 
   - id: aws-move-products
     direction: aws-consolidation
