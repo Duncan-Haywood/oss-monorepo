@@ -32,6 +32,7 @@ Live: <https://marisstella.app/pay-app-guides/>
 | `sworn-statement.html` | Contractor's sworn statement: Illinois 770 ILCS 60/5 and Michigan MCL 570.1110 side by side (read 2026-11-25 through search results limited to ilga.gov and legislature.mi.gov; direct loads were blocked), and a builder (`sworn.mjs`, tested in `sworn.test.mjs`): paste subs, suppliers and own forces; totals, balance to complete, checks that completed less retainage equals paid plus owing, that the rows add to the contract sum and the owing column to this pay request, missing addresses, and the lien waivers to collect. It builds the table, not the statutory wording or oath. |
 | `overbilling-underbilling.html` | Overbilling and underbilling: the pay application's billed to date (gross of retainage) against cost-to-cost percent complete for one job; earned revenue, over/under, gross profit to date, certified less retainage against cost, the adjusting entry, and what to bill next period to finish even (`overUnder` in `billing.mjs`, tested in `billing.test.mjs`). Links the multi-job `contractor-wip-schedule` tool. |
 | `retainage-tracker.html` | Retainage receivable across jobs (`retlog.mjs`, tested in `retlog.test.mjs` against hand sums): paste or open one row per job (held, released, completion date, release days, release billed); outstanding retainage, due date = completion + the user's own release days (a default fills blanks; none means no due date, never a guessed one), aging buckets, days overdue and an optional carrying cost at the user's rate, completed jobs with no release billed, totals by GC with a concentration flag, a chase list ordered by money x days late, CSV with formula-safe cells. Optional remember-in-this-browser. |
+| `stored-materials-billing.html` | Billing stored materials (`stored.mjs`): the monthly rollforward per SOV line (stored last app + delivered - installed = stored now; installed plus other work = this period), so installed material is billed once; flags installing more than was stored, a line over its value, off-site material the contract may not allow or without title papers, and idle stock; writes SOV lines the calculator and the pay application generator read (`stored.test.mjs` round-trips them through both) and next month's starting sheet. Off-site rule quoted from FAR 52.232-5 on acquisition.gov, read 2026-11-25. |
 
 ## Spec sources
 
@@ -83,7 +84,7 @@ are marks of their owner.
 Everything runs in the browser. Nothing typed is uploaded; no accounts,
 cookies or analytics vendors. Anonymous feature counters (`sov_calculated`,
 `example_loaded`, `summary_copied`, `csv_downloaded`, one
-`guide_*_viewed` per guide, `colog_*` on the change order log, `overbilling_summary_copied`, `pay_app_checked` / `pay_app_check_copied` on the checker, and `waivers_*` on the lien waiver log) are kept in the visitor's own local storage,
+`guide_*_viewed` per guide, `colog_*` on the change order log, `overbilling_summary_copied`, `pay_app_checked` / `pay_app_check_copied` on the checker, `waivers_*` on the lien waiver log, and `stored_*` on the stored materials page) are kept in the visitor's own local storage,
 switched off by Do Not Track or the opt-out button.
 
 ## Licence

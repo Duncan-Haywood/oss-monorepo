@@ -176,6 +176,24 @@ function withoutScripts(html) {
   return out;
 }
 
+/**
+ * The code a page runs: its inline scripts (not JSON-LD or other data blocks)
+ * and its on* handler attributes. Tests that ask "what does this page fetch?"
+ * read this rather than the whole page, so a post card or tool blurb that
+ * mentions fetch() or XMLHttpRequest in prose cannot turn main red (run record
+ * 2026-11-25, PR #18765: a post description saying fetch() failed
+ * "usage counting is local").
+ */
+function pageCode(html) {
+  const parts = [];
+  for (const [, attrs, body] of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\b[^>]*>/gi)) {
+    const type = /\btype\s*=\s*["']?([^"'\s>]+)/i.exec(attrs)?.[1]?.toLowerCase();
+    if (!type || type === 'module' || /javascript|ecmascript/.test(type)) parts.push(body);
+  }
+  for (const [, , value] of withoutScripts(html).matchAll(/\son[a-z]+\s*=\s*(["'])([\s\S]*?)\1/gi)) parts.push(value);
+  return parts.join('\n');
+}
+
 /** Every absolute http(s) URL written in `text`, parsed (unparseable ones skipped). */
 function urlsIn(text) {
   const urls = [];
@@ -711,11 +729,23 @@ test('usage counting is local, opt-out, and honours browser signals', async () =
   assert.match(hub, /localStorage/);
   assert.match(hub, /doNotTrack/);
   assert.match(hub, /globalPrivacyControl/);
-  assert.ok(!/XMLHttpRequest|sendBeacon/.test(hub), 'nothing about a visit leaves the device');
+  const code = pageCode(hub);
+  assert.ok(!/XMLHttpRequest|sendBeacon/.test(code), 'nothing about a visit leaves the device');
   // One request, to this site's own search index, and it carries nothing.
-  const fetches = [...hub.matchAll(/fetch\(([^)]*)\)/g)].map((m) => m[1]);
+  const fetches = [...code.matchAll(/fetch\(([^)]*)\)/g)].map((m) => m[1]);
   assert.deepEqual(fetches, ['SEARCH_INDEX']);
   assert.match(hub, new RegExp(`const SEARCH_INDEX = '${SEARCH_INDEX_FILE}';`));
+});
+
+test('pageCode reads scripts and handlers, not prose or JSON-LD', () => {
+  const html = `<p>Our post explains fetch() and XMLHttpRequest.</p>
+    <script type="application/ld+json">{"description":"uses fetch(x)"}</script>
+    <script>fetch(SEARCH_INDEX)</script><script type="module">navigator.sendBeacon(u)</script>
+    <button onclick="fetch(evil)">go</button>`;
+  const code = pageCode(html);
+  assert.deepEqual([...code.matchAll(/fetch\(([^)]*)\)/g)].map((m) => m[1]), ['SEARCH_INDEX', 'evil']);
+  assert.match(code, /sendBeacon/);
+  assert.doesNotMatch(code, /XMLHttpRequest/);
 });
 
 test('the hub makes no off-origin request', async () => {
@@ -3974,8 +4004,9 @@ test('the offline offer is honest and gates nothing', async () => {
   assert.match(hub, /Nothing is uploaded either way/);
   // Still no request about a visit leaving the device: the worker fetches
   // pages, and the page fetches only its own search index.
-  assert.ok(!/XMLHttpRequest|sendBeacon/.test(hub));
-  assert.deepEqual([...hub.matchAll(/fetch\(([^)]*)\)/g)].map((m) => m[1]), ['SEARCH_INDEX']);
+  const code = pageCode(hub);
+  assert.ok(!/XMLHttpRequest|sendBeacon/.test(code));
+  assert.deepEqual([...code.matchAll(/fetch\(([^)]*)\)/g)].map((m) => m[1]), ['SEARCH_INDEX']);
 });
 
 test('the offline widget is hidden unless the browser can honour it', async () => {
