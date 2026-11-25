@@ -155,6 +155,22 @@ run "push_grants_only_its_platform_apps" {
   }
 }
 
+run "internal_site_auth_admin_only_with_mfa" {
+  command = apply
+  variables {
+    auth = {
+      domain_prefix     = "hello-test"
+      web_callback_urls = ["https://hello.example/auth/login"]
+      self_sign_up      = false
+      mfa               = "ON"
+    }
+  }
+  assert {
+    condition     = module.auth.admin_create_user_only && module.auth.mfa_configuration == "ON"
+    error_message = "an internal site's pool takes no sign-ups and requires MFA"
+  }
+}
+
 run "rejects_bad_product_name" {
   command = plan
   variables {

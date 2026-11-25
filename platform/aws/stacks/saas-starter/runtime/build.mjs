@@ -2,6 +2,7 @@
 // to zip. Usage:
 //   node build.mjs platform                       -> dist/paddle-webhook, dist/entitlement-consumer, dist/db-admin
 //   node build.mjs product <name> <app.mjs> [migrations_dir]  -> dist/app-<name>
+//   node build.mjs site <name> <built_site_dir>              -> dist/app-<name> (src/site.mjs + the files in ./site)
 // CI runs `npm ci && node build.mjs platform && node build.mjs product ...` before `tofu plan`.
 import { build } from "esbuild";
 import { cp, mkdir, rm } from "node:fs/promises";
@@ -37,6 +38,14 @@ if (mode === "platform") {
   const out = await one(`app-${name}`, join(here, "src/app-entry.mjs"), { alias: { "product-app": resolve(app) } });
   if (migrations) await cp(resolve(migrations), join(out, "migrations"), { recursive: true });
   console.log(`built dist/app-${name}`);
+} else if (mode === "site") {
+  // A static site (src/site.mjs): the built files go to ./site beside the bundle, the gate's migration to ./migrations.
+  const [name, dir] = args;
+  if (!/^[a-z][a-z0-9_]{1,40}$/.test(name || "") || !dir) throw new Error("usage: node build.mjs site <name> <built_site_dir>");
+  const out = await one(`app-${name}`, join(here, "src/app-entry.mjs"), { alias: { "product-app": join(here, "src/site.mjs") } });
+  await cp(resolve(dir), join(out, "site"), { recursive: true });
+  await cp(join(here, "site-migrations"), join(out, "migrations"), { recursive: true });
+  console.log(`built dist/app-${name} (static site from ${dir})`);
 } else {
-  throw new Error("usage: node build.mjs platform | product <name> <app.mjs> [migrations_dir]");
+  throw new Error("usage: node build.mjs platform | product <name> <app.mjs> [migrations_dir] | site <name> <built_site_dir>");
 }
