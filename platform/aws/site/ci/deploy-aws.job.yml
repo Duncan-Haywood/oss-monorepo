@@ -1,0 +1,82 @@
+# DRAFT for the owner: a job to add to .github/workflows/priv-portfolio-pages.yml
+# (control plane, CODEOWNERS), not a workflow on its own. Nothing here runs
+# until it is pasted into that file under `jobs:`.
+#
+# It publishes the same `site` artifact the Cloudflare deploy uses, unsplit,
+# to S3 + CloudFront, then runs verify-live.sh against the CloudFront address
+# (phase 1, run-both) or the domain (after the DNS change). It needs:
+#   - repository variable AWS_SITE_PUBLISH_ROLE_ARN = site stack output publisher_role_arn
+#   - repository variable AWS_SITE_BUCKET           = output bucket_name
+#   - repository variable AWS_SITE_DISTRIBUTION_ID  = output distribution_id
+#   - repository variable AWS_SITE_VERIFY_URL       = https://<distribution_domain_name>/
+#     (switch to https://marisstella.app/ after the nameserver change)
+#   - a GitHub environment `aws-prod` limited to the main branch (the role
+#     trusts only repo:Duncan-Haywood/oss-monorepo:environment:aws-prod).
+# The `site` artifact is uploaded by the build job only while the Cloudflare
+# gate is on (`needs.gate.outputs.cloudflare`); when Cloudflare is retired,
+# change that step's `if:` to also cover AWS.
+# No secrets: the role is assumed through GitHub OIDC for one hour at most.
+# Without AWS_SITE_PUBLISH_ROLE_ARN the job is skipped.
+#
+# Phase-1 caveat: the build names https://marisstella.app/ in every canonical
+# link, so the CloudFront copy is a byte-identical mirror, which is the point;
+# it is not linked from anywhere and does not need indexing.
+
+  deploy-aws:
+    needs: [gate, build]
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED != 'false' && vars.AWS_SITE_PUBLISH_ROLE_ARN != '' }}
+    concurrency:
+      group: aws-site-deploy
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    timeout-minutes: 20
+    environment:
+      name: aws-prod
+      url: ${{ vars.AWS_SITE_VERIFY_URL }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+
+      - name: Fetch the built site
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: site
+          path: ${{ runner.temp }}/site-artifact
+
+      - name: Unpack the built site
+        run: |
+          mkdir -p "$RUNNER_TEMP/site"
+          tar -xf "$RUNNER_TEMP/site-artifact/site.tar" -C "$RUNNER_TEMP/site"
+
+      - name: Install the publisher (pinned, lockfile)
+        run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: platform/aws/site/deploy
+
+      - name: Assume the publish role (GitHub OIDC, no keys)
+        uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
+        with:
+          role-to-assume: ${{ vars.AWS_SITE_PUBLISH_ROLE_ARN }}
+          role-session-name: site-publish-${{ github.run_id }}
+          role-duration-seconds: 3600
+          aws-region: us-east-1
+
+      - name: Publish to S3 and invalidate CloudFront
+        env:
+          BUCKET: ${{ vars.AWS_SITE_BUCKET }}
+          DISTRIBUTION: ${{ vars.AWS_SITE_DISTRIBUTION_ID }}
+        run: node platform/aws/site/deploy/publish.mjs --dir "$RUNNER_TEMP/site" --bucket "$BUCKET" --distribution "$DISTRIBUTION"
+
+      - name: Verify the published site answers
+        env:
+          PAGE_URL: ${{ vars.AWS_SITE_VERIFY_URL }}
+        run: |
+          bash platform/pages/verify-live.sh "$PAGE_URL"
+          python3 platform/ci/check_site_fresh.py --url "$PAGE_URL"
