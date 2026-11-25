@@ -1,3 +1,12 @@
+---
+kind: brief
+subjects: [edge, counter]
+topics: [hosting, everything-as-code, privacy, outbound-hosts]
+date: 2026-11-25
+title: AWS edge API and email, what landed, interfaces, what is left
+description: Handover for the edge-api and email AWS stacks, the Lambda adapter, the SES sender port and the steps left before cutover.
+---
+
 # AWS edge API and email: what landed, interfaces, what is left (2026-11-25)
 
 For the next session on `aws-edge-api`, `aws-ses-email`, the site stack,
