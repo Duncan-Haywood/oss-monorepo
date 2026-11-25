@@ -109,6 +109,18 @@ fixture_paths:
   - "**/testdata/*"
   - "**/__fixtures__/*"
 
+# Files whose job is to name attack patterns: the gate's rules and the
+# scanners' rules. Content rules (secrets, curl | sh, TLS-off, exfiltration
+# shapes) only warn there; these are control plane, so the LLM reviewer reads
+# every change to them.
+pattern_sources:
+  - "platform/ci/adversarial_gate/gate.py"
+  - "platform/ci/adversarial_gate/llm_review.py"
+  - "platform/security/semgrep/*"
+  - "platform/ci/ci_policy_check.py"
+  - "platform/ci/check_hidden_unicode.py"
+  - "platform/ci/compliance_scan.py"
+
 # Hosts that may appear in network calls in control-plane and high-risk code
 # without a finding. A new host anywhere else is reported, not blocked.
 known_hosts:
@@ -132,6 +144,8 @@ known_hosts:
   - 127.0.0.1
   - example.com
   - sts.amazonaws.com
+  - token.actions.githubusercontent.com
+  - platform.claude.com
 
 # Owners whose actions may be added to .github/ci-policy.yaml's allowlist
 # without a finding. Anything else is a new trust decision (`ci-policy-trust`).

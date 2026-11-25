@@ -309,6 +309,9 @@ class Tests(Case):
     def test_only_blocks(self):
         self.assertBlocks({"a/x.test.mjs": "test('a', () => {});\n"}, {"a/x.test.mjs": "test.only('a', () => {});\n"}, "test-skipped")
 
+    def test_skip_named_in_a_string_passes(self):
+        self.assertPasses({}, {"a/test_checker.py": "SAMPLE = \"@pytest.mark.skip(reason='x')\"\n"}, "test-skipped")
+
     def test_conditional_skip_passes(self):
         self.assertPasses({}, {"a/test_x.py": "@pytest.mark.skipif(sys.platform == 'win32', reason='posix')\ndef test_x(): pass\n"}, "test-skipped")
 
@@ -349,6 +352,9 @@ class Dependencies(Case):
     def test_submodule_blocks(self):
         self.assertBlocks({}, {".gitmodules": '[submodule "x"]\n\tpath = x\n\turl = https://x.example/x.git\n'}, "dependency-risk")
 
+    def test_numbered_sibling_is_not_a_typosquat(self):
+        self.assertPasses({"a/requirements.txt": "boto3==1\n"}, {"a/requirements.txt": "boto3==1\nhttpx2==2.16.2\n"}, "dependency-risk")
+
     def test_ordinary_dependency_passes(self):
         base = {"ventures/x/package.json": json.dumps({"dependencies": {"react": "^18.3.1"}})}
         head = {"ventures/x/package.json": json.dumps({"dependencies": {"react": "^18.3.1", "zod": "^3.23.8", "express": "^4.21.0"}})}
@@ -367,6 +373,11 @@ class Infrastructure(Case):
 
     def test_block_public_access_off_blocks(self):
         self.assertBlocks({}, {"platform/aws/stacks/x/s3.tf": "  block_public_acls = false\n"}, "iac-exposure")
+
+    def test_deny_for_every_principal_passes(self):
+        tf = ('statement {\n  sid = "TlsOnly"\n  effect = "Deny"\n  actions = ["s3:*"]\n  principals {\n'
+              '    type = "*"\n    identifiers = ["*"]\n  }\n}\n')
+        self.assertPasses({}, {"platform/aws/stacks/x/logs.tf": tf}, "iac-exposure")
 
     def test_scoped_policy_passes(self):
         self.assertPasses({}, {"platform/aws/stacks/x/iam.tf": '  actions   = ["s3:GetObject"]\n  resources = [aws_s3_bucket.b.arn]\n  block_public_acls = true\n'}, "iac-exposure")
@@ -424,6 +435,14 @@ class Suppressions(Case):
 
     def test_gitleaks_allow_blocks(self):
         self.assertBlocks({}, {"ventures/x/a.mjs": "const k = 'x'; // gitleaks:allow\n"}, "scanner-suppressed")
+
+    def test_suppression_with_a_reason_only_warns(self):
+        v = judge({}, {"platform/aws/x/main.tf": "  #checkov:skip=CKV_AWS_18:server access logs need a second bucket\n"}, "scanner-suppressed")
+        self.assertFalse(blocks(v))
+        self.assertTrue(warns(v, "scanner-suppressed"))
+
+    def test_bare_checkov_skip_blocks(self):
+        self.assertBlocks({}, {"platform/aws/x/main.tf": "  #checkov:skip=CKV_AWS_18\n"}, "scanner-suppressed")
 
     def test_planted_gitleaks_config_blocks(self):
         self.assertBlocks({}, {"ventures/x/.gitleaks.toml": "[allowlist]\npaths = ['.*']\n"}, "scanner-suppressed")

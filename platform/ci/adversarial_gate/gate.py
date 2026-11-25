@@ -222,11 +222,25 @@ def clip(text: str, n: int = 160) -> str:
     return text if len(text) <= n else text[: n - 1] + "…"
 
 
+def in_string_literal(text: str, pos: int) -> bool:
+    """True when `pos` sits inside a quoted string on this line (a test or a
+    checker that names the pattern, not code that uses it)."""
+    before = text[:pos]
+    return before.count('"') % 2 == 1 or before.count("'") % 2 == 1
+
+
+def is_pattern_source(path: str, ctx: Ctx) -> bool:
+    """Files whose job is to name attack patterns (this gate, the scanner
+    rules). Content rules only warn there; the file is control plane, so the
+    LLM reviewer reads every change to it."""
+    return match_any(path, ctx.config.get("pattern_sources"))
+
+
 def downgrade(sev: str, path: str, ctx: Ctx) -> str:
     """Content rules report tests and fixtures as warnings: the checkers' own
     tests (this gate's included) are full of malicious samples. Files agents
     read as instructions never get this."""
-    if sev == "block" and (is_fixture(path, ctx) or is_test(path)) and not is_agent_instructions(path, ctx.config):
+    if sev == "block" and (is_fixture(path, ctx) or is_test(path) or is_pattern_source(path, ctx)) and not is_agent_instructions(path, ctx.config):
         return "warn"
     return sev
 
@@ -801,7 +815,8 @@ def head_dir_empty(ctx: Ctx, d: str) -> bool:
 @rule("test-skipped", "an unconditional skip or .only added to a test")
 def r_test_skipped(ctx: Ctx):
     for ch, n, text in added_lines(ctx, is_test):
-        if SKIP_ADDED.search(text) and not text.lstrip().startswith(("#", "//", "*")):
+        m = SKIP_ADDED.search(text)
+        if m and not text.lstrip().startswith(("#", "//", "*")) and not in_string_literal(text, m.start()):
             yield Finding("test-skipped", "block", ch.path, "a test is switched off (or every other test is, with .only)",
                           "Fix the test instead. A platform-specific skip needs a condition (`skipif`, `{ skip: process.platform === ... }`).",
                           n, clip(text))
@@ -895,8 +910,8 @@ def _canon(name: str) -> str:
 def typosquat_of(name: str, popular: list[str]) -> str | None:
     c = _canon(name)
     pops = {_canon(p): p for p in popular}
-    if c in pops:
-        return None
+    if c in pops or re.sub(r"\d+$", "", c) in pops:
+        return None  # a popular name, or a numbered sibling (boto3, httpx2)
     for pc, p in pops.items():
         if len(pc) >= 4 and (_lev1(c, pc) or c.replace("-", "") == pc.replace("-", "")):
             return p
@@ -1027,8 +1042,12 @@ IAC_PATH = re.compile(r"\.(tf|tofu|tfvars|hcl)$|(^|/)(infra|iac|terraform|tofu|c
 @rule("iac-exposure", "public buckets, wildcard IAM, public databases or unencrypted storage in infrastructure code")
 def r_iac(ctx: Ctx):
     for ch, n, text in added_lines(ctx, lambda p: bool(IAC_PATH.search(p)) and not p.endswith(DOC_EXT)):
+        head_lines = (ctx.read_head(ch.path) or "").splitlines()
+        context = "\n".join(head_lines[max(0, n - 12): n]) if head_lines else text
         for pat, what in IAC_BLOCK:
             if pat.search(text):
+                if what == "a policy open to every principal" and re.search(r"""(effect|Effect)\s*[=:]\s*["']?Deny""", context):
+                    continue  # a Deny for everyone (TLS-only, region deny) narrows access
                 yield Finding("iac-exposure", downgrade("block", ch.path, ctx), ch.path, f"{what} (the security baseline forbids it)",
                               "Scope the policy to named principals and actions; keep Block Public Access and encryption on. Serve public files through CloudFront with Origin Access Control.",
                               n, clip(text))
@@ -1122,10 +1141,16 @@ SUPPRESS = re.compile(r"nosemgrep|gitleaks:allow|checkov:skip=|trivy:ignore|zizm
 @rule("scanner-suppressed", "an inline scanner suppression or a scanner config file added")
 def r_suppress(ctx: Ctx):
     for ch, n, text in added_lines(ctx):
-        if SUPPRESS.search(text) and not ch.path.startswith(("platform/security/", "platform/ci/adversarial_gate/")):
-            yield Finding("scanner-suppressed", downgrade("block", ch.path, ctx), ch.path,
-                          "an inline comment that switches a security scanner off for this code",
-                          "Fix the finding. A real false positive goes in platform/security/baseline.yaml with a reason, in a separate PR.",
+        m = SUPPRESS.search(text)
+        if m and not ch.path.startswith(("platform/security/", "platform/ci/adversarial_gate/")):
+            # A suppression that states its reason is reviewable (and the LLM
+            # reads it in control-plane code); a bare one is not.
+            reason = re.sub(r"^[\s:=\]\[\w,-]*?(CKV2?_\w+|AVD-\w+-\d+|[\w-]+\])?\s*[:\-]?\s*", "", text[m.end():]).strip()
+            sev = "warn" if len(reason) >= 15 else downgrade("block", ch.path, ctx)
+            yield Finding("scanner-suppressed", sev, ch.path,
+                          "an inline comment that switches a security scanner off for this code" + ("" if sev == "block" else " (with a stated reason)"),
+                          "Fix the finding, or state why it does not apply in the same comment (checkov:skip=ID:reason). "
+                          "A false positive can also go in platform/security/baseline.yaml with a reason.",
                           n, clip(text))
     for ch in ctx.changes:
         if ch.status != "D" and match_any(ch.path, ctx.config.get("scanner_config_files", [])) and not is_fixture(ch.path, ctx):
@@ -1146,7 +1171,7 @@ def r_hosts(ctx: Ctx):
         if ch.status == "D" or ch.binary:
             continue
         tier = ctx.tier(ch.path)
-        if tier == "normal" or ch.path.endswith(DOC_EXT) or ch.path.endswith(LOCKFILES):
+        if tier == "normal" or ch.path.endswith(DOC_EXT) or ch.path.endswith(LOCKFILES) or is_fixture(ch.path, ctx):
             continue
         base_text = (ctx.read_base(ch.old_path or ch.path) or "").lower()
         texts = [t for _, t in ch.added]
