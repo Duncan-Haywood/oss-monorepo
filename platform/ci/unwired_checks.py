@@ -48,6 +48,7 @@ pytest/discover over a folder holding it. About 13 s serial.
 import argparse
 import functools
 import glob
+import json
 import re
 import shlex
 import subprocess
@@ -347,7 +348,35 @@ def run_node_suite(path, timeout=NODE_TIMEOUT, root=ROOT):
         return name, main_health.TIMED_OUT, f"timed out after {timeout} s"
     except FileNotFoundError:
         return name, 0, f"{SKIPPED} no node on this machine"
-    return name, r.returncode, (r.stdout + r.stderr).strip()
+    out = (r.stdout + r.stderr).strip()
+    if r.returncode != 0 and (missing := missing_npm_package(out, path.parent, root)):
+        pkg, where = missing
+        return name, 0, f"{SKIPPED} needs {pkg}, not installed here (npm ci in {where})"
+    return name, r.returncode, out
+
+
+def missing_npm_package(out, here, root=ROOT):
+    """(package, package.json folder) when a node suite failed only because a
+    package its own package.json declares was never installed, else None; the
+    node twin of missing_module. An undeclared package is a real break."""
+    m = re.search(r"Cannot find package '((?:@[^/']+/)?[^/']+)[^']*'", out)
+    if not m:
+        return None
+    here, root = Path(here).resolve(), Path(root).resolve()
+    for folder in (here, *here.parents):
+        manifest = folder / "package.json"
+        if manifest.exists():
+            try:
+                data = json.loads(manifest.read_text(encoding="utf-8"))
+            except ValueError:
+                return None
+            declared = {**data.get("dependencies", {}), **data.get("devDependencies", {})}
+            if m.group(1) in declared:
+                return m.group(1), folder.relative_to(root).as_posix() if folder.is_relative_to(root) else str(folder)
+            return None
+        if folder == root:
+            break
+    return None
 
 
 def unwired_extra(here=HERE, workflows=WORKFLOWS):

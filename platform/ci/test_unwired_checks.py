@@ -286,6 +286,27 @@ class PullRequestTrigger(unittest.TestCase):
         self.assertIn("cd platform/s && node --test r.test.mjs",
                       u.report([("platform/s/r.test.mjs", 1, "boom")]))
 
+    def test_a_declared_npm_dependency_not_installed_is_a_skip_not_a_red(self):
+        # 2026-11-25: platform/aws/stacks/saas-starter/runtime's suites import
+        # @aws-sdk/client-s3 (in its package.json, never `npm ci`'d by CI), so
+        # unwired_checks went red on every venture PR. A package the suite's
+        # own package.json declares is a missing install, like a missing pip
+        # package; an undeclared one is still a real break.
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "platform/s/test").mkdir(parents=True)
+            (root / "platform/s/package.json").write_text(
+                '{"dependencies": {"@scope/declared-pkg-xyz": "1.0.0"}}')
+            for stem, pkg in (("d", "@scope/declared-pkg-xyz"), ("u", "undeclared-pkg-xyz")):
+                (root / f"platform/s/test/{stem}.test.mjs").write_text(
+                    f"import '{pkg}';\nimport {{ test }} from 'node:test';\ntest('ok', () => {{}});\n")
+            name, rc, out = u.run_node_suite(root / "platform/s/test/d.test.mjs", root=root)
+            self.assertEqual(rc, 0, out)
+            self.assertTrue(out.startswith(u.SKIPPED), out)
+            self.assertIn("npm ci", out)
+            name, rc, out = u.run_node_suite(root / "platform/s/test/u.test.mjs", root=root)
+            self.assertNotEqual(rc, 0)
+
 
 class PortfolioSuites(unittest.TestCase):
     """portfolio/**/test_*.py that no pull-request workflow runs (2026-11-19)."""

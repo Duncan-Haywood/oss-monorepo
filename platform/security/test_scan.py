@@ -190,10 +190,6 @@ class Applicable(unittest.TestCase):
         self.assertIn("liability-audit", scan.applicable(tools, ["ventures/x/index.html"]))
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class ConcatenatedJson(unittest.TestCase):
     def test_one_document_unchanged(self):
         self.assertEqual(scan._loads_concatenated('{"a": 1}'), {"a": 1})
@@ -207,3 +203,7 @@ class ConcatenatedJson(unittest.TestCase):
     def test_garbage_still_raises(self):
         with self.assertRaises(ValueError):
             scan._loads_concatenated('{"a": 1} not-json')
+
+
+if __name__ == "__main__":
+    unittest.main()
