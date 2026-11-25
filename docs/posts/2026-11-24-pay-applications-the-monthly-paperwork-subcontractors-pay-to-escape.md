@@ -104,6 +104,25 @@ QuickBooks sync is needed from the first version, because that is where the
 money ends up. Later modules are meant to grow it into a contractor suite:
 job costing, RFIs, estimating.
 
+### Where it stands (updated 2026-11-25)
+
+Still in development and not for sale. Built and tested so far:
+
+- monthly pay applications from a schedule of values, with change orders, retainage and PDF and CSV exports;
+- schedule-of-values import from the contractor's own spreadsheet, and a start partway through a job;
+- lien waiver tracking, with the statutory form printed for the states encoded so far;
+- invitations for a team;
+- a cash and retainage report across jobs.
+
+**Short pays.** The newest piece handles a GC that pays an application in pieces or short:
+
+- Each check or transfer is recorded against the application, with its date and check number.
+- The cash report counts what came in and ages only the balance still owed.
+- After 30 days it flags the application as paid short and names the amount.
+- The application counts as paid once the payments reach the amount the GC certified.
+
+A short pay does not change the next pay application: line 7 on the summary subtracts earlier *certificates*, not earlier payments. So the unpaid balance has to be chased on its own, and a report that only knows "paid" or "not paid" would hide it.
+
 The working price range in our notes is about $99 to $249 a month. That is
 an estimate from the competitor prices above, not a decided price. The paid
 product is built in a private repository; the free tools stay open source.
