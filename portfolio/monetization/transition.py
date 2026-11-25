@@ -110,7 +110,7 @@ MOVED: dict[str, dict[str, str]] = {
         "status": "moving",
         "where": "free edition frozen 2026-11-24; import to private-monorepo apps/einvoice-preflight is next",
         "free_tag": "einvoice-preflight-free-v1",
-        "paid_page": "https://marisstella.app/industries/e-invoicing/",
+        "paid_page": "https://marisstella.app/industries/eu-e-invoicing/",
     },
 }
 MOVE_STATUSES = ("moving", "moved")
