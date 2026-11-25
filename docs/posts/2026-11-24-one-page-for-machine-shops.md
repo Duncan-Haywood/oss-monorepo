@@ -163,6 +163,17 @@ blank, and brought a retired machine back. A schema library fills in default
 values even on a partial update, and that caused it. The bug is fixed and
 pinned by a test.
 
+**And back out again (later on 25 November).** The same panel now downloads
+the card's current machines, materials or finishing services as a CSV, laid
+out the way the import reads it, with "Pricing basis" and "Active" columns
+and retired rates included. Hand it to whoever keeps the supplier prices,
+change what moved, and import it back: the preview shows only the rows you
+edited as "updates", and every other row as "no change". A blank cell leaves
+that value as it is, so a cleared cell does not wipe a setup rate (clear it
+in the editor instead). A rate named so that it starts with `=`, `+`, `-` or
+`@` is written with a leading apostrophe, so Excel shows it as text instead
+of running it as a formula, and the import removes the apostrophe again.
+
 ## Update, 25 November 2026: what one RFQ is, counted from the drawings
 
 The proposed pricing for the RFQ-to-quote app says a plan includes a number of
