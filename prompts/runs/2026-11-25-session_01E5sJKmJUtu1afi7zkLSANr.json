@@ -34,7 +34,7 @@
   "outcome": "success",
   "errors": [
     "biome ci on private main failed on a pre-existing unsafe optional chain in apps/payapps/test/worker/quickbooks.test.ts (PR #57); fixed in private PR #58",
-    "pay-app-guides page.test.mjs failed on main: stacking test (PR #18812) and change-order log (PR #18847) landed together; fixed here"
+    "pay-app-guides page.test.mjs failed on main (stacking test PR #18812 vs change-order log PR #18847); I fixed it here, but another run landed the same exemption on main first, so the merge took main's version"
   ],
   "integrity_issues": [],
   "doc_friction": [
