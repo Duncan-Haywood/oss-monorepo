@@ -8,6 +8,7 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 export const BEACON_SRC = 'https://static.cloudflareinsights.com/beacon.min.js';
 export const BEACON_HOSTS = Object.freeze(['static.cloudflareinsights.com', 'cloudflareinsights.com']);
@@ -79,7 +80,7 @@ export async function resolveToken({ explicit, siteFile } = {}) {
 
 // CLI: node platform/analytics/web-analytics.mjs <dist-dir>
 // Token from PAGES_WEB_ANALYTICS_TOKEN, else site.json. No token: no-op.
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const dir = process.argv[2];
   if (!dir) {
     console.error('usage: web-analytics.mjs <dist-dir>');

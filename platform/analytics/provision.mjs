@@ -18,6 +18,7 @@
 // With GITHUB_OUTPUT set, writes `token=<value>` there too.
 
 import fs from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
 import { normaliseToken } from './web-analytics.mjs';
 
 const API = 'https://api.cloudflare.com/client/v4';
@@ -60,7 +61,7 @@ export async function provision({ host, account, tokens, fetchImpl = fetch, log 
   return '';
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const site = JSON.parse(await fs.readFile(new URL('./site.json', import.meta.url), 'utf8'));
   let token = normaliseToken(site.token);
   if (token) {
