@@ -42,9 +42,9 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-          # Depth 2 gives the PR merge commit's first parent (the base tip), so
-          # validate can tell a backlog-id collision already on main from one this
-          # PR adds (promptctl.py duplicate_on_base).
+          # Depth 2 gives a PR's merge commit its main parent, so validate can
+          # tell a backlog id this PR duplicates (error) from one two merged
+          # PRs already share on main (warning): promptctl backlog_files_added.
           fetch-depth: 2
           # Only what the validator and prompts/ tests read (measured in
           # docs/history/ci-perf-2026-11-03-prompts-sparse.md): the tree is

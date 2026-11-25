@@ -10,9 +10,10 @@ the proposed change, and the metric that would show it helped. Critique
 python3 prompts/promptctl.py backlog     # open items, best first
 ```
 
-- **File**: `P<nnn>-<slug>.json`. Take the next free number. If two branches
-  pick the same one and both merge, `validate` only warns on later PRs and
-  `backlog` lists it under "Fix first": renumber the newer file in your PR.
+- **File**: `P<nnn>-<slug>.json`. Take the next free number. A PR that adds
+  an id main already has fails `validate` and renumbers. When two parallel PRs
+  both merge the same id, main stays green: `validate` and `backlog` warn, and
+  any run renumbers the later file.
 - **Fields**: `id`, `title`, `status` (`open`, `in_progress`, `done`,
   `dropped`), `owner` (`agent` or `owner`), `problem`, `evidence` (each
   number with its source), `change`, `touches`, `metric`, `baseline`,

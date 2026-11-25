@@ -5,9 +5,11 @@ from __future__ import annotations
 import contextlib
 import io
 import json
+import os
 import random
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 import promptctl
@@ -644,34 +646,30 @@ class BacklogTest(PromptTestCase):
         self.put("P001-b.json", _item("P001"))
         self.assertTrue(any("also used by" in e for e in promptctl.validate(self.fx.root)))
 
-    def test_duplicate_ids_already_on_the_base_branch_only_warn(self):
-        import subprocess
-
-        def git(*args):
-            subprocess.run(["git", "-C", str(self.fx.repo), "-c", "user.name=t", "-c", "user.email=t@t",
-                            *args], check=True, capture_output=True)
-
-        git("init", "-q", "-b", "main")
+    def test_duplicate_already_on_main_warns_and_one_this_branch_adds_fails(self):
         self.put("P001-a.json", _item("P001"))
         self.put("P001-b.json", _item("P001"))
-        git("add", "-A")
-        git("commit", "-q", "-m", "both runs took P001")
-        # On main itself (no separate base) the collision stays an error.
-        self.assertTrue(any("also used by" in e for e in promptctl.validate(self.fx.root)))
-        git("update-ref", "refs/remotes/origin/main", "HEAD")
-        git("checkout", "-q", "-b", "work")
-        self.fx.run("2026-10-12-a.json", _record())
-        git("add", "-A")
-        git("commit", "-q", "-m", "an unrelated PR")
-        self.assertEqual(promptctl.validate(self.fx.root), [])
-        self.assertIn("P001-a.json, P001-b.json", promptctl.backlog_duplicate_note(self.fx.root))
-        buf = io.StringIO()
-        with contextlib.redirect_stdout(buf):
-            promptctl.print_backlog(self.fx.root)
-        self.assertIn("Fix first", buf.getvalue())
-        # A PR that adds a third file with the same id is still refused.
-        self.put("P001-c.json", _item("P001"))
-        self.assertTrue(any("P001-c.json: id P001" in e for e in promptctl.validate(self.fx.root)))
+        real = promptctl.backlog_files_added
+        try:
+            promptctl.backlog_files_added = lambda root=None: set()  # both merged on main
+            self.assertEqual(promptctl.validate(self.fx.root), [])
+            warnings = promptctl.backlog_duplicate_warnings(self.fx.root)
+            self.assertEqual(len(warnings), 1)
+            self.assertIn("renumber P001-b.json", warnings[0])
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                promptctl.print_backlog(self.fx.root)
+            self.assertIn("Duplicate ids", buf.getvalue())
+            promptctl.backlog_files_added = lambda root=None: {"P001-b.json"}  # this PR adds it
+            self.assertTrue(any("also used by" in e for e in promptctl.validate(self.fx.root)))
+            self.assertEqual(promptctl.backlog_duplicate_warnings(self.fx.root), [])
+        finally:
+            promptctl.backlog_files_added = real
+
+    def test_push_to_main_judges_no_file_as_added(self):
+        env = {"GITHUB_EVENT_NAME": "push", "GITHUB_REF": "refs/heads/main"}
+        with unittest.mock.patch.dict(os.environ, env):
+            self.assertEqual(promptctl.backlog_files_added(self.fx.root), set())
 
 
 class DeviationTest(PromptTestCase):

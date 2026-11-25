@@ -273,7 +273,12 @@ are the starting point, not the product:
   $23,000 as submitted against $1,582 balanced, and at a 9% cost of money
   that early cash is worth about $2,066: the trade a sub is making against a
   rejected SOV. It makes no claim about what a given contract allows; a
-  mobilization cap is entered from your own contract.
+  mobilization cap is entered from your own contract. A red-team pass the
+  same day found the first version's "within tolerance" SOV failed its own
+  check: it left lines exactly on the band's edge, and rounding pushed 3 of
+  the example's 10 lines (at dollar rounding) a hair outside, so pasting the
+  fix back in still read as front-loaded. It now rounds each line inside its
+  band, and a test re-checks the output on 300 random schedules.
   ([source](../../ventures/pay-app-guides/frontload.mjs))
 
 - [Free schedule of values template](https://marisstella.app/pay-app-guides/schedule-of-values-template.html)
@@ -465,6 +470,35 @@ $3,000 is the cut, $1,800 the backcharge, and $2,200 has no reason given:
 that $2,200 is the question for the GC. The logic is in `shortpay.mjs`, with
 four tests in `shortpay.test.mjs`. It is arithmetic on what you type. It does
 not read your subcontract.
+
+### When will I get paid: the gap between payroll and the pay app
+
+Payroll goes out every week. A pay application goes in once a month on the
+GC's cutoff day, and the money comes back after the owner pays the GC and the
+GC pays you, less retainage. With a cutoff on the 25th, 30-day owner terms and
+a GC that pays ten days later, work done on 26 March goes on the 25 April
+application and is paid around 4 June: about 70 days after the crew was paid
+for it.
+
+The free [cash forecast](https://marisstella.app/pay-app-guides/pay-app-cash-forecast.html)
+(added 2026-11-25) takes one row per job (monthly billing, retainage, cutoff
+day, owner days, GC days, months left) and the applications already sent. It
+dates every expected payment, lists the late ones, and adds up money in week
+by week. With cash on hand and weekly spending it finds the first week the
+balance goes below zero. Late money and retainage are kept out of the weeks,
+because nobody knows when they arrive. It also flags a recent cutoff with no
+application listed: a missed cutoff costs a month, not a few days.
+
+The built-in example has three jobs, two of them with the same GC, $25,000 in
+the bank and $21,000 a week going out. It has $265,200 coming in over 13
+weeks, so the business is profitable on paper. It still goes $16,550 negative
+in the week of 27 January, because no pay-app money lands for four weeks in a
+row. In the example, the $51,300 application that is 21 days late is the
+difference. The logic is in `forecast.mjs`, with eight tests in
+`forecast.test.mjs` that check the example's dates and totals by hand. The day
+counts are the user's own. The page compares the GC days with the
+[prompt payment table](https://marisstella.app/pay-app-guides/prompt-payment-laws.html)
+and never puts the statute's figure in their place.
 
 ## Early access
 

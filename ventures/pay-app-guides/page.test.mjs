@@ -23,7 +23,7 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
 });
 
 test("no page sends anything anywhere or loads remote scripts", () => {
-  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "stored.mjs", "shortpay.mjs", "frontload.mjs", "joint.mjs", "usage.mjs"]) {
+  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "stored.mjs", "shortpay.mjs", "frontload.mjs", "joint.mjs", "forecast.mjs", "usage.mjs"]) {
     const src = page(name);
     assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, name);
     assert.doesNotMatch(src, /<script[^>]+src=["']https?:/, name);
@@ -77,7 +77,7 @@ test("robots and sitemap list every page", () => {
 // show bare values on a phone, so every cell must carry its own column's header, in order.
 test("guide tables stack on a phone, every cell labelled with its column header", () => {
   // change-order-log.html fills its rows from script; its own test below checks the labels.
-  const guides = PAGES.filter((name) => name !== "index.html" && name !== "change-order-log.html" && name !== "lien-waiver-log.html" && name !== "retainage-tracker.html" && name !== "paid-short.html");
+  const guides = PAGES.filter((name) => name !== "index.html" && name !== "change-order-log.html" && name !== "lien-waiver-log.html" && name !== "retainage-tracker.html" && name !== "paid-short.html" && name !== "pay-app-cash-forecast.html");
   for (const name of guides) {
     const html = page(name);
     const at = html.indexOf("<main>");

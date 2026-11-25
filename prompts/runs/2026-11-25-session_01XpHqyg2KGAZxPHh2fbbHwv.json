@@ -28,13 +28,17 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/process/prompt-2.md",
       "issue": "Starting measure and main_health with '&' inside one backgrounded Bash call made the harness report it complete while both children were still running; wait_for.py on the logs worked. Small, but the practicalities line could say to run each as its own run_in_background call."
+    },
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "'check open PRs before you start' ran before #18924 existed; two process runs drawn within minutes both picked the top friction cluster. The same race the item itself fixes, one level up: nothing marks a critique lens as taken."
     }
   ],
   "deviations": [
@@ -53,11 +57,9 @@
       "result": "n/a"
     }
   ],
-  "writeups": [
-    "prompts/process/backlog/P078-backlog-id-collision-reds-every-pr.json"
-  ],
+  "writeups": [],
   "goal": null,
-  "notes": "Backlog ids: P078 (filed and done). Critique source: friction_rank.py --live --ungated --days 2 (#8, #17 backlog-id collision 5x; #4 cloud-session register_repo_root 4x, 15 records overall). Checks: unittest discover -s prompts OK; promptctl validate ok; main_health 325/325; risk_review: nothing blocked. P071-P077 left unverified (all merged today, too few post-fix records).",
+  "notes": "Duplicate work: built the P078 fix (backlog-id collision on main warns instead of failing every PR) in parallel with PR #18924, which merged first with the same id and the same design; at merge time this PR took main's version of promptctl.py, its test, prompts-ci.yml and the backlog README, and dropped its own P078 file. What this PR lands: .github/prompts/cloud-session.md says add_repo's register_repo_root tool is not loadable, so read the private CLAUDE.md by hand (15 run records name it; friction_rank.py --live --ungated --days 2, #4). Checks before the merge-down: unittest discover -s prompts OK; validate ok; main_health 325/325; PR CI green.",
   "corrections": [],
   "redteam": null,
   "usage": {

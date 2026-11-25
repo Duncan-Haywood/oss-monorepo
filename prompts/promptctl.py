@@ -26,6 +26,7 @@ import hashlib
 import io
 import json
 import math
+import os
 import random
 import re
 import statistics
@@ -546,6 +547,83 @@ def validate_backlog_item(root: Path, path: Path, item: Any) -> list[str]:
     return errors
 
 
+def backlog_id_duplicates(root: Path = ROOT) -> list[tuple[str, str, str]]:
+    """(id, first file, later file) for every backlog id two files share."""
+    seen: dict[str, str] = {}
+    dups: list[tuple[str, str, str]] = []
+    for path, item in _readable_backlog(root):
+        item_id = item.get("id") if isinstance(item, dict) else None
+        if not isinstance(item_id, str):
+            continue
+        if item_id in seen:
+            dups.append((item_id, seen[item_id], path.name))
+        else:
+            seen[item_id] = path.name
+    return dups
+
+
+def _readable_backlog(root: Path) -> list[tuple[Path, Any]]:
+    folder = root / "process" / "backlog"
+    out = []
+    for path in sorted(folder.glob("*.json")) if folder.is_dir() else []:
+        try:
+            out.append((path, json.loads(path.read_text())))
+        except json.JSONDecodeError:
+            continue
+    return out
+
+
+def _git_names(repo: Path, *args: str) -> set[str] | None:
+    try:
+        out = subprocess.run(["git", "diff", "--name-only", "--diff-filter=A", *args,
+                              "--", "prompts/process/backlog/"],
+                             cwd=repo, capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if out.returncode != 0:
+        return None
+    return {Path(line).name for line in out.stdout.splitlines() if line.strip()}
+
+
+def backlog_files_added(root: Path = ROOT) -> set[str] | None:
+    """Backlog file names this checkout adds over main, or None when that is unknowable.
+
+    A push to main adds nothing to judge (a duplicate already there is a
+    warning). A pull request's CI checks out the merge commit, whose first
+    parent is main (prompts-ci.yml fetches depth 2 for this). A session's
+    working tree (untracked files too) is compared with origin/main. Unknown means the strict old check.
+    """
+    repo = root.parent
+    event = os.environ.get("GITHUB_EVENT_NAME", "")
+    if event == "push" and os.environ.get("GITHUB_REF") == "refs/heads/main":
+        return set()
+    if event == "pull_request":
+        return _git_names(repo, "HEAD^1", "HEAD")
+    if not (repo / ".git").exists():
+        return None
+    added = _git_names(repo, "origin/main")  # main against the working tree
+    if added is None:
+        return None
+    try:
+        out = subprocess.run(["git", "ls-files", "--others", "--exclude-standard",
+                              "--", "prompts/process/backlog/"],
+                             cwd=repo, capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if out.returncode != 0:
+        return None
+    return added | {Path(line).name for line in out.stdout.splitlines() if line.strip()}
+
+
+def backlog_duplicate_warnings(root: Path = ROOT) -> list[str]:
+    added = backlog_files_added(root)
+    if added is None:
+        return []
+    return [f"backlog id {i} is used by both {a} and {b} (two PRs merged in parallel); "
+            f"renumber {b} to the next free number in any PR"
+            for i, a, b in backlog_id_duplicates(root) if a not in added and b not in added]
+
+
 def backlog_rank(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Open items, best first: effect over cost, agent-owned before owner-owned, oldest first."""
     open_items = [i for i in items if i.get("status") in ("open", "in_progress")]
@@ -590,11 +668,12 @@ def print_backlog(root: Path = ROOT) -> None:
             last = i["history"][-1]
             last = last.get("note", "") if isinstance(last, dict) else last
             print(f"- {i['id']}: {last[:300]}")
+    dups = backlog_id_duplicates(root)
+    if dups:
+        print("\nDuplicate ids (renumber the later file to the next free number): "
+              + ", ".join(f"{i} ({b})" for i, _, b in dups))
     if s["done_unverified"]:
         print(f"\nDone but metric not yet checked: {', '.join(s['done_unverified'])}")
-    note = backlog_duplicate_note(root)
-    if note:
-        print(f"\nFix first: {note}")
 
 
 def redteam_share(tracks: dict[str, Any]) -> float | None:
@@ -633,73 +712,6 @@ def validate_posts(root: Path) -> list[str]:
     if done.returncode == 0:
         return []
     return [f"docs/posts/{line}" for line in done.stdout.splitlines() if line.strip()]
-
-
-def backlog_duplicate_ids(root: Path = ROOT) -> dict[str, list[str]]:
-    """{id: [file names]} for every backlog id that more than one file uses."""
-    by_id: dict[str, list[str]] = defaultdict(list)
-    folder = root / "process" / "backlog"
-    for path in sorted(folder.glob("*.json")) if folder.is_dir() else []:
-        try:
-            item = json.loads(path.read_text())
-        except json.JSONDecodeError:
-            continue
-        if isinstance(item, dict) and isinstance(item.get("id"), str):
-            by_id[item["id"]].append(path.name)
-    return {i: names for i, names in by_id.items() if len(names) > 1}
-
-
-def _git_out(repo: Path, *args: str) -> str | None:
-    try:
-        r = subprocess.run(["git", "-C", str(repo), *args], capture_output=True, text=True, timeout=20)
-    except (OSError, subprocess.TimeoutExpired):
-        return None
-    return r.stdout.strip() if r.returncode == 0 else None
-
-
-def base_commit(root: Path = ROOT) -> str | None:
-    """The commit this change builds on, when it differs from HEAD, else None.
-
-    In a pull request's CI, HEAD is GitHub's merge commit and its first parent
-    is the base branch's tip (prompts-ci.yml fetches depth 2 for this). Locally
-    it is origin/main. On main itself there is no separate base: None.
-    """
-    head = _git_out(root, "rev-parse", "HEAD")
-    if not head:
-        return None
-    parents = (_git_out(root, "rev-list", "--parents", "-n", "1", "HEAD") or "").split()
-    if len(parents) == 3 and _git_out(root, "cat-file", "-e", f"{parents[1]}^{{commit}}") is not None:
-        return parents[1]
-    main = _git_out(root, "rev-parse", "--verify", "-q", "origin/main")
-    return main if main and main != head else None
-
-
-def duplicate_on_base(root: Path, names: list[str]) -> bool:
-    """True when every file sharing the id is already on the base branch.
-
-    Two process runs can take the same "next free number" in parallel and both
-    merge (each PR validated alone), which turned validate red for every later
-    PR until someone renumbered (P075, 2026-11-25). Such a collision is not the
-    later PR's doing: it is a warning there (print_backlog lists it for the next
-    process run) and an error only on main or where the change adds a file.
-    """
-    base = base_commit(root)
-    top = _git_out(root, "rev-parse", "--show-toplevel")
-    if not base or not top:
-        return False
-    rel = (root / "process" / "backlog").resolve().relative_to(Path(top).resolve()).as_posix()
-    # ls-tree reads trees only: prompts-ci's checkout is blob-less (filter: blob:none).
-    listed = set((_git_out(root, "ls-tree", "--full-tree", "--name-only", base, f"{rel}/") or "").splitlines())
-    return all(f"{rel}/{n}" in listed for n in names)
-
-
-def backlog_duplicate_note(root: Path = ROOT) -> str | None:
-    dups = backlog_duplicate_ids(root)
-    if not dups:
-        return None
-    pairs = "; ".join(f"{i}: {', '.join(n)}" for i, n in sorted(dups.items()))
-    return (f"backlog ids used twice ({pairs}). Renumber the newer file to the next free number "
-            "(any run may, in its own PR).")
 
 
 def validate(root: Path = ROOT) -> list[str]:
@@ -779,10 +791,15 @@ def validate(root: Path = ROOT) -> list[str]:
             errors.append(f"prompts/process/backlog/{path.name}: invalid JSON ({exc})")
             continue
         errors.extend(validate_backlog_item(root, path, item))
-    for ident, names in backlog_duplicate_ids(root).items():
-        if not duplicate_on_base(root, names):
-            errors.append(f"prompts/process/backlog/{names[-1]}: id {ident} is also "
-                          f"used by {', '.join(names[:-1])}; take the next free number")
+    added = backlog_files_added(root)
+    for item_id, first, later in backlog_id_duplicates(root):
+        # A duplicate this branch adds fails it. One that two parallel PRs both
+        # merged is already on main: failing every later PR for it turned main
+        # red for unrelated work (doc friction 2026-11-25, P078), so it is a
+        # warning (backlog_duplicate_warnings) that any run can fix by renumbering.
+        if added is None or first in added or later in added:
+            errors.append(f"prompts/process/backlog/{later}: id {item_id} is also "
+                          f"used by {first}; take the next free number")
     errors.extend(validate_system(root))
     errors.extend(validate_posts(root))
     return errors
@@ -1469,9 +1486,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "map":
         print_map(ROOT, args.track)
         return 0
-    for warning in (redteam_band_warning(ROOT), backlog_duplicate_note(ROOT)):
-        if warning:
-            print(f"warning: {warning}", file=sys.stderr)
+    warning = redteam_band_warning(ROOT)
+    if warning:
+        print(f"warning: {warning}", file=sys.stderr)
+    for dup in backlog_duplicate_warnings(ROOT):
+        print(f"warning: {dup}", file=sys.stderr)
     errors = validate(ROOT)
     for err in errors:
         print(f"error: {err}", file=sys.stderr)
