@@ -165,3 +165,39 @@ suite is still in development and not for sale. The import does not yet
 fill the opening from the spreadsheet itself: the sheet's "to date" column
 mixes stored materials into completed work, and that needs splitting out
 first.
+
+## Update: the opening fills itself, from the workbook or a PDF
+
+That last limit is gone too. "Fill from your last continuation sheet" on
+the opening form reads the file of the last application sent elsewhere and
+fills the figures above. Nothing is saved until the contractor checks them.
+Stored materials are split out: work completed is columns D + E, never G.
+When the workbook also has the summary page (G702) on another tab, line 6
+and line 5a come from there, so a job with stored materials no longer leaves
+5a blank.
+
+Many subs keep only the PDF they emailed the GC, not the workbook. That PDF
+now works the same way. The summary page is read by its line labels, the way
+a person reads it. That takes a few rules a person follows without
+thinking:
+
+- the amount is the first dollar figure to the right of the label. The
+  architect's "amount certified" printed beside line 6 is not line 6, and the
+  "10" typed into the "a. ___ % of completed work" blank is a rate, not
+  $10.00;
+- leader dots, a "$" printed at the edge of the cell and a note after the
+  amount ("Line 4 less line 5") are not part of the figure;
+- the summary page is kept out of the continuation sheet's table. Its 5a and
+  5b lines line up with the sheet's columns and used to blur them.
+
+Two smaller reader fixes came from the same test file. Capitals that a
+browser kerns ("RET" and "AINAGE", "CER" and "TIFIED") are drawn as two
+pieces and are now joined into one word again. Column letters printed in the
+same cell as their label ("A Item No.") no longer hide the item numbers.
+
+On a test application printed by Chromium (four lines and a change order,
+$44,500 of switchgear stored), the fill gives line 6 as $125,662.72 and
+line 5a as $9,512.53, both matching the printed form, with no warnings. The
+free template printed by LibreOffice gives its line 6 ($71,865.00) from the
+PDF. Its .xlsx cannot, because that file's formulas were saved without
+results. The suite is still in development and not for sale.
