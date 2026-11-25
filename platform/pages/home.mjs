@@ -202,12 +202,16 @@ const longDate = (iso) => {
 
 /** The newest essays, so the front door shows the site is alive. */
 export function renderLatestWriting(posts = [], { writingPath = 'writing/', limit = 3 } = {}) {
-  const latest = [...posts].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0)).slice(0, limit);
+  // Customer-facing posts (topic "business", writing.mjs) since 2026-11-25 (owner: "blogs get
+  // moved from dev blog to marketing blog"); the newest of any kind only when there are none.
+  const newest = (list) => [...list].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0)).slice(0, limit);
+  const customer = posts.filter((p) => p.topic === 'business');
+  const latest = newest(customer.length ? customer : posts);
   if (!latest.length) return '';
   return `    <section class="band" id="writing" aria-labelledby="writing-h">
-      <p class="section-eyebrow">Writing</p>
-      <h2 id="writing-h">Notes from building it in public</h2>
-      <p class="band-lede">What the tools turned up and how they were built, written from the repository's own records and numbers. <a href="${esc(writingPath)}">Read all ${formatCount(posts.length)} posts →</a></p>
+      <p class="section-eyebrow">Guides</p>
+      <h2 id="writing-h">${customer.length ? 'Guides for the businesses we build for' : 'Notes from building it in public'}</h2>
+      <p class="band-lede">${customer.length ? 'Answers to the questions subcontractors, machine shops, sellers and nonprofits ask, from the tools that do the work.' : "What the tools turned up and how they were built, written from the repository's own records and numbers."} <a href="${esc(writingPath)}">Read all ${formatCount(posts.length)} posts →</a></p>
       <ul class="posts">
 ${latest
   .map(

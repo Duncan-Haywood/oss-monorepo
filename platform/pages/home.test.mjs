@@ -125,3 +125,14 @@ test('the Organization names only the live products it offers, with no price', (
   assert.equal(offer.itemOffered.audience.audienceType, 'small nonprofits');
   assert.equal(offer.price, undefined, 'prices live on the product page, not here');
 });
+
+test('the latest writing prefers posts for customers when there are any (2026-11-25)', () => {
+  const posts = [
+    { slug: 'guide', date: '2026-10-01', title: 'Guide', description: 'd', minutes: 3, topic: 'business' },
+    { slug: 'devlog', date: '2026-10-20', title: 'Devlog', description: 'd', minutes: 5, topic: 'agents' },
+  ];
+  const html = renderLatestWriting(posts, { writingPath: 'writing/', limit: 1 });
+  assert.match(html, /href="writing\/guide\/"/);
+  assert.match(html, /Guides for the businesses we build for/);
+  assert.match(renderLatestWriting([posts[1]], { limit: 1 }), /href="writing\/devlog\/"/);
+});
