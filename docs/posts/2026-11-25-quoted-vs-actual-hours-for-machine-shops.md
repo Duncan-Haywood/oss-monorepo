@@ -37,6 +37,19 @@ A few things are deliberate:
 - **It names the revision.** A quote that doesn't say which drawing revision it priced can end up being held to a later one. Before you send, a check lists anything a buyer would send back: no revision, no validity period, no lead time, no material, or a larger lot that costs less in total than a smaller one (a buyer will order the bigger lot).
 - **Customer details stay put.** Nothing is uploaded. If you tick the box, your shop's name, contact details and standard terms are kept in your browser for the next quote. Customer and part details never are.
 
+## Which kinds of job you win
+
+A shop-wide win rate hides the useful part. Winning 40% overall can mean winning most milled brackets and almost no weldments. If so, the weldment rates are probably too high, or those buyers are shopping on price. The question to ask your history is which kinds of job you win, not just how often.
+
+The RFQ-to-quote assistant described below (in development) now answers that from your own records. If you save routings, the named operation lists you reuse for a family of parts, its win/loss page shows the win rate for each routing and each part family. The rules are simple enough to check by hand:
+
+- **A quote counts once per routing it used**, however many of its lines used it. A line counts as using a routing when it has that routing's operations in the same order, on the same machines, with the same operation labels. Editing a cycle time after applying a routing still counts.
+- **Lines that match no saved routing get their own row**, so jobs quoted from scratch don't vanish from the totals.
+- **Expired quotes are shown but not counted** in the rate, and a row with fewer than five decided quotes is marked "few". A 100% win rate on two quotes is noise.
+- **The CSV export names the routings** on each quote, so you can make the same pivot table in a spreadsheet and check the page against it.
+
+Routings are matched as they are saved today. If you change a routing's operations, older lines that used the old version stop matching it.
+
 ## Where this is going
 
 The RFQ-to-quote assistant we are building for small CNC and fabrication shops (in development, early access on the [manufacturing page](https://marisstella.app/industries/manufacturing/)) is meant to do this comparison every time a job closes. That way the next quote starts from how your shop actually runs, not from how it ran when the rates were last set. This free page is the manual version of that step.
