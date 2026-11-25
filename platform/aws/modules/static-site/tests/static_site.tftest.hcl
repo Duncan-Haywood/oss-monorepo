@@ -134,7 +134,7 @@ run "distribution_is_https_waf_and_headers" {
   }
 
   assert {
-    condition     = one(one(one(aws_cloudfront_response_headers_policy.security.security_headers_config).strict_transport_security)).access_control_max_age_sec == 31536000
+    condition     = aws_cloudfront_response_headers_policy.security.security_headers_config[0].strict_transport_security[0].access_control_max_age_sec == 31536000
     error_message = "HSTS must match security-headers.mjs (max-age=31536000)."
   }
 
@@ -179,12 +179,6 @@ run "custom_domains_use_tls12_and_aliases" {
     }
   }
 
-  override_resource {
-    target = aws_acm_certificate_validation.site
-    values = {
-      certificate_arn = "arn:aws:acm:us-east-1:111111111111:certificate/abc"
-    }
-  }
 
   assert {
     condition     = toset(aws_cloudfront_distribution.site.aliases) == toset(["example.org", "www.example.org", "grants.example.org"])

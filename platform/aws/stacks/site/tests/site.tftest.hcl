@@ -105,12 +105,6 @@ run "publisher_role_is_created_with_custom_domains" {
     permissions_boundary_arn = "arn:aws:iam::222222222222:policy/workload-boundary"
   }
 
-  override_resource {
-    target = module.site.aws_acm_certificate_validation.site
-    values = {
-      certificate_arn = "arn:aws:acm:us-east-1:111111111111:certificate/abc"
-    }
-  }
 
   assert {
     condition     = module.site.publisher_role_arn != null
