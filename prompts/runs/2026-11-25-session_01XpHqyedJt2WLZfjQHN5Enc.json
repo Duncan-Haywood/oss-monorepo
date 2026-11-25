@@ -1,0 +1,390 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyedJt2WLZfjQHN5Enc",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T23:39:11Z",
+  "ended": "2026-11-25T23:39:44Z",
+  "wall_minutes": 7.7,
+  "tokens_in": 4275095,
+  "tokens_out": 25711,
+  "cost_usd": 2.1705,
+  "tool_calls": 46,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19136",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's two open entries both need work outside a red-team run (a control-plane workflow change with owner approval; a help-center eval set), so step 0 costs a read each run and fixes nothing; they could be marked as parked so the open list shows only workable items."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 says fix open entries first; both need a control-plane PR or a new eval dataset",
+      "did": "left both open, unchanged",
+      "result": "run time went to two new targets and one real defect"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "most PRs carry a post; statusAsPlanned builds eval inputs and the example series, not a customer-facing feature",
+      "did": "agent doc in docs/reports only, no post",
+      "result": "no thin post added"
+    }
+  ],
+  "writeups": [
+    "docs/reports/redteam-2026-11-25-xer-status-redundant.md"
+  ],
+  "goal": null,
+  "notes": "Guards: random-network brute-force oracle for redundantLogic (150 networks); status.test.mjs sweep slipping every open activity. Venture suite: ok 598 tests. risk_review: nothing blocked.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/xer-schedule-check/redundant.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 893036428,
+        "commit": "857055e01",
+        "sites": 213,
+        "baseline_seconds": 4.3,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/redundant.mjs",
+            "line": 86,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (let v = 0; v < N; v++) if (!indeg[v]) order.push(v);",
+            "after": "for (let v = 1; v < N; v++) if (!indeg[v]) order.push(v);",
+            "line_text": "  for (let v = 0; v < N; v++) if (!indeg[v]) order.push(v);",
+            "caught": true,
+            "seconds": 4.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/redundant.mjs",
+            "line": 93,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "const taskOf = (v) => acts[v >> 1];",
+            "after": "const taskOf = (v) => acts[v >> 2];",
+            "line_text": "  const taskOf = (v) => acts[v >> 1];",
+            "caught": true,
+            "seconds": 4.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/redundant.mjs",
+            "line": 107,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "if (pos[e.from] < 0 || pos[e.to] < 0) continue;",
+            "after": "if (pos[e.from] <= 0 || pos[e.to] < 0) continue;",
+            "line_text": "    if (pos[e.from] < 0 || pos[e.to] < 0) continue;",
+            "caught": true,
+            "seconds": 4.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/redundant.mjs",
+            "line": 162,
+            "col": 47,
+            "operator": "eq-flip",
+            "before": "if (d > full[e.to]) { if (full[e.to] === -Infinity) touched.push(e.to); full[e.to] = d; fullBy[e.to] = e; }",
+            "after": "if (d > full[e.to]) { if (full[e.to] !== -Infinity) touched.push(e.to); full[e.to] = d; fullBy[e.to] = e; }",
+            "line_text": "          if (d > full[e.to]) { if (full[e.to] === -Infinity) touched.push(e.to); full[e.to] = d; fullBy[e.to] = e; }",
+            "caught": false,
+            "seconds": 4.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "random-network oracle test in redundant.test.mjs: a missed reset leaks one source's longest paths into the next"
+          },
+          {
+            "file": "ventures/xer-schedule-check/redundant.mjs",
+            "line": 198,
+            "col": 42,
+            "operator": "and-to-or",
+            "before": "const lags = path.filter((x) => x.rel && x.w !== 0);",
+            "after": "const lags = path.filter((x) => x.rel || x.w !== 0);",
+            "line_text": "    const lags = path.filter((x) => x.rel && x.w !== 0);",
+            "caught": false,
+            "seconds": 4.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "the mutant adds zero-lag links to the compared lag calendars (activity edges carry w 0 so stay out); redundant.test.mjs now has a zero-lag link on the seven-day calendar that must stay sure; the random-network oracle (one calendar) could not see it"
+          },
+          {
+            "file": "ventures/xer-schedule-check/redundant.mjs",
+            "line": 225,
+            "col": 114,
+            "operator": "const-plus-one",
+            "before": "const order2 = (a, b) => (a.pred < b.pred ? -1 : a.pred > b.pred ? 1 : a.succ < b.succ ? -1 : a.succ > b.succ ? 1 : 0);",
+            "after": "const order2 = (a, b) => (a.pred < b.pred ? -1 : a.pred > b.pred ? 1 : a.succ < b.succ ? -1 : a.succ > b.succ ? 2 : 0);",
+            "line_text": "  const order2 = (a, b) => (a.pred < b.pred ? -1 : a.pred > b.pred ? 1 : a.succ < b.succ ? -1 : a.succ > b.succ ? 1 : 0);",
+            "caught": false,
+            "seconds": 4.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "comparator returns 2 instead of 1 on the same branch: Array.sort reads only the sign, so the order is identical"
+          },
+          {
+            "file": "ventures/xer-schedule-check/redundant.mjs",
+            "line": 238,
+            "col": 65,
+            "operator": "div-to-times",
+            "before": "share: checked ? Math.round((1000 * red.length) / checked) / 10 : 0,",
+            "after": "share: checked ? Math.round((1000 * red.length) / checked) * 10 : 0,",
+            "line_text": "      share: checked ? Math.round((1000 * red.length) / checked) / 10 : 0,",
+            "caught": false,
+            "seconds": 4.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "oracle test asserts summary.share against the brute-force count"
+          },
+          {
+            "file": "ventures/xer-schedule-check/redundant.mjs",
+            "line": 313,
+            "col": 27,
+            "operator": "ge-to-gt",
+            "before": "else if (inPred && col >= 0 && line.startsWith(\"%R\")) {",
+            "after": "else if (inPred && col > 0 && line.startsWith(\"%R\")) {",
+            "line_text": "    else if (inPred && col >= 0 && line.startsWith(\"%R\")) {",
+            "caught": true,
+            "seconds": 4.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/xer-schedule-check/status.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 793631843,
+        "commit": "857055e01",
+        "sites": 98,
+        "baseline_seconds": 4.3,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/status.mjs",
+            "line": 53,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "row.phys_complete_pct = q(p + (100 - p) * g);",
+            "after": "row.phys_complete_pct = q(p + (101 - p) * g);",
+            "line_text": "    row.phys_complete_pct = q(p + (100 - p) * g);",
+            "caught": false,
+            "seconds": 4.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "status.test.mjs checks physical percent 50 -> 50 + 50 x 144/400"
+          },
+          {
+            "file": "ventures/xer-schedule-check/status.mjs",
+            "line": 80,
+            "col": 64,
+            "operator": "min-to-max",
+            "before": "const worked = ef > es ? t.cal.workBetween(es, Math.max(es, Math.min(dd, ef))) : 0;",
+            "after": "const worked = ef > es ? t.cal.workBetween(es, Math.max(es, Math.max(dd, ef))) : 0;",
+            "line_text": "    const worked = ef > es ? t.cal.workBetween(es, Math.max(es, Math.min(dd, ef))) : 0;",
+            "caught": false,
+            "seconds": 4.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "status.test.mjs checks units done on work under way is the share of hours worked (144 of 400), not all of it"
+          },
+          {
+            "file": "ventures/xer-schedule-check/status.mjs",
+            "line": 81,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "const factor = overBy.get(row.task_code) ?? 1;",
+            "after": "const factor = overBy.get(row.task_code) ?? 2;",
+            "line_text": "    const factor = overBy.get(row.task_code) ?? 1;",
+            "caught": true,
+            "seconds": 4.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/status.mjs",
+            "line": 92,
+            "col": 45,
+            "operator": "max-to-min",
+            "before": "const left = ef > dd ? t.cal.workBetween(Math.max(dd, es), ef) : 0;",
+            "after": "const left = ef > dd ? t.cal.workBetween(Math.min(dd, es), ef) : 0;",
+            "line_text": "    const left = ef > dd ? t.cal.workBetween(Math.max(dd, es), ef) : 0;",
+            "caught": true,
+            "seconds": 4.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/status.mjs",
+            "line": 93,
+            "col": 79,
+            "operator": "gt-to-ge",
+            "before": "if (costs) progressCosts(row, assignsOf.get(row.task_id) || [], rem + slip > 0 ? worked / (rem + slip) : 0, rem > 0 ? worked / rem : 0, factor);",
+            "after": "if (costs) progressCosts(row, assignsOf.get(row.task_id) || [], rem + slip >= 0 ? worked / (rem + slip) : 0, rem > 0 ? worked / rem : 0, factor);",
+            "line_text": "    if (costs) progressCosts(row, assignsOf.get(row.task_id) || [], rem + slip > 0 ? worked / (rem + slip) : 0, rem > 0 ? worked / rem : 0, factor);",
+            "caught": false,
+            "seconds": 4.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "rem + slip === 0 reaches this line only with a negative slip equal to the remaining work (outside the documented slips contract) or a span with ef > es and no working time between, which workBetween cannot return as 0 while ef > es on a calendar the parser accepts"
+          },
+          {
+            "file": "ventures/xer-schedule-check/status.mjs",
+            "line": 93,
+            "col": 99,
+            "operator": "plus-to-minus",
+            "before": "if (costs) progressCosts(row, assignsOf.get(row.task_id) || [], rem + slip > 0 ? worked / (rem + slip) : 0, rem > 0 ? worked / rem : 0, factor);",
+            "after": "if (costs) progressCosts(row, assignsOf.get(row.task_id) || [], rem + slip > 0 ? worked / (rem - slip) : 0, rem > 0 ? worked / rem : 0, factor);",
+            "line_text": "    if (costs) progressCosts(row, assignsOf.get(row.task_id) || [], rem + slip > 0 ? worked / (rem + slip) : 0, rem > 0 ? worked / rem : 0, factor);",
+            "caught": false,
+            "seconds": 4.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "status.test.mjs slips A1040 by 40 h and checks units done 144/(400+40)"
+          },
+          {
+            "file": "ventures/xer-schedule-check/status.mjs",
+            "line": 93,
+            "col": 109,
+            "operator": "const-plus-one",
+            "before": "if (costs) progressCosts(row, assignsOf.get(row.task_id) || [], rem + slip > 0 ? worked / (rem + slip) : 0, rem > 0 ? worked / rem : 0, factor);",
+            "after": "if (costs) progressCosts(row, assignsOf.get(row.task_id) || [], rem + slip > 0 ? worked / (rem + slip) : 1, rem > 0 ? worked / rem : 0, factor);",
+            "line_text": "    if (costs) progressCosts(row, assignsOf.get(row.task_id) || [], rem + slip > 0 ? worked / (rem + slip) : 0, rem > 0 ? worked / rem : 0, factor);",
+            "caught": false,
+            "seconds": 4.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "same unreachable rem + slip <= 0 branch as mutant 4 on this line"
+          },
+          {
+            "file": "ventures/xer-schedule-check/status.mjs",
+            "line": 110,
+            "col": 15,
+            "operator": "neq-flip",
+            "before": "if (r.tf !== undefined && r.tf !== null) row.total_float_hr_cnt = String(r.tf);",
+            "after": "if (r.tf === undefined && r.tf !== null) row.total_float_hr_cnt = String(r.tf);",
+            "line_text": "      if (r.tf !== undefined && r.tf !== null) row.total_float_hr_cnt = String(r.tf);",
+            "caught": false,
+            "seconds": 4.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "status.test.mjs checks total_float_hr_cnt on every open activity equals the rescheduled float"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/xer-schedule-check/status.mjs",
+        "issue": "statusAsPlanned with a slip on an activity not yet started by the data date marked it TK_Active with act_start_date = the data date, weeks ahead of its early start and before its predecessors finished (repro: example file, data date 2026-05-06, slips [{code:'A1150',hours:16}] -> A1150 TK_Active, actual start 2026-05-06, early start 2026-06-15): out-of-sequence progress in every as-planned update built that way. The evals all filtered slip candidates to es < dd, so they worked around it. Fixed: an unstarted activity stays unstarted and its remaining and original durations grow by the slip.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19136"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ca91f07b-dd5c-502d-acca-0a32fea4c022",
+    "transcripts": 1,
+    "first": "2026-11-25T23:39:11Z",
+    "last": "2026-11-25T23:46:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 85,
+        "output": 25711,
+        "thinking": 8074,
+        "cache_read": 4172320,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102690,
+        "api_equivalent_usd": 2.1705,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 85,
+      "output": 25711,
+      "thinking": 8074,
+      "cache_read": 4172320,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102690,
+      "api_equivalent_usd": 2.1705,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 44,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.7,
+      "active_minutes": 7.7,
+      "model_minutes": 4.13,
+      "tool_minutes": 3.57,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "senior engineer: read two modules, write an oracle and 7 tests, fix and verify",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 230.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
