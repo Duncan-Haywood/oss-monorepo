@@ -283,6 +283,33 @@ more without them, and the customer still gets exactly one quote. The first real
 at launch is on the checklist. The suite passes: 279 unit tests and 162 Worker tests, five of
 them new for this.
 
+## Every change now gets clicked through in a real browser
+
+Until today the quoter's tests called the pricing engine and the API directly. Nothing opened a
+browser and used the app the way an estimator does. Private PR #182 adds a browser test suite
+(Playwright) that does exactly that, offline, on every change to the app:
+
+- **RFQ to a won quote.** It signs up, types a rate card (a $95/h mill; 6061 plate at $4.50/lb
+  with 10% scrap and a $25 minimum; anodize at $3 a part with a $150 lot minimum), pastes a
+  made-up RFQ email, checks that each value the AI read shows the line of the email it came
+  from, confirms one part and prices it. All 27 cells of the price table are compared with
+  figures worked out by hand in the test file. For 10 pieces: 0.585 lb of plate per part at
+  $4.50 plus scrap is $28.96, the hour of setup is $95, run time is $190, the anodize lot
+  minimum is $150, so the unit price is $46.40 and the line total $464.00. Then it opens the
+  PDF, marks the quote sent, records the win, and finds the quote in the quote log and the
+  win/loss report.
+- **One shop can't see another's data.** A second shop signs up and tries to read the first
+  shop's RFQ, quote, PDF and rate card. Every read and write comes back refused, and signed out
+  it gets 401.
+- **Phones.** No page may be wider than a 390 px phone screen.
+
+To check the suite can actually fail, the run broke the pricing engine on purpose by leaving
+scrap out of the material cost. The first test failed on the price table, as it should. The
+phone check also turned up a bug in the old hand-run script it replaces: two of the addresses
+on its list don't exist in the app, so it had been measuring the "Page not found" screen and
+reporting it as fine. The new test fails when a page doesn't load, and it now measures the
+spreadsheet-import panel by opening it on the rate card.
+
 ## Next
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
