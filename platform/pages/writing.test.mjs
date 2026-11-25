@@ -113,7 +113,7 @@ test('a full link to the default origin follows the address the site is built fo
   await buildWriting(out, BASE, { root, originAlias: alias });
   const page = await fs.readFile(path.join(out, WRITING_PATH, 'first/index.html'), 'utf8');
   assert.match(page, new RegExp(`<a href="${BASE.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}some-tool/">the tool</a>`));
-  assert.ok(!page.includes(alias), 'the default origin must not survive a build under another address');
+  assert.doesNotMatch(page, /default\.test\/site\//, 'the default origin must not survive a build under another address');
 
   const same = mkdtempSync(path.join(os.tmpdir(), 'writing-origin-same-'));
   await buildWriting(same, alias, { root, originAlias: alias });
@@ -391,7 +391,7 @@ async function runFinder(search, { selectedIndex = 0 } = {}) {
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-'));
   await buildWriting(out, BASE, { root });
   const index = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
-  const script = [...index.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
+  const script = [...index.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\b[^>]*>/gi)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
   assert.ok(script, 'finder script present');
   const li = (slug, text) => ({ dataset: { slug, text, tags: 'a b', topic: 't', date: '2026-01-01', mins: '1' }, hidden: false });
   const items = [li('x', 'alpha'), li('y', 'beta')];
@@ -415,7 +415,7 @@ test('finder: menus share the search box height and Clear sits beside the count,
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-row-'));
   await buildWriting(out, BASE, { root });
   const html = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
-  const h = (sel) => html.match(new RegExp(sel.replace(/[.[\]]/g, '\\$&') + ' \\{[^}]*?height:(\\d+px)'))?.[1];
+  const h = (sel) => html.match(new RegExp(sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' \\{[^}]*?height:(\\d+px)'))?.[1];
   assert.equal(h('.finder input[type=search]'), '42px');
   assert.equal(h('.finder select'), '42px');
   assert.match(html, /\.finder \.row \{ display:grid; grid-template-columns:minmax\(0,1fr\) minmax\(0,1fr\);/);
@@ -487,7 +487,7 @@ test('an index over PAGE_SIZE posts lists the newest page, pages the rest, and e
   const read = async (rel) => fs.readFile(path.join(dir, rel, 'index.html'), 'utf8');
   for (const [rel, up] of [['', ''], ['page/2', '../../'], ['page/3', '../../']]) {
     const html = await read(rel);
-    const slugs = [...html.matchAll(new RegExp(`<h2><a href="${up.replace(/\./g, '\\.')}([^"/]+)/">`, 'g'))].map((m) => m[1]);
+    const slugs = [...html.matchAll(new RegExp(`<h2><a href="${up.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^"/]+)/">`, 'g'))].map((m) => m[1]);
     assert.ok(slugs.length <= PAGE_SIZE, `${rel || 'index'} has ${slugs.length} cards`);
     for (const s of slugs) seen.set(s, (seen.get(s) || 0) + 1);
     assert.match(html, /class="pager"/);
@@ -565,7 +565,7 @@ test('finder: topic chips are one sideways row on a phone, faded at the end that
   assert.match(phone, /\.chips > a \{ display:inline-flex;/);
   for (const end of ['start', 'end', 'both']) assert.match(phone, new RegExp(`\\.chips\\[data-fade=${end}\\] \\{[^}]*mask-image`));
 
-  const script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
+  const script = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\b[^>]*>/gi)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
   const handlers = {};
   const row = { scrollWidth: 1600, clientWidth: 356, scrollLeft: 0, offsetLeft: 0, dataset: {}, removeAttribute(k) { if (k === 'data-fade') delete this.dataset.fade; }, addEventListener(t, f) { handlers[t] = f; } };
   const chip = (id, offsetLeft) => ({ dataset: { topicChip: id }, parentElement: row, offsetLeft, offsetWidth: 100, addEventListener() {}, setAttribute() {} });
@@ -848,7 +848,7 @@ test('finder: a search over posts.json renders each card with its date and readi
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-cards-'));
   await buildWriting(out, BASE, { root });
   const index = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
-  const script = [...index.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
+  const script = [...index.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\b[^>]*>/gi)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
   const rows = JSON.parse(renderPostRows([{ slug: 'deep', title: 'Deep', description: 'D', date: '2026-03-05', minutes: 7, topic: 'agents', tags: ['a'] }]));
   const node = (tag) => ({ tag, dataset: {}, children: [], textContent: '', hidden: false, appendChild(c) { this.children.push(c); } });
   const text = (n) => (n.tag === '#text' ? n.textContent : n.textContent + n.children.map(text).join(''));
@@ -872,4 +872,26 @@ test('finder: a search over posts.json renders each card with its date and readi
   assert.equal(card.dataset.topic, 'agents');
   const meta = text(card.children[2]);
   assert.match(meta, /5 March 2026 · 7 min read/);
+});
+
+test('posts for a paid product line\'s customers lead the blog as "For your business" (2026-11-25)', async () => {
+  const { topicOf, renderCustomerLead, CUSTOMER_TAGS } = await import('./writing.mjs');
+  assert.equal(TOPICS[0].id, 'business');
+  assert.ok(CUSTOMER_TAGS.has('pay-application-generator') && CUSTOMER_TAGS.has('einvoice-preflight'));
+  assert.equal(topicOf(['einvoice-preflight', 'peppol']), 'business');
+  assert.equal(topicOf(['for-customers']), 'business');
+  // How it was built stays in the build log, even about a product line's tool.
+  assert.equal(topicOf(['einvoice-preflight', 'mutation-testing']), 'testing');
+  assert.equal(topicOf(['reseller-books', 'perf']), 'tools');
+  // Not a paid line's tool: unchanged.
+  assert.equal(topicOf(['hearth-and-horizon', 'fiction']), 'stories');
+  const post = (slug, date, topic) => ({ slug, date, topic, title: slug, description: 'd', tags: [], minutes: 2 });
+  const posts = [post('a', '2026-11-01', 'business'), post('b', '2026-11-03', 'business'), post('c', '2026-11-04', 'agents')];
+  const html = renderCustomerLead(posts, { n: 1 });
+  assert.match(html, /href="b\/"/);
+  assert.doesNotMatch(html, /href="a\/"|href="c\/"/);
+  assert.match(html, /All 2 guides for your business/);
+  assert.equal(renderCustomerLead([post('c', '2026-11-04', 'agents')]), '');
+  const index = renderIndex(posts, {});
+  assert.ok(index.indexOf('customer-lead') < index.indexOf('id="posts"'), 'pinned above the full list');
 });

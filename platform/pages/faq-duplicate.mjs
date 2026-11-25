@@ -82,9 +82,18 @@ function countBy(values) {
  * pair short inline help ("Is this the price I should charge?") with the
  * search-worded FAQ heading, which is a layout choice, not a mistake.
  */
+function stripTags(text) {
+  let previous;
+  do {
+    previous = text;
+    text = text.replace(/<[^>]+>/g, '');
+  } while (text !== previous);
+  return text;
+}
+
 export function visibleQuestions(html) {
   return [...html.matchAll(/<h[23]\b[^>]*>([\s\S]*?)<\/h[23]>/gi)]
-    .map(([, text]) => ({ raw: text.replace(/<[^>]+>/g, '').trim(), text: normalize(text) }))
+    .map(([, text]) => ({ raw: stripTags(text).trim(), text: normalize(text) }))
     .filter(({ raw, text }) => raw.endsWith('?') && text.length > 1)
     .map(({ text }) => text);
 }

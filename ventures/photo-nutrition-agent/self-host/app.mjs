@@ -95,7 +95,7 @@ export function createApp({ store, analyzer, auth, logger = console }) {
         const to = auth.approve(q, password);
         return send(res, 302, null, { location: to });
       } catch (e) {
-        if (e.oauth?.error === "access_denied" || e.oauth?.error === "temporarily_unavailable") return send(res, 401, authorizePage(q, e.message), { "x-frame-options": "DENY" });
+        if (e.protocolError?.error === "access_denied" || e.protocolError?.error === "temporarily_unavailable") return send(res, 401, authorizePage(q, e.message), { "x-frame-options": "DENY" });
         throw e;
       }
     }
@@ -209,7 +209,7 @@ export function createApp({ store, analyzer, auth, logger = console }) {
     try {
       await route(req, res);
     } catch (e) {
-      if (e.oauth) return send(res, e.status || 400, e.oauth, CORS);
+      if (e.protocolError) return send(res, e.status || 400, e.protocolError, CORS);
       // Domain errors are plain Error with a message meant for the caller; engine errors are bugs.
       const status = e.status || (e instanceof TypeError || e instanceof ReferenceError || e instanceof SyntaxError ? 500 : 400);
       if (status >= 500) logger.error?.(e);

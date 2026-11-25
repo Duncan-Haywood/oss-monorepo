@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "My first G703 fixture had wrong totals; the new totals-row check flagged them, and I fixed the fixture."
+    "My first G703 fixture had wrong totals; the new totals-row check flagged them, and I fixed the fixture.",
+    "The preflight's first run failed on check_money_comma and check_code_point_range in sheet.mjs; both fixed."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -51,7 +52,7 @@
     "docs/posts/2026-11-25-reading-the-pay-app-spreadsheet-contractors-already-keep.md"
   ],
   "goal": null,
-  "notes": "node --test calc/sheet/page/usage: 41 pass. Playwright at 390px on the LibreOffice fixture: 5 lines read, due $67,144.72, no off-host requests, no horizontal scroll. check_posts ok. validate.py ok.",
+  "notes": "node --test calc/sheet/page/usage: 41 pass. Playwright at 390px on the LibreOffice fixture: 5 lines read, due $67,144.72, no off-host requests, no horizontal scroll. check_posts ok. validate.py ok. Merged main twice. The second merge brought PR #18769 (the Excel export, workbook.mjs) into the same page; I kept both features and added a round-trip test (export -> import gives the same summary), which found the own-retainage-% column misread and letter rows past J. Venture preflight clean after fixing a comma-stripping parser and an unguarded fromCodePoint. I regenerated transition.json (stale on main since #18757). Main's own reds (check_main_guard_last on platform/security/test_scan.py; saas-starter runtime tests from #18765/#18749) are outside this diff.",
   "corrections": [],
   "redteam": null,
   "usage": {

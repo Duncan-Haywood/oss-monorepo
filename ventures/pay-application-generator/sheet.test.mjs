@@ -212,3 +212,24 @@ test("commas are read by shape: thousands, an EU decimal comma, and anything els
   const bad = findSchedule(parseCsv(["Description,Scheduled value,Previous,This period", '"Framing","12,34,5",0,0'].join("\n")));
   assert.match(bad.error, /Framing \(row 2\) is not a dollar amount/);
 });
+
+// workbook.mjs writes the page's own .xlsx (PR #18769); this reader must take it back unchanged, own rates included.
+import { workbookXlsx } from "./workbook.mjs";
+import { sampleList, SAMPLE_SETTINGS } from "./calc.mjs";
+
+test("the page's own downloaded workbook reads back to the same application", async () => {
+  const csv = sampleList().replace("Item,Description,Scheduled value,Previous,This period,Stored", "Item,Description,Scheduled value,Previous,This period,Stored,Retainage")
+    .split("\n").map((l, n) => (n === 0 ? l : l + (n === 3 ? ",5" : ","))).join("\n");
+  const r = compute(csv, SAMPLE_SETTINGS);
+  assert.deepEqual(r.errors, []);
+  const imp = pickSheet(await readXlsx(workbookXlsx(r, SAMPLE_SETTINGS)));
+  assert.ok(!imp.error, imp.error);
+  assert.match(imp.header, /sheet "Continuation sheet"/);
+  assert.deepEqual(imp.checks, []);
+  assert.ok(imp.notes.some((n) => /own rate/.test(n)));
+  const back = compute(imp.csv, SAMPLE_SETTINGS);
+  assert.deepEqual(back.errors, []);
+  for (const k of ["original", "changes", "completed", "retainage", "due"]) assert.equal(back.summary[k], r.summary[k], k);
+  assert.deepEqual(retainageChecks(imp, back), []);
+  assert.match(pickSheet(await readXlsx(workbookXlsx(null, {}))).error, /blank template/);
+});

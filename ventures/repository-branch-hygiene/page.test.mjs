@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { readdirSync } from 'node:fs';
+const stripScripts = (s) => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ''); } while (s !== p); return s; };
 
 const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
 const secondary = await readFile(new URL('./is-it-safe-to-delete-this-branch.html', import.meta.url), 'utf8');
@@ -32,7 +33,7 @@ test('the page never asserts that a branch is safe to delete', () => {
   // only — the page deliberately *asks* "is it safe to delete this Git branch?",
   // which is the search query it ranks for, so a blanket ban on the phrase would
   // forbid the honest question along with the dishonest answer.
-  const prose = index.replace(/<script[\s\S]*?<\/script>/g, '');
+  const prose = stripScripts(index);
   const claims = /\b(?:is|are|was|were)\s+(?:safe\s+to\s+delete|cleared\s+(?:for|to)\s+delet\w*)/gi;
   for (const match of prose.matchAll(claims)) {
     // A denial ("it never says a branch is safe to delete") states the promise
@@ -77,7 +78,7 @@ test('every .html file in the venture is reachable from the sitemap', async () =
   const htmlFiles = readdirSync(dir).filter((name) => name.endsWith('.html'));
   for (const name of htmlFiles) {
     if (name === 'index.html') continue;
-    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+    assert.match(sitemap, new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `${name} is missing from sitemap.xml`);
   }
 });
 

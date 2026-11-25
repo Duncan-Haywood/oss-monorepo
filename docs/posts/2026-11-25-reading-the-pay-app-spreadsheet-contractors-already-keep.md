@@ -61,8 +61,16 @@ the continuation sheet on the second tab, reads five lines including one
 change order, and reports no disagreement at 10% retainage. At 5% it flags all
 five retainage cells, as it should. The tests also seed a typed-over total, a
 short SUM range and a line held at 5% among 10% lines, and the page names
-cells G14, E19 and the General conditions line. All 41 of the venture's tests
-pass.
+cells G14, E19 and the General conditions line. All of the venture's tests pass.
+
+A parallel run the same day taught the page to *write* an Excel workbook
+with live formulas. The two now meet in a test. A workbook the page
+downloads, including a line with its own retainage rate, reads back through
+the importer to the same contract sum, change orders, retainage and payment
+due, and every line's retainage cell matches. The round trip found two gaps
+before the merge: a "Line's own retainage %" column had been taken as a
+retainage amount, and a column-letter row running past J had not been
+recognised.
 
 What is not tested yet: a workbook from a real contractor. Templates vary,
 and a header this reader doesn't recognise will get the message "could not

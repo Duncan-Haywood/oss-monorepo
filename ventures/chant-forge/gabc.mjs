@@ -50,17 +50,19 @@ export function pitchToMidi(letter, clef, accidental = null, refC = DEFAULTS.ref
 
 const SP = { 'V/': '\u2123', 'R/': '\u211F', "'ae": '\u01FD', "'\u00E6": '\u01FD', "'oe": '\u0153\u0301', "'\u0153": '\u0153\u0301' };
 
+const untilStable = (s, f) => { let p; do { p = s; s = f(s); } while (s !== p); return s; };
+
 // Lyric text for one GABC syllable. <v> (raw TeX) and <alt> (text above the
 // staff) are not sung; <sp> is Gregorio's special-character tag (V/ and R/ are
 // the versicle and response signs); other tags only style the text. Centre
 // braces, the non-breaking space, and the intonation marks * and the cross
 // are not sung either.
 export function lyricText(text) {
-  return text
-    .replace(/<v>[\s\S]*?<\/v>/g, '')
-    .replace(/<alt>[\s\S]*?<\/alt>/g, '')
-    .replace(/<sp>([\s\S]*?)<\/sp>/g, (_, k) => SP[k.trim()] ?? k.replace(/\//g, ''))
-    .replace(/<[^>]*>/g, '')
+  const unsung = untilStable(text, (s) => s.replace(/<v>[\s\S]*?<\/v>/g, '').replace(/<alt>[\s\S]*?<\/alt>/g, ''));
+  const special = unsung.replace(/<sp>([\s\S]*?)<\/sp>/g, (_, k) => SP[k.trim()] ?? k.replace(/\//g, ''));
+  let tagless = special, prev;
+  do { prev = tagless; tagless = tagless.replace(/<[^>]*>/g, ''); } while (tagless !== prev);
+  return tagless
     .replace(/[{}]/g, '')
     .replace(/~/g, ' ')
     .replace(/[*\u2020\u2021]/g, '')

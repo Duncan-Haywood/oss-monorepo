@@ -6,6 +6,8 @@ Reads the Excel (.xlsx) continuation sheet a contractor already keeps, title blo
 
 Rolls an application forward to next month: previous takes this period, this period starts at zero, stored stays stored, previous certificates carried exactly.
 
+Downloads the application as an Excel workbook with live formulas (summary sheet linked to a lettered continuation sheet), and offers a free blank pay application template (.xlsx, 30 lines). Own layout; not the AIA G702/G703 form.
+
 A hosted pay-app suite (saved jobs, retainage until release, lien waivers, change orders) is in development; not on sale and no price yet.
 
 Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.

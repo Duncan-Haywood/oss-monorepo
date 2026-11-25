@@ -6,6 +6,8 @@ Free, private browser tool for subcontractors and small general contractors: pas
 
 **Next month (2026-11-24):** roll an application forward. Previous becomes previous plus this period, this period goes to zero, stored materials stay stored, the application number goes up by one, the period end moves a month, and previous certificates become this application's total earned less retainage (line 6), so next month's payment due is exact instead of estimated. Start it on the page or download the CSV. Tests check that a rolled month with no new work is due exactly $0 and that three chained months pay out exactly the total earned less retainage (`calc.test.mjs`).
 
+**Excel workbook and blank template (2026-11-25):** download the worked application as an `.xlsx` (`workbook.mjs`, no dependencies) with an application summary linked to a lettered continuation sheet, every total a formula, and ten spare rows the totals already cover; or download a blank 30-line template from the page. Cached values come from `compute()`, so a previewer that does not recalculate still shows the numbers, and LibreOffice's recalculation of the sample (with a reduced work rate, a line with its own rate and a deductive change order) matched `compute()` to the cent. Typed text is written as inline strings, so a description starting with `=` never becomes a formula. Tests: `workbook.test.mjs`.
+
 It is the free front door for the pay-app suite in development (saved jobs, retainage until release, lien waivers, change orders; `docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md`). The page asks for early access through the site's public feedback form and quotes no price.
 
 **Live tool:** https://marisstella.app/pay-application-generator/

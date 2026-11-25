@@ -11,8 +11,8 @@ const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
 const GUIDE = 'should-i-buy-out-my-equipment-lease.html';
 
 test('the calculator links to its guide page and the guide is listed in the sitemap', () => {
-  assert.match(index, new RegExp(GUIDE.replace(/\./g, '\\.')));
-  assert.match(sitemap, new RegExp(GUIDE.replace(/\./g, '\\.')));
+  assert.ok(index.includes(GUIDE));
+  assert.ok(sitemap.includes(GUIDE));
 });
 
 test('the guide is question-shaped, indexable, and links back to the tool', () => {

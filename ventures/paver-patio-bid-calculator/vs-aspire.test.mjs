@@ -75,7 +75,7 @@ test('has no external script or stylesheet resources, and no fetch/network calls
   const externalHrefs = [...html.matchAll(/https?:\/\/[^"'\s)]+/g)].map((m) => m[0]);
   for (const href of externalHrefs) {
     assert.ok(
-      href.startsWith('https://schema.org') || href === 'http://www.w3.org/2000/svg' || href.startsWith('https://github.com/sponsors/'),
+      /^https:\/\/schema\.org(?:\/|$)/.test(href) || href === 'http://www.w3.org/2000/svg' || href.startsWith('https://github.com/sponsors/'),
       `unexpected external reference: ${href}`,
     );
   }

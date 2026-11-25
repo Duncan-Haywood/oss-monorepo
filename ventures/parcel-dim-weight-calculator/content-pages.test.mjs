@@ -61,8 +61,8 @@ test('the explainer ships structured data and every answer in it is visible on t
   assert.equal(data['@type'], 'FAQPage');
   assert.ok(data.mainEntity.length >= 5);
   const visible = html
-    .replace(/<script[\s\S]*?<\/script>/g, ' ')
-    .replace(/<style[\s\S]*?<\/style>/g, ' ')
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ' ')
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style\b[^>]*>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&amp;/g, '&')
     .replace(/\s+/g, ' ');

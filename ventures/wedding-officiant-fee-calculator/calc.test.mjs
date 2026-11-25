@@ -46,7 +46,7 @@ test("a low fee below target is flagged high and names the fee that fixes it", (
   const r = compute(raw({ fee: "150", targetHourly: "60" }));
   const f = r.findings.find((x) => x.severity === "high");
   assert.ok(f);
-  assert.match(f.title, new RegExp(dollars(r.minFee).replace(/[$.]/g, "\\$&")));
+  assert.match(f.title, new RegExp(dollars(r.minFee).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
 });
 
 test("bad input is rejected with a message, never NaN", () => {

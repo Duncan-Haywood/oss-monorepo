@@ -2,6 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 
+// Strip markup until stable, case-insensitive, tolerant of attributes in closing tags.
+const stripTags = (s, sub = '') => { let p; do { p = s; s = s.replace(/<[^>]*>/g, sub); } while (s !== p); return s; };
+
 const page = () => readFile(new URL("./index.html", import.meta.url), "utf8");
 
 test("every FAQPage question/answer pair is also rendered as visible copy", async () => {
@@ -24,7 +27,7 @@ test("every .html file in the venture is reachable from the sitemap", async () =
   const htmlFiles = (await readdir(new URL("./", import.meta.url))).filter((n) => n.endsWith(".html"));
   for (const name of htmlFiles) {
     if (name === "index.html" || name === "offline.html") continue;
-    assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
+    assert.ok(sitemap.includes(name), `${name} is missing from sitemap.xml`);
   }
 });
 
@@ -75,7 +78,7 @@ test("every interactive control has an accessible name", async () => {
   // Buttons are named by their text content unless they carry aria-label.
   for (const m of html.matchAll(/<button\b([^>]*)>([\s\S]*?)<\/button>/g)) {
     const attrs = m[1];
-    const text = m[2].replace(/<[^>]*>/g, "").trim();
+    const text = stripTags(m[2]).trim();
     assert.ok(
       /aria-label="/.test(attrs) || text.length > 0,
       `<button> has no accessible name: ${m[0]}`,

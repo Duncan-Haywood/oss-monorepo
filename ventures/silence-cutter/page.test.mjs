@@ -2,6 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
+// Remove every <script> element, case-insensitively and until nothing is left to strip.
+const stripScripts = (s, sub = '') => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, sub); } while (s !== p); return s; };
+// Remove every tag, repeating until no tag-shaped text is left.
+const stripTags = (s, sub = '') => { let p; do { p = s; s = s.replace(/<[^>]*>/g, sub); } while (s !== p); return s; };
+
 const PAGES = ['index.html', 'remove-silence-from-video.html'];
 const read = (f) => readFile(new URL(`./${f}`, import.meta.url), 'utf8');
 
@@ -10,9 +15,7 @@ function jsonLd(html) {
 }
 // Text a visitor reads: JSON-LD and tags removed, entities decoded.
 function visibleText(html) {
-  return html
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/g, ' ')
-    .replace(/<[^>]*>/g, ' ')
+  return stripTags(stripScripts(html, ' '), ' ')
     .replace(/&nbsp;/g, ' ').replace(/&rarr;/g, '→').replace(/&larr;/g, '←')
     .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&')
     .replace(/\s+/g, ' ');

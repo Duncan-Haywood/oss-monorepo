@@ -267,18 +267,19 @@
 
   // Pictures: item key -> object URL of a file on this device. Nothing here is uploaded or stored.
   const pictures = new Map();
-  const picture = (i) => pictures.get(itemKey(state.items[i]));
+  // Only the blob: URLs addPicture made are ever drawn, so an option name can never become markup or a script URL.
+  const picture = (i) => { const url = pictures.get(itemKey(state.items[i])); return typeof url === "string" && url.startsWith("blob:") ? url : undefined; };
   const clearPictures = () => { for (const url of pictures.values()) URL.revokeObjectURL(url); pictures.clear(); };
   const addPicture = (item, file) => { const k = itemKey(item); if (pictures.has(k)) URL.revokeObjectURL(pictures.get(k)); pictures.set(k, URL.createObjectURL(file)); };
   const listNames = (names, max = 5) => names.slice(0, max).map(esc).join(", ") + (names.length > max ? ` and ${names.length - max} more` : "");
   // An option as the results tables show it: a thumbnail when its picture is attached.
-  const optionCell = (i) => { const url = picture(i); return url ? `<img class="thumb" src="${url}" alt="" loading="lazy">${esc(state.items[i])}` : esc(state.items[i]); };
+  const optionCell = (i) => { const url = picture(i); return url ? `<img class="thumb" src="${esc(url)}" alt="" loading="lazy">${esc(state.items[i])}` : esc(state.items[i]); };
   function renderPick(button, i) {
     const url = picture(i);
     button.classList.toggle("img", !!url);
     if (!url) { button.textContent = state.items[i]; button.removeAttribute("aria-label"); return; }
     const odd = UNDRAWABLE_EXT.test(state.items[i]);
-    button.innerHTML = `<img src="${url}" alt="" decoding="async"><span class="cap">${esc(state.items[i])}${odd ? " (HEIC: if no picture shows, this browser cannot draw it; convert to JPEG)" : ""}</span>`;
+    button.innerHTML = `<img src="${esc(url)}" alt="" decoding="async"><span class="cap">${esc(state.items[i])}${odd ? " (HEIC: if no picture shows, this browser cannot draw it; convert to JPEG)" : ""}</span>`;
     button.setAttribute("aria-label", state.items[i]);
   }
   function refreshAttach() {

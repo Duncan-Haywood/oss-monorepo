@@ -23,7 +23,8 @@ const csv = (text) => {
   const [head, ...body] = rows;
   return body.map((r) => Object.fromEntries(head.map((h, i) => [h, r[i]])));
 };
-const strip = (s) => s.replace(/<[^>]+>/g, "").replace(/&minus;/g, "-").replace(/&rarr;/g, "->").replace(/&times;/g, "x").replace(/&sup2;/g, "2");
+const stripTags = (s) => { let p; do { p = s; s = s.replace(/<[^>]+>/g, ""); } while (s !== p); return s; };
+const strip = (s) => stripTags(s).replace(/&minus;/g, "-").replace(/&rarr;/g, "->").replace(/&times;/g, "x").replace(/&sup2;/g, "2");
 
 test("every guide is linked from the tool page, the sitemap and llms.txt", () => {
   for (const g of GUIDES) {

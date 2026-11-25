@@ -50,7 +50,7 @@ import { buildSite, DEFAULT_BASE_URL } from './build.mjs';
 // one no other test in this directory exercises.
 const APEX = 'https://catalogue.test/';
 const DEFAULT_HOST = new URL(DEFAULT_BASE_URL).host;
-const HOST_RE = DEFAULT_HOST.replace(/[.]/g, '\\.');
+const HOST_RE = DEFAULT_HOST.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const DEFAULT_ORIGIN_LINK = new RegExp(
   `(?:\\b(?:href|src|content|action)=["']|<loc>|"(?:url|item|@id|sameAs|contentUrl|image)"\\s*:\\s*")(?:https?:)?//${HOST_RE}`,
 );

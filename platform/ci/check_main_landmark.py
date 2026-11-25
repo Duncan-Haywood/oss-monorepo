@@ -57,7 +57,7 @@ def wrap(s):
 
 
 # --all mode: secondary pages (guides, comparisons) in any folder, not only index.html.
-STRIP = re.compile(r"<script\b.*?</script>|<style\b.*?</style>|<!--.*?-->", re.S | re.I)
+STRIP = re.compile(r"<script\b.*?</script\b[^>]*>|<style\b.*?</style\b[^>]*>|<!--.*?--!?>", re.S | re.I)
 BODY = re.compile(r"(<body\b[^>]*>)(.*?)(</body>)", re.S | re.I)
 HAS_MAIN = re.compile(r"<main\b|role=[\"']main[\"']", re.I)
 BLOCKERS = re.compile(r"<(header|nav|aside|main)\b", re.I)

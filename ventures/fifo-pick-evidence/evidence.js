@@ -156,7 +156,7 @@ function toMarkdown(report) {
   } else {
     lines.push("## Observations", "", "| Row | Kind | Detail |", "|---|---|---|");
     for (const obs of report.observations) {
-      lines.push(`| ${obs.row} | ${obs.kind} | ${describeObservation(obs).replace(/\|/g, "\\|")} |`);
+      lines.push(`| ${obs.row} | ${obs.kind} | ${describeObservation(obs).replace(/\\/g, "\\\\").replace(/\|/g, "\\|")} |`);
     }
   }
   lines.push("", "## Limitations", "");

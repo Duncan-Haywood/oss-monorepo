@@ -169,9 +169,10 @@ function decodeXmlEntities(s) {
   return s
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
-    .replace(/&amp;/g, '&')
     .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'");
+    .replace(/&apos;/g, "'")
+    // &amp; last, so "&amp;lt;" decodes to "&lt;", not "<".
+    .replace(/&amp;/g, '&');
 }
 
 /** Parses one value starting at tokens[pos]; returns [value, nextPos] or [undefined, pos] if nothing recognisable is there. */

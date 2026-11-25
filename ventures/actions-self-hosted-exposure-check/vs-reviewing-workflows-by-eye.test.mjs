@@ -2,6 +2,17 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
+// Drop every <script>...</script> block (any case, attributes, `</script >`),
+// repeating until stable so a nested fragment cannot reassemble a tag.
+const stripScripts = (s) => {
+  let prev;
+  do {
+    prev = s;
+    s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, '');
+  } while (s !== prev);
+  return s;
+};
+
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const page = readFileSync(new URL('./vs-reviewing-workflows-by-eye.html', import.meta.url), 'utf8');
 const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
@@ -20,7 +31,7 @@ test('the comparison page names no product and links back to the checker', () =>
 });
 
 test('the page never disparages manual review or claims it always fails', () => {
-  const prose = page.replace(/<script[\s\S]*?<\/script>/g, '');
+  const prose = stripScripts(page);
   assert.doesNotMatch(prose, /\b(worse|inferior) than\b/i);
   assert.doesNotMatch(prose, /(reviewing|manual review)[^.]*\b(useless|worthless|pointless)\b/i);
 });

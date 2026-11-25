@@ -25,7 +25,6 @@ const PINS = {
 
 const decode = (v) => v === undefined ? v : v.replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
 const named = (n, name) => n.children.filter((c) => c.name === name);
-const strip = (t) => t.replace(/^xs:/, "xs:");
 
 function read(text) {
   const xsd = parseXmlTree(text);
@@ -41,7 +40,7 @@ function read(text) {
       if (c.name === "element" && c.attrs.ref) {
         out.push({ el: c.attrs.ref.replace(/^.*:/, ""), type: "any", min: Number(c.attrs.minOccurs ?? 1), max: 1 });
       } else if (c.name === "element") {
-        let type = c.attrs.type ? strip(c.attrs.type) : undefined;
+        let type = c.attrs.type || undefined;
         if (!type) {
           const inline = c.children.find((x) => x.name === "complexType");
           type = `${owner}/${c.attrs.name}`;

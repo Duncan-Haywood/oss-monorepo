@@ -133,7 +133,7 @@ test('engine.mjs and usage.mjs are imported as ES modules, not duplicated inline
 test('index links to the docs page and the docs page links back', async () => {
   const index = await read('index.html');
   const docs = await read(DOCS_PAGE);
-  assert.match(index, new RegExp(`href="${DOCS_PAGE.replace(/\./g, '\\.')}"`));
+  assert.match(index, new RegExp(`href="${DOCS_PAGE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`));
   assert.match(docs, /href="\.\/"/);
 });
 
@@ -200,7 +200,7 @@ test('the comparison page carries the no-warranty clause, links back to the tool
 
 test('the comparison page is reachable from the sitemap and linked from index or the docs page', async () => {
   const sitemap = await read('sitemap.xml');
-  assert.match(sitemap, new RegExp(VS_PAGE.replace(/\./g, '\\.')));
+  assert.match(sitemap, new RegExp(VS_PAGE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 });
 
 test('index links to its timing sibling, subtitle-resync', async () => {

@@ -147,6 +147,7 @@ const low = (s) => clean(s).toLowerCase();
 // previous, so the to-date and balance columns are claimed first.
 const RULES = [
   ["pct", (h) => /^%|percent|% complete|\(g ?[÷/] ?c\)|^% \(|^pct\b/.test(h) && !/retain/.test(h)],
+  ["retRate", (h) => /retain|retention/.test(h) && /%|percent|\brate\b/.test(h) && !/if variable rate/.test(h)],
   ["retainage", (h) => /retain|retention/.test(h)],
   ["toDate", (h) => /to date|total completed|completed and stored|\(d ?\+ ?e ?\+ ?f\)/.test(h) && !/previous/.test(h)],
   ["balance", (h) => /balance|to finish|remaining/.test(h)],
@@ -156,11 +157,11 @@ const RULES = [
   ["scheduled", (h) => /scheduled value|schedule of values|contract (value|amount|sum)|original (value|amount|contract)|revised (value|amount)|^sov$|^value$|^amount$|^budget$/.test(h)],
   ["desc", (h) => /description|scope|work item|^item description|^task$|^name$/.test(h)],
   ["item", (h) => /^(item|line|code|cost code|no\.?|#|item no\.?|item #|line no\.?|item number|line #|sov line)\b/.test(h)],
-  ["type", (h) => /^type$|^kind$/.test(h)],
+  ["type", (h) => /^type\b|^kind$/.test(h)],
 ];
 const classify = (h) => { for (const [k, f] of RULES) if (f(h)) return k; return null; };
 
-const LETTER_ROW = (row) => { const v = row.map(clean).filter(Boolean); return v.length >= 3 && v.every((x) => /^[A-J]$/i.test(x)); };
+const LETTER_ROW = (row) => { const v = row.map(clean).filter(Boolean); return v.length >= 3 && v.every((x) => /^[A-Z]$/i.test(x)); };
 const blank = (row) => !row || row.every((x) => clean(x) === "");
 
 // The header block starting at row r, `depth` rows deep: each column's text joined top to bottom.
@@ -169,7 +170,7 @@ function headerAt(grid, r, depth) {
   const map = {};
   let hits = 0;
   for (let c = 0; c < width; c++) {
-    const h = low(grid.slice(r, r + depth).map((x) => (x || [])[c] ?? "").filter((x) => !/^[A-J]$/i.test(clean(x))).join(" "));
+    const h = low(grid.slice(r, r + depth).map((x) => (x || [])[c] ?? "").filter((x) => !/^[A-Z]$/i.test(clean(x))).join(" "));
     if (!h) continue;
     const k = classify(h);
     if (k && map[k] == null) { map[k] = c; hits++; }
@@ -258,10 +259,11 @@ export function findSchedule(grid, { sheet = null } = {}) {
     if (!label && vals.scheduled === 0 && !vals.previous && !vals.thisPeriod && !vals.stored) continue;
     const typeCell = at(row, "type");
     const isCo = /^(co|change|change order)$/i.test(typeCell) || /^(co[-\s#]*\d+|change order)/i.test(item) || /^(co[-\s#]*\d+|change order)/i.test(label) || inCo;
-    lines.push({ r, item, desc: desc || item || `Line ${r + 1}`, isCo, c: vals.scheduled, d: vals.previous, e: vals.thisPeriod, f: vals.stored, g: vals.toDate, h: vals.balance, i: vals.retainage });
+    const rateCell = at(row, "retRate");
+    lines.push({ r, item, desc: desc || item || `Line ${r + 1}`, isCo, own: rateCell, c: vals.scheduled, d: vals.previous, e: vals.thisPeriod, f: vals.stored, g: vals.toDate, h: vals.balance, i: vals.retainage });
   }
   if (errors.length) return { error: errors[0], errors };
-  if (!lines.length) return { error: "Found the header but no lines with numbers under it." };
+  if (!lines.length) return { error: "Found the header but no lines with numbers under it. Is this a blank template?" };
 
   // The sheet's own arithmetic, line by line.
   for (const l of lines) {
@@ -290,8 +292,10 @@ export function findSchedule(grid, { sheet = null } = {}) {
   const cos = lines.filter((l) => l.isCo).length;
   if (cos) notes.push(`${cos} line${cos === 1 ? " was" : "s were"} read as change orders.`);
 
-  const head = ["Item", "Description", "Type", "Scheduled value", "Previous", "This period", "Stored"];
-  const csv = [head, ...lines.map((l) => [l.item, l.desc, l.isCo ? "CO" : "", plain(l.c), plain(l.d), plain(l.e), plain(l.f)])].map((x) => x.map(q).join(",")).join("\n");
+  const ownRates = lines.some((l) => l.own);
+  if (ownRates) notes.push("The sheet's per-line retainage percentages were read as each line's own rate.");
+  const head = ["Item", "Description", "Type", "Scheduled value", "Previous", "This period", "Stored"].concat(ownRates ? ["Retainage"] : []);
+  const csv = [head, ...lines.map((l) => [l.item, l.desc, l.isCo ? "CO" : "", plain(l.c), plain(l.d), plain(l.e), plain(l.f)].concat(ownRates ? [l.own] : []))].map((x) => x.map(q).join(",")).join("\n");
   const header = `${sheet ? `sheet "${sheet}", ` : ""}row ${h.row + 1}${h.depth > 1 ? `-${h.row + h.depth}` : ""}`;
   return { csv, lines, checks, notes, header, columns: Object.keys(m) };
 }
