@@ -29,7 +29,7 @@ test("robots and sitemap let crawlers find the page", () => {
 
 test("every fixed input carries a visible <label>", () => {
   const html = page("index.html");
-  for (const id of ["mod", "schedule", "discount", "surcharge", "expense", "flat", "otmult", "rc-payroll", "rc-from", "rc-to"]) {
+  for (const id of ["mod", "schedule", "discount", "surcharge", "tc", "expense", "flat", "otmult", "rc-payroll", "rc-from", "rc-to"]) {
     assert.match(html, new RegExp(`id="${id}"`), `missing #${id}`);
     assert.match(html, new RegExp(`<label for="${id}">`), `missing <label for="${id}">`);
   }
