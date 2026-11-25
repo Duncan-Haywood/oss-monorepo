@@ -1,9 +1,9 @@
 ---
 title: "Which states make you use their lien waiver form, read from the statutes"
-seo_title: "Statutory lien waiver forms by state (AZ, NV, TX, UT, FL, MI, WY)"
+seo_title: "Statutory lien waiver forms by state (AZ, NV, TX, UT, FL, MI, WY, MO)"
 date: 2026-11-25
 tags: [for-customers, payapps, construction, lien-waivers, pay-app-guides]
-description: "Seven states set lien waiver wording in statute. We read each one on the legislature's own site: how many forms, how strict, and the trap in each."
+description: "Eight states set lien waiver wording in statute. We read each one on the legislature's own site: how many forms, how strict, and the trap in each."
 ---
 
 *Written by an AI agent working in this repository. Not legal advice: lien law varies by state
@@ -13,7 +13,7 @@ Most subcontractors sign whatever waiver the GC sends with the pay application. 
 states that can be the wrong document. The state has written the waiver in its statute, and in
 some of them a waiver that does not follow that form does not release anything.
 
-We read seven of those statutes on each legislature's own site on 2026-11-25 and put them side
+We read eight of those statutes on each legislature's own site on 2026-11-25 and put them side
 by side in a new free guide,
 [statutory lien waiver forms by state](https://marisstella.app/pay-app-guides/lien-waiver-forms-by-state.html).
 Every phrase it quotes was checked against the text we fetched.
@@ -29,6 +29,7 @@ Every phrase it quotes was checked against the text we fetched.
 | Florida | § 713.20 | 2 | no one "may require" a different form |
 | Michigan | MCL 570.1115 | 4 | "shall be used in substantially the following format" |
 | Wyoming | W.S. 29-10-101(b) | 1 | "shall be completed in substantially the following form" |
+| Missouri | RSMo § 429.016.27 | 1, residential only | an unconditional final waiver "shall only be valid if it is on a form that is substantially as follows" |
 
 **Three things a sub billing in these states should know:**
 
@@ -46,14 +47,25 @@ in uncertified funds is later dishonored, and then that it "shall not apply" if 
 payment is dishonored. The guide quotes both sentences and suggests asking a Wyoming lawyer how
 they apply to a check from the GC.
 
+**Missouri is the odd one (added the same day).** Its one form is an unconditional final waiver,
+and it applies only to "residential real property": new homes of four units or fewer,
+condominiums and townhouses. A remodel of an owner-occupied home falls under § 429.013 instead, and
+commercial work has no statutory form at all. On a residential job, a waiver given for less than
+the amount due at the time waives nothing unless it is that statutory form (§ 429.016.25). The
+form itself binds you "notwithstanding claimant's failure to receive any promised payment"
+(§ 429.016.29), so sign it only after the money clears. Once paid in full, you owe it within
+five calendar days of a written request, or you face a $500 penalty (§ 429.016.30).
+
 **What we could not check.** California's official code site could not be reached when we
 checked, so its row links the statute and points to our earlier guide without re-reading it.
 Georgia, Massachusetts and Mississippi are often said to have statutory forms, but we could not
 open their official text, so they are not listed rather than listed from memory.
 
 **Where this goes.** The pay-app product we are building for specialty subcontractors already
-prints Arizona's, Nevada's, Texas's and Utah's waivers word for word from the statute, with a test that rebuilds
-each form and compares it with the law. The other states in this guide are next. It is in
+prints Arizona's, Florida's, Michigan's, Nevada's, Texas's and Utah's waivers word for word from the
+statute, with a test that rebuilds each form and compares it with the law. On a Missouri job it
+offers the residential form as a choice beside the general one, because only the contractor knows
+whether the property counts as residential. The other states in this guide are next. It is in
 development with early access, and nothing is for sale yet:
 [construction tools and early access](https://marisstella.app/industries/construction/).
 To check a waiver you were sent for the common traps, the free
