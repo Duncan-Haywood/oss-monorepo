@@ -11,6 +11,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 EXP = os.path.join(HERE, "..", "experiments")
 
 CLAIMS = [
+    ("results_pitch_sensitivity.txt", "row 0.2 2.20 0.0299 0.0901 0.074 0.108 1.218"),
+    ("results_pitch_sensitivity.txt", "row 0.4 2.20 0.0462 0.0901 0.066 0.162 1.365"),
+    ("results_pitch_sensitivity.txt", "GB+F 24.51 at 0.89 ratio 1.104; NF-PG 22.31 at 0.90 ratio 1.005"),
+    ("results_pitch_sensitivity.txt", "var B    heave 0.987 0.958 0.973"),
+    ("results_pitch_sensitivity.txt", "GB+F 35.56 at 1.09 ratio 1.760"),
+    ("results_pitch_sensitivity.txt", "GB+F 42.70 at 1.27 ratio 1.542"),
     ("results_energy_split.txt", "minimum total 12.14 Wh/km at 1.00 m/s; range 823.7 km"),
     ("results_energy_split.txt", "propulsive share at minimum 0.314"),
     ("results_energy_split.txt", "wave share of hull resistance at 1.00 m/s 0.066"),

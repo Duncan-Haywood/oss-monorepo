@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqycEf4RWTj7EKZJ2sgq",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "Owner: plan agent effort; drop standalone research, R&D only inside paid products",
+  "input_sha256": "46b2f43d5b98c344b0c1bcad900ef0dad7f8d27ffddde8eaee7f0356dd66589a",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T00:14:23Z",
+  "ended": "2026-11-25T00:26:55Z",
+  "wall_minutes": 12.62,
+  "tokens_in": 3865147,
+  "tokens_out": 20445,
+  "cost_usd": 1.9604,
+  "tool_calls": 29,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18770",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "private-monorepo/packages/billing/README.md",
+      "issue": "Per-app API keys and per-app webhook destinations won't scale to the hundreds of products the owner plans; a shared billing service is proposed, not built."
+    },
+    {
+      "file": "prompts/goals.md",
+      "issue": "Earlier in this session I told the owner Paddle products were created by hand; private PR #36 had already automated it. The decision queue's payout-rail row still reads as a per-product step."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Direct owner request, routed to process without a draw.",
+      "did": "Made the routing and docs change directly.",
+      "result": "Tests and validate pass."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-research-folds-into-paid-products.md"
+  ],
+  "goal": null,
+  "notes": "pytest prompts/test_promptctl.py 74 passed; promptctl validate ok; risk_review blocked nothing.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4e2af222-a722-56b7-9a3d-2399af0a74b0",
+    "transcripts": 1,
+    "first": "2026-11-25T00:14:23Z",
+    "last": "2026-11-25T00:27:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 27,
+        "input": 59,
+        "output": 20445,
+        "thinking": 6289,
+        "cache_read": 3765311,
+        "cache_write_5m": 0,
+        "cache_write_1h": 99777,
+        "api_equivalent_usd": 1.9604,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 27,
+      "input": 59,
+      "output": 20445,
+      "thinking": 6289,
+      "cache_read": 3765311,
+      "cache_write_5m": 0,
+      "cache_write_1h": 99777,
+      "api_equivalent_usd": 1.9604,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 29,
+    "tools": {
+      "Bash": 27,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.62,
+      "active_minutes": 4.08,
+      "model_minutes": 3.31,
+      "tool_minutes": 0.77,
+      "waiting_on_human_minutes": 8.55,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

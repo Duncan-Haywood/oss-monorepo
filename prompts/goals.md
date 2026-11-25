@@ -246,6 +246,18 @@ says otherwise. The hard limits under Guardrails still hold.
    The owner is asked only for what a person must do: account signups,
    cards, secret values, admin-only settings. Don't add new owner gates; add
    a control to the review instead.
+11. **No standalone research; R&D only inside paid products** (owner,
+   2026-11-25: "drop the research if you have to do r and d you can but as
+   part of actual paid projects. not as independent academic research").
+   The research track takes no scheduled runs (`prompts/routing.json`,
+   weight 0; its share went to ventures). Research, algorithms, evals and
+   experiments are welcome where a paid product needs them, done in that
+   product's tree and judged by what they do for its users, not by a paper.
+   Open programmes under `research/` are paused, not deleted: a product run
+   may lift code or results from them. The research guardrails (integrity,
+   no fabrication, licences) still bind any R&D a product does. Where the
+   research sections below ("Mission", "Direction: research at PhD+ level",
+   "How a run is scored") say otherwise, this wins.
 
 ## Mission
 
@@ -739,6 +751,10 @@ platform"). Spec, licence rules and definition of done:
 [`portfolio/research-tools/README.md`](../portfolio/research-tools/README.md).
 
 ## Direction: research at PhD+ level, aimed at deep tech
+
+**Paused 2026-11-25** (pivot point 11 above): no standalone research
+runs. The text below is kept as the record and as the bar for R&D a paid
+product does.
 
 Set by the owner on 2026-11-01: "lets set as a direction to move the research
 into phd+ level with applications in deep tech applications". It raises the

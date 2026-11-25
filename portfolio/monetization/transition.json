@@ -4,7 +4,7 @@
   "counts": {
     "mit-commons": 5,
     "mit-deployer-run": 1,
-    "mit-lead-magnet": 1418,
+    "mit-lead-magnet": 1419,
     "proprietary": 20
   },
   "models": {
@@ -14,7 +14,7 @@
   "proprietary": [
     {
       "venture": "einvoice-preflight",
-      "source_lines": 35918,
+      "source_lines": 36255,
       "track": "proprietary",
       "why": "flagship #3: the depth people pay for",
       "model": "subscription",
@@ -49,7 +49,7 @@
     },
     {
       "venture": "ai-bookkeeper",
-      "source_lines": 18183,
+      "source_lines": 18200,
       "track": "proprietary",
       "why": "flagship #8: the depth people pay for",
       "model": "subscription",
@@ -60,7 +60,7 @@
     },
     {
       "venture": "changepoint-detector",
-      "source_lines": 16187,
+      "source_lines": 16276,
       "track": "proprietary",
       "why": "flagship #10: the depth people pay for",
       "model": "one-off",
@@ -85,8 +85,8 @@
       "source_lines": 77937,
       "track": "proprietary",
       "why": "flagship #12: the depth people pay for",
-      "model": "one-off",
-      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
+      "model": "subscription",
+      "model_why": "the cull and pipeline run on the user's machine and stay free; the paid part is hosted proofing galleries, which have a per-user storage cost (models.yaml, 2026-11-25)",
       "third_party_licences": [],
       "moved": null,
       "move_order": 6
@@ -104,7 +104,7 @@
     },
     {
       "venture": "league-schedule-generator",
-      "source_lines": 24627,
+      "source_lines": 24657,
       "track": "proprietary",
       "why": "flagship #14: the depth people pay for",
       "model": "subscription",
@@ -128,7 +128,7 @@
     },
     {
       "venture": "xer-schedule-check",
-      "source_lines": 16548,
+      "source_lines": 16567,
       "track": "proprietary",
       "why": "flagship #18: the depth people pay for",
       "model": "one-off",
@@ -264,5 +264,5 @@
       "sales-agent"
     ]
   },
-  "lead_magnets": 1418
+  "lead_magnets": 1419
 }
