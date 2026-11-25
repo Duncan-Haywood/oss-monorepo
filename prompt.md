@@ -19,7 +19,9 @@ starting message names a task, read the security queue first:
 
 - It lists alerts: take the top one with no `security-fix/code-scanning-<n>` branch
   (`git ls-remote`); its `alerts/<n>.md` says how. This comes before ideas, website
-  requests and routing, every run, until the queue is empty.
+  requests and routing, every run, until the queue is empty. An alert you read and find
+  harmless goes in `platform/security/codeql-triage.json` with its reason; the queue then
+  lists it under "Triaged, awaiting dismissal", which is not work for a session.
   The queue mirrors the last *completed* analysis of `main`, about an hour behind merges:
   QUEUE.md names the scanned commit, so check `git log <sha>..origin/main` for a bulk fix first.
 - It says `Unavailable:`: the alerts cannot be read (usually CodeQL has no analysis on
