@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKkCG5Bx9UoSxqRez8v",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T04:09:08Z",
+  "ended": "2026-11-25T04:16:21Z",
+  "wall_minutes": 7.42,
+  "tokens_in": 4437796,
+  "tokens_out": 28237,
+  "cost_usd": 2.2719,
+  "tool_calls": 53,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18843",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Built a full triage implementation (code-scanning-triage.json, validator, 6 tests) before searching open PRs and finding PR #18809 with the same design. Discarded it and built on #18809's branch instead, which cost about 15 minutes."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 sends a run to the queue head, but it does not say to search open PRs for the same alert or for queue tooling first. I re-triaged alerts that two merged notes and one open PR (#18809) had already covered."
+    },
+    {
+      "file": "docs/reports/2026-11-25-security-queue-false-positives.md",
+      "issue": "The verdicts were prose that the queue generator couldn't read, so the same alerts stayed at the top for three runs. Fixed by codeql-triage.json (PR #18809, landed here)."
+    },
+    {
+      "file": "platform/ci/security_alerts.py",
+      "issue": "The alert files say to claim a security-fix/<n> branch. Pushing those branches worked here, contrary to PR #18809's record, which said the harness forbids it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md (Duplicate PRs)",
+      "why": "PR #18809 was green and had the same design, but its branch carried a bad flagships.yaml merge, so merging it as-is would have reverted newer text.",
+      "did": "Branched from #18809, merged main in, restored flagships.yaml from main, and added my 14 verdicts in its format. A single PR lands both.",
+      "result": "One implementation lands instead of two competing ones."
+    },
+    {
+      "file": "prompt.md (write about the work)",
+      "why": "Internal security tooling with no outside reader, so no blog post.",
+      "did": "Extended the existing agent report with a third-pass section.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-25-security-queue-false-positives.md (third-pass section)"
+  ],
+  "goal": null,
+  "notes": "False positives or intended behaviour for the owner to dismiss on GitHub (reasons in platform/security/codeql-triage.json): #12, #34, #38, #39, #42, #43, #104, #105, #106, #741, #960, #968, #969, #1086, plus #1-#7, #95, #949-#951 from PR #18809. Claim branches security-fix/code-scanning-{7,12,34,38,39,42,43,104,105,106,741,960,968,969,1086} were pushed; they expire after 48h. Still unchecked: #1049 and #1050 (platform/pages url-substring), and the js/redos alerts in the regex-redos-check tests and the devsec-toolkit fixture, which are probably deliberate test inputs. Verification: platform/ci unittest test_security_alerts gave 19 OK; risk_review blocked nothing.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e447bce9-201a-536d-89b6-56903c7eee13",
+    "transcripts": 1,
+    "first": "2026-11-25T04:09:08Z",
+    "last": "2026-11-25T04:16:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 94,
+        "output": 28237,
+        "thinking": 7436,
+        "cache_read": 4332676,
+        "cache_write_5m": 0,
+        "cache_write_1h": 105026,
+        "api_equivalent_usd": 2.2719,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 94,
+      "output": 28237,
+      "thinking": 7436,
+      "cache_read": 4332676,
+      "cache_write_5m": 0,
+      "cache_write_1h": 105026,
+      "api_equivalent_usd": 2.2719,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 48,
+      "mcp__github__pull_request_read": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.42,
+      "active_minutes": 7.42,
+      "model_minutes": 6.09,
+      "tool_minutes": 1.33,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
