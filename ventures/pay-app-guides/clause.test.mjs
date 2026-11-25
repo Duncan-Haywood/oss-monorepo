@@ -42,6 +42,8 @@ test("state readings: void, lien-only and unknown states say different things", 
   assert.match(stateReading("pay-if-paid", "ca").text, /unenforceable/);
   assert.match(stateReading("pay-if-paid", "mo").text, /lien/);
   assert.match(stateReading("pay-if-paid", "wi").text, /delays/);
+  for (const k of ["constructor", "toString", "__proto__", undefined]) assert.equal(stateReading("pay-if-paid", k).known, false, String(k));
+  assert.ok(questions(readClause("x only if Owner pays"), "constructor").length);
   const none = stateReading("pay-if-paid", "zz");
   assert.equal(none.known, false);
   assert.match(none.text, /have not read/);

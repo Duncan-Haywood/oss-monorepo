@@ -128,12 +128,12 @@ const EFFECT = {
 
 // What the kind of clause means in the chosen state.
 export function stateReading(kind, key) {
-  const s = STATES[key];
+  const s = Object.hasOwn(STATES, key ?? "") ? STATES[key] : null;
   if (!s) {
     return { known: false, text: "We have not read this state's rule, so it is not shown. States differ: some void pay-if-paid clauses by statute, some protect only lien and bond rights, and some enforce clear pay-if-paid wording. A construction attorney in your state can tell you which applies." };
   }
   let text;
-  if (kind === "pay-if-paid" || kind === "unclear") text = EFFECT[s.effect];
+  if (kind === "pay-if-paid" || kind === "unclear") text = Object.hasOwn(EFFECT, s.effect) ? EFFECT[s.effect] : "";
   else if (kind === "pay-when-paid") text = s.effect === "timing" ? EFFECT.timing : "A pay-when-paid clause sets the time for payment; it does not by itself excuse the GC if the owner never pays. " + (s.effect === "delay-ok" ? "Wisconsin's statute expressly allows such a delay." : "Your state's rule below is about clauses that go further.");
   else text = "Your state's rule is below for reference.";
   return { known: true, text, ...s };
@@ -149,7 +149,7 @@ export function questions(result, key) {
   if (result.kind === "pay-when-paid" && result.days == null) q.push("The clause names no number of days: ask for one, and an outside date if the owner is late.");
   if (result.kind !== "empty") {
     q.push("Check that nothing else in the subcontract makes you waive lien or bond rights, and keep your lien and bond notice deadlines whatever the clause says.");
-    if (key && STATES[key]?.effect === "lien-only") q.push("Your state protects lien rights specifically: note your preliminary notice and lien filing deadlines now.");
+    if (Object.hasOwn(STATES, key ?? "") && STATES[key].effect === "lien-only") q.push("Your state protects lien rights specifically: note your preliminary notice and lien filing deadlines now.");
   }
   return q;
 }

@@ -32,7 +32,8 @@
   "errors": [
     "git clone of private-monorepo after add_repo was refused by the auto-mode permission classifier; did not retry or work around",
     "WebFetch to ncleg.gov, docs.legis.wisconsin.gov and leg.state.nv.us failed DNS (outside allowed domains); statutes read through WebSearch limited to the official domains instead",
-    "WebSearch with casetext.com in allowed_domains errors 400 (not accessible to the crawler); dropped it"
+    "WebSearch with casetext.com in allowed_domains errors 400 (not accessible to the crawler); dropped it",
+    "First push failed platform/ci/test_inherited_keys.py (EFFECT[s.effect] / STATES[key] prototype lookups in clause.mjs); fixed with Object.hasOwn and a test for 'constructor'/'__proto__' keys"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -57,7 +58,7 @@
     "docs/posts/2026-11-25-prompt-payment-laws-for-subcontractors.md (extended with a pay-if-paid section)"
   ],
   "goal": null,
-  "notes": "Local: node --test *.test.mjs in ventures/pay-app-guides 89 pass 0 fail; Playwright 390px no console errors, no horizontal scroll. risk_review: nothing blocked; three checks answered in the PR body.",
+  "notes": "Local: node --test *.test.mjs in ventures/pay-app-guides 89 pass 0 fail; Playwright 390px no console errors, no horizontal scroll. risk_review: nothing blocked; three checks answered in the PR body. run_workflow_locally --for-changes: 11/12 workflows passed; the one failure was test_inherited_keys on clause.mjs, fixed in the second commit; the security-scan, codeql, cross-review and deploy steps could not run locally.",
   "corrections": [],
   "redteam": null,
   "usage": {
