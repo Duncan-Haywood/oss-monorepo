@@ -95,7 +95,9 @@ test("grading: each step up in size widens the body by half the chest step and d
   const row = l => gr.table.find(r => r.label.startsWith(l));
   assert.deepEqual(row("Half chest").steps, [2, 2, 2, 2, 2]);
   assert.deepEqual(row("Body length").steps, [2, 2, 2, 2, 2]);
-  assert.ok(row("Armhole depth").steps.every(v => v > 1 && v < 3));
+  // +0.12 cm per cm of chest (grade.mjs): 0.96 cm a size. Until 2026-11-25 it was 0.235 x chest, +1.88 cm,
+  // about twice a common knit grade (quality audit 2026-11-22, defect 1); a 1 < step < 3 check let that pass.
+  assert.deepEqual(row("Armhole depth").steps, [0.96, 0.96, 0.96, 0.96, 0.96]);
 });
 
 test("refusals: unknown garment or size, bad allowance", () => {
@@ -218,5 +220,14 @@ test("the drafted sleeve length matches the spec sheet's sleeve row in every siz
       const ys = d.pieces.find(p => p.name === "sleeve").stitch.map(p => p[1]);
       assert.ok(Math.abs(Math.max(...ys) - Math.min(...ys) - row.sleeve) < 0.05, `${g} ${size}: ${Math.max(...ys) - Math.min(...ys)} vs spec ${row.sleeve}`);
     }
+  }
+});
+
+test("the sleeve cap stays about the same height across the size run (armhole and bicep graded from M, 2026-11-25)", () => {
+  // With the armhole graded at +0.96 cm a size and the bicep still at 0.34 x chest, the cap flattened by up to
+  // 0.73 cm a size going up; a pattern maker expects the cap height to hold within a few mm a size.
+  for (const g of ["tee", "longsleeve", "crewneck", "hoodie"]) for (const fit of ["slim", "regular", "relaxed", "oversized"]) {
+    const row = grade(g, null, { fit }).table.find(r => r.label === "Sleeve cap height");
+    for (const v of row.steps) assert.ok(Math.abs(v) < 0.6, `${g} ${fit} cap step ${v}`);
   }
 });
