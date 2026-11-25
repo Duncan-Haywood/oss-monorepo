@@ -145,3 +145,21 @@ As with the meta descriptions, nothing was added that the old text did not
 say; "Runs in the browser" tails went first. The list now stands at 876; the
 largest remaining blocks are saints-by-candlelight (178) and
 einvoice-preflight (80).
+
+## Update, 2026-11-25: the e-invoicing country cards
+
+The 80 e-invoicing country pages on that list had share cards of 201 to 355
+characters (median 236), so a link to "Germany e-invoice mandate" pasted into
+a Slack or LinkedIn thread showed the dates and then cut off before the part
+about checking a file. Their search snippets had been rewritten to 160 the
+same morning, from the same facts and with each country's own hedge ("as
+reported", "draft"), so the share card now reuses that text: 149 to 160
+characters. Germany's card went from 223 characters to 156:
+
+> Germany: businesses receive EN 16931 e-invoices since 2025 and issue them
+> from 2027 or 2028. Which formats count (XRechnung, ZUGFeRD), and a free
+> file check.
+
+The share-card list is down from 876 to 796. No e-invoicing page is left on
+it; the largest block is now saints-by-candlelight (178), which is not a paid
+product.

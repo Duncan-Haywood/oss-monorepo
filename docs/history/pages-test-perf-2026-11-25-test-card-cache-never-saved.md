@@ -93,7 +93,17 @@ a day, which the schedule was meant to do and has not done on busy days.
   cards keyed by what they are drawn from (`share.mjs`), so a restored card is
   the bytes a fresh draw would make.
 
-## After number: read it on the next PR
+## After number
+
+First reading, same day: push run 45612877573's `test-cards` missed, ran the
+suite (243 s) and saved `test-share-cards-350695ad…-20261125`. The next PR
+(18967, job 139208464791) logged `Cache restored from key:
+test-share-cards-…`, and "Test the site builder" took **170 s**, with the
+shared build at 112 s. Before: 232 s median over 14 runs, 348 s and 290 s in
+the cold sample. That is one run, so re-read the median with `ci_profile.py
+--steps 20` after a day of PRs.
+
+### How to re-read it
 
 Once a push has run `test-cards` (its log says "Cache saved with key:
 test-share-cards-…-<day>"), a PR's `test` log should say `Cache restored from

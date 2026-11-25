@@ -35,5 +35,24 @@ python3 portfolio/ledger/supersede_check.py <pr>      # before closing a PR as "
   Its `sitemap.xml` merges by union (`.gitattributes`; the build overwrites
   it anyway), and a page test should read the folder rather than list pages.
   The rest (llms.txt, README table, nav) you resolve by keeping both sides.
+- **Claim a private roadmap item before you build it.** Sibling ventures runs
+  read the same `ROADMAP.md` "Next" list in `private-monorepo` and pick the same
+  item. On 2026-11-25 one session built the pay-when-paid outer limit and then
+  the change-order history panel, and each time a sibling merged the same
+  feature (private PRs 95 and 96) minutes before it was ready. Two checks cost
+  seconds: right before starting, `git ls-remote origin 'refs/heads/claude/<app>-*'`
+  (a sibling's branch named after the item means it is taken) and the last five
+  PRs by `created` with `state: all` (an open-PR check misses one merged ten
+  minutes ago). Then claim the item by pushing your branch at once, before any
+  code: `git push -u origin HEAD` on a branch named after the item. Re-run both
+  checks before opening the PR.
+  **A bare branch at main's tip is a weak claim.** On 2026-11-25 a session
+  pushed `claude/payapps-co-last-chased` with no commits, a sibling picked the
+  same item and the same name, and its push was a plain fast-forward onto the
+  "claim". It opened and merged private PR 99 while the first session was still
+  building. So also re-run the checks once your first slice of code works, not
+  only before opening the PR, and if the item turns out to be taken, ship what
+  the winner lacks as a follow-up instead of a duplicate (that run turned its
+  work into private PR 100, a fix to PR 99's history rows).
 - **Shallow clones lie about history.** History-based checks need a
   deeper fetch first: [`cloud-session.md`](cloud-session.md), "Shallow clones".
