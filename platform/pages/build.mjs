@@ -5453,28 +5453,6 @@ export function flagshipSlugs(repoRoot = REPO_ROOT) {
   return [...readFileSync(file, 'utf8').matchAll(/^  - venture: ([a-z0-9-]+)\s*$/gm)].map((m) => m[1]);
 }
 
-/**
- * The free tools that lead to a for-profit product (owner, 2026-11-24: free
- * tools are lead magnets for the products people pay for), read from
- * `portfolio/monetization/funnels.json`: a Map from each feeder tool's slug to
- * `{ product, pitch }`. The pairs are chosen by hand there, not by word
- * overlap: matching on shared words sent agent-config checks to a real-estate
- * photo app and every "*-builder" to the shift roster. Empty when the file is
- * missing, so a build of a single venture still works.
- */
-export function loadProductFunnels(repoRoot = REPO_ROOT) {
-  const file = path.join(repoRoot, 'portfolio', 'monetization', 'funnels.json');
-  const map = new Map();
-  if (!existsSync(file)) return map;
-  const { products = {} } = JSON.parse(readFileSync(file, 'utf8'));
-  for (const [product, { pitch, feeders = [] }] of Object.entries(products)) {
-    for (const feeder of feeders) {
-      if (feeder !== product && !map.has(feeder)) map.set(feeder, { product, pitch });
-    }
-  }
-  return map;
-}
-
 /** Research projects the research homepage builds: `research/<slug>/` with a README. */
 export function researchProjectCount(repoRoot = REPO_ROOT) {
   const dir = path.join(repoRoot, 'research');
@@ -10917,7 +10895,6 @@ const CHROME_CSS = `
   grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr))}
 .pf-chrome-foot li{margin:0}
 .pf-chrome-foot p.pf-ask{margin:0 0 18px;padding:10px 14px;border:1px solid var(--pf-line);border-left-width:4px;border-radius:8px}
-.pf-chrome-foot p.pf-product{margin:-6px 0 18px;padding:10px 14px;border:1px solid var(--pf-line);border-left-width:4px;border-radius:8px}
 .pf-ci{margin:0 0 14px}
 .pf-ci summary{cursor:pointer;font-weight:600}
 .pf-ci pre{overflow-x:auto;margin:0 0 10px;padding:8px 10px;border:1px solid var(--pf-line);border-radius:6px;font-size:.82rem}
@@ -11113,7 +11090,6 @@ const CHROME_SCRIPT = ({ counterUrl = '' } = {}) => `
       if(!t)return;
       var a=t.closest('[data-pf-to]');
       if(a)bump('cross_tool_click:'+a.getAttribute('data-pf-to'));
-      if(t.closest('[data-pf-funnel]'))bump('product_funnel_click');
       if(t.closest('[${SPONSOR_LINK_ATTR}]'))bump('${SPONSOR_CLICK_EVENT}');
     });
   }catch(e){}
@@ -12147,7 +12123,7 @@ function crumbShort(name) {
  */
 export const FOOTER_LEAD_NOT_A_BROWSER_TOOL = 'More from the same free, open-source catalogue.';
 
-export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [], linkedCss = '', browserTool = true, product = null }) {
+export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [], linkedCss = '', browserTool = true }) {
   if (html.includes(CHROME_MARKER)) return html;
   const initialBody = locateBody(html);
   if (!initialBody) return html;
@@ -12265,15 +12241,6 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
         .join(' &nbsp;·&nbsp; ')}</p>\n`
     : '';
 
-  // The for-profit product this free tool is a smaller piece of
-  // (`loadProductFunnels`): one line at the top of the footer, beside the
-  // custom-development line, so a visitor doing one piece of a job by hand
-  // finds the tool that does the whole of it. Counted on click
-  // (`product_funnel_click`, and `cross_tool_click:<slug>` like every footer link).
-  const productLine = product
-    ? `    <p class="pf-product"><strong>For the whole job:</strong> <a href="${escapeHtml(`${toRoot}${product.slug}/`)}" data-pf-to="${escapeHtml(product.slug)}" data-pf-funnel>${escapeHtml(product.title)}</a>: ${escapeHtml(product.pitch)}.</p>\n`
-    : '';
-
   // Tested against the venture's own markup, before any chrome is added.
   const noSla = NO_SLA_PATTERN.test(html) ? '' : `    ${NO_SLA_CLAUSE}\n`;
 
@@ -12283,7 +12250,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   const askLine = `    <p class="pf-ask"><strong>Need this tool to do more?</strong> <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}?kind=feature&tool=${encodeURIComponent(slug)}#request`)}">Request a feature</a>, built free and in public, or <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}?kind=problem&tool=${encodeURIComponent(slug)}#request`)}">tell us what is wrong</a>.</p>\n`;
   const footer = `<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
   <div class="pf-inner">
-${askLine}${productLine}    <h2>More free tools</h2>
+${askLine}    <h2>More free tools</h2>
     <p>${externalCallHosts.length
       ? `Everything on this page runs in your browser too, except this one lookup: what you type here also goes to ${listProse(externalCallHosts)}, because that is what checking it means — see the note on this page for exactly what is sent.`
       : browserTool
@@ -12425,19 +12392,12 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
 
   // Every footer's related tools, ranked and balanced once (`relatedToolsTable`).
   const relatedTable = relatedToolsTable(surfaces);
-  // Each free tool's for-profit product, where one is chosen (`loadProductFunnels`).
-  const funnels = loadProductFunnels();
   const perSurface = await mapLimit(surfaces, 16, async (surface) => {
     const found = { wrapped: [], rated: [], saved: [], shared: [], described: [], highlighted: [], narrowed: [], embedded: [] };
     const { wrapped, rated, saved, shared, described, highlighted, narrowed, embedded } = found;
     const dir = path.join(outDir, surface.slug);
     if (!(await exists(dir))) return found;
     const related = (relatedTable.get(surface.slug) ?? relatedTools(surfaces, surface.slug)).map(named);
-    // Only a product that is on the site, under the name its own pages use.
-    const funnel = funnels.get(surface.slug);
-    const product = funnel && names.has(funnel.product)
-      ? { slug: funnel.product, title: names.get(funnel.product).name, pitch: funnel.pitch }
-      : null;
     // The trail's tool name, the same on every page in the tool (`names` above).
     const crumbName = named(surface).title;
     // Read once per venture; several pages in a directory load the same script.
@@ -12475,7 +12435,6 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         // electronics academy's index pages are hubs; their calculators are
         // pages inside them).
         browserTool: (names.get(surface.slug)?.browserTool ?? true) || hasOwnControls(html),
-        product,
       })), toRoot);
       // After the chrome, which guarantees the canonical this repairs, and read
       // from the venture's *own* markup: a deep SEO page inside a tool has its
