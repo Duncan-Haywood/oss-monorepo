@@ -3,7 +3,7 @@ number: 179
 slug: jobs-three-daughters-jemimah-keziah-and-keren-happuch
 title: Job's Three Daughters, Jemimah, Keziah and Keren-happuch
 published: 2026-11-25
-summary: After the whirlwind, a man of the land of Uz prays for the three friends who spoke wrongly about God, eats bread again with everyone who once knew him, and names three daughters for a dove, a spice and a little horn of eye paint, then gives them an inheritance among their brothers. The end of the Book of Job, chapter forty-two, told gently.
+summary: After the whirlwind, Job prays for his friends and names three daughters for a dove, a spice and a horn of eye paint. Job 42.
 figures: Job, a man of the land of Uz; Eliphaz the Temanite, Bildad the Shuhite and Zophar the Naamathite; Job's brothers and sisters and old acquaintances; his seven sons and his three daughters, Jemimah, Keziah and Keren-happuch; with Adinah, an invented old nurse of the household
 tradition: Catholic and Orthodox; both read the Book of Job as Scripture and honour Job as a righteous man and a saint of the Old Testament
 feast: in the Orthodox Church the holy and righteous Job the Long-suffering is remembered on the sixth of May; the Roman Martyrology remembers Saint Job on the tenth of May

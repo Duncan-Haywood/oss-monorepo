@@ -29,12 +29,18 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "CI test job failed: og-description-length.test.mjs, new episode page og:description over 200 chars (summary plus the page's fixed suffix); summary cut to 125 chars and the test now passes locally"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "ventures/saints-by-candlelight/PRODUCTION.md",
       "issue": "The Joseph of Arimathea list entry overlaps heavily with episode 177 (Nicodemus), which already tells the burial with all four Gospels. I skipped it; a later run should reword or drop it."
+    },
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "The file-format section does not say the summary feeds og:description, which must stay at or under 200 characters with a ~60-character suffix added, so a summary needs to be at most about 140 characters; --check-script does not catch it, and the failure shows up only in the repo-wide pages test"
     }
   ],
   "deviations": [
