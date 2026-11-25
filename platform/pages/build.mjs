@@ -9959,6 +9959,8 @@ ${renderProductGrid(softwareLines(), { toRoot: '', published: publishedTools, an
            the front door without JavaScript (crawl depth), without the clutter. -->
       <p class="band-lede cat-links">Browse by the job: ${groups
         .map(({ category, items }) => `<a href="${escapeHtml(categoryPagePath(category.id))}" data-category="${escapeHtml(category.id)}">${escapeHtml(category.title)}</a> <span>${formatCount(items.length)}</span>`)
+        .join(' · ')} · By type: ${kindPages
+        .map(({ page, items }) => `<a href="${escapeHtml(categoryPagePath(page.id))}" data-category="${escapeHtml(page.id)}">${escapeHtml(page.id === 'apps' ? 'Web apps' : page.title)}</a> <span>${formatCount(items.length)}</span>`)
         .join(' · ')} · <a href="${CATEGORY_PATH_PREFIX}/">every free tool →</a></p>
     </section>
 
