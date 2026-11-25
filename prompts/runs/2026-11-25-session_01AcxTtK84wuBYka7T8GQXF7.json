@@ -17,7 +17,7 @@
   "tokens_out": 45905,
   "cost_usd": 3.3027,
   "tool_calls": 49,
-  "task": "aerolog-scaling milestone 11bk: price a Remote ID track-age cut-off against FR and an optimal age-scheduled radius",
+  "task": "aerolog-scaling milestone 11bl (written as 11bk): age-scheduled Remote ID protection radius vs one radius and a track-age cut-off",
   "projects": [
     "research/aerolog-scaling"
   ],
@@ -33,7 +33,8 @@
   "outcome": "success",
   "errors": [
     "GitHub (git remote and the GitHub MCP server) returned 503 'credential service temporarily unavailable' for roughly the first 15 minutes of the run; security-queue fetch, claim check and pushes were delayed until it recovered",
-    "first rerun with the risk diagnostic crashed (pick() returned rows inside the bisection); fixed and rerun"
+    "first rerun with the risk diagnostic crashed (pick() returned rows inside the bisection); fixed and rerun",
+    "milestone collision: PR #18704 landed a different 11bk (certified track-age cut-off with Pareto tails) on 2026-11-24 while this run's checkout was 18 h stale and GitHub was down, so the claim check was blind; found at merge time (conflicts), renumbered to 11bl / paper part 6.10(g) / Q18 and reframed to build on 11bk"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -44,6 +45,10 @@
     {
       "file": "research/_shared/pick_track.py",
       "issue": "with origin unreachable it still draws a track but every CLAIM CHECK is blind; fine, but it could say to re-run once the remote is back"
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "main gained 'Paused 2026-11-25: the research track gets no scheduled runs' after this run was routed to research; promptctl route on the stale checkout still drew research"
     }
   ],
   "deviations": [
@@ -58,15 +63,21 @@
       "why": "after the first results, OR-W was seen to concentrate risk on old tracks (up to 253x b); reporting only the unconstrained optimum would overstate the usable saving",
       "did": "added a risk profile and a capped variant OR-C, flagged in the docstring, LOG and paper as added after the predictions with no prediction",
       "result": "OR-C keeps almost all the saving (0.172 vs 0.171 s at 30 s bursts)"
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "why": "the research pause landed on main mid-run; the step was already computed, complements 11bk and finishes a strand of a paper close to v0",
+      "did": "landed the finished step instead of discarding it; no new programme opened",
+      "result": "merged as 11bl; next runs should follow the pause"
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-25-aerolog-remote-id-track-age-cutoff.md",
-    "research/aerolog-scaling/LOG.md (11bk entry)",
-    "research/aerolog-scaling/paper/airspace_layers.md Section 6.10(f)"
+    "docs/posts/2026-11-25-aerolog-remote-id-age-scaled-radius.md",
+    "research/aerolog-scaling/LOG.md (11bl entry)",
+    "research/aerolog-scaling/paper/airspace_layers.md Section 6.10(g), Q18"
   ],
   "goal": "research programme step (PhD+ track 22, aerolog-scaling)",
-  "notes": "Verification run here: research/aerolog-scaling tests 363 passed; paper/check_airspace_numbers.py 414 of 414; research/_homepage/build.py ok; check_md_links ok; check_posts ok; research_live_links 0 updated. Checks inside the results: OR/FR-1 max +2.0% (grid/binning), OR-W/OR-1 max +0.27%. 4 of 6 predictions held (K1 refuted: best cut-off is none; K6 refuted: 30% saved even at 0.3 m/s).",
+  "notes": "Verification run here: research/aerolog-scaling tests 363 passed; paper/check_airspace_numbers.py 439 of 439 after merging main; research/_homepage/build.py ok; check_md_links ok; check_posts ok; research_live_links 0 updated. Checks inside the results: OR/FR-1 max +2.0% (grid/binning), OR-W/OR-1 max +0.27%. 4 of 6 predictions held (K1 refuted: best cut-off is none; K6 refuted: 30% saved even at 0.3 m/s).",
   "corrections": [],
   "redteam": null,
   "usage": {

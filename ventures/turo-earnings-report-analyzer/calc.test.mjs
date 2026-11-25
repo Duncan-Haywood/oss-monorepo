@@ -58,7 +58,7 @@ test("a lone price column applies the fee percentage; a lone earnings column has
   const b = load("R1,Civic,2026-06-01,2026-06-02,Completed,150\n", "Reservation ID,Vehicle,Trip start,Trip end,Status,Earnings\n");
   assert.equal(b.feeSource, "none");
   assert.equal(b.trips[0].fee, 0);
-  const c = load("R1,Civic,2026-06-01,2026-06-02,Completed,300,150\n", HEAD.replace("Trip price,Earnings", "Trip price,Earnings"), { feeMode: "gross", feePct: 20 });
+  const c = load("R1,Civic,2026-06-01,2026-06-02,Completed,300,150\n", HEAD, { feeMode: "gross", feePct: 20 });
   assert.equal(c.trips[0].payout, 240, "gross mode reads the price and applies the percentage");
 });
 

@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01XpHqycPmF47Y7QmC9NUek3",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "Directional revamp session: build industries/e-invoicing/ page (DE, FR, BE, PL) for SMEs and accountants, bet #3",
+  "input_sha256": "bf9a86b76e33e0677259c4e070664fc94531e22d3239beec6987bdf4c797b6fc",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T22:11:40Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "industries/e-invoicing/ page for bet #3 (e-invoice fix-and-explain)",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": 18689,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 2,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "First full build failed: the new post's description was 166 characters (writing.mjs caps it at 160); shortened and rebuilt.",
+    "check.mjs flagged the page's meta description at 239 characters (budget 160); cut to 155 and pinned by a test.",
+    "CI 'test' failed on the first head: build.test.mjs pins the exact hub sitemap list and the llms-full.txt bullet count, and both grew by the new page. Updated both, and the two tests pass locally."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The brief asks to cite each deadline to an official source with the date checked, but bundesfinanzministerium.de, economie.gouv.fr, einvoice.belgium.be and ksef.podatki.gov.pl are all refused by the session proxy. Only search excerpts of those pages were readable, and the page says so."
+    },
+    {
+      "file": "platform/pages/check.mjs",
+      "issue": "Any new root directory is held to the product contract unless it is listed in SITE_OWN_DIRS. Nothing told the industries/ sessions this, so each would find out from a failed check."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "(session brief)",
+      "why": "Official pages were unreachable, so the deadlines rest on search excerpts of those official pages, read 2026-11-24, and the page labels them that way rather than claiming the pages were read.",
+      "did": "Labelled how each source was read",
+      "result": "Each date is still cited honestly"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-e-invoicing-deadlines-four-countries-official-sources.md"
+  ],
+  "goal": null,
+  "notes": "After merging main: node build.mjs exit 0; node check.mjs exit 0 ('dist looks publishable: 1437 products, 54 category pages, 13150 pages, no dead links'); node --test industry-e-invoicing.test.mjs custom-development-page.test.mjs 26/26 passed. Follow-up: once business.mjs is on main, move PRODUCT onto it and link the industries/ index. Full platform/pages suite locally before the fix: 1969/1971, and the 2 failures were the pinned sitemap and llms counts, now updated.",
+  "corrections": [],
+  "redteam": null
+}

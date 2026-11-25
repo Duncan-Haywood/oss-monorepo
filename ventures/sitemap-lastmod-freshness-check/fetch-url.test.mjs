@@ -80,9 +80,11 @@ test('fetchBody resolves a relative redirect Location against the request URL', 
 });
 
 test('fetchBody gives up after too many redirects rather than looping forever', async () => {
+  let hops = 0;
   await withServer(
     (req, res) => {
-      res.writeHead(302, { location: req.url + 'x' });
+      hops += 1;
+      res.writeHead(302, { location: `/loop/${hops}` });
       res.end();
     },
     async (base) => {

@@ -17,7 +17,7 @@ studies tell a different story, and whether a study-level variable explains the 
 - **Checks:** forest plot, funnel plot with Egger's test, leave-one-out.
 - **Meta-regression** on one numeric moderator, with R-squared and a bubble plot.
 
-Free and open source (MIT). Runs in the browser; nothing is uploaded. Zero dependencies.
+Free to use and source available (FSL-1.1-MIT). Runs in the browser; nothing is uploaded. Zero dependencies.
 
 **No warranty.** Statistical estimates from the study results you supply, not medical, legal,
 tax, financial or professional advice. A pooled number is only as good as the studies and how

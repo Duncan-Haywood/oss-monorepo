@@ -2,7 +2,7 @@
 
 > Free calculator for the OBBBA gambling loss deduction limit: your allowable Schedule A deduction is the lesser of your actual losses or 90% of your winnings, starting with 2026 tax returns. See exactly how much of your winnings becomes taxable "phantom income" even if you broke even or lost overall.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## What it answers
 
@@ -15,4 +15,4 @@ Starting with 2026 tax returns, the One Big Beautiful Bill Act caps your gamblin
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gambling-loss-deduction-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gambling-loss-deduction-calculator): FSL-1.1-MIT licensed.

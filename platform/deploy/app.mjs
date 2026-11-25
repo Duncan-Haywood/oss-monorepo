@@ -5,6 +5,15 @@ import { makeGh, storeSecrets, pushFiles, newProgress, failureMessage } from './
 
 const $ = (id) => document.getElementById(id);
 const log = (m) => { $('log').textContent += `${m}\n`; };
+/** Build an element from text and child nodes (never parses HTML, so names and logins stay text). */
+const el = (tag, attrs, ...kids) => {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) n.setAttribute(k, v);
+  n.append(...kids);
+  return n;
+};
+const link = (href, ...kids) => el('a', { href, rel: 'noopener' }, ...kids);
+const showDone = (...kids) => { $('done').hidden = false; $('done').replaceChildren(el('div', { class: 'card' }, ...kids)); };
 
 let catalog = [];
 let provider = 'github-pages';
@@ -166,8 +175,9 @@ async function deploy() {
 
     if (provider === 'render') {
       const repoUrl = `https://github.com/${full}`;
-      $('done').hidden = false;
-      $('done').innerHTML = `<div class="card"><strong>Your repository is ready:</strong> <a href="${repoUrl}" rel="noopener">${full}</a>. Last step: <a href="${renderDeployUrl(repoUrl)}" rel="noopener"><strong>open it in Render</strong></a> (sign in to your own Render account; it asks for the secrets and shows the price). Then delete the GitHub token you used here.</div>`;
+      showDone(el('strong', null, 'Your repository is ready:'), ' ', link(repoUrl, full), '. Last step: ',
+        link(renderDeployUrl(repoUrl), el('strong', null, 'open it in Render')),
+        ' (sign in to your own Render account; it asks for the secrets and shows the price). Then delete the GitHub token you used here.');
       log('Finished.');
       return;
     }
@@ -179,10 +189,11 @@ async function deploy() {
 
     const actions = `https://github.com/${full}/actions`;
     const live = provider === 'github-pages' ? `https://${me.login}.github.io/${name}/` : null;
-    $('done').hidden = false;
-    $('done').innerHTML = `<div class="card"><strong>Done.</strong> Your repository is <a href="https://github.com/${full}" rel="noopener">${full}</a>. The first deploy is running: <a href="${actions}" rel="noopener">watch it here</a>.` +
-      (live ? ` When it finishes (about a minute) your copy is at <a href="${live}" rel="noopener">${live}</a>.` : provider === 'android' ? ` When it finishes (about five minutes) open the run and download <strong>app-debug-apk</strong> from its Artifacts.` : ` The live URL appears in the run’s summary.`) +
-      ` Now delete the token you used.</div>`;
+    const next = live ? [' When it finishes (about a minute) your copy is at ', link(live, live), '.']
+      : provider === 'android' ? [' When it finishes (about five minutes) open the run and download ', el('strong', null, 'app-debug-apk'), ' from its Artifacts.']
+      : [' The live URL appears in the run’s summary.'];
+    showDone(el('strong', null, 'Done.'), ' Your repository is ', link(`https://github.com/${full}`, full), '. The first deploy is running: ',
+      link(actions, 'watch it here'), '.', ...next, ' Now delete the token you used.');
     log('Finished.');
   } catch (e) {
     log(`Stopped: ${e.message}`);

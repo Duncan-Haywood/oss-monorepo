@@ -31,7 +31,7 @@ node --test ventures/shopify-payout-to-journal/
 
 ## License
 
-MIT. See `LICENSE`.
+FSL-1.1-MIT. See `LICENSE`.
 
 ## No warranty
 

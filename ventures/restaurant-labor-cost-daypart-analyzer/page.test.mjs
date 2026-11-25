@@ -72,7 +72,7 @@ test("page says the column aliases are unverified and the default cost is a plac
 });
 
 test("page links to the sibling restaurant tools, and the menu engineering calculator links back", () => {
-  for (const slug of ["menu-engineering-calculator", "restaurant-pos-menu-mix-analyzer", "pour-cost-calculator"]) assert.match(page("index.html"), new RegExp(`href="\.\./${slug}/"`));
+  for (const slug of ["menu-engineering-calculator", "restaurant-pos-menu-mix-analyzer", "pour-cost-calculator"]) assert.match(page("index.html"), new RegExp(`href="\\.\\./${slug}/"`));
   const other = readFileSync(new URL("../menu-engineering-calculator/index.html", import.meta.url), "utf8");
   assert.match(other, /href="\.\.\/restaurant-labor-cost-daypart-analyzer\/"/);
 });

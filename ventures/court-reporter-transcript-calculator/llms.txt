@@ -2,7 +2,7 @@
 
 > Free deposition transcript pricing calculator for freelance court reporters: turn page count, turnaround, travel, copies, and exhibits into an invoice total and an effective hourly rate, and check whether an agency's flat offer is worth the day. Entirely client-side, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/court-reporter-transcript-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/court-reporter-transcript-calculator): FSL-1.1-MIT licensed.

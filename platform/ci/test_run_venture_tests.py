@@ -55,6 +55,23 @@ class FakeVentures(unittest.TestCase):
         slug, ok, _, _ = rvt.run("a")
         self.assertEqual((slug, ok), ("a", True))
 
+    def test_ci_fetch_runs_first_and_a_failed_fetch_fails_the_venture(self):
+        # ids-model-check's licensed test data was never fetched in CI, so its
+        # conformance tests skipped there (red-team record 2026-11-16, #1).
+        test = ("import test from 'node:test'; import fs from 'node:fs';"
+                "test('t', { skip: !fs.existsSync('data/x') }, () => {});")
+        self.venture("f", {"ci-fetch.sh": "mkdir -p data && touch data/x\n", "x.test.mjs": test})
+        slug, ok, out, _ = rvt.run("f")
+        self.assertTrue(ok, out)
+        self.assertIn("$ sh ci-fetch.sh", out)
+        self.assertEqual(rvt.skipped(out)[0], 0)
+        self.venture("g", {"ci-fetch.sh": "exit 3\n", "x.test.mjs": test})
+        self.assertFalse(rvt.run("g")[1])
+        # no suites, nothing to fetch for
+        self.venture("h", {"ci-fetch.sh": "exit 3\n"})
+        self.assertEqual(rvt.fetch_command("h")[0][0], ["sh", "ci-fetch.sh"])
+        self.assertFalse(rvt.has_tests("h"))
+
     def test_a_named_run_prints_each_step_as_it_starts(self):
         # A background run redirected to a file showed nothing until the
         # venture ended (doc friction 2026-11-20T12:38).

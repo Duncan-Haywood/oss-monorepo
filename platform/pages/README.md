@@ -461,6 +461,21 @@ hides inside another word (`pet-` in `carpet-`, `tutor` in `statutory`);
 listing two tools is a doorway page, not an answer. The root `README.md` links
 every audience page, and a test keeps that list in step with `AUDIENCES`.
 
+### Industry pages (`industries/<who>/`)
+
+An industry page is the room behind a set of free tools: the problems one kind
+of business has, in its own words, the paid product being built for them
+(stated as in development until it takes money), and a curated handful of the
+free tools as the way in. `industry-online-sellers.mjs` writes
+`industries/online-sellers/` (resellers and small shops on eBay, Etsy,
+Poshmark, Mercari, Whatnot, Depop, Shopify and Amazon). The module imports only
+`site-nav.mjs`; build.mjs hands in the head, disclaimer and chrome script, so
+there is no import cycle. A tool the build did not publish is left off the
+page. Its tests pin the honesty lines: in development, no price, not tax
+advice, the 1099-K threshold cited to irs.gov and no scare copy. When
+`business.mjs` (home, `/products/`, the `industries/` index) lands, the
+product data should come from there.
+
 ### The contents index
 
 Grouping alone does not shorten the page. The hub is **36,400px — 43 screens —
@@ -1411,7 +1426,7 @@ pages, and the site card).
   pool of worker threads (`share-worker.mjs`); on four cores the build takes
   no longer than before the pass existed.
 - The deploy guide and the development pages (`deploy/`, `dev/`) are written
-  into the artifact by later workflow steps, so `portfolio-pages.yml` runs the
+  into the artifact by later workflow steps, so `priv-portfolio-pages.yml` runs the
   same pass over them afterwards: `node platform/pages/share.mjs <dist>
   --base=<site url> --only=deploy,dev`. Pages with no og: tags at all get
   `og:title`, `og:description`, `og:url` and `og:type` from their own head.
@@ -2254,9 +2269,29 @@ A long unbreakable token and a fixed-column grid are both real layout decisions
 a venture is entitled to make. Overriding either from the shared stylesheet
 would be the blunt rule again, in a new place.
 
+## The hardware page (`hardware/`)
+
+`hardware-page.mjs` renders `/hardware/`: the open hardware designs (tennis
+ball robots, floor-cleaning robots, the robot mower, open house plans and the
+construction robotics research) as future products for the businesses that
+would use them. Its rules, because honesty here is a hard limit:
+
+- **Each stage is quoted from its venture's README**, and
+  `hardware-page.test.mjs` re-reads each README for an evidence phrase ("No
+  robot has been built yet", "Not for construction" ...). When a README's
+  status changes, the test fails until the card is updated too.
+- **Nothing is offered for sale.** The test fails on a price, a ship date, a
+  pre-order or a "buy now".
+- **The call to action is the existing feedback form**
+  (`feedback/?type=idea&tool=<slug>`), so interest lands in
+  `portfolio/usage/site-feedback.json` with everything else; no new service.
+- The module imports nothing from `build.mjs`: the build passes in the shared
+  disclaimer footer and the chrome script (the usage counter), and lists the
+  page in the hub sitemap.
+
 ## Deploying
 
-`.github/workflows/portfolio-pages.yml` builds and tests on every push to `main`
+`.github/workflows/priv-portfolio-pages.yml` builds and tests on every push to `main`
 and every pull request that touches `ventures/` or this directory, so a broken
 site is caught at merge time whether or not publishing is on.
 
@@ -2295,7 +2330,7 @@ the catalog it just downloaded rather than hardcoded: a hardcoded slug stops
 proving anything the moment that venture is renamed, and reports the rename as
 a dead site.
 
-Only one workflow may publish to Pages. `retail-pilot-intel-deploy-docs.yml`
+Only one workflow may publish to Pages. `priv-retail-pilot-intel-deploy-docs.yml`
 reads `RETAIL_PILOT_INTEL_PAGES` instead, so an owner who wants those docs on
 the origin makes that choice explicitly rather than having two deployments race.
 

@@ -9,7 +9,13 @@
  *  run_worker_first must list the same ones (split.test.mjs checks). */
 // changepoint-detector and hearth-and-horizon moved here on 2026-11-20: the
 // site Worker reached 20,071 files and every deploy failed for five hours.
-export const SHARD_DIRS = ['research', 'writing', 'dev', 'changepoint-detector', 'hearth-and-horizon'];
+// The five after them moved on 2026-11-25 at 20,026 (deploys failing since
+// 11:29 UTC): MIT-commons and story directories, none a for-profit product's
+// page (portfolio/monetization/transition.py), so no paid page runs code.
+export const SHARD_DIRS = [
+  'research', 'writing', 'dev', 'changepoint-detector', 'hearth-and-horizon',
+  'open-tennis-robots', 'chant-forge', 'saints-by-candlelight', 'open-house-plans', 'open-floor-robots',
+];
 
 /** The site's own domain, and the Worker's first address, which now sends
  *  every visitor there (owner, 2026-10-31: "this should also redirect").

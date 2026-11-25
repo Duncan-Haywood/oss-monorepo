@@ -110,6 +110,7 @@
       official EN 16931, XRechnung and Peppol rules can run here too.
       Everything stays in this browser tab.
     </p>
+    <p class="note free-edition" id="free-edition"><strong>This is the free edition.</strong> It stays free and keeps working, with fixes and page polish. A paid edition that fixes and explains rejected e-invoices for SMEs and their accountants is <a href="https://marisstella.app/industries/eu-e-invoicing/">in development — early access</a>; nothing is for sale yet.</p>
     <details class="checks">
       <summary>What the built-in rules catch</summary>
       <ul>
@@ -177,7 +178,7 @@
     </section>
     <section class="card" id="pack-card" aria-labelledby="pack-h" hidden>
       <h2 id="pack-h">Branded audit pack</h2>
-      <p class="note">The result above as one evidence document on your own letterhead: your name and logo, a verdict, a row per file, findings grouped by rule with the fix, and a fixed statement of what a preflight does and does not show. Print it or save it as PDF for a client file or an audit trail. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; every check, repair, CSV and JSON download stays free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type or drop is uploaded; only the key is sent to the licence server.</p>
+      <p class="note">The result above as one evidence document on your own letterhead: your name and logo, a verdict, a row per file, findings grouped by rule with the fix, and a fixed statement of what a preflight does and does not show. Print it or save it as PDF for a client file or an audit trail. Unlock it with a licence key. The code is FSL-1.1-MIT, so the key is an honest-buyer convenience, not copy protection; every check, repair, CSV and JSON download stays free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type or drop is uploaded; only the key is sent to the licence server.</p>
       <p id="pack-buy-row" hidden><a id="pack-buy" rel="noopener" target="_blank">Buy a licence key</a></p>
       <p><label>Licence key <input id="pack-key" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="pack-check">Check key</button> <span id="pack-state" role="status"></span></p>
       <div id="pack-fields" hidden>
@@ -215,8 +216,11 @@
       a Peppol, EN 16931, or tax-law validator and it does not submit anything.
     </p>
     <p class="muted">
-      Prefer a pipeline? The same checks run from
-      <code>python3 -m einvoice_preflight invoice.json</code> in this directory.
+      Prefer a pipeline? For JSON, UBL, CII and Factur-X files the built-in checks also run from
+      <code>python3 -m einvoice_preflight invoice.json</code> in this directory: on the 42 such files shipped
+      with the tool it reports the same rules as this page, except the PDF/A notes, which only this page shows.
+      National formats (FatturaPA, KSeF, CFDI, NAV, NF-e, Facturae, VERI*FACTU and others) and the official
+      Schematron box are this page and the Node API only.
     </p>
   </section>
   <h2>Common questions</h2>
@@ -344,7 +348,7 @@
     <p>Sending through Peppol? The <a href="peppol-bis-3-1-0-readiness.html">Peppol BIS 3.1.0 readiness check</a> takes a whole folder of sent invoices and lists the ones that pass today and will be rejected from 24 February 2027, by rule, with the fix.</p>
     <p>Keeping evidence for an auditor or a client? The <a href="audit-pack-for-accountants.html">printable audit pack for accountants</a> puts every file's preflight result in one report (<a href="sample-audit-pack.html">see a sample</a>).</p>
     <p>Also assembling evidence for a different kind of audit? The <a href="../fifo-pick-evidence/">FIFO pick evidence tool</a> turns a warehouse pick-log CSV into a portable exception report before a customer audit &mdash; nothing uploaded. Selling to EU consumers across borders? The <a href="../eu-vat-oss-calculator/">EU VAT OSS calculator</a> checks the EUR 10,000 threshold and builds the quarterly One-Stop-Shop return from a sales CSV.</p>
-    <p>Free and open source. If it caught a defect before a rejection, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+    <p>Free to use and source available. If it caught a defect before a rejection, the <a href="LICENSE">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. FSL-1.1-MIT licensed.</p>
   </footer>
   <script type="module">
     // The checker engine (114 modules, about 3.3 MB) loads on demand, so the
@@ -352,8 +356,7 @@
     let engine = null;
     let engineLoad = null;
     const loadEngine = () => (engineLoad ||= import("./page-engine.mjs").then((m) => (engine = m)));
-    import { buyLink, checkLicence } from "./licence.mjs";
-    import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
+    import { wireBuyButton, checkLicence } from "./licence.mjs";
     import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
 
     const VALID_EXAMPLE = {
@@ -568,13 +571,13 @@
     // Audit pack: dark until a checkout link is set in checkout.mjs (no card, no Buy button).
     {
       const $ = (id) => document.getElementById(id);
-      const buy = buyLink(CHECKOUT_URL);
+      const buy = wireBuyButton($("pack-buy"), { onKey: (k) => { $("pack-key").value = k; $("pack-check").click(); }, onStatus: (m) => { if (m) $("pack-state").textContent = m; } });
       let packLogo = "";
-      if (buy) { $("pack-buy").href = buy; $("pack-buy-row").hidden = false; $("pack-card").hidden = false; }
+      if (buy) { $("pack-buy-row").hidden = false; $("pack-card").hidden = false; }
       $("pack-logo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { packLogo = ""; return; } const r = new FileReader(); r.onload = () => { packLogo = String(r.result); }; r.readAsDataURL(f); });
       $("pack-check").addEventListener("click", async () => {
         $("pack-state").textContent = "Checking...";
-        const v = await checkLicence($("pack-key").value, { url: VALIDATE_URL });
+        const v = await checkLicence($("pack-key").value);
         $("pack-state").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason;
         $("pack-fields").hidden = !v.valid;
       });

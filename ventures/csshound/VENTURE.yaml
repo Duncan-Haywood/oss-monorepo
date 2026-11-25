@@ -1,5 +1,5 @@
 name: csshound
-description: Free, open-source (MIT) unused-CSS finder written in Rust. Reads every HTML page under a folder and lists the CSS rules each page never uses, by PurgeCSS's selector rules, following the page's local scripts and their imports. One engine runs as a native CLI (a CI gate with --fail) and, compiled to WebAssembly, in a browser page that uploads nothing. On this repository's 3,915 venture pages it ran in 0.5 s and found 8,815 unused rules, 8.0% of 8.1 MB of CSS (BENCHMARK.md).
+description: Free, source available (FSL-1.1-MIT) unused-CSS finder written in Rust. Reads every HTML page under a folder and lists the CSS rules each page never uses, by PurgeCSS's selector rules, following the page's local scripts and their imports. One engine runs as a native CLI (a CI gate with --fail) and, compiled to WebAssembly, in a browser page that uploads nothing. On this repository's 3,915 venture pages it ran in 0.5 s and found 8,815 unused rules, 8.0% of 8.1 MB of CSS (BENCHMARK.md).
 stage: prototype
 
 owner: duncan

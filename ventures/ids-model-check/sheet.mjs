@@ -514,7 +514,7 @@ export const README_ROWS = [
   ["An empty cell means no element. cardinality on a requirement row is required (or empty), optional or prohibited."],
   ["Columns with a fixed set of words (section, facet, cardinality, relation) offer them as a dropdown; entity, propertySet, dataType and ifcVersion suggest the IFC schema's words but take anything, so a restriction (one of: ..., pattern: ...) still fits. The words are on the hidden Lists sheet."],
   ["The IDS sheet's cells are formatted as Text, so 42.0, true and 2024-01-01 stay as typed. Keep that format when you paste: use Paste Special > Values."],
-  ["Made by IDS Model Check (MIT): https://marisstella.app/ids-model-check/ . Not legal or professional advice; check the IDS you hand over."],
+  ["Made by IDS Model Check (FSL-1.1-MIT): https://marisstella.app/ids-model-check/ . Not legal or professional advice; check the IDS you hand over."],
 ];
 
 // Any worksheets as an .xlsx, cells as Text: [{ name, rows, widths }].

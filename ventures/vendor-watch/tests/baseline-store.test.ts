@@ -83,10 +83,11 @@ test("evicts the least recently fetched URL once the cap is reached", () => {
   assert.equal(listBaselines(storage).length, MAX_TRACKED_URLS);
 
   saveBaseline(storage, baseline("https://a.example/newest", "2026-08-26T23:59:00.000Z"));
-  const urls = listBaselines(storage).map((entry) => entry.url);
-  assert.equal(urls.length, MAX_TRACKED_URLS);
-  assert.ok(urls.includes("https://a.example/newest"));
-  assert.equal(urls.includes("https://a.example/0"), false, "oldest should have been evicted");
+  const listed = listBaselines(storage).map((entry) => entry.url);
+  assert.equal(listed.length, MAX_TRACKED_URLS);
+  const urls = new Set(listed);
+  assert.ok(urls.has("https://a.example/newest"));
+  assert.equal(urls.has("https://a.example/0"), false, "oldest should have been evicted");
 });
 
 test("re-checking a tracked URL at the cap evicts nothing", () => {

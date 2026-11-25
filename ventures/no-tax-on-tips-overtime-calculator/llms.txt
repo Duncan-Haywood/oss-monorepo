@@ -2,7 +2,7 @@
 
 > Free calculator for the federal 'no tax on tips' and 'no tax on overtime' deductions (2025-2028): applies the $25,000 tip cap, the $12,500/$25,000 overtime cap, and the shared MAGI phase-out, and computes the overtime deduction's easy-to-miss half-time-premium-only rule. Entirely client-side, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## What it answers
 
@@ -16,4 +16,4 @@ Two new federal deductions apply to tax years 2025 through 2028: up to $25,000 o
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/no-tax-on-tips-overtime-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/no-tax-on-tips-overtime-calculator): FSL-1.1-MIT licensed.

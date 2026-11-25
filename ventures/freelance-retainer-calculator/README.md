@@ -50,4 +50,4 @@ From the quality audit of 2026-11-19 ([`2026-11-19-freelance-retainer-calculator
 
 ## License
 
-MIT. See `LICENSE`.
+FSL-1.1-MIT. See `LICENSE`.

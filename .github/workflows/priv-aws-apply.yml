@@ -1,0 +1,288 @@
+# Applies platform/aws on every merge to main (docs/runbooks/aws-cutover.md).
+#
+#   apply                   assumes `github-apply` by GitHub OIDC in the
+#                           `aws-prod` environment (limit it to main:
+#                           platform/aws/github/configure.sh) and applies
+#                           the stacks in dependency order; writes the SES
+#                           DNS records as an artifact.
+#   dns                     puts those records into Cloudflare, where
+#                           marisstella.app is served today: creates missing
+#                           ones, updates ones it made, never touches a
+#                           record it did not make (an existing DMARC record
+#                           is left alone).
+#   ses-production-access   only when the owner ticks it on a manual run:
+#                           asks AWS to take SES out of the sandbox
+#                           (PutAccountDetails). The use-case text speaks
+#                           for the portfolio, so the owner chooses when.
+#
+# Until the repository variable AWS_ACCOUNT_ID is set every job is skipped,
+# not failed. Nothing here runs a repository script with credentials: the
+# privileged steps are tofu and the shell below (ci_policy_check.py).
+name: AWS apply
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'platform/aws/**'
+      - '.github/workflows/priv-aws-apply.yml'
+  workflow_dispatch:
+    inputs:
+      request_ses_production_access:
+        description: Ask AWS to take SES out of the sandbox (owner decision; the use-case text is in this file)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aws-apply
+  cancel-in-progress: false
+
+env:
+  TOFU_VERSION: 1.13.10
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+jobs:
+  apply:
+    if: ${{ vars.AWS_ACCOUNT_ID != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment:
+      name: aws-prod
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+      TF_IN_AUTOMATION: '1'
+      TF_INPUT: '0'
+      CLAUDE_AWS_WORKSPACE_ID: ${{ vars.CLAUDE_AWS_WORKSPACE_ID }}
+      OWNER_SSO_USER: ${{ vars.AWS_OWNER_SSO_USER }}
+      BUDGET_ALERT_EMAIL: ${{ vars.AWS_BUDGET_ALERT_EMAIL }}
+      KILL_SWITCH_LIVE: ${{ vars.AWS_KILL_SWITCH_LIVE }}
+      # Dependency order: org makes the accounts; baseline the roles in them;
+      # app-identity reads llm's and email's outputs.
+      STACKS: org baseline spend llm email app-identity
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: opentofu/setup-opentofu@9d84900f3238fab8cd84ce47d658d25dd008be2f # v1.0.8
+        with:
+          tofu_version: ${{ env.TOFU_VERSION }}
+          tofu_wrapper: false
+      - name: Assume github-apply (GitHub OIDC)
+        run: |
+          set -euo pipefail
+          token=$(curl -sSf -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" | python3 -c 'import json,sys; print(json.load(sys.stdin)["value"])')
+          echo "::add-mask::${token}"
+          umask 077
+          printf '%s' "$token" > "${RUNNER_TEMP}/web-identity-token"
+          {
+            echo "AWS_WEB_IDENTITY_TOKEN_FILE=${RUNNER_TEMP}/web-identity-token"
+            echo "AWS_ROLE_ARN=arn:aws:iam::${AWS_ACCOUNT_ID}:role/github/github-apply"
+            echo "AWS_ROLE_SESSION_NAME=apply-${GITHUB_RUN_ID}"
+            echo "AWS_DEFAULT_REGION=${AWS_REGION}"
+          } >> "$GITHUB_ENV"
+      - name: Variables from repository settings
+        run: |
+          set -euo pipefail
+          aws sts get-caller-identity --query Arn --output text
+          {
+            echo "TF_VAR_state_bucket=${AWS_ACCOUNT_ID}-tofu-state-${AWS_REGION}"
+            echo "STATE_KMS=$(aws kms describe-key --key-id alias/tofu-state --query KeyMetadata.Arn --output text)"
+            if [ -n "${CLAUDE_AWS_WORKSPACE_ID}" ]; then echo "TF_VAR_workspace_ids=[\"${CLAUDE_AWS_WORKSPACE_ID}\"]"; fi
+            if [ -n "${OWNER_SSO_USER}" ]; then echo "TF_VAR_owner_identity_center_user_name=${OWNER_SSO_USER}"; fi
+            if [ -n "${BUDGET_ALERT_EMAIL}" ]; then echo "TF_VAR_alert_emails=[\"${BUDGET_ALERT_EMAIL}\"]"; fi
+            if [ "${KILL_SWITCH_LIVE}" = "true" ]; then echo "TF_VAR_kill_switch_dry_run=false"; fi
+          } >> "$GITHUB_ENV"
+      - name: tofu apply, stack by stack
+        run: |
+          set -euo pipefail
+          for stack in ${STACKS}; do
+            dir="platform/aws/stacks/${stack}"
+            echo "::group::${stack}"
+            tofu -chdir="$dir" init -input=false -lockfile=readonly \
+              -backend-config="bucket=${TF_VAR_state_bucket}" \
+              -backend-config="key=${stack}/terraform.tfstate" \
+              -backend-config="region=${AWS_REGION}" \
+              -backend-config="kms_key_id=${STATE_KMS}"
+            tofu -chdir="$dir" plan -input=false -no-color -out=tfplan
+            tofu -chdir="$dir" apply -input=false -no-color tfplan
+            echo "::endgroup::"
+            echo "- applied \`${stack}\`" >> "$GITHUB_STEP_SUMMARY"
+          done
+      - name: Outputs for later jobs
+        id: out
+        run: |
+          set -euo pipefail
+          tofu -chdir=platform/aws/stacks/email output -json dns_records > "${RUNNER_TEMP}/ses-dns-records.json"
+          apps=$(tofu -chdir=platform/aws/stacks/org output -json account_ids | python3 -c 'import json,sys; print(json.load(sys.stdin)["apps"])')
+          echo "apps_account_id=${apps}" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Accounts"
+            echo '```'
+            tofu -chdir=platform/aws/stacks/org output -json account_ids
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ses-dns-records
+          path: ${{ runner.temp }}/ses-dns-records.json
+          retention-days: 7
+    outputs:
+      apps_account_id: ${{ steps.out.outputs.apps_account_id }}
+
+  dns:
+    needs: apply
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: cloudflare
+    permissions:
+      contents: read
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY }}
+      ZONE: marisstella.app
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: ses-dns-records
+          path: ${{ runner.temp }}/records
+      - name: Put SES records into Cloudflare DNS
+        # Needs a token with Zone > DNS > Edit on the zone. Records are
+        # DNS-only (not proxied) and carry the comment "as-code: platform/aws
+        # email"; the script only ever updates records with that comment.
+        run: |
+          set -euo pipefail
+          if [ -z "${CLOUDFLARE_API_TOKEN}" ]; then
+            echo "No Cloudflare token in the cloudflare environment; skipping."; exit 0
+          fi
+          python3 -I - "${RUNNER_TEMP}/records/ses-dns-records.json" <<'PY'
+          import json, os, sys, urllib.parse, urllib.request
+
+          API = "https://api.cloudflare.com/client/v4"
+          MARK = "as-code: platform/aws email"
+          token, zone = os.environ["CLOUDFLARE_API_TOKEN"], os.environ["ZONE"]
+
+          def call(method, path, body=None):
+              req = urllib.request.Request(API + path, method=method,
+                  data=None if body is None else json.dumps(body).encode(),
+                  headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"})
+              try:
+                  with urllib.request.urlopen(req, timeout=30) as r:
+                      return json.load(r)["result"]
+              except urllib.error.HTTPError as e:
+                  sys.exit(f"{method} {path}: HTTP {e.code} {e.read().decode()[:300]}"
+                           " (does the token have Zone > DNS > Edit on " + zone + "?)")
+
+          def same(a, b):
+              return a.strip().strip('"') == b.strip().strip('"')
+
+          zones = call("GET", "/zones?" + urllib.parse.urlencode({"name": zone}))
+          if not zones:
+              sys.exit(f"zone {zone} not found for this token")
+          zid = zones[0]["id"]
+          changed = 0
+          for rec in json.load(open(sys.argv[1])):
+              q = urllib.parse.urlencode({"type": rec["type"], "name": rec["name"]})
+              existing = call("GET", f"/zones/{zid}/dns_records?{q}")
+              want = {"type": rec["type"], "name": rec["name"], "content": rec["content"],
+                      "ttl": rec["ttl"], "proxied": False, "comment": MARK}
+              if rec["type"] == "MX":
+                  want["priority"] = rec["priority"]
+              if rec["type"] == "TXT":
+                  want["content"] = '"' + rec["content"].strip('"') + '"'
+              if rec["name"].startswith("_dmarc."):
+                  existing_dmarc = [e for e in existing if e["content"].strip('"').startswith("v=DMARC1")]
+                  if existing_dmarc and not any((e.get("comment") or "") == MARK for e in existing_dmarc):
+                      print(f"keep   {rec['name']} TXT: a DMARC record already exists and was not made here")
+                      continue
+              mine = [e for e in existing if (e.get("comment") or "") == MARK]
+              if any(same(e["content"], want["content"]) for e in existing):
+                  print(f"ok     {rec['type']:5} {rec['name']}")
+              elif mine:
+                  call("PUT", f"/zones/{zid}/dns_records/{mine[0]['id']}", want)
+                  print(f"update {rec['type']:5} {rec['name']}"); changed += 1
+              elif existing and rec["type"] == "CNAME":
+                  print(f"SKIP   {rec['type']:5} {rec['name']}: a record not made here holds this name"); continue
+              else:
+                  call("POST", f"/zones/{zid}/dns_records", want)
+                  print(f"create {rec['type']:5} {rec['name']}"); changed += 1
+          print(f"{changed} record(s) changed")
+          PY
+
+  ses-production-access:
+    needs: apply
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.request_ses_production_access }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: aws-prod
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+      APPS_ACCOUNT_ID: ${{ needs.apply.outputs.apps_account_id }}
+      WEBSITE_URL: https://marisstella.app/
+    steps:
+      - name: Assume github-apply, then the apps account
+        run: |
+          set -euo pipefail
+          token=$(curl -sSf -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" | python3 -c 'import json,sys; print(json.load(sys.stdin)["value"])')
+          echo "::add-mask::${token}"
+          umask 077
+          printf '%s' "$token" > "${RUNNER_TEMP}/web-identity-token"
+          export AWS_WEB_IDENTITY_TOKEN_FILE="${RUNNER_TEMP}/web-identity-token"
+          export AWS_ROLE_ARN="arn:aws:iam::${AWS_ACCOUNT_ID}:role/github/github-apply"
+          export AWS_ROLE_SESSION_NAME="ses-access-${GITHUB_RUN_ID}"
+          export AWS_DEFAULT_REGION="${AWS_REGION}"
+          creds=$(aws sts assume-role --role-arn "arn:aws:iam::${APPS_ACCOUNT_ID}:role/OrganizationAccountAccessRole" \
+            --role-session-name "ses-access-${GITHUB_RUN_ID}" --query Credentials --output json)
+          for k in AccessKeyId SecretAccessKey SessionToken; do
+            v=$(printf '%s' "$creds" | python3 -c "import json,sys; print(json.load(sys.stdin)['$k'])")
+            echo "::add-mask::${v}"
+          done
+          printf '%s' "$creds" > "${RUNNER_TEMP}/apps-creds.json"
+      - name: Request SES production access (PutAccountDetails)
+        # Parameter names and limits from botocore's sesv2 model: MailType and
+        # WebsiteURL required, UseCaseDescription <= 5000 characters. The text
+        # says only what platform/aws and the SES adapter do; keep it true.
+        env:
+          USE_CASE: >-
+            Transactional email for the software products listed at
+            https://marisstella.app/: sign-in links, account notices and
+            receipts sent to people who signed up for a product. Sending
+            domains are verified with Easy DKIM and a custom MAIL FROM
+            subdomain, and DMARC is published. Every message goes through a
+            configuration set that publishes bounces, complaints and rejects
+            to SNS and SQS; the application reads that queue into its own
+            suppression table and checks it before every send, and the SES
+            account-level suppression list is on for bounces and complaints.
+            Marketing mail, when it starts, goes only to people who opted in,
+            from a separate subdomain and configuration set, with an
+            unsubscribe link in every message.
+        run: |
+          set -euo pipefail
+          eval "$(python3 -c 'import json,sys; c=json.load(open(sys.argv[1])); print("export AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" % (c["AccessKeyId"], c["SecretAccessKey"], c["SessionToken"]))' "${RUNNER_TEMP}/apps-creds.json")"
+          rm -f "${RUNNER_TEMP}/apps-creds.json"
+          export AWS_DEFAULT_REGION="${AWS_REGION}"
+          state=$(aws sesv2 get-account --output json)
+          enabled=$(printf '%s' "$state" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("ProductionAccessEnabled", False))')
+          review=$(printf '%s' "$state" | python3 -c 'import json,sys; print(((json.load(sys.stdin).get("Details") or {}).get("ReviewDetails") or {}).get("Status", "NONE"))')
+          echo "SES in ${AWS_REGION}: production access=${enabled}, review=${review}"
+          if [ "$enabled" = "True" ] || [ "$review" = "PENDING" ]; then
+            echo "Nothing to do."; exit 0
+          fi
+          aws sesv2 put-account-details \
+            --production-access-enabled \
+            --mail-type TRANSACTIONAL \
+            --website-url "${WEBSITE_URL}" \
+            --contact-language EN \
+            --use-case-description "${USE_CASE}"
+          echo "Requested. AWS answers by email and in 'aws sesv2 get-account'." | tee -a "$GITHUB_STEP_SUMMARY"

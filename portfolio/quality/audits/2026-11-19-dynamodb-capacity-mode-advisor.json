@@ -201,14 +201,16 @@
    "what": "The analysis window is row count x period (hours = count * periodSeconds / 3600), not the timestamp span. CloudWatch omits periods with no published datapoint, so idle hours drop out of a real export: on-demand is extrapolated from busy hours only and provisioned loses the idle-hour cost. A week with 8 idle hours a day goes from on-demand $65.70 / cheapest autoscaled to $98.55 / cheapest fixed peak when the zero rows are absent. Low-utilisation tables, where on-demand should win, are the ones most affected",
    "where": "ventures/dynamodb-capacity-mode-advisor/engine.mjs:112",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18992"
   },
   {
    "severity": "medium",
    "what": "The period is never inferred or checked from the timestamps: 5-minute Sums pasted at the default 3600 s are priced 12x low (on-demand $4.11 vs $49.27) with no warning",
    "where": "ventures/dynamodb-capacity-mode-advisor/engine.mjs:56",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18992"
   },
   {
    "severity": "medium",
@@ -247,6 +249,6 @@
    "origin": "claims"
   }
  ],
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17758"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17758", "https://github.com/Duncan-Haywood/oss-monorepo/pull/18992"],
  "verdict": "A small, honest screen whose arithmetic is right: its default prices equal AWS's live us-east-1 price list (the post-November-2024 $0.125/$0.625 per million on-demand and $0.00013/$0.00065 per unit-hour provisioned), the 29% break-even and the docs page's 3.5x and ~40% ratios recompute, and a hand case, my own Python on the fixture and eu-west-1 prices from AWS's file all match the CLI to the cent (fixed peak aside, one unit high from a float ceiling). The page and CLI do everything they claim, with nothing uploaded. It misses the bar on verification and domain: the monthly window comes from the row count, so a real CloudWatch export with missing idle periods inflates on-demand by 50% and can flip the recommended mode, 5-minute data at the default period is priced 12x low without a warning, GSIs are not mentioned, and 5 of 8 seeded bugs (writes priced at the read rate among them) survive the 30 tests. A FinOps engineer would trust it on a fully active table with complete hourly rows, not on the idle or indexed tables where the decision matters most."
 }

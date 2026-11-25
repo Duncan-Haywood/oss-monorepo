@@ -2,7 +2,7 @@
 
 > Free propensity score tool. Upload a CSV with a 0/1 treatment, an outcome and covariates measured before treatment, and get a logistic propensity score model, inverse probability weighting, regression adjustment, the doubly robust AIPW estimate and 1:1 nearest-neighbour matching (with or without replacement, caliper on the logit) for the ATE, ATT and ATC, with M-estimation standard errors that count the estimated score, standardised mean differences before and after (love plot), an overlap histogram, effective sample sizes and Crump trimming. Matches statsmodels 0.15.0 TreatmentEffect within 1e-6. Runs in the browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial, medical, policy or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not legal, tax, financial, medical, policy or professional advice.
 
 ## Pages
 
@@ -22,4 +22,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/propensity-score): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/propensity-score): FSL-1.1-MIT licensed.

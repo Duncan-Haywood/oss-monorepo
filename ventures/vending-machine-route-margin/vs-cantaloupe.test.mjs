@@ -12,7 +12,7 @@ test('carries the no-warranty disclaimer', () => {
 });
 
 test('carries the licence and support paragraph', () => {
-  assert.match(html, /MIT licensed/);
+  assert.match(html, /FSL-1.1-MIT licensed/);
   assert.match(html, /GitHub Sponsors/);
 });
 
@@ -29,7 +29,8 @@ test('every numeric pricing claim about Cantaloupe is cited to its own pricing p
   // software fees. That is Cantaloupe's own documentation, cited by URL
   // beside every figure below rather than stated as a bare number.
   const sourceUrl = 'https://www.cantaloupe.com/pricing/cantaloupe-one/';
-  assert.ok(html.includes(sourceUrl), 'the Cantaloupe pricing page must be cited on the page');
+  const linked = [...html.matchAll(/href="([^"]*)"/g)].map((m) => m[1]);
+  assert.ok(linked.some((href) => href === sourceUrl), 'the Cantaloupe pricing page must be cited on the page');
   const body = html.slice(html.indexOf('<body>'));
   const numberPattern = /\$\d|\d+(\.\d+)?%/g;
   const citationIndex = body.indexOf(sourceUrl);

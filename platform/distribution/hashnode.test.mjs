@@ -13,7 +13,7 @@ test('composeArticle sets the canonical URL, links back and states the limits', 
   assert.equal(a.title, 'Mileage Log');
   assert.ok(a.contentMarkdown.includes(url));
   assert.match(a.contentMarkdown, /not legal, tax or professional advice/);
-  assert.match(a.contentMarkdown, /free and open source \(MIT\)/);
+  assert.match(a.contentMarkdown, /free to use and source available \(FSL-1\.1-MIT\)/);
 });
 
 test('plan skips URLs already on the publication and caps the run', async () => {

@@ -6,8 +6,8 @@ const files=execSync('find dist -name "*.html"',{maxBuffer:1e8}).toString().trim
 const accents=new Map(), roots=new Set(), sw=new Set(); let gens=new Map();
 for(const f of files){const t=readFileSync(f,'utf8');
  for(const m of t.matchAll(/--accent\s*:\s*([^;}\s]+)/g)) accents.set(m[1].toLowerCase(),(accents.get(m[1].toLowerCase())||0)+1);
- for(const m of t.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)) if(/:root\s*\{/.test(m[1])) roots.add(m[1].match(/:root\s*\{[^}]*\}/)[0]);
- for(const m of t.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) if(m[1].includes("serviceWorker' in navigator")) sw.add(m[1]);
+ for(const m of t.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style\b[^>]*>/gi)) if(/:root\s*\{/.test(m[1])) roots.add(m[1].match(/:root\s*\{[^}]*\}/)[0]);
+ for(const m of t.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\b[^>]*>/gi)) if(m[1].includes("serviceWorker' in navigator")) sw.add(m[1]);
  const g=(t.match(/<meta name="generator" content="([^"]+)"/)||[])[1]; if(g) gens.set(g,(gens.get(g)||0)+1);
 }
 console.log('distinct --accent values',accents.size,'top',[...accents].sort((a,b)=>b[1]-a[1]).slice(0,8));

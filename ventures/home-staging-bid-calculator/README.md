@@ -78,4 +78,4 @@ does not audit your books, verify a staging or listing agreement, predict how
 long a home will take to sell, or replace your own contract, insurance, or
 accountant.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

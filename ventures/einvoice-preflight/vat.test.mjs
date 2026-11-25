@@ -728,3 +728,23 @@ test("a Czech 10-digit birth number must name a real day, not 31 February", () =
   }
   assert.deepEqual(inspectPartyVat({ id: "S1", name: "A", vat_id: "CZ8402290006" }, "supplier"), []);
 });
+
+// Quality audit 2026-11-19: no test had a remainder-10 Bulgarian or Czech number. Each case below
+// is one where the first weighted sum lands on the special remainder; the next check digit up must
+// fail. Cross-checked against python-stdnum and the Python CLI on 9,000 numbers
+// (eval/vat-remainder10-2026-11-25.md).
+test("BG and CZ numbers whose check digit comes from the remainder-10 branch", () => {
+  const rule = (v) => inspectPartyVat({ vat_id: v }, "seller").map((f) => f.rule).filter((r) => r === "INV-023");
+  const cases = {
+    BG955103765: "first sum leaves 10, second weight set gives 5",
+    BG088448100: "both sums leave 10, check digit 0",
+    CZ30803331: "11 - 0 = 11 maps to 1",
+    CZ30686130: "11 - 1 = 10 maps to 0",
+    CZ5409060900: "birth number whose first nine digits leave 10, last digit 0",
+  };
+  for (const [number, why] of Object.entries(cases)) {
+    assert.deepEqual(rule(number), [], `${number}: ${why}`);
+    const bumped = number.slice(0, -1) + ((Number(number.at(-1)) + 1) % 10);
+    assert.deepEqual(rule(bumped), ["INV-023"], bumped);
+  }
+});

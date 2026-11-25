@@ -543,7 +543,7 @@ and honour Do Not Track.
 **Best-effort hosting, no SLA.** Free and experimental; may be slow, broken, moved, or taken offline
 without notice.
 
-Free and open source (MIT, see `LICENSE`). Optional support:
+Free to use and source available (FSL-1.1-MIT, see `LICENSE`). Optional support:
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood).
 
 ## What you use today, and what this does differently
@@ -4833,7 +4833,7 @@ emails its owner. Tests: `watch.test.mjs` (12; a local HTTP server stands in for
 chat service was called).
 
 **Self-deploy.** `sh deploy/make-watch-repo.sh <folder>` (or the `curl ... | sh -s -- <folder>` line in
-the script's header, which needs no clone) writes the engine, `watch.mjs`, the MIT licence, a README and
+the script's header, which needs no clone) writes the engine, `watch.mjs`, the FSL-1.1-MIT licence, a README and
 `.github/workflows/watch-metric.yml`: a daily run that reads the `METRIC_CSV` variable (a file in the
 repository or an https link, such as a published Google Sheet's CSV), posts to the `WATCH_WEBHOOK_URL`
 secret if set, and commits `watch-state.json` back. Nothing in it calls anything the owner runs. The
@@ -11053,3 +11053,5 @@ No pre-registered verdict moved in any of them. The figures that did move, old t
 
 Next, if this line continues: an index whose dating committee is known to call short recessions (CEPR's euro-area
 dates have a 2-quarter 2011-13 double dip), to see whether there 3-month phases earn their false turns.
+
+**Checkout moved to Paddle (2026-11-25).** The pack's Buy button now opens Paddle's overlay checkout, and its licence key is an Ed25519-signed token a separate billing Worker issues from Paddle's webhook and the page checks offline (`paddle.mjs`, a synced copy of `platform/billing/client.mjs`; `checkout.mjs` is generated from `platform/billing/catalogue.mjs`). The old Lemon Squeezy validate call is gone. It stays dark until the owner deploys that Worker and sets the catalogue's price id, client-side token and public key (`platform/billing/README.md`).

@@ -53,7 +53,7 @@ with `maxLength` 32, and an XML Schema facet applies to the parsed value.
 
 ## License
 
-MIT. See `LICENSE`.
+FSL-1.1-MIT. See `LICENSE`.
 
 ## No warranty
 

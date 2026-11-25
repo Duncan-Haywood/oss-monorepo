@@ -78,7 +78,7 @@ test("custom system lands in Other", () => {
 test("html output escapes user text; text output carries the disclaimer", () => {
   const f = newFinding(null, { title: "<img src=x onerror=alert(1)>", note: "</p><script>x</script>", system: "Roof" });
   const h = toHtml({ property: "<b>1 Main</b>" }, [f]);
-  assert.doesNotMatch(h, /<img|<script|<b>/);
+  assert.doesNotMatch(h, /<img|<script|<b>/i);
   assert.match(h, /&lt;img/);
   assert.match(toText({}, [f]), /inspector is responsible/);
 });

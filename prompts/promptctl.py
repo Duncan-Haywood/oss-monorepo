@@ -26,6 +26,7 @@ import hashlib
 import io
 import json
 import math
+import os
 import random
 import re
 import statistics
@@ -230,20 +231,47 @@ def expired(cfg: dict[str, Any], today: date | None = None) -> bool:
 # first track with a hit wins; no hit leaves the weighted draw alone. Doc
 # friction, 2026-10-27 to 29: eight runs asked for revenue products, were drawn
 # research or process, and followed the prompt by hand.
+# The 2026-11-24 words ("mrr", "paying", "subscription", the bets) joined the
+# ventures row when the owner made $10k MRR the goal (`prompts/goals.md`,
+# "North star"); "paid" alone is left out because "unpaid distribution" is not
+# product work, and "checkout" alone is often git.
 TASK_HINTS: list[tuple[str, tuple[str, ...]]] = [
     ("ventures", ("revenue", "products in production", "venture", "sell and support",
-                  "ios android", "marketing sites", "portfolio site")),
+                  "ios android", "marketing sites", "portfolio site", "mrr",
+                  "paying customer", "paying subscriber", "subscription", "paid tier",
+                  "paid product", "pricing page", "checkout page", "checkout path",
+                  "paddle", "bets.md", "smb")),
     ("research", ("research programme", "research program", "phd", "paper")),
     ("process", ("the prompts", "the process", "routing", "backlog")),
     ("quality", ("quality audit", "quality-audit")),
 ]
 
 
+# One line per track that `route` prints under the sub-prompt, so a run sees
+# where effort goes before it reads anything else (owner, 2026-11-24: "invest
+# in things that have most promise and most value"). Pointers, not rules: the
+# files they name hold the reasons and the order.
+FOCUS: dict[str, str] = {
+    "ventures": ("the top ranked bet in portfolio/monetization/bets.md you can move "
+                 "toward a paying customer; free tools only as a front door to one "
+                 "(prompts/goals.md, \"Where effort goes\")"),
+    "research": ("a programme that names the paid product and customer it advances "
+                 "(research/CLAUDE.md; prompts/goals.md, \"Where effort goes\")"),
+    "explore": ("your choice, inside the goals; a new paid-bet idea with evidence is "
+                "welcome, a new free single-purpose tool is not"),
+}
+
+
 def infer_track(task: str, tracks: dict[str, Any]) -> str | None:
-    """The track a run's starting message asks for, or None when it names none."""
+    """The track a run's starting message asks for, or None when it names none.
+
+    A paused track (weight 0, e.g. research since 2026-11-25) is never
+    inferred from words: "paper" in a product task must not reopen it. An
+    explicit `--track` still reaches it."""
     low = task.lower()
     for track, words in TASK_HINTS:
-        if track in tracks and any(w in low for w in words):
+        if (track in tracks and float(tracks[track].get("weight", 0)) > 0
+                and any(w in low for w in words)):
             return track
     return None
 
@@ -317,6 +345,7 @@ def route(root: Path = ROOT, track: str | None = None, skip_review: bool = False
         "trailer": f"Prompt-Version: {track}/{version}",
         "reason": reason,
         "draw": round(draw, 4),
+        "focus": FOCUS.get(track),
     }
 
 
@@ -324,6 +353,8 @@ def print_route(r: dict[str, Any]) -> None:
     print(f"Follow:  {r['path']}")
     print(f"Track:   {r['track']}, version {r['version']} ({r['role']}; draw {r['draw']})")
     print(f"Why:     {r['reason']}")
+    if r.get("focus"):
+        print(f"Focus:   {r['focus']}")
     print(f"Trailer: add `{r['trailer']}` to every commit")
     print(f"Record:  python3 prompts/promptctl.py record --track {r['track']} "
           f"--version {r['version']} --session <session url>")
@@ -516,6 +547,83 @@ def validate_backlog_item(root: Path, path: Path, item: Any) -> list[str]:
     return errors
 
 
+def backlog_id_duplicates(root: Path = ROOT) -> list[tuple[str, str, str]]:
+    """(id, first file, later file) for every backlog id two files share."""
+    seen: dict[str, str] = {}
+    dups: list[tuple[str, str, str]] = []
+    for path, item in _readable_backlog(root):
+        item_id = item.get("id") if isinstance(item, dict) else None
+        if not isinstance(item_id, str):
+            continue
+        if item_id in seen:
+            dups.append((item_id, seen[item_id], path.name))
+        else:
+            seen[item_id] = path.name
+    return dups
+
+
+def _readable_backlog(root: Path) -> list[tuple[Path, Any]]:
+    folder = root / "process" / "backlog"
+    out = []
+    for path in sorted(folder.glob("*.json")) if folder.is_dir() else []:
+        try:
+            out.append((path, json.loads(path.read_text())))
+        except json.JSONDecodeError:
+            continue
+    return out
+
+
+def _git_names(repo: Path, *args: str) -> set[str] | None:
+    try:
+        out = subprocess.run(["git", "diff", "--name-only", "--diff-filter=A", *args,
+                              "--", "prompts/process/backlog/"],
+                             cwd=repo, capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if out.returncode != 0:
+        return None
+    return {Path(line).name for line in out.stdout.splitlines() if line.strip()}
+
+
+def backlog_files_added(root: Path = ROOT) -> set[str] | None:
+    """Backlog file names this checkout adds over main, or None when that is unknowable.
+
+    A push to main adds nothing to judge (a duplicate already there is a
+    warning). A pull request's CI checks out the merge commit, whose first
+    parent is main (prompts-ci.yml fetches depth 2 for this). A session's
+    working tree (untracked files too) is compared with origin/main. Unknown means the strict old check.
+    """
+    repo = root.parent
+    event = os.environ.get("GITHUB_EVENT_NAME", "")
+    if event == "push" and os.environ.get("GITHUB_REF") == "refs/heads/main":
+        return set()
+    if event == "pull_request":
+        return _git_names(repo, "HEAD^1", "HEAD")
+    if not (repo / ".git").exists():
+        return None
+    added = _git_names(repo, "origin/main")  # main against the working tree
+    if added is None:
+        return None
+    try:
+        out = subprocess.run(["git", "ls-files", "--others", "--exclude-standard",
+                              "--", "prompts/process/backlog/"],
+                             cwd=repo, capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if out.returncode != 0:
+        return None
+    return added | {Path(line).name for line in out.stdout.splitlines() if line.strip()}
+
+
+def backlog_duplicate_warnings(root: Path = ROOT) -> list[str]:
+    added = backlog_files_added(root)
+    if added is None:
+        return []
+    return [f"backlog id {i} is used by both {a} and {b} (two PRs merged in parallel); "
+            f"renumber {b} to the next free number in any PR"
+            for i, a, b in backlog_id_duplicates(root) if a not in added and b not in added]
+
+
 def backlog_rank(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Open items, best first: effect over cost, agent-owned before owner-owned, oldest first."""
     open_items = [i for i in items if i.get("status") in ("open", "in_progress")]
@@ -560,6 +668,10 @@ def print_backlog(root: Path = ROOT) -> None:
             last = i["history"][-1]
             last = last.get("note", "") if isinstance(last, dict) else last
             print(f"- {i['id']}: {last[:300]}")
+    dups = backlog_id_duplicates(root)
+    if dups:
+        print("\nDuplicate ids (renumber the later file to the next free number): "
+              + ", ".join(f"{i} ({b})" for i, _, b in dups))
     if s["done_unverified"]:
         print(f"\nDone but metric not yet checked: {', '.join(s['done_unverified'])}")
 
@@ -671,7 +783,6 @@ def validate(root: Path = ROOT) -> list[str]:
             continue
         errors.extend(validate_record(root, path, rec, tracks))
 
-    seen: dict[str, str] = {}
     for path in sorted((root / "process" / "backlog").glob("*.json")) \
             if (root / "process" / "backlog").is_dir() else []:
         try:
@@ -680,11 +791,15 @@ def validate(root: Path = ROOT) -> list[str]:
             errors.append(f"prompts/process/backlog/{path.name}: invalid JSON ({exc})")
             continue
         errors.extend(validate_backlog_item(root, path, item))
-        if isinstance(item, dict) and isinstance(item.get("id"), str):
-            if item["id"] in seen:
-                errors.append(f"prompts/process/backlog/{path.name}: id {item['id']} is also "
-                              f"used by {seen[item['id']]}; take the next free number")
-            seen[item["id"]] = path.name
+    added = backlog_files_added(root)
+    for item_id, first, later in backlog_id_duplicates(root):
+        # A duplicate this branch adds fails it. One that two parallel PRs both
+        # merged is already on main: failing every later PR for it turned main
+        # red for unrelated work (doc friction 2026-11-25, P078), so it is a
+        # warning (backlog_duplicate_warnings) that any run can fix by renumbering.
+        if added is None or first in added or later in added:
+            errors.append(f"prompts/process/backlog/{later}: id {item_id} is also "
+                          f"used by {first}; take the next free number")
     errors.extend(validate_system(root))
     errors.extend(validate_posts(root))
     return errors
@@ -1374,6 +1489,8 @@ def main(argv: list[str] | None = None) -> int:
     warning = redteam_band_warning(ROOT)
     if warning:
         print(f"warning: {warning}", file=sys.stderr)
+    for dup in backlog_duplicate_warnings(ROOT):
+        print(f"warning: {dup}", file=sys.stderr)
     errors = validate(ROOT)
     for err in errors:
         print(f"error: {err}", file=sys.stderr)

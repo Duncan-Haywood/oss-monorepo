@@ -3,6 +3,7 @@ import io
 import json
 import tempfile
 import unittest
+from decimal import Decimal
 from pathlib import Path
 
 from einvoice_preflight.breakdown import inspect_tax_breakdown
@@ -208,6 +209,35 @@ class BreakdownHelpersTest(unittest.TestCase):
             report = output.getvalue()
             self.assertIn("INV-037", report)
             self.assertNotIn("SECRET-LINE", report)
+
+
+def _rounded_per_line(row_tax, total_tax=None):
+    total_tax = row_tax if total_tax is None else total_tax
+    return {
+        "invoice_number": "INV-1", "issue_date": "2026-08-24", "currency": "EUR",
+        "supplier": {"id": "S1", "name": "S"}, "customer": {"id": "C1", "name": "C"},
+        "lines": [{"description": f"L{i}", "quantity": 1, "unit_price": "10.07", "tax_percent": 19, "net": "10.07"} for i in range(3)],
+        "tax_breakdown": [{"tax_percent": 19, "taxable": "30.21", "tax": str(row_tax)}],
+        "totals": {"net": "30.21", "tax": str(total_tax), "gross": str(Decimal("30.21") + Decimal(str(total_tax)))},
+    }
+
+
+class BrCo17ToleranceTest(unittest.TestCase):
+    def test_within_one_unit_passes_as_cen_does(self):
+        # Per-line rounding: 3 x 1.91 = 5.73 against 30.21 x 19% = 5.74 (breakdown.mjs warns; the CLI is silent).
+        from einvoice_preflight.checks import check_invoice
+        assert check_invoice(_rounded_per_line("5.73")) == []
+        assert check_invoice(_rounded_per_line("6.73")) == []
+        assert sorted(f["rule"] for f in check_invoice(_rounded_per_line("6.74"))) == ["INV-018", "INV-038"]
+        assert [f["rule"] for f in check_invoice(_rounded_per_line("5.73", "5.72"))] == ["INV-018"]
+
+
+    def test_tolerance_edges(self):
+        from einvoice_preflight.breakdown import br_co_17_tolerated
+        D = Decimal
+        assert br_co_17_tolerated(D("-5.73"), D("5.74"), D("19")) is False
+        assert br_co_17_tolerated(D("0.30"), D("0.00"), D("0")) is True
+        assert br_co_17_tolerated(D("0.50"), D("0.00"), D("0")) is False
 
 
 if __name__ == "__main__":

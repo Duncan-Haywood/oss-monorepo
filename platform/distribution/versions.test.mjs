@@ -19,7 +19,7 @@ async function fixture(files) {
   }
   return root;
 }
-const MIT = 'MIT License\n\nCopyright (c) x';
+const MIT = 'Functional Source License\n\nCopyright (c) x';
 const nodeTool = (slug) => ({
   [`ventures/${slug}/cli.mjs`]: '#!/usr/bin/env node\nimport { f } from "./lib.mjs";\nconsole.log(f());\n',
   [`ventures/${slug}/lib.mjs`]: 'export const f = () => 1;\n',
@@ -152,7 +152,7 @@ test('the committed allow-list is valid, every tool on it builds, and versions.j
 test('the versions CI workflow runs for every directory an allow-listed tool ships from', async () => {
   const yml = await fs.readFile(new URL('../../.github/workflows/distribution-versions-ci.yml', import.meta.url), 'utf8');
   const globs = [...yml.matchAll(/^\s+- "(ventures\/[^"]+)"$/gm)].map((m) => m[1]);
-  const covers = (dir) => globs.some((g) => new RegExp(`^${g.replace(/\*\*$/, '').replace(/\./g, '\\.').replace(/\*/g, '[^/]*')}`).test(`${dir}/x`));
+  const covers = (dir) => globs.some((g) => new RegExp(`^${g.replace(/\*\*$/, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\\\*/g, '[^/]*')}`).test(`${dir}/x`));
   const { execFileSync } = await import('node:child_process');
   const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..');
   const bundled = execFileSync('python3', [path.join(root, 'ventures/devsec-toolkit/devsec.py'), 'list', '--paths'], { encoding: 'utf8' })

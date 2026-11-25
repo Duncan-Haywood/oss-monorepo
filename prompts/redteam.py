@@ -39,6 +39,7 @@ import os
 import random
 import re
 import signal
+import shlex
 import subprocess
 import sys
 import time
@@ -193,7 +194,17 @@ def suite_for(path: Path, repo: Path = REPO) -> tuple[list[str], Path] | None:
             if any(vdir.rglob("*.test.mjs")):
                 # node expands the quoted glob itself, so this reaches suites
                 # kept in a subdirectory (CLAUDE.md's checklist, same shape).
-                return ["node", "--test", f"ventures/{parts[1]}/**/*.test.mjs"], repo
+                cmd = ["node", "--test", f"ventures/{parts[1]}/**/*.test.mjs"]
+                contract = repo / "platform" / "ci" / "usage_contract.mjs"
+                if len(parts) == 3 and path.name == "usage.mjs" and contract.is_file():
+                    # CI also runs this contract over every copy (portfolio-validate,
+                    # check_storage_guard.py), so a mutant it rejects is caught by
+                    # the repository's tests. Measuring the venture suite alone read
+                    # 43 of 152 usage.mjs mutants as escaped (2026-11-15).
+                    chain = " && ".join(shlex.join(c) for c in (
+                        cmd, ["node", "platform/ci/usage_contract.mjs", "ventures"]))
+                    return ["sh", "-c", chain], repo
+                return cmd, repo
             return None
         sibling = path.with_name(path.stem + ".test.mjs")
         if sibling.is_file():
@@ -244,11 +255,50 @@ def run_suite(cmd: list[str], cwd: Path, timeout: int = TIMEOUT_SECONDS) -> tupl
         # No .pyc written: a same-size mutant's pyc (mtime+size match) would
         # keep serving the mutant after the file is restored.
         env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
-        proc = subprocess.run(cmd, cwd=cwd, capture_output=True, timeout=timeout, env=env)
-        passed = proc.returncode == 0
-    except subprocess.TimeoutExpired:
+        # Its own process group, so a timeout kills the suite's children too: a
+        # looping mutant's per-file `node --test` child used to outlive its parent
+        # and spin into later mutants, timing them out as "caught" (2026-11-14).
+        proc = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                env=env, start_new_session=True)
+        try:
+            proc.communicate(timeout=timeout)
+            passed = proc.returncode == 0
+        except subprocess.TimeoutExpired:
+            passed = False
+            try:
+                os.killpg(proc.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            proc.communicate()
+    except OSError:
         passed = False
     return passed, round(time.monotonic() - start, 1)
+
+
+def mutated_before(runs: Path | None = None) -> set[str]:
+    """Repo-relative files an earlier campaign in any run record already mutated.
+
+    `--fresh` drops them, so a run can aim at code no campaign has measured
+    (doc_friction 2026-11-25: finding a product's never-mutated files took a
+    hand grep over prompts/runs/*.json).
+    """
+    runs = runs or REPO / "prompts" / "runs"
+    seen: set[str] = set()
+    for path in runs.glob("*.json"):
+        try:
+            rec = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        rt = rec.get("redteam") if isinstance(rec, dict) else None
+        camps = rt.get("campaigns") if isinstance(rt, dict) else None
+        for camp in camps if isinstance(camps, list) else []:
+            if isinstance(camp, dict) and isinstance(camp.get("target"), str):
+                seen.add(camp["target"])
+    return seen
+
+
+def drop_mutated(targets: list[Path], seen: set[str], repo: Path = REPO) -> list[Path]:
+    return [t for t in targets if t.relative_to(repo).as_posix() not in seen]
 
 
 def draw_fast_target(pool: list[Path], seed: int, probe: int = PROBE_SECONDS,
@@ -343,6 +393,9 @@ def campaign(target: Path, mutants: int, seed: int, repo: Path = REPO,
 def rerun(record_path: Path, repo: Path = REPO, timeout: int = TIMEOUT_SECONDS) -> dict[str, Any]:
     """Re-apply every escaped, non-equivalent mutant and set `caught_after_fix`."""
     rec = json.loads(record_path.read_text())
+    # A suite that is red without the mutant fails with it too, which proves
+    # nothing (2026-11-10): run each suite clean once and skip its mutants if red.
+    clean: dict[tuple[str, ...], bool] = {}
     for camp in (rec.get("redteam") or {}).get("campaigns", []):
         for m in camp["mutants"]:
             if m["caught"] or m.get("triage") == "equivalent":
@@ -352,6 +405,13 @@ def rerun(record_path: Path, repo: Path = REPO, timeout: int = TIMEOUT_SECONDS) 
             if found is None or not target.is_file():
                 m["caught_after_fix"] = None
                 m["note"] = (m.get("note") or "") + " [rerun: target or suite gone]"
+                continue
+            key = (str(found[1]), *found[0])
+            if key not in clean:
+                clean[key] = run_suite(*found, timeout=timeout)[0]
+            if not clean[key]:
+                m["caught_after_fix"] = None
+                m["note"] = (m.get("note") or "") + " [rerun: suite is red without the mutant; fix it first]"
                 continue
             original = target.read_bytes()
             lines = original.decode().split("\n")
@@ -457,7 +517,10 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("targets", help="files a suite guards, sampled")
     p.add_argument("--limit", type=int, default=20)
     p.add_argument("--seed", type=int)
-    p.add_argument("--under", help="only files below this directory, e.g. platform")
+    p.add_argument("--under", help="only files below this directory, e.g. platform or "
+                   "ventures/<slug> for one product")
+    p.add_argument("--fresh", action="store_true",
+                   help="skip files an earlier run record's campaign already mutated")
     p.add_argument("--probe", type=int, metavar="SECONDS",
                    help="time each listed target's suite (cached per suite), giving up after "
                    "SECONDS, so a campaign is not started on a suite too slow to run")
@@ -465,6 +528,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--target", help="file to mutate; default a random guarded file")
     p.add_argument("--under", help="draw the random file from below this directory, "
                    "e.g. platform (3,500 of 3,670 guarded files are ventures)")
+    p.add_argument("--fresh", action="store_true",
+                   help="draw only files no earlier run record's campaign mutated")
     p.add_argument("--mutants", type=int, default=8)
     p.add_argument("--seed", type=int, help="default: random, printed in the result")
     p.add_argument("--timeout", type=int, default=TIMEOUT_SECONDS)
@@ -485,6 +550,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "targets":
         targets = list_targets(under=args.under)
+        total = len(targets)
+        if args.fresh:
+            targets = drop_mutated(targets, mutated_before())
         rng = random.Random(args.seed)
         seen: dict[tuple[str, str], str] = {}
         for path in rng.sample(targets, min(args.limit, len(targets))):
@@ -498,7 +566,8 @@ def main(argv: list[str] | None = None) -> int:
                                  else f"{secs}s" + ("" if ok else " (red)"))
                 rel = f"{rel}\t{seen[key]}"
             print(rel)
-        print(f"({len(targets)} guarded files)", file=sys.stderr)
+        print(f"({len(targets)} guarded files" + (f", {total - len(targets)} already mutated "
+              "and skipped" if args.fresh else "") + ")", file=sys.stderr)
         return 0
     if args.cmd == "campaign":
         seed = args.seed if args.seed is not None else random.randrange(1 << 30)
@@ -509,8 +578,11 @@ def main(argv: list[str] | None = None) -> int:
             target = (REPO / args.target).resolve()
         else:
             pool = list_targets(under=args.under)
+            if args.fresh:
+                pool = drop_mutated(pool, mutated_before())
             if not pool:
-                raise SystemExit(f"no guarded files under {args.under}")
+                raise SystemExit(f"no guarded files under {args.under}"
+                                 + (" that no earlier campaign mutated" if args.fresh else ""))
             target = draw_fast_target(pool, seed, args.probe)
         print(f"red team: {target.relative_to(REPO)} seed {seed}", file=sys.stderr)
         camp = campaign(target, args.mutants, seed, timeout=args.timeout)

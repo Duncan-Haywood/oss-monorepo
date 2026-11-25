@@ -43,6 +43,8 @@ import { formatCount } from './count.mjs';
 import { SITE_NAME, TITLE_BUDGET, siteTitle, sponsorsNote, withSiteHeader } from './site-nav.mjs';
 import { loadResearchRegistry } from './research-registry.mjs';
 import { decodeEntities } from './entities.mjs';
+import { completeArticleNode } from './article-ld.mjs';
+import { softwareLines } from './business.mjs';
 import { loadEpisodes, renderPlayer, renderPodcastBody, renderPodcastHero, writePodcastAssets, PODCAST_PATH, SHOW_DESCRIPTION, SHOW_TITLE } from './podcast.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -67,6 +69,9 @@ export const PAGE_SIZE = 50;
  * the query a reader would type; `label` is the chip and the page's `h1`.
  */
 export const TOPICS = Object.freeze([
+  // First since 2026-11-25 (owner: "blogs get moved from dev blog to marketing blog"): the blog
+  // leads with what a paid product's customer came to read. See CUSTOMER_TAGS and topicOf.
+  { id: 'business', seo: "Guides for contractors, machine shops, sellers and nonprofits", label: 'For your business', blurb: 'Practical answers for the businesses our products serve: builders and subcontractors, machine shops, resellers, e-invoicing firms and nonprofits.' },
   { id: 'start', seo: "Start here: what each free tool and research project is for", label: 'Start here', blurb: 'Who each project is for, what you get from it, and your first ten minutes with it.' },
   { id: 'quality', seo: "Quality audits of AI-built software, graded on a fixed rubric", label: 'Quality audits', blurb: 'Is the work finished, correct and at a senior professional level? Seeded random samples graded on a fixed rubric, with the evidence (portfolio/quality/).' },
   { id: 'agents', seo: "Building software with unattended AI coding agents", label: 'Building with AI agents', blurb: 'How the agent fleet builds, steers and measures itself: process, cost, mistakes and what changed.' },
@@ -78,6 +83,16 @@ export const TOPICS = Object.freeze([
   { id: 'infrastructure', seo: "Static hosting, CI and build performance notes", label: 'Hosting and infrastructure', blurb: 'Hosting, CI, performance and the plumbing under the site.' },
 ]);
 const TOPIC_IDS = new Set(TOPICS.map((t) => t.id));
+/**
+ * Tags that file a post under "For your business": `for-customers` (say so explicitly), or the id
+ * of a paid software line or one of its free tools (business.mjs), so a post about framing takeoff,
+ * pay applications or reseller fees reaches the customer blog without a re-tag. A post that also
+ * carries a DEV_TAGS tag is about how the thing was built, not for its user, and stays where it was.
+ */
+export const CUSTOMER_TAGS = Object.freeze(new Set(['for-customers', ...softwareLines().flatMap((l) => [l.id, ...l.tools])]));
+const DEV_TAGS = ['testing', 'test-coverage', 'property-testing', 'redteam', 'red-team', 'mutation-testing', 'fault-injection',
+  'quality-audit', 'process', 'prompting', 'prompt-engineering', 'ai-agents', 'agents', 'opinion', 'ci', 'build', 'caching',
+  'performance', 'perf', 'bug', 'bugfix', 'refactor', 'refactoring', 'polish', 'seo', 'aeo', 'llms-txt', 'site', 'github-actions', 'hosting', 'tooling', 'research'];
 const TOOL_TAGS = ['projects', 'tools', 'mcp', 'distribution', 'voice-interfaces', 'byok', 'local-llm', 'privacy', 'podcasting', 'desktop-apps'];
 const INFRA_TAGS = ['github-pages', 'hosting', 'kubernetes', 'github-actions', 'static-site', 'static-sites'];
 const AGENT_TAGS = ['ai-agents', 'process', 'prompting', 'prompt-engineering', 'engineering-management'];
@@ -101,7 +116,8 @@ const PLUMBING_LOOSE_TAGS = ['ci', 'build', 'caching'];
 const BACKSTAGE_TAGS = ['process', 'prompting', 'prompt-engineering', 'engineering-management', ...INFRA_TAGS];
 
 /**
- * A post's topic from its tags, first rule wins: onboarding posts (`start-here`)
+ * A post's topic from its tags, first rule wins (customer-facing posts, `CUSTOMER_TAGS`, come
+ * fourth, before fiction and research): onboarding posts (`start-here`)
  * are the newcomer's way in, so they group together whatever else they name; quality audits
  * (`quality-audit`, portfolio/quality/) grade work from every track, so they group apart; opinion pieces are about
  * steering the fleet; then fiction (`FICTION_TAGS`, unless it is about running a shelf); then research (the `research` tag, or a tag naming a project in
@@ -120,6 +136,7 @@ export function topicOf(tags = [], explicit = '', projects = NO_PROJECTS) {
   if (tags.includes('start-here')) return 'start';
   if (tags.includes('quality-audit')) return 'quality';
   if (tags.includes('opinion')) return 'agents';
+  if (tags.includes('for-customers') || (tags.some((t) => CUSTOMER_TAGS.has(t)) && !has(DEV_TAGS))) return 'business';
   if (has(FICTION_TAGS) && !has(BACKSTAGE_TAGS)) return 'stories';
   if (tags.includes('research') || tags.some((t) => projects.research.has(t))) return 'research';
   if (has(TESTING_TAGS)) return 'testing';
@@ -180,6 +197,13 @@ export function projectGroups(posts, { root = DEFAULT_ROOT, topic = 'tools', nam
     });
 }
 
+// Drop every tag, repeating until none is left, so removing one cannot leave another behind.
+function stripTags(s) {
+  let prev;
+  do { prev = s; s = s.replace(/<[^>]+>/g, ''); } while (s !== prev);
+  return s;
+}
+
 /**
  * Each research programme's card title (`research/_homepage/projects.json` or its own
  * `project.json`, via the registry the research site builds from): the question it asks.
@@ -188,7 +212,7 @@ export function projectGroups(posts, { root = DEFAULT_ROOT, topic = 'tools', nam
 export function researchQuestions(root = DEFAULT_ROOT) {
   const data = loadResearchRegistry(root);
   const out = new Map();
-  for (const t of data?.themes ?? []) for (const p of t.projects ?? []) if (p.slug && p.title) out.set(p.slug, String(p.title).replace(/<[^>]+>/g, '').trim());
+  for (const t of data?.themes ?? []) for (const p of t.projects ?? []) if (p.slug && p.title) out.set(p.slug, stripTags(String(p.title)).trim());
   return out;
 }
 
@@ -205,7 +229,7 @@ const NOT_A_STOP = /(?:\bet al|\be\.g|\bi\.e|\bvs|\bcf|\bFig|\bNo|\bSec|\bEq|\ba
  * meta description want the first finding, not the whole log.
  */
 export function researchLede(summaryHtml, max = 320, { stretch = 1.5 } = {}) {
-  const text = decodeEntities(String(summaryHtml || '').replace(/<sup>([^<]*)<\/sup>/gi, '^$1').replace(/<sub>([^<]*)<\/sub>/gi, '_$1').replace(/<[^>]+>/g, '')).replace(/[ \t\r\n]+/g, ' ').trim(); // keeps a decoded &nbsp;
+  const text = decodeEntities(stripTags(String(summaryHtml || '').replace(/<sup>([^<]*)<\/sup>/gi, '^$1').replace(/<sub>([^<]*)<\/sub>/gi, '_$1'))).replace(/[ \t\r\n]+/g, ' ').trim(); // keeps a decoded &nbsp;
   if (!text) return '';
   const sentences = [];
   let start = 0;
@@ -626,7 +650,7 @@ ${body}
 <footer>
   <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
   <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
-  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+  completeness, and not advice of any kind. FSL-1.1-MIT-licensed, like the tools.</p>
   <p>${sponsorsNote()}</p>
 </footer>
 </div>
@@ -676,6 +700,9 @@ const FINDER_SCRIPT = `(() => {
   const params = new URLSearchParams(location.search);
   let topic = chips.some((c) => c.dataset.topicChip === params.get('topic')) ? params.get('topic') : '';
   let full = null, loading = null;
+  const bodyMatcher = ${bodyMatcher.toString()};
+  const cardTextOf = ${cardTextOf.toString()};
+  const labels = ${JSON.stringify(Object.fromEntries(TOPICS.map((t) => [t.id, t.label])))};
   q.value = params.get('q') || '';
   tag.value = params.get('tag') || '';
   if (tag.selectedIndex < 0) tag.value = '';
@@ -687,18 +714,22 @@ const FINDER_SCRIPT = `(() => {
     long: (a, b) => b.dataset.mins - a.dataset.mins,
   };
   function loadFull() {
-    if (!loading) loading = fetch('search.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((j) => { full = j; apply(); });
+    if (!loading) loading = fetch('search.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((j) => { full = bodyMatcher(j); apply(); });
   }
   function card(r) {
     const li = document.createElement('li');
+    // Rows are [slug, title, description, date, minutes, topic, tags]; a nine-column row from an
+    // older build also holds the topic label at 6, the tags at 7 and the card text at 8.
+    const old = r.length > 7, tags = old ? r[7] : r[6];
+    const label = old ? r[6] : (Object.prototype.hasOwnProperty.call(labels, r[5]) ? labels[r[5]] : r[5]);
     li.dataset.slug = r[0]; li.dataset.date = r[3]; li.dataset.mins = String(r[4]); li.dataset.topic = r[5];
-    li.dataset.tags = r[7]; li.dataset.text = r[8];
+    li.dataset.tags = tags; li.dataset.text = old ? r[8] : cardTextOf(r[1], r[2], tags, label);
     const h = document.createElement('h2'), a = document.createElement('a');
     a.href = r[0] + '/'; a.textContent = r[1]; h.appendChild(a);
     const d = document.createElement('p'); d.textContent = r[2];
     const m = document.createElement('p'); m.className = 'meta';
     // The same markup as a server-rendered card (renderIndex), so a search result looks like the list it came from.
-    const tp = document.createElement('span'); tp.className = 'topic'; tp.textContent = r[6];
+    const tp = document.createElement('span'); tp.className = 'topic'; tp.textContent = label;
     const w = document.createElement('span'); w.className = 'when';
     const t = document.createElement('time'); t.dateTime = r[3];
     t.textContent = new Date(r[3] + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
@@ -722,10 +753,10 @@ const FINDER_SCRIPT = `(() => {
     if (terms.length && !full) loadFull();
     let shown = 0;
     for (const li of items) {
-      const hay = li.dataset.text + ' ' + ((full && full[li.dataset.slug]) || '');
+      // A term has no spaces, so it matches the card text or the body, never across the two.
       const ok = (!topic || li.dataset.topic === topic)
         && (!tag.value || li.dataset.tags.split(' ').indexOf(tag.value) >= 0)
-        && terms.every((t) => hay.indexOf(t) >= 0);
+        && terms.every((t) => li.dataset.text.indexOf(t) >= 0 || Boolean(full && full(t).has(li.dataset.slug)));
       li.hidden = !ok;
       if (ok) shown++;
     }
@@ -795,23 +826,103 @@ function renderFinder(posts) {
 }
 
 /** The text the index's search reads before the full text arrives. */
-const cardText = (p) => [p.title, p.description, p.tags.join(' '), topicLabel(p.topic)].join(' ').toLowerCase().replace(/\s+/g, ' ');
+/**
+ * The text a card's own words match against: title, description, tags and topic label, lower case
+ * with single spaces. The finder script embeds this same function (`cardTextOf.toString()`) to
+ * rebuild it from a posts.json row, so the file need not carry it.
+ */
+export function cardTextOf(title, description, tags, label) {
+  return [title, description, tags, label].join(' ').toLowerCase().replace(/\s+/g, ' ');
+}
+const cardText = (p) => cardTextOf(p.title, p.description, p.tags.join(' '), topicLabel(p.topic));
 
-/** `search.json`: each post's body as lower-case plain words, for full-text search on the index. */
+/** A post's body as lower-case plain words separated by single spaces: the text the full-text search reads. */
+export const searchText = (md) =>
+  md
+    .replace(/\]\([^)]*\)/g, ']')
+    .replace(/[#*_`>|[\]]/g, ' ')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+
+/**
+ * `search.json`: an inverted index of every post's body, for full-text search on the index.
+ *
+ * `{ slugs, words, posts }`: `words` is each distinct word once, space-separated; `posts[i]` lists
+ * the posts (indexes into `slugs`) that hold word i, as base-36 gaps (an empty gap means the next
+ * post), comma-separated. The search only asks whether a typed term (no spaces) is a substring of
+ * a post's text, and such a term can only match inside one word, so "some word of this post contains
+ * the term" gives the same answer as searching the whole body. Until 2026-11-25 this file held each
+ * body in full: 18.3 MB (6.7 MB gzip) at 7,749 posts, all fetched on the first keystroke; the index
+ * is a third of that (docs/history/pages-build-perf-2026-11-25-writing-search-index.md).
+ */
 export function renderSearchIndex(posts) {
-  const plain = (md) =>
-    md
-      .replace(/\]\([^)]*\)/g, ']')
-      .replace(/[#*_`>|[\]]/g, ' ')
-      .toLowerCase()
-      .replace(/\s+/g, ' ')
-      .trim();
-  return JSON.stringify(Object.fromEntries(posts.map((p) => [p.slug, plain(p.body)])));
+  const holders = new Map();
+  posts.forEach((p, i) => {
+    for (const w of new Set(searchText(p.body).split(' '))) {
+      if (!w) continue;
+      const list = holders.get(w);
+      if (list) list.push(i);
+      else holders.set(w, [i]);
+    }
+  });
+  const words = [...holders.keys()];
+  const gaps = (list) => {
+    let prev = -1;
+    return list.map((i) => { const d = i - prev - 1; prev = i; return d ? d.toString(36) : ''; }).join(',');
+  };
+  return JSON.stringify({ slugs: posts.map((p) => p.slug), words: words.join(' '), posts: words.map((w) => gaps(holders.get(w))) });
 }
 
-/** The rows `posts.json` holds for the finder: slug, title, description, date, minutes, topic id, topic label, tags, search text. */
+/**
+ * Reads `search.json` in the browser (inlined into the index's script) and in tests: returns
+ * `has(term)`, the Set of slugs whose body contains `term`. Each distinct word is scanned once per
+ * term and the answer memoised, so a keystroke no longer walks every post's full text. A file in the
+ * older shape (slug to full text, still in a cache during a deploy) is read too.
+ */
+export function bodyMatcher(index) {
+  const memo = new Map();
+  if (!index || !Array.isArray(index.slugs)) {
+    const texts = Object.entries(index || {});
+    return (t) => {
+      let hit = memo.get(t);
+      if (!hit) {
+        hit = new Set();
+        for (const [slug, text] of texts) if (String(text).indexOf(t) >= 0) hit.add(slug);
+        memo.set(t, hit);
+      }
+      return hit;
+    };
+  }
+  const slugs = index.slugs, posts = index.posts || [];
+  const words = String(index.words || '').split(' ');
+  return (t) => {
+    let hit = memo.get(t);
+    if (!hit) {
+      hit = new Set();
+      for (let i = 0; i < words.length; i++) {
+        if (words[i].indexOf(t) < 0) continue;
+        let p = -1;
+        for (const d of String(posts[i] || '').split(',')) {
+          p += (d ? parseInt(d, 36) : 0) + 1;
+          if (p < slugs.length) hit.add(slugs[p]);
+        }
+      }
+      if (memo.size > 500) memo.clear();
+      memo.set(t, hit);
+    }
+    return hit;
+  };
+}
+
+/**
+ * The rows `posts.json` holds for the finder: slug, title, description, date, minutes, topic id, tags.
+ * Until 2026-11-25 each row also carried the topic label and the card's search text, both pure
+ * functions of the rest (`TOPIC_LABELS`, `cardTextOf`): 4.7 MB raw. The finder still reads that
+ * nine-column shape, for a cache that serves the old file during a deploy.
+ */
 export function renderPostRows(posts) {
-  return JSON.stringify(posts.map((p) => [p.slug, p.title, p.description, p.date, p.minutes, p.topic, topicLabel(p.topic), p.tags.join(' '), cardText(p)]));
+  return JSON.stringify(posts.map((p) => [p.slug, p.title, p.description, p.date, p.minutes, p.topic, p.tags.join(' ')]));
 }
 
 const pageCount = (posts) => Math.max(1, Math.ceil(posts.length / PAGE_SIZE));
@@ -1054,6 +1165,27 @@ ${renderProjectNav(projects, 0, { toProjects: `${toTopic}`, current: project.slu
   });
 }
 
+/** Newest customer posts pinned on the blog's first page. */
+export const CUSTOMER_LEAD = 6;
+
+/**
+ * The first thing on the blog: the newest "For your business" posts (owner, 2026-11-25: "blogs
+ * get moved from dev blog to marketing blog"), above the finder over every post. Empty when
+ * there are none, so a build with no customer posts shows the plain index.
+ */
+export function renderCustomerLead(posts, { n = CUSTOMER_LEAD, toTopics = 'topic/' } = {}) {
+  const mine = posts.filter((p) => p.topic === 'business').sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  if (!mine.length) return '';
+  return `<section class="customer-lead" aria-labelledby="customer-lead-h">
+<h2 id="customer-lead-h">For your business</h2>
+<ul class="posts">
+${renderCards(mine.slice(0, n), '', { topicPill: false })}
+</ul>
+<p class="meta"><a href="${toTopics}business/">All ${formatCount(mine.length)} guides for your business →</a></p>
+</section>
+`;
+}
+
 /**
  * One blog index. Page 1 (`page` omitted) is `<section>/index.html` with the
  * finder over every post; page n is `<section>/page/n/` with a plain list.
@@ -1075,8 +1207,8 @@ export function renderIndex(allPosts, { baseUrl = '', socialCard = '', episodes 
 and lead with what to do. People are welcome to read along. For a model, the plain-text entry points are
 <a href="llms.txt">llms.txt</a> (the index), <a href="llms-full.txt">llms-full.txt</a> (every post in one file) and each post's
 raw Markdown (<code>&lt;slug&gt;.txt</code>). New posts: the <a href="feed.xml">Atom feed</a>. The blog for people is <a href="../">here</a>.</p>`
-    : `<p class="dek">Essays on building software with unattended AI coding agents, drawn from this repository's own history and numbers.
-Subscribe with the <a href="feed.xml">Atom feed</a>.${episodes.length ? ` Or listen: <a href="podcast/">the podcast</a> has spoken versions of ${episodes.length} of these posts, by topic.` : ` The <a href="podcast/">podcast</a> will carry spoken versions.`} What shipped and what is next: <a href="../updates/">updates and roadmap</a>.${agentPosts ? ` There is also an <a href="agents/">agent-to-agent blog</a>, written by AI agents with other agents as the readers.` : ''}</p>`;
+    : `<p class="dek">Practical guides for the businesses our products serve: subcontractors and builders, machine shops, resellers, European firms facing e-invoicing, and nonprofits.
+The build log (how AI agents make and test it all) and the research notes follow under their own topics. Subscribe with the <a href="feed.xml">Atom feed</a>.${episodes.length ? ` Or listen: <a href="podcast/">the podcast</a> has spoken versions of ${episodes.length} of these posts, by topic.` : ` The <a href="podcast/">podcast</a> will carry spoken versions.`} What shipped and what is next: <a href="../updates/">updates and roadmap</a>.${agentPosts ? ` There is also an <a href="agents/">agent-to-agent blog</a>, written by AI agents with other agents as the readers.` : ''}</p>`;
   const title = `${isAgents ? 'Agent-to-agent blog' : 'Blog'}${sub ? `, page ${page}` : ''} · ${SITE_NAME}`;
   const pager = renderPager(page, count, up ? '../../' : '');
   return shell({
@@ -1100,7 +1232,7 @@ ${dek}`,
 ${items}
 </ul>
 ${pager}`
-        : `${renderFinder(allPosts)}
+        : `${isAgents ? '' : renderCustomerLead(allPosts)}${renderFinder(allPosts)}
 <ul class="posts" id="posts"${paged ? ` data-all="posts.json" data-total="${allPosts.length}"` : ''}>
 ${items}
 </ul>
@@ -1176,7 +1308,13 @@ function relatedIndex(posts) {
   // below compare thousands of pairs per post page, and parsing the date in
   // every comparison was about 2 s of a warm build (2026-11-12).
   const days = posts.map((p) => dayNumber(p.date));
-  index = { byTag, byWord, words, idf, days };
+  // A score per post index, zeroed again after each ranking: one Float64Array
+  // in place of a Map per post page (docs/history/pages-build-perf-2026-11-25-related-top-k.md).
+  const scratch = new Float64Array(posts.length);
+  // An unparseable date makes the nearest-in-date order inconsistent, so the
+  // top-k selection below is only used when every date is a number.
+  const finiteDays = days.every(Number.isFinite);
+  index = { byTag, byWord, words, idf, days, scratch, finiteDays };
   RELATED_INDEX.set(posts, index);
   return index;
 }
@@ -1197,7 +1335,60 @@ const dayNumber = (iso) => (iso ? Date.parse(`${iso}T00:00:00Z`) / 86400000 : 0)
  * lists itself.
  */
 export function rankRelated(post, posts, n = 5) {
-  const { byTag, byWord, words, idf, days } = relatedIndex(posts);
+  const index = relatedIndex(posts);
+  const day = dayNumber(post.date);
+  // The sort handles the rare shapes: a list length that is not a whole number
+  // of at least 1, a date that does not parse, or an array grown since its index.
+  if (!(Number.isInteger(n) && n >= 1) || !index.finiteDays || !Number.isFinite(day) || index.days.length !== posts.length) {
+    return rankRelatedBySort(post, posts, n, index);
+  }
+  const { byTag, byWord, words, idf, days, scratch } = index;
+  // Same scores as rankRelatedBySort, added in the same order per post, so the
+  // sums are the same floats.
+  const touched = [];
+  const add = (list, weight) => {
+    if (!weight) return;
+    for (const i of list) {
+      if (scratch[i] === 0) touched.push(i);
+      scratch[i] += weight;
+    }
+  };
+  for (const t of new Set(post.tags ?? [])) add(byTag.get(t) ?? [], idf(byTag.get(t)));
+  for (const w of words.get(post) ?? titleWords(post.title)) add(byWord.get(w) ?? [], idf(byWord.get(w)) / 2);
+  // Both orders below are total (ties end on the index), so keeping the best k
+  // as candidates arrive gives exactly the first k of the full sort.
+  const gap = (i) => Math.abs(days[i] - day);
+  const nearest = (a, b) => gap(a) - gap(b) || a - b;
+  const byScore = (a, b) => scratch[b] - scratch[a] || nearest(a, b);
+  const top = [];
+  const keep = (i, k, cmp) => {
+    if (top.length >= k && cmp(i, top[top.length - 1]) >= 0) return;
+    let at = top.length;
+    while (at > 0 && cmp(i, top[at - 1]) < 0) at--;
+    top.splice(at, 0, i);
+    if (top.length > k) top.pop();
+  };
+  for (const i of touched) if (scratch[i] > 0 && posts[i].slug !== post.slug) keep(i, n, byScore);
+  for (const i of touched) scratch[i] = 0;
+  const ranked = top.map((i) => posts[i]);
+  if (ranked.length >= n) return ranked;
+  const taken = new Set(ranked.map((p) => p.slug).concat(post.slug));
+  for (const sameTopic of [true, false]) {
+    const k = n - ranked.length;
+    if (k <= 0) break;
+    top.length = 0;
+    posts.forEach((p, i) => {
+      if ((p.topic === post.topic) === sameTopic && !taken.has(p.slug)) keep(i, k, nearest);
+    });
+    for (const i of top) ranked.push(posts[i]);
+  }
+  return ranked;
+}
+
+// The original full-sort ranking. rankRelated falls back to it when a date does
+// not parse, and the tests pin rankRelated against it.
+export function rankRelatedBySort(post, posts, n = 5, index = relatedIndex(posts)) {
+  const { byTag, byWord, words, idf, days } = index;
   const score = new Map();
   const add = (list, weight) => {
     if (!weight) return;
@@ -1276,11 +1467,33 @@ function balancedRelated(posts, n) {
   return lists;
 }
 
+/** A post's BlogPosting with the url, image, author and publisher it would otherwise lack (article-ld.mjs). */
+function withArticleDefaults(node, { canonical, baseUrl, image }) {
+  if (baseUrl) completeArticleNode(node, { canonical, baseUrl, siteName: SITE_NAME, image });
+  return node;
+}
+
+// The first index of each slug in one posts array, built once (as `siblingTargets`
+// is): a findIndex per post page was 7,367 x 7,367 comparisons, about 0.3 s of a
+// build (docs/history/pages-build-perf-2026-11-25-related-top-k.md). An index that
+// no longer holds the slug (the array changed in place) falls back to findIndex.
+const POST_INDEX = new WeakMap();
+function postIndex(posts, slug) {
+  let cached = POST_INDEX.get(posts);
+  if (!cached || cached.n !== posts.length) {
+    const at = new Map();
+    posts.forEach((p, i) => { if (!at.has(p.slug)) at.set(p.slug, i); });
+    POST_INDEX.set(posts, (cached = { n: posts.length, at }));
+  }
+  const i = cached.at.get(slug);
+  return i !== undefined && posts[i]?.slug === slug ? i : posts.findIndex((p) => p.slug === slug);
+}
+
 function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = null, section = BLOG, projects = [] } = {}) {
   const canonical = baseUrl ? `${baseUrl}${section.path}${post.slug}/` : '';
   const isAgents = section.id === 'agents';
   const toRoot = '../'.repeat(section.depth + 1);
-  const at = posts.findIndex((p) => p.slug === post.slug);
+  const at = postIndex(posts, post.slug);
   const newer = at > 0 ? posts[at - 1] : null;
   const older = at >= 0 && at < posts.length - 1 ? posts[at + 1] : null;
   const related = relatedPosts(post, posts);
@@ -1314,7 +1527,7 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
         }
       : undefined,
     feedHref: '../feed.xml',
-    jsonLd: {
+    jsonLd: withArticleDefaults({
       '@context': 'https://schema.org',
       '@type': 'BlogPosting',
       headline: post.title,
@@ -1327,7 +1540,7 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
       ...(episode && baseUrl
         ? { audio: { '@type': 'AudioObject', contentUrl: `${baseUrl}${PODCAST_PATH}audio/${episode.audioFile}`, encodingFormat: 'audio/mpeg', duration: `PT${Math.round(episode.seconds)}S` } }
         : {}),
-    },
+    }, { canonical, baseUrl, image: socialCard }),
     hero: `<h1>${esc(post.title)}</h1>
 <p class="dek">${post.descriptionHtml ?? esc(post.description)}</p>
 <p class="meta post-meta">${topic} <span class="when"><time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes}&nbsp;min&nbsp;read</span> <span class="tail">${tags ? `<span class="tags">${tags}</span> ` : ''}<span class="src"><a href="${REPO_BLOB}${esc(post.source)}">Source</a>${markdown}</span></span></p>`,

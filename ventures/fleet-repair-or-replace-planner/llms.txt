@@ -2,7 +2,7 @@
 
 > Free browser planner for trade and service fleets: cost out repair-versus-replace for every van, truck and machine including the downtime days most owners leave out, then rank which ones to replace against a fixed capital budget. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -14,4 +14,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fleet-repair-or-replace-planner): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fleet-repair-or-replace-planner): FSL-1.1-MIT licensed.

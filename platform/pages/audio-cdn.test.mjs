@@ -62,7 +62,8 @@ test('linked, committed audio moves to the CDN; drafts and unlinked files stay',
   const one = cdnUrl(REPO, first, 'ventures/shelf/audio/one.mp3');
   assert.equal(one, `https://cdn.jsdelivr.net/gh/owner/repo@${first}/ventures/shelf/audio/one.mp3`);
   assert.equal(readFileSync(path.join(out, 'shelf/story.html'), 'utf8'), `<audio src="${one}"></audio><a href="audio/draft.mp3">x</a>`);
-  assert.match(readFileSync(path.join(out, 'shelf/feed.xml'), 'utf8'), new RegExp(`url="${one.replace(/[.?]/g, '\\$&')}"`));
+  const feed = readFileSync(path.join(out, 'shelf/feed.xml'), 'utf8');
+  assert.ok(feed.includes(`url="${one}"`), feed);
   assert.match(readFileSync(path.join(out, 'writing/post/index.html'), 'utf8'), /docs\/podcast\/audio\/ep%201\.mp3"/);
 
   assert.equal(existsSync(path.join(out, 'shelf/audio/one.mp3')), false);

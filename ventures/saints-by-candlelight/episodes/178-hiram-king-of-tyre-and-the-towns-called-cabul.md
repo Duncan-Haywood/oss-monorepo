@@ -1,0 +1,345 @@
+---
+number: 178
+slug: hiram-king-of-tyre-and-the-towns-called-cabul
+title: Hiram King of Tyre and the Towns Called Cabul
+published: 2026-11-25
+summary: Hiram, the king of Tyre, sends cedar and carpenters to build King David a house, blesses the Lord when David's son comes to the throne, trades timber for wheat with Solomon for twenty years, rides out to see the twenty towns in Galilee he is given in return and says, what are these towns you have given me, my brother, and still sends his sailors down to the Red Sea with Solomon's ships. Told from the Second Book of Samuel, the First Book of Kings and the Second Book of Chronicles, with what Scripture later says about Tyre, down to a farewell on the beach in the Acts of the Apostles.
+figures: Hiram king of Tyre, King David, King Solomon, Hiram the bronze-worker, the men of Gebal, Hiram's sailors; remembered there the prophets Amos and Ezekiel, the Canaanite woman of the region of Tyre, Our Lord, Saint Paul and the disciples of Tyre; with Magon, an invented scribe of Hiram's household
+tradition: Catholic and Orthodox; both read the books of Samuel, Kings and Chronicles as Scripture; Hiram was a Phoenician king, not an Israelite, is not counted among the saints in either tradition and has no feast day, and the episode says so
+feast: Hiram has no feast day in either tradition; the Canaanite woman of the region of Tyre, whose Gospel the episode tells near its end, is read in the Catholic Mass on the twentieth Sunday in Ordinary Time in Year A
+history: the story is Scripture, the Second Book of Samuel, chapter five, verse eleven, the First Book of Kings, chapters five, seven, nine and ten, and the Second Book of Chronicles, chapters two, eight and nine, told straight in a plain rendering; Hiram is also named by Josephus, who says he is quoting the Tyrian histories of Menander of Ephesus and of Dius, and the dating to about nine hundred and seventy years before Christ is the usual reckoning of historians, not a figure the books give in our calendar
+legend: the riddles that Josephus says Solomon and Hiram sent each other are told as a story that Josephus found in older writers, whose truth nobody can check, and the old monument near Tyre called Hiram's tomb is told as a name given by later tradition to a monument that archaeologists date centuries after him
+fiction: Magon the scribe, his ink, his journeys, his thoughts, and every word he says or hears in private are our own invention, told in the spirit of the original; nothing is added to what Hiram, David or Solomon say or do in Scripture, and where the Bible does not say why Hiram disliked the towns, the episode says so and does not settle it
+sources:
+  - The Second Book of Samuel, chapter five, verses eleven and twelve
+  - The First Book of Chronicles, chapter fourteen, verses one and two
+  - The First Book of Kings, chapter five (chapter five, verses fifteen to thirty-two, in some numberings), chapter seven, verses thirteen and fourteen, chapter nine, verses ten to fourteen and twenty-six to twenty-eight, and chapter ten, verses eleven, twelve and twenty-two
+  - The Second Book of Chronicles, chapter two, chapter eight, verses one, two, seventeen and eighteen, and chapter nine, verses ten and eleven
+  - The Book of Joshua, chapter nineteen, verse twenty-seven, on the town of Cabul on the border of Asher
+  - The Book of Amos, chapter one, verses nine and ten
+  - The Book of Ezekiel, chapter twenty-seven
+  - Psalm forty-five (forty-four in the Greek numbering), verse twelve, and Psalm eighty-seven (eighty-six), verse four
+  - Psalm one hundred and thirty-three (one hundred and thirty-two), verse one
+  - The Book of Ezra, chapter three, verse seven
+  - The Gospel according to Mark, chapter three, verse eight, and chapter seven, verses twenty-four to thirty
+  - The Gospel according to Matthew, chapter fifteen, verses twenty-one to twenty-eight
+  - The Acts of the Apostles, chapter twelve, verse twenty, and chapter twenty-one, verses three to seven
+  - Flavius Josephus, Jewish Antiquities, book eight, chapters two and five
+  - Flavius Josephus, Against Apion, book one, chapters seventeen and eighteen, on Dius and Menander of Ephesus
+---
+
+There is a king standing in the middle of a small town in the hills, with mud on his good sandals, and he is not smiling.
+
+Around him are a handful of houses made of field stone. A threshing floor. A few olive trees. Some goats, who have come to see what the fuss is about, and have decided it is not very interesting. Behind the king stand his servants, and his guards, and one thin man with an ink-stained thumb, who is holding a writing board and trying very hard to look as if he is not there.
+
+The king turns slowly all the way round. He looks at the houses. He looks at the olive trees. He looks at the goats. And then he says, to nobody in particular, and to somebody very particular a long way off:
+
+"What are these towns that you have given me, my brother?"
+
+The thin man with the ink-stained thumb does not write that down.
+
+He does not need to. People are going to remember it for three thousand years.
+
+But we're getting ahead of ourselves.
+
+[pause]
+
+Hello, and welcome to Saints by Candlelight, stories of saints, angels and patriarchs from the Catholic and Orthodox traditions, told for bedtime. These episodes are written by an AI and read by a synthetic voice, and they try very hard to be faithful. Tonight's story is from the books of Samuel, Kings and Chronicles, which Catholic and Orthodox Christians read as Scripture, and it is about a king who was not an Israelite at all, but who was a friend to two kings of Israel for most of his life. A scribe called Magon, and every word he says, are our own invention, told in the spirit of the original. So get comfortable. Dim the lights. And let's begin.
+
+[pause]
+
+Tonight we are going to the sea.
+
+Not the Sea of Galilee, which is really a lake, and not the Dead Sea, which is really a very salty puddle, but the great sea, the one the Bible calls simply the Great Sea, the one we call the Mediterranean. And we are going to the far eastern end of it, to the coast where Lebanon is now, about three thousand years ago.
+
+All along that coast there were cities. Gebal, which the Greeks called Byblos. Sidon. And, a little further south, the city of Tyre. The people who lived in them called themselves by the names of their cities, Tyrians, Sidonians. The Greeks, later, called all of them together Phoenicians, and that is the name they usually go by in the history books.
+
+Tyre was a strange and wonderful place. The old city was built on an island, a rock just off the shore, so that the whole town was surrounded by water, with its walls coming right down to the waves and its harbours tucked in behind. There was a part of the city on the mainland too, but the heart of it was out on the rock. The prophet Ezekiel, centuries later, would call Tyre the city that sits at the entrance to the sea, whose borders are in the heart of the seas. Which is a lovely way of saying that if you lived in Tyre, you could not go very far in any direction without getting your feet wet.
+
+This had advantages. It was very hard to attack. An army could march right up to the shore and then stand there, waving its swords at the water, while the people of Tyre leaned on their walls and watched. It took a very determined conqueror indeed, many centuries later, to deal with that, and we'll come to him at the end.
+
+But it also had disadvantages. You cannot grow much wheat on a rock. Tyre had a narrow strip of mainland, and behind that the mountains, and not many fields. So the Tyrians did what people with no fields and a great deal of sea have always done. They became sailors. And merchants. And craftsmen.
+
+They were famous, for one thing, for purple. Along that coast there was a kind of sea snail, and if you gathered a great many of them, and did some rather smelly things to them in vats, you could make a dye of deep purple-red that did not fade in the sun. It took thousands and thousands of snails to dye one good cloak. So it cost a fortune, and only kings and very rich people wore it, and for a thousand years afterwards purple was the colour of kings. It was called Tyrian purple. You could smell a dye works, the old writers say, a long way off. I imagine the people of Tyre got used to it, the way people who live near a fish market stop noticing.
+
+They were famous for timber too, because the mountains behind them were the mountains of Lebanon, where the great cedars grew. And they were famous, in a quiet way that nobody at the time thought was famous at all, for writing.
+
+Here is a thing that I find delightful. The people of that coast wrote with an alphabet. Not with hundreds of little pictures, the way the Egyptians did, and not with wedge-shaped marks for whole syllables, the way the people of Babylon did, but with a small set of letters, twenty-two of them, each one standing for a sound. You could learn them in a few weeks. A merchant could keep his own accounts. A ship's captain could write a note. Hebrew was written with letters of the same family. And later, the Greeks borrowed the Phoenician letters and changed them a little, and the Romans borrowed them from the Greeks, and changed them a little more, and those are the letters I would be using now if I were writing this down for you instead of telling it.
+
+And there is one more thing. The city of Gebal, up the coast, Byblos, was a great market for papyrus, the paper of the ancient world, which came up by ship from Egypt. So the Greeks started to call papyrus after the city, byblos, and a book became a biblion, and the books, all together, became ta biblia. Which is where we get the word Bible.
+
+So, in a way, every time you say the word Bible, you are saying the name of a Phoenician harbour town. I think that is a nice thing to know, and I am going to leave it with you, like a pebble in your pocket, while we go on.
+
+* * *
+
+Our story begins with the king of Tyre, whose name was Hiram.
+
+In the Hebrew of the books of Kings he is Hiram, and in the books of Chronicles he is Huram, and in some places he is Hirom. They are all the same man, and the same name, spelled the way different scribes heard it. We will call him Hiram.
+
+He lived about nine hundred and seventy years before Christ, give or take a few years, which is the usual reckoning of the historians. The Jewish historian Josephus, writing a thousand years later, says that he was the son of a king called Abibaal, and Josephus says he found that, and a good deal else about Hiram, in the histories of Tyre, which had been put into Greek by a writer called Menander of Ephesus. Those books are lost now. We only have the pieces of them that Josephus copied out. So we will keep that in mind, and come back to it.
+
+Hiram was a pagan king. I want to be honest about that at the start. He was not an Israelite, and the Bible never says that he gave up the gods of Tyre. Josephus, from his Tyrian sources, even says he built and rebuilt temples to them. He is not a saint, and he has no feast day, in either the Catholic or the Orthodox Church.
+
+And yet he is in the Bible, again and again, and almost every time he appears, he is doing something generous. He is one of those people in Scripture who stand a little outside the family and keep turning up with exactly what is needed. And the first thing he turned up with was a house.
+
+Let me give you someone to follow.
+
+His name is Magon, and he is entirely our own invention. He is a scribe in the household of King Hiram. When we meet him, he is fifteen, and very proud of his writing, and his fingers are permanently stained with ink, which he thinks makes him look learned and which his mother thinks makes him look as if he never washes. He knows all twenty-two letters. He knows how to rule a line on a piece of papyrus. He knows how to seal a letter with clay and a stamp. He has never been anywhere further than the mainland market.
+
+And one spring morning, his master, the old chief scribe, comes and finds him and says, "Pack your things. You're going inland. The king is sending a present to the new king in the hills, and someone has to keep the tally."
+
+"What present?" says Magon.
+
+"A house," says the chief scribe.
+
+* * *
+
+Here is what Scripture tells us. It is one verse, in the Second Book of Samuel, chapter five, and the same in the First Book of Chronicles.
+
+The Bible tells it straight after David had become king over all Israel, and had taken the old fortress of Jerusalem, up in the hills, and made it his city, the city of David. Hiram king of Tyre sent messengers to David, and cedar trees, and carpenters, and stonemasons. And they built David a house.
+
+That's it. That's the whole verse.
+
+But think about it for a moment. David had been a shepherd boy, and then a soldier, and then, for years, an outlaw hiding in caves. He had lived in tents and in borrowed towns. Jerusalem had been a hill fortress, and not a very comfortable one. And now a king from the coast, a king of a famous, rich, old city, sends him timber from Lebanon, and men who know how to build, and builds him a palace.
+
+The very next verse says this. And David knew that the Lord had established him king over Israel, and that he had exalted his kingdom for the sake of his people Israel.
+
+I find that very touching. It is the gift of a foreign king, the arrival of the cedar and the carpenters, that makes David realise that all of this is real. That he is not going to have to run away again. That God has done what he said he would do. Sometimes it takes someone from outside to show us what has happened to us. A neighbour who brings a cake when you move in, and suddenly you think, oh, I live here now.
+
+So imagine Magon, fifteen years old, riding inland on a cart, sitting on top of a load of cedar beams, with a tally stick and a writing board on his knees. Imagine the road climbing up out of the coastal plain, into the hills, through the olive groves and the stony terraces, getting hotter and dustier. Imagine the Tyrian carpenters, who are sea people and city people, looking around at the hills and making the sort of remarks that city people make about the countryside.
+
+"Where's the sea?" says one of them, about every hour.
+
+"Behind us," says Magon.
+
+"I know it's behind us. I'm asking why."
+
+And imagine them arriving in Jerusalem, which was not, at that time, a very large place, and unloading the cedar, which smells, as anyone who has opened a cedar chest will know, absolutely wonderful. Red-gold wood, sweet-smelling, that insects don't like and that does not rot.
+
+And imagine David coming down to look at it.
+
+The Bible does not tell us what David said, so I am not going to put words into his mouth. But in my imagination, Magon is standing next to the woodpile with his tally stick, counting beams, and he looks up and sees a man not very much older than his own father, with a soldier's shoulders and a shepherd's face, running his hand down a cedar plank as if it were a horse he was fond of. And Magon thinks, that's a king? And then he thinks, actually, yes, that's a king.
+
+The Tyrian carpenters stayed, and built, and the Israelites watched them and learned, and in time there was a house of cedar in Jerusalem. And later on, if you remember, when David was living in that house, he said to the prophet Nathan, "Look, I am living in a house of cedar, but the ark of God is living in a tent." And that was where the whole idea of building a temple began.
+
+So you could say that the temple began with Hiram's present. A king sitting in a cedar house he had been given, and feeling that God ought to have one too.
+
+* * *
+
+The years went by.
+
+David reigned for forty years, the Bible says, seven in Hebron and thirty-three in Jerusalem. And Hiram was king in Tyre all through the later part of that time, and the two kings were friends. We know this because of one small phrase, a little later on, in the First Book of Kings, which I think is one of the kindest little phrases in the whole of the history books. It says that Hiram had always loved David.
+
+Not, Hiram had a trade agreement with David. Not, Hiram found David useful. Hiram had always loved David. Love, in the old treaty language of that part of the world, could mean loyalty between allies. But the word is the word. And the writer chose it.
+
+Magon, in my imagination, grew up in Tyre in those years. He married a girl from the mainland whose father kept vines. He had children, and taught them their letters on broken bits of pottery. He became a proper scribe, and then a senior scribe, and wrote letters for the king in his careful, upright hand. And every year or two there would be a letter to Jerusalem, or a letter from Jerusalem, and he would read it, and write the answer, and send it inland by messenger.
+
+And then, one year, there was a letter from Jerusalem with different news. King David had died, an old man, and his son Solomon was king.
+
+Here is what Scripture says. When Hiram king of Tyre heard that they had anointed Solomon king in place of his father, he sent his servants to Solomon. Because Hiram had always loved David.
+
+So the first thing Hiram did, when his friend died, was to send someone to his friend's son. Which is what good friends do. When someone we love dies, we go and stand next to their children for a while.
+
+* * *
+
+And then came Solomon's letter.
+
+We told this part of the story a few weeks ago, in the episode about the building of the temple, so I will tell it only briefly. Solomon wrote to Hiram, and said, You know that my father David could not build a house for the name of the Lord his God, because of all the wars around him. But now the Lord my God has given me rest on every side. There is no enemy, and no misfortune. So I intend to build a house for the name of the Lord my God, as he promised my father. So please, command that cedars be cut for me in Lebanon, and my servants will work with your servants, and I will pay your servants whatever you say. For you know that there is nobody among us who knows how to cut timber like the Sidonians.
+
+Sidonians there is the general word for the people of that coast. It was a compliment. And it was true.
+
+Now, here is the part I want to slow down for.
+
+The First Book of Kings says that when Hiram heard Solomon's words, he rejoiced greatly. And he said, Blessed be the Lord this day, who has given David a wise son to be over this great people.
+
+And the Second Book of Chronicles says that Hiram answered in a letter, and that the letter said: Because the Lord loves his people, he has made you king over them. And it went on: Blessed be the Lord, the God of Israel, who made heaven and earth, who has given King David a wise son, endowed with discretion and understanding, who will build a house for the Lord, and a royal house for himself.
+
+Who made heaven and earth.
+
+Imagine Magon writing that letter.
+
+He has written letters for the king for twenty years. He knows the forms. Greetings to my brother. May it be well with you. May it be well with your house, your wives, your sons, your horses, your chariots. He knows which gods to name, and how to name them. And now the king is pacing up and down the room, very happy, saying the name of the God of Israel and calling him the one who made heaven and earth.
+
+In my imagination, Magon stops, with his pen in the air.
+
+"My lord," he says carefully. "You want me to write it like that? The God of Israel? Who made heaven and earth?"
+
+And in my imagination, Hiram stops pacing, and looks at him, and says, "Write what I said."
+
+So Magon writes it.
+
+Now I want to be careful here. That little exchange is mine, not the Bible's. The Bible does not tell us what was in Hiram's heart. It does not say that he became a worshipper of the God of Israel, and we should not say it for him. Kings in that world were often very polite about each other's gods. But the words he spoke are in Scripture, in two books, and they are beautiful words, and they came out of the mouth of a foreign king who was glad. Glad that his old friend had a son who was wise. Glad that the house David had wanted would be built. And he blessed the Lord for it.
+
+There is a long line of people like that in the Bible. Outsiders who see what God is doing and say so. Jethro the priest of Midian, who heard what the Lord had done for Israel and said, Blessed be the Lord. The queen of Sheba, a little later in this same story, who also said, Blessed be the Lord your God. And, much later, three wise men from the east, kneeling in a house in Bethlehem. Hiram is near the front of that line. I like to think of him as holding the door.
+
+* * *
+
+So the work began.
+
+Hiram wrote back with the practical details. I will do everything you want about the cedar and the cypress. My servants will bring the logs down from Lebanon to the sea, and I will make them into rafts, and send them by sea to the place you name, and break them up there, and you can take them away. And you will do what I want, by giving food for my household.
+
+That was the bargain. Wood for bread. Every year Solomon sent Hiram twenty thousand measures of wheat, and twenty measures of the purest beaten oil, the First Book of Kings says. The Second Book of Chronicles gives a longer list, of wheat and barley and wine and oil, for the woodcutters. Either way, it was a very great deal of food, going up the coast to a city on a rock that could not grow its own.
+
+And the Bible adds this. And the Lord gave Solomon wisdom, as he had promised him. And there was peace between Hiram and Solomon, and the two of them made a covenant together.
+
+A covenant. That is a big word in the Bible. It is the word used for the promises God makes with his people. Here it is used for an agreement between two kings, one in the hills and one by the sea. Two men who had agreed to trust each other, and to keep their word.
+
+And it was not only Tyre. The book says that Solomon's builders and Hiram's builders and the men of Gebal, from Byblos up the coast, the town of the papyrus, did the cutting and the preparing of the timber and the stone. So there were men from three peoples working together on that house. And the Second Book of Chronicles adds that Hiram sent one more thing: a craftsman, also called Hiram, whose mother was an Israelite and whose father was a man of Tyre, who could work in gold and silver and bronze and iron, in stone and wood, in purple and blue and crimson thread and fine linen, and could engrave any engraving and carry out any design. That was the man who cast the great bronze pillars and the great bronze sea for the temple. A man of two peoples, making beautiful things for the house of God. We told his story too, in the temple episode, so we will just wave to him as we go past.
+
+In my imagination, Magon kept the tallies for those years. Logs out. Wheat in. Oil in. Men out, and men back. He was getting older now. His beard was going grey, and his ink-stained thumb had stopped being a sign of learning and become simply a sign of Magon. His children were grown. One of his sons, to his great sorrow, had become a sailor and was hardly ever home.
+
+And the temple took seven years to build. And then Solomon's own palace took thirteen. And all through those twenty years, the cedar and the cypress came down from Lebanon, and the wheat and the oil went up to Tyre, and the letters went back and forth, and the two kings called each other, in the old formal way, my brother.
+
+* * *
+
+Which brings us back to the town in the hills, and the mud on the king's sandals.
+
+Here is what the First Book of Kings says, in chapter nine.
+
+At the end of twenty years, in which Solomon had built the two houses, the house of the Lord and the king's house, and Hiram king of Tyre had supplied Solomon with cedar and cypress timber, and gold, as much as he wanted, King Solomon gave Hiram twenty towns in the land of Galilee.
+
+And Hiram came out from Tyre to see the towns that Solomon had given him. And they did not please him.
+
+And he said, What are these towns that you have given me, my brother?
+
+And so they are called the land of Cabul, the book says, to this day.
+
+I love this story. I love it because it is so very human, and because the Bible did not have to put it in, and did.
+
+Here are two kings who have been friends for twenty years. Who have built a temple together, more or less. Who have blessed each other and fed each other and called each other brother. And at the end of it all, one of them gives the other a present, and the other one goes to look at it, and is disappointed. And says so.
+
+What are these towns, my brother?
+
+The word brother there is important. In the old world, kings who thought of themselves as equals wrote to each other as brother. We have clay letters from kings of Egypt and Babylon and the Hittites, from a few centuries before this, and they are full of it. My brother, the king of Egypt. My brother, the king of Babylon. And they are also full of complaints. My brother, you sent my father more gold than you have sent me. My brother, why have you kept my messenger waiting so long? Kings, it turns out, wrote to each other the way relatives write to each other at Christmas. Warmly. And with a list.
+
+So when Hiram says my brother, he is speaking the language of kings. But I don't think it is only that. I think there is a little hurt in it, too. You can only really be disappointed in a friend.
+
+Now, what was wrong with the towns?
+
+The Bible does not say. I want to be honest about that, because people have been guessing for a very long time.
+
+Some have thought the land was poor, rocky hill country, not much use to a city of merchants. Some have thought that a king of the sea wanted ports, not hill villages. Some have pointed out that the towns were, very likely, near the border between the two kingdoms, and so perhaps not much of a gift at all. We don't know. The text says only that they were not right in his eyes.
+
+And then there's the name. Cabul.
+
+Nobody is quite sure what it means. Josephus, writing a thousand years later, said that in the language of the Phoenicians it meant not pleasing. Others have thought it sounds like a Hebrew phrase meaning something like as good as nothing. And then there is the plain fact that there was a real town called Cabul, in exactly that part of the country, already named in the Book of Joshua, on the border of the tribe of Asher. There is still a village called Kabul in Galilee today. So perhaps the writer of Kings is making a little joke out of a real place name, the way people do. As if somebody said, of a town called Muddy Bottom, well, it lives up to its name.
+
+But whatever the word meant, the name stuck. To this day, the book says. Which I think is the oldest recorded case of a bad review becoming a place name.
+
+* * *
+
+Now, here is the curious thing.
+
+The very next verse, after Hiram's complaint, says this. And Hiram had sent to the king a hundred and twenty talents of gold.
+
+A talent was a great weight, and a hundred and twenty of them is a very great deal of gold. Scholars have read that verse in different ways. Some think it means that the gold was what the towns were in return for. Some think Hiram sent the gold before he saw the towns. Some think it means he sent it anyway, after. The Hebrew does not settle it, and neither will I.
+
+And then there is something else. The Second Book of Chronicles, telling the same years, says that at the end of the twenty years, Solomon rebuilt the towns that Huram had given to him, and settled Israelites in them.
+
+The towns that Hiram gave to Solomon. The other way round.
+
+So now we have two accounts. In one, Solomon gives towns to Hiram, and Hiram does not like them. In the other, Hiram gives towns to Solomon, and Solomon builds them up. People have tried to fit those together for a long time. Perhaps Hiram gave the towns back. Perhaps there was an exchange, some towns one way and some the other. Perhaps the two writers were looking at the same arrangement from opposite ends. Again, the Bible does not say, and I am not going to pretend to know.
+
+But here is what I do notice. Whatever happened about the towns, the friendship went on.
+
+A few verses later, the First Book of Kings tells us that Solomon built a fleet of ships at Ezion-geber, at the top of the Red Sea, by Eloth, in the land of Edom. And Hiram sent his servants with the fleet, sailors who knew the sea, to sail with Solomon's servants. And they went to a place called Ophir, and brought back gold, four hundred and twenty talents of it, the book of Kings says, or four hundred and fifty, says the book of Chronicles.
+
+So the king who had stood in the mud saying, What are these towns, my brother, went home, and sooner or later sent his best sailors down to the far end of the Red Sea to help his brother.
+
+Which I think is the point. Friends can be disappointed in each other. They can say so out loud. They can even get a whole district named after the complaint. And then they can go on being friends. The story does not say who apologised, or whether anybody did. It just shows us the next thing they did, which was to build ships together.
+
+* * *
+
+Let me go back to Magon, in my imagination, for the last time.
+
+He is an old man now. He has given up writing letters for the king; his hand shakes too much for the careful upright letters, and a younger scribe does it, a young man with ink on his thumb who thinks it makes him look learned. Magon spends a great deal of his time on the sea wall of Tyre, in the evenings, watching the boats come in.
+
+His son, the sailor, has gone south. Not along the coast, but overland, with the other Tyrian sailors Hiram has sent, down through the hills and the dry country to the top of the Red Sea, where Solomon is building ships. They are going to Ophir. Nobody in Tyre is quite sure where Ophir is. People still argue about it now. Somewhere far to the south, or the east. Arabia, perhaps. Or Africa. Or India. A long way.
+
+So Magon waits.
+
+And one evening, in my imagination, a messenger comes from Jerusalem, and among the letters there is one for him. It is from his son. Not in a scribe's hand, but in a sailor's, big clumsy letters, but all twenty-two of them in the right order, because his father taught him on bits of broken pottery when he was small.
+
+The letter says that the ships have come back. That the voyage was long. That they brought gold, more than anyone has ever seen. And that they brought something else too. A wood that nobody had ever seen before.
+
+This part is in the Bible. The First Book of Kings says that the fleet of Hiram, which brought gold from Ophir, also brought from Ophir a great amount of almug wood, and precious stones. And the king made of the almug wood supports for the house of the Lord and for the king's house, and also lyres and harps for the singers. No such almug wood has come, or been seen, to this day.
+
+Nobody now knows exactly what almug wood was. Some think it was a kind of sandalwood, or a red wood from far away. But I love what it was used for. Harps and lyres for the singers. Gold from Ophir, and a strange sweet wood that nobody ever saw again, made into music, for the house of God.
+
+And in my imagination, old Magon reads his son's letter on the sea wall, in the last of the light, twice, and then folds it very small, and puts it inside his tunic, next to his heart, and sits there for a long time, listening to the sea.
+
+That's all we'll say about Magon. He is ours, not the Bible's, and we can let him go now.
+
+* * *
+
+There is one more story about Hiram, and it is not from the Bible, so I will tell it carefully.
+
+Josephus, in a book called Against Apion, written near the end of the first century after Christ, wanted to prove to the Greeks that the Jews were an ancient people with a real history. And so he went looking for foreign writers who mentioned them. And he found two writers of the history of Tyre, a man called Dius and a man called Menander of Ephesus, and he quoted them.
+
+Both of them, Josephus says, mentioned Hiram. Menander said that Hiram reigned for thirty-four years and lived to fifty-three. Which, I should say, is a little puzzle of its own, because thirty-four years do not easily stretch all the way from the cedar for David's house, which the Bible tells right after David took Jerusalem, to Solomon's twentieth year of building. Many scholars think Hiram's gift to David came later in David's reign than its place in the book suggests, and that the book put it there because it belongs with the story of the house. We don't know. And Dius told a story. He said that Solomon, who was king of Jerusalem, sent riddles to Hiram, and asked for riddles in return, and the one who could not answer had to pay the other a sum of money. And Hiram could not answer Solomon's riddles, and paid a great deal. And then a clever man of Tyre, called Abdemon, helped him, and solved them, and set new riddles of his own, which Solomon could not answer, and so Solomon paid a great deal back.
+
+Is it true? Nobody can say. Josephus says he found it in those writers, and their books are lost, and we have only what he copied out. It may be an old Tyrian story told to make Tyre look clever. But it does fit rather nicely alongside the Bible's own picture of Solomon, the king whom the queen of Sheba came to test with hard questions. And it makes me smile. Two kings, at either end of a long road, sending each other puzzles in the post. I hope they enjoyed it. I hope they both lost sometimes.
+
+[pause]
+
+And now let the evening come down, and let the story slow.
+
+Hiram died, as everyone does, and his son reigned after him. We do not know where he is buried. There is an old stone monument in the hills behind Tyre, a great stone box on a high stone base, which the people of the place have called Hiram's tomb for a very long time. Archaeologists think it was built centuries after his time. But it is still a good name for it. People like to put a name on a stone, so that they have somewhere to stand and remember.
+
+And Tyre went on. And the Bible kept remembering it.
+
+The prophet Amos, two hundred years after Hiram, scolded Tyre, along with many other cities, because, he said, it had handed over whole peoples as captives, and had not remembered the covenant of brothers. The covenant of brothers. I cannot read that without thinking of Hiram, in the mud, saying my brother. As if the prophet were saying, you used to know how to keep a friendship. Remember.
+
+The prophet Ezekiel, later still, wrote a long, beautiful, sad poem about Tyre, as if the whole city were a great ship. Your planks were made of fir from Mount Hermon, he says. They took a cedar from Lebanon to make your mast. Your oars were of oak from Bashan, your deck was inlaid with ivory, your sail was of embroidered linen from Egypt, and your awning was blue and purple. It is a warning poem, about pride, and the ship goes down in it. But you can hear how much he admired her, too. Nobody writes a poem that long about a city they do not find beautiful.
+
+The psalms remember Tyre more gently. In Psalm forty-five, a wedding song for a king, the daughter of Tyre comes with gifts. And in Psalm eighty-seven, which is a song about Jerusalem, God names the foreign peoples who will know him, one by one, Rahab, which is a poetic name for Egypt, and Babylon, and Philistia, and Tyre, with Ethiopia, and says, this one was born there. And then the Lord is pictured writing a register of the peoples, and counting them as born in Zion. As if one day even Tyre would be counted among the children of Zion.
+
+When the people of Israel came back from exile in Babylon, centuries after Solomon, and began to build the temple again, the Book of Ezra says that they gave food and drink and oil to the people of Sidon and Tyre, to bring cedar trees from Lebanon to the sea, to Joppa. Wood for bread, again. The same bargain, more than four hundred years later. Some things last.
+
+And in the Acts of the Apostles, the people of Tyre and Sidon come to King Herod asking for peace, because, the book says, their country was fed by the king's country. Still the city on the rock. Still short of fields. Still trading for bread.
+
+And Jesus went there.
+
+Saint Mark tells us that, early on, crowds came to hear him from all around, including from the region of Tyre and Sidon. And later, he went himself to the region of Tyre, and went into a house, and did not want anyone to know he was there. But he could not be hidden. A woman of that country, a Greek, a Syrophoenician by birth, Mark says, a Canaanite, says Saint Matthew, came and fell at his feet, and begged him to heal her little daughter. And when he tested her, she gave the most famous answer any Phoenician ever gave. Yes, Lord. But even the dogs under the table eat the children's crumbs.
+
+Crumbs from the table. A daughter of the country that had always had to ask for its bread, asking for bread, and getting it. Jesus told her that for that answer she could go home, and her daughter was well. And she went home, and found the child lying on the bed, and the demon gone out of her.
+
+[pause]
+
+There is one last scene, and then you can sleep.
+
+Many centuries after Hiram, a great conqueror finally took the island city. He was Alexander the Great, and he built a long causeway of stone and earth out across the water, and took Tyre after a long siege. And over the years after that, the sea brought sand up against the sides of the causeway, until the island was not an island any more, and it is joined to the shore to this day. The town there now, in the south of Lebanon, is called Sour, which is the old name, still.
+
+And nearly four hundred years after Alexander, a ship came into the harbour at Tyre, because it had cargo to unload. On board was Saint Paul, on his way to Jerusalem, with some friends, among them, by long tradition, Saint Luke, who wrote it down, in the twenty-first chapter of the Acts of the Apostles.
+
+They had sighted Cyprus, he says, and left it on their left, and sailed on to Syria, and landed at Tyre. And they looked for the disciples there, and found them, and stayed with them for seven days. And the disciples there, Luke says, told Paul through the Spirit not to go up to Jerusalem. He went anyway, as he had already decided, but they did not love him any less for it.
+
+So there were Christians in Tyre already. Nobody knows who first brought them the Gospel. Perhaps someone who had once walked inland to hear Jesus. Perhaps the woman with the daughter. We don't know.
+
+And at the end of the seven days, when it was time for the ship to leave, Luke says, they all came out with them, with their wives and their children, all the way out of the city. And they knelt down on the beach, and prayed. And said goodbye to one another. And Paul and his friends went on board, and the people of Tyre went home.
+
+I think about that beach a great deal.
+
+The same shore where the cedar rafts were once made ready. The same sea that took Hiram's sailors, and brought back gold and sweet wood for harps. And here are the people of the city on the rock, a whole crowd of them, mothers and fathers and small children who have been allowed to stay up late, kneeling on the sand with the waves coming in, praying with a stranger from Jerusalem whom they had known for a week, and calling him, very likely, brother.
+
+The covenant of brothers. Remembered after all.
+
+And then they stood up, and brushed the sand off their knees, and walked home in the evening, while the ship went out on the dark water and grew small.
+
+[pause]
+
+Now, a few notes for the curious.
+
+Tonight's story is from Scripture. The cedar and carpenters for David's house are in the Second Book of Samuel, chapter five, and the First Book of Chronicles, chapter fourteen. Hiram's love for David, his blessing of the Lord, the rafts, the wheat and oil, the covenant and the men of Gebal are in the First Book of Kings, chapter five, with Hiram's letter in the Second Book of Chronicles, chapter two. The twenty towns, Cabul and the gold are in the First Book of Kings, chapter nine, and the Chronicles account of the towns the other way round is in the Second Book of Chronicles, chapter eight. The ships to Ophir and the almug wood are in the First Book of Kings, chapters nine and ten. We told all of that straight, in our own plain rendering. Where Kings and Chronicles give different figures, we have said both.
+
+What Cabul means, why the towns did not please Hiram, and what the gold was for are not known, and we have said so. Ophir and almug wood are not certainly identified. Kings writing to each other as brother is known from clay letters of the centuries before. The Phoenician alphabet and the word Bible from Byblos are the usual account of historians.
+
+The ages and the riddles come from Josephus, who says he found them in Dius and Menander, whose books are lost; they are told as his story, not as certain history. Hiram's thirty-four years do not easily fit both David's house and Solomon's twentieth year, and we have said so. Hiram's tomb is a name that tradition gave to a later monument.
+
+Amos, Ezekiel, the psalms, Ezra, the woman of the region of Tyre and the beach in Acts are all in Scripture as told.
+
+Magon the scribe, his family, his ink, his journeys, his son's letter, and every word he says or hears in private are our own invention.
+
+[pause]
+
+That's the story of Hiram king of Tyre for tonight. Hiram is not counted among the saints and has no feast day in either the Catholic or the Orthodox Church, but his blessing of the Lord is read wherever the books of Kings and Chronicles are read, and the Canaanite woman of the region of Tyre is heard in the Catholic Mass on the twentieth Sunday in Ordinary Time in Year A. Thank you for listening to Saints by Candlelight. If you enjoyed it, share it with someone who could use a gentle story at the end of a long day. And here are the words that Hiram spoke, from the Second Book of Chronicles, and the first verse of a psalm for friends. Blessed be the Lord, the God of Israel, who made heaven and earth. And: Behold, how good and how pleasant it is, when brothers dwell together in unity. Goodnight, and God bless.

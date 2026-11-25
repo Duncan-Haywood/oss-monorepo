@@ -2,7 +2,7 @@
 
 > Free tool for Amazon FBA sellers: load your Inventory Age report and see, per SKU, the storage fees and aged-inventory surcharge you will pay and whether holding, marking down or removing the stock earns more. Runs in your browser, the file is never uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fba-aged-inventory-fee-analyzer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fba-aged-inventory-fee-analyzer): FSL-1.1-MIT licensed.

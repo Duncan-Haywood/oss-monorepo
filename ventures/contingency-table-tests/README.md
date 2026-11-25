@@ -15,7 +15,7 @@ Who it is for: clinicians and trial statisticians with small arms, lab and
 field scientists comparing proportions, epidemiologists with stratified
 case-control tables, quality engineers comparing defect rates, analysts with an
 A/B test too small for a z-test, and students who were told "use Fisher's exact
-test when counts are small" and want to know what that costs. Free, MIT
+test when counts are small" and want to know what that costs. Free, FSL-1.1-MIT
 licensed, nothing uploaded.
 
 ## What it computes

@@ -1,0 +1,21 @@
+# Retail Pilot Intel's passcode-gated docs, served as static files by a
+# free-plan Cloudflare Worker (owner, 2026-11-24: consolidate hosting onto
+# Cloudflare; this replaces the Vercel project). Deployed by
+# .github/workflows/priv-retail-pilot-intel-deploy-docs.yml, job deploy-cloudflare,
+# with the CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID secrets the portfolio
+# site already uses. Address: https://retail-pilot-intel-docs.<account>.workers.dev/
+#
+# A Worker of its own, not a directory of marisstella.app: the site's two
+# Workers are near the free plan's 20,000-file limit
+# (platform/pages/cloudflare/README.md), and these docs are internal
+# (noindex) rather than part of the public catalogue.
+name = "retail-pilot-intel-docs"
+compatibility_date = "2025-09-01"
+workers_dev = true
+# No `main`: no code runs, so requests are free and never metered.
+
+[assets]
+directory = "./dist"
+# The app uses HashRouter, so every route is "/" plus a fragment; unknown
+# paths get a plain 404.
+not_found_handling = "none"

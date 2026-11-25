@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKiuBNfDWquYyLV2t7i",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T04:18:10Z",
+  "ended": "2026-11-25T04:25:32Z",
+  "wall_minutes": 8.09,
+  "tokens_in": 4756102,
+  "tokens_out": 17461,
+  "cost_usd": 2.0519,
+  "tool_calls": 52,
+  "task": "Security queue fourth triage pass, then perf: sparse checkout for einvoice-preflight CI",
+  "projects": [
+    "einvoice-preflight",
+    "security-alerts"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18845",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First check of the pay-app-guides front door found it already lean (37 kB gzip over 9 requests for index, 29 kB for a guide). That bet has no page-weight lever, so the run moved to CI.",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/perf/module-weight.mjs",
+      "issue": "Takes the repo root, not a venture dir; passing ventures/<slug> crashes with ENOENT on ventures/<slug>/ventures. The usage line says so, but the error does not."
+    },
+    {
+      "file": "origin/security-alerts:QUEUE.md",
+      "issue": "Every remaining unclaimed alert was a false positive already classed by rule family in docs/reports/2026-11-25-security-queue-false-positives.md, but the queue does not link that report, so each run re-reads the same code. Linking it from QUEUE.md (security_alerts.py, owner-only) would save a pass."
+    },
+    {
+      "file": "docs/reports/2026-11-25-security-queue-false-positives.md",
+      "issue": "Three or more sessions triaged the same alerts within an hour, because the claim branches were pushed only after reading the code. Pushing the claim branch before triaging, as alerts/<n>.md step 1 says, would have shown the overlap sooner."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Did not write a docs/posts/ post. A sparse-checkout widening for one workflow does not interest a reader, and the 2026-11-25 sparse pass already covers the method.",
+      "did": "Wrote docs/history/ci-perf-2026-11-25-einvoice-sparse.md and extended the security false-positive report.",
+      "result": "Agent-facing record only, no reader post."
+    },
+    {
+      "file": "origin/security-alerts alerts/<n>.md",
+      "why": "The alerts are false positives, so their claim branches were pushed to stop re-triage, with no fix PR per alert, as the third pass did.",
+      "did": "Pushed 26 claim branches pointing at main.",
+      "result": "Every queued alert is now claimed or fixed."
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-25-einvoice-sparse.md",
+    "docs/reports/2026-11-25-security-queue-false-positives.md (#1050 line)"
+  ],
+  "goal": "Free runner-pool time on the CI of bet 3 (e-invoice), the first subscription product",
+  "notes": "Security: queue at 5f857bb81c00; 26 unclaimed alerts (#1049, #1050 includes() of a placeholder origin; #1181-#1203 ReDoS-checker fixtures; #1208 vulnerable-repo fixture) are all false positives or used in tests; claimed and recorded for the owner to dismiss. Perf metric: einvoice-preflight CI checkout time per job. Before: ci_profile.py --runs 600 (03:48-04:21 UTC) median job 67 s, checkout median 57 s over 3 jobs. Verification: sparse_checkout_verify.py einvoice-preflight-ci.yml .github ventures/einvoice-preflight platform/billing exit 0, same:true (cli 440 OK; node 2332 tests/2315 pass/16 skip/1 fail in both trees, the fail is repair-facturx.test.mjs:115 because this container's pdfdetach wrapper has saving switched off). Pay-app-guides front door measured (Playwright, local gzip server): index 9 req ~37 kB gz, retainage guide 6 req ~29 kB; no change made. After (PR CI run 45546690166, step timestamps): checkout 2/3/4 s, median 3 s (was 57 s); jobs 8/9/51 s, median 9 s (was 67 s); all three green. Merge with main: sessions running in parallel had already triaged #1049, #1181-#1203 and #1208 into platform/security/codeql-triage.json (PR #18809 and later passes). My duplicate fourth-pass section was dropped in favour of main's text; the only net security addition is the #1050 entry, the last unchecked alert.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e94cba23-4e7e-502d-a932-401434e71427",
+    "transcripts": 1,
+    "first": "2026-11-25T04:18:10Z",
+    "last": "2026-11-25T04:26:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 98,
+        "output": 17461,
+        "thinking": 3440,
+        "cache_read": 4659709,
+        "cache_write_5m": 0,
+        "cache_write_1h": 96295,
+        "api_equivalent_usd": 2.0519,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 98,
+      "output": 17461,
+      "thinking": 3440,
+      "cache_read": 4659709,
+      "cache_write_5m": 0,
+      "cache_write_1h": 96295,
+      "api_equivalent_usd": 2.0519,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 48,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.09,
+      "active_minutes": 8.09,
+      "model_minutes": 4.91,
+      "tool_minutes": 3.19,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "triage 26 alerts by reading code, plus trace and verify one workflow's sparse paths",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 97.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

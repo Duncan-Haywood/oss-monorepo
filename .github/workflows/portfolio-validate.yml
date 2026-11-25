@@ -69,6 +69,7 @@ on:
       - "platform/agents/**"
       - "platform/edge/**"
       - "platform/counter/**"
+      - "platform/analytics/**"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
       - "portfolio/research/README.md"
@@ -109,6 +110,7 @@ on:
       - "platform/agents/**"
       - "platform/edge/**"
       - "platform/counter/**"
+      - "platform/analytics/**"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
       - "portfolio/research/README.md"
@@ -192,7 +194,7 @@ jobs:
       # platform/edge is the Cloudflare Worker behind the site's feedback form
       # and page-view counts; it shares platform/counter's rules (core.mjs).
       - name: Site feedback Worker and visit counter
-        run: node --test "platform/edge/*.test.mjs" "platform/counter/*.test.mjs"
+        run: node --test "platform/edge/*.test.mjs" "platform/counter/*.test.mjs" "platform/analytics/*.test.mjs"
 
       - name: Check candidate scores agree across yaml, write-ups, and README
         run: python3 portfolio/pipeline/validate_doc_consistency.py
@@ -786,7 +788,7 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_unlanded_work
 
-      # The scheduled half of the same gate: adopt-stranded-branches.yml opens a
+      # The scheduled half of the same gate: priv-adopt-stranded-branches.yml opens a
       # draft PR for each branch whose session died before it could.
       - name: Adopt-stranded-branches tests
         working-directory: platform/ci

@@ -239,7 +239,10 @@ export default class ExamplePlugin extends Plugin {
       th.textContent = label;
       tr.appendChild(th);
       const td = document.createElement('td');
-      td.innerHTML = `<span class="status-${statusClass}">${text}</span>`;
+      const span = document.createElement('span');
+      span.className = `status-${statusClass}`;
+      span.textContent = text;
+      td.appendChild(span);
       tr.appendChild(td);
       tbody.appendChild(tr);
     }
@@ -351,13 +354,13 @@ export default class ExamplePlugin extends Plugin {
   moved, or taken offline without notice. Do not use it as a system of record.</p>
   <p><strong>Nothing leaves your browser.</strong> The folder you select is read locally with the File API and
   never uploaded. The only thing stored is an anonymous local count of which features were used and the
-  day -- no file names, no file contents, no account, no tracking cookies, no analytics vendor. Turn it off
+  day -- no file names, no file contents, no account, no tracking cookies. Turn it off
   with the checkbox above.</p>
   <p>Not affiliated with, endorsed by, or sponsored by Obsidian or Dynalist Inc. Obsidian is a
   product of Dynalist Inc., named here only to describe what this tool checks.</p>
   <p>Wondering why bother with a scanner instead of the guidelines or a pull request?
   See <a href="vs-guessing-or-waiting-for-review.html">this checker vs. guessing from Obsidian's guidelines or waiting for a reviewer to comment</a>.</p>
-  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> --
+  <p>Free to use and source available. The <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> --
   <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and
   never changes what the tool does.</p>
   <p>Cross-check a different platform's own review-gating manifest the same way:

@@ -28,6 +28,46 @@ until `git merge-base HEAD origin/main` answers. To date changes,
 (about 16 s). `git fetch --unshallow origin main` takes 2-15 min and ~5 GB:
 background it, only if you need it all.
 
+## Reaching `private-monorepo` (the bets' code)
+
+A clone of `Duncan-Haywood/private-monorepo` fails until the repository is
+attached to the session. Ten run records from 2026-11-24/25 say "clone refused"
+and built only the bet's public side, while other runs the same day shipped
+payapps there. On 2026-11-25 this worked first time:
+
+1. `mcp__claude-code-remote__add_repo` with `owner: Duncan-Haywood`,
+   `repo: private-monorepo`, `access: push` (push lets you open and merge
+   the PR there).
+2. One clone, inline, timeout about 10 min:
+   `git clone --depth 1 https://github.com/Duncan-Haywood/private-monorepo /home/user/private-monorepo`
+   (it took under a minute). Push with `git -c push.negotiate=true push -u origin <branch>`.
+3. Read its `CLAUDE.md` and the app's `ROADMAP.md` by hand (add_repo's result
+   names a `register_repo_root` tool that ToolSearch does not find here; skip it); `pnpm install --frozen-lockfile --filter <app>...`
+   (backgrounded) gets the app's tests, `pnpm dev` and Playwright running.
+4. **Claim the item before building it:** `python3 platform/ci/roadmap_claim.py <app>`
+   lists the ROADMAP's Next items as free or claimed; `--claim N` (with `--slug`/`--note`
+   for one part of an item) pushes a create-only `claim/<app>/<slug>` branch there and
+   exits 4 if another run got it first, so pick another. Open-PR checks missed this:
+   private PRs 106-108 built one item within 20 minutes (backlog P079).
+
+**If step 2 is refused by the permission layer** (a tool denial, not a git
+error), that is final for this session: do not retry, reword, or reach the
+code another way (MCP file tools, a different URL). Of the 42 run records
+from 2026-11-25 that mention private-monorepo, 28 hit this refusal; the ones
+that re-planned fast still shipped. Go straight to the bet's public side here
+(prompt.md, step 1), on a surface the bet's `portfolio/router/allocate.py` row lists under
+"none on" (its `[bet N live PRs: ...]` note reads open PR titles against the
+row's `front_door:`): on 2026-11-25 four parallel runs landed in
+pay-app-guides within the hour and conflicted on its shared lists. Say
+"clone refused" once in the run record's `errors`; the owner-side fix is the
+`private-monorepo-clone` row in `portfolio/ledger/asks.yaml`.
+
+The PR there is opened and merged with the same MCP tools (`repo: private-monorepo`).
+Its `*-ci.yml` jobs fail in about 10 s with no steps and no logs (no runner, as on
+every payapps PR since at least PR 42 there): run the workflow's steps locally,
+put the output in the PR body, and merge.
+The run record still lands here, in a PR of its own if nothing else changed.
+
 ## Python and tests
 
 A bare `python3` often lacks `pytest`. Use `PY=$(python3 platform/ci/pyenv.py pytest)`,
@@ -83,10 +123,12 @@ the process list for the script's own name: it matches itself and never ends.
 
 ## Outbound hosts
 
-Egress is a per-environment allow-list (irs.gov, ssa.gov, OPSD/ENTSO-E,
-arxiv.org, sometimes huggingface.co 403). Probe once:
-`curl -sS -o /dev/null -m 15 -w '%{http_code}\n' https://<host>/`; a proxy 403
-is not the site's answer. Say in the PR or run record which figure could not be
+Egress is a per-environment allow-list: one session reaches ecfr.gov, the next
+gets a proxy 403 for every .gov host. Probe once, all at once:
+`python3 platform/ci/egress_probe.py [word|URL ...]` (under a second) says which
+hosts answer and, for a blocked one, the fallback another run verified (FAR and
+DFARS clauses: GSA's source files on raw.githubusercontent.com). Add a host you
+probed by hand to `platform/ci/egress_hosts.json`. A proxy 403 is not the site's answer. Say in the PR or run record which figure could not be
 checked, never cite from memory (`goals.md`). Proxy state:
 `curl -sS "$HTTPS_PROXY/__agentproxy/status"`.
 

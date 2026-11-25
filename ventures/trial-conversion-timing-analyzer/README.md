@@ -19,4 +19,4 @@ not advice. It cannot see what a different trial length does to sign-ups and
 says nothing about trials longer than the one you ran. Unverified against a
 published dataset: tested on simulated trials with known timing.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

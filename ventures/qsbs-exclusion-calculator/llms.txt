@@ -2,7 +2,7 @@
 
 > Free calculator for the Section 1202 Qualified Small Business Stock (QSBS) gain exclusion, expanded by OBBBA — compares the old all-or-nothing 5-year rule against the new tiered 3/4/5-year schedule for stock acquired after July 4, 2025, and the higher $15M exclusion cap. Entirely client-side, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/qsbs-exclusion-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/qsbs-exclusion-calculator): FSL-1.1-MIT licensed.

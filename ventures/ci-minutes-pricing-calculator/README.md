@@ -29,9 +29,8 @@ vendor named.
 
 From the quality audit of 2026-11-19 ([`portfolio/quality/audits/2026-11-19-ci-minutes-pricing-calculator.json`](../../portfolio/quality/audits/2026-11-19-ci-minutes-pricing-calculator.json)):
 
-- Only GitHub's Linux rate ($0.006 a minute, from GitHub's runner pricing reference) was rechecked on 2026-11-19. Search summaries suggest Buildkite's hosted Linux rate is lower than the $0.013 here but adds a per-user platform fee, and Bitbucket Standard is $3.65 a user rather than $3; neither vendor page could be fetched to confirm, so those defaults are unchanged and each provider still needs its own as-of date.
+- Fixed after the audit: every default rate was re-read at the vendor's pricing page (GitHub 2026-11-19; CircleCI, GitLab, Bitbucket $3.65 a user, Buildkite $0.008 a minute plus its $30 per-user Pro fee with 2,000 small-agent minutes, on 2026-11-25); a malformed `--prices` file and an unknown flag now exit 2. Still open: no per-provider as-of field in the data, and macOS/Windows multipliers are not modelled.
 - Seats are fixed at 1, and GitLab Free's pay-per-pack minutes are not offered as an option.
-- A malformed `--prices` file exits 1, the over-budget code, instead of 2.
 
 ## Privacy
 
@@ -40,7 +39,7 @@ locally and never uploads anything.
 
 ## Licence
 
-MIT, no warranty. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
+FSL-1.1-MIT, no warranty. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
 
 > **No warranty.** This tool is provided free and as-is, without warranty of any
 > kind. It is not financial or engineering advice; verify its output before

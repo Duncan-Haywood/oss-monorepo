@@ -142,5 +142,5 @@ professional advice and not certified election software; your
 organisation's rules decide the method, the tie rule and who certifies a
 result.
 
-MIT licence (`LICENSE`). Optional support:
+FSL-1.1-MIT licence (`LICENSE`). Optional support:
 https://github.com/sponsors/Duncan-Haywood

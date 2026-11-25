@@ -306,7 +306,7 @@ function adminPage(state, key, note = "", browserBuild = false, clockOn = false,
   const ocRow = (x) => `<tr><td><strong>${esc(x.person)}</strong></td><td>${esc(slotLabel(x.slot))}</td><td>${x.status === "waiting" ? `<form method="post" action="/admin/oncall?key=${k}"><input type="hidden" name="key" value="${esc(x.key)}"><button name="act" value="called">Called in</button><button name="act" value="released">Not needed</button></form>` : x.status === "called" ? "Called in" : "Not needed (logged on the changes page)"}</td></tr>`;
   const onCallBlock = ocs.length ? `<h2>On-call shifts (${ocs.filter((x) => x.status === "waiting").length} waiting)</h2><p class="note">Shifts whose label says "on-call". Mark each one called in or not needed as soon as you know: "Not needed" is logged as hours taken away and priced on the <a href="/admin/changes?key=${k}">changes page</a>; one still waiting when it ends is counted there as never called in.</p><table><thead><tr><th>Person</th><th>Shift</th><th></th></tr></thead><tbody>${ocs.map(ocRow).join("")}</tbody></table>` : "";
   const claimBlock = state.claims.length ? `<h2>Open-shift requests (${state.claims.length})</h2><p class="note">A shift is open because nobody on the staff list was free for it. A request that breaks a standing rule can still be approved, as your decision, once you have agreed it with the person (they said yes to a one-off). It is the rule shown, not a check, that you are overriding.</p><table><thead><tr><th>Request</th><th>Check</th><th></th></tr></thead><tbody>${cl}</tbody></table>` : "";
-  const ofs = state.offs.map((o, i) => `<tr><td><strong>${esc(o.person)}</strong> asks for ${esc(o.entry.replace("..", " to "))} off${o.note ? `<br><span class="note">"${esc(o.note)}"</span>` : ""}</td><td><form method="post" action="/admin/timeoff?key=${k}"><input type="hidden" name="i" value="${i}"><button name="act" value="approve">Add to staff list</button><button name="act" value="decline">Decline</button></form></td></tr>`).join("");
+  const ofs = state.offs.map((o, i) => `<tr><td><strong>${esc(o.person)}</strong> asks for ${esc(o.entry.replaceAll("..", " to "))} off${o.note ? `<br><span class="note">"${esc(o.note)}"</span>` : ""}</td><td><form method="post" action="/admin/timeoff?key=${k}"><input type="hidden" name="i" value="${i}"><button name="act" value="approve">Add to staff list</button><button name="act" value="decline">Decline</button></form></td></tr>`).join("");
   // Nothing is sent by the server (no SMS or email bill): each link opens the manager's own messaging app with the
   // person's shifts typed in, so they pick the contact and press send.
   const tell = p ? rosterMessages(p, p.weekStart).map((m) => `<tr><td><strong>${esc(m.person)}</strong><br><span class="note">${esc(m.text).replace(/\n/g, "<br>")}</span></td><td><a href="sms:?&amp;body=${esc(encodeURIComponent(m.text))}">Text</a> · <a href="mailto:?subject=${esc(encodeURIComponent("Your shifts" + (p.weekStart ? ", week of " + p.weekStart : "")))}&amp;body=${esc(encodeURIComponent(m.text))}">Email</a></td></tr>`).join("") : "";
@@ -327,7 +327,7 @@ ${claimBlock}
 ${offBlock}
 <h2>Availability replies (${state.replies.length})</h2>
 <form method="post" action="/admin/merge?key=${k}"><textarea name="replies" readonly>${replies}</textarea><button ${state.replies.length ? "" : "disabled"}>Merge into staff list</button></form>
-<p class="note">${p ? `Published ${esc(p.at)}: ${p.unfilled} open shift(s).` : "Nothing published yet."} Staff link: <code>/team?t=TEAM_TOKEN</code></p><p><a href="/admin/changes?key=${k}">Schedule changes and notice pay</a> (${(state.changeLog || []).length} change(s) logged)</p>${clockOn ? `<p><a href="/admin/timesheet?key=${k}">Timesheet: hours worked against the schedule</a> (${(state.punches || []).length} punch(es) recorded) · <a href="/admin/leave?key=${k}">Leave balances</a> · <a href="/admin/payroll?key=${k}">Payroll import file</a></p>` : ""}`);
+<p class="note">${p ? `Published ${esc(p.at)}: ${p.unfilled} open shift(s).` : "Nothing published yet."} Staff link: <code>/team?t=TEAM_TOKEN</code></p><p><a href="/admin/changes?key=${k}">Schedule changes and notice pay</a> (${(state.changeLog || []).length} change(s) logged)</p>${clockOn ? `<p><a href="/admin/timesheet?key=${k}">Timesheet: hours worked against the schedule</a> (${(state.punches || []).length} punch(es) recorded) · <a href="/admin/leave?key=${k}">Leave balances</a> · <a href="/admin/payroll?key=${k}">Payroll import file</a></p>` : ""}<p class="note"><a href="/admin/export.json?key=${k}">Download a backup</a> of everything this hub holds (one JSON file; it includes wages, so keep it private).</p>`);
 }
 
 // The manager's timesheet for a published week (the current one or one of the last 12): worked time beside the
@@ -701,7 +701,7 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
         if (!state.offs.some((o) => o.person === person && o.entry === r.entry)) {
           const note = String(form.get("note") || "").replace(/[\r\n]+/g, " ").trim().slice(0, 140);
           state.offs.push({ person, entry: r.entry, note, at: new Date(now()).toISOString() });
-        notify.manager(`${person} asks for ${r.entry.replace("..", " to ")} off.${note ? ` "${note}"` : ""}`);
+        notify.manager(`${person} asks for ${r.entry.replaceAll("..", " to ")} off.${note ? ` "${note}"` : ""}`);
           if (state.offs.length > MAX_OFFS) state.offs.shift();
           save();
         }
@@ -725,6 +725,11 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
     if (req.method === "GET" && url.pathname === "/admin") {
       const note = url.searchParams.get("note");
       return send(200, adminPage(state, adminKey, note ? `<p class="ok">${esc(note)}</p>` : "", browserBuild, clockOn, fww));
+    }
+    // The whole hub state as one JSON file: a backup, and what aws/migrate-hub.mjs moves into a hosted hub. Admin only
+    // (it holds wages and punches); no-store so a shared browser or proxy keeps no copy.
+    if (req.method === "GET" && url.pathname === "/admin/export.json") {
+      return send(200, JSON.stringify(state), "application/json; charset=utf-8", { "content-disposition": `attachment; filename="hub-state.json"`, "cache-control": "no-store" });
     }
     if (clockOn && req.method === "GET" && url.pathname === "/admin/timesheet") {
       const note = url.searchParams.get("note");
@@ -870,7 +875,7 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
         state.staff = m.text;
         state.offs.splice(i, 1);
         save();
-        return back(here, `Added ${o.entry.replace("..", " to ")} off for ${o.person} to the staff list. Set the week's Monday and build to apply it.`);
+        return back(here, `Added ${o.entry.replaceAll("..", " to ")} off for ${o.person} to the staff list. Set the week's Monday and build to apply it.`);
       }
       state.offs.splice(i, 1);
       save();

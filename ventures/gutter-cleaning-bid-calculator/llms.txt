@@ -2,7 +2,7 @@
 
 > Price a gutter cleaning visit from linear feet, stories, roof pitch, gutter guards, debris, and downspouts — then loaded wage, travel, disposal, a minimum stop charge, and an optional spring-and-fall contract.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gutter-cleaning-bid-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gutter-cleaning-bid-calculator): FSL-1.1-MIT licensed.

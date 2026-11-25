@@ -79,7 +79,7 @@ review.
 (`.github/prompts/land-your-work.md`). Prefer not to leave it for auto-merge or for
 the owner.
 
-`agent-pr-auto-merge.yml` is a backstop for internal PRs, not the route. It
+`priv-agent-pr-auto-merge.yml` is a backstop for internal PRs, not the route. It
 squash-merges only when **two** reviewer Apps have approved and every check
 passes, and it refuses any PR touching `ventures/*`. So for product work it
 never fires. That refusal is the bot declining to merge product code

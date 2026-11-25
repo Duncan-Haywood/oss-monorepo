@@ -2,7 +2,7 @@
 
 > A free, read-only command-line tool that scans GitHub Actions workflow files for jobs and steps with a literal `continue-on-error: true`, the places where a failure can still leave the run green. Zero dependencies (Python standard library), no network calls, nothing uploaded.
 
-Free and open source (MIT). It flags a pattern for a person to decide on; it is not a judgment that any use is wrong, not a security audit and not a YAML parser. A clean scan means this one pattern was not found. Expressions such as `continue-on-error: ${{ matrix.experimental }}` are trusted and not flagged. It does not see `|| true` inside `run:` scripts.
+Free to use and source available (FSL-1.1-MIT). It flags a pattern for a person to decide on; it is not a judgment that any use is wrong, not a security audit and not a YAML parser. A clean scan means this one pattern was not found. Expressions such as `continue-on-error: ${{ matrix.experimental }}` are trusted and not flagged. It does not see `|| true` inside `run:` scripts.
 
 ## What it reports
 
@@ -19,4 +19,4 @@ There is no browser page yet.
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-continue-on-error-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-continue-on-error-check): FSL-1.1-MIT licensed.

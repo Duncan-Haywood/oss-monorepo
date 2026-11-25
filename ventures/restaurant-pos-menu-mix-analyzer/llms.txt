@@ -2,7 +2,7 @@
 
 > Free tool for restaurant owners: drop in your POS item-sales export and see every menu item as a Star, Plowhorse, Puzzle or Dog, the dollar impact of a price rise on Plowhorses, and what to cut or re-promote. Runs in your browser, the file is never uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/restaurant-pos-menu-mix-analyzer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/restaurant-pos-menu-mix-analyzer): FSL-1.1-MIT licensed.

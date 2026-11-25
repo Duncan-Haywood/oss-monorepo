@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b587e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EA%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PayPal Bookkeeping: Book Sales and Fees, Not Withdrawals (Example)</title>
-<meta name="description" content="A PayPal withdrawal is sales less fees. A worked example turns a $145.05 transfer to your bank into $150.00 of sales and $4.95 of PayPal fees, read by the tool from the activity CSV.">
+<meta name="description" content="A PayPal withdrawal is sales less fees. A worked example turns a $145.05 bank transfer into $150.00 of sales and $4.95 of fees, read from the activity CSV.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="./paypal-bookkeeping.html">
 <meta property="og:type" content="article">
@@ -56,7 +56,7 @@
 <h3>Why was my withdrawal not split?</h3>
 <p>PayPal's CSV has no payout id, so the tool adds up completed payments since the last withdrawal. If they do not add up to the withdrawal, a balance was carried over from before the report, and the tool lists it instead of guessing. Download from an earlier start date.</p>
 <h3>Is it free?</h3>
-<p>Yes. It is open source (MIT), runs in your browser or as a command line tool, and nothing is uploaded.</p>
+<p>Yes. It is source available (FSL-1.1-MIT), runs in your browser or as a command line tool, and nothing is uploaded.</p>
 </section>
 
 <p><a href="./">Open AI Bookkeeper</a> and import your bank statement and report.</p>

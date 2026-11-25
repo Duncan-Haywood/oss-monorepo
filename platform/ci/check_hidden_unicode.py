@@ -90,11 +90,13 @@ for _cp in (0x17B4, 0x17B5, 0x180B, 0x180C, 0x180D, 0x180F,
 for _cp in (0x2065, *range(0xFFF0, 0xFFF9), *range(0xE0080, 0xE0100), *range(0xE01F0, 0xE1000)):
     CLASSES[_cp] = "reserved-ignorable"
 
+# Escapes are left to `re` (raw string) so each range is spelled by code point;
+# \u2066-\u2069 (isolates) sit inside \u2065-\u206f.
 PATTERN = re.compile(
-    "[\u202a-\u202e\u2066-\u2069\u200b-\u200f\u061c\u2060-\u2064\ufeff"
-    "\u115f\u1160\u3164\uffa0\u180e\u034f\u00ad\U000e0000-\U000e007f"
-    "\u17b4\u17b5\u180b-\u180d\u180f\u2065-\u206f\ufff0-\ufff8"
-    "\U0001bca0-\U0001bca3\U0001d173-\U0001d17a\U000e0080-\U000e00ff\U000e01f0-\U000e0fff]"
+    r"[\u202a-\u202e\u200b-\u200f\u061c\u2060-\u2064\ufeff"
+    r"\u115f\u1160\u3164\uffa0\u180e\u034f\u00ad\U000e0000-\U000e007f"
+    r"\u17b4\u17b5\u180b-\u180d\u180f\u2065-\u206f\ufff0-\ufff8"
+    r"\U0001bca0-\U0001bca3\U0001d173-\U0001d17a\U000e0080-\U000e00ff\U000e01f0-\U000e0fff]"
 )
 
 # PATTERN's characters as their UTF-8 bytes, for `scan`'s prefilter (perf,

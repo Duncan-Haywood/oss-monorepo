@@ -2,6 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const page = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
 const robots = readFileSync(new URL("./robots.txt", import.meta.url), "utf8");
@@ -78,7 +80,7 @@ test("sitemap does not point at README.md and lists every shipped html page", ()
   assert.doesNotMatch(sitemap, /README\.md/);
   const htmlFiles = readdirSync(new URL("./", import.meta.url)).filter((name) => name.endsWith(".html"));
   for (const name of htmlFiles) {
-    assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
+    assert.match(sitemap, new RegExp(escapeRegExp(name)), `${name} is missing from sitemap.xml`);
   }
 });
 
@@ -107,7 +109,7 @@ test("the page's static imports stay light; the engine loads on demand", async (
   // (about 3.3 MB), so no handler was attached until all of them arrived.
   const script = page.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
   const statics = [...script.matchAll(/^\s*import\b[^;]*?from\s*"([^"]+)"/gm)].map((m) => m[1]);
-  assert.deepEqual(statics.sort(), ["./checkout.mjs", "./licence.mjs", "./usage.mjs"]);
+  assert.deepEqual(statics.sort(), ["./licence.mjs", "./usage.mjs"]);
   // Every name the page calls through `engine.` or destructures from loadEngine() is exported.
   const engine = await import("./page-engine.mjs");
   const used = new Set([...script.matchAll(/(?<![\w-])engine\.(\w+)\(/g)].map((m) => m[1]));

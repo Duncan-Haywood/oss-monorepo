@@ -99,7 +99,7 @@ and against a qualified professional before relying on it or submitting
 a bid. To the maximum extent permitted by law, the authors accept no
 liability for loss or damage arising from its use.
 
-MIT licensed — see [`LICENSE`](LICENSE).
+FSL-1.1-MIT licensed — see [`LICENSE`](LICENSE).
 
 ## Saving and sharing a bid
 

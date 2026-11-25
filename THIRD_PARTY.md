@@ -1,9 +1,10 @@
 # Third-party material in this repository
 
-Everything original in this repository is MIT-licensed under the owner's
-copyright (`LICENSE`). The files below are not original: each keeps its own
-licence and notice, and is listed here so a reader, a fork or a packager can
-see the exceptions in one place.
+Everything original in this repository is the owner's copyright, under
+FSL-1.1-MIT (`LICENSE`; `research/` and work before 2026-11-24 are MIT).
+The files below are not original: each keeps its own licence and notice,
+and is listed here so a reader, a fork or a packager can see the
+exceptions in one place.
 
 This page is generated from `platform/ci/third_party.json` by
 `python3 platform/ci/check_third_party.py --write-md`; the same script fails

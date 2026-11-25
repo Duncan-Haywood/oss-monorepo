@@ -147,11 +147,22 @@ export function buildModel(xer) {
   // Number fields that are filled in but do not read as a number ("NaN",
   // "inf", text) are read as 0 and reported once per field.
   const unreadable = new Map();
+  // A duration below zero (a hand-edited or converted file: P6 does not
+  // accept one) would finish the activity before it starts and pull every
+  // successor in; it is read as 0 and reported, as an unreadable value is. A
+  // negative lag is a lead and stands.
+  const negative = new Map();
   const readHours = (row, field, what) => {
     const v = num(row[field]);
+    const who = () => `${what === "lag" ? `link ${row.task_pred_id ?? "?"}` : row.task_code} (${JSON.stringify(String(row[field]).slice(0, 20))})`;
     if (v === null && row[field] !== undefined && String(row[field]).trim() !== "") {
       if (!unreadable.has(field)) unreadable.set(field, { what, codes: [] });
-      unreadable.get(field).codes.push(`${what === "lag" ? `link ${row.task_pred_id ?? "?"}` : row.task_code} (${JSON.stringify(String(row[field]).slice(0, 20))})`);
+      unreadable.get(field).codes.push(who());
+    }
+    if (v !== null && v < 0 && what !== "lag") {
+      if (!negative.has(field)) negative.set(field, { what, codes: [] });
+      negative.get(field).codes.push(who());
+      return 0;
     }
     return v ?? 0;
   };
@@ -215,6 +226,9 @@ export function buildModel(xer) {
   }
   for (const { what, codes } of unreadable.values()) {
     warnings.push(`${codes.length} ${what} ${codes.length === 1 ? "value does" : "values do"} not read as a number and ${codes.length === 1 ? "was" : "were"} taken as 0: ${some(codes)}`);
+  }
+  for (const { what, codes } of negative.values()) {
+    warnings.push(`${codes.length} ${what} ${codes.length === 1 ? "value is" : "values are"} negative and ${codes.length === 1 ? "was" : "were"} taken as 0: ${some(codes)}`);
   }
   // A resource assignment can keep remaining work after its activity's
   // remaining duration is zero (units left on a labour row): P6 rolls the

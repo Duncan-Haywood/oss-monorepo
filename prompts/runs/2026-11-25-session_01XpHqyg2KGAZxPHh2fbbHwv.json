@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyg2KGAZxPHh2fbbHwv",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T09:39:11Z",
+  "ended": "2026-11-25T09:46:22Z",
+  "wall_minutes": 7.35,
+  "tokens_in": 3276101,
+  "tokens_out": 20805,
+  "cost_usd": 1.647,
+  "tool_calls": 42,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18925",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "Starting measure and main_health with '&' inside one backgrounded Bash call made the harness report it complete while both children were still running; wait_for.py on the logs worked. Small, but the practicalities line could say to run each as its own run_in_background call."
+    },
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "'check open PRs before you start' ran before #18924 existed; two process runs drawn within minutes both picked the top friction cluster. The same race the item itself fixes, one level up: nothing marks a critique lens as taken."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "instruction": "Split first: take up to three rows",
+      "did": "shipped two fixes (P078 tool fix + a one-line cloud-session.md fix for register_repo_root)",
+      "why": "the other top friction clusters (private-monorepo clone refusal, research numpy) were already addressed by P076 or belong to a paused track",
+      "result": "one PR, both verified"
+    },
+    {
+      "file": "prompt.md",
+      "instruction": "most PRs carry a new post",
+      "did": "no post",
+      "why": "process-only change to an internal validator; an agent-facing backlog item (P078) records it",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Duplicate work: built the P078 fix (backlog-id collision on main warns instead of failing every PR) in parallel with PR #18924, which merged first with the same id and the same design; at merge time this PR took main's version of promptctl.py, its test, prompts-ci.yml and the backlog README, and dropped its own P078 file. What this PR lands: .github/prompts/cloud-session.md says add_repo's register_repo_root tool is not loadable, so read the private CLAUDE.md by hand (15 run records name it; friction_rank.py --live --ungated --days 2, #4). Checks before the merge-down: unittest discover -s prompts OK; validate ok; main_health 325/325; PR CI green.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "014eca3a-3d49-5777-9895-89505c7aae43",
+    "transcripts": 1,
+    "first": "2026-11-25T09:39:11Z",
+    "last": "2026-11-25T09:46:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 79,
+        "output": 20805,
+        "thinking": 7347,
+        "cache_read": 3202253,
+        "cache_write_5m": 0,
+        "cache_write_1h": 73769,
+        "api_equivalent_usd": 1.647,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 79,
+      "output": 20805,
+      "thinking": 7347,
+      "cache_read": 3202253,
+      "cache_write_5m": 0,
+      "cache_write_1h": 73769,
+      "api_equivalent_usd": 1.647,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.35,
+      "active_minutes": 7.35,
+      "model_minutes": 3.46,
+      "tool_minutes": 3.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "read friction, write validator change + test + workflow tweak",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 121.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

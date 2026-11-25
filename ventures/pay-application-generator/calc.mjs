@@ -71,8 +71,16 @@ function mapHeaders(header) {
   return idx;
 }
 
-// settings: { retainagePct, storedRetainagePct, reduceAtPct, reducedPct, previousCertificates (dollars string or ""),
-//             project, applicationNo, periodTo, contractor, owner }
+// settings: { retainagePct, storedRetainagePct, reduceAtPct, reducedPct, reduceMode ("all" | "remaining"),
+//             previousCertificates (dollars string or ""), project, applicationNo, periodTo, contractor, owner }
+//
+// Two ways a contract reduces retainage once the job reaches a percent complete:
+//   "all" (default): the reduced rate applies to everything billed, so part of what was held is released.
+//   "remaining": what was held stays held. The first reduceAtPct of the contract sum to date keeps the full rate and
+//   only work billed past that point is held at the reduced rate ("no further retainage after 50%" is reducedPct 0).
+//   The amount past the point is spread across the lines in proportion to their work billed, so a line's share is
+//   work x min(1, threshold / total completed and stored). With no stored materials and no per-line rates the total is
+//   exact: base rate x threshold + reduced rate x (work - threshold).
 export function compute(text, settings = {}) {
   const grid = parseCsv(text);
   const findings = [];
@@ -87,6 +95,7 @@ export function compute(text, settings = {}) {
   if (baseRate == null || storedRate == null) { out.errors.push("Retainage must be a percentage from 0 to 100."); return out; }
   const reduceAt = settings.reduceAtPct === "" || settings.reduceAtPct == null ? null : parsePercent(settings.reduceAtPct);
   const reducedRate = settings.reducedPct === "" || settings.reducedPct == null ? null : parsePercent(settings.reducedPct);
+  const mode = settings.reduceMode === "remaining" ? "remaining" : "all";
 
   const raw = [];
   for (let r = 1; r < grid.length; r++) {
@@ -96,7 +105,7 @@ export function compute(text, settings = {}) {
     if ([c, d, e, f].some((v) => v == null)) { out.errors.push(`Row ${r + 1} (${label}): a money column is not a number.`); continue; }
     const own = get("retainage").trim() === "" ? null : parsePercent(get("retainage"));
     if (get("retainage").trim() !== "" && own == null) { out.errors.push(`Row ${r + 1} (${label}): retainage is not a percentage.`); continue; }
-    const isCo = /^(co|change|change order)$/i.test(get("type").trim()) || /^(co[-\s#]*\d+|change order)/i.test(get("item").trim()) || /^(co[-\s#]*\d+|change order)/i.test(label);
+    const isCo = /^(co|change|change order)$/i.test(get("type").trim()) || /^(c\.?\s?o\.?[-\s#]*\d+|change order)/i.test(get("item").trim()) || /^(c\.?\s?o\.?[-\s#]*\d+|change order)/i.test(label);
     raw.push({ item: get("item").trim(), desc: get("desc").trim() || label, c, d, e, f, own, isCo });
   }
   if (out.errors.length) return out;
@@ -107,15 +116,25 @@ export function compute(text, settings = {}) {
   const totalG = sum("d") + sum("e") + sum("f");
   const completeBp = totalC > 0 ? Math.round((totalG * 10000) / totalC) : 0;
   const reduced = reduceAt != null && reducedRate != null && completeBp >= reduceAt;
-  const workRate = reduced ? reducedRate : baseRate;
+  const prospective = reduced && mode === "remaining";
+  const workRate = reduced && !prospective ? reducedRate : baseRate;
+  const thresholdCents = prospective ? mulBp(totalC, reduceAt) : null;
+  // Retainage on an amount of work for a default-rate line. In "remaining" mode the share of the work billed before the
+  // threshold (in proportion, against the total it is measured on) keeps the base rate and the rest takes the reduced one.
+  const workRet = (work, measuredTotal) => {
+    if (!prospective || measuredTotal <= thresholdCents) return mulBp(work, workRate);
+    const pre = Math.round((work * thresholdCents) / measuredTotal);
+    return mulBp(pre, baseRate) + mulBp(work - pre, reducedRate);
+  };
 
   for (const x of raw) {
     const g = x.d + x.e + x.f;
     const rate = x.own != null ? x.own : workRate;
     const srate = x.own != null ? x.own : storedRate;
-    const ret = mulBp(x.d + x.e, rate) + mulBp(x.f, srate);
+    const retWork = x.own != null ? mulBp(x.d + x.e, x.own) : workRet(x.d + x.e, totalG);
+    const ret = retWork + mulBp(x.f, srate);
     const pct = x.c !== 0 ? Math.round((g * 10000) / x.c) : null;
-    out.lines.push({ ...x, g, pct, balance: x.c - g, ret, retWork: mulBp(x.d + x.e, rate), retStored: mulBp(x.f, srate), rate });
+    out.lines.push({ ...x, g, pct, balance: x.c - g, ret, retWork, retStored: mulBp(x.f, srate), rate });
     if (x.c > 0 && g > x.c) findings.push({ severity: "high", title: `${x.desc}: billed ${dollars(g)} against a scheduled value of ${dollars(x.c)}, ${dollars(g - x.c)} over. Fix the line or add a change order.` });
     if (x.c <= 0 && g > 0 && !x.isCo) findings.push({ severity: "high", title: `${x.desc}: work is billed on a line with no scheduled value.` });
     if (x.e < 0 && x.c >= 0) findings.push({ severity: "medium", title: `${x.desc}: this period is negative (${dollars(x.e)}). That reverses earlier billing; the owner may question it.` });
@@ -129,13 +148,15 @@ export function compute(text, settings = {}) {
   const retainage = retWork + retStored;
   const earnedLess = completed - retainage;
   const prevGiven = String(settings.previousCertificates ?? "").trim() !== "";
-  const prevRetained = out.lines.reduce((a, l) => a + mulBp(l.d, l.rate), 0);
+  const totalD = sum("d");
+  const prevRetained = out.lines.reduce((a, l) => a + (l.own != null ? mulBp(l.d, l.own) : workRet(l.d, totalD)), 0);
   let previous = prevGiven ? parseMoney(settings.previousCertificates) : sum("d") - prevRetained;
   if (previous == null) { out.errors.push("Previous certificates is not a dollar amount."); return out; }
   if (!prevGiven) findings.push({ severity: "info", title: `Previous certificates for payment were estimated as previous work less retainage at today's rate (${dollars(previous)}). Enter the real figure from your last application if the rate or contract changed.` });
   const due = earnedLess - previous;
   if (due < 0) findings.push({ severity: "high", title: `Current payment due is negative (${dollars(due)}). Previous certificates exceed what is earned less retainage to date; check the previous figure.` });
-  if (reduced) findings.push({ severity: "info", title: `Work is ${pctText(completeBp)} complete, so retainage on work uses the reduced rate of ${pctText(reducedRate)} on everything billed. Many contracts reduce only on the remaining work; check yours.` });
+  if (reduced && !prospective) findings.push({ severity: "info", title: `Work is ${pctText(completeBp)} complete, so retainage on work uses the reduced rate of ${pctText(reducedRate)} on everything billed. Many contracts reduce only on the remaining work; check yours and choose "only on work billed after that point" if so.` });
+  if (prospective) findings.push({ severity: "info", title: `Work is ${pctText(completeBp)} complete. The first ${pctText(reduceAt)} of the contract sum (${dollars(thresholdCents)}) keeps ${pctText(baseRate)} retainage and the ${dollars(Math.max(totalG - thresholdCents, 0))} completed past it is held at ${pctText(reducedRate)}, spread across the lines in proportion. If your owner applied the reduction from a later application, enter the previous certificates from your last application so the payment due is exact.` });
   if (completeBp > 10000) findings.push({ severity: "high", title: `The whole application is ${pctText(completeBp)} of the contract sum. Total completed cannot exceed the contract sum to date.` });
 
   const early = out.lines.filter((l) => l.c > 0 && l.pct != null && l.pct >= 9000 && l.pct <= 10000 && l.e > 0);
@@ -144,7 +165,8 @@ export function compute(text, settings = {}) {
   out.summary = {
     original, changes, contractToDate, completed, completeBp, retWork, retStored, retainage, earnedLess, previous, due,
     balanceToFinish: contractToDate - earnedLess, retainageReleasable: retainage, finalDueIfReleased: due + retainage,
-    workRateBp: workRate, reduced, previousEstimated: !prevGiven,
+    workRateBp: workRate, reduced, reduceMode: prospective ? "remaining" : "all", reducedRateBp: reducedRate, reduceAtBp: reduceAt,
+    thresholdCents, previousEstimated: !prevGiven,
   };
   return out;
 }
@@ -176,6 +198,47 @@ export function scheduleCsv(result) {
   const m = result.summary;
   rows.push(["", "TOTAL", plain(m.contractToDate), plain(result.lines.reduce((a, l) => a + l.d, 0)), plain(result.lines.reduce((a, l) => a + l.e, 0)), plain(result.lines.reduce((a, l) => a + l.f, 0)), plain(m.completed), (m.completeBp / 100).toFixed(2), plain(m.contractToDate - m.completed), plain(m.retainage)]);
   return [head, ...rows].map((r) => r.map(q).join(",")).join("\n");
+}
+
+// Next month's application from this one. On a progress-billing continuation sheet, next period's "previous"
+// is this period's previous plus this period (work only; stored materials stay in their own column until they are
+// installed), "this period" starts at zero, and next period's previous certificates equal this application's
+// total earned less retainage (line 6). Carrying that figure forward exactly is what stops the estimate finding.
+// Returns { csv, settings, notes } or null when there is no result to roll.
+const isoDate = /^(\d{4})-(\d{2})-(\d{2})$/;
+export function nextPeriodEnd(periodTo) {
+  const m = isoDate.exec(String(periodTo ?? "").trim());
+  if (!m) return "";
+  const y = +m[1], mo = +m[2], d = +m[3];
+  if (mo < 1 || mo > 12 || d < 1 || d > 31) return "";
+  const lastDay = (yy, mm) => new Date(Date.UTC(yy, mm, 0)).getUTCDate(); // mm is 1-based here
+  const ny = mo === 12 ? y + 1 : y, nm = mo === 12 ? 1 : mo + 1;
+  // A period that ended on the last day of its month rolls to the last day of the next; otherwise the same day,
+  // clipped to the next month's length.
+  const nd = d >= lastDay(y, mo) ? lastDay(ny, nm) : Math.min(d, lastDay(ny, nm));
+  return `${ny}-${String(nm).padStart(2, "0")}-${String(nd).padStart(2, "0")}`;
+}
+
+export function nextPeriod(result, s = {}) {
+  if (!result || !result.summary || result.errors?.length) return null;
+  const ownRates = result.lines.some((l) => l.own != null);
+  const head = ["Item", "Description", "Type", "Scheduled value", "Previous", "This period", "Stored"].concat(ownRates ? ["Retainage"] : []);
+  const rows = result.lines.map((l) => [l.item, l.desc, l.isCo ? "CO" : "", plain(l.c), plain(l.d + l.e), "0.00", plain(l.f)]
+    .concat(ownRates ? [l.own == null ? "" : (l.own / 100).toFixed(2)] : []));
+  const csv = [head, ...rows].map((r) => r.map(q).join(",")).join("\n");
+  const appNo = String(s.applicationNo ?? "").trim();
+  const settings = {
+    ...s,
+    previousCertificates: plain(result.summary.earnedLess),
+    applicationNo: /^\d+$/.test(appNo) ? String(Number(appNo) + 1) : appNo,
+    periodTo: nextPeriodEnd(s.periodTo),
+  };
+  const notes = [`Previous certificates set to ${dollars(result.summary.earnedLess)}: this application's total earned less retainage, which is what will have been certified once it is paid. If the owner certified a different amount, enter that instead.`];
+  const stored = result.lines.filter((l) => l.f !== 0);
+  if (stored.length) notes.push(`Stored materials carried forward as still stored on ${stored.length} line${stored.length === 1 ? "" : "s"} (${stored.map((l) => l.desc).join(", ")}). When they are installed, take them out of Stored and bill them in This period.`);
+  const done = result.lines.filter((l) => l.c > 0 && l.balance <= 0).length;
+  if (done) notes.push(`${done} line${done === 1 ? " is" : "s are"} fully billed; leave This period at zero on ${done === 1 ? "it" : "them"}.`);
+  return { csv, settings, notes };
 }
 
 export function sampleList() {

@@ -12,15 +12,41 @@ on:
   pull_request:
     paths:
       - "ventures/**"
-      - "platform/ci/run_venture_tests.py"
-      - "platform/ci/test_run_venture_tests.py"
+      # The unwired tree checks (unwired_checks.py, doc_index.py check) run
+      # from this workflow, so a PR touching only these trees must start it
+      # too (red-team findings 2026-11-06 and 2026-11-13).
+      - "platform/ci/**"
+      - "platform/pages/*.mjs"
+      # unwired_checks.py also runs every platform node suite and portfolio
+      # suite no other pull-request workflow runs (platform/billing's Paddle
+      # webhook and licence tests, platform/proposal, portfolio/ledger, 62
+      # suites on 2026-11-25), so a change to their folders alone must start
+      # this workflow too (red-team finding 2026-11-25; guarded by
+      # test_unwired_checks.py, Triggers).
+      - "platform/**"
+      - "portfolio/**"
+      - "docs/reports/**"
+      - "docs/taxonomy.json"
       - ".github/workflows/ventures-tests.yml"
   push:
     branches: [main]
     paths:
       - "ventures/**"
-      - "platform/ci/run_venture_tests.py"
-      - "platform/ci/test_run_venture_tests.py"
+      # The unwired tree checks (unwired_checks.py, doc_index.py check) run
+      # from this workflow, so a PR touching only these trees must start it
+      # too (red-team findings 2026-11-06 and 2026-11-13).
+      - "platform/ci/**"
+      - "platform/pages/*.mjs"
+      # unwired_checks.py also runs every platform node suite and portfolio
+      # suite no other pull-request workflow runs (platform/billing's Paddle
+      # webhook and licence tests, platform/proposal, portfolio/ledger, 62
+      # suites on 2026-11-25), so a change to their folders alone must start
+      # this workflow too (red-team finding 2026-11-25; guarded by
+      # test_unwired_checks.py, Triggers).
+      - "platform/**"
+      - "portfolio/**"
+      - "docs/reports/**"
+      - "docs/taxonomy.json"
       - ".github/workflows/ventures-tests.yml"
   workflow_dispatch:
 

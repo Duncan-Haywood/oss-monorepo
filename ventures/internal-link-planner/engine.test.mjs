@@ -30,13 +30,15 @@ test("pageRank sums to 1 and favours the page everything links to", () => {
 test("audit of the example site finds its orphan, weak page, dead ends and broken link", () => {
   const r = analyze(SITE, { home: HOME });
   assert.equal(r.summary.pages, 9); assert.equal(r.summary.noindex, 1);
-  assert.ok(r.orphans.includes("https://example.test/blog/patient-payment-plans"));
-  assert.ok(r.orphans.includes("https://example.test/blog/fee-schedule-review"));
-  assert.ok(!r.orphans.includes("https://example.test/old-draft"), "noindex pages are not audited as orphans");
-  assert.ok(r.bodyOrphans.includes("https://example.test/pricing"), "linked from the menu only");
+  // Exact membership in the URL lists (an array lookup, not a substring test).
+  const listed = (list, url) => list.some((u) => u === url);
+  assert.ok(listed(r.orphans, "https://example.test/blog/patient-payment-plans"));
+  assert.ok(listed(r.orphans, "https://example.test/blog/fee-schedule-review"));
+  assert.ok(!listed(r.orphans, "https://example.test/old-draft"), "noindex pages are not audited as orphans");
+  assert.ok(listed(r.bodyOrphans, "https://example.test/pricing"), "linked from the menu only");
   assert.deepEqual(r.broken.map((b) => b.to), ["https://example.test/missing-page"]);
-  assert.ok(r.deadEnds.includes("https://example.test/pricing"));
-  assert.equal(r.pages.find((p) => p.url === HOME.replace(/\/$/, "/")).depth, 0);
+  assert.ok(listed(r.deadEnds, "https://example.test/pricing"));
+  assert.equal(r.pages.find((p) => p.url === HOME).depth, 0);
 });
 
 test("suggestions put the target's own words as anchor text in a page that does not yet link", () => {

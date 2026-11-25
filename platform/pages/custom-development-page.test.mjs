@@ -154,7 +154,11 @@ test('a long request is clipped in the list and folded on its own page', () => {
   };
   const list = renderCustomDevelopmentPage({ baseUrl: base, requests: [long] });
   const row = list.slice(list.indexOf('<tr data-status'), list.indexOf('</tr>', list.indexOf('<tr data-status')));
-  const visible = row.replace(/data-text="[^"]*"/, '').replace(/<[^>]+>/g, '');
+  let visible = row.replace(/data-text="[^"]*"/, '');
+  for (let previous; previous !== visible; ) {
+    previous = visible;
+    visible = visible.replace(/<[^>]+>/g, '');
+  }
   assert.ok(visible.length < REQUEST_ASK_CLIP + REQUEST_NOTE_CLIP + 200, `row text is ${visible.length} characters`);
   assert.match(row, /href="R-0042\/">Full status<\/a>/);
   assert.match(row, /data-text="[^"]*feature 79 landed/, 'search still sees the whole note');

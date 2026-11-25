@@ -63,7 +63,7 @@ class LsRemote(unittest.TestCase):
 class Paths(unittest.TestCase):
     def test_default_workflows_dir_is_the_repos(self):
         self.assertEqual(pin_actions.ROOT, Path(__file__).resolve().parents[2])
-        self.assertTrue((pin_actions.WORKFLOWS / "portfolio-pages.yml").is_file())
+        self.assertTrue((pin_actions.WORKFLOWS / "priv-portfolio-pages.yml").is_file())
 
 
 class Main(unittest.TestCase):

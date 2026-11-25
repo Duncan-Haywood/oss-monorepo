@@ -137,7 +137,7 @@
     <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>report_analyzed</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Also sell on iOS? The <a href="../app-store-sales-report-analyzer/">App Store sales report analyzer</a> does the same from your Apple summary sales report. Selling a game? The <a href="../indie-game-payout-calculator/">indie game payout calculator</a> compares Steam, Epic, itch.io and GOG. Thinking of raising a subscription price? See the <a href="../subscription-price-impact/">subscription price impact calculator</a>.</p>
-    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free to use and source available. If this helped, the <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
@@ -162,12 +162,12 @@
       if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
       last = r;
       const s = r.summary, b = s.base, est = s.feeEstimated ? " (estimated)" : "";
-      $("#report-stats").innerHTML = `${dateStr(s.first)} to ${dateStr(s.last)}: <strong>net ${money(s.net, b)}</strong>${est} from ${money(s.charges, b)} charged, less ${money(s.refunds, b)} refunded and ${money(s.fees, b)} Google fee${est}. Effective fee ${pct(s.feeRate)}${est}; refund rate ${pct(s.refundRate)}. ${s.chargeCount} charges, ${s.refundCount} refunds.` + (s.taxNet ? ` Tax rows net to ${money(s.taxNet, b)}.` : "");
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
-      rows("#by-type", r.byType.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${money(g.charges, b)}</td><td class="n">${money(g.refunds, b)}</td><td class="n">${money(g.fees, b)}</td><td class="n">${pct(g.feeRate)}</td><td class="n">${money(g.net, b)}</td></tr>`).join(""), 6);
-      rows("#by-product", r.byProduct.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${money(g.charges, b)}</td><td class="n">${money(g.refunds, b)}</td><td class="n">${pct(g.refundRate)}${g.enough ? "" : " (few)"}</td><td class="n">${money(g.net, b)}</td></tr>`).join(""), 5);
-      rows("#by-country", r.byCountry.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${money(g.charges, b)}</td><td class="n">${money(g.net, b)}</td></tr>`).join(""), 3);
-      rows("#by-month", r.byMonth.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${money(g.charges, b)}</td><td class="n">${money(g.refunds, b)}</td><td class="n">${money(g.fees, b)}</td><td class="n">${money(g.net, b)}</td></tr>`).join(""), 5);
+      $("#report-stats").innerHTML = `${dateStr(s.first)} to ${dateStr(s.last)}: <strong>net ${esc(money(s.net, b))}</strong>${est} from ${esc(money(s.charges, b))} charged, less ${esc(money(s.refunds, b))} refunded and ${esc(money(s.fees, b))} Google fee${est}. Effective fee ${pct(s.feeRate)}${est}; refund rate ${pct(s.refundRate)}. ${s.chargeCount} charges, ${s.refundCount} refunds.` + (s.taxNet ? ` Tax rows net to ${esc(money(s.taxNet, b))}.` : "");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${esc(f.severity)}">${esc(f.severity)}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
+      rows("#by-type", r.byType.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${esc(money(g.charges, b))}</td><td class="n">${esc(money(g.refunds, b))}</td><td class="n">${esc(money(g.fees, b))}</td><td class="n">${pct(g.feeRate)}</td><td class="n">${esc(money(g.net, b))}</td></tr>`).join(""), 6);
+      rows("#by-product", r.byProduct.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${esc(money(g.charges, b))}</td><td class="n">${esc(money(g.refunds, b))}</td><td class="n">${pct(g.refundRate)}${g.enough ? "" : " (few)"}</td><td class="n">${esc(money(g.net, b))}</td></tr>`).join(""), 5);
+      rows("#by-country", r.byCountry.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${esc(money(g.charges, b))}</td><td class="n">${esc(money(g.net, b))}</td></tr>`).join(""), 3);
+      rows("#by-month", r.byMonth.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${esc(money(g.charges, b))}</td><td class="n">${esc(money(g.refunds, b))}</td><td class="n">${esc(money(g.fees, b))}</td><td class="n">${esc(money(g.net, b))}</td></tr>`).join(""), 5);
       const notes = [];
       if (skipped.length) notes.push(`${skipped.length} row(s) were skipped: ` + skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (skipped.length > 5 ? "; …" : ""));
       if (dmy) notes.push("Dates were read day-first.");

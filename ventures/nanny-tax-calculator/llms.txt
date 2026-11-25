@@ -2,7 +2,7 @@
 
 > Free nanny tax calculator: the real yearly and hourly cost of a household employee with Social Security, Medicare, FUTA and state unemployment, plus a take-home-to-gross converter. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## What it answers
 
@@ -14,4 +14,4 @@ In 2026 a household employer owes Social Security and Medicare tax once one empl
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/nanny-tax-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/nanny-tax-calculator): FSL-1.1-MIT licensed.

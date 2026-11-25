@@ -22,4 +22,4 @@ legal, tax or financial advice. It does not model scope creep, rollover, late pa
 taxes or unlogged work. Unverified against a published dataset: tested on hand-counted
 logs and simulated hours with a known distribution.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

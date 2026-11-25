@@ -185,7 +185,6 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 
 - Egeria and Lent with the bishop's catechesis (Travels, chapters 27-28 and 45-46; a sequel to episode 133).
 - Valerius of Bierzo and the letter in praise of the blessed Egeria, the seventh-century Spanish monk who gave her name back (Valerius's letter to the monks of the Bierzo; a coda to episodes 127-137).
-- Hiram king of Tyre and the cedars of Lebanon floated down the coast in rafts, the friend of David who sent Solomon timber for the temple (First Kings 5 and Second Chronicles 2; left by episode 156).
 - The ships of Tarshish and the throne of ivory with twelve lions on six steps, the years when silver was counted as nothing in Jerusalem, told as a quieter episode about trade and its dangers, with Deuteronomy 17:16-17 (First Kings 10:14-29; left by episode 156).
 - Saint Theognius or Saint Abraamius, Cyril of Scythopolis's other short desert lives.
 - Saint Cyriacus the Anchorite, whose Life Cyril also wrote.
@@ -217,7 +216,6 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Elisha and the Shunammite's land given back, the seven years of famine and Gehazi telling the king the story at the very moment she walked in (Second Kings 8:1-6; left by episode 168).
 - The king of Arad and the vow at Hormah, the first battle after Mount Hor, and the long way round Edom by the Red Sea road (Numbers 21:1-4; left by episode 165).
 - Moses on the mountains of Abarim and a shepherd for the congregation, Joshua commissioned before Eleazar the priest, the man in whom is the spirit (Numbers 27:12-23, with Deuteronomy 3:23-28; left by episode 166).
-- Job's three daughters, Jemimah, Keziah and Keren-happuch, the end of the book told gently, the inheritance among their brothers (Job 42:7-17; left by episode 166).
 - The twelve leaders and the dedication of the altar, twelve days and the same gift each day, six covered wagons and twelve oxen for the Levites (Numbers 7; left by episode 167).
 - The cloud over the tabernacle and the two silver trumpets, setting out from Sinai, Hobab asked to be their eyes, and 'Arise, O Lord' when the ark set out (Numbers 9:15 to 10:36; left by episode 167).
 - The new king who did not know Joseph and the store cities of Pithom and Raamses, the bricks and the people who multiplied anyway, told as a quieter episode about work and its dignity (Exodus 1:1-14, with Genesis 50:22-26; left by episode 171).
@@ -225,13 +223,19 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - The graves of craving at Kibroth-hattaavah, the second quails and the rabble who wept for the cucumbers and leeks of Egypt, told carefully (Numbers 11:4-6 and 31-35; left by episode 173).
 - On eagles' wings to the foot of the mountain, the three days of washing and the boundary set round Sinai, Ziva's family carried on (Exodus 19, with Deuteronomy 32:11; left by episode 174, after episode 140's Jethro).
 - The second Meribah remembered: Psalm ninety-five and the Invitatory, told as a quieter episode about morning prayer, 'today, if you hear his voice' (Psalm 95, with Hebrews 3:7 to 4:11; left by episode 174).
-- Nicodemus and the conversation by night in Jerusalem, born of water and the Spirit, the wind that blows where it wills, and the man who later brought a hundred pounds of myrrh and aloes (John 3:1-21, 7:50-52 and 19:39-42; left by episode 176).
 - The song of the well at Beer, 'Spring up, O well, sing to it', the well the princes dug with their staffs, and the stages from Oboth to the valley of the Arnon (Numbers 21:10-20; left by episode 176).
+- Joseph of Arimathea and the stone rolled against the door, the respected member of the council who took courage and went in to Pilate, told with all four Gospels side by side (Mark 15:42-47, Matthew 27:57-61, Luke 23:50-56, John 19:38-42; left by episode 177).
+- The last great day of the Feast of Booths, the water from Siloam and the lamps in the Court of the Women, and 'if anyone thirsts, let him come to me', told as a quieter episode about the feast (John 7:1-44, Leviticus 23:33-43 and the Mishnah, Sukkah 4-5; left by episode 177).
+- Gamaliel and the counsel in the council, 'if this is of God you will not be able to overthrow them', the teacher of Saul of Tarsus (Acts 5:33-42 and 22:3, with Lucian's letter of four hundred and fifteen told as legend; left by episode 177).
+- The Canaanite woman of the region of Tyre and Sidon, the crumbs under the table and her daughter healed, told with Mark and Matthew side by side and carefully (Mark 7:24-30, Matthew 15:21-28; left by episode 178).
+- Ezekiel's lament for the ship of Tyre, the mast of cedar and the sail of Egyptian linen and every trading people named on board, told as a quieter episode about trade and pride (Ezekiel 27; left by episode 178).
+- Job's three friends and the seven days of silence, Eliphaz, Bildad and Zophar who came from their own places to comfort him, told as an episode about visiting the sick and sitting with the grieving (Job 2:11-13, with Romans 12:15; left by episode 179).
+- The Lord's answer from the whirlwind told on its own, the storehouses of the snow, the mountain goats, the wild ass, the ostrich and the horse, a quiet nature episode (Job 38-39; left by episode 179).
 
 ## Audio status
 
 <!-- audio-status: written by node generate.mjs from episodes/ and audio/manifest.json -->
-Audio: 29 of 176 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 176.
+Audio: 29 of 179 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 179.
 <!-- /audio-status -->
 
 Whether to add audio is the creative prompt's call, not this file's: `prompts/creative/prompt-0.md`, "Audio size", says text only while the `du` it names is over 400 MB (577 MB on 2026-11-18), and the higher layer wins. The case that the cap is stale (audio has been served from jsDelivr, outside the deploy artifact, since 2026-10-24, so the cost left is git history) is in [`docs/reports/2026-11-13-audio-cap-is-stale.md`](../../docs/reports/2026-11-13-audio-cap-is-stale.md); changing the rule is a `prompts/` edit, which waits on the owner's approval. This paragraph used to recommend voicing the backlog against the prompt, and five run records from 2026-11-16 to 2026-11-18 reported the two guides disagreeing. When the rule allows audio, voice the backlog in episode order, about 60 MB a run (episodes 20 to 24 took 7 to 11 minutes each on 4 cores, 2026-11-15). Read the episode for names first and add any the voice would trip on to `SAY` in `render_audio.py`. The line above is regenerated with the pages, so a new episode or render needs no edit here. If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 8 to 15 minutes.
@@ -240,7 +244,7 @@ Whether to add audio is the creative prompt's call, not this file's: `prompts/cr
 
 - Episodes, pages and `feed.xml` are served with the catalogue at
   `https://marisstella.app/saints-by-candlelight/` (Cloudflare, built by
-  `portfolio-pages.yml` on every merge; the old github.io address redirects).
+  `priv-portfolio-pages.yml` on every merge; the old github.io address redirects).
 - Audio is committed as mono 40 kbps MP3 (about 0.3 MB a minute). The deploy
   serves each committed MP3 from jsDelivr at a pinned commit
   (`platform/pages/audio-cdn.mjs`), so audio no longer counts against the

@@ -2,7 +2,7 @@
 
 > Free calculator for independent propane (LP gas) delivery route operators: find real annual profit per customer after the retail/wholesale price spread, the minimum-delivery fee on small fills, drive time and mileage, and tank rental and hazmat compliance cost, then see whether your whole route hits your income goal.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/propane-delivery-route-margin): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/propane-delivery-route-margin): FSL-1.1-MIT licensed.

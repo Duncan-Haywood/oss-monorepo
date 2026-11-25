@@ -360,7 +360,7 @@ test("the guide's worked example is what the module builds", () => {
   const fields = html.match(/<pre id="ex-fields">([\s\S]*?)<\/pre>/)[1];
   const teamsTxt = html.match(/<pre id="ex-teams">([\s\S]*?)<\/pre>/)[1];
   const grid = html.match(/<pre id="ex-grid">([\s\S]*?)<\/pre>/)[1];
-  const dec = (s) => s.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+  const dec = (s) => s.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   const r = buildPractices(parseFields(dec(fields)).windows, parseTeamList(dec(teamsTxt)).teams);
   assert.equal(dec(grid).trim(), practiceText(r).trim());
 });

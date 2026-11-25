@@ -13,7 +13,7 @@ test("carries the no-warranty disclaimer", () => {
 
 test("carries the privacy line and the licence/support paragraph", () => {
   assert.match(html, /Nothing leaves your browser/);
-  assert.match(html, /Free and open source/);
+  assert.match(html, /Free to use and source available/);
   assert.match(html, /LICENSE/);
   assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
 });

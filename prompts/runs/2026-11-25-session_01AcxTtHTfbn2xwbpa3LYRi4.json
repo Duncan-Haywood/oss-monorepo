@@ -1,0 +1,396 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtHTfbn2xwbpa3LYRi4",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T05:07:04Z",
+  "ended": "2026-11-25T05:07:56Z",
+  "wall_minutes": 9.62,
+  "tokens_in": 4944815,
+  "tokens_out": 24631,
+  "cost_usd": 2.2516,
+  "tool_calls": 55,
+  "task": "redteam: xer-schedule-check cpm.mjs and windows.mjs",
+  "projects": [
+    "ventures/xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18859",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0: all 48 queued security alerts already had claim branches, so the queue step costs a ls-remote + comparison every run without yielding work; the queue could mark claimed alerts itself."
+    },
+    {
+      "file": "prompts/redteam.py open",
+      "issue": "The open-defect list's newest entry (shift-roster reserve test) is already being fixed in open PR #18841, but nothing in the list says so; had to search PRs to avoid duplicate work."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: none of the 6 open defects was fixed. Four are control-plane/owner-approval follow-ups, help-keeper stemming needs a new eval set, and the shift-roster one is in open PR #18841.",
+      "did": "Went straight to seeding, on a for-profit construction product (xer-schedule-check, transition.py row 10).",
+      "result": "Two campaigns, one real defect fixed."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b (an automated guard for the class) not done beyond tests: the negative-duration class is guarded at the one reader every import path goes through (readHours in cpm.mjs), and the new tests run in ventures-tests on every PR.",
+      "did": "Fixed at the shared reader instead of a repo-wide lint.",
+      "result": "MSPDI and P6 XML imports covered by the same fix."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-negative-udf-durations-xer-risk.md (extended: 2026-11-25 section)"
+  ],
+  "goal": null,
+  "notes": "cpm.mjs: 8 seeded, 5 caught, 2 gaps + 1 equivalent -> all gaps caught after fix. windows.mjs: 8 seeded, 4 caught, 4 gaps -> all caught after fix. Suite: node --test ventures/xer-schedule-check/**/*.test.mjs, 570 pass, 0 fail after the change (566 before + 4 new tests; 2 assertions added to existing tests). Real defect: negative durations, patched.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/xer-schedule-check/cpm.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 748175747,
+        "commit": "cb3640d40",
+        "sites": 701,
+        "baseline_seconds": 3.6,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 74,
+            "col": 24,
+            "operator": "eq-flip",
+            "before": "const week = days === 7 ? \"every day\" : days === 6 ? `Monday to Saturday (${w} h a week)` : \"Monday to Friday\";",
+            "after": "const week = days !== 7 ? \"every day\" : days === 6 ? `Monday to Saturday (${w} h a week)` : \"Monday to Friday\";",
+            "line_text": "      const week = days === 7 ? \"every day\" : days === 6 ? `Monday to Saturday (${w} h a week)` : \"Monday to Friday\";",
+            "caught": true,
+            "seconds": 3.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 87,
+            "col": 33,
+            "operator": "or-to-and",
+            "before": "for (const o of T.SCHEDOPTIONS || []) opts.set(o.proj_id, o);",
+            "after": "for (const o of T.SCHEDOPTIONS && []) opts.set(o.proj_id, o);",
+            "line_text": "  for (const o of T.SCHEDOPTIONS || []) opts.set(o.proj_id, o);",
+            "caught": true,
+            "seconds": 3.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 90,
+            "col": 34,
+            "operator": "or-to-and",
+            "before": "const projRows = [...(T.PROJECT || [])];",
+            "after": "const projRows = [...(T.PROJECT && [])];",
+            "line_text": "  const projRows = [...(T.PROJECT || [])];",
+            "caught": true,
+            "seconds": 3.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 328,
+            "col": 41,
+            "operator": "and-to-or",
+            "before": "const self = comp.length === 1 && model.tasks.get(u).succs.some((r) => r.succId === u);",
+            "after": "const self = comp.length === 1 || model.tasks.get(u).succs.some((r) => r.succId === u);",
+            "line_text": "          const self = comp.length === 1 && model.tasks.get(u).succs.some((r) => r.succId === u);",
+            "caught": false,
+            "seconds": 3.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "every single-node SCC of the stuck set counted as a loop; engine.test.mjs now has an activity downstream of a loop that must not be reported"
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 581,
+            "col": 19,
+            "operator": "plus-to-minus",
+            "before": "remain = w + added;",
+            "after": "remain = w - added;",
+            "line_text": "        remain = w + added;",
+            "caught": false,
+            "seconds": 3.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "critical-path delay on an activity with an expected finish was untested; engine.test.mjs now delays B itself"
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 755,
+            "col": 21,
+            "operator": "lt-to-le",
+            "before": "if (viaStart < lf) lf = viaStart;",
+            "after": "if (viaStart <= lf) lf = viaStart;",
+            "line_text": "        if (viaStart < lf) lf = viaStart;",
+            "caught": false,
+            "seconds": 3.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "min update: when viaStart === lf the assignment writes the same value"
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 861,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "if (t.type === \"TT_FinMile\" || t.type === \"TT_Mile\" || rem === 0) {",
+            "after": "if (t.type !== \"TT_FinMile\" || t.type === \"TT_Mile\" || rem === 0) {",
+            "line_text": "    if (t.type === \"TT_FinMile\" || t.type === \"TT_Mile\" || rem === 0) {",
+            "caught": true,
+            "seconds": 3.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/cpm.mjs",
+            "line": 893,
+            "col": 31,
+            "operator": "and-to-or",
+            "before": "if (r && r.ef === p.finish && (!last || t.succs.length === 0)) last = t;",
+            "after": "if (r && r.ef === p.finish || (!last || t.succs.length === 0)) last = t;",
+            "line_text": "    if (r && r.ef === p.finish && (!last || t.succs.length === 0)) last = t;",
+            "caught": true,
+            "seconds": 3.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/xer-schedule-check/windows.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 623593002,
+        "commit": "cb3640d40",
+        "sites": 111,
+        "baseline_seconds": 3.5,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/windows.mjs",
+            "line": 62,
+            "col": 90,
+            "operator": "const-plus-one",
+            "before": "for (const r of c.float.rows) if (onPrev.has(r.code) && r.inProgress && r.finishMoved > 0 && !named.has(r.code)) progress.push({ code: r.code, name: r.name, what: `in progress, forecast finish ${r.finishWas.slice(0, 10)} to ${r.finishNow.slice(0, 10)} (+${r.finishMoved} working days)` });",
+            "after": "for (const r of c.float.rows) if (onPrev.has(r.code) && r.inProgress && r.finishMoved > 1 && !named.has(r.code)) progress.push({ code: r.code, name: r.name, what: `in progress, forecast finish ${r.finishWas.slice(0, 10)} to ${r.finishNow.slice(0, 10)} (+${r.finishMoved} working days)` });",
+            "line_text": "  for (const r of c.float.rows) if (onPrev.has(r.code) && r.inProgress && r.finishMoved > 0 && !named.has(r.code)) progress.push({ code: r.code, name: r.name, what: `in progress, forecast finish ${r.finishWas.slice(0, 10)} to ${r.finishNow.slice(0, 10)} (+${r.finishMoved} working days)` });",
+            "caught": false,
+            "seconds": 3.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test had in-progress driving-path work slip exactly one day; windows.test.mjs now does"
+          },
+          {
+            "file": "ventures/xer-schedule-check/windows.mjs",
+            "line": 84,
+            "col": 67,
+            "operator": "minus-to-plus",
+            "before": "const name = opts.projectName || headerOf(updates[updates.length - 1].xer).name;",
+            "after": "const name = opts.projectName || headerOf(updates[updates.length + 1].xer).name;",
+            "line_text": "  const name = opts.projectName || headerOf(updates[updates.length - 1].xer).name;",
+            "caught": true,
+            "seconds": 3.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/windows.mjs",
+            "line": 87,
+            "col": 23,
+            "operator": "and-to-or",
+            "before": "if (name && h.name && h.name !== name) warnings.push(`${u.label || `update ${i + 1}`}: holds no project with ID ${name}; used ${h.name}.`);",
+            "after": "if (name && h.name || h.name !== name) warnings.push(`${u.label || `update ${i + 1}`}: holds no project with ID ${name}; used ${h.name}.`);",
+            "line_text": "    if (name && h.name && h.name !== name) warnings.push(`${u.label || `update ${i + 1}`}: holds no project with ID ${name}; used ${h.name}.`);",
+            "caught": false,
+            "seconds": 3.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test asserted a one-project series has no project-ID warning; added"
+          },
+          {
+            "file": "ventures/xer-schedule-check/windows.mjs",
+            "line": 87,
+            "col": 33,
+            "operator": "neq-flip",
+            "before": "if (name && h.name && h.name !== name) warnings.push(`${u.label || `update ${i + 1}`}: holds no project with ID ${name}; used ${h.name}.`);",
+            "after": "if (name && h.name && h.name === name) warnings.push(`${u.label || `update ${i + 1}`}: holds no project with ID ${name}; used ${h.name}.`);",
+            "line_text": "    if (name && h.name && h.name !== name) warnings.push(`${u.label || `update ${i + 1}`}: holds no project with ID ${name}; used ${h.name}.`);",
+            "caught": false,
+            "seconds": 3.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "same new test (no warning when IDs match, one per update when they do not)"
+          },
+          {
+            "file": "ventures/xer-schedule-check/windows.mjs",
+            "line": 94,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "for (let i = 1; i < items.length; i++) {",
+            "after": "for (let i = 1; i <= items.length; i++) {",
+            "line_text": "  for (let i = 1; i < items.length; i++) {",
+            "caught": true,
+            "seconds": 3.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/windows.mjs",
+            "line": 132,
+            "col": 150,
+            "operator": "const-plus-one",
+            "before": "const total = { moved: totalMoved, sumOfWindows: sum(\"moved\"), progress: sum(\"progressEffect\"), revisions: sum(\"revisionEffect\"), firstFinish: wins[0].finishFrom, lastFinish: wins[wins.length - 1].finishTo };",
+            "after": "const total = { moved: totalMoved, sumOfWindows: sum(\"moved\"), progress: sum(\"progressEffect\"), revisions: sum(\"revisionEffect\"), firstFinish: wins[1].finishFrom, lastFinish: wins[wins.length - 1].finishTo };",
+            "line_text": "  const total = { moved: totalMoved, sumOfWindows: sum(\"moved\"), progress: sum(\"progressEffect\"), revisions: sum(\"revisionEffect\"), firstFinish: wins[0].finishFrom, lastFinish: wins[wins.length - 1].finishTo };",
+            "caught": true,
+            "seconds": 3.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/windows.mjs",
+            "line": 133,
+            "col": 49,
+            "operator": "neq-flip",
+            "before": "if (total.moved !== null && total.sumOfWindows !== null && Math.abs(total.moved - total.sumOfWindows) > 0.15) warnings.push(`The windows add to ${total.sumOfWindows} working days but the finish moved ${total.moved} on the last update's calendar: the updates' project calendars differ, so each window is measured on its own.`);",
+            "after": "if (total.moved !== null && total.sumOfWindows === null && Math.abs(total.moved - total.sumOfWindows) > 0.15) warnings.push(`The windows add to ${total.sumOfWindows} working days but the finish moved ${total.moved} on the last update's calendar: the updates' project calendars differ, so each window is measured on its own.`);",
+            "line_text": "  if (total.moved !== null && total.sumOfWindows !== null && Math.abs(total.moved - total.sumOfWindows) > 0.15) warnings.push(`The windows add to ${total.sumOfWindows} working days but the finish moved ${total.moved} on the last update's calendar: the updates' project calendars differ, so each window is measured on its own.`);",
+            "caught": false,
+            "seconds": 3.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "the calendars-differ warning was never exercised; new test moves the last update onto a 10 h day"
+          },
+          {
+            "file": "ventures/xer-schedule-check/windows.mjs",
+            "line": 185,
+            "col": 22,
+            "operator": "plus-to-minus",
+            "before": "return L.join(\"\\n\") + \"\\n\";",
+            "after": "return L.join(\"\\n\") - \"\\n\";",
+            "line_text": "  return L.join(\"\\n\") + \"\\n\";",
+            "caught": true,
+            "seconds": 3.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/xer-schedule-check/cpm.mjs",
+        "issue": "A negative remaining (or original) duration was scheduled as negative work: -80 h on driving activity A1110 of the example finished it two weeks before its start and pulled the project finish in 17 days, with no warning (a non-numeric value already warned and read as 0). Fixed: durations below 0 read as 0 with a once-per-field warning naming each activity; negative lags (leads) unchanged. Test: engine.test.mjs 'a negative duration is taken as 0 and reported'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18859"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "17984128-269d-577d-8fc0-03546363dae0",
+    "transcripts": 1,
+    "first": "2026-11-25T05:07:04Z",
+    "last": "2026-11-25T05:16:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 105,
+        "output": 24631,
+        "thinking": 4936,
+        "cache_read": 4846042,
+        "cache_write_5m": 0,
+        "cache_write_1h": 98668,
+        "api_equivalent_usd": 2.2516,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 105,
+      "output": 24631,
+      "thinking": 4936,
+      "cache_read": 4846042,
+      "cache_write_5m": 0,
+      "cache_write_1h": 98668,
+      "api_equivalent_usd": 2.2516,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 53,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.62,
+      "active_minutes": 9.62,
+      "model_minutes": 4.87,
+      "tool_minutes": 4.75,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "two mutation campaigns triaged, 6 tests, a parser fix and a post section: about half a day for a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 177.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -2,7 +2,7 @@
 
 > Free vineyard calculator: compare selling grapes by the ton with making and selling your own wine. Net profit, cost per bottle, and the direct-sales share where bottling wins. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/vineyard-grape-vs-wine-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/vineyard-grape-vs-wine-calculator): FSL-1.1-MIT licensed.

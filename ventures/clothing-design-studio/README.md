@@ -1,7 +1,7 @@
 # Clothing Design Studio
 
 **Say what you want on the shirt. See it, change it, know what it costs.**
-A free, open-source (MIT) browser studio for independent clothing designers:
+A free, source-available (FSL-1.1-MIT) browser studio for independent clothing designers:
 design a tee, long-sleeve, sweatshirt or hoodie by talking, typing or dragging,
 compare three versions, cost every piece from your manufacturer's prices, and
 download a tech pack and quote request to send them.
@@ -107,7 +107,7 @@ uptime, backups of anything you type, or that a URL will keep working. Do not
 use this as a system of record. If a tool needs to survive, export your inputs
 and run it yourself.
 
-MIT licence: [`LICENSE`](LICENSE). Sponsor: https://github.com/sponsors/Duncan-Haywood
+FSL-1.1-MIT licence: [`LICENSE`](LICENSE). Sponsor: https://github.com/sponsors/Duncan-Haywood
 
 
 ## "Make it darker" from what the factory stocks (2026-11-24)
@@ -598,6 +598,12 @@ on a 30 degree grid, determinism, escaping). Wired into the studio page 2026-11-
 - 2026-11-08: `orderlines.mjs`, `orderlines.html`: colour x size order matrix with a per-colour minimum check, spares and a PO CSV. `node --test orderlines.test.mjs`. Arithmetic on typed shares; no real factory order.
 - 2026-11-08: `salestax.mjs` now covers every state with a sales tax plus DC (47 entries: 46 states and DC; the other 23 states added from memory, same unchecked label; the build host still cannot reach any revenue department site). Still to do: check each state against its own page; local taxes.
 - 2026-11-09: `salestax.mjs`: Illinois (200-order test dropped 2026-01-01), Kentucky (2026-08-01, HB 757), Utah (2025-07-01) and Alaska (2025-01-01) are now sales-only, from web search results citing Avalara (Apr 2026) and Taxually (Oct 2026); the revenue-department sites are still unreachable from the build host. Maine is listed as dropped by one source and left as typed. Test in `salestax.test.mjs`. Other states remain from memory.
+
+## Armhole and bicep graded from M, one sleeve everywhere (2026-11-25)
+
+The 2026-11-22 quality audit's remaining defects. The block took armhole depth as 0.235 of each size's chest (+1.88 cm a size) and the bicep as 0.34 of it (+2.72 cm round a size), about twice a common knit grade, so an XXL armhole came out about 3 cm too deep. Both now start from M's ratios and grade per cm of chest in `grade.mjs`: armhole depth +0.96 cm and bicep girth +2 cm per 8 cm step (typical steps written from general knowledge, not a factory's or standard's rule; `grade: { armhole, bicep }` replaces them). Grading the armhole alone flattened the solved cap by up to 0.73 cm a size; with the bicep graded too it holds within 0.6 cm in every garment and fit (it may dip a few mm at XS and S, where the shoulder is held by the armhole floor, so `grade()`'s monotone check no longer counts the cap). The cutting plan (`marker.mjs`) now sizes its sleeve box from the drafted sleeve rather than its own tee 22 / long sleeve 62 cm table, so it agrees with the pattern and the spec sheet. Regular tee, XS to XXL: armhole depth 22.78 to 27.58 cm (was 20.94 to 30.34).
+
+Checked by tests that recompute from outside the code: the spec sheet's graded sleeve against the drafted one (24 garment-size cases), the run-cost fabric factor against chest x length by hand (XS 0.809, XXL 1.317), and the size-run split against the normal CDF computed in Python (9.1, 23.7, 34.3, 23.7, 7.8, 1.3 %). Seeded mutations (armhole grade back to 0.235, bicep to 0.34, neck ratio 0.09 to 0.1, body length dropped from the fabric factor, size edges off the midpoints) each fail a test. Unproven: no real grade rule or sewn sample compared.
 
 ## One grade rule for the pattern and the spec sheet, and a neckband (2026-11-23)
 

@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01XpHqyd82xraJo34dXFLGDo",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "Directional revamp session, bet #3: one page per high-traffic e-invoice rule (BR-DE set + 30 EN 16931/Peppol) in EN/DE/FR, generated from data, tests that every id exists in the cited source version",
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": null,
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "einvoice-preflight/rules: 74 rule pages x 3 languages from rules/data/*.json",
+  "projects": [
+    "ventures/einvoice-preflight"
+  ],
+  "pr": 18700,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    "inherited_keys.py flagged SOURCES[rule.source]; replaced with sourceOf() using Object.hasOwn."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/plain/manifest.json",
+      "issue": "The manifest records commits but not release versions; the XRechnung set is master one commit after v2.6.0, found only via git ls-remote and a shallow clone. Recording the release tag at build time would save the next citer that step."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "(session brief)",
+      "why": "The brief asks for the 30 most common EN 16931/Peppol rules, but no frequency data exists in the repo or publicly.",
+      "did": "Picked 35 (22 EN 16931, 13 Peppol) by judgement from the rules the checker's examples and fixes hit, and said so on the README and in the post.",
+      "result": "Selection is labelled as judgement, not a measured ranking."
+    },
+    {
+      "file": "(session brief)",
+      "why": "Writing 74 x 3 explanations is parallel work.",
+      "did": "Five subagents wrote the data files from the compiled rule tests; I reviewed samples, verified six quirk claims against the XPath, and ran two snippet checks against the official engine.",
+      "result": "All 10 rules tests pass."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-74-e-invoice-errors-explained-in-three-languages.md",
+    "ventures/einvoice-preflight/rules/README.md"
+  ],
+  "goal": null,
+  "notes": "Verification: node --test rules/rules.test.mjs 10/10 (with slimdom+fontoxpath installed: BR-DE-2 and BR-DE-9 snippets put into examples/ubl-invoice.xml silence those rules under the official XRechnung Schematron; the BR-DE-18 snippet passes, a missing trailing line break and a decimal comma fire BR-DE-18). platform/pages faq-visible, secondary-schema, css-lint: 16/16. run_venture_tests.py einvoice-preflight: 2771 of 2772 pass; the one failure is repair-facturx.test.mjs 'poppler opens the repaired PDF', because this container's pdfdetach has saving switched off (untouched code). check_post_frontmatter and check_posts ok. inherited_keys.py: 0 new. Versions cited: EN 16931 validation-1.3.17 (6e35e0a), Peppol BIS 3.0.22 (38d693d), KoSIT xrechnung-schematron v2.6.0 (rules at 7e3ddbe, one changelog/build.xml-only commit after the tag), read with git ls-remote 2026-11-24.",
+  "corrections": [],
+  "redteam": null
+}

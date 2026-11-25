@@ -159,7 +159,7 @@ for AC2), Shrout & Fleiss 1979, McGraw & Wong 1996, Landis & Koch 1977, Koo &
 Li 2016, Byrt, Bishop & Carlin 1993, Light 1971. No third-party code was
 ported; the CSV reader and distribution helpers follow this repository's
 `mann-kendall-trend` engine. Example data: GoEmotions (Apache-2.0), see
-`data/SOURCE.md`. Code: MIT (`LICENSE`).
+`data/SOURCE.md`. Code: FSL-1.1-MIT (`LICENSE`).
 
 **No warranty.** Statistical output from data you supply; not legal, tax,
 financial, medical or professional advice. Not affiliated with the authors of

@@ -1,0 +1,300 @@
+{
+ "SchemaVersion": 2,
+ "Results": [
+  {
+   "Target": "platform/counter/deploy/Dockerfile",
+   "Class": "config",
+   "Type": "dockerfile",
+   "MisconfSummary": {
+    "Successes": 26,
+    "Failures": 1
+   },
+   "Misconfigurations": [
+    {
+     "Type": "Dockerfile Security Check",
+     "ID": "DS-0026",
+     "Title": "No HEALTHCHECK defined",
+     "Description": "You should add HEALTHCHECK instruction in your docker container images to perform the health check on running containers.",
+     "Message": "Add HEALTHCHECK instruction in your Dockerfile",
+     "Namespace": "builtin.dockerfile.DS026",
+     "Query": "data.builtin.dockerfile.DS026.deny",
+     "Resolution": "Add HEALTHCHECK instruction in Dockerfile",
+     "Severity": "LOW",
+     "PrimaryURL": "https://avd.aquasec.com/misconfig/ds-0026",
+     "References": [
+      "https://blog.aquasec.com/docker-security-best-practices",
+      "https://avd.aquasec.com/misconfig/ds-0026"
+     ],
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "Provider": "Dockerfile",
+      "Service": "general"
+     }
+    }
+   ]
+  },
+  {
+   "Target": "platform/deploy/templates/aws/tofu/main.tf",
+   "Class": "config",
+   "Type": "terraform",
+   "MisconfSummary": {
+    "Successes": 0,
+    "Failures": 5
+   },
+   "Misconfigurations": [
+    {
+     "Type": "Terraform Security Check",
+     "ID": "AWS-0010",
+     "Title": "Cloudfront distribution should have Access Logging configured",
+     "Description": "You should configure CloudFront Access Logging to create log files that contain detailed information about every user request that CloudFront receives\n",
+     "Message": "Distribution does not have logging enabled",
+     "Namespace": "builtin.aws.cloudfront.aws0010",
+     "Query": "data.builtin.aws.cloudfront.aws0010.deny",
+     "Resolution": "Enable logging for CloudFront distributions",
+     "Severity": "MEDIUM",
+     "PrimaryURL": "https://avd.aquasec.com/misconfig/aws-0010",
+     "References": [
+      "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/AccessLogs.html",
+      "https://avd.aquasec.com/misconfig/aws-0010"
+     ],
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "Resource": "aws_cloudfront_distribution.site",
+      "Provider": "AWS",
+      "Service": "cloudfront",
+      "StartLine": 67,
+      "EndLine": 99,
+      "Code": {
+       "Lines": [
+        {
+         "Number": 67,
+         "Content": "resource \"aws_cloudfront_distribution\" \"site\" {",
+         "IsCause": true,
+         "Annotation": "",
+         "Truncated": false,
+         "Highlighted": "\u001b[38;5;33mresource\u001b[0m \u001b[38;5;37m\"aws_cloudfront_distribution\"\u001b[0m \u001b[38;5;37m\"site\"\u001b[0m {",
+         "FirstCause": true,
+         "LastCause": false
+        },
+        {
+         "Number": 68,
+         "Content": "  enabled             = true",
+         "IsCause": true,
+         "Annotation": "",
+         "Truncated": false,
+         "Highlighted": "  \u001b[38;5;245menabled\u001b[0m             = \u001b[38;5;166mtrue",
+         "FirstCause": false,
+         "LastCause": false
+        },
+        {
+         "Number": 69,
+         "Content": "  default_root_object = \"index.html\"",
+         "IsCause": true,
+         "Annotation": "",
+         "Truncated": false,
+         "Highlighted": "\u001b[0m  \u001b[38;5;245mdefault_root_object\u001b[0m = \u001b[38;5;33m\"index\u001b[0m.html\u001b[38;5;37m\"",
+         "FirstCause": false,
+         "LastCause": false
+        },
+        {
+         "Number": 70,
+         "Content": "  price_class         = \"PriceClass_100\"",
+         "IsCause": true,
+         "Annotation": "",
+         "Truncated": false,
+         "Highlighted": "  price_class         = \"\u001b[0mPriceClass_100\u001b[38;5;37m\"",
+         "FirstCause": false,
+         "LastCause": false
+        },
+        {
+         "Number": 71,
+         "Content": "  comment             = var.name",
+         "IsCause": true,
+         "Annotation": "",
+         "Truncated": false,
+         "Highlighted": "  comment             = var.name",
+         "FirstCause": false,
+         "LastCause": false
+        },
+        {
+         "Number": 72,
+         "Content": "",
+         "IsCause": true,
+         "Annotation": "",
+         "Truncated": false,
+         "FirstCause": false,
+         "LastCause": false
+        },
+        {
+         "Number": 73,
+         "Content": "  origin {",
+         "IsCause": true,
+         "Annotation": "",
+         "Truncated": false,
+         "Highlighted": "  origin {",
+         "FirstCause": false,
+         "LastCause": false
+        },
+        {
+         "Number": 74,
+         "Content": "    domain_name              = aws_s3_bucket.site.bucket_regional_domain_name",
+         "IsCause": true,
+         "Annotation": "",
+         "Truncated": false,
+         "Highlighted": "    domain_name              = aws_s3_bucket.site.bucket_regional_domain_name",
+         "FirstCause": false,
+         "LastCause": false
+        },
+        {
+         "Number": 75,
+         "Content": "    origin_id                = \"site\"",
+         "IsCause": true,
+         "Annotation": "",
+         "Truncated": false,
+         "Highlighted": "    origin_id                = \"\u001b[0msite\u001b[38;5;37m\"",
+         "FirstCause": false,
+         "LastCause": true
+        },
+        {
+         "Number": 76,
+         "Content": "",
+         "IsCause": false,
+         "Annotation": "",
+         "Truncated": true,
+         "FirstCause": false,
+         "LastCause": false
+        }
+       ]
+      }
+     }
+    },
+    {
+     "Type": "Terraform Security Check",
+     "ID": "AWS-0011",
+     "Title": "CloudFront distribution does not have a WAF in front.",
+     "Description": "You should configure a Web Application Firewall in front of your CloudFront distribution. This will mitigate many types of attacks on your web application.\n",
+     "Message": "Distribution does not utilize a WAF.",
+     "Namespace": "builtin.aws.cloudfront.aws0011",
+     "Query": "data.builtin.aws.cloudfront.aws0011.deny",
+     "Resolution": "Enable WAF for the CloudFront distribution",
+     "Severity": "HIGH",
+     "PrimaryURL": "https://avd.aquasec.com/misconfig/aws-0011",
+     "References": [
+      "https://docs.aws.amazon.com/waf/latest/developerguide/cloudfront-features.html",
+      "https://avd.aquasec.com/misconfig/aws-0011"
+     ],
+     "Status": "FAIL",
+     "CauseMetadata": {
+      "Resource": "aws_cloudfront_distribution.site",
+      "Provider": "AWS",
+      "Service": "cloudfront",
+      "StartLine": 67,
+      "EndLine": 99,
+      "Code": {
+       "Lines": [
+        {
+         "Number": 67,
+         "Content": "resource \"aws_cloudfront_distribution\" \"site\" {",
+         "IsCause": true,
+         "Annotation": "",
+         "Truncated": false,
+         "Highlighted": "\u001b[38;5;33mresource\u001b[0m \u001b[38;5;37m\"aws_cloudfront_distribution\"\u001b[0m \u001b[38;5;37m\"site\"\u001b[0m {",
+         "FirstCause": true,
+         "LastCause": false
+        },
+        {
+         "Number": 68,
+         "Content": "  enabled             = true",
+         "IsCause": true,
+         "Annotation": "",
+         "Truncated": false,
+         "Highlighted": "  \u001b[38;5;245menabled\u001b[0m             = \u001b[38;5;166mtrue",
+         "FirstCause": false,
+         "LastCause": false
+        },
+        {
+         "Number": 69,
+         "Content": "  default_root_object = \"index.html\"",
+         "IsCause": true,
+         "Annotation": "",
+         "Truncated": false,
+         "Highlighted": "\u001b[0m  \u001b[38;5;245mdefault_root_object\u001b[0m = \u001b[38;5;33m\"index\u001b[0m.html\u001b[38;5;37m\"",
+         "FirstCause": false,
+         "LastCause": false
+        },
+        {
+         "Number": 70,
+         "Content": "  price_class         = \"PriceClass_100\"",
+         "IsCause": true,
+         "Annotation": "",
+         "Truncated": false,
+         "Highlighted": "  price_class         = \"\u001b[0mPriceClass_100\u001b[38;5;37m\"",
+         "FirstCause": false,
+         "LastCause": false
+        },
+        {
+         "Number": 71,
+         "Content": "  comment             = var.name",
+         "IsCause": true,
+         "Annotation": "",
+         "Truncated": false,
+         "Highlighted": "  comment             = var.name",
+         "FirstCause": false,
+         "LastCause": false
+        },
+        {
+         "Number": 72,
+         "Content": "",
+         "IsCause": true,
+         "Annotation": "",
+         "Truncated": false,
+         "FirstCause": false,
+         "LastCause": false
+        },
+        {
+         "Number": 73,
+         "Content": "  origin {",
+         "IsCause": true,
+         "Annotation": "",
+         "Truncated": false,
+         "Highlighted": "  origin {",
+         "FirstCause": false,
+         "LastCause": false
+        },
+        {
+         "Number": 74,
+         "Content": "    domain_name              = aws_s3_bucket.site.bucket_regional_domain_name",
+         "IsCause": true,
+         "Annotation": "",
+         "Truncated": false,
+         "Highlighted": "    domain_name              = aws_s3_bucket.site.bucket_regional_domain_name",
+         "FirstCause": false,
+         "LastCause": false
+        },
+        {
+         "Number": 75,
+         "Content": "    origin_id                = \"site\"",
+         "IsCause": true,
+         "Annotation": "",
+         "Truncated": false,
+         "Highlighted": "    origin_id                = \"\u001b[0msite\u001b[38;5;37m\"",
+         "FirstCause": false,
+         "LastCause": true
+        },
+        {
+         "Number": 76,
+         "Content": "",
+         "IsCause": false,
+         "Annotation": "",
+         "Truncated": true,
+         "FirstCause": false,
+         "LastCause": false
+        }
+       ]
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

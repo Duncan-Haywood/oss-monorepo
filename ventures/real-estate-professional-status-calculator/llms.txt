@@ -2,7 +2,7 @@
 
 > Free calculator: do your hours pass the real estate professional 750-hour and more-than-half tests, are your rentals materially participated in, and what is turning a rental loss non-passive worth against the $25,000 allowance? Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/real-estate-professional-status-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/real-estate-professional-status-calculator): FSL-1.1-MIT licensed.

@@ -11,7 +11,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 
-import { checkSite, checkServedExtensions, hygieneIsFatal, resolveUnder } from './check.mjs';
+import { checkSite, checkServedExtensions, hygieneIsFatal, resolveUnder, siteRelativeLink } from './check.mjs';
 
 const BASE_PATH = '/repo/';
 const url = (relative) => `https://example.test${BASE_PATH}${relative}`;
@@ -141,6 +141,33 @@ test('a leftover placeholder origin is caught', async () => {
 test('a dead relative link is caught', async () => {
   const problems = await problemsFor({ 'tool/index.html': '<a href="missing.html">gone</a>' });
   assert.equal(mentioning(problems, 'dead link -> missing.html').length, 1);
+});
+
+// 2026-11-25: 226 einvoice-preflight pages linked
+// https://marisstella.app/industries/e-invoicing/ (the page is eu-e-invoicing/)
+// and the check, which skipped every https:// link as external, stayed green.
+test('a dead link written with the site\'s own origin is caught', async () => {
+  const hub = '<link rel="canonical" href="' + url('') + '">'
+    + '<a href="tool/" data-tool="tool">Tool</a><nav><a href="ask/">Ask</a></nav><footer><a href="about/">About</a> '
+    + '<a href="guides/">Guides</a> <a href="compare/">Comparisons</a> No warranty.</footer>';
+  const problems = await problemsFor({
+    'index.html': hub,
+    'tool/index.html': `<a href="${url('industries/e-invoicing/')}">gone</a> <a href="${url('about/')}">About</a>`
+      + ` <a href="${url('tool/how-much')}">pretty URL</a> <a href="https://elsewhere.test/x/">other site</a>`,
+  });
+  assert.equal(mentioning(problems, `dead link -> ${url('industries/e-invoicing/')}`).length, 1);
+  assert.deepEqual(mentioning(problems, 'dead link -> https://example.test/repo/about/'), []);
+  assert.deepEqual(mentioning(problems, 'how-much'), [], 'x.html is served at x');
+  assert.deepEqual(mentioning(problems, 'elsewhere.test'), []);
+});
+
+test('siteRelativeLink rewrites only the site\'s own origin', () => {
+  const base = 'https://marisstella.app/';
+  assert.equal(siteRelativeLink(`${base}industries/x/`, base, 'einvoice-preflight/rules/de'), '../../../industries/x/');
+  assert.equal(siteRelativeLink(`${base}a/`, base, '.'), 'a/');
+  assert.equal(siteRelativeLink(base, base, '.'), './');
+  assert.equal(siteRelativeLink('https://other.test/a/', base, '.'), null);
+  assert.equal(siteRelativeLink(`${base}a/`, null, '.'), null);
 });
 
 test('any page may link the self-deploy page, which is built after this check', async () => {

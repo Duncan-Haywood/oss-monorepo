@@ -11,6 +11,7 @@ numbers (share meeting the bar, with Wilson intervals, by stratum and round).
     python3 platform/ci/quality_audit.py summary [--md]
     python3 platform/ci/quality_audit.py metrics [--md]   # detailed: gates, defect taxonomy, mutations, fixes, coverage
     python3 platform/ci/quality_audit.py census | queue | mode | coverage   # see quality_metrics.py
+    python3 platform/ci/quality_audit.py claim <subject> [--note N | --release]   # before fixing a queue row
 
 Standard library only, so it runs in a bare container. It lives in platform/ci
 (tests: platform/ci/test_quality_audit.py) beside post_merge_review.py; the
@@ -432,8 +433,9 @@ def render_md(s: dict) -> str:
 
 # --- sampling ----------------------------------------------------------------
 
-def draw(seed: str, k: int = 2, k_platform: int = 1, audits: list[dict] | None = None, pop: dict[str, list[str]] | None = None, today: dt.date | None = None, exclude: set[str] | frozenset = frozenset()) -> list[dict]:
-    """Today's subjects: the least recently audited flagship, then uniform draws per stratum.
+def draw(seed: str, k: int = 2, k_platform: int = 1, audits: list[dict] | None = None, pop: dict[str, list[str]] | None = None, today: dt.date | None = None, exclude: set[str] | frozenset = frozenset(), k_research: int | None = None) -> list[dict]:
+    """Today's subjects: the least recently audited flagship, then uniform draws per stratum
+    (`k_research` research projects, default `k`; the CLI passes 0 while research is paused).
 
     `exclude` holds subjects another round in flight already drew (held_subjects)."""
     audits = load_audits() if audits is None else audits
@@ -451,7 +453,7 @@ def draw(seed: str, k: int = 2, k_platform: int = 1, audits: list[dict] | None =
         picked.append({"stratum": "flagship", "subject": order[0], "last_audited": last.get(order[0])})
         taken.add(order[0])
     flag = set(pop["flagship"])
-    for stratum, n in (("venture", k), ("research", k), ("platform", k_platform)):
+    for stratum, n in (("venture", k), ("research", k if k_research is None else k_research), ("platform", k_platform)):
         pool = [s for s in pop[stratum] if s not in taken and last.get(s, "") < cutoff and not (stratum == "venture" and s in flag)]
         for s in rng.sample(pool, min(n, len(pool))):
             picked.append({"stratum": stratum, "subject": s, "last_audited": last.get(s), "population": len(pop[stratum])})
@@ -516,7 +518,8 @@ def mode_note(date: str, audits: list[dict]) -> str | None:
     """
     sys.path.insert(0, str(Path(__file__).parent))
     import quality_metrics as qm
-    m = qm.mode_for(date, None, qm.last_reflection(), len(qm.queue(audits, "high")), len(qm.reaudit_due(audits)))
+    m = qm.mode_for(date, None, qm.last_reflection(), len(qm.drop_paused(qm.queue(audits, "high"))[0]),
+                    len(qm.drop_paused(qm.reaudit_due(audits))[0]))
     if m["mode"] == "sample":
         return None
     cmd, post = MODE_STEPS.get(m["mode"], ("python3 platform/ci/quality_audit.py mode", "see the README"))
@@ -532,11 +535,13 @@ def main(argv: list[str] | None = None) -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
     sp = sub.add_parser("sample", help="draw this round's subjects")
     sp.add_argument("--seed", default=None, help="default: today's date, suffixed -b, -c ... past seeds audits already used, plus a random tail so concurrent sessions draw differently")
-    sp.add_argument("--k", type=int, default=2, help="subjects per venture and research stratum")
+    sp.add_argument("--k", type=int, default=2, help="subjects per venture stratum (and research, with --research)")
     sp.add_argument("--k-platform", type=int, default=1)
     sp.add_argument("--json", action="store_true")
     sp.add_argument("--offline", action="store_true", help="skip the origin/main fetch and the open-PR read")
     sp.add_argument("--anyway", action="store_true", help="print the draw even when today's mode is not sample")
+    paused_help = "include research/ subjects (left out by default: standalone research paused 2026-11-25)"
+    sp.add_argument("--research", action="store_true", help=paused_help)
     sub.add_parser("validate", help="check every audit file")
     sm = sub.add_parser("summary", help="the scoreboard over every audit")
     sm.add_argument("--md", action="store_true")
@@ -548,13 +553,16 @@ def main(argv: list[str] | None = None) -> int:
     ce.add_argument("--seed", default=None,
                     help="default: today's date plus a random tail, so concurrent census sessions draw differently")
     ce.add_argument("--no-prs", action="store_true", help="skip the open-PR search that passes over subjects in flight")
+    ce.add_argument("--research", action="store_true", help=paused_help)
     qu = sub.add_parser("queue", help="open defects with no fix PR, worst first")
     qu.add_argument("--severity", choices=SEVERITIES, default="medium")
     qu.add_argument("--limit", type=int, default=40)
     qu.add_argument("--no-git", action="store_true", help="skip the per-subject 'changed since audit' git check")
-    qu.add_argument("--no-prs", action="store_true", help="skip the open-PR search that marks rows another PR already names")
+    qu.add_argument("--no-prs", action="store_true",
+                    help="skip the open-PR search and the claim-branch read that mark rows another session already has")
     qu.add_argument("--seed", default=None,
                     help="default: today's date plus a random tail; subjects are shuffled by it within a severity")
+    qu.add_argument("--research", action="store_true", help=paused_help)
     qu.add_argument("--oldest-first", action="store_true", help="the fixed order (oldest audit first), no shuffle")
     qu.add_argument("--no-fetch", action="store_true",
                     help="in a shallow clone, do not fetch main back to the oldest shown audit (the check may say unknown)")
@@ -565,13 +573,19 @@ def main(argv: list[str] | None = None) -> int:
     mf.add_argument("--all", action="store_true", help="every defect that has no fixed_by yet")
     mf.add_argument("--force", action="store_true", help="replace a different fixed_by")
     mf.add_argument("--dry-run", action="store_true")
+    cl = sub.add_parser("claim", help="claim a subject before fixing its defects (create-only branch; exit 4 if taken)")
+    cl.add_argument("subject", help="as queue prints it, e.g. research/energy-store-hx")
+    cl.add_argument("--note", default="", help="which defects this session fixes")
+    cl.add_argument("--release", action="store_true", help="drop your own claim")
     mo = sub.add_parser("mode", help="which mode today's quality session runs")
     mo.add_argument("--date", default=dt.date.today().isoformat())
     mo.add_argument("--seed", default=None)
+    mo.add_argument("--research", action="store_true", help="count research/ highs toward fix mode")
     ra = sub.add_parser("reaudit", help="subjects with a recorded fix that no later audit has checked, highs first")
     ra.add_argument("--limit", type=int, default=15)
     ra.add_argument("--seed", default=None, help="default: today's date plus a random tail, so parallel sessions spread out")
     ra.add_argument("--no-prs", action="store_true", help="skip the open-PR search that puts subjects in flight last")
+    ra.add_argument("--research", action="store_true", help=paused_help)
     args = ap.parse_args(argv)
 
     if args.cmd == "sample":
@@ -589,7 +603,8 @@ def main(argv: list[str] | None = None) -> int:
         pop = population()
         # --seed reproduces a round, so its own claim PR is not another round in flight
         in_flight = held_subjects([(r, sd) for r, sd in prs if sd != args.seed], every, pop)
-        picks = draw(seed, args.k, args.k_platform, audits=every, pop=pop, exclude=in_flight)
+        picks = draw(seed, args.k, args.k_platform, audits=every, pop=pop, exclude=in_flight,
+                     k_research=None if args.research else 0)
         rnd = next_round(in_flight=tuple(r for r, _ in prs))
         if args.json:
             print(json.dumps({"seed": seed, "round": rnd, "subjects": picks}, indent=1))
@@ -614,7 +629,9 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"  {p['stratum']:<9} {p['subject']}{extra}  last audited: {p['last_audited'] or 'never'}")
             drawn = {p["stratum"] for p in picks}
             for st in STRATA:
-                if st not in drawn:
+                if st == "research" and not args.research:
+                    print(f"  {st:<9} none drawn: standalone research is paused since 2026-11-25 (--research draws it)")
+                elif st not in drawn:
                     days = FLAGSHIP_REAUDIT_DAYS if st == "flagship" else SKIP_DAYS
                     print(f"  {st:<9} none drawn: every subject was audited in the last {days} days (or none exist)")
         return 0
@@ -624,6 +641,10 @@ def main(argv: list[str] | None = None) -> int:
         sys.path.insert(0, str(Path(__file__).parent))
         import quality_mark_fixed
         return quality_mark_fixed.run(args.file, args.defects, args.pr, args.all, args.force, args.dry_run, validate_audit)
+    if args.cmd == "claim":
+        sys.path.insert(0, str(Path(__file__).parent))
+        import quality_claim
+        return quality_claim.claim(args.subject, args.note, args.release)
     audits = load_audits()
     if args.cmd == "census" and not args.seed:
         # The date alone gave every census session on a day the same draw (doc_friction, 2026-11-15T07:08).

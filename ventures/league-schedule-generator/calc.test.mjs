@@ -2314,3 +2314,28 @@ test("play-off race under set scoring: clinched and eliminated hold in every vol
   }
   assert.ok(checked > 200);
 });
+
+test("a date list takes one day/month order: a UK holiday blackout stays two weeks", () => {
+  // red team 2026-11-24: "20/12/2026 to 05/01/2027" read the end as May 1 and
+  // blocked 133 days of the season with no error
+  const uk = parseDateList("20/12/2026 to 05/01/2027");
+  assert.deepEqual(uk.errors, []);
+  assert.equal(uk.days.length, 17);
+  assert.equal(dayIso(uk.days.at(-1)), "2027-01-05");
+  assert.deepEqual(parseDateList("25/12/2026, 05/01/2027").days.map(dayIso), ["2026-12-25", "2027-01-05"]);
+  // US lists read as before
+  assert.deepEqual(parseDateList("12/25/2026, 05/01/2027").days.map(dayIso), ["2026-12-25", "2027-05-01"]);
+  assert.deepEqual(parseDateList("05/01/2027").days.map(dayIso), ["2027-05-01"]);
+  // both orders and a date that could be either: ask for ISO instead of guessing
+  assert.equal(parseDateList("25/12/2026, 12/26/2026, 05/01/2027").errors.length, 1);
+  assert.deepEqual(parseDateList("25/12/2026, 12/26/2026").errors, []);
+  assert.equal(dayIso(parseDate("05/01/2027", "dmy")), "2027-01-05");
+});
+
+test("team blackouts take one day/month order across every line", () => {
+  // the day-first line tells how to read the other team's 05/01/2027
+  const { blackouts, errors } = parseBlackouts("Hawks: 20/12/2026\nOwls: 05/01/2027", ["Hawks", "Owls"]);
+  assert.deepEqual(errors, []);
+  assert.deepEqual(blackouts[1].map(dayIso), ["2027-01-05"]);
+  assert.equal(parseBlackouts("Hawks: 25/12/2026\nOwls: 12/26/2026, 05/01/2027", ["Hawks", "Owls"]).errors.length, 1);
+});

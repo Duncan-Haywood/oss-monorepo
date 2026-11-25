@@ -49,8 +49,10 @@ right now. This is your call, and these are only defaults:
 When the backlog has no agent-owned open item (only `owner` rows), a run spent
 on Verify or backlog edits alone usually falls short: 17 of the 61 process/1 runs ended
 `partial` that way (`prompts/runs/*.json`, outcome field). Critique usually serves better: ship a
-fix to a tool, check or file that the recent `doc_friction` entries
-(`promptctl.py measure`, "Doc friction by file") name. A result written to a
+fix to a tool, check or file that the recent `doc_friction` entries name.
+`python3 platform/ci/friction_rank.py --live --ungated --days 3` lists them
+as repeated clusters with the ones already fixed hidden, in one call (seven
+sessions from 2026-11-22 to 24 asked for this pointer). A result written to a
 backlog item is bookkeeping, not the deliverable.
 `python3 platform/ci/main_health.py` (40 s to 3 min: use `run_in_background`, then `wait_for.py out.log`; ends with a DONE line; includes `promptctl validate`) runs every argument-free CI check on main
 and lists the red ones: the quickest way to find a live fault (five recent runs

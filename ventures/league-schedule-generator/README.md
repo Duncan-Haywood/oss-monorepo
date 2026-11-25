@@ -873,7 +873,7 @@ play-off bracket, and add their own team's schedule to their calendar (`.ics`). 
 third party: zero dependencies, one JSON file on a disk you own.
 
 - **Alternatives today:** TeamSnap, LeagueApps and SportsEngine hold your players' data behind per-team accounts and
-  paid plans. This is the sign-up, publish-fixtures-and-table loop for one league, MIT-licensed. Team sign-ups take
+  paid plans. This is the sign-up, publish-fixtures-and-table loop for one league, FSL-1.1-MIT-licensed. Team sign-ups take
   the fee on the organiser's own payment link (it never handles a card); waivers, notices, availability and
   sportsmanship ratings are below. It has no in-app chat or card processing; use one of them if you need those.
 - **Secrets:** `ADMIN_KEY` unlocks `/admin`; `LEAGUE_TOKEN` is the secret in the player link. The server refuses to
@@ -1133,7 +1133,7 @@ size from 2 to 24 teams.
 **Privacy.** Everything runs in your browser; team names and dates are never
 uploaded. Anonymous feature counts stay in local storage and can be switched off.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.
 
 **Returning each season.** The last setup is remembered in this browser's local storage only (Clear forgets it); share-by-link still carries a setup inside the URL.
 
@@ -5682,12 +5682,11 @@ rounds left go first, so they finish together) and which match gets which court 
 `printpack.mjs` builds one printable page set on the organiser's letterhead: a
 cover (league, season, logo, contact), the full schedule, one page per team
 (home/away, byes marked) and an optional rules page. It reuses the licence-key
-check from `ventures/wall-framing-takeoff` (`licence.mjs`; the provider's
-validate call is from memory of its docs and unrun). The card in `index.html`
-shows only when `CHECKOUT_URL` in `checkout.mjs` is a plain https link, which
-is empty today, so nothing is for sale. The schedule, CSV, calendar, web page
+check as the sibling packs (`licence.mjs`, `paddle.mjs`). The card in
+`index.html` shows only once `checkout.mjs` carries a Paddle price id (the
+2026-11-25 note below), so nothing is for sale today. The schedule, CSV, calendar, web page
 and score sheets stay free. The key is an honest-buyer convenience, not copy
-protection; the code is MIT. Checked: `node --test printpack.test.mjs`
+protection; the code is FSL-1.1-MIT. Checked: `node --test printpack.test.mjs`
 (5 cases: a page per team with each game once and the bye, escaping of every
 typed field, SVG and non-hex colour refused, the card dark, the key check never
 throwing offline); whole suite 312 passing. Not checked: a real checkout, or
@@ -6636,3 +6635,5 @@ Checked:
   run, slowest 650 ms against 811 ms. (The 14 ms in the race section above was the race alone,
   measured before magic numbers were added.)
 - Not checked: a real league's published clinch dates (none in the data).
+
+**Checkout moved to Paddle (2026-11-25).** The pack's Buy button now opens Paddle's overlay checkout, and its licence key is an Ed25519-signed token a separate billing Worker issues from Paddle's webhook and the page checks offline (`paddle.mjs`, a synced copy of `platform/billing/client.mjs`; `checkout.mjs` is generated from `platform/billing/catalogue.mjs`). The old Lemon Squeezy validate call is gone. It stays dark until the owner deploys that Worker and sets the catalogue's price id, client-side token and public key (`platform/billing/README.md`).

@@ -42,12 +42,16 @@ serviced.
 1. **Per-service labor.** Each row is a service with its own quantity and
    production rate (quantity one person covers per hour). Hours per visit =
    quantity ÷ rate. Acres convert to square feet before the rate is applied.
-2. **Travel.** One-way minutes × 2 ÷ 60. Windshield time is loaded labor.
+2. **Travel.** One-way minutes × 2 ÷ 60, times crew size: everyone on the
+   truck is paid for the drive.
 3. **Loaded labor.** Hourly wage × (1 + payroll burden %), applied to
    on-property hours plus travel. Crew size shortens clock time on site; it
-   does not reduce billed person-hours.
+   does not reduce on-property person-hours, and it multiplies travel.
 4. **Visit costs.** Fuel and dump per visit, times in-season monthly visits
-   (visits per week × 52/12 — not a flat 4).
+   (visits per week × 52/12 — not a flat 4). Equipment and other costs are
+   entered per calendar month and paid all year, so the in-season month
+   carries monthly × 52 ÷ service weeks: the season's bills recover all twelve
+   months.
 5. **Overhead.** A percentage markup on that direct cost. It is not applied
    to itself or to profit.
 6. **Price.** Cost ÷ (1 − target margin %), because margin is quoted as a
@@ -96,15 +100,12 @@ the guardrail alongside the proposed price.
   not priced separately yet.
 - "Other service" rows are labelled `Service N` rather than a custom name.
 - Service weeks are a single annual count, not a week-by-week calendar.
-- **Known gap (quality audit 2026-11-19, high):** equipment and other monthly
-  costs are charged only in the service months, so on a 32-week season a $40
-  a month equipment share recovers $295 a year instead of $480. Until this is
-  fixed, enter the in-season share (the annual cost divided by the months you
-  service). See
+- Fixed in PR (quality fix 2026-11-25): equipment and other monthly costs are
+  now spread over the service weeks (monthly × 52 ÷ service weeks), so a $40
+  a month share on a 32-week season recovers the full $480 a year; travel is
+  charged per person on the truck; a blank cost field is an error, not a zero.
+  Audit:
   [`portfolio/quality/audits/2026-11-19-lawn-care-bid-calculator.json`](../../portfolio/quality/audits/2026-11-19-lawn-care-bid-calculator.json).
-- **Known gap (same audit, medium):** a crew of two is charged the round-trip
-  drive once, not once per person on the truck, and a blank cost field reads
-  as zero.
 
 ## Disclaimer
 
@@ -115,4 +116,4 @@ costs and against a qualified professional before relying on it or submitting
 a bid. To the maximum extent permitted by law, the authors accept no
 liability for loss or damage arising from its use.
 
-MIT licensed — see [`LICENSE`](LICENSE).
+FSL-1.1-MIT licensed — see [`LICENSE`](LICENSE).

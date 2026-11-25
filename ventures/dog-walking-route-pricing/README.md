@@ -28,4 +28,4 @@ Everything runs in your browser and nothing is ever uploaded. Your visit inputs 
 
 This calculator produces arithmetic observations from numbers you supply. It does not evaluate whether an animal is fit to be walked or boarded, does not screen clients, and does not replace your own judgment, contract, or insurance.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

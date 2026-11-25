@@ -2,7 +2,7 @@
 
 > Free online Kalman filter and smoother for structural time-series models (Durbin & Koopman 2012; Harvey 1989): local level, random walk with drift and local linear trend, with an optional dummy seasonal of any period. Exact diffuse initialisation (Koopman 1997); variances by maximum likelihood on the diffuse loglikelihood; trend form chosen by AIC counting diffuse elements. Returns the smoothed level with a band at every period, slope and seasonal, missing values filled, forecasts with intervals, outliers and level shifts as standardised auxiliary residuals (Harvey & Koopman 1992; de Jong & Penzer 1998), and Ljung-Box, normality and heteroscedasticity checks. Filter and smoother agree with statsmodels 0.15.0's exact diffuse UnobservedComponents to a relative 1e-10 on five reference cases; the Nile local level variances are 15,098.5 and 1,469.2. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A flagged shift or outlier is not proof that anything happened; a forecast is not a promise.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A flagged shift or outlier is not proof that anything happened; a forecast is not a promise.
 
 ## Pages
 
@@ -29,4 +29,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/kalman-smoother): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/kalman-smoother): FSL-1.1-MIT licensed.

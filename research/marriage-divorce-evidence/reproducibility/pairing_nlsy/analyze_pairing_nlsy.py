@@ -38,9 +38,9 @@ for _,a in I.iterrows():
   status_key=L.get((str(y),'HHI_FINAL_STATCODE'+suf))
   resident=(float(r[status_key]) in [0,1]) if status_key else True
   if val(r,y,'HHI_FINAL_RELCODE'+suf)==1 and resident:spouses.append(j)
- if len(spouses)!=1:audit['no_unique_coresident_spouse']+=1;continue
+ if len(spouses)!=1:audit.update(['no_unique_coresident_spouse']);continue
  j=spouses[0];suf=f'.{j:02d}';sx=val(r,y,'HHI_FINAL_GENCODE'+suf)
- if sx not in [1,2] or (a.sex=='Men' and sx!=2) or (a.sex=='Women' and sx!=1):audit['not_confirmed_opposite_sex']+=1;continue
+ if sx not in [1,2] or (a.sex=='Men' and sx!=2) or (a.sex=='Women' and sx!=1):audit.update(['not_confirmed_opposite_sex']);continue
  own=H[(pid,y)];spg=val(r,y,'HHI_FINAL_GRADECODE'+suf);og=tier(own) if own is not None else None;sg=tier(spg)
  ownw=wages(r,y,'Q13-5');spw=wages(r,y,'Q13-18')
  if a.sex=='Men':hg,wg,hw,ww=og,sg,ownw,spw

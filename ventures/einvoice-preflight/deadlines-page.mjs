@@ -29,7 +29,7 @@ export function render(events) {
   const groups = new Map();
   for (const e of list) (groups.get(quarter(e.date)) ?? groups.set(quarter(e.date), []).get(quarter(e.date))).push(e);
   const title = "E-invoicing deadlines from November 2026 to the end of 2027, by date";
-  const desc = `${list.length} dated e-invoicing mandate milestones in ${countries.size} countries between ${human(FROM)} and the end of 2027, in date order with the status and a link to each country page. Free, generated from one table.`;
+  const desc = `${list.length} dated e-invoicing mandate milestones in ${countries.size} countries from ${human(FROM)} to the end of 2027, in date order, with status and a link to each country page.`;
   const sections = [...groups].map(([q, es]) => `<section>
 <h2>${q}</h2>
 <ul class="dl">
@@ -73,7 +73,7 @@ ${sections}
 <footer>
 <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before you rely on it.</strong> Dates come from the country pages, which cite public guidance and say where sources disagree; confirm with your tax authority.</p>
 <p><strong>Nothing leaves your browser.</strong> This page is static.</p>
-<p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+<p class="support">Free to use and source available. The <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
 </footer>
 </main>
 </body></html>

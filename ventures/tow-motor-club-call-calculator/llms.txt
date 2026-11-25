@@ -2,7 +2,7 @@
 
 > Free calculator for independent tow and roadside operators: is this Agero, Urgent.ly, Honk or AAA-contractor dispatch worth taking? Cost of the job, profit per truck-hour, break-even payout, minimum payout, accept or decline, and a batch ranking of calls. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tow-motor-club-call-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tow-motor-club-call-calculator): FSL-1.1-MIT licensed.

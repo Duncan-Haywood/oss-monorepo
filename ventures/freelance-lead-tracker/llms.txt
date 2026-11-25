@@ -2,7 +2,7 @@
 
 > Free freelance lead tracker: a simple pipeline from new lead to won, who to follow up today, a weighted income forecast, win rate by lead source and a one-click hand-off into a proposal. No account, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/freelance-lead-tracker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/freelance-lead-tracker): FSL-1.1-MIT licensed.

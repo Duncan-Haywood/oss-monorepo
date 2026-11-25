@@ -156,7 +156,7 @@
     <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../hubspot-contacts-csv-check/">HubSpot contacts CSV check</a> and the <a href="../salesforce-lead-import-csv-check/">Salesforce lead import CSV check</a> do the same for those CRMs, the <a href="../activecampaign-import-csv-check/">ActiveCampaign import CSV check</a> covers contacts, accounts and deals going into ActiveCampaign, the <a href="../email-list-csv-check/">email list CSV check</a> cleans a mailing list before it goes into an email platform, and the <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a> covers QuickBooks Online customer, vendor and item files.</p>
-    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free to use and source available. If this helped, the <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
@@ -182,7 +182,7 @@
       const s = r.summary;
       const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
       const noun = { deals: "deal", accounts: "account", contacts: "contact", leads: "lead" }[s.kind];
-      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · read as a ${s.kind} file · ${s.records} record${s.records === 1 ? "" : "s"}, ${s.columns} columns`;
+      $("#report-stats").innerHTML = `<strong>${errs} error${errs === 1 ? "" : "s"}</strong>, ${warns} warning${warns === 1 ? "" : "s"} · read as a ${esc(s.kind)} file · ${esc(s.records)} record${s.records === 1 ? "" : "s"}, ${esc(s.columns)} columns`;
       $("#th-email").textContent = s.kind === "deals" ? "Amount" : s.kind === "accounts" ? "Website" : "Email";
       $("#th-co").textContent = s.kind === "deals" ? "Stage" : s.kind === "accounts" ? "City" : s.kind === "leads" ? "Company" : "Account";
       $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("") || `<p>Nothing flagged.</p>`;

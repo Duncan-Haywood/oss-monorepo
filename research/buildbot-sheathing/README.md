@@ -998,6 +998,34 @@ fresh failure was 1.56% (H307 refuted narrowly). RW only; drift and reading nois
 
 ![Mean re-zeros per 100 sheets at 1% wall risk against free-air reading noise: tracking the offset, triggering tares, and the open-loop optimum, G1 and H1](experiments/m76_closedloop/figure.png)
 
+**Milestone 77: when the robot tracks its force bias, how should it schedule the tares it still needs?** Spread a wall
+risk budget over equal runs instead of capping each sheet's risk (offline, `experiments/m77_balance/`). The tracked
+filter's variance after j sheets does not depend on the readings, so each sheet's risk j sheets after a tare is a fixed
+table, and with it rising the fewest tares at a union-bound budget are equal runs (BALANCE). It is never worse than
+milestone 76's TRACK on 90 cases (H315 held) and needs no more tares than either closed-loop policy at 0.01 N on all 11
+large cases (H318 held), but saves a median of only 2.0% over TRACK (H317 refuted). It pays where a per-sheet level
+forced a tare every sheet: **G1 LAYOUT at 0.2 N with 0.05 N readings, 116 re-zeros against TRACK's 199 and the open-loop
+optimum's 142**. The G1's weak pose at 0.02 N stays at the open-loop optimum (97 against 96, H316 held), and a 0.02 N
+gravity-model error still fails 11.9% of walls (H319 held). Worst fresh failure 1.30% (H314 held). RW only; drift and
+reading noise swept; statics.
+
+![Re-zeros per 100 sheets at 1% wall risk against reading noise: a wall budget spread over the tracked residual's tares against one per-sheet risk level, G1 and H1 at 0.2 N](experiments/m77_balance/figure.png)
+
+**Milestone 78: can a force-sensing robot learn its own gravity-compensation error?** Yes, if it keeps the error in
+its filter and reads once right after every tare (offline, `experiments/m78_augfilter/`). The free-air bias reading
+passes through a gravity model whose error beta at the reading pose is fixed for the wall. A filter that ignores it,
+with beta drawn from N(0, 0.02&sup2;) N a axis, **fails 51.5% of walls on the G1's weak pose** at 0.01 N of reading noise
+(H321 held), and a tighter risk level rescues it only by taring every sheet, or not at all, because its own risk
+table says carried sheets are safe. Carrying
+beta in the state (AUG) and reading beta + noise right after each tare, when the bias is known to be zero (AUG+R),
+keeps every one of 72 cases calibrated (worst 1.09%, H320 held) for **67 re-zeros on that pose, against 48 with beta
+known to be zero and the open-loop optimum's 96**; the median excess over a known beta is 7.7% (H323 held), AUG+R
+needs no more re-zeros than the open-loop optimum on all 11 large cases and 0 on 9 of them (H324 held), and a fixed
+two-sigma error of 0.04 N fails 0.78% (H325 held). The post-tare reading saves 26% over AUG there, short of the 30%
+registered (H322 refuted). Beta fixed over the wall, its prior swept, not sourced; RW drift; statics.
+
+![Re-zeros per 100 sheets at 1% wall risk with an unknown gravity-model error: the naive filter recalibrated, the augmented filter, the augmented filter with a reading after each tare, and the open-loop optimum, on the 11 large cases](experiments/m78_augfilter/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

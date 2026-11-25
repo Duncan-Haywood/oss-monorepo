@@ -59,13 +59,19 @@ export function clipWords(s, max) {
   return (cut.length >= g.length * 0.6 ? cut : g).replace(/[\s,;:–—-]+$/, '') + '…';
 }
 
+/** Text without markup: removes tags until none are left, so `<<b>script>` cannot reassemble one. */
+const stripTags = (s) => {
+  let prev;
+  do { prev = s; s = s.replace(/<[^>]+>/g, ''); } while (s !== prev);
+  return s;
+};
+
 /** Markdown inline syntax to plain text: links keep their words, code keeps its text. */
 export function plain(s) {
   // Code spans are kept exactly ("<n>", "x * pitch" mean something there); markup is stripped only between them.
-  const prose = (t) => t
+  const prose = (t) => stripTags(t
     .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
-    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
-    .replace(/<[^>]+>/g, '')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1'))
     .replace(/(\*\*|__)(.+?)\1/g, '$2')
     .replace(/(^|[\s(])[*_]([^*_\s][^*_]*?)[*_](?=[\s).,;:!?]|$)/g, '$1$2');
   return String(s)

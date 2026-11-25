@@ -22,7 +22,7 @@
 // settings), so "today" is worked out in that zone. Errors come back as HTTP 200 with { result: "error", message }.
 // Long fetches are cut into windows of 180 days so a server archiving reports on demand is not asked for years at once.
 //
-// Statistical analysis of data you supply, not advice. MIT licence.
+// Statistical analysis of data you supply, not advice. FSL-1.1-MIT licence.
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname } from 'node:path';
@@ -97,7 +97,9 @@ export async function call({ url, token, method, params = {}, fetchImpl, sleep }
   const { r, body } = await retrying(fetchImpl, sleep, url, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded', accept: 'application/json' }, body: form.toString() });
   const msg = body && typeof body === 'object' && !Array.isArray(body) && body.result === 'error' ? String(body.message ?? '') : '';
   if (msg || !r.ok) {
-    const said = msg ? `: ${msg.replace(/<[^>]+>/g, '').trim()}` : '';
+    let plain = msg, prevPlain;
+    do { prevPlain = plain; plain = plain.replace(/<[^>]+>/g, ''); } while (plain !== prevPlain);
+    const said = msg ? `: ${plain.trim()}` : '';
     if (/token_auth|authenticat|not logged in|access|permission/i.test(msg) || r.status === 401 || r.status === 403) {
       throw new Error(`Matomo refused ${method}${said}. Make a token under Administration > Personal > Security > Auth tokens, put it in MATOMO_TOKEN, and check its user can view --site.`);
     }

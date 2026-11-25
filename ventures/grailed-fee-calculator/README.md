@@ -102,8 +102,12 @@ Not affiliated with, endorsed by, or sponsored by Grailed. Grailed is a
 trademark of its owner, named here only to describe the fee schedule this
 tool computes against.
 
-MIT licensed — see [`LICENSE`](LICENSE). Optional
+FSL-1.1-MIT licensed — see [`LICENSE`](LICENSE). Optional
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) support does
 not change what the tool does.
 
 **Open from a link.** `share.mjs` lets the page open from a `#...` link (a shared sale, or the item handed over from the [where-to-sell calculator](../where-to-sell-calculator/)); numbers stay in the URL fragment and are never sent anywhere. "Copy shareable link" makes one.
+
+## Track true profit across every platform
+
+The page ends with a short section for sellers on more than one marketplace. It links the online-sellers industry page (`/industries/online-sellers/`), where Seller Books, a hosted product for payout reconciliation, cost of goods and a Schedule C-shaped profit and loss, is listed as in development, early access. It also links three guides that live in `ventures/ebay-fee-calculator/`: reconciling marketplace payouts to sales, cost of goods sold for resellers, and a Schedule C worksheet for resellers. Fee figures in the page's sourced lead were rechecked on 2026-11-24 (`docs/reports/2026-11-24-seller-tools-front-doors.md`).

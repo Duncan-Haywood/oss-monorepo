@@ -17,7 +17,7 @@ server). Nothing is uploaded.
   find on the first Monday.
 - **aSc TimeTables, Untis and similar suites:** paid, mature, with
   substitution planning and school-system links. Use them if you need those.
-- **FET:** free and open source (GPL), very capable, but a desktop program
+- **FET:** free to use and source available (GPL), very capable, but a desktop program
   with a long learning curve.
 - **This:** no install, a plain-text input a deputy head can type in ten
   minutes, a counting check that says *why* a week cannot fit before any
@@ -91,5 +91,5 @@ No warranty: it builds a timetable from what you type; it does not know your
 staff contracts, working-time or legal rules, and the person responsible for
 the timetable must check it. Everything runs in the browser and nothing is
 uploaded; usage counters stay in local storage and can be switched off on the
-page (Do Not Track and Global Privacy Control are honoured). MIT licence.
+page (Do Not Track and Global Privacy Control are honoured). FSL-1.1-MIT licence.
 [Sponsor on GitHub](https://github.com/sponsors/Duncan-Haywood).

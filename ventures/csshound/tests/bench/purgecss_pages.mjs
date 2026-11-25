@@ -46,14 +46,19 @@ export function preparePage(file) {
   const dir = dirname(file);
   const css = [];
   // A `<style>` inside a comment or a script is text, not a style element.
-  const content = html.replace(
-    /<!--[\s\S]*?-->|<script\b[^>]*>[\s\S]*?<\/script\s*>|<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi,
-    (m, body) => {
-      if (body === undefined) return m;
-      css.push(body);
-      return "";
-    },
-  );
+  // Repeat until stable so removing one <style> cannot splice a new one together.
+  let content = html;
+  for (let prev; prev !== content;) {
+    prev = content;
+    content = content.replace(
+      /<!--[\s\S]*?--!?>|<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>|<style\b[^>]*>([\s\S]*?)<\/style\b[^>]*>/gi,
+      (m, body) => {
+        if (body === undefined) return m;
+        css.push(body);
+        return "";
+      },
+    );
+  }
   const extra = [];
   for (const tag of content.match(/<link\b[^>]*>/gi) || []) {
     const rel = attr(tag, "rel");

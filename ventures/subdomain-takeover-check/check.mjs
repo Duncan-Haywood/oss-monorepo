@@ -88,8 +88,8 @@ export async function runCheck(hostnames, { resolveCnameChainFn = resolveCnameCh
   return buildReport(hostnames, results);
 }
 
-export async function main() {
-  const args = parseArgs(process.argv.slice(2));
+export async function main(argv = process.argv.slice(2)) {
+  const args = parseArgs(argv);
   if (args.hostnames.length === 0) {
     console.error('Usage: node check.mjs <hostname> [<hostname> ...] [--json] [--timeout <ms>]');
     console.error('Only run this against a hostname you own or are authorised to test.');

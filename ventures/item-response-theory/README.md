@@ -133,4 +133,4 @@ the Law School Admission Council, or the authors of ltm, mirt or girth.
 
 Provided free and as-is, without warranty of any kind. Not psychometric,
 educational, legal or other professional advice; a testing standard,
-licensing body or contract may require a different method. MIT licence.
+licensing body or contract may require a different method. FSL-1.1-MIT licence.

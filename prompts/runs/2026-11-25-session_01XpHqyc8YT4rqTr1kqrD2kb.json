@@ -1,0 +1,155 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyc8YT4rqTr1kqrD2kb",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T01:39:08Z",
+  "ended": "2026-11-25T01:45:15Z",
+  "wall_minutes": 7.3,
+  "tokens_in": 7435514,
+  "tokens_out": 43508,
+  "cost_usd": 3.558,
+  "tool_calls": 69,
+  "task": "Bet 1 (pay-app billing): start a PayApps job from the contractor's own spreadsheet (SOV import)",
+  "projects": [
+    "payapps",
+    "pay-application-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18799",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 16,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "private-monorepo payapps-ci job failed in 14 s with runner_id 0 (no runner assigned), same as PR #41's runs",
+      "handled": "verified locally (typecheck, test:unit 42/42, test:worker, build, biome) and merged private-monorepo PR #43"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "risk_review.py with no --base in a shallow clone diffs the whole tree (every file 'changed', CODEOWNERS 'gate weakened' false block); --base origin/main after a shallow fetch of main gives the real 2-file review. The CLAUDE.md line should say to pass --base."
+    },
+    {
+      "file": "private-monorepo/CLAUDE.md",
+      "issue": "says deps are pre-installed; a fresh cloud clone has no node_modules. pnpm install --frozen-lockfile took ~6 s, so it is cheap, but the line misleads."
+    },
+    {
+      "file": "platform/ci/ci_starvation.py",
+      "issue": "only reads this repo's runs; for a private-monorepo job the runner_id 0 field from actions_get get_workflow_job was the quickest starvation signal (logs 404)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "why": "private-monorepo CI never got a runner",
+      "did": "merged on local verification of the same steps the workflow runs, recorded in the PR and merge message",
+      "result": "merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-reading-the-pay-app-spreadsheet-contractors-already-keep.md (extended with the suite's import section rather than a new thin post)"
+  ],
+  "goal": "$10k MRR: removes a bet-1 onboarding step (retyping a schedule of values) before checkout goes live",
+  "notes": "private-monorepo PR #43 (merged 5adb673): apps/payapps/src/shared/sov-import/{xlsx,csv,schedule,index}.ts, components/sov-import.tsx, 14 unit + 2 component tests, real LibreOffice/openpyxl fixtures. Local: pnpm typecheck clean; test:unit 6 files 42 tests pass; test:worker pass; build ok; biome 1 pre-existing warning. Stated limit: billed-to-date from pay apps made elsewhere is not carried; mid-job start added to ROADMAP and flagships.yaml as next.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "776508a3-754b-5b07-bfd3-0dcae0604de9",
+    "transcripts": 1,
+    "first": "2026-11-25T01:39:08Z",
+    "last": "2026-11-25T01:46:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 122,
+        "output": 43508,
+        "thinking": 4490,
+        "cache_read": 7281511,
+        "cache_write_5m": 0,
+        "cache_write_1h": 153881,
+        "api_equivalent_usd": 3.558,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 122,
+      "output": 43508,
+      "thinking": 4490,
+      "cache_read": 7281511,
+      "cache_write_5m": 0,
+      "cache_write_1h": 153881,
+      "api_equivalent_usd": 3.558,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 44,
+      "Write": 8,
+      "ToolSearch": 5,
+      "Edit": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__actions_get": 1,
+      "mcp__github__actions_list": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.3,
+      "active_minutes": 7.3,
+      "model_minutes": 6.02,
+      "tool_minutes": 1.28,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "port and adapt an xlsx/CSV reader to typed shared code, build a preview UI with tests: ~1.5 days for a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 281.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

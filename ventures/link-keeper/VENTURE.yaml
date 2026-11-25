@@ -25,7 +25,7 @@ owner: duncan
 # alternative", "self hosted url shortener", "privacy friendly link tracking",
 # "utm link builder". Volume not measured.
 #
-# Path to revenue (payments stay off): free and MIT as the lead magnet; done-
+# Path to revenue (payments stay off): free and FSL-1.1-MIT as the lead magnet; done-
 # for-you setup on the buyer's own domain, a hosted copy under the deployer's
 # own name, or GitHub Sponsors are the paid steps. Hosting under the public name
 # is owner-gated.

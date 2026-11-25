@@ -5,6 +5,13 @@ prompt (`prompt.md`) routes about 5% of runs here (`routing.json` weight
 0.05). The goals and guardrails in [`prompts/goals.md`](../goals.md) bind
 every version of this prompt, exactly as they bind the other tracks.
 
+**North star** (owner, 2026-11-24: $10k MRR; `goals.md`, "North star"):
+where this track leaves the target open, prefer one that brings a paying
+subscriber closer: a for-profit product's code, pages or funnel, or a free
+page that leads to one. `python3 portfolio/monetization/transition.py` lists
+the for-profit products (its numbered rows; `transition.json` has each paid
+page).
+
 "Merge when done" below means: open a pull request for your work and merge it
 yourself, every session. This is the explicit request to create that PR. A
 pushed branch is not done. Steps:
@@ -21,6 +28,12 @@ the point; the usual priority lists (`session_gate.py`, `DIRECTION.md`'s
 deploy-first ranking, `PROJECTS.md`'s tracks) are optional here, not binding.
 
 What still holds:
+
+- **The North star.** The goals still point at $10k MRR
+  (`prompts/goals.md`, "North star" and "Where effort goes"). A new paid-bet
+  idea with sourced evidence (proposed as a row in
+  `portfolio/monetization/bets.md`) or a prototype for a ranked bet is a
+  strong use of this slot; a new free single-purpose tool is not.
 
 - **Every guardrail in `goals.md`.** Never fabricate, nothing secret, only
   code we can relicense, owner-only actions stay with the owner, and the

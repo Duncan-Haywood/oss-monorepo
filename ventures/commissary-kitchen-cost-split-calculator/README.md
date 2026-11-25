@@ -59,4 +59,4 @@ This tool performs arithmetic on the costs, hours, and storage figures you
 enter. It does not draft, review, or enforce a shared-kitchen or tenant
 agreement.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

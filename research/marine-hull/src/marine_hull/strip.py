@@ -421,7 +421,7 @@ class WigleyStrip:
             b.append(self.rho * omega_e * self.t ** 2 * bc)
         return a, b
 
-    def response(self, omega, u, coupling=None, gb=None, excitation=None):
+    def response(self, omega, u, coupling=None, gb=None, excitation=None, pitch_adjust=None):
         """Heave and pitch (bow up) per unit wave amplitude and the added resistance per unit amplitude^2, N/m2.
 
         Head waves zeta = e^{i (omega_e t + k x)}, x forward; returns (z, theta, R_aw / zeta_A^2, omega_e).
@@ -434,6 +434,9 @@ class WigleyStrip:
         "omega" uses k / (2 omega) in place of k / (2 omega_e).
         `excitation` (milestone 7zza), if given, is (F3, F5) per unit wave amplitude, strip convention (bow-up pitch
         moment), and replaces the relative-motion exciting force on the right-hand side of the motion equations.
+        `pitch_adjust` (milestone 7zzg), if given, is (dA55, dB55), dimensional increments to the pitch-pitch added
+        mass and damping in the motion equations only (h22 += omega_e^2 dA55 - i omega_e dB55); the added-resistance
+        integrand keeps the sectional b', so a damping change reaches R_aw only through the motions.
         """
         gb = gb or {}
         s_m, s_r = gb.get("motion_sign", -1), gb.get("raw_sign", -1)
@@ -465,6 +468,8 @@ class WigleyStrip:
             f2 += x * f0 * dx
         if excitation is not None:
             f1, f2 = complex(excitation[0]), complex(excitation[1])
+        if pitch_adjust is not None:
+            h22 += we * we * pitch_adjust[0] - 1j * we * pitch_adjust[1]
         if coupling is not None:
             a35, b35, a53, b53 = coupling(we)
             c35 = sum(ci * x * dx for ci, x in zip(c, self.x))

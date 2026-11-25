@@ -2,6 +2,14 @@ name: einvoice-preflight
 description: A local JSON, UBL, CII, and Factur-X PDF invoice checker — browser or CLI — that unwraps embedded invoice XML and catches structural, arithmetic, header allowance/charge, mixed-rate tax-breakdown, invoice-period, payment-means, buyer and purchase-order reference, VAT, IBAN, BIC, remittance, credit-note document-type, and 0% tax-reason defects before a bookkeeper submits an e-invoice.
 stage: prototype
 owner: duncan
+
+# Free edition (2026-11-24, LICENSING_TRANSITION.md "How one product moves",
+# step 1): this public copy is frozen at main commit cf0b6311f (tag einvoice-preflight-free-v1,
+# command in transition.py MOVED) and gets
+# lead-magnet maintenance only (fixes, page polish), not new depth; the import into the private repository is next.
+# The paid edition is in development, not for sale; its page is
+# https://marisstella.app/industries/eu-e-invoicing/ (early access). Record:
+# portfolio/monetization/transition.py MOVED.
 hypotheses:
   - claim: Bookkeepers and ERP integrators will use a fast local preflight to catch invoice defects before submission.
     status: untested

@@ -9,7 +9,7 @@ webhook glue.
 
 **Live tool:** https://marisstella.app/trial-converter/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`** — pick card or no card, trial length and start, see the exact
   schedule of emails Trial Converter would send, preview each one, and estimate

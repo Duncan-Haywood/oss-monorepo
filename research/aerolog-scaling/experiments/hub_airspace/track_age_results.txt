@@ -1,4 +1,4 @@
-Milestone 11bk: track-age cut-off and age-scheduled radii against FR (predictions in track_age.py)
+Milestone 11bl: track-age cut-off and age-scheduled radii against FR (predictions in track_age.py)
 sigma0 12.54 m, target 1e-07, common Gilbert channel per receiver; holds from 11bi's stored curves
   M = 12: checked transits per flight n median 3.12 [1.46, 3.65]
   M = 16: checked transits per flight n median 2.93 [1.87, 3.32]

@@ -34,7 +34,7 @@ ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}. ${p.url
 
 Statistical estimates from the answers you supply, not medical, psychological, legal, tax,
 financial or professional advice. A reliable score is not necessarily a valid one.
-No warranty. MIT licence. Web version: https://marisstella.app/scale-reliability/`;
+No warranty. FSL-1.1-MIT licence. Web version: https://marisstella.app/scale-reliability/`;
 
 const FLAGS = { "--items": "items", "--reverse": "reverse", "--scale-min": "scaleMin", "--scale-max": "scaleMax", "--missing": "missing", "--confidence": "confidence", "--bootstrap": "bootstrap", "--seed": "seed" };
 const NUMERIC = ["scaleMin", "scaleMax", "confidence", "bootstrap", "seed"];

@@ -152,7 +152,7 @@ test("the certificate page escapes text and shows the code and expiry", () => {
   assert.match(html, /\$50\.00 of babysitting/);
   assert.match(html, /Use by 2027-11-01/);
   assert.match(html, /&lt;b&gt;Kim/);
-  assert.doesNotMatch(html, /<script/);
+  assert.doesNotMatch(html, /<script/i);
 });
 
 test("events: capacity from adults × ratio, family price cap, waitlist and warnings", () => {

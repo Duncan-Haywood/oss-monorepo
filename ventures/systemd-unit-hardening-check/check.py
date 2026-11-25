@@ -71,7 +71,12 @@ import os
 import re
 import sys
 
-LITERAL_SECRET = "svc-literal-secret"
+# The finding *type* for a credential-shaped Environment= value. The constant
+# names what the check matches (a literal value in Environment=), not a secret:
+# the report carries only the variable's name, never its value.
+ENV_LITERAL_VALUE = "svc-literal-secret"
+# Older name, kept so callers and tests that import it keep working.
+LITERAL_SECRET = ENV_LITERAL_VALUE
 EXEC_FROM_WRITABLE_DIR = "svc-exec-from-writable-dir"
 PIPE_TO_SHELL = "svc-pipe-to-shell"
 DANGEROUS_CAPABILITY = "svc-dangerous-capability"
@@ -91,7 +96,7 @@ NO_ADDRESS_FAMILY_RESTRICTION = "svc-no-address-family-restriction"
 CONTAINER_LAUNCHER = "svc-container-launcher"
 
 SEVERITY = {
-    LITERAL_SECRET: "high",
+    ENV_LITERAL_VALUE: "high",
     EXEC_FROM_WRITABLE_DIR: "high",
     PIPE_TO_SHELL: "high",
     DANGEROUS_CAPABILITY: "high",
@@ -387,7 +392,7 @@ def evaluate(unit, entries, anchor, has_main, user_units=False):
                 continue
             if val == "" or val.startswith("%d") or "/run/credentials" in val or val.lower() in TRUE | FALSE:
                 continue
-            out.append(_finding(e, LITERAL_SECRET,
+            out.append(_finding(e, ENV_LITERAL_VALUE,
                                 f"Environment= sets {name} to a literal value. systemd exposes a unit's environment to unprivileged local users over D-Bus (`systemctl show {unit}`), unit files are usually world-readable, and systemd.exec(5) calls environment variables not suitable for secrets.",
                                 f"Move it out of the unit: LoadCredential={name.lower()}:/etc/{unit.rsplit('.', 1)[0]}/{name.lower()} (read it from $CREDENTIALS_DIRECTORY), or EnvironmentFile= a root-only (0600) file.",
                                 unit))

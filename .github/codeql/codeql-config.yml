@@ -1,0 +1,10 @@
+# Configuration for .github/workflows/priv-codeql.yml. Vendored third-party code is
+# left out: its findings belong upstream, and a fix here would be lost on the
+# next vendor update.
+name: oss-monorepo CodeQL
+# The default query suite (high precision). security-extended can follow once
+# the first backlog is cleared, so a flood of low-confidence findings does not
+# bury the real ones.
+paths-ignore:
+  - "**/node_modules/**"
+  - platform/deploy/vendor/**

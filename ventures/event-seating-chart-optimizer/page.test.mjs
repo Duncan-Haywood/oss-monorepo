@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
 import { parseGuests, parseRules, parseAccessTables, parseTableSizes, sampleSpec, optimize, verifyPlan, validateSpec, baselinePlan, weightMatrix, describe, reseat, parsePlanCsv, planCsv, groupMixOf } from "./calc.mjs";
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "how-to-make-a-wedding-seating-chart.html";
 
@@ -99,7 +101,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
   assert.match(page("README.md"), /No warranty/);
-  assert.match(page("LICENSE"), /MIT License/);
+  assert.match(page("LICENSE"), /Functional Source License/);
   assert.match(page("VENTURE.yaml"), /^name: event-seating-chart-optimizer$/m);
 });
 
@@ -116,10 +118,10 @@ test("the guide carries the clauses, links both ways, and its worked example mat
   assert.match(guide, /No warranty/);
   assert.match(guide, /not a guarantee that any guest will be content/i);
   assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
-  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${GUIDE.replace(".", "\\.")}">`));
+  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${escapeRegExp(GUIDE)}">`));
   assert.match(guide, /href="\.\/"/);
-  assert.match(page("index.html"), new RegExp(`href="\\./${GUIDE.replace(".", "\\.")}"`));
-  assert.match(page("sitemap.xml"), new RegExp(GUIDE.replace(".", "\\.")));
+  assert.match(page("index.html"), new RegExp(`href="\\./${escapeRegExp(GUIDE)}"`));
+  assert.match(page("sitemap.xml"), new RegExp(escapeRegExp(GUIDE)));
   const ld = JSON.parse(guide.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   assert.equal(ld["@type"], "FAQPage");
   for (const q of ld.mainEntity) assert.ok(guide.includes(`<h3>${q.name}</h3>`), q.name);
@@ -145,9 +147,9 @@ test("the divorced-parents guide is linked, carries the clauses, and its worked 
   assert.match(guide, /No warranty/);
   assert.match(guide, /not a guarantee that any guest will be content/i);
   assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
-  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${name.replace(".", "\\.")}">`));
-  assert.match(page("index.html"), new RegExp(`href="\\./${name.replace(".", "\\.")}"`));
-  assert.match(page("sitemap.xml"), new RegExp(name.replace(".", "\\.")));
+  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${escapeRegExp(name)}">`));
+  assert.match(page("index.html"), new RegExp(`href="\\./${escapeRegExp(name)}"`));
+  assert.match(page("sitemap.xml"), new RegExp(escapeRegExp(name)));
   const ld = JSON.parse(guide.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(guide.includes(`<h3>${q.name}</h3>`), q.name);
   for (const l of [...guide.matchAll(/href="\.\.\/([a-z0-9-]+)\/"/g)].map((m) => m[1])) assert.ok(existsSync(new URL(`../${l}/index.html`, import.meta.url)), l);
@@ -176,9 +178,9 @@ test("the step-free guide is linked, carries the clauses, and its worked example
   assert.match(guide, /No warranty/);
   assert.match(guide, /not a guarantee that any guest will be content/i);
   assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
-  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${name.replace(".", "\\.")}">`));
-  assert.match(page("index.html"), new RegExp(`href="\\./${name.replace(".", "\\.")}"`));
-  assert.match(page("sitemap.xml"), new RegExp(name.replace(".", "\\.")));
+  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${escapeRegExp(name)}">`));
+  assert.match(page("index.html"), new RegExp(`href="\\./${escapeRegExp(name)}"`));
+  assert.match(page("sitemap.xml"), new RegExp(escapeRegExp(name)));
   const ld = JSON.parse(guide.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(guide.includes(`<h3>${q.name}</h3>`), q.name);
 
@@ -209,14 +211,14 @@ test("the kids-table guide is linked, carries the clauses, and its worked exampl
   const guide = page(name);
   assert.match(guide, /not a guarantee that any guest will be content/i);
   assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
-  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${name.replace(".", "\\.")}">`));
-  assert.match(page("index.html"), new RegExp(`href="\\./${name.replace(".", "\\.")}"`));
-  assert.match(page("sitemap.xml"), new RegExp(name.replace(".", "\\.")));
+  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${escapeRegExp(name)}">`));
+  assert.match(page("index.html"), new RegExp(`href="\\./${escapeRegExp(name)}"`));
+  assert.match(page("sitemap.xml"), new RegExp(escapeRegExp(name)));
   const ld = JSON.parse(guide.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(guide.includes(`<h3>${q.name}</h3>`), q.name);
 
   const rows = ["Maya Patel|Patel family", "Dev Patel|Patel family", "Anya Patel|Patel family", "Rohan Patel|Patel family", "Tom Reed|Reed family", "Sara Reed|Reed family", "Eli Reed|Reed family", "Zoe Reed|Reed family", "Lucy Reed|Reed family", "Nina Cho|Cho family", "Sam Cho|Cho family", "Ivy Cho|Cho family", "Hal Brandt|Brandt family", "June Brandt|Brandt family", "Max Brandt|Brandt family", "Owen Lind|", "Pia Lind|", "Gil Ward|", "Rae Ward|", "Ted Moss|", "Una Moss|", "Vic Hale|", "Wes Hale|", "Kay Dunn|"];
-  const parsed = parseGuests(rows.map((r) => r.replace("|", " | ")).join("\n"));
+  const parsed = parseGuests(rows.map((r) => r.replace(/\|/g, " | ")).join("\n"));
   const kids = ["Anya Patel", "Rohan Patel", "Eli Reed", "Zoe Reed", "Lucy Reed", "Ivy Cho", "Max Brandt"];
   const rulesText = ["Maya Patel + Gil Ward", "Tom Reed + Owen Lind", "Nina Cho + Ted Moss", "Hal Brandt + Vic Hale", "Kay Dunn + Una Moss", "Sara Reed ! Hal Brandt", "Maya Patel @ 1", "Tom Reed @ 1", ...kids.map((k) => `${k} @ 3`)].join("\n");
   const { rules, errors } = parseRules(rulesText, parsed.guests);
@@ -243,9 +245,9 @@ test("the late-RSVP guide is linked, carries the clauses, and its worked example
   assert.match(guide, /No warranty/);
   assert.match(guide, /not a guarantee that any guest will be content/i);
   assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
-  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${name.replace(".", "\\.")}">`));
-  assert.match(page("index.html"), new RegExp(`href="\\./${name.replace(".", "\\.")}"`));
-  assert.match(page("sitemap.xml"), new RegExp(name.replace(".", "\\.")));
+  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${escapeRegExp(name)}">`));
+  assert.match(page("index.html"), new RegExp(`href="\\./${escapeRegExp(name)}"`));
+  assert.match(page("sitemap.xml"), new RegExp(escapeRegExp(name)));
   const ld = JSON.parse(guide.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(guide.includes(`<h3>${q.name}</h3>`), q.name);
   for (const l of [...guide.matchAll(/href="\.\.\/([a-z0-9-]+)\/"/g)].map((m) => m[1])) assert.ok(existsSync(new URL(`../${l}/index.html`, import.meta.url)), l);
@@ -278,9 +280,9 @@ test("the mix-the-sides guide is linked, carries the clauses, and its worked exa
   const guide = page(name);
   assert.match(guide, /not a guarantee that any guest will be content/i);
   assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
-  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${name.replace(/\./g, "\\.")}">`));
-  assert.match(page("index.html"), new RegExp(`href="\\./${name.replace(/\./g, "\\.")}"`));
-  assert.match(page("sitemap.xml"), new RegExp(name.replace(/\./g, "\\.")));
+  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${escapeRegExp(name)}">`));
+  assert.match(page("index.html"), new RegExp(`href="\\./${escapeRegExp(name)}"`));
+  assert.match(page("sitemap.xml"), new RegExp(escapeRegExp(name)));
   const ld = JSON.parse(guide.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(guide.includes(`<h3>${q.name}</h3>`), q.name);
 
@@ -311,9 +313,9 @@ test("the company-dinner guide is linked, carries the clauses, and its worked ex
   const guide = page(name);
   assert.match(guide, /not a guarantee that any guest will be content/i);
   assert.match(guide, /github\.com\/sponsors\/Duncan-Haywood/);
-  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${name.replace(/\./g, "\\.")}">`));
-  assert.match(page("index.html"), new RegExp(`href="\\./${name.replace(/\./g, "\\.")}"`));
-  assert.match(page("sitemap.xml"), new RegExp(name.replace(/\./g, "\\.")));
+  assert.match(guide, new RegExp(`<link rel="canonical" href="\\./${escapeRegExp(name)}">`));
+  assert.match(page("index.html"), new RegExp(`href="\\./${escapeRegExp(name)}"`));
+  assert.match(page("sitemap.xml"), new RegExp(escapeRegExp(name)));
   const ld = JSON.parse(guide.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(guide.includes(`<h3>${q.name}</h3>`), q.name);
 

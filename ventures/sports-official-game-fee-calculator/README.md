@@ -14,4 +14,4 @@ be a guess about whether $55 covers the gas.
 2. Pure logic is in `calc.mjs` (`plan()`); tests: `node --test`.
 
 Real driving cost drives your cash; the IRS standard mileage rate drives the tax deduction. Not modelled: state tax, QBI
-deduction, Social Security wage cap, rainouts. No warranty; see the page footer. MIT licensed (`LICENSE`).
+deduction, Social Security wage cap, rainouts. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

@@ -21,6 +21,16 @@ class ScanFile(unittest.TestCase):
     def test_owner_mit_licence_is_quiet(self):
         self.assertEqual(kinds("ventures/x/LICENSE", MIT.format(year=2026, holder="Duncan Haywood")), [])
 
+    def test_owner_fsl_licence_is_quiet(self):
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "portfolio", "monetization"))
+        from relicense_fsl import FSL_TEXT
+        self.assertEqual(kinds("ventures/x/LICENSE", FSL_TEXT.format(year=2026, holder="Duncan Haywood")), [])
+        got = kinds("vendor/LICENSE", FSL_TEXT.format(year=2024, holder="Functional Software, Inc."))
+        self.assertEqual(got, [("licence file", "FSL-1.1-MIT; Functional Software, Inc")])
+
+    def test_owner_fsl_spdx_is_quiet(self):
+        self.assertEqual(kinds("a/b.rs", "// SPDX-License-Identifier: FSL-1.1-MIT\n"), [])
+
     def test_foreign_mit_licence_is_a_signal(self):
         got = kinds("vendor/LICENSE", MIT.format(year=2019, holder="Stef Busking"))
         self.assertEqual(got, [("licence file", "MIT; Stef Busking")])

@@ -33,7 +33,7 @@ ${RULES.map((r) => `  ${r.id}. ${r.text}`).join("\n")}
 Citations:
 ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}. ${p.url}`).join("\n")}
 
-Statistics on your data; not engineering, safety or quality-system advice. No warranty. MIT licence.
+Statistics on your data; not engineering, safety or quality-system advice. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/spc-control-charts/`;
 
 const list = (v) => v.split(",").map((x) => Number(x.trim())).filter((x) => Number.isFinite(x));

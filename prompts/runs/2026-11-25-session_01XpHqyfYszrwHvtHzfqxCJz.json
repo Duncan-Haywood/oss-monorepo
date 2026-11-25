@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyfYszrwHvtHzfqxCJz",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T06:39:10Z",
+  "ended": "2026-11-25T06:43:58Z",
+  "wall_minutes": 6.9,
+  "tokens_in": 7372063,
+  "tokens_out": 29024,
+  "cost_usd": 3.0382,
+  "tool_calls": 67,
+  "task": "Bet #1 PayApps: change orders waiting for approval (date sent, aging, follow-up) in the cash report",
+  "projects": [
+    "payapps",
+    "pay-app-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18879",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "Two existing worker assertions pinned the cash CSV's last column; updated them for the two appended columns."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says bets' code lives in private-monorepo but not that add_repo plus a ~1 min shallow clone reaches it from a cloud session; register_repo_root named by add_repo was not an available tool, so CLAUDE.md was read by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "venture-preflight not run for a one-sentence copy change to pay-app-guides",
+      "did": "ran the venture's page.test.mjs (15 pass)",
+      "result": "copy change only; CI covers the rest"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: the product change is unreleased (in development), so a customer post would describe something no one can use yet",
+      "did": "extended the existing change-order-log page's early-access paragraph instead",
+      "result": "marketing page stays accurate to the product"
+    }
+  ],
+  "writeups": [
+    "ventures/pay-app-guides/change-order-log.html (early-access paragraph)",
+    "private-monorepo apps/payapps/ROADMAP.md + docs/ARCHITECTURE.md"
+  ],
+  "goal": null,
+  "notes": "Product PR: https://github.com/Duncan-Haywood/private-monorepo/pull/60. Local: typecheck clean; unit 181 pass; worker 125 pass; build OK. Security queue: 5 alerts, all claimed (exit 3). Ideas inbox empty.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "010e26fd-3443-5dba-8cd0-554810ad58c5",
+    "transcripts": 1,
+    "first": "2026-11-25T06:39:10Z",
+    "last": "2026-11-25T06:46:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 126,
+        "output": 29024,
+        "thinking": 4494,
+        "cache_read": 7245934,
+        "cache_write_5m": 0,
+        "cache_write_1h": 126003,
+        "api_equivalent_usd": 3.0382,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 126,
+      "output": 29024,
+      "thinking": 4494,
+      "cache_read": 7245934,
+      "cache_write_5m": 0,
+      "cache_write_1h": 126003,
+      "api_equivalent_usd": 3.0382,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 60,
+      "ToolSearch": 3,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.9,
+      "active_minutes": 6.9,
+      "model_minutes": 4.23,
+      "tool_minutes": 2.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: migration, report math, two UI views, route and tests in an existing app",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 197.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -104,11 +104,13 @@ test("Met search URL, ids and objects", () => {
   assert.equal(creditLine(r), 'Painter B, "The Annunciation", 1480s, The Metropolitan Museum of Art, (Bequest of Y), public domain');
 });
 
+const isAic = url => { const u = new URL(url); return u.protocol === "https:" && u.hostname === "api.artic.edu"; };
+
 test("searchMuseums merges both and survives one museum failing", async () => {
   const calls = [];
   const fake = async url => {
     calls.push(url);
-    if (url.startsWith("https://api.artic.edu")) return { ok: true, json: async () => AIC };
+    if (isAic(url)) return { ok: true, json: async () => AIC };
     if (url.includes("/search?")) return { ok: true, json: async () => ({ objectIDs: [437, 438] }) };
     if (url.endsWith("/437")) return { ok: true, json: async () => MET_OBJ };
     return { ok: false, status: 404 };
@@ -117,7 +119,7 @@ test("searchMuseums merges both and survives one museum failing", async () => {
   assert.deepEqual(records.map(r => r.source + r.id).sort(), ["aic1", "met437"]);
   assert.deepEqual(errors, []);
 
-  const down = async url => url.startsWith("https://api.artic.edu") ? { ok: false, status: 503 } : fake(url);
+  const down = async url => isAic(url) ? { ok: false, status: 503 } : fake(url);
   const r2 = await searchMuseums("annunciation", { fetch: down });
   assert.deepEqual(r2.records.map(r => r.id), ["437"]);
   assert.deepEqual(r2.errors, ["Art Institute of Chicago: HTTP 503"]);

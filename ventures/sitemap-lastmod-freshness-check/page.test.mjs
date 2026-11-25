@@ -2,6 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
+// Escape every regular-expression metacharacter so the text matches literally.
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const DOCS_PAGE = 'why-sitemap-lastmod-matters.html';
 const VS_PAGE = 'vs-xml-sitemaps-validator.html';
 
@@ -65,10 +68,10 @@ test('the sponsor link points at the correct GitHub Sponsors profile on all thre
   }
 });
 
-test('the MIT license is linked from index', async () => {
+test('the FSL-1.1-MIT license is linked from index', async () => {
   const html = await read('index.html');
   assert.match(html, /href="LICENSE"/);
-  assert.match(html, /MIT licen[cs]e/);
+  assert.match(html, /FSL-1.1-MIT licen[cs]e/);
 });
 
 test('a usage opt-out control exists', async () => {
@@ -90,13 +93,13 @@ test('engine.mjs and usage.mjs are imported as ES modules, not duplicated inline
 test('index links to the docs page and the docs page links back', async () => {
   const index = await read('index.html');
   const docs = await read(DOCS_PAGE);
-  assert.match(index, new RegExp(`href="${DOCS_PAGE.replace(/\./g, '\\.')}"`));
+  assert.match(index, new RegExp(`href="${escapeRegExp(DOCS_PAGE)}"`));
   assert.match(docs, /href="\.\/"/);
 });
 
 test('index links to the comparison page', async () => {
   const index = await read('index.html');
-  assert.match(index, new RegExp(`href="${VS_PAGE.replace(/\./g, '\\.')}"`));
+  assert.match(index, new RegExp(`href="${escapeRegExp(VS_PAGE)}"`));
 });
 
 test('vs-xml-sitemaps-validator page links back to the tool and carries required clauses', async () => {

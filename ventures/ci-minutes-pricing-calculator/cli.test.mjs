@@ -39,3 +39,16 @@ test("crossover lists segments", () => {
   assert.equal(r.status, 0);
   assert.match(r.stdout, /cheapest:/);
 });
+
+test("a malformed --prices file or an unknown flag exits 2, not the over-budget 1 (quality audit 2026-11-19)", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ci-"));
+  const bad = (o) => { const f = join(dir, `${Math.random()}.json`); writeFileSync(f, JSON.stringify(o)); return run("compare", "--minutes", "1000", "--prices", f); };
+  assert.equal(bad({ github: { plans: 5 } }).status, 2);
+  assert.equal(bad({ github: { plans: [] } }).status, 2);
+  assert.equal(bad({ github: { plans: [{ minutes: 0, price: -1 }] } }).status, 2);
+  assert.equal(bad({ github: { overagePer1k: -6 } }).status, 2);
+  assert.equal(bad({ github: { freeMinutes: "lots" } }).status, 2);
+  const typo = run("compare", "--minutes", "1000", "--grwoth", "50");
+  assert.equal(typo.status, 2);
+  assert.match(typo.stderr, /unknown option "--grwoth"/);
+});

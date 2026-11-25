@@ -1,4 +1,5 @@
-"""Milestone 11bk: should a broadcast Remote ID receiver cap the age of the tracks it trusts? 11bj found that the mean
+"""Milestone 11bl (written as 11bk; renumbered when PR #18704 landed a different 11bk, `track_age_cutoff.py`, while
+this run could not reach GitHub): should a broadcast Remote ID receiver cap the age of the tracks it trusts? 11bj found that the mean
 burst of lost messages, not the mean loss, sets the cost of the hold-until-clear rule, and read that "what the
 procedure should bound is the time since the last received message (a maximum track age ...)". This step prices
 that reading. It compares, on 11bi's 48 New York layouts and stored hold curves, four ways for a checking drone to
@@ -307,7 +308,7 @@ def summarise():
         ns[(L["m"], L["idx"])] = n
         res[(L["m"], L["idx"])] = layout_cells(L, n)
         print("layout M=%d %d done" % (L["m"], L["idx"]), file=sys.stderr, flush=True)
-    print("Milestone 11bk: track-age cut-off and age-scheduled radii against FR (predictions in track_age.py)")
+    print("Milestone 11bl: track-age cut-off and age-scheduled radii against FR (predictions in track_age.py)")
     print("sigma0 %g m, target %s, common Gilbert channel per receiver; holds from 11bi's stored curves" % (S0, g(TG)))
     for m in M:
         keys = [k for k in res if k[0] == m]
