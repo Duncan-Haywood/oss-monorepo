@@ -1,8 +1,9 @@
 // UK Shared Parental Pay (ShPP) planner. Rules written from memory, no live lookup:
 //  - Qualifying week = the 15th week before the expected week of childbirth
 //    (EWC); weeks run Sunday to Saturday.
-//  - Each parent needs 26 weeks' continuous employment to the end of the
-//    qualifying week and average weekly earnings (AWE) at least the lower
+//  - Each parent needs 26 weeks' continuous employment into the qualifying
+//    week, counting a part week as a whole one (checked against GOV.UK's
+//    employer calculator and HMRC SPM250100/SPM250800 on 2026-11-24), and average weekly earnings (AWE) at least the lower
 //    earnings limit (LEL) to get statutory pay from an employer.
 //  - The mother's 39 weeks of maternity pay are a shared pool. If she ends her
 //    maternity pay early (minimum 2 weeks after birth), the weeks she does not
@@ -67,7 +68,11 @@ function num(v) {
 
 function eligibility(awe, emp, qualifyingWeek) {
   const qwRate = rateAt(qualifyingWeek + 6);
-  const employedWeeks = Math.floor((qualifyingWeek + 6 - emp + 1) / 7);
+  // Weeks run Sunday to Saturday and a part week counts as a whole one (ERA 1996
+  // s.212(1); ShPP (General) Regs 2014 reg 34; HMRC SPM250800), so a start on
+  // any day up to the Saturday of the 26th week back qualifies, as GOV.UK's
+  // employer calculator asks. Red team 2026-11-24 (was whole 7-day blocks).
+  const employedWeeks = (qualifyingWeek - sundayOnOrBefore(emp)) / 7 + 1;
   const lengthOk = employedWeeks >= 26;
   const earningsOk = awe >= qwRate.lel;
   return { employedWeeks, lengthOk, earningsOk, eligible: lengthOk && earningsOk, qwRate };
