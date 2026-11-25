@@ -32,7 +32,7 @@ variable "stacks" {
   type = map(object({
     repo             = string
     managed_policies = list(string)
-    extra_statements = optional(list(any), [])
+    extra_statements = optional(any, [])
   }))
   default = {}
 }
@@ -42,7 +42,7 @@ variable "extra_roles" {
   type = map(object({
     description = string
     subject     = string
-    statements  = list(any)
+    statements  = any
   }))
   default = {}
 }

@@ -40,7 +40,7 @@ variable "stacks" {
     account          = string
     repo             = string
     managed_policies = list(string)
-    extra_statements = optional(list(any), [])
+    extra_statements = optional(any, [])
   }))
   default = {
     dns = {
