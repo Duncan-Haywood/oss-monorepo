@@ -19,4 +19,4 @@ tax, legal or construction advice. It models no market data, tax effects, local
 rules, or construction risk. Unverified against a real project: tested on
 hand-calculated examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

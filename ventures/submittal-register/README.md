@@ -4,7 +4,7 @@ Drop a construction project manual (spec book) PDF and get a **submittal
 register**: every Part 1 submittal requirement, by specification section,
 typed (product data, shop drawings, samples, certificates, O&M data,
 warranties) and phased (action, informational, closeout), exported as CSV.
-Runs in the browser with no upload, or as a CLI. MIT licensed, no
+Runs in the browser with no upload, or as a CLI. FSL-1.1-MIT licensed, no
 dependencies.
 
 Live: https://marisstella.app/submittal-register/
@@ -250,5 +250,5 @@ inputs and run it yourself.
 
 ## License
 
-MIT (see `LICENSE`). Product and company names are used only to describe
+FSL-1.1-MIT (see `LICENSE`). Product and company names are used only to describe
 alternatives; this project is not affiliated with them.

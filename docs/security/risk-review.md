@@ -11,63 +11,67 @@ blocked themselves. From 2026-11-24, **every PR gets a cyber and legal risk
 review instead**, and the owner sees a change only when it carries real
 liability.
 
+## No owner review: threats get controls instead
+
+Later the same day the owner went further: "we want to avoid that generally
+unless it is really human dependent ... move to systems that remove human
+review as much as possible"; "any things that need human review on a general
+basis should generally not be the case ... the threats and risks ...
+identified and ... a thorough assurance system to avoid those risks"; and "I
+don't need to review. just be extra careful for adversarial changes."
+
+So nothing in a PR waits for a person. The owner is needed only for what a
+person must physically or legally do (an account signup, a card, a secret
+value only they hold), never to read a diff. Note that agent PRs are opened
+under the owner's own GitHub identity, and GitHub does not let anyone approve
+their own PR, so the old approval gate could never have been satisfied for
+them anyway.
+
 ## How a PR is reviewed
 
-1. **Generate the checklist** from the branch's diff:
+1. **Locally**, before opening the PR:
 
    ```
    python3 platform/security/risk_review.py            # vs origin/main
-   python3 platform/security/risk_review.py --strict   # exit 1 on a likely secret
    ```
 
-   It prints the cyber and legal checks the diff triggers, each with the
-   files and the question to answer, and says whether the owner is needed.
-2. **Answer each triggered check in the PR body** (a "Risk review" section;
-   paste the script's output and tick or annotate each line). A check that
-   turns up a problem is fixed before merge, like any failing test.
-3. **Merge** when CI is green and every check is answered, unless the
-   script says "Owner review needed". Then the PR waits for the owner, and
-   the PR body says why in one line.
-4. **Later, automatically:** the same script runs in CI as a required check,
-   with an AI reviewer answering the questions and the scanners from the
-   `sec-scan-pipeline` task (`portfolio/work/tasks.yaml`) beside it. Task
-   `risk-review-ci`.
+   Paste its output into the PR body as a "Risk review" section and answer
+   each triggered check (tick or annotate). Fix whatever a check turns up.
+2. **In CI**, the required `risk-review` check
+   (`.github/workflows/priv-risk-review.yml`) runs **main's** copy of the
+   script over the PR's diff with `--gate`. It fails on anything in the
+   "Blocked" list below. There is no approval that overrides it: fix the PR.
+3. **After merge**, `control_plane_guard.py --audit-commit` fails the run on
+   `main` if a commit touched a sensitive file without a passing `risk-review`
+   check from main's workflow (an admin bypass, or a faked check).
 
-## What still goes to the owner
+## Threats and controls
 
-Only these. Everything else is the reviewing agent's judgment.
+The adversary we design for: an agent session that has been prompt-injected
+(by a web page, an issue, a fork PR, a tool result) or is simply wrong, and
+that can push branches and open and merge PRs under the owner's identity.
 
-| Trigger | Why it is the owner's |
-|---|---|
-| A likely secret in an added line | Rotating a credential is an account action; the commit is public at once |
-| The owner-only core changes (below) | A review cannot protect its own definition, and these files run with secrets or at session start |
-| Lines removed or rewritten inside the guardrails (`prompts/goals.md`, "Guardrails"; `CLAUDE.md`, "Public repository" and "Judgment first") | These are the hard limits on financial, legal and ethical liability |
-| A licence changed on existing code | Relicensing is the copyright holder's decision |
-| Switching on live charging, accounts, cards, publishing under the portfolio's name | Hard limits, owner-only actions |
+| Threat | Control (automatic) | Evidence |
+|---|---|---|
+| A PR weakens the reviewer, then a later PR walks through | CI runs main's reviewer (`pull_request_target`, base checkout), never the PR's. Changes to the gate's own files (`GATE_PATHS`) may only add: dropping an owned path, ruleset rule, required check, secret pattern, check id, protected section or workflow anchor is blocked | `risk-review` check; `test_risk_review.py` |
+| A PR fakes the required check with a same-named job | `ci_policy_check.py` refuses unprivileged jobs named like a required check; the post-merge audit only accepts `risk-review` from `priv-risk-review.yml` on `pull_request_target` | `ci-policy` check; `control_plane_guard.py --audit-commit` |
+| The review runs attacker code | The PR's commits are fetched as git objects and diffed; never checked out, imported or executed. Token is `contents: read`, no secrets, `python3 -I` | the workflow file |
+| A secret is committed | Blocked (`SECRET_PATTERNS`); rotate it, since the push already published it | `risk-review` check |
+| Guardrails or hard limits are cut (legal, financial, ethical liability) | Protected sections are append-only; any removed line inside them is blocked | `risk-review` check |
+| Existing code is relicensed to something not chosen | Changing an existing licence is blocked unless the new text is in `ALLOWED_LICENCES` (MIT, FSL-1.1-MIT) | `risk-review` check |
+| A workflow exfiltrates a secret on its first run (before any review) | Owner approval never stopped this: a same-repo PR's workflow runs with secrets before merge. The real control is moving secrets out of GitHub into AWS Secrets Manager behind OIDC roles only `main` can assume (task `secrets-to-aws`); meanwhile `ci_policy_check.py` keeps unprivileged workflows secret-free | `ci-policy` check |
+| Agent instructions are steered (later sessions told to fetch or trust outside content, widen their powers) | The `C-instructions` check on every such PR, answered in the PR body; guardrails append-only | PR body; `risk-review` |
+| Hooks / MCP config run code at session start | Reported as **sensitive** for the hardest look; `C-autorun` check | PR body |
 
-### The owner-only core
+**Sensitive files** are everything `.github/CODEOWNERS` lists. CODEOWNERS no
+longer means "owner approval" (the ruleset's `require_code_owner_review` is
+off); it is the list of files that get the closest review, and the post-merge
+audit.
 
-What `.github/CODEOWNERS` still lists, and why each is there:
-
-- `.github/CODEOWNERS`, `.github/rulesets/`, `platform/ci/control_plane_guard.py`,
-  `platform/ci/agent_review/`, `platform/security/risk_review.py`: these
-  define the gate and the review. An agent that could edit them could switch
-  the review off.
-- `.github/workflows/` and `.github/actions/`: workflows hold the publishing,
-  deploy and payment secrets. A workflow edit can leak a secret on its first
-  run, before any review sees the result.
-- `.claude/`, `.cursor/`, `.mcp.json`, `platform/agents/`: hooks, MCP servers
-  and environment scripts run by themselves at the start of every session,
-  before any agent decides anything.
-- `portfolio/router/requirements.txt`: installed by a job that holds a write
-  token.
-
-These change rarely. Agent instructions (`CLAUDE.md`, `AGENTS.md`,
-`prompt.md`, `prompts/`, `.github/prompts/`) are **not** in the core any
-more: they go through the review. The checks and the guardrail trigger are
-written for the main risk there, a prompt-injected agent steering later
-sessions: does the change weaken a guardrail, widen what agents do without
-the owner, or tell agents to fetch or trust outside content?
+**What is left for a person** is in `python3 portfolio/ledger/decision_queue.py`
+and is limited to account signups, cards and bank details, secret values only
+the owner holds, and settings only a GitHub or cloud admin can apply (for
+example importing `.github/rulesets/main.json` once).
 
 ## The checks
 
@@ -88,7 +92,8 @@ checkout.
 - The triggers are patterns over the diff. They find where to look, not
   whether something is wrong. The answer is the reviewer's.
 - A prompt-injected agent can answer its own checklist dishonestly. The
-  guards against that are the owner-only core (it cannot switch off the
-  review or reach the secrets), the post-merge audit in
-  `control_plane_guard.py`, and, once `risk-review-ci` lands, a reviewer that
-  is not the PR's author.
+  checklist is guidance; the controls that do not depend on its honesty are
+  the blocked list, main's reviewer in CI, the post-merge audit, and next an
+  AI reviewer that is not the PR's author (task `risk-review-ci`).
+- The ruleset only enforces required checks once it is applied on GitHub
+  (decision queue, `cloudflare-mail-and-ruleset`).

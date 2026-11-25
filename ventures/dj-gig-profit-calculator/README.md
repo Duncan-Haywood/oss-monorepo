@@ -23,4 +23,4 @@ self-employment tax, cancellations, the extra bookings a marketplace or agency m
 or local market prices. The quote builder's defaults are invented round numbers. Unverified against a real DJ's books: tested on
 hand-calculated examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

@@ -2,7 +2,7 @@
 
 > Free calculator for landlords selling a rental or investment property: estimates depreciation recapture (Section 1250, capped at 25%), remaining capital-gains tax, and Net Investment Income Tax, then shows how much a 1031 exchange would defer. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/depreciation-recapture-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/depreciation-recapture-calculator): FSL-1.1-MIT licensed.

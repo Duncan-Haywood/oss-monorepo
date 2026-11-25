@@ -40,5 +40,5 @@ life; the Node 20 notices stay informational.
 python3 -m unittest test_check
 ```
 
-MIT licensed. If it saved you a debugging session, a GitHub Sponsors donation
+FSL-1.1-MIT licensed. If it saved you a debugging session, a GitHub Sponsors donation
 to the creator is welcome and never required.

@@ -58,4 +58,4 @@ No API key, account or server: everything runs in the browser.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, engineering, or financial advice. Results are arithmetic on figures you type or paste; verify with a qualified professional before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
 
-MIT licensed (`LICENSE`).
+FSL-1.1-MIT licensed (`LICENSE`).

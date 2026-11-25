@@ -102,6 +102,6 @@ Use subtitle files you have the right to use.
 `engine.mjs` (pure logic), `resync.mjs` (CLI), `index.html` (browser tool),
 `fix-subtitles-out-of-sync.html` (guide), `usage.mjs` (local counts),
 `sweep.mjs` (accuracy sweep), tests in `*.test.mjs`
-(`node --test '*.test.mjs'`). MIT licensed.
+(`node --test '*.test.mjs'`). FSL-1.1-MIT licensed.
 
 Support is optional: https://github.com/sponsors/Duncan-Haywood

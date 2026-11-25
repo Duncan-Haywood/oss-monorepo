@@ -12,4 +12,4 @@ After using this, you can now **size a delay claim against the liquidated damage
 2. Pure logic is in `calc.mjs` (`plan()`, `eichleay()`, `sensitivity()`); tests: `node --test`.
 
 Modelled: time extension for owner and neutral delay, money only for owner delay with no concurrent contractor delay, the Eichleay daily rate, field overhead, profit, liquidated damages with an optional cap, and a table of net position as compensable days change. Not modelled: notice and waiver clauses, no-damages-for-delay clauses, critical path analysis, acceleration, lost productivity, interest, state or public-owner rules.
-Not legal advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+Not legal advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

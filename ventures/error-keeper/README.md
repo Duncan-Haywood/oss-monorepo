@@ -111,5 +111,5 @@ Fly.io: the steps are at the top of `fly.toml`.
 Provided free and as-is, without warranty, with no uptime or delivery guarantee.
 It can miss errors, group unrelated ones or drop events under load. You run the
 server and are responsible for what your app sends it, the keys, backups and the
-privacy rules where you and your users live. MIT licensed; donations welcome via
+privacy rules where you and your users live. FSL-1.1-MIT licensed; donations welcome via
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood).

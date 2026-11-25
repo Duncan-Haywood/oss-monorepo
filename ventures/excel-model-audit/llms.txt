@@ -2,7 +2,7 @@
 
 > Free formula auditor for .xlsx and .xlsm files. Lists copied formulas that point at a different cell from their neighbours (with the formula the neighbours imply), numbers typed over formulas, SUM ranges that stop next to a number, circular references across sheets and named ranges, the cells where #REF! and #DIV/0! start, numbers and formulas stored as text, constants typed into formulas, hidden sheets and external links. Runs in the browser; the file is never uploaded. Also a Node command-line tool for a folder of workbooks.
 
-Free and open source (MIT). Results are mechanical checks of the file provided, not accounting, audit or financial advice; a clean result is not a statement that a model is correct.
+Free to use and source available (FSL-1.1-MIT). Results are mechanical checks of the file provided, not accounting, audit or financial advice; a clean result is not a statement that a model is correct.
 
 ## Pages
 
@@ -15,4 +15,4 @@ Whether the logic, assumptions or inputs are right; what OFFSET and INDIRECT poi
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/excel-model-audit): MIT licensed. `node cli.mjs model.xlsx --csv findings.csv`.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/excel-model-audit): FSL-1.1-MIT licensed. `node cli.mjs model.xlsx --csv findings.csv`.

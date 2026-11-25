@@ -2,7 +2,7 @@
 
 > Free net investment income tax (NIIT) calculator: your Form 8960 lines, how far you are over the $200,000 / $250,000 threshold, what an extra gain costs and whether splitting it across two years saves tax. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/niit-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/niit-calculator): FSL-1.1-MIT licensed.

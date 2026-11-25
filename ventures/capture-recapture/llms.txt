@@ -2,7 +2,7 @@
 
 > Free online capture-recapture (mark-recapture) population size estimator for closed populations. Paste capture histories (one row per animal, a 0/1 column per occasion, or a history string such as 0101, optional frequency and group columns), two-sample counts (n1 caught and marked, n2 caught later, m of them marked), or capture frequencies (caught once, twice, ...) and get Lincoln-Petersen and Chapman estimates with Seber's variance, the Otis et al. (1978) models M0, Mt (Darroch 1958) and Mb (trap response, removal) by maximum likelihood with profile-likelihood confidence intervals and AIC weights, Chao's (1987) heterogeneity estimator with its log-transformed interval, and the Burnham-Overton (1978) jackknife. One estimate per group (year, site). Also used for multiple-list (multiple-systems) estimation and for estimating defects missed by code reviewers. Checked against scipy's multinomial on six simulated studies and against the cottontail example in Chao (1987). Example: 29 breeding seasons of USGS chorus frog capture histories. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). A statistical estimate, not wildlife-management, regulatory or other professional advice. Closed populations only: no births, deaths or movement between occasions.
+Free to use and source available (FSL-1.1-MIT). A statistical estimate, not wildlife-management, regulatory or other professional advice. Closed populations only: no births, deaths or movement between occasions.
 
 ## Pages
 
@@ -25,4 +25,4 @@ Free and open source (MIT). A statistical estimate, not wildlife-management, reg
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/capture-recapture): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/capture-recapture): FSL-1.1-MIT licensed.

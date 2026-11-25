@@ -1,6 +1,6 @@
 // #4738-#4741 fixed a dead `../LICENSE` footer link (one level too high) on
 // five sub-tools, but the sweep checked only for that specific dead-link
-// shape and missed rc-time-calculator, whose footer said "MIT licensed"
+// shape and missed rc-time-calculator, whose footer said "FSL-1.1-MIT licensed"
 // with no link at all -- a different defect (absent, not dead) that the same
 // grep for `../LICENSE` could not see. Each sub-tool ships its own LICENSE
 // file one level below its own index.html; this asserts every one of them

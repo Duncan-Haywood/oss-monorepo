@@ -63,4 +63,4 @@ from its use.
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and
 never changes what the tool does.
 
-MIT licensed. See [`LICENSE`](LICENSE).
+FSL-1.1-MIT licensed. See [`LICENSE`](LICENSE).

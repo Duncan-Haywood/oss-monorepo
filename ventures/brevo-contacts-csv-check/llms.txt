@@ -2,7 +2,7 @@
 
 > Free Brevo (Sendinblue) contacts import CSV checker: finds invalid and duplicate emails, rows with neither email nor SMS, SMS numbers with no country code or ruined by Excel, unquoted commas that shift columns, mixed date formats and near-miss column names, with line numbers, and applies formatting-only safe fixes.
 
-Free and open source (MIT). It checks file formatting against Brevo's published import rules; it is not legal or professional advice, and it does not decide whether you have consent to email anyone.
+Free to use and source available (FSL-1.1-MIT). It checks file formatting against Brevo's published import rules; it is not legal or professional advice, and it does not decide whether you have consent to email anyone.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). It checks file formatting against Brevo's published 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/brevo-contacts-csv-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/brevo-contacts-csv-check): FSL-1.1-MIT licensed.

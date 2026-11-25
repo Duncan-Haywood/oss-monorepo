@@ -27,4 +27,4 @@ Everything runs locally in the browser. No appointment details, locations, names
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or business advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
 
-MIT licensed. Publishing under the portfolio's public name remains owner-gated.
+FSL-1.1-MIT licensed. Publishing under the portfolio's public name remains owner-gated.

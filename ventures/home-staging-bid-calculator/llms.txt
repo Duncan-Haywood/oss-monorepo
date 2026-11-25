@@ -2,7 +2,7 @@
 
 > Free calculator for independent home stagers: price a vacant-listing staging job from the included term, furniture carrying cost, crew labor, and mileage, then check whether your extension fee actually covers your own carrying cost before a slow listing erases the margin.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -14,4 +14,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/home-staging-bid-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/home-staging-bid-calculator): FSL-1.1-MIT licensed.

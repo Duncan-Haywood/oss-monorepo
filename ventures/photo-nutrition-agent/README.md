@@ -63,4 +63,4 @@ You run everything; this project operates no service. Non-food photos stay on th
 
 ## License
 
-MIT, see [LICENSE](LICENSE).
+FSL-1.1-MIT, see [LICENSE](LICENSE).

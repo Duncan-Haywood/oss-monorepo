@@ -153,4 +153,4 @@ Agresti 2010 (`PAPERS` in `engine.mjs`). Implemented from the papers'
 mathematics; no third-party code was ported (the CSV reader and special
 functions are shared with this repository's `roc-analysis`). Example data:
 Cortez, Cerdeira, Almeida, Matos & Reis 2009, UCI Machine Learning
-Repository, CC BY 4.0. MIT licence.
+Repository, CC BY 4.0. FSL-1.1-MIT licence.

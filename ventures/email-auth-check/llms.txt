@@ -2,7 +2,7 @@
 
 > Free SPF, DKIM, DMARC and BIMI checker: paste any domain and get a plain-English report on why your email might be going to spam, with the exact DNS record read and what it means. Nothing uploaded -- your browser queries public DNS directly.
 
-Free and open source (MIT). It reads a domain's public DNS records and explains what they say under RFC 7208 (SPF), RFC 6376 and RFC 8301 (DKIM) and RFC 7489 (DMARC); it cannot see your mail server, your sent mail or a receiver's own filtering, so it is evidence about DNS, not a deliverability guarantee.
+Free to use and source available (FSL-1.1-MIT). It reads a domain's public DNS records and explains what they say under RFC 7208 (SPF), RFC 6376 and RFC 8301 (DKIM) and RFC 7489 (DMARC); it cannot see your mail server, your sent mail or a receiver's own filtering, so it is evidence about DNS, not a deliverability guarantee.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). It reads a domain's public DNS records and explains 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/email-auth-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/email-auth-check): FSL-1.1-MIT licensed.

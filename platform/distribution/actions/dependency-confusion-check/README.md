@@ -11,4 +11,4 @@ Free, read-only checker for two configuration shapes behind the 2021 dependency-
 
 For a stable pin, replace `@main` with a full commit SHA, or with a `dependency-confusion-check-v<version>` tag from this repository's Releases once one exists (portfolio/distribution/versions.json has the current version).
 
-Runs [`ventures/dependency-confusion-check/check.py`](../../../../ventures/dependency-confusion-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://marisstella.app/dependency-confusion-check/?ref=gh-action
+Runs [`ventures/dependency-confusion-check/check.py`](../../../../ventures/dependency-confusion-check/check.py) (FSL-1.1-MIT, stdlib-only Python, no network calls). Docs: https://marisstella.app/dependency-confusion-check/?ref=gh-action

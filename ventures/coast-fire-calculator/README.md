@@ -16,4 +16,4 @@ and what a lower-paid job would have to cover**, which used to be a forum spread
 
 All amounts are in today's dollars with real (after-inflation) returns, compounded monthly. Not modelled: taxes, Social
 Security timing, healthcare before Medicare, sequence-of-returns risk, fees. Illustration only, not financial advice. No
-warranty; see the page footer. MIT licensed (`LICENSE`).
+warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

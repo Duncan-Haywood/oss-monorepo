@@ -16,4 +16,4 @@ six-row table on ucr.gov and doing the arithmetic yourself.
 
 Modelled: six vehicle-count brackets, lowest bracket for brokers and leasing companies (freight forwarders pay by vehicle count), an editable fee table
 (defaults to the 2027 schedule; verify at ucr.gov). Not modelled: state processing fees, whether registration is required, penalties,
-the filing. Not tax or legal advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+the filing. Not tax or legal advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

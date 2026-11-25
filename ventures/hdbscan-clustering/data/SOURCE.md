@@ -36,4 +36,4 @@ Synthetic tables written by `eval/reference.py` with fixed numpy seeds
 (blobs: three Gaussian blobs of different spread plus uniform noise, seed
 20261116; moons: scikit-learn's `make_moons(300, noise=0.06,
 random_state=7)` plus a small third column, seed 7). They are generated
-here, so no licence applies beyond this repository's MIT licence.
+here, so no licence applies beyond this repository's FSL-1.1-MIT licence.

@@ -50,5 +50,5 @@ The source text could not be fetched from this session; coefficients are from th
 
 ## No warranty
 
-Free and as-is, MIT licensed. Not engineering, legal or code-compliance advice; the design pressures are set by
+Free and as-is, FSL-1.1-MIT licensed. Not engineering, legal or code-compliance advice; the design pressures are set by
 the engineer of record or the building official.

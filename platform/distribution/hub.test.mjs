@@ -60,7 +60,7 @@ test('every variant fits its platform, links back with its own tag, and only aut
         assert.ok(v.text.trimStart().startsWith(TEMPLATES[it.type].find((t) => t.id === v.template).marker));
       }
       if (v.kind === 'short') assert.ok(v.text.includes(v.link), `${p.id} carries the tagged link`);
-      if (it.type === 'tool' && v.kind !== 'link') assert.match(v.text + (v.script || ''), /open source/i);
+      if (it.type === 'tool' && v.kind !== 'link') assert.match(v.text + (v.script || ''), /source available/i);
     }
   }
   assert.ok(!variant(tool, byId('instagram')).text.includes('http'), 'instagram captions carry no dead links');

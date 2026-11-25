@@ -1,8 +1,8 @@
 # Your status page should not go down with your app.
 
-> A free, self-hosted status page with uptime monitoring, 90-day bars, incidents, maintenance windows and alerts. An open-source alternative to Statuspage, Instatus and Better Stack. MIT, zero dependencies.
+> A free, self-hosted status page with uptime monitoring, 90-day bars, incidents, maintenance windows and alerts. An source-available alternative to Statuspage, Instatus and Better Stack. MIT, zero dependencies.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/status-keeper): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/status-keeper): FSL-1.1-MIT licensed.

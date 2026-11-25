@@ -42,7 +42,7 @@ Citations:
 ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}. doi:${p.doi}`).join("\n")}
 
 Checked against dtw-python 1.9.0 (eval/reference.json). Statistical output from
-your data, not financial, legal, medical or professional advice. No warranty. MIT licence.
+your data, not financial, legal, medical or professional advice. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/dynamic-time-warping/`;
 
 const FLAGS = {

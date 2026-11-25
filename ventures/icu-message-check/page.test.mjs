@@ -33,7 +33,7 @@ test('no-warranty clause, sponsor link and licence on every page; privacy line a
     const s = read(p);
     assert.match(s, /provided free and as-is, without warranty/, p);
     assert.match(s, /github\.com\/sponsors\/Duncan-Haywood/, p);
-    assert.match(s, /MIT licence/, p);
+    assert.match(s, /FSL-1.1-MIT licence/, p);
   }
   assert.match(read('index.html'), /never uploaded/);
   assert.match(read('index.html'), /id="usageOptOut"/);

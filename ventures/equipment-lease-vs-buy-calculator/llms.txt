@@ -2,7 +2,7 @@
 
 > Should your business lease or buy the equipment? Compare the after-tax present-value cost of a loan purchase (with Section 179, bonus or MACRS depreciation and resale value) against a lease, with the lease's implied interest rate and the break-even resale value. Free, private, in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/equipment-lease-vs-buy-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/equipment-lease-vs-buy-calculator): FSL-1.1-MIT licensed.

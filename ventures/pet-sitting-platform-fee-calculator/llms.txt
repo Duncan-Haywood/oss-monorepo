@@ -2,7 +2,7 @@
 
 > Free calculator for pet sitters and dog walkers: what you keep per booking on Rover, Wag or another marketplace versus booking clients directly, how many direct bookings pay for the software, and the price that matches. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pet-sitting-platform-fee-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pet-sitting-platform-fee-calculator): FSL-1.1-MIT licensed.

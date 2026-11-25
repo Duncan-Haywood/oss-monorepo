@@ -2,7 +2,7 @@
 
 > Free injury settlement calculator: enter the gross amount, attorney fee, costs and medical liens and see what the client actually takes home, with Medicare's procurement-cost reduction and the effect of negotiating each lien. Private, runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/injury-settlement-net-proceeds-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/injury-settlement-net-proceeds-calculator): FSL-1.1-MIT licensed.

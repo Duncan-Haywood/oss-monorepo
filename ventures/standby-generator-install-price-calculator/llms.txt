@@ -2,7 +2,7 @@
 
 > Free standby generator install price calculator: enter the equipment, gas and electrical runs, permit, crew hours and callback risk, and get a price, the cash you need before install day and what an overrun costs. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/standby-generator-install-price-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/standby-generator-install-price-calculator): FSL-1.1-MIT licensed.

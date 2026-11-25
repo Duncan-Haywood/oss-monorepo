@@ -2,7 +2,7 @@
 
 > Price an embroidery job from your own machine time and costs: per-piece price that hits your target margin, quantity breaks, stitch-count sensitivity, and whether a per-1000-stitches rule loses money. Free, runs in your browser, nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Input
 
@@ -15,4 +15,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/embroidery-shop-quote-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/embroidery-shop-quote-calculator): FSL-1.1-MIT licensed.

@@ -14,4 +14,4 @@ After using this, you can now **say yes or no to an event with a number behind i
 2. Pure logic is in `calc.mjs` (`analyze()`); tests: `node --test`.
 
 Not modelled: sales and income tax, equipment cost, setup hours (add them to labour), cancelled events. Not tax or financial
-advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

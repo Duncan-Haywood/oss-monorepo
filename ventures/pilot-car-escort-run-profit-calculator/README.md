@@ -21,4 +21,4 @@ dependencies. `node --test *.test.mjs` runs the suite.
 or financial advice. Not affiliated with any permit service, carrier or state agency.
 **Privacy.** Everything runs in your browser; nothing is uploaded.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

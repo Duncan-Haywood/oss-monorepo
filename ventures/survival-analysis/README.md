@@ -157,6 +157,6 @@ checked (they need none). Strata are capped at 50 combinations, and the Kaplan-M
 
 ## Licence and disclaimer
 
-MIT licence (`LICENSE`). **No warranty.** Statistical estimates from the data
+FSL-1.1-MIT licence (`LICENSE`). **No warranty.** Statistical estimates from the data
 you supply; not medical, legal, tax or financial advice, and not a substitute
 for a statistician. Not affiliated with the authors of the cited papers.

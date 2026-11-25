@@ -18,7 +18,7 @@ async function fixture(files) {
   }
   return root;
 }
-const MIT = 'MIT License\n\nCopyright (c) x';
+const MIT = 'Functional Source License\n\nCopyright (c) x';
 const venture = (n, cli = 'console.log("hi", process.argv.slice(2).join(","));') => ({
   [`ventures/${n}/cli.mjs`]: `#!/usr/bin/env node\n${cli}\n`,
   [`ventures/${n}/LICENSE`]: MIT,

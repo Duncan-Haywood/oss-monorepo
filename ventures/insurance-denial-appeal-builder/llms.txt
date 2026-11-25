@@ -2,7 +2,7 @@
 
 > Free tool for patients: paste your health insurance denial letter and get the likely denial reason, your appeal deadline, a draft appeal letter, a checklist of what to gather and calendar reminders. Runs in your browser, the letter is never uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/insurance-denial-appeal-builder): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/insurance-denial-appeal-builder): FSL-1.1-MIT licensed.

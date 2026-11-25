@@ -2,7 +2,7 @@
 
 > A free, open-source alternative to lead-scoring add-ons: learn your ideal customer profile from your own won and lost list, rank your prospects by lookalike fit with a leave-one-out accuracy check, and draft compliant first outreach on your own AI key. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/icp-lens): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/icp-lens): FSL-1.1-MIT licensed.

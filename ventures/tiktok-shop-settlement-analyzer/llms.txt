@@ -2,7 +2,7 @@
 
 > Free TikTok Shop fee calculator for sellers: drop in your sales CSV and see the service fee actually taken, take-home per order, net revenue per product, repeat buyers, refunds, withdrawal costs, funds still clearing and the price needed for a target take-home. Runs in your browser, the file is never uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tiktok-shop-settlement-analyzer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tiktok-shop-settlement-analyzer): FSL-1.1-MIT licensed.

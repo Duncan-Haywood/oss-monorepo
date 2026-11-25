@@ -1,8 +1,8 @@
 # Sell your app with Stripe. Let the license keys take care of themselves.
 
-> Sell desktop apps, plugins and CLI tools with Stripe and issue signed license keys automatically. Generate a key pair, sign a test license and verify it right in your browser, then run the open-source server in your own account. Free, MIT, no per-license fee.
+> Sell desktop apps, plugins and CLI tools with Stripe and issue signed license keys automatically. Generate a key pair, sign a test license and verify it right in your browser, then run the source-available server in your own account. Free, FSL-1.1-MIT, no per-license fee.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/license-keeper): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/license-keeper): FSL-1.1-MIT licensed.

@@ -105,7 +105,7 @@ export async function buildPackage({ slug, dir, scope = '', version = VERSION })
   if (cli === null) return { skip: 'no cli.mjs' };
   if (!cli.startsWith('#!')) return { skip: 'cli.mjs has no shebang' };
   const license = await fs.readFile(path.join(dir, 'LICENSE'), 'utf8').catch(() => null);
-  if (license === null || !/MIT License/i.test(license)) return { skip: 'no MIT LICENSE' };
+  if (license === null || !/Functional Source License/i.test(license)) return { skip: 'no FSL-1.1-MIT LICENSE' };
   const yaml = await fs.readFile(path.join(dir, 'VENTURE.yaml'), 'utf8').catch(() => '');
   const description = descriptionOf(yaml);
   if (!description) return { skip: 'no description in VENTURE.yaml' };
@@ -116,7 +116,7 @@ export async function buildPackage({ slug, dir, scope = '', version = VERSION })
   files['bin.mjs'] = BIN_WRAPPER;
   files.LICENSE = license;
   const readme = await fs.readFile(path.join(dir, 'README.md'), 'utf8').catch(() => `# ${slug}\n\n${description}\n`);
-  files['README.md'] = `${readme.trimEnd()}\n\n---\n\nFree and open source (MIT), from [Maris Stella Labs](${tagUrl(toolUrl(slug), 'npm')}). Not legal, tax or professional advice.\nSource: ${REPO_URL}/tree/main/ventures/${slug}\n`;
+  files['README.md'] = `${readme.trimEnd()}\n\n---\n\nFree to use and source available (FSL-1.1-MIT), from [Maris Stella Labs](${tagUrl(toolUrl(slug), 'npm')}). Not legal, tax or professional advice.\nSource: ${REPO_URL}/tree/main/ventures/${slug}\n`;
   files['package.json'] = `${JSON.stringify({
     name,
     version,
@@ -125,11 +125,11 @@ export async function buildPackage({ slug, dir, scope = '', version = VERSION })
     bin: { [slug]: 'bin.mjs' },
     files: [...c.files, 'bin.mjs', 'LICENSE', 'README.md'],
     engines: { node: '>=18' },
-    license: 'MIT',
+    license: 'FSL-1.1-MIT',
     homepage: tagUrl(toolUrl(slug), 'npm'),
     repository: { type: 'git', url: `git+${REPO_URL}.git`, directory: `ventures/${slug}` },
     bugs: { url: `${REPO_URL}/issues` },
-    keywords: ['cli', 'free', 'open-source', ...slug.split('-').filter((w) => w.length > 2).slice(0, 4)],
+    keywords: ['cli', 'free', 'source-available', ...slug.split('-').filter((w) => w.length > 2).slice(0, 4)],
     publishConfig: { access: 'public' },
   }, null, 2)}\n`;
   return { name, version, files };

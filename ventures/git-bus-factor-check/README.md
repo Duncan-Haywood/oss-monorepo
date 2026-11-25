@@ -59,7 +59,7 @@ node --test classify.test.mjs page.test.mjs
 implementations over `fixture.txt` and a synthetic history and requires
 identical JSON.
 
-MIT licensed. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
+FSL-1.1-MIT licensed. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
 
 ## Known gaps
 

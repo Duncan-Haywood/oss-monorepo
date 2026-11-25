@@ -1,10 +1,10 @@
 name: self-hosted-saas-stack
 description: >-
-  Directory and landing page for the 27 self-hosted, MIT-licensed small-SaaS
+  Directory and landing page for the 27 self-hosted, FSL-1.1-MIT-licensed small-SaaS
   tools in this repository (booking, help center, error tracking, feature
   flags, analytics, lifecycle email, referrals, Stripe revenue metrics,
   e-signature), grouped by job and named against the paid products they
-  replace, so a founder searching for an open-source alternative lands on the
+  replace, so a founder searching for an source-available alternative lands on the
   right one.
 stage: prototype
 owner: duncan

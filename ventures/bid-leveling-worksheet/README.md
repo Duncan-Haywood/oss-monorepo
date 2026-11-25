@@ -28,4 +28,4 @@ spreadsheet formulas per trade.
 Not modelled: validity dates, alternates, unit prices, schedule, bonding, insurance,
 qualifications. It does not say who to hire. No warranty; see the page footer.
 
-Tests: `node --test`. MIT licensed (`LICENSE`); no secrets, no private dependencies.
+Tests: `node --test`. FSL-1.1-MIT licensed (`LICENSE`); no secrets, no private dependencies.

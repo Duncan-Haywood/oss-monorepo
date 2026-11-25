@@ -2,7 +2,7 @@
 
 > Add one free GitHub Action to scan your workflows for script injection, pwn requests, cache and artifact poisoning, leaked secrets, over-broad permissions and more. Read-only, zero dependencies, SARIF and step-summary output, no network calls.
 
-Free and open source (MIT). Findings come from static checks of your workflow files: a clean report is not a guarantee that a workflow is safe, and this is not professional security advice.
+Free to use and source available (FSL-1.1-MIT). Findings come from static checks of your workflow files: a clean report is not a guarantee that a workflow is safe, and this is not professional security advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Findings come from static checks of your workflow fi
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/workflow-audit): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/workflow-audit): FSL-1.1-MIT licensed.
