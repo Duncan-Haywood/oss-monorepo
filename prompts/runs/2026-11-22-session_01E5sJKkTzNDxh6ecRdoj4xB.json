@@ -195,7 +195,8 @@
       {
         "file": "prompts/test_promptctl.py",
         "issue": "Same defect: MeasureToleratesFreeTextEntriesTest and LastChangeIndexTest sit below the __main__ guard (line 689). Fix: move the guard block to the end of the file and delete prompts/test_promptctl.py from KNOWN in platform/ci/check_main_guard_last.py (test_repository_is_clean_apart_from_known then passes). Control plane: own PR, owner approval.",
-        "patched": false
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18834"
       }
     ]
   },
