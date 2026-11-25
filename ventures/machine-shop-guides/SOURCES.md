@@ -19,9 +19,10 @@ re-read** and are the first thing a session with access should verify:
    the −203 to 110 range in the DoD CIO briefing "CMMC Alignment to NIST
    Standards". A single wrong weight would break that sum unless offset by
    another error; `sprs.test.mjs` asserts it.
-2. **The 32 CFR 170.21(a)(2) list** of requirements that may never be on a
-   POA&M. Not encoded; the calculator and guide say so and send the reader to
-   the section.
+2. **The 32 CFR 170.21(a)(2)(iii) list** of requirements that may never be
+   on a POA&M. Encoded on 25 Nov 2026 (`POAM_PROHIBITED` in `sprs-data.mjs`)
+   from search excerpts of the eCFR page, not a direct read; see the row
+   below. Re-read (A)-(F) on the eCFR page when it is reachable.
 
 ## Sources
 
@@ -47,6 +48,7 @@ re-read** and are the first thing a session with access should verify:
 | Level 1 requirements are FAR 52.204-21(b)(1)(i)–(xv); identifier format AC.L1-b.1.i … SI.L1-b.1.xv; the table mapping them to NIST SP 800-171A objectives | 32 CFR 170.14(c)(2) and 170.15. **All 15 rows of Table 2 to 170.15(c)(1)(ii) read directly** from the eCFR versioner API (`/api/versioner/v1/full/2026-11-01/title-32.xml?part=170&section=170.15`, needs `Accept-Encoding: gzip`) by a second session on 25 Nov 2026; all 15 match `l1-data.mjs`, and `l1.test.mjs` pins them. The same session re-read the 15 texts on <https://www.acquisition.gov/far/52.204-21> (reachable that day) and found them identical to the GSA copy. |
 | The 59 assessment objectives (`L1_OBJECTIVES`); "must be performed using the objectives defined in NIST SP 800-171A"; FCI read for CUI | 32 CFR 170.15(c)(1)(i), read directly 25 Nov 2026; objectives extracted with `pdftotext` from NIST SP 800-171A (June 2018), <https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-171A.pdf>, read directly 25 Nov 2026: the "Determine if" items of the 17 mapped NIST numbers (6+2+6+5+3+3+2+4+6+8+2+6+2+1+3). CUI replaced by FCI in five (3.1.22[b], [d], [e]; 3.8.3[a], [b]), flagged `fciSubstituted`. |
 | Every requirement MET for Final Level 1 (Self); annual self-assessment; SPRS entry records level, date, scope, CAGE codes and result | 32 CFR 170.15(a)(1) and (b), same excerpts |
+| Level 2 requirements that may never be on a POA&M, 32 CFR 170.21(a)(2)(iii)(A)-(F): AC.L2-3.1.20 External Connections (CUI Data), AC.L2-3.1.22 Control Public Information (CUI Data), CA.L2-3.12.4 System Security Plan, PE.L2-3.10.3 Escort Visitors (CUI Data), PE.L2-3.10.4 Physical Access Logs (CUI Data), PE.L2-3.10.5 Manage Physical Access (CUI Data) | eCFR, <https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.21>, read 25 Nov 2026 through web-search excerpts restricted to ecfr.gov, law.cornell.edu and govinfo.gov (the hosts themselves were refused by the session's proxy): one excerpt gave (A)-(D), another (E) and (F) with these titles. The count of six is confirmed by the DoD CIO CMMC FAQ ("not one of the (6) prohibited in accordance with 32 CFR 170.21(a)(2)(iii)"), <https://dodcio.defense.gov/Portals/0/Documents/CMMC/FAQsv6.pdf>. `sprs.test.mjs` pins the six. |
 | No POA&M at Level 1 | 32 CFR 170.21, same excerpts |
 | Affirmation at the end of the self-assessment and annually | 32 CFR 170.22(b)(1), same excerpts |
 | MET / NOT MET / N/A findings; N/A objective "equivalent to ... MET"; evidence in final form, not drafts; Level 1 "scored as MET or NOT MET in their entirety" | 32 CFR 170.24(b) and (c)(1), read directly from the eCFR API 25 Nov 2026. (The first Level 1 build had no N/A because no excerpt it could read covered it; this is that text.) |
