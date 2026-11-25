@@ -116,3 +116,17 @@ test('buildConstructionPage writes industries/construction/index.html', async ()
     rmSync(out, { recursive: true, force: true });
   }
 });
+
+test('every pay-app-guides page in its own nav is linked from this page', async () => {
+  // The guides venture grows a page most days; before this test six of them (paid-short,
+  // joint checks, the cash forecast, stored materials, front-loading, retainage caps) never
+  // reached the bet #1 landing page. nav.mjs GROUPS is the venture's own list of pages.
+  const { GROUPS } = await import('../../ventures/pay-app-guides/nav.mjs');
+  const linked = new Set(PROBLEMS.flatMap((p) => p.tools.map(([s]) => s)));
+  for (const [, pages] of GROUPS) {
+    for (const [file] of pages) {
+      const tool = file === 'index.html' ? 'pay-app-guides' : `pay-app-guides/${file}`;
+      assert.ok(linked.has(tool), `${tool} is in pay-app-guides/nav.mjs but not on the construction page`);
+    }
+  }
+});
