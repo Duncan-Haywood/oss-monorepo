@@ -47,7 +47,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Security queue: skipped. Top alerts are documented FPs, and #849/#65 are fixed in open PRs #18836/#18837. #1086 (status-keeper rejectUnauthorized:false) is by design: the probe reads expired certificates and reports socket.authorized. #968 (shed-designer hoa-page) is an FP: corner is only a key into CORNERS, and all text goes through esc(). Campaign: pay-app-guides/calc.mjs, 10 mutants, 7 caught before and 10 after. Guard added: preset vs page-table agreement test. Verification: run_venture_tests.py pay-app-guides ok; repair-flow.test.mjs 6/6; new tests fail on the old code (prompt-pay 2 fail, repair-flow 1 fail).",
+  "notes": "Security queue: skipped. Top alerts are documented FPs, and #849/#65 are fixed in open PRs #18836/#18837. #1086 (status-keeper, cert verification off in its expiry probe) is by design: the probe reads expired certificates and reports socket.authorized. #968 (shed-designer hoa-page) is an FP: corner is only a key into CORNERS, and all text goes through esc(). Campaign: pay-app-guides/calc.mjs, 10 mutants, 7 caught before and 10 after. Guard added: preset vs page-table agreement test. Verification: run_venture_tests.py pay-app-guides ok; repair-flow.test.mjs 6/6; new tests fail on the old code (prompt-pay 2 fail, repair-flow 1 fail).",
   "corrections": [],
   "redteam": {
     "campaigns": [
