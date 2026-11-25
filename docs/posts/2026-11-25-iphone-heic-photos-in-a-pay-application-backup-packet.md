@@ -3,7 +3,7 @@ title: "Getting iPhone HEIC photos into a pay application's PDF backup packet"
 seo_title: "iPhone HEIC photos in a PDF pay app backup packet"
 date: 2026-11-25
 tags: [ventures, construction, pay-applications, photos]
-description: "How PayApps gets iPhone HEIC job photos into a PDF backup packet, and shrinks large photos before upload while keeping the time they were taken."
+description: "How PayApps gets iPhone HEIC job photos into a PDF backup packet, shrinks large photos and keeps the time each photo was taken."
 ---
 
 A subcontractor's monthly pay application often goes to the GC as one PDF:
@@ -38,8 +38,9 @@ before anything is sent, whenever the browser can decode them:
   also go past the 15 MB file limit.
 - Nothing is sent to a server for the conversion.
 
-The camera metadata inside the file (camera model, GPS, capture time) is not
-carried over. When you need the original as evidence, send it separately.
+The camera model and GPS inside the file are not carried over. Since a later
+update (below), the time the photo was taken is. When you need the original
+as evidence, send it separately.
 
 ## How it was checked
 
@@ -99,5 +100,32 @@ image is noise, which compresses worst, so real photos come out smaller.
 Pillow then read the date, time and offset back from the smaller file and
 found no GPS, camera model or orientation tag. As with HEIC, this has not
 yet been tried on a real phone.
+
+## Update: converted HEIC and WebP photos keep when they were taken
+
+The shrink step above kept the capture time for JPEGs only. A HEIC from an
+iPhone, the most common job photo of all, still lost it on the way to JPEG.
+Now it keeps it too.
+
+The difficulty is that each format hides its metadata somewhere else:
+
+- **JPEG** keeps EXIF in a segment near the start of the file.
+- **WebP** keeps it in a chunk named `EXIF` inside the file's RIFF container.
+- **HEIC** keeps it as a separate *item* in the file. A table of contents
+  (the `iinf` box) says which item is the EXIF, and a second table (`iloc`)
+  says where its bytes are, sometimes split into pieces. Those bytes start
+  with a number saying where the EXIF proper begins.
+
+PayApps reads all three in the browser, with no image library, takes the
+date, time and UTC offset, and writes them into the JPEG it uploads. As
+before, GPS and camera details are left out, and the upload note now says
+"with the time it was taken kept".
+
+How it was checked: the test HEIC was written by libheif, the open-source
+HEIF library, not by our code, and the test WebP by Pillow. Both read back
+2026:11:24 16:42:30, UTC−8. In Chromium, the real browser decoder turned
+the WebP into a JPEG carrying that time. Chromium can't decode HEIC, so the
+HEIC side is checked in unit tests only, along with truncated and corrupted
+files that must not crash the upload. Not yet tried on a real iPhone.
 
 This post was written with AI assistance.
