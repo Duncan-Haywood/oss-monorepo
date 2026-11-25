@@ -420,6 +420,8 @@ class Account:
         return out
 
     def deny_principals(self) -> None:
+        if not self.global_steps:
+            return  # IAM is global: in a multi-region sweep only the first region runs it
         iam = self.client("iam")
         doc = json.dumps(DENY_POLICY)
         for kind, name in self._tagged_principals():
@@ -431,6 +433,8 @@ class Account:
                     UserName=n, PolicyName=DENY_POLICY_NAME, PolicyDocument=doc))
 
     def allow_principals(self) -> None:
+        if not self.global_steps:
+            return
         iam = self.client("iam")
         for kind, name in self._tagged_principals():
             if kind == "role":
@@ -443,15 +447,15 @@ class Account:
 
     # --- Orchestration ---------------------------------------------------
     def kill(self) -> list[str]:
-        steps = [self.deny_principals] if self.global_steps else []
-        return self._run(steps + [self.pause_ses, self.disable_event_sources, self.throttle_lambda,
-                                  self.scale_ecs_down, self.scale_asg_down, self.stop_ec2,
-                                  self.stop_rds, self.stop_clusters, self.report_sagemaker])
+        return self._run([self.deny_principals, self.pause_ses, self.throttle_lambda,
+                          self.scale_ecs_down, self.stop_ec2, self.stop_rds]
+                         + [self.disable_event_sources, self.scale_asg_down,
+                            self.stop_clusters, self.report_sagemaker])
 
     def resume(self) -> list[str]:
-        steps = [self.start_clusters, self.start_rds, self.start_ec2, self.scale_asg_up, self.scale_ecs_up,
-                 self.restore_lambda, self.enable_event_sources, self.resume_ses]
-        return self._run(steps + ([self.allow_principals] if self.global_steps else []))
+        return self._run([self.start_rds, self.start_ec2, self.scale_ecs_up,
+                          self.restore_lambda, self.resume_ses, self.allow_principals]
+                         + [self.start_clusters, self.scale_asg_up, self.enable_event_sources])
 
     def _run(self, steps: list[Callable[[], None]]) -> list[str]:
         errors = []

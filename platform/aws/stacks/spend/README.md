@@ -8,11 +8,13 @@ management account by `.github/workflows/priv-aws-apply.yml`.
 | When (per account, monthly, actual cost) | What happens | Made by |
 |---|---|---|
 | any day a service or account costs unusually much (≥ `anomaly_threshold_usd`, default $10) | alert on the `budget-alerts` topic | `anomaly.tf` |
-| 50% and 80% of the account's budget | alert on the `budget-alerts` SNS topic (and email, if `AWS_BUDGET_ALERT_EMAIL` is set) | `aws_budgets_budget.account` |
+| 50% of the account's budget | alert on the `budget-alerts` SNS topic (and email, if `AWS_BUDGET_ALERT_EMAIL` is set) | `aws_budgets_budget.account` |
+| 80% of the account's budget | alert on the `budget-alerts` SNS topic (and email, if `AWS_BUDGET_ALERT_EMAIL` is set) | `aws_budgets_budget.account` |
 | forecast passes 100% | alert | same |
 | `freeze_at_percent` (default 100%) | AWS Budgets attaches the `spend-freeze` SCP to the account: nothing new starts | `aws_budgets_budget_action.freeze` |
 | same moment, **only for `kill_switch_accounts`** (default `apps`, `sandbox`) | the `budget-kill` topic invokes the kill switch, which stops what is running | `kill_switch/handler.py` |
-| organisation passes 50% / 80% / forecast 100% of `organization_limit_usd` | alert only | `aws_budgets_budget.organization` |
+| organisation passes 50% of `organization_limit_usd` | alert only | `aws_budgets_budget.organization` |
+| organisation passes 80% / forecast 100% of `organization_limit_usd` | alert only | `aws_budgets_budget.organization` |
 
 Anomaly detection is the fast layer: it compares each day with the usual, so
 a runaway loop or a leaked key shows up the same day, not when a monthly
