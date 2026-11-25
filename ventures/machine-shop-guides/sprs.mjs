@@ -7,7 +7,7 @@
  * with no status is treated as not yet answered, and counted separately so a
  * half-finished self-check never reads as a finished score.
  */
-import { REQUIREMENTS, PARTIAL, MAX_SCORE, FAMILIES } from "./sprs-data.mjs";
+import { REQUIREMENTS, PARTIAL, MAX_SCORE, FAMILIES, POAM_PROHIBITED } from "./sprs-data.mjs";
 
 // The minimum score for Conditional Level 2 status under 32 CFR 170.21 is
 // 80% of the maximum: 0.8 x 110 = 88.
@@ -43,16 +43,16 @@ export function scoreSprs(statuses = {}) {
 
   gaps.sort((a, b) => b.deduct - a.deduct || compareIds(a.id, b.id));
 
-  // POA&M eligibility as 32 CFR 170.21 describes it for Conditional Level 2
-  // status: only 1-point requirements, except 3.13.11 at its 3-point partial
-  // value. 170.21(a)(2) also names specific requirements that may never be
-  // on a POA&M; this check does not encode that list, and says so.
-  const blocking = gaps.filter(
-    (g) => g.weight !== null && !(g.deduct === 1 || (g.id === "3.13.11" && g.status === "partial")),
-  );
+  // POA&M eligibility as 32 CFR 170.21(a)(2) describes it for Conditional
+  // Level 2 status: only 1-point requirements, except 3.13.11 at its 3-point
+  // partial value, and never one of the six listed in (a)(2)(iii).
+  for (const g of gaps) g.poam = poamRule(g);
+  const blocking = gaps.filter((g) => g.weight !== null && g.poam !== "allowed");
   const conditional = {
     scoreOk: score >= CONDITIONAL_MIN,
     blocking: blocking.map((g) => g.id),
+    overWeight: blocking.filter((g) => g.poam === "over_one_point").map((g) => g.id),
+    prohibited: blocking.filter((g) => g.poam === "prohibited").map((g) => g.id),
     possible: !sspMissing && unanswered === 0 && score >= CONDITIONAL_MIN && blocking.length === 0,
   };
 
@@ -68,6 +68,24 @@ export function scoreSprs(statuses = {}) {
   };
 }
 
+/**
+ * Whether a gap may sit on a POA&M for Conditional Level 2 status
+ * (32 CFR 170.21(a)(2)): "allowed", "prohibited" (one of the six named in
+ * (a)(2)(iii)) or "over_one_point" (worth more than 1 point; 3.13.11 partial
+ * is the stated exception).
+ */
+export function poamRule(gap) {
+  if (POAM_PROHIBITED[gap.id]) return "prohibited";
+  if (gap.deduct === 1 || (gap.id === "3.13.11" && gap.status === "partial")) return "allowed";
+  return "over_one_point";
+}
+
+export const POAM_RULE_TEXT = {
+  allowed: "Yes",
+  prohibited: "No: listed in 32 CFR 170.21(a)(2)(iii); must be met",
+  over_one_point: "No: worth more than 1 point; must be met",
+};
+
 export function compareIds(a, b) {
   const pa = a.split(".").map(Number);
   const pb = b.split(".").map(Number);
@@ -80,7 +98,7 @@ export function compareIds(a, b) {
 
 /** A POA&M starter: one CSV row per gap, for the shop to complete. */
 export function gapsToCsv(gaps) {
-  const head = ["Requirement", "Short label", "Points deducted", "Status", "Planned action", "Responsible", "Milestone date", "Resources"];
+  const head = ["Requirement", "Short label", "Points deducted", "Status", "POA&M allowed (32 CFR 170.21)", "Planned action", "Responsible", "Milestone date", "Resources"];
   const esc = (v) => {
     const s = String(v ?? "");
     // Neutralise spreadsheet formula injection as well as quoting.
@@ -92,6 +110,7 @@ export function gapsToCsv(gaps) {
     g.label,
     g.deduct,
     g.status === "partial" ? PARTIAL[g.id]?.label ?? "Partial" : "Not met",
+    POAM_RULE_TEXT[g.poam ?? poamRule(g)],
     "",
     "",
     "",

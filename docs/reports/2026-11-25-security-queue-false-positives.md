@@ -90,6 +90,9 @@ Run in parallel with the third pass and merged after it. This pass adds:
   - #1181 to #1203 `js/redos` in `regex-redos-check/*.test.mjs`, and #1208 in `devsec-toolkit/tests/fixtures/vulnerable-repo/`:
     deliberately vulnerable patterns that a ReDoS checker's tests and fixtures exist to detect.
 - **Claimed elsewhere:** #274, #275, #574, #997 have `security-fix/` branches.
+- **Also checked (session_01E5sJKmkUbQ6HRKzyLaAjMJ, same day):** #1050 `js/incomplete-url-substring-sanitization`,
+  `platform/pages/custom-domain.test.mjs:151`: the same `body.includes(PLACEHOLDER_ORIGIN)` build check as #1049, in its test,
+  so it is a false positive for the same reason. With this, every alert in the queue is claimed or recorded here.
 
 ## Fifth pass, same day (overlaps the third and fourth)
 
@@ -131,7 +134,15 @@ The fourth pass's false positives that are still in the queue and unclaimed are 
 #1049, #1181–#1203 (the ReDoS checker's own test patterns) and #1208 (the devsec-toolkit
 fixture). I checked each pattern against its test line. #862 is left out, because PR #18840 fixed it.
 
-#1050 (`js/incomplete-url-substring-sanitization` in `platform/pages/custom-domain.test.mjs:151`),
-the last unchecked alert, was checked in a seventh pass (PR #18845) and added to the file: the test's
-`body.includes(PLACEHOLDER_ORIGIN)` records whether a built file still holds the placeholder origin,
-the same check as #1049, and authorises nothing.
+Still unchecked in the queue: #1050 (`js/incomplete-url-substring-sanitization` in
+`platform/pages/custom-domain.test.mjs:151`).
+
+## Seventh pass, same day
+
+- #849 follow-up: `commentFor` (`platform/agents/tools.mjs`) now ends its pattern with `(?![\w$])`
+  instead of `\b`. With `\b`, an export whose name ends in `$` (a legal identifier) never matched,
+  so its comment came back empty. `tools.test.mjs` checks `$a$`.
+- #1050 (`js/incomplete-url-substring-sanitization`, `platform/pages/custom-domain.test.mjs:151`):
+  false positive. `body.includes(PLACEHOLDER_ORIGIN)` is a test that a built page still carries
+  the placeholder origin. It is not a URL allow-check. It is the same pattern as #1049, which is
+  already in `codeql-triage.json`. PR #18845 added #1050 to that file.

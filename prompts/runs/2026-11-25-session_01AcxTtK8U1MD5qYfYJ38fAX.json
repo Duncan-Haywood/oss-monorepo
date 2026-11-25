@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtK8U1MD5qYfYJ38fAX",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T04:06:12Z",
+  "ended": "2026-11-25T04:09:59Z",
+  "wall_minutes": 3.99,
+  "tokens_in": 2502806,
+  "tokens_out": 11776,
+  "cost_usd": 1.2676,
+  "tool_calls": 32,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18839",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "origin/security-alerts:QUEUE.md",
+      "issue": "The top 7 alerts are false positives that were already documented in docs/reports/2026-11-25-security-queue-false-positives.md, but the queue still lists them first. Every run has to re-read the doc to know that. The queue has no way to mark 'checked, awaiting owner dismissal'."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "A parallel session (PR 18838) triaged the same alerts in the same doc while this one ran, because claim branches exist only for alerts being fixed, not for triage. Merged main and kept both passes; #849 was moved from 'by design' to fixed."
+    },
+    {
+      "file": "origin/security-alerts:QUEUE.md",
+      "issue": "Four sessions took the same alerts at once. Only the first pushes a claim branch, but every session pushes one to an alerts' branch it found free, and two sessions can both see it free within seconds. Triage passes claim nothing. The PR had to merge main 3 times."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The security queue (step 0) came before the routed ventures bet.",
+      "did": "Fixed 3 alerts and triaged 7 more plus the test fixtures. Kept the routed ventures/1 trailer.",
+      "result": "One PR. No bet work this run."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No customer post: security fixes give a customer nothing to read.",
+      "did": "Extended the existing agent doc instead of writing a new post.",
+      "result": "The next run of the queue can skip these alerts."
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-25-security-queue-false-positives.md (third pass)"
+  ],
+  "goal": null,
+  "notes": "node --test platform/agents/tools.test.mjs: 21 pass, 0 fail. node --test ventures/pay-app-guides/template.test.mjs: 5 pass. False positives for owner dismissal: #741, #960, #968, #969, #1049, #1050, #1086 (reasons in the doc). Local portfolio-validate failed on the payapps flagship next: cap; main had already fixed it, so main was merged in. After the merge, VENTURE.yaml validation passes. While this PR was open, PRs 18837 and a later fifth-pass PR landed the same #65, #849 and #862 fixes from parallel sessions. After the merges, this PR's unique change is commentFor matching names that end in $ ((?![\\w$]) instead of \\b), plus a test and doc note. Outcome is partial: most of the work was duplicated.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7be48f75-cff6-5485-b724-96028d9d894b",
+    "transcripts": 1,
+    "first": "2026-11-25T04:06:12Z",
+    "last": "2026-11-25T04:10:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 32,
+        "input": 63,
+        "output": 11776,
+        "thinking": 3199,
+        "cache_read": 2434636,
+        "cache_write_5m": 0,
+        "cache_write_1h": 68107,
+        "api_equivalent_usd": 1.2676,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 63,
+      "output": 11776,
+      "thinking": 3199,
+      "cache_read": 2434636,
+      "cache_write_5m": 0,
+      "cache_write_1h": 68107,
+      "api_equivalent_usd": 1.2676,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 32,
+    "tools": {
+      "Bash": 30,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.99,
+      "active_minutes": 3.99,
+      "model_minutes": 2.96,
+      "tool_minutes": 1.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "read and triage 10 alerts, fix 3, write tests and notes",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 157.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  },
+  "title": "security: commentFor finds names ending in $ (follow-up to PR 18837)"
+}
