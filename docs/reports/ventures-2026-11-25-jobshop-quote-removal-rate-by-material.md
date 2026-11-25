@@ -8,7 +8,7 @@ date: 2026-11-25
 `geometry-removal-rate-by-material` (ROADMAP item 5, "a per-material removal rate instead of one
 per machine").
 
-**What landed.** `removal_rates` (migration 0021: machine × material, unique pair, cascade on
+**What landed.** `removal_rates` (migration 0022, renumbered after PR 191 took 0021: machine × material, unique pair, cascade on
 delete), `PUT/DELETE /rate-card/removal-rates`, `removalRates` on `RateCardDto`, a "Removal rates
 by material" card, and `suggestRoughingOperation(part, blank, machines, material, rates)` in
 `src/shared/costing.ts`. It mirrors the cut-speed design (PR #176): rows for the line's material
