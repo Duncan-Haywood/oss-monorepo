@@ -137,9 +137,11 @@ decisions:
     runner.
   unlocks:
     - >-
-      Every deploy of the paid apps (grants-deploy has not run), and with it
-      the Paddle catalog sync from private-monorepo#36; plus CI on every
-      private PR, which agents now verify locally instead.
+      Every deploy of the paid apps (grants-deploy has not run; payapps-deploy,
+      bet #1, exists since private-monorepo#63 and is a manual "Run workflow"
+      once the legal drafts are confirmed), and with it the Paddle catalog
+      sync from private-monorepo#36; plus CI on every private PR, which agents
+      now verify locally instead.
   blocked_by: []
   note: >-
     Found 2026-11-25 on Duncan-Haywood/private-monorepo#36: runner_id 0 and

@@ -13,6 +13,8 @@ import {
   renderConstructionPage,
   RESEARCH,
   STATUS_LABELS,
+  toolHref,
+  toolSlug,
 } from './industry-construction.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -21,9 +23,26 @@ const allSlugs = [...new Set([...PROBLEMS.flatMap((p) => p.tools.map(([s]) => s)
 
 test('every linked tool is a real venture with a browser page', () => {
   for (const slug of allSlugs) {
-    const page = ['index.html', 'site/index.html'].some((f) => existsSync(path.join(ROOT, 'ventures', slug, f)));
+    const page = slug.includes('/')
+      ? existsSync(path.join(ROOT, 'ventures', slug))
+      : ['index.html', 'site/index.html'].some((f) => existsSync(path.join(ROOT, 'ventures', slug, f)));
     assert.ok(page, `ventures/${slug} has no browser page`);
   }
+});
+
+test('a page inside a venture links to that page and lives or drops with its venture', () => {
+  assert.equal(toolSlug('pay-app-guides/retainage-tracker.html'), 'pay-app-guides');
+  assert.equal(toolHref('../../', 'pay-app-guides/retainage-tracker.html'), '../../pay-app-guides/retainage-tracker.html');
+  assert.equal(toolHref('../../', 'pay-app-guides'), '../../pay-app-guides/');
+  const html = renderConstructionPage({ baseUrl: BASE });
+  assert.ok(html.includes('href="../../pay-app-guides/lien-waiver-log.html"'));
+  const without = renderConstructionPage({ baseUrl: BASE, liveSlugs: new Set(allSlugs.map(toolSlug).filter((s) => s !== 'pay-app-guides')) });
+  assert.ok(!without.includes('pay-app-guides/'), 'unpublished venture still linked');
+});
+
+test('no tool is listed twice', () => {
+  const tools = PROBLEMS.flatMap((p) => p.tools.map(([s]) => s));
+  assert.equal(new Set(tools).size, tools.length);
 });
 
 test('every research link is a real research project', () => {

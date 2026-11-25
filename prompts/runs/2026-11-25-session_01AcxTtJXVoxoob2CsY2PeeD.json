@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtJXVoxoob2CsY2PeeD",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T07:07:13Z",
+  "ended": "2026-11-25T07:11:17Z",
+  "wall_minutes": 4.21,
+  "tokens_in": 2585363,
+  "tokens_out": 20370,
+  "cost_usd": 1.6148,
+  "tool_calls": 30,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18887",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "CI validate: money() signed a negative inside the symbol (fixed with fix_money_sign.mjs); a P075 duplicate inherited from main (fixed on main in parallel).",
+    "Pages test: new meta description was 176 characters (limit 160, platform/pages/description-length.test.mjs). Two shortening attempts were pushed before the check passed, because a grep on '# fail' matched 'fail 1'.",
+    "CodeQL js/bad-tag-filter on a test regex /<script>/ (made case-insensitive). The PR went 'dirty' after PR #18874 (RFQ review) landed on the same venture: the llms.txt, README and page.test conflicts were resolved by keeping both. pull_request workflows stop triggering while a PR conflicts, which is easy to miss."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "Without --base it fails on the shallow clone ('no merge base'); --base HEAD~1 worked at once. CLAUDE.md could say to pass --base for a one-commit branch. (Already filed and fixed by another run: P075-risk-review-shallow-base.json, PR #18884.)"
+    },
+    {
+      "file": "prompts/process/backlog/",
+      "issue": "Two runs both filed P075, so `promptctl validate` on main went red for every PR. I renumbered one in this PR, but main fixed it in parallel (the clone one became P076), so my rename was dropped at merge time. Backlog ids collide whenever runs overlap. A validator that hands out the next free id at filing time would stop this."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Extended the existing quoting post with a section instead of writing a new one, per the 2026-11-24 consolidation direction.",
+      "did": "New '## Then send the quote' section in docs/posts/2026-11-25-quoted-vs-actual-hours-for-machine-shops.md",
+      "result": "one post covers the quoting front door"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-quoted-vs-actual-hours-for-machine-shops.md (section added)"
+  ],
+  "goal": null,
+  "notes": "Explore idea: customer-facing quote document for bet #2 (RFQ-to-quote): the output step after the job-shop quote calculator. quote-doc.mjs (price each rounded up to the cent, extended = unit x qty, validity date, buyer-side review, escaped HTML and email text, no cost lines). Verified: run_venture_tests machine-shop-guides ok, 144 tests; Playwright smoke at 390px with no console errors. Security queue was empty (1 claimed, 0 workable); IDEAS.md empty.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "46f48bcd-53d6-5a10-ae53-a9ed2adafe83",
+    "transcripts": 1,
+    "first": "2026-11-25T07:07:13Z",
+    "last": "2026-11-25T07:11:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 28,
+        "input": 56,
+        "output": 20370,
+        "thinking": 2339,
+        "cache_read": 2496828,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88479,
+        "api_equivalent_usd": 1.6148,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 28,
+      "input": 56,
+      "output": 20370,
+      "thinking": 2339,
+      "cache_read": 2496828,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88479,
+      "api_equivalent_usd": 1.6148,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.966,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 25,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.21,
+      "active_minutes": 4.21,
+      "model_minutes": 3.47,
+      "tool_minutes": 0.75,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "module + tests + page section + copy, est. for a mid-level dev",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 247.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
