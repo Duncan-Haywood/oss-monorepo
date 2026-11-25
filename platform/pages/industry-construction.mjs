@@ -94,7 +94,14 @@ export const PROBLEMS = [
     product: 'pay-apps',
     tools: [
       ['pay-application-generator', 'Pay application generator', 'Paste a schedule of values, set retainage, get the G702-style summary and line table.'],
-      ['pay-app-guides', 'Pay app guides', 'Schedule of values calculator, free Excel template, and guides to retainage, lien waivers, change orders and over- and underbilling.'],
+      ['pay-app-guides', 'Schedule of values calculator', 'Roll the continuation sheet forward: work completed, stored materials, retainage, balance to finish and payment due, with over-billed lines flagged.'],
+      ['pay-app-guides/pay-application-checker.html', 'Pay application checker', 'Paste last month’s approved SOV and this month’s draft; see the carry-forward and retainage errors a GC would send back.'],
+      ['pay-app-guides/schedule-of-values-template.html', 'Schedule of values template (Excel)', 'A free continuation-sheet spreadsheet and a filled-in example.'],
+      ['pay-app-guides/how-to-fill-out-a-pay-application.html', 'How to fill out a pay application', 'The continuation sheet column by column and the summary page line by line.'],
+      ['pay-app-guides/retainage-tracker.html', 'Retainage tracker', 'Retainage receivable across jobs: aging from your release terms, unbilled releases, totals by GC and a chase list.'],
+      ['pay-app-guides/retainage-release.html', 'Retainage release', 'The closeout documents usually asked for, a release date, and a request letter.'],
+      ['pay-app-guides/retainage-in-quickbooks.html', 'Retainage in QuickBooks Online', 'The account, item and invoice lines QuickBooks needs, since it has no retainage field.'],
+      ['pay-app-guides/overbilling-underbilling.html', 'Overbilling and underbilling', 'Billed to date against cost-to-cost percent complete for one job, with the adjusting entry.'],
       ['retainage-cashflow-calculator', 'Retainage cash-flow calculator', 'How much retainage is held, what carrying it costs, and a follow-up draft.'],
       ['subcontractor-cashflow-planner', 'Subcontractor cash-flow planner', 'The funding gap that payment terms and retention open, and what closes it.'],
       ['contractor-wip-schedule', 'Contractor WIP schedule', 'Over- and underbilling across open jobs from your job list.'],
@@ -110,6 +117,23 @@ export const PROBLEMS = [
     tools: [
       ['lien-waiver-checker', 'Lien waiver checker', 'Paste the waiver you were sent and see what to fix before you sign.'],
       ['mechanics-lien-deadline-calculator', 'Mechanics lien deadline calculator', 'Notice and filing deadlines for a set of US states, from your dates on the job.'],
+      ['pay-app-guides/lien-waiver-log.html', 'Lien waiver log', 'Waivers given and received matched by payment; unconditionals signed before the money cleared flagged; the next pay app’s waiver requests written.'],
+      ['pay-app-guides/conditional-vs-unconditional-lien-waivers.html', 'Conditional vs unconditional lien waivers', 'The four waiver types and when to sign each.'],
+      ['pay-app-guides/lien-waiver-forms-by-state.html', 'Statutory lien waiver forms by state', 'Which states require their own form, each linked to the statute.'],
+      ['pay-app-guides/sworn-statement.html', 'Contractor’s sworn statement', 'The Illinois and Michigan sworn statement table from your subs and suppliers, with the totals checked.'],
+    ],
+  },
+  {
+    id: 'slow-payment',
+    title: 'Slow payment and the contract terms behind it',
+    who: 'Subcontractors waiting on the GC, and the GC waiting on the owner',
+    pain:
+      'The pay app was approved weeks ago and the money has not come. Whether the sub can push depends on a payment clause few people read closely and on a state prompt payment deadline that differs from job to job.',
+    product: 'pay-apps',
+    tools: [
+      ['pay-app-guides/pay-if-paid-clauses.html', 'Pay-if-paid clause reader', 'Paste the payment clause from a subcontract and see whether it reads as pay-if-paid or pay-when-paid, quoting the words that decided it.'],
+      ['pay-app-guides/prompt-payment-laws.html', 'Prompt payment laws', 'Deadlines after the GC is paid, by state, each linked to the statute, with a late-payment interest calculator.'],
+      ['pay-app-guides/pay-application-software-compared.html', 'Pay application software compared', 'Spreadsheet, QuickBooks, Knowify, PayAppHub, Trimble Pay and Siteline, and what GC portals charge the sub.'],
     ],
   },
   {
@@ -120,6 +144,8 @@ export const PROBLEMS = [
       'Extra work gets done on a verbal OK, priced later, and argued over at the end of the job. A change order needs a price that covers loaded labor, materials, delay and markup, and a record of what was asked, when and by whom.',
     product: 'pay-apps',
     tools: [
+      ['pay-app-guides/change-order-log.html', 'Change order log', 'Approved, pending and rejected totals, the revised contract sum, billing on unsigned changes flagged, approved changes written as SOV lines.'],
+      ['pay-app-guides/change-orders-schedule-of-values.html', 'Change orders and the schedule of values', 'How approved and deductive changes enter the SOV and the summary page.'],
       ['change-order-margin-calculator', 'Change order margin calculator', 'Price added work and see what a markup cap actually leaves you.'],
       ['scope-creep-change-order-calculator', 'Scope creep change order calculator', 'Price the small extra requests before they add up.'],
       ['construction-evidence-log', 'Construction daily log and evidence pack', 'A dated daily log and change-order evidence pack, kept in your browser.'],
@@ -199,6 +225,12 @@ export const RESEARCH = [
   },
 ];
 
+/** The venture slug a tool entry belongs to. */
+export const toolSlug = (tool) => tool.split('/')[0];
+
+/** Link to a tool entry: a venture's index (`slug/`) or a page inside it. */
+export const toolHref = (toRoot, tool) => `${toRoot}${tool.includes('/') ? tool : `${tool}/`}`;
+
 const escapeHtml = (value) =>
   String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -212,7 +244,7 @@ const jsonLd = (value) =>
 
 /** Plain-text answers, shown on the page and repeated as FAQPage data. */
 export const FAQ = [
-  ['Can I buy the pay-app suite today?', 'Not yet. It is in development and taking early-access interest; no price is set. The free pay application generator, retainage calculator and lien waiver checker work today.'],
+  ['Can I buy the pay-app suite today?', 'Not yet. It is in development and taking early-access interest; no price is set. The free pay application generator, pay application checker, retainage tracker, change order log and lien waiver log work today.'],
   ['Are the free tools really free?', 'Yes. They run in your browser on this site with no account and no card, and their code is published (source available, FSL-1.1-MIT).'],
   ['Do the free tools replace an accountant, a lawyer or a scheduler?', 'No. They help you check numbers and documents before you send or sign them. Lien rights, contract terms and retainage rules depend on your state and your contract; check with a qualified professional.'],
   ['Is the construction research a product?', 'No. It is open research with code and results you can check. It may inform products later; nothing here sells it.'],
@@ -231,7 +263,9 @@ export function renderConstructionPage({
   researchSlugs = null,
   earlyAccessHref,
 } = {}) {
-  const live = (slug) => !liveSlugs || liveSlugs.has(slug);
+  // A tool is a venture slug (`pay-app-guides`) or a page inside one
+  // (`pay-app-guides/retainage-tracker.html`); liveness is the venture's.
+  const live = (tool) => !liveSlugs || liveSlugs.has(toolSlug(tool));
   const url = `${baseUrl}${CONSTRUCTION_PATH}`;
   const title = 'Software for construction subcontractors and small builders';
   const description =
@@ -239,7 +273,7 @@ export function renderConstructionPage({
   const cta = earlyAccessHref ?? `${toRoot}feedback/?type=idea`;
   const byId = Object.fromEntries(PRODUCTS.map((p) => [p.id, p]));
   const toolName = new Map(PROBLEMS.flatMap((p) => p.tools.map(([slug, name]) => [slug, name])));
-  const toolLink = (slug) => `<a href="${escapeHtml(`${toRoot}${slug}/`)}">${escapeHtml(toolName.get(slug) || slug)}</a>`;
+  const toolLink = (slug) => `<a href="${escapeHtml(toolHref(toRoot, slug))}">${escapeHtml(toolName.get(slug) || slug)}</a>`;
 
   const problemHtml = PROBLEMS.map((p) => {
     const tools = p.tools.filter(([slug]) => live(slug));
@@ -252,7 +286,7 @@ export function renderConstructionPage({
         <p class="ic-answer"><strong>Being built:</strong> <a href="#product-${escapeHtml(product.id)}">${escapeHtml(product.name)}</a> <span class="ic-status ic-${escapeHtml(product.status)}">${escapeHtml(STATUS_LABELS[product.status])}</span></p>${tools.length ? `
         <p class="ic-free"><strong>Free today:</strong></p>
         <ul class="ic-tools">${tools.map(([slug, name, what]) => `
-          <li><a href="${escapeHtml(`${toRoot}${slug}/`)}">${escapeHtml(name)}</a>: ${escapeHtml(what)}</li>`).join('')}
+          <li><a href="${escapeHtml(toolHref(toRoot, slug))}">${escapeHtml(name)}</a>: ${escapeHtml(what)}</li>`).join('')}
         </ul>` : ''}
       </section>`;
   }).join('');
