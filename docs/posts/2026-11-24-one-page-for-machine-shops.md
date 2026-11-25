@@ -125,3 +125,35 @@ cannot show which revision a PO accepted is in a weak position if there is a
 dispute. Keeping every sent revision unchanged, with a fingerprint, removes
 that doubt. (This is a description of the software, not legal advice about
 when an offer binds.)
+
+## Update, 25 November 2026: what one RFQ is, counted from the drawings
+
+The proposed pricing for the RFQ-to-quote app says a plan includes a number of
+RFQs a month: "one customer request, with any number of parts, up to 10
+drawing pages. Bigger packages count once per 10 pages." Until today the app
+counted every RFQ once, whatever its size. It now counts the way the pricing
+says. Paid plans are still not on sale.
+
+- **Pages come from the file, not a guess.** When a PDF is uploaded, the app
+  reads the page count the file itself records. For newer PDFs that count sits
+  in a compressed part of the file, and the app reads it there too. On 20 test
+  files from Chromium, LibreOffice and poppler, plus encrypted ones, it matched
+  poppler's `pdfinfo` every time. A photo of a drawing counts as one page. The
+  email text and CAD models count nothing on their own.
+- **An unreadable file counts as one page.** If the app cannot read a PDF's
+  page count without guessing, for example because the file is broken, it
+  counts one page. A reading error can make an RFQ count less, never more.
+- **You see the count before you press the button.** The RFQ page shows each
+  PDF's page count and what the next AI read will count: "23 drawing pages:
+  the AI's first read counts as 3 RFQs of this month's allowance."
+- **A revised drawing set counts only what it adds.** A 7-page RFQ that gains
+  3 pages is still one RFQ. If it grows to 22 pages, the next read counts 2
+  more, in the month it is read. Reading the same package again is free.
+- **A package too big for what is left is refused, not cut short.** The
+  message says how many RFQs it needs and how many are left, and a smaller RFQ
+  can still be read. Entering parts by hand and quoting them is never blocked.
+
+The reason for the rule is cost. The pricing model assumes about 3 drawing
+pages per RFQ, and the AI's cost grows with the pages it reads. Counting per 10
+pages lets a shop that sends 50-page packages pay for them, and a shop that
+sends 2-page RFQs is not charged for them.
