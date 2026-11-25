@@ -19,6 +19,7 @@ export const GROUPS = [
   ["Billing guides", [
     ["how-to-fill-out-a-pay-application.html", "How to fill out a pay application"],
     ["change-orders-schedule-of-values.html", "Change orders and the SOV"],
+    ["stored-materials-billing.html", "Billing stored materials"],
     ["overbilling-underbilling.html", "Overbilling and underbilling"],
     ["retainage-explained.html", "Retainage explained, with state caps"],
     ["retainage-release.html", "Getting retainage released"],
@@ -32,6 +33,7 @@ export const GROUPS = [
     ["lien-waiver-forms-by-state.html", "Lien waiver forms by state"],
     ["lien-waiver-log.html", "Lien waiver log (given and collected)"],
     ["sworn-statement.html", "Contractor's sworn statement builder"],
+    ["paid-short.html", "Paid short? Reconcile the check"],
   ]],
 ];
 

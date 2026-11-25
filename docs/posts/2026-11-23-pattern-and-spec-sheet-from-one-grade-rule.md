@@ -83,11 +83,6 @@ The bicep had to move with it. With only the armhole fixed, the sleeve cap
 up to 0.73 cm a size. With both graded, the cap stays within 0.6 cm a size in
 every garment and fit. A test now holds it there.
 
-The same audit found the rectangle cutting plan still kept its own sleeve
-lengths: 22 cm for a tee and 62 for long sleeves in every size, against 21 and
-63 at M, graded a centimetre a size, in the pattern and the spec. It now
-takes the sleeve from the drafted pattern, so all three agree.
-
 The audit also tried small deliberate bugs (seeded mutations) and found some
 left every test green: dropping body length from the run-cost fabric factor,
 and moving the size-run edges off the midpoints. Each now has a test with a
@@ -95,6 +90,23 @@ figure worked out away from the code. The fabric factor is chest times length
 against M, 0.809 for an XS and 1.317 for an XXL. The size-run split is the
 normal curve computed separately, 9.1, 23.7, 34.3, 23.7, 7.8 and 1.3% for XS
 to XXL.
+
+## Update 2026-11-25: the fabric estimate used a third set of sleeves
+
+The pattern and the spec sheet agreed after this fix, but the cutting
+marker (`marker.mjs`, which estimates how many metres to buy) kept its own
+sleeve table: tee 22 cm, hoodie 62 cm, the same in every size. The spec sheet
+says 21 cm and 64 cm at M, plus or minus 1 cm per size. The marker now
+takes each size's sleeve from the drafted pattern, as it already did the
+neckband, and a test checks it against the spec sheet in every garment and
+size. Re-checked the same day: 72 of 72 sleeve, shoulder and neck points
+across tee, long sleeve, crewneck and hoodie are within the spec's
+tolerance.
+
+For a run of 143 tees (S30, M70, L40, XXL3) on 150 cm cloth, the quote moves
+from 135.74 m to 132.06 m, about 2.7% less cloth. With the bicep graded from M (the update above), the small sizes' sleeves are a little wider and the same run quotes 134.82 m. The marker still adds a
+1.5 cm seam allowance where the pattern adds 1 cm, so it stays on the
+cautious side. A factory's own marker figure always wins.
 
 ## What is still unproven
 

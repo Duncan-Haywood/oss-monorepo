@@ -26,6 +26,17 @@ The page's example button loads 14 invented rows for two machines, a vertical mi
 
 The numbers that matter are the ones in your own history. A generic cycle-time table cannot know your fixtures, your operators or your customers' tolerances. So the page has no built-in rates, and the tests fail if a dollar figure appears in its text outside the invented example. The method is short enough to check by hand. It lives in `calibrate.mjs` in the [source](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/machine-shop-guides), and its tests work the medians, quartiles and quantity-weighted hours out by hand.
 
+## Then send the quote
+
+A price is not a quote until the buyer has it. The [job-shop quote calculator](https://marisstella.app/machine-shop-guides/job-shop-quote-calculator.html) now ends with a **customer quote** section. You add your shop's details, the customer, their RFQ reference, the part number and revision, material and finish, lead time, how long the price holds, and your payment and shipping terms. It then writes the quote: price each and extended price at every quantity break, as a standalone HTML file to print to PDF, or as plain text to paste into your reply.
+
+A few things are deliberate:
+
+- **Your cost lines stay off it.** Material, setup, machining and markup are your numbers, not the buyer's. The tests fail if any of them show up in the document.
+- **Price each is rounded up to the cent**, and the extended price is that price times the quantity. A buyer who checks the arithmetic gets the same total you did, and the quote never comes in below the calculated price.
+- **It names the revision.** A quote that doesn't say which drawing revision it priced can end up being held to a later one. Before you send, a check lists anything a buyer would send back: no revision, no validity period, no lead time, no material, or a larger lot that costs less in total than a smaller one (a buyer will order the bigger lot).
+- **Customer details stay put.** Nothing is uploaded. If you tick the box, your shop's name, contact details and standard terms are kept in your browser for the next quote. Customer and part details never are.
+
 ## Where this is going
 
 The RFQ-to-quote assistant we are building for small CNC and fabrication shops (in development, early access on the [manufacturing page](https://marisstella.app/industries/manufacturing/)) is meant to do this comparison every time a job closes. That way the next quote starts from how your shop actually runs, not from how it ran when the rates were last set. This free page is the manual version of that step.

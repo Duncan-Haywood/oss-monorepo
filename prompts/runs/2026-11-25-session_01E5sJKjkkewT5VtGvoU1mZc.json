@@ -46,6 +46,10 @@
     {
       "file": "prompts/quality/prompt-0.md",
       "issue": "steps 1 and 5 describe a sample round, but the mode draw picked fix; the README covers it, the prompt does not say to check mode first."
+    },
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "queue's per-session shuffle did not keep a parallel fix session (PR #18905) off the same audit row; both rewrote marker.mjs the same way within an hour. The 'open PR naming it' mark only helps once a PR is open: claiming with a draft PR immediately after picking the row would have shown it."
     }
   ],
   "deviations": [
@@ -67,7 +71,7 @@
     "ventures/clothing-design-studio/README.md section 'Armhole and bicep graded from M' and ROADMAP Known gaps"
   ],
   "goal": "north star: for-profit product quality (clothing-design-studio, paid row 16)",
-  "notes": "Mode fix (seeded draw, 28 high defects open); queue seed 2026-11-25-6602. No sample round, so no seed/subject share for this run. Defect 0 (high) verified closed by PR #18165/#18388 via an independent pattern-vs-spec script over 4 garments x 6 sizes (sleeve, shoulder, neck all within tolerance) and marked fixed_by #18388; defect 3 (neckband) marked #18388. This PR fixes defects 1 (armhole +0.96, bicep +2 cm girth per 8 cm chest step from M; cap height stable within 0.6 cm a size), 2 partly (marker sleeve box from the drafted sleeve; seam allowance split left open), 4 (tests pin fabric factor 0.809/1.317 by hand and size-run shares vs Python erf). Seeded mutations, all caught after the change: armhole 0.12->0.235, bicep 0.25->0.34, r.armhole*d->0.235*d, neck 0.09->0.1, runcost chest*length->chest (survived before), size edges off midpoints. Venture suite: node --test '*.test.mjs' 759+ pass, 0 fail. Fix PRs: #18907.",
+  "notes": "Mode fix (seeded draw, 28 high defects open); queue seed 2026-11-25-6602. No sample round, so no seed/subject share for this run. Defect 0 (high) verified closed by PR #18165/#18388 via an independent pattern-vs-spec script over 4 garments x 6 sizes (sleeve, shoulder, neck all within tolerance) and marked fixed_by #18388; defect 3 (neckband) marked #18388. This PR fixes defects 1 (armhole +0.96, bicep +2 cm girth per 8 cm chest step from M; cap height stable within 0.6 cm a size), 2 (marker sleeve box from the drafted sleeve) duplicated PR #18905, which merged first; main's marker.mjs kept in the merge, so 18907 ships armhole/bicep grade and the pinning tests, 4 (tests pin fabric factor 0.809/1.317 by hand and size-run shares vs Python erf). Seeded mutations, all caught after the change: armhole 0.12->0.235, bicep 0.25->0.34, r.armhole*d->0.235*d, neck 0.09->0.1, runcost chest*length->chest (survived before), size edges off midpoints. Venture suite: node --test '*.test.mjs' 759+ pass, 0 fail. Fix PRs: #18907.",
   "corrections": [],
   "redteam": null,
   "usage": {

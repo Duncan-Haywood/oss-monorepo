@@ -23,7 +23,7 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
 });
 
 test("no page sends anything anywhere or loads remote scripts", () => {
-  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "usage.mjs"]) {
+  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "stored.mjs", "shortpay.mjs", "usage.mjs"]) {
     const src = page(name);
     assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, name);
     assert.doesNotMatch(src, /<script[^>]+src=["']https?:/, name);
@@ -77,7 +77,7 @@ test("robots and sitemap list every page", () => {
 // show bare values on a phone, so every cell must carry its own column's header, in order.
 test("guide tables stack on a phone, every cell labelled with its column header", () => {
   // change-order-log.html fills its rows from script; its own test below checks the labels.
-  const guides = PAGES.filter((name) => name !== "index.html" && name !== "change-order-log.html" && name !== "lien-waiver-log.html" && name !== "retainage-tracker.html");
+  const guides = PAGES.filter((name) => name !== "index.html" && name !== "change-order-log.html" && name !== "lien-waiver-log.html" && name !== "retainage-tracker.html" && name !== "paid-short.html");
   for (const name of guides) {
     const html = page(name);
     const at = html.indexOf("<main>");
@@ -141,6 +141,18 @@ test("the prompt payment table links each state to its official legislature site
   for (const [, state, href] of rows) assert.match(href, official, state);
   assert.match(html, /2026-11-25/);
   for (const id of ["pp-state", "pp-amount", "pp-received", "pp-paid", "pp-days", "pp-rate", "pp-per", "pp-method"]) assert.match(html, new RegExp(`<label for="${id}">`));
+});
+
+test("stored materials page: inputs labelled, script rows carry the column labels, linked from the guides", () => {
+  const html = page("stored-materials-billing.html");
+  for (const id of ["ret-work", "ret-stored", "log", "file"]) assert.match(html, new RegExp(`<label for="${id}">`));
+  const at = html.indexOf('id="result"');
+  const table = html.slice(html.indexOf("<table", at), html.indexOf("</table>", at));
+  const heads = [...table.matchAll(/<th role="columnheader" scope="col"[^>]*>([^<]*)<\/th>/g)].map((m) => m[1].trim());
+  const row = /\$\("#rows"\)\.innerHTML = [^\n]*/.exec(html)[0];
+  assert.deepEqual([...row.matchAll(/<td data-label="([^"]*)"/g)].map((m) => m[1]), heads);
+  assert.match(html, /href="https:\/\/www\.acquisition\.gov\/far\/52\.232-5"/);
+  for (const name of ["index.html", "how-to-fill-out-a-pay-application.html"]) assert.match(page(name), /href="stored-materials-billing\.html"/, name);
 });
 
 test("the software comparison dates its prices, marks aggregator prices, and links each portal fee to the vendor's help site", () => {
@@ -240,3 +252,12 @@ test("sworn statement page: inputs labelled, both statutes linked to the officia
   for (const name of ["index.html", "how-to-fill-out-a-pay-application.html", "conditional-vs-unconditional-lien-waivers.html"]) assert.match(page(name), /href="sworn-statement\.html"/, name);
 });
 
+
+test("paid-short page: inputs labelled, phone labels match the header row, never suggests waiving money not received, linked from the guides", () => {
+  const html = page("paid-short.html");
+  for (const id of ["applied", "certified", "number", "project", "gc", "checks", "deductions"]) assert.match(html, new RegExp(`<label for="${id}">`));
+  const heads = [...html.slice(html.indexOf('id="reconciler"')).matchAll(/<th role="columnheader" scope="col">([^<]*)<\/th>/g)].slice(0, 6).map((m) => m[1]);
+  assert.ok(html.includes(`const HEADS = ${JSON.stringify(heads).replaceAll('","', '", "')};`), "HEADS matches the header row");
+  assert.match(html, /Don't waive what you were not paid/);
+  for (const name of ["conditional-vs-unconditional-lien-waivers.html", "prompt-payment-laws.html"]) assert.match(page(name), /href="paid-short\.html"/, name);
+});

@@ -1,0 +1,23 @@
+{
+  "id": "P077",
+  "title": "Site tests counted fetch( in the hub's whole HTML, so a post card mentioning fetch() turned main red",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "Two hub tests in platform/pages/build.test.mjs ('usage counting is local...', 'the offline offer is honest...') matched fetch(, XMLHttpRequest and sendBeacon across the entire rendered index.html. The hub shows the latest posts' descriptions, so a post about code that says fetch() in its description failed the site suite with a message about tracking, not about the post. The run had to find the cause and reword the post.",
+  "evidence": [
+    "prompts/runs/2026-11-25-session_01XpHqyemh9faFayXEcBV*.json errors: \"site test 'usage counting is local' failed: the post's description said fetch(), the hub shows it on the latest-post card and the test counts fetch( calls; reworded\"",
+    "same record, doc_friction on platform/pages/build.test.mjs"
+  ],
+  "change": "build.test.mjs gains pageCode(html): inline script bodies (JS or module types, not JSON-LD) plus on* handler attributes. The two hub tests read that instead of the whole page, and a unit test pins that prose and JSON-LD are ignored while an onclick fetch is still caught.",
+  "touches": [
+    "platform/pages/build.test.mjs"
+  ],
+  "metric": "run records whose errors or doc_friction name a site test failing on prose in a post or tool blurb (fetch(, XMLHttpRequest, sendBeacon)",
+  "baseline": "1 record (PR #18765) in the 3 days to 2026-11-25; the class recurs whenever a technical post is published",
+  "opened": "2026-11-25",
+  "source": "process critique, 2026-11-25 (recent doc_friction in prompts/runs/)",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18902",
+  "result": null
+}

@@ -44,7 +44,8 @@ test("cutting plan covers the order, within ply and table limits, and reports sp
   for (const [s, n] of Object.entries(want)) assert.ok(cut[s] >= n, s);
   const spares = Object.values(p.extraPieces).reduce((a, b) => a + b, 0);
   assert.ok(spares <= 12, `spares ${spares}`);
-  assert.ok(Math.abs(p.metresPerPiece * p.pieces - p.metresToBuy) < 0.5);
+  // metresPerPiece is rounded to 0.01 m, so over n pieces the product can drift by up to n x 0.005 m
+  assert.ok(Math.abs(p.metresPerPiece * p.pieces - p.metresToBuy) <= 0.005 * p.pieces + 1e-9);
   assert.ok(Math.abs(p.groups.reduce((a, g) => a + g.metres, 0) - p.metresToBuy) < 0.05);
 });
 
@@ -140,19 +141,19 @@ test("rib bands: laid in the body cloth, or on their own rib knit with its own m
   assert.equal(cuttingPlan("crewneck", { M: 4 }, { nested: true, rib: "x" }).ok, false);
 });
 
-test("the cutting plan's sleeve box is the drafted sleeve: graded length, bicep girth, plus seam allowance (quality audit 2026-11-22, defect 2)", async () => {
-  const { draft } = await import("./pattern.mjs");
+// Quality audit 2026-11-22 (portfolio/quality/audits/2026-11-22-clothing-design-studio.json#2): the marker typed
+// its own sleeve table (tee 22, hoodie 62 cm, ungraded) that disagreed with the spec sheet and the pattern.
+test("marker sleeves are the spec sheet's graded sleeve length plus seam, in every size and garment", async () => {
   const { specSheet } = await import("./spec.mjs");
+  const { SEAM_ALLOWANCE_CM } = await import("./marker.mjs");
   for (const garment of ["tee", "longsleeve", "crewneck", "hoodie"]) {
-    const sp = specSheet({ garment });
-    for (const size of ["XS", "M", "XXL"]) {
-      const box = patternPieces(garment, size).find(p => p.name === "sleeve");
-      const d = draft(garment, size);
-      const cuff = garment === "crewneck" || garment === "hoodie" ? 4 : 0;
-      // the spec sheet's sleeve (shoulder point to cuff) is the independent figure; the old table had tee 22 in every size
-      assert.ok(Math.abs(box.l - (sp.sizes[size].sleeve - cuff + 3)) < 0.06, `${garment} ${size} length ${box.l}`);
-      assert.ok(Math.abs(box.w - (d.checks.sleeveBicepGirthCm + 3)) < 0.06, `${garment} ${size} width ${box.w}`);
+    const spec = specSheet({ garment });
+    for (const [size, row] of Object.entries(spec.sizes)) {
+      const sleeve = patternPieces(garment, size).find(p => p.name === "sleeve");
+      assert.ok(Math.abs(sleeve.l - (row.sleeve + 2 * SEAM_ALLOWANCE_CM)) <= 0.1, `${garment} ${size}: marker ${sleeve.l}, spec ${row.sleeve} + seams`);
     }
   }
-  assert.ok(patternPieces("tee", "XXL").find(p => p.name === "sleeve").l - patternPieces("tee", "XS").find(p => p.name === "sleeve").l > 4.9);
+  // graded: XXL is 3 cm longer than M, XS 2 cm shorter
+  const l = s => patternPieces("tee", s).find(p => p.name === "sleeve").l;
+  assert.ok(Math.abs(l("XXL") - l("M") - 3) <= 0.1 && Math.abs(l("M") - l("XS") - 2) <= 0.1);
 });
