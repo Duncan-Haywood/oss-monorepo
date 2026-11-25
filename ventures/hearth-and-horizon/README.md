@@ -492,9 +492,10 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (96 stories)
+### Little Lamps (97 stories)
 
 - [Ephrem and the Hymns for the Choir](stories/ephrem-and-the-hymns-for-the-choir.md) (2026-11-25; 9 min read, text only)
+- [Pius and the Children at the Altar Rail](stories/pius-and-the-children-at-the-altar-rail.md) (2026-11-25; 9 min read, text only)
 - [John Baptist de la Salle and the Lessons in French](stories/john-baptist-de-la-salle-and-the-lessons-in-french.md) (2026-11-24; 10 min read, text only)
 - [John of Kanty and the Coins in the Hem](stories/john-of-kanty-and-the-coins-in-the-hem.md) (2026-11-24; 10 min read, text only)
 - [Turibius and the Catechism in Three Languages](stories/turibius-and-the-catechism-in-three-languages.md) (2026-11-24; 11 min read, text only)
