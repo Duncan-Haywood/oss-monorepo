@@ -105,3 +105,14 @@ test('index links one hop to the deck-bid-calculator sibling', () => {
   );
   assert.match(html, /deck bid calculator/i);
 });
+
+test('the form starts from the engine defaults for max post spacing and beam overhang, and shows the bay', async () => {
+  const { DEFAULT_MAX_POST_SPACING_FEET, DEFAULT_BEAM_OVERHANG_FEET, suggestedBeamLf } = await import('./calc.mjs');
+  const page = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, new RegExp(`id="postSpacingFeet"[^>]*value="${DEFAULT_MAX_POST_SPACING_FEET}"`));
+  assert.match(page, new RegExp(`id="beamOverhangFeet"[^>]*value="${DEFAULT_BEAM_OVERHANG_FEET}"`));
+  // The static beamLf value is what the default 10x10 freestanding form suggests.
+  assert.match(page, new RegExp(`id="beamLf"[^>]*value="${suggestedBeamLf(10, 10, DEFAULT_MAX_POST_SPACING_FEET, 'freestanding')}"`));
+  assert.match(page, /id="bayNote"/);
+  assert.match(page, /suggestedBeamLf\(width, depth, spacing, attachment, overhang\)/);
+});

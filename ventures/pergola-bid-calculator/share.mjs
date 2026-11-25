@@ -35,7 +35,7 @@
 import { ATTACHMENT_PRESETS, SHADE_PRESETS, HEIGHT_PRESETS } from './calc.mjs';
 
 export const NUMBER_FIELD_IDS = [
-  'widthFeet', 'depthFeet', 'postSpacingFeet', 'rafterSpacingInches',
+  'widthFeet', 'depthFeet', 'postSpacingFeet', 'beamOverhangFeet', 'rafterSpacingInches',
   'hoursTrip', 'hoursPerPost', 'extraHoursPerPost', 'hoursPer100SfShade', 'hoursPerRafter',
   'hoursPerBeamLf', 'hoursLedger', 'hoursKneeBrace', 'hoursFan', 'hoursDemo', 'hoursSite', 'siteHours',
   'postCount', 'rafterCount', 'beamLf', 'ledgerLf', 'kneeBraceCount', 'footingCount',

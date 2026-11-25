@@ -4,6 +4,9 @@ import {
   calculateBid,
   formatBidSummary,
   postsAlong,
+  bayFeet,
+  DEFAULT_BEAM_OVERHANG_FEET,
+  DEFAULT_MAX_POST_SPACING_FEET,
   suggestedPostCount,
   suggestedRafterCount,
   suggestedBeamLf,
@@ -66,38 +69,67 @@ const coupon = () => ({
   demoExisting: false,
 });
 
-test('posts along a side use floor-plus-one, not a third post on a 12-foot span', () => {
-  assert.equal(postsAlong(10, 8), 2);
-  assert.equal(postsAlong(12, 8), 2);
+test('post spacing is a maximum bay: the fewest equal bays no longer than it', () => {
+  assert.equal(postsAlong(10, 12), 2);
+  assert.equal(postsAlong(12, 12), 2);
+  assert.equal(postsAlong(16, 12), 3);
+  assert.equal(postsAlong(20, 12), 3);
+  assert.equal(postsAlong(24, 12), 3);
   assert.equal(postsAlong(16, 8), 3);
-  assert.equal(postsAlong(20, 8), 3);
   assert.equal(postsAlong(24, 8), 4);
+  // The 2026-11-20 census case: 15 ft at 8 ft was two posts and a 15-ft span.
+  assert.equal(postsAlong(15, 8), 3);
+  assert.equal(postsAlong(20, 8), 4);
+  // Float noise must not invent a bay: 0.3 * 40 is 12.000000000000002.
+  assert.equal(postsAlong(0.3 * 40, 12), 2);
+});
+
+test('no bay is ever longer than the spacing typed', () => {
+  for (let side = 4; side <= 40; side += 0.5) {
+    for (const spacing of [4, 6, 7.5, 8, 10, 12, 14]) {
+      const bay = bayFeet(side, spacing);
+      assert.ok(bay <= spacing + 1e-9, `${side} ft at ${spacing} ft gave a ${bay} ft bay`);
+      // and the count is the fewest that does it (or the two corners)
+      const posts = postsAlong(side, spacing);
+      if (posts > 2) assert.ok(side / (posts - 2) > spacing + 1e-9);
+    }
+  }
+  assert.equal(bayFeet(15, 8), 7.5);
+  assert.equal(bayFeet(16, 12), 8);
 });
 
 test('a side shorter than the post spacing still gets its two corner posts', () => {
   assert.equal(postsAlong(6, 8), 2);
   assert.equal(postsAlong(7.5, 8), 2);
   assert.equal(suggestedPostCount(6, 6, 8, 'freestanding'), 4);
-  assert.equal(suggestedBeamLf(6, 6, 8, 'freestanding'), 12);
+  assert.equal(suggestedBeamLf(6, 6, 8, 'freestanding', 0), 12);
 });
 
 test('a 10×10 freestanding frame is four posts; a 12×16 is six', () => {
-  assert.equal(suggestedPostCount(10, 10, 8, 'freestanding'), 4);
-  assert.equal(suggestedPostCount(16, 12, 8, 'freestanding'), 6);
+  assert.equal(suggestedPostCount(10, 10, 12, 'freestanding'), 4);
+  assert.equal(suggestedPostCount(16, 12, 12, 'freestanding'), 6);
   // Attached 16×12 drops the house-side row: 3 along the house × 1 remaining row.
-  assert.equal(suggestedPostCount(16, 12, 8, 'attached'), 3);
+  assert.equal(suggestedPostCount(16, 12, 12, 'attached'), 3);
+  // At 8-ft max spacing the 12-ft projection needs a middle row.
+  assert.equal(suggestedPostCount(16, 12, 8, 'freestanding'), 9);
 });
 
-test('rafters are spaced along the width, not guessed from square feet', () => {
-  assert.equal(suggestedRafterCount(10, 24), 6);
-  assert.equal(suggestedRafterCount(16, 24), 9);
-  assert.equal(suggestedRafterCount(16, 16), 13);
+test('beam lineal feet carry an overhang tail past each end post', () => {
+  assert.equal(DEFAULT_BEAM_OVERHANG_FEET, 1);
+  assert.equal(DEFAULT_MAX_POST_SPACING_FEET, 12);
+  // (10 + 2 × 1) × 2 rows
+  assert.equal(suggestedBeamLf(10, 10, 12, 'freestanding'), 24);
+  assert.equal(suggestedBeamLf(10, 10, 12, 'freestanding', 0), 20);
+  assert.equal(suggestedBeamLf(16, 12, 12, 'freestanding', 1.5), 38);
+  // (16 + 2) × 1 row: the house-side row is a ledger
+  assert.equal(suggestedBeamLf(16, 12, 12, 'attached'), 18);
+  assert.throws(() => suggestedBeamLf(16, 12, 12, 'attached', -1), /at least 0/);
 });
 
 test('beam and ledger lineal feet follow attachment, not footprint', () => {
-  assert.equal(suggestedBeamLf(10, 10, 8, 'freestanding'), 20);
-  assert.equal(suggestedBeamLf(16, 12, 8, 'freestanding'), 32);
-  assert.equal(suggestedBeamLf(16, 12, 8, 'attached'), 16);
+  assert.equal(suggestedBeamLf(10, 10, 12, 'freestanding', 0), 20);
+  assert.equal(suggestedBeamLf(16, 12, 12, 'freestanding', 0), 32);
+  assert.equal(suggestedBeamLf(16, 12, 12, 'attached', 0), 16);
   assert.equal(suggestedLedgerLf(16, 'attached'), 16);
   assert.equal(suggestedLedgerLf(16, 'freestanding'), 0);
 });

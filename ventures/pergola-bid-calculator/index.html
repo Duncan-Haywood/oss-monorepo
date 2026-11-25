@@ -154,7 +154,7 @@
 
       <section>
         <h2>The footprint</h2>
-        <p class="hint">Width is along the house. Depth is the projection. Post spacing starts at 8 feet — a 10-foot side is two posts; a 16-foot side is three. These are starting points, not a code opinion.</p>
+        <p class="hint">Width is along the house. Depth is the projection. Max post spacing is the longest clear beam span you will set between posts; it starts at 12 feet, so a 10-foot side is two posts and a 16-foot side is three (two 8-foot bays). Beams run past the end posts by the overhang. These are starting points, not a span table or a code opinion: size the beam for the bay shown below.</p>
         <div class="fields">
           <label>Attachment
             <select id="attachment"></select>
@@ -167,9 +167,11 @@
           </label>
           <label>Width along house (feet) <input id="widthFeet" type="number" min="4" step="0.5" value="10"></label>
           <label>Depth / projection (feet) <input id="depthFeet" type="number" min="4" step="0.5" value="10"></label>
-          <label>Post spacing (feet) <input id="postSpacingFeet" type="number" min="4" step="0.5" value="8"></label>
+          <label>Max post spacing (feet) <input id="postSpacingFeet" type="number" min="4" step="0.5" value="12"></label>
+          <label>Beam overhang each end (feet) <input id="beamOverhangFeet" type="number" min="0" step="0.5" value="1"></label>
           <label>Rafter spacing (inches) <input id="rafterSpacingInches" type="number" min="8" step="1" value="24"></label>
         </div>
+        <p class="hint" id="bayNote" aria-live="polite"></p>
         <div class="fields" style="margin-top:13px">
           <label class="check"><input id="includeKneeBraces" type="checkbox"> Knee braces</label>
           <label class="check"><input id="includeFanCircuit" type="checkbox"> Fan / light circuit</label>
@@ -196,7 +198,7 @@
           <label>Travel hours <input id="siteHours" type="number" min="0" step="0.1" value="0.5"></label>
           <label>Post count <input id="postCount" type="number" min="0" step="1" value="4"></label>
           <label>Rafter count <input id="rafterCount" type="number" min="0" step="1" value="6"></label>
-          <label>Beam lineal feet <input id="beamLf" type="number" min="0" step="0.5" value="20"></label>
+          <label>Beam lineal feet <input id="beamLf" type="number" min="0" step="0.5" value="24"></label>
           <label>Ledger lineal feet <input id="ledgerLf" type="number" min="0" step="0.5" value="0"></label>
           <label>Knee-brace count <input id="kneeBraceCount" type="number" min="0" step="1" value="0"></label>
           <label>Footing count <input id="footingCount" type="number" min="0" step="1" value="4"></label>
@@ -322,6 +324,8 @@
       ATTACHMENT_PRESETS,
       SHADE_PRESETS,
       HEIGHT_PRESETS,
+      postsAlong,
+      bayFeet,
       suggestedPostCount,
       suggestedRafterCount,
       suggestedBeamLf,
@@ -341,7 +345,7 @@
 // proposal:end
 
     const FIELD_IDS = [
-      'attachment','shade','height','widthFeet','depthFeet','postSpacingFeet','rafterSpacingInches',
+      'attachment','shade','height','widthFeet','depthFeet','postSpacingFeet','beamOverhangFeet','rafterSpacingInches',
       'hoursTrip','hoursPerPost','extraHoursPerPost','hoursPer100SfShade','hoursPerRafter','hoursPerBeamLf',
       'hoursLedger','hoursKneeBrace','hoursFan','hoursDemo','hoursSite','siteHours',
       'postCount','rafterCount','beamLf','ledgerLf','kneeBraceCount','footingCount',
@@ -390,12 +394,16 @@
       const depth = Number(el('depthFeet').value);
       const spacing = Number(el('postSpacingFeet').value);
       const rafterSpacing = Number(el('rafterSpacingInches').value);
-      if (![width, depth, spacing, rafterSpacing].every(Number.isFinite) || width <= 0 || depth <= 0 || spacing <= 0 || rafterSpacing <= 0) return;
+      const overhang = Number(el('beamOverhangFeet').value);
+      if (![width, depth, spacing, rafterSpacing, overhang].every(Number.isFinite) || width <= 0 || depth <= 0 || spacing <= 0 || rafterSpacing <= 0 || overhang < 0) return;
       const attachment = el('attachment').value;
+      const feet = value => `${Number(value.toFixed(2))} ft`;
+      el('bayNote').textContent = `Bays: ${postsAlong(width, spacing) - 1} × ${feet(bayFeet(width, spacing))} along the house, `
+        + `${postsAlong(depth, spacing) - 1} × ${feet(bayFeet(depth, spacing))} on the projection. Size the beam for the longest bay.`;
       const posts = suggestedPostCount(width, depth, spacing, attachment);
       if (!el('postCount').dataset.edited) el('postCount').value = posts;
       if (!el('rafterCount').dataset.edited) el('rafterCount').value = suggestedRafterCount(width, rafterSpacing);
-      if (!el('beamLf').dataset.edited) el('beamLf').value = suggestedBeamLf(width, depth, spacing, attachment);
+      if (!el('beamLf').dataset.edited) el('beamLf').value = suggestedBeamLf(width, depth, spacing, attachment, overhang);
       if (!el('ledgerLf').dataset.edited) el('ledgerLf').value = suggestedLedgerLf(width, attachment);
       if (!el('footingCount').dataset.edited) el('footingCount').value = posts;
       if (!el('kneeBraceCount').dataset.edited) {
@@ -590,7 +598,7 @@
       count('bid_calculated');
       update();
     });
-    ['widthFeet','depthFeet','postSpacingFeet','rafterSpacingInches'].forEach(id => {
+    ['widthFeet','depthFeet','postSpacingFeet','beamOverhangFeet','rafterSpacingInches'].forEach(id => {
       el(id).addEventListener('input', () => {
         applyGeometryKits();
         update();

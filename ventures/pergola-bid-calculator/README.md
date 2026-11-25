@@ -41,11 +41,15 @@ barrier. None of them prices a pergola.
 
 1. **Footprint.** Width (along the house) × depth (the projection). That is
    the number the coupon sees.
-2. **Posts.** Floor(span ÷ spacing) + 1 along each side, minimum two. A
-   10-foot side at 8-foot spacing is two posts; a 16-foot side is three. An
-   attached job drops the house-side row for a ledger.
+2. **Posts.** The post spacing is a maximum bay: each side is split into
+   the fewest equal bays no longer than it, minimum two posts. At the
+   12-foot starting spacing a 10-foot side is two posts and a 16-foot side
+   is three (two 8-foot bays); a 15-foot side at 8-foot spacing is three
+   (two 7.5-foot bays). The page shows the bay so the beam can be sized for
+   it. An attached job drops the house-side row for a ledger.
 3. **Sticks.** Rafters spaced along the width; beams one per remaining post
-   row; a ledger on the house when attached.
+   row, each the width plus an overhang tail past each end post (1 ft each
+   end to start); a ledger on the house when attached.
 4. **Shade.** Open frame is zero extra. Lattice, slats, louvered, or a
    polycarbonate roof add hours and material on the whole footprint.
 5. **Height.** 10- and 12-foot posts add cost and hours the 8-foot special
@@ -88,11 +92,11 @@ Events counted: `bid_calculated`, `preset_applied`, `proposed_price_compared`,
 
 ## Limitations
 
-- Post spacing is a divisor, not a maximum bay: posts per side are
-  floor(length / spacing) + 1, so a 15-ft side at 8-ft spacing gets two posts
-  and a 15-ft clear beam span, with no warning. Beam lineal feet carry no
-  overhang tails. Both open from the 2026-11-20 quality census
-  ([audit](../../portfolio/quality/audits/2026-11-20-pergola-bid-calculator.json)).
+- No beam or rafter member size is suggested: the page shows the bay and
+  the shop sizes the beam from its own span table. Open from the 2026-11-20
+  quality census
+  ([audit](../../portfolio/quality/audits/2026-11-20-pergola-bid-calculator.json));
+  its post-spacing and beam-overhang defects were fixed on 2026-11-25.
 - Single currency and no tax handling; the contractor enters their own numbers.
 - One residential-pergola model. Commercial shade structures, retractable
   awnings, and screened porches are not priced separately yet.
