@@ -1,0 +1,159 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtGGX6yUSkFb6ZvVXaW",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T16:07:58Z",
+  "ended": "2026-11-25T16:30:27Z",
+  "wall_minutes": 22.83,
+  "tokens_in": 9912592,
+  "tokens_out": 44265,
+  "cost_usd": 3.9178,
+  "tool_calls": 90,
+  "task": "perf item 4: sales-agent page load (model client and mail reader on demand)",
+  "projects": [
+    "sales-agent"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19019",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "git fetch/push and the GitHub MCP server returned 503 (credential service unavailable) for the first part of the run, so the security queue, the duplicate search and a fresh main were unreachable",
+    "built, tested and wrote up a lazy-importer change to shift-roster-builder, then found PR #18712 had landed the identical change a day earlier (the clone's main was stale); dropped it and moved to sales-agent. About 20 minutes wasted",
+    "a force-with-lease push to rewrite my own unmerged branch was refused by the permission classifier; merged the old tip with -s ours instead, so the PR diff holds only the sales-agent work",
+    "scratch bench: ESM `import 'playwright'` does not resolve from the scratchpad; createRequire works"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "The duplicate check assumes GitHub is reachable. When fetch returns 503, nothing says the clone's main may be a day stale; the cheap check (git log origin/main -- <venture>, docs/history/<venture>-*perf*) needs a fresh fetch first, so measure only after one succeeds"
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Item 4 points at a full Pages build to measure page weight; platform/perf/module-weight.mjs and module-exclusive.mjs answer it in seconds and are not named in the prompt"
+    },
+    {
+      "file": "docs/history/*-page-perf-*.md",
+      "issue": "Each page-perf pass describes the same throttled Playwright load bench and none commits it; this run rewrote it again (scratchpad bench.mjs). It belongs in platform/perf/"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "North star says for-profit products first; the router drew perf",
+      "did": "took the perf slice on a paid product's page (sales-agent, models.yaml stage planned)",
+      "result": "landed a 13% load-time cut on that page"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "llms.txt and marketing page default for product PRs",
+      "did": "left unchanged: a load-time change alters no feature or claim",
+      "result": "n/a"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Duplicate PRs: search before opening",
+      "did": "opened PR #19019 before the search could run (GitHub 503), then repurposed it once the duplicate showed up",
+      "result": "the duplicate never merged; the PR carries only new work"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-the-sales-agent-page-loaded-a-model-client-for-everyone.md",
+    "docs/history/sales-agent-page-perf-2026-11-25.md"
+  ],
+  "goal": null,
+  "notes": "Metric: first-load module graph and throttled time to load for ventures/sales-agent/index.html. Before (3c6bdae52): 134 kB gzip, 16 modules (platform/perf/module-weight.mjs); throttled load median 1,178 ms (1179 1178 1174 1149 1171 1190 1194). After: 116 kB gzip, 12 modules; median 1,021 ms (1019 1022 1041 1018 1016 1021 1026). Throttle: local gzip server, no-store, the build's addModulePreloads applied to both copies, Chromium 150 ms RTT, 1.6 Mbit/s, CPU 4x, SW blocked, 7 interleaved runs, navigation loadEventStart. Equivalence: Playwright with a 3-message mbox plus a model run against a 500 endpoint, before and after: identical #mail-status, #replies and #status, 2 model calls each. Failure paths: ai.mjs and mailfile.mjs 404 give the status lines, and a retry works. Venture suite: run_venture_tests.py sales-agent, 592 tests, 0 failed, site page checks ok. check_posts.py ok. Security queue empty; IDEAS.md and requests empty. Dropped duplicate: the shift-roster lazy importers (already PR #18712).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b95c2db5-5615-593b-83ae-54b0bbb2d8a1",
+    "transcripts": 1,
+    "first": "2026-11-25T16:07:58Z",
+    "last": "2026-11-25T16:30:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 87,
+        "input": 169,
+        "output": 44265,
+        "thinking": 7340,
+        "cache_read": 9777891,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134532,
+        "api_equivalent_usd": 3.9178,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 87,
+      "input": 169,
+      "output": 44265,
+      "thinking": 7340,
+      "cache_read": 9777891,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134532,
+      "api_equivalent_usd": 3.9178,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 90,
+    "tools": {
+      "Bash": 83,
+      "mcp__github__pull_request_read": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.83,
+      "active_minutes": 22.83,
+      "model_minutes": 9.13,
+      "tool_minutes": 13.7,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profiling, two lazy-load changes, browser equivalence and failure checks, tests and write-up for a senior front-end engineer (sales-agent part)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 76.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
