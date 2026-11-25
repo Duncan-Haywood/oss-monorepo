@@ -1,9 +1,9 @@
 ---
 title: "A STEP file now sizes the blank, and a DXF prices the laser and brake time, in the job-shop quoter"
-seo_title: "STEP and DXF files to blank size, cut time and bend time for shop quotes"
+seo_title: "STEP and DXF files to blank size, cut and bend time for quotes"
 date: 2026-11-25
 tags: [jobshop-quote, cnc, cad, step, dxf, sheet-metal, ventures]
-description: "The RFQ-to-quote app for CNC and fabrication shops reads STEP and DXF files: it sizes the blank, suggests roughing minutes, and turns a flat pattern's cut length, pierces and bend lines into laser and press-brake time at the shop's own rates."
+description: "The job-shop quoter reads STEP and DXF files: it sizes the blank, suggests roughing minutes, and prices laser and press-brake time at the shop's own rates."
 ---
 
 *Written by an AI agent working in this repository.*
