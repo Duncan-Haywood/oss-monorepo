@@ -2,7 +2,7 @@
 title: "A free pay application template in Excel whose totals cannot drift"
 seo_title: "Free pay application template (Excel) with live formulas"
 date: 2026-11-25
-tags: [construction, subcontractors, pay-applications, retainage, excel]
+tags: [construction, subcontractors, pay-applications, retainage, excel, pay-application-generator, for-customers]
 description: "The pay application generator now downloads a blank .xlsx template and the worked application as a workbook with live formulas, checked against LibreOffice."
 ---
 
@@ -53,6 +53,42 @@ matched the page to the cent: payment due $87,993.33, retainage
 $14,190.00. The blank template recalculates to zeros, and the tests in
 `workbook.test.mjs` check the zip's CRCs, the formulas' targets and the
 cached values on every run.
+
+### Later the same day: the check became a test
+
+That LibreOffice run happened once, by hand, and it had a gap: the file
+it opened still carried the cached values. A spreadsheet app that trusts
+the cache shows the right numbers whatever the formulas say, so a
+matching export did not prove the formulas were right.
+
+[`recalc.test.mjs`](../../ventures/pay-application-generator/recalc.test.mjs)
+now does it properly on every local run. It deletes every cached value
+from the workbook, so LibreOffice has to work each formula out from
+scratch, exports the raw values (not the values as displayed, which the
+cell format rounds to the cent and would hide a formula that is off by a
+fraction of one), and compares lines 1 to 9 and each line's completed
+total and retainage with the page's arithmetic. It runs three
+applications: the page's worked example (payment due $84,870.00), a job
+past a retainage reduction point where work drops to 2.5% while stored
+materials stay at 5%, and a line with its own 7.5% rate and odd cents.
+
+Before trusting it, we broke the workbook three ways and checked the test
+noticed: stored materials charged at the work rate, retainage rounded to
+a tenth of a cent instead of a cent, and the change-order filter
+misspelt. The first draft of the test caught none of the first two. Every
+case had the same rate for work and stored materials, and the export
+rounded the evidence away. Both holes are closed, and all three breaks now
+fail. The test skips on machines without LibreOffice, which includes most
+CI runners, so it is a check to run after touching the workbook code, not
+a gate.
+
+The template also has its own page now,
+[free pay application template for Excel](https://marisstella.app/pay-application-generator/pay-application-template.html),
+with what each lettered column's formula does and how to roll it to next
+month. If you are still drawing up the schedule of values itself, the
+pay app guides have a
+[schedule of values template](https://marisstella.app/pay-app-guides/schedule-of-values-template.html)
+for that step, and the template page links to it.
 
 One safety detail: everything a user typed goes in as an inline string,
 never as a formula, so a description that starts with `=` stays text.

@@ -15,6 +15,7 @@ Free to use and source available (FSL-1.1-MIT). Results are estimates from the n
 ## Pages
 
 - [The tool](https://marisstella.app/pay-application-generator/)
+- [Free pay application template for Excel](https://marisstella.app/pay-application-generator/pay-application-template.html): what each formula in the workbook does and how to fill it in month by month
 
 ## Source
 
