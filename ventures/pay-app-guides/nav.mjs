@@ -35,6 +35,7 @@ export const GROUPS = [
     ["lien-waiver-log.html", "Lien waiver log (given and collected)"],
     ["sworn-statement.html", "Contractor's sworn statement builder"],
     ["paid-short.html", "Paid short? Reconcile the check"],
+    ["joint-checks.html", "Joint check splitter and split letter"],
     ["pay-app-cash-forecast.html", "When will I get paid? Cash forecast"],
   ]],
 ];

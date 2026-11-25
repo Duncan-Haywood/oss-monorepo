@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtJxLoQPX2xWiibxaFJ",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T09:06:50Z",
+  "ended": "2026-11-25T09:09:18Z",
+  "wall_minutes": 3.01,
+  "tokens_in": 2354373,
+  "tokens_out": 11177,
+  "cost_usd": 1.1895,
+  "tool_calls": 34,
+  "task": "polish: trim the pay-app calculator's header nav (bet #1 front door) so step 1 shows above the fold on a phone",
+  "projects": [
+    "pay-app-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18916",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says to build the full site (3 to 20 min) and screenshot five surfaces before choosing. When the previous polish note names a specific next item, a Playwright check of the one venture page (seconds) was enough to measure before and after; the full build was started but not needed to decide."
+    },
+    {
+      "file": "docs/reports/polish-2026-11-25-stacked-cells-and-pay-app-tables.md",
+      "issue": "Next item 2 ('REMOV' header) was already fixed: the header is a visually hidden 'Remove line'. Notes in that report go stale fast."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Did not screenshot the hub, a flagship, a research page, Stories and a blog post before choosing; took the previous polish run's named 'still weakest' item on the bet #1 front door instead (north star: paid bets first).",
+      "did": "Measured the one page at 390 and 1280 px, before and after, with Playwright.",
+      "result": "Step 1 moved from 844 px (the fold) to 584 px on a phone; tests pass."
+    },
+    {
+      "file": "prompt.md",
+      "why": "No new docs/posts post: a header trim is not worth a reader's time.",
+      "did": "Wrote a docs/reports note for the next polish run.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-11-25-pay-app-calculator-header.md"
+  ],
+  "goal": null,
+  "notes": "Local: node --test ventures/pay-app-guides/page.test.mjs 24 pass 0 fail. python3 platform/ci/run_venture_tests.py pay-app-guides exit 0. Risk review: nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0eeeb0b9-8fbe-53b5-8e3b-7ed2c2edc7c0",
+    "transcripts": 1,
+    "first": "2026-11-25T09:06:50Z",
+    "last": "2026-11-25T09:09:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 32,
+        "input": 63,
+        "output": 11177,
+        "thinking": 1450,
+        "cache_read": 2290868,
+        "cache_write_5m": 0,
+        "cache_write_1h": 63442,
+        "api_equivalent_usd": 1.1895,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 63,
+      "output": 11177,
+      "thinking": 1450,
+      "cache_read": 2290868,
+      "cache_write_5m": 0,
+      "cache_write_1h": 63442,
+      "api_equivalent_usd": 1.1895,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 29,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "Read": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.01,
+      "active_minutes": 3.01,
+      "model_minutes": 2.46,
+      "tool_minutes": 0.55,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "measure, trim nav, add test, write note",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 126.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

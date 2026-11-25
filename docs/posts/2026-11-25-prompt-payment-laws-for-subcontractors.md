@@ -2,7 +2,7 @@
 title: "How many days a GC has to pay you, read from seven states' prompt payment laws"
 seo_title: "Prompt payment laws for subcontractors: 7 states, deadlines, interest"
 date: 2026-11-25
-tags: [for-customers, payapps, construction, prompt-payment, pay-if-paid, pay-app-guides]
+tags: [for-customers, payapps, construction, prompt-payment, pay-if-paid, joint-checks, pay-app-guides]
 description: "Texas gives a GC 7 days, Illinois 15. Prompt payment deadlines in seven states, and which states void pay-if-paid clauses, with a clause reader."
 ---
 
@@ -72,6 +72,30 @@ for the wording courts have pointed to; it does not read the whole subcontract, 
 a starting point for a conversation with the GC or an attorney. In the three lien-only states the
 clause can still meet a plain contract claim, which is one more reason to keep the lien
 deadlines.
+
+## When the GC pays you and your supplier with one check
+
+Sometimes the money arrives, but as a **joint check**: one check made out to the sub *and* its
+supplier, so the supplier has to endorse before the sub can deposit it. GCs use them so they do
+not pay twice when a supplier files a lien for material the GC already paid for. The risk sits
+with the supplier. Under the "joint check rule", as the California Supreme Court put it in
+*Post Bros. Construction Co. v. Yoder* (1977) 20 Cal.3d 1, a supplier that endorses with no
+agreement on the split is treated as paid, and in that case lost both its lien and its bond
+claim on $54,000 of checks the sub deposited. The court's own advice: refuse to endorse "until
+assured by escrow of other arrangement" of your share.
+
+How far other states go is less settled. A 2018 handout by surety and construction counsel,
+hosted by the AGC, groups them: California, Iowa, Louisiana, Missouri, South Carolina, Texas
+and Washington apply the rule for the contractor and its surety; Arizona, Arkansas and Oregon do
+not treat endorsement as a lien waiver; Delaware and Maryland void such a waiver; and on federal
+Miller Act jobs endorsement alone does not waive bond rights. We have read the California opinion
+and the handout, not every state's cases, and the guide says so.
+
+The free [joint check splitter](https://marisstella.app/pay-app-guides/joint-checks.html) takes
+the check and what each supplier is owed on the job, splits it (pro rata to the cent when the
+check is short), shows how much a supplier puts at risk by endorsing with nothing in writing
+(what it was owed, up to the check, less what it actually gets), says which waiver each payee
+signs, and writes a one-page split letter for all three to sign before anyone endorses.
 
 **Where this goes.** We are building hosted pay-app billing for specialty subcontractors that
 keeps every pay application, retainage balance and lien waiver per job, so it can show what is
