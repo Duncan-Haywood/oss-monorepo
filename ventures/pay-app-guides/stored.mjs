@@ -9,6 +9,7 @@
 //   stored     (col F)  = stored now
 // Installed material leaves column F and enters column E in the same period, so it is billed once.
 
+// csvCell (colog.mjs) is the formula-injection guard: a cell starting =, +, -, @, tab or CR gets an apostrophe.
 import { parseCsv, parseMoney, dollars, csvCell } from "./colog.mjs";
 
 const HEADERS = {
