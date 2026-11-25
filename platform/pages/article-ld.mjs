@@ -80,3 +80,31 @@ export function completeArticleJsonLd(html, { canonical, baseUrl, siteName, imag
     return `${open}${JSON.stringify(doc).replace(/</g, '\\u003c')}${close}`;
   });
 }
+
+/**
+ * Point Article nodes whose `image` is `from` at `to` instead. share.mjs
+ * draws a card for some pages (blog posts among them) after the discovery
+ * pass, and swaps it into `og:image`; this keeps the JSON-LD naming the same
+ * picture. An image the page chose itself is a different URL and stays.
+ * Returns the very same string when nothing matched.
+ */
+export function retargetArticleImage(html, from, to) {
+  if (!from || !to || from === to || !html.includes('application/ld+json')) return html;
+  return html.replace(LD_BLOCK, (whole, open, body, close) => {
+    let doc;
+    try {
+      doc = JSON.parse(body);
+    } catch {
+      return whole;
+    }
+    const nodes = Array.isArray(doc) ? doc : Array.isArray(doc?.['@graph']) ? doc['@graph'] : [doc];
+    let changed = false;
+    for (const node of nodes) {
+      if (isArticle(node) && node.image === from) {
+        node.image = to;
+        changed = true;
+      }
+    }
+    return changed ? `${open}${JSON.stringify(doc).replace(/</g, '\\u003c')}${close}` : whole;
+  });
+}

@@ -11822,13 +11822,16 @@ export function injectDiscoveryTags(html, { canonical, baseUrl, title, descripti
 
   // Article-type JSON-LD gets the url, image, author and publisher it left
   // out (`article-ld.mjs`), with the share card this page ends up carrying.
+  // Resolved against the page, as share.mjs later resolves `og:image` itself:
+  // a venture's own `renders/hero.jpg` is relative, and JSON-LD must be absolute.
   const imageTag = tagFor('property', 'og:image');
-  return completeArticleJsonLd(next, {
-    canonical,
-    baseUrl,
-    siteName: SITE_NAME,
-    image: imageTag ? contentOf(imageTag[0]) : '',
-  });
+  let image = imageTag ? contentOf(imageTag[0]) : '';
+  try {
+    image = image && canonical ? new URL(image, canonical).href : '';
+  } catch {
+    image = '';
+  }
+  return completeArticleJsonLd(next, { canonical, baseUrl, siteName: SITE_NAME, image });
 }
 
 // `decodeEntities` covers the five that matter for markup safety. Prose needs

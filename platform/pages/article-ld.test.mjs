@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { completeArticleJsonLd, completeArticleNode } from './article-ld.mjs';
+import { completeArticleJsonLd, completeArticleNode, retargetArticleImage } from './article-ld.mjs';
+import { completeShareTags } from './share.mjs';
 
 const BASE = 'https://example.test/site/';
 const opts = { canonical: `${BASE}tool/guide`, baseUrl: BASE, siteName: 'Example Labs', image: `${BASE}tool/share-card.png` };
@@ -61,4 +62,19 @@ test('an empty image is not written', () => {
   const node = { '@type': 'Article' };
   assert.equal(completeArticleNode(node, { ...opts, image: '' }), true);
   assert.equal('image' in node, false);
+});
+
+test('a card drawn later moves the Article image with it; a page-chosen image stays', () => {
+  const html = page({ '@type': 'BlogPosting', image: `${BASE}social-card.png` }, { '@type': 'Article', image: `${BASE}own.jpg` });
+  const [moved, kept] = blocks(retargetArticleImage(html, `${BASE}social-card.png`, `${BASE}writing/p/share-card.png`));
+  assert.equal(moved.image, `${BASE}writing/p/share-card.png`);
+  assert.equal(kept.image, `${BASE}own.jpg`);
+  assert.equal(retargetArticleImage(html, `${BASE}nothing.png`, `${BASE}x.png`), html);
+});
+
+test("share.mjs's per-page card reaches the JSON-LD too", () => {
+  const html = `<html><head><meta property="og:title" content="P"><meta property="og:image" content="${BASE}social-card.png"><script type="application/ld+json">${JSON.stringify({ '@type': 'BlogPosting', image: `${BASE}social-card.png` })}</script></head><body></body></html>`;
+  const out = completeShareTags(html, { card: `${BASE}writing/p/share-card.png`, url: `${BASE}writing/p/` });
+  assert.match(out, new RegExp(`property="og:image" content="${BASE}writing/p/share-card.png"`));
+  assert.equal(blocks(out)[0].image, `${BASE}writing/p/share-card.png`);
 });
