@@ -135,7 +135,7 @@ export function partThree(lots, sold, { year, opening = null } = {}) {
   // before it started.
   const pool = lots
     .filter((l) => (l.bought === null || l.bought <= end) && !(l.sold && l.sold < start))
-    .map((l) => ({ ...l, left: l.qty }))
+    .map((l) => ({ ...l, left: l.qty, took: 0 }))
     .sort((a, b) => (a.bought ?? "9999").localeCompare(b.bought ?? "9999") || a.line - b.line);
   const before = pool.filter((l) => l.bought !== null && l.bought < start);
   const during = pool.filter((l) => l.bought === null || l.bought >= start);
@@ -151,6 +151,7 @@ export function partThree(lots, sold, { year, opening = null } = {}) {
       const cost = l.left * l.unitCost;
       if (/^(personal|kept)/.test(l.removed)) withdrawn += cost;
       removedLots.push({ item: l.item || l.sku, units: l.left, cost: r2(cost), why: l.removed });
+      l.gone = l.left;
       l.left = 0;
     }
   }
@@ -170,6 +171,7 @@ export function partThree(lots, sold, { year, opening = null } = {}) {
       const take = Math.min(need, l.left);
       if (take <= 0) continue;
       l.left -= take;
+      l.took += take;
       need -= take;
       matchedUnits += take;
       matchedCost += take * l.unitCost;
@@ -186,6 +188,7 @@ export function partThree(lots, sold, { year, opening = null } = {}) {
     if (l.left > 0 && l.sold && l.sold >= start && l.sold <= end) {
       elsewhereUnits += l.left;
       elsewhereCost += l.left * l.unitCost;
+      l.took += l.left;
       l.left = 0;
     }
   }
@@ -209,8 +212,69 @@ export function partThree(lots, sold, { year, opening = null } = {}) {
     unmatched,
     unmatchedUnits: unmatched.reduce((a, u) => a + u.units, 0),
     undated: pool.filter((l) => l.bought === null).length,
+    onHand: pool.filter((l) => l.left > 0).map((l) => ({ key: l.keys[0], item: l.item || l.sku, sku: l.sku, units: l.left, unitCost: l.unitCost, cost: r2(l.left * l.unitCost), bought: l.bought })),
+    available: pool.map((l) => ({ key: l.keys[0], item: l.item || l.sku, units: l.qty - (l.gone || 0), sold: l.took })),
     boughtAfter: lots.filter((l) => l.bought !== null && l.bought > end).length,
   };
+}
+
+const DAY = 86400000;
+export const AGE_BUCKETS = [
+  { label: "0 to 90 days", max: 90 },
+  { label: "91 to 180 days", max: 180 },
+  { label: "181 to 365 days", max: 365 },
+  { label: "Over a year", max: Infinity },
+];
+
+/**
+ * Stock still on hand at December 31 of the Part III year, by how long it has
+ * sat: age = Dec 31 less the purchase date, per unit left after FIFO matching.
+ * The total is line 41 by construction (asserted in tests). Undated rows have
+ * no age and are kept in their own bucket rather than guessed.
+ *
+ * Items are grouped by SKU (else title). `sellThrough` is the share of the
+ * units available in the year (on hand at Jan 1 plus bought, less units
+ * marked personal, donated or lost) that were sold, in the reports or marked
+ * sold elsewhere; `tiedUp` is cost x average age in days, the order of the list:
+ * the money that has waited longest first.
+ */
+export function agedStock(p) {
+  if (!p || p.invalid || !p.onHand) return null;
+  const end = Date.parse(`${p.year}-12-31T00:00:00Z`);
+  const age = (b) => (b ? Math.round((end - Date.parse(`${b}T00:00:00Z`)) / DAY) : null);
+  const buckets = AGE_BUCKETS.map((b) => ({ label: b.label, units: 0, cost: 0 }));
+  const undated = { label: "No purchase date", units: 0, cost: 0 };
+  const items = new Map();
+  for (const l of p.onHand) {
+    const a = age(l.bought);
+    const b = a === null ? undated : buckets[AGE_BUCKETS.findIndex((x) => a <= x.max)];
+    b.units += l.units;
+    b.cost += l.cost;
+    const it = items.get(l.key) || { item: l.item, sku: l.sku, units: 0, cost: 0, ageCost: 0, datedCost: 0, oldest: null, available: 0, sold: 0 };
+    it.units += l.units;
+    it.cost += l.cost;
+    if (a !== null) { it.ageCost += a * l.cost; it.datedCost += l.cost; if (!it.oldest || l.bought < it.oldest) it.oldest = l.bought; }
+    items.set(l.key, it);
+  }
+  for (const a of p.available) {
+    const it = items.get(a.key);
+    if (it) { it.available += a.units; it.sold += a.sold; }
+  }
+  const total = r2(p.onHand.reduce((s, l) => s + l.cost, 0));
+  const list = [...items.values()].map((it) => {
+    const avgAge = it.datedCost > 0 ? Math.round(it.ageCost / it.datedCost) : null;
+    return {
+      item: it.item, sku: it.sku, units: it.units, cost: r2(it.cost),
+      oldest: it.oldest, oldestDays: age(it.oldest), avgAgeDays: avgAge,
+      sellThrough: it.available ? it.sold / it.available : null,
+      tiedUp: avgAge === null ? 0 : r2(it.cost * avgAge),
+    };
+  }).sort((x, y) => y.tiedUp - x.tiedUp || y.cost - x.cost || String(x.item).localeCompare(String(y.item)));
+  const rows = [...buckets, ...(undated.units ? [undated] : [])].map((b) => ({ ...b, cost: r2(b.cost), share: total > 0 ? b.cost / total : 0 }));
+  const dated = p.onHand.filter((l) => l.bought);
+  const datedCost = dated.reduce((s, l) => s + l.cost, 0);
+  const avgAgeDays = datedCost > 0 ? Math.round(dated.reduce((s, l) => s + age(l.bought) * l.cost, 0) / datedCost) : null;
+  return { year: p.year, asOf: `${p.year}-12-31`, total, units: p.onHand.reduce((s, l) => s + l.units, 0), avgAgeDays, buckets: rows, items: list };
 }
 
 /** Average unit cost per key, as `key,cost` lines the marketplace engines read. */

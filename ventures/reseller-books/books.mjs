@@ -18,7 +18,7 @@
 //
 // Nothing here fetches anything. Files are read in the caller's browser tab.
 
-import { isInventoryLog, parseInventory, partThree, partThreeNotes, costLines, sampleInventoryCsv } from "./inventory.mjs";
+import { isInventoryLog, parseInventory, partThree, partThreeNotes, costLines, sampleInventoryCsv, agedStock } from "./inventory.mjs";
 import * as ebay from "./engines/ebay.mjs";
 import * as etsy from "./engines/etsy.mjs";
 import * as poshmark from "./engines/poshmark.mjs";
@@ -509,6 +509,7 @@ export function buildBooks(files, { costs = "", feeMode = "auto", openingInvento
       inventory.lots = inv.lots.length;
       inventory.skipped = inv.skipped;
       inventory.notes = partThreeNotes(inventory);
+      inventory.aged = agedStock(inventory);
       if (details.etsy && !(details.etsy.listings || []).length) inventory.notes.push("Etsy sales are matched to the inventory log through the Sold Order Items file, which was not given, so none of them took stock from it and line 41 counts those items as still on hand. Add the file.");
       if (inv.skipped.length) inventory.notes.push(`${inv.skipped.length} inventory row(s) were skipped (first: ${inv.skipped[0].file} line ${inv.skipped[0].line}, ${inv.skipped[0].reason}).`);
     }
@@ -602,6 +603,11 @@ function findings(channels, total, months, mileage = null, inventory = null) {
       title: `Schedule C Part III for ${inventory.year}: cost of goods sold $${inventory.line42.toFixed(2)}, closing inventory $${inventory.line41.toFixed(2)}`,
       detail: `Opening inventory $${inventory.line35.toFixed(2)} plus purchases $${inventory.line36.toFixed(2)}, less $${inventory.line41.toFixed(2)} still on hand at December 31 (${inventory.closingUnits} unit(s)). ${inventory.matchedUnits} sold unit(s) were matched to the purchase that bought them, oldest first.`,
     });
+    const old = inventory.aged && inventory.aged.buckets.find((b) => b.label === "Over a year");
+    if (old && old.units) {
+      const names = inventory.aged.items.filter((i) => i.oldestDays > 365).slice(0, 3).map((i) => i.item).join("; ");
+      out.push({ severity: "medium", title: `$${old.cost.toFixed(2)} of stock (${old.units} unit(s), ${(old.share * 100).toFixed(0)}% of closing inventory) was bought over a year before December 31, ${inventory.year}`, detail: `Longest-waiting money first: ${names}. Count these on the shelf before you sign off line 41, and decide whether to relist, reprice or bundle them. The stock-by-age table lists every item.` });
+    }
     for (const n of inventory.notes) out.push({ severity: /no purchase in the inventory log/.test(n) ? "high" : "info", title: `Inventory: ${n}`, detail: "" });
   }
   if (mileage && mileage.businessTrips) {
@@ -664,6 +670,13 @@ export function toCsv(result) {
   const shead = "\nschedule_c_line,label,amount";
   const sl = result.schedule.map((s) => [q(s.line), q(s.label), s.miles !== undefined ? s.miles : f(s.amount)].join(","));
   const out = [head, ...lines, chead, ...cl, shead, ...sl];
+  const aged = result.inventory && result.inventory.aged;
+  if (aged) {
+    out.push(`\nstock_age_at_${aged.asOf},units,cost,share_of_closing_inventory`);
+    for (const b of aged.buckets) out.push([q(b.label), b.units, f(b.cost), b.share.toFixed(4)].join(","));
+    out.push("\nstock_item,sku,units_on_hand,cost,oldest_purchase,average_age_days,sell_through_in_year");
+    for (const i of aged.items) out.push([q(i.item), q(i.sku || ""), i.units, f(i.cost), i.oldest || "", i.avgAgeDays ?? "", i.sellThrough === null ? "" : i.sellThrough.toFixed(4)].join(","));
+  }
   if (result.mileage) {
     out.push("\nmileage_month,business_miles,standard_rate_deduction,car_and_truck_with_tolls_parking");
     for (const m of result.mileage.months) out.push([m.month, m.miles, f(m.deduction), f(m.carTruck)].join(","));
@@ -679,6 +692,7 @@ export function summaryText(result) {
   out.push(t.profit === null ? "Profit not computed (not every sale has a cost)." : `Cost of goods ${m(t.cogs)}; profit ${m(t.profit)}.`);
   const inv = result.inventory;
   if (inv && !inv.invalid) out.push(`Schedule C Part III (${inv.year}, at cost): opening inventory ${m(inv.line35)}, purchases ${m(inv.line36)}, closing inventory ${m(inv.line41)}, cost of goods sold ${m(inv.line42)}${inv.unmatchedUnits ? ` (${inv.unmatchedUnits} sold unit(s) not in the inventory log)` : ""}.`);
+  if (inv && inv.aged && inv.aged.units) out.push(`Stock on hand at ${inv.aged.asOf}: ${inv.aged.units} unit(s), ${m(inv.aged.total)} at cost, average ${inv.aged.avgAgeDays ?? "–"} days since purchase; ${inv.aged.buckets.filter((b) => b.units).map((b) => `${b.label.toLowerCase()} ${m(b.cost)}`).join(", ")}.`);
   if (result.mileage) out.push(`Mileage: ${result.mileage.businessMiles} business miles, car and truck expenses ${m(result.mileage.carTruck)} (standard rate)${t.profitAfterCar === null ? "" : `; profit after the car ${m(t.profitAfterCar)}`}.`);
   for (const c of result.channels) out.push(`${c.label}: ${c.orders} orders, sales ${m(c.sales)}, kept ${m(c.net)} (${(c.keepRate * 100).toFixed(1)}%)${c.profit === null ? "" : `, profit ${m(c.profit)}`}`);
   return out.join("\n");

@@ -73,6 +73,28 @@ some sellers: the Schedule C instructions let a small business taxpayer
 choose not to keep an inventory. That choice is yours and your preparer's,
 and none of this is tax advice.
 
+## Which stock is still on the shelf, and for how long (added 2026-11-25)
+
+Line 41 is one number, but a reseller wants to know what is inside it. The
+same inventory log now gives a second table: every unit still on hand at
+December 31, aged from the day you bought it, in four buckets (up to 90 days,
+91 to 180, 181 to 365, over a year) that add up to line 41 exactly. Below it,
+each item is listed with the money that has waited longest first (cost times
+average age), its oldest purchase, and how much of what you had during the
+year actually sold.
+
+In the page's example (the same made-up eBay shop), all $1,186.00 of closing
+stock was bought in January and February, so it is 331 to 360 days old: a
+LEGO set at $610.00 has waited 345 days, three cameras at $426.00 have
+waited 331. Nothing has passed a year yet. When something has, the page says
+how much and names it, and suggests counting it before you sign off line 41.
+A test checks the buckets against days counted by hand (February 15 to
+December 31 is 319 days; November 30, 2024 to December 31, 2026 is 761).
+
+It is a list to act on (relist, reprice, bundle), valued at cost. Whether
+any of it should be valued lower is a question for your preparer, and none
+of this is tax advice.
+
 ## The fee figures, rechecked
 
 Each of the ten tools states its marketplace's current fee in a sourced lead,
