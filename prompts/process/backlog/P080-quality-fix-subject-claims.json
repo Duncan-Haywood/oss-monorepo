@@ -22,7 +22,7 @@
   "baseline": "2 reports on 2026-11-25, 1 on 2026-11-16",
   "opened": "2026-11-25",
   "source": "platform/ci/friction_rank.py --live --ungated --days 3 (cluster 12, platform/ci/quality_audit.py)",
-  "pr": "this",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19013",
   "result": null,
   "history": []
 }
