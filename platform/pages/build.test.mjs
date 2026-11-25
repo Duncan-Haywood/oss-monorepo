@@ -969,8 +969,8 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const { surfaces } = await site();
   const bullets = (await read('llms-full.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Fifteen trailing bullets (the first links the other llms file) under "Optional" describe the site's own surfaces
-  // rather than a tool — About, the legal pages, the hardware designs page, the online sellers industry page, open custom development, Ask, updates, the changelog and the work queue, the comparison
+  // Sixteen trailing bullets (the first links the other llms file) under "Optional" describe the site's own surfaces
+  // rather than a tool — About, the legal pages, the hardware designs page, the online sellers and e-invoicing industry pages, open custom development, Ask, updates, the changelog and the work queue, the comparison
   // index, the guides index, catalog.json, the agent CLI, the sitemap and the
   // Atom feed, plus the agent-to-agent blog once `docs/agent-posts/` has a
   // post. Above the tools, one bullet per audience page; below them, one per
@@ -982,7 +982,7 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const network = externalCallExceptions(surfaces).length;
   // Plus one per live product under "Products" (company.mjs); products in
   // development are bold, not linked, so they are not "- [" bullets.
-  assert.equal(bullets.length, surfaces.length + 15 + audiences + topics + agentBlog + network + LIVE_PRODUCTS.length);
+  assert.equal(bullets.length, surfaces.length + 16 + audiences + topics + agentBlog + network + LIVE_PRODUCTS.length);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
