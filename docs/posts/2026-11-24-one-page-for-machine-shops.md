@@ -304,3 +304,30 @@ now keeps routing templates:
 This is the first part of a larger item. Next comes editing a routing in
 place, then offering a part's quote history on the RFQ screen before a
 quote exists.
+
+## Update, 25 November 2026: what changed between quote revisions
+
+A buyer comes back with "can you do 100 instead of 50?" or "what if we drop
+the anodize?", and the shop sends Rev 2. Until now the estimator had to open
+both quotes side by side and compare them by eye before sending. A missed
+change is a price nobody meant to quote.
+
+The RFQ-to-quote app (bet #2, still in private development, not yet on sale)
+now opens every revision with **"What changed from Q-1001"**:
+
+- **Unit price at every quantity break, side by side.** Breaks that are new,
+  dropped or repriced are marked, with the difference in dollars and percent.
+  The first-break total is shown before and after.
+- **Why the price moved.** Under each line it lists the operations that
+  changed (by machine and operation label, with setup and cycle minutes), and
+  any change to the material, blank size, part revision, finishing or extras
+  such as material certs and crating. Lines added or dropped and changes to
+  lead time or terms are listed too.
+- **Stored prices, never recalculated.** Each side shows the price that
+  revision actually stored, produced by the shop's own rate card at the time.
+  A line that no longer prices says "not priced", never $0.
+
+Building it turned up a real bug. Editing only a line's cost inputs through
+the API cleared that line's part revision and description. The app's own
+editor always sends every field, so users were not affected, but anything
+calling the API directly was. It is fixed, and a test now covers it.
