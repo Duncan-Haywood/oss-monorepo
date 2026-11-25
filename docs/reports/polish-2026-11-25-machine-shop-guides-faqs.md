@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [seo, aeo]
+topics: [seo]
 date: 2026-11-25
 ---
 # Polish 2026-11-25: machine-shop-guides FAQs (bet #2 and #4 front door)
