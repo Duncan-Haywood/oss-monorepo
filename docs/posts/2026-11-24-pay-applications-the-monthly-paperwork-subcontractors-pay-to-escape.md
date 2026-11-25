@@ -333,6 +333,43 @@ None of these is the AIA's form, none is affiliated with the AIA, and none is
 legal or accounting advice. Retainage, waiver and payment terms come from
 your contract and your state's law.
 
+### Lien waivers in both directions: a log that pairs them
+
+Every pay application moves lien waivers two ways. The sub signs a
+**conditional** waiver for the GC with the pay app, then an
+**unconditional** one once the money clears; and it collects the same pair
+from its own suppliers and lower-tier subs, because a supplier the sub has
+paid can still claim a lien on the job until it signs an unconditional
+waiver. Most subs track this in a spreadsheet, and the two failures are
+quiet ones: an unconditional waiver handed over before the check cleared
+(it gives up the lien right whether or not the money arrives), and a
+supplier paid months ago whose unconditional waiver was never collected.
+
+The free [lien waiver log](https://marisstella.app/pay-app-guides/lien-waiver-log.html)
+reads that spreadsheet as pasted. It pairs each conditional with its
+unconditional by party, progress or final, and through date, then flags:
+
+- unconditional waivers given with no cleared-payment date, signed before
+  the payment cleared, or for more than the amount paid;
+- paid conditionals from suppliers with no unconditional held, as a note
+  at first and as a check once a chase window (10 days by default) passes;
+- repeated rows, progress waivers with no through date, and progress
+  waivers signed after a final one.
+
+Given the next pay app's through date, it lists the waivers to collect from
+each lower tier and writes them as plain requests. In the built-in example
+(eight waivers on one job) it finds one unconditional waiver for $51,750
+given with no payment recorded, $16,150 paid to two lower tiers with no
+unconditional held, and four waivers to request. The logic is in
+`waivers.mjs` with ten tests in `waivers.test.mjs`.
+
+What it deliberately does not do: decide whether a waiver is valid in a
+given state or which statutory form applies. Those are in the
+[waiver forms by state](https://marisstella.app/pay-app-guides/lien-waiver-forms-by-state.html)
+guide, each linked to the statute; this page checks the log against itself.
+In the hosted product, each pay app will carry its own waiver list, so the
+chasing happens on the job rather than in a separate sheet.
+
 ## Early access
 
 If you run a subcontracting or small GC business and bill on pay
