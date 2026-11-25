@@ -71,9 +71,6 @@ workflows:
 - workflow: ci-profile-ci.yml
   classification: none
   publishes: []
-- workflow: codeql.yml
-  classification: none
-  publishes: []
 - workflow: coverage-drop-check-ci.yml
   classification: none
   publishes: []
@@ -252,6 +249,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: priv-cloudflare-email.yml
+  classification: none
+  publishes: []
+- workflow: priv-codeql.yml
   classification: none
   publishes: []
 - workflow: priv-conflict-markers-ci.yml

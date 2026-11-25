@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Fail a pull request whose own lines carry a CodeQL security finding.
 
-Owner, 2026-11-24: "fix new ones before they hit main". `.github/workflows/codeql.yml`
+Owner, 2026-11-24: "fix new ones before they hit main". `.github/workflows/priv-codeql.yml`
 runs CodeQL on every pull request, writes its SARIF output to disk, and then runs this
 script on the PR's merge commit. A finding fails the job when both hold:
 

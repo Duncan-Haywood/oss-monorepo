@@ -9,7 +9,7 @@ name: Security alert queue
 # owner on 2026-10-30 as "a work distribution thing from the normally
 # scheduled agents", file based rather than GitHub issues. No model is called
 # and no paid key is used. Logic and tests: platform/ci/security_alerts.py.
-# The alerts come from .github/workflows/codeql.yml. If the API cannot be read
+# The alerts come from .github/workflows/priv-codeql.yml. If the API cannot be read
 # (404: no analysis), the job fails and QUEUE.md says "Unavailable" rather
 # than staying green on an empty queue, as it did from 2026-10-30 to 2026-11-24.
 #

@@ -136,7 +136,7 @@ UNAVAILABLE = "Unavailable:"
 def unavailable(code: int, detail: str, previous: str) -> str:
     """QUEUE.md when the alerts API cannot be read: a notice, then the last known alerts."""
     cause = {404: "no code-scanning analysis exists, so CodeQL is not running or has not "
-                  "finished a first analysis (`.github/workflows/codeql.yml`)",
+                  "finished a first analysis (`.github/workflows/priv-codeql.yml`)",
              403: "the workflow token cannot read code-scanning alerts"}.get(code, "the API refused the read")
     lines = ["# Security queue", "",
              f"{UNAVAILABLE} the alerts API answered HTTP {code}"

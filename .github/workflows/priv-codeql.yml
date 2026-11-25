@@ -68,6 +68,37 @@ jobs:
         with:
           category: /language:${{ matrix.language }}
           output: sarif-results
-      - name: Gate new findings on this PR's lines
+      - name: Keep the SARIF for the read-only gate job
         if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sarif-${{ matrix.language }}
+          path: sarif-results
+          retention-days: 3
+
+  # The gate runs repository code, so it runs in its own job without
+  # security-events: write (least privilege; the analysis job above runs only
+  # pinned CodeQL actions).
+  gate:
+    name: codeql gate (${{ matrix.language }})
+    if: github.event_name == 'pull_request'
+    needs: analyze
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [actions, javascript-typescript, python]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: sarif-${{ matrix.language }}
+          path: sarif-results
+      - name: Gate new findings on this PR's lines
         run: python3 platform/ci/codeql_gate.py --sarif sarif-results --base HEAD^1

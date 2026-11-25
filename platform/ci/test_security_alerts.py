@@ -117,7 +117,7 @@ class MainTest(unittest.TestCase):
                 self.assertEqual(self._run({"GITHUB_TOKEN": "t"}, ["--repo", "o/r", "--out", str(out)]), 1)
             text = (out / "QUEUE.md").read_text()
             self.assertIn("(no analysis found)", text)
-            self.assertIn("codeql.yml", text)
+            self.assertIn("priv-codeql.yml", text)
             self.assertNotIn("- [", text)
             self.assertIn("::error::", stdout.getvalue())
 

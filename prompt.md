@@ -26,8 +26,8 @@ starting message names a task, read the security queue first:
   `doc_friction` and go to step 1.
 - It says `Empty`, or the branch does not exist yet: go to step 1.
 
-`codeql.yml` analyses `main` on every merge; `priv-security-alert-queue.yml` regenerates the
-queue hourly. Your own PR must also pass the `codeql (...)` jobs: a finding on a line you
+`priv-codeql.yml` analyses `main` on every merge; `priv-security-alert-queue.yml` regenerates the
+queue hourly. Your own PR must also pass the `codeql gate (...)` jobs: a finding on a line you
 wrote fails them, and the job log names it. Fix it in that PR; never suppress the rule.
 
 ## 1. Route

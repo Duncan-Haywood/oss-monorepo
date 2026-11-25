@@ -38,6 +38,9 @@ actions:
     - 7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3 (PR #18671)
   pnpm/action-setup:
     - b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+  # CodeQL analysis and SARIF upload (priv-codeql.yml: needs security-events: write).
+  github/codeql-action:
+    - 1bd86f2fdb4b86187fa4059f16f31a3202acc9ea # v4.39.4
 
 runners:
   # GitHub-hosted labels only: a self-hosted runner keeps state between jobs,

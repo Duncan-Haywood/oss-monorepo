@@ -1,4 +1,4 @@
-# Configuration for .github/workflows/codeql.yml. Vendored third-party code is
+# Configuration for .github/workflows/priv-codeql.yml. Vendored third-party code is
 # left out: its findings belong upstream, and a fix here would be lost on the
 # next vendor update.
 name: oss-monorepo CodeQL
