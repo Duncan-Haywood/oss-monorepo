@@ -51,5 +51,24 @@ page titled "Page not found". It was not the gate. Every page under
 the build baked that page into every document. Two `await`s fix it, and the
 Cloudflare copy gets the fix on its next deploy too.
 
-Nothing here is deployed yet: there is no AWS account. The stack is
-`platform/aws/stacks/listing-lens/`.
+## The same gate in place of a Next.js server
+
+AI-First Markets, the owner's notebook of market and business-idea reports,
+ran as a Next.js server on a Worker through OpenNext. The server's one job
+the files could not do alone was keeping everyone but one address out: a
+middleware, a Google OAuth callback, a session token signed with a secret,
+and two secrets in the deploy workflow.
+
+Every page reads static data from `src/data`, so the AWS version does not
+run Next.js at all. `aws/build.mjs` copies the app without the middleware,
+the sign-in routes and the login pages, and runs `next build` with
+`output: "export"`: 20 page folders of plain files, about 2.8 MB, served by
+the same site app behind the same gate. The Google OAuth client secret and
+`AUTH_SECRET` go away. One source line changed: the sitemap is marked
+static, which export requires and the Worker build ignores. Checked here:
+the export builds, the app's 60 tests and typecheck pass, and a Chromium run
+refused an unlisted address and took the listed one to "Path to $100k ARR".
+
+Nothing here is deployed yet: there is no AWS account. The stacks are
+`platform/aws/stacks/listing-lens/`, `retail-pilot-intel/` and
+`ai-first-markets/`; the Workers stay until the cutover.
