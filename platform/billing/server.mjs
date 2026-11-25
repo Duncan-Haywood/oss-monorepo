@@ -3,7 +3,7 @@
 // licence key, hand it to the browser that paid. WebCrypto only, so it runs on
 // a Cloudflare Worker, on Node 20+ and on any other runtime with `crypto.subtle`.
 //
-// Routes (mounted by platform/edge/worker.mjs):
+// Routes (mounted by worker.mjs, the billing Worker the owner deploys on its own account):
 //   POST /billing/paddle   Paddle's webhook. Signature checked with
 //                          PADDLE_WEBHOOK_SECRET; `transaction.completed`
 //                          signs a key with LICENCE_SIGNING_KEY and stores it.
@@ -12,7 +12,8 @@
 //   POST /billing/renew    {key}: a subscription key's newest renewal.
 //
 // No Paddle API key: the Worker never calls Paddle. The two secrets are set
-// with `wrangler secret put` and never committed (README.md beside this file).
+// with `wrangler secret put` on the billing account and never committed or
+// given to the public site's edge Worker (README.md beside this file).
 // Nothing about the buyer is stored: a key names the product, a Paddle
 // transaction or subscription id and dates, never an email or a name.
 

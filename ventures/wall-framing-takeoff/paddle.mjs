@@ -9,7 +9,7 @@
 // How a sale works (README.md beside this file):
 //   1. The page opens Paddle's overlay checkout with a random claim code in
 //      `customData`. Only this browser knows the code.
-//   2. Paddle sends `transaction.completed` to the edge Worker, which checks
+//   2. Paddle sends `transaction.completed` to the billing Worker (worker.mjs), which checks
 //      the webhook signature, signs a licence key with its Ed25519 private key
 //      and stores it under the SHA-256 of the claim code.
 //   3. The page asks the Worker for the key by claim code and shows it.
@@ -109,7 +109,7 @@ function loadPaddle(w) {
 }
 
 /**
- * Ask the edge Worker for the key a finished checkout earned. The webhook can
+ * Ask the billing Worker for the key a finished checkout earned. The webhook can
  * land a few seconds after the overlay closes, so this polls.
  * @param {string} claim
  * @param {{ edge: string, fetch?: typeof fetch, tries?: number, waitMs?: number }} o
@@ -189,7 +189,7 @@ export function wireBuy(el, cfg, h) {
 }
 
 /**
- * A subscription key past its expiry: ask the edge Worker for the renewal the
+ * A subscription key past its expiry: ask the billing Worker for the renewal the
  * next payment earned. Returns the new key, or null when there is none yet.
  * @param {string} key @param {{ edge: string, fetch?: typeof fetch }} o
  */

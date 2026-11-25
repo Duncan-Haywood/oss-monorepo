@@ -13,11 +13,11 @@ that path with one that works on Paddle and holds no Paddle API key.
 
 ```
 page (Buy)  --Paddle.js overlay, customData {claim}-->  Paddle
-Paddle      --transaction.completed webhook-------->  edge Worker /billing/paddle
+Paddle      --transaction.completed webhook-------->  billing Worker /billing/paddle
                                                       checks Paddle-Signature,
                                                       signs an Ed25519 licence key,
                                                       stores it under SHA-256(claim)
-page        --GET /billing/claim?c=<claim>--------->  edge Worker -> the key
+page        --GET /billing/claim?c=<claim>--------->  billing Worker -> the key
 page (Unlock) verifies the key offline against the public key in checkout.mjs
 ```
 
@@ -41,50 +41,76 @@ page (Unlock) verifies the key offline against the public key in checkout.mjs
 | file | runs in | what |
 | --- | --- | --- |
 | `client.mjs` | browser, Node | `wireBuy` (overlay checkout + key pickup), `verifyLicence`, `checkKey` (with renewal), `onSale`. No imports, so it can be copied. |
-| `server.mjs` | edge Worker, Node | `verifyPaddleSignature`, `signLicence`, `licenceForTransaction`, `handleBilling` routes, `d1Store`. WebCrypto only. |
+| `server.mjs` | billing Worker, Node | `verifyPaddleSignature`, `signLicence`, `licenceForTransaction`, `handleBilling` routes, `d1Store`. WebCrypto only. |
 | `catalogue.mjs` | everywhere | what is sold: product, billing, Paddle price id; the shared public values. |
 | `sync.mjs` | Node | copies `client.mjs` to `ventures/<slug>/paddle.mjs` and writes each `checkout.mjs` from the catalogue (`--check` for CI). |
 | `keygen.mjs` | Node, once | the Ed25519 key pair. |
 | `testkit.mjs` | tests | the contract each venture's `licence.mjs` test asserts in one line. |
 | `billing.test.mjs` | tests | signature, signing, the webhook-to-unlock path, renewals, refusals, sync. |
 
-The routes are mounted in `platform/edge/worker.mjs`; the two tables
-(`licences`, `licence_subs`) are in `platform/edge/schema.sql`, applied by the
-edge deploy.
+| `worker.mjs`, `schema.sql`, `wrangler.example.toml` | the owner's billing account | the billing Worker: the routes above over D1. |
+
+## Where the billing Worker runs, and why not on the site's edge Worker
+
+The billing Worker holds two secrets: Paddle's notification secret and the
+licence signing key. The Payments guardrail (`prompts/goals.md`) keeps every
+webhook secret out of this repository, its Actions secrets, the public
+Cloudflare account and any agent session, and the billing plan's Option B
+(`docs/reports/2026-10-30-billing-plan.md`) explains why: agents merge here
+without review, and anything an agent can merge into a Worker can read that
+Worker's secrets. So:
+
+- the public site's edge Worker (`platform/edge/`) does **not** mount these
+  routes, and a test fails if it ever imports them;
+- nothing in `.github/workflows/` deploys `worker.mjs` or names its secrets
+  (also tested), and there is no `wrangler.toml` here, only the example;
+- the owner deploys it from an owner-only place (a private repository with
+  owner review, or their own machine) to a **separate Cloudflare account**,
+  reading the diff of `platform/billing/` since the last deploy first.
+
+Neither secret can move money or read customer data. A leaked one lets
+someone mint keys for MIT code they could already run, which is the same as
+the honest-buyer caveat above.
 
 ## Going live (owner, once for all seven packs)
 
 Everything an agent could do is done. These steps need the Paddle account or a
 secret, so they are the owner's. Do them in the **sandbox** first.
 
-1. **Keys.** `node platform/billing/keygen.mjs`. Put the public key in
-   `catalogue.mjs` (`publicKey`). Paste the private key into
-   `cd platform/edge && npx wrangler secret put LICENCE_SIGNING_KEY` and the
-   password manager, nowhere else.
+0. **The billing Worker.** On a Cloudflare account that is not the public
+   site's: copy `worker.mjs`, `server.mjs`, `client.mjs`, `catalogue.mjs`,
+   `schema.sql` and `wrangler.example.toml` (as `wrangler.toml`) to an
+   owner-only place, `npx wrangler d1 create billing`, paste the id,
+   `npx wrangler d1 execute billing --remote --file schema.sql`,
+   `npx wrangler deploy`. Put its `https://...workers.dev` origin in
+   `catalogue.mjs` (`edge`).
+1. **Keys.** `node platform/billing/keygen.mjs` on your own machine. Put the
+   public key in `catalogue.mjs` (`publicKey`). Paste the private key into
+   `npx wrangler secret put LICENCE_SIGNING_KEY` (billing account) and the
+   password manager, nowhere else: not a session, an issue or this repo.
 2. **Client-side token.** Paddle > Developer tools > Authentication >
    Client-side tokens > New. It starts `test_` (sandbox) or `live_`. Paste it
    into `catalogue.mjs` (`clientToken`). It is public by design. Never paste
    an API key there; the test refuses anything else.
 3. **Notification destination.** Paddle > Developer tools > Notifications >
-   New destination: URL `<edge>/billing/paddle` (the `edge` value in
-   `catalogue.mjs`), event `transaction.completed`. Copy its secret key into
-   `npx wrangler secret put PADDLE_WEBHOOK_SECRET`.
+   New destination: URL `<edge>/billing/paddle` (the billing Worker's origin
+   from step 0), event `transaction.completed`. Copy its secret key into
+   `npx wrangler secret put PADDLE_WEBHOOK_SECRET` (billing account).
 4. **Products and prices.** One product per pack, priced as
    `portfolio/monetization/models.yaml` says (wall-framing-takeoff is a yearly
    subscription; the rest are one-off). Paste each `pri_...` id into its row in
    `catalogue.mjs`. (An agent can turn this step into a script; see "Next".)
 5. **Approve the domain.** Paddle > Checkout > Website approval:
    `marisstella.app`, where the tool pages are served.
-6. `node platform/billing/sync.mjs`, run the venture tests, merge. Redeploy the
-   edge Worker (Actions > `priv-edge-deploy` > Run workflow): it only
-   redeploys on its own on changes under `platform/edge/`, and it reads the
-   price ids from `catalogue.mjs`.
+6. `node platform/billing/sync.mjs`, run the venture tests, merge. Redeploy
+   the billing Worker from its owner-only place with the updated
+   `catalogue.mjs`: it maps price ids to products from that file.
 7. Buy each pack once in the sandbox with Paddle's test card, check the key
    unlocks, then switch `environment` to `"production"`, swap in the `live_`
    token, the live destination secret and the live price ids, and repeat once
    with a real card and a refund.
 
-Until all of steps 1 to 4 are done for a pack, `onSale` is false and the page
+Until all of steps 0 to 4 are done for a pack, `onSale` is false and the page
 shows no Buy button. Nothing is for sale and nothing changes for users.
 
 ## What is not verified

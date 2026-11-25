@@ -56,9 +56,10 @@ products:
     stage: built-dark
     next: >-
       Rewired to Paddle 2026-11-25 (platform/billing: overlay checkout,
-      webhook-fed Ed25519 licence keys from the edge Worker, offline
+      webhook-fed Ed25519 licence keys from a billing Worker, offline
       unlock; no Paddle API key anywhere). Owner, once for all packs
-      (platform/billing/README.md, "Going live"): create the Paddle
+      (platform/billing/README.md, "Going live"): deploy the billing
+      Worker on its own account, create the Paddle
       product and price, a client-side token, a notification destination
       for transaction.completed, run keygen.mjs, set the two Worker
       secrets, fill catalogue.mjs and run sync.mjs. Agent next: the
@@ -114,9 +115,10 @@ products:
     stage: built-dark
     next: >-
       Rewired to Paddle 2026-11-25 (platform/billing: overlay checkout,
-      webhook-fed Ed25519 licence keys from the edge Worker, offline
+      webhook-fed Ed25519 licence keys from a billing Worker, offline
       unlock; no Paddle API key anywhere). Owner, once for all packs
-      (platform/billing/README.md, "Going live"): create the Paddle
+      (platform/billing/README.md, "Going live"): deploy the billing
+      Worker on its own account, create the Paddle
       product and price, a client-side token, a notification destination
       for transaction.completed, run keygen.mjs, set the two Worker
       secrets, fill catalogue.mjs and run sync.mjs. Agent next: the
@@ -171,9 +173,10 @@ products:
     stage: built-dark
     next: >-
       Rewired to Paddle 2026-11-25 (platform/billing: overlay checkout,
-      webhook-fed Ed25519 licence keys from the edge Worker, offline
+      webhook-fed Ed25519 licence keys from a billing Worker, offline
       unlock; no Paddle API key anywhere). Owner, once for all packs
-      (platform/billing/README.md, "Going live"): create the Paddle
+      (platform/billing/README.md, "Going live"): deploy the billing
+      Worker on its own account, create the Paddle
       product and price, a client-side token, a notification destination
       for transaction.completed, run keygen.mjs, set the two Worker
       secrets, fill catalogue.mjs and run sync.mjs. Agent next: the
@@ -217,9 +220,10 @@ products:
     stage: built-dark
     next: >-
       Rewired to Paddle 2026-11-25 (platform/billing: overlay checkout,
-      webhook-fed Ed25519 licence keys from the edge Worker, offline
+      webhook-fed Ed25519 licence keys from a billing Worker, offline
       unlock; no Paddle API key anywhere). Owner, once for all packs
-      (platform/billing/README.md, "Going live"): create the Paddle
+      (platform/billing/README.md, "Going live"): deploy the billing
+      Worker on its own account, create the Paddle
       product and price, a client-side token, a notification destination
       for transaction.completed, run keygen.mjs, set the two Worker
       secrets, fill catalogue.mjs and run sync.mjs. Agent next: the
@@ -308,9 +312,10 @@ products:
     stage: built-dark
     next: >-
       Rewired to Paddle 2026-11-25 (platform/billing: overlay checkout,
-      webhook-fed Ed25519 licence keys from the edge Worker, offline
+      webhook-fed Ed25519 licence keys from a billing Worker, offline
       unlock; no Paddle API key anywhere). Owner, once for all packs
-      (platform/billing/README.md, "Going live"): create the Paddle
+      (platform/billing/README.md, "Going live"): deploy the billing
+      Worker on its own account, create the Paddle
       product and price, a client-side token, a notification destination
       for transaction.completed, run keygen.mjs, set the two Worker
       secrets, fill catalogue.mjs and run sync.mjs. Agent next: the
@@ -423,9 +428,10 @@ products:
     stage: built-dark
     next: >-
       Rewired to Paddle 2026-11-25 (platform/billing: overlay checkout,
-      webhook-fed Ed25519 licence keys from the edge Worker, offline
+      webhook-fed Ed25519 licence keys from a billing Worker, offline
       unlock; no Paddle API key anywhere). Owner, once for all packs
-      (platform/billing/README.md, "Going live"): create the Paddle
+      (platform/billing/README.md, "Going live"): deploy the billing
+      Worker on its own account, create the Paddle
       product and price, a client-side token, a notification destination
       for transaction.completed, run keygen.mjs, set the two Worker
       secrets, fill catalogue.mjs and run sync.mjs. Agent next: the

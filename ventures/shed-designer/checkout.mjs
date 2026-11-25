@@ -9,6 +9,6 @@ export const PADDLE = {
   "priceId": "",
   "clientToken": "",
   "publicKey": "",
-  "edge": "https://monorepo-projects-edge.duncan-andrew-haywood.workers.dev",
+  "edge": "",
   "environment": "sandbox"
 };

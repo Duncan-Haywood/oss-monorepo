@@ -45,21 +45,3 @@ CREATE TABLE IF NOT EXISTS inbox_daily (
   day TEXT    PRIMARY KEY,
   n   INTEGER NOT NULL DEFAULT 0
 );
-
--- Licence keys for paid packs (platform/billing/server.mjs). A row holds the
--- signed key, the product and the day, keyed by the SHA-256 of the claim code
--- only the paying browser knows. Nothing about the buyer is stored.
-CREATE TABLE IF NOT EXISTS licences (
-  claim_hash TEXT PRIMARY KEY,
-  product    TEXT NOT NULL,
-  licence    TEXT NOT NULL,
-  created    TEXT NOT NULL
-);
-
--- The newest key for each Paddle subscription, so a lapsed key can fetch its
--- renewal (POST /billing/renew).
-CREATE TABLE IF NOT EXISTS licence_subs (
-  sub_id  TEXT PRIMARY KEY,
-  licence TEXT NOT NULL,
-  exp     INTEGER NOT NULL
-);

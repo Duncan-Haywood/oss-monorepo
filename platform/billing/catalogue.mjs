@@ -8,7 +8,7 @@
 //
 // `billing` follows `portfolio/monetization/models.yaml`. A subscription key
 // carries an expiry (the paid period's end plus GRACE_DAYS) and renews itself
-// from the edge Worker; a one-off key never expires.
+// from the billing Worker; a one-off key never expires.
 
 export const GRACE_DAYS = 7;
 
@@ -21,9 +21,11 @@ export const CATALOGUE = {
   clientToken: "",
   // The Ed25519 public key printed by `node platform/billing/keygen.mjs`.
   publicKey: "",
-  // The edge Worker that receives Paddle's webhook and hands out keys
-  // (platform/edge/site.json).
-  edge: "https://monorepo-projects-edge.duncan-andrew-haywood.workers.dev",
+  // The origin of the billing Worker (worker.mjs) that receives Paddle's
+  // webhook and hands out keys. Empty until the owner deploys it on its own
+  // Cloudflare account (README.md, "Going live"); never the public site's
+  // edge Worker, which must not hold a webhook secret (goals.md, "Payments").
+  edge: "",
   products: {
     "wall-framing-takeoff": { name: "Branded bid package", billing: "subscription", priceId: "" },
     "league-schedule-generator": { name: "Season print pack", billing: "one-off", priceId: "" },

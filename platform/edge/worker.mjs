@@ -28,10 +28,6 @@
 //   DELETE /inbox?id=<n>  erase one message sooner, same token.
 //   email()         Cloudflare Email Routing delivers that mail here.
 //   GET  /healthz   a health check.
-//   /billing/*      Paddle's webhook and the licence keys it earns for paid
-//                   packs (`platform/billing/server.mjs`). Answers 503 until
-//                   the owner sets PADDLE_WEBHOOK_SECRET and
-//                   LICENCE_SIGNING_KEY (`platform/billing/README.md`).
 //
 // Cost: the free plan has hard daily limits (Workers requests, D1 rows
 // written) and stops answering past them rather than billing. Nothing here can
@@ -43,7 +39,6 @@ import {
 } from '../counter/core.mjs';
 import { feedbackRecord } from './feedback.mjs';
 import { receiveEmail, readInbox, deleteInboxMessage } from './inbox.mjs';
-import { handleBilling, d1Store } from '../billing/server.mjs';
 
 const FEEDBACK_MAX_BODY = 6000;
 
@@ -170,7 +165,6 @@ export default {
         return new Response(null, { status: 204, headers: cors });
       }
       if (request.method === 'POST' && url.pathname === '/feedback') return await handleFeedback(request, env, headers, cors);
-      if (url.pathname.startsWith('/billing/')) return await handleBilling(request, env, { store: d1Store(env.DB), cors });
       return new Response('not found\n', { status: 404, headers: cors });
     } catch {
       return json(500, { error: 'internal' }, cors);

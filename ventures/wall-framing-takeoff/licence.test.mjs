@@ -9,7 +9,7 @@ test("the bid package licence follows the shared contract", async () => {
   await assertPackLicence(licence, PADDLE, "wall-framing-takeoff");
 });
 
-test("a lapsed subscription key renews once from the edge Worker, and a failed renewal stays locked", async () => {
+test("a lapsed subscription key renews once from the billing Worker, and a failed renewal stays locked", async () => {
   const b64u = (buf) => Buffer.from(buf).toString("base64url");
   const pair = await crypto.subtle.generateKey({ name: "Ed25519" }, true, ["sign", "verify"]);
   const publicKey = b64u(await crypto.subtle.exportKey("raw", pair.publicKey));
@@ -17,7 +17,7 @@ test("a lapsed subscription key renews once from the edge Worker, and a failed r
   const now = 1_800_000_000;
   const old = await signLicence({ v: 1, p: "wall-framing-takeoff", t: "subscription", s: "sub_a", iat: now, exp: now + 10 }, priv);
   const fresh = await signLicence({ v: 1, p: "wall-framing-takeoff", t: "subscription", s: "sub_a", iat: now, exp: now + 1000 }, priv);
-  const cfg = { publicKey };
+  const cfg = { publicKey, edge: "https://billing.example" };
   assert.deepEqual(await licence.checkLicence(old, { cfg, now }), { valid: true, reason: "" });
   let calls = 0;
   const ok = async () => { calls++; return new Response(JSON.stringify({ key: fresh }), { status: 200 }); };

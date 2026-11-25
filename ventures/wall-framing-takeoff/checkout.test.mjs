@@ -9,8 +9,10 @@ test("PADDLE holds only public values of the expected shapes (empty while dark)"
   assert.ok(PADDLE.priceId === "" || /^pri_[a-z0-9]+$/.test(PADDLE.priceId));
   assert.ok(PADDLE.clientToken === "" || /^(live|test)_[A-Za-z0-9]+$/.test(PADDLE.clientToken), "a client-side token, never an API key");
   assert.ok(PADDLE.publicKey === "" || /^[A-Za-z0-9_-]{43}$/.test(PADDLE.publicKey));
-  const u = new URL(PADDLE.edge);
-  assert.equal(u.protocol, "https:");
-  assert.equal(u.username + u.password + u.search, "");
+  if (PADDLE.edge !== "") {
+    const u = new URL(PADDLE.edge);
+    assert.equal(u.protocol, "https:");
+    assert.equal(u.username + u.password + u.search, "");
+  }
   assert.ok(["sandbox", "production"].includes(PADDLE.environment));
 });

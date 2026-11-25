@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import { createHmac } from "node:crypto";
 import fs from "node:fs";
 import { cleanKey, verifyLicence, onSale, newClaim, fetchKey, checkKey, wireBuy } from "./client.mjs";
-import { verifyPaddleSignature, signLicence, licenceForTransaction, handleBilling, claimHash, TOLERANCE_SEC } from "./server.mjs";
+import { verifyPaddleSignature, signLicence, licenceForTransaction, handleBilling, claimHash, d1Store, TOLERANCE_SEC } from "./server.mjs";
+import worker from "./worker.mjs";
 import { CATALOGUE, productConfig, productForPrice } from "./catalogue.mjs";
 import { plan } from "./sync.mjs";
 
@@ -19,6 +20,7 @@ const CAT = {
   ...CATALOGUE,
   clientToken: "test_0123456789abcdef",
   publicKey: PUB,
+  edge: "https://billing.example",
   products: {
     "wall-framing-takeoff": { name: "Bid", billing: "subscription", priceId: "pri_01subscription00" },
     "shed-designer": { name: "Shed", billing: "one-off", priceId: "pri_01oneoff0000000" },
@@ -203,8 +205,44 @@ test("every venture's paddle.mjs and checkout.mjs match the catalogue (node plat
   for (const { file, want } of plan()) assert.equal(fs.existsSync(file) ? fs.readFileSync(file, "utf8") : null, want, file);
 });
 
-test("the D1 schema has the two tables the store writes", () => {
-  const sql = fs.readFileSync(new URL("../edge/schema.sql", import.meta.url), "utf8");
-  assert.match(sql, /CREATE TABLE IF NOT EXISTS licences \(/);
-  assert.match(sql, /CREATE TABLE IF NOT EXISTS licence_subs \(/);
+test("the billing store runs against its real schema (node:sqlite standing in for D1)", async (t) => {
+  let DatabaseSync;
+  try { ({ DatabaseSync } = await import("node:sqlite")); } catch { t.skip("node:sqlite not available"); return; }
+  const db = new DatabaseSync(":memory:");
+  db.exec(fs.readFileSync(new URL("./schema.sql", import.meta.url), "utf8"));
+  // The slice of D1's API the store uses, with ?N placeholders as D1 takes them.
+  const d1 = { prepare(sql) { return { bind(...a) { const s = db.prepare(sql); return { run: async () => s.run(...a), first: async () => s.get(...a) ?? null }; } }; } };
+  const store = d1Store(d1);
+  await store.putClaim("h1", "key-a", "shed-designer");
+  await store.putClaim("h1", "key-b", "shed-designer");
+  assert.equal(await store.getClaim("h1"), "key-a", "first key kept on a webhook retry");
+  assert.equal(await store.getClaim("h2"), null);
+  await store.putSub("sub_1", "k1", 100);
+  await store.putSub("sub_1", "k2", 200);
+  await store.putSub("sub_1", "k0", 50);
+  assert.deepEqual(await store.getSub("sub_1"), { key: "k2", exp: 200 });
+  assert.equal(await store.getSub("sub_2"), null);
+});
+
+test("the billing Worker: 503 until its secrets are set, CORS on reads, preflight allows the renew POST", async () => {
+  const env = { DB: null, ALLOWED_ORIGIN: "https://marisstella.app" };
+  const hookRes = await worker.fetch(new Request("https://b.test/billing/paddle", { method: "POST", body: "{}" }), env);
+  assert.equal(hookRes.status, 503);
+  const bad = await worker.fetch(new Request("https://b.test/billing/claim?c=nope", { headers: { origin: "https://marisstella.app" } }), env);
+  assert.equal(bad.status, 400);
+  assert.equal(bad.headers.get("access-control-allow-origin"), "https://marisstella.app");
+  const pre = await worker.fetch(new Request("https://b.test/billing/renew", { method: "OPTIONS", headers: { origin: "https://marisstella.app" } }), env);
+  assert.equal(pre.status, 204);
+  assert.match(pre.headers.get("access-control-allow-methods"), /POST/);
+  assert.equal((await worker.fetch(new Request("https://b.test/"), env)).status, 404);
+});
+
+test("the billing secrets stay out of the public site: the edge Worker does not mount /billing and nothing in Actions deploys this Worker", () => {
+  const edge = fs.readFileSync(new URL("../edge/worker.mjs", import.meta.url), "utf8");
+  assert.doesNotMatch(edge, /\/billing\/|\.\.\/billing|PADDLE_WEBHOOK_SECRET|LICENCE_SIGNING_KEY/);
+  const wf = new URL("../../.github/workflows/", import.meta.url);
+  for (const f of fs.readdirSync(wf)) {
+    assert.doesNotMatch(fs.readFileSync(new URL(f, wf), "utf8"), /platform\/billing\/worker|LICENCE_SIGNING_KEY|PADDLE_WEBHOOK_SECRET/, f);
+  }
+  assert.equal(fs.existsSync(new URL("./wrangler.toml", import.meta.url)), false, "only the example template lives here");
 });
