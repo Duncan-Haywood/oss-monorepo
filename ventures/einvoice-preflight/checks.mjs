@@ -1,6 +1,10 @@
-// Format-neutral invoice checks. Mirrors src/einvoice_preflight/checks.py so
-// the browser page and the CLI report the same rule IDs, messages, and
-// cent-rounded arithmetic. This is an observation, not a legal validity claim.
+// Format-neutral invoice checks. src/einvoice_preflight/checks.py mirrors the
+// core of this file for the Python CLI, which reads JSON, UBL, CII and Factur-X
+// only, has no warning or note severity (silent on INV-061/063/064), skips the
+// PDF envelope checks (PDF-001..006), Norway and Switzerland VAT and the
+// profile options, and some fix texts differ (README, NEXT.md).
+// eval/page-cli-parity.mjs measures where the two differ on the shipped files.
+// This is an observation, not a legal validity claim.
 
 import { headerAdjustmentNetDelta, inspectHeaderAdjustments } from "./adjustment.mjs";
 import { inspectPaymentBic } from "./bic.mjs";

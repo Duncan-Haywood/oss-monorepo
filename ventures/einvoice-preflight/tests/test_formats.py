@@ -105,5 +105,26 @@ class FormatsFunctionsTest(unittest.TestCase):
             assert "INV-023" not in [f["rule"] for f in found], number
 
 
+class NationalFormatMessageTest(unittest.TestCase):
+    """A national-format file names its root and where it can be checked."""
+
+    def test_fatturapa_root_is_named(self):
+        from einvoice_preflight.ubl import parse_ubl_invoice
+
+        source = b'<?xml version="1.0"?><p:FatturaElettronica xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" versione="FPR12"/>'
+        with self.assertRaises(ValueError) as caught:
+            parse_ubl_invoice(source)
+        message = str(caught.exception)
+        self.assertIn("<FatturaElettronica>", message)
+        self.assertIn("browser page", message)
+
+    def test_root_name_is_sanitised(self):
+        from einvoice_preflight.ubl import parse_ubl_invoice
+
+        with self.assertRaises(ValueError) as caught:
+            parse_ubl_invoice(b"<X" + b"y" * 200 + b"/>")
+        self.assertIn("<X" + "y" * 59 + ">", str(caught.exception))
+
+
 if __name__ == "__main__":
     unittest.main()
