@@ -122,8 +122,8 @@ export function bodyBlock(g, { garment = "tee", sizeChart = BODY_CHEST_CM, grade
   const frontDrop = 0.08 * bc, backDrop = 2.5;
   const sx = Math.min(Q - 4, ns.shoulderPointCm);        // shoulder point, from the fold
   const sd = 0.04 * bc;                                  // shoulder slope drop
-  const ad = 0.235 * bc + 0.1 * (g.chest - bc);          // armhole depth from the high point
-  return { Q, hn, frontDrop, backDrop, sx, sd, ad, L: g.length };
+  const ad = ns.armholeDepthCm;                          // armhole depth from the high point, graded in grade.mjs (until 2026-11-25 0.235 x each size's chest, +1.88 cm a size)
+  return { Q, hn, frontDrop, backDrop, sx, sd, ad, L: g.length, flatBicep: ns.flatBicepCm };
 }
 
 export function armholeCurve(b, side) {
@@ -186,7 +186,7 @@ function sleevePiece(g, b, front, back, garment, o) {
   // girth at the bicep: twice the flat (laid-down) bicep measurement. Until
   // 2026-11-13 the flat figure was used as the full width, a 24 cm sleeve at M
   // that the drape (arms added) stretched 37% round a 31 cm upper arm.
-  const flatBicep = Number(o.bicepCm) > 0 ? Number(o.bicepCm) : 0.17 * bc + 0.1 * (g.chest - bc); // o.bicepCm: the designer's own flat bicep
+  const flatBicep = Number(o.bicepCm) > 0 ? Number(o.bicepCm) : b.flatBicep; // o.bicepCm: the designer's own flat bicep; else graded from M (grade.mjs; until 2026-11-25 0.17 x each size's chest)
   const w = 2 * flatBicep;
   const solved = solveCap(w, front.armholeLen + o.capEaseCm / 2, back.armholeLen + o.capEaseCm / 2);
   if (!solved.ok) return { error: "no sleeve cap reaches the armhole length at this width" };
@@ -452,7 +452,9 @@ export function grade(garment, sizes, opts = {}) {
     const vals = ordered.map(d => r2(f(d)));
     return { label, values: Object.fromEntries(ordered.map((d, i) => [d.size, vals[i]])), steps: vals.slice(1).map((v, i) => r2(v - vals[i])) };
   });
-  const monotone = table.every(row => row.steps.every(v => v >= -1e-9));
+  // Grade points must grow with the size. The cap height is solved, not graded: it may dip a few mm where the
+  // shoulder is held back by the armhole floor (shoulderSetByArmhole), so it is reported but not required to grow.
+  const monotone = table.every(row => row.label === "Sleeve cap height" || row.steps.every(v => v >= -1e-9));
   return { ok: true, garment, sizes: ordered.map(d => d.size), drafts: ordered, table, monotone };
 }
 

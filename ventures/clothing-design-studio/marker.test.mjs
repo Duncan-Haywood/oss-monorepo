@@ -139,3 +139,20 @@ test("rib bands: laid in the body cloth, or on their own rib knit with its own m
   assert.equal(cuttingPlan("crewneck", { M: 4 }, { rib: "self" }).ok, false);
   assert.equal(cuttingPlan("crewneck", { M: 4 }, { nested: true, rib: "x" }).ok, false);
 });
+
+test("the cutting plan's sleeve box is the drafted sleeve: graded length, bicep girth, plus seam allowance (quality audit 2026-11-22, defect 2)", async () => {
+  const { draft } = await import("./pattern.mjs");
+  const { specSheet } = await import("./spec.mjs");
+  for (const garment of ["tee", "longsleeve", "crewneck", "hoodie"]) {
+    const sp = specSheet({ garment });
+    for (const size of ["XS", "M", "XXL"]) {
+      const box = patternPieces(garment, size).find(p => p.name === "sleeve");
+      const d = draft(garment, size);
+      const cuff = garment === "crewneck" || garment === "hoodie" ? 4 : 0;
+      // the spec sheet's sleeve (shoulder point to cuff) is the independent figure; the old table had tee 22 in every size
+      assert.ok(Math.abs(box.l - (sp.sizes[size].sleeve - cuff + 3)) < 0.06, `${garment} ${size} length ${box.l}`);
+      assert.ok(Math.abs(box.w - (d.checks.sleeveBicepGirthCm + 3)) < 0.06, `${garment} ${size} width ${box.w}`);
+    }
+  }
+  assert.ok(patternPieces("tee", "XXL").find(p => p.name === "sleeve").l - patternPieces("tee", "XS").find(p => p.name === "sleeve").l > 4.9);
+});
