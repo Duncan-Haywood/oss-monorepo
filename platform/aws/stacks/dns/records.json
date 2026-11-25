@@ -1,0 +1,25 @@
+{
+  "zone": "marisstella.app",
+  "source": "UNVERIFIED SEED, not an export: public DNS lookups (8.8.8.8 from a cloud session, 2026-11-24) of every marisstella.app name the repository mentions (@, www, grants, studio, _dmarc). Only A answered; MX, TXT, CAA and AAAA returned no answer, which matches the 2026-11-10 DNS-over-HTTPS check in portfolio/ledger/asks.yaml (no MX, SPF or DMARC) but cannot prove there are no other names. Replace this file with `cf_export.py --out records.json` before applying with real records (README.md, step 1).",
+  "verified": false,
+  "records": [
+    {
+      "name": "@",
+      "type": "A",
+      "ttl": 300,
+      "values": ["104.21.17.112", "172.67.175.196"],
+      "proxied": true,
+      "replaced_by": "site",
+      "comment": "Cloudflare edge addresses of the monorepo-projects-site Worker's custom domain; the site stack's CloudFront alias replaces it."
+    },
+    {
+      "name": "grants",
+      "type": "A",
+      "ttl": 300,
+      "values": ["104.21.17.112", "172.67.175.196"],
+      "proxied": true,
+      "replaced_by": "site",
+      "comment": "grant-autopilot Worker's custom domain (301 to /grants/); the site stack's CloudFront alias and host redirect replace it."
+    }
+  ]
+}

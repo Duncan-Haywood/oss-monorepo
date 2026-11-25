@@ -16,7 +16,12 @@ the owner's approval. This script backs that up in three ways:
   --check-coverage   fail if CODEOWNERS stops owning a path it must own, or
                      starts owning the run-data paths agents write every run
                      (a weakened CODEOWNERS is the first thing a rogue edit
-                     would try, and the ruleset cannot notice it);
+                     would try, and the ruleset cannot notice it); and if the
+                     ruleset or the security-gate workflow loses an
+                     invariant (the required checks, no bypass, the gate
+                     running from the base branch). The `adversarial-gate`
+                     check loads this module from main and runs the same
+                     checks against a PR's copies of those files;
   --pr N             list the owned (sensitive) files a PR touches in the job
                      summary;
   --audit-commit SHA after a push to main, fail if the commit touched owned
@@ -25,7 +30,8 @@ the owner's approval. This script backs that up in three ways:
                      same-name checks, and the time before the ruleset is
                      applied). Since 2026-11-24 this replaces owner approval.
 
-Standard library only; --pr and --audit-commit read the GitHub API with
+Standard library only (PyYAML, when installed, for the workflow check);
+--pr and --audit-commit read the GitHub API with
 GITHUB_TOKEN (read-only) and GITHUB_REPOSITORY. Setup and reasoning:
 docs/security/agent-hardening.md.
 
@@ -80,7 +86,36 @@ MUST_BE_OWNED = [
     # Code a privileged job runs (ci_policy_check.py lists the rest).
     "platform/distribution/npm.mjs",
     "platform/ci/check_conflict_markers.py",
+    # The automated gate that replaced owner review (2026-11-24), and what it
+    # runs: a PR that edits these is judged by the copy on main.
+    ".github/workflows/priv-security-gate.yml",
+    "platform/ci/adversarial_gate/gate.py",
+    "platform/ci/adversarial_gate/config.yaml",
+    "platform/ci/adversarial_gate/allowlist.yaml",
+    "platform/ci/adversarial_gate/llm_review.py",
+    "platform/ci/adversarial_gate/requirements-llm.txt",
+    "platform/ci/check_hidden_unicode.py",
+    "platform/security/scan.py",
+    "platform/security/tools.yaml",
+    "platform/security/baseline.yaml",
+    "platform/security/locks/semgrep.txt",
+    # AWS, applied to production by priv-aws-apply.yml.
+    "platform/aws/bootstrap/bootstrap.yaml",
+    "platform/aws/stacks/org/scps.tf",
+    ".github/workflows/priv-aws-apply.yml",
 ]
+
+# Required status checks the `main` ruleset must keep. integration_id 15368 is
+# GitHub Actions: without it any app able to post a status could satisfy one.
+REQUIRED_CHECKS = ["conflict-markers", "control-plane", "ci-policy", "risk-review", "security-scan", "adversarial-gate"]
+ACTIONS_INTEGRATION_ID = 15368
+RULESET = REPO_ROOT / ".github" / "rulesets" / "main.json"
+GATE_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "priv-security-gate.yml"
+# Job id -> the script that job must run from the base checkout.
+GATE_JOBS = {
+    "security-scan": "platform/security/scan.py",
+    "adversarial-gate": "platform/ci/adversarial_gate/gate.py",
+}
 MUST_BE_UNOWNED = [
     # Agent instructions: reviewed by platform/security/risk_review.py, which
     # still sends a cut to the guardrails or hard limits to the owner.
@@ -167,6 +202,111 @@ def check_coverage(rules) -> list[str]:
         for p in MUST_BE_UNOWNED
         if owners_for(p, rules)
     ]
+    return problems
+
+
+def ruleset_problems(doc: dict) -> list[str]:
+    """What a weakened `main` ruleset would lose. The file is applied by an
+    admin (.github/rulesets/README.md); this keeps the copy in the tree honest."""
+    if not isinstance(doc, dict):
+        return ["ruleset is not a JSON object"]
+    problems = []
+    if doc.get("enforcement") != "active":
+        problems.append("ruleset enforcement is not `active`")
+    if doc.get("bypass_actors"):
+        problems.append("ruleset has bypass actors; an agent holding an admin token would skip every check")
+    include = ((doc.get("conditions") or {}).get("ref_name") or {}).get("include") or []
+    if "~DEFAULT_BRANCH" not in include:
+        problems.append("ruleset no longer targets the default branch")
+    rules = {r.get("type"): r for r in doc.get("rules") or [] if isinstance(r, dict)}
+    for kind in ("deletion", "non_fast_forward", "pull_request", "required_status_checks"):
+        if kind not in rules:
+            problems.append(f"ruleset lost its `{kind}` rule")
+    checks = {}
+    for c in ((rules.get("required_status_checks") or {}).get("parameters") or {}).get("required_status_checks") or []:
+        if isinstance(c, dict):
+            checks[c.get("context")] = c.get("integration_id")
+    for name in REQUIRED_CHECKS:
+        if name not in checks:
+            problems.append(f"required status check `{name}` is missing from the ruleset")
+        elif checks[name] != ACTIONS_INTEGRATION_ID:
+            problems.append(f"required status check `{name}` is not tied to GitHub Actions (integration_id {ACTIONS_INTEGRATION_ID})")
+    return problems
+
+
+def _load_yaml(text: str):
+    try:
+        import yaml  # noqa: PLC0415 - optional; the coverage check runs without it
+    except ImportError:
+        return None
+    try:
+        return yaml.safe_load(text)
+    except yaml.YAMLError as exc:
+        return exc
+
+
+def _on_block_has(text: str, event: str) -> bool:
+    """Without PyYAML: is `event` a trigger in the top-level `on:` block?
+    Comments are stripped, so a mention in a comment does not count."""
+    m = re.search(r"(?ms)^(?:on|\"on\"|'on'):(.*?)(?=^\S|\Z)", text)
+    if not m:
+        return False
+    block = "\n".join(line.split("#", 1)[0] for line in m.group(1).splitlines())
+    return re.search(rf"(?<![\w-]){re.escape(event)}(?![\w-])", block) is not None
+
+
+def gate_workflow_problems(text: str | None) -> list[str]:
+    """The security gate must run from the base branch on every PR, as the
+    two required checks, and run the gate scripts from that checkout."""
+    if text is None:
+        return [".github/workflows/priv-security-gate.yml is missing"]
+    problems = []
+    if re.search(r"ref:\s*\$\{\{[^}]*(pull_request\.head|head_ref|merge_commit_sha)", text):
+        problems.append("the security gate checks out the PR's code; it must judge the PR from the base branch")
+    if re.search(r"(?m)^\s*continue-on-error:\s*true", text):
+        problems.append("the security gate has `continue-on-error: true`; a crashed check would pass")
+    doc = _load_yaml(text)
+    if isinstance(doc, Exception):
+        return problems + [f"the security gate workflow does not parse: {doc}"]
+    if doc is None:  # no PyYAML: text checks only
+        for job, script in GATE_JOBS.items():
+            if not re.search(rf"(?m)^  {re.escape(job)}:", text):
+                problems.append(f"the security gate lost its `{job}` job")
+            if script not in text:
+                problems.append(f"the security gate no longer runs {script}")
+        if not _on_block_has(text, "pull_request_target"):
+            problems.append("the security gate no longer runs on `pull_request_target` (the base-branch copy)")
+        return problems
+    on = doc.get("on", doc.get(True)) if isinstance(doc, dict) else None
+    events = set(on) if isinstance(on, (dict, list)) else {on}
+    if "pull_request_target" not in events:
+        problems.append("the security gate no longer runs on `pull_request_target` (the base-branch copy)")
+    jobs = (doc.get("jobs") if isinstance(doc, dict) else None) or {}
+    for job_id, script in GATE_JOBS.items():
+        job = jobs.get(job_id)
+        if not isinstance(job, dict):
+            problems.append(f"the security gate lost its `{job_id}` job (a required check)")
+            continue
+        if str(job.get("name", job_id)) != job_id:
+            problems.append(f"job `{job_id}` reports under another name, so the required check would never arrive")
+        cond = str(job.get("if", ""))
+        if cond and re.search(r"\bfalse\b", cond) and "always()" not in cond:
+            problems.append(f"job `{job_id}` has `if: {cond}`; a skipped required check reads as passed")
+        runs = " ".join(str(s.get("run", "")) for s in job.get("steps") or [] if isinstance(s, dict))
+        if script not in runs:
+            problems.append(f"job `{job_id}` no longer runs {script}")
+    return problems
+
+
+def check_invariants(root: Path = REPO_ROOT) -> list[str]:
+    problems = []
+    ruleset = root / ".github" / "rulesets" / "main.json"
+    try:
+        problems += ruleset_problems(json.loads(ruleset.read_text(encoding="utf-8")))
+    except (OSError, ValueError) as exc:
+        problems.append(f".github/rulesets/main.json unreadable: {exc}")
+    gate = root / ".github" / "workflows" / "priv-security-gate.yml"
+    problems += gate_workflow_problems(gate.read_text(encoding="utf-8") if gate.is_file() else None)
     return problems
 
 
@@ -275,9 +415,14 @@ def main(argv: list[str] | None = None) -> int:
         problems = check_coverage(rules)
         for p in problems:
             print(f"::error file=.github/CODEOWNERS::{p}")
+        invariants = check_invariants()
+        for p in invariants:
+            print(f"::error::{p}")
         if not problems:
             print(f"CODEOWNERS covers all {len(MUST_BE_OWNED)} control-plane samples")
-        return 1 if problems else 0
+        if not invariants:
+            print(f"ruleset requires {len(REQUIRED_CHECKS)} checks; the security gate runs from the base branch")
+        return 1 if problems or invariants else 0
 
     repo = os.environ["GITHUB_REPOSITORY"]
     if args.pr:
@@ -286,8 +431,9 @@ def main(argv: list[str] | None = None) -> int:
         if touched:
             summarize(
                 "### Sensitive files in this PR\n\nListed in .github/CODEOWNERS. No owner "
-                "approval: the required `risk-review` check judges them with main's "
-                "reviewer (docs/security/risk-review.md):\n\n"
+                "approval: the required `risk-review` and `adversarial-gate` checks judge "
+                "them with main's rules (docs/security/risk-review.md, "
+                "docs/security/agent-hardening.md):\n\n"
                 + "\n".join(f"- `{f}`" for f in touched)
             )
         else:

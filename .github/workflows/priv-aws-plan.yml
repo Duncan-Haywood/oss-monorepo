@@ -1,0 +1,175 @@
+# OpenTofu checks and plans for platform/aws (docs/runbooks/aws-cutover.md).
+#
+#   check  every PR touching platform/aws: fmt, validate, `tofu test` against
+#          mocked providers, the Python unit tests, Checkov. No secrets, no
+#          AWS.
+#   plan   same-repository PRs only, once the owner has run the bootstrap and
+#          set the repository variable AWS_ACCOUNT_ID: assumes the read-only
+#          `github-plan` role by GitHub OIDC (plain shell, no third-party
+#          action) and plans every stack against the real state. The plan is
+#          uploaded as an artifact and summarised on the run page. Until
+#          AWS_ACCOUNT_ID is set this job is skipped, not failed.
+#
+# github-plan can read configuration but not data (bootstrap/bootstrap.yaml):
+# a PR's code runs with these credentials. Fork PRs get no OIDC token.
+name: AWS plan
+
+on:
+  pull_request:
+    paths:
+      - 'platform/aws/**'
+      - '.github/workflows/priv-aws-*.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TOFU_VERSION: 1.13.10
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+jobs:
+  check:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: opentofu/setup-opentofu@9d84900f3238fab8cd84ce47d658d25dd008be2f # v1.0.8
+        with:
+          tofu_version: ${{ env.TOFU_VERSION }}
+          tofu_wrapper: false
+      - name: tofu fmt -check
+        run: tofu fmt -check -recursive platform/aws
+      - name: Provider lock files match the registry
+        # Each stack's .terraform.lock.hcl must hold the registry's hashes for
+        # linux_amd64 (what plan and apply install with -lockfile=readonly).
+        # On a mismatch or a missing file the job prints the correct file;
+        # commit it as printed.
+        run: |
+          set -euo pipefail
+          status=0
+          for dir in platform/aws/stacks/*/; do
+            lock="${dir}.terraform.lock.hcl"
+            before="$(cat "$lock" 2>/dev/null || true)"
+            rm -f "$lock"
+            # Local modules must be installed before `providers lock` can see
+            # their provider requirements.
+            tofu -chdir="$dir" get >/dev/null
+            tofu -chdir="$dir" providers lock -platform=linux_amd64 >/dev/null
+            if [[ "$(cat "$lock")" != "$before" ]]; then
+              echo "::error file=${lock}::lock file differs from the registry; commit this content:"
+              cat "$lock"
+              status=1
+            fi
+          done
+          exit "$status"
+      - name: tofu validate and tofu test (mocked AWS)
+        run: |
+          set -euo pipefail
+          for dir in platform/aws/stacks/*/; do
+            echo "::group::${dir}"
+            tofu -chdir="$dir" init -backend=false -input=false -lockfile=readonly
+            tofu -chdir="$dir" validate
+            tofu -chdir="$dir" test
+            echo "::endgroup::"
+          done
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.13'
+      - name: Lambda unit tests
+        run: |
+          python -m pip install --quiet pytest==8.4.2
+          python -m pytest platform/aws -q
+      - name: Checkov (IaC scan)
+        run: |
+          python -m pip install --quiet checkov==3.4.10
+          checkov -d platform/aws --framework terraform,cloudformation --quiet --compact
+
+  plan:
+    needs: check
+    if: ${{ vars.AWS_ACCOUNT_ID != '' && (github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        stack: [org, baseline, spend, llm, email, app-identity]
+    env:
+      AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+      STACK: ${{ matrix.stack }}
+      TF_IN_AUTOMATION: '1'
+      TF_INPUT: '0'
+      TF_VAR_member_role_name: github/github-plan-readonly
+      CLAUDE_AWS_WORKSPACE_ID: ${{ vars.CLAUDE_AWS_WORKSPACE_ID }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: opentofu/setup-opentofu@9d84900f3238fab8cd84ce47d658d25dd008be2f # v1.0.8
+        with:
+          tofu_version: ${{ env.TOFU_VERSION }}
+          tofu_wrapper: false
+      - name: Assume github-plan (GitHub OIDC)
+        run: |
+          set -euo pipefail
+          token=$(curl -sSf -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" | python3 -c 'import json,sys; print(json.load(sys.stdin)["value"])')
+          echo "::add-mask::${token}"
+          umask 077
+          printf '%s' "$token" > "${RUNNER_TEMP}/web-identity-token"
+          {
+            echo "AWS_WEB_IDENTITY_TOKEN_FILE=${RUNNER_TEMP}/web-identity-token"
+            echo "AWS_ROLE_ARN=arn:aws:iam::${AWS_ACCOUNT_ID}:role/github/github-plan"
+            echo "AWS_ROLE_SESSION_NAME=plan-${GITHUB_RUN_ID}-${STACK}"
+            echo "AWS_DEFAULT_REGION=${AWS_REGION}"
+          } >> "$GITHUB_ENV"
+      - name: tofu init (real state, read-only)
+        run: |
+          set -euo pipefail
+          aws sts get-caller-identity --query Arn --output text
+          bucket="${AWS_ACCOUNT_ID}-tofu-state-${AWS_REGION}"
+          kms=$(aws kms describe-key --key-id alias/tofu-state --query KeyMetadata.Arn --output text)
+          echo "TF_VAR_state_bucket=${bucket}" >> "$GITHUB_ENV"
+          if [ -n "${CLAUDE_AWS_WORKSPACE_ID}" ]; then
+            echo "TF_VAR_workspace_ids=[\"${CLAUDE_AWS_WORKSPACE_ID}\"]" >> "$GITHUB_ENV"
+          fi
+          tofu -chdir="platform/aws/stacks/${STACK}" init -input=false -lockfile=readonly \
+            -backend-config="bucket=${bucket}" \
+            -backend-config="key=${STACK}/terraform.tfstate" \
+            -backend-config="region=${AWS_REGION}" \
+            -backend-config="kms_key_id=${kms}"
+      - name: tofu plan
+        run: |
+          set -euo pipefail
+          dir="platform/aws/stacks/${STACK}"
+          set +e
+          tofu -chdir="$dir" plan -lock=false -input=false -no-color -detailed-exitcode -out=tfplan > "${RUNNER_TEMP}/plan-${STACK}.txt" 2>&1
+          code=$?
+          set -e
+          cat "${RUNNER_TEMP}/plan-${STACK}.txt"
+          {
+            echo "### ${STACK}"
+            case "$code" in
+              0) echo "No changes." ;;
+              2) echo '```'; grep -E '^(Plan:|  # )' "${RUNNER_TEMP}/plan-${STACK}.txt" | head -60; echo '```' ;;
+              *) echo "Plan failed (exit ${code}); see the job log. Before the first apply, member-account stacks fail here because github-plan-readonly does not exist yet." ;;
+            esac
+          } >> "$GITHUB_STEP_SUMMARY"
+          [ "$code" -ne 1 ]
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: tofu-plan-${{ matrix.stack }}
+          path: ${{ runner.temp }}/plan-${{ matrix.stack }}.txt
+          retention-days: 14
+          if-no-files-found: ignore
