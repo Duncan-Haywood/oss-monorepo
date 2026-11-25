@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqybqewX9RMME5cPFrdD",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T00:38:21Z",
+  "ended": "2026-11-25T00:46:15Z",
+  "wall_minutes": 8.03,
+  "tokens_in": 4179940,
+  "tokens_out": 43044,
+  "cost_usd": 2.5966,
+  "tool_calls": 44,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18775",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "My first G703 fixture had wrong totals; the new totals-row check flagged them, and I fixed the fixture."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Flagship 1 (payapps) sends the run to private-monorepo via add_repo, but this session's permission classifier denied the git clone after add_repo succeeded, so every private-monorepo row (flagships 1-7) was unreachable. The table could note that private-repo rows need clone permission and name the in-repo item for each."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The private-monorepo clone was denied. Rather than skip to a non-revenue flagship, I took payapps item (5), the in-repo free front door, so the work still serves the top paid bet.",
+      "did": "Added .xlsx continuation-sheet import with arithmetic checks to ventures/pay-application-generator and rewrote item (5) in flagships.yaml",
+      "result": "Landed, with 41 tests passing and a Playwright check"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-reading-the-pay-app-spreadsheet-contractors-already-keep.md"
+  ],
+  "goal": null,
+  "notes": "node --test calc/sheet/page/usage: 41 pass. Playwright at 390px on the LibreOffice fixture: 5 lines read, due $67,144.72, no off-host requests, no horizontal scroll. check_posts ok. validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "da3a3ded-0d08-540c-ac68-cc681a530974",
+    "transcripts": 1,
+    "first": "2026-11-25T00:38:21Z",
+    "last": "2026-11-25T00:46:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 81,
+        "output": 43044,
+        "thinking": 9177,
+        "cache_read": 4064549,
+        "cache_write_5m": 0,
+        "cache_write_1h": 115310,
+        "api_equivalent_usd": 2.5966,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 81,
+      "output": 43044,
+      "thinking": 9177,
+      "cache_read": 4064549,
+      "cache_write_5m": 0,
+      "cache_write_1h": 115310,
+      "api_equivalent_usd": 2.5966,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 38,
+      "Write": 3,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.03,
+      "active_minutes": 8.03,
+      "model_minutes": 6.27,
+      "tool_minutes": 1.76,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "xlsx reader, header detection, sheet checks, page wiring and tests for a mid-level JS developer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 385.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
