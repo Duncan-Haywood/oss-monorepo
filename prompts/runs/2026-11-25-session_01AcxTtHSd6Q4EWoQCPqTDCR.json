@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtHSd6Q4EWoQCPqTDCR",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T19:07:15Z",
+  "ended": "2026-11-25T19:49:10Z",
+  "wall_minutes": 42.1,
+  "tokens_in": 12778985,
+  "tokens_out": 43220,
+  "cost_usd": 4.4521,
+  "tool_calls": 111,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19072",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Steps 1-2 lead to owner-gated work: both open perf backlog items are owner rows, and the four heaviest workflows in the pool reading (CodeQL, Security gate, Portfolio Pages, CI policy) are all priv-*. Only Portfolio validate was left as a CI target."
+    },
+    {
+      "file": "platform/ci/sparse_checkout_verify.py",
+      "issue": "It proves a sparse tree gives the same answers, but says nothing about speed. blob:none plus a near-full sparse set is slower than a plain checkout. A note now says so."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "The prompt expects a speed-up to land. The measured change was no faster (44-49 s vs 43 s), so I reverted it and landed the cost model, P086 and a post section instead.",
+      "did": "reverted the workflow edit in the same PR",
+      "result": "no CI change; the negative result is written down with numbers so the next run doesn't repeat it"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-25-validate-sparse.md",
+    "docs/posts/2026-10-20-we-almost-rewrote-it-in-rust.md (section 'The same trick, made slower')"
+  ],
+  "goal": null,
+  "notes": "Metric: Portfolio validate checkout step seconds. Before: 44 s median (n=34, ci_profile.py --runs 600 --save, step durations), one job's log 32 s fetch + 11 s write = 43 s. After, blob:none + /* !/research/: 49 s (PR 19072, run 45685975017). After, also !*.mp3 !*.mp4: 44 s (run 45687819913). Locally (fetch --depth=1 + checkout via the proxy): full 54 s, blob:none no-research 94 s, blob:limit=512k 57 s, blob:none no-research-no-media 53 s. Equivalence: all 106 steps ran in the full and sparse trees with the same rc, test counts and last lines (strace of the full run showed no step opens research/ or media). Cost model: lazy blob fetch about 0.7 ms per file whatever the size; it pays only well under about 50k files. Change reverted. Filed owner-gated P086 (conflict-markers keeps 79.6k files with blob:none, 48 s vs 43 s full).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "deb4b8a8-46fd-569f-a75e-442ae356935a",
+    "transcripts": 1,
+    "first": "2026-11-25T19:07:15Z",
+    "last": "2026-11-25T19:49:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 116,
+        "input": 237,
+        "output": 43220,
+        "thinking": 11480,
+        "cache_read": 12646571,
+        "cache_write_5m": 0,
+        "cache_write_1h": 132177,
+        "api_equivalent_usd": 4.4521,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 116,
+      "input": 237,
+      "output": 43220,
+      "thinking": 11480,
+      "cache_read": 12646571,
+      "cache_write_5m": 0,
+      "cache_write_1h": 132177,
+      "api_equivalent_usd": 4.4521,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 111,
+    "tools": {
+      "Bash": 96,
+      "Monitor": 4,
+      "ToolSearch": 2,
+      "Edit": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "ReadNotifications": 1,
+      "TaskStop": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 42.1,
+      "active_minutes": 18.05,
+      "model_minutes": 10.15,
+      "tool_minutes": 7.9,
+      "waiting_on_human_minutes": 24.06,
+      "human_prompts": 10,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "tracing 106 CI steps, two CI experiments and fetch timings by hand",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 89.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
