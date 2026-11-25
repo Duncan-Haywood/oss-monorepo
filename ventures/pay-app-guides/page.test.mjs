@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html", "change-order-log.html", "pay-application-software-compared.html"];
+const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html", "change-order-log.html", "pay-application-software-compared.html", "retainage-release.html"];
 
 test("every page carries the no-warranty clause, sponsor link, opt-out and honest CTA", () => {
   for (const name of PAGES) {
@@ -155,4 +155,12 @@ test("the software comparison dates its prices, marks aggregator prices, and lin
   for (const [, name, href] of rows) assert.match(href, /^https:\/\/(docs\.oracle\.com|support\.procore\.com|help\.trimble\.com)\//, name);
   assert.match(html, /not affiliated with any company named here/);
   for (const id of ["pf-portal", "pf-contract", "pf-jobs", "pf-before", "pf-subtier", "pf-gcpays"]) assert.match(html, new RegExp(`<label for="${id}">`));
+});
+
+test("retainage release page: inputs labelled, letter output present, links the statute table rather than restating it", () => {
+  const html = page("retainage-release.html");
+  for (const id of ["rr-held", "rr-released", "rr-trigger", "rr-days", "rr-today", "rr-basis", "rr-project", "rr-to", "rr-from"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
+  assert.match(html, /id="rr-letter"/);
+  assert.match(html, /href="retainage-explained\.html#state-table"/);
+  assert.match(html, /not a legal notice/);
 });

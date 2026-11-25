@@ -2,7 +2,7 @@
 title: "QuickBooks has no retainage field: how subcontractors track it anyway"
 seo_title: "How to track retainage in QuickBooks Online (step by step)"
 date: 2026-11-25
-tags: [construction, subcontractors, retainage, quickbooks, pay-applications, pay-app-guides, for-customers]
+tags: [construction, subcontractors, retainage, retainage-release, quickbooks, pay-applications, pay-app-guides, for-customers]
 description: "QuickBooks Online cannot hold back retainage on an invoice. The Retainage Receivable account and item, the release invoice, and the report that hides it."
 ---
 
@@ -61,6 +61,26 @@ quickbooks.intuit.com directly. Every step links the Intuit page it came
 from. Most are community answers, some several years old, so check menu
 labels against your own screen. Not affiliated with Intuit; not accounting
 advice.
+
+## Then getting it released
+
+Tracking the $15,000 is half the job; the other half is getting it paid
+after the crews have left. A second guide,
+[how to get your retainage released](https://marisstella.app/pay-app-guides/retainage-release.html),
+lists what general contractors and owners usually ask for before they
+release it (punch list sign-off, a final pay application at 100%, a final
+conditional lien waiver, lower-tier waivers, consent of surety on bonded
+jobs, warranties, O&M manuals and as-builts) and why each one holds up the
+money. Its calculator takes the date the release clock started and the
+number of days from your subcontract or statute, and writes a dated request
+letter. Closeout items you have not ticked go into the letter as "still
+open, delivered by [date]", so the GC's answer has to name what is actually
+missing. On the page's example, $15,000 held, 60 days from 1 June, asked
+for on 15 September, the release was due on 31 July and is 46 days late.
+The page does not restate any state's release rule; it links the
+[retainage caps table](https://marisstella.app/pay-app-guides/retainage-explained.html#state-table),
+where each row links the statute. The letter is a starting point, not a
+legal notice.
 
 This is the gap the pay-app suite we are building is meant to close:
 retainage worked out per line on every pay application, a running balance
