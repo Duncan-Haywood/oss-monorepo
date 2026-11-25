@@ -30,18 +30,19 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "CI validate: money() signed a negative inside the symbol (fixed with fix_money_sign.mjs); P075 duplicate inherited from main (renumbered)",
-    "Pages test: new meta description was 176 characters (limit 160, platform/pages/description-length.test.mjs). Two shortening attempts were pushed before the check passed, because a grep on '# fail' matched 'fail 1'."
+    "CI validate: money() signed a negative inside the symbol (fixed with fix_money_sign.mjs); a P075 duplicate inherited from main (fixed on main in parallel).",
+    "Pages test: new meta description was 176 characters (limit 160, platform/pages/description-length.test.mjs). Two shortening attempts were pushed before the check passed, because a grep on '# fail' matched 'fail 1'.",
+    "CodeQL js/bad-tag-filter on a test regex /<script>/ (made case-insensitive). The PR went 'dirty' after PR #18874 (RFQ review) landed on the same venture: the llms.txt, README and page.test conflicts were resolved by keeping both. pull_request workflows stop triggering while a PR conflicts, which is easy to miss."
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "platform/security/risk_review.py",
-      "issue": "Without --base it fails on the shallow clone ('no merge base'); --base HEAD~1 worked at once. CLAUDE.md could say to pass --base for a one-commit branch. (Already filed by another run, now P076-risk-review-shallow-base.json.)"
+      "issue": "Without --base it fails on the shallow clone ('no merge base'); --base HEAD~1 worked at once. CLAUDE.md could say to pass --base for a one-commit branch. (Already filed and fixed by another run: P075-risk-review-shallow-base.json, PR #18884.)"
     },
     {
       "file": "prompts/process/backlog/",
-      "issue": "Two runs both filed P075 and main's `promptctl validate` went red for every PR. Renumbered the risk-review one to P076 in this PR. Backlog ids collide whenever runs overlap, so a validator that hands out the next free id at filing time would stop this."
+      "issue": "Two runs both filed P075, so `promptctl validate` on main went red for every PR. I renumbered one in this PR, but main fixed it in parallel (the clone one became P076), so my rename was dropped at merge time. Backlog ids collide whenever runs overlap. A validator that hands out the next free id at filing time would stop this."
     }
   ],
   "deviations": [

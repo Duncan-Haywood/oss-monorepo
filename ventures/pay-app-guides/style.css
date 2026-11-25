@@ -27,7 +27,7 @@ th, td { text-align: left; padding: 8px 7px; border-bottom: 1px solid var(--rule
 th { font-size: .74rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
 td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 tr.total td { font-weight: 700; border-top: 2px solid var(--head); }
-.scroll { overflow-x: auto; }
+.scroll { overflow-x: auto; position: relative; } /* contains .vh labels inside it, or they widen the page */
 .due { font-size: 1.7rem; font-weight: 800; color: var(--head); }
 .finding { padding: 6px 0; }
 .pill { display: inline-block; font-size: .68rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: var(--soft); color: var(--head); }
@@ -35,6 +35,14 @@ tr.total td { font-weight: 700; border-top: 2px solid var(--head); }
 pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px; overflow-x: auto; }
 .cta { border: 2px solid var(--accent); }
 .cta h2 { margin-top: 0; }
+/* Every page: the generated block from nav.mjs, grouped, above the footer. */
+nav.all-guides { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 4px 24px; margin: 32px 0 0; padding-top: 18px; border-top: 1px solid var(--line); }
+nav.all-guides h2 { font-size: .78rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+nav.all-guides ul { list-style: none; margin: 0 0 14px; padding: 0; }
+nav.all-guides li { margin: 0; }
+nav.all-guides a { display: inline-block; padding: 5px 0; font-size: .95rem; }
+nav.all-guides a[aria-current="page"] { color: var(--head); font-weight: 700; text-decoration: none; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 footer { margin-top: 28px; border-top: 1px solid var(--line); padding-top: 16px; }
 @media (max-width: 720px) { body { padding: 16px; } }
 /* Guide tables on a phone: one card per row, the first cell as its title and the rest as
