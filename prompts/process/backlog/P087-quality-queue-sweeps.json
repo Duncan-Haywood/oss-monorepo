@@ -1,0 +1,25 @@
+{
+  "id": "P087",
+  "title": "quality_audit queue counts repo-wide sweeps (relicense, CodeQL bulk fix) as changes, so every row says 'changed since audit'",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "changes_since() counted every commit under a subject. The 2026-11-25 relicense (3e316e115) and CodeQL backlog fix (1070ed690) touched 1,450 and 439 two-level directories, so every queued row read 'changed since audit' and the note no longer singled out rows a commit may have fixed.",
+  "evidence": [
+    "python3 platform/ci/quality_audit.py queue --limit 200 --no-prs --seed 2026-11-25-029a on main, 2026-11-25: 200 of 200 rows 'changed since audit', most naming only the relicense or the CodeQL fix",
+    "git diff-tree --name-only -r 3e316e115: 7,921 files in 1,450 directories; 1070ed690: 864 files in 439"
+  ],
+  "change": "Treat a commit touching SWEEP_DIRS (25) or more distinct two-level directories as a sweep: excluded from 'changed', shown as '(+N repo-wide, ignored)'.",
+  "touches": [
+    "platform/ci/quality_metrics.py",
+    "platform/ci/test_quality_metrics.py"
+  ],
+  "metric": "Rows saying 'changed since audit' among the first 200 of quality_audit.py queue --no-prs --seed 2026-11-25-029a",
+  "baseline": "200 of 200, 2026-11-25",
+  "opened": "2026-11-25",
+  "source": "prompts/runs doc_friction on platform/ci/quality_audit.py (2026-11-25) and this run's re-check",
+  "pr": "this",
+  "result": "helped: 200 of 200 -> 68 of 200 rows changed on the same seed and limit (this PR, 2026-11-25)",
+  "history": []
+}

@@ -389,6 +389,27 @@ class ChangesSinceTest(unittest.TestCase):
         self.assertEqual(m.changes_since("ventures/x", "2026-11-19", git=git)["status"], "untouched")
         self.assertEqual(m.deepen_for("2026-11-19", m.dt.date(2026, 11, 25), git=git, git_run=lambda c: self.fail("fetched")), "")
 
+    def test_repo_wide_sweeps_do_not_count_as_changes(self):
+        # 2026-11-25: the relicense and the CodeQL bulk fix made nearly every queue row read "changed"
+        log = "s1\ts1short\tRelicense\nf1\tf1short\tventures/x: fix the rate\n"
+        wide = "\n".join(f"ventures/p{i}/README.md" for i in range(m.SWEEP_DIRS))
+        base = self.fake(log)
+
+        def git(args):
+            if args[0] == "diff-tree":
+                return wide if args[-1] == "s1" else "ventures/x/core.mjs\n"
+            return base(args)
+        out = m.changes_since("ventures/x", "2026-11-07", git=git)
+        self.assertEqual(out["status"], "changed")
+        self.assertEqual([c["sha"] for c in out["commits"]], ["f1short"])
+        self.assertEqual([c["sha"] for c in out["sweeps"]], ["s1short"])
+
+        def only_sweep(args):
+            if args[0] == "diff-tree":
+                return wide
+            return self.fake("s1\ts1short\tRelicense\n")(args)
+        self.assertEqual(m.changes_since("ventures/x", "2026-11-07", git=only_sweep)["status"], "untouched")
+
     def test_untouched_and_no_git(self):
         self.assertEqual(m.changes_since("ventures/x", "2026-11-07", git=self.fake(""))["status"], "untouched")
         self.assertEqual(m.changes_since("ventures/x", "2026-11-07", git=self.fake("", has_ref=False))["status"], "unknown")
