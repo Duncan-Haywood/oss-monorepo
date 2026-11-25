@@ -119,7 +119,13 @@ export function quoteNest(job, items, r = {}) {
 
 export const money = (x) => `${x < 0 ? "-" : ""}$${Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-const csvCell = (v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+// A part name comes from the user's file name: a cell starting =, +, -, @, tab or CR would run as a spreadsheet
+// formula, so it gets an apostrophe in front (plain negative numbers are left alone).
+export function csvCell(v) {
+  let s = String(v);
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
 
 /** The quote as CSV: one row per part, then the job lines. */
 export function quoteCsv(q) {

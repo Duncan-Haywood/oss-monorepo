@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { finishPart, rectEdges, circleEdge } from "./geom.mjs";
 import { runJob, exampleParts } from "./job.mjs";
-import { quoteNest, quoteCsv } from "./quote.mjs";
+import { quoteNest, quoteCsv, csvCell } from "./quote.mjs";
 
 const close = (a, b, msg, eps = 1e-6) => assert.ok(Math.abs(a - b) <= eps * Math.max(1, Math.abs(b)), `${msg}: ${a} vs ${b}`);
 
@@ -88,4 +88,15 @@ test("the worked example prices, and the CSV carries every part and the total", 
   for (const l of q.lines) assert.ok(csv.includes(l.name), l.name);
   assert.match(csv, new RegExp(`Job total,${q.cost.total.toFixed(2)}`));
   assert.equal(q.lines.reduce((s, l) => s + l.qty, 0), j.report.totalParts);
+});
+
+test("CSV cells that a spreadsheet would run as formulas are defused; numbers are not", () => {
+  assert.equal(csvCell("=HYPERLINK(\"x\")"), `"'=HYPERLINK(""x"")"`);
+  assert.equal(csvCell("@SUM(A1)"), "'@SUM(A1)");
+  assert.equal(csvCell("+1+1"), "'+1+1");
+  assert.equal(csvCell("-12.50"), "-12.50");
+  assert.equal(csvCell("plate"), "plate");
+  const evil = [{ name: "=cmd|' /C calc'!A0", qty: 2, part: plate }];
+  const j = runJob(evil, { sheetW: 1000, sheetH: 500, gap: 5, margin: 5, rotations: [0] });
+  assert.match(quoteCsv(quoteNest(j, evil, RATES)), /^Part,.*\n'=cmd/);
 });
