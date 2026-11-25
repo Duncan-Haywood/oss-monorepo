@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtGGX6yUSkFb6ZvVXaW",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T16:07:58Z",
+  "ended": "2026-11-25T16:16:16Z",
+  "wall_minutes": 13.79,
+  "tokens_in": 5442178,
+  "tokens_out": 26106,
+  "cost_usd": 2.3625,
+  "tool_calls": 59,
+  "task": "perf item 4: shift-roster-builder page load (export readers lazy)",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19019",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "git fetch/push and the GitHub MCP server returned 503 (credential service unavailable) for most of the run; the push succeeded on a later retry",
+    "first venture-suite run failed page.test.mjs, which pinned the static import list including the export readers; updated to pin static and lazy imports separately",
+    "scratch bench: ESM `import 'playwright'` does not resolve from the scratchpad; createRequire works"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Item 4 points at a full Pages build to measure page weight; platform/perf/module-weight.mjs and module-exclusive.mjs answer it in seconds and are not named in the prompt"
+    },
+    {
+      "file": "docs/history/*-page-perf-*.md",
+      "issue": "Each page-perf pass describes the same throttled Playwright load bench but none commits it; this run rewrote it again (scratchpad bench.mjs). It belongs in platform/perf/"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "North star says for-profit products first; the router drew perf",
+      "did": "took a perf slice on a built-dark paid product (shift-roster-builder, staff pack) so the track's work serves the paid funnel's landing page",
+      "result": "landed a 20% load-time cut on that page"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "llms.txt and marketing page default for product PRs",
+      "did": "left unchanged: a load-time change alters no feature or claim",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-the-roster-page-loaded-seven-file-readers-nobody-asked-for.md",
+    "docs/history/shift-roster-page-perf-2026-11-25.md"
+  ],
+  "goal": null,
+  "notes": "Metric: first-load module graph and throttled time to load for ventures/shift-roster-builder/index.html. Before (ee4ef9970): 178 kB gzip, 13 modules (module-weight.mjs); throttled load median 1,355 ms (all 1504 1345 1373 1356 1338 1355 1352). After: 133 kB gzip, 6 modules; median 1,079 ms (1079 1083 1079 1086 1079 1086 1076). Throttle: local gzip server, no-store, build's addModulePreloads applied to both copies, Chromium 150 ms RTT, 1.6 Mbit/s, CPU 4x, SW blocked, 7 interleaved runs, navigation loadEventStart. Equivalence: Playwright pick of staff CSV, 2-location shifts CSV, location select, 7shifts JSON on before/after: identical status/staff/shifts/picker. Failure path: 404 on import-square.mjs gives the status line; retry works. Venture suite: run_venture_tests.py shift-roster-builder, 787 tests, 0 failed (259.8 s), site page checks ok. Post checks: check_posts.py ok. Security queue empty; IDEAS.md and requests empty.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b95c2db5-5615-593b-83ae-54b0bbb2d8a1",
+    "transcripts": 1,
+    "first": "2026-11-25T16:07:58Z",
+    "last": "2026-11-25T16:21:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 112,
+        "output": 26106,
+        "thinking": 4825,
+        "cache_read": 5345721,
+        "cache_write_5m": 0,
+        "cache_write_1h": 96345,
+        "api_equivalent_usd": 2.3625,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 112,
+      "output": 26106,
+      "thinking": 4825,
+      "cache_read": 5345721,
+      "cache_write_5m": 0,
+      "cache_write_1h": 96345,
+      "api_equivalent_usd": 2.3625,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 57,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.79,
+      "active_minutes": 13.79,
+      "model_minutes": 5.59,
+      "tool_minutes": 8.2,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "profiling, lazy-load change, browser equivalence and failure checks, test updates and write-up for a senior front-end engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 169.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
