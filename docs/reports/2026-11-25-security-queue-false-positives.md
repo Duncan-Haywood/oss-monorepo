@@ -58,3 +58,34 @@ Checked by reading `main` at `f67c21c96`. No code change was needed.
   - `js/regex-injection` #104 and #105 (`platform/ci/copy_drift.mjs:189-190`). `--name` and `--skip` are regex flags typed by whoever runs the local CI script.
   - `js/regex-injection` #106 (`dxf-nesting/dxf.mjs:174`). "Ignore layers matching" is a regex the user types into their own browser tab or CLI, and no one else's input reaches it.
 - **Still unchecked:** the remaining `js/double-escaping` alerts, #119 onward. Most of them are in `*.test.mjs` files, and the same reasoning as the test-file note above applies.
+
+## Third pass: the verdicts are now a file the queue reads
+
+A third session read the top of the queue and re-checked #7, #12, #34, #38, #39, #42, #43 and
+#104–#106 from scratch before it found this note. The two passes above were prose. The queue
+generator could not read them, so it kept offering the same alerts first. PR #18809 (another
+session's work, landed with this pass) added **`platform/security/codeql-triage.json`**.
+`platform/ci/security_alerts.py` moves an open alert that matches an entry on number, rule and
+path into a "Triaged, awaiting dismissal" section of `QUEUE.md`. The alert stays open and listed,
+and only the owner can dismiss it on GitHub. An entry stops applying if the finding moves, and
+the PR-level `codeql gate` jobs never read the file. This pass added 14 entries: every alert in the
+two passes above that is still in the queue, plus the ones below. A verdict of "intended
+behaviour" starts its reason with those words.
+
+New in this pass, checked against `main` at `de2adc485`:
+
+| Alert | Rule | Where | Verdict |
+| --- | --- | --- | --- |
+| #741 | js/incomplete-sanitization | `shopify-to-woocommerce-converter/converter.mjs:69` | False positive. `esc()` writes `\,` for commas, which is WooCommerce's list-cell format. The importer has no backslash escape, so doubling backslashes would corrupt values. |
+| #960 | js/xss-through-dom | `quick-pick-survey/site/rank.html:461` | False positive. The sink is an `<img>.src`, which cannot run script. |
+| #968 | js/xss-through-dom | `shed-designer/hoa-page.mjs:59` | False positive. `packetHtml` escapes every string from the `#d=` design, and colours go through `hex()`. A probe with an `<img onerror>` payload in every string field found it only entity-escaped. |
+| #969 | js/xss-through-dom | `silence-cutter/index.html:258` | False positive. The href is the page's own `blob:` URL. |
+| #1086 | js/disabling-certificate-validation | `status-keeper/certs.mjs:12` | Intended. An expiry monitor has to read untrusted certificates to report them. Strict mode (the default) fails on `socket.authorized === false`, at line 33. |
+
+The verdicts from the first two passes for alerts no longer in the queue (#68–#91, #113, #114,
+#949–#952, #995, #996) are not in the file. Add them if they come back.
+
+Still unchecked in the queue: #1049 and #1050 (`js/incomplete-url-substring-sanitization`, in
+`platform/pages`), and the `js/redos` alerts in `regex-redos-check/*.test.mjs` and the
+`devsec-toolkit` vulnerable-repo fixture. Those two are probably deliberate test inputs, but
+nobody has confirmed it yet.

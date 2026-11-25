@@ -86,23 +86,25 @@ flagships:
       for word against azleg.gov, other statutory states tracked only); NV 108.2457
       added (private-monorepo PR #39: verbatim, whole-form test against the statute
       for AZ and NV); TX 53.284 and UT 38-1a-802 added (PR #41); next for waivers:
-      CA when leginfo stops 403ing; mid-job start landed (private-monorepo PR #45:
+      CA when leginfo stops 403ing; SOV import from the contractor's own .xlsx/CSV
+      landed (private-monorepo PR #43); mid-job start landed (private-monorepo PR #45:
       the last application made elsewhere carries its number, column D, line 6 and a
       checked line 5a); next for onboarding: fill that opening from the imported
-      continuation sheet; account email landed (private-monorepo PR #46:
-      verification required on HTTPS, 1-hour single-use password reset,
-      existing-account notice, via Cloudflare Email Service; deploy sets EMAIL_FROM
-      and checks /api/health email:true); invitations (PR #47) and durable auth rate
-      limits (PR #49) landed; next launch blockers: legal pages, deploy workflow;
-      (4) QuickBooks Online invoice export with retainage as its own line, finishing
-      PR #16 (packages/qbo-sync, sandbox only; the owner opens the Intuit developer
-      account); (5) the front door is ventures/pay-application-generator (reads a
-      contractor's own .xlsx continuation sheet and checks its totals; writes the
-      workbook, with its own template page pay-application-template.html and
-      recalc.test.mjs, 2026-11-25) and pay-app-guides (schedule-of-values template);
-      left: link them to the app and its pricing once checkout is live (the
-      marketing site is PR #18); (6) a payapps deploy workflow that runs the Paddle
-      catalog sync. A run that lands a slice replaces its item here.
+      continuation sheet; account email landed (private-monorepo PR #46: verification
+      required on HTTPS, 1-hour single-use password reset, existing-account notice, via
+      Cloudflare Email Service; deploy sets EMAIL_FROM and checks /api/health email:true);
+      invitations landed (PR #47); durable auth rate limits landed (private-monorepo
+      PR #49: per IP on every auth POST and per account on failed sign-ins, in D1);
+      next launch blockers: legal pages, deploy workflow; (4) QuickBooks Online invoice export with
+      retainage as its own line, finishing PR #16 (packages/qbo-sync, sandbox only;
+      the owner opens the Intuit developer account); (5) the front door is
+      ventures/pay-application-generator (reads a contractor's own .xlsx
+      continuation sheet and checks its totals; writes the workbook, with its own
+      template page pay-application-template.html and recalc.test.mjs, 2026-11-25)
+      and pay-app-guides (schedule-of-values template); left: link them to the app
+      and its pricing once checkout is live (the marketing site is PR #18); (6) a
+      payapps deploy workflow that runs the
+      Paddle catalog sync. A run that lands a slice replaces its item here.
   # Bet 2 in portfolio/monetization/bets.md (2026-11-24 ranking).
   - venture: jobshop-quote
     bet: 2
