@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "git clone of private-monorepo was refused by the session's auto-mode permission classifier after add_repo succeeded, so bet work moved to its public front door"
+    "git clone of private-monorepo was refused by the session's auto-mode permission classifier after add_repo succeeded, so bet work moved to its public front door",
+    "Preflight failed twice on repository and site checks that run_venture_tests does not cover; fixed in follow-up commits"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -55,7 +56,7 @@
     "docs/posts/2026-11-25-quoted-vs-actual-hours-for-machine-shops.md"
   ],
   "goal": null,
-  "notes": "machine-shop-guides node tests 80/80; run_venture_tests 1 suite 0 failed; playwright 390px check clean; check_posts ok; risk_review: one legal check (tracking), answered in PR body.",
+  "notes": "machine-shop-guides node tests 82/82; run_venture_tests 1 suite 0 failed; playwright 390px check clean; check_posts ok; venture-preflight clean on the third run. The first run caught check_csv_formula_guard (negative numbers defused), check_decimal_comma/check_money_comma (comma stripped from numbers in a file that sniffs ';') and check_hidden_unicode (literal BOMs); the second caught title >70 and description >160. All were fixed in the PR. risk_review: one legal check (tracking), answered in PR body.",
   "corrections": [],
   "redteam": null,
   "usage": {
