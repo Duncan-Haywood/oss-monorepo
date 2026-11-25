@@ -152,5 +152,38 @@ These rules are for private jobs. Public works have their own notice (§ 9300 ff
 not read yet. PayApps, the pay-app product we are building, now prints the California notice from a
 job's page. Each item sits under the statute's own words, followed by the bold statement. It fills
 in the owner, the GC and its address, the site, your company and an estimate (the contract sum plus
-approved change orders), and leaves the "if any" items off when they are blank. It does not work out
-your 20-day date, because only you know when you first furnished work. Not legal advice.
+approved change orders), and leaves the "if any" items off when they are blank. Not legal advice.
+
+## Update, 2026-11-25: keeping track of the notices you gave
+
+Giving the notice is half the job. If you ever record a lien, you have to prove you gave it. California
+says how in § 8118: a "proof of notice declaration" that states three things:
+
+1. "The type or description of the notice given."
+2. "The date, place, and manner of notice, and facts showing that notice was given in the manner
+   required by statute."
+3. "The name and address of the person to which notice was given."
+
+If you mailed it, the declaration must come with the postal or carrier record: the receipt showing
+you paid for certified, registered or express mail or overnight delivery, or the return receipt or
+tracking record (§ 8118(b)). So keep the green card or the tracking printout with the job file.
+
+Two dates trip people up:
+
+- **When the 20 days start and end.** They run from the day you *first furnished work* on the job,
+  not from the contract date or your first pay application (§ 8204(a)). Write that day down. A notice
+  mailed on day 20 is on time: mailed notice is complete "when deposited in the mail" (§ 8116(b)).
+- **Leaving it and mailing a copy is slower.** If you leave the notice and mail a copy the way a
+  summons is served (Code Civ. Proc. § 415.20), notice is complete "five days after mailing"
+  (§ 8116(c)). Mailed on day 18, it is complete on day 23: late. Certified mail on day 18 would have
+  been on time.
+
+PayApps now keeps this record. On a California job you enter the day you first furnished work and it
+shows the last day to give the notice (20 calendar days later; it does not move the date for a weekend
+or holiday, so treat that day as the latest). You record each notice: to whom, how, the day, where, and the
+tracking number. It tells you whether each one was on time. For a late one, it shows the first day of
+work the notice still covers. It prints the § 8118 declaration for each, with § 8118(b)'s list of
+documents to attach. Until the owner and the GC each have a notice recorded, the cash page and the weekly
+email remind you. One gap: a California declaration is signed "under penalty of perjury" (Code Civ.
+Proc. § 2015.5). We could not check that section's official text this time, so PayApps does not print
+the sentence. Add it, or use your attorney's form. Not legal advice.
