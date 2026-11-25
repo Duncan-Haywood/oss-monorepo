@@ -332,13 +332,6 @@
   </footer>
 
   <script type="module">
-    import { importStaffCsv } from "./import-staff.mjs";
-    import { importShiftsCsv } from "./import-shifts.mjs";
-    import { import7shifts, import7shiftsStaff } from "./import-7shifts.mjs";
-    import { importWhenIWork, looksLikeWhenIWork } from "./import-wheniwork.mjs";
-    import { importSquare, looksLikeSquare } from "./import-square.mjs";
-    import { importDeputy, looksLikeDeputy } from "./import-deputy.mjs";
-    import { importDeputyStaff, looksLikeDeputyStaff } from "./import-deputy-staff.mjs";
     import { staffPackHtml } from "./staffpack.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
@@ -773,6 +766,15 @@
       rd.readAsText(f);
     });
     for (const id of ["changed-at", "notice-h", "premium-h", "exempt-names", "weekstart"]) $("#" + id).addEventListener("input", showChanges);
+    // The staff and schedule importers (about 46 kB gzip together) load the first time a file is chosen, not with the page;
+    // a failed load clears the memo so choosing the file again retries.
+    let importersP = null;
+    const importers = () => importersP ??= Promise.all([
+      import("./import-staff.mjs"), import("./import-shifts.mjs"), import("./import-7shifts.mjs"), import("./import-wheniwork.mjs"),
+      import("./import-square.mjs"), import("./import-deputy.mjs"), import("./import-deputy-staff.mjs"),
+    ]).then((ms) => Object.assign({}, ...ms)).catch((err) => {
+      importersP = null; status.textContent = "Could not load the importer. Check your connection and choose the file again."; throw err;
+    });
     // Last week's roster CSV, kept for "Keep people on the shifts they had last week" (keepFromCsv) after it sets prev:.
     let lastWeekCsv = "";
     $("#lastweek-file").addEventListener("change", (e) => {
@@ -786,7 +788,7 @@
       // Saved Deputy JSON (Employee, EmployeeAgreement, EmployeeWorkplace, Company; EmployeeAvailability and Leave become dated
       // off: cells when a week is picked), saved 7shifts JSON (users, roles,
       // locations, each user's assignments and wages) or a staff CSV.
-      Promise.all(fs.map((x) => x.text())).then((texts) => {
+      Promise.all([importers(), ...fs.map((x) => x.text())]).then(([{ importStaffCsv, import7shiftsStaff, importDeputyStaff, looksLikeDeputyStaff }, ...texts]) => {
         const f = { name: fs.length === 1 ? fs[0].name : `${fs.length} files` };
         const json = texts.every((t) => /^\s*[[{]/.test(t.replace(/^\uFEFF/, "")));
         const r = json ? (looksLikeDeputyStaff(texts) ? importDeputyStaff : import7shiftsStaff)(texts, $("#weekstart").value ? { week: $("#weekstart").value } : {}) : importStaffCsv(texts[0]); if (r.rows) { $("#staff").value = r.staffText; persist(); } status.textContent = r.rows ? `Imported ${r.rows} ${r.rows === 1 ? "person" : "people"} from ${f.name}. ${r.notes.join(" ")}${r.skipped.length ? " Skipped: " + r.skipped.join("; ") + "." : ""}` : r.notes.join(" ");
@@ -796,8 +798,11 @@
     // gets two pickers; the file stays in memory only, so changing a picker re-reads it without another upload.
     let shiftsFile = null;
     const famLabel = { schedule: "rostered shifts", final: "final shifts", "": "shifts", initial: "first-published shifts", timesheet: "worked times (timesheets)" };
-    const runShiftsImport = () => {
+    const runShiftsImport = async () => {
       if (!shiftsFile) return;
+      const file = shiftsFile;
+      const { importShiftsCsv, import7shifts, importWhenIWork, looksLikeWhenIWork, importSquare, looksLikeSquare, importDeputy, looksLikeDeputy } = await importers();
+      if (file !== shiftsFile) return;
       const loc = $("#import-shifts-loc").value, use = $("#import-shifts-use").value;
       // Saved Deputy, Square, When I Work or 7shifts API responses are JSON (told apart by their fields; Deputy first, by its
       // capitalised StartTime, then Square since its
@@ -813,12 +818,12 @@
     };
     $("#import-shifts-file").addEventListener("change", (e) => {
       const files = [...e.target.files]; if (!files.length) return;
-      Promise.all(files.map((f) => f.text())).then((texts) => {
+      Promise.all(files.map((f) => f.text())).then(async (texts) => {
         const json = texts.every((t) => /^\s*[{[]/.test(t));
         shiftsFile = { name: files.map((f) => f.name).join(", "), text: texts[0], texts, json };
         $("#import-shifts-loc").value = ""; $("#import-shifts-use").value = "";
         fillPick($("#import-shifts-loc"), [], ""); fillPick($("#import-shifts-use"), [], "");
-        const r = runShiftsImport();
+        const r = await runShiftsImport(); if (!r) return;
         fillPick($("#import-shifts-loc"), [["", `All ${r.locations.length} locations as one`], ...r.locations.map((l) => [l.name, `${l.name} (${l.rows} rows)`])], "");
         fillPick($("#import-shifts-use"), r.families.map((x, i) => [i === 0 ? "" : x === "" ? "plain" : x, famLabel[x]]), "");
         $("#import-shifts-loc").hidden = $("#import-shifts-loc").previousElementSibling.hidden = r.locations.length < 2;

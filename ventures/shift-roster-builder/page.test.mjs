@@ -51,7 +51,9 @@ test("every input has a label and nothing is sent anywhere", () => {
 
 test("the module scripts import only local files, and the inline script parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./checkout.mjs", "./import-7shifts.mjs", "./import-deputy-staff.mjs", "./import-deputy.mjs", "./import-shifts.mjs", "./import-square.mjs", "./import-staff.mjs", "./import-wheniwork.mjs", "./licence.mjs", "./staffpack.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./checkout.mjs", "./licence.mjs", "./staffpack.mjs", "./usage.mjs"]);
+  // The file importers load on first use (import()), not with the page.
+  assert.deepEqual([...html.matchAll(/import\("([^"]+)"\)/g)].map((m) => m[1]).sort(), ["./import-7shifts.mjs", "./import-deputy-staff.mjs", "./import-deputy.mjs", "./import-shifts.mjs", "./import-square.mjs", "./import-staff.mjs", "./import-wheniwork.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   // calc.mjs may import its own sibling modules (bnp.mjs), never anything remote or bare.
   for (const m of page("calc.mjs").matchAll(/^\s*import\s.*?from\s+"([^"]+)"/gm)) assert.match(m[1], /^\.\/[\w-]+\.mjs$/, m[1]);
@@ -65,6 +67,15 @@ test("every name the inline script imports is exported by calc.mjs", async () =>
   const names = page("index.html").match(/import \{([^}]+)\} from "\.\/calc\.mjs"/)[1].split(",").map((s) => s.trim());
   const calc = await import("./calc.mjs");
   for (const name of names) assert.ok(name in calc, name);
+});
+
+test("every name the script takes from the on-demand importers is exported by one of them", async () => {
+  const html = page("index.html");
+  const mods = await Promise.all([...html.matchAll(/import\("(\.\/import-[\w-]+\.mjs)"\)/g)].map((m) => import(m[1])));
+  const exported = Object.assign({}, ...mods);
+  const names = [...html.matchAll(/\{([^{}]+)\}(?:, \.\.\.texts\]\)| = await importers\(\))/g)].flatMap((m) => m[1].split(",").map((x) => x.trim()));
+  assert.equal(names.length, 12);
+  for (const name of names) assert.equal(typeof exported[name], "function", name);
 });
 
 test("every element the script looks up exists on the page", () => {
