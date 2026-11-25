@@ -4,7 +4,7 @@ date: 2026-11-25
 ---
 # PayApps (bet #1) asks for the partial check's unconditional waiver, for the money received only
 
-2026-11-25, ventures run. Private PR: Duncan-Haywood/private-monorepo#89 (from the PayApps
+2026-11-25, ventures run. Private PR: Duncan-Haywood/private-monorepo#89 (merged; from the PayApps
 roadmap's "Next": "the unconditional-waiver reminder for a payment received short").
 
 **Why this slice.** PayApps already asked for the unconditional waiver once an application was
