@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "changed-ventures CI failed on test_repo_files.py: the new repo-wide scan in check_uncollected_tests.py used raw `git ls-files`; switched to repo_files.ls_files and pushed a fix"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
