@@ -1,6 +1,6 @@
 ---
 title: "Drawing review: read a customer's part drawing PDF before you quote"
-seo_title: "Machining drawing review: title block, tolerance block and notes from a PDF"
+seo_title: "Machining drawing review: title block, tolerances and notes from a PDF"
 date: 2026-11-25
 tags: [for-customers, machine-shop-guides, jobshop-quote, quoting, drawings, first-article-inspection, lead-magnets]
 description: "Drop a part drawing PDF: title block, revision table, general tolerances, notes and callouts read in your browser, and questions for the buyer. Free."
