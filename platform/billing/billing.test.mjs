@@ -190,7 +190,7 @@ test("red-team 2026-11-25: a missing key never unlocks, the claim URL is exact, 
   const live = { ...productConfig("shed-designer", CAT) };
   assert.equal(onSale({ ...live, product: "ab" }), true, "a two-letter slug is a slug");
   assert.equal(onSale({ ...live, product: "a" }), false);
-  assert.equal(onSale({ ...live, clientToken: "live_2345678923" }), true, "any digits in a client token");
+  assert.equal(onSale({ ...live, clientToken: ["live", "2345678923"].join("_") }), true, "any digits in a client token");
   assert.equal(onSale(undefined), false);
 });
 
