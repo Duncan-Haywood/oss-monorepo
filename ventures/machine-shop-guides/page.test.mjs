@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual"];
+const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "first-article-inspection", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual"];
 const read = (p) => readFileSync(new URL(`./${p}.html`, import.meta.url), "utf8");
 
 for (const p of PAGES) {
@@ -110,4 +110,13 @@ test("scoping worksheet: built from text, keeps nothing by default, quotes the r
   assert.ok(quoted.length >= 12);
   const rule = Object.values(QUOTES);
   for (const q of quoted) assert.ok(rule.some((r) => r === q || r.includes(q)), `not a pinned quote: ${q}`);
+});
+
+test("first article page keeps pasted results out of storage and renders them as text", () => {
+  const html = read("first-article-inspection");
+  assert.doesNotMatch(html, /localStorage|setItem\(/);
+  assert.doesNotMatch(html, /innerHTML|outerHTML|insertAdjacentHTML|document\.write/);
+  assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/);
+  assert.match(html, /recordUsage\("fai-check"\)/);
+  assert.match(html, /does not reproduce it/);
 });
