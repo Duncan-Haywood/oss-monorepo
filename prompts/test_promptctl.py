@@ -644,6 +644,35 @@ class BacklogTest(PromptTestCase):
         self.put("P001-b.json", _item("P001"))
         self.assertTrue(any("also used by" in e for e in promptctl.validate(self.fx.root)))
 
+    def test_duplicate_ids_already_on_the_base_branch_only_warn(self):
+        import subprocess
+
+        def git(*args):
+            subprocess.run(["git", "-C", str(self.fx.repo), "-c", "user.name=t", "-c", "user.email=t@t",
+                            *args], check=True, capture_output=True)
+
+        git("init", "-q", "-b", "main")
+        self.put("P001-a.json", _item("P001"))
+        self.put("P001-b.json", _item("P001"))
+        git("add", "-A")
+        git("commit", "-q", "-m", "both runs took P001")
+        # On main itself (no separate base) the collision stays an error.
+        self.assertTrue(any("also used by" in e for e in promptctl.validate(self.fx.root)))
+        git("update-ref", "refs/remotes/origin/main", "HEAD")
+        git("checkout", "-q", "-b", "work")
+        self.fx.run("2026-10-12-a.json", _record())
+        git("add", "-A")
+        git("commit", "-q", "-m", "an unrelated PR")
+        self.assertEqual(promptctl.validate(self.fx.root), [])
+        self.assertIn("P001-a.json, P001-b.json", promptctl.backlog_duplicate_note(self.fx.root))
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            promptctl.print_backlog(self.fx.root)
+        self.assertIn("Fix first", buf.getvalue())
+        # A PR that adds a third file with the same id is still refused.
+        self.put("P001-c.json", _item("P001"))
+        self.assertTrue(any("P001-c.json: id P001" in e for e in promptctl.validate(self.fx.root)))
+
 
 class DeviationTest(PromptTestCase):
     def test_deviations_are_checked_and_grouped_by_file(self):

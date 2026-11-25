@@ -41,7 +41,8 @@ payapps there. On 2026-11-25 this worked first time:
 2. One clone, inline, timeout about 10 min:
    `git clone --depth 1 https://github.com/Duncan-Haywood/private-monorepo /home/user/private-monorepo`
    (it took under a minute). Push with `git -c push.negotiate=true push -u origin <branch>`.
-3. Read its `CLAUDE.md` and the app's `ROADMAP.md`; `pnpm install --frozen-lockfile --filter <app>...`
+3. Read its `CLAUDE.md` and the app's `ROADMAP.md` by hand (add_repo's result
+   names a `register_repo_root` tool that ToolSearch does not find here; skip it); `pnpm install --frozen-lockfile --filter <app>...`
    (backgrounded) gets the app's tests, `pnpm dev` and Playwright running.
 
 **If step 2 is refused by the permission layer** (a tool denial, not a git
