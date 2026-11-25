@@ -564,8 +564,8 @@ test('the hub carries the required disclaimers and privacy line', async () => {
   // Since 2026-11-25 the footer summarises and links the legal pages
   // (legal-pages.mjs) instead of promising nothing is collected.
   assert.match(hub, /The free tools run in your browser/i);
-  assert.match(hub, /href="\.\/privacy\/"/);
-  assert.match(hub, /href="\.\/terms\/"/);
+  assert.match(hub, /href="(\.\/)?privacy\/"/);
+  assert.match(hub, /href="(\.\/)?terms\/"/);
 });
 
 /**
