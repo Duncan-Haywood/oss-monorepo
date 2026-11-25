@@ -49,6 +49,9 @@ payapps there. On 2026-11-25 this worked first time:
    for one part of an item) pushes a create-only `claim/<app>/<slug>` branch there and
    exits 4 if another run got it first, so pick another. Open-PR checks missed this:
    private PRs 106-108 built one item within 20 minutes (backlog P079).
+   The claim does not reserve a migration number: fetch the private `main` and
+   renumber your new `migrations/` file just before merging (private PR 126 and
+   a parallel run both made 0034; three run records, 2026-11-25).
 
 **If step 2 is refused by the permission layer** (a tool denial, not a git
 error), that is final for this session: do not retry, reword, or reach the
