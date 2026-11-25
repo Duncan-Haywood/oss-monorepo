@@ -68,7 +68,7 @@ test("review: flags a larger lot that costs less in total", () => {
 
 test("HTML: escapes every field and never shows cost lines", () => {
   const html = quoteToHtml({ ...meta, customer: '<script>alert(1)</script>', notes: 'a & b\n"quoted"' }, rows);
-  assert.doesNotMatch(html, /<script>/);
+  assert.doesNotMatch(html, /<script\b/i);
   assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
   assert.match(html, /<li>a &amp; b<\/li>/);
   assert.match(html, /\$846\.00/);
