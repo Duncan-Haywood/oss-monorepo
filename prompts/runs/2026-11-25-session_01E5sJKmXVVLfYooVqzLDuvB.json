@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKmXVVLfYooVqzLDuvB",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T21:18:34Z",
+  "ended": "2026-11-25T21:27:08Z",
+  "wall_minutes": 8.79,
+  "tokens_in": 4078850,
+  "tokens_out": 25064,
+  "cost_usd": 2.0027,
+  "tool_calls": 51,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19100",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/history/ci-perf-2026-11-20-einvoice-page-engine-on-demand.md",
+      "issue": "Its 'not changed' item 2 said splitting the engine was a bigger refactor because preflightDocuments is synchronous in places. It is async, and each checker has one dispatch point, so the split took about 30 lines."
+    },
+    {
+      "file": "platform/perf/module-exclusive.mjs",
+      "issue": "It takes only an HTML page, so it could not split page-engine.mjs (a dynamic-import entry). I wrote a scratch walker for that. Accepting a .mjs root would save the next run the same step."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "No docs/posts entry. The finding is internal plumbing that does not interest customers, and the owner's 2026-11-24 direction consolidates posts instead of adding one per PR.",
+      "did": "Wrote the history doc only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/history/einvoice-page-perf-2026-11-25-national-checkers-on-demand.md"
+  ],
+  "goal": null,
+  "notes": "Metric: what the first 'Check' click on einvoice-preflight/index.html costs for a valid EU (JSON) sample. Before: 935 kB transferred over 115 requests, verdict in 237-273 ms unthrottled and 6085-6110 ms at 1.6 Mbps / 150 ms RTT. After: 374 kB over 83 requests, 140-147 ms unthrottled and 3168-3248 ms throttled. Taken with Playwright Chromium against platform/perf/revalidate-serve.mjs (gzip, ETag, max-age=0), cache disabled, 3 fresh contexts per cell, bytes from CDP Network.loadingFinished. Static engine graph: 925,703 B -> 359,828 B gzip. Same answers: 200 fixtures through preflightDocuments in the old (git archive HEAD) and new trees gave byte-identical JSON. Suite: 2794 tests pass in 10.9 s, plus 4 new tests in national-sniff.test.mjs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5bc0cdaa-3ea1-5e5b-a5e4-5ec8e0eef2a1",
+    "transcripts": 1,
+    "first": "2026-11-25T21:18:34Z",
+    "last": "2026-11-25T21:27:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 92,
+        "output": 25064,
+        "thinking": 4125,
+        "cache_read": 3990897,
+        "cache_write_5m": 0,
+        "cache_write_1h": 87861,
+        "api_equivalent_usd": 2.0027,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 92,
+      "output": 25064,
+      "thinking": 4125,
+      "cache_read": 3990897,
+      "cache_write_5m": 0,
+      "cache_write_1h": 87861,
+      "api_equivalent_usd": 2.0027,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 46,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.79,
+      "active_minutes": 8.79,
+      "model_minutes": 5.89,
+      "tool_minutes": 2.91,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "measure engine graph, refactor six modules' sniffers, same-output harness, browser timings, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 199.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
