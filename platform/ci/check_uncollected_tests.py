@@ -32,6 +32,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import repo_files  # noqa: E402
 import run_venture_tests as rvt  # noqa: E402
 
 
@@ -60,9 +61,11 @@ def guarded_tests(path):
 
 
 def guarded_hits(root=rvt.ROOT):
-    files = subprocess.run(["git", "ls-files", "-z", "*test_*.py", "*_test.py"], cwd=root,
-                           capture_output=True, text=True).stdout.split("\0")
-    return [(root / f, names) for f in files if f and (names := guarded_tests(root / f))]
+    try:
+        files = repo_files.ls_files(root, "*test_*.py", "*_test.py")
+    except (subprocess.CalledProcessError, OSError):
+        return []
+    return [(root / f, names) for f in files if (names := guarded_tests(root / f))]
 
 
 def test_files(slug):
