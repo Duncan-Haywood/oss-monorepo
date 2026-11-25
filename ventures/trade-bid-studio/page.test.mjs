@@ -21,7 +21,15 @@ test('page is usable without a build step and carries its disclaimers', () => {
 test('page wires the trade takeoff into the bid and says where its rates come from', () => {
   const html = page('index.html');
   assert.match(html, /from '\.\/takeoff\.mjs'/);
-  assert.match(html, /from '\.\/presets\.mjs'/);
+  // Names load with the page; the rates load on the first pick (perf, 2026-11-25).
+  assert.match(html, /from '\.\/preset-index\.mjs'/);
+  assert.doesNotMatch(html, /from '\.\/presets\.mjs'/);
+  assert.match(html, /import\('\.\/presets\.mjs'\)/);
+  // Every pick goes through the loader, and only applyTrade reads the full presets.
+  assert.doesNotMatch(html, /\bPRESETS\.(?!map\(p => \[p\.id, p\]\))/);
+  assert.equal([...html.matchAll(/presetById\?\.get\(/g)].length, 1);
+  assert.match(html, /addEventListener\('change', e => pickTrade\(/);
+  assert.match(html, /byId\.has\(m\[1\]\)\) pickTrade\(/);
   assert.match(html, /<select id="trade">/);
   assert.match(html, /id="takeoffRows"/);
   assert.match(html, /#trade=/);

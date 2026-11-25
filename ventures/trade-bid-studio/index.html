@@ -266,14 +266,22 @@
     import { calculateBid, markupToMargin, marginToMarkup, overrunToBreakEven, money } from './engine.mjs';
     import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import { takeoffTotals, fromPreset } from './takeoff.mjs';
-    import { PRESETS, GROUPS } from './presets.mjs';
+    import { INDEX, GROUPS } from './preset-index.mjs';
     import { COMPANY_FIELDS, buildProposal, loadCompany, saveCompany, forgetCompany, renderProposalHtml } from './proposal.mjs';
     import { draftScope, quotedPrice } from './quote.mjs';
     const el = id => document.getElementById(id);
     const ids = ['laborHours', 'wage', 'burdenPct', 'materials', 'subs', 'other', 'overheadPct', 'marginPct', 'materialMarkupPct', 'subMarkupPct', 'offeredPrice'];
     let counted = false;
-    const byId = new Map(PRESETS.map(p => [p.id, p]));
-    const bySlug = new Map(PRESETS.map(p => [p.slug, p]));
+    // The picker needs only names at load; each trade's rates (presets.mjs,
+    // most of the page's script weight) load the first time a trade is picked.
+    const byId = new Map(INDEX.map(p => [p.id, p]));
+    const bySlug = new Map(INDEX.map(p => [p.slug, p]));
+    let presetById = null;
+    let presetsLoading = null;
+    const loadPresets = () => presetsLoading ||= import('./presets.mjs')
+      .then(m => { presetById = new Map(m.PRESETS.map(p => [p.id, p])); return presetById; })
+      .catch(err => { presetsLoading = null; throw err; });
+    let tradeTicket = 0;
     const takeoffIds = ['crewSize', 'setupHours', 'minOnSiteHours', 'milesOneWay', 'speedMph'];
     let lines = [];
     let lastTakeoff = null;
@@ -282,7 +290,7 @@
 
     // Trade picker, grouped the way a contractor browses.
     for (const group of GROUPS) {
-      const members = PRESETS.filter(p => p.group === group);
+      const members = INDEX.filter(p => p.group === group);
       if (!members.length) continue;
       const og = document.createElement('optgroup');
       og.label = group;
@@ -337,8 +345,22 @@
       el('addLine').disabled = lines.length >= 30;
     }
 
+    // Picks a trade, loading the rates first when they are not here yet. A
+    // later pick wins over an earlier one still loading.
+    async function pickTrade(id, opts = {}) {
+      const ticket = ++tradeTicket;
+      if (!byId.has(id) || presetById) return applyTrade(id, opts);
+      try { await loadPresets(); } catch {
+        if (ticket !== tradeTicket) return;
+        applyTrade('', opts);
+        el('tradeSummary').textContent = 'The trade rates could not load. Check the connection and pick the trade again.';
+        return;
+      }
+      if (ticket === tradeTicket) applyTrade(id, opts);
+    }
+
     function applyTrade(id, { fromHash = false } = {}) {
-      const preset = byId.get(id);
+      const preset = presetById?.get(id);
       el('trade').value = preset ? id : '';
       const active = Boolean(preset);
       el('takeoffPanel').hidden = !active;
@@ -430,7 +452,9 @@
     }
     ids.forEach(i => el(i).addEventListener('input', update));
     takeoffIds.forEach(i => el(i).addEventListener('input', update));
-    el('trade').addEventListener('change', e => applyTrade(e.target.value));
+    el('trade').addEventListener('change', e => pickTrade(e.target.value));
+    // Start fetching the rates as soon as the picker is reached.
+    for (const ev of ['pointerenter', 'focus']) el('trade').addEventListener(ev, () => loadPresets().catch(() => {}), { once: true });
     el('addLine').addEventListener('click', () => {
       lines.push({ label: '', unit: 'each', qty: 1, hoursPerUnit: 0, materialPerUnit: 0 });
       renderRows(); update();
@@ -438,7 +462,7 @@
     });
     const fromHash = () => {
       const m = location.hash.match(/^#trade=([a-z0-9-]+)$/);
-      if (m && byId.has(m[1])) applyTrade(m[1], { fromHash: true });
+      if (m && byId.has(m[1])) pickTrade(m[1], { fromHash: true });
     };
     window.addEventListener('hashchange', fromHash);
     fromHash();

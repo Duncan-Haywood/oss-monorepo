@@ -180,6 +180,19 @@ returned identical post sets from the old full-text file and from the new
 index. A seeded test now keeps it that way. Notes:
 [`docs/history/pages-build-perf-2026-11-25-writing-search-index.md`](/docs/history/pages-build-perf-2026-11-25-writing-search-index.md).
 
+## Same day: a contractor's bid page loaded 119 trades to show a menu
+
+The free bid page for contractors offers a takeoff for 119 trades, from
+duct cleaning to window replacement. Every visitor downloaded every trade's
+rates and line items at load, 28 kB compressed and 44% of the page, though a
+first visit shows only a menu of trade names. The page now loads a 2.8 kB
+list of names and fetches the rates the moment someone picks a trade (or
+points at the menu, which usually hides the wait). On a throttled slow
+connection, load fell from 811 ms to 645 ms. A browser script drove the old
+and new pages through the same picks, edits and links, and every figure
+matched. Notes:
+[`docs/history/trade-bid-studio-page-perf-2026-11-25.md`](/docs/history/trade-bid-studio-page-perf-2026-11-25.md).
+
 ## The general lesson
 
 "Rewrite it in Rust" assumes the time goes into your own code, running
