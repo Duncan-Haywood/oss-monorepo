@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html"];
+const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html"];
 
 test("every page carries the no-warranty clause, sponsor link, opt-out and honest CTA", () => {
   for (const name of PAGES) {
@@ -54,4 +54,14 @@ test("robots and sitemap list every page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   const sitemap = page("sitemap.xml");
   for (const name of PAGES) assert.match(sitemap, new RegExp(name.replace(".", "\\.")));
+});
+
+test("the QuickBooks guide cites Intuit's own pages, says it is not Intuit, and its calculator is labelled", () => {
+  const html = page("retainage-in-quickbooks.html");
+  const links = [...html.matchAll(/href="(https:[^"]+)"/g)].map((m) => m[1]).filter((h) => !/marisstella|github\.com\/sponsors/.test(h));
+  assert.ok(links.length >= 5, `only ${links.length} sources`);
+  for (const h of links) assert.match(h, /^https:\/\/quickbooks\.intuit\.com\//, h);
+  assert.match(html, /Not affiliated with Intuit\./);
+  assert.match(html, /accountant/);
+  for (const id of ["qb-billed", "qb-rate", "qb-held", "qb-released"]) assert.match(html, new RegExp(`<label for="${id}">`));
 });
