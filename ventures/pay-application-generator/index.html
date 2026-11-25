@@ -163,8 +163,14 @@
   <script type="module">
     import { compute, parseCsv, sampleList, SAMPLE_SETTINGS, summaryText, scheduleCsv, dollars, pctText, nextPeriod } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
-    import { readXlsx, pickSheet, findSchedule, retainageChecks } from "./sheet.mjs";
-    import { workbookXlsx } from "./workbook.mjs";
+    // The .xlsx reader (sheet.mjs) and writer (workbook.mjs) are 14 of the page's 31 kB gzip and only matter when a
+    // workbook is chosen, a pasted table needs its header found, or an .xlsx is downloaded, so they load on first use.
+    // One shared promise per module; a failed fetch clears it so the next press retries.
+    const lazy = (load) => { let p = null; return () => (p ??= load().catch((err) => { p = null; throw err; })); };
+    let sheet = null;
+    const loadSheet = lazy(() => import("./sheet.mjs").then((m) => (sheet = m)));
+    const loadWorkbook = lazy(() => import("./workbook.mjs"));
+    const loadFailed = (err) => `Part of the page could not load (${err.message}). Check the connection and try again.`;
 
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
@@ -194,11 +200,12 @@
       imported = workbook && text === workbook.csv ? workbook : null;
       if (imported) r = compute(imported.csv, s);
       else if (r.errors.length && /No scheduled value column|No description column/.test(r.errors[0])) {
-        const found = findSchedule(parseCsv(text));
+        if (!sheet) return null; // the caller loads sheet.mjs and runs again
+        const found = sheet.findSchedule(parseCsv(text));
         if (!found.error) { imported = found; r = compute(found.csv, s); }
       }
       if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
-      if (imported) r.findings = [...imported.checks, ...retainageChecks(imported, r), ...r.findings];
+      if (imported) r.findings = [...imported.checks, ...sheet.retainageChecks(imported, r), ...r.findings];
       last = { r, s };
       showImport(imported);
       $("#due").textContent = dollars(r.summary.due);
@@ -206,6 +213,7 @@
       $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
       $("#rows").innerHTML = r.lines.map((l) => `<tr><td>${esc(l.item)}</td><td>${esc(l.desc)}</td><td class="n">${dollars(l.c)}</td><td class="n">${dollars(l.d)}</td><td class="n">${dollars(l.e)}</td><td class="n">${dollars(l.f)}</td><td class="n">${dollars(l.g)}</td><td class="n">${l.pct == null ? "" : pctText(l.pct)}</td><td class="n">${dollars(l.balance)}</td><td class="n">${dollars(l.ret)}</td></tr>`).join("");
       report.hidden = false;
+      loadWorkbook().catch(() => {}); // warm the .xlsx writer for the download button below
       status.textContent = `${r.lines.length} lines read${imported ? ` from ${imported.header}` : ""}; ${r.findings.filter((f) => f.severity !== "info").length} finding(s) to look at.`;
       report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
@@ -215,7 +223,8 @@
       const f = $("#file").files[0];
       if (f && /\.(xlsx|xlsm)$/i.test(f.name)) {
         let found;
-        try { found = pickSheet(await readXlsx(await f.arrayBuffer())); } catch (err) { status.textContent = err.message; report.hidden = true; return; }
+        try { await loadSheet(); } catch (err) { status.textContent = loadFailed(err); return; }
+        try { found = sheet.pickSheet(await sheet.readXlsx(await f.arrayBuffer())); } catch (err) { status.textContent = err.message; report.hidden = true; return; }
         if (found.error) { status.textContent = found.error; report.hidden = true; return; }
         workbook = found; $("#paste").value = found.csv; $("#file").value = "";
         if (run(found.csv)) {
@@ -227,8 +236,14 @@
       if (f && /\.xls$/i.test(f.name)) { status.textContent = "This is an old .xls workbook. Open it in Excel and save it as .xlsx or CSV, then choose that file."; return; }
       const text = f ? await f.text() : $("#paste").value;
       if (!text.trim()) { status.textContent = "Choose a file or paste the schedule first."; return; }
-      if (run(text)) record("schedule_calculated");
+      let ok = run(text);
+      if (ok === null) {
+        try { await loadSheet(); } catch (err) { status.textContent = loadFailed(err); return; }
+        ok = run(text);
+      }
+      if (ok) record("schedule_calculated");
     });
+    $("#file").addEventListener("change", () => { if (/\.(xlsx|xlsm)$/i.test($("#file").files[0]?.name || "")) loadSheet().catch(() => {}); });
     $("#load-ok").addEventListener("click", () => {
       $("#paste").value = sampleList(); $("#file").value = "";
       const e = SAMPLE_SETTINGS;
@@ -242,8 +257,10 @@
     $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("pay-application-summary.txt", summaryText(last.r, last.s), "text/plain"); } });
     $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("pay-application-schedule.csv", scheduleCsv(last.r), "text/csv"); } });
     const XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-    $("#dl-xlsx").addEventListener("click", () => { if (last) { record("workbook_downloaded"); download(`pay-application-${last.s.applicationNo || "worksheet"}.xlsx`.replace(/[^\w.-]+/g, "-"), workbookXlsx(last.r, last.s), XLSX); } });
-    $("#dl-template").addEventListener("click", () => { record("template_downloaded"); download("pay-application-template.xlsx", workbookXlsx(null, {}), XLSX); });
+    const withWorkbook = async (go) => { let w; try { w = await loadWorkbook(); } catch (err) { status.textContent = loadFailed(err); return; } go(w); };
+    $("#dl-xlsx").addEventListener("click", () => { const l = last; if (l) withWorkbook((w) => { record("workbook_downloaded"); download(`pay-application-${l.s.applicationNo || "worksheet"}.xlsx`.replace(/[^\w.-]+/g, "-"), w.workbookXlsx(l.r, l.s), XLSX); }); });
+    $("#dl-template").addEventListener("click", () => withWorkbook((w) => { record("template_downloaded"); download("pay-application-template.xlsx", w.workbookXlsx(null, {}), XLSX); }));
+    for (const ev of ["pointerenter", "focus"]) $("#dl-template").addEventListener(ev, () => loadWorkbook().catch(() => {}), { once: true });
     $("#print").addEventListener("click", () => window.print());
     const fill = (e) => {
       $("#ret").value = e.retainagePct ?? ""; $("#sret").value = e.storedRetainagePct ?? ""; $("#reduce-at").value = e.reduceAtPct ?? ""; $("#reduced").value = e.reducedPct ?? ""; $("#reduce-mode").value = e.reduceMode === "remaining" ? "remaining" : "all";
