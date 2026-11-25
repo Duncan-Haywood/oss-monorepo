@@ -35,7 +35,8 @@
   "outcome": "success",
   "errors": [
     "First pass of the chrome copy changed pay-app-guides' card label width (34%) on 18 pages; caught by a before/after geometry comparison and fixed by pinning sizing in its style.css.",
-    "First before/after comparison used a full build as baseline against a --only preview build; every page differed for unrelated reasons. Rebuilt a --only baseline from main."
+    "First before/after comparison used a full build as baseline against a --only preview build; every page differed for unrelated reasons. Rebuilt a --only baseline from main.",
+    "CodeQL JS job failed at SARIF upload (infrastructure); re-run API 500; a push during a GitHub token outage did not register on the PR."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -54,7 +55,7 @@
     "docs/reports/polish-2026-11-25-venture-stack-tables.md"
   ],
   "goal": null,
-  "notes": "Measured 99 overflowing tables (98 read-only) at 390 px across the 21 transition.json products plus construction front doors. einvoice pages: 13 overflowing tables to 0; desktop geometry identical; pay-app-guides geometry identical at 390/1280. Tests: node --test 'platform/pages/*.test.mjs' 2084 pass, 1 fail (build.test.mjs identical-cache-name, because I edited docs during the run; re-run alone: pass). run_venture_tests pay-app-guides pass; einvoice-preflight 2784 tests, 1 fail: repair-facturx 'poppler opens the repaired PDF' because this container disables pdfdetach saving (environment, unrelated to this diff).",
+  "notes": "Measured 99 overflowing tables (98 read-only) at 390 px across the 21 transition.json products plus construction front doors. einvoice pages: 13 overflowing tables to 0; desktop geometry identical; pay-app-guides geometry identical at 390/1280. Tests: node --test 'platform/pages/*.test.mjs' 2084 pass, 1 fail (build.test.mjs identical-cache-name, because I edited docs during the run; re-run alone: pass). run_venture_tests pay-app-guides pass; einvoice-preflight 2784 tests, 1 fail: repair-facturx 'poppler opens the repaired PDF' because this container disables pdfdetach saving (environment, unrelated to this diff). CI on 642c985: every check green except codeql (javascript-typescript), which finished analysis and failed while uploading SARIF (no finding named; codeql gate skipped). rerun-failed-jobs returned HTTP 500 twice and the GitHub MCP token refresh was down for ~10 min; a merge of main pushed during the outage never reached the PR, so this commit re-triggers CI.",
   "corrections": [],
   "redteam": null,
   "usage": {
