@@ -3,7 +3,7 @@ title: "A sample sewn from our own pattern failed our own spec sheet: one grade 
 seo_title: "Pattern and spec sheet from one grade rule, plus a neckband"
 date: 2026-11-23
 tags: [fashion, pattern-making, tech-pack, grading, clothing-design-studio, quality-audit]
-description: "Clothing Design Studio's pattern and tech-pack spec disagreed on shoulder and neck in 5 of 6 sizes. Both now read one grade rule, armhole and bicep grade from size M, and tees get a neckband."
+description: "Our pattern and tech-pack spec disagreed on shoulder and neck in 5 of 6 sizes. Now one grade rule sets neck, shoulder, armhole and bicep, plus a neckband."
 ---
 
 [Clothing Design Studio](../../ventures/clothing-design-studio/) drafts tee,
