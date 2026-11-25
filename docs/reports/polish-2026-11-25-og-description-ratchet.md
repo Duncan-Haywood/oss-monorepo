@@ -22,7 +22,8 @@ called the better next step than a fifth product-by-product meta rewrite.
 - Measured before: 4,220 indexed venture pages with an og:description; over
   160: 1,430; over 200: 886; over 250: 416; over 300: 230.
 - pay-app-guides (bet #1 front door): all 10 of its pages over 200 rewritten
-  to 147 to 183 characters, facts only from the old text. Meta descriptions,
+  to 147 to 183 characters, facts only from the old text. tm-tickets.html,
+  added on main while this PR was open, was trimmed from 229 to fit too. Meta descriptions,
   titles and JSON-LD untouched. Baseline 886 to 876.
 - Post: extended `docs/posts/2026-11-24-paid-product-front-pages-fit-a-search-snippet.md`.
 
