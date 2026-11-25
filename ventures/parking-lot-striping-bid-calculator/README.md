@@ -117,7 +117,7 @@ uptime, backups of anything you type, or that a URL will keep working. Do not
 use this as a system of record. If a tool needs to survive, export your inputs
 and run it yourself.
 
-MIT licensed — see [`LICENSE`](LICENSE). Support via the
+FSL-1.1-MIT licensed — see [`LICENSE`](LICENSE). Support via the
 [project on GitHub](https://github.com/Duncan-Haywood/monorepo-projects) is
 entirely optional and never changes what the tool does.
 

@@ -36,4 +36,4 @@ No network call, no account, no analytics vendor. The browser page
 
 ## Licence
 
-MIT.
+FSL-1.1-MIT.

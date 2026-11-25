@@ -19,7 +19,7 @@ or financial advice. It does not model insurance, taxes, cancellations, customer
 acquisition cost or employment rules. Unverified against a real company's books:
 tested on hand-calculated examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.
 
 ## Known gaps
 

@@ -2,7 +2,7 @@
 
 > Free Amazon seller profit analyzer: drop in your Seller Central Transaction report CSV and get profit per SKU, a fee waterfall, ad spend, refund and reimbursement findings. Runs in your browser, the file is never uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/amazon-seller-profit-analyzer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/amazon-seller-profit-analyzer): FSL-1.1-MIT licensed.

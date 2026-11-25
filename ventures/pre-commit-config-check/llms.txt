@@ -2,7 +2,7 @@
 
 > Paste a .pre-commit-config.yaml and see every error pre-commit would stop on, in pre-commit 4.7.0's own words with line numbers and fixes, plus mistakes pre-commit accepts silently (unknown hook keys, duplicate YAML keys, glued args items). Free, runs in the browser or as a zero-dependency Node CLI; nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the text pasted in, not legal, tax, financial or professional advice. Not affiliated with the pre-commit or prek projects.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the text pasted in, not legal, tax, financial or professional advice. Not affiliated with the pre-commit or prek projects.
 
 ## What it checks
 
@@ -21,4 +21,4 @@ Measured 2026-11-22: same verdict, first error and warnings as pre-commit 4.7.0 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pre-commit-config-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pre-commit-config-check): FSL-1.1-MIT licensed.

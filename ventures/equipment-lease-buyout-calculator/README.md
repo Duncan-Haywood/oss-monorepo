@@ -87,5 +87,5 @@ inputs and run it yourself.
 
 ## Licence
 
-MIT — see [LICENSE](LICENSE). Support is optional and never changes what the
+FSL-1.1-MIT — see [LICENSE](LICENSE). Support is optional and never changes what the
 tool does: <https://github.com/sponsors/Duncan-Haywood>.

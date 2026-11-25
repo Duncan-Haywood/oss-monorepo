@@ -31,7 +31,7 @@ node --test ventures/bai2-to-ofx-converter/
 
 ## License
 
-MIT. See `LICENSE`.
+FSL-1.1-MIT. See `LICENSE`.
 
 ## No warranty
 

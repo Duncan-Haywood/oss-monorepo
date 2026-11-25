@@ -2,7 +2,7 @@
 
 > Free Benjamini-Hochberg false discovery rate calculator and p-value adjustment. Paste a list of p-values (or a CSV with a p-value column) and get adjusted p-values and the number kept by Bonferroni, Šidák, Holm, Hochberg, Benjamini-Hochberg, Benjamini-Yekutieli, the two-stage Benjamini-Krieger-Yekutieli procedure and Storey's q-values, with Storey's pi0 estimate and a p-value histogram; e-values are corrected with e-BH. For tests that arrive one at a time, online FDR with LORD++, SAFFRON, LOND and alpha-spending. Checked against statsmodels and an independent implementation. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not medical, legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not medical, legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -25,4 +25,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fdr-multiple-testing): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fdr-multiple-testing): FSL-1.1-MIT licensed.

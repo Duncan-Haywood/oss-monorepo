@@ -18,7 +18,7 @@ test('composeRelease links each tool and states the limits', () => {
   assert.equal(r.tag, 'launches-2026-10-12');
   assert.match(r.body, /\[Mileage Log\]\(https:\/\/.*mileage-log.*\): Free log\./);
   assert.match(r.body, /not legal, tax or professional advice/);
-  assert.match(r.body, /free and open source \(MIT\)/);
+  assert.match(r.body, /free to use and source available \(FSL-1\.1-MIT\)/);
 });
 
 test('plan returns null when nothing launched in the window', async () => {

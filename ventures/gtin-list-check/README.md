@@ -32,7 +32,7 @@ node --test 'ventures/gtin-list-check/*.test.mjs'
 
 ## License
 
-MIT. See `LICENSE`.
+FSL-1.1-MIT. See `LICENSE`.
 
 ## No warranty
 

@@ -101,7 +101,7 @@ Free, best-effort, no warranty. Review each finding yourself, test every
 hardening change before relying on it, and have a qualified person look at
 anything that protects valuable data. Optional
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) never changes what
-the tool does. MIT licensed ([`LICENSE`](LICENSE)).
+the tool does. FSL-1.1-MIT licensed ([`LICENSE`](LICENSE)).
 
 ## Privacy-conscious usage tracking
 

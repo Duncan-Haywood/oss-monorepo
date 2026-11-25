@@ -2,7 +2,7 @@
 
 > Free pyproject.toml checker. Reads the file and reports, with the line and a fix, what setuptools, hatchling or flit_core will refuse to build, what pip will not install and what PyPI will reject: TOML errors, unknown [project] keys (with the intended key), invalid PEP 440 versions and local versions, dynamic clashes, readme and content-type problems, PEP 639 license expressions (SPDX 3.27), the License :: classifier conflict (named per backend), license-files patterns, PEP 508 dependency strings (Poetry ^ syntax, direct URLs, marker values like sys_platform == 'windows' that are never true, extra markers in main dependencies), requires-python upper caps, unknown or deprecated trove classifiers, PEP 685 extras, PEP 735 dependency groups and cycles, a build-backend that build-system.requires never installs, and script entry points without a callable. Also previews the core metadata a backend writes. Runs in the browser; nothing is uploaded. A zero-dependency CLI has a CI exit code.
 
-Free and open source (MIT). The TOML reader agrees with Python's tomllib on all 717 TOML 1.0 cases of toml-test; the version, specifier, requirement and SPDX grammars agree with packaging 26.3 on 16,000 generated strings; backend claims come from building test projects with setuptools 84.2.1, hatchling 1.33.0 and flit_core 4.2.0. Not legal or professional advice; a real build and upload is the final word.
+Free to use and source available (FSL-1.1-MIT). The TOML reader agrees with Python's tomllib on all 717 TOML 1.0 cases of toml-test; the version, specifier, requirement and SPDX grammars agree with packaging 26.3 on 16,000 generated strings; backend claims come from building test projects with setuptools 84.2.1, hatchling 1.33.0 and flit_core 4.2.0. Not legal or professional advice; a real build and upload is the final word.
 
 ## Pages
 
@@ -16,4 +16,4 @@ Free and open source (MIT). The TOML reader agrees with Python's tomllib on all 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pyproject-metadata-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pyproject-metadata-check): FSL-1.1-MIT licensed.

@@ -35,7 +35,7 @@ ${PAPERS.map((p) => `  ${p.cite}${p.doi ? ` doi:${p.doi}` : ""}`).join("\n")}
 A statistical estimate from the readings you give. Not engineering
 certification, quality-system or other professional advice; a customer, an
 IATF 16949 auditor or your own procedure may set different criteria.
-No warranty. MIT licence. Web version: https://marisstella.app/gage-rr/`;
+No warranty. FSL-1.1-MIT licence. Web version: https://marisstella.app/gage-rr/`;
 
 const WITH_VALUE = { "--part": "part", "--operator": "operator", "--measurement": "measurement", "--lsl": "lsl", "--usl": "usl", "--process-sd": "processSd", "--k": "k", "--interaction": "interaction", "--pool-alpha": "poolAlpha", "--confidence": "confidence" };
 const NUMERIC = new Set(["lsl", "usl", "processSd", "k", "poolAlpha", "confidence"]);

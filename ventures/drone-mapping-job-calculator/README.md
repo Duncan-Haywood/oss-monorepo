@@ -109,6 +109,6 @@ browsers sending Do Not Track or Global Privacy Control.
 
 ## Licence
 
-MIT — see [`LICENSE`](LICENSE). Free and open source;
+FSL-1.1-MIT — see [`LICENSE`](LICENSE). Free to use and source available;
 [sponsorship](https://github.com/sponsors/Duncan-Haywood) is entirely optional
 and never changes what the tool does.

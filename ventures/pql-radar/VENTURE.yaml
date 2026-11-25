@@ -27,7 +27,7 @@ owner: duncan
 # searching "product qualified lead scoring open source", "madkudu alternative",
 # "pql score without a data team". Volume not measured with an external tool.
 #
-# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# Path to revenue (payments stay off): free and FSL-1.1-MIT as the lead magnet;
 # done-for-you setup (instrumenting events, reading the first model), a hosted
 # copy under the deployer's own name, or GitHub Sponsors are the paid steps;
 # hosting under the public name and billing are owner-gated.

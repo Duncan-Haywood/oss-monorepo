@@ -114,6 +114,6 @@ authors, PySAL, GeoDa, Esri or the BEA.
 
 ## No warranty
 
-Free and as-is, MIT licensed. It describes the pattern in the numbers you
+Free and as-is, FSL-1.1-MIT licensed. It describes the pattern in the numbers you
 give; a cluster is not a cause. Not legal, tax, financial, public-health,
 planning or other professional advice.

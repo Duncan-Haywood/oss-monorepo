@@ -18,4 +18,4 @@ licensing advice. It does not model tips, taxes, deposits, no-shows, refunds or 
 contract terms. Unverified against a real business's books: tested on hand-calculated
 examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

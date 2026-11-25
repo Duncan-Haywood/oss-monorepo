@@ -69,7 +69,7 @@ const T = {
     hubDesc: (n) => `What ${n} XRechnung (BR-DE), EN 16931 (BR-CO, BR-S) and Peppol (PEPPOL-EN16931) e-invoice errors mean and how to fix them, with corrected XML.`,
     groups: { xrechnung: "XRechnung (Germany, BR-DE)", en16931: "EN 16931 core rules (all EU e-invoices)", peppol: "Peppol BIS Billing 3" },
     hubFaq: [["Where do these rule ids come from?", "From the official validation artefacts: the KoSIT XRechnung Schematron for BR-DE rules, the CEN/TC 434 EN 16931 validation artefacts for BR- rules, and OpenPeppol's BIS Billing 3 rules for PEPPOL- rules. Each page names the release and links it."], ["Is a warning a rejection?", "No. A rule with severity warning or information does not reject the invoice on its own in the official rule sets, but a receiving platform may be stricter. An error (fatal) rejects it."]],
-    licence: "Our code and explanations are MIT-licensed. Official rule messages are quoted under their publishers' licences (EUPL-1.2, Apache-2.0, MPL-2.0), named on each page.",
+    licence: "Our code and explanations are FSL-1.1-MIT-licensed. Official rule messages are quoted under their publishers' licences (EUPL-1.2, Apache-2.0, MPL-2.0), named on each page.",
     others: "Other languages", titleTail: "explained", back: "All rules",
   },
   de: {

@@ -1,4 +1,4 @@
-// Shapes seen in the MIT-licensed csv2ofx project's sample files (rewritten here,
+// Shapes seen in the FSL-1.1-MIT-licensed csv2ofx project's sample files (rewritten here,
 // not copied, and not a bank's real downloads): a spending-only card export
 // with unsigned amounts, and a general-ledger journal export.
 import test from "node:test";

@@ -20,4 +20,4 @@ container, peak/average ratio and the always-on floor. Prices are editable list 
 Model: Lambda = requests fee + requests x seconds x GiB x price. Cloud Run (request-billed) shares instance
 seconds across `concurrency`. Fargate/EC2 = tasks sized for peak concurrency (at least the floor) x 730 h.
 Free tiers, discounts, data transfer, load balancers, cold starts and ops time are not modelled.
-An estimate, not a bill. MIT licence.
+An estimate, not a bill. FSL-1.1-MIT licence.

@@ -43,4 +43,4 @@ Open `index.html`, or `node --test` to run the tests. No build step, no dependen
 
 ## No warranty
 
-Provided free and as-is, without warranty of any kind. Not legal, tax, or financial advice. MIT licensed.
+Provided free and as-is, without warranty of any kind. Not legal, tax, or financial advice. FSL-1.1-MIT licensed.

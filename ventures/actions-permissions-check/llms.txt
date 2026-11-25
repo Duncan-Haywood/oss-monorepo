@@ -2,7 +2,7 @@
 
 > Paste your GitHub Actions workflow YAML and find every workflow or job with no explicit permissions block (running on the ambient default) or permissions: write-all. Free, runs in your browser, nothing uploaded.
 
-Free and open source (MIT). Findings come only from the workflow YAML pasted in; they are not a security audit or professional advice.
+Free to use and source available (FSL-1.1-MIT). Findings come only from the workflow YAML pasted in; they are not a security audit or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Findings come only from the workflow YAML pasted in;
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-permissions-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-permissions-check): FSL-1.1-MIT licensed.

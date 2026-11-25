@@ -5,7 +5,7 @@ schedule assessment** with every activity behind each failing point, a critical
 path recomputed from the logic, the critical path test, and the faults the 14
 points miss: logic loops, out-of-sequence progress, open finishes, expected
 finish dates that hide delay, and stored
-float that no longer matches the logic. MIT licensed, no dependencies, nothing
+float that no longer matches the logic. FSL-1.1-MIT licensed, no dependencies, nothing
 uploaded.
 
 It also **converts an XER to Microsoft Project XML** for someone with Project

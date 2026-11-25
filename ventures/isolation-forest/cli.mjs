@@ -34,7 +34,7 @@ below 0.5: an ordinary row. All near 0.5: no distinct anomaly in the data.
 Citations:
 ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}.${p.doi ? ` doi:${p.doi}` : ""}`).join("\n")}
 
-Statistical output from your data, not financial, legal or professional advice. No warranty. MIT licence.
+Statistical output from your data, not financial, legal or professional advice. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/isolation-forest/`;
 
 const FLAGS = {

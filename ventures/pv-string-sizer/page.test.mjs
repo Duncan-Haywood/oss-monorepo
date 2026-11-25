@@ -97,6 +97,6 @@ test("robots, sitemap, README, llms.txt, LICENSE and VENTURE.yaml exist", () => 
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("README.md"), /No warranty/);
   assert.match(page("llms.txt"), /^# PV String Sizer/);
-  assert.match(page("LICENSE"), /MIT License/);
+  assert.match(page("LICENSE"), /Functional Source License/);
   assert.match(page("VENTURE.yaml"), /^name: pv-string-sizer$/m);
 });

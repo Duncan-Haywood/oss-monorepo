@@ -2,7 +2,7 @@
 
 > Free online dynamic time warping (DTW) calculator. Paste a CSV with one series per column; get the DTW distance (Sakoe & Chiba 1978) per step, the share of the point-for-point difference that warping removes, the alignment path, and a lag profile that says at each point how far one series runs ahead of or behind the other, reading each point as timing, level, or a hop across a peak or trough. Band and Itakura windows, the symmetric1, symmetric2 and asymmetric step patterns (Giorgino 2009), a distance matrix between every pair of columns, and open-begin, open-end subsequence search for a short pattern in a long series (Tormene et al. 2009; Müller 2007). Checked against dtw-python 1.9.0: 120 alignments with identical paths, 6 pattern searches. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical summaries of the data you supply, not legal, tax, financial or professional advice. A lag or a distance is not proof of a cause.
+Free to use and source available (FSL-1.1-MIT). Results are statistical summaries of the data you supply, not legal, tax, financial or professional advice. A lag or a distance is not proof of a cause.
 
 ## Pages
 
@@ -24,4 +24,4 @@ Free and open source (MIT). Results are statistical summaries of the data you su
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dynamic-time-warping): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dynamic-time-warping): FSL-1.1-MIT licensed.

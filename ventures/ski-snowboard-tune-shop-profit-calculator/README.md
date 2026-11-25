@@ -12,4 +12,4 @@ After using this, you can now **tell which tune to push when the bench is full a
 2. Pure logic is in `calc.mjs` (`plan()`, `seasonResult()`, `serviceLine()`, `passLine()`, `encodeShare()`); tests: `node --test`.
 
 Modelled: three services with price, bench minutes and materials, burdened technician pay, profit per bench hour, a target-margin price per service, the grinder spread over its seasons, rent for the open months, a season wax pass with its break-even visits, bench-hour utilization, a break-even tune count, a volume table, a share link. Not modelled: the owner's own pay, retail and rentals, sales tax, card fees, insurance, hiring a second technician, income tax.
-Not legal, tax or financial advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+Not legal, tax or financial advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

@@ -2,7 +2,7 @@
 
 > Free wedding and event florist tool: enter the stems each flower needs and the wholesale pack sizes and prices, and get the cheapest order that covers every stem plus a damage allowance. Shows spare stems, savings against buying the small pack only, and flower cost as a share of the client's budget. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wedding-flower-order-optimizer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wedding-flower-order-optimizer): FSL-1.1-MIT licensed.

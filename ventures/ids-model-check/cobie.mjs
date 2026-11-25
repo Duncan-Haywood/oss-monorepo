@@ -579,7 +579,7 @@ const ifcName = (model, T) => (model.schema.entities[T] && model.schema.entities
 
 const INSTRUCTION = [
   ["COBie 2.4 workbook"],
-  ["Made by IDS Model Check (MIT), https://marisstella.app/ids-model-check/ , from the IFC model's own data. A blank cell is a value the model does not hold: fill it, or the QC report names it."],
+  ["Made by IDS Model Check (FSL-1.1-MIT), https://marisstella.app/ids-model-check/ , from the IFC model's own data. A blank cell is a value the model does not hold: fill it, or the QC report names it."],
   ["Sheets follow NBIMS-US V3 COBie 2.4: Contact, Facility, Floor, Space, Zone, Type, Component, System, Attribute. Values are in the model's units (Facility.LinearUnits, AreaUnits, VolumeUnits)."],
   ["Not legal or professional advice: check the workbook against your contract's COBie requirements before you hand it over."],
 ];

@@ -7,7 +7,7 @@ Stack per seat or per subscriber, or running a heavier self-hosted stack.
 
 **Live tool:** https://marisstella.app/status-keeper/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`**: a downtime-budget calculator (what 99.9% really allows) and
   a monitor-config builder. Runs in the browser; nothing is uploaded.

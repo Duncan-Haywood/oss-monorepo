@@ -2,7 +2,7 @@
 
 > A free, local scan for consent, auto-renewal, disclosure, licence, leaked-key and runaway-spend problems, with the law or rule behind each finding. Observations, not legal advice.
 
-Free and open source (MIT). Findings are pattern matches on the files scanned, a checklist to review, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Findings are pattern matches on the files scanned, a checklist to review, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Findings are pattern matches on the files scanned, a
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/liability-audit): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/liability-audit): FSL-1.1-MIT licensed.

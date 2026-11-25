@@ -34,7 +34,7 @@ label{display:block;font-weight:600;margin:10px 0 3px}.btn{border:0;border-radiu
 </style></head><body><main>
 <header><strong>${esc(cfg.company)}</strong><nav aria-label="Sections">${nav}</nav></header>
 ${body}
-<footer><p>Powered by <a href="${esc(cfg.homepage)}">Feedback Board</a>, open source (MIT). Votes use one anonymous cookie; no accounts, no tracking.${cfg.sponsor ? ` <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the author</a>.` : ""}</p></footer>
+<footer><p>Powered by <a href="${esc(cfg.homepage)}">Feedback Board</a>, source available (FSL-1.1-MIT). Votes use one anonymous cookie; no accounts, no tracking.${cfg.sponsor ? ` <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the author</a>.` : ""}</p></footer>
 </main></body></html>`;
 }
 

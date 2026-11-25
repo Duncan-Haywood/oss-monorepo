@@ -2,7 +2,7 @@
 
 > Free usage-based pricing simulator. Compare up to three metered plans (platform fee, included units, overage price, volume tier) against your customer usage distribution and see revenue, margin, bill shock, customers below cost, revenue if customers pick their cheapest plan, and revenue as usage grows.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/usage-based-pricing-simulator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/usage-based-pricing-simulator): FSL-1.1-MIT licensed.
