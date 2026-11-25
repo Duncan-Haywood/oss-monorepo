@@ -1,9 +1,9 @@
 ---
 title: "Quality fix: the idle hours CloudWatch leaves out, and the paid flag a Substack export carries"
-seo_title: "DynamoDB on-demand vs provisioned from CloudWatch data: missing periods count as zero"
+seo_title: "DynamoDB on-demand vs provisioned: count missing CloudWatch periods"
 date: 2026-11-25
 tags: [quality-audit, dynamodb-capacity-mode-advisor, substack-subscriber-export-analyzer, aws, newsletters]
-description: "Two high-severity audit defects fixed: the DynamoDB capacity-mode advisor now counts the periods CloudWatch omits as zero, and the Substack export analyzer reads active_subscription when it is the only paid signal."
+description: "The DynamoDB capacity advisor now counts the hours CloudWatch omits as zero; the Substack analyzer reads active_subscription when it is the only paid flag."
 ---
 
 Today's quality session ran in `fix` mode: work the queue of high-severity
