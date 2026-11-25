@@ -84,3 +84,42 @@ tracks retainage and lien waivers. A contractor who opens the workbook they
 already keep and gets a real finding has a reason to come back. The parser
 is also what the suite needs for importing a job, so the work is not thrown
 away.
+
+## Update, later the same day: the reader sets up a job in the suite
+
+That last sentence is now true. The hosted pay-app suite, still in
+development and not yet for sale, can start a job from the same spreadsheet.
+On a job's schedule of values there is an "Import from Excel or CSV" button.
+The contractor chooses the bid breakdown, SOV tab or continuation sheet they
+already have. The file is read in the browser, as on the free page, and is
+not uploaded. Before anything is saved, a preview shows:
+
+- every line it will add, with the cell it came from (`cell C9`);
+- every row it left out and why. Division headings and subtotals are not
+  work. A total ends the table. Change-order lines are left out because the
+  original schedule is the contract as signed. A change order is added
+  separately, with the approval date that decides which pay app it first
+  counts in;
+- whether the sheet's own total agrees with its lines. A SUM that misses an
+  inserted line is named, the same check as the free page;
+- how far the imported total is from the contract sum, because the two must
+  match before the first pay application can be submitted.
+
+A cell showing `#REF!`, a value like "TBD" or a negative original line stops
+the import with the cell named. Nothing is guessed. Semicolon-separated CSVs
+with decimal commas, as European Excel saves them, are read too.
+
+One limit is stated in the preview rather than hidden. If the sheet is a
+continuation sheet partway through a job, the preview shows how much it
+says is already billed, and says that the suite does not yet carry billing
+from pay apps made elsewhere. So a contractor can move a job that has not
+billed yet. Moving a job that is already running, with its billed-to-date
+and retainage held, is the next item on the suite's roadmap.
+
+The tests run the import on the same two real workbooks as the free page,
+one saved by LibreOffice and one written by a library that does not
+calculate. The LibreOffice file gives four contract lines totalling
+$230,150.75. Its change order is left out and listed. Its grand total of
+$249,050.75 is accepted as lines plus the change order. On the
+uncalculated file, the preview says the sheet's total could not be checked
+instead of reading it as zero.
