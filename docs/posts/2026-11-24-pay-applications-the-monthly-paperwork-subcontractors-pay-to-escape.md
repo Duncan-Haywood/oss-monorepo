@@ -120,6 +120,7 @@ Still in development and not for sale. Built and tested so far:
 - The cash report counts what came in and ages only the balance still owed.
 - After 30 days it flags the application as paid short and names the amount.
 - The application counts as paid once the payments reach the amount the GC certified.
+- Lien waivers follow the checks. Say a $45,000 application is paid as $30,000 and then $15,000, and the unconditional waiver for the first check has gone out. The build then asks for a second unconditional waiver for $15,000, not for the full $45,000. It prefills that amount. (Added 2026-11-25; still in development.)
 
 A short pay does not change the next pay application: line 7 on the summary subtracts earlier *certificates*, not earlier payments. So the unpaid balance has to be chased on its own, and a report that only knows "paid" or "not paid" would hide it.
 
