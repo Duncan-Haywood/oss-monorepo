@@ -102,7 +102,7 @@ roles. Names below are a contract: change one only together with its readers.
 ## Owner turnover checklist (draft)
 
 The spend-guards task writes the detailed, click-by-click owner runbook at
-[`OWNER_RUNBOOK.md`](OWNER_RUNBOOK.md); this is the outline it expands.
+`platform/aws/OWNER_RUNBOOK.md` (not written yet); this is the outline it expands.
 Every step is one AWS forces on a human or that only the owner may decide.
 
 1. **Open the management account** (sign-up, card). Turn on MFA for the root
