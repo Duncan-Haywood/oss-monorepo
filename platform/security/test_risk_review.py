@@ -221,5 +221,61 @@ class StaleBaseTests(unittest.TestCase):
         self.assertIsNone(rr.stale_base_warning("main", "HEAD", self.mb("main"), 1))
 
 
+class ShallowCloneTests(unittest.TestCase):
+    """origin/main and HEAD share no commit in a shallow clone until deepened."""
+
+    def setUp(self):
+        import os, subprocess, tempfile
+        self.tmp = tempfile.TemporaryDirectory()
+        self.cwd = os.getcwd()
+        os.environ.update({"GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@example.invalid",
+                           "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@example.invalid"})
+
+        def g(*a, cwd=None):
+            subprocess.run(["git", *a], check=True, capture_output=True, cwd=cwd)
+        up = Path(self.tmp.name) / "up"
+        up.mkdir()
+        g("init", "-q", "-b", "main", cwd=up)
+        for i in range(3):
+            (up / f"f{i}").write_text(str(i))
+            g("add", ".", cwd=up)
+            g("commit", "-qm", f"c{i}", cwd=up)
+        g("clone", "-q", "--depth=1", up.as_uri(), "clone", cwd=self.tmp.name)
+        for i in range(3, 6):  # main moves on after the clone
+            (up / f"f{i}").write_text(str(i))
+            g("add", ".", cwd=up)
+            g("commit", "-qm", f"c{i}", cwd=up)
+        os.chdir(Path(self.tmp.name) / "clone")
+        g("fetch", "-q", "--depth=1", "origin", "main")
+        g("checkout", "-qb", "work")
+        Path("mine").write_text("x")
+        g("add", "mine")
+        g("commit", "-qm", "mine")
+
+    def tearDown(self):
+        import os
+        os.chdir(self.cwd)
+        self.tmp.cleanup()
+
+    def test_no_fetch_finds_nothing(self):
+        self.assertIsNone(rr.find_merge_base("origin/main", "HEAD", fetch=False))
+
+    def test_deepens_until_histories_meet(self):
+        import contextlib, io
+        with contextlib.redirect_stderr(io.StringIO()) as err:
+            mb = rr.find_merge_base("origin/main", "HEAD")
+        self.assertEqual(mb, rr.git("rev-parse", "HEAD~1").strip())
+        self.assertIn("--deepen=40", err.getvalue())
+
+    def test_local_base_is_not_fetched(self):
+        self.assertIsNone(rr.find_merge_base("nosuchremote/main", "HEAD"))
+
+    def test_uncommitted_note(self):
+        self.assertIsNone(rr.uncommitted_note("HEAD"))
+        Path("new").write_text("y")
+        self.assertIn("1 uncommitted", rr.uncommitted_note("HEAD"))
+        self.assertIsNone(rr.uncommitted_note("abc123"))
+
+
 if __name__ == "__main__":
     unittest.main()

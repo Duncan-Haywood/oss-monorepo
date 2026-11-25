@@ -446,6 +446,51 @@ def stale_base_warning(base: str, head: str, merge_base: str, nfiles: int) -> st
     return None
 
 
+def find_merge_base(base: str, head: str, fetch: bool = True) -> str | None:
+    """The merge base of base and head, deepening a shallow clone to find it.
+
+    A cloud session's clone is shallow, so the default origin/main often shares
+    no commit with HEAD; 13 run records on 2026-11-25 lost a step to it and
+    reran with --base HEAD~<n>. When base names a remote branch, fetch deeper
+    (as CLAUDE.md suggests by hand) until the two histories meet."""
+    def mb():
+        try:
+            return git("merge-base", base, head).strip()
+        except subprocess.CalledProcessError:
+            return None
+    found = mb()
+    if found or not fetch:
+        return found
+    remote, _, branch = base.partition("/")
+    if (not branch or remote not in git("remote").split()
+            or git("rev-parse", "--is-shallow-repository").strip() != "true"):
+        return None
+    for depth in (40, 200, 500):
+        print(f"no merge base between {base} and {head} in this shallow clone; "
+              f"running `git fetch --deepen={depth} {remote} {branch}`", file=sys.stderr)
+        if subprocess.run(["git", "fetch", "--quiet", f"--deepen={depth}", remote, branch]).returncode:
+            return None
+        found = mb()
+        if found:
+            return found
+    return None
+
+
+def uncommitted_note(head: str) -> str | None:
+    """Work not yet committed is not in the diff (a run reported '0 changed
+    file(s)' before committing)."""
+    if head != "HEAD":
+        return None
+    try:
+        dirty = [l for l in git("status", "--porcelain").splitlines() if l.strip()]
+    except subprocess.CalledProcessError:
+        return None
+    if not dirty:
+        return None
+    return (f"note: {len(dirty)} uncommitted path(s) are not in this review, which diffs commits only; "
+            f"commit them and rerun.")
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--base", default="origin/main")
@@ -453,10 +498,11 @@ def main(argv=None) -> int:
     ap.add_argument("--head", default="HEAD")
     ap.add_argument("--strict", action="store_true", help="exit 1 when a likely secret is added")
     ap.add_argument("--gate", action="store_true", help="CI verdict: exit 1 on anything blocked")
+    ap.add_argument("--no-fetch", action="store_true",
+                    help="do not deepen a shallow clone to find the merge base")
     args = ap.parse_args(argv)
-    try:
-        merge_base = git("merge-base", args.base, args.head).strip()
-    except subprocess.CalledProcessError:
+    merge_base = find_merge_base(args.base, args.head, fetch=not (args.gate or args.no_fetch))
+    if not merge_base:
         print(f"no merge base between {args.base} and {args.head} (a shallow clone?): "
               f"`git fetch --deepen=500 origin main`, or pass --base HEAD~<n>", file=sys.stderr)
         return 2
@@ -479,6 +525,9 @@ def main(argv=None) -> int:
         warning = stale_base_warning(args.base, args.head, merge_base, len(files))
         if warning:
             print(warning, file=sys.stderr)
+        note = uncommitted_note(args.head)
+        if note:
+            print(note, file=sys.stderr)
     result = review(files, base_text, head_text=head_text)
     text = render(result)
     print(json.dumps(result, indent=2) if args.json else text, end="" if not args.json else "\n")

@@ -649,3 +649,30 @@ test("CPM: a negative duration is taken as 0 and reported, never scheduled to fi
   const lead = project(tasks(8), [link("1", "2", "1", "PR_FS", -8), link("2", "3", "2")]);
   assert.ok(!schedule(lead).warnings.some((w) => /negative/.test(w)));
 });
+
+test("DCMA: a project with no activities has no critical path, so no CPLI", () => {
+  const x = project([], []);
+  const c13 = assess(x).checks.find((k) => k.id === 13);
+  assert.equal(c13.value, null);
+  assert.equal(c13.pass, false);
+  assert.equal(c13.note, "");
+});
+
+test("DCMA: a project id the file does not hold falls back to the project with the most open work", async () => {
+  const { EXAMPLE_XER } = await import("./example.mjs");
+  const x = parseXer(EXAMPLE_XER);
+  assert.equal(assess(x, { projId: "no-such-project" }).project.code, assess(x).project.code);
+});
+
+test("DCMA 10: an activity cost loaded by an expense (PROJCOST) has a cost assignment", async () => {
+  const { EXAMPLE_XER } = await import("./example.mjs");
+  const x = parseXer(EXAMPLE_XER);
+  const c10 = (a) => a.checks.find((c) => c.id === 10);
+  assert.deepEqual(c10(assess(x)).items.map((i) => i.code), ["A1040", "A1180"]);
+  const t = x.tables.TASK.find((r) => r.task_code === "A1040");
+  x.tables.PROJCOST = [{ cost_item_id: "1", task_id: t.task_id, proj_id: t.proj_id, cost_name: "Door supply", target_cost: "5000", act_cost: "0", remain_cost: "5000" }];
+  assert.deepEqual(c10(assess(x)).items.map((i) => i.code), ["A1180"]);
+  // expenses alone load a file: the note does not say it has nothing loaded
+  x.tables.TASKRSRC = [];
+  assert.equal(c10(assess(x)).note, "Open activities with duration and no resource assignment or expense.");
+});
