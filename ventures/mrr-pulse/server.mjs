@@ -6,12 +6,24 @@ import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { createStripe } from "./stripe.mjs";
-import { backfill, applySync, liveMap, summarize, cohorts, breakdown, forecast, concentration, monthsCsv, put } from "./metrics.mjs";
+import { backfill, applySync, liveMap, summarize, cohorts, breakdown, forecast, concentration, monthsCsv, put, has, customerKey } from "./metrics.mjs";
 import { renderDashboard } from "./page.mjs";
 import { notify, validWebhook } from "./alerts.mjs";
 import { pathToFileURL } from "node:url";
 
-export const newState = () => ({ months: {}, last: null, ever: {}, lastSyncAt: null, currency: null, cohorts: [], breakdown: null });
+export const newState = () => ({ months: {}, last: null, ever: {}, lastSyncAt: null, currency: null, cohorts: [], breakdown: null, keys: "customer" });
+
+// State saved before 2026-11-25 keyed `last` and `ever` by subscription id.
+// Re-key them by customer from this sync's subscription list, so the first sync
+// after an upgrade does not book every subscription as churned and every
+// customer as new. An id no longer listed stands for its own customer.
+export function rekeyByCustomer(st, subs) {
+  const keyOf = new Map(subs.map((s) => [s.id, customerKey(s)]));
+  const rekey = (o) => { const out = {}; for (const [id, v] of Object.entries(o || {})) { const k = keyOf.get(id) || id; put(out, k, (has(out, k) ? out[k] : 0) + v); } return out; };
+  if (st.last) st.last = rekey(st.last);
+  st.ever = rekey(st.ever);
+  st.keys = "customer";
+}
 
 const eq = (a, b) => { const x = Buffer.from(a), y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); };
 export function authorized(header, key) {
@@ -36,6 +48,7 @@ export async function sync(cfg) {
   const now = cfg.now();
   const cur = liveMap(subs, { countPastDue: cfg.countPastDue !== false });
   const st = cfg.state;
+  if (st.keys !== "customer") rekeyByCustomer(st, all);
   if (!st.last) {
     const b = backfill(subs, now, cfg.months || 12);
     st.months = Object.fromEntries(b.months.map((m) => [m.month, m]));

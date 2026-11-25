@@ -35,3 +35,4 @@ Free to use and source available (FSL-1.1-MIT). Not legal, tax, accounting or fi
 ## Source
 
 - [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pay-app-guides): FSL-1.1-MIT licensed.
+- [T&M ticket log](https://marisstella.app/pay-app-guides/tm-tickets.html): what a time-and-material ticket should show, and a log that prices each ticket at the markups you enter (none assumed), flags unsigned tickets and signed ones still on no change order, writes the pending change order request lines for the change order log, and drafts a change order request listing the figures. Runs in the browser; nothing is uploaded.
