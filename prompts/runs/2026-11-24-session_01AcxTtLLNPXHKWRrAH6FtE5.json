@@ -47,6 +47,10 @@
     {
       "file": "platform/ci/run_workflow_locally.py",
       "issue": "Refused to sweep while the run record's outcome was null; the record step comes after opening the PR, so the first sweep was wasted. The message did name --no-record-check."
+    },
+    {
+      "file": "platform/ci/main_health.py",
+      "issue": "Names red checks on main but not whether an open PR or a concurrent run is already fixing them; my link and description fixes both raced other runs' identical fixes."
     }
   ],
   "deviations": [
@@ -61,7 +65,7 @@
     "docs/posts/2026-11-24-what-construction-review-software-charges.md"
   ],
   "goal": null,
-  "notes": "Backlog P072 (solve, one step: 3 of the 12 missing rows). Metric: 8 -> 11 of 20 for-profit products have a row that bills monthly or says why; subscription rows 1 -> 4. main_health found check_md_links red (hardware-bets.md -> bets.md); my unlink conflicted with the same fix landed on main meanwhile, so I took main's. PR CI's site-builder job failed on 3 tests inherited from main. Fixed forward here: 4 meta descriptions over 160 characters (hearth-and-horizon the-stall-that-paid-double, cut off mid-quote; 3 ebay-fee-calculator reseller guides from PR #18706). The catch-all and imports count-line tests pass after merging main (fixed there). Checks: monetization.py --check ok; pytest portfolio/monetization + ledger/test_monetization 55 passed; check_md_links ok; check_posts ok; description-length.test 5/5; build.test catch-all/exception 4/4; run_workflow_locally --for-changes failed only on those same 3 site-builder tests before the fixes.",
+  "notes": "Backlog P072 (solve, one step: 3 of the 12 missing rows). Metric: 8 -> 11 of 20 for-profit products have a row that bills monthly or says why; subscription rows 1 -> 4. main_health found check_md_links red, and PR CI's site-builder job failed on 3 tests, all inherited from main. I fixed the dead link and 4 overlong meta descriptions here, but other runs landed the same fixes on main first, so each merge took main's version: duplicated effort, about 20 minutes. Checks after the final merge: monetization.py --check ok; pytest portfolio/monetization + ledger/test_monetization 55 passed; check_md_links ok; check_posts ok; description-length.test 5/5; promptctl validate ok.",
   "corrections": [],
   "redteam": null,
   "usage": {
