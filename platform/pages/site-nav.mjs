@@ -231,6 +231,9 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
     ]],
     ['Project', [
       ['about/', 'About &amp; press kit'],
+      ['privacy/', 'Privacy Policy'],
+      ['terms/', 'Terms of Use'],
+      ['cookies/', 'Cookie Policy'],
       ['feedback/', 'Report a problem'],
       ['custom-development/', 'Custom development'],
       ['hardware/', 'Hardware designs'],
