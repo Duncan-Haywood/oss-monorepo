@@ -100,6 +100,16 @@ application a due date. It then splits what is owed into *past due* and
 its due date. A job with no terms entered is left out of the forecast. The
 forecast does not guess a default. (Added 2026-11-25; still in development.)
 
+The waiver exchange has a second half that is easy to drop. The conditional
+waiver goes out with the application; once the check clears, the GC often
+wants the unconditional one for that payment, as the list above says. The build now tracks that second half. When an application is
+paid and a conditional waiver on it was sent, it says the unconditional waiver
+is next, on the application's page and in the cash view. It never asks while
+an application is unpaid or paid short. An unconditional waiver for money not
+yet received is the costly mistake from the list above. Utah's statute has no
+unconditional form, so a Utah job is never asked. (Added 2026-11-25; still in
+development.)
+
 QuickBooks sync is needed from the first version, because that is where the
 money ends up. Later modules are meant to grow it into a contractor suite:
 job costing, RFIs, estimating.
