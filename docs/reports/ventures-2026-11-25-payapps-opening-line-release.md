@@ -1,6 +1,10 @@
+---
+kind: milestone
+date: 2026-11-25
+---
 # PayApps: retainage released per line before a mid-job start (bet #1)
 
-Run of 2026-11-25, ventures/1. Private repository `Duncan-Haywood/private-monorepo`,
+Run of 2026-11-25, ventures/1. Private PR: Duncan-Haywood/private-monorepo#126. Private repository `Duncan-Haywood/private-monorepo`,
 `apps/payapps`; ROADMAP Next item "Mid-job start, part 3: per-line retainage released
 before the move" (claim `claim/payapps/mid-job-start-part-3-line-release`).
 
