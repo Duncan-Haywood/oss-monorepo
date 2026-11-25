@@ -36,8 +36,9 @@ Once the landed notes were gone the cap still bit: by the evening of
 13 sessions in two days (friction_rank.py) said recording one result meant
 deleting someone else's open item ("the cap forces silent loss of open
 items"). `--park ITEM` makes that cut a move: it takes ITEM out of `next:` and
-appends it, dated, to the venture's own `ventures/<v>/NEXT.md` under
-PARK_HEADING, so `next:` keeps the items most worth starting and nothing open
+appends it, dated, to the venture's own `ventures/<v>/NEXT.md` (or
+`portfolio/flagships/<v>/NEXT.md` for a flagship whose code is private, see
+notes_dir) under PARK_HEADING, so `next:` keeps the items most worth starting and nothing open
 is lost. `next:` should say the rest lives there (the tool adds that pointer
 once if it fits).
 
@@ -1132,17 +1133,40 @@ def buildable_history(args, text: str, current: str | None, mine: tuple[str, ...
         print(f"dry run: {args.venture}.buildable would be {n}{cap_note('buildable', n)}; "
               f"{len(history)} to HISTORY.md; nothing written")
         return 0
-    hist_dest = args.ventures_dir / args.venture / "HISTORY.md"
-    if not hist_dest.parent.is_dir():
-        raise ValueError(f"no venture folder {hist_dest.parent}")
+    hist_dest = notes_dir(args, args.venture) / "HISTORY.md"
     hist_out = history_text(hist_dest.read_text() if hist_dest.exists() else None,
                             args.venture, history, datetime.date.today().isoformat(),
                             BUILDABLE_HISTORY_HEADING)
     args.file.write_text(out)
+    hist_dest.parent.mkdir(parents=True, exist_ok=True)
     hist_dest.write_text(hist_out)
-    print(f"moved {len(history)} result(s) to {hist_dest.relative_to(hist_dest.parents[2])}")
+    print(f"moved {len(history)} result(s) to {_shown(hist_dest)}")
     print(f"wrote {args.venture}.buildable: {n}{cap_note('buildable', n)}")
     return 0
+
+
+def notes_dir(args, venture: str) -> Path:
+    """The folder that holds a flagship's NEXT.md and HISTORY.md.
+
+    ventures/<v>/ when the venture has a public folder; otherwise
+    portfolio/flagships/<v>/, created on write. Why: payapps and the other
+    bets live in private-monorepo, so ventures/payapps/ does not exist, and
+    --park, --history and an over-cap --replace refused with "no venture
+    folder" (three run records on 2026-11-25), leaving hand-edited YAML as the
+    only way to fit the row. The notes stay public, like the row itself.
+    """
+    public = args.ventures_dir / venture
+    if public.is_dir():
+        return public
+    return args.notes_dir / venture
+
+
+def _shown(path: Path) -> str:
+    """A written path as a reader would type it (repo-relative when it can be)."""
+    try:
+        return str(path.relative_to(REPO_ROOT))
+    except ValueError:
+        return str(path.relative_to(path.parents[2]))
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1170,7 +1194,8 @@ def _main(argv: list[str]) -> int:
     ap.add_argument("--landed", action="store_true",
                     help="list the clauses that report landed work, longest first (cut candidates)")
     ap.add_argument("--park", action="append", metavar="ITEM",
-                    help="move an open item out of `next:` into ventures/<v>/NEXT.md (repeatable; "
+                    help="move an open item out of `next:` into ventures/<v>/NEXT.md, or "
+                         "portfolio/flagships/<v>/NEXT.md for a private-code flagship (repeatable; "
                          "combines with --replace/--set, the cap is checked after parking)")
     ap.add_argument("--history", action="append", metavar="TEXT",
                     help="move a finished result (any span of the unfolded `next:`, or of `buildable:` "
@@ -1189,6 +1214,8 @@ def _main(argv: list[str]) -> int:
                     help="say what a `next:` edit would park and how long the row would be; write nothing")
     ap.add_argument("--file", type=Path, default=FLAGSHIPS_PATH)
     ap.add_argument("--ventures-dir", type=Path, default=REPO_ROOT / "ventures", help=argparse.SUPPRESS)
+    ap.add_argument("--notes-dir", type=Path, default=REPO_ROOT / "portfolio" / "flagships",
+                    help=argparse.SUPPRESS)
     args = ap.parse_args(argv)
     text = args.file.read_text()
 
@@ -1294,7 +1321,7 @@ def _main(argv: list[str]) -> int:
                     print(f"{'would park' if args.dry_run else 'parking'} {len(auto)} item(s), "
                           f"{sum(len(i) + 2 for i in auto)} chars: `next:` was {before} of "
                           f"{FLAGSHIP_NEXT_MAX} after the edit; {how}", file=sys.stderr)
-                readme_path = args.ventures_dir / args.venture / "README.md"
+                readme_path = notes_dir(args, args.venture) / "README.md"
                 readme = readme_path.read_text() if readme_path.exists() else ""
                 for item in auto:
                     if reads_result(item, readme):
@@ -1312,9 +1339,7 @@ def _main(argv: list[str]) -> int:
                       f"{cap_note('next', len(shown))}; {len(parks)} item(s) to NEXT.md, "
                       f"{len(history)} to HISTORY.md; nothing written")
                 return 0
-            hist_dest = args.ventures_dir / args.venture / "HISTORY.md"
-            if history and not hist_dest.parent.is_dir():
-                raise ValueError(f"no venture folder {hist_dest.parent}")
+            hist_dest = notes_dir(args, args.venture) / "HISTORY.md"
             hist_out = (history_text(hist_dest.read_text() if hist_dest.exists() else None,
                                      args.venture, history, datetime.date.today().isoformat())
                         if history else None)
@@ -1324,26 +1349,24 @@ def _main(argv: list[str]) -> int:
                 out = set_value(text, args.venture, "next", new, mine)
                 args.file.write_text(out)
                 if hist_out is not None:
+                    hist_dest.parent.mkdir(parents=True, exist_ok=True)
                     hist_dest.write_text(hist_out)
-                    print(f"moved {len(history)} result(s) to "
-                          f"{hist_dest.relative_to(hist_dest.parents[2])}")
+                    print(f"moved {len(history)} result(s) to {_shown(hist_dest)}")
                 print(f"wrote {args.venture}.next: {len(new)}{cap_note('next', len(new))}")
                 return 0
             args.park = parks
             new = with_pointer(new)
             out = set_value(text, args.venture, "next", new, mine)
-            dest = args.ventures_dir / args.venture / "NEXT.md"
-            if not dest.parent.is_dir():
-                raise ValueError(f"no venture folder {dest.parent}")
+            dest = notes_dir(args, args.venture) / "NEXT.md"
             parked = park_text(dest.read_text() if dest.exists() else None, args.venture,
                                args.park, datetime.date.today().isoformat())
             args.file.write_text(out)
+            dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_text(parked)
             if hist_out is not None:
                 hist_dest.write_text(hist_out)
-                print(f"moved {len(history)} result(s) to "
-                      f"{hist_dest.relative_to(hist_dest.parents[2])}")
-            print(f"parked {len(args.park)} item(s) in {dest.relative_to(dest.parents[2])}; "
+                print(f"moved {len(history)} result(s) to {_shown(hist_dest)}")
+            print(f"parked {len(args.park)} item(s) in {_shown(dest)}; "
                   f"wrote {args.venture}.next: {len(new)}{cap_note('next', len(new))}")
             if PARK_POINTER not in new:
                 print(f"note: no room for the pointer {PARK_POINTER!r}; park one more item "
