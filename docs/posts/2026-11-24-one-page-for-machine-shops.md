@@ -314,6 +314,21 @@ Nothing on the page is a forecast or a benchmark against other shops. It is
 a count of the shop's own log, visible to its own members, and never shown
 on a quote PDF or email.
 
+Later the same day the page gained three things shop owners ask for next:
+
+- **Win rate month by month.** One bar per calendar month of the decision
+  date, oldest first, with months that had no decisions shown as empty rather
+  than skipped, so a quiet August reads as a gap and not as a missing row.
+- **By estimator.** Each quote counts under the person who wrote it (the same
+  person who gets the day-before expiry reminder). Useful for spotting who
+  quotes the jobs that come back, not for ranking people on five quotes:
+  small rows still say "few".
+- **Download CSV.** One row per decided quote in the chosen period: quote
+  number, customer, estimator, won/lost/expired, date, quoted total, awarded
+  amount, markup on cost, lost reason and part numbers. It opens in Excel or
+  Google Sheets as numbers, ready for a pivot table, and a customer name that
+  starts with "=" is written as text so the sheet never runs it as a formula.
+
 ## Update, 25 November 2026: routings you set up once per part family
 
 Most of a job shop's quotes are variations on parts it has made before:
