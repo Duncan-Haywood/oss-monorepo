@@ -151,6 +151,10 @@ def render(alerts: list[dict]) -> dict[str, str]:
         f"(`{BRANCH_PREFIX}<n>`) does not exist; its file says how.",
         "",
     ]
+    # The alerts mirror the last *completed* analysis of main, which lags merges by about
+    # an hour (a full scan takes that long and newer pushes queue behind it). On
+    # 2026-11-25 the queue listed 1,243 alerts, 1,189 in files PR 18676 had already changed
+    # (PR 18806 first named the commit; docs/reports/2026-11-25-security-queue-stale-scan.md).
     seen = Counter(s["commit"] for s in todo if s["commit"])
     if seen:
         sha, _ = seen.most_common(1)[0]

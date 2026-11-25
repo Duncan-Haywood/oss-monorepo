@@ -132,6 +132,33 @@ the old code would have made the same 3.5 million system calls; most of the
 Details and the next items on the list:
 [`docs/history/ci-perf-2026-10-24.md`](/docs/history/ci-perf-2026-10-24.md).
 
+## A month later: half of CI was copying files
+
+On 2026-11-25 a reading of 1,000 workflow runs came to 806 job-minutes.
+**374 of them, 46%, were `git checkout`.** The repository now holds 51,000
+files, and dozens of small product test workflows each copied all of them
+to run a few seconds of tests in one directory. The median such job spent
+43 seconds checking out and under 10 seconds on everything else.
+
+The fix is two lines of configuration per workflow: a blob-less, sparse
+checkout of that product's directory and `.github`. A configuration change
+still has to give the same answers, and "the tests still pass" is a weaker
+check than it sounds, because a test that skips itself when a file is
+missing passes either way. So we wrote a small script that runs each
+workflow's steps in a full tree and in a sparse one, and compares the exit
+codes and the test counts: tests run, passed, skipped.
+
+It earned its keep. Of 66 candidate workflows it rejected six: one product's
+browser suite ran 2,328 tests instead of 2,332, another's site suite 41
+instead of 48, and others reached into shared code outside their folder.
+Those keep the full checkout. 44 matched test for test and now check out
+only what they read: their median checkout went from 43 seconds to 2, and
+the median job from about 50 seconds to 8. Sixteen more could not be checked in this container
+and were left alone.
+
+Notes and the ranked list of what is left:
+[`docs/history/ci-perf-2026-11-25-venture-workflow-sparse.md`](/docs/history/ci-perf-2026-11-25-venture-workflow-sparse.md).
+
 ## The general lesson
 
 "Rewrite it in Rust" assumes the time goes into your own code, running

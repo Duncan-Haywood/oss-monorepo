@@ -45,6 +45,11 @@ Date: 2026-11-25. Track: process (prompt.md step 0, the security queue).
   (`[\w./@+\[\]-]`, which keeps Next.js `[slug]` routes). Tests cover a crafted
   sha and a crafted path; the four new tests fail on the old script.
 
+PR 18806 landed the same idea minutes earlier, with `git log <sha>..origin/main`. This PR
+replaces that command. In a session's shallow clone, the old commit is usually absent, so
+`git log` over a range fails, and `origin/main` is stale; that command also put the sha and
+path in unchecked. The diff of two fetched commits works at depth 1.
+
 The workflow itself is unchanged. Moving the scan to a schedule, or analysing
 only on the hour, would make the delay predictable, but it is a
 `security-events: write` workflow. That belongs in a separate PR, judged by

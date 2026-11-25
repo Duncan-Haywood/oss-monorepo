@@ -1,0 +1,158 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVM5guNG9qWJ2WzZ5VB",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T00:55:51Z",
+  "ended": "2026-11-25T01:05:54Z",
+  "wall_minutes": 10.37,
+  "tokens_in": 6737990,
+  "tokens_out": 35394,
+  "cost_usd": 3.1032,
+  "tool_calls": 61,
+  "task": "Explore: free CMMC Level 1 self-assessment page (flagship bet 4, item 3)",
+  "projects": [
+    "machine-shop-guides",
+    "cmmc"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18781",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Wrote FAR (b)(1)(xv) from memory as 'periodic and real-time scans of the information system'; the verbatim check against GSA's source caught it before commit",
+      "fixed": true
+    },
+    {
+      "what": "First post draft had seo_title 73 chars and tag 'lead-magnet' vs existing 'lead-magnets'; run_workflow_locally's post check caught both",
+      "fixed": true
+    },
+    {
+      "what": "First CSV escape defused plain negative numbers too (check_csv_formula_guard flagged l1.mjs in CI's changed-ventures job); fixed with the plain-number exemption sprs.mjs uses, plus a test",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/machine-shop-guides/SOURCES.md",
+      "issue": "acquisition.gov, ecfr.gov, govinfo.gov and dodcio.defense.gov are blocked by the proxy (curl CONNECT 403; WebFetch ENOTFOUND). raw.githubusercontent.com/GSA/GSA-Acquisition-FAR serves the official FAR DITA source and works: worth naming in cloud-session.md 'Outbound hosts' for any FAR clause text."
+    },
+    {
+      "file": "platform/ci/test_check_main_guard_last.py",
+      "issue": "Fails on main itself: platform/security/test_scan.py (from the AWS consolidation merge e98ec5cbb) is not in check_main_guard_last.KNOWN. run_workflow_locally reports it under ventures-tests although no PR workflow runs it; control-plane file, left for a process run."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes reports priv-codeql gate and priv-security-gate Verdict as FAILED locally because they need CI-only inputs (SARIF, PR data); they read as real failures until you open the log."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "Flags 'Auth, session or payment code changed' on l1-data.mjs, a data file whose requirement text contains the word 'authenticate'; a content keyword match, not code."
+    },
+    {
+      "file": ".github/workflows/ventures-tests.yml",
+      "issue": "changed-ventures fails on main-wide unwired checks this PR does not touch: check_main_guard_last (platform/security/test_scan.py) and platform/aws/stacks/saas-starter/runtime unit/e2e tests (fail on main too, from the AWS consolidation merge). That hides a PR's own real finding (here check_csv_formula_guard) among inherited ones."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-25-cmmc-level-1-self-assessment-checklist.md"
+  ],
+  "goal": "North star $10k MRR: front door (lead magnet) for flagship bet 4, the CMMC workspace",
+  "notes": "Idea: CMMC Level 1 self-assessment checklist in machine-shop-guides, the 'free self-assessment page (front door)' named as cmmc item 3 in flagships.yaml. Security queue empty; IDEAS.md and website requests empty; routed explore by weighted draw. The 15 FAR texts were verified 15/15 identical against GSA's FAR DITA source and hash-pinned. NIST cross-references: 2 of 15 confirmed via search excerpts, 13 transcribed (SOURCES.md says so). N/A handling deliberately not encoded. Verification: venture node tests 45/45; Playwright at 390px (all-met passes, one not-met fails, reload persists, CSV downloads, no overflow, no console errors); check_jsonld/dom_ids/empty_controls/fragment_links/local_assets/post_links/check_posts clean; run_workflow_locally --for-changes 11/14, the 3 failures being CI-only inputs (codeql SARIF, security-gate PR data) and the main-wide test_check_main_guard_last failure. No separate agent doc: SOURCES.md and the flagship row carry what the next run needs. CI: all required checks green except changed-ventures, whose only finding from this PR (CSV guard) is fixed; its remaining failures are inherited from main.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6ea1686b-6e07-557b-b42f-c4a2a4cd66af",
+    "transcripts": 1,
+    "first": "2026-11-25T00:55:51Z",
+    "last": "2026-11-25T01:06:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 114,
+        "output": 35394,
+        "thinking": 4761,
+        "cache_read": 6603609,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134267,
+        "api_equivalent_usd": 3.1032,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 114,
+      "output": 35394,
+      "thinking": 4761,
+      "cache_read": 6603609,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134267,
+      "api_equivalent_usd": 3.1032,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 47,
+      "Write": 5,
+      "WebSearch": 3,
+      "ToolSearch": 2,
+      "WebFetch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.37,
+      "active_minutes": 9.15,
+      "model_minutes": 6.03,
+      "tool_minutes": 3.13,
+      "waiting_on_human_minutes": 1.21,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "researching and verifying 15 clause texts plus a tested checklist page, worksheet and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 193.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

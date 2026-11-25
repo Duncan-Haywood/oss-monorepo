@@ -176,3 +176,30 @@ export const SAMPLE = {
     { item: "CO-1", description: "Added EV charger circuits", scheduled: "8500", previous: "0", thisPeriod: "4250", stored: "0" },
   ],
 };
+
+// QuickBooks has no retainage field on an invoice, so the usual workaround is
+// a "Retainage" item mapped to a Retainage Receivable asset account: a
+// negative line holds it back, a positive line on a later invoice bills it.
+// Given one pay application's figures, return the invoice lines to type.
+//   billed: work completed this period plus stored materials this period
+//   rate: retainage percent ("10" or "10%"), or pass held directly
+//   released: retainage being billed (released) on this invoice
+export function quickbooksLines({ billed, rate = "10", held, released } = {}) {
+  const errors = [];
+  const b = toCents(billed);
+  const r = toRate(rate);
+  const rel = toCents(released);
+  if (Number.isNaN(b)) errors.push("The amount billed this period could not be read.");
+  if (Number.isNaN(r) || r < 0 || r > 1) errors.push("Retainage must be between 0% and 100%.");
+  if (Number.isNaN(rel) || rel < 0) errors.push("Retainage released must be zero or a positive amount.");
+  let h = held === undefined || held === "" ? null : toCents(held);
+  if (Number.isNaN(h)) errors.push("The retainage held could not be read.");
+  if (errors.length) return { errors, lines: [], total: 0 };
+  if (h === null) h = Math.round(b * r);
+  const lines = [];
+  if (b) lines.push({ item: "Work billed this period", amount: b, account: "Income (your usual sales item)" });
+  if (h) lines.push({ item: "Retainage", amount: -h, account: "Retainage Receivable (Other Current Assets)" });
+  if (rel) lines.push({ item: "Retainage", amount: rel, account: "Retainage Receivable (Other Current Assets)" });
+  const total = lines.reduce((s, l) => s + l.amount, 0);
+  return { errors, lines, total, retainageChange: h - rel };
+}
