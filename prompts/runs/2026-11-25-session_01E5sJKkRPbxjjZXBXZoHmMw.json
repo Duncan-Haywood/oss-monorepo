@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKkRPbxjjZXBXZoHmMw",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T02:09:06Z",
+  "ended": "2026-11-25T02:13:07Z",
+  "wall_minutes": 4.24,
+  "tokens_in": 2891023,
+  "tokens_out": 15111,
+  "cost_usd": 1.5426,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18808",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "origin/security-alerts:alerts/1.md",
+      "issue": "The queue listed 1,243 alerts from a scan of e98ec5cbb, older than PR 18676's fixes; 1,189 were in files already changed. Nothing in the alert file said which commit was scanned, so a session would redo fixes. Fixed in this PR (step 0)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "platform/security/risk_review.py crashes with CalledProcessError when origin/main is a depth-1 fetch (merge-base fails); a git fetch --deepen=50 origin main was needed first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Step 0 says take the top alert and fix it. Alert #1 was already fixed on main (PR 18676), and so were 1,189 of 1,243 queued alerts.",
+      "did": "Fixed the queue generator so alerts name their scan commit and get a still-there check, instead of re-fixing code. Routed --track process for the record.",
+      "result": "PR 18808"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No customer post: this is internal security-queue tooling with no customer-facing angle.",
+      "did": "Wrote an agent doc in docs/reports/ instead.",
+      "result": "docs/reports/2026-11-25-security-queue-stale-scan.md"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-25-security-queue-stale-scan.md"
+  ],
+  "goal": null,
+  "notes": "CodeQL main run 45521750254 (e98ec5cbb) took 64 min; 12 later main runs were cancelled while pending. Run 45529454613 on 5f857bb81 (after PR 18676) was in progress at about 02:10 UTC, so the queue should shrink to about 54 when it finishes. Possible false positives left open: js/incomplete-hostname-regexp in test strings and XML namespace URIs (see report). Tests: test_security_alerts 16 OK. risk_review: blocked on nothing.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "56d732b0-dccf-5cc7-ad4d-053ac30fe4bb",
+    "transcripts": 1,
+    "first": "2026-11-25T02:09:06Z",
+    "last": "2026-11-25T02:13:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 65,
+        "output": 15111,
+        "thinking": 3930,
+        "cache_read": 2806100,
+        "cache_write_5m": 0,
+        "cache_write_1h": 84858,
+        "api_equivalent_usd": 1.5426,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 65,
+      "output": 15111,
+      "thinking": 3930,
+      "cache_read": 2806100,
+      "cache_write_5m": 0,
+      "cache_write_1h": 84858,
+      "api_equivalent_usd": 1.5426,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 29,
+      "mcp__github__actions_list": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.24,
+      "active_minutes": 4.24,
+      "model_minutes": 3.59,
+      "tool_minutes": 0.65,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
