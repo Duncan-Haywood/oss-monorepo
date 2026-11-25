@@ -71,7 +71,7 @@ const ALIASES = {
 };
 
 const r2 = (n) => Math.round(n * 100) / 100;
-const norm = (h) => String(h ?? "").replace(/^﻿/, "").trim().toLowerCase().replace(/\s+/g, " ");
+const norm = (h) => String(h ?? "").replace(/^\uFEFF/, "").trim().toLowerCase().replace(/\s+/g, " ");
 
 /** True when a header row is Depop's sales export. */
 export function isDepopHeader(cells) {
