@@ -192,3 +192,18 @@ class Applicable(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ConcatenatedJson(unittest.TestCase):
+    def test_one_document_unchanged(self):
+        self.assertEqual(scan._loads_concatenated('{"a": 1}'), {"a": 1})
+        self.assertEqual(scan._loads_concatenated('[{"a": 1}, {"b": 2}]'), [{"a": 1}, {"b": 2}])
+
+    def test_back_to_back_documents_become_a_list(self):
+        text = '{"check_type": "terraform", "results": {}}\n{"check_type": "dockerfile", "results": {}}\n'
+        docs = scan._loads_concatenated(text)
+        self.assertEqual([d["check_type"] for d in docs], ["terraform", "dockerfile"])
+
+    def test_garbage_still_raises(self):
+        with self.assertRaises(ValueError):
+            scan._loads_concatenated('{"a": 1} not-json')
