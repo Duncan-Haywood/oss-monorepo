@@ -71,8 +71,8 @@ load).
   and that every name each handler takes from a loader is exported by one of its
   modules. A mutation (`looksLikeSquare` renamed in the handler) fails it with
   `shiftImporters lacks looksLikeSquareX`.
-  `python3 platform/ci/run_venture_tests.py shift-roster-builder`: see the run
-  record's `notes`.
+  `python3 platform/ci/run_venture_tests.py shift-roster-builder`: 786 tests
+  pass (220 s), plus the site page checks.
 
 ## After
 

@@ -3,7 +3,7 @@ title: "The staff schedule page stopped downloading importers most visitors neve
 seo_title: "Faster free staff scheduler: importers load on demand"
 date: 2026-11-25
 tags: [performance, shift-roster-builder, javascript, web-performance]
-description: "A quarter of the Shift Roster Builder's JavaScript only reads 7shifts, Deputy, Square and When I Work files. It now loads on the first file you pick, and the page is ready about 14% sooner on a slow phone link."
+description: "The free staff scheduler now loads its 7shifts, Deputy, Square and When I Work importers only when you pick a file, and is ready 14% sooner on slow links."
 ---
 
 The [Shift Roster Builder](https://marisstella.app/shift-roster-builder/) builds a week's staff schedule in your
