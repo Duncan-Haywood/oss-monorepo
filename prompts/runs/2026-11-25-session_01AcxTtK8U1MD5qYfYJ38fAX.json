@@ -35,6 +35,10 @@
     {
       "file": "origin/security-alerts:QUEUE.md",
       "issue": "The top 7 alerts are false positives that were already documented in docs/reports/2026-11-25-security-queue-false-positives.md, but the queue still lists them first. Every run has to re-read the doc to know that. The queue has no way to mark 'checked, awaiting owner dismissal'."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "A parallel session (PR 18838) triaged the same alerts in the same doc while this one ran, because claim branches exist only for alerts being fixed, not for triage. Merged main and kept both passes; #849 was moved from 'by design' to fixed."
     }
   ],
   "deviations": [
@@ -55,7 +59,7 @@
     "docs/reports/2026-11-25-security-queue-false-positives.md (third pass)"
   ],
   "goal": null,
-  "notes": "node --test platform/agents/tools.test.mjs: 21 pass, 0 fail. node --test ventures/pay-app-guides/template.test.mjs: 5 pass. False positives for owner dismissal: #741, #960, #968, #969, #1049, #1050, #1086 (reasons in the doc).",
+  "notes": "node --test platform/agents/tools.test.mjs: 21 pass, 0 fail. node --test ventures/pay-app-guides/template.test.mjs: 5 pass. False positives for owner dismissal: #741, #960, #968, #969, #1049, #1050, #1086 (reasons in the doc). Local portfolio-validate failed on the payapps flagship next: cap; main had already fixed it, so main was merged in. After the merge, VENTURE.yaml validation passes.",
   "corrections": [],
   "redteam": null,
   "usage": {
