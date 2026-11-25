@@ -90,6 +90,16 @@ does four jobs together:
 4. **Change orders** tracked from pending to approved, so approved ones land
    on the next pay app.
 
+A fifth job grew out of the first four: **knowing which money is late.** An
+unpaid application is not late just because it is 30 days old. It is late once
+the subcontract's payment clause has run out. Under net 45 terms, a 40-day-old
+application is on time. Under net 15 terms, a 20-day-old one is already late.
+So the cash view in the build takes each job's pay terms and gives every unpaid
+application a due date. It then splits what is owed into *past due* and
+*expected in the next 30 days*, and names the most overdue application with
+its due date. A job with no terms entered is left out of the forecast. The
+forecast does not guess a default. (Added 2026-11-25; still in development.)
+
 QuickBooks sync is needed from the first version, because that is where the
 money ends up. Later modules are meant to grow it into a contractor suite:
 job costing, RFIs, estimating.
