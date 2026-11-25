@@ -132,6 +132,15 @@
       ],
       "owner": "shift-roster",
       "reason": "shift-roster stack: API Gateway custom domain for the hosted team hub (api_domain_target, through extra_alias_records)"
+    },
+    {
+      "name": "listing-docs",
+      "types": [
+        "A",
+        "AAAA"
+      ],
+      "owner": "listing-lens",
+      "reason": "listing-lens stack: API Gateway custom domain for the Listing Lens private docs (replaces the listing-lens-docs Pages project)"
     }
   ]
 }

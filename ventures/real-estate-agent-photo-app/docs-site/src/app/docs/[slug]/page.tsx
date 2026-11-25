@@ -5,16 +5,18 @@ import { DocsShell } from "@/components/DocsShell";
 import { Markdown } from "@/components/Markdown";
 import { getDocBySlug, getDocPages, getDocSlugs } from "@/lib/docs";
 
+// Next 15+ passes params as a Promise; reading params.slug directly gave undefined, so every doc page was built as
+// "Page not found" (found 2026-11-25 while moving the site to AWS).
 type DocPageProps = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
 export function generateStaticParams() {
   return getDocSlugs().map((slug) => ({ slug }));
 }
 
-export function generateMetadata({ params }: DocPageProps) {
-  const doc = getDocBySlug(params.slug);
+export async function generateMetadata({ params }: DocPageProps) {
+  const doc = getDocBySlug((await params).slug);
   if (!doc) {
     return { title: "Not Found" };
   }
@@ -26,8 +28,8 @@ export function generateMetadata({ params }: DocPageProps) {
   };
 }
 
-export default function DocPage({ params }: DocPageProps) {
-  const doc = getDocBySlug(params.slug);
+export default async function DocPage({ params }: DocPageProps) {
+  const doc = getDocBySlug((await params).slug);
   if (!doc) {
     notFound();
   }
