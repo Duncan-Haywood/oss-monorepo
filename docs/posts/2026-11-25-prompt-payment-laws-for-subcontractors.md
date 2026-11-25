@@ -1,6 +1,6 @@
 ---
 title: "How many days a GC has to pay you, read from seven states' prompt payment laws"
-seo_title: "Prompt payment laws for subcontractors by state (TX, CA, IL, NC, PA, VA, FL)"
+seo_title: "Prompt payment laws for subcontractors: 7 states, deadlines, interest"
 date: 2026-11-25
 tags: [for-customers, payapps, construction, prompt-payment, pay-app-guides]
 description: "Texas gives a GC 7 days, Illinois 15, Pennsylvania 14 after your invoice. Prompt payment deadlines and interest in seven states, with a calculator."
