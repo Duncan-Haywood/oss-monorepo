@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqydWEhfxV7Sq2PFT85D",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T18:39:21Z",
+  "ended": "2026-11-25T18:44:58Z",
+  "wall_minutes": 5.77,
+  "tokens_in": 2658525,
+  "tokens_out": 10319,
+  "cost_usd": 1.2501,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": 19059,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "A 2026-11-25 friction report said portfolio/monetization/allocate.py does not exist. The file is portfolio/router/allocate.py, which cloud-session.md names correctly, so that report was a misread and not a doc fault."
+    },
+    {
+      "file": "platform/ci/friction_rank.py",
+      "issue": "--json gives one example per cluster. To read all ten perf reports I had to grep prompts/runs by hand; a --show N flag that prints every report in a cluster would have saved that step."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Edited the perf champion prompt in place, not as a candidate version, because the change fixes factual pointers (tool names, stale backlog rows) rather than changing behaviour. #18754 did the same.",
+      "did": "in-place edit of prompts/perf/prompt-0.md",
+      "result": "validate and the prompt tests pass; the effect will show in friction counts for perf/prompt-0.md after 2026-11-25"
+    },
+    {
+      "file": "prompt.md",
+      "why": "No post: the change is to agent instructions only and would not interest a reader; the commit and PR hold the evidence.",
+      "did": "no post",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Security queue empty; ideas inbox empty. Backlog had owner rows only, so I used critique mode. main_health: 328/328. friction_rank cluster 3 (perf/prompt-0.md, 10 sessions) fixed. Backlog ids touched: P083 renumbered to P085 (duplicate id), P063 and P064 referenced. Baseline metric: 10 perf/prompt-0.md friction reports in 3 days (2026-11-22..25).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ca1e952b-6405-537b-8290-a4d7addebf47",
+    "transcripts": 1,
+    "first": "2026-11-25T18:39:21Z",
+    "last": "2026-11-25T18:45:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 67,
+        "output": 10319,
+        "thinking": 2499,
+        "cache_read": 2592845,
+        "cache_write_5m": 0,
+        "cache_write_1h": 65613,
+        "api_equivalent_usd": 1.2501,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 67,
+      "output": 10319,
+      "thinking": 2499,
+      "cache_read": 2592845,
+      "cache_write_5m": 0,
+      "cache_write_1h": 65613,
+      "api_equivalent_usd": 1.2501,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.77,
+      "active_minutes": 5.77,
+      "model_minutes": 1.77,
+      "tool_minutes": 4.0,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "read 10 friction reports, edit a prompt section, renumber a file",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 80.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

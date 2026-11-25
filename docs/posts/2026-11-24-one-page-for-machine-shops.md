@@ -332,6 +332,63 @@ the API cleared that line's part revision and description. The app's own
 editor always sends every field, so users were not affected, but anything
 calling the API directly was. It is fixed, and a test now covers it.
 
+## Update, 25 November 2026: RFQs sent straight to the shop's inbox
+
+Most RFQs arrive as email: a buyer's note, a PDF drawing or three, sometimes
+a STEP model. Until now the estimator copied the text into the quoting app
+and uploaded each attachment by hand. The RFQ-to-quote app (bet #2, still in
+private development, not yet on sale) now gives each shop its own address.
+Forward an RFQ to it, or give it to customers, and the message lands in the
+shop's RFQ inbox with its drawings attached.
+
+- **What comes across.** The subject, who sent it, the text of the email
+  (an HTML-only email is turned into plain text), and the attachments the
+  app can use: PDF drawings, text, images and CAD files (STEP, IGES, STL,
+  DXF), up to ten files of 15 MB each. A forwarded message attached whole
+  is opened too, so the customer's original note and drawings come along.
+- **What doesn't, and says so.** A Word file, an oversized drawing or an
+  Outlook `winmail.dat` is not stored, and the RFQ lists each one with the
+  reason, so the estimator knows to ask for it again. Small logos in email
+  signatures are dropped.
+- **Nothing is read by AI until a person asks.** An emailed RFQ waits in the
+  inbox until an estimator presses "Extract with AI", the same as a pasted
+  one. Someone who finds the address can't use up the shop's monthly RFQ
+  allowance, and a spoofed email is only an inbox item a person looks at.
+- **One email, one RFQ.** If the mail system delivers the same message
+  twice, the shop still gets one RFQ.
+- **The address can be replaced.** An admin can replace the address at any
+  time, and mail to the old one is then refused. They can also turn it off.
+  Each shop accepts up to 50 emailed RFQs a day, so a flood of junk can't
+  bury the real ones.
+
+The address only starts working once the app is deployed and the receiving
+domain is routed to it. Until then the RFQs page doesn't show the option at
+all.
+
+## Update, 25 November 2026: change a routing without starting over
+
+Routing templates were save-and-apply only: to change a cycle time or add a
+deburr step, an estimator deleted the routing and saved it again from a quote
+line. The RFQ-to-quote app (bet #2, still in private development, not yet on
+sale) now has a **Routings** page where a routing is edited in place.
+
+- **Everything on one screen.** Rename it, retag its part family, change any
+  operation's machine, label, setup or cycle minutes, add, remove or reorder
+  operations, and tick its finishing steps.
+- **Or update it from a quote.** When a line's operations have drifted from
+  the routing it started from, *Update routing from this line* writes the
+  line back into the routing. The button only appears when the two differ.
+- **Old quotes don't move.** A quote that already used the routing keeps its
+  own copy of the operations. An edit changes only the next line the routing
+  is applied to, and that line is still priced from today's rate card.
+- **Retired machines stay visible.** If a routing names a machine the shop
+  has since retired or deleted, the editor shows it and flags it rather than
+  quietly swapping in another machine. A deleted one must be replaced before
+  the edit can be saved.
+- **Two estimators can't overwrite each other.** If someone else saved the
+  routing after you opened it, your save is refused with a message to reload,
+  instead of silently undoing their change.
+
 ## Update, 25 November 2026: the customer sees what changed, and nothing more
 
 The "what changed" view above was for the estimator. Buyers ask the same
