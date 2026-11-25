@@ -3,6 +3,8 @@
 // quantities), and write the unconverted signed tickets as change order request lines that the
 // change order log (colog.mjs) reads. Pure functions, no I/O. Money is integer cents; dates are
 // whole UTC days. No markup is assumed: blank is 0%.
+// Every exported CSV cell goes through colog.mjs csvCell, the formula-injection guard (a cell
+// starting =, +, -, @, tab or CR gets a leading apostrophe; tmlog.test.mjs checks it).
 import { parseCsv, parseMoney, parseDate, dayText, dollars, csvCell } from "./colog.mjs";
 
 export const TYPES = ["labor", "material", "equipment", "sub", "other"];
