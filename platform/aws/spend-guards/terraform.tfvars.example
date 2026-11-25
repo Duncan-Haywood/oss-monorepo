@@ -1,0 +1,25 @@
+# Copy to terraform.tfvars (untracked) or set as TF_VAR_* in the aws-prod
+# environment. Dollar figures are a starting point, not a recommendation: set
+# them to what each account should cost in a normal month plus headroom.
+deploy_role_arn = "arn:aws:iam::MANAGEMENT_ACCOUNT_ID:role/gha-oss-monorepo-spend-guards-apply"
+
+# alert_emails comes from TF_VAR_alert_emails='["you@example.com"]'; it is
+# personal data and never committed.
+
+org_monthly_limit_usd = 100
+
+accounts = {
+  apps         = { monthly_limit_usd = 40, hard_action = "scp", kill_switch = true }
+  sandbox      = { monthly_limit_usd = 10, hard_action = "scp", kill_switch = true }
+  # Holds DNS, the site and the edge: a stop here takes the public surface
+  # down, so it alerts and denies new spend but nothing is stopped.
+  shared-infra = { monthly_limit_usd = 25, hard_action = "scp", kill_switch = false }
+  # Paddle's webhook receiver must keep recording payments: alerts only.
+  payments     = { monthly_limit_usd = 10, hard_action = "none", kill_switch = false }
+  # Logs and security tooling must never be stopped: alerts only.
+  log-archive  = { monthly_limit_usd = 10, hard_action = "none", kill_switch = false }
+  security     = { monthly_limit_usd = 15, hard_action = "none", kill_switch = false }
+}
+
+# Ids come from the organization stack's `account_ids` output:
+# org_state = { bucket = "REPLACE-with-bootstrap-state-bucket", key = "stacks/org/terraform.tfstate" }

@@ -1,0 +1,8 @@
+# tofu init -backend-config=backend.hcl
+# The bucket is created by platform/aws/bootstrap; copy its name from that
+# stack's outputs. Nothing here is secret, but keep the real file untracked.
+bucket       = "REPLACE-with-bootstrap-state-bucket"
+key          = "stacks/spend-guards/terraform.tfstate"
+region       = "us-east-1"
+encrypt      = true
+use_lockfile = true

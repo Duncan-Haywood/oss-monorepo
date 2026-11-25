@@ -1,0 +1,6 @@
+# One state per member account: replace ACCOUNT with apps, sandbox, ...
+bucket       = "REPLACE-with-bootstrap-state-bucket"
+key          = "stacks/spend-guards-member/ACCOUNT/terraform.tfstate"
+region       = "us-east-1"
+encrypt      = true
+use_lockfile = true
