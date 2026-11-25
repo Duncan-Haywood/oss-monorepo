@@ -73,6 +73,31 @@ There is also some churn coming among residential tools: CoConstruct is being
 folded into Buildertrend, with
 [no new CoConstruct projects after 31 March 2027](https://coconstruct.com/migration).
 
+### The fee you pay even without software (added 2026-11-25)
+
+The table above is what a sub chooses to buy. On many commercial jobs the
+GC also requires its own payment portal, and some portals bill the sub. The
+portal vendors publish the rules in their help pages (read 2026-11-25
+through search results limited to those sites):
+
+- **Oracle Textura:** [0.22% of the contract value, at most $5,000](https://docs.oracle.com/cd/E97085_01/TPMhelp/en/North_America/10316948.htm)
+  for projects created on or after 19 January 2023 ($3,750 before), charged
+  when the contract is confirmed; lower-tier subs pay a flat $100. Oracle's
+  own example: a $50,000 contract pays $110.
+- **Procore Pay:** under the default fee model the sub pays
+  [0.2% of each invoice paid, at most $4,000 per commitment](https://support.procore.com/products/online/procore-pay/faq/what-fee-models-does-procore-offer-to-payors-using-procore-pay);
+  the GC can choose to pay it instead.
+- **Trimble Pay:** [free to submit when the prime contractor invites you](https://help.trimble.com/doc/trimble-pay/trimble-pay/invited-subcontractors/quick-start).
+
+So an electrical sub with eight $400,000 subcontracts a year on Textura pays
+$880 on each, $7,040 a year, before buying any billing tool at all. That is
+more than a year of most of the tools in the table. It is usually a
+condition of the job, so the useful move is to know it and price it into
+the bid. The new
+[pay application software comparison](https://marisstella.app/pay-app-guides/pay-application-software-compared.html)
+puts the options and the portal fees on one page with a calculator for your
+own subcontracts ([source](../../ventures/pay-app-guides/README.md)).
+
 ## What we are building
 
 Ranked first of the paid bets in the
