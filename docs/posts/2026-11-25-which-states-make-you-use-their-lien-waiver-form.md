@@ -86,9 +86,13 @@ open their official text, so they are not listed rather than listed from memory.
 **Where this goes.** The pay-app product we are building for specialty subcontractors already
 prints the Arizona, California, Florida, Michigan, Missouri, Nevada, Texas, Utah and Wyoming waivers word for
 word from the statute, with a test that rebuilds each form and compares it with the law. On a California job it fills the
-names, the through date and the check from the pay application. The conditional progress form's
-"previously given a conditional waiver and release but has not received payment" lines are yours
-to fill in. Michigan's
+names, the through date and the check from the pay application. The conditional progress form also
+excepts earlier progress payments "for which the claimant has previously given a conditional
+waiver and release but has not received payment", with their dates and amounts. On a job that pays
+slowly, that list is easy to get wrong by hand. PayApps fills it in for you from the waivers you marked as given on earlier pay
+applications that are still unpaid: the date each was signed and what is still owed on it today, so
+a partial check shrinks the amount and a paid application drops off the list. You can still edit
+both lines before you print. Michigan's
 forms leave the "does / does not" choice for you to circle by hand. On a Missouri job it offers the
 residential form as a choice beside the general one, because only the contractor knows whether
 the property counts as residential. On a Wyoming job it fills the retainage blank from the pay
