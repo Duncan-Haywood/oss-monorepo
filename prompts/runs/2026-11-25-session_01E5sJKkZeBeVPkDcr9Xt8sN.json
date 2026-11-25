@@ -36,7 +36,7 @@
   "errors": [
     "curl to https://marisstella.app/ got 'CONNECT tunnel failed, response 403' from the proxy; checked the built output locally (build.mjs --only) instead",
     "First preview after the build.mjs change showed blog posts' BlogPosting image naming the site card while og:image named the post's own card (share.mjs swaps the card later); fixed with retargetArticleImage in completeShareTags, and re-checked: 7,356 Article/BlogPosting nodes, 0 mismatches",
-    "CI validate failed on portfolio/router/validate.py: flagships.yaml payapps next: 2011 > 2000 characters, red on main since PR 18822 (not this diff). Fixed forward: merged main, cut the landed 'SOV import ... (private-monorepo PR #43)' clause with flagship_field.py --replace (1930/2000). A second main merge (PRs #47/#49 notes, main at 2126) conflicted there; took main's text and folded the three landed auth clauses (PRs #46, #47, #49) into one, 1820/2000"
+    "CI validate failed on portfolio/router/validate.py: flagships.yaml payapps next: 2011 > 2000 characters, red on main since PR 18822 (not this diff). Fixed forward: merged main, cut the landed 'SOV import ... (private-monorepo PR #43)' clause with flagship_field.py --replace (1930/2000). A second main merge (PRs #47/#49 notes, main at 2126) conflicted there; took main's text and folded the three landed auth clauses (PRs #46, #47, #49) into one, 1820/2000. Then a third main merge brought another PR's own payapps cap fix; took main's flagships.yaml as is, so this PR no longer changes it"
   ],
   "integrity_issues": [],
   "doc_friction": [
