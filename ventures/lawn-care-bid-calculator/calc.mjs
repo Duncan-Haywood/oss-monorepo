@@ -37,6 +37,9 @@ export const UNIT_LABELS = Object.freeze({
 });
 
 function number(value, name, { min = 0, allowZero = true, max = Infinity } = {}) {
+  // Number('') and Number('   ') are 0, so a cleared wage field would price the
+  // stop with no labour in it. A blank field is an error, not a zero.
+  if (typeof value === 'string' && value.trim() === '') throw new Error(`${name} is blank`);
   const result = Number(value);
   if (!Number.isFinite(result)) throw new Error(`${name} must be a number`);
   if (result < min) throw new Error(`${name} must be at least ${min}`);
@@ -69,15 +72,20 @@ function rateUnitFor(unit) {
  * @param {number} input.serviceWeeksPerYear Weeks billed in a year (growing
  *   season). Annual is this times the per-visit price, not monthly × 12.
  * @param {number} input.oneWayMinutes      Drive time one way. Round-trip is
- *   applied to every visit — windshield time is labor.
- * @param {number} input.crewSize           People on the stop. Labor hours stay
- *   person-hours; this only reports clock time on site.
+ *   applied to every visit, once per person on the truck — windshield time is
+ *   paid labor for everyone riding.
+ * @param {number} input.crewSize           People on the stop. On-property labor
+ *   stays person-hours (two people split the same work); travel is charged per
+ *   person; clock time on site is on-property hours / crew.
  * @param {number} input.hourlyWage
  * @param {number} input.burdenRate         Payroll burden as a % on top of wage.
  * @param {number} input.fuelPerVisit
  * @param {number} input.dumpPerVisit       Dump / disposal / bagging cost per visit.
- * @param {number} input.equipmentMonthly   This property's share of mower, trailer, and shop.
- * @param {number} input.otherMonthly
+ * @param {number} input.equipmentMonthly   This property's share of mower, trailer, and shop,
+ *   per calendar month. It is paid twelve months a year, so it is recovered
+ *   across the service weeks only: in-season monthly carries
+ *   monthly × 52 / service weeks (all twelve months' cost, billed in season).
+ * @param {number} input.otherMonthly       Same treatment as equipmentMonthly.
  * @param {number} input.overheadRate       Business overhead as a % on direct cost.
  * @param {number} input.targetMargin       Net profit as a % of the final price.
  * @param {number|null} input.proposedPrice Optional in-season monthly price already on the table.
@@ -101,7 +109,8 @@ export function calculateBid(input) {
   if (targetMargin >= 100) throw new Error('Target margin must be less than 100%');
 
   const loadedWage = hourlyWage * (1 + burdenRate / 100);
-  const travelHoursPerVisit = (oneWayMinutes * 2) / 60;
+  const travelClockHoursPerVisit = (oneWayMinutes * 2) / 60;
+  const travelHoursPerVisit = travelClockHoursPerVisit * crewSize;
 
   const services = servicesInput.map((service, index) => {
     const label = service.name?.trim() || `Service ${index + 1}`;
@@ -136,7 +145,15 @@ export function calculateBid(input) {
   const monthlyLaborCost = inSeasonMonthlyHours * loadedWage;
   const monthlyFuel = fuelPerVisit * inSeasonMonthlyVisits;
   const monthlyDump = dumpPerVisit * inSeasonMonthlyVisits;
-  const directCost = monthlyLaborCost + monthlyFuel + monthlyDump + equipmentMonthly + otherMonthly;
+  // Fixed monthly costs run all year; billing runs only in season. Spread the
+  // twelve months' cost over the in-season months so the annual price
+  // (per-visit × season visits) recovers it in full. With no service weeks
+  // there is no season to bill, so leave the monthly figure as entered.
+  const fixedCostFactor = serviceWeeksPerYear > 0 ? 52 / serviceWeeksPerYear : 1;
+  const equipmentInSeasonMonthly = equipmentMonthly * fixedCostFactor;
+  const otherInSeasonMonthly = otherMonthly * fixedCostFactor;
+  const directCost = monthlyLaborCost + monthlyFuel + monthlyDump
+    + equipmentInSeasonMonthly + otherInSeasonMonthly;
   const monthlyOverhead = directCost * overheadRate / 100;
   const monthlyCost = directCost + monthlyOverhead;
   const monthlyPrice = monthlyCost / (1 - targetMargin / 100);
@@ -157,6 +174,7 @@ export function calculateBid(input) {
       hoursShare: hoursPerVisit === 0 ? 0 : row.hoursPerVisit / hoursPerVisit * 100,
     })),
     travelHoursPerVisit,
+    travelClockHoursPerVisit,
     travelHoursShare: hoursPerVisit === 0 ? 0 : travelHoursPerVisit / hoursPerVisit * 100,
     onPropertyHoursPerVisit,
     hoursPerVisit,
@@ -174,6 +192,9 @@ export function calculateBid(input) {
     monthlyDump,
     equipmentMonthly,
     otherMonthly,
+    equipmentInSeasonMonthly,
+    otherInSeasonMonthly,
+    fixedCostFactor,
     monthlyOverhead,
     monthlyCost,
     monthlyPrice,
