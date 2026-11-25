@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtHCtr9BRnq6yiNxvmo",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T19:07:18Z",
+  "ended": "2026-11-25T19:20:24Z",
+  "wall_minutes": 13.3,
+  "tokens_in": 11990988,
+  "tokens_out": 44779,
+  "cost_usd": 4.6298,
+  "tool_calls": 91,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19067",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "packages/lien-waivers/README.md (private) and apps/payapps/ROADMAP.md",
+      "issue": "Both said California was blocked until leginfo is reachable; the Legislative Counsel's bulk download host (downloads.leginfo.legislature.ca.gov) was reachable all along and is official. Now recorded in docs/reports/ventures-2026-11-25-payapps-lien-waivers-california.md."
+    },
+    {
+      "file": "private-monorepo CI (payapps-ci, payapps-site-ci)",
+      "issue": "Jobs failed in 2-3 s without running steps (starved); verification had to be local, as in earlier runs."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "why": "Private PR 151 CI jobs never ran (failed in 2-3 s).",
+      "did": "Ran every payapps-ci and payapps-site-ci step locally and merged; output summarised in the merge commit and notes.",
+      "result": "merged; all local checks green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-which-states-make-you-use-their-lien-waiver-form.md (extended)",
+    "ventures/pay-app-guides/lien-waiver-forms-by-state.html (California section)",
+    "docs/reports/ventures-2026-11-25-payapps-lien-waivers-california.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; ideas inbox empty; routed ventures/1. private-monorepo add_repo + clone worked first time. Claimed payapps ROADMAP #1 part lien-waivers-california. Read Cal. Civ. Code 8120-8138 from the official pubinfo_2025.zip via curl range requests (~7 MB of 1.2 GB). Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/151 merged: lien-waivers node --test 207/207 + tsc; payapps biome ci (1 pre-existing warning), typecheck, unit 500/500, worker 271/271, build, provision test; payapps-site biome, typecheck, tests 6/6, build. Four one-phrase mutations of ca.ts each failed 2-5 tests. Public PR: guide page tests 40/40.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fbbeaf24-32d5-5674-8287-468fd8a1aa57",
+    "transcripts": 1,
+    "first": "2026-11-25T19:07:18Z",
+    "last": "2026-11-25T19:20:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 88,
+        "input": 167,
+        "output": 44779,
+        "thinking": 7679,
+        "cache_read": 11819621,
+        "cache_write_5m": 0,
+        "cache_write_1h": 171200,
+        "api_equivalent_usd": 4.6298,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 88,
+      "input": 167,
+      "output": 44779,
+      "thinking": 7679,
+      "cache_read": 11819621,
+      "cache_write_5m": 0,
+      "cache_write_1h": 171200,
+      "api_equivalent_usd": 4.6298,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 91,
+    "tools": {
+      "Bash": 83,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.3,
+      "active_minutes": 13.3,
+      "model_minutes": 8.75,
+      "tool_minutes": 4.55,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "paralegal-level statute sourcing + encoding four forms with tests, as in prior state runs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 129.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

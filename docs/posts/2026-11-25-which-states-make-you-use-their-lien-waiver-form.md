@@ -1,6 +1,6 @@
 ---
 title: "Which states make you use their lien waiver form, read from the statutes"
-seo_title: "Statutory lien waiver forms by state (CA, AZ, NV, TX, UT, FL, MI, WY, MO)"
+seo_title: "Statutory lien waiver forms by state (CA, AZ, NV, TX, UT, FL, MI, WY)"
 date: 2026-11-25
 tags: [for-customers, payapps, construction, lien-waivers, pay-app-guides]
 description: "Nine states set lien waiver wording in statute. We read each one from the legislature's own published text: how many forms, how strict, and the trap in each."
