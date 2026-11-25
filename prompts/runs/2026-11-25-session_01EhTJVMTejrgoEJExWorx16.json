@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVMTejrgoEJExWorx16",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T21:56:13Z",
+  "ended": "2026-11-25T22:01:31Z",
+  "wall_minutes": 5.49,
+  "tokens_in": 2255428,
+  "tokens_out": 15047,
+  "cost_usd": 1.3909,
+  "tool_calls": 27,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19107",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First command used `git reset --hard origin/main` on a clean tree; the auto-mode classifier denied it; used `git merge --ff-only` instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/audits/2026-11-09-workers-comp-premium-calculator.json",
+      "issue": "Defect 1 says terrorism/catastrophe charges are 'part of standard premium and discountable'. Under NCCI they are per-$100-payroll charges outside the mod, schedule rating and discount. The fix follows NCCI, not the audit text."
+    },
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "queue --severity medium shows no rows for the for-profit products, so fix mode cannot serve the north star directly. I picked a construction-adjacent free tool instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Fix mode: no high defects open and none queued in the for-profit products. Took the construction-adjacent workers-comp calculator (a front door for construction customers), not the first shuffled row.",
+      "did": "Fixed 5 of its 6 defects, and half of the sixth.",
+      "result": "merged with tests; all 4 surviving mutants now caught"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-quality-fix-the-charges-your-discount-skips.md"
+  ],
+  "goal": null,
+  "notes": "mode fix (queue seed 2026-11-25-ef10); subject ventures/workers-comp-premium-calculator; defects 0,2,3,4,5 marked fixed_by PR 19107, defect 1 partial (typed discount stays). Tests 32/32; quality_mutate: 5/5 mutants caught; Playwright example total 42,522.91 = hand count. Share meeting the bar: n/a (fix mode, no scoring). Fix PRs: #19107.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e06d6ab7-4f6d-5311-aa7c-47a7275361d1",
+    "transcripts": 1,
+    "first": "2026-11-25T21:56:13Z",
+    "last": "2026-11-25T22:01:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 26,
+        "input": 49,
+        "output": 15047,
+        "thinking": 3106,
+        "cache_read": 2173490,
+        "cache_write_5m": 0,
+        "cache_write_1h": 81889,
+        "api_equivalent_usd": 1.3909,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 26,
+      "input": 49,
+      "output": 15047,
+      "thinking": 3106,
+      "cache_read": 2173490,
+      "cache_write_5m": 0,
+      "cache_write_1h": 81889,
+      "api_equivalent_usd": 1.3909,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.964,
+    "tool_calls": 27,
+    "tools": {
+      "Bash": 25,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.49,
+      "active_minutes": 5.49,
+      "model_minutes": 2.77,
+      "tool_minutes": 2.72,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
