@@ -21,6 +21,6 @@
   "baseline": "11 records on 2026-11-25 (one collision, P075)",
   "opened": "2026-11-25",
   "source": "process critique, 2026-11-25 (friction_rank clusters 8 and 20)",
-  "pr": "this",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18924",
   "result": null
 }
