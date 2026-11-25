@@ -87,8 +87,10 @@ flagships:
       unconditional lien waiver tracking per pay app, with state-form templates only
       where the statute text is public, and a disclaimer; (4) QuickBooks Online
       invoice export with retainage as its own line (sandbox only; the owner opens
-      the Intuit developer account); (5) a free G702/G703 template page in this
-      repository as the front door, linking to the app. Paid path dark on Paddle per
+      the Intuit developer account); (5) front door in this repository:
+      ventures/pay-application-generator now offers a free blank .xlsx template and
+      a filled workbook with live formulas (2026-11-25); left: link it to the app
+      once the app has a URL. Paid path dark on Paddle per
       portfolio/monetization/models.yaml (row app: payapps). A run that lands a
       slice replaces its item here.
   # Bet 2 in portfolio/monetization/bets.md (2026-11-24 ranking).
