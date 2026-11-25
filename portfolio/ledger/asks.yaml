@@ -261,8 +261,8 @@ decisions:
     the Web Analytics site through the API, but the deploy token probably
     cannot: on 2026-11-19 it could not even read zone analytics
     (portfolio/usage/cloudflare-analytics.json). Do one of: (a) give
-    CLOUDFLARE_ANALYTICS_TOKEN (or the deploy token) the account-level
-    Account Analytics / Web Analytics edit permission, and the next deploy
+    the deploy token (CLOUDFLARE_API_TOKEN) the account-level Account
+    Analytics / Web Analytics edit permission, and the next deploy
     provisions itself; or (b) Cloudflare -> Analytics & Logs -> Web Analytics
     -> Add a site -> marisstella.app, copy the site token (public by design)
     into platform/analytics/site.json "token" (any session can commit it).

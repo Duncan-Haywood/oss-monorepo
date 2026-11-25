@@ -22,8 +22,9 @@ devices and browsers, and Core Web Vitals, which the first-party counter
 
 `.github/workflows/priv-portfolio-pages.yml`, pushes to `main` only:
 
-1. "Find the web analytics token" runs `provision.mjs` with
-   `CLOUDFLARE_ANALYTICS_TOKEN`, then the deploy token.
+1. The `web-analytics` job runs `provision.mjs` with the deploy token, in a
+   job of its own so the build job holds no Cloudflare credential; only the
+   public site token reaches the build, as a job output.
 2. "Build the site" gets it as `PAGES_WEB_ANALYTICS_TOKEN`. `build.mjs`
    turns `analyticsOn()` on, adds the beacon to its pages, and the footer,
    About page, `llms.txt`, Privacy Policy and Cookie Policy name the

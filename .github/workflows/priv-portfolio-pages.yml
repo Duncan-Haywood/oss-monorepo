@@ -218,7 +218,6 @@ jobs:
       - id: provision
         if: github.event_name != 'pull_request' && needs.gate.outputs.cloudflare == 'true'
         env:
-          CLOUDFLARE_ANALYTICS_TOKEN: ${{ secrets.CLOUDFLARE_ANALYTICS_TOKEN }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID }}
         run: node platform/analytics/provision.mjs

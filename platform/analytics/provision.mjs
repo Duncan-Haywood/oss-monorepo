@@ -8,8 +8,9 @@
 //   GET  /accounts/{account}/rum/site_info/list   find a site whose host is ours
 //   POST /accounts/{account}/rum/site_info        create one ({ host, auto_install: false })
 // The token needs the account-level Web Analytics / Account Analytics edit
-// permission. CLOUDFLARE_ANALYTICS_TOKEN is tried before the deploy token,
-// like platform/counter/pull-cloudflare.mjs. Written without access to
+// permission. The deploy workflow passes only the deploy token
+// (CLOUDFLARE_API_TOKEN), which it already reads; CLOUDFLARE_ANALYTICS_TOKEN
+// is tried first when set, for local runs. Written without access to
 // Cloudflare's API reference from the authoring session (2026-11-25): the
 // response is read defensively, and every failure is printed and exits 0
 // with no token, so a deploy never fails over analytics; the pages then ship
