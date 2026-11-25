@@ -1815,6 +1815,67 @@ def claim_note(hits: list[tuple[int, str, str]], now: Optional[datetime] = None)
     return note
 
 
+def load_bet_sides(path: Path = FLAGSHIPS_PATH) -> dict[str, tuple[int, list[str]]]:
+    """{venture: (bet number, [front_door slugs])} for flagship rows with `bet:`.
+
+    `front_door:` lists the ventures/<slug> folders that are the bet's public
+    side here (its free tool, guides, marketing pages)."""
+    if not path.is_file():
+        return {}
+    out: dict[str, tuple[int, list[str]]] = {}
+    for e in _load_yaml(path).get("flagships") or []:
+        if isinstance(e, dict) and e.get("venture") and isinstance(e.get("bet"), int):
+            raw = e.get("front_door") or []
+            doors = [str(s).strip() for s in (raw if isinstance(raw, list) else str(raw).split()) if str(s).strip()]
+            out[e["venture"]] = (e["bet"], doors)
+    return out
+
+
+# "bet #1", "bets #2/#4", "bets #2 and #4" in a PR title.
+_BET_TAG = re.compile(r"\bbets?\s+#\d+(?:\s*(?:/|,|&|and)\s*#?\d+)*", re.I)
+
+
+def title_bets(title: str) -> set[int]:
+    """Bet numbers a PR title tags ("bet #1", "bets #2/#4")."""
+    return {int(n) for m in _BET_TAG.finditer(title) for n in re.findall(r"\d+", m.group(0))}
+
+
+def bet_side_note(venture: str, sides: dict[str, tuple[int, list[str]]],
+                  prs: Optional[list[tuple[int, str, str]]],
+                  now: Optional[datetime] = None) -> str:
+    """Which of a bet's surfaces a live open PR is on, and which none is.
+
+    A bet row's own slug (payapps) is rarely in a public-side PR's title, so the
+    row looked free while six PRs worked its guides (run-record doc_friction on
+    portfolio/monetization/bets.md and portfolio/flagships.yaml, 2026-11-25: four
+    parallel runs landed in pay-app-guides within the hour and conflicted on its
+    shared lists). A PR counts when it was opened in the last CLAIM_FRESH_HOURS and
+    its title tags the bet ("bet #1"), names a `front_door:` slug or the bet's own."""
+    if venture not in sides or not prs:
+        return ""
+    bet, doors = sides[venture]
+    now = now or datetime.now(timezone.utc)
+    pats = {s: re.compile(rf"(?<![\w-]){re.escape(s)}(?![\w-])", re.I) for s in [*doors, venture]}
+    by_surface: dict[str, list[str]] = {}
+    for num, title, created in sorted(prs, key=lambda p: p[2], reverse=True):
+        age_h = _age_hours(created, now)
+        if age_h >= CLAIM_FRESH_HOURS:
+            continue
+        named = [s for s, p in pats.items() if p.search(title)]
+        if not named and bet not in title_bets(title):
+            continue
+        surface = next((s for s in doors if s in named), "the app" if venture in named or "private" in title.lower() else "other")
+        by_surface.setdefault(surface, []).append(f"#{num} ({age_h:.0f}h)")
+    free = [s for s in doors if s not in by_surface]
+    if not by_surface:
+        return ""
+    busy = "; ".join(f"{s} {', '.join(nums)}" for s, nums in by_surface.items())
+    note = f"[bet {bet} live PRs: {busy}"
+    if free:
+        note += f"; none on {', '.join(free)}"
+    return note + "] "
+
+
 def shallow_boundary(cwd: Path = REPO_ROOT) -> set[str]:
     """Hashes of the commits where a shallow clone's history is cut off.
 
@@ -1981,7 +2042,9 @@ def print_table(ventures: list[Venture], queue: list[dict],
                 claims: Optional[dict[str, list]] = None,
                 show_all: bool = False,
                 refused: Optional[dict[str, list[str]]] = None,
-                brief: bool = False) -> None:
+                brief: bool = False,
+                open_prs: Optional[list[tuple[int, str, str]]] = None,
+                bet_sides: Optional[dict[str, tuple[int, list[str]]]] = None) -> None:
     later_cap = sum(v.monthly_cap for v in ventures if v.later_stage)
     early_cap = sum(v.monthly_cap for v in ventures if not v.later_stage)
     total_cap = later_cap + early_cap
@@ -2102,6 +2165,7 @@ def print_table(ventures: list[Venture], queue: list[dict],
             f"{item['portfolio_mentions_this_period']:>10}"
             f"{recent.get(item['venture'], 0):>12}  "
             f"{claim_note(claims[item['venture']]) if claims and item['venture'] in claims else ''}"
+            f"{bet_side_note(item['venture'], bet_sides, open_prs) if bet_sides else ''}"
             f"{item['task']}"
         )
     for (_, _, label), n in zip(FOLDED_ROWS, hidden):
@@ -2189,6 +2253,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         v.recent_commits = recent.get(v.name, 0)
     if args.venture:
         claims_one = None
+        prs = None
         if not args.no_claims:
             prs = drop_landed(open_pr_titles())
             if prs is not None:
@@ -2198,6 +2263,10 @@ def main(argv: Optional[list[str]] = None) -> int:
                                 probe=None if args.no_probe else host_answers,
                                 left=left_rows(load_flagships()),
                                 worked=worked_rows(load_flagships()))
+        if report is not None:
+            side = bet_side_note(args.venture, load_bet_sides(), prs)
+            if side:
+                report += "\n" + side.strip()
         if report is None:
             print(f"No venture named {args.venture!r} (ventures/<slug>/VENTURE.yaml).", file=sys.stderr)
             return 1
@@ -2208,6 +2277,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     queue = work_queue(ventures)
 
     claims: Optional[dict[str, list]] = None
+    prs = None
     if not args.no_claims:
         prs = drop_landed(open_pr_titles())
         if prs is not None:
@@ -2221,7 +2291,8 @@ def main(argv: Optional[list[str]] = None) -> int:
         if claims is None and not args.no_claims:
             print("(open PRs not read: `gh api` search failed; search PR titles before taking a row)")
         print_table(ventures, queue, recent=recent, claims=claims, show_all=args.all,
-                    refused=None if args.no_probe else refused_rows(ventures), brief=args.brief)
+                    refused=None if args.no_probe else refused_rows(ventures), brief=args.brief,
+                    open_prs=prs, bet_sides=load_bet_sides())
         print(post_limits_line())
     return 0
 
