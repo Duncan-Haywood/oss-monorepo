@@ -266,7 +266,7 @@ test("the drywall joint control is read into the plan and restored from a saved 
 test("the drywall ceiling field reads and restores ceiling steps (length x drop)", () => {
   const html = page("index.html");
   assert.match(html, /\(c\.steps = c\.steps \|\| \[\]\)\.push\(\{ length: L\(m\[0\]/);
-  assert.match(html, /\(c\.steps \|\| \[\]\)\.map\(\(st\) => `\$\{formatLength\(st\.length\)\} x \$\{formatLength\(st\.drop\)\}`\)/);
+  assert.match(html, /\(Array\.isArray\(c\.steps\) \? c\.steps : \[\]\)\.filter\(\(st\) => st && typeof st === "object"\)\.map\(\(st\) => `\$\{formatLength\(st\.length\)\} x \$\{formatLength\(st\.drop\)\}`\)/);
 });
 
 test("the insulation controls are read into plan.insulation and restored from a saved plan", () => {

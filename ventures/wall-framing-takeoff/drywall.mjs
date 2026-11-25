@@ -26,6 +26,9 @@ export function sampleDrywall() {
 export function validateDrywall(d) {
   const e = [];
   if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Drywall settings are an object."];
+  // shapes first: a shared link or a hand-edited plan can carry any JSON, and the loops below index into these
+  if (d.ceiling != null && !(Array.isArray(d.ceiling) && d.ceiling.every((c) => c && typeof c === "object" && !Array.isArray(c)))) return ["Drywall ceiling must be a list of { width, depth } rooms."];
+  for (const [i, c] of (d.ceiling || []).entries()) if (c.steps != null && !(Array.isArray(c.steps) && c.steps.every((st) => st && typeof st === "object" && !Array.isArray(st)))) return [`Ceiling ${i + 1} steps must be a list of { length, drop }.`];
   if (![96, 108, 120, 144, 192].includes(d.sheetLength ?? 96)) e.push("Drywall sheet length must be 8, 9, 10, 12 or 16 ft (96, 108, 120, 144 or 192 in).");
   if (d.height != null && !(d.height >= 72 && d.height <= 192)) e.push("Drywall hang height must be between 6 and 16 ft.");
   for (const [i, c] of (d.ceiling || []).entries()) if (!(typeof c.width === "number" && typeof c.depth === "number" && c.width >= 24 && c.depth >= 24)) e.push(`Ceiling ${i + 1} must be at least 2 ft each way.`);
@@ -39,6 +42,10 @@ export function validateDrywall(d) {
   if (d.tapeRollFt != null && !(d.tapeRollFt >= 50 && d.tapeRollFt <= 1000)) e.push("Tape roll length must be between 50 and 1000 ft.");
   if (d.beadStickFt != null && ![8, 9, 10, 12].includes(d.beadStickFt)) e.push("Corner bead stick length must be 8, 9, 10 or 12 ft.");
   if (d.waste != null && !(d.waste >= 0 && d.waste <= 0.3)) e.push("Waste must be between 0 and 0.3.");
+  if (d.compoundPailGal != null && !(typeof d.compoundPailGal === "number" && d.compoundPailGal > 0 && d.compoundPailGal <= 10)) e.push("Compound pail size must be more than 0 and at most 10 gallons.");
+  if (d.price != null && !(typeof d.price === "number" && Number.isFinite(d.price) && d.price >= 0)) e.push("Drywall sheet price must be a number of 0 or more.");
+  if (d.faces != null && d.faces !== "inside" && d.faces !== "both") e.push('Drywall faces must be "inside" or "both".');
+  if (d.openingBead != null && typeof d.openingBead !== "boolean") e.push("openingBead must be true or false.");
   if (d.screwsPerSqFt != null && !(d.screwsPerSqFt > 0 && d.screwsPerSqFt <= 4)) e.push("Screws per sq ft must be between 0 and 4.");
   return e;
 }
