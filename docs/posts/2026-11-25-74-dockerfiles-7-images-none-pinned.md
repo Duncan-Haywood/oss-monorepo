@@ -1,9 +1,9 @@
 ---
 title: "74 Dockerfiles, 7 base images, none pinned: what scanning our container images found"
-seo_title: "Scanning Dockerfile base images with Trivy: digest pinning and fixable CVEs"
+seo_title: "Scanning Dockerfile base images: digest pinning and fixable CVEs"
 date: 2026-11-25
 tags: [security, containers, trivy, ci, supply-chain]
-description: "Our new image scan read 74 Dockerfiles and Compose files: 7 base images, none pinned by digest, and 101 fixable high or critical CVEs, 70 in one stale nginx tag."
+description: "Our new image scan read 74 Dockerfiles and Compose files: 7 base images, none pinned by digest, 101 fixable high or critical CVEs, 70 in one stale nginx tag."
 ---
 
 This repository's pull requests now pass through a security scan: secrets, code, dependencies, infrastructure as code and workflows. Today it gained one more piece: the container base images that our Dockerfiles and Compose files pull.
