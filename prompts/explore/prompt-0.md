@@ -29,6 +29,12 @@ deploy-first ranking, `PROJECTS.md`'s tracks) are optional here, not binding.
 
 What still holds:
 
+- **The North star.** The goals still point at $10k MRR
+  (`prompts/goals.md`, "North star" and "Where effort goes"). A new paid-bet
+  idea with sourced evidence (proposed as a row in
+  `portfolio/monetization/bets.md`) or a prototype for a ranked bet is a
+  strong use of this slot; a new free single-purpose tool is not.
+
 - **Every guardrail in `goals.md`.** Never fabricate, nothing secret, only
   code we can relicense, owner-only actions stay with the owner, and the
   research integrity rules for anything research-shaped.

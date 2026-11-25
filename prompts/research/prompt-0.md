@@ -14,6 +14,8 @@ Build a public research portfolio (MIT-licensed) that supports PhD applications 
 Simulating and training with digital clones (digital twins) of physical-world systems, including sim-to-real transfer, simulation fidelity, and learning in simulation for real benefit. Every project should connect to this theme where it reasonably can.
 
 ## Priority projects
+**Research pivots into products (owner, 2026-11-24).** New effort goes to a programme that names the paid product and customer it advances, from [`portfolio/monetization/bets.md`](../../portfolio/monetization/bets.md); one with no product case takes no new effort unless it is close to a paper that helps a chosen product. [`research/CLAUDE.md`](../../research/CLAUDE.md) and `prompts/goals.md`, "Where effort goes", govern this and win over the drawing rules below; the integrity rules are unchanged.
+
 The owner's priority projects are in [`research/PROJECTS.md`](../../research/PROJECTS.md): a numbered list of tracks, each with milestones, a slug prefix and its own guardrails. They are the areas research programmes come from (`research/PROGRAMMES.md`). Once Landing work steps 1 to 3 are done, draw a programme or track as `PROJECTS.md` says. The research groups below remain the list to build on, cite and tag where a project fits them.
 
 **Free choice, about 5% of effort.** About one run in twenty skips the tracks and works on whatever the agent finds most interesting, Google "20% time" style; `research/PROJECTS.md` (Picking work, step 1) says how the draw works. The rules, integrity standards and landing steps are unchanged, and so is the quality bar.

@@ -873,3 +873,25 @@ test('finder: a search over posts.json renders each card with its date and readi
   const meta = text(card.children[2]);
   assert.match(meta, /5 March 2026 · 7 min read/);
 });
+
+test('posts for a paid product line\'s customers lead the blog as "For your business" (2026-11-25)', async () => {
+  const { topicOf, renderCustomerLead, CUSTOMER_TAGS } = await import('./writing.mjs');
+  assert.equal(TOPICS[0].id, 'business');
+  assert.ok(CUSTOMER_TAGS.has('pay-application-generator') && CUSTOMER_TAGS.has('einvoice-preflight'));
+  assert.equal(topicOf(['einvoice-preflight', 'peppol']), 'business');
+  assert.equal(topicOf(['for-customers']), 'business');
+  // How it was built stays in the build log, even about a product line's tool.
+  assert.equal(topicOf(['einvoice-preflight', 'mutation-testing']), 'testing');
+  assert.equal(topicOf(['reseller-books', 'perf']), 'tools');
+  // Not a paid line's tool: unchanged.
+  assert.equal(topicOf(['hearth-and-horizon', 'fiction']), 'stories');
+  const post = (slug, date, topic) => ({ slug, date, topic, title: slug, description: 'd', tags: [], minutes: 2 });
+  const posts = [post('a', '2026-11-01', 'business'), post('b', '2026-11-03', 'business'), post('c', '2026-11-04', 'agents')];
+  const html = renderCustomerLead(posts, { n: 1 });
+  assert.match(html, /href="b\/"/);
+  assert.doesNotMatch(html, /href="a\/"|href="c\/"/);
+  assert.match(html, /All 2 guides for your business/);
+  assert.equal(renderCustomerLead([post('c', '2026-11-04', 'agents')]), '');
+  const index = renderIndex(posts, {});
+  assert.ok(index.indexOf('customer-lead') < index.indexOf('id="posts"'), 'pinned above the full list');
+});
