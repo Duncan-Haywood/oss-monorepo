@@ -178,7 +178,7 @@ export function readFavourites(text, proofs, others = []) {
     add(p.original, p.original); add(stemOf(p.original), p.original);
   }
   const matched = [], seen = new Set(), unknown = [], ambiguous = [];
-  const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/);
+  const lines = String(text || "").replace(/^\uFEFF/, "").split(/\r?\n/);
   for (let line of lines) {
     line = line.trim();
     if (!line || line.startsWith(LIST_HEADER)) continue;
