@@ -44,10 +44,11 @@ test("the retainage table covers at least 10 states, each linked to an official 
   const html = page("retainage-explained.html");
   const table = html.slice(html.indexOf('id="state-table"'), html.indexOf("</table>", html.indexOf('id="state-table"')));
   const rows = [...table.matchAll(/<tr><td>([A-Z][a-z]+(?: [A-Z][a-z]+)?)<\/td><td><a href="([^"]+)"/g)];
-  assert.ok(rows.length >= 10, `only ${rows.length} states`);
-  const official = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|www\.leg\.state\.fl\.us|www\.nysenate\.gov|www\.palegis\.us|www\.ilga\.gov|www\.ncleg\.gov|www\.legislature\.mi\.gov|law\.lis\.virginia\.gov|app\.leg\.wa\.gov|malegislature\.gov|www\.azleg\.gov)\//;
+  assert.ok(rows.length >= 16, `only ${rows.length} states`);
+  const official = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|www\.leg\.state\.fl\.us|www\.nysenate\.gov|www\.palegis\.us|www\.ilga\.gov|www\.ncleg\.gov|www\.legislature\.mi\.gov|law\.lis\.virginia\.gov|app\.leg\.wa\.gov|malegislature\.gov|www\.azleg\.gov|www\.revisor\.mn\.gov|www\.leg\.state\.nv\.us|www\.oregonlegislature\.gov|le\.utah\.gov)\//;
   for (const [, state, href] of rows) assert.match(href, official, state);
   assert.match(html, /2026-11-24/);
+  assert.match(html, /2026-11-25/);
 });
 
 test("robots and sitemap list every page", () => {

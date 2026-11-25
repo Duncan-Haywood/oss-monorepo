@@ -15,7 +15,7 @@ Live: <https://marisstella.app/pay-app-guides/>
 |---|---|
 | `index.html` | Schedule of values / continuation sheet calculator: work completed, stored materials, retainage held and released, balance to finish, current payment due, over-billed lines flagged; copy summary, CSV, print. Runs in the browser. |
 | `how-to-fill-out-a-pay-application.html` | The continuation sheet column by column and the summary page line by line, one worked example, what to attach. |
-| `retainage-explained.html` | How retainage is calculated, reduced, released and flowed down, and a table of public retainage caps for 12 states, each linked to the official statute. |
+| `retainage-explained.html` | How retainage is calculated, reduced, released and flowed down, and a table of public retainage caps for 16 states, each linked to the official statute. |
 | `conditional-vs-unconditional-lien-waivers.html` | The four waiver types, when to sign each, exceptions to write in, California and Florida statutory forms. |
 | `change-orders-schedule-of-values.html` | How approved and deductive change orders enter the SOV and the summary, with a worked example. |
 
@@ -35,7 +35,11 @@ Live: <https://marisstella.app/pay-app-guides/>
   results limited to the official legislature domains. Where those results
   disagreed or showed a pending change (North Carolina's threshold, Florida's
   older 10% rule), the page says so. Ohio, Georgia and New Jersey were left
-  out because their current text could not be confirmed. **Re-check a row
+  out because their current text could not be confirmed. On 2026-11-25 the
+  statute pages loaded directly: nine of the twelve rows matched as written
+  (California, Pennsylvania and Illinois still refuse automated loads), and
+  Minnesota, Nevada, Oregon and Utah were added from the statute pages
+  themselves. **Re-check a row
   against the linked statute before changing it.**
 
 ## Run and test
