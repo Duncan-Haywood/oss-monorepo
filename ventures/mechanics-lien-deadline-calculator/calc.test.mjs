@@ -74,15 +74,15 @@ test("Colorado: lien 4 months after last furnishing, notice of intent 10 days be
 });
 
 test("Washington: 60 days commercial, 10 days residential, 90 days to lien", () => {
-  assert.equal(iso(run({ state: "WA" }).prelim.date), "2026-05-09");
-  const res = run({ state: "WA", projectType: "residential" });
+  assert.equal(iso(run({ state: "WA", tier: "second" }).prelim.date), "2026-05-09");
+  const res = run({ state: "WA", projectType: "residential", tier: "second" });
   assert.equal(iso(res.prelim.date), "2026-03-20");
   assert.equal(iso(res.lien.date), "2026-09-18");
   assert.ok(res.findings.some((f) => /single-family/.test(f.detail)));
 });
 
 test("weekend deadlines report the last business day as the safe date", () => {
-  const r = run({ state: "WA" }); // 2026-05-09 is a Saturday
+  const r = run({ state: "WA", tier: "second" }); // 2026-05-09 is a Saturday
   assert.equal(r.prelim.weekend, true);
   assert.equal(iso(r.prelim.safeDate), "2026-05-08");
   assert.ok(r.findings.some((f) => /weekend/.test(f.title)));
@@ -141,8 +141,8 @@ test("Georgia: a first-tier claimant owes no Notice to Contractor but keeps the 
   assert.ok(!r.findings.some((f) => /earlier cutoff/.test(f.title)));
 });
 
-test("tier changes nothing outside Georgia", () => {
-  for (const state of ["CA", "TX", "FL", "AZ", "WA", "CO", "NC", "OH"]) {
+test("tier changes nothing outside Georgia and Washington", () => {
+  for (const state of ["CA", "TX", "FL", "AZ", "CO", "NC", "OH"]) {
     for (const projectType of ["commercial", "residential"]) {
       const a = run({ state, projectType, tier: "first" });
       const b = run({ state, projectType, tier: "second" });
@@ -282,4 +282,56 @@ test("Ohio: notice of furnishing 21 days after first; affidavit 75 days after la
   assert.equal(iso(r.lien.date), "2026-09-03"); // Jun 30 = 10, Jul 31 = 41, Aug 31 = 72, Sep 3 = 75
   assert.ok(r.findings.some((f) => /notice of commencement/.test(f.detail)));
   assert.equal(iso(run({ state: "OH", projectType: "residential" }).lien.date), "2026-08-19"); // Jul 31 = 41, Aug 19 = 60
+});
+
+// Statute check 2026-11-25 (see calc.mjs header): RCW 60.04.031(2)(c), (3)(b).
+test("Washington: a sub hired by the prime contractor owes no notice, except on an owner-occupied remodel", () => {
+  const com = run({ state: "WA", tier: "first" });
+  assert.equal(com.prelim, null);
+  assert.match(com.prelimNotRequired, /60\.04\.031\(2\)\(c\)/);
+  assert.equal(iso(com.lien.date), "2026-09-18");
+  const res = run({ state: "WA", tier: "first", projectType: "residential" });
+  assert.equal(iso(res.prelim.date), "2026-05-09"); // remodel: 60-day look-back
+  assert.ok(res.findings.some((f) => /who owes this notice/.test(f.title) && /remodel/.test(f.detail)));
+  assert.ok(!res.findings.some((f) => /residential category/.test(f.title)));
+});
+
+test("look-back states: a late notice covers only the days before it, and the date is given", () => {
+  // CA, first furnishing 2026-03-10; today 2026-06-01 -> notice served today covers work from 2026-05-12.
+  const ca = run({ state: "CA", today: "2026-06-01" });
+  assert.equal(ca.prelim.status, "passed");
+  assert.equal(iso(ca.lateNoticeReach), "2026-05-12");
+  assert.ok(ca.findings.some((f) => /already passed/.test(f.title) && /May 12, 2026/.test(f.detail) && /8204/.test(f.detail)));
+  const az = run({ state: "AZ", today: "2026-06-01" });
+  assert.equal(iso(az.lateNoticeReach), "2026-05-12");
+  const wa = run({ state: "WA", tier: "second", today: "2026-06-01" });
+  assert.equal(iso(wa.lateNoticeReach), "2026-04-02");
+  const waNew = run({ state: "WA", tier: "second", projectType: "residential", today: "2026-06-01" });
+  assert.equal(iso(waNew.lateNoticeReach), "2026-05-22");
+  // before the date: an info note explains the look-back, no reach date
+  const early = run({ state: "CA", today: "2026-03-12" });
+  assert.equal(early.lateNoticeReach, null);
+  assert.ok(early.findings.some((f) => /late notice still counts/.test(f.title)));
+});
+
+test("Florida: a late Notice to Owner is named as a complete defense, with no look-back date", () => {
+  const fl = run({ state: "FL", today: "2026-06-01" });
+  assert.equal(fl.prelim.status, "passed");
+  assert.equal(fl.lateNoticeReach, null);
+  assert.ok(fl.findings.some((f) => /already passed/.test(f.title) && /complete defense/.test(f.detail) && /713\.06\(2\)\(a\)/.test(f.detail)));
+});
+
+test("California cites § 8414 (claimants other than a direct contractor), not § 8412", () => {
+  const r = run({ state: "CA" });
+  assert.match(r.citation, /8414/);
+  assert.doesNotMatch(r.citation, /8412/);
+});
+
+test("every state links its statute on an official or code-copy host", () => {
+  const hosts = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|capitol\.texas\.gov|www\.flsenate\.gov|www\.azleg\.gov|app\.leg\.wa\.gov|law\.justia\.com|www\.ncleg\.gov|www\.nysenate\.gov|codes\.ohio\.gov)\//;
+  for (const state of ["CA", "TX", "FL", "AZ", "WA", "GA", "CO", "NC", "NY", "OH"]) {
+    const r = run({ state });
+    assert.ok(r.sources.length >= 1, state);
+    for (const s of r.sources) assert.match(s.url, hosts, state);
+  }
 });
