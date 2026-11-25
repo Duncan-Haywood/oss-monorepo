@@ -25,7 +25,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
+import secrets
 import subprocess
 import sys
 
@@ -121,11 +123,27 @@ def triaged_on_main() -> set[int]:
             | json_triaged(git("show", f"origin/main:{TRIAGE_JSON}", check=False).stdout))
 
 
-def claim(n: int) -> bool:
-    """Push the claim branch; an empty --force-with-lease value fails if the branch exists."""
+def claim(n: int) -> str | None:
+    """Push the claim branch, create-only; the claim commit's sha on success, else None.
+
+    An empty --force-with-lease value fails if the branch exists, but only when git has
+    something to push: if two runs both pushed `origin/main` itself, the loser's push of
+    the same sha is "Everything up-to-date", exit 0, and both would think they won
+    (test_security_next.ClaimRaceTest caught this). So each claim pushes its own empty
+    commit on top of origin/main, whose sha no other run can have.
+    """
     ref = f"refs/heads/{BRANCH_PREFIX}{n}"
-    r = git("push", f"--force-with-lease={ref}:", "origin", f"origin/main:{ref}", check=False)
-    return r.returncode == 0
+    env = {"GIT_AUTHOR_NAME": "security-next", "GIT_AUTHOR_EMAIL": "security-next@invalid",
+           "GIT_COMMITTER_NAME": "security-next", "GIT_COMMITTER_EMAIL": "security-next@invalid"}
+    made = subprocess.run(
+        ["git", "commit-tree", "origin/main^{tree}", "-p", "origin/main",
+         "-m", f"claim code-scanning alert #{n} ({secrets.token_hex(8)})"],
+        capture_output=True, text=True, env={**os.environ, **env})
+    if made.returncode != 0:
+        return None
+    sha = made.stdout.strip()
+    r = git("push", f"--force-with-lease={ref}:", "origin", f"{sha}:{ref}", check=False)
+    return sha if r.returncode == 0 else None
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -164,9 +182,12 @@ def main(argv: list[str] | None = None) -> int:
         print(a["line"])
     if args.claim:
         for a in todo:
-            if claim(a["number"]):
+            sha = claim(a["number"])
+            if sha:
                 print(f"Claimed: pushed {BRANCH_PREFIX}{a['number']}. "
-                      f"Read `git show origin/{QUEUE_BRANCH}:alerts/{a['number']}.md`.")
+                      f"Read `git show origin/{QUEUE_BRANCH}:alerts/{a['number']}.md`; "
+                      f"work on it with `git checkout -B {BRANCH_PREFIX}{a['number']} {sha[:12]}` "
+                      "(the branch holds one empty claim commit, so start from it, not origin/main).")
                 return 0
             print(f"#{a['number']} was claimed by another run first; trying the next.")
         print("Every workable alert was claimed while this ran: go to step 1.")
