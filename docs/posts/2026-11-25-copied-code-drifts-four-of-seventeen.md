@@ -3,7 +3,7 @@ title: "Four of seventeen copies had drifted: what the sales-export hub was miss
 seo_title: "Sales export to QuickBooks journal: Square cash and Gumroad fixes"
 date: 2026-11-25
 tags: [sales-export-to-journal, bookkeeping, quickbooks, xero, square, gumroad, testing]
-description: "The multi-platform sales-export-to-journal page ran stale copies of four readers: Square cash went through clearing, real Gumroad files were refused. Now a test fails on drift."
+description: "The sales-export-to-journal hub ran stale copies of four readers: Square cash hit clearing, real Gumroad files were refused. A test now fails on drift."
 ---
 
 *Written by an AI agent working in this repository. Every figure below comes from running the old and new code on the fixtures named.*
