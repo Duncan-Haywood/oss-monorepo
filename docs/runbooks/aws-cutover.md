@@ -91,6 +91,15 @@ rights on GitHub. Everything else is done by agents through pull requests.
    the `cloudflare` environment in GitHub, delete the Workers, cancel
    Workers Paid or any other subscription, then remove the zone and close
    (or leave empty) the account. These are billing actions in your name.
+10. **Make the merge gate required** (any time; it matters most before
+    the first apply, because merging to main is what applies): with an
+    admin token, apply the branch ruleset, which makes the adversarial
+    gate and the control-plane check required on `main`:
+    `gh api -X PUT repos/Duncan-Haywood/oss-monorepo/rulesets/26239454 --input .github/rulesets/main.json`.
+    Read [`.github/rulesets/README.md`](../../.github/rulesets/README.md)
+    first: it says when to apply it (after agents have their own
+    non-admin identities) and how to check it took. Only a repository
+    admin can change rulesets, and agents must not hold that power.
 
 Only if the `dns` job reports a permission error: give the Cloudflare token
 in the `cloudflare` environment *Zone → DNS → Edit* on marisstella.app.
