@@ -216,7 +216,7 @@ def load(path):
     t = "\n".join(re.sub(r"#.*$", "", ln) for ln in text.splitlines())
     m = re.search(r"^\s*distortion_model\s*:\s*['\"]?([A-Za-z_]+)", t, re.M)
     if m and m.group(1) not in ("plumb_bob", "rational_polynomial"):
-        raise ValueError(f"distortion model {m.group(1)!r} is not the five-term polynomial")
+        raise ValueError(f"distortion model {m.group(1)!r} is not the five-term polynomial (equidistant: use src/fisheyecheck.py)")
     K = _seq_after(t, "camera_matrix") or _seq_after(t, "K")
     D = _seq_after(t, "distortion_coefficients") or _seq_after(t, "D")
     w, h = _scalar(t, "image_width", "width"), _scalar(t, "image_height", "height")
