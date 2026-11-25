@@ -57,6 +57,13 @@ no root user; no IAM users or access keys (except the transitional ones
 below); only `allowed_regions`; no purchases or commitments, and AWS
 Marketplace subscriptions only by the owner's Identity Center role.
 
+RCPs on every OU (`stacks/org/rcps.tf`): S3, KMS, Secrets Manager and SQS
+answer only this organization's principals and AWS services (a data
+perimeter, so a mistaken bucket or key policy grants an outsider nothing;
+serve public content through CloudFront, never a public bucket). On the
+Payments OU: no GitHub Actions token whose subject is this public repository
+is accepted, whatever a role's trust policy says.
+
 ## The bootstrap: what the owner runs, and what each role can do
 
 `bootstrap/bootstrap.yaml` creates, in the management account:
