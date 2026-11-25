@@ -73,6 +73,55 @@ class RenderTest(unittest.TestCase):
             self.assertEqual(sorted(p.name for p in (out / "alerts").iterdir()), ["2.md"])
 
 
+class TriageTest(unittest.TestCase):
+    def entry(self, number, rule=None, path="a.py", reason="read it: harmless"):
+        return {"number": number, "rule": rule or f"py/rule-{number}", "path": path, "reason": reason}
+
+    def test_triaged_alert_leaves_the_work_list_but_stays_visible(self):
+        files = render([alert(1, "high"), alert(2, "high")], [self.entry(1)])
+        work, _, triaged = files["QUEUE.md"].partition("## Triaged, awaiting dismissal")
+        self.assertNotIn("#1 ", work)
+        self.assertIn("#2 ", work)
+        self.assertIn("#1 ", triaged)
+        self.assertIn("false positive", files["alerts/1.md"])
+        self.assertIn("read it: harmless", files["alerts/1.md"])
+        self.assertIn("Claim it", files["alerts/2.md"])
+
+    def test_entry_must_match_number_rule_and_path(self):
+        for wrong in (self.entry(1, rule="py/other"), self.entry(1, path="b.py"),
+                      self.entry(9), self.entry(1, reason="  ")):
+            queue = render([alert(1, "high")], [wrong])["QUEUE.md"]
+            self.assertNotIn("Triaged", queue, wrong)
+            self.assertIn("- [high] #1 ", queue)
+
+    def test_all_triaged_says_empty_of_work(self):
+        queue = render([alert(1, "high")], [self.entry(1)])["QUEUE.md"]
+        self.assertIn("Empty: no open alerts awaiting a fix.", queue)
+
+    def test_unavailable_keeps_only_work_lines(self):
+        previous = render([alert(1, "high"), alert(2, "high")], [self.entry(1)])["QUEUE.md"]
+        text = security_alerts.unavailable(404, "", previous)
+        self.assertIn("#2 ", text)
+        self.assertNotIn("#1 ", text)
+
+    def test_load_triage_tolerates_missing_and_bad_files(self):
+        with tempfile.TemporaryDirectory() as d:
+            self.assertEqual(security_alerts.load_triage(Path(d) / "none.json"), [])
+            bad = Path(d) / "bad.json"
+            bad.write_text("{not json")
+            self.assertEqual(security_alerts.load_triage(bad), [])
+
+    def test_repository_triage_file_is_well_formed(self):
+        entries = security_alerts.load_triage(security_alerts.TRIAGE)
+        self.assertTrue(entries)
+        root = security_alerts.TRIAGE.parents[2]
+        for e in entries:
+            self.assertIsInstance(e["number"], int)
+            self.assertRegex(e["rule"], r"^[a-z]+/[a-z-]+$")
+            self.assertTrue((root / e["path"]).exists(), e["path"])
+            self.assertGreater(len(e["reason"]), 40, e)
+
+
 class MainTest(unittest.TestCase):
     def test_tool_name_survives_missing_tool(self):
         self.assertEqual(summarise(alert(1))["tool"], "CodeQL")

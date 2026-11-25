@@ -20,6 +20,15 @@ The branch holds, regenerated whole on every run:
 A fixed or dismissed alert's file disappears on the next run after CodeQL
 stops reporting it, so the queue empties itself.
 
+False positives: sessions cannot dismiss an alert (no security-events scope),
+so until 2026-11-25 every run re-read the same top alerts and found them
+harmless. `platform/security/codeql-triage.json` on main lists alerts a session
+read and judged false positives, each with a reason. Such an alert leaves the
+"take next" list for a "Triaged, awaiting dismissal" section of QUEUE.md (its
+file stays, with the reason) until the owner dismisses it. An entry applies
+only while number, rule and path all match, so a reused number or a moved
+finding returns to the queue, and the file changes only through a reviewed PR.
+
 Claiming is file based too: a session takes alert <n> by pushing the branch
 `security-fix/code-scanning-<n>` before it starts work, and skips any alert
 whose branch `git ls-remote origin 'refs/heads/security-fix/*'` already shows.
@@ -51,6 +60,7 @@ BRANCH_PREFIX = "security-fix/code-scanning-"
 RANK = {"critical": 0, "high": 1, "error": 1, "medium": 2, "warning": 2,
         "low": 3, "note": 4}
 MESSAGE_CHARS = 600
+TRIAGE = Path(__file__).resolve().parents[2] / "platform" / "security" / "codeql-triage.json"
 
 
 def severity(alert: dict) -> str:
@@ -77,8 +87,40 @@ def summarise(alert: dict) -> dict:
     }
 
 
-def alert_file(s: dict) -> str:
+def load_triage(path: Path) -> list[dict]:
+    """The reviewed false-positive list; a missing or unreadable file means none."""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    entries = data.get("false_positives") if isinstance(data, dict) else None
+    return [e for e in entries or [] if isinstance(e, dict)]
+
+
+def triage_reason(s: dict, triage: list[dict]) -> str | None:
+    """The reason an alert was judged a false positive, if an entry matches it exactly."""
+    for e in triage:
+        if (e.get("number") == s["number"] and e.get("rule") == s["rule"]
+                and e.get("path") == s["path"] and str(e.get("reason") or "").strip()):
+            return " ".join(str(e["reason"]).split())[:MESSAGE_CHARS]
+    return None
+
+
+def alert_file(s: dict, reason: str | None = None) -> str:
     n = s["number"]
+    if reason:
+        return "\n".join([
+            f"# Code-scanning alert #{n}: {s['rule']} (triaged: false positive)",
+            "",
+            f"- Location: `{s['path']}:{s['line']}`",
+            f"- Finding: {s['message']}",
+            f"- Alert page (write access only): {s['url']}",
+            f"- Why it is a false positive: {reason}",
+            "",
+            "Listed in `platform/security/codeql-triage.json`; waiting for the owner to dismiss",
+            "it on the alert page. If the reason is wrong, remove the entry in a PR and fix it.",
+            "",
+        ])
     return "\n".join([
         f"# Code-scanning alert #{n}: {s['rule']}",
         "",
@@ -103,18 +145,22 @@ def alert_file(s: dict) -> str:
         f"3. Land it as usual (CLAUDE.md), PR titled `security: fix code-scanning alert #{n} ({s['rule']})`.",
         "   This file disappears once CodeQL re-scans main and stops reporting the alert.",
         "",
-        "A false positive: change no code, and record why in your run record's `notes` so the",
-        "owner can dismiss it. An unused claim branch expires after 48h (branch_cleanup.py),",
-        "after which the alert is offered again until it is dismissed.",
+        "A false positive: change no code. Add an entry with the reason to",
+        "`platform/security/codeql-triage.json` in your PR, so the queue stops offering it and",
+        "the owner can dismiss it. An unused claim branch expires after 48h (branch_cleanup.py),",
+        "after which the alert is offered again until it is triaged or dismissed.",
         "",
     ])
 
 
-def render(alerts: list[dict]) -> dict[str, str]:
+def render(alerts: list[dict], triage: list[dict] | None = None) -> dict[str, str]:
     """Every file the queue branch should hold, keyed by path."""
-    todo = [summarise(a) for a in alerts if a.get("state") == "open"]
-    todo.sort(key=lambda s: (RANK.get(s["severity"], 5), s["number"]))
-    files = {f"alerts/{s['number']}.md": alert_file(s) for s in todo}
+    open_ = [summarise(a) for a in alerts if a.get("state") == "open"]
+    open_.sort(key=lambda s: (RANK.get(s["severity"], 5), s["number"]))
+    reasons = {s["number"]: triage_reason(s, triage or []) for s in open_}
+    todo = [s for s in open_ if not reasons[s["number"]]]
+    triaged = [s for s in open_ if reasons[s["number"]]]
+    files = {f"alerts/{s['number']}.md": alert_file(s, reasons[s["number"]]) for s in open_}
     lines = [
         "# Security queue",
         "",
@@ -125,7 +171,14 @@ def render(alerts: list[dict]) -> dict[str, str]:
         "",
     ]
     lines += [f"- [{s['severity']}] #{s['number']} `{s['rule']}` in `{s['path']}:{s['line']}`: "
-              f"alerts/{s['number']}.md" for s in todo] or ["Empty: no open alerts."]
+              f"alerts/{s['number']}.md" for s in todo] or [
+        "Empty: no open alerts awaiting a fix." if triaged else "Empty: no open alerts."]
+    if triaged:
+        lines += ["", "## Triaged, awaiting dismissal", "",
+                  "Read and judged false positives (`platform/security/codeql-triage.json`): not work",
+                  "for a session. The owner dismisses each on its alert page.", ""]
+        lines += [f"- [{s['severity']}] #{s['number']} `{s['rule']}` in `{s['path']}:{s['line']}`: "
+                  f"alerts/{s['number']}.md" for s in triaged]
     files["QUEUE.md"] = "\n".join(lines) + "\n"
     return files
 
@@ -143,7 +196,7 @@ def unavailable(code: int, detail: str, previous: str) -> str:
              + (f" ({detail})" if detail else "") + f": {cause}. "
              "This is not an empty queue. Fixing the cause is the top security task; "
              "the last known alerts, if any, follow.", ""]
-    lines += [ln for ln in previous.splitlines() if ln.startswith("- [")]
+    lines += [ln for ln in previous.split("\n## Triaged", 1)[0].splitlines() if ln.startswith("- [")]
     return "\n".join(lines) + "\n"
 
 
@@ -175,6 +228,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument("--repo", default=os.environ.get("GITHUB_REPOSITORY", ""))
     ap.add_argument("--out", required=True, type=Path, help="checkout of the queue branch")
+    ap.add_argument("--triage", type=Path, default=TRIAGE, help="reviewed false-positive list")
     args = ap.parse_args(argv)
     token = os.environ.get("GITHUB_TOKEN", "")
     if not (args.repo and token):
@@ -200,7 +254,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"::error::code-scanning alerts unreadable (HTTP {e.code}: {detail or e.reason}); "
               "QUEUE.md marked unavailable")
         return 1
-    files = render(alerts)
+    files = render(alerts, load_triage(args.triage))
     write_tree(args.out, files)
     print(files["QUEUE.md"])
     return 0
