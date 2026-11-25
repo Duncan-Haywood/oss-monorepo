@@ -119,7 +119,14 @@ export function workbookModel(result, settings = {}) {
   c[2] = [{ v: "Application no.", s: S.bold }, settings.applicationNo || ""];
   c[3] = [{ v: "Period to", s: S.bold }, settings.periodTo || ""];
   c[4] = [{ v: "Contractor", s: S.bold }, settings.contractor || ""];
-  c[5] = [{ v: "Retainage on work", s: S.bold }, { v: workRate, s: S.inputPct }, { v: filled && m.reduced ? "Reduced rate in effect: the job passed the completion point you entered." : "Shaded cells are inputs.", s: S.note }];
+  // "Only on work billed after that point" (compute()'s reduceMode "remaining"): row 6 also carries the reduced rate (D6)
+  // and the completion point (F6), and each default-rate line's retainage on work is split by formula the way compute()
+  // splits it, so changing a number in Excel still gives the right retainage.
+  const prospective = filled && m.reduceMode === "remaining";
+  c[5] = prospective
+    ? [{ v: "Retainage on work", s: S.bold }, { v: workRate, s: S.inputPct }, { v: "reduced to", s: S.note }, { v: m.reducedRateBp / 10000, s: S.inputPct },
+      { v: "on work completed past", s: S.note }, { v: m.reduceAtBp / 10000, s: S.inputPct }, { v: "of the contract sum to date; what was held before stays held.", s: S.note }]
+    : [{ v: "Retainage on work", s: S.bold }, { v: workRate, s: S.inputPct }, { v: filled && m.reduced ? "Reduced rate in effect: the job passed the completion point you entered." : "Shaded cells are inputs.", s: S.note }];
   c[6] = [{ v: "Retainage on stored materials", s: S.bold }, { v: storedRate, s: S.inputPct }];
   c[7] = [{ v: "Type CO in column C on each change order line; a deductive change order is a negative scheduled value. Add lines in the spare rows: every total already covers them.", s: S.note }];
   c[8] = HEADINGS.map((_, i) => ({ v: colName(i), s: S.head }));
@@ -129,6 +136,11 @@ export function workbookModel(result, settings = {}) {
     const r = first + i, l = lines[i];
     const cents = (k) => (l ? dollarsOf(l[k]) : null);
     const own = l && l.own != null ? l.own / 10000 : null;
+    const work = `(E${r}+F${r})`, thr = `ROUND($D$${totalRow}*$F$6,2)`;
+    const pre = `IF($H$${totalRow}<=${thr},${work},ROUND(${work}*${thr}/$H$${totalRow},2))`;
+    const workRet = prospective
+      ? `IF(K${r}="",ROUND(${pre}*$B$6,2)+ROUND((${work}-${pre})*$D$6,2),ROUND(${work}*K${r},2))`
+      : `ROUND(${work}*IF(K${r}="",$B$6,K${r}),2)`;
     c[r - 1] = [
       l ? l.item : null,
       l ? l.desc : null,
@@ -141,7 +153,7 @@ export function workbookModel(result, settings = {}) {
       { f: `IF(D${r}=0,"",H${r}/D${r})`, v: l && l.pct != null ? l.c !== 0 ? l.g / l.c : "" : "", s: S.pct },
       { f: `D${r}-H${r}`, v: l ? dollarsOf(l.balance) : 0, s: S.money },
       { v: own, s: S.inputPct },
-      { f: `ROUND((E${r}+F${r})*IF(K${r}="",$B$6,K${r}),2)+ROUND(G${r}*IF(K${r}="",$B$7,K${r}),2)`, v: l ? dollarsOf(l.ret) : 0, s: S.money },
+      { f: `${workRet}+ROUND(G${r}*IF(K${r}="",$B$7,K${r}),2)`, v: l ? dollarsOf(l.ret) : 0, s: S.money },
     ];
   }
   const sumCol = (col, v) => ({ f: `SUM(${col}${first}:${col}${last})`, v, s: S.boldMoney });

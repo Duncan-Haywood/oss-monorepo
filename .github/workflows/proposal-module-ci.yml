@@ -17,6 +17,9 @@ on:
       - "platform/proposal/**"
       - "ventures/*/proposal.mjs"
       - "ventures/*/proposal.test.mjs"
+      - "ventures/*/proposal-terms.mjs"
+      - "ventures/*/proposal-terms.test.mjs"
+      - "ventures/*/share.mjs"
       - ".github/workflows/proposal-module-ci.yml"
   push:
     branches: [main]
@@ -24,6 +27,9 @@ on:
       - "platform/proposal/**"
       - "ventures/*/proposal.mjs"
       - "ventures/*/proposal.test.mjs"
+      - "ventures/*/proposal-terms.mjs"
+      - "ventures/*/proposal-terms.test.mjs"
+      - "ventures/*/share.mjs"
       - ".github/workflows/proposal-module-ci.yml"
   workflow_dispatch:
 

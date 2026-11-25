@@ -21,6 +21,10 @@ of each export; no real exports were available.** Unrecognised files are named o
 The Mercari reader is the exception: its 20 field names are the ones Mercari's help centre lists for the
 Gross Sales Report (mercari.com/us/help_center/article/541, read 2026-11-24), though no real file has been read yet.
 
+Optionally, an **inventory log**: a sourcing sheet CSV with an item or SKU, a cost (unit or total) and a purchase date,
+plus optional quantity, date sold and status (`personal`, `kept`, `donated`, `lost`, `damaged`...). It costs every sale
+it names and fills in Schedule C Part III (see Model).
+
 Optionally, a **mileage log**: any CSV with a date and a miles (or odometer start and end) column, including the
 `mileage-log` venture's own export. Business trips go on Schedule C line 9 at the IRS standard rate (see Model).
 
@@ -43,6 +47,17 @@ tolls and parking, as Schedule C line 9; business, commuting and other miles are
 category column is all business; with one, only rows marked business (or sourcing, work, shipping, post office)
 are deducted. A row repeated across two files counts once; identical rows within one file all count. Trips before
 2025 are left out and trips after 2026 are flagged. Mileage is kept out of the marketplace reconciliation.
+Inventory (`inventory.mjs`): with an inventory log and reports from one calendar year, each net unit sold (returns go back
+on the shelf) takes the oldest matching purchase still on hand (FIFO), matched case-insensitively by any name the
+channel gives the sale (eBay custom label, title or item number; Shopify SKU or product name; Poshmark and Whatnot SKU,
+order ID or title; Mercari Item ID or title; Etsy listing name, through the Sold Order Items file only). Part III of
+the 2026 Schedule C (read from irs.gov 2026-11-25): line 35 is the opening figure you enter (last year's line 41) or
+else the log's purchases before the year not marked sold before it; line 36 is the year's purchases (undated rows count
+here, flagged) less rows marked personal or kept; line 41 is what is left at Dec 31 after sales, after rows marked
+donated, lost or damaged, and after rows marked sold in the year that no report sale took ("sold elsewhere"); line 42 =
+35 + 36 - 41, carried to line 4, at cost (33a). Lines 37 to 39 are left to the preparer. Unmatched sold units are listed.
+With the log's opening figure, line 42 equals the FIFO cost of matched units plus units sold elsewhere (asserted in
+tests). The log also gives each SKU and title its average unit cost for the per-channel profit; typed costs win.
 The worksheet groups totals under Schedule C lines and says where placement is a preparer's
 choice. Not tax advice.
 

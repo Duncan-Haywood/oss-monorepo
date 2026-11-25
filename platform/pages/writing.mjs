@@ -700,6 +700,7 @@ const FINDER_SCRIPT = `(() => {
   const params = new URLSearchParams(location.search);
   let topic = chips.some((c) => c.dataset.topicChip === params.get('topic')) ? params.get('topic') : '';
   let full = null, loading = null;
+  const bodyMatcher = ${bodyMatcher.toString()};
   q.value = params.get('q') || '';
   tag.value = params.get('tag') || '';
   if (tag.selectedIndex < 0) tag.value = '';
@@ -711,7 +712,7 @@ const FINDER_SCRIPT = `(() => {
     long: (a, b) => b.dataset.mins - a.dataset.mins,
   };
   function loadFull() {
-    if (!loading) loading = fetch('search.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((j) => { full = j; apply(); });
+    if (!loading) loading = fetch('search.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((j) => { full = bodyMatcher(j); apply(); });
   }
   function card(r) {
     const li = document.createElement('li');
@@ -746,10 +747,10 @@ const FINDER_SCRIPT = `(() => {
     if (terms.length && !full) loadFull();
     let shown = 0;
     for (const li of items) {
-      const hay = li.dataset.text + ' ' + ((full && full[li.dataset.slug]) || '');
+      // A term has no spaces, so it matches the card text or the body, never across the two.
       const ok = (!topic || li.dataset.topic === topic)
         && (!tag.value || li.dataset.tags.split(' ').indexOf(tag.value) >= 0)
-        && terms.every((t) => hay.indexOf(t) >= 0);
+        && terms.every((t) => li.dataset.text.indexOf(t) >= 0 || Boolean(full && full(t).has(li.dataset.slug)));
       li.hidden = !ok;
       if (ok) shown++;
     }
@@ -821,16 +822,83 @@ function renderFinder(posts) {
 /** The text the index's search reads before the full text arrives. */
 const cardText = (p) => [p.title, p.description, p.tags.join(' '), topicLabel(p.topic)].join(' ').toLowerCase().replace(/\s+/g, ' ');
 
-/** `search.json`: each post's body as lower-case plain words, for full-text search on the index. */
+/** A post's body as lower-case plain words separated by single spaces: the text the full-text search reads. */
+export const searchText = (md) =>
+  md
+    .replace(/\]\([^)]*\)/g, ']')
+    .replace(/[#*_`>|[\]]/g, ' ')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+
+/**
+ * `search.json`: an inverted index of every post's body, for full-text search on the index.
+ *
+ * `{ slugs, words, posts }`: `words` is each distinct word once, space-separated; `posts[i]` lists
+ * the posts (indexes into `slugs`) that hold word i, as base-36 gaps (an empty gap means the next
+ * post), comma-separated. The search only asks whether a typed term (no spaces) is a substring of
+ * a post's text, and such a term can only match inside one word, so "some word of this post contains
+ * the term" gives the same answer as searching the whole body. Until 2026-11-25 this file held each
+ * body in full: 18.3 MB (6.7 MB gzip) at 7,749 posts, all fetched on the first keystroke; the index
+ * is a third of that (docs/history/pages-build-perf-2026-11-25-writing-search-index.md).
+ */
 export function renderSearchIndex(posts) {
-  const plain = (md) =>
-    md
-      .replace(/\]\([^)]*\)/g, ']')
-      .replace(/[#*_`>|[\]]/g, ' ')
-      .toLowerCase()
-      .replace(/\s+/g, ' ')
-      .trim();
-  return JSON.stringify(Object.fromEntries(posts.map((p) => [p.slug, plain(p.body)])));
+  const holders = new Map();
+  posts.forEach((p, i) => {
+    for (const w of new Set(searchText(p.body).split(' '))) {
+      if (!w) continue;
+      const list = holders.get(w);
+      if (list) list.push(i);
+      else holders.set(w, [i]);
+    }
+  });
+  const words = [...holders.keys()];
+  const gaps = (list) => {
+    let prev = -1;
+    return list.map((i) => { const d = i - prev - 1; prev = i; return d ? d.toString(36) : ''; }).join(',');
+  };
+  return JSON.stringify({ slugs: posts.map((p) => p.slug), words: words.join(' '), posts: words.map((w) => gaps(holders.get(w))) });
+}
+
+/**
+ * Reads `search.json` in the browser (inlined into the index's script) and in tests: returns
+ * `has(term)`, the Set of slugs whose body contains `term`. Each distinct word is scanned once per
+ * term and the answer memoised, so a keystroke no longer walks every post's full text. A file in the
+ * older shape (slug to full text, still in a cache during a deploy) is read too.
+ */
+export function bodyMatcher(index) {
+  const memo = new Map();
+  if (!index || !Array.isArray(index.slugs)) {
+    const texts = Object.entries(index || {});
+    return (t) => {
+      let hit = memo.get(t);
+      if (!hit) {
+        hit = new Set();
+        for (const [slug, text] of texts) if (String(text).indexOf(t) >= 0) hit.add(slug);
+        memo.set(t, hit);
+      }
+      return hit;
+    };
+  }
+  const slugs = index.slugs, posts = index.posts || [];
+  const words = String(index.words || '').split(' ');
+  return (t) => {
+    let hit = memo.get(t);
+    if (!hit) {
+      hit = new Set();
+      for (let i = 0; i < words.length; i++) {
+        if (words[i].indexOf(t) < 0) continue;
+        let p = -1;
+        for (const d of String(posts[i] || '').split(',')) {
+          p += (d ? parseInt(d, 36) : 0) + 1;
+          if (p < slugs.length) hit.add(slugs[p]);
+        }
+      }
+      if (memo.size > 500) memo.clear();
+      memo.set(t, hit);
+    }
+    return hit;
+  };
 }
 
 /** The rows `posts.json` holds for the finder: slug, title, description, date, minutes, topic id, topic label, tags, search text. */

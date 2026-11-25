@@ -68,6 +68,7 @@
       <div><label for="sret">Retainage on stored materials, percent (blank = same)</label><input id="sret" inputmode="decimal" value=""></div>
       <div><label for="reduce-at">Reduce retainage once percent complete reaches (optional)</label><input id="reduce-at" inputmode="decimal" placeholder="50"></div>
       <div><label for="reduced">…to this percent</label><input id="reduced" inputmode="decimal" placeholder="5"></div>
+      <div><label for="reduce-mode">The reduced rate applies to</label><select id="reduce-mode"><option value="all">everything billed (part of what was held is released)</option><option value="remaining">only work completed after that point (what was held stays held)</option></select></div>
       <div><label for="prev">Previous certificates for payment, dollars (blank = estimate)</label><input id="prev" inputmode="decimal" placeholder="from your last application"></div>
       <div><label for="project">Project name (optional)</label><input id="project"></div>
       <div><label for="appno">Application number (optional)</label><input id="appno"></div>
@@ -182,7 +183,7 @@
       a.click();
     }
     const settings = () => ({
-      retainagePct: $("#ret").value, storedRetainagePct: $("#sret").value, reduceAtPct: $("#reduce-at").value, reducedPct: $("#reduced").value,
+      retainagePct: $("#ret").value, storedRetainagePct: $("#sret").value, reduceAtPct: $("#reduce-at").value, reducedPct: $("#reduced").value, reduceMode: $("#reduce-mode").value,
       previousCertificates: $("#prev").value, project: $("#project").value.trim(), applicationNo: $("#appno").value.trim(),
       periodTo: $("#period").value.trim(), contractor: $("#contractor").value.trim(), owner: $("#owner").value.trim(),
     });
@@ -231,7 +232,7 @@
     $("#load-ok").addEventListener("click", () => {
       $("#paste").value = sampleList(); $("#file").value = "";
       const e = SAMPLE_SETTINGS;
-      $("#ret").value = e.retainagePct; $("#sret").value = e.storedRetainagePct; $("#reduce-at").value = e.reduceAtPct; $("#reduced").value = e.reducedPct;
+      $("#ret").value = e.retainagePct; $("#sret").value = e.storedRetainagePct; $("#reduce-at").value = e.reduceAtPct; $("#reduced").value = e.reducedPct; $("#reduce-mode").value = "all";
       $("#prev").value = e.previousCertificates; $("#project").value = e.project; $("#appno").value = e.applicationNo; $("#period").value = e.periodTo;
       $("#contractor").value = e.contractor; $("#owner").value = e.owner;
       run($("#paste").value); record("example_loaded");
@@ -245,7 +246,7 @@
     $("#dl-template").addEventListener("click", () => { record("template_downloaded"); download("pay-application-template.xlsx", workbookXlsx(null, {}), XLSX); });
     $("#print").addEventListener("click", () => window.print());
     const fill = (e) => {
-      $("#ret").value = e.retainagePct ?? ""; $("#sret").value = e.storedRetainagePct ?? ""; $("#reduce-at").value = e.reduceAtPct ?? ""; $("#reduced").value = e.reducedPct ?? "";
+      $("#ret").value = e.retainagePct ?? ""; $("#sret").value = e.storedRetainagePct ?? ""; $("#reduce-at").value = e.reduceAtPct ?? ""; $("#reduced").value = e.reducedPct ?? ""; $("#reduce-mode").value = e.reduceMode === "remaining" ? "remaining" : "all";
       $("#prev").value = e.previousCertificates ?? ""; $("#project").value = e.project ?? ""; $("#appno").value = e.applicationNo ?? ""; $("#period").value = e.periodTo ?? "";
       $("#contractor").value = e.contractor ?? ""; $("#owner").value = e.owner ?? "";
     };
