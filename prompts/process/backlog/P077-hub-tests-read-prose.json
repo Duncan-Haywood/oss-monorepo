@@ -18,6 +18,6 @@
   "baseline": "1 record (PR #18765) in the 3 days to 2026-11-25; the class recurs whenever a technical post is published",
   "opened": "2026-11-25",
   "source": "process critique, 2026-11-25 (recent doc_friction in prompts/runs/)",
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18902",
   "result": null
 }
