@@ -14050,6 +14050,8 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     footer: renderSiteFooterNav({ toRoot: '../../' }),
     liveSlugs: new Set(surfaces.map((surface) => surface.slug)),
     researchSlugs: new Set(researchSlugs),
+    // Real stills of its free tools (showcase/capture.mjs), already limited to published ones.
+    shots: showcase.shots,
   });
 
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so

@@ -45,3 +45,22 @@ has been built or tested on a site.
 
 The page links only tools and research that the build actually published, so
 a renamed tool drops off the page instead of leaving a dead link.
+
+## Update, 2026-11-25: the page shows the tool, not just names it
+
+Until today the page was all words: about 13,400 pixels of text on a phone
+before the footer, and no picture of anything it offered. It now opens, under
+the early-access button, with a still of the free
+[pay application generator](https://marisstella.app/pay-application-generator/)
+with its own worked example loaded: a $528,000 office renovation on
+application number 4, $24,530 of retainage held, $84,870 current payment due.
+The still is the real page captured from a local build by the same script
+that takes the home page's showcase (`platform/pages/showcase/capture.mjs`),
+not a mock-up, and the numbers in it are the tool's example, not a customer's.
+
+The residential takeoff card shows the wall framing takeoff's stud drawing the
+same way. Both use the close 600 × 375 crop, with a 1,200-pixel copy for
+sharp phone screens, because the full-width still shrank the summary lines to
+unreadable on a 390-pixel phone. A still drops off with its tool if the tool
+is ever unpublished, like the links do. The pay application generator also
+joins the home page's gallery of real tools, beside the wall framing takeoff.

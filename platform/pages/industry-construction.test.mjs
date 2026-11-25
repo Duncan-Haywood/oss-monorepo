@@ -130,3 +130,26 @@ test('every pay-app-guides page in its own nav is linked from this page', async 
     }
   }
 });
+
+test('real stills of the free tools: the pay-app one leads, others sit in their product card', () => {
+  const shots = [
+    { slug: 'pay-application-generator', file: 'pay-application-generator.webp', hero: 'pay-application-generator-hero.webp', heroWide: 'pay-application-generator-hero-1200.webp', caption: 'Rolls a schedule <of> values' },
+    { slug: 'wall-framing-takeoff', file: 'wall-framing-takeoff.webp', caption: 'Draws every stud' },
+    { slug: 'not-on-this-page', file: 'x.webp', caption: 'x' },
+  ];
+  const html = renderConstructionPage({ baseUrl: BASE, shots });
+  const lead = html.indexOf('class="ic-still ic-lead-still"');
+  assert.ok(lead > 0 && lead < html.indexOf('The jobs that eat the week'), 'lead still sits above the problems');
+  // The close crop, with its 1,200 px twin.
+  assert.match(html, /<img src="\.\.\/\.\.\/showcase\/pay-application-generator-hero\.webp" srcset="[^"]*pay-application-generator-hero-1200\.webp 1200w" sizes="[^"]+" width="600" height="375" alt="Pay application generator with its worked example loaded: Rolls a schedule &lt;of&gt; values"/);
+  assert.equal(html.split('showcase/pay-application-generator-hero.webp').length - 1, 2, 'the lead still (src and srcset) is not repeated in its card');
+  const card = html.slice(html.indexOf('id="product-residential-takeoff"'));
+  assert.match(card.slice(0, card.indexOf('</article>')), /showcase\/wall-framing-takeoff\.webp" width="960" height="600"[^>]*loading="lazy"/, 'no crop: the full still');
+  assert.ok(!html.includes('x.webp'), 'a still of a tool this page does not list is not shown');
+  // An unpublished tool's still drops with it.
+  const live = new Set(allSlugs.map(toolSlug).filter((s) => s !== 'pay-application-generator'));
+  const without = renderConstructionPage({ baseUrl: BASE, shots, liveSlugs: live });
+  assert.ok(!without.includes('class="ic-still ic-lead-still"') && !without.includes('pay-application-generator'));
+  // No stills, no figure.
+  assert.ok(!renderConstructionPage({ baseUrl: BASE }).includes('<figure'));
+});
