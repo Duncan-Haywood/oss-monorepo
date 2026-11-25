@@ -39,3 +39,15 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
 });
+
+test("next-month carry-forward is on the page and the suite pitch claims no sale or price", () => {
+  const html = page("index.html");
+  assert.match(html, /id="next-start"/);
+  assert.match(html, /id="next-dl"/);
+  assert.match(html, /next_period_started/);
+  const suite = /<section class="card" id="suite">([\s\S]*?)<\/section>/.exec(html)[1];
+  assert.match(suite, /in development/);
+  assert.match(suite, /not on sale yet/);
+  assert.doesNotMatch(suite, /\$\s?\d/);
+  assert.match(suite, /https:\/\/marisstella\.app\/feedback\/\?type=idea&amp;tool=pay-application-generator/);
+});

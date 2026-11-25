@@ -7,7 +7,7 @@ const near = (a, b, msg) => assert.ok(Math.abs(a - b) < 0.011, `${msg}: ${a} vs 
 
 test("each marketplace's own sample file is recognised as that marketplace", () => {
   const { files } = sampleFiles();
-  assert.deepEqual(files.map((f) => detectKind(f.text)), ["ebay", "etsy", "poshmark", "whatnot", "shopify", "shopify-orders", "mercari"]);
+  assert.deepEqual(files.map((f) => detectKind(f.text)), ["ebay", "etsy", "poshmark", "whatnot", "shopify", "shopify-orders", "mercari", "mileage"]);
 });
 
 test("a Whatnot file is not read as a Poshmark file (their parsers accept each other's)", () => {
@@ -93,7 +93,7 @@ test("CSV and summary exports carry every channel and month", () => {
 });
 
 test("no network calls in the engine or the page", () => {
-  for (const f of ["books.mjs", "index.html", "engines/ebay.mjs", "engines/etsy.mjs", "engines/poshmark.mjs", "engines/whatnot.mjs", "engines/shopify.mjs", "engines/mercari.mjs"]) {
+  for (const f of ["books.mjs", "index.html", "engines/ebay.mjs", "engines/etsy.mjs", "engines/poshmark.mjs", "engines/whatnot.mjs", "engines/shopify.mjs", "engines/mercari.mjs", "engines/mileage.mjs", "trips.mjs"]) {
     assert.doesNotMatch(readFileSync(new URL(`./${f}`, import.meta.url), "utf8"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, f);
   }
 });
@@ -105,6 +105,7 @@ test("vendored engines are byte-identical to the analyzers they came from (check
     "engines/poshmark.mjs": "../poshmark-sales-report-analyzer/calc.mjs",
     "engines/whatnot.mjs": "../whatnot-sales-report-analyzer/calc.mjs",
     "engines/shopify.mjs": "../shopify-payout-profit-analyzer/calc.mjs",
+    "engines/mileage.mjs": "../mileage-log/calc.mjs",
   };
   for (const [copy, src] of Object.entries(pairs)) {
     const srcUrl = new URL(`./${src}`, import.meta.url);

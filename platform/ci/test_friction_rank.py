@@ -205,10 +205,11 @@ def test_codeowners_gating(tmp_path):
 def test_real_codeowners_gates_the_control_plane():
     rules = fr.codeowner_rules()
     assert rules, "the repository's .github/CODEOWNERS should parse"
-    # Since 2026-11-24 the Markdown instructions go through the risk review, not
-    # CODEOWNERS; the executable prompt tooling stays owned.
+    # Agent instructions left the owner-only core on 2026-11-24 (PR #18736:
+    # a risk review replaces owner approval); the gate and its tools stay in it.
     assert fr.gated("prompts/promptctl.py", rules) and fr.gated(".github/CODEOWNERS", rules)
-    assert not fr.gated("prompts/redteam/prompt-0.md", rules)
+    assert fr.gated("platform/ci/control_plane_guard.py", rules)
+    assert not fr.gated("prompt.md", rules)
     assert not fr.gated("platform/ci/friction_rank.py", rules)
     assert not fr.gated("portfolio/flagships.yaml", rules)
 
