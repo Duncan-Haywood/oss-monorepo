@@ -18,6 +18,7 @@ Live: <https://marisstella.app/pay-app-guides/>
 | `retainage-explained.html` | How retainage is calculated, reduced, released and flowed down, and a table of public retainage caps for 12 states, each linked to the official statute. |
 | `conditional-vs-unconditional-lien-waivers.html` | The four waiver types, when to sign each, exceptions to write in, California and Florida statutory forms. |
 | `change-orders-schedule-of-values.html` | How approved and deductive change orders enter the SOV and the summary, with a worked example. |
+| `change-order-log.html` | Change order log (`colog.mjs`): paste or open a log; approved, pending, rejected and void totals, revised contract sum, pending aging against a flag, billing on unsigned or rejected changes and over-billing flagged, approved COs written as SOV lines the pay application generator reads (`colog.test.mjs` round-trips them through its `compute()`), log CSV, and exceptions wording for a progress lien waiver. Optional remember-in-this-browser. |
 
 ## Spec sources
 
@@ -64,8 +65,8 @@ are marks of their owner.
 
 Everything runs in the browser. Nothing typed is uploaded; no accounts,
 cookies or analytics vendors. Anonymous feature counters (`sov_calculated`,
-`example_loaded`, `summary_copied`, `csv_downloaded`, and one
-`guide_*_viewed` per guide) are kept in the visitor's own local storage,
+`example_loaded`, `summary_copied`, `csv_downloaded`, one
+`guide_*_viewed` per guide, and `colog_*` on the change order log) are kept in the visitor's own local storage,
 switched off by Do Not Track or the opt-out button.
 
 ## Licence

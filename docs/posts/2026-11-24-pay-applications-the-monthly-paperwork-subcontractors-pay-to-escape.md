@@ -100,7 +100,7 @@ product is built in a private repository; the free tools stay open source.
 
 ## What exists now, free
 
-Three parts of the job already have free browser tools on this site. They
+Four parts of the job already have free browser tools on this site. They
 are the starting point, not the product:
 
 - [Pay Application Generator](https://marisstella.app/pay-application-generator/):
@@ -113,6 +113,23 @@ are the starting point, not the product:
 - [Construction Retainage Calculator](https://marisstella.app/retainage-cashflow-calculator/):
   the cash tied up in retainage and what waiting costs.
   ([source](../../ventures/retainage-cashflow-calculator/README.md))
+- [Change Order Log](https://marisstella.app/pay-app-guides/change-order-log.html)
+  (added 2026-11-25): paste or open your change order log and see the
+  revised contract sum, how much is pending and unsigned, and how long each
+  pending change has waited. It flags money billed on pending, rejected or
+  void changes, and billing outside zero to the approved amount. It writes
+  the approved change orders as schedule-of-values lines (CO-1, CO-2, with
+  billed to date as "previous") in the columns the Pay Application Generator
+  reads; a test feeds them through the generator and checks the net change
+  and revised contract sum match to the cent. It also drafts the exceptions
+  line for a progress lien waiver, listing the open change orders.
+  ([source](../../ventures/pay-app-guides/README.md))
+
+The change order log is there because unsigned changes are where a sub
+loses money that the pay app never shows: the work is done, the pay app
+can only carry it once it is signed, and a waiver signed in the meantime
+can give it away. The hosted product keeps one log per job and adds each
+change order to the next pay application the month it is signed.
 
 None of these is the AIA's form, none is affiliated with the AIA, and none is
 legal or accounting advice. Retainage, waiver and payment terms come from

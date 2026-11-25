@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html"];
+const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "change-order-log.html"];
 
 test("every page carries the no-warranty clause, sponsor link, opt-out and honest CTA", () => {
   for (const name of PAGES) {
@@ -21,7 +21,7 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
 });
 
 test("no page sends anything anywhere or loads remote scripts", () => {
-  for (const name of [...PAGES, "calc.mjs", "usage.mjs"]) {
+  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "usage.mjs"]) {
     const src = page(name);
     assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, name);
     assert.doesNotMatch(src, /<script[^>]+src=["']https?:/, name);
@@ -48,6 +48,12 @@ test("the retainage table covers at least 10 states, each linked to an official 
   const official = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|www\.leg\.state\.fl\.us|www\.nysenate\.gov|www\.palegis\.us|www\.ilga\.gov|www\.ncleg\.gov|www\.legislature\.mi\.gov|law\.lis\.virginia\.gov|app\.leg\.wa\.gov|malegislature\.gov|www\.azleg\.gov)\//;
   for (const [, state, href] of rows) assert.match(href, official, state);
   assert.match(html, /2026-11-24/);
+});
+
+test("change order log inputs are labelled and the guide pages link to it", () => {
+  const html = page("change-order-log.html");
+  for (const id of ["project", "original", "asof", "stale", "log", "file"]) assert.match(html, new RegExp(`<label for="${id}">`));
+  for (const name of ["index.html", "change-orders-schedule-of-values.html"]) assert.match(page(name), /href="change-order-log\.html"/, name);
 });
 
 test("robots and sitemap list every page", () => {
