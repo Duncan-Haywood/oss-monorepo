@@ -34,7 +34,7 @@ export function proposal(b, p = {}) {
     if (p.payments.some((m) => !(Number(m.pct) > 0)) || Math.abs(sum - 100) > 1e-9) {
       return { ok: false, error: `payment milestones must be positive and add to 100% (they add to ${r2(sum)}%)` };
     }
-    payments = p.payments.map((m) => ({ name: m.name, pct: Number(m.pct), amount: r2(price * Number(m.pct) / 100) }));
+    payments = p.payments.map((m, i) => ({ name: String(m.name ?? "").trim() || `Payment ${i + 1}`, pct: Number(m.pct), amount: r2(price * Number(m.pct) / 100) }));
     const pd = r2(price - payments.reduce((t, m) => t + m.amount, 0));
     payments[payments.length - 1].amount = r2(payments[payments.length - 1].amount + pd);
   }
@@ -42,7 +42,7 @@ export function proposal(b, p = {}) {
   const allowances = b.lines.filter((l) => l.section === "Allowances").map((l) => ({ item: l.item, amount: l.amount ?? 0 }));
   return {
     ok: true, price: r2(price), rows, payments, scope, allowances, partial: !!(b.unpriced.length),
-    gaps: b.unpriced, validDays: p.validDays ?? 30, meta: { client: p.client || "", project: p.project || "", date: p.date || "" },
+    gaps: b.unpriced, validDays: Number.isFinite(Number(p.validDays)) && Number(p.validDays) >= 0.5 ? Math.round(Number(p.validDays)) : 30, meta: { client: p.client || "", project: p.project || "", date: p.date || "" },
     inclusions: p.inclusions || [], exclusions: p.exclusions || [], terms: p.terms || [],
   };
 }
@@ -93,9 +93,10 @@ export function proposalHtml(q, opts = {}) {
   if (q.inclusions.length) h.push(`<p>Also included: ${q.inclusions.map(escHtml).join("; ")}.</p>`);
   h.push(`<h2>Price by section</h2><table><thead><tr><th>Section</th><th class="n">Amount</th></tr></thead><tbody>${q.rows.map((r) => `<tr><td>${escHtml(r.name)}</td><td class="n">${money(r.amount)}</td></tr>`).join("")}<tr class="total"><td>Total</td><td class="n">${money(q.price)}</td></tr></tbody></table>`);
   if (q.allowances.length) h.push(`<h2>Allowances</h2><p class="small">Actual cost is billed; the price moves with the difference.</p><table><thead><tr><th>Item</th><th class="n">Amount</th></tr></thead><tbody>${q.allowances.map((a) => `<tr><td>${escHtml(a.item)}</td><td class="n">${money(a.amount)}</td></tr>`).join("")}</tbody></table>`);
+  if (q.payments.length) h.push(`<h2>Payment schedule</h2><table><thead><tr><th>Milestone</th><th class="n">Share</th><th class="n">Amount</th></tr></thead><tbody>${q.payments.map((m) => `<tr><td>${escHtml(m.name)}</td><td class="n">${escHtml(m.pct)}%</td><td class="n">${money(m.amount)}</td></tr>`).join("")}</tbody></table>`);
   if (q.exclusions.length) h.push(`<h2>Not included</h2><ul>${q.exclusions.map((e) => `<li>${escHtml(e)}</li>`).join("")}</ul>`);
   if (q.terms.length) h.push(`<h2>Terms</h2><ul>${q.terms.map((t) => `<li>${escHtml(t)}</li>`).join("")}</ul>`);
-  h.push(`<p class="small">This price is valid for ${q.validDays} days. Quantities come from the plans as drawn; changes are priced by change order.</p>`);
+  h.push(`<p class="small">This price is valid for ${escHtml(q.validDays)} days. Quantities come from the plans as drawn; changes are priced by change order.</p>`);
   if (q.partial) h.push(`<p class="warn">Partial proposal, not priced: ${q.gaps.map(escHtml).join("; ")}.</p>`);
   if (opts.appendix) h.push(opts.appendix);
   h.push(`${opts.footer || ""}</body></html>`);
