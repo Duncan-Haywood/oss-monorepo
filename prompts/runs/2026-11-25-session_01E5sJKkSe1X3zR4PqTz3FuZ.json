@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKkSe1X3zR4PqTz3FuZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T19:09:56Z",
+  "ended": "2026-11-25T19:24:50Z",
+  "wall_minutes": 15.11,
+  "tokens_in": 13524526,
+  "tokens_out": 50160,
+  "cost_usd": 5.0535,
+  "tool_calls": 103,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19069",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Built jobshop-quote 'RFQ arrival alerts' (ROADMAP item 8 part 2) in full, then found private PR 150 had merged the same feature minutes earlier under a sibling claim slug; discarded mine unmerged and rebuilt on item 7 part 4 instead (about 25 minutes lost)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Claims are per slug, so two runs claiming different part slugs of one item (inbound-rfq-email-notify vs inbound-rfq-email-part-2-notify) both 'won' for the same work. Fixed in this PR: a successful claim now lists fresh sibling claims on the same item."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--release twice failed with 'send-pack: unexpected disconnect' / 'remote end hung up' through the proxy; the claim on inbound-rfq-email-part-2-notify may still exist (stale after 6 h)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Private-monorepo CI jobs fail in 3 s with no logs (404) on PRs 150 and 152; ci_starvation.py only reads oss-monorepo, so there is no documented way to classify private runs."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "'CI green before merging': private CI never got a runner (3 s failures, no logs).",
+      "did": "Ran every step of jobshop-quote-ci.yml locally (biome ci, typecheck, unit, worker, build, provision test, drizzle check/generate drift) and merged private PR 152 on that.",
+      "result": "All steps passed locally."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (revisions section: day-before expiry email bullet)"
+  ],
+  "goal": null,
+  "notes": "Private PR 152 merged: https://github.com/Duncan-Haywood/private-monorepo/pull/152 (jobshop-quote day-before quote expiry email, migration 0011). Local: worker 120/120, unit 215/215, build ok, biome ci clean, drizzle in sync. roadmap_claim tests 8/8. No agent doc added: the ROADMAP and docs/EMAIL.md in the private app carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ed93ce40-a780-56fe-bfcf-c7d566a38edc",
+    "transcripts": 1,
+    "first": "2026-11-25T19:09:56Z",
+    "last": "2026-11-25T19:25:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 96,
+        "input": 183,
+        "output": 50160,
+        "thinking": 7516,
+        "cache_read": 13351949,
+        "cache_write_5m": 0,
+        "cache_write_1h": 172394,
+        "api_equivalent_usd": 5.0535,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 96,
+      "input": 183,
+      "output": 50160,
+      "thinking": 7516,
+      "cache_read": 13351949,
+      "cache_write_5m": 0,
+      "cache_write_1h": 172394,
+      "api_equivalent_usd": 5.0535,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 103,
+    "tools": {
+      "Bash": 90,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.11,
+      "active_minutes": 15.11,
+      "model_minutes": 11.53,
+      "tool_minutes": 3.58,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: scheduled digest email with opt-out, migration, tests, docs (~5 h) plus claim-tool fix (~1 h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 118.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

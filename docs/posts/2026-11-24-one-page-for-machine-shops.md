@@ -119,6 +119,13 @@ now handles this the way paper quoting systems always did:
 - **Expiry is automatic.** Each morning, sent quotes past their valid-until
   day are marked expired. A quote valid until the 25th is still good all of
   the 25th. An expired quote can still be revised when the buyer comes back.
+- **A heads-up the day before** (added later on 25 November). Each morning,
+  every estimator gets one email listing their own sent quotes that expire
+  today or tomorrow: the customer and contact, the total and a link to each.
+  That leaves a day to call the buyer or send a revision with a new date,
+  instead of finding out after the quote has lapsed. The email goes only to
+  the person who wrote the quote, never twice for the same quote, and each
+  estimator can turn it off under the quote log.
 
 This matters for more than tidiness. A quote is an offer, and a shop that
 cannot show which revision a PO accepted is in a weak position if there is a
@@ -240,6 +247,20 @@ now sends the quote itself, from the sent quote's page:
 Mail goes out through Cloudflare Email Service once the app is deployed.
 Until then, the page says plainly that nothing leaves the server, and the
 PDF download still works.
+
+**Later the same day: the shop's signature and a copy for the estimator.**
+Two things an estimator used to get from their own mail program:
+
+- **A signature block.** An admin types the shop's signature once on the
+  rate card page (name, address, phone, certifications such as AS9100), and
+  it goes under the estimator's message on every quote email. The send form
+  shows it as it will appear.
+- **"Send me a copy."** On by default. After the customer's email goes
+  through, the estimator gets the same message and PDF at their own address,
+  headed with who the original went to, so the quote sits in their own
+  mailbox next to the buyer's reply. It is a separate message, not a Cc: the
+  buyer sees no extra address, and if the copy fails the quote has still
+  been sent, and the history on the quote says so.
 
 ## Update, 25 November 2026: which quotes you win, and at what price
 
@@ -365,6 +386,23 @@ The address only starts working once the app is deployed and the receiving
 domain is routed to it. Until then the RFQs page doesn't show the option at
 all.
 
+**Later the same day: an email when one arrives.** An RFQ sitting unseen in
+the inbox is a quote that goes out late. Each person in the shop can now tick
+"Email me when an RFQ arrives" on the RFQs page, for themselves only. When a
+new RFQ comes in, each of them gets a short notice: the subject, who the email
+says it is from, how many drawings were stored, and a link straight to it.
+
+- **A notice, not a copy.** The notice never carries the email's text or its
+  attachments, so the shop's address can't be used to pass a stranger's
+  message on under the app's name. The subject and sender came from outside,
+  so web addresses in them are broken up (`example[.]com`) and can't be
+  clicked. The only link in the notice goes to the RFQ in the app.
+- **Only the people who asked.** It is off until each person turns it on,
+  someone who has left the shop is never emailed, and a message the mail
+  system delivers twice sends one notice, not two.
+- **It never costs you the RFQ.** If the notice can't be sent, the RFQ is
+  still in the inbox.
+
 ## Update, 25 November 2026: change a routing without starting over
 
 Routing templates were save-and-apply only: to change a cycle time or add a
@@ -388,3 +426,78 @@ sale) now has a **Routings** page where a routing is edited in place.
 - **Two estimators can't overwrite each other.** If someone else saved the
   routing after you opened it, your save is refused with a message to reload,
   instead of silently undoing their change.
+
+## Update, 25 November 2026: the customer sees what changed, and nothing more
+
+The "what changed" view above was for the estimator. Buyers ask the same
+question when Rev 2 lands in their inbox: what is different from the quote I
+already have? The RFQ-to-quote app (bet #2, still in private development,
+not yet on sale) can now answer it on the PDF itself.
+
+- **One checkbox per revision.** Ticking "Print 'Changes from Q-1001' on the
+  customer PDF" adds a short section to the quote, such as
+  "BRK-1001 Rev B, qty 50: $19.00 to $17.50 each", "qty 100: added at $15.00
+  each" or "Lead time: 3 weeks ARO to 2 weeks ARO". It is off by default, and
+  the estimator sees the exact lines before sending.
+- **Customer-safe by construction.** The section is built only from what the
+  PDF already prints: part numbers and revisions, descriptions, quantity
+  breaks with unit prices, and lead time. Machines, setup and cycle minutes,
+  material and blank sizes, finishing and extras are the shop's cost basis
+  and never reach it. A change to those alone prints nothing; the new price
+  speaks for itself. A test checks that none of them appear in the PDF.
+- **Frozen with the quote.** The sent PDF, section included, is the one
+  stored with its checksum, so the customer and the shop keep the same
+  document.
+- **Compare with any revision.** Once a quote has reached Rev 3, a picker on
+  the quote page compares it with Rev 1 or any other earlier revision, not
+  only the last one.
+
+Still to come in this item: an email to the estimator the day before a sent
+quote expires, so they can follow up or revise.
+
+## Update, 25 November 2026: what we promise about your drawings
+
+A shop's RFQs carry its customers' drawings, and often their prices too. Before
+the RFQ-to-quote app (bet #2, still in private development, not yet on sale)
+lets strangers sign up, it now has written terms, a privacy policy, a refund
+policy and an acceptable use policy. Each new user reads and accepts them once,
+before they set up a shop. They are drafts until a lawyer has reviewed them,
+and each page says so. Here is what they commit to, in plain terms:
+
+- **Your rates set the price.** Every price comes from the shop's own rate card
+  and the estimator's inputs. The AI's reading of an RFQ is a suggestion, and a
+  part goes onto a quote only after someone in the shop confirms it.
+- **The AI sees only what a step needs.** To read an RFQ, the AI model gets the
+  RFQ's text and the text read from its drawings, and only when an estimator
+  presses the button. To draft a cover note it gets what the customer will see
+  on the quote: never the shop's rates, costs or markups. The policy names
+  every company that handles the data (hosting, the AI model, the payment
+  processor), and the shop's data is not used to train AI models.
+- **No export-controlled data.** The app is not built for ITAR, EAR or CUI
+  technical data, and the terms ask shops not to upload it. Defense work
+  belongs in a system built for it.
+- **Thirty days to change your mind.** A paid plan can be refunded in full
+  within 30 days of the first payment, and the free plan needs no card.
+
+The documents are public, so a shop owner can read them before creating an
+account.
+
+## Update, 25 November 2026: a heads-up before the month's RFQs run out
+
+Each plan of the RFQ-to-quote app (bet #2, still in private development, not
+yet on sale) includes a number of RFQs a month for the AI to read. Until now a
+shop found out it had used them only when the next read was refused. Now the
+shop's owners and admins get an email when the month's count reaches 80% of
+the plan's allowance (32 of the free plan's 40), and one more when it reaches
+100%:
+
+- **Once each, per month.** However many estimators read RFQs at the same
+  moment, each email goes out once.
+- **Only the people who can change the plan.** Owners and admins, not every
+  estimator.
+- **What still works.** Past the allowance, every RFQ, quote and PDF stays,
+  and parts can still be entered by hand, priced and sent; only the AI's read
+  of a new RFQ waits until the first of next month.
+- **No sales pitch while there is nothing to buy.** The email names the next
+  plan's allowance and price only once paid plans are on sale; until then it
+  says they are not on sale yet.
