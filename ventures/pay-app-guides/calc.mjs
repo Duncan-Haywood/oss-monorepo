@@ -253,12 +253,16 @@ export function promptPayInterest({ amount, received, paid, days, rate, per = "m
   const r = toRate(rate);
   const rec = parseDate(received);
   const pd = parseDate(paid);
-  const n = Number(String(days ?? "").trim());
+  // A blank box is an error, not zero: Number("") is 0, which moved the due date to the day the GC was paid, and a blank
+  // rate (the presets leave it blank where no statutory rate was confirmed) showed $0.00 of interest (red team 2026-11-25).
+  const blank = (v) => String(v ?? "").trim() === "";
+  const n = blank(days) ? NaN : Number(String(days).trim());
   if (Number.isNaN(a) || a <= 0) errors.push("Enter the amount owed to you as a positive number.");
   if (Number.isNaN(rec)) errors.push("Enter the date the contractor was paid as YYYY-MM-DD.");
   if (Number.isNaN(pd)) errors.push("Enter the date you were paid (or today) as YYYY-MM-DD.");
   if (!Number.isInteger(n) || n < 0 || n > 365) errors.push("Days to pay must be a whole number from 0 to 365.");
-  if (Number.isNaN(r) || r < 0 || r > 1) errors.push("The interest rate must be between 0% and 100%.");
+  if (blank(rate)) errors.push("Enter the interest rate from the statute or your contract.");
+  else if (Number.isNaN(r) || r < 0 || r > 1) errors.push("The interest rate must be between 0% and 100%.");
   if (per !== "month" && per !== "year") errors.push("The rate must be per month or per year.");
   if (errors.length) return { errors };
   const due = rec + n * DAY;
