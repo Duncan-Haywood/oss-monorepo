@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "CI test faq-visible failed: I linked the forms-by-state guide in the visible FAQ answer but not in the FAQPage JSON-LD; fixed in a follow-up commit. Report front matter (kind) missing on first push; fixed."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,6 +41,10 @@
     {
       "file": "platform/pages/select-track.mjs",
       "issue": "Running it with no slug launches Playwright over every venture page with a <select>, which outlasts the 120 s tool timeout; passing the slug (read-only without --write) is the fast check. The README could say so."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Editing a visible FAQ answer must also change the FAQPage JSON-LD (platform/pages/faq-visible.test.mjs); the venture's own page.test.mjs does not catch it, so run faq-visible.test.mjs after FAQ edits."
     }
   ],
   "deviations": [
