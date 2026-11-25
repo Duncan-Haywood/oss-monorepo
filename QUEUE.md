@@ -5,7 +5,20 @@ Open code-scanning alerts, most severe then oldest first. Generated hourly by
 do not edit by hand. Take the first one whose claim branch
 (`security-fix/code-scanning-<n>`) does not exist; its file says how.
 
-Scanned commit: `8e093a6fe6a3` (the commit most open alerts were last seen on). Fixes merged after it are still listed until CodeQL finishes on a newer main: `git diff --stat 8e093a6fe6a3 origin/main -- <path>` before fixing (each alert file says how).
+Triaged already: alerts in `platform/security/codeql-triage.json` are listed apart, at the end; `docs/reports/*security-queue*.md` on main has earlier runs' notes. A false positive you find goes in the JSON file with its reason (only the owner can dismiss alerts).
+
+Scanned commit: `7191601d63f7` (the commit most open alerts were last seen on). Fixes merged after it are still listed until CodeQL finishes on a newer main: `git diff --stat 7191601d63f7 origin/main -- <path>` before fixing (each alert file says how).
+
+- [high] #65 `js/incomplete-sanitization` in `ventures/pay-app-guides/template.test.mjs:62`: alerts/65.md
+- [high] #849 `js/incomplete-sanitization` in `platform/agents/tools.mjs:170`: alerts/849.md
+- [high] #862 `js/incomplete-sanitization` in `research/marriage-divorce-evidence/report-app/src/use-data-app.js:315`: alerts/862.md
+- [high] #1050 `js/incomplete-url-substring-sanitization` in `platform/pages/custom-domain.test.mjs:151`: alerts/1050.md
+- [high] #1246 `js/bad-tag-filter` in `ventures/machine-shop-guides/ssp.test.mjs:123`: alerts/1246.md
+
+## Triaged, awaiting dismissal
+
+Read and judged false positives (`platform/security/codeql-triage.json`): not work
+for a session. The owner dismisses each on its alert page.
 
 - [high] #7 `py/clear-text-storage-sensitive-data` in `platform/security/risk_review.py:490`: alerts/7.md
 - [high] #12 `py/clear-text-logging-sensitive-data` in `platform/ci/secrets_inventory.py:261`: alerts/12.md
@@ -14,21 +27,14 @@ Scanned commit: `8e093a6fe6a3` (the commit most open alerts were last seen on). 
 - [high] #39 `py/clear-text-logging-sensitive-data` in `portfolio/monetization/monetization.py:331`: alerts/39.md
 - [high] #42 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:484`: alerts/42.md
 - [high] #43 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:491`: alerts/43.md
-- [high] #65 `js/incomplete-sanitization` in `ventures/pay-app-guides/template.test.mjs:62`: alerts/65.md
 - [high] #104 `js/regex-injection` in `platform/ci/copy_drift.mjs:189`: alerts/104.md
 - [high] #105 `js/regex-injection` in `platform/ci/copy_drift.mjs:190`: alerts/105.md
 - [high] #106 `js/regex-injection` in `ventures/dxf-nesting/dxf.mjs:174`: alerts/106.md
-- [high] #274 `js/incomplete-multi-character-sanitization` in `platform/distribution/webext.mjs:54`: alerts/274.md
-- [high] #275 `js/incomplete-multi-character-sanitization` in `platform/distribution/webext.mjs:59`: alerts/275.md
-- [high] #574 `js/bad-tag-filter` in `platform/distribution/webext.mjs:31`: alerts/574.md
 - [high] #741 `js/incomplete-sanitization` in `ventures/shopify-to-woocommerce-converter/converter.mjs:69`: alerts/741.md
-- [high] #849 `js/incomplete-sanitization` in `platform/agents/tools.mjs:170`: alerts/849.md
-- [high] #862 `js/incomplete-sanitization` in `research/marriage-divorce-evidence/report-app/src/use-data-app.js:315`: alerts/862.md
 - [high] #960 `js/xss-through-dom` in `ventures/quick-pick-survey/site/rank.html:461`: alerts/960.md
 - [high] #968 `js/xss-through-dom` in `ventures/shed-designer/hoa-page.mjs:59`: alerts/968.md
 - [high] #969 `js/xss-through-dom` in `ventures/silence-cutter/index.html:258`: alerts/969.md
 - [high] #1049 `js/incomplete-url-substring-sanitization` in `platform/pages/check.mjs:1470`: alerts/1049.md
-- [high] #1050 `js/incomplete-url-substring-sanitization` in `platform/pages/custom-domain.test.mjs:151`: alerts/1050.md
 - [high] #1086 `js/disabling-certificate-validation` in `ventures/status-keeper/certs.mjs:12`: alerts/1086.md
 - [high] #1181 `js/redos` in `ventures/regex-redos-check/cli.test.mjs:81`: alerts/1181.md
 - [high] #1182 `js/redos` in `ventures/regex-redos-check/engine.test.mjs:9`: alerts/1182.md
@@ -54,4 +60,3 @@ Scanned commit: `8e093a6fe6a3` (the commit most open alerts were last seen on). 
 - [high] #1202 `js/redos` in `ventures/regex-redos-check/engine.test.mjs:167`: alerts/1202.md
 - [high] #1203 `js/redos` in `ventures/regex-redos-check/engine.test.mjs:181`: alerts/1203.md
 - [high] #1208 `js/redos` in `ventures/devsec-toolkit/tests/fixtures/vulnerable-repo/src/validate.js:1`: alerts/1208.md
-- [medium] #997 `js/prototype-polluting-assignment` in `platform/aws/stacks/site/deploy/emulate.mjs:57`: alerts/997.md
