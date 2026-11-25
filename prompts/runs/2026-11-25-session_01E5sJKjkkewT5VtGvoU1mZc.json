@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKjkkewT5VtGvoU1mZc",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T08:18:05Z",
+  "ended": "2026-11-25T08:27:47Z",
+  "wall_minutes": 10.45,
+  "tokens_in": 6942447,
+  "tokens_out": 28124,
+  "cost_usd": 2.9192,
+  "tool_calls": 62,
+  "task": "quality fix mode: open high defect of the 2026-11-22 clothing-design-studio audit (for-profit product, transition row 16)",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18907",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "post description over 160 characters after extending the 2026-11-23 post",
+      "fix": "shortened; caught by run_workflow_locally --for-changes"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "queue listed clothing-design-studio defect 0 as open high though PR #18165 and PR #18388 had fixed it; 'changed since audit: unknown' on a shallow clone hid that. Re-checking by hand (24 garment-size cases within tolerance) cost a few minutes; the queue could run the subject's git log via the API or deepen automatically."
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "steps 1 and 5 describe a sample round, but the mode draw picked fix; the README covers it, the prompt does not say to check mode first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "fix-mode post name is docs/posts/<date>-quality-fix-<slug>.md, but the root CLAUDE.md asks to extend an existing post rather than add short ones",
+      "did": "extended docs/posts/2026-11-23-pattern-and-spec-sheet-from-one-grade-rule.md with an update section and the quality-audit tag",
+      "result": "one consolidated post covers the whole pattern-grade fix"
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "mark-fixed --all would have marked defect 2 fixed though the 1.0 vs 1.5 cm seam-allowance split remains",
+      "did": "left defect 2 and the low code-craft defect 7 unmarked so queue shows them open",
+      "result": "honest open-defect count"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-23-pattern-and-spec-sheet-from-one-grade-rule.md (extended: 'Update, 2026-11-25')",
+    "ventures/clothing-design-studio/README.md section 'Armhole and bicep graded from M' and ROADMAP Known gaps"
+  ],
+  "goal": "north star: for-profit product quality (clothing-design-studio, paid row 16)",
+  "notes": "Mode fix (seeded draw, 28 high defects open); queue seed 2026-11-25-6602. No sample round, so no seed/subject share for this run. Defect 0 (high) verified closed by PR #18165/#18388 via an independent pattern-vs-spec script over 4 garments x 6 sizes (sleeve, shoulder, neck all within tolerance) and marked fixed_by #18388; defect 3 (neckband) marked #18388. This PR fixes defects 1 (armhole +0.96, bicep +2 cm girth per 8 cm chest step from M; cap height stable within 0.6 cm a size), 2 partly (marker sleeve box from the drafted sleeve; seam allowance split left open), 4 (tests pin fabric factor 0.809/1.317 by hand and size-run shares vs Python erf). Seeded mutations, all caught after the change: armhole 0.12->0.235, bicep 0.25->0.34, r.armhole*d->0.235*d, neck 0.09->0.1, runcost chest*length->chest (survived before), size edges off midpoints. Venture suite: node --test '*.test.mjs' 759+ pass, 0 fail. Fix PRs: #18907.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7b8f37e9-6222-5b3a-b4e7-8aacb0b0cca8",
+    "transcripts": 1,
+    "first": "2026-11-25T08:18:05Z",
+    "last": "2026-11-25T08:28:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 119,
+        "output": 28124,
+        "thinking": 6667,
+        "cache_read": 6818260,
+        "cache_write_5m": 0,
+        "cache_write_1h": 124068,
+        "api_equivalent_usd": 2.9192,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 119,
+      "output": 28124,
+      "thinking": 6667,
+      "cache_read": 6818260,
+      "cache_write_5m": 0,
+      "cache_write_1h": 124068,
+      "api_equivalent_usd": 2.9192,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 60,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.45,
+      "active_minutes": 10.45,
+      "model_minutes": 6.04,
+      "tool_minutes": 4.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a pattern maker regrading armhole and bicep and checking pattern vs spec in 24 size cases, plus tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 205.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
