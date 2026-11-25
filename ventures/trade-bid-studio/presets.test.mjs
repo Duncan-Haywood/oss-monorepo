@@ -1,8 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { loadProfiles, render, GROUPS } from './build-presets.mjs';
-import { PRESETS } from './presets.mjs';
+import { loadProfiles, render, renderIndex, GROUPS } from './build-presets.mjs';
+import { PRESETS, GROUPS as PRESET_GROUPS } from './presets.mjs';
+import { INDEX, GROUPS as INDEX_GROUPS } from './preset-index.mjs';
 import { takeoffTotals, fromPreset } from './takeoff.mjs';
 import { calculateBid } from './engine.mjs';
 
@@ -20,6 +21,12 @@ test('every preset is valid and traced to its specialist', () => {
 
 test('presets.mjs is current (run node build-presets.mjs if this fails)', () => {
   assert.equal(readFileSync(new URL('./presets.mjs', import.meta.url), 'utf8'), render(profiles));
+});
+
+test('preset-index.mjs is current and names exactly the presets (run node build-presets.mjs if this fails)', () => {
+  assert.equal(readFileSync(new URL('./preset-index.mjs', import.meta.url), 'utf8'), renderIndex(profiles));
+  assert.deepEqual(INDEX, PRESETS.map(({ id, slug, name, group }) => ({ id, slug, name, group })));
+  assert.deepEqual(INDEX_GROUPS, PRESET_GROUPS);
 });
 
 test('every trade bid calculator has a preset, except the auction ones', () => {
