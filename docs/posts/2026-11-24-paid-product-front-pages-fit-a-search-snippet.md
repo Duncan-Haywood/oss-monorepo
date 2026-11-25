@@ -2,7 +2,7 @@
 title: "Eighteen product pages whose search snippet stopped mid-sentence"
 seo_title: "Rewriting 18 meta descriptions to fit a 160-character snippet"
 date: 2026-11-24
-tags: [polish, seo, meta-description, wall-framing-takeoff, structured-data, pay-app-guides, einvoice-preflight]
+tags: [polish, seo, meta-description, open-graph, wall-framing-takeoff, structured-data, pay-app-guides, einvoice-preflight]
 description: "The front pages of the tools moving to paid editions had meta descriptions of 178 to 355 characters. Each now fits in 160, and a ratchet stops new long ones."
 ---
 
@@ -122,3 +122,26 @@ changed rather than the HTML. As before, nothing was added that the old text
 did not say, titles and JSON-LD were left alone, and no ranking change is
 claimed. The list of over-long descriptions across the catalogue fell from
 2,999 pages to 2,898.
+
+## Update, 2026-11-25: share cards get the same treatment
+
+A search snippet is not the only place a page's summary is cut. When a
+subcontractor pastes a link into a text thread, Slack or LinkedIn, the
+preview shows the page's `og:description`, about two lines (roughly 200
+characters), and drops the rest. Across the catalogue's indexed venture pages,
+886 of 4,220 had share-card text over 200 characters; 230 ran past 300.
+
+A second ratchet, `platform/pages/og-description-length.mjs`, now holds them
+the way the meta one does: no new page over 200, and the list of 886 can only
+shrink. The first ten off the list are the Pay App Guides pages (the
+construction pay-app product's free front door), which ran 204 to 299. The
+cash forecast's card went from 299 characters to 164:
+
+> Each job's billing, retainage, pay-app cutoff and pay terms in; the date
+> each payment should land, which are late, cash week by week and your first
+> week below zero.
+
+As with the meta descriptions, nothing was added that the old text did not
+say; "Runs in the browser" tails went first. The list now stands at 876; the
+largest remaining blocks are saints-by-candlelight (178) and
+einvoice-preflight (80).
