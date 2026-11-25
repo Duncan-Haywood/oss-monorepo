@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtGdNyP3tnH67NWocLz",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T01:06:57Z",
+  "ended": "2026-11-25T01:18:43Z",
+  "wall_minutes": 12.13,
+  "tokens_in": 12019606,
+  "tokens_out": 59610,
+  "cost_usd": 5.026,
+  "tool_calls": 87,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18789",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Built a whole xlsx writer (xlsx.mjs + zip.mjs) on a stale origin/main before noticing #18769 had landed the same feature; threw it away and rebuilt only the missing parts on top of workbook.mjs. Cost roughly a third of the run.",
+    "The first draft of the LibreOffice recalc test could not catch a swapped work/stored rate cell or sub-cent rounding (every case had equal rates, and the CSV export rounded to the displayed value). Found by mutation testing and fixed before the PR."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Duplicate PRs' says search open PRs and recent main commits before opening a PR. That is too late: the local origin/main ref from the clone was hours stale, and the duplicate (#18769) had merged in the meantime. Fetch origin main (git fetch --depth=40 origin main) and grep its log for the slug at the start of the run, not only before opening the PR."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says to attach private-monorepo with add_repo and build there. add_repo succeeded, but the auto-mode classifier refused the git clone as unauthorized access, so the bet's private code was out of reach and the run fell back to the public side."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Stops before the build when main_health fails on main itself (test_scan.py guard order, stale transition.json), so a venture change can't get its build check from preflight while main is red. It also said 'this branch edits platform/ci' because origin/main was stale. I ran build.mjs + check.mjs by hand instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "why": "An overlapping open PR (#18775, Excel import into the same tool) touches the same files.",
+      "did": "Opened a separate PR anyway: that one reads Excel in, mine adds a test and a landing page, so the scopes are complementary. Whichever lands second merges main.",
+      "result": "PR opened; conflicts possible in index.html/README/llms.txt/page.test.mjs."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "why": "Preflight halts on failures already on main that don't involve this venture.",
+      "did": "Ran platform/pages/build.mjs and check.mjs directly.",
+      "result": "build.mjs exit 0; check.mjs exit 0: 1439 products, 13482 pages, no dead links."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-a-pay-application-template-whose-totals-cannot-drift.md (extended: the check became a test, mutation results, the new template page)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty, ideas inbox empty. Routed ventures/1; top bet #1 payapps. Private repo not reachable (clone refused), so I did the public front door: flagships item (5), the free template page. Tests: 65 pass across pay-application-generator and pay-app-guides with soffice present. Mutation check of recalc.test.mjs: swapped rate cell, ROUND(...,3), and a misspelt CO filter all fail it. Playwright: the template download works, no console errors, scrollWidth 390 at 390px. Site build + check.mjs run locally: both exit 0, no dead links. CI jobs were all queued when the record was written.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7c0065bd-2a74-50b5-89f4-0a966a434db9",
+    "transcripts": 1,
+    "first": "2026-11-25T01:06:57Z",
+    "last": "2026-11-25T01:19:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 81,
+        "input": 151,
+        "output": 59610,
+        "thinking": 10186,
+        "cache_read": 11836213,
+        "cache_write_5m": 0,
+        "cache_write_1h": 183242,
+        "api_equivalent_usd": 5.026,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 81,
+      "input": 151,
+      "output": 59610,
+      "thinking": 10186,
+      "cache_read": 11836213,
+      "cache_write_5m": 0,
+      "cache_write_1h": 183242,
+      "api_equivalent_usd": 5.026,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 87,
+    "tools": {
+      "Bash": 77,
+      "Read": 5,
+      "Write": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.13,
+      "active_minutes": 12.13,
+      "model_minutes": 10.58,
+      "tool_minutes": 1.55,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "an engineer writing a LibreOffice round-trip test with mutation checks, plus an SEO landing page and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 99.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
