@@ -369,7 +369,20 @@ function offOriginResources(html) {
       .filter((href) => /^https?:\/\//.test(href)),
   ];}
 
-const exists = (target) => fs.access(target).then(() => true, () => false);
+const existsUncached = (target) => fs.access(target).then(() => true, () => false);
+// Under the shared build, which no test writes into (see `readText`), a path's
+// existence cannot change, so each path is checked once. 'relative links
+// inside each tool resolve' alone made 149k sequential fs.access calls for
+// 7.5k distinct paths, 5 s of the suite's long pole
+// (docs/history/pages-test-perf-2026-11-25-exists-memo.md). Every other path is
+// checked fresh, as before.
+const existsMemo = new Map();
+/** True when `target` exists; memoised only under the shared build. */
+function exists(target) {
+  if (typeof target !== 'string' || !underShared(target)) return existsUncached(target);
+  if (!existsMemo.has(target)) existsMemo.set(target, existsUncached(target));
+  return existsMemo.get(target);
+}
 
 /** The path component of a base URL, without the leading slash. */
 const pathOf = (baseUrl) => new URL(baseUrl).pathname.replace(/^\//, '');
@@ -592,9 +605,7 @@ test('relative links inside each tool resolve', async () => {
         // writes after this build.
         const target = path.relative(outDir, hrefTarget(ref, file, outDir)).split(path.sep)[0];
         if (LATE_NAV_DIRS.includes(target)) continue;
-        try {
-          await fs.access(hrefTarget(ref, file, outDir));
-        } catch {
+        if (!(await exists(hrefTarget(ref, file, outDir)))) {
           broken.push(`${path.relative(outDir, file)} -> ${ref}`);
         }
       }
@@ -2353,7 +2364,7 @@ test('every injected link resolves to a page that exists', async () => {
       const resolved = path.resolve(path.dirname(file), ref);
       const target = ref.endsWith('/') ? path.join(resolved, 'index.html') : resolved;
       assert.ok(
-        await fs.stat(target).then(() => true, () => false),
+        await exists(target),
         `${path.relative(outDir, file)} points at ${ref}, which is not published`,
       );
     }
@@ -3754,11 +3765,7 @@ test('the worker and manifest resolve from a page at any depth', async () => {
     ].filter(Boolean);
     for (const ref of refs) {
       const target = path.resolve(path.dirname(page), ref);
-      try {
-        await fs.access(target);
-      } catch {
-        broken.push(`${path.relative(outDir, page)} -> ${ref}`);
-      }
+      if (!(await exists(target))) broken.push(`${path.relative(outDir, page)} -> ${ref}`);
     }
   }
   assert.deepEqual(broken, [], `unreachable offline assets: ${broken.slice(0, 5).join(', ')}`);
