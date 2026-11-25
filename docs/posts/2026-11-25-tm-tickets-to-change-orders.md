@@ -1,6 +1,6 @@
 ---
 title: "T&M tickets: the extra work subcontractors do for free, and a log that finds it"
-seo_title: "T&M ticket log for subcontractors: price, chase, convert to change orders"
+seo_title: "T&M ticket log: price tickets, chase them into change orders"
 date: 2026-11-25
 tags: [for-customers, payapps, construction, change-orders, tm-tickets, pay-app-guides]
 description: "A signed T&M ticket is not money until it is on an executed change order. A free log that prices tickets at your markups and lists the ones at risk."
