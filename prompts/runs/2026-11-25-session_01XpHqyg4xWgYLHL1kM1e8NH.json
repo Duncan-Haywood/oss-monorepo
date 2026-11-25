@@ -26,7 +26,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 4,
@@ -64,7 +64,7 @@
     "docs/reports/ventures-2026-11-25-payapps-g702-summary-pdf.md"
   ],
   "goal": null,
-  "notes": "Local verification (private payapps): biome ci clean except pre-existing billing.ts warning; typecheck clean; unit 441/441; worker 257/257; build ok; provision 4/4; lien-waivers 211/211; drizzle-kit check fine. New Chromium-printed fixture g702-g703-chrome.pdf exercises the decoy 'AMOUNT CERTIFIED' beside line 6, rate in the 5a blank, kerned split words and G703 column letters.",
+  "notes": "Local verification (private payapps): biome ci clean except pre-existing billing.ts warning; typecheck clean; unit 441/441; worker 257/257; build ok; provision 4/4; lien-waivers 211/211; drizzle-kit check fine. New Chromium-printed fixture g702-g703-chrome.pdf exercises the decoy 'AMOUNT CERTIFIED' beside line 6, rate in the 5a blank, kerned split words and G703 column letters. Private PR 123 merged (squash e4a9e1b9). Public docs PR: https://github.com/Duncan-Haywood/oss-monorepo/pull/19018.",
   "corrections": [],
   "redteam": null,
   "usage": {
