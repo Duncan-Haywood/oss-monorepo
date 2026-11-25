@@ -388,9 +388,16 @@ tasks:
       environment, with no long-lived keys. `tofu validate`, the scanners
       and `tofu plan` against a mocked provider pass.
     hours: 24
-    status: open
+    status: done
     added: 2026-11-24
     blocked_on: Applying needs the owner's AWS management account (root MFA, card, IAM Identity Center). Writing and testing it does not.
+    notes: >-
+      Written 2026-11-25 (PRs #18748, part 2): platform/aws/{README.md,bootstrap,org,baseline,
+      github-oidc,modules/account-baseline}; tofu validate + tofu test (mocked provider) +
+      Checkov + cfn-lint pass in the draft aws-iac-check workflow (PR #18750, control plane,
+      owner to merge). Not applied. Owner turnover: platform/aws/README.md. Follow-ups:
+      narrow PowerUserAccess on workload apply roles once each sibling stack lists its
+      needs; the findings-to-files workflow draft at platform/aws/baseline/ci/.
 
   - id: aws-spend-guards
     direction: aws-consolidation
