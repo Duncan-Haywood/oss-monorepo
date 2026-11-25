@@ -107,17 +107,17 @@ flagships:
       sources), so ship narrow and soon. Same buyers as bet 4 (CMMC). The public
       cnc-machining-quote-calculator is a lead magnet for it. New app.
     next: >-
-      Build in private-monorepo (add_repo, push access), scaffolded from apps/grants
-      with Paddle dark. Milestones: (1) a shop profile (machines, hourly rates,
-      setup minutes, material prices, margin) and a quote engine from part features
-      (stock size, material, operations, quantity breaks) with unit tests; (2) STEP
-      file in: bounding box, volume and removed volume from an open STEP parser,
-      feeding the engine; (3) an RFQ email or PDF drawing in, the model extracting
-      part number, material, quantity, tolerances and finish into the form for the
-      estimator to confirm (bring-your-own-key or the app's key, cost metered per
-      RFQ); (4) a quote PDF and a won/lost log that recalibrates the shop's rates;
-      (5) a marketing page and llms.txt. A run that lands a slice replaces its item
-      here.
+      Built in private-monorepo/apps/jobshop-quote (add_repo, push access). Landed: (1)
+      rate card and pure quote engine, RFQ intake, verified extraction, quote PDF, won/lost
+      log (private-monorepo PR #30, on Haiku); (2) STEP/DXF in through packages/cad-features
+      (PR #29, DXF expansion budget; PR #40): a solid's box sizes the blank, one measured
+      removal rate gives a "Rough from CAD" op, confidence and flags shown. Open, in order:
+      (3) RFQ PDF drawing in: title-block tolerances, material, finish and quantity into the
+      part form via rfq.extract with page images (Workers AI or BYO key, cost metered per
+      RFQ); (4) won/lost recalibration of rates and a sheet-metal path from the DXF cut
+      length, pierces and bends; (5) deploy, Paddle billing dark (packages/billing) and the
+      jobshop-site link to the app; (6) parse CAD in a queue consumer, not the upload
+      request. A run that lands a slice replaces its item here.
   # Bet 3 in portfolio/monetization/bets.md (2026-11-24 ranking).
   - venture: einvoice-preflight
     bet: 3
