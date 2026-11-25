@@ -45,3 +45,15 @@ test("robots and sitemap let crawlers find the page", () => {
 test("index links one hop to the pay-app-guides sibling", () => {
   assert.match(page("index.html"), /href="\.\.\/pay-app-guides\/"/);
 });
+
+test("next-month carry-forward is on the page and the suite pitch claims no sale or price", () => {
+  const html = page("index.html");
+  assert.match(html, /id="next-start"/);
+  assert.match(html, /id="next-dl"/);
+  assert.match(html, /next_period_started/);
+  const suite = /<section class="card" id="suite">([\s\S]*?)<\/section>/.exec(html)[1];
+  assert.match(suite, /in development/);
+  assert.match(suite, /not on sale yet/);
+  assert.doesNotMatch(suite, /\$\s?\d/);
+  assert.match(suite, /https:\/\/marisstella\.app\/feedback\/\?type=idea&amp;tool=pay-application-generator/);
+});
