@@ -4,6 +4,8 @@
 
 Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
+Choose the project's state: for Arizona (Ariz. Rev. Stat. § 33-1008), Nevada (Nev. Rev. Stat. § 108.2457), Texas (Tex. Prop. Code § 53.284) and Utah (Utah Code § 38-1a-802) it names the statute that sets the waiver wording and quotes its rule; these four were read on each legislature's site on 2026-11-25. Utah sets only two forms (progress and final, both effective once the check is paid) and no unconditional form. California, Florida, Georgia and Michigan get a pointer to check the statute, not yet checked here.
+
 ## Pages
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/lien-waiver-checker/)
