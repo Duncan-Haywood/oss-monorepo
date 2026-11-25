@@ -27,7 +27,7 @@ test("sample: every ticket matches a hand calculation", () => {
   assert.equal(t.unsigned, 56505); assert.equal(t.stale, 126199); assert.equal(t.onCo, 98536);
   assert.deepEqual(r.cos, [{ number: "CO-6", total: 98536 }]);
   assert.ok(r.findings.some((f) => f.severity === "high" && /Ticket 102/.test(f.text) && /no GC signature/.test(f.text)));
-  assert.ok(r.findings.some((f) => f.severity === "high" && /Ticket 101/.test(f.text) && /22 days ago/.test(f.text)));
+  assert.ok(r.findings.some((f) => f.severity === "high" && /Ticket 101/.test(f.text) && /22 days old/.test(f.text)));
   assert.ok(!r.findings.some((f) => /Ticket 103/.test(f.text)));
 });
 
@@ -85,4 +85,35 @@ test("parsers", () => {
 test("CSV export neutralises formula cells", () => {
   const r = compute('Ticket,Type,Qty,Rate,Signed by\n1,labor,1,10,"=HYPERLINK(""x"")"', {});
   assert.match(ticketsCsv(r), /'=HYPERLINK/);
+});
+
+test("age wording: no negative ages, singular day, and the age is from the work date, not a signing date", () => {
+  const future = compute("Ticket,Date,Qty,Rate\n1,2026-11-30,1,10", { asOf: "2026-11-25" });
+  assert.ok(!future.findings.some((f) => /-\d+ days?/.test(f.text)), "a ticket dated after the as-of date has no negative age");
+  assert.ok(future.findings.some((f) => /Ticket 1 .*no GC signature/.test(f.text)));
+  const one = compute("Ticket,Date,Qty,Rate,Signed by\n1,2026-11-24,1,10,GC", { asOf: "2026-11-25", chaseDays: "0" });
+  const stale = one.findings.find((f) => /on no change order/.test(f.text));
+  assert.ok(stale, "a signed ticket past a 0-day chase window is flagged");
+  assert.match(stale.text, /1 day old/);
+  assert.doesNotMatch(stale.text, /1 days|signed 1 day/, "the log has no signing date, so it must not say when it was signed");
+  const r = compute(sampleTickets(), SAMPLE_SETTINGS);
+  assert.ok(r.findings.some((f) => /Ticket 101 .*22 days old/.test(f.text)));
+});
+
+test("lump-sum note: only when a signed ticket has no hours, material or equipment", () => {
+  const mat = compute("Ticket,Type,Qty,Rate,Signed by\n1,material,1,500,GC", {});
+  assert.ok(!mat.findings.some((f) => /lump sum/.test(f.text)), "a material-only ticket is not a lump sum");
+  const eq = compute("Ticket,Type,Qty,Rate,Signed by\n1,equipment,1,500,GC", {});
+  assert.ok(!eq.findings.some((f) => /lump sum/.test(f.text)), "an equipment-only ticket is not a lump sum");
+  const lump = compute("Ticket,Type,Amount,Signed by\n1,other,500,GC", {});
+  assert.ok(lump.findings.some((f) => /lump sum/.test(f.text)));
+});
+
+test("high findings are listed before info findings", () => {
+  // Ticket 1: info only (no date); ticket 2: high (unsigned). The info finding is pushed first.
+  const r = compute("Ticket,Date,Type,Desc,Qty,Rate,Signed by\n1,,labor,Foreman,1,10,GC\n2,2026-11-20,labor,Foreman,1,10,", { asOf: "2026-11-25" });
+  const sev = r.findings.map((f) => f.severity);
+  assert.ok(sev.includes("high") && sev.includes("info"));
+  assert.deepEqual(sev, [...sev].sort((a, b) => (a === b ? 0 : a === "high" ? -1 : 1)));
+  assert.equal(sev[0], "high");
 });

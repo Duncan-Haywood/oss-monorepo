@@ -93,3 +93,17 @@ test("CSV exports neutralise formula cells", () => {
   assert.match(csv, /'=HYPERLINK/);
   assert.match(weeksCsv(r), /^Week of,To,/);
 });
+
+test("boundaries: blank GC days is the owner's pay day, 52 weeks is allowed, zero spend is allowed, a zero balance is not short", () => {
+  // Blank GC days: the GC is assumed to pay the day the owner does (lag = owner days only).
+  const blank = run("Job,GC,Monthly billing,Submit day,Owner days,GC days\nA,G,1000,26,30,", "", { weeks: "8" });
+  assert.equal(blank.receipts[0].expected, blank.receipts[0].submitted + 30);
+  assert.equal(run(`${HEAD}\nA,G,1000,0,26,30,0,`, "", { weeks: "52" }).totals.weeks, 52);
+  assert.match(run(`${HEAD}\nA,G,1000,0,26,30,0,`, "", { weeks: "53" }).errors[0], /4 to 52/);
+  const zero = run(`${HEAD}\nA,G,1000,0,26,30,0,`, "", { weeks: "4", cash: "100", spend: "0" });
+  assert.deepEqual(zero.errors, []);
+  // Nothing comes in during the first 4 weeks (11/26 + 30 days is after 12/23); 4,000 - 4 x 1,000 ends at exactly 0.
+  const even = run(`${HEAD}\nA,G,1000,0,26,30,0,`, "", { weeks: "4", cash: "4000", spend: "1000" });
+  assert.equal(even.totals.endBalance, 0);
+  assert.equal(even.totals.firstShort, null, "a balance of exactly $0 is not below zero");
+});
