@@ -39,6 +39,18 @@ re-read** and are the first thing a session with access should verify:
 | SPRS assessment no more than three years old | DFARS 252.204-7019 / 252.204-7020, <https://www.ecfr.gov/current/title-48/chapter-2/subchapter-H/part-252/subpart-252.2/section-252.204-7019> |
 | 3.12.2 and 3.12.4 requirement wording; requirement labels | NIST SP 800-171 Rev. 2, <https://csrc.nist.gov/pubs/sp/800/171/r2/upd1/final> (labels in `sprs-data.mjs` are paraphrases) |
 
+## CMMC Level 1 self-assessment (added 25 November 2026)
+
+| Fact | Source |
+|---|---|
+| The 15 requirement texts in `l1-data.mjs`, and the clause's paragraph (c) flow-down wording | FAR 52.204-21 (Nov 2021), **copied word for word** from GSA's published FAR source, <https://github.com/GSA/GSA-Acquisition-FAR/blob/master/dita/52.204-21.dita> (fetched 25 Nov 2026; file sha256 `5d9ff06ba3d5119fc8ac703902daca44ccec271865de1f7d697118bcc5fc832f`). A script compared all 15 texts to that file: 15 of 15 identical. `l1.test.mjs` pins their hash. The official page is <https://www.acquisition.gov/far/52.204-21>; `acquisition.gov` and `ecfr.gov` were not reachable from the building session. |
+| Level 1 requirements are FAR 52.204-21(b)(1)(i)–(xv); identifier format AC.L1-b.1.i … SI.L1-b.1.xv; the table mapping them to NIST SP 800-171A objectives | 32 CFR 170.14(c)(2) and 170.15, via web-search excerpts of ecfr.gov and the 2025 CFR print edition (govinfo.gov), 25 Nov 2026. The excerpts confirmed AC.L1-b.1.i → 3.1.1 and SI.L1-b.1.xv → 3.14.5; the other thirteen NIST numbers are **transcribed, not re-read**, and are the first thing a session with ecfr.gov access should check. |
+| Every requirement MET for Final Level 1 (Self); annual self-assessment; SPRS entry records level, date, scope, CAGE codes and result | 32 CFR 170.15(a)(1) and (b), same excerpts |
+| No POA&M at Level 1 | 32 CFR 170.21, same excerpts |
+| Affirmation at the end of the self-assessment and annually | 32 CFR 170.22(b)(1), same excerpts |
+| "Not applicable" findings | **Not encoded.** No official excerpt read in this session said how a Level 1 requirement that does not apply is recorded, so the page offers met / not met only and asks the user to write the reason in the evidence notes. |
+| "Examples of evidence" under each requirement | Ours. Not from any rule; the page says so. |
+
 ## Machining costs
 
 No machining rate, material price, cycle time or markup appears anywhere in
