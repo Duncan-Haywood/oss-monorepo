@@ -68,11 +68,15 @@ Georgia, Massachusetts and Mississippi are often said to have statutory forms, b
 open their official text, so they are not listed rather than listed from memory.
 
 **Where this goes.** The pay-app product we are building for specialty subcontractors already
-prints the Arizona, Florida, Michigan, Missouri, Nevada, Texas and Utah waivers word for word from the
-statute, with a test that rebuilds each form and compares it with the law. Michigan's forms
-leave the "does / does not" choice for you to circle by hand. On a Missouri job it offers the
+prints the Arizona, Florida, Michigan, Missouri, Nevada, Texas, Utah and Wyoming waivers word for
+word from the statute, with a test that rebuilds each form and compares it with the law. Michigan's
+forms leave the "does / does not" choice for you to circle by hand. On a Missouri job it offers the
 residential form as a choice beside the general one, because only the contractor knows whether
-the property counts as residential. Wyoming is next. It is in
+the property counts as residential. On a Wyoming job it fills the retainage blank from the pay
+application's retainage held to date, leaves "has not been paid the sum of" for you to enter, and
+prints the notary acknowledgment blank for the notary. Because Wyoming's one form acknowledges
+that payment was received, PayApps prints it only as an unconditional waiver and tracks a
+conditional Wyoming waiver without printing wording the statute does not give. It is in
 development with early access, and nothing is for sale yet:
 [construction tools and early access](https://marisstella.app/industries/construction/).
 To check a waiver you were sent for the common traps, the free
