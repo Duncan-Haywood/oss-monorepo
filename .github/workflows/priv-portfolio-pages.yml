@@ -189,8 +189,42 @@ jobs:
       - name: Test the development dashboard and the daily brief
         run: node --test platform/devstats/*.test.mjs platform/daily/*.test.mjs
 
-  build:
+  # The Cloudflare Web Analytics site token for the live site
+  # (platform/analytics/provision.mjs): the committed one in
+  # platform/analytics/site.json, else found or created through the API.
+  # Its own job so the build job, which runs every venture's code and
+  # restores caches, never holds a Cloudflare credential; only the public
+  # site token crosses over, as an output. Never fails the run: with no
+  # token the pages ship without the beacon and the legal pages say
+  # analytics are off. The step is skipped on pull requests.
+  web-analytics:
     needs: gate
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    permissions:
+      contents: read
+    timeout-minutes: 5
+    outputs:
+      token: ${{ steps.provision.outputs.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        if: github.event_name != 'pull_request' && needs.gate.outputs.cloudflare == 'true'
+        with:
+          persist-credentials: false
+          sparse-checkout: platform/analytics
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        if: github.event_name != 'pull_request' && needs.gate.outputs.cloudflare == 'true'
+        with:
+          node-version: "22"
+      - id: provision
+        if: github.event_name != 'pull_request' && needs.gate.outputs.cloudflare == 'true'
+        env:
+          CLOUDFLARE_ANALYTICS_TOKEN: ${{ secrets.CLOUDFLARE_ANALYTICS_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID }}
+        run: node platform/analytics/provision.mjs
+
+  build:
+    needs: [gate, web-analytics]
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     permissions:
       contents: read
@@ -313,25 +347,10 @@ jobs:
           PLAYWRIGHT: ${{ runner.temp }}/pw/node_modules/playwright/index.js
         run: node --test renders.test.mjs
 
-      # The Cloudflare Web Analytics site token for the live site
-      # (platform/analytics/provision.mjs): the committed one in
-      # platform/analytics/site.json, else found or created through the API
-      # with the account's token. Never fails the deploy; with no token the
-      # pages ship without the beacon and the legal pages say analytics are off.
-      # Pushes to main only: pull requests build without secrets.
-      - name: Find the web analytics token
-        id: webanalytics
-        if: github.event_name != 'pull_request' && needs.gate.outputs.cloudflare == 'true'
-        env:
-          CLOUDFLARE_ANALYTICS_TOKEN: ${{ secrets.CLOUDFLARE_ANALYTICS_TOKEN }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID }}
-        run: node platform/analytics/provision.mjs
-
       - name: Build the site
         id: build-site
         env:
-          PAGES_WEB_ANALYTICS_TOKEN: ${{ steps.webanalytics.outputs.token }}
+          PAGES_WEB_ANALYTICS_TOKEN: ${{ needs.web-analytics.outputs.token }}
           # A malformed post is left off a deploy with a warning rather than
           # stopping it (writing.mjs, loadPosts); pull requests stay strict.
           PAGES_SKIP_BAD_POSTS: ${{ github.event_name != 'pull_request' && '1' || '' }}
@@ -422,7 +441,7 @@ jobs:
       - name: Add the web analytics beacon to the late pages
         if: github.event_name != 'pull_request' && needs.gate.outputs.cloudflare == 'true'
         env:
-          PAGES_WEB_ANALYTICS_TOKEN: ${{ steps.webanalytics.outputs.token }}
+          PAGES_WEB_ANALYTICS_TOKEN: ${{ needs.web-analytics.outputs.token }}
         run: node platform/analytics/web-analytics.mjs platform/pages/dist
 
       - name: Pack the site for Cloudflare

@@ -68,3 +68,7 @@
 /prompts/runs/
 /prompts/derived/
 /prompts/drift/
+# Runs with the Cloudflare credentials in priv-portfolio-pages.yml's
+# web-analytics job (ci_policy_check: privileged code needs an owner).
+/platform/analytics/provision.mjs     @Duncan-Haywood
+/platform/analytics/web-analytics.mjs @Duncan-Haywood
