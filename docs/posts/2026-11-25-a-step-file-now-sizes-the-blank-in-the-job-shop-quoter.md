@@ -352,6 +352,46 @@ more without them, and the customer still gets exactly one quote. The first real
 at launch is on the checklist. The suite passes: 279 unit tests and 162 Worker tests, five of
 them new for this.
 
+## Only the senders a shop lists can email RFQs in
+
+A shop's RFQ address works like a phone number. Once it's on a quote footer or a website, anyone
+can use it. Every emailed RFQ lands in the inbox for a person to look at, so a few dozen junk
+emails cost an estimator real time, even though nothing goes to the AI until someone presses
+"Extract with AI". Private-monorepo PR #191 lets a shop limit who can email in.
+
+On the RFQs page an admin presses "Limit senders" and types one entry per line. An entry is
+either an address (`buyer@acme.com`) or a whole domain (`@acme.com`, or just `acme.com`). A domain
+also covers its subdomains, such as `mail.acme.com`. The list starts empty, and an empty list
+accepts anyone, the same as before. If one line isn't an address or a domain, the form names it
+and nothing is saved.
+
+Each email carries two sender addresses: the one in the From line, and the "envelope" sender the
+mail servers pass along. An email gets in if either one is on the list. That covers the two usual
+cases:
+
+- **An estimator forwards a customer's RFQ from the shop's own mailbox.** The envelope sender is
+  the shop, so listing the shop's own domain lets it through. The form says to add it.
+- **A customer's company relays the email through a list server.** The envelope sender is the
+  list server, but the From line is still the customer.
+
+Anything else bounces with "This shop takes RFQs by email only from senders it has listed;
+contact the shop". The bounce happens before anything is stored. A new customer who gets bounced
+shouldn't be lost without anyone knowing, so the last ten refused senders appear under the list,
+each with an "Allow" button. Our logs record only that a sender was refused and how long the list
+is, never the address. The privacy policy now covers the short refused list.
+
+This is a filter for junk, not a security check. Anyone can forge a From line. The address's
+random 80-bit token is still what keeps strangers out, and an emailed RFQ is still just an inbox
+item until a person reads it. A later step could also check the message's DKIM and SPF results
+(Cloudflare adds them in an `Authentication-Results` header), if forged senders turn out to get
+past a shop's list.
+
+Eleven new tests cover this: six on the address rules, and five Worker tests. The Worker tests
+check that only admins can edit the list, that a bad entry saves nothing, a refused email and both
+ways in, that the refused list keeps one row per sender with the newest first and at most ten, and
+that one shop's list doesn't affect another shop. The whole suite passes: 309 unit tests and 176
+Worker tests.
+
 ## A repeat part won at another revision says so
 
 Job shops quote the same part numbers again and again, and the quoter already lists a part's
