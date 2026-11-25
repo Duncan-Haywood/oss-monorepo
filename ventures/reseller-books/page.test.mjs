@@ -44,7 +44,7 @@ test("page documents the model, reconciliation and what it leaves out", () => {
 
 test("page states independence from all four marketplaces and links the single-channel analyzers", () => {
   const html = page("index.html");
-  assert.match(html, /Not affiliated with eBay, Etsy, Poshmark, Mercari, Whatnot or Shopify/);
+  assert.match(html, /Not affiliated with eBay, Etsy, Poshmark, Mercari, Depop, Whatnot or Shopify/);
   for (const s of ["ebay-transaction-report-analyzer", "etsy-statement-profit-analyzer", "poshmark-sales-report-analyzer", "whatnot-sales-report-analyzer", "shopify-payout-profit-analyzer"]) assert.match(html, new RegExp(`\\.\\./${s}/`));
 });
 
