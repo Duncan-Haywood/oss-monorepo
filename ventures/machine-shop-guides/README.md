@@ -12,12 +12,13 @@ shops: an RFQ-to-quote assistant and a CMMC Level 1/2 + ISO 9001 workspace
 | `cmmc-level-1-self-assessment.html` | The 15 CMMC Level 1 requirements (FAR 52.204-21(b)(1), verbatim, hash-pinned in `l1.test.mjs`), each judged by its NIST SP 800-171A objectives (59 in all, FCI read for CUI, per 32 CFR 170.15(c)(1)) marked met / not met / N/A, with evidence notes; a requirement is met only when all its objectives are, and all 15 must be met (no score, no POA&M, 32 CFR 170.24); a worksheet CSV (one row per objective) with scope, CAGE codes and the next annual date. Logic: `l1-data.mjs`, `l1.mjs`. |
 | `sprs-score-calculator.html` | 110 NIST SP 800-171 requirements, met / not met / partial, scored by the DoD Assessment Methodology (110 minus 5/3/1). Partial credit for 3.5.3 and 3.13.11; no score without an SSP (3.12.4); the Conditional check from 32 CFR 170.21 (88 points, only 1-point gaps or 3.13.11 partial, and none of the six requirements (a)(2)(iii) never allows on a POA&M); gaps as a POA&M starter CSV that marks each gap allowed or not. |
 | `nist-800-171-ssp-template.html` | System security plan builder: the 3.12.4 contents (boundary, environment, connections, plus purpose, CUI, inventory, data flow, users, contacts, review date) and, for each of the 110 requirements, status (met / not met / partial / N/A), implementation statement, responsible, evidence, provider, and for gaps the planned action and milestone. A review lists what an assessor would send back; the score and the "110 by" date come from the same statuses and milestones. Downloads: SSP as escaped standalone HTML and as Markdown, POA&M CSV, plan file JSON (re-opened through `normaliseSsp`). Can start from the SPRS calculator's saved answers. Draft kept in the browser only when the user ticks it. Logic: `ssp.mjs`. |
+| `stock-size-from-step-file.html` | Drop a customer's STEP or STL file: bounding box, the smallest round bar along each axis, and stock options (rectangular and round, with the user's allowance per side, facing/cut-off and rounding), weight and material cost from the user's density and price; hands the cost to the quote calculator. STEP is read from its B-rep edges with exact arc extremes (box exact for planes, cylinders and cones, otherwise a flagged upper bound); STL gives volume and chip share. Parts modelled at an angle are boxed square to their own faces. Nothing is uploaded. Logic: `part-geometry.mjs`; checked against OpenCascade on 68 parts (`fixtures/geometry/`, SOURCES.md). |
 | `job-shop-quote-calculator.html` | Material, setup, programming, cycle time, other ops and markup from the user's own rates, recomputed at each quantity break. No built-in rates. |
 | `cmmc-level-1-vs-level-2.html` | FCI vs CUI, the clauses to look for, Level 1 and Level 2 requirements, Phase 2 status (checked 24 Nov 2026). |
 | `ssp-and-poam.html` | What goes in an SSP and a POA&M, and CMMC POA&M limits. |
 | `how-to-price-a-machined-part.html` | The quoting method, from the shop's own records. |
 
-Logic lives in `sprs-data.mjs` (weights), `sprs.mjs` (scoring), `ssp.mjs` (SSP builder) and `quote.mjs`
+Logic lives in `sprs-data.mjs` (weights), `sprs.mjs` (scoring), `ssp.mjs` (SSP builder), `part-geometry.mjs` (STEP/STL reader and stock sizing) and `quote.mjs`
 (quoting); tests: `node --test *.test.mjs`. Every regulatory claim and the date
 it was checked: [`SOURCES.md`](SOURCES.md), which also lists what could not be
 re-read from the official host in the building session.
@@ -27,6 +28,12 @@ re-read from the official host in the building session.
 - Never implies CMMC certification, assessment or DoD endorsement. A score
   here is a self-check.
 - No machining cost figure that is not the user's own input.
+- A customer's model never leaves the browser: the stock-size page reads the file locally and its test forbids network calls.
+- A box is never reported smaller than the part: where the reader can only bound a surface, it says the box is an upper bound and by how much.
+
+### Why a shop would use the stock-size page
+
+Today an estimator opens the customer's model in CAD (SolidWorks, Fusion, a free viewer such as eDrawings) and measures it, or an online quoting platform reads it after the file is uploaded to them. This reads it in a browser tab without installing anything or uploading a confidential model, sizes round and rectangular stock with the shop's own allowances, and hands the material cost to the quote. It is the first piece of the RFQ-to-quote product (bet #2).
 - Products are "in development — early access", linking to
   <https://marisstella.app/industries/manufacturing/>.
 

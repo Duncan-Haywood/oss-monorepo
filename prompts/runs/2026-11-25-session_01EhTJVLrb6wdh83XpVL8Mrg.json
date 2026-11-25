@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVLrb6wdh83XpVL8Mrg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T04:55:52Z",
+  "ended": "2026-11-25T05:12:55Z",
+  "wall_minutes": 23.67,
+  "tokens_in": 14021540,
+  "tokens_out": 93617,
+  "cost_usd": 6.2901,
+  "tool_calls": 90,
+  "task": "Top bet reachable from this session: bet #2 (AI RFQ-to-quote for job shops), public side. New stock-size page reading STEP/STL files in the browser, feeding the quote calculator.",
+  "projects": [
+    "machine-shop-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18855",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 32,
+  "outcome": "success",
+  "errors": [
+    "Cloning private-monorepo was refused by the auto-mode permission classifier after add_repo succeeded, so the bet's private side (apps/jobshop-quote) could not be reached; took the public side instead.",
+    "cadquery-ocp 8.0 bindings differ from older OCP examples (no TColgp/TColStd modules, Bnd_Box.Get unconvertible, mixed _s suffixes); cost a few iterations on the fixture generator."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says the ventures track should work in private-monorepo when reachable; add_repo attached it but the clone was then refused by the permission classifier. A line on what to do when add_repo succeeds and the clone is denied would save a detour."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Post front-matter limits (description <= 160) and file-input labels surface only in preflight (5+ min); check_post_frontmatter.py and check_control_labels.py are fast and could be named in the ventures prompt as a pre-push step."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Preflight stops at the first failing stage, so it took three 5-minute runs to see post front matter, control labels, then title/description length and the query-string privacy rule; a mode that reports every stage in one pass (open PR 18093) would have saved two runs."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The default is the top bet (#1, payapps), but its public side had at least 8 sessions on it today (open PRs 18847, 18798, 18793, 18790, 18841) and the private app was unreachable. Bet #2's front door had only a rate-free quote calculator, so a deep piece there moved a bet further per hour.",
+      "did": "Built bet #2's first wedge piece (model in, material line out) on its front-door venture.",
+      "result": "Shipped with 96 passing tests and a 68-part kernel comparison; no overlap with other open PRs."
+    },
+    {
+      "file": "ventures/machine-shop-guides/SOURCES.md",
+      "why": "Material density presets could not be re-read from a primary source (proxy 403 on Wikipedia and supplier sites).",
+      "did": "Kept them as editable typical values, labelled on the page and recorded as unverified in SOURCES.md; the price field ships empty.",
+      "result": "Weights are approximate until the user edits the density; costs use only the user's price."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-stock-size-from-a-step-file.md"
+  ],
+  "goal": "$10k MRR: front door for bet #2 (RFQ-to-quote), the material-line step of the wedge",
+  "notes": "Security queue: every listed alert already had a claim branch; ideas inbox and requests empty; route drew ventures/1. Verification: node --test in machine-shop-guides 96/96 pass via run_venture_tests.py; OpenCascade comparison 68 parts, 0 boxes under, 60 exact, worst over 2.78 mm (flagged), envelope never under the mesh measurement; Playwright at 390 px: STEP, STL and B-spline files read, quote hand-off fills material, no console errors, no horizontal scroll. venture-preflight first run failed on post description length and an unlabelled file input; both fixed; the second run failed on page title >70, meta description >160 and the ?materialPerPart= query-string hand-off (platform/privacy/share-location.test.mjs), fixed by handing the cost over through localStorage only; third run: 'preflight clean for machine-shop-guides'.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "98c87301-e118-5939-84a7-71795ef728ba",
+    "transcripts": 1,
+    "first": "2026-11-25T04:55:52Z",
+    "last": "2026-11-25T05:19:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 87,
+        "input": 169,
+        "output": 93617,
+        "thinking": 22750,
+        "cache_read": 13814603,
+        "cache_write_5m": 0,
+        "cache_write_1h": 206768,
+        "api_equivalent_usd": 6.2901,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 87,
+      "input": 169,
+      "output": 93617,
+      "thinking": 22750,
+      "cache_read": 13814603,
+      "cache_write_5m": 0,
+      "cache_write_1h": 206768,
+      "api_equivalent_usd": 6.2901,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 90,
+    "tools": {
+      "Bash": 81,
+      "Write": 3,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.67,
+      "active_minutes": 23.67,
+      "model_minutes": 14.59,
+      "tool_minutes": 9.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "STEP Part 21 reader with arc/B-spline/torus bounds, kernel-checked fixture corpus, page, tests and post: about three days for a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 381.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
