@@ -243,7 +243,7 @@ decisions:
 
 - id: aws-turnover
   asks: []
-  prs: [18755]
+  prs: [18802]
   gates: deployment
   exposure: legal-person
   opened: "2026-11-24"
@@ -278,7 +278,7 @@ decisions:
       the apps and sandbox accounts.
   blocked_by: []
   note: >-
-    Added 2026-11-24 by the aws-spend-guards follow-up (PR 18755) after PR
+    Added 2026-11-24 by the aws-spend-guards follow-up (PR 18802) after PR
     18749 landed the stacks and the runbook. It costs money: AWS usage is
     billed to your card from step 1, Claude Platform bills through AWS
     Marketplace from step 5, and step 8 may need a paid domain transfer if

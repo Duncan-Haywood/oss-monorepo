@@ -418,10 +418,10 @@ tasks:
     hours: 8
     status: done
     added: 2026-11-24
-    pr: 18755
+    pr: 18802
     notes: >-
       platform/aws/stacks/spend landed in PR 18749 (budgets, freeze SCP, kill
-      switch); PR 18755 added anomaly detection, 50% alerts, per-account
+      switch); PR 18802 added anomaly detection, 50% alerts, per-account
       kill_switch_accounts (shared-infra, payments, log-archive and security
       alert only), a two-region sweep, Auto Scaling, event sources, Aurora,
       spot and SageMaker reporting, resume by reversing the budget action,
