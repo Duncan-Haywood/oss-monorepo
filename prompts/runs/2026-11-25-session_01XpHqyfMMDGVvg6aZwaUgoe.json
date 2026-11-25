@@ -26,7 +26,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": 0,
   "review_findings": null,
   "tests_added": 5,
@@ -63,7 +63,7 @@
     "private-monorepo apps/jobshop-quote/docs/DEPLOY.md"
   ],
   "goal": null,
-  "notes": "Local checks on PR 146: node --test scripts/provision.test.mjs 5/5; pnpm typecheck ok; pnpm test:unit ok; pnpm test:worker (see below); biome ci clean; pnpm build + provision --dry-run + wrangler deploy --dry-run list every binding. Workflow not yet dispatched against the Cloudflare account (owner step).",
+  "notes": "Local checks on PR 146: node --test scripts/provision.test.mjs 5/5; pnpm typecheck ok; pnpm test:unit 175/175; pnpm test:worker 103/103; biome ci clean; pnpm build + provision --dry-run + wrangler deploy --dry-run list every binding. Workflow not yet dispatched against the Cloudflare account (owner step). Merged as private-monorepo b6cf123.",
   "corrections": [],
   "redteam": null,
   "usage": {
