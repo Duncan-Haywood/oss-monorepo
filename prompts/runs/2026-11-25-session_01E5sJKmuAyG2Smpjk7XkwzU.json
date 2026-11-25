@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKmuAyG2Smpjk7XkwzU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T23:18:34Z",
+  "ended": "2026-11-25T23:31:20Z",
+  "wall_minutes": 14.66,
+  "tokens_in": 10902715,
+  "tokens_out": 45392,
+  "cost_usd": 4.2092,
+  "tool_calls": 95,
+  "task": "Job Shop Quote (bet #2) ROADMAP 8: inbound RFQ sender checks from Cloudflare's Authentication-Results (SPF/DKIM/DMARC) so a forged listed sender is refused",
+  "projects": [
+    "jobshop-quote"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19132",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    "private-monorepo CI starved (ci_starvation.py: 2 of 2 jobs never got a runner); ran jobshop-quote-ci locally 3 times, 11/11 run steps passed each time",
+    "support.procore.com, v2.support.procore.com and developers.cloudflare.com refused/unresolvable from this session"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "No hint that vendor docs hosted on GitHub (cloudflare/cloudflare-docs) can be read with a sparse blob-less clone when the docs site is refused; it took three failed probes (WebFetch, raw.githubusercontent with a stale path, api.github.com) to find. Cloudflare Email Routing docs now live under src/content/docs/email-service/, not email-routing/."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Without --foreground it detaches after 100 s and voids the e2e step if any tracked file changes; I edited the privacy text mid-run and had to rerun the whole workflow. Pass --foreground when it is already started with run_in_background."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Top bet #1 (payapps) has its free Next items conditional or needing unreachable sources (Procore CSV format docs do not resolve here); building a GC-portal export on a guessed format would be fabrication",
+      "did": "took bet #2's unclaimed ROADMAP 8 sender-check item instead",
+      "result": "shipped and merged with a primary source (Cloudflare's own docs) for the trust rule"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-a-step-file-now-sizes-the-blank-in-the-job-shop-quoter.md (new section: forged senders)",
+    "docs/reports/ventures-2026-11-25-jobshop-quote-inbound-sender-checks.md"
+  ],
+  "goal": "$10k MRR: harden bet #2's inbound RFQ intake before launch",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/193. Local jobshop-quote-ci (run_workflow_locally.py --repo-root private clone): Biome, typecheck, unit, worker (workerd), build, provisioning script, D1 migrations in sync, Playwright e2e all ok; 8 uses: steps not run. Third run on the tree merged with private main (#192) also 11/11; private PR 193 squash-merged as 2cea7d7. Security queue empty; ideas inbox empty.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2e3fc343-2717-5c32-b7a6-158309c4bc7f",
+    "transcripts": 1,
+    "first": "2026-11-25T23:18:34Z",
+    "last": "2026-11-25T23:33:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 91,
+        "input": 174,
+        "output": 45392,
+        "thinking": 8524,
+        "cache_read": 10758936,
+        "cache_write_5m": 0,
+        "cache_write_1h": 143605,
+        "api_equivalent_usd": 4.2092,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 91,
+      "input": 174,
+      "output": 45392,
+      "thinking": 8524,
+      "cache_read": 10758936,
+      "cache_write_5m": 0,
+      "cache_write_1h": 143605,
+      "api_equivalent_usd": 4.2092,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 95,
+    "tools": {
+      "Bash": 80,
+      "ToolSearch": 3,
+      "WebFetch": 3,
+      "Write": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "WebSearch": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.66,
+      "active_minutes": 14.66,
+      "model_minutes": 8.96,
+      "tool_minutes": 5.7,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer reading RFC 8601 and Cloudflare's docs, writing the parser, wiring and 12 tests: about a day and a half",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 237.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
