@@ -14,7 +14,10 @@ node cli.mjs analyze metrics.csv --json --prices prices.json
 ```
 
 Input: rows of `timestamp,read_units,write_units`, the **Sum** of `ConsumedReadCapacityUnits` and
-`ConsumedWriteCapacityUnits` per period (default one hour). Provisioned beats on-demand above
+`ConsumedWriteCapacityUnits` per period (default one hour). Rows with ISO or epoch timestamps are
+sorted by time, and a period with no row between the first and last is counted as zero, because
+CloudWatch leaves out periods with no traffic (idle hours before the first or after the last row cannot
+be seen). Provisioned beats on-demand above
 about 29% average utilisation at list prices; autoscaling targets 70%.
 
 | rule | level | meaning |
@@ -22,6 +25,8 @@ about 29% average utilisation at list prices; autoscaling targets 70%.
 | `current-capacity-throttles` | error | your `--current-rcu/--current-wcu` is below the rate in some periods |
 | `switch-capacity-mode` | warn | another mode saves >= 20% and >= $5 a month |
 | `autoscaling-ramp-risk` | warn | traffic rose faster than the previous capacity allowed for |
+| `period-mismatch` | warn | the rows are spaced differently from the period you set |
+| `missing-periods-filled` | info | periods with no row between the first and last timestamp were counted as zero |
 | `spiky-reads`, `spiky-writes`, `mostly-idle`, `small-sample`, `capacity-mode-fine` | info | |
 
 Exit 1 on an error (or any warning with `--fail-on warn`); 2 on bad input or no rows.
@@ -37,8 +42,7 @@ ignore free tier, reserved capacity, Standard-IA, region, global tables and back
 
 Found by quality audit round 84 ([`2026-11-19-dynamodb-capacity-mode-advisor.json`](../../portfolio/quality/audits/2026-11-19-dynamodb-capacity-mode-advisor.json)):
 
-- The window is the number of rows times the period, not the span of the timestamps. CloudWatch leaves out periods with no datapoint, so a real export with idle hours missing overstates the monthly on-demand figure (in the audit's test week, $98.55 instead of $65.70) and can change the recommended mode. Until this is fixed, export with zero-filled periods.
-- The period is not inferred from the timestamps: 5-minute data pasted at the default 3600 s is priced 12 times too low with no warning.
+- Fixed 2026-11-25: the window was the number of rows times the period, not the span of the timestamps, so an export with idle hours left out was priced from busy hours only; and rows spaced unlike the period were priced with no warning. Missing periods are now counted as zero and a spacing mismatch raises `period-mismatch` (tests in `engine.test.mjs`).
 - Global secondary indexes are not priced; their consumed capacity is a separate metric.
 
 ## Privacy

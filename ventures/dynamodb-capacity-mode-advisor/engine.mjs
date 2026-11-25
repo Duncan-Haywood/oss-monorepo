@@ -106,12 +106,47 @@ function priceSide(s, hours, perHour, perMillion, o, current) {
 /** Break-even average utilisation of provisioned capacity, above which provisioned beats on-demand. */
 export const breakEvenUtilization = (perMillion, perHour) => perHour / ((3600 * perMillion) / 1e6);
 
+const parseTime = (t) => {
+  const s = String(t ?? "").trim();
+  if (/^\d{9,11}$/.test(s)) return Number(s) * 1000; // epoch seconds
+  if (!/^\d{4}-\d{2}-\d{2}/.test(s)) return NaN;
+  return Date.parse(s);
+};
+
+/**
+ * CloudWatch omits a period with no published datapoint, and get-metric-statistics returns datapoints in no
+ * particular order. When every timestamp parses and none repeats, sort the rows and, if the spacing matches
+ * the period, put a zero row in each missing period, so the window is the timestamp span, not the row count.
+ */
+export function alignToTimeline(records, periodSeconds) {
+  const times = records.map((r) => parseTime(r.t));
+  if (records.length < 2 || times.some((x) => !Number.isFinite(x))) return { records, filled: 0, gapSeconds: null, timeline: false };
+  const rows = records.map((r, i) => ({ ...r, ms: times[i] })).sort((a, b) => a.ms - b.ms);
+  const gaps = rows.slice(1).map((r, i) => (r.ms - rows[i].ms) / 1000);
+  if (gaps.some((g) => g <= 0)) return { records, filled: 0, gapSeconds: null, timeline: false };
+  const gapSeconds = Math.min(...gaps);
+  if (Math.abs(gapSeconds - periodSeconds) > 0.5) return { records: rows.map(({ ms, ...r }) => r), filled: 0, gapSeconds, timeline: true };
+  const out = [];
+  let filled = 0;
+  rows.forEach((r, i) => {
+    if (i > 0) {
+      const missing = Math.round(gaps[i - 1] / periodSeconds) - 1;
+      for (let k = 1; k <= missing; k += 1) out.push({ t: new Date(rows[i - 1].ms + k * periodSeconds * 1000).toISOString(), read: 0, write: 0, filled: true });
+      filled += Math.max(0, missing);
+    }
+    const { ms, ...rest } = r;
+    out.push(rest);
+  });
+  return { records: out, filled, gapSeconds, timeline: true };
+}
+
 export function analyze(parsed, options = {}) {
   const o = { ...DEFAULTS, ...options };
   const prices = { ...DEFAULT_PRICES, ...(options.prices ?? {}) };
-  const records = parsed.records;
+  if (!parsed.records.length) return { count: 0, findings: [], skipped: parsed.skipped ?? 0 };
+  const aligned = alignToTimeline(parsed.records, o.periodSeconds);
+  const records = aligned.records;
   const count = records.length;
-  if (!count) return { count: 0, findings: [], skipped: parsed.skipped ?? 0 };
   const hours = (count * o.periodSeconds) / 3600;
   const read = stats(records.map((r) => r.read), o.periodSeconds);
   const write = stats(records.map((r) => r.write), o.periodSeconds);
@@ -133,6 +168,8 @@ export function analyze(parsed, options = {}) {
     const text = format(Math.abs(n));
     return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
   };
+  if (aligned.gapSeconds !== null && Math.abs(aligned.gapSeconds - o.periodSeconds) > 0.5) add("period-mismatch", "warn", `Your timestamps are ${aligned.gapSeconds} s apart but the period is set to ${o.periodSeconds} s. Every rate and dollar figure assumes ${o.periodSeconds} s; set the period to the spacing of your rows (the Period of the CloudWatch query) and run again.`);
+  if (aligned.filled > 0) add("missing-periods-filled", "info", `${aligned.filled} period(s) between your first and last timestamp had no row; CloudWatch leaves out periods with no traffic, so they were counted as zero (${parsed.records.length} rows span ${count} periods).`);
   const be = { read: breakEvenUtilization(prices.onDemandPerMillionRead, prices.perRcuHour), write: breakEvenUtilization(prices.onDemandPerMillionWrite, prices.perWcuHour) };
 
   if (best[0] !== (hasCurrent ? "" : "on-demand") && saving >= o.minMonthlySaving && saving / currentCost >= o.switchSavings) {
@@ -150,7 +187,7 @@ export function analyze(parsed, options = {}) {
   if (rs.rampRisk + ws.rampRisk > 0) add("autoscaling-ramp-risk", "warn", `In ${rs.rampRisk} read and ${ws.rampRisk} write period(s) traffic rose faster than the previous capacity allowed for; autoscaling takes minutes to react, so expect throttling there unless you pre-scale or stay on-demand.`);
   if (read.idleShare >= o.idleShare && write.idleShare >= o.idleShare) add("mostly-idle", "info", `Reads and writes are zero in at least ${Math.round(o.idleShare * 100)}% of periods. Provisioned capacity cannot go below 1 unit per direction; on-demand costs nothing while idle.`);
   if (count < 24 * 3600 / o.periodSeconds) add("small-sample", "info", `Only ${(hours).toFixed(0)} hour(s) of data. Paste at least a week covering a busy period before changing a production table; the monthly figures extrapolate this window to 730 hours.`);
-  return { count, skipped: parsed.skipped ?? 0, hours, options: { ...o, prices }, read: { ...read, rates: undefined }, write: { ...write, rates: undefined }, readCost: rs, writeCost: ws, totals, best: { mode: best[0], cost: best[1] }, currentCost, currentLabel, saving, breakEven: be, autoscaledUtilization: util, prices, findings };
+  return { count, rows: parsed.records.length, filledPeriods: aligned.filled, skipped: parsed.skipped ?? 0, hours, options: { ...o, prices }, read: { ...read, rates: undefined }, write: { ...write, rates: undefined }, readCost: rs, writeCost: ws, totals, best: { mode: best[0], cost: best[1] }, currentCost, currentLabel, saving, breakEven: be, autoscaledUtilization: util, prices, findings };
 }
 
 export function summarize(report) {
@@ -165,6 +202,7 @@ export function summarize(report) {
 export const INPUT_NOTES = [
   { what: "timestamp,read,write", detail: "Sum of ConsumedReadCapacityUnits and ConsumedWriteCapacityUnits per period. Comma, tab or two-space separated." },
   { what: "header row", detail: "One optional header; if it names the columns read and write in either order the columns are mapped for you." },
+  { what: "timestamps", detail: "ISO dates (2026-09-30T12:00:00Z) or epoch seconds. Rows are sorted by time; a period with no row between the first and last is counted as zero, since CloudWatch leaves out periods with no traffic. Rows spaced unlike the period raise a warning." },
   { what: "# comment / blank lines", detail: "Ignored." },
   { what: "other lines", detail: "Counted as skipped, never guessed at." },
 ];
