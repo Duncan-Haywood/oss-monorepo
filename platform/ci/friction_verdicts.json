@@ -199,6 +199,70 @@
    "by": "PR #18936 (allocate.py bet note reads open PR titles against flagships.yaml front_door:)",
    "at": "2026-11-25T17:15:40Z",
    "note": "The busy/free split per bet surface is printed by portfolio/router/allocate.py."
+  },
+  {
+   "file": ".github/prompts/verify-and-merge.md",
+   "match": "private.{0,40}(CI|jobs?).{0,80}(404|no runner|runner_id|seconds|\\bs\\b)",
+   "verdict": "fixed",
+   "by": "20d256bdb (ci_starvation --repo), 4af4ca8b8 (run_workflow_locally --repo-root); verify-and-merge 'Reading CI' names --repo",
+   "at": "2026-11-25T22:43:01Z",
+   "note": "Doc names --repo for private runs; later reports came from clones older than the fix (checked 2026-11-25)."
+  },
+  {
+   "file": ".github/prompts/cloud-session.md",
+   "match": "private.{0,40}(CI|jobs?).{0,80}(404|no runner|seconds|\\bs\\b)",
+   "verdict": "fixed",
+   "by": "4af4ca8b8: cloud-session.md 'Reaching private-monorepo' says starved, run_workflow_locally --repo-root",
+   "at": "2026-11-25T22:43:01Z",
+   "note": "Section now says how to verify private PRs (checked 2026-11-25)."
+  },
+  {
+   "file": "CLAUDE.md",
+   "match": "private.{0,60}(CI|jobs?).{0,80}(404|no runner|runner_id|seconds|\\bs\\b)|CI green.{0,40}private",
+   "verdict": "fixed",
+   "by": "this PR: CLAUDE.md 'Reading CI' names --repo and run_workflow_locally --repo-root",
+   "at": "2026-11-25T22:43:02Z",
+   "note": "Always-read file now carries the private-repo line (2026-11-25)."
+  },
+  {
+   "file": "CLAUDE.md",
+   "match": "risk_review.{0,80}(private|this repo|diff)",
+   "verdict": "fixed",
+   "by": "b8a1c79f2: cloud-session.md step 3 runs risk_review.py from the private clone",
+   "at": "2026-11-25T22:43:02Z",
+   "note": "Script diffs the cwd's git repo; doc says so (checked 2026-11-25)."
+  },
+  {
+   "file": ".github/prompts/cloud-session.md",
+   "match": "register_repo_root",
+   "verdict": "by-design",
+   "by": "cloud-session.md step 3 already says to skip it",
+   "at": "2026-11-25T22:43:17Z",
+   "note": "The wrong text is in add_repo's tool result, outside this repo; the doc is right (checked 2026-11-25)."
+  },
+  {
+   "file": "platform/ci/check_md_links.py",
+   "match": "hardware-bets",
+   "verdict": "fixed",
+   "by": "main: check_md_links hardware-bets.md clean, main_health 328/328",
+   "at": "2026-11-25T22:43:17Z",
+   "note": "bets.md landed; no dead links (checked 2026-11-25)."
+  },
+  {
+   "file": "portfolio/monetization/hardware-bets.md",
+   "match": "bets\\.md",
+   "verdict": "fixed",
+   "by": "main: check_md_links clean",
+   "at": "2026-11-25T22:43:18Z",
+   "note": "Link target exists on main now (checked 2026-11-25)."
+  },
+  {
+   "file": "prompts/process/backlog/README.md",
+   "match": "P075|P080|same (next )?(backlog )?id|next free number",
+   "verdict": "by-design",
+   "by": "5d247184e (P078): a duplicate id from parallel merges warns, main stays green",
+   "at": "2026-11-25T22:43:18Z",
+   "note": "Collisions still happen but cost a rename, not a red main (checked 2026-11-25)."
   }
  ]
 }

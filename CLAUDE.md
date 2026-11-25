@@ -228,7 +228,10 @@ when you need history for a merge, `git fetch --deepen=500 origin main` until
 - Classify a red or missing run before debugging:
   `python3 platform/ci/ci_starvation.py --run <run_id>`. Exit 0 means every
   job got a runner, so the failure is real; exit 1 means starved, so verify
-  locally.
+  locally. `private-monorepo`'s jobs end red in 1-10 s with a 404 log (no
+  runner): add `--repo Duncan-Haywood/private-monorepo`, and run them with
+  `run_workflow_locally.py --repo-root <its clone> <app>-ci`
+  (`cloud-session.md`, "Reaching `private-monorepo`").
 - Use check runs, not legacy statuses (`get_status` reports 0 on a PR with red
   check runs). Details: [`.github/prompts/verify-and-merge.md`](.github/prompts/verify-and-merge.md), "Reading CI".
 
