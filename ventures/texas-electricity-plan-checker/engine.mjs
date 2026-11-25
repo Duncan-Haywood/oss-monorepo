@@ -384,7 +384,6 @@ export function windowKwh(planIn, month) {
 
 function sentences(text) {
   return String(text)
-    .replace(/¢/g, '¢')
     .replace(/(\d)\s*cents?\b/gi, '$1¢')
     .split(/(?<=[.;])\s+(?=[A-Z*•])|\n+/)
     .map((s) => s.replace(/\s+/g, ' ').trim())

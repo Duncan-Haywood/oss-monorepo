@@ -3,8 +3,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { parseStaff, parseShifts, buildRoster } from "./calc.mjs";
 import { staffPackHtml, safeColor, safeLogo } from "./staffpack.mjs";
-import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
-import { buyLink, cleanKey, interpret, checkLicence } from "./licence.mjs";
+import { PADDLE } from "./checkout.mjs";
+import * as licence from "./licence.mjs";
+import { assertPackLicence } from "../../platform/billing/testkit.mjs";
 
 const roster = () => {
   const st = parseStaff("Ana, 18, 40, 30, Mon-Sat 6-22\nBen, 16, 32, 20, Mon-Fri 6-22\nCleo <b>, 15, 24, 12, any");
@@ -32,16 +33,8 @@ test("typed text is escaped; colour and logo are restricted", () => {
   assert.equal(safeLogo("https://x/y.png"), "");
 });
 
-test("dark until a checkout link is set; licence check never throws and only valid:true unlocks", async () => {
-  assert.equal(buyLink(CHECKOUT_URL), CHECKOUT_URL ? CHECKOUT_URL : null);
-  assert.equal(buyLink("javascript:alert(1)"), null);
-  assert.equal(cleanKey("short"), null);
-  assert.equal(interpret({ valid: true, license_key: { status: "active" } }).valid, true);
-  assert.equal(interpret({ valid: true, license_key: { status: "disabled" } }).valid, false);
-  assert.equal((await checkLicence("ABCD-1234-EFGH", { url: VALIDATE_URL, fetch: async () => { throw new Error("offline"); } })).valid, false);
-  assert.equal((await checkLicence("ABCD-1234-EFGH", { url: VALIDATE_URL, fetch: async () => ({ json: async () => ({ valid: true }) }) })).valid, true);
-  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(html, /id="pack-card"/);
+test("licence: dark until the catalogue is set; only a key signed for this pack unlocks; never throws", async () => {
+  await assertPackLicence(licence, PADDLE, "shift-roster-builder");
 });
 
 import { samplePack } from "./build-sample-pack.mjs";

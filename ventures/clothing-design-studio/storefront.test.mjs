@@ -79,13 +79,13 @@ test("email shops get a basket that totals and builds one order mail; payment-li
   assert.match(linked, /data-cart="halo-tee"[^>]*data-link="https:\/\/buy\.stripe\.com\/x"/);
   assert.ok(!/id="cart"/.test(withBasket), "email-only shop has no cart");
   // the inline script must parse
-  const scripts = [...withBasket.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
+  const scripts = [...withBasket.matchAll(/<script\b(?![^>]*\btype=)[^>]*>([\s\S]*?)<\/script\b[^>]*>/gi)].map(m => m[1]);
   for (const sc of scripts) new Function(sc);
 });
 
 test("the basket script adds, merges lines by size, totals and removes (DOM stub)", () => {
   const html = storefront([tee("A", 30)], terms).html;
-  const sc = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]).pop();
+  const sc = [...html.matchAll(/<script\b(?![^>]*\btype=)[^>]*>([\s\S]*?)<\/script\b[^>]*>/gi)].map(m => m[1]).pop();
   const els = {};
   const mk = () => ({ children: [], hidden: true, href: "", textContent: "", listeners: {}, attrs: {},
     addEventListener(t, f) { this.listeners[t] = f; }, appendChild(c) { this.children.push(c); },

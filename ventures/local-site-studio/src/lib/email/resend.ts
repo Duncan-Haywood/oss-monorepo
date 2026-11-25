@@ -225,7 +225,7 @@ Unsubscribe URL: ${unsubscribeUrl}`);
     console.log(`[Email Sent via Resend] ID: ${data.id} to ${to}`);
     return { success: true as const, emailId: data.id };
   } catch (error) {
-    console.error(`Failed to send email to ${to} via Resend:`, error);
+    console.error("Failed to send email to %s via Resend:", to, error);
     // Best-effort — never let a diagnostics-reporting failure mask or
     // replace the original send failure this catch already handles. leadSlug
     // (an internal identifier), not the recipient address, is forwarded: the

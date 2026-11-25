@@ -267,10 +267,13 @@ export function toFfmetadata(chapters, duration) {
 
 // WebVTT chapters track (kind="chapters"), each cue ending where the next begins. A cue payload may not
 // contain "-->" (W3C WebVTT, 4.1), so it is written as "->".
+// Repeated until none is left: one pass over "--->" leaves a new "-->".
+const noCueArrow = (t) => { let s = String(t); while (s.includes("-->")) s = s.split("-->").join("->"); return s; };
+
 export function toWebVtt(chapters, duration) {
   if (!chapters.length || !(duration > 0)) return null;
   const ts = (s) => { const t = Math.floor(s); return `${String(Math.floor(t / 3600)).padStart(2, "0")}:${String(Math.floor((t % 3600) / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}.000`; };
-  const cues = chapters.map((c, i) => `${i + 1}\n${ts(c.seconds)} --> ${ts(i + 1 < chapters.length ? chapters[i + 1].seconds : duration)}\n${c.title.replace(/-->/g, "->")}`);
+  const cues = chapters.map((c, i) => `${i + 1}\n${ts(c.seconds)} --> ${ts(i + 1 < chapters.length ? chapters[i + 1].seconds : duration)}\n${noCueArrow(c.title)}`);
   return "WEBVTT\n\n" + cues.join("\n\n") + "\n";
 }
 

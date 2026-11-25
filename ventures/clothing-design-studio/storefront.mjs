@@ -34,6 +34,10 @@ export function safeHttps(url) {
 
 const validEmail = e => /^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']+$/.test(String(e ?? "").trim());
 
+// A value written into the inline <script> as a JS literal. JSON.stringify alone
+// leaves "</script>", "<!--" and the U+2028/U+2029 line separators intact, so
+// they are written as \u escapes, which evaluate to the same string.
+const jsLiteral = v => JSON.stringify(v).replace(/[<>&\u2028\u2029]/g, c => "\\u" + c.charCodeAt(0).toString(16).padStart(4, "0"));
 const money = (n, cur) => `${CURRENCIES[cur] ?? ""}${Number(n).toFixed(2)}${CURRENCIES[cur] ? "" : " " + cur}`;
 
 /**
@@ -155,7 +159,7 @@ document.querySelectorAll('input[type=radio][name^="size-"]').forEach(function(r
 var h=r.name.slice(5),a=document.querySelector('[data-mail="'+h+'"]'),b=document.querySelector('[data-size-for="'+h+'"]');
 if(a)a.href=a.href.replace(/size(%20|\\+| )[^.]*?\\./,'size%20'+encodeURIComponent(r.value)+'.');
 if(b)b.textContent=r.value;});});
-${products.some(p => p.link) ? `(function(){var S=${JSON.stringify(CURRENCIES[cur])},L=[],C=document.getElementById('cart');
+${products.some(p => p.link) ? `(function(){var S=${jsLiteral(CURRENCIES[cur])},L=[],C=document.getElementById('cart');
 function m(n){return S+n.toFixed(2);}
 function draw(){var u=C.querySelector('ul'),t=0;u.textContent='';
 L.forEach(function(l,i){t+=l.p*l.q;var li=document.createElement('li');li.textContent=l.q+' x '+l.n+', size '+l.s+' · '+m(l.p*l.q)+' ';
@@ -166,7 +170,7 @@ document.querySelectorAll('[data-cart]').forEach(function(a){a.addEventListener(
 var h=a.getAttribute('data-cart'),c=document.querySelector('input[name="size-'+h+'"]:checked'),s=c?c.value:'',n=a.getAttribute('data-name'),p=parseFloat(a.getAttribute('data-price')),u=a.getAttribute('data-link');
 for(var i=0;i<L.length;i++){if(L[i].h===h&&L[i].s===s){L[i].q++;draw();return;}}
 L.push({h:h,n:n,s:s,p:p,q:1,u:u});draw();});});})();` : ""}
-${email ? `(function(){var E=${JSON.stringify(email)},P=${JSON.stringify(preOrder ? "Pre-order" : "Order")},S=${JSON.stringify(CURRENCIES[cur])},L=[],B=document.getElementById('basket');
+${email ? `(function(){var E=${jsLiteral(email)},P=${jsLiteral(preOrder ? "Pre-order" : "Order")},S=${jsLiteral(CURRENCIES[cur])},L=[],B=document.getElementById('basket');
 function m(n){return S+n.toFixed(2);}
 function draw(){var u=B.querySelector('ul'),t=0,body='';u.textContent='';
 L.forEach(function(l,i){t+=l.p*l.q;body+=l.q+' x '+l.n+', size '+l.s+' ('+m(l.p)+' each)\\n';

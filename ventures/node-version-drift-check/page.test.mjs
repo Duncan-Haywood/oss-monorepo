@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { analyze, hasRisk, FINDING_KINDS as K } from "./engine.mjs";
+const stripScripts = (s) => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ""); } while (s !== p); return s; };
+const stripTags = (s) => { let p; do { p = s; s = s.replace(/<[^>]+>/g, ""); } while (s !== p); return s; };
 
 const DOCS_PAGE = "why-node-version-drift-happens.html";
 const VS_PAGE = "vs-eyeballing-and-npm-engine-strict.html";
@@ -10,8 +12,8 @@ const read = (name) => readFile(new URL(`./${name}`, import.meta.url), "utf8");
 
 test("index links to the docs page and the comparison page, and both link back", async () => {
   const index = await read("index.html");
-  assert.match(index, new RegExp(`href="${DOCS_PAGE.replace(/\./g, "\\.")}"`));
-  assert.match(index, new RegExp(`href="${VS_PAGE.replace(/\./g, "\\.")}"`));
+  assert.ok(index.includes(`href="${DOCS_PAGE}"`), DOCS_PAGE);
+  assert.ok(index.includes(`href="${VS_PAGE}"`), VS_PAGE);
   for (const p of [DOCS_PAGE, VS_PAGE]) assert.match(await read(p), /href="\.\/"/);
 });
 
@@ -67,7 +69,7 @@ test("each page's FAQPage JSON-LD matches its visible headings and paragraphs ve
     assert.ok(faq && faq.mainEntity.length >= 3, `FAQPage with 3+ questions on ${file}`);
     // Compare against the page with the JSON-LD removed, so this cannot pass
     // just because the JSON-LD contains itself.
-    const visible = page.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+    const visible = stripTags(stripScripts(page)).replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
     for (const { name, acceptedAnswer } of faq.mainEntity) {
       assert.ok(visible.includes(name), `${file}: question not visible: ${name}`);
       assert.ok(visible.includes(acceptedAnswer.text), `${file}: answer not visible for: ${name}`);
@@ -87,14 +89,14 @@ test("no FAQ question is repeated across pages", async () => {
 
 test("sitemap lists all three published pages", async () => {
   const sitemap = await read("sitemap.xml");
-  for (const page of PAGES) assert.match(sitemap, new RegExp(page.replace(/\./g, "\\.")));
+  for (const page of PAGES) assert.ok(sitemap.includes(page), page);
 });
 
 function inputs(page) {
   const text = (id) => {
     const m = new RegExp(`<textarea id="${id}"[^>]*>([\\s\\S]*?)</textarea>`).exec(page);
     assert.ok(m, `textarea ${id}`);
-    return m[1].replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
+    return m[1].replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
   };
   return {
     "package.json": text("in-package"), ".nvmrc": text("in-nvmrc"), ".tool-versions": text("in-toolversions"),

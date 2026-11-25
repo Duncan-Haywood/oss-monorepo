@@ -258,6 +258,11 @@ function mdCode(x) {
 }
 const mdSentence = (s) => s.map((p) => (typeof p === "string" ? mdEsc(p) : p.v !== undefined ? mdCode(p.v) : `**${mdEsc(p.b)}**`)).join("");
 const mdCell = (s) => mdEsc(s).replace(/\r?\n/g, " ");
+// The same sentence for a GFM table cell. Text and bold parts are escaped in one pass, with "|" written as
+// "\\|" (the table splitter takes one backslash, inline parsing the other). Inside a code span a backslash is
+// literal, so only the table splitter's escape is added there: every "|" becomes "\|".
+const mdEscCell = (s) => String(s).replace(/[\\`*_[\]<>#|]/g, (c) => (c === "|" ? "\\\\|" : "\\" + c));
+const mdSentenceCell = (s) => s.map((p) => (typeof p === "string" ? mdEscCell(p) : p.v !== undefined ? mdCode(p.v).split("|").join("\\|") : `**${mdEscCell(p.b)}**`)).join("");
 
 export function docToMarkdown(doc) {
   const L = [];
@@ -270,7 +275,7 @@ export function docToMarkdown(doc) {
   }
   L.push("Written from the IDS (Information Delivery Specification) file by IDS Model Check. The IDS is the authority: this document repeats every name and value exactly as the IDS gives it. Names in `code` must appear in the IFC model exactly as written, upper and lower case included.", "");
   L.push("## Summary", "", "| # | Specification | Applies to | Requirements | IFC |", "| --- | --- | --- | --- | --- |");
-  for (const s of doc.specs) L.push(`| ${s.number} | ${mdCell(s.name)} | ${mdSentence(s.applies.slice(0)).replace(/^Applies to every /, "").replace(/\.$/, "").replace(/\|/g, "\\|")} | ${s.optionality === "prohibited" ? "none may exist" : s.requirements.length} | ${s.ifcVersion.join(", ") || "any"} |`);
+  for (const s of doc.specs) L.push(`| ${s.number} | ${mdCell(s.name)} | ${mdSentenceCell(s.applies).replace(/^Applies to every /, "").replace(/\.$/, "")} | ${s.optionality === "prohibited" ? "none may exist" : s.requirements.length} | ${s.ifcVersion.join(", ") || "any"} |`);
   L.push("");
   for (const s of doc.specs) {
     L.push(`## ${s.number}. ${mdEsc(s.name)}`, "");

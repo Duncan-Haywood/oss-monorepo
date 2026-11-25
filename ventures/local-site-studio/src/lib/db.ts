@@ -265,7 +265,7 @@ export async function getLeadBySlug(slug: string): Promise<Lead | null> {
       });
       return (lead as Lead) || null;
     } catch (e) {
-      console.warn(`Failed to fetch lead ${slug} from Convex, falling back to SQLite database`, e);
+      console.warn("Failed to fetch lead %s from Convex, falling back to SQLite database", slug, e);
       void captureError(e, { component: "db-getLeadBySlug-convex-fallback" });
     }
   }
@@ -307,7 +307,7 @@ export async function updateLeadStage(
       if (!shouldFallbackToSqliteOnConvexFailure(true, options)) {
         throw new ConvexPrimaryWriteError("updateLeadStage", e);
       }
-      console.warn(`Failed to update lead stage for ${slug} on Convex, falling back to SQLite database`, e);
+      console.warn("Failed to update lead stage for %s on Convex, falling back to SQLite database", slug, e);
       void captureError(e, { component: "db-updateLeadStage-convex-fallback" });
     }
   }
@@ -387,7 +387,7 @@ export async function recordLeadOutreach(
         throw new ConvexPrimaryWriteError("recordLeadOutreach", e);
       }
       console.warn(
-        `Failed to record outreach for ${slug} on Convex, falling back to SQLite database`,
+        "Failed to record outreach for %s on Convex, falling back to SQLite database", slug,
         e,
       );
       void captureError(e, { component: "db-recordLeadOutreach-convex-fallback" });
@@ -602,7 +602,7 @@ export async function updateLeadNotes(
         throw new ConvexPrimaryWriteError("updateLeadNotes", e);
       }
       console.warn(
-        `Failed to update notes for ${slug} on Convex, falling back to SQLite database`,
+        "Failed to update notes for %s on Convex, falling back to SQLite database", slug,
         e,
       );
       void captureError(e, { component: "db-updateLeadNotes-convex-fallback" });
@@ -649,7 +649,7 @@ export async function updateLeadSnooze(
         throw new ConvexPrimaryWriteError("updateLeadSnooze", e);
       }
       console.warn(
-        `Failed to update snooze for ${slug} on Convex, falling back to SQLite database`,
+        "Failed to update snooze for %s on Convex, falling back to SQLite database", slug,
         e,
       );
       void captureError(e, { component: "db-updateLeadSnooze-convex-fallback" });
@@ -708,7 +708,7 @@ export async function updateLeadStripeConnectAccountId(
         throw new ConvexPrimaryWriteError("updateLeadStripeConnectAccountId", e);
       }
       console.warn(
-        `Failed to update Stripe Connect account id for ${slug} on Convex, falling back to SQLite database`,
+        "Failed to update Stripe Connect account id for %s on Convex, falling back to SQLite database", slug,
         e,
       );
       void captureError(e, { component: "db-updateLeadStripeConnectAccountId-convex-fallback" });
@@ -773,7 +773,7 @@ export async function updateLeadStripeConnectStatus(
         throw new ConvexPrimaryWriteError("updateLeadStripeConnectStatus", e);
       }
       console.warn(
-        `Failed to persist Stripe Connect status for ${slug} on Convex, falling back to SQLite database`,
+        "Failed to persist Stripe Connect status for %s on Convex, falling back to SQLite database", slug,
         e,
       );
       void captureError(e, { component: "db-updateLeadStripeConnectStatus-convex-fallback" });
@@ -830,7 +830,7 @@ export async function updateLeadBufferProfileIds(
         throw new ConvexPrimaryWriteError("updateLeadBufferProfileIds", e);
       }
       console.warn(
-        `Failed to update Buffer profile ids for ${slug} on Convex, falling back to SQLite database`,
+        "Failed to update Buffer profile ids for %s on Convex, falling back to SQLite database", slug,
         e,
       );
       void captureError(e, { component: "db-updateLeadBufferProfileIds-convex-fallback" });
@@ -896,7 +896,7 @@ export async function updateLeadBufferPostedVariantKeys(
         throw new ConvexPrimaryWriteError("updateLeadBufferPostedVariantKeys", e);
       }
       console.warn(
-        `Failed to update Buffer posted-variant markers for ${slug} on Convex, falling back to SQLite database`,
+        "Failed to update Buffer posted-variant markers for %s on Convex, falling back to SQLite database", slug,
         e,
       );
       void captureError(e, { component: "db-updateLeadBufferPostedVariantKeys-convex-fallback" });
@@ -959,7 +959,7 @@ export async function applyColdLeadDisposition(
         throw new ConvexPrimaryWriteError("applyColdLeadDisposition", e);
       }
       console.warn(
-        `Failed to apply cold disposition for ${slug} on Convex, falling back to SQLite database`,
+        "Failed to apply cold disposition for %s on Convex, falling back to SQLite database", slug,
         e,
       );
       void captureError(e, { component: "db-applyColdLeadDisposition-convex-fallback" });
@@ -1151,7 +1151,7 @@ export async function listOrdersByLeadSlug(
       return sortOrdersNewestFirst(rows.map(mapConvexOrderRow));
     } catch (e) {
       console.warn(
-        `Failed to fetch orders for ${leadSlug} from Convex, falling back to SQLite`,
+        "Failed to fetch orders for %s from Convex, falling back to SQLite", leadSlug,
         e,
       );
       void captureError(e, { component: "db-listOrdersByLeadSlug-convex-fallback" });
@@ -2234,7 +2234,7 @@ export async function reserveBundleBuyerEmailNotes(
         throw new ConvexPrimaryWriteError("reserveBundleBuyerEmailNotes", e);
       }
       console.warn(
-        `Failed to reserve bundle buyer email notes for ${leadSlug} on Convex, falling back to SQLite database`,
+        "Failed to reserve bundle buyer email notes for %s on Convex, falling back to SQLite database", leadSlug,
         e,
       );
       void captureError(e, { component: "db-reserveBundleBuyerEmailNotes-convex-fallback" });
@@ -2276,7 +2276,7 @@ export async function releaseBundleBuyerEmailNotes(
       });
     } catch (e) {
       console.warn(
-        `Failed to release bundle buyer email notes for ${leadSlug} on Convex, falling back to SQLite`,
+        "Failed to release bundle buyer email notes for %s on Convex, falling back to SQLite", leadSlug,
         e,
       );
       void captureError(e, { component: "db-releaseBundleBuyerEmailNotes-convex-fallback" });
@@ -2664,7 +2664,7 @@ export async function updateClientInquiryStatus(
         throw new ConvexPrimaryWriteError("updateClientInquiryStatus", e);
       }
       console.warn(
-        `Failed to update inquiry ${inquiryId} on Convex, falling back to SQLite`,
+        "Failed to update inquiry %s on Convex, falling back to SQLite", inquiryId,
         e,
       );
       void captureError(e, { component: "db-updateClientInquiryStatus-convex-fallback" });
@@ -2704,7 +2704,7 @@ export async function getClientInquiryById(
       })) as ClientInquiry | null;
     } catch (e) {
       console.warn(
-        `Failed to get inquiry ${inquiryId} from Convex, falling back to SQLite`,
+        "Failed to get inquiry %s from Convex, falling back to SQLite", inquiryId,
         e,
       );
       void captureError(e, { component: "db-getClientInquiryById-convex-fallback" });
@@ -2764,7 +2764,7 @@ export async function recordClientInquiryReply(
         throw new ConvexPrimaryWriteError("recordClientInquiryReply", e);
       }
       console.warn(
-        `Failed to record inquiry reply ${inquiryId} on Convex, falling back to SQLite`,
+        "Failed to record inquiry reply %s on Convex, falling back to SQLite", inquiryId,
         e,
       );
       void captureError(e, { component: "db-recordClientInquiryReply-convex-fallback" });
@@ -3407,7 +3407,7 @@ export async function getCommerceCatalog(
       })) as CommerceCatalog | null;
     } catch (e) {
       console.warn(
-        `Failed to get commerce catalog for ${leadSlug} from Convex, falling back to SQLite`,
+        "Failed to get commerce catalog for %s from Convex, falling back to SQLite", leadSlug,
         e,
       );
       void captureError(e, { component: "db-getCommerceCatalog-convex-fallback" });
@@ -3721,7 +3721,7 @@ export async function getCommerceOrderByStripeSessionId(
       return row;
     } catch (e) {
       console.warn(
-        `Failed to get commerce order ${stripeSessionId} from Convex, falling back to SQLite`,
+        "Failed to get commerce order %s from Convex, falling back to SQLite", stripeSessionId,
         e,
       );
       void captureError(e, { component: "db-getCommerceOrderByStripeSessionId-convex-fallback" });
@@ -3774,7 +3774,7 @@ export async function markCommerceOrderPaidOut(
         throw new ConvexPrimaryWriteError("markCommerceOrderPaidOut", e);
       }
       console.warn(
-        `Failed to mark commerce order ${stripeSessionId} paid out on Convex, falling back to SQLite`,
+        "Failed to mark commerce order %s paid out on Convex, falling back to SQLite", stripeSessionId,
         e,
       );
       void captureError(e, { component: "db-markCommerceOrderPaidOut-convex-fallback" });
@@ -3814,7 +3814,7 @@ export async function markCommerceOrderClientReceiptSent(
         throw new ConvexPrimaryWriteError("markCommerceOrderClientReceiptSent", e);
       }
       console.warn(
-        `Failed to mark commerce client receipt sent for ${stripeSessionId} on Convex, falling back to SQLite`,
+        "Failed to mark commerce client receipt sent for %s on Convex, falling back to SQLite", stripeSessionId,
         e,
       );
       void captureError(e, { component: "db-markCommerceOrderClientReceiptSent-convex-fallback" });
@@ -3856,7 +3856,7 @@ export async function clearCommerceOrderClientReceiptSent(
       });
     } catch (e) {
       console.warn(
-        `Failed to clear commerce order client receipt sent-marker for ${stripeSessionId} on Convex, falling back to SQLite`,
+        "Failed to clear commerce order client receipt sent-marker for %s on Convex, falling back to SQLite", stripeSessionId,
         e,
       );
       void captureError(e, { component: "db-clearCommerceOrderClientReceiptSent-convex-fallback" });

@@ -129,7 +129,7 @@ export function toMarkdown(s) {
   for (const [k, label] of Object.entries(VERDICTS)) if (s.counts[k]) lines.push(`| ${label} | ${s.counts[k]} |`);
   if (s.rules.length) {
     lines.push("", `## What ${s.release} adds, by rule`, "", "| Rule | Severity | Files | What to change |", "|---|---|---:|---|");
-    for (const r of s.rules) lines.push(`| ${r.rule} | ${r.severity} | ${r.files.length} | ${(r.advice || r.fix || r.message).replace(/\|/g, "\\|")} |`);
+    for (const r of s.rules) lines.push(`| ${r.rule} | ${r.severity} | ${r.files.length} | ${(r.advice || r.fix || r.message).replace(/\\/g, "\\\\").replace(/\|/g, "\\|")} |`);
   }
   const flagged = s.rows.filter((r) => r.verdict === "newly-rejected");
   if (flagged.length) {

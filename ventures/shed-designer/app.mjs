@@ -13,8 +13,7 @@ import { recordUsage, clearUsage } from './usage.mjs';
 import { structuralChecks, anchorageText } from './checks.mjs';
 import { encodeDesign } from './hoa.mjs';
 import { buildPackHtml } from './buildpack.mjs';
-import { buyLink, checkLicence } from './licence.mjs';
-import { CHECKOUT_URL, VALIDATE_URL } from './checkout.mjs';
+import { wireBuyButton, checkLicence } from './licence.mjs';
 import { initUtilisation, renderUtilisation, heatOption } from './utilisation-ui.mjs';
 import { connectionChecks } from './connections.mjs';
 import { generateCandidates, designDiff, openingCosts } from './candidates.mjs';
@@ -249,10 +248,10 @@ function renderOpenings(d) {
       <td><select data-i="${i}" data-k="kind" aria-label="Opening ${i + 1} type"><option value="door"${op.kind === 'door' ? ' selected' : ''}>Door</option><option value="window"${op.kind === 'window' ? ' selected' : ''}>Window</option></select></td>
       <td><select data-i="${i}" data-k="wall" aria-label="Opening ${i + 1} wall">${wallOpts}</select></td>
       <td><select data-i="${i}" data-k="product" aria-label="Opening ${i + 1} product"><option value="">Custom size</option>${op.kind === 'door' ? `<option value="site-built"${op.product === 'site-built' ? ' selected' : ''}>Build it on site: siding skin on a 2x4 Z frame, tee hinges (keeps this rough opening)</option>` : ''}${PRODUCTS.filter((p) => p.kind === op.kind).map((p) => `<option value="${p.id}"${p.id === op.product ? ' selected' : ''}>${esc(p.name)} (R.O. ${fmtIn(p.roW)} x ${fmtIn(p.roH)}, $${p.price.toFixed(2)})</option>`).join('')}</select></td>
-      <td><input type="number" min="0" max="480" step="1" data-i="${i}" data-k="offset" value="${op.offset}" aria-label="Opening ${i + 1} distance from the wall's left corner, as seen from outside (in)"></td>
-      <td><input type="number" min="12" max="144" step="1" data-i="${i}" data-k="width" value="${op.width}" aria-label="Opening ${i + 1} rough opening width (in)"></td>
-      <td><input type="number" min="12" max="120" step="1" data-i="${i}" data-k="height" value="${op.height}" aria-label="Opening ${i + 1} rough opening height (in)"></td>
-      <td>${op.kind === 'window' ? `<input type="number" min="6" max="96" step="1" data-i="${i}" data-k="sill" value="${op.sill ?? 42}" aria-label="Opening ${i + 1} sill height above the floor (in)">` : '<span class="muted">floor</span>'}</td>
+      <td><input type="number" min="0" max="480" step="1" data-i="${i}" data-k="offset" value="${esc(op.offset)}" aria-label="Opening ${i + 1} distance from the wall's left corner, as seen from outside (in)"></td>
+      <td><input type="number" min="12" max="144" step="1" data-i="${i}" data-k="width" value="${esc(op.width)}" aria-label="Opening ${i + 1} rough opening width (in)"></td>
+      <td><input type="number" min="12" max="120" step="1" data-i="${i}" data-k="height" value="${esc(op.height)}" aria-label="Opening ${i + 1} rough opening height (in)"></td>
+      <td>${op.kind === 'window' ? `<input type="number" min="6" max="96" step="1" data-i="${i}" data-k="sill" value="${esc(op.sill ?? 42)}" aria-label="Opening ${i + 1} sill height above the floor (in)">` : '<span class="muted">floor</span>'}</td>
       <td class="n" data-cost="${esc(op.id)}"><span class="muted">...</span></td>
       <td><button type="button" class="link" data-remove="${i}" aria-label="Remove opening ${i + 1}">Remove</button></td>`;
     tbody.appendChild(tr);
@@ -342,7 +341,7 @@ function renderShopping(est) {
   const row = (label, v, cls = '') => `<tr${cls ? ` class="${cls}"` : ''}><th colspan="4" scope="row">${label}</th><td class="n">${v}</td><td></td></tr>`;
   html += row('Materials', money(est.total), 'tot');
   if (buy.less) html += row('Less the lines set to 0 (you have them or left them out)', `-${money(buy.less)}`) + row('Still to buy', money(buy.sub), 'tot');
-  if (buy.tax) html += row(`Sales tax at ${design().taxRate}%`, money(buy.tax));
+  if (buy.tax) html += row(`Sales tax at ${esc(design().taxRate)}%`, money(buy.tax));
   if (est.deliveryFee) html += row('Delivery', money(est.deliveryFee));
   if (buy.tax || est.deliveryFee) html += row('Estimated total (materials only, not your labour)', money(buy.total), 'tot');
   if (est.unpriced.length) html += `<tr><td colspan="6" class="muted"><strong>Not in the total:</strong> ${est.unpriced.map(esc).join('; ')}. Each shows a typical range from our catalogue, which is not a listing for that size. Pick a unit for each under Doors and windows, choose "Build it on site" for a door, or tick "Count custom-size openings at the range's median" there.</td></tr>`;
@@ -448,18 +447,18 @@ function renderPrices(est, d) {
   if (box.contains(document.activeElement)) return;
   const mats = est.lumber.map((l) => l.material);
   const lens = d.lengths;
-  let html = `<table class="grid"><thead><tr><th scope="col">Board</th>${lens.map((ft) => `<th scope="col">${ft}'</th>`).join('')}</tr></thead><tbody>`;
+  let html = `<table class="grid"><thead><tr><th scope="col">Board</th>${lens.map((ft) => `<th scope="col">${esc(ft)}'</th>`).join('')}</tr></thead><tbody>`;
   for (const m of mats) {
-    html += `<tr><th scope="row">${m}</th>${lens.map((ft) => `<td><input type="number" min="0" step="0.01" data-mat="${m}" data-ft="${ft}" value="${state.prices.lumber[m]?.[ft] ?? ''}" aria-label="Price of a ${m} ${ft} ft board ($)"></td>`).join('')}</tr>`;
+    html += `<tr><th scope="row">${esc(m)}</th>${lens.map((ft) => `<td><input type="number" min="0" step="0.01" data-mat="${esc(m)}" data-ft="${esc(ft)}" value="${esc(state.prices.lumber[m]?.[ft] ?? '')}" aria-label="Price of a ${esc(m)} ${esc(ft)} ft board ($)"></td>`).join('')}</tr>`;
   }
   html += '</tbody></table><div class="items">';
   for (const r of est.shopping.filter((x) => x.section !== 'Lumber')) {
     const key = Object.entries(state.prices.items).find(([k]) => labelOfItem(k) && r.name.startsWith(labelOfItem(k)))?.[0];
-    if (key) html += `<label>${esc(r.name)} ($ per ${r.unit})<input type="number" min="0" step="0.01" data-item="${key}" value="${state.prices.items[key]}"></label>`;
+    if (key) html += `<label>${esc(r.name)} ($ per ${r.unit})<input type="number" min="0" step="0.01" data-item="${esc(key)}" value="${esc(state.prices.items[key])}"></label>`;
   }
   if (d.delivery !== 'pickup') {
     const fee = state.prices.delivery?.[d.delivery];
-    html += `<label>${d.delivery === 'lowes' ? "Lowe's" : 'Home Depot'} delivery charge ($)<input type="number" min="0" step="1" data-delivery="${d.delivery}" value="${fee ?? ''}" placeholder="your store's charge"></label>`;
+    html += `<label>${d.delivery === 'lowes' ? "Lowe's" : 'Home Depot'} delivery charge ($)<input type="number" min="0" step="1" data-delivery="${esc(d.delivery)}" value="${esc(fee ?? '')}" placeholder="your store's charge"></label>`;
   }
   box.innerHTML = html + '</div>';
 }
@@ -1148,7 +1147,7 @@ function wire() {
       }
       const thumbCanvas = document.createElement('canvas'); thumbCanvas.width = 480; thumbCanvas.height = 320;
       const tv = createViewer(thumbCanvas, { presentation: true });
-      let html = `<p class="muted">Tried ${r.evaluated} designs; each kept passes every load and connection check${design().maxFootprint ? `, stays within ${design().maxFootprint} sq ft` : ''} and is no more than 1" taller. Your design: ${money(r.base.total)}, ${cutsText(r.base.cuts)} cuts, ${(r.base.cuts.waste * 100).toFixed(1)}% offcut.</p><div class="cards">`;
+      let html = `<p class="muted">Tried ${r.evaluated} designs; each kept passes every load and connection check${design().maxFootprint ? `, stays within ${esc(design().maxFootprint)} sq ft` : ''} and is no more than 1" taller. Your design: ${money(r.base.total)}, ${cutsText(r.base.cuts)} cuts, ${(r.base.cuts.waste * 100).toFixed(1)}% offcut.</p><div class="cards">`;
       html += picks.map((w, i) => {
         let img = '';
         if (tv) { tv.show(buildShed(w.design, state.prices), { refit: true }); img = `<img src="${tv.snapshot()}" alt="3D view of the ${esc(w.goal.toLowerCase())} pick" width="480" height="320">`; }
@@ -1323,13 +1322,13 @@ function wire() {
   $('#md-build').addEventListener('click', async () => { await buildReady; download(`${slug()}-how-to-build.md`, buildMd, 'text/markdown'); count('csv-downloads'); });
   {
     // Branded build pack: dark until a checkout link is set in checkout.mjs (no card, no Buy button).
-    const buy = buyLink(CHECKOUT_URL);
+    const buy = wireBuyButton($('#pack-buy'), { onKey: (k) => { $('#pack-key').value = k; $('#pack-check').click(); }, onStatus: (m) => { if (m) $('#pack-state').textContent = m; } });
     let packLogo = '';
-    if (buy) { $('#pack-buy').href = buy; $('#pack-buy-row').hidden = false; $('#pack-card').hidden = false; }
+    if (buy) { $('#pack-buy-row').hidden = false; $('#pack-card').hidden = false; }
     $('#pack-logo').addEventListener('change', (e) => { const f = e.target.files[0]; if (!f) { packLogo = ''; return; } const r = new FileReader(); r.onload = () => { packLogo = String(r.result); }; r.readAsDataURL(f); });
     $('#pack-check').addEventListener('click', async () => {
       $('#pack-state').textContent = 'Checking...';
-      const v = await checkLicence($('#pack-key').value, { url: VALIDATE_URL });
+      const v = await checkLicence($('#pack-key').value);
       $('#pack-state').textContent = v.valid ? 'Key accepted.' : `Not unlocked: ${v.reason}${buy ? '' : ' (the build pack is not on sale yet)'}`;
       $('#pack-fields').hidden = !v.valid;
     });

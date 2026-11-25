@@ -196,6 +196,13 @@ export function projectGroups(posts, { root = DEFAULT_ROOT, topic = 'tools', nam
     });
 }
 
+// Drop every tag, repeating until none is left, so removing one cannot leave another behind.
+function stripTags(s) {
+  let prev;
+  do { prev = s; s = s.replace(/<[^>]+>/g, ''); } while (s !== prev);
+  return s;
+}
+
 /**
  * Each research programme's card title (`research/_homepage/projects.json` or its own
  * `project.json`, via the registry the research site builds from): the question it asks.
@@ -204,7 +211,7 @@ export function projectGroups(posts, { root = DEFAULT_ROOT, topic = 'tools', nam
 export function researchQuestions(root = DEFAULT_ROOT) {
   const data = loadResearchRegistry(root);
   const out = new Map();
-  for (const t of data?.themes ?? []) for (const p of t.projects ?? []) if (p.slug && p.title) out.set(p.slug, String(p.title).replace(/<[^>]+>/g, '').trim());
+  for (const t of data?.themes ?? []) for (const p of t.projects ?? []) if (p.slug && p.title) out.set(p.slug, stripTags(String(p.title)).trim());
   return out;
 }
 
@@ -221,7 +228,7 @@ const NOT_A_STOP = /(?:\bet al|\be\.g|\bi\.e|\bvs|\bcf|\bFig|\bNo|\bSec|\bEq|\ba
  * meta description want the first finding, not the whole log.
  */
 export function researchLede(summaryHtml, max = 320, { stretch = 1.5 } = {}) {
-  const text = decodeEntities(String(summaryHtml || '').replace(/<sup>([^<]*)<\/sup>/gi, '^$1').replace(/<sub>([^<]*)<\/sub>/gi, '_$1').replace(/<[^>]+>/g, '')).replace(/[ \t\r\n]+/g, ' ').trim(); // keeps a decoded &nbsp;
+  const text = decodeEntities(stripTags(String(summaryHtml || '').replace(/<sup>([^<]*)<\/sup>/gi, '^$1').replace(/<sub>([^<]*)<\/sub>/gi, '_$1'))).replace(/[ \t\r\n]+/g, ' ').trim(); // keeps a decoded &nbsp;
   if (!text) return '';
   const sentences = [];
   let start = 0;

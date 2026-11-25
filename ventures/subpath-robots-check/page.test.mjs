@@ -5,6 +5,9 @@ import { readdirSync } from "node:fs";
 
 import { assess } from "./analyze.mjs";
 
+const stripScripts = (s, sub = "") => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, sub); } while (s !== p); return s; };
+const stripTags = (s, sub = "") => { let p; do { p = s; s = s.replace(/<[^>]+>/g, sub); } while (s !== p); return s; };
+
 const index = await readFile(new URL("./index.html", import.meta.url), "utf8");
 const secondary = await readFile(
   new URL("./why-a-subpath-site-cannot-govern-its-robots-txt.html", import.meta.url),
@@ -34,7 +37,7 @@ test("the page carries the portfolio disclaimers and stays local", () => {
 });
 
 test("the page never claims a clean result is an SEO guarantee or a full audit", () => {
-  const prose = index.replace(/<script[\s\S]*?<\/script>/g, "");
+  const prose = stripScripts(index);
   assert.match(prose, /not an SEO audit/i);
   assert.match(prose, /not a security audit/i);
 });
@@ -43,7 +46,7 @@ test("the page states the limit that matters most: crawling still works", () => 
   // Overclaiming here would be the expensive error. A visitor told their site
   // is "not indexed" when only enumeration is broken may rip out a working
   // setup, so the page has to carry the distinction in visible prose.
-  const prose = index.replace(/<script[\s\S]*?<\/script>/g, "");
+  const prose = stripScripts(index);
   assert.match(prose, /following links is unaffected|linked from a page a crawler already knows/i);
   assert.match(prose, /Nothing errors when this happens/);
 });
@@ -53,7 +56,7 @@ test("the JSON-LD FAQPage questions match the visible FAQ headings", () => {
   assert.ok(ldMatch, "expected a FAQPage JSON-LD block");
   const ld = ldMatch[0];
   const headings = [...index.matchAll(/<h3>(.*?)<\/h3>/g)].map((m) =>
-    m[1].replace(/<[^>]+>/g, "").trim(),
+    stripTags(m[1]).trim(),
   );
   assert.ok(headings.length > 0, "expected visible h3 FAQ headings");
   for (const heading of headings) {
@@ -102,11 +105,7 @@ test("every .html file in the venture is reachable from the sitemap", async () =
   const htmlFiles = readdirSync(dir).filter((name) => name.endsWith(".html"));
   for (const name of htmlFiles) {
     if (name === "index.html") continue;
-    assert.match(
-      sitemap,
-      new RegExp(name.replace(/\./g, "\\.")),
-      `${name} is missing from sitemap.xml`,
-    );
+    assert.ok(sitemap.includes(name), `${name} is missing from sitemap.xml`);
   }
 });
 
@@ -155,7 +154,7 @@ test("user input is never interpolated as markup", () => {
 test("the page counts only named feature events, and says which", () => {
   assert.match(index, /record\("check_run"\)/);
   assert.match(index, /record\("example_loaded"\)/);
-  const prose = index.replace(/<script[\s\S]*?<\/script>/g, "");
+  const prose = stripScripts(index);
   assert.match(prose, /check_run/);
   assert.match(prose, /example_loaded/);
   assert.match(prose, /Do Not Track and Global Privacy Control are honoured/);
@@ -168,7 +167,7 @@ test("the page counts only named feature events, and says which", () => {
 const VS_PAGE = "vs-checking-robots-txt-by-eye.html";
 
 test("index links to the comparison page", async () => {
-  assert.match(index, new RegExp(`href="${VS_PAGE.replace(/\./g, "\\.")}"`));
+  assert.ok(index.includes(`href="${VS_PAGE}"`));
 });
 
 test("the comparison page links back to the checker and its FAQPage JSON-LD matches the visible text", async () => {
@@ -193,7 +192,7 @@ test("the comparison page carries the disclaimers and is listed in the venture s
   assert.match(vs, /Nothing leaves your browser/);
   assert.match(vs, /names no specific product/i);
   const sitemap = await readFile(new URL("./sitemap.xml", import.meta.url), "utf8");
-  assert.match(sitemap, new RegExp(VS_PAGE.replace(/\./g, "\\.")));
+  assert.ok(sitemap.includes(VS_PAGE));
 });
 
 test("the comparison page does not repeat a question the index page already answers", async () => {

@@ -41,7 +41,7 @@ test("rows are normalized and unreadable ones skipped with a reason", () => {
 });
 
 test("a rate column is multiplied by hours and non-billable entries earn nothing", () => {
-  const n = load("A,x,2026-01-05,2,yes,\nA,x,2026-01-06,3,no,\n", "Client,Project,Date,Hours,Billable,Hourly Rate\n".replace(",Hourly Rate", ",Hourly Rate"));
+  const n = load("A,x,2026-01-05,2,yes,\nA,x,2026-01-06,3,no,\n", "Client,Project,Date,Hours,Billable,Hourly Rate\n");
   assert.equal(n.items.length, 2);
   const m = normalizeRows(parseCsv("Client,Date,Hours,Billable,Rate\nA,2026-01-05,2,yes,80\nA,2026-01-06,3,no,80\n"));
   near(m.items[0].amount, 160);

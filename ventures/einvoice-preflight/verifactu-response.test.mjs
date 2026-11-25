@@ -97,7 +97,7 @@ test("a SOAP fault refuses the whole submission", () => {
 });
 
 test("a correct line whose record this checker flags is reported, so a too-strict rule can be found", () => {
-  const sent = readVerifactu(record({ issuer: "A39200019", number: "9", date: "13-09-2025", generated: "2025-09-13T10:00:00+02:00" }).replace("<sum1:NIF>A39200019</sum1:NIF>", "<sum1:NIF>A39200019</sum1:NIF>").replace("PrimerRegistro>S<", "PrimerRegistro>X<"));
+  const sent = readVerifactu(record({ issuer: "A39200019", number: "9", date: "13-09-2025", generated: "2025-09-13T10:00:00+02:00" }).replace("PrimerRegistro>S<", "PrimerRegistro>X<"));
   const f = responseFindings(readAeatResponse(reply([["9", "Correcto"]], "Correcto")), sent.map((record) => ({ record, file: "s.xml" })));
   assert.equal(f[0].rule, "AEAT-PASSED");
   assert.match(f[0].message, /VF-004/);

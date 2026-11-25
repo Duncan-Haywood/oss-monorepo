@@ -1,4 +1,4 @@
-import { randomBytes } from "crypto";
+import { randomInt } from "crypto";
 import { prisma } from "@/lib/prisma";
 import type { Perspective } from "@prisma/client";
 
@@ -6,9 +6,8 @@ import type { Perspective } from "@prisma/client";
 const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 export function generateInviteCode(): string {
-  const bytes = randomBytes(8);
   let out = "";
-  for (let i = 0; i < 8; i++) out += ALPHABET[bytes[i] % ALPHABET.length];
+  for (let i = 0; i < 8; i++) out += ALPHABET[randomInt(ALPHABET.length)];
   return `${out.slice(0, 4)}-${out.slice(4)}`;
 }
 

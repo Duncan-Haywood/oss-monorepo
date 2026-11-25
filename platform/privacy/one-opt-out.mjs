@@ -146,7 +146,11 @@ const IMPORT = /(?:^|\n)\s*import\s(?:[^'"]*from\s*)?["'](\.[^"']+)["']/g;
 const JSON_LD = /<script\b[^>]*type=["']application\/(?:ld\+)?json["'][^>]*>[\s\S]*?<\/script>/gi;
 
 function scriptsIn(html) {
-  return [...html.replace(JSON_LD, "").matchAll(SCRIPT)].map((m) => m[1]);
+  // Repeat until stable: dropping one JSON-LD block must not splice a new one together.
+  let code = html;
+  let prev;
+  do { prev = code; code = code.replace(JSON_LD, ""); } while (code !== prev);
+  return [...code.matchAll(SCRIPT)].map((m) => m[1]);
 }
 
 /**

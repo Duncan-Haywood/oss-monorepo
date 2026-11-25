@@ -254,25 +254,63 @@ const dirname = (p) => { const n = normalize(p); const i = n.lastIndexOf("/"); r
 const hasGlob = (s) => /[*?[]/.test(s);
 
 // fnmatch for one path segment, as glob(3) uses it (no FNM_PERIOD games
-// beyond: a leading dot must be matched literally).
-function segMatch(pat, name) {
-  if (name.startsWith(".") && !pat.startsWith(".")) return false;
-  let re = "^";
+// beyond: a leading dot must be matched literally). Matched by hand rather
+// than by building a RegExp from the pattern, so a config line can neither
+// inject regex syntax nor make the match backtrack for long.
+function segTokens(pat) {
+  const toks = [];
   for (let i = 0; i < pat.length; i++) {
     const ch = pat[i];
-    if (ch === "*") re += "[^/]*";
-    else if (ch === "?") re += "[^/]";
+    if (ch === "*") { if (toks.at(-1)?.star !== true) toks.push({ star: true }); }
+    else if (ch === "?") toks.push({ any: true });
     else if (ch === "[") {
       const close = pat.indexOf("]", i + 2);
-      if (close < 0) { re += "\\["; continue; }
+      if (close < 0) { toks.push({ lit: "[" }); continue; }
       let body = pat.slice(i + 1, close);
-      if (body[0] === "!") body = "^" + body.slice(1);
-      re += "[" + body.replace(/\\/g, "\\\\") + "]";
+      const neg = body[0] === "!" || body[0] === "^";
+      if (neg) body = body.slice(1);
+      const ranges = [];
+      for (let j = 0; j < body.length; j++) {
+        const lo = body[j];
+        if (body[j + 1] === "-" && j + 2 < body.length) {
+          const hi = body[j + 2];
+          if (lo > hi) return null; // an inverted range never matches
+          ranges.push([lo, hi]);
+          j += 2;
+        } else ranges.push([lo, lo]);
+      }
+      toks.push({ neg, ranges });
       i = close;
-    } else if (ch === "\\" && i + 1 < pat.length) { re += "\\" + pat[++i]; }
-    else re += ch.replace(/[.+^${}()|\\]/g, "\\$&");
+    } else if (ch === "\\" && i + 1 < pat.length) toks.push({ lit: pat[++i] });
+    else toks.push({ lit: ch });
   }
-  try { return new RegExp(re + "$").test(name); } catch { return false; }
+  return toks;
+}
+
+function tokMatches(t, c) {
+  if (t.any) return c !== "/";
+  if (t.lit !== undefined) return t.lit === c;
+  const inSet = t.ranges.some(([lo, hi]) => c >= lo && c <= hi);
+  return t.neg ? !inSet : inSet;
+}
+
+function segMatch(pat, name) {
+  if (name.startsWith(".") && !pat.startsWith(".")) return false;
+  const toks = segTokens(pat);
+  if (!toks) return false;
+  // Linear wildcard match: on a mismatch, retry from the last star with one
+  // more character swallowed. A star never crosses a "/".
+  let ti = 0, ni = 0, starTi = -1, starNi = 0;
+  while (ni < name.length) {
+    const t = toks[ti];
+    if (t && t.star) { starTi = ti++; starNi = ni; continue; }
+    if (t && tokMatches(t, name[ni])) { ti++; ni++; continue; }
+    if (starTi < 0 || name[starNi] === "/") return false;
+    ti = starTi + 1;
+    ni = ++starNi;
+  }
+  while (toks[ti]?.star) ti++;
+  return ti === toks.length;
 }
 
 function globPaths(resolver, pattern) {

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import fs from 'node:fs';
+const stripScripts = (s) => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ''); } while (s !== p); return s; };
 
 const html = fs.readFileSync(new URL('./vs-openssf-scorecard.html', import.meta.url), 'utf8');
 const indexHtml = fs.readFileSync(new URL('./index.html', import.meta.url), 'utf8');
@@ -60,7 +61,7 @@ test('the page is clear that this checker uploads nothing and makes no network c
 });
 
 test('the page never claims a clean scan means the repository is secure', () => {
-  const prose = html.replace(/<script[\s\S]*?<\/script>/g, '');
+  const prose = stripScripts(html);
   const claims = /\b(?:is|are|was|were)\s+secure\b/gi;
   for (const match of prose.matchAll(claims)) {
     const preceding = prose.slice(Math.max(0, match.index - 60), match.index);

@@ -725,6 +725,8 @@ export function mergeFolds(D, R, kinds, folds) {
   const seconds = Object.fromEntries(kinds.map((k) => [k, 0]));
   for (const fold of folds) {
     for (const k of kinds) {
+      // kinds can arrive in a worker message: only the known model names may become keys.
+      if (!KINDS.includes(k)) throw new Error(`unknown model kind ${k}`);
       const { rows, pred: p, people, score10: s, seconds: t } = fold[k];
       rows.forEach((r, j) => { pred[k][r] = p[j]; });
       people.forEach((i, j) => { score10[k][i] = s[j]; });

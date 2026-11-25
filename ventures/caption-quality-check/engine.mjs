@@ -77,7 +77,9 @@ export function parseTimestamp(raw) {
 /** Strips WebVTT/SRT inline markup tags (<i>, <b>, <c.classname>, karaoke
  * timestamp tags) from a line, leaving only what a viewer actually reads. */
 export function stripTags(line) {
-  return String(line).replace(TAG_RE, '');
+  let s = String(line), prev;
+  do { prev = s; s = s.replace(TAG_RE, ''); } while (s !== prev);
+  return s;
 }
 
 /**

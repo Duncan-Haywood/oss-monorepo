@@ -43,7 +43,8 @@ test('every numeric fee claim about Rover is cited to Rover\'s own Help Center',
   // reach of the support.rover.com citation, so a future edit cannot drop
   // the source and leave a bare, unattributed claim standing.
   const sourceUrl = 'https://support.rover.com/hc/en-us/articles/205385304-What-are-the-service-fees';
-  assert.ok(html.includes(sourceUrl), 'the Rover Help Center source URL must be cited on the page');
+  const hrefs = [...html.matchAll(/href="([^"]*)"/g)].map((m) => m[1]);
+  assert.ok(hrefs.some((h) => h === sourceUrl), 'the Rover Help Center source URL must be cited on the page');
   const body = html.slice(html.indexOf('<body>'));
   const numberPattern = /\$\d|\d+(\.\d+)?%/g;
   const citationIndex = body.indexOf(sourceUrl);

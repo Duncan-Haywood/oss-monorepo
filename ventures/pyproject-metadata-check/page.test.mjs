@@ -37,10 +37,10 @@ test("SEO basics", () => {
     const html = page(p);
     assert.match(html, /<title>[^<]{20,70}<\/title>/, p);
     assert.match(html, /<meta name="description" content="[^"]{80,320}"/, p);
-    assert.match(html, new RegExp(`<link rel="canonical" href="\\./${p.replace(/\./g, "\\.")}">`), p);
+    assert.match(html, new RegExp(`<link rel="canonical" href="\\./${p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}">`), p);
     assert.equal((html.match(/<h1>/g) || []).length, 1, p);
     assert.match(html, /<html lang="en">/, p);
-    assert.match(page("sitemap.xml"), new RegExp(p === "index.html" ? "pyproject-metadata-check/<" : p.replace(/\./g, "\\.")));
+    assert.match(page("sitemap.xml"), new RegExp(p === "index.html" ? "pyproject-metadata-check/<" : p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
 });
 

@@ -49,5 +49,5 @@ for (const [enc, text, want] of cases) {
 test("Western Windows-1252 text is not mistaken for an East Asian codepage", () => {
   const s = "Date,Description,Amount\n2026-03-15,Société Générale « frais » d’agios,-12.50\n2026-03-16,Café Müller – Zürich,-4.20";
   const b = Uint8Array.from([...s].map((c) => ({ "é": 0xe9, "«": 0xab, "»": 0xbb, "’": 0x92, "–": 0x96, "ü": 0xfc }[c] ?? c.charCodeAt(0))));
-  assert.equal(decodeBytes(b), s.replace("’", "’"));
+  assert.equal(decodeBytes(b), s);
 });

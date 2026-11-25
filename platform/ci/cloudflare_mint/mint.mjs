@@ -260,9 +260,18 @@ async function cli(argv, env) {
   }
 }
 
+/** An error message with every credential-looking env value masked, so a failure never prints a token. */
+export function redact(message, env) {
+  let out = String(message);
+  for (const [k, v] of Object.entries(env || {})) {
+    if (v && String(v).length >= 8 && /TOKEN|SECRET|KEY|PASSWORD/i.test(k)) out = out.split(String(v)).join('[redacted]');
+  }
+  return out;
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   cli(process.argv.slice(2), process.env).catch((e) => {
-    console.error(`mint: ${e.message}`);
+    console.error(`mint: ${redact(String(e?.message ?? e), process.env)}`);
     process.exitCode = 1;
   });
 }
