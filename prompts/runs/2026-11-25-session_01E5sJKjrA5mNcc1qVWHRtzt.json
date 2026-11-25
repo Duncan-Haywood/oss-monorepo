@@ -29,7 +29,7 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [
+  "errors": ["duplicate-symbols CI red: main gained a different OPEN_TAIL regex while this run worked; renamed to HISTORY_OPEN_STEP; backlog id P072 also taken on main, renumbered P082", 
     "GitHub git and API access returned 503 ('credential service temporarily unavailable') for the first ~10 minutes; the security-queue fetch and issue searches failed then, and succeeded on retry later"
   ],
   "integrity_issues": [],
@@ -46,7 +46,7 @@
   "deviations": [
     {
       "file": "prompts/process/prompt-2.md",
-      "why": "backlog rows (P071 result, P072) are control-plane paths; CLAUDE.md says keep those in their own small PR",
+      "why": "backlog rows (P071 result, P082) are control-plane paths; CLAUDE.md says keep those in their own small PR",
       "did": "shipped the fix, re-park, post and record in PR #19023 and the backlog JSON in a separate PR",
       "result": "main work merges without waiting on the owner"
     }
@@ -55,7 +55,7 @@
     "docs/posts/2026-11-25-a-finished-result-with-a-next-step-attached.md"
   ],
   "goal": null,
-  "notes": "Backlog: verified P071 (history_pieces over 14 rows: 5 offered, 0 with next/misses; baseline 3), filed and shipped P072. open_tail over 131 HISTORY.md '(moved ...)' entries on main: 6 hold an open step, 0 false positives read; 2 league steps re-parked. Verification: pytest portfolio/router 287 passed; check_posts ok; validate.py ok; main_health.py 313/313 ok. Security queue: empty (triaged only).",
+  "notes": "Backlog: verified P071 (history_pieces over 14 rows: 5 offered, 0 with next/misses; baseline 3), filed and shipped P082. open_tail over 154 HISTORY.md '(moved ...)' entries on main after merging it: 8 hold an open step, 0 false positives read; 2 league steps re-parked. Verification: pytest portfolio/router 301 passed after merging main (first CI run: duplicate-symbols red, OPEN_TAIL also added on main by another run; renamed mine HISTORY_OPEN_STEP); check_posts ok; validate.py ok; main_health.py 313/313 ok. Security queue: empty (triaged only).",
   "corrections": [],
   "redteam": null,
   "usage": {

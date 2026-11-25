@@ -736,15 +736,15 @@ def remove_span(value: str, start: int, end: int) -> str:
 # commercial tool's levelled risk run to compare" whole to HISTORY.md, and the
 # open step had to be re-parked in NEXT.md by hand (HISTORY.md line 51, NEXT.md
 # line 7). The automatic movers already skip such pieces; a named one did not.
-OPEN_TAIL = re.compile(r"(?:[;,.:)]\s+|\s+-+\s+)(?:then\s+)?(?:next|open|needs?|wanted|todo|to do"
+HISTORY_OPEN_STEP = re.compile(r"(?:[;,.:)]\s+|\s+-+\s+)(?:then\s+)?(?:next|open|needs?|wanted|todo|to do"
                        r"|not yet)\b(?!-)", re.I)  # not "open-source"
 
 
 def open_tail(piece: str) -> int:
-    """Index where `piece` turns to open work (OPEN_TAIL, or an OPEN_MARK past
+    """Index where `piece` turns to open work (HISTORY_OPEN_STEP, or an OPEN_MARK past
     its start), or -1."""
     p = " ".join(piece.split())
-    hits = [m.start() for m in OPEN_TAIL.finditer(p)]
+    hits = [m.start() for m in HISTORY_OPEN_STEP.finditer(p)]
     hits += [m.start() for m in OPEN_MARK.finditer(p) if m.start() > 0]
     return min(hits) if hits else -1
 

@@ -3,7 +3,7 @@ title: "A finished result with a next step attached"
 seo_title: "Keeping open work out of a project's history file"
 date: 2026-11-25
 tags: [process, flagship-field, tooling]
-description: "Six of 131 HISTORY.md entries in our projects held an open next step, lost from the to-do list. The tool that moves results there now refuses them."
+description: "Eight of 154 HISTORY.md entries in our projects held an open next step, two lost from every to-do list. The tool that moves results there now refuses them."
 ---
 
 Each of our deeper projects has a row in `portfolio/flagships.yaml` that lists
@@ -37,13 +37,13 @@ still shows the entry).
 ## How often it had happened
 
 I ran the new check over every `(moved ...)` entry in `ventures/*/HISTORY.md`:
-131 entries in all. Six of them hold an open step: three in
-changepoint-detector, one in xer-schedule-check and two in
-league-schedule-generator. I read all six, and none is a false alarm. Four of
-the open steps had already been copied back by hand or replaced by later work.
-Two had not: "a real league's referees" and "a real league's cards" were in no
-`NEXT.md` and in no row. Both are back in league-schedule-generator's
-`NEXT.md` now.
+154 entries in all. Eight of them hold an open step: three in
+changepoint-detector, three in league-schedule-generator, one in
+xer-schedule-check and one in photo-editing. I read all eight, and none is a
+false alarm. Six of the open steps had already been copied back by hand, were
+still in the row or had been replaced by later work. Two had not: "a real
+league's referees" and "a real league's cards" were in no `NEXT.md` and in no
+row. Both are back in league-schedule-generator's `NEXT.md` now.
 
 ## The change
 
