@@ -254,6 +254,35 @@ measured at upload, as before. All the job-shop tests pass (262 unit and 149
 Worker tests), including new ones for the deferred path, the role check and isolation between
 shops.
 
+## The quote now replies in the customer's own email thread
+
+A buyer who emails an RFQ expects the quote back as a reply to that email. Until now the quoter
+sent a new message with the subject "Quote Q-1001 from Acme Machine". In a busy purchasing inbox
+that looks like a stranger's email. Private-monorepo PR #178 changes that.
+
+When a shop turns on its RFQ address and a customer emails an RFQ to it, the app keeps that
+email's Message-ID. Later, when the estimator emails the quote back to the same address, it goes
+as a reply: the `In-Reply-To` and `References` headers name the customer's message, and the
+subject becomes "Re:" plus their subject. Gmail also needs a matching subject before it joins a
+thread. The quote number is still in the footer and in the PDF's file name. The email form says
+before sending whether this one will go as a reply.
+
+Some emails are not threaded, on purpose:
+
+- **An RFQ the estimator forwarded in.** The customer never saw the forwarded message, so a reply
+  to it would mean nothing to them.
+- **A Message-ID that isn't one plain `<left@right>`.** It came from someone else's mail server,
+  and a header built from it must not be able to carry a second header. A test sends one with a
+  line break and a `Bcc:` in it, and it is refused.
+- **The estimator's own copy.** It may land in an inbox that never had the RFQ.
+
+Cloudflare's headers reference wasn't reachable from the session that built this. Its search
+snippet shows both headers in the send binding's example, and it says a refused header fails the
+request before anything is sent. So if the provider refuses them, the same message goes once
+more without them, and the customer still gets exactly one quote. The first real threaded send
+at launch is on the checklist. The suite passes: 279 unit tests and 162 Worker tests, five of
+them new for this.
+
 ## Next
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
