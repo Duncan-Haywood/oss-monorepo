@@ -1,0 +1,67 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyfMMDGVvg6aZwaUgoe",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-25T18:42:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "jobshop-quote ROADMAP item 3 (launch): deploy pipeline",
+  "projects": [
+    "private-monorepo/apps/jobshop-quote"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/146",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "private-monorepo CI jobs for PR 146 never got a runner (ci_starvation.py: runner_id 0); verified locally instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "step 4 (unlanded_work.py) and the run record live in oss-monorepo while the work merged in private-monorepo; landing a run record needs a second PR here with no product change, which reads like a ledger-only PR"
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "worked well: listing claims across bets made it quick to see payapps was saturated by parallel runs and pick bet #2's unclaimed launch item"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "payapps (bet #1) had 13 active claims in the last 3 h; its free Next items were waiting on a customer or usage data (QuickBooks part 7, getting-started part 5) or were large, contended areas (SOV OCR, GC portal formats). Bet #2's launch item, deploying the product, was unclaimed and directly gates a paying shop",
+      "did": "jobshop-quote deploy pipeline",
+      "result": "merged"
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "no blog post: the work is a deploy pipeline for an unlaunched product, nothing a customer reads yet",
+      "did": "docs/DEPLOY.md and ROADMAP in the product",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "private-monorepo apps/jobshop-quote/docs/DEPLOY.md"
+  ],
+  "goal": null,
+  "notes": "Local checks on PR 146: node --test scripts/provision.test.mjs 5/5; pnpm typecheck ok; pnpm test:unit ok; pnpm test:worker (see below); biome ci clean; pnpm build + provision --dry-run + wrangler deploy --dry-run list every binding. Workflow not yet dispatched against the Cloudflare account (owner step).",
+  "corrections": [],
+  "redteam": null
+}
