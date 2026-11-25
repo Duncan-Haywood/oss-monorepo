@@ -1,9 +1,9 @@
 # Engagement reports
 
-Daily and weekly reports on how people use https://marisstella.app/, generated from the committed usage files by `platform/counter/engagement-report.mjs`. Data through 2026-11-24.
+Daily and weekly reports on how people use https://marisstella.app/, generated from the committed usage files by `platform/counter/engagement-report.mjs`. Data through 2026-11-25.
 
-- Latest day: [2026-11-24](daily/2026-11-24.md), 24 page loads
-- Latest week: [2026-W48](weekly/2026-W48.md), 89 page loads over 2 day(s)
+- Latest day: [2026-11-25](daily/2026-11-25.md), 45 page loads
+- Latest week: [2026-W48](weekly/2026-W48.md), 235 page loads over 3 day(s)
 
 Page loads are counted by the site's own cookieless beacon (`platform/edge/`): one per page opened by a browser that ran the page script and did not use the site opt-out (browsers sending DNT/GPC are counted from 2026-11-24; before that they were not, so earlier days read lower). They are not people or sessions. Crawler beacons are counted apart and never added to page loads.
 
@@ -11,7 +11,7 @@ Page loads are counted by the site's own cookieless beacon (`platform/edge/`): o
 
 | Week | Days | Page loads | Tool loads | Tools opened | Top tool | Feedback | Crawler beacons |
 |---|---:|---:|---:|---:|---|---:|---:|
-| [2026-W48](weekly/2026-W48.md) | 2 | 89 | 79 | 27 | xer-schedule-check | 0 | 30365 |
+| [2026-W48](weekly/2026-W48.md) | 3 | 235 | 214 | 44 | secret-santa-draw | 0 | 45806 |
 | [2026-W47](weekly/2026-W47.md) | 7 | 556 | 511 | 105 | secret-santa-draw | 0 | 107850 |
 | [2026-W46](weekly/2026-W46.md) | 7 | 407 | 359 | 75 | secret-santa-draw | 0 | 57781 |
 | [2026-W45](weekly/2026-W45.md) | 7 | 126 | 86 | 16 | secret-santa-draw | 0 | 66932 |

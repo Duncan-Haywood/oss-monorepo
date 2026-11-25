@@ -1,9 +1,9 @@
 {
- "generated_for": "2026-11-24",
- "data_through": "2026-11-24",
+ "generated_for": "2026-11-25",
+ "data_through": "2026-11-25",
  "latest_day": {
-  "day": "2026-11-24",
-  "page_loads": 24
+  "day": "2026-11-25",
+  "page_loads": 45
  },
  "weeks": [
   {
@@ -64,13 +64,13 @@
   {
    "week": "2026-W48",
    "monday": "2026-11-23",
-   "days": 2,
-   "page_loads": 89,
-   "tool_loads": 79,
-   "tools": 27,
-   "top_tool": "xer-schedule-check",
+   "days": 3,
+   "page_loads": 235,
+   "tool_loads": 214,
+   "tools": 44,
+   "top_tool": "secret-santa-draw",
    "feedback": 0,
-   "crawler_beacons": 30365
+   "crawler_beacons": 45806
   }
  ]
 }
