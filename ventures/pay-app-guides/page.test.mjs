@@ -324,7 +324,8 @@ const FAQ_PAGES = [
 ];
 
 test("guides with an FAQ keep FAQPage markup that matches visible questions", () => {
-  const decode = (s) => s.replace(/&quot;/g, '"').replace(/&#x27;|&#39;|&rsquo;/g, "'").replace(/&amp;/g, "&");
+  // Compare in the HTML's own escaped form: no tag stripping or entity decoding here.
+  const escape = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   for (const name of FAQ_PAGES) {
     const html = page(name);
     const block = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
@@ -333,7 +334,7 @@ test("guides with an FAQ keep FAQPage markup that matches visible questions", ()
     assert.ok(block, `${name}: no FAQPage JSON-LD`);
     const faq = html.match(/<section[^>]*id="faq"[^>]*>([\s\S]*?)<\/section>/);
     if (!faq) continue; // index.html: questions are derived by the site build from its own markup
-    const visible = [...faq[1].matchAll(/<h3>([\s\S]*?)<\/h3>/g)].map((m) => decode(m[1].replace(/<[^>]+>/g, "")));
-    for (const q of block.mainEntity) assert.ok(visible.includes(q.name), `${name}: "${q.name}" not shown on the page`);
+    const visible = [...faq[1].matchAll(/<h3>([\s\S]*?)<\/h3>/g)].map((m) => m[1].trim());
+    for (const q of block.mainEntity) assert.ok(visible.includes(escape(q.name)), `${name}: "${q.name}" not shown on the page`);
   }
 });
