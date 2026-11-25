@@ -1,3 +1,8 @@
+---
+kind: brief
+topics: [everything-as-code, hosting]
+date: 2026-11-25
+---
 # aws-saas-starter: state for the next session (2026-11-25)
 
 Built: `platform/aws/saas-starter/` (apps-account stack, `payments/` stack, `runtime/`,
