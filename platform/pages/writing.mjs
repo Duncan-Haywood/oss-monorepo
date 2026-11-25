@@ -43,6 +43,7 @@ import { formatCount } from './count.mjs';
 import { SITE_NAME, TITLE_BUDGET, siteTitle, sponsorsNote, withSiteHeader } from './site-nav.mjs';
 import { loadResearchRegistry } from './research-registry.mjs';
 import { decodeEntities } from './entities.mjs';
+import { completeArticleNode } from './article-ld.mjs';
 import { softwareLines } from './business.mjs';
 import { loadEpisodes, renderPlayer, renderPodcastBody, renderPodcastHero, writePodcastAssets, PODCAST_PATH, SHOW_DESCRIPTION, SHOW_TITLE } from './podcast.mjs';
 
@@ -1320,6 +1321,12 @@ function balancedRelated(posts, n) {
   return lists;
 }
 
+/** A post's BlogPosting with the url, image, author and publisher it would otherwise lack (article-ld.mjs). */
+function withArticleDefaults(node, { canonical, baseUrl, image }) {
+  if (baseUrl) completeArticleNode(node, { canonical, baseUrl, siteName: SITE_NAME, image });
+  return node;
+}
+
 function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = null, section = BLOG, projects = [] } = {}) {
   const canonical = baseUrl ? `${baseUrl}${section.path}${post.slug}/` : '';
   const isAgents = section.id === 'agents';
@@ -1358,7 +1365,7 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
         }
       : undefined,
     feedHref: '../feed.xml',
-    jsonLd: {
+    jsonLd: withArticleDefaults({
       '@context': 'https://schema.org',
       '@type': 'BlogPosting',
       headline: post.title,
@@ -1371,7 +1378,7 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
       ...(episode && baseUrl
         ? { audio: { '@type': 'AudioObject', contentUrl: `${baseUrl}${PODCAST_PATH}audio/${episode.audioFile}`, encodingFormat: 'audio/mpeg', duration: `PT${Math.round(episode.seconds)}S` } }
         : {}),
-    },
+    }, { canonical, baseUrl, image: socialCard }),
     hero: `<h1>${esc(post.title)}</h1>
 <p class="dek">${post.descriptionHtml ?? esc(post.description)}</p>
 <p class="meta post-meta">${topic} <span class="when"><time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes}&nbsp;min&nbsp;read</span> <span class="tail">${tags ? `<span class="tags">${tags}</span> ` : ''}<span class="src"><a href="${REPO_BLOB}${esc(post.source)}">Source</a>${markdown}</span></span></p>`,

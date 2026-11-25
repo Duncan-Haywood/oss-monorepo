@@ -196,6 +196,7 @@ import {
   siteStructuredData,
 } from './home.mjs';
 import { servedPath } from './served-path.mjs';
+import { completeArticleJsonLd } from './article-ld.mjs';
 import { COMPANY_SUMMARY, IN_DEVELOPMENT, INDUSTRIES, LIVE_PRODUCTS } from './company.mjs';
 import { liveIndustries, pruneDoors, renderPageDoor, renderToolDoor } from './front-doors.mjs';
 import { loadFunnel, offerTable, OFFER_ATTR, renderProductOffer } from './product-offer.mjs';
@@ -11817,8 +11818,17 @@ export function injectDiscoveryTags(html, { canonical, baseUrl, title, descripti
     add('name', 'twitter:card', 'summary_large_image');
   }
 
-  if (!tags.length) return next;
-  return next.replace(/<\/head>/i, `${tags.map((tag) => `\n${tag}`).join('')}\n</head>`);
+  if (tags.length) next = next.replace(/<\/head>/i, `${tags.map((tag) => `\n${tag}`).join('')}\n</head>`);
+
+  // Article-type JSON-LD gets the url, image, author and publisher it left
+  // out (`article-ld.mjs`), with the share card this page ends up carrying.
+  const imageTag = tagFor('property', 'og:image');
+  return completeArticleJsonLd(next, {
+    canonical,
+    baseUrl,
+    siteName: SITE_NAME,
+    image: imageTag ? contentOf(imageTag[0]) : '',
+  });
 }
 
 // `decodeEntities` covers the five that matter for markup safety. Prose needs
