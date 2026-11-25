@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "Built a whole xlsx writer (xlsx.mjs + zip.mjs) on a stale origin/main before noticing #18769 had landed the same feature; threw it away and rebuilt only the missing parts on top of workbook.mjs. Cost roughly a third of the run.",
-    "The first draft of the LibreOffice recalc test could not catch a swapped work/stored rate cell or sub-cent rounding (every case had equal rates, and the CSV export rounded to the displayed value). Found by mutation testing and fixed before the PR."
+    "The first draft of the LibreOffice recalc test could not catch a swapped work/stored rate cell or sub-cent rounding (every case had equal rates, and the CSV export rounded to the displayed value). Found by mutation testing and fixed before the PR.",
+    "The template page's meta description ran over 160 characters and failed platform/pages/description-length.test.mjs in CI. The local preflight would have caught it, but it stopped early on main's own failures and I only ran the venture tests plus build/check. Fixed in a follow-up commit."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -46,6 +47,10 @@
     {
       "file": "platform/pages/venture-preflight.mjs",
       "issue": "Stops before the build when main_health fails on main itself (test_scan.py guard order, stale transition.json), so a venture change can't get its build check from preflight while main is red. It also said 'this branch edits platform/ci' because origin/main was stale. I ran build.mjs + check.mjs by hand instead."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Because preflight halts at repository checks when main is red, the platform/pages site tests (step 1c) never run either. A per-page rule (meta description <= 160 chars) reached CI uncaught. Running the site tests even when main_health fails would help."
     }
   ],
   "deviations": [
