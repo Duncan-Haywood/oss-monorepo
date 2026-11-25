@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01XpHqydJYErCySGBfxjQzFN",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "we really need to make a priority of patching security vulnerabilities in code ql as soon as they arise adjust process to allocate resources to fix all outstanding issues and fix new ones before they hit main.",
+  "input_sha256": "83f7f4c8f32d214dfc27e4052357b346d526f634765f118fe600094e5fb8927e",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T03:13:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "owner request: make CodeQL findings a priority; allocate sessions to clear the backlog; stop new findings before main",
+  "projects": [
+    "platform/ci",
+    "security"
+  ],
+  "pr": 18529,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "partial",
+  "errors": [
+    {
+      "what": "CodeQL CLI bundle download (to size the backlog in-session) was refused by the session's permission classifier",
+      "effect": "backlog sized later from the PR's own CodeQL run instead"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 said a missing security-alerts branch means an empty queue. It actually meant CodeQL had never run (HTTP 404 on all 581 queue runs). 19 PRs between 2026-10-31 and 2026-11-04 reworded that step and none investigated the cause."
+    },
+    {
+      "file": "platform/ci/security_alerts.py",
+      "issue": "An unreadable alerts API was a ::warning:: on a green job, so the outage was invisible."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Suggests keeping control-plane edits in their own PR. This session may push only to its one assigned branch, so the scripts and the control-plane files ship together and the whole PR waits for owner approval. The owner asked for this change.",
+      "did": "one PR",
+      "result": "awaiting owner approval"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-the-security-queue-was-empty-because-codeql-never-ran.md",
+    "docs/reports/2026-11-24-codeql-never-ran.md"
+  ],
+  "goal": null,
+  "notes": "Found that CodeQL was never enabled: no workflow, no default setup, no SARIF upload; the queue workflow logged HTTP 404 on every one of 581 runs and stayed green. Added codeql.yml (actions, js/ts, python; PR + main + weekly), codeql_gate.py (fails PRs on medium+ findings on their own changed lines, prints them to the job log for agents), a code_scanning ruleset rule (to apply after first analysis), loud failure + 'Unavailable:' QUEUE.md on API errors, prompt.md step 0 and verify-and-merge.md updates, policy doc. Supersedes open PRs 12885, 12939, 12975. Tests: test_codeql_gate.py + test_security_alerts.py 24 passed locally. First CodeQL run on this PR: all 3 languages green, gate passed; backlog 977 medium+ (0 actions, 21 python, 956 js/ts). Backlog not fixed in this run; four hourly schedules (~96 sessions/day) are routed to it by step 0.",
+  "corrections": [],
+  "redteam": null
+}

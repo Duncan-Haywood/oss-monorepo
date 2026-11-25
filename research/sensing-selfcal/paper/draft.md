@@ -637,7 +637,17 @@ solves.
    1 &minus; c(r): with its own 8 steps it lands a median Duckiebot's worst corner within 0.0085 px, and fails only
    where &rho;&prime; &gt; 2. A robot that undistorts features near the image edge should pass
    `(COUNT | EPS, 200, 1e-12)` on OpenCV 4.13 or later, or use a loop it has checked, and test the round trip at
-   the corners once per calibration.
+   the corners once per calibration. `src/undistcheck.py` does that test from the calibration file alone, in
+   stdlib Python: its copy of the undamped loop predicts OpenCV's default corner error to within
+   7.5 &times; 10<sup>&minus;13</sup> px on all 179 calibrations, and its Newton inverse is exact in at most 7 steps
+   at every corner that does not fold and refuses at the 6 that do.
+   Fisheye cameras fail differently: a ray past 90&deg; has no point on the z = 1 plane, and
+   `cv::fisheye::undistortPoints` (every release read, 4.5.4 to 4.13.0; ROS `image_geometry` calls it for `equidistant`
+   cameras, as does OpenVINS) and ORB-SLAM3's Kannala&ndash;Brandt `unproject` return such a pixel mirrored through the
+   principal point, with no flag. On the 16 fisheye calibrations that ORB-SLAM3, OpenVINS, Kimera-VIO and DM-VIO ship that is
+   120,121 of 120,125 such grid pixels, 7.09% of a TUM-VI image and 24.22% of a RealSense T265 rectangle; below 90&deg; the
+   same call is exact. A fisheye robot should unproject to a bearing (VINS-Fusion's `EquidistantCamera` does;
+   `src/fisheyecheck.py` maps the affected pixels from the calibration file) or mask pixels beyond f&middot;&theta;<sub>d</sub>(&pi;/2).
 
 ## 9. Limitations
 

@@ -2688,15 +2688,16 @@ test('a lone tool advertises no siblings and still renders', () => {
 
 // 2026-11-11: every story page marked "Tools" as its section and led through
 // "Learning & practice", though Stories has its own place in the top nav.
-test('story pages sit under Stories in the header, the trail and the BreadcrumbList', () => {
+test('story pages sit under Stories in the trail and the BreadcrumbList', () => {
   const page = '<html><head><title>Aim Off</title></head><body><p>Fog.</p></body></html>';
   const html = injectChrome(page, {
     slug: 'hearth-and-horizon', toRoot: '../', total: 2, related: [],
     title: 'Hearth & Horizon: free AI-written science fiction and Catholic bedtime stories, with audio',
     pageTitle: 'Aim Off', canonical: 'https://x.test/hearth-and-horizon/aim-off', baseUrl: 'https://x.test/', isEntry: false,
   });
-  assert.match(html, /data-pfs-nav="stories" href="\.\.\/stories\/" aria-current="page"/);
-  assert.doesNotMatch(html, /data-pfs-nav="tools"[^>]*aria-current/);
+  // Stories left the header on 2026-11-25; the trail and BreadcrumbList still name it, and no tab is marked.
+  assert.doesNotMatch(html, /data-pfs-nav="stories"/);
+  assert.doesNotMatch(html, /data-pfs-nav="[a-z]+"[^>]*aria-current/);
   assert.match(html, /<a href="\.\.\/stories\/">Stories<\/a>/);
   assert.match(html, /<a href="\.\.\/hearth-and-horizon\/" class="pfs-mid">Hearth &amp; Horizon<\/a>/);
   const trail = JSON.parse(html.match(/<script type="application\/ld\+json">(\{[^<]*BreadcrumbList[^<]*\})<\/script>/)[1]);
@@ -6479,7 +6480,8 @@ test('the hub is a finder first, and the catalogue, apps, CLIs and research are 
   assert.ok(at(/id="products"/) < at(/id="free-tools"/));
   assert.ok(at(/id="free-tools"/) < at(/id="q"/), 'search is for the free tools, below the products');
   assert.match(hub, /href="c\/"/);
-  assert.match(hub, /href="research\/">461 open research projects/);
+  // Standalone research paused on 2026-11-25: one quiet link to the archive.
+  assert.match(hub, /href="research\/">Research archive</);
   // Gone from the front door: catalogue tiles, stats, and self-deploy (retired 2026-11-24).
   assert.doesNotMatch(hub, /id="overview"|id="types"|id="featured"|class="marquee"/);
   const more = hub.slice(hub.indexOf('id="more"'));

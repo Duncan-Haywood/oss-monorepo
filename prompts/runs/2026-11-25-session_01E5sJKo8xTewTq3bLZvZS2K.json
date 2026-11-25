@@ -1,0 +1,151 @@
+{
+ "date": "2026-11-25",
+ "session": "https://claude.ai/code/session_01E5sJKo8xTewTq3bLZvZS2K",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-opus-5-5",
+ "models_seen": [
+  "claude-opus-5-5"
+ ],
+ "started": "2026-11-25T00:18:15Z",
+ "ended": "2026-11-25T00:35:12Z",
+ "wall_minutes": 17.18,
+ "tokens_in": 9739093,
+ "tokens_out": 74306,
+ "cost_usd": 4.8964,
+ "tool_calls": 72,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18764",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [
+  "analyse.py first version compared ORB-SLAM3 and OpenCV outputs as normalised points scaled by f, not reprojected as planned (blew up near 90 deg); fixed before the write-up, disclosed in LOG",
+  "angles first measured with arccos, whose 3e-8 rad floor refuted H326 by resolution alone; switched to atan2(|axb|, a.b), disclosed",
+  "two test-design bugs in tests/test_fisheyecheck.py (a point past the fold used as 'beyond the peak'; an off-centre principal point that pushed the corner past 90 deg); fixed",
+  "an accidental recursive grep over ~/.. in a probe command hung for 120 s and was killed"
+ ],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/_shared/pick_track.py",
+   "issue": "CHAIN note suggested a paper step, but the paper already carried 3zi (Recommendation 10); the check counts LOG entries since the last 'Paper step' title rather than whether draft.md cites the newest milestone"
+  },
+  {
+   "file": "research/sensing-selfcal/experiments/m3ze_fleet/fetch.py",
+   "issue": "3ze's parser stored the 20 fisheye cameras' coefficients as zeros without saying so in calibs.json; a reader of calibs.json would take them as undistorted lenses"
+  },
+  {
+   "file": "research/sensing-selfcal/requirements.txt",
+   "issue": "opencv-python-headless is unpinned while test_m3zg.py needs the 5.x API (criteria= on undistortPoints) and milestones 3zh/3zj need specific 4.x wheels; installing a 4.x wheel into the shared interpreter silently breaks 6 tests"
+  }
+ ],
+ "deviations": [
+  {
+   "file": "CLAUDE.md",
+   "why": "For-profit products come first for venture runs; this run was routed to the research track by the weighted draw, so it followed the research sub-prompt",
+   "did": "advanced the drawn programme (sensing-selfcal) with a new milestone",
+   "result": "milestone 3zj landed with a tool, paper update and post"
+  },
+  {
+   "file": "prompts/research/prompt-0.md",
+   "why": "cite_check.py was not re-run: no new DOI/arXiv citation was added (new sources are GitHub commits, pinned by hash in LOG.md), and arXiv/crossref/semanticscholar are refused through the proxy here",
+   "did": "pinned every source file by repository and commit",
+   "result": "null"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-11-25-opencv-fisheye-undistortpoints-mirrors-rays-past-90-degrees.md",
+  "research/sensing-selfcal/LOG.md (milestone 3zj plan and result)"
+ ],
+ "goal": null,
+ "notes": "Local verification: tests/test_fisheyecheck.py, test_undistcheck.py, test_foldcheck.py, test_paper_short.py 20 passed (python3.13, OpenCV 4.12.0); paper/check_numbers.py 451 of 451; check_short ok; research/_homepage/build.py ok; check_md_links ok; check_posts ok; risk_review: nothing blocked (one new outbound fetch, raw.githubusercontent.com, HTTPS, no data sent). Hypotheses H321, H324, H326 held; H322, H323, H325, H327 refuted, each by the one T265 calibration that folds. run_workflow_locally --for-changes: 9/9 selected workflows passed (cross-review and deploy jobs not runnable locally). Its research-test step ran sensing-selfcal's whole suite: 230 passed, 6 failed, all in tests/test_m3zg.py, because this session installed the opencv-python-headless 4.12.0 wheel into /usr/bin/python3.13 for milestone 3zj, and 4.12's pinhole cv2.undistortPoints takes no criteria= keyword; the project's unpinned requirement installs 5.x, which those tests target. Not caused by this diff.",
+ "corrections": [],
+ "redteam": null,
+ "usage": {
+  "measured_by": "prompts/runcost.py v1",
+  "session_id": "6f2dfe84-76d5-549e-a3e2-cc5b9cf10a4b",
+  "transcripts": 1,
+  "first": "2026-11-25T00:18:15Z",
+  "last": "2026-11-25T00:35:25Z",
+  "primary_model": "claude-opus-5-5",
+  "models": {
+   "claude-opus-5-5": {
+    "requests": 68,
+    "input": 131,
+    "output": 74306,
+    "thinking": 25065,
+    "cache_read": 9551525,
+    "cache_write_5m": 0,
+    "cache_write_1h": 187437,
+    "api_equivalent_usd": 4.8964,
+    "fast_requests": 0
+   }
+  },
+  "totals": {
+   "requests": 68,
+   "input": 131,
+   "output": 74306,
+   "thinking": 25065,
+   "cache_read": 9551525,
+   "cache_write_5m": 0,
+   "cache_write_1h": 187437,
+   "api_equivalent_usd": 4.8964,
+   "api_equivalent_complete": true
+  },
+  "cache_hit_share": 0.981,
+  "tool_calls": 72,
+  "tools": {
+   "Bash": 64,
+   "Write": 5,
+   "ToolSearch": 1,
+   "mcp__github__create_pull_request": 1,
+   "Read": 1
+  },
+  "web_searches": 0,
+  "time": {
+   "wall_minutes": 17.18,
+   "active_minutes": 17.18,
+   "model_minutes": 11.91,
+   "tool_minutes": 5.26,
+   "waiting_on_human_minutes": 0.0,
+   "human_prompts": 1,
+   "stalls": 0,
+   "subagent_minutes": 0.0
+  },
+  "pricing": {
+   "as_of": "2026-10-06",
+   "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+  },
+  "human_equivalent": {
+   "hours": 10.0,
+   "basis": "an engineer reading OpenCV/ORB-SLAM3/OpenVINS/VINS-Fusion source, porting two solvers, writing a 2-px-grid analysis, a stdlib tool with tests, and the write-ups",
+   "rate_usd_per_hour": 100.0,
+   "usd": 1000.0
+  },
+  "leverage": 204.2,
+  "certainty": {
+   "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+   "model": "high: the `model` field on each API response, not the configured model",
+   "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+   "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+   "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+  },
+  "not_counted": [
+   "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+   "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+   "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+   "CI minutes and the reviewer bots' own model calls"
+  ]
+ }
+}

@@ -75,22 +75,24 @@ flagships:
       $199+ a month (PayAppHub, Trimble Pay, SubLien) and suites $49 to $332
       (bets.md, with sources). The wedge grows into a contractor suite (job costing,
       RFIs, estimating; bet 6 becomes its estimating module). The owner's favourite
-      vertical. New app, nothing built yet.
+      vertical.
     next: >-
-      Build in private-monorepo (attach it with add_repo, push access; scaffold from
-      apps/grants: Worker, accounts, BillingProvider port with the Paddle adapter,
-      dark). Milestones, in order: (1) a job with its schedule of values; a monthly
-      G702/G703 pay app computed from percent complete and stored materials, with
-      retainage held and released, as a PDF in the AIA layout (own layout and
-      wording, not AIA's copyrighted forms); unit tests on the arithmetic; (2)
-      change orders that roll into the schedule of values; (3) conditional and
-      unconditional lien waiver tracking per pay app, with state-form templates only
-      where the statute text is public, and a disclaimer; (4) QuickBooks Online
-      invoice export with retainage as its own line (sandbox only; the owner opens
-      the Intuit developer account); (5) a free G702/G703 template page in this
-      repository as the front door, linking to the app. Paid path dark on Paddle per
-      portfolio/monetization/models.yaml (row app: payapps). A run that lands a
-      slice replaces its item here.
+      Built in private-monorepo/apps/payapps (attach it with add_repo, push access).
+      Landed: (1) jobs with a schedule of values and monthly pay apps with
+      retainage, PDF and CSV in its own layout; (2) change orders; plans and Paddle
+      billing, dark (private-monorepo PR #37: Free 1 active job, Solo $99, Crew
+      $179, Company $249, docs/BILLING.md). Open, in order: (3) lien waivers per pay
+      app landed (private-monorepo PR #38: Crew+, AZ statutory forms verified word
+      for word against azleg.gov, other statutory states tracked only); NV 108.2457
+      added (private-monorepo PR #39: verbatim, whole-form test against the statute
+      for AZ and NV); next for waivers: encode TX 53.284 and UT 38-1a-802 (official
+      sites answer; TX is a JS app, UT text loads from a versioned sub-page), then
+      CA when leginfo stops 403ing; (4) QuickBooks Online invoice export with
+      retainage as its own line, finishing PR #16 (packages/qbo-sync, sandbox only;
+      the owner opens the Intuit developer account); (5) a free G702/G703 template
+      page in this repository as the front door, linking to the app and its pricing
+      (the marketing site is PR #18); (6) a payapps deploy workflow that runs the
+      Paddle catalog sync. A run that lands a slice replaces its item here.
   # Bet 2 in portfolio/monetization/bets.md (2026-11-24 ranking).
   - venture: jobshop-quote
     bet: 2
@@ -181,8 +183,9 @@ flagships:
       read Mercari's Gross Sales Report from its help-centre field list, deduped by
       Item ID, 2026-11-24; Depop's CSV headers are unpublished, so it needs a real
       file); (2) inventory with cost of
-      goods matched to sales; (3) mileage log at the IRS standard rate with its
-      source cited; (4) a Schedule C line-mapped P&L export and a CSV for the
+      goods matched to sales; (3) mileage: the public engine landed it 2026-11-24
+      (reseller-books/trips.mjs, Schedule C line 9 priced by trip date, PR #18743),
+      so the app imports it and adds a saved trip log per account; (4) a Schedule C line-mapped P&L export and a CSV for the
       accountant; (5) a marketing page that does not sell on 1099-K fear (the
       federal threshold is back at $20,000 and 200 transactions). A run that lands a
       slice replaces its item here.
@@ -427,9 +430,7 @@ flagships:
       eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
       evenly lit frame (its JPEG lifts none: eval/sony-vignetting-preview-*);
       Near-clean leak closed on Bayer 2026-11-19 (k 12,
-      eval/near-clean-gate-2026-11-19.md); X-Trans tuned on 51 fresh bodies the same
-      day: no loser to fix, stays off; Bayer's 15 there were a noisy ISO 1600
-      reference; X-Trans mpcws read: own ramp failed, Bayer ramp 3 of 4
+      eval/near-clean-gate-2026-11-19.md); X-Trans mpcws read: own ramp failed, Bayer ramp 3 of 4
       (eval/xtrans-drawn-mpcws-*; next blind 6-body set, raw.pixls.us); D780/D600
       over-reads (HISTORY.md): next a read kept off grain floors. Browser cull page
       2026-11-23 (site/cull.html; 520-file card 25.8 s; merges existing sidecars,
@@ -440,9 +441,10 @@ flagships:
       developed in-page 2026-11-24, eval/cull-orf-compacts-*); keyword trees, codes,
       C captions, a loaded Lightroom/Photo Mechanic keyword list resolving names and
       synonyms to paths 2026-11-24 (ExifTool, eval/cull-keyword-list-*; next
-      Lightroom's own import, needs Lightroom; K autocomplete from the list). Nikon
-      AF points, half faces at the edge 2026-11-24 (eval/cull-nikon-af-*,
-      eval/cull-edge-mirror-*). More open items: NEXT.md.
+      Lightroom's own import, needs Lightroom; K autocomplete from the list). Client
+      proofing set 2026-11-25 (zip + offline gallery, hearts pasted back as labels,
+      eval/cull-proofing-set-*); paid next, most valuable: that gallery hosted
+      behind a share link (models.yaml row). More open items: NEXT.md.
   - venture: quick-pick-survey
     demoted: >-
       2026-11-24: no bet; not among the candidates bets.md scored as SMB paid

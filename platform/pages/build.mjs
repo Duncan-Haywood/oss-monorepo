@@ -47,7 +47,7 @@ import { loadPages, resolvePostTitleClashes } from './page-identity.mjs';
 import { addModulePreloads } from './preload.mjs';
 import { buildStories, STORIES_PATH, STORY_VENTURES } from './stories.mjs';
 import { buildProducts, productSitemapPaths, PRODUCT_CARD_CSS, renderProductGrid, PRODUCTS_PATH, INDUSTRIES_PATH, industryPath } from './products.mjs';
-import { PRODUCT_LINES, softwareLines, hardwareLines, INDUSTRIES as BUSINESS_INDUSTRIES } from './business.mjs';
+import { PRODUCT_LINES, softwareLines, hardwareLines, INDUSTRIES as BUSINESS_INDUSTRIES, buildFirstHref } from './business.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { buildQueue, clip, QUEUE_PATH } from './queue.mjs';
@@ -1719,6 +1719,7 @@ const CATEGORY_RULES = [
     // `water-damage-drying-estimate-calculator` joined 2026-10-11 on its first commit beside `grease-trap-pumping-price-calculator`: a restoration contractor turning wet area, equipment days and labour into a job invoice and margin.
     // `hoarding-cleanout-bid-calculator` joined 2026-10-11 on its first commit beside `dumpster-rental-margin-calculator`: a cleanout contractor pricing volume, crew days and containers.
     // `powder-coating-job-price-calculator` joined 2026-10-10 on its first commit beside `cnc-machining-quote-calculator`: a job shop turning labour, machine and material into a customer price.
+    // `machine-shop-guides` joined 2026-11-24 beside `cnc-machining-quote-calculator`: free guides and a quote calculator for the same small machine shops; it was the sixth tool in the catch-all.
     // `dxf-nesting` joined 2026-11-18 on its first commit beside `laser-cutting-engraving-job-price-calculator` and `cnc-machining-quote-calculator`: the same laser, plasma and CNC job shop, nesting the customer's DXF parts on sheets before it prices the cut.
     // `laser-cutting-engraving-job-price-calculator` joined 2026-10-10 on its first commit beside `cnc-machining-quote-calculator`: a laser shop turning sheet, machine time and labour into a customer price.
     // `therapy-8-minute-rule-calculator` joined 2026-10-10: a therapy practice turning timed minutes into billable units is a services-business job; the catch-all was at 6, over the bound of five (build.test.mjs).
@@ -9859,6 +9860,7 @@ ${renderFinder({
   askHref: ASK_PATH,
   customHref: CUSTOM_DEV_PATH,
   toolsHref: `${CATEGORY_PATH_PREFIX}/`,
+  buildFirstHref,
 })}
     </div>
   </header>
@@ -9966,7 +9968,7 @@ ${renderProductGrid(softwareLines(), { toRoot: '', published: publishedTools, an
 
     <section class="band" id="more" aria-labelledby="more-h">
       <h2 id="more-h" class="section-eyebrow">Also here</h2>
-      <p class="more-links"><a href="${ABOUT_PATH}">About the company</a> · <a href="${GUIDES_PATH}">Guides and comparisons</a> · <a href="${WRITING_PATH}">Writing</a> · <a href="${UPDATES_PATH}">Updates and roadmap</a> · <a href="${RESEARCH_PATH}">${formatCount(researchCount)} open research projects</a></p>
+      <p class="more-links"><a href="${ABOUT_PATH}">About the company</a> · <a href="${GUIDES_PATH}">Guides and comparisons</a> · <a href="${WRITING_PATH}">Writing</a> · <a href="${UPDATES_PATH}">Updates and roadmap</a> · <a href="${RESEARCH_PATH}">Research archive</a></p>
     </section>
 
 <!-- With the other "your data on this device" panel rather than at the top:

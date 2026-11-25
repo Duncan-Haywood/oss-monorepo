@@ -98,13 +98,18 @@ const INDUSTRY_ICONS = {
  * `industries` and `lines` come from business.mjs. A problem is only linked to
  * a product, never to a claim: the status label says live or early access.
  */
-/** The finder's step-1 choices: each industry with a software product, then "Something else". */
+/**
+ * The finder's step-1 choices: each industry with a software product (a card),
+ * then each industry that has free tools and listed problems but no product
+ * yet (a compact chip, `compact: true`), then "Something else".
+ */
 export function finderChoices(industries = [], lines = []) {
+  const hasProduct = (ind) => lines.some((l) => l.industry === ind.slug && l.kind === 'software');
+  const pick = (ind, compact) => ({ slug: ind.slug, name: ind.name, who: ind.who, glyph: INDUSTRY_ICONS[ind.slug] ?? 'more', compact });
   return [
-    ...industries
-      .filter((ind) => lines.some((l) => l.industry === ind.slug && l.kind === 'software'))
-      .map((ind) => ({ slug: ind.slug, name: ind.name, who: ind.who, glyph: INDUSTRY_ICONS[ind.slug] ?? 'more' })),
-    { slug: 'other', name: 'Something else', who: 'Another trade or business, or a problem not listed', glyph: 'more' },
+    ...industries.filter(hasProduct).map((ind) => pick(ind, false)),
+    ...industries.filter((ind) => !hasProduct(ind) && ind.problems?.length).map((ind) => pick(ind, true)),
+    { slug: 'other', name: 'Something else', who: 'Another trade or business, or a problem not listed', glyph: 'more', compact: true },
   ];
 }
 
@@ -114,8 +119,8 @@ export function finderCss(choices = []) {
   return `${FINDER_CSS}
 ${choices
   .map((c) => `    #${id(c.slug)}:checked ~ .panels #panel-${c.slug} { display: block; }
-    #${id(c.slug)}:checked ~ .pros label[for="${id(c.slug)}"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; }
-    #${id(c.slug)}:focus-visible ~ .pros label[for="${id(c.slug)}"] { outline: 2px solid var(--accent); outline-offset: 2px; }`)
+    #${id(c.slug)}:checked ~ ${c.compact ? '.pros-more' : '.pros'} label[for="${id(c.slug)}"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; }
+    #${id(c.slug)}:focus-visible ~ ${c.compact ? '.pros-more' : '.pros'} label[for="${id(c.slug)}"] { outline: 2px solid var(--accent); outline-offset: 2px; }`)
   .join('\n')}
     .finder .pro-in:checked ~ .panels .panel-hint { display: none; }`;
 }
@@ -129,6 +134,7 @@ export function renderFinder({
   askHref = 'ask/',
   customHref = 'custom-development/',
   toolsHref = 'c/',
+  buildFirstHref = (ind) => `mailto:?subject=${encodeURIComponent(`Build first for ${ind.name}`)}`,
 } = {}) {
   const groups = industries
     .map((ind) => ({ ind, lines: lines.filter((l) => l.industry === ind.slug && l.kind === 'software') }))
@@ -137,7 +143,12 @@ export function renderFinder({
   const choices = finderChoices(industries, lines);
   const inputs = choices.map((c) => `      <input class="pro-in" type="radio" name="pro" id="${esc(id(c.slug))}" value="${esc(c.slug)}">`).join('\n');
   const labels = choices
+    .filter((c) => !c.compact)
     .map((c) => `        <label for="${esc(id(c.slug))}"><span class="pro-ico">${icon(c.glyph)}</span><span class="pro-name">${esc(c.name)}</span><span class="pro-who">${esc(c.who)}</span></label>`)
+    .join('\n');
+  const chips = choices
+    .filter((c) => c.compact)
+    .map((c) => `        <label for="${esc(id(c.slug))}" title="${esc(c.who)}">${esc(c.name)}</label>`)
     .join('\n');
   const problemLink = (l, problem) => {
     const href = l.status === 'live' && l.href ? l.href : `${industryHref(l.industry)}#${l.id}`;
@@ -151,6 +162,20 @@ ${ls.flatMap((l) => l.problems.map((p) => problemLink(l, p))).join('\n')}
           </ul>
           <p class="panel-more"><a href="${esc(industryHref(ind.slug))}">Everything for ${esc(ind.name.toLowerCase())}</a> · ${more}</p>
         </div>`);
+  // An industry with no product yet: its problems lead to its page and the free
+  // tools there, and the visitor is asked which job to build first. No product
+  // name, status or offer is shown, because there is none.
+  const bySlug = new Map(industries.map((ind) => [ind.slug, ind]));
+  for (const c of choices.filter((x) => x.compact && x.slug !== 'other')) {
+    const ind = bySlug.get(c.slug);
+    panels.push(`        <div class="panel" id="panel-${esc(ind.slug)}" data-funnel="cta" data-funnel-industry="${esc(ind.slug)}">
+          <p class="finder-step"><b>2</b> What is hardest for you right now?</p>
+          <ul class="problems">
+${ind.problems.map((p) => `            <li><a href="${esc(industryHref(ind.slug))}"><span class="pb-text">${esc(p)}</span><span class="pb-to">Free tools today →</span></a></li>`).join('\n')}
+          </ul>
+          <p class="panel-more">No paid product for ${esc(ind.name.toLowerCase())} yet. <a href="${esc(buildFirstHref(ind))}" data-funnel="outbound">Tell us which job to build first</a> · ${more}</p>
+        </div>`);
+  }
   panels.push(`        <div class="panel" id="panel-other">
           <p class="finder-step"><b>2</b> Find your trade, or tell us the problem</p>
 ${trades.length ? `          <ul class="trades">\n${trades.map((t) => `            <li><a href="${esc(t.href)}" data-category="${esc(t.id)}">${esc(t.name)}</a></li>`).join('\n')}\n          </ul>\n` : ''}          <p class="panel-more">${more} · <a href="${esc(toolsHref)}">Browse every free tool</a></p>
@@ -161,7 +186,7 @@ ${inputs}
       <div class="pros">
 ${labels}
       </div>
-      <div class="panels">
+${chips ? `      <p class="pros-more-h">More businesses</p>\n      <div class="pros-more">\n${chips}\n      </div>\n` : ''}      <div class="panels">
         <p class="panel-hint">Pick one above to see the problems we are building for.</p>
 ${panels.join('\n')}
       </div>
@@ -184,6 +209,11 @@ const FINDER_CSS = `
                color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--panel)); }
     .pro-name { font-weight: 700; color: var(--ink); }
     .pro-who { font-size: .8rem; line-height: 1.35; color: var(--muted); }
+    .pros-more-h { margin: 14px 0 8px; font-size: .85rem; color: var(--muted); }
+    .pros-more { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: .9rem; }
+    .pros-more label { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel);
+                       color: var(--ink); cursor: pointer; }
+    .pros-more label:hover { border-color: var(--accent); }
     .panels { margin-top: 18px; }
     .panel { display: none; padding: 18px 18px 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); }
     .panel-hint { margin: 0; color: var(--muted); font-size: .92rem; }
@@ -205,6 +235,11 @@ const FINDER_CSS = `
       .pros label { padding: 10px; grid-template-rows: auto; }
       .pro-ico { grid-row: auto; width: 32px; height: 32px; }
       .pro-who { display: none; }
+      /* Fourteen businesses as a three-row strip that scrolls sideways, so the
+         problems are not a screen and a half below the tap. */
+      .pros-more { display: grid; grid-auto-flow: column; grid-template-rows: repeat(3, auto); justify-content: start;
+                   overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin; }
+      .pros-more label { white-space: nowrap; }
     }`;
 
 /**
@@ -301,12 +336,16 @@ const longDate = (iso) => {
 
 /** The newest essays, so the front door shows the site is alive. */
 export function renderLatestWriting(posts = [], { writingPath = 'writing/', limit = 3 } = {}) {
-  const latest = [...posts].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0)).slice(0, limit);
+  // Customer-facing posts (topic "business", writing.mjs) since 2026-11-25 (owner: "blogs get
+  // moved from dev blog to marketing blog"); the newest of any kind only when there are none.
+  const newest = (list) => [...list].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0)).slice(0, limit);
+  const customer = posts.filter((p) => p.topic === 'business');
+  const latest = newest(customer.length ? customer : posts);
   if (!latest.length) return '';
   return `    <section class="band" id="writing" aria-labelledby="writing-h">
-      <p class="section-eyebrow">Writing</p>
-      <h2 id="writing-h">Notes from building it in public</h2>
-      <p class="band-lede">What the tools turned up and how they were built, written from the repository's own records and numbers. <a href="${esc(writingPath)}">Read all ${formatCount(posts.length)} posts →</a></p>
+      <p class="section-eyebrow">Guides</p>
+      <h2 id="writing-h">${customer.length ? 'Guides for the businesses we build for' : 'Notes from building it in public'}</h2>
+      <p class="band-lede">${customer.length ? 'Answers to the questions subcontractors, machine shops, sellers and nonprofits ask, from the tools that do the work.' : "What the tools turned up and how they were built, written from the repository's own records and numbers."} <a href="${esc(writingPath)}">Read all ${formatCount(posts.length)} posts →</a></p>
       <ul class="posts">
 ${latest
   .map(

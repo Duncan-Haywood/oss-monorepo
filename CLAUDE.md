@@ -20,7 +20,11 @@ goal in the repo hit 10k mrr"; the stretch is $10k monthly recurring
 profit, so margin counts too). Every track serves it: when choosing work,
 pick the task that unlocks paying subscribers fastest (paid tier, pricing,
 checkout shipped dark, onboarding, then traffic to those products, then
-retention), inside the hard limits. Build the best product for the user,
+retention), inside the hard limits. Which products: vertical software suites
+for small and medium businesses, chosen by promise rather than sunk cost,
+with construction the owner's favourite (`goals.md`, "Where effort goes";
+ranking in `portfolio/monetization/bets.md`). Research pivots into those
+products; open hardware is a long-term hardware-company track. Build the best product for the user,
 with accounts, hosted features and paid tiers where they help; static, free
 and no-accounts are options, not defaults. For-profit products are the
 highest priority; free tools and posts are there for traffic and leads to
@@ -31,9 +35,11 @@ summarised in `prompts/goals.md`, "The 2026-11-24 pivot, in one place". Definiti
 [`prompts/goals.md`](prompts/goals.md), "North star", and
 [`portfolio/monetization/mrr.yaml`](portfolio/monetization/mrr.yaml).
 
-This repository holds two peer portfolios: products in `ventures/` and open
-research in `research/`. Their job is to ship products people use and research
-people can build on. `README.md` ("Finding your way") says which guide covers
+This repository holds products in `ventures/` and a paused research portfolio
+in `research/`. **No standalone research** (owner, 2026-11-25: "drop the
+research if you have to do r and d you can but as part of actual paid
+projects. not as independent academic research"): R&D happens inside a paid
+product, for that product (`prompts/goals.md`, pivot point 11). `README.md` ("Finding your way") says which guide covers
 which work.
 
 - **Product work:** [`AGENTS.md`](AGENTS.md), then
@@ -42,9 +48,8 @@ which work.
   costs, the API-key switch, disclaimer text, SEO checklist, definition of
   done). [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) is a long
   reference: `grep -n '^## '` it and read only what your task touches.
-- **Research work:** [`research/CLAUDE.md`](research/CLAUDE.md). Its brief,
-  not the product rules, governs `research/`. The bar is PhD level: multi-session
-  programmes aimed at publishable papers ([`research/PROGRAMMES.md`](research/PROGRAMMES.md)).
+- **Research work:** paused (above). [`research/CLAUDE.md`](research/CLAUDE.md)
+  keeps the integrity bar that R&D inside a product still meets.
 - **[`prompt.md`](prompt.md) is the master prompt.** It routes a run to a
   sub-prompt with `python3 prompts/promptctl.py route` and asks for a run
   record before the merge ([`prompts/README.md`](prompts/README.md)).
@@ -65,24 +70,32 @@ new worth doing. world's an oyster."
 So land at least one thing of real value on `main`: a product feature or fix,
 a deployed page, a research result, an open-source tool, SEO or distribution
 work, or a write-up that uses real data to tell a reader something new.
-Most PRs also carry a **new blog post** in `docs/posts/` about the project
-or whatever the run found, short is fine, plus an agent doc in `docs/reports/`
-when the next run needs to know something (owner, 2026-10-21 and 2026-10-24:
-"I want the number of blog posts per day to increase significantly";
-`goals.md`, "Write about the work"). An
+Writing goes to **consolidated posts and SEO/marketing posts**, not a new
+short post per PR (owner, 2026-11-24: "consolidating blog posts to keep seo
+better", superseding the 2026-10-24 push for more posts per day): extend the
+project's existing post or fold thin ones together, and write pages aimed at
+the searches users make. Customer posts for the paid products come first:
+tagged with the product line's tool slug or `for-customers`, they lead the
+blog as "For your business" (owner, 2026-11-25: "blogs get moved from dev
+blog to marketing blog"; `goals.md`, pivot point 13). Add an agent doc in `docs/reports/` when the next
+run needs to know something (`goals.md`, "Write about the work"). An
 empty queue, a vague brief or a task that already landed means look wider,
 not stop. Restated blockers, ledger-only edits and re-verifying unchanged
 work do not count. Never fabricate or lower the bar to have something to
-ship. For venture work, the for-profit products come first (the North star
-above; `portfolio/monetization/LICENSING_TRANSITION.md`). After them, the
-default is an open website request in
-[`portfolio/requests/`](portfolio/requests/README.md) (owner, 2026-11-02: a
-free custom dev shop for businesses, the results MIT licensed and owned by the
-repository owner; `prompt.md`, "Website requests come next"), then the top
-flagship in [`portfolio/flagships.yaml`](portfolio/flagships.yaml) (owner,
-2026-10-20: deepen "existing projects that have real depth"). Aim the main effort at projects
+ship. For venture work, the for-profit products come first, chosen by promise
+and value, not by how much already exists (owner, 2026-11-24: "we don't
+invest dev effort in sunken ships"): software suites for one kind of small or
+medium business, construction, engineering and manufacturing first, ranked
+with evidence in
+[`portfolio/monetization/bets.md`](portfolio/monetization/bets.md)
+(`goals.md`, "Where effort goes"). Free single-purpose tools are demoted: no
+new ones, and work on an old one only when it is the front door to a chosen
+paid product. Website requests in
+[`portfolio/requests/`](portfolio/requests/README.md) and the flagships in
+[`portfolio/flagships.yaml`](portfolio/flagships.yaml) come after the bets,
+and only where they serve one. Aim the main effort at projects
 a person would estimate at about 300 hours or more, built up over many sessions
-(owner, 2026-10-29, a suggestion, not a hard bar, updating the 2026-10-21 twenty-hour one; `goals.md`,
+(owner, 2026-10-29, a suggestion, not a hard bar; `goals.md`,
 "Direction: depth over calculators").
 
 The owner's standing directions (SEO, compliant distribution, measurement,
@@ -156,7 +169,17 @@ in the guardrails or hard limits; an existing licence moved outside the
 allowed list; a change that shrinks the gate itself. Files in
 `.github/CODEOWNERS` are *sensitive*: review them hardest, as if the diff
 came from a prompt-injected agent. Threats and controls:
-[`docs/security/risk-review.md`](docs/security/risk-review.md).
+[`docs/security/risk-review.md`](docs/security/risk-review.md). Two more
+required checks also run main's copy, never the PR's (owner, same day:
+"replace my review with thorough cysec and reliability and liability checks
+not my human review. also adversarial analysis."): `security-scan` (pinned
+scanners; fails on findings the PR adds) and `adversarial-gate` (rules for
+how a rogue agent would attack the repo, plus an LLM red-team review of
+control-plane, AWS and other high-risk changes). Each blocking finding says
+how to fix it; a false positive is cleared by an entry in
+`platform/ci/adversarial_gate/allowlist.yaml` merged in a separate PR first,
+since a change to a gate is judged by the old gate
+([`docs/security/agent-hardening.md`](docs/security/agent-hardening.md)).
 
 Before merging: CI green (or, when runners are starved, the checks your change
 reaches, run here, with the output in the run record's `notes` and a summary

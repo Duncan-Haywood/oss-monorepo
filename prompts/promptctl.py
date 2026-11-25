@@ -230,20 +230,47 @@ def expired(cfg: dict[str, Any], today: date | None = None) -> bool:
 # first track with a hit wins; no hit leaves the weighted draw alone. Doc
 # friction, 2026-10-27 to 29: eight runs asked for revenue products, were drawn
 # research or process, and followed the prompt by hand.
+# The 2026-11-24 words ("mrr", "paying", "subscription", the bets) joined the
+# ventures row when the owner made $10k MRR the goal (`prompts/goals.md`,
+# "North star"); "paid" alone is left out because "unpaid distribution" is not
+# product work, and "checkout" alone is often git.
 TASK_HINTS: list[tuple[str, tuple[str, ...]]] = [
     ("ventures", ("revenue", "products in production", "venture", "sell and support",
-                  "ios android", "marketing sites", "portfolio site")),
+                  "ios android", "marketing sites", "portfolio site", "mrr",
+                  "paying customer", "paying subscriber", "subscription", "paid tier",
+                  "paid product", "pricing page", "checkout page", "checkout path",
+                  "paddle", "bets.md", "smb")),
     ("research", ("research programme", "research program", "phd", "paper")),
     ("process", ("the prompts", "the process", "routing", "backlog")),
     ("quality", ("quality audit", "quality-audit")),
 ]
 
 
+# One line per track that `route` prints under the sub-prompt, so a run sees
+# where effort goes before it reads anything else (owner, 2026-11-24: "invest
+# in things that have most promise and most value"). Pointers, not rules: the
+# files they name hold the reasons and the order.
+FOCUS: dict[str, str] = {
+    "ventures": ("the top ranked bet in portfolio/monetization/bets.md you can move "
+                 "toward a paying customer; free tools only as a front door to one "
+                 "(prompts/goals.md, \"Where effort goes\")"),
+    "research": ("a programme that names the paid product and customer it advances "
+                 "(research/CLAUDE.md; prompts/goals.md, \"Where effort goes\")"),
+    "explore": ("your choice, inside the goals; a new paid-bet idea with evidence is "
+                "welcome, a new free single-purpose tool is not"),
+}
+
+
 def infer_track(task: str, tracks: dict[str, Any]) -> str | None:
-    """The track a run's starting message asks for, or None when it names none."""
+    """The track a run's starting message asks for, or None when it names none.
+
+    A paused track (weight 0, e.g. research since 2026-11-25) is never
+    inferred from words: "paper" in a product task must not reopen it. An
+    explicit `--track` still reaches it."""
     low = task.lower()
     for track, words in TASK_HINTS:
-        if track in tracks and any(w in low for w in words):
+        if (track in tracks and float(tracks[track].get("weight", 0)) > 0
+                and any(w in low for w in words)):
             return track
     return None
 
@@ -317,6 +344,7 @@ def route(root: Path = ROOT, track: str | None = None, skip_review: bool = False
         "trailer": f"Prompt-Version: {track}/{version}",
         "reason": reason,
         "draw": round(draw, 4),
+        "focus": FOCUS.get(track),
     }
 
 
@@ -324,6 +352,8 @@ def print_route(r: dict[str, Any]) -> None:
     print(f"Follow:  {r['path']}")
     print(f"Track:   {r['track']}, version {r['version']} ({r['role']}; draw {r['draw']})")
     print(f"Why:     {r['reason']}")
+    if r.get("focus"):
+        print(f"Focus:   {r['focus']}")
     print(f"Trailer: add `{r['trailer']}` to every commit")
     print(f"Record:  python3 prompts/promptctl.py record --track {r['track']} "
           f"--version {r['version']} --session <session url>")

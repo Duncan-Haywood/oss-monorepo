@@ -1,0 +1,1129 @@
+{
+ "opencv": "4.12.0",
+ "totals": {
+  "C_pixels": 120125,
+  "C_sentinel": 4,
+  "C_mirrored": 120121,
+  "calibrations_with_C": 6
+ },
+ "numpy": "2.2.6",
+ "grid_px": 2,
+ "files": 14,
+ "cameras": 21,
+ "distinct": 16,
+ "hypotheses": {
+  "H321": true,
+  "H322": false,
+  "H323": false,
+  "H324": true,
+  "H325": false,
+  "H326": true,
+  "H327": false
+ },
+ "calibrations": [
+  {
+   "label": "TUM-VI cam0",
+   "sources": [
+    "UZ-SLAMLab/ORB_SLAM3/master/Examples/Monocular/TUM-VI.yaml:Camera1",
+    "UZ-SLAMLab/ORB_SLAM3/master/Examples/Monocular-Inertial/TUM-VI.yaml:Camera1",
+    "rpng/open_vins/master/config/tum_vi/kalibr_imucam_chain.yaml:cam0",
+    "lukasvst/dm-vio/master/configs/tumvi_calib/camera02.txt:cam"
+   ],
+   "K": [
+    190.978477,
+    190.973307,
+    254.931706,
+    256.897442
+   ],
+   "k": [
+    0.003482389402,
+    0.000715034845,
+    -0.002053236141,
+    0.000202936736
+   ],
+   "size": [
+    512,
+    512
+   ],
+   "points": 65536,
+   "fold_theta": null,
+   "corner_theta_d": 1.8993080040289354,
+   "corner_theta": 2.011640644814424,
+   "monotone_to_corner": true,
+   "td90": 1.5544981935073132,
+   "r90_px": [
+    296.87569749527796,
+    296.8676607396175
+   ],
+   "share_A": 0.92913818359375,
+   "share_B": 0.0,
+   "share_C": 0.07086181640625,
+   "share_F": 0.0,
+   "opencv64": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 1.8198773652309366e-13,
+    "A_max_angle_rad": 9.930136612989092e-16,
+    "C_n": 4644,
+    "C_sentinel": 0,
+    "C_mirrored": 4644,
+    "C_max_angle_deg": 180.0,
+    "C_median_angle_deg": 174.68322721422933,
+    "mirrored_share": 0.07086181640625
+   },
+   "opencv32": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 1.4328005413730327e-05,
+    "A_max_angle_rad": 5.2571562479905087e-08,
+    "C_n": 4644,
+    "C_sentinel": 0,
+    "C_mirrored": 4644,
+    "C_max_angle_deg": 179.99999999607968,
+    "C_median_angle_deg": 174.68322720761356,
+    "mirrored_share": 0.07086181640625
+   },
+   "orb3": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 7.208668134733099e-05,
+    "A_max_angle_rad": 3.806472230474015e-07,
+    "C_n": 4644,
+    "C_sentinel": 0,
+    "C_mirrored": 4644,
+    "C_max_angle_deg": 179.9999997312532,
+    "C_median_angle_deg": 174.68322729940627,
+    "mirrored_share": 0.07086181640625
+   },
+   "orb3_vs_cv64_A_max_px": 7.208668134733099e-05,
+   "orb3_mirrors_same_C": true,
+   "vins": {
+    "max_angle_rad": 6.6694863645970034e-15,
+    "max_angle_rad_C": 6.6694863645970034e-15
+   },
+   "tool_vs_truth_max": 6.661338147750939e-16,
+   "tool_loop_vs_cv_max": 1.3268380614645666e-11,
+   "tool_loop_sentinel_agree": true
+  },
+  {
+   "label": "T265 ORB-SLAM3 Camera1",
+   "sources": [
+    "UZ-SLAMLab/ORB_SLAM3/master/Examples/Monocular/RealSense_T265.yaml:Camera1",
+    "UZ-SLAMLab/ORB_SLAM3/master/Examples/Stereo/RealSense_T265.yaml:Camera1",
+    "UZ-SLAMLab/ORB_SLAM3/master/Examples/Monocular-Inertial/RealSense_T265.yaml:Camera1"
+   ],
+   "K": [
+    284.9501953125,
+    285.115295410156,
+    420.500213623047,
+    400.738098144531
+   ],
+   "k": [
+    -0.00530046410858631,
+    0.0423333682119846,
+    -0.03949885815382,
+    0.00682387687265873
+   ],
+   "size": [
+    848,
+    800
+   ],
+   "points": 169600,
+   "fold_theta": null,
+   "corner_theta_d": 2.0532367674002274,
+   "corner_theta": 2.0926910722788294,
+   "monotone_to_corner": true,
+   "td90": 1.4203673078475516,
+   "r90_px": [
+    404.73394178664967,
+    404.96844456788267
+   ],
+   "share_A": 0.7577712264150943,
+   "share_B": 0.0,
+   "share_C": 0.24222877358490566,
+   "share_F": 0.0,
+   "opencv64": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 2.6812987050722663e-13,
+    "A_max_angle_rad": 2.2179862583566835e-15,
+    "C_n": 41082,
+    "C_sentinel": 0,
+    "C_mirrored": 41082,
+    "C_max_angle_deg": 180.0,
+    "C_median_angle_deg": 179.73565606878188,
+    "mirrored_share": 0.24222877358490566
+   },
+   "opencv32": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 2.067294639428915e-05,
+    "A_max_angle_rad": 5.167332371502187e-08,
+    "C_n": 41082,
+    "C_sentinel": 0,
+    "C_mirrored": 41082,
+    "C_max_angle_deg": 179.9999999973608,
+    "C_median_angle_deg": 179.7356560105589,
+    "mirrored_share": 0.24222877358490566
+   },
+   "orb3": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 0.00010282546039040008,
+    "A_max_angle_rad": 8.940187135202253e-07,
+    "C_n": 41082,
+    "C_sentinel": 0,
+    "C_mirrored": 41082,
+    "C_max_angle_deg": 179.99999997677833,
+    "C_median_angle_deg": 179.7356339137362,
+    "mirrored_share": 0.24222877358490566
+   },
+   "orb3_vs_cv64_A_max_px": 0.00010282546033762148,
+   "orb3_mirrors_same_C": true,
+   "vins": {
+    "max_angle_rad": 2.1517710280545177e-14,
+    "max_angle_rad_C": 2.1517710280545177e-14
+   },
+   "tool_vs_truth_max": 8.881784197001252e-16,
+   "tool_loop_vs_cv_max": 7.712043756485576e-12,
+   "tool_loop_sentinel_agree": true
+  },
+  {
+   "label": "T265 ORB-SLAM3 Camera2",
+   "sources": [
+    "UZ-SLAMLab/ORB_SLAM3/master/Examples/Stereo/RealSense_T265.yaml:Camera2"
+   ],
+   "K": [
+    285.001312255859,
+    284.914215087891,
+    411.864196777344,
+    403.41259765625
+   ],
+   "k": [
+    -0.00375203299336135,
+    0.0379297286272049,
+    -0.0352463386952877,
+    0.00548873096704
+   ],
+   "size": [
+    848,
+    800
+   ],
+   "points": 169600,
+   "fold_theta": 1.758678416220332,
+   "corner_theta_d": 2.0822755571327685,
+   "corner_theta": null,
+   "monotone_to_corner": false,
+   "td90": 1.406865411261471,
+   "r90_px": [
+    400.95848837689795,
+    400.835954383865
+   ],
+   "share_A": 0.7436438679245283,
+   "share_B": 0.0,
+   "share_C": 0.018661556603773586,
+   "share_F": 0.23769457547169812,
+   "opencv64": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 2.8421709430404007e-13,
+    "A_max_angle_rad": 2.4406804996544887e-15,
+    "C_n": 3165,
+    "C_sentinel": 4,
+    "C_mirrored": 3161,
+    "C_max_angle_deg": 180.0,
+    "C_median_angle_deg": 179.99999999999994,
+    "mirrored_share": 0.2001120283018868
+   },
+   "opencv32": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 2.1136359912989666e-05,
+    "A_max_angle_rad": 5.3567751174331805e-08,
+    "C_n": 3165,
+    "C_sentinel": 4,
+    "C_mirrored": 3161,
+    "C_max_angle_deg": 179.99999999682754,
+    "C_median_angle_deg": 179.99999957710116,
+    "mirrored_share": 0.2001120283018868
+   },
+   "orb3": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 0.0001070160417092487,
+    "A_max_angle_rad": 1.171547357351913e-06,
+    "C_n": 3165,
+    "C_sentinel": 0,
+    "C_mirrored": 3165,
+    "C_max_angle_deg": 179.99999993997076,
+    "C_median_angle_deg": 179.9999746464652,
+    "mirrored_share": 0.24450471698113208
+   },
+   "orb3_vs_cv64_A_max_px": 0.00010701604164580294,
+   "orb3_mirrors_same_C": false,
+   "vins": {
+    "max_angle_rad": 2.032386367475336e-12,
+    "max_angle_rad_C": 2.032386367475336e-12
+   },
+   "tool_vs_truth_max": 4.440892098500626e-16,
+   "tool_loop_vs_cv_max": 8.127108793023425e-12,
+   "tool_loop_sentinel_agree": true
+  },
+  {
+   "label": "rpng_ironsides cam0",
+   "sources": [
+    "rpng/open_vins/master/config/rpng_ironsides/kalibr_imucam_chain.yaml:cam0"
+   ],
+   "K": [
+    276.4850207717928,
+    278.0310503180516,
+    314.5836189313042,
+    240.16980920673427
+   ],
+   "k": [
+    -0.03149689493503132,
+    0.07696336480701078,
+    -0.06608854732019281,
+    0.019667561645120218
+   ],
+   "size": [
+    640,
+    480
+   ],
+   "points": 76800,
+   "fold_theta": null,
+   "corner_theta_d": 1.4570395883282699,
+   "corner_theta": 1.413688399865805,
+   "monotone_to_corner": true,
+   "td90": 1.7703656885678773,
+   "r90_px": [
+    489.4795941773588,
+    492.2166318395676
+   ],
+   "share_A": 1.0,
+   "share_B": 0.0,
+   "share_C": 0.0,
+   "share_F": 0.0,
+   "opencv64": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 2.8421709430404007e-13,
+    "A_max_angle_rad": 8.635508522760764e-16,
+    "mirrored_share": 0.0
+   },
+   "opencv32": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 1.8507967090917433e-05,
+    "A_max_angle_rad": 4.997629485488267e-08,
+    "mirrored_share": 0.0
+   },
+   "orb3": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 0.00011144917237930103,
+    "A_max_angle_rad": 3.818796146933437e-07,
+    "mirrored_share": 0.0
+   },
+   "orb3_vs_cv64_A_max_px": 0.00011144917237930103,
+   "orb3_mirrors_same_C": true,
+   "vins": {
+    "max_angle_rad": 5.805428808864928e-15,
+    "max_angle_rad_C": null
+   },
+   "tool_vs_truth_max": 4.440892098500626e-16,
+   "tool_loop_vs_cv_max": 6.936895214610187e-15,
+   "tool_loop_sentinel_agree": true
+  },
+  {
+   "label": "rpng_ironsides cam1",
+   "sources": [
+    "rpng/open_vins/master/config/rpng_ironsides/kalibr_imucam_chain.yaml:cam1"
+   ],
+   "K": [
+    277.960323846132,
+    279.4348778432714,
+    322.404194404853,
+    236.72685252691352
+   ],
+   "k": [
+    -0.02998039058251529,
+    0.07202819722706337,
+    -0.06178718820631651,
+    0.017655045017816777
+   ],
+   "size": [
+    640,
+    480
+   ],
+   "points": 76800,
+   "fold_theta": null,
+   "corner_theta_d": 1.4481228299426145,
+   "corner_theta": 1.4221765892406397,
+   "monotone_to_corner": true,
+   "td90": 1.713372278696355,
+   "r90_px": [
+    476.24951345542394,
+    478.7759733975635
+   ],
+   "share_A": 1.0,
+   "share_B": 0.0,
+   "share_C": 0.0,
+   "share_F": 0.0,
+   "opencv64": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 2.6812987050722663e-13,
+    "A_max_angle_rad": 8.741904837807691e-16,
+    "mirrored_share": 0.0
+   },
+   "opencv32": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 1.8061463592071553e-05,
+    "A_max_angle_rad": 4.928430424367287e-08,
+    "mirrored_share": 0.0
+   },
+   "orb3": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 9.561993176964371e-05,
+    "A_max_angle_rad": 2.922511850788039e-07,
+    "mirrored_share": 0.0
+   },
+   "orb3_vs_cv64_A_max_px": 9.561993176964371e-05,
+   "orb3_mirrors_same_C": true,
+   "vins": {
+    "max_angle_rad": 4.915558674482715e-15,
+    "max_angle_rad_C": null
+   },
+   "tool_vs_truth_max": 4.440892098500626e-16,
+   "tool_loop_vs_cv_max": 8.881784197001252e-15,
+   "tool_loop_sentinel_agree": true
+  },
+  {
+   "label": "T265 OpenVINS cam0",
+   "sources": [
+    "rpng/open_vins/master/config/rs_t265/kalibr_imucam_chain.yaml:cam0"
+   ],
+   "K": [
+    282.019963259348,
+    280.7145153126385,
+    415.9558137753508,
+    396.6613771975339
+   ],
+   "k": [
+    -0.003269003229949738,
+    0.05405258144204682,
+    -0.05159409563898941,
+    0.010749180190267004
+   ],
+   "size": [
+    848,
+    800
+   ],
+   "points": 169600,
+   "fold_theta": null,
+   "corner_theta_d": 2.095306983295932,
+   "corner_theta": 1.9056511250231165,
+   "monotone_to_corner": true,
+   "td90": 1.4834479611740008,
+   "r90_px": [
+    418.3619395074464,
+    416.42537541248146
+   ],
+   "share_A": 0.7990919811320755,
+   "share_B": 0.0,
+   "share_C": 0.20090801886792453,
+   "share_F": 0.0,
+   "opencv64": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 2.8421709430404007e-13,
+    "A_max_angle_rad": 1.33196153314818e-15,
+    "C_n": 34074,
+    "C_sentinel": 0,
+    "C_mirrored": 34074,
+    "C_max_angle_deg": 180.0,
+    "C_median_angle_deg": 176.8263779353641,
+    "mirrored_share": 0.20090801886792453
+   },
+   "opencv32": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 2.0812250444004165e-05,
+    "A_max_angle_rad": 5.284071292910614e-08,
+    "C_n": 34074,
+    "C_sentinel": 0,
+    "C_mirrored": 34074,
+    "C_max_angle_deg": 179.99999999912907,
+    "C_median_angle_deg": 176.82637779039766,
+    "mirrored_share": 0.20090801886792453
+   },
+   "orb3": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 0.00012040379364873132,
+    "A_max_angle_rad": 6.059963296898338e-07,
+    "C_n": 34074,
+    "C_sentinel": 0,
+    "C_mirrored": 34074,
+    "C_max_angle_deg": 179.99999996706495,
+    "C_median_angle_deg": 176.8263768089865,
+    "mirrored_share": 0.20090801886792453
+   },
+   "orb3_vs_cv64_A_max_px": 0.00012040379364873132,
+   "orb3_mirrors_same_C": true,
+   "vins": {
+    "max_angle_rad": 9.768454627670583e-15,
+    "max_angle_rad_C": 4.691020735891982e-15
+   },
+   "tool_vs_truth_max": 8.881784197001252e-16,
+   "tool_loop_vs_cv_max": 3.046729037208897e-12,
+   "tool_loop_sentinel_agree": true
+  },
+  {
+   "label": "T265 OpenVINS cam1",
+   "sources": [
+    "rpng/open_vins/master/config/rs_t265/kalibr_imucam_chain.yaml:cam1"
+   ],
+   "K": [
+    281.49219856329046,
+    280.3289056204996,
+    414.09933409091184,
+    406.02198481912353
+   ],
+   "k": [
+    -0.0028480208540388407,
+    0.05429895807264252,
+    -0.0516469474707301,
+    0.010954064142332987
+   ],
+   "size": [
+    848,
+    800
+   ],
+   "points": 169600,
+   "fold_theta": null,
+   "corner_theta_d": 2.1125494594836436,
+   "corner_theta": 1.8926394999743597,
+   "monotone_to_corner": true,
+   "td90": 1.4981171597833194,
+   "r90_px": [
+    421.7082930127989,
+    419.96554389334904
+   ],
+   "share_A": 0.8085200471698113,
+   "share_B": 0.0,
+   "share_C": 0.19147995283018868,
+   "share_F": 0.0,
+   "opencv64": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 3.2155493553843715e-13,
+    "A_max_angle_rad": 1.3102020865809032e-15,
+    "C_n": 32475,
+    "C_sentinel": 0,
+    "C_mirrored": 32475,
+    "C_max_angle_deg": 180.0,
+    "C_median_angle_deg": 176.31670777853776,
+    "mirrored_share": 0.19147995283018868
+   },
+   "opencv32": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 2.2919973004153345e-05,
+    "A_max_angle_rad": 5.5107261425216176e-08,
+    "C_n": 32475,
+    "C_sentinel": 0,
+    "C_mirrored": 32475,
+    "C_max_angle_deg": 179.9999999992846,
+    "C_median_angle_deg": 176.31670775390185,
+    "mirrored_share": 0.19147995283018868
+   },
+   "orb3": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 0.00011740216977528062,
+    "A_max_angle_rad": 5.255170056494366e-07,
+    "C_n": 32475,
+    "C_sentinel": 0,
+    "C_mirrored": 32475,
+    "C_max_angle_deg": 179.99999997471465,
+    "C_median_angle_deg": 176.31670453499868,
+    "mirrored_share": 0.19147995283018868
+   },
+   "orb3_vs_cv64_A_max_px": 0.00011740216977528062,
+   "orb3_mirrors_same_C": true,
+   "vins": {
+    "max_angle_rad": 1.1103656558115065e-14,
+    "max_angle_rad_C": 4.8842993414729755e-15
+   },
+   "tool_vs_truth_max": 8.881784197001252e-16,
+   "tool_loop_vs_cv_max": 1.2255031120328746e-11,
+   "tool_loop_sentinel_agree": true
+  },
+  {
+   "label": "TUM-VI cam1",
+   "sources": [
+    "rpng/open_vins/master/config/tum_vi/kalibr_imucam_chain.yaml:cam1"
+   ],
+   "K": [
+    190.44236969414825,
+    190.4344384721956,
+    252.59949716835982,
+    254.91723064636983
+   ],
+   "k": [
+    0.0034003170790442797,
+    0.001766278153469831,
+    -0.00266312569781606,
+    0.0003299517423931039
+   ],
+   "size": [
+    512,
+    512
+   ],
+   "points": 65536,
+   "fold_theta": null,
+   "corner_theta_d": 1.9103196955003068,
+   "corner_theta": 1.998053300121658,
+   "monotone_to_corner": true,
+   "td90": 1.5572372084023742,
+   "r90_px": [
+    296.5639441440483,
+    296.5515933501156
+   ],
+   "share_A": 0.9285125732421875,
+   "share_B": 0.0,
+   "share_C": 0.0714874267578125,
+   "share_F": 0.0,
+   "opencv64": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 1.8198773652309366e-13,
+    "A_max_angle_rad": 1.119916839784802e-15,
+    "C_n": 4685,
+    "C_sentinel": 0,
+    "C_mirrored": 4685,
+    "C_max_angle_deg": 180.0,
+    "C_median_angle_deg": 174.5617111630793,
+    "mirrored_share": 0.0714874267578125
+   },
+   "opencv32": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 1.4935850428507541e-05,
+    "A_max_angle_rad": 5.173629085010148e-08,
+    "C_n": 4685,
+    "C_sentinel": 0,
+    "C_mirrored": 4685,
+    "C_max_angle_deg": 179.99999999730804,
+    "C_median_angle_deg": 174.56171116129994,
+    "mirrored_share": 0.0714874267578125
+   },
+   "orb3": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 6.838501252529247e-05,
+    "A_max_angle_rad": 3.918150568349987e-07,
+    "C_n": 4685,
+    "C_sentinel": 0,
+    "C_mirrored": 4685,
+    "C_max_angle_deg": 179.99999979064114,
+    "C_median_angle_deg": 174.5617163909939,
+    "mirrored_share": 0.0714874267578125
+   },
+   "orb3_vs_cv64_A_max_px": 6.838501252529247e-05,
+   "orb3_mirrors_same_C": true,
+   "vins": {
+    "max_angle_rad": 6.953090236433449e-15,
+    "max_angle_rad_C": 6.953090236433449e-15
+   },
+   "tool_vs_truth_max": 8.881784197001252e-16,
+   "tool_loop_vs_cv_max": 2.1377679283122468e-11,
+   "tool_loop_sentinel_agree": true
+  },
+  {
+   "label": "uzhfpv_indoor cam0",
+   "sources": [
+    "rpng/open_vins/master/config/uzhfpv_indoor/kalibr_imucam_chain.yaml:cam0"
+   ],
+   "K": [
+    278.66723066149086,
+    278.48991409740296,
+    319.75221200593535,
+    241.96858910358173
+   ],
+   "k": [
+    -0.013721808247486035,
+    0.020727425669427896,
+    -0.012786476702685545,
+    0.0025242267320687625
+   ],
+   "size": [
+    640,
+    480
+   ],
+   "points": 76800,
+   "fold_theta": null,
+   "corner_theta_d": 1.4392779943165614,
+   "corner_theta": 1.4490318382410101,
+   "monotone_to_corner": true,
+   "td90": 1.5610848307535932,
+   "r90_px": [
+    435.023186613766,
+    434.746380415327
+   ],
+   "share_A": 1.0,
+   "share_B": 0.0,
+   "share_C": 0.0,
+   "share_F": 0.0,
+   "opencv64": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 2.5421149729252077e-13,
+    "A_max_angle_rad": 9.036560719766057e-16,
+    "mirrored_share": 0.0
+   },
+   "opencv32": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 1.8335169588005592e-05,
+    "A_max_angle_rad": 5.019593590366149e-08,
+    "mirrored_share": 0.0
+   },
+   "orb3": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 8.261244612162066e-05,
+    "A_max_angle_rad": 3.0176983307280006e-07,
+    "mirrored_share": 0.0
+   },
+   "orb3_vs_cv64_A_max_px": 8.26124460583829e-05,
+   "orb3_mirrors_same_C": true,
+   "vins": {
+    "max_angle_rad": 4.878294103251759e-15,
+    "max_angle_rad_C": null
+   },
+   "tool_vs_truth_max": 4.440892098500626e-16,
+   "tool_loop_vs_cv_max": 1.5280799322856756e-14,
+   "tool_loop_sentinel_agree": true
+  },
+  {
+   "label": "uzhfpv_indoor cam1",
+   "sources": [
+    "rpng/open_vins/master/config/uzhfpv_indoor/kalibr_imucam_chain.yaml:cam1"
+   ],
+   "K": [
+    277.61640629770613,
+    277.63749695723294,
+    314.8944703346039,
+    236.04310050462587
+   ],
+   "k": [
+    -0.008456929295619607,
+    0.011407590938612062,
+    -0.006951788325762078,
+    0.0015368127092821786
+   ],
+   "size": [
+    640,
+    480
+   ],
+   "points": 76800,
+   "fold_theta": null,
+   "corner_theta_d": 1.459018617731326,
+   "corner_theta": 1.4616102170174472,
+   "monotone_to_corner": true,
+   "td90": 1.572551129723173,
+   "r90_px": [
+    436.56599335314513,
+    436.5991594936106
+   ],
+   "share_A": 1.0,
+   "share_B": 0.0,
+   "share_C": 0.0,
+   "share_F": 0.0,
+   "opencv64": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 2.5421149729252077e-13,
+    "A_max_angle_rad": 8.851374477315529e-16,
+    "mirrored_share": 0.0
+   },
+   "opencv32": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 1.706587613688287e-05,
+    "A_max_angle_rad": 4.653853788634976e-08,
+    "mirrored_share": 0.0
+   },
+   "orb3": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 8.251653825829612e-05,
+    "A_max_angle_rad": 2.97576157221109e-07,
+    "mirrored_share": 0.0
+   },
+   "orb3_vs_cv64_A_max_px": 8.251653825829612e-05,
+   "orb3_mirrors_same_C": true,
+   "vins": {
+    "max_angle_rad": 6.224137549761798e-15,
+    "max_angle_rad_C": null
+   },
+   "tool_vs_truth_max": 4.440892098500626e-16,
+   "tool_loop_vs_cv_max": 2.0253584144909416e-14,
+   "tool_loop_sentinel_agree": true
+  },
+  {
+   "label": "uzhfpv_outdoor cam0",
+   "sources": [
+    "rpng/open_vins/master/config/uzhfpv_outdoor/kalibr_imucam_chain.yaml:cam0"
+   ],
+   "K": [
+    277.4786896484645,
+    277.42548548840034,
+    320.1052053576385,
+    242.10083077857894
+   ],
+   "k": [
+    -0.005719912631104124,
+    0.004742449009601135,
+    0.0012060658036136048,
+    -0.001580292679344826
+   ],
+   "size": [
+    640,
+    480
+   ],
+   "points": 76800,
+   "fold_theta": 1.783701402765137,
+   "corner_theta_d": 1.4465108359107965,
+   "corner_theta": 1.4640017201012991,
+   "monotone_to_corner": true,
+   "td90": 1.5304320839930179,
+   "r90_px": [
+    424.6622892623514,
+    424.58086390878725
+   ],
+   "share_A": 1.0,
+   "share_B": 0.0,
+   "share_C": 0.0,
+   "share_F": 0.0,
+   "opencv64": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 2.5421149729252077e-13,
+    "A_max_angle_rad": 9.091804728055931e-16,
+    "mirrored_share": 0.0
+   },
+   "opencv32": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 1.8103156264619648e-05,
+    "A_max_angle_rad": 4.730319195958378e-08,
+    "mirrored_share": 0.0
+   },
+   "orb3": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 8.911244434749773e-05,
+    "A_max_angle_rad": 3.3700781240394104e-07,
+    "mirrored_share": 0.0
+   },
+   "orb3_vs_cv64_A_max_px": 8.911244433588247e-05,
+   "orb3_mirrors_same_C": true,
+   "vins": {
+    "max_angle_rad": 3.7647704099624705e-15,
+    "max_angle_rad_C": null
+   },
+   "tool_vs_truth_max": 4.440892098500626e-16,
+   "tool_loop_vs_cv_max": 1.2080532582046505e-14,
+   "tool_loop_sentinel_agree": true
+  },
+  {
+   "label": "uzhfpv_outdoor cam1",
+   "sources": [
+    "rpng/open_vins/master/config/uzhfpv_outdoor/kalibr_imucam_chain.yaml:cam1"
+   ],
+   "K": [
+    276.78679780974477,
+    276.79332134030807,
+    314.2862327340746,
+    236.51313088043128
+   ],
+   "k": [
+    -0.009025009906076716,
+    0.009967427035376123,
+    -0.0029538969814842117,
+    -0.0003503551771748748
+   ],
+   "size": [
+    640,
+    480
+   ],
+   "points": 76800,
+   "fold_theta": 1.9104966105151262,
+   "corner_theta_d": 1.4641615387045446,
+   "corner_theta": 1.4805864989154003,
+   "monotone_to_corner": true,
+   "td90": 1.5410387184556378,
+   "r90_px": [
+    426.5391721821688,
+    426.5492251953479
+   ],
+   "share_A": 1.0,
+   "share_B": 0.0,
+   "share_C": 0.0,
+   "share_F": 0.0,
+   "opencv64": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 2.5421149729252077e-13,
+    "A_max_angle_rad": 8.856812442120027e-16,
+    "mirrored_share": 0.0
+   },
+   "opencv32": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 1.74893649310366e-05,
+    "A_max_angle_rad": 4.723336121049648e-08,
+    "mirrored_share": 0.0
+   },
+   "orb3": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 8.104710794054252e-05,
+    "A_max_angle_rad": 3.0001750470268065e-07,
+    "mirrored_share": 0.0
+   },
+   "orb3_vs_cv64_A_max_px": 8.104710787699259e-05,
+   "orb3_mirrors_same_C": true,
+   "vins": {
+    "max_angle_rad": 6.668692207086126e-15,
+    "max_angle_rad_C": null
+   },
+   "tool_vs_truth_max": 4.440892098500626e-16,
+   "tool_loop_vs_cv_max": 1.2080532582046505e-14,
+   "tool_loop_sentinel_agree": true
+  },
+  {
+   "label": "uzhfpv_indoor_45 cam0",
+   "sources": [
+    "rpng/open_vins/master/config/uzhfpv_indoor_45/kalibr_imucam_chain.yaml:cam0"
+   ],
+   "K": [
+    275.46015578667294,
+    274.9948095922592,
+    315.958384100568,
+    242.7123497822731
+   ],
+   "k": [
+    -6.545154718304953e-06,
+    -0.010379525898159981,
+    0.014935312423953146,
+    -0.005639061406567785
+   ],
+   "size": [
+    640,
+    480
+   ],
+   "points": 76800,
+   "fold_theta": 1.6404362678926716,
+   "corner_theta_d": 1.467753813838227,
+   "corner_theta": 1.513493018654784,
+   "monotone_to_corner": true,
+   "td90": 1.4956133856737923,
+   "r90_px": [
+    411.9818962143362,
+    411.2859182169986
+   ],
+   "share_A": 1.0,
+   "share_B": 0.0,
+   "share_C": 0.0,
+   "share_F": 0.0,
+   "opencv64": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 2.8421709430404007e-13,
+    "A_max_angle_rad": 1.0591761858187547e-15,
+    "mirrored_share": 0.0
+   },
+   "opencv32": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 1.6712871560551908e-05,
+    "A_max_angle_rad": 4.537325913645467e-08,
+    "mirrored_share": 0.0
+   },
+   "orb3": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 7.672612618809702e-05,
+    "A_max_angle_rad": 3.635974669356365e-07,
+    "mirrored_share": 0.0
+   },
+   "orb3_vs_cv64_A_max_px": 7.672612614505158e-05,
+   "orb3_mirrors_same_C": true,
+   "vins": {
+    "max_angle_rad": 3.588528665086962e-15,
+    "max_angle_rad_C": null
+   },
+   "tool_vs_truth_max": 4.440892098500626e-16,
+   "tool_loop_vs_cv_max": 2.9134418374455476e-14,
+   "tool_loop_sentinel_agree": true
+  },
+  {
+   "label": "uzhfpv_indoor_45 cam1",
+   "sources": [
+    "rpng/open_vins/master/config/uzhfpv_indoor_45/kalibr_imucam_chain.yaml:cam1"
+   ],
+   "K": [
+    274.4628309070672,
+    273.9261674470783,
+    315.93654481793794,
+    235.779167375461
+   ],
+   "k": [
+    -0.012138050918285051,
+    0.02244029339184358,
+    -0.013753165428754275,
+    0.002725090438517269
+   ],
+   "size": [
+    640,
+    480
+   ],
+   "points": 76800,
+   "fold_theta": null,
+   "corner_theta_d": 1.4744099079819055,
+   "corner_theta": 1.4755338883623166,
+   "monotone_to_corner": true,
+   "td90": 1.5724879227915387,
+   "r90_px": [
+    431.58948685653945,
+    430.74559004710335
+   ],
+   "share_A": 1.0,
+   "share_B": 0.0,
+   "share_C": 0.0,
+   "share_F": 0.0,
+   "opencv64": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 2.6812987050722663e-13,
+    "A_max_angle_rad": 8.688869536365456e-16,
+    "mirrored_share": 0.0
+   },
+   "opencv32": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 1.7137726970229524e-05,
+    "A_max_angle_rad": 4.6448859009601925e-08,
+    "mirrored_share": 0.0
+   },
+   "orb3": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 8.378293291608215e-05,
+    "A_max_angle_rad": 3.0389412539007687e-07,
+    "mirrored_share": 0.0
+   },
+   "orb3_vs_cv64_A_max_px": 8.378293291608215e-05,
+   "orb3_mirrors_same_C": true,
+   "vins": {
+    "max_angle_rad": 4.919944909553007e-15,
+    "max_angle_rad_C": null
+   },
+   "tool_vs_truth_max": 4.440892098500626e-16,
+   "tool_loop_vs_cv_max": 2.540252389962044e-14,
+   "tool_loop_sentinel_agree": true
+  },
+  {
+   "label": "Kimera RealSenseIR left",
+   "sources": [
+    "MIT-SPARK/Kimera-VIO/master/params/RealSenseIR/LeftCameraParams.yaml:cam"
+   ],
+   "K": [
+    384.5697007030446,
+    385.6469026594307,
+    324.92457920979194,
+    239.78003927789618
+   ],
+   "k": [
+    0.34610989806637954,
+    0.11497394690333039,
+    0.09283198659020588,
+    0.011326272488628174
+   ],
+   "size": [
+    640,
+    480
+   ],
+   "points": 76800,
+   "fold_theta": null,
+   "corner_theta_d": 1.0490230801269966,
+   "corner_theta": 0.8062598124953121,
+   "monotone_to_corner": true,
+   "td90": 6.8616459204008,
+   "r90_px": [
+    2638.7811179388027,
+    2646.172496348287
+   ],
+   "share_A": 1.0,
+   "share_B": 0.0,
+   "share_C": 0.0,
+   "share_F": 0.0,
+   "opencv64": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 2.6812987050722663e-13,
+    "A_max_angle_rad": 4.742874840267547e-16,
+    "mirrored_share": 0.0
+   },
+   "opencv32": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 1.6114791020535645e-05,
+    "A_max_angle_rad": 3.242681870819554e-08,
+    "mirrored_share": 0.0
+   },
+   "orb3": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 0.00010660912541492331,
+    "A_max_angle_rad": 1.6960438534803325e-07,
+    "mirrored_share": 0.0
+   },
+   "orb3_vs_cv64_A_max_px": 0.00010660912549530072,
+   "orb3_mirrors_same_C": true,
+   "vins": {
+    "max_angle_rad": 2.725139604783062e-15,
+    "max_angle_rad_C": null
+   },
+   "tool_vs_truth_max": 2.220446049250313e-16,
+   "tool_loop_vs_cv_max": 4.577566798522237e-16,
+   "tool_loop_sentinel_agree": true
+  },
+  {
+   "label": "Kimera RealSenseIR right",
+   "sources": [
+    "MIT-SPARK/Kimera-VIO/master/params/RealSenseIR/RightCameraParams.yaml:cam"
+   ],
+   "K": [
+    384.6517877875679,
+    385.80743823947375,
+    323.0940939324028,
+    239.4007620255053
+   ],
+   "k": [
+    0.33272557213785425,
+    0.20855196388908398,
+    -0.14436817873485477,
+    0.2040126459333023
+   ],
+   "size": [
+    640,
+    480
+   ],
+   "points": 76800,
+   "fold_theta": null,
+   "corner_theta_d": 1.0446165369217826,
+   "corner_theta": 0.8041604677669352,
+   "monotone_to_corner": true,
+   "td90": 13.326057247206863,
+   "r90_px": [
+    5125.891744297596,
+    5141.292008377453
+   ],
+   "share_A": 1.0,
+   "share_B": 0.0,
+   "share_C": 0.0,
+   "share_F": 0.0,
+   "opencv64": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 2.6812987050722663e-13,
+    "A_max_angle_rad": 4.627779271052808e-16,
+    "mirrored_share": 0.0
+   },
+   "opencv32": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 1.628474210019561e-05,
+    "A_max_angle_rad": 3.271933448869599e-08,
+    "mirrored_share": 0.0
+   },
+   "orb3": {
+    "A_sentinel": 0,
+    "A_max_reproj_px": 0.00011025705738054606,
+    "A_max_angle_rad": 1.841067338156448e-07,
+    "mirrored_share": 0.0
+   },
+   "orb3_vs_cv64_A_max_px": 0.00011025705743572931,
+   "orb3_mirrors_same_C": true,
+   "vins": {
+    "max_angle_rad": 1.5100665727558133e-15,
+    "max_angle_rad_C": null
+   },
+   "tool_vs_truth_max": 2.220446049250313e-16,
+   "tool_loop_vs_cv_max": 3.7238012298709097e-16,
+   "tool_loop_sentinel_agree": true
+  }
+ ],
+ "seconds": 26.4
+}

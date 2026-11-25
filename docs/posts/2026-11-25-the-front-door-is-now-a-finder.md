@@ -22,8 +22,11 @@ wanted target marketing sales pipeline not a catalog of random stuff", and
 
 Two questions, in the hero:
 
-1. **What kind of business do you run?** Construction, manufacturing,
-   online sellers, EU e-invoicing, nonprofits, or something else.
+1. **What kind of business do you run?** Five cards for the businesses
+   with a product in the works (construction, manufacturing, online
+   sellers, EU e-invoicing, nonprofits), then a row of fourteen more:
+   restaurants, home services, beauty, trucking, freelancers and the rest,
+   plus "something else".
 2. **What is hardest for you right now?** The problems listed are the ones
    each product is built around, in the customer's words: getting the
    monthly pay application right before the general contractor's cutoff,
@@ -33,7 +36,9 @@ Two questions, in the hero:
 Each problem links to the product built for it, labelled live or early
 access. Only one product, Grant Autopilot, is live today; the page reads
 that from the same file the products page uses, so it cannot say "live" of
-anything that is not. "Something else" lists every trade page, the
+anything that is not. The fourteen businesses without a product yet say
+so plainly: their problems lead to the free tools on their own page, and a
+link asks which job to build for them first. "Something else" lists every trade page, the
 assistant at /ask/, and the form for describing a problem nobody has built
 for yet.
 

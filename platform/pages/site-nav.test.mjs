@@ -30,17 +30,20 @@ const REPO = path.resolve(HERE, '..', '..');
 const navHrefs = (html) => [...html.matchAll(/data-pfs-nav="[^"]+" href="([^"]+)"/g)].map((m) => m[1]);
 
 test('the header carries every nav item, in order, relative to the page', () => {
-  const html = renderSiteHeader({ toRoot: '../../', current: 'research' });
+  const html = renderSiteHeader({ toRoot: '../../', current: 'writing' });
   assert.deepEqual(navHrefs(html), SITE_NAV.map((i) => `../../${i.href}`));
+  // Paid products first; Research, Stories and Self-host moved to the footer on 2026-11-25.
   assert.deepEqual(
     SITE_NAV.map((i) => i.label),
-    ['Products', 'Industries', 'Tools', 'Research', 'Blog', 'Stories', 'Ask', 'Get it built', 'About'],
+    ['Products', 'Industries', 'Tools', 'Blog', 'Ask', 'Get it built', 'About'],
   );
   // One landmark, labelled, and the section the page is in is marked current.
   assert.equal(html.match(/<nav\b/g).length, 1);
   assert.match(html, /<nav[^>]*aria-label="Site"/);
-  assert.match(html, /data-pfs-nav="research" href="\.\.\/\.\.\/research\/" aria-current="page"/);
+  assert.match(html, /data-pfs-nav="writing" href="\.\.\/\.\.\/writing\/" aria-current="page"/);
   assert.equal(html.match(/aria-current="page"/g).length, 1);
+  // A section that left the header marks no tab, and its pages still render.
+  assert.doesNotMatch(renderSiteHeader({ toRoot: '../', current: 'research' }), /aria-current="page"/);
   // The brand goes home.
   assert.match(html, /class="pfs-brand" href="\.\.\/\.\.\/" data-pf-to="hub"/);
 });
@@ -142,7 +145,8 @@ test('a trail that only repeats the current tab is hidden on a phone, any other 
   // An audience page: "Tools" is the tab the row already underlines, and the h1 names the category.
   assert.ok(dup({ toRoot: '../../', current: 'tools', crumbs: [{ label: 'Tools', href: '../../c/' }, { label: 'For homeowners' }] }));
   assert.ok(dup({ toRoot: '../', current: 'about', crumbs: [{ label: 'About' }] }), 'Home › About');
-  assert.match(researchChromeTemplate().topic_header, /class="pfs-crumbs pfs-dup"/, 'a research topic: Research › <topic>');
+  // Research left the header on 2026-11-25, so its crumb is no longer a repeat of a tab: the trail stays.
+  assert.match(researchChromeTemplate().topic_header, /class="pfs-crumbs"/, 'a research topic: Research › <topic>');
   // A link to anywhere else is orientation the tab row does not give: a tool's category, a project's topic.
   assert.ok(!dup({ toRoot: '../', current: 'tools', crumbs: [{ label: 'For homeowners', href: '../c/for-homeowners/' }, { label: 'Rent vs buy' }] }));
   assert.match(researchChromeTemplate().project_header, /class="pfs-crumbs"/);

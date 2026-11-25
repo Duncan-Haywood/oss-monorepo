@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyeeR715wCwyxs9QAfE",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T00:39:08Z",
+  "ended": "2026-11-25T00:41:49Z",
+  "wall_minutes": 2.81,
+  "tokens_in": 2508547,
+  "tokens_out": 15198,
+  "cost_usd": 1.421,
+  "tool_calls": 31,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18771",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "With no --base on a shallow clone it diffed against a stale base and listed hundreds of unrelated files plus a false 'Blocked: gate weakened in CODEOWNERS'; --base HEAD~1 after committing gave the right answer. CLAUDE.md's 'run risk_review.py' could say to pass --base."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Skipped the full site build and screenshots: the pick came from the last polish report's 'Still weakest' list and is measured by description-length.mjs on source files, no build needed.",
+      "did": "Measured with description-length.mjs before/after and ran the venture suite.",
+      "result": "46 pages fixed, baseline 3,089 -> 3,043, all tests green."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-ai-bookkeeper-snippets-name-the-trade.md",
+    "docs/reports/polish-2026-11-25-ai-bookkeeper-descriptions.md"
+  ],
+  "goal": null,
+  "notes": "run_venture_tests.py ai-bookkeeper: ok (25.1s, 3453 tests, 1 skipped for missing tesseract); site page checks ok. description-length.test.mjs 5/5. risk_review --base HEAD~1: nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "25df9515-4cd4-5288-a756-3f911711abbf",
+    "transcripts": 1,
+    "first": "2026-11-25T00:39:08Z",
+    "last": "2026-11-25T00:41:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 57,
+        "output": 15198,
+        "thinking": 1239,
+        "cache_read": 2429626,
+        "cache_write_5m": 0,
+        "cache_write_1h": 78864,
+        "api_equivalent_usd": 1.421,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 57,
+      "output": 15198,
+      "thinking": 1239,
+      "cache_read": 2429626,
+      "cache_write_5m": 0,
+      "cache_write_1h": 78864,
+      "api_equivalent_usd": 1.421,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 31,
+    "tools": {
+      "Bash": 28,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.81,
+      "active_minutes": 2.81,
+      "model_minutes": 2.17,
+      "tool_minutes": 0.64,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "rewriting 46 meta descriptions at ~2 min each plus checks",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 140.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

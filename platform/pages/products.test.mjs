@@ -6,12 +6,12 @@ import path from 'node:path';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import {
-  COUNTER_ATTR, COUNTER_SCRIPT, INDUSTRIES_PATH, PRODUCTS_PATH, buildProducts, industryPath, productSitemapPaths,
+  COUNTER_ATTR, COUNTER_SCRIPT, CUSTOM_DEV_PATH, INDUSTRIES_PATH, PRODUCTS_PATH, buildProducts, industryPath, productSitemapPaths,
   renderIndustriesPage, renderIndustryPage, renderProductCard, renderProductsPage,
 } from './products.mjs';
-import { INDUSTRIES, PRODUCT_LINES, hardwareLines } from './business.mjs';
+import { INDUSTRIES, PRODUCT_LINES, hardwareLines, industriesWithoutProducts } from './business.mjs';
 import { SITE_NAV } from './site-nav.mjs';
-import { renderHub, renderHubSitemap } from './build.mjs';
+import { CUSTOM_DEV_PATH as BUILD_CUSTOM_DEV_PATH, renderHub, renderHubSitemap } from './build.mjs';
 import { badSelectors, styleBlocks } from './css-lint.mjs';
 
 const BASE = 'https://example.test/';
@@ -68,8 +68,34 @@ test('/industries/ links each industry page, and each industry page lists its li
   }
 });
 
+test('the custom development path matches build.mjs', () => {
+  assert.equal(CUSTOM_DEV_PATH, BUILD_CUSTOM_DEV_PATH);
+});
+
+test('an industry with no product says so, lists its jobs and tools, and asks what to build first', () => {
+  const index = renderIndustriesPage();
+  assert.ok(index.indexOf('Products in development') < index.indexOf('Free tools today, products next'));
+  for (const i of industriesWithoutProducts()) {
+    const page = renderIndustryPage(i, { baseUrl: BASE });
+    assert.match(page, /There is no paid product for you yet/, i.slug);
+    const main = page.slice(page.indexOf('<main'), page.indexOf('</main>'));
+    assert.doesNotMatch(main, /early access|class="pl-card"/i, `${i.slug}: no product card or early-access offer`);
+    for (const p of i.problems) assert.ok(page.includes(p.replace(/&/g, '&amp;')), `${i.slug}: ${p}`);
+    for (const slug of i.tools) assert.ok(page.includes(`href="../../${slug}/"`), `${i.slug}: ${slug}`);
+    assert.ok(page.includes(`mailto:hello@marisstella.app?subject=Build%20first%20for%20`), i.slug);
+    assert.ok(page.includes(`href="../../${CUSTOM_DEV_PATH}"`), i.slug);
+    const desc = page.match(/<meta name="description" content="([^"]*)"/)[1];
+    assert.ok(desc.length <= 160, `${i.slug}: description ${desc.length}`);
+  }
+  // A tool the build did not publish is left out rather than linked to a 404.
+  const [first] = industriesWithoutProducts();
+  const page = renderIndustryPage(first, { published: new Set([first.tools[0]]) });
+  assert.ok(page.includes(`href="../../${first.tools[0]}/"`));
+  assert.ok(!page.includes(`href="../../${first.tools[1]}/"`));
+});
+
 test('the pages carry both colour schemes and valid CSS', () => {
-  for (const html of [renderProductsPage(), renderIndustriesPage(), renderIndustryPage(INDUSTRIES[0])]) {
+  for (const html of [renderProductsPage(), renderIndustriesPage(), renderIndustryPage(INDUSTRIES[0]), renderIndustryPage(industriesWithoutProducts()[0])]) {
     assert.match(html, /prefers-color-scheme: dark/);
     for (const block of styleBlocks(html)) assert.deepEqual(badSelectors(block), []);
   }

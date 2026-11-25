@@ -54,8 +54,9 @@ replace that work.
   requests, flagships or a free draw, it prefers the step that brings the first
   (and then the next) paying subscriber soonest. The owner, same day:
   "moving the free stuff to traffic and lead magnets and pushing stuff that
-  is for profit as highest priority." So the for-profit products (the
-  `proprietary` track in `LICENSING_TRANSITION.md`) come first. Free tools,
+  is for profit as highest priority." So the for-profit products (the ranked
+  bets in `portfolio/monetization/bets.md`; see "Where effort goes" below)
+  come first. Free tools,
   posts and pages exist to bring traffic and leads to them, and new free work
   is judged by that. In rough order:
   1. whatever stands between a subscription product and a sale: a working
@@ -105,6 +106,22 @@ replace that work.
   [`portfolio/monetization/mrr.yaml`](../portfolio/monetization/mrr.yaml).
   Only the owner can read the merchant dashboard, so only the owner fills in a
   reading. An empty month is unmeasured, never zero.
+- **Margins: 40 to 60% is the minimum goal, not a ceiling** (owner, 2026-11-24:
+  "we want to aim for min 40-60% margins in the products"; and "the 40-60
+  isn't a limit for how high the margins go but a sort of minimal goal").
+  Higher is better. Margin is one minus the full
+  cost of serving a plan used to its whole allowance (model tokens, hosting,
+  merchant fees, a refund reserve) over its price, monthly and annual billing
+  both. Below 40% a plan fails CI (`packages/billing` in `private-monorepo`;
+  `evaluate.mjs --check` here); 60% or more is what to aim for, and there is
+  no upper limit.
+- **The cheapest model that does the job correctly** (owner, same day: "use
+  the general principle in products of use the cheapest model that does the
+  job correctly you know. no need to use opus for a haiku task"). Start each
+  model purpose on Haiku and move it up to Sonnet or Opus only when the
+  product's evals show the cheaper one getting it wrong, writing down why.
+  Grant Autopilot's drafts went from about $1.30 each on Opus to about $0.03
+  on Haiku (`PRODUCT_PLAYBOOK.md`, section 4).
 - **Where it comes from.** Payments run through Paddle (Guardrails,
   "Payments"). The revenue comes from the subscription products in
   [`LICENSING_TRANSITION.md`](../portfolio/monetization/LICENSING_TRANSITION.md)
@@ -121,6 +138,83 @@ replace that work.
   to move MRR leaves the money on the table. Missing revenue never blocks a
   merge, and runs do not spend time re-measuring that MRR is $0 (Guardrails,
   "Payments").
+
+## Where effort goes: promise, verticals, SMBs (owner, 2026-11-24)
+
+Later the same day the owner set how the North star is pursued. Read these
+together; where older directions below pull another way, these win.
+
+- **Invest by promise and value, not by sunk cost.** The owner: "we don't
+  invest dev effort in sunken ships. invest in things that have most promise
+  and most value." Work is chosen by what the market says, not by how much of
+  it already exists in this repository: willingness to pay, size of the
+  reachable buyer group, distribution without a sales team, margin, and time to
+  first dollar. Existing code is a tiebreaker between bets that already score
+  well, never a reason on its own. A product, programme or tool that scores
+  poorly stops getting new effort, however large it is. The ranked bets, their
+  evidence and their sources live in
+  [`portfolio/monetization/bets.md`](../portfolio/monetization/bets.md); a
+  run that wants to change the order brings evidence in a PR.
+- **Vertical paid products for small and medium businesses.** The owner: "i
+  think we move into more vertically integrated paid products targeting
+  specific types of customers. idk keeping 1400 free and only monetizing 20
+  seems off to me", and "moving more towards tools that are more valuable and
+  have higher profit target. I personally like smbs as customers", and "help
+  them with anything ai and software can do. full software suites for them."
+  So a product is a software suite built for one kind of business, covering
+  whatever software and AI can do for it, grown job by job from a sharp first
+  wedge, not a single-purpose tool. It has accounts, saved data, imports and
+  integrations, and is priced for a business (tens to hundreds of dollars a
+  month), not for a hobbyist. SMBs are the preferred customer. Consumer and
+  prosumer products rank below them unless the evidence is much stronger.
+- **Construction is the owner's favourite vertical.** The owner: "I also like
+  as deep tech construction tools", "like a lot into construction." So
+  construction SMBs (general contractors, specialty subcontractors,
+  estimators, schedulers, developers) get extra weight when bets are close,
+  and the deep-tech side (takeoff from drawings and models, schedule
+  analytics, BIM checking, permit and build-time data, site sensing) is where
+  this repository's research is most likely to become a product. The owner
+  also welcomes the neighbouring industrial verticals: "I'm also happy doing
+  software for engineering manufacturing etc etc etc." So engineering firms
+  and small manufacturers (job shops, fabricators, design consultancies) are
+  in scope on the same terms. The evidence still decides which customer and
+  which wedge come first.
+- **Business tools are the first path to $10k MRR.** The owner: "but business
+  tools is very good i think for first path to 10kmrr." So the first bets are
+  software that runs a business's money and operations (bookkeeping,
+  invoicing and e-invoicing, billing, quoting and estimating, sales and
+  customer tools), sold to SMBs, because businesses already pay for these
+  every month and the buyers are easy to find. Construction, engineering and
+  manufacturing suites are where those business tools go deepest; the deep-tech
+  construction tools are the longer build beside them.
+- **Free tools are demoted.** The owner, on "most of the 1,400 free tools get
+  no new development": "demote some of this." No new free single-purpose tools
+  and no new depth in existing ones. A free tool gets work only when it is the
+  front door to a chosen paid product (a link into it, a page fix that keeps
+  its search traffic). The rest stay up as they are; nobody needs to retire
+  them, and nobody needs to maintain them. This replaces the lead-magnet rows
+  of `LICENSING_TRANSITION.md` as a source of work.
+- **Research gets pivoted into products.** The owner: "research work gets
+  pivoted into products." New research serves a paid bet: a programme names
+  the product and customer it advances, and the result ships in that product.
+  Programmes with no product case stop taking new effort; one close to a paper
+  that helps a chosen product's credibility may be finished. Papers and posts
+  stay public as marketing. The research integrity rules below are unchanged,
+  and the product claims only what the research showed. See
+  `research/CLAUDE.md`.
+- **Open hardware: real hardware companies, long term.** The owner: "the open
+  hardware becomes long term goals for real hardware companies run entirely in
+  an automated way outsourcing what is needed to be done physically such ad
+  supply chain etc." Agents do the knowledge work (design, sourced BOMs,
+  supplier comparison, quote requests drafted for the owner, listings,
+  support, reorder planning); contract partners do the physical work (board
+  fabs, machining, assembly, fulfilment, certification labs). This is a long
+  horizon, not current work: hardware scores worst on cash and time to first
+  dollar. Every purchase order, supplier account, inventory spend, insurance
+  and certification decision is the owner's (Hard limits), and a product with
+  blades, batteries or radios ships only after the safety and certification
+  work. The designs can stay open; the business is built units, support and
+  the brand.
 
 ## The 2026-11-24 pivot, in one place
 
@@ -230,6 +324,62 @@ says otherwise. The hard limits under Guardrails still hold.
    The owner is asked only for what a person must do: account signups,
    cards, secret values, admin-only settings. Don't add new owner gates; add
    a control to the review instead.
+11. **Where effort goes.** Promise and value over sunk cost; vertical software
+   suites for SMBs, business tools first, construction the favourite with
+   engineering and manufacturing beside it; free single-purpose tools demoted
+   to front doors; research pivots into products; open hardware becomes a
+   long-term outsourced hardware-company track. See "Where effort goes" above
+   and the ranked bets in `portfolio/monetization/bets.md`.
+12. **No standalone research; R&D only inside paid products** (owner,
+   2026-11-25: "drop the research if you have to do r and d you can but as
+   part of actual paid projects. not as independent academic research").
+   The research track takes no scheduled runs (`prompts/routing.json`,
+   weight 0; its share went to ventures). Research, algorithms, evals and
+   experiments are welcome where a paid product needs them, done in that
+   product's tree and judged by what they do for its users, not by a paper.
+   Open programmes under `research/` are paused, not deleted: a product run
+   may lift code or results from them. The research guardrails (integrity,
+   no fabrication, licences) still bind any R&D a product does. Where the
+   research sections below ("Mission", "Direction: research at PhD+ level",
+   "How a run is scored") say otherwise, this wins.
+13. **Passion projects demoted; dev time, site space and the blog go to the
+   paid products** (owner, 2026-11-25: "I think we demote some of the passion
+   projects and move more towards the paid product track with dev resource
+   and website real estate. blogs get moved from dev blog to marketing blog
+   etc etc"). What that changed:
+   - *Dev resource.* `prompts/routing.json`: creative (the fiction shelves
+     and the saints podcast) 0.10 to 0.03, its share to ventures (0.61, with
+     research's from point 12). A run on any track that has a free choice
+     takes the paid-product option (`prompts/*/prompt-0.md`).
+   - *Website real estate.* The header (`platform/pages/site-nav.mjs`) is
+     Products, Industries, Tools, Blog, Ask, Get it built, About. Research,
+     Stories and Self-host moved to the footer; their pages stay up.
+   - *Marketing blog.* The blog leads with "For your business"
+     (`platform/pages/writing.mjs`, topic `business`): posts that name a paid
+     product line or one of its tools (`business.mjs`) and are not about how
+     it was built, or carry `for-customers`. They are pinned above the full
+     list on `writing/` and fill the front page's writing band. The build
+     log and research notes stay, under their own topics. New writing
+     defaults to a customer post: a question a paid product's buyer asks,
+     answered from the tool that does the work, tagged with that tool's slug
+     or `for-customers`, under the honest-marketing rules ("Consolidate, for
+     search" below). A dev post is for a lesson another builder would cite.
+
+### 2026-11-25: most kinds of small business
+
+The owner, 2026-11-25: "we want to expand the industries we address for sure
+i think. most types of smbs", "on the website and in general". So the
+portfolio addresses most kinds of small business, not only the five
+industries with a bet. On the website, `INDUSTRIES` in
+`platform/pages/business.mjs` lists them, each with a page at
+`industries/<slug>/`. An industry without a paid product yet shows the jobs
+we are starting from, the free tools that help today, and asks the visitor
+which job to build first. It never claims a product it does not have. In
+general, choosing the next paid bet should consider every industry on that
+list, not only the original five. Catalogue depth per industry, and which one
+to promote next: `docs/reports/2026-11-25-industries-for-most-smbs.md`.
+Point 9 still holds: each paid product is niched to one specific user. This
+direction widens which users we pick from, not how broad each product is.
 
 ## Mission
 
@@ -596,11 +746,13 @@ and blog post according to its judgment on what." And again on 2026-10-24,
 after the post rate fell from about forty a day to two or four (8 of the last
 100 run records named a post): "I think it'd be nice if most of the prs
 included a blog post about the project or other. I want the number of blog
-posts per day to increase significantly." So the default for a PR that merges
-work is a **new blog post**, plus an agent doc when the run learned something
+posts per day to increase significantly." So the default for a PR that merged
+work became a new blog post (narrowed on 2026-11-24 to consolidated and
+SEO/marketing posts, below), plus an agent doc when the run learned something
 the next run needs:
 
-- **A blog post** in `docs/posts/`, one of the three kinds above, for a person
+- **A blog post** in `docs/posts/`, one of the three kinds above (new or
+  extended, see "Consolidate, for search"), for a person
   or an AI agent who has never seen the repository. The owner, 2026-10-21:
   "the blog is for humans and ai agents reading and the agent docs is for
   llms."
@@ -621,18 +773,34 @@ would want to read: a trap, a technique, a measurement, an argument. Write it
 for a model with tools: lead with what to do, cite repository paths, keep it
 dense. It is optional, and the guardrails below hold there too.
 
-The subject is the run's call: its own work, the project it touched, something
-it found on the way, or a gap from `writing-backlog.mjs`. Lean towards a new
-post, not a new section in an old one: a post is a dated entry in the feed,
-and an edit to last week's post adds nothing a reader of the feed sees. Extend
-an existing post only when the subject is the same (a correction, a rerun of
-the same numbers); a new result, a new feature or a different angle on a
-project already written about is a new post that links back to the old one.
-A small run still has something to write about: a short post (300 to 600
-words is fine) on what the project it touched does and who it is for, what
-the change shows, or one research track from the backlog. That is the default
-for a one-line fix too, unless the run truly has nothing true to say; then
-skip it and say why in the record's `deviations`. A padded or invented post is
+**Consolidate, for search (owner, 2026-11-24).** Narrowed by the owner on
+2026-11-24: "consolidating blog posts to keep seo better", with more of the
+writing moved to consolidated posts and to SEO and marketing. By then the blog
+held over 7,000 posts at about thirty a day, most of them one per PR, so many
+short pages on the same project competed with each other in search and none
+built up the depth a ranking page needs. This supersedes the 2026-10-24 "one
+post per PR" default above. The writing effort now goes to two kinds of post:
+
+- **Consolidated posts.** One substantial, kept-current page per subject (a
+  product, a research track, a recurring theme), not a new short post per
+  change. A run that changes a project already written about extends that
+  project's post, with a dated "What changed" entry, or folds several thin
+  posts into one and points the others at it, instead of adding another
+  short page. A periodic roundup (a week or a month across a project) is
+  also a consolidated post. Merging old thin posts into one is useful work
+  in its own right.
+- **SEO and marketing posts.** Pages written for the searches a product's
+  users actually make: the question in their words, a worked example from
+  real output, what it does not do, and a clear way to try it, under the
+  same rules as the marketing page below (no fake reviews, no claim a file
+  can't back). Since 2026-11-25 these come first: tag one with the paid
+  product line's tool slug or `for-customers` and it leads the blog as "For
+  your business" (pivot point 13 above).
+
+A new post is still right for a subject the blog doesn't cover yet, a
+research result a reader would cite on its own, or a story. A small run
+with nothing new to say skips the post (and says so in `deviations`) rather
+than adding a thin one. Short and true still beats padded. A padded or invented post is
 still worse than none, so short and true beats long. List the paths written or
 extended in the record's `writeups`, which `promptctl.py measure` counts along
 with posts per day. The blog index is searchable
@@ -723,6 +891,10 @@ platform"). Spec, licence rules and definition of done:
 [`portfolio/research-tools/README.md`](../portfolio/research-tools/README.md).
 
 ## Direction: research at PhD+ level, aimed at deep tech
+
+**Paused 2026-11-25** (pivot point 11 above): no standalone research
+runs. The text below is kept as the record and as the bar for R&D a paid
+product does.
 
 Set by the owner on 2026-11-01: "lets set as a direction to move the research
 into phd+ level with applications in deep tech applications". It raises the
@@ -1239,6 +1411,7 @@ glad to see, never work that embarrasses them or the author.
 
 **Licensing and attribution.**
 - Original work is MIT-licensed.
+- The paid products the owner chose to sell (owner, 2026-11-24) are built in the private repository under a proprietary licence (`portfolio/monetization/LICENSING_TRANSITION.md`).
 - Third-party code keeps its original license. Check compatibility before vendoring. Prefer dependencies over copying where you can (a default: it keeps licences and updates someone else's job).
 - Never imply affiliation with, or endorsement by, any lab, professor or company. Say "builds on" or "reproduces", never "with" or "for".
 

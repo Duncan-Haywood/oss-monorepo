@@ -31,6 +31,27 @@ k<sub>1</sub>, k<sub>2</sub>, k<sub>3</sub> model: `python3 src/foldcheck.py --f
 reports the Kinect's board fit folding at 380.8 px against a 415.7 px corner (exit 1). Run it before trusting a two-term
 calibration near the image edge; milestone 3zd found such a fit 14&ndash;17 px off there.
 
+**Milestone 3zj headline** (does `cv::fisheye::undistortPoints` handle rays past 90 degrees?): no. In every OpenCV release read
+(4.5.4 to 4.13.0), and in ORB-SLAM3's Kannala&ndash;Brandt `unproject`, a pixel whose ray is past 90&deg; comes back mirrored
+through the principal point, nearly the opposite ray, with no flag. ROS `image_geometry` (`equidistant`) and OpenVINS call it. On the 16
+distinct fisheye calibrations that ORB-SLAM3, OpenVINS, Kimera-VIO and DM-VIO ship, that is 7.1% of a TUM-VI image and 19&ndash;24% of a RealSense
+T265 rectangle: 120,121 of 120,125 such grid pixels, median ray error 175&ndash;180&deg;. Below 90&deg; OpenCV is exact (3.2 &times;
+10<sup>&minus;13</sup> px). VINS-Fusion's root solver returns a bearing and is right everywhere (2 &times; 10<sup>&minus;12</sup> rad). One shipped
+T265 calibration folds at 100.8&deg; inside its own image. [`src/fisheyecheck.py`](src/fisheyecheck.py), stdlib, maps the affected pixels
+from a Kalibr, ORB-SLAM3 or ROS file and gives the right bearing: `python3 src/fisheyecheck.py kalibr_imucam_chain.yaml --cam cam0`
+(exit 1 if any pixel is past 90&deg; or a fold). Whether those pixels are lit depends on the lens's image circle, which no file records
+and this run did not measure. Three of seven predictions held; the other four each missed by the one folding calibration
+([`experiments/m3zj_fisheye/regions.png`](experiments/m3zj_fisheye/regions.png); LOG.md, milestone 3zj).
+
+**Milestone 3zi headline** (which pixels does my robot's undistortion get wrong, and how do I fix it without upgrading OpenCV?):
+[`src/undistcheck.py`](src/undistcheck.py), stdlib Python, reads a ROS `camera_info` YAML and runs the undamped loop that
+`cv2.undistortPoints` (default criterion, and any criterion before 4.13), Kornia, ORB-SLAM2/3 and ROS `image_geometry` run. On 179 real
+calibrations it predicts OpenCV 5.1.0's default corner error to 7.5 &times; 10<sup>&minus;13</sup> px (the same 164 of 169 Duckiebots over
+1 px) and its grid share exactly; its Newton inverse reprojects within 10<sup>&minus;12</sup> px in at most 7 steps at every corner of the 177
+that do not fold, and refuses at exactly the 6 corners past a fold. `python3 src/undistcheck.py camera_info.yaml --grid 4` (exit 1 if a
+corner is off by more than 1 px). Two of four predictions held; the other two missed tolerances set tighter than OpenCV's own converged
+answer, which is short of 10<sup>&minus;6</sup> px at 28 corners (LOG.md, milestone 3zi).
+
 **Milestone 3zh headline** (does `cv2.undistortPoints` converge at wide-lens image corners in the OpenCV a robot actually runs?): **not
 in any release before 4.13.0, whatever criterion you pass.** On the opencv-python-headless wheels for 4.5.5, 4.10.0 and 4.12.0 the loop has
 no damping at all (output equal to an undamped port, difference 0.0 at 179 calibrations &times; 13 criteria), so milestone 3zg's fix,
@@ -1281,6 +1302,9 @@ default: with the transferred factor the rule made a harmful adoption in 1.4% of
 pip install numpy scipy opencv-python-headless matplotlib pytest
 for each wheel: <venv>/bin/python experiments/m3zh_versions/probe.py --work /tmp/m3zh   # milestone 3zh, one venv per opencv-python-headless release
 python3 experiments/m3zh_versions/analyse.py --work /tmp/m3zh   # OpenCV 5.1.0 + kornia 0.9.2 + torch; ~100 s; summary.json, results.txt, versions.png
+python3 experiments/m3zi_check/analyse.py     # milestone 3zi, src/undistcheck.py against OpenCV 5.1.0 on 3zf's calibs.json, ~55 s; summary.json, results.txt
+python3 experiments/m3zj_fisheye/fetch.py     # milestone 3zj, re-reads 3ze's 13 fisheye config files + DM-VIO's TUM-VI file from raw.githubusercontent.com; calibs.json
+python3 experiments/m3zj_fisheye/analyse.py   # milestone 3zj, OpenCV 4.12.0 fisheye.undistortPoints, ORB-SLAM3 and VINS-Fusion ports on 16 calibrations, ~26 s; summary.json, results.txt, regions.png
 python3 experiments/m3zg_loop/analyse.py      # milestone 3zg, the ported undistortPoints loop on 3zf's calibs.json, ~6 s; summary.json, results.txt, loop.png
 python3 experiments/m3zf_ros/fetch.py --work /tmp/m3zf   # milestone 3zf, 198 ROS camera_info files via git at pinned commits; calibs.json (committed)
 python3 experiments/m3zf_ros/analyse.py      # seconds; summary.json, results.txt, fleet.png
@@ -1419,6 +1443,11 @@ python3 paper/check_short.py               # seconds; every number in the letter
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3zj: the fisheye path fails differently from the pinhole one: rays past 90&deg; have no point on the z = 1 plane, and
+`cv::fisheye::undistortPoints` and ORB-SLAM3 return them mirrored without a flag. Next: measure which of those pixels are lit (TUM-VI's
+images, a T265 recording) and whether a front end tracks features there; a note upstream (flag or NaN past 90&deg;, as OpenCV already
+does for non-convergence) with this corpus as the reproducer; the paper's Recommendation 10 extended to fisheye cameras.
 
 After milestone 3zh: the undamped loop is what ROS Noetic/Humble-era OpenCV (4.2, 4.5.4) runs under every criterion, and what ORB-SLAM2/3,
 ROS `image_geometry` and Kornia call; damping exists from 4.13.0 behind the EPS flag. Next: a note upstream (OpenCV: damp the default, or
