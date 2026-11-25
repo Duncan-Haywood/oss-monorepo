@@ -34,3 +34,22 @@ and ids-model-check (no close feeder). Add one when a fitting free tool ships.
 **Next:** when a product's paid edition goes live, keep the line pointing at
 the public product page; that page carries the upgrade path. After a few weeks,
 read the `product_offer_click` counts to see which pairings people follow.
+
+## 2026-11-25: two more feeders, and a second session that built the same thing
+
+A ventures session that started before PR #18677 merged (GitHub was returning
+503, so it could not search open PRs) built the same funnel independently and
+reached the same conclusion about word overlap. Its map had 63 feeders; all
+but 7 were already in `funnel.json`. Two of the 7 were added here, which makes 87:
+
+- `padel-club-profit-calculator` → league-schedule-generator, the padel twin
+  of the `pickleball-facility-pro-forma` feeder already listed (a club owner
+  who runs leagues);
+- `feedback-board` → quick-pick-survey (ranking a board's feature requests by
+  pairwise picks).
+
+Left out as weaker fits: youth-lineup-rotator (a coach, not the league
+organiser), contractor-wip-schedule (WIP accounting, not CPM), deck-bid-calculator
+(a deck bid is not a shed design). Two of its pairs disagreed with this file
+(pdf-plan-takeoff, real-estate-photographer-shoot-profit-calculator); this
+file's choice stands.
