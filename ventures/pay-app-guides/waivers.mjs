@@ -64,7 +64,9 @@ export function compute(text, settings = {}) {
   }
   const asOf = settings.asOf ? parseDate(settings.asOf) : Math.floor(Date.now() / 86400000);
   if (asOf == null) { out.errors.push("As-of date must be YYYY-MM-DD or M/D/YYYY."); return out; }
-  const chase = settings.chaseDays === "" || settings.chaseDays == null ? 10 : Number(settings.chaseDays);
+  // Digits only: Number() read " " as 0 and "1e1" as 10 (red team 2026-11-25).
+  const chaseRaw = String(settings.chaseDays ?? "").trim();
+  const chase = chaseRaw === "" ? 10 : /^\d+$/.test(chaseRaw) ? Number(chaseRaw) : NaN;
   if (!Number.isInteger(chase) || chase < 0 || chase > 365) { out.errors.push("Days to wait before chasing an unconditional waiver must be a whole number from 0 to 365."); return out; }
   const nextThrough = settings.nextThrough ? parseDate(settings.nextThrough) : undefined;
   if (nextThrough === null) { out.errors.push("Next pay app's through date must be YYYY-MM-DD or M/D/YYYY."); return out; }

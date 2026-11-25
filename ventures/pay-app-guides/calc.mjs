@@ -235,6 +235,11 @@ export const PROMPT_PAY = {
 };
 
 const DAY = 86400000;
+// A day count typed as plain digits; anything else (blank, "1e1", "0x7", "7.5") is NaN.
+const wholeNumber = (v) => {
+  const t = String(v ?? "").trim();
+  return /^\d+$/.test(t) ? Number(t) : NaN;
+};
 function parseDate(v) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v ?? "").trim());
   if (!m) return NaN;
@@ -255,7 +260,8 @@ export function promptPayInterest({ amount, received, paid, days, rate, per = "m
   const rec = parseDate(received);
   const pd = parseDate(paid);
   // A blank day count is an error, not 0: Number("") is 0, which moved the due date to the day the GC was paid (red team 2026-11-25).
-  const n = String(days ?? "").trim() === "" ? NaN : Number(String(days).trim());
+  // Digits only: Number() read "0x7" as 7 and "1e1" as 10 (red team 2026-11-25).
+  const n = wholeNumber(days);
   if (Number.isNaN(a) || a <= 0) errors.push("Enter the amount owed to you as a positive number.");
   if (Number.isNaN(rec)) errors.push("Enter the date the contractor was paid as YYYY-MM-DD.");
   if (Number.isNaN(pd)) errors.push("Enter the date you were paid (or today) as YYYY-MM-DD.");
@@ -298,13 +304,15 @@ export function retainageRelease({ held, released = "", trigger, days, today, pr
   const r = toCents(released);
   const t = parseDate(trigger);
   const now = parseDate(today);
-  const n = Number(String(days ?? "").trim());
+  const n = wholeNumber(days);
   if (Number.isNaN(h) || h <= 0) errors.push("Enter the retainage held on this job as a positive number.");
   if (Number.isNaN(r) || r < 0) errors.push("Retainage already released must be 0 or a positive number.");
   else if (!Number.isNaN(h) && r > h) errors.push("Retainage already released cannot be more than the retainage held.");
+  // A letter asking for "$0.00 ... past due" was written when everything was already released (red team 2026-11-25).
+  else if (!Number.isNaN(h) && h > 0 && r === h) errors.push("All the retainage held has been released: nothing left to release.");
   if (Number.isNaN(t)) errors.push("Enter the date the release clock started (for example substantial completion) as YYYY-MM-DD.");
   if (Number.isNaN(now)) errors.push("Enter today's date as YYYY-MM-DD.");
-  if (String(days ?? "").trim() === "" || !Number.isInteger(n) || n < 0 || n > 730) errors.push("Days to release must be a whole number from 0 to 730, from your subcontract or the statute.");
+  if (!Number.isInteger(n) || n < 0 || n > 730) errors.push("Days to release must be a whole number from 0 to 730, from your subcontract or the statute.");
   if (errors.length) return { errors };
   const owed = h - r;
   const due = t + n * DAY;

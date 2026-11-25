@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Front-Loading a Schedule of Values: Check</title>
+  <meta name="description" content="Is your schedule of values front-loaded? Compare each line's markup to the job's, see what a reviewer sees, and get a balanced SOV. Free, in your browser.">
+  <meta property="og:title" content="Front-loading a schedule of values: what reviewers look for, and a free check">
+  <meta property="og:description" content="Paste your SOV with your cost per line: markup by line against the job, value pulled onto early lines, late lines below cost, a balanced SOV and the least change that passes, and the cash effect by month.">
+  <link rel="canonical" href="./front-loading-schedule-of-values.html">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    textarea { width: 100%; box-sizing: border-box; min-height: 190px; padding: 9px 10px; border: 1px solid var(--input); border-radius: 7px; font: 13px ui-monospace, monospace; background: var(--card); color: var(--ink); }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 6px 0 12px; }
+    .tile { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+    .tile b { display: block; font-size: 1.25rem; color: var(--head); font-variant-numeric: tabular-nums; }
+    .tile span { font-size: .8rem; color: var(--muted); }
+    .err { color: #9a3412; font-weight: 600; }
+    input[type=file] { border: 0; padding: 8px 0; }
+  </style>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Front-loading a schedule of values: what reviewers look for, and a free check", "datePublished": "2026-11-25", "dateModified": "2026-11-25"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a front-loaded schedule of values?", "acceptedAnswer": {"@type": "Answer", "text": "One where the lines billed early in the job (mobilization, submittals, early rough-in) carry more than their share of the contract's markup, and the lines billed late (testing, closeout, punch list) carry less. The sub collects cash ahead of cost; the owner pays for work before it is done."}}, {"@type": "Question", "name": "Is front-loading a schedule of values allowed?", "acceptedAnswer": {"@type": "Answer", "text": "Contracts rarely ban it by name, but most let the GC, architect or owner's reviewer reject a schedule of values they think is unbalanced, and many cap mobilization. A reviewer who finds front-loading can send the SOV back, rebalance it, or hold the early pay apps. Read your contract's schedule of values and payment articles."}}, {"@type": "Question", "name": "How do I check whether my SOV is front-loaded?", "acceptedAnswer": {"@type": "Answer", "text": "Put your estimated cost next to each line's scheduled value. If every line carries about the same markup on cost as the whole job, the SOV is balanced. Lines well above the job's markup that bill early, and lines below it (or below cost) that bill late, are the front-loading."}}, {"@type": "Question", "name": "What is a balanced schedule of values?", "acceptedAnswer": {"@type": "Answer", "text": "One where each line's scheduled value is its cost times the same factor, the contract sum divided by total cost, so every line carries the same markup and billing tracks cost as the work goes."}}]}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · <a href="./">schedule of values calculator</a> · runs in your browser</p>
+  <h1>Front-loading a schedule of values: what reviewers see, and a check</h1>
+  <p>Almost every subcontractor is tempted to put a little extra on mobilization and the first lines of the schedule of values (SOV), so the early pay apps bring in cash before the job has cost much. Some of that is normal. Too much gets the SOV sent back, and it leaves the last lines of the job worth less than they cost you to finish. Paste your SOV with your estimated cost per line and see it the way a careful reviewer does.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a>
+    <a href="overbilling-underbilling.html">Overbilling and underbilling</a>
+    <a href="schedule-of-values-template.html">Free Excel template</a>
+    <a href="retainage-explained.html">Retainage explained</a>
+  </nav>
+</header>
+<main>
+<section class="card">
+  <h2>What front-loading is</h2>
+  <p>Your SOV splits the contract sum into lines, and each pay app bills a percentage of each line. If every line carries the same markup on your cost, billing tracks cost through the job: a <strong>balanced</strong> SOV. Front-loading moves markup from late lines to early ones:</p>
+  <pre class="sum">job markup        = contract sum / total estimated cost - 1
+balanced value    = line cost x contract sum / total estimated cost
+loading           = scheduled value - balanced value   (above 0: value pulled onto this line)</pre>
+  <p>A worked example: a $115,000 subcontract on $100,000 of estimated cost, a 15% markup. The sub has moved $10,000 from punch list to mobilization.</p>
+  <div class="scroll"><table class="stack compact" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Line</th><th role="columnheader" scope="col" class="n">Cost</th><th role="columnheader" scope="col" class="n">Scheduled value</th><th role="columnheader" scope="col" class="n">Markup</th><th role="columnheader" scope="col" class="n">Balanced value</th><th role="columnheader" scope="col" class="n">Loading</th></tr></thead>
+    <tbody>
+      <tr role="row"><td role="cell" data-label="Line">Mobilization</td><td role="cell" data-label="Cost" class="n">$10,000</td><td role="cell" data-label="Scheduled value" class="n">$21,500</td><td role="cell" data-label="Markup" class="n">115.0%</td><td role="cell" data-label="Balanced value" class="n">$11,500</td><td role="cell" data-label="Loading" class="n">$10,000</td></tr>
+      <tr role="row"><td role="cell" data-label="Line">Rough-in</td><td role="cell" data-label="Cost" class="n">$50,000</td><td role="cell" data-label="Scheduled value" class="n">$57,500</td><td role="cell" data-label="Markup" class="n">15.0%</td><td role="cell" data-label="Balanced value" class="n">$57,500</td><td role="cell" data-label="Loading" class="n">$0</td></tr>
+      <tr role="row"><td role="cell" data-label="Line">Trim</td><td role="cell" data-label="Cost" class="n">$30,000</td><td role="cell" data-label="Scheduled value" class="n">$34,500</td><td role="cell" data-label="Markup" class="n">15.0%</td><td role="cell" data-label="Balanced value" class="n">$34,500</td><td role="cell" data-label="Loading" class="n">$0</td></tr>
+      <tr role="row"><td role="cell" data-label="Line">Punch list</td><td role="cell" data-label="Cost" class="n">$10,000</td><td role="cell" data-label="Scheduled value" class="n">$1,500</td><td role="cell" data-label="Markup" class="n">-85.0%</td><td role="cell" data-label="Balanced value" class="n">$11,500</td><td role="cell" data-label="Loading" class="n">-$10,000</td></tr>
+      <tr role="row"><td role="cell" data-label="Line">Total</td><td role="cell" data-label="Cost" class="n">$100,000</td><td role="cell" data-label="Scheduled value" class="n">$115,000</td><td role="cell" data-label="Markup" class="n">15.0%</td><td role="cell" data-label="Balanced value" class="n">$115,000</td><td role="cell" data-label="Loading" class="n">$0</td></tr>
+    </tbody>
+  </table></div>
+  <p>The first pay app collects $10,000 more than the work has earned at the job's markup, and the punch list, done last with retainage held, now pays $1,500 for $10,000 of work. The check below finds both lines and writes the balanced values.</p>
+  <p>A mobilization line at three times its cost, with testing, closeout and punch list priced below cost, is the classic pattern. The contract sum is the same; only the timing of the cash moves.</p>
+</section>
+
+<section class="card">
+  <h2>Why it gets caught, and what it costs you</h2>
+  <ul>
+    <li><strong>Reviewers look for it first.</strong> The GC's project manager, the architect or the owner's lender checks the SOV before the first pay app. Mobilization, bonds, submittals and general conditions are the lines they read first, and many contracts cap mobilization as a share of the contract. A rejected SOV delays the first payment, which is the opposite of what front-loading was for.</li>
+    <li><strong>It shows up as overbilling.</strong> Billing ahead of cost is overbilling on your work-in-progress schedule; banks and sureties read it there. See <a href="overbilling-underbilling.html">overbilling and underbilling</a>.</li>
+    <li><strong>The end of the job runs short.</strong> If testing, closeout and punch list are priced below cost, the work left late in the job is worth less than it costs to do. If the job is terminated, the GC goes under, or the final pay app is held over a dispute, the cash you pulled forward is all you get, and the last weeks of work are at a loss.</li>
+    <li><strong>Change orders get priced off it.</strong> Some GCs price deductive changes from SOV line values. A loaded line deducted is more money back to the GC than the work cost you.</li>
+  </ul>
+  <p>None of this makes some front-loading wrong. Mobilization and submittals do cost money early, and bonds and insurance are paid up front. The question is whether each line's value can be defended from its cost. The check below shows which ones can't.</p>
+</section>
+
+<section class="card">
+  <h2>A defensible SOV</h2>
+  <ol>
+    <li><strong>Price from your estimate, not from cash needs.</strong> Start from each line's cost and apply the job's markup: the balanced SOV the tool writes.</li>
+    <li><strong>Put real costs on early lines.</strong> Bond premiums, permit fees, insurance and engineering are real early costs; put them in the cost column and the line's value is no longer "loading".</li>
+    <li><strong>Keep closeout lines at cost or above.</strong> Testing, as-builts, manuals, training and punch list are the work you finish with retainage held. Pricing them at least at cost keeps you paid for it.</li>
+    <li><strong>If you front-load, keep it inside a tolerance you can explain.</strong> The tool's "within tolerance" SOV is the smallest change that keeps every line within the band you choose of the job markup.</li>
+    <li><strong>Read the contract.</strong> The schedule of values and payment articles say who approves the SOV and whether mobilization is capped. Enter any cap below.</li>
+  </ol>
+</section>
+
+<section class="card" id="inputs">
+  <h2>Front-loading check</h2>
+  <p class="note">One row per SOV line, with your estimated cost. Add <strong>Start</strong> and <strong>Finish</strong> month numbers (1 is the first month of the job) to see the cash effect. Paste from a spreadsheet (comma or tab separated) or open a CSV. Nothing leaves this browser.</p>
+  <div class="grid">
+    <div><label for="tol">Tolerance (points of markup)</label><input id="tol" inputmode="decimal" value="10"></div>
+    <div><label for="round">Round new values to</label><select id="round"><option value="cent">the cent</option><option value="dollar" selected>the dollar</option><option value="hundred">$100</option></select></div>
+    <div><label for="ret">Retainage (%)</label><input id="ret" inputmode="decimal" value="10"></div>
+    <div><label for="rate">Your cost of money (% a year)</label><input id="rate" inputmode="decimal" value="" placeholder="optional"></div>
+    <div><label for="mobcap">Mobilization cap in your contract (%)</label><input id="mobcap" inputmode="decimal" value="" placeholder="blank if none"></div>
+  </div>
+  <label for="log">Lines, with a header row</label>
+  <textarea id="log" spellcheck="false" wrap="off" placeholder="Item,Description,Scheduled value,Cost,Start,Finish&#10;1,Mobilization and bonds,38000,14000,1,1&#10;2,Rough-in,148000,128000,2,6"></textarea>
+  <p class="note">Columns: <strong>Scheduled value</strong> and <strong>Cost</strong> (your estimated cost for the line: labour, material, equipment and lower-tier subs) are required. <strong>Item</strong>, <strong>Description</strong>, <strong>Start</strong> and <strong>Finish</strong> are optional. Without months, the order of the lines stands in for timing, and descriptions like testing, closeout, punch list, as-builts or training count as late work.</p>
+  <label for="file">Or open a CSV file (read on this device only)</label>
+  <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+  <button type="button" class="secondary" id="sample">Load an example</button>
+  <button type="button" class="secondary" id="clear">Clear</button>
+</section>
+
+<section class="card" id="result" aria-live="polite">
+  <h2>Result</h2>
+  <div id="errors"></div>
+  <div class="tiles">
+    <div class="tile"><span>Job markup on cost</span><b id="t-markup">0.0%</b></div>
+    <div class="tile"><span>Lines outside tolerance</span><b id="t-flagged">0</b></div>
+    <div class="tile"><span>Value pulled onto early lines</span><b id="t-forward">$0.00</b></div>
+    <div class="tile"><span>Peak over-billing (with months)</span><b id="t-peak">n/a</b></div>
+  </div>
+  <div id="findings"></div>
+  <div class="scroll"><table class="stack compact" role="table">
+    <thead><tr><th role="columnheader" scope="col">Line</th><th role="columnheader" scope="col" class="n">Cost</th><th role="columnheader" scope="col" class="n">Scheduled value</th><th role="columnheader" scope="col" class="n">Markup</th><th role="columnheader" scope="col" class="n">Balanced value</th><th role="columnheader" scope="col" class="n">Loading</th><th role="columnheader" scope="col" class="n">Within tolerance</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table></div>
+  <div id="cash"></div>
+  <p class="note">Balanced: every line at the job's markup. Within tolerance: the smallest cost-weighted change to your values that brings every line inside the band, keeping the contract sum. Both are rounded as you chose and add up to your contract sum exactly. The cash view spreads each line's work and cost evenly over its months and assumes each pay app is paid in the month billed, less retainage; it shows the shape of the job's cash, not your bank balance.</p>
+  <h3>Summary</h3>
+  <pre class="sum" id="summary"></pre>
+  <button type="button" class="secondary" id="copy">Copy summary</button>
+  <h3>A new schedule of values</h3>
+  <p class="note">In the columns the <a href="./">calculator</a> and the <a href="https://marisstella.app/pay-application-generator/">pay application generator</a> read.</p>
+  <label for="which">Which one</label>
+  <select id="which"><option value="fitted">Within tolerance</option><option value="balanced">Balanced</option></select>
+  <pre class="sum" id="sov"></pre>
+  <button type="button" class="secondary" id="copy-sov">Copy SOV</button>
+  <button type="button" class="secondary" id="download">Download the line report (CSV)</button>
+</section>
+
+<section class="card" id="faq">
+  <h2>Common questions</h2>
+  <h3>What is a front-loaded schedule of values?</h3>
+  <p>One where the lines billed early in the job (mobilization, submittals, early rough-in) carry more than their share of the contract's markup, and the lines billed late (testing, closeout, punch list) carry less. The sub collects cash ahead of cost; the owner pays for work before it is done.</p>
+  <h3>Is front-loading a schedule of values allowed?</h3>
+  <p>Contracts rarely ban it by name, but most let the GC, architect or owner's reviewer reject a schedule of values they think is unbalanced, and many cap mobilization. A reviewer who finds front-loading can send the SOV back, rebalance it, or hold the early pay apps. Read your contract's schedule of values and payment articles.</p>
+  <h3>How do I check whether my SOV is front-loaded?</h3>
+  <p>Put your estimated cost next to each line's scheduled value. If every line carries about the same markup on cost as the whole job, the SOV is balanced. Lines well above the job's markup that bill early, and lines below it (or below cost) that bill late, are the front-loading.</p>
+  <h3>What is a balanced schedule of values?</h3>
+  <p>One where each line's scheduled value is its cost times the same factor, the contract sum divided by total cost, so every line carries the same markup and billing tracks cost as the work goes.</p>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>Billing the SOV every month?</h2>
+  <p>We are building hosted pay-app billing for specialty subcontractors: the schedule of values, each month's pay application, retainage, change orders and lien waivers in one place, with the history a dispute needs. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+</section>
+</main>
+<!-- all-guides: generated by nav.mjs, do not edit by hand -->
+<nav class="all-guides" aria-label="All pay app tools and guides">
+    <div>
+      <h2>Tools</h2>
+      <ul>
+      <li><a href="./">Schedule of values calculator</a></li>
+      <li><a href="pay-application-checker.html">Pay app checker (this month vs last)</a></li>
+      <li><a href="change-order-log.html">Change order log</a></li>
+      <li><a href="schedule-of-values-template.html">Free Excel SOV template</a></li>
+      <li><a href="front-loading-schedule-of-values.html" aria-current="page">Front-loading check (balanced SOV)</a></li>
+      <li><a href="pay-if-paid-clauses.html">Pay-if-paid clause reader</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Billing guides</h2>
+      <ul>
+      <li><a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a></li>
+      <li><a href="change-orders-schedule-of-values.html">Change orders and the SOV</a></li>
+      <li><a href="stored-materials-billing.html">Billing stored materials</a></li>
+      <li><a href="overbilling-underbilling.html">Overbilling and underbilling</a></li>
+      <li><a href="retainage-explained.html">Retainage explained, with state caps</a></li>
+      <li><a href="retainage-release.html">Getting retainage released</a></li>
+      <li><a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a></li>
+      <li><a href="retainage-tracker.html">Retainage tracker (every job)</a></li>
+      <li><a href="pay-application-software-compared.html">Pay app software compared</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Getting paid and lien waivers</h2>
+      <ul>
+      <li><a href="prompt-payment-laws.html">Prompt payment laws by state</a></li>
+      <li><a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional lien waivers</a></li>
+      <li><a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a></li>
+      <li><a href="lien-waiver-log.html">Lien waiver log (given and collected)</a></li>
+      <li><a href="sworn-statement.html">Contractor's sworn statement builder</a></li>
+      <li><a href="paid-short.html">Paid short? Reconcile the check</a></li>
+      <li><a href="joint-checks.html">Joint check splitter and split letter</a></li>
+      </ul>
+    </div>
+</nav>
+<!-- /all-guides -->
+<footer>
+  <p><strong>No warranty.</strong> This tool and guide are provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, or financial advice, and it does not replace your contract, your accountant, or an attorney. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+  <p><strong>Privacy.</strong> Everything runs in your browser. Nothing you paste is uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>guide_frontload_viewed</code>, <code>frontload_calculated</code>, <code>frontload_example_loaded</code>, <code>frontload_summary_copied</code>, <code>frontload_sov_copied</code>, <code>frontload_report_downloaded</code>) are counted only on your device, never with your numbers, and Do Not Track switches them off.</p>
+  <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+  import { compute, sovCsv, reportCsv, summaryText, sampleSov, SAMPLE_SETTINGS } from "./frontload.mjs";
+  import { dollars } from "./colog.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const pct = (x) => (x == null ? "no cost" : `${(x * 100).toFixed(1)}%`);
+  let counted = false, last;
+  const settings = () => ({ tolerance: $("#tol").value, round: $("#round").value, retainage: $("#ret").value, rate: $("#rate").value, mobilizationCap: $("#mobcap").value });
+
+  function update() {
+    last = compute($("#log").value, settings());
+    const t = last.totals, m = last.months;
+    $("#errors").innerHTML = last.errors.map((e) => `<p class="err">${esc(e)}</p>`).join("");
+    $("#t-markup").textContent = t ? pct(t.markup) : "0.0%";
+    $("#t-flagged").textContent = t ? `${t.flagged} of ${last.lines.length}` : "0";
+    $("#t-forward").textContent = dollars(t ? t.pulledForward : 0);
+    $("#t-peak").textContent = m ? `${dollars(m.peakOver)} (month ${m.peakMonth})` : "n/a";
+    $("#findings").innerHTML = (t ? last.findings : []).map((f) => `<p class="finding"><span class="pill ${f.severity}">${f.severity === "high" ? "check" : "note"}</span>${esc(f.title)}</p>`).join("");
+    $("#rows").innerHTML = (t ? last.lines : []).map((x) => `<tr><td data-label="Line">${esc(x.label)}${x.early ? " · early" : ""}${x.late ? " · late" : ""}${x.flag ? " · outside" : ""}</td><td data-label="Cost" class="n">${dollars(x.cost)}</td><td data-label="Scheduled value" class="n">${dollars(x.value)}</td><td data-label="Markup" class="n">${pct(x.markup)}</td><td data-label="Balanced value" class="n">${dollars(x.balanced)}</td><td data-label="Loading" class="n">${dollars(x.loading)}</td><td data-label="Within tolerance" class="n">${dollars(x.fitted)}</td></tr>`).join("");
+    $("#cash").innerHTML = m ? `<h3>Cash by month</h3><p class="note">Lowest job cash as submitted ${esc(dollars(m.lowestCash))}; balanced ${esc(dollars(m.lowestCashBalanced))}.${m.financingValue ? ` The early cash is worth about ${esc(dollars(m.financingValue))} at your cost of money.` : ""}</p><div class="scroll"><table class="stack compact" role="table"><thead><tr><th scope="col">Month</th><th scope="col" class="n">Billed to date</th><th scope="col" class="n">Balanced to date</th><th scope="col" class="n">Over-billed</th><th scope="col" class="n">Cost to date</th><th scope="col" class="n">Job cash</th></tr></thead><tbody>${m.rows.map((r) => `<tr><td data-label="Month">${r.month}</td><td data-label="Billed to date" class="n">${dollars(r.billed)}</td><td data-label="Balanced to date" class="n">${dollars(r.balanced)}</td><td data-label="Over-billed" class="n">${dollars(r.over)}</td><td data-label="Cost to date" class="n">${dollars(r.cost)}</td><td data-label="Job cash" class="n">${dollars(r.cash)}</td></tr>`).join("")}</tbody></table></div>` : "";
+    $("#summary").textContent = t ? summaryText(last) : "";
+    $("#sov").textContent = t ? sovCsv(last, $("#which").value) : "";
+    if (!counted && t) { counted = true; record("frontload_calculated"); }
+  }
+  async function copy(id, btn, event) {
+    try { await navigator.clipboard.writeText($(id).textContent); btn.textContent = "Copied"; record(event); } catch { btn.textContent = "Select the text and copy it"; }
+  }
+  record("guide_frontload_viewed");
+  document.addEventListener("input", (e) => { if (e.target.closest("#inputs") && e.target.type !== "file") update(); });
+  $("#round").addEventListener("change", update);
+  $("#which").addEventListener("change", update);
+  $("#file").addEventListener("change", (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    if (f.size > 2_000_000) { $("#errors").innerHTML = '<p class="err">That file is over 2 MB; export just the schedule of values.</p>'; return; }
+    f.text().then((txt) => { $("#log").value = txt; update(); });
+  });
+  $("#sample").addEventListener("click", () => {
+    $("#tol").value = SAMPLE_SETTINGS.tolerance; $("#round").value = SAMPLE_SETTINGS.round; $("#ret").value = SAMPLE_SETTINGS.retainage; $("#rate").value = SAMPLE_SETTINGS.rate; $("#mobcap").value = SAMPLE_SETTINGS.mobilizationCap;
+    $("#log").value = sampleSov(); record("frontload_example_loaded"); update();
+  });
+  $("#clear").addEventListener("click", () => { $("#log").value = ""; update(); });
+  $("#copy").addEventListener("click", (e) => copy("#summary", e.target, "frontload_summary_copied"));
+  $("#copy-sov").addEventListener("click", (e) => copy("#sov", e.target, "frontload_sov_copied"));
+  $("#download").addEventListener("click", () => {
+    if (!last || !last.totals) return;
+    const url = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: "sov-front-loading-check.csv" });
+    a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); record("frontload_report_downloaded");
+  });
+  $("#optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+  if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
+  update();
+</script>
+</body>
+</html>

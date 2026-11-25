@@ -190,3 +190,14 @@ test("QuickBooks lines with an input error total nothing (red team 2026-11-25)",
   assert.ok(r.errors.length);
   assert.equal(r.total, 0);
 });
+
+// Red team 2026-11-25 (escaped mutants): 100% retainage on stored materials is allowed, and so is a held amount of 0.
+test("100% stored retainage is in range; held of 0 adds no retainage line", () => {
+  const r = compute([{ item: "1", description: "x", scheduled: "100", previous: "0", thisPeriod: "0", stored: "50" }], { workRetainage: "10", storedRetainage: "100" });
+  assert.deepEqual(r.findings.filter((f) => f.level === "high"), []);
+  assert.equal(r.totals.retainageOnStored, 5000);
+  const q = quickbooksLines({ billed: "1000", held: "0" });
+  assert.deepEqual(q.errors, []);
+  assert.equal(q.lines.length, 1);
+  assert.equal(q.total, 100000);
+});
