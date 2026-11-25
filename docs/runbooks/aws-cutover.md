@@ -35,7 +35,13 @@ rights on GitHub. Everything else is done by agents through pull requests.
    `bash platform/aws/github/configure.sh <account-id>` (or, by hand: create
    environments `aws-prod` and `aws-llm` limited to the `main` branch and set
    the repository variable `AWS_ACCOUNT_ID`). The next merge under
-   `platform/aws/` builds the Organization.
+   `platform/aws/` builds the Organization. **Do not create an Organization or
+   enable IAM Identity Center before that apply** (Identity Center needs the
+   Organization, and `stacks/org` creates it). If one already exists,
+   `aws organizations describe-organization` prints its `Id`; an agent then
+   adds `import { to = aws_organizations_organization.this, id = "<Id>" }`
+   to `stacks/org` in a PR before the first apply, so the stack adopts it
+   instead of failing.
 4. **Your console login** (after the first apply has run): in the AWS
    console open *IAM Identity Center*, click *Enable*, add your user with MFA,
    and set the repository variable `AWS_OWNER_SSO_USER` to its user name.
