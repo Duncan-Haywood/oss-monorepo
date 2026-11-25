@@ -41,18 +41,15 @@ import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { checkClassTrib } from "./cclasstrib.mjs";
 import { checkCredPres } from "./ccredpres.mjs";
 
-export const NFE_NS = "http://www.portalfiscal.inf.br/nfe";
-// An xmlns or xmlns:prefix attribute whose value is exactly NFE_NS.
-const NFE_NS_DECL = new RegExp(`\\sxmlns(?::[A-Za-z0-9_.-]+)?\\s*=\\s*(["'])${NFE_NS.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}\\1`);
+// The namespace and the sniffer live in national-sniff.mjs so report.mjs can call it without loading this module.
+import { NFE_NS } from "./national-sniff.mjs";
+export { NFE_NS };
+export { looksLikeNfe } from "./national-sniff.mjs";
 
 function finding(rule, message, fix, path) {
   return { rule, message, fix, path };
 }
 
-export function looksLikeNfe(text) {
-  const head = String(text).slice(0, 4096);
-  return /<(?:[A-Za-z0-9_]+:)?(?:NFe|nfeProc)[\s>]/.test(head) && NFE_NS_DECL.test(head);
-}
 
 // ---------- schema layer ----------
 

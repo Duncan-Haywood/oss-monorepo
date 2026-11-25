@@ -65,10 +65,8 @@ const raw = (n, name) => kid(n, name)?.text ?? "";
 const TSTRING = /^[!-\u00ff](?:[ -\u00ff]*[!-\u00ff])?$/u;
 const named = (n) => (n?.children || []).filter((c) => c.name);
 
-export function looksLikeNfeEvent(text) {
-  const head = String(text).slice(0, 4096);
-  return /<(?:[A-Za-z0-9_]+:)?(?:envEvento|evento|procEventoNFe)[\s>]/.test(head) && head.includes(NFE_NS);
-}
+// The sniffer lives in national-sniff.mjs so report.mjs can call it without loading this module.
+export { looksLikeNfeEvent } from "./national-sniff.mjs";
 
 const OLD = new Set(["gCredPres", "vBC", "gIBS", "gCBS"]);
 function oldLayout(det) {

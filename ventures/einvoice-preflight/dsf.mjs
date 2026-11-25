@@ -33,9 +33,8 @@ export const DSF_NS = "http://localhost:8080/WsNFe2/lote";
 export const DSF_LAYOUTS = ["ISSDSF 1.00", "ISSDSF 1.01"];
 const finding = (rule, message, fix, path) => ({ rule, message, fix, path });
 
-export function looksLikeDsf(text) {
-  return String(text).slice(0, 8192).includes("localhost:8080/WsNFe2/lote");
-}
+// The sniffer lives in national-sniff.mjs so report.mjs can call it without loading this module.
+export { looksLikeDsf } from "./national-sniff.mjs";
 
 // ---------- TOM (SIAFI) city codes ----------
 

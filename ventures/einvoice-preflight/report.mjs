@@ -17,12 +17,9 @@ import { cdarEnvelope, cdarFindings, cdarJourneys, looksLikeCdar, readCdar, stat
 import { flux10Envelope, flux10Findings, flux10Kinds, looksLikeFlux10, readFlux10 } from "./flux10.mjs";
 import { looksLikeSdiReceipt, pairReceipt, readSdiReceipt, receiptEnvelope, receiptFindings } from "./sdi-receipt.mjs";
 import { checkFa3, fa3DuplicateKey, looksLikeFa3 } from "./fa3.mjs";
-import { checkCfdi, looksLikeCfdi } from "./cfdi.mjs";
-import { checkNfe, looksLikeNfe } from "./nfe.mjs";
-import { checkNfeEvent, looksLikeNfeEvent } from "./nfe-event.mjs";
-import { checkNfse, looksLikeNfse } from "./nfse.mjs";
-import { checkAbrasf, looksLikeAbrasf } from "./abrasf.mjs";
-import { checkDsf, looksLikeDsf } from "./dsf.mjs";
+// Mexico's and Brazil's checkers (568 kB of the engine's 926 kB compressed) load only for a file
+// of their format; the sniffers are small (national-sniff.mjs).
+import { looksLikeCfdi, looksLikeNfe, looksLikeNfeEvent, looksLikeNfse, looksLikeAbrasf, looksLikeDsf } from "./national-sniff.mjs";
 import { checkZatcaStamp, checkZatcaChain, looksLikeZatca } from "./zatca-stamp.mjs";
 
 export const DEFAULT_MAX_BYTES = 1_048_576;
@@ -262,6 +259,7 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       }
       if (!looksLikePdf(name, source) && looksLikeCfdi(peek)) {
         // Mexico's CFDI 4.0 is its own schema, not EN 16931: own rules, no UBL/CII reading.
+        const { checkCfdi } = await import("./cfdi.mjs");
         const mexican = checkCfdi(peek);
         reports.push({ file: name, errors: mexican.findings, envelope: `Read as Mexican CFDI ${mexican.meta.version || ""} (SAT), not EN 16931${mexican.meta.stamped ? "; stamped by a PAC" : "; not stamped"}`, ...(mexican.skipped.length ? { skipped: mexican.skipped } : {}) });
         continue;
@@ -274,6 +272,7 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         const pair = key && inputs.find((o) => o !== input && typeof o.source === "string" && looksLikeNfe(o.source) && o.source.includes(`NFe${key}`));
         const aut = /<(?:[A-Za-z0-9_]+:)?tpEventoAut>\s*(\d{6})\s*</.exec(peek)?.[1];
         const cancelled = aut && key && inputs.find((o) => o !== input && typeof o.source === "string" && looksLikeNfeEvent(o.source) && o.source.includes(key) && [...o.source.matchAll(/<(?:[A-Za-z0-9_]+:)?tpEvento>\s*(\d{6})\s*</g)].some((t) => t[1] === aut));
+        const { checkNfeEvent } = await import("./nfe-event.mjs");
         const ev = checkNfeEvent(peek, { ...(pair ? { nfe: pair.source } : {}), ...(cancelled ? { cancelled: cancelled.source } : {}) });
         const m = ev.meta;
         const kind = m.types?.length > 1 ? `batch of ${m.events} reform events (${m.types.join(", ")})` : m.tpEvento === "211110" || !m.name ? "presumed-credit appropriation event (211110)" : `event ${m.tpEvento} ("${m.name}")`;
@@ -282,6 +281,7 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       }
       if (!looksLikePdf(name, source) && looksLikeNfe(peek)) {
         // Brazil's NF-e/NFC-e 4.00 is its own schema, not EN 16931: own rules, no UBL/CII reading.
+        const { checkNfe } = await import("./nfe.mjs");
         const brazilian = checkNfe(peek);
         const m = brazilian.meta;
         reports.push({ file: name, errors: brazilian.findings, envelope: `Read as Brazilian ${m.mod === "65" ? "NFC-e" : "NF-e"} ${m.versao || ""} (SEFAZ), not EN 16931${m.authorised ? "; authorised (protocol cStat 100)" : ""}${m.tpAmb === "2" ? "; test environment (tpAmb 2)" : ""}`, ...(brazilian.skipped.length ? { skipped: brazilian.skipped } : {}) });
@@ -289,6 +289,7 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       }
       if (!looksLikePdf(name, source) && looksLikeNfse(peek)) {
         // Brazil's national NFS-e (Padrão Nacional, services) is its own schema: own rules.
+        const { checkNfse } = await import("./nfse.mjs");
         const nfse = checkNfse(peek);
         const m = nfse.meta;
         reports.push({ file: name, errors: nfse.findings, envelope: `Read as a Brazilian national NFS-e ${m.kind === "DPS" ? "DPS (the request)" : "(as issued)"} ${m.versao || ""}, not EN 16931${m.cStat === "100" ? "; issued (cStat 100)" : ""}${m.ambGer === "2" || m.tpAmb === "2" ? "; test environment" : ""}`, ...(nfse.skipped.length ? { skipped: nfse.skipped } : {}) });
@@ -297,6 +298,7 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       if (!looksLikePdf(name, source) && looksLikeDsf(peek)) {
         // Brazil's municipal NFS-e in DSF's own layout (Campinas's old system, Campo Grande,
         // Teresina, ...): own schema, RPS signature hash and batch totals.
+        const { checkDsf } = await import("./dsf.mjs");
         const dsf = checkDsf(peek);
         const m = dsf.meta;
         reports.push({ file: name, errors: dsf.findings, envelope: `Read as a Brazilian municipal NFS-e in DSF's layout (${m.version ? `DSF ${m.version.split(" ")[1]}` : "DSF"}${m.root ? `, ${m.root}` : ""}), not EN 16931${m.root === "ReqEnvioLoteRPS" ? `; a batch of ${m.rps} RPS` : ""}`, ...(dsf.skipped.length ? { skipped: dsf.skipped } : {}) });
@@ -304,6 +306,7 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       }
       if (!looksLikePdf(name, source) && looksLikeAbrasf(peek)) {
         // Brazil's municipal NFS-e in the ABRASF layout (most city web services): own rules.
+        const { checkAbrasf } = await import("./abrasf.mjs");
         const city = checkAbrasf(peek);
         const m = city.meta;
         reports.push({ file: name, errors: city.findings, envelope: `Read as a Brazilian municipal NFS-e (ABRASF${m.version ? ` ${m.version}` : ""}${m.root ? `, ${m.root}` : ""}), not EN 16931${m.issued ? "; an issued NFS-e" : m.rps ? "; an RPS for conversion" : ""}`, ...(city.skipped.length ? { skipped: city.skipped } : {}) });
