@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import vm from 'node:vm';
 import { spawnSync } from 'node:child_process';
-import { AGENT_BLOG, autoSeoTitle, BLOG, bodyMatcher, buildWriting, PAGE_SIZE as WRITING_PAGE_SIZE, TOPICS, loadPosts, parseFrontMatter, postPageTitle, rankRelated, relatedPosts, renderFeed, renderIndex, renderPost, renderSearchIndex, searchText, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
+import { AGENT_BLOG, autoSeoTitle, BLOG, bodyMatcher, buildWriting, PAGE_SIZE as WRITING_PAGE_SIZE, TOPICS, loadPosts, parseFrontMatter, postPageTitle, rankRelated, rankRelatedBySort, relatedPosts, renderFeed, renderIndex, renderPost, renderSearchIndex, searchText, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
 
 const BASE = 'https://example.test/site/';
 
@@ -362,6 +362,31 @@ test('rankRelated ranks by rare shared tags and title words, not by recency', ()
   assert.deepEqual(rankRelated(posts[0], posts, 3).map((p) => p.slug), ['new-b', 'words', 'hull-2']);
   // The old rule gave every post in a topic the topic's newest posts; the series no longer points at them.
   for (const p of posts.slice(2, 5)) assert.ok(!rankRelated(p, posts, 3).some((r) => r.slug.startsWith('new-')), p.slug);
+});
+
+// rankRelated keeps the best k as candidates arrive instead of sorting every
+// candidate (docs/history/pages-build-perf-2026-11-25-related-top-k.md). Pinned
+// against the full sort on ties in score and date, duplicate slugs, a post not
+// in the array, an unparseable date and odd list lengths.
+test('rankRelated gives the same lists as the full sort it replaced', () => {
+  let seed = 7;
+  const rand = (k) => ((seed = (seed * 1103515245 + 12345) % 2147483648) % k);
+  const words = ['hull', 'catamaran', 'retainage', 'lien', 'waiver', 'payroll', 'tank', 'curve', 'shed', 'roof'];
+  const mk = (i) => ({
+    slug: `p${i % 97 === 0 ? 0 : i}`,
+    date: `2026-${String(1 + rand(3)).padStart(2, '0')}-${String(1 + rand(5)).padStart(2, '0')}`,
+    topic: ['tools', 'research', 'business'][rand(3)],
+    tags: Array.from({ length: rand(4) }, () => `t${rand(12)}`),
+    title: Array.from({ length: 1 + rand(4) }, () => words[rand(words.length)]).join(' '),
+  });
+  const posts = Array.from({ length: 300 }, (_, i) => mk(i));
+  const outsider = { ...mk(999), slug: 'outsider' };
+  const slugs = (list) => list.map((p) => p.slug);
+  for (const n of [1, 2, 5, 20, 400, 0, -1, 2.5]) {
+    for (const p of [...posts, outsider]) assert.deepEqual(slugs(rankRelated(p, posts, n)), slugs(rankRelatedBySort(p, posts, n)), `${p.slug} n=${n}`);
+  }
+  const odd = posts.map((p, i) => (i === 5 ? { ...p, date: 'not a date' } : p));
+  for (const p of odd) assert.deepEqual(slugs(rankRelated(p, odd, 5)), slugs(rankRelatedBySort(p, odd, 5)), p.slug);
 });
 
 test('relatedPosts gives every post an inbound link, taken from the weakest slot of its best match', () => {

@@ -1308,7 +1308,13 @@ function relatedIndex(posts) {
   // below compare thousands of pairs per post page, and parsing the date in
   // every comparison was about 2 s of a warm build (2026-11-12).
   const days = posts.map((p) => dayNumber(p.date));
-  index = { byTag, byWord, words, idf, days };
+  // A score per post index, zeroed again after each ranking: one Float64Array
+  // in place of a Map per post page (docs/history/pages-build-perf-2026-11-25-related-top-k.md).
+  const scratch = new Float64Array(posts.length);
+  // An unparseable date makes the nearest-in-date order inconsistent, so the
+  // top-k selection below is only used when every date is a number.
+  const finiteDays = days.every(Number.isFinite);
+  index = { byTag, byWord, words, idf, days, scratch, finiteDays };
   RELATED_INDEX.set(posts, index);
   return index;
 }
@@ -1329,7 +1335,60 @@ const dayNumber = (iso) => (iso ? Date.parse(`${iso}T00:00:00Z`) / 86400000 : 0)
  * lists itself.
  */
 export function rankRelated(post, posts, n = 5) {
-  const { byTag, byWord, words, idf, days } = relatedIndex(posts);
+  const index = relatedIndex(posts);
+  const day = dayNumber(post.date);
+  // The sort handles the rare shapes: a list length that is not a whole number
+  // of at least 1, a date that does not parse, or an array grown since its index.
+  if (!(Number.isInteger(n) && n >= 1) || !index.finiteDays || !Number.isFinite(day) || index.days.length !== posts.length) {
+    return rankRelatedBySort(post, posts, n, index);
+  }
+  const { byTag, byWord, words, idf, days, scratch } = index;
+  // Same scores as rankRelatedBySort, added in the same order per post, so the
+  // sums are the same floats.
+  const touched = [];
+  const add = (list, weight) => {
+    if (!weight) return;
+    for (const i of list) {
+      if (scratch[i] === 0) touched.push(i);
+      scratch[i] += weight;
+    }
+  };
+  for (const t of new Set(post.tags ?? [])) add(byTag.get(t) ?? [], idf(byTag.get(t)));
+  for (const w of words.get(post) ?? titleWords(post.title)) add(byWord.get(w) ?? [], idf(byWord.get(w)) / 2);
+  // Both orders below are total (ties end on the index), so keeping the best k
+  // as candidates arrive gives exactly the first k of the full sort.
+  const gap = (i) => Math.abs(days[i] - day);
+  const nearest = (a, b) => gap(a) - gap(b) || a - b;
+  const byScore = (a, b) => scratch[b] - scratch[a] || nearest(a, b);
+  const top = [];
+  const keep = (i, k, cmp) => {
+    if (top.length >= k && cmp(i, top[top.length - 1]) >= 0) return;
+    let at = top.length;
+    while (at > 0 && cmp(i, top[at - 1]) < 0) at--;
+    top.splice(at, 0, i);
+    if (top.length > k) top.pop();
+  };
+  for (const i of touched) if (scratch[i] > 0 && posts[i].slug !== post.slug) keep(i, n, byScore);
+  for (const i of touched) scratch[i] = 0;
+  const ranked = top.map((i) => posts[i]);
+  if (ranked.length >= n) return ranked;
+  const taken = new Set(ranked.map((p) => p.slug).concat(post.slug));
+  for (const sameTopic of [true, false]) {
+    const k = n - ranked.length;
+    if (k <= 0) break;
+    top.length = 0;
+    posts.forEach((p, i) => {
+      if ((p.topic === post.topic) === sameTopic && !taken.has(p.slug)) keep(i, k, nearest);
+    });
+    for (const i of top) ranked.push(posts[i]);
+  }
+  return ranked;
+}
+
+// The original full-sort ranking. rankRelated falls back to it when a date does
+// not parse, and the tests pin rankRelated against it.
+export function rankRelatedBySort(post, posts, n = 5, index = relatedIndex(posts)) {
+  const { byTag, byWord, words, idf, days } = index;
   const score = new Map();
   const add = (list, weight) => {
     if (!weight) return;
@@ -1414,11 +1473,27 @@ function withArticleDefaults(node, { canonical, baseUrl, image }) {
   return node;
 }
 
+// The first index of each slug in one posts array, built once (as `siblingTargets`
+// is): a findIndex per post page was 7,367 x 7,367 comparisons, about 0.3 s of a
+// build (docs/history/pages-build-perf-2026-11-25-related-top-k.md). An index that
+// no longer holds the slug (the array changed in place) falls back to findIndex.
+const POST_INDEX = new WeakMap();
+function postIndex(posts, slug) {
+  let cached = POST_INDEX.get(posts);
+  if (!cached || cached.n !== posts.length) {
+    const at = new Map();
+    posts.forEach((p, i) => { if (!at.has(p.slug)) at.set(p.slug, i); });
+    POST_INDEX.set(posts, (cached = { n: posts.length, at }));
+  }
+  const i = cached.at.get(slug);
+  return i !== undefined && posts[i]?.slug === slug ? i : posts.findIndex((p) => p.slug === slug);
+}
+
 function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = null, section = BLOG, projects = [] } = {}) {
   const canonical = baseUrl ? `${baseUrl}${section.path}${post.slug}/` : '';
   const isAgents = section.id === 'agents';
   const toRoot = '../'.repeat(section.depth + 1);
-  const at = posts.findIndex((p) => p.slug === post.slug);
+  const at = postIndex(posts, post.slug);
   const newer = at > 0 ? posts[at - 1] : null;
   const older = at >= 0 && at < posts.length - 1 ? posts[at + 1] : null;
   const related = relatedPosts(post, posts);
