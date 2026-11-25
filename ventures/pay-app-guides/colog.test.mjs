@@ -125,3 +125,9 @@ test("edge cases the red team seeded (2026-11-25)", () => {
   const all = compute(log("1,a,Approved,100,,2026-11-10,2026-11-01,0"), S).findings.map((f) => f.title).join("\n");
   assert.match(all, /approved 2026-11-01, before it was submitted 2026-11-10/);
 });
+
+// Red team 2026-11-25: Number() read "3e1" as 30 and "0x1e" as 30 stale days.
+test("stale days must be plain digits", () => {
+  for (const staleDays of ["3e1", "0x1e", "30.0"]) assert.match(compute(sampleLog(), { ...SAMPLE_SETTINGS, staleDays }).errors.join(" "), /whole number/, staleDays);
+  assert.deepEqual(compute(sampleLog(), { ...SAMPLE_SETTINGS, staleDays: " 45 " }).errors, []);
+});

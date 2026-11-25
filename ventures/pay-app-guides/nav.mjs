@@ -14,6 +14,7 @@ export const GROUPS = [
     ["pay-application-checker.html", "Pay app checker (this month vs last)"],
     ["change-order-log.html", "Change order log"],
     ["schedule-of-values-template.html", "Free Excel SOV template"],
+    ["front-loading-schedule-of-values.html", "Front-loading check (balanced SOV)"],
     ["pay-if-paid-clauses.html", "Pay-if-paid clause reader"],
   ]],
   ["Billing guides", [
@@ -34,6 +35,8 @@ export const GROUPS = [
     ["lien-waiver-log.html", "Lien waiver log (given and collected)"],
     ["sworn-statement.html", "Contractor's sworn statement builder"],
     ["paid-short.html", "Paid short? Reconcile the check"],
+    ["joint-checks.html", "Joint check splitter and split letter"],
+    ["pay-app-cash-forecast.html", "When will I get paid? Cash forecast"],
   ]],
 ];
 

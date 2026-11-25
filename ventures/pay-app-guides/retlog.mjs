@@ -73,7 +73,8 @@ export function compute(text, settings = {}) {
   const defaultDays = wholeDays(settings.defaultDays);
   if (defaultDays === null) { out.errors.push("Default release days must be a whole number from 0 to 3650, or blank."); return out; }
   const rateRaw = String(settings.rate ?? "").trim().replace(/%$/, "");
-  const rate = rateRaw === "" ? null : Number(rateRaw);
+  // Plain decimals only: Number() read "1e1" as 10 and "0x8" as 8 (red team 2026-11-25).
+  const rate = rateRaw === "" ? null : /^\d+(\.\d+)?$/.test(rateRaw) ? Number(rateRaw) : NaN;
   if (rate !== null && !(Number.isFinite(rate) && rate >= 0 && rate <= 100)) { out.errors.push("Cost of money must be a percent from 0 to 100, or blank."); return out; }
 
   for (let r = 1; r < grid.length; r++) {
@@ -151,9 +152,13 @@ export function compute(text, settings = {}) {
   for (const x of out.jobs) if (x.completed !== undefined && x.completed > asOf) F("info", `${x.job}: completion date ${dayText(x.completed)} is after the as-of date, so the job is treated as not yet complete.`);
   const top = out.byGc[0];
   if (out.byGc.length > 1 && top && totals.outstanding > 0 && top.outstanding * 2 > totals.outstanding) F("info", `${top.gc} holds ${((top.outstanding * 100) / totals.outstanding).toFixed(0)}% of your outstanding retainage (${dollars(top.outstanding)}). One slow payer that size is a cash-flow risk worth planning for.`);
+  // Matched without case, reported in the spelling first typed.
   const names = new Map();
-  for (const x of out.jobs) names.set(x.job.toLowerCase(), (names.get(x.job.toLowerCase()) ?? 0) + 1);
-  for (const [n, c] of names) if (c > 1) F("info", `Job "${n}" appears ${c} times. If these are separate pay-app periods, enter one row per job with the totals to date.`);
+  for (const x of out.jobs) {
+    const k = x.job.toLowerCase(), seen = names.get(k);
+    names.set(k, { n: seen?.n ?? x.job, c: (seen?.c ?? 0) + 1 });
+  }
+  for (const { n, c } of names.values()) if (c > 1) F("info", `Job "${n}" appears ${c} times. If these are separate pay-app periods, enter one row per job with the totals to date.`);
   out.findings.sort((a, b) => (a.severity === b.severity ? 0 : a.severity === "high" ? -1 : 1));
   return out;
 }

@@ -73,3 +73,26 @@ category you already chose, never which category applies to your sale. A
 paid service that explains every failed rule in your file and proposes a
 corrected one is in development (early access only, not on sale), and each
 rule page links to it.
+
+## Update, 25 November: our checker now agrees with its own BR-CO-17 page
+
+The BR-CO-17 page above says the official test accepts a VAT amount less than
+one currency unit away from taxable amount × rate. Our own built-in check did
+not: it blocked a breakdown row a single cent off, and then the tax total
+that added those rows up. That is exactly what happens when accounting
+software rounds VAT on each line and adds the lines (3 × 10.07 at 19 % gives
+3 × 1.91 = 5.73; the rate applied to the total, 30.21, gives 5.74). The
+official rules accept that invoice, so we were telling bookkeepers to "fix"
+a valid file.
+
+Now a row within the official tolerance shows as a **warning** with the exact
+figure, in case you want to match it, and the file passes. A full unit off,
+an amount with the wrong sign, or a tax total that disagrees with its own
+rows still fails. We tested it on 600 generated UBL and CII invoices with
+every VAT row moved by between 0.01 and 1.00 and compared the result with the
+official CEN rules the tool bundles: before the change 477 valid files were
+blocked, after it none, and every file the official rules reject is still
+rejected. The files were generated, not taken from real ERPs, and Peppol PINT
+(Singapore, Australia, Oman and others) and Saudi ZATCA invoices keep the
+exact check because their own rule sets apply.
+[Method and numbers](https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/einvoice-preflight/eval/brco17-tolerance-2026-11-25.md).

@@ -70,3 +70,6 @@ footer { margin-top: 28px; border-top: 1px solid var(--line); padding-top: 16px;
 .checks { border: 1px solid var(--line); border-radius: 8px; margin: 14px 0; padding: 8px 14px; }
 .checks label { font-weight: 400; margin: 6px 0; display: flex; gap: 8px; align-items: baseline; }
 .checks input { width: auto; flex: none; margin: 0; }
+/* The calculator's header keeps four picks; the full list is the all-guides block at the bottom. */
+nav.guides a.all { font-weight: 700; }
+#all-guides { display: block; scroll-margin-top: 12px; }

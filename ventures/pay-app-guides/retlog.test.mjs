@@ -108,3 +108,28 @@ test("summary and CSV carry the figures, and CSV cells cannot run as formulas", 
   assert.match(csv, /'=HYPERLINK/);
   assert.equal(jobsCsv(r).split("\n").length, 7);
 });
+
+// Red team 2026-11-25 (escaped mutants and defects).
+const H = "Job,GC,Retainage held,Released,Completed,Release days";
+test("a negative held alone is refused, even with released positive", () => {
+  const r = compute(`${H}\nA,G,-100,50,2026-01-01,30`, { asOf: "2026-11-25" });
+  assert.match(r.errors.join(" "), /positive amounts/);
+});
+test("over-released overdue job carries no (negative) carrying cost", () => {
+  const r = compute(`${H}\nA,G,100,500,2026-01-01,30`, { asOf: "2026-11-25", rate: "8" });
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.jobs[0].carrying, 0);
+});
+test("GCs with equal outstanding sort by name", () => {
+  const r = compute(`${H}\nA,Zeta,100,0,,\nB,Alpha,100,0,,`, { asOf: "2026-11-25" });
+  assert.deepEqual(r.byGc.map((g) => g.gc), ["Alpha", "Zeta"]);
+});
+test("a job listed once is not reported as a duplicate; a duplicate keeps the user's spelling", () => {
+  assert.ok(!sample().findings.some((f) => /appears \d+ times/.test(f.title)));
+  const r = compute(`${H}\nMaple St,G,100,0,,\nmaple st,G,200,0,,`, { asOf: "2026-11-25" });
+  assert.ok(r.findings.some((f) => f.title.includes('Job "Maple St" appears 2 times')));
+});
+test("cost of money must be a plain decimal percent", () => {
+  for (const rate of ["1e1", "0x8", "Infinity"]) assert.match(compute(sampleJobs(), { ...SAMPLE_SETTINGS, rate }).errors.join(" "), /Cost of money/, rate);
+  assert.deepEqual(compute(sampleJobs(), { ...SAMPLE_SETTINGS, rate: "8.5%" }).errors, []);
+});

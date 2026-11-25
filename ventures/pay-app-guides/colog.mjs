@@ -114,7 +114,9 @@ export function compute(text, settings = {}) {
   if (original == null) { out.errors.push("Original contract sum is not a dollar amount."); return out; }
   const asOf = settings.asOf ? parseDate(settings.asOf) : Math.floor(Date.now() / 86400000);
   if (asOf == null) { out.errors.push("As-of date must be YYYY-MM-DD or M/D/YYYY."); return out; }
-  const stale = settings.staleDays === "" || settings.staleDays == null ? 30 : Number(settings.staleDays);
+  // Digits only: Number() read "3e1" and "0x1e" as 30 (red team 2026-11-25).
+  const staleRaw = String(settings.staleDays ?? "").trim();
+  const stale = staleRaw === "" ? 30 : /^\d+$/.test(staleRaw) ? Number(staleRaw) : NaN;
   if (!Number.isInteger(stale) || stale < 1 || stale > 3650) { out.errors.push("Days before a pending change order counts as stale must be a whole number from 1 to 3650."); return out; }
 
   for (let r = 1; r < grid.length; r++) {

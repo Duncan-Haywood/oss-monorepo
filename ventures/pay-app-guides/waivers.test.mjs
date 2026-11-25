@@ -110,3 +110,11 @@ test("CSV cells a spreadsheet would run as formulas are neutralised", () => {
   const r = run(["Given,=HYPERLINK(1),CP,2026-10-31,10,,,"]);
   assert.match(logCsv(r), /'=HYPERLINK/);
 });
+
+// Red team 2026-11-25: Number() read " " as 0 chase days and "1e1" as 10.
+test("chase days must be plain digits; blank or spaces use the default", () => {
+  for (const chaseDays of ["1e1", "0xa", "10.0"]) assert.match(compute(sampleLog(), { ...SAMPLE_SETTINGS, chaseDays }).errors.join(" "), /whole number/, chaseDays);
+  const spaces = compute(sampleLog(), { ...SAMPLE_SETTINGS, chaseDays: "  " });
+  assert.deepEqual(spaces.errors, []);
+  assert.deepEqual(spaces.findings, compute(sampleLog(), SAMPLE_SETTINGS).findings);
+});

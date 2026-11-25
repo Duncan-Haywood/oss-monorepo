@@ -64,3 +64,19 @@ test("the letter claims only the final pay app and waiver that were ticked as se
   assert.match(noWaiver, /- Final conditional lien waiver for the retainage amount: \[date\]/);
   assert.match(retainageRelease({ ...base, missing: ["final-app", "final-waiver"] }).letter, /Please release \$15,000\.00\.\n/);
 });
+
+// Red team 2026-11-25: with everything already released the letter asked for "$0.00 ... past due".
+test("nothing left to release is an error, not a letter asking for $0.00", () => {
+  const r = retainageRelease({ ...base, released: "15000" });
+  assert.equal(r.letter, undefined);
+  assert.match(r.errors.join(" "), /nothing left to release/i);
+});
+
+// Red team 2026-11-25: Number() read "1e1" as 10 days and "0x3c" as 60.
+test("release days must be plain digits", () => {
+  for (const days of ["1e1", "0x3c", "6e1", " 60 "]) {
+    const r = retainageRelease({ ...base, days });
+    if (days.trim() === "60") assert.deepEqual(r.errors, []);
+    else assert.match(r.errors.join(" "), /whole number/, days);
+  }
+});

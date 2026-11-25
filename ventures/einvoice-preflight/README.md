@@ -1131,6 +1131,21 @@ These input errors are reported in the selected format and the command exits
 `2`, so CI and ERP adapters do not need to special-case an unstructured stderr
 or stdout message.
 
+## VAT a cent off per-rate: a warning, as EN 16931 allows (2026-11-25)
+
+Rounding VAT per line and summing the lines often lands a cent away from
+taxable x rate worked per rate. CEN's BR-CO-17 accepts any row within one
+currency unit (strictly under 1.00 in UBL, up to 1.00 in CII); the built-in
+route used to block such a row (`INV-038`) and its tax total (`INV-018`).
+Now a row within that tolerance is an `INV-038` **warning** naming the exact
+figure, and a tax total equal to the sum of its rows passes. Opposite signs and
+a full unit off still block; PINT and ZATCA files keep the exact check (their
+own rule sets apply); the Python CLI stays silent on the warning. Measured
+against the bundled CEN rules on 600 generated UBL and CII files: false alarms
+477 → 0, misses 0 (`eval/brco17-tolerance-2026-11-25.md`, rerun with
+`node eval/brco17-tolerance-crosscheck.mjs`; tests `brco17-tolerance.test.mjs`,
+`tests/test_breakdown.py`).
+
 ## Measured on real FatturaPA samples (2026-10-28)
 
 `node eval/fatturapa-corpus.mjs <ZUGFeRD corpus>/fatturaPA` ran `IT-001`..`IT-018` over 15 files: the Agenzia delle Entrate's six official samples (FPR01-03, FPA01-03) and nine from eigor. Result: `IT-003`/`IT-004` on 8 and 9 files (the samples use the placeholder partita IVA 01234567890, which fails its check digit, so these are right); `IT-017` on 3 (placeholder IBANs); `IT-015` on FPR02 and FPR03 (the first body's lines sum to 25.00 but its summary base is 27.00, a real inconsistency in the sample); and `IT-018` on FPR02, **a false positive of ours**: the official sample puts `PECDestinatario` before `ContattiTrasmittente` in `DatiTrasmissione`, against the order this tool had written from memory. Reading the XSD (2026-10-30) settled it: the schema puts ContattiTrasmittente first, xmllint rejects the sample, and the exemption was removed. The corpus marks all 15 as valid, which only means they pass its own check, not that SdI accepted them. Rules for cassa, bollo and ritenuta files are skipped and named, as before.

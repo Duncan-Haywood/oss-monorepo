@@ -96,3 +96,12 @@ test("a month past 12 or a day past the month's end is not a date", () => {
   }
   assert.deepEqual(promptPayInterest({ ...base, received: "2028-02-29" }).errors, []); // a real leap day
 });
+
+// Red team 2026-11-25: Number() read "0x7" as 7 days and "1e1" as 10.
+test("days to pay must be plain digits", () => {
+  for (const days of ["0x7", "1e1", "7.0e0"]) {
+    const r = promptPayInterest({ amount: "1000", received: "2026-01-01", paid: "2026-03-01", days, rate: "1.5" });
+    assert.match(r.errors.join(" "), /whole number/, days);
+  }
+  assert.deepEqual(promptPayInterest({ amount: "1000", received: "2026-01-01", paid: "2026-03-01", days: " 7 ", rate: "1.5" }).errors, []);
+});
