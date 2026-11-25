@@ -4,17 +4,17 @@
   "counts": {
     "mit-commons": 5,
     "mit-deployer-run": 1,
-    "mit-lead-magnet": 1419,
-    "proprietary": 20
+    "mit-lead-magnet": 1418,
+    "proprietary": 21
   },
   "models": {
-    "subscription": 9,
+    "subscription": 10,
     "one-off": 11
   },
   "proprietary": [
     {
       "venture": "einvoice-preflight",
-      "source_lines": 36493,
+      "source_lines": 36599,
       "track": "proprietary",
       "why": "flagship #3: the depth people pay for",
       "model": "subscription",
@@ -33,7 +33,7 @@
     },
     {
       "venture": "wall-framing-takeoff",
-      "source_lines": 18156,
+      "source_lines": 18161,
       "track": "proprietary",
       "why": "flagship #6: the depth people pay for",
       "model": "one-off",
@@ -71,7 +71,7 @@
     },
     {
       "venture": "shift-roster-builder",
-      "source_lines": 13606,
+      "source_lines": 14095,
       "track": "proprietary",
       "why": "flagship #11: the depth people pay for",
       "model": "subscription",
@@ -128,7 +128,7 @@
     },
     {
       "venture": "xer-schedule-check",
-      "source_lines": 16612,
+      "source_lines": 16634,
       "track": "proprietary",
       "why": "flagship #18: the depth people pay for",
       "model": "one-off",
@@ -196,7 +196,7 @@
     },
     {
       "venture": "clothing-design-studio",
-      "source_lines": 14654,
+      "source_lines": 14670,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "one-off",
@@ -218,7 +218,7 @@
     },
     {
       "venture": "retail-pilot-intel",
-      "source_lines": 8584,
+      "source_lines": 8773,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "one-off",
@@ -229,7 +229,7 @@
     },
     {
       "venture": "real-estate-agent-photo-app",
-      "source_lines": 8112,
+      "source_lines": 8114,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "subscription",
@@ -250,6 +250,17 @@
       "third_party_licences": [],
       "moved": null,
       "move_order": 20
+    },
+    {
+      "venture": "machine-shop-guides",
+      "source_lines": 5740,
+      "track": "proprietary",
+      "why": "over 5000 lines of product code, more than a single-page tool",
+      "model": "subscription",
+      "model_why": "runs a server-side part (pdf-parser-sync.test.mjs): a monthly cost per user",
+      "third_party_licences": [],
+      "moved": null,
+      "move_order": 21
     }
   ],
   "stay_mit": {
@@ -264,5 +275,5 @@
       "sales-agent"
     ]
   },
-  "lead_magnets": 1419
+  "lead_magnets": 1418
 }
