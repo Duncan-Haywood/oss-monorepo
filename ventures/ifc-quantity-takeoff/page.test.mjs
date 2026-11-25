@@ -25,8 +25,28 @@ test("the page fetches only its own sample and imports browser-safe modules", ()
     assert.doesNotMatch(src, /from "node:/, `${name} must run in a browser`);
     for (const m of src.matchAll(/from "\.\/([a-z0-9-]+\.mjs)"/g)) walk(m[1]);
   };
-  for (const m of html.matchAll(/from "\.\/([a-z0-9-]+\.mjs)"/g)) walk(m[1]);
+  for (const m of html.matchAll(/(?:from |import\()"\.\/([a-z0-9-]+\.mjs)"/g)) walk(m[1]);
   assert.ok(seen.has("qto.mjs") && seen.has("geom.mjs") && seen.has("step.mjs"));
+});
+
+test("modules some visits never need load on demand, and every name taken from them is exported", async () => {
+  const html = page("index.html");
+  const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
+  // not in the static graph the Pages build preloads
+  for (const f of ["viewer", "view-mesh", "diff", "step"]) assert.doesNotMatch(src, new RegExp(`^\\s*import\\s.*from "\\./${f}\\.mjs"`, "m"), f);
+  const loaders = Object.fromEntries([...src.matchAll(/const (\w+) = onDemand\(\(\) => ([^\n]+)\);\n/g)].map((m) => [m[1], [...m[2].matchAll(/import\("([^"]+)"\)/g)].map((x) => x[1])]));
+  assert.deepEqual(Object.keys(loaders).sort(), ["diffModule", "stepModule", "viewModules"]);
+  const takes = { viewModules: /\(\{ ([^}]+) \} = await viewModules\(\)\)/, diffModule: /diffModule\(\)\.then\(\(m\) => \(\{ ([^}]+) \} = m\)/, stepModule: /const \{ ([^}]+) \} = await stepModule\(\)/ };
+  for (const [name, files] of Object.entries(loaders)) {
+    const exported = new Set();
+    for (const f of files) for (const k of Object.keys(await import(f))) exported.add(k);
+    const m = src.match(takes[name]);
+    assert.ok(m, name);
+    const names = m[1].split(",").map((x) => x.trim());
+    for (const n of names) assert.ok(exported.has(n), `${name} lacks ${n}`);
+    // every name declared for a loader is assigned from it (none left undefined)
+    if (name !== "stepModule") assert.ok(src.includes(`let ${names.join(", ")};`), `${name}: declared as assigned`);
+  }
 });
 
 test("the in-page FAQ matches the structured data", () => {
@@ -85,7 +105,7 @@ test("the page's area numbers match the committed area eval", () => {
 test("the page has a model view drawn from the takeoff's own solids", () => {
   const html = page("index.html");
   assert.match(html, /<canvas id="view"/);
-  assert.match(html, /import \{ ModelView \} from "\.\/viewer\.mjs"/);
+  assert.match(html, /import\("\.\/viewer\.mjs"\)/);
   assert.match(html, /meshRows\(left, prep\.origin\)/);
   assert.match(page("view-worker.mjs"), /meshRows\(rows, origin\)/);
   // a bill-of-quantities line and a check row both select elements in the view
