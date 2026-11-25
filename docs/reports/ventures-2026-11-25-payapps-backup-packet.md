@@ -4,7 +4,7 @@ date: 2026-11-25
 ---
 # PayApps (bet #1): backup packets, the application or change order plus its backup in one PDF
 
-2026-11-25, ventures run. Private PR: Duncan-Haywood/private-monorepo#92.
+2026-11-25, ventures run. Private PR: Duncan-Haywood/private-monorepo#92 (merged).
 
 **What landed.** A pay application now downloads as one PDF to send the GC: the application, an
 index page, then its attached backup (`GET .../pay-apps/:payAppId/packet.pdf`, "PDF with backup"
@@ -51,7 +51,7 @@ tenancy and the change-order packet. 71 pages from pdfTeX, Microsoft Print to PD
 Library, Skia, ReportLab, Matplotlib and LibreOffice files were rendered with poppler (`pdftoppm`,
 which the cloud container has) and compared with `compare -metric AE` against the originals. They
 are identical apart from the roughly 105-pixel stamp. A rotated page and a phone photo with EXIF
-orientation 6 were checked by eye. After merging main: unit 328/328, worker run in the PR notes.
+orientation 6 were checked by eye. After merging main: unit 328/328, worker 213/213, build, provisioning test and the migration drift check clean (private Actions had no runner, so verified locally).
 
 **Next, by value.** (1) PDFs encrypted with an empty user password: bank and insurer downloads are
 often "restricted" this way. It needs MD5, RC4 and AES-CBC/SHA-256 in the reader; Web Crypto covers
