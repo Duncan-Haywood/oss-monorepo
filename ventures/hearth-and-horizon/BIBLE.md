@@ -386,8 +386,6 @@ before writing the first scene.
 
 **For Other Minds**
 
-- *The check that stopped bookings at twenty to ten* *(Drafting, 2026-11-25.)* (proposed 2026-11-25): Chesterton's fence. A 2050s parish hall's booking agent (pick a real town) inherits code from three predecessors and finds a rule, with no comment, that refuses any Friday booking ending after 21:40; asked by a choir that wants until ten, it proposes deleting the rule as clutter, and the reasonable no is the hall secretary who will not let it go until someone can say why it was put there. The point, after G. K. Chesterton's fence in *The Thing* (1929; check the chapter and quote only from a published text), is that the burden is on finding the reason, not on proving there is none; the turn is the reason found in an old handoff note, not in the code (an invented one: say the caretaker locks up before the last bus, or a neighbour's agreement with the council over noise, and check that whatever is chosen is lawful and plausible for the town). Work it before drafting: a short invented commit history with dates, how long the agent's search takes and where it looks, and what the rule costs (count the Friday bookings it refused in a year, invented, and say 'about'). The failed first try is the deletion; the fix is the rule kept, with a comment and a date to ask again. Fiction, not software or licensing advice. 'Chesterton' is unused in `overlap.mjs`; keep clear of the fence-post stories (`node overlap.mjs --titles fence`), which are about carpentry.
-
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
