@@ -248,6 +248,20 @@ Mail goes out through Cloudflare Email Service once the app is deployed.
 Until then, the page says plainly that nothing leaves the server, and the
 PDF download still works.
 
+**Later the same day: the shop's signature and a copy for the estimator.**
+Two things an estimator used to get from their own mail program:
+
+- **A signature block.** An admin types the shop's signature once on the
+  rate card page (name, address, phone, certifications such as AS9100), and
+  it goes under the estimator's message on every quote email. The send form
+  shows it as it will appear.
+- **"Send me a copy."** On by default. After the customer's email goes
+  through, the estimator gets the same message and PDF at their own address,
+  headed with who the original went to, so the quote sits in their own
+  mailbox next to the buyer's reply. It is a separate message, not a Cc: the
+  buyer sees no extra address, and if the copy fails the quote has still
+  been sent, and the history on the quote says so.
+
 ## Update, 25 November 2026: which quotes you win, and at what price
 
 Most shops already keep a won/lost column somewhere. What it rarely tells
