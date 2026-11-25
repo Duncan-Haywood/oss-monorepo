@@ -46,8 +46,8 @@ in uncertified funds is later dishonored, and then that it "shall not apply" if 
 payment is dishonored. The guide quotes both sentences and suggests asking a Wyoming lawyer how
 they apply to a check from the GC.
 
-**What we could not check.** California's official code site refused connections from our
-session, so its row links the statute and points to our earlier guide without re-reading it.
+**What we could not check.** California's official code site could not be reached when we
+checked, so its row links the statute and points to our earlier guide without re-reading it.
 Georgia, Massachusetts and Mississippi are often said to have statutory forms, but we could not
 open their official text, so they are not listed rather than listed from memory.
 

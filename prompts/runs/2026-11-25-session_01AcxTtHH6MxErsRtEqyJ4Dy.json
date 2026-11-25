@@ -45,6 +45,10 @@
     {
       "file": "portfolio/flagships.yaml",
       "issue": "payapps next item (5), a free G702/G703 template page, is already in two open PRs (18769, 18775) not yet reflected there; a run starts on it before finding them."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Says 'this branch edits platform/ci' and runs main_health on a branch that does not touch platform/ (shallow-clone base detection), adding minutes; and reports main's own red tests mixed with the branch's."
     }
   ],
   "deviations": [
@@ -65,7 +69,7 @@
     "docs/posts/2026-11-25-which-states-make-you-use-their-lien-waiver-form.md"
   ],
   "goal": "North star $10k MRR: SEO front door for bet 1's lien waiver feature",
-  "notes": "Statute text fetched from azleg.gov, leg.state.nv.us, tcss.legis.texas.gov (statutes.capitol.texas.gov is a JS app; tcss.legis.texas.gov/resources/PR/htm/PR.53.htm serves raw HTML), le.utah.gov (versioned sub-page C38-1a-S802_1800010118000101.html), flsenate.gov (2025 = 2024 text), legislature.mi.gov, wyoleg.gov title29.pdf (pdftotext). leginfo.legislature.ca.gov, justia 403; malegislature path 404. Every quoted phrase on the page was checked against the fetched text with a script. run_venture_tests.py pay-app-guides: ok 21 tests + site page checks. risk_review --base origin/main: nothing blocked.",
+  "notes": "Statute text fetched from azleg.gov, leg.state.nv.us, tcss.legis.texas.gov (statutes.capitol.texas.gov is a JS app; tcss.legis.texas.gov/resources/PR/htm/PR.53.htm serves raw HTML), le.utah.gov (versioned sub-page C38-1a-S802_1800010118000101.html), flsenate.gov (2025 = 2024 text), legislature.mi.gov, wyoleg.gov title29.pdf (pdftotext). leginfo.legislature.ca.gov, justia 403; malegislature path 404. Every quoted phrase on the page was checked against the fetched text with a script. run_venture_tests.py pay-app-guides: ok 21 tests + site page checks. risk_review --base origin/main: nothing blocked. venture-preflight pay-app-guides: caught 'refused this session' (agent-session phrase) on the new page, fixed. Two other preflight failures are on main, not this diff: platform/security/test_scan.py __main__ guard before a class (check_main_guard_last), portfolio/monetization/test_transition.py committed JSON stale (photo-editing model subscription vs one-off).",
   "corrections": [],
   "redteam": null
 }
