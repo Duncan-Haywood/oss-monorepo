@@ -23,6 +23,7 @@ Live: <https://marisstella.app/pay-app-guides/>
 | `change-orders-schedule-of-values.html` | How approved and deductive change orders enter the SOV and the summary, with a worked example. |
 | `prompt-payment-laws.html` | Prompt payment deadlines (days after the GC is paid) and late-payment interest for TX, CA, IL, NC, PA, VA (public) and FL, each linked to the legislature's text, read 2026-11-25 through search results limited to the official sites; a rate is shown only where that text confirmed it (CA, PA and FL say "not confirmed"). Late-payment interest calculator: `promptPayInterest` and `PROMPT_PAY` in `calc.mjs`, tested in `prompt-pay.test.mjs`. |
 | `change-order-log.html` | Change order log (`colog.mjs`): paste or open a log; approved, pending, rejected and void totals, revised contract sum, pending aging against a flag, billing on unsigned or rejected changes and over-billing flagged, approved COs written as SOV lines the pay application generator reads (`colog.test.mjs` round-trips them through its `compute()`), log CSV, and exceptions wording for a progress lien waiver. Optional remember-in-this-browser. |
+| `stored-materials-billing.html` | Billing stored materials (`stored.mjs`): the monthly rollforward per SOV line (stored last app + delivered - installed = stored now; installed plus other work = this period), so installed material is billed once; flags installing more than was stored, a line over its value, off-site material the contract may not allow or without title papers, and idle stock; writes SOV lines the calculator and the pay application generator read (`stored.test.mjs` round-trips them through both) and next month's starting sheet. Off-site rule quoted from FAR 52.232-5 on acquisition.gov, read 2026-11-25. |
 
 ## Spec sources
 
@@ -70,7 +71,7 @@ are marks of their owner.
 Everything runs in the browser. Nothing typed is uploaded; no accounts,
 cookies or analytics vendors. Anonymous feature counters (`sov_calculated`,
 `example_loaded`, `summary_copied`, `csv_downloaded`, one
-`guide_*_viewed` per guide, and `colog_*` on the change order log) are kept in the visitor's own local storage,
+`guide_*_viewed` per guide, `colog_*` on the change order log, and `stored_*` on the stored materials page) are kept in the visitor's own local storage,
 switched off by Do Not Track or the opt-out button.
 
 ## Licence

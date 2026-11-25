@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Billing Stored Materials on a Pay App</title>
+  <meta name="description" content="Bill stored materials on a pay app without billing them twice: the monthly rollforward, off-site rules, the backup reviewers ask for, and a free tool.">
+  <meta property="og:title" content="How to bill stored materials on a pay application">
+  <meta property="og:description" content="Stored materials go in their own column until installed, then move into work completed. A worked example, the off-site rules, the backup reviewers ask for, and a free rollforward tool.">
+  <link rel="canonical" href="./stored-materials-billing.html">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    textarea { width: 100%; box-sizing: border-box; min-height: 170px; padding: 9px 10px; border: 1px solid var(--input); border-radius: 7px; font: 13px ui-monospace, monospace; background: var(--card); color: var(--ink); }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 6px 0 12px; }
+    .tile { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+    .tile b { display: block; font-size: 1.25rem; color: var(--head); font-variant-numeric: tabular-nums; }
+    .tile span { font-size: .8rem; color: var(--muted); }
+    .err { color: #9a3412; font-weight: 600; }
+    input[type=file] { border: 0; padding: 8px 0; }
+  </style>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "How to bill stored materials on a pay application", "datePublished": "2026-11-25", "dateModified": "2026-11-25"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Where do stored materials go on a pay application?", "acceptedAnswer": {"@type": "Answer", "text": "On the continuation sheet they go in their own column, materials presently stored, which holds material bought for the job and not yet installed. It is added to work completed to give total completed and stored to date, and it is not part of the work-completed columns."}}, {"@type": "Question", "name": "What happens to stored materials when they are installed?", "acceptedAnswer": {"@type": "Answer", "text": "The installed value leaves the stored column and is billed as work completed this period. Stored now equals stored on the last pay app plus deliveries this period minus what was installed. If installed material is added to work completed without being taken out of stored, it is billed twice."}}, {"@type": "Question", "name": "Can I bill for materials stored off site?", "acceptedAnswer": {"@type": "Answer", "text": "Only if your contract allows it. The federal construction payment clause, FAR 52.232-5, counts off-site material only when the contract specifically authorizes it and the contractor shows evidence of title and that the material will be used on that contract. Private contracts vary; read the payment article of yours."}}]}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · <a href="./">schedule of values calculator</a> · runs in your browser</p>
+  <h1>How to bill stored materials on a pay application</h1>
+  <p>Switchgear, fixtures, a generator or a truckload of pipe can be paid for before it is installed, as <strong>stored materials</strong>. The money is real, and so are the two ways it goes wrong: billing the same material twice once it is installed, and billing material the contract does not let you bill yet. This page explains the monthly rollforward and gives you a tool that does it line by line.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a>
+    <a href="retainage-explained.html">Retainage explained</a>
+    <a href="change-orders-schedule-of-values.html">Change orders and the SOV</a>
+    <a href="schedule-of-values-template.html">Free Excel template</a>
+    <a href="conditional-vs-unconditional-lien-waivers.html">Lien waivers</a>
+  </nav>
+</header>
+<main>
+<section class="card">
+  <h2>Where stored materials sit on the continuation sheet</h2>
+  <p>The continuation sheet has one column for <strong>work completed from previous applications</strong>, one for <strong>work completed this period</strong>, and a separate one for <strong>materials presently stored</strong> (not in either work column). The three add up to <strong>total completed and stored to date</strong>, which is what the line's percentage, balance to finish and retainage are worked from.</p>
+  <p>The stored column is a snapshot: what is on hand, unused, at the end of this period. It is not a running total. Each month it rolls forward:</p>
+  <pre class="sum">stored now = stored on last pay app + delivered this period − installed this period
+work this period = installed from stored + other work this period</pre>
+  <p>Installed material moves out of the stored column and into this period's work in the same month. Done that way, a dollar of material is billed exactly once: first as stored, then as work. The <a href="./">schedule of values calculator</a> and the <a href="https://marisstella.app/pay-application-generator/">pay application generator</a> both take the result.</p>
+</section>
+
+<section class="card">
+  <h2>Worked example: switchgear</h2>
+  <p>A $60,000 switchgear line. Last month $15,000 of gear was delivered and billed as stored, along with $9,000 of earlier work. This month $9,000 of that gear is set and terminated, with $1,500 of extra labour.</p>
+  <div class="scroll"><table class="stack compact" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Column</th><th role="columnheader" scope="col" class="n">Right</th><th role="columnheader" scope="col" class="n">Billed twice</th></tr></thead>
+    <tbody>
+      <tr role="row"><td role="cell" data-label="Column">From previous applications</td><td role="cell" data-label="Right" class="n">$9,000.00</td><td role="cell" data-label="Billed twice" class="n">$9,000.00</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">This period ($9,000 installed + $1,500 labour)</td><td role="cell" data-label="Right" class="n">$10,500.00</td><td role="cell" data-label="Billed twice" class="n">$10,500.00</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">Materials presently stored</td><td role="cell" data-label="Right" class="n">$6,000.00</td><td role="cell" data-label="Billed twice" class="n">$15,000.00</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">Total completed and stored</td><td role="cell" data-label="Right" class="n">$25,500.00</td><td role="cell" data-label="Billed twice" class="n">$34,500.00</td></tr>
+    </tbody>
+  </table></div>
+  <p>Leaving the stored column at $15,000 bills the installed $9,000 a second time. A careful reviewer catches it, sends the pay app back, and the whole month's payment waits. One who doesn't leaves you over-billed, which comes back later as a deduction.</p>
+</section>
+
+<section class="card">
+  <h2>On site and off site</h2>
+  <p>Material delivered to the job site is the usual case. Material at a supplier, fabricator, your shop or a warehouse is <strong>off site</strong>, and contracts treat it more strictly because the owner is paying for something it cannot see and may not own.</p>
+  <p>On federal work the rule is written down. The payment clause for fixed-price construction contracts, <a href="https://www.acquisition.gov/far/52.232-5">FAR 52.232-5</a> (read 2026-11-25), says the contracting officer "may authorize material delivered on the site and preparatory work done to be taken into consideration", and that "Material delivered to the Contractor at locations other than the site also may be taken into consideration if" the consideration is "specifically authorized by this contract" and the contractor furnishes "satisfactory evidence that it has acquired title to such material" and "that the material will be used to perform this contract."</p>
+  <p>Private and state contracts set their own terms, usually in the payment article of the prime contract, flowed down to you by the subcontract. Read that article before billing anything off site. The tool below flags off-site material unless you tick that your contract allows it.</p>
+</section>
+
+<section class="card">
+  <h2>The backup reviewers commonly ask for</h2>
+  <p>Your contract lists what it requires. This is the list to have ready before you ask:</p>
+  <ul>
+    <li><strong>The supplier's invoice</strong> for each item billed as stored, matching the amount on the line. Some contracts pay invoice cost only, not your markup, until it is installed.</li>
+    <li><strong>Delivery tickets or receiving reports</strong> showing it arrived, and a dated photo of it on site.</li>
+    <li><strong>For off-site material:</strong> evidence of title (a paid invoice or bill of sale), a certificate of insurance covering it where it is kept, the storage address, the material tagged or set apart for the job, and access for the owner to inspect it.</li>
+    <li><strong>Paid-to-date proof</strong>, if the contract makes payment for stored material depend on you having paid the supplier. A conditional waiver from the supplier may serve.</li>
+    <li><strong>A rollforward</strong> like the one below, so the reviewer can see last month's stored, this month's deliveries, what was installed and what is left.</li>
+  </ul>
+  <p>Retainage usually applies to stored materials too, sometimes at a different rate from work. See <a href="retainage-explained.html">retainage explained</a>.</p>
+</section>
+
+<section class="card" id="inputs">
+  <h2>Stored materials rollforward</h2>
+  <p class="note">One row per schedule-of-values line that carries material. Paste from a spreadsheet (comma or tab separated) or open a CSV. Nothing leaves this browser.</p>
+  <div class="grid">
+    <div><label for="ret-work">Retainage on work (%)</label><input id="ret-work" inputmode="decimal" value="10"></div>
+    <div><label for="ret-stored">Retainage on stored materials (%)</label><input id="ret-stored" inputmode="decimal" value="10"></div>
+  </div>
+  <label style="font-weight:400"><input type="checkbox" id="offsite" style="width:auto"> My contract allows billing for material stored off site</label>
+  <label for="log">Lines, with a header row</label>
+  <textarea id="log" spellcheck="false" wrap="off" placeholder="Item,Description,Scheduled value,Previous,Stored last app,Delivered,Installed,Other work,Location,Documented&#10;2,Switchgear,60000,9000,15000,0,9000,1500,on site,yes"></textarea>
+  <p class="note">Columns: <strong>Scheduled value</strong>; <strong>Previous</strong> (work completed on earlier pay apps, not counting stored); <strong>Stored last app</strong> (the stored column last month); <strong>Delivered</strong> this period; <strong>Installed</strong> this period from stock; <strong>Other work</strong> this period (labour, and material bought and installed the same month if you did not put it through Delivered); <strong>Location</strong> (on site or off site); <strong>Documented</strong> (yes when the backup is in hand). Item, description, location and documented are optional.</p>
+  <label for="file">Or open a CSV file (read on this device only)</label>
+  <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+  <button type="button" class="secondary" id="sample">Load an example</button>
+  <button type="button" class="secondary" id="clear">Clear</button>
+</section>
+
+<section class="card" id="result" aria-live="polite">
+  <h2>Result</h2>
+  <div id="errors"></div>
+  <div class="tiles">
+    <div class="tile"><span>Stored now (column F)</span><b id="t-stored">$0.00</b></div>
+    <div class="tile"><span>Of which off site</span><b id="t-offsite">$0.00</b></div>
+    <div class="tile"><span>Installed from stored this period</span><b id="t-installed">$0.00</b></div>
+    <div class="tile"><span>Current payment due</span><b id="t-due">$0.00</b></div>
+  </div>
+  <div id="findings"></div>
+  <div class="scroll"><table class="stack compact" role="table">
+    <thead><tr><th role="columnheader" scope="col">Line</th><th role="columnheader" scope="col" class="n">Stored last</th><th role="columnheader" scope="col" class="n">Delivered</th><th role="columnheader" scope="col" class="n">Installed</th><th role="columnheader" scope="col" class="n">Stored now</th><th role="columnheader" scope="col" class="n">This period</th><th role="columnheader" scope="col" class="n">Completed and stored</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table></div>
+  <p class="note">"Current payment due" treats every earlier certificate as paid at the same retainage (previous work less retainage on it, and last month's stored less its retainage). Use the <a href="./">calculator</a> with your real previous certificates for the exact figure.</p>
+  <h3>Summary</h3>
+  <pre class="sum" id="summary"></pre>
+  <button type="button" class="secondary" id="copy">Copy summary</button>
+  <h3>Schedule-of-values lines for this pay app</h3>
+  <p class="note">Item, scheduled value, previous, this period and stored, in the columns the <a href="https://marisstella.app/pay-application-generator/">pay application generator</a> reads.</p>
+  <pre class="sum" id="sov"></pre>
+  <button type="button" class="secondary" id="copy-sov">Copy SOV lines</button>
+  <button type="button" class="secondary" id="next">Download next month's starting sheet</button>
+</section>
+
+<section class="card" id="faq">
+  <h2>Common questions</h2>
+  <h3>Where do stored materials go on a pay application?</h3>
+  <p>On the continuation sheet they go in their own column, materials presently stored, which holds material bought for the job and not yet installed. It is added to work completed to give total completed and stored to date, and it is not part of the work-completed columns.</p>
+  <h3>What happens to stored materials when they are installed?</h3>
+  <p>The installed value leaves the stored column and is billed as work completed this period. Stored now equals stored on the last pay app plus deliveries this period minus what was installed. If installed material is added to work completed without being taken out of stored, it is billed twice.</p>
+  <h3>Can I bill for materials stored off site?</h3>
+  <p>Only if your contract allows it. The federal construction payment clause, FAR 52.232-5, counts off-site material only when the contract specifically authorizes it and the contractor shows evidence of title and that the material will be used on that contract. Private contracts vary; read the payment article of yours.</p>
+  <h3>Can I bill my markup on stored materials?</h3>
+  <p>It depends on the contract. Some pay stored material at invoice cost and release the rest of the line's value as it is installed. If yours is silent, ask the GC's project accountant before the first pay app rather than after a rejection.</p>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>Tracking stored material across several jobs?</h2>
+  <p>We are building hosted pay-app billing for specialty subcontractors that carries each line's stored materials from month to month, attaches the invoices and photos, and moves material into work when it is installed. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+</section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This tool and guide are provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, or financial advice, and it does not replace your contract, your accountant, or an attorney. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+  <p><strong>Privacy.</strong> Everything runs in your browser. Nothing you paste is uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>guide_stored_viewed</code>, <code>stored_calculated</code>, <code>stored_example_loaded</code>, <code>stored_summary_copied</code>, <code>stored_sov_copied</code>, <code>stored_next_downloaded</code>) are counted only on your device, never with your numbers, and Do Not Track switches them off.</p>
+  <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+  import { compute, sovLines, sovCsv, nextMonthCsv, summaryText, sampleLog, SAMPLE_SETTINGS } from "./stored.mjs";
+  import * as calc from "./calc.mjs";
+  import { dollars } from "./colog.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  let counted = false, last;
+  const settings = () => ({ workRetainage: $("#ret-work").value, storedRetainage: $("#ret-stored").value, offsiteAllowed: $("#offsite").checked });
+
+  function update() {
+    const s = settings();
+    last = compute($("#log").value, s);
+    const t = last.totals;
+    $("#errors").innerHTML = last.errors.map((e) => `<p class="err">${esc(e)}</p>`).join("");
+    let due = 0;
+    if (t) {
+      const c = calc.compute(sovLines(last), s);
+      const wr = calc.toRate(s.workRetainage || "10"), sr = calc.toRate(s.storedRetainage || s.workRetainage || "10");
+      // Earlier certificates, assumed paid at the same rates: previous work and last month's stored, each less retainage.
+      const prev = last.lines.reduce((a, x) => a + x.previous - Math.round(x.previous * wr) + x.storedLast - Math.round(x.storedLast * sr), 0);
+      due = c.totals.earnedLessRetainage - prev;
+    }
+    $("#t-stored").textContent = dollars(t ? t.storedNow : 0);
+    $("#t-offsite").textContent = dollars(t ? t.storedOffsite : 0);
+    $("#t-installed").textContent = dollars(t ? t.installed : 0);
+    $("#t-due").textContent = dollars(due);
+    $("#findings").innerHTML = last.findings.map((f) => `<p class="finding"><span class="pill ${f.severity}">${f.severity === "high" ? "check" : "note"}</span>${esc(f.title)}</p>`).join("");
+    $("#rows").innerHTML = (t ? last.lines : []).map((x) => `<tr><td data-label="Line">${esc(x.label)}${x.offsite ? " · off site" : ""}</td><td data-label="Stored last" class="n">${dollars(x.storedLast)}</td><td data-label="Delivered" class="n">${dollars(x.delivered)}</td><td data-label="Installed" class="n">${dollars(x.installed)}</td><td data-label="Stored now" class="n">${dollars(x.storedNow)}</td><td data-label="This period" class="n">${dollars(x.E)}</td><td data-label="Completed and stored" class="n">${dollars(x.G)}</td></tr>`).join("");
+    $("#summary").textContent = t ? summaryText(last) : "";
+    $("#sov").textContent = t ? sovCsv(last) : "";
+    if (!counted && t) { counted = true; record("stored_calculated"); }
+  }
+  async function copy(id, btn, event) {
+    try { await navigator.clipboard.writeText($(id).textContent); btn.textContent = "Copied"; record(event); } catch { btn.textContent = "Select the text and copy it"; }
+  }
+  record("guide_stored_viewed");
+  document.addEventListener("input", (e) => { if (e.target.closest("#inputs") && e.target.type !== "file") update(); });
+  $("#offsite").addEventListener("change", update);
+  $("#file").addEventListener("change", (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    if (f.size > 2_000_000) { $("#errors").innerHTML = '<p class="err">That file is over 2 MB; export just the schedule of values.</p>'; return; }
+    f.text().then((txt) => { $("#log").value = txt; update(); });
+  });
+  $("#sample").addEventListener("click", () => {
+    $("#ret-work").value = SAMPLE_SETTINGS.workRetainage; $("#ret-stored").value = SAMPLE_SETTINGS.storedRetainage; $("#offsite").checked = SAMPLE_SETTINGS.offsiteAllowed;
+    $("#log").value = sampleLog(); record("stored_example_loaded"); update();
+  });
+  $("#clear").addEventListener("click", () => { $("#log").value = ""; update(); });
+  $("#copy").addEventListener("click", (e) => copy("#summary", e.target, "stored_summary_copied"));
+  $("#copy-sov").addEventListener("click", (e) => copy("#sov", e.target, "stored_sov_copied"));
+  $("#next").addEventListener("click", () => {
+    if (!last || !last.totals) return;
+    const url = URL.createObjectURL(new Blob([nextMonthCsv(last)], { type: "text/csv" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: "stored-materials-next-month.csv" });
+    a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); record("stored_next_downloaded");
+  });
+  $("#optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+  if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
+  update();
+</script>
+</body>
+</html>
