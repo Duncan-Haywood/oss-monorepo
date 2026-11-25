@@ -1,0 +1,300 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtGibzejx4uDPgogBvS",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T23:07:03Z",
+  "ended": "2026-11-25T23:07:54Z",
+  "wall_minutes": 7.79,
+  "tokens_in": 2246542,
+  "tokens_out": 12404,
+  "cost_usd": 1.1893,
+  "tool_calls": 30,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19127",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`targets --under <file> --probe 20` printed '(0 guarded files)' for a single file path (only directories work), so a file could not be probed before --target; I timed its suite by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0's two open entries were left open: framerate needs a control-plane workflow PR, and the help-keeper stemmer is deferred until there is a help-center eval set. Both still reproduce (no framerate in browser_checks.py).",
+      "did": "Rechecked both, did not fix them",
+      "result": "The list stays at 2 open"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-01-proposal-payment-schedule.md (extended)",
+    "docs/reports/redteam-2026-11-25-proposal-letter-parity.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: a text-vs-HTML parity test in bidletter.test.mjs (fails on the pre-fix code). Venture suite: 1221 tests, 0 failed.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/wall-framing-takeoff/bidletter.mjs",
+        "test": "node --test ventures/wall-framing-takeoff/**/*.test.mjs  (in .)",
+        "seed": 857394582,
+        "commit": "2d2d8d9ee",
+        "sites": 90,
+        "baseline_seconds": 18.8,
+        "mutants": [
+          {
+            "file": "ventures/wall-framing-takeoff/bidletter.mjs",
+            "line": 8,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "const r2 = (/** @type {number} */ x) => Math.round(x * 100) / 100;",
+            "after": "const r2 = (/** @type {number} */ x) => Math.round(x * 101) / 100;",
+            "line_text": "const r2 = (/** @type {number} */ x) => Math.round(x * 100) / 100;",
+            "caught": true,
+            "seconds": 18.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidletter.mjs",
+            "line": 8,
+            "col": 62,
+            "operator": "const-plus-one",
+            "before": "const r2 = (/** @type {number} */ x) => Math.round(x * 100) / 100;",
+            "after": "const r2 = (/** @type {number} */ x) => Math.round(x * 100) / 101;",
+            "line_text": "const r2 = (/** @type {number} */ x) => Math.round(x * 100) / 100;",
+            "caught": true,
+            "seconds": 18.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidletter.mjs",
+            "line": 17,
+            "col": 9,
+            "operator": "or-to-and",
+            "before": "if (!p || typeof p !== \"object\") p = {};",
+            "after": "if (!p && typeof p !== \"object\") p = {};",
+            "line_text": "  if (!p || typeof p !== \"object\") p = {};",
+            "caught": false,
+            "seconds": 17.7,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Only a truthy non-object (a string or number) reaches it: every property the function reads (partial, payments, validDays, client, ...) is undefined on a primitive, exactly as on {}, so the output is identical."
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidletter.mjs",
+            "line": 21,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "const price = b.bid > 0 ? b.bid : b.total; // bid when markup typed, else cost total",
+            "after": "const price = b.bid > 1 ? b.bid : b.total; // bid when markup typed, else cost total",
+            "line_text": "  const price = b.bid > 0 ? b.bid : b.total; // bid when markup typed, else cost total",
+            "caught": false,
+            "seconds": 18.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "A bid between 0 and 1 dollars was replaced by the cost total; test \"a bid under one dollar is still the bid\" added."
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidletter.mjs",
+            "line": 22,
+            "col": 36,
+            "operator": "div-to-times",
+            "before": "const scale = b.total > 0 ? price / b.total : 1;",
+            "after": "const scale = b.total > 0 ? price * b.total : 1;",
+            "line_text": "  const scale = b.total > 0 ? price / b.total : 1;",
+            "caught": true,
+            "seconds": 17.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidletter.mjs",
+            "line": 24,
+            "col": 76,
+            "operator": "neq-flip",
+            "before": "const matSections = b.sections.filter((s) => s.name !== \"Labor\" && s.name !== \"Allowances\");",
+            "after": "const matSections = b.sections.filter((s) => s.name !== \"Labor\" && s.name === \"Allowances\");",
+            "line_text": "  const matSections = b.sections.filter((s) => s.name !== \"Labor\" && s.name !== \"Allowances\");",
+            "caught": true,
+            "seconds": 17.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidletter.mjs",
+            "line": 26,
+            "col": 76,
+            "operator": "times-to-div",
+            "before": "const rows = b.sections.map((s) => ({ name: s.name, amount: r2(s.subtotal * (matSections.includes(s) ? loadMat : 1) * scale) })).filter((s) => s.amount > 0);",
+            "after": "const rows = b.sections.map((s) => ({ name: s.name, amount: r2(s.subtotal / (matSections.includes(s) ? loadMat : 1) * scale) })).filter((s) => s.amount > 0);",
+            "line_text": "  const rows = b.sections.map((s) => ({ name: s.name, amount: r2(s.subtotal * (matSections.includes(s) ? loadMat : 1) * scale) })).filter((s) => s.amount > 0);",
+            "caught": true,
+            "seconds": 18.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidletter.mjs",
+            "line": 26,
+            "col": 115,
+            "operator": "const-plus-one",
+            "before": "const rows = b.sections.map((s) => ({ name: s.name, amount: r2(s.subtotal * (matSections.includes(s) ? loadMat : 1) * scale) })).filter((s) => s.amount > 0);",
+            "after": "const rows = b.sections.map((s) => ({ name: s.name, amount: r2(s.subtotal * (matSections.includes(s) ? loadMat : 2) * scale) })).filter((s) => s.amount > 0);",
+            "line_text": "  const rows = b.sections.map((s) => ({ name: s.name, amount: r2(s.subtotal * (matSections.includes(s) ? loadMat : 1) * scale) })).filter((s) => s.amount > 0);",
+            "caught": true,
+            "seconds": 18.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidletter.mjs",
+            "line": 29,
+            "col": 27,
+            "operator": "neq-flip",
+            "before": "if (rows.length && drift !== 0) rows.reduce((m, s) => (s.amount > m.amount ? s : m)).amount = r2(rows.reduce((m, s) => (s.amount > m.amount ? s : m)).amount + drift);",
+            "after": "if (rows.length && drift === 0) rows.reduce((m, s) => (s.amount > m.amount ? s : m)).amount = r2(rows.reduce((m, s) => (s.amount > m.amount ? s : m)).amount + drift);",
+            "line_text": "  if (rows.length && drift !== 0) rows.reduce((m, s) => (s.amount > m.amount ? s : m)).amount = r2(rows.reduce((m, s) => (s.amount > m.amount ? s : m)).amount + drift);",
+            "caught": true,
+            "seconds": 18.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidletter.mjs",
+            "line": 45,
+            "col": 77,
+            "operator": "or-to-and",
+            "before": "gaps: b.unpriced, validDays: p.validDays ?? 30, meta: { client: p.client || \"\", project: p.project || \"\", date: p.date || \"\" },",
+            "after": "gaps: b.unpriced, validDays: p.validDays ?? 30, meta: { client: p.client && \"\", project: p.project || \"\", date: p.date || \"\" },",
+            "line_text": "    gaps: b.unpriced, validDays: p.validDays ?? 30, meta: { client: p.client || \"\", project: p.project || \"\", date: p.date || \"\" },",
+            "caught": true,
+            "seconds": 18.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/wall-framing-takeoff/bidletter.mjs",
+        "issue": "proposalHtml (the 'Open printable page' button and the paid branded bid package) left out the typed payment schedule that the text preview shows, so the letter a customer prints and signs had no milestones. Repro: proposal(b,{payments:[{name:'Deposit',pct:30},{name:'Completion',pct:70}]}) -> proposalHtml has no 'Deposit'.",
+        "patched": true
+      },
+      {
+        "file": "ventures/wall-framing-takeoff/bidletter.mjs",
+        "issue": "validDays was passed through unchecked: a plan.json proposal with validDays -3 printed 'This price is valid for -3 days' from the CLI, and a string value was interpolated unescaped into proposalHtml. Now a finite value >= 0.5 rounds to whole days, anything else falls back to 30, and the HTML escapes it.",
+        "patched": true
+      },
+      {
+        "file": "ventures/wall-framing-takeoff/bidletter.mjs",
+        "issue": "A payment milestone with no name (plan.json payments:[{pct:100}]) crashed proposalText with 'Cannot read properties of undefined (reading padEnd)', so `cli.mjs --proposal` threw instead of printing. Unnamed or blank milestones are now named 'Payment N'.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2df76846-87a3-5118-bcb5-60eea3eba9da",
+    "transcripts": 1,
+    "first": "2026-11-25T23:07:03Z",
+    "last": "2026-11-25T23:14:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 59,
+        "output": 12404,
+        "thinking": 1844,
+        "cache_read": 2183442,
+        "cache_write_5m": 0,
+        "cache_write_1h": 63041,
+        "api_equivalent_usd": 1.1893,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 59,
+      "output": 12404,
+      "thinking": 1844,
+      "cache_read": 2183442,
+      "cache_write_5m": 0,
+      "cache_write_1h": 63041,
+      "api_equivalent_usd": 1.1893,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 28,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.79,
+      "active_minutes": 7.79,
+      "model_minutes": 2.31,
+      "tool_minutes": 5.48,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "read code, write 5 tests, 3 small fixes, post update",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 168.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

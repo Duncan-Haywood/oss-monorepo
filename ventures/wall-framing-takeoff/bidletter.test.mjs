@@ -80,3 +80,43 @@ test("the letter a buyer opens on a phone fits the phone: exactly one viewport m
   const html = proposalHtml(proposal(mk()));
   assert.equal(html.match(/<meta name="viewport" content="width=device-width,initial-scale=1">/g)?.length, 1);
 });
+
+test("printable HTML carries the payment schedule the text shows (the customer signs the printed one)", () => {
+  const q = proposal(mk(), { payments: [{ name: "Deposit <b>", pct: 30 }, { name: "Completion", pct: 70 }] });
+  const h = proposalHtml(q);
+  assert.match(h, /Payment schedule/);
+  assert.ok(h.includes("Deposit &lt;b&gt;") && !h.includes("Deposit <b>"));
+  assert.ok(h.includes("367.56") && h.includes("857.64")); // 1225.20 x 30% and the 70% remainder
+});
+
+test("validDays: a non-positive, fractional or non-number value falls back to 30 or a whole day", () => {
+  assert.equal(proposal(mk(), { validDays: -3 }).validDays, 30);
+  assert.equal(proposal(mk(), { validDays: 0 }).validDays, 30);
+  assert.equal(proposal(mk(), { validDays: Infinity }).validDays, 30);
+  assert.equal(proposal(mk(), { validDays: "<b>x</b>" }).validDays, 30);
+  assert.equal(proposal(mk(), { validDays: 14.6 }).validDays, 15);
+  assert.equal(proposal(mk(), { validDays: "45" }).validDays, 45);
+  assert.ok(!proposalHtml(proposal(mk(), { validDays: "<b>x</b>" })).includes("<b>x</b>"));
+});
+
+test("a payment milestone with no name gets a numbered one instead of crashing the letter", () => {
+  const q = proposal(mk(), { payments: [{ pct: 40 }, { name: "  ", pct: 60 }] });
+  assert.equal(q.ok, true);
+  assert.deepEqual(q.payments.map((m) => m.name), ["Payment 1", "Payment 2"]);
+  assert.match(proposalText(q).join("\n"), /Payment 1/);
+});
+
+test("a bid under one dollar is still the bid, not the cost total", () => {
+  const q = proposal(mk({ lines: [], sections: [{ name: "Labor", subtotal: 0.4 }], materials: 0, tax: 0, total: 0.4, bid: 0.5 }));
+  assert.equal(q.price, 0.5);
+});
+
+test("parity guard: every amount and typed string in the text letter also appears in the printable HTML", () => {
+  const q = proposal(mk({ unpriced: ["Hold-downs"] }), { partial: true, client: "Ann", project: "Lot 9", date: "2026-11-25", validDays: 21, inclusions: ["Cleanup"], exclusions: ["Permits"], terms: ["Net 15"], payments: [{ name: "Deposit", pct: 25 }, { name: "Dry-in", pct: 50 }, { name: "Final", pct: 25 }] });
+  const text = proposalText(q).join("\n");
+  const html = proposalHtml(q);
+  const amounts = text.match(/\d{1,3}(?:,\d{3})*\.\d{2}/g) || [];
+  assert.ok(amounts.length >= 8);
+  for (const a of amounts) assert.ok(html.includes(a), `amount ${a} is in the text letter but not the printable one`);
+  for (const s of ["Ann", "Lot 9", "2026-11-25", "21 days", "Cleanup", "Permits", "Net 15", "Deposit", "Dry-in", "Final", "Hold-downs", "permit"]) assert.ok(html.includes(s), `${s} missing from the printable letter`);
+});
