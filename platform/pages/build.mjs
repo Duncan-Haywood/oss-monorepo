@@ -9955,7 +9955,11 @@ ${renderProductGrid(softwareLines(), { toRoot: '', published: publishedTools, an
         <p class="results-more" id="results-more" hidden></p>
         <p class="empty" id="empty" hidden>No tool matches that. Try a marketplace, a trade, or the thing you are pricing — or <a href="${CATEGORY_PATH_PREFIX}/">browse by category</a>.</p>
       </form>
-      <p class="band-lede"><a href="${CATEGORY_PATH_PREFIX}/">Browse every free tool by the job it does →</a></p>
+      <!-- One line of text links, not tiles: keeps every tool two clicks from
+           the front door without JavaScript (crawl depth), without the clutter. -->
+      <p class="band-lede cat-links">Browse by the job: ${groups
+        .map(({ category, items }) => `<a href="${escapeHtml(categoryPagePath(category.id))}" data-category="${escapeHtml(category.id)}">${escapeHtml(category.title)}</a> <span>${formatCount(items.length)}</span>`)
+        .join(' · ')} · <a href="${CATEGORY_PATH_PREFIX}/">every free tool →</a></p>
     </section>
 
     <section class="band" id="more" aria-labelledby="more-h">

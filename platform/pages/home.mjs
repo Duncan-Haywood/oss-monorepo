@@ -141,7 +141,7 @@ export function renderFinder({
     .join('\n');
   const problemLink = (l, problem) => {
     const href = l.status === 'live' && l.href ? l.href : `${industryHref(l.industry)}#${l.id}`;
-    return `            <li><a href="${esc(href)}" data-pf-to="${esc(l.id)}" data-funnel-product="${esc(l.id)}"><span class="pb-text">${esc(problem)}</span><span class="pb-to">${esc(l.name)} · ${esc(statusLabel(l.status))} →</span></a></li>`;
+    return `            <li><a href="${esc(href)}" data-funnel-product="${esc(l.id)}"><span class="pb-text">${esc(problem)}</span><span class="pb-to">${esc(l.name)} · ${esc(statusLabel(l.status))} →</span></a></li>`;
   };
   const more = `<a href="${esc(askHref)}">Ask the assistant</a> · <a href="${esc(customHref)}">Describe your problem and it may get built</a>`;
   const panels = groups.map(({ ind, lines: ls }) => `        <div class="panel" id="panel-${esc(ind.slug)}" data-funnel="cta" data-funnel-industry="${esc(ind.slug)}">
@@ -194,6 +194,7 @@ const FINDER_CSS = `
     .pb-text { font-weight: 600; }
     .pb-to { font-size: .85rem; color: var(--accent); white-space: nowrap; }
     .trades { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .cat-links span { color: var(--soft, var(--muted)); font-size: .8em; }
     .trades a { display: inline-block; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); }
     .panel-more { margin: 14px 0 0; font-size: .9rem; color: var(--muted); }
     @media (prefers-reduced-motion: reduce) { .pros label { transition: none; } }

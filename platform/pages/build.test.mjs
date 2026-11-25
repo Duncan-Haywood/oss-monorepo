@@ -1378,7 +1378,8 @@ test('the search index lists every tool and every research project, and the hub 
   // featured links, not one card per tool.
   const hub = (await read('index.html')).replace(/<script\b[\s\S]*?<\/script>/g, '');
   const linked = new Set([...hub.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
-  assert.ok(linked.size > 10 && linked.size < surfaces.length / 4, `the hub links ${linked.size} tools directly`);
+  // Since 2026-11-25 it links products and category pages, not tools.
+  assert.ok(linked.size < surfaces.length / 4, `the hub links ${linked.size} tools directly`);
   assert.doesNotMatch(hub, /data-search=/);
 });
 
@@ -6464,34 +6465,26 @@ test('copyTree leaves out git-ignored local-only paths, and localOnlyPaths finds
 
 // P019: the home page is a home for everything, not a calculator list. These
 // pin the sections, so the framing cannot drift back one venture at a time.
-test('the hub is a home for everything: apps, CLIs, research and self-deploy have their own place', () => {
+test('the hub is a finder first, and the catalogue, apps, CLIs and research are one link away', () => {
   const surfaces = [
     { slug: 'ebay-fee-calculator', title: 'eBay fee calculator', description: 'Fees.', kind: 'browser' },
     { slug: 'dunning-engine', title: 'Dunning engine', description: 'Failed-payment recovery.', kind: 'app' },
     { slug: 'pinned-actions-check', title: 'Pinned actions check', description: 'CI check.', kind: 'cli' },
   ];
   const hub = renderHub(surfaces, 'https://example.test/', { researchCount: 461 });
-  assert.match(hub, /<dl class="stats" id="overview">/);
-  assert.match(hub, /<dt>Browser tools<\/dt><dd><a href="c\/">1<\/a>/);
-  assert.match(hub, /<dt>Web apps<\/dt><dd><a href="c\/apps\/">1<\/a>/);
-  assert.match(hub, /<dt>Command-line tools<\/dt><dd><a href="c\/cli\/">1<\/a>/);
-  assert.match(hub, /<dt>Research projects<\/dt><dd><a href="research\/">461<\/a>/);
-  // A front door, in order: what it is and the search over everything, then
-  // the browse grid by job and by type, then research and self-deploy.
   const at = (re) => hub.search(re);
-  assert.ok(at(/<h1>/) < at(/id="q"/), 'the search sits in the hero');
-  assert.ok(at(/id="q"/) < at(/id="browse"/));
-  assert.ok(at(/id="browse"/) < at(/id="types"/));
-  assert.ok(at(/id="types"/) < at(/id="research"/));
-  assert.match(hub, /href="c\/apps\/" data-category="apps"[\s\S]*Dunning engine/);
-  assert.match(hub, /href="c\/cli\/" data-category="cli"[\s\S]*Pinned actions check/);
-  // Self-deploy was retired on 2026-11-24: the "Also here" band points at the
-  // company instead, and the how-it-works steps lead with the products.
+  // Owner, 2026-11-25: a sales funnel, not a catalogue. Business, then problem, then product.
+  assert.ok(at(/<h1>/) < at(/id="find"/), 'the finder sits in the hero');
+  assert.ok(at(/id="find"/) < at(/id="products"/));
+  assert.ok(at(/id="products"/) < at(/id="free-tools"/));
+  assert.ok(at(/id="free-tools"/) < at(/id="q"/), 'search is for the free tools, below the products');
+  assert.match(hub, /href="c\/"/);
+  assert.match(hub, /href="research\/">461 open research projects/);
+  // Gone from the front door: catalogue tiles, stats, and self-deploy (retired 2026-11-24).
+  assert.doesNotMatch(hub, /id="overview"|id="types"|id="featured"|class="marquee"/);
   const more = hub.slice(hub.indexOf('id="more"'));
   assert.match(more, /href="about\/"/);
   assert.doesNotMatch(more.slice(0, more.indexOf('</section>')), /href="deploy\//);
-  assert.ok(at(/id="products"/) < at(/id="how"/));
-  assert.ok(at(/id="how"/) < at(/id="free-tools"/));
   assert.ok(!/<h1>[^<]*Calculators/.test(hub), 'the headline names more than calculators');
   // The site header, with no second top bar.
   assert.equal(hub.match(/<nav\b[^>]*aria-label="Site"/g).length, 1);
