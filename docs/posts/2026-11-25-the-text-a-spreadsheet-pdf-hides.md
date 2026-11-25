@@ -72,5 +72,26 @@ had come out as "power , lighting".
 The new 30-line test sheet has three wrapped descriptions, and all of them now come through whole.
 Every earlier PDF test sheet reads the same lines as before.
 
+## Update: PDFs from older software
+
+The import reads a PDF's text out of its content streams, and those streams are almost always
+compressed with one method, Flate (zlib). The PDF standard defines four more that carry text rather
+than images: LZW, ASCII85, ASCIIHex and RunLength. Older print drivers, PostScript-to-PDF
+converters and some accounting and scanner exports still write them. Our reader knew only Flate. On
+such a file the import found no text at all and said the PDF had no table. If even the file's index
+was compressed with LZW, the backup packet refused it as damaged and asked the contractor to send it
+separately.
+
+The reader now decodes all four, in any combination: a stream can be ASCII85 on top of LZW, and
+both are undone in order. It also handles the "TIFF" predictor, a small transform some writers
+apply before compressing. Each decoder stops at the same 64 MB limit as Flate, so a small file
+cannot expand without bound. Image-only methods (JPEG and fax compression) are still not decoded,
+on purpose. Nothing reads the pixels: a page's images go into the packet byte for byte.
+
+To check it we built five test files with a separate encoder, one per method plus one with its index
+in LZW. A standard PDF viewer (poppler) reads all five. Before the change our reader got no text from
+four of them and refused the fifth. Now all five give the same 93 lines of text. Their packet pages,
+rendered and compared pixel by pixel with the originals, differ only in the page stamp.
+
 Still not handled: scanned PDFs, which have no text to read and need OCR. That is next on the
 roadmap.
