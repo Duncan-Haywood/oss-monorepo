@@ -29,9 +29,19 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "First CI run failed og-description-length.test.mjs: the episode summary made the page's og:description longer than 200 characters",
+      "fix": "Shortened the summary to 140 characters; the test passes locally"
+    }
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "The front-matter spec says summary is 'one or two sentences', but platform/pages/og-description-length.test.mjs caps the og:description built from it at 200 characters, and generate.mjs --check-script does not check that. Say the limit in the file format section or add it to checkScript."
+    }
+  ],
   "deviations": [
     {
       "file": "prompts/goals.md",
