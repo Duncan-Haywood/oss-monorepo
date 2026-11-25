@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVKfwrvvPmLxr5XJ6Bh",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T04:56:05Z",
+  "ended": "2026-11-25T04:59:44Z",
+  "wall_minutes": 3.85,
+  "tokens_in": 2289011,
+  "tokens_out": 15626,
+  "cost_usd": 1.3541,
+  "tool_calls": 31,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18851",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First unittest invocation from repo root errored (module import path); running from platform/ci worked."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0: all 48 queued alerts already had claim branches; finding that took a fetch, an ls-remote and a hand diff. Fixed here with platform/ci/security_next.py."
+    },
+    {
+      "file": "platform/ci/security_alerts.py",
+      "issue": "QUEUE.md on the branch did not yet show the 'Triaged already' line the generator on main prints, so the queue text lags the generator as well as the scan."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "No agent-owned backlog item; used Critique mode on the live prompt.md step-0 friction instead of filing a backlog row first.",
+      "did": "Shipped the tool directly with tests.",
+      "result": "Tool works live (48/48 claimed, exit 3)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No customer post: a process tool for agents.",
+      "did": "Extended docs/reports/2026-11-25-security-queue-stale-scan.md instead.",
+      "result": "agent doc updated"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-25-security-queue-stale-scan.md (extended)"
+  ],
+  "goal": null,
+  "notes": "Security queue: 48 listed, all claimed. Routed process/1 by draw. Backlog had only owner rows, so Critique: built security_next.py (next unclaimed+untriaged alert; --claim pushes create-only via --force-with-lease=<ref>:). Complements open PR 18843 (parses its Triaged section and codeql-triage.json). Verified: 9 unit tests incl. bare-remote race; promptctl validate ok; prompts unittest 142 OK; main_health 324/324.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d8921f39-3311-5874-8232-2177312661e5",
+    "transcripts": 1,
+    "first": "2026-11-25T04:56:05Z",
+    "last": "2026-11-25T04:59:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 28,
+        "input": 55,
+        "output": 15626,
+        "thinking": 2445,
+        "cache_read": 2214134,
+        "cache_write_5m": 0,
+        "cache_write_1h": 74822,
+        "api_equivalent_usd": 1.3541,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 28,
+      "input": 55,
+      "output": 15626,
+      "thinking": 2445,
+      "cache_read": 2214134,
+      "cache_write_5m": 0,
+      "cache_write_1h": 74822,
+      "api_equivalent_usd": 1.3541,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.967,
+    "tool_calls": 31,
+    "tools": {
+      "Bash": 25,
+      "Write": 2,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.85,
+      "active_minutes": 3.85,
+      "model_minutes": 2.74,
+      "tool_minutes": 1.11,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "small CLI + tests + doc edit",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 147.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
