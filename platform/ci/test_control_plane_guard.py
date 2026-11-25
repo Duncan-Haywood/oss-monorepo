@@ -9,6 +9,7 @@ else, or main goes red on unrelated work and the check gets switched off.
 
 import json
 import unittest
+from unittest import mock
 
 import control_plane_guard as guard
 
@@ -212,6 +213,14 @@ class GateWorkflowInvariants(unittest.TestCase):
     def test_switching_to_pull_request_trigger_is_refused(self):
         weakened = self.text().replace("pull_request_target:", "pull_request:")
         self.assertTrue(any("pull_request_target" in p for p in guard.gate_workflow_problems(weakened)))
+
+    def test_trigger_switch_is_refused_without_pyyaml(self):
+        # The fallback must read the `on:` block, not any mention in the file:
+        # here a comment still names pull_request_target.
+        weakened = self.text().replace("pull_request_target:", "pull_request:  # was pull_request_target")
+        with mock.patch.object(guard, "_load_yaml", return_value=None):
+            self.assertTrue(any("pull_request_target" in p for p in guard.gate_workflow_problems(weakened)))
+            self.assertEqual(guard.gate_workflow_problems(self.text()), [])
 
     def test_checking_out_the_pr_head_is_refused(self):
         weakened = self.text().replace(

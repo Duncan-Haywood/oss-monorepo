@@ -245,6 +245,16 @@ def _load_yaml(text: str):
         return exc
 
 
+def _on_block_has(text: str, event: str) -> bool:
+    """Without PyYAML: is `event` a trigger in the top-level `on:` block?
+    Comments are stripped, so a mention in a comment does not count."""
+    m = re.search(r"(?ms)^(?:on|\"on\"|'on'):(.*?)(?=^\S|\Z)", text)
+    if not m:
+        return False
+    block = "\n".join(line.split("#", 1)[0] for line in m.group(1).splitlines())
+    return re.search(rf"(?<![\w-]){re.escape(event)}(?![\w-])", block) is not None
+
+
 def gate_workflow_problems(text: str | None) -> list[str]:
     """The security gate must run from the base branch on every PR, as the
     two required checks, and run the gate scripts from that checkout."""
@@ -264,7 +274,7 @@ def gate_workflow_problems(text: str | None) -> list[str]:
                 problems.append(f"the security gate lost its `{job}` job")
             if script not in text:
                 problems.append(f"the security gate no longer runs {script}")
-        if "pull_request_target" not in text:
+        if not _on_block_has(text, "pull_request_target"):
             problems.append("the security gate no longer runs on `pull_request_target` (the base-branch copy)")
         return problems
     on = doc.get("on", doc.get(True)) if isinstance(doc, dict) else None
