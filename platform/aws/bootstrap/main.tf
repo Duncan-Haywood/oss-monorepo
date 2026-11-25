@@ -26,7 +26,7 @@ locals {
   }
 
   bucket_policy = {
-    Version   = "2012-10-17"
+    Version = "2012-10-17"
     Statement = concat(
       [
         {
@@ -111,7 +111,7 @@ locals {
   }
 
   key_policy = {
-    Version   = "2012-10-17"
+    Version = "2012-10-17"
     Statement = concat(
       [
         {

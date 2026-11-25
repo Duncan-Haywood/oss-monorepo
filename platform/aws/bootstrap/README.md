@@ -28,7 +28,7 @@ in that account.
 
 ## Apply
 
-First time (CI job in the `aws-prod` environment holding the
+First time (CI job in the `aws-foundation` environment holding the
 `gha-oss-monorepo-foundation-apply` role from `cfn/github-oidc-seed.yaml`,
 or the owner's Identity Center admin session):
 
