@@ -185,6 +185,19 @@ are the starting point, not the product:
 - [Construction Retainage Calculator](https://marisstella.app/retainage-cashflow-calculator/):
   the cash tied up in retainage and what waiting costs.
   ([source](../../ventures/retainage-cashflow-calculator/README.md))
+- [Change Order Log](https://marisstella.app/pay-app-guides/change-order-log.html)
+  (added 2026-11-25): paste or open your change order log and see the
+  revised contract sum, how much is pending and unsigned, and how long each
+  pending change has waited. It flags money billed on pending, rejected or
+  void changes, and billing outside zero to the approved amount. It writes
+  the approved change orders as schedule-of-values lines (CO-1, CO-2, with
+  billed to date as "previous") in the columns the Pay Application Generator
+  reads; a test feeds them through the generator and checks the net change
+  and revised contract sum match to the cent. It also drafts the exceptions
+  line for a progress lien waiver, listing the open change orders. The
+  hosted product keeps one log per job and adds each change order to the
+  next pay application the month it is signed.
+  ([source](../../ventures/pay-app-guides/README.md))
 
 - [Free schedule of values template](https://marisstella.app/pay-app-guides/schedule-of-values-template.html)
   (added 2026-11-25): for subs who would rather keep the spreadsheet. A blank

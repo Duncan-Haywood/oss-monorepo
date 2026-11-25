@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html"];
+const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html", "change-order-log.html"];
 
 test("every page carries the no-warranty clause, sponsor link, opt-out and honest CTA", () => {
   for (const name of PAGES) {
