@@ -45,15 +45,24 @@ test('the worked-example figures match calc.mjs on the shipped default shop rate
   // only force-applies suggestedProfileKit()/suggestedStoryKit() (gutterPerFoot,
   // hoursPerGutterFoot, profilePremiumPerFoot, hoursPerStoryFoot) plus the raw
   // footage/miter/downspout/fascia/toggle fields from the preset itself.
-  const shopDefaults = {
-    hoursTrip: 1.25, hoursInsideMiter: 0.5, hoursOutsideMiter: 0.3,
-    hoursPerExtraDownspout: 0.65, hoursPerExtraDownspoutFoot: 0.08,
-    hoursPerFasciaFoot: 0.22, hoursPerTearOffFoot: 0.018, hoursPerSteepFoot: 0.012,
-    siteHours: 0.75,
-    downspoutOutletCost: 38, downspoutPerFoot: 4.2, insideMiterCost: 18, outsideMiterCost: 12,
-    fasciaPerFoot: 8.5, tearOffDumpPerFoot: 0.85, hangerPerFoot: 1.1, permitFee: 0,
-    hourlyWage: 38, burdenRate: 32, travelAndEquipment: 95, overheadRate: 16, targetMargin: 32,
-  };
+  // Read from index.html's own <input value="..."> rather than a hand copy:
+  // the copy here was what let the page's figures drift from the form
+  // (quality audit 2026-11-09, defects 0-1: crew size, waste and sundries
+  // were added to the form, and a hand copy would have kept passing).
+  const shopIds = [
+    'hoursTrip', 'hoursInsideMiter', 'hoursOutsideMiter', 'hoursPerExtraDownspout',
+    'hoursPerExtraDownspoutFoot', 'hoursPerFasciaFoot', 'hoursPerTearOffFoot', 'hoursPerSteepFoot',
+    'siteHours', 'downspoutOutletCost', 'downspoutPerFoot', 'insideMiterCost', 'outsideMiterCost',
+    'fasciaPerFoot', 'tearOffDumpPerFoot', 'hangerPerFoot', 'permitFee', 'wastePercent',
+    'sundriesPerFoot', 'crewSize', 'hourlyWage', 'burdenRate', 'travelAndEquipment', 'overheadRate',
+    'targetMargin',
+  ];
+  const shopDefaults = Object.fromEntries(shopIds.map((id) => {
+    const match = indexHtml.match(new RegExp(`<input id="${id}"[^>]*\\bvalue="([^"]+)"`));
+    assert.ok(match, `index.html has no default value for #${id}`);
+    return [id, Number(match[1])];
+  }));
+  assert.equal(shopDefaults.crewSize, 2);
 
   function priceJob(preset) {
     const profileKit = suggestedProfileKit(preset.profile);
@@ -64,20 +73,20 @@ test('the worked-example figures match calc.mjs on the shipped default shop rate
   const ranch = JOB_PRESETS[0];
   assert.match(ranch.label, /the \$4\.50\/ft special/);
   const bidRanch = priceJob(ranch);
-  assert.equal(bidRanch.totalCost.toFixed(2), '1189.34');
-  assert.equal(bidRanch.price.toFixed(2), '1749.03');
+  assert.equal(bidRanch.totalCost.toFixed(2), '1488.03');
+  assert.equal(bidRanch.price.toFixed(2), '2188.28');
   assert.equal(bidRanch.totalHours.toFixed(2), '8.10');
-  assert.equal(bidRanch.laborCost.toFixed(2), '406.30');
-  assert.equal(bidRanch.materialCost.toFixed(2), '524.00');
+  assert.equal(bidRanch.laborCost.toFixed(2), '555.98');
+  assert.equal(bidRanch.materialCost.toFixed(2), '631.80');
 
   const colonial = JOB_PRESETS[2];
   assert.match(colonial.label, /2-story colonial, 220 ft of 6" aluminum/);
   const bidColonial = priceJob(colonial);
-  assert.equal(bidColonial.totalCost.toFixed(2), '4611.88');
-  assert.equal(bidColonial.price.toFixed(2), '6782.18');
+  assert.equal(bidColonial.totalCost.toFixed(2), '5532.51');
+  assert.equal(bidColonial.price.toFixed(2), '8136.05');
   assert.equal(bidColonial.totalHours.toFixed(2), '32.26');
-  assert.equal(bidColonial.laborCost.toFixed(2), '1618.16');
-  assert.equal(bidColonial.materialCost.toFixed(2), '2262.60');
+  assert.equal(bidColonial.laborCost.toFixed(2), '2214.33');
+  assert.equal(bidColonial.materialCost.toFixed(2), '2460.08');
 
   const flatRate = 4.5;
   const flatRanch = ranch.gutterFeet * flatRate;
@@ -86,27 +95,44 @@ test('the worked-example figures match calc.mjs on the shipped default shop rate
   assert.equal(flatColonial.toFixed(2), '990.00');
 
   assert.ok(flatRanch < bidRanch.totalCost, 'the flat special should fall short of total cost even on the brochure ranch');
-  assert.equal((bidRanch.totalCost - flatRanch).toFixed(2), '559.34');
+  assert.equal((bidRanch.totalCost - flatRanch).toFixed(2), '858.03');
   assert.ok(flatRanch > bidRanch.laborCost, 'the flat special should still clear loaded labor on the brochure ranch');
 
   assert.ok(flatColonial < bidColonial.totalCost, 'the flat special should fall well short of total cost on the harder job');
-  assert.equal((bidColonial.totalCost - flatColonial).toFixed(2), '3621.88');
+  assert.equal((bidColonial.totalCost - flatColonial).toFixed(2), '4542.51');
   assert.ok(flatColonial < bidColonial.laborCost, 'the flat special should not even clear loaded labor on the harder job');
-  assert.equal((bidColonial.laborCost - flatColonial).toFixed(2), '628.16');
+  assert.equal((bidColonial.laborCost - flatColonial).toFixed(2), '1224.33');
 
-  assert.equal((bidColonial.price - bidRanch.price).toFixed(2), '5033.15');
+  assert.equal((bidColonial.price - bidRanch.price).toFixed(2), '5947.77');
   assert.equal((flatRanch / bidRanch.totalHours).toFixed(2), '77.78');
   assert.equal((flatColonial / bidColonial.totalHours).toFixed(2), '30.69');
 
   const loadedWage = shopDefaults.hourlyWage * (1 + shopDefaults.burdenRate / 100);
-  assert.equal(loadedWage.toFixed(2), '50.16');
-  assert.ok(flatColonial / bidColonial.totalHours < loadedWage, 'the colonial effective rate should fall below the loaded wage');
+  assert.equal(loadedWage.toFixed(2), '34.32');
+  const crewHourCost = loadedWage * shopDefaults.crewSize;
+  assert.equal(crewHourCost.toFixed(2), '68.64');
+  assert.ok(flatColonial / bidColonial.totalHours < crewHourCost, 'the colonial effective rate should fall below what the loaded crew costs an hour');
+  assert.ok(flatRanch / bidRanch.totalHours > crewHourCost, 'the ranch effective rate should still clear the loaded crew');
 
-  for (const figure of ['$1,189.34', '$1,749.03', '$406.30', '$524.00', '$4,611.88', '$6,782.18', '$1,618.16', '$2,262.60', '$630.00', '$990.00', '$559.34', '$3,621.88', '$628.16', '$5,033.15', '$77.78', '$30.69', '$50.16']) {
+  for (const figure of ['$1,488.03', '$2,188.28', '$555.98', '$631.80', '$5,532.51', '$8,136.05', '$2,214.33', '$2,460.08', '$630.00', '$990.00', '$858.03', '$4,542.51', '$1,224.33', '$5,947.77', '$1,558.28', '$77.78', '$30.69', '$34.32', '$68.64']) {
     assert.ok(html.includes(figure), `worked-example figure ${figure} is missing from the page`);
   }
-  assert.match(html, /&minus;\$559\.34|-\$559\.34/, 'the $559.34 shortfall on the brochure ranch is missing from the page');
-  assert.match(html, /&minus;\$3,621\.88|-\$3,621\.88/, 'the $3,621.88 shortfall on the harder job is missing from the page');
+  assert.match(html, /&minus;\$858\.03|-\$858\.03/, 'the $858.03 shortfall on the brochure ranch is missing from the page');
+  assert.match(html, /&minus;\$4,542\.51|-\$4,542\.51/, 'the $4,542.51 shortfall on the harder job is missing from the page');
+
+  // The pricing walkthrough quotes the same presets at the same defaults.
+  const guide = fs.readFileSync(new URL('./how-much-to-charge-to-install-gutters.html', import.meta.url), 'utf8');
+  const usd = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const tearOffJob = priceJob(JOB_PRESETS[1]);
+  const copperJob = priceJob(JOB_PRESETS[3]);
+  for (const figure of [
+    usd(bidRanch.price), usd(bidRanch.totalCost), usd(bidRanch.pricePerGutterFoot),
+    usd(bidColonial.price), usd(bidColonial.totalCost), usd(bidColonial.pricePerGutterFoot),
+    usd(tearOffJob.price), usd(copperJob.price), usd(copperJob.pricePerGutterFoot),
+    usd(bidRanch.totalCost - flatRanch),
+  ]) {
+    assert.ok(guide.includes(figure), `pricing-guide figure ${figure} is missing from how-much-to-charge-to-install-gutters.html`);
+  }
 });
 
 test('the comparison page is linked from the tool page, not orphaned', () => {

@@ -51,8 +51,16 @@ a guess from a published per-foot special.
    A ranch-only special is not a changeout package. Inside miters,
    fascia rot, and haul-away of the old trough are not blended into
    the trip.
-4. **Loaded labor.** Hourly wage × (1 + payroll burden %).
-5. **Price.** Cost ÷ (1 − target margin %), because margin is quoted as a
+4. **Loaded labor, per person.** Every hour above is a crew clock-hour on
+   site. Labor is those hours × people on the crew × hourly wage ×
+   (1 + payroll burden %), so a two-person crew on a 6-hour hang is 12
+   paid hours. Leave crew size at 1 only if your wage figure already means
+   the whole crew.
+5. **Waste and sundries.** A stock-waste share on the trough and the
+   extra downspout stock (cut-offs, miscuts), and a per-foot line for the
+   consumables every hang uses: end caps, sealant, screws, standard
+   hangers.
+6. **Price.** Cost ÷ (1 − target margin %), because margin is quoted as a
    share of price, not a markup on cost.
 
 It then reports the numbers a shop sanity-checks a bid against: price
@@ -61,6 +69,21 @@ the **walk-away price** — total cost, below which the job makes
 nothing. Entering a price already on the table scores it against the
 same cost base. **Copy bid summary** turns the result into a
 plain-text draft with wages omitted, ready to paste into a proposal.
+
+Three more things ship with it:
+
+- **Share link** ([`share.mjs`](share.mjs)): every input rides in the
+  part of the address after `#`, which never reaches a server, so a
+  partner or estimator opens the identical job. Customer and business
+  details are left out of the link.
+- **Printable proposal** ([`proposal.mjs`](proposal.mjs)): a customer's
+  copy with your business block, scope lines drawn from the job, the
+  deposit split, a price-held date and a signature line. Costs, wages and
+  margin are not on it. Your business details are remembered on this
+  device only, and "Forget my business details" removes them.
+- **Proposal terms** ([`proposal-terms.mjs`](proposal-terms.mjs)): the
+  deposit, validity window, payment terms, exclusions and notes travel
+  with the share link.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency. See [`calc.test.mjs`](calc.test.mjs).
@@ -91,7 +114,13 @@ Events counted: `bid_calculated`, `preset_applied`,
 - One hang / one trip. A commercial box-gutter run, a copper half-round
   custom shop drawing, or a full roof-edge rebuild is not priced as a
   package.
-- Starting hours are ballpark figures, not timed from a named crew.
+- Starting hours, rates and the $26/h per-person wage are illustrative
+  figures, not timed from a named crew or taken from a published wage
+  survey. At those defaults the brochure ranch prices at about $15.63 a
+  foot; replace them with your own payroll, invoices and timed jobs.
+  (Quality audit
+  [2026-11-09](../../portfolio/quality/audits/2026-11-09-gutter-install-bid-calculator.json),
+  defect 2, stays open until the defaults carry a source.)
 - Does not price gutter *cleaning* or gutter *guards*.
 
 ## Disclaimer

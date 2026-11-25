@@ -216,6 +216,20 @@ export function calculateBid(input) {
   const hangerPerFoot = number(input.hangerPerFoot ?? 0, 'Hidden hanger per foot');
   const permitFee = number(input.permitFee ?? 0, 'Permit fee');
 
+  // Stock lost to cut-offs and miscut lengths, as a share of the trough and
+  // extra downspout stock bought; and the per-foot consumables every hang
+  // uses whether or not the shop lists them (end caps, sealant, screws,
+  // standard hangers, outlets' flashing). Both default to 0 so an older
+  // saved input prices exactly as before.
+  const wastePercent = number(input.wastePercent ?? 0, 'Stock waste');
+  if (wastePercent >= 100) throw new Error('Stock waste must be less than 100%');
+  const sundriesPerFoot = number(input.sundriesPerFoot ?? 0, 'Sundries per foot');
+
+  // Hours above are crew clock-hours on site. Labour is paid per person, so
+  // a two-person crew on a 6-hour hang is 12 paid hours. Defaults to 1 so
+  // an older saved input (a wage that already meant the whole crew) prices
+  // exactly as before.
+  const crewSize = number(input.crewSize ?? 1, 'Crew size', { min: 1 });
   const hourlyWage = number(input.hourlyWage ?? 0, 'Hourly wage');
   const burdenRate = number(input.burdenRate ?? 0, 'Payroll burden');
   const travelAndEquipment = number(input.travelAndEquipment ?? 0, 'Travel and equipment');
@@ -237,7 +251,8 @@ export function calculateBid(input) {
   const accessHours = storyHours + steepHours;
   const packageHours = miterHours + dropHours + fasciaHours + tearOffHours;
   const totalHours = tripHours + hangHours + accessHours + packageHours + siteHours;
-  const laborCost = totalHours * loadedWage;
+  const personHours = totalHours * crewSize;
+  const laborCost = personHours * loadedWage;
 
   const gutterMaterial = gutterFeet * (gutterPerFoot + profilePremiumPerFoot);
   const miterMaterial = insideMiters * insideMiterCost + outsideMiters * outsideMiterCost;
@@ -246,8 +261,10 @@ export function calculateBid(input) {
   const tearOffMaterial = tearOff ? gutterFeet * tearOffDumpPerFoot : 0;
   const hangerMaterial = addHiddenHangers ? gutterFeet * hangerPerFoot : 0;
   const permitMaterial = permitFee;
+  const wasteMaterial = (gutterMaterial + extraDownspoutFeet * downspoutPerFoot) * wastePercent / 100;
+  const sundriesMaterial = gutterFeet * sundriesPerFoot;
   const materialCost = gutterMaterial + miterMaterial + dropMaterial + fasciaMaterial
-    + tearOffMaterial + hangerMaterial + permitMaterial;
+    + tearOffMaterial + hangerMaterial + permitMaterial + wasteMaterial + sundriesMaterial;
   const softCost = travelAndEquipment;
 
   const directCost = laborCost + materialCost + softCost;
@@ -291,6 +308,8 @@ export function calculateBid(input) {
     packageHours,
     siteHours,
     totalHours,
+    crewSize,
+    personHours,
     laborCost,
     gutterMaterial,
     miterMaterial,
@@ -299,6 +318,8 @@ export function calculateBid(input) {
     tearOffMaterial,
     hangerMaterial,
     permitMaterial,
+    wasteMaterial,
+    sundriesMaterial,
     materialCost,
     travelAndEquipment,
     softCost,
@@ -359,7 +380,7 @@ export function formatBidSummary(result, jobLabel = 'Gutter install') {
     `Proposed gutter-install price: ${money(result.price)}`,
     `Scope: ${jobLabel}; ${profile}; ${stories}`,
     `Price per foot of gutter: ${perFoot}`,
-    `Crew labor: ${result.totalHours.toFixed(1)} crew-hours`,
+    `Crew labor: ${result.totalHours.toFixed(1)} h on site, ${result.crewSize} on the crew`,
     '',
     'SCOPE BASIS',
     `- ${result.gutterFeet} ft of ${profile}; ${stories}; ${result.insideMiters} inside miter(s); ${result.outsideMiters} outside miter(s)`,

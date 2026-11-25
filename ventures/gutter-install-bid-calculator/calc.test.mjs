@@ -280,3 +280,48 @@ test('customer-facing summary omits wages and names the corners and extras', () 
   assert.doesNotMatch(text, /38/);
   assert.doesNotMatch(text, /wage/i);
 });
+
+// Quality audit 2026-11-09 (portfolio/quality/audits/2026-11-09-gutter-install-bid-calculator.json,
+// defects 0 and 1): one wage times crew clock-hours undercosted every
+// multi-person crew, and the material lines had no waste or consumables.
+test('labour is crew clock-hours times people on the crew times the loaded wage', () => {
+  const solo = calculateBid(brochure());
+  const pair = calculateBid({ ...brochure(), crewSize: 2 });
+  assert.equal(solo.crewSize, 1, 'an input without crewSize keeps the old one-wage reading');
+  assert.equal(pair.totalHours, solo.totalHours, 'a second person does not change the clock hours on site');
+  assert.ok(Math.abs(pair.personHours - 2 * 8.1) < 1e-9);
+  // 8.10 h x 2 x $38 x 1.32 = $812.592
+  assert.ok(Math.abs(pair.laborCost - 812.592) < 1e-9);
+  assert.ok(Math.abs(pair.laborCost - 2 * solo.laborCost) < 1e-9);
+  assert.equal(formatBidSummary(pair).includes('2 on the crew'), true);
+});
+
+test('a crew of fewer than one person is refused, not priced at zero labour', () => {
+  assert.throws(() => calculateBid({ ...brochure(), crewSize: 0 }), /Crew size must be at least 1/);
+});
+
+test('stock waste applies to trough and extra downspout stock, sundries to every gutter foot', () => {
+  const job = { ...moneyLoser(), wastePercent: 5, sundriesPerFoot: 0.6 };
+  const plain = calculateBid(moneyLoser());
+  const result = calculateBid(job);
+  // Hand check: trough 220 ft x (4.6 + 1.2) = 1,276; extra downspout
+  // stock 48 - 4 x 10 = 8 ft x 4.2 = 33.60; waste 5% of 1,309.60 = 65.48.
+  const expectedWaste = 65.48;
+  assert.ok(Math.abs(result.wasteMaterial - expectedWaste) < 1e-9);
+  assert.ok(Math.abs(result.sundriesMaterial - result.gutterFeet * 0.6) < 1e-9);
+  assert.ok(Math.abs(result.materialCost - plain.materialCost - expectedWaste - result.gutterFeet * 0.6) < 1e-9);
+  assert.equal(plain.wasteMaterial, 0);
+  assert.equal(plain.sundriesMaterial, 0);
+});
+
+test('extra downspout stock carries waste too', () => {
+  const base = { ...brochure(), downspoutFeet: 40, wastePercent: 10 };
+  const result = calculateBid(base);
+  // 20 extra ft x $4.20 = 84; trough 140 x 3.4 = 476; 10% of 560 = 56.
+  assert.equal(result.extraDownspoutFeet, 20);
+  assert.ok(Math.abs(result.wasteMaterial - 56) < 1e-9);
+});
+
+test('a waste share of 100% or more is refused', () => {
+  assert.throws(() => calculateBid({ ...brochure(), wastePercent: 100 }), /Stock waste must be less than 100%/);
+});
