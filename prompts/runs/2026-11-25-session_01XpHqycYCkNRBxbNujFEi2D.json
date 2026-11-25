@@ -1,0 +1,316 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqycYCkNRBxbNujFEi2D",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T22:39:03Z",
+  "ended": "2026-11-25T22:39:31Z",
+  "wall_minutes": 7.44,
+  "tokens_in": 5218735,
+  "tokens_out": 18353,
+  "cost_usd": 2.1731,
+  "tool_calls": 57,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19118",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First push failed changed-ventures: my checkSpiral bounds loop tripped the // @ts-check typecheck (TS2365, a [string, number, number] tuple inferred as (string|number)[]); fixed with a JSDoc tuple cast. I had run the suites locally but not platform/pages/typecheck.mjs."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`targets --probe 20` probes every guarded file's suite one after another (74 files x ~18 s, about 20 min of wall time here, all hitting the same whole-venture suite); probing one file per distinct suite would give the same answer in seconds."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The local venture command (run_venture_tests.py) does not run platform/pages/typecheck.mjs, which changed-ventures does; a @ts-check file can pass locally and fail CI. run_workflow_locally.py --for-changes would have caught it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 lists 2 open defects; both say the fix needs something unsafe in a red-team run (a control-plane workflow edit with owner approval; a help-keeper stemmer change measured as mixed that needs a help-center eval set).",
+      "did": "Checked both still describe current main and left them open; spent the run on new findings.",
+      "result": "Two new real defects fixed and one gap guarded."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "'Every run ships a post': a red-team PR's findings fit the record and test comments; a blog post on two stair-input validation fixes would be a thin post, which the 2026-11-24 consolidation direction asks us not to write.",
+      "did": "No post; notes in the record.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Target wall-framing-takeoff (bet: construction). Campaign 1 on licence.mjs: 2 mutants, 1 escaped (checkLicence with no public key returning valid: true, i.e. any key unlocks a pack not on sale). Guard: platform/billing/testkit.mjs assertPackLicence now deepEquals {valid:false, reason} for the keyless check; it runs in all 7 ventures that sell a pack through paddle.mjs (checked: every one calls it), so the class is covered with no agent in the loop. Catch rate 0.5 -> 1.0 after rerun. Campaign 2 on numfields.mjs: 8/8 caught. Hunt: two real defects in stairs.mjs (one-riser flight from a loose typed limit; checkSpiral unvalidated limits/bounds), fixed with failing tests first. Verification: node --test stairs.test.mjs stairs-fuzz.test.mjs 74/74; the 7 pack suites pass; run_venture_tests.py wall-framing-takeoff (see PR).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/wall-framing-takeoff/licence.mjs",
+        "test": "node --test ventures/wall-framing-takeoff/**/*.test.mjs  (in .)",
+        "seed": 743916262,
+        "commit": "434f6a80e",
+        "sites": 2,
+        "baseline_seconds": 18.6,
+        "mutants": [
+          {
+            "file": "ventures/wall-framing-takeoff/licence.mjs",
+            "line": 37,
+            "col": 37,
+            "operator": "or-to-and",
+            "before": "const cfg = { ...PADDLE, ...(o.cfg || {}) };",
+            "after": "const cfg = { ...PADDLE, ...(o.cfg && {}) };",
+            "line_text": "  const cfg = { ...PADDLE, ...(o.cfg || {}) };",
+            "caught": true,
+            "seconds": 18.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/licence.mjs",
+            "line": 38,
+            "col": 38,
+            "operator": "false-to-true",
+            "before": "if (!cfg.publicKey) return { valid: false, reason: \"licence check unavailable\" };",
+            "after": "if (!cfg.publicKey) return { valid: true, reason: \"licence check unavailable\" };",
+            "line_text": "  if (!cfg.publicKey) return { valid: false, reason: \"licence check unavailable\" };",
+            "caught": false,
+            "seconds": 19.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "checkLicence with no public key returning valid: true (every key unlocks a pack that is not on sale) passed: the shared testkit checked only the reason. platform/billing/testkit.mjs now deepEquals {valid:false, reason}, guarding all 7 packs that use assertPackLicence."
+          }
+        ]
+      },
+      {
+        "target": "ventures/wall-framing-takeoff/numfields.mjs",
+        "test": "node --test ventures/wall-framing-takeoff/**/*.test.mjs  (in .)",
+        "seed": 853197647,
+        "commit": "3c839b414",
+        "sites": 10,
+        "baseline_seconds": 18.4,
+        "mutants": [
+          {
+            "file": "ventures/wall-framing-takeoff/numfields.mjs",
+            "line": 7,
+            "col": 8,
+            "operator": "eq-flip",
+            "before": "if (d === null || typeof d !== \"object\") return e;",
+            "after": "if (d !== null || typeof d !== \"object\") return e;",
+            "line_text": "  if (d === null || typeof d !== \"object\") return e;",
+            "caught": true,
+            "seconds": 19.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/numfields.mjs",
+            "line": 7,
+            "col": 17,
+            "operator": "or-to-and",
+            "before": "if (d === null || typeof d !== \"object\") return e;",
+            "after": "if (d === null && typeof d !== \"object\") return e;",
+            "line_text": "  if (d === null || typeof d !== \"object\") return e;",
+            "caught": true,
+            "seconds": 20.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/numfields.mjs",
+            "line": 7,
+            "col": 29,
+            "operator": "neq-flip",
+            "before": "if (d === null || typeof d !== \"object\") return e;",
+            "after": "if (d === null || typeof d === \"object\") return e;",
+            "line_text": "  if (d === null || typeof d !== \"object\") return e;",
+            "caught": true,
+            "seconds": 19.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/numfields.mjs",
+            "line": 10,
+            "col": 33,
+            "operator": "or-to-and",
+            "before": "if (typeof d[k] !== \"number\" || !Number.isFinite(d[k])) e.push(`${k} must be a number.`);",
+            "after": "if (typeof d[k] !== \"number\" && !Number.isFinite(d[k])) e.push(`${k} must be a number.`);",
+            "line_text": "    if (typeof d[k] !== \"number\" || !Number.isFinite(d[k])) e.push(`${k} must be a number.`);",
+            "caught": true,
+            "seconds": 18.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/numfields.mjs",
+            "line": 12,
+            "col": 31,
+            "operator": "and-to-or",
+            "before": "else if (/price$/i.test(k) && (d[k] < 0 || d[k] > 1e9)) e.push(`${k} must be from 0 to 1,000,000,000.`);",
+            "after": "else if (/price$/i.test(k) || (d[k] < 0 || d[k] > 1e9)) e.push(`${k} must be from 0 to 1,000,000,000.`);",
+            "line_text": "    else if (/price$/i.test(k) && (d[k] < 0 || d[k] > 1e9)) e.push(`${k} must be from 0 to 1,000,000,000.`);",
+            "caught": true,
+            "seconds": 18.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/numfields.mjs",
+            "line": 12,
+            "col": 40,
+            "operator": "lt-to-le",
+            "before": "else if (/price$/i.test(k) && (d[k] < 0 || d[k] > 1e9)) e.push(`${k} must be from 0 to 1,000,000,000.`);",
+            "after": "else if (/price$/i.test(k) && (d[k] <= 0 || d[k] > 1e9)) e.push(`${k} must be from 0 to 1,000,000,000.`);",
+            "line_text": "    else if (/price$/i.test(k) && (d[k] < 0 || d[k] > 1e9)) e.push(`${k} must be from 0 to 1,000,000,000.`);",
+            "caught": true,
+            "seconds": 18.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/numfields.mjs",
+            "line": 12,
+            "col": 44,
+            "operator": "or-to-and",
+            "before": "else if (/price$/i.test(k) && (d[k] < 0 || d[k] > 1e9)) e.push(`${k} must be from 0 to 1,000,000,000.`);",
+            "after": "else if (/price$/i.test(k) && (d[k] < 0 && d[k] > 1e9)) e.push(`${k} must be from 0 to 1,000,000,000.`);",
+            "line_text": "    else if (/price$/i.test(k) && (d[k] < 0 || d[k] > 1e9)) e.push(`${k} must be from 0 to 1,000,000,000.`);",
+            "caught": true,
+            "seconds": 18.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/numfields.mjs",
+            "line": 12,
+            "col": 52,
+            "operator": "gt-to-ge",
+            "before": "else if (/price$/i.test(k) && (d[k] < 0 || d[k] > 1e9)) e.push(`${k} must be from 0 to 1,000,000,000.`);",
+            "after": "else if (/price$/i.test(k) && (d[k] < 0 || d[k] >= 1e9)) e.push(`${k} must be from 0 to 1,000,000,000.`);",
+            "line_text": "    else if (/price$/i.test(k) && (d[k] < 0 || d[k] > 1e9)) e.push(`${k} must be from 0 to 1,000,000,000.`);",
+            "caught": true,
+            "seconds": 18.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/wall-framing-takeoff/stairs.mjs",
+        "issue": "layoutStair with a typed limits.maxRiser at or above the total rise (e.g. maxRiser 1000, rise 108) returned ok: true for a flight of one 108 in riser and zero treads. validateStair now refuses a riser count under 2.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19118"
+      },
+      {
+        "file": "ventures/wall-framing-takeoff/stairs.mjs",
+        "issue": "checkSpiral did not validate typed limits or bounds: limits.maxRiser 0 gave Infinity risers, 'x' gave a 'one turn climbs NaN in' line, minWalkDepth 0 gave ok: true with Infinity treads per turn, handrailIntrusion Infinity gave '-Infinity in' clear width, checkSpiral(null) threw, and a 5 in rise passed as a one-riser stair. Now refuses each with an error.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19118"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7e1dab76-7172-50e5-a224-36c5ebebec1c",
+    "transcripts": 1,
+    "first": "2026-11-25T22:39:03Z",
+    "last": "2026-11-25T22:46:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 109,
+        "output": 18353,
+        "thinking": 4629,
+        "cache_read": 5120947,
+        "cache_write_5m": 0,
+        "cache_write_1h": 97679,
+        "api_equivalent_usd": 2.1731,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 109,
+      "output": 18353,
+      "thinking": 4629,
+      "cache_read": 5120947,
+      "cache_write_5m": 0,
+      "cache_write_1h": 97679,
+      "api_equivalent_usd": 2.1731,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 54,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.44,
+      "active_minutes": 7.44,
+      "model_minutes": 3.13,
+      "tool_minutes": 4.31,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "seeding and triaging 10 mutants, hunting and fixing two stair validation defects with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 138.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

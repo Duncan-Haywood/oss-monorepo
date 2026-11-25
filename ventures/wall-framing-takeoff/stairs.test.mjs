@@ -700,3 +700,24 @@ test("landing guard: refuses a bad edge list with a reason, not a TypeError", ()
   }
   assert.equal(layoutLandingGuard([96], /** @type {any} */ (null)).posts.count, 3);
 });
+
+test("red-team 2026-11-25: a typed riser limit that leaves one riser is refused, not laid out as a flight with no treads", () => {
+  const r = layoutStair({ ...sampleStair(), limits: { maxRiser: 1000 } });
+  assert.equal(r.ok, false);
+  assert.match(r.errors.join(" "), /at least two risers/);
+  assert.equal(validateStair({ ...sampleStair(), limits: { maxRiser: 200 } }).length > 0, true);
+  // a looser but sane limit still lays out
+  assert.equal(layoutStair({ ...sampleStair(), limits: { maxRiser: 9 } }).ok, true);
+});
+
+test("red-team 2026-11-25: checkSpiral refuses bad typed limits and inputs instead of reporting NaN or Infinity", () => {
+  const base = { totalRise: 110, outerDiameter: 60 };
+  for (const bad of [{ limits: { maxRiser: 0 } }, { limits: { maxRiser: "x" } }, { limits: { minWalkDepth: 0 } }, { limits: { headroom: -1 } }, { limits: { walkline: NaN } }, { handrailIntrusion: Infinity }, { poleDiameter: Infinity }, { treadsPerTurn: 1e12 }, { totalRise: 1e12 }]) {
+    const r = checkSpiral({ ...base, ...bad });
+    assert.equal(r.ok, false, JSON.stringify(bad));
+    assert.ok(Array.isArray(r.errors) && r.errors.length > 0, JSON.stringify(bad));
+  }
+  assert.equal(checkSpiral(null).ok, false);
+  assert.equal(checkSpiral({ ...base, totalRise: 5 }).ok, false);
+  assert.equal(checkSpiral(base).ok, true);
+});
