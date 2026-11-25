@@ -70,3 +70,21 @@ test("the Excel template section is on the page, tracked, and says it is not the
     assert.match(html, new RegExp(`<code>${ev}</code>`));
   }
 });
+
+test("the template's own page is linked, honest about the AIA, sends nothing and quotes no price", () => {
+  assert.match(page("index.html"), /href="pay-application-template\.html"/);
+  const t = page("pay-application-template.html");
+  assert.match(t, /<title>Pay Application Template \(Excel\)<\/title>/);
+  assert.match(t, /not the AIA G702\/G703 form/);
+  assert.match(t, /Not affiliated with the American Institute of Architects/);
+  assert.match(t, /No warranty/);
+  assert.match(t, /FAQPage/);
+  assert.match(t, /href="\.\.\/pay-app-guides\/"/);
+  assert.doesNotMatch(t, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/);
+  assert.doesNotMatch(t, /<script[^>]+src=["']https?:/);
+  assert.deepEqual([...t.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./usage.mjs", "./workbook.mjs"]);
+  const suite = /<section class="card" id="suite">([\s\S]*?)<\/section>/.exec(t)[1];
+  assert.match(suite, /not on sale yet/);
+  assert.doesNotMatch(suite, /\$\s?\d/);
+  assert.match(page("sitemap.xml"), /pay-application-template\.html/);
+});

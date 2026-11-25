@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e301b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pay Application Template (Excel)</title>
+  <meta name="description" content="Free pay application template for Excel, Google Sheets and LibreOffice: an application summary and a continuation sheet with live formulas for retainage, change orders, previous certificates and payment due. Our own layout, not the AIA G702/G703 form.">
+  <meta property="og:title" content="Free pay application template for Excel, with retainage formulas">
+  <meta property="og:description" content="Summary plus continuation sheet, every total a formula. Retainage per line, change orders summed separately, payment due worked out.">
+  <link rel="canonical" href="./pay-application-template.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is in the pay application template?", "acceptedAnswer": {"@type": "Answer", "text": "Two sheets. The Application sheet has the project details and the nine summary lines: original contract sum, net change by change orders, contract sum to date, total completed and stored, retainage, total earned less retainage, previous certificates, current payment due, and balance to finish including retainage. The Continuation sheet has the retainage rates and one row per line of the schedule of values, in lettered columns A to L: item, description, type, scheduled value, from previous applications, this period, materials presently stored, completed and stored to date, percent complete, balance to finish, the line's own retainage rate, and retainage. The blank template has 30 lines."}}, {"@type": "Question", "name": "Is this the AIA G702 and G703 form?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is our own layout covering the same kind of summary and continuation sheet. The AIA documents are copyrighted and this template is not affiliated with the American Institute of Architects. If your owner or general contractor requires the AIA form or their own portal, use the numbers from this workbook to fill it in."}}, {"@type": "Question", "name": "How is retainage worked out in the spreadsheet?", "acceptedAnswer": {"@type": "Answer", "text": "Each line's retainage is the work rate times previous plus this period, plus the stored-materials rate times materials presently stored, each rounded to the cent. The two rates are typed once at the top of the Continuation sheet. A line with a different rate takes it in column K, which then applies to both its work and its stored materials."}}, {"@type": "Question", "name": "How do I add change orders?", "acceptedAnswer": {"@type": "Answer", "text": "Add each approved change order as its own row with CO in the Type column (C) and its scheduled value, negative for a deductive change order. The Application sheet sums CO rows into line 2 and everything else into line 1."}}, {"@type": "Question", "name": "How do I start next month's application?", "acceptedAnswer": {"@type": "Answer", "text": "Save a copy of the file. On each line add This period into Previous applications and clear This period. Leave stored materials where they are until they are installed. Type last month's line 6 (total earned less retainage) into line 7, previous certificates, unless the owner certified a different amount. The free pay application generator can do this for you: work out this month there, use Next month, enter the new period's work, and download the result as Excel."}}, {"@type": "Question", "name": "Does it work in Google Sheets or LibreOffice?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is a standard .xlsx file with ordinary formulas (SUM, SUMIF, ROUND, IF). A test opens it in LibreOffice with every cached value stripped, so the formulas have to be worked out from scratch, and checks the summary and each line's retainage against the generator's own arithmetic to the cent. It has not been tested in Excel or Google Sheets by us; both read standard .xlsx formulas."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f3f4f1; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #7a3e0a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #3b2a14; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3b2a14; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #54503f; }
+    .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3b2a1410; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #7a3e0a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #efe8d8; color: #3b2a14; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.total td { font-weight: 700; border-top: 2px solid #3b2a14; }
+    .finding { border-bottom: 1px solid #e8e4d6; padding: 10px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e8e4d6; color: #3b2a14; }
+    .due { font-size: 1.6rem; font-weight: 800; color: #3b2a14; }
+    footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
+    .scroll { overflow-x: auto; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, #suite, #template, #next, header { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PAY APPLICATION TEMPLATE · EXCEL, GOOGLE SHEETS, LIBREOFFICE · FREE</p>
+    <h1>A free pay application template for Excel, with the retainage worked out.</h1>
+    <p>Two sheets: an <strong>Application</strong> summary (contract sum, change orders, completed and stored, retainage, previous certificates, payment due, balance to finish) and a <strong>Continuation sheet</strong> with one row per line of your schedule of values. Type into the shaded cells; every total is a formula.</p>
+    <p><button type="button" id="dl-template">Download the template (.xlsx)</button></p>
+    <p class="note" id="dl-status">The file is built in this browser tab and downloaded straight to your device. Our own layout: it is not the AIA G702/G703 form and is not affiliated with the AIA.</p>
+  </header>
+<main>
+  <section class="card" id="inside">
+    <h2>What the formulas do</h2>
+    <div class="scroll"><table>
+      <thead><tr><th scope="col">Column or line</th><th scope="col">Formula, in words</th></tr></thead>
+      <tbody>
+        <tr><td>H, completed and stored to date</td><td>E + F + G: from previous applications + this period + materials presently stored</td></tr>
+        <tr><td>I, % complete</td><td>H ÷ D (blank when the scheduled value is zero)</td></tr>
+        <tr><td>J, balance to finish</td><td>D − H</td></tr>
+        <tr><td>L, retainage (per line)</td><td>Work rate × (E + F) + stored rate × G, each rounded to the cent; a rate in column K overrides both</td></tr>
+        <tr><td>1. Original contract sum</td><td>Column D of every row not typed CO in column C</td></tr>
+        <tr><td>2. Net change by change orders</td><td>Scheduled values of rows typed CO (a deduct is negative)</td></tr>
+        <tr><td>3. Contract sum to date</td><td>1 + 2</td></tr>
+        <tr><td>4 and 5</td><td>Totals of columns H and L</td></tr>
+        <tr><td>6. Total earned less retainage</td><td>4 − 5</td></tr>
+        <tr><td>8. Current payment due</td><td>6 − 7, where line 7 (previous certificates for payment) is typed from your last application</td></tr>
+        <tr><td>9. Balance to finish, including retainage</td><td>3 − 6</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">A test (<code>recalc.test.mjs</code>) opens the workbook in LibreOffice with every cached value removed, so the formulas have to be worked out from scratch, and checks lines 1 to 9 and each line's retainage against the <a href="./">pay application generator</a>'s own arithmetic to the cent: the worked example, a job past a retainage reduction point with stored materials at a different rate, and a line with its own rate and odd cents.</p>
+  </section>
+
+  <section class="card" id="howto">
+    <h2>Filling it in, month by month</h2>
+    <ol>
+      <li><strong>First application.</strong> On the Continuation sheet type the retainage rates from your contract and each line of the schedule of values: item, description and scheduled value. Put <code>CO</code> in column C of each approved change order. On the Application sheet type the project and leave line 7, previous certificates, at zero.</li>
+      <li><strong>Each month.</strong> Type the work done this period on each line, and any materials delivered but not installed under Materials presently stored. Read the payment due from line 8.</li>
+      <li><strong>Next month.</strong> Save a copy. Add this period (F) into from previous applications (E) on each line, clear F, and type last month's line 6 into line 7 (unless the owner certified a different amount). Or let the <a href="./">pay application generator</a> roll it forward: work out this month's application there, use Next month, and download the result as Excel.</li>
+    </ol>
+    <p>Not decided by the template: what your contract allows for retainage, stored-material billing and retainage reduction; state limits on retainage; whether a change order is approved; sales tax; and whether the owner will certify the amount. <a href="../pay-app-guides/retainage-explained.html">Retainage explained</a> covers the usual terms and some state caps.</p>
+  </section>
+
+  <section class="card" id="suite">
+    <h2>Billing every month on several jobs?</h2>
+    <p>A hosted pay-app suite for subcontractors and small general contractors is <strong>in development</strong>: schedules of values saved per job and carried forward for you, retainage tracked line by line until release, lien waivers produced with each application, and approved change orders landing on the next bill. It is not on sale yet and has no price. This template stays free.</p>
+    <p><a href="https://marisstella.app/feedback/?type=idea&amp;tool=pay-application-generator">Tell us how you bill today</a> to ask for early access. That form is public, so leave out names, prices and anything private.</p>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Common questions</h2>
+    <h3>What is in the pay application template?</h3>
+    <p>Two sheets. The Application sheet has the project details and the nine summary lines: original contract sum, net change by change orders, contract sum to date, total completed and stored, retainage, total earned less retainage, previous certificates, current payment due, and balance to finish including retainage. The Continuation sheet has the retainage rates and one row per line of the schedule of values, in lettered columns A to L: item, description, type, scheduled value, from previous applications, this period, materials presently stored, completed and stored to date, percent complete, balance to finish, the line's own retainage rate, and retainage. The blank template has 30 lines.</p>
+    <h3>Is this the AIA G702 and G703 form?</h3>
+    <p>No. It is our own layout covering the same kind of summary and continuation sheet. The AIA documents are copyrighted and this template is not affiliated with the American Institute of Architects. If your owner or general contractor requires the AIA form or their own portal, use the numbers from this workbook to fill it in.</p>
+    <h3>How is retainage worked out in the spreadsheet?</h3>
+    <p>Each line's retainage is the work rate times previous plus this period, plus the stored-materials rate times materials presently stored, each rounded to the cent. The two rates are typed once at the top of the Continuation sheet. A line with a different rate takes it in column K, which then applies to both its work and its stored materials.</p>
+    <h3>How do I add change orders?</h3>
+    <p>Add each approved change order as its own row with CO in the Type column (C) and its scheduled value, negative for a deductive change order. The Application sheet sums CO rows into line 2 and everything else into line 1.</p>
+    <h3>How do I start next month's application?</h3>
+    <p>Save a copy of the file. On each line add This period into Previous applications and clear This period. Leave stored materials where they are until they are installed. Type last month's line 6 (total earned less retainage) into line 7, previous certificates, unless the owner certified a different amount. The free pay application generator can do this for you: work out this month there, use Next month, enter the new period's work, and download the result as Excel.</p>
+    <h3>Does it work in Google Sheets or LibreOffice?</h3>
+    <p>Yes. It is a standard .xlsx file with ordinary formulas (SUM, SUMIF, ROUND, IF). A test opens it in LibreOffice with every cached value stripped, so the formulas have to be worked out from scratch, and checks the summary and each line's retainage against the generator's own arithmetic to the cent. It has not been tested in Excel or Google Sheets by us; both read standard .xlsx formulas.</p>
+  </section>
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace your contract, your accountant, or an attorney. A summary it writes is a worksheet for you to check before you send it.</p>
+    <p><strong>Not affiliated with the American Institute of Architects.</strong> AIA, G702 and G703 are the property of their owner. This tool is independent and produces its own plain-text summary, CSV and spreadsheet layout; it does not reproduce the AIA form.</p>
+    <p><strong>Project data.</strong> A schedule of values can be commercially sensitive. This page runs in your browser and sends nothing anywhere, and the portfolio never receives it. Closing the tab discards it; downloads are files on your own device.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record: nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. The workbook is built in this tab and never uploaded; there are no accounts, cookies, or analytics vendors. One anonymous feature event (<code>template_downloaded</code>) is counted only in local storage on your device and is switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../contractor-wip-schedule/">contractor WIP schedule</a> and the <a href="../mechanics-lien-deadline-calculator/">mechanics lien deadline calculator</a> sit on either side of a pay application. The <a href="../lien-waiver-checker/">lien waiver checker</a> reads the waiver that comes back with the payment. New to pay apps? <a href="../pay-app-guides/">Pay app guides</a> walks a subcontractor through the G702/G703, retainage and lien waivers.</p>
+    <p class="support">Free to use and source available. If this helped, the <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+      <p>Related: <a href="../construction-delay-claim-calculator/">construction delay claim calculator</a>, for sizing a delay claim against liquidated damages.</p>
+  </footer>
+
+  <script type="module">
+    import { workbookXlsx } from "./workbook.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    document.getElementById("dl-template").addEventListener("click", () => {
+      record("template_downloaded");
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([workbookXlsx(null, {})], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
+      a.download = "pay-application-template.xlsx";
+      a.click();
+      document.getElementById("dl-status").textContent = "Downloaded pay-application-template.xlsx. Open it in Excel, Google Sheets or LibreOffice and type into the shaded cells.";
+    });
+    document.getElementById("optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  </script>
+</body>
+</html>
