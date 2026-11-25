@@ -23,6 +23,6 @@
   "baseline": "4 of 57 runs, 2026-11-24..25 (records above)",
   "opened": "2026-11-25",
   "source": "process critique, 2026-11-25 (doc friction of recent runs)",
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18754",
   "result": null
 }

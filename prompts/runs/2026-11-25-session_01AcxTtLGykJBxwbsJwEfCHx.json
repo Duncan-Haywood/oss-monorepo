@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtLGykJBxwbsJwEfCHx",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T00:06:41Z",
+  "ended": "2026-11-25T00:09:02Z",
+  "wall_minutes": 2.96,
+  "tokens_in": 1976701,
+  "tokens_out": 11745,
+  "cost_usd": 1.1158,
+  "tool_calls": 28,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18754",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "validate's 'done item needs pr' error is printed but `validate | tail -1` hid the nonzero exit; the item can only be valid after the PR exists, so 'this' is the placeholder to use before opening it."
+    },
+    {
+      "file": "portfolio/monetization/transition.json",
+      "issue": "generated JSON goes stale whenever a venture lands (1418 vs 1419 lead magnets) and main_health caught it; nothing regenerates it on merge."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-25-telling-every-track-about-the-revenue-goal.md",
+    "prompts/process/backlog/P073-north-star-in-non-venture-prompts.json"
+  ],
+  "goal": null,
+  "notes": "Critique mode (backlog had only owner/blocked rows). Shipped P073: North star paragraph in six non-venture prompt-0.md files. Baseline 4/57 runs naming the gap (prompts/runs 2026-11-24..25). main_health.py: see PR; validate ok; unittest prompts OK. main_health.py on main: 319/322; fixed all three red here: transition.json and verticals.json stale (refreshed with --write), test_friction_rank asserted Markdown prompts are CODEOWNERS-gated though PR #18736 moved them to the risk review (test updated). Re-ran: 24 + 27 passed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "08dc611d-96ec-54e2-a89a-402a8769a945",
+    "transcripts": 1,
+    "first": "2026-11-25T00:06:41Z",
+    "last": "2026-11-25T00:09:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 26,
+        "input": 50,
+        "output": 11745,
+        "thinking": 2796,
+        "cache_read": 1914429,
+        "cache_write_5m": 0,
+        "cache_write_1h": 62222,
+        "api_equivalent_usd": 1.1158,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 26,
+      "input": 50,
+      "output": 11745,
+      "thinking": 2796,
+      "cache_read": 1914429,
+      "cache_write_5m": 0,
+      "cache_write_1h": 62222,
+      "api_equivalent_usd": 1.1158,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 28,
+    "tools": {
+      "Bash": 26,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.96,
+      "active_minutes": 2.96,
+      "model_minutes": 2.26,
+      "tool_minutes": 0.7,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "read friction across ~60 records, six prompt edits, three CI fixes, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 134.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
