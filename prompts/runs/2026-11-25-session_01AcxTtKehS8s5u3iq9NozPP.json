@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtKehS8s5u3iq9NozPP",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T11:07:26Z",
+  "ended": "2026-11-25T11:13:48Z",
+  "wall_minutes": 6.76,
+  "tokens_in": 4028886,
+  "tokens_out": 30311,
+  "cost_usd": 2.2583,
+  "tool_calls": 45,
+  "task": "bet #1 (pay-app billing) public side: Miller Act payment bond claim deadlines page",
+  "projects": [
+    "pay-app-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18948",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    "git clone of private-monorepo refused by the session's auto-mode permission classifier after add_repo succeeded"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "issue": "Says to build bets in private-monorepo when the session can reach it; add_repo succeeded but the clone was refused by the permission classifier, so 'can reach' needs a quick test before planning around it."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Duplicate PR check found #18944, which already shipped my first idea (GC follow-up email page). Searching open PRs before choosing a niche, not only before opening a PR, saved the work."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: the deliverable is itself an SEO page aimed at a customer search (Miller Act notice deadline), and the 2026-11-24 direction is to consolidate posts rather than add one per PR.",
+      "did": "Wrote an agent doc in docs/reports and updated llms.txt and the README instead.",
+      "result": "Page shipped and linked from three sibling guides."
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-25-pay-app-guides-miller-act.md",
+    "ventures/pay-app-guides/miller-act-payment-bond-claims.html"
+  ],
+  "goal": "$10k MRR: front-door SEO traffic for the PayApps subcontractor bet",
+  "notes": "node --test in pay-app-guides: 222 pass, 0 fail. Playwright at 390px: no console errors, no horizontal scroll. Sources fetched directly: govinfo, Cornell LII, acquisition.gov (justia 403). venture-preflight run in background; result noted in PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6c84da87-980a-5c45-815b-ad9791c94ff6",
+    "transcripts": 1,
+    "first": "2026-11-25T11:07:26Z",
+    "last": "2026-11-25T11:14:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 84,
+        "output": 30311,
+        "thinking": 5651,
+        "cache_read": 3920341,
+        "cache_write_5m": 0,
+        "cache_write_1h": 108461,
+        "api_equivalent_usd": 2.2583,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 84,
+      "output": 30311,
+      "thinking": 5651,
+      "cache_read": 3920341,
+      "cache_write_5m": 0,
+      "cache_write_1h": 108461,
+      "api_equivalent_usd": 2.2583,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 38,
+      "Write": 3,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.76,
+      "active_minutes": 6.76,
+      "model_minutes": 5.61,
+      "tool_minutes": 1.15,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "statute reading, date module with tests, page and links; estimate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 221.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

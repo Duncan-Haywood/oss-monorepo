@@ -140,7 +140,12 @@ export function parseCrashData(text) {
   const split = (l) => { const out = []; let cur = "", q = false; for (let i = 0; i < l.length; i++) { const c = l[i]; if (q) { if (c === '"' && l[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c; } else if (c === '"') q = true; else if (c === delim) { out.push(cur); cur = ""; } else cur += c; } out.push(cur); return out.map((s) => s.trim()); };
   const head = split(lines[0]).map((h) => h.toLowerCase());
   const col = (re) => head.findIndex((h) => re.test(h));
-  let ci = col(/activity|code|task|^id$/), ri = col(/max|room|shorten|crash/), ki = col(/cost/);
+  // cost first: "crash cost" and "cost to shorten" are cost columns, so the
+  // room column is looked for among the others (a bare "Days" last)
+  let ci = col(/activity|code|task|^id$/), ki = col(/cost/);
+  const other = (re) => head.findIndex((h, i) => i !== ci && i !== ki && re.test(h));
+  let ri = other(/max|room|shorten|crash/);
+  if (ri < 0) ri = other(/day/);
   let body = lines.slice(1);
   if (ci < 0) { ci = 0; ri = 1; ki = 2; body = lines; }
   // a comma is read by shape: 1,800 or 12,500.50 groups thousands; 2,5 is

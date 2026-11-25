@@ -37,6 +37,7 @@ export const GROUPS = [
     ["sworn-statement.html", "Contractor's sworn statement builder"],
     ["paid-short.html", "Paid short? Reconcile the check"],
     ["joint-checks.html", "Joint check splitter and split letter"],
+    ["miller-act-payment-bond-claims.html", "Miller Act bond claim deadlines (federal jobs)"],
     ["pay-app-cash-forecast.html", "When will I get paid? Cash forecast"],
   ]],
 ];
