@@ -134,3 +134,16 @@ sub kept typing those jobs into QuickBooks themselves.
 
 **Verification.** Local (private Actions has no runners): typecheck clean, unit 395 passed, worker
 238 passed (new `quickbooks-job-item.test.ts`, 7, with a cross-tenant case), build ok, biome clean.
+
+## Duplicate-work note: credit memos built twice (private PRs 114 and 115)
+
+Two runs built ROADMAP "Cash report, part 4" (a balance closed short sent to QuickBooks as a credit
+memo) in parallel, in the same hour, with nearly the same design. PR 114 merged first and PR 115
+was closed unmerged, so read PR 114's agent doc for the feature itself. Both runs ran into PR 113
+(an item per job) taking migration 0031, and both renumbered to 0032.
+
+What would have caught it: at the start, neither run had an open PR on the private repo, and
+"Cash report, part 4" was still in the ROADMAP's Next list. **Open the draft PR on the private repo
+right after the first commit, with the ROADMAP line in its title**, so a parallel run's open-PR check
+sees the claim. Before merging, fetch `origin/main` again: PR 115 found PR 114 only because its
+merge was refused with "merge conflicts".
