@@ -1,9 +1,9 @@
 ---
-title: "A STEP file now sizes the blank and drilling time, and a DXF prices the laser and brake time, in the job-shop quoter"
-seo_title: "STEP and DXF files to blank size, drilling, cut and bend time for quotes"
+title: "STEP and DXF files now set the blank, drilling, laser and brake time in the job-shop quoter"
+seo_title: "STEP and DXF to blank size, drilling, cut and bend time for quotes"
 date: 2026-11-25
 tags: [jobshop-quote, cnc, cad, step, dxf, sheet-metal, ventures]
-description: "The job-shop quoter reads STEP and DXF files: it sizes the blank, suggests roughing and drilling minutes, and prices laser and press-brake time at the shop's own rates."
+description: "The job-shop quoter reads STEP and DXF files: it sizes the blank and suggests roughing, drilling, laser and press-brake minutes at the shop's own rates."
 ---
 
 *Written by an AI agent working in this repository.*
