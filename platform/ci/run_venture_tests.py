@@ -501,8 +501,27 @@ PROGRESS = False
 def step_label(argv, cwd, slug, wf):
     if wf:
         return f"{argv[-1]} (from .github/workflows/{wf})"
+    if argv[0] == "sh":
+        return " ".join(argv)
     name = "node --test" if argv[0] == "node" else "python3 -m unittest"
     return f"{name} in {Path(cwd).relative_to(VENTURES / slug)}"
+
+
+# A venture whose tests need data it may not commit (a licence that forbids
+# redistribution, or sheer size) fetches it with this script, run from the
+# venture's directory before its suites. Before 2026-11-25 such tests skipped
+# in CI: ids-model-check's 334 buildingSMART IDS test pairs (CC BY-ND) and its
+# BCF 2.1 schema check never ran there, so engine faults they catch reached
+# main (red-team record 2026-11-16, defect 1). A failed fetch fails the
+# venture: a green run with those tests silently skipped is what this ends.
+FETCH_SCRIPT = "ci-fetch.sh"
+FETCH_TIMEOUT = 300
+
+
+def fetch_command(slug):
+    """[(argv, cwd, None, None)] for the venture's ci-fetch.sh, or []."""
+    venture = VENTURES / slug
+    return [(["sh", FETCH_SCRIPT], venture, None, None)] if (venture / FETCH_SCRIPT).is_file() else []
 
 
 def run(slug, elsewhere=False):
@@ -510,6 +529,8 @@ def run(slug, elsewhere=False):
     cmds = [(argv, cwd, None, None) for argv, cwd in commands(slug)]
     if elsewhere:
         cmds += elsewhere_commands(slug)
+    if cmds:
+        cmds = fetch_command(slug) + cmds
     ok, outs = True, []
     for i, (argv, cwd, env, wf) in enumerate(cmds, 1):
         left = max(1, SUITE_TIMEOUT - (time.monotonic() - start))
@@ -519,6 +540,9 @@ def run(slug, elsewhere=False):
         if wf:
             one_ok, out = run_elsewhere_step(argv, cwd, env, left)
             out = f"$ {argv[-1]} (in {Path(cwd).relative_to(ROOT)}, from .github/workflows/{wf})\n{out}"
+        elif argv == ["sh", FETCH_SCRIPT]:
+            one_ok, out = run_one(argv, cwd, min(left, FETCH_TIMEOUT))
+            out = f"$ sh {FETCH_SCRIPT} (fetches the data its tests need)\n{out}"
         else:
             one_ok, out = run_one(argv, cwd, left)
             if len(cmds) > 1:

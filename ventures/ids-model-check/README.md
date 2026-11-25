@@ -1854,7 +1854,9 @@ text is now copied in runs. Every report is identical.
 1. **buildingSMART's test suite.** `eval/fetch-testcases.sh` sparse-clones
    `github.com/buildingSMART/IDS` at commit `870f9c4` and
    `node eval/run-testcases.mjs` scores every pair: `pass-*` must pass,
-   `fail-*` and `invalid-*` must not. Result, 2026-11-16:
+   `fail-*` and `invalid-*` must not. Since 2026-11-25 CI fetches the pairs
+   (`ci-fetch.sh`, run by `platform/ci/run_venture_tests.py`), so
+   `engine.test.mjs` scores them on every change. Result, 2026-11-16:
 
    | facet | right |
    | --- | --- |
