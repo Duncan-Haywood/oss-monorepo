@@ -22,7 +22,7 @@
   "baseline": "2026-11-25 before this PR: 3 of the top 4 (cloud-session.md confirmations, ventures/prompt-1.md clone refusal, ventures/prompt-1.md saturation)",
   "opened": "2026-11-25",
   "source": "process run 2026-11-25 (critique: friction_rank top clusters read against main)",
-  "pr": "this",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19038",
   "result": null,
   "history": [
     {
