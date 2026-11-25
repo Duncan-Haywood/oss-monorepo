@@ -13,7 +13,14 @@ export interface ReportOptions {
   storeId?: string;
   /** IANA time zone whose calendar day is reported (default Europe/Rome). */
   timeZone?: string;
+  /**
+   * Count the `--sample` stub events too. Only for smoke-testing the pipeline
+   * (`pnpm bootstrap`); a store's real report must leave this off.
+   */
+  includeSynthetic?: boolean;
 }
+
+const realOnly = (options: ReportOptions): string => (options.includeSynthetic ? "1 = 1" : "synthetic = 0");
 
 export interface DailySummary {
   date: string;
@@ -106,12 +113,12 @@ const IN_DAY = (column: string): string =>
   `julianday(${column}) >= julianday(?) AND julianday(${column}) < julianday(?)`;
 const STORE = "(? IS NULL OR store_id = ?)";
 
-function storesInWindow(db: DatabaseSync, start: string, end: string): string[] {
+function storesInWindow(db: DatabaseSync, start: string, end: string, real: string): string[] {
   const rows = db
     .prepare(
-      `SELECT store_id FROM aggregate_events WHERE synthetic = 0 AND ${IN_DAY("bucket_start")}
+      `SELECT store_id FROM aggregate_events WHERE ${real} AND ${IN_DAY("bucket_start")}
        UNION
-       SELECT store_id FROM sale_events WHERE synthetic = 0 AND ${IN_DAY("closed_at")}
+       SELECT store_id FROM sale_events WHERE ${real} AND ${IN_DAY("closed_at")}
        ORDER BY store_id`,
     )
     .all(start, end, start, end) as { store_id: string }[];
@@ -121,11 +128,12 @@ function storesInWindow(db: DatabaseSync, start: string, end: string): string[] 
 export function dailySummary(dbPath: string, day: string, options: ReportOptions = {}): DailySummary {
   const timeZone = options.timeZone ?? DEFAULT_TIME_ZONE;
   const [start, end] = localDayBoundsUtc(day, timeZone);
+  const real = realOnly(options);
   const db = openDb(dbPath);
   try {
     let storeId = options.storeId ?? null;
     if (storeId === null) {
-      const stores = storesInWindow(db, start, end);
+      const stores = storesInWindow(db, start, end, real);
       if (stores.length > 1) {
         throw new ReportScopeError(
           "multiple_stores",
@@ -140,7 +148,7 @@ export function dailySummary(dbPath: string, day: string, options: ReportOptions
           db
             .prepare(
               `SELECT COALESCE(SUM(value), 0) AS v FROM aggregate_events
-               WHERE metric = ? AND synthetic = 0 AND ${STORE} AND ${IN_DAY("bucket_start")}`,
+               WHERE metric = ? AND ${real} AND ${STORE} AND ${IN_DAY("bucket_start")}`,
             )
             .get(name, storeId, storeId, start, end) as { v: number }
         ).v,
@@ -150,7 +158,7 @@ export function dailySummary(dbPath: string, day: string, options: ReportOptions
     const sales = db
       .prepare(
         `SELECT currency, COUNT(*) AS c, COALESCE(SUM(total_cents), 0) AS revenue
-         FROM sale_events WHERE synthetic = 0 AND ${STORE} AND ${IN_DAY("closed_at")}
+         FROM sale_events WHERE ${real} AND ${STORE} AND ${IN_DAY("closed_at")}
          GROUP BY currency ORDER BY currency`,
       )
       .all(storeId, storeId, start, end) as { currency: string; c: number; revenue: number }[];
@@ -186,6 +194,9 @@ export function dailySummary(dbPath: string, day: string, options: ReportOptions
 export function printReport(dbPath = DEFAULT_DB, day: string, options: ReportOptions = {}): void {
   const summary = dailySummary(dbPath, day, options);
   console.log("Daily funnel summary");
+  if (options.includeSynthetic) {
+    console.log("  (includes synthetic --sample events: a pipeline check, not a store's figures)");
+  }
   for (const [k, v] of Object.entries(summary)) {
     console.log(`  ${k}: ${v}`);
   }

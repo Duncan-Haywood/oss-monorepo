@@ -69,7 +69,7 @@ Run both servers in separate terminals (or tmux panes) for the full stakeholder 
 
 - GitHub repo: `Duncan-Haywood/retail-pilot-intel` (private); default branch `main`.
 - Initial design partner wedge: ~10 m² leather boutique in Italy; on-device aggregation and no customer identity are core product constraints.
-- Product thesis: store-local door counts plus POS join → weekly € decisions for owners; pricing anchored to one incremental sale per month, not sensor count.
+- Product thesis: store-local door counts plus POS join → weekly € decisions for owners; pricing anchored to the gross profit of a few incremental sales per month (Core €149–€249 needs about 0.5 to 2.5 at €180–€450 AOV and 55–70% margin), not sensor count.
 - Current maturity: M0 done, M1 in progress; `packages/edge` and `packages/pos` are sample stubs; `apps/portal` uses illustrative `demoStore.ts`, not live SQLite.
 - Commercial viability verdict in docs: ~6.2/10 conditional pursue — strong GTM and docs collateral, weak live product proof.
 - Orchestrator state lives in `ORCHESTRATOR.md`, `docs/PRODUCT.md`, `docs/BACKLOG.md`, `docs/IDEAS.md`, and `docs/PROGRESS.md`.

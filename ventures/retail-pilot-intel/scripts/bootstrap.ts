@@ -16,7 +16,9 @@ run("packages/analytics/src/cli.ts", ["init"]);
 run("packages/edge/src/cli.ts", ["--sample"]);
 run("packages/pos/src/cli.ts", ["--sample"]);
 run("packages/analytics/src/cli.ts", ["sync"]);
-run("packages/analytics/src/cli.ts", ["report", "--date", "today"]);
+// The sample entry and sale are flagged synthetic, and a store's real report
+// leaves them out; without --include-synthetic this smoke test printed zeros.
+run("packages/analytics/src/cli.ts", ["report", "--date", "today", "--include-synthetic"]);
 
 console.log("\nDocs (dev):  pnpm docs:dev");
 console.log("Docs (built): apps/docs/dist/index.html");

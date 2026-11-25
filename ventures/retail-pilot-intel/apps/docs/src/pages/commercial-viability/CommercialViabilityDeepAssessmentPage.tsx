@@ -30,7 +30,7 @@ export function CommercialViabilityDeepAssessmentPage() {
           <p style={{ marginTop: "1rem" }}>
             <strong>Verdict:</strong> <strong>Realistically profitable and worth pursuing as a focused bootstrap/SMB SaaS business</strong>. 
             Strong problem-solution fit validated by 87% independent retailer GMV share in Italy. 
-            Pricing aligns with owner economics (one extra €250–450 sale/month pays for subscription). 
+            Pricing aligns with owner economics (the gross profit of one to two extra €250–450 sales/month covers the subscription). 
             Scalability is the primary limiter (manual install + niche ICP), not demand or willingness-to-pay.
           </p>
         </div>
@@ -93,7 +93,7 @@ export function CommercialViabilityDeepAssessmentPage() {
       <div className="grid-3">
         <div className="card">
           <h3>Customer economics (pilot AOV €300)</h3>
-          <p>One incremental sale/month = €300 revenue. Core sub €199/mo → payback in ~1 sale. Realistic lift from conversion visibility + upsell prompts: 5–15% conversion or 10% AOV documented in similar tools.</p>
+          <p>One incremental sale/month = €300 revenue, €165–€210 gross profit at 55–70% margin. Core sub €199/mo → payback in ~1 to 1.2 sales. Realistic lift from conversion visibility + upsell prompts: 5–15% conversion or 10% AOV documented in similar tools.</p>
           <p><strong>Owner ROI:</strong> 3–6 month payback credible; ongoing 10–20× return on subscription.</p>
         </div>
         <div className="card">

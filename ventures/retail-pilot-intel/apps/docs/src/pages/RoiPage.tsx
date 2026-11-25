@@ -33,8 +33,10 @@ export function RoiPage() {
 
       <h2>Build these three first (detail)</h2>
       <p>
-        Door + POS only — typically pays back a Core subscription (€149–€249/mo)
-        with one incremental sale per month at pilot AOV.
+        Door + POS only — at the pilot assumptions below (AOV €180–€450, gross
+        margin 55–70%), one incremental sale earns €99–€315 of gross profit, so
+        covering a Core subscription (€149–€249/mo) takes about 0.5 to 2.5
+        extra sales a month.
       </p>
       <DataTable
         headers={["Rank", "Initiative", "Owner sees within ~2 weeks", "Primary € lever"]}
@@ -109,7 +111,7 @@ export function RoiPage() {
           [
             "Average order value (AOV)",
             "€180–€450",
-            "One extra sale per week ≈ €10k–€23k/year",
+            "One extra sale per week ≈ €10k–€23k/year in revenue (€5k–€16k gross profit)",
           ],
           [
             "Gross margin on leather goods",
