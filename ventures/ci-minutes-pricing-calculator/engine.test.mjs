@@ -14,8 +14,14 @@ test("overage is priced per 1,000 on top of the plan fee", () => {
   assert.equal(providerCost(DEFAULT_PROVIDERS.circleci, 4000), 21);
   // gitlab 12k: 29 + 2*10 = 49
   assert.equal(providerCost(DEFAULT_PROVIDERS.gitlab, 12000), 49);
-  // buildkite is pure pay-as-you-go: 10k = 130
-  assert.equal(providerCost(DEFAULT_PROVIDERS.buildkite, 10000), 130);
+  // buildkite (pricing page 2026-11-25): Free covers 1,000 small-agent minutes (2,000 vCPU min);
+  // above that Pro is $30 a user with 2,000 small minutes, then $0.008 a minute.
+  // 10k = 30 + 8 * 8 = 94
+  assert.equal(providerCost(DEFAULT_PROVIDERS.buildkite, 1000), 0);
+  assert.equal(providerCost(DEFAULT_PROVIDERS.buildkite, 1001), 30);
+  assert.equal(providerCost(DEFAULT_PROVIDERS.buildkite, 10000), 94);
+  // bitbucket Standard is $3.65 a user with 2,500 minutes, then $10 per 1,000: 5k = 3.65 + 25 = 28.65
+  assert.equal(providerCost(DEFAULT_PROVIDERS.bitbucket, 5000), 28.65);
 });
 
 test("compare sorts cheapest first and reports the gap", () => {
@@ -23,7 +29,7 @@ test("compare sorts cheapest first and reports the gap", () => {
   assert.equal(rows[0].key, "gitlab");
   assert.equal(rows[0].monthly, 29);
   assert.equal(rows.at(-1).key, "buildkite");
-  assert.equal(rows.at(-1).extraVsCheapest, 101);
+  assert.equal(rows.at(-1).extraVsCheapest, 65); // 94 - 29
 });
 
 test("project compounds volume and totals each provider", () => {

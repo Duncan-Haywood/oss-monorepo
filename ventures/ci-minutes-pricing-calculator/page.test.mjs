@@ -45,3 +45,20 @@ test("index links one hop to the sibling estimators", async () => {
   const idx = await read("index.html");
   for (const slug of ["supabase-bill-estimator", "vercel-bill-estimator", "neon-bill-estimator", "auth-mau-pricing-calculator", "sms-segment-cost-calculator", "error-tracking-pricing-calculator", "actions-minutes-estimator"]) assert.match(idx, new RegExp(`href="\\.\\./${slug}/"`));
 });
+
+test("the how-to page's 10,000-minute spread matches the engine's rate card", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { compare } = await import("./engine.mjs");
+  const html = readFileSync(new URL("./how-to-choose-a-ci-provider-by-build-minutes.html", import.meta.url), "utf8");
+  const rows = compare(10000);
+  const lo = rows[0].monthly, hi = rows.at(-1).monthly;
+  const m = html.match(/differ by more than (\w+) times \(\$(\d+) against \$(\d+)\)/g);
+  assert.equal(m.length, 2, "FAQ schema and body both state the spread");
+  for (const s of m) {
+    const [, word, a, b] = s.match(/more than (\w+) times \(\$(\d+) against \$(\d+)\)/);
+    const n = { two: 2, three: 3, four: 4, five: 5 }[word];
+    assert.equal(Number(a), lo);
+    assert.equal(Number(b), hi);
+    assert.ok(hi / lo > n && hi / lo < n + 1, `${hi}/${lo} is not "more than ${word}"`);
+  }
+});
