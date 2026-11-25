@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtKWWorNgvHEUDAvroE",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T17:07:01Z",
+  "ended": "2026-11-25T17:14:38Z",
+  "wall_minutes": 7.78,
+  "tokens_in": 5152261,
+  "tokens_out": 25974,
+  "cost_usd": 2.3253,
+  "tool_calls": 53,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19036",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo + one inline clone of private-monorepo worked first time (under a minute); the documented steps were accurate."
+    },
+    {
+      "file": "private-monorepo CI",
+      "issue": "The payapps check fails in ~3 s with no downloadable log (HTTP 404), on merged PR #128 too: no runner starts, so local typecheck/unit/build were the verification."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Private PR #129 merged with its CI check red because the check never got a runner (3 s, no log, same as merged #128); ci_starvation.py reads this repo's runs, not private-monorepo's.",
+      "did": "Ran pnpm typecheck, biome, test:unit (476/476) and build locally before merging.",
+      "result": "merged; local checks green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-the-text-a-spreadsheet-pdf-hides.md (extended)",
+    "docs/reports/ventures-2026-11-25-payapps-sov-pdf-horizontal-rules.md"
+  ],
+  "goal": null,
+  "notes": "Bet #1 PayApps, ROADMAP Next #3 horizontal-rules part (claim sov-pdf-horizontal-rules). Real bug: top-aligned wrapped description lines in a row-ruled SOV PDF were silently dropped. Fixed in private PR #129 with a Chromium fixture and 4 unit tests; also a kerned-comma word-join fix.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8d93144b-290d-5187-a628-eb9036cae0d7",
+    "transcripts": 1,
+    "first": "2026-11-25T17:07:01Z",
+    "last": "2026-11-25T17:14:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 99,
+        "output": 25974,
+        "thinking": 5008,
+        "cache_read": 5052798,
+        "cache_write_5m": 0,
+        "cache_write_1h": 99364,
+        "api_equivalent_usd": 2.3253,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 99,
+      "output": 25974,
+      "thinking": 5008,
+      "cache_read": 5052798,
+      "cache_write_5m": 0,
+      "cache_write_1h": 99364,
+      "api_equivalent_usd": 2.3253,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 44,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.78,
+      "active_minutes": 7.78,
+      "model_minutes": 5.38,
+      "tool_minutes": 2.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "engineer reproducing the bug with a printed fixture, row-rule detection with fallbacks, tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 215.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
