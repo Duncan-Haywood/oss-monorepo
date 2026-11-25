@@ -203,3 +203,12 @@ test("an uncalculated formula in a billing column stops with the reason, rather 
   const r = pickSheet(await readXlsx(await workbook({ S: sheet })));
   assert.match(r.error, /Framing \(cell D2\) is a formula with no saved result/);
 });
+
+test("commas are read by shape: thousands, an EU decimal comma, and anything else refused", () => {
+  const csv = ["Description,Scheduled value,Previous,This period", '"Framing","1,234.50","29,99","1.000,25"'].join("\n");
+  const r = findSchedule(parseCsv(csv));
+  assert.ok(!r.error, r.error);
+  assert.deepEqual([r.lines[0].c, r.lines[0].d, r.lines[0].e], [123450, 2999, 100025]);
+  const bad = findSchedule(parseCsv(["Description,Scheduled value,Previous,This period", '"Framing","12,34,5",0,0'].join("\n")));
+  assert.match(bad.error, /Framing \(row 2\) is not a dollar amount/);
+});

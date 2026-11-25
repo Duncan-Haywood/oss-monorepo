@@ -47,11 +47,12 @@ export function unzip(buf) {
   return files;
 }
 
+const codePoint = (n) => (n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\ufffd");
 export function xmlText(s) {
   return String(s)
     .replace(/&(lt|gt|amp|quot|apos|#\d+|#x[0-9a-fA-F]+);/g, (m, e) => (
       e === "lt" ? "<" : e === "gt" ? ">" : e === "amp" ? "&" : e === "quot" ? '"' : e === "apos" ? "'"
-        : String.fromCodePoint(e[1] === "x" ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10))))
+        : codePoint(e[1] === "x" ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10))))
     .replace(/_x([0-9A-Fa-f]{4})_/g, (m, h) => String.fromCharCode(parseInt(h, 16)));
 }
 const attr = (tag, name) => { const m = new RegExp(`(?:^|\\s)${name}="([^"]*)"`).exec(tag); return m ? xmlText(m[1]) : null; };
@@ -199,8 +200,11 @@ function money(s) {
   if (t === "" || t === "-" || t === "–" || t === "$ -" || t === "$-") return { cents: 0 };
   let neg = false, x = t;
   if (/^\(.*\)$/.test(x)) { neg = true; x = x.slice(1, -1); }
-  x = x.replace(/[$,\s]/g, "");
+  x = x.replace(/[$\s]/g, "");
   if (x.startsWith("-")) { neg = !neg; x = x.slice(1); }
+  // Commas by shape: 1,234.50 is thousands; 1.234,50 or 29,99 is a decimal comma (an EU-locale export); else not money.
+  if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(x)) x = x.split(",").join("");
+  else if (/^(\d+|\d{1,3}(\.\d{3})+),\d{1,2}$/.test(x)) x = x.split(".").join("").replace(",", ".");
   if (/^\d+(\.\d+)?$/.test(x)) {
     const exact = Number(x) * 100, cents = Math.round(exact);
     return { cents: neg ? -cents : cents, rounded: Math.abs(exact - cents) > 1e-6 };
