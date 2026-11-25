@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design, accessibility]
+date: 2026-11-25
+---
 # Polish, 2026-11-25: phone cards for venture tables (`table.stack` in pf-chrome.css)
 
 Picked item 1 of "Next" in `polish-2026-11-25-stacked-cells-and-pay-app-tables.md`:
