@@ -1,8 +1,8 @@
 ---
 title: "A CMMC Level 1 self-assessment with the FAR text checked word for word"
 date: 2026-11-25
-tags: [machine-shop-guides, cmmc, far-52-204-21, defense-contractors, compliance, lead-magnet]
-seo_title: "CMMC Level 1 self-assessment checklist: the 15 FAR 52.204-21 requirements"
+tags: [machine-shop-guides, cmmc, far-52-204-21, defense-contractors, compliance, lead-magnets]
+seo_title: "CMMC Level 1 self-assessment: the 15 FAR 52.204-21 requirements"
 description: "A free CMMC Level 1 checklist for small shops: the 15 FAR 52.204-21 requirements, verified against GSA's FAR source, met or not met, with an evidence worksheet."
 ---
 
