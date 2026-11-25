@@ -44,5 +44,17 @@ test('the ready summary still states the deadline, so a past-due bid never reads
   const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
   const m = html.match(/latest\.ready\?`([^`]*)`/);
   assert.ok(m, 'ready template found');
-  assert.match(m[1], /deadlineSentence\(latest\.daysRemaining\)/);
+  assert.match(m[1], /deadlineSentence\(latest\.daysRemaining,latest\)/);
+});
+
+test('the check reads the due time and zone and shows the urgency label (quality audit 2026-11-19, defects 0 and 2)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(html, /<input id="dueTime" type="time">/);
+  assert.match(html, /<select id="timeZone">/);
+  assert.match(html, /assessBid\(data,document\.querySelector\('#due'\)\.value,new Date\(\),timing\)/);
+  assert.match(html, /urgency\.textContent=latest\.urgency/);
+  for (const zone of html.match(/<select id="timeZone">(.*?)<\/select>/)[1].matchAll(/value="([^"]+)"/g)) {
+    assert.doesNotThrow(() => new Intl.DateTimeFormat('en-US', { timeZone: zone[1] }), zone[1]);
+  }
 });

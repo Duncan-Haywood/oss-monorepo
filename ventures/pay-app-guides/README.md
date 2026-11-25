@@ -21,6 +21,7 @@ Live: <https://marisstella.app/pay-app-guides/>
 | `retainage-in-quickbooks.html` | QuickBooks Online has no retainage field: the Retainage Receivable account and item, negative holdback line, release invoice, how to see retainage the A/R aging report leaves out, the cash-basis caveat, Desktop notes, and an invoice-line calculator (`quickbooksLines` in `calc.mjs`). Sources are Intuit help and community pages, read 2026-11-25 through search results (the session could not load quickbooks.intuit.com directly). |
 | `lien-waiver-forms-by-state.html` | Statutory lien waiver forms by state: AZ, NV, TX, UT, FL, MI, WY read on the official legislature sites on 2026-11-25 (CA linked, not re-read), number of forms, how strict, what each requires. Every quoted phrase was checked against the fetched statute text; `page.test.mjs` checks each row links an official site. |
 | `change-orders-schedule-of-values.html` | How approved and deductive change orders enter the SOV and the summary, with a worked example. |
+| `prompt-payment-laws.html` | Prompt payment deadlines (days after the GC is paid) and late-payment interest for TX, CA, IL, NC, PA, VA (public) and FL, each linked to the legislature's text, read 2026-11-25 through search results limited to the official sites; a rate is shown only where that text confirmed it (CA, PA and FL say "not confirmed"). Late-payment interest calculator: `promptPayInterest` and `PROMPT_PAY` in `calc.mjs`, tested in `prompt-pay.test.mjs`. |
 
 ## Spec sources
 

@@ -12,7 +12,7 @@ nav.crumbs { font-size: .88rem; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 14px; }
 label { display: block; font-weight: 600; margin: 10px 0 4px; font-size: .92rem; }
 .hint { display: block; font-weight: 400; font-size: .8rem; color: var(--muted); }
-input, select { width: 100%; box-sizing: border-box; padding: 8px 9px; border: 1px solid var(--line); border-radius: 7px; font: inherit; background: var(--card); color: var(--ink); }
+input, select, textarea { width: 100%; box-sizing: border-box; padding: 8px 9px; border: 1px solid var(--line); border-radius: 7px; font: inherit; background: var(--card); color: var(--ink); }
 button { border: 0; border-radius: 8px; padding: 10px 14px; background: var(--accent); color: var(--bg); font-weight: 700; cursor: pointer; margin: 12px 8px 0 0; font: inherit; font-weight: 700; }
 button.secondary { background: var(--line); color: var(--ink); }
 .scroller { overflow-x: auto; }
@@ -35,3 +35,9 @@ footer { margin-top: 32px; border-top: 1px solid var(--line); padding-top: 14px;
 @media (max-width: 620px) { .obj { grid-template-columns: 5.5em 1fr; } .obj select { grid-column: 1 / -1; } }
 @media (max-width: 620px) { .sticky { position: static; } } /* after .sticky, so it wins on phones */
 @media print { .sticky { position: static; } button, #early-access { display: none; } }
+textarea { resize: vertical; min-height: 4.5em; }
+.sspreq { border-top: 1px solid var(--line); padding: 4px 0 10px; }
+.sspreq .req { border-top: 0; }
+.sspmore { padding-left: 4.5em; }
+@media (max-width: 620px) { .sspmore { padding-left: 0; } }
+@media print { #actions, .sspmore input[type=file] { display: none; } }

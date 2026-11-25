@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKmSnDBHMQ1aFX3718B",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T03:18:18Z",
+  "ended": "2026-11-25T03:24:05Z",
+  "wall_minutes": 6.38,
+  "tokens_in": 5239558,
+  "tokens_out": 29338,
+  "cost_usd": 2.7205,
+  "tool_calls": 59,
+  "task": "bet #1 public side: prompt payment laws guide + late-payment interest calculator in pay-app-guides",
+  "projects": [
+    "pay-app-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18828",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "git clone of private-monorepo after add_repo was refused by the auto-mode permission classifier, so bet #1's private product code could not be touched; worked on its public front door instead",
+    "risk_review.py crashed (merge-base failed) until origin/main was fetched with --depth=40 in the shallow clone"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0: QUEUE.md (generated 02:45 UTC) still listed 1,186 alerts and no scanned-commit header, although PR 18676 fixed or documented nearly all of them and PR 18806 added the header; about 10 minutes went to confirming entries were stale (#7, #12, #34, #38, #39, #42, #43, #68-#93, #95). Several open PRs (18807, 18808, 18809) address this; they should land."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to clone private-monorepo when reachable; in this session add_repo succeeded but the clone was denied by the permission classifier. Open PR 18827 documents how to reach private-monorepo from cloud sessions."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "Fails with a raw CalledProcessError traceback when origin/main has no merge base in a shallow clone; a one-line hint (git fetch --depth=40 origin main) would save time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Step 0 says take the top unclaimed alert; the top ones were stale or documented false positives (docs/reports/2026-11-24-codeql-backlog-cleared.md), so no claim branch was pushed",
+      "did": "checked the code at each top alert, then went to step 1",
+      "result": "no duplicate fix work; time went to the bet"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Bet #1 code lives in private-monorepo, which this session could not clone",
+      "did": "took the bet's public side: a new SEO guide and calculator in its front door, pay-app-guides",
+      "result": "merged guide, calculator and post"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-prompt-payment-laws-for-subcontractors.md"
+  ],
+  "goal": "$10k MRR: search traffic and early-access leads to bet #1 (payapps)",
+  "notes": "Security queue false positives for the owner to dismiss (no code changed): #7/#42/#43 risk_review.py prints only the path and pattern name of a likely secret, never the value; #12 secrets_inventory prints secret names; #38/#39 monetization prints billing model rows; #34 einvoice cli prints only the IBAN country code; #68-#93 usage.mjs store whole-number event counters under a slug-named key (slug contains 'secret'/'salary'/'tax'). #95 couples.ts already uses crypto.randomInt (fixed in PR 18676). Statutes for the guide were read via WebSearch restricted to official legislature domains (direct WebFetch to statutes.capitol.texas.gov and leginfo.legislature.ca.gov failed DNS in this sandbox). Rates are given only where the search excerpts quoted the statute: TX 1.5%/month (28.004), NC 1%/month or fraction (22C-5), VA 1%/month (2.2-4354), IL 10%/year (from the search summary of the ilga.gov act page, not a quoted excerpt); CA, PA and FL rates are marked not confirmed. Verification: node --test page.test.mjs prompt-pay.test.mjs calc.test.mjs -> 30 pass 0 fail; Playwright at 390px: no console errors, scrollWidth 390, Texas example $900.00, NC $800.00.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "407852dd-28d3-5253-b00b-5ac43e2ff295",
+    "transcripts": 1,
+    "first": "2026-11-25T03:18:18Z",
+    "last": "2026-11-25T03:24:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 89,
+        "output": 29338,
+        "thinking": 5236,
+        "cache_read": 5100304,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139165,
+        "api_equivalent_usd": 2.7205,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 89,
+      "output": 29338,
+      "thinking": 5236,
+      "cache_read": 5100304,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139165,
+      "api_equivalent_usd": 2.7205,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 40,
+      "WebSearch": 12,
+      "WebFetch": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.38,
+      "active_minutes": 6.38,
+      "model_minutes": 5.16,
+      "tool_minutes": 1.22,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "statute reading for 7 states, calculator with tests, guide page and post, by a construction-billing writer/developer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 220.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
