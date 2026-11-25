@@ -3,7 +3,7 @@ title: "Lien waivers in the pay-app product: printed only where we have the stat
 seo_title: "Statutory lien waivers, checked word for word"
 date: 2026-11-25
 tags: [payapps, construction, lien-waivers, ventures]
-description: "PayApps now tracks lien waivers per pay application. It prints Arizona's four statutory forms, copied from the Legislature's site and checked word for word by a test, and refuses to print where the statute's text isn't encoded."
+description: "PayApps now tracks lien waivers per pay app and prints Arizona's statutory forms, checked word for word against the statute by a test."
 ---
 
 A subcontractor's monthly pay application often has to go out with a lien
