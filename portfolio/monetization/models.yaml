@@ -498,6 +498,8 @@ products:
       sets the price ids; then a marketing page with a sample gallery.
       Built so far: the free offline proofing set (cull page, 2026-11-25,
       ventures/photo-editing/eval/cull-proofing-set-2026-11-25.md).
+    next_owner: false
+
   # Construction review tools without a row before 2026-11-24 (backlog P072).
   # Each sells new hosted depth (saved projects, history across model or
   # schedule drops, team sharing); everything the public page calls free
