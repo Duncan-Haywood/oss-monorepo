@@ -91,9 +91,19 @@ Run in parallel with the third pass and merged after it. This pass adds:
     deliberately vulnerable patterns that a ReDoS checker's tests and fixtures exist to detect.
 - **Claimed elsewhere:** #274, #275, #574, #997 have `security-fix/` branches.
 
-## Fifth pass: the verdicts are now a file the queue reads
+## Fifth pass, same day (overlaps the third and fourth)
 
-A fifth session read the top of the queue and re-checked #7, #12, #34, #38, #39, #42, #43 and
+This run took #65, #849 and #862 in parallel with the fourth pass. It kept main's fixes for #65 and #849 and adds:
+
+- **#862 fixed** (`use-data-app.js:315`): `replaceAll("..", " – ")`. The fourth pass is right that React escapes
+  the output, so it was never an XSS. A range label with a second `..` still showed it, and `replaceAll`
+  clears the alert without depending on that.
+- **`QUEUE.md` now names these notes** (`platform/ci/security_alerts.py`, header line, with a test). Three passes
+  re-read #7 to #43 the same day because nothing in the queue said this file existed.
+
+## Sixth pass: the verdicts are now a file the queue reads
+
+A sixth session read the top of the queue and re-checked #7, #12, #34, #38, #39, #42, #43 and
 #104–#106 from scratch before it found this note. The passes above were prose. The queue
 generator could not read them, so it kept offering the same alerts first. PR #18809 (another
 session's work, landed with this pass) added **`platform/security/codeql-triage.json`**.
@@ -119,8 +129,7 @@ The verdicts from the first two passes for alerts no longer in the queue (#68–
 
 The fourth pass's false positives that are still in the queue and unclaimed are in the file too:
 #1049, #1181–#1203 (the ReDoS checker's own test patterns) and #1208 (the devsec-toolkit
-fixture). I checked each pattern against its test line. #862 is left out, because its claim
-branch's PR (#18840) changes that code.
+fixture). I checked each pattern against its test line. #862 is left out, because PR #18840 fixed it.
 
 Still unchecked in the queue: #1050 (`js/incomplete-url-substring-sanitization` in
 `platform/pages/custom-domain.test.mjs:151`).

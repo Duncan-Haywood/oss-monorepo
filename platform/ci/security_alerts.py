@@ -63,6 +63,7 @@ RANK = {"critical": 0, "high": 1, "error": 1, "medium": 2, "warning": 2,
         "low": 3, "note": 4}
 MESSAGE_CHARS = 600
 TRIAGE = Path(__file__).resolve().parents[2] / "platform" / "security" / "codeql-triage.json"
+TRIAGE_NOTES = "docs/reports/*security-queue*.md"
 SAFE_PATH = re.compile(r"[\w./@+\[\]-]+")
 
 
@@ -195,6 +196,12 @@ def render(alerts: list[dict], triage: list[dict] | None = None) -> dict[str, st
         "`.github/workflows/priv-security-alert-queue.yml` from `platform/ci/security_alerts.py`;",
         "do not edit by hand. Take the first one whose claim branch",
         f"(`{BRANCH_PREFIX}<n>`) does not exist; its file says how.",
+        "",
+        # Runs re-triaged the same false positives (#7, #12, #42 ...) because nothing here
+        # said an earlier run had already read them (2026-11-25 run record, doc_friction).
+        "Triaged already: alerts in `platform/security/codeql-triage.json` are listed apart, at the "
+        f"end; `{TRIAGE_NOTES}` on main has earlier runs' notes. A false positive you find goes in "
+        "the JSON file with its reason (only the owner can dismiss alerts).",
         "",
     ]
     # The alerts mirror the last *completed* analysis of main, which lags merges by about
