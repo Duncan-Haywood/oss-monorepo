@@ -33,8 +33,8 @@ CodeQL is not here: it is a GitHub workflow with its own PR gate
   are skipped, as CodeQL's config skips them.
 - **Fails closed.** A scanner that had targets but crashed, printed something
   other than JSON, or is not installed fails the run. An empty result and an
-  unreadable one must look different
-  ([`docs/reports/2026-11-24-codeql-never-ran.md`](../../../docs/reports/2026-11-24-codeql-never-ran.md)).
+  unreadable one must look different (the lesson of PR 18529, where the
+  security queue stayed green for 581 runs because CodeQL never ran).
   `--allow-missing` relaxes only the not-installed case, for local runs.
 - **Severity.** Each finding gets `critical | high | medium | low | info`. The run
   fails on any new finding at or above `--fail-on` (default `high`). Medium and
@@ -123,9 +123,7 @@ the bytes are the ones the version was published with.
 ## In CI
 
 The workflow that runs this on every PR is a control-plane change, so it ships
-in its own PR for the owner. Its content and what it needs are in
-[`docs/reports/2026-11-25-security-scan-first-run.md`](../../../docs/reports/2026-11-25-security-scan-first-run.md).
-In short: `pull_request` scans the merge commit (`--base HEAD^1
+in its own PR for the owner (PR 18759). In short: `pull_request` scans the merge commit (`--base HEAD^1
 --exact-base`) and gitleaks scans the PR's own commits. `push` to main scans
 the merged change. A weekly `--all` reports on the whole tree. There are no
 secrets, permissions are `contents: read`, and every action is pinned by SHA.
