@@ -71,3 +71,23 @@ Checked by reading `main` at `578f7f19a`; the flagged files are unchanged since 
   - `js/disabling-certificate-validation` #1086 (`status-keeper/certs.mjs:12`): an expiry checker has to read the certificate of a server whose certificate is expired or untrusted. It records `socket.authorized` and `authorizationError` and reports an untrusted certificate as not ok (strict mode, the default). No data is sent over the connection.
   - `js/incomplete-sanitization` #741 (`shopify-to-woocommerce-converter/converter.mjs:69`): `esc` writes WooCommerce's `\,` list-separator escape. WooCommerce's importer has no backslash escape, so escaping backslashes would corrupt values instead of protecting them.
   - `js/incomplete-sanitization` #849 (`platform/agents/tools.mjs:170`): `name` is a JavaScript export identifier, and `$` is the only regex metacharacter an identifier can hold. That character is escaped.
+
+## Fourth pass, same day (queue scanned at `5f857bb81c00`)
+
+Checked by reading `main` at `51a74dabb`. Every alert in the queue now has a claim branch; the 26
+claimed in this pass need no code change, so their branches only stop the next run re-reading them.
+
+- **False positives (dismiss as "false positive"):**
+  - `js/incomplete-url-substring-sanitization` #1049 (`platform/pages/check.mjs:1466`, line 1470 on
+    main) and #1050 (`platform/pages/custom-domain.test.mjs:151`): `text.includes(PLACEHOLDER_ORIGIN)`
+    asks whether a built file still contains the build's placeholder origin `https://example.invalid`,
+    a leftover-rewrite check that fails the build. No URL is being allowed or routed by host, so there is
+    no host to spoof.
+- **Used in tests (dismiss as "used in tests"):**
+  - `js/redos` #1181 to #1203 (`ventures/regex-redos-check/engine.test.mjs` and `cli.test.mjs:81`): the
+    product is a ReDoS checker, and these are the catastrophic patterns its tests must flag
+    (`(a+)+$`, `(a|aa)+$`, ...). They are strings handed to the analyser; the probe runs them on bounded input.
+  - `js/redos` #1208 (`ventures/devsec-toolkit/tests/fixtures/vulnerable-repo/src/validate.js:1`): a
+    deliberately vulnerable fixture repository the toolkit's scanner tests must catch; never served or run on input.
+- **A real reduction** for the next control-plane PR: exclude `**/tests/fixtures/**` and the ReDoS
+  checker's tests from `js/redos` in the CodeQL config, judged by the adversarial gate.
