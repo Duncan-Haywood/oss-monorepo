@@ -1,0 +1,14 @@
+{
+  "event_id": "evt_01hv8x2a0000000000000000a1",
+  "event_type": "subscription.created",
+  "occurred_at": "2026-11-24T10:00:00.000000Z",
+  "notification_id": "ntf_01hv8x2a0000000000000000a1",
+  "data": {
+    "id": "sub_01hv8x2a0000000000000000s1",
+    "status": "active",
+    "customer_id": "ctm_01hv8x2a0000000000000000c1",
+    "custom_data": { "user_sub": "11111111-2222-3333-4444-555555555555", "product": "hello_e2e" },
+    "items": [ { "price": { "id": "pri_01hv8x2a0000000000000000p1" }, "quantity": 1 } ],
+    "current_billing_period": { "starts_at": "2026-11-24T10:00:00.000000Z", "ends_at": "2026-12-24T10:00:00.000000Z" }
+  }
+}

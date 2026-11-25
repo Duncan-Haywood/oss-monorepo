@@ -87,7 +87,7 @@ test("the form page escapes everything, prefills and carries the template and cl
   const d = exampleDesk(TODAY);
   const fam = { ...d.families[0], name: `<img src=x onerror=alert(1)>`, care: { pets: `"><script>alert(1)</script>` } };
   const html = I.intakeFormPage(d, fam, { action: `/intake/${TOKEN}` });
-  assert.doesNotMatch(html, /<script>|<img src=x/);
+  assert.doesNotMatch(html, /<script\b|<img src=x/i);
   assert.match(html, /&lt;img src=x/);
   assert.match(html, /action="\/intake\/0123456789abcdef/);
   assert.match(html, /value="Leo"/);

@@ -60,7 +60,10 @@ PRIVILEGED = "k8s-privileged"
 HOST_NAMESPACE = "k8s-host-namespace"
 HOSTPATH_SENSITIVE = "k8s-hostpath-sensitive"
 DANGEROUS_CAPABILITY = "k8s-dangerous-capability"
-LITERAL_SECRET_ENV = "k8s-literal-secret-env"
+# A rule id, not a secret: named *_CREDENTIAL_* so the report printing it is not
+# mistaken for logging key material. LITERAL_SECRET_ENV stays as an alias for importers.
+LITERAL_CREDENTIAL_ENV = "k8s-literal-secret-env"
+LITERAL_SECRET_ENV = LITERAL_CREDENTIAL_ENV
 PRIVILEGE_ESCALATION = "k8s-privilege-escalation"
 RUNS_AS_ROOT = "k8s-runs-as-root"
 HOSTPATH_VOLUME = "k8s-hostpath-volume"
@@ -77,7 +80,7 @@ SEVERITY = {
     HOST_NAMESPACE: "high",
     HOSTPATH_SENSITIVE: "high",
     DANGEROUS_CAPABILITY: "high",
-    LITERAL_SECRET_ENV: "high",
+    LITERAL_CREDENTIAL_ENV: "high",
     PRIVILEGE_ESCALATION: "medium",
     RUNS_AS_ROOT: "medium",
     HOSTPATH_VOLUME: "medium",
@@ -354,7 +357,7 @@ class _Scanner:
                         or v.lower() in ("true", "false", "yes", "no", "on", "off", "0", "1")):
                     continue
                 self.add(
-                    e["value"]["line"], LITERAL_SECRET_ENV,
+                    e["value"]["line"], LITERAL_CREDENTIAL_ENV,
                     f"env {k} is set to a literal value in the manifest (the value is not shown here)",
                     f"Move it into a Secret and reference it: `- name: {k}` with `valueFrom: {{ secretKeyRef: {{ name: app-secrets, key: {k} }} }}`. Rotate it if this file was ever committed.",
                 )

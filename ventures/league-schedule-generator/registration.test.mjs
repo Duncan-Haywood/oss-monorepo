@@ -98,7 +98,7 @@ test("confirmation email: captain plus organiser, fee link only when not waitlis
   Object.assign(state.fields, { regFee: "$450", regPayUrl: "https://pay.example.org/x" });
   const m = signupEmail(state, { team: "Owls", captain: "Ana", email: "ana@example.org", phone: "", players: ["Ben"], note: "", status: "waiting" }, { organiser: "org@example.org" });
   assert.deepEqual(m.to, ["ana@example.org", "org@example.org"]);
-  assert.match(m.text, /Pay here and put "Owls" in the note: https:\/\/pay.example.org\/x/);
+  assert.match(m.text, /Pay here and put "Owls" in the note: https:\/\/pay\.example\.org\/x/);
   const w = signupEmail(state, { team: "Owls", captain: "Ana", email: "ana@example.org", phone: "", players: [], note: "", status: "waitlist" });
   assert.doesNotMatch(w.text, /Pay here/);
   assert.match(w.subject, /^Waitlist/);
@@ -118,7 +118,7 @@ test("server: /register is closed until the organiser opens it, then signs a tea
   const s = await boot();
   assert.equal((await fetch(s.base + "/register")).status, 404);
   assert.equal((await post(s.base + "/register", good)).status, 404);
-  Object.assign(s.state.fields, { regOpen: true, regFee: "$450", regPayUrl: "https://pay.example.org/x", regMaxTeams: 7 });
+  Object.assign(s.state.fields, { regOpen: true, regFee: "$450", regPayUrl: "https://pay\.example\.org/x", regMaxTeams: 7 });
   const page = await (await fetch(s.base + "/register")).text();
   assert.match(page, /1 of 7 places left/);
   assert.match(page, /\$450/);
@@ -126,15 +126,15 @@ test("server: /register is closed until the organiser opens it, then signs a tea
   assert.equal(r.status, 200);
   const html = await r.text();
   assert.match(html, /Pickle Rick is signed up/);
-  assert.match(html, /href="https:\/\/pay.example.org\/x"/);
+  assert.match(html, /href="https:\/\/pay\.example\.org\/x"/);
   await new Promise((d) => setTimeout(d, 20));
   assert.equal(s.sent.length, 1);
   assert.deepEqual(s.sent[0].to, ["ana@example.org", "org@example.org"]);
-  assert.match(s.sent[0].text, /Sign-up page: https:\/\/league.example.org\/register/);
+  assert.match(s.sent[0].text, /Sign-up page: https:\/\/league\.example\.org\/register/);
   // the next one is past the cap: waitlist, no pay link
   const w = await (await post(s.base + "/register", { ...good, team: "Volley Llamas" })).text();
   assert.match(w, /on the waitlist \(place 1\)/);
-  assert.doesNotMatch(w, /pay.example.org/);
+  assert.doesNotMatch(w, /pay\.example\.org/);
   // a bad form keeps what was typed
   const bad = await post(s.base + "/register", { ...good, team: "Owls", email: "x" });
   assert.equal(bad.status, 400);

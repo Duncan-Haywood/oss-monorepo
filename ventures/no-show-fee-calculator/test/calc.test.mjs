@@ -679,7 +679,14 @@ test("index.html carries visible question headings for the derived FAQ schema", 
   const here = path.dirname(fileURLToPath(import.meta.url));
   const html = readFileSync(path.join(here, "..", "index.html"), "utf8");
   const questions = [...html.matchAll(/<h[23]\b[^>]*>([\s\S]*?)<\/h[23]>/gi)]
-    .map(([, text]) => text.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim())
+    .map(([, text]) => {
+      let plain = text;
+      for (let prev; prev !== plain; ) {
+        prev = plain;
+        plain = plain.replace(/<[^>]+>/g, "");
+      }
+      return plain.replace(/\s+/g, " ").trim();
+    })
     .filter((text) => text.endsWith("?"));
   assert.ok(questions.length >= 4, `expected visible FAQ questions, found ${questions.length}`);
   assert.equal(new Set(questions).size, questions.length, "a question is asked twice on the page");

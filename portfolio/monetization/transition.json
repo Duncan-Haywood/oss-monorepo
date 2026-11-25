@@ -8,13 +8,13 @@
     "proprietary": 20
   },
   "models": {
-    "subscription": 8,
-    "one-off": 12
+    "subscription": 9,
+    "one-off": 11
   },
   "proprietary": [
     {
       "venture": "einvoice-preflight",
-      "source_lines": 36255,
+      "source_lines": 36477,
       "track": "proprietary",
       "why": "flagship #3: the depth people pay for",
       "model": "subscription",
@@ -33,7 +33,7 @@
     },
     {
       "venture": "wall-framing-takeoff",
-      "source_lines": 17913,
+      "source_lines": 18136,
       "track": "proprietary",
       "why": "flagship #6: the depth people pay for",
       "model": "one-off",
@@ -49,7 +49,7 @@
     },
     {
       "venture": "ai-bookkeeper",
-      "source_lines": 18200,
+      "source_lines": 18422,
       "track": "proprietary",
       "why": "flagship #8: the depth people pay for",
       "model": "subscription",
@@ -60,7 +60,7 @@
     },
     {
       "venture": "changepoint-detector",
-      "source_lines": 16276,
+      "source_lines": 16498,
       "track": "proprietary",
       "why": "flagship #10: the depth people pay for",
       "model": "one-off",
@@ -71,7 +71,7 @@
     },
     {
       "venture": "shift-roster-builder",
-      "source_lines": 13384,
+      "source_lines": 13606,
       "track": "proprietary",
       "why": "flagship #11: the depth people pay for",
       "model": "subscription",
@@ -82,11 +82,11 @@
     },
     {
       "venture": "photo-editing",
-      "source_lines": 77937,
+      "source_lines": 78142,
       "track": "proprietary",
       "why": "flagship #12: the depth people pay for",
-      "model": "subscription",
-      "model_why": "the cull and pipeline run on the user's machine and stay free; the paid part is hosted proofing galleries, which have a per-user storage cost (models.yaml, 2026-11-25)",
+      "model": "one-off",
+      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
       "moved": null,
       "move_order": 6
@@ -104,7 +104,7 @@
     },
     {
       "venture": "league-schedule-generator",
-      "source_lines": 24657,
+      "source_lines": 24879,
       "track": "proprietary",
       "why": "flagship #14: the depth people pay for",
       "model": "subscription",
@@ -172,7 +172,7 @@
     },
     {
       "venture": "shed-designer",
-      "source_lines": 20426,
+      "source_lines": 20647,
       "track": "proprietary",
       "why": "has a paid model in models.yaml",
       "model": "one-off",
@@ -242,7 +242,7 @@
     },
     {
       "venture": "sales-export-to-journal",
-      "source_lines": 6560,
+      "source_lines": 6694,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "one-off",

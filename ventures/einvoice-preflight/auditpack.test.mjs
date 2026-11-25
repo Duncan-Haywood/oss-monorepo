@@ -2,8 +2,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { preflightDocuments } from "./report.mjs";
 import { auditPackHtml, safeColor, safeLogo, esc } from "./auditpack.mjs";
-import { CHECKOUT_URL } from "./checkout.mjs";
-import { buyLink, cleanKey, interpret, checkLicence } from "./licence.mjs";
+import { PADDLE } from "./checkout.mjs";
+import * as licence from "./licence.mjs";
+import { assertPackLicence } from "../../platform/billing/testkit.mjs";
 
 const good = { invoice_number: "A-1", issue_date: "2026-01-05", currency: "EUR", supplier: { id: "DE123", name: "Supplier GmbH" }, customer: { id: "DE456", name: "Customer GmbH" }, lines: [{ description: "Consulting", quantity: 2, unit_price: 100, tax_percent: 19, net: 200 }], totals: { net: 200, tax: 38, gross: 238 } };
 const bad = { ...good, invoice_number: "A-2", totals: { net: 200, tax: 38, gross: 999 } };
@@ -41,15 +42,8 @@ test("an empty or all-pass run still renders honestly", async () => {
   assert.match(auditPackHtml({ reports: [], readErrors: [] }, {}), /No invoice was checked/);
 });
 
-test("stays dark until a checkout link is set, and unlock never throws", async () => {
-  assert.equal(buyLink(CHECKOUT_URL), CHECKOUT_URL || null);
-  assert.equal(buyLink("http://x.test"), null);
-  assert.equal(cleanKey("short"), null);
-  assert.equal(interpret({ valid: true, license_key: { status: "disabled" } }).valid, false);
-  assert.equal(interpret({ valid: true, license_key: { status: "active" } }).valid, true);
-  assert.equal((await checkLicence("ABCD-1234-EFGH", { url: "" })).valid, false);
-  const boom = async () => { throw new Error("offline"); };
-  assert.equal((await checkLicence("ABCD-1234-EFGH", { url: "https://x.test/v", fetch: boom })).valid, false);
+test("licence: dark until the catalogue is set; only a key signed for this pack unlocks; never throws", async () => {
+  await assertPackLicence(licence, PADDLE, "einvoice-preflight");
 });
 
 test("the committed sample pack is what the code produces today", async () => {

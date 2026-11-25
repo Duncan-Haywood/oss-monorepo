@@ -3,6 +3,25 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { readdirSync } from 'node:fs';
 
+// Remove <script> blocks (any case, attributes, whitespace in the end tag), repeating until stable.
+const stripScripts = (s, repl = '') => {
+  let p;
+  do {
+    p = s;
+    s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, repl);
+  } while (s !== p);
+  return s;
+};
+// Remove every tag, repeating until no tag is left.
+const stripTags = (s, repl = '') => {
+  let p;
+  do {
+    p = s;
+    s = s.replace(/<[^>]*>/g, repl);
+  } while (s !== p);
+  return s;
+};
+
 const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
 const secondary = await readFile(
   new URL('./why-branch-protection-drifts.html', import.meta.url),
@@ -29,7 +48,7 @@ test('the page carries the portfolio disclaimers and stays local', () => {
 });
 
 test('the page never claims a clean result is a full audit or compliance guarantee', () => {
-  const prose = index.replace(/<script[\s\S]*?<\/script>/g, '');
+  const prose = stripScripts(index);
   assert.match(prose, /not a security audit/);
   assert.match(prose, /not.*a compliance attestation|compliance attestation/i);
 });
@@ -49,7 +68,7 @@ test('the JSON-LD FAQPage questions match the visible FAQ headings', () => {
   assert.ok(ldMatch, 'expected a FAQPage JSON-LD block');
   const ld = ldMatch[0];
   const headings = [...index.matchAll(/<h3>(.*?)<\/h3>/g)].map((m) =>
-    m[1].replace(/<[^>]+>/g, '').trim(),
+    stripTags(m[1]).trim(),
   );
   assert.ok(headings.length > 0, 'expected visible h3 FAQ headings');
   for (const heading of headings) {
@@ -89,7 +108,7 @@ test('every .html file in the venture is reachable from the sitemap', async () =
   const htmlFiles = readdirSync(dir).filter((name) => name.endsWith('.html'));
   for (const name of htmlFiles) {
     if (name === 'index.html') continue;
-    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+    assert.ok(sitemap.includes(name), `${name} is missing from sitemap.xml`);
   }
 });
 

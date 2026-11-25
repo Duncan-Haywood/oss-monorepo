@@ -35,10 +35,11 @@ async function load(key) {
   const ent = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", ordm: "º", ordf: "ª", ndash: "–", mdash: "—", ldquo: "“", rdquo: "”", lsquo: "‘", rsquo: "’", deg: "°", sect: "§", hellip: "…" };
   const MARK = { acute: "\u0301", grave: "\u0300", circ: "\u0302", tilde: "\u0303", uml: "\u0308", cedil: "\u0327" };
   const named = (e) => ent[e.toLowerCase()] ?? (/^([A-Za-z])(acute|grave|circ|tilde|uml|cedil)$/.test(e) ? (e[0] + MARK[e.slice(1)]).normalize("NFC") : null);
+  let prev;
+  do { prev = html; html = html.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>|<style\b[^>]*>[\s\S]*?<\/style\b[^>]*>/gi, ""); } while (html !== prev);
+  html = html.replace(/<br\s*\/?>|<\/p>|<\/tr>|<\/td>|<\/li>/gi, "\n");
+  do { prev = html; html = html.replace(/<[^>]+>/g, ""); } while (html !== prev);
   return html
-    .replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<br\s*\/?>|<\/p>|<\/tr>|<\/td>|<\/li>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
     .replace(/&(#\d+|#x[0-9a-f]+|\w+);/gi, (m, e) => e[0] === "#" ? codePointOr(e[1] === "x" || e[1] === "X" ? parseInt(e.slice(2), 16) : Number(e.slice(1))) : named(e) ?? m);
 }
 
@@ -50,7 +51,7 @@ function table(text, from = 0, to = text.length) {
   const out = new Map();
   ms.forEach((m, i) => {
     const end = i + 1 < ms.length ? ms[i + 1].index : part.length;
-    const desc = part.slice(m.index + m[0].length, end).replace(/\s+/g, " ").replace(/\s*(Receba noticias|-->|Página Inicial)[\s\S]*$/, "").trim();
+    const desc = part.slice(m.index + m[0].length, end).replace(/\s+/g, " ").replace(/\s*(Receba noticias|--!?>|Página Inicial)[\s\S]*$/, "").trim();
     out.set(`${m[1]}.${m[2]}.${m[3]}`, desc);
   });
   return out;

@@ -4,6 +4,9 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { calculateSale, compareFreeShipping, INPUT_IDS } from './calc.mjs';
 import { decodeEntities } from '../../platform/pages/entities.mjs';
 
+// Strip markup until stable, case-insensitive, tolerant of attributes in closing tags.
+const stripScripts = (s, sub = '') => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, sub); } while (s !== p); return s; };
+
 const page = name => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 const markup = page('index.html');
 const ids = new Set([...markup.matchAll(/\bid="([^"]+)"/g)].map(m => m[1]));
@@ -112,7 +115,7 @@ test('every .html file in the venture is reachable from the sitemap', () => {
       assert.match(sitemap, /whatnot-seller-payout\/<\/loc>/);
       continue;
     }
-    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+    assert.ok(sitemap.includes(name), `${name} is missing from sitemap.xml`);
   }
 });
 
@@ -273,7 +276,7 @@ test('comparison page FAQ structured data matches the visible answers', () => {
   const source = page('vs-whatnot-seller-dashboard.html');
   const ld = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(source)[1]);
   assert.equal(ld['@type'], 'FAQPage');
-  const visible = source.replace(/<script[\s\S]*?<\/script>/g, '');
+  const visible = stripScripts(source);
   for (const entry of ld.mainEntity) {
     const question = entry.name.replace(/&/g, '&amp;');
     assert.ok(
@@ -311,7 +314,7 @@ test('spreadsheet comparison page FAQ structured data matches the visible answer
   const source = page('vs-tracking-payouts-in-a-spreadsheet.html');
   const ld = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(source)[1]);
   assert.equal(ld['@type'], 'FAQPage');
-  const visible = decodeEntities(source.replace(/<script[\s\S]*?<\/script>/g, ''));
+  const visible = decodeEntities(stripScripts(source));
   for (const entry of ld.mainEntity) {
     assert.ok(
       visible.includes(`<h3>${entry.name}</h3>`),
@@ -330,7 +333,7 @@ function near(actual, expected, tolerance = 0.001) {
 
 function nearMoney(html, value, printed = Number(value.toFixed(2))) {
   const pretty = printed.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  assert.match(html, new RegExp(`\\$${pretty.replace(/,/g, ',')}`));
+  assert.match(html, new RegExp(`\\$${pretty.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
 }
 
 // Both price one transaction through platform-specific fees to find the true

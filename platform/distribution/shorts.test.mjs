@@ -46,7 +46,7 @@ test('timeline: narration stretches a scene, never shortens it', () => {
 test('srt: one cue per scene with on-screen words', () => {
   const srt = toSrt(timeline(storyboard(tool).scenes));
   assert.match(srt, /^1\n00:00:00,000 --> 00:00:02,500\nContainer Load Planner\n/);
-  assert.equal(srt.match(/-->/g).length, 5);
+  assert.equal(srt.split(' --> ').length - 1, 5);
 });
 
 test('scroll expression eases to the target and holds', () => {

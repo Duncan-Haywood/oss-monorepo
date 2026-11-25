@@ -73,7 +73,7 @@ test('the per-visit worked example matches what the calculator returns', () => {
   // The headline pairing: monthly gross against monthly net.
   const monthlyGross = visit.grossRevenue * visit.visitsPerMonth;
   assert.ok(page.includes(money(monthlyGross)), 'the monthly gross revenue is missing');
-  assert.match(page, new RegExp(`${money(monthlyGross).replace('$', '\\$')} a month in sales`));
+  assert.match(page, new RegExp(`${money(monthlyGross).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} a month in sales`));
   assert.equal(Number(visit.profitMarginPct.toFixed(1)), 21.7);
 });
 
@@ -112,7 +112,7 @@ test('every row of the drive-time table is what the calculator returns', () => {
   const worst = calculate({ ...DEFAULTS, driveMinutes: 35, mileage: 15 });
   assert.match(
     page,
-    new RegExp(`pays ${money(worst.effectiveHourlyRate).replace('$', '\\$')} an hour`),
+    new RegExp(`pays ${money(worst.effectiveHourlyRate).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} an hour`),
   );
 });
 

@@ -38,7 +38,8 @@ export function robotsAllows(rules, path) {
   return best.allow;
 }
 
-const decode = (s) => s.replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/\s+/g, " ").trim();
+// &amp; is decoded last so "&amp;lt;" stays "&lt;" instead of turning into "<".
+const decode = (s) => s.replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
 
 /** Title and meta description from HTML, nothing else. */
 export function extractFacts(html) {

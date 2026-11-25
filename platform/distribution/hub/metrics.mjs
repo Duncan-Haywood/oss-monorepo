@@ -20,6 +20,13 @@
 import { templateOf } from './compose.mjs';
 import { THREADS, GRAPH } from './adapters.mjs';
 
+/** Text without markup: removes tags until none are left, so `<<b>script>` cannot reassemble one. */
+const stripTags = (s) => {
+  let prev;
+  do { prev = s; s = s.replace(/<[^>]+>/g, ''); } while (s !== prev);
+  return s;
+};
+
 export const PRIOR_POSTS = 5;
 export const MIN_POSTS = 5;
 
@@ -62,7 +69,8 @@ export const READERS = {
       const base = env.MASTODON_INSTANCE.replace(/\/$/, '');
       const acct = await getJson(fetchImpl, `${base}/api/v1/accounts/lookup?acct=${encodeURIComponent(env.MASTODON_ACCT)}`);
       const list = await getJson(fetchImpl, `${base}/api/v1/accounts/${acct.id}/statuses?limit=40&exclude_replies=true&exclude_reblogs=true`);
-      const strip = (h) => String(h || '').replace(/<a [^>]*href="([^"]+)"[^>]*>.*?<\/a>/g, '$1').replace(/<br\s*\/?>/g, '\n').replace(/<\/p><p>/g, '\n\n').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&');
+      const breaks = (h) => String(h || '').replace(/<a [^>]*href="([^"]+)"[^>]*>.*?<\/a>/g, '$1').replace(/<br\s*\/?>/g, '\n').replace(/<\/p><p>/g, '\n\n');
+      const strip = (h) => stripTags(breaks(h)).replace(/&amp;/g, '&');
       return list.map((s) => reading('mastodon', {
         id: s.id, text: strip(s.content), date: s.created_at,
         metrics: { likes: s.favourites_count ?? 0, reposts: s.reblogs_count ?? 0, replies: s.replies_count ?? 0 },

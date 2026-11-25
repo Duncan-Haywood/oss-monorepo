@@ -90,7 +90,7 @@ test('split writes a _headers rule that sends only the workers.dev host to the d
   await split(site, path.join(root, 'shard'));
   const h = await fs.readFile(path.join(site, '_headers'), 'utf8');
   assert.equal(h, workersDevHeaders() + securityHeaders());
-  assert.match(h, new RegExp(`^https://${WORKERS_DEV_HOST.replace(/\./g, '\\.')}/\\*\n  Refresh: 0; url=${SITE_ORIGIN}/:splat\n`));
+  assert.match(h, new RegExp(`^https://${WORKERS_DEV_HOST.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/\\*\n  Refresh: 0; url=${SITE_ORIGIN}/:splat\n`));
   for (const line of h.split('\n')) assert.ok(line.length <= 2000);
 });
 

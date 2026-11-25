@@ -30,14 +30,15 @@ test('links sit in labelled groups, and no label is long enough to wrap on a pho
   assert.doesNotMatch(html, / · /, 'the dotted separators are back');
 });
 
-test('warranty, hosting and the privacy promise stay open; only the detail is folded', () => {
+test('warranty, hosting and the privacy summary stay open, with the legal pages linked', () => {
   const d = disclaimerHtml('./', [], { counter: true });
   const outside = d.replace(/<details[\s\S]*?<\/details>/g, '');
   for (const phrase of ['without warranty of any kind', 'You are responsible for reviewing and verifying',
     'accept no liability', 'taken offline without notice', 'Do not use them as',
-    'What you type is never uploaded']) {
+    'The free tools run in your browser', 'Privacy Policy', 'Terms of Use', 'Cookie Policy']) {
     assert.ok(outside.includes(phrase), `"${phrase}" is folded or gone`);
   }
-  assert.match(d, /<summary>What is counted, and what happens to email you send<\/summary>/);
-  assert.match(d, /deleted after 90 days/);
+  // Since 2026-11-25 the detail (what is counted, email retention) lives in
+  // the Privacy Policy (legal-pages.mjs), not in a footer <details>.
+  assert.match(d, /href="\.\/privacy\/"/);
 });

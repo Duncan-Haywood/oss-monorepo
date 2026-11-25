@@ -6,6 +6,9 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+const stripScripts = (s, sub = "") => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, sub); } while (s !== p); return s; };
+const stripTags = (s, sub = "") => { let p; do { p = s; s = s.replace(/<[^>]+>/g, sub); } while (s !== p); return s; };
+
 const here = path.dirname(fileURLToPath(import.meta.url));
 const index = readFileSync(path.join(here, "index.html"), "utf8");
 const guide = readFileSync(path.join(here, "sudoers-mistakes-explained.html"), "utf8");
@@ -35,7 +38,7 @@ test("disclaimers, privacy, credit and sponsor link are on both pages", () => {
 
 test("no unqualified safety claim", () => {
   for (const page of [index, guide]) {
-    const prose = page.replace(/<script[\s\S]*?<\/script>/g, "");
+    const prose = stripScripts(page);
     for (const m of prose.matchAll(/\b(?:is|are)\s+(?:safe|secure)\b/gi)) {
       const before = prose.slice(Math.max(0, m.index - 60), m.index);
       const after = prose.slice(m.index + m[0].length).trimStart();
@@ -54,7 +57,7 @@ test("FAQPage JSON-LD matches the visible questions and parses", () => {
   const blocks = [...index.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
   const faq = blocks.find((b) => b["@type"] === "FAQPage");
   const names = faq.mainEntity.map((q) => q.name);
-  const headings = [...index.replace(/<script[\s\S]*?<\/script>/g, "").matchAll(/<h3>(.*?)<\/h3>/g)].map((m) => m[1].replace(/<[^>]+>/g, "").trim());
+  const headings = [...stripScripts(index).matchAll(/<h3>(.*?)<\/h3>/g)].map((m) => stripTags(m[1]).trim());
   assert.deepEqual(headings, names);
   JSON.parse(guide.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
 });
@@ -63,7 +66,7 @@ test("index links the guide, guide links back, sitemap lists every page", () => 
   assert.match(index, /href="sudoers-mistakes-explained\.html"/);
   assert.match(guide, /href="\.\/"/);
   const sitemap = readFileSync(path.join(here, "sitemap.xml"), "utf8");
-  for (const n of readdirSync(here).filter((n) => n.endsWith(".html"))) assert.match(sitemap, new RegExp(n.replace(/\./g, "\\.")));
+  for (const n of readdirSync(here).filter((n) => n.endsWith(".html"))) assert.ok(sitemap.includes(n), `${n} is missing from sitemap.xml`);
 });
 
 test("the parity case count the pages state is the recorded one", () => {

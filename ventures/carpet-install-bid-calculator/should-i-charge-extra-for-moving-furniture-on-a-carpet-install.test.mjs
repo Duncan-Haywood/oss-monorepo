@@ -16,6 +16,8 @@ import {
   JOB_PRESETS,
 } from './calc.mjs';
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const html = readFileSync(
   new URL('./should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html', import.meta.url),
   'utf8',
@@ -93,12 +95,12 @@ test('the furniture-move add-on is a flat $113.62 across the three quoted preset
     deltas.add(delta.toFixed(2));
     assert.match(
       html,
-      new RegExp(money(withoutFurniture.price).replace(/[.$]/g, '\\$&')),
+      new RegExp(escapeRegExp(money(withoutFurniture.price))),
       `no-furniture price ${money(withoutFurniture.price)} for "${job.label}" is not quoted in the article`,
     );
     assert.match(
       html,
-      new RegExp(money(withFurniture.price).replace(/[.$]/g, '\\$&')),
+      new RegExp(escapeRegExp(money(withFurniture.price))),
       `with-furniture price ${money(withFurniture.price)} for "${job.label}" is not quoted in the article`,
     );
   }
@@ -117,8 +119,8 @@ test('the underpricing scenario (quote without furniture, do it anyway) is quote
   const withoutFurniture = priceJob(typical, { includeFurniture: false });
   const realProfitIfUnderquoted = withoutFurniture.price - withFurniture.totalCost;
 
-  assert.match(html, new RegExp(money(withFurniture.profit).replace(/[.$]/g, '\\$&')));
-  assert.match(html, new RegExp(money(realProfitIfUnderquoted).replace(/[.$]/g, '\\$&')));
+  assert.match(html, new RegExp(escapeRegExp(money(withFurniture.profit))));
+  assert.match(html, new RegExp(escapeRegExp(money(realProfitIfUnderquoted))));
   // The giveaway equals the line-item price itself — that is the article's
   // punchline, so pin the relationship, not just the two numbers.
   assert.equal((withFurniture.profit - realProfitIfUnderquoted).toFixed(2), '113.62');

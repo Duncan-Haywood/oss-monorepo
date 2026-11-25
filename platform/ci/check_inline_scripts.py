@@ -18,7 +18,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-SCRIPT = re.compile(r"<script(?P<attrs>[^>]*)>(?P<body>.*?)</script>", re.S | re.I)
+SCRIPT = re.compile(r"<script(?P<attrs>[^>]*)>(?P<body>.*?)</script\b[^>]*>", re.S | re.I)
 TYPE = re.compile(r"""\btype\s*=\s*["']?([^"'\s>]+)""", re.I)
 
 

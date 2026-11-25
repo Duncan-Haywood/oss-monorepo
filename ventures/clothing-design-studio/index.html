@@ -669,7 +669,7 @@
           else if (u.ui === "upload") $("#upload").click();
         }
         if (step.ops.length) err = commit(step.ops, "command_op");
-        log(`${err ? `<span class="miss">Could not: ${esc(err)}</span>` : esc(step.did)} <span class="words">“${esc(step.words)}”</span> <span class="engine">${engine}</span>`);
+        log(`${err ? `<span class="miss">Could not: ${esc(err)}</span>` : esc(step.did)} <span class="words">“${esc(step.words)}”</span> <span class="engine">${esc(engine)}</span>`);
       }
       for (const q of out.result.questions || []) {
         recordUsage("question_answered");

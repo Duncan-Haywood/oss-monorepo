@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import fs from 'node:fs';
 
+const stripScripts = (s, sub = '') => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, sub); } while (s !== p); return s; };
+
 const html = fs.readFileSync(new URL('./vs-guessing-which-pays-more.html', import.meta.url), 'utf8');
 const indexHtml = fs.readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const sitemap = fs.readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
@@ -46,8 +48,7 @@ test('the FAQPage answer text matches the visible paragraph exactly (modulo enti
   const match = html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?\})<\/script>/s);
   const schema = JSON.parse(match[1]);
   const squash = (text) => text.replace(/\s+/g, ' ').trim().toLowerCase();
-  const visible = html
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+  const visible = stripScripts(html, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&mdash;/g, '—')
     .replace(/&amp;/g, '&');

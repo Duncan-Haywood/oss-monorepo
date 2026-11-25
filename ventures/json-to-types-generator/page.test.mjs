@@ -4,6 +4,8 @@ import { readFile } from 'node:fs/promises';
 import { readdirSync, readFileSync } from 'node:fs';
 import { parsePage, checkScriptSyntax } from '../../platform/webcheck/page-integrity.mjs';
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
 const guide = await readFile(new URL('./how-to-type-an-api-response.html', import.meta.url), 'utf8');
 
@@ -55,7 +57,7 @@ test('index links the guide and the guide links back', () => {
 test('every .html file is reachable from the sitemap', async () => {
   const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
   for (const name of readdirSync(new URL('./', import.meta.url)).filter((n) => n.endsWith('.html'))) {
-    if (name !== 'index.html') assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')));
+    if (name !== 'index.html') assert.match(sitemap, new RegExp(escapeRegExp(name)));
   }
 });
 
