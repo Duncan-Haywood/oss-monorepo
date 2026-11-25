@@ -24,9 +24,10 @@ owner: duncan
 # orders split from the original sum, previous certificates reconciled, and findings that catch the over-billed line
 # before the owner's reviewer does.
 #
-# Path to revenue (payment rails stay off): lead magnet for the contractor audience, feeding contractor-wip-schedule
-# and the lien tools. A paid version, if usage appears, is saved jobs across periods, carry-forward of previous
-# columns, an owner-ready PDF and lien-waiver generation behind an env-var switch; not built.
+# Path to revenue: free front door for the pay-app suite (bet 1 in portfolio/monetization/verticals.py), built
+# privately. 2026-11-24: file-based carry-forward to next month shipped free here (nextPeriod in calc.mjs), because a
+# sub who can roll one job by hand meets the real pain the hosted suite removes: many jobs, saved per job, retainage to
+# release, waivers and change orders. Saved jobs, an owner-ready PDF and waivers stay in the paid suite.
 #
 # Liability: arithmetic on the user's own figures, with the contract's terms entered by the user; carries the
 # no-warranty and not-advice clauses, does not reproduce or imitate the AIA form, says it is not affiliated, and lists

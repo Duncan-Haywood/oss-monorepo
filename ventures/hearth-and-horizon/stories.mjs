@@ -153,6 +153,17 @@ export const coverPath = (shelfId) => `covers/${shelfId}.png`;
 // the tail (platform/ci/check_title_meta.py flags anything over 70). Keep the
 // longest description that fits after the story's own title.
 export const TITLE_MAX = 70;
+// A search snippet shows about 160 characters (platform/pages/description-length.mjs,
+// MAX), so the meta description is the summary cut at the last word that fits, with an
+// ellipsis when anything was cut. The full summary stays on the page as its lede.
+export function metaDescription(summary, max = 160) {
+  const text = String(summary).replace(/\s+/g, ' ').trim();
+  if (text.length <= max) return text;
+  const room = text.slice(0, max - 1);
+  const cut = room.lastIndexOf(' ');
+  return `${(cut > 40 ? room.slice(0, cut) : room).replace(/[\s,;:.\u2013\u2014-]+$/, '')}\u2026`;
+}
+
 export function storyTitle(story, shelf, hasAudio = false) {
   const kind = shelf.title === 'Little Lamps' ? 'a Catholic bedtime story' : 'a free science fiction short story';
   const short = shelf.title === 'Little Lamps' ? 'a bedtime story' : 'a short story';
@@ -267,21 +278,6 @@ for (const audio of document.querySelectorAll("audio")) {
   audio.addEventListener("ended", () => countUsage("audio_finished"));
 }
 </script>`;
-}
-
-// Search engines cut a meta description at about 160 characters, and the
-// site's ratchet (platform/pages/description-length.mjs) holds every page to
-// it. Keep the summary's first sentence, or clip at a word boundary; the
-// page, the feeds and JSON-LD still carry the whole summary.
-export const META_MAX = 160;
-export function metaDescription(summary) {
-  const s = String(summary).replace(/\s+/g, ' ').trim();
-  if (s.length <= META_MAX) return s;
-  const first = (s.match(/^.*?[.!?](?=\s|$)/) || [s])[0];
-  if (first.length <= META_MAX) return first;
-  const cut = first.slice(0, META_MAX - 1);
-  const sp = cut.lastIndexOf(' ');
-  return `${(sp > 80 ? cut.slice(0, sp) : cut).replace(/[\s,;:]+$/, '')}\u2026`;
 }
 
 function page({ title, description, canonical, image, jsonLd, body, prefix, event, type = 'website' }) {

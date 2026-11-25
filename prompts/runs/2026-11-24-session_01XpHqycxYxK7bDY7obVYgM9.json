@@ -44,7 +44,7 @@
     "docs/posts/2026-11-24-saints-by-candlelight-nicodemus-by-night.md"
   ],
   "goal": null,
-  "notes": "Project: saints-by-candlelight; piece: episode 177, nicodemus-and-the-conversation-by-night (text only, audio 581 MB over 400 MB cap). Security queue empty, IDEAS.md and website requests empty; route drew creative. check-script ok (7,092 words), node --test 20/20, check_posts ok, risk_review: no owner review. No agent doc: nothing the next run needs beyond the list sequels in PRODUCTION.md. CI 'test' (priv-portfolio-pages) failed on description-length: the new episode page plus 4 pages already over 160 on main (3 ebay guides, hearth the-stall-that-paid-double). Fixed at the generators: saints episodes.mjs and hearth stories.mjs now emit <=160-char meta descriptions (first sentence or word-boundary clip), baseline 3823 -> 3089; ebay descriptions shortened by hand.",
+  "notes": "Project: saints-by-candlelight; piece: episode 177, nicodemus-and-the-conversation-by-night (text only, audio 581 MB over 400 MB cap). Security queue empty, IDEAS.md and website requests empty; route drew creative. check-script ok (7,092 words), node --test 20/20, check_posts ok, risk_review: no owner review. No agent doc: nothing the next run needs beyond the list sequels in PRODUCTION.md. CI 'test' (priv-portfolio-pages) failed on description-length for the new episode page. Fixed the saints generator (episodes.mjs: <=160-char meta description, first sentence or word-boundary clip, og keeps full summary); baseline 3265 -> 3089. A parallel hearth-and-horizon generator fix and the 4 other offenders landed on main first; took main's versions on merge (two merges of main needed).",
   "corrections": [],
   "redteam": null,
   "usage": {
