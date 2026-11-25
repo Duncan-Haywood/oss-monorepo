@@ -91,6 +91,7 @@ M74 = E + "m74_allocate/results.txt"
 M75 = E + "m75_riskopt/results.txt"
 M76 = E + "m76_closedloop/results.txt"
 M77 = E + "m77_balance/results.txt"
+M78 = E + "m78_augfilter/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -410,6 +411,12 @@ CHECKS = [
     (M77, "g1 | LAYOUT | 0.2 | 142 | 0.05 | 116.0 (1.30) | 199.0 (0.00)", "116 against 199"),
     (M77, "g1 | LAYOUT | 0.1 | 96 | 0.02 | 97.0 (0.76)", "it needs 97"),
     (M77, "g1 | LAYOUT | 0.1 | 0.02 | 11.89 | 48.0", "fails 11.9% of walls"),
+    (M78, "worst 1.09%, uncalibratable 0", "worst 1.09% on 10,000 fresh walls"),
+    (M78, "g1 | LAYOUT | 0.1 | 96 | 0.01 | 0.02 | 48.0 (1.06) | 48.0 (51.45) | - | 91.0 (1.00) | 67.0 (0.76)",
+     "fails 51.5% of walls there"),
+    (M78, "median excess of AUG+R over m77 BALANCE at beta 0, on the 6 cells where BALANCE needs >= 10, is <= 15%): 7.7%",
+     "learning the error is 7.7%"),
+    (M78, "g1 | LAYOUT | 0.1 | 0.04 | AUG+R | 0.78 | 67.0", "deviation fails 0.78%"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),
