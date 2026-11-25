@@ -4030,3 +4030,5 @@ If it doesn't, its answer is kept and the dual branch runs as before. On the cal
 (`rowBeforeDual: false`). `optimality.openRow.beforeDual` says when this happened. With default options, weeks this small
 usually get the early floor first, so most real weeks are unchanged.
 Details: `docs/history/ci-perf-2026-11-18-shift-roster-row-before-dual.md`. Test: `open-sums.test.mjs`.
+
+**Checkout moved to Paddle (2026-11-25).** The pack's Buy button now opens Paddle's overlay checkout, and its licence key is an Ed25519-signed token the edge Worker issues from Paddle's webhook and the page checks offline (`paddle.mjs`, a synced copy of `platform/billing/client.mjs`; `checkout.mjs` is generated from `platform/billing/catalogue.mjs`). The old Lemon Squeezy validate call is gone. It stays dark until the owner sets the catalogue's price id, client-side token and public key (`platform/billing/README.md`).

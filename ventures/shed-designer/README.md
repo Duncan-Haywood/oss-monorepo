@@ -231,3 +231,5 @@ Everything runs in your browser. Your designs are never uploaded, and there are 
 ## License and support
 
 MIT (see `LICENSE`). If it saved you a trip to the yard, [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) or [Buy Me a Coffee](https://buymeacoffee.com/duncanhaywood) are optional and change nothing about the tool.
+
+**Checkout moved to Paddle (2026-11-25).** The pack's Buy button now opens Paddle's overlay checkout, and its licence key is an Ed25519-signed token the edge Worker issues from Paddle's webhook and the page checks offline (`paddle.mjs`, a synced copy of `platform/billing/client.mjs`; `checkout.mjs` is generated from `platform/billing/catalogue.mjs`). The old Lemon Squeezy validate call is gone. It stays dark until the owner sets the catalogue's price id, client-side token and public key (`platform/billing/README.md`).

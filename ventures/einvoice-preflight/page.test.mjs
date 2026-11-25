@@ -107,7 +107,7 @@ test("the page's static imports stay light; the engine loads on demand", async (
   // (about 3.3 MB), so no handler was attached until all of them arrived.
   const script = page.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
   const statics = [...script.matchAll(/^\s*import\b[^;]*?from\s*"([^"]+)"/gm)].map((m) => m[1]);
-  assert.deepEqual(statics.sort(), ["./checkout.mjs", "./licence.mjs", "./usage.mjs"]);
+  assert.deepEqual(statics.sort(), ["./licence.mjs", "./usage.mjs"]);
   // Every name the page calls through `engine.` or destructures from loadEngine() is exported.
   const engine = await import("./page-engine.mjs");
   const used = new Set([...script.matchAll(/(?<![\w-])engine\.(\w+)\(/g)].map((m) => m[1]));

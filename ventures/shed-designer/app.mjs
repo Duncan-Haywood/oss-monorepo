@@ -13,8 +13,7 @@ import { recordUsage, clearUsage } from './usage.mjs';
 import { structuralChecks, anchorageText } from './checks.mjs';
 import { encodeDesign } from './hoa.mjs';
 import { buildPackHtml } from './buildpack.mjs';
-import { buyLink, checkLicence } from './licence.mjs';
-import { CHECKOUT_URL, VALIDATE_URL } from './checkout.mjs';
+import { wireBuyButton, checkLicence } from './licence.mjs';
 import { initUtilisation, renderUtilisation, heatOption } from './utilisation-ui.mjs';
 import { connectionChecks } from './connections.mjs';
 import { generateCandidates, designDiff, openingCosts } from './candidates.mjs';
@@ -1323,13 +1322,13 @@ function wire() {
   $('#md-build').addEventListener('click', async () => { await buildReady; download(`${slug()}-how-to-build.md`, buildMd, 'text/markdown'); count('csv-downloads'); });
   {
     // Branded build pack: dark until a checkout link is set in checkout.mjs (no card, no Buy button).
-    const buy = buyLink(CHECKOUT_URL);
+    const buy = wireBuyButton($('#pack-buy'), { onKey: (k) => { $('#pack-key').value = k; $('#pack-check').click(); }, onStatus: (m) => { if (m) $('#pack-state').textContent = m; } });
     let packLogo = '';
-    if (buy) { $('#pack-buy').href = buy; $('#pack-buy-row').hidden = false; $('#pack-card').hidden = false; }
+    if (buy) { $('#pack-buy-row').hidden = false; $('#pack-card').hidden = false; }
     $('#pack-logo').addEventListener('change', (e) => { const f = e.target.files[0]; if (!f) { packLogo = ''; return; } const r = new FileReader(); r.onload = () => { packLogo = String(r.result); }; r.readAsDataURL(f); });
     $('#pack-check').addEventListener('click', async () => {
       $('#pack-state').textContent = 'Checking...';
-      const v = await checkLicence($('#pack-key').value, { url: VALIDATE_URL });
+      const v = await checkLicence($('#pack-key').value);
       $('#pack-state').textContent = v.valid ? 'Key accepted.' : `Not unlocked: ${v.reason}${buy ? '' : ' (the build pack is not on sale yet)'}`;
       $('#pack-fields').hidden = !v.valid;
     });

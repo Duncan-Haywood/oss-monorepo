@@ -297,8 +297,7 @@
     import { PANEL, runSetting, mergeConsensus, agreedText, levelRunFromMain } from "./consensus.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     import { chartSvg, changeReportHtml, esc, fmt } from "./report.mjs";
-    import { buyLink, checkLicence } from "./licence.mjs";
-    import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
+    import { wireBuyButton, checkLicence } from "./licence.mjs";
     import { analyzeJob } from "./analyze-job.mjs";
     import { synthHtml, synthChartSvg, synthCsv } from "./synth-view.mjs";
     import { watchCheck, recordText, replayText, eagernessText, budgetFromPlain, suggestFor, HINT_BUDGET, COUNT_MIDDLE } from "./watch-core.mjs";
@@ -828,14 +827,14 @@
       record("report_downloaded");
     });
     {
-      const buy = buyLink(CHECKOUT_URL);
+      const buy = wireBuyButton($("#report-buy"), { onKey: (k) => { $("#report-key").value = k; $("#report-check").click(); }, onStatus: (m) => { if (m) $("#report-state").textContent = m; } });
       let logo = "";
-      // Dark until a checkout link is set in checkout.mjs: no card, no Buy button.
-      if (buy) { $("#report-buy").href = buy; $("#report-buy-row").hidden = false; $("#report-card").hidden = false; }
+      // Dark until checkout.mjs carries a Paddle price id (platform/billing/catalogue.mjs): no card, no Buy button.
+      if (buy) { $("#report-buy-row").hidden = false; $("#report-card").hidden = false; }
       $("#report-logo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { logo = ""; return; } const r = new FileReader(); r.onload = () => { logo = String(r.result); }; r.readAsDataURL(f); });
       $("#report-check").addEventListener("click", async () => {
         $("#report-state").textContent = "Checking...";
-        const v = await checkLicence($("#report-key").value, { url: VALIDATE_URL });
+        const v = await checkLicence($("#report-key").value);
         $("#report-state").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason + (buy ? "" : " (the report is not on sale yet)");
         $("#report-fields").hidden = !v.valid;
         if (v.valid) record("report_unlocked");

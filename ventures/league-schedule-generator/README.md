@@ -5682,10 +5682,9 @@ rounds left go first, so they finish together) and which match gets which court 
 `printpack.mjs` builds one printable page set on the organiser's letterhead: a
 cover (league, season, logo, contact), the full schedule, one page per team
 (home/away, byes marked) and an optional rules page. It reuses the licence-key
-check from `ventures/wall-framing-takeoff` (`licence.mjs`; the provider's
-validate call is from memory of its docs and unrun). The card in `index.html`
-shows only when `CHECKOUT_URL` in `checkout.mjs` is a plain https link, which
-is empty today, so nothing is for sale. The schedule, CSV, calendar, web page
+check as the sibling packs (`licence.mjs`, `paddle.mjs`). The card in
+`index.html` shows only once `checkout.mjs` carries a Paddle price id (the
+2026-11-25 note below), so nothing is for sale today. The schedule, CSV, calendar, web page
 and score sheets stay free. The key is an honest-buyer convenience, not copy
 protection; the code is MIT. Checked: `node --test printpack.test.mjs`
 (5 cases: a page per team with each game once and the bye, escaping of every
@@ -6636,3 +6635,5 @@ Checked:
   run, slowest 650 ms against 811 ms. (The 14 ms in the race section above was the race alone,
   measured before magic numbers were added.)
 - Not checked: a real league's published clinch dates (none in the data).
+
+**Checkout moved to Paddle (2026-11-25).** The pack's Buy button now opens Paddle's overlay checkout, and its licence key is an Ed25519-signed token the edge Worker issues from Paddle's webhook and the page checks offline (`paddle.mjs`, a synced copy of `platform/billing/client.mjs`; `checkout.mjs` is generated from `platform/billing/catalogue.mjs`). The old Lemon Squeezy validate call is gone. It stays dark until the owner sets the catalogue's price id, client-side token and public key (`platform/billing/README.md`).

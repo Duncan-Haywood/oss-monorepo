@@ -291,3 +291,33 @@ test('/hit with a funnel event adds one to its fn: key and nothing else (no page
     [`${day}|fn:products_view:_:_:products`]: 1,
   });
 });
+
+test('/billing/* is mounted: 503 until the secrets are set, a malformed claim is a 400, CORS on reads', async () => {
+  const e = env();
+  const hook = await worker.fetch(req('/billing/paddle', { body: '{}', headers: { 'paddle-signature': 'ts=1;h1=00' } }), e);
+  assert.equal(hook.status, 503);
+  const bad = await worker.fetch(req('/billing/claim?c=nope', { method: 'GET', headers: { origin: ORIGIN } }), e);
+  assert.equal(bad.status, 400);
+  assert.equal(bad.headers.get('access-control-allow-origin'), ORIGIN);
+});
+
+test('the billing store runs against the real schema (node:sqlite standing in for D1)', async (t) => {
+  let DatabaseSync;
+  try { ({ DatabaseSync } = await import('node:sqlite')); } catch { t.skip('node:sqlite not available'); return; }
+  const { d1Store } = await import('../billing/server.mjs');
+  const fs = await import('node:fs');
+  const db = new DatabaseSync(':memory:');
+  db.exec(fs.readFileSync(new URL('./schema.sql', import.meta.url), 'utf8'));
+  // The slice of D1's API the store uses, with ?N placeholders as D1 takes them.
+  const d1 = { prepare(sql) { return { bind(...a) { const s = db.prepare(sql); return { run: async () => s.run(...a), first: async () => s.get(...a) ?? null }; } }; } };
+  const store = d1Store(d1);
+  await store.putClaim('h1', 'key-a', 'shed-designer');
+  await store.putClaim('h1', 'key-b', 'shed-designer');
+  assert.equal(await store.getClaim('h1'), 'key-a', 'first key kept on a webhook retry');
+  assert.equal(await store.getClaim('h2'), null);
+  await store.putSub('sub_1', 'k1', 100);
+  await store.putSub('sub_1', 'k2', 200);
+  await store.putSub('sub_1', 'k0', 50);
+  assert.deepEqual(await store.getSub('sub_1'), { key: 'k2', exp: 200 });
+  assert.equal(await store.getSub('sub_2'), null);
+});

@@ -449,8 +449,7 @@
     import { swissStandings, swissPairings } from "./swiss.mjs";
     import { printPackHtml } from "./printpack.mjs";
     import { CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, CARRY_OVER_POLISH, CARRY_OVER_FLOOR_PRICED } from "./carryover-core.mjs";
-    import { buyLink, checkLicence } from "./licence.mjs";
-    import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
+    import { wireBuyButton, checkLicence } from "./licence.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -1035,14 +1034,14 @@
       record("page_downloaded");
     });
     {
-      const buy = buyLink(CHECKOUT_URL);
+      const buy = wireBuyButton($("#pack-buy"), { onKey: (k) => { $("#pack-key").value = k; $("#pack-check").click(); }, onStatus: (m) => { if (m) $("#pack-state").textContent = m; } });
       let packLogo = "";
-      // Dark until a checkout link is set in checkout.mjs: no card, no Buy button.
-      if (buy) { $("#pack-buy").href = buy; $("#pack-buy-row").hidden = false; $("#pack-card").hidden = false; }
+      // Dark until checkout.mjs carries a Paddle price id (platform/billing/catalogue.mjs): no card, no Buy button.
+      if (buy) { $("#pack-buy-row").hidden = false; $("#pack-card").hidden = false; }
       $("#pack-logo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { packLogo = ""; return; } const r = new FileReader(); r.onload = () => { packLogo = String(r.result); }; r.readAsDataURL(f); });
       $("#pack-check").addEventListener("click", async () => {
         $("#pack-state").textContent = "Checking...";
-        const v = await checkLicence($("#pack-key").value, { url: VALIDATE_URL });
+        const v = await checkLicence($("#pack-key").value);
         $("#pack-state").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason + (buy ? "" : " (the print pack is not on sale yet)");
         $("#pack-fields").hidden = !v.valid;
         if (v.valid) record("print_pack_unlocked");

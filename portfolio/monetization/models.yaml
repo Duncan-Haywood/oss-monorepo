@@ -55,15 +55,15 @@ products:
     billing: subscription
     stage: built-dark
     next: >-
-      Agent step (2026-11-24, backlog P072): this pack's checkout.mjs
-      calls Lemon Squeezy's licence validate endpoint, but the owner's
-      rail is Paddle (goals.md, "The provider is Paddle"), so no owner
-      step can switch it on. Rewire the paid path to Paddle with
-      private-monorepo apps/grants/src/worker/ports/billing/paddle.ts as
-      the reference (Paddle has no public licence-key check, so
-      entitlement needs a small webhook-fed worker), bill it as
-      `billing` says, keep it dark until the owner sets the price id,
-      then set next_owner: true. The yearly licence is the recurring
+      Rewired to Paddle 2026-11-25 (platform/billing: overlay checkout,
+      webhook-fed Ed25519 licence keys from the edge Worker, offline
+      unlock; no Paddle API key anywhere). Owner, once for all packs
+      (platform/billing/README.md, "Going live"): create the Paddle
+      product and price, a client-side token, a notification destination
+      for transaction.completed, run keygen.mjs, set the two Worker
+      secrets, fill catalogue.mjs and run sync.mjs. Agent next: the
+      Paddle catalogue as code so the product and price come from a
+      script. The yearly licence is the recurring
       form; the app:wall-framing-takeoff bet (private repo) is the
       subscription that leads the queue, so do this row after it or fold
       it in. Before 2026-11-24:
@@ -113,15 +113,15 @@ products:
       when rewiring, or say here why a one-off fits.
     stage: built-dark
     next: >-
-      Agent step (2026-11-24, backlog P072): this pack's checkout.mjs
-      calls Lemon Squeezy's licence validate endpoint, but the owner's
-      rail is Paddle (goals.md, "The provider is Paddle"), so no owner
-      step can switch it on. Rewire the paid path to Paddle with
-      private-monorepo apps/grants/src/worker/ports/billing/paddle.ts as
-      the reference (Paddle has no public licence-key check, so
-      entitlement needs a small webhook-fed worker), bill it as
-      `billing` says, keep it dark until the owner sets the price id,
-      then set next_owner: true. Before 2026-11-24:
+      Rewired to Paddle 2026-11-25 (platform/billing: overlay checkout,
+      webhook-fed Ed25519 licence keys from the edge Worker, offline
+      unlock; no Paddle API key anywhere). Owner, once for all packs
+      (platform/billing/README.md, "Going live"): create the Paddle
+      product and price, a client-side token, a notification destination
+      for transaction.completed, run keygen.mjs, set the two Worker
+      secrets, fill catalogue.mjs and run sync.mjs. Agent next: the
+      Paddle catalogue as code so the product and price come from a
+      script. Before 2026-11-25:
       Built 2026-11-02 and dark: the branded season print pack (cover with
       logo, full schedule, one page per team, notes page; `printpack.mjs`,
       tested for escaping, bye rows and the logo/colour allow-lists) behind
@@ -170,15 +170,15 @@ products:
       pack into a monthly plan.
     stage: built-dark
     next: >-
-      Agent step (2026-11-24, backlog P072): this pack's checkout.mjs
-      calls Lemon Squeezy's licence validate endpoint, but the owner's
-      rail is Paddle (goals.md, "The provider is Paddle"), so no owner
-      step can switch it on. Rewire the paid path to Paddle with
-      private-monorepo apps/grants/src/worker/ports/billing/paddle.ts as
-      the reference (Paddle has no public licence-key check, so
-      entitlement needs a small webhook-fed worker), bill it as
-      `billing` says, keep it dark until the owner sets the price id,
-      then set next_owner: true. Before 2026-11-24:
+      Rewired to Paddle 2026-11-25 (platform/billing: overlay checkout,
+      webhook-fed Ed25519 licence keys from the edge Worker, offline
+      unlock; no Paddle API key anywhere). Owner, once for all packs
+      (platform/billing/README.md, "Going live"): create the Paddle
+      product and price, a client-side token, a notification destination
+      for transaction.completed, run keygen.mjs, set the two Worker
+      secrets, fill catalogue.mjs and run sync.mjs. Agent next: the
+      Paddle catalogue as code so the product and price come from a
+      script. Before 2026-11-25:
       Built 2026-11-02 and dark (staffpack.mjs, licence.mjs, checkout.mjs;
       card hidden until CHECKOUT_URL is set). Owner: one merchant-of-record
       product serves all three dark paid paths. Untested: a real checkout and
@@ -216,15 +216,15 @@ products:
       customer packs may fit a monthly plan, unexplored.
     stage: built-dark
     next: >-
-      Agent step (2026-11-24, backlog P072): this pack's checkout.mjs
-      calls Lemon Squeezy's licence validate endpoint, but the owner's
-      rail is Paddle (goals.md, "The provider is Paddle"), so no owner
-      step can switch it on. Rewire the paid path to Paddle with
-      private-monorepo apps/grants/src/worker/ports/billing/paddle.ts as
-      the reference (Paddle has no public licence-key check, so
-      entitlement needs a small webhook-fed worker), bill it as
-      `billing` says, keep it dark until the owner sets the price id,
-      then set next_owner: true. Before 2026-11-24:
+      Rewired to Paddle 2026-11-25 (platform/billing: overlay checkout,
+      webhook-fed Ed25519 licence keys from the edge Worker, offline
+      unlock; no Paddle API key anywhere). Owner, once for all packs
+      (platform/billing/README.md, "Going live"): create the Paddle
+      product and price, a client-side token, a notification destination
+      for transaction.completed, run keygen.mjs, set the two Worker
+      secrets, fill catalogue.mjs and run sync.mjs. Agent next: the
+      Paddle catalogue as code so the product and price come from a
+      script. Before 2026-11-25:
       Built 2026-11-02 and dark (buildpack.mjs, licence.mjs, checkout.mjs;
       card hidden until CHECKOUT_URL is set; opened in headless Chromium with
       the card forced visible: five drawings, escaped letterhead, no console
@@ -307,16 +307,16 @@ products:
       which leads the queue.
     stage: built-dark
     next: >-
-      Agent step (2026-11-24, backlog P072): this pack's checkout.mjs
-      calls Lemon Squeezy's licence validate endpoint, but the owner's
-      rail is Paddle (goals.md, "The provider is Paddle"), so no owner
-      step can switch it on. Rewire the paid path to Paddle with
-      private-monorepo apps/grants/src/worker/ports/billing/paddle.ts as
-      the reference (Paddle has no public licence-key check, so
-      entitlement needs a small webhook-fed worker), bill it as
-      `billing` says, keep it dark until the owner sets the price id,
-      then set next_owner: true. Do the app:einvoice-preflight bet
-      first; this pack may fold into it rather than being rewired.
+      Rewired to Paddle 2026-11-25 (platform/billing: overlay checkout,
+      webhook-fed Ed25519 licence keys from the edge Worker, offline
+      unlock; no Paddle API key anywhere). Owner, once for all packs
+      (platform/billing/README.md, "Going live"): create the Paddle
+      product and price, a client-side token, a notification destination
+      for transaction.completed, run keygen.mjs, set the two Worker
+      secrets, fill catalogue.mjs and run sync.mjs. Agent next: the
+      Paddle catalogue as code so the product and price come from a
+      script. Do the app:einvoice-preflight bet
+      first; this pack may fold into it.
       Before 2026-11-24:
       Built 2026-11-03 and dark: `auditpack.mjs` (tested for escaping, the
       logo/colour allow-lists, empty and all-pass runs; the committed
@@ -422,15 +422,15 @@ products:
       monitoring feature first.
     stage: built-dark
     next: >-
-      Agent step (2026-11-24, backlog P072): this pack's checkout.mjs
-      calls Lemon Squeezy's licence validate endpoint, but the owner's
-      rail is Paddle (goals.md, "The provider is Paddle"), so no owner
-      step can switch it on. Rewire the paid path to Paddle with
-      private-monorepo apps/grants/src/worker/ports/billing/paddle.ts as
-      the reference (Paddle has no public licence-key check, so
-      entitlement needs a small webhook-fed worker), bill it as
-      `billing` says, keep it dark until the owner sets the price id,
-      then set next_owner: true. Before 2026-11-24:
+      Rewired to Paddle 2026-11-25 (platform/billing: overlay checkout,
+      webhook-fed Ed25519 licence keys from the edge Worker, offline
+      unlock; no Paddle API key anywhere). Owner, once for all packs
+      (platform/billing/README.md, "Going live"): create the Paddle
+      product and price, a client-side token, a notification destination
+      for transaction.completed, run keygen.mjs, set the two Worker
+      secrets, fill catalogue.mjs and run sync.mjs. Agent next: the
+      Paddle catalogue as code so the product and price come from a
+      script. Before 2026-11-25:
       Built 2026-11-02 and dark: report.mjs (title block with logo, the
       page's chart, the reading, change and segment tables, fixed
       assumptions statement, "does not show what caused the change"),
