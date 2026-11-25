@@ -471,3 +471,17 @@ class OpenPrTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PausedResearchTest(unittest.TestCase):
+    """Standalone research is paused (2026-11-25): the CLI leaves research/ subjects out unless --research."""
+
+    def test_drop_paused(self):
+        rows = [{"subject": "research/a"}, {"subject": "ventures/b"}, {"subject": "platform/research-ish"}]
+        kept, n = m.drop_paused(rows)
+        self.assertEqual([r["subject"] for r in kept], ["ventures/b", "platform/research-ish"])
+        self.assertEqual(n, 1)
+        self.assertEqual(m.drop_paused(rows, include=True), (rows, 0))
+
+    def test_paused_note_names_the_flag(self):
+        self.assertIn("--research", m.paused_note(3, "open defects"))
