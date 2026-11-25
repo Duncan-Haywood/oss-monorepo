@@ -233,3 +233,17 @@ test("the page's own downloaded workbook reads back to the same application", as
   assert.deepEqual(retainageChecks(imp, back), []);
   assert.match(pickSheet(await readXlsx(workbookXlsx(null, {}))).error, /blank template/);
 });
+
+test("the portfolio's own free template: labels and a note above the header are not glued onto the Item column", async () => {
+  const r = pickSheet(await readXlsx(fixture("pay-app-guides-example.xlsx")));
+  assert.ok(!r.error, r.error);
+  assert.match(r.header, /sheet "Continuation sheet", row 8$/);
+  assert.deepEqual(r.lines.map((l) => [l.item, l.isCo, l.own, l.c]), [
+    ["1", false, "", 1200000],
+    ["2", false, "", 4000000],
+    ["3", false, "", 6000000],
+    ["4", false, "", 3800000],
+    ["CO-1", true, "", 850000],
+  ]);
+  assert.ok(!r.notes.some((n) => /per-line retainage/.test(n)), "no column is read as a per-line retainage rate");
+});
