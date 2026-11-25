@@ -2,7 +2,7 @@
 title: "Eighteen product pages whose search snippet stopped mid-sentence"
 seo_title: "Rewriting 18 meta descriptions to fit a 160-character snippet"
 date: 2026-11-24
-tags: [polish, seo, meta-description, wall-framing-takeoff, structured-data, pay-app-guides]
+tags: [polish, seo, meta-description, wall-framing-takeoff, structured-data, pay-app-guides, einvoice-preflight]
 description: "The front pages of the tools moving to paid editions had meta descriptions of 178 to 355 characters. Each now fits in 160, and a ratchet stops new long ones."
 ---
 
@@ -97,3 +97,28 @@ search snippet no longer stops at "the contract sum…".
 
 As before, no traffic change is claimed. Search engines read these fields,
 but whether they show them is their decision, and usage here is unmeasured.
+
+## Update, 2026-11-25: 101 e-invoicing country pages
+
+E-invoice Preflight is the subscription product for businesses that send
+invoices into more than one country's e-invoicing rules. Its free front door
+is a page per country mandate, and 101 of its pages had descriptions of 165
+to 313 characters, the most of any paid product. A search for "Belgium
+e-invoicing mandate" showed a snippet cut before the fines; the Côte d'Ivoire
+page (313) was cut in the middle of its list of conflicting start dates.
+
+Each now fits in 139 to 160 characters. Most country pages follow one shape:
+the rule and its date first, then the one hedge the page itself makes ("as
+reported", "sources disagree"), then what the free check tests. The Belgian
+page went from 265 characters to 156:
+
+> Belgian B2B invoices must be structured Peppol e-invoices since 1 January
+> 2026. The dates, the fines (EUR 1,500 to 5,000) and a free Peppol BIS 3.0
+> checker.
+
+Three pages are written by scripts (the 2027 deadlines list, the "which
+deadline applies" tool and the SdI error codes), so their generators were
+changed rather than the HTML. As before, nothing was added that the old text
+did not say, titles and JSON-LD were left alone, and no ranking change is
+claimed. The list of over-long descriptions across the catalogue fell from
+2,999 pages to 2,898.

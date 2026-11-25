@@ -115,7 +115,7 @@ test("missing or impossible dates compute nothing instead of guessing", () => {
 });
 
 test("unsupported states throw rather than fall back to a guessed rule", () => {
-  assert.throws(() => lienDeadlines({ state: "OH" }), /unsupported/);
+  assert.throws(() => lienDeadlines({ state: "MT" }), /unsupported/);
 });
 
 test("every rule carries a citation and a not-legal-advice finding is always present", () => {
@@ -142,7 +142,7 @@ test("Georgia: a first-tier claimant owes no Notice to Contractor but keeps the 
 });
 
 test("tier changes nothing outside Georgia and Washington", () => {
-  for (const state of ["CA", "TX", "FL", "AZ", "CO"]) {
+  for (const state of ["CA", "TX", "FL", "AZ", "CO", "NC", "OH"]) {
     for (const projectType of ["commercial", "residential"]) {
       const a = run({ state, projectType, tier: "first" });
       const b = run({ state, projectType, tier: "second" });
@@ -252,6 +252,38 @@ test("every modeled rule resolves to a real date for ordinary inputs", () => {
   }
 });
 
+// Added 2026-11-25 with the three states read in the statute text; dates
+// counted by hand from first 2026-03-10 and last 2026-06-20.
+test("North Carolina: Notice to Lien Agent 15 days after first, claim of lien 120 days after last", () => {
+  const r = run({ state: "NC" });
+  assert.equal(iso(r.prelim.date), "2026-03-25");
+  assert.equal(iso(r.lien.date), "2026-10-18"); // Jun 30 = 10, Jul 31 = 41, Aug 31 = 72, Sep 30 = 102, Oct 18 = 120
+  assert.ok(r.findings.some((f) => /designated lien agent/.test(f.detail)));
+  assert.equal(iso(run({ state: "NC", projectType: "residential" }).lien.date), "2026-10-18");
+});
+
+test("New York: no preliminary notice; notice of lien 8 months after last, 4 on a single family dwelling", () => {
+  const r = run({ state: "NY" });
+  assert.equal(r.prelim, null);
+  assert.match(r.prelimNotRequired, /no preliminary notice/);
+  assert.ok(r.findings.some((f) => f.title === "New York: no preliminary notice required"));
+  assert.ok(!r.findings.some((f) => /first-tier/.test(f.title)));
+  assert.equal(iso(r.lien.date), "2027-02-20");
+  const home = run({ state: "NY", projectType: "residential" });
+  assert.equal(iso(home.lien.date), "2026-10-20");
+  assert.ok(home.findings.some((f) => /single family dwelling/.test(f.detail)));
+  // month-end clamp: 8 months after Jun 30 is Feb 28 (2027 is not a leap year)
+  assert.equal(iso(run({ state: "NY", lastFurnishing: "2026-06-30" }).lien.date), "2027-02-28");
+});
+
+test("Ohio: notice of furnishing 21 days after first; affidavit 75 days after last, 60 residential", () => {
+  const r = run({ state: "OH" });
+  assert.equal(iso(r.prelim.date), "2026-03-31");
+  assert.equal(iso(r.lien.date), "2026-09-03"); // Jun 30 = 10, Jul 31 = 41, Aug 31 = 72, Sep 3 = 75
+  assert.ok(r.findings.some((f) => /notice of commencement/.test(f.detail)));
+  assert.equal(iso(run({ state: "OH", projectType: "residential" }).lien.date), "2026-08-19"); // Jul 31 = 41, Aug 19 = 60
+});
+
 // Statute check 2026-11-25 (see calc.mjs header): RCW 60.04.031(2)(c), (3)(b).
 test("Washington: a sub hired by the prime contractor owes no notice, except on an owner-occupied remodel", () => {
   const com = run({ state: "WA", tier: "first" });
@@ -296,8 +328,8 @@ test("California cites ยง 8414 (claimants other than a direct contractor), not ย
 });
 
 test("every state links its statute on an official or code-copy host", () => {
-  const hosts = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|capitol\.texas\.gov|www\.flsenate\.gov|www\.azleg\.gov|app\.leg\.wa\.gov|law\.justia\.com)\//;
-  for (const state of ["CA", "TX", "FL", "AZ", "WA", "GA", "CO"]) {
+  const hosts = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|capitol\.texas\.gov|www\.flsenate\.gov|www\.azleg\.gov|app\.leg\.wa\.gov|law\.justia\.com|www\.ncleg\.gov|www\.nysenate\.gov|codes\.ohio\.gov)\//;
+  for (const state of ["CA", "TX", "FL", "AZ", "WA", "GA", "CO", "NC", "NY", "OH"]) {
     const r = run({ state });
     assert.ok(r.sources.length >= 1, state);
     for (const s of r.sources) assert.match(s.url, hosts, state);

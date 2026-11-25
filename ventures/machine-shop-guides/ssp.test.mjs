@@ -116,11 +116,11 @@ test("SPRS calculator answers set statuses without overwriting statements", () =
 test("Markdown has every requirement once and renders user text literally", () => {
   const d = filled();
   d.system.name = "# Hi [x](javascript:alert(1)) <b>";
-  d.requirements["3.1.1"].implementation = "1. first\n- second\n<script>alert(1)</script>";
+  d.requirements["3.1.1"].implementation = "1. first\n- second\n<script>alert(1)</script>\n<SCRIPT>alert(2)</SCRIPT>";
   const md = sspToMarkdown(d);
   for (const r of REQUIREMENTS) assert.equal(md.split(`\n#### ${r.id} `).length, 2, r.id);
   assert.ok(md.startsWith("# System Security Plan: \\# Hi \\[x\\]\\(javascript:alert\\(1\\)\\) \\<b\\>"));
-  assert.doesNotMatch(md, /<script>/);
+  assert.doesNotMatch(md, /(?<!\\)<script/i); // no unescaped tag, any case
   assert.match(md, /\\1\. first/);
   assert.equal(mdText("a|b"), "a\\|b");
 });

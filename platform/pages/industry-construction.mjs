@@ -46,7 +46,7 @@ export const PRODUCTS = [
     summary:
       'Monthly pay applications in the G702/G703 format from your schedule of values, retainage tracked line by line until release, lien waivers collected and checked against each payment, and change orders logged so approved work reaches the next bill.',
     planned: ['QuickBooks sync', 'Job costing', 'RFIs', 'Estimating'],
-    freeToday: ['pay-application-generator', 'retainage-cashflow-calculator', 'lien-waiver-checker'],
+    freeToday: ['pay-application-generator', 'pay-app-guides', 'retainage-cashflow-calculator', 'lien-waiver-checker'],
   },
   {
     id: 'residential-takeoff',
@@ -94,6 +94,7 @@ export const PROBLEMS = [
     product: 'pay-apps',
     tools: [
       ['pay-application-generator', 'Pay application generator', 'Paste a schedule of values, set retainage, get the G702-style summary and line table.'],
+      ['pay-app-guides', 'Pay app guides', 'Schedule of values calculator, free Excel template, and guides to retainage, lien waivers, change orders and over- and underbilling.'],
       ['retainage-cashflow-calculator', 'Retainage cash-flow calculator', 'How much retainage is held, what carrying it costs, and a follow-up draft.'],
       ['subcontractor-cashflow-planner', 'Subcontractor cash-flow planner', 'The funding gap that payment terms and retention open, and what closes it.'],
       ['contractor-wip-schedule', 'Contractor WIP schedule', 'Over- and underbilling across open jobs from your job list.'],

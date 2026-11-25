@@ -5,7 +5,7 @@ tags: [construction, mechanics-lien, calculators]
 description: "The mechanics lien deadline calculator now covers Georgia (30-day notice, 90-day lien window); Utah and Nevada wait on conflicting sources."
 ---
 
-*Folded into [Mechanics lien deadlines for subcontractors in seven states, checked against the statutes](2026-11-25-mechanics-lien-deadlines-seven-states-checked-against-the-statutes.md) (2026-11-25), which is kept current; this post stays as the record of when the state was added.*
+*Folded into [Mechanics lien deadlines in ten states](2026-11-10-colorado-lien-deadline.md) (2026-11-25), which is kept current; this post stays as the record of when the state was added.*
 
 The mechanics lien deadline calculator now covers six states: California, Texas, Florida, Arizona, Washington and Georgia.
 

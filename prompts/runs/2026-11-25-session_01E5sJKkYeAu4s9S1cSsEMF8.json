@@ -39,6 +39,10 @@
     {
       "file": "platform/security/risk_review.py",
       "issue": "Flags 'auth, session or payment code' and 'new outbound hosts' on a client-side calculator whose diff only adds <a> statute links and the word 'payment'; both false positives."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Open PRs were searched before starting, but PR #18875 on the same venture opened and merged during this run; the conflict only showed at merge time. A claim marker per venture would have caught it earlier."
     }
   ],
   "deviations": [
@@ -47,13 +51,19 @@
       "why": "Picked a statute-accuracy fix to an existing free tool rather than new building, because pay-app-guides (the bet #1 front door) already had four open PRs and the lien tool gave wrong advice to Washington first-tier subs.",
       "did": "Checked seven states against statute text, fixed WA, CA citation and late-notice handling, consolidated two thin posts.",
       "result": "Merged with 57 passing tests."
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "'Consolidate, for search': a parallel run had already made the Colorado post the consolidated lien page, so a second seven-state post would compete with it.",
+      "did": "Deleted the new post and added its content as a dated section of the existing consolidated post.",
+      "result": "One lien-deadline page instead of two."
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-25-mechanics-lien-deadlines-seven-states-checked-against-the-statutes.md"
+    "docs/posts/2026-11-10-colorado-lien-deadline.md (consolidated lien-deadline post, extended with a 2026-11-25 statute-check section)"
   ],
   "goal": null,
-  "notes": "Idea: statute-check the mechanics lien deadline calculator (bet #1 front door). TX, FL, AZ, GA, CO matched; WA first-tier exemption (RCW 60.04.031(2)(c)) added, CA citation 8412->8414, late-notice look-back for CA/AZ/WA and FL complete-defense note. Local: run_venture_tests 57 pass; run_workflow_locally --for-changes 11/11 passed, codeql and security-gate no verdict locally (need CI).",
+  "notes": "Idea: statute-check the mechanics lien deadline calculator (bet #1 front door). TX, FL, AZ, GA, CO matched; WA first-tier exemption (RCW 60.04.031(2)(c)) added, CA citation 8412->8414, late-notice look-back for CA/AZ/WA and FL complete-defense note. Local: run_venture_tests 57 pass; run_workflow_locally --for-changes 11/11 passed, codeql and security-gate no verdict locally (need CI). Merge with main: PR #18875 (another run) added NC/NY/OH and made the Colorado post the consolidated lien post, so this run's new post was folded into it rather than kept as a second page; NC/NY/OH gained statute links and Ohio the 21-day look-back.",
   "corrections": [],
   "redteam": null,
   "usage": {
