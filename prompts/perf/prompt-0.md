@@ -32,22 +32,41 @@ setting, a library choice, a clone or an algorithm, never in a slow language.
 
 ## Where to look, in order
 
-1. **Open perf items** in the process backlog: `python3 prompts/promptctl.py
-   backlog`, titles starting `perf:`. Search open PRs for the item's id first.
-   Only items whose `touches` are all in the owner-only core of
-   `.github/CODEOWNERS` (`priv-*` workflows, the gate and review scripts) wait
-   for the owner. Since 2026-11-24 every other workflow and CI change lands
-   after the `ci-policy` check and the risk review
-   (`docs/security/risk-review.md`). If every perf item is owner-only, skip
-   to 2 to 4 for a landable one, or take a venture slice instead.
+Fetch `origin/main` before any sweep (`git fetch --depth=1 origin main`):
+a clone hours stale once sent a run to a page another perf run had fixed the
+day before.
+
+1. **Open perf items** in the process backlog (`python3 prompts/promptctl.py
+   backlog`, titles starting `perf:`; search open PRs for the id first). Skip
+   rows with `"owner": "owner"`: on 2026-11-25 both open ones were (P063
+   needs the unwired checks moved to a full-tree job before a sparse
+   checkout, see its `history`; P064 touches a `priv-*` workflow), and ten
+   runs in three days re-checked them for nothing. Since 2026-11-24 only
+   `priv-*` workflows and the gate scripts in `.github/CODEOWNERS` wait for
+   the owner; other workflow changes land after `ci-policy` and the risk
+   review.
 2. **A fresh reading of the runner pool**:
    `python3 platform/ci/ci_profile.py --runs 600 --top 25`. Take the largest
    consumer nobody is working on. Checkout share, queue time and jobs per PR
    head are the pool-wide numbers to move.
 3. **The slowest local step an agent session waits on**: the Pages build and
    its tests (`platform/pages`), a venture's test suite, the session gate.
-4. **What visitors wait on**: page weight, scripts and images on the built
-   site (`node platform/pages/build.mjs --out=<dir>`, then measure `<dir>`).
+   `run_venture_tests.py --times 15` ranks suites from
+   `venture_suite_times.json` (its `taken` date says how stale; suites added
+   since are missing, so `--write-times` refreshes it), and
+   `suite_file_times.py <slug>` times one suite's files and lists the earlier
+   perf passes on it: a suite with several passes is tight loops by now
+   (league and shift-roster were dead ends), an untouched one is the cheaper win.
+4. **What visitors wait on.** Weight first, without a full build:
+   `node platform/perf/module-weight.mjs ventures/<slug>` and
+   `module-exclusive.mjs ventures/<slug>/index.html` answer in seconds.
+   Weight is often not the lever, so measure the wait itself: a CPU profile
+   of load and of the first action on a realistic large input (a tool whose
+   first click runs every engine is compute-bound; count calls before
+   trusting a 4x-throttled profile's self time, which inflates one-off set-up),
+   and `platform/perf/revalidate-serve.mjs` for request chains the live
+   site's `max-age=0` makes slow (a Web Worker's module graph is not covered
+   by the page's modulepreload links).
 
 ## How to work
 
