@@ -130,6 +130,17 @@ def push_claim(repo: str, ref: str, message: str, base: str | None = None) -> bo
     return r.returncode == 0
 
 
+def sibling_claims(app: str, num: int | None, slug: str, info: dict[str, tuple[int, str]],
+                   now: float, stale_s: float) -> list[tuple[str, tuple[int, str]]]:
+    """Fresh claims on the same Next item number under another slug, newest first."""
+    if num is None:
+        return []
+    lead = f"claim {app} #{num} "
+    out = [(s, (ts, m)) for s, (ts, m) in info.items()
+           if s != slug and m.startswith(lead) and ts and now - ts < stale_s]
+    return sorted(out, key=lambda x: -x[1][0])
+
+
 def age(ts: int, now: float) -> str:
     mins = int((now - ts) / 60) if ts else -1
     return "age unknown" if mins < 0 else (f"{mins} min ago" if mins < 120 else f"{mins // 60} h ago")
@@ -193,6 +204,15 @@ def main(argv: list[str] | None = None) -> int:
             return 4
         print(f"CLAIMED {ref.removeprefix('refs/heads/')}. Name the slug in your PR title; "
               f"`--release {slug}` if you drop it.")
+        # Different part slugs of one item never collide on the branch name, so two runs can
+        # claim the same work under two names (2026-11-25: inbound-rfq-email-notify and
+        # inbound-rfq-email-part-2-notify, minutes apart; the second was built and discarded).
+        siblings = sibling_claims(a.app, a.claim, slug, info, now, stale_s)
+        if siblings:
+            print(f"ALSO CLAIMED on item {a.claim} (fresh, other slugs). If one covers what you "
+                  f"are building, `--release {slug}` and pick another:")
+            for s, (ts, m) in siblings:
+                print(f"  - {s} ({age(ts, now)}): {m[:140]}")
         return 0
 
     print(f"{a.app} ROADMAP Next ({len(items)} items; claims older than {a.stale_hours:g} h are stale):")

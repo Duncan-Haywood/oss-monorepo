@@ -114,6 +114,19 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertEqual(code, 0, out)
         self.assertIn("backup-packets-part-2-heic--2", out)
 
+    def test_claim_names_fresh_sibling_parts_of_the_same_item(self):
+        code, _ = self.main(self.a, "--claim", "2", "--slug", "packets heic", "--note", "HEIC to JPEG")
+        self.assertEqual(code, 0)
+        code, out = self.main(self.b, "--claim", "2", "--slug", "packets heic convert")
+        self.assertEqual(code, 0, out)
+        self.assertIn("ALSO CLAIMED on item 2", out)
+        self.assertIn("packets-heic (", out)
+        self.assertIn("HEIC to JPEG", out)
+        # Another item's claim is not a sibling.
+        code, out = self.main(self.b, "--claim", "1")
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("ALSO CLAIMED", out)
+
     def test_release(self):
         self.main(self.a, "--claim", "3")
         slug = rc.slugify(rc.next_items(ROADMAP)[2][1])
