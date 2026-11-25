@@ -187,7 +187,6 @@ ventures/medical-billing-pricing-calculator/calc.mjs
 ventures/meta-catalog-csv-check/calc.mjs
 ventures/meter-keeper/engine.mjs
 ventures/midterm-rental-calculator/calc.mjs
-ventures/mileage-log/calc.mjs
 ventures/mini-golf-course-profit-calculator/calc.mjs
 ventures/mobile-mechanic-visit-pricing-calculator/calc.mjs
 ventures/mobile-oil-change-route-profit-calculator/calc.mjs
