@@ -209,6 +209,15 @@ def suite_for(path: Path, repo: Path = REPO) -> tuple[list[str], Path] | None:
         sibling = path.with_name(path.stem + ".test.mjs")
         if sibling.is_file():
             return ["node", "--test", sibling.relative_to(repo).as_posix()], repo
+        # No sibling: a directory-level suite that imports this file guards it.
+        # platform/billing/ (server.mjs, client.mjs: the Paddle webhook and
+        # licence code) is tested by one billing.test.mjs, so 40 platform files
+        # read as unguarded and no campaign could reach them (2026-11-25).
+        spec = re.compile(r"""["']\./""" + re.escape(path.name) + r"""["']""")
+        importers = sorted(t.relative_to(repo).as_posix() for t in path.parent.glob("*.test.mjs")
+                           if spec.search(t.read_text(encoding="utf-8", errors="replace")))
+        if importers:
+            return ["node", "--test", *importers], repo
         return None
     if lang == "py":
         candidates = [path.with_name(f"test_{path.name}"),

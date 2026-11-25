@@ -136,3 +136,29 @@ test("first article page takes the drawing review's hand-over: general tolerance
   assert.match(html, /for \(const k of \["g1", "g2", "g3", "g4", "ga"\]\)/);
   assert.match(html, /location\.hash\.slice\(1\)\)\.get\("chars"\)/);
 });
+
+// Every page answers the questions people search, visibly and as FAQPage JSON-LD (polish,
+// 2026-11-25). Both come from faq.mjs; run `node faq.mjs` after editing it.
+test("every page carries its generated FAQ, up to date, inside <main>", async () => {
+  const { FAQ, apply } = await import("./faq.mjs");
+  const { readdirSync } = await import("node:fs");
+  const pages = readdirSync(new URL(".", import.meta.url)).filter((f) => f.endsWith(".html"));
+  for (const name of pages) {
+    const html = readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
+    assert.ok(FAQ[name], `${name}: add it to FAQ in faq.mjs`);
+    assert.ok(FAQ[name].length >= 3, `${name}: at least three questions`);
+    assert.equal(apply(html, name), html, `${name}: FAQ out of date, run node faq.mjs`);
+    assert.ok(html.indexOf('id="faq"') < html.indexOf("</main>"), `${name}: FAQ outside <main>`);
+    const ld = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
+    const faqLd = ld.filter((d) => d["@type"] === "FAQPage");
+    // index.html is an entry page: the site build derives its FAQPage, so none is hand-written.
+    assert.equal(faqLd.length, name === "index.html" ? 0 : 1, `${name}: FAQPage blocks`);
+    for (const [q] of FAQ[name]) assert.ok(q.endsWith("?"), `${name}: "${q}" is not a question`);
+  }
+});
+
+test("index footer links every page", () => {
+  const html = read("index");
+  const foot = html.slice(html.indexOf("<footer>"));
+  for (const p of PAGES.filter((p) => p !== "index")) assert.match(foot, new RegExp(`href="${p}\\.html"`), p);
+});

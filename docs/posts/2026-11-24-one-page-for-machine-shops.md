@@ -56,6 +56,28 @@ that a separate product is being built for their visitors, while the tool
 itself stays free. That makes the page reachable from the rest of the site
 without a new menu item.
 
+## Update, 25 November: every free page answers its question first
+
+The free machine-shop pages
+([machine-shop-guides](https://marisstella.app/machine-shop-guides/))
+are the front door to both products above, and none of their 15 pages had a
+"Common questions" section. A shop owner who types "what is the minimum SPRS
+score for CMMC" or "when is a first article inspection required" was landing
+on a calculator that answered it somewhere halfway down, if at all.
+
+Each page now ends with three plain answers to the questions it is actually
+about (four on the index), with matching `FAQPage` structured data so search
+and AI answers can quote them. Every answer restates what the page already
+says and sources: the 88-of-110 Conditional floor and the six requirements
+that can never sit on a POA&M (32 CFR 170.21), the 72-hour DIBNet clock and
+the 90 days of images that start at the report, not at discovery (DFARS
+252.204-7012), why a 5-off costs more per part than a 100-off, and why the
+quote-vs-actual factor is a median. Nothing new was claimed to fill a slot.
+
+The questions live in one file, `faq.mjs`, which writes both the visible
+section and the JSON-LD; the venture's tests fail if a page has no FAQ or
+the two copies differ.
+
 ## Update, 25 November 2026: read the RFQ before you quote
 
 Many quoting losses are not arithmetic. They are a line
@@ -501,3 +523,32 @@ the plan's allowance (32 of the free plan's 40), and one more when it reaches
 - **No sales pitch while there is nothing to buy.** The email names the next
   plan's allowance and price only once paid plans are on sale; until then it
   says they are not on sale yet.
+
+## Update, 25 November 2026: repeat parts start from the quote you won
+
+Most of a job shop's RFQs are parts it has made before. The estimator still
+retypes the material, setups, cycle times and finishing from an old quote or
+a spreadsheet, and hopes the rates have not moved since.
+
+The RFQ-to-quote app (bet #2, still in private development, not yet on sale)
+now uses the shop's own quote log for this:
+
+- **On the RFQ, before there is a quote.** Each part shows "Quoted before:
+  3 earlier quotes, 1 won", with the quote number, customer, date, PO or lost
+  reason, the unit price at each quantity, and a flag when the revision
+  differs from the one on this RFQ.
+- **Pre-fill repeat parts (a shop setting, off unless an admin turns it on).**
+  A new quote's line for a part the shop has won before, with the same part
+  number and revision, starts from the last won quote's material,
+  operations and finishing. It keeps this RFQ's quantities.
+- **Today's rates, never the old price.** The pre-filled line is priced from
+  the rate card as it is now, so a raised machine rate or a new material
+  price shows up in the quote. The old unit prices are shown to the estimator
+  for reference only.
+- **It says where it came from.** The line reads "Pre-filled from Q-1001 for
+  <customer>, won <date>", with a link, so the estimator checks it before
+  sending. A part whose revision changed, or that had none last time and has
+  one now, is not pre-filled: a new revision can mean a changed drawing.
+
+Everything stays inside the shop's own account: no other shop's quotes are
+read, and nothing here estimates a price the shop has not set.

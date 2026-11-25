@@ -826,17 +826,19 @@ products:
     price_hypothesis: "about $99 to $399 a month (FutureFeed's range; untested)"
     tiers:
       - name: Level 1
-        price: $49 a month
-        includes: the 15 Level 1 requirements, annual affirmation record, one user
+        price: free
+        includes: the 15 Level 1 requirements, one user, 10 AI drafts a month, 250 MB of evidence
         status: proposal
         why: >-
-          Below FutureFeed's $99 entry; Level 1 is a short checklist, and the
-          cheap tier is the upgrade path to Level 2.
+          Built dark in private PR 156 (2026-11-25). Changed from the $49 proposal: Level 1 is 15 safeguards and a
+          pass/fail result, so as a free plan it is the front door this row
+          asks for, and recording Level 2 is the upgrade path.
       - name: Level 2
         price: $249 a month
-        includes: 110 requirements, SPRS score, SSP and POA&M documents, 3 users
+        includes: 110 requirements, SPRS score, SSP and POA&M documents, 3 users, 150 AI drafts a month, 10 GB of evidence
         status: proposal
         why: >-
+          Built dark in private PR 156 (2026-11-25).
           Under FutureFeed's $399 and PreVeil Pass's $450 for 3 users, and a
           fraction of a $3k to $25k consultant SSP within a year.
       - name: Level 2 + Quality
@@ -844,6 +846,9 @@ products:
         includes: Level 2 plus ISO 9001 / AS9100 clause checklist and shared evidence
         status: proposal
         why: >-
+          Built dark in private PR 156 as "Level 2 Team" (10 users, 400 drafts,
+          50 GB); renamed back when the quality checklist exists, since a plan
+          lists only what the app does today.
           FutureFeed's top listed price; the quality checklist is what the same
           machine shops (bet 2's buyers) also maintain.
     cost_drivers:
@@ -866,12 +871,12 @@ products:
         price: $3,000 to $25,000
         source: https://secureframe.com/hub/cmmc/certification-cost
         read: 2026-11-24
-    stage: planned
+    stage: built-dark
     next: >-
-      Milestone (1) of the cmmc flagship row: the 110 requirements from NIST's
-      public text and the SPRS scoring with tests, in private-monorepo/apps/cmmc.
-      Write the liability notes (no certification claim, no CUI) into the app's
-      terms before any paid path.
+      Billing part 2 in private-monorepo/apps/cmmc/ROADMAP.md: terms, privacy
+      and refund pages carrying the liability notes (no certification claim,
+      no CUI), before Paddle is turned on. Plans, checkout (dark), limits and
+      the Billing tab shipped in private PR 156.
     next_owner: false
 
   - app: private-monorepo/apps/seller-books
