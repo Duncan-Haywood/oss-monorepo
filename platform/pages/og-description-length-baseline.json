@@ -1,7 +1,7 @@
 {
  "note": "Venture pages whose og:description is over 200 characters. May only shrink: node platform/pages/og-description-length.mjs --write after shortening them.",
  "max": 200,
- "count": 796,
+ "count": 795,
  "pages": [
   "ventures/1099-k-threshold-checker/index.html",
   "ventures/1099-k-threshold-checker/vs-checking-the-threshold-yourself.html",
@@ -345,7 +345,6 @@
   "ventures/lawn-aeration-overseeding-bid-calculator/index.html",
   "ventures/lawn-care-bid-calculator/vs-a-flat-rate-per-acre.html",
   "ventures/lawn-care-bid-calculator/vs-lmn.html",
-  "ventures/league-schedule-generator/weekend-tournament-schedule.html",
   "ventures/license-drift-check/vs-fossa.html",
   "ventures/llms-txt-generator/vs-writing-llms-txt-by-hand.html",
   "ventures/locksmith-bid-calculator/vs-a-flat-rate-for-every-call.html",
