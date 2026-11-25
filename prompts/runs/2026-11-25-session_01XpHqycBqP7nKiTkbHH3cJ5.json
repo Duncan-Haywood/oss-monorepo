@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "The second push reached the remote (git ls-remote showed b45bc60), but PR #19015's head stayed on the first commit for more than 7 minutes, and the GitHub MCP update_pull_request returned 502 and then a GraphQL error. A further real commit was pushed to resync the PR."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
