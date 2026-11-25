@@ -175,6 +175,25 @@ test("fetchKey polls until the key lands, and stops on a hard error", async () =
   assert.equal(await fetchKey("c", { edge: "https://e.test", fetch: async () => { throw new Error("offline"); }, tries: 2, waitMs: 1 }), null);
 });
 
+test("red-team 2026-11-25: a missing key never unlocks, the claim URL is exact, polls wait between tries", async () => {
+  const [pre, body, sig] = (await signLicence({ v: 1, p: "shed-designer", t: "one-off", s: "txn_z", iat: NOW }, PRIV)).split(".");
+  for (const publicKey of ["", undefined, "short", PUB + "x"]) {
+    const v = await verifyLicence([pre, body, sig].join("."), { product: "shed-designer", publicKey });
+    assert.deepEqual([v.valid, v.reason], [false, "licence check unavailable"], String(publicKey));
+  }
+  const urls = [];
+  const f = async (u) => { urls.push(u); return new Response("{}", { status: 404 }); };
+  const t0 = Date.now();
+  assert.equal(await fetchKey("a+b/c", { edge: "https://e.test/", fetch: f, tries: 2, waitMs: 60 }), null);
+  assert.ok(Date.now() - t0 >= 50, "waits between the two tries");
+  assert.deepEqual(urls, ["https://e.test/billing/claim?c=a%2Bb%2Fc", "https://e.test/billing/claim?c=a%2Bb%2Fc"]);
+  const live = { ...productConfig("shed-designer", CAT) };
+  assert.equal(onSale({ ...live, product: "ab" }), true, "a two-letter slug is a slug");
+  assert.equal(onSale({ ...live, product: "a" }), false);
+  assert.equal(onSale({ ...live, clientToken: ["live", "2345678923"].join("_") }), true, "any digits in a client token");
+  assert.equal(onSale(undefined), false);
+});
+
 test("dark until every public value is set and well formed", () => {
   const live = { ...productConfig("shed-designer", CAT) };
   assert.equal(onSale(live), true);

@@ -356,5 +356,35 @@ class PortfolioSuites(unittest.TestCase):
         self.assertIn("cd portfolio/ledger && python3 -m pytest -q test_x.py",
                       u.reproduce("portfolio/ledger/test_x.py"))
 
+
+class Triggers(unittest.TestCase):
+    """A suite this script runs is seen only on a pull request that starts
+    ventures-tests.yml (red-team finding 2026-11-25: platform/billing)."""
+
+    WF = ("on:\n  pull_request:\n    paths:\n      - \"ventures/**\"\n"
+          "      # a comment\n      - 'platform/ci/**'\n      - platform/pages/*.mjs\n"
+          "  push:\n    paths:\n      - \"push/only/**\"\njobs: {}\n")
+
+    def test_only_the_pull_request_paths_are_read(self):
+        self.assertEqual(u.pr_path_globs(self.WF),
+                         ["ventures/**", "platform/ci/**", "platform/pages/*.mjs"])
+        self.assertEqual(u.pr_path_globs("on:\n  pull_request:\njobs: {}\n"), [])
+
+    def test_a_star_stays_in_its_folder_and_a_double_star_does_not(self):
+        self.assertTrue(u.path_glob_re("platform/pages/*.mjs").match("platform/pages/a.mjs"))
+        self.assertFalse(u.path_glob_re("platform/pages/*.mjs").match("platform/pages/x/a.mjs"))
+        self.assertTrue(u.path_glob_re("platform/**").match("platform/billing/server.mjs"))
+
+    def test_a_suite_whose_folder_no_glob_covers_is_reported(self):
+        globs = u.pr_path_globs(self.WF)
+        got = u.untriggered([u.ROOT / "platform/billing/billing.test.mjs",
+                             u.ROOT / "platform/ci/x.test.mjs",
+                             u.ROOT / "platform/pages/y.test.mjs",
+                             u.ROOT / "push/only/z.test.mjs"], globs, u.ROOT)
+        self.assertEqual(got, ["platform/billing/billing.test.mjs", "push/only/z.test.mjs"])
+
+    def test_the_real_workflow_starts_for_every_suite_it_runs(self):
+        self.assertEqual(u.untriggered_suites(), [])
+
 if __name__ == "__main__":
     unittest.main()
