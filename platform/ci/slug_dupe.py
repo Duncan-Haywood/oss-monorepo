@@ -5,7 +5,14 @@ Open-PR searches cannot see a sibling session that merged ten minutes ago
 (prompts/process/backlog/P002). This reads only git, so it works in a shallow
 web-session clone with no token.
 
-  python3 platform/ci/slug_dupe.py <slug> [--days 14] [--remote origin]
+  python3 platform/ci/slug_dupe.py <slug> [--days 14] [--remote origin] [--no-fetch]
+
+It refreshes <remote>/main first (fetch_ref.py, keeping at least --days of
+history), because the clone's own ref can be hours old: on 2026-11-25 a run
+checked a stale origin/main, found nothing, and its duplicate had merged in
+the meantime (PR #18769). In a shallow clone the refresh also makes the
+--days window real instead of whatever history the clone happened to hold.
+--no-fetch reads the ref as it is.
 
 Exit 1: `ventures/<slug>` is already on origin/main, or a commit naming the
 slug landed there within --days. Extend that work instead of duplicating it.
@@ -15,6 +22,10 @@ a notice (another session may be building it right now: check its PR).
 import argparse
 import subprocess
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import fetch_ref  # noqa: E402
 
 
 def git(*args):
@@ -45,11 +56,18 @@ def main(argv=None):
     p.add_argument("slug")
     p.add_argument("--days", type=int, default=14)
     p.add_argument("--remote", default="origin")
+    p.add_argument("--no-fetch", action="store_true", help="do not refresh <remote>/main first")
     a = p.parse_args(argv)
     if not a.slug or any(c in a.slug for c in "*?[]/\\ ") or a.slug.startswith("-"):
         # An empty slug greps every commit and lists all of ventures/: always "duplicate".
         print(f"not a venture slug: {a.slug!r}", file=sys.stderr)
         return 2
+    if not a.no_fetch:
+        rc, top = git("rev-parse", "--show-toplevel")
+        if rc != 0 or fetch_ref.fetch_ref("main", a.remote, days=a.days, cwd=top.strip(),
+                                          out=sys.stderr) == 1:
+            print(f"warning: could not refresh {a.remote}/main; reading the local ref, "
+                  "which may be stale", file=sys.stderr)
     try:
         on_main, commits, branches = check(a.slug, a.days, a.remote)
     except RuntimeError as e:
