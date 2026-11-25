@@ -2,7 +2,7 @@
 
 > Free online Mann-Kendall trend test (Mann 1945; Kendall 1975) with Sen's slope and its confidence interval (Sen 1968), serial-correlation corrections (Yue & Wang 2004 AR(1) by default; Hamed & Rao 1998; trend-free pre-whitening, Yue et al. 2002), and for monthly or quarterly data the seasonal Kendall test (Hirsch, Slack & Smith 1982) with the Hirsch & Slack (1984) covariance between seasons and the van Belle & Hughes (1984) homogeneity test. Matches pymannkendall 1.4.3 and scipy 1.17.1. On 95 years of USGS Potomac River flow with withdrawals added back, the covariance turns an apparent trend (p = 0.0039) into no trend (p = 0.113). Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A significant trend is not proof of a cause.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A significant trend is not proof of a cause.
 
 ## Pages
 
@@ -24,4 +24,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mann-kendall-trend): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mann-kendall-trend): FSL-1.1-MIT licensed.

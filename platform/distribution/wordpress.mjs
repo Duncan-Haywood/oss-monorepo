@@ -130,7 +130,7 @@ Stable tag: ${version}
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
-Embed any of ${count} free, open-source calculators, checkers and small business tools in a post or page with a shortcode.
+Embed any of ${count} free calculators, checkers and small business tools in a post or page with a shortcode.
 
 == Description ==
 

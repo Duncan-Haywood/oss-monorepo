@@ -57,7 +57,7 @@ export const HARDWARE = Object.freeze([
     repo: 'ventures/open-tennis-robots',
     page: 'open-tennis-robots/',
     tool: 'open-tennis-robots',
-    licence: 'MIT',
+    licence: 'FSL-1.1-MIT (MIT two years after each release)',
   },
   {
     id: 'floor',
@@ -71,7 +71,7 @@ export const HARDWARE = Object.freeze([
     repo: 'ventures/open-floor-robots',
     page: 'open-floor-robots/',
     tool: 'open-floor-robots',
-    licence: 'MIT',
+    licence: 'FSL-1.1-MIT (MIT two years after each release)',
   },
   {
     id: 'mower',
@@ -85,7 +85,7 @@ export const HARDWARE = Object.freeze([
     repo: 'ventures/open-robot-mower',
     page: 'open-robot-mower/',
     tool: 'open-robot-mower',
-    licence: 'MIT',
+    licence: 'FSL-1.1-MIT (MIT two years after each release)',
   },
   {
     id: 'house',
@@ -99,7 +99,7 @@ export const HARDWARE = Object.freeze([
     repo: 'ventures/open-house-plans',
     page: 'open-house-plans/',
     tool: 'open-house-plans',
-    licence: 'MIT (the software); each generated plan is public domain (CC0)',
+    licence: 'FSL-1.1-MIT (the software); each generated plan is public domain (CC0)',
   },
   {
     id: 'construction',
@@ -180,7 +180,7 @@ function renderCard(item, toRoot) {
           <dt>Honest stage</dt>
           <dd class="stage">${esc(item.stage)}</dd>
           <dt>Licence</dt>
-          <dd>${esc(item.licence)}. Anyone may build, change or sell it.</dd>
+          <dd>${esc(item.licence)}. Anyone may build and change it; selling it as a product waits until that version turns MIT.</dd>
         </dl>
         <p class="links">
           ${links}
@@ -201,7 +201,7 @@ export function renderHardwarePage({ baseUrl, footerHtml = '', chromeScript = ''
   const toRoot = '../';
   const url = `${baseUrl}${HARDWARE_PATH}`;
   const title = 'Open hardware designs for businesses';
-  const description = 'Open (MIT) robot designs for tennis clubs, cleaners and grounds crews, plus house plans for builders. CAD and simulation only: nothing built or for sale yet.';
+  const description = 'Source-available robot designs for tennis clubs, cleaners and grounds crews, plus house plans for builders. CAD and simulation only: nothing built or sold yet.';
   const generalInterest = `${toRoot}${FEEDBACK_PATH}?type=idea&tool=hardware`;
   return `<!doctype html>
 <html lang="en">
@@ -260,8 +260,9 @@ export function renderHardwarePage({ baseUrl, footerHtml = '', chromeScript = ''
         <li><a href="${esc(generalInterest)}">Suggest a machine for your business</a> that is not on this page.</li>
         <li><a href="${esc(`${REPO_URL}/tree/main/ventures`)}">Browse every design's source</a>: CAD in code, firmware, simulations and tests.</li>
       </ul>
-      <p>Anyone may build, change or sell these designs under their licence. Whoever builds and
-      sells one is its manufacturer and is responsible for its safety and compliance; the designs
+      <p>Anyone may build and change these designs under their licence (FSL-1.1-MIT), and sell
+      what they build once that version has turned MIT, two years after its release. Whoever builds
+      or sells one is its manufacturer and is responsible for its safety and compliance; the designs
       come with no warranty.</p>
     </main>
 

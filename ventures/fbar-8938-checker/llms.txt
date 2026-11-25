@@ -2,7 +2,7 @@
 
 > Free FBAR (FinCEN 114) and Form 8938 checker for US citizens, green card holders and expats with foreign accounts: add your accounts, convert currencies and see which filings the thresholds trigger. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fbar-8938-checker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fbar-8938-checker): FSL-1.1-MIT licensed.

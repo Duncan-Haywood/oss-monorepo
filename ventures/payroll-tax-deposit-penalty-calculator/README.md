@@ -53,4 +53,4 @@ no-network assertions.
 
 Not tax or legal advice. No interest, no 15% post-notice tier, no penalty
 relief, federal deposits only, federal banking calendar only. The IRS's records
-and notices control. MIT licensed.
+and notices control. FSL-1.1-MIT licensed.

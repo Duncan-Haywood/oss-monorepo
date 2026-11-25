@@ -27,4 +27,4 @@ Everything runs in your browser. Your deployment figures are saved locally on th
 
 This calculator produces arithmetic observations from numbers you supply. It does not determine your licensing, appointment, or authority to handle a claim in any state, and it does not evaluate an IA firm's reputation, timeliness of payment, or claim-volume promises — verify those independently before accepting a deployment. It does not audit your books or replace your own insurance, licensing, or accountant.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

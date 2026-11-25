@@ -2,7 +2,7 @@
 
 > Free npm package contents checker. From package.json, a list of the files in the package folder and the .npmignore/.gitignore contents, it lists every file npm publish (npm pack) would put in the tarball and the rule that decides each one: npm's default excludes, the files field, .npmignore or .gitignore (file and line), npm's forced rules, or the folder npm never entered. Flags secrets that would ship (.env, keys, credentials files, by name), a .gitignore switched off by a .npmignore or a files field, main/types/bin/exports targets missing from the tarball, main written as "./x" (npm does not force that in), folder rules npm walks past once main, bin, files or a ! rule gives it a reason to enter (secrets/ then !secrets/public.pem publishes the whole folder), files entries that select nothing and nested node_modules. Runs in the browser; nothing is uploaded. A zero-dependency CLI reads a real folder and can diff against npm pack --dry-run.
 
-Free and open source (MIT). Results come from this tool's reimplementation of npm-packlist, ignore-walk and minimatch, checked against the real modules on 3,000 held-out random packages on npm 10.9.9 and on npm 11.21.3 (all agree) and on 360 real package folders; it is not legal, security or professional advice, and npm pack --dry-run is the final word.
+Free to use and source available (FSL-1.1-MIT). Results come from this tool's reimplementation of npm-packlist, ignore-walk and minimatch, checked against the real modules on 3,000 held-out random packages on npm 10.9.9 and on npm 11.21.3 (all agree) and on 360 real package folders; it is not legal, security or professional advice, and npm pack --dry-run is the final word.
 
 ## Pages
 
@@ -16,4 +16,4 @@ Free and open source (MIT). Results come from this tool's reimplementation of np
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/npm-publish-contents): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/npm-publish-contents): FSL-1.1-MIT licensed.

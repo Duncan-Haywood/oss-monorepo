@@ -31,7 +31,7 @@ node --test ventures/quickbooks-iif-file-check/
 
 ## License
 
-MIT. See `LICENSE`.
+FSL-1.1-MIT. See `LICENSE`.
 
 ## No warranty
 

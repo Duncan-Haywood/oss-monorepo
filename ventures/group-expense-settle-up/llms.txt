@@ -2,7 +2,7 @@
 
 > Free group expense splitter with no app and no account. Log who paid what in any currency, split equally, by shares, exact amounts or percent, and get the fewest payments that square everyone up. Runs in your browser.
 
-Free and open source (MIT). Results are arithmetic on the amounts and rates typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are arithmetic on the amounts and rates typed in, not legal, tax, financial or professional advice.
 
 ## What it does
 
@@ -18,4 +18,4 @@ Free and open source (MIT). Results are arithmetic on the amounts and rates type
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/group-expense-settle-up): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/group-expense-settle-up): FSL-1.1-MIT licensed.

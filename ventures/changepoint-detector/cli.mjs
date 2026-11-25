@@ -86,7 +86,7 @@ Options:
 Methods (please cite them if you use the results):
 ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}. ${p.url}`).join('\n')}
 
-Statistical analysis of data you supply, not advice. MIT licence.`;
+Statistical analysis of data you supply, not advice. FSL-1.1-MIT licence.`;
 
 // Measured 2026-11-10 on the tree-ring series: 1,000 points 1.6 s with the panel vs 0.6 s without,
 // 2,000 points 5.3 s vs 1.1 s, 7,980 points 32 s vs 5.7 s. The text output stays quick on long series.

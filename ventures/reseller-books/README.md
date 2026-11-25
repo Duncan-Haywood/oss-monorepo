@@ -21,6 +21,9 @@ of each export; no real exports were available.** Unrecognised files are named o
 The Mercari reader is the exception: its 20 field names are the ones Mercari's help centre lists for the
 Gross Sales Report (mercari.com/us/help_center/article/541, read 2026-11-24), though no real file has been read yet.
 
+Optionally, a **mileage log**: any CSV with a date and a miles (or odometer start and end) column, including the
+`mileage-log` venture's own export. Business trips go on Schedule C line 9 at the IRS standard rate (see Model).
+
 ## Model
 
 `engines/*.mjs` are verbatim copies of the five analyzers' `calc.mjs` (so the venture deploys
@@ -33,6 +36,13 @@ estimates; canceled and in-progress orders are counted in a note. Buyer-paid shi
 never reach the seller, so they are reported beside the books, not in sales. Overlapping downloads are
 de-duplicated by Item ID (the later status wins), and a row whose fees do not add up to its Net Seller Proceeds
 keeps the file's net and is flagged.
+Mileage (`trips.mjs`, rates from `engines/mileage.mjs`, a verbatim copy of `mileage-log/calc.mjs`): business trips are
+priced at the IRS standard mileage rate for each trip's date (70c 2025, Notice 2025-5; 72.5c Jan 1 to Jun 30 2026,
+Notice 2026-10; 76c from Jul 1 2026, Announcement 2026-11; verified against irs.gov on 2026-09-29), plus business
+tolls and parking, as Schedule C line 9; business, commuting and other miles are given for Part IV. A log with no
+category column is all business; with one, only rows marked business (or sourcing, work, shipping, post office)
+are deducted. A row repeated across two files counts once; identical rows within one file all count. Trips before
+2025 are left out and trips after 2026 are flagged. Mileage is kept out of the marketplace reconciliation.
 The worksheet groups totals under Schedule C lines and says where placement is a preparer's
 choice. Not tax advice.
 

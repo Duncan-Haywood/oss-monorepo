@@ -105,6 +105,22 @@ replace that work.
   [`portfolio/monetization/mrr.yaml`](../portfolio/monetization/mrr.yaml).
   Only the owner can read the merchant dashboard, so only the owner fills in a
   reading. An empty month is unmeasured, never zero.
+- **Margins: 40 to 60% is the minimum goal, not a ceiling** (owner, 2026-11-24:
+  "we want to aim for min 40-60% margins in the products"; and "the 40-60
+  isn't a limit for how high the margins go but a sort of minimal goal").
+  Higher is better. Margin is one minus the full
+  cost of serving a plan used to its whole allowance (model tokens, hosting,
+  merchant fees, a refund reserve) over its price, monthly and annual billing
+  both. Below 40% a plan fails CI (`packages/billing` in `private-monorepo`;
+  `evaluate.mjs --check` here); 60% or more is what to aim for, and there is
+  no upper limit.
+- **The cheapest model that does the job correctly** (owner, same day: "use
+  the general principle in products of use the cheapest model that does the
+  job correctly you know. no need to use opus for a haiku task"). Start each
+  model purpose on Haiku and move it up to Sonnet or Opus only when the
+  product's evals show the cheaper one getting it wrong, writing down why.
+  Grant Autopilot's drafts went from about $1.30 each on Opus to about $0.03
+  on Haiku (`PRODUCT_PLAYBOOK.md`, section 4).
 - **Where it comes from.** Payments run through Paddle (Guardrails,
   "Payments"). The revenue comes from the subscription products in
   [`LICENSING_TRANSITION.md`](../portfolio/monetization/LICENSING_TRANSITION.md)
@@ -218,12 +234,18 @@ says otherwise. The hard limits under Guardrails still hold.
    can we instead have maybe a review process on cysec and legal risks
    instead?" Every PR gets a cyber and legal risk review
    (`python3 platform/security/risk_review.py`,
-   `docs/security/risk-review.md`) and merges on it. Only real liability goes
-   to the owner: a likely secret, a cut to the guardrails below, a licence
-   change on existing code, and the small owner-only core of
-   `.github/CODEOWNERS` (the gate and the review themselves, `priv-*`
-   workflows holding secrets, code that runs at session start). Don't add new
-   owner gates; add a check to the review instead.
+   `docs/security/risk-review.md`) and merges on it. Later the same day:
+   "we want to avoid that generally unless it is really human dependent for
+   example creating an api key. but we want to also move to systems that
+   remove human review as much as possible"; "the threats and risks ...
+   identified ... and ... a thorough assurance system to avoid those risks";
+   "I don't need to review. just be extra careful for adversarial changes."
+   So no PR waits for the owner. Liability-grade threats (secrets, guardrail
+   cuts, relicensing, weakening the gate) are blocked by the required
+   `risk-review` check, which runs main's reviewer, with no approval path.
+   The owner is asked only for what a person must do: account signups,
+   cards, secret values, admin-only settings. Don't add new owner gates; add
+   a control to the review instead.
 
 ## Mission
 

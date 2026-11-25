@@ -2,7 +2,7 @@
 
 > Free analyzer for small landlords: load your rent ledger and see who owes what and how old it is, which units pay late, monthly collection rate and a late-fee upper bound. Runs in your browser, the file is never uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rent-roll-delinquency-analyzer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rent-roll-delinquency-analyzer): FSL-1.1-MIT licensed.

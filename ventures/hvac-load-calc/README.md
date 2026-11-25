@@ -166,4 +166,4 @@ Nothing you enter leaves your browser. An optional anonymous counter in local
 storage records only that a calculation ran and the day; the page has a
 switch to turn it off, and Do Not Track / Global Privacy Control are honoured.
 
-MIT licensed (`LICENSE`). Sponsor: https://github.com/sponsors/Duncan-Haywood
+FSL-1.1-MIT licensed (`LICENSE`). Sponsor: https://github.com/sponsors/Duncan-Haywood

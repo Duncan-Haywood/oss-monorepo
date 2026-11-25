@@ -1,8 +1,8 @@
 # Would a spend cap have stopped your runaway LLM bill?
 
-> Stop a runaway OpenAI or Anthropic bill before it happens: hard per-user, per-feature and per-run dollar caps, an output-token ceiling, and circuit breakers that trip on agent loops. Free, open source, self-hosted proxy or a zero-dependency library.
+> Stop a runaway OpenAI or Anthropic bill before it happens: hard per-user, per-feature and per-run dollar caps, an output-token ceiling, and circuit breakers that trip on agent loops. Free, source available, self-hosted proxy or a zero-dependency library.
 
-Free and open source (MIT). Not a billing system: costs come from the prices you configure and may differ from your invoice, and the pre-call hold does not see images, documents or server-side tool fees. Not legal, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Not a billing system: costs come from the prices you configure and may differ from your invoice, and the pre-call hold does not see images, documents or server-side tool fees. Not legal, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Not a billing system: costs come from the prices you
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/llm-spend-guard): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/llm-spend-guard): FSL-1.1-MIT licensed.

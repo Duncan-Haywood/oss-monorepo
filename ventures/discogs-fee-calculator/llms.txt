@@ -2,7 +2,7 @@
 
 > Free Discogs seller fee calculator: the 9% selling fee on item price plus shipping ($0.10 minimum, $150 maximum), editable payment processing, your payout and profit after postage and cost, the price that hits a target profit, and a fee ladder from $3 singles to $2,500 grails. Nothing leaves your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/discogs-fee-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/discogs-fee-calculator): FSL-1.1-MIT licensed.

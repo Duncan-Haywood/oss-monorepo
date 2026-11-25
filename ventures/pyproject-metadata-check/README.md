@@ -105,6 +105,6 @@ says nothing about whether that licence suits you. Backend behaviour is what the
 builds. The final word is a real build and upload. Not affiliated with or endorsed by the Python Software
 Foundation, the PyPA, PyPI or any backend's maintainers; Python is a trademark of the Python Software Foundation.
 
-MIT licensed. The TOML table rules follow the flag model of tomli (MIT, Taneli Hukkinen), which is Python's tomllib;
+FSL-1.1-MIT licensed. The TOML table rules follow the flag model of tomli (MIT, Taneli Hukkinen), which is Python's tomllib;
 the dependency grammar follows packaging's documented parser (BSD-2-Clause or Apache-2.0, PyPA). `data.mjs` holds
 the SPDX License List (CC0) as shipped by packaging and the classifier list from trove-classifiers (Apache-2.0).

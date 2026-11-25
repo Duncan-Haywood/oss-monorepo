@@ -2,7 +2,7 @@
 
 > Free custom sawing rate calculator for portable sawmill operators: true cost per sawing hour, break-even and target quote per board foot or per hour, and which log sizes lose money. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sawmill-custom-sawing-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sawmill-custom-sawing-calculator): FSL-1.1-MIT licensed.

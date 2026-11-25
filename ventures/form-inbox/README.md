@@ -4,7 +4,7 @@ After using this, you can now **point any HTML form at your own server and get a
 
 **Live tool:** https://marisstella.app/form-inbox/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`**: paste a submission and see its spam score and the reasons. Runs in the browser; nothing is uploaded.
 - **`server.mjs`**: one Node process, **zero dependencies**, state in one JSON file. Form endpoints, an admin inbox, CSV export and notifications.
@@ -55,7 +55,7 @@ Fork the repository, then open `https://render.com/deploy?repo=<your fork URL>`.
 
 ## Disclaimer
 
-No warranty; no uptime or delivery guarantee. You operate the forms and are responsible for the messages collected, your privacy notice and data-protection rules. The spam score can be wrong either way. Not legal, tax or financial advice. MIT licensed. If it saves you a subscription, you can [sponsor the author](https://github.com/sponsors/Duncan-Haywood).
+No warranty; no uptime or delivery guarantee. You operate the forms and are responsible for the messages collected, your privacy notice and data-protection rules. The spam score can be wrong either way. Not legal, tax or financial advice. FSL-1.1-MIT licensed. If it saves you a subscription, you can [sponsor the author](https://github.com/sponsors/Duncan-Haywood).
 
 ## Other self-deploy paths
 

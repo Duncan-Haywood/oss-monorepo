@@ -48,4 +48,4 @@ Optional support: [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood).
 
 ## License
 
-MIT. See [`LICENSE`](LICENSE).
+FSL-1.1-MIT. See [`LICENSE`](LICENSE).

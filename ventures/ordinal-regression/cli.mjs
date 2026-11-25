@@ -45,7 +45,7 @@ Options:
 Citations:
 ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}.${p.doi ? ` doi:${p.doi}` : ` ${p.url}`}`).join("\n")}
 
-Statistical output from your data, not medical, financial, legal or professional advice. No warranty. MIT licence.
+Statistical output from your data, not medical, financial, legal or professional advice. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/ordinal-regression/`;
 
 const FLAGS = {

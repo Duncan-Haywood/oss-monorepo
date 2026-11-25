@@ -114,4 +114,4 @@ survive, export your inputs and run it yourself.
 Optional support: [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood).
 Refusing to sponsor does not change the tool.
 
-MIT licensed — see [`LICENSE`](LICENSE).
+FSL-1.1-MIT licensed — see [`LICENSE`](LICENSE).

@@ -47,7 +47,7 @@ PRODUCTS = {
             "Emergency stop, wheel guards and a watchdog that stops all motors if the controller goes quiet",
         ],
         "description": ("A ball machine that feeds drills and catches your returns. Built from the open-source "
-                        "Open Tennis Robots design (MIT licence): hardware drawings, firmware and planning software "
+                        "Open Tennis Robots design (FSL-1.1-MIT licence): hardware drawings, firmware and planning software "
                         "are public, so it can be repaired and modified."),
     },
     "collector": {
@@ -60,7 +60,7 @@ PRODUCTS = {
             "Rod-cage pickup drum holds about 100 balls and empties through a side hatch",
         ],
         "description": ("A robot that collects tennis balls during practice. Built from the open-source Open Tennis "
-                        "Robots design (MIT licence): hardware drawings, firmware and planning software are public, "
+                        "Robots design (FSL-1.1-MIT licence): hardware drawings, firmware and planning software are public, "
                         "so it can be repaired and modified."),
     },
 }

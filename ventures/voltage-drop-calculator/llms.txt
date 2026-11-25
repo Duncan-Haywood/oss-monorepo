@@ -2,7 +2,7 @@
 
 > Free voltage drop and wire size calculator. From the source voltage, the load (amps or watts) and the one-way run length it gives the voltage drop in volts and percent for every AWG, kcmil or mm² conductor, the smallest size within a target percentage, the longest run and the most current each size allows, the watts lost in the wire and, with hours and a price, the yearly cost of those losses. DC (12, 24, 48 V), single-phase and three-phase AC with power factor and optional reactance; copper or aluminium; solid or stranded; any conductor temperature; parallel sets. Runs in the browser; nothing is uploaded.
 
-Free and open source (MIT). Resistance is computed from conductor geometry and material constants (copper 100 % IACS, aluminium 61 % IACS, 2 % for stranding), not copied from a code table, and can be a few percent below published tables for some sizes; a value from the reader's own table can replace it. Ampacity is not checked: the reader enters the smallest size their ampacity table allows and the tool never recommends below it. Results are arithmetic on the numbers typed in, not electrical or code-compliance advice.
+Free to use and source available (FSL-1.1-MIT). Resistance is computed from conductor geometry and material constants (copper 100 % IACS, aluminium 61 % IACS, 2 % for stranding), not copied from a code table, and can be a few percent below published tables for some sizes; a value from the reader's own table can replace it. Ampacity is not checked: the reader enters the smallest size their ampacity table allows and the tool never recommends below it. Results are arithmetic on the numbers typed in, not electrical or code-compliance advice.
 
 ## Pages
 
@@ -15,4 +15,4 @@ Free and open source (MIT). Resistance is computed from conductor geometry and m
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/voltage-drop-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/voltage-drop-calculator): FSL-1.1-MIT licensed.

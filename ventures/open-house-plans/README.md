@@ -120,7 +120,7 @@ Every finding keeps its sign and rough size; the porch is the least certain numb
 
 **Privacy.** Everything runs in your browser or on your machine. Briefs and designs are never uploaded; there are no accounts, tracking cookies or analytics vendors. The page counts anonymous feature events (`design_generated`, `plan_downloaded`, `file_downloaded`, `catalogue_opened`) in your browser's local storage only; Do Not Track or the page's switch turns them off.
 
-**Licences.** The code is MIT ([`LICENSE`](LICENSE)). Every generated plan set, including the catalogue, is dedicated to the public domain under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/); CC0 covers rights in the files and is not a warranty. Not affiliated with any builder, plan publisher, code body or standards organisation. Support is optional: [github.com/sponsors/Duncan-Haywood](https://github.com/sponsors/Duncan-Haywood).
+**Licences.** The code is FSL-1.1-MIT ([`LICENSE`](LICENSE)). Every generated plan set, including the catalogue, is dedicated to the public domain under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/); CC0 covers rights in the files and is not a warranty. Not affiliated with any builder, plan publisher, code body or standards organisation. Support is optional: [github.com/sponsors/Duncan-Haywood](https://github.com/sponsors/Duncan-Haywood).
 
 ## Next steps
 

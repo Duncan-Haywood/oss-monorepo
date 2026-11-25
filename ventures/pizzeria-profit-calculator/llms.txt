@@ -2,7 +2,7 @@
 
 > Free pro forma for pizzerias and pizza takeout shops: profit per order, break-even orders a day with the loan, the ticket for your target margin, delivery-app and own-driver cost, and a 60-month ramp-up with the cash reserve you need. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pizzeria-profit-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pizzeria-profit-calculator): FSL-1.1-MIT licensed.

@@ -744,7 +744,7 @@ const CATEGORY_RULES = [
     // meta description and llms.txt. A category whose blurb fits needs none
     // (build.test.mjs, "every category tile ends on a whole sentence").
     card: 'Business software you run on your own server, from failed-payment recovery to status pages. Your keys, your data.',
-    blurb: 'Open-source business software you run on your own server: failed-payment recovery, cancellation flows, MRR and revenue recognition, lifecycle email, referrals, feature flags, status pages, help centres, booking pages, cookie-free analytics and more. Deploy your own copy with your own keys; you own the data.',
+    blurb: 'Source-available business software you run on your own server: failed-payment recovery, cancellation flows, MRR and revenue recognition, lifecycle email, referrals, feature flags, status pages, help centres, booking pages, cookie-free analytics and more. Deploy your own copy with your own keys; you own the data.',
     // Named apps first; then any venture that ships a server and a deploy
     // manifest (surfaceKind 'app') that no other section claims, so the next
     // self-hosted app lands here instead of in the catch-all.
@@ -1717,6 +1717,7 @@ const CATEGORY_RULES = [
     // `water-damage-drying-estimate-calculator` joined 2026-10-11 on its first commit beside `grease-trap-pumping-price-calculator`: a restoration contractor turning wet area, equipment days and labour into a job invoice and margin.
     // `hoarding-cleanout-bid-calculator` joined 2026-10-11 on its first commit beside `dumpster-rental-margin-calculator`: a cleanout contractor pricing volume, crew days and containers.
     // `powder-coating-job-price-calculator` joined 2026-10-10 on its first commit beside `cnc-machining-quote-calculator`: a job shop turning labour, machine and material into a customer price.
+    // `machine-shop-guides` joined 2026-11-24 beside `cnc-machining-quote-calculator`: free guides and a quote calculator for the same small machine shops; it was the sixth tool in the catch-all.
     // `dxf-nesting` joined 2026-11-18 on its first commit beside `laser-cutting-engraving-job-price-calculator` and `cnc-machining-quote-calculator`: the same laser, plasma and CNC job shop, nesting the customer's DXF parts on sheets before it prices the cut.
     // `laser-cutting-engraving-job-price-calculator` joined 2026-10-10 on its first commit beside `cnc-machining-quote-calculator`: a laser shop turning sheet, machine time and labour into a customer price.
     // `therapy-8-minute-rule-calculator` joined 2026-10-10: a therapy practice turning timed minutes into billable units is a services-business job; the catch-all was at 6, over the bound of five (build.test.mjs).
@@ -4168,8 +4169,8 @@ const CATEGORY_RULES = [
     id: 'open-hardware',
     title: 'Open hardware, robots & house plans',
     accent: '#7a4a12',
-    card: 'Things you can build, change and sell: MIT-licensed robot CAD, firmware and simulators, and public-domain house plans.',
-    blurb: 'Things you can build, change and sell: MIT-licensed robot CAD with laser-cut and 3D-print files, firmware, bills of materials and a browser simulator for each (a robot vacuum and mop, a robotic lawn mower, tennis ball robots), and a generator of public-domain house plans with drawings, IFC and DXF.',
+    card: 'Things you can build and change: FSL-1.1-MIT-licensed robot CAD, firmware and simulators, and public-domain house plans.',
+    blurb: 'Things you can build and change: FSL-1.1-MIT-licensed robot CAD with laser-cut and 3D-print files, firmware, bills of materials and a browser simulator for each (a robot vacuum and mop, a robotic lawn mower, tennis ball robots), and a generator of public-domain house plans with drawings, IFC and DXF.',
     test: (slug) => ['open-floor-robots', 'open-robot-mower', 'open-tennis-robots', 'open-house-plans'].includes(slug),
   },
   {
@@ -6501,7 +6502,7 @@ export function disclaimerHtml(toRoot, surfaces = [], { counter = counterOn() } 
         or taken offline without notice. We do not promise uptime, backups of
         anything you type, or that a URL will keep working. Do not use them as
         a system of record. If a tool needs to survive, export your inputs —
-        every one of them is open source and runs from a local file.
+        every one of them is source available and runs from a local file.
       </p>
       <h2>Privacy</h2>
       <p>
@@ -8275,8 +8276,8 @@ ${IN_DEVELOPMENT.map(([name, what]) => `        <li><strong>${escapeHtml(name)}<
       <ul>
         <li><strong>Agents.</strong> Scheduled agent sessions pick the next job from a written queue, build it, check it and merge it. What they did and why is in the repository; the <a href="${escapeHtml(`${toRoot}${UPDATES_PATH}`)}">updates page</a> summarises each week.</li>
         <li><strong>Open research.</strong> The <a href="${escapeHtml(`${toRoot}${RESEARCH_PATH}`)}">research projects</a> are published with their code, tests and limitations. New research is aimed at a product: a question gets studied because the answer goes into something a business will use.</li>
-        <li><strong>Open hardware designs.</strong> <a href="${escapeHtml(`${toRoot}${HARDWARE_PATH}`)}">Robot and house-plan designs for businesses</a> are published with their CAD, firmware and bills of materials, MIT licensed. They are at the design and simulation stage: nothing has been built and nothing physical is for sale. Real hardware products are a long-term goal.</li>
-        <li><strong>Open source.</strong> The free tools, the research and the hardware designs are MIT licensed, so you can use them, change them, or run your own copy. The paid products are developed privately.</li>
+        <li><strong>Open hardware designs.</strong> <a href="${escapeHtml(`${toRoot}${HARDWARE_PATH}`)}">Robot and house-plan designs for businesses</a> are published with their CAD, firmware and bills of materials, FSL-1.1-MIT licensed. They are at the design and simulation stage: nothing has been built and nothing physical is for sale. Real hardware products are a long-term goal.</li>
+        <li><strong>Source available.</strong> The free tools and the hardware designs are FSL-1.1-MIT licensed: use them, change them or run your own copy for anything but a competing commercial product, and each version becomes MIT two years after release. The research is MIT licensed. The paid products are developed privately.</li>
       </ul>
 
       <h2>The free tools</h2>
@@ -8386,7 +8387,7 @@ ${IN_DEVELOPMENT.map(([name, what]) => `        <li><strong>${escapeHtml(name)}<
       <ul>
         <li><strong>${formatCount(total)} tools</strong> across ${categoryCount} categories, all free, none gated.</li>
         <li><strong>Runs client-side.</strong> Static pages; no account, no third-party analytics; works offline once opened.${exceptions.length ? ` ${listed ? `The <a href="#outside-services">${exceptions.length} ${EXCEPTION_NOUN}</a> listed above are` : `${exceptionNames} ${exceptions.length === 1 ? 'is' : 'are'}`} the documented exception${exceptions.length === 1 ? '' : 's'}.` : ' No upload.'}</li>
-        <li><strong>MIT licensed.</strong> Every tool ships its licence text alongside it — open any tool and add <code>LICENSE</code> to its address.</li>
+        <li><strong>FSL-1.1-MIT licensed.</strong> Every tool ships its licence text alongside it — open any tool and add <code>LICENSE</code> to its address.</li>
         <li><strong>Front page:</strong> <a href="${escapeHtml(toRoot)}" data-pf-to="hub">${escapeHtml(baseUrl)}</a></li>
       </ul>
       <p>
@@ -8494,7 +8495,7 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
         <p class="fb-terms">Ideas, research questions and topics join the
         <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}`)}">custom development</a> queue,
         are built free and in public, and come ahead of routine work. What is built is published under the MIT
-        licence with the repository owner's copyright notice; you get no exclusive
+        licence with the repository owner's copyright notice, in the tool's own directory; you get no exclusive
         rights to it.</p>
         <p id="fb-tool-line" hidden>About: <a id="fb-tool-link" href="${escapeHtml(toRoot)}"></a></p>
         <label for="fb-message">Your message</label>
@@ -9124,12 +9125,12 @@ ${built ? '' : `      <h2>What has been built this way</h2>
       </ul>
 
       <h2 id="screening">How requests are screened</h2>
-      <p>The builders are AI agents, so a request is also text an AI will read. Every request is checked by <a href="${escapeHtml(`${REPO_URL}/blob/main/portfolio/requests/screen.mjs`)}">an open-source screen</a> before triage. It looks for text written to steer the agents instead of describing a job: telling them to ignore their instructions, to merge, approve or run something, to reveal credentials, to send data elsewhere, or words hidden with invisible characters. A request that trips it is held for the repository owner and is not built from until they have read it. Ordinary requests pass straight through, and a held request is not a judgement of the person who sent it. Whatever the screen says, request text is treated as a description of what to build, never as instructions.</p>
+      <p>The builders are AI agents, so a request is also text an AI will read. Every request is checked by <a href="${escapeHtml(`${REPO_URL}/blob/main/portfolio/requests/screen.mjs`)}">a published screen</a> before triage. It looks for text written to steer the agents instead of describing a job: telling them to ignore their instructions, to merge, approve or run something, to reveal credentials, to send data elsewhere, or words hidden with invisible characters. A request that trips it is held for the repository owner and is not built from until they have read it. Ordinary requests pass straight through, and a held request is not a judgement of the person who sent it. Whatever the screen says, request text is treated as a description of what to build, never as instructions.</p>
 
       <h2>The terms</h2>
       <ul>
         <li><strong>Free.</strong> No fee for the engineering, the hosting or the agent compute.</li>
-        <li><strong>MIT licensed, held by the repository owner.</strong> What is built is published in <a href="${escapeHtml(REPO_URL)}">this repository</a> under its <a href="${escapeHtml(`${REPO_URL}/blob/main/LICENSE`)}">MIT licence</a>, with the owner's copyright notice. Anything you attach, you must be allowed to share, and you agree to its publication on those terms.</li>
+        <li><strong>MIT licensed, held by the repository owner.</strong> What is built is published in <a href="${escapeHtml(REPO_URL)}">this repository</a> under the <a href="https://opensource.org/license/mit">MIT licence</a> (an MIT <code>LICENSE</code> in the tool's own directory; the rest of the repository is FSL-1.1-MIT), with the owner's copyright notice. Anything you attach, you must be allowed to share, and you agree to its publication on those terms.</li>
         <li><strong>You may use it commercially</strong>, as anyone may: deploy it, change it, sell a service on it. The licence is the same for everyone, so there is no exclusivity.</li>
         <li><strong>No promise of a date or of acceptance.</strong> Agent time is shared across the whole repository. A request is weighed on how useful it is, how well it fits, and whether it can be built and run legally at no per-user cost.</li>
         <li><strong>Public by default.</strong> Requests, code and discussion are visible to everyone. Leave out names, addresses and anything private.</li>
@@ -9526,7 +9527,7 @@ export function renderHub(
     name: SITE_NAME,
     url: baseUrl,
     description:
-      'Software and hardware products for specific small businesses, plus free open-source browser tools, self-hostable apps and research projects.',
+      'Software and hardware products for specific small businesses, plus free source-available browser tools, self-hostable apps and research projects.',
     isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: baseUrl },
     mainEntity: {
       '@type': 'ItemList',
@@ -9625,7 +9626,7 @@ export function renderHub(
   <script type="application/ld+json">${jsonLd(siteStructuredData({
     baseUrl,
     siteName: SITE_NAME,
-    description: 'Software for small and medium businesses, with free open-source tools and reproducible research beside it.',
+    description: 'Software for small and medium businesses, with free source-available tools and reproducible research beside it.',
     organizationDescription: `${SITE_NAME} ${COMPANY_SUMMARY}.`,
     // Only what is live: a product in development is not an offer.
     offers: LIVE_PRODUCTS.map((p) => ({ name: p.name, url: `${baseUrl}${p.path}`, audience: p.audience, description: `${p.name} ${p.summary}` })),
@@ -10002,7 +10003,7 @@ ${renderProductGrid(softwareLines(), { toRoot: '', published: publishedTools, an
            here from the hero on 2026-11-24, under the products. -->
       <section class="build-band" aria-labelledby="build-band-h">
         <h2 id="build-band-h">Don’t see your business? Describe your problem and it gets built.</h2>
-        <p>Tell us the job, and the AI agents that build this site may build it for you, free and in public. The one condition: the result stays open source (MIT).</p>
+        <p>Tell us the job, and the AI agents that build this site may build it for you, free and in public. The one condition: the result is published under the MIT licence.</p>
         <a class="go" href="${CUSTOM_DEV_PATH}">Describe your problem</a>
       </section>
     </section>
@@ -10079,7 +10080,7 @@ ${renderLatestWriting(posts, { writingPath: WRITING_PATH })}
         <a class="pillar" href="deploy/">
           <span class="pillar-ico">${icon('deploy')}</span>
           <h3>Deploy your own copy</h3>
-          <p>Every app and tool is MIT licensed. Pick one, paste your own cloud credentials, and get a running copy in your own account. Nothing of ours sits in between.</p>
+          <p>Every app and tool is FSL-1.1-MIT licensed, so running your own copy is allowed. Pick one, paste your own cloud credentials, and get a running copy in your own account. Nothing of ours sits in between.</p>
           <span class="pillar-more">Deploy your own →</span>
         </a>
         <a class="pillar" href="${GUIDES_PATH}">
@@ -10098,7 +10099,7 @@ ${renderLatestWriting(posts, { writingPath: WRITING_PATH })}
       <ul class="principles">
         <li>No accounts or sign-up</li>
         <li>No tracking cookies</li>
-        <li>MIT licence throughout</li>
+        <li>Source available: FSL-1.1-MIT for tools, MIT for research</li>
         <li>Every change in the <a href="${CHANGELOG_PATH}">public changelog</a></li>
         <li>What gets built next, in order, on the <a href="${QUEUE_PATH}">work queue</a></li>
       </ul>
@@ -10118,7 +10119,7 @@ ${disclaimerHtml('', surfaces)}
         <label><input type="checkbox" id="optout"> Don't count my visit</label>
       </p>
       <p>
-        Open source — every tool is a static page, and one you have opened keeps
+        Source available — every tool is a static page, and one you have opened keeps
         working with no connection.
       </p>
       ${renderSiteFooterNav({ toRoot: '' })}
@@ -12288,7 +12289,7 @@ function crumbShort(name) {
  * desktop app, a watch face, a server or a page with nothing to type into.
  * This line claims nothing about the page above it.
  */
-export const FOOTER_LEAD_NOT_A_BROWSER_TOOL = 'More from the same free, open-source catalogue.';
+export const FOOTER_LEAD_NOT_A_BROWSER_TOOL = 'More from the same free, source-available catalogue.';
 
 export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [], linkedCss = '', browserTool = true, offer = null, offerName = '', door = '' }) {
   if (html.includes(CHROME_MARKER)) return html;
@@ -12794,7 +12795,7 @@ export function renderFeed(surfaces, baseUrl, launched = {}) {
   <link rel="alternate" type="text/html" href="${escapeHtml(baseUrl)}"/>
   <id>${escapeHtml(`tag:marisstella.dev,2026:${SITE_NAME.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`)}</id>
   <updated>${updated}</updated>
-  <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <rights>Tools are FSL-1.1-MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
 ${entries.map(entryXml).join('\n')}
 </feed>
 `;
@@ -12951,7 +12952,7 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
     {
       name: 'Free calculators for sellers, contractors, and small back offices',
       url: baseUrl,
-      license: 'MIT',
+      license: 'FSL-1.1-MIT',
       price: { amount: '0', currency: 'USD' },
       privacy: 'client-side-only',
       generated_by: 'platform/pages/build.mjs',
@@ -13027,7 +13028,7 @@ export function renderProductLlmsTxt({ slug, title, description, fullDescription
 ## Pages
 
 - [The tool](${baseUrl}${slug}/): the tool itself, with its own notes and disclaimer.
-- [Source and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/${slug}): MIT-licensed code, tests and notes.
+- [Source and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/${slug}): FSL-1.1-MIT-licensed code, tests and notes.
 - [All tools](${baseUrl}llms.txt): the catalogue this tool belongs to.
 
 ## Limits
@@ -13128,7 +13129,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
       ? `- [Short index](${baseUrl}llms.txt): the same tools with one-sentence descriptions, small enough to read in one fetch.`
       : `- [Full text](${baseUrl}llms-full.txt): every tool with its complete description and the LLM docs a product ships; large (several hundred KB), fetch only when the index does not answer the question.`,
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): who runs the company (one owner, AI agents), what is live and in development, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, the country code and the device type, plus daily tallies of product links shown and clicked, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
-    `- [Open hardware designs for businesses](${baseUrl}${HARDWARE_PATH}): robots for tennis clubs (ball collection), cleaning companies (floor cleaning) and grounds crews (a wire-free mower), open house plans for builders, and construction robotics research, each with its honest stage. Every design is MIT licensed and at the CAD and simulation stage: nothing has been built, nothing is for sale, and there are no prices or dates. Each card links the site's feedback form so a business can say it would use one.`,
+    `- [Open hardware designs for businesses](${baseUrl}${HARDWARE_PATH}): robots for tennis clubs (ball collection), cleaning companies (floor cleaning) and grounds crews (a wire-free mower), open house plans for builders, and construction robotics research, each with its honest stage. Every design is FSL-1.1-MIT licensed (MIT two years after release) and at the CAD and simulation stage: nothing has been built, nothing is for sale, and there are no prices or dates. Each card links the site's feedback form so a business can say it would use one.`,
     // Full file only: the short index sits at its 50,000-byte cap (build.test.mjs).
     ...(full ? [`- [Online sellers](${baseUrl}${ONLINE_SELLERS_PATH}): resellers on eBay, Etsy, Poshmark, Mercari, Whatnot, Depop: profit after fees, payouts, cost of goods, mileage, Schedule C; Seller Books (in development) and free tools.`] : []),
     `- [Free custom software for your business](${baseUrl}${CUSTOM_DEV_PATH}): describe your problem and it gets built. How a business, or anyone, can ask the agents that build this site for a new tool, free and in public, the one condition (the result stays MIT licensed, held by the repository owner), and every request so far with its status. Each request has its own page (custom-development/R-0001/ and so on) showing its stage and what is still open, with a form for feedback on it.`,
@@ -13177,7 +13178,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     // than a page to send a person to. Every tool's arithmetic is a pure module
     // beside its page; platform/agents/tools.mjs calls those modules from a
     // clone, from the command line or as an MCP server, with no browser.
-    `- [Command line and MCP server for agents](${REPO_URL}/tree/main/platform/agents): call any of these tools' calculation engines directly with JSON inputs from a clone of the open-source repository — \`node platform/agents/tools.mjs search|describe|call\`, or the same as a local stdio MCP server. No browser, no network, no account.`,
+    `- [Command line and MCP server for agents](${REPO_URL}/tree/main/platform/agents): call any of these tools' calculation engines directly with JSON inputs from a clone of the source-available repository — \`node platform/agents/tools.mjs search|describe|call\`, or the same as a local stdio MCP server. No browser, no network, no account.`,
     `- [Sitemap](${baseUrl}sitemap.xml): every published page, including the worked-example and decision pages inside each tool.`,
     `- [Atom feed](${baseUrl}${FEED_FILE}): new tools as they are published, newest first. Poll this rather than re-reading the whole catalogue to find out what is new.`,
     '',
@@ -13245,12 +13246,12 @@ ${full ? `Built for ${INDUSTRIES}. A business with a problem software could solv
   const live = LIVE_PRODUCTS.map((p) => `${p.name}, for ${p.audience}`);
   return `# ${SITE_NAME}
 
-> ${SITE_NAME} ${COMPANY_SUMMARY}. Live: ${listProse(live)}; more products are in development for construction, manufacturing and other small businesses. Free: ${formatCount(surfaces.length)} open-source tools${researchProjects ? ` and ${formatCount(researchProjects)} research projects` : ''}, MIT licensed.
+> ${SITE_NAME} ${COMPANY_SUMMARY}. Live: ${listProse(live)}; more products are in development for construction, manufacturing and other small businesses. Free: ${formatCount(surfaces.length)} source-available tools${researchProjects ? ` and ${formatCount(researchProjects)} research projects` : ''}, MIT licensed.
 
 ${products}
 ${audienceSection ? `${audienceSection}\n` : ''}## Free tools
 
-${full ? `${formatCount(surfaces.length)} free, open-source tools (browser calculators and checks, self-hostable apps, command-line tools) for sellers, contractors, logistics buyers and small teams. No account; the numbers you type stay in your browser. Estimates and records to act on, not professional advice; each page states its limits.` : 'No account; inputs stay in the browser. Estimates, not professional advice.'}
+${full ? `${formatCount(surfaces.length)} free, source-available tools (browser calculators and checks, self-hostable apps, command-line tools) for sellers, contractors, logistics buyers and small teams. No account; the numbers you type stay in your browser. Estimates and records to act on, not professional advice; each page states its limits.` : 'No account; inputs stay in the browser. Estimates, not professional advice.'}
 
 ${network}${sections.join('\n')}
 ${researchSection ? `${researchSection}\n` : ''}${optional}${/^\d{4}-\d{2}-\d{2}/.test(updated) ? `\n${llmsAsOfLine(updated)}\n` : ''}`;

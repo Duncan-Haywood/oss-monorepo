@@ -2,7 +2,7 @@
 
 > Price a pressure washing or soft-wash job from each surface's production rate, plus drive time, setup, chemicals, and a minimum job. See the after-travel hourly and the walk-away number before you send the quote.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -14,4 +14,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pressure-washing-bid-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pressure-washing-bid-calculator): FSL-1.1-MIT licensed.

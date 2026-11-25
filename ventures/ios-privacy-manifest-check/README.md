@@ -90,7 +90,7 @@ only to describe what this tool checks.
 
 ## License
 
-[MIT](LICENSE). Free and open source --
+[FSL-1.1-MIT](LICENSE). Free to use and source available --
 [support](https://github.com/sponsors/Duncan-Haywood) is entirely optional
 and never changes what the tool does.
 

@@ -2,7 +2,7 @@
 
 > Free SaaS annual plan discount calculator: find the annual-prepay discount you can offer before it costs more than it brings in, given gross margin, monthly churn, renewal rate and cost of capital. Runs in your browser, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/saas-annual-plan-discount-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/saas-annual-plan-discount-calculator): FSL-1.1-MIT licensed.

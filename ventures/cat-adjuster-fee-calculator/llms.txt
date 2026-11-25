@@ -2,7 +2,7 @@
 
 > Free calculator for independent catastrophe (CAT) claims adjusters: find real net profit for a storm deployment after estimating-software, lodging, per diem, vehicle, and unpaid travel-day cost, then compare IA firms' fee schedules by what they actually pay per hour.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cat-adjuster-fee-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cat-adjuster-fee-calculator): FSL-1.1-MIT licensed.

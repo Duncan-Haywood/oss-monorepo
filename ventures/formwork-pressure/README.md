@@ -94,4 +94,4 @@ honoured.
 
 ## License
 
-MIT, see `LICENSE`.
+FSL-1.1-MIT, see `LICENSE`.

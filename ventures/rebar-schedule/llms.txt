@@ -2,7 +2,7 @@
 
 > Free, open-source tool: reads a bar bending schedule (mark, bar size, BS 8666 shape code 00, 11, 21 or 51, or any 90-degree shape by geometry, dimensions, members, bars each), works out each cut length with the minimum scheduling radius for the size (2d to 16 mm, 3.5d from 20 mm) rounded up to 25 mm, weighs it per mark and per bar size, and plans the cutting from one or more stock lengths with the least steel bought (cutting-stock LP by column generation for a proven lower bound, then whole-bar plans; marked proven optimal when the plan meets the bound). Runs in the browser; nothing is uploaded.
 
-Free and open source (MIT). A scheduling aid, not engineering or detailing advice; check every length against the drawings.
+Free to use and source available (FSL-1.1-MIT). A scheduling aid, not engineering or detailing advice; check every length against the drawings.
 
 ## Pages
 
@@ -22,4 +22,4 @@ Free and open source (MIT). A scheduling aid, not engineering or detailing advic
 
 ## Source
 
-- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rebar-schedule): MIT licensed. `node cli.mjs schedule.csv --stock 12000,6000`, or `--example`.
+- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rebar-schedule): FSL-1.1-MIT licensed. `node cli.mjs schedule.csv --stock 12000,6000`, or `--example`.

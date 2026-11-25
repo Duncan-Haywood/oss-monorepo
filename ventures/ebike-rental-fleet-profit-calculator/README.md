@@ -21,4 +21,4 @@ dependencies. `node --test *.test.mjs` runs the suite.
 financial advice. Does not model claims, permits or taxes. Not affiliated with any e-bike maker or
 rental software. **Privacy.** Everything runs in your browser; nothing is uploaded.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

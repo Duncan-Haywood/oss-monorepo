@@ -17,7 +17,7 @@ benchmarking report or a recordkeeper telling you the plan is "competitive".
 Modelled: fund expense ratios, asset-based/flat/per-participant recordkeeping, advisor and admin fees, employer-paid share, an editable
 benchmark by plan size, a participant balance projection. Not modelled: service quality, revenue-sharing credits, per-transaction fees.
 The default benchmark is illustrative, not a legal standard or a survey figure. Not legal, tax or financial advice. No warranty; see the
-page footer. MIT licensed (`LICENSE`).
+page footer. FSL-1.1-MIT licensed (`LICENSE`).
 
 ## What you use today, and what this does differently
 

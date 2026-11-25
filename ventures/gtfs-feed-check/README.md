@@ -83,7 +83,7 @@ storage on your device and can be turned off on the page.
 
 ## License
 
-MIT. See `LICENSE`. No code from other GTFS validators was used; the rules
+FSL-1.1-MIT. See `LICENSE`. No code from other GTFS validators was used; the rules
 were written from the reference text.
 
 ## No warranty

@@ -18,4 +18,4 @@ already keep in your browser, and never uploads anything.
 
 Run the tests: `node --test`. Serve `index.html` from any static host next to its sibling tools.
 
-Not legal, tax or financial advice; see the disclaimer on the page. MIT licensed.
+Not legal, tax or financial advice; see the disclaimer on the page. FSL-1.1-MIT licensed.

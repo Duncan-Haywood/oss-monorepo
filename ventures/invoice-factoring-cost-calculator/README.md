@@ -16,4 +16,4 @@ reading three rate sheets with different fee periods and guessing.
 
 Modelled: advance and reserve, stepped or daily fee accrual, flat per-invoice fees, rebate, simple annualised rate on cash advanced, monthly and yearly cost,
 optional line-of-credit comparison. Not modelled: setup, termination and minimum fees, disputed-invoice fees, recourse, taxes. Not financial advice.
-No warranty; see the page footer. MIT licensed (`LICENSE`).
+No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

@@ -2,7 +2,7 @@
 
 > Price a window replacement job from United Inches, story, and tear-out — not a flat price per window. See walk-away price, average per opening, and the margin a $550-a-window special actually leaves.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/window-replacement-bid-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/window-replacement-bid-calculator): FSL-1.1-MIT licensed.

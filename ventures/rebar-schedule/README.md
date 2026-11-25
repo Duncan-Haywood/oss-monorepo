@@ -138,4 +138,4 @@ used and the day; the checkbox in the footer turns it off.
 
 ## Licence
 
-MIT, see `LICENSE`.
+FSL-1.1-MIT, see `LICENSE`.
