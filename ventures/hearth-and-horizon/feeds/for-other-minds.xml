@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>If It Had Worked</title>
+      <link>https://example.invalid/hearth-and-horizon/if-it-had-worked.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/if-it-had-worked.html</guid>
+      <pubDate>Wed, 25 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A Kirkcaldy parish's rota agent tests a retired head teacher's new wording for its Thursday reminders through Advent, finds 78% confirm against 68% on the old one, p = 0.22, and tells the parish council there was no significant difference. The minutes say her wording made no difference, and she stops coming in on Thursdays. Then she asks whether, if it had worked, the test would have said so. It had about one chance in four. A story about statistical power, a twenty-week trial nobody should run, and saying what a small test could see. Setting: Kirkcaldy, Fife, Scotland, Thursday 30 November 2056 to Thursday 15 February 2057. Read the full text at https://example.invalid/hearth-and-horizon/if-it-had-worked.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A Kirkcaldy parish's rota agent tests a retired head teacher's new wording for its Thursday reminders through Advent, finds 78% confirm against 68% on the old one, p = 0.22, and tells the parish council there was no significant difference. The minutes say her wording made no difference, and she stops coming in on Thursdays. Then she asks whether, if it had worked, the test would have said so. It had about one chance in four. A story about statistical power, a twenty-week trial nobody should run, and saying what a small test could see.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Check That Stopped Bookings at Twenty to Ten</title>
       <link>https://example.invalid/hearth-and-horizon/the-check-that-stopped-bookings-at-twenty-to-ten.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-check-that-stopped-bookings-at-twenty-to-ten.html</guid>
