@@ -4,7 +4,7 @@ After using this, you can now **publish product updates as a public changelog pa
 
 **Live tool:** https://marisstella.app/changelog-keeper/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`**: the product page with a live Markdown writer that runs the same renderer as the server. Runs in the browser; nothing is uploaded.
 - **`server.mjs`**: the service. One Node process, **zero dependencies**, state in one JSON file. It serves the public page, feeds, an admin page, a JSON API and the embed script.

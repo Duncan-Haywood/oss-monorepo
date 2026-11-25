@@ -79,4 +79,4 @@ does not audit your books, verify a vehicle's actual surface area, predict
 real roll waste, or replace your own supplier quote, insurance, or
 accountant.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

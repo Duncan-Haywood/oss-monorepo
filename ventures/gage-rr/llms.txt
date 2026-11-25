@@ -2,7 +2,7 @@
 
 > Free online Gage R&R (gauge repeatability and reproducibility, measurement system analysis) by the ANOVA method. Paste a crossed study (every operator measures every part several times) or a nested one (destructive testing, each operator has own parts) and get the ANOVA table, variance components for repeatability, reproducibility, operator, part by operator interaction and part-to-part, %contribution, %study variation, %tolerance (precision-to-tolerance ratio), %process, the number of distinct categories (1.41 × part SD / gauge SD, AIAG MSA 4th edition), and confidence intervals for every component: exact chi-square for repeatability, modified large-sample (Graybill & Wang 1980; Ting et al. 1990; Burdick, Borror & Montgomery 2003) for the rest. Sums of squares match statsmodels to 1e-9; simulated 95% interval coverage 94.5% to 97.7%. Example: a real study of three ways to time a JavaScript function (gauge R&R 22.5% of study variation, 6 distinct categories). Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). A statistical estimate, not engineering certification, quality-system or other professional advice. Balanced studies only; one row per reading with part, operator and measurement columns. A missing reading is an error, not a zero.
+Free to use and source available (FSL-1.1-MIT). A statistical estimate, not engineering certification, quality-system or other professional advice. Balanced studies only; one row per reading with part, operator and measurement columns. A missing reading is an error, not a zero.
 
 ## Pages
 
@@ -25,4 +25,4 @@ Free and open source (MIT). A statistical estimate, not engineering certificatio
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gage-rr): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gage-rr): FSL-1.1-MIT licensed.

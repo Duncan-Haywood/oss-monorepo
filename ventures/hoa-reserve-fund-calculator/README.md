@@ -56,4 +56,4 @@ This is a financial planning estimate based on your own assumptions, not a
 substitute for a state-mandated reserve study (e.g. Florida SB 4-D / SIRS)
 or advice from a licensed reserve specialist.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

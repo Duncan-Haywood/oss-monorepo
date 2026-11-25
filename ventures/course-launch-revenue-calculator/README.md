@@ -19,4 +19,4 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 advice. It does not model taxes, payment plans, upsells, your time, or how price changes conversion.
 Unverified against a real launch's books: tested on hand-calculated examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

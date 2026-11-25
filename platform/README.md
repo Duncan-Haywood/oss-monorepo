@@ -4,8 +4,8 @@ Everything here is shared by all of the products in [`ventures/`](../ventures/RE
 the static-site generator that publishes them to
 **[duncan-haywood.github.io/oss-monorepo](https://duncan-haywood.github.io/oss-monorepo/)**,
 the CI guards that keep 1,000+ browser tools working, a privacy-respecting
-visitor counter, and a few open-source tools that are useful on their own.
-MIT licensed, like the rest of the repository.
+visitor counter, and a few source-available tools that are useful on their own.
+FSL-1.1-MIT licensed, like the rest of the repository outside `research/`.
 
 ## Open-source tools you can use in your own projects
 

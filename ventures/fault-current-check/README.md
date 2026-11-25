@@ -33,7 +33,7 @@ the impedances as magnitudes would have said 12,281 A (5.6 % low).
 
 ## Arc flash
 
-`arcflash.mjs` is the IEEE 1584-2018 model (three-phase, 208 V to 15 kV), ported from the MIT-licensed Python
+`arcflash.mjs` is the IEEE 1584-2018 model (three-phase, 208 V to 15 kV), ported from the FSL-1.1-MIT-licensed Python
 library [`arcflash`](https://github.com/LiaungYip/arcflash) by Li-aung Yip (coefficient tables, enclosure
 correction, Eqs. 1-25; licence notice in the file). That library reports agreement with the IEEE's calculator
 spreadsheets on 144,000 cases; this port is tested in `arcflash.test.mjs` against **every intermediate and final
@@ -81,5 +81,5 @@ Independent of equipment and fuse makers, utilities, code bodies and standards o
 **Best-effort hosting, no SLA.** These tools are free, experimental, and may be slow, broken, moved, or
 taken offline without notice. Do not use this as a system of record.
 
-Free and open source (MIT, see `LICENSE`). Optional support:
+Free to use and source available (FSL-1.1-MIT, see `LICENSE`). Optional support:
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood).

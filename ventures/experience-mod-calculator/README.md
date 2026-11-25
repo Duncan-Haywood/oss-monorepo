@@ -16,4 +16,4 @@ After using this, you can now **see which claim is driving your x-mod and what o
 
 Modelled: NCCI-style split-rating formula, split point, per-claim limit, medical-only discount, per-claim marginal cost, hypothetical new claims.
 Not modelled: independent-bureau states' plans, W/B tables, expected loss rates, ownership changes, claim valuation dates. Not insurance, legal or
-tax advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+tax advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

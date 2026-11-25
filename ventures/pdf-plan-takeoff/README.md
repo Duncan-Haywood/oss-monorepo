@@ -192,4 +192,4 @@ verifying its output before relying on it.
 
 ## Licence
 
-MIT, see `LICENSE`.
+FSL-1.1-MIT, see `LICENSE`.

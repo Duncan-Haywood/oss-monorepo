@@ -16,7 +16,7 @@
 // (Mixpanel's Query API reference, "Aggregated Event Counts"). type=unique gives each event's daily unique users.
 // Mixpanel counts days in the project's time zone, so a day is the project's day.
 //
-// Statistical analysis of data you supply, not advice. MIT licence.
+// Statistical analysis of data you supply, not advice. FSL-1.1-MIT licence.
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname } from 'node:path';

@@ -2,7 +2,7 @@
 
 > Paste /etc/sudoers and the files in /etc/sudoers.d: find NOPASSWD ALL, editors, pagers, shells, interpreters and find/tar/systemctl/docker rules that give a root shell, ALL minus su, commands in user-writable directories, wildcard arguments, SETENV, env_keep LD_PRELOAD, !env_reset, NOPASSWD rules a later rule overrides, and sudoers.d files sudo skips because their names contain a dot. Each finding has its file, line and fix, and the report lists who can become root and how. Free, runs in your browser, nothing uploaded.
 
-Free and open source (MIT). A static read of the files you give it, not a security audit and not visudo -c; a clean result is not proof a system is safe. The parser's reading of 41 grammar test cases matches sudo 1.9.15p5's own cvtsudoers. Which programs offer shell escapes is a long-known list documented in detail by GTFOBins; the tool is not affiliated with it or with the sudo project.
+Free to use and source available (FSL-1.1-MIT). A static read of the files you give it, not a security audit and not visudo -c; a clean result is not proof a system is safe. The parser's reading of 41 grammar test cases matches sudo 1.9.15p5's own cvtsudoers. Which programs offer shell escapes is a long-known list documented in detail by GTFOBins; the tool is not affiliated with it or with the sudo project.
 
 ## Pages
 
@@ -15,4 +15,4 @@ Free and open source (MIT). A static read of the files you give it, not a securi
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sudoers-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sudoers-check): FSL-1.1-MIT licensed.

@@ -74,4 +74,4 @@ using or publishing a price.
 node --test calc.test.mjs
 ```
 
-MIT licensed; see [`LICENSE`](LICENSE).
+FSL-1.1-MIT licensed; see [`LICENSE`](LICENSE).

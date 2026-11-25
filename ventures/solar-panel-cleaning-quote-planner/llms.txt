@@ -2,7 +2,7 @@
 
 > Free solar panel cleaning quote calculator. Enter your rate, speed per panel and costs; get a price per job and per panel at your target margin, a day route pack, and a payback check for the homeowner. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/solar-panel-cleaning-quote-planner): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/solar-panel-cleaning-quote-planner): FSL-1.1-MIT licensed.

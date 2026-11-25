@@ -40,7 +40,7 @@ ${PAPERS.map((p) => `  ${p.cite}${p.doi ? ` doi:${p.doi}` : ""}`).join("\n")}
 
 A statistical estimate that is only as good as its assumptions (a closed
 population, marks not lost, animals independent). Not legal, regulatory,
-wildlife-management or other professional advice. No warranty. MIT licence.
+wildlife-management or other professional advice. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/capture-recapture/`;
 
 const WITH_VALUE = { "--group": "group", "--history": "history", "--occasions": "occasions", "--freq": "freq", "--confidence": "confidence", "--n1": "n1", "--n2": "n2", "--m": "m", "--frequencies": "frequencies", "--k": "k" };

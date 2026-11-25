@@ -2,7 +2,7 @@
 
 > Free regression discontinuity tool. Upload a CSV with a running variable, a cutoff and an outcome (and optionally a 0/1 take-up column for a fuzzy design) and get the local polynomial estimate of the jump at the cutoff with conventional, bias-corrected and robust standard errors and confidence intervals (Calonico, Cattaneo and Titiunik 2014), an MSE-optimal bandwidth, a bandwidth sweep, placebo cutoffs, covariate balance tests, a McCrary density test and an RD plot. Matches rdrobust 2.1.1 within 1e-8 at fixed bandwidths. Runs in the browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial, medical, policy or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not legal, tax, financial, medical, policy or professional advice.
 
 ## Pages
 
@@ -22,4 +22,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/regression-discontinuity): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/regression-discontinuity): FSL-1.1-MIT licensed.

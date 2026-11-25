@@ -234,12 +234,18 @@ says otherwise. The hard limits under Guardrails still hold.
    can we instead have maybe a review process on cysec and legal risks
    instead?" Every PR gets a cyber and legal risk review
    (`python3 platform/security/risk_review.py`,
-   `docs/security/risk-review.md`) and merges on it. Only real liability goes
-   to the owner: a likely secret, a cut to the guardrails below, a licence
-   change on existing code, and the small owner-only core of
-   `.github/CODEOWNERS` (the gate and the review themselves, `priv-*`
-   workflows holding secrets, code that runs at session start). Don't add new
-   owner gates; add a check to the review instead.
+   `docs/security/risk-review.md`) and merges on it. Later the same day:
+   "we want to avoid that generally unless it is really human dependent for
+   example creating an api key. but we want to also move to systems that
+   remove human review as much as possible"; "the threats and risks ...
+   identified ... and ... a thorough assurance system to avoid those risks";
+   "I don't need to review. just be extra careful for adversarial changes."
+   So no PR waits for the owner. Liability-grade threats (secrets, guardrail
+   cuts, relicensing, weakening the gate) are blocked by the required
+   `risk-review` check, which runs main's reviewer, with no approval path.
+   The owner is asked only for what a person must do: account signups,
+   cards, secret values, admin-only settings. Don't add new owner gates; add
+   a control to the review instead.
 
 ## Mission
 

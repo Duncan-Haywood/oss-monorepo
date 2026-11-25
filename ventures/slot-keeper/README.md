@@ -4,7 +4,7 @@ After using this, you can now **let people book time with you from a page you ho
 
 **Live tool:** https://marisstella.app/slot-keeper/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`**: set weekly hours, buffers and notice, paste a calendar, and see the slots a visitor would get in any time zone. Runs in the browser; nothing is uploaded.
 - **`server.mjs`**: one Node process, **zero dependencies**, state in one JSON file. Booking pages, JSON slots API, invitations, reminders, cancel and reschedule, admin, CSV export, a calendar feed of your bookings.
@@ -44,4 +44,4 @@ Fork the repository, then open `https://render.com/deploy?repo=<your fork URL>`.
 
 ## Disclaimer
 
-No warranty; no uptime or delivery guarantee. You operate the booking page and are responsible for the details it collects, your privacy notice, data-protection rules and your own email sending. Check the time and zone of every booking; a missed or double-booked appointment is your responsibility. Not legal, tax or financial advice. MIT licensed. If it saves you a subscription, you can [sponsor the author](https://github.com/sponsors/Duncan-Haywood).
+No warranty; no uptime or delivery guarantee. You operate the booking page and are responsible for the details it collects, your privacy notice, data-protection rules and your own email sending. Check the time and zone of every booking; a missed or double-booked appointment is your responsibility. Not legal, tax or financial advice. FSL-1.1-MIT licensed. If it saves you a subscription, you can [sponsor the author](https://github.com/sponsors/Duncan-Haywood).

@@ -2,7 +2,7 @@
 
 > Free break-even calculator for childcare centers and daycares: enter classrooms, licensing ratios, tuition, wages and rent to see monthly profit, break-even enrollment, the ratio cliffs where one more child costs a teacher, and the tuition increase needed. Runs in your browser, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/childcare-center-break-even-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/childcare-center-break-even-calculator): FSL-1.1-MIT licensed.

@@ -115,7 +115,7 @@ python3 check.py --fail-on-risk         # exit 2 on any medium or high finding</
     <p>Everything runs in your browser. The YAML you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related checks: <a href="../k8s-resource-limits-check/">Kubernetes Resource Limits Check</a> covers CPU and memory limits, <a href="../k8s-rollout-safety-check/">Kubernetes Rollout Safety Check</a> covers probes and rollout settings, and <a href="../docker-compose-security-check/">Docker Compose Security Check</a> does the same job for Compose files.</p>
-    <p class="support">Free and open source. If this caught a privileged container or a mounted docker socket before an attacker did, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free to use and source available. If this caught a privileged container or a mounted docker socket before an attacker did, the <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
     import { scanFiles, hasRisk, summaryLine } from "./classify.mjs";

@@ -58,4 +58,4 @@ server only hands out files and never sees a figure you type.
 filed form. At-risk and passive-activity limits, the excess business loss limit, QBI,
 the other adjustments account and earnings and profits from C corporation years, stock sales and state rules
 are not modelled; a sale of stock is figured on the shares only. Check every figure against your K-1 and the Form 7203 instructions.
-MIT licensed.
+FSL-1.1-MIT licensed.

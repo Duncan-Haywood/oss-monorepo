@@ -32,7 +32,7 @@ tractor cost, insurance, contractor availability. Planning arithmetic, not advic
 
 ## License and privacy
 
-MIT. No warranty; not legal, tax, accounting or financial advice. Nothing leaves
+FSL-1.1-MIT. No warranty; not legal, tax, accounting or financial advice. Nothing leaves
 your browser; usage counts are local, opt-out-able and honour Do Not Track.
 
 ## Run the tests

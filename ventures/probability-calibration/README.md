@@ -71,7 +71,7 @@ over equal-width bins (the last bin includes 1) or equal-count bins.
 
 The bundled example is FiveThirtyEight's simple-Elo pre-game probability that
 the home team wins, for the 2,930 NFL games of 2010-2020 that did not end in a
-tie (`data/SOURCE.md`; MIT licence). Numbers from `eval/seasons.mjs`
+tie (`data/SOURCE.md`; FSL-1.1-MIT licence). Numbers from `eval/seasons.mjs`
 (`eval/seasons.json`):
 
 - Brier score 0.2196 against 0.2458 for always forecasting the base rate;
@@ -131,9 +131,9 @@ Implemented from the papers' mathematics (the `PAPERS` constant in
 `engine.mjs`, the page and `--help` list them with DOIs). No third-party code
 was ported. The R package `reliabilitydiag` by the CORP authors is the
 reference implementation of the method; it was not used or consulted for code
-here. Example data: FiveThirtyEight / ABC News, MIT licence.
+here. Example data: FiveThirtyEight / ABC News, FSL-1.1-MIT licence.
 
 No warranty. Statistical output from the data you supply, not legal, tax,
 financial, medical or professional advice. Not affiliated with the authors of
-the cited papers, FiveThirtyEight, ABC News or the NFL. MIT licence. Built with
+the cited papers, FiveThirtyEight, ABC News or the NFL. FSL-1.1-MIT licence. Built with
 AI assistance.

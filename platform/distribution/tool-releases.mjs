@@ -54,7 +54,7 @@ export function composeNotes({ slug, version, hash, description, channels, hasAc
   if (asset) lines.push(`- Download: \`${asset.name}\` (attached), SHA-256 \`${asset.sha256}\`; unpack it and run \`python3 devsec.py scan .\``);
   lines.push(`- Source at this version: https://github.com/${REPO}/tree/${tag}/ventures/${slug}`);
   lines.push('', `Content hash of the shipped files: \`${hash}\` (\`platform/distribution/versions.mjs\`).`);
-  lines.push('', 'Free and open source (MIT). Findings are observations to review, not a security guarantee or professional advice.');
+  lines.push('', 'Free to use and source available (FSL-1.1-MIT). Findings are observations to review, not a security guarantee or professional advice.');
   lines.push('This release was created automatically from `portfolio/distribution/versions.json`.');
   return { tag, name: `${slug} ${version}`, body: lines.join('\n') };
 }

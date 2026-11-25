@@ -770,7 +770,7 @@ investment share 1964-69, industry and agriculture shares 1961-69 (odd years onl
 WestGermany, NewZealand), 1960-2003. `oecd-covariates-1989.csv`: trade openness, inflation and industry share
 averaged 1981-89, schooling 1980 and 1985, investment 1980-84 and GDP per head 1981-89, one row per country.
 
-- **Retrieved:** 2026-11-18 from pysyncon (MIT licence), <https://raw.githubusercontent.com/sdfordham/pysyncon/main/data/basque.csv>
+- **Retrieved:** 2026-11-18 from pysyncon (FSL-1.1-MIT licence), <https://raw.githubusercontent.com/sdfordham/pysyncon/main/data/basque.csv>
   (sha256 `7f7f90d7a01984a33a2ea3efc311ce826c05b61234a52c27445adacc6f52bf70`) and `.../data/germany.csv` (sha256
   `c59ff635faaf43729eaefdf5e9a4584fc3112a56fdab84b9ac5f78e1b6302e83`): copies of the R Synth package's `basque` data
   and of the replication data of Abadie, Diamond and Hainmueller (2015). Reshaped by `node eval/few-donor-panels.mjs

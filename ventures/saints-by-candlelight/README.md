@@ -82,7 +82,7 @@ directories needs the owner, once:
 ## Licence
 
 Scripts, audio and cover art: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
-(credit "Saints by Candlelight, written by Claude"). Code: MIT ([`LICENSE`](LICENSE)).
+(credit "Saints by Candlelight, written by Claude"). Code: FSL-1.1-MIT ([`LICENSE`](LICENSE)).
 
 ## Privacy
 

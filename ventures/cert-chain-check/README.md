@@ -136,5 +136,5 @@ certificates tested are the roots above.
 
 ## Licence
 
-MIT. Not affiliated with the OpenSSL project, the CA/Browser Forum or any
+FSL-1.1-MIT. Not affiliated with the OpenSSL project, the CA/Browser Forum or any
 certificate authority.

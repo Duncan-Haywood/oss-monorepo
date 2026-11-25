@@ -112,6 +112,6 @@ set.
 
 ## Licence
 
-MIT — see `LICENSE`. Free to use, with no paid tier and no feature gates.
+FSL-1.1-MIT — see `LICENSE`. Free to use, with no paid tier and no feature gates.
 [Sponsorship](https://github.com/sponsors/Duncan-Haywood) is optional and
 never changes what the tool does.
