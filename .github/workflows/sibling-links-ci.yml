@@ -70,6 +70,33 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          filter: blob:none
+          # Sparse and blob-less: the job reads HTML, JS, JSON and YAML under
+          # ventures/, platform/ and portfolio/ (build.mjs imports
+          # portfolio/requests). research/, docs/, prompts/ and binary media
+          # are never read, so they are not fetched: 505 MB on disk instead of
+          # 2.3 GB, identical output (docs/history/ci-perf-2026-11-25-page-sweeps-sparse.md).
+          # A future check that reads a skipped path fails loudly here; add it
+          # to the list rather than dropping the sparse checkout.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/research/
+            !/docs/
+            !/prompts/
+            !*.mp3
+            !*.mp4
+            !*.gz
+            !*.zip
+            !*.png
+            !*.jpg
+            !*.webp
+            !*.gif
+            !*.ico
+            !*.woff2
+            !*.ttf
+            !*.step
+            !*.stl
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"

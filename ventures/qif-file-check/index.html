@@ -105,7 +105,7 @@
       <li><strong>Splits:</strong> S, E and $ lines must add up to the T total.</li>
       <li><strong>Fixed automatically:</strong> a closing ^, plain-decimal amounts, and, only if you ask, dates rewritten to four-digit years in a proven or confirmed order, and a !Type header you choose.</li>
       <li><strong>Never guessed:</strong> the date order when the file does not prove it, a garbled amount, which split is wrong, or whether two similar rows are one purchase.</li>
-      <li><strong>Not checked:</strong> that balances match your bank, that the file came from your bank, investment (Invst) transactions in depth, category or account names, or what any one importer will accept. Read from memory of common QIF practice, which was never formally standardised; confirm against your importer's own documentation.</li>
+      <li><strong>Not checked:</strong> that balances match your bank, that the file came from your bank, the shares-times-price arithmetic of investment (Invst) transactions (their action, security and amount lines are checked), category or account names, or what any one importer will accept. Read from memory of common QIF practice, which was never formally standardised; confirm against your importer's own documentation.</li>
     </ul>
   </section>
 
@@ -133,7 +133,7 @@
     <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>file_checked</code>, <code>example_loaded</code>, <code>fixes_applied</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../ofx-file-check/">OFX file check</a> covers OFX, QFX and QBO files, the <a href="../mt940-statement-check/">MT940 statement check</a> covers SWIFT MT940 statements, the <a href="../bank-csv-to-qbo-converter/">bank CSV to QBO converter</a> builds a bank file from a CSV, and the <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a> covers CSV imports.</p>
-    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free to use and source available. If this helped, the <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">

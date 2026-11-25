@@ -44,4 +44,4 @@ It doesn't choose a member or adjust allowables (duration, size, wet use, repeti
 - A section picker that runs the check across a list of typed sizes and reports the lightest that passes.
 - Wire it into `wall-framing-takeoff` so the floor and deck beams over several posts are checked as continuous members, not simple spans.
 
-MIT licensed. Free and as-is, no warranty.
+FSL-1.1-MIT licensed. Free and as-is, no warranty.

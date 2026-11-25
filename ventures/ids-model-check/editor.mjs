@@ -612,13 +612,19 @@ export function modelSets(inv, classes, standardSets = []) {
       m.count += s.count;
       for (const p of s.props) {
         let q = m.props.get(p.name);
-        if (!q) m.props.set(p.name, (q = { ...blankTally(), name: p.name, dataType: p.dataType }));
+        if (!q) m.props.set(p.name, (q = { ...blankTally(), name: p.name, dataType: p.dataType, types: new Map() }));
         else q.dataType = q.dataType || p.dataType;
+        // Data types counted across classes: a wall's IFCLABEL and a door's
+        // IFCTEXT in one set fail a check of both with either dataType.
+        for (const [t, n] of p.typeCounts || (p.dataType ? [[p.dataType, p.count]] : [])) q.types.set(t, (q.types.get(t) || 0) + n);
         mergeTally(q, p);
       }
     }
   }
-  const prop = (q) => ({ name: q.name, dataType: q.dataType, ...tallyOut(q) });
+  const prop = (q) => {
+    const typeCounts = [...q.types.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+    return { name: q.name, dataType: typeCounts.length ? typeCounts[0][0] : q.dataType, typeCounts, ...tallyOut(q) };
+  };
   return [...out.values()].map((m) => ({ name: m.name, count: m.count, of, standard: standardSets.includes(m.name), props: [...m.props.values()].map(prop).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)) }))
     .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
@@ -717,7 +723,10 @@ export function modelValueOffer(mp, kind, enumVals = null, temporal = null) {
     : kind === "text" ? values.map(([v]) => v).sort()
     : kind === "number" && values.length <= NUMBER_ONEOF_MAX && exact ? [...exact] : null;
   const num = kind === "number" && typeof mp.min === "number" && typeof mp.max === "number";
-  return { values, outside, complete, min: num ? mp.min : null, max: num ? mp.max : null,
+  // INF, -INF and NaN: an exporter's 1.#INF / -1.#IND (inventory.mjs lexical),
+  // which every range or value check fails.
+  const nonFinite = kind === "number" ? mp.values.filter(([v]) => v === "INF" || v === "-INF" || v === "NaN") : [];
+  return { values, outside, complete, nonFinite, min: num ? mp.min : null, max: num ? mp.max : null,
     rangeMin: num ? outwardBound(mp.min, -1) : null, rangeMax: num ? outwardBound(mp.max, 1) : null, oneOf, empty: mp.empty || 0,
     ...modelTemporalRange(mp, temporal) };
 }
@@ -999,6 +1008,33 @@ export function untypeRow(L, r, modelType) {
   if (!real && (r.mode === "true" || r.mode === "false")) { row.mode = "equals"; row.equals = r.mode; keep = true; }
   if (!keep) { row.mode = "any"; row.equals = ""; row.oneOf = []; row.pattern = ""; row.min = ""; row.max = ""; }
   return { row, dropped: !keep, real };
+}
+
+// A project's own property the model writes in more than one data type
+// (ARK_NUS's Revit export writes Constraints.Level as IFCLABEL on most rooms
+// and IFCTEXT on the rest; Office_A writes "ADA Compliant" as IFCBOOLEAN and
+// IFCLABEL): IDS names one dataType, so a check with the commonest fails the
+// others (eval/mixed-type-own-props-2026-11-24.md). [[type, count], ...],
+// commonest first, or null when the model writes one type.
+export function mixedModelTypes(q) {
+  const t = q && q.typeCounts;
+  return Array.isArray(t) && t.length > 1 ? t : null;
+}
+
+// The own-set row with no dataType, which no object fails for its type. When
+// every type the model writes is text (IFCLABEL, IFCTEXT, IFCIDENTIFIER) a
+// value is the same string to every checker, so the row keeps its value;
+// with a boolean or number among them the tools read an untyped value apart
+// (eval/model-any-type-2026-11-17.md), so only presence carries over.
+export function untypeOwnRow(S, r, q) {
+  const mixed = mixedModelTypes(q);
+  if (r.kind !== "property" || !r.custom || r.untyped || r.fixed || !mixed) return null;
+  const text = mixed.every(([t]) => S.types[t] && S.prim(t) === "string");
+  const row = { ...r, untyped: true, dataType: "" };
+  delete row.oneOfBase; delete row.numBase;
+  const keep = !r.mode || r.mode === "any" || (text && (r.mode === "equals" || r.mode === "oneOf" || r.mode === "pattern"));
+  if (!keep) Object.assign(row, { mode: "any", equals: "", oneOf: [], pattern: "", min: "", max: "" });
+  return { row, dropped: !keep, text };
 }
 
 export const reqComplete = (r) => r.fixed || (r.kind === "property" ? r.set && r.name : r.kind === "attribute" ? r.name : r.kind === "partOf" ? r.entity : true);

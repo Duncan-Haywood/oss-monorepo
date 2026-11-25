@@ -109,11 +109,12 @@ test('the changelog page: escaped, filterable, linked, disclaimed, canonical', (
   const html = renderChangelog(data(), { baseUrl: BASE });
   assert.ok(html.includes(`<link rel="canonical" href="${BASE}${CHANGELOG_PATH}">`));
   assert.ok(html.includes('data-pfs-head'), 'carries the site header');
-  assert.match(html, /aria-current="page">Updates</);
+  assert.match(html, /aria-current="page">Blog</);
   assert.ok(html.includes('tighten the router &lt;b&gt;'), 'a merge title cannot inject markup');
   assert.ok(!html.includes('router <b>'));
   assert.ok(html.includes('href="../roofing-calc/"'));
-  assert.ok(html.includes('https://github.com/Duncan-Haywood/oss-monorepo/pull/12'));
+  const hrefs = [...html.matchAll(/href="([^"]*)"/g)].map((m) => m[1]);
+  assert.ok(hrefs.some((h) => h === 'https://github.com/Duncan-Haywood/oss-monorepo/pull/12'), 'links the merge to its pull request');
   assert.ok(html.includes('data-filter="research"'));
   assert.match(html, /no warranty/i);
   assert.ok(!html.includes('too old to list'));

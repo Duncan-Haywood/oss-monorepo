@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtH3HeNfCpyD41SZDH7",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T08:07:22Z",
+  "ended": "2026-11-25T08:15:28Z",
+  "wall_minutes": 8.28,
+  "tokens_in": 7766437,
+  "tokens_out": 32422,
+  "cost_usd": 3.2035,
+  "tool_calls": 67,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18904",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to run platform/security/risk_review.py for every PR, but it only diffs this repo; for work in private-monorepo the run answered the checks by hand in that PR's body."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "private-monorepo CI jobs fail in 2-16 s with runner_id 0 (no runner; PR #64 merged the same way); ci_starvation.py only reads this repo, so the classification was made by hand from the job metadata."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "private-monorepo CI never got a runner, so the merge went on local checks instead of green CI",
+      "did": "ran lien-waivers node tests (211), payapps tsc, unit tests (198), worker waiver tests (20), build, and payapps-site tests and build; merged private PR #65",
+      "result": "merged; output summarised in PR #65"
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "no new post: Florida already had a section in the existing lien-waiver-forms-by-state guide, and the consolidation rule says to extend it, not add one",
+      "did": "extended that guide's Florida section",
+      "result": "landed in this PR"
+    }
+  ],
+  "writeups": [
+    "ventures/pay-app-guides/lien-waiver-forms-by-state.html (Florida section extended)",
+    "private-monorepo packages/lien-waivers/README.md (Florida status)"
+  ],
+  "goal": null,
+  "notes": "Bet #1: Florida statutory lien waivers (Fla. Stat. 713.20(4),(5)) in packages/lien-waivers and PayApps, private-monorepo PR #65 (merged 2ad505d). www.flsenate.gov answered from the cloud session; leginfo.legislature.ca.gov and law.justia.com still 403 (California stays pending). Mutation check: three one-phrase edits each failed 2 tests.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "036c0004-834b-5c3d-8b60-748cb3e0608b",
+    "transcripts": 1,
+    "first": "2026-11-25T08:07:22Z",
+    "last": "2026-11-25T08:15:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 122,
+        "output": 32422,
+        "thinking": 6892,
+        "cache_read": 7637944,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128371,
+        "api_equivalent_usd": 3.2035,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 122,
+      "output": 32422,
+      "thinking": 6892,
+      "cache_read": 7637944,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128371,
+      "api_equivalent_usd": 3.2035,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 53,
+      "ToolSearch": 4,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__actions_get": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.28,
+      "active_minutes": 8.28,
+      "model_minutes": 6.48,
+      "tool_minutes": 1.8,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "reading and encoding a state statute's two waiver forms with tests, app wiring and copy",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 187.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

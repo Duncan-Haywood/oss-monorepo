@@ -12,7 +12,7 @@ test('carries the no-warranty disclaimer', () => {
 });
 
 test('carries the licence and sponsors paragraph', () => {
-  assert.match(html, /Free and open source/);
+  assert.match(html, /Free to use and source available/);
   assert.match(html, /LICENSE/);
   assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
 });
@@ -62,11 +62,16 @@ test('every FAQ answer in the schema matches the visible answer text', () => {
   // structured-data mismatch, and search engines treat it as one. Compare on
   // text, after decoding the entities the visible copy uses and the JSON-LD
   // does not.
+  const stripTags = (s) => {
+    let prev;
+    do {
+      prev = s;
+      s = s.replace(/<[^>]+>/g, '');
+    } while (s !== prev);
+    return s;
+  };
   const decode = (s) =>
-    s
-      .replace(/&mdash;/g, '—')
-      .replace(/&amp;/g, '&')
-      .replace(/<[^>]+>/g, '')
+    stripTags(s.replace(/&mdash;/g, '—').replace(/&amp;/g, '&'))
       .replace(/\s+/g, ' ')
       .trim();
   const schema = JSON.parse(

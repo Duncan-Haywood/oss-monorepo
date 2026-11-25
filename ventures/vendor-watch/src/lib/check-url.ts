@@ -317,16 +317,17 @@ export function isPlausibleHttpUrl(input: string): boolean {
 
 export function normalizeHtmlToText(html: string): string {
   const withoutScripts = html
-    .replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style[\s\S]*?<\/style>/gi, " ");
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, " ")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style\b[^>]*>/gi, " ");
   const withoutTags = withoutScripts.replace(/<[^>]+>/g, " ");
   const decoded = withoutTags
     .replace(/&nbsp;/gi, " ")
-    .replace(/&amp;/gi, "&")
     .replace(/&lt;/gi, "<")
     .replace(/&gt;/gi, ">")
     .replace(/&quot;/gi, '"')
-    .replace(/&#39;/gi, "'");
+    .replace(/&#39;/gi, "'")
+    // Last, so "&amp;lt;" decodes once to the text "&lt;", not twice to "<".
+    .replace(/&amp;/gi, "&");
   const collapsed = decoded.replace(/\s+/g, " ").trim();
   return collapsed.slice(0, MAX_TEXT_LENGTH);
 }

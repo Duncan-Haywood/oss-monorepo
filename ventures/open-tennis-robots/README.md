@@ -15,7 +15,7 @@ tennis practice better:
 **Try the shot planner, the drill builder and the route demo in your browser:**
 https://marisstella.app/open-tennis-robots/
 
-Everything is MIT-licensed. You can build it, change it, and **sell it**
+Everything is FSL-1.1-MIT-licensed. You can build it, change it, and **sell it**
 under your own brand ([seller's guide](sell/README.md), including a
 one-command Amazon listing tool).
 

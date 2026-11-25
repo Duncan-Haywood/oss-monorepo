@@ -164,7 +164,7 @@ qualified professional, before relying on it or pricing work with it. To the
 maximum extent permitted by law, the authors accept no liability for loss or
 damage from its use.
 
-MIT licensed — see [`LICENSE`](LICENSE).
+FSL-1.1-MIT licensed — see [`LICENSE`](LICENSE).
 
 ## Files
 

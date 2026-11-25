@@ -61,4 +61,4 @@ It ranks and scales the numbers in the file you give it. It cannot see why a
 line moved. The cause checklists were written 2026-10-03 from general knowledge
 of how AWS bills behave and were not checked against a live account. Not
 affiliated with Amazon Web Services. No warranty; not billing, financial or
-professional advice. MIT licence.
+professional advice. FSL-1.1-MIT licence.

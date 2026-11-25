@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVNTTcE475NzXiDfB4Z",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T08:25:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ifc-quantity-takeoff (flagship 14): a 2nd IFC4X3 bridge",
+  "projects": [
+    "ifc-quantity-takeoff"
+  ],
+  "pr": 18566,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "IfcOpenShell 0.9.0 segfaults on the flyover's deck, railings and gradient curve; bsi-samples-ifcopenshell.py dies with the interpreter, so eval/pgsuper-bridges-ifcopenshell.py builds each element in a forked child",
+    "git ls-tree -l on a blob:none clone lazily fetched every blob and hung past 120 s; fetched the three files by raw.githubusercontent.com instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "item 3 (EngiWorld revisions) was named by open PR #18502, so the 'third open item, skipping PR-named' rule landed on item 4 (a 2nd bridge); fine, but the printed rank order left it to the reader to work out"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-a-bridge-deck-25-metres-above-its-girders.md",
+    "ventures/ifc-quantity-takeoff/eval/pgsuper-bridges-2026-11-24.md"
+  ],
+  "goal": "Read a second exporter's IFC4X3 bridge and check the figures",
+  "notes": "Found three BridgeLink PGSuper 8 IFC4X3 bridges (RickBrice/IfcAlignmentDriver, no licence: fetched by eval/pgsuper-bridges-fetch.sh, not vendored). Main read the girders but not the decks/railings (IfcPolynomialCurve). Built: IfcPolynomialCurve parent; readVertical (horizontal-run lengths, level parabolas, sine grades, chosen per segment by the next placement); absolute-elevation sections moved onto the curve; sections whose points meet paired as written; lofted plan area from top faces (shellPlanArea). Checks run here: venture tests 268 pass (python3 platform/ci/run_venture_tests.py ifc-quantity-takeoff); elevations = semantic IfcAlignmentVerticalSegment to 3e-11 m; volumes = independent Simpson/Pappus integral (flyover deck 3e-5, railings 1.4e-4, Br1 1e-6); deck seated 0.07-0.20 m over girders; Viadotto Acerno volumes unchanged, only deck plan area 5,638 -> 5,962 m2; bSI 46 sample models output identical to main; check_posts ok; validate.py ok. Raw output in eval/pgsuper-bridges-2026-11-24.txt.",
+  "corrections": [],
+  "redteam": null
+}

@@ -605,6 +605,42 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    the H1 (0.56 times) but not the G1, whose weak pose's deadline sits at the sheet period (H291 refuted). The G1's band
    offset now cuts re-zeros 76% (H292 held), and the best pose pays at 0.31 s a move (H294 held). Next: risk allocated
    per pose; a warm-up transient; a logged drift trace.
+74. **Risk allocated per press** (done 2026-11-24, `experiments/m74_allocate/`, offline): an exact dynamic programme
+   gives the fewest re-zeros for a per-press risk budget and a lower bound on any schedule with 1% wall risk. On the
+   G1's LAYOUT plan at 0.1 N the bound is 96 and the calibrated allocation reaches it (99 under milestone 73): the cliff
+   is the wall's (H295 held). Allocation beats the union bound's uniform level (H296 held) but saves only 0 to 9% over a
+   calibrated one (H297 refuted), and lands within 10% of the bound wherever it needs 10 or more (H298 held). The G1's
+   banded plan costs 2.97% of the cycle (H299 held). Next: a warm-up transient; a logged drift trace; pose plan and
+   schedule chosen together.
+75. **Optimal risk allocation** (done 2026-11-24, `experiments/m75_riskopt/`, offline): an exact risk calculation
+   (the bias norm under a random walk is a one-variable Markov chain) and a dynamic programme give the fewest re-zeros of
+   any open-loop schedule at 1% wall risk. It saves at most 7% over one per-press risk level calibrated exactly
+   (H303 refuted), and the G1's cliff is structural (96 against 99, H302 held). Milestone 73's Monte Carlo calibration
+   overshot 1% on 5 of 18 rows (up to 1.31%), and so did 3 of milestone 74's allocations; milestone 74's lower bound is
+   attained on 5 rows. Next: a closed-loop schedule; a warm-up transient; a logged drift trace.
+76. **A closed-loop schedule** (done 2026-11-24, `experiments/m76_closedloop/`, offline): one free-air bias reading a
+   sheet, filtered and subtracted from the sensor offset, needs no tares on 16 of 18 rows at 0.01 N of reading noise a
+   axis, and 49 against the open-loop optimum's 96 on the G1's weakest plan (H310 held); triggering tares from the
+   reading instead needs 38.4 there at zero noise (H308 held). At 0.02 N the G1's weak pose is back at its cliff (H309
+   held), and a 0.02 N gravity-model error unknown to the filter raises the wall's failure to 10 to 12% where a policy
+   runs near its margin (H312 refuted, for both policies). Next: a tare schedule optimised for the tracked residual; a
+   pose-dependent gravity-model error; a warm-up transient; a logged drift trace.
+77. **BALANCE, a wall budget for the tracked residual** (done 2026-11-24, `experiments/m77_balance/`, offline): because
+   the tracked filter's variance, and so each sheet's risk j sheets after a tare, is a fixed table, the fewest tares at a
+   union-bound wall budget are equal runs (the cost is convex). Never worse than TRACK on 90 cells (H315 held) and the
+   best closed-loop policy at 0.01 N on all 11 large rows (H318 held), but a median 2% saving over TRACK (H317 refuted):
+   it pays where a per-sheet level forced a tare every sheet (G1 LAYOUT at 0.2 N, s = 0.05 N: 116 against 199, below
+   OPT's 142). The G1's weak pose at 0.02 N stays at the open-loop optimum (97 against 96, H316 held); a 0.02 N
+   gravity-model error still gives 11.9% failure (H319 held). Next: a filter that estimates the gravity-model error; a
+   warm-up transient; a logged drift trace.
+78. **A filter that learns the gravity-model error** (done 2026-11-25, `experiments/m78_augfilter/`, offline): the
+   free-air reading's error beta, fixed at the reading pose, carried in the filter state with prior N(0, sb&sup2;) and
+   learnt from readings that follow tares. With sb = 0.02 N and s = 0.01 N the naive filter fails 51.5% of walls on the
+   G1's weak pose (H321 held), and recalibrating it helps only by taring every sheet, or not at all (its risk table does not see beta); AUG+R (one extra reading
+   straight after every tare) holds 1% on all 72 cells (worst 1.09%, H320 held) for 67 re-zeros there against 48 with
+   beta known and OPT's 96 (median excess over known beta 7.7%, H323 held; no worse than OPT on all 11 large rows, H324
+   held; 0.78% at a fixed 0.04 N, H325 held). Next: a pose-dependent beta; front-loaded tares; a warm-up transient; a
+   logged drift trace.
 
 ## Target venue
 

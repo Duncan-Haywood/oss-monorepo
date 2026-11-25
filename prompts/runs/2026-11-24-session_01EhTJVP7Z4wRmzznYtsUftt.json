@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVP7Z4wRmzznYtsUftt",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo (ventures brief)",
+  "input_sha256": "f295deebe25520aebfdb3a2dd2007380a626adf38c909b5e9c83900b10aad0d9",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T07:44:38Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 9): league-schedule-generator, buildable item 2 (bowling 26x38 one off; limit-1 seasons 24x11, 26x12, 28x13)",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18559",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-bowling-lanes-whole-week-redeal.md"
+  ],
+  "goal": null,
+  "notes": "Whole-week re-deal LNS (exact Hungarian assignment per week) moved 26x12 and 28x13 from 4 to 3 off in bowling-lane-near.mjs; page builds 3 on seeds 1 and 2 (eval/bowling-lane-near-check.mjs); node --test bowling.test.mjs 34 pass 0 fail. 24x11 stays 3; 26x38 stays 1 (SAT repair of 16/22 freed weeks, 25 min each, nothing). Short-pair redundant counts made SAT slower. Sweep of all 12 near seasons: the walk only helps on W < P seasons. Partial: no season reached 0.",
+  "corrections": [],
+  "redteam": null
+}

@@ -45,7 +45,7 @@
     </ul>
     <p class="note">These are common requirements written from general knowledge, not legal advice, and the statutes were not re-read for this page.</p></section>
   <section class="card"><h2>Run it yourself, or use a hosted service</h2>
-    <p>Hosted services for this exist and charge monthly per location. This one is different in one way only: the code is open and MIT licensed, so you run it on your own Twilio account and pay Twilio's per-text price rather than a subscription. If you do not want to run a server, a hosted service is the better choice, and so is the answering service your phone provider already offers. When you run it yourself you also own the setup: the number, its registration, the server and its upkeep.</p>
+    <p>Hosted services for this exist and charge monthly per location. This one is different in one way only: the code is open and FSL-1.1-MIT licensed, so you run it on your own Twilio account and pay Twilio's per-text price rather than a subscription. If you do not want to run a server, a hosted service is the better choice, and so is the answering service your phone provider already offers. When you run it yourself you also own the setup: the number, its registration, the server and its upkeep.</p>
     <p>Steps are on the <a href="./">main page</a>; the source and the exact rules are in the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/missed-call-textback">repository</a>. It has been tested against a fake Twilio only; no real call has gone through it yet, so run it in dry-run mode first and read the log.</p></section>
   <section class="card"><h2>Is it worth it? Do the sum</h2>
     <p>Missed calls a week, times the share who would reply, times the share who become jobs, times your average job. <a href="./">The calculator</a> does it from your own numbers, and shows how many extra jobs a month pay for the cost. If the answer is under one job a month, it is not worth the setup.</p></section>
@@ -57,7 +57,7 @@
     <p>Anonymous feature events (<code>roi_calculated</code>, <code>message_checked</code>, <code>example_loaded</code>) are counted only in local storage on your device and never sent. Do Not Track and Global Privacy Control are respected.</p>
     <p><button type="button" id="optout">Turn usage counting off</button></p>
     <p>Related: <a href="../lead-response-time-analyzer/">lead response time analyzer</a>, <a href="../sms-segment-cost-calculator/">SMS segment cost calculator</a>, <a href="../home-service-lead-roi-analyzer/">home service lead ROI analyzer</a>.</p>
-    <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free to use and source available. The <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
     import { setUsageOptOut, usageOptedOut } from "./usage.mjs";

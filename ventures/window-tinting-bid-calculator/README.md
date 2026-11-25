@@ -61,4 +61,4 @@ check your state's window tint darkness (VLT%) law, medical-exemption
 rules, reflectivity limits, or any other film-legality requirement, and it
 does not replace your own judgment about scope or warranty terms.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

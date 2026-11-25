@@ -45,7 +45,10 @@ import { EMPTY_LIST, SKIPPED_LIST } from "./step.mjs";
 // IFC4 layout puts the owner history near the top, so 760,438 of 1,207,966
 // entities of one federated file went unread (eval/ifc4-layout-scale-2026-11-18.md).
 // Only when those tags name no version is the rest of the head searched.
-const versionIn = (s) => (/IFC4X3|IFC4_3|IFC4x3/i.test(s) ? "IFC4X3" : /IFC2X3/i.test(s) ? "IFC2X3" : /IFC4/i.test(s) ? "IFC4" : null);
+// IFC4X3 ADD2's own XSD names its namespace .../IFC/RELEASE/IFC4/3/ADD2 (and
+// the development builds .../IFC/DEV/IFC4/3/ADD2/DEV/...), with a slash:
+// read as IFC4 until 2026-11-24 (eval/ifcxml-export-2026-11-24.md).
+const versionIn = (s) => (/IFC4X3|IFC4_3|IFC4x3|IFC4\/3\//i.test(s) ? "IFC4X3" : /IFC2X3/i.test(s) ? "IFC2X3" : /IFC4/i.test(s) ? "IFC4" : null);
 const ROOT_TAG = /<(?:[\w.-]+:)?(?:iso_10303_28|ifcXML|uos)(?=[\s>\/])[^>]*>/gi;
 // text may be the file's bytes (a Uint8Array): only its head is decoded.
 // 4,000 characters are at most 16,000 UTF-8 bytes; a character cut at the end
@@ -305,6 +308,15 @@ export function parseIfcXml(text, schema, opts = {}) {
         // written without its own element.
         const v = { ref: entity(el, declared) };
         return def.aggregate ? [v] : v;
+      }
+      // A list of lists written flat with its shape in ifc:arraySize="rows
+      // columns" (ifcxml-writer.mjs, as the XSD's "list list" lists are):
+      // cut back into rows.
+      const sizeKey = def.inner ? Object.keys(el.attrs).find((k) => local(k) === "arraySize") : undefined;
+      const dims = sizeKey ? String(el.attrs[sizeKey]).trim().split(/\s+/).map(Number) : null;
+      if (dims && dims.length === 2 && dims.every((d) => Number.isInteger(d) && d > 0)) {
+        const flat = kidsEls.flatMap((c) => (entityName(xsiType(c) || c.local) || c.attrs.ref !== undefined || c.children.length ? [item(c, declared)] : splitText(c.text, declared)));
+        if (flat.length === dims[0] * dims[1]) return Array.from({ length: dims[0] }, (_, r) => flat.slice(r * dims[1], (r + 1) * dims[1]));
       }
       // A list of lists as one wrapper per row: <Seq-IfcPositiveInteger-wrapper>14 16 15 13</..>.
       if (def.inner && kidsEls.every((c) => !c.children.length && !entityName(xsiType(c) || c.local) && c.attrs.ref === undefined)) {

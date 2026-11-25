@@ -82,10 +82,34 @@ def test_changes_drops_shallow_boundary(tmp_path):
         if "log" in cmd:
             return Done("@@2026-11-13T12:00:00+00:00\t" + "a" * 40 + "\tfix pyenv\n\nplatform/ci/pyenv.py\n"
                         "@@2026-11-09T00:00:00+00:00\t" + "b" * 40 + "\tboundary\n\nplatform/ci/pyenv.py\nx.py\n")
+        if "rev-list" in cmd:
+            return Done("a" * 40 + "\n" + "b" * 40 + "\n")
         return Done("2026-11-09T00:00:00+00:00\n")
     commits, edge = fr.changes("2026-11-10", root=tmp_path, run=run)
     assert commits == [("2026-11-13T12:00:00+00:00", "a" * 9, "fix pyenv", ["platform/ci/pyenv.py"])]
     assert edge == "2026-11-09T00:00:00+00:00"
+
+
+def test_changes_ignores_other_branches_shallow_boundaries(tmp_path):
+    """The security-alerts branch's boundary is newer than main's; it must not set the edge."""
+    (tmp_path / ".git").mkdir()
+    (tmp_path / ".git" / "shallow").write_text("b" * 40 + "\n" + "c" * 40 + "\n")
+    shown = []
+
+    class Done:
+        def __init__(self, out):
+            self.stdout, self.returncode = out, 0
+
+    def run(cmd, **_):
+        if "log" in cmd:
+            return Done("")
+        if "rev-list" in cmd:
+            return Done("a" * 40 + "\n" + "b" * 40 + "\n")
+        shown.append(cmd)
+        return Done("2026-11-09T00:00:00+00:00\n")
+    _, edge = fr.changes("2026-11-10", root=tmp_path, run=run)
+    assert edge == "2026-11-09T00:00:00+00:00"
+    assert "c" * 40 not in shown[0] and "b" * 40 in shown[0]
 
 
 class _Done:
@@ -205,7 +229,11 @@ def test_codeowners_gating(tmp_path):
 def test_real_codeowners_gates_the_control_plane():
     rules = fr.codeowner_rules()
     assert rules, "the repository's .github/CODEOWNERS should parse"
-    assert fr.gated("prompt.md", rules) and fr.gated("prompts/redteam/prompt-0.md", rules)
+    # Agent instructions left the owner-only core on 2026-11-24 (PR #18736:
+    # a risk review replaces owner approval); the gate and its tools stay in it.
+    assert fr.gated("prompts/promptctl.py", rules) and fr.gated(".github/CODEOWNERS", rules)
+    assert fr.gated("platform/ci/control_plane_guard.py", rules)
+    assert not fr.gated("prompt.md", rules)
     assert not fr.gated("platform/ci/friction_rank.py", rules)
     assert not fr.gated("portfolio/flagships.yaml", rules)
 

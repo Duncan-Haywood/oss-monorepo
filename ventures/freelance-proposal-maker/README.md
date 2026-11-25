@@ -23,7 +23,7 @@ Front of the proposal -> [Freelance Contract Maker](../freelance-contract-maker/
 [Invoice Maker](../invoice-maker/) loop, tied together by the
 [Freelance Dashboard](../freelance-dashboard/).
 
-An offer template, not legal advice; see the disclaimer on the page. MIT licensed.
+An offer template, not legal advice; see the disclaimer on the page. FSL-1.1-MIT licensed.
 
 ## Hand-off (added 2026-10-07)
 

@@ -147,4 +147,4 @@ solves dominate).
 **No warranty.** Statistical output from data you supply, provided as-is. It
 is not legal, tax, financial or medical advice and does not replace a
 qualified statistician. A distance or a p-value is not proof of a cause.
-MIT licence.
+FSL-1.1-MIT licence.

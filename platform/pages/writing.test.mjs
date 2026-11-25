@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import vm from 'node:vm';
 import { spawnSync } from 'node:child_process';
-import { AGENT_BLOG, autoSeoTitle, BLOG, buildWriting, PAGE_SIZE as WRITING_PAGE_SIZE, TOPICS, loadPosts, parseFrontMatter, postPageTitle, rankRelated, relatedPosts, renderFeed, renderIndex, renderPost, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
+import { AGENT_BLOG, autoSeoTitle, BLOG, bodyMatcher, buildWriting, PAGE_SIZE as WRITING_PAGE_SIZE, TOPICS, loadPosts, parseFrontMatter, postPageTitle, rankRelated, rankRelatedBySort, relatedPosts, renderFeed, renderIndex, renderPost, renderSearchIndex, searchText, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
 
 const BASE = 'https://example.test/site/';
 
@@ -87,6 +87,13 @@ test('build writes an index, one page per post and a feed, each with a disclaime
     .find((b) => b['@type'] === 'BreadcrumbList');
   assert.deepEqual(crumb.itemListElement.map((i) => i.item), [BASE, `${BASE}writing/`, `${BASE}writing/hello/`]);
   assert.equal(crumb.itemListElement.at(-1).name, 'Hello <world>');
+  // The post's own structured data names its URL, publisher and author (article-ld.mjs).
+  const posting = [...page.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+    .map((m) => JSON.parse(m[1]))
+    .find((b) => b['@type'] === 'BlogPosting');
+  assert.equal(posting.mainEntityOfPage['@id'], `${BASE}writing/hello/`);
+  assert.equal(posting.publisher['@id'], `${BASE}#organization`);
+  assert.equal(posting.author['@type'], 'Organization');
   // Repository-relative links become GitHub links.
   assert.match(page, /href="https:\/\/github\.com\/Duncan-Haywood\/oss-monorepo\/blob\/main\/README\.md"/);
   assert.match(feed, new RegExp(`<id>${BASE}writing/hello/</id>`));
@@ -113,7 +120,7 @@ test('a full link to the default origin follows the address the site is built fo
   await buildWriting(out, BASE, { root, originAlias: alias });
   const page = await fs.readFile(path.join(out, WRITING_PATH, 'first/index.html'), 'utf8');
   assert.match(page, new RegExp(`<a href="${BASE.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}some-tool/">the tool</a>`));
-  assert.ok(!page.includes(alias), 'the default origin must not survive a build under another address');
+  assert.doesNotMatch(page, /default\.test\/site\//, 'the default origin must not survive a build under another address');
 
   const same = mkdtempSync(path.join(os.tmpdir(), 'writing-origin-same-'));
   await buildWriting(same, alias, { root, originAlias: alias });
@@ -227,8 +234,9 @@ test('the index can be searched and filtered: finder, card data, full-text index
   assert.match(index, /<li data-slug="older" data-topic="research" data-tags="agents notes" data-date="2026-10-01"/);
   // The pressed state of a topic chip follows the active topic, not its opposite.
   assert.match(index, /setAttribute\('aria-pressed', String\(c\.dataset\.topicChip === topic\)\)/);
-  const search = JSON.parse(await fs.readFile(path.join(w, 'search.json'), 'utf8'));
-  assert.match(search.older, /zlib level nine/);
+  const has = bodyMatcher(JSON.parse(await fs.readFile(path.join(w, 'search.json'), 'utf8')));
+  assert.deepEqual([...has('zlib')], ['older']);
+  assert.deepEqual([...has('nine.')], ['older']);
   const older = await fs.readFile(path.join(w, 'older/index.html'), 'utf8');
   assert.match(older, /<a class="topic" href="\.\.\/topic\/research\/">Research findings<\/a>/);
   assert.match(older, /<a href="\.\.\/topic\/research\/">More in Research findings<\/a>/);
@@ -356,6 +364,31 @@ test('rankRelated ranks by rare shared tags and title words, not by recency', ()
   for (const p of posts.slice(2, 5)) assert.ok(!rankRelated(p, posts, 3).some((r) => r.slug.startsWith('new-')), p.slug);
 });
 
+// rankRelated keeps the best k as candidates arrive instead of sorting every
+// candidate (docs/history/pages-build-perf-2026-11-25-related-top-k.md). Pinned
+// against the full sort on ties in score and date, duplicate slugs, a post not
+// in the array, an unparseable date and odd list lengths.
+test('rankRelated gives the same lists as the full sort it replaced', () => {
+  let seed = 7;
+  const rand = (k) => ((seed = (seed * 1103515245 + 12345) % 2147483648) % k);
+  const words = ['hull', 'catamaran', 'retainage', 'lien', 'waiver', 'payroll', 'tank', 'curve', 'shed', 'roof'];
+  const mk = (i) => ({
+    slug: `p${i % 97 === 0 ? 0 : i}`,
+    date: `2026-${String(1 + rand(3)).padStart(2, '0')}-${String(1 + rand(5)).padStart(2, '0')}`,
+    topic: ['tools', 'research', 'business'][rand(3)],
+    tags: Array.from({ length: rand(4) }, () => `t${rand(12)}`),
+    title: Array.from({ length: 1 + rand(4) }, () => words[rand(words.length)]).join(' '),
+  });
+  const posts = Array.from({ length: 300 }, (_, i) => mk(i));
+  const outsider = { ...mk(999), slug: 'outsider' };
+  const slugs = (list) => list.map((p) => p.slug);
+  for (const n of [1, 2, 5, 20, 400, 0, -1, 2.5]) {
+    for (const p of [...posts, outsider]) assert.deepEqual(slugs(rankRelated(p, posts, n)), slugs(rankRelatedBySort(p, posts, n)), `${p.slug} n=${n}`);
+  }
+  const odd = posts.map((p, i) => (i === 5 ? { ...p, date: 'not a date' } : p));
+  for (const p of odd) assert.deepEqual(slugs(rankRelated(p, odd, 5)), slugs(rankRelatedBySort(p, odd, 5)), p.slug);
+});
+
 test('relatedPosts gives every post an inbound link, taken from the weakest slot of its best match', () => {
   const mk = (slug, date, topic, tags) => ({ slug, date, topic, tags, title: slug });
   const posts = [
@@ -386,12 +419,12 @@ test('relatedPosts gives every post an inbound link, taken from the weakest slot
 
 // Runs the index's inline finder script against a small fake DOM, so the count
 // text and the tag-menu fallback are checked by behaviour, not by matching source.
-async function runFinder(search, { selectedIndex = 0 } = {}) {
+async function runFinder(search, { selectedIndex = 0, full = null } = {}) {
   const root = repoWith({ '2026-10-16-hello.md': post('Hello', '2026-10-16') });
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-'));
   await buildWriting(out, BASE, { root });
   const index = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
-  const script = [...index.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
+  const script = [...index.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\b[^>]*>/gi)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
   assert.ok(script, 'finder script present');
   const li = (slug, text) => ({ dataset: { slug, text, tags: 'a b', topic: 't', date: '2026-01-01', mins: '1' }, hidden: false });
   const items = [li('x', 'alpha'), li('y', 'beta')];
@@ -401,12 +434,47 @@ async function runFinder(search, { selectedIndex = 0 } = {}) {
     document: { getElementById: (id) => els[id], querySelectorAll: () => [] },
     location: { search, pathname: '/writing/' },
     history: { replaceState() {} },
-    fetch: () => Promise.resolve({ ok: false }),
+    fetch: (url) => Promise.resolve(full && url === 'search.json' ? { ok: true, json: () => Promise.resolve(full) } : { ok: false }),
     URLSearchParams, Array, String,
   };
   vm.runInNewContext(script, ctx);
-  return els;
+  if (full) await new Promise((r) => setTimeout(r, 0));
+  return { ...els, items };
 }
+
+// search.json is an inverted index since 2026-11-25 (perf): the page's own script must still find
+// a word that is only in a post's body, and must read a file in the old slug-to-text shape that a
+// cache may serve during a deploy.
+test('finder searches post bodies through the inverted search.json, and through the old shape', async () => {
+  const index = JSON.parse(renderSearchIndex([{ slug: 'x', body: 'Delta **wing**' }, { slug: 'y', body: 'A gamma-ray [burst](https://e.x/)' }]));
+  for (const full of [index, { x: 'delta wing', y: 'a gamma-ray burst' }]) {
+    const hit = await runFinder('?q=ray', { full });
+    assert.equal(hit.count.textContent, '1 of 2 posts');
+    assert.deepEqual(hit.items.map((li) => li.hidden), [true, false]);
+    // Card text and body text both count, each term on its own.
+    assert.equal((await runFinder('?q=alph+wing', { full })).count.textContent, '1 of 2 posts');
+    assert.equal((await runFinder('?q=beta+wing', { full })).count.textContent, '0 of 2 posts');
+  }
+});
+
+test('search.json gives exactly the posts whose plain body contains the term', () => {
+  // A small seeded generator, so the corpus is the same every run.
+  let seed = 7;
+  const rnd = (n) => ((seed = (seed * 1103515245 + 12345) % 2147483648) % n);
+  const vocab = ['retainage', 'g702', "sub's", 'pay-app', 'lien', 'waiver', 'é', 'a', 'ab', 'abc', '[link](https://x.y/z)', '**bold**', '#', '`code`'];
+  const posts = Array.from({ length: 60 }, (_, i) => ({
+    slug: `p${i}`,
+    body: Array.from({ length: rnd(30) }, () => vocab[rnd(vocab.length)]).join(rnd(5) ? ' ' : '\n'),
+  }));
+  posts.push({ slug: 'empty', body: '' });
+  const has = bodyMatcher(JSON.parse(renderSearchIndex(posts)));
+  const terms = ['a', 'b', 'ab', 'bc', 'ret', 'age', 'g70', "'s", '-', 'pay-app', 'é', 'link', 'https', 'x.y', 'bold', 'code', 'zzz', ']'];
+  for (const t of terms) {
+    const want = posts.filter((p) => searchText(p.body).includes(t)).map((p) => p.slug).sort();
+    assert.deepEqual([...has(t)].sort(), want, t);
+    assert.deepEqual([...has(t)].sort(), want, `${t} (memoised)`);
+  }
+});
 
 // The filter controls read as one designed row (polish 2026-11-13): the menus match the search box's
 // height, sit two to a row so a phone never clips "Newest first", and Clear lives on the count line.
@@ -415,7 +483,7 @@ test('finder: menus share the search box height and Clear sits beside the count,
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-row-'));
   await buildWriting(out, BASE, { root });
   const html = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
-  const h = (sel) => html.match(new RegExp(sel.replace(/[.[\]]/g, '\\$&') + ' \\{[^}]*?height:(\\d+px)'))?.[1];
+  const h = (sel) => html.match(new RegExp(sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' \\{[^}]*?height:(\\d+px)'))?.[1];
   assert.equal(h('.finder input[type=search]'), '42px');
   assert.equal(h('.finder select'), '42px');
   assert.match(html, /\.finder \.row \{ display:grid; grid-template-columns:minmax\(0,1fr\) minmax\(0,1fr\);/);
@@ -465,7 +533,7 @@ test('a long "Claim: detail" headline with no seo_title gets the clean cut autom
 });
 
 // Paging: one index page of every post was 2.3 MB (site-perf-paginate-indexes).
-import { PAGE_SIZE, renderPostRows } from './writing.mjs';
+import { PAGE_SIZE, renderPostRows, topicLabel } from './writing.mjs';
 
 function manyPosts(n) {
   const files = {};
@@ -487,7 +555,7 @@ test('an index over PAGE_SIZE posts lists the newest page, pages the rest, and e
   const read = async (rel) => fs.readFile(path.join(dir, rel, 'index.html'), 'utf8');
   for (const [rel, up] of [['', ''], ['page/2', '../../'], ['page/3', '../../']]) {
     const html = await read(rel);
-    const slugs = [...html.matchAll(new RegExp(`<h2><a href="${up.replace(/\./g, '\\.')}([^"/]+)/">`, 'g'))].map((m) => m[1]);
+    const slugs = [...html.matchAll(new RegExp(`<h2><a href="${up.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^"/]+)/">`, 'g'))].map((m) => m[1]);
     assert.ok(slugs.length <= PAGE_SIZE, `${rel || 'index'} has ${slugs.length} cards`);
     for (const s of slugs) seen.set(s, (seen.get(s) || 0) + 1);
     assert.match(html, /class="pager"/);
@@ -506,7 +574,7 @@ test('an index over PAGE_SIZE posts lists the newest page, pages the rest, and e
   assert.match(second, /rel="next" href="\.\.\/\.\.\/page\/3\/"/);
   const rows = JSON.parse(await fs.readFile(path.join(dir, 'posts.json'), 'utf8'));
   assert.equal(rows.length, n);
-  assert.equal(rows[0].length, 9);
+  assert.equal(rows[0].length, 7);
   assert.ok(first.length < 150_000);
 });
 
@@ -525,12 +593,13 @@ test('a post may not take the slug "page", which holds the numbered index pages'
   assert.throws(() => loadPosts(root), /page/);
 });
 
-test('posts.json rows are the finder cards: slug, title, description, date, minutes, topic, label, tags, text', () => {
+test('posts.json rows are the finder cards: slug, title, description, date, minutes, topic, tags', () => {
   const rows = JSON.parse(renderPostRows(loadPosts(repoWith({ '2026-10-01-a.md': post('A', '2026-10-01') }))));
+  assert.equal(rows[0].length, 7);
   assert.equal(rows[0][0], 'a');
   assert.equal(rows[0][1], 'A');
   assert.equal(rows[0][3], '2026-10-01');
-  assert.match(rows[0][7], /agents/);
+  assert.match(rows[0][6], /agents/);
 });
 
 test('reading time rounds words / 230 to the nearest minute (exactly 345 words is 2, not 1)', () => {
@@ -565,7 +634,7 @@ test('finder: topic chips are one sideways row on a phone, faded at the end that
   assert.match(phone, /\.chips > a \{ display:inline-flex;/);
   for (const end of ['start', 'end', 'both']) assert.match(phone, new RegExp(`\\.chips\\[data-fade=${end}\\] \\{[^}]*mask-image`));
 
-  const script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
+  const script = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\b[^>]*>/gi)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
   const handlers = {};
   const row = { scrollWidth: 1600, clientWidth: 356, scrollLeft: 0, offsetLeft: 0, dataset: {}, removeAttribute(k) { if (k === 'data-fade') delete this.dataset.fade; }, addEventListener(t, f) { handlers[t] = f; } };
   const chip = (id, offsetLeft) => ({ dataset: { topicChip: id }, parentElement: row, offsetLeft, offsetWidth: 100, addEventListener() {}, setAttribute() {} });
@@ -848,7 +917,7 @@ test('finder: a search over posts.json renders each card with its date and readi
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-cards-'));
   await buildWriting(out, BASE, { root });
   const index = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
-  const script = [...index.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
+  const script = [...index.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\b[^>]*>/gi)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
   const rows = JSON.parse(renderPostRows([{ slug: 'deep', title: 'Deep', description: 'D', date: '2026-03-05', minutes: 7, topic: 'agents', tags: ['a'] }]));
   const node = (tag) => ({ tag, dataset: {}, children: [], textContent: '', hidden: false, appendChild(c) { this.children.push(c); } });
   const text = (n) => (n.tag === '#text' ? n.textContent : n.textContent + n.children.map(text).join(''));
@@ -872,4 +941,76 @@ test('finder: a search over posts.json renders each card with its date and readi
   assert.equal(card.dataset.topic, 'agents');
   const meta = text(card.children[2]);
   assert.match(meta, /5 March 2026 · 7 min read/);
+});
+
+// Runs the index's finder script against a fake DOM, answering posts.json with `rows`, and
+// returns the cards it rendered for `?q=<query>`.
+async function finderCards(rows, query) {
+  const root = repoWith({ '2026-10-16-hello.md': post('Hello', '2026-10-16') });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-rows-'));
+  await buildWriting(out, BASE, { root });
+  const index = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
+  const script = [...index.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\b[^>]*>/gi)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
+  const node = (tag) => ({ tag, dataset: {}, children: [], textContent: '', hidden: false, appendChild(c) { this.children.push(c); } });
+  const el = () => ({ value: '', hidden: true, textContent: '', dataset: {}, addEventListener() {}, setAttribute() {}, focus() {} });
+  let shown = [];
+  const list = { dataset: { all: 'posts.json', total: String(rows.length) }, children: [], appendChild() {}, replaceChildren(...xs) { shown = xs; } };
+  const els = { posts: list, q: el(), tag: { ...el(), selectedIndex: 0 }, sort: el(), count: el(), none: el(), clear: el(), finder: el(), pager: el() };
+  vm.runInNewContext(script, {
+    document: { getElementById: (id) => els[id], querySelectorAll: () => [], createElement: node, createTextNode: (t) => ({ tag: '#text', textContent: t }) },
+    location: { search: `?q=${encodeURIComponent(query)}`, pathname: '/writing/' }, history: { replaceState() {} },
+    fetch: (url) => Promise.resolve({ ok: true, json: () => (url === 'posts.json' ? rows : {}) }),
+    URLSearchParams, Array, String, Number, Date, Boolean, Object,
+  });
+  for (let i = 0; i < 10 && !shown.length; i++) await new Promise((r) => setImmediate(r));
+  return shown;
+}
+
+test('finder: a seven-column row rebuilds the same card text, tags and topic label the build wrote before (2026-11-25)', async () => {
+  const posts = [
+    { slug: 'a', title: 'Retainage  In\tQuickBooks', description: 'How to  bill it.\nTwo lines', date: '2026-11-01', minutes: 3, topic: 'business', tags: ['pay-application-generator', 'retainage'] },
+    { slug: 'b', title: 'Écoute', description: '', date: '2026-11-02', minutes: 1, topic: 'agents', tags: [] },
+    { slug: 'c', title: 'Unknown topic', description: 'd', date: '2026-11-03', minutes: 2, topic: 'no-such-topic', tags: ['x'] },
+  ];
+  // What the nine-column file held for each post, rebuilt from the pre-2026-11-25 formula.
+  const oldText = (p) => [p.title, p.description, p.tags.join(' '), topicLabel(p.topic)].join(' ').toLowerCase().replace(/\s+/g, ' ');
+  const rows = JSON.parse(renderPostRows(posts));
+  const cards = await finderCards(rows, 'e');
+  assert.equal(cards.length, 3);
+  cards.forEach((card, i) => {
+    assert.equal(card.dataset.text, oldText(posts[i]), posts[i].slug);
+    assert.equal(card.dataset.tags, posts[i].tags.join(' '));
+    assert.equal(card.dataset.topic, posts[i].topic);
+    assert.equal(card.children[2].children[0].textContent, topicLabel(posts[i].topic));
+  });
+});
+
+test('finder: a nine-column row from an older posts.json still renders its card', async () => {
+  const old = [['deep', 'Deep', 'D', '2026-03-05', 7, 'agents', 'Agents label', 'a b', 'deep d a b agents label']];
+  const [card] = await finderCards(old, 'deep');
+  assert.equal(card.dataset.text, 'deep d a b agents label');
+  assert.equal(card.dataset.tags, 'a b');
+  assert.equal(card.children[2].children[0].textContent, 'Agents label');
+});
+
+test('posts for a paid product line\'s customers lead the blog as "For your business" (2026-11-25)', async () => {
+  const { topicOf, renderCustomerLead, CUSTOMER_TAGS } = await import('./writing.mjs');
+  assert.equal(TOPICS[0].id, 'business');
+  assert.ok(CUSTOMER_TAGS.has('pay-application-generator') && CUSTOMER_TAGS.has('einvoice-preflight'));
+  assert.equal(topicOf(['einvoice-preflight', 'peppol']), 'business');
+  assert.equal(topicOf(['for-customers']), 'business');
+  // How it was built stays in the build log, even about a product line's tool.
+  assert.equal(topicOf(['einvoice-preflight', 'mutation-testing']), 'testing');
+  assert.equal(topicOf(['reseller-books', 'perf']), 'tools');
+  // Not a paid line's tool: unchanged.
+  assert.equal(topicOf(['hearth-and-horizon', 'fiction']), 'stories');
+  const post = (slug, date, topic) => ({ slug, date, topic, title: slug, description: 'd', tags: [], minutes: 2 });
+  const posts = [post('a', '2026-11-01', 'business'), post('b', '2026-11-03', 'business'), post('c', '2026-11-04', 'agents')];
+  const html = renderCustomerLead(posts, { n: 1 });
+  assert.match(html, /href="b\/"/);
+  assert.doesNotMatch(html, /href="a\/"|href="c\/"/);
+  assert.match(html, /All 2 guides for your business/);
+  assert.equal(renderCustomerLead([post('c', '2026-11-04', 'agents')]), '');
+  const index = renderIndex(posts, {});
+  assert.ok(index.indexOf('customer-lead') < index.indexOf('id="posts"'), 'pinned above the full list');
 });

@@ -360,8 +360,8 @@ Top: 31.5 x 11.25 x 2</textarea>
       writes the cut sheet for the whole shed.
     </p>
     <p>
-      Free and open source. If it saved you a sheet or a stick of stock, the
-      <a href="LICENSE">code is under an MIT licence</a> —
+      Free to use and source available. If it saved you a sheet or a stick of stock, the
+      <a href="LICENSE">code is under the FSL-1.1-MIT licence</a> —
       <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.
     </p>
   </footer>
@@ -714,6 +714,8 @@ Top: 31.5 x 11.25 x 2</textarea>
       const unit = $('unit').value;
       const currency = $('currency').value;
       const format = (n) => `${n.toFixed(2)} ${unit}`;
+      // For innerHTML: the unit comes from the page, so escape it like every other value.
+      const formatHtml = (n) => escapeHtml(format(n));
       const money = (n) => `${currency}${n.toFixed(2)}`;
       const rawCost = Number($('stock-cost').value);
       const stockCost = Number.isFinite(rawCost) && rawCost >= 0 && $('stock-cost').value.trim() !== '' ? rawCost : null;
@@ -741,7 +743,7 @@ Top: 31.5 x 11.25 x 2</textarea>
         $('linear-total-cost').textContent = result.totalCost === null ? 'add a stock price' : money(result.totalCost);
         $('linear-oversize').innerHTML = result.oversize.length
           ? `<strong>${result.oversize.length} cut${result.oversize.length === 1 ? ' does' : 's do'} not fit any stock length on hand or to buy:</strong> `
-            + result.oversize.map((cut) => format(cut)).join(', ')
+            + result.oversize.map((cut) => formatHtml(cut)).join(', ')
             + '. Check the length, or use a longer stock size.'
           : '';
 
@@ -765,10 +767,10 @@ Top: 31.5 x 11.25 x 2</textarea>
             tag = bar.source === 'on-hand'
               ? '<span class="tag tag-onhand">FROM YOUR RACK</span>'
               : '<span class="tag tag-buy">BUY</span>';
-            label = bar.source === 'on-hand' ? format(bar.length) : `New piece ${purchaseNumber}`;
+            label = bar.source === 'on-hand' ? formatHtml(bar.length) : `New piece ${purchaseNumber}`;
           }
-          return `<div class="bar"><strong>${tag}${label}: ${bar.cuts.map(format).join(' + ')}</strong>`
-            + `<span class="muted">${format(bar.remaining)} remaining after kerf allowance</span></div>`;
+          return `<div class="bar"><strong>${tag}${label}: ${bar.cuts.map(formatHtml).join(' + ')}</strong>`
+            + `<span class="muted">${formatHtml(bar.remaining)} remaining after kerf allowance</span></div>`;
         }).join('');
         $('copy-plan').disabled = false;
         $('copy-plan').dataset.plan = formatCutPlan(result, {

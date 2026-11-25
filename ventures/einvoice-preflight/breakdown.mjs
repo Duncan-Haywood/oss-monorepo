@@ -4,8 +4,30 @@ import { parseDecimal } from "./numbers.mjs";
 // Offline mixed-rate tax-breakdown observations.
 // Arithmetic / document-shape only — not a tax-law determination.
 
-function finding(rule, message, fix, path) {
-  return { rule, message, fix, path };
+function finding(rule, message, fix, path, severity) {
+  return severity ? { rule, message, fix, path, severity } : { rule, message, fix, path };
+}
+
+// EN 16931 BR-CO-17 as CEN's own Schematron tests it (validation 1.3.x, UBL and
+// CII): a row's VAT may differ from taxable x rate, rounded to cents, by less
+// than one currency unit (CII also accepts exactly one), and a row whose rate
+// rounds to 0 needs a tax that rounds to 0. An ERP that rounds VAT per line and
+// sums the lines lands a cent or two away and passes the official rules, so here
+// it is a warning, not a blocking error (quality audit 2026-11-19: 80 of 80 such
+// files blocked here, all passed by CEN). Stricter than CEN on purpose: a tax
+// whose sign is opposite the expected amount is still blocking (CEN compares
+// absolute values). Amounts are compared in whole cents. PINT and ZATCA files are
+// checked by their own rule sets, not CEN's, so they keep the exact figure
+// (cenRules below).
+export function cenRules(invoice) {
+  return !/pint/i.test(String(invoice?.specification_id || "")) && !/^(reporting|clearance):/i.test(String(invoice?.profile_id || "").trim());
+}
+
+export function brCo17Tolerated(tax, expected, percent) {
+  if (tax === null || expected === null || percent === null || tax === expected) return false;
+  if (Math.sign(tax) * Math.sign(expected) < 0) return false;
+  const cents = Math.round(Math.abs(tax - expected) * 100);
+  return Math.round(percent) === 0 ? Math.abs(Math.round(Math.abs(tax) * 100)) < 50 : cents < 100;
 }
 
 // numbers.mjs: the same reading as the CLI (no 0x64, no 1e400).
@@ -22,12 +44,16 @@ function money(value) {
   return parsed === null ? null : roundHalfUpToCents(parsed);
 }
 
+function formatCents(value) {
+  return (Math.round(value * 100) / 100).toFixed(2);
+}
+
 function rateKey(value) {
   const parsed = parseNumber(value);
   return parsed === null ? null : String(parsed);
 }
 
-function checkRows(rows, expected, withCategory, unattributed) {
+function checkRows(rows, expected, withCategory, unattributed, tolerant) {
   const findings = [];
   const seen = new Map();
   rows.forEach((row, index) => {
@@ -99,7 +125,15 @@ function checkRows(rows, expected, withCategory, unattributed) {
     const expectedTax = roundHalfUpToCents(taxable * percent / 100);
     // PINT Oman: the row's tax may be the sum of its lines' own VAT amounts (linenet.mjs).
     const lineTax = expected.get(key)?.lineTax ?? null;
-    if (tax !== expectedTax && !(lineTax !== null && !unattributed && tax === lineTax)) {
+    if (tax !== expectedTax && !(lineTax !== null && !unattributed && tax === lineTax) && tolerant && brCo17Tolerated(tax, expectedTax, percent)) {
+      findings.push(finding(
+        "INV-038",
+        `Tax breakdown row ${index + 1} tax amount is ${formatCents(Math.abs(tax - expectedTax))} away from taxable times the percentage (${formatCents(expectedTax)}). EN 16931 accepts a difference under one currency unit (BR-CO-17), so this does not block; it is usual when VAT is rounded per line.`,
+        `Nothing is required. To match the exact figure, set tax to ${formatCents(expectedTax)} (and the tax total with it).`,
+        `${path}/tax`,
+        "warning",
+      ));
+    } else if (tax !== expectedTax && !(lineTax !== null && !unattributed && tax === lineTax)) {
       findings.push(finding(
         "INV-038",
         `Tax breakdown row ${index + 1} tax amount does not equal taxable times the percentage.`,
@@ -170,5 +204,5 @@ export function inspectTaxBreakdown(invoice) {
       "/tax_breakdown",
     )];
   }
-  return checkRows(supplied, expected, withCategory, unattributed);
+  return checkRows(supplied, expected, withCategory, unattributed, cenRules(invoice));
 }

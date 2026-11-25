@@ -2,7 +2,7 @@
 
 > Free window and door design pressure calculator to ASCE/SEI 7-16 Chapters 26 and 30 Part 1 (mean roof height 60 ft or less). From the basic wind speed, exposure, mean roof height, roof pitch, least building dimension, enclosure, ground elevation and an optional ridge, escarpment or hill, it gives the velocity pressure qh = 0.00256 Kh Kzt Kd Ke V², the corner zone width a, and for each window, door and garage door in a pasted schedule its wall zone (4 or 5), the Figure 30.3-1 coefficients by area, the strength-level pressures, the allowable-stress (0.6 W) pressures and the DP rating it needs, plus the wind-borne debris region check. Runs in the browser; nothing is uploaded.
 
-Free and open source (MIT). Arithmetic on the numbers typed in, not engineering advice; the wind speed is the user's to look up. Not modelled: ASCE 7-22, buildings over 60 ft, open buildings, roof openings, the effective-width rule for narrow units, impact testing, product approvals.
+Free to use and source available (FSL-1.1-MIT). Arithmetic on the numbers typed in, not engineering advice; the wind speed is the user's to look up. Not modelled: ASCE 7-22, buildings over 60 ft, open buildings, roof openings, the effective-width rule for narrow units, impact testing, product approvals.
 
 ## Pages
 
@@ -11,8 +11,8 @@ Free and open source (MIT). Arithmetic on the numbers typed in, not engineering 
 
 ## For agents
 
-- Engine: `calc.mjs`, `analyze(input)` with string fields `{ V (mph), exposure: "B"|"C"|"D", h (ft, <= 60), pitch (rise per 12), leastDim (ft), enclosure: "enclosed"|"partial"|"partiallyOpen", elevation (ft, blank for Ke = 1), coastal: "yes"|"no", topo: "none"|"ridge"|"escarpment"|"hill", hillH, hillLh, hillX (ft), hillSide: "upwind"|"downwind", openings (one per line: "label, width in, height in, corner distance ft or z4/z5, count") }`. Missing fields fall back to `DEFAULTS`, the page's example. Lower level: `kz`, `ke`, `kzt`, `wallGcp`, `zoneWidth`, `debrisRegion`, `parseOpenings`, `factorRows`, `reportCsv`. Callable through `node platform/agents/tools.mjs call window-design-pressure-calculator analyze --input '{"V":"150","exposure":"C","h":"20","openings":"W1, 36, 60, 2"}'` or the repository's MCP server (`call_tool`).
+- Engine: `calc.mjs`, `analyze(input)` with string fields `{ V (mph), exposure: "B"|"C"|"D", h (ft, <= 60), pitch (rise per 12), leastDim (ft), enclosure: "enclosed"|"partial"|"partiallyOpen", elevation (ft as a plain number, blank for Ke = 1; anything else, such as "5,280", is refused with an error), coastal: "yes"|"no", topo: "none"|"ridge"|"escarpment"|"hill", hillH, hillLh, hillX (ft), hillSide: "upwind"|"downwind", openings (one per line: "label, width in, height in, corner distance ft or z4/z5, count") }`. Missing fields fall back to `DEFAULTS`, the page's example. Lower level: `kz`, `ke`, `kzt`, `wallGcp`, `zoneWidth`, `debrisRegion`, `parseOpenings`, `factorRows`, `reportCsv`. Callable through `node platform/agents/tools.mjs call window-design-pressure-calculator analyze --input '{"V":"150","exposure":"C","h":"20","openings":"W1, 36, 60, 2"}'` or the repository's MCP server (`call_tool`).
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/window-design-pressure-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/window-design-pressure-calculator): FSL-1.1-MIT licensed.

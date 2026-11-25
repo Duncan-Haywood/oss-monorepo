@@ -1,0 +1,115 @@
+{"set": "sample-photos", "photo": "beach-dusk.jpg", "label": "open", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "beach-rocky.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "bicycle-park.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "bike-brick-wall.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "breakfast-in-bed.jpg", "label": "open", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "burst-beach-1.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "burst-beach-2.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "burst-beach-3.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "burst-beach-4.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "burst-dog-1.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "burst-dog-2.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "burst-dog-3.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "burst-friends-1.jpg", "label": "open", "page": [], "cli": [{"size": 0.01066, "blink": [0.374, 0.077], "readable": true}, {"size": 0.01114, "blink": [0.167, 0.182], "readable": true}, {"size": 0.00843, "blink": [0.041, 0.028], "readable": true}]}
+{"set": "sample-photos", "photo": "burst-friends-2.jpg", "label": "open", "page": [], "cli": [{"size": 0.01215, "blink": [0.411, 0.076], "readable": true}, {"size": 0.01205, "blink": [0.118, 0.222], "readable": true}, {"size": 0.0086, "blink": [0.029, 0.023], "readable": true}]}
+{"set": "sample-photos", "photo": "burst-friends-3.jpg", "label": "open", "page": [], "cli": [{"size": 0.01279, "blink": [0.378, 0.061], "readable": true}, {"size": 0.01276, "blink": [0.148, 0.122], "readable": true}, {"size": 0.00931, "blink": [0.05, 0.047], "readable": true}]}
+{"set": "sample-photos", "photo": "burst-pizza-1.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "burst-pizza-2.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "burst-pizza-3.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "cat-brown-eyes.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "cat-ginger.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "cat-window.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "city-london.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "city-night.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "city-skyline-nyc.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "coffee-flatlay.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "coffee-kitchen.jpg", "label": "closed", "page": [{"size": 0.02524, "blink": [0.793, 0.434], "readable": true}], "cli": [{"size": 0.02363, "blink": [0.65, 0.301], "readable": true}]}
+{"set": "sample-photos", "photo": "concert-crowd.jpg", "label": "open", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "concert-stage.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "conference-room.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "desert-road.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "dinner-friends-wine.jpg", "label": "open", "page": [], "cli": [{"size": 0.0163, "blink": [0.011, 0.003], "readable": true}]}
+{"set": "sample-photos", "photo": "doc-application-form.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "doc-field-notebook.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "doc-letter-handwritten.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "doc-open-book.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "doc-passport-form.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "doc-telegram-1944.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "doc-telegram-form.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "doctor-tablet.jpg", "label": "open", "page": [{"size": 0.02929, "blink": [0.051, 0.12], "readable": true}], "cli": [{"size": 0.02927, "blink": [0.044, 0.088], "readable": true}]}
+{"set": "sample-photos", "photo": "dog-beach.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "dog-lake.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "dog-snow.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "family-beach-walk.jpg", "label": "open", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "family-picnic-dog.jpg", "label": "open", "page": [{"size": 0.03055, "blink": [0.178, 0.207], "readable": true}, {"size": 0.02794, "blink": [0.212, 0.059], "readable": true}, {"size": 0.02013, "blink": [0.277, 0.236], "readable": true}], "cli": [{"size": 0.0306, "blink": [0.184, 0.206], "readable": true}, {"size": 0.02782, "blink": [0.291, 0.215], "readable": true}, {"size": 0.0171, "blink": [0.249, 0.218], "readable": true}, {"size": 0.01735, "blink": [0.083, 0.144], "readable": true}]}
+{"set": "sample-photos", "photo": "food-breakfast-diner.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "food-brunch.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "food-cereal.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "food-cheeseburger.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "forest-fog.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "friends-hilltop-laughing.jpg", "label": "open", "page": [], "cli": [{"size": 0.01115, "blink": [0.432, 0.088], "readable": true}, {"size": 0.00897, "blink": [0.005, 0.115], "readable": true}]}
+{"set": "sample-photos", "photo": "friends-sunset-rocks.jpg", "label": "open", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "kitten-slipper.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "kitten-yawn.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "lake-kayaks.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "lake-mountains.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "market-flowers.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "market-produce.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "market-street.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "matterhorn.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "mother-child-hug.jpg", "label": "open", "page": [], "cli": [{"size": 0.00728, "blink": [0.432, 0.612], "readable": true}]}
+{"set": "sample-photos", "photo": "notes-circuit-sketch.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "office-woman-red-sweater.jpg", "label": "open", "page": [{"size": 0.01821, "blink": [0.155, 0.163], "readable": true}], "cli": [{"size": 0.01819, "blink": [0.134, 0.109], "readable": true}]}
+{"set": "sample-photos", "photo": "phone-selfie.jpg", "label": "open", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "portrait-closeup.jpg", "label": "closed", "page": [{"size": 0.05769, "blink": [0.809, 0.706], "readable": true}], "cli": [{"size": 0.05799, "blink": [0.763, 0.673], "readable": true}]}
+{"set": "sample-photos", "photo": "portrait-field.jpg", "label": "closed", "page": [{"size": 0.03357, "blink": [0.633, 0.663], "readable": true}], "cli": [{"size": 0.03268, "blink": [0.633, 0.638], "readable": true}]}
+{"set": "sample-photos", "photo": "portrait-laughing.jpg", "label": "closed", "page": [{"size": 0.06031, "blink": [0.571, 0.411], "readable": true}], "cli": [{"size": 0.06225, "blink": [0.502, 0.364], "readable": true}]}
+{"set": "sample-photos", "photo": "portrait-lipstick.jpg", "label": "closed", "page": [{"size": 0.03182, "blink": [0.615, 0.584], "readable": true}], "cli": [{"size": 0.03244, "blink": [0.666, 0.579], "readable": true}]}
+{"set": "sample-photos", "photo": "portrait-smiling-woman.jpg", "label": "open", "page": [{"size": 0.21808, "blink": [0.478, 0.267], "readable": true}], "cli": [{"size": 0.20465, "blink": [0.438, 0.313], "readable": true}]}
+{"set": "sample-photos", "photo": "portrait-woman-white-background.jpg", "label": "closed", "page": [], "cli": [{"size": 0.12947, "blink": [0.711, 0.612], "readable": true}]}
+{"set": "sample-photos", "photo": "puppy-bulldog.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "puppy-running.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "puppy-toy.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "receipt-breakfast.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "receipt-cafe-01.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "receipt-creperie.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "receipt-dimsum.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "receipt-dumplings.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "receipt-handwritten.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "receipt-korea.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "receipt-pay-the-bill.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "receipt-pizza.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "receipt-restaurant-02.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "receipt-restaurant-03.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "receipt-supermarket-01.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "receipt-supermarket-02.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "receipt-sushi-bbq.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "receipt-wien.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "restaurant-busy.jpg", "label": "open", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "screenshot-browser-tabs.png", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "screenshot-commons-app.png", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "screenshot-gnome-desktop.png", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "screenshot-kde-desktop.png", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "screenshot-pdf-viewer.png", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "screenshot-phone-browser.png", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "screenshot-spreadsheet.png", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "screenshot-tasks-app.png", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "screenshot-travel-itinerary.png", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "screenshot-wikipedia-app.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "silhouettes-sunset.jpg", "label": "open", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "street-lights-evening.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "sunset-boats.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "team-meeting-table.jpg", "label": "open", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "trip-planning.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "whiteboard-office.jpg", "label": "no_people", "page": [], "cli": []}
+{"set": "sample-photos", "photo": "whiteboard-sticky-notes.jpg", "label": "open", "page": [], "cli": []}
+{"set": "pageset", "photo": "business-person.png", "label": "open", "page": [{"size": 0.05428, "blink": [0.061, 0.033], "readable": true}], "cli": [{"size": 0.05658, "blink": [0.095, 0.035], "readable": true}]}
+{"set": "pageset", "photo": "demo_group_closed.png", "label": "closed", "page": [{"size": 0.0331, "blink": [0.25, 0.183], "readable": true}, {"size": 0.02516, "blink": [0.153, 0.155], "readable": true}, {"size": 0.0261, "blink": [0.623, 0.622], "readable": true}], "cli": [{"size": 0.03352, "blink": [0.239, 0.202], "readable": true}, {"size": 0.025, "blink": [0.146, 0.148], "readable": true}, {"size": 0.02483, "blink": [0.628, 0.629], "readable": true}]}
+{"set": "pageset", "photo": "demo_group_open.png", "label": "open", "page": [{"size": 0.03312, "blink": [0.249, 0.184], "readable": true}, {"size": 0.02517, "blink": [0.156, 0.154], "readable": true}, {"size": 0.0267, "blink": [0.188, 0.222], "readable": true}], "cli": [{"size": 0.03351, "blink": [0.239, 0.202], "readable": true}, {"size": 0.02501, "blink": [0.147, 0.148], "readable": true}, {"size": 0.02611, "blink": [0.183, 0.173], "readable": true}]}
+{"set": "pageset", "photo": "demo_reference_open.png", "label": "open", "page": [{"size": 0.12645, "blink": [0.205, 0.212], "readable": true}], "cli": [{"size": 0.12184, "blink": [0.203, 0.19], "readable": true}]}
+{"set": "pageset", "photo": "hand-woman-man.jpg", "label": "open", "page": [], "cli": []}
+{"set": "pageset", "photo": "man-woman-okay.jpg", "label": "open", "page": [{"size": 0.02844, "blink": [0.058, 0.036], "readable": true}, {"size": 0.02724, "blink": [0.178, 0.25], "readable": true}], "cli": [{"size": 0.02744, "blink": [0.197, 0.179], "readable": true}, {"size": 0.02869, "blink": [0.066, 0.046], "readable": true}]}
+{"set": "pageset", "photo": "mozart_square.jpg", "label": "open", "page": [{"size": 0.11953, "blink": [0.029, 0.006], "readable": true}], "cli": [{"size": 0.11966, "blink": [0.028, 0.005], "readable": true}]}
+{"set": "pageset", "photo": "portrait.jpg", "label": "open", "page": [{"size": 0.05606, "blink": [0.269, 0.257], "readable": true}], "cli": [{"size": 0.0576, "blink": [0.277, 0.259], "readable": true}]}
+{"set": "pageset", "photo": "portrait_small.jpg", "label": "open", "page": [{"size": 0.05643, "blink": [0.232, 0.24], "readable": true}], "cli": [{"size": 0.05957, "blink": [0.223, 0.225], "readable": false}]}
+{"set": "pageset", "photo": "pose.jpg", "label": "open", "page": [], "cli": []}

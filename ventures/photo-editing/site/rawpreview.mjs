@@ -12,6 +12,8 @@
 // (header pointer), and plain JPEG. When the structured pointers give no
 // usable JPEG, a byte scan for JPEG streams is the fallback.
 
+import { NIKON_AF_BODIES, NIKON_AF_ALIASES, NIKON_AF_NAMES } from "./nikon-af-grids.mjs";
+
 const RAW_EXT = /\.(nef|nrw|arw|srf|sr2|cr2|cr3|crw|dng|pef|orf|rw2|raw|rwl|srw|raf|erf|3fr|fff|iiq|mos|dcr|kdc|mef|mrw|x3f|jpe?g)$/i;
 
 export function isCandidateFile(name) {
@@ -38,6 +40,9 @@ function makeView(bytes, little) {
     u32: (o) => (o >= 0 && o + 4 <= n ? dv.getUint32(o, little) : 0),
     i32: (o) => (o >= 0 && o + 4 <= n ? dv.getInt32(o, little) : 0),
     i16: (o) => (o >= 0 && o + 2 <= n ? dv.getInt16(o, little) : 0),
+    // BigTIFF's 8-byte offsets and counts; files past 2^53 bytes are not a concern.
+    u64: (o) => (o >= 0 && o + 8 <= n ? Number(dv.getBigUint64(o, little)) : 0),
+    big: false,
   };
 }
 
@@ -127,9 +132,31 @@ const T = {
   XMP: 0x2bc, Rating: 0x4746,
 };
 
-const TYPE_SIZE = [0, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8, 4];
+const TYPE_SIZE = [0, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8, 4, 0, 0, 8, 8, 8];
+
+// BigTIFF (magic 43): 8-byte entry counts, 20-byte entries with 8-byte counts
+// and values (inline up to 8 bytes), 8-byte next-IFD offsets, and the types
+// LONG8, SLONG8 and IFD8 (16-18). DNG allows it for files past 4 GB
+// (large stitched panoramas, some scanner and phone writers).
+function readBigIfd(v, ifdOff, base) {
+  const tags = new Map();
+  const at = base + ifdOff;
+  need(at, 8);
+  const count = v.u64(at);
+  need(at + 8, count * 20 + 8);
+  if (!count || count > 1000 || at + 8 + count * 20 > v.n) return { tags, next: 0 };
+  for (let i = 0; i < count; i++) {
+    const e = at + 8 + i * 20;
+    const tag = v.u16(e), type = v.u16(e + 2), cnt = v.u64(e + 4);
+    const size = (TYPE_SIZE[type] || 1) * cnt;
+    const valueAt = size <= 8 ? e + 12 : base + v.u64(e + 12);
+    tags.set(tag, { type, count: cnt, at: valueAt, size });
+  }
+  return { tags, next: v.u64(at + 8 + count * 20) };
+}
 
 function readIfd(v, ifdOff, base = 0) {
+  if (v.big) return readBigIfd(v, ifdOff, base);
   const tags = new Map();
   const at = base + ifdOff;
   need(at, 2);
@@ -158,6 +185,7 @@ function tagNums(v, t) {
       case 4: case 9: case 13: out.push(v.u32(t.at + i * 4)); break;
       case 5: { const d = v.u32(t.at + i * 8 + 4); out.push(d ? v.u32(t.at + i * 8) / d : 0); break; }
       case 10: { const d = v.i32(t.at + i * 8 + 4); out.push(d ? v.i32(t.at + i * 8) / d : 0); break; }
+      case 16: case 18: out.push(v.u64(t.at + i * 8)); break;
       default: return out;
     }
   }
@@ -174,7 +202,14 @@ function tiffHeader(b, at = 0) {
   else return null;
   const v = makeView(b, little);
   const magic = v.u16(at + 2);
-  // 42 TIFF; 0x4f52/0x5352 Olympus ORF; 0x55 Panasonic RW2.
+  // 42 TIFF; 43 BigTIFF (offset size 8, then 0, then an 8-byte first offset);
+  // 0x4f52/0x5352 Olympus ORF; 0x55 Panasonic RW2.
+  if (magic === 43) {
+    need(at, 16);
+    if (v.u16(at + 4) !== 8 || v.u16(at + 6) !== 0) return null;
+    v.big = true;
+    return { v, magic, first: v.u64(at + 8) };
+  }
   if (magic !== 42 && magic !== 0x4f52 && magic !== 0x5352 && magic !== 0x55) return null;
   return { v, magic, first: v.u32(at + 4) };
 }
@@ -236,6 +271,17 @@ function walkTiff(b, base, meta, cands, opts = {}) {
         const so = tagNums(v, tags.get(T.StripOffsets)), sc = tagNums(v, tags.get(T.StripByteCounts));
         if (so.length === 1 && sc.length === 1 && so[0] && sc[0]) {
           cands.push({ offset: base + so[0], length: sc[0], source: `${kind} strip` });
+        }
+      }
+      // Nikon Z8/Z9 NEFs shot in HLG tone mode keep their previews as HEVC
+      // bitstreams (Compression 34713, the NEF code, on a reduced-resolution
+      // SubIFD whose strip opens with an Annex B VPS). The page decodes them
+      // with WebCodecs where the browser has an HEVC decoder.
+      if (comp === 34713 && tagNum(v, tags.get(0xfe)) === 1) {
+        const so = tagNums(v, tags.get(T.StripOffsets)), sc = tagNums(v, tags.get(T.StripByteCounts));
+        if (so.length === 1 && sc.length === 1 && so[0] && sc[0] > 64) {
+          cands.push({ offset: base + so[0], length: sc[0], source: `${kind} HEVC`, hevc: true,
+            width: tagNum(v, tags.get(T.ImageWidth)), height: tagNum(v, tags.get(T.ImageLength)) });
         }
       }
       if (h.magic === 0x55) {
@@ -302,9 +348,8 @@ function olympusPreview(b, at, size, cands) {
 // reports none, the selected ones). Layouts follow ExifTool's tag tables
 // (Canon AFInfo/AFInfo2, Sony FocusLocation, Fujifilm FocusPixel, Panasonic
 // AFPointPosition); each is checked against metadata-extractor's decoding of
-// the public samples in eval/cull-af-point-*.md. Nikon's phase-detect points
-// are numbered on a per-body grid with no published coordinates, so only its
-// live-view (contrast-detect) area is read.
+// the public samples in eval/cull-af-point-*.md. Nikon names its points on
+// per-body grids; nikonPhaseAf places them (eval/cull-nikon-af-2026-11-24.md).
 function makerFocus(b, v, mn, base, meta, exifTags) {
   if (mn.size < 16) return;
   need(mn.at, 16);
@@ -357,6 +402,7 @@ function makerFocus(b, v, mn, base, meta, exifTags) {
           af = { source: "Nikon AFInfo2 (live view)", points: [{ x: x / W, y: y / H, w: aw / W, h: ah / H, inFocus: true }] };
         }
       }
+      if (!af) af = nikonPhaseAf(b, t.at, t.size, h.v, meta.model, nikonCrop(h.v, tags.get(0x1b)));
     }
   } else if (make.startsWith("CANON")) {
     af = canonAf(v, readIfd(v, at - base, base).tags);
@@ -389,6 +435,104 @@ function olympusAf(b, at, head) {
   return points.length ? { source: "Olympus AFAreas", points } : null;
 }
 
+// Nikon phase-detect AF points (viewfinder AF on DSLRs; the 81-point grid Z
+// bodies report when they write no coordinates). AFInfo2 names the points by
+// number and bit on a per-schema grid; layouts follow ExifTool's
+// AFInfo2V0100/V0101/V0300/V0400 tables:
+//   0100 (D3, D4, D300, D600, D7000, D7100, D800, D810, ...): byte 6 schema
+//        (1 = 51-point, 3 = 39-point), 7 PrimaryAFPoint, 8.. AFPointsUsed.
+//   0101 (D5, D500, D850, D7500): 6 schema (1, or 7 = 153-point),
+//        8.. AFPointsUsed, 0x30.. AFPointsInFocus, 0x44 PrimaryAFPoint.
+//   0300 (D6, D780, Z5-Z7, Z50, Zfc) and 04xx (Z8, Z9, Z6III, Zf, Z5II,
+//        Z50II): byte 7 says whether the AF area's centre and size were
+//        written in AF-image pixels (0300 at 0x2a.., 04xx at 0x3e..); if not,
+//        0300 gives AFPointsUsed at 0x0a and PrimaryAFPoint at 0x38 on the
+//        schema's grid (1 = 51, 8 = 81, 9 = 105 points), and 04xx in
+//        auto-area gives AFPointsUsed at 0x0a on the body's auto-area grid.
+// Grid positions per body are in nikon-af-grids.mjs (measured by the
+// Focus-Points Lightroom plugin's contributors, Apache-2.0). Every point of
+// the body's grid is returned, the used ones inFocus, so the page can draw
+// the coverage; `names` lists the used points' names.
+const NIKON_SCHEMA_POINTS = { 1: 51, 3: 39, 7: 153, 8: 81, 9: 105 };
+function nikonBody(model, n) {
+  const m = String(model || "").trim().toUpperCase().replace(/\s+/g, " ");
+  const tries = m === "NIKON D780" ? [`NIKON D780-${n === 81 ? 81 : 51}`] : [m, NIKON_AF_ALIASES[m]];
+  for (const k of tries) {
+    const g = k && NIKON_AF_BODIES[k];
+    const have = g ? Object.keys(g.pts).length : 0;
+    if (g && have === n) return g;
+  }
+  return null;
+}
+function nikonBits(b, at, len, names) {
+  const out = [];
+  for (let i = 0; i < len; i++) for (let j = 0; j < 8; j++) if (b[at + i] & (1 << j)) { const nm = names[i * 8 + j + 1]; if (nm) out.push(nm); }
+  return out;
+}
+// CropHiSpeed (0x1b): mode, full width, height, crop width, height, left, top.
+function nikonCrop(v, t) {
+  const c = tagNums(v, t);
+  if (c.length < 7 || !(c[1] > 0 && c[2] > 0 && c[3] > 0 && c[4] > 0)) return null;
+  if (c[3] >= c[1] * 0.97 && c[4] >= c[2] * 0.97) return null;
+  const x0 = c[5] || (c[1] - c[3]) / 2, y0 = c[6] || (c[2] - c[4]) / 2;
+  return { x0: x0 / c[1], y0: y0 / c[2], w: c[3] / c[1], h: c[4] / c[2] };
+}
+export function nikonPhaseAf(b, at, size, v, model, crop = null) {
+  if (size < 16) return null;
+  const ver = ascii(b, at, 4), schema = b[at + 6];
+  const u16 = (o) => (o + 2 <= size ? v.u16(at + o) : 0);
+  // Coordinates written by the camera (mirrorless, D780/D6 live view).
+  if (ver === "0300" || ver.startsWith("04")) {
+    const o = ver === "0300" ? 0x2a : 0x3e;
+    const W = u16(o), H = u16(o + 2), x = u16(o + 4), y = u16(o + 6), aw = u16(o + 8), ah = u16(o + 10);
+    if (b[at + 7] === 1 && W > 0 && H > 0 && x > 0 && y > 0 && x <= W && y <= H) {
+      return { source: "Nikon AFInfo2 (AF area)", points: [{ x: x / W, y: y / H, w: aw / W, h: ah / H, inFocus: true }] };
+    }
+  }
+  let n = NIKON_SCHEMA_POINTS[schema];
+  let used = [], primary = 0;
+  if (ver.startsWith("04")) {
+    // Auto-area and 3D-tracking (byte 5 = 197 or 207) before a subject is
+    // locked: AFPointsUsed at byte 10 on the body's auto-area grid (405
+    // points on Z8/Z9, 299 on Z6III/Zf/Z5II, 231 on Z50II).
+    if (b[at + 5] !== 197 && b[at + 5] !== 207) return null;
+    const m = String(model || "").trim().toUpperCase().replace(/\s+/g, " ");
+    const g = NIKON_AF_BODIES[m] || NIKON_AF_BODIES[NIKON_AF_ALIASES[m]];
+    n = g ? Object.keys(g.pts).length : 0;
+    if (!NIKON_AF_NAMES[n] || n < 231 || size < 10 + Math.ceil(n / 8)) return null;
+    used = nikonBits(b, at + 10, Math.ceil(n / 8), NIKON_AF_NAMES[n]);
+  }
+  if (!n) return null;
+  const names = NIKON_AF_NAMES[n];
+  const bytes = Math.ceil(n / 8);
+  if (ver.startsWith("04")) {
+    // AFPointsUsed was read above, on the auto-area grid.
+  } else if (ver === "0100" && (schema === 1 || schema === 3)) {
+    primary = b[at + 7];
+    if (size >= 8 + bytes) used = nikonBits(b, at + 8, bytes, names);
+  } else if (ver === "0101" && (schema === 1 || schema === 7)) {
+    if (size >= 0x30 + bytes) used = nikonBits(b, at + 0x30, bytes, names);
+    if (!used.length && size >= 8 + bytes) used = nikonBits(b, at + 8, bytes, names);
+    if (size > 0x44) primary = b[at + 0x44];
+  } else if (ver === "0300" && b[at + 7] === 0 && (schema === 1 || schema === 8 || schema === 9)) {
+    if (size >= 0x0a + bytes) used = nikonBits(b, at + 0x0a, bytes, names);
+    if (size > 0x38) primary = b[at + 0x38];
+  } else return null;
+  if (!used.length && primary && names[primary]) used = [names[primary]];
+  if (!used.length) return null;
+  const g = nikonBody(model, n);
+  if (!g) return null;
+  const on = new Set(used);
+  const points = [];
+  for (const [nm, p] of Object.entries(g.pts)) {
+    let [x, y, w, h] = p;
+    if (crop) { x = (x - crop.x0) / crop.w; y = (y - crop.y0) / crop.h; w /= crop.w; h /= crop.h; }
+    points.push({ x, y, w, h, inFocus: on.has(nm), name: nm, ...(p[4] ? { interpolated: true } : {}) });
+  }
+  if (!points.some((p) => p.inFocus)) return null;
+  return { source: `Nikon AFInfo2 ${n}-point`, names: used, points };
+}
+
 function single(source, x, y) {
   return { source, points: [{ x, y, w: 0, h: 0, inFocus: true }] };
 }
@@ -399,6 +543,7 @@ function finishAf(af) {
   let use = pts.filter((p) => p.inFocus);
   if (!use.length) use = pts.filter((p) => p.selected);
   const out = { source: af.source, points: pts };
+  if (af.names) out.names = af.names;
   if (use.length) {
     out.x = use.reduce((s, p) => s + p.x, 0) / use.length;
     out.y = use.reduce((s, p) => s + p.y, 0) / use.length;
@@ -583,7 +728,7 @@ function detectFormat(b, name) {
   const h = tiffHeader(b, 0);
   if (h) {
     if (h.magic === 0x55) return "RW2";
-    if (h.magic !== 42) return "ORF";
+    if (h.magic !== 42 && h.magic !== 43) return "ORF";
     if (b[8] === 0x43 && b[9] === 0x52) return "CR2";
     const ext = (name || "").split(".").pop().toUpperCase();
     return ext && ext.length <= 4 ? ext : "TIFF";
@@ -615,9 +760,18 @@ export function readRaw(bytes, name = "") {
   }
 
   let previews = [];
+  const hevc = [];
   const seen = new Set();
   const consider = (list) => {
     for (const c of list) {
+      if (c.hevc) {
+        if (c.offset + c.length > b.length || seen.has(c.offset)) continue;
+        seen.add(c.offset);
+        need(c.offset, 256);
+        const codec = hevcCodec(b, c.offset, Math.min(c.length, 256));
+        if (codec && c.width && c.height) hevc.push({ offset: c.offset, length: c.length, width: c.width, height: c.height, source: c.source, codec });
+        continue;
+      }
       if (!c.length || c.offset < 0 || c.offset + c.length > b.length || seen.has(c.offset)) continue;
       seen.add(c.offset);
       need(c.offset, Math.min(c.length, PREVIEW_HEAD));
@@ -626,8 +780,12 @@ export function readRaw(bytes, name = "") {
     }
   };
   consider(cands);
-  // Fall back to a scan when the pointers found nothing or only a thumbnail.
-  if (format && format !== "JPEG" && (!previews.length || Math.max(...previews.map((p) => p.width)) < 640)) {
+  hevc.sort((a, b2) => b2.width * b2.height - a.width * a.height);
+  // Fall back to a scan when the pointers found nothing or only a thumbnail
+  // (not when an HEVC preview stands in for the JPEG: a scan of those files
+  // finds nothing more and reads all of a 50 MB raw).
+  if (format && format !== "JPEG" && !(hevc.length && hevc[0].width >= 640) &&
+      (!previews.length || Math.max(...previews.map((p) => p.width)) < 640)) {
     consider(scanJpegs(b));
   }
   previews.sort((a, b2) => b2.width * b2.height - a.width * a.height);
@@ -650,7 +808,42 @@ export function readRaw(bytes, name = "") {
   if (!meta.orientation) meta.orientation = 1;
   cameraMarks(b, meta);
   previews = previews.map(({ exif, ...rest }) => rest);
-  return { format, meta, preview: previews[0] || null, previews };
+  return { format, meta, preview: previews[0] || null, previews, hevc };
+}
+
+// ---------------------------------------------------------------- HEVC previews
+
+// The RFC 6381 / ISO 14496-15 Annex E codec string ("hev1.2.4.L120.B0") of an
+// Annex B HEVC bitstream at b[at, at+len), from the general profile_tier_level
+// of its first VPS or SPS, or null when there is none. WebCodecs'
+// VideoDecoder takes Annex B input with "hev1" and no description.
+export function hevcCodec(b, at, len) {
+  const end = Math.min(b.length, at + len);
+  for (let i = at; i + 4 < end; i++) {
+    if (b[i] !== 0 || b[i + 1] !== 0 || b[i + 2] !== 1) continue;
+    const type = (b[i + 3] >> 1) & 0x3f;
+    if (type !== 32 && type !== 33) continue;
+    // RBSP after the 2-byte NAL header, emulation-prevention bytes removed.
+    const r = [];
+    for (let k = i + 5, zeros = 0; k < end && r.length < 16; k++) {
+      if (zeros >= 2 && b[k] === 3) { zeros = 0; continue; }
+      zeros = b[k] === 0 ? zeros + 1 : 0;
+      r.push(b[k]);
+    }
+    // VPS: id, flags, max layers and sub-layers, nesting, 0xffff = 4 bytes;
+    // SPS: vps id, max sub-layers, nesting = 1 byte. Then profile_tier_level.
+    const p = type === 32 ? 4 : 1;
+    if (r.length < p + 12) return null;
+    const space = r[p] >> 6, tier = (r[p] >> 5) & 1, profile = r[p] & 0x1f;
+    let compat = ((r[p + 1] << 24) | (r[p + 2] << 16) | (r[p + 3] << 8) | r[p + 4]) >>> 0, rev = 0;
+    for (let j = 0; j < 32; j++) { rev = (rev << 1) | (compat & 1); compat >>>= 1; }
+    const cons = r.slice(p + 5, p + 11);
+    while (cons.length && cons[cons.length - 1] === 0) cons.pop();
+    const level = r[p + 11];
+    return ["hev1", `${space ? "ABC"[space - 1] : ""}${profile}`, (rev >>> 0).toString(16).toUpperCase(),
+      `${tier ? "H" : "L"}${level}`, ...cons.map((c) => c.toString(16).toUpperCase())].join(".");
+  }
+  return null;
 }
 
 // The rating and colour label the camera wrote into the file, from its XMP
@@ -724,7 +917,8 @@ export async function readRawFile(file, { head = 1 << 18 } = {}) {
     try { r = readRaw(buf, file.name); } finally { asked = NEED; NEED = null; }
     if (!(await load(asked.filter(([o]) => o < size)))) break;
   }
-  if (passes === 16 || !r || !r.preview || r.preview.source === "scan" || r.preview.width < 640) return whole();
+  const hevcBig = r && r.hevc.length && r.hevc[0].width >= 640;
+  if (passes === 16 || !r || ((!r.preview || r.preview.source === "scan" || r.preview.width < 640) && !hevcBig)) return whole();
   return { ...r, bytesRead, passes: passes + 1, sparse: true };
 }
 
@@ -863,7 +1057,11 @@ const reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 function xmlUnescape(s) {
   return s.replace(/&(lt|gt|amp|quot|apos|#\d+|#x[0-9a-f]+);/gi, (m, e) => {
     const k = e.toLowerCase();
-    if (k[0] === "#") return String.fromCodePoint(k[1] === "x" ? parseInt(k.slice(2), 16) : parseInt(k.slice(1), 10));
+    if (k[0] === "#") {
+      // A reference past U+10FFFF (a damaged or hostile sidecar) stays as typed: fromCodePoint would throw.
+      const n = k[1] === "x" ? parseInt(k.slice(2), 16) : parseInt(k.slice(1), 10);
+      return n <= 0x10ffff ? String.fromCodePoint(n) : m;
+    }
     return { lt: "<", gt: ">", amp: "&", quot: '"', apos: "'" }[k];
   });
 }
@@ -879,8 +1077,9 @@ function xmpPrefix(text) {
 // (xmp:Rating="3") or as an element (<xmp:Rating>3</xmp:Rating>).
 function findProp(text, p, name) {
   const q = `${reEsc(p)}:${name}`;
-  let m = new RegExp(`(\\s)${q}\\s*=\\s*(["'])([^"']*)\\2`).exec(text);
-  if (m) return { index: m.index, length: m[0].length, value: xmlUnescape(m[3]), form: "attr" };
+  // A double-quoted value may hold an apostrophe ("Client's pick") and a single-quoted one a double quote.
+  let m = new RegExp(`\\s${q}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`).exec(text);
+  if (m) return { index: m.index, length: m[0].length, value: xmlUnescape(m[1] ?? m[2]), form: "attr" };
   m = new RegExp(`<${q}\\s*>([^<]*)</${q}\\s*>`).exec(text);
   if (m) return { index: m.index, length: m[0].length, value: xmlUnescape(m[1].trim()), form: "elem" };
   m = new RegExp(`<${q}\\s*/>`).exec(text);

@@ -12,7 +12,7 @@ test('carries the no-warranty disclaimer', () => {
 });
 
 test('carries the licence and sponsor paragraph', () => {
-  assert.match(html, /MIT licensed/);
+  assert.match(html, /FSL-1.1-MIT licensed/);
   assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
 });
 
@@ -30,7 +30,8 @@ test('every dollar or percentage figure about VendSoft sits near a citation to i
   // so every such figure on this page must stay within reach of a citation to
   // vendsoft.com/pricing/ rather than standing as a bare, unattributed number.
   const sourceUrl = 'https://www.vendsoft.com/pricing/';
-  assert.ok(html.includes(sourceUrl), 'the VendSoft pricing page must be cited on the page');
+  const linked = [...html.matchAll(/href="([^"]*)"/g)].map((m) => m[1]);
+  assert.ok(linked.some((href) => href === sourceUrl), 'the VendSoft pricing page must be cited on the page');
   const body = html.slice(html.indexOf('<body>'));
   const numberPattern = /\$\d|\d+(\.\d+)?%/g;
   let match;

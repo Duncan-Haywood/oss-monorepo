@@ -8,7 +8,7 @@
   <meta property="og:title" content="How To Open An XER File Without Primavera P6">
   <meta property="og:description" content="Read a P6 .xer schedule with no P6 seat: what is in the file and the free ways to open it.">
   <link rel="canonical" href="./how-to-open-an-xer-file-without-primavera-p6.html">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I open an XER file in Excel?","acceptedAnswer":{"@type":"Answer","text":"You can import it as tab-separated text, but every table lands in one sheet, durations are in hours and calendars are packed codes. Excel will not compute the critical path or float. A viewer that reads the tables is quicker for anything beyond a lookup."}},{"@type":"Question","name":"Can Microsoft Project open an XER file?","acceptedAnswer":{"@type":"Answer","text":"Not directly in current versions. Convert the XER to Microsoft Project XML first (the free tool here does this in the browser), then use File, Open in Project and choose the .xml file."}},{"@type":"Question","name":"Is it safe to open a confidential schedule in an online tool?","acceptedAnswer":{"@type":"Answer","text":"Check whether the tool uploads the file. This one reads the file in your browser tab with JavaScript; there is no server that receives it, no account and no analytics vendor."}},{"@type":"Question","name":"What P6 versions does it read?","acceptedAnswer":{"@type":"Answer","text":"XER exports from P6 version 5.0 to 24.12 were in the test set."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Can I open an XER file in Excel?","acceptedAnswer":{"@type":"Answer","text":"You can import it as tab-separated text, but every table lands in one sheet, durations are in hours and calendars are packed codes. Excel will not compute the critical path or float. A viewer that reads the tables is quicker for anything beyond a lookup."}},{"@type":"Question","name":"Can Microsoft Project open an XER file?","acceptedAnswer":{"@type":"Answer","text":"Not directly in current versions. Convert the XER to Microsoft Project XML first (the free tool here does this in the browser), then use File, Open in Project and choose the .xml file."}},{"@type":"Question","name":"Is it safe to open a confidential schedule in an online tool?","acceptedAnswer":{"@type":"Answer","text":"Check whether the tool uploads the file. This one reads the file in your browser tab with JavaScript; there is no server that receives it, no account and only cookieless page analytics."}},{"@type":"Question","name":"What P6 versions does it read?","acceptedAnswer":{"@type":"Answer","text":"XER exports from P6 version 5.0 to 24.12 were in the test set."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
     body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.58; }
@@ -76,7 +76,7 @@
   <h3>Can Microsoft Project open an XER file?</h3>
   <p>Not directly in current versions. Convert the XER to Microsoft Project XML first (the free tool here does this in the browser), then use File, Open in Project and choose the .xml file.</p>
   <h3>Is it safe to open a confidential schedule in an online tool?</h3>
-  <p>Check whether the tool uploads the file. This one reads the file in your browser tab with JavaScript; there is no server that receives it, no account and no analytics vendor.</p>
+  <p>Check whether the tool uploads the file. This one reads the file in your browser tab with JavaScript; there is no server that receives it, no account and only cookieless page analytics.</p>
   <h3>What P6 versions does it read?</h3>
   <p>XER exports from P6 version 5.0 to 24.12 were in the test set.</p>
   <h2>More guides</h2>
@@ -96,12 +96,14 @@
     <li><a href="./how-to-run-an-as-planned-vs-as-built-schedule-analysis.html">How to run an as-planned vs as-built schedule analysis</a></li>
       <li><a href="./how-to-split-concurrent-delay-between-owner-and-contractor.html">How to split concurrent delay between owner and contractor</a></li>
     <li><a href="./how-to-review-the-calendars-in-a-p6-schedule.html">How to review the calendars in a P6 schedule</a></li>
+    <li><a href="./how-to-check-a-p6-schedule-against-the-contract-specification.html">How to check a P6 schedule against the contract specification</a></li>
+    <li><a href="./how-to-break-down-a-dcma-assessment-by-subcontractor.html">How to break down a DCMA assessment by subcontractor or WBS</a></li>
 </ul>
 </main>
 <footer>
     <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or scheduling advice; the contract and a qualified scheduler decide. The example project is invented.</p>
     <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera, Microsoft or the Defense Contract Management Agency. Product names are trademarks of their owners and are named only to describe file formats.</p>
-    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free and open source under the MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free to use and source available under the FSL-1.1-MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
   </footer>
 </body>
 </html>

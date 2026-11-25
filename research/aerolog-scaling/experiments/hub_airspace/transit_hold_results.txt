@@ -1,0 +1,62 @@
+Milestone 11bg: hold-until-clear transit procedure (predictions in transit_hold.py)
+lam_h 1.43 m, lam_z 0.43 m, gap sd 1.593 m; z_b 7.62 and 0.43 m; traffic x 1, 3, 10, 30, 100; P_v(z_b=Z) 6.37e-06, P_v(z_b=lam_z) 1
+
+M = 12 (24 layouts); flights per hour 240; flight hours per hour median 15.40; mean flight 231 s
+  GS k* {5: 24}; one band costs F(1)/F(k*) median 4.18 [min 3.15, max 6.27] in losses of separation
+  unmitigated transit collisions c per flight hour median 0.000171 [max 0.00028]; sampled-point check: c_samp/c_full - 1 median +0.005 [-0.082, +0.084]
+  z_b = 7.62 m: hold per flight, median [max] s (share of transits that hold)
+    x1   r=1.43 0.000236 [0.000331] (3.34e-05); r=5 0.000849 [0.0013] (0.000111); r=10 0.00203 [0.00319] (0.000235); r=20 0.00561 [0.00874] (0.00055); r=35 0.0147 [0.0238] (0.00119); r=50 0.0297 [0.049] (0.002); r=60 0.0434 [0.0723] (0.00265); r=80 0.0822 [0.138] (0.00421)
+    x3   r=1.43 0.000708 [0.000994] (0.0001); r=5 0.00255 [0.00393] (0.000331); r=10 0.0061 [0.00964] (0.000703); r=20 0.0169 [0.0263] (0.00164); r=35 0.0444 [0.072] (0.00353); r=50 0.0898 [0.149] (0.00594); r=60 0.132 [0.22] (0.00784); r=80 0.25 [0.425] (0.0124)
+    x10  r=1.43 0.00236 [0.00332] (0.000333); r=5 0.00852 [0.0133] (0.0011); r=10 0.0205 [0.033] (0.00232); r=20 0.0569 [0.09] (0.00541); r=35 0.151 [0.249] (0.0115); r=50 0.309 [0.531] (0.0191); r=60 0.458 [0.801] (0.025); r=80 0.885 [1.62] (0.0386)
+    x30  r=1.43 0.0071 [0.0101] (0.000991); r=5 0.026 [0.0454] (0.00323); r=10 0.064 [0.175] (0.0068); r=20 0.185 [0.611] (0.0157); r=35 0.526 [3.35] (0.0323); r=50 1.16 [18.4] (0.0526); r=60 1.92 [57.6] (0.0674); r=80 5.09 [573] (0.1)
+    x100 r=1.43 0.0238 [0.0351] (0.00324); r=5 0.122 [19.6] (0.0105); r=10 0.51 [7.21e+05] (0.0216); r=20 4.41 [5.23e+07] (0.0477); r=35 89.8 [1.87e+10] (0.0911); r=50 1.36e+03 [6.09e+12] (0.141); r=60 9.5e+03 [2.84e+14] (0.174); r=80 1.78e+05 [6.08e+17] (0.235)
+  z_b = 0.43 m: hold per flight, median [max] s (share of transits that hold)
+    x1   r=1.43 1.69e-06 [2.74e-06] (2.77e-06); r=5 2.04e-05 [3.6e-05] (1.71e-05); r=10 0.000113 [0.000198] (5.56e-05); r=20 0.00071 [0.00125] (0.000196); r=35 0.00335 [0.00602] (0.000561); r=50 0.00923 [0.0166] (0.00111); r=60 0.0155 [0.0282] (0.00158); r=80 0.0354 [0.0648] (0.00277)
+    x3   r=1.43 5.06e-06 [8.21e-06] (8.32e-06); r=5 6.13e-05 [0.000108] (5.13e-05); r=10 0.000338 [0.000593] (0.000167); r=20 0.00213 [0.00375] (0.000588); r=35 0.0101 [0.0181] (0.00168); r=50 0.0278 [0.0501] (0.00331); r=60 0.0469 [0.0853] (0.0047); r=80 0.108 [0.197] (0.0082)
+    x10  r=1.43 1.69e-05 [2.74e-05] (2.77e-05); r=5 0.000204 [0.000361] (0.000171); r=10 0.00113 [0.00199] (0.000555); r=20 0.00714 [0.0126] (0.00195); r=35 0.034 [0.0612] (0.00552); r=50 0.0945 [0.171] (0.0108); r=60 0.161 [0.295] (0.0152); r=80 0.375 [0.703] (0.0262)
+    x30  r=1.43 5.06e-05 [8.22e-05] (8.31e-05); r=5 0.000615 [0.00109] (0.000512); r=10 0.0034 [0.00603] (0.00166); r=20 0.0217 [0.0384] (0.00578); r=35 0.106 [0.192] (0.0161); r=50 0.302 [0.581] (0.0308); r=60 0.529 [1.1] (0.0427); r=80 1.36 [4] (0.0707)
+    x100 r=1.43 0.000169 [0.000275] (0.000276); r=5 0.00207 [0.00372] (0.00169); r=10 0.0115 [0.0213] (0.00545); r=20 0.0789 [0.149] (0.0186); r=35 0.448 [19.3] (0.0493); r=50 1.93 [6.25e+03] (0.0891); r=60 7.03 [2.91e+05] (0.119); r=80 233 [6.22e+08] (0.18)
+  r = 50, z_b = Z, x1: hub share of hold median 0.260 [0.178, 0.413]; top-1% transits' share median 0.135 [0.087, 0.189]
+  hover exposure (unmitigated) per flight hour, r = 50, z_b = Z, x1: median 4.07e-08 max 3.04e-07
+  hover exposure (unmitigated) per flight hour, r = 50, z_b = Z, x3: median 3.69e-07 max 2.78e-06
+  hover exposure (unmitigated) per flight hour, r = 50, z_b = Z, x10: median 4.17e-06 max 3.28e-05
+  hover exposure (unmitigated) per flight hour, r = 50, z_b = Z, x30: median 4.54e-05 max 0.00152
+  hover exposure (unmitigated) per flight hour, r = 50, z_b = Z, x100: median 0.0549 max 1.55e+07
+  target 1e-07, z_b 7.62: sigma 0.14: r 2.0 [max 2.0], hold x1 0.000287 s, x10 0.00288 s; sigma 0.5: r 3.4 [max 3.4], hold x1 0.000468 s, x10 0.0047 s; sigma 1: r 5.3 [max 5.4], hold x1 0.000889 s, x10 0.00896 s; sigma 2.12: r 9.6 [max 9.9], hold x1 0.00187 s, x10 0.0189 s; sigma 5: r 20.7 [max 21.4], hold x1 0.0059 s, x10 0.0598 s; sigma 12.54: r 49.9 [max 51.5], hold x1 0.0296 s, x10 0.308 s
+  target 1e-07, z_b 0.43: sigma 0.14: unreachable (P_v); sigma 0.5: unreachable (P_v); sigma 1: unreachable (P_v); sigma 2.12: unreachable (P_v); sigma 5: unreachable (P_v); sigma 12.54: unreachable (P_v)
+  target 2.5e-09, z_b 7.62: sigma 0.14: r 2.1 [max 2.1], hold x1 0.000301 s, x10 0.00302 s; sigma 0.5: r 3.8 [max 4.0], hold x1 0.000556 s, x10 0.00558 s; sigma 1: r 6.3 [max 6.5], hold x1 0.00105 s, x10 0.0106 s; sigma 2.12: r 11.7 [max 12.2], hold x1 0.00238 s, x10 0.0241 s; sigma 5: r 25.6 [max 26.8], hold x1 0.00809 s, x10 0.0824 s; sigma 12.54: r 62.1 [max 65.1], hold x1 0.0466 s, x10 0.494 s
+  target 2.5e-09, z_b 0.43: sigma 0.14: unreachable (P_v); sigma 0.5: unreachable (P_v); sigma 1: unreachable (P_v); sigma 2.12: unreachable (P_v); sigma 5: unreachable (P_v); sigma 12.54: unreachable (P_v)
+
+M = 16 (24 layouts); flights per hour 240; flight hours per hour median 14.91; mean flight 224 s
+  GS k* {5: 22, 6: 2}; one band costs F(1)/F(k*) median 4.24 [min 2.95, max 6.35] in losses of separation
+  unmitigated transit collisions c per flight hour median 0.000165 [max 0.000241]; sampled-point check: c_samp/c_full - 1 median -0.006 [-0.039, +0.082]
+  z_b = 7.62 m: hold per flight, median [max] s (share of transits that hold)
+    x1   r=1.43 0.000215 [0.000306] (3.03e-05); r=5 0.000807 [0.00113] (0.000106); r=10 0.00189 [0.00273] (0.000225); r=20 0.00507 [0.00788] (0.000514); r=35 0.0131 [0.0208] (0.00107); r=50 0.0264 [0.0417] (0.0018); r=60 0.0388 [0.0612] (0.00239); r=80 0.073 [0.116] (0.00375)
+    x3   r=1.43 0.000646 [0.00092] (9.09e-05); r=5 0.00242 [0.00339] (0.000317); r=10 0.00568 [0.00819] (0.000673); r=20 0.0152 [0.0237] (0.00154); r=35 0.0395 [0.0627] (0.0032); r=50 0.0798 [0.126] (0.00536); r=60 0.118 [0.185] (0.00706); r=80 0.222 [0.352] (0.011)
+    x10  r=1.43 0.00217 [0.00307] (0.000303); r=5 0.00817 [0.0113] (0.00105); r=10 0.0191 [0.0274] (0.00223); r=20 0.0513 [0.0798] (0.00505); r=35 0.134 [0.213] (0.0104); r=50 0.274 [0.433] (0.0173); r=60 0.406 [0.641] (0.0226); r=80 0.775 [1.24] (0.0345)
+    x30  r=1.43 0.00664 [0.00937] (0.000906); r=5 0.0252 [0.0342] (0.00311); r=10 0.0587 [0.0836] (0.00656); r=20 0.16 [0.249] (0.0146); r=35 0.433 [0.688] (0.0297); r=50 0.923 [1.46] (0.0476); r=60 1.45 [2.3] (0.0608); r=80 3.19 [11.4] (0.0891)
+    x100 r=1.43 0.0223 [0.0503] (0.00299); r=5 0.0962 [0.25] (0.0101); r=10 0.334 [336] (0.0209); r=20 1.38 [9.62e+03] (0.0445); r=35 13.1 [9.69e+05] (0.0849); r=50 102 [9.19e+07] (0.128); r=60 386 [1.87e+09] (0.156); r=80 2.07e+04 [8.1e+11] (0.21)
+  z_b = 0.43 m: hold per flight, median [max] s (share of transits that hold)
+    x1   r=1.43 1.53e-06 [2.39e-06] (2.53e-06); r=5 1.8e-05 [2.92e-05] (1.58e-05); r=10 9.68e-05 [0.000165] (5e-05); r=20 0.000598 [0.00106] (0.000173); r=35 0.00282 [0.00506] (0.000498); r=50 0.00777 [0.0138] (0.000984); r=60 0.0131 [0.0232] (0.0014); r=80 0.0301 [0.053] (0.00246)
+    x3   r=1.43 4.6e-06 [7.18e-06] (7.59e-06); r=5 5.41e-05 [8.78e-05] (4.74e-05); r=10 0.00029 [0.000496] (0.00015); r=20 0.0018 [0.00319] (0.00052); r=35 0.00848 [0.0152] (0.00149); r=50 0.0234 [0.0415] (0.00293); r=60 0.0396 [0.0701] (0.00417); r=80 0.091 [0.16] (0.00728)
+    x10  r=1.43 1.53e-05 [2.39e-05] (2.53e-05); r=5 0.00018 [0.000293] (0.000158); r=10 0.00097 [0.00166] (0.000499); r=20 0.00601 [0.0107] (0.00173); r=35 0.0285 [0.0511] (0.0049); r=50 0.0791 [0.14] (0.00953); r=60 0.135 [0.238] (0.0134); r=80 0.313 [0.553] (0.023)
+    x30  r=1.43 4.61e-05 [7.18e-05] (7.59e-05); r=5 0.000541 [0.000879] (0.000471); r=10 0.00292 [0.00498] (0.00149); r=20 0.0182 [0.0322] (0.00512); r=35 0.0874 [0.157] (0.0142); r=50 0.248 [0.44] (0.027); r=60 0.429 [0.762] (0.0374); r=80 1.06 [1.86] (0.0617)
+    x100 r=1.43 0.000155 [0.000239] (0.000253); r=5 0.00181 [0.00294] (0.00155); r=10 0.0099 [0.0168] (0.0049); r=20 0.0636 [0.111] (0.0165); r=35 0.327 [1.02] (0.0429); r=50 1.18 [62] (0.0782); r=60 2.58 [1.24e+03] (0.104); r=80 17.1 [7.27e+05] (0.159)
+  r = 50, z_b = Z, x1: hub share of hold median 0.261 [0.109, 0.438]; top-1% transits' share median 0.118 [0.094, 0.191]
+  hover exposure (unmitigated) per flight hour, r = 50, z_b = Z, x1: median 8.12e-08 max 2.37e-07
+  hover exposure (unmitigated) per flight hour, r = 50, z_b = Z, x3: median 7.37e-07 max 2.15e-06
+  hover exposure (unmitigated) per flight hour, r = 50, z_b = Z, x10: median 8.48e-06 max 2.46e-05
+  hover exposure (unmitigated) per flight hour, r = 50, z_b = Z, x30: median 9.58e-05 max 0.000242
+  hover exposure (unmitigated) per flight hour, r = 50, z_b = Z, x100: median 0.022 max 9.37e+04
+  target 1e-07, z_b 7.62: sigma 0.14: r 2.0 [max 2.0], hold x1 0.000261 s, x10 0.00262 s; sigma 0.5: r 3.4 [max 3.4], hold x1 0.000437 s, x10 0.0044 s; sigma 1: r 5.3 [max 5.4], hold x1 0.000848 s, x10 0.00858 s; sigma 2.12: r 9.6 [max 9.8], hold x1 0.00177 s, x10 0.0179 s; sigma 5: r 20.7 [max 21.2], hold x1 0.00529 s, x10 0.0536 s; sigma 12.54: r 49.7 [max 51.0], hold x1 0.0257 s, x10 0.266 s
+  target 1e-07, z_b 0.43: sigma 0.14: unreachable (P_v); sigma 0.5: unreachable (P_v); sigma 1: unreachable (P_v); sigma 2.12: unreachable (P_v); sigma 5: unreachable (P_v); sigma 12.54: unreachable (P_v)
+  target 2.5e-09, z_b 7.62: sigma 0.14: r 2.1 [max 2.1], hold x1 0.000274 s, x10 0.00275 s; sigma 0.5: r 3.8 [max 3.9], hold x1 0.000525 s, x10 0.00529 s; sigma 1: r 6.3 [max 6.4], hold x1 0.001 s, x10 0.0101 s; sigma 2.12: r 11.7 [max 12.0], hold x1 0.00223 s, x10 0.0226 s; sigma 5: r 25.6 [max 26.4], hold x1 0.00716 s, x10 0.0728 s; sigma 12.54: r 61.9 [max 64.0], hold x1 0.0404 s, x10 0.423 s
+  target 2.5e-09, z_b 0.43: sigma 0.14: unreachable (P_v); sigma 0.5: unreachable (P_v); sigma 1: unreachable (P_v); sigma 2.12: unreachable (P_v); sigma 5: unreachable (P_v); sigma 12.54: unreachable (P_v)
+
+Predictions
+  T1 hold per flight < 1 s at x1, r 50, z_b Z (median, both M): held
+  T2 hold per flight < 10 s at x10: held
+  T3 top 1% of transits carry > half the hold: refuted
+  T4 hub transits < half the hold: held
+  T5 hover exposure < 1e-7 per flight hour in every layout: refuted
+  T6 Remote ID bound: hold at the 1e-7 radius < 1 s (median, both M): held

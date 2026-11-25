@@ -2,7 +2,7 @@
 
 > Free .dockerignore checker. From a .dockerignore, a file list and optionally a Dockerfile, it says which paths BuildKit sends in the build context and the line that decides each one, flags COPY/ADD and RUN --mount=type=bind sources the rules exclude (the cause of "not found" COPY errors), .env files, private keys, credentials files, .git and node_modules still sent, patterns that only match at the context root (`*.log` is not `**/*.log` in Docker), `!folder` exceptions that re-include nothing (write `!folder/**`), `[!a]` classes (Go negates with `^`), indented `#` lines that are patterns, and syntax errors that fail every build. It writes a fixed .dockerignore and re-runs it against the list before offering it. Runs in the browser; nothing is uploaded. A zero-dependency CLI runs it over a real context folder.
 
-Free and open source (MIT). The engine is a line-by-line port of moby/patternmatcher v0.6.1 (ignorefile.ReadAll, MatchesUsingParentResults) and tonistiigi/fsutil's filtered walk, the code BuildKit (Docker Engine 23+, docker buildx) runs; it is replayed against that Go code on 5,000 random trees in every test run. It models BuildKit, not the legacy builder. Not legal, security or professional advice; your own docker build is the final word.
+Free to use and source available (FSL-1.1-MIT). The engine is a line-by-line port of moby/patternmatcher v0.6.1 (ignorefile.ReadAll, MatchesUsingParentResults) and tonistiigi/fsutil's filtered walk, the code BuildKit (Docker Engine 23+, docker buildx) runs; it is replayed against that Go code on 5,000 random trees in every test run. It models BuildKit, not the legacy builder. Not legal, security or professional advice; your own docker build is the final word.
 
 ## Pages
 
@@ -16,4 +16,4 @@ Free and open source (MIT). The engine is a line-by-line port of moby/patternmat
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dockerignore-explainer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dockerignore-explainer): FSL-1.1-MIT licensed.

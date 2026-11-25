@@ -1,0 +1,42 @@
+variable "region" {
+  description = "Region of the Claude Platform on AWS workspace. Workspaces are bound to one region and every commercial region is supported (platform.claude.com/docs/en/build-with-claude/claude-platform-on-aws, read 2026-11-24)."
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "state_bucket" {
+  type = string
+}
+
+variable "member_role_name" {
+  type    = string
+  default = "OrganizationAccountAccessRole"
+}
+
+variable "github_repository" {
+  type    = string
+  default = "Duncan-Haywood/oss-monorepo"
+}
+
+variable "workspace_ids" {
+  description = "Claude Platform on AWS workspace IDs (wrkspc_...) the app and CI roles may call. Empty means every workspace of the apps account in var.region. Not secret: set from the repository variable CLAUDE_AWS_WORKSPACE_ID."
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition     = alltrue([for w in var.workspace_ids : can(regex("^wrkspc_[A-Za-z0-9]+$", w))])
+    error_message = "Workspace IDs look like wrkspc_01AbCdEf23GhIj."
+  }
+}
+
+variable "allow_batch" {
+  description = "Allow the Message Batches API. Off by default (the docs' example policy denies it); turn on when a product uses batches."
+  type        = bool
+  default     = false
+}
+
+variable "enable_bedrock_alternative" {
+  description = "Also create the Amazon Bedrock policy (the documented alternative to Claude Platform on AWS). Off: the decision is Claude Platform on AWS."
+  type        = bool
+  default     = false
+}

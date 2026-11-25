@@ -1664,16 +1664,59 @@ in more than 5\% of draws, and none above 3 points flips at all; the two
 that flip in more than 20\% (gtc12r, dot6r, flip shares 0.38 and 0.37)
 have edges within a point of zero, which no affordable number of namings
 resolves. So per-design wins and losses of more than about 3 points in
-this paper survive naming noise, and smaller ones should be read as ties
-unless several namings agree. Two intermediate releases (0.47, 0.51)
-split the flow's \texttt{abc\ -g} gate list at the commas when it is
-passed with \texttt{-p}; with the commands in a script file
-(\texttt{-s}, which reproduces the 0.70 table exactly) they run and give
-identical results to each other: pick regret 1.4 / 0 / 0 / 0.9\% and tau
-of period 0.33 / 0.52 / 0.03 / -0.04, so at W = 192 pick regret is 109,
-16 and 1\% for Yosys 0.33, 0.70 and 0.47/0.51 (milestone 77). The mapped
-period carries no rank information at W = 192 under any version (tau
-between -0.04 and 0.10).
+this paper survive per-point naming noise, and smaller ones should be
+read as ties unless several namings agree. Milestone 164
+(\texttt{experiments/\allowbreak{}naming\_\allowbreak{}more/\allowbreak{}}; flow run, five predictions
+committed before it ran, four held, the primary refuted) placed and
+routed two more random namings of every mapped netlist of the six
+designs whose edge is under 3 points (1,440 runs). The fresh whole-table
+values of d fall within two of milestone 163's per-point standard
+deviations of the three-naming edge on only 7 of 12, and move it by up
+to 3.8 points (clamp2r, gtc24r): a naming applied to a whole table moves
+its points together, so a per-design table read off one naming is
+noisier than per-point draws suggest, and five namings give a per-point
+standard deviation 1.23 times the three-naming one. Averaged over the
+five namings all six designs stay within 2.1 points of zero with the
+sign of their edge unchanged, and averaging \(k\) namings shrinks the
+noise somewhat slower than \(1/\sqrt{k}\) (the ratio of the \(k = 1\) to
+\(k = 3\) standard deviations is 2.03 against 2.45 for independent noise
+sampled without replacement). Per-design differences under about 4
+points in a table built from one naming are therefore ties. Milestone
+165 (\texttt{experiments/\allowbreak{}tie\_\allowbreak{}rule/\allowbreak{}}; replay, six predictions committed
+before it ran, four held) re-reads the blind shifter designs of
+milestones 118 to 133 with that rule: 31 of the 56 with a shift-amount
+gate depth are ties (12 of them because SWC never took the ladder
+branch). At 32 gates or more the ladder wins 11 decided designs and
+loses 1 (sign p 0.006); below 32 it wins 5 and loses 8 (p 0.58), with
+mean edge +3.18 points against -3.25 above, carried by a few large
+losses (funnel128, xor8, addsh128, fpalign128). The gate-depth guard's
+random routing below the cut is therefore insurance against rare large
+losses rather than the avoidance of a reliable one, and decided designs
+alone do not place the cut more finely than 19 to 32 gates. Milestone
+166 (\texttt{experiments/\allowbreak{}naming\_\allowbreak{}shifters/\allowbreak{}}; flow run, seven predictions
+committed before it ran, all held) asks whether those 13 decided designs
+below the cut are properties of the designs: it maps every sequence
+again with the build A Yosys and places and routes two fresh random
+namings of each at both clocks (5,408 runs, 5,396 ok; Yosys's own
+netlist re-placed reproduces the committed rows on 52 of 52 control
+runs, every field). Averaged over the three namings, all 13 keep their
+sign and stay decided at 4 points: the 8 losses (+4.55 to +22.48 points)
+and the 5 wins (-4.38 to -15.52). One fresh naming moves a design's edge
+by a median 3.51 points, up to 24.7 on the 128-bit funnel shifter
+(+36.06 under Yosys's names, +11.31 and +14.29 under the fresh ones),
+and 4 of the 26 fresh whole-table values fall into the tie band. Below
+the cut the shallow-amount wins and losses are thus real per-design
+effects, not naming draws, and they still split 5 to 8 (sign p 0.58):
+the two 31-gate designs go opposite ways (avg5 -8.72, sad1b8 +7.70).
+What separates them is not the amount's gate depth. Two intermediate
+releases (0.47, 0.51) split the flow's \texttt{abc\ -g} gate list at the
+commas when it is passed with \texttt{-p}; with the commands in a script
+file (\texttt{-s}, which reproduces the 0.70 table exactly) they run and
+give identical results to each other: pick regret 1.4 / 0 / 0 / 0.9\%
+and tau of period 0.33 / 0.52 / 0.03 / -0.04, so at W = 192 pick regret
+is 109, 16 and 1\% for Yosys 0.33, 0.70 and 0.47/0.51 (milestone 77).
+The mapped period carries no rank information at W = 192 under any
+version (tau between -0.04 and 0.10).
 
 \hypertarget{what-the-paper-still-needs}{%
 \subsection{6 What the paper still

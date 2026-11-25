@@ -1,0 +1,1146 @@
+{
+  "openssl": "OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)",
+  "at": "2026-11-24T12:00:00Z",
+  "certs": {
+    "root": {
+      "file": "certs/root.pem",
+      "subject": "C=US,O=Parity Test Root Authority,CN=Parity Root R1",
+      "issuer": "C=US,O=Parity Test Root Authority,CN=Parity Root R1",
+      "serial": "1000",
+      "dates": "notBefore=2020-01-01 00:00:00Z\nnotAfter=2040-01-01 00:00:00Z",
+      "sha256": "10:5F:2E:66:6A:28:6D:17:D1:5F:D3:23:67:C0:13:C2:C1:5B:FD:3B:36:FA:8B:29:BD:3A:78:71:24:6F:8E:14",
+      "publicKeyBits": "3072",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": null,
+      "basicConstraints": "CA:TRUE",
+      "keyUsage": "Certificate Sign, CRL Sign",
+      "extendedKeyUsage": null,
+      "subjectKeyIdentifier": "74:58:BA:3C:51:8F:B8:43:6F:95:12:C5:05:40:B3:B4:C9:7F:4E:D4",
+      "authorityKeyIdentifier": null
+    },
+    "rootEc": {
+      "file": "certs/root-ec.pem",
+      "subject": "O=Parity Test Root Authority,CN=Parity Root E1",
+      "issuer": "O=Parity Test Root Authority,CN=Parity Root E1",
+      "serial": "1001",
+      "dates": "notBefore=2020-01-01 00:00:00Z\nnotAfter=2040-01-01 00:00:00Z",
+      "sha256": "F8:61:DA:7D:FC:00:31:4D:7F:AF:B2:60:20:8C:57:0C:92:6F:A4:B9:81:E7:BF:E8:A2:3B:0C:1E:EF:E2:95:07",
+      "publicKeyBits": "384",
+      "curve": "secp384r1",
+      "keyAlgorithm": "id-ecPublicKey",
+      "signatureAlgorithm": "ecdsa-with-SHA384",
+      "subjectAltName": null,
+      "basicConstraints": "CA:TRUE",
+      "keyUsage": "Certificate Sign, CRL Sign",
+      "extendedKeyUsage": null,
+      "subjectKeyIdentifier": "AD:64:E0:C2:92:C8:9D:95:33:89:5E:A4:D3:79:E9:94:49:ED:34:51",
+      "authorityKeyIdentifier": null
+    },
+    "int": {
+      "file": "certs/int.pem",
+      "subject": "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA",
+      "issuer": "C=US,O=Parity Test Root Authority,CN=Parity Root R1",
+      "serial": "1002",
+      "dates": "notBefore=2025-01-01 00:00:00Z\nnotAfter=2030-01-01 00:00:00Z",
+      "sha256": "4F:BB:F3:47:4D:4B:B5:27:9F:84:38:2B:39:19:20:B8:93:A0:F5:3F:45:6A:5F:4D:FE:2F:A3:A1:EE:1E:F4:68",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": null,
+      "basicConstraints": "CA:TRUE, pathlen:0",
+      "keyUsage": "Certificate Sign, CRL Sign",
+      "extendedKeyUsage": null,
+      "subjectKeyIdentifier": "44:BE:89:43:33:8D:59:2C:DD:AE:A9:11:04:A6:44:AF:6E:95:F2:FF",
+      "authorityKeyIdentifier": "74:58:BA:3C:51:8F:B8:43:6F:95:12:C5:05:40:B3:B4:C9:7F:4E:D4"
+    },
+    "intEc": {
+      "file": "certs/int-ec.pem",
+      "subject": "O=Parity Test CA,CN=Parity ECC Issuing CA",
+      "issuer": "O=Parity Test Root Authority,CN=Parity Root E1",
+      "serial": "1003",
+      "dates": "notBefore=2025-01-01 00:00:00Z\nnotAfter=2030-01-01 00:00:00Z",
+      "sha256": "D9:BD:8D:25:0C:B5:5B:6B:63:C6:CC:D0:71:58:08:CC:8B:F2:00:1E:4F:51:58:9E:9C:DB:AF:38:A3:5D:1F:88",
+      "publicKeyBits": "256",
+      "curve": "prime256v1",
+      "keyAlgorithm": "id-ecPublicKey",
+      "signatureAlgorithm": "ecdsa-with-SHA384",
+      "subjectAltName": null,
+      "basicConstraints": "CA:TRUE",
+      "keyUsage": "Certificate Sign, CRL Sign",
+      "extendedKeyUsage": null,
+      "subjectKeyIdentifier": "3A:80:0B:A7:E2:73:6D:64:A6:4F:A3:42:41:80:0B:4D:D7:DC:03:49",
+      "authorityKeyIdentifier": "AD:64:E0:C2:92:C8:9D:95:33:89:5E:A4:D3:79:E9:94:49:ED:34:51"
+    },
+    "intShort": {
+      "file": "certs/int-short.pem",
+      "subject": "O=Parity Test CA,CN=Parity Short-Lived CA",
+      "issuer": "C=US,O=Parity Test Root Authority,CN=Parity Root R1",
+      "serial": "1004",
+      "dates": "notBefore=2025-01-01 00:00:00Z\nnotAfter=2027-01-01 00:00:00Z",
+      "sha256": "83:28:F6:69:E2:2A:86:6E:BC:27:4E:98:AA:B8:F4:C7:9C:94:04:EB:99:F1:C0:13:EF:47:EC:4D:BD:9B:F1:6B",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": null,
+      "basicConstraints": "CA:TRUE",
+      "keyUsage": "Certificate Sign, CRL Sign",
+      "extendedKeyUsage": null,
+      "subjectKeyIdentifier": "B4:15:29:6D:B2:01:DA:CC:84:1C:9F:66:22:BB:4B:27:C4:ED:5B:C5",
+      "authorityKeyIdentifier": "74:58:BA:3C:51:8F:B8:43:6F:95:12:C5:05:40:B3:B4:C9:7F:4E:D4"
+    },
+    "intNotCa": {
+      "file": "certs/int-notca.pem",
+      "subject": "O=Parity Test CA,CN=Parity Not A CA",
+      "issuer": "C=US,O=Parity Test Root Authority,CN=Parity Root R1",
+      "serial": "1005",
+      "dates": "notBefore=2025-01-01 00:00:00Z\nnotAfter=2030-01-01 00:00:00Z",
+      "sha256": "65:F3:57:50:21:8B:EC:9F:88:57:70:08:E1:A8:40:62:12:D1:F4:60:3D:38:A4:16:BB:EC:6C:C7:0E:95:19:00",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": null,
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": null,
+      "extendedKeyUsage": null,
+      "subjectKeyIdentifier": "63:3E:DD:ED:B7:73:FF:39:F6:2E:0C:3E:00:19:78:57:86:1E:5A:9E",
+      "authorityKeyIdentifier": "74:58:BA:3C:51:8F:B8:43:6F:95:12:C5:05:40:B3:B4:C9:7F:4E:D4"
+    },
+    "intNoKcs": {
+      "file": "certs/int-nokcs.pem",
+      "subject": "O=Parity Test CA,CN=Parity No KeyCertSign CA",
+      "issuer": "C=US,O=Parity Test Root Authority,CN=Parity Root R1",
+      "serial": "1006",
+      "dates": "notBefore=2025-01-01 00:00:00Z\nnotAfter=2030-01-01 00:00:00Z",
+      "sha256": "24:32:38:F6:B8:8F:42:36:76:AD:3F:C7:8D:08:30:C5:21:4A:BD:6B:B9:5B:41:38:C8:68:64:32:0C:A8:A5:0D",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": null,
+      "basicConstraints": "CA:TRUE",
+      "keyUsage": "Digital Signature, CRL Sign",
+      "extendedKeyUsage": null,
+      "subjectKeyIdentifier": "D4:E3:9B:43:B7:B0:CF:9E:F2:17:6B:05:85:28:BE:C0:6B:4A:B2:A3",
+      "authorityKeyIdentifier": "74:58:BA:3C:51:8F:B8:43:6F:95:12:C5:05:40:B3:B4:C9:7F:4E:D4"
+    },
+    "intA": {
+      "file": "certs/int-a.pem",
+      "subject": "O=Parity Test CA,CN=Parity Policy CA",
+      "issuer": "C=US,O=Parity Test Root Authority,CN=Parity Root R1",
+      "serial": "1007",
+      "dates": "notBefore=2025-01-01 00:00:00Z\nnotAfter=2030-01-01 00:00:00Z",
+      "sha256": "FF:8D:3E:0B:9B:E3:7D:76:B4:9A:F6:7F:39:B5:DB:36:32:D9:6D:AC:7A:7C:16:31:1C:D6:CA:15:A1:F3:D9:F3",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": null,
+      "basicConstraints": "CA:TRUE, pathlen:0",
+      "keyUsage": "Certificate Sign, CRL Sign",
+      "extendedKeyUsage": null,
+      "subjectKeyIdentifier": "71:CD:38:2F:13:77:CD:FF:08:CA:AA:05:57:4C:44:E0:23:35:8D:27",
+      "authorityKeyIdentifier": "74:58:BA:3C:51:8F:B8:43:6F:95:12:C5:05:40:B3:B4:C9:7F:4E:D4"
+    },
+    "intB": {
+      "file": "certs/int-b.pem",
+      "subject": "O=Parity Test CA,CN=Parity Sub CA Below Pathlen 0",
+      "issuer": "O=Parity Test CA,CN=Parity Policy CA",
+      "serial": "1008",
+      "dates": "notBefore=2025-01-01 00:00:00Z\nnotAfter=2030-01-01 00:00:00Z",
+      "sha256": "9D:63:D5:D5:82:D0:44:1E:91:2B:99:F8:41:84:2F:75:2D:FE:DA:94:56:78:5A:8C:54:BD:9F:04:B1:4C:37:72",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": null,
+      "basicConstraints": "CA:TRUE",
+      "keyUsage": "Certificate Sign, CRL Sign",
+      "extendedKeyUsage": null,
+      "subjectKeyIdentifier": "F0:EC:D3:C4:63:9C:AB:0D:77:F9:74:C1:29:37:D5:8C:E3:51:77:77",
+      "authorityKeyIdentifier": "71:CD:38:2F:13:77:CD:FF:08:CA:AA:05:57:4C:44:E0:23:35:8D:27"
+    },
+    "intImposter": {
+      "file": "certs/int-imposter.pem",
+      "subject": "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA",
+      "issuer": "C=US,O=Parity Test Root Authority,CN=Parity Root R1",
+      "serial": "1009",
+      "dates": "notBefore=2025-01-01 00:00:00Z\nnotAfter=2030-01-01 00:00:00Z",
+      "sha256": "A9:2D:AB:18:33:0E:AD:D0:B7:1D:1B:78:B0:15:1E:3E:11:8F:27:BE:78:49:31:A3:7D:59:82:65:68:89:7E:5D",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": null,
+      "basicConstraints": "CA:TRUE",
+      "keyUsage": "Certificate Sign, CRL Sign",
+      "extendedKeyUsage": null,
+      "subjectKeyIdentifier": "7F:7F:C5:B8:67:21:90:F4:63:C5:C3:79:28:CC:BE:43:7C:07:03:0C",
+      "authorityKeyIdentifier": "74:58:BA:3C:51:8F:B8:43:6F:95:12:C5:05:40:B3:B4:C9:7F:4E:D4"
+    },
+    "intPss": {
+      "file": "certs/int-pss.pem",
+      "subject": "O=Parity Test CA,CN=Parity PSS CA",
+      "issuer": "C=US,O=Parity Test Root Authority,CN=Parity Root R1",
+      "serial": "100A",
+      "dates": "notBefore=2025-01-01 00:00:00Z\nnotAfter=2030-01-01 00:00:00Z",
+      "sha256": "6B:9E:E9:55:5F:B0:37:C6:E0:BF:4A:A8:83:51:19:DB:7E:5E:1E:F6:1D:76:9A:FE:20:6E:D0:4B:00:09:E5:8F",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "rsassaPss",
+      "subjectAltName": null,
+      "basicConstraints": "CA:TRUE",
+      "keyUsage": "Certificate Sign, CRL Sign",
+      "extendedKeyUsage": null,
+      "subjectKeyIdentifier": "BD:9A:98:4C:26:A2:56:93:C7:4C:8E:41:7D:C1:47:1C:84:2F:68:0F",
+      "authorityKeyIdentifier": "74:58:BA:3C:51:8F:B8:43:6F:95:12:C5:05:40:B3:B4:C9:7F:4E:D4"
+    },
+    "leaf": {
+      "file": "certs/leaf.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA",
+      "serial": "100B",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "31:12:E0:09:92:CF:31:D9:7B:A7:E5:C7:5D:D5:86:F4:7E:32:8F:52:2B:02:D9:A8:AE:BC:71:15:90:D0:A9:D5",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": "DNS:www.example.test, DNS:example.test, DNS:*.api.example.test, IP Address:192.0.2.10, IP Address:2001:DB8:0:0:0:0:0:10",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "29:EC:B9:45:7B:3B:4E:49:BA:9D:93:69:F1:BD:AC:C2:46:E7:18:58",
+      "authorityKeyIdentifier": "44:BE:89:43:33:8D:59:2C:DD:AE:A9:11:04:A6:44:AF:6E:95:F2:FF"
+    },
+    "leafEc": {
+      "file": "certs/leaf-ec.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "O=Parity Test CA,CN=Parity ECC Issuing CA",
+      "serial": "100C",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "B9:6D:A6:84:B2:87:9A:BE:8A:65:5C:BC:21:BF:1C:42:6C:4C:80:FE:4E:96:03:DE:A8:54:0F:B6:EA:59:77:48",
+      "publicKeyBits": "256",
+      "curve": "prime256v1",
+      "keyAlgorithm": "id-ecPublicKey",
+      "signatureAlgorithm": "ecdsa-with-SHA256",
+      "subjectAltName": "DNS:www.example.test, DNS:example.test, DNS:*.api.example.test, IP Address:192.0.2.10, IP Address:2001:DB8:0:0:0:0:0:10",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "F7:00:1A:02:27:1E:86:17:B2:36:90:3D:63:05:B1:4A:07:98:E9:AC",
+      "authorityKeyIdentifier": "3A:80:0B:A7:E2:73:6D:64:A6:4F:A3:42:41:80:0B:4D:D7:DC:03:49"
+    },
+    "leafP521": {
+      "file": "certs/leaf-p521.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "O=Parity Test CA,CN=Parity ECC Issuing CA",
+      "serial": "100D",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "9D:FF:7C:E2:36:A6:1A:D5:BE:39:31:11:69:F4:3D:A8:4A:BD:FB:CF:B1:16:03:EF:CF:C1:11:9F:EE:B4:7B:E7",
+      "publicKeyBits": "521",
+      "curve": "secp521r1",
+      "keyAlgorithm": "id-ecPublicKey",
+      "signatureAlgorithm": "ecdsa-with-SHA512",
+      "subjectAltName": "DNS:p521.example.test",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "BB:59:21:36:7A:26:30:44:93:6B:0F:5E:CD:08:D6:59:0B:A1:84:5C",
+      "authorityKeyIdentifier": "3A:80:0B:A7:E2:73:6D:64:A6:4F:A3:42:41:80:0B:4D:D7:DC:03:49"
+    },
+    "leafEd": {
+      "file": "certs/leaf-ed25519.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA",
+      "serial": "100E",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "88:9A:1A:69:76:3F:77:56:BB:ED:32:B5:9A:C7:E5:DC:81:86:E6:36:64:0B:C5:D3:14:DF:61:62:78:1A:C0:55",
+      "publicKeyBits": null,
+      "curve": null,
+      "keyAlgorithm": "ED25519",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": "DNS:ed.example.test",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "DB:9C:D7:50:62:DA:AE:23:E8:78:1F:84:E5:BD:73:DE:78:F6:1A:24",
+      "authorityKeyIdentifier": "44:BE:89:43:33:8D:59:2C:DD:AE:A9:11:04:A6:44:AF:6E:95:F2:FF"
+    },
+    "leafPss": {
+      "file": "certs/leaf-pss.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "O=Parity Test CA,CN=Parity PSS CA",
+      "serial": "100F",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "1A:C2:22:82:A7:E6:06:07:FF:61:5E:BD:F4:1F:EC:96:03:0E:BB:40:5B:19:5C:2B:0F:18:0C:8E:E1:FE:9A:8C",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "rsassaPss",
+      "subjectAltName": "DNS:pss.example.test",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "1F:A8:B4:42:62:A6:89:84:DE:57:A7:29:A6:5E:26:7A:29:86:97:60",
+      "authorityKeyIdentifier": "BD:9A:98:4C:26:A2:56:93:C7:4C:8E:41:7D:C1:47:1C:84:2F:68:0F"
+    },
+    "leafSha384": {
+      "file": "certs/leaf-sha384.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA",
+      "serial": "1010",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "BA:B1:DF:C9:B0:B5:E8:4B:7F:D4:3C:38:B9:02:76:D6:CA:78:F0:89:02:EA:F1:21:B5:B1:30:4B:41:E5:A7:B6",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha384WithRSAEncryption",
+      "subjectAltName": "DNS:sha384.example.test",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "55:CF:4A:08:17:B0:E6:B9:62:10:F9:86:A7:46:80:F0:ED:5A:56:7B",
+      "authorityKeyIdentifier": "44:BE:89:43:33:8D:59:2C:DD:AE:A9:11:04:A6:44:AF:6E:95:F2:FF"
+    },
+    "leafExpired": {
+      "file": "certs/leaf-expired.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA",
+      "serial": "1011",
+      "dates": "notBefore=2025-10-01 00:00:00Z\nnotAfter=2026-01-01 00:00:00Z",
+      "sha256": "6D:6D:F5:8B:26:8D:02:49:11:9D:58:95:37:52:9E:7D:65:5C:CF:72:EC:86:69:18:34:22:05:F1:80:89:C9:05",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": "DNS:www.example.test, DNS:example.test, DNS:*.api.example.test, IP Address:192.0.2.10, IP Address:2001:DB8:0:0:0:0:0:10",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "0C:D5:69:F5:91:2D:67:7B:2A:51:91:54:DB:FF:FE:B7:5F:E5:3F:57",
+      "authorityKeyIdentifier": "44:BE:89:43:33:8D:59:2C:DD:AE:A9:11:04:A6:44:AF:6E:95:F2:FF"
+    },
+    "leafFuture": {
+      "file": "certs/leaf-future.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA",
+      "serial": "1012",
+      "dates": "notBefore=2027-01-01 00:00:00Z\nnotAfter=2027-06-01 00:00:00Z",
+      "sha256": "66:86:68:75:EE:C8:D5:08:B4:D2:FD:88:2B:CD:2C:5C:64:C3:AE:00:8B:E4:15:3E:11:D5:54:F3:34:E7:D5:9B",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": "DNS:www.example.test, DNS:example.test, DNS:*.api.example.test, IP Address:192.0.2.10, IP Address:2001:DB8:0:0:0:0:0:10",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "71:FC:88:EB:BF:46:FC:8B:D4:01:27:80:7B:61:75:8F:A6:DB:60:77",
+      "authorityKeyIdentifier": "44:BE:89:43:33:8D:59:2C:DD:AE:A9:11:04:A6:44:AF:6E:95:F2:FF"
+    },
+    "leafSoon": {
+      "file": "certs/leaf-soon.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA",
+      "serial": "1013",
+      "dates": "notBefore=2026-09-01 00:00:00Z\nnotAfter=2026-12-10 00:00:00Z",
+      "sha256": "4C:17:9B:CA:D5:D5:3D:62:76:FD:E6:A2:C4:65:61:A9:56:2E:C6:F6:3E:21:B7:A9:00:B2:42:D1:1D:F1:8E:AE",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": "DNS:www.example.test, DNS:example.test, DNS:*.api.example.test, IP Address:192.0.2.10, IP Address:2001:DB8:0:0:0:0:0:10",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "62:FA:83:4E:D8:9F:60:A4:9A:71:58:2D:08:0F:3B:E7:3A:A7:F2:B5",
+      "authorityKeyIdentifier": "44:BE:89:43:33:8D:59:2C:DD:AE:A9:11:04:A6:44:AF:6E:95:F2:FF"
+    },
+    "leafLong": {
+      "file": "certs/leaf-long.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA",
+      "serial": "1014",
+      "dates": "notBefore=2026-04-01 00:00:00Z\nnotAfter=2027-05-01 00:00:00Z",
+      "sha256": "D5:77:6A:92:04:02:6E:F7:FE:65:53:DD:DE:7E:92:1D:64:58:AD:8B:FA:55:D6:78:9E:9C:8A:EF:EB:56:94:11",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": "DNS:www.example.test, DNS:example.test, DNS:*.api.example.test, IP Address:192.0.2.10, IP Address:2001:DB8:0:0:0:0:0:10",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "C7:C5:55:1B:00:68:42:AD:68:E3:AF:B1:C9:31:C2:4F:96:D3:4F:F5",
+      "authorityKeyIdentifier": "44:BE:89:43:33:8D:59:2C:DD:AE:A9:11:04:A6:44:AF:6E:95:F2:FF"
+    },
+    "leafSha1": {
+      "file": "certs/leaf-sha1.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA",
+      "serial": "1015",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "5F:C7:63:A3:E7:5F:30:E4:0A:E9:D0:4D:44:C7:A4:E5:D3:F4:AC:E0:6E:58:52:F0:0C:BB:11:FF:5B:7E:0C:05",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha1WithRSAEncryption",
+      "subjectAltName": "DNS:www.example.test, DNS:example.test, DNS:*.api.example.test, IP Address:192.0.2.10, IP Address:2001:DB8:0:0:0:0:0:10",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "A9:BF:00:24:21:E6:65:AF:15:F8:60:05:1E:32:A8:61:B7:50:62:EB",
+      "authorityKeyIdentifier": "44:BE:89:43:33:8D:59:2C:DD:AE:A9:11:04:A6:44:AF:6E:95:F2:FF"
+    },
+    "leaf1024": {
+      "file": "certs/leaf-rsa1024.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA",
+      "serial": "1016",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "91:DE:41:F0:3D:AC:48:E6:07:E5:3A:A9:CC:C3:4A:97:1F:F9:DD:5D:3F:4F:BD:BD:ED:1C:D3:D4:56:A5:5A:D8",
+      "publicKeyBits": "1024",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": "DNS:www.example.test, DNS:example.test, DNS:*.api.example.test, IP Address:192.0.2.10, IP Address:2001:DB8:0:0:0:0:0:10",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "1A:7D:00:24:C6:B4:5C:34:B5:BC:E7:0B:A4:F9:8A:BF:06:D4:B0:DD",
+      "authorityKeyIdentifier": "44:BE:89:43:33:8D:59:2C:DD:AE:A9:11:04:A6:44:AF:6E:95:F2:FF"
+    },
+    "leafNoSan": {
+      "file": "certs/leaf-nosan.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA",
+      "serial": "1017",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "53:23:E6:77:5A:3F:56:DC:69:5A:D8:73:97:D3:9C:A1:4E:BD:03:93:56:05:D4:4B:A4:A9:F0:48:4F:AC:3B:A8",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": null,
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "10:1F:B9:7C:42:63:A6:32:18:4A:49:B9:F0:64:27:E7:36:4D:38:42",
+      "authorityKeyIdentifier": "44:BE:89:43:33:8D:59:2C:DD:AE:A9:11:04:A6:44:AF:6E:95:F2:FF"
+    },
+    "leafClient": {
+      "file": "certs/leaf-client.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA",
+      "serial": "1018",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "3D:FA:2B:BB:D0:65:E0:29:31:6D:21:7D:D1:8F:43:BB:FE:AF:BB:41:FF:9F:D0:68:9F:FA:0B:A4:67:65:C3:D7",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": "DNS:www.example.test, DNS:example.test, DNS:*.api.example.test, IP Address:192.0.2.10, IP Address:2001:DB8:0:0:0:0:0:10",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Client Authentication",
+      "subjectKeyIdentifier": "63:66:F8:C6:51:37:FE:5D:0C:79:55:2E:6D:0F:23:02:A8:44:F3:84",
+      "authorityKeyIdentifier": "44:BE:89:43:33:8D:59:2C:DD:AE:A9:11:04:A6:44:AF:6E:95:F2:FF"
+    },
+    "leafPartial": {
+      "file": "certs/leaf-partial.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA",
+      "serial": "1019",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "5A:A2:8D:08:FB:6D:E3:B5:C9:43:D5:7D:B5:EB:CA:86:3A:83:A7:93:D7:19:A0:60:4F:E6:16:38:A9:DC:D0:BB",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": "DNS:w*.example.test, DNS:shop.example.test",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "2B:B8:8D:7E:31:BA:CF:C7:95:FB:F9:4A:11:6C:3E:31:F5:88:6D:7E",
+      "authorityKeyIdentifier": "44:BE:89:43:33:8D:59:2C:DD:AE:A9:11:04:A6:44:AF:6E:95:F2:FF"
+    },
+    "leafEcKu": {
+      "file": "certs/leaf-ec-ku.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "O=Parity Test CA,CN=Parity ECC Issuing CA",
+      "serial": "101A",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "E4:06:8A:9D:9D:F4:E8:DE:60:45:B4:15:41:69:B3:B1:CE:39:1D:D8:76:99:7C:25:81:DF:67:1B:71:1C:D3:B6",
+      "publicKeyBits": "256",
+      "curve": "prime256v1",
+      "keyAlgorithm": "id-ecPublicKey",
+      "signatureAlgorithm": "ecdsa-with-SHA256",
+      "subjectAltName": "DNS:ku.example.test",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "48:91:FE:39:89:9E:BC:64:4C:C9:9C:99:BF:E1:8D:51:1B:49:89:73",
+      "authorityKeyIdentifier": "3A:80:0B:A7:E2:73:6D:64:A6:4F:A3:42:41:80:0B:4D:D7:DC:03:49"
+    },
+    "leafBadSig": {
+      "file": "certs/leaf-badsig.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA",
+      "serial": "101B",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "CA:6F:A5:3E:D7:53:56:A7:CF:CC:23:90:30:5C:E1:EF:75:F3:29:5D:41:6B:4D:CD:2C:C4:C1:84:54:14:8A:72",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": "DNS:www.example.test, DNS:example.test, DNS:*.api.example.test, IP Address:192.0.2.10, IP Address:2001:DB8:0:0:0:0:0:10",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "E2:40:31:8C:21:04:D4:BE:A7:39:D3:16:49:D6:A1:2D:96:5C:92:B0",
+      "authorityKeyIdentifier": null
+    },
+    "leafRekeyed": {
+      "file": "certs/leaf-rekeyed.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA",
+      "serial": "101C",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "44:05:78:8D:A6:DE:24:F1:EC:F4:1B:FE:35:FF:FF:8C:5A:08:E6:5D:DF:69:19:21:73:82:0B:A1:7E:B8:E8:0A",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": "DNS:www.example.test, DNS:example.test, DNS:*.api.example.test, IP Address:192.0.2.10, IP Address:2001:DB8:0:0:0:0:0:10",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "F2:9C:B1:E5:21:4F:48:7A:00:90:C4:99:DB:E7:0F:E2:DF:2E:58:38",
+      "authorityKeyIdentifier": "7F:7F:C5:B8:67:21:90:F4:63:C5:C3:79:28:CC:BE:43:7C:07:03:0C"
+    },
+    "leafOfNotCa": {
+      "file": "certs/leaf-of-notca.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "O=Parity Test CA,CN=Parity Not A CA",
+      "serial": "101D",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "02:EF:A3:52:83:EB:C9:DA:10:12:2F:6B:3A:BF:9A:3C:D0:8C:60:B1:16:FB:1C:16:80:E7:61:71:FB:76:49:2B",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": "DNS:www.example.test, DNS:example.test, DNS:*.api.example.test, IP Address:192.0.2.10, IP Address:2001:DB8:0:0:0:0:0:10",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "09:D4:89:66:27:63:55:C9:AF:1A:7C:B9:CB:9D:F4:4B:7D:04:2C:90",
+      "authorityKeyIdentifier": "63:3E:DD:ED:B7:73:FF:39:F6:2E:0C:3E:00:19:78:57:86:1E:5A:9E"
+    },
+    "leafOfNoKcs": {
+      "file": "certs/leaf-of-nokcs.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "O=Parity Test CA,CN=Parity No KeyCertSign CA",
+      "serial": "101E",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "6E:CD:13:65:EA:3E:09:2E:45:83:D2:A3:8F:1A:E9:C8:D5:B1:25:ED:27:8A:61:24:CE:DD:29:37:3D:23:78:EA",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": "DNS:www.example.test, DNS:example.test, DNS:*.api.example.test, IP Address:192.0.2.10, IP Address:2001:DB8:0:0:0:0:0:10",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "FC:2C:26:C9:CD:9C:AC:0F:BC:50:BC:1F:6A:F0:05:4C:0E:D5:EF:E9",
+      "authorityKeyIdentifier": "D4:E3:9B:43:B7:B0:CF:9E:F2:17:6B:05:85:28:BE:C0:6B:4A:B2:A3"
+    },
+    "leafOfB": {
+      "file": "certs/leaf-of-b.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "O=Parity Test CA,CN=Parity Sub CA Below Pathlen 0",
+      "serial": "101F",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "4A:1E:BE:72:AF:A5:52:67:05:D5:9B:A6:31:AB:BE:2A:F0:D1:6C:1D:E9:66:E6:4D:ED:D2:F6:9F:F2:4F:BE:93",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": "DNS:www.example.test, DNS:example.test, DNS:*.api.example.test, IP Address:192.0.2.10, IP Address:2001:DB8:0:0:0:0:0:10",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "8A:4E:3E:5D:C8:67:C4:2E:A1:00:D5:B7:2E:82:70:DA:F2:AD:3D:34",
+      "authorityKeyIdentifier": "F0:EC:D3:C4:63:9C:AB:0D:77:F9:74:C1:29:37:D5:8C:E3:51:77:77"
+    },
+    "leafOfShort": {
+      "file": "certs/leaf-of-short.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "O=Parity Test CA,CN=Parity Short-Lived CA",
+      "serial": "1020",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-10-01 00:00:00Z",
+      "sha256": "CC:C0:85:8E:99:33:EE:8F:E1:F9:93:4D:49:14:08:52:49:5A:EB:D4:FF:FA:0E:C1:2E:BE:B5:24:44:D3:9C:BA",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": "DNS:www.example.test, DNS:example.test, DNS:*.api.example.test, IP Address:192.0.2.10, IP Address:2001:DB8:0:0:0:0:0:10",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "EC:AB:B8:59:0E:EF:E4:C4:FD:51:27:BE:58:6C:9D:19:11:EA:5C:82",
+      "authorityKeyIdentifier": "B4:15:29:6D:B2:01:DA:CC:84:1C:9F:66:22:BB:4B:27:C4:ED:5B:C5"
+    },
+    "leafSelf": {
+      "file": "certs/leaf-self.pem",
+      "subject": "CN=self.example.test",
+      "issuer": "CN=self.example.test",
+      "serial": "1021",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-11-01 00:00:00Z",
+      "sha256": "FA:55:D4:AD:3E:AD:CC:02:0C:8D:9B:EB:CF:F7:68:7B:6F:82:2B:19:25:C8:68:C4:50:C2:92:D1:F3:F2:A0:5C",
+      "publicKeyBits": "256",
+      "curve": "prime256v1",
+      "keyAlgorithm": "id-ecPublicKey",
+      "signatureAlgorithm": "ecdsa-with-SHA256",
+      "subjectAltName": "DNS:self.example.test",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "B0:6A:09:61:E4:23:56:37:9F:BC:07:C0:CA:FE:84:AC:24:67:48:6D",
+      "authorityKeyIdentifier": null
+    },
+    "leafK256": {
+      "file": "certs/leaf-k256.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA",
+      "serial": "1022",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "57:9F:90:F2:B6:26:77:44:8C:02:4D:25:D8:64:23:C1:78:B4:20:CB:64:BE:1A:5C:A8:09:EB:02:FC:FE:62:AE",
+      "publicKeyBits": "256",
+      "curve": "secp256k1",
+      "keyAlgorithm": "id-ecPublicKey",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": "DNS:k256.example.test",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "BC:69:0B:C5:3D:84:04:E3:C6:21:77:A6:95:19:92:EC:D0:99:A7:3B",
+      "authorityKeyIdentifier": "44:BE:89:43:33:8D:59:2C:DD:AE:A9:11:04:A6:44:AF:6E:95:F2:FF"
+    },
+    "leafMany": {
+      "file": "certs/leaf-many.pem",
+      "subject": "O=Parity Test Site,CN=www.example.test",
+      "issuer": "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA",
+      "serial": "1023",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "46:7A:2C:0C:8D:36:06:14:0D:87:40:FF:0B:9F:36:57:CC:C3:09:3E:8F:B1:12:2C:28:C5:B1:C0:B4:8D:69:82",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": "DNS:a.example.test, DNS:b.example.test, DNS:*.example.test, DNS:x.y.example.test, IP Address:10.0.0.1, email:ops@example.test, URI:https://example.test/",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "73:00:62:2D:ED:FD:73:4F:F1:CB:4C:2B:07:1E:F2:13:ED:22:DB:99",
+      "authorityKeyIdentifier": "44:BE:89:43:33:8D:59:2C:DD:AE:A9:11:04:A6:44:AF:6E:95:F2:FF"
+    },
+    "leafEscaped": {
+      "file": "certs/leaf-escaped.pem",
+      "subject": "O=Acme\\, Inc. \\+ Sons\\; \\<Ltd\\>,CN=shop.example.test",
+      "issuer": "C=US,O=Parity Test CA,CN=Parity RSA Issuing CA",
+      "serial": "1024",
+      "dates": "notBefore=2026-11-01 00:00:00Z\nnotAfter=2027-03-01 00:00:00Z",
+      "sha256": "63:4A:EC:F6:13:19:AD:38:5F:CB:CC:9B:42:20:DF:09:70:89:02:E0:7D:E7:0C:CD:14:C5:ED:26:A1:ED:93:E4",
+      "publicKeyBits": "2048",
+      "curve": null,
+      "keyAlgorithm": "rsaEncryption",
+      "signatureAlgorithm": "sha256WithRSAEncryption",
+      "subjectAltName": "DNS:shop.example.test",
+      "basicConstraints": "CA:FALSE",
+      "keyUsage": "Digital Signature, Key Encipherment",
+      "extendedKeyUsage": "TLS Web Server Authentication",
+      "subjectKeyIdentifier": "AE:A8:8F:AA:4C:61:E6:C9:0C:F9:34:C0:F4:03:32:6F:B9:01:23:80",
+      "authorityKeyIdentifier": "44:BE:89:43:33:8D:59:2C:DD:AE:A9:11:04:A6:44:AF:6E:95:F2:FF"
+    }
+  },
+  "chains": [
+    {
+      "id": "good-rsa",
+      "file": "chains/good-rsa.pem",
+      "files": [
+        "leaf",
+        "int"
+      ],
+      "trust": "root",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {
+        "www.example.test": true,
+        "example.test": true,
+        "x.api.example.test": true,
+        "a.b.api.example.test": false,
+        "api.example.test": false,
+        "192.0.2.10": true,
+        "2001:db8::10": true,
+        "WWW.EXAMPLE.TEST": true,
+        "other.test": false
+      }
+    },
+    {
+      "id": "good-ec",
+      "file": "chains/good-ec.pem",
+      "files": [
+        "leafEc",
+        "intEc"
+      ],
+      "trust": "rootEc",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {
+        "www.example.test": true
+      }
+    },
+    {
+      "id": "good-p521",
+      "file": "chains/good-p521.pem",
+      "files": [
+        "leafP521",
+        "intEc"
+      ],
+      "trust": "rootEc",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {
+        "p521.example.test": true
+      }
+    },
+    {
+      "id": "good-ed25519",
+      "file": "chains/good-ed25519.pem",
+      "files": [
+        "leafEd",
+        "int"
+      ],
+      "trust": "root",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {
+        "ed.example.test": true
+      }
+    },
+    {
+      "id": "good-pss",
+      "file": "chains/good-pss.pem",
+      "files": [
+        "leafPss",
+        "intPss"
+      ],
+      "trust": "root",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {
+        "pss.example.test": true
+      }
+    },
+    {
+      "id": "good-sha384",
+      "file": "chains/good-sha384.pem",
+      "files": [
+        "leafSha384",
+        "int"
+      ],
+      "trust": "root",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {
+        "sha384.example.test": true
+      }
+    },
+    {
+      "id": "leaf-only",
+      "file": "chains/leaf-only.pem",
+      "files": [
+        "leaf"
+      ],
+      "trust": "root",
+      "verifyOk": false,
+      "verifyErrors": [
+        {
+          "code": 20,
+          "depth": 0,
+          "text": "unable to get local issuer certificate"
+        }
+      ],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "wrong-order",
+      "file": "chains/wrong-order.pem",
+      "files": [
+        "int",
+        "leaf"
+      ],
+      "trust": "root",
+      "verifyOk": false,
+      "verifyErrors": [
+        {
+          "code": 26,
+          "depth": 0,
+          "text": "unsuitable certificate purpose"
+        }
+      ],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "root-included",
+      "file": "chains/root-included.pem",
+      "files": [
+        "leaf",
+        "int",
+        "root"
+      ],
+      "trust": "root",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "unrelated",
+      "file": "chains/unrelated.pem",
+      "files": [
+        "leaf",
+        "int",
+        "intEc"
+      ],
+      "trust": "root",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "duplicate",
+      "file": "chains/duplicate.pem",
+      "files": [
+        "leaf",
+        "int",
+        "int"
+      ],
+      "trust": "root",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "expired",
+      "file": "chains/expired.pem",
+      "files": [
+        "leafExpired",
+        "int"
+      ],
+      "trust": "root",
+      "verifyOk": false,
+      "verifyErrors": [
+        {
+          "code": 10,
+          "depth": 0,
+          "text": "certificate has expired"
+        }
+      ],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "not-yet-valid",
+      "file": "chains/not-yet-valid.pem",
+      "files": [
+        "leafFuture",
+        "int"
+      ],
+      "trust": "root",
+      "verifyOk": false,
+      "verifyErrors": [
+        {
+          "code": 9,
+          "depth": 0,
+          "text": "certificate is not yet valid"
+        }
+      ],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "expires-soon",
+      "file": "chains/expires-soon.pem",
+      "files": [
+        "leafSoon",
+        "int"
+      ],
+      "trust": "root",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "too-long",
+      "file": "chains/too-long.pem",
+      "files": [
+        "leafLong",
+        "int"
+      ],
+      "trust": "root",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "sha1",
+      "file": "chains/sha1.pem",
+      "files": [
+        "leafSha1",
+        "int"
+      ],
+      "trust": "root",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "rsa1024",
+      "file": "chains/rsa1024.pem",
+      "files": [
+        "leaf1024",
+        "int"
+      ],
+      "trust": "root",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "no-san",
+      "file": "chains/no-san.pem",
+      "files": [
+        "leafNoSan",
+        "int"
+      ],
+      "trust": "root",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {
+        "www.example.test": true
+      }
+    },
+    {
+      "id": "client-eku",
+      "file": "chains/client-eku.pem",
+      "files": [
+        "leafClient",
+        "int"
+      ],
+      "trust": "root",
+      "verifyOk": false,
+      "verifyErrors": [
+        {
+          "code": 26,
+          "depth": 0,
+          "text": "unsuitable certificate purpose"
+        }
+      ],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "partial-wildcard",
+      "file": "chains/partial-wildcard.pem",
+      "files": [
+        "leafPartial",
+        "int"
+      ],
+      "trust": "root",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {
+        "www.example.test": true,
+        "shop.example.test": true
+      }
+    },
+    {
+      "id": "ec-ku",
+      "file": "chains/ec-ku.pem",
+      "files": [
+        "leafEcKu",
+        "intEc"
+      ],
+      "trust": "rootEc",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "bad-signature",
+      "file": "chains/bad-signature.pem",
+      "files": [
+        "leafBadSig",
+        "int"
+      ],
+      "trust": "root",
+      "verifyOk": false,
+      "verifyErrors": [
+        {
+          "code": 7,
+          "depth": 0,
+          "text": "certificate signature failure"
+        }
+      ],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "rekeyed-issuer",
+      "file": "chains/rekeyed-issuer.pem",
+      "files": [
+        "leafRekeyed",
+        "int"
+      ],
+      "trust": "root",
+      "verifyOk": false,
+      "verifyErrors": [
+        {
+          "code": 20,
+          "depth": 0,
+          "text": "unable to get local issuer certificate"
+        }
+      ],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "issuer-not-ca",
+      "file": "chains/issuer-not-ca.pem",
+      "files": [
+        "leafOfNotCa",
+        "intNotCa"
+      ],
+      "trust": "root",
+      "verifyOk": false,
+      "verifyErrors": [
+        {
+          "code": 79,
+          "depth": 1,
+          "text": "invalid CA certificate"
+        },
+        {
+          "code": 26,
+          "depth": 1,
+          "text": "unsuitable certificate purpose"
+        }
+      ],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "issuer-no-kcs",
+      "file": "chains/issuer-no-kcs.pem",
+      "files": [
+        "leafOfNoKcs",
+        "intNoKcs"
+      ],
+      "trust": "root",
+      "verifyOk": false,
+      "verifyErrors": [
+        {
+          "code": 79,
+          "depth": 1,
+          "text": "invalid CA certificate"
+        },
+        {
+          "code": 26,
+          "depth": 1,
+          "text": "unsuitable certificate purpose"
+        },
+        {
+          "code": 32,
+          "depth": 1,
+          "text": "key usage does not include certificate signing"
+        }
+      ],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "pathlen",
+      "file": "chains/pathlen.pem",
+      "files": [
+        "leafOfB",
+        "intB",
+        "intA"
+      ],
+      "trust": "root",
+      "verifyOk": false,
+      "verifyErrors": [
+        {
+          "code": 25,
+          "depth": 2,
+          "text": "path length constraint exceeded"
+        }
+      ],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "chain-expires-first",
+      "file": "chains/chain-expires-first.pem",
+      "files": [
+        "leafOfShort",
+        "intShort"
+      ],
+      "trust": "root",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "self-signed",
+      "file": "chains/self-signed.pem",
+      "files": [
+        "leafSelf"
+      ],
+      "trust": "leafSelf",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {
+        "self.example.test": true
+      }
+    },
+    {
+      "id": "secp256k1",
+      "file": "chains/secp256k1.pem",
+      "files": [
+        "leafK256",
+        "int"
+      ],
+      "trust": "root",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {}
+    },
+    {
+      "id": "many-names",
+      "file": "chains/many-names.pem",
+      "files": [
+        "leafMany",
+        "int"
+      ],
+      "trust": "root",
+      "verifyOk": true,
+      "verifyErrors": [],
+      "opensslHostMatch": {
+        "a.example.test": true,
+        "z.example.test": true,
+        "x.y.example.test": true,
+        "q.x.y.example.test": false,
+        "example.test": false,
+        "10.0.0.1": true,
+        "10.0.0.2": false
+      }
+    }
+  ]
+}

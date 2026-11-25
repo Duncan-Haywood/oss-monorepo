@@ -15,7 +15,7 @@ function decodeEntities(text) {
   return text.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z]+);/g, (whole, body) => {
     if (body[0] === "#") {
       const codePoint = body[1] === "x" || body[1] === "X" ? parseInt(body.slice(2), 16) : parseInt(body.slice(1), 10);
-      return Number.isNaN(codePoint) ? whole : String.fromCodePoint(codePoint);
+      return Number.isNaN(codePoint) ? whole : codePointOr(codePoint);
     }
     return ENTITIES[body] ?? whole;
   });
@@ -354,3 +354,7 @@ export function summarizeCompare(result) {
     text: `Line coverage is unchanged at ${currPct}%.`,
   };
 }
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

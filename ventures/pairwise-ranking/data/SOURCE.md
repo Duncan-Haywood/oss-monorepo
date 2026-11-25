@@ -24,5 +24,5 @@ All 380 results of the 2023-24 English Premier League season.
 ## `coffee-taste-test.csv`
 
 Made up for illustration and labelled so on the page: 120 blind paired
-tastings of five coffees, as `preferred,other,count`. MIT licensed with the
+tastings of five coffees, as `preferred,other,count`. FSL-1.1-MIT licensed with the
 rest of this directory. Not a real tasting.

@@ -200,7 +200,7 @@ Rolling Thunder</textarea>
 </main>
 <footer>
     <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every pairing, lane and date before you announce it; your league's own rules, your sanctioning body's rules and your bowling centre's lane assignments apply. The example teams are invented.</p>
-    <p>Everything the tool does runs in your browser; team names are never uploaded. A count of how often the page builds a schedule is kept on your own device only (<button type="button" class="secondary" id="optout" style="margin:0;padding:2px 8px">turn it off</button>). Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+    <p>Everything the tool does runs in your browser; team names are never uploaded. A count of how often the page builds a schedule is kept on your own device only (<button type="button" class="secondary" id="optout" style="margin:0;padding:2px 8px">turn it off</button>). Free to use and source available: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
   </footer>
 <script type="module">
   import { bowlingSchedule, laneReport, validateBowling, bowlingCsv, bowlingText, parseWeekList } from "./bowling.mjs";
@@ -257,6 +257,7 @@ Rolling Thunder</textarea>
       (s.avoid ? ` Lane limits kept: no team bowls on a pair it avoids, every week. ${r.atBound} of ${r.teams} teams are inside their fair share once the avoided pairs are taken out (the other teams bowl a little more on the pairs some teams avoid); the worst spread between a team's most- and least-used pair it may use is ${r.worstSpread}.` + (s.weeks.some((w) => w.kind === "position") ? " Position rounds put places on pairs in order and their teams are known only on the night, so check a limited team's pair then." : "")
         : ` ${r.atBound} of ${r.teams} teams have the most even lane split a team's weeks allow; the worst spread between a team's most- and least-used pair is ${r.worstSpread}.`) +
       (r.boundProvedOutOfReach && r.atBound < r.teams ? " For this many teams and round-robin weeks a solver has proved that no lane deal gives every team that split, so the teams off it are the season's limit, not a missed deal." : "") +
+      (r.laneProvedBest && r.atBound < r.teams ? ` This deal is also the most even one possible: a solver proved that no deal of these weeks has fewer than ${s.laneOffMin} lane counts outside a team's fair share, and this one has ${s.laneOff}.` : "") +
       (s.skipped.length ? ` No bowling on ${s.skipped.map(dayLabel).join(", ")}.` : "") + (problems.length ? ` Check failed: ${problems.join(" ")}` : " Checked: every team bowls once a week, every pair is used once a week and every pair of teams meets as evenly as the weeks allow.");
     status.textContent = "";
     $("#out").hidden = false;

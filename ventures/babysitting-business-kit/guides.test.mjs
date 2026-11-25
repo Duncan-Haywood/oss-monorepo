@@ -8,7 +8,7 @@ import { quote, cancellationFee, referenceRequest, DEFAULT_PROFILE } from "./eng
 
 const read = (f) => readFileSync(new URL(`./${f}`, import.meta.url), "utf8");
 const GUIDES = ["how-to-start-a-babysitting-business.html", "how-much-to-charge-for-babysitting.html", "babysitting-references.html"];
-const unescape = (s) => s.replace(/&amp;/g, "&").replace(/&#39;/g, "'");
+const unescape = (s) => s.replace(/&#39;/g, "'").replace(/&amp;/g, "&");
 
 test("each guide carries the no-warranty clause, the sponsor link, a canonical URL and a link into the app", () => {
   for (const g of GUIDES) {
@@ -17,7 +17,7 @@ test("each guide carries the no-warranty clause, the sponsor link, a canonical U
     assert.match(html, /No warranty\./, g);
     assert.match(html, /not legal, tax, or financial advice/, g);
     assert.match(html, /https:\/\/github\.com\/sponsors\/Duncan-Haywood/, g);
-    assert.match(html, new RegExp(`<link rel="canonical" href="\\./${g.replace(/\./g, "\\.")}">`), g);
+    assert.match(html, new RegExp(`<link rel="canonical" href="\\./${g.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}">`), g);
     assert.match(html, /<meta name="description" content="[^"]{120,}"/, g);
     assert.match(html, /<a class="cta" href="\.\/index\.html">Open the app<\/a>/, g);
     assert.doesNotMatch(html, /<script[^>]+src=/, g);

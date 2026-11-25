@@ -1,0 +1,38 @@
+construction.ifc: BoQ volume 2368.967 -> 2357.790, area 7751.64 -> 7622.47
+   #656 IfcWallStandardCase vol.gross: own-dimensions -> split-held
+   #656 IfcWallStandardCase GrossSideArea: matches-stored-volume -> split-held(geom)
+   #871 IfcWallStandardCase vol.gross: own-dimensions -> split-held
+   #1405 IfcWallStandardCase vol.gross: unexplained -> split-held
+   #1405 IfcWallStandardCase GrossSideArea: matches-stored-volume -> split-held(geom)
+   #1555 IfcWallStandardCase vol.gross: own-dimensions -> split-held
+   #3992 IfcWallStandardCase vol.gross: own-dimensions -> split-held
+   #3992 IfcWallStandardCase GrossSideArea: matches-stored-volume -> split-held(geom)
+   #4407 IfcWallStandardCase vol.gross: unexplained -> split-held
+   #4407 IfcWallStandardCase GrossSideArea: matches-stored-volume -> split-held(geom)
+architect.ifc: BoQ volume 1127.350 -> 1127.350, area 8900.38 -> 8900.38
+AC20-FZK-Haus.ifc: BoQ volume 136.788 -> 136.788, area 610.73 -> 610.73
+C20-Institute-Var-2.ifc: BoQ volume 1834.466 -> 1834.466, area 6122.41 -> 6122.41
+FM_ARC_DigitalHub.ifc: BoQ volume 9109.298 -> 9109.298, area 19293.33 -> 19293.33
+ISSUE_021_Mini Project.ifc: BoQ volume 337.889 -> 337.889, area 23.49 -> 23.49
+ISSUE_034_HouseZ.ifc: BoQ volume 393.792 -> 393.792, area 1393.19 -> 1393.19
+ISSUE_068_ARK_NUS_skolebygg.ifc: BoQ volume 8368.560 -> 8368.560, area 34586.01 -> 34586.01
+ISSUE_102_M3D-CON-CD.ifc: BoQ volume 7375.060 -> 7375.060, area 491.54 -> 458.98
+   #30876 IfcPlate NetArea: unexplained -> whole-surface(geom)
+   #37016 IfcPlate NetArea: unexplained -> whole-surface(geom)
+   #494081 IfcPlate NetArea: unexplained -> whole-surface(geom)
+   #494234 IfcPlate NetArea: unexplained -> whole-surface(geom)
+   #494386 IfcPlate NetArea: unexplained -> whole-surface(geom)
+   #494415 IfcPlate NetArea: unexplained -> whole-surface(geom)
+   #494429 IfcPlate NetArea: unexplained -> whole-surface(geom)
+ISSUE_159_kleine_Wohnung_R22.ifc: BoQ volume 767.711 -> 767.711, area 4264.73 -> 4264.73
+Office_A_20110811.ifc: BoQ volume 1173.354 -> 1173.354, area 9260.15 -> 9260.15
+S_Office_Integrated Design Archi.ifc: BoQ volume 1794.594 -> 1794.594, area 3838.24 -> 3838.24
+dental_clinic.ifc: BoQ volume 1933.713 -> 1933.713, area 15423.66 -> 15423.66
+duplex.ifc: BoQ volume 379.983 -> 379.983, area 1517.10 -> 1517.10
+schependomlaan.ifc: BoQ volume 1055.444 -> 1055.444, area 6280.72 -> 6280.72
+{
+ "own-dimensions -> split-held": 4,
+ "matches-stored-volume -> split-held(geom)": 4,
+ "unexplained -> split-held": 2,
+ "unexplained -> whole-surface(geom)": 7
+}

@@ -51,7 +51,10 @@ export function parseMapping(text) {
 export const mappingText = (mapping = defaultMapping()) => CATEGORY_ORDER.map((k) => `${k} = ${mapping[k]}`).join("\n");
 
 const dollars = (c) => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)((Math.abs(c) / 100).toFixed(2));
-export const money = (c, cur = "USD") => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + cur);
+// One formatter, built once: toLocaleString with options builds a new Intl.NumberFormat on every call,
+// which was most of a large file's read time (same locale and options, so the same text).
+const MONEY_FMT = new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const money = (c, cur = "USD") => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(MONEY_FMT.format(Math.abs(c / 100)) + " " + cur);
 
 // ---- parsing ----------------------------------------------------------------
 
@@ -195,6 +198,9 @@ export function parseRows(text, opts = {}) {
   for (let i = first + 1; i < lines.length; i++) {
     if (!lines[i].trim()) continue;
     const cells = splitLine(lines[i], d);
+    // An unquoted thousands separator ("1,842.17") splits one field in two: the amount read $1.00 and, with no
+    // currency column, nothing said so. A row with more non-empty fields than the header is refused.
+    if (cells.length > head.length && cells.slice(head.length).some((x) => x.trim() !== "")) { add("error", `Line ${i + 1} has ${cells.length} fields but the header has ${head.length}`, "An amount with a thousands separator needs quotes (\"1,842.17\"); export the CSV again or remove the comma. The row is left out.", i + 1); continue; }
     const desc = get(cells, "desc");
     const date = parseDate(get(cells, "date"), opts.dateOrder);
     let amount = parseAmount(get(cells, "amount"));

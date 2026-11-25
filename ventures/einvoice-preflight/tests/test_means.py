@@ -8,7 +8,10 @@ from pathlib import Path
 from einvoice_preflight.checks import check_invoice
 from einvoice_preflight.cli import main
 from einvoice_preflight.means import inspect_payment_means, looks_like_known_means, normalize_means
+from einvoice_preflight.formats import parse_cii_invoice
 from einvoice_preflight.ubl import parse_ubl_invoice
+
+EXAMPLES = Path(__file__).resolve().parents[1] / "examples"
 
 
 def _invoice(payment=None, include_payment=True):
@@ -157,6 +160,16 @@ class MeansInvoiceIntegrationTest(unittest.TestCase):
         self.assertEqual(invoice["payment"], {"means": "58"})
         errors = check_invoice(invoice)
         self.assertTrue(any(item["rule"] == "INV-045" and item["path"] == "/payment/iban" for item in errors))
+
+    def test_cii_maps_payment_means_code(self):
+        # Until 2026-11-25 the CII reader stored the code as payment["means_code"],
+        # a key no check reads, so the CLI never ran INV-044/045/046 on a CII file
+        # while the page did (eval/page-cli-parity-2026-11-25.md).
+        invoice = parse_cii_invoice((EXAMPLES / "nlcius-cii-invoice-with-defects.xml").read_bytes())
+        self.assertEqual(invoice["payment"]["means"], "10")
+        self.assertNotIn("means_code", invoice["payment"])
+        errors = check_invoice(invoice)
+        self.assertTrue(any(item["rule"] == "INV-046" and item["path"] == "/payment/means" for item in errors))
 
     def test_ubl_cash_with_iban_is_inv_046(self):
         source = UBL_WITH_MEANS.replace(b"<cbc:PaymentMeansCode>58</cbc:PaymentMeansCode>", b"<cbc:PaymentMeansCode>10</cbc:PaymentMeansCode>")

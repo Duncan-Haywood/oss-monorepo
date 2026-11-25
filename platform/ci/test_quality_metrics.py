@@ -342,10 +342,14 @@ class RealCorpusTest(unittest.TestCase):
 class ChangesSinceTest(unittest.TestCase):
     """queue's 'changed since audit' note: a fix can land without fix_prs (PR #14329, photo-editing)."""
 
-    def fake(self, log="", boundary_date=None, has_ref=True, shallow=None, added="", calls=None):
+    def fake(self, log="", boundary_date=None, has_ref=True, shallow=None, added="", calls=None, foreign=(), dates=None):
         def git(args):
             if calls is not None:
                 calls.append(args)
+            if args[0] == "merge-base":  # a boundary from another branch's fetch is not an ancestor of main
+                return "" if args[1] in foreign else args[1] + "\n"
+            if dates and args[:2] == ["log", "-1"] and args[-1] in dates:
+                return dates[args[-1]] + "\n"
             if args[:2] == ["log", "--diff-filter=A"]:
                 return added
             if args[0] == "rev-parse" and args[1] == "--verify":
@@ -376,6 +380,14 @@ class ChangesSinceTest(unittest.TestCase):
         out = m.changes_since("ventures/x", "2026-11-07", git=self.fake("", "2026-11-10", shallow=self.shallow_file("b0")))
         self.assertEqual(out["status"], "unknown")
         self.assertIn("--shallow-since=2026-11-07", out["why"])
+
+    def test_another_branchs_boundary_does_not_hide_mains_history(self):
+        # 2026-11-25: step 0 fetched security-alerts shallow; its boundary (that morning) made every row unknown
+        f = Path(self.shallow_file("main0")); f.write_text("main0\nalerts0\n")
+        git = self.fake("", shallow=f, foreign={"alerts0"}, dates={"main0": "2026-11-17", "alerts0": "2026-11-25"})
+        self.assertEqual(m.history_start(git), "2026-11-17")
+        self.assertEqual(m.changes_since("ventures/x", "2026-11-19", git=git)["status"], "untouched")
+        self.assertEqual(m.deepen_for("2026-11-19", m.dt.date(2026, 11, 25), git=git, git_run=lambda c: self.fail("fetched")), "")
 
     def test_untouched_and_no_git(self):
         self.assertEqual(m.changes_since("ventures/x", "2026-11-07", git=self.fake(""))["status"], "untouched")
@@ -455,6 +467,20 @@ class OpenPrTest(unittest.TestCase):
         def boom(p):
             raise OSError("no gh")
         self.assertIsNone(m.open_pr_titles(run=boom))
+
+
+class PausedResearchTest(unittest.TestCase):
+    """Standalone research is paused (2026-11-25): the CLI leaves research/ subjects out unless --research."""
+
+    def test_drop_paused(self):
+        rows = [{"subject": "research/a"}, {"subject": "ventures/b"}, {"subject": "platform/research-ish"}]
+        kept, n = m.drop_paused(rows)
+        self.assertEqual([r["subject"] for r in kept], ["ventures/b", "platform/research-ish"])
+        self.assertEqual(n, 1)
+        self.assertEqual(m.drop_paused(rows, include=True), (rows, 0))
+
+    def test_paused_note_names_the_flag(self):
+        self.assertIn("--research", m.paused_note(3, "open defects"))
 
 
 if __name__ == "__main__":

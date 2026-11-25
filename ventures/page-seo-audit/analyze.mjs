@@ -5,8 +5,8 @@
 
 const decode = (s) =>
   String(s)
-    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(+n))
-    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
+    .replace(/&#(\d+);/g, (_, n) => codePointOr(+n))
+    .replace(/&#x([0-9a-f]+);/gi, (_, n) => codePointOr(parseInt(n, 16)))
     .replace(/&nbsp;/g, " ")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
@@ -30,7 +30,11 @@ function attrs(tag) {
 
 export function parse(html) {
   const src = String(html || "");
-  const raw = src.replace(/<!--[\s\S]*?-->/g, "");
+  let raw = src;
+  for (let prev; prev !== raw; ) {
+    prev = raw;
+    raw = raw.replace(/<!--[\s\S]*?--!?>/g, "");
+  }
   // Non-JSON-LD script, style and template bodies can hold markup-looking
   // strings that are not part of the page; blank them before reading tags.
   const body = raw.replace(/<(script|style|template)\b([^>]*)>[\s\S]*?<\/\1>/gi, (m, n, a) =>
@@ -167,3 +171,7 @@ export function audit(html, { url = "" } = {}) {
     facts: { title: p.title, description: p.description, words: p.words, headings: p.headings.length, images: p.imgs.length, links: p.anchors.length, schemaTypes: [...new Set(types)] },
   };
 }
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

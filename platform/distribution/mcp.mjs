@@ -8,6 +8,10 @@
  *   node platform/distribution/mcp.mjs --pack <outDir>       # write the npm package to disk
  *   DISTRIBUTE_MCP=true NODE_AUTH_TOKEN=... node platform/distribution/mcp.mjs   # npm publish
  *
+ * In CI the publish uses npm trusted publishing (OIDC, no token) with
+ * provenance; as in npm.mjs, a package npm does not have yet is left for the
+ * owner's first publish (docs/security/trusted-publishing-setup.md).
+ *
  * Eligibility is stricter than the npx channel (npm.mjs): besides the closure
  * check (node: builtins and sibling files only), a CLI whose closure imports a
  * network or process module (http, https, net, tls, dgram, dns, child_process,
@@ -21,7 +25,7 @@ import os from 'node:os';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
-import { importsOf, closure, descriptionOf, discover } from './npm.mjs';
+import { importsOf, closure, descriptionOf, discover, authMode } from './npm.mjs';
 import { toolUrl, BASE_URL } from './bluesky.mjs';
 import { tagUrl } from './attribution.mjs';
 
@@ -46,7 +50,7 @@ export async function inspect(slug, root = REPO_ROOT) {
   const cli = await read('cli.mjs');
   if (cli === null) return { slug, skip: 'no cli.mjs' };
   const license = await read('LICENSE');
-  if (license === null || !/MIT License/i.test(license)) return { slug, skip: 'no MIT LICENSE' };
+  if (license === null || !/Functional Source License/i.test(license)) return { slug, skip: 'no FSL-1.1-MIT LICENSE' };
   const description = descriptionOf((await read('VENTURE.yaml')) ?? '');
   if (!description) return { slug, skip: 'no description in VENTURE.yaml' };
   const c = await closure(dir);
@@ -75,17 +79,17 @@ export function manifest({ name = DEFAULT_NAME, version = VERSION, count }) {
   return {
     name,
     version,
-    description: `MCP server exposing ${count} free, open-source (MIT) calculators and checkers to AI assistants. Local, no network, no account. Not professional advice.`,
+    description: `MCP server exposing ${count} free, source-available (FSL-1.1-MIT) calculators and checkers to AI assistants. Local, no network, no account. Not professional advice.`,
     type: 'module',
     bin: { [name]: 'server.mjs' },
     main: 'server.mjs',
     files: ['server.mjs', 'tools.json', 'tools', 'LICENSE', 'README.md', 'server.json'],
     engines: { node: '>=18' },
-    license: 'MIT',
+    license: 'FSL-1.1-MIT',
     homepage: BASE_URL,
     repository: { type: 'git', url: `git+${REPO_URL}.git`, directory: 'platform/distribution' },
     bugs: { url: `${REPO_URL}/issues` },
-    keywords: ['mcp', 'model-context-protocol', 'mcp-server', 'calculator', 'free', 'open-source'],
+    keywords: ['mcp', 'model-context-protocol', 'mcp-server', 'calculator', 'free', 'source-available'],
     publishConfig: { access: 'public' },
   };
 }
@@ -95,7 +99,7 @@ export function registryManifest({ name = DEFAULT_NAME, version = VERSION, count
   return {
     $schema: 'https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json',
     name: `${namespace}/${name}`,
-    description: `Search and run ${count} free open-source calculators and checkers. Local, offline, no account.`.slice(0, 100),
+    description: `Search and run ${count} free source-available calculators and checkers. Local, offline, no account.`.slice(0, 100),
     version,
     repository: { url: REPO_URL, source: 'github' },
     packages: [{ registry_type: 'npm', identifier: name, version, transport: { type: 'stdio' } }],
@@ -104,7 +108,7 @@ export function registryManifest({ name = DEFAULT_NAME, version = VERSION, count
 
 const readmeText = (name, count) => `# ${name}
 
-An [MCP](https://modelcontextprotocol.io) server that lets an AI assistant search and run **${count} free, open-source command-line tools** (calculators, estimators and checkers) from [Maris Stella Labs](https://marisstella.app/).
+An [MCP](https://modelcontextprotocol.io) server that lets an AI assistant search and run **${count} free, source-available command-line tools** (calculators, estimators and checkers) from [Maris Stella Labs](https://marisstella.app/).
 
 Everything runs locally on your machine. The bundled tools import no network or process modules, the server sends nothing anywhere, and there is no account or API key.
 
@@ -120,7 +124,7 @@ Tools it adds: \`list_tools\` (search by words), \`tool_help\` (a tool's options
 
 Note \`run_tool\` can read any file the tool is pointed at with a path argument, as you could yourself. Your client asks before each call; keep that on.
 
-Free and open source (MIT). Results are estimates, not legal, tax or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates, not legal, tax or professional advice.
 Source: ${REPO_URL}/tree/main/ventures
 `;
 
@@ -147,7 +151,7 @@ export async function writeBundle(files, outDir) {
 
 export async function load(root = REPO_ROOT) {
   const serverSource = await fs.readFile(path.join(HERE, 'mcp-server.mjs'), 'utf8');
-  const license = await fs.readFile(path.join(root, 'LICENSE'), 'utf8').catch(() => 'MIT License\n');
+  const license = await fs.readFile(path.join(root, 'LICENSE'), 'utf8').catch(() => 'Functional Source License\n');
   return { serverSource, license };
 }
 
@@ -171,9 +175,15 @@ export async function run({ env = process.env, log = console.log, execImpl = exe
   }
   const view = await execImpl('npm', ['view', name, 'version']).then((r) => r.stdout.trim(), () => '');
   if (view === VERSION) { log(`${name}@${VERSION} is already on npm; nothing to do`); return { published: false }; }
+  if (!view && authMode(env) === 'oidc') {
+    log(`${name} is not on npm yet, and trusted publishing cannot create a package; the owner publishes its first version (docs/security/trusted-publishing-setup.md)`);
+    return { published: false };
+  }
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'mcp-'));
   await writeBundle(files, dir);
-  await execImpl('npm', ['publish', '--access', 'public'], { cwd: dir });
+  // Provenance needs a CI identity; a publish from the owner's machine has none.
+  const provenance = env.ACTIONS_ID_TOKEN_REQUEST_URL ? ['--provenance'] : [];
+  await execImpl('npm', ['publish', '--access', 'public', ...provenance], { cwd: dir });
   log(`published ${name}@${VERSION}`);
   return { published: true };
 }

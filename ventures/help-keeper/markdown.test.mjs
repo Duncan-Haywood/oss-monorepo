@@ -4,7 +4,7 @@ import { render, plain, headings, safeUrl, slugify } from "./markdown.mjs";
 
 test("raw HTML in an article never reaches the page as markup", () => {
   const { html } = render("<script>alert(1)</script>\n\n<img src=x onerror=alert(1)>\n\n# <b>x</b>\n\n- <i>y</i>\n\n> <u>z</u>");
-  assert.doesNotMatch(html, /<script|<img|<b>|<i>|<u>/); assert.match(html, /&lt;script&gt;/);
+  assert.doesNotMatch(html, /<script|<img|<b>|<i>|<u>/i); assert.match(html, /&lt;script&gt;/);
 });
 
 test("only safe link and image targets survive", () => {

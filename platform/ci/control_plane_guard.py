@@ -5,8 +5,9 @@ Why this exists
 ---------------
 Several agent families push to this repo, and the files that tell them what to
 do (CLAUDE.md, prompts/), what to run on their own at session start
-(.claude/settings.json hooks, .mcp.json), and what may merge (.github/,
-platform/ci/agent_review/config.yaml) live in the same tree they edit. One
+(.claude/settings.json hooks, .mcp.json), and what may merge or hold secrets
+(.github/workflows/priv-*.yml, the ruleset, platform/ci/agent_review/) live in
+the same tree they edit. One
 merged PR from a misbehaving agent could rewrite all of it for every session
 after. `.github/CODEOWNERS` lists those paths, and the `main` ruleset's "Require
 review from Code Owners" makes GitHub refuse to merge a change to them without
@@ -15,14 +16,22 @@ the owner's approval. This script backs that up in three ways:
   --check-coverage   fail if CODEOWNERS stops owning a path it must own, or
                      starts owning the run-data paths agents write every run
                      (a weakened CODEOWNERS is the first thing a rogue edit
-                     would try, and the ruleset cannot notice it);
-  --pr N             list the owned files a PR touches in the job summary, so
-                     the reason it is waiting for the owner is visible;
+                     would try, and the ruleset cannot notice it); and if the
+                     ruleset or the security-gate workflow loses an
+                     invariant (the required checks, no bypass, the gate
+                     running from the base branch). The `adversarial-gate`
+                     check loads this module from main and runs the same
+                     checks against a PR's copies of those files;
+  --pr N             list the owned (sensitive) files a PR touches in the job
+                     summary;
   --audit-commit SHA after a push to main, fail if the commit touched owned
-                     files without an owner's approving review (catches admin
-                     bypasses, and the time before the ruleset is applied).
+                     files without a passing risk review from main's
+                     priv-risk-review.yml (catches admin bypasses, faked
+                     same-name checks, and the time before the ruleset is
+                     applied). Since 2026-11-24 this replaces owner approval.
 
-Standard library only; --pr and --audit-commit read the GitHub API with
+Standard library only (PyYAML, when installed, for the workflow check);
+--pr and --audit-commit read the GitHub API with
 GITHUB_TOKEN (read-only) and GITHUB_REPOSITORY. Setup and reasoning:
 docs/security/agent-hardening.md.
 
@@ -45,13 +54,12 @@ API = os.environ.get("GITHUB_API_URL", "https://api.github.com")
 
 # Sample paths, not patterns: each must resolve to an owner (or to none).
 MUST_BE_OWNED = [
-    "CLAUDE.md",
-    "AGENTS.md",
-    "prompt.md",
-    "ventures/CLAUDE.md",
-    "research/CLAUDE.md",
-    "prompts/goals.md",
+    # Agent instructions (CLAUDE.md, prompts/*.md) left this list on
+    # 2026-11-24: they go through the cyber and legal risk review instead
+    # (docs/security/risk-review.md). Code agents run at session start stays.
     "prompts/promptctl.py",
+    "prompts/ideas.py",
+    "platform/security/risk_review.py",
     ".claude/settings.json",
     ".claude/hooks/block_pkill_f.py",
     ".cursor/environment.json",
@@ -59,14 +67,69 @@ MUST_BE_OWNED = [
     "platform/agents/tools.mjs",
     ".github/CODEOWNERS",
     ".github/rulesets/main.json",
-    ".github/workflows/agent-pr-auto-merge.yml",
-    ".github/prompts/land-your-work.md",
+    ".github/ci-policy.yaml",
+    ".github/FUNDING.yml",
+    # Two tiers of CI (docs/security/agent-hardening.md): every priv- workflow
+    # is owned, including ones added later.
+    ".github/workflows/priv-agent-pr-auto-merge.yml",
+    ".github/workflows/priv-portfolio-pages.yml",
+    ".github/workflows/priv-control-plane-guard.yml",
+    ".github/workflows/priv-ci-policy.yml",
+    ".github/workflows/priv-some-future-deploy.yml",
     "platform/ci/agent_review/config.yaml",
     "platform/ci/agent_review/review.py",
     "platform/ci/control_plane_guard.py",
+    "platform/ci/test_control_plane_guard.py",
+    "platform/ci/ci_policy_check.py",
+    "platform/ci/test_ci_policy_check.py",
     "portfolio/router/requirements.txt",
+    # Code a privileged job runs (ci_policy_check.py lists the rest).
+    "platform/distribution/npm.mjs",
+    "platform/ci/check_conflict_markers.py",
+    # The automated gate that replaced owner review (2026-11-24), and what it
+    # runs: a PR that edits these is judged by the copy on main.
+    ".github/workflows/priv-security-gate.yml",
+    "platform/ci/adversarial_gate/gate.py",
+    "platform/ci/adversarial_gate/config.yaml",
+    "platform/ci/adversarial_gate/allowlist.yaml",
+    "platform/ci/adversarial_gate/llm_review.py",
+    "platform/ci/adversarial_gate/requirements-llm.txt",
+    "platform/ci/check_hidden_unicode.py",
+    "platform/security/scan.py",
+    "platform/security/tools.yaml",
+    "platform/security/baseline.yaml",
+    "platform/security/locks/semgrep.txt",
+    # AWS, applied to production by priv-aws-apply.yml.
+    "platform/aws/bootstrap/bootstrap.yaml",
+    "platform/aws/stacks/org/scps.tf",
+    ".github/workflows/priv-aws-apply.yml",
 ]
+
+# Required status checks the `main` ruleset must keep. integration_id 15368 is
+# GitHub Actions: without it any app able to post a status could satisfy one.
+REQUIRED_CHECKS = ["conflict-markers", "control-plane", "ci-policy", "risk-review", "security-scan", "adversarial-gate"]
+ACTIONS_INTEGRATION_ID = 15368
+RULESET = REPO_ROOT / ".github" / "rulesets" / "main.json"
+GATE_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "priv-security-gate.yml"
+# Job id -> the script that job must run from the base checkout.
+GATE_JOBS = {
+    "security-scan": "platform/security/scan.py",
+    "adversarial-gate": "platform/ci/adversarial_gate/gate.py",
+}
 MUST_BE_UNOWNED = [
+    # Agent instructions: reviewed by platform/security/risk_review.py, which
+    # still sends a cut to the guardrails or hard limits to the owner.
+    "CLAUDE.md",
+    "AGENTS.md",
+    "prompt.md",
+    "ventures/CLAUDE.md",
+    "research/CLAUDE.md",
+    "prompts/goals.md",
+    ".github/prompts/land-your-work.md",
+    # Unprivileged workflows merge without review; ci-policy keeps them
+    # read-only and secret-free.
+    ".github/workflows/ventures-tests.yml",
+    ".github/workflows/new-product-ci.yml",
     "prompts/runs/2026-10-30-session_x.json",
     "prompts/derived/runs.json",
     "docs/posts/2026-10-30-example.md",
@@ -142,6 +205,111 @@ def check_coverage(rules) -> list[str]:
     return problems
 
 
+def ruleset_problems(doc: dict) -> list[str]:
+    """What a weakened `main` ruleset would lose. The file is applied by an
+    admin (.github/rulesets/README.md); this keeps the copy in the tree honest."""
+    if not isinstance(doc, dict):
+        return ["ruleset is not a JSON object"]
+    problems = []
+    if doc.get("enforcement") != "active":
+        problems.append("ruleset enforcement is not `active`")
+    if doc.get("bypass_actors"):
+        problems.append("ruleset has bypass actors; an agent holding an admin token would skip every check")
+    include = ((doc.get("conditions") or {}).get("ref_name") or {}).get("include") or []
+    if "~DEFAULT_BRANCH" not in include:
+        problems.append("ruleset no longer targets the default branch")
+    rules = {r.get("type"): r for r in doc.get("rules") or [] if isinstance(r, dict)}
+    for kind in ("deletion", "non_fast_forward", "pull_request", "required_status_checks"):
+        if kind not in rules:
+            problems.append(f"ruleset lost its `{kind}` rule")
+    checks = {}
+    for c in ((rules.get("required_status_checks") or {}).get("parameters") or {}).get("required_status_checks") or []:
+        if isinstance(c, dict):
+            checks[c.get("context")] = c.get("integration_id")
+    for name in REQUIRED_CHECKS:
+        if name not in checks:
+            problems.append(f"required status check `{name}` is missing from the ruleset")
+        elif checks[name] != ACTIONS_INTEGRATION_ID:
+            problems.append(f"required status check `{name}` is not tied to GitHub Actions (integration_id {ACTIONS_INTEGRATION_ID})")
+    return problems
+
+
+def _load_yaml(text: str):
+    try:
+        import yaml  # noqa: PLC0415 - optional; the coverage check runs without it
+    except ImportError:
+        return None
+    try:
+        return yaml.safe_load(text)
+    except yaml.YAMLError as exc:
+        return exc
+
+
+def _on_block_has(text: str, event: str) -> bool:
+    """Without PyYAML: is `event` a trigger in the top-level `on:` block?
+    Comments are stripped, so a mention in a comment does not count."""
+    m = re.search(r"(?ms)^(?:on|\"on\"|'on'):(.*?)(?=^\S|\Z)", text)
+    if not m:
+        return False
+    block = "\n".join(line.split("#", 1)[0] for line in m.group(1).splitlines())
+    return re.search(rf"(?<![\w-]){re.escape(event)}(?![\w-])", block) is not None
+
+
+def gate_workflow_problems(text: str | None) -> list[str]:
+    """The security gate must run from the base branch on every PR, as the
+    two required checks, and run the gate scripts from that checkout."""
+    if text is None:
+        return [".github/workflows/priv-security-gate.yml is missing"]
+    problems = []
+    if re.search(r"ref:\s*\$\{\{[^}]*(pull_request\.head|head_ref|merge_commit_sha)", text):
+        problems.append("the security gate checks out the PR's code; it must judge the PR from the base branch")
+    if re.search(r"(?m)^\s*continue-on-error:\s*true", text):
+        problems.append("the security gate has `continue-on-error: true`; a crashed check would pass")
+    doc = _load_yaml(text)
+    if isinstance(doc, Exception):
+        return problems + [f"the security gate workflow does not parse: {doc}"]
+    if doc is None:  # no PyYAML: text checks only
+        for job, script in GATE_JOBS.items():
+            if not re.search(rf"(?m)^  {re.escape(job)}:", text):
+                problems.append(f"the security gate lost its `{job}` job")
+            if script not in text:
+                problems.append(f"the security gate no longer runs {script}")
+        if not _on_block_has(text, "pull_request_target"):
+            problems.append("the security gate no longer runs on `pull_request_target` (the base-branch copy)")
+        return problems
+    on = doc.get("on", doc.get(True)) if isinstance(doc, dict) else None
+    events = set(on) if isinstance(on, (dict, list)) else {on}
+    if "pull_request_target" not in events:
+        problems.append("the security gate no longer runs on `pull_request_target` (the base-branch copy)")
+    jobs = (doc.get("jobs") if isinstance(doc, dict) else None) or {}
+    for job_id, script in GATE_JOBS.items():
+        job = jobs.get(job_id)
+        if not isinstance(job, dict):
+            problems.append(f"the security gate lost its `{job_id}` job (a required check)")
+            continue
+        if str(job.get("name", job_id)) != job_id:
+            problems.append(f"job `{job_id}` reports under another name, so the required check would never arrive")
+        cond = str(job.get("if", ""))
+        if cond and re.search(r"\bfalse\b", cond) and "always()" not in cond:
+            problems.append(f"job `{job_id}` has `if: {cond}`; a skipped required check reads as passed")
+        runs = " ".join(str(s.get("run", "")) for s in job.get("steps") or [] if isinstance(s, dict))
+        if script not in runs:
+            problems.append(f"job `{job_id}` no longer runs {script}")
+    return problems
+
+
+def check_invariants(root: Path = REPO_ROOT) -> list[str]:
+    problems = []
+    ruleset = root / ".github" / "rulesets" / "main.json"
+    try:
+        problems += ruleset_problems(json.loads(ruleset.read_text(encoding="utf-8")))
+    except (OSError, ValueError) as exc:
+        problems.append(f".github/rulesets/main.json unreadable: {exc}")
+    gate = root / ".github" / "workflows" / "priv-security-gate.yml"
+    problems += gate_workflow_problems(gate.read_text(encoding="utf-8") if gate.is_file() else None)
+    return problems
+
+
 def gh_get(path: str) -> object:
     req = urllib.request.Request(
         f"{API}{path}",
@@ -170,18 +338,75 @@ def owned(files: list[str], rules) -> list[str]:
     return [f for f in files if owners_for(f, rules)]
 
 
-def audit_verdict(touched: list[str], pr: dict | None, reviews: list, logins: set[str]):
-    """Return (exit_code, message) for one commit on main."""
+RISK_REVIEW_WORKFLOW = ".github/workflows/priv-risk-review.yml"
+
+
+def risk_review_ok(check_runs: list, workflow_runs: dict) -> bool:
+    """True only if a successful `risk-review` check came from main's
+    priv-risk-review.yml on a pull_request_target run. A PR can add a job
+    with the same name to its own workflow; that run's path or event gives it
+    away. `workflow_runs` maps check_suite id -> the Actions run for it."""
+    for run in check_runs:
+        if run.get("name") != "risk-review" or run.get("conclusion") != "success":
+            continue
+        if (run.get("app") or {}).get("slug") != "github-actions":
+            continue
+        wf = workflow_runs.get((run.get("check_suite") or {}).get("id")) or {}
+        if wf.get("path", "").split("@")[0] == RISK_REVIEW_WORKFLOW and wf.get("event") == "pull_request_target":
+            return True
+    return False
+
+
+def current_approvers(reviews: list, head_sha: str | None) -> set[str]:
+    """Logins whose latest decisive review approves the merged head.
+
+    A reviewer's later CHANGES_REQUESTED or DISMISSED review withdraws an
+    earlier approval (COMMENTED leaves it standing, as on GitHub), and an
+    approval of an older commit does not cover commits pushed after it. The
+    ruleset's dismiss-stale-reviews does the second only once it is applied,
+    and this audit exists for the time before that and for admin bypasses.
+    """
+    latest: dict[str, dict] = {}
+    for r in reviews:  # the API lists reviews oldest first
+        login = (r.get("user") or {}).get("login")
+        if login and r.get("state") in ("APPROVED", "CHANGES_REQUESTED", "DISMISSED"):
+            latest[login.lower()] = r
+    return {
+        login
+        for login, r in latest.items()
+        if r["state"] == "APPROVED" and (head_sha is None or r.get("commit_id") == head_sha)
+    }
+
+
+def commit_files(repo: str, sha: str, limit: int = 10) -> list[str]:
+    """Every file a commit touched. The API returns 300 per page (3,000 at
+    most), so a big squash could otherwise hide an owned file on page 2."""
+    files: list[str] = []
+    for page in range(1, limit + 1):
+        batch = gh_get(f"/repos/{repo}/commits/{sha}?per_page=300&page={page}").get("files", [])
+        files += [f["filename"] for f in batch]
+        if len(batch) < 300:
+            break
+    return files
+
+
+def audit_verdict(touched: list[str], pr: dict | None, reviews: list, logins: set[str],
+                  risk_review_passed: bool = False):
+    """Return (exit_code, message) for one commit on main.
+
+    Since 2026-11-24 the gate is the automated risk review, not the owner
+    (owner: "I don't need to review. just be extra careful for adversarial
+    changes"; docs/security/risk-review.md). A merged PR whose head passed
+    main's `risk-review` check is fine; an owner approval still counts for
+    PRs from before that check existed."""
     if not touched:
         return 0, "no control-plane files touched"
     listing = "\n".join(f"  - {f}" for f in touched)
     if pr is None:
         return 1, f"pushed to main without a pull request, touching:\n{listing}"
-    approvers = {
-        r["user"]["login"].lower()
-        for r in reviews
-        if r.get("state") == "APPROVED" and r.get("user")
-    }
+    if risk_review_passed:
+        return 0, f"PR #{pr['number']}: main's risk review passed on {len(touched)} sensitive file(s)"
+    approvers = current_approvers(reviews, (pr.get("head") or {}).get("sha"))
     if approvers & logins:
         return 0, f"PR #{pr['number']}: owner approved {len(touched)} control-plane file(s)"
     author = (pr.get("user") or {}).get("login", "").lower()
@@ -194,7 +419,7 @@ def audit_verdict(touched: list[str], pr: dict | None, reviews: list, logins: se
             f"identity with no separate approval; if an agent used that identity this was "
             f"unreviewed:\n{listing}"
         )
-    return 1, f"PR #{pr['number']} by {author} merged control-plane changes without owner approval:\n{listing}"
+    return 1, f"PR #{pr['number']} by {author} merged control-plane changes without a passing risk review:\n{listing}"
 
 
 def summarize(text: str) -> None:
@@ -219,9 +444,14 @@ def main(argv: list[str] | None = None) -> int:
         problems = check_coverage(rules)
         for p in problems:
             print(f"::error file=.github/CODEOWNERS::{p}")
+        invariants = check_invariants()
+        for p in invariants:
+            print(f"::error::{p}")
         if not problems:
             print(f"CODEOWNERS covers all {len(MUST_BE_OWNED)} control-plane samples")
-        return 1 if problems else 0
+        if not invariants:
+            print(f"ruleset requires {len(REQUIRED_CHECKS)} checks; the security gate runs from the base branch")
+        return 1 if problems or invariants else 0
 
     repo = os.environ["GITHUB_REPOSITORY"]
     if args.pr:
@@ -229,8 +459,10 @@ def main(argv: list[str] | None = None) -> int:
         touched = owned(files, rules)
         if touched:
             summarize(
-                "### Control-plane files in this PR\n\nThese need the code owner's approval "
-                "before `main` accepts them (.github/CODEOWNERS):\n\n"
+                "### Sensitive files in this PR\n\nListed in .github/CODEOWNERS. No owner "
+                "approval: the required `risk-review` and `adversarial-gate` checks judge "
+                "them with main's rules (docs/security/risk-review.md, "
+                "docs/security/agent-hardening.md):\n\n"
                 + "\n".join(f"- `{f}`" for f in touched)
             )
         else:
@@ -238,11 +470,23 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     sha = args.audit_commit
-    files = [f["filename"] for f in gh_get(f"/repos/{repo}/commits/{sha}").get("files", [])]
+    files = commit_files(repo, sha)
     prs = [p for p in gh_get(f"/repos/{repo}/commits/{sha}/pulls") if p.get("merged_at")]
     pr = prs[0] if prs else None
     reviews = gh_pages(f"/repos/{repo}/pulls/{pr['number']}/reviews") if pr else []
-    code, message = audit_verdict(owned(files, rules), pr, reviews, owner_logins(rules))
+    passed = False
+    head_sha = ((pr or {}).get("head") or {}).get("sha")
+    if head_sha:
+        runs = gh_get(f"/repos/{repo}/commits/{head_sha}/check-runs"
+                      "?check_name=risk-review&per_page=100").get("check_runs", [])
+        suites = {}
+        for r in runs:
+            sid = (r.get("check_suite") or {}).get("id")
+            if sid and sid not in suites:
+                wr = gh_get(f"/repos/{repo}/actions/runs?check_suite_id={sid}").get("workflow_runs", [])
+                suites[sid] = wr[0] if wr else {}
+        passed = risk_review_ok(runs, suites)
+    code, message = audit_verdict(owned(files, rules), pr, reviews, owner_logins(rules), passed)
     if code:
         print(f"::error::{message.splitlines()[0]}")
     summarize(message)

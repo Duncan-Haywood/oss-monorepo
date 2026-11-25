@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVPqHJDUS7KUQYbihVm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T09:56:32Z",
+  "ended": "2026-11-25T10:05:50Z",
+  "wall_minutes": 9.84,
+  "tokens_in": 8798066,
+  "tokens_out": 35623,
+  "cost_usd": 3.5785,
+  "tool_calls": 73,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18930",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "The auto-mode classifier denied a `git reset --hard origin/main` on a clean branch; `git merge --ff-only` did the same job."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/security_next.py",
+      "issue": "Listed alert #1248 as workable, but `security-fix/code-scanning-1248` already existed on the remote (claimed). The script's own claim check and git ls-remote disagreed, so I had to check by hand."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to call register_repo_root after cloning private-monorepo. No such tool was loadable in this session (ToolSearch found nothing), so I read the repo's CLAUDE.md directly as the fallback says."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Most PRs carry a new or extended customer post. The feature is inside the unreleased product, and the public guide retainage-in-quickbooks.html already advises billing work 'with your normal sales items', so a post would have repeated it.",
+      "did": "Wrote the agent doc only, with no post.",
+      "result": "The product now matches the guide's advice, and no thin post was added."
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-25-payapps-qbo-own-item.md"
+  ],
+  "goal": null,
+  "notes": "Bet #1 (PayApps). private-monorepo#73 merged: QuickBooks invoices bill work with the company's chosen item (packages/qbo-sync getItem/listSaleItems, migration 0017, admin routes, picker UI). Ran locally because the private CI has no runner: biome ok, typecheck ok, unit 233/233, worker 166/166, build ok, drizzle drift none, qbo-sync 49/49. The private-monorepo clone worked first time with add_repo (push).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "35621b68-98be-59f3-88f3-47010cbb8d4c",
+    "transcripts": 1,
+    "first": "2026-11-25T09:56:32Z",
+    "last": "2026-11-25T10:06:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 139,
+        "output": 35623,
+        "thinking": 4631,
+        "cache_read": 8656149,
+        "cache_write_5m": 0,
+        "cache_write_1h": 141778,
+        "api_equivalent_usd": 3.5785,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 139,
+      "output": 35623,
+      "thinking": 4631,
+      "cache_read": 8656149,
+      "cache_write_5m": 0,
+      "cache_write_1h": 141778,
+      "api_equivalent_usd": 3.5785,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 66,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.84,
+      "active_minutes": 9.84,
+      "model_minutes": 6.29,
+      "tool_minutes": 3.55,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior engineer: QBO item listing in adapter+fake, migration, routes, picker UI, tests, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 279.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

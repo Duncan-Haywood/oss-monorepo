@@ -2,7 +2,7 @@
 
 > Paste your GitHub Actions workflow YAML and find every secrets: inherit call that hands your whole secret set to an external reusable workflow, or to a job a fork can trigger. Free, runs in your browser, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-secrets-inherit-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-secrets-inherit-check): FSL-1.1-MIT licensed.

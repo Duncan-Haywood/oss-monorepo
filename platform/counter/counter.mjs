@@ -32,8 +32,6 @@
 //
 // WHAT IT REFUSES
 //
-//   - requests carrying `DNT: 1` or `Sec-GPC: 1` (the page already stays
-//     silent for those browsers; this is the server keeping the same promise);
 //   - user agents that announce themselves as crawlers, so a sitemap crawl
 //     does not read as an audience (the agent string is tested and dropped,
 //     never stored);
@@ -102,7 +100,9 @@ export function createCounterServer({ tally, allowOrigin, now = () => new Date()
     });
     req.on('end', () => {
       const verdict = classify({ method: req.method, url, headers: req.headers, body: tooBig ? 'x'.repeat(MAX_BODY + 1) : body });
-      if (verdict.count) {
+      if (verdict.funnel) {
+        tally.add(verdict.funnel, utcDay(now()));
+      } else if (verdict.count) {
         const day = utcDay(now());
         if (tally.add(verdict.slug, day)) {
           if (verdict.ref) tally.add(`${REF_KEY}${verdict.ref}`, day);

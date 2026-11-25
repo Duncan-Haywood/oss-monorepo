@@ -2,7 +2,7 @@
 
 > Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on SameSite=None cookies missing Secure (which current browsers reject outright), broken __Host-/__Secure- prefix cookies, and missing Secure/HttpOnly/SameSite. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cookie-security-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cookie-security-check): FSL-1.1-MIT licensed.

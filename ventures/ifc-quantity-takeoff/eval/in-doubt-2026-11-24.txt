@@ -1,0 +1,23 @@
+model | BoQ volume m3 | volumes in doubt | their stored m3 | their geometry m3 | swing (% of BoQ volume) | BoQ area m2 | areas in doubt | stored m2 | geometry m2 | swing (% of BoQ area)
+architect.ifc | 1127.350 | 0 | 0.000 | 0.000 | 0.000 | 8900.38 | 0 | 0.00 | 0.00 | 0.000
+construction.ifc | 2357.790 | 0 | 0.000 | 0.000 | 0.000 | 7622.47 | 0 | 0.00 | 0.00 | 0.000
+AC20-FZK-Haus.ifc | 136.788 | 0 | 0.000 | 0.000 | 0.000 | 610.73 | 0 | 0.00 | 0.00 | 0.000
+C20-Institute-Var-2.ifc | 1834.466 | 0 | 0.000 | 0.000 | 0.000 | 6122.41 | 0 | 0.00 | 0.00 | 0.000
+ISSUE_159_kleine_Wohnung_R22.ifc | 767.711 | 0 | 0.000 | 0.000 | 0.000 | 4264.73 | 0 | 0.00 | 0.00 | 0.000
+ISSUE_021_Mini Project.ifc | 337.889 | 0 | 0.000 | 0.000 | 0.000 | 23.49 | 0 | 0.00 | 0.00 | 0.000
+schependomlaan.ifc | 1055.444 | 0 | 0.000 | 0.000 | 0.000 | 6280.72 | 3 | 0.38 | 0.03 | 0.005
+    #44220 IfcCovering "afdekker" area stored 0.061 geometry 0.010
+    #691798 IfcCovering "afdekker" area stored 0.119 geometry 0.010
+    #739532 IfcCovering "afdekker" area stored 0.195 geometry 0.010
+ISSUE_068_ARK_NUS_skolebygg.ifc | 8368.560 | 1 | 0.470 | 0.461 | 0.000 | 34586.01 | 3 | 28.46 | 34.12 | 0.016
+    #556796 IfcWallStandardCase "Basic Wall:IVA 3.2 145mm 37dB EI60 (HN-95-NR):2235683" area stored 3.747 geometry 3.659
+    #1167770 IfcWallStandardCase "Basic Wall:IVA 4.3 172mm 34dB (RN-120-NR):3846919" volume stored 0.4705 geometry 0.4609
+    #1280178 IfcWallStandardCase "Basic Wall:IVA 4.3 172mm 48dB (RN-120-NR):4410967" area stored 15.087 geometry 16.052
+    #1483180 IfcWallStandardCase "Basic Wall:IVA 2.3T 134mm 34dB (R-95-NR):6783271" area stored 9.627 geometry 14.407
+S_Office_Integrated Design Archi.ifc | 1794.594 | 0 | 0.000 | 0.000 | 0.000 | 3838.24 | 0 | 0.00 | 0.00 | 0.000
+dental_clinic.ifc | 1933.713 | 0 | 0.000 | 0.000 | 0.000 | 15423.66 | 0 | 0.00 | 0.00 | 0.000
+Office_A_20110811.ifc | 1173.354 | 0 | 0.000 | 0.000 | 0.000 | 9260.15 | 0 | 0.00 | 0.00 | 0.000
+duplex.ifc | 379.983 | 0 | 0.000 | 0.000 | 0.000 | 1517.10 | 0 | 0.00 | 0.00 | 0.000
+ISSUE_034_HouseZ.ifc | 393.792 | 0 | 0.000 | 0.000 | 0.000 | 1393.19 | 0 | 0.00 | 0.00 | 0.000
+FM_ARC_DigitalHub.ifc | 9109.298 | 0 | 0.000 | 0.000 | 0.000 | 19293.33 | 0 | 0.00 | 0.00 | 0.000
+ISSUE_102_M3D-CON-CD.ifc | 7375.060 | 0 | 0.000 | 0.000 | 0.000 | 458.98 | 0 | 0.00 | 0.00 | 0.000

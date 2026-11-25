@@ -51,7 +51,7 @@ import { fileURLToPath } from 'node:url';
 // The default used to be the bare string 'ventures', which resolves against
 // cwd — so `auditVentures()` found the tree when the suite was run from the
 // repository root and threw ENOENT when it was run from `platform/pages`.
-// That second spelling is the one `portfolio-pages.yml` uses
+// That second spelling is the one `priv-portfolio-pages.yml` uses
 // (`working-directory: platform/pages`), so the audit has been failing in the
 // workflow that publishes the site while passing for anyone who ran it by hand
 // from the root.

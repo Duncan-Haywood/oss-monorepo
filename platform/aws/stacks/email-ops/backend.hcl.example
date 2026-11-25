@@ -1,0 +1,7 @@
+# Copy to backend.hcl (git-ignored) or pass each line with -backend-config.
+# Bucket and region are the bootstrap stack's outputs.
+bucket       = "REPLACE-with-bootstrap-state-bucket"
+key          = "email-ops/terraform.tfstate"
+region       = "us-east-1"
+encrypt      = true
+use_lockfile = true

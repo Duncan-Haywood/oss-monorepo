@@ -8,6 +8,14 @@ PDF file, or run the CLI below. The page never uploads the invoice.
 
 **Live tool:** https://marisstella.app/einvoice-preflight/
 
+**This is the free edition** (frozen 2026-11-24 at main commit `cf0b6311f`, to be tagged `einvoice-preflight-free-v1`).
+It stays MIT, public and working; from now on it gets lead-magnet maintenance
+only (fixes, rule-page polish), not new depth. A paid edition that fixes and
+explains rejected e-invoices is **in development** in the owner's private
+repository and not for sale yet:
+[early access](https://marisstella.app/industries/eu-e-invoicing/). Why and how:
+`portfolio/monetization/LICENSING_TRANSITION.md`.
+
 This free local CLI also checks a small, transparent JSON, UBL XML,
 UN/CEFACT CII (XRechnung CII / Factur-X), or Factur-X / ZUGFeRD PDF invoice
 for missing fields and arithmetic mistakes, then prints rule IDs and
@@ -35,7 +43,7 @@ and PDF-004 (XMP `fx:ConformanceLevel` names a different profile than the XML's
 guideline ID). Tested on hand-built PDFs only (`pdf-envelope.test.mjs`); the
 shipped example PDFs have no XMP, so they draw PDF-001. Not run on a real
 Mustang, Ghostscript or Acrobat export, and not a PDF/A validator (veraPDF unrun).
-The browser page and the Node CLI/server get these; the Python CLI does not yet.
+The browser page and the Node CLI/server get these; the Python CLI does not yet (see "Page and Python CLI: what differs" below).
 
 **Two more envelope notes (2026-10-31).** PDF-005 (the embedded file's stream has
 no `/Subtype`, the MIME type PDF/A-3 requires, `/text#2Fxml` for XML) and PDF-006
@@ -1123,6 +1131,21 @@ These input errors are reported in the selected format and the command exits
 `2`, so CI and ERP adapters do not need to special-case an unstructured stderr
 or stdout message.
 
+## VAT a cent off per-rate: a warning, as EN 16931 allows (2026-11-25)
+
+Rounding VAT per line and summing the lines often lands a cent away from
+taxable x rate worked per rate. CEN's BR-CO-17 accepts any row within one
+currency unit (strictly under 1.00 in UBL, up to 1.00 in CII); the built-in
+route used to block such a row (`INV-038`) and its tax total (`INV-018`).
+Now a row within that tolerance is an `INV-038` **warning** naming the exact
+figure, and a tax total equal to the sum of its rows passes. Opposite signs and
+a full unit off still block; PINT and ZATCA files keep the exact check (their
+own rule sets apply); the Python CLI stays silent on the warning. Measured
+against the bundled CEN rules on 600 generated UBL and CII files: false alarms
+477 → 0, misses 0 (`eval/brco17-tolerance-2026-11-25.md`, rerun with
+`node eval/brco17-tolerance-crosscheck.mjs`; tests `brco17-tolerance.test.mjs`,
+`tests/test_breakdown.py`).
+
 ## Measured on real FatturaPA samples (2026-10-28)
 
 `node eval/fatturapa-corpus.mjs <ZUGFeRD corpus>/fatturaPA` ran `IT-001`..`IT-018` over 15 files: the Agenzia delle Entrate's six official samples (FPR01-03, FPA01-03) and nine from eigor. Result: `IT-003`/`IT-004` on 8 and 9 files (the samples use the placeholder partita IVA 01234567890, which fails its check digit, so these are right); `IT-017` on 3 (placeholder IBANs); `IT-015` on FPR02 and FPR03 (the first body's lines sum to 25.00 but its summary base is 27.00, a real inconsistency in the sample); and `IT-018` on FPR02, **a false positive of ours**: the official sample puts `PECDestinatario` before `ContattiTrasmittente` in `DatiTrasmissione`, against the order this tool had written from memory. Reading the XSD (2026-10-30) settled it: the schema puts ContattiTrasmittente first, xmllint rejects the sample, and the exemption was removed. The corpus marks all 15 as valid, which only means they pass its own check, not that SdI accepted them. Rules for cassa, bollo and ritenuta files are skipped and named, as before.
@@ -1191,6 +1214,32 @@ After: 104 of 126 unwrap, 18 are clean. The 24 ZUGFeRD 1.0 files and one unstruc
 ## Measured on Mustang's test PDFs (2026-10-28)
 
 `node eval/facturx-corpus.mjs <ZUGFeRD/mustangproject checkout>` (read, not copied): 36 PDFs from other generators. One Aspose.Words invoice (2026-03-24) was refused as "compressed in a way this tool cannot read": `/Subtype /application#2Foctet-stream` contains the word `stream`, so the reader began inside the dictionary. Fixed in `facturx.mjs` (keyword must be followed by a line break; test in `facturx.test.mjs`). Unwrapped 18 before, 19 after; the rest hold no invoice XML. Remaining findings on the others are placeholder VAT ids, a bank checksum in a French sample and a missing remittance.
+
+## Page and Python CLI: what differs (measured 2026-11-25)
+
+Four quality audits reported that the page and the Python CLI do not run the
+same rules while the page said "the same checks run from `python3 -m
+einvoice_preflight`". `eval/page-cli-parity.mjs` now measures it: every invoice
+file shipped in `examples/`, `fixtures/` and `tests/` (104) goes through the
+page's built-in route (`preflightDocuments`, default options) and through the
+CLI (`--format json`), and the rule ids are compared
+([`eval/page-cli-parity-2026-11-25.md`](eval/page-cli-parity-2026-11-25.md)).
+
+- **42 files both read (JSON, UBL, CII, Factur-X):** 39 give the same rule ids;
+  3 differ only by PDF-001, a PDF/A note the CLI does not run. Before this run
+  a fourth file differed: the CLI's CII reader stored the payment means code
+  under a key no check reads, so INV-044/045/046 never ran on a CII file in the
+  CLI (`formats.py`, fixed; `tests/test_means.py`).
+- **61 files only the page reads:** CFDI, NAV, KSeF FA(3), FatturaPA, NF-e,
+  NFS-e, Facturae, VERI*FACTU, CDAR and Flux 10. The CLI used to answer these
+  with "UBL document root must be Invoice, CreditNote, or DebitNote"; it now
+  names the file's root and says the page and the Node API check that format.
+- **Known, not measured here:** the CLI has no warning or note severity, so it
+  is silent on INV-061/063/064 and PDF-001..006; Norway and Switzerland VAT and
+  the profile options are JS only; some fix texts differ. The comparison is on
+  rule ids, not messages, and on shipped files, not generated ones.
+
+The page now says exactly this under "Prefer a pipeline?".
 
 ## Privacy and usage
 
@@ -1656,11 +1705,9 @@ escaped; the logo is accepted only as a raster data: URL; the accent only as
 `#rrggbb`.
 
 It sits behind the same licence-key check as the sibling ventures' packs
-(`licence.mjs`, `checkout.mjs`). `CHECKOUT_URL` is empty, so the card on
-`index.html` stays hidden and nothing can be bought; `python3
-portfolio/monetization/golive.py` sets the link once the owner has made the
-merchant-of-record product. The validate call is written from memory of the
-provider's docs and not run against a live product. Checked 2026-11-03:
+(`licence.mjs`, `checkout.mjs`). Until Paddle's price id is set in
+`platform/billing/catalogue.mjs` the card on `index.html` stays hidden and
+nothing can be bought (the 2026-11-25 note below). Checked 2026-11-03:
 `node --test auditpack.test.mjs` (5 tests, including that the committed
 `sample-audit-pack.html` equals what `node build-sample-pack.mjs` makes), and
 a headless-browser run with a stubbed checkout link and licence answer: card
@@ -2172,7 +2219,7 @@ warning is seeded into it in `hungary-nav-product-fee.test.mjs` (8 tests). No re
 business's product fee invoice has been read.
 
 Tests: `hungary-nav.test.mjs` (14) and `hungary-nav-product-fee.test.mjs` (8) on
-six of NAV's files kept in `fixtures/hungary-nav/` with NAV's MIT licence.
+six of NAV's files kept in `fixtures/hungary-nav/` with NAV's FSL-1.1-MIT licence.
 
 ### The schema gate: invoiceData.xsd with NTCA common 1.0 (2026-11-15, latest)
 
@@ -2336,3 +2383,8 @@ Measured with `eval/endpoint-peppol-differential.mjs` (`eval/endpoint-peppol-dif
 
 INV-039 also stops calling twelve EAS codes unpublished that EN 16931's BR-CL-25 list accepts (0147, 0170, 0194, 0203, 0205, 0217, 0225, 9960, AN, AQ, AS, AU); 0225 is the French reform directory's address scheme. Tests: `endpoint.test.mjs` (4 more) and `tests/test_endpoint.py` (3 more), sharing `tests/endpoint_peppol_cases.json`. Not done: Peppol's warning-level identifier rules (Italian, Dutch KVK/OIN), party identifiers other than the endpoint on JSON input, and any access point's verdict on a real address.
 
+## Peppol BIS 3.1.0 readiness for a whole folder (2026-11-24)
+
+`peppol-bis-3-1-0-readiness.html` answers the sender's question before 24 February 2027: drop a folder of invoices you have sent and each Peppol file runs under 3.0.22 and 3.1.0 in the browser. The page counts the files that pass today and would be rejected then, groups what 3.1.0 adds by rule with what to change (0088 GLN-only, the Dutch formats now fatal, Belgian/Luxembourg numbers, the "exactly one" UBL rules, national changes), and downloads a CSV or Markdown summary. Below the tool, a table generated from the compiled sets lists every rule 3.1.0 adds, removes, raises to fatal or retests (147 rows; `node build-peppol-readiness-page.mjs` rewrites it). One thing the diff surfaced: in CII, the Norwegian and Swedish VAT rules NO-R-001, SE-R-001/002 looked for scheme `VAT` (CII writes `VA`) and could not fire under 3.0.22; 3.1.0 fixes that. Terminal: `node peppol-readiness-cli.mjs <folder> --csv out.csv` (exit 1 when a file is newly rejected). On OpenPeppol's 17 published Peppol examples: 5 newly rejected, all R040. 3.1.0 was not yet tagged on GitHub on 2026-11-24 (newest tag 3.0.22; rules stay on release-candidate branch `2026-Q4-QA2` at `90f078a`). Tests: `peppol-readiness.test.mjs` (8). Write-up: `eval/peppol-readiness-2026-11-24.md`. Open: a real sender's folder; rebuild from the tag.
+
+**Checkout moved to Paddle (2026-11-25).** The pack's Buy button now opens Paddle's overlay checkout, and its licence key is an Ed25519-signed token a separate billing Worker issues from Paddle's webhook and the page checks offline (`paddle.mjs`, a synced copy of `platform/billing/client.mjs`; `checkout.mjs` is generated from `platform/billing/catalogue.mjs`). The old Lemon Squeezy validate call is gone. It stays dark until the owner deploys that Worker and sets the catalogue's price id, client-side token and public key (`platform/billing/README.md`).

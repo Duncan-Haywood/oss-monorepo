@@ -6,7 +6,7 @@
   <title>Subpath Robots Check — Is Your GitHub Pages Sitemap Ever Read?</title>
   <meta name="description" content="A site published at a URL subpath — user.github.io/repo/, gitlab.io/project/, a CDN subdirectory — cannot govern its own robots.txt, so its sitemap is never auto-discovered and its pages are never enumerated. Paste your site URL to find out. Free, runs in your browser, nothing uploaded.">
   <meta property="og:title" content="Your GitHub Pages sitemap is probably never read">
-  <meta property="og:description" content="Crawlers only fetch robots.txt from the origin root. A project site under /repo/ publishes a robots.txt nothing requests, so the Sitemap: line in it is never seen. Nothing errors. Check your site in one paste.">
+  <meta property="og:description" content="Check whether a site under a subpath publishes a robots.txt that crawlers never fetch, so its Sitemap line is never seen. One paste.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Subpath Robots Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Checks whether a site published at a URL subpath can govern its own robots.txt, and reports the sitemap auto-discovery gap that follows when it cannot. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded and the page makes no network calls."}
@@ -138,7 +138,7 @@ node cli.mjs explain</pre>
     <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the page makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>A sitemap nothing reads is one way a published site quietly fails to reach anyone. <a href="../sitemap-lastmod-freshness-check/">Sitemap Lastmod Freshness Check</a> flags a build step that stamps every URL with today's date, which teaches crawlers to ignore your dates; <a href="../ai-crawler-access-check/">AI Crawler Access Check</a> reports which named AI crawlers a robots.txt actually allows; and <a href="../canonical-tag-check/">Canonical Tag Check</a> flags a <code>rel=canonical</code> that points somewhere it should not — three more slices of a site that looks published until you check.</p>
-    <p class="support">Free and open source. If this explained why your pages were never picked up, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free to use and source available. If this explained why your pages were never picked up, the <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">

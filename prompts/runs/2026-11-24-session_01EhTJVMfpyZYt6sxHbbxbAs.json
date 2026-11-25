@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVMfpyZYt6sxHbbxbAs",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief (continue work on the repo ... revenue generating software products)",
+  "input_sha256": "10da92409a39141f39a8a5a7699a4bcff42a9cb95da7bb1191077333847ca0c9",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T08:00:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector flagship: third pre-registered make (agency lines) for the P3 short-phase composite rule, with an advance-pick bar replacing hindsight",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 18567,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The assigned flagship row (changepoint-detector) offered only micro-research items (fourth+ round of one simulation line) or items behind blocked hosts (ALFRED 403); with 107 commits in 7 days and no measured user, the row is past diminishing returns for a revenue brief. Worth a router rule that down-weights flagships whose recent commits are all eval rounds with nothing shipped."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/changepoint-detector/eval/turns-agency-lines.mjs",
+      "why": "Changed the ship rule of the last two rounds (K2 hindsight gate replaced by K2a advance pick) as the SaaS write-up suggested; written and committed before the first run, and K2 still reported.",
+      "did": "pre-registered K2a in the script header, commit d0e7f85f8, before running",
+      "result": "K2a failed (0.755 vs 0.857), so the change did not by itself ship anything"
+    },
+    {
+      "file": "prompts/runs (model field)",
+      "why": "Left the model field null: the session's instructions forbid model identifiers in pushed artifacts."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-agency-lines-heaviest-line-is-the-latest.md"
+  ],
+  "goal": "Decide whether P3 ships as the --turns --columns composite default on a fresh make, gated by a bar a user could actually meet (advance pick).",
+  "notes": "Pre-registered agency make (seed 20261126, 500 draws): P3 composite 0.755 vs shipped 0.708 (+0.047, 107-7, K1 pass), K3/K4/K5 pass, K2a fails (advance pick 0.857; billable hours alone 0.934). Nothing ships. Post hoc: headcount takes 70% weight (inverse volatility), composite dates +2 months late; without headcount 0.924. Checks: node --test turns-agency-lines.test.mjs turns-saas-lines.test.mjs (5/5 pass); check_posts ok; validate.py ok; run_venture_tests.py changepoint-detector: ok, 1177 tests, 438.6 s; venture-preflight.mjs changepoint-detector: clean.",
+  "corrections": [],
+  "redteam": null
+}

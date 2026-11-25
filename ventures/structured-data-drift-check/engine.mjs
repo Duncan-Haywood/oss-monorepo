@@ -79,12 +79,20 @@ const INLINE_TAGS = [
 ];
 const INLINE_TAG_RE = new RegExp(`</?(?:${INLINE_TAGS.join("|")})\\b(?:[^>"']|"[^"]*"|'[^']*')*>`, "gi");
 
+/** Replaces every match of `re` (a global regex) with a space, repeating until nothing changes, so removing one block cannot leave another behind. */
+function removeUntilStable(s, re) {
+  let prev;
+  do {
+    prev = s;
+    s = s.replace(re, " ");
+  } while (s !== prev);
+  return s;
+}
+
 /** Page text as a visitor sees it: no `<script>`/`<style>`, no tags, entities decoded, whitespace collapsed. Case-preserving; callers that compare should squash case themselves. */
 export function visibleText(html) {
   return decodeEntities(
-    String(html)
-      .replace(/<script[\s\S]*?<\/script>/gi, " ")
-      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    removeUntilStable(removeUntilStable(String(html), /<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi), /<style\b[^>]*>[\s\S]*?<\/style\b[^>]*>/gi)
       .replace(INLINE_TAG_RE, "")
       .replace(/<[^>]+>/g, " "),
   ).replace(/\s+/g, " ").trim();

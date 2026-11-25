@@ -6,7 +6,7 @@
   <title>Assembly Line Balancing Tool | Free Exact Line Balancer (SALBP)</title>
   <meta name="description" content="Free assembly line balancing: type tasks, times and predecessors, set a takt time or a number of stations, and get the fewest stations or the shortest cycle, proved optimal by branch and bound where it can be. Efficiency, idle time and a station chart. Runs in your browser.">
   <meta property="og:title" content="Assembly Line Balancer">
-  <meta property="og:description" content="How few stations can this line run on at takt? Type the tasks, times and precedences and get an exact balance with efficiency, idle time and a station chart. Free, open source, nothing uploaded.">
+  <meta property="og:description" content="Type the tasks, times and precedences and get the fewest stations the line can run on at takt, with efficiency, idle time and a station chart.">
   <meta property="og:type" content="website">
   <link rel="canonical" href="./">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Assembly Line Balancer","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Simple assembly line balancing type 1 (fewest stations at a cycle time) and type 2 (shortest cycle time on a number of stations); takt time from available time and demand; exact branch, bound and remember search with proved optimality or a proved range; priority-rule heuristics (ranked positional weight, most followers, longest task, longest path) forwards and backwards; line efficiency, balance delay, smoothness index; station load chart; task table, Scholl .IN2 and JSON import; CSV export; CLI"}</script>
@@ -136,7 +136,7 @@
     <p>Nothing leaves your browser. <label class="check" style="display:inline-flex"><input type="checkbox" id="optOut"> Do not keep anonymous local usage counts</label></p>
     <p>Routing jobs through shared machines instead of down a line? The <a href="../job-shop-scheduler/">job shop scheduler</a> finds a short schedule with a Gantt chart and a proved bound &mdash; also free, nothing uploaded.</p>
     <p>Once the line runs, the <a href="../spc-control-charts/">SPC control chart tool</a> tells you whether a station's times or a measured dimension have shifted &mdash; nothing uploaded.</p>
-    <p>Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/assembly-line-balancer">Source, CLI and README</a>. If it saved you an afternoon with sticky notes, <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the work</a>. <a href="../">More free tools</a>.</p>
+    <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/assembly-line-balancer">Source, CLI and README</a>. If it saved you an afternoon with sticky notes, <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the work</a>. <a href="../">More free tools</a>.</p>
   </footer>
   <script type="module">
     import { parseIn2, parseTaskTable, formatTaskTable, minimizeStations, minimizeCycleTime, taktTime, EXAMPLE } from './engine.mjs';

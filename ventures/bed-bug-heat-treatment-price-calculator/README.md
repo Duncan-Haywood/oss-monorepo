@@ -12,4 +12,4 @@ After using this, you can now **bid a heat treatment from the clutter, heaters a
 2. Pure logic is in `calc.mjs` (`plan()`, `jobCost()`, `heaterCount()`, `encodeShare()`); tests: `node --test`.
 
 Modelled: heaters from area and ceiling height, heat-up and prep scaled by clutter, hold and pack-out hours, crew labour, fuel and wear per heater hour, consumables, a follow-up inspection, the expected warranty retreat cost, margin as a share of the price and a minimum charge; clutter and callback sensitivity; a chemical-programme comparison; a share link. Not modelled: sales tax, licences, insurance, pre-inspection or canine inspection, encasements, the temperature and time a protocol requires.
-Not legal, tax or financial advice and not treatment guidance: follow your own protocol and equipment maker. No warranty; see the page footer. MIT licensed (`LICENSE`).
+Not legal, tax or financial advice and not treatment guidance: follow your own protocol and equipment maker. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

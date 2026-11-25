@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKmw7YaqromK3dEtW9n",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T15:11:23Z",
+  "ended": "2026-11-24T15:17:48Z",
+  "wall_minutes": 6.65,
+  "tokens_in": 2539659,
+  "tokens_out": 28529,
+  "cost_usd": 1.8734,
+  "tool_calls": 28,
+  "task": "Saints by Candlelight episode 176, the bronze serpent (Numbers 21:4-9)",
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18618",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The prompt says to pick the project longest without a piece via git log, but platform/ci/creative_due.py (named only in the hearth-and-horizon README) is the tool that actually draws the shelf; the prompt could name it first."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-saints-by-candlelight-the-bronze-serpent-on-the-pole.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, project saints-by-candlelight, piece the-bronze-serpent-on-the-pole (episode 176, 7,121 spoken words, text only: audio folders at 581 MB against the 400 MB cap). Security queue empty, IDEAS.md and website requests empty. creative_due.py drew saints-by-candlelight. Claimed the PRODUCTION.md entry in a draft PR first. Carried the invented Ziva forty years on, using Numbers 14:29 to keep her alive. Adversarial re-read fixed three things: 'almost the first time' they said 'we have sinned' (Numbers 14:40 has an earlier one), Hezekiah 'seven hundred years after Moses' (Exodus date disputed), and the Wisdom 16:12 wording. Checks: node generate.mjs --check-script ok; node --test 20 pass 0 fail; check_posts.py ok. No agent doc: nothing the next run needs beyond the PRODUCTION.md list, which now has two new sequels.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "94e006c3-b671-5a59-bee6-e53ce0b16a78",
+    "transcripts": 1,
+    "first": "2026-11-24T15:11:23Z",
+    "last": "2026-11-24T15:18:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 27,
+        "input": 55,
+        "output": 28529,
+        "thinking": 6874,
+        "cache_read": 2437719,
+        "cache_write_5m": 0,
+        "cache_write_1h": 101885,
+        "api_equivalent_usd": 1.8734,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 27,
+      "input": 55,
+      "output": 28529,
+      "thinking": 6874,
+      "cache_read": 2437719,
+      "cache_write_5m": 0,
+      "cache_write_1h": 101885,
+      "api_equivalent_usd": 1.8734,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.96,
+    "tool_calls": 28,
+    "tools": {
+      "Bash": 24,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.65,
+      "active_minutes": 6.65,
+      "model_minutes": 5.88,
+      "tool_minutes": 0.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a researched 7,000-word scripted episode with source checks, by a writer familiar with the series",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 320.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

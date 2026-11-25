@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtGGQuEtoF5y5XL2JTg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T14:07:13Z",
+  "ended": "2026-11-25T14:22:50Z",
+  "wall_minutes": 16.08,
+  "tokens_in": 12935041,
+  "tokens_out": 60696,
+  "cost_usd": 5.2311,
+  "tool_calls": 88,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18997",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First merge of private PR 114 refused for conflicts: parallel run merged PR 113 (item per job) with migration 0031; rebased, renumbered to 0032, adapted workItem's new signature, re-ran tests.",
+    "git push --force-with-lease reported stale info after the rebase (no remote-tracking ref in the shallow clone); an explicit lease sha worked."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Clone of private-monorepo worked first time via add_repo access: push, as documented."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "After a rebase in the shallow private clone, plain --force-with-lease fails as 'stale info'; worth a line saying to pass the explicit old sha."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Wrote no customer post; extended the existing PayApps QuickBooks agent doc instead, since a credit-memo detail is not a search-facing topic on its own.",
+      "did": "Agent doc update plus one marketing bullet on payapps-site.",
+      "result": "Consolidated, no thin post."
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-25-payapps-qbo-own-item.md (update section)"
+  ],
+  "goal": null,
+  "notes": "Bet #1 PayApps: balance closed short -> QuickBooks credit memo applied to invoice (private-monorepo PR 114, merged effe509). Local verification after rebase: payapps worker 38 files/246 tests, unit 45/401, typecheck, biome ci, build, drizzle in sync; qbo-sync 57/57; payapps-site unit 21/21. Credit memo wire shape and zero-payment application unverified against an Intuit sandbox (documented).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6c603421-081f-54a9-bf61-92b3cc211698",
+    "transcripts": 1,
+    "first": "2026-11-25T14:07:13Z",
+    "last": "2026-11-25T14:23:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 161,
+        "output": 60696,
+        "thinking": 9604,
+        "cache_read": 12751604,
+        "cache_write_5m": 0,
+        "cache_write_1h": 183276,
+        "api_equivalent_usd": 5.2311,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 161,
+      "output": 60696,
+      "thinking": 9604,
+      "cache_read": 12751604,
+      "cache_write_5m": 0,
+      "cache_write_1h": 183276,
+      "api_equivalent_usd": 5.2311,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 88,
+    "tools": {
+      "Bash": 81,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.08,
+      "active_minutes": 16.08,
+      "model_minutes": 10.59,
+      "tool_minutes": 5.5,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior engineer: QBO credit memo API, service with reconciliation checks, migration, UI, 20 tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 191.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

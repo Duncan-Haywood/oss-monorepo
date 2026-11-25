@@ -1,0 +1,71 @@
+cell-fidelity milestone 7ze: a direction-aware drift gate gS = gD and direction share s >= 0.80 (training rows
+only); thetaS = thetaH where gS is on, theta where off. No new simulation, no refit: stored thetaH/theta folds.
+
+control: gD recomputed from rebuilt m vs stored gD: 0 mismatches of 55 folds; stored thetaH/theta recomposed under gD vs stored thetaD (cycles + met) = 0.00e+00
+
+cond:set                  oracle  s per fold                             gD     gS   s.70   s.90
+four:Chen2020              theta  0.70 0.68 0.64 0.61 0.64            yyyyy  nnnnn  ynnnn  nnnnn  agrees
+four:OKane2022             theta  0.50 0.55 0.55 0.59 0.50            yyyyy  nnnnn  nnnnn  nnnnn  agrees
+four:NCA_Kim2011           theta  0.93 0.95 0.93 0.93 0.97            yyyyy  yyyyy  yyyyy  yyyyy  DISAGREES
+four:Ai2020                theta  0.65 0.68 0.62 0.65 0.75            yyyny  nnnnn  nnnny  nnnnn  agrees
+f30:Mohtat2020            thetaH  0.90 0.86 0.86 0.93 0.85            yyyyy  yyyyy  yyyyy  ynnyn  agrees
+f30:Ecker2015             thetaH  0.95 0.95 0.95 0.98 0.97            yyyyy  yyyyy  yyyyy  yyyyy  agrees
+m30:Marquis2019           thetaH  0.97 0.95 0.98 0.95 0.94            yyyyy  yyyyy  yyyyy  yyyyy  agrees
+sei:Marquis2019-SEI       thetaH  1.00 1.00 1.00 1.00 1.00            yyyyy  yyyyy  yyyyy  yyyyy  agrees
+f10:Mohtat2020            thetaH  0.57 0.50 0.52 0.52 0.53            nnnnn  nnnnn  nnnnn  nnnnn
+f10:Ecker2015              theta  0.65 0.67 0.64 0.67 0.68            yyyyy  nnnnn  nnnnn  nnnnn
+sei1:Marquis2019-SEI      thetaH  1.00 1.00 1.00 1.00 1.00            yyyyy  yyyyy  yyyyy  yyyyy
+
+pooling / rule                met    cyc  rule - theta        set boot 95%  ch/de      p  rule - U        set boot 95%
+  eight (40 folds):
+  U                        38/40    45.8         +2.13     -2.06 to  +6.14  11/20  0.150
+  theta                    35/40    43.6   (reference)                                          -2.13     -6.14 to  +2.06
+  thetaH                   36/40    28.9        -14.67    -27.70 to  -1.77  20/8   0.036    -16.80    -27.82 to  -5.55
+  thetaN                   36/40    28.3        -15.36    -27.98 to  -3.11  20/5   0.004    -17.49    -28.16 to  -6.85
+  thetaD                   36/40    28.9        -14.67    -27.70 to  -1.77  20/8   0.036    -16.80    -27.82 to  -5.55
+  thetaS                   37/40    28.2        -15.42    -28.03 to  -3.21  20/4   0.002    -17.55    -28.21 to  -6.93
+  thetaS0.70               37/40    28.3        -15.36    -27.99 to  -3.09  20/5   0.004    -17.49    -28.17 to  -6.88
+  thetaS0.90               37/40    31.1        -12.49    -24.11 to  -1.75  17/4   0.007    -14.62    -25.30 to  -4.92
+  seven (35 folds):
+  U                        33/35    45.1         +2.32     -2.48 to  +6.86  11/19  0.200
+  theta                    30/35    42.8   (reference)                                          -2.32     -6.86 to  +2.48
+  thetaH                   31/35    31.7        -11.17    -24.70 to  +1.07  15/8   0.210    -13.49    -25.02 to  -3.79
+  thetaN                   31/35    30.9        -11.96    -25.00 to  +0.12  15/5   0.041    -14.28    -25.02 to  -4.42
+  thetaD                   31/35    31.7        -11.17    -24.70 to  +1.07  15/8   0.210    -13.49    -25.02 to  -3.79
+  thetaS                   32/35    30.8        -12.03    -25.07 to  +0.00  15/4   0.019    -14.35    -25.09 to  -4.62
+  thetaS0.70               32/35    30.9        -11.96    -25.05 to  +0.14  15/5   0.041    -14.28    -25.09 to  -4.54
+  thetaS0.90               32/35    34.2         -8.67    -19.24 to  +1.00  12/4   0.077    -10.99    -20.06 to  -2.64
+  four (20 folds):
+  U                        19/20    48.0         +4.50     -0.25 to  +8.50   4/14  0.031
+  theta                    19/20    43.5   (reference)                                          -4.50     -8.50 to  +0.25
+  thetaH                   17/20    46.8         +3.25     +0.25 to  +6.25   0/8   0.008     -1.25     -3.33 to  +1.63
+  thetaN                   17/20    45.4         +1.88     +0.00 to  +5.25   0/5   0.062     -2.62     -6.00 to  +1.46
+  thetaD                   17/20    46.8         +3.25     +0.25 to  +6.25   0/8   0.008     -1.25     -3.33 to  +1.63
+  thetaS                   18/20    45.2         +1.75     +0.00 to  +5.25   0/4   0.125     -2.75     -6.00 to  +1.08
+  thetaS0.70               18/20    45.4         +1.88     +0.00 to  +5.25   0/5   0.062     -2.62     -5.62 to  +1.08
+  thetaS0.90               18/20    45.2         +1.75     +0.00 to  +5.25   0/4   0.125     -2.75     -6.00 to  +1.08
+  eight_r (40 folds):
+  U                        38/40    45.8         +2.46     -1.79 to  +6.37  11/21  0.110
+  theta                    34/40    43.3   (reference)                                          -2.46     -6.37 to  +1.79
+  thetaH                   36/40    28.9        -14.35    -27.01 to  -1.73  20/8   0.036    -16.80    -27.82 to  -5.55
+  thetaN                   36/40    28.3        -15.04    -27.29 to  -3.06  20/5   0.004    -17.49    -28.16 to  -6.85
+  thetaD                   36/40    28.9        -14.35    -27.01 to  -1.73  20/8   0.036    -16.80    -27.82 to  -5.55
+  thetaS                   37/40    28.2        -15.10    -27.29 to  -3.21  20/4   0.002    -17.55    -28.21 to  -6.93
+  thetaS0.70               37/40    28.3        -15.04    -27.29 to  -3.06  20/5   0.004    -17.49    -28.17 to  -6.88
+  thetaS0.90               37/40    31.1        -12.16    -23.36 to  -1.75  17/4   0.007    -14.62    -25.30 to  -4.92
+  eight_f10 (40 folds):
+  U                        36/40    44.5         +4.06     +1.22 to  +6.84   6/22  0.004
+  theta                    33/40    40.4   (reference)                                          -4.06     -6.84 to  -1.22
+  thetaH                   32/40    31.4         -9.05    -20.51 to  +1.04  15/9   0.307    -13.10    -24.42 to  -3.13
+  thetaN                   32/40    31.7         -8.74    -19.41 to  +0.19  13/5   0.096    -12.79    -23.28 to  -3.67
+  thetaD                   32/40    31.6         -8.87    -20.31 to  +1.29  14/8   0.286    -12.93    -24.27 to  -2.94
+  thetaS                   34/40    33.9         -6.55    -17.37 to  +1.75  10/4   0.180    -10.60    -21.39 to  -1.88
+  thetaS0.70               34/40    34.0         -6.49    -17.25 to  +1.81  10/5   0.302    -10.54    -21.33 to  -1.82
+  thetaS0.90               34/40    33.9         -6.55    -17.37 to  +1.75  10/4   0.180    -10.60    -21.39 to  -1.88
+
+set decisions agreeing with the oracle: 7 of 8; most set decisions changed by a sensitivity threshold: 1
+H377 (gS's set decisions match the oracle on all 8 sets): inconclusive
+H378 (thetaS meets >= 37 of 40 folds): supported
+H379 (eight conditions: interval of thetaS - theta below zero and mean <= -14.67): supported
+H380 (seven conditions: interval of thetaS - theta below zero): inconclusive
+H381 (thresholds 0.70 / 0.90 change at most one set decision): supported

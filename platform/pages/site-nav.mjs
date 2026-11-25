@@ -75,16 +75,26 @@ export function sponsorsNote() {
 
 /** The primary navigation, in order. `href` is relative to the site root. */
 export const SITE_NAV = Object.freeze([
+  // The company's products first, then the industries they serve (owner,
+  // 2026-11-24: the site moves to "a for profit marketing style for portfolio
+  // of software and hardware products targeted to lots of specific smbs").
+  // Both pages are products.mjs; the lines themselves are business.mjs.
+  //
+  // Header room goes to what a paying customer needs (owner, 2026-11-25:
+  // "demote some of the passion projects and move more towards the paid
+  // product track with dev resource and website real estate"). Research,
+  // Stories and Self-host left the header that day; each keeps its pages and
+  // its link in the footer (renderSiteFooterNav below), and a page in one of
+  // those sections still passes its id as `current`, which simply marks no tab.
+  Object.freeze({ id: 'products', label: 'Products', href: 'products/' }),
+  Object.freeze({ id: 'industries', label: 'Industries', href: 'industries/' }),
   Object.freeze({ id: 'tools', label: 'Tools', href: 'c/' }),
-  Object.freeze({ id: 'research', label: 'Research', href: 'research/' }),
-  // Blog and Podcast sit at the top level (owner, 2026-10-21). The podcast
-  // lives inside the blog's folder; its page always exists, even with no episodes.
+  // The reading side is one item, Blog (owner, 2026-11-24: "move more of the
+  // blog stuff to consolidated"; Stories moved to the footer 2026-11-25). Podcast and
+  // Updates were top-level tabs of their own (owner, 2026-10-21); they now sit
+  // under Blog (the blog index links both, and their pages mark Blog current)
+  // and stay in the footer's "Read" group.
   Object.freeze({ id: 'writing', label: 'Blog', href: 'writing/' }),
-  Object.freeze({ id: 'podcast', label: 'Podcast', href: 'writing/podcast/' }),
-  // The creative track's fiction (owner, 2026-10-24: its "own page on the
-  // website"); see stories.mjs.
-  Object.freeze({ id: 'stories', label: 'Stories', href: 'stories/' }),
-  Object.freeze({ id: 'updates', label: 'Updates', href: 'updates/' }),
   Object.freeze({ id: 'ask', label: 'Ask', href: 'ask/' }),
   // Anyone may ask for a tool, product or feature to be built (owner,
   // 2026-11-02: "on the top tab. request a tool product or feature"). The
@@ -92,7 +102,6 @@ export const SITE_NAV = Object.freeze([
   // Labelled for businesses since 2026-11-02 (owner: "advertise to businesses
   // more", "describe your problem and it gets built").
   Object.freeze({ id: 'request', label: 'Get it built', href: 'custom-development/' }),
-  Object.freeze({ id: 'deploy', label: 'Deploy your own', href: 'deploy/' }),
   Object.freeze({ id: 'about', label: 'About', href: 'about/' }),
 ]);
 
@@ -221,8 +230,12 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
     ]],
     ['Project', [
       ['about/', 'About &amp; press kit'],
+      ['privacy/', 'Privacy Policy'],
+      ['terms/', 'Terms of Use'],
+      ['cookies/', 'Cookie Policy'],
       ['feedback/', 'Report a problem'],
       ['custom-development/', 'Custom development'],
+      ['hardware/', 'Hardware designs'],
       ['queue/', 'Work queue'],
       ['engineering/', 'Engineering status'],
       ['dev/', 'Development dashboard'],
@@ -243,7 +256,7 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
       .map(([h, label]) => `<li><a href="${esc(href(h))}">${label}</a></li>`)
       .join('')}</ul></div>`)
     .join('');
-  return `<p class="pfs-support">${sponsorsNote()}</p><nav class="pfs-foot" aria-label="Site links">${cols}</nav><p class="pfs-foot pfs-credit">A ${esc(SITE_NAME)} project, MIT licensed.</p>`;
+  return `<p class="pfs-support">${sponsorsNote()}</p><nav class="pfs-foot" aria-label="Site links">${cols}</nav><p class="pfs-foot pfs-credit">A ${esc(SITE_NAME)} project. Tools FSL-1.1-MIT, research MIT.</p>`;
 }
 
 /**
@@ -708,6 +721,12 @@ html{overflow-x:clip}
  * 390 px, 108 of the blog's 202 tables with five or more columns ran past their scroller.
  * The page keeps a real table on wider screens and for crawlers; `thead` is only visually
  * hidden, and the ARIA roles keep row and cell semantics where `display:block` drops them.
+ *
+ * Each cell is `display:table` with its label as a `table-cell` ::before, not a grid or flex
+ * box (polish, 2026-11-25): a grid or flex container makes every inline child its own item, so
+ * a cell like "`CLAUDE.md`, `prompt.md`" or "**10%** of the bill" broke into fragments
+ * across rows. 161 of the blog's 500 stacked tables had such a cell. A table instead wraps
+ * the label's siblings (text, <code>, <a>, <strong>) in one anonymous cell, kept together.
  */
 export const STACK_TABLE_CSS = `
 @media (max-width:600px){
@@ -717,13 +736,15 @@ export const STACK_TABLE_CSS = `
   table.stack tr{border:1px solid var(--pfs-line,rgba(128,128,128,.34));border-radius:10px;
     background:var(--pfs-panel,transparent);padding:2px 12px;margin:0 0 10px}
   table.stack td{border:0;border-top:1px solid var(--pfs-line,rgba(128,128,128,.34));padding:7px 0;
-    display:grid;grid-template-columns:minmax(6.5em,34%) minmax(0,1fr);gap:10px;text-align:left}
-  table.stack td::before{content:attr(data-label);color:var(--pfs-muted,inherit);font-size:13px;font-weight:600;line-height:1.5}
-  table.stack td:first-child{display:block;border-top:0;font-weight:650;padding:9px 0 7px}
+    display:table;table-layout:fixed;width:100%;text-align:left}
+  table.stack td::before{content:attr(data-label);display:table-cell;width:34%;min-width:6.5em;padding-right:10px;
+    vertical-align:top;color:var(--pfs-muted,inherit);font-size:13px;font-weight:600;line-height:1.5}
+  table.stack td:first-child{display:block;width:auto;border-top:0;font-weight:650;padding:9px 0 7px}
   table.stack td:first-child::before{content:none}
   table.stack.compact tr{display:flex;flex-wrap:wrap;column-gap:18px}
-  table.stack.compact td{flex:1 1 9.5em;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-  table.stack.compact td:first-child{flex-basis:100%}
+  table.stack.compact td{flex:1 1 9.5em;width:auto;text-align:right}
+  table.stack.compact td::before{width:auto;text-align:left;vertical-align:baseline}
+  table.stack.compact td:first-child{flex-basis:100%;text-align:left}
 }
 `;
 

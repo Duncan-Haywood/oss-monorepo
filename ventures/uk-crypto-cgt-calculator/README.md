@@ -41,4 +41,4 @@ staking, trading-income treatment. Prices are yours; none are fetched. The
 - **What this adds:** HMRC's matching order on your own CSV, the rule shown against
   every disposal, an estimate per tax year, a zero-dependency CLI, no signup, no upload.
 
-Not tax advice. MIT licence.
+Not tax advice. FSL-1.1-MIT licence.

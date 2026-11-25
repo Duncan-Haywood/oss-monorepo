@@ -3,9 +3,10 @@
 Run: python3 paper/airspace_figures.py   (stdlib only)
 Writes paper/figures/figA1_band_count.svg (median losses of separation against band count, 11ai post hoc)
 paper/figures/figA2_error_ladder.svg (the sourced per-drone error terms of 11ak to 11an, as bars) and
-paper/figures/figA3_rule_costs.svg (Table A1's cheap planners against the aware search, 16 operators, 11aw and 11ay).
+paper/figures/figA3_rule_costs.svg (Table A1's cheap planners against the aware search, 16 operators, 11aw and 11ay) and
+paper/figures/figA4_collision_ledger.svg (each collision term per flight hour, median layout, 11bf and 11bh, log10).
 """
-import pathlib, re, sys
+import math, pathlib, re, sys
 
 HERE = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(HERE.parent / "_shared"))
@@ -63,6 +64,43 @@ def rule_median(fname, key, m, s):
     return float(m_.group(1))
 
 
+def block(fname, m, model=None):
+    """The M = m part of a results file, and within it the `model` block (GS, GL, G1) if given."""
+    text = (EXP / fname).read_text()
+    part = text.split(f"M = {m} (")[1].split("\nM = ")[0]
+    if model:
+        part = part.split(f"  {model}: k*")[1].split("\n  G")[0]
+    return part
+
+
+def find(text, pattern, what):
+    m_ = re.search(pattern, text)
+    if not m_:
+        raise SystemExit(f"pattern not found for {what}: {pattern}")
+    return float(m_.group(1))
+
+
+NUM = r"([\d.e+-]+)"
+LEDGER = [  # (label, file, model block, pattern): every term a median over the layouts of one operator count
+    ("en route, 5 bands, Gaussian gap", "collision_target_results.txt", "GS", r"k= 5 h= 13.33  enr +" + NUM),
+    ("en route, 8 bands at 25 ft", "collision_target_results.txt", "GS", r"k= 8 h=  8.00  enr +" + NUM),
+    ("en route, 5 bands, Laplace gap", "collision_target_results.txt", "GL", r"k= 5 h= 13.33  enr +" + NUM),
+    ("blind plan, measured offsets", "collision_target_results.txt", None,
+     r"OF1 \(GS plan, offsets blind\), lam_z 0.43 m, at GS's k\*: en-route median " + NUM),
+    ("blind plan, twice the offsets", "collision_target_results.txt", None,
+     r"OF2 \(GS plan, offsets blind\), lam_z 0.43 m, at GS's k\*: en-route median " + NUM),
+    ("climbs and descents, no hold", "collision_target_results.txt", "GS", r"at k\*: en-route median \S+ max \S+; transit median " + NUM),
+    ("hold hovered in own level", "hold_level_results.txt", None, r"normal, x1: H0 " + NUM),
+    ("hold half a level off (HX)", "hold_level_results.txt", None, r"normal, x1: H0 .*?HX " + NUM),
+    ("HX at ten times the demand", "hold_level_results.txt", None, r"normal, x10: H0 .*?HX " + NUM),
+]
+
+
+def ledger(m):
+    """log10 of each LEDGER term's median collisions per flight hour at m operators."""
+    return [round(math.log10(find(block(f, m, model), pat, f"{lab}, M = {m}")), 2) for lab, f, model, pat in LEDGER]
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     series = [s for s in band_curves(12)] + [s for s in band_curves(16) if "sigma 1 m" in s[0]]
@@ -92,6 +130,11 @@ def main():
                "Median extra cost of each cheap planning rule over the offset-aware search, in per cent, at the "
                "measured speed offset (s = 1) and twice it (s = 2)", "median extra cost over the aware search, % (96 layout-draws)",
                [r[0] for r in RULES], series, fmt="{:.2f}")
+    write_bars(OUT, "figA4_collision_ledger.svg", "Collisions per flight hour, term by term (log10, median layout)",
+               "log10 of the median collisions per flight hour of each collision term of Section 6.10, at 12 and 16 "
+               "operators, against dashed targets of 1e-7 and 2.5e-9", "log10 collisions per flight hour (24 layouts each)",
+               [r[0] for r in LEDGER], [(f"{m} operators", ledger(m)) for m in (12, 16)],
+               ref=[-7, round(math.log10(2.5e-9), 2)], fmt="{:.1f}")
 
 
 if __name__ == "__main__":

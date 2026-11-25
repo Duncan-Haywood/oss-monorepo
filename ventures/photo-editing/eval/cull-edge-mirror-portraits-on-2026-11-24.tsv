@@ -1,0 +1,11 @@
+file	faces	faces_at_edge	eyes_closed	blink_max	sharpest_in_burst	error
+business-person.jpg	1	0	0	0.061	1	
+demo_group_closed.jpg	3	0	1	0.647	1	
+demo_group_open.jpg	3	0	0	0.253	1	
+demo_reference_open.jpg	1	0	0	0.203	1	
+hand-woman-man.jpg	0	0	0		1	
+man-woman-okay.jpg	2	0	0	0.250	1	
+portrait_small.jpg	1	0	0	0.240	1	
+pose.jpg	0	0	0		1	
+portrait.jpg	1	0	0	0.269	1	
+mozart_square.jpg	1	0	0	0.028	1	

@@ -32,7 +32,7 @@ function inlineCodeDb(rules, dir) {
   const dbs = {};
   const list = (file, id) => {
     dbs[file] ??= Object.fromEntries([...readFileSync(join(dir, file), "utf8").matchAll(/<cl id="(\d+)">([\s\S]*?)<\/cl>/g)]
-      .map(([, n, body]) => [n, [...body.matchAll(/value="([^"]*)"/g)].map(([, v]) => v.replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&apos;/g, "'"))]));
+      .map(([, n, body]) => [n, [...body.matchAll(/value="([^"]*)"/g)].map(([, v]) => v.replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&apos;/g, "'").replace(/&amp;/g, "&"))]));
     const values = dbs[file][id];
     if (!values) throw new Error(`${file}: no code list ${id}`);
     return `(${values.map((v) => `'${v.replace(/'/g, "''")}'`).join(", ")})`;

@@ -216,14 +216,16 @@
       "what": "Scientific-notation cells with rounded-away digits are accepted as valid whenever the zero-filled value passes mod-10 (about 1 in 10), reported as 'the check digit confirms it' and written into the repaired file: 1.0009E+11 -> 100090000000. Lost digits cannot be confirmed; any lost > 0 should be sci-lost.",
       "where": "ventures/gtin-list-check/calc.mjs:105",
       "category": "logic-error",
-      "origin": "implementation"
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15073"
     },
     {
       "severity": "high",
       "what": "Restricted-prefix rules run on c.value.padStart(13), a no-op for GTIN-14, so the indicator digit is read as the prefix: 04006381333931 flagged 'in-store', 05000159484695 flagged 'coupons', indicator-2 case codes flagged 'in-store'; RCNs wrapped in a non-zero indicator are missed.",
       "where": "ventures/gtin-list-check/calc.mjs:198",
       "category": "domain-rule",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15073"
     },
     {
       "severity": "medium",
@@ -272,7 +274,8 @@
       "what": "README test command 'node --test ventures/gtin-list-check/' fails on Node 22 (Cannot find module); use node --test 'ventures/gtin-list-check/*.test.mjs'.",
       "where": "ventures/gtin-list-check/README.md:22",
       "category": "stale-docs",
-      "origin": "maintenance"
+      "origin": "maintenance",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15073"
     }
   ],
   "fix_prs": [

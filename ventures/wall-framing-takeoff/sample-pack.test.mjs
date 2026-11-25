@@ -23,6 +23,7 @@ test("marketing page links the sample, says it is not on sale, and is in the sit
   assert.match(read("./llms.txt"), /branded-bid-package-for-framers/);
 });
 test("the page says not on sale only while no checkout link is set", async () => {
-  const { CHECKOUT_URL } = await import("./checkout.mjs");
-  assert.equal(CHECKOUT_URL, "", "when the owner sets the link, update the marketing page's 'not on sale yet' copy and this test");
+  const { PADDLE } = await import("./checkout.mjs");
+  const { onSale } = await import("./paddle.mjs");
+  assert.equal(onSale(PADDLE), false, "when the owner sets the catalogue, update the marketing page's 'not on sale yet' copy and this test");
 });

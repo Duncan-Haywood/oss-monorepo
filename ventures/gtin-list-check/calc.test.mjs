@@ -198,3 +198,54 @@ test("restricted-prefix rules read a GTIN-14's item body, not its indicator digi
 test("scientific notation with an exponent longer than any GTIN is rejected, not a crash (fuzz find, 2026-11-18)", () => {
   assert.doesNotThrow(() => validate("sku,title,gtin\nA,b,03600e3036000291452\n"));
 });
+
+// Re-audit 2026-11-24 (portfolio/quality/audits/2026-11-24-gtin-list-check.json): three seeded mutants survived the
+// suite (the 04 rule, the UPC-E g=4 layout, the sci guard at one lost digit); these tests kill them.
+test("UPC-E suppression pattern g=4 expands to the abcd00000f layout", () => {
+  assert.equal(upcEToUpcA("01234543"), "012340000053");
+});
+
+test("an EAN-13 in the 04 range is flagged as a restricted prefix", () => {
+  const t = validate("gtin\n0412345678903\n").findings.map((f) => f.title);
+  assert.ok(t.some((x) => x.startsWith("Restricted prefix 04")), t.join("|"));
+});
+
+test("scientific notation that lost exactly one digit is unrecoverable even when the zero fill passes", () => {
+  assert.ok(checkDigitOk("360002914560"));
+  assert.equal(classify("3.6000291456E+11").kind, "sci-lost");
+});
+
+test("an 8-digit code valid as GTIN-8 and as UPC-E is warned about and matched to its UPC-A", () => {
+  const r = classify("01234565");
+  assert.equal(r.value, "01234565");
+  assert.equal(r.upcA, "012345000065");
+  for (const file of ["gtin\n01234565\n012345000065\n", "gtin\n012345000065\n01234565\n"]) {
+    const t = validate(file).findings.map((f) => f.title);
+    assert.ok(t.includes("8-digit code reads as GTIN-8 and as UPC-E"), t.join("|"));
+    assert.ok(t.includes("Duplicate code"), file);
+  }
+  // A GTIN-8 that is not a UPC-E carries no UPC-A reading.
+  assert.equal(classify("96385074").upcA, undefined);
+});
+
+test("refund-receipt 980 and RCN-8 GTIN-8 prefixes 0 and 2 are flagged; other GTIN-8s are not", () => {
+  const t = (code) => validate(`gtin\n${code}\n`).findings.map((f) => f.title);
+  assert.ok(t("9800000000007").some((x) => x.startsWith("Restricted prefix 980")));
+  assert.ok(t("20123451").some((x) => x.startsWith("Restricted prefix 2 on a GTIN-8")));
+  assert.ok(!t("96385074").some((x) => x.startsWith("Restricted prefix")));
+  assert.ok(!t("73513537").some((x) => x.startsWith("Restricted prefix")));
+});
+
+test("European decimal-comma scientific notation is read as scientific notation", () => {
+  const r = validate("sku;gtin\nA;4,006381333931E+12\nB;3,60003E+11\n");
+  assert.equal(r.items[0].result.value, "4006381333931");
+  assert.equal(r.items[1].result.kind, "sci-lost");
+});
+
+test("repair writes empty rows and CRLF line endings back as they were", () => {
+  const src = "sku,gtin\r\nA,036000291452\r\n,\r\nB,12345678905\r\n";
+  assert.equal(repair(src).text, "sku,gtin\r\nA,036000291452\r\n,\r\nB,012345678905\r\n");
+  assert.equal(repair("gtin\n\n12345678905\n").text, "gtin\n\n012345678905\n");
+  // A leading blank line does not hide the header.
+  assert.equal(repair("\ngtin\n12345678905\n").text, "\ngtin\n012345678905\n");
+});

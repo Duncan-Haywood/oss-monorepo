@@ -5,9 +5,11 @@ from __future__ import annotations
 import contextlib
 import io
 import json
+import os
 import random
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 import promptctl
@@ -164,6 +166,37 @@ class RouteTest(PromptTestCase):
             self.assertEqual(r["track"], "ventures")
         r = promptctl.route(self.fx.root, rng=random.Random(0), track="research", task="revenue")
         self.assertEqual(r["track"], "research")  # an explicit --track wins over the text
+
+    def test_a_paused_track_is_not_inferred_from_task_text(self):
+        task = "finish the research paper"
+        self.assertEqual(promptctl.route(self.fx.root, rng=random.Random(0), task=task)["track"],
+                         "research")
+        self.fx.edit_routing("research", weight=0)
+        for seed in range(20):
+            r = promptctl.route(self.fx.root, rng=random.Random(seed), task=task)
+            self.assertEqual(r["track"], "ventures")
+        self.assertEqual(promptctl.route(self.fx.root, track="research")["track"], "research")
+
+    def test_mrr_words_route_to_ventures(self):
+        for task in ("work toward 10k MRR", "ship the paid tier for the top bet",
+                     "a pricing page and checkout for payapps"):
+            r = promptctl.route(self.fx.root, rng=random.Random(0), task=task)
+            self.assertEqual(r["track"], "ventures", task)
+        # "unpaid" distribution is not a paid-product hint
+        a = promptctl.route(self.fx.root, rng=random.Random(3), task="unpaid distribution")
+        b = promptctl.route(self.fx.root, rng=random.Random(3))
+        self.assertEqual(a["track"], b["track"])
+
+    def test_route_names_the_focus_for_product_and_research_runs(self):
+        r = promptctl.route(self.fx.root, track="ventures", rng=random.Random(0))
+        self.assertIn("bets.md", r["focus"])
+        r = promptctl.route(self.fx.root, track="research", rng=random.Random(0))
+        self.assertIn("product", r["focus"])
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            promptctl.print_route(promptctl.route(self.fx.root, track="ventures",
+                                                  rng=random.Random(0)))
+        self.assertIn("Focus:", out.getvalue())
 
     def test_task_text_without_a_hint_leaves_the_draw(self):
         a = promptctl.route(self.fx.root, rng=random.Random(3), task="tidy up")
@@ -420,12 +453,14 @@ class RepositoryTest(unittest.TestCase):
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
         self.assertAlmostEqual(weights["explore"] / sum(weights.values()), 0.05, places=3)
 
-    def test_creative_work_gets_about_ten_percent(self):
+    def test_creative_work_gets_about_three_percent(self):
         # The owner, 2026-10-21: a portion of the scheduled fleet operates the
-        # creative projects (prompts/creative/prompt-0.md).
+        # creative projects (prompts/creative/prompt-0.md). Cut from 10% to 3% on
+        # 2026-11-25 ("demote some of the passion projects"), the rest to ventures.
         tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
-        self.assertAlmostEqual(weights["creative"] / sum(weights.values()), 0.10, places=3)
+        self.assertAlmostEqual(weights["creative"] / sum(weights.values()), 0.03, places=3)
+        self.assertGreater(weights["ventures"] / sum(weights.values()), 0.5)
 
     def test_polish_gets_about_five_percent_for_a_period(self):
         # The owner, 2026-10-28: "like 5% of work going to making the sites
@@ -611,6 +646,31 @@ class BacklogTest(PromptTestCase):
         self.put("P001-b.json", _item("P001"))
         self.assertTrue(any("also used by" in e for e in promptctl.validate(self.fx.root)))
 
+    def test_duplicate_already_on_main_warns_and_one_this_branch_adds_fails(self):
+        self.put("P001-a.json", _item("P001"))
+        self.put("P001-b.json", _item("P001"))
+        real = promptctl.backlog_files_added
+        try:
+            promptctl.backlog_files_added = lambda root=None: set()  # both merged on main
+            self.assertEqual(promptctl.validate(self.fx.root), [])
+            warnings = promptctl.backlog_duplicate_warnings(self.fx.root)
+            self.assertEqual(len(warnings), 1)
+            self.assertIn("renumber P001-b.json", warnings[0])
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                promptctl.print_backlog(self.fx.root)
+            self.assertIn("Duplicate ids", buf.getvalue())
+            promptctl.backlog_files_added = lambda root=None: {"P001-b.json"}  # this PR adds it
+            self.assertTrue(any("also used by" in e for e in promptctl.validate(self.fx.root)))
+            self.assertEqual(promptctl.backlog_duplicate_warnings(self.fx.root), [])
+        finally:
+            promptctl.backlog_files_added = real
+
+    def test_push_to_main_judges_no_file_as_added(self):
+        env = {"GITHUB_EVENT_NAME": "push", "GITHUB_REF": "refs/heads/main"}
+        with unittest.mock.patch.dict(os.environ, env):
+            self.assertEqual(promptctl.backlog_files_added(self.fx.root), set())
+
 
 class DeviationTest(PromptTestCase):
     def test_deviations_are_checked_and_grouped_by_file(self):
@@ -686,10 +746,6 @@ class BackfillPrTest(unittest.TestCase):
             self.assertEqual(json.loads((root / "runs" / "b.json").read_text())["pr"], "5")
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class MeasureToleratesFreeTextEntriesTest(unittest.TestCase):
     def test_newest_orders_by_time_not_file_order(self):
         got = promptctl._newest(["2026-10-18T00:20: c", "2026-10-17T00:38: a", "undated", "2026-10-17T09:00: b"], 3)
@@ -747,3 +803,7 @@ class LastChangeIndexTest(unittest.TestCase):
                 one = promptctl.subprocess.run(["git", "log", "-1", "--format=%H %cI", "--", path],
                                                cwd=promptctl.ROOT.parent, capture_output=True, text=True).stdout.split()
                 self.assertEqual(list(idx[path]), one)
+
+
+if __name__ == "__main__":
+    unittest.main()

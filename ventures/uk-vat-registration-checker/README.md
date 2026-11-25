@@ -10,4 +10,4 @@ Static browser tool: `index.html` + `calc.mjs`. Nothing is uploaded. Rules writt
 node --test 'ventures/uk-vat-registration-checker/**/*.test.mjs'
 ```
 
-Free and MIT-licensed; GitHub Sponsors is optional. Not tax advice.
+Free and FSL-1.1-MIT-licensed; GitHub Sponsors is optional. Not tax advice.

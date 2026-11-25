@@ -23,7 +23,7 @@ test('sendProbe resolves with ok:false (not a throw) against a port nothing list
 
 test('sendProbe resolves the relative path against the base URL', async () => {
   const server = createServer((req, res) => {
-    res.writeHead(200);
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end(req.url);
   });
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));

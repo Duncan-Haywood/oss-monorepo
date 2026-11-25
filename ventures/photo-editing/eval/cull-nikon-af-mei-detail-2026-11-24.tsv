@@ -1,0 +1,7 @@
+file	source	x	y	in_focus	rank	rank_mirrored
+Nikon 800E.nef	Nikon AFInfo2 51-point	0.5	0.5	1	0.935	
+Nikon D300.nef	Nikon AFInfo2 51-point	0.5	0.5	1	0.641	
+Nikon D810.nef	Nikon AFInfo2 51-point	0.446	0.5	1	0.945	0.807
+# 3 files with an AF point; median rank of detail at the point 0.935 (0.5 = no better than a random spot); 2 of 3 in the top quarter
+# turned control: rank as read 0.945, mirrored 0.807
+# off-centre points: as read beats mirrored on 1 of 1; median as read 0.945, mirrored 0.807

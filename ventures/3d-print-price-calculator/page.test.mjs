@@ -3,6 +3,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { calculatePrice, DEFAULTS } from './calc.mjs';
 
+// Strip <script> blocks case-insensitively, tolerating attributes in either tag, until stable.
+const stripScripts = (s) => {
+  let p;
+  do {
+    p = s;
+    s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, '');
+  } while (s !== p);
+  return s;
+};
+
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 
 test('every DEFAULTS field has a matching input on the page', () => {
@@ -89,7 +99,7 @@ test('comparison page FAQ structured data matches the visible answers', () => {
   const compare = readFileSync(new URL('./vs-slicer-cost-estimate.html', import.meta.url), 'utf8');
   const ld = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(compare)[1]);
   assert.equal(ld['@type'], 'FAQPage');
-  const visible = compare.replace(/<script[\s\S]*?<\/script>/g, '');
+  const visible = stripScripts(compare);
   for (const entry of ld.mainEntity) {
     assert.ok(
       visible.includes(`<h3>${entry.name}</h3>`),
@@ -124,7 +134,7 @@ test('the 3x-filament-rule page FAQ structured data matches the visible answers'
   const compare = readFileSync(new URL('./vs-the-3x-filament-rule.html', import.meta.url), 'utf8');
   const ld = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(compare)[1]);
   assert.equal(ld['@type'], 'FAQPage');
-  const visible = compare.replace(/<script[\s\S]*?<\/script>/g, '');
+  const visible = stripScripts(compare);
   for (const entry of ld.mainEntity) {
     assert.ok(
       visible.includes(`<h3>${entry.name}</h3>`),
@@ -146,7 +156,7 @@ test('every page in the venture is reachable from the sitemap', () => {
       assert.match(sitemap, /3d-print-price-calculator\/<\/loc>/);
       continue;
     }
-    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+    assert.ok(sitemap.includes(name), `${name} is missing from sitemap.xml`);
   }
 });
 
@@ -244,7 +254,10 @@ test('G-code import is wired: labelled file input, local parser, counted, never 
   assert.match(html, /import \{ parseGcode \} from '\.\/gcode\.mjs'/);
   assert.match(html, /<label>Import grams and print time[^<]*<input id="gcodeFile" type="file"/);
   assert.match(html, /id="gcodeStatus" class="note" role="status" aria-live="polite"/);
-  assert.match(html, /recordEvent\('gcode_imported'\)/);
-  assert.match(html, /<code>gcode_imported<\/code>/);
+  assert.match(html, /recordEvent\(r\.motion \? 'gcode_moves_estimated' : 'gcode_imported'\)/);
+  assert.match(html, /<code>gcode_imported<\/code>, <code>gcode_moves_estimated<\/code>/);
+  // The head-and-tail pass never times moves (it would time a fragment); only the whole file does.
+  assert.match(html, /parseGcode\(`\$\{head\}\\n\$\{tail\}`, \{ readMoves: false \}\)/);
+  assert.match(html, /parseGcode\(await file\.text\(\)\)/);
   assert.match(html, /the file is never uploaded/);
 });

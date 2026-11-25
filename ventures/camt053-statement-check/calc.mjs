@@ -34,7 +34,7 @@ export function fmtAmount(scaled) {
 const ENT = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
 const unescapeXml = (s) =>
   s.replace(/&(#x[0-9a-fA-F]+|#\d+|amp|lt|gt|quot|apos);/g, (m, e) =>
-    e[0] === "#" ? String.fromCodePoint(e[1] === "x" ? parseInt(e.slice(2), 16) : Number(e.slice(1))) : ENT[e]);
+    e[0] === "#" ? codePointOr(e[1] === "x" ? parseInt(e.slice(2), 16) : Number(e.slice(1))) : ENT[e]);
 
 // A small tolerant XML reader: element tree with namespace prefixes dropped and a line number per element.
 // Returns { root, error }. It is not a validator; it reports only the first structural fault it meets.
@@ -349,3 +349,7 @@ export function sampleBrokenFile() {
     stmt("2024-002", "2024-02-01", "2024-02-29", "3500.00", "CRDT", "3479.01", "CRDT",
       ntry("19.99", "DBIT", "2024-02-20", "R4", "Cloud Hosting", "Hosting February", { ntryAmt: "20.99" })));
 }
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

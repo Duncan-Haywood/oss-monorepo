@@ -132,6 +132,40 @@ def check(venture_dir, data, errors):
         err("missing `links` mapping (values may be null)")
 
 
+APP_PREFIX = "private-monorepo/apps/"
+
+
+def check_bet_order(errors, rows):
+    """The 2026-11-24 ranking: bet rows (`bet: N`, `app:`) first, numbered 1..N in
+    file order; every other row says why it is not a bet (`demoted:`). A file with
+    no bet rows (a test fixture, an older layout) is not checked."""
+    if not any("bet" in e for e in rows):
+        return
+    seen_other = False
+    expect = 1
+    for e in rows:
+        name = e.get("venture")
+        if "bet" in e:
+            if seen_other:
+                errors.append(f"flagships.yaml: {name} is bet {e['bet']} but sits below a "
+                              "demoted row; bets come first (portfolio/monetization/bets.md order).")
+            if e["bet"] != expect:
+                errors.append(f"flagships.yaml: {name} has `bet: {e['bet']}`, expected {expect} "
+                              "(bet rows are numbered 1..N in file order).")
+            expect = (e["bet"] if isinstance(e["bet"], int) else expect) + 1
+            app = str(e.get("app") or "")
+            if not (app.startswith(APP_PREFIX) and len(app) > len(APP_PREFIX)):
+                errors.append(f"flagships.yaml: bet {name} needs `app: {APP_PREFIX}<slug>` "
+                              "(where its deepening work happens).")
+            if e.get("demoted"):
+                errors.append(f"flagships.yaml: {name} is a bet and `demoted:` at once.")
+        else:
+            seen_other = True
+            if not str(e.get("demoted") or "").strip():
+                errors.append(f"flagships.yaml: {name} is not a bet, so it needs `demoted: <reason>` "
+                              "(why it has no bet in portfolio/monetization/bets.md).")
+
+
 def check_flagships(errors, path=FLAGSHIPS_PATH):
     """Fail fast on a `next:` over the cap; test_allocate only catches it after ~100 s."""
     if not path.is_file():
@@ -149,6 +183,7 @@ def check_flagships(errors, path=FLAGSHIPS_PATH):
             "hyphen, which YAML reads as '- '; edit with portfolio/router/flagship_field.py, "
             "which rewraps without breaking at hyphens."
         )
+    check_bet_order(errors, [e for e in data.get("flagships") or [] if isinstance(e, dict)])
     for entry in data.get("flagships") or []:
         if not isinstance(entry, dict):
             continue
@@ -160,7 +195,7 @@ def check_flagships(errors, path=FLAGSHIPS_PATH):
                 f"appending (portfolio/router/flagship_field.py <venture> --replace OLD NEW); "
                 f"history belongs in the venture's README; "
                 f"`flagship_field.py {entry.get('venture')} --landed` lists the landed notes to cut, and "
-                f"`--park ITEM` moves an open item to ventures/{entry.get('venture')}/NEXT.md "
+                f"`--park ITEM` moves an open item to the venture's NEXT.md "
                 f"(it combines with --replace in one call)."
             )
         hosts = entry.get("hosts")
@@ -170,6 +205,16 @@ def check_flagships(errors, path=FLAGSHIPS_PATH):
                 f"flagships.yaml: {entry.get('venture')} `hosts:` must be a list of http(s) URLs "
                 f"(allocate.py --venture probes each one), got {hosts!r}."
             )
+        doors = entry.get("front_door")
+        if doors is not None:
+            if not isinstance(doors, list) or not all(isinstance(d, str) for d in doors):
+                errors.append(f"flagships.yaml: {entry.get('venture')} `front_door:` must be a list "
+                              f"of ventures/<slug> names, got {doors!r}.")
+            else:
+                for d in doors:
+                    if not (VENTURES_DIR / d).is_dir():
+                        errors.append(f"flagships.yaml: {entry.get('venture')} `front_door:` names "
+                                      f"{d}, which is not a folder under ventures/.")
         when = entry.get("not_before")
         if when is not None and not isinstance(when, date):
             errors.append(

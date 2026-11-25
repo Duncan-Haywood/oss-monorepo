@@ -145,3 +145,42 @@ test("KPI server serves today, latest, dated lookup, and rejects unsafe dates", 
     }
   });
 });
+
+test("kpisForToday uses the Rome date: 23:30Z on the 19th is already the 20th", () => {
+  withTempDb((dbPath) => {
+    const db = openDb(dbPath);
+    insertSale(db, saleEvent({ event_id: "s1", closed_at: "2026-08-19T22:15:00Z", total_cents: 1500 }));
+    const payload = kpisForToday(dbPath, new Date("2026-08-19T23:30:00Z"));
+    assert.equal(payload.date, "2026-08-20");
+    assert.equal(payload.time_zone, "Europe/Rome");
+    assert.equal(payload.purchases, 1);
+  });
+});
+
+test("KPI server scopes to its store and answers 409 instead of mixing stores", async () => {
+  await withTempDb(async (dbPath) => {
+    const db = openDb(dbPath);
+    insertSale(db, saleEvent({ event_id: "s1", store_id: "a", total_cents: 1500 }));
+    insertSale(db, saleEvent({ event_id: "s2", store_id: "b", total_cents: 9000 }));
+
+    const unscoped = await startKpiServer({ dbPath, host: "127.0.0.1", port: 0 });
+    try {
+      const res = await fetch(`${unscoped.url}/api/kpis?date=2026-08-19`);
+      assert.equal(res.status, 409);
+      assert.equal(((await res.json()) as { error: string }).error, "multiple_stores");
+    } finally {
+      await unscoped.close();
+    }
+
+    const scoped = await startKpiServer({ dbPath, host: "127.0.0.1", port: 0, report: { storeId: "a" } });
+    try {
+      const res = await fetch(`${scoped.url}/api/kpis?date=2026-08-19`);
+      assert.equal(res.status, 200);
+      const body = (await res.json()) as { store_id: string; revenue_cents: number };
+      assert.equal(body.store_id, "a");
+      assert.equal(body.revenue_cents, 1500);
+    } finally {
+      await scoped.close();
+    }
+  });
+});

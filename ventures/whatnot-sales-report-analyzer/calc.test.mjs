@@ -102,7 +102,7 @@ test("cost list parsing: header skipped, bad lines reported, pasted cost overrid
   assert.equal(p.map.get("tc-1"), 12.5);
   assert.equal(p.map.get("holo, rare"), 3);
   assert.equal(p.errors.length, 3);
-  const n = load("W1,2026-05-10,Holo rare,S,C,TC-1,50,4,1.75,44.25\n", HEAD.trim() + ",Cost\n".replace(/^/, ""));
+  const n = load("W1,2026-05-10,Holo rare,S,C,TC-1,50,4,1.75,44.25\n", HEAD.trim() + ",Cost\n");
   const r = analyze(n.items, { costList: "TC-1,10" });
   assert.equal(r.items[0].cost, 10);
   near(r.items[0].profit, 34.25);

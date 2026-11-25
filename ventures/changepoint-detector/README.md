@@ -33,11 +33,13 @@ row below. Every flag's measurements are in the README section named after it.
 | Did the slope change? | `--hinge-test` (one change), `--two-hinge-test` (two) |
 | Did it change at a date I name (a launch, a law)? | `--known-date <label>`; with comparison columns `--donors all` (synthetic control) |
 | Several columns measured at the same points | `--columns a,b,c` |
+| When did the cycle peak and bottom out (recessions, a business's up and down years)? | `--turns`; several indicators at once `--turns --columns a,b,c` (a composite index); on the page, the "Peaks and troughs" card |
 | A feed that repeats stale values for a while | `--spells` |
 | Tell me when a daily metric shifts, from now on | `watch.mjs daily.csv --state s.json` (see "Watching a growing series"); pick a setting with `--suggest --alerts-per 1/month` |
 | ...from Stripe or Shopify | `stripe-metrics.mjs` or `shopify-metrics.mjs`, then the watch with `--columns` |
 | ...from Google Search Console (clicks, impressions) | `search-console-metrics.mjs` (API, or the UI's Dates.csv export), then `--columns clicks:poisson,impressions:poisson` |
 | ...from Google Analytics 4 (sessions, users, key events) | `ga4-metrics.mjs` (Data API, or a report's CSV download), then `--columns sessions:poisson,activeUsers:poisson,screenPageViews:poisson,keyEvents:poisson --detector pelt --overdispersion nb --trend gated` |
+| ...and a tag lost from one page template (the blog, the help centre) | `ga4-metrics.mjs --sections 5`, then `dark-sections.mjs ga4.csv --state dark-state.json` (see "A template-shaped tracking loss") |
 | Did the change fall inside a Google update, a release or a price change? | `--events updates.csv` (start[,end],label per line) |
 | ...for a shop that shuts some days | `--period 7`, plus `--closed <dates>` for holidays |
 | ...for a level that wanders all the time | `watch.mjs --detector drift` |
@@ -541,7 +543,7 @@ and honour Do Not Track.
 **Best-effort hosting, no SLA.** Free and experimental; may be slow, broken, moved, or taken offline
 without notice.
 
-Free and open source (MIT, see `LICENSE`). Optional support:
+Free to use and source available (FSL-1.1-MIT, see `LICENSE`). Optional support:
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood).
 
 ## What you use today, and what this does differently
@@ -4831,7 +4833,7 @@ emails its owner. Tests: `watch.test.mjs` (12; a local HTTP server stands in for
 chat service was called).
 
 **Self-deploy.** `sh deploy/make-watch-repo.sh <folder>` (or the `curl ... | sh -s -- <folder>` line in
-the script's header, which needs no clone) writes the engine, `watch.mjs`, the MIT licence, a README and
+the script's header, which needs no clone) writes the engine, `watch.mjs`, the FSL-1.1-MIT licence, a README and
 `.github/workflows/watch-metric.yml`: a daily run that reads the `METRIC_CSV` variable (a file in the
 repository or an https link, such as a published Google Sheet's CSV), posts to the `WATCH_WEBHOOK_URL`
 secret if set, and commits `watch-state.json` back. Nothing in it calls anything the owner runs. The
@@ -9806,7 +9808,7 @@ earlier "visitors heard on 40 of 40" results were artefacts of the simulation.
 - **What changed.** `deploy/watch-metric.yml` (and `watch-repo-files.mjs`, rebuilt from it) adds `$MIDDLE` to the
   Plausible and Umami defaults. The watch page and `llms.txt` replace the old "heard on all 40" lines. A repository
   that already sets `WATCH_OPTIONS` keeps its own setting.
-- **Not checked.** The model tracks or drops each page view at random. A real loss is usually by template: the pages
+- **Not checked** (simulated since: README "A template-shaped tracking loss")**.** The model tracks or drops each page view at random. A real loss is usually by template: the pages
   built from that template go dark for everyone. Visitors who only land on those pages then vanish, so visitors fall
   further than here, which makes this the hard case for the column. Growth was not simulated; `--trend gated` is what
   lets a growing site grow (README "The joint growth fit, gated"). PostHog's `users` (people who did any named event) is the
@@ -9856,10 +9858,93 @@ and not page views, so a tag dropped from part of a site could only be heard thr
 - **How it was checked.** `visitor-columns-posthog-ga4.test.mjs` (3 tests: the fall of each column on one simulated
   site, one faulted GA4 site heard by the middle setting and missed by the count default, and the two workflow
   defaults); `ga4-metrics.test.mjs`'s whole-workflow run now expects four watched columns.
-- **Not checked.** Page views are dropped at random, not by template (the hard case for people columns, as above). In
+- **Not checked** (simulated since: README "A template-shaped tracking loss")**.** Page views are dropped at random, not by template (the hard case for people columns, as above). In
   GA4 the tag that sends page views usually sends key events too, so a lost tag on a template with a form would move
   `keyEvents` as well; the sign-up fault here is independent of the tag. No growth was simulated (`--trend gated` is
   the guard for that, README "The joint growth fit, gated"), and no live GA4 property or PostHog project was used.
+
+## A template-shaped tracking loss: a dark-section check ships for GA4 (2026-11-24, two pre-registered rounds; round 1 fails, round 2 passes)
+
+The two sections above dropped page views at random and listed the realistic case as not checked: a tag lost from one
+page template, so every page of that type goes dark for everyone. That happens when a theme update drops the tag from
+the blog layout, when a help centre moves to a hosted tool, or when checkout is served from a payment provider's
+domain. The question was whether the shipped GA4 default hears such a loss, and whether per-section page-view columns
+help.
+
+- **The simulation** (`eval/template-loss.mjs`; outputs `eval/template-loss.out.txt`, about 2 min, and
+  `eval/template-loss-round2.out.txt`, under 1 min). It uses the same people, sessions and page views as
+  `eval/visitor-columns.mjs`, and each page view belongs to a template: home, category, product, blog, help or
+  checkout. Blog is the most-landed template. A session that reaches checkout sends the key event there a quarter of
+  the time. Healthy sites are not flat: about once in 45 days a blog post takes off (blog landings x1.5 to x5 that
+  day, halving for three days after). From 2026-03-16 one template sends nothing, each on its own 40 sites per weekend
+  depth: help (T1, about 8% of page views, no key event), blog (T2, about 21%, the most-landed template) and checkout
+  (T3, about 7%, and its key events go with it).
+- **What falls** (4 weeks either side, weekends at half). With help dark, page views fall to 0.916 and active users to
+  0.963. With blog dark, page views fall to 0.786, sessions to 0.888 and active users to 0.907. With checkout dark,
+  page views fall to 0.932, active users to 0.994 and key events to 0. A random loss of the same page-view share leaves
+  active users at 0.978, 0.943 and 0.991. So the earlier sections' guess holds: people fall further under a template
+  loss than under a random one. They still fall by less than 10%, except when the template is where most visits land.
+
+**Round 1** (rule in the file's header, committed before it ran; seeds 12001-15040). Arm A is the shipped GA4 default:
+sessions, activeUsers, screenPageViews and keyEvents under the middle setting. Arm B is A plus one page-view column for
+each of the five busiest sections, all watched by the same detector.
+
+| arm, weekends | help dark (T1) heard | blog dark (T2) | checkout dark (T3) | false dates, 40 healthy sites |
+|---|---|---|---|---|
+| A, 0.5 | 6 / 40 | 37 / 40 | 40 / 40 (key events) | 158 |
+| A, 0.4 | 0 / 40 | 39 / 40 | 40 / 40 | 62 |
+| B, 0.5 | 10 / 40 | 40 / 40 | 40 / 40 | 322 (views_blog 148) |
+| B, 0.4 | 5 / 40 | 40 / 40 | 40 / 40 | 182 (views_blog 115) |
+
+S1 (B hears T1 on at least 36 of 40) failed, and so did S3 (B adds at most 4 false dates). Verdict: nothing offered.
+Two things were read off the output after it ran. First, the false dates came from viral blog days: a change detector
+watching a section column reports every post that takes off. Second, help never appeared in B's columns at all,
+because the round picked the five busiest sections over the whole series. After a month and a half dark, help had
+fewer views in total than checkout. A deployed `--sections` picks its columns on its first fetch, before a later loss.
+The viral days also explain arm A's many false dates on these sites (158 at weekends 0.5, against 0 and 2 on the flat sites
+of the section above). Those dates mark real traffic swings, not faults, but they are messages all the same.
+
+**Round 2** (pre-registered after round 1's verdict and before its own run, on fresh seeds 16001-19040). Sections are
+picked on the days before the loss. Arm D is A plus `dark-sections.mjs` on those five columns. A section counts as
+dark when its last 3 days average under 10% of its mean over the 28 days before, from a level of at least 20 views a
+day. A rise never trips it. Bars: (D1) D hears T1 on at least 36 of 40 at both depths; (D2) D hears T2 and T3 no less
+often than A, minus 2; (D3) at most 2 dark calls on the 40 healthy sites at each depth; (D4) at most 2 dark calls on
+faulted sites more than 7 days from the loss.
+
+| weekends | help dark: A / D (dark check alone) | blog dark: A / D | checkout dark: A / D | dark calls, healthy sites | dark calls away from the loss |
+|---|---|---|---|---|---|
+| 0.5 | 1 / **40** (40) | 37 / 40 (40) | 40 / 40 (0) | **0** | 0 |
+| 0.4 | 3 / **40** (40) | 36 / 40 (40) | 40 / 40 (0) | **0** | 0 |
+
+All four bars pass. Every dark call starts on the day of the loss and is reported on its third day. Checkout was never
+among the five busiest sections, so the dark check misses T3 (0 of 40), but key events hear it on all 40 sites.
+
+- **What ships.**
+  - `ga4-metrics.mjs --sections N` (1 to 10) adds one `views_<section>` column per section of the site. The section is
+    the first path segment (GA4's `pagePathLevel1`): `views_home` for `/`, `views_blog` for `/blog/...`. Paths that
+    differ only in case or punctuation share a column, and GA4's `(other)` bucket is skipped. It makes two more
+    `runReport` calls: the busiest sections, picked on a window that ends 35 days before the last day fetched (so a
+    first fetch made just after a loss still picks the dark section), and daily views by date and section. A CSV that
+    already has `views_` columns keeps them, so a section that has gone dark keeps its column at zero.
+  - `dark-sections.mjs` reports each dark stretch once, while it is still dark, with state in `dark-state.json`. It
+    takes `--webhook-env` and `--fail-on-alert` like the watch, and stays silent on a CSV with no `views_` columns.
+  - In the self-deploy workflow (`deploy/watch-metric.yml`), the GA4 fetch defaults to `--sections 5` when
+    `GA4_OPTIONS` is unset, and the dark check runs after the daily watch. The section columns are not added to the
+    watch's columns, since round 1 showed that floods it with false dates. The workflow now commits every
+    `*-state.json`.
+- **How it was checked.** `ga4-sections.test.mjs` (8 tests) covers: column names; the two requests against a stand-in
+  for runReport, with paging, case-merged paths and kept columns; a section gone dark staying at zero; the dark rule's
+  edges (two days is not yet three, small sections, rises, weekends at a fifth of weekdays); a simulated help loss
+  called on its day while three healthy sites with viral days are not; the CLI's report-once state and webhook; and the
+  whole self-deploy workflow run twice, which reports `views_help` once, fails the first run (so GitHub emails) and
+  stays quiet on the second.
+- **Not checked.** No live GA4 property was used. The `pagePathLevel1` requests follow the Data API's documented
+  shapes, not a live answer. Real sections can also go dark on purpose: a campaign section after its campaign, or a
+  section moved to a new path. The check reports those too, and its message names the tag as the usual cause, not the
+  only one. Holidays that shut a whole site were not simulated; they move every section together, and a 90% fall for
+  three days is rare outside an outage. Plausible, Umami and PostHog can break page views down by path too, and
+  section columns for them are the next step. The workflow file is now 1 character under the 16,000-character link the
+  watch page builds for no-terminal set-up (`watch-repo.test.mjs`), so the next workflow line needs room made first.
 
 ## Why the likelihood's wander absorbs a step: seat belts and quality control 4 (2026-11-22, pre-registered; M1 and G2 fail, M2 and G1 pass, nothing ships)
 
@@ -10149,3 +10234,824 @@ By the rule written beforehand, nothing is added to the CLI or the page. `turnin
 export, as `trendWalkChanges` did. Next: one fresh GDP vintage that runs past 2009 and includes 2020 (FRED's
 GDPC1; fred.stlouisfed.org and apps.bea.gov refused this session's proxy on 2026-11-24), scored under the same D1
 bar. A pass there ships `turns-cli.mjs` with classical and growth modes.
+
+## BBQ on FRED GDPC1 1947-2026: 19 of 24 NBER turns, one short of the bar again (2026-11-24, pre-registered; D1g fails, D2g passes, nothing ships)
+
+The item above: one fresh GDP vintage past 2009 and including 2020. FRED's GDPC1 (1947Q1-2026Q1, 317 quarters,
+chained 2017 dollars) came from unmodified FRED downloads committed in public GitHub repositories, since FRED
+refused the proxy; four independent copies agree on every shared quarter (`data/SOURCE.md`). The rules are in
+the header of `eval/turns-gdpc1.mjs`, committed before it first ran (commit "pre-register the BBQ round on FRED
+GDPC1"); scoring is `eval/turns-bbq.mjs`'s, and `turning-points.mjs` was not changed. Output
+`eval/turns-gdpc1.out.txt` (0.4 s); test `turns-gdpc1.test.mjs`.
+
+| bar | result |
+|---|---|
+| D1g, at least 80% of NBER's 24 turns matched within a quarter, at most 2 false turns | 19 of 24 (**0.792**), false 2: **fails** |
+| D2g, F1 at least 0.15 above random turns at the same count, p at most 0.05 | F1 **0.898**, random 0.311, p < 0.001: **passes** |
+
+What it shows:
+
+- **The new data fixed the end-of-file miss and the rule dated both recent recessions exactly.** 2009Q2 is now
+  well inside the file and is dated on the quarter; 2019Q4 and 2020Q2 are dated on the quarter too. The shipped
+  drift model's F1 on the same file is 0.200 (4 cuts).
+- **Each of the 5 misses is where real GDP's own high or low is not NBER's quarter.** The 2001 recession again
+  (GDP fell in 2001Q1 and 2001Q3, never two quarters running). The 2007Q4 peak is dated 2008Q2 because GDP in
+  2008Q2 (16,943) is above 2007Q4 (16,915). The 1949Q4 trough is dated 1949Q2 (GDP's low, 2,253 against 2,257),
+  and the 1982Q4 trough is dated 1982Q1 (7,296 against 7,304). In those 3 the rule dates the series' actual
+  extreme, 2 or 3 quarters from NBER's; NBER dates on monthly employment, income and sales as well as GDP. The 2 false turns are a 1947Q3
+  trough at the start of the file and the 1982Q1 trough (3 quarters from NBER's).
+- **Revisions do not move the recent dates.** On the 2000-onward part of this file, an earlier vintage (to
+  2024Q4) and a later one (to 2026Q2, revised from 2021), BBQ gives the same four turns: 2008Q2p 2009Q2t 2019Q4p
+  2020Q2t.
+- **Read after the run (not pre-registered, no bar): how soon it calls a turn.** `eval/turns-gdpc1-lag.mjs`
+  cuts the file off at each quarter and finds when each matched turn is called and stays called. 18 of the 19
+  are called with 2 quarters of data after the turn, the least the rule's window allows, so about 7 months after
+  the turn's quarter ends once BEA's advance estimate is out. The 1969Q3 peak takes 7: called at 1970Q1,
+  withdrawn when 1970Q3 rose above it, called again once the strike-hit 1970Q4 trough was confirmed. These run
+  on the final vintage; the data available at the time differed (output `eval/turns-gdpc1-lag.out.txt`).
+
+Across the two rounds GDP alone has now missed D1 by 0.019 and 0.008 while every other bar passed by a wide
+margin. By the rules written beforehand nothing ships, and the bar is not lowered after seeing it. The reading
+(after the run, not a result): a rule that needs two falling quarters and dates GDP's own highs and lows can
+reach no more than these 19 of 24, since 2001 has no such fall and in 3 more turns GDP's extreme is 2 to 3
+quarters from NBER's quarter. Only a rule that dated the one-quarter 2001 dips too could reach 21. Next: a reference
+dated on GDP itself is the fair test of the rule, and a monthly coincident series (payroll employment, which
+NBER weights most) is the fair test against NBER; either, pre-registered, decides `turns-cli.mjs`.
+
+## BBQ on monthly payrolls: 17 of 26 NBER turns, 19 with a big-move exception, both short of the bar (2026-11-24, pre-registered; P1 fails, P2 passes, nothing ships)
+
+The item above: payroll employment, the monthly series NBER weights most, as the fair test of the rule against
+NBER. FRED's PAYEMS (1939-01 to 2026-07, 1,051 months) came from FRED downloads committed in public GitHub
+repositories, since FRED, BLS and NBER refused the proxy; four copies agree on every shared month but each one's
+last two (`data/SOURCE.md`). The rules are in the header of `eval/turns-payems.mjs`, committed before it first
+ran (commit "pre-register the monthly BBQ round on FRED PAYEMS"). Output `eval/turns-payems.out.txt` (0.3 s);
+test `turns-payems.test.mjs`.
+
+Two arms, both set beforehand: A is the module's monthly defaults (Bry-Boschan's window 5, phases of 6 months,
+cycles of 15); B adds a new option, `bigMove` (off by default), that keeps a phase shorter than 6 months when
+the series moves 5% or more across it, written for a collapse like 2020's two-month recession. Two arms are two
+looks at one bar; neither passed, so it did not matter.
+
+| bar | A defaults | B bigMove 0.05 |
+|---|---|---|
+| P1, at least 80% of NBER's 26 turns within 3 months, at most 2 false turns | 17 of 26 (**0.654**), false 4: **fails** | 19 of 26 (**0.731**), false 4: **fails** |
+| P2, F1 at least 0.15 above random turns at the same count, p at most 0.05 | F1 **0.760**, random 0.263, p < 0.001: **passes** | F1 **0.808**, random 0.271, p < 0.001: **passes** |
+
+What it shows:
+
+- **Payrolls date the peaks NBER dates, but not the troughs of the last two recoveries.** The two false troughs
+  are 2003-08 and 2010-02, where employment kept falling 21 and 8 months after NBER's troughs (2001-11, 2009-06).
+  That is the "jobless recovery" pattern, and NBER's own troughs lean on income and output there. The other
+  misses: 1980's recession, where payrolls fell 1.3% in 4 months (1980-03 to 1980-07), too short for the 6-month phase
+  rule and too small for B's 5% exception;
+  1945-02, where wartime employment peaked at 1943-11; and peaks in 1957 and 1973, dated 4 and 8 months off
+  (1957-04, 1974-07). On the 17 turns A matches, the median distance from NBER's month is 0.
+- **The big-move exception does what it was written for and nothing else.** B dates 2020-02p and 2020-04t on the
+  month and changes no other turn. Without it, the 6-month phase rule throws out the deepest fall in the file
+  (about 14% in two months) as too short to be a phase.
+- **The shipped changepoint model is far behind, as on GDP:** 13 cuts, F1 0.293.
+- **Revisions move one date:** on an older vintage (to 2024-06, before BLS's 2024 and 2025 benchmarks) the
+  2007 peak is 2008-01 instead of 2007-12; a newer one (to 2026-10) gives the same turns as the main file.
+- **A slip in the label file found on the way:** `data/nber-recessions.csv` (R's tis 1.39) starts the 2020
+  recession in January, implying a 2019-12 peak; NBER's peak is February 2020 and FRED's USREC agrees. This
+  round reads USREC. The quarterly rounds above are unaffected in matching (both months are within a quarter of
+  NBER's 2019Q4); scored against the tis labels the payroll counts are the same, 17 and 19.
+
+By the rules written beforehand nothing ships in the CLI. `bigMove` stays a module option, off by default.
+Reading (after the run, not a result): GDP misses NBER where GDP's own extremes differ; payrolls miss where
+employment lags the recovery. A single coincident series will not reproduce NBER's committee dates within a
+quarter, because the committee dates on several. Next, if this line continues: a pre-registered round on a
+composite of the monthly indicators NBER's committee says it weighs (payroll and household employment, real
+personal income less transfers, real spending, industrial production, real manufacturing and trade sales), or a reference dated on one series itself.
+
+## A composite of NBER's monthly indicators dates every turn: `--turns` ships (2026-11-24, pre-registered; C1-C3 pass)
+
+The item above: payrolls alone missed NBER where employment lags a recovery, GDP where its own extremes are not
+NBER's, so the committee's own practice, dating on several coincident series, was the next fair test. This round
+builds the coincident composite index by the Conference Board's published method (symmetric monthly changes,
+weights in inverse proportion to each component's volatility, cumulated; `composite-index.mjs`; the GDP-trend
+step left out) and runs the same monthly Bry-Boschan rule on it. Data: FRED's PAYEMS, W875RX1 (real personal
+income less transfers), INDPRO and CMRMTSPL (real manufacturing and trade sales), plus CE16OV (household
+employment) for arm B; 1967-01 to 2026-07, 715 months, the span every component covers (`data/SOURCE.md`).
+The rules are in the header of `eval/turns-composite.mjs`, committed before it first ran (commit "pre-register
+the BBQ round on a coincident composite"). The first attempt stopped before any output on a blank CE16OV month
+(2025-10: no household survey in the October 2025 shutdown); the loader now fills one blank month halfway between
+its neighbours, a fix committed separately before the first scored run. Output `eval/turns-composite.out.txt`
+(0.2 s); test `turns-composite.test.mjs`.
+
+Both arms use bigMove 0.05, set beforehand from the payroll round (where it changed only 2020). Volatility weights
+are measured over 1967-02 to 2019-12, so 2020 does not set them. Labels are NBER's 16 monthly peaks and troughs
+from 1969-12 to 2020-04 (FRED USREC).
+
+| bar | A: PAYEMS, W875RX1, INDPRO, CMRMTSPL | B: A + CE16OV |
+|---|---|---|
+| C1, at least 13 of 16 NBER turns within 3 months, at most 2 false | **16 of 16**, false 0: **passes** | 15 of 16, false 0: passes |
+| C2, F1 at least 0.15 above random turns at the same count, p at most 0.05 | F1 **1.000**, random 0.271, p < 0.001: **passes** | F1 1.000, random 0.271: passes |
+| C3, more turns matched than any one component alone | 16 against INDPRO's 14: **passes** | 15 against 14: passes |
+
+What it shows:
+
+- **Four series together date what none dates alone.** Each component on its own, with the same rule: payrolls 11
+  of 16 (3 false), real income 12 (9 false), industrial production 14 (11 false), real sales 10 (6 false),
+  household employment 9 (4 false). Their misses fall in different places (payrolls' jobless-recovery troughs,
+  production's mid-cycle dips, income's 2008 tax-rebate bump), so the composite cancels them.
+- **Dates on the month or close to it.** Arm A's distances from NBER's month, in order: -2, 0, 0, +1, 0, 0, +1, +1,
+  -1, 0, -3, +1, +1, 0, 0, 0. The one at the edge of the window is the 2001 peak: the composite peaks in 2000-12,
+  NBER in 2001-03.
+- **Household employment hurts.** Adding CE16OV moves the 2009 trough to 2009-10, four months late (the household
+  survey's employment kept falling), so B matches 15. A ships, as written beforehand.
+- **Printed, no bar:** without bigMove A matches 14 (2020's two-month recession is thrown out as too short, as on
+  payrolls); with volatility measured over every month, including 2020, A matches 15 and B 16. The weights are
+  PAYEMS 0.541, W875RX1 0.189, INDPRO 0.152, CMRMTSPL 0.117.
+
+Read it for what it is: NBER's committee looks at these same series, so agreement is expected; the result is that
+a published, mechanical rule on public data reproduces the committee's dates within a quarter, 1967-2026, with
+nothing tuned on the labels apart from bigMove (taken from the payroll round). That is the known finding of
+Harding and Pagan (2002) and of the Conference Board's own index, re-run here on today's vintages; it is not new.
+What is new for this tool is that it now does it: `--turns` dates peaks and troughs on any positive series, and
+`--turns --columns a,b,c` builds the composite first, so a business can date its own cycle from several lines
+(orders, revenue, active customers, hours) without one noisy line deciding.
+
+```
+node cli.mjs indicators.csv --turns --columns payems,w875rx1,indpro,cmrmtspl --sd-until 2019-12
+node cli.mjs data/us-payems.csv --turns                       # one series, monthly durations
+node cli.mjs data/us-gdpc1.csv --turns --frequency quarterly  # BBQ's quarterly durations
+```
+
+Options: `--frequency monthly|quarterly` (default monthly: window 5, phases 6, cycles 15, `--big-move 0.05`;
+quarterly is BBQ's window 2, phases 2, cycles 5, no short-phase exception), `--big-move <log move>|off`, and
+`--sd-until <label>` to measure the volatility weights only up to that row. The text lists each phase's length
+and percent change; `--json` gives turns, phases and the weights. Limits: the last turn is provisional until the
+series has moved far enough after it; the composite needs positive values (it is built from percent changes) and
+rows that every column has (others are left out and counted); durations are fixed per frequency, so weekly or
+daily data should be totalled to months first.
+
+References: Bry, G. and Boschan, C. (1971), *Cyclical Analysis of Time Series: Selected Procedures and Computer
+Programs*, NBER Technical Paper 20; Harding, D. and Pagan, A. (2002), "Dissecting the cycle: a methodological
+investigation", *Journal of Monetary Economics* 49(2), 365-381; The
+Conference Board (2001), *Business Cycle Indicators Handbook*, "Calculating the Composite Indexes".
+
+Next, if this line continues: the composite in real time (each month's vintage as it was published, ALFRED,
+when its host answers) to measure how many months after NBER's announcement-free date the rule confirms a turn;
+and a business-shaped check (a shop's or SaaS company's several lines, where no committee dates exist).
+
+## Peaks and troughs on the page (2026-11-24)
+
+`--turns` shipped in the CLI earlier the same day ("A composite of NBER's monthly indicators dates every turn").
+The page now has it too, in a "Peaks and troughs: when did the cycle turn?" card, so a person who would never
+open a terminal can date a business's good and bad stretches from the lines they already export. It reads the
+same data box: the Value column in one-column mode, or with "several columns" chosen, a composite index of the
+names in the Columns box. Controls: months or quarters (the CLI's `--frequency`), the short-phase move in
+percent (`--big-move`, 5 by default, blank for never), and the row to measure volatility up to (`--sd-until`).
+Output: a one-line summary (how many peaks and troughs, the latest turn and what it implies), a log-scale chart
+with contractions shaded, the turn and phase tables, and a CSV of the series (or composite index) with each
+row's turn. It runs in the tab in a few milliseconds on 700 months, so it does not use the worker. Usage: a
+`turns_run` counter (local only, like the others).
+
+The example button loads the four FRED indicators of the shipped round (`example-turns.mjs`, 1967-01 to
+2026-07, rounded to 6 significant figures) with volatility measured to 2019-12. Rounding changes nothing: it
+dates the same 16 turns, each within 3 months of NBER's, weights 0.541, 0.189, 0.152, 0.117
+(`turns-page.test.mjs`). The view (`turns-view.mjs`: chart, tables, summary, CSV) has no DOM access and is tested
+in Node; `turnsResult` gained `withSeries` to return the dated series for the chart.
+
+Checked in Chromium (Playwright): the example renders 8 peaks and 8 troughs, an unknown column shows the
+engine's message in the card, no console errors, and no horizontal scroll at 390 px. Not done, and the next
+item on this line: a business-shaped check, where no committee dates exist (simulated shop or SaaS lines that
+share a cycle but lag and differ in noise), to measure whether the composite dates a business's turns better than
+its best single line; and the composite in real time on ALFRED's vintages when that host answers.
+
+## Several business lines that share a cycle (2026-11-24, pre-registered; S1 and S2 pass, S3 and S4 fail, nothing new ships)
+
+The item above: `--turns --columns` shipped on NBER's indicators, where a committee's dates exist to score against.
+A business has no committee, so this round simulates one: four monthly lines over twelve years that share a hidden
+cycle (expansions 24-60 months, contractions 6-18) but turn at different times and differ in noise. Orders lead by
+a month and are noisy; revenue is on time; active customers lag two months, move 0.6 times as much and are sticky
+(AR(1) 0.6); staff hours lag a month. Each line also has its own drift. The hidden cycle's switch months are the
+truth. The rules, written and committed before the first run (commit "pre-register the business-lines round"), are
+in the header of `eval/turns-business-lines.mjs`; output `eval/turns-business-lines.out.txt` (5 s); test
+`turns-business-lines.test.mjs`. Dating is the shipped `--turns` default (monthly durations, bigMove 0.05) on each
+line and on the Conference Board composite of all four; 500 draws, about 5 true turns each.
+
+| bar (typical noise, 144 months) | result | |
+|---|---|---|
+| S1 composite beats revenue alone by 0.05 F1, sign test p <= 0.05 | 0.932 vs 0.869, +0.063; wins 262, losses 90, p 1e-20 | **passes** |
+| S2 composite beats the line it weighs most (customers, every draw), 95% CI above 0 | +0.060, CI +0.047 to +0.073 | **passes** |
+| S3 composite within 0.03 of the best line picked with hindsight in each draw | 0.932 vs 0.974, 0.042 short | **fails** |
+| S4 each line's lead against revenue read within a month in 75% of draws | orders 69.0%, customers 73.3%, hours 75.5% | **fails** |
+
+What it shows:
+
+- **Revenue alone invents turns; the composite mostly does not.** Of about 5 true turns a draw, revenue alone misses
+  0.56 and adds 0.83 false ones; the composite misses 0.48 and adds 0.08 (counts from the post-hoc script, same
+  draws). Each single line scores F1 0.85-0.87; the composite 0.93. On noisier lines (twice the noise, printed)
+  the gap widens: revenue 0.62, the composite 0.87, ahead of revenue in 449 draws and behind in 34.
+- **It does not beat hindsight.** In each draw one of the four lines happens to date best, and picking it after the
+  fact scores 0.974. Nobody can pick it in advance (the line the composite weighs most, the least volatile one,
+  scores 0.872), but the bar was set and missed.
+- **Why it falls short (post-hoc, not a result):** the misses are short contractions. The composite leans on the
+  sticky customers line (weight 0.50), so its swings are small and the lags of the four lines smear a 6-month
+  contraction; BBQ's 6-month phase minimum then drops it, and bigMove 0.05 does not rescue it because the move is
+  under 5%. Stretching the index tenfold, so that nearly every short phase counts as a big move, scores 0.974 with
+  misses down from 0.48 to 0.14 a draw and false turns up from 0.08 to 0.10 (`eval/turns-business-lines-posthoc.mjs`,
+  same draws). A printed arm meant as an equal-weight composite did the same thing by accident (it rescales; the
+  pre-registration mislabelled it, and its header now says so). Neither is shipped: both were found by looking.
+  Scaling bigMove to the series' volatility instead does not help: anchored on payrolls (0.05 is 12.7 standard
+  deviations of payrolls' monthly change, 1939-2019), it would raise the threshold here.
+- **The lead/lag readout is right on average, not draw by draw.** The median reading is the true lag for every line
+  (orders -1, customers +2, hours +1), and on calm lines (half the noise, printed) it is within a month in 91-95% of
+  draws, but at typical noise only 69-76%, under the 75% bar for two lines. `line-leads.mjs` stays a module and is not
+  printed by the CLI.
+- **The composite turns about a month late** (median +1 against the hidden cycle), because the lagging customers line
+  weighs most. Shorter (96 months) and longer (240) histories give the same picture: composite ahead of revenue by
+  0.07, short of hindsight by 0.02-0.04.
+
+Read it for what it is: a simulation whose make (lags, loadings, noise, drifts) was chosen before the run, not
+fitted to any business. It supports what `--turns --columns` already does (several lines date a cycle better than
+one), and it names the next fix to test: the phase-length rule on a composite of business lines.
+
+Next, if this line continues: a fresh pre-registered round (new seed, a different make, such as a SaaS company's
+sign-ups, active users, MRR and paid invoices) on a short-phase rule for composites (minimum phase 3 months, or a
+short phase kept when it moves a set share of the composite's median phase move), with NBER's 16 of 16 on the FRED
+composite kept as a bar.
+
+## A short-phase rule for composites, on SaaS lines (2026-11-24, pre-registered; both rules gain +0.03 to +0.08 F1 and keep NBER's 16 of 16, but miss the hindsight bar, so nothing ships)
+
+The item above: the shop round's composite missed short contractions, because BBQ's 6-month phase minimum drops
+them and bigMove 0.05 does not rescue a small move. This round tests two fixes, set beforehand, on a fresh make
+and seed: a SaaS company's sign-ups (lead 2 months, noisy), active users (lag 1, sticky), MRR (lag 3, smooth,
+moves half as much) and paid invoices (lag 1), with contractions of 5-15 months and expansions of 20-50. The rules
+and bars are in the header of `eval/turns-saas-lines.mjs`, committed before it first ran (commit "pre-register the
+SaaS-lines short-phase round"); output `eval/turns-saas-lines.out.txt` (0.8 s); test `turns-saas-lines.test.mjs`.
+500 draws, seed 20261125, about 6 true turns a draw.
+
+- **P3:** minimum phase 3 months instead of 6, bigMove 0.05 kept.
+- **REL:** minimum phase 6, but a short phase is kept when it moves a quarter of the composite's own median phase
+  move (capped at 5%), so the rule follows the composite's scale. Its threshold came out at a median 2.7%.
+
+| bar (SaaS make, 144 months, typical noise) | P3 | REL |
+|---|---|---|
+| K1 beats the shipped rule on the composite by 0.02 F1, sign test p <= 0.025 | 0.915 vs 0.833, +0.082, wins 168, losses 3: **passes** | 0.858, +0.025, wins 71, losses 1: **passes** |
+| K2 within 0.03 of the hindsight-best single line (0.960) | 0.045 short: **fails** | 0.102 short: **fails** |
+| K3 false turns a draw at most shipped's (0.07) + 0.10 | 0.10: **passes** | 0.08: **passes** |
+| K4 FRED composite still dates NBER's 16 of 16, at most 2 false | 16 of 16, 2 false: **passes** | 16 of 16, 0 false: **passes** |
+| K5 no loss on the shop round's draws (shipped 0.932) | 0.974: **passes** | 0.947: **passes** |
+
+What it shows:
+
+- **The phase minimum, not the weighting, is what costs composites their short contractions.** With P3 the
+  composite's misses fall from 1.46 to 0.76 a draw and false turns rise from 0.07 to 0.10. It wins 168 draws and
+  loses 3. The gain holds at half and double the noise (+0.076, +0.080) and at 96 and 240 months (+0.077, +0.080).
+  On the shop round's draws P3 reaches 0.974, the hindsight-best figure there.
+- **On SaaS lines the shipped composite is weak, and the default deserves a warning.** With the 6-month minimum
+  the composite (0.833) is below its best single line on average (active users 0.872) and only just above MRR
+  alone (0.786), because MRR, the smoothest line, weighs most and its lag smears contractions further. Real SaaS
+  lines that look like this would be dated better by P3 than by today's default. That is a reading, not a bar,
+  and the CLI text is unchanged.
+- **P3 still trails hindsight on this make by 0.045.** Picking the best line after the fact scores 0.960; no rule
+  for picking it in advance was tested, and the heaviest-weight line (MRR) scores 0.786. The bar was set and missed.
+- **REL helps less.** A quarter of the median phase move is about 2.7% here, so it rescues fewer short phases than
+  P3 does; at 96 months it changed one draw.
+- **On FRED, P3 adds one pair of turns: 2002-11 and 2003-04.** That is the soft patch after the 2001 recession,
+  which NBER did not date. It stays within K4's 2 false turns; REL dates exactly the shipped 16.
+
+By the rules written beforehand nothing changes in the CLI or on the page. Next, if this line continues: a third
+make with a fresh seed (an agency's billable hours, pipeline, invoices and headcount), with P3 alone and the same
+K1-K5. A fair replacement for K2 would be a selection rule that can be used in advance (such as each line's own
+sticky/noisy diagnostics). It cannot be added after seeing these numbers, so it would be tested as a separate,
+pre-registered arm.
+
+## A short-phase rule for composites, third make: an agency's lines (2026-11-24, pre-registered; P3 beats shipped again, but the composite trails a single line picked in advance, so nothing ships)
+
+The item above: P3 (minimum phase 3 months) beat the shipped composite rule on the SaaS make but missed the
+hindsight bar. This round runs P3 alone on a fresh make and seed, an agency's pipeline (leads 3 months, lumpy),
+billable hours (on time), invoices (lag 2) and headcount (lag 4, smooth, moves 0.4 times as much), with
+contractions of 4-14 months that fall faster than expansions rise. It also replaces hindsight as the shipping bar
+with something a user could do: an **advance pick**, the line whose dated turns agree most with the other lines'
+dated turns, picked without the truth. The rules, bars and the changed ship rule are in the header of
+`eval/turns-agency-lines.mjs`, committed before it first ran (commit "pre-register the agency-lines round"); output
+`eval/turns-agency-lines.out.txt` (0.7 s); test `turns-agency-lines.test.mjs`. 500 draws, seed 20261126, about 6.5
+true turns a draw. K4 and K5 were already known to pass for P3 (deterministic, from the SaaS round) and the header
+says so; the fresh evidence is K1, K2, K2a and K3.
+
+| bar (agency make, 144 months, typical noise) | P3 | |
+|---|---|---|
+| K1 beats shipped on the composite by 0.02 F1, sign test p <= 0.05 | 0.755 vs 0.708, +0.047, wins 107, losses 7 | **passes** |
+| K2 within 0.03 of the hindsight-best line (reported, not a gate) | 0.948, 0.193 short | **fails** |
+| K2a no worse than the advance pick (0.857) | 0.102 short; the pick wins 330 draws, loses 128 | **fails** |
+| K3 false turns a draw at most shipped's (0.15) + 0.10 | 0.19 | **passes** |
+| K4 FRED composite dates NBER's 16 of 16, at most 2 false | 16 of 16, 2 false | **passes** |
+| K5 no loss on the shop round's draws (0.932) | 0.974 | **passes** |
+
+What it shows:
+
+- **P3 is the better composite rule for the third make running.** +0.082 on SaaS lines, +0.042 on the shop's, +0.047
+  here, losing 3, 2 and 7 draws of 500. The gain holds at half and double noise (+0.042, +0.047) and at 96 and 240
+  months (+0.049, +0.045).
+- **But here a composite of all four lines is the wrong tool.** Billable hours alone date the cycle at 0.934; the
+  composite reaches 0.708 (shipped) or 0.755 (P3). The advance pick chooses billable hours or invoices in 98% of
+  draws and scores 0.857. On the shop and SaaS makes the P3 composite beats the advance pick (+0.040, +0.006), so
+  whether a composite or one well-chosen line wins depends on the make; this round is where it lost.
+- **Why (post-hoc, `eval/turns-agency-lines-posthoc.mjs`, not a result):** the Conference Board weights each line by
+  one over its volatility, so the smooth headcount line takes a mean 70% of the weight (pipeline 5%, hours 16%,
+  invoices 8%). Headcount turns 4 months late, beyond the 3-month match window, and scores 0.110 on its own; the
+  composite inherits its lateness (median +2 months). Rebuilt without headcount, the P3 composite dates 0.924; with
+  equal weights, 0.865. Both were found by looking and neither ships.
+- **What a user should take from it now:** the CLI and page already print each column's weight. A line that is
+  both the smoothest and the latest (headcount, MRR, active customers) will dominate the composite and delay it;
+  dating with that column left out, or reading it with `--column` alone, is worth a look. That is advice from a
+  simulation, not a shipped rule, and the "How far to trust it" text is unchanged.
+
+By the rules written beforehand nothing changes in the CLI or on the page. Next, if this line continues: a
+pre-registered warning (or a weight cap) for a composite whose heaviest column is also its latest, using
+`line-leads.mjs` to read each column's lead against the others, on a fourth make and fresh seed, with the shop,
+SaaS and agency draws and NBER's 16 of 16 as guards.
+
+## A heaviest-is-latest warning (2026-11-24, pre-registered; H1-H5 pass, the warning ships on `--turns --columns`)
+
+The item above: on the agency make the Conference Board weights gave smooth, late headcount 70% of the composite
+and the composite turned late with it. This round tests a warning that reads that from the data alone, on a
+fourth make with a fresh seed, with the shop, SaaS and agency draws and NBER's 16 turns as guards. The warning,
+the remedy, the make and the bars are in the header of `eval/turns-heavy-late.mjs`, committed before it first ran
+(commit "pre-register the heaviest-is-latest warning round"); output `eval/turns-heavy-late.out.txt` (0.8 s); test
+`turns-heavy-late.test.mjs`; module `heavy-late.mjs`.
+
+- **The warning:** date every column on its own (the composite's rule); a column's relative lag is the median
+  offset of its turns from the nearest same-kind turn of every *other* column within 6 months (against the other
+  columns, not the composite, because a composite the heavy column dominates follows it and hides its lag); fire
+  when the heaviest column weighs at least 40%, its relative lag is at least 2 months and no column is later.
+- **The remedy when it fires:** date the composite of the other columns.
+- **The make:** a manufacturer's orders (lead 2), shipments, production hours (lag 1) and employees (smooth,
+  weight-heavy), with the employees line's lag drawn afresh from -1 to +5 months in every draw, so the warning
+  has draws where it should fire and draws where it should not. 500 draws, seed 20261127, shipped composite rule
+  (monthly, minimum phase 6, big move 5%), since P3 has not shipped.
+
+| bar | result | |
+|---|---|---|
+| H1 when it fires, the remedy beats the full composite by >= +0.03 F1, more wins, sign test p <= 0.05 | fires in 262 of 500; 0.915 vs 0.843, +0.072, wins 140, losses 56, p 2e-9 | **passes** |
+| H2 fires in >= 50% of draws whose employees lag is >= 3 | 94% | **passes** |
+| H3 fires in <= 20% of draws whose employees lag is <= 1 | 8% (lag -1: 0%, 0: 4%, 1: 21%) | **passes** |
+| H4 following it loses nothing on any make (mean F1, followed vs full) | maker 0.915 vs 0.877; shop 0.941 vs 0.932; SaaS 0.887 vs 0.833; agency 0.902 vs 0.708 | **passes** |
+| H5 FRED: quiet, or the remedy keeps 16 of 16 with at most 2 false | quiet (payrolls weigh 54% but every column's relative lag is 0); full composite 16 of 16, 0 false | **passes** |
+
+What it shows:
+
+- **The warning finds the late heavy line and the alternative dates are better when it does.** Fire rate climbs
+  with the employees lag (0% at -1, 4% at 0, 21% at 1, 66% at 2, 92-97% at 3-5). The gain where it fires holds at
+  half and double the noise (+0.054, +0.061) and at 96 and 240 months (+0.112, +0.089).
+- **On the agency make it repairs most of what that round found:** following the warning dates 0.902 against
+  the shipped composite's 0.708, close to the advance pick (0.857) and the post-hoc "without headcount" figure.
+  On SaaS lines it fires in 93% of draws (MRR) and adds +0.054 overall.
+- **Costs, read before trusting it:** the remedy drops the steadiest column, so it trades lateness for false turns.
+  On fired draws false turns rise from 0.23 to 0.36 a draw on the main make and from 0.68 to 1.66 at double noise.
+  On the shop make it fires in 66% of draws (customers, lag 2) for a small, not significant gain (+0.013, p 0.06).
+  It is a simulation of four makes, not real company data.
+
+What ships, as the header said: for monthly composites, the CLI's `--turns --columns` adds a warning line naming
+the column, its weight and relative lag, with the peaks and troughs of the composite without it; `--json` carries
+`composite.heavyLate` (null when quiet); the page's "Peaks and troughs" card shows the same note. The main dates
+stay the full composite's, so the user compares the two. Quarterly composites were not tested and never warn. On
+the page's FRED example it stays quiet.
+
+Next, if this line continues: the warning on a real company's monthly lines (needs outside data), or P3 and the
+warning together on a fifth make, pre-registered.
+
+## P3 and the heavy-late warning together (2026-11-24, pre-registered; J1-J5 pass, a monthly composite now uses 3-month phases)
+
+The item above: P3 (minimum phase 3 months instead of 6) beat the shipped composite rule on three makes but never
+shipped, and the heaviest-is-latest warning shipped on the 6-month rule. This round asks whether the two together
+beat what ships now, the 6-month rule with the warning followed (SW), when the warning, its remedy and the main
+dates all use P3 (PW). Fifth make, fresh seed: a freight carrier's load tenders (lead 2, noisy), loaded miles (on
+time), invoiced revenue (lag 1) and drivers employed (smooth, weight-heavy, lag drawn from -1 to +5 months each
+draw), contractions of 4-12 months. Rules and bars are in the header of `eval/turns-p3-warning.mjs`, committed before
+it first ran (commit "pre-register the P3-with-warning freight round"); output `eval/turns-p3-warning.out.txt`
+(1.3 s); test `turns-p3-warning.test.mjs`. 500 draws, seed 20261128. Known beforehand, and the header says so: P3
+alone beat the 6-month rule on the shop, SaaS and agency draws and dated FRED's 16 of 16 with 2 false.
+
+| bar (freight make, 144 months, typical noise) | result | |
+|---|---|---|
+| J1 PW beats SW by >= +0.02 F1, more wins, sign test p <= 0.05 | 0.914 vs 0.882, +0.032, wins 93, losses 16, p 2e-14 | **passes** |
+| J2 PW false turns a draw <= SW's + 0.10 | 0.404 vs 0.376 | **passes** |
+| J3 no loss on the guard makes (PW >= SW) | maker 0.938 vs 0.915; shop 0.967 vs 0.941; SaaS 0.942 vs 0.887; agency 0.918 vs 0.902 | **passes** |
+| J4 FRED composite: PW dates NBER's 16 of 16 with at most 2 false | 16 of 16, 2 false (peak 2002-11, trough 2003-04); warning quiet | **passes** |
+| J5 the warning under P3 fires in >= 50% of draws with drivers lag >= 3, <= 20% with lag <= 1 | 94% and 7% | **passes** |
+
+What it shows:
+
+- **The two fixes add up.** P3 rescues short contractions (misses fall from 1.18 to 0.79 a draw) and the warning
+  takes the late heavy line out where it fires; together they score 0.914, level with the best single line picked
+  with hindsight (0.914) and ahead of the advance pick (0.857). On every guard make PW wins 3 to 11 times as many
+  draws as it loses (+0.016 to +0.055).
+- **It holds off the main setting:** half and double noise +0.037 and +0.031, 96 and 240 months +0.038 and +0.029.
+- **The warning reads about the same under P3** as under the 6-month rule (fire rate 2% at lag -1, 18% at lag 1, 62%
+  at 2, 87-97% at 3-5), so its shipped thresholds carry over.
+- **Costs:** a few more false turns (+0.03 a draw here, +0.05 on SaaS, +0.06 on the agency make, +0.21 at double
+  noise), and on FRED the soft patch after the 2001 recession now shows as a short contraction that NBER did not date.
+
+What ships, as the header said: monthly `--turns --columns` uses 3-month phases by default (the main dates, the
+warning and its remedy); `--min-phase N` sets the minimum phase for any `--turns` run (6 restores the old composite
+rule; whole numbers 1-24); the page's "Peaks and troughs" card has a "Shortest phase" box (blank = automatic). One
+column keeps 6 months, because P3 was never tested on a single line, and quarterly data keep BBQ's 2 quarters. The
+text and `--json` (`minPhase`) say which minimum was used. The page's FRED example now dates 18 turns: NBER's 16 and
+the 2002-11 / 2003-04 pair (16 with the box at 6, `turns-page.test.mjs`). Checked in Chromium (Playwright): the
+example renders, 6 in the box gives the old 16, 0 shows the error, no console errors, no horizontal scroll at 390 px.
+
+Read it for what it is: five simulated makes, chosen before each run, not a real company's lines. Next, if this line
+continues: P3 on a single line (a pre-registered round on one-column business series, with NBER's payrolls as the
+guard), or the composite on a real company's monthly lines (needs outside data).
+
+## Turns called in pseudo-real time (2026-11-24, pre-registered; R1 and R2 fail, R3 and R4 pass, nothing ships)
+
+The open item from "A composite of NBER's monthly indicators dates every turn": how many months after a turn the
+rule calls it. ALFRED's vintages (alfred.stlouisfed.org) and the Philadelphia Fed's real-time data set were both
+refused by this session's proxy, so this round is pseudo-real-time: today's final vintage of the four FRED
+indicators (PAYEMS, W875RX1, INDPRO, CMRMTSPL) cut off at every month from 1970-01 to 2026-07, the composite
+rebuilt each time with the volatility weights over every month known then, and the `--turns --columns`
+rule shipped when this round was pre-registered (6-month phase minimum, big move 5%) run on it. The 3-month
+minimum for composites ("P3 and the heavy-late warning together") landed the same day after this round was
+registered; the replay under it is the next item. Data through a month counts as known two months later (real manufacturing and trade sales, the
+slowest line, comes out about then). A turn is *called* at the first cut-off from which every later cut-off has a
+turn of the same kind within 3 months of NBER's. Data revisions are not in it, so real vintages stay open. Rules and
+bars in the header of `eval/turns-realtime.mjs`, committed before it first ran (commit "pre-register the
+pseudo-real-time turns round"); output `eval/turns-realtime.out.txt` (0.4 s); test `turns-realtime.test.mjs`.
+
+| bar | result | |
+|---|---|---|
+| R1 all 16 NBER turns called, median delay at most 9 months | median 7, but the 2001-03 peak is never held for good | **fails** |
+| R2 called before NBER's announcement in at least 8 of the 12 turns since 1980 | 7 of 12 | **fails** |
+| R3 at most 6 retracted false alarms, 1970-2026 | 4 (troughs 1970-04; peaks 1979-03, 2002-11, 2012-12), each shown for 1-3 months | **passes** |
+| R4 a turn's survival rises with its age, and 90% or more once 12 months of data follow it | 65%, 74%, 85%, 90%, 100% by age 5, 6-8, 9-11, 12-17, 18+; 12+ 99.9% | **passes** |
+
+What it shows:
+
+- **A typical turn is called about 7 months after it happens** (12 of the 15 called turns took 7 or 8 months, counting
+  the 2-month release lag). The exceptions are the 1969 and 1980 peaks (18 and 19 months, when the contraction was
+  short or the next one followed quickly) and the 1980 trough (13).
+- **Against NBER the rule is fast on troughs and slow on short-notice peaks.** It called the trough before NBER's
+  announcement in all five since 1982 (NBER took 8-21 months, the rule 7-8), and the 1990 and 2007 peaks before NBER
+  (by 2 and 4 months). It came after NBER on the 1980, 1981 and 2020 peaks, where NBER announced in 4-6 months, and
+  on the 1980 trough. NBER's announcement dates were transcribed from its "US Business Cycle Expansions and
+  Contractions" table (nber.org was refused here, so they were not re-fetched); they are listed in the script.
+- **The 2001 peak is lost by the weights, not by the data.** On data to 2019 the rule dates the peak at 2000-12,
+  within 3 months of NBER's 2001-03. Once 2020's swings enter the volatility weights the composite's 2000 shape
+  changes and the peak moves to 2000-09, six months off. This is the full-sample result already printed in
+  "A composite of NBER's monthly indicators" (15 of 16 with volatility over every month), now seen to happen
+  in real time. With the weights fixed to 2019-12 (printed, no bar) the 2001 peak is called in 4 months and 8 of
+  12 turns beat NBER; a fifth false peak (2025-07, shown on one cut-off) appears. That arm was not the
+  pre-registered one, so the result stays as it is, but it supports the page's choice of `--sd-until 2019-12`
+  for its example.
+- **How far to trust the latest turn:** of the turns the replay showed with 5 months of data after them, 65% held;
+  with 9-11 months, 85%; with 12-17, 90%; none dated with 18 or more months of data after it ever moved. BBQ cannot
+  date a turn with fewer than 5 months after it (its window), so a turn on `--turns` output is a call from at least
+  5 months of evidence and is worth treating as provisional for about a year.
+
+Read it for what it is: one replay of one composite on revised data, not a forecast of how the rule would have
+done on the numbers people saw at the time. As the header said, a bar failed, so the survival note does not ship
+on the CLI or page. Next, if this line continues: real vintages (ALFRED) when its host answers, and a pre-registered
+round on how `--sd-until` should be set in real time (a fixed calm window, or volatility that leaves out the
+largest moves) with this replay as the test.
+
+## Turns called in pseudo-real time under P3 (2026-11-24, pre-registered; Q2 fails, Q1, Q3 and Q4 pass, nothing ships)
+
+The next item from the section above: the same replay under the 3-month phase minimum that monthly
+`--turns --columns` now uses by default ("P3 and the heavy-late warning together"). Same data, cut-offs, 2-month
+release lag, call rule, alarm rule and survival rule, with `minPhase: 3`; the bars are the first replay's, so the
+two rules are judged alike. Rules, bars and the expectation (P3 calls short contractions sooner but adds alarms,
+and does not fix the 2001 peak) are in the header of `eval/turns-realtime-p3.mjs`, committed before it first ran
+(commit "pre-register the P3 pseudo-real-time turns replay"); output `eval/turns-realtime-p3.out.txt` (0.7 s);
+test `turns-realtime-p3.test.mjs`.
+
+| bar | P3 | 6-month rule | |
+|---|---|---|---|
+| Q1 at least 15 of 16 called, median delay at most 7 months | 15, median 7 | 15, median 7 | **passes** |
+| Q2 called before NBER's announcement in at least 8 of 12 | 7 of 12 | 7 of 12 | **fails** |
+| Q3 at most 6 retracted false alarms, 1970-2026 | 6 | 4 | **passes** |
+| Q4 survival rises with age, 12+ months held in 90% or more | 59, 70, 77, 80, 94% by age 0-5, 6-8, 9-11, 12-17, 18+; 12+ 94.0% | 65, 74, 85, 90, 100%; 99.9% | **passes** |
+
+What it shows:
+
+- **P3 calls no turn sooner on the real composite.** Every one of the 16 call months is the same under both rules,
+  to the month. The short phases P3 rescues in the simulated makes do not occur among NBER's turns since 1969 at
+  the point the call is made: by the time 5 months of data follow a turn, the phase on either side is already six
+  months or more.
+- **What P3 adds is the 2002-11 peak and 2003-04 trough.** In the replay they appear on data to 2003-04, stand at
+  every cut-off for 17 years (201 cut-offs), and vanish at the 2020-03 cut-off, when 2020's swings enter the
+  volatility weights and the 2002-03 soft patch shrinks below the rule's reach. Two retracted alarms instead of
+  four becomes six (Q3's limit, exactly).
+- **That one pair is what breaks "a year of data makes a turn safe".** Under the 6-month rule no turn dated with
+  18 or more months of data after it ever moved (100%); under P3, 377 of the 6,527 such readings were the
+  2002-03 pair, so the share is 94%, and 12-17 months falls from 90% to 80%. A composite turn under P3 can be
+  rewritten by a later shock's effect on the weights long after it looks settled.
+- **With the weights fixed to 2019-12** (printed, no bar) both rules call all 16 turns, 8 of 12 before NBER, with
+  identical delays; the pair then never goes away (it is in today's full-sample dating too), and a 2025-07 peak
+  shows on one cut-off.
+
+Read it for what it is: one composite, revised data, one rule change. Q2 failed exactly as it did for the 6-month
+rule, so as the header said nothing ships: no survival note on `--turns`. Nothing pre-registered here changes the
+P3 default, which was chosen on five simulated makes' full-sample F1; this replay says it buys no speed on the
+FRED composite and costs one long-lived false contraction, the same pair the P3 section listed as its cost. The
+open question this leaves is the weights, not the phase rule: a pre-registered round on setting `--sd-until` in
+real time (a fixed calm window, or volatility that leaves out the largest moves), judged on this replay under both
+minimums, and real vintages (ALFRED) when its host answers.
+
+## Composite weights set in real time: a robust scale (2026-11-24, pre-registered; M1, M2, M4 and M5 pass, M3 fails under P3, nothing ships beyond the module option)
+
+The open question from "Turns called in pseudo-real time under P3": the weights, not the phase rule. Both replays
+showed that once 2020's swings enter the standard deviations, the composite's 2000-2003 history changes shape and
+the 2001 peak is lost; fixing the window at 2019-12 repairs it, but at a cut-off nobody knows where the next calm
+window ends. This round tried a scale that a few wild months barely move and that needs no choice: each
+component's volatility as 1.4826 x the median absolute deviation (MAD) of its monthly change over every month known
+at the cut-off (`compositeIndex(..., { scale: 'mad' })`, new in `composite-index.mjs`). Same replay, data, 2-month
+lag and rules as the two sections above, under the 3-month (P3, the monthly composite default) and 6-month phase
+minimums. Rules and bars in the header of `eval/turns-realtime-weights.mjs`, committed with the module option
+before the script first ran (commit "pre-register the real-time composite weights round"); output
+`eval/turns-realtime-weights.out.txt` (2 s); test `turns-realtime-weights.test.mjs`.
+
+| bar (on MAD weights) | P3 | P6 | shipped sd (P3 / P6) | |
+|---|---|---|---|---|
+| M1 at least 15 of 16 called, median delay at most 7 | 16, median 7 | 16, median 7 | 15 / 15, median 7 | **passes** |
+| M2 called before NBER's announcement in at least 8 of 12 | 8 | 8 | 7 / 7 | **passes** |
+| M3 at most 6 false episodes (retracted or still standing) | 8 | 6 | 6 / 4 | **fails** (P3) |
+| M4 survival rises with age, 12+ months held in 90% or more | 65, 79, 89, 96, 100%; 99.9% | 67, 78, 88, 96, 100%; 99.9% | 94.0% / 99.9% | **passes** |
+| M5 full sample to 2026-07 under P3: 16 of 16 within 3 months, at most 2 false | 16 of 16, 2 false | | 15 of 16, 0 false | **passes** |
+
+What it shows:
+
+- **A robust scale does in real time what the hindsight window did.** MAD weights call all 16 NBER turns, the
+  2001-03 peak in 6 months (sd over every month: never held for good; sd fixed to 2019-12, a choice made with
+  hindsight: 4), 8 of 12 before NBER's announcement, and with every call month otherwise the same. The trimmed
+  scale (sd after leaving out changes over 5 MADs from the median; printed, no bar) gives the same calls.
+- **It also calls the 1969-12 peak in 5 months instead of 18.** MAD weights payrolls more (0.528/0.238/0.134/0.100
+  for PAYEMS/W875RX1/INDPRO/CMRMTSPL on the full sample, against sd's 0.320/0.306/0.203/0.171), and payrolls
+  turned cleanly in 1969-70.
+- **Survival is steadier.** A turn with 12-17 months of data after it held 96% of the time under MAD weights and P3,
+  against 80% for sd weights under P3, because 2020 no longer rewrites 2002-03.
+- **What fails is the P3 pair, kept rather than lost.** Under P3 the 2002-11 peak and 2003-04 trough now stand at
+  every cut-off from 2003 to today (277 cut-offs), as they do with the hindsight window; sd weights had dropped them
+  at 2020-03 only because 2020 distorted the weights. Add two one-cut-off blips (peaks 1992-12 and 2025-07, shown on
+  one cut-off each) and P3 has 8 false episodes, over M3's 6. Under P6 MAD weights pass all four replay bars
+  (6 episodes, at the limit).
+
+Read it for what it is: one composite on revised data. As the header said, a bar failed, so no `--sd-scale` flag
+ships; the scale stays a module option. The result moves the question: the weights can be set in real time
+without a calm window, and the long-lived false contraction left is P3's own 2002-03 soft patch. Next, if this
+line continues: a pre-registered round on a second make (another composite with dated turns, e.g. a state
+coincident index against its state's dated recessions) before any default change, and whether P3 with MAD
+weights should demand a larger move for a contraction shorter than 6 months.
+
+## Turns on real vintages: revisions moved two of six turns by four months (2026-11-24, pre-registered; V1 and V3 pass, V2 and V4 fail, the replays' delays are marked optimistic)
+
+Every replay above cut today's revised data at each month. This round replays the composite on the data as it
+was published: FRED-MD's monthly vintages (McCracken and Ng, St. Louis Fed), 1999-08 to 2021-10, 267 cut-offs,
+read from a public copy because stlouisfed.org refuses this session (`data/fredmd-vintages/`, source and checks
+in `data/SOURCE.md`, "FRED-MD vintages"). The copy holds three of the four components (payrolls, real income less
+transfers, industrial production; not real manufacturing and trade sales), so both arms use those three: V on
+the vintages a user held at each month, P on today's files cut at the same months. Everything else is the shipped
+`--turns --columns` monthly default (sd weights over every month, 3-month phases, bigMove 0.05) and the replays'
+2-month lag and call rule (a call holds at every later cut-off, within 3 months of NBER's month). Rules and bars
+in the header of `eval/turns-vintages.mjs`, committed before it first ran (commits "pre-register the real-vintage
+composite round" and a data-loading amendment made before any composite was built); output
+`eval/turns-vintages.out.txt` (2 s); test `turns-vintages.test.mjs`.
+
+| NBER turn | P: called (delay) | V: called (delay) | where V dates it, 36 months on | NBER announced |
+|---|---|---|---|---|
+| peak 2001-03 | 2001-10 (7) | 2014-03 (156) | 2000-11 (4 early) | 2001-11 |
+| trough 2001-11 | 2002-07 (8) | 2006-12 (61) | 2002-01 (2 late) | 2003-07 |
+| peak 2007-12 | 2008-07 (7) | 2008-08 (8) | 2007-12 | 2008-12 |
+| trough 2009-06 | 2010-02 (8) | 2020-06 (132) | 2009-10 (4 late) | 2010-09 |
+| peak 2020-02 | 2020-09 (7) | 2020-09 (7) | 2020-02 | 2020-06 |
+| trough 2020-04 | 2020-11 (7) | 2020-11 (7) | 2020-04 | 2021-07 |
+
+| bar | V | P | |
+|---|---|---|---|
+| V1 all six called | 6 | 6 | **passes** |
+| V2 median at most 2 months over P's, no turn more than 6 later | median 34.5, worst +149 | median 7 | **fails** |
+| V3 false episodes (1997 on) at most P's + 1 | 5 | 4 | **passes** |
+| V4 before NBER's announcement on at least P's - 1 | 2 | 5 | **fails** |
+
+What it shows:
+
+- **Revisions did not lose a turn; they moved two.** On the vintages of 2002 to 2014 the composite dates the 2001
+  peak at 2000-11 or 2000-12, three to four months before NBER; from the 2014-03 vintage on it sits at 2001-01,
+  inside the 3-month window. The 2009 trough sits at 2009-10, four months late, on most vintages of 2010 to 2020
+  (payrolls carry about 60% of the weight on every vintage before 2020) and moves to 2009-06 only on the 2020 vintages. Which
+  revisions moved them is not split out here. A strict call rule (held at every later cut-off within 3 months)
+  turns each 4-month shift into a call a decade late.
+- **Recent turns are unaffected.** 2007-12 is called one month later on the vintages, and both 2020 turns on the
+  same months, so the replays' delays for big, sharp turns stand.
+- **The 2001-11 trough flickers.** On 2004 to 2006 vintages the 2002-03 soft patch takes its place (a peak in
+  2002-06 or 2002-11 and a trough in 2003-03 or 2003-04), which is P3's long-lived false pair from the rounds above, seen in the data
+  as published too.
+- **The pseudo-real-time replays were optimistic.** Their "before NBER in 8 of 12" and median delays assume the
+  data as revised; on real vintages two of the six turns since 1999 would not have been dated within three months
+  of NBER's month until years later. What a user of `--turns` today should take from it: the dated month of a
+  mild turn can move by a quarter or more as the components are revised, while big turns stay put.
+
+As the header set out, a bar failed, so nothing in the CLI changes (no default rests on the replays) and their
+numbers above are to be read as upper bounds on real-time performance. Printed with no bar: MAD weights make no
+difference to the two shifts (V calls the 2001 peak after 101 months, P in 7); 6-month phases are worse on the
+vintages (median 70); the shipped four-component composite on today's files calls 5 of 6 on the same cut-offs
+(the 2001 peak slides outside the window). Next, if this line continues: a call rule that tolerates a dated
+month moving (e.g. a turn counts as called once a turn of its kind stays within 6 months), judged on these
+vintages; the fourth component's vintages (CMRMTSPLx is in FRED-MD; a copy holding it, or stlouisfed.org); and
+FRED-MD vintages before 1999 do not exist, so earlier turns stay pseudo-real-time.
+
+## A tolerant call rule on real vintages: the jobless recovery, not the window, is what is late (2026-11-24, pre-registered; T1, T3 and T4 pass, T2 fails, nothing ships)
+
+The next item from "Turns on real vintages": its strict call rule (a turn of the kind within 3 months of NBER's
+month at every later cut-off) turned two four-month dating shifts into calls a decade late. This round counts a
+turn as called once a turn of its kind stays within 6 months of NBER's month at every later cut-off (rule T6), on
+the same FRED-MD vintages, three components, cut-offs and shipped monthly composite defaults as that section, with
+today's files as the baseline. So that a wider window cannot pass by catching anything, the six NBER turns shifted
+12 months either way (same kind; 10 targets left after dropping two too near the data's end) were scored as
+placebos under both rules. Rules, bars and the expectation in the header of `eval/turns-vintages-tolerant.mjs`,
+committed before it first ran (commit "pre-register the tolerant call rule round on real vintages"); output
+`eval/turns-vintages-tolerant.out.txt` (1.4 s); test `turns-vintages-tolerant.test.mjs`.
+
+| NBER turn | V strict (delay) | V T6 (delay) | P T6 (delay) | NBER announced |
+|---|---|---|---|---|
+| peak 2001-03 | 156 | **2** (dated 2000-09, at the window's edge) | 7 | 2001-11 |
+| trough 2001-11 | 61 | **61** | 8 | 2003-07 |
+| peak 2007-12 | 8 | 8 | 7 | 2008-12 |
+| trough 2009-06 | 132 | **7** | 8 | 2010-09 |
+| peak 2020-02 | 7 | 7 | 7 | 2020-06 |
+| trough 2020-04 | 7 | 7 | 7 | 2021-07 |
+
+| bar | result | |
+|---|---|---|
+| T1 arm V calls all six under T6 | 6 | **passes** |
+| T2 V's median at most 2 over P's, no turn more than 6 later | medians 7 and 7, but the 2001-11 trough +53 | **fails** |
+| T3 V before NBER's announcement on at least P's - 1 | 4 against 5 | **passes** |
+| T4 placebos: at most 2 of 10 called under T6, at most 1 more than the strict rule | 1 against 0 | **passes** |
+
+What it shows:
+
+- **The two four-month shifts are a window problem, and a 6-month window fixes them.** The 2009 trough is called
+  7 months after it (strict: 132), before NBER's announcement; the 2001 peak after 2, because the 2001-03 vintages
+  already dated a peak at 2000-09. That is six months early, on the window's edge, and should be read as a lucky
+  early call, not a fast one. A 4-month window (printed, no bar) rescues the trough but not the peak (56).
+- **The 2001 trough is a different thing: on the data as published in 2004 to 2006, the recession did not end in
+  2001.** At 24 cut-offs from 2004-02 to 2006-11 (and six in early 2002, before any trough could yet be dated) the composite
+  showed one contraction from 2000-11 to 2003-04, 17 months after NBER's trough. Payrolls carry about 60% of the
+  weight, and payrolls as published then kept falling into 2003: the jobless recovery. Later benchmark revisions
+  pulled the trough back to 2001-12/2002-01 and left 2002-03 as a separate soft patch. No window under 17 months
+  calls it (9 months: still 61), and MAD weights only shorten it to 45.
+- **The wider window costs one placebo.** The 2002-11 placebo trough is "called" from 2020-06 on, because the
+  soft-patch trough at 2003-04 sits five months from it. The strict rule calls no placebo.
+
+Read it for what it is: six turns, one composite of three series, one vintage archive. T2 failed, so as the header
+said nothing in the CLI or page changes. What a user should take from the two vintage rounds together: a mild
+turn's dated month can move by four to six months as data are revised, and a recession whose recovery is
+jobless can show, on payroll-heavy data as published, as a longer contraction than NBER later dates, for years.
+Next, if this line continues: a composite less heavy in payrolls in real time (MAD weights made payrolls heavier,
+not lighter), or the fourth component's vintages; a second make (a state coincident index).
+
+Also corrected on the page and in `llms.txt` (not part of this round): the trust note said the composite dated
+NBER's 16 turns "with no false turn", true of 6-month phases only; under the 3-month default monthly composites
+have used since "P3 and the heavy-late warning together", it also dates the 2002-03 soft patch. The note now says
+so, as the CLI's already did.
+
+## A second make: the Philadelphia Fed's coincident index misses 1980 and dates 2008-09 four months late (2026-11-24, pre-registered; U1 fails, U2 and U3 pass, nothing ships)
+
+The open item from the two vintage rounds: a second make, "a state coincident index against its state's dated
+recessions". What this session could reach set the shape. stlouisfed.org and philadelphiafed.org refuse its proxy,
+and GitHub code search found no public file of dated state recessions (Owyang-Piger-Wall or Hamilton-Owyang dates,
+FRED-SD; Ahn and Eo's 2026 FEDS note has state recession probabilities as figures only). It did find five public
+copies of the Philadelphia Fed's US coincident index (USPHCI), saved on different dates, and one of California's
+(CAPHCI). USPHCI is the national index of the same maker and method as the 50 state indexes: a dynamic factor
+model of payroll employment, the unemployment rate, manufacturing hours and wage and salary disbursements,
+re-estimated each month so its history revises. It is a composite we did not build, so this round scores the
+shipped one-column `--turns` default (monthly, 6-month phases, big move 5%, the path `turnsResult` runs) on it
+against NBER's 12 turns since 1979, with the four older copies as vintages. California is printed with no bar.
+Rules and bars in the header of `eval/turns-usphci.mjs`, committed before it first ran (commit "pre-register the
+second-make round"); output `eval/turns-usphci.out.txt` (0.3 s); test `turns-usphci.test.mjs`; data and checks in
+`data/SOURCE.md`, "USPHCI".
+
+| NBER turn | USPHCI dates it | months off |
+|---|---|---|
+| peak 1980-01 | not dated | (next peak 1981-07) |
+| trough 1980-07 | not dated | |
+| peak 1981-07 | 1981-07 | 0 (1-2 late on older copies) |
+| trough 1982-11 | 1982-11 | 0 |
+| peak 1990-07 | 1990-10 | +3 |
+| trough 1991-03 | 1991-05 | +2 |
+| peak 2001-03 | 2001-05 | +2 |
+| trough 2001-11 | 2001-12 | +1 |
+| peak 2007-12 | 2008-04 | **+4** |
+| trough 2009-06 | 2009-10 | **+4** |
+| peak 2020-02 | 2020-02 | 0 |
+| trough 2020-04 | 2020-04 | 0 |
+
+| bar | result | |
+|---|---|---|
+| U1 at least 10 of 12 within 3 months, at most 2 false turns | 8 of 12, no false turn | **fails** |
+| U2 F1 at least +0.15 over random cuts, p <= 0.05 | 0.917 against 0.260, p < 0.001 | **passes** |
+| U3 the eight matched turns matched on all five copies, dated month moving at most 3 | spread 2 (1981-07), 0 elsewhere | **passes** |
+
+What it shows:
+
+- **The expectation was wrong where it mattered.** Written beforehand: the index leans on payrolls and the
+  unemployment rate, so the troughs after the jobless recoveries (1991, 2001) might come late, as payrolls as
+  published dated 2001's in 2003. They do not: 1991-05 and 2001-12, two months and one. On this make the
+  jobless-recovery lag of the FRED-MD vintage round does not appear.
+- **The 1980 recession is too short and too shallow for the one-column rule.** The index fell 0.6% from 1980-01 to
+  1980-07, and its own contraction ran four months (1980-03 to 1980-07, 1.0%): under the 6-month phase minimum and
+  far under the 5% move that keeps a short phase. With 3-month phases (the composite default, printed with no bar)
+  it is dated 1980-03 peak and 1980-07 trough and the count is 10 of 12, still with no false turn. That is a look
+  after the result, not a pass: whether a published composite fed in as one column should take the 3-month default
+  needs its own pre-registered round on a make not seen here.
+- **2008-09 is late at both ends, by the same four months.** The index rose 0.4% from 2007-12 to its 2008-04 peak
+  and fell 0.5% more from 2009-06 to its 2009-10 trough. Wages and salaries kept the index up into 2008 and the
+  unemployment rate, which peaked at 10% in 2009-10, held it down after NBER's trough. These are the index's own
+  turning points, not the rule's: every copy has them.
+- **Revisions did not move the dates.** The five copies (through 2021-12, 2023-05, 2023-10, 2024-10 and 2026-07)
+  differ by a median 0.01 to 0.015 percentage points of monthly growth (at most 0.46), and the dated months agree
+  on every turn but the 1981 peak (1981-07 to 1981-09). Five copies over four and a half years are not a full
+  vintage archive, but on this make the dates were stable where FRED-MD's three-series composite moved by four
+  months.
+- **California, printed with no bar.** CAPHCI dates 10 of the 12 national turns within 4 months, misses 1980 the
+  same way, and adds a 1991-10 to 1992-06 second dip with no national turn near it (California's early-1990s
+  defence and aerospace cuts are the usual account; no state dating in reach confirms it). That is what a state
+  dating would have to score, and why national dates are not its labels.
+
+Read it for what it is: one maker's national index, 12 turns, five copies. U1 failed, so as the header said
+nothing in the CLI, page or `llms.txt` changes. What a user should take from it: run `--turns` on a published
+coincident index and the dates are the index's own; a mild, short recession like 1980 needs `--min-phase 3` to be
+seen, and an index that carries the unemployment rate will put a trough where unemployment peaked. Next, if this
+line continues: a pre-registered round on whether a published composite should default to 3-month phases, on a
+make not seen here (the Conference Board's coincident index, or another country's composite with an official
+dating committee, e.g. CEPR's euro-area dates); a state dating to score CAPHCI against.
+
+## Japan's coincident index: 3-month phases add false turns and no match, and a short-phase bug in the dater fixed (2026-11-24, pre-registered; J1 and J2 fail, J3 and J4 pass, nothing ships from the round; the fix ships)
+
+The open item from "A second make": on the Philadelphia Fed's index, 3-month phases dated the 1980 recession that
+the one-column default (6 months) missed. That was a look after the result. This round asked it beforehand, on a
+make not seen before: the Cabinet Office of Japan's coincident composite index (CI 一致指数, 2020 = 100), scored
+against the Cabinet Office's own reference dates (ESRI 景気基準日付), 1985-01 to 2026-08, with an older copy of
+the index (to 2024-07) as a vintage. esri.cao.go.jp, e-stat.go.jp, the Conference Board, CEPR and dbnomics all
+refused this session's proxy; two public copies of the CI and two independent public transcriptions of ESRI's
+dates (which agree on every date) were found by GitHub code search (`data/SOURCE.md`, "Japan CI"). Rules and bars
+in the header of `eval/turns-jp-ci.mjs`, committed before it first ran (commit "pre-register the Japan CI
+3-month-phase round"); output `eval/turns-jp-ci.out.txt` (0.4 s); test `turns-jp-ci.test.mjs`.
+
+| bar | registered run (dater as it was) | after the fix below |
+|---|---|---|
+| J1 3-month phases: at least 12 of 14 within 3 months, at most 2 false | 11 of 14, 10 false: **fails** | 11, 9 false: **fails** |
+| J2 3-month phases beat 6: +1 match, at most +1 false, F1 no lower | +0, +4, 0.650 vs 0.722: **fails** | +0, +2, 0.650 vs 0.684: **fails** |
+| J3 3-month phases beyond chance: +0.15 F1, p <= 0.05 | +0.272, p 0.0002: **passes** | same: **passes** |
+| J4 the 2024-07 copy dates the same matched turns, moving <= 3 | 1997-05 moves 3, the rest 0: **passes** | same: **passes** |
+
+What it shows:
+
+- **The expectation written beforehand held.** Every ESRI contraction since 1985 ran 8 months or more (2012-03 to
+  2012-11 is the shortest), so 6-month phases already see them all, and 3-month phases have nothing to add. What
+  they do add is turns ESRI did not date: a 1995-04 to 1995-07 pause (2.0% down) and, before the fix, a 2022-08
+  to 2023-01 dip. The 1980 gain on the Philadelphia Fed's index was one short, shallow recession, not a reason to
+  change how a one-column composite is dated. As the header said, nothing changes in the CLI, page or `llms.txt`;
+  `--min-phase 3` stays an option a user can choose for an index whose recessions are known to be short.
+- **Both arms match 11 of 14, and the misses are the index's own.** The troughs are close (2009-03, 2012-03,
+  2012-11 and 2020-05 to the month). Three peaks come early: 1991-02 dated 1990-10 (4 months), 2008-02 dated
+  2007-05 (9) and 2018-10 dated 2017-12 (10). The CI was at 124.4 in 2017-12 and 122.0 in 2018-10, and at 123.4 in
+  2007-05 against 121.5 in 2008-02: the index had stopped rising well before the month ESRI chose, which is the
+  sense in which ESRI's peaks are a judgment on many series and not the CI's high.
+- **Turns ESRI did not date.** With the shipped rule: 2014-03 to 2015-12 (the index fell after April 2014's
+  consumption-tax rise; ESRI's list has no turn there), 2021-04 to 2021-09 (a 5-month, 5.4% fall, kept by the
+  5% big-move exception; with `--big-move off` it goes) and a 2022-08 peak. Those are the false turns the J1 bar
+  counted. The March 2011 earthquake drop (110.0 to 100.9 in two months) is inside a longer phase and dates
+  nothing.
+- **The vintages agree.** The copy saved to 2024-07 has monthly growth a median 0.105 points away from the
+  current one (the CI is re-estimated as its components and seasonal factors revise), and every matched turn is
+  dated in the same month on both but 1997-05 (1997-06 on the current copy, 1997-03 on the older).
+
+**The fix.** The registered run dated a 2005-04 peak (117.2) before the 2009-03 trough, although the index rose to
+123.4 in 2007-05. The cause was in `turning-points.mjs`: when a phase was shorter than the minimum, `enforceOnce`
+always dropped that phase's own two ends. Here the candidates were 2005-04 peak, 2007-03 trough, 2007-05 peak;
+the 2-month 2007-03 to 2007-05 phase went, and with it the higher peak. The module's header already described the
+right rule ("a short phase loses its two ends' weaker turn pair") and its rule 2 keeps the higher of two peaks;
+the code did not. Now a short phase a to b drops the pair before b when b beats the turn of its kind before a,
+the pair after a when a beats the turn of its kind after b, the smaller move when both, and a and b themselves
+otherwise. Alternation holds in every case. A first attempt (move every turn to the extreme between its
+neighbours) was rejected before it shipped: on GDPC1 it moved the 1969Q3 peak to 1970Q3, a higher quarter inside
+the 1969-70 recession, and lost a recession NBER dates.
+
+Every earlier turn round (19) was rerun with the fix (all `eval/turns-*.out.txt` regenerated in this commit; the five that do
+not change are Iran, payrolls, USPHCI, GDPC1-lag and the tolerant-vintage one).
+No pre-registered verdict moved in any of them. The figures that did move, old to new:
+
+- BBQ round: real consumption 7 of 16 matched, 0 false, F1 0.640 (was 6, 1, 0.560); quarterly industrial
+  production 11 of 12, F1 0.889 (was 10, 0.815); D2's mean excess +0.392 (was +0.363), D3's +0.436 (was +0.407);
+  the GDP rows are unchanged, so D1 still fails at 0.781, and GDPC1's dates are unchanged (19 of 24).
+- The shipped composite (README "A composite of NBER's monthly indicators") still dates 16 of 16 with no false
+  turn. Its single lines moved: real income less transfers 10 of 16 (was 12), real sales 12 (was 10), payrolls,
+  industrial production and employment unchanged; the trust note's "one series alone missed 2 to 7" still holds.
+- Simulated makes: the heavy-late warning's gain on fired draws +0.078 (was +0.072); P3 with the warning beats
+  the 6-month rule by +0.015 to +0.053 F1 on the five makes (was +0.016 to +0.055; `llms.txt` updated), and the
+  primary gain is +0.029 (was +0.032). Agency, SaaS and shop make figures moved by 0.001 to 0.002.
+- Real-time replays: 5 retracted episodes on the primary replay (was 4, bar 6) and the 0-5 month survival 61.9%
+  (was 65.0%); the MAD-weights round's 6-month arm now also shows 7 false episodes (was 6; M3 failed before and
+  still fails); on the FRED-MD vintages the 6-month phases' median delay is now 34.5 months, the same as the
+  3-month primary's (it was 70, which README "Turns on real vintages" printed as worse; no bar rested on it).
+
+Next, if this line continues: an index whose dating committee is known to call short recessions (CEPR's euro-area
+dates have a 2-quarter 2011-13 double dip), to see whether there 3-month phases earn their false turns.
+
+**Checkout moved to Paddle (2026-11-25).** The pack's Buy button now opens Paddle's overlay checkout, and its licence key is an Ed25519-signed token a separate billing Worker issues from Paddle's webhook and the page checks offline (`paddle.mjs`, a synced copy of `platform/billing/client.mjs`; `checkout.mjs` is generated from `platform/billing/catalogue.mjs`). The old Lemon Squeezy validate call is gone. It stays dark until the owner deploys that Worker and sets the catalogue's price id, client-side token and public key (`platform/billing/README.md`).

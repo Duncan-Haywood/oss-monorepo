@@ -137,7 +137,9 @@ function calendarRow(c, projId) {
 // ---------- the reader ----------
 
 export function isPmxml(text) {
-  return /^\uFEFF?\s*(<\?[^>]*\?>\s*)?(<!--[\s\S]*?-->\s*)*<([A-Za-z_][\w.-]*:)?APIBusinessObjects[\s>]/.test(text.slice(0, 4096));
+  // A comment body cannot hold "-->", so each comment matches one way only: with
+  // [\s\S]*? a run of comments split 2^n ways and 40 "<!---->" hung the page.
+  return /^\uFEFF?\s*(<\?[^>]*\?>\s*)?(<!--(?:[^-]|-(?!->))*-->\s*)*<([A-Za-z_][\w.-]*:)?APIBusinessObjects[\s>]/.test(text.slice(0, 4096));
 }
 
 export function parsePmxml(text) {

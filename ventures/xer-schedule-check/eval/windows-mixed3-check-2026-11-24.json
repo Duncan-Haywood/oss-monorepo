@@ -1,0 +1,4496 @@
+[
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "seed": 1,
+  "mixed": 3,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": true,
+      "target": "TEXCO04403C0",
+      "detail": "TEXCO04403C0 4 days less left",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "T16CO04405C0",
+      "detail": "T16CO04405C0 cut 3 d",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": true,
+      "target": "T16P109901C0 -> T16P109501C0",
+      "detail": "FS T16P109901C0 -> T16P109501C0 deleted",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 3,
+    "both": true,
+    "expect": {
+     "progress": -3,
+     "revisions": 0
+    },
+    "got": {
+     "moved": -3,
+     "progress": -3,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 2,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": true,
+      "target": "TEXCO04403C0",
+      "detail": "TEXCO04403C0 finished at the data date",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "calendar",
+      "planted": true,
+      "target": "T14PA26013C0",
+      "detail": "T14PA26013C0 calendar R00-C01, 6 days with holidays -> R00-C02, Calendar day",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "constraint",
+      "planted": true,
+      "target": "T20CO04405C0",
+      "detail": "T20CO04405C0 start on or after +4",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 3,
+    "both": true,
+    "expect": {
+     "progress": -2.3,
+     "revisions": 3.7
+    },
+    "got": {
+     "moved": 1.4,
+     "progress": -2.3,
+     "revisions": 3.7
+    },
+    "splitExact": true
+   },
+   {
+    "window": 3,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "added",
+      "planted": true,
+      "target": "ZZ-ADDED-176541",
+      "detail": "ZZ-ADDED-176541 (4 d) between T20TS01806C0 and T20TS01809C0",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "constraint",
+      "planted": true,
+      "target": "T20TS01801C0",
+      "detail": "T20TS01801C0 start on or after +3",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 7
+    },
+    "got": {
+     "moved": 7,
+     "progress": 0,
+     "revisions": 7
+    },
+    "splitExact": true
+   },
+   {
+    "window": 4,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": true,
+      "target": "TGNCZ01020G0 -> TGNCZ01090G0",
+      "detail": "FS TGNCZ01020G0 -> TGNCZ01090G0 deleted",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "constraint",
+      "planted": true,
+      "target": "TGNCZ01821G0",
+      "detail": "TGNCZ01821G0 start on or after +4",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 4
+    },
+    "got": {
+     "moved": 4,
+     "progress": 0,
+     "revisions": 4
+    },
+    "splitExact": true
+   },
+   {
+    "window": 5,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "TGNCZ01090G0 -> MGNSO00103M0",
+      "detail": "FS -> SS TGNCZ01090G0 -> MGNSO00103M0",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "TGNCZ01821G0",
+      "detail": "TGNCZ01821G0 cut 3 d",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": -3
+    },
+    "got": {
+     "moved": -3,
+     "progress": 0,
+     "revisions": -3
+    },
+    "splitExact": true
+   },
+   {
+    "window": 6,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "constraint",
+      "planted": true,
+      "target": "TGNCZ01090G0",
+      "detail": "TGNCZ01090G0 start on or after +5",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 5
+    },
+    "got": {
+     "moved": 5,
+     "progress": 0,
+     "revisions": 5
+    },
+    "splitExact": true
+   }
+  ],
+  "total": {
+   "moved": 11.4,
+   "sumOfWindows": 11.4,
+   "progress": -5.3,
+   "revisions": 16.7,
+   "firstFinish": "2013-06-22 16:59",
+   "lastFinish": "2013-07-06 10:48"
+  },
+  "addsUp": true,
+  "ms": 12119
+ },
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "seed": 2,
+  "mixed": 3,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": true,
+      "target": "T12CO04403C0",
+      "detail": "T12CO04403C0 finished at the data date",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "calendar",
+      "planted": true,
+      "target": "T16CO04403C0",
+      "detail": "T16CO04403C0 calendar R00-C01, 6 days with holidays -> R00-C02, Calendar day",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "added",
+      "planted": true,
+      "target": "ZZ-ADDED-176541",
+      "detail": "ZZ-ADDED-176541 (3 d) between T16P109205C0 and T16P109901C0",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 3,
+    "both": true,
+    "expect": {
+     "progress": 0,
+     "revisions": 1
+    },
+    "got": {
+     "moved": 1,
+     "progress": 0,
+     "revisions": 1
+    },
+    "splitExact": true
+   },
+   {
+    "window": 2,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "T16TS01813C0 -> MGNCZ00111M0",
+      "detail": "FS -> SS T16TS01813C0 -> MGNCZ00111M0",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": true,
+      "target": "TEXCO04405C0 -> T16CO04403C0",
+      "detail": "FS TEXCO04405C0 -> T16CO04403C0 deleted",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": -6.3
+    },
+    "got": {
+     "moved": -6.3,
+     "progress": 0,
+     "revisions": -6.3
+    },
+    "splitExact": true
+   },
+   {
+    "window": 3,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": true,
+      "target": "T14PA23009C0 -> T14PA23015C0",
+      "detail": "FS T14PA23009C0 -> T14PA23015C0 deleted",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "T20TS01801C0",
+      "detail": "T20TS01801C0 cut 4 d",
+      "side": "revisions",
+      "named": false,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": -0.3
+    },
+    "got": {
+     "moved": -0.3,
+     "progress": 0,
+     "revisions": -0.3
+    },
+    "splitExact": true
+   },
+   {
+    "window": 4,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "added",
+      "planted": true,
+      "target": "ZZ-ADDED-176542",
+      "detail": "ZZ-ADDED-176542 (4 d) between T20TS01804C0 and T20TS01807C0",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": true,
+      "target": "T20R209501C0 -> T20R209601C0",
+      "detail": "FS T20R209501C0 -> T20R209601C0 deleted",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 4
+    },
+    "got": {
+     "moved": 4,
+     "progress": 0,
+     "revisions": 4
+    },
+    "splitExact": true
+   },
+   {
+    "window": 5,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "T20R222027C0",
+      "detail": "T20R222027C0 cut 3 d",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "calendar",
+      "planted": true,
+      "target": "T20TS01804C0",
+      "detail": "T20TS01804C0 calendar R00-C01, 6 days with holidays -> R00-C02, Calendar day",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": -2
+    },
+    "got": {
+     "moved": -2,
+     "progress": 0,
+     "revisions": -2
+    },
+    "splitExact": true
+   },
+   {
+    "window": 6,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": true,
+      "target": "T20R222011C0",
+      "detail": "T20R222011C0 2 days less left",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "constraint",
+      "planted": true,
+      "target": "TGNCZ01090G0",
+      "detail": "TGNCZ01090G0 start on or after +4",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 2,
+    "both": true,
+    "expect": {
+     "progress": 0,
+     "revisions": 4
+    },
+    "got": {
+     "moved": 4,
+     "progress": 0,
+     "revisions": 4
+    },
+    "splitExact": true
+   }
+  ],
+  "total": {
+   "moved": 0.4,
+   "sumOfWindows": 0.4,
+   "progress": 0,
+   "revisions": 0.4,
+   "firstFinish": "2013-06-22 16:59",
+   "lastFinish": "2013-06-23 10:48"
+  },
+  "addsUp": true,
+  "ms": 11573
+ },
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "seed": 3,
+  "mixed": 3,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "constraint",
+      "planted": true,
+      "target": "T16CO04407C0",
+      "detail": "T16CO04407C0 start on or after +4",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "T16P109503C0 -> T16P109907C0",
+      "detail": "FS -> SS T16P109503C0 -> T16P109907C0",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 5
+    },
+    "got": {
+     "moved": 5,
+     "progress": 0,
+     "revisions": 5
+    },
+    "splitExact": true
+   },
+   {
+    "window": 2,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "T16P106102C0 -> T16P122029C0",
+      "detail": "FS -> SS T16P106102C0 -> T16P122029C0",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "T16P122011C0",
+      "detail": "T16P122011C0 cut 2 d",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 3,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "added",
+      "planted": true,
+      "target": "ZZ-ADDED-176541",
+      "detail": "ZZ-ADDED-176541 (3 d) between T16TS01808C0 and T16TS01813C0",
+      "side": "revisions",
+      "named": false,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "calendar",
+      "planted": true,
+      "target": "T16P109901C0",
+      "detail": "T16P109901C0 calendar R00-C01, 6 days with holidays -> R00-C02, Calendar day",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 4,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "T16TS01809C0",
+      "detail": "T16TS01809C0 cut 1 d",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "BAFTS01801G0 -> MGNSO00103M0",
+      "detail": "FS -> SS BAFTS01801G0 -> MGNSO00103M0",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": -1
+    },
+    "got": {
+     "moved": -1,
+     "progress": 0,
+     "revisions": -1
+    },
+    "splitExact": true
+   },
+   {
+    "window": 5,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "calendar",
+      "planted": true,
+      "target": "BAFTS01801G0",
+      "detail": "BAFTS01801G0 calendar R00-C02, Calendar day -> R00-C01, 6 days with holidays",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": "same target",
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 18
+    },
+    "got": {
+     "moved": 18,
+     "progress": 0,
+     "revisions": 18
+    },
+    "splitExact": true
+   },
+   {
+    "window": 6,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": true,
+      "target": "T16P109503C0 -> T16P126019C0",
+      "detail": "FS T16P109503C0 -> T16P126019C0 deleted",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "calendar",
+      "planted": true,
+      "target": "BAFTS01801G0",
+      "detail": "BAFTS01801G0 calendar R00-C01, 6 days with holidays -> R00-C02, Calendar day",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": -18
+    },
+    "got": {
+     "moved": -18,
+     "progress": 0,
+     "revisions": -18
+    },
+    "splitExact": true
+   }
+  ],
+  "total": {
+   "moved": 4,
+   "sumOfWindows": 4,
+   "progress": 0,
+   "revisions": 4,
+   "firstFinish": "2013-06-22 16:59",
+   "lastFinish": "2013-06-26 16:59"
+  },
+  "addsUp": true,
+  "ms": 11316
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "seed": 1,
+  "mixed": 3,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": true,
+      "target": "BEW/MO/EF/1010",
+      "detail": "BEW/MO/EF/1010 1 days less left",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "BEW/PR/FC/1040",
+      "detail": "BEW/PR/FC/1040 cut 4 d",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 2,
+    "both": true,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 2,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": true,
+      "target": "BEW/MO/EF/1010",
+      "detail": "BEW/MO/EF/1010 finished at the data date",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "calendar",
+      "planted": true,
+      "target": "BEW/PR/FC/1260",
+      "detail": "BEW/PR/FC/1260 calendar BEW 7 Day SIL -> BEW 5 Day SIL",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 2,
+    "both": true,
+    "expect": {
+     "progress": 0,
+     "revisions": 479.9
+    },
+    "got": {
+     "moved": 479.9,
+     "progress": 0,
+     "revisions": 479.9
+    },
+    "splitExact": true
+   },
+   {
+    "window": 3,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 4,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": true,
+      "target": "BEW/PR/FC/1260",
+      "detail": "BEW/PR/FC/1260 3 days less left",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": -3,
+     "revisions": 0
+    },
+    "got": {
+     "moved": -3,
+     "progress": -3,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 5,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": true,
+      "target": "BEW/PR/FC/1260",
+      "detail": "BEW/PR/FC/1260 finished at the data date",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "BEW/CL/GEN/1010 -> BEW/GEN/MS/0020",
+      "detail": "FS -> SS BEW/CL/GEN/1010 -> BEW/GEN/MS/0020",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 2,
+    "both": true,
+    "expect": {
+     "progress": -495.9,
+     "revisions": 0
+    },
+    "got": {
+     "moved": -495.9,
+     "progress": -495.9,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 6,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   }
+  ],
+  "total": {
+   "moved": -19,
+   "sumOfWindows": -19,
+   "progress": -498.9,
+   "revisions": 479.9,
+   "firstFinish": "2016-08-28 17:00",
+   "lastFinish": "2016-08-09 17:00"
+  },
+  "addsUp": true,
+  "ms": 1161
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "seed": 2,
+  "mixed": 3,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": true,
+      "target": "BEW/MO/NC/1030",
+      "detail": "BEW/MO/NC/1030 finished at the data date",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "calendar",
+      "planted": true,
+      "target": "BEW/PR/FC/1040",
+      "detail": "BEW/PR/FC/1040 calendar BEW 7 Day SIL -> BEW 5 Day SIL",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 2,
+    "both": true,
+    "expect": {
+     "progress": 0,
+     "revisions": 479.9
+    },
+    "got": {
+     "moved": 479.9,
+     "progress": 0,
+     "revisions": 479.9
+    },
+    "splitExact": true
+   },
+   {
+    "window": 2,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "BEW/CL/GEN/1010 -> BEW/GEN/MS/0020",
+      "detail": "FS -> SS BEW/CL/GEN/1010 -> BEW/GEN/MS/0020",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 3,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "calendar",
+      "planted": true,
+      "target": "BEW/PR/FC/1040",
+      "detail": "BEW/PR/FC/1040 calendar BEW 5 Day SIL -> BEW 7 Day SIL",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": -478.9
+    },
+    "got": {
+     "moved": -478.9,
+     "progress": 0,
+     "revisions": -478.9
+    },
+    "splitExact": true
+   },
+   {
+    "window": 4,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": true,
+      "target": "BEW/PR/FC/1040",
+      "detail": "BEW/PR/FC/1040 finished at the data date",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": -1,
+     "revisions": 0
+    },
+    "got": {
+     "moved": -1,
+     "progress": -1,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 5,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "cut",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 6,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": true,
+      "target": "BEW/PR/FC/1050",
+      "detail": "BEW/PR/FC/1050 1 days less left",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   }
+  ],
+  "total": {
+   "moved": 0,
+   "sumOfWindows": 0,
+   "progress": -1,
+   "revisions": 1,
+   "firstFinish": "2016-08-28 17:00",
+   "lastFinish": "2016-08-28 17:00"
+  },
+  "addsUp": true,
+  "ms": 1039
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "seed": 3,
+  "mixed": 3,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "constraint",
+      "planted": true,
+      "target": "BEW/PR/FC/1040",
+      "detail": "BEW/PR/FC/1040 start on or after +4",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "BEW/CL/GEN/1010 -> BEW/GEN/MS/0020",
+      "detail": "FS -> SS BEW/CL/GEN/1010 -> BEW/GEN/MS/0020",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 4
+    },
+    "got": {
+     "moved": 4,
+     "progress": 0,
+     "revisions": 4
+    },
+    "splitExact": true
+   },
+   {
+    "window": 2,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "BEW/PR/FC/1040 -> BEW/CL/GEN/1010",
+      "detail": "FS -> SS BEW/PR/FC/1040 -> BEW/CL/GEN/1010",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "BEW/PR/FC/1040",
+      "detail": "BEW/PR/FC/1040 cut 3 d",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": -3
+    },
+    "got": {
+     "moved": -3,
+     "progress": 0,
+     "revisions": -3
+    },
+    "splitExact": true
+   },
+   {
+    "window": 3,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 4,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": true,
+      "target": "BEW/PR/FC/1040",
+      "detail": "BEW/PR/FC/1040 left unstarted",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "cut",
+      "planted": false,
+      "error": "same target",
+      "side": "revisions"
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": "same target",
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": 17,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 17,
+     "progress": 17,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 5,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": true,
+      "target": "BEW/PR/FC/1040",
+      "detail": "BEW/PR/FC/1040 1 days less left",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": -1,
+     "revisions": 0
+    },
+    "got": {
+     "moved": -1,
+     "progress": -1,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 6,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": true,
+      "target": "BEW/PR/FC/1040",
+      "detail": "BEW/PR/FC/1040 finished at the data date",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "cut",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": -17,
+     "revisions": 0
+    },
+    "got": {
+     "moved": -17,
+     "progress": -17,
+     "revisions": 0
+    },
+    "splitExact": true
+   }
+  ],
+  "total": {
+   "moved": 0,
+   "sumOfWindows": 0,
+   "progress": -1,
+   "revisions": 1,
+   "firstFinish": "2016-08-28 17:00",
+   "lastFinish": "2016-08-28 17:00"
+  },
+  "addsUp": true,
+  "ms": 1021
+ },
+ {
+  "file": "example_xer_file.xer",
+  "seed": 1,
+  "mixed": 3,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "A10780",
+      "detail": "A10780 cut 1 d",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": true,
+      "target": "A10420 -> A10690",
+      "detail": "FS A10420 -> A10690 deleted",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": -3
+    },
+    "got": {
+     "moved": -3,
+     "progress": 0,
+     "revisions": -3
+    },
+    "splitExact": true
+   },
+   {
+    "window": 2,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": true,
+      "target": "A10390",
+      "detail": "A10390 finished at the data date",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "cut",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": -0.3,
+     "revisions": 0
+    },
+    "got": {
+     "moved": -0.3,
+     "progress": -0.3,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 3,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "constraint",
+      "planted": true,
+      "target": "A14400",
+      "detail": "A14400 start on or after +1",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 1
+    },
+    "got": {
+     "moved": 1,
+     "progress": 0,
+     "revisions": 1
+    },
+    "splitExact": true
+   },
+   {
+    "window": 4,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "type",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 5,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "type",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 6,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   }
+  ],
+  "total": {
+   "moved": -2.3,
+   "sumOfWindows": -2.3,
+   "progress": -0.3,
+   "revisions": -2,
+   "firstFinish": "2027-05-06 16:59",
+   "lastFinish": "2027-05-04 14:26"
+  },
+  "addsUp": true,
+  "ms": 193
+ },
+ {
+  "file": "example_xer_file.xer",
+  "seed": 2,
+  "mixed": 3,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "added",
+      "planted": true,
+      "target": "ZZ-ADDED-502498",
+      "detail": "ZZ-ADDED-502498 (3 d) between A10740.11 and A10760",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 3
+    },
+    "got": {
+     "moved": 3,
+     "progress": 0,
+     "revisions": 3
+    },
+    "splitExact": true
+   },
+   {
+    "window": 2,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": true,
+      "target": "A10390",
+      "detail": "A10390 left unstarted",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "A12930 -> MS3350",
+      "detail": "FS -> SS A12930 -> MS3350",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "constraint",
+      "planted": true,
+      "target": "A14400",
+      "detail": "A14400 start on or after +4",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 3,
+    "both": true,
+    "expect": {
+     "progress": 19,
+     "revisions": 4
+    },
+    "got": {
+     "moved": 23,
+     "progress": 19,
+     "revisions": 4
+    },
+    "splitExact": true
+   },
+   {
+    "window": 3,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 4,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "cut",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 5,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "cut",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 6,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "type",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   }
+  ],
+  "total": {
+   "moved": 26,
+   "sumOfWindows": 26,
+   "progress": 19,
+   "revisions": 7,
+   "firstFinish": "2027-05-06 16:59",
+   "lastFinish": "2027-06-14 16:59"
+  },
+  "addsUp": true,
+  "ms": 182
+ },
+ {
+  "file": "example_xer_file.xer",
+  "seed": 3,
+  "mixed": 3,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "constraint",
+      "planted": true,
+      "target": "A10390-1",
+      "detail": "A10390-1 start on or after +4",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "A10760 -> A10770",
+      "detail": "FS -> SS A10760 -> A10770",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 1
+    },
+    "got": {
+     "moved": 1,
+     "progress": 0,
+     "revisions": 1
+    },
+    "splitExact": true
+   },
+   {
+    "window": 2,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "A10390-1 -> A10400",
+      "detail": "FS -> SS A10390-1 -> A10400",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "A10600.2",
+      "detail": "A10600.2 cut 3 d",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": -4
+    },
+    "got": {
+     "moved": -4,
+     "progress": 0,
+     "revisions": -4
+    },
+    "splitExact": true
+   },
+   {
+    "window": 3,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": true,
+      "target": "A10400",
+      "detail": "A10400 finished at the data date",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "constraint",
+      "planted": true,
+      "target": "A14400",
+      "detail": "A14400 start on or after +5",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": true,
+    "expect": {
+     "progress": -0.3,
+     "revisions": 5
+    },
+    "got": {
+     "moved": 4.7,
+     "progress": -0.3,
+     "revisions": 5
+    },
+    "splitExact": true
+   },
+   {
+    "window": 4,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "cut",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 5,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 6,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   }
+  ],
+  "total": {
+   "moved": 1.7,
+   "sumOfWindows": 1.7,
+   "progress": -0.3,
+   "revisions": 2,
+   "firstFinish": "2027-05-06 16:59",
+   "lastFinish": "2027-05-10 14:26"
+  },
+  "addsUp": true,
+  "ms": 170
+ },
+ {
+  "file": "hotel-project.xer",
+  "seed": 1,
+  "mixed": 3,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "cut",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 2,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 3,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 4,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 5,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "type",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 6,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   }
+  ],
+  "total": {
+   "moved": 0,
+   "sumOfWindows": 0,
+   "progress": 0,
+   "revisions": 0,
+   "firstFinish": "2014-07-23 16:00",
+   "lastFinish": "2014-07-23 16:00"
+  },
+  "addsUp": true,
+  "ms": 1628
+ },
+ {
+  "file": "hotel-project.xer",
+  "seed": 2,
+  "mixed": 3,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 2,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "type",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 3,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 4,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "cut",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 5,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "cut",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "type",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 6,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   }
+  ],
+  "total": {
+   "moved": 0,
+   "sumOfWindows": 0,
+   "progress": 0,
+   "revisions": 0,
+   "firstFinish": "2014-07-23 16:00",
+   "lastFinish": "2014-07-23 16:00"
+  },
+  "addsUp": true,
+  "ms": 1660
+ },
+ {
+  "file": "hotel-project.xer",
+  "seed": 3,
+  "mixed": 3,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "type",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 2,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "type",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 3,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "cut",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 4,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "cut",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 5,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 6,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "type",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   }
+  ],
+  "total": {
+   "moved": 0,
+   "sumOfWindows": 0,
+   "progress": 0,
+   "revisions": 0,
+   "firstFinish": "2014-07-23 16:00",
+   "lastFinish": "2014-07-23 16:00"
+  },
+  "addsUp": true,
+  "ms": 1488
+ },
+ {
+  "file": "sample.xer",
+  "seed": 1,
+  "mixed": 3,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "A5030",
+      "detail": "A5030 cut 2 d",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": true,
+      "target": "A2010 -> A2020",
+      "detail": "FS A2010 -> A2020 deleted",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": -22
+    },
+    "got": {
+     "moved": -22,
+     "progress": 0,
+     "revisions": -22
+    },
+    "splitExact": true
+   },
+   {
+    "window": 2,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "A3040",
+      "detail": "A3040 cut 1 d",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": -1
+    },
+    "got": {
+     "moved": -1,
+     "progress": 0,
+     "revisions": -1
+    },
+    "splitExact": true
+   },
+   {
+    "window": 3,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "added",
+      "planted": true,
+      "target": "ZZ-ADDED-101922",
+      "detail": "ZZ-ADDED-101922 (4 d) between A3040 and A3050",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": true,
+      "target": "A5030 -> A5040",
+      "detail": "FS A5030 -> A5040 deleted",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": -6
+    },
+    "got": {
+     "moved": -6,
+     "progress": 0,
+     "revisions": -6
+    },
+    "splitExact": true
+   },
+   {
+    "window": 4,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": true,
+      "target": "A4010",
+      "detail": "A4010 2 days less left",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": true,
+      "target": "A4030 -> A4040",
+      "detail": "FS A4030 -> A4040 deleted",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 2,
+    "both": true,
+    "expect": {
+     "progress": -2,
+     "revisions": -11
+    },
+    "got": {
+     "moved": -13,
+     "progress": -2,
+     "revisions": -11
+    },
+    "splitExact": true
+   },
+   {
+    "window": 5,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "A5020 -> A5030",
+      "detail": "FS -> SS A5020 -> A5030",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": -3
+    },
+    "got": {
+     "moved": -3,
+     "progress": 0,
+     "revisions": -3
+    },
+    "splitExact": true
+   },
+   {
+    "window": 6,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": -13437,
+     "revisions": 0
+    },
+    "got": {
+     "moved": null,
+     "progress": null,
+     "revisions": null
+    },
+    "splitExact": false
+   }
+  ],
+  "total": {
+   "moved": null,
+   "sumOfWindows": null,
+   "progress": null,
+   "revisions": null,
+   "firstFinish": "2021-10-07 16:00",
+   "lastFinish": ""
+  },
+  "addsUp": true,
+  "ms": 10
+ },
+ {
+  "file": "sample.xer",
+  "seed": 2,
+  "mixed": 3,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "added",
+      "planted": true,
+      "target": "ZZ-ADDED-101922",
+      "detail": "ZZ-ADDED-101922 (3 d) between A4010 and A4020",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 3
+    },
+    "got": {
+     "moved": 3,
+     "progress": 0,
+     "revisions": 3
+    },
+    "splitExact": true
+   },
+   {
+    "window": 2,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "A4040 -> A4050",
+      "detail": "FS -> SS A4040 -> A4050",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "constraint",
+      "planted": true,
+      "target": "EM05",
+      "detail": "EM05 start on or after +5",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 3,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "cut",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 4,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "type",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 5,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "cut",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "added",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 0,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 6,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "constraint",
+      "planted": true,
+      "target": "EM00",
+      "detail": "EM00 start on or after +5",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 5
+    },
+    "got": {
+     "moved": 5,
+     "progress": 0,
+     "revisions": 5
+    },
+    "splitExact": true
+   }
+  ],
+  "total": {
+   "moved": 8,
+   "sumOfWindows": 8,
+   "progress": 0,
+   "revisions": 8,
+   "firstFinish": "2021-10-07 16:00",
+   "lastFinish": "2021-10-19 16:00"
+  },
+  "addsUp": true,
+  "ms": 7
+ },
+ {
+  "file": "sample.xer",
+  "seed": 3,
+  "mixed": 3,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "constraint",
+      "planted": true,
+      "target": "A2010",
+      "detail": "A2010 start on or after +4",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "A4020 -> A4030",
+      "detail": "FS -> SS A4020 -> A4030",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": -1
+    },
+    "got": {
+     "moved": -1,
+     "progress": 0,
+     "revisions": -1
+    },
+    "splitExact": true
+   },
+   {
+    "window": 2,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": true,
+      "target": "A2010",
+      "detail": "A2010 1 days less left",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "A4000 -> A4010",
+      "detail": "FS -> SS A4000 -> A4010",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "A2040",
+      "detail": "A2040 cut 2 d",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 3,
+    "both": true,
+    "expect": {
+     "progress": -1,
+     "revisions": -7
+    },
+    "got": {
+     "moved": -8,
+     "progress": -1,
+     "revisions": -7
+    },
+    "splitExact": true
+   },
+   {
+    "window": 3,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": true,
+      "target": "A2050",
+      "detail": "A2050 finished at the data date",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "added",
+      "planted": true,
+      "target": "ZZ-ADDED-101922",
+      "detail": "ZZ-ADDED-101922 (3 d) between A4030 and A4040",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 2,
+    "both": true,
+    "expect": {
+     "progress": -1,
+     "revisions": 3
+    },
+    "got": {
+     "moved": 2,
+     "progress": -1,
+     "revisions": 3
+    },
+    "splitExact": true
+   },
+   {
+    "window": 4,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "A3050",
+      "detail": "A3050 cut 1 d",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": -1
+    },
+    "got": {
+     "moved": -1,
+     "progress": 0,
+     "revisions": -1
+    },
+    "splitExact": true
+   },
+   {
+    "window": 5,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": true,
+      "target": "ZZ-ADDED-101922",
+      "detail": "ZZ-ADDED-101922 1 days less left",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "A5040",
+      "detail": "A5040 cut 1 d",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": true,
+    "expect": {
+     "progress": -1,
+     "revisions": -1
+    },
+    "got": {
+     "moved": -2,
+     "progress": -1,
+     "revisions": -1
+    },
+    "splitExact": true
+   },
+   {
+    "window": 6,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": true,
+      "target": "A5010",
+      "detail": "A5010 finished at the data date",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": true,
+      "target": "A5030 -> A5040",
+      "detail": "FS A5030 -> A5040 deleted",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 2,
+    "both": true,
+    "expect": {
+     "progress": -1,
+     "revisions": -9
+    },
+    "got": {
+     "moved": -10,
+     "progress": -1,
+     "revisions": -9
+    },
+    "splitExact": true
+   }
+  ],
+  "total": {
+   "moved": -20,
+   "sumOfWindows": -20,
+   "progress": -4,
+   "revisions": -16,
+   "firstFinish": "2021-10-07 16:00",
+   "lastFinish": "2021-09-09 16:00"
+  },
+  "addsUp": true,
+  "ms": 20
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "seed": 1,
+  "mixed": 3,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": true,
+      "target": "BA-P1-10",
+      "detail": "BA-P1-10 1 days less left",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "BA-P2-10",
+      "detail": "BA-P2-10 cut 4 d",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": true,
+      "target": "BA-P3-70 -> BA-P3-90",
+      "detail": "FS BA-P3-70 -> BA-P3-90 deleted",
+      "side": "revisions",
+      "named": false,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 3,
+    "both": true,
+    "expect": {
+     "progress": -1,
+     "revisions": 0
+    },
+    "got": {
+     "moved": -1,
+     "progress": -1,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 2,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "added",
+      "planted": true,
+      "target": "ZZ-ADDED-120240",
+      "detail": "ZZ-ADDED-120240 (1 d) between BA-P1-120 and BA-P1-130",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 1
+    },
+    "got": {
+     "moved": 1,
+     "progress": 0,
+     "revisions": 1
+    },
+    "splitExact": true
+   },
+   {
+    "window": 3,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": true,
+      "target": "BA-P1-50",
+      "detail": "BA-P1-50 left unstarted",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "added",
+      "planted": true,
+      "target": "ZZ-ADDED-120241",
+      "detail": "ZZ-ADDED-120241 (2 d) between BA-P2-150 and A3450",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "BA-P1-70",
+      "detail": "BA-P1-70 cut 4 d",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 3,
+    "both": true,
+    "expect": {
+     "progress": 18,
+     "revisions": -2
+    },
+    "got": {
+     "moved": 16,
+     "progress": 18,
+     "revisions": -2
+    },
+    "splitExact": true
+   },
+   {
+    "window": 4,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": true,
+      "target": "BA-P1-50",
+      "detail": "BA-P1-50 1 days less left",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": true,
+      "target": "BA-P1-130 -> BA-P2-70",
+      "detail": "FS BA-P1-130 -> BA-P2-70 deleted",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "constraint",
+      "planted": true,
+      "target": "BA-P4-140",
+      "detail": "BA-P4-140 start on or after +4",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 3,
+    "both": true,
+    "expect": {
+     "progress": -1,
+     "revisions": -16
+    },
+    "got": {
+     "moved": -17,
+     "progress": -1,
+     "revisions": -16
+    },
+    "splitExact": true
+   },
+   {
+    "window": 5,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "BA-P4-140 -> BA-P4-160",
+      "detail": "FS -> SS BA-P4-140 -> BA-P4-160",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "added",
+      "planted": true,
+      "target": "ZZ-ADDED-120242",
+      "detail": "ZZ-ADDED-120242 (2 d) between BA-P4-160 and BA-P4-170",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": -8
+    },
+    "got": {
+     "moved": -8,
+     "progress": 0,
+     "revisions": -8
+    },
+    "splitExact": true
+   },
+   {
+    "window": 6,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "constraint",
+      "planted": true,
+      "target": "A3450",
+      "detail": "A3450 start on or after +3",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "type",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 3
+    },
+    "got": {
+     "moved": 3,
+     "progress": 0,
+     "revisions": 3
+    },
+    "splitExact": true
+   }
+  ],
+  "total": {
+   "moved": -6,
+   "sumOfWindows": -6,
+   "progress": 16,
+   "revisions": -22,
+   "firstFinish": "2013-02-27 17:00",
+   "lastFinish": "2013-02-21 17:00"
+  },
+  "addsUp": true,
+  "ms": 25
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "seed": 2,
+  "mixed": 3,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": true,
+      "target": "BA-P1-10",
+      "detail": "BA-P1-10 finished at the data date",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "added",
+      "planted": true,
+      "target": "ZZ-ADDED-120240",
+      "detail": "ZZ-ADDED-120240 (1 d) between BA-P3-70 and BA-P3-90",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": true,
+    "expect": {
+     "progress": -1,
+     "revisions": 1
+    },
+    "got": {
+     "moved": 0,
+     "progress": -1,
+     "revisions": 1
+    },
+    "splitExact": true
+   },
+   {
+    "window": 2,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": true,
+      "target": "BA-P3-10",
+      "detail": "BA-P3-10 left unstarted",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "BA-P3-140 -> A3450",
+      "detail": "FS -> SS BA-P3-140 -> A3450",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 2,
+    "both": true,
+    "expect": {
+     "progress": 10,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 10,
+     "progress": 10,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 3,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": true,
+      "target": "BA-P3-10",
+      "detail": "BA-P3-10 2 days less left",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "BA-P3-120",
+      "detail": "BA-P3-120 cut 3 d",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": true,
+    "expect": {
+     "progress": -2,
+     "revisions": -3
+    },
+    "got": {
+     "moved": -5,
+     "progress": -2,
+     "revisions": -3
+    },
+    "splitExact": true
+   },
+   {
+    "window": 4,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "added",
+      "planted": true,
+      "target": "ZZ-ADDED-120241",
+      "detail": "ZZ-ADDED-120241 (2 d) between BA-P3-50 and BA-P3-60",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "constraint",
+      "planted": true,
+      "target": "BA-P3-40",
+      "detail": "BA-P3-40 start on or after +2",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 4
+    },
+    "got": {
+     "moved": 4,
+     "progress": 0,
+     "revisions": 4
+    },
+    "splitExact": true
+   },
+   {
+    "window": 5,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "BA-P3-90",
+      "detail": "BA-P3-90 cut 1 d",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": -1
+    },
+    "got": {
+     "moved": -1,
+     "progress": 0,
+     "revisions": -1
+    },
+    "splitExact": true
+   },
+   {
+    "window": 6,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": true,
+      "target": "BA-P3-40",
+      "detail": "BA-P3-40 1 days less left",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "constraint",
+      "planted": true,
+      "target": "BA-P3-50",
+      "detail": "BA-P3-50 start on or after +5",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 2,
+    "both": true,
+    "expect": {
+     "progress": -1,
+     "revisions": 5
+    },
+    "got": {
+     "moved": 4,
+     "progress": -1,
+     "revisions": 5
+    },
+    "splitExact": true
+   }
+  ],
+  "total": {
+   "moved": 12,
+   "sumOfWindows": 12,
+   "progress": 6,
+   "revisions": 6,
+   "firstFinish": "2013-02-27 17:00",
+   "lastFinish": "2013-03-11 17:00"
+  },
+  "addsUp": true,
+  "ms": 23
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "seed": 3,
+  "mixed": 3,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "constraint",
+      "planted": true,
+      "target": "BA-P4-20",
+      "detail": "BA-P4-20 start on or after +4",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "BA-P4-100 -> BA-P4-130",
+      "detail": "FS -> SS BA-P4-100 -> BA-P4-130",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 2,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "BA-P1-50 -> BA-P1-60",
+      "detail": "FS -> SS BA-P1-50 -> BA-P1-60",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "cut",
+      "planted": true,
+      "target": "BA-P3-50",
+      "detail": "BA-P3-50 cut 3 d",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": -4
+    },
+    "got": {
+     "moved": -4,
+     "progress": 0,
+     "revisions": -4
+    },
+    "splitExact": true
+   },
+   {
+    "window": 3,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": false,
+      "error": null,
+      "side": "progress"
+     },
+     {
+      "kind": "added",
+      "planted": true,
+      "target": "ZZ-ADDED-120240",
+      "detail": "ZZ-ADDED-120240 (3 d) between A3450 and A5800",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "constraint",
+      "planted": false,
+      "error": "same target",
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 1,
+    "both": false,
+    "expect": {
+     "progress": 0,
+     "revisions": 3
+    },
+    "got": {
+     "moved": 3,
+     "progress": 0,
+     "revisions": 3
+    },
+    "splitExact": true
+   },
+   {
+    "window": 4,
+    "kinds": [
+     {
+      "kind": "late-start",
+      "planted": true,
+      "target": "BA-P3-20",
+      "detail": "BA-P3-20 left unstarted",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "cut",
+      "planted": false,
+      "error": "same target",
+      "side": "revisions"
+     },
+     {
+      "kind": "type",
+      "planted": true,
+      "target": "ZZ-ADDED-120240 -> A5800",
+      "detail": "FS -> SS ZZ-ADDED-120240 -> A5800",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": true,
+    "expect": {
+     "progress": 6,
+     "revisions": 0
+    },
+    "got": {
+     "moved": 6,
+     "progress": 6,
+     "revisions": 0
+    },
+    "splitExact": true
+   },
+   {
+    "window": 5,
+    "kinds": [
+     {
+      "kind": "gain",
+      "planted": true,
+      "target": "BA-P3-30",
+      "detail": "BA-P3-30 4 days less left",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     },
+     {
+      "kind": "link-deleted",
+      "planted": true,
+      "target": "BA-P3-70 -> BA-P3-90",
+      "detail": "FS BA-P3-70 -> BA-P3-90 deleted",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     }
+    ],
+    "plantedCount": 2,
+    "both": true,
+    "expect": {
+     "progress": -4,
+     "revisions": -10
+    },
+    "got": {
+     "moved": -14,
+     "progress": -4,
+     "revisions": -10
+    },
+    "splitExact": true
+   },
+   {
+    "window": 6,
+    "kinds": [
+     {
+      "kind": "early-finish",
+      "planted": true,
+      "target": "BA-P3-40",
+      "detail": "BA-P3-40 finished at the data date",
+      "side": "progress",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "link-deleted",
+      "planted": true,
+      "target": "BA-P4-110 -> BA-P4-130",
+      "detail": "FS BA-P4-110 -> BA-P4-130 deleted",
+      "side": "revisions",
+      "named": true,
+      "namedOtherSide": false
+     },
+     {
+      "kind": "calendar",
+      "planted": false,
+      "error": null,
+      "side": "revisions"
+     }
+    ],
+    "plantedCount": 2,
+    "both": true,
+    "expect": {
+     "progress": -4,
+     "revisions": -9
+    },
+    "got": {
+     "moved": -13,
+     "progress": -4,
+     "revisions": -9
+    },
+    "splitExact": true
+   }
+  ],
+  "total": {
+   "moved": -22,
+   "sumOfWindows": -22,
+   "progress": -2,
+   "revisions": -20,
+   "firstFinish": "2013-02-27 17:00",
+   "lastFinish": "2013-02-05 17:00"
+  },
+  "addsUp": true,
+  "ms": 21
+ }
+]

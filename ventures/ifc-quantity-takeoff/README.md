@@ -11,8 +11,14 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
 - **A bill of quantities** grouped by class, type, storey, material,
   classification code or **Uniformat II element** (an elemental estimate:
   A1010 Standard Foundations, B2010 Exterior Walls, C1010 Partitions ...): count, volume (m3), area (m2), length (m) and weight
-  (kg) per line. Type a rate on a line (per each, m3, m2, m or kg) and the page
-  prices it and totals the priced lines. Download as CSV.
+  (kg) per line, and for steel a **coating area** (m2): every outside face
+  of each steel beam, column, member, plate, pile, railing or stair flight,
+  ends and edges included, the area a painter, galvaniser or fire-protection
+  applicator prices (hollow sections' insides in a column of their own; on 8
+  public models 797 of 825 steel parts, matching published section tables:
+  [eval/coating-area-2026-11-24.md](eval/coating-area-2026-11-24.md)). Type a rate on a line (per each, m3, m2, m, kg or
+  "m2 coat") and the page prices it and totals the priced lines. Download as
+  CSV.
 - **A room schedule.** Every room (IfcSpace) measured from its own solid:
   floor area and perimeter cut 1 cm above its floor, height, wall area
   (perimeter x height, before doors and windows), volume, each checked
@@ -53,6 +59,41 @@ Drop an `.ifc` (IFC2X3, IFC4 or IFC4X3). You get:
   1000 (`nominal-slip`): 6,415 m3 of concrete not in the model, 43% of its
   bill, now summed from the geometry. On 11 of 15 public models nothing the
   BoQ sums is in doubt; on the other four, 3 volumes and 13 areas are (5 volumes before the fix).
+  2026-11-24 ([eval/split-held-2026-11-24.md](eval/split-held-2026-11-24.md)):
+  two more causes named. `split-held`: a Revit wall split at a level stores
+  the whole wall on one piece and nothing on the other (an `IfcWall` under the
+  same Tag); the pieces' bodies sum to it to 1e-4. It found HHS construction's
+  BoQ counting 129.17 m2 of wall area and 11.18 m3 of concrete twice.
+  `whole-surface`: Tekla writes a plate's NetArea as every face of its body
+  (its paint area: 28.30 m2 on a 12.88 m2 plate), so the BoQ sums the plan.
+  2026-11-24 ([eval/coating-area-2026-11-24.md](eval/coating-area-2026-11-24.md)):
+  that skin is now a BoQ column for every steel part, from its faces, else
+  its extruded profile's outline (filleted, mapped and clipped members), else
+  a stored OuterSurfaceArea: 797 of 825 steel parts on 8 models, 3,116 m2;
+  310UC96.8 1.794 m2/m against the table's 1.79. Stored skins agree within
+  2% for 185 of 295; ArchiCAD's flat bars store the two wide faces only.
+  Now 13 of 15 models have nothing in doubt; 1 volume and 6 areas remain.
+  2026-11-24 ([eval/coped-coating-2026-11-24.md](eval/coped-coating-2026-11-24.md)):
+  coped members (an extrusion less faceted cut-outs) coated from their faces
+  by `boundaryArea`, which counts a face up and a face down on one plane (a
+  cope flush with a flange) where one area vector per plane cancelled them:
+  825 of 825 steel parts, 3,338 m2. On the 11 coped parts whose volume
+  IfcOpenShell agrees with, faces agree to 1e-5 m2; on the other 17 its
+  boolean is off (Monte Carlo volume), and a Crofton line count agrees with
+  every area within 1.4σ. Clipped members now take their faces too
+  (IfcOpenShell's 3 of 3; Tekla's stored 7.58268 m2 on a clipped deck beam).
+  Later that day ([eval/net-on-a-face-2026-11-24.md](eval/net-on-a-face-2026-11-24.md)):
+  `net-on-a-face`, a holed Revit wall whose GrossSideArea is its longer face
+  with the openings taken out (five walls in two models, to 1e-5). It named
+  three of ARK_NUS's last unexplained areas; 1 volume and 3 areas remain
+  (ARK_NUS #1167770, 2.04%, and schependomlaan's three zinc copings).
+  Then ([eval/signed-faces-2026-11-24.md](eval/signed-faces-2026-11-24.md)):
+  those copings are a brick band extruded along its run, and ArchiCAD stores
+  its flat underside (groove left out) as GrossArea. A body built as a signed
+  sum of pieces now has its faces read plane by plane with the pieces' signs,
+  so shared faces cancel; the underside matches to 1e-9 and is named
+  `a-body-face`. 0 areas and 1 volume remain in doubt; 14 of 15 models have
+  nothing in doubt. BoQ totals unchanged on all 15.
 
 **Guides** (2026-11-22, worked examples on the sample office, every number
 checked against the engine by `guides.test.mjs`):
@@ -687,7 +728,8 @@ the 17), and 14 exterior-flagged walls standing wholly under the roof
 ## Geometry it reads
 
 Extruded area solids (rectangle, rounded and hollow rectangle, circle and hollow
-circle, ellipse, I, L, T, U, C and Z shapes with root radii, arbitrary outlines
+circle, ellipse, I, L, T, U, C and Z shapes with root radii and, on I, L, T, U and Z, toe
+(edge) radii (eval/edge-radii-2026-11-24.md), arbitrary outlines
 from polylines, indexed poly curves with arcs, composite and trimmed curves,
 derived/mirrored and composite profiles); half-space, boxed half-space and
 polygonal-bounded half-space clips; boolean difference, union and intersection;
@@ -792,9 +834,31 @@ IfcOpenShell 0.9's elevation change is exactly 100 times the text's (L, the
 segment length, once too often): -7.92 m at the end where the file's own
 EndPoint says 0, so here the sample text wins
 ([eval/cant-2026-11-23.md](eval/cant-2026-11-23.md)).
+**A second exporter: BridgeLink PGSuper (2026-11-24).** Three WSDOT
+PGSuper 8 bridges (the I-405/SR 167 flyover, 24 girders on a 324 m curve and
+a crest; two 5-girder spans) read in full, deck and railings included, where
+before the flyover's BoQ had no deck. Parabolic vertical curves written as
+`IfcPolynomialCurve` are read, and PGSuper's own way of writing the vertical
+is read from the file's placements, segment by segment: lengths as horizontal
+runs, parabolas carrying their start grade on a level RefDirection (turned
+onto it, as IfcOpenShell 0.9 does, each parabola tilts by its grade and the
+profile jumps 9 m), line grades written as sines. The elevations then match
+the file's own semantic vertical alignment to 3e-11 m at every metre. Its
+decks and railings are drawn in absolute elevation on a curve that adds it
+again (25 m over the girders as written, IfcOpenShell too); they are moved
+down onto the curve, with a note, and then sit a 7 to 20 cm haunch over the
+girder tops. Volumes match an independent integral (semantic grades and
+curvature, Pappus) to 3e-5 on the flyover's deck and 1.4e-4 on its railings.
+A lofted deck's plan area is now its top seen from above: the flyover's
+reads 3,399 m2 (a mid-depth plane cut caught 179), and Viadotto's identical
+314.2 m2 spans, which the cut read anywhere from 275.6 to 312.6 m2, all read
+314.2 m2. IfcOpenShell 0.9 crashes on the flyover's deck, railings and
+gradient curve
+([eval/pgsuper-bridges-2026-11-24.md](eval/pgsuper-bridges-2026-11-24.md)).
 Not read yet: spirals other than the clothoid and the cosine (sine and
-polynomial spirals), `IfcPolynomialCurve` and offset curves as directrices;
-the element on such a placement is "not read", and the rest of the file is.
+polynomial spirals), a polynomial curve with z coefficients, and offset
+curves as directrices; the element on such a placement is "not read", and
+the rest of the file is.
 
 **Reinforcing bars and grid placements (2026-11-22).** A bar swept as a disk
 along an `IfcIndexedPolyCurve` of line and arc segments (how bars, stirrups
@@ -890,4 +954,4 @@ software vendor.
 
 ## License
 
-MIT, see [LICENSE](LICENSE). Support the work: https://github.com/sponsors/Duncan-Haywood
+FSL-1.1-MIT, see [LICENSE](LICENSE). Support the work: https://github.com/sponsors/Duncan-Haywood

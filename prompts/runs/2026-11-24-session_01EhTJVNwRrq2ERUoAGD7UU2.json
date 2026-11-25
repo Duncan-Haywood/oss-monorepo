@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVNwRrq2ERUoAGD7UU2",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "7eab53d2d124d76d4c0792e7bcacb742bd07a4a55c29819a50a6cd23cbc24081",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T16:21:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check flagship item: windows check on more series",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18624",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/xer-schedule-check/eval/windows-check.mjs",
+      "issue": "'windows check' as a buildable item said only rerun on more seeds/files; the original check was already 144/144, so the useful work was new change kinds, which the row does not suggest"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "the default draw routed to research; the scheduled brief asks for revenue products, so I routed again with --task, which picked ventures/1",
+      "did": "route --task",
+      "result": "ventures flagship row 8 worked"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-windows-analysis-names-gains-too.md",
+    "ventures/xer-schedule-check/eval/windows-kinds-check-2026-11-24.md"
+  ],
+  "goal": null,
+  "notes": "New eval/windows-kinds-check.mjs: 9 change kinds planted one per window on series from the six public XERs (3 seeds). First run found 0/9 gains named and one deleted link missed (progress moved the path mid-window). Fixed windows.mjs (gains named, kept out of recurring) and compare.mjs (criticalPath.halfStep; revisions tested against it). After: 80/80 planted windows split exact, right side, named; 18/18 series add up. Original windows-check rerun: 144/144, 86/86 named. Venture tests: 540 pass (run_venture_tests.py xer-schedule-check). check_posts ok. Hotel file plants 0 (path is one constrained finish milestone). venture-preflight clean.",
+  "corrections": [],
+  "redteam": null
+}

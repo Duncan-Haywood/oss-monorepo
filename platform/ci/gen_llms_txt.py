@@ -45,7 +45,7 @@ def build(d: Path) -> str | None:
         "",
         f"> {desc}",
         "",
-        "Free and open source (MIT). Results are estimates from the numbers typed in, "
+        "Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, "
         "not legal, tax, financial or professional advice.",
         "",
         "## Pages",
@@ -58,7 +58,7 @@ def build(d: Path) -> str | None:
         pt = meta(p.read_text(errors="replace"), r"<h1[^>]*>(.*?)</h1>")
         if pt:
             out.append(f"- [{pt}]({SITE}/{slug}/{p.name})")
-    out += ["", "## Source", "", f"- [Source code and README]({SRC}/{slug}): MIT licensed.", ""]
+    out += ["", "## Source", "", f"- [Source code and README]({SRC}/{slug}): FSL-1.1-MIT licensed.", ""]
     return "\n".join(out)
 
 

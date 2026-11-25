@@ -1,0 +1,37 @@
+# XcodeGen spec: `brew install xcodegen && xcodegen` in this folder produces
+# NutritionAgent.xcodeproj. Set DEVELOPMENT_TEAM and the bundle id prefix first.
+# Status: written without an Apple toolchain; see ../docs/limitations.md.
+name: NutritionAgent
+options:
+  bundleIdPrefix: com.example.nutritionagent
+  deploymentTarget:
+    iOS: "17.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.10"
+    DEVELOPMENT_TEAM: ""
+targets:
+  NutritionAgent:
+    type: application
+    platform: iOS
+    sources: [NutritionAgent]
+    entitlements:
+      path: NutritionAgent/NutritionAgent.entitlements
+      properties:
+        com.apple.developer.healthkit: true
+        com.apple.developer.healthkit.access: []
+        com.apple.developer.healthkit.background-delivery: true
+        com.apple.security.application-groups: [group.com.example.nutritionagent]
+    info:
+      path: NutritionAgent/Info.plist
+      properties:
+        CFBundleDisplayName: Nutrition Agent
+        UILaunchScreen: {}
+        NSPhotoLibraryUsageDescription: "Finds new photos of food you take with the Camera app. Photos are classified on this iPhone; only likely food photos are sent, downscaled and without location, to your own server for nutrition estimates."
+        NSHealthShareUsageDescription: "Reads weight, body composition, activity and sleep so your nutrition can be compared with your progress."
+        NSHealthUpdateUsageDescription: "Writes estimated calories, protein, carbohydrates, fat and other nutrients for each meal you photograph."
+        UIBackgroundModes: [fetch, processing]
+        BGTaskSchedulerPermittedIdentifiers:
+          - com.example.nutritionagent.refresh
+          - com.example.nutritionagent.catchup
+        PNAAppGroup: group.com.example.nutritionagent

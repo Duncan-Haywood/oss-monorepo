@@ -287,7 +287,8 @@
       {
         "file": "prompts/redteam.py",
         "issue": "suite_for measures a ventures/<v>/usage.mjs target with that venture's node --test only, but CI also runs platform/ci/usage_contract.mjs over every copy (portfolio-validate via check_storage_guard.py), so mutants CI rejects read as escaped (1099-vendor-csv-checker/usage.mjs, --mutants 12 --seed 11: 8/12 before, 12/12 with the contract; 43 of 152 usage.mjs mutants in 18 earlier records read escaped). Fix with a failing-first test is docs/reports/patches/2026-11-15-redteam-usage-contract.patch (git apply from the root; prompts tests 16 OK). Control plane (/prompts/): its own PR, owner approval; this session could push only its own branch.",
-        "patched": false
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18834"
       }
     ]
   },

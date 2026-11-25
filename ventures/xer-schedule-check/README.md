@@ -5,7 +5,7 @@ schedule assessment** with every activity behind each failing point, a critical
 path recomputed from the logic, the critical path test, and the faults the 14
 points miss: logic loops, out-of-sequence progress, open finishes, expected
 finish dates that hide delay, and stored
-float that no longer matches the logic. MIT licensed, no dependencies, nothing
+float that no longer matches the logic. FSL-1.1-MIT licensed, no dependencies, nothing
 uploaded.
 
 It also **converts an XER to Microsoft Project XML** for someone with Project
@@ -145,6 +145,31 @@ path. The windows add up to the whole movement; the activities named in the
 most windows are listed first. The contemporaneous-period analysis a claims
 consultant bills for, as a first pass from the files alone; who is responsible
 for each delay stays the analyst's call. `node cli.mjs --windows *.xer`.
+
+**Gains and nine more kinds of change in the windows** (2026-11-24): the
+windows analysis was checked on late starts, gains, early finishes,
+constraints, inserted activities, deleted and retyped links, calendar swaps
+and duration cuts, one planted per window on series made from the six public
+files: 80 of 80 planted windows split exactly, on the right side, and named.
+Two fixes came out of it. A window that recovered time now names the work
+that recovered it (work under way now forecast to finish earlier, marked as a
+gain and kept out of the "named in the most windows" list); before, 0 of 9
+gains were named. And revisions are named when they touch the half-step
+schedule's driving path as well as the paths at either end of the window, since
+progress can move the path mid-window (a deleted link that pulled the finish
+in 2.9 days had been missed) (eval/windows-kinds-check-2026-11-24.md).
+
+**Several kinds of change in one window** (2026-11-24): the same check with
+a progress change and one or two revisions planted together in each window,
+the revisions picked on the path the earlier changes left. 149 of 149 planted
+windows split exactly (84 of them holding two or three changes); 238 of 241
+changes named on their own side, none on the wrong one. Of the 3 not named,
+2 moved nothing; the third is a limit: a duration cut that drove the finish
+only on a path an earlier revision in the same window opened, so it is on
+none of the start, half-step or end paths the drivers are read from (its 0.3
+days still land on the revision side). Also found: planting a "gain" on work
+with an expected finish date, or whose finish an FF predecessor holds, gains
+nothing, and the tool rightly names nothing (eval/windows-mixed-check-2026-11-24.md).
 
 **Written review** (2026-11-19): one document for the contractor, built from
 the assessment and, when loaded, the comparison: a summary (forecast against
@@ -336,7 +361,10 @@ equipment) kept as the spreadsheet the site team already has, one row per
 constraint, pasted or opened as a CSV. Columns are found by name (activity
 ID, constraint, type, owner, need by, expected, cleared, notes; only the
 activity column is required, and a row may name several activities); dates
-read as typed (2026-04-14, 4/14/2026, 14-Apr-26, an Excel day number). Each
+read as typed (2026-04-14, 4/14/2026, 14-Apr-26, an Excel day number;
+slash dates take one order for the whole log, day first when any of them has
+a day over 12, so a UK log's 03/12/2026 is 3 December, and a log mixing both
+orders gets a warning). Each
 row gets the date the schedule needs it by (the activity's remaining early
 start, or now for work under way), the latest start before a deadline moves,
 the working days to spare, and a status: **overdue** (open, its promised
@@ -530,6 +558,45 @@ other activity named either way (eval/evm-series-check-2026-11-20.md).
 `status.mjs` now posts cost and units with the work it statuses (at the
 planned rate; `overruns` plants a cost factor), so the example series and
 generated series carry actuals.
+
+## Resource-dependent activities on their crews' calendars (2026-11-24)
+
+A resource-dependent activity in P6 (activity type "Resource Dependent",
+`TT_Rsrc`) is not scheduled on its own calendar: each labour or equipment
+assignment runs on its resource's calendar, for its own remaining units over
+units per hour, from the activity's start plus the assignment's lag. A crew
+on a ten-hour day, a weekend crew or a crane with its own holidays then moves
+the activity's dates and everything after it. The engine used to schedule
+these on the activity calendar like any other activity.
+
+Now it schedules each assignment the way P6 23.12 does on 338 public probe
+files: the activity starts at its own calendar's next opening, runs to the
+latest assignment finish, and when a crew's start lands off the activity
+calendar the remaining work moves to the next opening and every assignment
+runs again from there. Finish-to-finish and start-to-finish requirements end
+an assignment at its resource's last close before the requirement; late dates
+mirror it; float stays on the activity calendar. Material assignments do not
+drive. It is on in every report that recomputes dates (critical path, float
+checks, risk, time impact, drag); `variant: { rsrcDep: false }` in `cpm.mjs`
+gives the old reading.
+
+Checked against P6's own values on the probe files (`node eval/p6-probes.mjs
+DIR/p6-probes`, P6's import laid over each file): **3,730 of 5,199** rows
+match P6 on all six values, up from 2,953; resource-dependent rows 468 of 936,
+up from 156; 799 rows fixed and 22 made worse. The six real P6 files stay at
+19,908 of 19,935. The rules were fitted on the probes, so this is not a
+held-out score, and no public real file has crews on other hours than their
+activities. What is left: `eval/p6-probes-rd-2026-11-24.md`, "What is left".
+
+**Progress override and links out of work under way (2026-11-24).** Under
+progress override P6 lays a successor of work under way by an SS or SF link
+from the data date itself, the lag not yet spent run on from there, not
+from the predecessor's restart (a data date at Fri 17:00: the successor
+starts Fri 17:00 on its own 24-hour calendar, not Mon 08:00), and the
+started predecessor's free float no longer stops at that successor. The
+engine does the same now: **3,822 of 5,199** probe rows match on all six
+values (92 fixed, 0 made worse), the six real files unchanged
+(`eval/po-ss-data-date-2026-11-24.md`, `po-data-date.test.mjs`).
 
 ## Schedule health trend across updates (2026-11-22)
 
@@ -1001,6 +1068,68 @@ file, 1,628 of 2,495 activities in progress keep a remaining duration shorter th
 planted defects named with their kind on three seeds, with no unplanted activity's flags changed.
 The thresholds are review conventions, not a standard, and are options.
 
+## Contract specification check (2026-11-24)
+
+Every contract with a CPM schedule has a scheduling section (CSI 01 32 16, UFGS 01 32 01.00 10
+on US federal work, a state DOT's progress-schedule article) that says what the baseline and
+each update must look like. The owner's reviewer checks each submittal against that list before
+accepting it. The numbers differ contract by contract, so `spec.mjs` builds none in: the reviewer
+types them from their own contract (a rule left blank is not checked), saves them as a small JSON
+rules file, and runs every update against the same file. The rules it can check:
+
+- longest original duration in working days on the activity's own calendar (open work;
+  milestones, level of effort and WBS summaries left out), with words that exempt an activity
+  by ID or name (procurement, submittals, curing);
+- longest lag, no leads, no start-to-finish links;
+- which P6 constraint types are allowed, and the most open activities that may carry one;
+- one start and one finish activity only;
+- largest stored total float on open work;
+- activity code types every activity must carry (by the code type's name);
+- shortest activity name, and no two activities with the same name in one WBS;
+- every activity resource-loaded, every activity cost-loaded, the budget summing to the contract
+  value within a tolerance, and no activity holding more than a set share of the budget;
+- named contract milestones present as milestones (an ordinary activity with the name is
+  pointed out);
+- retained logic, the activity count, and the submittal's data date.
+
+Each rule comes back met or not met (or a note when the file cannot answer it, such as a float
+rule on a file with no stored float), with every activity or relationship behind a miss. On the
+page: **Check against the specification**, **Save rules (JSON)**, **Load rules**, and the CSV.
+CLI: `node cli.mjs schedule.xer --spec rules.json [--csv spec.csv] [--json] [--project CODE]`,
+which exits 1 when a rule is not met, so a folder of updates can be screened in a script.
+
+**How it was checked** (eval/spec-check-2026-11-24.md): on the six public XERs, each rule's
+count of failures recounted straight from the raw tables, without the scheduling model: 64 of 64
+counts agree; 508 ms on the 16,146-activity CCA file. 16 unit tests pin each rule's edges
+(`spec.test.mjs`). Not yet checked against a real contract's specification and a reviewer's own
+read of the same submittal.
+
+## DCMA by WBS, area or subcontractor: the ribbon view (2026-11-24)
+
+One project-wide DCMA score tells an owner's rep the schedule fails, not
+**whose** work fails. Schedule-analysis seats sell a "ribbon" view for that:
+the 14 points broken down by WBS node or activity code. Now this tool has it
+(`ribbon.mjs`, the page's "DCMA by WBS, area or subcontractor", CLI
+`--ribbon [wbs|CODE TYPE] [--level N] [--csv out.csv]`): one row per WBS node
+or per value of an activity code (responsibility, area, trade,
+subcontractor), points 1 to 11 scored on that group's own activities against
+the same thresholds, worst first, with a CSV to send each party its row.
+Relationship points (leads, lags, relationship types) count a link under its
+successor. Points 12 to 14 measure the whole network and are not broken
+down.
+
+Checked: `ribbon.test.mjs` (a two-subcontractor fixture scored by WBS, WBS
+level 2 and code, by name or id; the project row equals the project-wide
+checks; CSV and HTML escaping) and `eval/ribbon-check.mjs` on the six public
+files (eval/ribbon-check-2026-11-24.md): 58 groupings, every point's group
+counts add up to the project's, and all 34,287 findings land in the same
+group when attributed a second way, by their activity ID text. On the hotel
+file by Responsibility, the aluminium subcontractor's 60 activities fail 5
+points where the project fails 5 too, but for different reasons (35.9%
+lagged links); on the CCA hospital file by division, Fire Protection and
+Telecom have 92.7% and 98.3% of their open activities on negative float,
+which the project-wide figure hides.
+
 ## Make open-ended activities critical (2026-11-24)
 
 P6's schedule option **Make open-ended activities critical** (`sched_open_critical_flag` in the
@@ -1090,7 +1219,7 @@ event graph on it (start and finish of each activity, FS/SS/FF/SF links between 
 finds the minimum cut by max flow, shortens the cut together by the least working time that wins
 what the step can (up to a day), and reschedules to measure the gain. A cut may also give back time
 bought at an earlier step (Phillips and Dessouky's un-crashing). Rates CSV: `activity_id,
-max_shorten_days, cost_per_day`; without one each task may lose 25% of its remaining duration at 1
+max_shorten_days, cost_per_day` (headers are read by name, in any order: a "crash cost" column is the cost, and a bare "days" column the room); without one each task may lose 25% of its remaining duration at 1
 per day, so the cost counts activity-days shortened. With `--drag-cost` it stops where a day costs
 more to win than a day of finish is worth. Milestones, mandatory constraints and expected-finish
 activities are never shortened.
@@ -1165,6 +1294,7 @@ button drifts. Search impressions not measured yet.
 | A schedule-quality trend from a paid analytics subscription, or a spreadsheet of each month's DCMA scores kept by hand | Per-update quality scores and float trends, per project or per seat, or whatever the scheduler copies across | The DCMA points, critical counts and driving-path churn for every update at once, BEI against the first update rather than the planned dates P6 resets, what newly fails each month by activity, and the activities losing float with months to zero, free in the browser |
 | An as-planned vs as-built exhibit made by hand (baseline and final update printed side by side, a critical path picked by eye, bars coloured in Excel), or billed by a claims consultant | Shows the plan beside the record; the path and the attribution are argued about because nobody can see how they were picked | The as-built critical path found from the actual dates (a model that lands every activity on them), the plan beside actual activity by activity, and the delay split into late starts, longer durations and planned gaps used up that add up exactly to the delay, free in the browser |
 | A collapsed as-built built by hand by a claims consultant (actual durations typed in, "as-built lags" set link by link until the dates line up, delays deleted, rescheduled in P6), billed by the hour | A model that may or may not reproduce the as-built dates, often not shown; a week of expert time per analysis | The model from the final XER in seconds, with a count of how many activities it lands on their as-built dates; the but-for finish by party and by event and the concurrent days; every as-built gap listed; the model and the collapsed schedule as XERs to check in P6 |
+| Checking a submittal against the contract's scheduling section by hand (a P6 layout filtered per requirement), or a paid analytics product's custom metric library | An afternoon per update for whoever holds P6; the paid products set custom thresholds per seat | Type the limits from the contract once (durations, lags, constraints allowed, required codes, cost loading to the contract value, milestones), save them as a rules file, and get met / not met with every activity behind a miss for each update, free in the browser |
 | A GAO Schedule Assessment Guide review done by hand (layouts filtered practice by practice), or a paid analytics product's GAO metric library | An auditor's or scheduler's afternoon per update; a per-seat licence | The ten practices scored from the XER, every test with its threshold and the activities behind each failure, practice 10 against the real baseline file, a printable scorecard and CSV, free in the browser |
 | Paid P6 XML to XER converters, or importing the XML into a P6 database and exporting an XER (needs a P6 seat) | Get an EPPM or Primavera Cloud export into the XER a reviewer or claims tool asks for | The XER straight from the P6 XML in a browser tab, free, nothing uploaded, and every check on this page runs on the XML itself; checked against MPXJ on six public files (239,338 of 239,338 fields read the same) |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
@@ -1255,8 +1385,14 @@ project's updates for delay claims; a collapsed as-built or as-planned vs as-bui
   activities (not complete, not level of effort or WBS summary), durations and
   float in working days of each activity's own calendar. The critical path test
   delays an open activity on the driving path by 600 working days and
-  recomputes. Missed tasks and BEI use P6's planned dates as the baseline (a
-  single XER rarely carries the baseline project; the page says so). P6 resets
+  recomputes. Missed tasks and BEI are scored against a baseline project's XER
+  when one is given (`--baseline baseline.xer`, or the page's Baseline project
+  input): each activity's baseline finish (its actual finish there, else its
+  early finish, else its planned finish; `baselineFinishes`, the same rule
+  GAO practice 10 uses), matched by activity ID, with activities added since
+  the baseline left out (`dcma-baseline.test.mjs`). Without one they fall back
+  on P6's planned dates (a single XER rarely carries the baseline project;
+  the page and the CLI say which was used). P6 resets
   a not-started activity's planned dates to its early dates whenever it
   schedules (on the CCA sample all 11,775 not-started activities have planned
   finish equal to early finish), so overdue work that has not started is never
@@ -1650,6 +1786,40 @@ run as a formula in Excel or Sheets.
   planted links added after the run named, 0 false listings). They also close
   the last finished-node residual: CFNS103317C0's stored late date contradicts
   the relationship date P6 wrote on its own link, which the engine matches.
+  **Links with a started end** (2026-11-24,
+  `eval/relationship-dates-started-2026-11-24.md`): where either end is in
+  progress or the predecessor finished, P6 writes both dates with only the lag
+  still unspent at the data date (less the work since the predecessor's actual
+  finish, FS and FF, or actual start, SS). `arls` agrees on **11,610 of
+  11,610** such links (9,716 more than were checked before), so a lag edited
+  on work under way is listed too: with the old lag exactly when some was
+  unspent (173 of 173 planted), or, when P6's dates show none left, as "at
+  most" the work already spent (12 of 12 bounds hold); 195 planted changes
+  that leave nothing unspent either way move no date and are not listed, and
+  nothing unplanted is.
+- **SF links and P6 23.12's probe files** (2026-11-24,
+  `eval/p6-probes-2026-11-24.md`, `eval/p6-probes.mjs`): the three SF links in
+  the P6 files decode too (`aref` = predecessor early start + lag less the
+  successor's duration; `arls` = successor late finish - lag - the
+  predecessor's duration), so `arls` now agrees on **40,478 of 40,478**
+  unstarted links and 11,611 of 11,611 started ones. A second P6 oracle: 338
+  public synthetic probe files (danafitkowski/cpp-cpm-engine, MIT), each
+  scheduled in P6 Professional 23.12.1 by their author with P6's six values
+  per activity recorded. The engine matches **2,953 of 5,199** rows on all six
+  (2,929 before one new rule: an SF link into a started successor holds As
+  Late As Possible work by the SF lag still unspent from the predecessor's
+  actual start; under progress override it holds only work not yet started).
+  The probes isolate hard cases, so the share is not the engine's accuracy
+  on real files (those are unchanged at 19,908 of 19,935). What they show is
+  the largest gap: resource-dependent activities were scheduled on the activity
+  calendar, not the resources' (156 of 936 such rows matched). **Since
+  2026-11-24 they run on their crews' calendars** (section "Resource-dependent
+  activities on their crews' calendars"; `eval/p6-probes-rd-2026-11-24.md`):
+  with P6's own import laid over each probe file, **3,730 of 5,199** rows match
+  (468 of 936 resource-dependent ones), 799 fixed and 22 made worse, the real
+  files unchanged. With SS and SF successors of work under way laid from the
+  data date under progress override (`eval/po-ss-data-date-2026-11-24.md`):
+  **3,822 of 5,199**, 92 more fixed, none made worse.
 - **Free float against P6** (`eval/free-float-2026-11-19.md`,
   `eval/free-float-expected-2026-11-20.md`): the same files,
   **19,820 of 19,822 (99.99%)** equal P6's stored free float (19,810 before
@@ -1731,6 +1901,8 @@ values) downloads as a CSV from the page or `node cli.mjs file.xer --schedule ou
 
 ## Files
 
+`spec.mjs` is the contract specification check (`specCheck`, `parseRules`, `rulesJson`, `specText`,
+`specCsv`, `specTableHtml`, `RULES`); `eval/spec-check.mjs` recounts each rule from the raw tables.
 `progress.mjs` is the progress review (`progressReview`, `progressText`, `progressCsv`,
 `progressTableHtml`); `eval/progress-check.mjs` plants progress defects in the public files.
 `calreview.mjs` is the calendar review (`calendarReview`, `calendarText`, `calendarCsv`,

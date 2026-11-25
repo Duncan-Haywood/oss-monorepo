@@ -36,8 +36,9 @@ Once the landed notes were gone the cap still bit: by the evening of
 13 sessions in two days (friction_rank.py) said recording one result meant
 deleting someone else's open item ("the cap forces silent loss of open
 items"). `--park ITEM` makes that cut a move: it takes ITEM out of `next:` and
-appends it, dated, to the venture's own `ventures/<v>/NEXT.md` under
-PARK_HEADING, so `next:` keeps the items most worth starting and nothing open
+appends it, dated, to the venture's own `ventures/<v>/NEXT.md` (or
+`portfolio/flagships/<v>/NEXT.md` for a flagship whose code is private, see
+notes_dir) under PARK_HEADING, so `next:` keeps the items most worth starting and nothing open
 is lost. `next:` should say the rest lives there (the tool adds that pointer
 once if it fits).
 
@@ -450,6 +451,11 @@ def park_candidates(value: str, over: int, keep: tuple[str, ...] = ()) -> list[t
                 or LANDED.search(body)
                 or len(body) < 12 or not _balanced(body) or SENTENCE.search(body)):
             continue
+        head = result_head(body)
+        if head and not holds_new(head, keep):
+            # Only the finished result moves (to HISTORY.md); its open tail
+            # ("next A, B, C") stays in the row (see result_head).
+            body = head
         gain = len(body) + 2
         out.append((body, gain))
         freed += gain
@@ -575,6 +581,7 @@ def remove_items(value: str, items: list[str]) -> str:
     out = re.sub(r"\s+([;,.:])(?=\s|$)", r"\1", out)  # "a ; b" / "a ." -> "a; b" / "a."
     out = re.sub(r"[;,]+\.(?=\s|$)", ".", out)          # "a;. Note" -> "a. Note"
     out = re.sub(r"[;,]\s*(?=" + re.escape(PARK_POINTER) + ")", ". ", out)  # "a; More open" -> "a. More open"
+    out = re.sub(r";\s*:\s+", "; ", out)              # "a; : next b" (result_head cut) -> "a; next b"
     out = re.sub(r"([:.])\s*;\s*", r"\1 ", out)        # "next: ; b" -> "next: b"
     out = re.sub(r";\s*$", ".", out.strip())
     out = re.sub(r"^[;,.]\s*", "", out)
@@ -851,6 +858,68 @@ def is_result(item: str) -> bool:
     return bool(m and (EVIDENCE.search(m.group(1)) or _count(m.group(1))))
 
 
+# A dated result whose item goes on with the row's open list: "on-device
+# closed-eye flag 2026-11-24 (1 closed face flagged, eval/cull-closed-eyes-*;
+# next a real blink set): next Nikon AF grids, a real card ..., a Lightroom
+# read". Why: on 2026-11-24 (PR #18514's record) an implicit park filed that
+# whole item in NEXT.md as one open item, so a result went to the open list
+# and the row lost its three headline next steps, which the run put back by
+# hand. is_result rejects the item (it says "next"), and the head alone too
+# (its bracket says "next"), so the head is judged on its dated evidence.
+README_CITE = re.compile(r'README "([^"]+)"')
+_BRACKETS = re.compile(r"\([^()]*(?:\([^()]*\)[^()]*)*\)")
+OPEN_TAIL = re.compile(r":\s+(?=(?:next|then|open)\b)", re.I)
+
+
+def result_head(item: str) -> str:
+    """The dated result that opens `item` when the rest of it is an open
+    tail (": next ..."), else "". The head must end in DATED_EVIDENCE that
+    cites a file or a matched count, and say nothing open outside brackets."""
+    depth = 0
+    for i, ch in enumerate(item):
+        if ch in "([{":
+            depth += 1
+        elif ch in ")]}":
+            depth = max(depth - 1, 0)
+        elif ch == ":" and depth == 0 and OPEN_TAIL.match(item, i):
+            head = item[:i].strip()
+            m = DATED_EVIDENCE.search(head)
+            if (m and (EVIDENCE.search(m.group(1)) or _count(m.group(1)))
+                    and not STILL_OPEN.search(_BRACKETS.sub("", head))):
+                return head
+            return ""
+    return ""
+
+
+# An item that cites a README section ("Mixpanel (README "Mixpanel as a
+# source")") and says nothing open outside its brackets names documented work.
+# Why: on 2026-11-24 (PR #18513's record) a park filed changepoint-detector's
+# "Plausible, PostHog, Umami (README "Umami as a source"; ...), Mixpanel
+# (README "Mixpanel as a source"), Matomo (...)", five shipped sources, in
+# NEXT.md as open work. The section must exist as a heading in the venture's
+# README, so a pointer to a section still to write does not count. On main
+# that day the rule matched 3 other items, all finished (shift-roster-builder).
+
+
+def reads_result(item: str, readme: str = "") -> bool:
+    """is_result, or a piece whose evidence says it is done though its words
+    do not: a dated result with a file or count (result_head's test, for a
+    bracket that mentions a next step), or, given the venture's README text,
+    an item citing a README heading that exists. Never a numbered entry of the
+    open list, and never with an open cue outside brackets."""
+    if is_result(item):
+        return True
+    body = " ".join(item.split()).strip(" ;")
+    if NUMBERED.match(body) or STILL_OPEN.search(_BRACKETS.sub("", body)):
+        return False
+    m = DATED_EVIDENCE.search(body)
+    if m and (EVIDENCE.search(m.group(1)) or _count(m.group(1))):
+        return True
+    heads = [h.lower() for h in re.findall(r"^#+\s+(.*)$", readme, re.M)]
+    cites = [c.lower() for c in README_CITE.findall(body)]
+    return bool(cites) and any(c in h for c in cites for h in heads)
+
+
 def _count(text: str) -> bool:
     """True when `text` holds a matched count such as 17/17 or 3,227/3,233."""
     for a, b in COUNT.findall(text):
@@ -1094,17 +1163,40 @@ def buildable_history(args, text: str, current: str | None, mine: tuple[str, ...
         print(f"dry run: {args.venture}.buildable would be {n}{cap_note('buildable', n)}; "
               f"{len(history)} to HISTORY.md; nothing written")
         return 0
-    hist_dest = args.ventures_dir / args.venture / "HISTORY.md"
-    if not hist_dest.parent.is_dir():
-        raise ValueError(f"no venture folder {hist_dest.parent}")
+    hist_dest = notes_dir(args, args.venture) / "HISTORY.md"
     hist_out = history_text(hist_dest.read_text() if hist_dest.exists() else None,
                             args.venture, history, datetime.date.today().isoformat(),
                             BUILDABLE_HISTORY_HEADING)
     args.file.write_text(out)
+    hist_dest.parent.mkdir(parents=True, exist_ok=True)
     hist_dest.write_text(hist_out)
-    print(f"moved {len(history)} result(s) to {hist_dest.relative_to(hist_dest.parents[2])}")
+    print(f"moved {len(history)} result(s) to {_shown(hist_dest)}")
     print(f"wrote {args.venture}.buildable: {n}{cap_note('buildable', n)}")
     return 0
+
+
+def notes_dir(args, venture: str) -> Path:
+    """The folder that holds a flagship's NEXT.md and HISTORY.md.
+
+    ventures/<v>/ when the venture has a public folder; otherwise
+    portfolio/flagships/<v>/, created on write. Why: payapps and the other
+    bets live in private-monorepo, so ventures/payapps/ does not exist, and
+    --park, --history and an over-cap --replace refused with "no venture
+    folder" (three run records on 2026-11-25), leaving hand-edited YAML as the
+    only way to fit the row. The notes stay public, like the row itself.
+    """
+    public = args.ventures_dir / venture
+    if public.is_dir():
+        return public
+    return args.notes_dir / venture
+
+
+def _shown(path: Path) -> str:
+    """A written path as a reader would type it (repo-relative when it can be)."""
+    try:
+        return str(path.relative_to(REPO_ROOT))
+    except ValueError:
+        return str(path.relative_to(path.parents[2]))
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1132,7 +1224,8 @@ def _main(argv: list[str]) -> int:
     ap.add_argument("--landed", action="store_true",
                     help="list the clauses that report landed work, longest first (cut candidates)")
     ap.add_argument("--park", action="append", metavar="ITEM",
-                    help="move an open item out of `next:` into ventures/<v>/NEXT.md (repeatable; "
+                    help="move an open item out of `next:` into ventures/<v>/NEXT.md, or "
+                         "portfolio/flagships/<v>/NEXT.md for a private-code flagship (repeatable; "
                          "combines with --replace/--set, the cap is checked after parking)")
     ap.add_argument("--history", action="append", metavar="TEXT",
                     help="move a finished result (any span of the unfolded `next:`, or of `buildable:` "
@@ -1151,6 +1244,8 @@ def _main(argv: list[str]) -> int:
                     help="say what a `next:` edit would park and how long the row would be; write nothing")
     ap.add_argument("--file", type=Path, default=FLAGSHIPS_PATH)
     ap.add_argument("--ventures-dir", type=Path, default=REPO_ROOT / "ventures", help=argparse.SUPPRESS)
+    ap.add_argument("--notes-dir", type=Path, default=REPO_ROOT / "portfolio" / "flagships",
+                    help=argparse.SUPPRESS)
     args = ap.parse_args(argv)
     text = args.file.read_text()
 
@@ -1256,8 +1351,10 @@ def _main(argv: list[str]) -> int:
                     print(f"{'would park' if args.dry_run else 'parking'} {len(auto)} item(s), "
                           f"{sum(len(i) + 2 for i in auto)} chars: `next:` was {before} of "
                           f"{FLAGSHIP_NEXT_MAX} after the edit; {how}", file=sys.stderr)
+                readme_path = notes_dir(args, args.venture) / "README.md"
+                readme = readme_path.read_text() if readme_path.exists() else ""
                 for item in auto:
-                    if is_result(item):
+                    if reads_result(item, readme):
                         # a finished result: HISTORY.md, not NEXT.md's open list (RESULTISH)
                         history.append(item)
                         print(f"{'would move' if args.dry_run else 'moving'} to HISTORY.md, "
@@ -1272,9 +1369,7 @@ def _main(argv: list[str]) -> int:
                       f"{cap_note('next', len(shown))}; {len(parks)} item(s) to NEXT.md, "
                       f"{len(history)} to HISTORY.md; nothing written")
                 return 0
-            hist_dest = args.ventures_dir / args.venture / "HISTORY.md"
-            if history and not hist_dest.parent.is_dir():
-                raise ValueError(f"no venture folder {hist_dest.parent}")
+            hist_dest = notes_dir(args, args.venture) / "HISTORY.md"
             hist_out = (history_text(hist_dest.read_text() if hist_dest.exists() else None,
                                      args.venture, history, datetime.date.today().isoformat())
                         if history else None)
@@ -1284,26 +1379,24 @@ def _main(argv: list[str]) -> int:
                 out = set_value(text, args.venture, "next", new, mine)
                 args.file.write_text(out)
                 if hist_out is not None:
+                    hist_dest.parent.mkdir(parents=True, exist_ok=True)
                     hist_dest.write_text(hist_out)
-                    print(f"moved {len(history)} result(s) to "
-                          f"{hist_dest.relative_to(hist_dest.parents[2])}")
+                    print(f"moved {len(history)} result(s) to {_shown(hist_dest)}")
                 print(f"wrote {args.venture}.next: {len(new)}{cap_note('next', len(new))}")
                 return 0
             args.park = parks
             new = with_pointer(new)
             out = set_value(text, args.venture, "next", new, mine)
-            dest = args.ventures_dir / args.venture / "NEXT.md"
-            if not dest.parent.is_dir():
-                raise ValueError(f"no venture folder {dest.parent}")
+            dest = notes_dir(args, args.venture) / "NEXT.md"
             parked = park_text(dest.read_text() if dest.exists() else None, args.venture,
                                args.park, datetime.date.today().isoformat())
             args.file.write_text(out)
+            dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_text(parked)
             if hist_out is not None:
                 hist_dest.write_text(hist_out)
-                print(f"moved {len(history)} result(s) to "
-                      f"{hist_dest.relative_to(hist_dest.parents[2])}")
-            print(f"parked {len(args.park)} item(s) in {dest.relative_to(dest.parents[2])}; "
+                print(f"moved {len(history)} result(s) to {_shown(hist_dest)}")
+            print(f"parked {len(args.park)} item(s) in {_shown(dest)}; "
                   f"wrote {args.venture}.next: {len(new)}{cap_note('next', len(new))}")
             if PARK_POINTER not in new:
                 print(f"note: no room for the pointer {PARK_POINTER!r}; park one more item "

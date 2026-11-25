@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>RFQ Review Checklist for Machine Shops: Read an RFQ Before You Quote</title>
+  <meta name="description" content="Paste a machine-shop RFQ: get parts, revisions, quantities, material, tight tolerances, DFARS clauses and the questions to send the buyer before you quote.">
+  <meta property="og:title" content="RFQ Review Checklist for Machine Shops: Read an RFQ Before You Quote">
+  <meta property="og:description" content="Paste a machine-shop RFQ: get parts, revisions, quantities, material, tight tolerances, DFARS clauses and the questions to send the buyer before you quote.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://marisstella.app/machine-shop-guides/rfq-review.html">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232c4a3e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "RFQ Review Checklist for Machine Shops", "description": "Paste a machine-shop RFQ: get parts, revisions, quantities, material, tight tolerances, DFARS clauses and the questions to send the buyer before you quote.", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+</head>
+<body data-page="rfq-review">
+<nav class="crumbs"><a href="./">Machine shop guides</a></nav>
+<main>
+<h1>RFQ review checklist: read the RFQ before you quote</h1>
+<p class="lede">Paste the buyer's email or the RFQ terms. The page pulls out what an estimator checks first (part numbers, revisions, quantities, material, finish, tolerances, dates) and the FAR and DFARS clauses and quality requirements that add cost or decide whether you can take the job. What it can't find becomes a question for the buyer, written as an email you can copy.</p>
+<p class="note">It reads by pattern, not understanding: it will miss things phrased in ways it doesn't expect, and every finding shows the text it came from so you can check it. The text you paste stays in this browser tab. It is not uploaded and not saved.</p>
+
+<form id="f" class="card" autocomplete="off">
+  <label for="rfq">RFQ text<span class="hint">The email, or terms copied out of the RFQ or PO PDF. Up to 200,000 characters.</span></label>
+  <textarea id="rfq" name="rfq" rows="12" spellcheck="false"></textarea>
+  <div class="grid">
+    <label>Flag tolerances tighter than (inches)<span class="hint">Your shop's line for "tight"; 0.001 to start</span><input name="tight" type="number" min="0" step="any" value="0.001" inputmode="decimal"></label>
+    <label>Your shop's name (for the email)<input name="shop" type="text"></label>
+    <label>Buyer's first name (for the email)<input name="buyer" type="text"></label>
+  </div>
+  <button type="submit">Review it</button>
+  <button type="button" class="secondary" id="example">Load an invented example</button>
+  <button type="button" class="secondary" id="clear">Clear</button>
+</form>
+
+<section id="out" aria-live="polite" hidden>
+  <section class="card">
+    <h2>Line items</h2>
+    <div class="scroller"><table>
+      <thead><tr><th>Part</th><th>Rev</th><th>Quantities</th><th>Material</th><th>Finish</th><th>Tightest tolerance</th></tr></thead>
+      <tbody id="lines"></tbody>
+    </table></div>
+    <p class="note" id="dates"></p>
+    <p id="price-link-p" hidden><a id="price-link" href="job-shop-quote-calculator.html">Price these quantities in the job-shop quote calculator</a></p>
+  </section>
+  <section class="card">
+    <h2>Clauses and requirements that change the job</h2>
+    <div id="flags"></div>
+  </section>
+  <section class="card">
+    <h2>Questions for the buyer</h2>
+    <ol id="questions"></ol>
+    <button type="button" id="copy-email">Copy as an email</button>
+    <button type="button" class="secondary" id="csv">Download the review (CSV)</button>
+    <p class="note" id="copied" role="status"></p>
+  </section>
+</section>
+
+<section>
+<h2>How to review an RFQ before you quote</h2>
+<p>Many quoting mistakes are not arithmetic. They are a requirement nobody read: a first article report on lot one, a domestic-melt material cert, an approved-processor list for the anodize, a CUI marking on the drawing. ISO 9001 and AS9100 both ask for this review before you commit to supply (clause 8.2.3, review of the requirements for products and services); a small shop without either still saves money doing it.</p>
+<h3>1. The part</h3>
+<p>Part number and drawing revision for every line. Quote to a revision, and write it on the quote, so a later drawing change is a new quote and not your loss. Check the drawing's notes block too: general tolerances, the finish spec, marking, and any "no substitution" note often live there and not in the email.</p>
+<h3>2. Quantities</h3>
+<p>The lot sizes to price, and the annual usage if the buyer will say. A single quantity with no annual figure is worth one question: setup is spread over the lot, so the price per part at 10 and at 400 a year are very different numbers.</p>
+<h3>3. Material and finish</h3>
+<p>Alloy and temper (6061-T6, 17-4 PH H1150), any material spec, and whether certs must travel with the parts. For finishes, the spec, type, class and color, plus masking. If the buyer names approved or NADCAP processors, get a price from one of them before you price the finish.</p>
+<h3>4. Tolerances</h3>
+<p>The tightest tolerance decides the machine, the inspection and sometimes whether you can make it at all. If a tight callout looks like a title-block default rather than a functional need, ask; buyers often loosen it.</p>
+<h3>5. Clauses and quality requirements</h3>
+<p>On defense work, the flowed-down clauses set obligations before the first chip: protecting CUI to NIST SP 800-171 (DFARS 252.204-7012), a current SPRS score (252.204-7019 and -7020), a CMMC level (252.204-7021), specialty metals melted in the US or a qualifying country (252.225-7009), export control (252.225-7048), a named quality standard (FAR 52.246-11) and DPAS-rated orders (52.211-15). Each one this page finds is listed with its title and what it means for the shop. Read the clause itself before you sign. For CUI and SPRS: the <a href="cmmc-level-1-vs-level-2.html">CMMC Level 1 vs Level 2 guide</a> and the <a href="sprs-score-calculator.html">SPRS score calculator</a>.</p>
+<h3>6. Dates</h3>
+<p>When the quote is due and when the parts are needed. Lead time on material and outside processing often sets the delivery date more than your own machine time does.</p>
+<h3>7. Ask once, in one email</h3>
+<p>Buyers answer one clear list faster than five separate emails. The questions above are written to be sent as they are, or edited first.</p>
+</section>
+
+<script type="module">
+  import { readRfq, draftEmail, reviewCsv, breaksFor } from "./rfq.mjs";
+  import { recordUsage } from "./usage.mjs";
+  const f = document.getElementById("f");
+  const ta = document.getElementById("rfq");
+  const EXAMPLE = `Hello,
+
+Please quote the following. Quotes due by 12/10/2026.
+Delivery: 6 weeks ARO.
+
+P/N 1001-A Rev C
+Qty: 10, 25, 50
+Material: 6061-T6 aluminum
+Anodize per MIL-PRF-8625, black
+Bore ±.0005, all other ±.005. 32 Ra on sealing face.
+
+P/N 1002-B
+50 pcs
+17-4 PH H1150, passivate
+
+AS9102 first article on first lot, material certs required.
+Clauses: DFARS 252.204-7012, 252.225-7009, 52.246-11 (AS9100D).
+Drawing marked CUI, attached as PDF.
+(This example is invented; it is not a real RFQ.)`;
+  let last = null;
+  const el = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
+  const missing = () => el("span", "not found", "bad");
+  const cell = (v) => { const td = el("td"); if (v == null || v === "") td.append(missing()); else td.textContent = v; return td; };
+  function render(r) {
+    const tb = document.getElementById("lines"); tb.replaceChildren();
+    for (const l of r.lines) {
+      const tr = el("tr");
+      tr.append(cell(l.partNumber), cell(l.revision?.text), cell(l.quantities.join(" / ") + (l.annual ? ` (annual ${l.annual.quantity})` : "")), cell(l.material?.text), cell(l.finishes.map((x) => x.label).join(", ") || "none named"));
+      const tol = el("td");
+      if (l.tightest == null) tol.textContent = "none found";
+      else { tol.textContent = `±${Number(l.tightest.toFixed(5))}"`; if (l.tightest < r.tightInches) tol.className = "bad"; }
+      tr.append(tol);
+      for (const td of tr.children) if (!td.textContent.trim()) td.append(missing());
+      tb.append(tr);
+    }
+    document.getElementById("dates").textContent = `Quote due: ${r.quoteDue?.text ?? "not found"}. Delivery: ${r.delivery?.text ?? "not found"}. Drawing or model mentioned: ${r.drawing ? "yes" : "no"}.`;
+    const breaks = breaksFor(r);
+    const lp = document.getElementById("price-link-p");
+    lp.hidden = !breaks.length;
+    document.getElementById("price-link").href = "job-shop-quote-calculator.html?breaks=" + encodeURIComponent(breaks.join(","));
+    const flags = document.getElementById("flags"); flags.replaceChildren();
+    if (!r.clauses.length && !r.otherClauses.length && !r.requirements.length && !r.specs.length) flags.append(el("p", "None found. Check the drawing notes and the PO terms too; they are often not in the email.", "note"));
+    for (const c of r.clauses) {
+      const d = el("div", null, "card");
+      d.append(el("h3", `${c.id.startsWith("252") ? "DFARS" : "FAR"} ${c.id}: ${c.title}`), el("p", c.why));
+      if (c.guide) { const p = el("p"); const a = el("a", "Related guide on this site"); a.href = c.guide; p.append(a); d.append(p); }
+      d.append(el("p", `Found in: ${c.evidence}`, "note"));
+      flags.append(d);
+    }
+    for (const x of r.requirements) {
+      const d = el("div", null, "card");
+      d.append(el("h3", x.label), el("p", x.why), el("p", `Found in: ${x.evidence}`, "note"));
+      flags.append(d);
+    }
+    if (r.otherClauses.length) flags.append(el("p", `Other clause numbers to look up: ${r.otherClauses.map((c) => c.id).join(", ")}.`));
+    if (r.specs.length) flags.append(el("p", `Specs named: ${r.specs.map((s) => s.spec).join(", ")}. Confirm you, or your processor, can certify to each one and its revision.`));
+    const ol = document.getElementById("questions"); ol.replaceChildren();
+    for (const q of r.questions) ol.append(el("li", q));
+    if (!r.questions.length) ol.append(el("li", "Nothing obvious is missing. Read the drawing notes before you quote."));
+    document.getElementById("out").hidden = false;
+  }
+  f.addEventListener("submit", (e) => {
+    e.preventDefault();
+    last = readRfq(ta.value, { tightInches: Number(f.elements.tight.value) || 0.001 });
+    render(last);
+    recordUsage("rfq-review");
+  });
+  document.getElementById("example").addEventListener("click", () => { ta.value = EXAMPLE; f.requestSubmit(); });
+  document.getElementById("clear").addEventListener("click", () => { f.reset(); ta.value = ""; last = null; document.getElementById("out").hidden = true; });
+  document.getElementById("copy-email").addEventListener("click", async () => {
+    if (!last) return;
+    const text = draftEmail(last, { shop: f.elements.shop.value.trim(), buyer: f.elements.buyer.value.trim() });
+    const s = document.getElementById("copied");
+    try { await navigator.clipboard.writeText(text); s.textContent = "Copied. Paste it into a reply to the buyer."; }
+    catch { s.textContent = "Your browser blocked copying. The email is below; select and copy it."; const pre = el("pre", text); pre.style.whiteSpace = "pre-wrap"; s.after(pre); }
+    recordUsage("rfq-email");
+  });
+  document.getElementById("csv").addEventListener("click", () => {
+    if (!last) return;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([reviewCsv(last)], { type: "text/csv" }));
+    a.download = "rfq-review.csv"; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    recordUsage("rfq-csv");
+  });
+</script>
+</main>
+<section class="card cta" id="early-access">
+  <h2>In development — early access</h2>
+  <p>We are building two paid products for small machine shops: an <strong>RFQ-to-quote assistant</strong> that turns a drawing and an email into a priced quote from your own rates, and a <strong>CMMC Level 1/2 and ISO 9001 workspace</strong> that keeps your SSP, POA&amp;M and SPRS score in one place. Neither is released yet. Read what is planned and how to get early access on the <a href="https://marisstella.app/industries/manufacturing/">manufacturing page</a>.</p>
+  <p class="note">Neither product certifies anyone. Only an authorized C3PAO (or the government) can issue a CMMC Level 2 certification; software can help you prepare, nothing more.</p>
+</section>
+<footer>
+  <p><a href="./">Machine shop guides</a> · <a href="cmmc-level-1-self-assessment.html">CMMC Level 1 self-assessment</a> · <a href="cmmc-scoping-worksheet.html">CMMC scoping worksheet</a> · <a href="sprs-score-calculator.html">SPRS score calculator</a> · <a href="nist-800-171-ssp-template.html">SSP template</a> · <a href="dfars-7012-incident-reporting.html">DFARS 7012 incident reporting</a> · <a href="stock-size-from-step-file.html">Stock size from a STEP file</a> · <a href="job-shop-quote-calculator.html">Job-shop quote calculator</a> · <a href="rfq-review.html">RFQ review checklist</a> · <a href="drawing-review.html">Drawing review</a> · <a href="first-article-inspection.html">First article inspection checker</a> · <a href="quote-vs-actual.html">Quoted vs actual hours</a> · <a href="cmmc-level-1-vs-level-2.html">CMMC Level 1 vs Level 2</a> · <a href="ssp-and-poam.html">SSP and POA&amp;M</a> · <a href="how-to-price-a-machined-part.html">How to price a machined part</a> · <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/machine-shop-guides">Source (FSL-1.1-MIT)</a></p>
+  <p><strong>Not affiliated with or endorsed by the Department of Defense (Department of War), NIST, the Cyber AB or any C3PAO.</strong> A score you calculate here is a self-check, not a CMMC assessment, a certification or an SPRS submission. Regulations are summarised with dates in <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/machine-shop-guides/SOURCES.md">SOURCES.md</a>; read the official text before you rely on it, because the rules change.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, compliance, financial or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  <p>Privacy: nothing you type leaves your browser. This page keeps an anonymous visit count in your own browser's storage only. <button type="button" class="secondary" id="usage-toggle">Turn off counting</button></p>
+</footer>
+<script type="module">
+  import { recordUsage, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+  const btn = document.getElementById("usage-toggle");
+  const paint = () => { btn.textContent = usageOptedOut() ? "Turn counting back on" : "Turn off counting"; };
+  btn.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); paint(); });
+  paint();
+  recordUsage("view:" + (document.body.dataset.page || "page"));
+</script>
+</body>
+</html>

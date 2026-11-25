@@ -1,0 +1,32 @@
+# The circle method's mirror as a symmetry for the lane-pair bound (eval/bowling-mirror-cpsat.py), 2026-11-24.
+# Model: eval/bowling-encoding.py's (week permutations, every team on every pair floor..ceil(W/P)), in
+# OR-Tools CP-SAT 9.15 (pip), AllDifferent at a limit of 1, linear counts above it. 4 shared cores.
+#
+# The symmetry. roundRobin(n) round r plays {r+k, r-k} (mod n-1) for k = 1..P-1, and {r, n-1}. The map
+# t -> W-1-t (mod n-1), n-1 fixed, sends round r to round W-1-r (and, past n-1 weeks, week w to week
+# W-1-w, since rounds repeat mod n-1), match k to match k. --mirror asks for answers that map onto
+# themselves with pair p sent to pi(p) = p xor 1 (P odd: the last pair fixed). It replaces fixing week 1,
+# which would clash with a fixed pi (with both, 22 x 10 was INFEASIBLE in 0.0 s).
+# Odd W cannot use it: the middle round is its own image, which forces pi = identity, and the fixed team
+# then has an even count on every pair but one. 22 x 33 (every pair 3 times): INFEASIBLE in 0.0 s.
+#
+# teams weeks lo..hi | run                                              | result
+   22    10   0..1   | plain (week 1 fixed), 4 workers                  | SAT 20.3 s (pairwise CaDiCaL: 1.5 s)
+   22    10   0..1   | --mirror, 4 workers                               | SAT 0.4 s
+   26    12   0..1   | --mirror, 4 workers                               | SAT 24.4 s  (stored 3 off; pairwise CaDiCaL none in 900 s)
+   24    12   1..1   | --mirror, 2 workers                               | INFEASIBLE 4.2 s (already in bowling-proofs.mjs)
+   26    38   2..3   | --mirror, 2 workers                               | SAT 477.8 s (stored 1 off; kissat + totalizer none in 2400 s)
+   24    11   0..1   | bowling-encoding.py seq kissat404 (no mirror: W odd) | none in 1500 s
+   28    13   0..1   | bowling-encoding.py seq kissat404 (no mirror: W odd) | none in 1500 s
+   24    24   2..2   | --mirror, 1 worker (4 runs sharing 4 cores)      | none in 1500 s (stored 4 off)
+   24    36   3..3   | --mirror, 1 worker                                | none in 1500 s (stored 4 off)
+   26    26   2..2   | --mirror, 1 worker                                | none in 1500 s (stored 10 off)
+   28    28   2..2   | --mirror, 1 worker                                | none in 1500 s (stored 16 off)
+#
+# Stored: 26,12 and 26,38 moved from bowling-lane-near.mjs (off 3 and 1) to bowling-lane-table.mjs (off 0),
+# each re-checked with offBound (bowling.mjs) on roundRobin's rounds before storing.
+# node --test bowling.test.mjs: 36 pass, 0 fail (two new tests: atBound 26 for 26 x 12 and 26 x 38).
+# node eval/bowling-lane-near-check.mjs after: the 10 remaining near entries unchanged on seeds 1 and 2.
+# Not tried: the mirror with a hint from the stored near answers, or more than one worker on the exact seasons.
+# Later the same day: 24 x 24 --mirror with 4 workers for 1800 s: none (UNKNOWN). Hints and a soft objective:
+# eval/bowling-lane-min-2026-11-24.txt.

@@ -9,9 +9,13 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from allocate import (
+    bet_side_note,
     claim_note,
+    load_bet_sides,
+    title_bets,
     claims_by_venture,
     deepen_to_window,
     recent_commits,
@@ -534,7 +538,9 @@ class LoadRealVenturesTests(unittest.TestCase):
             and (p / "VENTURE.yaml").is_file()
             and not (p / "NOT-A-VENTURE").is_file()
         }
-        self.assertEqual({v.name for v in ventures}, expected_dirs)
+        # Paid bets built only in private-monorepo come from their flagship `app:`.
+        app_only = {v.name for v in ventures if v.flagship_app and v.name not in expected_dirs}
+        self.assertEqual({v.name for v in ventures} - app_only, expected_dirs)
         self.assertTrue(ventures, "expected at least one venture with a VENTURE.yaml")
 
     def test_ranking_real_ventures_does_not_raise(self):
@@ -840,6 +846,16 @@ class FlagshipTests(unittest.TestCase):
         self.assertIn("archive.org REFUSED; github.com answers", out)
         self.assertNotIn("probed just now", venture_report("deep", [v]))
 
+    def test_venture_report_leaves_an_item_on_a_refused_host_unnumbered(self):
+        # friction 2026-11-21..24: hosts line said REFUSED, item still numbered
+        v = self.flag("deep", 0, "history. Next: fit the ramp on the github.com set; "
+                                 "next: a vintage read from alfred.stlouisfed.org")
+        out = venture_report("deep", [v], probe=lambda url: "github" in url)
+        self.assertIn("1. [next] fit the ramp on the github.com set", out)
+        self.assertIn("(alfred.stlouisfed.org REFUSED just now) a vintage read", out)
+        self.assertNotIn("2. [next]", out)
+        self.assertIn("2. [next] a vintage", venture_report("deep", [v]))
+
     def test_load_flagship_hosts_takes_a_list_or_a_string(self):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "flagships.yaml"
@@ -860,6 +876,29 @@ class FlagshipTests(unittest.TestCase):
             self.assertEqual(load_flagships(p), {})
             p.write_text("flagships:\n  - venture: a\n    next: do a\n  - venture: b\n")
             self.assertEqual(load_flagships(p), {"a": (0, "do a"), "b": (1, "")})
+
+    def test_bet_with_only_an_app_gets_a_deepen_row_pointing_at_it(self):
+        """A paid bet built only in private-monorepo (2026-11-24 ranking) has no
+        VENTURE.yaml here; its row is still routed, at its rank, to its `app:`."""
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "ventures" / "old-tool").mkdir(parents=True)
+            (root / "ventures" / "old-tool" / "VENTURE.yaml").write_text("name: old-tool\nstage: prototype\n")
+            (root / "ledger").mkdir()
+            flags = root / "flagships.yaml"
+            flags.write_text("flagships:\n"
+                             "  - venture: payapps\n    bet: 1\n    app: private-monorepo/apps/payapps\n"
+                             "    next: build pay apps\n"
+                             "  - venture: old-tool\n    demoted: no bet\n    next: old work\n")
+            vs = _load_ventures(root / "ventures", root / "ledger", root / "scores.json", flags)
+            by = {v.name: v for v in vs}
+            self.assertEqual(by["payapps"].flagship_rank, 0)
+            self.assertEqual(by["payapps"].flagship_app, "private-monorepo/apps/payapps")
+            self.assertIsNone(by["old-tool"].flagship_app)
+            self.assertEqual([v.name for v in rank(vs)][:2], ["payapps", "old-tool"])
+            task = next_task(by["payapps"])
+            self.assertTrue(task.startswith("Deepen (flagship 1): Work in private-monorepo/apps/payapps"))
+            self.assertIn("build pay apps", task)
 
     def test_every_listed_flagship_is_a_real_routable_venture(self):
         names = {v.name for v in load_ventures()}
@@ -973,6 +1012,38 @@ class StartHereTests(unittest.TestCase):
         self.assertIsNone(start_here(queue, live, now=now))
         self.assertIn("older open PRs: #17310", claim_note(stalled["a"], now=now))
 
+    def test_bet_side_note_groups_live_prs_by_surface(self):
+        # 2026-11-25: six open PRs worked bet 1's guides while its row (payapps)
+        # looked free, because none of their titles named "payapps".
+        from datetime import datetime, timezone
+        now = datetime(2026, 11, 25, 10, 0, tzinfo=timezone.utc)
+        sides = {"payapps": (1, ["pay-application-generator", "pay-app-guides"]),
+                 "jobshop-quote": (2, ["machine-shop-guides"]),
+                 "cmmc": (4, ["machine-shop-guides"])}
+        prs = [(18915, "pay-app-guides: cash forecast (bet #1 front door) + post", "2026-11-25T09:00:00Z"),
+               (18927, "docs: PayApps opening balance (private PRs 71, 72) agent doc (bet #1)", "2026-11-25T09:50:00Z"),
+               (18790, "pay-app-guides: Texas waivers", "2026-11-25T01:00:00Z"),
+               (18934, "machine-shop-guides: FAI checker (bets #2/#4 front door) + post", "2026-11-25T09:30:00Z"),
+               (18931, "quality fix: lawn-care-bid-calculator", "2026-11-25T09:40:00Z")]
+        note = bet_side_note("payapps", sides, prs, now=now)
+        self.assertIn("bet 1 live PRs", note)
+        self.assertIn("pay-app-guides #18915 (1h)", note)
+        self.assertIn("the app #18927 (0h)", note)
+        self.assertNotIn("18790", note)  # older than CLAIM_FRESH_HOURS
+        self.assertNotIn("18934", note)
+        self.assertIn("none on pay-application-generator", note)
+        self.assertIn("machine-shop-guides #18934", bet_side_note("cmmc", sides, prs, now=now))
+        self.assertEqual(bet_side_note("ai-bookkeeper", sides, prs, now=now), "")
+        self.assertEqual(bet_side_note("payapps", sides, None, now=now), "")
+        self.assertEqual(title_bets("x (bets #2/#4 front door)"), {2, 4})
+        self.assertEqual(title_bets("x (bet #1) and bets #3 and #5"), {1, 3, 5})
+        self.assertEqual(title_bets("alphabet #9"), set())
+
+    def test_every_bet_row_loads_its_front_doors(self):
+        sides = load_bet_sides()
+        self.assertIn("pay-app-guides", sides["payapps"][1])
+        self.assertEqual(sides["payapps"][0], 1)
+
     def test_session_spreads_concurrent_runs_over_free_rows(self):
         from datetime import datetime, timezone
         now = datetime(2026, 11, 11, 10, 0, tzinfo=timezone.utc)
@@ -1064,6 +1135,44 @@ class StartHereTests(unittest.TestCase):
                                  "  -  [next] (needs outside input) a real club's month"])
         none = item_lines([("next", "a real tournament")])
         self.assertIn("NEXT.md", none[0])
+
+    def test_items_list_skips_setup_advice_and_split_results(self):
+        # 2026-11-24: 11 of 53 numbered entries on main were setup or source
+        # lines, advice, or half of a result cut at ';' (photo-editing's item
+        # 2 "a 3-stop lift loses 0 of ..."), and four rows led with one.
+        from allocate import item_skip, open_items, item_lines
+        for body, why in (
+                ("tesseract via apt, RapidOCR via pip", "setup or source"),
+                ("Public samples, no key: github.com/x/y (sparse checkout)", "setup or source"),
+                ("DNG 1.7.1.0 spec PDF: URL in eval/opcode-spec-audit.md", "setup or source"),
+                ("Test files: bash eval/corpus-fetch.sh DIR (5 s)", "setup or source"),
+                ("CAD and firmware with no outside input (build123d: venv)", "setup or source"),
+                ("Each is a hard combinatorial search", "advice"),
+                ("judge its worth before taking it", "advice"),
+                ("preview runs from the QA branch, 1,138/1,138 unit asserts (eval/p.md)", "result")):
+            self.assertEqual(item_skip(body), why, body)
+        # Open work stays numbered: an open word beats a dated bracket, an
+        # unequal count is not a pass, a build cue beats a setup cue.
+        for body in ("figures in doubt 2026-11-23 (eval/in-doubt.md): HHS #1405",
+                     "47/49 on 8x9 night designs (a split or resumable search)",
+                     "Excel2IDS's tool runs here (venv: pip x): rerun it after changes"):
+            self.assertEqual(item_skip(body), "", body)
+        items = open_items(
+            "Interpolated sRGB encode 2026-11-17; a 3-stop lift loses 0 of the codes "
+            "(eval/shadow-lift.md). Every nut a joint; deep sockets 2026-11-22 (cad/README.md). "
+            "Next CAD: draw the bolts' tails; find the areas", None)
+        self.assertEqual([b for _, b in items], [
+            "Interpolated sRGB encode 2026-11-17; a 3-stop lift loses 0 of the codes "
+            "(eval/shadow-lift.md)",
+            "Every nut a joint; deep sockets 2026-11-22 (cad/README.md)",
+            "Next CAD: draw the bolts' tails", "find the areas"])
+        lines = item_lines(items)
+        self.assertEqual(lines[0], "  1. [buildable] Next CAD: draw the bolts' tails")
+        self.assertTrue(all("(result)" in l for l in lines[2:]), lines)
+        # The whole entry is judged; only the printed line is shortened.
+        long = "draw " + "x" * 200
+        self.assertEqual(open_items(long, None), [("buildable", long)])
+        self.assertTrue(item_lines([("buildable", long)])[0].endswith("\u2026"))
 
 
 class DateGateTests(unittest.TestCase):
@@ -1159,7 +1268,7 @@ class DateGateTests(unittest.TestCase):
         self.assertEqual(refused_rows(rows, probe=probe),
                          {"hf": ["huggingface.co"], "px": ["raw.pixls.us"]})
         self.assertEqual(len(asked), len(set(asked)))
-        self.assertFalse(any("legacy.org" in u for u in asked))  # `next:` prose is not probed
+        self.assertNotIn("legacy.org", {urlsplit(u).hostname for u in asked})  # `next:` prose is not probed
         self.assertEqual(refused_rows([row("gh", [], "nothing hosted")], probe=probe), {})
 
     def test_no_outside_input_buildable_skips_stale_hosts(self):
@@ -1394,7 +1503,7 @@ class ClaimCheckTest(unittest.TestCase):
         self.assertEqual(self.decide(prs, "x", mine=8)["verdict"], "HOLD")
 
     def test_mine_is_found_by_branch(self):
-        prs = [self.pr(2, "x: mine", "2026-11-12T14:05:00Z", branch="claude/me"),
+        prs = [self.pr(2, "x: claim", "2026-11-12T14:05:00Z", branch="claude/me"),
                self.pr(1, "x: theirs", "2026-11-12T14:00:00Z")]
         r = self.decide(prs, "x", branch="claude/me")
         self.assertEqual(r["mine"]["number"], 2)
@@ -1464,8 +1573,30 @@ class ClaimCheckTest(unittest.TestCase):
         r = self.decide(prs, "changepoint-detector", mine=15411, item="round 10 on NAB real series")
         self.assertEqual(r["verdict"], "HOLD")
         self.assertEqual([x["number"] for x in r["sharing"]], [15407])
-        # Without --item the check stays slug-only.
-        self.assertEqual(self.decide(prs, "changepoint-detector", mine=15411)["verdict"], "YIELD")
+        # Without --item, my own title names the item, so #15407 still shares.
+        r = self.decide(prs, "changepoint-detector", mine=15411)
+        self.assertEqual((r["verdict"], r["item_source"]), ("HOLD", "title"))
+        self.assertEqual([x["number"] for x in r["sharing"]], [15407])
+
+    def test_bare_title_without_item_stays_slug_only(self):
+        prs = [self.pr(1, "x: deferred revenue", "2026-11-12T14:00:00Z"),
+               self.pr(2, "x: claim (WIP)", "2026-11-12T14:05:00Z")]
+        r = self.decide(prs, "x", mine=2)
+        self.assertEqual((r["verdict"], r["item_source"]), ("YIELD", None))
+
+    def test_title_item_still_yields_to_the_same_item(self):
+        # 2026-11-24: #18645 (windows) made a later photo-editing session on another
+        # item YIELD on a bare check; a same-item title must still block.
+        prs = [self.pr(18645, "photo-editing: windows check for cull", "2026-11-12T14:00:00Z"),
+               self.pr(18650, "photo-editing: Lightroom keyword list", "2026-11-12T14:05:00Z"),
+               self.pr(18651, "photo-editing: windows check, second pass", "2026-11-12T14:06:00Z")]
+        self.assertEqual(self.decide(prs, "photo-editing", mine=18650)["verdict"], "HOLD")
+        r = self.decide(prs, "photo-editing", mine=18651)
+        self.assertEqual(r["verdict"], "YIELD")
+        self.assertEqual([x["number"] for x in r["older"]], [18645])
+        from claim_check import report
+        lines = report(self.decide(prs, "photo-editing", mine=18650), "photo-editing", self.NOW, 24)
+        self.assertIn("Item read from your PR title", lines[0])
 
     def test_item_still_yields_to_the_same_item_or_a_bare_claim(self):
         same = [self.pr(1, "x: deferred revenue register", "2026-11-12T14:00:00Z"),
@@ -1572,12 +1703,13 @@ class ClaimCheckTest(unittest.TestCase):
         lines = report(r, "open-tennis-robots", now, 24, "edge-time drop fit")
         self.assertTrue(any(l.startswith("LANDED:") for l in lines), lines)
         self.assertTrue(any("#16574 (merged 2026-11-16T12:59:41Z, 5 min ago)" in l for l in lines), lines)
-        # A merge on another item, or a slug-only check, never blocks: busy flagships land daily.
+        # A merge on another item never blocks: busy flagships land daily.
         other = decide(mine, "open-tennis-robots", mine=16579, now=now, item="hopper refill alarm",
                        merged=merged[:1])
         self.assertEqual(other["verdict"], "HOLD")
-        self.assertEqual(decide(mine, "open-tennis-robots", mine=16579, now=now,
-                                merged=merged)["verdict"], "HOLD")
+        # Without --item, my title (it names the edge-time fit) catches the #16574 merge too.
+        bare = decide(mine, "open-tennis-robots", mine=16579, now=now, merged=merged)
+        self.assertEqual((bare["verdict"], bare["item_source"]), ("LANDED", "title"))
 
     def test_merges_the_clone_already_holds_and_one_word_overlaps_do_not_land(self):
         from datetime import datetime, timezone

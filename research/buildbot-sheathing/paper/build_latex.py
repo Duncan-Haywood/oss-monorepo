@@ -66,7 +66,7 @@ UNICODE = {
     "é": r"\'e", "λ": r"\ensuremath{\lambda}", "Δ": r"\ensuremath{\Delta}",
     "≤": r"\ensuremath{\leq}", "∂": r"\ensuremath{\partial}", "≥": r"\ensuremath{\geq}", "≈": r"\ensuremath{\approx}",
     "→": r"\ensuremath{\rightarrow}", "’": "'", "‘": "`", "“": "``", "”": "''",
-    "α": r"\ensuremath{\alpha}", "δ": r"\ensuremath{\delta}", "β": r"\ensuremath{\beta}", "Σ": r"\ensuremath{\Sigma}",
+    "α": r"\ensuremath{\alpha}", "δ": r"\ensuremath{\delta}", "β": r"\ensuremath{\beta}", "Σ": r"\ensuremath{\Sigma}", "ε": r"\ensuremath{\varepsilon}", "ρ": r"\ensuremath{\rho}",
     "√": r"\ensuremath{\surd}", "…": r"\ldots{}", "\u00a0": "~",
 }
 

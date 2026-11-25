@@ -2,7 +2,7 @@
 
 > Free calculator for pilot car and oversize-load escort operators. Enter your quote (flat, day rate or per loaded mile), minimum charge, loaded and deadhead miles, driver hours, fuel, per diem and yearly overhead; it shows true profit per run, profit per driver hour and the lowest quote for your margin.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pilot-car-escort-run-profit-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pilot-car-escort-run-profit-calculator): FSL-1.1-MIT licensed.

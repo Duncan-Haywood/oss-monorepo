@@ -70,3 +70,59 @@ test("fewer than two updates is refused, and a repeated data date is warned abou
   assert.ok(rep.warnings.some((w) => /same data date/.test(w)));
   assert.equal(rep.windows[0].moved, 0);
 });
+
+test("a gain on the driving path is named, and kept out of where the job lost time", () => {
+  // found by eval/windows-kinds-check.mjs: work under way that went faster than
+  // forecast pulled the finish in but no driver was named for it
+  const apr = parseXer(EXAMPLE_XER);
+  const dd = parseDate("2026-07-01 07:00"); // A1160 (on the path) under way, 3 days left
+  const jul = statusAsPlanned(apr, "77", dd);
+  const path = new Set(compare(apr, jul).criticalPath.previous);
+  const row = jul.tables.TASK.find((r) => r.proj_id === "77" && r.status_code === "TK_Active" && path.has(r.task_code) && +r.remain_drtn_hr_cnt >= 16);
+  assert.ok(row, "the example has work under way on the driving path in May");
+  const gained = structuredClone(jul);
+  const g = gained.tables.TASK.find((r) => r.task_id === row.task_id);
+  g.remain_drtn_hr_cnt = String(+g.remain_drtn_hr_cnt - 8);
+  const rep = windows([{ xer: apr, label: "April" }, { xer: gained, label: "July" }]);
+  const [w] = rep.windows;
+  assert.equal(w.revisionEffect, 0);
+  assert.ok(w.progressEffect < 0, `progress ${w.progressEffect}`);
+  const d = w.drivers.progress.find((x) => x.code === row.task_code);
+  assert.ok(d && d.gain, JSON.stringify(w.drivers.progress));
+  assert.match(d.what, /ahead of the forecast/);
+  assert.ok(!rep.recurring.some((r) => r.code === row.task_code));
+});
+
+test("one project throughout: no project-ID warning; a wrong ID is warned about per update", () => {
+  const s = exampleSeries();
+  assert.deepEqual(windows(s).warnings, []);
+  const named = windows(s, { projectName: "NOPE" }).warnings.filter((w) => /holds no project with ID NOPE; used OFFICE-FITOUT/.test(w));
+  assert.equal(named.length, s.length);
+});
+
+test("windows that do not add up on the last calendar are warned about", () => {
+  // the last update moves the project onto a 10 h day: its window and the
+  // whole-series total are measured on it, the earlier windows on 8 h days
+  const s = exampleSeries();
+  const last = structuredClone(s[3]);
+  last.xer.tables.CALENDAR.push({ ...last.xer.tables.CALENDAR[0], clndr_id: "99", clndr_name: "10 h day", day_hr_cnt: "10", default_flag: "N" });
+  last.xer.tables.PROJECT[0].clndr_id = "99";
+  const rep = windows([s[0], s[1], s[2], last]);
+  assert.notEqual(rep.total.moved, rep.total.sumOfWindows);
+  assert.ok(rep.warnings.some((w) => /windows add to .* the updates' project calendars differ/.test(w)), JSON.stringify(rep.warnings));
+});
+
+test("work under way on the driving path that slipped one day is named", () => {
+  const apr = parseXer(EXAMPLE_XER);
+  const jul = statusAsPlanned(apr, "77", parseDate("2026-07-01 07:00"));
+  const path = new Set(compare(apr, jul).criticalPath.previous);
+  const row = jul.tables.TASK.find((r) => r.proj_id === "77" && r.status_code === "TK_Active" && path.has(r.task_code) && +r.remain_drtn_hr_cnt >= 16);
+  const slow = structuredClone(jul);
+  const g = slow.tables.TASK.find((r) => r.task_id === row.task_id);
+  g.remain_drtn_hr_cnt = String(+g.remain_drtn_hr_cnt + 8);
+  const [w] = windows([{ xer: apr, label: "April" }, { xer: slow, label: "July" }]).windows;
+  assert.equal(w.moved, 1);
+  const d = w.drivers.progress.find((x) => x.code === row.task_code);
+  assert.ok(d, JSON.stringify(w.drivers.progress));
+  assert.match(d.what, /in progress, forecast finish .*\(\+1 working days\)/);
+});

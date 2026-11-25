@@ -1,0 +1,440 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKnwB3gJmjE7cSNC5xD",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T02:18:57Z",
+  "ended": "2026-11-24T02:19:44Z",
+  "wall_minutes": 26.79,
+  "tokens_in": 4262689,
+  "tokens_out": 18963,
+  "cost_usd": 1.8882,
+  "tool_calls": 46,
+  "task": "redteam: window-design-pressure-calculator calc.mjs + platform/ci/wait_for.py",
+  "projects": [
+    "window-design-pressure-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18522",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "run_workflow_locally: einvoice-preflight repair-facturx.test.mjs:115 failed because this container's pdfdetach wrapper disables saving; the suite ran only because einvoice-preflight changed on main inside the --since range, not from this diff",
+      "fixed": false
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`redteam.py targets --probe 20 | grep <slug>` printed nothing for window-design-pressure-calculator/calc.mjs although it has calc.test.mjs, and plain `targets` listed only 2 of the 6788 files it reported, so I could not check a --target candidate the way the prompt says; I passed --target directly (0.1 s suite)."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "run_workflow_locally --for-changes ran einvoice-preflight's suite, which another PR touched on main, and failed on the sandboxed pdfdetach; the sweep's 'COMMON CAUSE' line blamed the unfilled run record instead (fair for prompts-ci, but the venture failure needed a separate log read)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: 12 of the 13 open defects are control-plane (own PR, owner approval) and the 13th (help-keeper stemmer) needs a help-center eval set; none was safely fixable in this run",
+      "did": "re-read each entry, left them open, spent the run on steps 1-3",
+      "result": "3 new real defects fixed instead"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b (automated guard): the units-read-as-header bug is specific to this parser's header heuristic; no class-wide lint fits it without many false positives",
+      "did": "guarded the instance with tests only",
+      "result": "no new CI check this run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-redteam-window-design-pressure-units-in-the-header.md"
+  ],
+  "goal": null,
+  "notes": "Campaign 1 window-design-pressure-calculator/calc.mjs 6/10 caught, 4 gaps closed (ke(1)<1, kzt Lh=0 invalid, H=15 ft exposure C boundary, factor row a to 1 dp). Campaign 2 platform/ci/wait_for.py 7/8, 1 gap (stale_marker quiet default). Rerun: all 5 caught_after_fix true; catch rate 13/18 before, 18/18 after. Real defects (patched): first schedule line with units ('192in') silently read as a header and dropped; non-numeric elevation '5,280' silently Ke=1; 'Topography raises the pressure by 0%' when K2=0. Local sweep: 16/19 workflows passed; failures were prompts-ci validate (record unfilled at sweep time), einvoice-preflight (container pdfdetach sandbox, not this diff). Venture suite window-design-pressure-calculator 39/39, platform/ci test_wait_for OK.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/window-design-pressure-calculator/calc.mjs",
+        "test": "node --test ventures/window-design-pressure-calculator/**/*.test.mjs  (in .)",
+        "seed": 71797896,
+        "commit": "22b0ad760",
+        "sites": 233,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/window-design-pressure-calculator/calc.mjs",
+            "line": 82,
+            "col": 54,
+            "operator": "const-plus-one",
+            "before": "if (!Number.isFinite(elevationFt) || elevationFt <= 0) return 1;",
+            "after": "if (!Number.isFinite(elevationFt) || elevationFt <= 1) return 1;",
+            "line_text": "  if (!Number.isFinite(elevationFt) || elevationFt <= 0) return 1;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "ke(1) < 1 now asserted"
+          },
+          {
+            "file": "ventures/window-design-pressure-calculator/calc.mjs",
+            "line": 95,
+            "col": 44,
+            "operator": "const-plus-one",
+            "before": "if (!t || shape === \"none\") return { kzt: 1, applies: false, reason: \"no topographic feature entered\" };",
+            "after": "if (!t || shape === \"none\") return { kzt: 2, applies: false, reason: \"no topographic feature entered\" };",
+            "line_text": "  if (!t || shape === \"none\") return { kzt: 1, applies: false, reason: \"no topographic feature entered\" };",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/window-design-pressure-calculator/calc.mjs",
+            "line": 96,
+            "col": 23,
+            "operator": "gt-to-ge",
+            "before": "if (!(H > 0) || !(Lh > 0) || !(x >= 0) || !(z > 0)) return { kzt: 1, applies: false, reason: \"hill height, Lh and distance from the crest are needed\", invalid: true };",
+            "after": "if (!(H > 0) || !(Lh >= 0) || !(x >= 0) || !(z > 0)) return { kzt: 1, applies: false, reason: \"hill height, Lh and distance from the crest are needed\", invalid: true };",
+            "line_text": "  if (!(H > 0) || !(Lh > 0) || !(x >= 0) || !(z > 0)) return { kzt: 1, applies: false, reason: \"hill height, Lh and distance from the crest are needed\", invalid: true };",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "kzt with Lh = 0 must be invalid; now asserted"
+          },
+          {
+            "file": "ventures/window-design-pressure-calculator/calc.mjs",
+            "line": 99,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "const hMin = exposure === \"B\" ? 60 : 15;",
+            "after": "const hMin = exposure === \"B\" ? 60 : 16;",
+            "line_text": "  const hMin = exposure === \"B\" ? 60 : 15;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "H = 15 ft qualifies in exposure C; now asserted"
+          },
+          {
+            "file": "ventures/window-design-pressure-calculator/calc.mjs",
+            "line": 104,
+            "col": 28,
+            "operator": "times-to-div",
+            "before": "const LhUsed = capped ? 2 * H : Lh;",
+            "after": "const LhUsed = capped ? 2 / H : Lh;",
+            "line_text": "  const LhUsed = capped ? 2 * H : Lh;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/window-design-pressure-calculator/calc.mjs",
+            "line": 107,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "const k2 = Math.max(0, 1 - Math.abs(x) / (mu * LhUsed));",
+            "after": "const k2 = Math.max(0, 2 - Math.abs(x) / (mu * LhUsed));",
+            "line_text": "  const k2 = Math.max(0, 1 - Math.abs(x) / (mu * LhUsed));",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/window-design-pressure-calculator/calc.mjs",
+            "line": 109,
+            "col": 32,
+            "operator": "times-to-div",
+            "before": "return { kzt: Math.pow(1 + k1 * k2 * k3, 2), applies: true, k1, k2, k3, mu, capped, LhUsed, ratio };",
+            "after": "return { kzt: Math.pow(1 + k1 / k2 * k3, 2), applies: true, k1, k2, k3, mu, capped, LhUsed, ratio };",
+            "line_text": "  return { kzt: Math.pow(1 + k1 * k2 * k3, 2), applies: true, k1, k2, k3, mu, capped, LhUsed, ratio };",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/window-design-pressure-calculator/calc.mjs",
+            "line": 171,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "const count = f[4] === undefined || f[4] === \"\" ? 1 : num(f[4]);",
+            "after": "const count = f[5] === undefined || f[4] === \"\" ? 1 : num(f[4]);",
+            "line_text": "    const count = f[4] === undefined || f[4] === \"\" ? 1 : num(f[4]);",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/window-design-pressure-calculator/calc.mjs",
+            "line": 171,
+            "col": 64,
+            "operator": "const-plus-one",
+            "before": "const count = f[4] === undefined || f[4] === \"\" ? 1 : num(f[4]);",
+            "after": "const count = f[4] === undefined || f[4] === \"\" ? 1 : num(f[5]);",
+            "line_text": "    const count = f[4] === undefined || f[4] === \"\" ? 1 : num(f[4]);",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/window-design-pressure-calculator/calc.mjs",
+            "line": 353,
+            "col": 44,
+            "operator": "const-plus-one",
+            "before": "[\"Corner zone width a\", r1(r.a).toFixed(1), \"ft\", \"Fig. 30.3-1 note 6\"],",
+            "after": "[\"Corner zone width a\", r1(r.a).toFixed(2), \"ft\", \"Fig. 30.3-1 note 6\"],",
+            "line_text": "    [\"Corner zone width a\", r1(r.a).toFixed(1), \"ft\", \"Fig. 30.3-1 note 6\"],",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "factor row a shown to one decimal; now asserted"
+          }
+        ]
+      },
+      {
+        "target": "platform/ci/wait_for.py",
+        "test": "/usr/local/bin/python3 -m unittest test_wait_for  (in platform/ci)",
+        "seed": 324981499,
+        "commit": "22b0ad760",
+        "sites": 136,
+        "baseline_seconds": 2.5,
+        "mutants": [
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 91,
+            "col": 22,
+            "operator": "eq-flip",
+            "before": "return len(parts) == 1 or parts[1].lstrip(\"-\").isdigit()",
+            "after": "return len(parts) != 1 or parts[1].lstrip(\"-\").isdigit()",
+            "line_text": "    return len(parts) == 1 or parts[1].lstrip(\"-\").isdigit()",
+            "caught": true,
+            "seconds": 2.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 106,
+            "col": 45,
+            "operator": "false-to-true",
+            "before": "def stale_marker(lines, markers, held, quiet=False):",
+            "after": "def stale_marker(lines, markers, held, quiet=True):",
+            "line_text": "def stale_marker(lines, markers, held, quiet=False):",
+            "caught": false,
+            "seconds": 2.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "only caller passes quiet explicitly, but stale_marker is importable; direct test of the default added"
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 140,
+            "col": 28,
+            "operator": "eq-flip",
+            "before": "quiet = markers == DEFAULT_MARKERS",
+            "after": "quiet = markers != DEFAULT_MARKERS",
+            "line_text": "            quiet = markers == DEFAULT_MARKERS",
+            "caught": true,
+            "seconds": 4.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 144,
+            "col": 27,
+            "operator": "and-to-or",
+            "before": "if closed_ends and held() == []:",
+            "after": "if closed_ends or held() == []:",
+            "line_text": "            if closed_ends and held() == []:",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 244,
+            "col": 11,
+            "operator": "true-to-false",
+            "before": "return True",
+            "after": "return False",
+            "line_text": "    return True",
+            "caught": true,
+            "seconds": 2.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 318,
+            "col": 19,
+            "operator": "max-to-min",
+            "before": "pid, cmd = max(open_by)  # the newest holder is the job itself, not the shell that started it",
+            "after": "pid, cmd = min(open_by)  # the newest holder is the job itself, not the shell that started it",
+            "line_text": "        pid, cmd = max(open_by)  # the newest holder is the job itself, not the shell that started it",
+            "caught": true,
+            "seconds": 2.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 355,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "after": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[1])",
+            "line_text": "    ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "caught": true,
+            "seconds": 2.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 373,
+            "col": 25,
+            "operator": "and-to-or",
+            "before": "if a.pid is not None and a.pid <= 0:",
+            "after": "if a.pid is not None or a.pid <= 0:",
+            "line_text": "    if a.pid is not None and a.pid <= 0:",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/window-design-pressure-calculator/calc.mjs",
+        "issue": "parseOpenings read a first content line written with units ('Garage door, 192in, 84in, 2') as a header and dropped it silently, so the schedule lost an opening and its required DP never showed. Header fields must now not start like a number.",
+        "patched": true
+      },
+      {
+        "file": "ventures/window-design-pressure-calculator/calc.mjs",
+        "issue": "A non-numeric ground elevation ('5,280', 'high') was silently read as blank: Ke = 1 and the factor table said '1.0 permitted' though the user typed an elevation. Now refused with a message.",
+        "patched": true
+      },
+      {
+        "file": "ventures/window-design-pressure-calculator/calc.mjs",
+        "issue": "A building past mu x Lh from the crest (K2 = 0) got the medium finding 'Topography raises the pressure by 0%'. Now an info finding saying it is beyond the zone of influence and Kzt = 1.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d76e6462-17a6-5814-8560-6c9ada74274b",
+    "transcripts": 1,
+    "first": "2026-11-24T02:18:57Z",
+    "last": "2026-11-24T02:45:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 101,
+        "output": 18963,
+        "thinking": 4748,
+        "cache_read": 4178480,
+        "cache_write_5m": 0,
+        "cache_write_1h": 84108,
+        "api_equivalent_usd": 1.8882,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 101,
+      "output": 18963,
+      "thinking": 4748,
+      "cache_read": 4178480,
+      "cache_write_5m": 0,
+      "cache_write_1h": 84108,
+      "api_equivalent_usd": 1.8882,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 41,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.79,
+      "active_minutes": 9.51,
+      "model_minutes": 4.85,
+      "tool_minutes": 4.66,
+      "waiting_on_human_minutes": 17.29,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "reading an ASCE 7-16 calculator and a CI helper, 18 mutants triaged, 3 defects fixed with tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 211.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

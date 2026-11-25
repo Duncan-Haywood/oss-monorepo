@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVMRQoGyYBkAJdkD9FA",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T11:56:04Z",
+  "ended": "2026-11-25T12:04:35Z",
+  "wall_minutes": 9.28,
+  "tokens_in": 10358034,
+  "tokens_out": 38385,
+  "cost_usd": 4.0198,
+  "tool_calls": 79,
+  "task": "Bet #1 PayApps: change order files + 'Backup attached' on the change order request PDF (roadmap 'Change orders, part 3')",
+  "projects": [
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18958",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "A python edit script opened documents.ts for writing before its replacement failed, truncating the file",
+      "fix": "git checkout of the file, edit redone; never chain open(p,'w') with a computed value that can be None"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to open the PR as a draft while working, while the harness asks for ready-for-review; I opened it ready, since the work was verified before the PR."
+    },
+    {
+      "file": "apps/payapps/ROADMAP.md (private)",
+      "issue": "'Next: the contact on the change order request PDF' would have put accounts payable on a document meant for the GC's PM; roadmap items deserve a sanity check before building."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "apps/payapps/ROADMAP.md (private)",
+      "why": "Did not add the GC billing (AP) contact to the change order request PDF; a CO request goes to the project manager, not accounts payable.",
+      "did": "Recorded the reason in the roadmap and listed a per-job PM contact under Next.",
+      "result": "Roadmap corrected; no misleading Attn line on CO requests."
+    },
+    {
+      "file": "prompt.md",
+      "why": "No customer-facing post: the feature is unlaunched and the private product's marketing site is in private-monorepo; a blog post about an unreleased feature risks claims a file can't back.",
+      "did": "Agent doc in docs/reports instead.",
+      "result": "Agent doc landed."
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-25-payapps-change-order-files.md"
+  ],
+  "goal": "$10k MRR: bet #1 PayApps, change order workflow depth for subcontractors",
+  "notes": "Security queue empty (1 claimed). Routed ventures/1 by draw. private-monorepo attached via add_repo and cloned in under a minute. Private PR 86 merged: change_order_attachments (migration 0023), service, routes, generalized AttachmentsPanel, Backup attached list on the CO request PDF, job history rows, shared storage limit, privacy draft. Private CI starved (runner_id 0, 2 s); every payapps-ci.yml step run locally: biome ci, typecheck, unit 33 files/279 tests, worker 29 files/194 tests, build, provision 4, lien-waivers 211, drizzle check and drift generate clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "12218432-74a9-5070-ba6b-c79b46a7fef0",
+    "transcripts": 1,
+    "first": "2026-11-25T11:56:04Z",
+    "last": "2026-11-25T12:05:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 149,
+        "output": 38385,
+        "thinking": 5299,
+        "cache_read": 10206618,
+        "cache_write_5m": 0,
+        "cache_write_1h": 151267,
+        "api_equivalent_usd": 4.0198,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 149,
+      "output": 38385,
+      "thinking": 5299,
+      "cache_read": 10206618,
+      "cache_write_5m": 0,
+      "cache_write_1h": 151267,
+      "api_equivalent_usd": 4.0198,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 79,
+    "tools": {
+      "Bash": 64,
+      "ToolSearch": 3,
+      "Write": 3,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__actions_get": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.28,
+      "active_minutes": 9.28,
+      "model_minutes": 6.84,
+      "tool_minutes": 2.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior full-stack engineer: schema+migration, service, routes, UI, PDF section, 10 tests, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 248.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

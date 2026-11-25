@@ -18,7 +18,7 @@ async function fixture(files) {
   }
   return root;
 }
-const MIT = 'MIT License\n\nCopyright (c) x';
+const MIT = 'Functional Source License\n\nCopyright (c) x';
 const venture = (n, cli = 'console.log("hi", process.argv.slice(2).join(","));') => ({
   [`ventures/${n}/cli.mjs`]: `#!/usr/bin/env node\n${cli}\n`,
   [`ventures/${n}/LICENSE`]: MIT,
@@ -167,4 +167,17 @@ test('running mcp.mjs directly performs the dry run; importing it does not', asy
   const { stdout } = await promisify(execFile)(process.execPath, [file], { env: { PATH: process.env.PATH } });
   assert.match(stdout, /^mcp bundle: \d+ tools/);
   assert.match(stdout, /dry run/);
+});
+
+test('run under OIDC: skips a package npm does not have yet, publishes an existing one with provenance', async () => {
+  const root = await fixture({ ...venture('ok'), LICENSE: MIT });
+  const env = { DISTRIBUTE_MCP: 'true', ACTIONS_ID_TOKEN_REQUEST_URL: 'https://x' };
+  const calls = [];
+  const fresh = await run({ env, log() {}, root, argv: [], execImpl: async (cmd, args) => { calls.push(args); return { stdout: '' }; } });
+  assert.equal(fresh.published, false);
+  assert.deepEqual(calls.map((a) => a[0]), ['view']);
+  calls.length = 0;
+  const update = await run({ env, log() {}, root, argv: [], execImpl: async (cmd, args) => { calls.push(args); return { stdout: args[0] === 'view' ? '0.0.9\n' : '' }; } });
+  assert.equal(update.published, true);
+  assert.deepEqual(calls[1], ['publish', '--access', 'public', '--provenance']);
 });

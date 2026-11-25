@@ -55,7 +55,7 @@ export function FunnelPage() {
           </div>
         </dl>
         <p className="panel-desc muted">
-          Numbers are daily totals by UTC date for all stores in the database; hourly buckets and Europe/Rome alignment are not built yet.
+          Numbers are daily totals for one store, by the store's local day (Europe/Rome unless the KPI API is started with another zone); hourly buckets are not built yet.
         </p>
       </section>
     </PortalShell>

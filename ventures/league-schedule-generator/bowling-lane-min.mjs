@@ -1,0 +1,48 @@
+// The fewest out-of-target lane counts any deal can reach, proved by a solver, for even leagues whose
+// floor/ceil lane split is out of reach (bowling-proofs.mjs). Key "teams,round-robin weeks" for
+// roundRobin(teams) played in order from round 1, as bowlingSchedule() plays it; value: the minimum
+// of offBound (bowling.mjs: each count above its pair's ceiling or below its floor counts once).
+// From eval/bowling-mirror-cpsat.py --soft (OR-Tools CP-SAT, status OPTIMAL: answer = proved bound),
+// 2026-11-24; every run is in eval/bowling-lane-min-2026-11-24.txt. A season whose deal reaches its
+// minimum is reported as the most even split possible, not merely the best this search found.
+export const LANE_MIN = {
+  "4,2": 4,
+  "4,3": 2,
+  "4,4": 4,
+  "4,8": 4,
+  "4,9": 2,
+  "4,10": 4,
+  "4,14": 4,
+  "4,15": 2,
+  "4,16": 4,
+  "4,20": 4,
+  "4,21": 2,
+  "4,22": 4,
+  "4,26": 4,
+  "4,27": 2,
+  "4,28": 4,
+  "4,32": 4,
+  "4,33": 2,
+  "4,34": 4,
+  "4,38": 4,
+  "4,39": 2,
+  "4,40": 4,
+  "4,44": 4,
+  "4,45": 2,
+  "4,46": 4,
+  "4,50": 4,
+  "4,52": 4,
+  "4,56": 4,
+  "4,58": 4,
+  "6,3": 4,
+  "6,9": 4,
+  "8,3": 1,
+  "8,4": 8,
+  "10,5": 8,
+  "12,5": 1,
+  "12,6": 12,
+  "14,7": 12,
+  "16,8": 16,
+  "18,9": 16,
+  "20,10": 20,
+};

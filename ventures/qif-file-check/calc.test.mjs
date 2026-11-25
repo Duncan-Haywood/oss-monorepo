@@ -149,3 +149,52 @@ test("an impossible calendar day such as 02/30/2026 is flagged, and date convers
   assert.match(out, /^D02\/30\/2026$/m);
   assert.match(out, /^D31\/03\/2026$/m);
 });
+
+// Re-audit 2026-11-24 (portfolio/quality/audits/2026-11-24-qif-file-check.json): investment records,
+// date-rewrite line numbers, and the three seeded mutants the 2026-11-13 audit named that still survived.
+const INVST = "!Type:Invst\nD01/15/2024\nNShrsIn\nYACME CORP\nI10.00\nQ5\n^\nD01/16/2024\nNBuy\nYACME CORP\nI10.00\nQ5\nT50.00\n^\nD01/17/2024\nNDiv\nYACME CORP\nT1.25\n^\n";
+
+test("investment records: a share transfer needs no T, the security in Y counts as the description", () => {
+  const r = validate(INVST, NOW);
+  assert.equal(r.summary.errors, 0, titles(r).join("; "));
+  assert.equal(r.summary.warnings, 0, titles(r).join("; "));
+  assert.equal(r.summary.transactions, 3);
+});
+
+test("investment records: a cash action with no T is an error; a missing action or security warns", () => {
+  const r = validate("!Type:Invst\nD01/15/2024\nNSell\nYACME CORP\nQ5\n^\nD01/16/2024\nYACME CORP\nT9.00\n^\nD01/17/2024\nNBuy\nT9.00\n^\nD01/18/2024\nNBuyy\nYX\nT9.00\n^\n", NOW);
+  const t = titles(r);
+  assert.ok(t.includes("Investment record has no amount (T)"));
+  assert.ok(t.includes("Investment record has no action (N)"));
+  assert.ok(t.includes("No security (Y)"));
+  assert.ok(t.includes('Unrecognised investment action "Buyy"'));
+  assert.ok(!t.includes("No payee or memo"));
+});
+
+test("investment records: a sale and a purchase of one security on one day are not repeats", () => {
+  const r = validate("!Type:Invst\nD01/15/2024\nNBuy\nYACME\nQ5\nT50.00\n^\nD01/15/2024\nNSell\nYACME\nQ5\nT50.00\n^\n", NOW);
+  assert.ok(!titles(r).includes("Looks like a repeat of an earlier record"));
+});
+
+test("repair lists the line of every date it rewrites", () => {
+  const { changes } = repair("!Type:Bank\nD13/01/2024\nT-1.50\nPX\n^\nD14/01/2024\nT-2.00\nPY\n^\n", { convertDates: "mdy" });
+  assert.ok(changes.some((c) => c.startsWith("2 dates on lines 2, 6 rewritten as MM/DD/YYYY")), changes.join("|"));
+});
+
+test("a split one cent off the total is an error (cent precision, not dimes)", () => {
+  const r = validate("!Type:Bank\nD01/13/2024\nT-100.00\nPX\nSA\n$-60.00\nSB\n$-39.99\n^\n", NOW);
+  assert.ok(titles(r).includes("Split amounts do not add up to the total"));
+  const ok = validate("!Type:Bank\nD01/13/2024\nT-100.00\nPX\nSA\n$-60.01\nSB\n$-39.99\n^\n", NOW);
+  assert.ok(!titles(ok).includes("Split amounts do not add up to the total"));
+});
+
+test("two-digit years pivot at 70: '69 is 2069, '70 is 1970", () => {
+  assert.equal(qifDateParts("1/5/69").y, 2069);
+  assert.equal(qifDateParts("1/5/70").y, 1970);
+  assert.equal(qifDateParts("1/5/50").y, 2050);
+});
+
+test("same date and amount with different payees is not flagged as a repeat", () => {
+  const r = validate("!Type:Bank\nD01/13/2024\nT-5.00\nPCAFE\n^\nD01/13/2024\nT-5.00\nPPARKING\n^\n", NOW);
+  assert.ok(!titles(r).includes("Looks like a repeat of an earlier record"));
+});

@@ -80,7 +80,7 @@ test("CSV: rates multiply out, and spreadsheet formulas in names are neutralised
   const k = JSON.stringify(["IfcSlab"]);
   const csv = boqCsv(lines, ["class"], { [k]: { rate: 150, unit: "m3" } });
   const row = csv.split("\r\n").find((l) => l.startsWith("IfcSlab"));
-  assert.match(row, /,150,m3,750,0,0,0,0,0,,,0,,,$/);
+  assert.match(row, /,150,m3,750,0,0,0,0,0,,,0,,,,,,,,$/);
   const res = sample();
   res.rows[0].name = "=HYPERLINK(\"x\")";
   assert.match(rowsCsv(res.rows), /"'=HYPERLINK\(""x""\)"/);
@@ -1151,7 +1151,7 @@ test("steel: a member with no quantity set gets its length from the body and its
   // a per-kg rate now prices the bare steel beam
   const csv = boqCsv(lines, ["class", "material"], { [JSON.stringify(steel.key)]: { rate: 2, unit: "kg" } });
   const row = csv.split("\r\n").find((l) => l.includes("S355JR") && l.startsWith("IfcBeam"));
-  assert.match(row, /,6,942,.*,2,kg,1884,1,1,0,0,0,,,0,,,$/);
+  assert.match(row, /,6,942,.*,2,kg,1884,1,1,0,0,0,,,0,,,,3.64,0,0,0,0$/);
   for (const m of ["Steel", "STEEL/S235JR", "Stahl S235", "ASTM A992", "Structural Steel - S275", "05 Staal_bordes_hoeklijnen"]) assert.ok(isSteel(m), m);
   for (const m of [null, "Concrete / Steel", "STEEL/NEOPRENE", "Stainless steel", "Steel fibre concrete", "Timber", "Aluminium"]) assert.ok(!isSteel(m), String(m));
 });
@@ -1717,4 +1717,315 @@ test("a leaning face still fails the swept check with ends counted: a wall whose
   // the faces are still read (G is not null); with the ends they miss by 9.8%
   assert.ok(G, "the faces are read");
   assert.ok(Math.abs((G.swept + G.ends) / V - 1) > 0.05, `swept + ends ${G.swept + G.ends} vs ${V}`);
+});
+
+test("explanations: a Tekla plate's NetArea is every face of its body (M3D-CON-CD #30876), summed as its plan", async () => {
+  const { explainAreas } = await import("./qto.mjs");
+  const planes = [1.0545, 11.823976368386917, 0.111, 11.823981803309128, 1.0544945800784191, 0.11100121948242242, 1.160004109342071, 1.160004109342071];
+  const total = planes.reduce((a, b) => a + b, 0);
+  const row = (stored) => ({
+    id: 30876, tag: "x", ifcClass: "IfcPlate", type: null, pathJoins: [], box: [0, 0, 0, 1.11, 11.6, 0.1],
+    stored: { NetArea: { kind: "area", value: stored } },
+    areaCheck: { NetArea: { kind: "plan", which: "net", stored, computed: 12.8787, agree: false } },
+    computed: { openings: 0, areas: { plan: { gross: 12.8787, net: 12.8787, planes } } },
+  });
+  const rows = [row(total), { ...row(20), tag: "y" }];
+  explainAreas(rows);
+  assert.equal(rows[0].areaCheck.NetArea.reason, "whole-surface");
+  assert.equal(rows[0].areaCheck.NetArea.trust, false);
+  assert.equal(rows[1].areaCheck.NetArea.reason, "unexplained");
+});
+
+test("explanations: a Revit wall split at a level stores the whole on one piece (HHS construction #1405 + #1493)", async () => {
+  const { explainChecks, explainAreas } = await import("./qto.mjs");
+  const holder = (otherGross, otherSide = 13.4745) => [
+    {
+      id: 1405, tag: "573323", ifcClass: "IfcWallStandardCase", pathJoins: [], assembly: null,
+      stored: { Length: { kind: "length", value: 3.9 }, Height: { kind: "length", value: 3.7058 }, Width: { kind: "length", value: 0.2 } },
+      check: { gross: { stored: 5.252, computed: 2.6565, agree: false } },
+      areaCheck: { GrossSideArea: { kind: "side", which: "gross", stored: 26.7572, computed: 13.2827, agree: false } },
+      computed: { status: "ok", gross: 2.6565, net: 2.6565, openings: 0, areas: { side: { gross: 13.2827, net: 13.2827, width: 0.2, faces: { gross: [13.2827], net: [13.2827] } } } },
+    },
+    {
+      id: 1493, tag: "573323", ifcClass: "IfcWall", pathJoins: [], assembly: null, stored: {},
+      computed: { status: "ok", gross: otherGross, net: otherGross, openings: 0, areas: { side: { gross: otherSide, net: otherSide, width: 0.2 } } },
+    },
+  ];
+  const rows = holder(2.5955);
+  explainChecks(rows); explainAreas(rows);
+  assert.equal(rows[0].check.gross.reason, "split-held");
+  assert.equal(rows[0].check.gross.pieces, 2);
+  assert.equal(rows[0].trustStored, false);
+  assert.equal(rows[0].areaCheck.GrossSideArea.reason, "split-held");
+  assert.equal(rows[0].areaCheck.GrossSideArea.trust, false);
+  // the other piece a different size: no longer the whole wall
+  const off = holder(1.9);
+  explainChecks(off);
+  assert.notEqual(off[0].check.gross.reason, "split-held");
+});
+
+// 2026-11-24 red-team run: seeded faults in qto.mjs the suite let through.
+test("glass: a surface style drawn fully see-through (transparency 1) is a void, not a pane", () => {
+  // the pane's style at transparency 1 and a plain name: nothing is glazing, so nothing is left out
+  const frame = 0.1;
+  const text = glazedFile(frame, frame, frame).replace("#35=IFCSURFACESTYLERENDERING(#30,0.49,", "#35=IFCSURFACESTYLERENDERING(#30,1.,").replace("'Glas - algemeen'", "'Pane'");
+  assert.ok(text.includes("(#30,1.,"), "fixture edit applied");
+  const [w] = takeoff(parseStep(text)).rows;
+  assert.equal(w.computed.glazing, undefined);
+  // just under 1 is still see-through glass
+  const almost = takeoff(parseStep(text.replace("(#30,1.,", "(#30,0.99,"))).rows[0];
+  close(almost.computed.glazing, 0.9 * 0.02 * 0.9);
+});
+
+test("compoundFactor: a computed volume under one unit still finds its square-foot slip", async () => {
+  const { compoundFactor, SQFT } = await import("./qto.mjs");
+  // a 0.4 m3 slab stored as litres over square feet: 0.4 x 1000 / 10.7639
+  close(compoundFactor(0.4, (0.4 * 1000) / SQFT), 1000 / SQFT);
+  close(compoundFactor(0.4, 0.4 * SQFT * 10), SQFT * 10);
+  assert.equal(compoundFactor(0, 1), null);
+  assert.equal(compoundFactor(0.4, 0.4), null); // k = 0 is no slip
+});
+
+test("a stored quantity that overflows to Infinity is no unit slip", async () => {
+  // 2026-11-24 red-team run: near(x, Infinity) held for any x (Infinity <= tol x Infinity), so a model
+  // storing GrossVolume 1.E400 read "unit-slip, factor 10.7639" against a 3 m3 wall
+  const { unitSlip, compoundFactor } = await import("./qto.mjs");
+  assert.equal(unitSlip(3, Infinity), null);
+  assert.equal(unitSlip(Infinity, 3), null);
+  assert.equal(compoundFactor(3, Infinity), null);
+  const text = readFileSync(new URL("./samples/sample-office.ifc", import.meta.url), "latin1").replace("IFCQUANTITYVOLUME('GrossVolume',$,$,3.,$);", "IFCQUANTITYVOLUME('GrossVolume',$,$,1.E400,$);");
+  assert.ok(text.includes("1.E400"), "fixture edit applied");
+  const wall = takeoff(parseStep(text)).rows.find((r) => r.name === "Wall A");
+  assert.notEqual(wall.check.gross.reason, "unit-slip");
+  assert.equal(wall.check.gross.factor, undefined);
+});
+
+test("explanations: a holed Revit wall's GrossSideArea is one face net of its openings (ARK_NUS #1483180)", async () => {
+  const { explainAreas } = await import("./qto.mjs");
+  const row = (stored, openings = 3) => ({
+    id: 1483180, tag: null, ifcClass: "IfcWallStandardCase", type: null, pathJoins: [], box: [0, 0, 0, 4, 0.134, 3.65],
+    stored: { GrossSideArea: { kind: "area", value: stored }, GrossVolume: { kind: "volume", value: 1.24969 } },
+    areaCheck: { GrossSideArea: { kind: "side", which: "gross", stored, computed: 14.407372, agree: false } },
+    computed: { openings, areas: { side: { gross: 14.407372, net: 9.304372, width: 0.134, faces: { gross: [14.407372, 14.730227], net: [9.304372, 9.627227] } } } },
+  });
+  const rows = [row(9.627227), row(9.627227, 0), row(11.5)];
+  explainAreas(rows);
+  assert.equal(rows[0].areaCheck.GrossSideArea.reason, "net-on-a-face");
+  assert.equal(rows[0].areaCheck.GrossSideArea.trust, true);
+  // no openings: a net face cannot be why
+  assert.notEqual(rows[1].areaCheck.GrossSideArea.reason, "net-on-a-face");
+  assert.equal(rows[2].areaCheck.GrossSideArea.reason, "unexplained");
+});
+
+test("coating: a steel part's whole surface is its coating area, priced per m2 coat; concrete has none", async () => {
+  const { coatingArea } = await import("./qto.mjs");
+  const res = takeoff(parseStep(bareBeams));
+  const [S, C, K] = res.rows;
+  // 100 x 200 x 6000: four sides 2 x 0.3 x 6 plus two ends 0.02 each
+  const cs = coatingArea(S);
+  close(cs.area, 3.64); assert.equal(cs.source, "computed"); assert.equal(cs.stored, null);
+  assert.equal(coatingArea(C), null, "a concrete beam is not coated");
+  // the column stores a 2.95 m length; its coating is read off its 3 m body
+  close(coatingArea(K).area, 1.84);
+  const lines = boq(res.rows, ["material"]);
+  const steel = lines.find((l) => l.key[0] === "S355JR"), conc = lines.find((l) => l.key[0] === "Concrete C30/37");
+  close(steel.coating, 3.64 + 1.84); assert.equal(steel.coatingMissing, 0);
+  assert.equal(conc.coating, 0); assert.equal(conc.coatingMissing, 0);
+  const csv = boqCsv(lines, ["material"], { [JSON.stringify(steel.key)]: { rate: 10, unit: "m2 coat" } });
+  const rows = csv.split("\r\n");
+  assert.ok(rows[0].includes("Coating area m2 (steel parts' outside surface)"));
+  const sr = rows.find((l) => l.startsWith("S355JR")).split(",");
+  assert.equal(sr[rows[0].split(",").indexOf("Amount")], "54.8");
+  // a line with no steel parts leaves the coating cells empty
+  assert.match(rows.find((l) => l.startsWith("Concrete")), /,,,,,$/);
+});
+
+test("coating: a stored skin stands in when the body gives none, and a disagreeing one is counted", async () => {
+  const { coatingArea, boq } = await import("./qto.mjs");
+  const base = { ifcType: "IFCBEAM", ifcClass: "IfcBeam", material: "STEEL/S235JR", type: null, storey: null };
+  // no geometry read: Tekla's OuterSurfaceArea is summed
+  const a = { ...base, id: 1, stored: { OuterSurfaceArea: { kind: "area", value: 8.55 } }, computed: { status: "not read" } };
+  assert.deepEqual([coatingArea(a).area, coatingArea(a).source], [8.55, "stored"]);
+  // geometry read and agreeing with the stored skin (M3D-CON #7619, to 1e-12)
+  const b = { ...base, id: 2, stored: { OuterSurfaceArea: { kind: "area", value: 8.55274825676747 } }, computed: { status: "ok", areas: { surface: { gross: 8.55274825677029, net: null } } } };
+  assert.equal(coatingArea(b).agree, true); assert.equal(coatingArea(b).source, "computed");
+  // M3D-CON-CD #493775's bottom part: stored 0.00533, its faces 0.00805
+  const c = { ...base, ifcType: "IFCCOLUMN", id: 3, stored: { OuterSurfaceArea: { kind: "area", value: 0.00532973256899668 } }, computed: { status: "ok", areas: { surface: { gross: 0.008053351810948543, net: null } } } };
+  assert.equal(coatingArea(c).agree, false); close(coatingArea(c).area, 0.008053351810948543);
+  // a Tekla plate whose NetArea explainAreas named whole-surface
+  const p = { ...base, ifcType: "IFCPLATE", ifcClass: "IfcPlate", id: 4, stored: { NetArea: { kind: "area", value: 28.299 } }, areaCheck: { NetArea: { reason: "whole-surface", surface: 28.299, trust: false } }, computed: { status: "not read" } };
+  assert.equal(coatingArea(p).area, 28.299); assert.equal(coatingArea(p).storedName, "NetArea");
+  // a steel part with nothing to read is counted as missing
+  const d = { ...base, id: 5, stored: {}, computed: { status: "not read" } };
+  const [L] = boq([a, b, c, p, d], ["material"]);
+  close(L.coating, 8.55 + 8.55274825677029 + 0.008053351810948543 + 28.299);
+  assert.deepEqual([L.coatingStored, L.coatingMissing, L.coatingDisagree], [2, 1, 1]);
+  // bars and fasteners are not coated
+  assert.equal(coatingArea({ ...base, ifcType: "IFCREINFORCINGBAR" }), null);
+  assert.equal(coatingArea({ ...base, ifcType: "IFCMECHANICALFASTENER" }), null);
+});
+
+const filletedI = `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC4'));ENDSEC;DATA;
+#1=IFCPROJECT('0YvctVUKr0kugbFTf53O9L',$,'p',$,$,$,$,$,#2);
+#2=IFCUNITASSIGNMENT((#3));
+#3=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);
+#10=IFCCARTESIANPOINT((0.,0.,0.));
+#11=IFCAXIS2PLACEMENT3D(#10,$,$);
+#12=IFCLOCALPLACEMENT($,#11);
+#13=IFCAXIS2PLACEMENT2D(#10,$);
+#16=IFCDIRECTION((0.,0.,1.));
+#20=IFCISHAPEPROFILEDEF(.AREA.,'I400',#13,200.,400.,10.,15.,12.,$,$);
+#21=IFCEXTRUDEDAREASOLID(#20,#11,#16,5000.);
+#22=IFCSHAPEREPRESENTATION($,'Body','SweptSolid',(#21));
+#23=IFCREPRESENTATIONMAP(#11,#22);
+#24=IFCCARTESIANTRANSFORMATIONOPERATOR3D($,$,#10,$,$);
+#25=IFCMAPPEDITEM(#23,#24);
+#26=IFCSHAPEREPRESENTATION($,'Body','MappedRepresentation',(#25));
+#27=IFCPRODUCTDEFINITIONSHAPE($,$,(#26));
+#28=IFCCOLUMN('1YvctVUKr0kugbFTf53O9A',$,'mapped',$,$,#12,#27,'C1');
+#30=IFCCARTESIANPOINT((0.,0.,4000.));
+#31=IFCAXIS2PLACEMENT3D(#30,$,$);
+#32=IFCPLANE(#31);
+#33=IFCHALFSPACESOLID(#32,.F.);
+#34=IFCBOOLEANCLIPPINGRESULT(.DIFFERENCE.,#21,#33);
+#35=IFCSHAPEREPRESENTATION($,'Body','Clipping',(#34));
+#36=IFCPRODUCTDEFINITIONSHAPE($,$,(#35));
+#37=IFCBEAM('1YvctVUKr0kugbFTf53O9B',$,'clipped',$,$,#12,#36,'B1');
+#60=IFCMATERIAL('S355JR');
+#61=IFCRELASSOCIATESMATERIAL('4YvctVUKr0kugbFTf53O9A',$,$,$,(#28,#37),#60);
+ENDSEC;END-ISO-10303-21;`;
+
+test("coating: a filleted I section's skin comes from its profile outline, through a mapped item and a clipped end", async () => {
+  const { coatingArea } = await import("./qto.mjs");
+  const res = takeoff(parseStep(filletedI));
+  const [M, B] = res.rows;
+  // outline 2w + 2(w - tw) + 4 tf + 2(d - 2 tf), each root radius trading 2r of edge for a quarter arc
+  const r = 0.012, P = 2 * 0.2 + 2 * 0.19 + 4 * 0.015 + 2 * 0.37 + 4 * (Math.PI * r / 2 - 2 * r);
+  const A = 2 * 0.2 * 0.015 + 0.01 * 0.37 + 4 * (1 - Math.PI / 4) * r * r;
+  const cm = coatingArea(M);
+  assert.equal(M.computed.areas.surface.fromProfile, true);
+  close(cm.area, P * 5 + 2 * A, 2e-4);
+  // the plane at 4 m keeps 4 m of the 5 m extrusion: sides x 0.8, both ends kept
+  const cb = coatingArea(B);
+  assert.equal(B.computed.areas.surface.clipped, true);
+  close(cb.area, P * 4 + 2 * A, 2e-4);
+});
+
+test("coating: a tube's outside is its coating area, its bore summed apart (Mini Project's B193.7/8 columns)", async () => {
+  const { coatingArea } = await import("./qto.mjs");
+  const src = filletedI.replace("#20=IFCISHAPEPROFILEDEF(.AREA.,'I400',#13,200.,400.,10.,15.,12.,$,$);", "#20=IFCCIRCLEHOLLOWPROFILEDEF(.AREA.,'B193.7/8',#13,96.85,8.);").replace(/#21=IFCEXTRUDEDAREASOLID\(#20,#11,#16,5000\.\);/, "#21=IFCEXTRUDEDAREASOLID(#20,#11,#16,3000.);");
+  const res = takeoff(parseStep(src));
+  const M = res.rows[0];
+  const R = 0.09685, r = R - 0.008;
+  const c = coatingArea(M);
+  close(c.area, 2 * Math.PI * R * 3 + 2 * Math.PI * (R * R - r * r), 1e-3);
+  close(c.inside, 2 * Math.PI * r * 3, 1e-3);
+  const [L] = boq([M], ["class"]);
+  close(L.coatingInside, c.inside);
+});
+
+// A coped beam, as S_Office's 28 (eval/coped-coating-2026-11-24.md): a
+// sharp-cornered I extruded 5 m, less a faceted box that takes the top flange
+// off its first 150 mm. The cut is flush with the flange's underside, so on
+// that plane the flange faces down and the web's exposed top faces up.
+const copedI = `ISO-10303-21;HEADER;FILE_SCHEMA(('IFC4'));ENDSEC;DATA;
+#1=IFCPROJECT('0YvctVUKr0kugbFTf53O9L',$,'p',$,$,$,$,$,#2);
+#2=IFCUNITASSIGNMENT((#3));
+#3=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);
+#10=IFCCARTESIANPOINT((0.,0.,0.));
+#11=IFCAXIS2PLACEMENT3D(#10,$,$);
+#12=IFCLOCALPLACEMENT($,#11);
+#16=IFCDIRECTION((0.,0.,1.));
+#101=IFCCARTESIANPOINT((-100.,-200.));
+#102=IFCCARTESIANPOINT((100.,-200.));
+#103=IFCCARTESIANPOINT((100.,-185.));
+#104=IFCCARTESIANPOINT((5.,-185.));
+#105=IFCCARTESIANPOINT((5.,185.));
+#106=IFCCARTESIANPOINT((100.,185.));
+#107=IFCCARTESIANPOINT((100.,200.));
+#108=IFCCARTESIANPOINT((-100.,200.));
+#109=IFCCARTESIANPOINT((-100.,185.));
+#110=IFCCARTESIANPOINT((-5.,185.));
+#111=IFCCARTESIANPOINT((-5.,-185.));
+#112=IFCCARTESIANPOINT((-100.,-185.));
+#113=IFCPOLYLINE((#101,#102,#103,#104,#105,#106,#107,#108,#109,#110,#111,#112,#101));
+#20=IFCARBITRARYCLOSEDPROFILEDEF(.AREA.,'Steel Universal Section',#113);
+#21=IFCEXTRUDEDAREASOLID(#20,#11,#16,5000.);
+#201=IFCCARTESIANPOINT((-150.,185.,-50.));
+#202=IFCCARTESIANPOINT((150.,185.,-50.));
+#203=IFCCARTESIANPOINT((150.,250.,-50.));
+#204=IFCCARTESIANPOINT((-150.,250.,-50.));
+#205=IFCCARTESIANPOINT((-150.,185.,150.));
+#206=IFCCARTESIANPOINT((150.,185.,150.));
+#207=IFCCARTESIANPOINT((150.,250.,150.));
+#208=IFCCARTESIANPOINT((-150.,250.,150.));
+#211=IFCPOLYLOOP((#201,#204,#203,#202));
+#212=IFCPOLYLOOP((#205,#206,#207,#208));
+#213=IFCPOLYLOOP((#201,#202,#206,#205));
+#214=IFCPOLYLOOP((#204,#208,#207,#203));
+#215=IFCPOLYLOOP((#201,#205,#208,#204));
+#216=IFCPOLYLOOP((#202,#203,#207,#206));
+#221=IFCFACEOUTERBOUND(#211,.T.);
+#222=IFCFACEOUTERBOUND(#212,.T.);
+#223=IFCFACEOUTERBOUND(#213,.T.);
+#224=IFCFACEOUTERBOUND(#214,.T.);
+#225=IFCFACEOUTERBOUND(#215,.T.);
+#226=IFCFACEOUTERBOUND(#216,.T.);
+#231=IFCFACE((#221));
+#232=IFCFACE((#222));
+#233=IFCFACE((#223));
+#234=IFCFACE((#224));
+#235=IFCFACE((#225));
+#236=IFCFACE((#226));
+#240=IFCCLOSEDSHELL((#231,#232,#233,#234,#235,#236));
+#241=IFCFACETEDBREP(#240);
+#242=IFCBOOLEANRESULT(.DIFFERENCE.,#21,#241);
+#243=IFCSHAPEREPRESENTATION($,'Body','CSG',(#242));
+#244=IFCPRODUCTDEFINITIONSHAPE($,$,(#243));
+#245=IFCBEAM('1YvctVUKr0kugbFTf53O9C',$,'coped',$,$,#12,#244,'B2');
+#60=IFCMATERIAL('S355JR');
+#61=IFCRELASSOCIATESMATERIAL('4YvctVUKr0kugbFTf53O9A',$,$,$,(#245),#60);
+ENDSEC;END-ISO-10303-21;`;
+
+test("coating: a coped beam (an extrusion less a faceted cut-out) is coated from its faces, both faces on the cope's plane counted", async () => {
+  const { coatingArea } = await import("./qto.mjs");
+  const { boundaryArea, planeAreas } = await import("./geom.mjs");
+  const [B] = takeoff(parseStep(copedI)).rows;
+  // 9,700 mm2 x 5 m, less the flange's 200 x 15 x 150 mm
+  close(B.computed.gross, (9700 * 5000 - 200 * 15 * 150) * 1e-9, 1e-9);
+  // the uncut skin: outline 2 x 200 + 2 x 190 + 4 x 15 + 2 x 370 = 1,580 mm
+  // along 5 m, both 9,700 mm2 ends; the cope takes off the flange's top
+  // (200 x 150), its two edges (2 x 15 x 150) and its underside (190 x 150)
+  // and lays bare the web's top (10 x 150); the flange's end moves 150 mm in
+  const want = (1580 * 5000 + 2 * 9700 - 200 * 150 - 2 * 15 * 150 - 190 * 150 + 10 * 150) * 1e-6;
+  const c = coatingArea(B);
+  assert.equal(B.computed.areas.surface.fromFaces, true);
+  assert.equal(c.source, "computed");
+  close(c.area, want, 1e-9);
+  // the plane-by-plane vector sum takes the web's top off the flange's underside
+  const body = B.computed.solids.body;
+  close(planeAreas(body, true).reduce((a, p) => a + p.area, 0) * 1e-6, want - 2 * 10 * 150 * 1e-6, 1e-9);
+  close(boundaryArea(body) * 1e-6, want, 1e-9);
+});
+
+// schependomlaan's "afdekker" copings (eval/signed-faces-2026-11-24.md): a
+// profile built as a signed sum of pieces. Read with `signed`, the faces the
+// pieces share cancel, and the underside is the flat strip either side of the
+// drip groove, as ArchiCAD stores it (Bottom Surface Area = GrossArea)
+test("planeAreas signed: a coping cut by a groove, two boxes sharing a face", async () => {
+  const { planeAreas } = await import("./geom.mjs");
+  const rect = (x0, y0, x1, y1) => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
+  const coping = { terms: [{ s: 1, faces: prism(rect(0, 0, 0.15, 0.07), [0, 0, 0.47]) }, { s: -1, faces: prism(rect(0.115, 0, 0.135, 0.01), [0, 0, 0.47]) }], mesh: 0, shells: [] };
+  assert.equal(planeAreas(coping), null);
+  const P = planeAreas(coping, true);
+  const at = () => P.filter((p) => Math.abs(Math.abs(p.n[1]) - 1) < 1e-9).map((p) => +p.area.toFixed(9)).sort();
+  // underside 0.13 x 0.47, the groove's roof 0.02 x 0.47, the top 0.15 x 0.47
+  assert.deepEqual(at(), [0.0094, 0.0611, 0.0705]);
+  // the two ends: the profile less the groove
+  const ends = P.filter((p) => Math.abs(Math.abs(p.n[2]) - 1) < 1e-9).map((p) => +p.area.toFixed(9));
+  assert.deepEqual(ends, [0.0103, 0.0103]);
+  // two boxes side by side: the face they share is no part of the surface
+  const two = { terms: [{ s: 1, faces: prism(rect(0, 0, 1, 1), [0, 0, 1]) }, { s: 1, faces: prism(rect(1, 0, 2, 1), [0, 0, 1]) }], mesh: 0, shells: [] };
+  const S = planeAreas(two, true).map((p) => +p.area.toFixed(9)).sort((a, b) => a - b);
+  assert.deepEqual(S, [1, 1, 2, 2, 2, 2]);
 });

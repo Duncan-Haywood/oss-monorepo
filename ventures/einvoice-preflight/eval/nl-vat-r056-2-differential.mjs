@@ -136,7 +136,7 @@ function mutants(id) {
 }
 
 // Where the preflight is stricter than R056-2 on purpose, counted apart.
-const decodeRefs = (s) => s.replace(/&#x([0-9a-fA-F]+);/g, (_, h) => String.fromCodePoint(parseInt(h, 16))).replace(/&#([0-9]+);/g, (_, d) => String.fromCodePoint(Number(d)));
+const decodeRefs = (s) => s.replace(/&#x([0-9a-fA-F]+);/g, (_, h) => codePointOr(parseInt(h, 16))).replace(/&#([0-9]+);/g, (_, d) => codePointOr(Number(d)));
 function deliberate(raw, ours) {
   const text = decodeRefs(raw).replace(/^[ \t\r\n]+|[ \t\r\n]+$/g, "");
   if (!text.startsWith("NL")) return "a value R056-2 does not read (no NL prefix after normalize-space), which INV-022/023 check as any VAT number";
@@ -232,3 +232,7 @@ for (const [place, r] of rows) {
 for (const [why, n] of Object.entries(kept)) console.log(`stricter on purpose, not counted: ${why}: ${n}`);
 for (const e of examples) console.log(`  ${e}`);
 process.exitCode = disagreements ? 1 : 0;
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

@@ -43,7 +43,12 @@ function headerOf(xer, projName) {
 // comparison links to the delay, progress side and revision side.
 function drivers(c) {
   const onPrev = new Set(c.criticalPath.previous);
-  const onEither = new Set([...c.criticalPath.previous, ...c.criticalPath.current]);
+  // a revision is named when it touches the driving path at the start or end
+  // of the window, or the half-step's path (progress in, revisions not yet):
+  // progress can move the path within a window, and the revisions act on the
+  // path progress left (found by eval/windows-kinds-check.mjs, 2026-11-24: a
+  // deleted link that pulled the finish in 2.9 days was on neither end's path)
+  const onEither = new Set([...c.criticalPath.previous, ...c.criticalPath.current, ...(c.criticalPath.halfStep || [])]);
   const progress = [], revisions = [];
   for (const r of c.progress.plannedNotFinished) if (onPrev.has(r.code)) progress.push({ code: r.code, name: r.name, what: `forecast to finish by ${r.forecastFinish.slice(0, 10)}, now ${r.status}` });
   for (const r of c.progress.plannedNotStarted) if (onPrev.has(r.code)) progress.push({ code: r.code, name: r.name, what: `forecast to start by ${r.forecastStart.slice(0, 10)}, not started` });
@@ -55,6 +60,10 @@ function drivers(c) {
   // late, or going slower than its remaining duration said
   const named = new Set(progress.map((x) => x.code));
   for (const r of c.float.rows) if (onPrev.has(r.code) && r.inProgress && r.finishMoved > 0 && !named.has(r.code)) progress.push({ code: r.code, name: r.name, what: `in progress, forecast finish ${r.finishWas.slice(0, 10)} to ${r.finishNow.slice(0, 10)} (+${r.finishMoved} working days)` });
+  // and the gains: work under way on the path now forecast to finish earlier
+  // than the last update said (going faster than its remaining duration).
+  // A window that pulled the finish in names what pulled it, as a delay does.
+  for (const r of c.float.rows) if (onPrev.has(r.code) && r.inProgress && r.finishMoved < 0 && !named.has(r.code)) progress.push({ code: r.code, name: r.name, gain: true, what: `in progress, forecast finish ${r.finishWas.slice(0, 10)} to ${r.finishNow.slice(0, 10)} (${r.finishMoved} working days, ahead of the forecast)` });
   for (const r of c.durations.origChanged) if (r.critical) revisions.push({ code: r.code, name: r.name, what: `original duration ${r.was} to ${r.now} days` });
   for (const r of c.constraints) if (onEither.has(r.code)) revisions.push({ code: r.code, name: r.name, what: `constraint ${r.was} to ${r.now}` });
   for (const r of c.calendars) if (onEither.has(r.code)) revisions.push({ code: r.code, name: r.name, what: `calendar ${r.was} to ${r.now}` });
@@ -63,7 +72,7 @@ function drivers(c) {
   for (const r of c.logic.added) if (relOn(r)) revisions.push({ code: `${r.pred} -> ${r.succ}`, name: "", what: `${r.type} link added${r.lagDays ? ` (lag ${r.lagDays} days)` : ""}` });
   for (const r of c.logic.deleted) if (relOn(r) && r.bothRemain) revisions.push({ code: `${r.pred} -> ${r.succ}`, name: "", what: `${r.type} link deleted` });
   for (const r of c.logic.typeChanged) if (relOn(r)) revisions.push({ code: `${r.pred} -> ${r.succ}`, name: "", what: `type ${r.was} to ${r.now}` });
-  for (const r of c.activities.added) if (c.criticalPath.current.includes(r.code)) revisions.push({ code: r.code, name: r.name, what: `activity added on the driving path (${r.duration ?? "?"} days)` });
+  for (const r of c.activities.added) if (onEither.has(r.code)) revisions.push({ code: r.code, name: r.name, what: `activity added on the driving path (${r.duration ?? "?"} days)` });
   for (const r of c.activities.deleted) if (r.wasCritical) revisions.push({ code: r.code, name: r.name, what: "activity on the driving path deleted" });
   return { progress, revisions };
 }
@@ -127,6 +136,7 @@ export function windows(updates, opts = {}) {
   // where the job lost its time, as a first list to read
   const tally = new Map();
   for (const w of wins) for (const x of w.drivers.progress) {
+    if (x.gain) continue;
     const e = tally.get(x.code) || { code: x.code, name: x.name, windows: [], windowDays: 0 };
     if (!e.windows.includes(w.n)) { e.windows.push(w.n); if (w.progressEffect > 0) e.windowDays += w.progressEffect; }
     tally.set(x.code, e);

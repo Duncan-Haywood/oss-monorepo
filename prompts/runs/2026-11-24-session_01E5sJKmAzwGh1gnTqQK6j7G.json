@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKmAzwGh1gnTqQK6j7G",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T07:18:53Z",
+  "ended": "2026-11-24T07:26:43Z",
+  "wall_minutes": 8.06,
+  "tokens_in": 3084147,
+  "tokens_out": 33111,
+  "cost_usd": 2.0852,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18565",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First python edit pass aborted on a mismatched search string (Bunree clause); re-run with the exact text, no harm done."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "Next up's own Mpemba proposal was already claimed by open PR #18561 without a '(Drafting ...)' mark on main, so the claim is only visible by searching PRs; the bible's claim convention only works once the claimer's branch merges."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/overlap.mjs",
+      "issue": "Name checks match substrings in all story text (e.g. 'Peg' hits 16 stories), so a character-name check gives many false hits; --titles helps for subjects but not for names."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "Proposal said the fortnight's returns fix the estimate; I added a middle step (a full shelf count that gives a worse, over-confident answer because the newest tools are out) to show sampling bias concretely.",
+      "did": "Story has four estimates (212 count, 237.5, 231, 241) all recomputed in the note.",
+      "result": "Tests pass; the story's model note matches every spoken number."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (581 MB > 400 MB).",
+      "did": "Text only, no podcast option.",
+      "result": "Story listed as text only."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-for-other-minds-the-highest-number-in-the-drawer.md"
+  ],
+  "goal": null,
+  "notes": "Creative track. Project: Hearth & Horizon, For Other Minds shelf. Piece: the-highest-number-in-the-drawer (German tank problem, Ballina 2057, ~4,700 words, text only). Citations checked by web search: Ruggles & Brodie JASA 42:237 (1947) 72-91; Goodman JASA 47 (1952) 622-634. Weekdays and all estimates/SEs computed in code. Added next For Other Minds proposal (Lotka-Volterra hedgehogs and slugs) since the shelf's Next up was empty. node --test in ventures/hearth-and-horizon: 21 pass, 0 fail.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a614a652-03dd-527d-9b27-d1bd4bb308a9",
+    "transcripts": 1,
+    "first": "2026-11-24T07:18:53Z",
+    "last": "2026-11-24T07:26:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 32,
+        "input": 64,
+        "output": 33111,
+        "thinking": 13475,
+        "cache_read": 2980760,
+        "cache_write_5m": 0,
+        "cache_write_1h": 103323,
+        "api_equivalent_usd": 2.0852,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 64,
+      "output": 33111,
+      "thinking": 13475,
+      "cache_read": 2980760,
+      "cache_write_5m": 0,
+      "cache_write_1h": 103323,
+      "api_equivalent_usd": 2.0852,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.966,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 27,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.06,
+      "active_minutes": 8.06,
+      "model_minutes": 7.22,
+      "tool_minutes": 0.84,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "researching two citations, working the model and drafting/revising a 4,700-word story plus post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 287.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

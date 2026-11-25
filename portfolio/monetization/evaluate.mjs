@@ -25,6 +25,23 @@ export const MOR_FEE = { pct: 0.05, fixed: 0.5 };
 // treated as zero here, which slightly overstates the donation net.
 export const DONATION_FEE = { pct: 0, fixed: 0 };
 
+// Margin floor for paid products (owner, 2026-11-24: "we want to aim for min
+// 40-60% margins in the products"). A mechanism that states its
+// `variable_cost_usd` (what one sale costs to serve: model calls, hosting,
+// storage, per unit of `unit`) must keep at least MARGIN_FLOOR after the
+// merchant fee; MARGIN_TARGET is the minimum to aim for (owner: "a sort of
+// minimal goal"), not a ceiling. The same floor is enforced on the
+// subscription apps by private-monorepo packages/billing (MIN_MARGIN).
+export const MARGIN_FLOOR = 0.4;
+export const MARGIN_TARGET = 0.6;
+
+// Share of the price left after the merchant fee and the stated variable cost.
+// null for donations and free mechanisms, where a margin means nothing.
+export function margin(m) {
+  if (m.unit === 'donation' || !(m.price_usd > 0)) return null;
+  return (netPerSale(m.price_usd, m.unit) - (m.variable_cost_usd ?? 0)) / m.price_usd;
+}
+
 export const GATES = ['none', 'payout-rail', 'funding-sponsors-live', 'owner-partner', 'owner-application'];
 
 export function netPerSale(price, unit) {
@@ -100,9 +117,14 @@ export function ventureSlugs() {
     .sort();
 }
 
-export function flagshipSlugs() {
-  const text = fs.readFileSync(path.join(ROOT, 'portfolio/flagships.yaml'), 'utf8');
-  return [...text.matchAll(/^\s*- venture:\s*(\S+)/gm)].map((m) => m[1]);
+// Flagship rows that need an evaluation here. A paid bet's row (`app:
+// private-monorepo/apps/<slug>`, the 2026-11-24 ranking) is evaluated by its
+// `app:` row in models.yaml instead, so it is left out.
+export function flagshipSlugs(text = fs.readFileSync(path.join(ROOT, 'portfolio/flagships.yaml'), 'utf8')) {
+  return text.split(/^(?=\s*- venture:)/m)
+    .map((block) => [block.match(/^\s*- venture:\s*(\S+)/), /^\s+app:\s*\S/m.test(block)])
+    .filter(([m, isApp]) => m && !isApp)
+    .map(([m]) => m[1]);
 }
 
 // Three scenarios, each a sum over the evaluation's mechanisms:
@@ -152,6 +174,13 @@ export function validate(data, { categories, flagships, slugs }) {
         problems.push(`${mw}: conversion must be between 0 and 0.2 (a higher rate needs a measurement, not an assumption)`);
       }
       if (!m.basis) problems.push(`${mw}: basis missing (say whether price and conversion are measured or assumed)`);
+      if (m.variable_cost_usd !== undefined && (typeof m.variable_cost_usd !== 'number' || m.variable_cost_usd < 0)) {
+        problems.push(`${mw}: variable_cost_usd must be a non-negative number`);
+      }
+      const mg = margin(m);
+      if (mg !== null && mg < MARGIN_FLOOR) {
+        problems.push(`${mw}: margin ${(mg * 100).toFixed(0)}% after fees and variable cost is below the ${MARGIN_FLOOR * 100}% floor (raise the price or cut the cost)`);
+      }
     }
   }
   for (const c of categories) if (!ids.has(c)) problems.push(`category ${c} has no evaluation`);

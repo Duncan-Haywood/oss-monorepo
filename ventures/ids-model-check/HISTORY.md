@@ -41,3 +41,9 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-23, restored) HTML report 2026-11-21, eval/html-report-2026-11-21.md
 - (moved 2026-11-23) room test skips zero-volume pieces 2026-11-23 (29 of 852 rooms had been emptied or swollen), 1,218/1,227 right, eval/cobie-flat-pieces-2026-11-23.md
 - (moved 2026-11-23) Tekla Qto_ psets filled 2026-11-23, 649/657 within 2% after no-fillet NetVolume and walls on their side (eval/beam-schema-twins-2026-11-23.md); one-member railings read as members, 16/16 railing Lengths in each of IFC2X3, IFC4, IFC4X3 (eval/one-member-railings-2026-11-23.md)
+- (2026-11-24) Inverse counts in the conformance pass (conformance.mjs inverse-count, schema inverseBounds; eval/inverse-counts-2026-11-24.md: all 1,085 of ifcopenshell.validate's inverse lines on 492 public files matched record for record; repeats counted for bare inverses; the shipped sample's doubled lining layer fixed)
+
+## Moved from flagships.yaml `buildable:`
+
+- (moved 2026-11-24) IFC4X3 ifcXML: none public (searched 2026-11-18)
+- (moved 2026-11-24) B-spline control points cut into rows from knot counts 2026-11-18 (eval/ifcxml-twins-2026-11-18.md)

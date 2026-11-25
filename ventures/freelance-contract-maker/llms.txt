@@ -2,7 +2,7 @@
 
 > Free freelance contract generator: describe the project, pick fixed, hourly or retainer, set deposit, revisions, ownership, kill fee and late fee, and get a plain-language service agreement to print or download. No account, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/freelance-contract-maker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/freelance-contract-maker): FSL-1.1-MIT licensed.

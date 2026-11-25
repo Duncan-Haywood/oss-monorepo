@@ -23,7 +23,7 @@ node --test ventures/bank-statement-pdf-to-csv/
 ## Measured on statements from elsewhere
 
 `eval/README.md` has the method and every number. On the five published
-statements of an independent, MIT-licensed statement-parsing benchmark (US
+statements of an independent, FSL-1.1-MIT-licensed statement-parsing benchmark (US
 card, Singapore, Netherlands in Dutch, Hong Kong with two accounts, Canada in
 French) the reader went from 1 of 5 to 5 of 5 read to the right row count and
 proved by the statement's own balances. On two statement PDFs from other
@@ -214,7 +214,7 @@ writes) or Google Sheets, and real customers' statements.
 
 ## License
 
-MIT. See `LICENSE`.
+FSL-1.1-MIT. See `LICENSE`.
 
 ## No warranty
 

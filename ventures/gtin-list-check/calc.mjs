@@ -48,15 +48,20 @@ export function decodeBuffer(buf) {
   return new TextDecoder("utf-8").decode(b).replace(/^\uFEFF/, "");
 }
 
-export function parseTable(text) {
+export function parseTable(text, { keepEmpty = false } = {}) {
   const first = text.split(/\r?\n/).find((l) => l.trim()) || "";
   const delims = [",", "\t", ";", "|"];
-  const delim = delims.map((d) => [d, first.split(d).length]).sort((a, b) => b[1] - a[1])[0][1] > 1
-    ? delims.map((d) => [d, first.split(d).length]).sort((a, b) => b[1] - a[1])[0][0] : ",";
+  const [bestDelim, bestCount] = delims.map((d) => [d, first.split(d).length]).sort((a, b) => b[1] - a[1])[0];
+  const delim = bestCount > 1 ? bestDelim : ",";
   const rows = [];
   let row = [], cell = "", q = false, line = 1, rowLine = 1;
   const push = () => { row.push(cell); cell = ""; };
-  const end = () => { push(); if (row.some((c) => c.trim() !== "")) rows.push({ cells: row, line: rowLine }); row = []; rowLine = line + 1; };
+  const end = () => {
+    push();
+    if (row.some((c) => c.trim() !== "")) rows.push({ cells: row, line: rowLine });
+    else if (keepEmpty) rows.push({ cells: row, line: rowLine, empty: true }); // repair() writes these back unchanged
+    row = []; rowLine = line + 1;
+  };
   for (let i = 0; i < text.length; i++) {
     const c = text[i];
     if (q) {
@@ -94,7 +99,8 @@ export function classify(raw) {
   if (/^\d{1,3}(?:,\d{3})+$/.test(s)) { notes.push("thousands separators were removed"); s = s.replace(/,/g, ""); }
   if (/^'/.test(s)) { s = s.slice(1); notes.push("a leading apostrophe was removed"); }
   s = s.replace(/^="?|"$/g, "").trim();
-  const sci = /^(\d+)(?:\.(\d+))?[eE]\+?(\d+)$/.exec(s);
+  // European Excel writes the decimal separator as a comma: 4,006381333931E+12.
+  const sci = /^(\d+)(?:[.,](\d+))?[eE]\+?(\d+)$/.exec(s);
   if (sci) {
     const digits = sci[1] + (sci[2] || "");
     const exp = Number(sci[3]);
@@ -118,6 +124,12 @@ export function classify(raw) {
   }
   if (s.length === 10 && isbn10Ok(s)) return { kind: "ok", value: isbn10To13(s), fixed: true, notes: [...notes, "ISBN-10 converted to ISBN-13 (978 prefix)"] };
   const t = tryDigits(s);
+  // About 1 in 10 UPC-Es also pass the GTIN-8 check digit. Keep the code as written, but carry the UPC-A reading so
+  // validate() can warn and match it against a UPC-A of the same product.
+  if (t.ok && s.length === 8 && t.value === s) {
+    const asUpcA = upcEToUpcA(s);
+    if (asUpcA) return { kind: "ok", value: s, fixed: notes.length > 0, notes, upcA: asUpcA };
+  }
   if (t.ok) return { kind: "ok", value: t.value, fixed: t.value !== s || notes.length > 0, notes: t.value !== s ? [...notes, `leading zero${t.value.length - s.length === 1 ? "" : "s"} restored (${s.length} to ${t.value.length} digits)`] : notes };
   const upca = upcEToUpcA(s);
   if (upca) return { kind: "ok", value: upca, fixed: true, notes: [...notes, `read as a UPC-E (8-digit short UPC) and expanded to UPC-A; it is not a valid GTIN-8 as written`] };
@@ -149,7 +161,8 @@ function findTransposition(s) {
 
 const RESTRICTED = [
   [/^0[2]/, "02 (variable-weight / in-store use)"], [/^04/, "04 (in-store / company internal use)"], [/^05/, "05 (coupons)"],
-  [/^2/, "2 (in-store / internal use)"], [/^98[1-5]/, "981-985 (coupons / refunds)"], [/^99/, "99 (coupons)"],
+  [/^2/, "2 (in-store / internal use)"], [/^980/, "980 (refund receipts)"], [/^98[1-5]/, "981-985 (coupons / refunds)"],
+  [/^99/, "99 (coupons)"],
 ];
 export function restrictedPrefix(gtin13) {
   for (const [re, name] of RESTRICTED) if (re.test(gtin13)) return name;
@@ -202,12 +215,15 @@ export function validate(text, options = {}) {
       const g13 = c.value.length === 14 ? c.value.slice(1) : c.value.padStart(13, "0");
       if (/^0+$/.test(c.value)) add("error", r.line, "All zeros", "A placeholder, not a barcode.");
       else if (/^(\d)\1+$/.test(c.value)) add("warning", r.line, "Repeated single digit", `${c.value} has a valid check digit but looks like a placeholder.`);
-      const rp = restrictedPrefix(g13);
+      // GS1-8 prefixes 0 and 2 are restricted circulation numbers (RCN-8); padded to 13 digits they would start 00000.
+      const rp = c.value.length === 8 ? (/^[02]/.test(c.value) ? `${c.value[0]} on a GTIN-8 (restricted circulation number, RCN-8)` : null) : restrictedPrefix(g13);
       if (rp) add("warning", r.line, `Restricted prefix ${rp}`, `${c.value} starts in a range GS1 reserves for in-store or internal use. Marketplaces and retailers usually reject these as product identifiers.`);
       if (g13.startsWith("977")) add("info", r.line, "ISSN prefix 977", "Periodical identifier; a book catalogue would use 978 or 979.");
-      const key = c.value.padStart(14, "0");
-      if (seen.has(key)) add("warning", r.line, "Duplicate code", `${c.value} already appears on line ${seen.get(key)}. Two different products sharing one code is a common cause of listing rejections.`);
-      else seen.set(key, r.line);
+      if (c.upcA) add("warning", r.line, "8-digit code reads as GTIN-8 and as UPC-E", `${c.value} is valid both as a GTIN-8 and as a UPC-E short code for UPC-A ${c.upcA}. It was left as written. In North American data the UPC-E reading is usually the right one (a GTIN-8 starting with 0 is a restricted circulation number); check the packaging and, if it is a UPC-E, use ${c.upcA}.`);
+      const keys = [c.value, c.upcA].filter(Boolean).map((v) => v.padStart(14, "0"));
+      const prior = keys.find((k) => seen.has(k));
+      if (prior) add("warning", r.line, "Duplicate code", `${c.value} already appears on line ${seen.get(prior)}${prior !== keys[0] ? ` (as ${c.upcA}, its UPC-A form if this is a UPC-E)` : ""}. Two different products sharing one code is a common cause of listing rejections.`);
+      for (const k of keys) if (!seen.has(k)) seen.set(k, r.line);
     } else if (c.kind === "sci-lost") add("error", r.line, "Excel rounded this code", c.detail);
     else if (c.why === "check digit") {
       const hint = c.swap
@@ -249,14 +265,18 @@ export function toLength(value, n) {
   return /^0+$/.test(value.slice(0, extra)) ? value.slice(extra) : null;
 }
 
-// Rewrite the chosen column with normalised codes. Rows that cannot be fixed are left exactly as they were.
+// Rewrite the chosen column with normalised codes. Rows that cannot be fixed, and empty rows, are written back as they
+// were, with the file's own line ending (CRLF or LF).
 export function repair(text, options = {}) {
-  const table = parseTable(String(text ?? ""));
+  const src = String(text ?? "");
+  const all = parseTable(src, { keepEmpty: true });
+  const table = { delim: all.delim, rows: all.rows.filter((r) => !r.empty) };
   const { col, header } = pickColumn(table, options.column);
+  const headRow = header ? table.rows[0] : null;
   const changes = [];
   const skipped = [];
-  const outRows = table.rows.map((r, i) => {
-    if (header && i === 0) return r.cells;
+  const outRows = all.rows.map((r) => {
+    if (r.empty || r === headRow) return r.cells;
     const c = classify(r.cells[col]);
     const cells = r.cells.slice();
     if (c.kind === "ok" && options.length) {
@@ -272,7 +292,8 @@ export function repair(text, options = {}) {
   });
   const d = table.delim;
   const q = (v) => (/["\n\r]/.test(v) || v.includes(d) ? `"${v.replace(/"/g, '""')}"` : v);
-  return { text: outRows.map((c) => c.map((v) => q(String(v ?? ""))).join(d)).join("\n") + "\n", changes, skipped };
+  const eol = /\r\n/.test(src) ? "\r\n" : "\n";
+  return { text: outRows.map((c) => c.map((v) => q(String(v ?? ""))).join(d)).join(eol) + eol, changes, skipped };
 }
 
 export function findingsCsv(result) {

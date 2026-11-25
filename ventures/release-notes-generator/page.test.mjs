@@ -55,7 +55,7 @@ test('index links the guide and the guide links back', () => {
 test('every .html file is reachable from the sitemap', async () => {
   const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
   for (const name of readdirSync(new URL('./', import.meta.url)).filter((n) => n.endsWith('.html'))) {
-    if (name !== 'index.html') assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')));
+    if (name !== 'index.html') assert.match(sitemap, new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   }
 });
 

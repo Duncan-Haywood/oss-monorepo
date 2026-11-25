@@ -1,0 +1,104 @@
+name: CodeQL
+
+# Owner, 2026-11-24: patch CodeQL findings "as soon as they arise", fix all
+# outstanding ones, and "fix new ones before they hit main".
+#
+# Until this file, CodeQL never ran here: no default setup, no workflow, no
+# SARIF upload. The hourly security-alert-queue.yml got HTTP 404 from the
+# alerts API 581 times in a row and the queue stayed empty
+# (docs/reports/2026-11-24-codeql-never-ran.md). This workflow is the source
+# that queue reads.
+#
+# What it does:
+#   * push to main and the weekly schedule: analyse and upload, which opens
+#     and closes the alerts that security_alerts.py mirrors to the
+#     `security-alerts` branch for the scheduled sessions to fix.
+#   * every pull request (no path filter, so it can be required): analyse,
+#     upload, then platform/ci/codeql_gate.py fails the job if a medium-or-
+#     worse finding sits on a line the PR adds or changes, printing each one
+#     in the log, which agent sessions can read (they cannot read alerts).
+#     The `code_scanning` rule in .github/rulesets/main.json is GitHub's own
+#     half of the same gate.
+#
+# Advanced setup, not default setup: default setup has no step where the gate
+# can run, and the two cannot both be on. Free for a public repository;
+# nothing paid is called.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  analyze:
+    name: codeql (${{ matrix.language }})
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      actions: read # codeql-action reads the run's workflow file
+      security-events: write # upload results to code scanning
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [actions, javascript-typescript, python]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          # A PR checks out its merge commit; depth 2 brings the base parent,
+          # which the gate diffs against.
+          fetch-depth: 2
+      - uses: github/codeql-action/init@1bd86f2fdb4b86187fa4059f16f31a3202acc9ea # v4.39.4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+          config-file: ./.github/codeql/codeql-config.yml
+      - uses: github/codeql-action/analyze@1bd86f2fdb4b86187fa4059f16f31a3202acc9ea # v4.39.4
+        with:
+          category: /language:${{ matrix.language }}
+          output: sarif-results
+      - name: Keep the SARIF for the read-only gate job
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sarif-${{ matrix.language }}
+          path: sarif-results
+          retention-days: 3
+
+  # The gate runs repository code, so it runs in its own job without
+  # security-events: write (least privilege; the analysis job above runs only
+  # pinned CodeQL actions).
+  gate:
+    name: codeql gate (${{ matrix.language }})
+    if: github.event_name == 'pull_request'
+    needs: analyze
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [actions, javascript-typescript, python]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: sarif-${{ matrix.language }}
+          path: sarif-results
+      - name: Gate new findings on this PR's lines
+        run: python3 platform/ci/codeql_gate.py --sarif sarif-results --base HEAD^1

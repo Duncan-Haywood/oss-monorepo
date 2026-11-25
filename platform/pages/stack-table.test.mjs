@@ -43,3 +43,14 @@ test('wordy stacked tables keep one pair per line', () => {
   const html = renderMarkdown(md(['a', 'b', 'c', 'd', 'e'], [[w, w, w, w, w]]));
   assert.match(html, /<table class="stack" role="table">/);
 });
+
+test('a stacked cell keeps mixed inline content together (no grid or flex on the cell)', () => {
+  // Grid and flex make each inline child (<code>, <a>, <strong>) its own item, so
+  // "`CLAUDE.md`, `prompt.md`" split across rows; 161 of the blog's 500 stacked tables
+  // had such a cell (polish, 2026-11-25). A table cell wraps them in one anonymous cell.
+  const cellRules = STACK_TABLE_CSS.match(/table\.stack(?:\.compact)? td\{[^}]*\}/g);
+  assert.ok(cellRules.length >= 2);
+  for (const rule of cellRules) assert.doesNotMatch(rule, /display:(grid|flex)/, rule);
+  assert.match(STACK_TABLE_CSS, /table\.stack td\{[^}]*display:table[;}]/);
+  assert.match(STACK_TABLE_CSS, /table\.stack td::before\{[^}]*display:table-cell/);
+});

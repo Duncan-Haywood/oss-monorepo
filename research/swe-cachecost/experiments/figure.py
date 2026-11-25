@@ -4,6 +4,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "src"))
 from swe_cachecost.cc import usable, totals, cost_shares, fit
 
+UNTIL = sys.argv[sys.argv.index("--until") + 1] if "--until" in sys.argv else "2026-10-20"  # same window as run.py
 root = os.path.join(HERE, "..", "..", "..", "prompts")
 prices = json.load(open(os.path.join(root, "pricing.json")))["models"]
 u = []
@@ -12,7 +13,7 @@ for f in sorted(glob.glob(os.path.join(root, "runs", "*.json"))):
         r = json.load(open(f))
     except ValueError:
         continue
-    if isinstance(r, dict) and usable(r) and cost_shares(r, prices):
+    if isinstance(r, dict) and r.get("date") and str(r["date"])[:10] <= UNTIL and r.get("outcome") and usable(r) and cost_shares(r, prices):
         u.append(r)
 xs = [totals(r)["requests"] for r in u]
 ys = [totals(r)["cache_read"] / totals(r)["requests"] / 1000 for r in u]

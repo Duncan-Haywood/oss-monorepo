@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVPJzQQQu3C4naNLtVh",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T05:56:28Z",
+  "ended": "2026-11-25T06:02:21Z",
+  "wall_minutes": 6.5,
+  "tokens_in": 5921575,
+  "tokens_out": 21943,
+  "cost_usd": 2.5405,
+  "tool_calls": 59,
+  "task": "Bet #2 jobshop-quote roadmap launch item 2: LLM spend caps and rate limits",
+  "projects": [
+    "jobshop-quote"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18868",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "git reset --hard origin/main to sync the fresh clone was refused by the auto-mode classifier",
+      "fix": "used git merge --ff-only origin/main instead"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "The add_repo result says to call register_repo_root, but ToolSearch finds no such tool here, so I read private-monorepo/CLAUDE.md by hand. Worth a line in cloud-session.md."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Bet #1 (payapps) had about 15 sessions in the last day and bets #2 to #4 far fewer. The default 'take the top bet' piles concurrent runs onto one app. A note to spread concurrent runs over bets #1 to #4 would cut collisions."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took bet #2 (jobshop-quote) instead of the top bet. Payapps had many concurrent sessions, so collisions were likely, while jobshop-quote had an open launch blocker (no AI spend cap) and no open PR.",
+      "did": "Shipped private-monorepo PR 59: spend caps plus rate limits.",
+      "result": "Merged, and one of jobshop-quote's four launch items is done."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "venture-preflight.mjs checks public venture pages. This run changed private app code plus one existing post, and no venture directory here.",
+      "did": "Skipped preflight and ran the private app's full CI steps locally.",
+      "result": "All green."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-a-step-file-now-sizes-the-blank-in-the-job-shop-quoter.md (new section: A spend cap on the AI before it goes live)"
+  ],
+  "goal": "$10k MRR: removes an AI-cost launch blocker for a $199/mo-class product",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/59 merged as b87487779. Its CI job failed in 3 s with no runner (known). Ran locally in apps/jobshop-quote: biome ci . clean (95 files); pnpm typecheck clean; test:unit 8 files, 70 passed; test:worker 6 files, 23 passed; build ok; no schema change, so the migration drift step doesn't apply. Security queue: 5 alerts, all claimed (exit 3). IDEAS inbox empty.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "10116ba9-c1d7-5b82-9cdc-f609024aad3b",
+    "transcripts": 1,
+    "first": "2026-11-25T05:56:28Z",
+    "last": "2026-11-25T06:02:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 104,
+        "output": 21943,
+        "thinking": 3171,
+        "cache_read": 5803911,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117560,
+        "api_equivalent_usd": 2.5405,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 104,
+      "output": 21943,
+      "thinking": 3171,
+      "cache_read": 5803911,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117560,
+      "api_equivalent_usd": 2.5405,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 50,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.5,
+      "active_minutes": 6.5,
+      "model_minutes": 4.16,
+      "tool_minutes": 2.34,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "port guard + limiter, route tests, docs: ~6h for a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 236.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

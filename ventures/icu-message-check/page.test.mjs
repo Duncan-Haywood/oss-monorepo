@@ -5,12 +5,14 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { parse, format, checkCatalogs } from './icu.mjs';
 
+const stripTags = (s) => { let p; do { p = s; s = s.replace(/<[^>]+>/g, ''); } while (s !== p); return s; };
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const read = (f) => readFileSync(join(HERE, f), 'utf8');
 const GUIDE = 'apostrophes-in-icu-messageformat.html';
 const pages = ['index.html', GUIDE];
 const ld = (src) => [...src.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
-const unhtml = (s) => s.replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+const unhtml = (s) => stripTags(s).replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 
 test('JSON-LD parses: SoftwareApplication + FAQPage on the tool, HowTo on the guide', () => {
   const idx = ld(read('index.html'));
@@ -33,7 +35,7 @@ test('no-warranty clause, sponsor link and licence on every page; privacy line a
     const s = read(p);
     assert.match(s, /provided free and as-is, without warranty/, p);
     assert.match(s, /github\.com\/sponsors\/Duncan-Haywood/, p);
-    assert.match(s, /MIT licence/, p);
+    assert.match(s, /FSL-1.1-MIT licence/, p);
   }
   assert.match(read('index.html'), /never uploaded/);
   assert.match(read('index.html'), /id="usageOptOut"/);

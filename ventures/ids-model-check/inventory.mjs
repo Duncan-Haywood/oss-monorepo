@@ -9,7 +9,7 @@
 //               systems: [[name, n]],
 //               attrs: [{ name, count, empty, values, distinct, more, min, max }],
 //               codes: [{ system, count, empty, values, distinct, more }],
-//               sets: [{ name, count, props: [{ name, count, dataType, dataTypes,
+//               sets: [{ name, count, props: [{ name, count, dataType, dataTypes, typeCounts,
 //                        values, distinct, more, min, max }] }] }],
 //   systems: [[name, n]]   (every classification system, by elements using it)
 // }
@@ -62,6 +62,13 @@ export function lexical(x) {
   // num stays exact: IDS ranges compare without tolerance (tolerance.md), so a
   // range built from a rounded bound would fail the object it came from.
   if (typeof v === "number" && Number.isFinite(v)) return { text: String(Number(v.toPrecision(12))), num: v };
+  // An exporter's 1.#INF / -1.#IND (step.mjs reads them as Infinity / NaN):
+  // listed in XML Schema's spelling so the page shows them, but kept out of
+  // the range and the exact number list. A number row then has a value that
+  // is not a number, so no one-of is offered, and a range from the model's
+  // other values fails these objects, as it should
+  // (eval/xbim-test-files-2026-11-24.md).
+  if (typeof v === "number") return { text: Number.isNaN(v) ? "NaN" : v > 0 ? "INF" : "-INF", num: null };
   if (typeof v === "string") {
     if (x.prim === "boolean" || x.prim === "logical") { const u = v.toUpperCase(); if (u === "T" || u === "TRUE") return { text: "true", num: null }; if (u === "F" || u === "FALSE") return { text: "false", num: null }; return null; }
     return { text: v, num: null };
@@ -205,8 +212,9 @@ export function modelInventory(model, measureUnits = null) {
       name,
       count: s.count,
       props: [...s.props.entries()].map(([pn, pr]) => {
-        const types = ranked(pr.types).map(([t]) => t);
-        return { name: pn, count: pr.count, dataType: types[0] || null, dataTypes: types, values: ranked(pr.values).slice(0, MAX_LISTED), distinct: pr.values.size, more: pr.more, min: pr.min, max: pr.max, exact: exactOut(pr), tkind: pr.tkind, tmin: pr.tmin, tmax: pr.tmax };
+        const typeCounts = ranked(pr.types);
+        const types = typeCounts.map(([t]) => t);
+        return { name: pn, count: pr.count, dataType: types[0] || null, dataTypes: types, typeCounts, values: ranked(pr.values).slice(0, MAX_LISTED), distinct: pr.values.size, more: pr.more, min: pr.min, max: pr.max, exact: exactOut(pr), tkind: pr.tkind, tmin: pr.tmin, tmax: pr.tmax };
       }).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)),
     })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)),
   })).sort((a, b) => b.count - a.count || a.cls.localeCompare(b.cls));

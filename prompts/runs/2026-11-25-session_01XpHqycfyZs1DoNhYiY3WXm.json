@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqycfyZs1DoNhYiY3WXm",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T02:38:11Z",
+  "ended": "2026-11-25T02:45:29Z",
+  "wall_minutes": 7.54,
+  "tokens_in": 3790865,
+  "tokens_out": 40583,
+  "cost_usd": 2.5426,
+  "tool_calls": 38,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18816",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 sent me to the top of a 1,243-alert queue, but open PRs 18808 and 18809 already show 1,189 of those alerts were fixed after the scan and #1-#7 are false positives; the queue gives no hint of that until those PRs merge, so I spent several calls confirming the queue was stale before routing."
+    },
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "The 'Hiram and the cedars floated down the coast' entry (left by episode 156) duplicates what episode 138 already told at length (rafts, wheat for wood); entries left as sequels are not checked against earlier episodes. I retold it as the friendship instead."
+    },
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "Nothing lists which episodes already cover which chapter, so a sequel I nearly added (Paul at Tyre, Acts 21) turned out to be episode 118; a grep of the history: field caught it. A per-chapter index (like hearth-and-horizon's overlap.mjs) would save that."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Step 0 says take the top security alert; the queue was stale (PR 18808) and #1-#7 are triaged false positives in PR 18809, whose report says to wait for the next completed scan.",
+      "did": "Took no alert, routed to step 1.",
+      "result": "No duplicate security work; the creative run shipped instead."
+    },
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "why": "The list entry's subject (cedar rafts) was already told in episode 138.",
+      "did": "Kept the entry's figure (Hiram) and told the whole friendship and Tyre in Scripture instead.",
+      "result": "A new episode with no near-copy of 138."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Consolidated posts over a new post per PR.",
+      "did": "Extended the 2026-11-20 queen of Sheba post (same Solomon-era thread) with an episode 178 section instead of a 96th per-episode post.",
+      "result": "check_posts ok, no new slug."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-saints-by-candlelight-the-queen-of-sheba.md (extended)"
+  ],
+  "goal": null,
+  "notes": "Project: saints-by-candlelight (creative_due.py drew it). Piece: episode 178, hiram-king-of-tyre-and-the-towns-called-cabul, text only (audio 581 MB > 400 MB cap). Checks: generate.mjs --check-script ok (7,250 words); node --test 21/21 pass; run_venture_tests.py saints-by-candlelight ok; check_posts ok; risk_review blocked nothing. Adversarial re-read fixed: ships placed 'very next' after Cabul (11 verses intervene), Paul at Tyre ~390 not 350 years after Alexander, an unverified Easter-season Acts 21 reading claim replaced with Matthew 15 on OT 20 Year A, Amarna-letter complaints softened to ones I am confident of, Psalm 87 paraphrase corrected (Rahab), Menander's 34-year reign vs David-to-Solomon-year-20 chronology now said aloud.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "263f6fac-fff1-5322-b774-c41ff7d76337",
+    "transcripts": 1,
+    "first": "2026-11-25T02:38:11Z",
+    "last": "2026-11-25T02:45:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 72,
+        "output": 40583,
+        "thinking": 14098,
+        "cache_read": 3666117,
+        "cache_write_5m": 0,
+        "cache_write_1h": 124676,
+        "api_equivalent_usd": 2.5426,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 72,
+      "output": 40583,
+      "thinking": 14098,
+      "cache_read": 3666117,
+      "cache_write_5m": 0,
+      "cache_write_1h": 124676,
+      "api_equivalent_usd": 2.5426,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.967,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 33,
+      "mcp__github__pull_request_read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.54,
+      "active_minutes": 7.54,
+      "model_minutes": 6.86,
+      "tool_minutes": 0.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a 7,000-word researched script checked against Kings, Chronicles and Josephus, plus edits",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 393.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

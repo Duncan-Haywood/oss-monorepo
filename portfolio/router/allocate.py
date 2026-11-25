@@ -114,6 +114,10 @@ class Venture:
     # (four runs in two days left einvoice-preflight, whose only buildable
     # item was dated "after 2026-11-23": run-record doc_friction, 2026-11-18).
     flagship_not_before: Optional[date] = None
+    # flagships.yaml `app: private-monorepo/apps/<slug>`: where a paid bet's
+    # deepening work happens (2026-11-24 ranking, portfolio/monetization/bets.md).
+    # A bet with no ventures/<slug> directory is listed from this field alone.
+    flagship_app: Optional[str] = None
 
     @property
     def flagship(self) -> bool:
@@ -522,15 +526,27 @@ def refused_rows(ventures: list["Venture"], probe=table_probe) -> dict[str, list
     return out
 
 
-def hosts_line(urls: list[str], answers=host_answers) -> str:
-    """One line saying which of `urls` answer from this session right now."""
+def probe_urls(urls: list[str], answers=host_answers) -> dict[str, bool]:
+    """{url: answered} for `urls`, probed in parallel."""
     if not urls:
-        return ""
+        return {}
     from concurrent.futures import ThreadPoolExecutor
     with ThreadPoolExecutor(max_workers=min(8, len(urls))) as ex:
-        ok = list(ex.map(answers, urls))
-    parts = [re.sub(r"^[a-z]+://", "", u, flags=re.I).rstrip("/") + (" answers" if a else " REFUSED")
-             for u, a in zip(urls, ok)]
+        return dict(zip(urls, ex.map(answers, urls)))
+
+
+def url_host(url: str) -> str:
+    return re.sub(r"^[a-z]+://", "", url, flags=re.I).split("/", 1)[0].lower()
+
+
+def hosts_line(urls: list[str], answers=host_answers, ok: Optional[dict[str, bool]] = None) -> str:
+    """One line saying which of `urls` answer from this session right now.
+    `ok` is a probe_urls result to reuse instead of probing again."""
+    if not urls:
+        return ""
+    ok = ok if ok is not None else probe_urls(urls, answers)
+    parts = [re.sub(r"^[a-z]+://", "", u, flags=re.I).rstrip("/") + (" answers" if ok[u] else " REFUSED")
+             for u in urls]
     return ("hosts, probed just now (trust this over any 'answers 403' or 'serves files' note "
             "in the row; reachability changes between sessions): " + "; ".join(parts))
 
@@ -578,6 +594,7 @@ def load_ventures(
     buildable = load_flagship_field("buildable", flagships_path)
     hosts = load_flagship_hosts(flagships_path)
     not_before = load_not_before(flagships_path, today)
+    apps = load_flagship_field("app", flagships_path)
     venture_dirs = sorted(p for p in ventures_dir.iterdir() if p.is_dir())
     names = []
     parsed = []
@@ -619,8 +636,23 @@ def load_ventures(
                 flagship_buildable=buildable.get(name) if flag_rank is not None else None,
                 flagship_hosts=hosts.get(name, []) if flag_rank is not None else [],
                 flagship_not_before=not_before.get(name) if flag_rank is not None else None,
+                flagship_app=apps.get(name) if flag_rank is not None else None,
             )
         )
+    # A paid bet built only in private-monorepo has no VENTURE.yaml here; its
+    # flagship row still gets a Deepen task, pointed at its `app:`.
+    listed = {v.name for v in ventures}
+    for name, app in apps.items():
+        if name in listed or name not in flagships:
+            continue
+        rank, nxt = flagships[name]
+        ventures.append(Venture(
+            name=name, stage="building", mrr=None, monthly_cost=None, monthly_cap=0.0,
+            protected=False, flagship_rank=rank, flagship_next=nxt,
+            flagship_inputs_only=inputs_only.get(name), flagship_buildable=buildable.get(name),
+            flagship_hosts=hosts.get(name, []), flagship_not_before=not_before.get(name),
+            flagship_app=app,
+        ))
     return ventures
 
 
@@ -816,8 +848,12 @@ def next_task(v: Venture) -> str:
                 f"(same tool with `--field buildable`, capped at {FLAGSHIP_BUILDABLE_MAX} characters; "
                 "drop the field when nothing buildable is left)."
             )
+        where = (f"Work in {v.flagship_app} (attach private-monorepo with add_repo, push access; if the clone is refused, "
+                 "that is final: do this bet's public side here instead; "
+                 "the paid bet's model is its `app:` row in portfolio/monetization/models.yaml). "
+                 if v.flagship_app else "")
         return (
-            f"Deepen (flagship {v.flagship_rank + 1}): {milestone} "
+            f"Deepen (flagship {v.flagship_rank + 1}): {where}{milestone} "
             "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml "
             f"(now {next_budget(v)}, validate.py's cap: replace what you landed, don't append; "
             f"`portfolio/router/flagship_field.py {v.name} --replace OLD NEW` edits it across line breaks; "
@@ -1395,10 +1431,54 @@ def _marked_end(text: str, start: int) -> int:
     return len(text)
 
 
+def _sentences(text: str) -> list[str]:
+    """`text` cut at '. ' before a capital, outside brackets (not at ';')."""
+    return [c.strip() for c in _top_level_clauses(text.replace(";", "\0"))
+            if c.strip()] if text else []
+
+
+def _buildable_clauses(text: str) -> list[str]:
+    """`buildable:` cut into clauses, keeping a sentence whole when its
+    ';'-parts are one result. Why: "Interpolated sRGB encode 2026-11-17; a
+    3-stop lift loses 0 of the screen codes ... (eval/...)" and "Every nut a
+    joint; deep sockets ... 2026-11-22 (cad/README.md)" are each one landed
+    entry, but cut at ';' their second or first half read as open work and
+    were numbered (photo-editing item 2, 2026-11-24 run record)."""
+    out = []
+    for sent in _sentences(text):
+        sent = sent.replace("\0", ";")
+        parts = _top_level_clauses(sent)
+        if len(parts) == 2 and _one_result(parts):
+            out.append(sent.strip(" ."))
+        else:
+            out.extend(parts)
+    return out
+
+
+_EVIDENCE_END = re.compile(r"\((?:[^()]*\b(?:eval/|[\w*.-]+\.md\b))[^()]*\)$")
+
+
+def _one_result(parts: list[str]) -> bool:
+    """True when the ';'-parts are one landed entry: no part has a build cue,
+    one reads as a result, and each other part either ends in its evidence
+    ("... (eval/shadow-lift-*)") or is a short head before the result ("Every
+    nut a joint"). A part that is neither ("HDR+ bursts: prep") stays an item."""
+    if any(_BUILD_CUE.search(_unbracketed(p)) for p in parts):
+        return False
+    done = [item_skip(p) == "result" for p in parts]
+    if not any(done):
+        return False
+    first = done.index(True)
+    return all(d or _EVIDENCE_END.search(p) or (i < first and len(p.split()) <= 5)
+               for i, (p, d) in enumerate(zip(parts, done)))
+
+
 def open_items(buildable: Optional[str], next_text: Optional[str],
-               width: int = 150) -> list[tuple[str, str]]:
-    """[(field, item)] numbered in the order Start here's item rank counts."""
-    found = [("buildable", c) for c in _top_level_clauses(buildable or "")]
+               width: Optional[int] = None) -> list[tuple[str, str]]:
+    """[(field, item)] numbered in the order Start here's item rank counts.
+    `width` shortens each item; item_lines shortens for display after it has
+    judged the whole entry, so the default keeps it whole."""
+    found = [("buildable", c) for c in _buildable_clauses(buildable or "")]
     text = next_text or ""
     for m in _ITEM_MARK.finditer(text):
         body = text[m.end():_marked_end(text, m.end())].strip(" ,:")
@@ -1406,7 +1486,7 @@ def open_items(buildable: Optional[str], next_text: Optional[str],
             found.append(("next", body))
     out, seen = [], set()
     for field, body in found:
-        short = body if len(body) <= width else body[:width - 1].rstrip() + "\u2026"
+        short = _shorten(body, width)
         if short not in seen:
             seen.add(short)
             out.append((field, short))
@@ -1436,6 +1516,29 @@ _DATED_END = re.compile(r"\b20\d\d-\d\d-\d\d\.?$")
 _BUILD_CUE = re.compile(r"\b(?:next|find|draw|rerun|run|rebuild|add|write|fit|diff)\b", re.I)
 
 
+def _shorten(body: str, width: Optional[int]) -> str:
+    return body if width is None or len(body) <= width else body[:width - 1].rstrip() + "\u2026"
+
+
+# Setup and source lines in `buildable:` ("tesseract via apt, RapidOCR via
+# pip", "Public samples, no key: github.com/...", "DNG 1.7.1.0 spec PDF: URL
+# in eval/...", "Test files: bash eval/corpus-fetch.sh DIR") say how to work,
+# not what to build, and advice ("Each is a hard combinatorial search", "judge
+# its worth before taking it") is not an item either. Why: on main on
+# 2026-11-24, 11 of the 53 numbered entries were such lines, and 4 rows
+# (ai-bookkeeper, photo-editing, xer-schedule-check, open-tennis-robots) led
+# their list with one, so a session drawing rank 1 there was pointed at a
+# source list (7 allocate.py doc_friction reports, 2026-11-22..24).
+_SETUP = re.compile(
+    r"\bvia (?:apt|pip|npm|brew)\b|^(?:public )?(?:samples|test files|sources?|data)\b[^:]{0,30}:"
+    r"|\bspec PDF\b|\banswers from a cloud session\b|\bwith no (?:outside input|key)$", re.I)
+_ADVICE = re.compile(r"^(?:each (?:is|needs|takes)|judge its worth)\b", re.I)
+# Words that keep a dated entry open ("figures in doubt 2026-11-23 (eval/...)").
+_STILL_OPEN = re.compile(r"\b(?:in doubt|unexplained|unsettled|unresolved)\b", re.I)
+# A matched count with nothing left ("1,138/1,138 unit asserts") reports a pass.
+_ALL_PASS = re.compile(r"\b(\d[\d,]*)/\1\b")
+
+
 def _unbracketed(text: str) -> str:
     """`text` without bracketed asides (evidence, dates, counts)."""
     out, depth = [], 0
@@ -1449,34 +1552,62 @@ def _unbracketed(text: str) -> str:
     return " ".join("".join(out).split())
 
 
-def item_skip(body: str, today: Optional[str] = None) -> str:
+def item_skip(body: str, today: Optional[str] = None, refused: frozenset = frozenset()) -> str:
     """Why `body` is not counted as an open item ("result", "needs outside
-    input", "waits for <date>"), or "" when it looks buildable here."""
+    input", "waits for <date>", "<host> REFUSED just now"), or "" when it
+    looks buildable here. `refused` holds host names this session's probe
+    could not reach."""
     from flagship_field import DATED_EVIDENCE, is_result
     if _NEEDS_INPUT.search(body):
         return "needs outside input"
+    # Why: the hosts line said "REFUSED" while the numbered list still
+    # counted the item that needs that host, so Start here's rank sent runs
+    # to it (photo-editing raw.pixls.us, changepoint-detector
+    # alfred.stlouisfed.org; 4 allocate.py doc_friction reports 2026-11-21..24,
+    # `friction_rank.py --live --ungated --days 3`). The row-level demotion
+    # (refused_rows) misses an item whose host is not in `buildable:`.
+    if refused:
+        bad = sorted({m.group(1).lower() for m in _HOST_RE.finditer(body)} & refused)
+        if bad:
+            return f"{', '.join(bad)} REFUSED just now"
     gates = future_gates(body, today)
     if gates and body.lower().startswith(("after", "from", "not before")):
         return f"waits for {gates[0]}"
-    if _BUILD_CUE.search(_unbracketed(body)):
+    flat = _unbracketed(body)
+    if _BUILD_CUE.search(flat):
         return ""
+    if _SETUP.search(flat):
+        return "setup or source"
+    if _ADVICE.search(flat):
+        return "advice"
+    if _ALL_PASS.search(flat):
+        return "result"
+    if _STILL_OPEN.search(flat):
+        return ""
+    parts = _top_level_clauses(body)
+    if len(parts) == 2 and _one_result(parts):
+        return "result"
     if (_STATUS.search(body) or _DATED_END.search(body) or DATED_EVIDENCE.search(body)
             or is_result(_unbracketed(body))):
         return "result"
     return ""
 
 
-def item_lines(items: list[tuple[str, str]], today: Optional[str] = None) -> list[str]:
+ITEM_WIDTH = 150
+
+
+def item_lines(items: list[tuple[str, str]], today: Optional[str] = None,
+               refused: frozenset = frozenset()) -> list[str]:
     """The `items:` lines: buildable-looking entries numbered, the rest
     listed after them unnumbered with the reason."""
     lines, skipped, n = [], [], 0
     for field_name, body in items:
-        why = item_skip(body, today)
+        why = item_skip(body, today, refused)
         if why:
-            skipped.append(f"  -  [{field_name}] ({why}) {body}")
+            skipped.append(f"  -  [{field_name}] ({why}) {_shorten(body, ITEM_WIDTH)}")
         else:
             n += 1
-            lines.append(f"  {n}. [{field_name}] {body}")
+            lines.append(f"  {n}. [{field_name}] {_shorten(body, ITEM_WIDTH)}")
     if not n:
         lines.append("  (no entry looks buildable from a cloud session: take an open item "
                      "from the row's NEXT.md, or a skipped one you can do, and add it to "
@@ -1684,6 +1815,67 @@ def claim_note(hits: list[tuple[int, str, str]], now: Optional[datetime] = None)
     return note
 
 
+def load_bet_sides(path: Path = FLAGSHIPS_PATH) -> dict[str, tuple[int, list[str]]]:
+    """{venture: (bet number, [front_door slugs])} for flagship rows with `bet:`.
+
+    `front_door:` lists the ventures/<slug> folders that are the bet's public
+    side here (its free tool, guides, marketing pages)."""
+    if not path.is_file():
+        return {}
+    out: dict[str, tuple[int, list[str]]] = {}
+    for e in _load_yaml(path).get("flagships") or []:
+        if isinstance(e, dict) and e.get("venture") and isinstance(e.get("bet"), int):
+            raw = e.get("front_door") or []
+            doors = [str(s).strip() for s in (raw if isinstance(raw, list) else str(raw).split()) if str(s).strip()]
+            out[e["venture"]] = (e["bet"], doors)
+    return out
+
+
+# "bet #1", "bets #2/#4", "bets #2 and #4" in a PR title.
+_BET_TAG = re.compile(r"\bbets?\s+#\d+(?:\s*(?:/|,|&|and)\s*#?\d+)*", re.I)
+
+
+def title_bets(title: str) -> set[int]:
+    """Bet numbers a PR title tags ("bet #1", "bets #2/#4")."""
+    return {int(n) for m in _BET_TAG.finditer(title) for n in re.findall(r"\d+", m.group(0))}
+
+
+def bet_side_note(venture: str, sides: dict[str, tuple[int, list[str]]],
+                  prs: Optional[list[tuple[int, str, str]]],
+                  now: Optional[datetime] = None) -> str:
+    """Which of a bet's surfaces a live open PR is on, and which none is.
+
+    A bet row's own slug (payapps) is rarely in a public-side PR's title, so the
+    row looked free while six PRs worked its guides (run-record doc_friction on
+    portfolio/monetization/bets.md and portfolio/flagships.yaml, 2026-11-25: four
+    parallel runs landed in pay-app-guides within the hour and conflicted on its
+    shared lists). A PR counts when it was opened in the last CLAIM_FRESH_HOURS and
+    its title tags the bet ("bet #1"), names a `front_door:` slug or the bet's own."""
+    if venture not in sides or not prs:
+        return ""
+    bet, doors = sides[venture]
+    now = now or datetime.now(timezone.utc)
+    pats = {s: re.compile(rf"(?<![\w-]){re.escape(s)}(?![\w-])", re.I) for s in [*doors, venture]}
+    by_surface: dict[str, list[str]] = {}
+    for num, title, created in sorted(prs, key=lambda p: p[2], reverse=True):
+        age_h = _age_hours(created, now)
+        if age_h >= CLAIM_FRESH_HOURS:
+            continue
+        named = [s for s, p in pats.items() if p.search(title)]
+        if not named and bet not in title_bets(title):
+            continue
+        surface = next((s for s in doors if s in named), "the app" if venture in named or "private" in title.lower() else "other")
+        by_surface.setdefault(surface, []).append(f"#{num} ({age_h:.0f}h)")
+    free = [s for s in doors if s not in by_surface]
+    if not by_surface:
+        return ""
+    busy = "; ".join(f"{s} {', '.join(nums)}" for s, nums in by_surface.items())
+    note = f"[bet {bet} live PRs: {busy}"
+    if free:
+        note += f"; none on {', '.join(free)}"
+    return note + "] "
+
+
 def shallow_boundary(cwd: Path = REPO_ROOT) -> set[str]:
     """Hashes of the commits where a shallow clone's history is cut off.
 
@@ -1753,8 +1945,12 @@ def venture_report(name: str, ventures: list[Venture],
                         if v.flagship_not_before else ""))
         if v.flagship_buildable:
             lines.append("buildable here: " + v.flagship_buildable)
+        refused: frozenset = frozenset()
         if probe is not None:
-            line = hosts_line(row_hosts(v), probe)
+            urls = row_hosts(v)
+            ok = probe_urls(urls, probe)
+            refused = frozenset(url_host(u) for u, a in ok.items() if not a)
+            line = hosts_line(urls, ok=ok)
             if line:
                 lines.append(line)
         lines.append(f"next: ({next_budget(v)}; portfolio/router/validate.py fails a longer one, "
@@ -1763,10 +1959,11 @@ def venture_report(name: str, ventures: list[Venture],
         items = open_items(v.flagship_buildable, v.flagship_next)
         if items:
             lines.append("items: (numbered from the two fields above for Start here's item "
-                         "rank; results, entries needing outside input and dated waits are "
+                         "rank; results, setup or source lines, advice, entries needing outside input or a host "
+                         "refused just now, and dated waits are "
                          "listed unnumbered after them. A heuristic split: take a skipped "
                          "entry if you can do it)")
-            lines.extend(item_lines(items))
+            lines.extend(item_lines(items, refused=refused))
     else:
         lines.append("task: " + next_task(v))
     if v.flagship and left is not None:
@@ -1845,7 +2042,9 @@ def print_table(ventures: list[Venture], queue: list[dict],
                 claims: Optional[dict[str, list]] = None,
                 show_all: bool = False,
                 refused: Optional[dict[str, list[str]]] = None,
-                brief: bool = False) -> None:
+                brief: bool = False,
+                open_prs: Optional[list[tuple[int, str, str]]] = None,
+                bet_sides: Optional[dict[str, tuple[int, list[str]]]] = None) -> None:
     later_cap = sum(v.monthly_cap for v in ventures if v.later_stage)
     early_cap = sum(v.monthly_cap for v in ventures if not v.later_stage)
     total_cap = later_cap + early_cap
@@ -1966,6 +2165,7 @@ def print_table(ventures: list[Venture], queue: list[dict],
             f"{item['portfolio_mentions_this_period']:>10}"
             f"{recent.get(item['venture'], 0):>12}  "
             f"{claim_note(claims[item['venture']]) if claims and item['venture'] in claims else ''}"
+            f"{bet_side_note(item['venture'], bet_sides, open_prs) if bet_sides else ''}"
             f"{item['task']}"
         )
     for (_, _, label), n in zip(FOLDED_ROWS, hidden):
@@ -2053,6 +2253,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         v.recent_commits = recent.get(v.name, 0)
     if args.venture:
         claims_one = None
+        prs = None
         if not args.no_claims:
             prs = drop_landed(open_pr_titles())
             if prs is not None:
@@ -2062,6 +2263,10 @@ def main(argv: Optional[list[str]] = None) -> int:
                                 probe=None if args.no_probe else host_answers,
                                 left=left_rows(load_flagships()),
                                 worked=worked_rows(load_flagships()))
+        if report is not None:
+            side = bet_side_note(args.venture, load_bet_sides(), prs)
+            if side:
+                report += "\n" + side.strip()
         if report is None:
             print(f"No venture named {args.venture!r} (ventures/<slug>/VENTURE.yaml).", file=sys.stderr)
             return 1
@@ -2072,6 +2277,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     queue = work_queue(ventures)
 
     claims: Optional[dict[str, list]] = None
+    prs = None
     if not args.no_claims:
         prs = drop_landed(open_pr_titles())
         if prs is not None:
@@ -2085,7 +2291,8 @@ def main(argv: Optional[list[str]] = None) -> int:
         if claims is None and not args.no_claims:
             print("(open PRs not read: `gh api` search failed; search PR titles before taking a row)")
         print_table(ventures, queue, recent=recent, claims=claims, show_all=args.all,
-                    refused=None if args.no_probe else refused_rows(ventures), brief=args.brief)
+                    refused=None if args.no_probe else refused_rows(ventures), brief=args.brief,
+                    open_prs=prs, bet_sides=load_bet_sides())
         print(post_limits_line())
     return 0
 

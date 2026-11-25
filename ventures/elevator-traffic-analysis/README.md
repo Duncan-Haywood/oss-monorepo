@@ -100,4 +100,4 @@ Control are honoured.
 
 ## License
 
-MIT, see [LICENSE](LICENSE). Built with AI assistance.
+FSL-1.1-MIT, see [LICENSE](LICENSE). Built with AI assistance.

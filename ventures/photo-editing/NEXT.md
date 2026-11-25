@@ -4,6 +4,10 @@
 
 ## Parked from flagships.yaml `next:`
 
+- (moved 2026-11-25) X-Trans tuned on 51 fresh bodies 2026-11-19: no loser to fix, stays off; Bayer's 15 there were a noisy ISO 1600 reference
+- (moved 2026-11-25) Nikon AF points, half faces at the edge on the cull page 2026-11-24 (eval/cull-nikon-af-*, eval/cull-edge-mirror-*)
+- (2026-11-25) proofing set: a real client's reply through the list reader; Safari / iOS Files / Android opening the unzipped gallery (file:// storage); a real raw card through it (eval/cull-proofing-set-2026-11-25.md)
+
 - (2026-11-16) photos with a real horizon and human tilt labels
 - (2026-11-16) a real shoot's picks through the blink detector (eval/blink-*; half faces at the frame edge found by mirroring since 2026-11-16, but under 100 px only 4 of 22: eval/blink-edge-mirror-2026-11-16.md)
 - (2026-11-16) an Adobe render of a known frame (settles `--default-tone-curve always`)
@@ -50,9 +54,19 @@
   falls back on 31 (slope exactly 0 on 22, mostly still gaining); the J4 ratio line passes the same draw (0 worse),
   so it stays. (2026-11-23, eval/camera-drawn-mpcws-2026-11-23.md) The drawn-noise check on 11 Bayer camera raws
   from rawpy, OpenImageIO and darktable test folders passed all four tests (76 clean-truth rows: +0.22 luma, +0.12
-  colour, none 0.1 dB worse), so `mpcws` is the Bayer default and `--noise-read ship` the old bytes. Next: any new collapse
-  test on the read's level at a few greys, not its shot/read split, with a full reading of the five lists first. raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) is still unread. X-Trans has not
-  been tested with either read.
+  colour, none 0.1 dB worse), so `mpcws` was the Bayer default. (2026-11-24, eval/camera-drawn-mpcws-fresh-2026-11-24.md)
+  The same check on 9 fresh raws (immich's test-assets) passed h1-h3 (+0.20 luma, +0.12 colour) and failed h4o on one
+  GH4 tile at SNR 60 (-0.13 luma, an under-read at the tile's own grain floor), so the default is `ship` again and
+  `mpcws` opt-in. Next: a read that does not go under the shipped one near a tile's grain floor, scored on both
+  camera row sets and a third unseen one; any new collapse
+  test on the read's level at a few greys, not its shot/read split, with a full reading of the five lists first. raw.pixls.us's `first` set (the 6 named D780/D600 foliage rows) is still unread. (2026-11-24,
+  eval/xtrans-drawn-mpcws-2026-11-24.md) X-Trans, drawn noise on 2 unseen darktable-tests RAFs: `mpcws` with the
+  X-Trans ramp failed h2 and h4o (colour), so X-Trans keeps Chen's read; with Bayer's ramp (0.3, 1.0) it passed
+  h1-h3 (+0.41 luma, +0.29 colour) and failed h4o on 2 chart rows at SNR 12. Next: that form, pre-registered, on
+  a blind set of 6+ non-chart X-Trans bodies. Sources searched 2026-11-24 (raw.pixls.us refused): of 23 public
+  GitHub repositories' trees, only immich-app/test-assets `formats/raw/Fujifilm/X100V_compressed.RAF` is a fresh
+  X-Trans file (1 of the 6; exiv2's RAFs are fuzz cases, OpenImageIO's is SuperCCD). immich's 9 Bayer raws are
+  spent for noise reads (eval/camera-drawn-mpcws-fresh-2026-11-24.md).
 - Dense foliage over-reads are not in the eigenvalues (the quietest direction is full too). On D780 DSC_0336
   [0, 0] the bins' sigma climbs from 0.001 (dark) to 0.035 (bright), steeper than shot noise allows.
   (2026-11-22, eval/noise-envelope-fit-2026-11-22.md) A lower-envelope fit (drop bins over 1.5x the line,
@@ -145,14 +159,34 @@
 - (2026-11-23) on own ramps the oracle's 14 losses go to 0
 - (2026-11-23) per-colour ratios + Chen's level (mpcw) default on Bayer 2026-11-21: held +0.09 dB luma, +0.21 wb SNR 25/12, 0 new losers (eval/noise-pca-whitened-level-*)
 
+## From the cull page's closed-eye check (2026-11-24, eval/cull-closed-eyes-2026-11-24.md)
+
+- A licensed set with many real closed and half-closed eyes to set the 0.45 line from a curve (one closed face
+  brackets it now); sunglasses read as open.
+- (landed 2026-11-24, eval/blink-rule-agreement-2026-11-24.md) One rule for the page and the CLI detector: the more-closed eye over 0.5 (the page asked for both at 0.45 and flagged 4 of 7 closed photos; now 6 of 7, 0 of 108 others). (landed 2026-11-24, eval/cull-edge-mirror-2026-11-24.md) Edge-mirror pass on the page, gated (skips frames already flagged), after the first pass: 7 of 7 closed photos, 0 of 108 others; 20 of 40 cut half faces found, 8 of 10 shut flagged. Next: half faces under 100 px (both page and CLI miss most); a real wink, which now counts as a blink.
+
 ## From the cull page's AF point (2026-11-24, eval/cull-af-point-2026-11-24.md)
 
-- Nikon phase-detect AF points: map point numbers to positions per body (51-point D300/D800/D810 grid, 39-point
-  D5100/D7000, 153-point D5/D850), e.g. measured from frames shot with a known point; only live-view (AFInfo2 0100
-  contrast-detect) areas are placed now.
+- (landed 2026-11-24, eval/cull-nikon-af-2026-11-24.md) Nikon AF points placed from per-body maps (Focus-Points
+  plugin, Apache-2.0) for AFInfo2 0100/0101/0300/04xx: 27 of 28 Z8 frames (5 before), median detail rank 0.92,
+  19 of 23 beat the turned control. (a) landed 2026-11-24 (eval/cull-hevc-previews-2026-11-24.md): HLG Z8/Z9
+  HEVC previews decoded with WebCodecs where the browser has HEVC, 1 MB of 143 MB read for 3 files (all before);
+  next a real Safari (or hardware Chrome) decode of a Z8 HLG card and a look at its HLG-to-sRGB mapping; (b) a map for the 11-point bodies (D90, D3x00, D5000, D5100) and AFInfo 0x88 bodies (D70, D200),
+  from frames shot with a known point; (c) a D5/D500/D850 card to check the in-focus-first rule and the 98
+  interpolated 153-point positions.
 - Sony before the A7 III (NEX-5N, NEX-7, A5000, A500): no FocusLocation; the enciphered 0x9400/0x9416 blocks may hold
   one (ExifTool's Sony.pm decipher table).
 - Canon AFInfo2 0x26 on bodies that add AFPointsSelected: `selected` is set only when the array is long enough; check
   on a 1D X / 5D IV file that the selected bits are where ExifTool reads them.
 - Whether ranking a burst by detail at the AF point picks the frames a photographer keeps (needs a real card + picks;
   the CSV has `af_detail` and `sharpest_by`).
+- (2026-11-24) on-device closed-eye flag 2026-11-24 (1 closed face flagged, no open one, eval/cull-closed-eyes-*; next a real blink set): next Nikon AF grids, a real card of 500+ raws with picks, a Lightroom read of merged sidecars
+
+## From the cull page's IPTC template (2026-11-24, eval/cull-iptc-2026-11-24.md)
+
+- An import into Lightroom Classic, Capture One and Photo Mechanic to confirm each shows the fields.
+- (landed 2026-11-24, PR #18557, eval/cull-iptc-tree-codes-2026-11-24.md) Keyword trees and code replacements.
+  (2026-11-24, eval/cull-iptc-own-keywords-2026-11-24.md) A sidecar's own flat keywords stay as written (a
+  `Before > After` was being turned into a path). Next: Lightroom's Read Metadata from Files on these sidecars.
+- (2026-11-24) HLG Z8 HEVC previews landed (eval/cull-hevc-previews-*); next a real card of 500+ raws with picks, a Lightroom read of merged sidecars
+- (2026-11-24) Keyword list landed (eval/cull-keyword-list-2026-11-24.md): next Lightroom Classic's Import Keywords on the written list and Read Metadata on the sidecars, a real desk's 1,000+ keyword list for load time and ambiguity rate, autocomplete from the list while typing with K.

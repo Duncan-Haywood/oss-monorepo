@@ -1,0 +1,28 @@
+Milestone 3zj: OpenCV 4.12.0, 21 cameras -> 16 distinct, 2-px grid, 26.4 s
+
+calibration                         r90 px   fold     A%    B%     C%   cv A px cv32 A px C sent C mirr C med deg orb-cv px  vins rad
+TUM-VI cam0                          296.9      -  92.91  0.00   7.09   1.8e-13   1.4e-05      0   4644     174.7   7.2e-05   6.7e-15
+T265 ORB-SLAM3 Camera1               404.7      -  75.78  0.00  24.22   2.7e-13   2.1e-05      0  41082     179.7   1.0e-04   2.2e-14
+T265 ORB-SLAM3 Camera2               401.0   1.76  74.36  0.00   1.87   2.8e-13   2.1e-05      4   3161     180.0   1.1e-04   2.0e-12
+rpng_ironsides cam0                  489.5      - 100.00  0.00   0.00   2.8e-13   1.9e-05      -      -       nan   1.1e-04   5.8e-15
+rpng_ironsides cam1                  476.2      - 100.00  0.00   0.00   2.7e-13   1.8e-05      -      -       nan   9.6e-05   4.9e-15
+T265 OpenVINS cam0                   418.4      -  79.91  0.00  20.09   2.8e-13   2.1e-05      0  34074     176.8   1.2e-04   9.8e-15
+T265 OpenVINS cam1                   421.7      -  80.85  0.00  19.15   3.2e-13   2.3e-05      0  32475     176.3   1.2e-04   1.1e-14
+TUM-VI cam1                          296.6      -  92.85  0.00   7.15   1.8e-13   1.5e-05      0   4685     174.6   6.8e-05   7.0e-15
+uzhfpv_indoor cam0                   435.0      - 100.00  0.00   0.00   2.5e-13   1.8e-05      -      -       nan   8.3e-05   4.9e-15
+uzhfpv_indoor cam1                   436.6      - 100.00  0.00   0.00   2.5e-13   1.7e-05      -      -       nan   8.3e-05   6.2e-15
+uzhfpv_outdoor cam0                  424.7   1.78 100.00  0.00   0.00   2.5e-13   1.8e-05      -      -       nan   8.9e-05   3.8e-15
+uzhfpv_outdoor cam1                  426.5   1.91 100.00  0.00   0.00   2.5e-13   1.7e-05      -      -       nan   8.1e-05   6.7e-15
+uzhfpv_indoor_45 cam0                412.0   1.64 100.00  0.00   0.00   2.8e-13   1.7e-05      -      -       nan   7.7e-05   3.6e-15
+uzhfpv_indoor_45 cam1                431.6      - 100.00  0.00   0.00   2.7e-13   1.7e-05      -      -       nan   8.4e-05   4.9e-15
+Kimera RealSenseIR left             2638.8      - 100.00  0.00   0.00   2.7e-13   1.6e-05      -      -       nan   1.1e-04   2.7e-15
+Kimera RealSenseIR right            5125.9      - 100.00  0.00   0.00   2.7e-13   1.6e-05      -      -       nan   1.1e-04   1.5e-15
+
+H321: held
+H322: refuted
+H323: refuted
+H324: held
+H325: refuted
+H326: held
+H327: refuted
+tool vs truth (theta, rad) max over subsamples: 8.9e-16; tool loop vs OpenCV max 2.1e-11; sentinels agree True

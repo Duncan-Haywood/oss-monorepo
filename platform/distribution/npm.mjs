@@ -7,6 +7,13 @@
  *   node platform/distribution/npm.mjs --pack <slug> <outDir>   # write one package to disk (to inspect or `npm pack`)
  *   DISTRIBUTE_NPM=true NODE_AUTH_TOKEN=... [NPM_SCOPE=@you] node platform/distribution/npm.mjs
  *
+ * In CI there is no token: a job with `id-token: write` publishes through npm
+ * trusted publishing (OIDC, npm 11.5.1 or later), which mints a short-lived
+ * credential per publish and adds provenance (docs/security/trusted-publishing-setup.md).
+ * npm can only attach a trusted publisher to a package that exists, so on the
+ * OIDC path a name not yet on the registry is skipped and logged for the
+ * owner's one-time first publish, instead of failing the run.
+ *
  * Only tools on the npm allow-list (portfolio/distribution/allowlist.json) are
  * published, at the version versions.json gives them (versions.mjs). Stateless
  * de-duplication: a version the registry already has is left alone, and at
@@ -98,7 +105,7 @@ export async function buildPackage({ slug, dir, scope = '', version = VERSION })
   if (cli === null) return { skip: 'no cli.mjs' };
   if (!cli.startsWith('#!')) return { skip: 'cli.mjs has no shebang' };
   const license = await fs.readFile(path.join(dir, 'LICENSE'), 'utf8').catch(() => null);
-  if (license === null || !/MIT License/i.test(license)) return { skip: 'no MIT LICENSE' };
+  if (license === null || !/Functional Source License/i.test(license)) return { skip: 'no FSL-1.1-MIT LICENSE' };
   const yaml = await fs.readFile(path.join(dir, 'VENTURE.yaml'), 'utf8').catch(() => '');
   const description = descriptionOf(yaml);
   if (!description) return { skip: 'no description in VENTURE.yaml' };
@@ -109,7 +116,7 @@ export async function buildPackage({ slug, dir, scope = '', version = VERSION })
   files['bin.mjs'] = BIN_WRAPPER;
   files.LICENSE = license;
   const readme = await fs.readFile(path.join(dir, 'README.md'), 'utf8').catch(() => `# ${slug}\n\n${description}\n`);
-  files['README.md'] = `${readme.trimEnd()}\n\n---\n\nFree and open source (MIT), from [Maris Stella Labs](${tagUrl(toolUrl(slug), 'npm')}). Not legal, tax or professional advice.\nSource: ${REPO_URL}/tree/main/ventures/${slug}\n`;
+  files['README.md'] = `${readme.trimEnd()}\n\n---\n\nFree to use and source available (FSL-1.1-MIT), from [Maris Stella Labs](${tagUrl(toolUrl(slug), 'npm')}). Not legal, tax or professional advice.\nSource: ${REPO_URL}/tree/main/ventures/${slug}\n`;
   files['package.json'] = `${JSON.stringify({
     name,
     version,
@@ -118,11 +125,11 @@ export async function buildPackage({ slug, dir, scope = '', version = VERSION })
     bin: { [slug]: 'bin.mjs' },
     files: [...c.files, 'bin.mjs', 'LICENSE', 'README.md'],
     engines: { node: '>=18' },
-    license: 'MIT',
+    license: 'FSL-1.1-MIT',
     homepage: tagUrl(toolUrl(slug), 'npm'),
     repository: { type: 'git', url: `git+${REPO_URL}.git`, directory: `ventures/${slug}` },
     bugs: { url: `${REPO_URL}/issues` },
-    keywords: ['cli', 'free', 'open-source', ...slug.split('-').filter((w) => w.length > 2).slice(0, 4)],
+    keywords: ['cli', 'free', 'source-available', ...slug.split('-').filter((w) => w.length > 2).slice(0, 4)],
     publishConfig: { access: 'public' },
   }, null, 2)}\n`;
   return { name, version, files };
@@ -165,9 +172,20 @@ const exec = promisify(execFile);
 /** Whether a registry document is a package this repository published (its repository URL names this repo). */
 export const isOurs = (doc) => String(doc?.repository?.url ?? '').toLowerCase().includes('duncan-haywood/oss-monorepo');
 
+/** actions/setup-node exports this placeholder when NODE_AUTH_TOKEN is unset; it is not a token. */
+const SETUP_NODE_PLACEHOLDER = 'XXXXX-XXXXX-XXXXX-XXXXX';
+
+/** How a live run would authenticate: 'token', 'oidc' (GitHub Actions with id-token: write), or ''. */
+export function authMode(env) {
+  if (env.NODE_AUTH_TOKEN && env.NODE_AUTH_TOKEN !== SETUP_NODE_PLACEHOLDER) return 'token';
+  if (env.ACTIONS_ID_TOKEN_REQUEST_URL) return 'oidc';
+  return '';
+}
+
 export async function run({ env = process.env, fetchImpl = fetch, log = console.log, publish, root = REPO_ROOT, allow, versions } = {}) {
   const scope = env.NPM_SCOPE || '';
-  const live = env.DISTRIBUTE_NPM === 'true' && !!env.NODE_AUTH_TOKEN;
+  const auth = authMode(env);
+  const live = env.DISTRIBUTE_NPM === 'true' && !!auth;
   allow ??= await loadAllowlist(root);
   versions ??= await loadVersions(root);
   const slugs = [...allowed(allow, 'npm')].sort();
@@ -178,16 +196,20 @@ export async function run({ env = process.env, fetchImpl = fetch, log = console.
   for (const p of ok) {
     if (fresh.length >= MAX_PER_RUN) break;
     if (!versions[p.slug]) { log(`  skip ${p.slug}: no version in versions.json (run versions.mjs --write)`); continue; }
-    const res = await fetchImpl(`https://registry.npmjs.org/${p.name.replace('/', '%2F')}`);
+    const res = await fetchImpl(`https://registry.npmjs.org/${p.name.replace(/\//g, '%2F')}`);
     if (res.status === 200) {
       const doc = await res.json();
       if (!isOurs(doc)) { log(`  skip ${p.name}: the name belongs to another project (set NPM_SCOPE to publish under a scope)`); continue; }
       if (doc.versions?.[p.version]) continue;
     } else if (res.status !== 404) throw new Error(`npm registry: HTTP ${res.status} for ${p.name}`);
+    else if (live && auth === 'oidc') {
+      log(`  skip ${p.name}: not on npm yet, and trusted publishing cannot create a package; the owner publishes its first version (docs/security/trusted-publishing-setup.md)`);
+      continue;
+    }
     fresh.push(p);
   }
   if (!live) {
-    log(`DRY RUN (set DISTRIBUTE_NPM=true and NODE_AUTH_TOKEN to publish). Would publish up to ${MAX_PER_RUN} new versions:`);
+    log(`DRY RUN (set DISTRIBUTE_NPM=true, and run in a job with id-token: write or set NODE_AUTH_TOKEN, to publish). Would publish up to ${MAX_PER_RUN} new versions:`);
     for (const p of fresh) log(`  ${p.name}@${p.version}  ${Object.keys(p.files).length} files`);
     return { published: 0, planned: fresh.length };
   }

@@ -2,8 +2,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   emptySketch, addWall, addOpening, moveCorner, moveWall, moveOpening, resizeOpening,
-  removeWall, removeOpening, planFromSketch, restoreSketch,
+  removeWall, removeOpening, restoreSketch,
 } from "./sketch.mjs";
+import { planFromSketch } from "./sketchplan.mjs";
 import { takeoff } from "./engine.mjs";
 
 // Property test for the plan editor's model: random edit sequences (draw,

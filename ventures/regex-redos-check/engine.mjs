@@ -38,8 +38,13 @@ const classOf = {
   s: (c) => /\s/.test(c),
 };
 
-function setNode(match) {
-  return { t: "set", match };
+// A Unicode property name is only letters, digits, _ and =, none of which this escapes; anything else
+// becomes an invalid escape under the u flag, so the caller's fallback runs as before.
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// `accepts(ch)` says whether the set contains ch. Not called `match`, which reads like String#match.
+function setNode(accepts) {
+  return { t: "set", accepts };
 }
 
 export function parseRegex(src, { flags = "", lang = "js" } = {}) {
@@ -138,7 +143,7 @@ export function parseRegex(src, { flags = "", lang = "js" } = {}) {
     if (c === "0") return "\0";
     if (c === "x") { const h = src.slice(i, i + 2); i += 2; return String.fromCharCode(parseInt(h, 16) || 0); }
     if (c === "u") {
-      if (src[i] === "{") { const end = src.indexOf("}", i); const h = src.slice(i + 1, end); i = end + 1; return String.fromCodePoint(parseInt(h, 16) || 0); }
+      if (src[i] === "{") { const end = src.indexOf("}", i); const h = src.slice(i + 1, end); i = end + 1; return codePointOr(parseInt(h, 16) || 0); }
       const h = src.slice(i, i + 4); i += 4; return String.fromCharCode(parseInt(h, 16) || 0);
     }
     if (c === "c") { const l = src[i]; i += 1; return String.fromCharCode((l || "@").charCodeAt(0) % 32); }
@@ -158,7 +163,7 @@ export function parseRegex(src, { flags = "", lang = "js" } = {}) {
       let name = "";
       if (src[i] === "{") { const end = src.indexOf("}", i); name = src.slice(i + 1, end); i = end + 1; }
       let test;
-      try { const re = new RegExp(`^\\${c}{${name}}$`, "u"); test = (ch) => re.test(ch); } catch { test = (ch) => /\p{L}/u.test(ch); }
+      try { const re = new RegExp(`^\\${c}{${escapeRegExp(name)}}$`, "u"); test = (ch) => re.test(ch); } catch { test = (ch) => /\p{L}/u.test(ch); }
       return setNode(test);
     }
     return setNode(eqChar(parseEscapeChar()));
@@ -193,8 +198,8 @@ export function parseRegex(src, { flags = "", lang = "js" } = {}) {
       i += 1;
       const c = src[i];
       const set = escapeToSet(c);
-      if (set) { i += 1; return { test: set.match }; }
-      if (c === "p" || c === "P") { i -= 1; return { test: parseEscape().match }; }
+      if (set) { i += 1; return { test: set.accepts }; }
+      if (c === "p" || c === "P") { i -= 1; return { test: parseEscape().accepts }; }
       if (c === "b") { i += 1; return { ch: "\b", test: (ch) => ch === "\b" }; }
       const ch = parseEscapeChar();
       return { ch, test: eqChar(ch) };
@@ -242,7 +247,7 @@ function firstInfo(node) {
   if (memoFirst.has(node)) return memoFirst.get(node);
   let out;
   switch (node.t) {
-    case "set": out = { set: new Set(ALPHABET.filter((c) => node.match(c))), nullable: false }; break;
+    case "set": out = { set: new Set(ALPHABET.filter((c) => node.accepts(c))), nullable: false }; break;
     case "anchor": case "look": case "backref": out = { set: new Set(), nullable: true }; break;
     case "group": out = firstInfo(node.body); break;
     case "quant": { const b = firstInfo(node.body); out = { set: b.set, nullable: node.min === 0 || b.nullable }; break; }
@@ -256,7 +261,7 @@ function firstInfo(node) {
 const isNullable = (n) => firstInfo(n).nullable;
 
 function charsOf(node, acc = new Set()) {
-  if (node.t === "set") ALPHABET.forEach((c) => node.match(c) && acc.add(c));
+  if (node.t === "set") ALPHABET.forEach((c) => node.accepts(c) && acc.add(c));
   else if (node.t === "group" || node.t === "quant") charsOf(node.body, acc);
   else if (node.t === "alt") node.alts.forEach((a) => charsOf(a, acc));
   else if (node.t === "seq") node.items.forEach((a) => charsOf(a, acc));
@@ -308,7 +313,7 @@ function unwrap(node) {
 
 function literalString(node) {
   const n = unwrap(node);
-  if (n.t === "set" && !n.multi) { const m = ALPHABET.filter((c) => n.match(c)); return m.length === 1 ? m[0] : null; }
+  if (n.t === "set" && !n.multi) { const m = ALPHABET.filter((c) => n.accepts(c)); return m.length === 1 ? m[0] : null; }
   if (n.t === "seq" && n.items.length) {
     let s = "";
     for (const it of n.items) { const l = literalString(it); if (l === null || it.t === "quant") return null; s += l; }
@@ -362,7 +367,7 @@ function exactAlphabet(src) {
 }
 function charMask(node, alphabet) {
   let m = 0n;
-  alphabet.forEach((c, k) => { if (node.match(c)) m |= 1n << BigInt(k); });
+  alphabet.forEach((c, k) => { if (node.accepts(c)) m |= 1n << BigInt(k); });
   return m;
 }
 function lowestChar(mask, alphabet) {
@@ -674,7 +679,7 @@ const KEYWORDS_BEFORE_REGEX = new Set(["return", "typeof", "instanceof", "in", "
 
 function unescapeJsString(body) {
   return body.replace(/\\(u\{[0-9a-fA-F]+\}|u[0-9a-fA-F]{4}|x[0-9a-fA-F]{2}|[\s\S])/g, (m, c) => {
-    if (c[0] === "u" && c.length > 1) return c[1] === "{" ? String.fromCodePoint(parseInt(c.slice(2, -1), 16)) : String.fromCharCode(parseInt(c.slice(1), 16));
+    if (c[0] === "u" && c.length > 1) return c[1] === "{" ? codePointOr(parseInt(c.slice(2, -1), 16)) : String.fromCharCode(parseInt(c.slice(1), 16));
     if (c[0] === "x" && c.length === 3) return String.fromCharCode(parseInt(c.slice(1), 16));
     return { n: "\n", t: "\t", r: "\r", f: "\f", v: "\v", 0: "\0" }[c] ?? c;
   });
@@ -828,3 +833,7 @@ export const FIXES = {
   "ambiguous-repeat": "Find the two readings of the pump string the finding names and remove one: make alternatives or adjacent repeats disjoint, put a mandatory delimiter between iterations, use an atomic group or possessive quantifier where your engine has one, or run the pattern on a linear-time engine such as RE2.",
   "dynamic-regexp": "Escape user input before building a pattern, bound its length, and prefer a linear-time engine for untrusted patterns.",
 };
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

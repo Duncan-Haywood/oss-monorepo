@@ -35,9 +35,14 @@ export const VACANCY = "Vacancy";
 // order from round 1, as bowlingSchedule() plays it. Only even leagues: an odd league's proof would
 // include the Vacancy's row, which says nothing about the real teams.
 import { OUT_OF_REACH } from "./bowling-proofs.mjs";
+import { LANE_MIN } from "./bowling-lane-min.mjs";
 const outOfReach = new Set(OUT_OF_REACH);
 export function boundOutOfReach(nTeams, rrWeeks) {
   return outOfReach.has(`${nTeams},${rrWeeks}`);
+}
+/** The proved fewest out-of-target counts (offBound) for a season off its bound, or null if not proved. */
+export function laneOffMin(nTeams, rrWeeks) {
+  return LANE_MIN[`${nTeams},${rrWeeks}`] ?? null;
 }
 
 /** Minimum-cost perfect assignment of rows to columns of a square matrix (Hungarian, O(n^3)). */
@@ -894,7 +899,11 @@ export function bowlingSchedule(spec) {
     ri++;
   }
   const boundProvedOutOfReach = !odd && boundOutOfReach(n, roundOf.length);
-  return { errors: [], teams, odd, nPairs, labels, weeks: out, skipped, cycleLength: cycle.length, boundProvedOutOfReach: boundProvedOutOfReach && !avoid, avoid, redealt, dealingsTried };
+  // With the bound out of reach, a stored proved minimum says whether this deal is the most even any
+  // deal can be (eval/bowling-mirror-cpsat.py --soft, bowling-lane-min.mjs).
+  const offMin = boundProvedOutOfReach && !avoid ? laneOffMin(n, roundOf.length) : null;
+  const laneOff = offBound(plan, n, nPairs, avoid);
+  return { errors: [], teams, odd, nPairs, labels, weeks: out, skipped, cycleLength: cycle.length, boundProvedOutOfReach: boundProvedOutOfReach && !avoid, laneOff, laneOffMin: offMin, laneProvedBest: offMin !== null && laneOff === offMin, avoid, redealt, dealingsTried };
 }
 
 function ordinal(i) {
@@ -937,7 +946,7 @@ export function laneReport(season) {
   const real = out.filter((r, i) => !(season.odd && i === n - 1));
   // boundProvedOutOfReach: no lane deal of this season's round-robin weeks puts every team at the
   // bound (proved by a SAT solver), so a team off it is the season's limit, not a missed deal.
-  return { rows: out, worstSpread, atBound, teams: n, repeats, realRows: real, boundProvedOutOfReach: Boolean(season.boundProvedOutOfReach) };
+  return { rows: out, worstSpread, atBound, teams: n, repeats, realRows: real, boundProvedOutOfReach: Boolean(season.boundProvedOutOfReach), laneProvedBest: Boolean(season.laneProvedBest) };
 }
 
 /** Independent check: every week, each team once and each pair once; every pair of teams meets as often as the cycles say. */

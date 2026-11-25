@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtJmtjxLSjQW3xApY5A",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T06:07:05Z",
+  "ended": "2026-11-25T06:10:24Z",
+  "wall_minutes": 3.47,
+  "tokens_in": 3146078,
+  "tokens_out": 13423,
+  "cost_usd": 1.5185,
+  "tool_calls": 37,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18870",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "My first version of a new test emptied `buildable:` and was refused; an existing test (test_cli_refused_write_says_not_written) had used the old 'no venture folder' refusal as its failure path, and under the fix it wrote portfolio/flagships/b/ into the working tree. I removed the stray folder and pinned the test to --no-make-room and a tmp --notes-dir."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/test_flagship_field.py",
+      "issue": "Tests that call ff.main without --ventures-dir use the real repo paths by default, so a code change that stops refusing can make a test write into the tree. A fixture that pins both dirs to tmp_path would be safer."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "why": "Split-first suggests taking up to three rows. I took one: the backlog had no agent-owned item, and the critique turned up one clear tool fault.",
+      "did": "Critique mode: picked the fix from 'Doc friction by file' in measure and shipped it, filed as P074.",
+      "result": "Fault fixed with tests; no second item worth a fix was quickly found (risk_review's shallow-clone message is already on main)."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Backlog ids: P074 (new, done). Security queue: 0 workable (security_next.py exit 3). Ideas inbox empty. main_health.py: 325/325 on main. Local checks: pytest portfolio/router 296 passed; promptctl validate ok. No post: this is an internal tool fix with no reader-facing story; the backlog row records it.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8ff759d5-e587-561b-a8a5-590dea2b2474",
+    "transcripts": 1,
+    "first": "2026-11-25T06:07:05Z",
+    "last": "2026-11-25T06:10:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 66,
+        "output": 13423,
+        "thinking": 2535,
+        "cache_read": 3066455,
+        "cache_write_5m": 0,
+        "cache_write_1h": 79557,
+        "api_equivalent_usd": 1.5185,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 66,
+      "output": 13423,
+      "thinking": 2535,
+      "cache_read": 3066455,
+      "cache_write_5m": 0,
+      "cache_write_1h": 79557,
+      "api_equivalent_usd": 1.5185,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 35,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.47,
+      "active_minutes": 3.47,
+      "model_minutes": 2.55,
+      "tool_minutes": 0.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "read friction, patch a CLI path helper, two tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 98.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

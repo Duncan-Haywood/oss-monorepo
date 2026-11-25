@@ -48,6 +48,7 @@ pytest/discover over a folder holding it. About 13 s serial.
 import argparse
 import functools
 import glob
+import json
 import re
 import shlex
 import subprocess
@@ -329,6 +330,75 @@ def unwired_node_suites(root=ROOT, workflows=WORKFLOWS):
             if "node_modules" not in p.parts and p.resolve() not in ran]
 
 
+
+# The workflow whose `run_venture_tests.py --since` step runs this script, and so
+# every suite below (2026-11-25). A suite it runs only on a pull request that
+# starts it: ventures-tests.yml's `paths` filter named ventures/**, platform/ci/**
+# and a few more, so a change to platform/billing/server.mjs alone (the Paddle
+# webhook and licence signing) ran billing.test.mjs nowhere, and neither did one
+# to 15 other folders with suites in this set (platform/proposal, platform/devlog,
+# portfolio/ledger, ...). A suite counts as covered when a file beside it matches
+# one of that workflow's pull_request `paths` globs.
+RUNNER_WORKFLOW = "ventures-tests.yml"
+
+
+def pr_path_globs(text):
+    """The `paths` globs under a workflow's `on: pull_request:` (none: [])."""
+    lines = text.splitlines()
+    out, in_pr, pr_indent, in_paths, paths_indent = [], False, 0, False, 0
+    for line in lines:
+        bare = line.split("#", 1)[0].rstrip()
+        if not bare.strip():
+            continue
+        indent = len(bare) - len(bare.lstrip())
+        if in_paths:
+            m = re.match(r"\s*-\s*['\"]?([^'\"]+?)['\"]?\s*$", bare)
+            if m and indent >= paths_indent:
+                out.append(m.group(1))
+                continue
+            in_paths = False
+        if in_pr and indent <= pr_indent:
+            in_pr = False
+        if re.match(r"\s*pull_request:\s*$", bare):
+            in_pr, pr_indent = True, indent
+        elif in_pr and re.match(r"\s*paths:\s*$", bare):
+            in_paths, paths_indent = True, indent
+    return out
+
+
+def path_glob_re(glob_):
+    """GitHub's path-filter glob as a regex: `**` crosses `/`, `*` does not."""
+    out, i = "", 0
+    while i < len(glob_):
+        if glob_.startswith("**", i):
+            out, i = out + ".*", i + 2
+        elif glob_[i] == "*":
+            out, i = out + "[^/]*", i + 1
+        else:
+            out, i = out + re.escape(glob_[i]), i + 1
+    return re.compile(out + r"\Z")
+
+
+def untriggered(paths, globs, root=ROOT):
+    """Repo-relative suites in `paths` whose folder no glob in `globs` covers:
+    a change beside the suite does not start the workflow that runs it."""
+    res = [path_glob_re(g) for g in globs if not g.startswith("!")]
+    out = []
+    for p in paths:
+        rel = Path(p).resolve().relative_to(Path(root).resolve())
+        probe = (rel.parent / "any.mjs").as_posix()
+        if not any(r.match(probe) for r in res):
+            out.append(rel.as_posix())
+    return out
+
+
+def untriggered_suites(root=ROOT, workflows=WORKFLOWS):
+    """The node and portfolio suites this script runs that a change to their own
+    folder would not start RUNNER_WORKFLOW for."""
+    globs = pr_path_globs((workflows / RUNNER_WORKFLOW).read_text(encoding="utf-8"))
+    return untriggered(unwired_node_suites(root, workflows)
+                       + unwired_portfolio_tests(root, workflows), globs, root)
+
 def node_name(path, root=ROOT):
     return Path(path).resolve().relative_to(root.resolve()).as_posix()
 
@@ -347,7 +417,34 @@ def run_node_suite(path, timeout=NODE_TIMEOUT, root=ROOT):
         return name, main_health.TIMED_OUT, f"timed out after {timeout} s"
     except FileNotFoundError:
         return name, 0, f"{SKIPPED} no node on this machine"
-    return name, r.returncode, (r.stdout + r.stderr).strip()
+    out = (r.stdout + r.stderr).strip()
+    if r.returncode != 0 and (pkg := missing_npm_package(out, path.parent, root)):
+        return name, 0, f"{SKIPPED} needs npm package {pkg} (declared in its package.json, not installed here)"
+    return name, r.returncode, out
+
+
+def missing_npm_package(out, here, root=ROOT):
+    """The npm package a node suite failed to import, or None. Like
+    missing_module: only a package the suite's nearest package.json declares
+    and node_modules lacks counts as "not installed"; an undeclared import
+    is a real break (2026-11-25: saas-starter's @aws-sdk/client-s3)."""
+    m = re.search(r"Cannot find package '((?:@[\w.-]+/)?[\w.-]+)'", out)
+    if not m:
+        return None
+    pkg, here, root = m.group(1), Path(here).resolve(), Path(root).resolve()
+    for d in [here, *here.parents]:
+        manifest = d / "package.json"
+        if manifest.is_file():
+            try:
+                data = json.loads(manifest.read_text(encoding="utf-8"))
+            except ValueError:
+                return None
+            declared = {k for f in ("dependencies", "devDependencies", "optionalDependencies")
+                        for k in (data.get(f) or {})}
+            return pkg if pkg in declared and not (d / "node_modules" / pkg).exists() else None
+        if d == root:
+            break
+    return None
 
 
 def unwired_extra(here=HERE, workflows=WORKFLOWS):

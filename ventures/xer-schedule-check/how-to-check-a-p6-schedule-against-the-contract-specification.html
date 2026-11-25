@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234e70'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP6%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Check A P6 Schedule Against The Contract Specification</title>
+  <meta name="description" content="Check a P6 baseline or update against the limits in your contract's scheduling section: durations, lags, constraints, codes, cost loading, milestones. Free.">
+  <meta property="og:title" content="How To Check A P6 Schedule Against The Contract Specification">
+  <meta property="og:description" content="Type the limits from your contract once, save them, and get met or not met with every activity behind a miss for each schedule submittal.">
+  <link rel="canonical" href="./how-to-check-a-p6-schedule-against-the-contract-specification.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a construction scheduling specification require?","acceptedAnswer":{"@type":"Answer","text":"It depends on the contract. Common requirements are a cap on activity length (often 15 to 20 working days for construction work, with procurement and submittals exempt), a cap on lags, no leads, limits on which date constraints may be used, activity codes for responsibility and area on every activity, the schedule cost-loaded to the contract value, the contract milestones shown, and retained logic. Read your own contract's section: this tool has no rules built in."}},{"@type":"Question","name":"Is this an official USACE, DOT or CSI checker?","acceptedAnswer":{"@type":"Answer","text":"No. Nothing here is any agency's specification. You type the limits from your own contract, and the tool checks the file against what you typed. The result is a review aid, not acceptance or rejection of a submittal, which stays with the contract's reviewer."}},{"@type":"Question","name":"Can I reuse the same rules every month?","acceptedAnswer":{"@type":"Answer","text":"Yes. Press Save rules (JSON) once and Load rules for each update. The page also remembers the last rules you ran on this device. From the command line, node cli.mjs update.xer --spec rules.json exits 1 when a rule is not met, so a folder of updates can be screened in a script."}},{"@type":"Question","name":"How are durations and lags counted?","acceptedAnswer":{"@type":"Answer","text":"In working days: an activity's original duration in hours divided by the hours per day of its own calendar, and a lag in hours divided by the hours per day of its predecessor's calendar. Milestones, level of effort, WBS summaries and finished activities are left out of the duration rule."}},{"@type":"Question","name":"Is the file uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The schedule and the rules are read in your browser tab. There is no server, account or upload."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17202a; background: #f3f6f9; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.58; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.08; color: #163a59; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; color: #163a59; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a8c; }
+    code { background: #e6ecf1; padding: 1px 4px; border-radius: 4px; font-size: .92em; }
+    .tablewrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: .93rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d7e0e8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e5b66; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 16px; border-radius: 8px; background: #1d5a8c; color: #fff; text-decoration: none; font-weight: 700; }
+    .note { font-size: .88rem; color: #4e5b66; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4e5b66; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; XER Schedule Check</a></p>
+  <h1>How to check a P6 schedule against the contract specification</h1>
+  <p>A contractor's baseline schedule, and every monthly update after it, is a submittal. The contract's scheduling section (CSI 01 32 16 on many building jobs, UFGS 01 32 01.00 10 on US federal work, a progress-schedule article in a state DOT's standard specifications) says what it must look like, and the owner's reviewer checks it against that list before accepting it. Without tooling that means filtering a P6 layout once per requirement, or reading a PDF by eye. This page does the list in one pass from the XER, with your contract's numbers.</p>
+  <p><a class="cta" href="./#spec">Open the free schedule check</a> (open the XER, then open Rules from your contract)</p>
+  <h2>Steps</h2>
+  <ol>
+    <li>Export the schedule from P6 as XER (File, Export, Primavera PM XER), or save a Microsoft Project schedule as XML.</li>
+    <li>Open it on the <a href="./">tool page</a> and go to <b>Contract specification check</b>.</li>
+    <li>Open <b>Rules from your contract</b> and type the limits your specification sets. Leave a rule blank to skip it. Nothing is filled in for you, because every contract differs.</li>
+    <li>Press <b>Check against the specification</b>. Each requirement shows met or not met, with what the file shows; open a missed one to see every activity or relationship behind it.</li>
+    <li>Press <b>Save rules (JSON)</b> to keep the rules for next month, and <b>Download results (CSV)</b> for the full list to attach to review comments.</li>
+  </ol>
+  <h2>What it can check</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Requirement</th><th>How it is read</th></tr></thead>
+    <tbody>
+      <tr><td>Longest original duration</td><td>Working days on the activity's own calendar; open work only; milestones, level of effort and WBS summaries left out; words you list (submit, procure, fabricat) exempt an activity by ID or name</td></tr>
+      <tr><td>Longest lag, no leads, no start-to-finish</td><td>Every relationship between two activities of the project, lags in working days on the predecessor's calendar</td></tr>
+      <tr><td>Constraint types allowed, share constrained</td><td>The primary and secondary constraint on each open activity</td></tr>
+      <tr><td>One start and one finish</td><td>Activities with no predecessor or no successor, level of effort left out</td></tr>
+      <tr><td>Largest total float</td><td>The total float P6 stored for each open activity</td></tr>
+      <tr><td>Required activity codes</td><td>By the code type's name as P6 shows it (Responsibility, Area, Phase); a name the file does not define is said so</td></tr>
+      <tr><td>Names</td><td>Shortest name length, and two activities with the same name in one WBS</td></tr>
+      <tr><td>Resource and cost loading</td><td>Assignments and budgeted cost (resource assignments plus expenses) per activity; the total against the contract value within your tolerance; the largest share of the budget on one activity</td></tr>
+      <tr><td>Contract milestones</td><td>Each name you list matched to a milestone's ID or to whole words of its name (so "Milestone 1" is not met by "Milestone 12"); an ordinary activity with that name is pointed out</td></tr>
+      <tr><td>Retained logic, activity count, data date</td><td>The project's scheduling options and data date</td></tr>
+    </tbody>
+  </table></div>
+  <h2>What it found on public schedules</h2>
+  <p>With one invented rule set (20-day durations, 10-day lags, no leads), on two public P6 files (the project's <code>eval/spec-check-2026-11-24.md</code> names them and gives all six): the hotel schedule had 277 open activities over 20 working days, the longest being 330-day design submission and approval rows that most specifications would exempt or ask to split, 547 lags over 10 days and one lead; the airport terminal file had 21 activities over 20 days, 7 long lags and one start-on-or-before constraint. These files were never submitted against those rules; the numbers show what the list looks like, not how good the schedules are.</p>
+  <h2>How it was tested</h2>
+  <p>On six public XER files (52 to 16,146 activities), each rule's count of failures was recounted straight from the raw XER tables without the scheduling model, and all 64 counts agreed. The check takes about half a second on the 16,146-activity file.</p>
+  <h2>Things to know</h2>
+  <ul>
+    <li><b>Read the specification, not a summary of it.</b> Many sections carry exceptions (procurement, owner activities, the first and last milestones) and definitions this list cannot know. Type the exceptions in as exempt words where they are by name.</li>
+    <li><b>Met is not accepted.</b> The check says whether the file meets the numbers you typed. Whether a submittal is acceptable is the contract reviewer's call.</li>
+    <li><b>Run the 14-point check too.</b> DCMA's metrics (missing logic, high float, negative float, the critical path test) sit alongside most specifications and are on the same page.</li>
+  </ul>
+  <h2>Questions</h2>
+  <h3>What does a construction scheduling specification require?</h3>
+  <p>It depends on the contract. Common requirements are a cap on activity length (often 15 to 20 working days for construction work, with procurement and submittals exempt), a cap on lags, no leads, limits on which date constraints may be used, activity codes for responsibility and area on every activity, the schedule cost-loaded to the contract value, the contract milestones shown, and retained logic. Read your own contract's section: this tool has no rules built in.</p>
+  <h3>Is this an official USACE, DOT or CSI checker?</h3>
+  <p>No. Nothing here is any agency's specification. You type the limits from your own contract, and the tool checks the file against what you typed. The result is a review aid, not acceptance or rejection of a submittal, which stays with the contract's reviewer.</p>
+  <h3>Can I reuse the same rules every month?</h3>
+  <p>Yes. Press Save rules (JSON) once and Load rules for each update. The page also remembers the last rules you ran on this device. From the command line, node cli.mjs update.xer --spec rules.json exits 1 when a rule is not met, so a folder of updates can be screened in a script.</p>
+  <h3>How are durations and lags counted?</h3>
+  <p>In working days: an activity's original duration in hours divided by the hours per day of its own calendar, and a lag in hours divided by the hours per day of its predecessor's calendar. Milestones, level of effort, WBS summaries and finished activities are left out of the duration rule.</p>
+  <h3>Is the file uploaded?</h3>
+  <p>No. The schedule and the rules are read in your browser tab. There is no server, account or upload.</p>
+  <h2>More guides</h2>
+  <ul>
+    <li><a href="./how-to-find-redundant-logic-in-a-p6-schedule.html">How to find redundant logic in a P6 schedule</a></li>
+    <li><a href="./how-to-convert-p6-xml-to-xer.html">How to convert a P6 XML file to XER</a></li>
+    <li><a href="./how-to-find-critical-path-drag-in-a-p6-schedule.html">How to find critical path drag in a P6 schedule</a></li>
+    <li><a href="./how-to-run-a-dcma-14-point-schedule-assessment.html">How to run a DCMA 14-point schedule assessment, check by check</a></li>
+    <li><a href="./how-to-open-an-xer-file-without-primavera-p6.html">How to open an XER file without Primavera P6</a></li>
+    <li><a href="./how-to-convert-a-p6-xer-file-to-microsoft-project.html">How to convert a P6 XER file to Microsoft Project</a></li>
+    <li><a href="./how-to-review-a-contractors-p6-schedule-update.html">How to review a contractor's monthly P6 schedule update</a></li>
+    <li><a href="./how-to-write-a-monthly-construction-schedule-narrative.html">How to write a monthly construction schedule narrative</a></li>
+    <li><a href="./how-to-convert-an-xer-file-to-excel.html">How to convert a Primavera P6 XER file to Excel</a></li>
+    <li><a href="./how-to-assess-a-schedule-against-the-gao-schedule-assessment-guide.html">How to assess a schedule against the GAO Schedule Assessment Guide</a></li>
+    <li><a href="./how-to-run-a-collapsed-as-built-delay-analysis.html">How to run a collapsed as-built delay analysis</a></li>
+    <li><a href="./how-to-run-a-time-impact-analysis-on-a-p6-schedule.html">How to run a time impact analysis on a P6 schedule</a></li>
+    <li><a href="./how-to-run-a-monte-carlo-schedule-risk-analysis-on-a-p6-schedule.html">How to run a Monte Carlo schedule risk analysis on a P6 schedule</a></li>
+    <li><a href="./how-to-run-an-as-planned-vs-as-built-schedule-analysis.html">How to run an as-planned vs as-built schedule analysis</a></li>
+      <li><a href="./how-to-split-concurrent-delay-between-owner-and-contractor.html">How to split concurrent delay between owner and contractor</a></li>
+    <li><a href="./how-to-review-the-calendars-in-a-p6-schedule.html">How to review the calendars in a P6 schedule</a></li>
+    <li><a href="./how-to-break-down-a-dcma-assessment-by-subcontractor.html">How to break down a DCMA assessment by subcontractor or WBS</a></li>
+</ul>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not engineering, legal, contractual or scheduling advice; the contract and a qualified scheduler decide. The example project is invented.</p>
+    <p><strong>Independent.</strong> Not affiliated with, endorsed by or sponsored by Oracle, Primavera, Microsoft or the Defense Contract Management Agency. Product names are trademarks of their owners and are named only to describe file formats.</p>
+    <p>Everything the tool does runs in your browser; your schedule is never uploaded. Free to use and source available under the FSL-1.1-MIT licence: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

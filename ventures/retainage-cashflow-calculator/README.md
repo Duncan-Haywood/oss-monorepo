@@ -28,4 +28,4 @@ This is deliberately a small, deterministic wedge: zero hosting and inference co
 
 ## License
 
-MIT. See `LICENSE`.
+FSL-1.1-MIT. See `LICENSE`.

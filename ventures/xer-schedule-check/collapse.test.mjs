@@ -92,3 +92,27 @@ test("an update still in progress is modelled from its forecast, and says so", (
   assert.ok(r.warnings.some((w) => /forecast dates/.test(w)));
   assert.equal(r.asBuilt.reproduced, r.asBuilt.activities);
 });
+
+test("taking out an activity's whole as-built duration is not over-asking; more than that is capped and said so", () => {
+  const done = finished(plan);
+  // A1090 (MEP rough-in level 1) took 12 working days as built
+  const all = collapsedAsBuilt(done, "Activity ID,Days\nA1090,12\n");
+  assert.equal(all.rows[0].takenDays, 12);
+  assert.ok(!all.warnings.some((w) => /A1090 took/.test(w)), all.warnings.join("\n"));
+  const over = collapsedAsBuilt(done, "Activity ID,Days\nA1090,13\n");
+  assert.equal(over.rows[0].takenDays, 12);
+  assert.ok(over.warnings.some((w) => /A1090 took 12 days as built, so 12 were taken out, not 13/.test(w)), over.warnings.join("\n"));
+});
+
+test("a start constraint dated before the actual start did not hold the activity; gap days use the calendar's hours per day", () => {
+  const done = finished(plan);
+  // A1050 waited 5 days after its logic; a start-on-or-after dated weeks before it does not explain that wait
+  const early = { ...done, tables: { ...done.tables, TASK: done.tables.TASK.map((r) => (r.task_code === "A1050" ? { ...r, cstr_type: "CS_MSOA", cstr_date: "2026-03-02 07:00" } : r)) } };
+  const r = collapsedAsBuilt(early, "");
+  assert.equal(r.asBuilt.reproduced, r.asBuilt.activities);
+  const waited = r.warnings.find((w) => /waited for a start date set by/.test(w));
+  assert.ok(waited && !/A1050/.test(waited), waited);
+  // the same 40 working hours read as 4 days on a 10-hour-day calendar, not 5
+  const ten = { ...done, tables: { ...done.tables, CALENDAR: done.tables.CALENDAR.map((c) => ({ ...c, day_hr_cnt: "10" })) } };
+  assert.equal(collapsedAsBuilt(ten, "").asBuilt.gaps.find((g) => g.code === "A1050").days, 4);
+});

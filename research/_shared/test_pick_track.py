@@ -421,8 +421,55 @@ class FocusTest(unittest.TestCase):
         finally:
             pick_track.is_blocked = real
         share = sum(pick_track.is_focus(s) for s in firsts) / len(firsts)
-        self.assertAlmostEqual(share, 0.75, delta=0.03)
+        # Half the fixture is focus: PROGRAMME_FOCUS_SHARE first, then half of the rest.
+        expected = pick_track.PROGRAMME_FOCUS_SHARE + (1 - pick_track.PROGRAMME_FOCUS_SHARE) * 0.5
+        self.assertAlmostEqual(share, expected, delta=0.03)
         self.assertEqual(set(firsts), {p[0] for p in progs})
+
+
+class TriageTest(unittest.TestCase):
+    """Owner, 2026-11-24: research gets pivoted into products; no effort on sunken ships."""
+
+    table = """## Open programmes
+
+| Programme | Question | Builds on | Triage (2026-11-24) | Product, or why | Target venue |
+|---|---|---|---|---|---|
+| [`a-prog`](a-prog/PROPOSAL.md) | Q? | track 20 | `product-linked` | Bet #1, `finish-paper` named in prose | V |
+| [`b-prog`](b-prog/PROPOSAL.md) | Q? | `x-*` | `wound-down` | no product | V |
+| [`c-prog`](c-prog/PROPOSAL.md) | Q? | `y-*` | `finish-paper` | draft close | V |
+| [`d-prog`](d-prog/PROPOSAL.md) | Q? | `z-*` | none | V |
+"""
+
+    def test_triage_reads_the_state_cell(self):
+        self.assertEqual(pick_track.triage(self.table),
+                         {"a-prog": "product-linked", "b-prog": "wound-down", "c-prog": "finish-paper"})
+
+    def test_only_product_linked_and_finish_paper_are_drawable(self):
+        progs = [(s, True) for s in ("a-prog", "b-prog", "c-prog", "d-prog")]
+        got = pick_track.drawable(progs, pick_track.triage(self.table))
+        self.assertEqual([s for s, _ in got], ["a-prog", "c-prog"])
+
+    def test_untriaged_table_keeps_everything(self):
+        progs = [("a-prog", True)]
+        self.assertEqual(pick_track.drawable(progs, {}), progs)
+
+    def test_real_table_is_fully_triaged(self):
+        slugs = [s for s, _ in pick_track.programmes()]
+        states = pick_track.triage()
+        self.assertEqual(set(states), set(slugs))
+        self.assertTrue(set(states.values()) <= set(pick_track.TRIAGE_STATES))
+        live = pick_track.drawable(pick_track.programmes())
+        self.assertTrue(live)
+        # Construction and manufacturing come first, so at least one drawable programme is focus.
+        self.assertTrue(any(pick_track.is_focus(s) for s, _ in live))
+        self.assertFalse(any(states[s] == "wound-down" for s, _ in live))
+
+    def test_venue_column_stays_last(self):
+        # venue_policy.py and portfolio/direction/report.py read the table by position.
+        import venue_policy
+        rows = venue_policy.programmes((pick_track.RESEARCH / "PROGRAMMES.md").read_text())
+        self.assertTrue(rows)
+        self.assertFalse(any(v.strip("` ") in pick_track.TRIAGE_STATES for _, v in rows))
 
 
 class SessionDrawTest(unittest.TestCase):
@@ -546,9 +593,19 @@ class FreeChoiceTest(unittest.TestCase):
 
     def test_unknown_age_counts_as_idlest_and_says_so(self):
         lines = pick_track.contention_lines(["a", "b"], prs=lambda s: [], recent=lambda s: [],
-                                            last={"a": 5.0, "b": None}.get)
+                                            last={"a": 5.0, "b": None}.get, logged=lambda s: None)
         self.assertTrue(lines[0].strip().startswith("b:"))
-        self.assertIn("nothing in this clone's history", lines[0])
+        self.assertIn("nothing in this clone's history or LOG.md", lines[0])
+
+    def test_log_date_stands_in_when_the_shallow_clone_has_no_commit(self):
+        import calendar
+        now = calendar.timegm((2026, 11, 23, 20, 0, 0))
+        lines = pick_track.contention_lines(["logged-today", "landed", "old-log"], prs=lambda s: [],
+                                            recent=lambda s: [], now=now,
+                                            last={"logged-today": None, "landed": 40.0, "old-log": None}.get,
+                                            logged={"logged-today": "2026-11-23", "old-log": "2026-11-01"}.get)
+        self.assertEqual([l.split(":")[0].strip() for l in lines], ["old-log", "landed", "logged-today"])
+        self.assertIn("newest LOG.md entry dated 2026-11-23", lines[2])
 
     def test_free_choice_prints_the_ranking(self):
         text = "\n".join(pick_track.free_choice_lines([("a-prog", True)], contention=lambda s: ["    a-prog: x"]))

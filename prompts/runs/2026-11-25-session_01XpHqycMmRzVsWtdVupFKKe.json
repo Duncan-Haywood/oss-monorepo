@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqycMmRzVsWtdVupFKKe",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T05:38:48Z",
+  "ended": "2026-11-25T05:46:47Z",
+  "wall_minutes": 8.29,
+  "tokens_in": 6896818,
+  "tokens_out": 40371,
+  "cost_usd": 3.246,
+  "tool_calls": 72,
+  "task": "Bet #5 front door: Depop sales export reader for reseller-books",
+  "projects": [
+    "reseller-books"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18866",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "Cloning private-monorepo was refused by the session's permission classifier after add_repo succeeded, so bet #1's private code was out of reach.",
+    "First Depop sample rows were all skipped: the CSV parser turns =\"-\" into =-, which the first unwrap regex missed; fixed with a test.",
+    "A heredoc python edit was refused by the rm-safety check (it deleted nothing); rerun from a scratch file.",
+    "The first commit+push was refused as sensitive-information leakage: the agent doc described code in the private repo. Rewritten to public findings only."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says build bets in private-monorepo when the session can reach it; add_repo succeeded but the clone was refused by the permission classifier. Nothing says what to do when add_repo works but the clone is refused."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Bets #1-#4's public sides each had 2-7 open PRs from overlapping sessions this morning; no file says which bet is saturated, so each run re-searches open PRs to find free work."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Files-first agent docs: nothing warns that facts about private-monorepo code must not be written into this public repo's docs/reports; the push was refused for it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Bets #1-#4's public sides were each busy with several open PRs, and the private repo could not be cloned.",
+      "did": "Took bet #5 (reseller books), the highest bet with free public-side work: the one marketplace in its wedge the free edition could not read.",
+      "result": "Shipped a tested Depop reader; no overlap with open PRs."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-reading-mercaris-gross-sales-report-for-your-books.md (extended with a Depop section, retitled, tagged reseller-books and for-customers)",
+    "docs/reports/2026-11-25-depop-export-headers.md"
+  ],
+  "goal": "$10k MRR: deepen the free front door of bet #5 (Seller Books) so it reads every channel in the wedge",
+  "notes": "Security queue: 48 alerts, all claimed (exit 3). Ideas inbox empty. Column names: GitHub code search text-match fragments from four public projects; no other repository cloned or read. Verification: run_venture_tests.py reseller-books ok (71 tests) + site page checks ok; Playwright at 390px: Depop channel renders, no errors, scrollWidth 390. risk_review.py: blocked nothing; personal-data check answered in the PR (buyer names/addresses never read, test asserts it).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a75a58f2-d527-5309-9bb3-5e854cdeefe8",
+    "transcripts": 1,
+    "first": "2026-11-25T05:38:48Z",
+    "last": "2026-11-25T05:47:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 111,
+        "output": 40371,
+        "thinking": 5358,
+        "cache_read": 6760964,
+        "cache_write_5m": 0,
+        "cache_write_1h": 135743,
+        "api_equivalent_usd": 3.246,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 111,
+      "output": 40371,
+      "thinking": 5358,
+      "cache_read": 6760964,
+      "cache_write_5m": 0,
+      "cache_write_1h": 135743,
+      "api_equivalent_usd": 3.246,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 54,
+      "Write": 8,
+      "Edit": 3,
+      "ToolSearch": 2,
+      "WebFetch": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "WebSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.29,
+      "active_minutes": 8.29,
+      "model_minutes": 6.62,
+      "tool_minutes": 1.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "reverse-engineering an undocumented export format from public code, reader + tests + page copy + post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 184.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

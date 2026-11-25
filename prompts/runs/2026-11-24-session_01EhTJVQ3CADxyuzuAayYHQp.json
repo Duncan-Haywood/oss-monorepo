@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVQ3CADxyuzuAayYHQp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled)",
+  "input_sha256": "bb43d82b9757fc82463ef49d791bc140ccc92439446128a33b51cc5c4ab220bb",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T16:55:54Z",
+  "ended": "2026-11-24T19:18:42Z",
+  "wall_minutes": 143.07,
+  "tokens_in": 9729174,
+  "tokens_out": 38990,
+  "cost_usd": 3.744,
+  "tool_calls": 83,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18632",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Playwright check of bowling-league-schedule.html was refused by the auto-mode classifier; covered by bowling.test.mjs instead (laneProvedBest through bowlingSchedule and laneReport)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "A bare `promptctl.py route` drew research while the scheduled message is a ventures request; re-routing with --task was needed (prompt.md says so, but the first command shown in CLAUDE.md is the bare route)."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "league-schedule-generator's buildable named a 4-worker mirror run on even exact seasons as next; it found nothing on 24x24 in 1800 s, so the item is less promising than the row suggested."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Start-here item 2 (mirror on 24x24..28x28, odd-W symmetry) was judged low-yield after the first 30-min run; widened to a soft-objective CP-SAT that proves minimums on all out-of-reach seasons, which gives a user-facing claim on the page.",
+      "did": "Added --soft/--hint, proved 39 minimums, stored 3 closer answers, added laneProvedBest to page",
+      "result": "20x10 22->20 (optimal), 26x13 30->28, 26x39 14->12; page claims 'most even possible' on 39 seasons"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-bowling-lanes-proved-most-even-possible.md",
+    "ventures/league-schedule-generator/README.md (new section)",
+    "ventures/league-schedule-generator/eval/bowling-lane-min-2026-11-24.txt"
+  ],
+  "goal": null,
+  "notes": "Verification: node --test bowling.test.mjs 37/38 then 38/38 after fixing the minimum-count assertion (39 not 40); run_venture_tests.py league-schedule-generator (see PR). check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a0749cc0-48bf-5927-84cb-61c5cff17c94",
+    "transcripts": 1,
+    "first": "2026-11-24T16:55:54Z",
+    "last": "2026-11-24T19:18:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 85,
+        "input": 177,
+        "output": 38990,
+        "thinking": 10833,
+        "cache_read": 9598528,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130469,
+        "api_equivalent_usd": 3.744,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 85,
+      "input": 177,
+      "output": 38990,
+      "thinking": 10833,
+      "cache_read": 9598528,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130469,
+      "api_equivalent_usd": 3.744,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 83,
+    "tools": {
+      "Bash": 79,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 143.07,
+      "active_minutes": 27.85,
+      "model_minutes": 8.44,
+      "tool_minutes": 19.41,
+      "waiting_on_human_minutes": 115.22,
+      "human_prompts": 8,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "solver modelling, ~3 h of compute runs, tables, page note, tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 160.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

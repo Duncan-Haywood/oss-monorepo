@@ -2,7 +2,7 @@
 
 > Free side-by-side comparison of eBay, Etsy, Amazon, Walmart, TikTok Shop, Mercari, Depop, Poshmark, Facebook Marketplace, and your own Shopify store on one item. Enter the price and your landed cost once and see net profit on every channel. Runs entirely in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -15,4 +15,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/marketplace-fee-compare): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/marketplace-fee-compare): FSL-1.1-MIT licensed.

@@ -153,6 +153,7 @@ export function normalizeRows(table) {
   const get = (line, f) => (cols[f] === undefined ? "" : (line[cols[f]] ?? "").trim());
   const dates = (f) => table.slice(h + 1).map((l) => get(l, f));
   const dmy = detectDmy([...dates("created"), ...dates("firstPayment"), ...dates("expiry")]);
+  const flagIsPaidSignal = cols.active !== undefined && cols.plan === undefined && cols.firstPayment === undefined;
   const members = [], skipped = [];
   for (let i = h + 1; i < table.length; i++) {
     const line = table[i];
@@ -166,9 +167,13 @@ export function normalizeRows(table) {
     const firstPayment = parseWhen(get(line, "firstPayment"), dmy);
     const expiry = parseWhen(get(line, "expiry"), dmy);
     const a = get(line, "active");
-    const activeFlag = truthy(a) ? true : falsy(a) ? false : /paid|comp|founding|premium/.test(type) && !/former|cancel|lapsed/.test(type) ? true : /former|cancel|lapsed/.test(type) ? false : null;
+    const activeFlag = truthy(a) ? true : falsy(a) ? false : /paid|comp|founding|premium|ios_app/.test(type) && !/former|cancel|lapsed/.test(type) ? true : /former|cancel|lapsed/.test(type) ? false : null;
     const comp = plan === "comp" || /comp|gift/.test(type);
-    const paidEver = !comp && (firstPayment !== null || ["monthly", "annual", "founding", "other"].includes(plan) || /paid|founding|premium/.test(type));
+    // With no plan and no first-payment column, active_subscription (and an expiry) is the only paid signal:
+    // Ghost's Substack importer reads exports of that shape. Where a plan or first payment column exists,
+    // it decides, and the flag only says whether a paid subscriber is still live.
+    const flagPaid = flagIsPaidSignal && (truthy(a) || (falsy(a) && expiry !== null));
+    const paidEver = !comp && (flagPaid || firstPayment !== null || ["monthly", "annual", "founding", "other"].includes(plan) || /paid|founding|premium|ios_app/.test(type));
     const ad = get(line, "emailDisabled");
     const act = get(line, "activity");
     const activity = isBlank(act) ? null : parseNumber(act);

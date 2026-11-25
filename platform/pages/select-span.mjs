@@ -194,8 +194,11 @@ function serve(root) {
   const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript',
     '.mjs': 'text/javascript', '.svg': 'image/svg+xml', '.json': 'application/json' };
   const server = http.createServer((req, res) => {
-    let f = path.join(root, decodeURIComponent(req.url.split('?')[0]));
-    if (!f.startsWith(root)) { res.writeHead(403); res.end(); return; }
+    const base = path.resolve(root);
+    const asked = path.resolve(base, `.${decodeURIComponent(req.url.split('?')[0])}`);
+    const within = path.relative(base, asked);
+    if (within === '..' || within.startsWith(`..${path.sep}`) || path.isAbsolute(within)) { res.writeHead(403); res.end(); return; }
+    let f = asked;
     try { if (fs.statSync(f).isDirectory()) f = path.join(f, 'index.html'); } catch { /* 404 below */ }
     if (!fs.existsSync(f)) { res.writeHead(404); res.end(); return; }
     res.writeHead(200, { 'content-type': types[path.extname(f)] || 'application/octet-stream' });

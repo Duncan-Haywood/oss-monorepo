@@ -1,0 +1,153 @@
+# node eval/coating-area.mjs <30 public models> (2026-11-24)
+model | steel parts | coated by geometry | of those net of holes | from a stored skin | none | stored skins beside geometry | agree within 2% | coating m2 | steel kg | m2 per tonne
+AC20-FZK-Haus.ifc | 0
+C20-Institute-Var-2.ifc | 0
+FM_ARC_DigitalHub.ifc | 0
+ISSUE_005_haus.ifc | 0
+ISSUE_021_Mini Project.ifc | 177 | 175 | 0 | 2 | 0 | 175 | 109 | 605.09 | 10323.4 | 58.6
+    by class: IfcMember 1 (0.07 m2); IfcBeam 168 (583.59 m2); IfcColumn 8 (21.44 m2)
+    inside of 6 hollow sections: 16.90 m2 (not in the coating column)
+    disagree #2089 IfcBeam "KOKER": stored OuterSurfaceArea 0.03840, faces 0.04350 (x0.883)
+    disagree #4318 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #4345 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #4359 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #4370 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #4378 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #4386 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #4428 IfcBeam "OPLASSTUK": stored OuterSurfaceArea 0.37571, faces 0.38485 (x0.976)
+    disagree #4461 IfcBeam "KOKER": stored OuterSurfaceArea 0.07200, faces 0.07493 (x0.961)
+    disagree #4483 IfcBeam "KOKER": stored OuterSurfaceArea 0.07200, faces 0.07493 (x0.961)
+    disagree #4856 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #4874 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #4888 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #4901 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #4913 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #4921 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #5130 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #5147 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #5161 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #5171 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #5183 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #5191 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #5313 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #5326 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #5335 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #5343 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #5355 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #5363 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01959, faces 0.01918 (x1.021)
+    disagree #5417 IfcBeam "OPLASSTUK": stored OuterSurfaceArea 0.37124, faces 0.38201 (x0.972)
+    disagree #10009 IfcBeam "KOKER": stored OuterSurfaceArea 0.03840, faces 0.04350 (x0.883)
+    disagree #10040 IfcBeam "KOKER": stored OuterSurfaceArea 0.03840, faces 0.04350 (x0.883)
+    disagree #12729 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01299, faces 0.01258 (x1.032)
+    disagree #12760 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01299, faces 0.01258 (x1.032)
+    disagree #12795 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01299, faces 0.01258 (x1.032)
+    disagree #12811 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01299, faces 0.01258 (x1.032)
+    disagree #12865 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01299, faces 0.01258 (x1.032)
+    disagree #12876 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01299, faces 0.01258 (x1.032)
+    disagree #12884 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01299, faces 0.01258 (x1.032)
+    disagree #12890 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01299, faces 0.01258 (x1.032)
+    disagree #12898 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01299, faces 0.01258 (x1.032)
+    disagree #12955 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01299, faces 0.01258 (x1.032)
+    disagree #12969 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01299, faces 0.01258 (x1.032)
+    disagree #12980 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01299, faces 0.01258 (x1.032)
+    disagree #13076 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01299, faces 0.01258 (x1.032)
+    disagree #13098 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01299, faces 0.01258 (x1.032)
+    disagree #13106 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01299, faces 0.01258 (x1.032)
+    disagree #13114 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01299, faces 0.01258 (x1.032)
+    disagree #13123 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01299, faces 0.01258 (x1.032)
+    disagree #13131 IfcBeam "INGIETSTUKONDERDEEL": stored OuterSurfaceArea 0.01299, faces 0.01258 (x1.032)
+    disagree #17572 IfcBeam "LIGGER": stored OuterSurfaceArea 22.18800, faces 22.77495 (x0.974)
+    disagree #17805 IfcBeam "LIGGER": stored OuterSurfaceArea 22.00800, faces 22.58737 (x0.974)
+    disagree #18227 IfcBeam "LIGGER": stored OuterSurfaceArea 22.00800, faces 22.58737 (x0.974)
+    disagree #28398 IfcBeam "KIKKERPLAAT": stored OuterSurfaceArea 0.02680, faces 0.01720 (x1.558)
+    disagree #28421 IfcBeam "KIKKERPLAAT": stored OuterSurfaceArea 0.02680, faces 0.01720 (x1.558)
+    disagree #28505 IfcBeam "INGIETSTUK": stored OuterSurfaceArea 0.01810, faces 0.01752 (x1.033)
+    disagree #28528 IfcBeam "INGIETSTUK": stored OuterSurfaceArea 0.01810, faces 0.01752 (x1.033)
+    disagree #28542 IfcBeam "INGIETSTUK": stored OuterSurfaceArea 0.01810, faces 0.01752 (x1.033)
+    disagree #28553 IfcBeam "INGIETSTUK": stored OuterSurfaceArea 0.01810, faces 0.01752 (x1.033)
+    disagree #28565 IfcBeam "INGIETSTUK": stored OuterSurfaceArea 0.01810, faces 0.01752 (x1.033)
+    disagree #28573 IfcBeam "INGIETSTUK": stored OuterSurfaceArea 0.01810, faces 0.01752 (x1.033)
+    disagree #28617 IfcBeam "INGIETSTUK": stored OuterSurfaceArea 0.01810, faces 0.01752 (x1.033)
+    disagree #28635 IfcBeam "INGIETSTUK": stored OuterSurfaceArea 0.01810, faces 0.01752 (x1.033)
+    disagree #28657 IfcBeam "INGIETSTUK": stored OuterSurfaceArea 0.01810, faces 0.01752 (x1.033)
+    disagree #28671 IfcBeam "INGIETSTUK": stored OuterSurfaceArea 0.01810, faces 0.01752 (x1.033)
+    disagree #28682 IfcBeam "INGIETSTUK": stored OuterSurfaceArea 0.01810, faces 0.01752 (x1.033)
+    disagree #28694 IfcBeam "INGIETSTUK": stored OuterSurfaceArea 0.01810, faces 0.01752 (x1.033)
+ISSUE_034_HouseZ.ifc | 0
+ISSUE_044_test_IFCCOMPOSITEPROFILEDEF.ifc | 0
+ISSUE_068_ARK_NUS_skolebygg.ifc | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 1.64 | 55.6 | 29.5
+    by class: IfcBeam 1 (1.64 m2)
+ISSUE_098_R8_F1_MAB_AR_M3_XX_XXX_MO_7000.ifc | 0
+ISSUE_102_M3D-CON-CD.ifc | 63 | 63 | 0 | 0 | 0 | 63 | 35 | 60.66 | 20595.7 | 2.9
+    by class: IfcPlate 7 (59.71 m2); IfcBeam 24 (0.38 m2); IfcColumn 32 (0.57 m2)
+    disagree #492953 IfcBeam "BOTTOM_PART": stored OuterSurfaceArea 0.00533, faces 0.00805 (x0.662)
+    disagree #493229 IfcBeam "BOTTOM_PART": stored OuterSurfaceArea 0.00286, faces 0.00427 (x0.669)
+    disagree #493410 IfcBeam "BOTTOM_PART": stored OuterSurfaceArea 0.02304, faces 0.03354 (x0.687)
+    disagree #493604 IfcBeam "BOTTOM_PART": stored OuterSurfaceArea 0.00533, faces 0.00805 (x0.662)
+    disagree #493619 IfcBeam "BOTTOM_PART": stored OuterSurfaceArea 0.00286, faces 0.00427 (x0.669)
+    disagree #493630 IfcBeam "BOTTOM_PART": stored OuterSurfaceArea 0.02304, faces 0.03354 (x0.687)
+    disagree #493653 IfcBeam "BOTTOM_PART": stored OuterSurfaceArea 0.00533, faces 0.00805 (x0.662)
+    disagree #493676 IfcBeam "BOTTOM_PART": stored OuterSurfaceArea 0.00286, faces 0.00427 (x0.669)
+    disagree #493691 IfcBeam "BOTTOM_PART": stored OuterSurfaceArea 0.02304, faces 0.03354 (x0.687)
+    disagree #493726 IfcBeam "BOTTOM_PART": stored OuterSurfaceArea 0.00533, faces 0.00805 (x0.662)
+    disagree #493741 IfcBeam "BOTTOM_PART": stored OuterSurfaceArea 0.00286, faces 0.00427 (x0.669)
+    disagree #493752 IfcBeam "BOTTOM_PART": stored OuterSurfaceArea 0.02304, faces 0.03354 (x0.687)
+    disagree #493775 IfcColumn "BOTTOM_PART": stored OuterSurfaceArea 0.00533, faces 0.00805 (x0.662)
+    disagree #493799 IfcColumn "BOTTOM_PART": stored OuterSurfaceArea 0.00286, faces 0.00427 (x0.669)
+    disagree #493815 IfcColumn "BOTTOM_PART": stored OuterSurfaceArea 0.02304, faces 0.03354 (x0.687)
+    disagree #493850 IfcColumn "BOTTOM_PART": stored OuterSurfaceArea 0.00533, faces 0.00805 (x0.662)
+    disagree #493865 IfcColumn "BOTTOM_PART": stored OuterSurfaceArea 0.00286, faces 0.00427 (x0.669)
+    disagree #493876 IfcColumn "BOTTOM_PART": stored OuterSurfaceArea 0.02304, faces 0.03354 (x0.687)
+    disagree #493899 IfcColumn "BOTTOM_PART": stored OuterSurfaceArea 0.00533, faces 0.00805 (x0.662)
+    disagree #493914 IfcColumn "BOTTOM_PART": stored OuterSurfaceArea 0.00533, faces 0.00805 (x0.662)
+    disagree #493929 IfcColumn "BOTTOM_PART": stored OuterSurfaceArea 0.00286, faces 0.00427 (x0.669)
+    disagree #493940 IfcColumn "BOTTOM_PART": stored OuterSurfaceArea 0.02304, faces 0.03354 (x0.687)
+    disagree #493963 IfcColumn "BOTTOM_PART": stored OuterSurfaceArea 0.00533, faces 0.00805 (x0.662)
+    disagree #493978 IfcColumn "BOTTOM_PART": stored OuterSurfaceArea 0.00533, faces 0.00805 (x0.662)
+    disagree #493993 IfcColumn "BOTTOM_PART": stored OuterSurfaceArea 0.00533, faces 0.00805 (x0.662)
+    disagree #494008 IfcColumn "BOTTOM_PART": stored OuterSurfaceArea 0.00533, faces 0.00805 (x0.662)
+    disagree #494023 IfcColumn "BOTTOM_PART": stored OuterSurfaceArea 0.00286, faces 0.00427 (x0.669)
+    disagree #494034 IfcColumn "BOTTOM_PART": stored OuterSurfaceArea 0.02304, faces 0.03354 (x0.687)
+ISSUE_102_M3D-CON.ifc | 0
+ISSUE_126_model.ifc | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 5.71 | 143.4 | 39.8
+    by class: IfcBeam 1 (5.71 m2)
+ISSUE_129_N1540_17_EXE_MOD_448200_02_09_11SMC_IGC_V17.ifc | 0
+ISSUE_159_kleine_Wohnung_R22.ifc | 0
+ISSUE_171_IfcSurfaceCurveSweptAreaSolid.ifc | 0
+IfcOpenHouse_IFC4.ifc | 0
+KIT-Simple-Road-Test-Web-IFC4x3_RC2.ifc | 0
+Office_A_20110811.ifc | 0
+S_Office_Integrated Design Archi.ifc | 306 | 278 | 0 | 0 | 28 | 0 | 0 | 1968.53 | 182883.4 | 10.8
+    by class: IfcBeam 204 (1414.59 m2, 14 none); IfcColumn 102 (553.94 m2, 14 none)
+    none: 28 faces not summed
+Sample_entities.ifc | 0
+Viadotto Acerno.ifc | 0
+advanced_model.ifc | 0
+architect.ifc | 0
+construction.ifc | 0
+dental_clinic.ifc | 0
+duplex.ifc | 8 | 8 | 0 | 0 | 0 | 0 | 0 | 63.11 | 2653.2 | 23.8
+    by class: IfcBeam 8 (63.11 m2)
+example.ifc | 73 | 73 | 0 | 0 | 0 | 0 | 0 | 183.19 | 7687.4 | 23.8
+    by class: IfcColumn 30 (59.36 m2); IfcBeam 43 (123.83 m2)
+    inside of 17 hollow sections: 15.87 m2 (not in the coating column)
+ifcbridge-model01.ifc | 0
+schependomlaan.ifc | 196 | 196 | 0 | 0 | 0 | 56 | 40 | 227.69 | 9069.1 | 25.1
+    by class: IfcColumn 23 (23.02 m2); IfcBeam 88 (157.25 m2); IfcRailing 76 (25.73 m2); IfcMember 9 (21.69 m2)
+    disagree #294923 IfcBeam "staallatei ??": stored OuterSurfaceArea 0.00238, faces 0.00392 (x0.606)
+    disagree #736842 IfcBeam "stripstaal 80/8": stored OuterSurfaceArea 0.98448, faces 1.08421 (x0.908)
+    disagree #736986 IfcBeam "stripstaal 80/8": stored OuterSurfaceArea 0.98448, faces 1.08421 (x0.908)
+    disagree #737154 IfcBeam "stripstaal 80/8": stored OuterSurfaceArea 0.09920, faces 0.11040 (x0.899)
+    disagree #737294 IfcBeam "stripstaal 80/8": stored OuterSurfaceArea 0.87312, faces 0.96171 (x0.908)
+    disagree #737434 IfcBeam "stripstaal 80/8": stored OuterSurfaceArea 0.87312, faces 0.96171 (x0.908)
+    disagree #737602 IfcBeam "stripstaal 80/8": stored OuterSurfaceArea 0.09920, faces 0.11040 (x0.899)
+    disagree #737770 IfcBeam "stripstaal 80/8": stored OuterSurfaceArea 1.00432, faces 1.10603 (x0.908)
+    disagree #737938 IfcBeam "stripstaal 80/8": stored OuterSurfaceArea 1.00432, faces 1.10603 (x0.908)
+    disagree #738078 IfcBeam "stripstaal 80/8": stored OuterSurfaceArea 0.87312, faces 0.96171 (x0.908)
+    disagree #738218 IfcBeam "stripstaal 80/8": stored OuterSurfaceArea 0.87312, faces 0.96171 (x0.908)
+    disagree #738386 IfcBeam "stripstaal 80/8": stored OuterSurfaceArea 0.09920, faces 0.11040 (x0.899)
+    disagree #738554 IfcBeam "stripstaal 80/8": stored OuterSurfaceArea 0.09920, faces 0.11040 (x0.899)
+    disagree #738722 IfcBeam "stripstaal 80/8": stored OuterSurfaceArea 0.09920, faces 0.11040 (x0.899)
+    disagree #738890 IfcBeam "stripstaal 80/8": stored OuterSurfaceArea 0.09920, faces 0.11040 (x0.899)
+    disagree #739030 IfcBeam "stripstaal 80/8": stored OuterSurfaceArea 0.71278, faces 0.78534 (x0.908)
+tested_sample_project.ifc | 0

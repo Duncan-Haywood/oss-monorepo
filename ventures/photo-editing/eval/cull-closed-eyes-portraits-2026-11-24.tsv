@@ -1,0 +1,13 @@
+# status: Eyes checked on 10 frames in 0.8 s: 8 with faces, 1 with eyes closed (Show › Eyes closed lists them).
+# wall: 0.3 s to load, 1.4 s for the eye check (model load included), 10 files; tiles tagged "eyes closed": 1; Eyes closed filter shows 1
+file	faces	eyes_closed	blink_max	sharpest_in_burst	error
+business-person.jpg	1	0	0.032	1	
+demo_reference_open.jpg	1	0	0.192	1	
+demo_group_open.jpg	3	0	0.189	1	
+demo_group_closed.jpg	3	1	0.628	1	
+hand-woman-man.jpg	0	0		1	
+man-woman-okay.jpg	2	0	0.178	1	
+portrait_small.jpg	1	0	0.232	1	
+portrait.jpg	1	0	0.257	1	
+mozart_square.jpg	1	0	0.005	1	
+pose.jpg	0	0		1	

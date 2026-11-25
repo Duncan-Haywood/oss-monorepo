@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVNfvhser5DXZFjhFqX",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T04:06:32Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "league-schedule-generator (flagship row 4): divisions drawn by location",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": 18531,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The row's buildable items are three hard combinatorial searches (12-team carry-over below 132, bowling 26x38, 47/49 on 8x9) with no user-visible gain; the row says to judge their worth first. A missing product feature (geographic division assignment, a real pre-season need competitors leave to hand) was judged worth more.",
+      "did": "Built regions.mjs + divisions-by-location.html instead of a buildable search item.",
+      "result": "Feature shipped, checked exhaustively on 60 small leagues and both NFL conferences; NFL post written."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-nfl-divisions-least-travel.md",
+    "ventures/league-schedule-generator/README.md#divisions-drawn-by-location-the-least-travel-between-rivals-2026-11-24-newest",
+    "ventures/league-schedule-generator/eval/nfl-divisions.txt"
+  ],
+  "goal": "Ship a user-facing feature for regional leagues: split teams into even divisions by location with the least rival travel.",
+  "notes": "Verification: node --test regions.test.mjs 13/13; search equals exhaustive optimum on 60 random 8-12 team leagues and 15 keep-apart cases; NFL conferences exhaustive (2,627,625 splits each) equal to search in 64/64 starts; 32-team split 28,018 km best found (89/400 starts), branch-and-bound proof did not finish in 10 min (stated as not proved). Page driven in Playwright at 390px: example builds, no console errors, no horizontal scroll, the multi-division hand-off fills the divisions box. Data: GeoNames via geonamescache 3.0.2 wheel from PyPI (CC BY 4.0); wikidata/wikipedia/census/geonames hosts refused by proxy. Full venture suite and venture-preflight run locally (see PR).",
+  "corrections": [],
+  "redteam": null
+}

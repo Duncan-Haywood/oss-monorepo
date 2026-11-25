@@ -967,7 +967,7 @@ def test_published_snapshot_swallows_a_failure_rather_than_crashing_the_gate(mon
 
 
 def test_published_snapshot_reads_the_deploy_runs_not_gh_pages(monkeypatch):
-    """The gh-pages route is retired; the reading comes from portfolio-pages.yml."""
+    """The gh-pages route is retired; the reading comes from priv-portfolio-pages.yml."""
     ci_starvation = _ci_starvation()
     asked = []
 

@@ -73,13 +73,14 @@ export function normalizeQuery(q) {
 // `count` is how many results matched every word of the query: a result that matches only some words does not answer the question.
 export function logSearch(state, q, count, now) {
   const key = normalizeQuery(q); if (!key) return false;
-  const r = state.queries[key] || (state.queries[key] = { q: key, n: 0, zero: 0, clicks: 0, last: 0 });
+  // Own properties only: a query such as "constructor" must get its own record, never Object.prototype's.
+  const r = Object.hasOwn(state.queries, key) ? state.queries[key] : (state.queries[key] = { q: key, n: 0, zero: 0, clicks: 0, last: 0 });
   r.n++; r.last = now; r.count = count; if (!count) r.zero++;
   const keys = Object.keys(state.queries);
   if (keys.length > 3000) for (const k of keys.sort((a, b) => state.queries[a].last - state.queries[b].last).slice(0, 500)) if (state.queries[k].n < 3) delete state.queries[k];
   return true;
 }
-export function logClick(state, from) { const r = state.queries[normalizeQuery(from)]; if (r) r.clicks++; }
+export function logClick(state, from) { const key = normalizeQuery(from); if (key && Object.hasOwn(state.queries, key)) state.queries[key].clicks++; }
 
 export function vote(state, id, helpful, comment, now) {
   const a = state.articles[id]; if (!a || a.status !== "published") return false;

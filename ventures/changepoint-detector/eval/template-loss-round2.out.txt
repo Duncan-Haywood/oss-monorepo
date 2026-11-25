@@ -1,0 +1,15 @@
+round 2: seeds 40 per cell (faulted 16001-, 17001-, 18001- for T1-T3; no fault 19001-); five sections picked on the days before 2026-03-16; dark = last 3 days under 10% of the 28 before, from >= 20 a day
+-- weekends 0.5
+   T1 (help dark): arm A heard 1/40; arm D heard 40/40 (the dark check alone 40/40)
+   T2 (blog dark): arm A heard 37/40; arm D heard 40/40 (the dark check alone 40/40)
+   T3 (checkout dark): arm A heard 40/40; arm D heard 40/40 (the dark check alone 0/40)
+   dark calls on faulted sites away from 2026-03-16: 0
+   no fault: dark calls 0 (none); arm A's dates 168
+-- weekends 0.4
+   T1 (help dark): arm A heard 3/40; arm D heard 40/40 (the dark check alone 40/40)
+   T2 (blog dark): arm A heard 36/40; arm D heard 40/40 (the dark check alone 40/40)
+   T3 (checkout dark): arm A heard 40/40; arm D heard 40/40 (the dark check alone 0/40)
+   dark calls on faulted sites away from 2026-03-16: 0
+   no fault: dark calls 0 (none); arm A's dates 92
+==== round 2 verdict (pre-registered rule in the header)
+D1 passes, D2 passes, D3 passes, D4 passes -> --sections 5 and the dark check join the GA4 workflow default

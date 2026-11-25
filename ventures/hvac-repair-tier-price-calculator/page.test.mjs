@@ -4,6 +4,8 @@ import { readFile } from "node:fs/promises";
 import { readdirSync } from "node:fs";
 import { priceCall, money, pct, DEFAULTS } from "./engine.mjs";
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const GUIDE = "how-to-price-hvac-good-better-best-repairs.html";
 const VS = "vs-quoting-one-repair-price.html";
 const PAGES = ["index.html", GUIDE, VS];
@@ -27,7 +29,7 @@ test("every page carries no-warranty, non-affiliation and valid FAQ data whose a
       assert.ok(p.includes(`<h3>${q.name}</h3>`), `${f}: ${q.name}`);
       assert.ok(p.includes(q.acceptedAnswer.text), `${f}: answer for ${q.name}`);
     }
-    assert.match(p, new RegExp(`<link rel="canonical" href="\\./${f.replace(/\./g, "\\.")}">`), f);
+    assert.match(p, new RegExp(`<link rel="canonical" href="\\./${escapeRegExp(f)}">`), f);
   }
 });
 

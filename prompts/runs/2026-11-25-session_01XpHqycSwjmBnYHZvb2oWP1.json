@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqycSwjmBnYHZvb2oWP1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T13:39:20Z",
+  "ended": "2026-11-25T13:47:27Z",
+  "wall_minutes": 8.24,
+  "tokens_in": 6955364,
+  "tokens_out": 35378,
+  "cost_usd": 3.0583,
+  "tool_calls": 64,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18986",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "No open PR or branch named 'Weekly email, part 3' when I started, yet a sibling merged the identical feature (private #106) 20 minutes before mine was ready; ~1h of build duplicated. With many parallel PayApps runs reading the same ROADMAP 'Next' list top-down, a claim mechanism visible at run start (e.g. a claim line in ROADMAP via a tiny early PR) would help."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Landed work turned out to duplicate sibling's merged private PR 106",
+      "did": "Closed my private PR 108 unmerged; shipped only the bug fix my comparison found (private PR 109, merged)",
+      "result": "Next-list date now matches cron behaviour; no duplicate code on main"
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-25-payapps-digest-next-day-fix.md (agent doc; no customer post: an internal scheduling fix has no searcher audience)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty. Bet #1 PayApps in private-monorepo (clone worked first try via add_repo). Built roadmap 'Weekly email, part 3' fully (PR 108: typecheck, 392 unit, 227 worker tests, build all green) but sibling merged same as #106 meanwhile. Fix PR 109: typecheck, 389 unit tests, digest worker tests 8/8, biome ci 1 pre-existing warning. Private CI has no runners.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "116619f4-9ab9-5ec9-ab25-60e09075357f",
+    "transcripts": 1,
+    "first": "2026-11-25T13:39:20Z",
+    "last": "2026-11-25T13:47:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 116,
+        "output": 35378,
+        "thinking": 5350,
+        "cache_read": 6832265,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122983,
+        "api_equivalent_usd": 3.0583,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 116,
+      "output": 35378,
+      "thinking": 5350,
+      "cache_read": 6832265,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122983,
+      "api_equivalent_usd": 3.0583,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 53,
+      "mcp__github__create_pull_request": 3,
+      "ToolSearch": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Monitor": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.24,
+      "active_minutes": 8.24,
+      "model_minutes": 5.16,
+      "tool_minutes": 3.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

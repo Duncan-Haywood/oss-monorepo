@@ -48,7 +48,10 @@ export function parseMapping(text) {
 export const mappingText = (mapping = defaultMapping()) => CATEGORY_ORDER.map((k) => `${k} = ${mapping[k]}`).join("\n");
 
 const dollars = (c) => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)((Math.abs(c) / 100).toFixed(2));
-export const money = (c, cur = "USD") => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + cur);
+// One formatter, built once: toLocaleString with options builds a new Intl.NumberFormat on every call,
+// which was most of a large file's read time (same locale and options, so the same text).
+const MONEY_FMT = new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const money = (c, cur = "USD") => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(MONEY_FMT.format(Math.abs(c / 100)) + " " + cur);
 
 // ---- parsing ----------------------------------------------------------------
 
@@ -279,7 +282,9 @@ export function validate(text, opts = {}) {
 
 // ---- exports -----------------------------------------------------------------
 
-const csvCell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d[\d,.]*$/.test(s)) s = "'" + s; return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }; // formula injection guard (CWE-1236)
+// Formula guard: text starting = + - @ (or tab/CR) would run as a formula in a spreadsheet; prefix an apostrophe (plain numbers such as -12.50 stay numbers).
+const defuse = (s) => (/^[=+\-@\t\r]/.test(s) && !/^[+-]?\d[\d.,]*$/.test(s) ? "'" + s : s);
+const csvCell = (v) => { const s = defuse(String(v ?? "")); return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 const csvRow = (a) => a.map(csvCell).join(",");
 const fmtDate = (iso, order) => { if (!iso) return ""; const [y, m, d] = iso.split("-"); return order === "dmy" ? `${d}/${m}/${y}` : order === "mdy" ? `${m}/${d}/${y}` : iso; };
 const journalsOf = (journals, id) => journals.filter((j) => j.payoutId === id).length;

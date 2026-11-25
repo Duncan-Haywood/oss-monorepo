@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01XpHqyfeKBHhQFUfhgNu3oF",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Revamp session: construction industry landing page (industries/construction/)",
+  "input_sha256": "1a9389353c51af7f0d71a7bd5ddec108efd46151b95e4c566d95edc3e6ed2b28",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T22:12:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18693",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/README.md",
+      "issue": "No section on adding a standalone hub-level page module (engineering.mjs is the only pattern); had to read build.mjs call sites to find disclaimer, sitemap and chrome wiring."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Product data defined locally because business.mjs was not on main; follow-up noted in the PR.",
+      "did": "local PRODUCTS array",
+      "result": "page ships now; one-line swap later"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Local checks (CI produced no check runs on the PR): industry-construction.test 10/10; writing.test 57/57; build.test.mjs 336/336 after adding the new sitemap URL to the pinned hub-sitemap list; preview build ok; playwright 390/1200 light+dark, no sideways scroll; promptctl validate ok. After merging main (conflicts with the hardware page in build.mjs and build.test.mjs, both kept): build.test 334/336; the 2 failures (category external-call exception, catch-all size) fail identically on a clean origin/main worktree, so they are pre-existing and not from this change.",
+  "corrections": [],
+  "redteam": null
+}

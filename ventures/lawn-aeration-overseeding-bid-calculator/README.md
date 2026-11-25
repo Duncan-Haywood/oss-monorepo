@@ -20,4 +20,4 @@ dependencies. `node --test *.test.mjs` runs the suite.
 or financial advice. Not affiliated with any lawn-care software vendor. **Privacy.** Everything
 runs in your browser; nothing is uploaded.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

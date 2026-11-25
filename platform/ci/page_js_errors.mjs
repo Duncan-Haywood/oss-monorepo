@@ -13,9 +13,15 @@ const root = process.cwd();
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml' };
 
 const server = http.createServer((req, res) => {
-  let file = path.join(root, decodeURIComponent(req.url.split('?')[0]));
+  // Serve only files inside the working directory: resolve the request path and refuse anything outside root.
+  const notFound = () => { res.statusCode = 404; return res.end(); };
+  let file;
+  try { file = path.resolve(root, '.' + decodeURIComponent(req.url.split('?')[0])); } catch { return notFound(); }
+  if (file === root) file = path.join(root, 'index.html');
+  if (!file.startsWith(root + path.sep)) return notFound();
   if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html');
-  if (!fs.existsSync(file)) { res.statusCode = 404; return res.end(); }
+  // Check the final path (a directory's index.html) again right before it is read.
+  if (!file.startsWith(root + path.sep) || !fs.existsSync(file)) return notFound();
   res.setHeader('content-type', types[path.extname(file)] || 'application/octet-stream');
   fs.createReadStream(file).pipe(res);
 }).listen(0);

@@ -6,7 +6,7 @@
   <title>Elevator Traffic Analysis | Free Lift Round Trip Time Calculator</title>
   <meta name="description" content="Free elevator (lift) traffic analysis: up-peak round trip time, interval and 5-minute handling capacity by the Barney and dos Santos formulae with Peters' flight-time corrections, a design search over cars, loads and speeds, and a random-arrival simulation of waiting times. Runs in your browser.">
   <meta property="og:title" content="Elevator Traffic Analysis">
-  <meta property="og:description" content="How many lifts, how big and how fast? Type the floors and populations and get the up-peak round trip time, interval and handling capacity, the designs that meet your targets, and simulated waiting times. Free, open source, nothing uploaded.">
+  <meta property="og:description" content="Type the floors and populations and get up-peak round trip time, interval and handling capacity, the lift designs that meet your targets, and simulated waits.">
   <meta property="og:type" content="website">
   <link rel="canonical" href="./">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Elevator Traffic Analysis","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Up-peak round trip time (Barney and dos Santos; Peters 2000 corrections); probable stops and highest reversal floor for unequal floor populations; jerk-limited flight times; unequal floor heights; express zones; interval and five-minute handling capacity; design search over number of lifts, rated load and speed; Monte Carlo check of the formula; random-arrival up-peak simulation with waiting times; JSON import and export; CLI"}</script>
@@ -167,7 +167,7 @@
     <p><strong>No warranty. This is an estimate, not engineering advice and not a substitute for a lift consultant's traffic analysis.</strong> It applies the up-peak round trip time method and a simple simulation, described on <a href="./how-it-works.html">how it works</a>, to the inputs you type. Up-peak is one traffic pattern; lunch, down-peak and inter-floor traffic, real group controllers, accessibility, fire-fighting and evacuation lifts, and local codes are for a qualified vertical transportation consultant to judge.</p>
     <p>Nothing leaves your browser. <label class="check" style="display:inline-flex"><input type="checkbox" id="optOut"> Do not keep anonymous local usage counts</label></p>
     <p>Sizing the sprinklers for the same building? The <a href="../sprinkler-hydraulic-calc/">sprinkler hydraulic calculator</a> solves trees, loops and grids against a flow test &mdash; nothing uploaded.</p>
-    <p>Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/elevator-traffic-analysis">Source, CLI and README</a>. If it saved you a calculation, <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the work</a>. <a href="../">More free tools</a>.</p>
+    <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/elevator-traffic-analysis">Source, CLI and README</a>. If it saved you a calculation, <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the work</a>. <a href="../">More free tools</a>.</p>
   </footer>
   <script type="module">
     import { upPeak, summarise, searchDesigns, EXAMPLE } from './engine.mjs';

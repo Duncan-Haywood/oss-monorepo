@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ids:ids xmlns:ids="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://standards.buildingsmart.org/IDS http://standards.buildingsmart.org/IDS/1.0/ids.xsd">
+  <ids:info><ids:title>Beams and walls named (outside-schema sample)</ids:title></ids:info>
+  <ids:specifications>
+    <ids:specification name="B-01 every beam has a name" ifcVersion="IFC4X3_ADD2">
+      <ids:applicability minOccurs="0" maxOccurs="unbounded"><ids:entity><ids:name><ids:simpleValue>IFCBEAM</ids:simpleValue></ids:name></ids:entity></ids:applicability>
+      <ids:requirements><ids:attribute><ids:name><ids:simpleValue>Name</ids:simpleValue></ids:name></ids:attribute></ids:requirements>
+    </ids:specification>
+    <ids:specification name="W-01 every wall has a name" ifcVersion="IFC4X3_ADD2">
+      <ids:applicability minOccurs="0" maxOccurs="unbounded"><ids:entity><ids:name><ids:simpleValue>IFCWALL</ids:simpleValue></ids:name></ids:entity></ids:applicability>
+      <ids:requirements><ids:attribute><ids:name><ids:simpleValue>Name</ids:simpleValue></ids:name></ids:attribute></ids:requirements>
+    </ids:specification>
+  </ids:specifications>
+</ids:ids>

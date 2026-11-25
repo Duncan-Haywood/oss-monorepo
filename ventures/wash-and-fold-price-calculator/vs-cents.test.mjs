@@ -47,8 +47,8 @@ test('the FAQPage answer text matches the visible paragraph exactly (modulo enti
   const match = html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?\})<\/script>/s);
   const schema = JSON.parse(match[1]);
   const squash = (text) => text.replace(/\s+/g, ' ').trim().toLowerCase();
-  const visible = html
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+  const stripScripts = (s) => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ' '); } while (s !== p); return s; };
+  const visible = stripScripts(html)
     .replace(/<[^>]+>/g, ' ')
     .replace(/&mdash;/g, '—')
     .replace(/&amp;/g, '&');

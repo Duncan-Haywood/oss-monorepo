@@ -11,4 +11,4 @@ Free, read-only, zero-dependency CLI that scans GitHub Actions workflow YAML for
 
 For a stable pin, replace `@main` with a full commit SHA, or with a `actions-checkout-credentials-check-v<version>` tag from this repository's Releases once one exists (portfolio/distribution/versions.json has the current version).
 
-Runs [`ventures/actions-checkout-credentials-check/check.py`](../../../../ventures/actions-checkout-credentials-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://marisstella.app/actions-checkout-credentials-check/?ref=gh-action
+Runs [`ventures/actions-checkout-credentials-check/check.py`](../../../../ventures/actions-checkout-credentials-check/check.py) (FSL-1.1-MIT, stdlib-only Python, no network calls). Docs: https://marisstella.app/actions-checkout-credentials-check/?ref=gh-action

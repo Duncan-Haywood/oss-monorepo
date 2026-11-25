@@ -54,3 +54,17 @@
 - (2026-11-22) --wander gated opt-in 2026-11-21 (README "A wandering level under Middle")
 - (2026-11-23) turn option dropped (README "Iran's dated cycle": random-cut level)
 - (2026-11-23) next a provider that documents its own changes --events and count Middle (pelt + NB) shipped 2026-11-21 (README "A middle setting for over-dispersed counts": 20% falls 115/120 vs Quiet 38, 0.83 false/1,000 days): Middle as count default failed (alerts on growth)
+- (2026-11-24) Plausible, PostHog, Umami (README "Umami as a source"; UTC days cost nothing), Mixpanel (README "Mixpanel as a source"), Matomo (README "Matomo as a source")
+- (2026-11-24) Umami, Plausible, PostHog and GA4 people columns fall less than views, middle default for all four, GA4 watches page views (README "Visitors under a partial snippet loss", "PostHog users and GA4 activeUsers under a snippet loss")
+- (2026-11-24) next a live property
+- (2026-11-24) payroll troughs lag 2001/2009
+
+## From the template-shaped tracking loss (2026-11-24, README "A template-shaped tracking loss")
+
+- Section columns for Plausible (breakdown by `event:page`), Umami and PostHog, so the dark check runs on every web
+  analytics source, not only GA4; the workflow file is 1 character under the watch page's 16,000-character set-up
+  link, so room must be made first (`watch-repo.test.mjs`).
+- A live GA4 property through `--sections` (the `pagePathLevel1` requests are written from the Data API's documented
+  shapes) and a real template loss to replay.
+- Section columns that go dark on purpose (a campaign that ended, a section moved to a new path): a way to say "this
+  one is meant to be gone" short of editing `dark-state.json`.

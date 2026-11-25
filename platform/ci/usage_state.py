@@ -47,9 +47,10 @@ structural:
     2026-10-20 the route to a reading is `platform/edge/`, a free Cloudflare
     Worker the owner deploys once (README, "Feedback and visit counts from
     the live site"); until then nothing can count a visit to the site.
-  - The counters that do exist are **local-first, opt-in, and off by default**,
-    so they only ever report from a machine we do not own. A zero from one is
-    "the counter was never switched on", not "the feature went unused".
+  - The per-tool counters are **local-only**: on by default with an opt-out,
+    but they write to the visitor's own browser storage and never leave it,
+    so they report nothing to us. A zero from one means "not read", not "the
+    feature went unused".
   - Sitemap enumeration cannot happen from this origin at all -- see
     `pages_state.py`'s `indexing` row -- so there is no reason to expect
     traffic yet even if it could be counted.
@@ -329,10 +330,10 @@ def render(report: dict) -> str:
             "                    GitHub Pages exposes no server-side analytics, the"
         )
         lines.append(
-            "                    platform/edge counter is not deployed yet, and the local counters are"
+            "                    platform/edge counter is not deployed yet, and the local counters"
         )
         lines.append(
-            "                    opt-in and off by default, so they report from machines we"
+            "                    stay in the visitor's browser, so they report from machines we"
         )
         lines.append(
             "                    do not own. `null` is the honest entry. It is NOT a zero."

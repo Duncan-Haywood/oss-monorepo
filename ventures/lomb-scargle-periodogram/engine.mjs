@@ -571,7 +571,7 @@ export const fmt = (v, digits = 4) => {
 export function fmtFap(f) {
   if (!f) return "n/a";
   if (f.log10 < -300 || f.fap === 0) return `< 1e-300`;
-  if (f.fap < 1e-4) return `1e${Math.round(f.log10)}`.replace("e-", "e-");
+  if (f.fap < 1e-4) return `1e${Math.round(f.log10)}`;
   if (f.fap < 0.001) return `${(f.fap * 100).toPrecision(2)}%`;
   return `${(f.fap * 100).toPrecision(2)}%`;
 }

@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKkfvxTJR8tkntEBPCX",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T05:17:47Z",
+  "ended": "2026-11-24T05:32:20Z",
+  "wall_minutes": 14.94,
+  "tokens_in": 9246559,
+  "tokens_out": 61249,
+  "cost_usd": 4.2489,
+  "tool_calls": 80,
+  "task": "Explore: time G-code with no slicer summary from its moves (3d-print-price-calculator)",
+  "projects": [
+    "ventures/3d-print-price-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18549",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 19,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First jerk model (plain per-axis velocity difference) ran 0.7% median / 11.7% worst vs PrusaSlicer; replaced by Marlin's reversal rule and G28-as-move, 0.2% / 1.7%.",
+      "fixed": true
+    },
+    {
+      "what": "Draft eval said our filament runs 1-9% above Cura's; the table showed -3.3% to +17%. Corrected before commit.",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "Free choice in a 1,400-venture repo: about 10 tool calls went on finding an unbuilt idea (SPF checker, RRULE oracle and settle-up solver all already existed). A pointer to 'ventures whose core is a thin parser of someone else's output' would have sent me to the right kind of gap faster."
+    },
+    {
+      "file": "platform/ci/gen_llms_txt.py",
+      "issue": "Still writes the retired github.io SITE base; 1,297 of 1,438 llms.txt files link duncan-haywood.github.io rather than marisstella.app (redirects, but stale). Fixed by hand for this venture only."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-timing-a-3d-print-from-its-moves.md",
+    "ventures/3d-print-price-calculator/eval/motion-vs-prusaslicer-2026-11-24.md"
+  ],
+  "goal": null,
+  "notes": "Idea: a G-code motion planner (lookahead, trapezoids, Marlin jerk / junction deviation, M201-M205 from the file) so the 3D-print price calculator can time files with no slicer summary. Checked against PrusaSlicer 2.7.2 (installed via apt) on 21 files sliced from its bundled shapes: median 0.2%, worst 1.7%; limit-blind +9.2%/-2.5%. 15 public Cura files from GitHub as a second, printer-blind reference. Bugs found and fixed: Cura's unfilled ;TIME:6666 template read as a real 1.85 h, 0 g print; PrusaSlicer's 0.00 g (no density) read as a free print, now weighed from its [cm3] line. Browser-checked with Playwright (stripped Benchy -> 13.24 g, 1.1 h; no console errors). Venture suite: 100 tests pass. The agent doc is the eval file; no docs/reports entry needed. Junction-deviation path is unit-tested but not checked against Klipper.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "87fda2f4-cf5f-5470-95cb-95344d16a363",
+    "transcripts": 1,
+    "first": "2026-11-24T05:17:47Z",
+    "last": "2026-11-24T05:32:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 143,
+        "output": 61249,
+        "thinking": 15888,
+        "cache_read": 9095894,
+        "cache_write_5m": 0,
+        "cache_write_1h": 150522,
+        "api_equivalent_usd": 4.2489,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 143,
+      "output": 61249,
+      "thinking": 15888,
+      "cache_read": 9095894,
+      "cache_write_5m": 0,
+      "cache_write_1h": 150522,
+      "api_equivalent_usd": 4.2489,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 74,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.94,
+      "active_minutes": 14.94,
+      "model_minutes": 12.15,
+      "tool_minutes": 2.79,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a JS developer who knows firmware planners: planner, tests, slicing corpus and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 235.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -7,9 +7,11 @@
 // refunds, proves the rows add up to the payout, and writes balanced journals for Xero,
 // QuickBooks Online, QuickBooks Desktop (IIF) and a plain CSV.
 //
-// The export's column names and each importer's column layout are from memory of public Gumroad
-// and accounting help documents; no real Gumroad export and no live Xero or QuickBooks import was
-// available when this was written. Column names are matched by several aliases, a sale whose
+// Gumroad's real column names and amount definitions come from its open-source code
+// (github.com/antiwork/gumroad at c58af153: app/services/exports/purchase_export_service.rb,
+// app/services/exports/payouts/csv.rb and base.rb, app/modules/purchase/accounting.rb). The older
+// alias path (a "Price" column excluding shipping) is kept for hand-made sheets. Each importer's
+// layout is from memory of Xero and QuickBooks help documents; no real export or live import was tested. Column names are matched by several aliases, a sale whose
 // parts do not add to its net is flagged, and a row no rule explains is never dropped: it lands in an
 // "uncategorised" line and is reported, so the journal still equals the net.
 //
@@ -45,7 +47,10 @@ export function parseMapping(text) {
 export const mappingText = (mapping = defaultMapping()) => CATEGORY_ORDER.map((k) => `${k} = ${mapping[k]}`).join("\n");
 
 const dollars = (c) => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)((Math.abs(c) / 100).toFixed(2));
-export const money = (c, cur = "USD") => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + cur);
+// One formatter, built once: toLocaleString with options builds a new Intl.NumberFormat on every call,
+// which was most of a large file's read time (same locale and options, so the same text).
+const MONEY_FMT = new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const money = (c, cur = "USD") => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(MONEY_FMT.format(Math.abs(c / 100)) + " " + cur);
 
 // ---- parsing ----------------------------------------------------------------
 
@@ -121,10 +126,16 @@ export function parsePayouts(text, opts = {}) {
     refundAmt: col("refunded-amount", "amount-refunded"),
     item: col("item-name", "product-name", "product", "item"),
     type: col("type", "transaction-type"),
+    // Gumroad's real exports (github.com/antiwork/gumroad, app/services/exports): "Sale Price ($)" includes shipping
+    // and tax, and "Net Total ($)" is Sale Price minus the fee (app/modules/purchase/accounting.rb).
+    salePrice: col("sale-price"),
+    partial: col("partial-refund"),
+    fully: col("fully-refunded?", "fully-refunded"),
   };
+  const inclusive = I.salePrice >= 0;
   const missing = [];
   if (I.net < 0) missing.push("net total");
-  if (I.price < 0) missing.push("price");
+  if (I.price < 0 && !inclusive) missing.push("price");
   if (missing.length) {
     add("error", "This does not look like a Gumroad sales export", `Missing column${missing.length > 1 ? "s" : ""}: ${missing.join(", ")}. In Gumroad open Analytics > Sales (or Payouts) and choose Export / Download CSV, then paste the whole file here.`, first + 1);
     return none;
@@ -142,6 +153,56 @@ export function parsePayouts(text, opts = {}) {
     const eff = parseDate(get(cells, "effective"), opts.dateOrder);
     if (eff && !s.effective) s.effective = eff;
     const netS = get(cells, "net"), net = parseAmount(netS);
+    const typ = get(cells, "type"), firstCell = (cells[0] || "").trim();
+    // Gumroad appends a "Totals" row (and in the payout CSV, "Subtotal - ..." rows); they repeat the rows above.
+    if (/^totals?$/i.test(typ) || /^totals?$/i.test(firstCell)) { if (inclusive && I.type >= 0 && net !== null && !Number.isNaN(net) && s.stated === null) s.stated = net; continue; }
+    if (/^subtotal\b/i.test(typ) || /^subtotal\b/i.test(firstCell)) continue;
+    if (inclusive) {
+      if (net === null) { add("warning", "Row has no net total", `${rid} was skipped.`, i + 1); continue; }
+      const v = {};
+      let bad = Number.isNaN(net);
+      for (const k of ["salePrice", "shipping", "tax", "fee", "partial"]) { const x = parseAmount(get(cells, k)); if (Number.isNaN(x)) bad = true; v[k] = x == null ? 0 : x; }
+      if (bad) { add("error", `An amount on ${rid} is not a number`, "The row is left out, so its payout will not add up.", i + 1); continue; }
+      const cur = get(cells, "currency").toUpperCase();
+      if (cur && !s.currency) s.currency = cur;
+      const parts = [];
+      const push = (k, amt) => { if (amt) parts.push({ k, amt }); };
+      let rowNet = net;
+      const known = I.type < 0 || /^(sale|payout fee)$/i.test(typ) || /refund|chargeback/i.test(typ);
+      if (!known) {
+        // Affiliate credits, credits, PayPal / Stripe Connect payout deductions, technical adjustments: not a sale.
+        push("uncategorised", net);
+        add("info", `${rid}: "${typ}" row booked to uncategorised`, `${money(net)}. Gumroad writes these rows for affiliate credits, fee credits, sales paid out by PayPal or Stripe Connect directly, and adjustments; reclassify them in your books.`, i + 1);
+      } else if (/refund|chargeback/i.test(typ)) {
+        // payout CSV refund rows carry negative amounts; a returned fee is a negative fee
+        push("refunds", v.salePrice - v.tax);
+        push("tax", v.tax);
+        push("fees", -v.fee);
+      } else {
+        push("sales", v.salePrice - v.shipping - v.tax);
+        push("shipping", v.shipping);
+        push("tax", v.tax);
+        push("fees", -v.fee);
+        // Sales export: one row per purchase, refund shown by flags; Net Total does not net the refund out.
+        const full = I.type < 0 && (TRUE.test(get(cells, "fully")) || (TRUE.test(get(cells, "refunded")) && v.partial === 0));
+        if (full) {
+          push("refunds", -(v.salePrice - v.tax));
+          push("tax", -v.tax);
+          push("fees", v.fee);
+          rowNet = 0;
+          add("info", `${rid}: fully refunded, fee assumed returned`, "The Sales export does not show whether Gumroad kept part of its fee on this refund. The payout CSV does; use it for an exact journal.", i + 1);
+        } else if (I.type < 0 && v.partial > 0) {
+          push("refunds", -v.partial);
+          rowNet = net - v.partial;
+          add("info", `${rid}: partial refund of ${money(v.partial)}`, "Booked to refunds with the fee unchanged; the Sales export does not show any fee Gumroad returned on it. The payout CSV does.", i + 1);
+        }
+      }
+      const residual = rowNet - parts.reduce((a, p) => a + p.amt, 0);
+      if (residual !== 0) { push("uncategorised", residual); add("error", `Parts do not add up to the net total on ${rid}`, `Sale price ${money(v.salePrice)} - fee ${money(v.fee)} should equal the net total ${money(net)}. The ${money(residual)} difference is booked to uncategorised.`, i + 1); }
+      s.rows.push({ line: i + 1, id: rid, item: get(cells, "item"), gross: v.salePrice, fee: v.fee, net: rowNet, refunded: parts.some((p) => p.k === "refunds"), parts, created: parseDate(get(cells, "created"), opts.dateOrder) });
+      rows++;
+      continue;
+    }
     if (/^payout/i.test(get(cells, "type"))) { if (net !== null && !Number.isNaN(net)) s.stated = (s.stated || 0) + Math.abs(net); continue; } // the deposit itself
     if (net === null) { add("warning", "Row has no net total", `${rid} was skipped.`, i + 1); continue; }
     const amts = {};

@@ -67,7 +67,7 @@ export function manifest(count, version = VERSION) {
   return {
     name: NAME,
     displayName: 'Free Tools Catalogue',
-    description: `Search ${count} free, open-source calculators, checkers and small business tools from the command palette.`,
+    description: `Search ${count} free, source-available calculators, checkers and small business tools from the command palette.`,
     version,
     publisher: PUBLISHER,
     license: 'MIT',
@@ -75,7 +75,7 @@ export function manifest(count, version = VERSION) {
     categories: ['Other'],
     keywords: ['calculator', 'checker', 'tools', 'free', 'open source'],
     repository: { type: 'git', url: `${REPO_URL}.git` },
-    homepage: toolUrl('').replace(/\/$/, '/'),
+    homepage: toolUrl('').replace(/\/+$/, '/'),
     main: './extension.js',
     activationEvents: [],
     capabilities: { untrustedWorkspaces: { supported: true }, virtualWorkspaces: true },
@@ -125,13 +125,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 export function readme(count) {
   return `# Free Tools Catalogue
 
-Search ${count} free, open-source calculators, checkers and small business tools from the command palette.
+Search ${count} free, source-available calculators, checkers and small business tools from the command palette.
 
 Open the palette and run **Free Tools: Search the catalogue**. Type to filter by name or description; pressing Enter opens the tool's page in your browser.
 
 The extension has no settings, collects nothing and makes no network requests itself. The list is bundled in the package; opening a tool is an ordinary link to ${toolUrl('')}.
 
-Free and open source (MIT). Source: ${REPO_URL}
+Free to use and source available (FSL-1.1-MIT). Source: ${REPO_URL}
 
 Tools are aids, offered without warranty, and are not legal, tax, medical or other professional advice.
 `;

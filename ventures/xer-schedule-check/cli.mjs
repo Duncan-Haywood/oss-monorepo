@@ -1,6 +1,8 @@
 #!/usr/bin/env node
-// node cli.mjs schedule.xer [--json] [--csv findings.csv] [--schedule activities.csv] [--project CODE]
-// Prints the DCMA 14-point assessment of a Primavera P6 XER file. Any
+// node cli.mjs schedule.xer [--baseline baseline.xer] [--json] [--csv findings.csv] [--schedule activities.csv] [--project CODE]
+// Prints the DCMA 14-point assessment of a Primavera P6 XER file;
+// --baseline scores missed tasks (11) and BEI (14) against the baseline
+// project's XER, matched by activity ID, instead of the planned dates. Any
 // schedule argument can also be a Microsoft Project XML (MSPDI) file
 // (mspdi.mjs): File, Save As, XML Format in Microsoft Project; or a P6 XML
 // file (pmxml.mjs): P6's File, Export, Primavera PM (XML), P6 EPPM or Primavera Cloud.
@@ -60,6 +62,10 @@
 // --group-by "Responsibility,WBS" groups the rows by activity codes (name or
 // id) and/or the WBS instead, outermost first (actvcodes.mjs); --codes lists
 // the code types the project can be grouped by.
+// node cli.mjs schedule.xer --ribbon [wbs|CODE TYPE] [--level N] [--csv ribbon.csv] [--json] [--project CODE]
+// DCMA points 1-11 per WBS node or activity code value instead (ribbon.mjs):
+// each group scored on its own activities against the same thresholds, worst
+// first, so each area or subcontractor gets its own result.
 // node cli.mjs schedule.xer --lookahead [WEEKS] [--from YYYY-MM-DD] [--csv lookahead.csv] [--html lookahead.html] [--by NAME] [--json] [--project CODE]
 // A look-ahead instead (lookahead.mjs): the next WEEKS weeks (3) of work by
 // WBS with a bar per day and a make-ready check of what each activity still
@@ -92,6 +98,10 @@
 // baseline project's XER.
 // node cli.mjs schedule.xer --progress [--csv progress.csv] [--ahead-points 30] [--rate-factor 1.5] [--overrun-factor 1.5] [--json] [--project CODE]
 //   progress review: physical/units % against time spent and remaining duration (progress.mjs)
+// node cli.mjs schedule.xer --spec rules.json [--csv spec.csv] [--json] [--project CODE]
+//   contract specification check (spec.mjs): the limits typed from the
+//   contract's scheduling section (durations, lags, constraints, codes, cost
+//   loading, milestones...) in a JSON file; exits 1 when a rule is not met
 // node cli.mjs schedule.xer --calendars [--csv calendars.csv] [--no-what-if] [--json] [--project CODE]
 // Calendar review (calreview.mjs): holidays that stop before the work does
 // (with how far the finish moves when the missing years get the calendar's
@@ -168,7 +178,8 @@
 //
 // Any --report also takes --appendix: every activity behind every correction
 // printed in an appendix, not only the first 40 of each.
-import { readFileSync, writeFileSync } from "node:fs";
+import { ribbon, ribbonText, ribbonCsv } from "./ribbon.mjs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 // A file that cannot be assessed (no PROJECT table, not an XER at all) ends
 // with one line saying why, not a stack trace. XER_DEBUG=1 keeps the trace.
 if (!process.env.XER_DEBUG) process.on("uncaughtException", (e) => { console.error(`xer-schedule-check: ${e && e.message ? e.message : e}`); process.exit(1); });
@@ -207,15 +218,28 @@ import { gao, gaoText, gaoCsv, gaoHtml } from "./gao.mjs";
 import { redundantLogic, redundantText, redundantCsv, dropLinksText } from "./redundant.mjs";
 import { calendarReview, calendarText, calendarCsv } from "./calreview.mjs";
 import { progressReview, progressText, progressCsv } from "./progress.mjs";
+import { specCheck, specText, specCsv } from "./spec.mjs";
 import { xerBytes } from "./xer.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--collapse", "--as-planned", "--as-built-xer", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks", "--excel", "--drag-cost", "--max-runs", "--crash-target", "--crash-data", "--crash-max", "--cleaned", "--to-xer", "--ahead-points", "--rate-factor", "--overrun-factor"];
+const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--branches", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew", "--paths", "--from", "--html", "--by", "--constraints", "--constraints-csv", "--curve", "--tia", "--collapse", "--as-planned", "--as-built-xer", "--xer", "--event", "--baseline", "--level", "--group-by", "--to-project", "--to-p6", "--project-id", "--types-from", "--skip-fields", "--narrative", "--weeks", "--excel", "--drag-cost", "--max-runs", "--crash-target", "--crash-data", "--crash-max", "--cleaned", "--to-xer", "--ahead-points", "--rate-factor", "--overrun-factor", "--spec"];
 // Print and exit only once stdout has taken it all: to a pipe, process.exit()
 // straight after a write cuts the output off at 64 KB (a --json report of a
 // large file).
 const emit = (text) => new Promise((done) => process.stdout.write(text, done));
 const opt = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : undefined);
+// a flag that needs a value, given last or straight before another flag, would
+// write to undefined (a crash) or to a file named after the next flag
+for (const f of new Set(VALUED)) {
+  const v = opt(f);
+  if (args.includes(f) && (v === undefined || v.startsWith("--"))) { console.error(`xer-schedule-check: ${f} needs a value`); process.exit(2); }
+}
+// flags whose value may be left out: what follows is their value unless it is
+// a file on disk (so `--risk 1000 schedule.xer` and `--risk schedule.xer` both
+// read schedule.xer), and is never taken for the schedule
+const OPTIONAL = ["--risk", "--lookahead", "--ribbon", "--float-paths"];
+const optional = (f) => { const i = args.indexOf(f) + 1; return i > 0 && i < args.length && !args[i].startsWith("--") && !existsSync(args[i]) ? args[i] : undefined; };
+const isValue = (i) => VALUED.includes(args[i - 1]) || (OPTIONAL.includes(args[i - 1]) && !existsSync(args[i]));
 function writeReview(report, cmp, risk = null, win = null) {
   if (!args.includes("--report")) return;
   writeFileSync(opt("--report"), reviewHtml(report, cmp, { recipient: opt("--to"), reviewer: opt("--from"), reference: opt("--ref"), notes: opt("--notes"), risk, windows: win, appendix: args.includes("--appendix") }));
@@ -223,7 +247,7 @@ function writeReview(report, cmp, risk = null, win = null) {
   console.error(`review written to ${opt("--report")}: ${items.length} corrections (${n("high")} high, ${n("medium")} medium, ${n("low")} low)`);
 }
 if (args.includes("--trend")) {
-  const files = args.filter((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
+  const files = args.filter((a, i) => !a.startsWith("--") && !isValue(i));
   if (files.length < 2) { console.error("usage: node cli.mjs --trend update1.xer update2.xer [update3.xer ...] [--json] [--csv trend.csv] [--project CODE]"); process.exit(2); }
   const ups = files.map((f) => ({ xer: parseSchedule(decodeXer(readFileSync(f))), label: f.split("/").pop() }));
   const rep = trend(ups, { projectName: opt("--project") });
@@ -232,7 +256,7 @@ if (args.includes("--trend")) {
   process.exit(0);
 }
 if (args.includes("--windows")) {
-  const files = args.filter((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
+  const files = args.filter((a, i) => !a.startsWith("--") && !isValue(i));
   if (files.length < 2) { console.error("usage: node cli.mjs --windows update1.xer update2.xer [update3.xer ...] [--json] [--csv windows.csv] [--project CODE]"); process.exit(2); }
   const ups = files.map((f) => ({ xer: parseSchedule(decodeXer(readFileSync(f))), label: f.split("/").pop() }));
   if (args.includes("--earned-value")) {
@@ -258,13 +282,13 @@ if (args.includes("--windows")) {
   await emit(args.includes("--json") ? JSON.stringify(rep, null, 2) + "\n" : windowsText(rep));
   process.exit(0);
 }
-const file = args.find((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
+const file = args.find((a, i) => !a.startsWith("--") && !isValue(i));
 if (!file) {
   console.error("usage: node cli.mjs schedule.xer [--report review.html] [--json] [--csv findings.csv] [--schedule activities.csv] [--project CODE]\n       node cli.mjs current.xer --previous previous.xer [--json] [--csv changes.csv] [--project CODE]\n       node cli.mjs --windows update1.xer update2.xer [...] [--json] [--csv windows.csv] [--project CODE]");
   process.exit(2);
 }
 function runRisk(x, projId) {
-  const nArg = opt("--risk");
+  const nArg = optional("--risk");
   const levelled = args.includes("--levelled");
   const iterations = nArg && /^\d+$/.test(nArg) ? Number(nArg) : levelled ? 100 : 500;
   const crew = Number(opt("--crew") || 1);
@@ -445,8 +469,8 @@ if (args.includes("--crash")) {
 }
 if (args.includes("--gao")) {
   const result = schedule(xer);
-  const report = assess(xer, { projId, result });
   const baseline = opt("--baseline") ? parseSchedule(decodeXer(readFileSync(opt("--baseline")))) : null;
+  const report = assess(xer, { projId, result, baseline });
   const r = gao(xer, { projId: report.project.id, result, report, baseline });
   if (opt("--csv")) writeFileSync(opt("--csv"), gaoCsv(r));
   if (opt("--html")) { writeFileSync(opt("--html"), gaoHtml(r, { by: opt("--by") })); console.error(`GAO scorecard written to ${opt("--html")}`); }
@@ -458,6 +482,12 @@ if (args.includes("--calendars")) {
   if (opt("--csv")) writeFileSync(opt("--csv"), calendarCsv(r));
   await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : calendarText(r));
   process.exit(0);
+}
+if (opt("--spec") !== undefined) {
+  const r = specCheck(xer, readFileSync(opt("--spec"), "utf8"), { projId });
+  if (opt("--csv")) writeFileSync(opt("--csv"), specCsv(r));
+  await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : specText(r));
+  process.exit(r.failed ? 1 : 0);
 }
 if (args.includes("--progress")) {
   const o = {};
@@ -489,6 +519,16 @@ if (args.includes("--drag")) {
   await emit(args.includes("--json") ? JSON.stringify(r, null, 2) + "\n" : dragText(r));
   process.exit(0);
 }
+if (args.includes("--ribbon")) {
+  const report = assess(xer, { projId });
+  const by = optional("--ribbon") ?? "wbs";
+  let rb;
+  try { rb = ribbon(xer, report, { by, level: opt("--level") ? Number(opt("--level")) : 1 }); }
+  catch (e) { console.error(e.message); process.exit(2); }
+  if (opt("--csv")) writeFileSync(opt("--csv"), ribbonCsv(rb));
+  await emit(args.includes("--json") ? JSON.stringify(rb, null, 2) + "\n" : ribbonText(rb));
+  process.exit(0);
+}
 if (args.includes("--gantt")) {
   const result = schedule(xer);
   const pid = assess(xer, { projId, result }).project.id;
@@ -510,7 +550,7 @@ if (args.includes("--gantt")) {
 if (args.includes("--lookahead")) {
   const result = schedule(xer);
   const pid = assess(xer, { projId, result }).project.id;
-  const w = opt("--lookahead");
+  const w = optional("--lookahead");
   const la = lookahead(xer, { weeks: w && /^\d+$/.test(w) ? Number(w) : 3, from: opt("--from"), projId: pid, result, constraints: opt("--constraints") ? readFileSync(opt("--constraints"), "utf8") : null });
   if (opt("--csv")) writeFileSync(opt("--csv"), lookaheadCsv(la));
   if (opt("--constraints-csv") && la.constraintLog) writeFileSync(opt("--constraints-csv"), constraintLogCsv(la.constraintLog));
@@ -546,7 +586,7 @@ if (args.includes("--milestone-calendars")) {
 if (args.includes("--float-paths")) {
   const result = schedule(xer);
   const pid = assess(xer, { projId, result }).project.id;
-  const code = opt("--float-paths");
+  const code = optional("--float-paths");
   let target;
   if (code && !code.startsWith("--")) {
     target = [...result.model.tasks.values()].find((t) => t.code === code && t.proj === pid) || [...result.model.tasks.values()].find((t) => t.code === code);
@@ -580,7 +620,7 @@ if (args.includes("--level")) {
   for (const a of r.activities.slice(0, 15)) console.log(`  ${String(a.delayDays).padStart(7)} d  ${a.code}  ${a.levelledStart} -> ${a.levelledFinish}  ${a.by.join(", ") || "(logic)"}`);
   process.exit(0);
 }
-const report = assess(xer, { projId });
+const report = assess(xer, { projId, baseline: opt("--baseline") ? parseSchedule(decodeXer(readFileSync(opt("--baseline")))) : null });
 writeReview(report, null);
 if (args.includes("--csv")) writeFileSync(args[args.indexOf("--csv") + 1], findingsCsv(report));
 if (args.includes("--schedule")) writeFileSync(args[args.indexOf("--schedule") + 1], scheduleCsv(report));
@@ -591,7 +631,11 @@ if (args.includes("--json")) {
   console.log(`${p.name}  (${/^MSPDI/.test(p.version || "") ? "Microsoft Project XML" + p.version.slice(5) : "P6 " + p.version}; data date ${p.dataDate}; forecast finish ${p.finish}${p.mustFinish ? `; must finish by ${p.mustFinish}` : ""})`);
   console.log(`${p.open} open of ${p.activities} activities, ${p.relationships} relationships`);
   for (const w of report.warnings) console.log(`WARNING: ${w}`);
-  console.log(`DCMA 14-point: ${report.passed} of 14 pass\n`);
+  console.log(`DCMA 14-point: ${report.passed} of 14 pass`);
+  const b = report.baseline;
+  console.log(b && b.source === "file"
+    ? `Missed tasks and BEI against the baseline file: ${b.matched} of ${b.activities} activities matched by activity ID, ${b.due} due by the data date.\n`
+    : "Missed tasks and BEI use this file's planned dates (no --baseline given): late work not yet started is not counted.\n");
   for (const c of report.checks) {
     const v = c.value === null ? "n/a" : `${typeof c.value === "number" ? (Math.abs(c.value) < 10 ? Math.round(c.value * 1000) / 1000 : Math.round(c.value * 10) / 10) : c.value}${c.unit ? " " + c.unit : ""}`;
     console.log(`${c.pass ? "PASS" : "FAIL"}  ${String(c.id).padStart(2)}. ${c.name.padEnd(36)} ${v.padEnd(22)} (${c.threshold})${c.total ? `  ${c.count}/${c.total}` : ""}`);

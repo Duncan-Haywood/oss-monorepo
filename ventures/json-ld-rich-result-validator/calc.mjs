@@ -40,7 +40,7 @@ export function extractJsonLd(input) {
   let m, i = 0;
   while ((m = re.exec(text))) {
     i += 1;
-    const body = m[1].replace(/^\s*<!--/, "").replace(/-->\s*$/, "").trim();
+    const body = m[1].replace(/^\s*<!--/, "").replace(/--!?>\s*$/, "").trim();
     if (!body) { problems.push({ level: "error", path: `block ${i}`, message: "Empty JSON-LD script block." }); continue; }
     try { blocks.push(JSON.parse(body)); } catch (e) { problems.push({ level: "error", path: `block ${i}`, message: `Invalid JSON: ${e.message}. Google ignores a block that does not parse (check for trailing commas and unescaped quotes).` }); }
   }

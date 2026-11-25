@@ -28,8 +28,8 @@ export function decodeText(raw) {
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
     .replace(/&apos;/g, "'")
-    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
-    .replace(/&#x([0-9a-fA-F]+);/g, (_, n) => String.fromCodePoint(parseInt(n, 16)))
+    .replace(/&#(\d+);/g, (_, n) => codePointOr(Number(n)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, n) => codePointOr(parseInt(n, 16)))
     .replace(/&amp;/g, '&') // must run last, or "&amp;lt;" would double-decode
     .trim();
 }
@@ -194,3 +194,7 @@ export function parseFeed(xmlText) {
 
   return { channel, items, parseErrors };
 }
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

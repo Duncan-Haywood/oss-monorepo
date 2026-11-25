@@ -73,4 +73,4 @@ reviewing and verifying its output before relying on it**, and for meeting any
 obligation it helps you prepare for. To the maximum extent permitted by law,
 the authors accept no liability for any loss or damage arising from its use.
 
-MIT licensed; see [`LICENSE`](LICENSE).
+FSL-1.1-MIT licensed; see [`LICENSE`](LICENSE).

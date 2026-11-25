@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVKYoF4qwCfa1Xyp6qR",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (stored brief)",
+  "input_sha256": "d5b1ecda643165101e8388140d8cc57cec1eba333f0f5162ff13ea18780ba370",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T18:01:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 18638,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "I ran a bare `route` (without --task) before rereading prompt.md, and it drew process for a scheduled brief that asks for venture work. This is the same cluster 68 earlier records report. Followed the route."
+    },
+    {
+      "file": "portfolio/router/test_flagship_field.py",
+      "issue": "Imports pytest, so `python3 -m unittest` from portfolio/router fails on a bare python3. Use the interpreter pyenv.py returns."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Two sessions fixed the same friction_rank cluster within minutes (#18637 and #18638). friction_rank lists clusters without checking open PRs, so the second session finds the duplicate only when its merge conflicts."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique lens: friction_rank --live --ungated --days 3 cluster on allocate.py (photo-editing items needing raw.pixls.us were numbered while the probe said REFUSED). While CI ran, PR #18637 (another session) merged the same allocate.py check. On merging main I kept its code and dropped mine and my post, which were near-duplicates. What this PR still adds: photo-editing's 'blind 6-body set' and 'JPEG XL DNGs' items named no host, so the check could not see them. They now name raw.pixls.us (from eval/xtrans-drawn-mpcws-2026-11-24.md line 81), and one finished result moved to HISTORY.md to stay under the cap. Verified: allocate.py --venture photo-editing on merged main lists both items unnumbered '(raw.pixls.us REFUSED just now)'; earlier CI on the branch was green. Small gap left in #18637: a setup line naming a refused host shows the refused reason instead of 'setup or source' (cosmetic). No backlog id touched.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,19 @@
+# Will clients accept this certificate chain? Certificate Chain Check
+
+> Paste PEM certificates (a fullchain.pem, a CA bundle, or openssl s_client -showcerts output) or open .pem, .crt, .cer or .der files: the tool puts them in chain order by issuer name and key identifier, verifies every signature with the browser's Web Crypto (RSA PKCS#1 v1.5, RSA-PSS, ECDSA P-256/P-384/P-521, Ed25519), and reports what TLS clients refuse: a missing intermediate (the "works in Chrome, curl says unable to get local issuer certificate" case), a same-named but re-keyed intermediate, wrong order, unrelated, duplicate and root certificates, a bad signature, an issuer that is not a CA, lacks keyCertSign or exceeds its pathlen, expired or not-yet-valid certificates, an intermediate that expires before the leaf, a hostname or IP the subjectAltName does not cover (browser rules: one-label wildcards, the CN ignored, partial wildcards match nothing), no subjectAltName, no serverAuth, a keyUsage without digitalSignature, RSA under 2048 bits, SHA-1 or MD5 signatures, unusual curves, DSA, precertificates, missing Certificate Transparency timestamps, OCSP Must-Staple, and validity longer than the CA/Browser Forum allows (398 days; 200 from 2026-03-15, 100 from 2027-03-15, 47 from 2029-03-15, ballot SC-081v3). It prints the corrected chain (server certificate first, intermediates, no root). Free, runs in your browser, nothing uploaded; private key blocks are skipped unread.
+
+Free to use and source available (FSL-1.1-MIT). A static read of the certificates you give it, not a security audit; it cannot see client trust stores, revocation, SNI or the server's protocols. Checked against OpenSSL 3.0.13: every field of 37 generated certificates and of the 120 roots in Ubuntu's CA bundle (all 120 self-signatures verified), and every fault openssl verify reports on 30 generated chains. Not affiliated with the OpenSSL project, the CA/Browser Forum or any certificate authority.
+
+## Pages
+
+- [The tool](https://marisstella.app/cert-chain-check/)
+- [Certificate chain errors explained: missing intermediate, order, wildcards, the ignored CN, expiry, key usage and validity limits](https://marisstella.app/cert-chain-check/certificate-chain-errors-explained.html)
+
+## CLI
+
+- `node check.mjs fullchain.pem --host www.example.com` prints the chain, the verdict and every finding with its fix; `-` reads stdin (pipe `openssl s_client -showcerts` into it); `--at DATE` checks as of a date; `--warn-days N`; `--format json`; `--fix` prints the chain in the right order as PEM; `--fail-on-risk` exits 2 on an error, high or medium finding. Node 18+, no dependencies.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cert-chain-check): FSL-1.1-MIT licensed.
+- [Parity fixtures and OpenSSL's recorded output](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cert-chain-check/tests/fixtures)

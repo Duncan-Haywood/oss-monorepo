@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKmqXhFkJ2i9E9qYPwL",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T11:18:29Z",
+  "ended": "2026-11-25T11:42:00Z",
+  "wall_minutes": 23.77,
+  "tokens_in": 8430165,
+  "tokens_out": 37135,
+  "cost_usd": 3.471,
+  "tool_calls": 76,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18954",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "'Where to look' says items touching priv-* workflows wait for the owner, but CLAUDE.md and control_plane_guard.py say since 2026-11-24 the risk review and adversarial gate replace owner approval; P064 and the checkout-heavy priv guards look blocked when they are not."
+    },
+    {
+      "file": "prompts/process/backlog/P063-ventures-tests-sparse-checkout.json",
+      "issue": "Four stalled open drafts (PRs 13748, 13868, 14240, 14251) and the item itself predate the 2026-11-13 unwired-checks addition to ventures-tests, which makes a sparse checkout narrow tree-wide checks; cost a look before it showed."
+    },
+    {
+      "file": ".github/workflows/priv-portfolio-pages.yml",
+      "issue": "The test job's comment says the card cache is 'saved from main once a day', but the only path (schedule) is cancelled on busy days, so it was never saved; nothing reported the fallback-to-deploy-cache restore."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Edited a priv-* workflow, which the prompt says waits for the owner; CLAUDE.md (2026-11-24) says nothing waits for the owner's review and the risk review replaces it.",
+      "did": "Small, contents:read job, risk review answered in the PR, extra scrutiny on the sensitive file.",
+      "result": "PR opened; gates decide."
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "No blog post: a CI cache fix is not something a customer of the paid products would read, and posts are being consolidated toward customer posts.",
+      "did": "docs/history write-up with numbers and a ranked not-changed list.",
+      "result": "n/a"
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Top backlog item P063 was not landable safely (would weaken unwired tree checks); did not land a fifth draft.",
+      "did": "Took a fresh pool reading instead and fixed the largest step; recorded why P063 is blocked in its history.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/history/pages-test-perf-2026-11-25-test-card-cache-never-saved.md (no post: see deviations)",
+    "docs/history/cloudflare-file-limit-2026-11-25.md"
+  ],
+  "goal": null,
+  "notes": "Metric: Portfolio Pages test 'Test the site builder' seconds per run. Before: median 232 s over 14 runs (ci_profile.py --runs 600 --steps 20, 2026-11-25); job 139167629580 348 s step, shared build 289.6 s, restore fell back to the deploy's share-cards key. Local 4 cores: 339.7 s with no card cache, 176.6 s warm (node --test in platform/pages, TAP durations). After: not yet measurable; the first push after merge runs test-cards and saves test-share-cards-<hash>-<day>; read the next PR's test step and ci_profile --steps. Expected about 120 s. Today's 4 scheduled Portfolio Pages runs all cancelled (Actions API, event=schedule). Warm standalone build profile 60 s, flat (finishPagesInOneWalk 10.4 s incl). Second PR https://github.com/Duncan-Haywood/oss-monorepo/pull/18967: live-site deploys failing since 11:29 UTC (site Worker 20,026 of 20,000 files); five commons/story directories moved to the shard (local split 18,580 -> 17,626). Owner notified by push. AFTER (PR 18954): first PR after the save (18967, job 139208464791) restored test-share-cards; 'Test the site builder' 170 s (shared build 112 s) vs 232 s median / 348 s cold sample. One run; re-read median later.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "081a98a5-3929-59d0-94be-52f196a4c574",
+    "transcripts": 1,
+    "first": "2026-11-25T11:18:29Z",
+    "last": "2026-11-25T11:42:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 142,
+        "output": 37135,
+        "thinking": 13367,
+        "cache_read": 8296472,
+        "cache_write_5m": 0,
+        "cache_write_1h": 133551,
+        "api_equivalent_usd": 3.471,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 142,
+      "output": 37135,
+      "thinking": 13367,
+      "cache_read": 8296472,
+      "cache_write_5m": 0,
+      "cache_write_1h": 133551,
+      "api_equivalent_usd": 3.471,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 69,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 1,
+      "Read": 1,
+      "Edit": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.77,
+      "active_minutes": 23.77,
+      "model_minutes": 7.36,
+      "tool_minutes": 16.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "profile CI and local suite, trace the cache key fallback through logs, write and verify a workflow job",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 115.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -2,7 +2,7 @@
 
 > Free Form 2290 heavy highway vehicle use tax calculator for owner-operators and small fleets: tax by weight category, partial-year proration by first-use month, logging and 5,000-mile suspended trucks, due dates and cost per mile. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/form-2290-hvut-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/form-2290-hvut-calculator): FSL-1.1-MIT licensed.

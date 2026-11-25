@@ -21,20 +21,29 @@ MODELS = {
     "R": dict(qN=0.10, qP=0.1, gamma=0.10, delta=-0.25),
     "T60": dict(qN=0.075, qP=0.1, theta=0.6),
     "Ipub": dict(qN=0.10, qP=0.5),
+    # milestone 30: the milestone-29 real-data fits (sd-data XS0, in sample) of the
+    # per-household threshold (H) and homophily (L) families, and two L sensitivity points
+    "H": dict(qN=0.075, qP=0.1, theta_beta=(0.75, 5.0)),
+    "L": dict(qN=0.10, qP=0.2, delta=-0.5, latent=(1.5, 8.0)),
+    "Ls1": dict(qN=0.10, qP=0.2, delta=-0.5, latent=(1.0, 8.0)),
+    "Lr2": dict(qN=0.10, qP=0.2, delta=-0.5, latent=(1.5, 2.0)),
 }
 
 
 def simulate_batch(v: bcdj.Village, beta, seeds, S: int, rng, qN: float, qP: float,
                    gamma: float = 0.0, theta: float | None = None, delta: float = 0.0,
                    return_matrix: bool = False, fast: bool = False, shift=None,
-                   independent: bool = False):
+                   independent: bool = False, theta_beta=None, latent=None):
     """seeds: n x C bool. Returns C x S adopter counts (or the n x C*S adoption matrix,
     column c*S + s for seed set c and run s, if return_matrix). fast: float32 products
     (greedy search only; final scores use float64, which matches `complex.simulate`).
     shift: optional village random effect on the logit (as `complex.simulate`'s shift;
     milestone 6): length S, one value per run shared by every seed set, or length C*S, one
     per column. independent: every column gets its own random draws instead of the shared
-    ones (for scoring many draws of a randomised rule, one run each; milestone 6)."""
+    ones (for scoring many draws of a randomised rule, one run each; milestone 6).
+    theta_beta, latent: the H and L families of `complex.simulate` (milestone 30), drawn in
+    the same order (after U); with shared draws every seed set sees the same per-household
+    thresholds and latent propensities in run s."""
     seeds = np.asarray(seeds, bool)
     if seeds.ndim == 1:
         seeds = seeds[:, None]
@@ -44,12 +53,26 @@ def simulate_batch(v: bcdj.Village, beta, seeds, S: int, rng, qN: float, qP: flo
         z = np.asarray(shift, float)
         base = base + (z if len(z) == C * S else np.tile(z, C))[None, :]
     U = rng.random((n, C * S)) if independent else np.tile(rng.random((n, S)), (1, C))
+    use_theta = theta is not None and theta <= 1
+    th = theta
+    if theta_beta is not None:
+        mu, kappa = theta_beta
+        shp = (n, C * S) if independent else (n, S)
+        th = np.maximum(rng.beta(mu * kappa, (1 - mu) * kappa, shp), 1e-9)
+        if not independent:
+            th = np.tile(th, (1, C))
+        use_theta = True
+    if latent is not None:
+        if independent:
+            z = latent_field_batch(v, *latent, C * S, rng)
+        else:
+            z = np.tile(latent_field_batch(v, *latent, S, rng), (1, C))
+        base = base + z
     contagious = np.repeat(seeds, S, axis=1)
     informed = np.zeros((n, C * S), bool)
     adopted = np.zeros((n, C * S), bool)
     lq = np.log(np.clip(1 - np.array([qN, qP]), 1e-300, None))
     deg = np.maximum(v.deg, 1)[:, None]
-    use_theta = theta is not None and theta <= 1
     A = v.A.astype(np.float32) if fast else v.A
     for _ in range(v.T):
         informed |= contagious
@@ -61,7 +84,7 @@ def simulate_batch(v: bcdj.Village, beta, seeds, S: int, rng, qN: float, qP: flo
             p = 1 / (1 + np.exp(-base))
         new = informed & ~adopted & (U < p)
         if use_theta:
-            new |= informed & ~adopted & (k / deg >= theta - 1e-12)
+            new |= informed & ~adopted & (k / deg >= th - 1e-12)
         adopted |= new
         lnot = (np.where(adopted, lq[1], lq[0]) * informed).astype(A.dtype)
         reach_u = (rng.random((n, C * S)) if independent
@@ -70,6 +93,11 @@ def simulate_batch(v: bcdj.Village, beta, seeds, S: int, rng, qN: float, qP: flo
     if return_matrix:
         return adopted.astype(float)
     return adopted.sum(0).reshape(C, S)
+
+
+def latent_field_batch(v, sigma, rho, S, rng):
+    from .complex import latent_field
+    return latent_field(v, sigma, rho, S, rng)
 
 
 def _top(score, b):

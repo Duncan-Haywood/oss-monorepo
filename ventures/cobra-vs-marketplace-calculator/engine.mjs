@@ -62,6 +62,9 @@ export function deadlines({ lossDate, noticeDate }) {
     marketplaceWindowEnds: iso(addDays(loss, 60)),
     marketplaceNoGapPickBy: iso(lastOfMonth(loss)),
     marketplaceStartsIfPickedByThen: iso(firstOfNextMonth(loss)),
+    // 45 CFR 155.420(b)(2)(iv): the earliest marketplace start is the 1st of the month after the loss, so coverage that ends
+    // before the last day of a month leaves the rest of that month uncovered unless COBRA fills it (re-audit 2026-11-24).
+    marketplaceGapFrom: iso(loss) === iso(lastOfMonth(loss)) ? null : iso(addDays(loss, 1)),
     // month-overflow: ok (the Math.min with the 19th month's day 0 clamps it)
     maxCobraEnds: iso(new Date(Math.min(Date.UTC(loss.getUTCFullYear(), loss.getUTCMonth() + 18, loss.getUTCDate()), Date.UTC(loss.getUTCFullYear(), loss.getUTCMonth() + 19, 0)))),
     electionNoticeBasis: notice && notice > loss ? "the date the election notice was sent" : "the date coverage ended",
@@ -92,13 +95,26 @@ export function compute(input) {
   if (f.cobraCoinsurancePct > 100 || f.marketCoinsurancePct > 100) return { status: "error", text: "Coinsurance is the share you pay, 0 to 100" };
 
   const warnings = [];
+  // Deductibles and out-of-pocket maximums reset each plan year: January 1 for every marketplace plan (45 CFR 147.104(f))
+  // and for most employer plans, which this assumes for COBRA too. `before` is how many priced months fall before the
+  // next January 1, counted from the month after the old coverage ends; null without a coverage end date.
+  const lossDay = parseDay(input.lossDate);
+  const startMonth = lossDay instanceof Date && !Number.isNaN(lossDay.getTime()) ? lossDay.getUTCMonth() + 1 : null; // 0-based month the priced coverage starts (12 = next January)
+  const before = startMonth === null ? null : Math.max(0, 12 - startMonth);
+  // January 1 resets inside the priced months (18 months can touch three plan years).
+  const resets = startMonth === null ? 0 : Math.floor((startMonth + f.months - 1) / 12) - Math.floor(startMonth / 12);
+  // Quality re-audit 2026-11-24: coverage ending in December priced the next plan year with this year's carry-over.
+  const carryOver = before !== 0;
   const cobra = {
-    dedLeft: Math.max(0, f.cobraDeductible - f.cobraDedMet),
-    oopLeft: Math.max(0, f.cobraOopMax - f.cobraOopMet),
+    dedLeft: Math.max(0, f.cobraDeductible - (carryOver ? f.cobraDedMet : 0)),
+    oopLeft: Math.max(0, f.cobraOopMax - (carryOver ? f.cobraOopMet : 0)),
     coinsurance: f.cobraCoinsurancePct / 100,
   };
   const market = { dedLeft: f.marketDeductible, oopLeft: f.marketOopMax, coinsurance: f.marketCoinsurancePct / 100 };
   if (f.cobraDedMet > f.cobraDeductible) warnings.push("Deductible already met is larger than the COBRA deductible; treated as fully met.");
+  if (f.cobraOopMet > f.cobraOopMax) warnings.push("Out-of-pocket already spent is larger than the COBRA out-of-pocket maximum; treated as fully met. Check the plan summary.");
+  if (f.cobraDedMet > f.cobraOopMet && f.cobraOopMet > 0) warnings.push("Deductible already met is larger than out-of-pocket already spent, but deductible payments count toward the out-of-pocket maximum. Check both figures on your plan statement.");
+  if (!carryOver && (f.cobraDedMet > 0 || f.cobraOopMet > 0)) warnings.push("Your coverage ends in December, so every month priced here falls in the next plan year: what you already paid toward the COBRA deductible and out-of-pocket maximum is not carried over (this assumes the employer plan year starts January 1; if it does not, leave the coverage end date blank to compare with the carry-over).");
   if (f.marketPremium === 0) warnings.push("Marketplace premium is $0. That is possible after a large credit, but check the quote; the result reflects it.");
 
   const cobraPremiums = f.cobraPremium * f.months;
@@ -140,23 +156,19 @@ export function compute(input) {
   else if (crossings.length === 1) breakeven = { kind: "below", spend: crossings[0].spend };
   else breakeven = { kind: "mixed", crossings };
 
-  const worstCobra = cobraPremiums + patientCost(1e9, cobra);
-  const worstMarket = marketPremiums + patientCost(1e9, market);
+  // Across a January 1 reset each plan can charge its full out-of-pocket maximum again (assuming next year's maximum is the same).
+  const worstCobra = cobraPremiums + patientCost(1e9, cobra) + resets * f.cobraOopMax;
+  const worstMarket = marketPremiums + patientCost(1e9, market) + resets * f.marketOopMax;
   const notes = [];
   if (cobra.dedLeft < f.cobraDeductible) notes.push(`COBRA keeps what you already paid this plan year: ${fmt(f.cobraDedMet)} of deductible and ${fmt(f.cobraOopMet)} toward the out-of-pocket maximum carry over. A marketplace plan starts both at zero.`);
   notes.push("Choosing a marketplace plan means giving up COBRA. If you pick COBRA and quit mid-year you usually cannot get a marketplace special enrollment for that, only at open enrollment, and while you are enrolled in COBRA you get no premium tax credit.");
   notes.push("Doctors and drugs matter as much as price: check that each doctor you see is in the marketplace plan's network and each prescription is on its formulary. COBRA keeps the exact plan you had.");
   if (f.months > 3) notes.push("The longer you need coverage, the more the premium gap dominates. A new job's plan or Medicare often starts sooner than planned; model the months you actually expect.");
-  // Deductibles and out-of-pocket maximums reset each plan year: January 1 for every marketplace plan (45 CFR 147.104(f))
-  // and for most employer plans. The totals above treat the whole period as one plan year (quality audit 2026-11-12).
-  const lossDay = parseDay(input.lossDate);
-  if (lossDay instanceof Date && !Number.isNaN(lossDay.getTime())) {
-    const startMonth = lossDay.getUTCMonth() + 1; // coverage you are pricing starts the month after the old plan ends
-    if (startMonth + f.months > 12) {
-      const before = Math.max(0, 12 - startMonth);
-      notes.push(`These months cross January 1, when a marketplace plan's deductible and out-of-pocket maximum start again at zero (most employer plans, and so COBRA, reset too). The totals above treat all ${f.months} months as one plan year, so with care on both sides of January the real cost can be higher than shown, and what COBRA carries over only helps for the ${before} month${before === 1 ? "" : "s"} before the reset.`);
-    }
+  // The scenario totals treat the whole period as one plan year (quality audit 2026-11-12); the worst case above does not.
+  if (resets > 0) {
+    notes.push(`These months cross January 1, when a marketplace plan's deductible and out-of-pocket maximum start again at zero (most employer plans, and so COBRA, reset too). The scenario totals treat all ${f.months} months as one plan year, so with care on both sides of January the real cost can be higher than shown${carryOver ? `, and what COBRA carries over only helps for the ${before} month${before === 1 ? "" : "s"} before the reset` : ""}. The worst case counts a full out-of-pocket maximum in each plan year.`);
   }
+  notes.push("Premium tax credit: the marketplace premium you typed is an estimate made from your expected income for the whole year, including wages earned before the job ended, and it is reconciled on your tax return (Form 8962), so a low estimate can mean paying credit back. Under the 2026 rules (IRS Rev. Proc. 2025-25) a household above 400% of the federal poverty line gets no credit at all.");
   const waitSavings = f.cobraPremium * Math.min(2, f.months);
   notes.push(`Election window: you have 60 days to elect COBRA and 45 more to pay. Coverage is retroactive, so if nothing is spent in those first months you can skip them. That can defer up to ${fmt(waitSavings)} of premium, at the risk that care in the gap is uninsured until you elect.`);
 
@@ -167,7 +179,7 @@ export function compute(input) {
     : breakeven.kind === "always"
     ? "COBRA costs no more than the marketplace plan at any level of care, given these numbers."
     : breakeven.kind === "never"
-      ? `Marketplace plan is cheaper at every level of care you could have over ${f.months} months: premiums alone differ by ${fmt(premiumGap)} and COBRA's lower deductible never catches up.`
+      ? `Marketplace plan is cheaper at every level of care you could have over ${f.months} months: premiums alone differ by ${fmt(premiumGap)} and ${cobra.oopLeft < market.oopLeft ? "COBRA's lower out-of-pocket cost never catches up" : "COBRA's out-of-pocket cost is no lower"}.`
       : `Marketplace is cheaper until your care reaches about ${fmt(breakeven.spend)} of allowed charges over ${f.months} months; past that, COBRA costs less. Premiums differ by ${fmt(premiumGap)} over the period.`;
 
   return {

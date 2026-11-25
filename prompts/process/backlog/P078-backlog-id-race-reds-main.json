@@ -1,0 +1,26 @@
+{
+  "id": "P078",
+  "title": "Two parallel PRs merging the same backlog id turned main's validate red for every PR",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "Backlog ids are 'the next free number', taken from each run's own clone. PRs #18882 and #18884 both took P075; each PR's CI was green because neither saw the other, and once both merged `promptctl validate` failed on main, so the required Prompts check went red on every later PR touching prompts/, and several runs each spent time renumbering the same file in parallel (only one rename survived the merges).",
+  "evidence": [
+    "11 run records from 2026-11-25 mention P075 together with duplicate/renumber/P076 (grep -l P075 prompts/runs/2026-11-25*.json | xargs grep -l -i 'duplicate|renumber|P076|collid')",
+    "platform/ci/friction_rank.py --live --ungated --days 3: clusters 'prompts/process/backlog/' (3 sessions) and 'prompts/process/backlog/README.md' (2 sessions), both 2026-11-25"
+  ],
+  "change": "validate fails only a branch that adds a duplicate id (PR CI: files the merge commit adds over its main parent, prompts-ci.yml now fetches depth 2; session: over origin/main; unknown: the old strict check). A duplicate both of whose files are already on main is a warning from validate and a line in `backlog`, which any run can fix by renumbering, so it no longer blocks unrelated PRs.",
+  "touches": [
+    "prompts/promptctl.py",
+    "prompts/test_promptctl.py",
+    ".github/workflows/prompts-ci.yml",
+    "prompts/process/backlog/README.md"
+  ],
+  "metric": "run records whose errors or doc_friction say main's validate was red on a duplicate backlog id, or that renumbered one, per week",
+  "baseline": "11 records on 2026-11-25 (one collision, P075)",
+  "opened": "2026-11-25",
+  "source": "process critique, 2026-11-25 (friction_rank clusters 8 and 20)",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18924",
+  "result": null
+}

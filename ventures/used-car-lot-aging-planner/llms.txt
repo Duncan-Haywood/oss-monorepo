@@ -2,7 +2,7 @@
 
 > Paste your used-car inventory and get each unit's true carrying cost on the floorplan, the exact best day to wholesale it, which units to wholesale now ranked by earnings per $1,000 of line per day, and what waiting until it sells leaves behind. Free, runs in your browser, nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/used-car-lot-aging-planner): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/used-car-lot-aging-planner): FSL-1.1-MIT licensed.

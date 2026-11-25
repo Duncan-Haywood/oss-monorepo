@@ -10,4 +10,4 @@ Static browser tool: `index.html` + `calc.mjs`. Nothing is uploaded. Multipliers
 node --test 'ventures/ugc-creator-rate-calculator/**/*.test.mjs'
 ```
 
-Free and MIT-licensed; GitHub Sponsors is optional. Not legal or financial advice.
+Free and FSL-1.1-MIT-licensed; GitHub Sponsors is optional. Not legal or financial advice.

@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVLwPpr7kSr7BJk22kY",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled routine: ventures brief (prompt-2)",
+  "input_sha256": "6b11d2e45f68873138f1f0e36eed90c35f5f18cca9a33ab15011d22cd4e239f1",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T11:05:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "R-0005 clothing-design-studio: colour edits pick from the supplier sheet's stock colours; custom-colour dye cost",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": 18589,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "index.html imported parseStockList from suppliers.mjs while stockinks.mjs already exports one with that name; the module script failed to load (no swatches). Caught by the headless-Chromium click-through and by preflight's check_inline_scripts, not by the unit tests; renamed parseStockColours."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here named league-schedule-generator, whose only buildable items are hard combinatorial searches (bowling 26x38 one off the bound, 47/49 night designs) the row itself says to judge for worth; prompt.md ranks website requests before flagships, so I took the owner's R-0005 instead, its ROADMAP's named next item (supplier sheet's stock colours as the palette).",
+      "did": "clothing-design-studio stock colours + custom dye cost",
+      "result": "landed, 6 tests, eval 11 -> 46 of 112 edits stay stocked"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-make-it-darker-from-what-the-factory-stocks.md",
+    "ventures/clothing-design-studio/eval/stock-colour-edits-2026-11-24.txt"
+  ],
+  "goal": "Tie the voice/typed colour edits to what the designer's factory actually stocks and price leaving the stock list (owner request R-0005: fabric choices from what manufacturers offer, with prices).",
+  "notes": "Verification: run_venture_tests.py clothing-design-studio EXIT 0 (751 node tests incl. 6 new in stock-colours.test.mjs); headless Chromium click-through of index.html: 'make it navy' then 'make it lighter' logs the stocked royal blue with the 14.83 dyed-shade cost, the cream swatch shows the Custom colour dye line, editing the stock list to 'navy, cream' removes it, no console errors; check_posts ok; venture-preflight rerun after the post fix. Example sheet's stock list and dye figures are placeholders, said on page, README and post.",
+  "corrections": [],
+  "redteam": null
+}

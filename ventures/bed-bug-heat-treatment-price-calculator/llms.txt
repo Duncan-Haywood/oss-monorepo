@@ -2,7 +2,7 @@
 
 > Free bed bug heat treatment bid calculator: enter the floor area, clutter, heaters, crew, fuel and callback rate, and get a price, a price per square foot and a comparison with a chemical programme. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bed-bug-heat-treatment-price-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bed-bug-heat-treatment-price-calculator): FSL-1.1-MIT licensed.

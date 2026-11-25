@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BR-DEC-23: Line net amount has more than two decimals</title>
+<meta name="description" content="BR-DEC-23: The invoice line net amount (BT-131) may have at most two digits after the decimal point. The check simply counts the characters after the point,…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/en/br-dec-23">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/br-dec-23">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/br-dec-23">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/br-dec-23">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/br-dec-23">
+<meta property="og:title" content="BR-DEC-23: Line net amount has more than two decimals">
+<meta property="og:description" content="BR-DEC-23: The invoice line net amount (BT-131) may have at most two digits after the decimal point. The check simply counts the characters after the point,…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does BR-DEC-23 mean?","acceptedAnswer":{"@type":"Answer","text":"The invoice line net amount (BT-131) may have at most two digits after the decimal point. The check simply counts the characters after the point, so 10.000 fails just like 9.999 does, even though it is the same as 10.00."}},{"@type":"Question","name":"How do I fix BR-DEC-23?","acceptedAnswer":{"@type":"Answer","text":"Round each line net amount to two decimals before writing it; the unit price (BT-146) may keep more decimals. Build the document totals and the VAT breakdown from the rounded line amounts, so the other sum checks still pass. Set your export to write all monetary amounts with exactly two decimals."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-invoice rule explained · EN 16931</p>
+<h1>BR-DEC-23: Line net amount has more than two decimals</h1>
+<nav class="langs" aria-label="Other languages"><a href="../de/br-dec-23.html" hreflang="de" lang="de">Deutsch</a><a href="../fr/br-dec-23.html" hreflang="fr" lang="fr">Français</a><a href="index.html">All rules</a></nav>
+</header>
+<section>
+<h2>Official message</h2>
+<blockquote lang="en">The allowed maximum number of decimals for the Invoice line net amount (BT-131) is 2.</blockquote>
+<dl>
+<dt>Severity</dt><dd>Error (the invoice is rejected)</dd>
+<dt>Checked in</dt><dd>UBL, CII</dd>
+<dt>Business terms</dt><dd>BT-131</dd>
+</dl>
+</section>
+<section>
+<h2>What does BR-DEC-23 mean?</h2>
+<p>The invoice line net amount (BT-131) may have at most two digits after the decimal point. The check simply counts the characters after the point, so 10.000 fails just like 9.999 does, even though it is the same as 10.00.</p>
+<h2>Usual causes</h2>
+<ul>
+<li>The line amount was written as quantity × price without rounding, for example 3 × 3.3333 = 9.9999.</li>
+<li>The software writes amounts with a fixed number of decimals (three or four) for every number.</li>
+<li>Trailing zeros were kept from a calculation (10.000).</li>
+</ul>
+</section>
+<section>
+<h2>How do I fix BR-DEC-23?</h2>
+<ol>
+<li>Round each line net amount to two decimals before writing it; the unit price (BT-146) may keep more decimals.</li>
+<li>Build the document totals and the VAT breakdown from the rounded line amounts, so the other sum checks still pass.</li>
+<li>Set your export to write all monetary amounts with exactly two decimals.</li>
+</ol>
+<h2>Corrected XML (minimal example we wrote)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;cac:InvoiceLine&gt;
+  &lt;cbc:ID&gt;1&lt;/cbc:ID&gt;
+  &lt;cbc:InvoicedQuantity unitCode=&quot;H87&quot;&gt;3&lt;/cbc:InvoicedQuantity&gt;
+  &lt;cbc:LineExtensionAmount currencyID=&quot;EUR&quot;&gt;10.00&lt;/cbc:LineExtensionAmount&gt;
+  &lt;cac:Item&gt;
+    &lt;cbc:Name&gt;Widget&lt;/cbc:Name&gt;
+  &lt;/cac:Item&gt;
+  &lt;cac:Price&gt;
+    &lt;cbc:PriceAmount currencyID=&quot;EUR&quot;&gt;3.3333&lt;/cbc:PriceAmount&gt;
+  &lt;/cac:Price&gt;
+&lt;/cac:InvoiceLine&gt;</code></pre>
+<p class="note">Example values only. Put the elements in place of, or beside, what your file has; element order matters in both syntaxes.</p>
+</section>
+<section>
+<h2>Check your file for free</h2>
+<p>The free checker runs the official EN 16931, XRechnung and Peppol rules in your browser. Your file is not uploaded.</p>
+<p><a class="button" href="../../index.html">Open the free checker</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In development — early access</span></p>
+<h2>Fix-and-explain for accountants and invoicing teams</h2>
+<p>A paid service that explains every failed rule in plain German, French or English and proposes a corrected file is in development. <a href="https://example.invalid/industries/eu-e-invoicing/">Early access</a></p>
+</section>
+<section>
+<h2>Source</h2>
+<p>Rule id and official message from the CEN/TC 434 EN 16931 validation artefacts, validation-1.3.17 (EUPL-1.2), compiled from upstream commit 6e35e0a. The explanation, causes, fix and XML on this page are our own, not the rule publisher's. <a href="https://github.com/ConnectingEurope/eInvoicing-EN16931/tree/validation-1.3.17" rel="noopener">CEN/TC 434 EN 16931 validation artefacts validation-1.3.17</a></p>
+</section>
+<footer>
+<p><strong>Not tax or legal advice.</strong> This page explains what a validation rule checks and how to make a file pass it. It does not say which VAT treatment applies to your sale; ask a tax adviser. <strong>No warranty:</strong> provided free and as-is; check the result before you rely on it.</p>
+<p>Our code and explanations are FSL-1.1-MIT-licensed. Official rule messages are quoted under their publishers' licences (EUPL-1.2, Apache-2.0, MPL-2.0), named on each page.</p>
+</footer>
+</main></body></html>
