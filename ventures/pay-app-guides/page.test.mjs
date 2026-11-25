@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html", "change-order-log.html", "pay-application-software-compared.html", "retainage-release.html", "pay-application-checker.html"];
+const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html", "change-order-log.html", "pay-application-software-compared.html", "retainage-release.html", "overbilling-underbilling.html", "pay-application-checker.html"];
 
 test("every page carries the no-warranty clause, sponsor link, opt-out and honest CTA", () => {
   for (const name of PAGES) {
@@ -21,7 +21,7 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
 });
 
 test("no page sends anything anywhere or loads remote scripts", () => {
-  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "check.mjs", "usage.mjs"]) {
+  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "billing.mjs", "check.mjs", "usage.mjs"]) {
     const src = page(name);
     assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, name);
     assert.doesNotMatch(src, /<script[^>]+src=["']https?:/, name);
@@ -44,10 +44,11 @@ test("the retainage table covers at least 10 states, each linked to an official 
   const html = page("retainage-explained.html");
   const table = html.slice(html.indexOf('id="state-table"'), html.indexOf("</table>", html.indexOf('id="state-table"')));
   const rows = [...table.matchAll(/<tr[^>]*><td[^>]*>([A-Z][a-z]+(?: [A-Z][a-z]+)?)<\/td><td[^>]*><a href="([^"]+)"/g)];
-  assert.ok(rows.length >= 10, `only ${rows.length} states`);
-  const official = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|www\.leg\.state\.fl\.us|www\.nysenate\.gov|www\.palegis\.us|www\.ilga\.gov|www\.ncleg\.gov|www\.legislature\.mi\.gov|law\.lis\.virginia\.gov|app\.leg\.wa\.gov|malegislature\.gov|www\.azleg\.gov)\//;
+  assert.ok(rows.length >= 16, `only ${rows.length} states`);
+  const official = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|www\.leg\.state\.fl\.us|www\.nysenate\.gov|www\.palegis\.us|www\.ilga\.gov|www\.ncleg\.gov|www\.legislature\.mi\.gov|law\.lis\.virginia\.gov|app\.leg\.wa\.gov|malegislature\.gov|www\.azleg\.gov|www\.revisor\.mn\.gov|www\.leg\.state\.nv\.us|www\.oregonlegislature\.gov|le\.utah\.gov)\//;
   for (const [, state, href] of rows) assert.match(href, official, state);
   assert.match(html, /2026-11-24/);
+  assert.match(html, /2026-11-25/);
 });
 
 test("change order log inputs are labelled and the guide pages link to it", () => {
@@ -171,4 +172,13 @@ test("pay application checker: inputs labelled, linked from the how-to guide and
   assert.match(html, /id="findings"/);
   assert.match(html, /not an approval/);
   for (const name of ["index.html", "how-to-fill-out-a-pay-application.html"]) assert.match(page(name), /href="pay-application-checker\.html"/, name);
+});
+
+test("overbilling page: inputs labelled, entry and summary present, links the WIP schedule and the change order log", () => {
+  const html = page("overbilling-underbilling.html");
+  for (const id of ["ou-contract", "ou-est", "ou-cost", "ou-billed", "ou-ret", "ou-next"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
+  for (const id of ["ou-entry", "ou-summary"]) assert.match(html, new RegExp(`id="${id}"`));
+  assert.match(html, /href="https:\/\/marisstella\.app\/contractor-wip-schedule\/"/);
+  assert.match(html, /href="change-order-log\.html"/);
+  assert.match(page("index.html"), /href="overbilling-underbilling\.html"/);
 });

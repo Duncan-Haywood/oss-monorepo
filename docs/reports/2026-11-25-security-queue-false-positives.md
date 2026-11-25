@@ -145,4 +145,4 @@ Still unchecked in the queue: #1050 (`js/incomplete-url-substring-sanitization` 
 - #1050 (`js/incomplete-url-substring-sanitization`, `platform/pages/custom-domain.test.mjs:151`):
   false positive. `body.includes(PLACEHOLDER_ORIGIN)` is a test that a built page still carries
   the placeholder origin. It is not a URL allow-check. It is the same pattern as #1049, which is
-  already in `codeql-triage.json`; the next session that edits that file can add #1050 as well.
+  already in `codeql-triage.json`. PR #18845 added #1050 to that file.

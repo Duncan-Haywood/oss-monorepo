@@ -290,6 +290,36 @@ What it does not tell us is whether contractors use it. Its downloads are
 counted only in each visitor's own browser, so we will learn that from
 search impressions and from people who write in.
 
+### Overbilling and underbilling: where the pay app meets the books
+
+- [Overbilling and underbilling](https://marisstella.app/pay-app-guides/overbilling-underbilling.html)
+  (added 2026-11-25). A pay application measures progress by what was billed
+  on each line. The work-in-progress (WIP) schedule a bank or surety asks for
+  usually measures it by cost: cost to date divided by estimated total cost.
+  The two rarely agree, and the gap is the job's over- or underbilling. The
+  guide names where the gap comes from: a front-loaded schedule of values,
+  stored materials, cost on change orders not yet signed, an estimate not
+  updated after an overrun, and a GC that cuts the percent you asked for. It
+  shows the adjusting entry and checks one job.
+
+  Its worked example is a $480,000 subcontract estimated at $400,000, with
+  $150,000 spent and $210,000 billed. That is 37.5% complete by cost and
+  $180,000 earned, so the job is $30,000 overbilled even though the pay app
+  says 43.75%. With $21,000 held as retainage, $39,000 more has been
+  certified than the job has cost. If $60,000 is spent next month, billing
+  about $42,000 brings it back to even. The arithmetic is in `billing.mjs`,
+  and `billing.test.mjs` checks these figures, plus a cost overrun that caps
+  progress at 100%, a loss job and billing past the contract sum. One choice
+  matters most: billed to date is taken *before* retainage. Netting
+  retainage out would make every job look underbilled by its retainage.
+  ([source](../../ventures/pay-app-guides/billing.mjs))
+
+  This is the first place the free tools set billing beside cost. The hosted
+  suite keeps both per job, so the comparison would come without retyping.
+  The guide links to the existing
+  [contractor WIP schedule](https://marisstella.app/contractor-wip-schedule/)
+  for every open job at once, and the WIP tool now links back to it.
+
 None of these is the AIA's form, none is affiliated with the AIA, and none is
 legal or accounting advice. Retainage, waiver and payment terms come from
 your contract and your state's law.
