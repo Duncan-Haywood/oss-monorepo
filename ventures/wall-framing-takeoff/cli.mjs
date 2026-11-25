@@ -444,7 +444,7 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   if (flags.has("--drywall") || plan.drywall) {
     plan.drywall = plan.drywall || {};
     for (const k of ["height"]) if (typeof plan.drywall[k] === "string") plan.drywall[k] = parseLength(plan.drywall[k]);
-    for (const c of plan.drywall.ceiling || []) for (const k of ["width", "depth"]) if (typeof c[k] === "string") c[k] = parseLength(c[k]);
+    if (Array.isArray(plan.drywall.ceiling)) for (const c of plan.drywall.ceiling) if (c && typeof c === "object") for (const k of ["width", "depth"]) if (typeof c[k] === "string") c[k] = parseLength(c[k]);
     drywall = layoutDrywall(plan.drywall, plan, roof);
     if (!drywall.ok) return { code: 1, out: `The drywall has problems:\n${drywall.errors.map((e) => `  - ${e}`).join("\n")}` };
   }
