@@ -20,7 +20,7 @@
   "baseline": "2026-11-25: 2 in the preceding day",
   "opened": "2026-11-25",
   "source": "process run 2026-11-25 (critique: live doc_friction clusters from promptctl measure)",
-  "pr": "this",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19046",
   "result": null,
   "history": [
     {
