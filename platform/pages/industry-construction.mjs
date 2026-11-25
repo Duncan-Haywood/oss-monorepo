@@ -152,6 +152,7 @@ export const PROBLEMS = [
     product: 'pay-apps',
     tools: [
       ['pay-app-guides/change-order-log.html', 'Change order log', 'Approved, pending and rejected totals, the revised contract sum, billing on unsigned changes flagged, approved changes written as SOV lines.'],
+      ['pay-app-guides/tm-tickets.html', 'T&M ticket log', 'Price time-and-material tickets at your own markups, flag unsigned ones and signed ones with no change order, and draft the change order request.'],
       ['pay-app-guides/change-orders-schedule-of-values.html', 'Change orders and the schedule of values', 'How approved and deductive changes enter the SOV and the summary page.'],
       ['change-order-margin-calculator', 'Change order margin calculator', 'Price added work and see what a markup cap actually leaves you.'],
       ['scope-creep-change-order-calculator', 'Scope creep change order calculator', 'Price the small extra requests before they add up.'],

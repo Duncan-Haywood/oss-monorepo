@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>T&amp;M Ticket Log: Price, Chase and Convert to COs</title>
+  <meta name="description" content="Free T&amp;M ticket log for subcontractors: price tickets at your markups, flag unsigned and stale ones, and write the change order request.">
+  <meta property="og:title" content="Time and material tickets: price them, get them signed, turn them into change orders">
+  <meta property="og:description" content="A free T&amp;M ticket log for specialty subcontractors: each ticket priced at your subcontract's markups, unsigned tickets and signed ones with no change order flagged, and a change order request written for you. Runs in the browser.">
+  <link rel="canonical" href="./tm-tickets.html">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid var(--input); border-radius: 7px; font: 13px/1.5 ui-monospace, monospace; background: var(--card); color: var(--ink); }
+    pre.out { white-space: pre-wrap; background: var(--card); border: 1px solid var(--input); border-radius: 7px; padding: 10px; font-size: 13px; }
+    .flag { color: var(--bad, #a4262c); }
+  </style>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Time and material tickets: price them, get them signed, turn them into change orders", "datePublished": "2026-11-25", "dateModified": "2026-11-25"}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · <a href="./">schedule of values calculator</a></p>
+  <h1>T&amp;M tickets: price them, get them signed, turn them into change orders</h1>
+  <p>A <strong>time and material (T&amp;M) ticket</strong> is the field record of extra work: who worked, how many hours, what material and equipment went in, signed by the GC's superintendent the same day. It is not money yet. On most jobs the ticket has to become an executed change order before it can go on the pay application, and a ticket that never makes that trip is extra work done for free. Paste your tickets below to price them at your own markups and see which ones are at risk.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="change-order-log.html">Change order log</a>
+    <a href="change-orders-schedule-of-values.html">Change orders and the SOV</a>
+    <a href="paid-short.html">Paid short?</a>
+    <a href="pay-app-cash-forecast.html">Cash forecast</a>
+  </nav>
+</header>
+<main>
+<section class="card">
+  <h2>What a ticket should show</h2>
+  <p>A ticket the GC can dispute is a ticket you will discount. These are the fields reviewers look for; your subcontract may name more.</p>
+  <div class="scroll"><table class="stack" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Field</th><th role="columnheader" scope="col">Why it matters</th></tr></thead>
+    <tbody>
+      <tr role="row"><td role="cell" data-label="Field">Ticket number and date of the work</td><td role="cell" data-label="Why it matters">One ticket per day per crew. A ticket that covers a week is hard to check against the GC's daily reports.</td></tr>
+      <tr role="row"><td role="cell" data-label="Field">Where and why</td><td role="cell" data-label="Why it matters">Location, and what directed the work (an RFI answer, a field directive, an ASI, a named person). That is what ties the work to a change and not to your base scope.</td></tr>
+      <tr role="row"><td role="cell" data-label="Field">Each worker or trade, with hours</td><td role="cell" data-label="Why it matters">Name or classification and hours, regular and overtime apart. Unnamed labor is the first line a GC strikes.</td></tr>
+      <tr role="row"><td role="cell" data-label="Field">Material, with quantities</td><td role="cell" data-label="Why it matters">What was installed, how much, and the supplier invoice when it comes in.</td></tr>
+      <tr role="row"><td role="cell" data-label="Field">Equipment, with hours or days</td><td role="cell" data-label="Why it matters">Owned or rented, and for how long; the rental ticket for rented equipment.</td></tr>
+      <tr role="row"><td role="cell" data-label="Field">GC signature, printed name and date</td><td role="cell" data-label="Why it matters">Signed on the day. A signature confirms the time and material were spent; it usually does not agree the price or that it is extra, so the change order still matters.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="card" id="log">
+  <h2>T&amp;M ticket log</h2>
+  <p>One row per line: labor, material, equipment, lower-tier sub or other. Rows with the same ticket number are one ticket. Columns: <code>Ticket, Date, Type, Description, Qty, Rate, Signed by, CO</code> (an <code>Amount</code> column works for lump-sum lines). Leave <em>Signed by</em> blank for an unsigned ticket, and fill <em>CO</em> once the ticket is on a change order. It runs in this browser tab; nothing is uploaded.</p>
+  <label for="tm-text">Ticket lines (CSV or pasted spreadsheet cells)</label>
+  <textarea id="tm-text" spellcheck="false"></textarea>
+  <p><button type="button" class="secondary" id="tm-sample">Load the example</button> <label for="tm-file" style="display:inline">Or open a CSV</label> <input type="file" id="tm-file" accept=".csv,.tsv,.txt,text/csv"></p>
+  <h3>Markups from your subcontract</h3>
+  <p class="note">No markup is assumed: a blank is 0%. Use the overhead and profit percentages your subcontract allows on changes, by cost type; the example's figures are only an example.</p>
+  <div class="grid">
+    <div><label for="mk-labor">Labor markup (%)</label><input id="mk-labor" inputmode="decimal"></div>
+    <div><label for="mk-material">Material markup (%)</label><input id="mk-material" inputmode="decimal"></div>
+    <div><label for="mk-equipment">Equipment markup (%)</label><input id="mk-equipment" inputmode="decimal"></div>
+    <div><label for="mk-sub">Lower-tier sub markup (%)</label><input id="mk-sub" inputmode="decimal"></div>
+    <div><label for="mk-other">Other markup (%)</label><input id="mk-other" inputmode="decimal"></div>
+    <div><label for="tm-bond">Bond and insurance (% of cost plus markup)</label><input id="tm-bond" inputmode="decimal"></div>
+    <div><label for="tm-asof">As of</label><input id="tm-asof" type="date"></div>
+    <div><label for="tm-chase">Days before a signed ticket needs a change order</label><input id="tm-chase" inputmode="numeric" value="14"></div>
+  </div>
+  <div aria-live="polite">
+    <p id="tm-errors" class="flag"></p>
+    <p id="tm-summary"></p>
+    <h3>Tickets</h3>
+    <ul id="tm-tickets"></ul>
+    <h3>What to do</h3>
+    <ul id="tm-findings"></ul>
+  </div>
+  <p><button type="button" id="tm-csv">Download priced tickets (CSV)</button> <button type="button" class="secondary" id="tm-cor">Download change order request lines (CSV)</button></p>
+  <p class="note">The change order request lines are the signed tickets not yet on a change order, as <em>pending</em> rows. Paste them into the <a href="change-order-log.html">change order log</a> to see them with the rest of the job's changes.</p>
+
+  <h3>Change order request</h3>
+  <div class="grid">
+    <div><label for="ltr-gc">GC</label><input id="ltr-gc" placeholder="Hill Builders"></div>
+    <div><label for="ltr-project">Project</label><input id="ltr-project" placeholder="Elm St Clinic"></div>
+    <div><label for="ltr-sub">Your company</label><input id="ltr-sub" placeholder="Spark Electric"></div>
+  </div>
+  <pre class="out" id="tm-letter"></pre>
+  <p><button type="button" id="tm-copy">Copy request</button></p>
+  <p class="note">The request lists only figures computed above. It does not give notice of a claim, reserve rights or say what your contract entitles you to; if a change is disputed, read your subcontract's changes and claims clauses, and talk to a construction attorney before a deadline in them passes.</p>
+</section>
+
+<section class="card">
+  <h2>From ticket to pay application</h2>
+  <ol>
+    <li><strong>Get it signed on the day.</strong> A superintendent who signs tickets every afternoon remembers the work. One handed a stack at month end does not, and the stack gets cut.</li>
+    <li><strong>Price it at the subcontract's rates.</strong> Labor at your labor rates (burdened, if the subcontract allows), material at invoice cost, equipment at the agreed rates, then the markup the subcontract allows on each. If the work was directed as "T&amp;M not to exceed", say on each ticket how much of the cap is used.</li>
+    <li><strong>Send a change order request.</strong> Group the signed tickets for one change and ask for a change order number. The log above flags any signed ticket that has waited longer than your chase window.</li>
+    <li><strong>Bill it when the change order is executed.</strong> An executed change order becomes a new line on the schedule of values (<a href="change-orders-schedule-of-values.html">how change orders enter the SOV</a>). Billing a ticket before then is a common reason pay apps get sent back (<a href="pay-application-checker.html">pay application checker</a>).</li>
+    <li><strong>Keep the notice clock in view.</strong> Subcontracts usually set a deadline for written notice of extra work or a claim. A signed ticket may or may not count as that notice; your subcontract decides, not this page.</li>
+  </ol>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>T&amp;M tickets that turn into billed change orders</h2>
+  <p>We are building hosted pay-app billing for specialty subcontractors that keeps each job's change orders, pay applications, retainage and lien waivers together, so a signed extra reaches the next pay app instead of a drawer. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+</section>
+</main>
+<!-- all-guides: generated by nav.mjs, do not edit by hand -->
+<nav class="all-guides" aria-label="All pay app tools and guides">
+    <div>
+      <h2>Tools</h2>
+      <ul>
+      <li><a href="./">Schedule of values calculator</a></li>
+      <li><a href="pay-application-checker.html">Pay app checker (this month vs last)</a></li>
+      <li><a href="change-order-log.html">Change order log</a></li>
+      <li><a href="tm-tickets.html" aria-current="page">T&amp;M ticket log and CO request</a></li>
+      <li><a href="schedule-of-values-template.html">Free Excel SOV template</a></li>
+      <li><a href="front-loading-schedule-of-values.html">Front-loading check (balanced SOV)</a></li>
+      <li><a href="pay-if-paid-clauses.html">Pay-if-paid clause reader</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Billing guides</h2>
+      <ul>
+      <li><a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a></li>
+      <li><a href="change-orders-schedule-of-values.html">Change orders and the SOV</a></li>
+      <li><a href="stored-materials-billing.html">Billing stored materials</a></li>
+      <li><a href="overbilling-underbilling.html">Overbilling and underbilling</a></li>
+      <li><a href="retainage-explained.html">Retainage explained, with state caps</a></li>
+      <li><a href="retainage-release.html">Getting retainage released</a></li>
+      <li><a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a></li>
+      <li><a href="retainage-tracker.html">Retainage tracker (every job)</a></li>
+      <li><a href="pay-application-software-compared.html">Pay app software compared</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Getting paid and lien waivers</h2>
+      <ul>
+      <li><a href="prompt-payment-laws.html">Prompt payment laws by state</a></li>
+      <li><a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional lien waivers</a></li>
+      <li><a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a></li>
+      <li><a href="lien-waiver-log.html">Lien waiver log (given and collected)</a></li>
+      <li><a href="sworn-statement.html">Contractor's sworn statement builder</a></li>
+      <li><a href="paid-short.html">Paid short? Reconcile the check</a></li>
+      <li><a href="joint-checks.html">Joint check splitter and split letter</a></li>
+      <li><a href="miller-act-payment-bond-claims.html">Miller Act bond claim deadlines (federal jobs)</a></li>
+      <li><a href="pay-app-cash-forecast.html">When will I get paid? Cash forecast</a></li>
+      </ul>
+    </div>
+</nav>
+<!-- /all-guides -->
+<footer>
+  <p><strong>No warranty.</strong> This guide and log are provided free and as-is, without warranty of any kind, express or implied. They are not legal, tax, accounting, or financial advice, and they do not replace your contract, your accountant, or an attorney. You are responsible for verifying anything you rely on or send. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+  <p><strong>Privacy.</strong> No accounts, cookies or analytics vendors. What you type stays in this tab. Anonymous counters (<code>guide_tm_tickets_viewed</code>, <code>tm_tickets_priced</code>, <code>tm_csv_downloaded</code>, <code>tm_request_copied</code>) are kept in local storage on your device only, and Do Not Track switches them off. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+</footer>
+<script type="module">
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  import { compute, corRows, ticketsCsv, requestLetter, sampleTickets, SAMPLE_SETTINGS, TYPES, TYPE_LABEL } from "./tmlog.mjs";
+  import { dollars, dayText } from "./colog.mjs";
+  record("guide_tm_tickets_viewed");
+  const b = document.getElementById("optout");
+  b.addEventListener("click", () => { setUsageOptOut(true); b.textContent = "Usage counting is off"; b.disabled = true; });
+  if (usageOptedOut()) { b.textContent = "Usage counting is off"; b.disabled = true; }
+
+  const $ = (id) => document.getElementById(id);
+  const li = (text, cls) => { const e = document.createElement("li"); e.textContent = text; if (cls) e.className = cls; return e; };
+  const settings = () => ({ markup: Object.fromEntries(TYPES.map((k) => [k, $(`mk-${k}`).value])), bond: $("tm-bond").value, asOf: $("tm-asof").value, chaseDays: $("tm-chase").value });
+  const STATUS = { "on-co": "on a change order", signed: "signed, no change order", unsigned: "NOT SIGNED" };
+  let last = null, counted = false;
+  function render() {
+    const r = compute($("tm-text").value, settings());
+    last = r.errors.length ? null : r;
+    $("tm-errors").textContent = r.errors.join(" ");
+    if (!last) { for (const id of ["tm-tickets", "tm-findings"]) $(id).replaceChildren(); $("tm-summary").textContent = ""; $("tm-letter").textContent = ""; return; }
+    const t = r.totals;
+    $("tm-summary").textContent = `${r.tickets.length} ticket${r.tickets.length === 1 ? "" : "s"}, ${dollars(t.total)} priced (${dollars(t.cost)} cost, ${dollars(t.markup)} markup${t.bond ? `, ${dollars(t.bond)} bond and insurance` : ""}). Not yet on a change order: ${dollars(t.open)}, of which ${dollars(t.unsigned)} is unsigned and ${dollars(t.stale)} is signed but past your chase window. On change orders: ${dollars(t.onCo)}.`;
+    $("tm-tickets").replaceChildren(...r.tickets.map((k) => li(`Ticket ${k.number}${k.date != null ? ` (${dayText(k.date)})` : ""}: ${dollars(k.total)}; ${TYPES.filter((x) => k.cost[x]).map((x) => `${TYPE_LABEL[x].toLowerCase()} ${dollars(k.cost[x])}`).join(", ")}; ${STATUS[k.status]}${k.co ? ` ${k.co}` : ""}${k.signedBy ? `, signed by ${k.signedBy}` : ""}`, k.status === "unsigned" ? "flag" : "")));
+    $("tm-findings").replaceChildren(...(r.findings.length ? r.findings.map((f) => li(f.text, f.severity === "high" ? "flag" : "")) : [li("Nothing to chase: every ticket is signed and on a change order or inside your chase window.")]));
+    $("tm-letter").textContent = requestLetter(r, { gc: $("ltr-gc").value, project: $("ltr-project").value, sub: $("ltr-sub").value, date: new Date().toISOString().slice(0, 10) }) || "No signed tickets waiting for a change order.";
+  }
+  const download = (name, text) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); };
+  $("tm-csv").addEventListener("click", () => { if (last) { download("tm-tickets.csv", ticketsCsv(last)); record("tm_csv_downloaded"); } });
+  $("tm-cor").addEventListener("click", () => { if (last) { download("tm-change-order-requests.csv", corRows(last)); record("tm_csv_downloaded"); } });
+  $("tm-copy").addEventListener("click", async () => { try { await navigator.clipboard.writeText($("tm-letter").textContent); $("tm-copy").textContent = "Copied"; record("tm_request_copied"); } catch { $("tm-copy").textContent = "Select the request and copy it"; } });
+  $("tm-sample").addEventListener("click", () => {
+    $("tm-text").value = sampleTickets();
+    for (const k of TYPES) $(`mk-${k}`).value = SAMPLE_SETTINGS.markup[k];
+    $("tm-bond").value = SAMPLE_SETTINGS.bond; $("tm-asof").value = SAMPLE_SETTINGS.asOf; $("tm-chase").value = SAMPLE_SETTINGS.chaseDays;
+    render();
+  });
+  $("tm-file").addEventListener("change", async (e) => { const f = e.target.files?.[0]; if (f) { $("tm-text").value = await f.text(); render(); } });
+  for (const id of ["tm-text", "tm-bond", "tm-asof", "tm-chase", "ltr-gc", "ltr-project", "ltr-sub", ...TYPES.map((k) => `mk-${k}`)]) $(id).addEventListener("input", () => { render(); if (!counted && last) { counted = true; record("tm_tickets_priced"); } });
+  $("tm-asof").value = new Date().toISOString().slice(0, 10);
+  $("tm-sample").click();
+</script>
+</body>
+</html>
