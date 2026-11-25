@@ -1,9 +1,9 @@
 ---
 title: "Quality fix: the cheapest CI provider at high volume was the wrong one"
-seo_title: "GitHub Actions vs CircleCI vs GitLab vs Bitbucket vs Buildkite: cost per build minute (2026)"
+seo_title: "CI cost per build minute in 2026: GitHub, CircleCI, GitLab, Buildkite"
 date: 2026-11-25
 tags: [quality-audit, ci-minutes-pricing-calculator, ci-costs]
-description: "Two of five CI rate cards in the calculator were out of date. At the 2026 list prices GitHub Actions, not CircleCI, is cheapest above about 14,750 Linux minutes a month."
+description: "Two CI rate cards were stale. At 2026 list prices GitHub Actions, not CircleCI, is cheapest above about 14,750 Linux minutes a month."
 ---
 
 The [CI minutes pricing calculator](https://marisstella.app/ci-minutes-pricing-calculator/)
