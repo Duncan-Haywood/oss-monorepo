@@ -1,3 +1,7 @@
+---
+kind: milestone
+date: 2026-11-25
+---
 # PayApps: Procore subcontractor SOV template (2026-11-25)
 
 Private PR: Duncan-Haywood/private-monorepo#194 (ROADMAP Next item 4, part 1; claim
@@ -20,3 +24,6 @@ Private PR: Duncan-Haywood/private-monorepo#194 (ROADMAP Next item 4, part 1; cl
   invoice; search Procore's support site before building.
 - Private CI's jobs failed in ~3 s (no runner); verified locally: payapps typecheck, 534 unit tests,
   build; payapps-site unit tests and tsc.
+- Reaching Procore's docs: an earlier run today (jobshop inbound sender checks) found
+  support.procore.com unreachable from the shell. The WebFetch tool read
+  v2.support.procore.com fine this run; use it rather than curl.

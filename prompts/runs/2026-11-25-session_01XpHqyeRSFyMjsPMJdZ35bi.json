@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyeRSFyMjsPMJdZ35bi",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md (scheduled)",
+  "input_sha256": "20453bb101005f0b2b7a2bbd00593c1743d9646a6ac22be06239cc431a0993d8",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T23:39:11Z",
+  "ended": "2026-11-25T23:46:07Z",
+  "wall_minutes": 7.08,
+  "tokens_in": 5659028,
+  "tokens_out": 30172,
+  "cost_usd": 2.5395,
+  "tool_calls": 62,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19134",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "first fetch+reset --hard was refused by the auto-mode classifier; used merge --ff-only instead",
+    "component test stubbed the whole URL global and broke happy-dom's anchor click; switched to vi.spyOn",
+    "typecheck caught an HTMLElement->HTMLSelectElement cast in the new test; used toHaveValue"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo + one clone of private-monorepo worked first time as described (under a minute)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "private-monorepo PRs opened as draft (harness default) must be marked ready before merge_pull_request, which returns 405 on a draft; the land-your-work steps could say so."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-25-procore-subcontractor-sov-csv-template.md",
+    "docs/reports/ventures-2026-11-25-payapps-procore-ssov.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty. Routed ventures/2. Bet #1 payapps, ROADMAP Next item 4 part 1: fill a GC's Procore Subcontractor SOV CSV template (private PR 194, merged 295a7f3). Private CI starved (ci_starvation.py: no runner); local: payapps typecheck clean, test:unit 58 files/534 tests pass, build ok; payapps-site unit 21 pass, tsc clean; biome clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cd7279a8-62f4-5602-8aee-7675b74e29aa",
+    "transcripts": 1,
+    "first": "2026-11-25T23:39:11Z",
+    "last": "2026-11-25T23:46:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 111,
+        "output": 30172,
+        "thinking": 4258,
+        "cache_read": 5555859,
+        "cache_write_5m": 0,
+        "cache_write_1h": 103058,
+        "api_equivalent_usd": 2.5395,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 111,
+      "output": 30172,
+      "thinking": 4258,
+      "cache_read": 5555859,
+      "cache_write_5m": 0,
+      "cache_write_1h": 103058,
+      "api_equivalent_usd": 2.5395,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 46,
+      "Write": 4,
+      "ToolSearch": 3,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "WebSearch": 1,
+      "WebFetch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.08,
+      "active_minutes": 7.08,
+      "model_minutes": 4.58,
+      "tool_minutes": 2.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "spec research, module, UI, tests, docs for one export format",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 236.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

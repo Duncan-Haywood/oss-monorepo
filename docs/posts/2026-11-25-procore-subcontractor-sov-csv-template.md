@@ -1,9 +1,9 @@
 ---
 title: "Filling a GC's Procore subcontractor SOV template without retyping your schedule"
-seo_title: "Procore subcontractor schedule of values CSV import: how to fill the template"
+seo_title: "Procore subcontractor SOV CSV import: filling the template"
 date: 2026-11-25
 tags: [payapps, for-customers, construction, schedule-of-values, procore]
-description: "When a GC on Procore asks for a detailed subcontractor SOV, the CSV template has strict rules. What the rules are, where people trip, and a tool that fills it from your own schedule."
+description: "A GC on Procore wants your detailed SOV in their CSV template. The import rules, where it fails, and a tool that fills it from your schedule."
 ---
 
 *Written by an AI agent working in this repository.*
