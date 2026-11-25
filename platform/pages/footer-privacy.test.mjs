@@ -1,46 +1,44 @@
-// The shared footer's page-view counter disclosure. Until 2026-11-14 it was
-// one 110-word sentence with semicolons inside parentheses, most of the
-// Privacy section's height on a phone; it is now one short sentence and a
-// two-item list (what is counted, what is never stored), with every fact
-// kept. polish-2026-11-14-counter-list.md.
+// The shared footer's Privacy section. Until 2026-11-25 it promised that
+// nothing was collected ("no tracking cookie, no analytics vendor, and no
+// server that could receive it") and carried the counter's details inline.
+// The owner, 2026-11-25: "the privacy policies that are like no data gathered
+// kill those let's set up real analytics and standard privacy policies and
+// other legal docs." It is now a short summary pointing at the Privacy
+// Policy, Terms of Use and Cookie Policy (legal-pages.mjs).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { disclaimerHtml } from './build.mjs';
+import { legalDocuments, legalFooterHtml } from './legal-pages.mjs';
 
-const words = (html) => html.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
 const text = (html) => html.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ');
 
-test('with the counter on, the footer lists what is counted and what is never stored', () => {
+test('the footer links the three legal pages and no longer promises nothing is collected', () => {
   const html = disclaimerHtml('./', [], { counter: true });
-  const [, list] = html.match(/<ul class="pfs-counted">([\s\S]*?)<\/ul>/) ?? [];
-  assert.ok(list, 'no counted/never-stored list');
-  const items = [...list.matchAll(/<li>([\s\S]*?)<\/li>/g)].map((m) => text(m[1]));
-  assert.equal(items.length, 2);
-  for (const fact of ['which page', 'which day', 'channel', 'never its address', 'two-letter code', 'phone, tablet or desktop']) {
-    assert.ok(items[0].includes(fact), `counted item lost "${fact}"`);
-  }
-  for (const fact of ['anything you type', 'cookie', 'IP address', 'any web server']) {
-    assert.ok(items[1].includes(fact), `never-stored item lost "${fact}"`);
-  }
-  for (const item of items) assert.ok(words(item) <= 50, `list item is ${words(item)} words: ${item}`);
-  const all = text(html);
-  assert.match(all, /daily per-page total on our own open-source counter/);
-  assert.match(all, /totals are published in the repository/);
-  // Since 2026-11-24 the anonymous total includes DNT/GPC browsers; the copy
-  // must say so rather than keep the old "not counted at all" promise.
-  assert.doesNotMatch(all, /not counted at all/);
-  assert.match(all, /includes browsers sending Do Not Track or Global Privacy Control/);
-  assert.match(all, /opt-out at the foot of the tool list stops it/);
-  // No paragraph in the Privacy section runs past ~60 words again.
-  const privacy = html.slice(html.indexOf('<h2>Privacy</h2>'));
-  for (const [, p] of privacy.matchAll(/<p>([\s\S]*?)<\/p>/g)) {
-    assert.ok(words(p) < 70, `a Privacy paragraph is ${words(p)} words: ${text(p).slice(0, 80)}…`);
-  }
+  for (const href of ['./privacy/', './terms/', './cookies/']) assert.ok(html.includes(`href="${href}"`), href);
+  assert.doesNotMatch(text(html), /no analytics vendor|no server that could receive it|nothing is collected/i);
+  assert.match(text(html), /aggregate daily page counts/);
+  assert.match(html, /<h2>No warranty<\/h2>/);
 });
 
-test('with the counter off, the footer has no counter list but keeps the Do Not Track line', () => {
-  const html = disclaimerHtml('./', [], { counter: false });
-  assert.doesNotMatch(html, /pfs-counted|per-page total/);
-  assert.match(text(html), /Do Not Track or Global Privacy Control are not counted at all/);
-  assert.equal((html.match(/<p>/g) ?? []).length, (html.match(/<\/p>/g) ?? []).length, 'unbalanced <p>');
+test('the footer names Cloudflare Web Analytics only when it is on', () => {
+  assert.match(text(legalFooterHtml('../', { analytics: true, counter: true })), /cookieless Cloudflare Web Analytics and aggregate daily page counts/);
+  assert.doesNotMatch(text(legalFooterHtml('../', { analytics: false, counter: true })), /Cloudflare Web Analytics/);
+  assert.match(text(legalFooterHtml('../', {})), /what our host, Cloudflare, sees/);
+});
+
+test('the Privacy Policy follows the switches it is given', () => {
+  const on = legalDocuments({ analytics: true, counter: true, feedback: true, exceptions: [{ title: 'DNS check', slug: 'dns', hosts: ['dns.google'] }] });
+  const off = legalDocuments({});
+  const p = text(on.privacy.body);
+  for (const must of ['Mary Stella Labs, LLC', 'hello@marisstella.app', 'Cloudflare Web Analytics', 'legitimate interest',
+    'Data Privacy Framework', 'complain to your local data-protection authority', 'do not sell or share', 'dns.google',
+    'feedback form', 'children under 16', '90 days']) {
+    assert.ok(p.includes(must), `privacy policy lacks "${must}"`);
+  }
+  const q = text(off.privacy.body);
+  assert.doesNotMatch(q, /Cloudflare Web Analytics\)|loads Cloudflare's analytics script/);
+  assert.doesNotMatch(q, /our open-source counter|feedback form/);
+  assert.match(text(on.cookies.body), /cookieless: it stores nothing on your device/);
+  assert.doesNotMatch(text(off.cookies.body), /Cloudflare Web Analytics/);
+  assert.match(text(on.terms.body), /governed by the laws of the State of New Mexico/);
 });
